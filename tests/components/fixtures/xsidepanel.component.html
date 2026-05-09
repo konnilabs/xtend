@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>x-side-panel fixture</title>
+    <script type="module" src="/components/xsurfacemanager-controller.js"></script>
+    <script type="module" src="/components/xsurfacemanager.js"></script>
+    <script type="module" src="/components/xsidepanel.js"></script>
+    <script>
+      window.__xtendComponentResult = { commands: [] };
+      window.addEventListener('surface-panel-command', (event) => {
+        window.__xtendComponentResult.commands.push(event.detail.command);
+      });
+    </script>
+  </head>
+  <body>
+    <x-surface-manager id="panel-fixture-manager" manager-id="workbench.manager">
+      <x-side-panel
+        slot="panels"
+        id="panel-fixture"
+        surface-id="workbench.properties"
+        label="Properties"
+        open
+        resizable
+        pinned
+        placement="right"
+        mode="pinned"
+        initial-width="320"
+        initial-height="720">
+        <article>Panel content</article>
+      </x-side-panel>
+    </x-surface-manager>
+  </body>
+</html>

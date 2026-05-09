@@ -1,0 +1,369 @@
+const fs = require('fs');
+const path = require('path');
+const {
+  createSuiteContext,
+  printSuiteReport
+} = require('../utils/assertions');
+const {
+  readJson,
+  readText,
+  resolveRepoPath,
+  resolveRootDir
+} = require('../utils/files');
+const {
+  syntaxCheckFile
+} = require('../utils/process');
+const {
+  KERNEL_BOUNDARY,
+  NEXT_DECISION,
+  NEXT_WORKPACKAGE,
+  REQUIRED_ARTIFACTS,
+  REQUIRED_DIAGNOSTIC_CODES,
+  REQUIRED_DOCS,
+  REQUIRED_LANES,
+  REQUIRED_METHODS,
+  REQUIRED_STATE_KEYS,
+  REQUIRED_SURFACE_TYPES,
+  SOURCE_ARTIFACTS,
+  SURFACE_CONTROLLER_CONTRACT,
+  SURFACE_CONTROLLER_DIAGNOSTIC_SCHEMA,
+  SURFACE_CONTROLLER_DOCS,
+  SURFACE_CONTROLLER_LOCAL_GATE,
+  SURFACE_CONTROLLER_MODULE,
+  SURFACE_CONTROLLER_PACKAGE_SCRIPT,
+  SURFACE_CONTROLLER_PLAN,
+  SURFACE_CONTROLLER_REPORT_SCHEMA,
+  SURFACE_CONTROLLER_RUNTIME,
+  SURFACE_CONTROLLER_SCHEMA,
+  SURFACE_CONTROLLER_SNAPSHOT_SCHEMA,
+  SURFACE_CONTROLLER_STATUS,
+  SURFACE_CONTROLLER_SUITE,
+  SURFACE_CONTROLLER_TARGET,
+  SURFACE_CONTROLLER_TYPES,
+  SURFACE_CONTROLLER_WORKPACKAGE,
+  SURFACE_CONTROLLER_WORKPACKAGE_DOC,
+  SURFACE_OPERATION_RESULT_SCHEMA,
+  SURFACE_RECORD_SCHEMA,
+  createSurfaceControllerPlan,
+  createSurfaceControllerReport,
+  validateSurfaceControllerPlan
+} = require('../../catalog/surface-manager-controller');
+
+function assertFileExists(context, relativePath, rootDir, message) {
+  context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
+}
+
+function assertIncludesAll(context, values, expected, label) {
+  expected.forEach((entry) => {
+    context.assert(Array.isArray(values) && values.includes(entry), `${label} includes ${entry}`);
+  });
+}
+
+function assertTextIncludesAll(context, text, expected, label) {
+  expected.forEach((entry) => {
+    context.assertIncludes(text, entry, `${label} includes ${entry}`);
+  });
+}
+
+function collectSurfaceFixtureRecords(fixture) {
+  return (fixture.components || []).filter((component) => component.metadata && component.metadata.surface);
+}
+
+function createStateProbe() {
+  const data = {};
+  return {
+    data,
+    set(key, value) {
+      data[key] = value;
+    },
+    get(key) {
+      return data[key];
+    }
+  };
+}
+
+function exerciseRuntime(context, rootDir) {
+  const runtime = require(resolveRepoPath(SURFACE_CONTROLLER_RUNTIME, rootDir));
+  const fixture = readJson('tests/fixtures/rmt-surface-manager-workbench.rmt', rootDir);
+  const state = createStateProbe();
+  const fabricEvents = [];
+  const controller = runtime.createSurfaceController({
+    managerId: 'workbench.manager',
+    stateKey: 'xtend.surface.registry',
+    xstate: state,
+    fabric: {
+      emitDiagnostic(event) {
+        fabricEvents.push(event);
+      }
+    },
+    now: () => '2026-05-09T00:00:00.000Z',
+    baseZIndex: 100,
+    maxDiagnostics: 40
+  });
+  const records = collectSurfaceFixtureRecords(fixture);
+
+  context.assert(runtime.SURFACE_CONTROLLER_SCHEMA === SURFACE_CONTROLLER_SCHEMA, 'Runtime exposes Surface Controller schema');
+  context.assert(runtime.SURFACE_RECORD_SCHEMA === SURFACE_RECORD_SCHEMA, 'Runtime exposes Surface Record schema');
+  context.assert(runtime.SURFACE_SNAPSHOT_SCHEMA === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA, 'Runtime exposes Surface Snapshot schema');
+  context.assert(runtime.SURFACE_DIAGNOSTIC_SCHEMA === SURFACE_CONTROLLER_DIAGNOSTIC_SCHEMA, 'Runtime exposes Surface Diagnostic schema');
+  context.assert(runtime.SURFACE_OPERATION_RESULT_SCHEMA === SURFACE_OPERATION_RESULT_SCHEMA, 'Runtime exposes operation result schema');
+  context.assert(controller.schema === SURFACE_CONTROLLER_SCHEMA, 'Controller instance carries stable schema');
+  context.assert(controller.managerId === 'workbench.manager', 'Controller owns expected manager id');
+  REQUIRED_METHODS.forEach((method) => {
+    context.assert(typeof controller[method] === 'function', `Controller method exists: ${method}`);
+  });
+  REQUIRED_STATE_KEYS.forEach((key) => {
+    context.assert(Object.values(runtime.STATE_KEYS).includes(key), `Runtime state key exists: ${key}`);
+  });
+  REQUIRED_SURFACE_TYPES.forEach((type) => {
+    context.assert(runtime.SURFACE_TYPES.includes(type), `Runtime surface type exists: ${type}`);
+  });
+  REQUIRED_DIAGNOSTIC_CODES.forEach((code) => {
+    context.assert(runtime.DIAGNOSTIC_CODES.includes(code), `Runtime diagnostic code exists: ${code}`);
+  });
+
+  context.assert(records.length === 3, 'Surface fixture exposes two windows and one side-panel for controller runtime');
+  records.forEach((record) => {
+    const registration = controller.registerSurface(record);
+    context.assert(registration.ok === true, `${record.id}: registerSurface succeeds`);
+  });
+
+  const inspectorOpen = controller.openSurface('workbench.inspector');
+  const editorOpen = controller.openSurface('workbench.editor');
+  const inspectorFocus = controller.focusSurface('workbench.inspector');
+  const inspectorMove = controller.moveSurface('workbench.inspector', { x: 128, y: 96 });
+  const inspectorResize = controller.resizeSurface('workbench.inspector', { width: 700, height: 460 });
+  const inspectorMaximize = controller.maximizeSurface('workbench.inspector');
+  const inspectorRestore = controller.restoreSurface('workbench.inspector');
+  const propertiesOpen = controller.openSurface('workbench.properties');
+  const propertiesResize = controller.resizeSurface('workbench.properties', { width: 360 });
+  const editorMinimize = controller.minimizeSurface('workbench.editor');
+  const inspectorClose = controller.closeSurface('workbench.inspector', 'test-close');
+  const missing = controller.openSurface('workbench.missing');
+  const snapshot = controller.snapshot();
+
+  [
+    inspectorOpen,
+    editorOpen,
+    inspectorFocus,
+    inspectorMove,
+    inspectorResize,
+    inspectorMaximize,
+    inspectorRestore,
+    propertiesOpen,
+    propertiesResize,
+    editorMinimize,
+    inspectorClose
+  ].forEach((result) => {
+    context.assert(result.ok === true, `${result.operation}: operation succeeds`);
+    context.assert(result.schema === SURFACE_OPERATION_RESULT_SCHEMA, `${result.operation}: operation result schema is stable`);
+    context.assert(result.diagnostic && result.diagnostic.schema === SURFACE_CONTROLLER_DIAGNOSTIC_SCHEMA, `${result.operation}: emits Surface diagnostic`);
+  });
+
+  context.assert(missing.ok === false && missing.code === 'xtend.surface.not-found', 'Missing surface emits deterministic not-found result');
+  context.assert(snapshot.schema === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA, 'Snapshot schema is stable');
+  context.assert(snapshot.surfaceCount === 3, 'Snapshot keeps all registered surfaces');
+  context.assert(snapshot.openSurfaceCount === 2, 'Snapshot counts open/minimized but not closed surfaces');
+  context.assert(snapshot.activeSurfaceId === 'workbench.properties', 'Controller mirrors active side-panel after opening properties');
+  context.assert(snapshot.stack.includes('workbench.properties'), 'Snapshot stack includes open side-panel');
+  context.assert(snapshot.stack.includes('workbench.editor'), 'Snapshot stack keeps minimized window as managed surface');
+  context.assert(!snapshot.stack.includes('workbench.inspector'), 'Snapshot stack excludes closed inspector window');
+
+  const inspectorState = state.get('xtend.surface.workbench.inspector.state');
+  const inspectorBounds = state.get('xtend.surface.workbench.inspector.bounds');
+  const inspectorLifecycle = state.get('xtend.surface.workbench.inspector.lifecycle');
+  const active = state.get('xtend.surface.active');
+  const mirroredSnapshot = state.get('xtend.surface.snapshot');
+  const registry = state.get('xtend.surface.registry');
+  const diagnostics = state.get('xtend.surface.diagnostics');
+
+  context.assert(Array.isArray(registry) && registry.length === 3, 'xstate registry mirror contains three surface states');
+  context.assert(active === 'workbench.properties', 'xstate active mirror contains active surface id');
+  context.assert(inspectorState && inspectorState.status === 'closed', 'xstate surface state mirror closes inspector');
+  context.assert(inspectorState && !Object.prototype.hasOwnProperty.call(inspectorState, 'metadata'), 'xstate surface state mirror omits raw metadata payload');
+  context.assert(inspectorBounds && inspectorBounds.x === 128 && inspectorBounds.y === 96, 'xstate bounds mirror stores moved window position');
+  context.assert(inspectorBounds && inspectorBounds.width === 700 && inspectorBounds.height === 460, 'xstate bounds mirror restores resized window size after maximize/restore');
+  context.assert(inspectorLifecycle && inspectorLifecycle.phase === 'close', 'xstate lifecycle mirror stores last phase');
+  context.assert(mirroredSnapshot && mirroredSnapshot.schema === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA, 'xstate snapshot mirror stores full Surface snapshot');
+  context.assert(Array.isArray(diagnostics) && diagnostics.some((event) => event.code === 'xtend.surface.closed'), 'xstate diagnostics mirror stores lifecycle diagnostics');
+  context.assert(fabricEvents.some((event) => event.code === 'xtend.surface.opened'), 'Fabric diagnostic bridge receives open diagnostics');
+  context.assert(fabricEvents.every((event) => event.schema === SURFACE_CONTROLLER_DIAGNOSTIC_SCHEMA), 'Fabric diagnostic bridge receives Surface diagnostic schema only');
+  context.assert(snapshot.surfaces.every((surface) => !Object.prototype.hasOwnProperty.call(surface, 'metadata')), 'Snapshot omits raw metadata payloads');
+
+  const disposeResult = controller.dispose();
+  context.assert(disposeResult.ok === true, 'Controller dispose succeeds');
+  context.assert(state.get('xtend.surface.snapshot').surfaceCount === 0, 'Dispose mirrors empty snapshot');
+}
+
+function runSurfaceControllerSuite(options = {}) {
+  const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
+  const context = createSuiteContext({
+    id: 'surface-controller',
+    label: 'Surface Controller and state snapshot contract'
+  });
+  const plan = createSurfaceControllerPlan({ rootDir });
+  const validation = validateSurfaceControllerPlan(plan);
+  const report = createSurfaceControllerReport({ rootDir, plan });
+  const runtimeText = readText(SURFACE_CONTROLLER_RUNTIME, rootDir);
+  const typesText = readText(SURFACE_CONTROLLER_TYPES, rootDir);
+  const sourceTexts = SOURCE_ARTIFACTS.map((filePath) => readText(filePath, rootDir)).join('\n');
+  const packageManifest = readJson('package.json', rootDir);
+  const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerController;
+  const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
+  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const docsReadme = readText('docs/README.md', rootDir);
+  const docsMenu = readText('docs/menu.json', rootDir);
+  const referenceRegistry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
+  const planningDoc = readText(SURFACE_CONTROLLER_PLAN, rootDir);
+  const contractDoc = readText(SURFACE_CONTROLLER_CONTRACT, rootDir);
+  const workpackageDoc = readText(SURFACE_CONTROLLER_WORKPACKAGE_DOC, rootDir);
+  const docs = readText(SURFACE_CONTROLLER_DOCS, rootDir);
+  const moduleSyntax = syntaxCheckFile(SURFACE_CONTROLLER_MODULE, { rootDir, extension: '.js' });
+  const runtimeSyntax = syntaxCheckFile(SURFACE_CONTROLLER_RUNTIME, { rootDir, extension: '.js' });
+  const suiteSyntax = syntaxCheckFile(SURFACE_CONTROLLER_SUITE, { rootDir, extension: '.js' });
+
+  REQUIRED_ARTIFACTS.forEach((filePath) => {
+    assertFileExists(context, filePath, rootDir, `${filePath} exists as Surface Controller artifact`);
+  });
+  REQUIRED_DOCS.forEach((filePath) => {
+    assertFileExists(context, filePath, rootDir, `${filePath} exists as Surface Controller doc`);
+  });
+
+  context.assert(moduleSyntax.ok, `Surface Controller catalog syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
+  context.assert(runtimeSyntax.ok, `Surface Controller runtime syntax passes${runtimeSyntax.ok ? '' : ` (${runtimeSyntax.message})`}`);
+  context.assert(suiteSyntax.ok, `Surface Controller suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
+  context.assert(plan.schema === SURFACE_CONTROLLER_SCHEMA, 'Surface Controller schema is stable');
+  context.assert(plan.reportSchema === SURFACE_CONTROLLER_REPORT_SCHEMA, 'Surface Controller report schema is stable');
+  context.assert(plan.recordSchema === SURFACE_RECORD_SCHEMA, 'Surface Controller reuses Surface Record schema');
+  context.assert(plan.snapshotSchema === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA, 'Surface Controller snapshot schema is stable');
+  context.assert(plan.diagnosticSchema === SURFACE_CONTROLLER_DIAGNOSTIC_SCHEMA, 'Surface Controller diagnostic schema is stable');
+  context.assert(plan.workpackage === SURFACE_CONTROLLER_WORKPACKAGE, 'Surface Controller belongs to WP-SM-02');
+  context.assert(plan.status === SURFACE_CONTROLLER_STATUS, 'Surface Controller contract is accepted');
+  context.assert(plan.targetReadiness === SURFACE_CONTROLLER_TARGET, 'Surface Controller target readiness is accepted');
+  context.assert(plan.featureFlags.customElementsImplemented === false, 'WP-SM-02 does not claim custom elements');
+  context.assert(plan.featureFlags.visibleSurfaceChromeImplemented === false, 'WP-SM-02 does not claim visible Surface chrome');
+  context.assert(plan.featureFlags.runtimeHasDomDependency === false, 'WP-SM-02 runtime is DOM-free');
+  context.assert(plan.featureFlags.runtimeHasRmtKernelImport === false, 'WP-SM-02 runtime has no RMT kernel import');
+  context.assert(plan.featureFlags.runtimeHasFabricHardDependency === false, 'WP-SM-02 runtime has optional Fabric diagnostics only');
+  context.assert(plan.kernelBoundary === KERNEL_BOUNDARY, 'Surface Controller keeps RMT kernel boundary');
+  context.assert(plan.nextWorkpackage === NEXT_WORKPACKAGE, 'Surface Controller hands off to WP-SM-03');
+  context.assert(plan.nextDecision === NEXT_DECISION, 'Surface Controller exposes next decision');
+  context.assert(validation.ok === true, 'Surface Controller plan validates');
+  context.assert(report.ok === true, 'Surface Controller report validates');
+  context.assert(report.methodCount === REQUIRED_METHODS.length, 'Surface Controller report counts methods');
+  context.assert(report.stateKeyCount === REQUIRED_STATE_KEYS.length, 'Surface Controller report counts state keys');
+  context.assert(report.diagnosticCount === REQUIRED_DIAGNOSTIC_CODES.length, 'Surface Controller report counts diagnostics');
+  assertIncludesAll(context, plan.requiredMethods, REQUIRED_METHODS, 'Surface Controller methods');
+  assertIncludesAll(context, plan.stateKeys, REQUIRED_STATE_KEYS, 'Surface Controller state keys');
+  assertIncludesAll(context, plan.surfaceTypes, REQUIRED_SURFACE_TYPES, 'Surface Controller surface types');
+  assertIncludesAll(context, plan.diagnosticCodes, REQUIRED_DIAGNOSTIC_CODES, 'Surface Controller diagnostic codes');
+  assertIncludesAll(context, plan.lanes, REQUIRED_LANES, 'Surface Controller lanes');
+
+  assertTextIncludesAll(context, runtimeText, [
+    'createSurfaceController',
+    'normalizeSurfaceRecord',
+    'normalizeSurfaceBounds',
+    'XTendSurfaceController',
+    'xtend.surface.registry',
+    'xtend.surface.snapshot',
+    'xtend.surface.diagnostics',
+    'emitDiagnostic',
+    'runFiber',
+    'metadataKeys'
+  ], 'Runtime source');
+  assertTextIncludesAll(context, typesText, [
+    'interface XtendSurfaceController',
+    'interface XtendSurfaceSnapshot',
+    'interface XtendSurfaceDiagnostic',
+    'registerSurface',
+    'maximizeSurface',
+    'restoreSurface'
+  ], 'Runtime types');
+  assertTextIncludesAll(context, sourceTexts, [
+    'export interface XtendSurfaceController',
+    'export function createSurfaceController',
+    'export function normalizeSurfaceBounds',
+    'XTEND_SURFACE_STATE_KEYS',
+    'xtend.surface.<surfaceId>.lifecycle',
+    'xtend.surface.snapshot'
+  ], 'TypeScript source');
+  [
+    'document.',
+    'customElements',
+    'HTMLElement',
+    'attachShadow',
+    'querySelector',
+    'innerHTML'
+  ].forEach((forbidden) => {
+    context.assert(!runtimeText.includes(forbidden), `Runtime source omits DOM dependency: ${forbidden}`);
+  });
+
+  exerciseRuntime(context, rootDir);
+
+  context.assert(metadata && metadata.schema === SURFACE_CONTROLLER_SCHEMA, 'Package metadata exposes Surface Controller schema');
+  context.assert(metadata && metadata.workpackage === SURFACE_CONTROLLER_WORKPACKAGE, 'Package metadata exposes WP-SM-02');
+  context.assert(metadata && metadata.runtime === SURFACE_CONTROLLER_RUNTIME, 'Package metadata exposes runtime artifact');
+  context.assert(metadata && metadata.types === SURFACE_CONTROLLER_TYPES, 'Package metadata exposes type artifact');
+  context.assert(metadata && metadata.localGate === SURFACE_CONTROLLER_LOCAL_GATE, 'Package metadata exposes local gate');
+  context.assert(metadata && metadata.packageScript === SURFACE_CONTROLLER_PACKAGE_SCRIPT, 'Package metadata exposes package script');
+  context.assert(metadata && metadata.customElementsImplemented === false, 'Package metadata keeps custom elements in WP-SM-03');
+  context.assert(metadata && metadata.kernelBoundary === KERNEL_BOUNDARY, 'Package metadata exposes kernel boundary');
+  context.assertIncludes(scaffoldConfig, 'surfaceManagerController', 'Scaffold config exposes surfaceManagerController');
+  context.assertIncludes(scaffoldConfig, SURFACE_CONTROLLER_RUNTIME, 'Scaffold config references Surface Controller runtime');
+  context.assertIncludes(runner, "require('../tests/components/surface_controller_suite')", 'Runner imports Surface Controller suite');
+  context.assertIncludes(runner, "id: 'surface-controller'", 'Runner registers surface-controller suite');
+  context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-controller'] === 'node scripts/run_xtend_tests.js surface-controller', 'Package script test:surface-controller exists');
+  context.assertIncludes(docsReadme, 'SurfaceManager Controller', 'Docs README links SurfaceManager Controller');
+  context.assertIncludes(docsMenu, 'surface-manager-controller', 'Docs menu contains SurfaceManager Controller page');
+  context.assertIncludes(referenceRegistry, 'WP-SM-02', 'Reference registry contains WP-SM-02');
+  context.assertIncludes(referenceRegistry, SURFACE_CONTROLLER_RUNTIME, 'Reference registry contains Surface Controller runtime');
+  context.assertIncludes(planningDoc, '`WP-SM-02` | P0 | completed', 'Planning doc marks WP-SM-02 completed');
+  context.assertIncludes(planningDoc, '`WP-SM-03` | P0 | completed', 'Planning doc records WP-SM-03 completion');
+  assertTextIncludesAll(context, contractDoc, [
+    SURFACE_CONTROLLER_SCHEMA,
+    SURFACE_CONTROLLER_SNAPSHOT_SCHEMA,
+    'xstate Mirror',
+    'Fabric Diagnostics',
+    'controller-only-no-custom-element'
+  ], 'Surface Controller contract doc');
+  assertTextIncludesAll(context, workpackageDoc, [
+    SURFACE_CONTROLLER_WORKPACKAGE,
+    SURFACE_CONTROLLER_LOCAL_GATE,
+    SURFACE_CONTROLLER_RUNTIME,
+    'Done Criteria'
+  ], 'Surface Controller workpackage doc');
+  assertTextIncludesAll(context, docs, [
+    SURFACE_CONTROLLER_SCHEMA,
+    SURFACE_CONTROLLER_RUNTIME,
+    'registerSurface',
+    'xtend.surface.snapshot',
+    'WP-SM-03'
+  ], 'Surface Controller public docs');
+
+  return context.result({
+    schema: SURFACE_CONTROLLER_REPORT_SCHEMA,
+    workpackage: SURFACE_CONTROLLER_WORKPACKAGE,
+    targetReadiness: SURFACE_CONTROLLER_TARGET,
+    methods: REQUIRED_METHODS.length,
+    stateKeys: REQUIRED_STATE_KEYS.length,
+    diagnostics: REQUIRED_DIAGNOSTIC_CODES.length
+  });
+}
+
+function printSurfaceControllerReport(result) {
+  printSuiteReport(result, {
+    successTitle: 'Surface Controller und State Snapshot Contract erfolgreich.',
+    failureTitle: 'Surface Controller und State Snapshot Contract fehlgeschlagen:'
+  });
+}
+
+module.exports = {
+  printSurfaceControllerReport,
+  runSurfaceControllerSuite
+};
+
+if (require.main === module) {
+  const result = runSurfaceControllerSuite();
+  printSurfaceControllerReport(result);
+  process.exit(result.ok ? 0 : 1);
+}

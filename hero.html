@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hero Demo</title>
+  <script type="module" src="xtend-loader.js"></script>
+<link rel="stylesheet" href="xtend.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="icons/favicon.ico">
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+  </style>
+</head>
+<body>
+<x-header src="icons/xtend-scaffold.webp" logo-size="48">
+  <span slot="title">XTend</span>
+  <a slot="nav" href="index.html">Home</a>
+  <a slot="nav" href="#about">Demos</a>
+</x-header>
+ <x-hero 
+  fullheight 
+  background="#123456" 
+  background-image="background.webp" 
+  align="center" 
+  overlay 
+  animate
+>
+  <h1>XTend makes Front-end <x-type texts='["fun.", "fast.", "future-proof."]' speed=70" pause="7000" blinking-cursor loop></x-type></h1>
+  <p>Build awesome and fast web interfaces in minutes without heavy backends.</p>
+</x-hero>
+<main>
+<section id="content">
+	<x-tabs>
+    <x-tab name="What is XTend?">
+    <p>XTend is a fast and super easy to use web design framework. It can help you build elegant, barrier-free and user friendly websites in minutes, without relying on slow, heavy and potentially hard to secure backends, keeping your site simple and safe by reducing the number of "moving parts" where they are not required.</p>
+    </x-tab>
+    <x-tab name="How does it work?">
+    <p>XTend works with JavaScript, CSS3 and HTML5 to provide you with additional Tags for designing your website. These tags make prebuilt elements that you can visually adjust to your liking, with the bulk of the implementation work done by the framework. This saves you a lot of time and lets you spin up your web project a lot quicker than if you were to do everything yourself.</p>
+    </x-tab>
+    <x-tab name="Why use XTend if there is WordPress?">
+	<p>A fair question- why bother with code at all when you can spin up a website with a CMS like WordPress in minutes?</p>
+
+  <p>Here’s why: WordPress and similar CMS platforms are powerful, but they come with significant overhead. They rely on complex server-side logic, databases, and bloated theming systems. For small, static websites that don’t need dynamic content- such as marketing pages, documentation sites, or portfolios- this is often overkill. The result? Slower performance, more complexity, and increased maintenance demands.</p>
+
+  <p>Worse still, their popularity makes them prime targets for automated attacks. WordPress sites are frequently bombarded by spam bots and brute-force login attempts. A single lapse in updates can lead to compromised admin panels, turning once-legitimate websites into nodes in sprawling botnets that spread malware and exploit users.</p>
+
+  <p>XTend offers a lightweight, secure, and fast alternative- ideal for static sites where speed, simplicity, and low maintenance are paramount. There’s no server-side logic to maintain, no databases to patch, and no attack surface for bots to exploit.</p>
+
+  <p>And flexibility isn’t sacrificed. XTend is open source and extensible. Use it as the foundation for your static site, integrate it into a dynamic web app, or even package it into a custom WordPress theme- you're in control.</p>
+
+  <p><strong>XTend: when you want speed and security without the bloat.</strong></p>
+	</x-tab>
+	</x-tabs>
+	</section>
+	</main>
+  <x-footer src="icons/xtend-scaffold.webp" logo-size="32">
+  <span slot="title">© 2025 – CCS Networks</span>
+  <a href="index.html" slot="nav">Home</a>
+  <a href="/datenschutz" slot="nav">Datenschutz</a>
+  <div slot="extra">Powered by XTend</div>
+</x-footer>
+<script>
+  window.addEventListener('load', () => {
+    document.body.style.visibility = 'visible';
+    document.body.style.opacity = '1';
+  });
+</script>
+
+</body>
+</html>

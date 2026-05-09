@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XTendRMT XRouter XTend Browser Smoke Fixture</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      visibility: visible;
+      opacity: 1;
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    main {
+      padding: 24px;
+    }
+
+    .surface {
+      display: grid;
+      gap: 16px;
+      margin: 0 0 18px;
+      padding: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.32);
+    }
+
+    x-router {
+      display: block;
+      min-height: 160px;
+    }
+  </style>
+</head>
+<body>
+  <main id="rmt-browser-smoke-root">
+    <section class="surface" aria-label="RMT routed surface">
+      <x-router id="rmt-smoke-router" mode="hash"></x-router>
+    </section>
+
+    <section id="xtend-host-root" class="surface" aria-label="XTend adapter mount surface"></section>
+    <section id="vanilla-host-root" class="surface" aria-label="Vanilla host adapter surface"></section>
+    <output id="scheduler-signal" aria-live="polite"></output>
+  </main>
+
+  <script src="/xtendrmt/rmt-runtime.browser.js"></script>
+  <script type="module">
+    import '/components/xstate.js';
+    import '/components/xrouter.js';
+    import '/components/xsection.js';
+    import '/components/xcards.js';
+
+    class VanillaPanel extends HTMLElement {
+      connectedCallback() {
+        this.dataset.ready = 'true';
+        if (!this.textContent.trim()) {
+          this.textContent = 'Vanilla host panel rendered from native RMT route.';
+        }
+      }
+    }
+
+    if (!customElements.get('vanilla-panel')) {
+      customElements.define('vanilla-panel', VanillaPanel);
+    }
+
+    const RMT_BROWSER_SMOKE_DOCUMENT = {
+      kind: 'rmt_document',
+      version: '1.0',
+      manifest: {
+        documentId: 'fixture.browser.rmt-xrouter-xtend',
+        namespace: 'fixture.browser',
+        metadata: {
+          contractVersion: 'xtend.rmt.wp16.browser-smoke-fixture.v1',
+          status: 'epic-05-wp-16-fixture'
+        }
+      },
+      adapters: [
+        {
+          id: 'xtend.component',
+          kind: 'component_adapter',
+          runtimeSurface: ['browser_classic'],
+          providedCapabilities: ['components', 'customElements', 'hydration', 'scheduleRefs'],
+          kernelVisible: false
+        },
+        {
+          id: 'xtend.xrouter',
+          kind: 'router_adapter',
+          runtimeSurface: ['browser_classic'],
+          providedCapabilities: ['routes', 'navigation', 'params', 'query', 'scheduleRefs'],
+          kernelVisible: false
+        },
+        {
+          id: 'rmt.state-scheduler-diagnostics',
+          kind: 'scheduler_adapter',
+          runtimeSurface: ['browser_classic'],
+          providedCapabilities: ['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults'],
+          kernelVisible: false
+        },
+        {
+          id: 'vanilla.component',
+          kind: 'component_adapter',
+          runtimeSurface: ['browser_classic'],
+          providedCapabilities: ['components', 'customElements', 'scheduleRefs'],
+          kernelVisible: false
+        }
+      ],
+      components: [
+        {
+          id: 'x-section',
+          kind: 'custom_element',
+          adapter: 'xtend.component',
+          tag: 'x-section',
+          schedule: 'component.visible.mount',
+          props: {
+            label: 'XTend Section'
+          },
+          attributes: {
+            layout: 'column',
+            'data-host': 'xtend'
+          },
+          slots: {
+            default: {
+              text: 'XTend component mounted by RMT adapter.'
+            }
+          }
+        },
+        {
+          id: 'x-card',
+          kind: 'custom_element',
+          adapter: 'xtend.component',
+          tag: 'x-card',
+          schedule: 'component.idle.hydrate',
+          props: {
+            label: 'XTend Card'
+          },
+          attributes: {
+            'data-host': 'xtend'
+          },
+          hydration: {
+            mode: 'runtime_render',
+            ownershipMode: 'managed_subtree'
+          }
+        },
+        {
+          id: 'vanilla-panel',
+          kind: 'custom_element',
+          adapter: 'vanilla.component',
+          tag: 'vanilla-panel',
+          schedule: 'vanilla.visible.mount',
+          props: {
+            label: 'Vanilla Host'
+          },
+          attributes: {
+            'data-host': 'vanilla'
+          }
+        }
+      ],
+      routes: [
+        {
+          id: 'home',
+          path: '/',
+          router: 'xtend.xrouter',
+          component: 'x-section',
+          template: 'home.shell',
+          schedule: 'route.visible.render'
+        },
+        {
+          id: 'settings',
+          path: '/settings',
+          router: 'xtend.xrouter',
+          component: 'x-card',
+          template: 'settings.shell',
+          schedule: 'route.visible.render',
+          query: {
+            tab: 'profile'
+          }
+        },
+        {
+          id: 'vanilla',
+          path: '/vanilla',
+          router: 'xtend.xrouter',
+          component: 'vanilla-panel',
+          template: 'vanilla.shell',
+          schedule: 'route.visible.render'
+        }
+      ],
+      schedules: [
+        {
+          id: 'route.visible.render',
+          endpointName: 'xtendrmt.route.render',
+          scope: 'fixture.browser.route',
+          lane: 'visible',
+          priority: 80,
+          deadlineMs: 120,
+          preferIdle: false,
+          coalesceKey: 'fixture.browser.route',
+          budgetClass: 'interactive'
+        },
+        {
+          id: 'component.visible.mount',
+          endpointName: 'xtendrmt.component.mount',
+          scope: 'fixture.browser.component.mount',
+          lane: 'visible',
+          priority: 70,
+          deadlineMs: 160,
+          preferIdle: false,
+          coalesceKey: 'fixture.browser.component.mount',
+          budgetClass: 'interactive'
+        },
+        {
+          id: 'component.idle.hydrate',
+          endpointName: 'xtendrmt.component.hydrate',
+          scope: 'fixture.browser.component.hydrate',
+          lane: 'idle',
+          priority: 40,
+          deadlineMs: 420,
+          preferIdle: true,
+          coalesceKey: 'fixture.browser.component.hydrate',
+          budgetClass: 'background'
+        },
+        {
+          id: 'vanilla.visible.mount',
+          endpointName: 'xtendrmt.vanilla.mount',
+          scope: 'fixture.browser.vanilla.mount',
+          lane: 'visible',
+          priority: 60,
+          deadlineMs: 160,
+          preferIdle: false,
+          coalesceKey: 'fixture.browser.vanilla.mount',
+          budgetClass: 'interactive'
+        }
+      ],
+      templates: [
+        {
+          id: 'home.shell',
+          mode: 'html_fragment',
+          markup: '<x-section></x-section>',
+          hydration: {
+            mode: 'runtime_render',
+            metadata: {
+              endpointHint: 'xtendrmt.component.mount'
+            }
+          }
+        },
+        {
+          id: 'settings.shell',
+          mode: 'html_fragment',
+          markup: '<x-card></x-card>',
+          hydration: {
+            mode: 'runtime_render',
+            metadata: {
+              endpointHint: 'xtendrmt.component.hydrate'
+            }
+          }
+        },
+        {
+          id: 'vanilla.shell',
+          mode: 'html_fragment',
+          markup: '<vanilla-panel></vanilla-panel>',
+          hydration: {
+            mode: 'runtime_render',
+            metadata: {
+              endpointHint: 'xtendrmt.vanilla.mount'
+            }
+          }
+        }
+      ]
+    };
+
+    window.__xtendRmtBrowserSmokeResult = {
+      status: 'pending',
+      checks: [],
+      errors: []
+    };
+
+    function recordCheck(name, ok, detail) {
+      window.__xtendRmtBrowserSmokeResult.checks.push({ name, ok, detail: detail || null });
+      if (!ok) {
+        window.__xtendRmtBrowserSmokeResult.errors.push(name);
+      }
+    }
+
+    function complete(status) {
+      window.__xtendRmtBrowserSmokeResult.status = status;
+      window.__xtendRmtBrowserSmokeResult.completedAt = new Date().toISOString();
+    }
+
+    function waitFor(predicate, timeoutMs) {
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        function tick() {
+          let result = false;
+          try {
+            result = Boolean(predicate());
+          } catch (error) {
+            reject(error);
+            return;
+          }
+
+          if (result) {
+            resolve();
+            return;
+          }
+
+          if (Date.now() - started > timeoutMs) {
+            reject(new Error('Timed out while waiting for RMT browser smoke predicate'));
+            return;
+          }
+
+          requestAnimationFrame(tick);
+        }
+
+        tick();
+      });
+    }
+
+    function createVanillaHostAdapter(registry) {
+      const entries = Array.isArray(registry.components)
+        ? registry.components.filter((entry) => entry.adapterId === 'vanilla.component')
+        : [];
+      const byId = new Map(entries.map((entry) => [entry.id, entry]));
+      return {
+        mapComponents() {
+          return {
+            adapterId: 'vanilla.component',
+            status: entries.length > 0 ? 'mapped' : 'empty',
+            components: entries
+          };
+        },
+        mountComponent(target, componentId, model = {}) {
+          const entry = byId.get(componentId);
+          if (!entry || !target) {
+            return {
+              ok: false,
+              status: 'skipped',
+              adapterId: 'vanilla.component',
+              operation: 'mountComponent',
+              phase: 'mount',
+              metadata: { componentId }
+            };
+          }
+          const tag = entry.tag || (entry.record && entry.record.tag) || 'div';
+          const element = document.createElement(tag);
+          element.setAttribute('data-rmt-component-id', entry.id);
+          element.setAttribute('data-rmt-schedule', entry.scheduleRef);
+          element.setAttribute('data-vanilla-host', 'true');
+          element.textContent = model.label || 'Vanilla host mounted by RMT adapter.';
+          target.appendChild(element);
+          return {
+            ok: true,
+            status: 'ok',
+            adapterId: 'vanilla.component',
+            operation: 'mountComponent',
+            phase: 'mount',
+            metadata: {
+              componentId: entry.id,
+              tag,
+              scheduleRef: entry.scheduleRef,
+              mounted: true
+            }
+          };
+        }
+      };
+    }
+
+    window.addEventListener('error', (event) => {
+      window.__xtendRmtBrowserSmokeResult.errors.push(event.message || 'window error');
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      const reason = event.reason && event.reason.message ? event.reason.message : String(event.reason);
+      window.__xtendRmtBrowserSmokeResult.errors.push(reason);
+    });
+
+    async function runRmtBrowserSmokeChecks() {
+      await Promise.all([
+        customElements.whenDefined('x-router'),
+        customElements.whenDefined('x-section'),
+        customElements.whenDefined('x-card'),
+        customElements.whenDefined('vanilla-panel')
+      ]);
+      await waitFor(() => (
+        window.AppModules &&
+        window.AppModules.createRmtFormat &&
+        window.AppModules.createRmtXRouterAdapter &&
+        window.AppModules.createRmtXtendComponentAdapter &&
+        window.AppModules.createRmtStateSchedulerDiagnosticsBridge &&
+        window.xtend &&
+        window.xtend.rmt &&
+        window.xstate
+      ), 5000);
+
+      const appModules = window.AppModules;
+      const format = appModules.createRmtFormat();
+      const normalizedDocument = format.normalizeDocument(RMT_BROWSER_SMOKE_DOCUMENT);
+      const registry = format.createRuntimeRegistries(normalizedDocument, {
+        requiredRoutes: ['settings', '/vanilla'],
+        requiredComponents: ['x-card', 'vanilla-panel']
+      });
+      const router = document.getElementById('rmt-smoke-router');
+      const xtendRoot = document.getElementById('xtend-host-root');
+      const vanillaRoot = document.getElementById('vanilla-host-root');
+      const schedulerSignal = document.getElementById('scheduler-signal');
+      const schedulerCalls = [];
+      const diagnostics = [];
+      const scheduler = {
+        scheduleEndpoint(endpointName, scope, callback, options = {}) {
+          const record = {
+            endpointName,
+            scope,
+            scheduleRef: options.schedule && options.schedule.id,
+            source: options.source || 'fixture'
+          };
+          schedulerCalls.push(record);
+          schedulerSignal.dataset.lastEndpoint = endpointName;
+          schedulerSignal.textContent = endpointName;
+          return record;
+        }
+      };
+      const diagnosticsHub = {
+        publish(event) {
+          diagnostics.push(event);
+        }
+      };
+      const manifest = {
+        'x-section': '/components/xsection.js',
+        'x-card': '/components/xcards.js'
+      };
+      const routeAdapter = appModules.createRmtXRouterAdapter({
+        routerElement: router,
+        xstate: window.xstate
+      });
+      const componentAdapter = appModules.createRmtXtendComponentAdapter({
+        document,
+        manifest,
+        customElements,
+        xstate: window.xstate
+      });
+      const bridge = appModules.createRmtStateSchedulerDiagnosticsBridge({
+        xstate: window.xstate,
+        scheduler,
+        diagnosticsHub,
+        schedules: normalizedDocument.schedules,
+        document: normalizedDocument
+      });
+      const stateBridge = bridge.createStateBridge();
+      const routeMapping = routeAdapter.mapRoutes(registry);
+      const routeRegistration = routeAdapter.registerRoutes(registry, { render: false });
+      const componentMapping = componentAdapter.mapComponents(registry, { manifest });
+      const componentRegistration = componentAdapter.registerComponent(registry, { manifest });
+      const sectionMount = componentAdapter.mountComponent(xtendRoot, 'x-section', {
+        label: 'Mounted section'
+      }, { mapping: componentMapping, manifest });
+      const cardMount = componentAdapter.mountComponent(xtendRoot, 'x-card', {
+        label: 'Mounted card'
+      }, { mapping: componentMapping, manifest });
+      const cardHydrate = componentAdapter.hydrateComponent(xtendRoot, 'x-card', {
+        label: 'Hydrated card'
+      }, { mapping: componentMapping, manifest });
+      const vanillaAdapter = createVanillaHostAdapter(registry);
+      const vanillaMapping = vanillaAdapter.mapComponents();
+      const vanillaMount = vanillaAdapter.mountComponent(vanillaRoot, 'vanilla-panel', {
+        label: 'Vanilla host mounted by RMT.'
+      });
+      const navigateSettings = routeAdapter.navigate({ routeId: 'settings' }, {
+        mapping: routeMapping,
+        source: 'wp16-browser-smoke'
+      });
+
+      bridge.recordAdapterResult(routeRegistration, { scheduleRef: 'route.visible.render' });
+      bridge.recordAdapterResult(sectionMount);
+      bridge.recordAdapterResult(cardHydrate);
+      bridge.recordAdapterResult(vanillaMount);
+      bridge.recordAdapterResult(navigateSettings, { scheduleRef: 'route.visible.render' });
+      await waitFor(() => {
+        const routeState = window.xstate.get('xtend.router.current');
+        return routeState && routeState.routeId === 'settings' && router.shadowRoot && router.shadowRoot.querySelector('x-card');
+      }, 4000);
+      const settingsRouteRendered = router.shadowRoot.querySelector('x-card') instanceof HTMLElement;
+
+      const navigateVanilla = routeAdapter.navigate({ routeId: 'vanilla' }, {
+        mapping: routeMapping,
+        source: 'wp16-browser-smoke'
+      });
+      bridge.recordAdapterResult(navigateVanilla, { scheduleRef: 'route.visible.render' });
+      await waitFor(() => {
+        const routeState = window.xstate.get('xtend.router.current');
+        return routeState && routeState.routeId === 'vanilla' && router.shadowRoot && router.shadowRoot.querySelector('vanilla-panel');
+      }, 4000);
+
+      const routedVanilla = router.shadowRoot.querySelector('vanilla-panel');
+      const mountedCard = xtendRoot.querySelector('[data-rmt-component-id="x-card"]');
+      const vanillaHostElement = vanillaRoot.querySelector('vanilla-panel[data-vanilla-host="true"]');
+      const routeState = window.xstate.get('rmt.route.settings.lastResult');
+      const cardState = window.xstate.get('rmt.component.x-card.lastResult');
+      const vanillaState = window.xstate.get('rmt.component.vanilla-panel.lastResult');
+
+      recordCheck('rmt product surface installed', Boolean(window.xtend && window.xtend.rmt));
+      recordCheck('rmt format normalized native document', normalizedDocument.normalization && normalizedDocument.normalization.status === 'normalized');
+      recordCheck('runtime registry ready', registry.status === 'ready' && registry.routes.length === 3 && registry.components.length === 3);
+      recordCheck('xrouter registered native routes', routeRegistration.ok === true && router.querySelectorAll('x-route').length === 3);
+      recordCheck('xrouter rendered settings route', settingsRouteRendered);
+      recordCheck('xrouter rendered vanilla route', routedVanilla instanceof HTMLElement && routedVanilla.dataset.ready === 'true');
+      recordCheck('xtend component registered by adapter', componentRegistration.ok === true && componentRegistration.status === 'ok');
+      recordCheck('xtend component mounted by adapter', cardMount.ok === true && mountedCard instanceof HTMLElement);
+      recordCheck('xtend component hydrated by adapter', cardHydrate.ok === true && mountedCard && mountedCard.getAttribute('data-xtend-hydrated') === 'true');
+      recordCheck('scheduler route endpoint recorded', schedulerCalls.some((call) => call.endpointName === 'xtendrmt.route.render'));
+      recordCheck('scheduler component hydrate endpoint recorded', schedulerCalls.some((call) => call.endpointName === 'xtendrmt.component.hydrate'));
+      recordCheck('vanilla host component mapped', vanillaMapping.status === 'mapped' && vanillaMapping.components.length === 1);
+      recordCheck('vanilla host component mounted', vanillaMount.ok === true && vanillaHostElement instanceof HTMLElement);
+      recordCheck('vanilla scheduler endpoint recorded', schedulerCalls.some((call) => call.endpointName === 'xtendrmt.vanilla.mount'));
+      recordCheck('route result mirrored to xstate', routeState && routeState.operation === 'navigate');
+      recordCheck('xtend component result mirrored to xstate', cardState && cardState.operation === 'hydrateComponent');
+      recordCheck('vanilla component result mirrored to xstate', vanillaState && vanillaState.operation === 'mountComponent');
+      recordCheck('state bridge created', stateBridge.ok === true && window.xstate.get('rmt.bridge.ready'));
+      recordCheck('bridge avoided degraded diagnostics', !diagnostics.some((entry) => entry.code === 'rmt.bridge.adapter.result.degraded'));
+
+      complete(window.__xtendRmtBrowserSmokeResult.errors.length === 0 ? 'passed' : 'failed');
+    }
+
+    runRmtBrowserSmokeChecks().catch((error) => {
+      window.__xtendRmtBrowserSmokeResult.errors.push(error && error.message ? error.message : String(error));
+      complete('failed');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>XTend Surface Overlay Bridge Fixture</title>
+  <script type="module" src="/components/xsurfacemanager-controller.js"></script>
+  <script type="module" src="/components/xsurfaceoverlay-bridge.js"></script>
+  <script type="module" src="/components/xsurfacemanager.js"></script>
+  <script type="module" src="/components/xmodal.js"></script>
+  <script type="module" src="/components/xdialog.js"></script>
+  <script type="module" src="/components/xdrawer.js"></script>
+</head>
+<body>
+  <x-surface-manager id="overlay-manager" manager-id="overlay.manager" state-key="xtend.surface.overlay.fixture">
+    <x-modal slot="overlays" id="overlay-modal" surface-id="overlay.modal" title="Release notes" content="Surface overlay modal"></x-modal>
+    <x-dialog slot="overlays" id="overlay-dialog" surface-id="overlay.dialog" title="Confirm release"></x-dialog>
+    <x-drawer slot="overlays" id="overlay-drawer" surface-id="overlay.drawer" label="Tools" placement="right" modal>
+      <button type="button">Action</button>
+    </x-drawer>
+  </x-surface-manager>
+
+  <script type="module">
+    const manager = document.querySelector('x-surface-manager');
+    const modal = document.querySelector('x-modal');
+    const dialog = document.querySelector('x-dialog');
+    const drawer = document.querySelector('x-drawer');
+
+    await customElements.whenDefined('x-surface-manager');
+    await customElements.whenDefined('x-modal');
+    await customElements.whenDefined('x-dialog');
+    await customElements.whenDefined('x-drawer');
+
+    manager.dispatchEvent(new CustomEvent('surface-overlay-command', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        surfaceId: 'overlay.modal',
+        command: 'open',
+        payload: { source: 'fixture' }
+      }
+    }));
+
+    modal.close({ source: 'fixture' });
+    dialog.open();
+    drawer.openDrawer({ source: 'fixture' });
+
+    window.__xtendComponentResult = {
+      schema: 'xtend.surface.overlay-stack-bridge.fixture-result.v1',
+      managerId: manager.getAttribute('manager-id'),
+      surfaceCount: manager.surfaces.length,
+      stack: manager.snapshot().stack,
+      modalOpen: modal.hasAttribute('open'),
+      dialogOpen: dialog.hasAttribute('open'),
+      drawerOpen: drawer.hasAttribute('open')
+    };
+  </script>
+</body>
+</html>

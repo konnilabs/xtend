@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-utils utility boundary fixture</title>
+</head>
+<body>
+  <main id="xutils-boundary-fixture" data-boundary="utility-probe"></main>
+
+  <script type="module">
+    import { XUtils } from '/components/xutils.js';
+
+    window.__xtendComponentResult = [];
+    window.__xtendXUtilsEvents = [];
+
+    const record = (name, passed, detail = {}) => {
+      window.__xtendComponentResult.push({ name, passed: Boolean(passed), detail });
+    };
+
+    window.addEventListener('xutils:import-policy-check', (event) => {
+      window.__xtendXUtilsEvents.push(event.detail);
+    });
+
+    const root = document.getElementById('xutils-boundary-fixture');
+    const button = XUtils.create('button', {
+      className: 'xutils-action',
+      textContent: 'Run utility probe'
+    });
+    root.appendChild(button);
+
+    let delegated = false;
+    const cleanup = XUtils.delegate(root, '.xutils-action', 'click', () => {
+      delegated = true;
+    });
+    button.click();
+    cleanup();
+
+    XUtils.setAria(button, { label: 'Utility probe action', busy: 'false' });
+    const localImport = XUtils.assertLocalImport('/components/xbutton.js');
+    const externalImport = XUtils.assertLocalImport('https://example.invalid/xtend/components/xstate.js');
+    const snapshot = XUtils.snapshotUtilityContract();
+    const card = XUtils.XTemplate.card({
+      title: 'Utility Contract',
+      content: 'Boundary ready'
+    });
+
+    record('utility contract exposed', XUtils.xtendUtilityContract.schema === 'xtend.utility.module-contract.v1');
+    record('import policy exposed', XUtils.xtendImportPolicy.schema === 'xtend.utility.import-policy.v1');
+    record('local import allowed', localImport.allowed === true);
+    record('external import blocked', externalImport.allowed === false && externalImport.reason === 'external-import-blocked');
+    record('delegate cleanup returned', typeof cleanup === 'function' && delegated === true);
+    record('aria helper wrote label', button.getAttribute('aria-label') === 'Utility probe action');
+    record('template recipe created card', card.className === 'x-card' && card.textContent.includes('Boundary ready'));
+    record('snapshot schema exposed', snapshot.schema === 'xtend.utility.boundary-probe.v1');
+    record('kernel boundary preserved', snapshot.utility.kernelBoundary === 'no-rmt-kernel-import-of-xtend-types');
+    record('policy event dispatched', window.__xtendXUtilsEvents.some((entry) => entry.schema === 'xtend.utility.import-policy-result.v1'));
+
+    document.body.dataset.xutilsBoundaryReady = 'true';
+  </script>
+</body>
+</html>

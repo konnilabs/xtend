@@ -1,0 +1,82 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "regression.duplicates",
+    "namespace": "regression"
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter"
+    },
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter"
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "router_adapter"
+    }
+  ],
+  "components": [
+    {
+      "id": "pages.duplicate",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "component.idle.hydrate",
+      "metadata": {
+        "fabric": {
+          "lane": "visible"
+        }
+      }
+    },
+    {
+      "id": "pages.duplicate",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-card",
+      "schedule": "component.idle.hydrate"
+    }
+  ],
+  "routes": [
+    {
+      "id": "first",
+      "path": "/same",
+      "router": "xtend.xrouter",
+      "component": "pages.duplicate",
+      "template": "same.shell",
+      "schedule": "route.visible.render",
+      "documentTitle": "First"
+    },
+    {
+      "id": "second",
+      "path": "/same",
+      "router": "xtend.xrouter",
+      "component": "pages.duplicate",
+      "template": "same.shell",
+      "schedule": "route.visible.render",
+      "documentTitle": "Second"
+    }
+  ],
+  "schedules": [
+    {
+      "id": "route.visible.render",
+      "endpointName": "xtendrmt.route.render",
+      "lane": "visible"
+    },
+    {
+      "id": "component.idle.hydrate",
+      "endpointName": "xtendrmt.component.hydrate",
+      "lane": "idle"
+    }
+  ],
+  "templates": [
+    {
+      "id": "same.shell",
+      "mode": "dom_descriptor",
+      "nodes": []
+    }
+  ]
+}

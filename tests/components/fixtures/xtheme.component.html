@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-theme component fixture</title>
+</head>
+<body>
+  <main id="theme-target" data-theme-fixture="true">Theme fixture</main>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+    window.matchMedia = window.matchMedia || function matchMedia() {
+      return {
+        matches: false,
+        addEventListener() {},
+        removeEventListener() {}
+      };
+    };
+  </script>
+  <script type="module" src="/components/xtheme.js"></script>
+  <script type="module">
+    const recordCheck = (name, passed, detail = {}) => {
+      window.__xtendComponentResult.checks.push({ name, passed, detail });
+      if (!passed) {
+        window.__xtendComponentResult.errors.push(name);
+      }
+    };
+
+    const runThemeFixture = () => {
+      const theme = window.XTend && window.XTend.theme;
+      if (!theme) {
+        recordCheck('theme api available', false);
+        window.__xtendComponentResult.status = 'failed';
+        return;
+      }
+
+      theme.setDensity('compact');
+      theme.setTheme('dark');
+      const themeContext = theme.getThemeContext();
+      const performanceSnapshot = theme.snapshotPerformance();
+
+      recordCheck('density propagated', document.documentElement.getAttribute('data-xtend-density') === 'compact', {
+        density: theme.getDensity()
+      });
+      recordCheck('theme context propagated', themeContext.schema === 'xtend.theme.context.v1' && themeContext.density === 'compact', themeContext);
+      recordCheck('performance snapshot exposed', performanceSnapshot.schema === 'xtend.theme.performance-snapshot.v1' && performanceSnapshot.lastMeasurements.length > 0, performanceSnapshot);
+      recordCheck('rmt metadata exposed', theme.getRmtMetadata().schema === 'xtend.rmt.component-contract.v1');
+      recordCheck('component network exposed', theme.getComponentNetworkContext().schema === 'xtend.component.network.v1');
+
+      window.__xtendComponentResult.status = window.__xtendComponentResult.errors.length === 0 ? 'ready' : 'failed';
+      window.__xtendComponentResult.themeContext = themeContext;
+      window.__xtendComponentResult.performanceSnapshot = performanceSnapshot;
+      window.__xtendComponentResult.state = { ...window.__xtendComponentState };
+    };
+
+    document.addEventListener('theme-initialized', runThemeFixture, { once: true });
+    setTimeout(() => {
+      if (window.__xtendComponentResult.status === 'pending') {
+        runThemeFixture();
+      }
+    }, 50);
+  </script>
+</body>
+</html>

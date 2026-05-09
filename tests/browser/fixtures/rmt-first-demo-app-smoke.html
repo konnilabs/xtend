@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="xstate,x-theme,x-section,x-router,x-link,x-form,x-select,x-checkbox,x-radio,x-textarea,x-status,x-progress,x-tooltip,x-popover,x-drawer">
+  <title>XTend RMT-first Demo Smoke</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div
+    id="rmt-first-demo-smoke-root"
+    data-rmt-host="rmt-first-demo"
+    data-rmt-document-src="/xtendrmt/rmt-first-demo-app.rmt"></div>
+  <script>
+    window.__xtendRmtFirstDemoSmokeResult = {
+      status: 'pending',
+      contract: 'xtend.epic10.rmt-first-demo-app.browser-smoke.v1',
+      checks: [],
+      errors: []
+    };
+
+    function recordCheck(label, passed, details) {
+      window.__xtendRmtFirstDemoSmokeResult.checks.push({ label, passed: Boolean(passed), details: details || null });
+      if (!passed) {
+        window.__xtendRmtFirstDemoSmokeResult.errors.push(label);
+      }
+    }
+  </script>
+  <script src="/xtendrmt/rmt-runtime.browser.js"></script>
+  <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
+  <script type="module">
+    (async () => {
+      try {
+        await (window.__XTendLoaderBootPromise || Promise.resolve()).catch(() => {});
+        const module = await import('/xtendrmt/rmt-first-demo-app.js');
+        const root = document.querySelector('[data-rmt-host="rmt-first-demo"]');
+        const documentResponse = await fetch('/xtendrmt/rmt-first-demo-app.rmt');
+        const documentText = await documentResponse.text();
+        const rmtDocument = window.AppModules && typeof window.AppModules.createRmtFormat === 'function'
+          ? window.AppModules.createRmtFormat().parseDocument(documentText, {
+              sourceUrl: '/xtendrmt/rmt-first-demo-app.rmt'
+            })
+          : JSON.parse(documentText);
+        recordCheck('rmt-first demo document loaded', rmtDocument.manifest.metadata.contractVersion === 'xtend.epic10.rmt-first-demo-app.v1');
+        const renderResult = module.default && module.default.renderRmtShellFromDocument
+          ? module.default.renderRmtShellFromDocument(rmtDocument, { root })
+          : window.XTendRmtFirstDemo.renderRmtShellFromDocument(rmtDocument, { root });
+        recordCheck('rmt-first demo shell rendered from rmt', root.getAttribute('data-rmt-rendered-shell') === 'true' && Boolean(root.querySelector('[data-rmt-component="app.shell"]')));
+        recordCheck('rmt-first demo routes derived from rmt', root.querySelectorAll('x-route[data-rmt-route]').length === rmtDocument.routes.length);
+        recordCheck('rmt-first demo telemetry schedule visible', Boolean(root.querySelector('[data-rmt-schedule="diagnostics.snapshot"]')));
+        recordCheck('rmt-first demo no static host shell', !document.body.querySelector('body > x-section, body > x-router'));
+        window.__xtendRmtFirstDemoSmokeResult.status = window.__xtendRmtFirstDemoSmokeResult.errors.length ? 'failed' : 'passed';
+        window.__xtendRmtFirstDemoSmokeResult.routes = renderResult.routes.length;
+        window.__xtendRmtFirstDemoSmokeResult.schedules = rmtDocument.schedules.length;
+      } catch (error) {
+        window.__xtendRmtFirstDemoSmokeResult.status = 'failed';
+        window.__xtendRmtFirstDemoSmokeResult.errors.push(error.message);
+      }
+    })();
+  </script>
+</body>
+</html>

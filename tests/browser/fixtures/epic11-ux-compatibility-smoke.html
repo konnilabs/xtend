@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en" data-contract="xtend.epic11.component-ux-browser-smokes.v1">
+  <head>
+    <meta charset="utf-8">
+    <title>XTend Epic 11 UX Compatibility Smoke</title>
+    <meta
+      name="xtend-preload"
+      content="xstate,x-theme,x-router,x-link,x-tabs,x-input,x-select,x-checkbox,x-form,x-alert,x-toast,x-status,x-progress,x-modal,x-drawer,x-section,x-cards,x-code,x-player"
+    >
+    <style>
+      body {
+        visibility: hidden;
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #f8fafc;
+        color: #111827;
+      }
+
+      main {
+        display: grid;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      nav,
+      .cluster {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      x-router {
+        min-height: 5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 1rem;
+        background: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="epic11-ux-smoke-root">
+      <nav aria-label="Epic 11 UX smoke routes">
+        <x-link id="ux-home-link" href="/">Overview</x-link>
+        <x-link id="ux-detail-link" href="/detail?source=epic11">Detail</x-link>
+      </nav>
+
+      <x-router id="epic11-ux-router" mode="hash">
+        <x-route path="/" component="xtend-ux-home"></x-route>
+        <x-route path="/detail" component="xtend-ux-detail"></x-route>
+      </x-router>
+
+      <x-tabs id="ux-tabs" selected="0" data-rmt-schedule="ui.user-blocking.tabs" data-xtend-lane="user-blocking">
+        <x-tab name="Overview">Overview tab content</x-tab>
+        <x-tab name="Telemetry">Telemetry tab content</x-tab>
+        <x-tab name="Routes">Routes tab content</x-tab>
+      </x-tabs>
+
+      <x-form id="ux-form" aria-label="Epic 11 form smoke">
+        <x-input id="ux-input" name="contact" required placeholder="Contact">
+          <span slot="label">Contact</span>
+          <span slot="error">Contact is required.</span>
+        </x-input>
+        <x-select id="ux-select" name="plan" required placeholder="Choose plan" label="Plan">
+          <option value="team">Team</option>
+          <option value="enterprise">Enterprise</option>
+          <span slot="error">Plan is required.</span>
+        </x-select>
+        <x-checkbox id="ux-checkbox" name="terms" value="accepted" required label="Terms accepted">
+          <span slot="hint">Required for the smoke flow.</span>
+        </x-checkbox>
+      </x-form>
+
+      <div class="cluster" aria-label="Feedback and status components">
+        <x-alert id="ux-alert" type="info" title="Feedback">UX feedback ready.</x-alert>
+        <x-status id="ux-status" type="success" state="ready" label="Scheduler" message="Ready">Ready</x-status>
+        <x-progress id="ux-progress" label="Hydration" status="Hydrated" value="40" max="100"></x-progress>
+      </div>
+
+      <div class="cluster" aria-label="Overlay components">
+        <button id="ux-focus-origin" type="button">Open modal</button>
+        <x-modal id="ux-modal" title="UX modal" content="Modal focus smoke" overlay></x-modal>
+        <x-drawer id="ux-drawer" label="UX drawer">
+          <span slot="trigger">Open drawer</span>
+          <p>Drawer shell is available.</p>
+        </x-drawer>
+      </div>
+
+      <x-section id="ux-section" label="Layout shell">
+        <x-cards id="ux-cards">
+          <x-card title="Card">Display card</x-card>
+        </x-cards>
+        <x-code id="ux-code" language="js">console.log("xtend");</x-code>
+        <x-player id="ux-player" title="Lazy media shell"></x-player>
+      </x-section>
+    </main>
+
+    <script>
+      class XTendUxHome extends HTMLElement {
+        connectedCallback() {
+          this.textContent = 'Overview route rendered';
+        }
+      }
+
+      class XTendUxDetail extends HTMLElement {
+        connectedCallback() {
+          this.textContent = 'Detail route rendered';
+        }
+      }
+
+      customElements.define('xtend-ux-home', XTendUxHome);
+      customElements.define('xtend-ux-detail', XTendUxDetail);
+
+      const result = {
+        contract: 'xtend.epic11.component-ux-browser-smokes.v1',
+        status: 'pending',
+        checks: [],
+        errors: []
+      };
+
+      window.__xtendEpic11UxSmokeResult = result;
+
+      function recordCheck(name, passed, details = {}) {
+        result.checks.push({ name, passed: Boolean(passed), details });
+        if (!passed) {
+          result.errors.push(name);
+        }
+      }
+
+      function complete() {
+        result.status = result.errors.length === 0 ? 'passed' : 'failed';
+      }
+
+      function waitFor(predicate, timeoutMs = 4000) {
+        const started = Date.now();
+        return new Promise((resolve, reject) => {
+          const tick = () => {
+            try {
+              if (predicate()) {
+                resolve(true);
+                return;
+              }
+            } catch (error) {
+              reject(error);
+              return;
+            }
+            if (Date.now() - started >= timeoutMs) {
+              reject(new Error('Timed out while waiting for Epic 11 UX smoke condition.'));
+              return;
+            }
+            setTimeout(tick, 50);
+          };
+          tick();
+        });
+      }
+
+      function key(target, keyValue) {
+        target.dispatchEvent(new KeyboardEvent('keydown', {
+          key: keyValue,
+          bubbles: true,
+          composed: true,
+          cancelable: true
+        }));
+      }
+
+      function readState(keyName) {
+        const stateApi = window.xstate;
+        if (!stateApi || typeof stateApi.get !== 'function') return undefined;
+        return stateApi.get(keyName);
+      }
+
+      async function runSmoke() {
+        try {
+          await (window.__XTendLoaderBootPromise || Promise.resolve());
+          await Promise.all([
+            customElements.whenDefined('x-router'),
+            customElements.whenDefined('x-link'),
+            customElements.whenDefined('x-tabs'),
+            customElements.whenDefined('x-input'),
+            customElements.whenDefined('x-select'),
+            customElements.whenDefined('x-checkbox'),
+            customElements.whenDefined('x-form'),
+            customElements.whenDefined('x-alert'),
+            customElements.whenDefined('x-toast'),
+            customElements.whenDefined('x-status'),
+            customElements.whenDefined('x-progress'),
+            customElements.whenDefined('x-modal'),
+            customElements.whenDefined('x-drawer'),
+            customElements.whenDefined('x-section'),
+            customElements.whenDefined('x-cards'),
+            customElements.whenDefined('x-code'),
+            customElements.whenDefined('x-player')
+          ]);
+          await waitFor(() => document.body.style.visibility !== 'hidden' || getComputedStyle(document.body).visibility !== 'hidden');
+
+          recordCheck('epic11 ux fixture hydrated local loader', Boolean(window.XTend && window.xstate));
+
+          const detailLink = document.getElementById('ux-detail-link');
+          detailLink.focus();
+          key(detailLink.shadowRoot.querySelector('a'), 'Enter');
+          await waitFor(() => {
+            const rendered = readState('xtend.router.lastRendered');
+            return rendered && rendered.path === '/detail';
+          });
+          const routeState = readState('xtend.router.lastRendered');
+          recordCheck('navigation enter key rendered detail route', routeState && routeState.path === '/detail', { routeState });
+          recordCheck('navigation active state synchronized', detailLink.hasAttribute('active'), { active: detailLink.hasAttribute('active') });
+          recordCheck('route announcement state visible', Boolean(readState('xtend.router.announcement')), {
+            announcement: readState('xtend.router.announcement')
+          });
+          const tabs = document.getElementById('ux-tabs');
+          await waitFor(() => tabs.shadowRoot && tabs.shadowRoot.querySelectorAll('[role="tab"]').length === 3);
+          const tabButtons = Array.from(tabs.shadowRoot.querySelectorAll('[role="tab"]'));
+          key(tabButtons[0], 'ArrowRight');
+          await waitFor(() => tabs.getAttribute('selected') === '1' && tabButtons[1].getAttribute('aria-selected') === 'true');
+          recordCheck('tabs arrow key selected next tab', tabs.getAttribute('selected') === '1' && document.activeElement === tabs && tabs.shadowRoot.activeElement === tabButtons[1], {
+            selected: tabs.getAttribute('selected')
+          });
+          key(tabButtons[1], 'End');
+          await waitFor(() => tabs.getAttribute('selected') === '2' && tabButtons[2].getAttribute('aria-selected') === 'true');
+          key(tabButtons[2], 'Home');
+          await waitFor(() => tabs.getAttribute('selected') === '0' && tabButtons[0].getAttribute('aria-selected') === 'true');
+          const firstPanel = document.getElementById(tabButtons[0].getAttribute('aria-controls'));
+          recordCheck('tabs home end keys preserve roving focus', tabs.getAttribute('selected') === '0' && tabButtons[0].getAttribute('tabindex') === '0' && tabButtons[1].getAttribute('tabindex') === '-1');
+          recordCheck('tabs aria controls visible panel', Boolean(
+            firstPanel &&
+            firstPanel.getAttribute('role') === 'tabpanel' &&
+            firstPanel.getAttribute('aria-labelledby') === tabButtons[0].id &&
+            firstPanel.getAttribute('aria-hidden') === 'false'
+          ));
+
+          const form = document.getElementById('ux-form');
+          const input = document.getElementById('ux-input');
+          const select = document.getElementById('ux-select');
+          const checkbox = document.getElementById('ux-checkbox');
+          recordCheck('form validation feedback surfaced', select.hasAttribute('invalid') && checkbox.hasAttribute('invalid'));
+          input.value = 'enterprise-contact';
+          input.shadowRoot.querySelector('input').dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+          select.value = 'enterprise';
+          select.shadowRoot.querySelector('select').dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+          checkbox.checked = true;
+          checkbox.shadowRoot.querySelector('input').dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+          await waitFor(() => readState('xinput-value-ux-input') === 'enterprise-contact');
+          const formData = form.getFormData();
+          recordCheck('form input synchronized state', readState('xinput-value-ux-input') === 'enterprise-contact', {
+            value: readState('xinput-value-ux-input')
+          });
+          recordCheck('form data aggregation visible', formData.contact === 'enterprise-contact' && formData.plan === 'enterprise' && formData.terms === true, {
+            formData
+          });
+
+          const alert = document.getElementById('ux-alert');
+          const status = document.getElementById('ux-status');
+          const progress = document.getElementById('ux-progress');
+          progress.setProgress(72);
+          recordCheck('feedback live region components rendered', Boolean(
+            alert.shadowRoot &&
+            status.shadowRoot.querySelector('[role="status"]') &&
+            progress.shadowRoot.querySelector('[role="progressbar"]')
+          ));
+          recordCheck('feedback progress state visible', progress.percent === 72 && readState('xprogress-value-ux-progress') === 72, {
+            percent: progress.percent,
+            state: readState('xprogress-value-ux-progress')
+          });
+          const toast = window.XToast && window.XToast.show('Epic 11 UX smoke toast', 'success', 0);
+          recordCheck('toast api rendered ux notification', Boolean(toast && document.getElementById('xtoast-container')));
+
+          const origin = document.getElementById('ux-focus-origin');
+          const modal = document.getElementById('ux-modal');
+          const drawer = document.getElementById('ux-drawer');
+          origin.focus();
+          modal.open();
+          await waitFor(() => modal.hasAttribute('open') && modal.shadowRoot.activeElement);
+          recordCheck('overlay modal moved focus inside', modal.shadowRoot.activeElement && modal.shadowRoot.activeElement.classList.contains('x-modal'));
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+          await waitFor(() => !modal.hasAttribute('open') && document.activeElement === origin);
+          recordCheck('overlay escape restored focus', document.activeElement === origin);
+          recordCheck('drawer custom element available', Boolean(customElements.get('x-drawer') && drawer.shadowRoot));
+
+          const section = document.getElementById('ux-section');
+          const cards = document.getElementById('ux-cards');
+          const code = document.getElementById('ux-code');
+          const player = document.getElementById('ux-player');
+          recordCheck('layout shell components available', Boolean(
+            customElements.get('x-section') &&
+            customElements.get('x-cards') &&
+            customElements.get('x-code') &&
+            customElements.get('x-player')
+          ));
+          recordCheck('layout display surface rendered', Boolean(section.shadowRoot && cards.shadowRoot && code.shadowRoot));
+          recordCheck('media shell remains lazy-loadable', Boolean(player.shadowRoot && !player.hasAttribute('playing')));
+        } catch (error) {
+          result.errors.push(error.message);
+        } finally {
+          complete();
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', runSmoke);
+    </script>
+    <script
+      type="module"
+      src="/xtend-loader.js"
+      data-manifest="/tests/browser/fixtures/components/manifest.json"
+    ></script>
+  </body>
+</html>

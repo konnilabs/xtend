@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-hero component fixture</title>
+</head>
+<body>
+  <x-hero id="component-hero" background="#123" align="center" overlay scroll-button>
+    <h1 slot="hero-title">Component Hero</h1>
+    <p>Hero content</p>
+  </x-hero>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xhero.js"></script>
+</body>
+</html>

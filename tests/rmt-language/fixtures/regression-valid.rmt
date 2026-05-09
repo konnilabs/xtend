@@ -1,0 +1,77 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "regression.valid",
+    "namespace": "regression"
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter",
+      "kernelVisible": false
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "router_adapter",
+      "kernelVisible": false
+    }
+  ],
+  "components": [
+    {
+      "id": "pages.home",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "component.visible.mount",
+      "metadata": {
+        "fabric": {
+          "lane": "visible"
+        }
+      }
+    }
+  ],
+  "routes": [
+    {
+      "id": "home",
+      "path": "/",
+      "router": "xtend.xrouter",
+      "component": "pages.home",
+      "template": "home.shell",
+      "schedule": "route.visible.render",
+      "documentTitle": "Home | Regression",
+      "metadata": {
+        "announceOnNavigation": true
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "id": "route.visible.render",
+      "endpointName": "xtendrmt.route.render",
+      "lane": "visible",
+      "priority": 80
+    },
+    {
+      "id": "component.visible.mount",
+      "endpointName": "xtendrmt.component.mount",
+      "lane": "visible",
+      "priority": 70
+    }
+  ],
+  "templates": [
+    {
+      "id": "home.shell",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "tag": "main",
+          "children": []
+        }
+      ],
+      "hydration": {
+        "mode": "runtime_render"
+      }
+    }
+  ]
+}

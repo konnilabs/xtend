@@ -1,0 +1,1675 @@
+#!/usr/bin/env node
+
+const path = require('path');
+const {
+  printCoreContractReport,
+  runCoreContractSuite
+} = require('../tests/core/core_contract_suite');
+const {
+  printArchitectureGateReport,
+  runArchitectureGateSuite
+} = require('../tests/core/architecture_gate_suite');
+const {
+  printBrowserSmokeReport,
+  runBrowserSmokeSuite
+} = require('../tests/browser/browser_smoke_suite');
+const {
+  printReferencePathReport,
+  runReferencePathSuite
+} = require('../tests/references/reference_path_suite');
+const {
+  printRmtCompatibilityReport,
+  runRmtCompatibilitySuite
+} = require('../tests/rmt/rmt_compatibility_suite');
+const {
+  printRmtFirstClassAppAuthoringReport,
+  runRmtFirstClassAppAuthoringSuite
+} = require('../tests/rmt/rmt_first_class_app_authoring_suite');
+const {
+  printRmtSurfaceManagerAuthoringReport,
+  runRmtSurfaceManagerAuthoringSuite
+} = require('../tests/rmt/rmt_surface_manager_authoring_suite');
+const {
+  printSurfaceControllerReport,
+  runSurfaceControllerSuite
+} = require('../tests/components/surface_controller_suite');
+const {
+  printSurfaceManagerRuntimeReport,
+  runSurfaceManagerRuntimeSuite
+} = require('../tests/components/surface_manager_runtime_suite');
+const {
+  printSurfaceManagerSidePanelReport,
+  runSurfaceManagerSidePanelSuite
+} = require('../tests/components/surface_manager_side_panel_suite');
+const {
+  printSurfaceManagerWorkbenchFixtureReport,
+  runSurfaceManagerWorkbenchFixtureSuite
+} = require('../tests/rmt/surface_manager_workbench_fixture_suite');
+const {
+  printSurfaceManagerOverlayBridgeReport,
+  runSurfaceManagerOverlayBridgeSuite
+} = require('../tests/components/surface_manager_overlay_bridge_suite');
+const {
+  printSurfaceManagerQualityGatesReport,
+  runSurfaceManagerQualityGatesSuite
+} = require('../tests/components/surface_manager_quality_gates_suite');
+const {
+  printSurfaceManagerNativeRmtSurfacesReport,
+  runSurfaceManagerNativeRmtSurfacesSuite
+} = require('../tests/rmt/surface_manager_native_rmt_surfaces_suite');
+const {
+  printSurfaceManagerReleaseHandoffReport,
+  runSurfaceManagerReleaseHandoffSuite
+} = require('../tests/rmt/surface_manager_release_handoff_suite');
+const {
+  printRmtShellAuthoringComponentUxReport,
+  runRmtShellAuthoringComponentUxSuite
+} = require('../tests/rmt/rmt_shell_authoring_component_ux_suite');
+const {
+  printRmtDslAuthoringPolishReport,
+  runRmtDslAuthoringPolishSuite
+} = require('../tests/rmt/rmt_dsl_authoring_polish_suite');
+const {
+  printRmtComponentFabricLaneIngestionReport,
+  runRmtComponentFabricLaneIngestionSuite
+} = require('../tests/rmt/rmt_component_fabric_lane_ingestion_suite');
+const {
+  printRmtComponentLifecycleTelemetryReport,
+  runRmtComponentLifecycleTelemetrySuite
+} = require('../tests/rmt/rmt_component_lifecycle_telemetry_suite');
+const {
+  printRmtFirstDemoAppReport,
+  runRmtFirstDemoAppSuite
+} = require('../tests/rmt/rmt_first_demo_app_suite');
+const {
+  printDocsRmtPilotReport,
+  runDocsRmtPilotSuite
+} = require('../tests/rmt/docs_rmt_pilot_suite');
+const {
+  printRmtSourceModelReport,
+  runRmtSourceModelSuite
+} = require('../tests/rmt-language/rmt_source_model_suite');
+const {
+  printRmtParserReport,
+  runRmtParserSuite
+} = require('../tests/rmt-language/rmt_parser_suite');
+const {
+  printRmtSemanticGraphReport,
+  runRmtSemanticGraphSuite
+} = require('../tests/rmt-language/rmt_semantic_graph_suite');
+const {
+  printRmtLinterRulesReport,
+  runRmtLinterRulesSuite
+} = require('../tests/rmt-language/rmt_linter_rules_suite');
+const {
+  printRmtLinterCliReport,
+  runRmtLinterCliSuite
+} = require('../tests/rmt-language/rmt_linter_cli_suite');
+const {
+  printRmtCompletionReport,
+  runRmtCompletionSuite
+} = require('../tests/rmt-language/rmt_completion_suite');
+const {
+  printRmtNavigationReport,
+  runRmtNavigationSuite
+} = require('../tests/rmt-language/rmt_navigation_suite');
+const {
+  printRmtLanguageServerReport,
+  runRmtLanguageServerSuite
+} = require('../tests/rmt-language/rmt_language_server_suite');
+const {
+  printRmtCodeActionsReport,
+  runRmtCodeActionsSuite
+} = require('../tests/rmt-language/rmt_code_actions_suite');
+const {
+  printRmtAgentRepairReport,
+  runRmtAgentRepairReportSuite
+} = require('../tests/rmt-language/rmt_agent_repair_report_suite');
+const {
+  printRmtEditorPackagingReport,
+  runRmtEditorPackagingSuite
+} = require('../tests/rmt-language/rmt_editor_packaging_suite');
+const {
+  printRmtLanguageRegressionReport,
+  runRmtLanguageRegressionSuite
+} = require('../tests/rmt-language/rmt_language_regression_suite');
+const {
+  printComponentSuitesReport,
+  runComponentSuites
+} = require('../tests/components/component_suite');
+const {
+  printComponentContractV2Report,
+  runComponentContractV2Suite
+} = require('../tests/components/component_contract_v2_suite');
+const {
+  printComponentShellContractReport,
+  runComponentShellContractSuite
+} = require('../tests/components/component_shell_contract_suite');
+const {
+  printComponentStylingContractReport,
+  runComponentStylingContractSuite
+} = require('../tests/components/component_styling_contract_suite');
+const {
+  printBuilderTypeScriptBlueprintReport,
+  runBuilderTypeScriptBlueprintSuite
+} = require('../tests/builder/typescript_component_blueprint_suite');
+const {
+  printEpic10P0ComponentWaveReport,
+  runEpic10P0ComponentWaveSuite
+} = require('../tests/components/epic10_p0_component_wave_suite');
+const {
+  printExistingComponentMetadataMigrationReport,
+  runExistingComponentMetadataMigrationSuite
+} = require('../tests/components/existing_component_metadata_migration_suite');
+const {
+  printEpic10PlatformGatesReport,
+  runEpic10PlatformGatesSuite
+} = require('../tests/platform/epic10_platform_gates_suite');
+const {
+  printEpic10ReleaseHandoffReport,
+  runEpic10ReleaseHandoffSuite
+} = require('../tests/platform/epic10_release_handoff_suite');
+const {
+  printComponentLabRmtInspectorReport,
+  runComponentLabRmtInspectorSuite
+} = require('../tests/builder/component_lab_rmt_inspector_suite');
+const {
+  printComponentLabUxInspectorReport,
+  runComponentLabUxInspectorSuite
+} = require('../tests/builder/component_lab_ux_inspector_suite');
+const {
+  printComponentUxBrowserSmokeReport,
+  runComponentUxBrowserSmokeSuite
+} = require('../tests/browser/component_ux_browser_smoke_suite');
+const {
+  printComponentShellThemeMatrixReport,
+  runComponentShellThemeMatrixSuite
+} = require('../tests/browser/component_shell_theme_matrix_suite');
+const {
+  printVisualSnapshotAutomationReport,
+  runVisualSnapshotAutomationSuite
+} = require('../tests/browser/visual_snapshot_automation_suite');
+const {
+  printVisualSnapshotsReport,
+  runVisualSnapshotsSuite
+} = require('../tests/browser/visual_snapshots_suite');
+const {
+  printDesignTokenContractReport,
+  runDesignTokenContractSuite
+} = require('../tests/tokens/design_token_contract_suite');
+const {
+  printComponentUxAuthoringDocsReport,
+  runComponentUxAuthoringDocsSuite
+} = require('../tests/docs/component_ux_authoring_docs_suite');
+const {
+  printAccessibilityHydrationReport,
+  runAccessibilityHydrationSuite
+} = require('../tests/components/accessibility_hydration_suite');
+const {
+  printScreenreaderSignalReport,
+  runScreenreaderSignalSuite
+} = require('../tests/a11y/screenreader_signal_suite');
+const {
+  printMotionContrastReport,
+  runMotionContrastSuite
+} = require('../tests/a11y/motion_contrast_suite');
+const {
+  printRuntimeA11yContractReport,
+  runRuntimeA11yContractSuite
+} = require('../tests/a11y/runtime_a11y_contract_suite');
+const {
+  printComponentUxPerformanceContractReport,
+  runComponentUxPerformanceContractSuite
+} = require('../tests/performance/component_ux_performance_contract_suite');
+const {
+  printComponentNetworkContractReport,
+  runComponentNetworkContractSuite
+} = require('../tests/components/component_network_contract_suite');
+const {
+  printFormControlsUxReport,
+  runFormControlsUxSuite
+} = require('../tests/components/form_controls_ux_suite');
+const {
+  printFeedbackStatusUxReport,
+  runFeedbackStatusUxSuite
+} = require('../tests/components/feedback_status_ux_suite');
+const {
+  printNavigationRoutingUxReport,
+  runNavigationRoutingUxSuite
+} = require('../tests/components/navigation_routing_ux_suite');
+const {
+  printOverlayInteractionUxReport,
+  runOverlayInteractionUxSuite
+} = require('../tests/components/overlay_interaction_ux_suite');
+const {
+  printLayoutDisplayMediaUxReport,
+  runLayoutDisplayMediaUxSuite
+} = require('../tests/components/layout_display_media_ux_suite');
+const {
+  printComponentCatalogCoverageReport,
+  runComponentCatalogCoverageSuite
+} = require('../tests/catalog/component_catalog_coverage_suite');
+const {
+  printComponentRegressionPriorityReport,
+  runComponentRegressionPrioritySuite
+} = require('../tests/catalog/component_regression_priority_suite');
+const {
+  printComponentLongTailMigrationReport,
+  runComponentLongTailMigrationSuite
+} = require('../tests/catalog/component_long_tail_migration_suite');
+const {
+  printEpic11EnterpriseUxHandoffReport,
+  runEpic11EnterpriseUxHandoffSuite
+} = require('../tests/platform/epic11_enterprise_ux_handoff_suite');
+const {
+  printEpic12Rc0GateMatrixReport,
+  runEpic12Rc0GateMatrixSuite
+} = require('../tests/platform/epic12_rc0_gate_matrix_suite');
+const {
+  printEpic12DocsAdoptionReport,
+  runEpic12DocsAdoptionSuite
+} = require('../tests/docs/epic12_docs_adoption_suite');
+const {
+  printRmtToolingDocsReport,
+  runRmtToolingDocsSuite
+} = require('../tests/docs/rmt_tooling_docs_suite');
+const {
+  printEpic14RmtToolingReleaseGatesReport,
+  runEpic14RmtToolingReleaseGatesSuite
+} = require('../tests/platform/epic14_rmt_tooling_release_gates_suite');
+const {
+  printEpic14LspHandoffReport,
+  runEpic14LspHandoffSuite
+} = require('../tests/platform/epic14_lsp_handoff_suite');
+const {
+  printEpic12Rc0HandoffReport,
+  runEpic12Rc0HandoffSuite
+} = require('../tests/platform/epic12_rc0_handoff_suite');
+const {
+  printEpic13Rc1ReadinessReport,
+  runEpic13Rc1ReadinessSuite
+} = require('../tests/platform/epic13_rc1_readiness_suite');
+const {
+  printEpic13ReleaseOwnerAcceptanceReport,
+  runEpic13ReleaseOwnerAcceptanceSuite
+} = require('../tests/platform/epic13_release_owner_acceptance_suite');
+const {
+  printEpic13ConditionalNetworkEvidenceReport,
+  runEpic13ConditionalNetworkEvidenceSuite
+} = require('../tests/platform/epic13_conditional_network_evidence_suite');
+const {
+  printEpic13PackageExportLockReport,
+  runEpic13PackageExportLockSuite
+} = require('../tests/platform/epic13_package_export_lock_suite');
+const {
+  printEpic13KnownResidualTriageReport,
+  runEpic13KnownResidualTriageSuite
+} = require('../tests/platform/epic13_known_residual_triage_suite');
+const {
+  printEpic13HydrationPerformanceClosureReport,
+  runEpic13HydrationPerformanceClosureSuite
+} = require('../tests/platform/epic13_hydration_performance_closure_suite');
+const {
+  printEpic13ProdBrowserCspSmokeReport,
+  runEpic13ProdBrowserCspSmokeSuite
+} = require('../tests/platform/epic13_prod_browser_csp_smoke_suite');
+const {
+  printEpic13VisualOwnerArtifactReport,
+  runEpic13VisualOwnerArtifactSuite
+} = require('../tests/platform/epic13_visual_owner_artifact_suite');
+const {
+  printEpic13RmtProductionReadinessReport,
+  runEpic13RmtProductionReadinessSuite
+} = require('../tests/platform/epic13_rmt_production_readiness_suite');
+const {
+  printEpic13DocsRmtProductionHardeningReport,
+  runEpic13DocsRmtProductionHardeningSuite
+} = require('../tests/platform/epic13_docs_rmt_production_hardening_suite');
+const {
+  printEpic13TrustedDomBoundaryReport,
+  runEpic13TrustedDomBoundarySuite
+} = require('../tests/platform/epic13_trusted_dom_boundary_suite');
+const {
+  printEpic13Rc1MigrationNotesReport,
+  runEpic13Rc1MigrationNotesSuite
+} = require('../tests/platform/epic13_rc1_migration_notes_suite');
+const {
+  printFabricRuntimeReport,
+  runFabricRuntimeSuite
+} = require('../tests/fabric/fabric_runtime_suite');
+const {
+  printFabricLifecycleBoundaryReport,
+  runFabricLifecycleBoundarySuite
+} = require('../tests/fabric/fabric_lifecycle_boundary_suite');
+const {
+  printFabricReporterAdapterReport,
+  runFabricReporterAdapterSuite
+} = require('../tests/fabric/fabric_reporter_adapter_suite');
+const {
+  printFabricRuntimeDiagnosticsBridgeReport,
+  runFabricRuntimeDiagnosticsBridgeSuite
+} = require('../tests/fabric/fabric_runtime_diagnostics_bridge_suite');
+const {
+  printFabricComponentFiberReport,
+  runFabricComponentFiberSuite
+} = require('../tests/fabric/fabric_component_fiber_suite');
+const {
+  printFabricRouteFiberReport,
+  runFabricRouteFiberSuite
+} = require('../tests/fabric/fabric_route_fiber_suite');
+const {
+  printFabricTelemetrySnapshotReport,
+  runFabricTelemetrySnapshotSuite
+} = require('../tests/fabric/fabric_telemetry_snapshot_suite');
+const {
+  printFabricPerformanceMeasurementReport,
+  runFabricPerformanceMeasurementSuite
+} = require('../tests/fabric/fabric_performance_measurement_suite');
+const {
+  printPerformanceRegressionReport,
+  runPerformanceRegressionSuite
+} = require('../tests/performance/performance_regression_suite');
+const {
+  printHydrationPolicyReport,
+  runHydrationPolicySuite
+} = require('../tests/performance/hydration_policy_suite');
+const {
+  printFabricRmtLaneMappingReport,
+  runFabricRmtLaneMappingSuite
+} = require('../tests/fabric/fabric_rmt_lane_mapping_suite');
+const {
+  printSupplyChainPolicyReport,
+  runSupplyChainPolicySuite
+} = require('../tests/security/supply_chain_policy_suite');
+const {
+  printManifestImportPolicyReport,
+  runManifestImportPolicySuite
+} = require('../tests/security/manifest_import_policy_suite');
+const {
+  createRunSummary,
+  printTextSummary,
+  writeJsonReport
+} = require('../tests/utils/reporting');
+
+const rootDir = path.resolve(__dirname, '..');
+
+function toRunnerResult(id, label, result) {
+  const failures = Array.isArray(result.failures) ? result.failures : [];
+  const skips = Array.isArray(result.skips) ? result.skips : [];
+  const warnings = Array.isArray(result.warnings) ? result.warnings : [];
+  const runnerResult = {
+    id,
+    label,
+    status: result.ok ? 'passed' : 'failed',
+    exitCode: result.ok ? 0 : 1,
+    passCount: Array.isArray(result.passes) ? result.passes.length : 0,
+    failureCount: failures.length,
+    skipCount: skips.length,
+    warningCount: warnings.length,
+    failures,
+    skips,
+    warnings
+  };
+  if (result.report) {
+    runnerResult.report = result.report;
+  }
+  return runnerResult;
+}
+
+const suites = [
+  {
+    id: 'core',
+    label: 'Core contract verification',
+    description: 'Runs the structured core contract suite.',
+    run: () => {
+      const result = runCoreContractSuite({ rootDir });
+      printCoreContractReport(result);
+      return toRunnerResult('core', 'Core contract verification', result);
+    }
+  },
+  {
+    id: 'architecture',
+    label: 'Architecture quality gates',
+    description: 'Runs SSOT, Digital Twin and anti-technical-debt architecture gates.',
+    run: () => {
+      const result = runArchitectureGateSuite({ rootDir });
+      printArchitectureGateReport(result);
+      return toRunnerResult('architecture', 'Architecture quality gates', result);
+    }
+  },
+  {
+    id: 'components',
+    label: 'Component-level contract suites',
+    description: 'Runs Component-Level contract suites for prioritized XTend components.',
+    run: () => {
+      const result = runComponentSuites({ rootDir });
+      printComponentSuitesReport(result);
+      return toRunnerResult('components', 'Component-level contract suites', result);
+    }
+  },
+  {
+    id: 'component-contract-v2',
+    label: 'XTend Component Contract v2',
+    description: 'Runs Component Contract v2 factory, validator, metadata and documentation gates.',
+    run: () => {
+      const result = runComponentContractV2Suite({ rootDir });
+      printComponentContractV2Report(result);
+      return toRunnerResult('component-contract-v2', 'XTend Component Contract v2', result);
+    }
+  },
+  {
+    id: 'component-shell-contract',
+    label: 'XTend Component Shell Contract',
+    description: 'Runs the WP-E11-02 Component Shell Contract factory, validator, metadata and documentation gates.',
+    run: () => {
+      const result = runComponentShellContractSuite({ rootDir });
+      printComponentShellContractReport(result);
+      return toRunnerResult('component-shell-contract', 'XTend Component Shell Contract', result);
+    }
+  },
+  {
+    id: 'component-styling-contract',
+    label: 'XTend Component Styling Contract',
+    description: 'Runs the WP-E11-03 Styling, Token and CSS Part Contract factory, validator, metadata and documentation gates.',
+    run: () => {
+      const result = runComponentStylingContractSuite({ rootDir });
+      printComponentStylingContractReport(result);
+      return toRunnerResult('component-styling-contract', 'XTend Component Styling Contract', result);
+    }
+  },
+  {
+    id: 'builder-typescript-blueprint',
+    label: 'XTend Builder TypeScript Component Blueprint',
+    description: 'Runs the WP-E10-07 TypeScript-first component blueprint, template, metadata and generator gates.',
+    run: () => {
+      const result = runBuilderTypeScriptBlueprintSuite({ rootDir });
+      printBuilderTypeScriptBlueprintReport(result);
+      return toRunnerResult('builder-typescript-blueprint', 'XTend Builder TypeScript Component Blueprint', result);
+    }
+  },
+  {
+    id: 'epic10-p0-component-wave',
+    label: 'Epic 10 P0 Component Wave Contract',
+    description: 'Runs the WP-E10-08 P0 component prioritization, contract stub and handoff gates.',
+    run: () => {
+      const result = runEpic10P0ComponentWaveSuite({ rootDir });
+      printEpic10P0ComponentWaveReport(result);
+      return toRunnerResult('epic10-p0-component-wave', 'Epic 10 P0 Component Wave Contract', result);
+    }
+  },
+  {
+    id: 'component-lab-rmt-inspector',
+    label: 'Epic 10 Component Lab and RMT Inspector Pilot',
+    description: 'Runs the WP-E10-12 local Component Lab, RMT Inspector, Telemetry and preview target gates.',
+    run: () => {
+      const result = runComponentLabRmtInspectorSuite({ rootDir });
+      printComponentLabRmtInspectorReport(result);
+      return toRunnerResult('component-lab-rmt-inspector', 'Epic 10 Component Lab and RMT Inspector Pilot', result);
+    }
+  },
+  {
+    id: 'component-lab-ux-inspector',
+    label: 'Epic 11 Component Lab UX Inspector',
+    description: 'Runs the WP-E11-13 Component Lab UX Inspector across shell, style, a11y, performance, state and component-network domains.',
+    run: () => {
+      const result = runComponentLabUxInspectorSuite({ rootDir });
+      printComponentLabUxInspectorReport(result);
+      return toRunnerResult('component-lab-ux-inspector', 'Epic 11 Component Lab UX Inspector', result);
+    }
+  },
+  {
+    id: 'component-ux-browser-smokes',
+    label: 'Epic 11 Component UX browser smokes',
+    description: 'Runs the WP-E11-14 browser-near component UX and compatibility smoke gates.',
+    run: () => {
+      const result = runComponentUxBrowserSmokeSuite({ rootDir });
+      printComponentUxBrowserSmokeReport(result);
+      return toRunnerResult('component-ux-browser-smokes', 'Epic 11 Component UX browser smokes', result);
+    }
+  },
+  {
+    id: 'component-shell-theme-matrix',
+    label: 'Epic 11 Component Shell Theme Matrix',
+    description: 'Runs the WP-E11-15 Component Shell visual theme, motion, density and viewport matrix gates.',
+    run: () => {
+      const result = runComponentShellThemeMatrixSuite({ rootDir });
+      printComponentShellThemeMatrixReport(result);
+      return toRunnerResult('component-shell-theme-matrix', 'Epic 11 Component Shell Theme Matrix', result);
+    }
+  },
+  {
+    id: 'visual-snapshot-automation',
+    label: 'Epic 12 Visual Snapshot Automation Contract',
+    description: 'Runs the WP-E12-10 local-only visual snapshot automation contract and WP-E12-11 runner handoff gates.',
+    run: () => {
+      const result = runVisualSnapshotAutomationSuite({ rootDir });
+      printVisualSnapshotAutomationReport(result);
+      return toRunnerResult('visual-snapshot-automation', 'Epic 12 Visual Snapshot Automation Contract', result);
+    }
+  },
+  {
+    id: 'visual-snapshots',
+    label: 'Epic 12 Visual Snapshot local DOM diff runner',
+    description: 'Runs the WP-E12-11 local fixture, JSON baseline and DOM-first visual snapshot gates.',
+    run: () => {
+      const result = runVisualSnapshotsSuite({ rootDir });
+      printVisualSnapshotsReport(result);
+      return toRunnerResult('visual-snapshots', 'Epic 12 Visual Snapshot local DOM diff runner', result);
+    }
+  },
+  {
+    id: 'design-tokens',
+    label: 'Epic 12 Enterprise Design System Tokens',
+    description: 'Runs the WP-E12-12 design-token productization contract, x-theme, theme matrix and visual snapshot alignment gates.',
+    run: () => {
+      const result = runDesignTokenContractSuite({ rootDir });
+      printDesignTokenContractReport(result);
+      return toRunnerResult('design-tokens', 'Epic 12 Enterprise Design System Tokens', result);
+    }
+  },
+  {
+    id: 'rmt-dsl-authoring-polish',
+    label: 'Epic 12 RMT DSL Authoring Polish',
+    description: 'Runs the WP-E12-13 RMT DSL alias, diagnostics, fixture, metadata and documentation gates.',
+    run: () => {
+      const result = runRmtDslAuthoringPolishSuite({ rootDir });
+      printRmtDslAuthoringPolishReport(result);
+      return toRunnerResult('rmt-dsl-authoring-polish', 'Epic 12 RMT DSL Authoring Polish', result);
+    }
+  },
+  {
+    id: 'rmt-source-model',
+    label: 'Epic 14 RMT Source Model and Range Mapping',
+    description: 'Runs the WP-E14-02 native .rmt source model, offset and JSON Pointer range mapping gates.',
+    run: () => {
+      const result = runRmtSourceModelSuite({ rootDir });
+      printRmtSourceModelReport(result);
+      return toRunnerResult('rmt-source-model', 'Epic 14 RMT Source Model and Range Mapping', result);
+    }
+  },
+  {
+    id: 'rmt-parser',
+    label: 'Epic 14 RMT Parser and Format Adapter',
+    description: 'Runs the WP-E14-03 RMT parser, createRmtFormat parseDocument adapter and fallback diagnostic gates.',
+    run: () => {
+      const result = runRmtParserSuite({ rootDir });
+      printRmtParserReport(result);
+      return toRunnerResult('rmt-parser', 'Epic 14 RMT Parser and Format Adapter', result);
+    }
+  },
+  {
+    id: 'rmt-semantic-graph',
+    label: 'Epic 14 RMT Semantic Graph',
+    description: 'Runs the WP-E14-04 RMT domain index, reference graph, duplicate and cross-domain diagnostic gates.',
+    run: () => {
+      const result = runRmtSemanticGraphSuite({ rootDir });
+      printRmtSemanticGraphReport(result);
+      return toRunnerResult('rmt-semantic-graph', 'Epic 14 RMT Semantic Graph', result);
+    }
+  },
+  {
+    id: 'rmt-linter-rules',
+    label: 'Epic 14 RMT Linter Rule Engine',
+    description: 'Runs the WP-E14-05 RMT rule registry, severity policy, repair hint and deterministic report gates.',
+    run: () => {
+      const result = runRmtLinterRulesSuite({ rootDir });
+      printRmtLinterRulesReport(result);
+      return toRunnerResult('rmt-linter-rules', 'Epic 14 RMT Linter Rule Engine', result);
+    }
+  },
+  {
+    id: 'rmt-linter-cli',
+    label: 'Epic 14 RMT Linter CLI',
+    description: 'Runs the WP-E14-06 xt rmt lint, JSON/Text reporter, directory/glob and exit-code gates.',
+    run: () => {
+      const result = runRmtLinterCliSuite({ rootDir });
+      printRmtLinterCliReport(result);
+      return toRunnerResult('rmt-linter-cli', 'Epic 14 RMT Linter CLI', result);
+    }
+  },
+  {
+    id: 'rmt-completions',
+    label: 'Epic 14 RMT Completion Provider',
+    description: 'Runs the WP-E14-07 RMT top-level, field, reference, tag, lane, mode and policy completion gates.',
+    run: () => {
+      const result = runRmtCompletionSuite({ rootDir });
+      printRmtCompletionReport(result);
+      return toRunnerResult('rmt-completions', 'Epic 14 RMT Completion Provider', result);
+    }
+  },
+  {
+    id: 'rmt-navigation',
+    label: 'Epic 14 RMT Navigation Providers',
+    description: 'Runs the WP-E14-08 hover, document symbols and go-to-definition provider gates.',
+    run: () => {
+      const result = runRmtNavigationSuite({ rootDir });
+      printRmtNavigationReport(result);
+      return toRunnerResult('rmt-navigation', 'Epic 14 RMT Navigation Providers', result);
+    }
+  },
+  {
+    id: 'rmt-language-server',
+    label: 'Epic 14 RMT Language Server MVP',
+    description: 'Runs the WP-E14-09 stdio JSON-RPC LSP, document sync and provider mapping gates.',
+    run: () => {
+      const result = runRmtLanguageServerSuite({ rootDir });
+      printRmtLanguageServerReport(result);
+      return toRunnerResult('rmt-language-server', 'Epic 14 RMT Language Server MVP', result);
+    }
+  },
+  {
+    id: 'rmt-code-actions',
+    label: 'Epic 14 RMT Code Actions',
+    description: 'Runs the WP-E14-10 quick fix, workspace edit and LSP code action provider gates.',
+    run: () => {
+      const result = runRmtCodeActionsSuite({ rootDir });
+      printRmtCodeActionsReport(result);
+      return toRunnerResult('rmt-code-actions', 'Epic 14 RMT Code Actions', result);
+    }
+  },
+  {
+    id: 'rmt-agent-report',
+    label: 'Epic 14 RMT AI Agent Repair Report',
+    description: 'Runs the WP-E14-11 agent repair report, fix order, confidence, impact and no-op gates.',
+    run: () => {
+      const result = runRmtAgentRepairReportSuite({ rootDir });
+      printRmtAgentRepairReport(result);
+      return toRunnerResult('rmt-agent-report', 'Epic 14 RMT AI Agent Repair Report', result);
+    }
+  },
+  {
+    id: 'rmt-editor-packaging',
+    label: 'Epic 14 RMT Editor Packaging',
+    description: 'Runs the WP-E14-12 snippets, editor packaging, VS Code bridge and LSP setup docs gates.',
+    run: () => {
+      const result = runRmtEditorPackagingSuite({ rootDir });
+      printRmtEditorPackagingReport(result);
+      return toRunnerResult('rmt-editor-packaging', 'Epic 14 RMT Editor Packaging', result);
+    }
+  },
+  {
+    id: 'rmt-language-regression',
+    label: 'Epic 14 RMT Language Regression Matrix',
+    description: 'Runs the WP-E14-13 fixture, negative, fuzz, CLI, LSP and agent regression matrix gates.',
+    run: () => {
+      const result = runRmtLanguageRegressionSuite({ rootDir });
+      printRmtLanguageRegressionReport(result);
+      return toRunnerResult('rmt-language-regression', 'Epic 14 RMT Language Regression Matrix', result);
+    }
+  },
+  {
+    id: 'rmt-tooling-docs',
+    label: 'Epic 14 RMT Tooling Docs',
+    description: 'Runs the WP-E14-14 linter, LSP, quick-start, native-authoring, menu and package documentation gates.',
+    run: () => {
+      const result = runRmtToolingDocsSuite({ rootDir });
+      printRmtToolingDocsReport(result);
+      return toRunnerResult('rmt-tooling-docs', 'Epic 14 RMT Tooling Docs', result);
+    }
+  },
+  {
+    id: 'epic14-rmt-tooling',
+    label: 'Epic 14 RMT Tooling Release Gates',
+    description: 'Runs the WP-E14-15 RMT tooling package scripts, export surface, scaffold metadata and CI handoff gates.',
+    run: () => {
+      const result = runEpic14RmtToolingReleaseGatesSuite({ rootDir });
+      printEpic14RmtToolingReleaseGatesReport(result);
+      return toRunnerResult('epic14-rmt-tooling', 'Epic 14 RMT Tooling Release Gates', result);
+    }
+  },
+  {
+    id: 'epic14-lsp-handoff',
+    label: 'Epic 14 LSP Handoff',
+    description: 'Runs the WP-E14-16 Epic closure, LSP capability matrix, known limitations and upstream handoff gates.',
+    run: () => {
+      const result = runEpic14LspHandoffSuite({ rootDir });
+      printEpic14LspHandoffReport(result);
+      return toRunnerResult('epic14-lsp-handoff', 'Epic 14 LSP Handoff', result);
+    }
+  },
+  {
+    id: 'rc0-gate-matrix',
+    label: 'Epic 12 RC0 Gate Matrix',
+    description: 'Runs the WP-E12-14 RC0 PR, release, snapshot, RMT authoring, network, package and residual-policy matrix gates.',
+    run: () => {
+      const result = runEpic12Rc0GateMatrixSuite({ rootDir });
+      printEpic12Rc0GateMatrixReport(result);
+      return toRunnerResult('rc0-gate-matrix', 'Epic 12 RC0 Gate Matrix', result);
+    }
+  },
+  {
+    id: 'epic12-docs-adoption',
+    label: 'Epic 12 Docs Migration and Enterprise Adoption',
+    description: 'Runs the WP-E12-15 docs, migration notes, enterprise adoption and RC0 reference gates.',
+    run: () => {
+      const result = runEpic12DocsAdoptionSuite({ rootDir });
+      printEpic12DocsAdoptionReport(result);
+      return toRunnerResult('epic12-docs-adoption', 'Epic 12 Docs Migration and Enterprise Adoption', result);
+    }
+  },
+  {
+    id: 'epic12-rc0-handoff',
+    label: 'Epic 12 RC0 Handoff',
+    description: 'Runs the WP-E12-16 Epic closure, RC0 owner-review and publish-boundary handoff gates.',
+    run: () => {
+      const result = runEpic12Rc0HandoffSuite({ rootDir });
+      printEpic12Rc0HandoffReport(result);
+      return toRunnerResult('epic12-rc0-handoff', 'Epic 12 RC0 Handoff', result);
+    }
+  },
+  {
+    id: 'epic13-rc1-readiness',
+    label: 'Epic 13 RC1 Readiness',
+    description: 'Runs the WP-E13-01 RC0-to-RC1 readiness model, gate mapping and feature-drift boundary gates.',
+    run: () => {
+      const result = runEpic13Rc1ReadinessSuite({ rootDir });
+      printEpic13Rc1ReadinessReport(result);
+      return toRunnerResult('epic13-rc1-readiness', 'Epic 13 RC1 Readiness', result);
+    }
+  },
+  {
+    id: 'epic13-release-owner-acceptance',
+    label: 'Epic 13 Release Owner Acceptance',
+    description: 'Runs the WP-E13-02 Release Owner Acceptance contract, owner checklist, deferral and publish-boundary gates.',
+    run: () => {
+      const result = runEpic13ReleaseOwnerAcceptanceSuite({ rootDir });
+      printEpic13ReleaseOwnerAcceptanceReport(result);
+      return toRunnerResult('epic13-release-owner-acceptance', 'Epic 13 Release Owner Acceptance', result);
+    }
+  },
+  {
+    id: 'epic13-conditional-network-evidence',
+    label: 'Epic 13 Conditional Network Evidence',
+    description: 'Runs the WP-E13-03 Conditional Network Evidence contract, offline deferral and publish-boundary gates.',
+    run: () => {
+      const result = runEpic13ConditionalNetworkEvidenceSuite({ rootDir });
+      printEpic13ConditionalNetworkEvidenceReport(result);
+      return toRunnerResult('epic13-conditional-network-evidence', 'Epic 13 Conditional Network Evidence', result);
+    }
+  },
+  {
+    id: 'epic13-package-export-lock',
+    label: 'Epic 13 Package Export Lock',
+    description: 'Runs the WP-E13-04 package dry-run artifact, package-files and export-surface lock gates.',
+    run: () => {
+      const result = runEpic13PackageExportLockSuite({ rootDir });
+      printEpic13PackageExportLockReport(result);
+      return toRunnerResult('epic13-package-export-lock', 'Epic 13 Package Export Lock', result);
+    }
+  },
+  {
+    id: 'epic13-known-residual-triage',
+    label: 'Epic 13 Known Residual Triage',
+    description: 'Runs the WP-E13-05 RC0 known residual triage, boundary-closure and hydration watchpoint gates.',
+    run: () => {
+      const result = runEpic13KnownResidualTriageSuite({ rootDir });
+      printEpic13KnownResidualTriageReport(result);
+      return toRunnerResult('epic13-known-residual-triage', 'Epic 13 Known Residual Triage', result);
+    }
+  },
+  {
+    id: 'epic13-hydration-performance-closure',
+    label: 'Epic 13 Hydration Performance Closure',
+    description: 'Runs the WP-E13-06 hydration performance closure, baseline and RC1 watchpoint gates.',
+    run: () => {
+      const result = runEpic13HydrationPerformanceClosureSuite({ rootDir });
+      printEpic13HydrationPerformanceClosureReport(result);
+      return toRunnerResult('epic13-hydration-performance-closure', 'Epic 13 Hydration Performance Closure', result);
+    }
+  },
+  {
+    id: 'epic13-prod-browser-csp-smoke',
+    label: 'Epic 13 PROD Browser CSP Smoke',
+    description: 'Runs the WP-E13-07 PROD-like browser, local-server and CSP smoke preparation gates.',
+    run: async () => {
+      const result = await runEpic13ProdBrowserCspSmokeSuite({ rootDir });
+      printEpic13ProdBrowserCspSmokeReport(result);
+      return toRunnerResult('epic13-prod-browser-csp-smoke', 'Epic 13 PROD Browser CSP Smoke', result);
+    }
+  },
+  {
+    id: 'epic13-visual-owner-artifact',
+    label: 'Epic 13 Visual Owner Artifact',
+    description: 'Runs the WP-E13-08 visual screenshot owner artifact normalization gates.',
+    run: () => {
+      const result = runEpic13VisualOwnerArtifactSuite({ rootDir });
+      printEpic13VisualOwnerArtifactReport(result);
+      return toRunnerResult('epic13-visual-owner-artifact', 'Epic 13 Visual Owner Artifact', result);
+    }
+  },
+  {
+    id: 'epic13-rmt-production-readiness',
+    label: 'Epic 13 RMT Production Readiness',
+    description: 'Runs the WP-E13-09 RMT-first app production readiness bundle gates.',
+    run: () => {
+      const result = runEpic13RmtProductionReadinessSuite({ rootDir });
+      printEpic13RmtProductionReadinessReport(result);
+      return toRunnerResult('epic13-rmt-production-readiness', 'Epic 13 RMT Production Readiness', result);
+    }
+  },
+  {
+    id: 'epic13-docs-rmt-production-hardening',
+    label: 'Epic 13 Docs RMT Production Hardening',
+    description: 'Runs the WP-E13-10 Docs-App RMT Parsedown shell production hardening gates.',
+    run: () => {
+      const result = runEpic13DocsRmtProductionHardeningSuite({ rootDir });
+      printEpic13DocsRmtProductionHardeningReport(result);
+      return toRunnerResult('epic13-docs-rmt-production-hardening', 'Epic 13 Docs RMT Production Hardening', result);
+    }
+  },
+  {
+    id: 'epic13-trusted-dom-boundary',
+    label: 'Epic 13 Trusted DOM Boundary',
+    description: 'Runs the WP-E13-11 Trusted DOM, Parsedown and RMT HTML boundary browser-proof gates.',
+    run: async () => {
+      const result = await runEpic13TrustedDomBoundarySuite({ rootDir });
+      printEpic13TrustedDomBoundaryReport(result);
+      return toRunnerResult('epic13-trusted-dom-boundary', 'Epic 13 Trusted DOM Boundary', result);
+    }
+  },
+  {
+    id: 'epic13-rc1-migration-notes',
+    label: 'Epic 13 RC1 Migration Notes',
+    description: 'Runs the WP-E13-12 RC1 migration notes, SemVer decision and changelog gates.',
+    run: () => {
+      const result = runEpic13Rc1MigrationNotesSuite({ rootDir });
+      printEpic13Rc1MigrationNotesReport(result);
+      return toRunnerResult('epic13-rc1-migration-notes', 'Epic 13 RC1 Migration Notes', result);
+    }
+  },
+  {
+    id: 'component-ux-authoring-docs',
+    label: 'Epic 11 Component UX Authoring Docs',
+    description: 'Runs the WP-E11-16 Component UX authoring documentation and handoff gates.',
+    run: () => {
+      const result = runComponentUxAuthoringDocsSuite({ rootDir });
+      printComponentUxAuthoringDocsReport(result);
+      return toRunnerResult('component-ux-authoring-docs', 'Epic 11 Component UX Authoring Docs', result);
+    }
+  },
+  {
+    id: 'component-long-tail-migration',
+    label: 'Epic 11 Legacy Long-Tail Migration',
+    description: 'Runs the WP-E11-17 legacy long-tail migration planning gates.',
+    run: () => {
+      const result = runComponentLongTailMigrationSuite({ rootDir });
+      printComponentLongTailMigrationReport(result);
+      return toRunnerResult('component-long-tail-migration', 'Epic 11 Legacy Long-Tail Migration', result);
+    }
+  },
+  {
+    id: 'epic11-enterprise-ux-handoff',
+    label: 'Epic 11 Enterprise UX Handoff',
+    description: 'Runs the WP-E11-18 Epic closure, KPI acceptance and enterprise UX handoff gates.',
+    run: () => {
+      const result = runEpic11EnterpriseUxHandoffSuite({ rootDir });
+      printEpic11EnterpriseUxHandoffReport(result);
+      return toRunnerResult('epic11-enterprise-ux-handoff', 'Epic 11 Enterprise UX Handoff', result);
+    }
+  },
+  {
+    id: 'rmt-first-demo-app',
+    label: 'Epic 10 RMT-first Demo App',
+    description: 'Runs the WP-E10-13 RMT-first demo app, no-manual-shell host and browser-smoke gates.',
+    run: () => {
+      const result = runRmtFirstDemoAppSuite({ rootDir });
+      printRmtFirstDemoAppReport(result);
+      return toRunnerResult('rmt-first-demo-app', 'Epic 10 RMT-first Demo App', result);
+    }
+  },
+  {
+    id: 'existing-component-metadata',
+    label: 'Epic 10 Existing Component RMT/Fabric Metadata Migration',
+    description: 'Runs the WP-E10-14 metadata overlay gates for prioritized existing XTend components.',
+    run: () => {
+      const result = runExistingComponentMetadataMigrationSuite({ rootDir });
+      printExistingComponentMetadataMigrationReport(result);
+      return toRunnerResult('existing-component-metadata', 'Epic 10 Existing Component RMT/Fabric Metadata Migration', result);
+    }
+  },
+  {
+    id: 'epic10-platform-gates',
+    label: 'Epic 10 Browser, A11y, Performance and Visual Platform Gates',
+    description: 'Runs the WP-E10-15 platform gate chain, CI handoff and browser/a11y/performance/visual gate metadata.',
+    run: () => {
+      const result = runEpic10PlatformGatesSuite({ rootDir });
+      printEpic10PlatformGatesReport(result);
+      return toRunnerResult('epic10-platform-gates', 'Epic 10 Browser, A11y, Performance and Visual Platform Gates', result);
+    }
+  },
+  {
+    id: 'epic10-release-handoff',
+    label: 'Epic 10 Documentation, Guides and Release Handoff',
+    description: 'Runs the WP-E10-16 documentation, guide structure, release handoff and Epic closure gates.',
+    run: () => {
+      const result = runEpic10ReleaseHandoffSuite({ rootDir });
+      printEpic10ReleaseHandoffReport(result);
+      return toRunnerResult('epic10-release-handoff', 'Epic 10 Documentation, Guides and Release Handoff', result);
+    }
+  },
+  {
+    id: 'a11y-hydration',
+    label: 'Accessibility and hydration gates',
+    description: 'Runs XTend Accessibility and Hydration minimum gates for core UI components.',
+    run: () => {
+      const result = runAccessibilityHydrationSuite({ rootDir });
+      printAccessibilityHydrationReport(result);
+      return toRunnerResult('a11y-hydration', 'Accessibility and hydration gates', result);
+    }
+  },
+  {
+    id: 'screenreader-signals',
+    label: 'Screenreader signal contract gates',
+    description: 'Runs aria-live, status region, error region and announcement contract gates.',
+    run: () => {
+      const result = runScreenreaderSignalSuite({ rootDir });
+      printScreenreaderSignalReport(result);
+      return toRunnerResult('screenreader-signals', 'Screenreader signal contract gates', result);
+    }
+  },
+  {
+    id: 'motion-contrast',
+    label: 'Reduced Motion and High Contrast gates',
+    description: 'Runs prefers-reduced-motion, forced-colors and non-color-status policy gates.',
+    run: () => {
+      const result = runMotionContrastSuite({ rootDir });
+      printMotionContrastReport(result);
+      return toRunnerResult('motion-contrast', 'Reduced Motion and High Contrast gates', result);
+    }
+  },
+  {
+    id: 'runtime-a11y-contract',
+    label: 'XTend Runtime A11y UX Contract',
+    description: 'Runs the WP-E11-04 Runtime A11y behavior, metadata and documentation gates.',
+    run: () => {
+      const result = runRuntimeA11yContractSuite({ rootDir });
+      printRuntimeA11yContractReport(result);
+      return toRunnerResult('runtime-a11y-contract', 'XTend Runtime A11y UX Contract', result);
+    }
+  },
+  {
+    id: 'component-ux-performance',
+    label: 'XTend Component UX Performance Contract',
+    description: 'Runs the WP-E11-05 Component UX Performance profile, budget and metadata gates.',
+    run: () => {
+      const result = runComponentUxPerformanceContractSuite({ rootDir });
+      printComponentUxPerformanceContractReport(result);
+      return toRunnerResult('component-ux-performance', 'XTend Component UX Performance Contract', result);
+    }
+  },
+  {
+    id: 'component-network-contract',
+    label: 'XTend Component Network Contract',
+    description: 'Runs the WP-E11-06 Component Network events, commands, contexts, metadata and documentation gates.',
+    run: () => {
+      const result = runComponentNetworkContractSuite({ rootDir });
+      printComponentNetworkContractReport(result);
+      return toRunnerResult('component-network-contract', 'XTend Component Network Contract', result);
+    }
+  },
+  {
+    id: 'rmt-shell-authoring-ux',
+    label: 'XTend RMT Shell Authoring for Component UX',
+    description: 'Runs the WP-E11-07 RMT Shell Authoring fixture, metadata and documentation gates.',
+    run: () => {
+      const result = runRmtShellAuthoringComponentUxSuite({ rootDir });
+      printRmtShellAuthoringComponentUxReport(result);
+      return toRunnerResult('rmt-shell-authoring-ux', 'XTend RMT Shell Authoring for Component UX', result);
+    }
+  },
+  {
+    id: 'form-controls-ux',
+    label: 'XTend Form Controls UX maturity',
+    description: 'Runs the WP-E11-08 Form Controls UX profile, RMT fixture and documentation gates.',
+    run: () => {
+      const result = runFormControlsUxSuite({ rootDir });
+      printFormControlsUxReport(result);
+      return toRunnerResult('form-controls-ux', 'XTend Form Controls UX maturity', result);
+    }
+  },
+  {
+    id: 'feedback-status-ux',
+    label: 'XTend Feedback and Status UX maturity',
+    description: 'Runs the WP-E11-09 Feedback and Status UX profile, RMT fixture and documentation gates.',
+    run: () => {
+      const result = runFeedbackStatusUxSuite({ rootDir });
+      printFeedbackStatusUxReport(result);
+      return toRunnerResult('feedback-status-ux', 'XTend Feedback and Status UX maturity', result);
+    }
+  },
+  {
+    id: 'navigation-routing-ux',
+    label: 'XTend Navigation and Routing UX maturity',
+    description: 'Runs the WP-E11-10 Navigation and Routing UX profile, RMT fixture and documentation gates.',
+    run: () => {
+      const result = runNavigationRoutingUxSuite({ rootDir });
+      printNavigationRoutingUxReport(result);
+      return toRunnerResult('navigation-routing-ux', 'XTend Navigation and Routing UX maturity', result);
+    }
+  },
+  {
+    id: 'overlay-interaction-ux',
+    label: 'XTend Overlay and Interaction UX maturity',
+    description: 'Runs the WP-E11-11 Overlay and Interaction UX profile, RMT fixture and documentation gates.',
+    run: () => {
+      const result = runOverlayInteractionUxSuite({ rootDir });
+      printOverlayInteractionUxReport(result);
+      return toRunnerResult('overlay-interaction-ux', 'XTend Overlay and Interaction UX maturity', result);
+    }
+  },
+  {
+    id: 'layout-display-media-ux',
+    label: 'XTend Layout Display and Media UX maturity',
+    description: 'Runs the WP-E11-12 Layout, Display and Media UX profile, RMT fixture and documentation gates.',
+    run: () => {
+      const result = runLayoutDisplayMediaUxSuite({ rootDir });
+      printLayoutDisplayMediaUxReport(result);
+      return toRunnerResult('layout-display-media-ux', 'XTend Layout Display and Media UX maturity', result);
+    }
+  },
+  {
+    id: 'catalog-coverage',
+    label: 'XTend Component Catalog Coverage Matrix',
+    description: 'Runs manifest-wide component catalog coverage, maturity and remediation handoff gates.',
+    run: () => {
+      const result = runComponentCatalogCoverageSuite({ rootDir });
+      printComponentCatalogCoverageReport(result);
+      return toRunnerResult('catalog-coverage', 'XTend Component Catalog Coverage Matrix', result);
+    }
+  },
+  {
+    id: 'regression-priority',
+    label: 'XTend visual and browser regression priority plan',
+    description: 'Runs ER-WP-35 visual, browser, mobile, theme and performance prioritization gates.',
+    run: () => {
+      const result = runComponentRegressionPrioritySuite({ rootDir });
+      printComponentRegressionPriorityReport(result);
+      return toRunnerResult('regression-priority', 'XTend visual and browser regression priority plan', result);
+    }
+  },
+  {
+    id: 'fabric',
+    label: 'XTend-Fabric runtime skeleton',
+    description: 'Runs the XTend-Fabric API, diagnostics, reporter and fiber runtime gates.',
+    run: () => {
+      const result = runFabricRuntimeSuite({ rootDir });
+      printFabricRuntimeReport(result);
+      return toRunnerResult('fabric', 'XTend-Fabric runtime skeleton', result);
+    }
+  },
+  {
+    id: 'fabric-lane-mapping',
+    label: 'XTend-Fabric RMT lane mapping',
+    description: 'Runs the XTend-Fabric to XTendRMT schedule lane mapping gates.',
+    run: () => {
+      const result = runFabricRmtLaneMappingSuite({ rootDir });
+      printFabricRmtLaneMappingReport(result);
+      return toRunnerResult('fabric-lane-mapping', 'XTend-Fabric RMT lane mapping', result);
+    }
+  },
+  {
+    id: 'fabric-lifecycle-boundary',
+    label: 'XTend-Fabric component lifecycle error boundary',
+    description: 'Runs Component Lifecycle Error Boundary gates for lifecycle, hydration and event handler failures.',
+    run: async () => {
+      const result = await runFabricLifecycleBoundarySuite({ rootDir });
+      printFabricLifecycleBoundaryReport(result);
+      return toRunnerResult('fabric-lifecycle-boundary', 'XTend-Fabric component lifecycle error boundary', result);
+    }
+  },
+  {
+    id: 'fabric-reporters',
+    label: 'XTend-Fabric reporter adapter contract',
+    description: 'Runs Noop, Console, Test and future Enterprise reporter adapter gates.',
+    run: () => {
+      const result = runFabricReporterAdapterSuite({ rootDir });
+      printFabricReporterAdapterReport(result);
+      return toRunnerResult('fabric-reporters', 'XTend-Fabric reporter adapter contract', result);
+    }
+  },
+  {
+    id: 'fabric-runtime-bridge',
+    label: 'XTend-Fabric xstate API and RMT diagnostics bridge',
+    description: 'Runs xstate, XTend API and XTendRMT diagnostics bridge gates.',
+    run: () => {
+      const result = runFabricRuntimeDiagnosticsBridgeSuite({ rootDir });
+      printFabricRuntimeDiagnosticsBridgeReport(result);
+      return toRunnerResult('fabric-runtime-bridge', 'XTend-Fabric xstate API and RMT diagnostics bridge', result);
+    }
+  },
+  {
+    id: 'fabric-component-fibers',
+    label: 'XTend-Fabric component mount and hydration fibers',
+    description: 'Runs Component Mount, Hydration and Preload fiber instrumentation gates.',
+    run: async () => {
+      const result = await runFabricComponentFiberSuite({ rootDir });
+      printFabricComponentFiberReport(result);
+      return toRunnerResult('fabric-component-fibers', 'XTend-Fabric component mount and hydration fibers', result);
+    }
+  },
+  {
+    id: 'fabric-route-fibers',
+    label: 'XTend-Fabric route navigation and render fibers',
+    description: 'Runs XRouter navigation and route render fiber instrumentation gates.',
+    run: async () => {
+      const result = await runFabricRouteFiberSuite({ rootDir });
+      printFabricRouteFiberReport(result);
+      return toRunnerResult('fabric-route-fibers', 'XTend-Fabric route navigation and render fibers', result);
+    }
+  },
+  {
+    id: 'fabric-telemetry-snapshot',
+    label: 'XTend-Fabric telemetry snapshots and backpressure',
+    description: 'Runs telemetry snapshot, performance runtime and backpressure aggregation gates.',
+    run: () => {
+      const result = runFabricTelemetrySnapshotSuite({ rootDir });
+      printFabricTelemetrySnapshotReport(result);
+      return toRunnerResult('fabric-telemetry-snapshot', 'XTend-Fabric telemetry snapshots and backpressure', result);
+    }
+  },
+  {
+    id: 'fabric-performance-measurements',
+    label: 'XTend-Fabric loader and hydration performance measurements',
+    description: 'Runs Loader, Hydration, Render and Route performance measurement gates.',
+    run: async () => {
+      const result = await runFabricPerformanceMeasurementSuite({ rootDir });
+      printFabricPerformanceMeasurementReport(result);
+      return toRunnerResult('fabric-performance-measurements', 'XTend-Fabric loader and hydration performance measurements', result);
+    }
+  },
+  {
+    id: 'performance-regression',
+    label: 'XTend Performance regression gates',
+    description: 'Runs deterministic local Performance Budget regression gates.',
+    run: async () => {
+      const result = await runPerformanceRegressionSuite({ rootDir });
+      printPerformanceRegressionReport(result);
+      return toRunnerResult('performance-regression', 'XTend Performance regression gates', result);
+    }
+  },
+  {
+    id: 'hydration-policy',
+    label: 'XTend Lazy/Idle/Visible hydration policy gates',
+    description: 'Runs Lazy, Idle and Visible hydration policy gates for Fabric and RMT schedule delegation.',
+    run: async () => {
+      const result = await runHydrationPolicySuite({ rootDir });
+      printHydrationPolicyReport(result);
+      return toRunnerResult('hydration-policy', 'XTend Lazy/Idle/Visible hydration policy gates', result);
+    }
+  },
+  {
+    id: 'references',
+    label: 'Documentation and demo reference paths',
+    description: 'Runs documentation, demo and XTendRMT reference-path gates.',
+    run: () => {
+      const result = runReferencePathSuite({ rootDir });
+      printReferencePathReport(result);
+      return toRunnerResult('references', 'Documentation and demo reference paths', result);
+    }
+  },
+  {
+    id: 'supply-chain',
+    label: 'XTend Supply-Chain policy gates',
+    description: 'Runs offline dependency, license, vulnerability and release-gate policy checks.',
+    run: () => {
+      const result = runSupplyChainPolicySuite({ rootDir });
+      printSupplyChainPolicyReport(result);
+      return toRunnerResult('supply-chain', 'XTend Supply-Chain policy gates', result);
+    }
+  },
+  {
+    id: 'manifest-import-policy',
+    label: 'XTend manifest and dynamic import policy gates',
+    description: 'Runs local Manifest URL, dynamic import allowlist and refusal diagnostics policy checks.',
+    run: () => {
+      const result = runManifestImportPolicySuite({ rootDir });
+      printManifestImportPolicyReport(result);
+      return toRunnerResult('manifest-import-policy', 'XTend manifest and dynamic import policy gates', result);
+    }
+  },
+  {
+    id: 'rmt-compatibility',
+    label: 'XTendRMT compatibility gates',
+    description: 'Runs scaffold, schema, native-domain, adapter, browser-near runtime and workflow gates for RMT-compatible XTend artifacts.',
+    run: () => {
+      const result = runRmtCompatibilitySuite({ rootDir });
+      printRmtCompatibilityReport(result);
+      return toRunnerResult('rmt-compatibility', 'XTendRMT compatibility gates', result);
+    }
+  },
+  {
+    id: 'rmt-first-class-app',
+    label: 'RMT-first XTend app authoring contract',
+    description: 'Runs the Epic 10 RMT-first XTend app authoring fixture and registry gates.',
+    run: () => {
+      const result = runRmtFirstClassAppAuthoringSuite({ rootDir });
+      printRmtFirstClassAppAuthoringReport(result);
+      return toRunnerResult('rmt-first-class-app', 'RMT-first XTend app authoring contract', result);
+    }
+  },
+  {
+    id: 'rmt-surface-authoring',
+    label: 'RMT SurfaceManager authoring contract',
+    description: 'Runs the WP-SM-01 SurfaceManager RMT authoring contract, fixture and metadata gates.',
+    run: () => {
+      const result = runRmtSurfaceManagerAuthoringSuite({ rootDir });
+      printRmtSurfaceManagerAuthoringReport(result);
+      return toRunnerResult('rmt-surface-authoring', 'RMT SurfaceManager authoring contract', result);
+    }
+  },
+  {
+    id: 'surface-controller',
+    label: 'Surface Controller and state snapshot contract',
+    description: 'Runs the WP-SM-02 Surface Controller runtime, xstate mirror and diagnostics gates.',
+    run: () => {
+      const result = runSurfaceControllerSuite({ rootDir });
+      printSurfaceControllerReport(result);
+      return toRunnerResult('surface-controller', 'Surface Controller and state snapshot contract', result);
+    }
+  },
+  {
+    id: 'surface-manager',
+    label: 'SurfaceManager window runtime contract',
+    description: 'Runs the WP-SM-03 x-surface-manager and x-surface-window runtime gates.',
+    run: () => {
+      const result = runSurfaceManagerRuntimeSuite({ rootDir });
+      printSurfaceManagerRuntimeReport(result);
+      return toRunnerResult('surface-manager', 'SurfaceManager window runtime contract', result);
+    }
+  },
+  {
+    id: 'surface-side-panel',
+    label: 'SurfaceManager side-panel runtime contract',
+    description: 'Runs the WP-SM-04 x-side-panel and responsive surface mode gates.',
+    run: () => {
+      const result = runSurfaceManagerSidePanelSuite({ rootDir });
+      printSurfaceManagerSidePanelReport(result);
+      return toRunnerResult('surface-side-panel', 'SurfaceManager side-panel runtime contract', result);
+    }
+  },
+  {
+    id: 'surface-workbench-fixture',
+    label: 'SurfaceManager RMT-first Workbench fixture',
+    description: 'Runs the WP-SM-05 RMT-first workbench fixture, route-bound content and snapshot gates.',
+    run: () => {
+      const result = runSurfaceManagerWorkbenchFixtureSuite({ rootDir });
+      printSurfaceManagerWorkbenchFixtureReport(result);
+      return toRunnerResult('surface-workbench-fixture', 'SurfaceManager RMT-first Workbench fixture', result);
+    }
+  },
+  {
+    id: 'surface-overlay-bridge',
+    label: 'SurfaceManager overlay stack bridge',
+    description: 'Runs the WP-SM-06 x-modal, x-dialog and x-drawer Surface stack compatibility gates.',
+    run: () => {
+      const result = runSurfaceManagerOverlayBridgeSuite({ rootDir });
+      printSurfaceManagerOverlayBridgeReport(result);
+      return toRunnerResult('surface-overlay-bridge', 'SurfaceManager overlay stack bridge', result);
+    }
+  },
+  {
+    id: 'surface-manager-quality',
+    label: 'SurfaceManager browser, a11y, performance and visual gates',
+    description: 'Runs the WP-SM-07 mixed Surface stack quality gates across browser, a11y, performance and visual domains.',
+    run: () => {
+      const result = runSurfaceManagerQualityGatesSuite({ rootDir });
+      printSurfaceManagerQualityGatesReport(result);
+      return toRunnerResult('surface-manager-quality', 'SurfaceManager browser, a11y, performance and visual gates', result);
+    }
+  },
+  {
+    id: 'surface-manager-browser',
+    label: 'SurfaceManager browser quality gate',
+    description: 'Runs the WP-SM-07 SurfaceManager mixed-stack browser smoke contract.',
+    run: () => {
+      const result = runSurfaceManagerQualityGatesSuite({ rootDir, domain: 'browser' });
+      printSurfaceManagerQualityGatesReport(result);
+      return toRunnerResult('surface-manager-browser', 'SurfaceManager browser quality gate', result);
+    }
+  },
+  {
+    id: 'surface-manager-a11y',
+    label: 'SurfaceManager a11y quality gate',
+    description: 'Runs the WP-SM-07 SurfaceManager a11y contract for focus, keyboard, motion and contrast.',
+    run: () => {
+      const result = runSurfaceManagerQualityGatesSuite({ rootDir, domain: 'a11y' });
+      printSurfaceManagerQualityGatesReport(result);
+      return toRunnerResult('surface-manager-a11y', 'SurfaceManager a11y quality gate', result);
+    }
+  },
+  {
+    id: 'surface-manager-performance',
+    label: 'SurfaceManager performance quality gate',
+    description: 'Runs the WP-SM-07 SurfaceManager performance budget contract.',
+    run: () => {
+      const result = runSurfaceManagerQualityGatesSuite({ rootDir, domain: 'performance' });
+      printSurfaceManagerQualityGatesReport(result);
+      return toRunnerResult('surface-manager-performance', 'SurfaceManager performance quality gate', result);
+    }
+  },
+  {
+    id: 'surface-manager-visual',
+    label: 'SurfaceManager visual quality gate',
+    description: 'Runs the WP-SM-07 SurfaceManager DOM visual baseline contract.',
+    run: () => {
+      const result = runSurfaceManagerQualityGatesSuite({ rootDir, domain: 'visual' });
+      printSurfaceManagerQualityGatesReport(result);
+      return toRunnerResult('surface-manager-visual', 'SurfaceManager visual quality gate', result);
+    }
+  },
+  {
+    id: 'surface-native-rmt',
+    label: 'SurfaceManager native RMT surfaces domain',
+    description: 'Runs the WP-SM-08 native RMT surfaces domain and xtend.surface adapter handoff gates.',
+    run: () => {
+      const result = runSurfaceManagerNativeRmtSurfacesSuite({ rootDir });
+      printSurfaceManagerNativeRmtSurfacesReport(result);
+      return toRunnerResult('surface-native-rmt', 'SurfaceManager native RMT surfaces domain', result);
+    }
+  },
+  {
+    id: 'surface-release-handoff',
+    label: 'SurfaceManager release handoff',
+    description: 'Runs the WP-SM-09 SurfaceManager docs, Component Lab and migration handoff gates.',
+    run: () => {
+      const result = runSurfaceManagerReleaseHandoffSuite({ rootDir });
+      printSurfaceManagerReleaseHandoffReport(result);
+      return toRunnerResult('surface-release-handoff', 'SurfaceManager release handoff', result);
+    }
+  },
+  {
+    id: 'rmt-component-fabric-ingestion',
+    label: 'RMT XTend component Fabric/Lane ingestion',
+    description: 'Runs the Epic 10 XTend component adapter Fabric/Lane ingestion gates.',
+    run: () => {
+      const result = runRmtComponentFabricLaneIngestionSuite({ rootDir });
+      printRmtComponentFabricLaneIngestionReport(result);
+      return toRunnerResult('rmt-component-fabric-ingestion', 'RMT XTend component Fabric/Lane ingestion', result);
+    }
+  },
+  {
+    id: 'rmt-component-lifecycle-telemetry',
+    label: 'RMT XTend component lifecycle telemetry',
+    description: 'Runs the Epic 10 XTend component lifecycle telemetry and Fabric snapshot gates.',
+    run: () => {
+      const result = runRmtComponentLifecycleTelemetrySuite({ rootDir });
+      printRmtComponentLifecycleTelemetryReport(result);
+      return toRunnerResult('rmt-component-lifecycle-telemetry', 'RMT XTend component lifecycle telemetry', result);
+    }
+  },
+  {
+    id: 'docs-rmt-pilot',
+    label: 'Docs-App RMT Parsedown scheduling pilot',
+    description: 'Runs the ER-WP-40 Docs-App Parsedown scheduling pilot gates.',
+    run: () => {
+      const result = runDocsRmtPilotSuite({ rootDir });
+      printDocsRmtPilotReport(result);
+      return toRunnerResult('docs-rmt-pilot', 'Docs-App RMT Parsedown scheduling pilot', result);
+    }
+  },
+  {
+    id: 'browser',
+    label: 'Browser smoke harness',
+    description: 'Validates Custom Element and core-flow browser smoke fixtures and optionally runs Safari WebDriver.',
+    run: async () => {
+      const result = await runBrowserSmokeSuite({ rootDir });
+      printBrowserSmokeReport(result);
+      return toRunnerResult('browser', 'Browser smoke harness', result);
+    }
+  }
+];
+
+function printHelp() {
+  console.log(`XTend Test Runner
+
+Usage:
+  node scripts/run_xtend_tests.js [suite...] [options]
+  node scripts/run_xtend_tests.js --list
+
+Options:
+  --json                 Print a machine-readable JSON summary and suppress suite detail output.
+  --report <path>        Write a machine-readable JSON report to a repository-relative or absolute path.
+  --help                 Show this help.
+
+Suites:
+${suites.map((suite) => `  ${suite.id.padEnd(10)} ${suite.description}`).join('\n')}
+
+Examples:
+  node scripts/run_xtend_tests.js
+  node scripts/run_xtend_tests.js core
+  node scripts/run_xtend_tests.js architecture
+  node scripts/run_xtend_tests.js components
+  node scripts/run_xtend_tests.js component-contract-v2
+  node scripts/run_xtend_tests.js component-shell-contract
+  node scripts/run_xtend_tests.js component-styling-contract
+  node scripts/run_xtend_tests.js epic10-p0-component-wave
+  node scripts/run_xtend_tests.js component-lab-rmt-inspector
+  node scripts/run_xtend_tests.js component-lab-ux-inspector
+  node scripts/run_xtend_tests.js component-ux-browser-smokes
+  node scripts/run_xtend_tests.js component-shell-theme-matrix
+  node scripts/run_xtend_tests.js visual-snapshot-automation
+  node scripts/run_xtend_tests.js visual-snapshots
+  node scripts/run_xtend_tests.js design-tokens
+  node scripts/run_xtend_tests.js rmt-dsl-authoring-polish
+  node scripts/run_xtend_tests.js rmt-source-model
+  node scripts/run_xtend_tests.js rmt-parser
+  node scripts/run_xtend_tests.js rmt-semantic-graph
+  node scripts/run_xtend_tests.js rmt-linter-rules
+  node scripts/run_xtend_tests.js rmt-linter-cli
+  node scripts/run_xtend_tests.js rmt-completions
+  node scripts/run_xtend_tests.js rmt-navigation
+  node scripts/run_xtend_tests.js rmt-language-server
+  node scripts/run_xtend_tests.js rmt-code-actions
+  node scripts/run_xtend_tests.js rmt-agent-report
+  node scripts/run_xtend_tests.js rmt-editor-packaging
+  node scripts/run_xtend_tests.js rmt-language-regression
+  node scripts/run_xtend_tests.js rmt-tooling-docs
+  node scripts/run_xtend_tests.js epic14-rmt-tooling
+  node scripts/run_xtend_tests.js epic14-lsp-handoff
+  node scripts/run_xtend_tests.js rc0-gate-matrix
+  node scripts/run_xtend_tests.js epic12-docs-adoption
+  node scripts/run_xtend_tests.js epic12-rc0-handoff
+  node scripts/run_xtend_tests.js epic13-rc1-readiness
+  node scripts/run_xtend_tests.js epic13-release-owner-acceptance
+  node scripts/run_xtend_tests.js epic13-conditional-network-evidence
+  node scripts/run_xtend_tests.js epic13-package-export-lock
+  node scripts/run_xtend_tests.js epic13-known-residual-triage
+  node scripts/run_xtend_tests.js epic13-hydration-performance-closure
+  node scripts/run_xtend_tests.js epic13-prod-browser-csp-smoke
+  node scripts/run_xtend_tests.js epic13-visual-owner-artifact
+  node scripts/run_xtend_tests.js epic13-rmt-production-readiness
+  node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening
+  node scripts/run_xtend_tests.js epic13-trusted-dom-boundary
+  node scripts/run_xtend_tests.js epic13-rc1-migration-notes
+  node scripts/run_xtend_tests.js component-ux-authoring-docs
+  node scripts/run_xtend_tests.js component-long-tail-migration
+  node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff
+  node scripts/run_xtend_tests.js a11y-hydration
+  node scripts/run_xtend_tests.js screenreader-signals
+  node scripts/run_xtend_tests.js motion-contrast
+  node scripts/run_xtend_tests.js runtime-a11y-contract
+  node scripts/run_xtend_tests.js component-ux-performance
+  node scripts/run_xtend_tests.js component-network-contract
+  node scripts/run_xtend_tests.js rmt-shell-authoring-ux
+  node scripts/run_xtend_tests.js form-controls-ux
+  node scripts/run_xtend_tests.js catalog-coverage
+  node scripts/run_xtend_tests.js regression-priority
+  node scripts/run_xtend_tests.js fabric
+  node scripts/run_xtend_tests.js fabric-lane-mapping
+  node scripts/run_xtend_tests.js fabric-lifecycle-boundary
+  node scripts/run_xtend_tests.js fabric-reporters
+  node scripts/run_xtend_tests.js fabric-runtime-bridge
+  node scripts/run_xtend_tests.js fabric-component-fibers
+  node scripts/run_xtend_tests.js fabric-route-fibers
+  node scripts/run_xtend_tests.js fabric-telemetry-snapshot
+  node scripts/run_xtend_tests.js fabric-performance-measurements
+  node scripts/run_xtend_tests.js performance-regression
+  node scripts/run_xtend_tests.js hydration-policy
+  node scripts/run_xtend_tests.js references
+  node scripts/run_xtend_tests.js supply-chain
+	  node scripts/run_xtend_tests.js manifest-import-policy
+  node scripts/run_xtend_tests.js rmt-compatibility
+  node scripts/run_xtend_tests.js rmt-first-class-app
+  node scripts/run_xtend_tests.js rmt-surface-authoring
+  node scripts/run_xtend_tests.js surface-controller
+  node scripts/run_xtend_tests.js surface-manager
+  node scripts/run_xtend_tests.js surface-side-panel
+  node scripts/run_xtend_tests.js surface-workbench-fixture
+  node scripts/run_xtend_tests.js surface-overlay-bridge
+  node scripts/run_xtend_tests.js surface-manager-quality
+  node scripts/run_xtend_tests.js surface-manager-browser
+  node scripts/run_xtend_tests.js surface-manager-a11y
+  node scripts/run_xtend_tests.js surface-manager-performance
+  node scripts/run_xtend_tests.js surface-manager-visual
+  node scripts/run_xtend_tests.js rmt-component-fabric-ingestion
+	  node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry
+	  node scripts/run_xtend_tests.js docs-rmt-pilot
+	  node scripts/run_xtend_tests.js browser
+  node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.json
+  node scripts/run_xtend_tests.js core architecture --json
+`);
+}
+
+function printSuites() {
+  suites.forEach((suite) => {
+    console.log(`${suite.id}\t${suite.label}\t${suite.description}`);
+  });
+}
+
+function resolveRequestedSuites(requested) {
+  if (requested.length === 0 || requested.includes('all')) {
+    return suites;
+  }
+
+  const selected = [];
+  const unknown = [];
+
+  requested.forEach((id) => {
+    const suite = suites.find((candidate) => candidate.id === id);
+    if (suite) {
+      selected.push(suite);
+      return;
+    }
+    unknown.push(id);
+  });
+
+  if (unknown.length > 0) {
+    console.error(`Unknown XTend test suite: ${unknown.join(', ')}`);
+    console.error('Run `node scripts/run_xtend_tests.js --list` to see available suites.');
+    process.exit(1);
+  }
+
+  return selected;
+}
+
+function parseArgs(args) {
+  const options = {
+    help: false,
+    list: false,
+    json: false,
+    reportPath: null,
+    suiteIds: []
+  };
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--help' || arg === '-h') {
+      options.help = true;
+    } else if (arg === '--list') {
+      options.list = true;
+    } else if (arg === '--json') {
+      options.json = true;
+    } else if (arg === '--report') {
+      const value = args[index + 1];
+      if (!value || value.startsWith('--')) {
+        console.error('Missing value for --report.');
+        process.exit(1);
+      }
+      options.reportPath = value;
+      index += 1;
+    } else if (arg.startsWith('--report=')) {
+      options.reportPath = arg.slice('--report='.length);
+    } else if (arg.startsWith('--')) {
+      console.error(`Unknown XTend test runner option: ${arg}`);
+      console.error('Run `node scripts/run_xtend_tests.js --help` to see available options.');
+      process.exit(1);
+    } else {
+      options.suiteIds.push(arg);
+    }
+  }
+
+  return options;
+}
+
+async function withMutedConsole(task) {
+  const originalLog = console.log;
+  const originalError = console.error;
+  console.log = () => {};
+  console.error = () => {};
+  try {
+    return await task();
+  } finally {
+    console.log = originalLog;
+    console.error = originalError;
+  }
+}
+
+function runSuite(suite, options = {}) {
+  if (!options.json) {
+    console.log(`\n== ${suite.label} ==\n`);
+  }
+
+  return suite.run();
+}
+
+async function main() {
+  const options = parseArgs(process.argv.slice(2));
+
+  if (options.help) {
+    printHelp();
+    return;
+  }
+
+  if (options.list) {
+    printSuites();
+    return;
+  }
+
+  const selectedSuites = resolveRequestedSuites(options.suiteIds);
+  const results = [];
+  const started = Date.now();
+  const startedAt = new Date(started).toISOString();
+  for (const suite of selectedSuites) {
+    const run = () => runSuite(suite, options);
+    results.push(options.json ? await withMutedConsole(run) : await run());
+  }
+  const completed = Date.now();
+  const summary = createRunSummary(results, {
+    startedAt,
+    completedAt: new Date(completed).toISOString(),
+    durationMs: completed - started
+  });
+
+  if (options.reportPath) {
+    const reportPath = writeJsonReport(summary, options.reportPath, rootDir);
+    if (!options.json) {
+      console.log(`\nXTend JSON report written: ${reportPath}`);
+    }
+  }
+
+  if (options.json) {
+    console.log(JSON.stringify(summary, null, 2));
+  } else {
+    printTextSummary(summary);
+  }
+
+  if (summary.status !== 'passed') {
+    const failed = summary.suites.find((suite) => suite.status !== 'passed');
+    process.exit((failed && failed.exitCode) || 1);
+  }
+}
+
+main().catch((error) => {
+  console.error(error && error.stack ? error.stack : String(error));
+  process.exit(1);
+});

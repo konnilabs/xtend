@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-button component fixture</title>
+</head>
+<body>
+  <x-button
+    id="component-button"
+    variant="danger"
+    size="large"
+    loading
+    aria-label="Save settings">
+    Save
+  </x-button>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.__xtendButtonInteractions = [];
+    window.__xtendButtonMeasurements = [];
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+    document.addEventListener('button-interaction', (event) => {
+      window.__xtendButtonInteractions.push(event.detail);
+    });
+    document.addEventListener('button-performance-measured', (event) => {
+      window.__xtendButtonMeasurements.push(event.detail);
+    });
+  </script>
+  <script type="module" src="/components/xbutton.js"></script>
+  <script type="module">
+    const result = window.__xtendComponentResult;
+    const record = (name, passed, detail = {}) => {
+      result.checks.push({ name, passed, detail });
+      if (!passed) result.errors.push(name);
+    };
+
+    await customElements.whenDefined('x-button');
+    const button = document.getElementById('component-button');
+    button.setLoading(false);
+    button.shadowRoot.querySelector('button').click();
+    button.shadowRoot.querySelector('button').dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'Enter',
+      bubbles: true,
+      composed: true
+    }));
+
+    const state = window.xstate.get('xbutton-state-component-button');
+    const snapshot = button.snapshotPerformance();
+    const interactionBudget = button.getInteractionBudget();
+
+    record('state synchronized', state && state.schema === 'xtend.component.x-button.state.v1');
+    record('performance snapshot available', snapshot && snapshot.schema === 'xtend.component.performance-snapshot.v1');
+    record('interaction budget exposes touch target', interactionBudget && interactionBudget.touchTargetMinPx === 44);
+    record('click interaction measured', window.__xtendButtonInteractions.some((entry) => entry.type === 'click'));
+    record('keyboard interaction measured', window.__xtendButtonInteractions.some((entry) => entry.type === 'keyboard'));
+
+    result.status = result.errors.length === 0 ? 'passed' : 'failed';
+  </script>
+</body>
+</html>

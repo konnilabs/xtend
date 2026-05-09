@@ -1,0 +1,79 @@
+{
+  "schema": "xtend.performance.regression-baseline.v1",
+  "contract": "xtend.performance.regression-gate.v1",
+  "name": "xtend-local-deterministic-baseline",
+  "sampleKind": "local",
+  "warnMultiplier": 1,
+  "failMultiplier": 1.5,
+  "allowedWarningCount": 0,
+  "allowedFailCount": 0,
+  "performanceEntryLimit": 40,
+  "entries": [
+    {
+      "name": "xtend.loader.manifest",
+      "entryType": "measure",
+      "startTime": 1,
+      "duration": 12
+    },
+    {
+      "name": "xtend.loader.module",
+      "entryType": "measure",
+      "startTime": 2,
+      "duration": 24
+    },
+    {
+      "name": "xtend.component.define",
+      "entryType": "measure",
+      "startTime": 3,
+      "duration": 14
+    },
+    {
+      "name": "xtend.component.mount",
+      "entryType": "measure",
+      "startTime": 4,
+      "duration": 18
+    },
+    {
+      "name": "xtend.component.hydrate",
+      "entryType": "measure",
+      "startTime": 5,
+      "duration": 31
+    },
+    {
+      "name": "xtend.component.render",
+      "entryType": "measure",
+      "startTime": 6,
+      "duration": 22
+    },
+    {
+      "name": "xtend.component.update",
+      "entryType": "measure",
+      "startTime": 7,
+      "duration": 20
+    },
+    {
+      "name": "xtend.event.handler",
+      "entryType": "measure",
+      "startTime": 8,
+      "duration": 11
+    },
+    {
+      "name": "xtend.route.navigate",
+      "entryType": "measure",
+      "startTime": 9,
+      "duration": 56
+    },
+    {
+      "name": "xtend.route.render",
+      "entryType": "measure",
+      "startTime": 10,
+      "duration": 42
+    },
+    {
+      "name": "xtend.diagnostics.snapshot",
+      "entryType": "measure",
+      "startTime": 11,
+      "duration": 96
+    }
+  ]
+}

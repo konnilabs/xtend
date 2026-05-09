@@ -1,0 +1,13 @@
+{
+  "schema": "xtend.rmt.editor.vscode-grammar.v1",
+  "name": "XTendRMT",
+  "scopeName": "source.rmt",
+  "fileTypes": [
+    "rmt"
+  ],
+  "patterns": [
+    {
+      "include": "source.json"
+    }
+  ]
+}

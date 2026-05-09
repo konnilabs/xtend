@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-header component fixture</title>
+</head>
+<body>
+  <x-header id="component-header" logo-size="40" sticky>
+    <span slot="title">Docs Header</span>
+    <form slot="search" role="search" aria-label="Docs search">
+      <label for="docs-query">Search</label>
+      <input id="docs-query" name="q" type="search" placeholder="Search docs">
+    </form>
+    <button slot="actions">Theme</button>
+    <a slot="nav" href="/overview">Overview</a>
+    <button slot="utility">Legacy Utility</button>
+  </x-header>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xheader.js"></script>
+</body>
+</html>

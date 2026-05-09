@@ -1,0 +1,110 @@
+{
+  "schema": "xtend.surface.quality-gates.visual-baseline.v1",
+  "workpackage": "WP-SM-07",
+  "fixture": "tests/browser/fixtures/surface-manager-quality-smoke.html",
+  "baselineType": "dom-structure-json",
+  "binaryBaselines": false,
+  "snapshotCount": 4,
+  "surfaceTypes": [
+    "window",
+    "side-panel",
+    "modal",
+    "dialog",
+    "drawer"
+  ],
+  "records": [
+    {
+      "id": "surface-quality-desktop-mixed-stack",
+      "viewport": "desktop",
+      "theme": "light",
+      "motion": "default",
+      "root": "x-surface-manager[data-quality-gate=\"surface-manager-mixed-stack\"]",
+      "children": [
+        "x-surface-window#quality-inspector",
+        "x-surface-window#quality-editor",
+        "x-side-panel#quality-properties",
+        "x-modal#quality-modal",
+        "x-dialog#quality-dialog",
+        "x-drawer#quality-drawer"
+      ],
+      "surfaceStates": [
+        "quality.inspector:open",
+        "quality.editor:open",
+        "quality.properties:open",
+        "quality.modal:open",
+        "quality.dialog:open",
+        "quality.drawer:open"
+      ],
+      "assertions": [
+        "single-surface-manager-root",
+        "mixed-stack-z-order",
+        "legacy-overlay-events-preserved"
+      ]
+    },
+    {
+      "id": "surface-quality-mobile-responsive-panel",
+      "viewport": "mobile",
+      "theme": "light",
+      "motion": "reduced",
+      "root": "x-side-panel#quality-properties[responsive-mode=\"fullscreen-under-720\"]",
+      "children": [
+        "x-side-panel#quality-properties",
+        "x-drawer#quality-drawer[modal]"
+      ],
+      "surfaceStates": [
+        "quality.properties:fullscreen-under-720",
+        "quality.drawer:modal"
+      ],
+      "assertions": [
+        "responsive-fullscreen-panel",
+        "drawer-modal-focus-trap",
+        "reduced-motion-no-essential-animation"
+      ]
+    },
+    {
+      "id": "surface-quality-topmost-overlay",
+      "viewport": "desktop",
+      "theme": "dark",
+      "motion": "default",
+      "root": "x-modal#quality-modal, x-dialog#quality-dialog, x-drawer#quality-drawer",
+      "children": [
+        "x-modal#quality-modal",
+        "x-dialog#quality-dialog",
+        "x-drawer#quality-drawer"
+      ],
+      "surfaceStates": [
+        "quality.modal:surface-overlay-z",
+        "quality.dialog:surface-overlay-z",
+        "quality.drawer:surface-overlay-z"
+      ],
+      "assertions": [
+        "topmost-overlay-stack",
+        "surface-overlay-backdrop-z",
+        "escape-topmost-policy"
+      ]
+    },
+    {
+      "id": "surface-quality-forced-colors-a11y",
+      "viewport": "desktop",
+      "theme": "forced-colors",
+      "motion": "reduced",
+      "root": "x-surface-manager#surface-quality-manager",
+      "children": [
+        "x-surface-window#quality-editor",
+        "x-side-panel#quality-properties",
+        "x-modal#quality-modal"
+      ],
+      "surfaceStates": [
+        "quality.manager:role-application",
+        "quality.editor:role-dialog",
+        "quality.properties:role-complementary",
+        "quality.modal:aria-modal"
+      ],
+      "assertions": [
+        "forced-colors-visible-focus",
+        "screenreader-status-region",
+        "focus-return"
+      ]
+    }
+  ]
+}

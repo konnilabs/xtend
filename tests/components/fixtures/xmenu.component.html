@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-menu component fixture</title>
+</head>
+<body>
+  <x-router id="component-router" mode="hash">
+    <x-route path="/overview" component="demo-overview"></x-route>
+    <x-route path="/settings" component="demo-settings"></x-route>
+  </x-router>
+  <x-menu
+    id="component-menu"
+    data-rmt-schedule="ui.user-blocking.navigation"
+    data-xtend-lane="user-blocking">
+    <a href="/overview">Overview</a>
+    <button type="button">Action</button>
+    <x-link href="/settings">Settings</x-link>
+    <span role="menuitem">Custom item</span>
+  </x-menu>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.__xtendMenuInteractions = [];
+    window.__xtendMenuNavigation = [];
+    window.__xtendMenuMeasurements = [];
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+    document.addEventListener('menu-item-clicked', (event) => {
+      window.__xtendMenuInteractions.push(event.detail);
+    });
+    document.addEventListener('menu-navigate', (event) => {
+      window.__xtendMenuNavigation.push(event.detail);
+    });
+    document.addEventListener('menu-performance-measured', (event) => {
+      window.__xtendMenuMeasurements.push(event.detail);
+    });
+  </script>
+  <script type="module" src="/components/xmenu.js"></script>
+  <script type="module">
+    const result = window.__xtendComponentResult;
+    const record = (name, passed, detail = {}) => {
+      result.checks.push({ name, passed, detail });
+      if (!passed) result.errors.push(name);
+    };
+
+    await customElements.whenDefined('x-menu');
+    const menu = document.getElementById('component-menu');
+    const items = Array.from(menu.querySelectorAll('a, button, x-link, [role="menuitem"]'));
+
+    items[0].dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'ArrowRight',
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+    items[1].click();
+    items[2].click();
+
+    const state = window.xstate.get('xmenu-state-component-menu');
+    const snapshot = menu.snapshotPerformance();
+    const interactionBudget = menu.getInteractionBudget();
+
+    record('menu state synchronized', state && state.schema === 'xtend.component.x-menu.state.v1');
+    record('performance snapshot available', snapshot && snapshot.schema === 'xtend.component.performance-snapshot.v1');
+    record('interaction budget exposes touch target', interactionBudget && interactionBudget.touchTargetMinPx === 44);
+    record('keyboard navigation measured', window.__xtendMenuMeasurements.some((entry) => entry.name === 'xtend.interaction.keyboard'));
+    record('menu item clicked event emitted', window.__xtendMenuInteractions.some((entry) => entry.index === 1));
+    record('x-link route navigation emitted', window.__xtendMenuNavigation.some((entry) => entry.path === '/settings'));
+
+    result.status = result.errors.length === 0 ? 'passed' : 'failed';
+  </script>
+</body>
+</html>

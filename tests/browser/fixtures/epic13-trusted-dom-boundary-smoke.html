@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'nonce-xtend-e13-trusted-dom-boundary'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'">
+  <title>XTend Epic 13 Trusted DOM Boundary Smoke</title>
+</head>
+<body data-xtend-fixture="epic13-trusted-dom-boundary">
+  <main id="trusted-dom-boundary-root" data-contract="xtend.epic13.trusted-dom-boundary-browser-smoke.v1">
+    <xtend-doc-page id="trusted-dom-page"></xtend-doc-page>
+  </main>
+
+  <script nonce="xtend-e13-trusted-dom-boundary">
+    window.__xtendTrustedDomBoundaryExecuted = false;
+    window.xtendDocsPages = {
+      readme: [
+        '<h1>Trusted DOM Probe</h1>',
+        '<p>Safe Parsedown copy survives.</p>',
+        '<p><code>&amp;lt;x-code&amp;gt;</code> component name survives.</p>',
+        '<script>window.__xtendTrustedDomBoundaryExecuted = true</' + 'script>',
+        '<img src="javascript:alert(1)" onerror="window.__xtendTrustedDomBoundaryExecuted = true">',
+        '<a href="javascript:alert(1)" onclick="window.__xtendTrustedDomBoundaryExecuted = true">blocked link</a>',
+        '<iframe srcdoc="<script>window.__xtendTrustedDomBoundaryExecuted = true</' + 'script>"></iframe>',
+        '<x-link href="./components/xalert.md">routed md link</x-link>'
+      ].join('')
+    };
+    window.xtendDocsPagesMeta = {
+      readme: {
+        schema: 'xtend.docs.parsedown-rmt-page.v1',
+        source: 'docs/README.md',
+        template: 'docs.readme.markdown',
+        shellFirst: true,
+        shellTemplate: 'docs.app.shell',
+        contentSlot: 'content',
+        contentKind: 'parsedownHtml',
+        adapter: 'docs.parsedown',
+        markupClass: 'parsedownHtml',
+        trustBoundary: 'xtend.security.sanitizing-boundary.v1',
+        schedules: {
+          shell: 'docs.shell.render',
+          parse: 'docs.markdown.parse',
+          route: 'docs.route.render',
+          hydrate: 'docs.page.hydrate',
+          rich: 'docs.rich-content.prepare',
+          media: 'docs.media.lazy',
+          diagnostics: 'docs.diagnostics.snapshot'
+        },
+        endpoints: {
+          parse: 'xtendrmt.docs.parsedown.parse'
+        }
+      }
+    };
+    window.xtendDocsTitles = { readme: 'Trusted DOM Probe' };
+    window.xtendDocsRmtProductionHardening = {
+      schema: 'xtend.epic13.docs-rmt-production-hardening.v1',
+      renderSchema: 'xtend.epic13.docs-rmt-production-hardening.v1',
+      extensionSlots: ['docs.slot.content', 'docs.slot.rich-content', 'docs.slot.media', 'docs.slot.diagnostics'],
+      nextWorkpackage: 'WP-E13-13'
+    };
+    window.__xtendEpic13TrustedDomBoundaryResult = {
+      schema: 'xtend.epic13.trusted-dom-boundary-browser-smoke.v1',
+      status: 'pending',
+      checks: [],
+      errors: []
+    };
+  </script>
+  <script src="/docs/utils/pageloader.js" nonce="xtend-e13-trusted-dom-boundary"></script>
+  <script nonce="xtend-e13-trusted-dom-boundary">
+    function recordCheck(name, ok, detail) {
+      window.__xtendEpic13TrustedDomBoundaryResult.checks.push({ name, ok, detail: detail || null });
+      if (!ok) {
+        window.__xtendEpic13TrustedDomBoundaryResult.errors.push(name);
+      }
+    }
+
+    function complete(status) {
+      window.__xtendEpic13TrustedDomBoundaryResult.status = status;
+      window.__xtendEpic13TrustedDomBoundaryResult.completedAt = new Date().toISOString();
+    }
+
+    function runTrustedDomBoundarySmokeChecks() {
+      const content = document.getElementById('md-content');
+      const sanitized = window.xtendDocsTrustedDomLastSanitize || {};
+      const html = content ? content.innerHTML : '';
+
+      recordCheck('trusted dom sanitizer api exposed', Boolean(window.xtendDocsTrustedDomBoundary && window.xtendDocsTrustedDomBoundary.sanitizer === 'xtend.security.trusted-dom-sanitizer.v1'));
+      recordCheck('parsedown content sanitized before innerhtml sink', Boolean(content && content.getAttribute('data-rmt-sanitized') === 'true'));
+      recordCheck('trusted dom proof schema marked on sink', Boolean(content && content.getAttribute('data-rmt-trusted-dom-proof') === 'xtend.epic13.trusted-dom-boundary.v1'));
+      recordCheck('script element removed from parsedown html', Boolean(content && !content.querySelector('script')));
+      recordCheck('iframe element removed from parsedown html', Boolean(content && !content.querySelector('iframe')));
+      recordCheck('event handler attributes removed', !/onerror|onclick/i.test(html));
+      recordCheck('javascript urls removed', !/javascript:/i.test(html));
+      recordCheck('srcdoc removed', !/srcdoc/i.test(html));
+      recordCheck('safe parsedown text preserved', Boolean(content && content.textContent.includes('Safe Parsedown copy survives.')));
+      recordCheck('parsedown inline code entities normalized', Boolean(content && content.textContent.includes('<x-code> component name survives.')));
+      recordCheck('sanitizer records code entity normalization', Number(sanitized.normalizedCodeEntityCount || 0) >= 1);
+      recordCheck('sanitizer records removed payloads', Number(sanitized.removedCount || 0) >= 4);
+      recordCheck('malicious script did not execute', window.__xtendTrustedDomBoundaryExecuted === false);
+      recordCheck('rmt shell remained shell first', Boolean(window.xtendDocsRmtProductionLastRender && window.xtendDocsRmtProductionLastRender.shellFirst === true));
+      recordCheck('rmt kernel remains parser neutral', Boolean(window.xtendDocsRmtProductionLastRender && window.xtendDocsRmtProductionLastRender.parsedownEmbeddedInRmtKernel === false));
+
+      complete(window.__xtendEpic13TrustedDomBoundaryResult.errors.length === 0 ? 'passed' : 'failed');
+    }
+
+    window.addEventListener('securitypolicyviolation', (event) => {
+      window.__xtendEpic13TrustedDomBoundaryResult.errors.push(`csp:${event.violatedDirective}`);
+    });
+
+    window.addEventListener('load', () => {
+      requestAnimationFrame(() => {
+        try {
+          runTrustedDomBoundarySmokeChecks();
+        } catch (error) {
+          window.__xtendEpic13TrustedDomBoundaryResult.errors.push(error && error.message ? error.message : String(error));
+          complete('failed');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

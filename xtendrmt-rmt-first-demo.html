@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="xstate,x-theme,x-section,x-router,x-link,x-form,x-select,x-checkbox,x-radio,x-textarea,x-status,x-progress,x-tooltip,x-popover,x-drawer">
+  <title>XTend RMT-first Demo</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #101624;
+      color: #eef3fb;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    [data-rmt-host="rmt-first-demo"] {
+      min-height: 100vh;
+    }
+
+    .rmt-first-demo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(16, 22, 36, 0.92);
+    }
+
+    .rmt-first-demo-brand {
+      display: grid;
+      gap: 4px;
+    }
+
+    .rmt-first-demo-brand span {
+      color: #a9b8cf;
+      font-size: 14px;
+    }
+
+    .rmt-first-demo-header nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .rmt-first-demo-page {
+      display: grid;
+      gap: 16px;
+      max-width: 860px;
+      padding: 28px 24px 48px;
+    }
+
+    @media (max-width: 680px) {
+      .rmt-first-demo-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div
+    id="rmt-first-demo-root"
+    data-rmt-host="rmt-first-demo"
+    data-rmt-document-src="xtendrmt/rmt-first-demo-app.rmt"
+    aria-busy="true"></div>
+  <script src="xtendrmt/rmt-runtime.browser.js"></script>
+  <script type="module" src="xtend-loader.js" data-manifest="components/manifest.json"></script>
+  <script type="module">
+    window.__XTendRmtFirstDemoBootPromise = (window.__XTendLoaderBootPromise || Promise.resolve())
+      .then(() => import('./xtendrmt/rmt-first-demo-app.js'))
+      .then(() => window.XTendRmtFirstDemo.bootRmtFirstDemo())
+      .then(() => {
+        const root = document.querySelector('[data-rmt-host="rmt-first-demo"]');
+        if (root) {
+          root.setAttribute('aria-busy', 'false');
+        }
+      })
+      .catch((error) => {
+        window.__XTendRmtFirstDemoResult = {
+          status: 'failed',
+          error: error.message
+        };
+        console.error('XTend RMT-first Demo failed', error);
+      });
+  </script>
+</body>
+</html>

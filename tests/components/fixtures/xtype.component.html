@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-type component fixture</title>
+</head>
+<body>
+  <x-type id="component-type" texts='["Docs", "XTend"]' speed="20" pause="50" cursor="_" blinking-cursor loop></x-type>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xtype.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-spinner component fixture</title>
+</head>
+<body>
+  <x-spinner
+    id="component-spinner"
+    type="dots"
+    paused
+    size="32"
+    color="#0e7490"
+    speed="1.2s"
+    aria-label="Loading dashboard"
+    aria-valuetext="Loading 50 percent">
+  </x-spinner>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xspinner.js"></script>
+</body>
+</html>

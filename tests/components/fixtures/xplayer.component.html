@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-player component fixture</title>
+</head>
+<body>
+  <x-player
+    id="component-player"
+    src="/tests/components/fixtures/demo-video.mp4"
+    poster="/tests/components/fixtures/demo-poster.svg"
+    type="video/mp4"
+    title="Component player"
+    width="640"
+    height="360"
+    media-chooser
+    downloadable>
+  </x-player>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xplayer.js"></script>
+</body>
+</html>

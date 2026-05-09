@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>x-alert Component Fixture</title>
+</head>
+<body>
+  <x-alert id="component-alert" type="warning" closable overlay aria-label="Component alert">
+    Component alert fixture content.
+  </x-alert>
+
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = {
+      status: 'pending',
+      checks: [],
+      errors: []
+    };
+    window.xstate = {
+      get(key) {
+        return window.__xtendComponentState[key] || null;
+      },
+      set(key, value) {
+        window.__xtendComponentState[key] = value;
+      },
+      subscribe() {
+        return function unsubscribe() {};
+      }
+    };
+  </script>
+  <script src="/components/xalert.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>x-modal Component Fixture</title>
+</head>
+<body>
+  <x-modal
+    id="component-modal"
+    open
+    overlay
+    title="Component modal"
+    content="Component modal content"
+    actions='[{"label":"Confirm","action":"confirm"}]'
+  >
+    <p>Component modal slot content.</p>
+    <button slot="actions" type="button">Manual action</button>
+  </x-modal>
+
+  <script>
+    window.__xtendComponentState = {
+      ui: {
+        toasts: [],
+        alerts: [],
+        dialogs: [],
+        modals: []
+      }
+    };
+    window.__xtendComponentResult = {
+      status: 'pending',
+      checks: [],
+      errors: []
+    };
+    window.xstate = {
+      get(key) {
+        return window.__xtendComponentState[key] || null;
+      },
+      set(key, value) {
+        window.__xtendComponentState[key] = value;
+      },
+      subscribe() {
+        return function unsubscribe() {};
+      }
+    };
+  </script>
+  <script src="/components/xmodal.js"></script>
+</body>
+</html>

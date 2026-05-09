@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-router component fixture</title>
+</head>
+<body>
+  <x-router id="component-router" mode="hash">
+    <x-route
+      path="/"
+      component="demo-overview"
+      title="Overview"
+      data-rmt-route-id="overview"
+      data-rmt-schedule="demo.route"
+      data-rmt-template="demo-overview">
+    </x-route>
+  </x-router>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xrouter.js"></script>
+</body>
+</html>

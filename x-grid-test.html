@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>x-section Test</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      transition: background-color 0.3s ease;
+    }
+
+    button {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 999;
+      padding: 0.5rem 1rem;
+      background: #ccc;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="toggleTheme()">Toggle Theme</button>
+
+  <!-- Test mit Default Layout -->
+  <x-section background="#f0f0f0" animate overlay overlay-color="rgba(0,0,0,0.3)" overlay-opacity="0.3">
+    <div>
+      <h1>Default Layout</h1>
+      <p>Dies ist eine einfache Testsektion.</p>
+    </div>
+  </x-section>
+
+  <!-- Test mit Grid Layout -->
+  <x-section layout="grid" background="#dfe" animate fullheight>
+    <div>
+      <h2>Grid Left</h2>
+      <p>Linke Seite im Grid.</p>
+    </div>
+    <div>
+      <h2>Grid Right</h2>
+      <p>Rechte Seite im Grid.</p>
+    </div>
+  </x-section>
+
+  <!-- Custom Element JavaScript -->
+  <script type="module" src="./xsection-beta.js"></script>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      html.setAttribute("data-theme", current === "dark" ? "light" : "dark");
+    }
+  </script>
+</body>
+</html>

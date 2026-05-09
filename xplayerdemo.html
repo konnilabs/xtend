@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script type="module" src="xtend-loader.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XPlayer A/B Testing</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .test-case {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      width: 100%;
+      max-width: 1000px;
+    }
+    .test-case h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .test-case p {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    /* XDialog Härtung für Testseite */
+    x-dialog[open] {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      position: fixed !important;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 2147483647 !important;
+      min-width: 320px;
+      min-height: 120px;
+      background: rgba(0,0,0,0.3);
+    }
+    x-dialog[open]::part(dialog),
+    x-dialog[open] > * {
+      display: block;
+      background: #222;
+      color: #fff;
+      border-radius: 8px;
+      padding: 2em 2em 1.5em 2em;
+      min-width: 240px;
+      max-width: 90vw;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+      margin: auto;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>XPlayer A/B Testing</h1>
+  <x-button id="test-xdialog-btn">Test XDialog öffnen</x-button>
+  <script>
+    document.getElementById('test-xdialog-btn').addEventListener('click', function() {
+      window.XDialog.show({
+        title: 'Testdialog',
+        content: 'Testdialog – funktioniert XDialog unabhängig vom Player?',
+        actions: [{ label: 'Schließen', primary: true }]
+      });
+    });
+  </script>
+  <div class="container">
+    <!-- Test Case A -->
+    <div class="test-case">
+      <h2>Test Case A: Default Configuration</h2>
+      <p>Testing the default configuration of the XPlayer component with autoplay and loop enabled.</p>
+      <x-player
+		title="Peugeout Partner 2005 Camper-Ausbau"
+        src="icons/video1.mp4"
+        poster="icons/thumbnail.jpg"
+        type="video"
+        height="360px"
+        width="640px"
+        autoplay
+        loop
+        downloadable="true"
+      >
+        <source src="icons/video1.mp4" type="video/mp4" label="HD">
+        <source src="icons/video2.mp4" type="video/mp4" label="SD">
+        <!--<track src="subtitles-a.vtt" kind="subtitles" srclang="en" label="English">-->
+      </x-player>
+    </div>
+<br>
+    <!-- Test Case B -->
+    <div class="test-case">
+      <h2>Test Case B: Media Chooser Enabled</h2>
+      <p>Testing the XPlayer component with the media chooser enabled and no autoplay.</p>
+      <x-player
+		title="Peugeout Partner 2005 Camper-Ausbau"
+        src="icons/video1.mp4"
+        poster="icons/thumbnail.jpg"
+        type="video"
+        height="360px"
+        width="640px"
+        media-chooser="true"
+        downloadable="true"
+      >
+        <source src="icons/video1.mp4" type="video/mp4" label="HD">
+        <source src="icons/video2.mp4" type="video/mp4" label="SD">
+        <!--<track src="subtitles-b.vtt" kind="subtitles" srclang="en" label="English">-->
+      </x-player>
+    </div>
+  </div>
+
+  <script>
+    // Add event listeners to log custom events for A/B testing
+    document.querySelectorAll("x-player").forEach((player, index) => {
+      const testCase = index === 0 ? "A" : "B";
+
+      player.addEventListener("play", (e) => {
+        console.log(`Test Case ${testCase}: Play event at ${e.detail.currentTime}s`);
+      });
+
+      player.addEventListener("pause", (e) => {
+        console.log(`Test Case ${testCase}: Pause event at ${e.detail.currentTime}s`);
+      });
+
+      player.addEventListener("volumechange", (e) => {
+        console.log(`Test Case ${testCase}: Volume changed to ${e.detail.volume}`);
+      });
+
+      player.addEventListener("sourcechange", (e) => {
+        console.log(`Test Case ${testCase}: Source changed to ${e.detail.src}`);
+      });
+
+      player.addEventListener("fullscreenchange", (e) => {
+        console.log(`Test Case ${testCase}: Fullscreen mode: ${e.detail.fullscreen}`);
+      });
+
+      player.addEventListener("pipchange", (e) => {
+        console.log(`Test Case ${testCase}: Picture-in-Picture mode: ${e.detail.pip}`);
+      });
+    });
+  </script>
+</body>
+</html>

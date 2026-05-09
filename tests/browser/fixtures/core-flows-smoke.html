@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="x-router,x-link,x-dialog,x-modal,x-toast,x-alert">
+  <title>XTend Core Browser Smoke Fixture</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      visibility: visible;
+      opacity: 1;
+      font-family: system-ui, sans-serif;
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    main {
+      padding: 24px;
+    }
+
+    nav {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 16px;
+    }
+  </style>
+</head>
+<body>
+  <main id="core-smoke-root">
+    <nav aria-label="Core smoke navigation">
+      <x-link href="/">Home</x-link>
+      <x-link href="/detail?source=fixture">Detail</x-link>
+    </nav>
+
+    <x-router id="core-smoke-router" mode="hash">
+      <x-route path="/" component="xtend-smoke-home" title="XTend Core Smoke Home"></x-route>
+      <x-route path="/detail" component="xtend-smoke-detail" title="XTend Core Smoke Detail"></x-route>
+    </x-router>
+  </main>
+
+  <script>
+    class XTendSmokeHome extends HTMLElement {
+      connectedCallback() {
+        this.innerHTML = '<section class="panel" data-route="home">Home route hydrated.</section>';
+      }
+    }
+
+    class XTendSmokeDetail extends HTMLElement {
+      connectedCallback() {
+        const source = this.query && this.query.source ? this.query.source : 'none';
+        this.innerHTML = `<section class="panel" data-route="detail">Detail route hydrated from ${source}.</section>`;
+      }
+    }
+
+    customElements.define('xtend-smoke-home', XTendSmokeHome);
+    customElements.define('xtend-smoke-detail', XTendSmokeDetail);
+
+    window.__xtendCoreSmokeResult = {
+      status: 'pending',
+      checks: [],
+      errors: []
+    };
+
+    function recordCheck(name, ok, detail) {
+      window.__xtendCoreSmokeResult.checks.push({ name, ok, detail: detail || null });
+      if (!ok) {
+        window.__xtendCoreSmokeResult.errors.push(name);
+      }
+    }
+
+    function complete(status) {
+      window.__xtendCoreSmokeResult.status = status;
+      window.__xtendCoreSmokeResult.completedAt = new Date().toISOString();
+    }
+
+    function waitFor(predicate, timeoutMs) {
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        function tick() {
+          let result = false;
+          try {
+            result = Boolean(predicate());
+          } catch (error) {
+            reject(error);
+            return;
+          }
+
+          if (result) {
+            resolve();
+            return;
+          }
+
+          if (Date.now() - started > timeoutMs) {
+            reject(new Error('Timed out while waiting for core smoke predicate'));
+            return;
+          }
+
+          requestAnimationFrame(tick);
+        }
+
+        tick();
+      });
+    }
+
+    window.addEventListener('error', (event) => {
+      window.__xtendCoreSmokeResult.errors.push(event.message || 'window error');
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      const reason = event.reason && event.reason.message ? event.reason.message : String(event.reason);
+      window.__xtendCoreSmokeResult.errors.push(reason);
+    });
+
+    async function runCoreSmokeChecks() {
+      await waitFor(() => (
+        document.body.style.visibility === 'visible' &&
+        document.body.style.opacity === '1' &&
+        window.xstate &&
+        window.XTend &&
+        window.XTend.compliance &&
+        window.XToast &&
+        window.XAlert &&
+        window.XDialog &&
+        window.XModal &&
+        window.XTheme
+      ), 6000);
+
+      const router = document.querySelector('#core-smoke-router');
+
+      recordCheck('loader restored body visibility', document.body.style.visibility === 'visible' && document.body.style.opacity === '1');
+      recordCheck('api compliance ready', typeof window.XTend.compliance.getCoreContracts === 'function');
+      recordCheck('api ui state initialized', Boolean(window.xstate.get('ui')));
+      recordCheck('router custom element defined', Boolean(customElements.get('x-router')));
+      recordCheck('link custom element defined', Boolean(customElements.get('x-link')));
+
+      window.xstate.set('router-navigate', '/detail?source=fixture');
+      await waitFor(() => {
+        const current = window.xstate.get('router-current');
+        return current && current.component === 'xtend-smoke-detail' && current.query && current.query.source === 'fixture';
+      }, 4000);
+
+      const renderedRoute = router.shadowRoot.querySelector('xtend-smoke-detail');
+      recordCheck('router rendered detail route', renderedRoute instanceof HTMLElement);
+      recordCheck('router state synchronized', window.xstate.get('xtend.router.lastRendered').component === 'xtend-smoke-detail');
+
+      window.XTheme.setTheme('dark');
+      await waitFor(() => document.documentElement.getAttribute('data-theme') === 'dark', 3000);
+      recordCheck('theme changed document attribute', document.documentElement.getAttribute('data-theme') === 'dark');
+      recordCheck('theme state synchronized', window.xstate.get('xtend.theme.current') === 'dark');
+
+      const toast = window.XToast.show('Core smoke toast', 'success', 0);
+      await waitFor(() => toast.shadowRoot && toast.shadowRoot.querySelector('.toast.success'), 3000);
+      recordCheck('toast api rendered visible component', toast.shadowRoot.querySelector('.toast.success') instanceof HTMLElement);
+      recordCheck('toast state registered', window.xstate.get('ui').toasts.some((entry) => entry.id === toast.id));
+
+      const alert = window.XAlert.show('Core smoke alert', 'info', { closable: true, ariaLabel: 'Core smoke alert' });
+      await waitFor(() => alert.shadowRoot && alert.shadowRoot.querySelector('.alert'), 3000);
+      recordCheck('alert api rendered visible component', alert.shadowRoot.querySelector('.alert') instanceof HTMLElement);
+      recordCheck('alert state synchronized', window.xstate.get(`xtend.component.x-alert.${alert.id}`).open === true);
+
+      const dialogId = window.XDialog.show({ title: 'Core smoke dialog', content: 'Dialog body', overlay: true });
+      const dialog = document.getElementById(dialogId);
+      await waitFor(() => dialog && dialog.shadowRoot && dialog.shadowRoot.querySelector('.xdialog'), 3000);
+      recordCheck('dialog api rendered visible component', dialog.shadowRoot.querySelector('.xdialog') instanceof HTMLElement);
+      recordCheck('dialog open state synchronized', window.xstate.get(`xtend.component.x-dialog.${dialogId}.open`) === true);
+
+      const modalId = window.XModal.show({ title: 'Core smoke modal', content: 'Modal body', overlay: true });
+      const modal = document.getElementById(modalId);
+      await waitFor(() => modal && modal.shadowRoot && modal.shadowRoot.querySelector('.x-modal'), 3000);
+      recordCheck('modal api rendered visible component', modal.shadowRoot.querySelector('.x-modal') instanceof HTMLElement);
+      recordCheck('modal open state synchronized', window.xstate.get(`xtend.component.x-modal.${modalId}.open`) === true);
+
+      complete(window.__xtendCoreSmokeResult.errors.length === 0 ? 'passed' : 'failed');
+    }
+
+    window.addEventListener('load', () => {
+      runCoreSmokeChecks().catch((error) => {
+        window.__xtendCoreSmokeResult.errors.push(error && error.message ? error.message : String(error));
+        complete('failed');
+      });
+    });
+  </script>
+  <script type="module" src="/xtend-loader.js" data-manifest="/tests/browser/fixtures/components/manifest.json"></script>
+</body>
+</html>

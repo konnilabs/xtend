@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>xstate boundary fixture</title>
+</head>
+<body>
+  <main id="xstate-boundary-fixture" data-boundary="adapter-probe"></main>
+
+  <script type="module">
+    import { xstate } from '/components/xstate.js';
+
+    window.__xtendComponentResult = [];
+    window.__xtendXStateLifecycle = [];
+
+    const record = (name, passed, detail = {}) => {
+      window.__xtendComponentResult.push({ name, passed: Boolean(passed), detail });
+    };
+
+    const unsubscribeLifecycle = xstate.subscribeLifecycle((event, diagnostics) => {
+      window.__xtendXStateLifecycle.push({ event, diagnostics });
+    });
+
+    xstate.clear();
+
+    const observed = [];
+    const unsubscribe = xstate.subscribe((key, value, allData) => {
+      observed.push({ key, value, allData });
+    }, ['rmt.bridge.ready', 'rmt.scheduler.lastEndpoint']);
+
+    xstate.set('rmt.bridge.ready', true);
+    xstate.set('rmt.scheduler.lastEndpoint', {
+      id: 'docs.header.search',
+      lane: 'user-blocking'
+    });
+    xstate.setPath('rmt.component.docs-content.lastResult', {
+      ok: true,
+      operation: 'hydrateComponent'
+    });
+    xstate.batchUpdate({
+      'rmt.adapter.lastResult': { ok: true },
+      'rmt.diagnostics.last': { source: 'fixture' }
+    });
+
+    const adapter = xstate.createRmtStateAdapter({ schedulerId: 'fixture-scheduler' });
+    adapter.set('rmt.route.docs.lastResult', { ok: true, operation: 'navigate' });
+
+    const snapshot = xstate.snapshot();
+    const diagnostics = xstate.snapshotDiagnostics();
+
+    record('boundary contract exposed', xstate.xtendStateBoundaryContract.schema === 'xtend.state.boundary-probe.v1');
+    record('rmt adapter exposed', adapter.schema === 'xtend.rmt.state-scheduler-compatibility.v1');
+    record('rmt bridge state readable', adapter.get('rmt.bridge.ready') === true);
+    record('snapshot schema exposed', snapshot.schema === 'xtend.state.snapshot.v1');
+    record('diagnostics schema exposed', diagnostics.schema === 'xtend.fabric.state-diagnostics.v1');
+    record('lifecycle events captured', window.__xtendXStateLifecycle.some((entry) => entry.event.type === 'rmt-state-adapter:create'));
+    record('filtered observer received scheduler key', observed.some((entry) => entry.key === 'rmt.scheduler.lastEndpoint'));
+    record('kernel boundary preserved', adapter.kernelBoundary === 'no-rmt-kernel-import-of-xtend-types');
+
+    unsubscribe();
+    unsubscribeLifecycle();
+
+    document.body.dataset.xstateBoundaryReady = 'true';
+  </script>
+</body>
+</html>

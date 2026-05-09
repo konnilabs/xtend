@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="xstate,x-theme,x-section,x-router,x-link,x-surface-manager,x-surface-window,x-side-panel,x-alert,x-status,x-code,x-form,x-input">
+  <title>XTend Surface Workbench</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #eef2f6;
+      color: #172033;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    [data-rmt-host="surface-workbench"] {
+      min-height: 100vh;
+    }
+
+    .surface-workbench-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .surface-workbench-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px 20px;
+      border-bottom: 1px solid #c9d3df;
+      background: #ffffff;
+    }
+
+    .surface-workbench-title {
+      display: grid;
+      gap: 2px;
+    }
+
+    .surface-workbench-title span {
+      color: #55657a;
+      font-size: 14px;
+    }
+
+    .surface-workbench-header a {
+      color: #185a9d;
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    .surface-workbench-main,
+    .surface-workbench-main x-router {
+      min-height: calc(100vh - 65px);
+      display: block;
+    }
+
+    .surface-workbench-main x-surface-manager {
+      --surface-manager-min-height: calc(100vh - 65px);
+      min-height: calc(100vh - 65px);
+    }
+
+    @media (max-width: 720px) {
+      .surface-workbench-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div
+    id="surface-workbench-root"
+    data-rmt-host="surface-workbench"
+    data-rmt-document-src="xtendrmt/surface-workbench.rmt"
+    aria-busy="true"></div>
+  <script src="xtendrmt/rmt-runtime.browser.js"></script>
+  <script type="module" src="xtend-loader.js" data-manifest="components/manifest.json"></script>
+  <script type="module">
+    window.__XTendSurfaceWorkbenchBootPromise = (window.__XTendLoaderBootPromise || Promise.resolve())
+      .then(() => import('./xtendrmt/surface-workbench.js'))
+      .then(() => window.XTendSurfaceWorkbench.bootSurfaceWorkbench())
+      .then((renderResult) => {
+        const root = document.querySelector('[data-rmt-host="surface-workbench"]');
+        if (root) {
+          root.setAttribute('aria-busy', 'false');
+          root.__xtendSurfaceWorkbenchRenderResult = renderResult;
+        }
+      })
+      .catch((error) => {
+        window.__XTendSurfaceWorkbenchResult = {
+          status: 'failed',
+          error: error.message
+        };
+        console.error('XTend Surface Workbench failed', error);
+      });
+  </script>
+</body>
+</html>

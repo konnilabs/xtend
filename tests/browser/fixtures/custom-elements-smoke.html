@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XTend Browser Smoke Fixture</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      visibility: visible;
+      opacity: 1;
+      font-family: system-ui, sans-serif;
+      background: #101624;
+      color: #f8fafc;
+    }
+
+    main {
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+  <main id="fixture-root">
+    <x-alert id="browser-smoke-alert" type="success" closable aria-label="Browser smoke alert">
+      Browser smoke custom element is hydrated.
+    </x-alert>
+  </main>
+
+  <script>
+    window.__xtendSmokeState = {};
+    window.xstate = {
+      get(key) {
+        return window.__xtendSmokeState[key] || null;
+      },
+      set(key, value) {
+        window.__xtendSmokeState[key] = value;
+      },
+      subscribe() {
+        return function unsubscribe() {};
+      }
+    };
+
+    window.__xtendBrowserSmokeResult = {
+      status: 'pending',
+      checks: [],
+      errors: []
+    };
+  </script>
+  <script src="/components/xalert.js"></script>
+  <script>
+    function recordCheck(name, ok, detail) {
+      window.__xtendBrowserSmokeResult.checks.push({ name, ok, detail: detail || null });
+      if (!ok) {
+        window.__xtendBrowserSmokeResult.errors.push(name);
+      }
+    }
+
+    function complete(status) {
+      window.__xtendBrowserSmokeResult.status = status;
+      window.__xtendBrowserSmokeResult.completedAt = new Date().toISOString();
+    }
+
+    customElements.whenDefined('x-alert')
+      .then(() => new Promise((resolve) => requestAnimationFrame(resolve)))
+      .then(() => {
+        const alert = document.querySelector('#browser-smoke-alert');
+        const state = window.__xtendSmokeState['xtend.component.x-alert.browser-smoke-alert'];
+        const container = alert && alert.shadowRoot && alert.shadowRoot.querySelector('.alert');
+        const bodyStyle = window.getComputedStyle(document.body);
+
+        recordCheck('custom element defined', Boolean(customElements.get('x-alert')));
+        recordCheck('fixture element found', alert instanceof HTMLElement);
+        recordCheck('shadow root rendered', Boolean(alert && alert.shadowRoot));
+        recordCheck('alert container rendered', container instanceof HTMLElement);
+        recordCheck('body visible', bodyStyle.visibility === 'visible' && bodyStyle.opacity !== '0');
+        recordCheck('state synchronized', Boolean(state && state.open === true));
+
+        complete(window.__xtendBrowserSmokeResult.errors.length === 0 ? 'passed' : 'failed');
+      })
+      .catch((error) => {
+        window.__xtendBrowserSmokeResult.errors.push(String(error && error.message ? error.message : error));
+        complete('failed');
+      });
+  </script>
+</body>
+</html>

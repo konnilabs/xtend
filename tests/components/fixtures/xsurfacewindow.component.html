@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>x-surface-window fixture</title>
+    <script type="module" src="/components/xsurfacemanager-controller.js"></script>
+    <script type="module" src="/components/xsurfacemanager.js"></script>
+    <script type="module" src="/components/xsurfacewindow.js"></script>
+    <script>
+      window.__xtendComponentResult = { commands: [] };
+      window.addEventListener('surface-window-command', (event) => {
+        window.__xtendComponentResult.commands.push(event.detail.command);
+      });
+    </script>
+  </head>
+  <body>
+    <x-surface-manager id="window-fixture-manager" manager-id="workbench.manager">
+      <x-surface-window
+        slot="windows"
+        id="window-fixture"
+        surface-id="workbench.editor"
+        label="Editor"
+        open
+        draggable
+        resizable
+        initial-x="128"
+        initial-y="96"
+        initial-width="640"
+        initial-height="420">
+        <article>Window content</article>
+      </x-surface-window>
+    </x-surface-manager>
+  </body>
+</html>

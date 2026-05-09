@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo – CCS XTend Framework</title>
+  <link rel="icon" href="icons/favicon.ico">
+  <link rel="stylesheet" href="xtend.css">
+  <script type="module" src="xtend-loader.js"></script>
+</head>
+<body>
+<x-header src="icons/xtend-scaffold.webp" logo-size="48">
+  <span slot="title">XTend</span>
+  <a slot="nav" href="hero.html">Demo</a>
+  <a slot="nav" href="#about">Über uns</a>
+</x-header>
+	<main>
+<section>
+<x-masonry columns="3" column-width="300px" gap="1.5em" draggable>
+  <div data-key="a" data-title="Box A">Inhalt A</div>
+  <div data-key="b" data-title="Box B">Inhalt B</div>
+  <div data-key="c" data-title="Box C">Inhalt C</div>
+</x-masonry>
+	</section>
+	<section>
+		      <x-tabs>
+        <div data-tab data-title="Was ist x-masonry?">
+          <p>Mit dem x-masonry Component können neben klassischen Masonry-Layouts zur Darstellung mehrerer Inhalte nebeneinander auch interaktive Dashboards und Widgets erstellt werden. Die Component reagiert auf verschiedene Parameter zur Anpassung:</p>
+			<ul>
+				<li>columns: Anzahl der Spalten des Masonry Grids</li>
+				<li>column-width: Breite der Spalten in Px</li>
+				<li>gap: Abstand zwischen den Spalten</li>
+				<li>draggable: Eigenschaft, um die Anpassung der Spalten per Drag&Drop zu erlauben. Die Positionen der einzelnen Boxen werden per Local Stogage gespeichert.</li>
+			</ul>
+			<p>Einzelne Boxen können per DIV mit einer data-key Eigenschaft definiert werden. Sehen Sie sich hierzu gerne das Code-Beispiel an.</p>
+        </div>
+        <div data-tab data-title="Code">
+          <x-code lang="html">
+<x-masonry columns="3" column-width="300px" gap="1.5em" draggable>
+  <div data-key="a" data-title="Box A">Inhalt A</div>
+  <div data-key="b" data-title="Box B">Inhalt B</div>
+  <div data-key="c" data-title="Box C">Inhalt C</div>
+</x-masonry> 
+			  </x-code>
+        </div>
+      </x-tabs>
+		</section>
+	</main>
+	  <x-footer sticky="true" src="icons/xtend-scaffold.webp" logo-size="32">
+  <span slot="title">© 2025 – CCS Networks</span>
+  <a href="index.html" slot="nav">Home</a>
+  <a href="/datenschutz" slot="nav">Datenschutz</a>
+  <div slot="extra">Powered by XTend</div>
+</x-footer>
+	</body>
+</html>

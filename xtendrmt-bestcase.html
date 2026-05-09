@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="XTendRMT BestCase Demo: RMT als Scheduler und Kernel mit vollstaendiger XTend UI.">
+  <meta name="xtendrmt-browser-smoke" content="tests/browser/fixtures/rmt-xrouter-xtend-smoke.html">
+  <meta name="xtend-preload" content="x-header,x-section,x-cards,x-tabs,x-button,x-alert,x-code,x-spinner,x-modal,x-router,x-footer">
+  <title>XTendRMT BestCase Demo</title>
+  <link rel="icon" href="icons/favicon.ico">
+  <link rel="stylesheet" href="xtend.css">
+  <script type="module" src="xtend-loader.js" data-manifest="components/manifest.json"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --demo-bg: #10151f;
+      --demo-panel: rgba(33, 44, 68, 0.68);
+      --demo-panel-soft: rgba(45, 64, 94, 0.44);
+      --demo-text: #edf4ff;
+      --demo-muted: #adc1dc;
+      --demo-accent: #5bd3c7;
+      --demo-accent-2: #ffcc66;
+      --demo-danger: #ff7a90;
+      --card-bg: var(--demo-panel);
+      --card-fg: var(--demo-text);
+      --card-text-color: var(--demo-muted);
+      --card-title-color: var(--demo-text);
+      --section-bg: transparent;
+      --section-gap: 1.2rem;
+      --section-padding: 1rem;
+      --xtend-font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --xtend-color-primary: var(--demo-accent);
+      --xtend-color-accent: var(--demo-accent-2);
+      --xtend-surface: var(--demo-panel);
+      --xtend-surface-muted: var(--demo-panel-soft);
+      --xtend-text: var(--demo-text);
+      --xtend-radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      visibility: visible;
+      opacity: 1;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(91, 211, 199, 0.22), transparent 28rem),
+        radial-gradient(circle at 86% 12%, rgba(255, 204, 102, 0.18), transparent 30rem),
+        linear-gradient(135deg, #10151f 0%, #172033 46%, #111827 100%);
+      color: var(--demo-text);
+      font-family: var(--xtend-font-family);
+    }
+
+    x-header,
+    x-section,
+    x-router,
+    x-footer {
+      width: min(1180px, calc(100vw - 32px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    x-router {
+      display: block;
+      min-height: 620px;
+    }
+
+    x-card strong,
+    x-card code {
+      color: var(--demo-accent);
+    }
+
+    x-card small,
+    .muted {
+      color: var(--demo-muted);
+    }
+
+    .metric {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: clamp(1.8rem, 4vw, 3.4rem);
+      line-height: 1;
+      color: var(--demo-accent);
+      font-weight: 780;
+    }
+
+    .metric-label {
+      display: block;
+      margin-top: 0.55rem;
+      color: var(--demo-muted);
+      font-size: 0.95rem;
+    }
+
+    .demo-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .demo-route-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin: 1rem 0 0;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 0.72rem;
+      height: 0.72rem;
+      border-radius: 999px;
+      background: var(--demo-accent);
+      box-shadow: 0 0 18px rgba(91, 211, 199, 0.55);
+      margin-right: 0.45rem;
+      vertical-align: baseline;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.8rem;
+      align-items: baseline;
+    }
+
+    .timeline-row + .timeline-row {
+      margin-top: 0.65rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.6rem;
+      padding: 0.18rem 0.58rem;
+      border-radius: 999px;
+      background: rgba(91, 211, 199, 0.13);
+      color: var(--demo-accent);
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .code-note {
+      margin: 0.7rem 0 0;
+      color: var(--demo-muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 720px) {
+      x-header,
+      x-section,
+      x-router,
+      x-footer {
+        width: min(100vw - 18px, 1180px);
+      }
+
+      .timeline-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script type="module">
+    await Promise.resolve(window.__XTendLoaderBootPromise);
+    await import('./xtendrmt/xtendrmt-bestcase-demo.js');
+  </script>
+</head>
+<body>
+  <x-header id="demo-header" src="icons/xtend-scaffold.webp" logo-size="44" sticky shadow>
+    <span slot="title">XTendRMT BestCase</span>
+    <a slot="nav" href="#/" is-x-link>Kernel</a>
+    <a slot="nav" href="#/scheduler" is-x-link>Scheduler</a>
+    <a slot="nav" href="#/routing" is-x-link>Routing DSL</a>
+    <a slot="nav" href="#/templating" is-x-link>Templating Pilot</a>
+    <a slot="nav" href="#/adapter" is-x-link>Adapter</a>
+    <x-button slot="utility" id="demo-run-all" variant="primary" aria-label="RMT Scheduling Zyklus ausfuehren">Run cycle</x-button>
+  </x-header>
+
+  <x-section id="demo-status-shell" layout="column" label="XTendRMT Demo Status">
+    <div slot="header">
+      <h1>RMT Kernel, XTend UI, XRouter from `.rmt`</h1>
+      <p class="muted">Diese Demo laedt ein RMT Dokument, registriert Templates, baut XRouter-Routen daraus auf und laesst Route- sowie Hydration-Arbeit vom RMT Scheduler planen.</p>
+    </div>
+    <x-alert id="demo-status" type="info" aria-label="Demo Status">
+      <span class="status-dot"></span>
+      Initialisiere XTend-Komponenten und RMT Runtime...
+    </x-alert>
+  </x-section>
+
+  <x-router id="rmt-demo-router" mode="hash" data-rmt-browser-smoke="wp-16"></x-router>
+
+  <x-modal id="rmt-demo-modal" title="XTendRMT Scheduling Result" overlay>
+    <p id="demo-modal-copy">Noch kein Scheduler-Lauf ausgefuehrt.</p>
+    <x-button slot="actions" id="demo-modal-close" variant="secondary">Schliessen</x-button>
+  </x-modal>
+
+  <x-footer src="icons/xtend-scaffold.webp" logo-size="32">
+    <span slot="title">XTendRMT BestCase Demo</span>
+    <a slot="nav" href="#/">Kernel</a>
+    <a slot="nav" href="#/scheduler">Scheduler</a>
+    <a slot="nav" href="#/templating">Templating Pilot</a>
+    <div slot="extra">RMT bleibt framework-agnostisch; XTend ist der First-Class Product Adapter.</div>
+  </x-footer>
+</body>
+</html>

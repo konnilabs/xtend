@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en" data-contract="xtend.a11y.browser-keyboard-smoke.v1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="x-router,x-link,x-dialog,x-modal,x-input,x-form,x-tabs">
+  <title>XTend A11y Focus Keyboard Smoke Fixture</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      visibility: visible;
+      opacity: 1;
+      font-family: system-ui, sans-serif;
+      background: #10141f;
+      color: #f8fafc;
+    }
+
+    main {
+      display: grid;
+      gap: 20px;
+      padding: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    nav,
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    button {
+      border: 1px solid #93c5fd;
+      background: #1d4ed8;
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font: inherit;
+    }
+
+    button:focus-visible,
+    x-link:focus-within {
+      outline: 3px solid #facc15;
+      outline-offset: 3px;
+    }
+
+    .panel,
+    x-form,
+    x-tabs {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(15, 23, 42, 0.72);
+      padding: 16px;
+    }
+
+    x-input {
+      --text-color: #111827;
+      --input-bg: #f8fafc;
+      --focus-outline: 3px solid #facc15;
+    }
+  </style>
+</head>
+<body>
+  <main id="a11y-keyboard-root" aria-label="XTend A11y keyboard smoke">
+    <div class="toolbar">
+      <button id="focus-origin" type="button">Focus origin</button>
+    </div>
+
+    <nav aria-label="A11y keyboard navigation">
+      <x-link id="home-link" href="/">Home</x-link>
+      <x-link id="detail-link" href="/detail?source=keyboard">Detail</x-link>
+    </nav>
+
+    <x-router id="keyboard-router" mode="hash">
+      <x-route path="/" component="xtend-keyboard-home" title="Keyboard Home"></x-route>
+      <x-route path="/detail" component="xtend-keyboard-detail" title="Keyboard Detail"></x-route>
+    </x-router>
+
+    <x-form id="keyboard-form">
+      <x-input id="keyboard-input" name="contact" placeholder="Keyboard value" required>
+        <span slot="label">Keyboard input</span>
+        <span slot="error">Required value</span>
+      </x-input>
+    </x-form>
+
+    <x-tabs id="keyboard-tabs" selected="0" aria-label="Keyboard tabs">
+      <x-tab name="Alpha">Alpha tab panel</x-tab>
+      <x-tab name="Beta">Beta tab panel</x-tab>
+    </x-tabs>
+
+    <x-modal id="keyboard-modal" title="Keyboard modal" overlay>
+      <p>Modal body</p>
+      <button slot="actions" id="modal-action" type="button">Action</button>
+    </x-modal>
+  </main>
+
+  <script>
+    class XTendKeyboardHome extends HTMLElement {
+      connectedCallback() {
+        this.innerHTML = '<section class="panel" data-route="home">Home route hydrated.</section>';
+      }
+    }
+
+    class XTendKeyboardDetail extends HTMLElement {
+      connectedCallback() {
+        const source = this.query && this.query.source ? this.query.source : 'none';
+        this.innerHTML = `<section class="panel" data-route="detail">Detail route hydrated from ${source}.</section>`;
+      }
+    }
+
+    customElements.define('xtend-keyboard-home', XTendKeyboardHome);
+    customElements.define('xtend-keyboard-detail', XTendKeyboardDetail);
+
+    window.__xtendA11yKeyboardSmokeResult = {
+      contract: 'xtend.a11y.browser-keyboard-smoke.v1',
+      status: 'pending',
+      checks: [],
+      errors: []
+    };
+
+    function recordCheck(name, ok, detail) {
+      window.__xtendA11yKeyboardSmokeResult.checks.push({ name, ok, detail: detail || null });
+      if (!ok) {
+        window.__xtendA11yKeyboardSmokeResult.errors.push(name);
+      }
+    }
+
+    function complete(status) {
+      window.__xtendA11yKeyboardSmokeResult.status = status;
+      window.__xtendA11yKeyboardSmokeResult.completedAt = new Date().toISOString();
+    }
+
+    function waitFor(predicate, timeoutMs, message) {
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        function tick() {
+          let result = false;
+          try {
+            result = Boolean(predicate());
+          } catch (error) {
+            reject(error);
+            return;
+          }
+
+          if (result) {
+            resolve();
+            return;
+          }
+
+          if (Date.now() - started > timeoutMs) {
+            reject(new Error(message || 'Timed out while waiting for A11y keyboard smoke predicate'));
+            return;
+          }
+
+          requestAnimationFrame(tick);
+        }
+
+        tick();
+      });
+    }
+
+    function dispatchKeyboard(target, key, options) {
+      const event = new KeyboardEvent('keydown', {
+        key,
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        shiftKey: Boolean(options && options.shiftKey)
+      });
+      target.dispatchEvent(event);
+      return event;
+    }
+
+    function readCurrentRoute() {
+      return window.xstate && window.xstate.get('router-current');
+    }
+
+    window.addEventListener('error', (event) => {
+      window.__xtendA11yKeyboardSmokeResult.errors.push(event.message || 'window error');
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      const reason = event.reason && event.reason.message ? event.reason.message : String(event.reason);
+      window.__xtendA11yKeyboardSmokeResult.errors.push(reason);
+    });
+
+    async function runA11yKeyboardSmokeChecks() {
+      await waitFor(() => (
+        document.body.style.visibility === 'visible' &&
+        document.body.style.opacity === '1' &&
+        window.xstate &&
+        window.XTend &&
+        customElements.get('x-router') &&
+        customElements.get('x-link') &&
+        customElements.get('x-modal') &&
+        customElements.get('x-input') &&
+        customElements.get('x-form') &&
+        customElements.get('x-tabs')
+      ), 6000, 'XTend A11y keyboard fixture did not hydrate');
+
+      const detailLink = document.querySelector('#detail-link');
+      const homeLink = document.querySelector('#home-link');
+      const detailAnchor = detailLink.shadowRoot.querySelector('a');
+      const homeAnchor = homeLink.shadowRoot.querySelector('a');
+      const input = document.querySelector('#keyboard-input');
+      const form = document.querySelector('#keyboard-form');
+      const tabs = document.querySelector('#keyboard-tabs');
+      const modal = document.querySelector('#keyboard-modal');
+      const origin = document.querySelector('#focus-origin');
+
+      recordCheck('a11y keyboard fixture hydrated local loader', Boolean(window.XTendLoader && typeof window.XTendLoader.initiateXTend === 'function'));
+      recordCheck('a11y keyboard custom elements defined', Boolean(customElements.get('x-link') && customElements.get('x-modal') && customElements.get('x-input')));
+
+      window.xstate.set('router-navigate', '/');
+      await waitFor(() => {
+        const route = readCurrentRoute();
+        return route && route.component === 'xtend-keyboard-home';
+      }, 3000, 'Router did not initialize home route');
+
+      detailAnchor.focus();
+      dispatchKeyboard(detailAnchor, 'Enter');
+      await waitFor(() => {
+        const route = readCurrentRoute();
+        return route && route.component === 'xtend-keyboard-detail' && route.query && route.query.source === 'keyboard';
+      }, 3000, 'Enter key did not navigate to detail route');
+      recordCheck('x-link enter key navigated route', readCurrentRoute().component === 'xtend-keyboard-detail');
+      recordCheck('x-link detail aria-current synchronized', detailAnchor.getAttribute('aria-current') === 'page');
+
+      homeAnchor.focus();
+      dispatchKeyboard(homeAnchor, ' ');
+      await waitFor(() => {
+        const route = readCurrentRoute();
+        return route && route.component === 'xtend-keyboard-home';
+      }, 3000, 'Space key did not navigate to home route');
+      recordCheck('x-link space key navigated route', readCurrentRoute().component === 'xtend-keyboard-home');
+      recordCheck('x-link home aria-current synchronized', homeAnchor.getAttribute('aria-current') === 'page');
+
+      let inputChangedValue = null;
+      input.addEventListener('input-changed', (event) => {
+        inputChangedValue = event.detail && event.detail.value;
+      });
+      input.focus();
+      const nativeInput = input.shadowRoot.querySelector('#input');
+      recordCheck('x-input delegated focus', input.shadowRoot.activeElement === nativeInput);
+      nativeInput.value = 'keyboard-value';
+      nativeInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      await waitFor(() => {
+        const formData = window.xstate.get(`xform-data-${form.id}`);
+        return window.xstate.get(`xinput-value-${input.id}`) === 'keyboard-value' &&
+          formData &&
+          formData.contact === 'keyboard-value' &&
+          inputChangedValue === 'keyboard-value';
+      }, 3000, 'Input and form state did not synchronize');
+      recordCheck('x-input keyboard input synchronized state', window.xstate.get(`xinput-value-${input.id}`) === 'keyboard-value');
+      recordCheck('x-form captured keyboard input data', window.xstate.get(`xform-data-${form.id}`).contact === 'keyboard-value');
+
+      await waitFor(() => tabs.shadowRoot.querySelectorAll('[role="tab"]').length === 2, 3000, 'Tabs did not render tab buttons');
+      const tabHeader = tabs.shadowRoot.querySelector('.tabs');
+      const tabButtons = Array.from(tabs.shadowRoot.querySelectorAll('[role="tab"]'));
+      tabButtons[0].focus();
+      dispatchKeyboard(tabHeader, 'ArrowRight');
+      await waitFor(() => tabs.getAttribute('selected') === '1', 3000, 'ArrowRight did not select the next tab');
+      recordCheck('x-tabs arrow right selected next tab', tabButtons[1].getAttribute('aria-selected') === 'true');
+      dispatchKeyboard(tabHeader, 'ArrowLeft');
+      await waitFor(() => tabs.getAttribute('selected') === '0', 3000, 'ArrowLeft did not select the previous tab');
+      recordCheck('x-tabs arrow left selected previous tab', tabButtons[0].getAttribute('aria-selected') === 'true');
+      dispatchKeyboard(tabHeader, 'Enter');
+      recordCheck('x-tabs enter activated current tab', tabs.getAttribute('selected') === '0');
+
+      origin.focus();
+      modal.open();
+      await waitFor(() => modal.hasAttribute('open') && modal.shadowRoot.querySelector('.x-modal'), 3000, 'Modal did not open');
+      const modalPanel = modal.shadowRoot.querySelector('.x-modal');
+      const closeButton = modal.shadowRoot.querySelector('.x-modal-close');
+      await waitFor(() => modal.shadowRoot.activeElement === modalPanel, 3000, 'Modal did not move focus inside');
+      recordCheck('x-modal initial focus moved inside overlay', modal.shadowRoot.activeElement === modalPanel);
+
+      closeButton.focus();
+      dispatchKeyboard(closeButton, 'Tab');
+      await waitFor(() => modal.shadowRoot.activeElement === modalPanel, 3000, 'Tab focus trap did not wrap to first control');
+      recordCheck('x-modal tab focus trap wrapped to first control', modal.shadowRoot.activeElement === modalPanel);
+
+      modalPanel.focus();
+      dispatchKeyboard(modalPanel, 'Tab', { shiftKey: true });
+      await waitFor(() => modal.shadowRoot.activeElement === closeButton, 3000, 'Shift+Tab focus trap did not wrap to last control');
+      recordCheck('x-modal shift tab focus trap wrapped to last control', modal.shadowRoot.activeElement === closeButton);
+
+      dispatchKeyboard(document, 'Escape');
+      await waitFor(() => !modal.hasAttribute('open') && window.xstate.get(`xtend.component.x-modal.${modal.id}.open`) === false, 3000, 'Escape did not close modal');
+      await waitFor(() => document.activeElement === origin, 3000, 'Modal did not restore focus to origin');
+      recordCheck('x-modal escape restored focus to origin', document.activeElement === origin);
+
+      complete(window.__xtendA11yKeyboardSmokeResult.errors.length === 0 ? 'passed' : 'failed');
+    }
+
+    window.addEventListener('load', () => {
+      runA11yKeyboardSmokeChecks().catch((error) => {
+        window.__xtendA11yKeyboardSmokeResult.errors.push(error && error.message ? error.message : String(error));
+        complete('failed');
+      });
+    });
+  </script>
+  <script type="module" src="/xtend-loader.js" data-manifest="/tests/browser/fixtures/components/manifest.json"></script>
+</body>
+</html>

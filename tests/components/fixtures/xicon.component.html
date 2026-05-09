@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-icon component fixture</title>
+</head>
+<body>
+  <x-icon
+    id="component-icon"
+    name="search"
+    pack="lucide"
+    label="Search"
+    size="24px"
+    stroke-width="2.25"
+    color="currentColor">
+  </x-icon>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.__xtendIconEvents = [];
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+    document.addEventListener('icon-ready', (event) => {
+      window.__xtendIconEvents.push(event.detail);
+    });
+    document.addEventListener('icon-missing', (event) => {
+      window.__xtendIconEvents.push(event.detail);
+    });
+  </script>
+  <script type="module" src="/components/xicon.js"></script>
+  <script type="module">
+    const result = window.__xtendComponentResult;
+    const record = (name, passed, detail = {}) => {
+      result.checks.push({ name, passed, detail });
+      if (!passed) result.errors.push(name);
+    };
+
+    await customElements.whenDefined('x-icon');
+    const icon = document.getElementById('component-icon');
+    const initial = icon.snapshot();
+    window.XTend.icons.register({
+      id: 'fixture',
+      label: 'Fixture Icons',
+      cdnAllowed: false,
+      icons: {
+        spark: {
+          aliases: ['fixture-spark'],
+          nodes: [{ tag: 'path', attrs: { d: 'M12 3 9 11H3l6 4-2 6 5-4 5 4-2-6 6-4h-6Z' } }]
+        }
+      }
+    });
+    icon.setIcon('fixture-spark', { pack: 'fixture', label: 'Fixture spark' });
+    const afterCustomPack = icon.snapshot();
+
+    record('registry snapshot available', initial.registry && initial.registry.schema === 'xtend.icon.registry.v1');
+    record('lucide icon resolved', initial.resolved && initial.pack === 'lucide');
+    record('custom pack resolved', afterCustomPack.resolved && afterCustomPack.pack === 'fixture');
+    record('semantic role applied', icon.getAttribute('role') === 'img' && icon.getAttribute('aria-label') === 'Fixture spark');
+    record('state synchronized', Boolean(window.xstate.get('xicon-state-component-icon')));
+    record('icon-ready emitted', window.__xtendIconEvents.some((entry) => entry.schema === 'xtend.component.x-icon.ready.v1'));
+    record('global register API available', typeof window.XTend.icons.register === 'function');
+
+    result.status = result.errors.length === 0 ? 'passed' : 'failed';
+  </script>
+</body>
+</html>

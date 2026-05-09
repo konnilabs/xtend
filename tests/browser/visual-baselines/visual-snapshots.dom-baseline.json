@@ -1,0 +1,196 @@
+{
+  "schema": "xtend.epic12.visual-snapshot-dom-baseline.v1",
+  "sourceAutomationContract": "xtend.epic12.visual-snapshot-automation-contract.v1",
+  "workpackage": "WP-E12-11",
+  "baselineType": "dom-structure-json",
+  "binaryBaselines": false,
+  "snapshotCount": 5,
+  "matrixCombinationCount": 360,
+  "records": [
+    {
+      "schema": "xtend.epic12.visual-snapshot-record.v1",
+      "id": "form-controls-visual-snapshot",
+      "family": "form-controls",
+      "sourceAutomationEntry": "form-controls-visual-snapshot",
+      "sourceMatrixEntry": "form-validation-journey-theme-matrix",
+      "components": ["x-form", "x-input", "x-select", "x-checkbox"],
+      "visualStates": ["default", "focus", "invalid", "disabled"],
+      "snapshotScopes": ["shell-structure", "visual-state", "theme-token-state", "viewport-layout", "focus-a11y-state"],
+      "dimensions": {
+        "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+        "motionModes": ["default-motion", "reduced-motion"],
+        "densities": ["comfortable", "compact", "dense"],
+        "viewports": ["desktop-1280", "tablet-768", "mobile-390"]
+      },
+      "domSignature": {
+        "root": "section[data-snapshot-family=\"form-controls\"]",
+        "children": ["x-form#snapshot-form", "x-input#snapshot-input", "x-select#snapshot-select", "x-checkbox#snapshot-checkbox"],
+        "requiredAttributes": ["data-theme", "data-density", "data-motion", "data-viewport", "data-snapshot-family"],
+        "tokenKeys": ["--xtend-surface", "--xtend-text", "--xtend-color-primary", "--xtend-density-spacing", "--xtend-radius"],
+        "ariaSignals": ["aria-label", "required", "invalid", "disabled"],
+        "rmtDescriptor": false
+      },
+      "capturePolicy": {
+        "mode": "deterministic-local-fixture",
+        "fixture": "tests/browser/fixtures/visual-snapshots-fixture.html",
+        "waitFor": ["custom-elements-defined", "document-fonts-ready", "xtend-loader-complete", "animation-frame-flushed"]
+      },
+      "diff": {
+        "primary": "dom-structure-and-state-diff",
+        "pixel": {
+          "mode": "optional-local-pixel-diff",
+          "status": "not-run-in-node-contract-gate",
+          "reason": "WP-E12-11 ships the deterministic DOM diff runner; pixel capture is enabled only when a local browser driver is configured."
+        }
+      }
+    },
+    {
+      "schema": "xtend.epic12.visual-snapshot-record.v1",
+      "id": "feedback-status-visual-snapshot",
+      "family": "feedback-status",
+      "sourceAutomationEntry": "feedback-status-visual-snapshot",
+      "sourceMatrixEntry": "feedback-status-journey-theme-matrix",
+      "components": ["x-alert", "x-toast", "x-status", "x-progress"],
+      "visualStates": ["info", "success", "warning", "error", "progress"],
+      "snapshotScopes": ["shell-structure", "visual-state", "theme-token-state", "motion-density-state", "focus-a11y-state"],
+      "dimensions": {
+        "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+        "motionModes": ["default-motion", "reduced-motion"],
+        "densities": ["comfortable", "compact", "dense"],
+        "viewports": ["desktop-1280", "tablet-768", "mobile-390"]
+      },
+      "domSignature": {
+        "root": "section[data-snapshot-family=\"feedback-status\"]",
+        "children": ["x-alert#snapshot-alert", "x-toast#snapshot-toast", "x-status#snapshot-status", "x-progress#snapshot-progress"],
+        "requiredAttributes": ["data-theme", "data-density", "data-motion", "data-viewport", "data-snapshot-family"],
+        "tokenKeys": ["--xtend-surface", "--xtend-text", "--xtend-color-primary", "--xtend-density-spacing", "--xtend-radius"],
+        "ariaSignals": ["role=status", "aria-live", "role=progressbar"],
+        "rmtDescriptor": false
+      },
+      "capturePolicy": {
+        "mode": "deterministic-local-fixture",
+        "fixture": "tests/browser/fixtures/visual-snapshots-fixture.html",
+        "waitFor": ["custom-elements-defined", "document-fonts-ready", "xtend-loader-complete", "animation-frame-flushed"]
+      },
+      "diff": {
+        "primary": "dom-structure-and-state-diff",
+        "pixel": {
+          "mode": "optional-local-pixel-diff",
+          "status": "not-run-in-node-contract-gate",
+          "reason": "WP-E12-11 ships the deterministic DOM diff runner; pixel capture is enabled only when a local browser driver is configured."
+        }
+      }
+    },
+    {
+      "schema": "xtend.epic12.visual-snapshot-record.v1",
+      "id": "navigation-routing-visual-snapshot",
+      "family": "navigation-routing",
+      "sourceAutomationEntry": "navigation-routing-visual-snapshot",
+      "sourceMatrixEntry": "navigation-routing-journey-theme-matrix",
+      "components": ["x-router", "x-link", "x-tabs"],
+      "visualStates": ["initial-route", "active-route", "route-announced", "tab-selected", "tab-focus-visible"],
+      "snapshotScopes": ["shell-structure", "visual-state", "theme-token-state", "viewport-layout", "rmt-shell-descriptor"],
+      "dimensions": {
+        "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+        "motionModes": ["default-motion", "reduced-motion"],
+        "densities": ["comfortable", "compact", "dense"],
+        "viewports": ["desktop-1280", "tablet-768", "mobile-390"]
+      },
+      "domSignature": {
+        "root": "section[data-snapshot-family=\"navigation-routing\"]",
+        "children": ["x-link#snapshot-link", "x-router#snapshot-router", "x-tabs#snapshot-tabs"],
+        "requiredAttributes": ["data-theme", "data-density", "data-motion", "data-viewport", "data-snapshot-family", "data-rmt-shell-descriptor"],
+        "tokenKeys": ["--xtend-surface", "--xtend-text", "--xtend-color-primary", "--xtend-density-spacing", "--xtend-radius"],
+        "ariaSignals": ["aria-current", "role=tablist", "aria-controls", "aria-selected"],
+        "rmtDescriptor": true
+      },
+      "capturePolicy": {
+        "mode": "deterministic-local-fixture",
+        "fixture": "tests/browser/fixtures/visual-snapshots-fixture.html",
+        "waitFor": ["custom-elements-defined", "document-fonts-ready", "xtend-loader-complete", "animation-frame-flushed"]
+      },
+      "diff": {
+        "primary": "dom-structure-and-state-diff",
+        "pixel": {
+          "mode": "optional-local-pixel-diff",
+          "status": "not-run-in-node-contract-gate",
+          "reason": "WP-E12-11 ships the deterministic DOM diff runner; pixel capture is enabled only when a local browser driver is configured."
+        }
+      }
+    },
+    {
+      "schema": "xtend.epic12.visual-snapshot-record.v1",
+      "id": "overlay-interaction-visual-snapshot",
+      "family": "overlay-interaction",
+      "sourceAutomationEntry": "overlay-interaction-visual-snapshot",
+      "sourceMatrixEntry": "overlay-focus-journey-theme-matrix",
+      "components": ["x-modal", "x-drawer"],
+      "visualStates": ["closed", "open", "focus-trapped", "reduced-motion-open"],
+      "snapshotScopes": ["shell-structure", "visual-state", "motion-density-state", "viewport-layout", "focus-a11y-state"],
+      "dimensions": {
+        "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+        "motionModes": ["default-motion", "reduced-motion"],
+        "densities": ["comfortable", "compact", "dense"],
+        "viewports": ["desktop-1280", "tablet-768", "mobile-390"]
+      },
+      "domSignature": {
+        "root": "section[data-snapshot-family=\"overlay-interaction\"]",
+        "children": ["x-modal#snapshot-modal", "x-drawer#snapshot-drawer"],
+        "requiredAttributes": ["data-theme", "data-density", "data-motion", "data-viewport", "data-snapshot-family"],
+        "tokenKeys": ["--xtend-surface", "--xtend-text", "--xtend-color-primary", "--xtend-density-spacing", "--xtend-radius"],
+        "ariaSignals": ["role=dialog", "aria-modal", "focus-trap", "escape-close"],
+        "rmtDescriptor": false
+      },
+      "capturePolicy": {
+        "mode": "deterministic-local-fixture",
+        "fixture": "tests/browser/fixtures/visual-snapshots-fixture.html",
+        "waitFor": ["custom-elements-defined", "document-fonts-ready", "xtend-loader-complete", "animation-frame-flushed"]
+      },
+      "diff": {
+        "primary": "dom-structure-and-state-diff",
+        "pixel": {
+          "mode": "optional-local-pixel-diff",
+          "status": "not-run-in-node-contract-gate",
+          "reason": "WP-E12-11 ships the deterministic DOM diff runner; pixel capture is enabled only when a local browser driver is configured."
+        }
+      }
+    },
+    {
+      "schema": "xtend.epic12.visual-snapshot-record.v1",
+      "id": "layout-display-media-visual-snapshot",
+      "family": "layout-display-media",
+      "sourceAutomationEntry": "layout-display-media-visual-snapshot",
+      "sourceMatrixEntry": "layout-display-media-journey-theme-matrix",
+      "components": ["x-section", "x-cards", "x-code", "x-player"],
+      "visualStates": ["default-layout", "narrow-layout", "lazy-media-shell"],
+      "snapshotScopes": ["shell-structure", "visual-state", "theme-token-state", "viewport-layout", "rmt-shell-descriptor"],
+      "dimensions": {
+        "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+        "motionModes": ["default-motion", "reduced-motion"],
+        "densities": ["comfortable", "compact", "dense"],
+        "viewports": ["desktop-1280", "tablet-768", "mobile-390"]
+      },
+      "domSignature": {
+        "root": "section[data-snapshot-family=\"layout-display-media\"]",
+        "children": ["x-section#snapshot-section", "x-cards#snapshot-cards", "x-code#snapshot-code", "x-player#snapshot-player"],
+        "requiredAttributes": ["data-theme", "data-density", "data-motion", "data-viewport", "data-snapshot-family", "data-rmt-shell-descriptor"],
+        "tokenKeys": ["--xtend-surface", "--xtend-text", "--xtend-color-primary", "--xtend-density-spacing", "--xtend-radius"],
+        "ariaSignals": ["region", "lazy-media-shell", "code-block"],
+        "rmtDescriptor": true
+      },
+      "capturePolicy": {
+        "mode": "deterministic-local-fixture",
+        "fixture": "tests/browser/fixtures/visual-snapshots-fixture.html",
+        "waitFor": ["custom-elements-defined", "document-fonts-ready", "xtend-loader-complete", "animation-frame-flushed"]
+      },
+      "diff": {
+        "primary": "dom-structure-and-state-diff",
+        "pixel": {
+          "mode": "optional-local-pixel-diff",
+          "status": "not-run-in-node-contract-gate",
+          "reason": "WP-E12-11 ships the deterministic DOM diff runner; pixel capture is enabled only when a local browser driver is configured."
+        }
+      }
+    }
+  ]
+}

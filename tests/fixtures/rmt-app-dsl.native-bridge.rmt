@@ -1,0 +1,199 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "fixture.app-dsl.native-bridge",
+    "namespace": "fixture.native",
+    "metadata": {
+      "contractVersion": "xtend.rmt.wp15.native-bridge-fixture.v1",
+      "status": "epic-05-wp-15-fixture"
+    }
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "components",
+        "customElements",
+        "hydration",
+        "events",
+        "scheduleRefs"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "router_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "routes",
+        "navigation",
+        "params",
+        "query",
+        "scheduleRefs"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "rmt.state-scheduler-diagnostics",
+      "kind": "scheduler_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "stateBridge",
+        "schedulerEndpoints",
+        "diagnostics",
+        "adapterResults"
+      ],
+      "kernelVisible": false
+    }
+  ],
+  "components": [
+    {
+      "id": "pages.home",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "component.visible.mount",
+      "props": {
+        "label": "Home"
+      },
+      "attributes": {
+        "data-page": "home"
+      },
+      "slots": {
+        "default": {
+          "text": "Native bridge home slot"
+        }
+      }
+    },
+    {
+      "id": "pages.settings",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-card",
+      "schedule": "component.idle.hydrate",
+      "props": {
+        "label": "Settings"
+      },
+      "attributes": {
+        "data-page": "settings"
+      },
+      "hydration": {
+        "mode": "runtime_render",
+        "ownershipMode": "managed_subtree"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "id": "home",
+      "path": "/",
+      "router": "xtend.xrouter",
+      "component": "pages.home",
+      "title": "Home",
+      "documentTitle": "Home | Native Bridge",
+      "template": "home.shell",
+      "schedule": "route.visible.render",
+      "metadata": {
+        "metaDescription": "Native bridge home route."
+      }
+    },
+    {
+      "id": "settings",
+      "path": "/settings",
+      "router": "xtend.xrouter",
+      "component": "pages.settings",
+      "title": "Settings",
+      "documentTitle": "Settings | Native Bridge",
+      "template": "settings.shell",
+      "schedule": "route.visible.render",
+      "query": {
+        "tab": "profile"
+      },
+      "metadata": {
+        "metaDescription": "Native bridge settings route."
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "id": "route.visible.render",
+      "endpointName": "xtendrmt.route.render",
+      "scope": "fixture.native.route",
+      "lane": "visible",
+      "priority": 80,
+      "deadlineMs": 120,
+      "preferIdle": false,
+      "coalesceKey": "fixture.native.route",
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "component.visible.mount",
+      "endpointName": "xtendrmt.component.mount",
+      "scope": "fixture.native.component.mount",
+      "lane": "visible",
+      "priority": 70,
+      "deadlineMs": 160,
+      "preferIdle": false,
+      "coalesceKey": "fixture.native.component.mount",
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "component.idle.hydrate",
+      "endpointName": "xtendrmt.component.hydrate",
+      "scope": "fixture.native.component.hydrate",
+      "lane": "idle",
+      "priority": 40,
+      "deadlineMs": 420,
+      "preferIdle": true,
+      "coalesceKey": "fixture.native.component.hydrate",
+      "budgetClass": "background"
+    },
+    {
+      "id": "diagnostics.snapshot",
+      "endpointName": "xtendrmt.diagnostics.snapshot",
+      "scope": "fixture.native.diagnostics",
+      "lane": "diagnostics",
+      "priority": 30,
+      "deadlineMs": 260,
+      "preferIdle": true,
+      "coalesceKey": "fixture.native.diagnostics",
+      "budgetClass": "diagnostics"
+    }
+  ],
+  "templates": [
+    {
+      "id": "home.shell",
+      "mode": "html_fragment",
+      "markup": "<x-section></x-section>",
+      "hydration": {
+        "mode": "runtime_render",
+        "metadata": {
+          "endpointHint": "xtendrmt.component.mount"
+        }
+      }
+    },
+    {
+      "id": "settings.shell",
+      "mode": "html_fragment",
+      "markup": "<x-card></x-card>",
+      "hydration": {
+        "mode": "runtime_render",
+        "metadata": {
+          "endpointHint": "xtendrmt.component.hydrate"
+        }
+      }
+    }
+  ]
+}

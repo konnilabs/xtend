@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>x-popover component fixture</title>
+    <script type="module" src="/components/xstate.js"></script>
+    <script type="module" src="/components/xpopover.js"></script>
+  </head>
+  <body>
+    <x-popover
+      id="component-popover"
+      placement="bottom"
+      modal
+      label="Filter options">
+      <button slot="trigger" type="button">Open filters</button>
+      <p>Filter content can be mounted by RMT.</p>
+      <button slot="actions" type="button">Apply</button>
+    </x-popover>
+    <script>
+      window.xstate = window.xstate || {
+        get: () => null,
+        set: () => {},
+        subscribe: () => () => {}
+      };
+      window.__xtendComponentResult = {
+        component: 'x-popover',
+        id: 'component-popover',
+        expectedEvents: ['popover-opened', 'popover-closed'],
+        stateKey: 'xpopover-open-component-popover'
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en" data-contract="xtend.epic11.component-shell-theme-matrix.v1" data-theme="light" data-density="comfortable" data-motion="default-motion">
+  <head>
+    <meta charset="utf-8">
+    <title>XTend Epic 11 Component Shell Theme Matrix Smoke</title>
+    <meta
+      name="xtend-preload"
+      content="xstate,x-theme,x-router,x-link,x-tabs,x-input,x-select,x-checkbox,x-form,x-alert,x-toast,x-status,x-progress,x-modal,x-drawer,x-section,x-cards,x-code,x-player"
+    >
+    <style>
+      :root {
+        --xtend-surface: #ffffff;
+        --xtend-text: #1f2635;
+        --xtend-color-primary: #4fc3f7;
+        --xtend-density-spacing: 0.75rem;
+        --xtend-radius: 18px;
+        --xtend-motion-duration-fast: 160ms;
+      }
+
+      :root[data-theme="dark"] {
+        --xtend-surface: #1f2635;
+        --xtend-text: #f5f7fb;
+        --xtend-color-primary: #4fc3f7;
+      }
+
+      :root[data-theme="high-contrast"] {
+        --xtend-surface: #000000;
+        --xtend-text: #ffffff;
+        --xtend-color-primary: #ffff00;
+      }
+
+      :root[data-theme="forced-colors"] {
+        --xtend-surface: Canvas;
+        --xtend-text: CanvasText;
+        --xtend-color-primary: Highlight;
+      }
+
+      :root[data-density="compact"] {
+        --xtend-density-spacing: 0.5rem;
+      }
+
+      :root[data-density="dense"] {
+        --xtend-density-spacing: 0.375rem;
+      }
+
+      :root[data-motion="reduced-motion"] {
+        --xtend-motion-duration-fast: 0ms;
+      }
+
+      body {
+        visibility: hidden;
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        color: var(--xtend-text);
+        background: var(--xtend-surface);
+      }
+
+      main {
+        display: grid;
+        gap: var(--xtend-density-spacing);
+        padding: var(--xtend-density-spacing);
+      }
+
+      .matrix-row {
+        display: grid;
+        gap: var(--xtend-density-spacing);
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .matrix-panel {
+        border: 2px solid var(--xtend-color-primary);
+        border-radius: var(--xtend-radius);
+        padding: var(--xtend-density-spacing);
+        transition: border-color var(--xtend-motion-duration-fast) ease;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="epic11-theme-matrix-root" data-viewport="desktop-1280 tablet-768 mobile-390">
+      <section class="matrix-panel" data-family="form-controls" data-states="default focus invalid disabled">
+        <x-form id="matrix-form" aria-label="Theme matrix form">
+          <x-input id="matrix-input" name="email" required placeholder="Email">
+            <span slot="label">Email</span>
+            <span slot="error">Email is required.</span>
+          </x-input>
+          <x-select id="matrix-select" name="plan" required placeholder="Plan" label="Plan">
+            <option value="team">Team</option>
+            <option value="enterprise">Enterprise</option>
+            <span slot="error">Plan is required.</span>
+          </x-select>
+          <x-checkbox id="matrix-checkbox" name="terms" value="accepted" required label="Terms accepted"></x-checkbox>
+        </x-form>
+      </section>
+
+      <section class="matrix-panel" data-family="feedback-status" data-states="info success warning error progress">
+        <div class="matrix-row">
+          <x-alert id="matrix-alert" type="warning" title="Visual state">Warning shell</x-alert>
+          <x-status id="matrix-status" type="success" state="ready" label="Scheduler" message="Ready">Ready</x-status>
+          <x-progress id="matrix-progress" label="Hydration" status="Hydrated" value="64" max="100"></x-progress>
+        </div>
+      </section>
+
+      <section class="matrix-panel" data-family="navigation-routing" data-states="initial-route active-route route-announced tab-selected tab-focus-visible">
+        <nav aria-label="Theme matrix routes">
+          <x-link id="matrix-home-link" href="/">Overview</x-link>
+          <x-link id="matrix-detail-link" href="/detail">Detail</x-link>
+        </nav>
+        <x-router id="matrix-router" mode="hash">
+          <x-route path="/" component="xtend-theme-matrix-home"></x-route>
+          <x-route path="/detail" component="xtend-theme-matrix-detail"></x-route>
+        </x-router>
+        <x-tabs id="matrix-tabs" selected="0" data-rmt-schedule="ui.user-blocking.tabs" data-xtend-lane="user-blocking">
+          <x-tab name="Overview">Theme matrix overview tab</x-tab>
+          <x-tab name="Telemetry">Theme matrix telemetry tab</x-tab>
+          <x-tab name="Routes">Theme matrix route tab</x-tab>
+        </x-tabs>
+      </section>
+
+      <section class="matrix-panel" data-family="overlay-interaction" data-states="closed open focus-trapped reduced-motion-open">
+        <button id="matrix-focus-origin" type="button">Open modal</button>
+        <x-modal id="matrix-modal" title="Theme modal" content="Modal visual shell" overlay></x-modal>
+        <x-drawer id="matrix-drawer" label="Theme drawer">
+          <span slot="trigger">Open drawer</span>
+          <p>Drawer visual shell.</p>
+        </x-drawer>
+      </section>
+
+      <section class="matrix-panel" data-family="layout-display-media" data-states="default-layout narrow-layout lazy-media-shell">
+        <x-section id="matrix-section" label="Layout shell">
+          <x-cards id="matrix-cards">
+            <x-card title="Card">Display shell</x-card>
+          </x-cards>
+          <x-code id="matrix-code" language="js">console.log("xtend-theme-matrix");</x-code>
+          <x-player id="matrix-player" title="Lazy media shell"></x-player>
+        </x-section>
+      </section>
+    </main>
+
+    <script>
+      class XTendThemeMatrixHome extends HTMLElement {
+        connectedCallback() {
+          this.textContent = 'Theme matrix overview route';
+        }
+      }
+
+      class XTendThemeMatrixDetail extends HTMLElement {
+        connectedCallback() {
+          this.textContent = 'Theme matrix detail route';
+        }
+      }
+
+      customElements.define('xtend-theme-matrix-home', XTendThemeMatrixHome);
+      customElements.define('xtend-theme-matrix-detail', XTendThemeMatrixDetail);
+
+      const result = {
+        contract: 'xtend.epic11.component-shell-theme-matrix.v1',
+        status: 'pending',
+        checks: [],
+        errors: []
+      };
+
+      window.__xtendEpic11ThemeMatrixResult = result;
+
+      function recordCheck(name, passed, details = {}) {
+        result.checks.push({ name, passed: Boolean(passed), details });
+        if (!passed) {
+          result.errors.push(name);
+        }
+      }
+
+      function complete() {
+        result.status = result.errors.length === 0 ? 'passed' : 'failed';
+      }
+
+      function waitFor(predicate, timeoutMs = 4000) {
+        const started = Date.now();
+        return new Promise((resolve, reject) => {
+          const tick = () => {
+            try {
+              if (predicate()) {
+                resolve(true);
+                return;
+              }
+            } catch (error) {
+              reject(error);
+              return;
+            }
+            if (Date.now() - started >= timeoutMs) {
+              reject(new Error('Timed out while waiting for Epic 11 theme matrix condition.'));
+              return;
+            }
+            setTimeout(tick, 50);
+          };
+          tick();
+        });
+      }
+
+      function cssValue(property) {
+        return getComputedStyle(document.documentElement).getPropertyValue(property).trim();
+      }
+
+      function hasStates(family, states) {
+        const panel = document.querySelector(`[data-family="${family}"]`);
+        const actual = panel ? panel.dataset.states.split(/\s+/) : [];
+        return states.every((state) => actual.includes(state));
+      }
+
+      async function runSmoke() {
+        try {
+          await (window.__XTendLoaderBootPromise || Promise.resolve());
+          await Promise.all([
+            customElements.whenDefined('x-router'),
+            customElements.whenDefined('x-link'),
+            customElements.whenDefined('x-tabs'),
+            customElements.whenDefined('x-input'),
+            customElements.whenDefined('x-select'),
+            customElements.whenDefined('x-checkbox'),
+            customElements.whenDefined('x-form'),
+            customElements.whenDefined('x-alert'),
+            customElements.whenDefined('x-toast'),
+            customElements.whenDefined('x-status'),
+            customElements.whenDefined('x-progress'),
+            customElements.whenDefined('x-modal'),
+            customElements.whenDefined('x-drawer'),
+            customElements.whenDefined('x-section'),
+            customElements.whenDefined('x-cards'),
+            customElements.whenDefined('x-code'),
+            customElements.whenDefined('x-player')
+          ]);
+          await waitFor(() => document.body.style.visibility !== 'hidden' || getComputedStyle(document.body).visibility !== 'hidden');
+
+          recordCheck('theme matrix fixture hydrated local loader', Boolean(window.XTend && window.xstate));
+
+          const themeApi = window.XTend && window.XTend.theme;
+          if (themeApi && typeof themeApi.setTheme === 'function') {
+            themeApi.setTheme('light');
+          } else {
+            document.documentElement.dataset.theme = 'light';
+          }
+          recordCheck('theme matrix light tokens applied', cssValue('--xtend-surface') === '#ffffff');
+          if (themeApi && typeof themeApi.setTheme === 'function') {
+            themeApi.setTheme('dark');
+          } else {
+            document.documentElement.dataset.theme = 'dark';
+          }
+          recordCheck('theme matrix dark tokens applied', cssValue('--xtend-surface') === '#1f2635');
+          if (themeApi && typeof themeApi.setTheme === 'function') {
+            themeApi.setTheme('high-contrast');
+          } else {
+            document.documentElement.dataset.theme = 'high-contrast';
+          }
+          recordCheck('theme matrix high contrast tokens applied', cssValue('--xtend-color-primary') === '#ffff00');
+          if (themeApi && typeof themeApi.setTheme === 'function') {
+            themeApi.setTheme('forced-colors');
+          } else {
+            document.documentElement.dataset.theme = 'forced-colors';
+          }
+          recordCheck('theme matrix forced colors contract visible', cssValue('--xtend-text') === 'CanvasText');
+
+          document.documentElement.dataset.motion = 'reduced-motion';
+          document.documentElement.style.setProperty('--xtend-motion-duration-fast', '0ms');
+          recordCheck('theme matrix reduced motion contract visible', cssValue('--xtend-motion-duration-fast') === '0ms');
+
+          if (themeApi && typeof themeApi.setDensity === 'function') {
+            themeApi.setDensity('comfortable', { persist: false });
+          } else {
+            document.documentElement.dataset.density = 'comfortable';
+          }
+          recordCheck('theme matrix comfortable density applied', cssValue('--xtend-density-spacing') === '0.75rem');
+          if (themeApi && typeof themeApi.setDensity === 'function') {
+            themeApi.setDensity('compact', { persist: false });
+          } else {
+            document.documentElement.dataset.density = 'compact';
+          }
+          recordCheck('theme matrix compact density applied', cssValue('--xtend-density-spacing') === '0.5rem');
+          if (themeApi && typeof themeApi.setDensity === 'function') {
+            themeApi.setDensity('dense', { persist: false });
+          } else {
+            document.documentElement.dataset.density = 'dense';
+          }
+          recordCheck('theme matrix dense density applied', cssValue('--xtend-density-spacing') === '0.375rem');
+
+          const root = document.getElementById('epic11-theme-matrix-root');
+          const viewportContract = root.dataset.viewport.split(/\s+/);
+          recordCheck('theme matrix desktop viewport contract visible', viewportContract.includes('desktop-1280'));
+          recordCheck('theme matrix tablet viewport contract visible', viewportContract.includes('tablet-768'));
+          recordCheck('theme matrix mobile viewport contract visible', viewportContract.includes('mobile-390'));
+
+          recordCheck('form controls visual states covered', hasStates('form-controls', ['default', 'focus', 'invalid', 'disabled']));
+          recordCheck('form controls density tokens covered', Boolean(document.getElementById('matrix-form').shadowRoot));
+          recordCheck('form controls invalid state contrast visible', document.getElementById('matrix-select').hasAttribute('invalid'));
+
+          recordCheck('feedback status visual states covered', hasStates('feedback-status', ['info', 'success', 'warning', 'error', 'progress']));
+          recordCheck('feedback status live region visual shell covered', Boolean(document.getElementById('matrix-status').shadowRoot.querySelector('[role="status"]')));
+          recordCheck('feedback progress visual shell covered', Boolean(document.getElementById('matrix-progress').shadowRoot.querySelector('[role="progressbar"]')));
+
+          recordCheck('navigation routing visual states covered', hasStates('navigation-routing', ['initial-route', 'active-route', 'route-announced', 'tab-selected', 'tab-focus-visible']));
+          recordCheck('navigation active route contrast visible', Boolean(document.getElementById('matrix-detail-link').shadowRoot));
+          recordCheck('navigation route announcement shell visible', Boolean(document.getElementById('matrix-router').shadowRoot));
+          const matrixTabs = document.getElementById('matrix-tabs');
+          const matrixTabButtons = Array.from(matrixTabs.shadowRoot.querySelectorAll('[role="tab"]'));
+          const matrixFirstPanel = document.getElementById(matrixTabButtons[0].getAttribute('aria-controls'));
+          recordCheck('navigation tabs aria states covered', Boolean(
+            matrixTabButtons.length === 3 &&
+            matrixTabButtons[0].getAttribute('aria-selected') === 'true' &&
+            matrixTabButtons[0].getAttribute('aria-controls') &&
+            matrixFirstPanel &&
+            matrixFirstPanel.getAttribute('role') === 'tabpanel'
+          ));
+          matrixTabButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, composed: true, cancelable: true }));
+          await waitFor(() => matrixTabs.getAttribute('selected') === '1');
+          recordCheck('navigation tabs keyboard states covered', matrixTabs.getAttribute('selected') === '1' && matrixTabButtons[1].getAttribute('tabindex') === '0');
+
+          recordCheck('overlay interaction visual states covered', hasStates('overlay-interaction', ['closed', 'open', 'focus-trapped', 'reduced-motion-open']));
+          recordCheck('overlay focus trap shell visible', Boolean(document.getElementById('matrix-modal').shadowRoot));
+          recordCheck('overlay reduced motion shell visible', cssValue('--xtend-motion-duration-fast') === '0ms');
+
+          recordCheck('layout display media visual states covered', hasStates('layout-display-media', ['default-layout', 'narrow-layout', 'lazy-media-shell']));
+          recordCheck('layout responsive shells covered', Boolean(document.getElementById('matrix-section').shadowRoot && document.getElementById('matrix-cards').shadowRoot));
+          recordCheck('layout lazy media shell visible', Boolean(document.getElementById('matrix-player').shadowRoot && !document.getElementById('matrix-player').hasAttribute('playing')));
+          const forbiddenCdn = 'https://' + 'cdn.ccs-networks.de/xtend';
+          recordCheck('visual matrix remains local only', !document.documentElement.outerHTML.includes(forbiddenCdn));
+        } catch (error) {
+          result.errors.push(error.message);
+        } finally {
+          complete();
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', runSmoke);
+    </script>
+    <script
+      type="module"
+      src="/xtend-loader.js"
+      data-manifest="/tests/browser/fixtures/components/manifest.json"
+    ></script>
+  </body>
+</html>

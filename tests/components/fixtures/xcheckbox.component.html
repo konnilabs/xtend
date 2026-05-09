@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-checkbox component fixture</title>
+</head>
+<body>
+  <x-checkbox id="component-checkbox" name="terms" value="accepted" checked required>
+    <span slot="label">Accept terms</span>
+    <span slot="hint">Required before deployment.</span>
+    <span slot="error">Accept the terms to continue.</span>
+  </x-checkbox>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xcheckbox.js"></script>
+</body>
+</html>

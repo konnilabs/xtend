@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-radio component fixture</title>
+</head>
+<body>
+  <x-radio id="component-radio-starter" name="plan" value="starter">
+    <span slot="label">Starter</span>
+    <span slot="hint">Small team baseline.</span>
+  </x-radio>
+  <x-radio id="component-radio-pro" name="plan" value="pro" checked required>
+    <span slot="label">Pro</span>
+    <span slot="error">Select a plan.</span>
+  </x-radio>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xradio.js"></script>
+</body>
+</html>

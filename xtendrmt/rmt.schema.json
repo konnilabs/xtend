@@ -1,0 +1,3033 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xtendrmt.dev/schemas/rmt.schema.json",
+  "title": "XTendRMT RMT Document",
+  "description": "Machine-readable schema for XTendRMT Template (RMT) documents.",
+  "x-xtendrmt": {
+    "preferredFileExtension": ".rmt",
+    "supportedFileExtensions": [
+      ".rmt",
+      ".rmt.json",
+      ".json"
+    ],
+    "jsonFallbackExtensions": [
+      ".rmt.json",
+      ".json"
+    ],
+    "recommendedFileMatch": [
+      "*.rmt"
+    ],
+    "contentType": "application/vnd.xtendrmt.rmt+json",
+    "jsonFallbackContentType": "application/json",
+    "jsonFallbackPolicy": ".rmt.json and .json remain supported for edge-case hosts that cannot serve custom MIME types, but new XTendRMT documents should use .rmt.",
+    "templateAuthoringModels": [
+      {
+        "id": "xtend.rmt.template-authoring.v1",
+        "adapter": "xtend.template",
+        "componentAdapter": "xtend.component",
+        "allowedTemplateModes": [
+          "html_fragment",
+          "dom_descriptor"
+        ],
+        "slotBindingMode": "named-slot-to-template-ref",
+        "eventBindingMode": "dom-event-to-rmt-command",
+        "dataBindingMode": "explicit-props-attributes-and-slots-only",
+        "kernelBoundary": "XTend component references remain adapter data and must not become RMT kernel imports.",
+        "upstreamDslNeeds": [
+          "native top-level components domain",
+          "component_ref node shorthand",
+          "named slot children syntax",
+          "event command shorthand",
+          "authoring diagnostics"
+        ]
+      }
+    ],
+    "rootLifecycleModels": [
+      {
+        "id": "xtend.rmt.root-handshake.v1",
+        "planner": "rmt-scheduler",
+        "executor": "xtend-host-adapter",
+        "phaseSequence": [
+          "create",
+          "mount",
+          "hydrate",
+          "activate",
+          "update",
+          "unmount",
+          "diagnostics"
+        ],
+        "schedulerEndpointHints": [
+          "component.visible.mount",
+          "component.idle.hydrate",
+          "route.visible.render",
+          "diagnostics.snapshot"
+        ],
+        "statePolicy": "digital-twin-ssot-xstate",
+        "kernelBoundary": "RMT scheduler plans root phases through endpoint hints; host adapters execute framework-specific lifecycle work."
+      }
+    ],
+    "hostCapabilityModels": [
+      {
+        "id": "xtend.rmt.host-capabilities.v1",
+        "adapterId": "xtend",
+        "adapterKind": "host_adapter",
+        "requiredCapabilities": [
+          "manifest",
+          "customElements",
+          "stateBridge",
+          "hydration",
+          "schedulerEndpoints"
+        ],
+        "optionalCapabilities": [
+          "theme",
+          "api",
+          "router",
+          "diagnostics"
+        ],
+        "capabilityRefs": [
+          "xtend.manifest",
+          "xtend.custom-elements",
+          "xtend.state-bridge.xstate",
+          "xtend.hydration",
+          "xtend.scheduler-endpoints",
+          "xtend.theme",
+          "xtend.api",
+          "xtend.xrouter",
+          "xtend.diagnostics"
+        ],
+        "negotiation": "RMT documents may require or prefer capability IDs, but the XTend Host Adapter resolves and executes them.",
+        "kernelBoundary": "RMT kernel negotiates host capability data only and must not import XTend runtime modules."
+      }
+    ],
+    "scaffoldCompatibilityBindings": [
+      {
+        "id": "xtend.scaffold.rmt-compatibility-binding.v1",
+        "surfaces": [
+          "typing",
+          "manifest-plan",
+          "preview-plan",
+          "extension-points",
+          "component-files"
+        ],
+        "requiredContracts": [
+          "xtend.rmt.component-contract.v1",
+          "xtend.rmt.template-authoring.v1",
+          "xtend.rmt.root-handshake.v1",
+          "xtend.rmt.host-capabilities.v1"
+        ],
+        "minimumGate": "node scripts/run_xtend_tests.js rmt-compatibility --json",
+        "boundary": "Scaffold compatibility bindings are dry-run metadata and must not implement the XTendRMT bridge."
+      }
+    ],
+    "templatePilotFlowModels": [
+      {
+        "id": "xtend.rmt.template-pilot-flow.v1",
+        "status": "reference-only",
+        "templateAdapter": "xtend.template",
+        "componentAdapter": "xtend.component",
+        "routeAdapter": "xtend.xrouter",
+        "requiredContracts": [
+          "xtend.rmt.component-contract.v1",
+          "xtend.rmt.template-authoring.v1",
+          "xtend.rmt.root-handshake.v1",
+          "xtend.rmt.host-capabilities.v1",
+          "xtend.scaffold.rmt-compatibility-binding.v1"
+        ],
+        "minimumGate": "node scripts/run_xtend_tests.js rmt-compatibility --json",
+        "bridgeRuntime": "reserved-for-Epic-05",
+        "kernelBoundary": "Template pilot flows are reference records; host adapters inspect and materialize XTend component attachments outside the RMT kernel."
+      }
+    ],
+    "hostAdapterLifecycleContracts": [
+      {
+        "id": "xtend.rmt.host-adapter-lifecycle.v1",
+        "status": "epic-05-wp-02-contract",
+        "sourceOfTruth": "development/WP-E05-02-Host-Adapter-Contract-und-Adapter-Lifecycle-definieren.md",
+        "adapterKinds": [
+          "host_adapter",
+          "component_adapter",
+          "router_adapter",
+          "state_adapter",
+          "scheduler_adapter"
+        ],
+        "lifecyclePhases": [
+          "register",
+          "negotiate",
+          "prepare",
+          "mount",
+          "hydrate",
+          "route",
+          "state",
+          "schedule",
+          "diagnose",
+          "dispose"
+        ],
+        "runtimeSurfaces": [
+          "esm",
+          "browser_classic",
+          "worker",
+          "server"
+        ],
+        "operations": [
+          {
+            "operation": "registerAdapter",
+            "phase": "register",
+            "requiredFor": [
+              "host_adapter",
+              "component_adapter",
+              "router_adapter",
+              "state_adapter",
+              "scheduler_adapter"
+            ]
+          },
+          {
+            "operation": "negotiateCapabilities",
+            "phase": "negotiate",
+            "requiredFor": [
+              "host_adapter",
+              "component_adapter",
+              "router_adapter",
+              "state_adapter",
+              "scheduler_adapter"
+            ]
+          },
+          {
+            "operation": "registerComponent",
+            "phase": "prepare",
+            "requiredFor": [
+              "component_adapter"
+            ]
+          },
+          {
+            "operation": "mountComponent",
+            "phase": "mount",
+            "requiredFor": [
+              "component_adapter"
+            ]
+          },
+          {
+            "operation": "hydrateComponent",
+            "phase": "hydrate",
+            "requiredFor": [
+              "component_adapter"
+            ]
+          },
+          {
+            "operation": "registerRoutes",
+            "phase": "route",
+            "requiredFor": [
+              "router_adapter"
+            ]
+          },
+          {
+            "operation": "navigate",
+            "phase": "route",
+            "requiredFor": [
+              "router_adapter"
+            ]
+          },
+          {
+            "operation": "createStateBridge",
+            "phase": "state",
+            "requiredFor": [
+              "host_adapter",
+              "state_adapter"
+            ]
+          },
+          {
+            "operation": "scheduleEndpoint",
+            "phase": "schedule",
+            "requiredFor": [
+              "host_adapter",
+              "scheduler_adapter"
+            ]
+          },
+          {
+            "operation": "emitDiagnostic",
+            "phase": "diagnose",
+            "requiredFor": [
+              "host_adapter",
+              "component_adapter",
+              "router_adapter",
+              "state_adapter",
+              "scheduler_adapter"
+            ]
+          },
+          {
+            "operation": "disposeAdapter",
+            "phase": "dispose",
+            "requiredFor": [
+              "host_adapter",
+              "component_adapter",
+              "router_adapter",
+              "state_adapter",
+              "scheduler_adapter"
+            ]
+          }
+        ],
+        "resultStatuses": [
+          "ok",
+          "degraded",
+          "skipped",
+          "failed"
+        ],
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "kernelBoundary": "RMT kernel may register adapter records and schedule abstract lifecycle operations, but host adapters execute framework-specific work. XTend, XRouter and xstate stay outside kernel imports.",
+        "nextWorkpackage": "development/WP-E05-03-Adapter-Registry-und-Capability-Negotiation-modellieren.md"
+      }
+    ],
+    "adapterRegistryContracts": [
+      {
+        "id": "xtend.rmt.adapter-registry.v1",
+        "status": "epic-05-wp-03-contract",
+        "sourceOfTruth": "development/WP-E05-03-Adapter-Registry-und-Capability-Negotiation-modellieren.md",
+        "registryRecordFields": [
+          "id",
+          "kind",
+          "version",
+          "package",
+          "moduleRef",
+          "runtimeSurface",
+          "providedCapabilities",
+          "requiredCapabilities",
+          "preferredCapabilities",
+          "lifecycleContract",
+          "kernelVisible",
+          "status",
+          "diagnostics",
+          "metadata"
+        ],
+        "capabilityRequestFields": [
+          "scope",
+          "adapterKind",
+          "adapterId",
+          "requiredCapabilities",
+          "preferredCapabilities",
+          "runtimeSurface",
+          "fallbackPolicy",
+          "metadata"
+        ],
+        "negotiationPhases": [
+          "collect",
+          "normalize",
+          "match",
+          "validate",
+          "select",
+          "degrade",
+          "diagnose",
+          "finalize"
+        ],
+        "registryStatuses": [
+          "registered",
+          "available",
+          "degraded",
+          "missing",
+          "failed"
+        ],
+        "negotiationStatuses": [
+          "accepted",
+          "degraded",
+          "failed",
+          "skipped"
+        ],
+        "fallbackPolicies": [
+          "fail",
+          "degrade",
+          "skip",
+          "diagnose_only"
+        ],
+        "diagnosticCodes": [
+          "rmt.adapter.missing",
+          "rmt.capability.required_missing",
+          "rmt.capability.preferred_missing",
+          "rmt.adapter.surface_mismatch",
+          "rmt.adapter.version_mismatch",
+          "rmt.adapter.conflict",
+          "rmt.adapter.degraded",
+          "rmt.adapter.negotiation.skipped"
+        ],
+        "stableAdapterIds": [
+          "xtend",
+          "xtend.component",
+          "xtend.template",
+          "xtend.xrouter",
+          "host-adapter-contract"
+        ],
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "kernelBoundary": "RMT kernel may compare adapter records and capability requests, but framework-specific fallback, manifest lookup, router setup and state writes stay in adapters.",
+        "templateOnlyCompatibility": "Documents without adapter requirements remain valid and negotiate to an empty or implicit-compatible request set.",
+        "nextWorkpackages": [
+          "development/WP-E05-04-Native-Adapters-Domain-im-RMT-Schema-entwerfen.md",
+          "development/WP-E05-05-Native-Components-Domain-im-RMT-Schema-entwerfen.md",
+          "development/WP-E05-06-Native-Routes-Domain-im-RMT-Schema-entwerfen.md"
+        ]
+      }
+    ],
+    "nativeDomainContracts": [
+      {
+        "id": "xtend.rmt.adapters-domain.v1",
+        "status": "epic-05-wp-04-contract",
+        "sourceOfTruth": "development/WP-E05-04-Native-Adapters-Domain-im-RMT-Schema-entwerfen.md",
+        "domain": "adapters",
+        "schemaRef": "#/$defs/adapter",
+        "topLevelProperty": "adapters",
+        "optional": true,
+        "default": [],
+        "allowedAdapterKinds": [
+          "host_adapter",
+          "component_adapter",
+          "router_adapter",
+          "state_adapter",
+          "scheduler_adapter"
+        ],
+        "stableAdapterIds": [
+          "xtend",
+          "xtend.component",
+          "xtend.template",
+          "xtend.xrouter",
+          "host-adapter-contract"
+        ],
+        "requiredFields": [
+          "id",
+          "kind"
+        ],
+        "capabilityFields": [
+          "providedCapabilities",
+          "requiredCapabilities",
+          "preferredCapabilities"
+        ],
+        "backwardCompatibility": "Template-only documents without adapters remain valid because adapters is optional and not part of required.",
+        "kernelBoundary": "Adapter records are declarative. RMT kernel may parse and negotiate them, but runtime imports, manifest lookup, router setup and state writes stay in adapters.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-05-Native-Components-Domain-im-RMT-Schema-entwerfen.md",
+          "development/WP-E05-06-Native-Routes-Domain-im-RMT-Schema-entwerfen.md",
+          "development/WP-E05-07-Schedules-Domain-als-referenzierbare-Policy-haerten.md"
+        ]
+      },
+      {
+        "id": "xtend.rmt.components-domain.v1",
+        "status": "epic-05-wp-05-contract",
+        "sourceOfTruth": "development/WP-E05-05-Native-Components-Domain-im-RMT-Schema-entwerfen.md",
+        "domain": "components",
+        "schemaRef": "#/$defs/component",
+        "topLevelProperty": "components",
+        "optional": true,
+        "default": [],
+        "requiredFields": [
+          "id",
+          "kind",
+          "adapter"
+        ],
+        "adapterRefField": "adapter",
+        "componentKinds": [
+          "custom_element",
+          "web_component",
+          "host_component",
+          "template_component",
+          "fragment"
+        ],
+        "capabilityFields": [
+          "requiredCapabilities",
+          "preferredCapabilities"
+        ],
+        "backwardCompatibility": "Template-only documents without components remain valid because components is optional and not part of required.",
+        "kernelBoundary": "Component records are declarative. RMT kernel may parse, normalize and schedule them, but XTend manifest lookup, Custom Element registration, DOM materialization and hydration stay in adapters.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-06-Native-Routes-Domain-im-RMT-Schema-entwerfen.md",
+          "development/WP-E05-09-Route-Registry-und-Component-Registry-im-RMT-Runtime-Modell-vorbereiten.md",
+          "development/WP-E05-11-XTend-Component-Adapter-produktfaehig-implementieren.md"
+        ]
+      },
+      {
+        "id": "xtend.rmt.routes-domain.v1",
+        "status": "epic-05-wp-06-contract",
+        "sourceOfTruth": "development/WP-E05-06-Native-Routes-Domain-im-RMT-Schema-entwerfen.md",
+        "domain": "routes",
+        "schemaRef": "#/$defs/route",
+        "topLevelProperty": "routes",
+        "optional": true,
+        "default": [],
+        "requiredFields": [
+          "id",
+          "path",
+          "router"
+        ],
+        "routerRefField": "router",
+        "componentRefField": "component",
+        "templateRefField": "template",
+        "scheduleRefField": "schedule",
+        "routeFields": [
+          "id",
+          "path",
+          "title",
+          "documentTitle",
+          "titleTemplate",
+          "metaDescription",
+          "metaKeywords",
+          "component",
+          "template",
+          "router",
+          "schedule",
+          "params",
+          "query",
+          "metadata",
+          "lifecycle"
+        ],
+        "routerAdapters": [
+          "xtend.xrouter",
+          "custom.router"
+        ],
+        "capabilityFields": [
+          "requiredCapabilities",
+          "preferredCapabilities"
+        ],
+        "backwardCompatibility": "Template-only documents without routes remain valid because routes is optional and not part of required.",
+        "kernelBoundary": "Route records are declarative. RMT kernel may parse, normalize and schedule them, but XRouter imports, x-route DOM generation, navigation side effects and URL state writes stay in router adapters.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-07-Schedules-Domain-als-referenzierbare-Policy-haerten.md",
+          "development/WP-E05-09-Route-Registry-und-Component-Registry-im-RMT-Runtime-Modell-vorbereiten.md",
+          "development/WP-E05-10-XRouter-Adapter-produktfaehig-implementieren.md"
+        ]
+      },
+      {
+        "id": "xtend.rmt.schedules-domain.v1",
+        "status": "epic-05-wp-07-contract",
+        "sourceOfTruth": "development/WP-E05-07-Schedules-Domain-als-referenzierbare-Policy-haerten.md",
+        "domain": "schedules",
+        "schemaRef": "#/$defs/schedule",
+        "topLevelProperty": "schedules",
+        "optional": true,
+        "default": [],
+        "requiredFields": [
+          "id",
+          "endpointName",
+          "scope"
+        ],
+        "scheduleRefFields": [
+          "routes[*].schedule",
+          "components[*].schedule",
+          "templates[*].hydration.metadata.endpointHint"
+        ],
+        "scheduleFields": [
+          "id",
+          "endpointName",
+          "scope",
+          "lane",
+          "priority",
+          "deadlineMs",
+          "preferIdle",
+          "coalesceKey",
+          "budgetClass"
+        ],
+        "lanes": [
+          "visible",
+          "idle",
+          "background",
+          "diagnostics",
+          "user-blocking",
+          "transition"
+        ],
+        "budgetClasses": [
+          "interactive",
+          "background",
+          "diagnostics",
+          "critical",
+          "best_effort"
+        ],
+        "backwardCompatibility": "Template-only documents without schedules remain valid because schedules is optional and schedule refs still accept string or inline policy hints.",
+        "kernelBoundary": "Schedule records are declarative. RMT kernel may parse, normalize and compare policies, but endpoint execution, DOM work, router side effects and host scheduling stay in adapters or scheduler endpoints.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-08-DSL-Normalisierung-und-Backward-Compatibility-sichern.md",
+          "development/WP-E05-09-Route-Registry-und-Component-Registry-vorbereiten.md",
+          "development/WP-E05-12-State-Scheduler-und-Diagnostics-Bridge-anbinden.md"
+        ]
+      },
+      {
+        "id": "xtend.rmt.surfaces-domain.v1",
+        "status": "wp-sm-08-contract",
+        "sourceOfTruth": "development/WP-SM-08-Native-RMT-surfaces-Domain-und-xtend-surface-Adapter-entwerfen.md",
+        "domain": "surfaces",
+        "schemaRef": "#/$defs/surface",
+        "topLevelProperty": "surfaces",
+        "optional": true,
+        "default": [],
+        "adapterId": "xtend.surface",
+        "adapterKind": "surface_adapter",
+        "requiredFields": [
+          "id",
+          "type",
+          "manager",
+          "component"
+        ],
+        "adapterRefField": "adapter",
+        "managerRefField": "manager",
+        "componentRefField": "component",
+        "routeRefField": "route",
+        "scheduleRefField": "schedule",
+        "surfaceFields": [
+          "id",
+          "schema",
+          "type",
+          "adapter",
+          "manager",
+          "component",
+          "route",
+          "schedule",
+          "stateKey",
+          "defaultOpen",
+          "active",
+          "bounds",
+          "placement",
+          "mode",
+          "layer",
+          "capabilities",
+          "a11y",
+          "persistence",
+          "metadata"
+        ],
+        "surfaceTypes": [
+          "window",
+          "side-panel",
+          "modal",
+          "dialog",
+          "drawer"
+        ],
+        "referenceChecks": [
+          "surfaces[*].adapter -> adapters[*].id",
+          "surfaces[*].manager -> components[*].id",
+          "surfaces[*].component -> components[*].id",
+          "surfaces[*].route -> routes[*].id",
+          "surfaces[*].schedule -> schedules[*].id|endpointName"
+        ],
+        "backwardCompatibility": "Component records with metadata.surface remain valid. During handoff, native surfaces records may coexist with component metadata and must preserve component, route, schedule and state keys.",
+        "kernelBoundary": "Surface records are declarative. RMT may parse, normalize and index them, but WindowManager execution, DOM materialization, xstate writes and Fabric diagnostics stay in the xtend.surface adapter and XTend components.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js surface-native-rmt --json",
+          "node scripts/run_xtend_tests.js surface-manager-quality --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-SM-09-Docs-Component-Lab-und-Migration-Guide-finalisieren.md"
+        ]
+      }
+    ],
+    "surfaceAdapterContracts": [
+      {
+        "id": "xtend.surface.adapter.v1",
+        "status": "wp-sm-08-adapter-handoff",
+        "sourceOfTruth": "development/XTend-SurfaceManager-Native-RMT-Surfaces-Domain-Contract.md",
+        "adapterId": "xtend.surface",
+        "adapterKind": "surface_adapter",
+        "inputContracts": [
+          "xtend.rmt.surfaces-domain.v1",
+          "xtend.surface.controller.v1",
+          "xtend.surface.snapshot.v1"
+        ],
+        "consumes": [
+          "surfaces[*]",
+          "components[*]",
+          "routes[*]",
+          "schedules[*]",
+          "components[*].metadata.surface"
+        ],
+        "operations": [
+          "registerSurface",
+          "openSurface",
+          "closeSurface",
+          "focusSurface",
+          "moveSurface",
+          "resizeSurface",
+          "dockSurface",
+          "undockSurface",
+          "snapshotSurfaces",
+          "emitDiagnostic"
+        ],
+        "runtimeImplemented": false,
+        "kernelVisible": false,
+        "componentCompatibility": "components[*].metadata.surface remains the migration source until productive adapter rollout.",
+        "kernelBoundary": "The xtend.surface adapter consumes normalized surface records and may call the SurfaceController, but the RMT kernel never imports XTend components, DOM APIs, xstate or Fabric.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js surface-native-rmt --json",
+          "node scripts/run_xtend_tests.js surface-manager-quality --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-SM-09-Docs-Component-Lab-und-Migration-Guide-finalisieren.md"
+        ]
+      }
+    ],
+    "dslNormalizationContracts": [
+      {
+        "id": "xtend.rmt.dsl-normalization.v1",
+        "status": "epic-05-wp-08-contract",
+        "sourceOfTruth": "development/WP-E05-08-DSL-Normalisierung-und-Backward-Compatibility-sichern.md",
+        "inputModes": [
+          "template-only",
+          "native-app-dsl",
+          "legacy-manifest-metadata"
+        ],
+        "normalizedDomains": [
+          "adapters",
+          "components",
+          "routes",
+          "schedules",
+          "surfaces",
+          "templates"
+        ],
+        "legacyPromotionPaths": [
+          "manifest.metadata.adapters",
+          "manifest.metadata.components",
+          "manifest.metadata.routes",
+          "manifest.metadata.schedules",
+          "manifest.metadata.surfaces"
+        ],
+        "referenceChecks": [
+          "components[*].adapter -> adapters[*].id",
+          "components[*].schedule -> schedules[*].id|endpointName",
+          "routes[*].router -> adapters[*].id",
+          "routes[*].component -> components[*].id",
+          "routes[*].template -> templates[*].id|qualifiedId",
+          "routes[*].schedule -> schedules[*].id|endpointName",
+          "surfaces[*].adapter -> adapters[*].id",
+          "surfaces[*].manager -> components[*].id",
+          "surfaces[*].component -> components[*].id",
+          "surfaces[*].route -> routes[*].id",
+          "surfaces[*].schedule -> schedules[*].id|endpointName",
+          "templates[*].hydration.metadata.endpointHint -> schedules[*].id|endpointName"
+        ],
+        "diagnosticCodes": [
+          "rmt.dsl.legacy_metadata_promoted",
+          "rmt.dsl.reference.missing_adapter",
+          "rmt.dsl.reference.missing_component",
+          "rmt.dsl.reference.missing_template",
+          "rmt.dsl.reference.missing_schedule",
+          "rmt.dsl.reference.missing_route"
+        ],
+        "artifactSurfaces": [
+          "createRmtFormat().normalizeDocument",
+          "createRmtFormat().parseDocument",
+          "createRmtFormat().serializeDocument",
+          "RmtRmtDocument.normalization",
+          "RmtRmtDocument.diagnostics"
+        ],
+        "backwardCompatibility": "Template-only documents normalize with empty native domains, no required adapters/components/routes/schedules and templateOnlyCompatible=true.",
+        "kernelBoundary": "DSL normalization may build reference graphs and diagnostics, but adapter execution, router registration, component mounting, DOM work and xstate writes stay outside the RMT kernel.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-09-Route-Registry-und-Component-Registry-vorbereiten.md",
+          "development/WP-E05-13-Build-Pipeline-und-Artefakt-Paritaet-fuer-XTendRMT-absichern.md",
+          "development/WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md"
+        ]
+      }
+    ],
+    "runtimeRegistryContracts": [
+      {
+        "id": "xtend.rmt.runtime-registry.v1",
+        "status": "epic-05-wp-09-contract",
+        "sourceOfTruth": "development/WP-E05-09-Route-Registry-und-Component-Registry-vorbereiten.md",
+        "inputContract": "xtend.rmt.dsl-normalization.v1",
+        "registryKinds": [
+          "route",
+          "component"
+        ],
+        "indexes": [
+          "routeRegistry.byId",
+          "routeRegistry.byPath",
+          "routeRegistry.byRouter",
+          "routeRegistry.byComponent",
+          "componentRegistry.byId",
+          "componentRegistry.byTag",
+          "componentRegistry.byAdapter"
+        ],
+        "lifecycleEvents": [
+          "create",
+          "mount",
+          "hydrate",
+          "update",
+          "dispose"
+        ],
+        "diagnosticCodes": [
+          "rmt.runtime.registry.missing_route",
+          "rmt.runtime.registry.missing_component",
+          "rmt.runtime.registry.duplicate_route",
+          "rmt.runtime.registry.duplicate_component"
+        ],
+        "artifactSurfaces": [
+          "createRmtFormat().createRuntimeRegistries",
+          "createRmtFormat().listRuntimeRegistryDiagnosticCodes",
+          "RmtRuntimeRegistrySnapshot",
+          "RmtRouteRegistryEntry",
+          "RmtComponentRegistryEntry"
+        ],
+        "adapterConsumption": [
+          "router adapters consume routeRegistry.byRouter and routeRegistry.byPath",
+          "component adapters consume componentRegistry.byAdapter and componentRegistry.byTag",
+          "scheduler bridges consume scheduleRef on route and component entries"
+        ],
+        "kernelBoundary": "Runtime registries may index normalized records, expose lifecycle intents and emit missing route/component diagnostics, but route navigation, component mounting, DOM work, XTend, XRouter and xstate execution stay in adapters.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-10-XRouter-Adapter-produktfaehig-implementieren.md",
+          "development/WP-E05-11-XTend-Component-Adapter-produktfaehig-implementieren.md",
+          "development/WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md"
+        ]
+      }
+    ],
+    "xrouterAdapterContracts": [
+      {
+        "id": "xtend.rmt.xrouter-adapter.v1",
+        "status": "epic-05-wp-10-contract",
+        "sourceOfTruth": "development/WP-E05-10-XRouter-Adapter-produktfaehig-implementieren.md",
+        "adapterId": "xtend.xrouter",
+        "inputContract": "xtend.rmt.runtime-registry.v1",
+        "consumes": [
+          "routeRegistry.byRouter[\"xtend.xrouter\"]",
+          "routeRegistry.byPath",
+          "routeRegistry.byId",
+          "RmtRouteRegistryEntry"
+        ],
+        "operations": [
+          "registerRoutes",
+          "navigate",
+          "emitDiagnostic"
+        ],
+        "routeMappingFields": [
+          "id",
+          "path",
+          "router",
+          "component",
+          "title",
+          "documentTitle",
+          "template",
+          "redirect",
+          "scheduleRef",
+          "params",
+          "query",
+          "metadata",
+          "lifecycle"
+        ],
+        "navigationSync": [
+          "RMT navigate command -> XRouter navigate/_navigateTo",
+          "XRouter route-changed -> route model detail",
+          "XRouter routechange -> legacy route model detail",
+          "xrouter-after-navigate -> window navigation event"
+        ],
+        "modelFields": [
+          "routeId",
+          "path",
+          "component",
+          "params",
+          "query",
+          "template",
+          "scheduleRef",
+          "title",
+          "documentTitle",
+          "metadata"
+        ],
+        "diagnosticCodes": [
+          "rmt.xrouter.route.missing_path",
+          "rmt.xrouter.route.missing_component",
+          "rmt.xrouter.target.missing",
+          "rmt.xrouter.navigation.skipped"
+        ],
+        "artifactSurfaces": [
+          "createRmtXRouterAdapter",
+          "createRenderManXRouterAdapter",
+          "XRouter.registerRoutes",
+          "XRouter.navigate",
+          "RmtXRouterMappedRoute",
+          "RmtXRouterAdapter"
+        ],
+        "kernelBoundary": "The XRouter adapter consumes runtime registry snapshots and may register XRouter routes or navigate through an XRouter target, but the RMT kernel only sees adapter operations and never imports XRouter, DOM APIs or xstate.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-11-XTend-Component-Adapter-produktfaehig-implementieren.md",
+          "development/WP-E05-12-State-Scheduler-und-Diagnostics-Bridge-anbinden.md",
+          "development/WP-E05-14-Bestcase-Demo-auf-native-Routes-und-Components-migrieren.md"
+        ]
+      }
+    ],
+    "xtendComponentAdapterContracts": [
+      {
+        "id": "xtend.rmt.xtend-component-adapter.v1",
+        "status": "epic-05-wp-11-contract",
+        "sourceOfTruth": "development/WP-E05-11-XTend-Component-Adapter-produktfaehig-implementieren.md",
+        "adapterId": "xtend.component",
+        "inputContract": "xtend.rmt.runtime-registry.v1",
+        "consumes": [
+          "componentRegistry.byAdapter[\"xtend.component\"]",
+          "componentRegistry.byTag",
+          "componentRegistry.byId",
+          "RmtComponentRegistryEntry"
+        ],
+        "operations": [
+          "registerComponent",
+          "mountComponent",
+          "hydrateComponent",
+          "resolveFabricContext",
+          "recordComponentTelemetry",
+          "emitDiagnostic"
+        ],
+        "componentMappingFields": [
+          "id",
+          "kind",
+          "adapter",
+          "tag",
+          "props",
+          "attributes",
+          "slots",
+          "events",
+          "hydration",
+          "scheduleRef",
+          "metadata"
+        ],
+        "mountHydrationModel": [
+          "manifest lookup stays adapter-owned",
+          "Custom Element registration is checked by the adapter",
+          "props and attributes are applied by the adapter",
+          "slots and event bridges are attached by the adapter",
+          "hydration sets data-xtend-hydrated and may call element.hydrate"
+        ],
+        "modelFields": [
+          "componentId",
+          "tag",
+          "props",
+          "attributes",
+          "slots",
+          "events",
+          "hydration",
+          "scheduleRef",
+          "metadata",
+          "fabricContext",
+          "telemetry"
+        ],
+        "fabricLaneIngestion": {
+          "schema": "xtend.component.fabric-lane-ingestion.v2",
+          "workpackage": "WP-E10-05",
+          "precedence": [
+            "rmt.schedule-record",
+            "rmt.component-metadata",
+            "fabric.runtime-override",
+            "component.static-contract",
+            "scaffold.blueprint-default"
+          ],
+          "resultFields": [
+            "fabricLane",
+            "rmtLane",
+            "fiberKind",
+            "scheduleRef",
+            "endpointNameHint",
+            "source",
+            "diagnostics"
+          ]
+        },
+        "componentLifecycleTelemetry": {
+          "schema": "xtend.component.lifecycle-telemetry.v1",
+          "workpackage": "WP-E10-06",
+          "operations": [
+            "mount",
+            "hydrate",
+            "render",
+            "update",
+            "event",
+            "unmount",
+            "error"
+          ],
+          "resultPath": "result.metadata.telemetry",
+          "snapshotPath": "snapshot.componentTelemetry",
+          "snapshotInputs": [
+            "componentTelemetry",
+            "componentLifecycle",
+            "componentLifecycleTelemetry"
+          ],
+          "correlationFields": [
+            "componentId",
+            "rmtComponentId",
+            "routeRef",
+            "scheduleRef",
+            "fabricLane",
+            "rmtLane",
+            "fiberKind"
+          ]
+        },
+        "diagnosticCodes": [
+          "rmt.xtend.component.missing_tag",
+          "rmt.xtend.component.target.missing",
+          "rmt.xtend.component.manifest.missing",
+          "rmt.xtend.component.custom_element.unregistered",
+          "rmt.xtend.component.mount.skipped",
+          "rmt.xtend.component.hydration.skipped",
+          "rmt.xtend.component.fabric_lane.conflict",
+          "rmt.xtend.component.fabric_lane.defaulted",
+          "rmt.xtend.component.event.failed"
+        ],
+        "artifactSurfaces": [
+          "createRmtXtendComponentAdapter",
+          "createRenderManXtendComponentAdapter",
+          "RmtXtendMappedComponent",
+          "RmtXtendComponentMapping",
+          "RmtXtendComponentLifecycleTelemetry",
+          "RmtXtendComponentAdapter"
+        ],
+        "kernelBoundary": "The XTend component adapter consumes component registry snapshots and may create, mount or hydrate Custom Elements through a host target, but the RMT kernel only sees adapter operations and never imports XTend components, the XTend manifest, Custom Elements, DOM APIs or xstate.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-12-State-Scheduler-und-Diagnostics-Bridge-anbinden.md",
+          "development/WP-E05-14-Bestcase-Demo-auf-native-Routes-und-Components-migrieren.md",
+          "development/WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md"
+        ]
+      }
+    ],
+    "stateSchedulerDiagnosticsBridgeContracts": [
+      {
+        "id": "xtend.rmt.state-scheduler-diagnostics-bridge.v1",
+        "status": "epic-05-wp-12-contract",
+        "sourceOfTruth": "development/WP-E05-12-State-Scheduler-und-Diagnostics-Bridge-anbinden.md",
+        "adapterId": "rmt.state-scheduler-diagnostics",
+        "inputContracts": [
+          "xtend.rmt.runtime-registry.v1",
+          "xtend.rmt.xrouter-adapter.v1",
+          "xtend.rmt.xtend-component-adapter.v1",
+          "xtend.rmt.schedules-domain.v1"
+        ],
+        "consumes": [
+          "RmtHostAdapterOperationResult",
+          "RmtRouteRegistryEntry.scheduleRef",
+          "RmtComponentRegistryEntry.scheduleRef",
+          "schedules[*]",
+          "adapter diagnostics",
+          "optional xstate target",
+          "optional diagnostics hub",
+          "optional performance runtime scheduleEndpoint"
+        ],
+        "operations": [
+          "createStateBridge",
+          "scheduleEndpoint",
+          "emitDiagnostic",
+          "recordAdapterResult"
+        ],
+        "stateMirrors": [
+          "rmt.bridge.ready",
+          "rmt.adapter.lastResult",
+          "rmt.adapter.{adapterId}.{operation}.status",
+          "rmt.route.{routeId}.lastResult",
+          "rmt.component.{componentId}.lastResult",
+          "rmt.scheduler.lastEndpoint",
+          "rmt.diagnostics.last"
+        ],
+        "schedulerEndpoints": [
+          "xtendrmt.route.render",
+          "xtendrmt.component.mount",
+          "xtendrmt.component.hydrate",
+          "xtendrmt.diagnostics.snapshot"
+        ],
+        "diagnosticsEventMatrix": [
+          "adapter result diagnostics -> bridge emitDiagnostic",
+          "degraded adapter result -> rmt.bridge.adapter.result.degraded",
+          "scheduled endpoint -> rmt.bridge.scheduler.endpoint.scheduled",
+          "queued endpoint -> rmt.bridge.scheduler.endpoint.queued",
+          "state bridge publish -> rmt.bridge.state.mirrored"
+        ],
+        "performanceBudgetFields": [
+          "lane",
+          "priority",
+          "deadlineMs",
+          "preferIdle",
+          "coalesceKey",
+          "budgetClass",
+          "maxRetries",
+          "timeoutMs"
+        ],
+        "diagnosticCodes": [
+          "rmt.bridge.state.mirrored",
+          "rmt.bridge.state.unavailable",
+          "rmt.bridge.scheduler.endpoint.scheduled",
+          "rmt.bridge.scheduler.endpoint.queued",
+          "rmt.bridge.diagnostics.emitted",
+          "rmt.bridge.adapter.result.degraded"
+        ],
+        "artifactSurfaces": [
+          "createRmtStateSchedulerDiagnosticsBridge",
+          "createRenderManStateSchedulerDiagnosticsBridge",
+          "RmtStateSchedulerDiagnosticsBridge",
+          "RmtStateBridgeHandle",
+          "RmtBridgeSchedulePolicy"
+        ],
+        "kernelBoundary": "The State/Scheduler/Diagnostics bridge consumes adapter results and schedule refs, may mirror state to an optional xstate target and may call host scheduler endpoints, but the RMT kernel never imports xstate, XTend, XRouter, diagnostics hubs or performance runtimes.",
+        "minimumGates": [
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-13-Build-Pipeline-und-Artefakt-Paritaet-fuer-XTendRMT-absichern.md",
+          "development/WP-E05-14-Bestcase-Demo-auf-native-Routes-und-Components-migrieren.md",
+          "development/WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md"
+        ]
+      }
+    ],
+    "artifactParityContracts": [
+      {
+        "id": "xtend.rmt.artifact-parity.v1",
+        "status": "epic-05-wp-13-contract",
+        "sourceOfTruth": "development/WP-E05-13-Build-Pipeline-und-Artefakt-Paritaet-fuer-XTendRMT-absichern.md",
+        "gateCommand": "node scripts/verify_xtendrmt_artifact_parity.js --json",
+        "artifactPaths": [
+          "xtendrmt/rmt-core.esm.js",
+          "xtendrmt/rmt-runtime.esm.js",
+          "xtendrmt/rmt-runtime.browser.js",
+          "xtendrmt/rmt-core.d.ts",
+          "xtendrmt/rmt.schema.json",
+          "xtendrmt/rmt-manifest.json"
+        ],
+        "entryPointTargets": [
+          "rmt-core.esm",
+          "rmt-runtime.esm",
+          "rmt-runtime.browser"
+        ],
+        "requiredFactories": [
+          "createRmtFormat",
+          "createRmtXRouterAdapter",
+          "createRmtXtendComponentAdapter",
+          "createRmtStateSchedulerDiagnosticsBridge"
+        ],
+        "requiredContractIds": [
+          "xtend.rmt.runtime-registry.v1",
+          "xtend.rmt.xrouter-adapter.v1",
+          "xtend.rmt.xtend-component-adapter.v1",
+          "xtend.rmt.state-scheduler-diagnostics-bridge.v1",
+          "xtend.rmt.artifact-parity.v1"
+        ],
+        "artifactSurfaces": [
+          "scripts/verify_xtendrmt_artifact_parity.js",
+          "RmtArtifactParityContract",
+          "artifactParityContracts",
+          "createRmtProductManifest",
+          "rmt-manifest.json entryPoints.appModulesFactories",
+          "ESM namedExports"
+        ],
+        "driftChecks": [
+          "schema-contract-present",
+          "manifest-factories-match-runtime",
+          "esm-named-exports-match-manifest",
+          "types-cover-public-factories",
+          "runtime-bundles-parse"
+        ],
+        "buildPolicy": "Upstream RMT source remains the source-of-truth; xtendrmt/ artifacts are synchronized regression references in this repository.",
+        "kernelBoundary": "Artifact parity checks drift only and must not introduce XTend, XRouter, xstate or DOM runtime imports into the RMT kernel.",
+        "minimumGates": [
+          "node scripts/verify_xtendrmt_artifact_parity.js --json",
+          "node scripts/run_xtend_tests.js rmt-compatibility --json",
+          "node scripts/run_xtend_tests.js references --json"
+        ],
+        "nextWorkpackages": [
+          "development/WP-E05-14-Bestcase-Demo-auf-native-Routes-und-Components-migrieren.md",
+          "development/WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md"
+        ]
+      }
+    ],
+    "upstreamHandoff": {
+      "id": "xtend.rmt.upstream-handoff.v1",
+      "status": "epic-04-handoff",
+      "sourceOfTruth": "upstream-rmt-source",
+      "buildArtifactsAreOutput": true,
+      "handoffSpec": "development/XTendRMT-Upstream-Handoff-Spezifikation.md",
+      "workpackage": "development/WP-E04-11-Upstream-Handoff-Spezifikation-fuer-XTendRMT-DSL-und-Bridge-vorbereiten.md",
+      "epic": "development/EPIC-05-XTendRMT-Bridge-und-Natives-Routing.md",
+      "requiredDomains": [
+        "adapters",
+        "components",
+        "routes",
+        "schedules",
+        "templates"
+      ],
+      "requiredAdapters": [
+        "host-adapter-contract",
+        "xtend.component",
+        "xtend.template",
+        "xtend.xrouter"
+      ],
+      "requiredGates": [
+        "node scripts/run_xtend_tests.js rmt-compatibility --json",
+        "node scripts/run_xtend_tests.js references --json"
+      ],
+      "bridgeRuntime": "reserved-for-Epic-05",
+      "kernelBoundary": "RMT kernel remains host-neutral and must not import XTend, XRouter or xstate runtime modules."
+    }
+  },
+  "x-renderman": {
+    "deprecatedAliasFor": "x-xtendrmt",
+    "preferredFileExtension": ".rmt",
+    "supportedFileExtensions": [
+      ".rmt",
+      ".rmt.json",
+      ".json"
+    ],
+    "jsonFallbackExtensions": [
+      ".rmt.json",
+      ".json"
+    ],
+    "recommendedFileMatch": [
+      "*.rmt"
+    ],
+    "contentType": "application/vnd.renderman.template+json",
+    "jsonFallbackContentType": "application/json",
+    "jsonFallbackPolicy": ".rmt.json and .json remain supported only as compatibility fallbacks; .rmt is the authoring path."
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "manifest",
+    "templates"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "kind": {
+      "const": "rmt_document"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "documentId": {
+      "type": "string"
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "loaderHint": {
+      "type": "string"
+    },
+    "sourceUrl": {
+      "type": "string"
+    },
+    "manifest": {
+      "$ref": "#/$defs/documentManifest"
+    },
+    "adapters": {
+      "$ref": "#/$defs/adapters"
+    },
+    "components": {
+      "$ref": "#/$defs/components"
+    },
+    "routes": {
+      "$ref": "#/$defs/routes"
+    },
+    "schedules": {
+      "$ref": "#/$defs/schedules"
+    },
+    "surfaces": {
+      "$ref": "#/$defs/surfaces"
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/template"
+      },
+      "default": []
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "default": {}
+    },
+    "templateMode": {
+      "enum": [
+        "html_fragment",
+        "text",
+        "dom_descriptor"
+      ]
+    },
+    "bindingKind": {
+      "enum": [
+        "text",
+        "attribute",
+        "property",
+        "class_toggle",
+        "command",
+        "root_event",
+        "template_outlet",
+        "template_repeat"
+      ]
+    },
+    "slotKind": {
+      "enum": [
+        "text",
+        "html_fragment",
+        "template"
+      ]
+    },
+    "hydrationMode": {
+      "enum": [
+        "runtime_render",
+        "hydrate_prerendered",
+        "worker_prerender_hydrate",
+        "server_prerender_hydrate",
+        "prerender_only"
+      ]
+    },
+    "ownershipMode": {
+      "enum": [
+        "observe_only",
+        "hydrate_existing",
+        "replace_children",
+        "managed_subtree"
+      ]
+    },
+    "serializableValue": true,
+    "adapterKind": {
+      "enum": [
+        "host_adapter",
+        "component_adapter",
+        "router_adapter",
+        "state_adapter",
+        "scheduler_adapter",
+        "surface_adapter"
+      ]
+    },
+    "runtimeSurface": {
+      "enum": [
+        "esm",
+        "browser_classic",
+        "worker",
+        "server"
+      ]
+    },
+    "adapterStatus": {
+      "enum": [
+        "registered",
+        "available",
+        "degraded",
+        "missing",
+        "failed"
+      ]
+    },
+    "capabilityList": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": []
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "level": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "adapterId": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "$ref": "#/$defs/adapterKind"
+        },
+        "version": {
+          "type": "string"
+        },
+        "package": {
+          "type": "string"
+        },
+        "moduleRef": {
+          "type": "string"
+        },
+        "runtimeSurface": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/runtimeSurface"
+          },
+          "default": []
+        },
+        "providedCapabilities": {
+          "$ref": "#/$defs/capabilityList"
+        },
+        "requiredCapabilities": {
+          "$ref": "#/$defs/capabilityList"
+        },
+        "preferredCapabilities": {
+          "$ref": "#/$defs/capabilityList"
+        },
+        "lifecycleContract": {
+          "type": "string"
+        },
+        "kernelVisible": {
+          "type": "boolean",
+          "default": false
+        },
+        "status": {
+          "$ref": "#/$defs/adapterStatus"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diagnostic"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "adapters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/adapter"
+      },
+      "default": []
+    },
+    "componentKind": {
+      "enum": [
+        "custom_element",
+        "web_component",
+        "host_component",
+        "template_component",
+        "fragment"
+      ]
+    },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/serializableValue"
+      },
+      "default": {}
+    },
+    "scheduleLane": {
+      "enum": [
+        "visible",
+        "idle",
+        "background",
+        "diagnostics",
+        "user-blocking",
+        "transition"
+      ]
+    },
+    "scheduleBudgetClass": {
+      "enum": [
+        "interactive",
+        "background",
+        "diagnostics",
+        "critical",
+        "best_effort"
+      ]
+    },
+    "scheduleInline": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "endpointName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lane": {
+          "$ref": "#/$defs/scheduleLane"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "deadlineMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "preferIdle": {
+          "type": "boolean"
+        },
+        "coalesceKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "budgetClass": {
+          "$ref": "#/$defs/scheduleBudgetClass"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "scheduleRefOrInline": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "$ref": "#/$defs/scheduleInline"
+        }
+      ]
+    },
+    "componentSchedule": {
+      "$ref": "#/$defs/scheduleRefOrInline"
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "adapter"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "$ref": "#/$defs/componentKind"
+        },
+        "adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string",
+          "minLength": 1
+        },
+        "renderer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "props": {
+          "$ref": "#/$defs/props"
+        },
+        "attributes": {
+          "$ref": "#/$defs/attributes"
+        },
+        "slots": {
+          "$ref": "#/$defs/slots"
+        },
+        "events": {
+          "$ref": "#/$defs/bindings"
+        },
+        "hydration": {
+          "$ref": "#/$defs/hydration"
+        },
+        "schedule": {
+          "$ref": "#/$defs/componentSchedule"
+        },
+        "requiredCapabilities": {
+          "$ref": "#/$defs/capabilityList"
+        },
+        "preferredCapabilities": {
+          "$ref": "#/$defs/capabilityList"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diagnostic"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/component"
+      },
+      "default": []
+    },
+    "routeParam": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "default": {
+              "$ref": "#/$defs/serializableValue"
+            },
+            "pattern": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/$defs/metadata"
+            }
+          }
+        }
+      ]
+    },
+    "routeParams": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/routeParam"
+      },
+      "default": {}
+    },
+    "routeLifecycle": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/binding"
+      },
+      "properties": {
+        "beforeEnter": {
+          "$ref": "#/$defs/binding"
+        },
+        "enter": {
+          "$ref": "#/$defs/binding"
+        },
+        "beforeLeave": {
+          "$ref": "#/$defs/binding"
+        },
+        "leave": {
+          "$ref": "#/$defs/binding"
+        },
+        "error": {
+          "$ref": "#/$defs/binding"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      },
+      "default": {}
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "router"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "component"
+          ]
+        },
+        {
+          "required": [
+            "template"
+          ]
+        },
+        {
+          "required": [
+            "redirect"
+          ]
+        }
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "documentTitle": {
+          "type": "string"
+        },
+        "titleTemplate": {
+          "type": "string"
+        },
+        "metaDescription": {
+          "type": "string"
+        },
+        "metaKeywords": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            }
+          ]
+        },
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "template": {
+          "$ref": "#/$defs/templateRef"
+        },
+        "redirect": {
+          "type": "string",
+          "minLength": 1
+        },
+        "router": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schedule": {
+          "$ref": "#/$defs/componentSchedule"
+        },
+        "params": {
+          "$ref": "#/$defs/routeParams"
+        },
+        "query": {
+          "$ref": "#/$defs/routeParams"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/routeLifecycle"
+        },
+        "requiredCapabilities": {
+          "$ref": "#/$defs/capabilityList"
+        },
+        "preferredCapabilities": {
+          "$ref": "#/$defs/capabilityList"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diagnostic"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/route"
+      },
+      "default": []
+    },
+    "surfaceType": {
+      "enum": [
+        "window",
+        "side-panel",
+        "modal",
+        "dialog",
+        "drawer",
+        "popover",
+        "tooltip"
+      ]
+    },
+    "surfaceBounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number",
+          "minimum": 0
+        },
+        "height": {
+          "type": "number",
+          "minimum": 0
+        },
+        "minWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "minHeight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "maxWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "maxHeight": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "default": {}
+    },
+    "surfaceA11y": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "role": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "modal": {
+          "type": "boolean"
+        },
+        "focusRestore": {
+          "type": "boolean"
+        },
+        "trapFocus": {
+          "type": "boolean"
+        }
+      },
+      "default": {}
+    },
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "manager",
+        "component"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schema": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/surfaceType"
+        },
+        "adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "manager": {
+          "type": "string",
+          "minLength": 1
+        },
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "route": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schedule": {
+          "$ref": "#/$defs/componentSchedule"
+        },
+        "stateKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "defaultOpen": {
+          "type": "boolean"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "bounds": {
+          "$ref": "#/$defs/surfaceBounds"
+        },
+        "placement": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "layer": {
+          "type": "string"
+        },
+        "capabilities": {
+          "$ref": "#/$defs/capabilityList"
+        },
+        "a11y": {
+          "$ref": "#/$defs/surfaceA11y"
+        },
+        "persistence": {
+          "$ref": "#/$defs/metadata"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diagnostic"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/surface"
+      },
+      "default": []
+    },
+    "schedule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "endpointName",
+        "scope"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpointName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lane": {
+          "$ref": "#/$defs/scheduleLane"
+        },
+        "priority": {
+          "type": "number"
+        },
+        "deadlineMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "preferIdle": {
+          "type": "boolean"
+        },
+        "coalesceKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "budgetClass": {
+          "$ref": "#/$defs/scheduleBudgetClass"
+        },
+        "maxRetries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "timeoutMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diagnostic"
+          },
+          "default": []
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "schedules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/schedule"
+      },
+      "default": []
+    },
+    "documentManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documentId"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "type": "string",
+          "default": ""
+        },
+        "contentType": {
+          "type": "string",
+          "default": "application/vnd.xtendrmt.rmt+json"
+        },
+        "loaderHint": {
+          "type": "string",
+          "default": ""
+        },
+        "sourceUrl": {
+          "type": "string",
+          "default": ""
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        },
+        "reactivityHints": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "templateRef": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "templateId": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "qualifiedId": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "id"
+              ]
+            },
+            {
+              "required": [
+                "templateId"
+              ]
+            },
+            {
+              "required": [
+                "name"
+              ]
+            },
+            {
+              "required": [
+                "qualifiedId"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "prop": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "prop": {
+          "type": "string"
+        },
+        "property": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "modelPath": {
+          "type": "string"
+        },
+        "valuePath": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "hasDefault": {
+          "type": "boolean"
+        },
+        "default": {
+          "$ref": "#/$defs/serializableValue"
+        },
+        "defaultValue": {
+          "$ref": "#/$defs/serializableValue"
+        },
+        "value": {
+          "$ref": "#/$defs/serializableValue"
+        },
+        "attribute": {
+          "type": "string"
+        },
+        "attributeName": {
+          "type": "string"
+        },
+        "propertyName": {
+          "type": "string"
+        },
+        "reflect": {
+          "type": "boolean"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "propEntry": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/prop"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "props": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/propEntry"
+          },
+          "default": []
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/propEntry"
+          },
+          "default": {}
+        }
+      ]
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/bindingKind"
+        },
+        "type": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string"
+        },
+        "elementSelector": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "modelPath": {
+          "type": "string"
+        },
+        "valuePath": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "reactivitySource": {
+          "type": "string"
+        },
+        "channel": {
+          "type": "string"
+        },
+        "attribute": {
+          "type": "string"
+        },
+        "attributeName": {
+          "type": "string"
+        },
+        "property": {
+          "type": "string"
+        },
+        "propertyName": {
+          "type": "string"
+        },
+        "class": {
+          "type": "string"
+        },
+        "className": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string"
+        },
+        "eventType": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        },
+        "commandName": {
+          "type": "string"
+        },
+        "commandRef": {
+          "type": "string"
+        },
+        "emit": {
+          "type": "string"
+        },
+        "eventName": {
+          "type": "string"
+        },
+        "rootEventName": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "rmAction": {
+          "type": "string"
+        },
+        "dataRmAction": {
+          "type": "string"
+        },
+        "dataAction": {
+          "type": "string"
+        },
+        "actionAttribute": {
+          "type": "string",
+          "default": "data-rm-action"
+        },
+        "dataActionAttribute": {
+          "type": "string"
+        },
+        "setActionAttribute": {
+          "type": "boolean"
+        },
+        "payloadSource": {
+          "type": "string"
+        },
+        "detailSource": {
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/serializableValue"
+        },
+        "detail": {
+          "$ref": "#/$defs/serializableValue"
+        },
+        "fallback": {
+          "$ref": "#/$defs/serializableValue"
+        },
+        "hasExplicitFallback": {
+          "type": "boolean"
+        },
+        "invert": {
+          "type": "boolean"
+        },
+        "preventDefault": {
+          "type": "boolean"
+        },
+        "stopPropagation": {
+          "type": "boolean"
+        },
+        "capture": {
+          "type": "boolean"
+        },
+        "passive": {
+          "type": "boolean"
+        },
+        "once": {
+          "type": "boolean"
+        },
+        "includeInteractionMeta": {
+          "type": "boolean"
+        },
+        "supersessionKey": {
+          "type": "string"
+        },
+        "template": {
+          "$ref": "#/$defs/templateRef"
+        },
+        "templateRef": {
+          "$ref": "#/$defs/templateRef"
+        },
+        "templateId": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "templateSource": {
+          "type": "string"
+        },
+        "templatePath": {
+          "type": "string"
+        },
+        "templateRefSource": {
+          "type": "string"
+        },
+        "modelSource": {
+          "type": "string"
+        },
+        "outletModelSource": {
+          "type": "string"
+        },
+        "subtreeModelSource": {
+          "type": "string"
+        },
+        "itemsSource": {
+          "type": "string"
+        },
+        "collectionSource": {
+          "type": "string"
+        },
+        "listSource": {
+          "type": "string"
+        },
+        "itemAlias": {
+          "type": "string"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "as": {
+          "type": "string"
+        },
+        "indexAlias": {
+          "type": "string"
+        },
+        "positionAlias": {
+          "type": "string"
+        },
+        "wrapperTag": {
+          "type": "string"
+        },
+        "itemContainerTag": {
+          "type": "string"
+        },
+        "clearWhenMissing": {
+          "type": "boolean"
+        },
+        "removeWhenEmpty": {
+          "type": "boolean"
+        },
+        "emptyMarkup": {
+          "type": "string"
+        },
+        "emptyHtml": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      }
+    },
+    "bindings": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/binding"
+          },
+          "default": []
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/binding"
+          },
+          "default": {}
+        }
+      ]
+    },
+    "slot": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "slot": {
+              "type": "string"
+            },
+            "kind": {
+              "$ref": "#/$defs/slotKind"
+            },
+            "type": {
+              "type": "string"
+            },
+            "target": {
+              "type": "string"
+            },
+            "selector": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "valuePath": {
+              "type": "string"
+            },
+            "sourceName": {
+              "type": "string"
+            },
+            "reactivitySource": {
+              "type": "string"
+            },
+            "channel": {
+              "type": "string"
+            },
+            "modelSource": {
+              "type": "string"
+            },
+            "slotModelSource": {
+              "type": "string"
+            },
+            "fallback": {
+              "$ref": "#/$defs/serializableValue"
+            },
+            "hasExplicitFallback": {
+              "type": "boolean"
+            },
+            "template": {
+              "$ref": "#/$defs/templateRef"
+            },
+            "templateRef": {
+              "$ref": "#/$defs/templateRef"
+            },
+            "templateId": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "markup": {
+              "type": "string"
+            },
+            "html": {
+              "type": "string"
+            },
+            "clearWhenMissing": {
+              "type": "boolean"
+            },
+            "emptyMarkup": {
+              "type": "string"
+            },
+            "emptyHtml": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/$defs/metadata"
+            }
+          }
+        }
+      ]
+    },
+    "slots": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/slot"
+          },
+          "default": []
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/slot"
+          },
+          "default": {}
+        }
+      ]
+    },
+    "hydration": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/hydrationMode"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "$ref": "#/$defs/hydrationMode"
+            },
+            "executionMode": {
+              "$ref": "#/$defs/hydrationMode"
+            },
+            "ownershipMode": {
+              "$ref": "#/$defs/ownershipMode"
+            },
+            "ownership": {
+              "$ref": "#/$defs/ownershipMode"
+            },
+            "autoHydrate": {
+              "type": "boolean"
+            },
+            "preferInsularHydration": {
+              "type": "boolean"
+            },
+            "insularHydration": {
+              "type": "boolean"
+            },
+            "clearChildrenBeforeMount": {
+              "type": "boolean"
+            },
+            "transport": {
+              "type": "string"
+            },
+            "prerenderTransport": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/$defs/metadata"
+            }
+          }
+        }
+      ]
+    },
+    "errorBoundary": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "target": {
+              "type": "string"
+            },
+            "selector": {
+              "type": "string"
+            },
+            "fallbackMarkup": {
+              "type": "string"
+            },
+            "fallbackHtml": {
+              "type": "string"
+            },
+            "markup": {
+              "type": "string"
+            },
+            "fallbackText": {
+              "type": "string"
+            },
+            "fallbackTemplate": {
+              "$ref": "#/$defs/templateRef"
+            },
+            "template": {
+              "$ref": "#/$defs/templateRef"
+            },
+            "modelSource": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "capture": {
+              "type": "boolean"
+            },
+            "emitEvent": {
+              "type": "string"
+            },
+            "eventName": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/$defs/metadata"
+            }
+          }
+        }
+      ]
+    },
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "id"
+          ]
+        },
+        {
+          "required": [
+            "templateId"
+          ]
+        }
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "templateId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/templateMode"
+        },
+        "templateMode": {
+          "$ref": "#/$defs/templateMode"
+        },
+        "markup": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "props": {
+          "$ref": "#/$defs/props"
+        },
+        "properties": {
+          "$ref": "#/$defs/props"
+        },
+        "bindings": {
+          "$ref": "#/$defs/bindings"
+        },
+        "actions": {
+          "$ref": "#/$defs/bindings"
+        },
+        "events": {
+          "$ref": "#/$defs/bindings"
+        },
+        "slots": {
+          "$ref": "#/$defs/slots"
+        },
+        "hydration": {
+          "$ref": "#/$defs/hydration"
+        },
+        "hydrate": {
+          "$ref": "#/$defs/hydration"
+        },
+        "rendering": {
+          "$ref": "#/$defs/hydration"
+        },
+        "errorBoundary": {
+          "$ref": "#/$defs/errorBoundary"
+        },
+        "error": {
+          "$ref": "#/$defs/errorBoundary"
+        },
+        "boundary": {
+          "$ref": "#/$defs/errorBoundary"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        },
+        "reactivityHints": {
+          "$ref": "#/$defs/metadata"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "type": "string"
+        },
+        "loaderHint": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "kind": "rmt_document",
+      "version": "1.0",
+      "manifest": {
+        "documentId": "example.dashboard",
+        "namespace": "example"
+      },
+      "adapters": [
+        {
+          "id": "xtend.component",
+          "kind": "component_adapter",
+          "version": "1.0.0",
+          "moduleRef": "@xtend/rmt-adapter-xtend/component",
+          "runtimeSurface": [
+            "esm",
+            "browser_classic"
+          ],
+          "providedCapabilities": [
+            "customElements",
+            "hydration",
+            "slots",
+            "events"
+          ],
+          "requiredCapabilities": [
+            "manifest",
+            "customElements"
+          ],
+          "preferredCapabilities": [
+            "stateBridge",
+            "diagnostics"
+          ],
+          "lifecycleContract": "xtend.rmt.host-adapter-lifecycle.v1",
+          "kernelVisible": false
+        },
+        {
+          "id": "custom.router",
+          "kind": "router_adapter",
+          "version": "1.0.0",
+          "moduleRef": "./adapters/custom-router.js",
+          "runtimeSurface": [
+            "esm"
+          ],
+          "providedCapabilities": [
+            "routes",
+            "navigation",
+            "params",
+            "query"
+          ],
+          "preferredCapabilities": [
+            "diagnostics"
+          ],
+          "lifecycleContract": "xtend.rmt.host-adapter-lifecycle.v1",
+          "kernelVisible": false
+        }
+      ],
+      "components": [
+        {
+          "id": "pages.overview",
+          "kind": "custom_element",
+          "adapter": "xtend.component",
+          "tag": "x-section",
+          "props": {
+            "layout": "column",
+            "label": "RMT Kernel Overview"
+          },
+          "attributes": {
+            "data-route": "overview"
+          },
+          "slots": {
+            "header": {
+              "template": "pages.overview.header"
+            },
+            "default": {
+              "template": "pages.overview.body"
+            }
+          },
+          "events": {
+            "section-ready": {
+              "commandName": "demo.section.ready"
+            }
+          },
+          "hydration": {
+            "mode": "runtime_render",
+            "ownershipMode": "managed_subtree",
+            "metadata": {
+              "endpointHint": "component.visible.mount"
+            }
+          },
+          "schedule": "component.visible.mount",
+          "requiredCapabilities": [
+            "customElements",
+            "hydration"
+          ],
+          "preferredCapabilities": [
+            "slots",
+            "events",
+            "diagnostics"
+          ]
+        },
+        {
+          "id": "shared.badge",
+          "kind": "web_component",
+          "adapter": "custom.element",
+          "tag": "status-badge",
+          "attributes": {
+            "tone": "neutral"
+          },
+          "props": {
+            "label": "Ready"
+          },
+          "events": {
+            "badge-click": {
+              "commandName": "shared.badge.click"
+            }
+          },
+          "schedule": {
+            "endpointName": "component.idle.hydrate",
+            "priority": "background"
+          }
+        }
+      ],
+      "routes": [
+        {
+          "id": "overview",
+          "path": "/",
+          "title": "Overview",
+          "router": "xtend.xrouter",
+          "component": "pages.overview",
+          "template": "metric-card",
+          "schedule": "route.visible.render",
+          "params": {},
+          "query": {},
+          "lifecycle": {
+            "enter": {
+              "commandName": "route.overview.enter"
+            },
+            "leave": {
+              "commandName": "route.overview.leave"
+            }
+          },
+          "preferredCapabilities": [
+            "navigation",
+            "params",
+            "query",
+            "diagnostics"
+          ]
+        },
+        {
+          "id": "search",
+          "path": "/search/:term",
+          "title": "Search",
+          "router": "custom.router",
+          "component": "shared.badge",
+          "schedule": {
+            "endpointName": "route.visible.render",
+            "priority": "visible"
+          },
+          "params": {
+            "term": {
+              "source": "path",
+              "required": true
+            }
+          },
+          "query": {
+            "filter": {
+              "source": "query",
+              "default": "all"
+            }
+          },
+          "lifecycle": {
+            "beforeEnter": {
+              "commandName": "search.beforeEnter"
+            }
+          }
+        }
+      ],
+      "schedules": [
+        {
+          "id": "route.visible.render",
+          "endpointName": "xtendrmt.route.render",
+          "scope": "xtendrmt.router.current",
+          "lane": "visible",
+          "priority": 88,
+          "deadlineMs": 120,
+          "preferIdle": false,
+          "coalesceKey": "route.current",
+          "budgetClass": "interactive"
+        },
+        {
+          "id": "component.visible.mount",
+          "endpointName": "xtendrmt.component.mount",
+          "scope": "xtendrmt.component.visible",
+          "lane": "visible",
+          "priority": 76,
+          "deadlineMs": 160,
+          "preferIdle": false,
+          "coalesceKey": "component.mount",
+          "budgetClass": "interactive"
+        },
+        {
+          "id": "component.idle.hydrate",
+          "endpointName": "xtendrmt.component.hydrate",
+          "scope": "xtendrmt.component.idle",
+          "lane": "idle",
+          "priority": 42,
+          "deadlineMs": 420,
+          "preferIdle": true,
+          "coalesceKey": "component.hydrate",
+          "budgetClass": "background"
+        },
+        {
+          "id": "diagnostics.snapshot",
+          "endpointName": "xtendrmt.diagnostics.snapshot",
+          "scope": "xtendrmt.diagnostics",
+          "lane": "diagnostics",
+          "priority": 34,
+          "deadlineMs": 260,
+          "preferIdle": true,
+          "coalesceKey": "diagnostics.snapshot",
+          "budgetClass": "diagnostics"
+        }
+      ],
+      "templates": [
+        {
+          "id": "metric-card",
+          "mode": "html_fragment",
+          "markup": "<article><h2 data-slot=\"title\"></h2><button data-open></button></article>",
+          "props": {
+            "title": {
+              "type": "string",
+              "source": "vm.title",
+              "defaultValue": "Untitled"
+            }
+          },
+          "slots": {
+            "title": {
+              "source": "vm.title"
+            }
+          },
+          "actions": {
+            "example.metric.open": {
+              "target": "[data-open]",
+              "commandName": "example.metric.open",
+              "payloadSource": "vm"
+            }
+          },
+          "hydration": {
+            "mode": "worker_prerender_hydrate",
+            "ownershipMode": "hydrate_existing",
+            "preferInsularHydration": true
+          },
+          "errorBoundary": {
+            "fallbackMarkup": "<article role=\"alert\">Template failed.</article>"
+          }
+        }
+      ]
+    }
+  ]
+}

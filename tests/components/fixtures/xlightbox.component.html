@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-lightbox component fixture</title>
+</head>
+<body>
+  <x-lightbox id="component-lightbox" src="/tests/components/fixtures/demo-image.svg" alt="Demo image">
+    <button slot="trigger" type="button">Open image</button>
+  </x-lightbox>
+  <img src="/tests/components/fixtures/demo-image.svg" alt="Demo" data-xlightbox>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xlightbox.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+name: XTend CI Gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xtend-ci-gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-fast-gates:
+    name: PR fast gates (Node 20.x)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Print runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Run XTend PR fast gate report
+        run: npm run test:pr:report
+
+      - name: Upload XTend PR JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xtend-pr-gate-report-node-20
+          path: .xtend-test-results/xtend-pr-gate-report.json
+          if-no-files-found: warn
+
+  full-release-gates:
+    name: Full release gates (Node 20.x)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Print runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Run XTend full release gate report
+        run: npm run test:release:full:report
+
+      - name: Upload XTend full JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xtend-release-gate-report-node-20
+          path: .xtend-test-results/xtend-release-gate-report.json
+          if-no-files-found: warn

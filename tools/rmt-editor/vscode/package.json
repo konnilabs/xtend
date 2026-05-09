@@ -1,0 +1,83 @@
+{
+  "name": "xtend-rmt-language",
+  "displayName": "XTendRMT Language Support",
+  "description": "Thin VS Code bridge for native .rmt authoring through the XTendRMT Language Server.",
+  "version": "0.0.0-enterprise-readiness",
+  "private": true,
+  "publisher": "xtend",
+  "license": "UNLICENSED",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters"
+  ],
+  "activationEvents": [
+    "onLanguage:rmt",
+    "onCommand:xtendRmt.showLanguageServerCommand"
+  ],
+  "main": "./extension.js",
+  "files": [
+    "extension.js",
+    "language-configuration.json",
+    "syntaxes/**",
+    "snippets/**",
+    "README.md"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "rmt",
+        "aliases": [
+          "RMT",
+          "XTendRMT"
+        ],
+        "extensions": [
+          ".rmt"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rmt",
+        "scopeName": "source.rmt",
+        "path": "./syntaxes/rmt.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "rmt",
+        "path": "./snippets/rmt.code-snippets"
+      }
+    ],
+    "commands": [
+      {
+        "command": "xtendRmt.showLanguageServerCommand",
+        "title": "XTendRMT: Show Language Server Command"
+      }
+    ],
+    "configuration": {
+      "title": "XTendRMT",
+      "properties": {
+        "xtendRmt.languageServer.command": {
+          "type": "string",
+          "default": "node",
+          "description": "Command used by generic LSP clients to start the XTendRMT Language Server."
+        },
+        "xtendRmt.languageServer.args": {
+          "type": "array",
+          "default": [
+            "${workspaceFolder}/tools/rmt-language-server/server.js"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "Arguments used by generic LSP clients to start the XTendRMT Language Server."
+        }
+      }
+    }
+  }
+}

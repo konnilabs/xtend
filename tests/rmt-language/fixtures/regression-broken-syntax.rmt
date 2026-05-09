@@ -1,0 +1,10 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "routes": [
+    {
+      "id": "broken"
+      "path": "/broken"
+    }
+  ]
+}

@@ -1,0 +1,696 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "fixture.xtend.native-surfaces-workbench",
+    "namespace": "fixture.xtend.surface",
+    "metadata": {
+      "contractVersion": "xtend.rmt.surfaces-domain.v1",
+      "adapterContract": "xtend.surface.adapter.v1",
+      "workpackage": "WP-SM-08",
+      "status": "native-surfaces-domain-fixture",
+      "nativeDomain": "surfaces",
+      "surfaceAdapter": "xtend.surface",
+      "compatibilitySource": "components[*].metadata.surface",
+      "qualityRegressionBase": "WP-SM-07",
+      "surfaceManager": "xtend.surface.manager.v1",
+      "surfaceRecord": "xtend.surface.record.v1",
+      "surfaceController": "xtend.surface.controller.v1",
+      "surfaceSnapshot": "xtend.surface.snapshot.v1",
+      "kernelBoundary": "RMT owns surface intent, component refs, routes, schedules and metadata only. XTend surface execution, xstate access, Fabric execution and DOM materialization stay in host adapters."
+    }
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "components",
+        "customElements",
+        "props",
+        "attributes",
+        "slots",
+        "events",
+        "hydration",
+        "fabricContext",
+        "diagnostics"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "router_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "routes",
+        "navigation",
+        "params",
+        "query",
+        "diagnostics"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "rmt.state-scheduler-diagnostics",
+      "kind": "scheduler_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "stateBridge",
+        "schedulerEndpoints",
+        "diagnostics",
+        "adapterResults",
+        "lifecycleEvents"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "xtend.surface",
+      "kind": "surface_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "surfaces",
+        "multiWindow",
+        "sidePanels",
+        "overlaySurfaces",
+        "stateBridge",
+        "diagnostics",
+        "qualityRegression"
+      ],
+      "requiredCapabilities": [
+        "components",
+        "routes",
+        "schedules"
+      ],
+      "lifecycleContract": "xtend.surface.adapter.v1",
+      "kernelVisible": false,
+      "status": "available",
+      "metadata": {
+        "workpackage": "WP-SM-08",
+        "runtimeImplemented": false,
+        "handoffOnly": true,
+        "controller": "xtend.surface.controller.v1",
+        "snapshot": "xtend.surface.snapshot.v1"
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "app.shell",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "app.shell.render",
+      "props": {
+        "label": "Native Surfaces Workbench"
+      },
+      "attributes": {
+        "layout": "column",
+        "data-native-surfaces": "true"
+      },
+      "slots": {
+        "default": {
+          "component": "workbench.manager"
+        }
+      }
+    },
+    {
+      "id": "workbench.manager",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-surface-manager",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "Native Surface Manager"
+      },
+      "attributes": {
+        "restore-key": "fixture.native-surfaces.workbench",
+        "route-aware": "true",
+        "modal-policy": "topmost"
+      },
+      "slots": {
+        "windows": {
+          "components": [
+            "workbench.inspector",
+            "workbench.editor"
+          ]
+        },
+        "panels": {
+          "component": "workbench.properties"
+        },
+        "overlays": {
+          "components": [
+            "workbench.commandPalette",
+            "workbench.confirmDialog",
+            "workbench.drawer"
+          ]
+        }
+      },
+      "metadata": {
+        "surfaceManager": {
+          "schema": "xtend.surface.manager.v1",
+          "stateKey": "xtend.surface.registry",
+          "snapshotKey": "xtend.surface.snapshot",
+          "defaultLayer": "workspace",
+          "stackPolicy": "single-active-surface",
+          "nativeDomain": "surfaces"
+        },
+        "fabric": {
+          "lane": "visible",
+          "fiber": "surface.render",
+          "telemetry": true
+        }
+      }
+    },
+    {
+      "id": "workbench.inspector",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-surface-window",
+      "schedule": "surface.user-blocking.open",
+      "props": {
+        "label": "Inspector"
+      },
+      "attributes": {
+        "surface-id": "surface.inspector",
+        "open": "true",
+        "active": "true",
+        "initial-x": "96",
+        "initial-y": "88",
+        "initial-width": "520",
+        "initial-height": "360"
+      },
+      "slots": {
+        "default": {
+          "component": "inspector.content"
+        }
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.inspector",
+          "type": "window",
+          "manager": "workbench.manager",
+          "stateKey": "xtend.surface.inspector.state",
+          "nativeRecord": "surfaces[0]"
+        },
+        "a11y": {
+          "role": "dialog",
+          "label": "Inspector",
+          "modal": false,
+          "focusRestore": true
+        }
+      }
+    },
+    {
+      "id": "workbench.editor",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-surface-window",
+      "schedule": "surface.user-blocking.open",
+      "props": {
+        "label": "Editor"
+      },
+      "attributes": {
+        "surface-id": "surface.editor",
+        "open": "true",
+        "initial-x": "660",
+        "initial-y": "112",
+        "initial-width": "600",
+        "initial-height": "420"
+      },
+      "slots": {
+        "default": {
+          "component": "editor.content"
+        }
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.editor",
+          "type": "window",
+          "manager": "workbench.manager",
+          "stateKey": "xtend.surface.editor.state",
+          "nativeRecord": "surfaces[1]"
+        },
+        "a11y": {
+          "role": "dialog",
+          "label": "Editor",
+          "modal": false,
+          "focusRestore": true
+        }
+      }
+    },
+    {
+      "id": "workbench.properties",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-side-panel",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "Properties"
+      },
+      "attributes": {
+        "surface-id": "surface.properties",
+        "open": "true",
+        "placement": "right",
+        "mode": "docked",
+        "width": "340"
+      },
+      "slots": {
+        "default": {
+          "component": "properties.content"
+        }
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.properties",
+          "type": "side-panel",
+          "manager": "workbench.manager",
+          "stateKey": "xtend.surface.properties.state",
+          "nativeRecord": "surfaces[2]"
+        },
+        "a11y": {
+          "role": "complementary",
+          "label": "Properties",
+          "focusRestore": true
+        }
+      }
+    },
+    {
+      "id": "workbench.commandPalette",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-modal",
+      "schedule": "surface.user-blocking.open",
+      "props": {
+        "label": "Command Palette"
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.commandPalette",
+          "type": "modal",
+          "manager": "workbench.manager",
+          "stateKey": "xtend.surface.commandPalette.state",
+          "nativeRecord": "surfaces[3]"
+        },
+        "a11y": {
+          "role": "dialog",
+          "label": "Command Palette",
+          "modal": true,
+          "focusRestore": true
+        }
+      }
+    },
+    {
+      "id": "workbench.confirmDialog",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-dialog",
+      "schedule": "surface.user-blocking.open",
+      "props": {
+        "label": "Confirm"
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.confirmDialog",
+          "type": "dialog",
+          "manager": "workbench.manager",
+          "stateKey": "xtend.surface.confirmDialog.state",
+          "nativeRecord": "surfaces[4]"
+        },
+        "a11y": {
+          "role": "dialog",
+          "label": "Confirm",
+          "modal": true,
+          "focusRestore": true
+        }
+      }
+    },
+    {
+      "id": "workbench.drawer",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-drawer",
+      "schedule": "surface.transition.layout",
+      "props": {
+        "label": "Navigation"
+      },
+      "attributes": {
+        "surface-id": "surface.drawer",
+        "position": "left"
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.drawer",
+          "type": "drawer",
+          "manager": "workbench.manager",
+          "stateKey": "xtend.surface.drawer.state",
+          "nativeRecord": "surfaces[5]"
+        },
+        "a11y": {
+          "role": "dialog",
+          "label": "Navigation",
+          "focusRestore": true
+        }
+      }
+    },
+    {
+      "id": "inspector.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-code",
+      "schedule": "component.visible.mount",
+      "props": {
+        "code": "{ \"surface\": \"inspector\" }"
+      }
+    },
+    {
+      "id": "editor.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-form",
+      "schedule": "component.visible.mount",
+      "props": {
+        "label": "Editor Form"
+      }
+    },
+    {
+      "id": "properties.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "component.visible.mount",
+      "props": {
+        "label": "Properties Content"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "id": "workbench",
+      "path": "/workbench",
+      "title": "Workbench",
+      "router": "xtend.xrouter",
+      "component": "app.shell",
+      "template": "workbench.shell.template",
+      "schedule": "route.visible.render",
+      "metadata": {
+        "routeBoundSurfaces": [
+          "surface.inspector",
+          "surface.editor",
+          "surface.properties",
+          "surface.commandPalette",
+          "surface.confirmDialog",
+          "surface.drawer"
+        ],
+        "sharedSnapshotKey": "xtend.surface.snapshot"
+      }
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface.inspector",
+      "schema": "xtend.surface.record.v1",
+      "type": "window",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "workbench.inspector",
+      "route": "workbench",
+      "schedule": "surface.user-blocking.open",
+      "stateKey": "xtend.surface.inspector.state",
+      "defaultOpen": true,
+      "active": true,
+      "bounds": {
+        "x": 96,
+        "y": 88,
+        "width": 520,
+        "height": 360
+      },
+      "capabilities": [
+        "move",
+        "resize",
+        "minimize",
+        "maximize",
+        "close"
+      ],
+      "a11y": {
+        "role": "dialog",
+        "label": "Inspector",
+        "modal": false,
+        "focusRestore": true
+      },
+      "persistence": {
+        "mode": "session",
+        "key": "native.surface.inspector.layout"
+      },
+      "metadata": {
+        "migrationSource": "components.workbench.inspector.metadata.surface",
+        "qualitySnapshot": "surface-quality-desktop-mixed-stack"
+      }
+    },
+    {
+      "id": "surface.editor",
+      "schema": "xtend.surface.record.v1",
+      "type": "window",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "workbench.editor",
+      "route": "workbench",
+      "schedule": "surface.user-blocking.open",
+      "stateKey": "xtend.surface.editor.state",
+      "defaultOpen": true,
+      "bounds": {
+        "x": 660,
+        "y": 112,
+        "width": 600,
+        "height": 420
+      },
+      "capabilities": [
+        "move",
+        "resize",
+        "minimize",
+        "maximize",
+        "close"
+      ],
+      "a11y": {
+        "role": "dialog",
+        "label": "Editor",
+        "modal": false,
+        "focusRestore": true
+      },
+      "persistence": {
+        "mode": "session",
+        "key": "native.surface.editor.layout"
+      },
+      "metadata": {
+        "migrationSource": "components.workbench.editor.metadata.surface",
+        "qualitySnapshot": "surface-quality-desktop-mixed-stack"
+      }
+    },
+    {
+      "id": "surface.properties",
+      "schema": "xtend.surface.record.v1",
+      "type": "side-panel",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "workbench.properties",
+      "route": "workbench",
+      "schedule": "surface.visible.render",
+      "stateKey": "xtend.surface.properties.state",
+      "defaultOpen": true,
+      "placement": "right",
+      "mode": "docked",
+      "bounds": {
+        "width": 340
+      },
+      "capabilities": [
+        "dock",
+        "pin",
+        "collapse",
+        "resize",
+        "close"
+      ],
+      "a11y": {
+        "role": "complementary",
+        "label": "Properties",
+        "focusRestore": true
+      },
+      "metadata": {
+        "migrationSource": "components.workbench.properties.metadata.surface",
+        "qualitySnapshot": "surface-quality-mobile-responsive-panel"
+      }
+    },
+    {
+      "id": "surface.commandPalette",
+      "schema": "xtend.surface.record.v1",
+      "type": "modal",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "workbench.commandPalette",
+      "route": "workbench",
+      "schedule": "surface.user-blocking.open",
+      "stateKey": "xtend.surface.commandPalette.state",
+      "layer": "overlay",
+      "defaultOpen": false,
+      "capabilities": [
+        "open",
+        "close",
+        "focus",
+        "trapFocus"
+      ],
+      "a11y": {
+        "role": "dialog",
+        "label": "Command Palette",
+        "modal": true,
+        "focusRestore": true
+      },
+      "metadata": {
+        "migrationSource": "components.workbench.commandPalette.metadata.surface",
+        "qualitySnapshot": "surface-quality-topmost-overlay"
+      }
+    },
+    {
+      "id": "surface.confirmDialog",
+      "schema": "xtend.surface.record.v1",
+      "type": "dialog",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "workbench.confirmDialog",
+      "route": "workbench",
+      "schedule": "surface.user-blocking.open",
+      "stateKey": "xtend.surface.confirmDialog.state",
+      "layer": "overlay",
+      "defaultOpen": false,
+      "capabilities": [
+        "open",
+        "close",
+        "focus",
+        "trapFocus"
+      ],
+      "a11y": {
+        "role": "dialog",
+        "label": "Confirm",
+        "modal": true,
+        "focusRestore": true
+      },
+      "metadata": {
+        "migrationSource": "components.workbench.confirmDialog.metadata.surface",
+        "qualitySnapshot": "surface-quality-topmost-overlay"
+      }
+    },
+    {
+      "id": "surface.drawer",
+      "schema": "xtend.surface.record.v1",
+      "type": "drawer",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "workbench.drawer",
+      "route": "workbench",
+      "schedule": "surface.transition.layout",
+      "stateKey": "xtend.surface.drawer.state",
+      "layer": "overlay",
+      "placement": "left",
+      "defaultOpen": false,
+      "capabilities": [
+        "open",
+        "close",
+        "focus",
+        "resize"
+      ],
+      "a11y": {
+        "role": "dialog",
+        "label": "Navigation",
+        "focusRestore": true
+      },
+      "metadata": {
+        "migrationSource": "components.workbench.drawer.metadata.surface",
+        "qualitySnapshot": "surface-quality-forced-colors-a11y"
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "id": "app.shell.render",
+      "endpointName": "xtendrmt.component.mount",
+      "scope": "xtend.surface.shell",
+      "lane": "visible",
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "route.visible.render",
+      "endpointName": "xtendrmt.route.render",
+      "scope": "xtend.surface.route",
+      "lane": "visible",
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "surface.visible.render",
+      "endpointName": "xtendrmt.surface.render",
+      "scope": "xtend.surface.render",
+      "lane": "visible",
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "surface.user-blocking.open",
+      "endpointName": "xtendrmt.surface.open",
+      "scope": "xtend.surface.open",
+      "lane": "user-blocking",
+      "deadlineMs": 16,
+      "budgetClass": "critical"
+    },
+    {
+      "id": "surface.transition.layout",
+      "endpointName": "xtendrmt.surface.layout",
+      "scope": "xtend.surface.layout",
+      "lane": "transition",
+      "deadlineMs": 16,
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "component.visible.mount",
+      "endpointName": "xtendrmt.component.mount",
+      "scope": "xtend.surface.content",
+      "lane": "visible",
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "surface.diagnostics.snapshot",
+      "endpointName": "xtendrmt.diagnostics.snapshot",
+      "scope": "xtend.surface.diagnostics",
+      "lane": "diagnostics",
+      "budgetClass": "diagnostics"
+    }
+  ],
+  "templates": [
+    {
+      "id": "workbench.shell.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "component": "app.shell"
+        }
+      ],
+      "metadata": {
+        "nativeSurfaceDomain": "surfaces",
+        "surfaceAdapter": "xtend.surface"
+      }
+    }
+  ]
+}

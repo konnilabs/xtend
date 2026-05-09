@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-select component fixture</title>
+</head>
+<body>
+  <x-select id="component-select" name="plan" value="pro" required placeholder="Choose a plan">
+    <span slot="label">Plan</span>
+    <span slot="hint">Select the deployment plan.</span>
+    <option value="starter">Starter</option>
+    <option value="pro" selected>Pro</option>
+    <span slot="error">Choose a plan.</span>
+  </x-select>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xselect.js"></script>
+</body>
+</html>

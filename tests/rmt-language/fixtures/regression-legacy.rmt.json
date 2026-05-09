@@ -1,0 +1,13 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "regression.legacy",
+    "namespace": "regression"
+  },
+  "adapters": [],
+  "components": [],
+  "routes": [],
+  "schedules": [],
+  "templates": []
+}

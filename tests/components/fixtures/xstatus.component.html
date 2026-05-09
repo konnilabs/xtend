@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-status component fixture</title>
+</head>
+<body>
+  <x-status id="component-status" type="warning" state="validating" message="Validation is running" dismissible busy>
+    <span slot="label">Scheduler status</span>
+  </x-status>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xstatus.js"></script>
+</body>
+</html>

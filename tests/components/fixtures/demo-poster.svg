@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="XTend player fixture poster">
+  <rect width="640" height="360" fill="#111827"/>
+  <circle cx="320" cy="180" r="58" fill="#67e8f9"/>
+  <polygon points="304,148 304,212 358,180" fill="#111827"/>
+  <text x="320" y="286" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#e5e7eb">XPlayer Fixture</text>
+</svg>

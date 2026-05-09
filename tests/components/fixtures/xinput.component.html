@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-input component fixture</title>
+</head>
+<body>
+  <x-input
+    id="component-input"
+    name="email"
+    type="email"
+    value="team@example.com"
+    placeholder="team@example.com"
+    required>
+    <span slot="label">Team email</span>
+    <span slot="error">Enter a valid email address.</span>
+  </x-input>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xinput.js"></script>
+</body>
+</html>

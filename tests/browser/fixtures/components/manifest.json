@@ -1,0 +1,22 @@
+{
+  "xstate": "/components/xstate.js",
+  "x-theme": "/components/xtheme.js",
+  "x-router": "/components/xrouter.js",
+  "x-link": "/components/xlink.js",
+  "x-dialog": "/components/xdialog.js",
+  "x-modal": "/components/xmodal.js",
+  "x-input": "/components/xinput.js",
+  "x-select": "/components/xselect.js",
+  "x-checkbox": "/components/xcheckbox.js",
+  "x-form": "/components/xform.js",
+  "x-tabs": "/components/xtabs.js",
+  "x-alert": "/components/xalert.js",
+  "x-toast": "/components/xtoast.js",
+  "x-status": "/components/xstatus.js",
+  "x-progress": "/components/xprogress.js",
+  "x-drawer": "/components/xdrawer.js",
+  "x-section": "/components/xsection.js",
+  "x-cards": "/components/xcards.js",
+  "x-code": "/components/xcode.js",
+  "x-player": "/components/xplayer.js"
+}

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-progress component fixture</title>
+</head>
+<body>
+  <x-progress id="component-progress" value="64" max="100" status="Hydrating route" busy>
+    <span slot="label">Route hydration</span>
+  </x-progress>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xprogress.js"></script>
+</body>
+</html>

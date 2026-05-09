@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-tabs component fixture</title>
+</head>
+<body>
+  <x-tabs id="component-tabs" selected="1" text-color="#0f172a" data-rmt-schedule="ui.user-blocking.tabs" data-xtend-lane="user-blocking">
+    <x-tab name="Overview">Overview content</x-tab>
+    <x-tab name="Telemetry">Telemetry content</x-tab>
+  </x-tabs>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xtabs.js"></script>
+</body>
+</html>

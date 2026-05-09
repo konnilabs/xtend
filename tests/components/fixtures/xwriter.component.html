@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-writer component fixture</title>
+</head>
+<body>
+  <x-writer
+    id="component-writer"
+    storage-key="component-writer-content"
+    api="local"
+    autosave="60000">
+  </x-writer>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xwriter.js"></script>
+</body>
+</html>

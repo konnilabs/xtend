@@ -1,0 +1,22 @@
+{
+  "schema": "{{manifestPatchSchema}}",
+  "operation": "{{manifestOperation}}",
+  "tag": "{{tag}}",
+  "source": "{{manifestSource}}",
+  "profiles": [{{profilesJson}}],
+  "importMode": "{{manifestImportMode}}",
+  "loaderMode": "{{manifestLoaderMode}}",
+  "hydrationMode": "{{manifestHydrationMode}}",
+  "localImportOnly": {{manifestLocalImportOnly}},
+  "cdnAllowed": {{manifestCdnAllowed}},
+  "featureWiring": {{featureManifestJson}},
+  "a11yProfile": {{a11yManifestJson}},
+  "screenreaderSignals": {{a11yScreenreaderManifestJson}},
+  "motionContrastPolicy": {{a11yMotionContrastManifestJson}},
+  "performanceProfile": {{performanceManifestJson}},
+  "typing": {{typeManifestJson}},
+  "preview": {{previewManifestJson}},
+  "rmtCompatibility": {{rmtCompatibilityManifestJson}},
+  "{{extensionManifestKey}}": {{extensionManifestJson}},
+  "requiresReview": true
+}

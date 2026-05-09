@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>x-surface-manager fixture</title>
+    <script type="module" src="/components/xsurfacemanager-controller.js"></script>
+    <script type="module" src="/components/xsurfacemanager.js"></script>
+    <script type="module" src="/components/xsurfacewindow.js"></script>
+    <script type="module" src="/components/xsidepanel.js"></script>
+    <script>
+      window.__xtendComponentResult = { ready: false, events: [] };
+      window.addEventListener('surface-manager-ready', (event) => {
+        window.__xtendComponentResult.ready = true;
+        window.__xtendComponentResult.events.push(event.type);
+      });
+      window.addEventListener('surface-opened', (event) => {
+        window.__xtendComponentResult.events.push(event.type);
+      });
+    </script>
+  </head>
+  <body>
+    <x-surface-manager id="surface-fixture-manager" manager-id="workbench.manager" state-key="xtend.surface.registry" layout="workspace">
+      <x-surface-window
+        slot="windows"
+        id="surface-fixture-inspector"
+        surface-id="workbench.inspector"
+        label="Inspector"
+        open
+        draggable
+        resizable
+        initial-x="96"
+        initial-y="88"
+        initial-width="520"
+        initial-height="360">
+        <section>Inspector content</section>
+      </x-surface-window>
+      <x-surface-window
+        slot="windows"
+        id="surface-fixture-editor"
+        surface-id="workbench.editor"
+        label="Editor"
+        draggable
+        resizable
+        initial-x="240"
+        initial-y="120"
+        initial-width="680"
+        initial-height="420">
+        <section>Editor content</section>
+      </x-surface-window>
+      <x-side-panel
+        slot="panels"
+        id="surface-fixture-properties"
+        surface-id="workbench.properties"
+        label="Properties"
+        open
+        pinned
+        resizable
+        placement="right"
+        mode="pinned"
+        initial-width="320"
+        initial-height="720">
+        <section>Properties content</section>
+      </x-side-panel>
+    </x-surface-manager>
+  </body>
+</html>

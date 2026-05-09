@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>x-tooltip component fixture</title>
+    <script type="module" src="/components/xstate.js"></script>
+    <script type="module" src="/components/xtooltip.js"></script>
+  </head>
+  <body>
+    <button id="tooltip-anchor" type="button">Inspect schedule</button>
+    <x-tooltip
+      id="component-tooltip"
+      for="tooltip-anchor"
+      placement="top"
+      delay="20"
+      label="Tooltip help">
+      Explains the scheduled action.
+    </x-tooltip>
+    <script>
+      window.xstate = window.xstate || {
+        get: () => null,
+        set: () => {},
+        subscribe: () => () => {}
+      };
+      window.__xtendComponentResult = {
+        component: 'x-tooltip',
+        id: 'component-tooltip',
+        expectedEvents: ['tooltip-opened', 'tooltip-closed'],
+        stateKey: 'xtooltip-open-component-tooltip'
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>XTend Framework</title>
+  <script type="module" src="xtend-loader.js"></script>
+  <link rel="stylesheet" href="xtend.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="icons/favicon.ico">
+</head>
+<body>
+  <!-- Header -->
+  <x-header src="icons/xtend-scaffold.webp" logo-size="48">
+    <span slot="title">XTend</span>
+    <a slot="nav" href="index.html">Home</a>
+    <a slot="nav" href="#about">Demos</a>
+  </x-header>
+
+  <!-- Hero Section -->
+  <x-hero 
+    fullheight 
+    background="#123456" 
+    background-image="background.webp" 
+    align="center" 
+    vertical-align="center"
+    overlay 
+    animate
+    scroll-button
+  >
+    <h1>XTend makes Front-end <x-type blinking-cursor loop texts='["fun.", "fast.", "future-proof."]' speed="70" pause="7000"></x-type></h1>
+    <p>Build awesome and fast web interfaces in minutes without heavy backends.</p>
+    <button class="primary-button">Get Started</button>
+  </x-hero>
+
+  <!-- Features Section -->
+  <x-section id="features" label="Features Section" class="section" layout="grid">
+    <div slot="header">
+      <h2 class="section-title">Why Choose XTend?</h2>
+    </div>
+    <x-cards columns="3" gap="1.5rem">
+      <x-card>
+        <img src="icons/speed.png" alt="Speed Icon" class="feature-icon">
+        <h3>Speed</h3>
+        <p>XTend is lightweight and optimized for performance, ensuring fast load times for your websites.</p>
+      </x-card>
+      <x-card>
+        <img src="icons/simplicity.png" alt="Simplicity Icon" class="feature-icon">
+        <h3>Simplicity</h3>
+        <p>With prebuilt components and intuitive tags, XTend makes web development accessible to everyone.</p>
+      </x-card>
+      <x-card>
+        <img src="icons/security.png" alt="Security Icon" class="feature-icon">
+        <h3>Security</h3>
+        <p>By eliminating unnecessary backends, XTend reduces attack surfaces and enhances security.</p>
+      </x-card>
+    </x-cards>
+  </x-section>
+  <x-hero  
+    background="#123456" 
+    align="block" 
+    overlay 
+    animate
+    vertical-align="top" style="--hero-font-size: 1.3rem;"
+  >
+    <x-tabs>
+      <x-tab name="What is XTend?">
+        <p>XTend is a fast and super easy-to-use web design framework. It helps you build elegant, barrier-free, and user-friendly websites in minutes.</p>
+      </x-tab>
+      <x-tab name="How does it work?">
+        <p>XTend provides additional HTML tags for designing your website. These tags create prebuilt elements that you can visually adjust to your liking.</p>
+      </x-tab>
+      <x-tab name="Why use XTend?">
+        <p>XTend is lightweight, secure, and fast, making it ideal for static sites where simplicity and performance are key.</p>
+      </x-tab>
+    </x-tabs>
+  </x-hero>
+  <!-- How It Works Section -->
+  <x-section layout="grid" id="how-it-works" label="How It Works Section" class="section gradient-background">
+    <div slot="header">
+      <h2 class="section-title">How It Works</h2>
+    </div>
+    <p class="section-description">
+      XTend provides custom HTML tags that simplify web development. Here's an example:
+    </p>
+    <x-code lang="html" class="code-block">
+<x-hero fullheight background="#123456" align="center" vertical-align="center">
+  <h1>Welcome to XTend</h1>
+  <p>Build fast, secure, and elegant websites with ease.</p>
+</x-hero>
+    </x-code>
+  </x-section>
+
+  <!-- Comparison Section -->
+  <x-section layout="grid" id="comparison" label="Comparison Section" class="section light-background">
+    <div slot="header">
+      <h2 class="section-title">XTend vs Traditional CMS</h2>
+    </div>
+    <x-masonry column-width="300px" gap="1.5rem">
+      <div class="item" data-key="xtend" data-title="XTend">
+        <ul>
+          <li>✅ Lightweight</li>
+          <li>✅ Secure</li>
+          <li>✅ Fast</li>
+          <li>✅ Flexible</li>
+        </ul>
+      </div>
+      <div class="item" data-key="cms" data-title="Traditional CMS">
+        <ul>
+          <li>❌ Heavy</li>
+          <li>❌ Vulnerable</li>
+          <li>❌ Slower</li>
+          <li>❌ Complex</li>
+        </ul>
+      </div>
+      <div class="item" data-key="custom" data-title="Custom Solution">
+        <ul>
+          <li>✅ Tailored</li>
+          <li>✅ Secure</li>
+          <li>❌ Expensive</li>
+          <li>❌ Time-Consuming</li>
+        </ul>
+      </div>
+    </x-masonry>
+  </x-section>
+
+  <!-- Documentation Section -->
+
+
+  <!-- Footer -->
+  <x-footer src="icons/xtend-scaffold.webp" logo-size="32">
+    <span slot="title">© 2025 – CCS Networks</span>
+    <a href="index.html" slot="nav">Home</a>
+    <a href="/datenschutz" slot="nav">Privacy Policy</a>
+    <div slot="extra">Powered by XTend</div>
+  </x-footer>
+</body>
+</html>

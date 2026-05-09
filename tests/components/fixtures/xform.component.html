@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-form component fixture</title>
+</head>
+<body>
+  <x-form id="component-form">
+    <x-input id="component-form-input" name="email" type="email" required></x-input>
+    <x-select id="component-form-select" name="plan" value="pro" required>
+      <option value="starter">Starter</option>
+      <option value="pro" selected>Pro</option>
+    </x-select>
+    <x-textarea id="component-form-textarea" name="notes" value="Follow-up note"></x-textarea>
+    <x-checkbox id="component-form-checkbox" name="terms" checked required></x-checkbox>
+    <x-radio id="component-form-radio" name="billing" value="annual" checked></x-radio>
+    <x-calendar id="component-form-calendar" name="date"></x-calendar>
+    <button type="submit">Submit</button>
+  </x-form>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xinput.js"></script>
+  <script type="module" src="/components/xselect.js"></script>
+  <script type="module" src="/components/xtextarea.js"></script>
+  <script type="module" src="/components/xcheckbox.js"></script>
+  <script type="module" src="/components/xradio.js"></script>
+  <script type="module" src="/components/xcalendar.js"></script>
+  <script type="module" src="/components/xform.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XTend SurfaceManager Quality Smoke</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+      background: #eef2f7;
+    }
+
+    x-surface-manager {
+      min-height: 720px;
+    }
+  </style>
+  <script>
+    window.__xtendSurfaceQualitySmokeResult = {
+      status: 'pending',
+      contract: 'xtend.surface.quality-gates.browser-smoke.v1',
+      checks: [],
+      errors: [],
+      events: []
+    };
+
+    function recordCheck(label, passed, details) {
+      window.__xtendSurfaceQualitySmokeResult.checks.push({ label, passed: Boolean(passed), details: details || null });
+      if (!passed) {
+        window.__xtendSurfaceQualitySmokeResult.errors.push(label);
+      }
+    }
+
+    [
+      'surface-opened',
+      'surface-focused',
+      'surface-layout-changed',
+      'modal-opened',
+      'dialog-opened',
+      'drawer-opened'
+    ].forEach((eventName) => {
+      window.addEventListener(eventName, (event) => {
+        window.__xtendSurfaceQualitySmokeResult.events.push({
+          type: event.type,
+          id: event.detail && (event.detail.surfaceId || event.detail.id || event.detail.result && event.detail.result.surfaceId)
+        });
+      });
+    });
+  </script>
+  <script type="module" src="/components/xsurfacemanager-controller.js"></script>
+  <script type="module" src="/components/xsurfaceoverlay-bridge.js"></script>
+  <script type="module" src="/components/xsurfacemanager.js"></script>
+  <script type="module" src="/components/xsurfacewindow.js"></script>
+  <script type="module" src="/components/xsidepanel.js"></script>
+  <script type="module" src="/components/xmodal.js"></script>
+  <script type="module" src="/components/xdialog.js"></script>
+  <script type="module" src="/components/xdrawer.js"></script>
+</head>
+<body>
+  <button id="surface-origin" type="button">Open quality stack</button>
+  <x-surface-manager
+    id="surface-quality-manager"
+    manager-id="quality.manager"
+    state-key="xtend.surface.quality.registry"
+    data-quality-gate="surface-manager-mixed-stack">
+    <x-surface-window
+      slot="windows"
+      id="quality-inspector"
+      surface-id="quality.inspector"
+      label="Inspector"
+      open
+      draggable
+      resizable
+      initial-x="72"
+      initial-y="64"
+      initial-width="420"
+      initial-height="320">
+      <section>Inspector content</section>
+    </x-surface-window>
+    <x-surface-window
+      slot="windows"
+      id="quality-editor"
+      surface-id="quality.editor"
+      label="Editor"
+      draggable
+      resizable
+      initial-x="220"
+      initial-y="104"
+      initial-width="620"
+      initial-height="420">
+      <section>Editor content</section>
+    </x-surface-window>
+    <x-side-panel
+      slot="panels"
+      id="quality-properties"
+      surface-id="quality.properties"
+      label="Properties"
+      open
+      pinned
+      resizable
+      placement="right"
+      mode="pinned"
+      responsive-mode="fullscreen-under-720"
+      initial-width="320"
+      initial-height="720">
+      <section>Properties content</section>
+    </x-side-panel>
+    <x-modal
+      slot="overlays"
+      id="quality-modal"
+      surface-id="quality.modal"
+      title="Release notes"
+      content="Modal surface content"></x-modal>
+    <x-dialog
+      slot="overlays"
+      id="quality-dialog"
+      surface-id="quality.dialog"
+      title="Confirm release"></x-dialog>
+    <x-drawer
+      slot="overlays"
+      id="quality-drawer"
+      surface-id="quality.drawer"
+      label="Tools"
+      placement="right"
+      modal>
+      <button type="button">Drawer action</button>
+    </x-drawer>
+  </x-surface-manager>
+
+  <script type="module">
+    const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+
+    (async () => {
+      try {
+        const tags = ['x-surface-manager', 'x-surface-window', 'x-side-panel', 'x-modal', 'x-dialog', 'x-drawer'];
+        await Promise.all(tags.map((tag) => customElements.whenDefined(tag)));
+        await nextFrame();
+
+        const manager = document.querySelector('x-surface-manager');
+        const modal = document.querySelector('x-modal');
+        const dialog = document.querySelector('x-dialog');
+        const drawer = document.querySelector('x-drawer');
+        const sidePanel = document.querySelector('x-side-panel');
+
+        performance.mark('surface-quality-open-start');
+        manager.openSurface('quality.editor', { source: 'quality-smoke' });
+        manager.focusSurface('quality.editor');
+        manager.dispatchEvent(new CustomEvent('surface-overlay-command', {
+          bubbles: true,
+          composed: true,
+          detail: { surfaceId: 'quality.modal', command: 'open', payload: { source: 'quality-smoke' } }
+        }));
+        manager.dispatchEvent(new CustomEvent('surface-overlay-command', {
+          bubbles: true,
+          composed: true,
+          detail: { surfaceId: 'quality.dialog', command: 'open', payload: { source: 'quality-smoke' } }
+        }));
+        manager.dispatchEvent(new CustomEvent('surface-overlay-command', {
+          bubbles: true,
+          composed: true,
+          detail: { surfaceId: 'quality.drawer', command: 'open', payload: { source: 'quality-smoke' } }
+        }));
+        performance.mark('surface-quality-open-end');
+        performance.measure('surface-quality-open-close', 'surface-quality-open-start', 'surface-quality-open-end');
+        await nextFrame();
+
+        const snapshot = manager.snapshot();
+        const types = snapshot.surfaces.map((surface) => surface.type);
+        const openMeasure = performance.getEntriesByName('surface-quality-open-close')[0];
+
+        recordCheck('surface quality all components defined', tags.every((tag) => customElements.get(tag)));
+        recordCheck('surface quality mixed stack registered', ['window', 'side-panel', 'modal', 'dialog', 'drawer'].every((type) => types.includes(type)), { types });
+        recordCheck('surface quality overlay command opened modal', modal.hasAttribute('open') && snapshot.stack.includes('quality.modal'));
+        recordCheck('surface quality drawer participates in stack', drawer.hasAttribute('open') && snapshot.stack.includes('quality.drawer'));
+        recordCheck('surface quality side panel responsive mode visible', sidePanel.getAttribute('responsive-mode') === 'fullscreen-under-720');
+        recordCheck('surface quality a11y roles available', Boolean(
+          manager.shadowRoot.querySelector('[role="application"]')
+          && sidePanel.shadowRoot.querySelector('[role="complementary"]')
+          && drawer.shadowRoot.querySelector('[role="dialog"]')
+        ));
+        recordCheck('surface quality z order css variables applied', Boolean(
+          modal.style.getPropertyValue('--surface-overlay-z')
+          && dialog.style.getPropertyValue('--surface-overlay-z')
+          && drawer.style.getPropertyValue('--surface-overlay-z')
+        ));
+        recordCheck('surface quality legacy overlay events preserved', ['modal-opened', 'dialog-opened', 'drawer-opened'].every((eventName) => window.__xtendSurfaceQualitySmokeResult.events.some((event) => event.type === eventName)));
+        recordCheck('surface quality performance marks recorded', Boolean(openMeasure && Number.isFinite(openMeasure.duration)));
+        const forbiddenHost = ['https://cdn', 'ccs-networks', 'de'].join('.');
+        recordCheck('surface quality no external network dependency', !document.documentElement.outerHTML.includes(forbiddenHost));
+
+        window.__xtendSurfaceQualitySmokeResult.status = window.__xtendSurfaceQualitySmokeResult.errors.length ? 'failed' : 'passed';
+        window.__xtendSurfaceQualitySmokeResult.surfaceCount = snapshot.surfaceCount;
+        window.__xtendSurfaceQualitySmokeResult.stack = snapshot.stack;
+        window.__xtendSurfaceQualitySmokeResult.durationMs = openMeasure ? openMeasure.duration : null;
+      } catch (error) {
+        window.__xtendSurfaceQualitySmokeResult.status = 'failed';
+        window.__xtendSurfaceQualitySmokeResult.errors.push(error.message);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+{
+  "productName": "XTendRMT",
+  "version": "0.2.0",
+  "apiVersion": "0.2.0",
+  "releaseStage": "pre-release",
+  "classicGlobalName": "xtend.rmt",
+  "runtimeContract": {
+    "rootLifecycle": true,
+    "commandTransport": true,
+    "diagnostics": true,
+    "reactivity": true,
+    "priorityQueue": true,
+    "runtimeProfiles": true,
+    "performanceRuntime": true,
+    "performanceBudgeting": true,
+    "adaptiveScheduling": true,
+    "templateInfrastructure": true,
+    "templatePreparation": true,
+    "templateArtifacts": true,
+    "rmtDocuments": true,
+    "rmtFileExtensions": true,
+    "templateExecutionPath": true,
+    "templateExecutionTransports": true,
+    "templateRuntimeBindings": true,
+    "templateSlotComposition": true,
+    "templateProps": true,
+    "templateActionBindings": true,
+    "templateHydrationContracts": true,
+    "templateErrorBoundaries": true,
+    "insularHydration": true,
+    "minimalDomPatching": true,
+    "prerenderHydration": true
+  },
+  "ownershipModes": [
+    "observe_only",
+    "hydrate_existing",
+    "replace_children",
+    "managed_subtree"
+  ],
+  "distributionFormats": [
+    {
+      "id": "runtime_browser_classic",
+      "status": "build_defined",
+      "globalName": "xtend.rmt",
+      "installerFactory": "installRmtProductSurface",
+      "artifactPath": "dist/xtendrmt/rmt-runtime.browser.js",
+      "typesArtifactPath": "dist/xtendrmt/rmt-core.d.ts",
+      "entryPointId": "rmt-runtime.browser"
+    },
+    {
+      "id": "core_esm",
+      "status": "build_defined",
+      "globalName": "",
+      "installerFactory": "",
+      "artifactPath": "dist/xtendrmt/rmt-core.esm.js",
+      "typesArtifactPath": "dist/xtendrmt/rmt-core.d.ts",
+      "entryPointId": "rmt-core.esm"
+    },
+    {
+      "id": "runtime_esm",
+      "status": "build_defined",
+      "globalName": "",
+      "installerFactory": "",
+      "artifactPath": "dist/xtendrmt/rmt-runtime.esm.js",
+      "typesArtifactPath": "dist/xtendrmt/rmt-core.d.ts",
+      "entryPointId": "rmt-runtime.esm"
+    }
+  ],
+  "schemaArtifacts": {
+    "rmtDocument": "dist/xtendrmt/rmt.schema.json",
+    "legacyRmtDocument": "dist/renderman/renderman-rmt.schema.json"
+  },
+  "artifactParityContracts": [
+    {
+      "id": "xtend.rmt.artifact-parity.v1",
+      "status": "epic-05-wp-13-contract",
+      "sourceOfTruth": "development/WP-E05-13-Build-Pipeline-und-Artefakt-Paritaet-fuer-XTendRMT-absichern.md",
+      "gateCommand": "node scripts/verify_xtendrmt_artifact_parity.js --json",
+      "artifactPaths": [
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js",
+        "xtendrmt/rmt-core.d.ts",
+        "xtendrmt/rmt.schema.json",
+        "xtendrmt/rmt-manifest.json"
+      ],
+      "entryPointTargets": [
+        "rmt-core.esm",
+        "rmt-runtime.esm",
+        "rmt-runtime.browser"
+      ],
+      "requiredFactories": [
+        "createRmtFormat",
+        "createRmtXRouterAdapter",
+        "createRmtXtendComponentAdapter",
+        "createRmtStateSchedulerDiagnosticsBridge"
+      ],
+      "requiredContractIds": [
+        "xtend.rmt.runtime-registry.v1",
+        "xtend.rmt.xrouter-adapter.v1",
+        "xtend.rmt.xtend-component-adapter.v1",
+        "xtend.rmt.state-scheduler-diagnostics-bridge.v1",
+        "xtend.rmt.artifact-parity.v1"
+      ],
+      "artifactSurfaces": [
+        "scripts/verify_xtendrmt_artifact_parity.js",
+        "RmtArtifactParityContract",
+        "artifactParityContracts",
+        "createRmtProductManifest",
+        "rmt-manifest.json entryPoints.appModulesFactories",
+        "ESM namedExports"
+      ],
+      "driftChecks": [
+        "schema-contract-present",
+        "manifest-factories-match-runtime",
+        "esm-named-exports-match-manifest",
+        "types-cover-public-factories",
+        "runtime-bundles-parse"
+      ],
+      "buildPolicy": "Upstream RMT source remains the source-of-truth; xtendrmt/ artifacts are synchronized regression references in this repository.",
+      "kernelBoundary": "Artifact parity checks drift only and must not introduce XTend, XRouter, xstate or DOM runtime imports into the RMT kernel.",
+      "minimumGates": [
+        "node scripts/verify_xtendrmt_artifact_parity.js --json",
+        "node scripts/run_xtend_tests.js rmt-compatibility --json",
+        "node scripts/run_xtend_tests.js references --json"
+      ],
+      "nextWorkpackages": [
+        "development/WP-E05-14-Bestcase-Demo-auf-native-Routes-und-Components-migrieren.md",
+        "development/WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md"
+      ]
+    }
+  ],
+  "templateDocumentFileTypes": {
+    "preferredExtension": ".rmt",
+    "supportedExtensions": [
+      ".rmt",
+      ".rmt.json",
+      ".json"
+    ],
+    "jsonFallbackExtensions": [
+      ".rmt.json",
+      ".json"
+    ],
+    "contentType": "application/vnd.xtendrmt.rmt+json",
+    "jsonFallbackContentType": "application/json",
+    "jsonFallbackPolicy": ".rmt.json and .json are compatibility fallbacks for hosts without native RMT MIME support; new artifacts use .rmt."
+  },
+  "entryPoints": {
+    "appModulesFactories": {
+      "core": "createRmtCore",
+      "domCompat": "createRmtDomCompat",
+      "browserRuntime": "createRmtRuntime",
+      "detachedDomRuntime": "createRmtDetachedRuntime",
+      "workerPrerenderRuntime": "createRmtWorkerRuntime",
+      "serverPrerenderRuntime": "createRmtServerRuntime",
+      "performanceRuntime": "createRmtPerformanceRuntime",
+      "manifest": "createRmtProductManifest",
+      "publicApi": "createRmtPublicApi",
+      "templateApi": "createRmtTemplateApi",
+      "format": "createRmtFormat",
+      "templateCompiler": "createRmtTemplateCompiler",
+      "templateArtifacts": "createRmtTemplateArtifacts",
+      "templateRuntimeRenderer": "createRmtTemplateRuntimeRenderer",
+      "templateExecutionPath": "createRmtTemplateExecutionPath",
+      "templateWorkerAdapter": "createRmtTemplateWorkerAdapter",
+      "templateServerAdapter": "createRmtTemplateServerAdapter",
+      "xrouterAdapter": "createRmtXRouterAdapter",
+      "xtendComponentAdapter": "createRmtXtendComponentAdapter",
+      "stateSchedulerDiagnosticsBridge": "createRmtStateSchedulerDiagnosticsBridge",
+      "prewarmWorkerSource": "createRmtPrewarmWorkerSourceBuilder",
+      "prewarmWorkerRuntime": "createRmtPrewarmWorkerRuntime"
+    },
+    "classicSurface": {
+      "createSurfaceFactory": "createRmtProductSurface",
+      "installFactory": "installRmtProductSurface",
+      "globalName": "xtend.rmt"
+    },
+    "buildTargets": [
+      {
+        "id": "rmt-runtime.browser",
+        "format": "browser_classic",
+        "status": "build_defined",
+        "artifactPath": "dist/xtendrmt/rmt-runtime.browser.js",
+        "typesArtifactPath": "dist/xtendrmt/rmt-core.d.ts",
+        "globalName": "xtend.rmt",
+        "autoInstallGlobal": true,
+        "sourceModules": [
+          "modules/render-man.js",
+          "modules/renderman-priority-queue.js",
+          "modules/renderman-diagnostics-hub.js",
+          "modules/renderman-command-bus.js",
+          "modules/renderman-reactivity.js",
+          "modules/renderman-diagnostics.js",
+          "modules/renderman-browser-host-adapter.js",
+          "modules/renderman-performance-runtime.js",
+          "modules/renderman-rmt-format.js",
+          "modules/renderman-template-registry.js",
+          "modules/renderman-template-loader.js",
+          "modules/renderman-template-compiler.js",
+          "modules/renderman-template-artifacts.js",
+          "modules/renderman-template-runtime-renderer.js",
+          "modules/renderman-template-execution-path.js",
+          "modules/renderman-template-transport-adapters.js",
+          "modules/renderman-prewarm-worker-source.js",
+          "modules/renderman-prewarm-worker-runtime.js",
+          "modules/renderman-public-api.js",
+          "modules/renderman-browser-runtime.js",
+          "modules/renderman-detached-dom-runtime.js",
+          "modules/renderman-worker-prerender-runtime.js",
+          "modules/renderman-server-prerender-runtime.js",
+          "modules/renderman-product-surface.js"
+        ],
+        "manifestPath": "dist/xtendrmt/rmt-manifest.json"
+      },
+      {
+        "id": "rmt-core.esm",
+        "format": "esm",
+        "status": "build_defined",
+        "artifactPath": "dist/xtendrmt/rmt-core.esm.js",
+        "typesArtifactPath": "dist/xtendrmt/rmt-core.d.ts",
+        "globalName": "xtend.rmt",
+        "autoInstallGlobal": false,
+        "sourceModules": [
+          "modules/render-man.js",
+          "modules/renderman-priority-queue.js",
+          "modules/renderman-diagnostics-hub.js",
+          "modules/renderman-command-bus.js",
+          "modules/renderman-reactivity.js",
+          "modules/renderman-diagnostics.js",
+          "modules/renderman-browser-host-adapter.js",
+          "modules/renderman-performance-runtime.js",
+          "modules/renderman-rmt-format.js",
+          "modules/renderman-template-registry.js",
+          "modules/renderman-template-loader.js",
+          "modules/renderman-template-compiler.js",
+          "modules/renderman-template-artifacts.js",
+          "modules/renderman-template-runtime-renderer.js",
+          "modules/renderman-template-execution-path.js",
+          "modules/renderman-template-transport-adapters.js",
+          "modules/renderman-prewarm-worker-source.js",
+          "modules/renderman-prewarm-worker-runtime.js",
+          "modules/renderman-public-api.js",
+          "modules/renderman-browser-runtime.js",
+          "modules/renderman-detached-dom-runtime.js",
+          "modules/renderman-worker-prerender-runtime.js",
+          "modules/renderman-server-prerender-runtime.js",
+          "modules/renderman-product-surface.js"
+        ],
+        "namedExports": [
+          "getRmtApiVersion",
+          "createRmtProductManifest",
+          "createRmtCore",
+          "createRmtDomCompat",
+          "createRmtPublicApi",
+          "createRmtTemplateApi",
+          "createRmtFormat",
+          "createRmtTemplateRegistry",
+          "createRmtTemplateLoader",
+          "createRmtTemplateCompiler",
+          "createRmtTemplateArtifacts",
+          "createRmtTemplateRuntimeRenderer",
+          "createRmtTemplateExecutionPath",
+          "createRmtTemplateWorkerAdapter",
+          "createRmtTemplateServerAdapter",
+          "createRmtXRouterAdapter",
+          "createRmtXtendComponentAdapter",
+          "createRmtStateSchedulerDiagnosticsBridge",
+          "createRmtPrewarmWorkerSourceBuilder",
+          "createRmtPrewarmWorkerRuntime",
+          "createRmtPerformanceRuntime",
+          "createRmtRuntime",
+          "createRmtDetachedRuntime",
+          "createRmtWorkerRuntime",
+          "createRmtServerRuntime",
+          "createRmtProductSurface",
+          "installRmtProductSurface",
+          "createRmtBrowserHostAdapter",
+          "createRmtBrowserRuntime",
+          "createRmtWorkerPrerenderRuntime",
+          "createRmtServerPrerenderRuntime"
+        ],
+        "manifestPath": "dist/xtendrmt/rmt-manifest.json"
+      },
+      {
+        "id": "rmt-runtime.esm",
+        "format": "esm",
+        "status": "build_defined",
+        "artifactPath": "dist/xtendrmt/rmt-runtime.esm.js",
+        "typesArtifactPath": "dist/xtendrmt/rmt-core.d.ts",
+        "globalName": "xtend.rmt",
+        "autoInstallGlobal": false,
+        "sourceModules": [
+          "modules/render-man.js",
+          "modules/renderman-priority-queue.js",
+          "modules/renderman-diagnostics-hub.js",
+          "modules/renderman-command-bus.js",
+          "modules/renderman-reactivity.js",
+          "modules/renderman-diagnostics.js",
+          "modules/renderman-browser-host-adapter.js",
+          "modules/renderman-performance-runtime.js",
+          "modules/renderman-rmt-format.js",
+          "modules/renderman-template-registry.js",
+          "modules/renderman-template-loader.js",
+          "modules/renderman-template-compiler.js",
+          "modules/renderman-template-artifacts.js",
+          "modules/renderman-template-runtime-renderer.js",
+          "modules/renderman-template-execution-path.js",
+          "modules/renderman-template-transport-adapters.js",
+          "modules/renderman-prewarm-worker-source.js",
+          "modules/renderman-prewarm-worker-runtime.js",
+          "modules/renderman-public-api.js",
+          "modules/renderman-browser-runtime.js",
+          "modules/renderman-detached-dom-runtime.js",
+          "modules/renderman-worker-prerender-runtime.js",
+          "modules/renderman-server-prerender-runtime.js",
+          "modules/renderman-product-surface.js"
+        ],
+        "namedExports": [
+          "getRmtApiVersion",
+          "createRmtProductManifest",
+          "createRmtCore",
+          "createRmtDomCompat",
+          "createRmtPublicApi",
+          "createRmtTemplateApi",
+          "createRmtFormat",
+          "createRmtTemplateRegistry",
+          "createRmtTemplateLoader",
+          "createRmtTemplateCompiler",
+          "createRmtTemplateArtifacts",
+          "createRmtTemplateRuntimeRenderer",
+          "createRmtTemplateExecutionPath",
+          "createRmtTemplateWorkerAdapter",
+          "createRmtTemplateServerAdapter",
+          "createRmtXRouterAdapter",
+          "createRmtXtendComponentAdapter",
+          "createRmtStateSchedulerDiagnosticsBridge",
+          "createRmtPrewarmWorkerSourceBuilder",
+          "createRmtPrewarmWorkerRuntime",
+          "createRmtPerformanceRuntime",
+          "createRmtRuntime",
+          "createRmtDetachedRuntime",
+          "createRmtWorkerRuntime",
+          "createRmtServerRuntime",
+          "createRmtProductSurface",
+          "installRmtProductSurface",
+          "createRmtBrowserHostAdapter",
+          "createRmtBrowserRuntime",
+          "createRmtWorkerPrerenderRuntime",
+          "createRmtServerPrerenderRuntime"
+        ],
+        "manifestPath": "dist/xtendrmt/rmt-manifest.json"
+      }
+    ],
+    "optionalCompat": {
+      "browserHostAdapter": "createRmtBrowserHostAdapter",
+      "dashboardAdapter": "createRmtDashboardAdapter",
+      "dashboardCompatBootstrap": "createRmtDashboardCompatBootstrap",
+      "dashboardCommandCatalog": "createRmtDashboardCommandCatalog"
+    }
+  },
+  "legacyCompatibility": {
+    "productName": "RenderMan",
+    "status": "deprecated_alias",
+    "globalName": "RenderMan",
+    "appModulesFactories": {
+      "core": "createRenderManCore",
+      "productSurface": "createRenderManProductSurface",
+      "installProductSurface": "installRenderManProductSurface",
+      "browserRuntime": "createRenderManBrowserRuntime",
+      "detachedDomRuntime": "createRenderManDetachedDomRuntime",
+      "workerPrerenderRuntime": "createRenderManWorkerPrerenderRuntime",
+      "serverPrerenderRuntime": "createRenderManServerPrerenderRuntime",
+      "performanceRuntime": "createRenderManPerformanceRuntime",
+      "publicApi": "createRenderManPublicApi",
+      "templateApi": "createRenderManTemplateApi",
+      "templateCompiler": "createRenderManTemplateCompiler",
+      "templateArtifacts": "createRenderManTemplateArtifacts",
+      "templateRuntimeRenderer": "createRenderManTemplateRuntimeRenderer",
+      "templateExecutionPath": "createRenderManTemplateExecutionPath",
+      "templateWorkerAdapter": "createRenderManTemplateWorkerAdapter",
+      "templateServerAdapter": "createRenderManTemplateServerAdapter",
+      "xrouterAdapter": "createRenderManXRouterAdapter",
+      "xtendComponentAdapter": "createRenderManXtendComponentAdapter",
+      "stateSchedulerDiagnosticsBridge": "createRenderManStateSchedulerDiagnosticsBridge",
+      "prewarmWorkerSource": "createRenderManPrewarmWorkerSourceBuilder",
+      "prewarmWorkerRuntime": "createRenderManPrewarmWorkerRuntime",
+      "browserHostAdapter": "createRenderManBrowserHostAdapter",
+      "dashboardAdapter": "createRenderManDashboardAdapter",
+      "dashboardCompatBootstrap": "createRenderManDashboardCompatBootstrap",
+      "dashboardCommandCatalog": "createRenderManDashboardCommandCatalog"
+    },
+    "schemaArtifacts": {
+      "rmtDocument": "dist/renderman/renderman-rmt.schema.json"
+    }
+  },
+  "migrationPolicy": {
+    "additiveChanges": "minor",
+    "breakingChanges": "major",
+    "preReleaseLabelRequired": true
+  },
+  "builtTargets": [
+    {
+      "id": "rmt-runtime.browser",
+      "format": "browser_classic",
+      "artifactPath": "dist/xtendrmt/rmt-runtime.browser.js",
+      "sourceModuleCount": 24
+    },
+    {
+      "id": "rmt-core.esm",
+      "format": "esm",
+      "artifactPath": "dist/xtendrmt/rmt-core.esm.js",
+      "sourceModuleCount": 24
+    },
+    {
+      "id": "rmt-runtime.esm",
+      "format": "esm",
+      "artifactPath": "dist/xtendrmt/rmt-runtime.esm.js",
+      "sourceModuleCount": 24
+    }
+  ],
+  "compatibilityArtifacts": [
+    {
+      "artifactPath": "dist/renderman/renderman-core.browser.js",
+      "compatibilityAliasFor": "dist/xtendrmt/rmt-runtime.browser.js",
+      "status": "deprecated_compatibility_copy"
+    },
+    {
+      "artifactPath": "dist/renderman/renderman-core.esm.js",
+      "compatibilityAliasFor": "dist/xtendrmt/rmt-core.esm.js",
+      "status": "deprecated_compatibility_copy"
+    }
+  ],
+  "typesArtifactPath": "dist/xtendrmt/rmt-core.d.ts"
+}

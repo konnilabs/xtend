@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-textarea component fixture</title>
+</head>
+<body>
+  <x-textarea id="component-textarea" name="notes" value="Initial note" maxlength="240" rows="5" required>
+    <span slot="label">Notes</span>
+    <span slot="hint">Keep the message concise.</span>
+    <span slot="error">A note is required.</span>
+  </x-textarea>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xtextarea.js"></script>
+</body>
+</html>

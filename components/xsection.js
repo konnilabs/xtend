@@ -1,0 +1,224 @@
+import { xstate } from './xstate.js';
+
+// <x-section>
+class XSection extends HTMLElement {
+  static get observedAttributes() {
+    return ["padding", "background", "bordered", "layout", "label"];
+  }
+
+  static get xtendComponentContract() {
+    return {
+      schema: "xtend.component.contract.v2",
+      tag: "x-section",
+      profiles: ["display"],
+      maturity: "ux-ready"
+    };
+  }
+
+  static get xtendRmtMetadata() {
+    return {
+      schema: "xtend.rmt.component-contract.v1",
+      adapter: "xtend.component",
+      schedule: "layout.measure",
+      kernelBoundary: "no-rmt-kernel-import-of-xtend-types"
+    };
+  }
+
+  static get xtendScaffoldA11yProfile() {
+    return {
+      schema: "xtend.a11y.screenreader-signals.v1",
+      role: "region",
+      accessibleName: "label",
+      focusStrategy: "container-region"
+    };
+  }
+
+  static get xtendScaffoldPerformanceProfile() {
+    return {
+      schema: "xtend.performance.component-profile.v1",
+      performanceProfile: "display",
+      budgetClass: "display-layout",
+      lane: "visible",
+      hydrationPolicy: "visible",
+      criticalMeasurements: ["xtend.layout.measure", "xtend.layout.render"],
+      idleOrBackgroundAllowed: true
+    };
+  }
+
+  static get xtendLayoutDisplayMediaUxProfile() {
+    return {
+      schema: "xtend.component.layout-display-media-ux-profile.v1",
+      componentRef: "x-section",
+      family: "layout-section",
+      role: "region",
+      contentKind: "sectioned-content",
+      responsiveStrategy: "slot-grid-column-row",
+      lazyPolicy: "visible-hydrate",
+      overflowPolicy: "horizontal-scroll-contained",
+      aspectRatio: "content-driven",
+      events: ["section-rendered"],
+      commands: ["render", "measure", "layout", "snapshot"],
+      stateKey: "xsection-state-<id>",
+      schedule: "layout.measure",
+      fabric: { lane: "visible", diagnosticsLane: "diagnostics", api: "@xtend-fabric" },
+      rmt: { adapter: "xtend.component", kernelBoundary: "no-rmt-kernel-import-of-xtend-types" }
+    };
+  }
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          padding: var(--section-padding, 2em);
+          background-color: var(--section-bg, transparent);
+          border-radius: var(--border-radius, 6px);
+          box-sizing: border-box;
+          border: none;
+        }
+
+        :host([bordered]) {
+          border: 1px solid var(--section-border, #ddd);
+        }
+
+        .container {
+          display: flex;
+          gap: var(--section-gap, 1em);
+          overflow-x: auto; /* Enable horizontal scrolling */
+        }
+
+        :host([layout="column"]) .container {
+          flex-direction: column;
+        }
+
+        :host([layout="row"]) .container {
+          flex-direction: row;
+          white-space: nowrap; /* Prevent wrapping of content */
+        }
+
+        ::slotted([slot="header"]) {
+          font-weight: var(--header-font-weight, bold);
+          font-size: var(--header-font-size, 1.25em);
+        }
+
+        ::slotted([slot="footer"]) {
+          font-size: var(--footer-font-size, 0.9em);
+          color: var(--footer-color, #666);
+        }
+
+        ::slotted([slot="aside"]) {
+          flex: 0 0 var(--aside-width, 25%);
+        }
+
+        ::slotted(:not([slot])) {
+          flex: 1;
+          padding: var(--main-content-padding, 1em);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .container { scroll-behavior: auto; }
+        }
+
+        @media (forced-colors: active) {
+          :host([bordered]) {
+            border-color: CanvasText;
+          }
+        }
+      </style>
+      <div class="container" part="root container" role="region" aria-label="${this.getAttribute("label") || "Section"}">
+        <header part="header"><slot name="header"></slot></header>
+        <aside part="aside"><slot name="aside"></slot></aside>
+        <main part="content"><slot></slot></main>
+        <footer part="footer"><slot name="footer"></slot></footer>
+      </div>
+    `;
+    this._unsubscribeState = null;
+  }
+
+  connectedCallback() {
+    // Eindeutige ID für State-Management
+    if (!this.id) this.id = `xsection-${Math.random().toString(36).slice(2, 10)}`;
+
+    // Initialen State setzen
+    xstate.set(`xsection-state-${this.id}`, {
+      padding: this.getAttribute("padding"),
+      background: this.getAttribute("background"),
+      bordered: this.hasAttribute("bordered"),
+      layout: this.getAttribute("layout"),
+      label: this.getAttribute("label")
+    });
+
+    // State-Änderungen abonnieren (z.B. externe Steuerung)
+    this._unsubscribeState = xstate.subscribe((key, value) => {
+      if (key === `xsection-state-${this.id}` && typeof value === "object") {
+        if (value.padding !== undefined) this.setAttribute("padding", value.padding);
+        if (value.background !== undefined) this.setAttribute("background", value.background);
+        if (value.bordered !== undefined) {
+          if (value.bordered) this.setAttribute("bordered", "");
+          else this.removeAttribute("bordered");
+        }
+        if (value.layout !== undefined) this.setAttribute("layout", value.layout);
+        if (value.label !== undefined) this.setAttribute("label", value.label);
+      }
+    });
+
+    this.dispatchEvent(new CustomEvent("section-rendered", {
+      detail: this.snapshot(),
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  disconnectedCallback() {
+    if (this._unsubscribeState) this._unsubscribeState();
+  }
+
+  attributeChangedCallback(name, oldVal, newVal) {
+    if (oldVal === newVal) return; // Prevent unnecessary updates
+
+    const propertyMap = {
+      padding: "--section-padding",
+      background: "--section-bg",
+    };
+
+    if (propertyMap[name]) {
+      this.style.setProperty(propertyMap[name], newVal);
+    } else if (name === "layout") {
+      const container = this.shadowRoot.querySelector(".container");
+      if (container) {
+        container.style.flexDirection = newVal === "row" ? "row" : "column";
+      }
+    } else if (name === "label") {
+      const container = this.shadowRoot.querySelector(".container");
+      if (container) {
+        container.setAttribute("aria-label", newVal);
+      }
+    }
+
+    // State aktualisieren
+    if (this.id) {
+      xstate.set(`xsection-state-${this.id}`, {
+        padding: this.getAttribute("padding"),
+        background: this.getAttribute("background"),
+        bordered: this.hasAttribute("bordered"),
+        layout: this.getAttribute("layout"),
+        label: this.getAttribute("label")
+      });
+    }
+  }
+
+  snapshot() {
+    return {
+      schema: "xtend.component.layout-display-media-snapshot.v1",
+      componentRef: "x-section",
+      stateKey: `xsection-state-${this.id}`,
+      schedule: "layout.measure",
+      layout: this.getAttribute("layout") || "column",
+      label: this.getAttribute("label") || "Section"
+    };
+  }
+}
+
+customElements.define("x-section", XSection);

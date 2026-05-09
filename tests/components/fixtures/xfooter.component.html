@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-footer component fixture</title>
+</head>
+<body>
+  <x-footer id="component-footer" logo-size="32">
+    <span slot="title">Docs Footer</span>
+    <a slot="nav" href="/legal">Legal</a>
+    <span slot="extra">Extra footer content</span>
+  </x-footer>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xfooter.js"></script>
+</body>
+</html>

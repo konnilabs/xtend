@@ -1,0 +1,23 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "fixture.template-only.legacy",
+    "namespace": "fixture"
+  },
+  "templates": [
+    {
+      "id": "legacy-card",
+      "mode": "html_fragment",
+      "markup": "<article><h2 data-slot=\"title\"></h2></article>",
+      "slots": {
+        "title": {
+          "source": "vm.title"
+        }
+      },
+      "hydration": {
+        "mode": "runtime_render"
+      }
+    }
+  ]
+}

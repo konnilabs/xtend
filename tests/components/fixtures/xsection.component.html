@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-section component fixture</title>
+</head>
+<body>
+  <x-section id="component-section" layout="column" label="Component section" bordered>
+    <h2 slot="header">Section heading</h2>
+    <p>Section content</p>
+    <p slot="footer">Section footer</p>
+  </x-section>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xsection.js"></script>
+</body>
+</html>

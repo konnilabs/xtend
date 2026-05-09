@@ -1,0 +1,80 @@
+{
+  "schema": "xtend.epic13.visual-owner-artifact-manifest.v1",
+  "releaseCandidate": "RC1",
+  "workpackage": "WP-E13-08",
+  "artifactRoot": ".xtend-test-results/visual-snapshots/rc1",
+  "reportPath": ".xtend-test-results/visual-snapshots/rc1/visual-owner-artifact-report.json",
+  "screenshotPathTemplate": ".xtend-test-results/visual-snapshots/rc1/{family}/{viewport}/{theme}/{density}/{motion}.png",
+  "fixture": "tests/browser/fixtures/visual-snapshots-fixture.html",
+  "domBaseline": "tests/browser/visual-baselines/visual-snapshots.dom-baseline.json",
+  "localGateMode": "static-artifact-manifest-plus-dom-snapshot-gate",
+  "ownerArtifactMode": "optional-browser-driver-or-ci-artifact",
+  "pixelDiffRequiredInLocalGate": false,
+  "screenshotRequiredInLocalGate": false,
+  "binaryBaselineCommitted": false,
+  "deterministicViewports": [
+    {
+      "id": "desktop-1280",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "id": "tablet-768",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "id": "mobile-390",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "themeVariants": [
+    "light",
+    "dark",
+    "high-contrast",
+    "forced-colors"
+  ],
+  "motionModes": [
+    "default-motion",
+    "reduced-motion"
+  ],
+  "densities": [
+    "comfortable",
+    "compact",
+    "dense"
+  ],
+  "captures": [
+    {
+      "id": "rc1-form-controls-owner-screenshot",
+      "family": "form-controls",
+      "sourceSnapshot": "form-controls-visual-snapshot",
+      "artifactPathTemplate": ".xtend-test-results/visual-snapshots/rc1/form-controls/{viewport}/{theme}/{density}/{motion}.png"
+    },
+    {
+      "id": "rc1-feedback-status-owner-screenshot",
+      "family": "feedback-status",
+      "sourceSnapshot": "feedback-status-visual-snapshot",
+      "artifactPathTemplate": ".xtend-test-results/visual-snapshots/rc1/feedback-status/{viewport}/{theme}/{density}/{motion}.png"
+    },
+    {
+      "id": "rc1-navigation-routing-owner-screenshot",
+      "family": "navigation-routing",
+      "sourceSnapshot": "navigation-routing-visual-snapshot",
+      "artifactPathTemplate": ".xtend-test-results/visual-snapshots/rc1/navigation-routing/{viewport}/{theme}/{density}/{motion}.png"
+    },
+    {
+      "id": "rc1-overlay-interaction-owner-screenshot",
+      "family": "overlay-interaction",
+      "sourceSnapshot": "overlay-interaction-visual-snapshot",
+      "artifactPathTemplate": ".xtend-test-results/visual-snapshots/rc1/overlay-interaction/{viewport}/{theme}/{density}/{motion}.png"
+    },
+    {
+      "id": "rc1-layout-display-media-owner-screenshot",
+      "family": "layout-display-media",
+      "sourceSnapshot": "layout-display-media-visual-snapshot",
+      "artifactPathTemplate": ".xtend-test-results/visual-snapshots/rc1/layout-display-media/{viewport}/{theme}/{density}/{motion}.png"
+    }
+  ],
+  "publishBoundary": "private-until-release-owner-acceptance"
+}

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-cards component fixture</title>
+</head>
+<body>
+  <x-cards id="component-cards" columns="3" gap="1rem">
+    <article>Card one</article>
+    <article>Card two</article>
+    <article>Card three</article>
+  </x-cards>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xcards.js"></script>
+</body>
+</html>

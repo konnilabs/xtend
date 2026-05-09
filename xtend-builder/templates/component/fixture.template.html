@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{tag}} component fixture</title>
+    <script src="{{fixtureScriptPath}}"></script>
+  </head>
+  <body>
+    <{{tag}} id="{{name}}-fixture" variant="default" aria-label="{{a11yAccessibleNameDefault}}">Fixture content for {{tag}}</{{tag}}>
+    <script>
+      customElements.whenDefined('{{tag}}').then(function () {
+        var element = document.getElementById('{{name}}-fixture');
+        var root = element && element.shadowRoot ? element.shadowRoot.querySelector('[part="root"]') : null;
+	        window.{{fixtureResultName}} = {
+	          defined: customElements.get('{{tag}}') !== undefined,
+	          hasElement: Boolean(element),
+	          hasShadowRoot: Boolean(element && element.shadowRoot),
+	          hydrated: Boolean(element && element.hasAttribute('{{hydrationStateAttribute}}')),
+	          a11yProfile: customElements.get('{{tag}}').xtendScaffoldA11yProfile.schema,
+	          screenreaderSignals: customElements.get('{{tag}}').xtendScaffoldA11yProfile.screenreader.signalContract.schema,
+	          screenreaderSignalCount: customElements.get('{{tag}}').xtendScaffoldA11yProfile.screenreader.signalContract.signals.length,
+	          screenreaderStatusRegions: customElements.get('{{tag}}').xtendScaffoldA11yProfile.screenreader.signalContract.statusRegions.length,
+	          screenreaderErrorRegions: customElements.get('{{tag}}').xtendScaffoldA11yProfile.screenreader.signalContract.errorRegions.length,
+	          motionContrastPolicy: customElements.get('{{tag}}').xtendScaffoldA11yProfile.motionContrast.policy.schema,
+	          motionMediaQuery: customElements.get('{{tag}}').xtendScaffoldA11yProfile.motionContrast.policy.motion.mediaQuery,
+	          contrastMediaQuery: customElements.get('{{tag}}').xtendScaffoldA11yProfile.motionContrast.policy.contrast.mediaQuery,
+	          role: root ? root.getAttribute('role') : null,
+	          accessibleName: root ? root.getAttribute('aria-label') : null,
+          localImport: true,
+          cdnFree: true,
+          scriptPath: '{{fixtureScriptPath}}',
+          text: element ? element.textContent.trim() : ''
+        };
+      });
+    </script>
+  </body>
+</html>

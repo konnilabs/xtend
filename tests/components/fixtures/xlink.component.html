@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-link component fixture</title>
+</head>
+<body>
+  <x-router id="component-link-router" mode="history"></x-router>
+  <x-link id="component-link" href="/dashboard">Dashboard</x-link>
+  <x-link id="component-external-link" href="https://example.com">External</x-link>
+  <script>
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+  </script>
+  <script type="module" src="/components/xrouter.js"></script>
+  <script type="module" src="/components/xlink.js"></script>
+</body>
+</html>
