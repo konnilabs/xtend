@@ -20,6 +20,9 @@
     window.addEventListener('xutils:import-policy-check', (event) => {
       window.__xtendXUtilsEvents.push(event.detail);
     });
+    window.addEventListener('xutils:ui-effects-change', (event) => {
+      window.__xtendXUtilsEvents.push(event.detail);
+    });
 
     const root = document.getElementById('xutils-boundary-fixture');
     const button = XUtils.create('button', {
@@ -43,6 +46,25 @@
       title: 'Utility Contract',
       content: 'Boundary ready'
     });
+    const effectTarget = document.createElement('div');
+    const rmtEffectsDocument = {
+      kind: 'rmt_document',
+      components: [
+        {
+          id: 'app.ui-effects',
+          kind: 'ui_effects',
+          tag: 'ui-effects',
+          props: { effect: 'fade-in' }
+        }
+      ]
+    };
+    const resolvedEffects = XUtils.resolveUiEffects({
+      target: effectTarget,
+      body: false,
+      rmtDocument: rmtEffectsDocument
+    });
+    const preparedEffects = XUtils.prepareUiEffects(resolvedEffects);
+    const releasedEffects = XUtils.releaseUiEffects(preparedEffects);
 
     record('utility contract exposed', XUtils.xtendUtilityContract.schema === 'xtend.utility.module-contract.v1');
     record('import policy exposed', XUtils.xtendImportPolicy.schema === 'xtend.utility.import-policy.v1');
@@ -54,6 +76,10 @@
     record('snapshot schema exposed', snapshot.schema === 'xtend.utility.boundary-probe.v1');
     record('kernel boundary preserved', snapshot.utility.kernelBoundary === 'no-rmt-kernel-import-of-xtend-types');
     record('policy event dispatched', window.__xtendXUtilsEvents.some((entry) => entry.schema === 'xtend.utility.import-policy-result.v1'));
+    record('ui effects resolve rmt tag', resolvedEffects.schema === 'xtend.utility.ui-effects.v1' && resolvedEffects.active === true && resolvedEffects.effects.includes('fade-in'));
+    record('ui effects prepare hides target', preparedEffects.prepared === true && effectTarget.style.visibility === 'hidden' && effectTarget.style.opacity === '0');
+    record('ui effects release reveals target', releasedEffects.released === true && effectTarget.getAttribute('data-xt-ui-effects-ready') === 'true' && effectTarget.style.visibility === 'visible');
+    record('ui effects event dispatched', window.__xtendXUtilsEvents.some((entry) => entry.schema === 'xtend.utility.ui-effects.v1' && entry.phase === 'release'));
 
     document.body.dataset.xutilsBoundaryReady = 'true';
   </script>

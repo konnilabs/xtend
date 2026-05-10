@@ -38,6 +38,9 @@ window.XUtils.find('[data-action="save"]');
 | `focusTrap(container)` | fokussiert das erste fokussierbare Element im Container |
 | `fadeIn(el, duration?)` | einfache Opacity-Animation |
 | `fadeOut(el, duration?)` | einfache Opacity-Animation |
+| `resolveUiEffects(input?)` | normalisiert opt-in UI-Effekte aus Body-Attribut, Loader-Option oder RMT |
+| `prepareUiEffects(input?)` | bereitet einen opt-in UI-Effekt vor, z.B. Body-Fade |
+| `releaseUiEffects(input?)` | gibt einen vorbereiteten UI-Effekt wieder frei |
 | `isMobile()` | prueft den lokalen Mobile-Breakpoint |
 
 ## Format- und Datenhelfer
@@ -109,6 +112,29 @@ console.log(blocked.allowed); // false
 ```
 
 `assertLocalImport()` dispatcht im Browser zusaetzlich `xutils:import-policy-check`. Das Event ist fuer Test-, Fabric- und Security-Harnesses gedacht; der RMT Kernel importiert `x-utils` weiterhin nicht.
+
+## UI Effects Boundary
+
+Seit `xtend.utility.ui-effects.v1` kapselt `x-utils` opt-in Effekte, die die App-Shell beeinflussen koennen. Der globale Loader versteckt den Body nicht mehr standardmaessig. Ein Fade-In muss bewusst aktiviert werden:
+
+```html
+<body xt-ui-effects="fade-in">
+```
+
+RMT-Hosts koennen denselben Effekt als nicht-visuellen Intent beschreiben:
+
+```json
+{
+  "id": "app.ui-effects",
+  "kind": "ui_effects",
+  "tag": "ui-effects",
+  "props": {
+    "effect": "fade-in"
+  }
+}
+```
+
+Die Host-Seite bleibt Ausfuehrungsort. RMT beschreibt nur den Intent; `XUtils.prepareUiEffects()` und `XUtils.releaseUiEffects()` setzen die DOM-Attribute `data-xt-ui-effects`, `data-xt-ui-effects-state` und `data-xt-ui-effects-ready`. Fuer RMT-lose Umgebungen reicht das Body-Attribut. Fuer Shell-first Apps, die keinen Effekt wollen, ist kein Attribut noetig oder explizit `xt-ui-effects="none"` moeglich.
 
 ## Hinweise
 

@@ -99,6 +99,10 @@
       recordCheck('malicious script did not execute', window.__xtendTrustedDomBoundaryExecuted === false);
       recordCheck('rmt shell remained shell first', Boolean(window.xtendDocsRmtProductionLastRender && window.xtendDocsRmtProductionLastRender.shellFirst === true));
       recordCheck('rmt kernel remains parser neutral', Boolean(window.xtendDocsRmtProductionLastRender && window.xtendDocsRmtProductionLastRender.parsedownEmbeddedInRmtKernel === false));
+      recordCheck('docs rendered shell avoids horizontal overflow', document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1, {
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth
+      });
 
       complete(window.__xtendEpic13TrustedDomBoundaryResult.errors.length === 0 ? 'passed' : 'failed');
     }

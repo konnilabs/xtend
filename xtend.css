@@ -29,8 +29,48 @@
   --form-background: #ffffff;
 }
 
+html {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+img,
+video,
+canvas,
+iframe,
+object,
+embed {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 main {
   box-sizing: border-box;
+  min-width: 0;
   width: 100%;
   max-width: var(--xtend-main-max-width, none);
   margin: var(--xtend-main-margin, 0);
@@ -39,6 +79,7 @@ main {
 
 section {
   box-sizing: border-box;
+  min-width: 0;
   margin-block-end: var(--xtend-section-margin-block-end, 0);
 }
 
@@ -66,9 +107,27 @@ body {
   margin: 0;
   padding: 0;
   line-height: 1.6;
+}
+
+body[xt-ui-effects~="fade-in"],
+body[data-xt-ui-effects~="fade-in"] {
   visibility: hidden;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity var(--xt-ui-effects-fade-duration, 0.5s) ease;
+}
+
+body[xt-ui-effects~="fade-in"][data-xt-ui-effects-ready="true"],
+body[data-xt-ui-effects~="fade-in"][data-xt-ui-effects-ready="true"],
+body[data-xt-ui-effects-state="ready"] {
+  visibility: visible;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[xt-ui-effects~="fade-in"],
+  body[data-xt-ui-effects~="fade-in"] {
+    transition-duration: 0.01ms;
+  }
 }
 
 a {

@@ -49,7 +49,7 @@ Optional Safari WebDriver run:
 XTEND_BROWSER_SMOKE_DRIVER=safari node scripts/run_xtend_tests.js browser
 ```
 
-Safari WebDriver requires local Safari Remote Automation support and is treated as an optional diagnostic run. The fixture set verifies `x-alert` registration, shadow DOM rendering, visible body state, loader visibility restoration, API initialization, router rendering, theme state, feedback components, overlay components, A11y focus/keyboard flows, XTendRMT native route registration, XTend component hydration, scheduler endpoint signals and a non-XTend vanilla host path.
+Safari WebDriver requires local Safari Remote Automation support and is treated as an optional diagnostic run. The fixture set verifies `x-alert` registration, shadow DOM rendering, visible body state, shell-first loader visibility defaults, opt-in UI effects, API initialization, router rendering, theme state, feedback components, overlay components, A11y focus/keyboard flows, XTendRMT native route registration, XTend component hydration, scheduler endpoint signals and a non-XTend vanilla host path.
 
 Epic 11 component UX smokes have their own local gate:
 

@@ -194,6 +194,7 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('window.xtendDocsHighlightPrism'), 'Docs app exposes scoped syntax highlighting scheduler');
   context.assert(indexPhp.includes('Prism.highlightAllUnder(scope)'), 'Docs app highlights only the active content scope');
   context.assert(indexPhp.includes('window.xtendDocsRmtDocument'), 'Docs app exposes the RMT shell document');
+  context.assert(indexPhp.includes('<body xt-ui-effects="none">'), 'Docs app explicitly disables shell-blocking UI effects');
   context.assert(indexPhp.includes('window.xtendDocsRmtRuntimeModule'), 'Docs app exposes the XTendRMT runtime module for the Fabric telemetry bridge');
   context.assert(indexPhp.includes("rmtTelemetryBridge: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1'"), 'Docs app declares the persistent RMT telemetry bridge contract');
   context.assert(indexPhp.includes('window.xtendDocsPagesMeta'), 'Docs app exposes per-page RMT metadata');
@@ -220,12 +221,20 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('data-manifest="/components/manifest.json?v='), 'Docs app uses versioned root-local manifest URL accepted by loader policy');
   context.assert(indexPhp.includes('data-module-cache-bust='), 'Docs app forwards module cache busting to the loader');
   context.assert(xtendCss.includes('max-width: var(--xtend-main-max-width, none)'), 'XTend base CSS keeps semantic main full-width by default');
+  context.assert(xtendCss.includes('overflow-x: clip'), 'XTend base CSS clips page-level horizontal overflow');
+  context.assert(xtendCss.includes('*,\n*::before,\n*::after'), 'XTend base CSS applies border-box sizing globally');
   context.assert(!/(?:^|[\n}])\s*main\s*\{[^}]*max-width:\s*800px/u.test(xtendCss), 'XTend base CSS avoids hard-coded global main max-width');
   context.assert(!/(?:^|[\n}])\s*main:not\([^)]*\)\s*\{[^}]*max-width:\s*800px/u.test(xtendCss), 'XTend base CSS avoids legacy hard-coded main:not layout');
   context.assert(indexPhp.includes('--docs-layout-gap'), 'Docs app exposes a shared layout gap token for viewport and sidebar spacing');
   context.assert(indexPhp.includes('max-width: none'), 'Docs app content shell uses full viewport real estate instead of a centered max-width');
+  context.assert(indexPhp.includes('margin: 1rem 0 2rem;'), 'Docs app mobile main layout avoids width plus side-margin overflow');
+  context.assert(indexPhp.includes('padding: 0 clamp(0.5rem, 3vw, 0.75rem);'), 'Docs app keeps mobile gutters inside the viewport');
+  context.assert(indexPhp.includes("schema: 'xtend.docs.viewport-overflow.v1'"), 'Docs app exposes a viewport overflow diagnostic snapshot');
+  context.assert(indexPhp.includes('window.xtendDocsCheckViewportOverflow'), 'Docs app exposes a targeted viewport overflow check');
+  context.assert(indexPhp.includes('overflowX <= 1'), 'Docs app treats horizontal overflow as a viewport safety failure');
   context.assert(indexPhp.includes('main > x-router::part(outlet)'), 'Docs app widens the XRouter outlet part for full-width route layouts');
   context.assert(indexPhp.includes('--hero-content-max-width: none'), 'Docs hero content can use the same wide page real estate');
+  context.assert(indexPhp.includes('max-width: calc(100% - 1rem)'), 'Docs hero host accounts for its horizontal margin');
   context.assert(!/\.docs-page-sidebar\s*\{[^}]*position:\s*sticky/u.test(indexPhp), 'Docs app sidebar scrolls with the page instead of sticking to the viewport');
   context.assert(indexPhp.includes('x-button,x-icon'), 'Docs app preloads icon button shell components');
   context.assert(indexPhp.includes('id="theme-toggle-icon" name="moon" pack="core"'), 'Docs theme toggle uses the bundled core icon pack');
@@ -269,6 +278,7 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(pageLoader.includes("summaryLabel.textContent = depth === 0 ? 'Deep Dives' : 'Weitere Themen'"), 'Docs page loader renders Deep Dive submenu labels separately from child links');
   context.assert(pageLoader.includes('var(--docs-layout-gap'), 'Docs shadow-scoped shell styles use the shared layout gap token');
   context.assert(pageLoader.includes('var(--docs-sidebar-width'), 'Docs shadow-scoped shell styles use the shared sidebar width token');
+  context.assert(pageLoader.includes('#md-content {\n    min-width: 0;\n    max-width: 100%;'), 'Docs page loader keeps rendered Markdown content viewport-bound');
   context.assert(pageLoader.includes('x-section.docs-app-shell::part(container)'), 'Docs shadow-scoped shell styles widen x-section shell parts');
   context.assert(!/\.docs-page-sidebar\s*\{[^}]*position:\s*sticky/u.test(pageLoader), 'Docs shadow-scoped sidebar scrolls with the page instead of sticking to the viewport');
   context.assert(pageLoader.includes('renderDocsComponentDemo'), 'Docs page loader renders hands-on component demos');

@@ -3,6 +3,7 @@
   "x-theme": "/components/xtheme.js",
   "x-router": "/components/xrouter.js",
   "x-link": "/components/xlink.js",
+  "x-utils": "/components/xutils.js",
   "x-dialog": "/components/xdialog.js",
   "x-modal": "/components/xmodal.js",
   "x-input": "/components/xinput.js",

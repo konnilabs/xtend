@@ -35,13 +35,15 @@ const DOCS_ROUTE_CONTENT_CACHE = new Map();
 const DOCS_SHELL_SCOPED_CSS = `
   #outlet {
     width: 100%;
-    max-width: none;
+    max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
   }
   xtend-doc-page {
     display: block;
     width: 100%;
-    max-width: none;
+    max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
     opacity: 1;
     transform: translateY(0);
@@ -93,11 +95,14 @@ const DOCS_SHELL_SCOPED_CSS = `
     gap: var(--docs-layout-gap, clamp(1rem, 2.2vw, 2.5rem));
     align-items: start;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
   }
   .docs-article-surface,
   .docs-page-sidebar {
     min-width: 0;
+    max-width: 100%;
     box-sizing: border-box;
   }
   .docs-article-surface {
@@ -152,6 +157,9 @@ const DOCS_SHELL_SCOPED_CSS = `
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 0.55rem;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     min-height: 42px;
     padding: 0.55rem 0.62rem;
     border: 1px solid var(--border-color);
@@ -167,6 +175,9 @@ const DOCS_SHELL_SCOPED_CSS = `
     align-items: center;
     gap: 0.55rem;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     color: inherit;
     text-decoration: none;
   }
@@ -298,6 +309,8 @@ const DOCS_SHELL_SCOPED_CSS = `
   }
   #md-content {
     min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     line-height: 1.65;
   }
   #md-content > :first-child {

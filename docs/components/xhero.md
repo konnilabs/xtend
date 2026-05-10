@@ -78,6 +78,10 @@ x-hero {
 }
 ```
 
+## Viewport-Sicherheit
+
+`x-hero` begrenzt Host, Root und Content auf `max-width: 100%` und nutzt auf schmalen Viewports keine innere `100vw`-Breite. Dadurch bleibt die Komponente auch in gepaddeten App-Shells oder Docs-Layouts innerhalb des sichtbaren Viewports.
+
 ---
 
 ## Accessibility

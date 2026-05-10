@@ -145,7 +145,7 @@ const BROWSER_HYDRATION_GATES = [
     path: 'tests/browser/fixtures/core-flows-smoke.html',
     contracts: [
       { pattern: '__xtendCoreSmokeResult', message: 'exposes core hydration result object' },
-      { pattern: "recordCheck('loader restored body visibility'", message: 'checks loader visibility restoration' },
+      { pattern: "recordCheck('loader kept body visible by default'", message: 'checks shell-first visible body default' },
       { pattern: "recordCheck('router rendered detail route'", message: 'checks router hydration' },
       { pattern: "recordCheck('toast api rendered visible component'", message: 'checks toast API activation' },
       { pattern: "recordCheck('alert api rendered visible component'", message: 'checks alert API activation' },

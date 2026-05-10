@@ -259,6 +259,9 @@ class XHero extends HTMLElement {
           --hero-shadow: 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08);
           display: block;
           color: var(--hero-text);
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
         }
 
         .hero {
@@ -274,6 +277,8 @@ class XHero extends HTMLElement {
           box-sizing: border-box;
           overflow: hidden;
           width: 100%;
+          max-width: 100%;
+          min-width: 0;
           margin: 0.5em 0 2.5em 0;
           border-radius: var(--hero-radius);
           box-shadow: var(--hero-shadow);
@@ -313,6 +318,7 @@ class XHero extends HTMLElement {
           transition: opacity 0.6s ease-out, transform 0.6s ease-out;
           width: 100%;
           max-width: var(--hero-content-max-width, 700px);
+          min-width: 0;
           margin: var(--hero-content-margin, 0 auto);
           font-size: var(--hero-font-size, clamp(1rem, 2.5vw, 2rem));
           background: var(--hero-content-bg, rgba(255,255,255,0.10));
@@ -320,6 +326,7 @@ class XHero extends HTMLElement {
           box-shadow: var(--hero-content-shadow, 0 2px 8px rgba(40,60,120,0.10));
           backdrop-filter: var(--hero-content-backdrop-filter, blur(8px));
           padding: var(--hero-content-padding, 2.2rem 2rem);
+          box-sizing: border-box;
         }
 
         .content.show {
@@ -367,10 +374,13 @@ class XHero extends HTMLElement {
         ::slotted(*) {
           color: inherit;
           margin: 0.5em 0;
+          max-width: 100%;
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
         @media (max-width: 900px) {
-          .hero { width: 100vw; max-width: 100vw; }
-          .content { max-width: 99vw; }
+          .hero { width: 100%; max-width: 100%; }
+          .content { max-width: 100%; }
         }
         @media (max-width: 600px) {
           .hero { padding: 2.2rem 0.5rem; }

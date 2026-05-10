@@ -120,8 +120,8 @@
 
     async function runCoreSmokeChecks() {
       await waitFor(() => (
-        document.body.style.visibility === 'visible' &&
-        document.body.style.opacity === '1' &&
+        getComputedStyle(document.body).visibility === 'visible' &&
+        getComputedStyle(document.body).opacity !== '0' &&
         window.xstate &&
         window.XTend &&
         window.XTend.compliance &&
@@ -134,7 +134,7 @@
 
       const router = document.querySelector('#core-smoke-router');
 
-      recordCheck('loader restored body visibility', document.body.style.visibility === 'visible' && document.body.style.opacity === '1');
+      recordCheck('loader kept body visible by default', getComputedStyle(document.body).visibility === 'visible' && getComputedStyle(document.body).opacity !== '0');
       recordCheck('api compliance ready', typeof window.XTend.compliance.getCoreContracts === 'function');
       recordCheck('api ui state initialized', Boolean(window.xstate.get('ui')));
       recordCheck('router custom element defined', Boolean(customElements.get('x-router')));

@@ -148,17 +148,18 @@ function loaderVerboseWarn(...args) {
 
 async function initiateXTend(options = {}) {
   const loaderScript = resolveLoaderScript();
+  const uiEffectsInput = resolveLoaderUiEffectsInput(options, loaderScript);
+  let uiEffectsController = null;
   let manifestUrl = null;
   let manifest = {};
 
   try {
     manifestUrl = resolveManifestUrl(options.manifestUrl, loaderScript);
     const moduleCacheBust = resolveModuleCacheBust(options.moduleCacheBust, loaderScript, manifestUrl);
-    hidePage();
-    await waitForWindowLoad();
 
     manifest = await fetchManifest(manifestUrl, { moduleCacheBust });
     activeManifest = manifest;
+    uiEffectsController = await prepareConfiguredUiEffects(manifest, uiEffectsInput);
 
     await loadCoreModules(manifest);
     await preloadManifestComponents(manifest);
@@ -171,7 +172,7 @@ async function initiateXTend(options = {}) {
     });
     console.error('XTend Loader Fehler:', error);
   } finally {
-    showPage();
+    releaseConfiguredUiEffects(uiEffectsController, uiEffectsInput);
     await initializeApi(manifest);
   }
 
@@ -180,6 +181,7 @@ async function initiateXTend(options = {}) {
     manifest,
     loadedTags: Array.from(loadedTags),
     performanceMeasurements: loaderMeasurements.slice(),
+    uiEffects: uiEffectsController && uiEffectsController.state ? uiEffectsController.state : null,
     verbose: getLoaderVerboseState()
   };
 }
@@ -219,28 +221,189 @@ function resolveManifestUrl(explicitManifestUrl, loaderScript) {
   return policy.url;
 }
 
-function hidePage() {
-  if (document.body) {
-    document.body.style.visibility = 'hidden';
-    document.body.style.opacity = '0';
+function resolveLoaderUiEffectsInput(options = {}, loaderScript = null) {
+  return {
+    target: document.body || null,
+    body: document.body || null,
+    script: loaderScript,
+    effects: options.uiEffects || options.uiEffect || options.effects || '',
+    durationMs: options.uiEffectDuration || options.uiEffectsDuration || '',
+    rmtDocument: options.rmtDocument ||
+      options.rmt ||
+      (typeof window !== 'undefined' && (
+        window.xtendRmtDocument ||
+        window.XTendRmtDocument ||
+        window.xtendDocsRmtDocument
+      )) ||
+      null
+  };
+}
+
+function normalizeUiEffectsHint(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function isDisabledUiEffectsHint(value) {
+  const normalized = normalizeUiEffectsHint(value);
+  return normalized === '' ||
+    normalized === 'none' ||
+    normalized === 'off' ||
+    normalized === 'false' ||
+    normalized === '0' ||
+    normalized === 'disabled';
+}
+
+function readUiEffectsHintFromElement(element) {
+  if (!element || typeof element.getAttribute !== 'function') return '';
+  return element.getAttribute('xt-ui-effects') ||
+    element.getAttribute('data-xt-ui-effects') ||
+    element.getAttribute('data-ui-effects') ||
+    '';
+}
+
+function rmtDocumentHasUiEffectsHint(documentLike) {
+  if (!documentLike || typeof documentLike !== 'object') return false;
+  try {
+    return JSON.stringify(documentLike).includes('ui-effects') ||
+      JSON.stringify(documentLike).includes('uiEffects');
+  } catch (_) {
+    return false;
   }
 }
 
-function showPage() {
-  if (document.body) {
-    document.body.style.visibility = 'visible';
-    document.body.style.opacity = '1';
-  }
+function hasConfiguredUiEffects(input = {}) {
+  const explicit = normalizeUiEffectsHint(input.effects);
+  const bodyHint = readUiEffectsHintFromElement(input.body);
+  const scriptHint = readUiEffectsHintFromElement(input.script);
+  const hasExplicitEffect = explicit && !isDisabledUiEffectsHint(explicit);
+  const hasBodyEffect = bodyHint && !isDisabledUiEffectsHint(bodyHint);
+  const hasScriptEffect = scriptHint && !isDisabledUiEffectsHint(scriptHint);
+  return Boolean(hasExplicitEffect || hasBodyEffect || hasScriptEffect || rmtDocumentHasUiEffectsHint(input.rmtDocument));
 }
 
-function waitForWindowLoad() {
-  return new Promise((resolve) => {
-    if (document.readyState === 'complete') {
-      resolve();
-      return;
-    }
-    window.addEventListener('load', resolve, { once: true });
+async function loadUiEffectsRuntime(manifest = {}) {
+  const url = manifest['x-utils'];
+  if (!url) return null;
+  const importPolicy = classifyLoaderUrl(url, {
+    kind: 'module',
+    baseUrl: document.baseURI,
+    source: 'x-utils'
   });
+  if (!importPolicy.ok) {
+    emitSecurityDiagnostic('xtend.security.import.refused', 'Import fuer x-utils wurde durch die Loader Policy verweigert', {
+      policy: IMPORT_POLICY_CONTRACT,
+      tag: 'x-utils',
+      url,
+      diagnostics: importPolicy.diagnostics
+    });
+    return null;
+  }
+
+  try {
+    const module = await import(importPolicy.url);
+    if (module && module.XUtils && typeof module.XUtils.prepareUiEffects === 'function') {
+      loadedTags.add('x-utils');
+      return module.XUtils;
+    }
+  } catch (error) {
+    emitLoaderDiagnostic('xtend.loader.ui_effects.load_failed', 'warn', 'x-utils UI Effects konnten nicht geladen werden', {
+      tag: 'x-utils',
+      url: importPolicy.url,
+      message: error && error.message ? error.message : String(error)
+    });
+  }
+  return null;
+}
+
+async function prepareConfiguredUiEffects(manifest, input) {
+  if (!hasConfiguredUiEffects(input)) return null;
+  const runtime = await loadUiEffectsRuntime(manifest);
+  if (runtime && typeof runtime.prepareUiEffects === 'function') {
+    return {
+      runtime,
+      state: runtime.prepareUiEffects(input)
+    };
+  }
+
+  return {
+    runtime: null,
+    state: prepareUiEffectsFallback(input)
+  };
+}
+
+function inputRequestsFadeIn(input = {}) {
+  const hints = [
+    input.effects,
+    readUiEffectsHintFromElement(input.body),
+    readUiEffectsHintFromElement(input.script)
+  ].map(normalizeUiEffectsHint);
+
+  if (hints.some((hint) => isDisabledUiEffectsHint(hint))) return false;
+  return hints.some((hint) => hint.includes('fade-in') || hint.includes('fadein')) ||
+    rmtDocumentHasUiEffectsHint(input.rmtDocument);
+}
+
+function prepareUiEffectsFallback(input = {}) {
+  const target = input.target || input.body || document.body;
+  const active = Boolean(target && inputRequestsFadeIn(input));
+  const state = {
+    schema: 'xtend.utility.ui-effects.v1',
+    componentRef: 'x-utils',
+    target,
+    targetRef: target === document.body ? 'document.body' : 'custom-target',
+    effects: active ? ['fade-in'] : [],
+    active,
+    source: 'loader-fallback',
+    bodyAttribute: 'xt-ui-effects',
+    rmtTag: 'ui-effects',
+    supportedEffects: ['fade-in'],
+    durationMs: 500,
+    kernelBoundary: 'no-rmt-kernel-import-of-xtend-types',
+    prepared: active,
+    released: false
+  };
+
+  if (active) {
+    target.setAttribute('data-xt-ui-effects', 'fade-in');
+    target.setAttribute('data-xt-ui-effects-state', 'preparing');
+    target.removeAttribute('data-xt-ui-effects-ready');
+    target.style.visibility = 'hidden';
+    target.style.opacity = '0';
+  }
+
+  return state;
+}
+
+function releaseUiEffectsFallback(stateOrInput = {}) {
+  const target = stateOrInput.target || stateOrInput.body || document.body;
+  if (!target) return stateOrInput;
+  target.setAttribute('data-xt-ui-effects-ready', 'true');
+  target.setAttribute('data-xt-ui-effects-state', 'ready');
+  target.style.visibility = 'visible';
+  target.style.opacity = '1';
+  return {
+    ...stateOrInput,
+    target,
+    released: true
+  };
+}
+
+function releaseConfiguredUiEffects(controller, input) {
+  if (controller && controller.runtime && typeof controller.runtime.releaseUiEffects === 'function') {
+    controller.state = controller.runtime.releaseUiEffects(controller.state);
+    return controller.state;
+  }
+
+  if (controller && controller.state && controller.state.active) {
+    controller.state = releaseUiEffectsFallback(controller.state);
+    return controller.state;
+  }
+
+  if (inputRequestsFadeIn(input)) {
+    return releaseUiEffectsFallback(input);
+  }
+
+  return null;
 }
 
 async function fetchManifest(manifestUrl, options = {}) {

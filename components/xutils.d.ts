@@ -8,9 +8,10 @@ export type XUtilsCategory =
   | 'responsive'
   | 'color'
   | 'format'
-  | 'templates';
+  | 'templates'
+  | 'ui-effects';
 
-export type XUtilsEventName = 'xutils:import-policy-check';
+export type XUtilsEventName = 'xutils:import-policy-check' | 'xutils:ui-effects-change';
 
 export interface XUtilsUtilityContract {
   schema: 'xtend.utility.module-contract.v1';
@@ -54,6 +55,41 @@ export interface XUtilsBoundarySnapshot {
   globalReady: boolean;
 }
 
+export type XUtilsUiEffectName = 'fade-in';
+export type XUtilsUiEffectSource = 'none' | 'explicit' | 'body' | 'script' | 'rmt' | string;
+
+export interface XUtilsUiEffectsInput {
+  target?: HTMLElement;
+  element?: HTMLElement;
+  body?: HTMLElement | false;
+  script?: Element | null;
+  effects?: string | string[];
+  effect?: string;
+  mode?: string;
+  duration?: number | string;
+  durationMs?: number | string;
+  rmtDocument?: unknown;
+}
+
+export interface XUtilsUiEffectsState {
+  schema: 'xtend.utility.ui-effects.v1';
+  componentRef: 'x-utils';
+  target: HTMLElement | null;
+  targetRef: 'document.body' | 'custom-target';
+  effects: XUtilsUiEffectName[];
+  active: boolean;
+  disabled: boolean;
+  source: XUtilsUiEffectSource;
+  bodyAttribute: 'xt-ui-effects';
+  rmtTag: 'ui-effects';
+  supportedEffects: XUtilsUiEffectName[];
+  durationMs: number;
+  kernelBoundary: 'no-rmt-kernel-import-of-xtend-types';
+  prepared?: boolean;
+  released?: boolean;
+  phase?: 'prepare' | 'release';
+}
+
 export interface XUtilsTemplateAction {
   label: string;
   onClick?: EventListener;
@@ -76,10 +112,11 @@ export interface XUtilsTemplateApi {
 
 export interface XUtilsEventDetailMap {
   'xutils:import-policy-check': XUtilsImportPolicyResult;
+  'xutils:ui-effects-change': XUtilsUiEffectsState;
 }
 
 export type XUtilsEventMap = XtendCustomEventMap<XUtilsEventDetailMap>;
-export type XUtilsPublicEventContract = XtendPublicEventContract<XUtilsEventName, XUtilsImportPolicyResult>;
+export type XUtilsPublicEventContract = XtendPublicEventContract<XUtilsEventName, XUtilsImportPolicyResult | XUtilsUiEffectsState>;
 
 export interface XUtilsApi {
   xtendUtilityContract: XUtilsUtilityContract;
@@ -95,6 +132,9 @@ export interface XUtilsApi {
   delegate(root: Element | Document, selector: string, type: string, handler: (event: Event) => void): () => void;
   fadeIn(el: HTMLElement, duration?: number): void;
   fadeOut(el: HTMLElement, duration?: number): void;
+  resolveUiEffects(input?: XUtilsUiEffectsInput | string | string[]): XUtilsUiEffectsState;
+  prepareUiEffects(input?: XUtilsUiEffectsInput | XUtilsUiEffectsState | string | string[]): XUtilsUiEffectsState;
+  releaseUiEffects(input?: XUtilsUiEffectsInput | XUtilsUiEffectsState | string | string[]): XUtilsUiEffectsState;
   setAria(el: Element, attrs?: Record<string, string | number | boolean>): void;
   focusTrap(container: Element): void;
   isMobile(): boolean;
@@ -111,6 +151,7 @@ export declare const XUtils: XUtilsApi;
 export declare const XUTILS_BOUNDARY_PROBE_SCHEMA: 'xtend.utility.boundary-probe.v1';
 export declare const XUTILS_IMPORT_POLICY_RESULT_SCHEMA: 'xtend.utility.import-policy-result.v1';
 export declare const XUTILS_IMPORT_POLICY_SCHEMA: 'xtend.utility.import-policy.v1';
+export declare const XUTILS_UI_EFFECTS_SCHEMA: 'xtend.utility.ui-effects.v1';
 export declare const XUTILS_UTILITY_CONTRACT_SCHEMA: 'xtend.utility.module-contract.v1';
 
 declare global {

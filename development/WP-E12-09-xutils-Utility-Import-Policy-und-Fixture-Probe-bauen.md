@@ -21,8 +21,10 @@
 - `xtendImportPolicy` mit Schema `xtend.utility.import-policy.v1`
 - `assertLocalImport(specifier)` fuer lokale Import-Policy-Probes
 - `snapshotUtilityContract()` fuer Boundary-Snapshots
+- `resolveUiEffects()`, `prepareUiEffects()` und `releaseUiEffects()` fuer opt-in Shell-Effekte unter `xtend.utility.ui-effects.v1`
 - `getUtilityContract()` als stabile Contract-Leseflaeche
 - Event `xutils:import-policy-check` fuer Test-, Security- und Fabric-Harnesses
+- Event `xutils:ui-effects-change` fuer UI-Effects-Harnesses
 
 Die Import Policy blockiert externe Protokolle, protocol-relative Specifier und bekannte CDN-Hosts. Lokale Pfade und relative Modulpfade bleiben erlaubt.
 
@@ -35,6 +37,7 @@ Die Import Policy blockiert externe Protokolle, protocol-relative Specifier und 
 - `XUtilsImportPolicy`
 - `XUtilsImportPolicyResult`
 - `XUtilsBoundarySnapshot`
+- `XUtilsUiEffectsState`
 - `XUtilsTemplateApi`
 - `XUtilsPublicEventContract`
 
@@ -42,7 +45,7 @@ Die Import Policy blockiert externe Protokolle, protocol-relative Specifier und 
 
 ### Boundary Fixture
 
-`tests/components/fixtures/xutils.component.html` ist keine visuelle Komponentenfixture. Die Fixture importiert das lokale Modul, prueft DOM-, A11y-, Template- und Event-Helfer, validiert lokale und externe Import-Specifier und zeichnet das Policy-Event auf.
+`tests/components/fixtures/xutils.component.html` ist keine visuelle Komponentenfixture. Die Fixture importiert das lokale Modul, prueft DOM-, A11y-, Template- und Event-Helfer, validiert lokale und externe Import-Specifier, loest `tag: "ui-effects"` aus einem RMT-Dokument auf und zeichnet Policy-/UI-Effects-Events auf.
 
 ### Component Suite
 
@@ -50,7 +53,7 @@ Die Import Policy blockiert externe Protokolle, protocol-relative Specifier und 
 
 - lokaler Manifest-Pfad
 - keine `customElements.define` Registrierung
-- Utility-, Import-Policy- und Boundary-Schemas
+- Utility-, Import-Policy-, UI-Effects- und Boundary-Schemas
 - Public Types und Window API
 - Fixture ohne CDN-Abhaengigkeit
 - `assertLocalImport(specifier)` und `snapshotUtilityContract()`

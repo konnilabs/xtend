@@ -188,8 +188,8 @@
 
     async function runA11yKeyboardSmokeChecks() {
       await waitFor(() => (
-        document.body.style.visibility === 'visible' &&
-        document.body.style.opacity === '1' &&
+        getComputedStyle(document.body).visibility === 'visible' &&
+        getComputedStyle(document.body).opacity !== '0' &&
         window.xstate &&
         window.XTend &&
         customElements.get('x-router') &&

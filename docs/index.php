@@ -561,6 +561,9 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           --docs-hero-bg-dark: #050506;
           --docs-hero-text-light: #162033;
           --docs-hero-text-dark: #f8fafc;
+          max-width: 100%;
+          overflow-x: hidden;
+          overflow-x: clip;
         }
         [data-theme="dark"] {
           --body-bg: #050506;
@@ -596,12 +599,17 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         body {
           font-family: system-ui, sans-serif;
           margin: 0;
+          min-width: 0;
+          max-width: 100%;
+          overflow-x: hidden;
+          overflow-x: clip;
           background-color: var(--body-bg, var(--background-color));
           color: var(--text-color);
         }
         main {
           width: 100%;
-          max-width: none;
+          max-width: 100%;
+          min-width: 0;
           box-sizing: border-box;
           margin: 1.2rem 0 2.5rem;
           background: transparent;
@@ -614,10 +622,13 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         main > x-router {
           display: block;
           width: 100%;
+          max-width: 100%;
+          min-width: 0;
         }
         main > x-router::part(outlet) {
           width: 100%;
-          max-width: none;
+          max-width: 100%;
+          min-width: 0;
           box-sizing: border-box;
         }
         x-header {
@@ -912,6 +923,9 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         x-hero.docs-hero {
           display: block;
           margin: 0 0.5rem;
+          max-width: calc(100% - 1rem);
+          min-width: 0;
+          box-sizing: border-box;
           --hero-padding: clamp(2.5rem, 6vw, 4.5rem) 1.25rem;
           --hero-radius: 0.75rem;
           --hero-font-size: clamp(1rem, 2vw, 1.25rem);
@@ -964,11 +978,15 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           gap: var(--docs-layout-gap);
           align-items: start;
           width: 100%;
+          max-width: 100%;
+          min-width: 0;
           box-sizing: border-box;
         }
         .docs-article-surface,
         .docs-page-sidebar {
           min-width: 0;
+          max-width: 100%;
+          box-sizing: border-box;
         }
         .docs-article-surface {
           background: var(--section-bg);
@@ -1026,6 +1044,9 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           grid-template-columns: auto minmax(0, 1fr) auto;
           align-items: center;
           gap: 0.55rem;
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
           min-height: 42px;
           padding: 0.55rem 0.62rem;
           border: 1px solid var(--border-color);
@@ -1041,6 +1062,9 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           align-items: center;
           gap: 0.55rem;
           width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
           color: inherit;
           text-decoration: none;
         }
@@ -1151,8 +1175,12 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         }
         @media (max-width: 700px) {
           main {
-            margin: 1rem 0.5rem 2rem;
-            padding: 0;
+            margin: 1rem 0 2rem;
+            padding: 0 clamp(0.5rem, 3vw, 0.75rem);
+          }
+          x-hero.docs-hero {
+            margin: 0;
+            max-width: 100%;
           }
           .docs-shell-layout {
             grid-template-columns: 1fr;
@@ -1291,7 +1319,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
     </script>
     <script src="/docs/utils/fabric-runtime.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>"></script>
 </head>
-<body>
+<body xt-ui-effects="none">
 <x-theme></x-theme>
 <x-header src="<?= $docsLogoUrl ?>" logo-size="48" sticky>
   <span slot="title">XTend Dokumentation</span>
@@ -1453,6 +1481,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   updateThemeButton();
+  function checkDocsViewportOverflow() {
+    const root = document.documentElement;
+    const body = document.body;
+    const clientWidth = root ? root.clientWidth : window.innerWidth;
+    const scrollWidth = Math.max(
+      root ? root.scrollWidth : 0,
+      body ? body.scrollWidth : 0
+    );
+    const overflowX = Math.max(0, scrollWidth - clientWidth);
+    const snapshot = {
+      schema: 'xtend.docs.viewport-overflow.v1',
+      viewport: window.matchMedia('(max-width: 700px)').matches ? 'mobile' : 'wide',
+      clientWidth,
+      scrollWidth,
+      overflowX,
+      viewportSafe: overflowX <= 1
+    };
+    window.xtendDocsViewportOverflow = snapshot;
+    if (root) {
+      root.toggleAttribute('data-xtend-viewport-overflow', !snapshot.viewportSafe);
+    }
+    window.dispatchEvent(new CustomEvent('xtend-docs-viewport-overflow-check', { detail: snapshot }));
+    return snapshot;
+  }
+  window.xtendDocsCheckViewportOverflow = checkDocsViewportOverflow;
+  window.addEventListener('resize', function() {
+    requestAnimationFrame(checkDocsViewportOverflow);
+  }, { passive: true });
   // Prism wird scoped und idle ausgefuehrt, damit Routen-Klicks nicht die ganze Seite blockieren.
   let prismFrame = 0;
   let prismIdle = 0;
@@ -1485,7 +1541,9 @@ document.addEventListener('DOMContentLoaded', function() {
   window.xtendDocsHighlightPrism = schedulePrismHighlight;
   window.addEventListener('xtend-docs-content-ready', function(event) {
     schedulePrismHighlight(event.detail && event.detail.root);
+    requestAnimationFrame(checkDocsViewportOverflow);
   });
+  requestAnimationFrame(checkDocsViewportOverflow);
   schedulePrismHighlight(document);
 });
 </script>

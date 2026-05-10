@@ -250,9 +250,9 @@ const publicTypeContracts = [
   {
     tag: 'x-utils',
     path: 'components/xutils.d.ts',
-    typeNames: ['XUtilsApi', 'XUtilsUtilityContract', 'XUtilsImportPolicy', 'XUtilsImportPolicyResult', 'XUtilsBoundarySnapshot', 'XUtilsTemplateApi', 'XUtilsPublicEventContract'],
-    events: ['xutils:import-policy-check'],
-    methods: ['assertLocalImport(specifier: string): XUtilsImportPolicyResult', 'snapshotUtilityContract(): XUtilsBoundarySnapshot'],
+    typeNames: ['XUtilsApi', 'XUtilsUtilityContract', 'XUtilsImportPolicy', 'XUtilsImportPolicyResult', 'XUtilsBoundarySnapshot', 'XUtilsUiEffectsState', 'XUtilsTemplateApi', 'XUtilsPublicEventContract'],
+    events: ['xutils:import-policy-check', 'xutils:ui-effects-change'],
+    methods: ['assertLocalImport(specifier: string): XUtilsImportPolicyResult', 'snapshotUtilityContract(): XUtilsBoundarySnapshot', 'resolveUiEffects(input?', 'prepareUiEffects(input?', 'releaseUiEffects(input?'],
     windowApi: ['XUtils: XUtilsApi']
   },
   {

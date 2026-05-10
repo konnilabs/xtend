@@ -149,6 +149,12 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
     context.assert(types.includes("slotAlignment: XHeaderSlotAlignment"), 'x-header snapshot types include slot alignment');
     context.assert(types.includes("drawerMode: 'fixed-full-width-overlay'"), 'x-header types expose drawer mode snapshot');
   }
+  if (tag === 'x-hero') {
+    context.assert(source.includes('max-width: 100%;'), 'x-hero constrains itself to the host viewport width');
+    context.assert(source.includes('overflow-wrap: anywhere'), 'x-hero wraps long slotted hero content inside narrow containers');
+    context.assert(!source.includes('.hero { width: 100vw; max-width: 100vw; }'), 'x-hero avoids viewport-width overflow inside padded or margined hosts');
+    context.assert(docs.includes('Viewport-Sicherheit'), 'x-hero docs describe viewport-safe mobile layout');
+  }
   if (tag === 'x-code') {
     const constructorMatch = source.match(/constructor\(\)\s*\{[\s\S]*?\n  \}/u);
     const constructorSource = constructorMatch ? constructorMatch[0] : '';

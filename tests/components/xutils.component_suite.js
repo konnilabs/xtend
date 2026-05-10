@@ -33,9 +33,15 @@ function runXUtilsComponentSuite(options = {}) {
   context.assertIncludes(source, 'xtend.utility.module-contract.v1', 'x-utils declares utility contract schema');
   context.assertIncludes(source, 'xtend.utility.import-policy.v1', 'x-utils declares import policy schema');
   context.assertIncludes(source, 'xtend.utility.boundary-probe.v1', 'x-utils declares boundary probe schema');
+  context.assertIncludes(source, 'xtend.utility.ui-effects.v1', 'x-utils declares UI effects schema');
   context.assertIncludes(source, 'xtendUtilityContract', 'x-utils exposes utility contract metadata');
   context.assertIncludes(source, 'xtendImportPolicy', 'x-utils exposes import policy metadata');
   context.assertIncludes(source, 'assertLocalImport(specifier)', 'x-utils exposes local import policy check');
+  context.assertIncludes(source, 'resolveUiEffects(input = {})', 'x-utils exposes UI effects resolver');
+  context.assertIncludes(source, 'prepareUiEffects(input = {})', 'x-utils exposes UI effects preparation');
+  context.assertIncludes(source, 'releaseUiEffects(input = {})', 'x-utils exposes UI effects release');
+  context.assertIncludes(source, "rmtTag: 'ui-effects'", 'x-utils maps RMT ui-effects tag');
+  context.assertIncludes(source, "bodyAttribute: XUTILS_UI_EFFECTS_BODY_ATTR", 'x-utils maps body xt-ui-effects attribute');
   context.assertIncludes(source, 'snapshotUtilityContract()', 'x-utils exposes boundary snapshot API');
   context.assertIncludes(source, 'no-rmt-kernel-import-of-xtend-types', 'x-utils preserves RMT kernel boundary');
   context.assert(!source.includes('https://cdn.ccs-networks.de/xtend/components/'), 'x-utils source has no CDN component import');
@@ -46,6 +52,8 @@ function runXUtilsComponentSuite(options = {}) {
   context.assertIncludes(types, 'XUtilsImportPolicyResult', 'x-utils public types declare import policy result');
   context.assertIncludes(types, 'XUtilsBoundarySnapshot', 'x-utils public types declare boundary snapshot');
   context.assertIncludes(types, 'XUtilsTemplateApi', 'x-utils public types declare template API');
+  context.assertIncludes(types, 'XUtilsUiEffectsState', 'x-utils public types declare UI effects state');
+  context.assertIncludes(types, 'resolveUiEffects', 'x-utils public types expose UI effects resolver');
   context.assertIncludes(types, 'addEventListener<K extends keyof XUtilsEventMap>', 'x-utils public types expose typed policy event listener overload');
   context.assertIncludes(types, 'Window', 'x-utils public types expose Window API surface');
 
@@ -55,6 +63,9 @@ function runXUtilsComponentSuite(options = {}) {
   context.assertIncludes(fixture, 'assertLocalImport', 'x-utils fixture checks import policy');
   context.assertIncludes(fixture, 'snapshotUtilityContract', 'x-utils fixture reads utility boundary snapshot');
   context.assertIncludes(fixture, 'xutils:import-policy-check', 'x-utils fixture observes policy events');
+  context.assertIncludes(fixture, 'xutils:ui-effects-change', 'x-utils fixture observes UI effects events');
+  context.assertIncludes(fixture, "tag: 'ui-effects'", 'x-utils fixture exercises RMT ui-effects tag');
+  context.assertIncludes(fixture, 'resolveUiEffects', 'x-utils fixture resolves UI effects');
   context.assertIncludes(fixture, 'XTemplate.card', 'x-utils fixture exercises template recipe');
   context.assertIncludes(fixture, '__xtendComponentResult', 'x-utils fixture records component result contract');
 
@@ -62,6 +73,9 @@ function runXUtilsComponentSuite(options = {}) {
   context.assertIncludes(docs, 'Utility Boundary Contract', 'x-utils docs document boundary contract');
   context.assertIncludes(docs, 'xtend.utility.module-contract.v1', 'x-utils docs document utility contract schema');
   context.assertIncludes(docs, 'xtend.utility.import-policy.v1', 'x-utils docs document import policy schema');
+  context.assertIncludes(docs, 'xtend.utility.ui-effects.v1', 'x-utils docs document UI effects schema');
+  context.assertIncludes(docs, 'xt-ui-effects="fade-in"', 'x-utils docs document body UI effects attribute');
+  context.assertIncludes(docs, '"tag": "ui-effects"', 'x-utils docs document RMT ui-effects tag');
   context.assertIncludes(docs, 'assertLocalImport', 'x-utils docs document import policy helper');
 
   return context.result({

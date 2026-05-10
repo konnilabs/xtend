@@ -525,9 +525,12 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'Status: `completed`', message: 'marks WP-E12-09 completed' },
       { pattern: '`xtend.utility.module-contract.v1`', message: 'documents x-utils utility contract schema' },
       { pattern: '`xtend.utility.import-policy.v1`', message: 'documents x-utils import policy schema' },
+      { pattern: '`xtend.utility.ui-effects.v1`', message: 'documents x-utils UI effects schema' },
       { pattern: '`assertLocalImport(specifier)`', message: 'documents x-utils import policy API' },
       { pattern: '`snapshotUtilityContract()`', message: 'documents x-utils boundary snapshot API' },
+      { pattern: '`resolveUiEffects()`', message: 'documents x-utils UI effects resolver' },
       { pattern: '`xutils:import-policy-check`', message: 'documents x-utils policy event' },
+      { pattern: '`xutils:ui-effects-change`', message: 'documents x-utils UI effects event' },
       { pattern: '`componentSuite` steigt auf `37/37`', message: 'documents complete component-suite coverage' },
       { pattern: '`x-utils` wechselt von `documented` zu `typed-contract-gated`', message: 'documents catalog status transition' },
       { pattern: '`WP-E12-10` ist startbar', message: 'hands off WP-E12-10' }
@@ -4806,6 +4809,9 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: 'x-utils', message: 'documents x-utils utility module' },
       { pattern: 'window.XUtils', message: 'documents browser utility surface' },
       { pattern: 'focusTrap', message: 'documents focus helper' },
+      { pattern: 'xtend.utility.ui-effects.v1', message: 'documents UI effects contract' },
+      { pattern: 'xt-ui-effects="fade-in"', message: 'documents body UI effects control' },
+      { pattern: 'tag": "ui-effects"', message: 'documents RMT UI effects tag' },
       { pattern: 'XTemplate', message: 'documents template recipes' },
       { pattern: 'registriert kein `customElements.define()`', message: 'documents non-custom-element contract' },
       { pattern: 'ER-WP-35', message: 'hands off long-tail follow-up' }
@@ -7740,6 +7746,9 @@ function assertDocsRmtPilotReference(context, rootDir) {
   context.assert(packageManifest.scripts['test:docs-rmt-pilot'] === 'node scripts/run_xtend_tests.js docs-rmt-pilot', 'Package exposes Docs RMT pilot script');
   context.assertIncludes(indexPhp, 'window.xtendDocsRmtPilot', 'Docs host exposes RMT pilot metadata');
   context.assertIncludes(indexPhp, 'window.xtendDocsRmtDocument', 'Docs host exposes embedded RMT document');
+  context.assertIncludes(indexPhp, '<body xt-ui-effects="none">', 'Docs host explicitly disables shell-blocking UI effects');
+  context.assertIncludes(indexPhp, "schema: 'xtend.docs.viewport-overflow.v1'", 'Docs host exposes viewport overflow diagnostics');
+  context.assertIncludes(indexPhp, 'window.xtendDocsCheckViewportOverflow', 'Docs host exposes viewport overflow check API');
   context.assertIncludes(indexPhp, 'window.xtendDocsPagesMeta', 'Docs host exposes page metadata');
   context.assertIncludes(indexPhp, 'src="/xtend-loader.js?v=', 'Docs host uses versioned root-local canonical loader URL');
   context.assertIncludes(indexPhp, 'data-manifest="/components/manifest.json?v=', 'Docs host uses versioned loader-policy compatible manifest URL');
@@ -7747,6 +7756,7 @@ function assertDocsRmtPilotReference(context, rootDir) {
   context.assertIncludes(indexPhp, 'x-link,x-input,x-form,x-header,x-hero,x-router,x-footer', 'Docs host preloads shell components without stale x-tabs preload');
   context.assert(!indexPhp.includes('data-manifest="../components/manifest.json"'), 'Docs host avoids traversal-like manifest URL');
   context.assertIncludes(pageLoader, 'xtend.docs.parsedown-rmt-render.v1', 'Page loader exposes render metadata');
+  context.assertIncludes(pageLoader, '#md-content {\n    min-width: 0;\n    max-width: 100%;', 'Page loader keeps Markdown content viewport-bound');
   context.assertIncludes(pageLoader, 'createRmtDocsShell', 'Page loader renders RMT shell');
   context.assertIncludes(pageLoader, 'renderRmtDomTemplate', 'Page loader renders RMT DOM descriptor templates');
   context.assertIncludes(docs, 'node scripts/run_xtend_tests.js docs-rmt-pilot --json', 'Docs document pilot gate');

@@ -368,7 +368,7 @@ function assertCoreFlowFixtureContract(context, rootDir) {
   context.assert(!fixture.includes('type="importmap"'), 'Core flow fixture no longer needs CDN import map bridging');
   context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'Core flow fixture has no XTend CDN dependency');
   context.assert(fixture.includes('__xtendCoreSmokeResult'), 'Core flow fixture exposes a core smoke result object');
-  context.assert(fixture.includes("recordCheck('loader restored body visibility'"), 'Core flow fixture verifies loader visibility restoration');
+  context.assert(fixture.includes("recordCheck('loader kept body visible by default'"), 'Core flow fixture verifies shell-first visible body default');
   context.assert(fixture.includes("recordCheck('api compliance ready'"), 'Core flow fixture verifies API initialization');
   context.assert(fixture.includes("recordCheck('router rendered detail route'"), 'Core flow fixture verifies router rendering');
   context.assert(fixture.includes("recordCheck('theme state synchronized'"), 'Core flow fixture verifies theme state synchronization');
@@ -383,6 +383,8 @@ function assertCoreFlowFixtureContract(context, rootDir) {
 
   context.assert(loaderSource.includes('loadCoreModules(manifest)'), 'XTend loader invokes core module loading');
   context.assert(loaderSource.includes('preloadManifestComponents(manifest)'), 'XTend loader supports preload-driven browser smokes');
+  context.assert(loaderSource.includes('prepareConfiguredUiEffects'), 'XTend loader supports opt-in UI effects');
+  context.assert(!loaderSource.includes('await waitForWindowLoad()'), 'XTend loader no longer waits for full window load before shell hydration');
   context.assert(loaderSource.includes('data-manifest'), 'XTend loader supports data-manifest overrides');
   context.assert(loaderSource.includes('data-module-cache-bust'), 'XTend loader supports module cache busting for live deployments');
   context.assert(loaderSource.includes("tag === 'xstate'"), 'XTend loader avoids cache-busting xstate to prevent duplicate state module instances');
@@ -699,6 +701,7 @@ function assertEpic13TrustedDomBoundaryFixtureContract(context, rootDir) {
   context.assert(fixture.includes("recordCheck('malicious script did not execute'"), 'Epic 13 Trusted DOM fixture verifies non-execution');
   context.assert(fixture.includes("recordCheck('parsedown inline code entities normalized'"), 'Epic 13 Trusted DOM fixture verifies Parsedown inline code entity normalization');
   context.assert(fixture.includes("recordCheck('sanitizer records code entity normalization'"), 'Epic 13 Trusted DOM fixture verifies sanitizer normalization diagnostics');
+  context.assert(fixture.includes("recordCheck('docs rendered shell avoids horizontal overflow'"), 'Epic 13 Trusted DOM fixture verifies Docs shell horizontal overflow safety');
   context.assert(pageLoader.includes('sanitizeDocsTrustedDomHtml'), 'Docs page loader exposes Trusted DOM sanitizer');
   context.assert(pageLoader.includes('normalizeDocsParsedownCodeEntities'), 'Docs page loader normalizes Parsedown inline code entities');
   context.assert(pageLoader.includes('normalizedCodeEntityCount'), 'Docs page loader exposes code normalization diagnostics');
