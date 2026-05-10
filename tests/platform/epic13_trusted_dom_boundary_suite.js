@@ -308,10 +308,10 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   context.assert(rc1Metadata && rc1Metadata.nextWorkpackage === NEXT_WORKPACKAGE, 'RC1 readiness metadata now hands off to WP-E13-13');
   context.assert(ownerMetadata && ownerMetadata.nextWorkpackage === NEXT_WORKPACKAGE, 'Owner acceptance metadata now hands off to WP-E13-13');
   context.assert(docsRmtMetadata && docsRmtMetadata.nextWorkpackage === NEXT_WORKPACKAGE, 'Docs RMT hardening metadata now hands off to WP-E13-13');
-  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 60, 'Package export lock includes Trusted DOM boundary export');
+  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 78, 'Package export lock includes Trusted DOM boundary export');
   context.assertIncludes(scaffoldConfig, 'epic13TrustedDomBoundary', 'Scaffold config exposes Trusted DOM boundary metadata');
   context.assertIncludes(scaffoldConfig, EPIC13_TRUSTED_DOM_BOUNDARY_SCHEMA, 'Scaffold config declares Trusted DOM boundary schema');
-  context.assertIncludes(scaffoldConfig, 'expectedExportCount: 60', 'Scaffold config updates package export count');
+  context.assertIncludes(scaffoldConfig, 'expectedExportCount: 78', 'Scaffold config updates package export count');
   context.assertIncludes(scaffoldConfig, `nextWorkpackage: "${NEXT_WORKPACKAGE}"`, 'Scaffold config advances Epic 13 handoff to WP-E13-13');
   context.assertIncludes(runner, "id: 'epic13-trusted-dom-boundary'", 'Runner registers Trusted DOM boundary suite');
 

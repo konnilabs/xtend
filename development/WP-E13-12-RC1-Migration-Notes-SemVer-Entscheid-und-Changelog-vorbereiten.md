@@ -31,7 +31,7 @@ Dieses Paket schliesst die offene RC1-Luecke fuer Migration Notes, SemVer-Entsch
 | SemVer-Entscheid `0.0.0-enterprise-readiness` -> `0.1.0-rc.1` dokumentiert | done |
 | Consumer-facing Migration Notes mit Loader, RMT, Trusted DOM, Fabric, Typing, Visual und Supply Chain Sections vorhanden | done |
 | Changelog-Pflichtfelder dokumentiert | done |
-| Package Export Lock von 59 auf 60 erweitert | done |
+| Package Export Lock von 59 auf 60 erweitert; nach Epic-14/RMT-Tooling auf 78 nachgezogen | done |
 | `xtend.epic13Rc1MigrationNotes` in Package- und Scaffold-Metadaten vorhanden | done |
 | Handoff auf `WP-E13-13` gesetzt | done |
 

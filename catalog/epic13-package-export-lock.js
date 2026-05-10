@@ -72,6 +72,24 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './catalog/epic13-docs-rmt-production-hardening',
   './catalog/epic13-trusted-dom-boundary',
   './catalog/epic13-rc1-migration-notes',
+  './catalog/epic14-rmt-tooling',
+  './catalog/epic14-lsp-handoff',
+  './rmt-language/source-model',
+  './rmt-language/parser',
+  './rmt-language/format-adapter',
+  './rmt-language/semantic-graph',
+  './rmt-language/diagnostics',
+  './rmt-language/completions',
+  './rmt-language/hover',
+  './rmt-language/symbols',
+  './rmt-language/definitions',
+  './rmt-language/code-actions',
+  './rmt-language-server',
+  './rmt-language-server/protocol',
+  './rmt-linter/cli',
+  './rmt-linter/reporter',
+  './rmt-language/snippets',
+  './rmt-editor/vscode',
   './builder/preview/component-lab',
   './builder/preview/component-lab-ux-inspector',
   './builder/typing/component-shell-contract',
@@ -110,6 +128,7 @@ const REQUIRED_PACK_ROOTS = Object.freeze([
   'design-tokens',
   'xtendrmt',
   'xtend-builder',
+  'tools',
   'security',
   'docs'
 ]);
@@ -180,9 +199,33 @@ const SURFACE_GROUPS = Object.freeze([
       './catalog/epic13-rmt-production-readiness',
       './catalog/epic13-docs-rmt-production-hardening',
       './catalog/epic13-trusted-dom-boundary',
-      './catalog/epic13-rc1-migration-notes'
+      './catalog/epic13-rc1-migration-notes',
+      './catalog/epic14-rmt-tooling',
+      './catalog/epic14-lsp-handoff'
     ],
     requiredPackRoots: ['catalog']
+  },
+  {
+    id: 'rmt-tooling',
+    requiredExports: [
+      './rmt-language/source-model',
+      './rmt-language/parser',
+      './rmt-language/format-adapter',
+      './rmt-language/semantic-graph',
+      './rmt-language/diagnostics',
+      './rmt-language/completions',
+      './rmt-language/hover',
+      './rmt-language/symbols',
+      './rmt-language/definitions',
+      './rmt-language/code-actions',
+      './rmt-language-server',
+      './rmt-language-server/protocol',
+      './rmt-linter/cli',
+      './rmt-linter/reporter',
+      './rmt-language/snippets',
+      './rmt-editor/vscode'
+    ],
+    requiredPackRoots: ['tools']
   }
 ]);
 
