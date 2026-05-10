@@ -1523,21 +1523,21 @@
       "schema": "xtend.ci.default-gates.v1",
       "workpackage": "ER-WP-36",
       "workflow": ".github/workflows/xtend-default-gates.yml",
-      "nodeVersion": "20.x",
+      "nodeVersion": "26.x",
       "defaultGate": "npm run test:report",
       "reportPath": ".xtend-test-results/xtend-test-report.json",
-      "artifactName": "xtend-test-report-node-20"
+      "artifactName": "xtend-test-report-node-26"
     },
     "ciGateMatrix": {
       "schema": "xtend.ci.gate-matrix.v1",
       "workpackage": "ER-WP-37",
       "workflow": ".github/workflows/xtend-default-gates.yml",
-      "nodeVersion": "20.x",
+      "nodeVersion": "26.x",
       "prFastGate": {
         "schema": "xtend.ci.pr-fast-gate.v1",
         "command": "npm run test:pr:report",
         "reportPath": ".xtend-test-results/xtend-pr-gate-report.json",
-        "artifactName": "xtend-pr-gate-report-node-20",
+        "artifactName": "xtend-pr-gate-report-node-26",
         "suites": [
           "core",
           "architecture",
@@ -1588,7 +1588,7 @@
         "schema": "xtend.ci.full-release-gate.v1",
         "command": "npm run test:release:full:report",
         "reportPath": ".xtend-test-results/xtend-release-gate-report.json",
-        "artifactName": "xtend-release-gate-report-node-20",
+        "artifactName": "xtend-release-gate-report-node-26",
         "suites": [
           "all"
         ]

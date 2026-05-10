@@ -20,7 +20,7 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend bl
 - Manifest-/Dynamic-Import-Policy unter `xtend.security.manifest-import-gate.v1` mit Loader-Refusals und lokalem Gate ergaenzt.
 - Component Catalog Coverage Matrix unter `xtend.catalog.component-coverage-matrix.v1` mit `test:catalog-coverage`, Package-Export und Handoff an Catalog-Folgepakete ergaenzt.
 - Visual-/Browser-Regression-Prioritaetsplan unter `xtend.catalog.component-regression-priority-plan.v1` mit `test:regression-priority`, Package-Export und CI-Handoff ergaenzt.
-- CI Default Gates unter `xtend.ci.default-gates.v1` mit GitHub-Actions-Workflow, Node `20.x`, `npm run test:report` und Artifact `xtend-test-report-node-20` ergaenzt.
+- CI Default Gates unter `xtend.ci.default-gates.v1` mit GitHub-Actions-Workflow, Node `26.x`, `npm run test:report` und Artifact `xtend-test-report-node-26` ergaenzt.
 - CI Gate Matrix unter `xtend.ci.gate-matrix.v1` mit `test:pr`, `test:pr:report`, `test:release:full`, `test:release:full:report`, PR-Fast-Artifact und Full-Release-Artifact ergaenzt.
 - Release Checklist und SemVer Policy unter `xtend.release.checklist-semver-policy.v1` mit `xtend.releaseChecklist`, Candidate Gates, Conditional Network Gates, Breaking-Change-Pflichten, Migration Notes, Artifact-Checklist und Release-Owner-Publish-Boundary ergaenzt.
 - Enterprise Adoption Guide unter `xtend.docs.enterprise-adoption.v1` mit `xtend.enterpriseAdoption`, Loader-, Fabric-, RMT-, Security-, A11y-, Performance-, CI- und Release-Readiness-Pfad ergaenzt.

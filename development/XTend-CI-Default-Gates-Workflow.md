@@ -6,8 +6,8 @@
 - Workflow: `.github/workflows/xtend-default-gates.yml`
 - Primaeres Gate: `npm run test:report`
 - Report: `.xtend-test-results/xtend-test-report.json`
-- Artifact: `xtend-test-report-node-20`
-- Node-Version: `20.x`
+- Artifact: `xtend-test-report-node-26`
+- Node-Version: `26.x`
 
 ## Zweck
 
@@ -23,11 +23,11 @@ Damit bleiben die Enterprise-Gates lokal zuerst entwickelbar und werden trotzdem
 | Provider | GitHub Actions |
 | Workflow | `.github/workflows/xtend-default-gates.yml` |
 | Runner | `ubuntu-latest` |
-| Node | `20.x` |
+| Node | `26.x` |
 | Gate | `npm run test:report` |
 | Report Schema | `xtend.test.report.v1` |
 | Report Path | `.xtend-test-results/xtend-test-report.json` |
-| Artifact | `xtend-test-report-node-20` |
+| Artifact | `xtend-test-report-node-26` |
 | Upload Policy | `if: always()` |
 
 Die erweiterte Gate-Matrix liegt in `development/XTend-CI-Gate-Matrix.md` unter `xtend.ci.gate-matrix.v1`.
@@ -46,9 +46,9 @@ Der Lauf umfasst damit die Default-Suites des lokalen Runners, darunter Core, Ar
 
 | Gate | Contract | Trigger | Command | Artifact |
 |------|----------|---------|---------|----------|
-| `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `xtend-pr-gate-report-node-20` |
-| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `xtend-release-gate-report-node-20` |
-| `nightly` | `xtend.ci.nightly-gate.v1` | `17 3 * * *` | `npm run test:release:full:report` | `xtend-release-gate-report-node-20` |
+| `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `xtend-pr-gate-report-node-26` |
+| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
+| `nightly` | `xtend.ci.nightly-gate.v1` | `17 3 * * *` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
 
 ## Nicht im Scope
 

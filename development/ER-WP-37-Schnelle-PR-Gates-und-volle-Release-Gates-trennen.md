@@ -24,8 +24,8 @@ ER-WP-37 trennt die CI-Verantwortlichkeiten: Pull Requests bekommen ein schnelle
 
 | Gate | Trigger | Command | Artifact |
 |------|---------|---------|----------|
-| `pr-fast` | `pull_request` | `npm run test:pr:report` | `xtend-pr-gate-report-node-20` |
-| `full-release` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `xtend-release-gate-report-node-20` |
+| `pr-fast` | `pull_request` | `npm run test:pr:report` | `xtend-pr-gate-report-node-26` |
+| `full-release` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
 
 Das PR-Gate laesst browsernahe, performancebezogene, telemetrybreite und RMT-Integrations-Suites aus. Das Full-Release-Gate fuehrt die komplette Runner-Suite aus.
 

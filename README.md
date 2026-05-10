@@ -78,7 +78,7 @@ npm run pack:dry-run
 
 `npm publish` ist durch `private: true` absichtlich gesperrt. Die Package-Exports, Supply-Chain-Gates, Release-Gates und Provenance-Defaults sind vorbereitet, damit spaetere Release-Pakete ohne Architektur-Refactor aufsetzen koennen.
 
-Der aktive GitHub-Actions-Workflow `.github/workflows/xtend-default-gates.yml` nutzt Node `20.x` und trennt Pull-Request-Feedback von Full-Release-Gates: `npm run test:pr:report` laedt `xtend-pr-gate-report-node-20`, `npm run test:release:full:report` laedt `xtend-release-gate-report-node-20`.
+Der aktive GitHub-Actions-Workflow `.github/workflows/xtend-default-gates.yml` nutzt Node `26.x` und trennt Pull-Request-Feedback von Full-Release-Gates: `npm run test:pr:report` laedt `xtend-pr-gate-report-node-26`, `npm run test:release:full:report` laedt `xtend-release-gate-report-node-26`.
 
 Release-Kandidaten folgen `xtend.release.checklist-semver-policy.v1`. `package.json` spiegelt die Pflichten unter `xtend.releaseChecklist`; `private: true` bleibt bis zum Release-Owner-Approval bestehen.
 

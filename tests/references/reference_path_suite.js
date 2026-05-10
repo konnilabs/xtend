@@ -774,8 +774,8 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'xtend.docs.enterprise-adoption.v1', message: 'documents Enterprise Adoption guide contract' },
       { pattern: 'xtend.enterpriseAdoption', message: 'documents Enterprise Adoption metadata' },
       { pattern: '.github/workflows/xtend-default-gates.yml', message: 'documents active CI workflow path' },
-      { pattern: 'xtend-pr-gate-report-node-20', message: 'documents PR gate report artifact' },
-      { pattern: 'xtend-release-gate-report-node-20', message: 'documents release gate report artifact' },
+      { pattern: 'xtend-pr-gate-report-node-26', message: 'documents PR gate report artifact' },
+      { pattern: 'xtend-release-gate-report-node-26', message: 'documents release gate report artifact' },
       { pattern: 'npm run dev:local', message: 'documents local dev command' },
       { pattern: 'npm run test:report', message: 'documents CI report gate command' },
       { pattern: 'npm run test:pr', message: 'documents PR fast gate command' },
@@ -863,14 +863,14 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: '"schema": "xtend.catalog.component-regression-priority-plan.v1"', message: 'declares regression priority metadata schema' },
       { pattern: '"schema": "xtend.ci.default-gates.v1"', message: 'declares CI default gates metadata schema' },
       { pattern: '"workflow": ".github/workflows/xtend-default-gates.yml"', message: 'declares CI workflow path metadata' },
-      { pattern: '"artifactName": "xtend-test-report-node-20"', message: 'declares CI report artifact metadata' },
+      { pattern: '"artifactName": "xtend-test-report-node-26"', message: 'declares CI report artifact metadata' },
       { pattern: '"ciGateMatrix"', message: 'declares CI gate matrix metadata' },
       { pattern: '"schema": "xtend.ci.gate-matrix.v1"', message: 'declares CI gate matrix metadata schema' },
       { pattern: '"schema": "xtend.ci.pr-fast-gate.v1"', message: 'declares PR fast gate metadata schema' },
       { pattern: '"schema": "xtend.ci.full-release-gate.v1"', message: 'declares full release gate metadata schema' },
       { pattern: '"schema": "xtend.ci.nightly-gate.v1"', message: 'declares nightly gate metadata schema' },
-      { pattern: '"artifactName": "xtend-pr-gate-report-node-20"', message: 'declares PR gate report artifact metadata' },
-      { pattern: '"artifactName": "xtend-release-gate-report-node-20"', message: 'declares release gate report artifact metadata' },
+      { pattern: '"artifactName": "xtend-pr-gate-report-node-26"', message: 'declares PR gate report artifact metadata' },
+      { pattern: '"artifactName": "xtend-release-gate-report-node-26"', message: 'declares release gate report artifact metadata' },
       { pattern: '"releaseChecklist"', message: 'declares release checklist metadata' },
       { pattern: '"schema": "xtend.release.checklist-semver-policy.v1"', message: 'declares release checklist metadata schema' },
       { pattern: '"policy": "development/XTend-Release-Checklist-und-SemVer-Policy.md"', message: 'declares release checklist policy path' },
@@ -2351,10 +2351,10 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'npm run test:pr:report', message: 'documents PR fast gate command' },
       { pattern: 'npm run test:release:full:report', message: 'documents full release gate command' },
       { pattern: '.xtend-test-results/xtend-test-report.json', message: 'documents JSON report path' },
-      { pattern: 'xtend-test-report-node-20', message: 'documents report artifact name' },
-      { pattern: 'xtend-pr-gate-report-node-20', message: 'documents PR report artifact name' },
-      { pattern: 'xtend-release-gate-report-node-20', message: 'documents release report artifact name' },
-      { pattern: '20.x', message: 'documents Node version' },
+      { pattern: 'xtend-test-report-node-26', message: 'documents report artifact name' },
+      { pattern: 'xtend-pr-gate-report-node-26', message: 'documents PR report artifact name' },
+      { pattern: 'xtend-release-gate-report-node-26', message: 'documents release report artifact name' },
+      { pattern: '26.x', message: 'documents Node version' },
       { pattern: 'ER-WP-38', message: 'documents release policy handoff completion' },
       { pattern: 'Conditional Network Gates', message: 'documents release checklist boundary' }
     ]
@@ -2368,7 +2368,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: '.github/workflows/xtend-default-gates.yml', message: 'links active workflow' },
       { pattern: 'development/XTend-CI-Default-Gates-Workflow.md', message: 'links CI workflow contract' },
       { pattern: 'npm run test:report', message: 'documents CI gate command' },
-      { pattern: 'xtend-test-report-node-20', message: 'documents artifact name' },
+      { pattern: 'xtend-test-report-node-26', message: 'documents artifact name' },
       { pattern: '| `ER-WP-37` | `completed` |', message: 'marks ER-WP-37 completed' },
       { pattern: '| `ER-WP-38` | `completed` |', message: 'marks ER-WP-38 completed' },
       { pattern: '| `ER-WP-39` | `completed` |', message: 'marks ER-WP-39 completed' },
@@ -2385,10 +2385,10 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'xtend.ci.nightly-gate.v1', message: 'declares nightly gate contract' },
       { pattern: 'npm run test:pr:report', message: 'documents PR fast report command' },
       { pattern: '.xtend-test-results/xtend-pr-gate-report.json', message: 'documents PR report path' },
-      { pattern: 'xtend-pr-gate-report-node-20', message: 'documents PR artifact name' },
+      { pattern: 'xtend-pr-gate-report-node-26', message: 'documents PR artifact name' },
       { pattern: 'npm run test:release:full:report', message: 'documents release report command' },
       { pattern: '.xtend-test-results/xtend-release-gate-report.json', message: 'documents release report path' },
-      { pattern: 'xtend-release-gate-report-node-20', message: 'documents release artifact name' },
+      { pattern: 'xtend-release-gate-report-node-26', message: 'documents release artifact name' },
       { pattern: '| `ER-WP-38` | `completed` |', message: 'marks ER-WP-38 completed' },
       { pattern: '| `ER-WP-39` | `completed` |', message: 'marks ER-WP-39 completed' },
       { pattern: '| `ER-WP-40` | `completed` |', message: 'marks ER-WP-40 completed' }
@@ -2405,8 +2405,8 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'package.json', message: 'links package metadata and scripts' },
       { pattern: 'npm run test:pr:report', message: 'documents PR fast gate command' },
       { pattern: 'npm run test:release:full:report', message: 'documents full release gate command' },
-      { pattern: 'xtend-pr-gate-report-node-20', message: 'documents PR artifact name' },
-      { pattern: 'xtend-release-gate-report-node-20', message: 'documents release artifact name' },
+      { pattern: 'xtend-pr-gate-report-node-26', message: 'documents PR artifact name' },
+      { pattern: 'xtend-release-gate-report-node-26', message: 'documents release artifact name' },
       { pattern: '| `ER-WP-38` | `completed` |', message: 'marks ER-WP-38 completed' },
       { pattern: '| `ER-WP-39` | `completed` |', message: 'marks ER-WP-39 completed' },
       { pattern: '| `ER-WP-40` | `completed` |', message: 'marks ER-WP-40 completed' }
@@ -2479,17 +2479,17 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'XTend CI Gates', message: 'declares workflow name' },
       { pattern: 'pr-fast-gates', message: 'declares PR fast gate job' },
       { pattern: 'full-release-gates', message: 'declares full release gate job' },
-      { pattern: 'actions/checkout@v4', message: 'checks out repository' },
-      { pattern: 'actions/setup-node@v4', message: 'sets up Node' },
-      { pattern: 'node-version: 20.x', message: 'pins Node 20.x' },
+      { pattern: 'actions/checkout@v6', message: 'checks out repository' },
+      { pattern: 'actions/setup-node@v6', message: 'sets up Node' },
+      { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
       { pattern: 'npm run test:pr:report', message: 'runs PR fast report gate' },
       { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
       { pattern: "cron: '17 3 * * *'", message: 'declares nightly schedule' },
-      { pattern: 'actions/upload-artifact@v4', message: 'uploads report artifact' },
+      { pattern: 'actions/upload-artifact@v7', message: 'uploads report artifact' },
       { pattern: '.xtend-test-results/xtend-pr-gate-report.json', message: 'uploads PR JSON report path' },
       { pattern: '.xtend-test-results/xtend-release-gate-report.json', message: 'uploads release JSON report path' },
-      { pattern: 'xtend-pr-gate-report-node-20', message: 'uses stable PR artifact name' },
-      { pattern: 'xtend-release-gate-report-node-20', message: 'uses stable release artifact name' }
+      { pattern: 'xtend-pr-gate-report-node-26', message: 'uses stable PR artifact name' },
+      { pattern: 'xtend-release-gate-report-node-26', message: 'uses stable release artifact name' }
     ]
   },
   {
@@ -5512,8 +5512,8 @@ function assertRmtReference(context, rootDir) {
   context.assertIncludes(registry, 'xtend.enterprise.er-wp-40.docs-rmt-parsedown-pilot.v1', 'Reference registry documents ER-WP-40 contract');
   context.assertIncludes(registry, 'xtend.docsRmtPilot', 'Reference registry documents Docs RMT pilot package metadata');
   context.assertIncludes(registry, 'XTend-Test-Reporting-und-CI-Vorbereitung.md', 'Reference registry documents test reporting CI docs');
-  context.assertIncludes(registry, 'xtend-pr-gate-report-node-20', 'Reference registry documents PR gate report artifact');
-  context.assertIncludes(registry, 'xtend-release-gate-report-node-20', 'Reference registry documents release gate report artifact');
+  context.assertIncludes(registry, 'xtend-pr-gate-report-node-26', 'Reference registry documents PR gate report artifact');
+  context.assertIncludes(registry, 'xtend-release-gate-report-node-26', 'Reference registry documents release gate report artifact');
 }
 
 function assertScaffoldConfigReference(context, rootDir) {
@@ -7558,30 +7558,30 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'workflow_dispatch:', 'CI workflow supports manual dispatch');
   context.assertIncludes(workflow, 'pr-fast-gates:', 'CI workflow declares PR fast gate job');
   context.assertIncludes(workflow, 'full-release-gates:', 'CI workflow declares full release gate job');
-  context.assertIncludes(workflow, 'actions/setup-node@v4', 'CI workflow uses setup-node action');
-  context.assertIncludes(workflow, 'node-version: 20.x', 'CI workflow pins Node 20.x');
+  context.assertIncludes(workflow, 'actions/setup-node@v6', 'CI workflow uses setup-node action');
+  context.assertIncludes(workflow, 'node-version: 26.x', 'CI workflow pins Node 26.x');
   context.assertIncludes(workflow, 'npm run test:pr:report', 'CI workflow runs PR report gate');
   context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
-  context.assertIncludes(workflow, 'actions/upload-artifact@v4', 'CI workflow uploads report artifact');
+  context.assertIncludes(workflow, 'actions/upload-artifact@v7', 'CI workflow uploads report artifact');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-pr-gate-report.json', 'CI workflow uploads PR JSON report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-release-gate-report.json', 'CI workflow uploads full release JSON report');
-  context.assertIncludes(workflow, 'xtend-pr-gate-report-node-20', 'CI workflow uses stable PR report artifact name');
-  context.assertIncludes(workflow, 'xtend-release-gate-report-node-20', 'CI workflow uses stable release report artifact name');
+  context.assertIncludes(workflow, 'xtend-pr-gate-report-node-26', 'CI workflow uses stable PR report artifact name');
+  context.assertIncludes(workflow, 'xtend-release-gate-report-node-26', 'CI workflow uses stable release report artifact name');
 
   context.assert(ciMetadata && ciMetadata.schema === 'xtend.ci.default-gates.v1', 'Package metadata exposes CI default gates schema');
   context.assert(ciMetadata.workflow === workflowPath, 'Package metadata exposes CI workflow path');
-  context.assert(ciMetadata.nodeVersion === '20.x', 'Package metadata exposes CI Node version');
+  context.assert(ciMetadata.nodeVersion === '26.x', 'Package metadata exposes CI Node version');
   context.assert(ciMetadata.defaultGate === 'npm run test:report', 'Package metadata exposes CI default gate command');
   context.assert(ciMetadata.reportPath === '.xtend-test-results/xtend-test-report.json', 'Package metadata exposes CI report path');
-  context.assert(ciMetadata.artifactName === 'xtend-test-report-node-20', 'Package metadata exposes CI report artifact name');
+  context.assert(ciMetadata.artifactName === 'xtend-test-report-node-26', 'Package metadata exposes CI report artifact name');
   context.assert(packageManifest.scripts['test:report'] === 'node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.json', 'Package exposes report gate script');
   context.assert(gateMatrix && gateMatrix.schema === 'xtend.ci.gate-matrix.v1', 'Package metadata exposes CI gate matrix schema');
   context.assert(gateMatrix.workflow === workflowPath, 'Package gate matrix exposes CI workflow path');
-  context.assert(gateMatrix.nodeVersion === '20.x', 'Package gate matrix exposes CI Node version');
+  context.assert(gateMatrix.nodeVersion === '26.x', 'Package gate matrix exposes CI Node version');
   context.assert(prFastGate.schema === 'xtend.ci.pr-fast-gate.v1', 'Package metadata exposes PR fast gate schema');
   context.assert(prFastGate.command === 'npm run test:pr:report', 'Package metadata exposes PR fast report command');
   context.assert(prFastGate.reportPath === '.xtend-test-results/xtend-pr-gate-report.json', 'Package metadata exposes PR fast report path');
-  context.assert(prFastGate.artifactName === 'xtend-pr-gate-report-node-20', 'Package metadata exposes PR fast artifact name');
+  context.assert(prFastGate.artifactName === 'xtend-pr-gate-report-node-26', 'Package metadata exposes PR fast artifact name');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('core'), 'PR fast gate includes core suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-contract-v2'), 'PR fast gate includes Component Contract v2 suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-lab-rmt-inspector'), 'PR fast gate includes Component Lab suite');
@@ -7610,7 +7610,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(fullReleaseGate.schema === 'xtend.ci.full-release-gate.v1', 'Package metadata exposes full release gate schema');
   context.assert(fullReleaseGate.command === 'npm run test:release:full:report', 'Package metadata exposes full release report command');
   context.assert(fullReleaseGate.reportPath === '.xtend-test-results/xtend-release-gate-report.json', 'Package metadata exposes full release report path');
-  context.assert(fullReleaseGate.artifactName === 'xtend-release-gate-report-node-20', 'Package metadata exposes full release artifact name');
+  context.assert(fullReleaseGate.artifactName === 'xtend-release-gate-report-node-26', 'Package metadata exposes full release artifact name');
   context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('all'), 'Full release gate runs all suites');
   context.assert(nightlyGate.schema === 'xtend.ci.nightly-gate.v1', 'Package metadata exposes nightly gate schema');
   context.assert(nightlyGate.cron === '17 3 * * *', 'Package metadata exposes nightly cron');

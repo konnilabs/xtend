@@ -1107,7 +1107,7 @@ Empfohlene Sequenz: `ER-WP-31` hat die Component Catalog Coverage Matrix erzeugt
 - Definition of Done:
   - Default-Gates laufen reproduzierbar in CI
 - Ergebnis:
-  - abgeschlossen: GitHub Actions fuehrt `npm run test:report` unter Node `20.x` aus und laedt `.xtend-test-results/xtend-test-report.json` als Artifact `xtend-test-report-node-20` hoch.
+  - abgeschlossen: GitHub Actions fuehrt `npm run test:report` unter Node `26.x` aus und laedt `.xtend-test-results/xtend-test-report.json` als Artifact `xtend-test-report-node-26` hoch.
   - `package.json` fuehrt `xtend.ciDefaultGates` mit `xtend.ci.default-gates.v1`, Workflow-Pfad, Node-Version, Default-Gate, Report-Pfad und Artifact-Name.
   - `ER-WP-37` ist inzwischen abgeschlossen und hat daraus eine Gate-Matrix fuer schnelle PR-Gates, volle Release-Gates und Nightly-Ausfuehrung gemacht.
 
@@ -1130,8 +1130,8 @@ Empfohlene Sequenz: `ER-WP-31` hat die Component Catalog Coverage Matrix erzeugt
   - PR- und Release-Gates haben klare Verantwortlichkeiten
 - Ergebnis:
   - abgeschlossen: `xtend.ci.gate-matrix.v1` trennt `pr-fast`, `full-release` und `nightly`.
-  - Pull Requests fuehren `npm run test:pr:report` aus und laden `.xtend-test-results/xtend-pr-gate-report.json` als Artifact `xtend-pr-gate-report-node-20` hoch.
-  - Push-, manuelle und Nightly-Laeufe fuehren `npm run test:release:full:report` aus und laden `.xtend-test-results/xtend-release-gate-report.json` als Artifact `xtend-release-gate-report-node-20` hoch.
+  - Pull Requests fuehren `npm run test:pr:report` aus und laden `.xtend-test-results/xtend-pr-gate-report.json` als Artifact `xtend-pr-gate-report-node-26` hoch.
+  - Push-, manuelle und Nightly-Laeufe fuehren `npm run test:release:full:report` aus und laden `.xtend-test-results/xtend-release-gate-report.json` als Artifact `xtend-release-gate-report-node-26` hoch.
   - `package.json` fuehrt die Gate-Matrix mit `xtend.ci.pr-fast-gate.v1`, `xtend.ci.full-release-gate.v1` und `xtend.ci.nightly-gate.v1`.
   - `ER-WP-38` hat darauf Release Checklist und SemVer Policy aufgesetzt.
 

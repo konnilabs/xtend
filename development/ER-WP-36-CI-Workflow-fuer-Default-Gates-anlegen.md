@@ -22,11 +22,11 @@ ER-WP-36 produktisiert die lokalen XTend-Default-Gates in CI. Der Workflow fuehr
 
 ## Technische Entscheidungen
 
-- Node-Version im Workflow ist `20.x`.
+- Node-Version im Workflow ist `26.x`.
 - Primaeres CI-Gate ist `npm run test:report`.
 - `npm run test:report` bleibt die reportfaehige Variante von `npm test`, statt die Vollsuite doppelt zu starten.
 - Report-Pfad ist `.xtend-test-results/xtend-test-report.json`.
-- Artifact-Name ist `xtend-test-report-node-20`.
+- Artifact-Name ist `xtend-test-report-node-26`.
 - Artifact Upload laeuft mit `if: always()`, damit Fehlerberichte erhalten bleiben.
 - Netzwerkbasierte Release-/Audit-Gates bleiben nicht Teil des Default-Workflows.
 

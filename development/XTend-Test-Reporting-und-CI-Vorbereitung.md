@@ -182,8 +182,8 @@ node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.j
 
 | Gate | Trigger | Command | Report | Artifact |
 |------|---------|---------|--------|----------|
-| `pr-fast` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-node-20` |
-| `full-release` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-node-20` |
+| `pr-fast` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-node-26` |
+| `full-release` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-node-26` |
 
 `pr-fast` prueft Core, Architecture, Components, A11y, Catalog, Regression Priority, Fabric-Safety, References, Supply-Chain und Manifest-Policy. `full-release` fuehrt die komplette Runner-Suite inklusive Browser-, Performance-, Hydration-, Telemetry- und RMT-Kompatibilitaets-Gates aus.
 

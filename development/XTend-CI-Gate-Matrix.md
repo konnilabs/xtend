@@ -5,7 +5,7 @@
 - Contract: `xtend.ci.gate-matrix.v1`
 - Workpackage: `ER-WP-37`
 - Workflow: `.github/workflows/xtend-default-gates.yml`
-- Node-Version: `20.x`
+- Node-Version: `26.x`
 
 ## Zweck
 
@@ -20,9 +20,9 @@ Die CI-Gate-Matrix trennt schnelles Pull-Request-Feedback von vollstaendigen Rel
 
 | Gate | Contract | Trigger | Command | Report | Artifact |
 |------|----------|---------|---------|--------|----------|
-| `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-node-20` |
-| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-node-20` |
-| `nightly` | `xtend.ci.nightly-gate.v1` | `17 3 * * *` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-node-20` |
+| `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-node-26` |
+| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-node-26` |
+| `nightly` | `xtend.ci.nightly-gate.v1` | `17 3 * * *` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-node-26` |
 
 ## PR Fast Gate
 
