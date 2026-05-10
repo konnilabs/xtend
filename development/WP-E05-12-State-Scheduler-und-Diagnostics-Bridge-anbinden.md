@@ -117,6 +117,19 @@ Die Bridge:
 
 Dadurch koennen Route-Render, Component-Mount/Hydration und Diagnostics ueber dieselbe Policy-Schicht laufen, ohne dass XRouter oder XTend in den Kernel wandern.
 
+## Fabric Telemetry und Backpressure
+
+`recordTelemetrySnapshot(snapshot, options)` und `recordBackpressureSignal(signal, options)` sind die dauerhafte Kopplung fuer Fabric `createTelemetrySnapshot` und XTendRMT Backpressure-Awareness.
+
+Die Bridge:
+
+- konsumiert `xtend.fabric.telemetry-snapshot.v1` und `xtend.fabric.backpressure-signal.v1`
+- spiegelt Snapshots nach `rmt.telemetry.lastSnapshot`
+- spiegelt Backpressure nach `rmt.backpressure.lastSignal`, `rmt.backpressure.profile`, `rmt.backpressure.level` und `rmt.backpressure.action`
+- erzeugt `rmt.bridge.telemetry.snapshot.recorded`
+- erzeugt bei hoher Last `rmt.bridge.backpressure.high` oder `rmt.bridge.backpressure.critical`
+- plant optional `xtendrmt.diagnostics.snapshot` ueber dieselbe Schedule-Policy-Schicht
+
 ## Diagnostics
 
 Die erste Diagnostic-Matrix umfasst:
@@ -127,6 +140,10 @@ Die erste Diagnostic-Matrix umfasst:
 - `rmt.bridge.scheduler.endpoint.queued`
 - `rmt.bridge.diagnostics.emitted`
 - `rmt.bridge.adapter.result.degraded`
+- `rmt.bridge.telemetry.snapshot.recorded`
+- `rmt.bridge.backpressure.signal.recorded`
+- `rmt.bridge.backpressure.high`
+- `rmt.bridge.backpressure.critical`
 
 Diagnostics werden lokal gesammelt, optional an einen Diagnostics Hub publiziert und als `rmt.diagnostics.last` in die State Bridge gespiegelt.
 

@@ -225,6 +225,16 @@ const snapshot = fabric.createTelemetrySnapshot({
 
 `snapshot.componentTelemetry` aggregiert `mount`, `hydrate`, `render`, `update`, `event`, `unmount` und `error` nach Operation, Component und Lane. Component-Fehler, Deadline-Ueberschreitungen und explizite `backpressureSignal` Metadata koennen Backpressure erzeugen. Der Gate ist `node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry --json`.
 
+Hosts koennen Fabric Snapshots direkt an die produktive RMT Bridge uebergeben:
+
+```js
+bridge.recordTelemetrySnapshot(snapshot, {
+  scheduleRef: "diagnostics.snapshot"
+});
+```
+
+Die Bridge spiegelt daraus `rmt.telemetry.lastSnapshot` und `rmt.backpressure.*` und plant bei Bedarf den Diagnostics-Snapshot-Endpunkt.
+
 ## Runtime Registry
 
 ```js

@@ -1022,7 +1022,9 @@
           "xtend.rmt.runtime-registry.v1",
           "xtend.rmt.xrouter-adapter.v1",
           "xtend.rmt.xtend-component-adapter.v1",
-          "xtend.rmt.schedules-domain.v1"
+          "xtend.rmt.schedules-domain.v1",
+          "xtend.fabric.telemetry-snapshot.v1",
+          "xtend.fabric.backpressure-signal.v1"
         ],
         "consumes": [
           "RmtHostAdapterOperationResult",
@@ -1032,13 +1034,17 @@
           "adapter diagnostics",
           "optional xstate target",
           "optional diagnostics hub",
-          "optional performance runtime scheduleEndpoint"
+          "optional performance runtime scheduleEndpoint",
+          "optional Fabric telemetry snapshot",
+          "optional Fabric backpressure signal"
         ],
         "operations": [
           "createStateBridge",
           "scheduleEndpoint",
           "emitDiagnostic",
-          "recordAdapterResult"
+          "recordAdapterResult",
+          "recordTelemetrySnapshot",
+          "recordBackpressureSignal"
         ],
         "stateMirrors": [
           "rmt.bridge.ready",
@@ -1047,7 +1053,10 @@
           "rmt.route.{routeId}.lastResult",
           "rmt.component.{componentId}.lastResult",
           "rmt.scheduler.lastEndpoint",
-          "rmt.diagnostics.last"
+          "rmt.diagnostics.last",
+          "rmt.telemetry.lastSnapshot",
+          "rmt.backpressure.lastSignal",
+          "rmt.backpressure.profile"
         ],
         "schedulerEndpoints": [
           "xtendrmt.route.render",
@@ -1060,7 +1069,9 @@
           "degraded adapter result -> rmt.bridge.adapter.result.degraded",
           "scheduled endpoint -> rmt.bridge.scheduler.endpoint.scheduled",
           "queued endpoint -> rmt.bridge.scheduler.endpoint.queued",
-          "state bridge publish -> rmt.bridge.state.mirrored"
+          "state bridge publish -> rmt.bridge.state.mirrored",
+          "Fabric telemetry snapshot -> rmt.bridge.telemetry.snapshot.recorded",
+          "Fabric high/critical backpressure -> rmt.bridge.backpressure.high/rmt.bridge.backpressure.critical"
         ],
         "performanceBudgetFields": [
           "lane",
@@ -1078,7 +1089,11 @@
           "rmt.bridge.scheduler.endpoint.scheduled",
           "rmt.bridge.scheduler.endpoint.queued",
           "rmt.bridge.diagnostics.emitted",
-          "rmt.bridge.adapter.result.degraded"
+          "rmt.bridge.adapter.result.degraded",
+          "rmt.bridge.telemetry.snapshot.recorded",
+          "rmt.bridge.backpressure.signal.recorded",
+          "rmt.bridge.backpressure.high",
+          "rmt.bridge.backpressure.critical"
         ],
         "artifactSurfaces": [
           "createRmtStateSchedulerDiagnosticsBridge",

@@ -988,25 +988,25 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   assertIncludesAll(
     context,
     stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.inputContracts,
-    [RUNTIME_REGISTRY_SCHEMA, XROUTER_ADAPTER_SCHEMA, XTEND_COMPONENT_ADAPTER_SCHEMA, SCHEDULES_DOMAIN_SCHEMA],
+    [RUNTIME_REGISTRY_SCHEMA, XROUTER_ADAPTER_SCHEMA, XTEND_COMPONENT_ADAPTER_SCHEMA, SCHEDULES_DOMAIN_SCHEMA, 'xtend.fabric.telemetry-snapshot.v1', 'xtend.fabric.backpressure-signal.v1'],
     'RMT schema State/Scheduler/Diagnostics bridge input contracts'
   );
   assertIncludesAll(
     context,
     stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.consumes,
-    ['RmtHostAdapterOperationResult', 'RmtRouteRegistryEntry.scheduleRef', 'RmtComponentRegistryEntry.scheduleRef', 'schedules[*]', 'optional xstate target'],
+    ['RmtHostAdapterOperationResult', 'RmtRouteRegistryEntry.scheduleRef', 'RmtComponentRegistryEntry.scheduleRef', 'schedules[*]', 'optional xstate target', 'optional Fabric telemetry snapshot', 'optional Fabric backpressure signal'],
     'RMT schema State/Scheduler/Diagnostics bridge consumed records'
   );
   assertIncludesAll(
     context,
     stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.operations,
-    ['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult'],
+    ['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal'],
     'RMT schema State/Scheduler/Diagnostics bridge operations'
   );
   assertIncludesAll(
     context,
     stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.stateMirrors,
-    ['rmt.bridge.ready', 'rmt.adapter.lastResult', 'rmt.scheduler.lastEndpoint', 'rmt.diagnostics.last'],
+    ['rmt.bridge.ready', 'rmt.adapter.lastResult', 'rmt.scheduler.lastEndpoint', 'rmt.diagnostics.last', 'rmt.telemetry.lastSnapshot', 'rmt.backpressure.lastSignal', 'rmt.backpressure.profile'],
     'RMT schema State/Scheduler/Diagnostics bridge state mirrors'
   );
   assertIncludesAll(
@@ -1024,7 +1024,7 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   assertIncludesAll(
     context,
     stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.diagnosticCodes,
-    ['rmt.bridge.state.mirrored', 'rmt.bridge.state.unavailable', 'rmt.bridge.scheduler.endpoint.scheduled', 'rmt.bridge.scheduler.endpoint.queued', 'rmt.bridge.diagnostics.emitted', 'rmt.bridge.adapter.result.degraded'],
+    ['rmt.bridge.state.mirrored', 'rmt.bridge.state.unavailable', 'rmt.bridge.scheduler.endpoint.scheduled', 'rmt.bridge.scheduler.endpoint.queued', 'rmt.bridge.diagnostics.emitted', 'rmt.bridge.adapter.result.degraded', 'rmt.bridge.telemetry.snapshot.recorded', 'rmt.bridge.backpressure.signal.recorded', 'rmt.bridge.backpressure.high', 'rmt.bridge.backpressure.critical'],
     'RMT schema State/Scheduler/Diagnostics bridge diagnostic codes'
   );
   assertIncludesAll(
@@ -1874,13 +1874,38 @@ function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
     code: 'rmt.test.bridge.diagnostic',
     message: 'Bridge test diagnostic.'
   }, { source: 'rmt-test' });
+  const telemetryResult = bridge.recordTelemetrySnapshot({
+    schema: 'xtend.fabric.telemetry-snapshot.v1',
+    id: 'fabric.snapshot.route.home',
+    source: 'fabric',
+    correlationId: 'home',
+    metadata: {
+      activeRoute: 'home',
+      token: 'secret'
+    },
+    backpressure: {
+      schema: 'xtend.fabric.backpressure-signal.v1',
+      level: 'high',
+      score: 8,
+      action: 'defer-background-work',
+      lane: 'idle',
+      reason: 'route-pressure',
+      metadata: {
+        authorization: 'secret'
+      }
+    }
+  }, {
+    scheduleRef: 'diagnostics.snapshot',
+    routeRef: 'home',
+    runInline: true
+  });
   const diagnosticCodes = bridge.listDiagnosticCodes();
 
   context.assert(bridge.schema === STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA, 'RMT bridge exposes stable schema');
   context.assert(bridge.id === 'rmt.state-scheduler-diagnostics', 'RMT bridge exposes stable adapter id');
   context.assert(bridge.kind === 'host_adapter', 'RMT bridge is represented as host adapter boundary');
-  assertIncludesAll(context, bridge.runtimeSurface, ['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult'], 'RMT bridge runtime surface');
-  assertIncludesAll(context, bridge.capabilities && bridge.capabilities.providedCapabilities, ['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents'], 'RMT bridge capabilities');
+  assertIncludesAll(context, bridge.runtimeSurface, ['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal'], 'RMT bridge runtime surface');
+  assertIncludesAll(context, bridge.capabilities && bridge.capabilities.providedCapabilities, ['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents', 'telemetrySnapshots', 'backpressureSignals'], 'RMT bridge capabilities');
   context.assert(stateBridgeResult.ok === true && stateBridgeResult.operation === 'createStateBridge', 'RMT bridge creates a state bridge');
   context.assert(xstateValues['rmt.bridge.ready'] && xstateValues['rmt.bridge.ready'].schema === STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA, 'RMT bridge mirrors readiness into xstate');
   context.assert(xstateValues['fixture.ready'] && xstateValues['fixture.ready'].ok === true, 'RMT bridge state handle mirrors custom state');
@@ -1893,11 +1918,19 @@ function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
   context.assert(degradedResult.ok === true && degradedResult.status === 'degraded', 'RMT bridge records degraded adapter result without failing bridge');
   context.assert(xstateValues['rmt.component.pages.home.lastResult'] && xstateValues['rmt.component.pages.home.lastResult'].operation === 'mountComponent', 'RMT bridge mirrors component adapter result');
   context.assert(publishedDiagnostics.some((entry) => entry.code === 'rmt.bridge.adapter.result.degraded'), 'RMT bridge publishes degraded adapter diagnostic');
-  context.assert(diagnosticResult.ok === true && xstateValues['rmt.diagnostics.last'].code === 'rmt.test.bridge.diagnostic', 'RMT bridge emits diagnostics and mirrors last diagnostic');
+  context.assert(diagnosticResult.ok === true && publishedDiagnostics.some((entry) => entry.code === 'rmt.test.bridge.diagnostic'), 'RMT bridge emits diagnostics through diagnostics hub');
+  context.assert(telemetryResult.ok === true && telemetryResult.status === 'degraded', 'RMT bridge records Fabric telemetry snapshots with pressure awareness');
+  context.assert(xstateValues['rmt.telemetry.lastSnapshot'] && xstateValues['rmt.telemetry.lastSnapshot'].id === 'fabric.snapshot.route.home', 'RMT bridge mirrors Fabric telemetry snapshots');
+  context.assert(xstateValues['rmt.telemetry.lastSnapshot'].metadata.token === '[redacted]', 'RMT bridge redacts mirrored telemetry snapshot metadata');
+  context.assert(xstateValues['rmt.backpressure.lastSignal'] && xstateValues['rmt.backpressure.lastSignal'].level === 'high', 'RMT bridge mirrors Fabric backpressure level');
+  context.assert(xstateValues['rmt.backpressure.lastSignal'].metadata.authorization === '[redacted]', 'RMT bridge redacts mirrored backpressure metadata');
+  context.assert(schedulerCalls.some((call) => call.endpointName === 'xtendrmt.diagnostics.snapshot'), 'RMT bridge schedules diagnostics snapshot endpoint for Fabric telemetry');
+  context.assert(publishedDiagnostics.some((entry) => entry.code === 'rmt.bridge.backpressure.high'), 'RMT bridge publishes high backpressure diagnostic');
+  context.assert(publishedDiagnostics.some((entry) => entry.code === 'rmt.bridge.telemetry.snapshot.recorded'), 'RMT bridge publishes telemetry snapshot diagnostic');
   assertIncludesAll(
     context,
     diagnosticCodes,
-    ['rmt.bridge.state.mirrored', 'rmt.bridge.state.unavailable', 'rmt.bridge.scheduler.endpoint.scheduled', 'rmt.bridge.scheduler.endpoint.queued', 'rmt.bridge.diagnostics.emitted', 'rmt.bridge.adapter.result.degraded'],
+    ['rmt.bridge.state.mirrored', 'rmt.bridge.state.unavailable', 'rmt.bridge.scheduler.endpoint.scheduled', 'rmt.bridge.scheduler.endpoint.queued', 'rmt.bridge.diagnostics.emitted', 'rmt.bridge.adapter.result.degraded', 'rmt.bridge.telemetry.snapshot.recorded', 'rmt.bridge.backpressure.signal.recorded', 'rmt.bridge.backpressure.high', 'rmt.bridge.backpressure.critical'],
     'RMT bridge diagnostic code list'
   );
 }

@@ -1594,6 +1594,49 @@
       };
     }
 
+    function recordSnapshotWithRmtBridge(snapshot, snapshotOptions = {}) {
+      const options = asObject(snapshotOptions);
+      const target = options.rmtTelemetryBridge
+        || options.rmtBridge
+        || options.rmt
+        || (options.runtimeBridge && typeof options.runtimeBridge.recordTelemetrySnapshot === 'function' ? options.runtimeBridge : null);
+      if (!target || typeof target.recordTelemetrySnapshot !== 'function' || options.recordRmtTelemetry === false) {
+        return null;
+      }
+      try {
+        return target.recordTelemetrySnapshot(snapshot, {
+          xstate: options.xstate,
+          diagnosticsHub: options.diagnosticsHub,
+          scheduler: options.scheduler,
+          schedule: options.schedule,
+          scheduleRef: options.scheduleRef || 'diagnostics.snapshot',
+          endpointName: options.endpointName || 'xtendrmt.diagnostics.snapshot',
+          scope: options.scope || 'fabric.telemetry.snapshot',
+          routeRef: options.routeRef || snapshot.routeRef || (snapshot.metadata && snapshot.metadata.activeRoute),
+          correlationId: options.correlationId || snapshot.correlationId,
+          source: options.source || snapshot.source || 'fabric',
+          metadata: {
+            bridge: options.bridge,
+            snapshotId: snapshot.id
+          }
+        });
+      } catch (error) {
+        return emitDiagnostic({
+          level: 'warn',
+          code: 'xtend.fabric.rmt.telemetry.failed',
+          message: 'XTend-Fabric could not forward telemetry snapshot to XTendRMT.',
+          source: 'fabric',
+          phase: 'telemetry',
+          lane: 'diagnostics',
+          correlationId: snapshot.correlationId || options.correlationId,
+          metadata: {
+            snapshotId: snapshot.id,
+            error: error && error.message ? error.message : String(error)
+          }
+        });
+      }
+    }
+
     function createTelemetrySnapshot(snapshotOptions = {}) {
       const options = asObject(snapshotOptions);
       const snapshotFibers = Array.isArray(options.fibers) ? options.fibers.slice() : fibers.slice();
@@ -1621,7 +1664,7 @@
         ? runtimeBridge.getSnapshot({ source: 'telemetry-snapshot' })
         : options.runtimeSnapshot;
 
-      return Object.freeze({
+      const snapshot = Object.freeze({
         schema: CONTRACTS.telemetrySnapshot,
         id: clampString(options.id, `${config.idPrefix}.telemetry.${++telemetrySnapshotCounter}`),
         timestamp: options.timestamp || nowIso(config.clock),
@@ -1638,6 +1681,8 @@
         runtime: runtimeSnapshot || null,
         metadata: redactValue(options.metadata || {})
       });
+      recordSnapshotWithRmtBridge(snapshot, options);
+      return snapshot;
     }
 
     function publishTelemetrySnapshot(snapshotOrOptions = {}, publishOptions = {}) {
@@ -1645,6 +1690,9 @@
       const snapshot = snapshotOrOptions && snapshotOrOptions.schema === CONTRACTS.telemetrySnapshot
         ? snapshotOrOptions
         : createTelemetrySnapshot(snapshotOrOptions);
+      if (options.rmtBridge || options.rmtTelemetryBridge || options.rmt) {
+        recordSnapshotWithRmtBridge(snapshot, options);
+      }
       const level = options.level
         || (snapshot.backpressure.level === 'critical' || snapshot.backpressure.level === 'high' ? 'warn' : 'info');
       return emitDiagnostic({

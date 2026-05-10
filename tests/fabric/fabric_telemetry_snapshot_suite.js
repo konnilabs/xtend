@@ -56,6 +56,8 @@ function runFabricTelemetrySnapshotSuite(options = {}) {
   context.assertIncludes(source, 'createTelemetrySnapshot', 'Fabric runtime exposes telemetry snapshot factory');
   context.assertIncludes(source, 'publishTelemetrySnapshot', 'Fabric runtime exposes telemetry snapshot publisher');
   context.assertIncludes(source, 'createBackpressureSignal', 'Fabric runtime exposes backpressure signal factory');
+  context.assertIncludes(source, 'recordSnapshotWithRmtBridge', 'Fabric runtime can forward snapshots into an RMT telemetry bridge');
+  context.assertIncludes(source, 'xtend.fabric.rmt.telemetry.failed', 'Fabric runtime declares RMT telemetry forwarding diagnostic');
   context.assertIncludes(source, 'BACKPRESSURE_SCORE_THRESHOLDS', 'Fabric runtime declares backpressure score thresholds');
   context.assertIncludes(source, 'xtend.fabric.telemetry.snapshot', 'Fabric runtime declares telemetry snapshot diagnostic');
   assert(!source.includes("require('../../xtendrmt") && !source.includes('rmt-runtime.esm'), 'Telemetry snapshots do not import the RMT runtime');
@@ -141,11 +143,21 @@ function runFabricTelemetrySnapshotSuite(options = {}) {
   assert(explicitSignal.schema === CONTRACTS.backpressureSignal, 'Backpressure signal carries stable schema');
   assert(explicitSignal.metadata.token === '[redacted]', 'Backpressure signal metadata is redacted');
 
+  const rmtTelemetryRecords = [];
+  const rmtBridge = {
+    recordTelemetrySnapshot(snapshotRecord, recordOptions) {
+      rmtTelemetryRecords.push({ snapshot: snapshotRecord, options: recordOptions });
+      return { ok: true, status: 'ok' };
+    }
+  };
+
   const snapshot = fabric.createTelemetrySnapshot({
     id: 'telemetry.snapshot.test',
     correlationId: 'route.settings',
     performance: createFakePerformance(),
     runtimeBridge,
+    rmtBridge,
+    scheduleRef: 'diagnostics.snapshot',
     backpressureSignals: [explicitSignal],
     metadata: {
       token: 'secret',
@@ -177,6 +189,10 @@ function runFabricTelemetrySnapshotSuite(options = {}) {
   assert(snapshot.performance.phaseSummary.route.measurementCount >= 1, 'Telemetry snapshot summarizes route performance phase');
   assert(snapshot.performance.phaseSummary.hydrate.measurementCount >= 1, 'Telemetry snapshot summarizes hydration performance phase');
   assert(snapshot.runtime && snapshot.runtime.schema === CONTRACTS.runtimeDiagnosticsBridge, 'Telemetry snapshot includes runtime bridge snapshot');
+  assert(rmtTelemetryRecords.length === 1, 'Telemetry snapshot forwards into an injected RMT telemetry bridge');
+  assert(rmtTelemetryRecords[0].snapshot.id === 'telemetry.snapshot.test', 'RMT telemetry bridge receives the Fabric snapshot');
+  assert(rmtTelemetryRecords[0].options.scheduleRef === 'diagnostics.snapshot', 'RMT telemetry bridge receives the diagnostics schedule ref');
+  assert(rmtTelemetryRecords[0].options.endpointName === 'xtendrmt.diagnostics.snapshot', 'RMT telemetry bridge receives the diagnostics endpoint hint');
 
   const diagnostic = fabric.publishTelemetrySnapshot(snapshot);
   assert(diagnostic.code === 'xtend.fabric.telemetry.snapshot', 'Telemetry snapshot publisher emits stable diagnostic');

@@ -100,6 +100,7 @@ function runDocsRmtPilotSuite(options = {}) {
   const pilot = readJson(PILOT_DOCUMENT_PATH, rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const fabricRuntime = readText('docs/utils/fabric-runtime.js', rootDir);
   const xcodeSource = readText('components/xcode.js', rootDir);
   const xtendCss = readText('xtend.css', rootDir);
   const parsedownAdapter = readText('docs/utils/parsedown.php', rootDir);
@@ -116,6 +117,8 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(pilot.manifest.metadata.shellTemplate === SHELL_TEMPLATE_ID, 'Docs RMT pilot declares the app shell template');
   context.assert(pilot.manifest.metadata.searchTemplate === SEARCH_TEMPLATE_ID, 'Docs RMT pilot declares the header search template');
   context.assert(pilot.manifest.metadata.kernelBoundary.includes('RMT only sees shell records'), 'Docs RMT pilot keeps Parsedown outside the RMT kernel');
+  context.assert(pilot.manifest.metadata.fabricRuntime && pilot.manifest.metadata.fabricRuntime.rmtTelemetryBridge === 'xtend.rmt.state-scheduler-diagnostics-bridge.v1', 'Docs RMT pilot declares the Fabric-to-RMT telemetry bridge');
+  context.assert(pilot.manifest.metadata.fabricRuntime && pilot.manifest.metadata.fabricRuntime.backpressureSignal === 'xtend.fabric.backpressure-signal.v1', 'Docs RMT pilot declares Fabric backpressure signal consumption');
 
   const adapters = indexById(pilot.adapters);
   const schedules = indexById(pilot.schedules);
@@ -191,6 +194,8 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('window.xtendDocsHighlightPrism'), 'Docs app exposes scoped syntax highlighting scheduler');
   context.assert(indexPhp.includes('Prism.highlightAllUnder(scope)'), 'Docs app highlights only the active content scope');
   context.assert(indexPhp.includes('window.xtendDocsRmtDocument'), 'Docs app exposes the RMT shell document');
+  context.assert(indexPhp.includes('window.xtendDocsRmtRuntimeModule'), 'Docs app exposes the XTendRMT runtime module for the Fabric telemetry bridge');
+  context.assert(indexPhp.includes("rmtTelemetryBridge: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1'"), 'Docs app declares the persistent RMT telemetry bridge contract');
   context.assert(indexPhp.includes('window.xtendDocsPagesMeta'), 'Docs app exposes per-page RMT metadata');
   context.assert(indexPhp.includes('docsMergeRmtRoutes'), 'Docs app merges generated page routes into the exposed RMT document');
   context.assert(indexPhp.includes('docsRenderXRoute'), 'Docs app renders XRouter routes from RMT page route records');
@@ -245,6 +250,10 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(parsedownAdapter.includes("$html[] = '<hr>';"), 'Docs Parsedown adapter emits semantic hr elements for Markdown rules');
   context.assert(indexPhp.includes(TRUST_BOUNDARY), 'Docs app exposes Trusted DOM boundary');
   context.assert(pageLoader.includes(DOCS_RMT_RENDER_SCHEMA), 'Docs page loader emits RMT render metadata');
+  context.assert(fabricRuntime.includes('createRmtStateSchedulerDiagnosticsBridge'), 'Docs Fabric runtime lazy-loads the productive XTendRMT bridge');
+  context.assert(fabricRuntime.includes('recordTelemetrySnapshot'), 'Docs Fabric runtime records Fabric snapshots into XTendRMT');
+  context.assert(fabricRuntime.includes('recordBackpressureSignal'), 'Docs Fabric runtime exposes XTendRMT backpressure awareness');
+  context.assert(fabricRuntime.includes('rmtBridge.recordTelemetrySnapshot'), 'Docs Fabric runtime relies on the framework RMT telemetry bridge instead of local patching');
   context.assert(pageLoader.includes('createRmtDocsShell'), 'Docs page loader renders the RMT app shell');
   context.assert(pageLoader.includes('renderDocsRelatedSidebar'), 'Docs page loader moves read-further links into the RMT sidebar');
   context.assert(pageLoader.includes('isDocsTrustedDomUrlAllowed(href)'), 'Docs page loader preserves routable and safe related links in the sidebar');

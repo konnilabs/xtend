@@ -112,6 +112,11 @@ bridge.recordAdapterResult(routeResult, {
   scheduleRef: 'route.visible.render'
 });
 
+bridge.recordTelemetrySnapshot(fabricSnapshot, {
+  scheduleRef: 'diagnostics.snapshot',
+  runInline: true
+});
+
 bridge.scheduleEndpoint(
   'xtendrmt.component.hydrate',
   'app.component.hydrate',
@@ -123,6 +128,9 @@ bridge.scheduleEndpoint(
 Die Bridge schreibt u.a.:
 
 - `rmt.bridge.ready`
+- `rmt.telemetry.lastSnapshot`
+- `rmt.backpressure.lastSignal`
+- `rmt.backpressure.profile`
 - `rmt.scheduler.lastEndpoint`
 - `rmt.adapter.lastResult`
 - `rmt.diagnostics.last`

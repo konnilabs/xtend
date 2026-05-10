@@ -1749,6 +1749,11 @@
       "searchTemplate": "docs.header.search",
       "adapter": "docs.parsedown",
       "component": "docs.page",
+      "fabricRuntime": {
+        "telemetrySnapshot": "xtend.fabric.telemetry-snapshot.v1",
+        "backpressureSignal": "xtend.fabric.backpressure-signal.v1",
+        "rmtTelemetryBridge": "xtend.rmt.state-scheduler-diagnostics-bridge.v1"
+      },
       "status": "pilot-active",
       "boundaries": [
         "Parsedown remains the parser host",

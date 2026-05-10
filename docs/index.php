@@ -1199,6 +1199,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
       logo: '<?= $docsLogoUrl ?>',
       lightboxLogo: '<?= $docsLightboxLogoUrl ?>'
     };
+    window.xtendDocsRmtRuntimeModule = '/xtendrmt/rmt-runtime.esm.js?v=<?= $xtendAssetVersionAttr ?>';
     window.xtendDocsRmtDocument = <?php echo $rmtPilotDocumentJson; ?>;
     window.xtendDocsRmtPilot = {
       schema: 'xtend.docs.parsedown-rmt-pilot.v1',
@@ -1226,9 +1227,11 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
       fabricRuntime: {
         schema: 'xtend.docs.fabric-runtime.v1',
         runtime: 'docs/utils/fabric-runtime.js',
+        rmtBridgeModule: '/xtendrmt/rmt-runtime.esm.js?v=<?= $xtendAssetVersionAttr ?>',
         api: 'xtend.fabric.api.v1',
         bridge: 'xtend.fabric.runtime-diagnostics-bridge.v1',
         telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
+        rmtTelemetryBridge: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1',
         diagnosticsSchedule: 'docs.diagnostics.snapshot',
         snapshotStateKey: 'xtend.docs.fabric.snapshot'
       },
@@ -1258,7 +1261,9 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
       fabricRuntime: {
         schema: 'xtend.docs.fabric-runtime.v1',
         runtime: 'docs/utils/fabric-runtime.js',
+        rmtBridgeModule: '/xtendrmt/rmt-runtime.esm.js?v=<?= $xtendAssetVersionAttr ?>',
         telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
+        rmtTelemetryBridge: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1',
         bridge: 'xtend.fabric.runtime-diagnostics-bridge.v1'
       },
       trustBoundary: 'xtend.security.sanitizing-boundary.v1',

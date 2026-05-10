@@ -17,6 +17,9 @@
     ready: false,
     fabric: null,
     bridge: null,
+    rmtBridge: null,
+    rmtStateBridge: null,
+    rmtBridgeStatus: 'idle',
     rmtDiagnosticsHub: null,
     routeFibers: null,
     pageFibers: null,
@@ -66,6 +69,12 @@
     return schedules.find((schedule) => schedule && schedule.id === scheduleId) || null;
   }
 
+  function getRmtRuntimeModuleUrl() {
+    return globalTarget.xtendDocsRmtRuntimeModule
+      || (globalTarget.xtendDocsRmtPilot && globalTarget.xtendDocsRmtPilot.fabricRuntime && globalTarget.xtendDocsRmtPilot.fabricRuntime.rmtBridgeModule)
+      || '/xtendrmt/rmt-runtime.esm.js';
+  }
+
   function scheduleMetadata(scheduleId) {
     const schedule = getRmtSchedule(scheduleId);
     return schedule ? {
@@ -106,6 +115,14 @@
     if (!state.fabric || typeof state.fabric.createTelemetrySnapshot !== 'function') return null;
     const snapshot = state.fabric.createTelemetrySnapshot({
       runtimeBridge: state.bridge,
+      rmtBridge: state.rmtBridge,
+      xstate: globalTarget.xstate,
+      diagnosticsHub: state.rmtDiagnosticsHub,
+      scheduleRef: metadata.scheduleRef || 'docs.diagnostics.snapshot',
+      endpointName: 'xtendrmt.diagnostics.snapshot',
+      scope: 'docs.fabric.telemetry',
+      routeRef: metadata.routeRef || state.lastRoute || 'docs-spa',
+      runInline: true,
       performance: globalTarget.performance,
       source: 'docs-spa',
       correlationId: metadata.routeRef || state.lastRoute || 'docs-spa',
@@ -429,12 +446,17 @@
       get bridge() {
         return state.bridge;
       },
+      get rmtBridge() {
+        return state.rmtBridge;
+      },
       status() {
         return {
           schema: DOCS_FABRIC_RUNTIME_SCHEMA,
           status: state.status,
           ready: state.ready,
           initializedAt: state.initializedAt,
+          rmtBridgeStatus: state.rmtBridgeStatus,
+          rmtBridgeReady: !!state.rmtBridge,
           connections: { ...state.connections },
           fiberCount: state.fabric && typeof state.fabric.getFibers === 'function' ? state.fabric.getFibers().length : 0,
           diagnosticCount: state.fabric && typeof state.fabric.getDiagnostics === 'function' ? state.fabric.getDiagnostics().length : 0,
@@ -462,6 +484,89 @@
         return emitFabricDiagnostic(code, message, metadata, level);
       }
     };
+  }
+
+  function connectRmtBridge(factory, source = 'module') {
+    if (!factory || typeof factory !== 'function' || state.rmtBridge) return false;
+    const documentRecord = getRmtDocument();
+    try {
+      state.rmtBridge = factory({
+        xstate: globalTarget.xstate,
+        diagnosticsHub: state.rmtDiagnosticsHub,
+        schedules: Array.isArray(documentRecord.schedules) ? documentRecord.schedules : [],
+        document: documentRecord
+      });
+    } catch (error) {
+      state.rmtBridgeStatus = 'failed';
+      emitFabricDiagnostic('xtend.docs.rmt.bridge.failed', 'Docs-SPA could not initialize XTendRMT telemetry bridge.', {
+        phase: 'bootstrap',
+        source,
+        error: error && error.message ? error.message : String(error)
+      }, 'warn');
+      return false;
+    }
+    if (!state.rmtBridge) return false;
+    if (typeof state.rmtBridge.createStateBridge === 'function') {
+      const stateBridgeResult = state.rmtBridge.createStateBridge({ xstate: globalTarget.xstate });
+      state.rmtStateBridge = stateBridgeResult && stateBridgeResult.handle ? stateBridgeResult.handle : null;
+    }
+    state.rmtBridgeStatus = 'ready';
+    globalTarget.xtendDocsRmtBridge = state.rmtBridge;
+    stateSet('xtend.docs.rmt.bridge.ready', {
+      schema: 'xtend.docs.rmt-bridge.v1',
+      source,
+      telemetrySnapshot: typeof state.rmtBridge.recordTelemetrySnapshot === 'function',
+      backpressureSignal: typeof state.rmtBridge.recordBackpressureSignal === 'function'
+    });
+    emitFabricDiagnostic('xtend.docs.rmt.bridge.ready', 'Docs-SPA connected XTendRMT telemetry bridge.', {
+      phase: 'bootstrap',
+      source,
+      scheduleRef: 'docs.diagnostics.snapshot'
+    });
+    if (state.lastSnapshot && typeof state.rmtBridge.recordTelemetrySnapshot === 'function') {
+      state.rmtBridge.recordTelemetrySnapshot(state.lastSnapshot, {
+        xstate: globalTarget.xstate,
+        diagnosticsHub: state.rmtDiagnosticsHub,
+        scheduleRef: 'docs.diagnostics.snapshot',
+        endpointName: 'xtendrmt.diagnostics.snapshot',
+        scope: 'docs.fabric.telemetry',
+        routeRef: state.lastRoute || 'docs-spa',
+        correlationId: state.lastSnapshot.correlationId || state.lastRoute || 'docs-spa',
+        source: 'docs-spa',
+        runInline: true
+      });
+    }
+    return true;
+  }
+
+  function initializeRmtBridge() {
+    if (state.rmtBridge || state.rmtBridgeStatus === 'loading') return;
+    const globalFactory = globalTarget.XTendRMT && globalTarget.XTendRMT.createRmtStateSchedulerDiagnosticsBridge;
+    if (connectRmtBridge(globalFactory, 'global')) return;
+    state.rmtBridgeStatus = 'loading';
+    import(getRmtRuntimeModuleUrl())
+      .then((module) => {
+        state.rmtBridgeStatus = 'loaded';
+        if (!connectRmtBridge(module && module.createRmtStateSchedulerDiagnosticsBridge, 'module')) {
+          state.rmtBridgeStatus = 'unavailable';
+        }
+      })
+      .catch((error) => {
+        state.rmtBridgeStatus = 'failed';
+        emitFabricDiagnostic('xtend.docs.rmt.bridge.failed', 'Docs-SPA could not load XTendRMT telemetry bridge.', {
+          phase: 'bootstrap',
+          error: error && error.message ? error.message : String(error)
+        }, 'warn');
+      });
+  }
+
+  function scheduleRmtBridgeInitialization() {
+    const run = () => initializeRmtBridge();
+    if (typeof globalTarget.requestIdleCallback === 'function') {
+      globalTarget.requestIdleCallback(run, { timeout: 1500 });
+      return;
+    }
+    globalTarget.setTimeout(run, 0);
   }
 
   function initializeFabricRuntime() {
@@ -523,6 +628,7 @@
     globalTarget.document.documentElement.setAttribute('data-xtend-docs-fabric', 'ready');
     bindRuntimeEvents();
     scheduleBridgeConnections();
+    scheduleRmtBridgeInitialization();
     emitFabricDiagnostic('xtend.docs.fabric.ready', 'Docs-SPA Fabric runtime initialized.', {
       phase: 'bootstrap',
       runtime: DOCS_FABRIC_RUNTIME_SCHEMA,

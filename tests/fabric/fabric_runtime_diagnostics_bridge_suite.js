@@ -76,6 +76,8 @@ function runFabricRuntimeDiagnosticsBridgeSuite(options = {}) {
   context.assertIncludes(apiSource, 'xtend.compliance.contracts', 'API mirrors compliance contracts into xstate');
   context.assertIncludes(rmtSource, 'createRmtStateSchedulerDiagnosticsBridge', 'RMT runtime exposes state/scheduler/diagnostics bridge factory');
   context.assertIncludes(rmtSource, 'diagnosticsHub', 'RMT bridge supports diagnosticsHub injection');
+  context.assertIncludes(rmtSource, 'recordTelemetrySnapshot', 'RMT bridge exposes Fabric telemetry snapshot ingestion');
+  context.assertIncludes(rmtSource, 'recordBackpressureSignal', 'RMT bridge exposes Fabric backpressure signal ingestion');
 
   assert(CONTRACTS.runtimeDiagnosticsBridge === 'xtend.fabric.runtime-diagnostics-bridge.v1', 'Fabric exports runtime diagnostics bridge contract');
 

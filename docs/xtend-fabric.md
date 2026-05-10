@@ -320,6 +320,7 @@ Ab `ER-WP-16` fasst `createTelemetrySnapshot(options)` lokale Runtime-Daten zusa
 ```js
 const snapshot = fabric.createTelemetrySnapshot({
   runtimeBridge,
+  rmtBridge,
   performance: window.performance,
   correlationId: 'route.settings'
 });
@@ -341,6 +342,8 @@ Ein Snapshot traegt `xtend.fabric.telemetry-snapshot.v1` und enthaelt:
 Component Lifecycle Telemetry traegt `xtend.component.lifecycle-telemetry.v1`. `recordComponentTelemetry(record)` speichert Records lokal; `createTelemetrySnapshot({ componentTelemetry })` kann alternativ explizite Records normalisieren. Beide Pfade decken `mount`, `hydrate`, `render`, `update`, `event`, `unmount` und `error` ab. Die Snapshot-Sektion `componentTelemetry` enthaelt `recordCount`, `operations`, `components`, `lanes`, `statusCounts`, Dauerwerte, Diagnostics und die letzten Records.
 
 Backpressure-Signale tragen `xtend.fabric.backpressure-signal.v1`. Fabric erzeugt sie aus Fiber-Fehlern, Deadline-Ueberschreitungen, expliziter `backpressureSignal` Metadata, Component Lifecycle Telemetry und optionalen Snapshot-Inputs.
+
+Wenn `createTelemetrySnapshot({ rmtBridge })` eine XTendRMT `createRmtStateSchedulerDiagnosticsBridge` erhaelt, wird der Snapshot automatisch ueber `recordTelemetrySnapshot` an RMT gespiegelt. Dadurch landen `snapshot.backpressure` und die Scheduler-Aktion dauerhaft in `rmt.backpressure.*`, ohne dass Hosts eine eigene Backpressure-API bauen muessen.
 
 | Level | Aktion |
 |-------|--------|

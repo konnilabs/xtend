@@ -241,6 +241,8 @@ export type RmtHostAdapterOperation =
     | 'undockSurface'
     | 'snapshotSurfaces'
     | 'recordAdapterResult'
+    | 'recordTelemetrySnapshot'
+    | 'recordBackpressureSignal'
     | 'emitDiagnostic'
     | 'disposeAdapter'
     | string;
@@ -843,6 +845,10 @@ export type RmtStateSchedulerDiagnosticsBridgeDiagnosticCode =
     | 'rmt.bridge.scheduler.endpoint.queued'
     | 'rmt.bridge.diagnostics.emitted'
     | 'rmt.bridge.adapter.result.degraded'
+    | 'rmt.bridge.telemetry.snapshot.recorded'
+    | 'rmt.bridge.backpressure.signal.recorded'
+    | 'rmt.bridge.backpressure.high'
+    | 'rmt.bridge.backpressure.critical'
     | string;
 
 export interface RmtBridgeSchedulePolicy {
@@ -887,6 +893,8 @@ export interface RmtStateSchedulerDiagnosticsBridge {
     scheduleEndpoint(endpointName: string, scope: string, callback?: (jobContext: Record<string, unknown>) => unknown, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult<RmtBridgeScheduledEndpoint>;
     emitDiagnostic(event: RmtHostAdapterDiagnosticEvent | Record<string, unknown>, payload?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     recordAdapterResult(result: RmtHostAdapterOperationResult | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    recordTelemetrySnapshot(snapshot: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult<Record<string, unknown>>;
+    recordBackpressureSignal(signal: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult<Record<string, unknown>>;
     resolveSchedulePolicy(scheduleRef: string | RmtScheduleDomainRecord | Record<string, unknown>, options?: Record<string, unknown>): RmtBridgeSchedulePolicy;
     listScheduledEndpoints(): RmtBridgeScheduledEndpoint[];
     listDiagnostics(): RmtHostAdapterDiagnosticEvent[];

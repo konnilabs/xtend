@@ -9161,7 +9161,11 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         'rmt.bridge.scheduler.endpoint.scheduled',
         'rmt.bridge.scheduler.endpoint.queued',
         'rmt.bridge.diagnostics.emitted',
-        'rmt.bridge.adapter.result.degraded'
+        'rmt.bridge.adapter.result.degraded',
+        'rmt.bridge.telemetry.snapshot.recorded',
+        'rmt.bridge.backpressure.signal.recorded',
+        'rmt.bridge.backpressure.high',
+        'rmt.bridge.backpressure.critical'
     ]);
     const RUNTIME_REGISTRY_LIFECYCLE_EVENTS = Object.freeze([
         'create',
@@ -11489,6 +11493,80 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         );
     }
 
+    function redactBridgeTelemetryValue(value) {
+        const sensitiveKeyPattern = /(?:authorization|cookie|credential|form|header|password|secret|token)/i;
+        if (Array.isArray(value)) {
+            return value.map((entry) => redactBridgeTelemetryValue(entry));
+        }
+        if (value && typeof value === 'object') {
+            const output = {};
+            Object.keys(value).forEach((key) => {
+                output[key] = sensitiveKeyPattern.test(key)
+                    ? '[redacted]'
+                    : redactBridgeTelemetryValue(value[key]);
+            });
+            return output;
+        }
+        return value;
+    }
+
+    function cloneBridgeTelemetry(value, fallbackValue = null) {
+        return redactBridgeTelemetryValue(cloneSerializable(value, fallbackValue));
+    }
+
+    function isPressureLevel(value) {
+        const level = clampString(value, 'none');
+        return level === 'high' || level === 'critical';
+    }
+
+    function diagnosticCodeForBackpressureLevel(level) {
+        if (level === 'critical') return 'rmt.bridge.backpressure.critical';
+        if (level === 'high') return 'rmt.bridge.backpressure.high';
+        return 'rmt.bridge.backpressure.signal.recorded';
+    }
+
+    function diagnosticLevelForBackpressureLevel(level) {
+        if (level === 'critical') return 'error';
+        if (level === 'high') return 'warn';
+        return 'info';
+    }
+
+    function normalizeBridgeBackpressureSignal(signalInput = {}, defaultsInput = {}) {
+        const signal = toPlainObject(signalInput);
+        const defaults = toPlainObject(defaultsInput);
+        const level = clampString(signal.level, defaults.level || 'none');
+        const score = Number.isFinite(Number(signal.score))
+            ? Number(signal.score)
+            : (Number.isFinite(Number(defaults.score)) ? Number(defaults.score) : 0);
+        const action = clampString(signal.action, defaults.action || (
+            level === 'critical' ? 'protect-user-blocking-work'
+                : level === 'high' ? 'defer-background-work'
+                    : level === 'medium' ? 'coalesce-idle-work'
+                        : level === 'low' ? 'observe'
+                            : 'continue'
+        ));
+        return Object.freeze({
+            schema: clampString(signal.schema, defaults.schema || 'xtend.fabric.backpressure-signal.v1'),
+            id: clampString(signal.id, defaults.id || ''),
+            timestamp: signal.timestamp || defaults.timestamp,
+            level,
+            score,
+            action,
+            lane: clampString(signal.lane, defaults.lane || 'diagnostics'),
+            source: clampString(signal.source, defaults.source || 'fabric'),
+            reason: clampString(signal.reason, defaults.reason || 'telemetry-snapshot'),
+            componentRef: signal.componentRef || defaults.componentRef,
+            routeRef: signal.routeRef || defaults.routeRef,
+            scheduleRef: signal.scheduleRef || defaults.scheduleRef,
+            fiberId: signal.fiberId || defaults.fiberId,
+            correlationId: signal.correlationId || defaults.correlationId,
+            signalCount: Number.isFinite(Number(signal.signalCount)) ? Number(signal.signalCount) : undefined,
+            signals: Array.isArray(signal.signals) ? cloneBridgeTelemetry(signal.signals, []) : undefined,
+            byLane: cloneBridgeTelemetry(signal.byLane, undefined),
+            metadata: cloneBridgeTelemetry(signal.metadata || defaults.metadata || {}, {})
+        });
+    }
+
     function collectBridgeSchedules(deps = {}, options = {}) {
         const values = [];
         [options.schedules, deps.schedules, options.document && options.document.schedules, deps.document && deps.document.schedules]
@@ -11824,24 +11902,181 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             });
         }
 
+        function recordBackpressureSignal(signal = {}, options = {}) {
+            const safeSignal = normalizeBridgeBackpressureSignal(signal, {
+                source: options.source || 'fabric',
+                routeRef: options.routeRef,
+                scheduleRef: options.scheduleRef,
+                correlationId: options.correlationId,
+                metadata: options.metadata
+            });
+            writeState('rmt.backpressure.lastSignal', safeSignal, options);
+            writeState('rmt.backpressure.profile', safeSignal, options);
+            writeState('rmt.backpressure.level', safeSignal.level, options);
+            writeState('rmt.backpressure.action', safeSignal.action, options);
+            if (safeSignal.routeRef) {
+                writeState(`rmt.route.${safeSignal.routeRef}.backpressure`, safeSignal, options);
+            }
+            if (safeSignal.componentRef) {
+                writeState(`rmt.component.${safeSignal.componentRef}.backpressure`, safeSignal, options);
+            }
+
+            const diagnostic = emitDiagnostic({
+                code: diagnosticCodeForBackpressureLevel(safeSignal.level),
+                message: isPressureLevel(safeSignal.level)
+                    ? `RMT bridge observed ${safeSignal.level} Fabric backpressure.`
+                    : 'RMT bridge recorded Fabric backpressure signal.',
+                operation: 'recordBackpressureSignal',
+                phase: 'diagnose',
+                level: diagnosticLevelForBackpressureLevel(safeSignal.level),
+                metadata: {
+                    backpressure: safeSignal,
+                    backpressureLevel: safeSignal.level,
+                    backpressureScore: safeSignal.score,
+                    backpressureAction: safeSignal.action,
+                    routeRef: safeSignal.routeRef,
+                    scheduleRef: safeSignal.scheduleRef,
+                    correlationId: safeSignal.correlationId
+                }
+            }, {}, options);
+
+            return createStateSchedulerDiagnosticsBridgeResult({
+                ok: true,
+                status: isPressureLevel(safeSignal.level) ? 'degraded' : 'ok',
+                adapterId,
+                operation: 'recordBackpressureSignal',
+                phase: 'diagnose',
+                handle: { backpressureSignal: safeSignal },
+                diagnostics: diagnostic.diagnostics,
+                metadata: {
+                    backpressureLevel: safeSignal.level,
+                    backpressureScore: safeSignal.score,
+                    backpressureAction: safeSignal.action,
+                    routeRef: safeSignal.routeRef,
+                    scheduleRef: safeSignal.scheduleRef
+                }
+            });
+        }
+
+        function recordTelemetrySnapshot(snapshot = {}, options = {}) {
+            const safeSnapshot = cloneBridgeTelemetry(snapshot, {});
+            const snapshotMetadata = toPlainObject(safeSnapshot.metadata);
+            const backpressure = toPlainObject(safeSnapshot.backpressure);
+            const snapshotId = clampString(safeSnapshot.id, '');
+            const routeRef = clampString(
+                options.routeRef || safeSnapshot.routeRef || snapshotMetadata.routeRef || snapshotMetadata.activeRoute,
+                ''
+            );
+            const scheduleRef = normalizeScheduleReference(
+                options.schedule || options.scheduleRef || backpressure.scheduleRef || snapshotMetadata.scheduleRef || 'diagnostics.snapshot'
+            );
+            const correlationId = options.correlationId || safeSnapshot.correlationId || backpressure.correlationId || routeRef || '';
+
+            writeState('rmt.telemetry.lastSnapshot', safeSnapshot, options);
+            if (snapshotId) writeState('rmt.telemetry.lastSnapshotId', snapshotId, options);
+            if (routeRef) writeState(`rmt.route.${routeRef}.telemetrySnapshot`, safeSnapshot, options);
+
+            const backpressureResult = Object.keys(backpressure).length > 0
+                ? recordBackpressureSignal(backpressure, {
+                    ...options,
+                    source: backpressure.source || 'fabric-snapshot',
+                    routeRef,
+                    scheduleRef,
+                    correlationId,
+                    metadata: {
+                        snapshotId,
+                        snapshotSource: safeSnapshot.source
+                    }
+                })
+                : null;
+
+            let scheduleResult = null;
+            if (scheduleRef && options.schedule !== false) {
+                const schedule = normalizeBridgeSchedulePolicy(scheduleRef, deps, {
+                    ...options,
+                    lane: backpressure.lane || options.lane || 'diagnostics',
+                    budgetClass: options.budgetClass || 'diagnostics',
+                    endpointName: options.endpointName || 'xtendrmt.diagnostics.snapshot',
+                    scope: options.scope || 'rmt.telemetry.snapshot'
+                });
+                scheduleResult = scheduleEndpoint(schedule.endpointName, schedule.scope, () => ({
+                    snapshotId,
+                    schema: safeSnapshot.schema,
+                    backpressureLevel: backpressure.level || 'none',
+                    backpressureScore: backpressure.score || 0
+                }), {
+                    ...options,
+                    schedule,
+                    metadata: {
+                        snapshotId,
+                        routeRef,
+                        correlationId,
+                        backpressureLevel: backpressure.level || 'none',
+                        backpressureScore: backpressure.score || 0
+                    }
+                });
+            }
+
+            const diagnostic = emitDiagnostic({
+                code: 'rmt.bridge.telemetry.snapshot.recorded',
+                message: 'RMT bridge recorded Fabric telemetry snapshot.',
+                operation: 'recordTelemetrySnapshot',
+                phase: 'diagnose',
+                level: isPressureLevel(backpressure.level) ? 'warn' : 'info',
+                metadata: {
+                    snapshotId,
+                    snapshotSchema: safeSnapshot.schema,
+                    routeRef,
+                    scheduleRef,
+                    correlationId,
+                    backpressureLevel: backpressure.level || 'none',
+                    backpressureScore: backpressure.score || 0,
+                    scheduled: !!scheduleResult
+                }
+            }, {}, options);
+
+            return createStateSchedulerDiagnosticsBridgeResult({
+                ok: true,
+                status: isPressureLevel(backpressure.level) ? 'degraded' : 'ok',
+                adapterId,
+                operation: 'recordTelemetrySnapshot',
+                phase: 'diagnose',
+                handle: {
+                    telemetrySnapshot: safeSnapshot,
+                    backpressureResult,
+                    scheduleResult
+                },
+                diagnostics: diagnostic.diagnostics,
+                metadata: {
+                    snapshotId,
+                    routeRef,
+                    scheduleRef,
+                    correlationId,
+                    backpressureLevel: backpressure.level || 'none',
+                    backpressureScore: backpressure.score || 0,
+                    scheduled: !!scheduleResult
+                }
+            });
+        }
+
         return Object.freeze({
             id: adapterId,
             schema: STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA,
             kind: 'host_adapter',
             version: DOCUMENT_VERSION,
-            runtimeSurface: Object.freeze(['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult']),
+            runtimeSurface: Object.freeze(['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal']),
             capabilities: Object.freeze({
-                providedCapabilities: Object.freeze(['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents']),
+                providedCapabilities: Object.freeze(['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents', 'telemetrySnapshots', 'backpressureSignals']),
                 requiredCapabilities: Object.freeze([]),
-                preferredCapabilities: Object.freeze(['xstate', 'diagnosticsHub', 'performanceRuntime'])
+                preferredCapabilities: Object.freeze(['xstate', 'diagnosticsHub', 'performanceRuntime', 'fabricTelemetry'])
             }),
             definition: Object.freeze({
                 id: adapterId,
                 kind: 'host_adapter',
                 version: DOCUMENT_VERSION,
-                runtimeSurface: Object.freeze(['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult']),
+                runtimeSurface: Object.freeze(['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal']),
                 capabilities: Object.freeze({
-                    providedCapabilities: Object.freeze(['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents'])
+                    providedCapabilities: Object.freeze(['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents', 'telemetrySnapshots', 'backpressureSignals'])
                 }),
                 kernelVisible: false,
                 metadata: Object.freeze({
@@ -11849,7 +12084,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     inputContracts: Object.freeze([
                         RUNTIME_REGISTRY_SCHEMA,
                         XROUTER_ADAPTER_SCHEMA,
-                        XTEND_COMPONENT_ADAPTER_SCHEMA
+                        XTEND_COMPONENT_ADAPTER_SCHEMA,
+                        'xtend.fabric.telemetry-snapshot.v1',
+                        'xtend.fabric.backpressure-signal.v1'
                     ])
                 })
             }),
@@ -11857,6 +12094,8 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             scheduleEndpoint,
             emitDiagnostic,
             recordAdapterResult,
+            recordTelemetrySnapshot,
+            recordBackpressureSignal,
             resolveSchedulePolicy: (scheduleRef, options = {}) => normalizeBridgeSchedulePolicy(scheduleRef, deps, options),
             listScheduledEndpoints: () => scheduledEndpoints.slice(),
             listDiagnostics: () => diagnostics.slice(),
