@@ -1320,6 +1320,7 @@
         "route-announcement-live-region",
         "keyboard-activation",
         "history-hash-mode-compatible",
+        "insular-route-component-reuse",
         "event-source-detail",
         "fabric-lane-profile",
         "rmt-shell-authoring-ready",

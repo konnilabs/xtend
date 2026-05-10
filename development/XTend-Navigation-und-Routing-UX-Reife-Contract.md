@@ -34,6 +34,8 @@ Navigation und Routing werden als sichtbare Enterprise-UX-Schicht behandelt. RMT
 
 `x-router` haelt den kanonischen Route Context unter `xtend.router.current`. Dieser Context ist die Quelle fuer Link-Abgleich, Route Announcements und Diagnostics Snapshots.
 
+Bei Shell-first SPAs kann `x-router` per `reuse-component` in einen InsularHydration-Modus wechseln. Wenn die Zielroute denselben Component-Tag nutzt und die Komponente `updateRoute(context)` oder `routeChangedCallback(context)` bereitstellt, bleibt die Shell-Instanz bestehen; nur Params, Query, State und route-lokale Slots werden aktualisiert. Der Router emittiert dafuer `xrouter-route-reused` und spiegelt die Wiederverwendung unter `xtend.router.routeReused`.
+
 ## Focus Restore
 
 Nach erfolgreichem Route Render fokussiert `x-router` sein Outlet mit `preventScroll`. RMT kann diesen Pfad ueber `route.focus.restore` schedulen. Der Fokus bleibt bewusst im Router-Outlet und springt nicht auf beliebige Inhalte, damit Apps eigene Fokusziele spaeter gezielt deklarieren koennen.

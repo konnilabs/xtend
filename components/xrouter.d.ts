@@ -1,8 +1,8 @@
 import type { XtendCustomEventMap, XtendNavigationRoutingUxProfile, XtendPublicEventContract, XtendRouteMode } from './xtend-public-types';
 
-export type XRouterAttributeName = 'mode' | 'routesrc' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
+export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
 export type XRouteAttributeName = 'path' | 'component' | 'import' | 'title' | 'document-title' | 'title-template' | 'meta-description' | 'meta-keywords';
-export type XRouterEventName = 'xrouter-before-navigate' | 'route-changed' | 'routechange' | 'xrouter-after-navigate' | 'route-announced' | 'xrouter-routes-registered' | 'xrouter-scroll-boundary-normalized' | 'xrouter-navigation-overlays-closed' | 'xrouter-title-updated';
+export type XRouterEventName = 'xrouter-before-navigate' | 'route-changed' | 'routechange' | 'xrouter-after-navigate' | 'route-announced' | 'xrouter-routes-registered' | 'xrouter-route-reused' | 'xrouter-scroll-boundary-normalized' | 'xrouter-navigation-overlays-closed' | 'xrouter-title-updated';
 export type XRouterNavigationRoutingUxProfile = XtendNavigationRoutingUxProfile<'x-router'>;
 
 export interface RouteConfig {
@@ -59,6 +59,12 @@ export interface XRouterRouteChangeDetail {
   announcement?: string;
   source: 'x-router';
   stateKey: 'xtend.router.current' | 'xtend.router.announcement';
+  reused?: boolean;
+}
+
+export interface XRouterRouteReusedDetail extends XRouterRouteChangeDetail {
+  reused: true;
+  stateKey: 'xtend.router.current';
 }
 
 export interface XRouterRoutesRegisteredDetail {
@@ -154,13 +160,14 @@ export interface XRouterEventDetailMap {
   'xrouter-after-navigate': XRouterRouteChangeDetail;
   'route-announced': XRouterRouteAnnouncedDetail;
   'xrouter-routes-registered': XRouterRoutesRegisteredDetail;
+  'xrouter-route-reused': XRouterRouteReusedDetail;
   'xrouter-scroll-boundary-normalized': XRouterScrollBoundaryDetail;
   'xrouter-navigation-overlays-closed': XRouterNavigationOverlaysClosedDetail;
   'xrouter-title-updated': XRouterDocumentMetaDetail;
 }
 
 export type XRouterEventMap = XtendCustomEventMap<XRouterEventDetailMap>;
-export type XRouterPublicEventContract = XtendPublicEventContract<XRouterEventName, XRouterRouteChangeDetail | XRouterBeforeNavigateDetail | XRouterRouteAnnouncedDetail | XRouterRoutesRegisteredDetail | XRouterScrollBoundaryDetail | XRouterNavigationOverlaysClosedDetail | XRouterDocumentMetaDetail>;
+export type XRouterPublicEventContract = XtendPublicEventContract<XRouterEventName, XRouterRouteChangeDetail | XRouterBeforeNavigateDetail | XRouterRouteAnnouncedDetail | XRouterRoutesRegisteredDetail | XRouterRouteReusedDetail | XRouterScrollBoundaryDetail | XRouterNavigationOverlaysClosedDetail | XRouterDocumentMetaDetail>;
 
 export interface XRouteElement extends HTMLElement {
   readonly path: string;

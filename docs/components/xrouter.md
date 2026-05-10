@@ -162,6 +162,7 @@ Die stabile Adapter-ID ist `xtend.xrouter`. Der Adapter konsumiert `routeRegistr
 
 - `registerRoutes(routes, options)`
 - `navigate(to, options)`
+- `reuse-component` als opt-in fuer InsularHydration bei SPA-Routen, deren Ziel denselben Component-Tag nutzt und `updateRoute(context)` oder `routeChangedCallback(context)` implementiert
 
 RMT-relevante Route-Daten werden als Attribute auf `<x-route>` erhalten:
 
@@ -186,6 +187,7 @@ Weitere Details:
 - `routesrc` wird vor dem ersten Rendern geladen.
 - Lazy Loading erfolgt ueber das `import`-Attribut der jeweiligen Route.
 - Guards (`before-enter`) und Lifecycle-Hooks bleiben unterstuetzt.
+- Mit `reuse-component` kann eine App-Shell ihre Route-Komponente behalten; XRouter aktualisiert dann Params, Query und State und feuert `xrouter-route-reused`.
 - RMT-Schedule-Refs werden ueber `data-rmt-schedule` an Route-Details weitergereicht.
 - Scroll-Boundary-Normalisierung laeuft zentral im Router und sollte nicht in App-Shells dupliziert werden.
 - Router-Aenderungen im Core sollten gegen `node scripts/verify_xtend_core_contracts.js` geprueft werden.

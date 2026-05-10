@@ -24,6 +24,7 @@
     snapshots: [],
     loaderDiagnostics: [],
     loaderPerformance: [],
+    routeLanes: [],
     consoleReporterDisposer: null,
     connections: {
       xstate: false,
@@ -115,6 +116,7 @@
         activeRoute: state.lastRoute,
         loaderDiagnostics: state.loaderDiagnostics.slice(-10),
         loaderPerformance: state.loaderPerformance.slice(-20),
+        routeLanes: state.routeLanes.slice(-20),
         rmtLastRender: globalTarget.xtendDocsRmtLastRender || null,
         productionLastRender: globalTarget.xtendDocsRmtProductionLastRender || null,
         ...metadata
@@ -341,7 +343,40 @@
       }
       scheduleSnapshot('docs-route-transition', {
         routeRef: state.lastRoute,
-        scheduleRef: detail.schedule || detail.routeSchedule
+        scheduleRef: detail.schedule || detail.routeSchedule,
+        laneDurations: detail.laneDurations || []
+      });
+    });
+
+    globalTarget.addEventListener('xtend-docs-lane-complete', (event) => {
+      const detail = safeDetail(event);
+      pushLimited(state.routeLanes, detail, LOADER_EVENT_LIMIT);
+      stateSet('xtend.docs.route.lastLane', detail);
+      if (state.rmtDiagnosticsHub) {
+        state.rmtDiagnosticsHub.record({
+          code: 'xtend.docs.route.lane.complete',
+          message: 'Docs route lane completed.',
+          phase: detail.operation || 'route-lane',
+          routeRef: routeRefFromDetail(detail),
+          scheduleRef: detail.schedule,
+          metadata: detail
+        });
+      }
+      scheduleSnapshot('docs-route-lane', {
+        routeRef: routeRefFromDetail(detail),
+        scheduleRef: detail.schedule,
+        lane: detail.lane,
+        durationMs: detail.durationMs
+      });
+    });
+
+    globalTarget.addEventListener('xtend-docs-content-ready', (event) => {
+      const detail = safeDetail(event);
+      scheduleSnapshot('docs-content-ready', {
+        routeRef: routeRefFromDetail(detail),
+        scheduleRef: detail.schedule || 'docs.page.hydrate',
+        syntaxSchedule: detail.syntaxSchedule || 'docs.syntax.highlight',
+        insularHydration: detail.insularHydration === true
       });
     });
 

@@ -101,7 +101,8 @@
       "template": "navigation.router.template",
       "schedule": "route.visible.render",
       "props": {
-        "mode": "hash"
+        "mode": "hash",
+        "reuse-component": true
       },
       "routes": ["route.home", "route.guides"],
       "events": {
@@ -113,6 +114,9 @@
         },
         "route-announced": {
           "command": "navigation.router.diagnostics"
+        },
+        "xrouter-route-reused": {
+          "command": "navigation.router.reuse-route-component"
         },
         "xrouter-routes-registered": {
           "command": "navigation.router.register-routes"
@@ -130,6 +134,9 @@
         },
         "announce-route": {
           "schedule": "a11y.announce"
+        },
+        "reuse-route-component": {
+          "schedule": "route.transition.render"
         },
         "snapshot": {
           "schedule": "diagnostics.snapshot"

@@ -56,6 +56,8 @@ function runEpic10PlatformGatesSuite(options = {}) {
   const validation = validateEpic10PlatformGatePlan(plan);
   const report = createEpic10PlatformGateReport({ rootDir, plan });
   const packageManifest = readJson('package.json', rootDir);
+  const componentManifest = readJson('components/manifest.json', rootDir);
+  const manifestComponentCount = Object.keys(componentManifest || {}).length;
   const metadata = packageManifest.xtend && packageManifest.xtend.epic10PlatformGates;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
@@ -136,7 +138,7 @@ function runEpic10PlatformGatesSuite(options = {}) {
   context.assert(plan.componentTargets.typescriptFirst.includes('x-drawer'), 'Platform gate plan covers x-drawer');
   context.assert(plan.componentTargets.existingMetadata.includes('x-router'), 'Platform gate plan covers x-router');
   context.assert(plan.componentTargets.existingMetadata.includes('x-alert'), 'Platform gate plan covers x-alert');
-  context.assert(plan.visualRegression.componentCount === 38, 'Visual regression source covers all manifest components');
+  context.assert(plan.visualRegression.componentCount === manifestComponentCount, 'Visual regression source covers all manifest components');
   context.assert(plan.visualRegression.viewports.includes('desktop-1280') && plan.visualRegression.viewports.includes('mobile-390'), 'Visual regression covers desktop and mobile viewports');
   context.assert(plan.visualRegression.themeVariants.includes('forced-colors') && plan.visualRegression.themeVariants.includes('reduced-motion'), 'Visual regression covers forced-colors and reduced-motion variants');
   context.assert(plan.visualRegression.prioritizedTargets.includes('x-router'), 'Visual regression prioritizes existing route components');

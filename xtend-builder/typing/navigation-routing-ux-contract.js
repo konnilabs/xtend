@@ -43,6 +43,7 @@ const NAVIGATION_ROUTING_REQUIRED_EVENTS = [
   'xrouter-after-navigate',
   'route-announced',
   'xrouter-routes-registered',
+  'xrouter-route-reused',
   'before-navigate',
   'after-navigate',
   'x-navigate'
@@ -53,6 +54,7 @@ const NAVIGATION_ROUTING_REQUIRED_COMMANDS = [
   'register-routes',
   'focus-route',
   'announce-route',
+  'reuse-route-component',
   'update-active',
   'snapshot'
 ];
@@ -73,6 +75,7 @@ const NAVIGATION_ROUTING_REQUIRED_ASSERTIONS = [
   'route-announcement-live-region',
   'keyboard-activation',
   'history-hash-mode-compatible',
+  'insular-route-component-reuse',
   'event-source-detail',
   'fabric-lane-profile',
   'rmt-shell-authoring-ready',
@@ -90,9 +93,9 @@ const NAVIGATION_ROUTING_PROFILES = [
     focusRestore: 'outlet-focus-after-render',
     routeAnnouncement: 'polite-live-region',
     keyboardNavigation: 'delegated-to-links',
-    events: ['xrouter-before-navigate', 'route-changed', 'routechange', 'xrouter-after-navigate', 'route-announced', 'xrouter-routes-registered'],
+    events: ['xrouter-before-navigate', 'route-changed', 'routechange', 'xrouter-after-navigate', 'route-announced', 'xrouter-routes-registered', 'xrouter-route-reused'],
     stateKey: 'xtend.router.current',
-    requiredCommands: ['navigate', 'register-routes', 'focus-route', 'announce-route', 'snapshot'],
+    requiredCommands: ['navigate', 'register-routes', 'focus-route', 'announce-route', 'reuse-route-component', 'snapshot'],
     schedule: 'route.visible.render'
   },
   {

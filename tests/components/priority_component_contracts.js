@@ -13,7 +13,7 @@ const priorityComponentConfigs = {
     fixturePath: 'tests/components/fixtures/xrouter.component.html',
     docPath: 'docs/components/xrouter.md',
     profiles: ['routing'],
-    observedAttributes: ['mode', 'routesrc'],
+    observedAttributes: ['mode', 'routesrc', 'reuse-component'],
     sourceContracts: [
       { pattern: 'normalizeRmtRouteRecord', message: 'x-router normalizes RMT route records' },
       { pattern: 'createRouteElementFromRecord', message: 'x-router creates route elements from RMT records' },
@@ -23,6 +23,8 @@ const priorityComponentConfigs = {
       { pattern: 'route-changed', message: 'x-router emits route-changed' },
       { pattern: 'routechange', message: 'x-router keeps legacy routechange event' },
       { pattern: 'xrouter-routes-registered', message: 'x-router emits route registration event' },
+      { pattern: 'xrouter-route-reused', message: 'x-router emits route reuse event' },
+      { pattern: 'updateRoute', message: 'x-router supports insular route component updates' },
       { pattern: 'data-rmt-schedule', message: 'x-router preserves RMT schedule references' },
       { pattern: 'xtend.router.scrollBoundary', message: 'x-router publishes scroll boundary diagnostics' },
       { pattern: 'xrouter-scroll-boundary-normalized', message: 'x-router emits scroll boundary normalization event' },
@@ -47,6 +49,7 @@ const priorityComponentConfigs = {
       { pattern: 'registerRoutes(routes, options)', message: 'x-router docs describe route registration API' },
       { pattern: 'Document Title Rewrite', message: 'x-router docs describe document title rewriting' },
       { pattern: 'data-rmt-schedule', message: 'x-router docs describe RMT schedule forwarding' },
+      { pattern: 'reuse-component', message: 'x-router docs describe insular route component reuse' },
       { pattern: 'Scroll Boundary', message: 'x-router docs describe scroll boundary handling' },
       { pattern: 'xtend.router.closedNavigationOverlays', message: 'x-router docs describe overlay cleanup diagnostics' }
     ]

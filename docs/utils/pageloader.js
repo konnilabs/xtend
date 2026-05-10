@@ -29,6 +29,9 @@ const DOCS_TRUSTED_DOM_FORBIDDEN_TAGS = Object.freeze([
 ]);
 const DOCS_TRUSTED_DOM_URL_ATTRIBUTES = Object.freeze(['href', 'src', 'action', 'poster']);
 const DOCS_COMPONENT_DEMOS = Object.freeze(createDocsComponentDemos());
+const DOCS_ROUTE_CONTENT_CACHE_LIMIT = 32;
+const DOCS_ROUTE_IDLE_TIMEOUT_MS = 520;
+const DOCS_ROUTE_CONTENT_CACHE = new Map();
 const DOCS_SHELL_SCOPED_CSS = `
   #outlet {
     width: 100%;
@@ -366,6 +369,107 @@ const DOCS_SHELL_SCOPED_CSS = `
     }
   }
 `;
+
+function docsPerfNow() {
+  return window.performance && typeof window.performance.now === 'function'
+    ? window.performance.now()
+    : Date.now();
+}
+
+function docsRoundDuration(value) {
+  return Math.round(Number(value || 0) * 10) / 10;
+}
+
+function rememberDocsCacheEntry(key, value) {
+  DOCS_ROUTE_CONTENT_CACHE.set(key, value);
+  while (DOCS_ROUTE_CONTENT_CACHE.size > DOCS_ROUTE_CONTENT_CACHE_LIMIT) {
+    const firstKey = DOCS_ROUTE_CONTENT_CACHE.keys().next().value;
+    DOCS_ROUTE_CONTENT_CACHE.delete(firstKey);
+  }
+  return value;
+}
+
+function createDocsRouteContentCacheKey(slug, html, options = {}) {
+  return [
+    slug || 'readme',
+    options.source || 'docs.parsedown',
+    options.markupClass || 'parsedownHtml',
+    options.trustBoundary || DOCS_RMT_TRUST_BOUNDARY,
+    String(html || '')
+  ].join('\u0000');
+}
+
+function cloneDocsSanitizeResult(result, cacheHit = false) {
+  return {
+    ...result,
+    removed: Array.isArray(result.removed) ? result.removed.slice() : [],
+    removedCount: Number(result.removedCount || 0),
+    cacheHit
+  };
+}
+
+function dispatchDocsLaneComplete(detail = {}) {
+  window.dispatchEvent(new CustomEvent('xtend-docs-lane-complete', {
+    detail: {
+      schema: 'xtend.docs.route-lane.v1',
+      completedAt: new Date().toISOString(),
+      ...detail
+    }
+  }));
+}
+
+function runDocsMeasuredLane(detail, callback) {
+  const startedAt = docsPerfNow();
+  const result = callback();
+  dispatchDocsLaneComplete({
+    ...detail,
+    durationMs: docsRoundDuration(docsPerfNow() - startedAt)
+  });
+  return result;
+}
+
+function scheduleDocsAfterPaint(callback) {
+  let cancelled = false;
+  let firstFrame = 0;
+  let secondFrame = 0;
+  const run = () => {
+    if (!cancelled) callback();
+  };
+  if (typeof window.requestAnimationFrame === 'function') {
+    firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(run);
+    });
+    return () => {
+      cancelled = true;
+      if (firstFrame) window.cancelAnimationFrame(firstFrame);
+      if (secondFrame) window.cancelAnimationFrame(secondFrame);
+    };
+  }
+  const timer = window.setTimeout(run, 0);
+  return () => {
+    cancelled = true;
+    window.clearTimeout(timer);
+  };
+}
+
+function scheduleDocsIdle(callback, timeout = DOCS_ROUTE_IDLE_TIMEOUT_MS) {
+  let cancelled = false;
+  const run = (deadline) => {
+    if (!cancelled) callback(deadline || null);
+  };
+  if (typeof window.requestIdleCallback === 'function') {
+    const id = window.requestIdleCallback(run, { timeout });
+    return () => {
+      cancelled = true;
+      window.cancelIdleCallback(id);
+    };
+  }
+  const timer = window.setTimeout(run, Math.min(80, timeout));
+  return () => {
+    cancelled = true;
+    window.clearTimeout(timer);
+  };
+}
 
 function createRmtSnippet(tag, attributes = {}, children = []) {
   return JSON.stringify({ tag, attributes, children }, null, 2);
@@ -1067,7 +1171,9 @@ function createDocsRmtProductionRenderSnapshot(slug, rmtMeta, shell) {
 }
 
 function wireDownloadButton(download, slug) {
-  if (!download || download.__xtendDocsDownloadBound) return;
+  if (!download) return;
+  download.__xtendDocsDownloadSlug = slug;
+  if (download.__xtendDocsDownloadBound) return;
   download.__xtendDocsDownloadBound = true;
   configureDocsIconButton(download, {
     icon: 'download',
@@ -1081,16 +1187,17 @@ function wireDownloadButton(download, slug) {
       e.stopPropagation();
     }
     if (download.hasAttribute('disabled')) return;
+    const activeSlug = download.__xtendDocsDownloadSlug || slug;
     setDocsButtonBusy(download, true);
     try {
-      const resp = await fetch(`?download=${slug}`);
+      const resp = await fetch(`?download=${activeSlug}`);
       if (!resp.ok) throw new Error('Download fehlgeschlagen');
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = `${slug}.md`;
+      a.download = `${activeSlug}.md`;
       document.body.appendChild(a);
       a.click();
       setTimeout(() => {
@@ -1424,12 +1531,26 @@ function sanitizeDocsTrustedDomHtml(html, options = {}) {
   };
 }
 
+function prepareDocsTrustedDomHtml(slug, html, options = {}) {
+  const cacheKey = createDocsRouteContentCacheKey(slug, html, options);
+  const cached = DOCS_ROUTE_CONTENT_CACHE.get(cacheKey);
+  if (cached) return cloneDocsSanitizeResult(cached, true);
+
+  const normalizedHtml = normalizeMarkdownLinks(html);
+  const result = sanitizeDocsTrustedDomHtml(normalizedHtml, options);
+  result.cacheKey = cacheKey;
+  result.cacheHit = false;
+  rememberDocsCacheEntry(cacheKey, result);
+  return cloneDocsSanitizeResult(result, false);
+}
+
 function applyDocsTrustedDomHtml(target, html, options = {}) {
-  const result = sanitizeDocsTrustedDomHtml(html, options);
+  const result = prepareDocsTrustedDomHtml(options.slug || '', html, options);
   target.innerHTML = result.html;
   target.setAttribute('data-rmt-sanitized', 'true');
   target.setAttribute('data-rmt-sanitizer', DOCS_RMT_TRUSTED_DOM_SANITIZER);
   target.setAttribute('data-rmt-trusted-dom-proof', DOCS_RMT_TRUSTED_DOM_PROOF_SCHEMA);
+  target.setAttribute('data-rmt-content-cache-hit', result.cacheHit ? 'true' : 'false');
   window.xtendDocsTrustedDomLastSanitize = result;
   return result;
 }
@@ -2186,23 +2307,83 @@ function renderDocsComponentDemo(demoSlot, slug) {
   }
 }
 
+function resolveDocsSlugFromRouteContext(context = {}) {
+  const explicit = context.slug || context.path || context.to || '';
+  const raw = explicit ? String(explicit) : location.hash;
+  const withoutQuery = raw.split('?')[0];
+  let slug = withoutQuery.replace(/^#\/?/, '').replace(/^\/+/, '') || 'readme';
+  if (slug === '' || slug === '/') slug = 'readme';
+  return slug;
+}
+
 class XtendDocPage extends HTMLElement {
+  constructor() {
+    super();
+    this.__xtendDocsShell = null;
+    this.__xtendDocsRouteToken = 0;
+    this.__xtendDocsScheduledDisposers = [];
+  }
+
   connectedCallback() {
-    let slug = location.hash.replace(/^#\/?/, '').replace(/^\/+/, '') || 'readme';
-    if (slug === '' || slug === '/' || slug === 'readme') slug = 'readme';
+    this.renderRoute({ source: 'connected-callback' });
+  }
+
+  disconnectedCallback() {
+    this.cancelScheduledRouteWork();
+  }
+
+  updateRoute(context = {}) {
+    return this.renderRoute({ ...context, source: 'x-router-reuse' });
+  }
+
+  cancelScheduledRouteWork() {
+    this.__xtendDocsScheduledDisposers.splice(0).forEach((dispose) => {
+      if (typeof dispose === 'function') dispose();
+    });
+  }
+
+  scheduleRouteWork(dispose) {
+    if (typeof dispose === 'function') this.__xtendDocsScheduledDisposers.push(dispose);
+  }
+
+  isActiveRouteToken(token) {
+    return this.isConnected && this.__xtendDocsRouteToken === token;
+  }
+
+  ensureRouteShell(slug, rmtMeta) {
+    if (!this.__xtendDocsShell) {
+      this.__xtendDocsShell = createRmtDocsShell(slug, rmtMeta);
+      this.innerHTML = '';
+      this.appendChild(this.__xtendDocsShell.section);
+      this.setAttribute('data-docs-shell-reused', 'false');
+      return this.__xtendDocsShell;
+    }
+    this.setAttribute('data-docs-shell-reused', 'true');
+    return this.__xtendDocsShell;
+  }
+
+  renderRoute(context = {}) {
+    this.cancelScheduledRouteWork();
+    const token = this.__xtendDocsRouteToken + 1;
+    this.__xtendDocsRouteToken = token;
+
+    const slug = resolveDocsSlugFromRouteContext(context);
     const docsRouteStartedAt = new Date().toISOString();
+    const routePerfStartedAt = docsPerfNow();
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reused = context.source === 'x-router-reuse' || context.reused === true;
+
     this.setAttribute('data-docs-route-state', reducedMotion ? 'ready' : 'loading');
+    this.setAttribute('data-docs-route-slug', slug);
+    this.setAttribute('data-docs-route-reused', reused ? 'true' : 'false');
     this.setAttribute('aria-busy', 'true');
     ensureDocsShellScopedStyles(this.getRootNode());
 
     const rmtMeta = getDocsPageMeta(slug) || {};
-    const shell = createRmtDocsShell(slug, rmtMeta);
+    const hadShell = Boolean(this.__xtendDocsShell);
+    const shell = this.ensureRouteShell(slug, rmtMeta);
     applyRmtPageMetadata(shell.section, shell.mdContent, shell.richSlot, shell.diagnosticsSlot, rmtMeta, shell.sidebar, shell.relatedSlot, shell.demoSlot);
     wireDownloadButton(shell.download, slug);
-
-    this.innerHTML = '';
-    this.appendChild(shell.section);
 
     const parseSchedule = rmtMeta.schedules && rmtMeta.schedules.parse ? rmtMeta.schedules.parse : 'docs.markdown.parse';
     const routeSchedule = rmtMeta.schedules && rmtMeta.schedules.route ? rmtMeta.schedules.route : 'docs.route.render';
@@ -2211,11 +2392,32 @@ class XtendDocPage extends HTMLElement {
     const richSchedule = rmtMeta.schedules && rmtMeta.schedules.rich ? rmtMeta.schedules.rich : 'docs.rich-content.prepare';
     const mediaSchedule = rmtMeta.schedules && rmtMeta.schedules.media ? rmtMeta.schedules.media : 'docs.media.lazy';
     const diagnosticsSchedule = rmtMeta.schedules && rmtMeta.schedules.diagnostics ? rmtMeta.schedules.diagnostics : DOCS_RMT_DEFAULT_DIAGNOSTICS_SCHEDULE;
+    const relatedSchedule = 'docs.related.prepare';
+    const demoSchedule = 'docs.demo.prepare';
+    const laneDurations = [];
+
+    const measuredLane = (lane, schedule, operation, callback) => runDocsMeasuredLane({
+      slug,
+      lane,
+      schedule,
+      operation,
+      routeRef: rmtMeta.routeId || ('docs.' + slug.replace(/-/g, '.')),
+      routeToken: token,
+      reused
+    }, () => {
+      const startedAt = docsPerfNow();
+      const result = callback();
+      laneDurations.push({ lane, schedule, operation, durationMs: docsRoundDuration(docsPerfNow() - startedAt) });
+      return result;
+    });
 
     window.xtendDocsRmtLastRender = {
       schema: DOCS_RMT_RENDER_SCHEMA,
       slug,
       shellFirst: true,
+      shellReused: hadShell,
+      routeReuse: reused,
+      insularHydration: true,
       productionHardeningSchema: DOCS_RMT_PRODUCTION_HARDENING_SCHEMA,
       shellTemplate: rmtMeta.shellTemplate || DOCS_RMT_DEFAULT_SHELL_TEMPLATE,
       shellSchedule,
@@ -2233,6 +2435,8 @@ class XtendDocPage extends HTMLElement {
       hydrateSchedule,
       richSchedule,
       mediaSchedule,
+      relatedSchedule,
+      demoSchedule,
       diagnosticsSchedule,
       markupClass: rmtMeta.markupClass || 'parsedownHtml',
       contentKind: rmtMeta.contentKind || 'parsedownHtml',
@@ -2249,36 +2453,38 @@ class XtendDocPage extends HTMLElement {
     ensureRmtSearchShell();
     ensureMainBackgroundBinding();
 
-    let html = window.xtendDocsPages && window.xtendDocsPages[slug]
+    const html = window.xtendDocsPages && window.xtendDocsPages[slug]
       ? window.xtendDocsPages[slug]
       : '<em>Seite nicht gefunden</em>';
-    html = normalizeMarkdownLinks(html);
-    const trustedDomResult = applyDocsTrustedDomHtml(shell.mdContent, html, {
+
+    const trustedDomResult = measuredLane('visible', parseSchedule, 'article.trusted-dom-commit', () => applyDocsTrustedDomHtml(shell.mdContent, html, {
+      slug,
       source: rmtMeta.source || 'docs.parsedown',
       markupClass: rmtMeta.markupClass || 'parsedownHtml',
       trustBoundary: rmtMeta.trustBoundary || DOCS_RMT_TRUST_BOUNDARY
-    });
+    }));
     window.xtendDocsRmtProductionLastRender.trustedDom = {
       schema: trustedDomResult.schema,
       sanitizer: trustedDomResult.sanitizer,
       sanitized: trustedDomResult.sanitized,
       removedCount: trustedDomResult.removedCount,
       boundary: trustedDomResult.boundary,
-      markupClass: trustedDomResult.markupClass
+      markupClass: trustedDomResult.markupClass,
+      cacheHit: trustedDomResult.cacheHit === true
     };
-    upgradeRoutedLinks(shell.mdContent);
-    const relatedLinks = extractDocsRelatedLinks(shell.mdContent);
-    renderDocsRelatedSidebar(shell.relatedSlot, slug, relatedLinks);
-    renderDocsComponentDemo(shell.demoSlot, slug);
-    hydrateDocsCodeBlocks(shell.demoSlot, {
-      slug,
-      reason: 'component-demo-route-render',
-      schedule: hydrateSchedule
+
+    const relatedLinks = measuredLane('visible', relatedSchedule, 'article.related-extract', () => {
+      upgradeRoutedLinks(shell.mdContent);
+      return extractDocsRelatedLinks(shell.mdContent);
     });
 
     syncActiveHeaderLink(slug);
     ensureMenuBinding();
+
+    let transitionCompleted = false;
     const finishTransition = () => {
+      if (!this.isActiveRouteToken(token) || transitionCompleted) return;
+      transitionCompleted = true;
       this.setAttribute('data-docs-route-state', 'ready');
       this.removeAttribute('aria-busy');
       window.dispatchEvent(new CustomEvent('xtend-docs-route-transition', {
@@ -2286,8 +2492,12 @@ class XtendDocPage extends HTMLElement {
           schema: 'xtend.docs.route-transition.v1',
           slug,
           reducedMotion,
+          reused,
+          insularHydration: true,
           startedAt: docsRouteStartedAt,
           completedAt: new Date().toISOString(),
+          durationMs: docsRoundDuration(docsPerfNow() - routePerfStartedAt),
+          laneDurations: laneDurations.slice(),
           routeRef: rmtMeta.routeId || ('docs.' + slug.replace(/-/g, '.')),
           routeId: rmtMeta.routeId || ('docs.' + slug.replace(/-/g, '.')),
           componentRef: 'xtend-doc-page',
@@ -2295,6 +2505,8 @@ class XtendDocPage extends HTMLElement {
           schedule: routeSchedule,
           routeSchedule,
           hydrateSchedule,
+          relatedSchedule,
+          demoSchedule,
           diagnosticsSchedule,
           shellSchedule,
           parseSchedule,
@@ -2302,8 +2514,42 @@ class XtendDocPage extends HTMLElement {
         }
       }));
     };
-    if (reducedMotion) finishTransition();
-    else requestAnimationFrame(finishTransition);
+
+    const afterPaintDisposer = scheduleDocsAfterPaint(() => {
+      if (!this.isActiveRouteToken(token)) return;
+      measuredLane('idle', relatedSchedule, 'sidebar.related-render', () => renderDocsRelatedSidebar(shell.relatedSlot, slug, relatedLinks));
+      window.dispatchEvent(new CustomEvent('xtend-docs-content-ready', {
+        detail: {
+          schema: 'xtend.docs.content-ready.v1',
+          slug,
+          routeRef: rmtMeta.routeId || ('docs.' + slug.replace(/-/g, '.')),
+          root: shell.mdContent,
+          schedule: hydrateSchedule,
+          syntaxSchedule: 'docs.syntax.highlight',
+          reused,
+          insularHydration: true
+        }
+      }));
+      finishTransition();
+    });
+    this.scheduleRouteWork(afterPaintDisposer);
+
+    const idleDisposer = scheduleDocsIdle(() => {
+      if (!this.isActiveRouteToken(token)) return;
+      measuredLane('idle', demoSchedule, 'component-demo.render', () => renderDocsComponentDemo(shell.demoSlot, slug));
+      hydrateDocsCodeBlocks(shell.demoSlot, {
+        slug,
+        reason: 'component-demo-idle-route-render',
+        schedule: demoSchedule
+      });
+    });
+    this.scheduleRouteWork(idleDisposer);
+
+    if (reducedMotion) {
+      finishTransition();
+    }
+
+    return true;
   }
 }
 

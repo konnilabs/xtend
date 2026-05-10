@@ -9,6 +9,7 @@
       "workpackage": "ER-WP-40",
       "status": "docs-app-rmt-shell-first-pilot",
       "renderMode": "shell-first",
+      "insularHydration": true,
       "shellTemplate": "docs.app.shell",
       "searchTemplate": "docs.header.search",
       "activeHost": "docs/index.php",
@@ -386,6 +387,17 @@
       "preferIdle": true,
       "coalesceKey": "docs.page.hydrate",
       "budgetClass": "background"
+    },
+    {
+      "id": "docs.syntax.highlight",
+      "endpointName": "xtendrmt.docs.syntax.highlight",
+      "scope": "docs.syntax",
+      "lane": "idle",
+      "priority": 28,
+      "deadlineMs": 280,
+      "preferIdle": true,
+      "coalesceKey": "docs.syntax.highlight",
+      "budgetClass": "best_effort"
     },
     {
       "id": "docs.actions.idle",

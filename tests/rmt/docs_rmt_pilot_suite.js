@@ -112,6 +112,7 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(pilot.manifest.metadata.workpackage === 'ER-WP-40', 'Docs RMT pilot is owned by ER-WP-40');
   context.assert(pilot.manifest.metadata.activeHost === 'docs/index.php', 'Docs RMT pilot keeps docs/index.php as active host');
   context.assert(pilot.manifest.metadata.renderMode === 'shell-first', 'Docs RMT pilot declares shell-first render mode');
+  context.assert(pilot.manifest.metadata.insularHydration === true, 'Docs RMT pilot declares insular hydration for route updates');
   context.assert(pilot.manifest.metadata.shellTemplate === SHELL_TEMPLATE_ID, 'Docs RMT pilot declares the app shell template');
   context.assert(pilot.manifest.metadata.searchTemplate === SEARCH_TEMPLATE_ID, 'Docs RMT pilot declares the header search template');
   context.assert(pilot.manifest.metadata.kernelBoundary.includes('RMT only sees shell records'), 'Docs RMT pilot keeps Parsedown outside the RMT kernel');
@@ -143,6 +144,9 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(schedules.get('docs.markdown.parse') && schedules.get('docs.markdown.parse').lane === 'background', 'Docs Parsedown parse schedule runs in background lane');
   context.assert(schedules.get('docs.route.render') && schedules.get('docs.route.render').lane === 'visible', 'Docs route render schedule runs in visible lane');
   context.assert(schedules.get('docs.page.hydrate') && schedules.get('docs.page.hydrate').preferIdle === true, 'Docs page hydration schedule prefers idle');
+  context.assert(schedules.get('docs.syntax.highlight') && schedules.get('docs.syntax.highlight').endpointName === 'xtendrmt.docs.syntax.highlight', 'Docs RMT pilot schedules scoped syntax highlighting');
+  context.assert(schedules.get('docs.syntax.highlight') && schedules.get('docs.syntax.highlight').lane === 'idle', 'Docs syntax highlighting runs in the idle lane');
+  context.assert(schedules.get('docs.syntax.highlight') && schedules.get('docs.syntax.highlight').preferIdle === true, 'Docs syntax highlighting prefers idle work');
   context.assert(schedules.get('docs.search.index') && schedules.get('docs.search.index').endpointName === 'xtendrmt.docs.search.index', 'Docs RMT pilot schedules search index endpoint');
   context.assert(schedules.get('docs.related.prepare') && schedules.get('docs.related.prepare').endpointName === 'xtendrmt.docs.related.prepare', 'Docs RMT pilot schedules related link preparation');
   context.assert(schedules.get('docs.demo.prepare') && schedules.get('docs.demo.prepare').endpointName === 'xtendrmt.docs.demo.prepare', 'Docs RMT pilot schedules hands-on component demos');
@@ -172,7 +176,7 @@ function runDocsRmtPilotSuite(options = {}) {
     context.assert(normalizedDocument.manifest.documentId === 'docs.xtend.parsedown-pilot', 'RMT format normalizes Docs pilot document id');
     context.assert(normalizedDocument.routes.length === 3, 'RMT format normalizes Docs pilot routes');
     context.assert(normalizedDocument.components.length === 9, 'RMT format normalizes Docs pilot components');
-    context.assert(normalizedDocument.schedules.length === 11, 'RMT format normalizes Docs pilot schedules');
+    context.assert(normalizedDocument.schedules.length === 12, 'RMT format normalizes Docs pilot schedules');
     context.assert(normalizedDocument.templates.length === 6, 'RMT format normalizes Docs pilot templates');
     context.assert(registries.status === 'ready', 'Docs RMT pilot creates ready runtime registries');
     context.assert(registries.diagnosticCount === 0, 'Docs RMT pilot creates runtime registries without diagnostics');
@@ -182,6 +186,10 @@ function runDocsRmtPilotSuite(options = {}) {
   }
 
   context.assert(indexPhp.includes('window.xtendDocsRmtPilot'), 'Docs app exposes RMT pilot metadata');
+  context.assert(indexPhp.includes('<x-router mode="hash" reuse-component'), 'Docs app opts XRouter into route component reuse');
+  context.assert(indexPhp.includes('insularHydration: true'), 'Docs app exposes insular hydration metadata');
+  context.assert(indexPhp.includes('window.xtendDocsHighlightPrism'), 'Docs app exposes scoped syntax highlighting scheduler');
+  context.assert(indexPhp.includes('Prism.highlightAllUnder(scope)'), 'Docs app highlights only the active content scope');
   context.assert(indexPhp.includes('window.xtendDocsRmtDocument'), 'Docs app exposes the RMT shell document');
   context.assert(indexPhp.includes('window.xtendDocsPagesMeta'), 'Docs app exposes per-page RMT metadata');
   context.assert(indexPhp.includes('docsMergeRmtRoutes'), 'Docs app merges generated page routes into the exposed RMT document');
@@ -277,6 +285,11 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(pageLoader.includes('#md-content hr'), 'Docs page loader styles semantic Parsedown horizontal rules');
   context.assert(pageLoader.includes('data-rmt-trust-boundary'), 'Docs page loader marks Trusted DOM boundary');
   context.assert(pageLoader.includes('xtendDocsRmtLastRender'), 'Docs page loader exposes last RMT render metadata');
+  context.assert(pageLoader.includes('updateRoute(context = {})'), 'Docs page component supports XRouter route reuse updates');
+  context.assert(pageLoader.includes('DOCS_ROUTE_CONTENT_CACHE'), 'Docs page loader caches sanitized route content');
+  context.assert(pageLoader.includes('scheduleDocsAfterPaint'), 'Docs page loader moves secondary route work after paint');
+  context.assert(pageLoader.includes('scheduleDocsIdle'), 'Docs page loader moves demo hydration into idle work');
+  context.assert(pageLoader.includes('xtend-docs-lane-complete'), 'Docs page loader emits per-lane route telemetry');
   context.assert(pageLoader.includes('data-rmt-document-title'), 'Docs page loader mirrors RMT document title metadata on the shell');
   context.assert(parsedownDocs.includes(PILOT_DOCUMENT_PATH), 'Parsedown scheduling docs link the pilot document');
   context.assert(parsedownDocs.includes(DOCS_RMT_PILOT_SCHEMA), 'Parsedown scheduling docs document the pilot contract');

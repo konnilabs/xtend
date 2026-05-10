@@ -23,7 +23,7 @@ customElements.define('x-route', XRoute);
  * Haupt-Router-Komponente, die die Navigation verwaltet.
  */
 class XRouter extends HTMLElement {
-  static get observedAttributes() { return ['mode', 'routesrc']; }
+  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component']; }
 
   static get xtendComponentContract() {
     return {
@@ -113,8 +113,8 @@ class XRouter extends HTMLElement {
       focusRestore: 'outlet-focus-after-render',
       routeAnnouncement: 'polite-live-region',
       keyboardNavigation: 'delegated-to-x-link',
-      events: ['xrouter-before-navigate', 'route-changed', 'routechange', 'xrouter-after-navigate', 'route-announced', 'xrouter-routes-registered', 'xrouter-scroll-boundary-normalized', 'xrouter-navigation-overlays-closed', 'xrouter-title-updated'],
-      commands: ['navigate', 'register-routes', 'focus-route', 'announce-route', 'rewrite-document-title', 'normalize-scroll-boundary', 'close-navigation-overlays', 'snapshot'],
+      events: ['xrouter-before-navigate', 'route-changed', 'routechange', 'xrouter-after-navigate', 'route-announced', 'xrouter-routes-registered', 'xrouter-route-reused', 'xrouter-scroll-boundary-normalized', 'xrouter-navigation-overlays-closed', 'xrouter-title-updated'],
+      commands: ['navigate', 'register-routes', 'focus-route', 'announce-route', 'rewrite-document-title', 'reuse-route-component', 'normalize-scroll-boundary', 'close-navigation-overlays', 'snapshot'],
       stateKey: 'xtend.router.current',
       schedule: 'route.visible.render',
       fabric: {
@@ -486,6 +486,9 @@ class XRouter extends HTMLElement {
     if (name === 'mode') {
       this._mode = newValue || 'hash';
     }
+    if (name === 'reuse-component') {
+      xstate.set('xtend.router.reuseComponent', this._shouldReuseRouteComponents());
+    }
     if (name === 'routesrc' && newValue && newValue !== oldValue) {
       this._loadRoutesFromSrc(newValue).then(() => this._handleNavigation());
     }
@@ -675,6 +678,78 @@ class XRouter extends HTMLElement {
       current = current.child;
     }
     return current;
+  }
+
+  _shouldReuseRouteComponents(route = null) {
+    return this.hasAttribute('reuse-component') ||
+      this.hasAttribute('data-reuse-component') ||
+      Boolean(route && route.hasAttribute && (route.hasAttribute('reuse-component') || route.hasAttribute('data-reuse-component')));
+  }
+
+  async _tryReuseRouteComponent(match, context = {}) {
+    if (!match || !this._outlet || !this._shouldReuseRouteComponents(match.route)) return false;
+    const current = this._outlet.firstElementChild;
+    if (!current || match.child) return false;
+
+    const leaf = this._getLeafMatch(match);
+    const route = leaf && leaf.route ? leaf.route : match.route;
+    const componentTag = this._getRouteComponent(route);
+    if (!componentTag || current.localName !== String(componentTag).toLowerCase()) return false;
+
+    const update = typeof current.updateRoute === 'function'
+      ? current.updateRoute.bind(current)
+      : (typeof current.routeChangedCallback === 'function' ? current.routeChangedCallback.bind(current) : null);
+    if (!update) return false;
+
+    current.params = match.params || {};
+    current.query = context.queryObj || {};
+    current.queryString = context.query || '';
+    if (this._mode === 'history' && window.history.state) {
+      current.state = window.history.state;
+    }
+
+    const detail = {
+      path: context.path,
+      route,
+      match,
+      params: this._collectParams(match),
+      query: context.query || '',
+      queryObj: context.queryObj || {},
+      documentMeta: context.documentMeta || null,
+      router: this,
+      reused: true
+    };
+
+    try {
+      const result = await update(detail);
+      if (result === false) return false;
+      const reuseDetail = {
+        ...detail,
+        mode: this._mode,
+        component: componentTag,
+        routeId: this._getRouteValue(route, 'id', 'data-rmt-route-id') || null,
+        template: this._getRouteValue(route, 'template', 'data-rmt-template') || null,
+        scheduleRef: this._getRouteValue(route, 'schedule', 'data-rmt-schedule') || null,
+        query: context.queryObj || {},
+        metadata: this._readRouteJsonAttribute(route, 'data-rmt-metadata'),
+        title: context.documentMeta ? context.documentMeta.title : '',
+        documentTitle: context.documentMeta ? context.documentMeta.documentTitle : '',
+        meta: context.documentMeta || null,
+        source: 'x-router',
+        stateKey: 'xtend.router.current'
+      };
+      xstate.set('xtend.router.routeReused', reuseDetail);
+      this.dispatchEvent(new CustomEvent('xrouter-route-reused', {
+        detail: reuseDetail,
+        bubbles: true,
+        composed: true
+      }));
+      return true;
+    } catch (error) {
+      console.error(`Router: Fehler beim Wiederverwenden von <${componentTag}>:`, error);
+      this._outlet.innerHTML = this._renderError(500, `Fehler beim Aktualisieren von <strong>${componentTag}</strong>\n${error.message}`);
+      return true;
+    }
   }
 
   _buildRouteDetail(path, match, queryObj = {}, documentMeta = null) {
@@ -1152,7 +1227,6 @@ class XRouter extends HTMLElement {
     }
     this._closeRouteNavigationOverlays({ path: raw, source: 'x-router-route-change' });
     // Animations-Hook: beforeRouteEnter (für Zielroute)
-    this._outlet.innerHTML = '';
     if (match) {
       // Route Guard: beforeEnter
       const allow = await this._runBeforeEnter(match);
@@ -1184,8 +1258,18 @@ class XRouter extends HTMLElement {
         params: this._collectParams(match),
         query: queryObj
       });
-      await this._renderRoute(match, this._outlet);
+      const reused = await this._tryReuseRouteComponent(match, {
+        path: raw,
+        query,
+        queryObj,
+        documentMeta
+      });
+      if (!reused) {
+        this._outlet.innerHTML = '';
+        await this._renderRoute(match, this._outlet);
+      }
       const routeDetail = this._buildRouteDetail(raw, match, queryObj, documentMeta);
+      if (reused) routeDetail.reused = true;
       this._emitRouteChange(routeDetail);
       // Scroll-Verhalten nach erfolgreichem Rendern
       const scrollIntent = this._handleScrollAfterNavigation(route);

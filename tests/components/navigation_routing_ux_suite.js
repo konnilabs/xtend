@@ -159,8 +159,10 @@ function runNavigationRoutingUxSuite(options = {}) {
     }
   });
   context.assert(components.get('docs.router').adapter === 'xtend.xrouter', 'RMT fixture uses xtend.xrouter adapter for router');
+  context.assert(components.get('docs.router').props['reuse-component'] === true, 'RMT fixture opts router into insular route component reuse');
   context.assert(components.get('docs.router').commands['focus-route'].schedule === 'route.focus.restore', 'RMT fixture schedules router focus restore');
   context.assert(components.get('docs.router').commands['announce-route'].schedule === 'a11y.announce', 'RMT fixture schedules route announcements');
+  context.assert(components.get('docs.router').commands['reuse-route-component'].schedule === 'route.transition.render', 'RMT fixture schedules router route component reuse');
   context.assert(components.get('docs.nav.home').a11y.activeState === 'aria-current=page', 'RMT fixture declares link active state');
   context.assert(components.get('docs.nav.guides').commands.navigate.schedule === 'ui.user-blocking.navigation', 'RMT fixture schedules link navigation');
   assertFixtureReferencesResolve(context, fixture);

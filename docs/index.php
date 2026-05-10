@@ -1103,6 +1103,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
       workpackage: 'ER-WP-40',
       document: './<?= htmlspecialchars($rmtPilotDocument, ENT_QUOTES, 'UTF-8') ?>',
       renderMode: 'shell-first',
+      insularHydration: true,
       shellTemplate: 'docs.app.shell',
       searchTemplate: 'docs.header.search',
       adapter: 'docs.parsedown',
@@ -1111,6 +1112,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
       parseSchedule: 'docs.markdown.parse',
       routeSchedule: 'docs.route.render',
       hydrateSchedule: 'docs.page.hydrate',
+      syntaxSchedule: 'docs.syntax.highlight',
       searchSchedule: 'docs.search.index',
       richContentSchedule: 'docs.rich-content.prepare',
       mediaSchedule: 'docs.media.lazy',
@@ -1144,6 +1146,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
       shellTemplate: 'docs.app.shell',
       searchTemplate: 'docs.header.search',
       shellFirst: true,
+      insularHydration: true,
       parsedownOrchestrated: true,
       parsedownEmbeddedInRmtKernel: false,
       richHtmlSchedulable: true,
@@ -1222,7 +1225,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 	 <p>Build with XTend today</p>
 </x-hero>
 <main>
-<x-router mode="hash" document-title-template="{{title}} | XTend Dokumentation" default-title="XTend Dokumentation">
+<x-router mode="hash" reuse-component document-title-template="{{title}} | XTend Dokumentation" default-title="XTend Dokumentation">
   <?= docsRenderXRoute($allPagesMeta['readme']['route'], '/') . "\n" ?>
   <?php foreach ($fileToSlug as $rel => $slug): ?>
     <?= docsRenderXRoute($allPagesMeta[$slug]['route']) . "\n" ?>
@@ -1343,16 +1346,40 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   updateThemeButton();
-  // Prism Highlighting nach jedem Seitenwechsel
-  function highlightPrism() {
-    if (window.Prism && typeof Prism.highlightAll === 'function') {
-      Prism.highlightAll();
-    }
+  // Prism wird scoped und idle ausgefuehrt, damit Routen-Klicks nicht die ganze Seite blockieren.
+  let prismFrame = 0;
+  let prismIdle = 0;
+  function schedulePrismHighlight(root) {
+    const scope = root && root.querySelectorAll ? root : document;
+    const run = () => {
+      if (!window.Prism) return;
+      if (typeof Prism.highlightAllUnder === 'function') {
+        Prism.highlightAllUnder(scope);
+        return;
+      }
+      if (typeof Prism.highlightElement === 'function') {
+        scope.querySelectorAll('pre code, code[class*="language-"]').forEach((node) => Prism.highlightElement(node));
+      }
+    };
+    if (prismFrame) cancelAnimationFrame(prismFrame);
+    if (prismIdle && typeof cancelIdleCallback === 'function') cancelIdleCallback(prismIdle);
+    prismFrame = requestAnimationFrame(() => {
+      prismFrame = 0;
+      if (typeof requestIdleCallback === 'function') {
+        prismIdle = requestIdleCallback(() => {
+          prismIdle = 0;
+          run();
+        }, { timeout: 700 });
+      } else {
+        setTimeout(run, 0);
+      }
+    });
   }
-  // Initial Highlighting
-  highlightPrism();
-  // Nach jedem Seitenwechsel (XRouter)
-  window.addEventListener('xrouter-after-navigate', highlightPrism);
+  window.xtendDocsHighlightPrism = schedulePrismHighlight;
+  window.addEventListener('xtend-docs-content-ready', function(event) {
+    schedulePrismHighlight(event.detail && event.detail.root);
+  });
+  schedulePrismHighlight(document);
 });
 </script>
 </body>

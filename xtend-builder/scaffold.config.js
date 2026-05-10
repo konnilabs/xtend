@@ -489,7 +489,7 @@ module.exports = {
     targets: ["x-router", "x-link"],
     requiredDomains: ["shell", "style", "a11y", "activeState", "focusRestore", "routeAnnouncements", "keyboardNavigation", "events", "commands", "state", "rmt", "fabric", "performance", "docs", "tests"],
     requiredSchedules: ["component.visible.mount", "route.visible.render", "route.transition.render", "route.focus.restore", "a11y.announce", "ui.user-blocking.navigation", "diagnostics.snapshot"],
-    requiredAssertions: ["active-state-aria-current", "focus-restore-after-route", "route-announcement-live-region", "keyboard-activation", "history-hash-mode-compatible", "event-source-detail", "fabric-lane-profile", "rmt-shell-authoring-ready", "feedback-status-compatible", "kernel-boundary-preserved"],
+    requiredAssertions: ["active-state-aria-current", "focus-restore-after-route", "route-announcement-live-region", "keyboard-activation", "history-hash-mode-compatible", "insular-route-component-reuse", "event-source-detail", "fabric-lane-profile", "rmt-shell-authoring-ready", "feedback-status-compatible", "kernel-boundary-preserved"],
     rmtShellAuthoring: "xtend.rmt.shell-authoring.v1",
     componentNetworkContract: "xtend.component.network.v1",
     fabricBoundary: "xtend.component.fabric-boundary.v2",
