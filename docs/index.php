@@ -3,9 +3,9 @@
 // Lädt alle .md-Dateien, parsed sie mit Parsedown und bietet SPA-Routing mit Slugs
 // This project uses parsedown for markdown parsing. See license at https://github.com/erusev/parsedown/blob/master/LICENSE.txt
 
-// --- CSP Nonce generieren ---
-$nonce = base64_encode(random_bytes(16));
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-$nonce'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none';");
+if (function_exists('header_remove')) {
+    header_remove('X-Powered-By');
+}
 
 // --- Konfiguration ---
 $docsRoot = __DIR__;
@@ -16,6 +16,92 @@ $rmtPilotDocument = 'xtendrmt-parsedown-docs.rmt';
 $rmtPilotDocumentPath = $docsRoot . '/' . $rmtPilotDocument;
 $rmtPilotDocumentData = null;
 $rmtPilotDocumentJson = '{}';
+
+function docsAssetMap($docsRoot) {
+    return [
+        'favicon.ico' => [
+            'path' => $docsRoot . '/../icons/favicon.ico',
+            'type' => 'image/x-icon'
+        ],
+        'favicon-16x16.png' => [
+            'path' => $docsRoot . '/../icons/favicon-16x16.png',
+            'type' => 'image/png'
+        ],
+        'favicon-32x32.png' => [
+            'path' => $docsRoot . '/../icons/favicon-32x32.png',
+            'type' => 'image/png'
+        ],
+        'apple-touch-icon.png' => [
+            'path' => $docsRoot . '/../icons/apple-touch-icon.png',
+            'type' => 'image/png'
+        ],
+        'xtend-scaffold.webp' => [
+            'path' => $docsRoot . '/../icons/xtend-scaffold.webp',
+            'type' => 'image/webp'
+        ],
+        'xtend-logo.png' => [
+            'path' => $docsRoot . '/../XTend-Logo.png',
+            'type' => 'image/png'
+        ]
+    ];
+}
+
+function docsServeAsset($assetName, $docsRoot) {
+    $assetKey = strtolower(basename((string) $assetName));
+    $assets = docsAssetMap($docsRoot);
+    if (!isset($assets[$assetKey])) {
+        http_response_code(404);
+        header('Content-Type: text/plain; charset=UTF-8');
+        header('X-Content-Type-Options: nosniff');
+        echo 'Docs asset not found.';
+        exit;
+    }
+
+    $asset = $assets[$assetKey];
+    $path = $asset['path'];
+    if (!is_file($path) || !is_readable($path)) {
+        http_response_code(404);
+        header('Content-Type: text/plain; charset=UTF-8');
+        header('X-Content-Type-Options: nosniff');
+        echo 'Docs asset unavailable.';
+        exit;
+    }
+
+    $mtime = filemtime($path);
+    $size = filesize($path);
+    $etag = '"' . sha1($assetKey . '|' . $mtime . '|' . $size) . '"';
+    $ifNoneMatch = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? trim((string) $_SERVER['HTTP_IF_NONE_MATCH']) : '';
+    $ifModifiedSince = isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) ? strtotime((string) $_SERVER['HTTP_IF_MODIFIED_SINCE']) : false;
+
+    header('Content-Type: ' . $asset['type']);
+    header('X-Content-Type-Options: nosniff');
+    header('Cross-Origin-Resource-Policy: same-origin');
+    header('Cache-Control: public, max-age=31536000, immutable');
+    header('ETag: ' . $etag);
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+
+    if ($ifNoneMatch === $etag || ($ifModifiedSince !== false && $ifModifiedSince >= $mtime)) {
+        http_response_code(304);
+        exit;
+    }
+
+    header('Content-Length: ' . $size);
+    readfile($path);
+    exit;
+}
+
+function docsAssetUrl($assetName, $version) {
+    return 'index.php?xtend-docs-asset=' . rawurlencode((string) $assetName) . '&v=' . rawurlencode((string) $version);
+}
+
+if (isset($_GET['xtend-docs-asset'])) {
+    docsServeAsset($_GET['xtend-docs-asset'], $docsRoot);
+}
+
+// --- CSP Nonce generieren ---
+$nonce = base64_encode(random_bytes(16));
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-$nonce'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none';");
+
 if (is_readable($rmtPilotDocumentPath)) {
     $rmtPilotDecoded = json_decode(file_get_contents($rmtPilotDocumentPath), true);
     if (json_last_error() === JSON_ERROR_NONE && is_array($rmtPilotDecoded)) {
@@ -71,12 +157,20 @@ $xtendAssetVersion = xtendAssetVersion([
     __DIR__ . '/../icons/favicon-16x16.png',
     __DIR__ . '/../icons/favicon-32x32.png',
     __DIR__ . '/../icons/apple-touch-icon.png',
+    __DIR__ . '/../icons/xtend-scaffold.webp',
+    __DIR__ . '/../XTend-Logo.png',
     __DIR__ . '/../docs/utils/pageloader.js',
     __DIR__ . '/../docs/utils/fabric-runtime.js',
     __DIR__ . '/../docs/xtendrmt-parsedown-docs.rmt',
     __DIR__ . '/../api.js',
 ]);
 $xtendAssetVersionAttr = htmlspecialchars($xtendAssetVersion, ENT_QUOTES, 'UTF-8');
+$docsFaviconIcoUrl = htmlspecialchars(docsAssetUrl('favicon.ico', $xtendAssetVersion), ENT_QUOTES, 'UTF-8');
+$docsFavicon32Url = htmlspecialchars(docsAssetUrl('favicon-32x32.png', $xtendAssetVersion), ENT_QUOTES, 'UTF-8');
+$docsFavicon16Url = htmlspecialchars(docsAssetUrl('favicon-16x16.png', $xtendAssetVersion), ENT_QUOTES, 'UTF-8');
+$docsAppleTouchIconUrl = htmlspecialchars(docsAssetUrl('apple-touch-icon.png', $xtendAssetVersion), ENT_QUOTES, 'UTF-8');
+$docsLogoUrl = htmlspecialchars(docsAssetUrl('xtend-scaffold.webp', $xtendAssetVersion), ENT_QUOTES, 'UTF-8');
+$docsLightboxLogoUrl = htmlspecialchars(docsAssetUrl('xtend-logo.png', $xtendAssetVersion), ENT_QUOTES, 'UTF-8');
 
 // Alle Markdown-Dateien finden (rekursiv)
 function findMarkdownFiles($dir, $base = '') {
@@ -426,10 +520,10 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
     <meta name="keywords" content="<?= htmlspecialchars($initialKeywords, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="xtend-preload" content="x-button,x-icon,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer,x-code,x-modal,x-dialog,x-drawer,x-popover,x-tooltip,x-tabs,x-alert,x-toast,x-select,x-checkbox,x-radio,x-textarea,x-calendar,x-status,x-progress,x-side-panel,x-surface-window,x-surface-manager,x-summary,x-section,x-cards,x-type,x-lightbox,x-masonry">
-    <link rel="icon" href="/icons/favicon.ico?v=<?= $xtendAssetVersionAttr ?>" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=<?= $xtendAssetVersionAttr ?>">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=<?= $xtendAssetVersionAttr ?>">
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=<?= $xtendAssetVersionAttr ?>">
+    <link rel="icon" href="<?= $docsFaviconIcoUrl ?>" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= $docsFavicon32Url ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">
+    <link rel="apple-touch-icon" href="<?= $docsAppleTouchIconUrl ?>">
     <link rel="stylesheet" href="/xtend.css?v=<?= $xtendAssetVersionAttr ?>">
     <script src="/fabric/xtend-fabric.js?v=<?= $xtendAssetVersionAttr ?>"></script>
     <script type="module" src="/xtend-loader.js?v=<?= $xtendAssetVersionAttr ?>" data-manifest="/components/manifest.json?v=<?= $xtendAssetVersionAttr ?>" data-module-cache-bust="<?= $xtendAssetVersionAttr ?>"></script>
@@ -1097,6 +1191,14 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
     window.xtendDocsPages = <?php echo json_encode($allPages, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
     window.xtendDocsPagesMeta = <?php echo json_encode($allPagesMeta, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
     window.xtendDocsTitles = <?php echo json_encode($titles, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendDocsAssetUrls = {
+      favicon: '<?= $docsFaviconIcoUrl ?>',
+      favicon32: '<?= $docsFavicon32Url ?>',
+      favicon16: '<?= $docsFavicon16Url ?>',
+      appleTouchIcon: '<?= $docsAppleTouchIconUrl ?>',
+      logo: '<?= $docsLogoUrl ?>',
+      lightboxLogo: '<?= $docsLightboxLogoUrl ?>'
+    };
     window.xtendDocsRmtDocument = <?php echo $rmtPilotDocumentJson; ?>;
     window.xtendDocsRmtPilot = {
       schema: 'xtend.docs.parsedown-rmt-pilot.v1',
@@ -1186,7 +1288,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 </head>
 <body>
 <x-theme></x-theme>
-<x-header src="/icons/xtend-scaffold.webp" logo-size="48" sticky>
+<x-header src="<?= $docsLogoUrl ?>" logo-size="48" sticky>
   <span slot="title">XTend Dokumentation</span>
   <x-button
     id="theme-toggle"
@@ -1233,7 +1335,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
   <x-route path="*" component="xtend-doc-page" import="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" title="Seite nicht gefunden" document-title="Seite nicht gefunden | XTend Dokumentation" meta-description="Die angeforderte Dokumentationsseite wurde nicht gefunden." data-rmt-route-id="docs.notFound" data-rmt-router="xtend.xrouter" data-rmt-component="docs.page" data-rmt-schedule="docs.route.render"></x-route>
 </x-router>
     </main>
-<x-footer src="/icons/xtend-scaffold.webp" logo-size="32">
+<x-footer src="<?= $docsLogoUrl ?>" logo-size="32">
 	<span slot="title">© 2025 – CCS Networks | Powered by XRouter PHP Extension</span>
 </x-footer>
 <script src="utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">

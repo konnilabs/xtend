@@ -370,6 +370,19 @@ const DOCS_SHELL_SCOPED_CSS = `
   }
 `;
 
+function getDocsAssetUrl(key, fallback) {
+  const assets = window.xtendDocsAssetUrls || {};
+  return typeof assets[key] === 'string' && assets[key] ? assets[key] : fallback;
+}
+
+function escapeDocsHtmlAttribute(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function docsPerfNow() {
   return window.performance && typeof window.performance.now === 'function'
     ? window.performance.now()
@@ -624,8 +637,9 @@ function createDocsComponentDemos() {
     attributes: { columns: '2', gap: '0.6rem' },
     children: [{ tag: 'div', children: ['Window'] }, { tag: 'div', children: ['Panel'] }, { tag: 'div', children: ['Overlay'] }]
   });
-  add('components-xlightbox', 'x-lightbox', 'x-lightbox', 'Medien-Fokus ohne Shell-Kontext zu verlieren.', '<x-lightbox id="docs-demo-lightbox" src="/XTend-Logo.png" alt="XTend Logo"><x-button slot="trigger" variant="secondary">Logo ansehen</x-button></x-lightbox>', {
-    attributes: { id: 'docs-demo-lightbox', src: '/XTend-Logo.png', alt: 'XTend Logo' },
+  const lightboxLogoUrl = getDocsAssetUrl('lightboxLogo', 'index.php?xtend-docs-asset=xtend-logo.png');
+  add('components-xlightbox', 'x-lightbox', 'x-lightbox', 'Medien-Fokus ohne Shell-Kontext zu verlieren.', `<x-lightbox id="docs-demo-lightbox" src="${escapeDocsHtmlAttribute(lightboxLogoUrl)}" alt="XTend Logo"><x-button slot="trigger" variant="secondary">Logo ansehen</x-button></x-lightbox>`, {
+    attributes: { id: 'docs-demo-lightbox', src: lightboxLogoUrl, alt: 'XTend Logo' },
     children: [{ tag: 'x-button', attributes: { slot: 'trigger', variant: 'secondary' }, children: ['Logo ansehen'] }]
   });
   add('components-xsidepanel', 'x-side-panel', 'x-side-panel', 'SidePanel-Surface fuer near-native App-Shells.', '<div class="docs-demo-surface-zone"><x-side-panel surface-id="docs.demo.panel" label="Docs Inspector" open active mode="docked" placement="right" initial-width="18rem"><p>Related Links und Demo-Code leben hier.</p></x-side-panel></div>', {

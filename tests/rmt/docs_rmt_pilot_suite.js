@@ -198,8 +198,15 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('xtendrmt-parsedown-docs.rmt'), 'Docs app points to pilot RMT document');
   context.assert(indexPhp.includes('__DIR__ . \'/../xtend.css\''), 'Docs app includes XTend base CSS in the asset version hash');
   context.assert(indexPhp.includes('__DIR__ . \'/../icons/favicon.ico\''), 'Docs app includes the favicon in the asset version hash');
-  context.assert(indexPhp.includes('rel="icon" href="/icons/favicon.ico?v='), 'Docs app wires the ICO favicon into the SPA shell');
-  context.assert(indexPhp.includes('rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v='), 'Docs app wires the Apple touch icon into the SPA shell');
+  context.assert(indexPhp.includes('function docsServeAsset'), 'Docs app serves parent-level brand assets through a local whitelist endpoint');
+  context.assert(indexPhp.includes('xtend-docs-asset='), 'Docs app uses a route-local asset endpoint instead of parent-root asset URLs');
+  context.assert(indexPhp.includes("docsAssetUrl('favicon.ico'"), 'Docs app wires the ICO favicon through the hardened docs asset endpoint');
+  context.assert(indexPhp.includes("docsAssetUrl('apple-touch-icon.png'"), 'Docs app wires the Apple touch icon through the hardened docs asset endpoint');
+  context.assert(indexPhp.includes("docsAssetUrl('xtend-scaffold.webp'"), 'Docs app wires shell logos through the hardened docs asset endpoint');
+  context.assert(indexPhp.includes("header_remove('X-Powered-By')"), 'Docs app removes PHP technology disclosure headers before serving assets');
+  context.assert(indexPhp.includes('window.xtendDocsAssetUrls'), 'Docs app exposes hardened asset URLs for routed demos');
+  context.assert(indexPhp.includes('rel="icon" href="<?= $docsFaviconIcoUrl ?>"'), 'Docs app wires the ICO favicon into the SPA shell');
+  context.assert(indexPhp.includes('rel="apple-touch-icon" href="<?= $docsAppleTouchIconUrl ?>"'), 'Docs app wires the Apple touch icon into the SPA shell');
   context.assert(indexPhp.includes('href="/xtend.css?v='), 'Docs app loads XTend base CSS with cache busting');
   context.assert(indexPhp.includes('src="/xtend-loader.js?v='), 'Docs app uses versioned root-local canonical loader URL');
   context.assert(indexPhp.includes('import\' => \'/docs/utils/pageloader.js?v=\''), 'Docs app routes import the absolute versioned page loader module');
@@ -257,6 +264,8 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(!/\.docs-page-sidebar\s*\{[^}]*position:\s*sticky/u.test(pageLoader), 'Docs shadow-scoped sidebar scrolls with the page instead of sticking to the viewport');
   context.assert(pageLoader.includes('renderDocsComponentDemo'), 'Docs page loader renders hands-on component demos');
   context.assert(pageLoader.includes('DOCS_COMPONENT_DEMOS'), 'Docs page loader declares component demo registry');
+  context.assert(pageLoader.includes("getDocsAssetUrl('lightboxLogo'"), 'Docs page loader uses the hardened docs asset endpoint for media demos');
+  context.assert(!pageLoader.includes('src="/XTend-Logo.png"'), 'Docs page loader avoids root-relative parent asset URLs in demos');
   context.assert(pageLoader.includes('resolveDocsToastApi'), 'Docs page loader routes toast actions through the framework toast API');
   context.assert(pageLoader.includes('xtend-docs-toast-dropped'), 'Docs page loader emits a diagnostic when the framework toast API is unavailable');
   context.assert(!pageLoader.includes('XTend Toast Middleware'), 'Docs page loader no longer owns a custom toast middleware');
