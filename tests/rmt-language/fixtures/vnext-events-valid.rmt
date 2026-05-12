@@ -1,0 +1,19 @@
+template interactions.page {
+  surface root {
+    lane critical {
+      mount settings-card {
+        slot body {
+          hydrate settings-form from endpoint settings.load
+          hydrate worker-preview from worker preview.render
+        }
+
+        on submit -> action settings.save
+        on cancel -> action settings.cancel when settings.dirty == false
+      }
+    }
+
+    lane normal {
+      stream notification-feed from sse notifications.feed
+    }
+  }
+}

@@ -1,0 +1,10 @@
+import "./shared/*.rmt"
+import "./feature/card.rmt"
+
+template app.page {
+  surface root {
+    lane critical {
+      hydrate app-shell
+    }
+  }
+}

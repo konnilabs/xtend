@@ -1,0 +1,19 @@
+template lifecycle.page {
+  surface root {
+    lane critical weight 10 {
+      mount app-shell
+      hydrate app-shell
+      suspend app-shell
+      resume app-shell
+      invalidate app-shell
+      dispose app-shell
+    }
+
+    lane idle weight 1 {
+      prewarm app-shell
+      recycle app-shell
+      detach app-shell
+      reattach app-shell
+    }
+  }
+}

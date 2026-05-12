@@ -1,0 +1,11 @@
+template security.missing {
+  surface root {
+    lane critical {
+      hydrate markdown-viewer from endpoint docs.parse
+    }
+
+    lane normal {
+      stream docs-feed from sse docs.feed
+    }
+  }
+}

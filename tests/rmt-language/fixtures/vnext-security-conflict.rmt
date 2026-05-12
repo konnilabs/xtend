@@ -1,0 +1,11 @@
+template security.conflict {
+  surface root {
+    lane critical {
+      hydrate markdown-viewer from endpoint docs.parse {
+        trust boundary "xtend.security.sanitizing-boundary.v1"
+        trust boundary "xtend.security.worker-boundary.v1"
+        sanitize html
+      }
+    }
+  }
+}

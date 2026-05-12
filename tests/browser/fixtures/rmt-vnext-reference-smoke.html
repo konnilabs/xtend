@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-rmt-vnext-smoke="wp-e15-17">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-rmt-vnext-smoke-contract" content="xtend.rmt.vnext-browser-smoke.v1">
+  <title>RMT vNext Reference Smoke</title>
+</head>
+<body>
+  <main id="rmt-vnext-smoke-root" data-rmt-vnext-reference="true">
+    <section data-surface="root" data-lane="critical" data-weight="10">
+      <div data-operation="hydrate" data-target="streaming-shell"></div>
+      <div data-operation="stream" data-source-kind="sse" data-trust-boundary="xtend.security.streaming-boundary.v1"></div>
+    </section>
+  </main>
+
+  <script type="application/json" id="rmt-vnext-core-probe">
+    {
+      "schema": "xtend.rmt.vnext-browser-smoke.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "documentId": "docs.page",
+      "surfaces": ["root"],
+      "lanes": [
+        { "name": "critical", "weight": 10 },
+        { "name": "background", "weight": 1 }
+      ],
+      "operations": [
+        { "kind": "lifecycle", "op": "hydrate" },
+        { "kind": "stream", "op": "stream", "sourceKind": "sse" }
+      ],
+      "securityPolicies": ["trust_boundary", "sanitize"],
+      "dataSources": ["endpoint", "sse", "worker"]
+    }
+  </script>
+
+  <script>
+    (() => {
+      const checks = [];
+      const recordCheck = (name, ok, details = null) => {
+        checks.push({ name, ok: Boolean(ok), details });
+      };
+      const probe = JSON.parse(document.getElementById('rmt-vnext-core-probe').textContent);
+
+      recordCheck('vNext surface root visible', probe.surfaces.includes('root'), probe.surfaces);
+      recordCheck('vNext lifecycle operation available', probe.operations.some((operation) => operation.kind === 'lifecycle' && operation.op === 'hydrate'), probe.operations);
+      recordCheck('vNext scheduler lane weighted', probe.lanes.some((lane) => typeof lane.weight === 'number'), probe.lanes);
+      recordCheck('vNext security policy attached', probe.securityPolicies.includes('trust_boundary') && probe.securityPolicies.includes('sanitize'), probe.securityPolicies);
+      recordCheck('vNext streaming operation available', probe.operations.some((operation) => operation.kind === 'stream') && probe.dataSources.length > 0, probe.dataSources);
+
+      window.__xtendRmtVNextSmokeResult = {
+        schema: 'xtend.rmt.vnext-browser-smoke.v1',
+        status: checks.every((check) => check.ok) ? 'passed' : 'failed',
+        documentId: probe.documentId,
+        checks,
+        errors: checks.filter((check) => !check.ok).map((check) => check.name)
+      };
+    })();
+  </script>
+</body>
+</html>

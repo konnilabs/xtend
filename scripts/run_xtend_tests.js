@@ -94,6 +94,66 @@ const {
   runRmtParserSuite
 } = require('../tests/rmt-language/rmt_parser_suite');
 const {
+  printRmtVNextParserReport,
+  runRmtVNextParserSuite
+} = require('../tests/rmt-language/rmt_vnext_parser_suite');
+const {
+  printRmtVNextCompilerReport,
+  runRmtVNextCompilerSuite
+} = require('../tests/rmt-language/rmt_vnext_compiler_suite');
+const {
+  printRmtVNextLifecycleReport,
+  runRmtVNextLifecycleSuite
+} = require('../tests/rmt-language/rmt_vnext_lifecycle_suite');
+const {
+  printRmtVNextSchedulerReport,
+  runRmtVNextSchedulerSuite
+} = require('../tests/rmt-language/rmt_vnext_scheduler_suite');
+const {
+  printRmtVNextSurfaceRegistryReport,
+  runRmtVNextSurfaceRegistrySuite
+} = require('../tests/rmt-language/rmt_vnext_surface_registry_suite');
+const {
+  printRmtVNextConditionsReport,
+  runRmtVNextConditionsSuite
+} = require('../tests/rmt-language/rmt_vnext_conditions_suite');
+const {
+  printRmtVNextCompositionReport,
+  runRmtVNextCompositionSuite
+} = require('../tests/rmt-language/rmt_vnext_composition_suite');
+const {
+  printRmtVNextImportResolverReport,
+  runRmtVNextImportResolverSuite
+} = require('../tests/rmt-language/rmt_vnext_import_resolver_suite');
+const {
+  printRmtVNextEventsReport,
+  runRmtVNextEventsSuite
+} = require('../tests/rmt-language/rmt_vnext_events_suite');
+const {
+  printRmtVNextSecurityReport,
+  runRmtVNextSecuritySuite
+} = require('../tests/rmt-language/rmt_vnext_security_suite');
+const {
+  printRmtVNextStreamingReport,
+  runRmtVNextStreamingSuite
+} = require('../tests/rmt-language/rmt_vnext_streaming_suite');
+const {
+  printRmtVNextToolingReport,
+  runRmtVNextToolingSuite
+} = require('../tests/rmt-language/rmt_vnext_tooling_suite');
+const {
+  printRmtVNextCompatibilityReport,
+  runRmtVNextCompatibilitySuite
+} = require('../tests/rmt-language/rmt_vnext_compatibility_suite');
+const {
+  printRmtVNextRegressionReport,
+  runRmtVNextRegressionSuite
+} = require('../tests/rmt-language/rmt_vnext_regression_suite');
+const {
+  printRmtVNextReleaseHandoffReport,
+  runRmtVNextReleaseHandoffSuite
+} = require('../tests/rmt-language/rmt_vnext_release_handoff_suite');
+const {
   printRmtSemanticGraphReport,
   runRmtSemanticGraphSuite
 } = require('../tests/rmt-language/rmt_semantic_graph_suite');
@@ -595,6 +655,156 @@ const suites = [
       const result = runRmtParserSuite({ rootDir });
       printRmtParserReport(result);
       return toRunnerResult('rmt-parser', 'Epic 14 RMT Parser and Format Adapter', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-parser',
+    label: 'Epic 15 RMT vNext Lexer and Parser MVP',
+    description: 'Runs the WP-E15-04 RMT vNext lexer, AST, source range and syntax diagnostic gates.',
+    run: () => {
+      const result = runRmtVNextParserSuite({ rootDir });
+      printRmtVNextParserReport(result);
+      return toRunnerResult('rmt-vnext-parser', 'Epic 15 RMT vNext Lexer and Parser MVP', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-compiler',
+    label: 'Epic 15 RMT vNext Compiler to Core',
+    description: 'Runs the WP-E15-05 RMT vNext AST-to-Core compiler, source map and golden serialization gates.',
+    run: () => {
+      const result = runRmtVNextCompilerSuite({ rootDir });
+      printRmtVNextCompilerReport(result);
+      return toRunnerResult('rmt-vnext-compiler', 'Epic 15 RMT vNext Compiler to Core', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-lifecycle',
+    label: 'Epic 15 RMT vNext Lifecycle Operation Contract',
+    description: 'Runs the WP-E15-06 RMT vNext lifecycle operation matrix, idempotency and adapter capability gates.',
+    run: () => {
+      const result = runRmtVNextLifecycleSuite({ rootDir });
+      printRmtVNextLifecycleReport(result);
+      return toRunnerResult('rmt-vnext-lifecycle', 'Epic 15 RMT vNext Lifecycle Operation Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-scheduler',
+    label: 'Epic 15 RMT vNext Scheduler Policy Contract',
+    description: 'Runs the WP-E15-07 RMT vNext lane normalization, budget, chunking and backpressure gates.',
+    run: () => {
+      const result = runRmtVNextSchedulerSuite({ rootDir });
+      printRmtVNextSchedulerReport(result);
+      return toRunnerResult('rmt-vnext-scheduler', 'Epic 15 RMT vNext Scheduler Policy Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-surfaces',
+    label: 'Epic 15 RMT vNext Surface Registry Contract',
+    description: 'Runs the WP-E15-08 RMT vNext surface type, registry and relation validation gates.',
+    run: () => {
+      const result = runRmtVNextSurfaceRegistrySuite({ rootDir });
+      printRmtVNextSurfaceRegistryReport(result);
+      return toRunnerResult('rmt-vnext-surfaces', 'Epic 15 RMT vNext Surface Registry Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-conditions',
+    label: 'Epic 15 RMT vNext Condition Expression Contract',
+    description: 'Runs the WP-E15-09 RMT vNext condition expression, path catalog and type inference gates.',
+    run: () => {
+      const result = runRmtVNextConditionsSuite({ rootDir });
+      printRmtVNextConditionsReport(result);
+      return toRunnerResult('rmt-vnext-conditions', 'Epic 15 RMT vNext Condition Expression Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-composition',
+    label: 'Epic 15 RMT vNext Composition and Component Binding Contract',
+    description: 'Runs the WP-E15-10 RMT vNext slot binding, nested operation and component adapter gates.',
+    run: () => {
+      const result = runRmtVNextCompositionSuite({ rootDir });
+      printRmtVNextCompositionReport(result);
+      return toRunnerResult('rmt-vnext-composition', 'Epic 15 RMT vNext Composition and Component Binding Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-imports',
+    label: 'Epic 15 RMT vNext Import Resolver and Module Graph Contract',
+    description: 'Runs the WP-E15-11 RMT vNext static import resolver, package boundary and module graph gates.',
+    run: () => {
+      const result = runRmtVNextImportResolverSuite({ rootDir });
+      printRmtVNextImportResolverReport(result);
+      return toRunnerResult('rmt-vnext-imports', 'Epic 15 RMT vNext Import Resolver and Module Graph Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-events',
+    label: 'Epic 15 RMT vNext Event, Action and Data Source Contract',
+    description: 'Runs the WP-E15-12 RMT vNext event/action reference, payload and data source capability gates.',
+    run: () => {
+      const result = runRmtVNextEventsSuite({ rootDir });
+      printRmtVNextEventsReport(result);
+      return toRunnerResult('rmt-vnext-events', 'Epic 15 RMT vNext Event, Action and Data Source Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-security',
+    label: 'Epic 15 RMT vNext Security Policy Contract',
+    description: 'Runs the WP-E15-13 RMT vNext trust boundary, sanitize policy and unsafe-flow gates.',
+    run: () => {
+      const result = runRmtVNextSecuritySuite({ rootDir });
+      printRmtVNextSecurityReport(result);
+      return toRunnerResult('rmt-vnext-security', 'Epic 15 RMT vNext Security Policy Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-streaming',
+    label: 'Epic 15 RMT vNext Streaming and Incremental Rendering Contract',
+    description: 'Runs the WP-E15-14 RMT vNext streaming, chunking, backpressure and host-neutral runtime probe gates.',
+    run: () => {
+      const result = runRmtVNextStreamingSuite({ rootDir });
+      printRmtVNextStreamingReport(result);
+      return toRunnerResult('rmt-vnext-streaming', 'Epic 15 RMT vNext Streaming and Incremental Rendering Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-tooling',
+    label: 'Epic 15 RMT vNext Tooling Adapter',
+    description: 'Runs the WP-E15-15 RMT vNext linter, LSP, formatter, snippets and source-map tooling gates.',
+    run: () => {
+      const result = runRmtVNextToolingSuite({ rootDir });
+      printRmtVNextToolingReport(result);
+      return toRunnerResult('rmt-vnext-tooling', 'Epic 15 RMT vNext Tooling Adapter', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-compatibility',
+    label: 'Epic 15 RMT vNext Compatibility and Migration',
+    description: 'Runs the WP-E15-16 RMT vNext legacy JSON roundtrip, migration report and compatibility matrix gates.',
+    run: () => {
+      const result = runRmtVNextCompatibilitySuite({ rootDir });
+      printRmtVNextCompatibilityReport(result);
+      return toRunnerResult('rmt-vnext-compatibility', 'Epic 15 RMT vNext Compatibility and Migration', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-regression',
+    label: 'Epic 15 RMT vNext Fixture Regression Gate',
+    description: 'Runs the WP-E15-17 RMT vNext fixture matrix, golden compiler, parser fuzz and browser reference gates.',
+    run: () => {
+      const result = runRmtVNextRegressionSuite({ rootDir });
+      printRmtVNextRegressionReport(result);
+      return toRunnerResult('rmt-vnext-regression', 'Epic 15 RMT vNext Fixture Regression Gate', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-release',
+    label: 'Epic 15 RMT vNext Release Handoff',
+    description: 'Runs the WP-E15-18 RMT vNext docs, reference demo, release gate matrix and handoff gates.',
+    run: () => {
+      const result = runRmtVNextReleaseHandoffSuite({ rootDir });
+      printRmtVNextReleaseHandoffReport(result);
+      return toRunnerResult('rmt-vnext-release', 'Epic 15 RMT vNext Release Handoff', result);
     }
   },
   {
@@ -1453,6 +1663,21 @@ Examples:
   node scripts/run_xtend_tests.js rmt-dsl-authoring-polish
   node scripts/run_xtend_tests.js rmt-source-model
   node scripts/run_xtend_tests.js rmt-parser
+  node scripts/run_xtend_tests.js rmt-vnext-parser
+  node scripts/run_xtend_tests.js rmt-vnext-compiler
+  node scripts/run_xtend_tests.js rmt-vnext-lifecycle
+  node scripts/run_xtend_tests.js rmt-vnext-scheduler
+  node scripts/run_xtend_tests.js rmt-vnext-surfaces
+  node scripts/run_xtend_tests.js rmt-vnext-conditions
+  node scripts/run_xtend_tests.js rmt-vnext-composition
+  node scripts/run_xtend_tests.js rmt-vnext-imports
+  node scripts/run_xtend_tests.js rmt-vnext-events
+  node scripts/run_xtend_tests.js rmt-vnext-security
+  node scripts/run_xtend_tests.js rmt-vnext-streaming
+  node scripts/run_xtend_tests.js rmt-vnext-tooling
+  node scripts/run_xtend_tests.js rmt-vnext-compatibility
+  node scripts/run_xtend_tests.js rmt-vnext-regression
+  node scripts/run_xtend_tests.js rmt-vnext-release
   node scripts/run_xtend_tests.js rmt-semantic-graph
   node scripts/run_xtend_tests.js rmt-linter-rules
   node scripts/run_xtend_tests.js rmt-linter-cli

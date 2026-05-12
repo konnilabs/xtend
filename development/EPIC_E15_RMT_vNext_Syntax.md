@@ -1,10 +1,90 @@
-# EPIC E15 — RMT vNext Syntax & Lifecycle-Oriented DSL
+# XTend Epic 15 - RMT vNext Syntax & Lifecycle-Oriented DSL
+
+- Status: `completed / vNext Release Handoff accepted`
+- Datum: 12. Mai 2026
+- Typ: Epic / Syntax-Contract und Implementierungsplan
+- Contract: `xtend.rmt.vnext-syntax.v1`
+- WP-E15-01 Contract: `xtend.epic15.wp01.vnext-syntax-scope-source-of-truth.v1`
+- WP-E15-02 Contract: `xtend.rmt.vnext.grammar.v1`
+- WP-E15-03 Contract: `xtend.rmt.core-format.vnext.v1`
+- WP-E15-04 Contract: `xtend.rmt.vnext-parser.v1`
+- WP-E15-05 Contract: `xtend.rmt.vnext-compiler.v1`
+- WP-E15-06 Contract: `xtend.rmt.vnext-lifecycle.v1`
+- WP-E15-07 Contract: `xtend.rmt.vnext-scheduler-policy.v1`
+- WP-E15-08 Contract: `xtend.rmt.vnext-surface-registry.v1`
+- WP-E15-09 Contract: `xtend.rmt.vnext-condition-contract.v1`
+- WP-E15-10 Contract: `xtend.rmt.vnext-composition.v1`
+- WP-E15-11 Contract: `xtend.rmt.vnext-import-resolver.v1`
+- WP-E15-12 Contract: `xtend.rmt.vnext-event-action-contract.v1`
+- WP-E15-13 Contract: `xtend.rmt.vnext-security-policy-contract.v1`
+- WP-E15-14 Contract: `xtend.rmt.vnext-streaming-contract.v1`
+- WP-E15-15 Contract: `xtend.rmt.vnext-tooling-adapter.v1`
+- WP-E15-16 Contract: `xtend.rmt.vnext-compatibility-matrix.v1`
+- WP-E15-17 Contract: `xtend.rmt.vnext-regression-gate.v1`
+- WP-E15-18 Contract: `xtend.rmt.vnext-release-handoff.v1`
+- Zielreife: `rmt-vnext-release-ready`
+- Boundary: `no-rmt-kernel-import-of-host-runtime-types`
+- Primaerer Dateityp: `.rmt`
+- Compiler-Ziel: JSON-kompatibles RMT Core Format
+- Legacy-Kompatibilitaet: bestehende JSON-nahe `.rmt` und `.rmt.json` Dokumente bleiben opt-in migrierbar
+- Bezug:
+  - `development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md`
+  - `development/WP-E14-01-RMT-Tooling-Scope-Architektur-und-Diagnosemodell-einfrieren.md`
+  - `development/XTendRMT-DSL-Tooling-Architektur.md`
+  - `development/XTendRMT-vNext-Grammar-Contract.md`
+  - `development/XTendRMT-vNext-Core-Format-Contract.md`
+  - `development/XTendRMT-vNext-Lifecycle-Operation-Contract.md`
+  - `development/XTendRMT-vNext-Scheduler-Policy-Contract.md`
+  - `development/XTendRMT-vNext-Surface-Registry-Contract.md`
+  - `development/XTendRMT-vNext-Condition-Expression-Contract.md`
+  - `development/XTendRMT-vNext-Composition-Component-Binding-Contract.md`
+  - `development/XTendRMT-vNext-Import-Resolver-Contract.md`
+  - `development/XTendRMT-vNext-Event-Action-DataSource-Contract.md`
+  - `development/XTendRMT-vNext-Security-Policy-Contract.md`
+  - `development/XTendRMT-vNext-Streaming-Contract.md`
+  - `development/XTendRMT-vNext-Tooling-Adapter-Contract.md`
+  - `development/XTendRMT-vNext-Compatibility-Migration-Contract.md`
+  - `development/XTendRMT-vNext-Fixture-Regression-Gate-Contract.md`
+  - `development/XTendRMT-vNext-Release-Handoff-Contract.md`
+  - `development/WP-E15-01-Epic-Identity-Scope-und-Source-of-Truth-einfrieren.md`
+  - `development/WP-E15-02-Syntax-Contract-und-Grammar-MVP-definieren.md`
+  - `development/WP-E15-03-Core-Format-vNext-AST-und-Schema-Mapping-spezifizieren.md`
+  - `development/WP-E15-04-Lexer-Parser-MVP-fuer-Templates-Surfaces-Lanes-und-Lifecycle-Ops-bauen.md`
+  - `development/WP-E15-05-Compiler-DSL-zu-Core-mit-Source-Maps-und-Diagnostics-anbinden.md`
+  - `development/WP-E15-06-Lifecycle-Semantik-und-Operation-Contract-haerten.md`
+  - `development/WP-E15-07-Scheduling-Lanes-Chunking-und-Backpressure-modellieren.md`
+  - `development/WP-E15-08-Surface-Orchestrierung-und-Host-neutral-Surface-Registry-bauen.md`
+  - `development/WP-E15-09-Conditions-und-deklaratives-Expression-Subset-definieren.md`
+  - `development/WP-E15-10-Slots-Composition-und-Component-Binding-integrieren.md`
+  - `development/WP-E15-11-Imports-Module-Resolution-und-Package-Boundaries-implementieren.md`
+  - `development/WP-E15-12-Events-Actions-und-Data-Sources-anbinden.md`
+  - `development/WP-E15-13-Trust-Boundaries-Sanitizing-und-Security-Policies-integrieren.md`
+  - `development/WP-E15-14-Streaming-und-Incremental-Rendering-Contract-vorbereiten.md`
+  - `development/WP-E15-15-Tooling-Update-fuer-Linter-LSP-Formatter-und-Snippets-bauen.md`
+  - `development/WP-E15-16-Compatibility-Migration-und-Legacy-JSON-Roundtrip-absichern.md`
+  - `development/WP-E15-17-Fixtures-Compiler-Golden-Tests-Fuzzing-und-Browser-Smokes-erweitern.md`
+  - `development/WP-E15-18-Docs-Reference-Demo-Release-Gates-und-Handoff-finalisieren.md`
+  - `docs/rmt-vnext-authoring.md`
+  - `docs/rmt-vnext-migration-notes.md`
+  - `docs/rmt-vnext-release-handoff.md`
+  - `xtendrmt/rmt-vnext-reference-demo.rmt`
+  - `xtendrmt/rmt-vnext-reference-demo.core.json`
+  - `development/XTendRMT-Upstream-Handoff-Spezifikation.md`
+  - `development/XTendRMT-Migrations-und-Framework-Agnostik-Leitplanken.md`
+  - `docs/xtendrmt-native-authoring.md`
+  - `docs/xtendrmt-app-dsl.md`
+  - `docs/rmt-dsl-authoring-polish.md`
+  - `xtendrmt/rmt.schema.json`
+  - `tools/rmt-language/`
+  - `tests/rmt/`
 
 ## Status
 
-Draft / Architecture Target
+Epic 15 ist abgeschlossen. RMT vNext besitzt nun Syntax-Contract, Parser, Compiler, Semantikmodule, Tooling, Compatibility/Migration, Regression-Gates, Authoring-Dokumentation, Reference Demo, Core-Output und Release-Handoff.
 
----
+Naechstes startbares Paket:
+
+- keine weiteren Epic-15-Pakete
 
 # Vision
 
@@ -22,6 +102,63 @@ Die Sprache soll nicht primär UI-Markup beschreiben, sondern:
 - Compute- und UI-Orchestrierung verbinden
 
 RMT soll langfristig die zentrale deklarative Sprache des XTend-Ökosystems werden.
+
+---
+
+# Scope Freeze nach WP-E15-01
+
+Epic 15 fuehrt keine zweite Runtime und keinen neuen Host-spezifischen Produktpfad ein. Das Epic definiert und implementiert eine menschenfreundliche Authoring-Syntax, die deterministisch in das bestehende RMT-Prinzip aus Core-Format, Tooling-Schicht, Adapter-Contracts und host-neutraler Runtime uebersetzt wird.
+
+## In Scope fuer das vNext MVP
+
+- Authoring-Syntax fuer `template`, `surface`, `lane` und Lifecycle-Operationen
+- Core-Format-vNext-Mapping als JSON-kompatibles Compiler-Ziel
+- AST, Source Maps und Diagnostics fuer Linter, LSP und AI-Agent-Reports
+- Parser und Compiler fuer native `.rmt` vNext-Dateien
+- deklaratives `when` Expression-Subset ohne Runtime-Eval
+- `slot` Composition als Orchestrierung ueber Component Adapter
+- statische `import` Aufloesung mit deterministischem Module Graph
+- `on ... -> action ...` und `from ...` als referenzielle Contracts
+- Trust-Boundary- und Sanitizing-Policies fuer unsichere Datenfluesse
+- Streaming- und Incremental-Rendering-Records als Capability-basierte Core-Nodes
+- Legacy-Kompatibilitaet und Migration fuer bestehende JSON-nahe RMT-Dokumente
+
+## Out of Scope fuer das vNext MVP
+
+- imperative Skriptbloecke, Funktionsdefinitionen oder freies Eval
+- JSX-, HTML- oder Template-Engine-Kompatibilitaet als Sprachziel
+- Host-spezifische Runtime-Imports im RMT-Kernel
+- automatische Migration aller historischen Dokumente ohne Opt-in
+- Editor-spezifische Analyse ausserhalb der gemeinsamen RMT-Language-Schicht
+- produktiver Formatter als Blocker fuer Parser- und Compiler-MVP
+- neue XTend-, XRouter-, React-, Vue- oder DOM-Sonderlogik im Kernel
+
+## Source-of-Truth-Matrix
+
+| Artefaktklasse | Fuehrende Rolle in Epic 15 | Schutzregel |
+|----------------|----------------------------|-------------|
+| `development/EPIC_E15_RMT_vNext_Syntax.md` | Epic-Plan, WP-Backlog, Scope und Handoff | darf Zielbild und Arbeitsplanung fuehren, aber keine Parserdetails als einzige Quelle verstecken |
+| `development/WP-E15-*.md` | einzelne Workpackage-Contracts und Abnahmen | jedes abgeschlossene WP benennt Gate, Artefakte und Folgepaket |
+| `tools/rmt-language/` | gemeinsame Sprachebene fuer Source Model, Parser, AST, Compiler, Diagnostics und Tooling-Fakten | Linter, CLI und LSP duerfen keine zweite Semantik daneben aufbauen |
+| `tools/rmt-linter/` | CLI-/CI-Adapter fuer Diagnosen und Reports | nutzt `tools/rmt-language/`, fuehrt keine Host-Runtime aus |
+| `tools/rmt-language-server/` | LSP-Adapter fuer Completion, Hover, Symbols, Definitions und Code Actions | nutzt dieselben Parser-, Compiler- und Semantic-Graph-Fakten wie CLI |
+| `xtendrmt/rmt.schema.json` | Schema-Output und Regression-Referenz fuer Core-Format-Kompatibilitaet | bleibt synchronisiert, ist aber nicht alleinige Architekturquelle |
+| `xtendrmt/rmt-core.*` | gebuendelter Runtime-/Core-Output und Regression-Referenz | Build-Artefakt, nicht Ort fuer dauerhafte Syntaxentscheidungen |
+| `docs/xtendrmt-native-authoring.md` | produktiver Guide fuer bestehende native JSON-nahe App-DSL | bleibt gueltig; vNext Authoring wird additiv dokumentiert |
+| `docs/xtendrmt-app-dsl.md` | Referenz fuer aktuelle Core-/App-Domains | vNext muss auf diese Domains mappen oder Deltas explizit versionieren |
+| `docs/rmt-dsl-authoring-polish.md` | Vorarbeit fuer Authoring-Ergonomie und Aliasdiagnostik | Ideen duerfen uebernommen werden, Kernel-Boundary bleibt verbindlich |
+| `tests/rmt/` und `tests/fixtures/` | lokale Contract-, Parser-, Compatibility- und Golden-Test-Gates | neue Syntax braucht positive und negative Fixtures |
+| `tests/references/` | Referenzpfad- und Dokumentationsgates | haelt Docs, Development-Contracts und Beispiele auffindbar |
+
+## Kompatibilitaetsentscheidung
+
+RMT vNext ist additiv.
+
+- Bestehende JSON-nahe `.rmt` Dokumente bleiben lesbar.
+- `.rmt.json` und reine `.json` Dokumente bleiben Fallback- und Migrationspfade, aber nicht der bevorzugte neue Authoring-Stil.
+- vNext Authoring kompiliert in Core-Records; Runtime-Hosts konsumieren Core, nicht DSL-Text.
+- Migration erfolgt bewusst pro Datei, Root, Package oder App; es gibt keine stille globale Umstellung.
+- Legacy- und vNext-Fixtures muessen im selben Tooling-Gate nebeneinander pruefbar bleiben.
 
 ---
 
@@ -494,9 +631,13 @@ Ein Workpackage darf gestartet werden, wenn:
 
 ## Nächste startbare Workpackages
 
-`WP-E15-01` ist startbar.
+Keine weiteren Epic-15-Workpackages sind startbar.
 
-Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entscheidungen abhängig, damit die vNext-Syntax nicht durch Ad-hoc-Parserverhalten festgeschrieben wird.
+Epic 15 ist mit `WP-E15-18` abgeschlossen.
+
+Der erreichte Zielzustand ist `rmt-vnext-release-ready`.
+
+Folgearbeiten sind als separate Epic-Kandidaten benannt: Runtime Adapter, Formatter/Writer API, Workspace Project Index und Editor Distribution.
 
 ---
 
@@ -504,24 +645,24 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 
 | ID | Priorität | Status | Workstream | Titel | Abhängigkeiten |
 |----|-----------|--------|------------|-------|----------------|
-| `WP-E15-01` | P0 | ready | WS0 | Epic-Identity, Scope und Source-of-Truth einfrieren | - |
-| `WP-E15-02` | P0 | next | WS1 | Syntax Contract und Grammar MVP definieren | `WP-E15-01` |
-| `WP-E15-03` | P0 | blocked | WS1 | Core Format vNext, AST und Schema Mapping spezifizieren | `WP-E15-01`, `WP-E15-02` |
-| `WP-E15-04` | P0 | blocked | WS1 | Lexer/Parser MVP für Templates, Surfaces, Lanes und Lifecycle Ops bauen | `WP-E15-02`, `WP-E15-03` |
-| `WP-E15-05` | P0 | blocked | WS1 | Compiler DSL zu Core mit Source Maps und Diagnostics anbinden | `WP-E15-04` |
-| `WP-E15-06` | P1 | blocked | WS2 | Lifecycle Semantik und Operation Contract härten | `WP-E15-03`, `WP-E15-05` |
-| `WP-E15-07` | P1 | blocked | WS2 | Scheduling, Lanes, Chunking und Backpressure modellieren | `WP-E15-03`, `WP-E15-05` |
-| `WP-E15-08` | P1 | blocked | WS2 | Surface-Orchestrierung und Host-neutral Surface Registry bauen | `WP-E15-03`, `WP-E15-05` |
-| `WP-E15-09` | P1 | blocked | WS3 | Conditions und deklaratives Expression Subset definieren | `WP-E15-02`, `WP-E15-05` |
-| `WP-E15-10` | P1 | blocked | WS3 | Slots, Composition und Component Binding integrieren | `WP-E15-05`, `WP-E15-06` |
-| `WP-E15-11` | P1 | blocked | WS3 | Imports, Module Resolution und Package Boundaries implementieren | `WP-E15-05` |
-| `WP-E15-12` | P1 | blocked | WS3 | Events, Actions und Data Sources anbinden | `WP-E15-05`, `WP-E15-09` |
-| `WP-E15-13` | P1 | blocked | WS4 | Trust Boundaries, Sanitizing und Security Policies integrieren | `WP-E15-03`, `WP-E15-05` |
-| `WP-E15-14` | P1 | blocked | WS4 | Streaming und Incremental Rendering Contract vorbereiten | `WP-E15-07`, `WP-E15-12`, `WP-E15-13` |
-| `WP-E15-15` | P1 | blocked | WS5 | Tooling Update für Linter, LSP, Formatter und Snippets bauen | `WP-E15-04`, `WP-E15-05` |
-| `WP-E15-16` | P2 | blocked | WS5 | Compatibility, Migration und Legacy JSON Roundtrip absichern | `WP-E15-05`, `WP-E15-15` |
-| `WP-E15-17` | P2 | blocked | WS6 | Fixtures, Compiler Golden Tests, Fuzzing und Browser-Smokes erweitern | `WP-E15-06`, `WP-E15-14`, `WP-E15-16` |
-| `WP-E15-18` | P2 | blocked | WS6 | Docs, Reference Demo, Release Gates und Handoff finalisieren | `WP-E15-15`, `WP-E15-17` |
+| `WP-E15-01` | P0 | completed | WS0 | Epic-Identity, Scope und Source-of-Truth einfrieren | - |
+| `WP-E15-02` | P0 | completed | WS1 | Syntax Contract und Grammar MVP definieren | `WP-E15-01` |
+| `WP-E15-03` | P0 | completed | WS1 | Core Format vNext, AST und Schema Mapping spezifizieren | `WP-E15-01`, `WP-E15-02` |
+| `WP-E15-04` | P0 | completed | WS1 | Lexer/Parser MVP für Templates, Surfaces, Lanes und Lifecycle Ops bauen | `WP-E15-02`, `WP-E15-03` |
+| `WP-E15-05` | P0 | completed | WS1 | Compiler DSL zu Core mit Source Maps und Diagnostics anbinden | `WP-E15-04` |
+| `WP-E15-06` | P1 | completed | WS2 | Lifecycle Semantik und Operation Contract härten | `WP-E15-03`, `WP-E15-05` |
+| `WP-E15-07` | P1 | completed | WS2 | Scheduling, Lanes, Chunking und Backpressure modellieren | `WP-E15-03`, `WP-E15-05` |
+| `WP-E15-08` | P1 | completed | WS2 | Surface-Orchestrierung und Host-neutral Surface Registry bauen | `WP-E15-03`, `WP-E15-05` |
+| `WP-E15-09` | P1 | completed | WS3 | Conditions und deklaratives Expression Subset definieren | `WP-E15-02`, `WP-E15-05` |
+| `WP-E15-10` | P1 | completed | WS3 | Slots, Composition und Component Binding integrieren | `WP-E15-05`, `WP-E15-06` |
+| `WP-E15-11` | P1 | completed | WS3 | Imports, Module Resolution und Package Boundaries implementieren | `WP-E15-05` |
+| `WP-E15-12` | P1 | completed | WS3 | Events, Actions und Data Sources anbinden | `WP-E15-05`, `WP-E15-09` |
+| `WP-E15-13` | P1 | completed | WS4 | Trust Boundaries, Sanitizing und Security Policies integrieren | `WP-E15-03`, `WP-E15-05` |
+| `WP-E15-14` | P1 | completed | WS4 | Streaming und Incremental Rendering Contract vorbereiten | `WP-E15-07`, `WP-E15-12`, `WP-E15-13` |
+| `WP-E15-15` | P1 | completed | WS5 | Tooling Update für Linter, LSP, Formatter und Snippets bauen | `WP-E15-04`, `WP-E15-05` |
+| `WP-E15-16` | P2 | completed | WS5 | Compatibility, Migration und Legacy JSON Roundtrip absichern | `WP-E15-05`, `WP-E15-15` |
+| `WP-E15-17` | P2 | completed | WS6 | Fixtures, Compiler Golden Tests, Fuzzing und Browser-Smokes erweitern | `WP-E15-06`, `WP-E15-14`, `WP-E15-16` |
+| `WP-E15-18` | P2 | completed | WS6 | Docs, Reference Demo, Release Gates und Handoff finalisieren | `WP-E15-15`, `WP-E15-17` |
 
 ## Workstreams
 
@@ -542,7 +683,7 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 ### WP-E15-01 - Epic-Identity, Scope und Source-of-Truth einfrieren
 
 - Priorität: `P0`
-- Status: `ready`
+- Status: `completed`
 - Ziel:
   - Epic 15 als eigenständiges Syntax-Epic mit klarer Abgrenzung zu Epic 14 und bestehenden RMT-Contracts stabilisieren
 - Scope:
@@ -560,10 +701,29 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
   - Epic-Nummer, Contract, In-Scope, Out-of-Scope und Migrationsziel sind eindeutig
   - `WP-E15-02` und `WP-E15-03` können ohne Strukturunklarheit starten
 
+## Handoff nach WP-E15-01
+
+`WP-E15-01` ist abgeschlossen und akzeptiert den Contract `xtend.epic15.wp01.vnext-syntax-scope-source-of-truth.v1`.
+
+Erledigt:
+
+- Epic 15 besitzt einen verbindlichen Header mit Contract `xtend.rmt.vnext-syntax.v1`, Zielreife, Boundary, Dateityp- und Kompatibilitaetsentscheidung.
+- Der Scope ist als vNext-MVP und Out-of-Scope-Liste eingefroren.
+- Die Source-of-Truth-Matrix trennt Epic-/WP-Contracts, Sprachebene, Linter, LSP, Schema-Output, Runtime-Bundles, Docs und Tests.
+- RMT vNext bleibt additiv: bestehende JSON-nahe `.rmt` Dokumente bleiben lesbar, `.rmt.json` bleibt Fallback, neue vNext-Syntax kompiliert in Core-Records.
+- Das Dokumentationsreview gegen Epic 14, Epic 05, Native Authoring Guide, App-DSL Reference und DSL Authoring Polish ist dokumentiert.
+- `development/WP-E15-01-Epic-Identity-Scope-und-Source-of-Truth-einfrieren.md` haelt die Abnahme fest.
+
+Naechstes primaeres Paket:
+
+- `WP-E15-02` Syntax Contract und Grammar MVP definieren
+
+`WP-E15-02` ist `ready`.
+
 ### WP-E15-02 - Syntax Contract und Grammar MVP definieren
 
 - Priorität: `P0`
-- Status: `next`
+- Status: `completed`
 - Ziel:
   - konkrete Authoring-Grammatik für die erste vNext-Ausbaustufe festlegen
 - Scope:
@@ -581,10 +741,29 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
   - Parser-MVP kann ohne interpretative Lücken gebaut werden
   - Syntax bleibt lesbar, deterministisch und AST-stabil
 
+## Handoff nach WP-E15-02
+
+`WP-E15-02` ist abgeschlossen und akzeptiert den Contract `xtend.rmt.vnext.grammar.v1`.
+
+Erledigt:
+
+- `development/XTendRMT-vNext-Grammar-Contract.md` definiert das Grammar MVP fuer native vNext `.rmt` Authoring-Syntax.
+- Lexikalisches Modell, Identifier, reservierte Woerter, Kommentare, Strings, Statement-Enden, Semikolons und Trailing-Comma-Entscheidung sind festgelegt.
+- Syntaxformen fuer `import`, `template`, `surface`, `lane`, Lifecycle-Statements, `from`, `when`, `slot`, `on ... -> action`, `trust boundary`, `sanitize` und `stream` sind beschrieben.
+- Conditions sind auf ein deklaratives Expression-Subset ohne Funktionsaufrufe, Listenliterale, Ternary, Eval oder Runtime-Code begrenzt.
+- Gueltige und ungueltige Beispiele decken alle geplanten MVP-Sprachkonzepte ab.
+- `development/WP-E15-02-Syntax-Contract-und-Grammar-MVP-definieren.md` haelt die Abnahme fest.
+
+Naechstes primaeres Paket:
+
+- `WP-E15-03` Core Format vNext, AST und Schema Mapping spezifizieren
+
+`WP-E15-03` ist `ready`.
+
 ### WP-E15-03 - Core Format vNext, AST und Schema Mapping spezifizieren
 
 - Priorität: `P0`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - das JSON-kompatible Compiler-Ziel vor Implementierungsdetails stabilisieren
 - Scope:
@@ -602,10 +781,30 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
   - jede MVP-Syntaxform hat eine eindeutige Core-Repräsentation
   - `WP-E15-04` kann gegen stabile Node-Typen parsen
 
+## Handoff nach WP-E15-03
+
+`WP-E15-03` ist abgeschlossen und akzeptiert den Contract `xtend.rmt.core-format.vnext.v1`.
+
+Erledigt:
+
+- `development/XTendRMT-vNext-Core-Format-Contract.md` definiert das JSON-kompatible Core-Ziel fuer vNext.
+- Stable AST Node Types fuer Dokument, Imports, Templates, Surfaces, Lanes, Lifecycle, Streams, Sources, Conditions, Slots, Events und Security Policies sind festgelegt.
+- Core-Domains fuer `imports`, `templates`, `surfaces`, `lanes`, `operations`, `slots`, `events`, `dataSources`, `securityPolicies` und `sourceMap` sind beschrieben.
+- Source-Map-Regeln verbinden `sourceRef`, AST Pointer, Core JSON Pointer und zero-based Ranges.
+- Schema-Deltas zu `xtendrmt/rmt.schema.json` sind als additive vNext-Erweiterung dokumentiert.
+- Minimal- und Complex-Core-Fixtures sind im Contract enthalten und als JSON parsebar geprueft.
+- `development/WP-E15-03-Core-Format-vNext-AST-und-Schema-Mapping-spezifizieren.md` haelt die Abnahme fest.
+
+Naechstes primaeres Paket:
+
+- `WP-E15-04` Lexer/Parser MVP fuer Templates, Surfaces, Lanes und Lifecycle Ops bauen
+
+`WP-E15-04` ist `ready`.
+
 ### WP-E15-04 - Lexer/Parser MVP für Templates, Surfaces, Lanes und Lifecycle Ops bauen
 
 - Priorität: `P0`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - native vNext-Authoring-Syntax in einen stabilen Syntaxbaum überführen
 - Scope:
@@ -623,10 +822,31 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
   - MVP-Dateien können deterministisch geparst werden
   - Fehler enthalten verwertbare Positionen für Linter und LSP
 
+## Handoff nach WP-E15-04
+
+`WP-E15-04` ist abgeschlossen und akzeptiert den Contract `xtend.rmt.vnext-parser.v1`.
+
+Erledigt:
+
+- `tools/rmt-language/vnext-parser.js` stellt den nativen vNext Lexer/Parser bereit.
+- Der Parser erzeugt `RmtVNextDocument` ASTs mit stabilen Node Types, AST Pointern und Source Ranges.
+- Templates, Surfaces, Lanes, Lifecycle Statements, Stream Statements, Data Sources, Conditions, Slots, Events, Trust Boundaries und Sanitizing Policies sind im MVP parsebar.
+- Syntax- und Kontextfehler liefern Diagnostics mit Line/Column-Ranges.
+- Der bestehende JSON-nahe Epic-14-Parser bleibt unveraendert.
+- Positive und negative vNext-Fixtures liegen unter `tests/rmt-language/fixtures/`.
+- `tests/rmt-language/rmt_vnext_parser_suite.js`, `package.json` und `scripts/run_xtend_tests.js` kennen den Gate `rmt-vnext-parser`.
+- `development/WP-E15-04-Lexer-Parser-MVP-fuer-Templates-Surfaces-Lanes-und-Lifecycle-Ops-bauen.md` haelt die Abnahme fest.
+
+Naechstes primaeres Paket:
+
+- `WP-E15-05` Compiler DSL zu Core mit Source Maps und Diagnostics anbinden
+
+`WP-E15-05` ist `ready`.
+
 ### WP-E15-05 - Compiler DSL zu Core mit Source Maps und Diagnostics anbinden
 
 - Priorität: `P0`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - Authoring-Syntax vollständig in das Core-Format kompilieren
 - Scope:
@@ -644,10 +864,30 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
   - Runtime und Tooling können ausschließlich mit Core-Format weiterarbeiten
   - Source Maps reichen für Linter, LSP und AI-Reports
 
+## Handoff nach WP-E15-05
+
+`WP-E15-05` ist abgeschlossen und akzeptiert den Contract `xtend.rmt.vnext-compiler.v1`.
+
+Erledigt:
+
+- `tools/rmt-language/vnext-compiler.js` kompiliert vNext-AST in das Core-Format `xtend.rmt.core-format.vnext.v1`.
+- Der Compiler erzeugt deterministische Core-Domains fuer `imports`, `templates`, `surfaces`, `lanes`, `operations`, `slots`, `events`, `dataSources`, `securityPolicies` und `sourceMap`.
+- Source Maps verbinden `sourceRef`, AST Pointer, Core JSON Pointer und Source Ranges.
+- Parser-Diagnostics werden in Compiler-Ergebnisse aggregiert; ungueltige Syntax erzeugt kein Core-Dokument.
+- `serializeRmtVNextCore(...)` liefert byte-stabile Golden-Compiler-Ausgabe.
+- `tests/rmt-language/rmt_vnext_compiler_suite.js`, `package.json` und `scripts/run_xtend_tests.js` kennen den Gate `rmt-vnext-compiler`.
+- `development/WP-E15-05-Compiler-DSL-zu-Core-mit-Source-Maps-und-Diagnostics-anbinden.md` haelt die Abnahme fest.
+
+Naechstes primaeres Paket:
+
+- `WP-E15-09` Conditions und deklaratives Expression Subset definieren
+
+`WP-E15-06` ist `completed`.
+
 ### WP-E15-06 - Lifecycle Semantik und Operation Contract härten
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - Lifecycle-Operationen semantisch prüfbar und adapterfähig machen
 - Scope:
@@ -663,11 +903,18 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Lifecycle-Befehle bleiben deklarativ
   - fehlende Adapterfähigkeiten erzeugen Diagnostics statt impliziter Fallbacks
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Lifecycle-Operation-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-06-Lifecycle-Semantik-und-Operation-Contract-haerten.md`
+  - Modul: `tools/rmt-language/vnext-lifecycle.js`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-lifecycle --json`
+  - Package Export: `./rmt-language/vnext-lifecycle`
+  - Handoff: `WP-E15-07` bleibt startbar, `WP-E15-10` ist durch Lifecycle Contract entblockt
 
 ### WP-E15-07 - Scheduling, Lanes, Chunking und Backpressure modellieren
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - Scheduling in der Syntax sichtbar machen, ohne den Kernel an einen konkreten Scheduler zu koppeln
 - Scope:
@@ -684,11 +931,18 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Lanes sind validierbar und referenzierbar
   - Runtime-Hosts können Scheduling-Policies interpretieren, ohne DSL-Text zu parsen
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Scheduler-Policy-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-07-Scheduling-Lanes-Chunking-und-Backpressure-modellieren.md`
+  - Modul: `tools/rmt-language/vnext-scheduler.js`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-scheduler --json`
+  - Package Export: `./rmt-language/vnext-scheduler`
+  - Handoff: `WP-E15-08` bleibt startbar; `WP-E15-14` bleibt bis `WP-E15-12` und `WP-E15-13` blocked
 
 ### WP-E15-08 - Surface-Orchestrierung und Host-neutral Surface Registry bauen
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - Surfaces als eigenständige Orchestrierungsziele modellieren
 - Scope:
@@ -705,11 +959,18 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Surfaces sind ohne DOM-Kopplung beschreibbar
   - Operationen können eindeutig einer Surface zugeordnet werden
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Surface-Registry-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-08-Surface-Orchestrierung-und-Host-neutral-Surface-Registry-bauen.md`
+  - Modul: `tools/rmt-language/vnext-surfaces.js`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-surfaces --json`
+  - Package Export: `./rmt-language/vnext-surfaces`
+  - Handoff: `WP-E15-09` bleibt startbar; `WP-E15-10` kann Surface Registry fuer Component Binding nutzen
 
 ### WP-E15-09 - Conditions und deklaratives Expression Subset definieren
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - `when` Bedingungen ausdrücken, ohne RMT zur Programmiersprache zu machen
 - Scope:
@@ -726,11 +987,18 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Conditions sind deterministisch analysierbar
   - unerlaubte Ausdrücke werden früh diagnostiziert
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Condition-Expression-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-09-Conditions-und-deklaratives-Expression-Subset-definieren.md`
+  - Modul: `tools/rmt-language/vnext-conditions.js`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-conditions --json`
+  - Package Export: `./rmt-language/vnext-conditions`
+  - Handoff: `WP-E15-10` bleibt startbar; `WP-E15-12` ist durch typisierte Conditions entblockt
 
 ### WP-E15-10 - Slots, Composition und Component Binding integrieren
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - verschachtelte Composition deklarativ und komponentenagnostisch abbilden
 - Scope:
@@ -747,11 +1015,19 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Composition bleibt Orchestrierung, nicht HTML-Markup
   - Component Binding funktioniert über Adapter-Contracts
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Composition-Component-Binding-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-10-Slots-Composition-und-Component-Binding-integrieren.md`
+  - Modul: `tools/rmt-language/vnext-composition.js`
+  - Fixture: `tests/rmt-language/fixtures/vnext-composition-valid.rmt`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-composition --json`
+  - Package Export: `./rmt-language/vnext-composition`
+  - Handoff: `WP-E15-11` bleibt startbar; `WP-E15-12` kann Component Bindings fuer Event/Data-Source-Zuordnung nutzen
 
 ### WP-E15-11 - Imports, Module Resolution und Package Boundaries implementieren
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - RMT-Dateien modularisieren, ohne dynamische Codeausführung einzuführen
 - Scope:
@@ -768,11 +1044,19 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Imports sind statisch analysierbar
   - Bundler, CLI und LSP nutzen dieselbe Auflösungslogik
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Import-Resolver-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-11-Imports-Module-Resolution-und-Package-Boundaries-implementieren.md`
+  - Modul: `tools/rmt-language/vnext-import-resolver.js`
+  - Fixtures: `tests/rmt-language/fixtures/vnext-modules*/`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-imports --json`
+  - Package Export: `./rmt-language/vnext-import-resolver`
+  - Handoff: `WP-E15-12` bleibt startbar; `WP-E15-15` kann denselben Module Graph fuer LSP/Bundler nutzen
 
 ### WP-E15-12 - Events, Actions und Data Sources anbinden
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - Events und Datenquellen deklarativ beschreiben, ohne imperative Handler in die Sprache zu holen
 - Scope:
@@ -789,11 +1073,19 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Event-Bindings sind referenziell prüfbar
   - Data Sources bleiben deklarative Capabilities
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Event-Action-DataSource-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-12-Events-Actions-und-Data-Sources-anbinden.md`
+  - Modul: `tools/rmt-language/vnext-events.js`
+  - Fixture: `tests/rmt-language/fixtures/vnext-events-valid.rmt`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-events --json`
+  - Package Export: `./rmt-language/vnext-events`
+  - Handoff: `WP-E15-13` bleibt startbar; `WP-E15-14` bleibt bis Security Policies blockiert
 
 ### WP-E15-13 - Trust Boundaries, Sanitizing und Security Policies integrieren
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - Security-by-Design als eigene DSL- und Core-Domain stabilisieren
 - Scope:
@@ -810,11 +1102,19 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Security ist explizit und auditierbar
   - unsichere Datenflüsse werden nicht still normalisiert
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Security-Policy-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-13-Trust-Boundaries-Sanitizing-und-Security-Policies-integrieren.md`
+  - Modul: `tools/rmt-language/vnext-security.js`
+  - Fixtures: `tests/rmt-language/fixtures/vnext-security-*.rmt`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-security --json`
+  - Package Export: `./rmt-language/vnext-security`
+  - Handoff: `WP-E15-14` ist durch Security Policies entblockt
 
 ### WP-E15-14 - Streaming und Incremental Rendering Contract vorbereiten
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - Streaming, Chunked Hydration und Incremental Rendering in Core- und Runtime-Contracts vorbereiten
 - Scope:
@@ -831,11 +1131,19 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Streaming ist deklarativ beschreibbar
   - Backpressure und Security-Policy bleiben sichtbar
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Streaming-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-14-Streaming-und-Incremental-Rendering-Contract-vorbereiten.md`
+  - Modul: `tools/rmt-language/vnext-streaming.js`
+  - Fixture: `tests/rmt-language/fixtures/vnext-streaming-progressive.rmt`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-streaming --json`
+  - Package Export: `./rmt-language/vnext-streaming`
+  - Handoff: `WP-E15-15` ist durch Streaming Contract entblockt
 
 ### WP-E15-15 - Tooling Update für Linter, LSP, Formatter und Snippets bauen
 
 - Priorität: `P1`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - Epic-14-Tooling auf native vNext-Syntax erweitern
 - Scope:
@@ -852,11 +1160,18 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - IDE-Feedback funktioniert für vNext-Dateien
   - bestehende Epic-14-Funktionen bleiben für Legacy-Dokumente nutzbar
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Tooling-Adapter-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-15-Tooling-Update-fuer-Linter-LSP-Formatter-und-Snippets-bauen.md`
+  - Modul: `tools/rmt-language/vnext-tooling.js`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-tooling --json`
+  - Package Export: `./rmt-language/vnext-tooling`
+  - Handoff: `WP-E15-16` ist durch vNext Tooling entblockt
 
 ### WP-E15-16 - Compatibility, Migration und Legacy JSON Roundtrip absichern
 
 - Priorität: `P2`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - bestehende RMT-Nutzung nicht brechen und kontrollierte Migration ermöglichen
 - Scope:
@@ -873,11 +1188,18 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Migration ist opt-in und nachvollziehbar
   - inkompatible Fälle werden präzise diagnostiziert
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Compatibility-Migration-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-16-Compatibility-Migration-und-Legacy-JSON-Roundtrip-absichern.md`
+  - Modul: `tools/rmt-language/vnext-compatibility.js`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-compatibility --json`
+  - Package Export: `./rmt-language/vnext-compatibility`
+  - Handoff: `WP-E15-17` ist durch Compatibility Matrix und Roundtrip-Gate entblockt
 
 ### WP-E15-17 - Fixtures, Compiler Golden Tests, Fuzzing und Browser-Smokes erweitern
 
 - Priorität: `P2`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - vNext-Syntax gegen Regressionen, Parser-Kanten und Runtime-Smokes absichern
 - Scope:
@@ -894,11 +1216,20 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
 - Definition of Done:
   - Parser, Compiler, Tooling und Runtime-Proben sind regressionsgesichert
   - negative Fixtures verhindern unbeabsichtigte Sprachfeatures
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Fixture-Regression-Gate-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-17-Fixtures-Compiler-Golden-Tests-Fuzzing-und-Browser-Smokes-erweitern.md`
+  - Modul: `tools/rmt-language/vnext-regression.js`
+  - Fixture Matrix: `tests/rmt-language/fixtures/vnext-fixture-matrix.json`
+  - Browser Smoke: `tests/browser/fixtures/rmt-vnext-reference-smoke.html`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-regression --json`
+  - Package Export: `./rmt-language/vnext-regression`
+  - Handoff: `WP-E15-18` ist durch Fixture Matrix, Golden Hashes, Fuzzing und Browser-Probe entblockt
 
 ### WP-E15-18 - Docs, Reference Demo, Release Gates und Handoff finalisieren
 
 - Priorität: `P2`
-- Status: `blocked`
+- Status: `completed`
 - Ziel:
   - vNext-Syntax produktnah dokumentieren und releasefähig übergeben
 - Scope:
@@ -916,3 +1247,35 @@ Alle weiteren Pakete sind bewusst von Scope-, Grammar- oder Core-Format-Entschei
   - Entwickler können vNext-Syntax anhand der Docs schreiben
   - Release-Gates und Handoff sind vollständig
   - Folgearbeiten sind als separate Epics oder WPs benannt
+- Ergebnis:
+  - Contract-Dokument: `development/XTendRMT-vNext-Release-Handoff-Contract.md`
+  - Workpackage-Dokument: `development/WP-E15-18-Docs-Reference-Demo-Release-Gates-und-Handoff-finalisieren.md`
+  - Authoring Guide: `docs/rmt-vnext-authoring.md`
+  - Migration Notes: `docs/rmt-vnext-migration-notes.md`
+  - Release Handoff: `docs/rmt-vnext-release-handoff.md`
+  - Modul: `tools/rmt-language/vnext-release.js`
+  - Gate: `node scripts/run_xtend_tests.js rmt-vnext-release --json`
+  - Package Export: `./rmt-language/vnext-release`
+  - Reference Demo: `xtendrmt/rmt-vnext-reference-demo.rmt`
+  - Reference Core Output: `xtendrmt/rmt-vnext-reference-demo.core.json`
+  - Abschluss: Epic 15 ist im Zustand `rmt-vnext-release-ready`
+
+## Epic-15 Abschlussreview
+
+Epic 15 ist abgeschlossen und akzeptiert den Contract `xtend.rmt.vnext-release-handoff.v1`.
+
+Akzeptierte Zielreife:
+
+- vNext Authoring-Syntax fuer Templates, Surfaces, Lanes, Lifecycle, Conditions, Slots, Events, Data Sources, Security und Streaming
+- deterministischer Compiler in `xtend.rmt.core-format.vnext.v1`
+- Tooling Adapter fuer Linter, LSP, Formatter-Preview, Snippets und Agent Reports
+- Compatibility- und Migration-Reports fuer Legacy JSON
+- Regression-Gate mit Fixture Matrix, Golden Hashes, Fuzzing und Browser-Probe
+- oeffentliche Docs, Reference Demo und Release-Handoff
+
+Akzeptierte Folgearbeiten:
+
+- `rmt-vnext-runtime-adapters`
+- `rmt-vnext-formatter-writer`
+- `rmt-vnext-project-index`
+- `rmt-vnext-editor-distribution`

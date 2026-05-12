@@ -1,0 +1,30 @@
+template scheduler.page {
+  surface root {
+    lane critical weight 100 {
+      mount app-shell
+      hydrate app-shell
+    }
+
+    lane normal weight 60 {
+      invalidate app-shell
+    }
+
+    lane transition weight 45 {
+      suspend app-shell
+    }
+
+    lane idle weight 20 {
+      prewarm search-index
+    }
+
+    lane background weight 10 {
+      dispose stale-cache
+    }
+  }
+
+  surface diagnostics {
+    lane diagnostics weight 5 {
+      hydrate telemetry-panel
+    }
+  }
+}

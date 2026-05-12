@@ -23,6 +23,7 @@ const A11Y_FOCUS_KEYBOARD_FIXTURE_PATH = 'tests/browser/fixtures/a11y-focus-keyb
 const EPIC11_UX_COMPATIBILITY_FIXTURE_PATH = 'tests/browser/fixtures/epic11-ux-compatibility-smoke.html';
 const EPIC11_THEME_MATRIX_FIXTURE_PATH = 'tests/browser/fixtures/epic11-theme-matrix-smoke.html';
 const EPIC13_TRUSTED_DOM_BOUNDARY_FIXTURE_PATH = 'tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html';
+const RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-reference-smoke.html';
 const CORE_FLOW_MANIFEST_PATH = 'tests/browser/fixtures/components/manifest.json';
 const XALERT_COMPONENT_PATH = 'components/xalert.js';
 const BROWSER_FIXTURES = [
@@ -70,6 +71,11 @@ const BROWSER_FIXTURES = [
     label: 'Epic 13 Trusted DOM Boundary fixture',
     path: EPIC13_TRUSTED_DOM_BOUNDARY_FIXTURE_PATH,
     resultKey: '__xtendEpic13TrustedDomBoundaryResult'
+  },
+  {
+    label: 'RMT vNext reference smoke fixture',
+    path: RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH,
+    resultKey: '__xtendRmtVNextSmokeResult'
   }
 ];
 const CORE_FLOW_MANIFEST_CONTRACT = {
@@ -711,6 +717,26 @@ function assertEpic13TrustedDomBoundaryFixtureContract(context, rootDir) {
   context.assert(policySource.includes('TRUSTED_DOM_SANITIZER_CONTRACT'), 'Trusted DOM policy defines sanitizer contract');
 }
 
+function assertRmtVNextReferenceFixtureContract(context, rootDir) {
+  const fixture = readText(RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH, rootDir);
+
+  context.assert(fixture.includes('xtend.rmt.vnext-browser-smoke.v1'), 'RMT vNext reference fixture exposes stable browser contract');
+  context.assert(fixture.includes('data-rmt-vnext-smoke="wp-e15-17"'), 'RMT vNext reference fixture exposes WP-E15-17 marker');
+  context.assert(fixture.includes('__xtendRmtVNextSmokeResult'), 'RMT vNext reference fixture exposes smoke result object');
+  context.assert(fixture.includes('xtend.rmt.core-format.vnext.v1'), 'RMT vNext reference fixture declares vNext core schema');
+  context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'RMT vNext reference fixture has no XTend CDN dependency');
+
+  [
+    'vNext surface root visible',
+    'vNext lifecycle operation available',
+    'vNext scheduler lane weighted',
+    'vNext security policy attached',
+    'vNext streaming operation available'
+  ].forEach((check) => {
+    context.assert(fixture.includes(`recordCheck('${check}'`), `RMT vNext reference fixture records ${check}`);
+  });
+}
+
 async function runBrowserSmokeSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir);
   const context = createSuiteContext({
@@ -727,6 +753,7 @@ async function runBrowserSmokeSuite(options = {}) {
   assertEpic11UxCompatibilityFixtureContract(context, rootDir);
   assertEpic11ThemeMatrixFixtureContract(context, rootDir);
   assertEpic13TrustedDomBoundaryFixtureContract(context, rootDir);
+  assertRmtVNextReferenceFixtureContract(context, rootDir);
   await assertLocalDevServerContract(context, rootDir);
 
   const driver = options.driver || process.env.XTEND_BROWSER_SMOKE_DRIVER || '';

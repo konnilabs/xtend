@@ -17,6 +17,48 @@ function body(lines) {
 
 const RMT_SNIPPETS = Object.freeze([
   {
+    id: 'rmt-vnext-template',
+    name: 'RMT vNext Template',
+    prefix: 'rmt-vnext-template',
+    description: 'Native vNext Template mit Surface, Lane und Lifecycle Operation.',
+    scope: 'rmt',
+    tags: ['vnext', 'template', 'surface', 'lane'],
+    body: body([
+      'template ${1:app.page} {',
+      '  surface root {',
+      '    lane ${2|critical,visible,transition,idle,background,diagnostics|} {',
+      '      mount ${3:app-shell}',
+      '    }',
+      '  }',
+      '}'
+    ])
+  },
+  {
+    id: 'rmt-vnext-stream',
+    name: 'RMT vNext Stream',
+    prefix: 'rmt-vnext-stream',
+    description: 'vNext Stream mit Data Source, Trust Boundary und Sanitizing.',
+    scope: 'rmt',
+    tags: ['vnext', 'stream', 'security'],
+    body: body([
+      'stream ${1:live-feed} from ${2|endpoint,sse,worker|} ${3:feed.live} {',
+      '  trust boundary "${4:xtend.security.streaming-boundary.v1}"',
+      '  sanitize ${5:html}',
+      '}'
+    ])
+  },
+  {
+    id: 'rmt-vnext-action',
+    name: 'RMT vNext Event Action',
+    prefix: 'rmt-vnext-action',
+    description: 'vNext Event Binding auf eine referenzielle Action.',
+    scope: 'rmt',
+    tags: ['vnext', 'event', 'action'],
+    body: body([
+      'on ${1:submit} -> action ${2:settings.save}'
+    ])
+  },
+  {
     id: 'rmt-minimal-app',
     name: 'RMT Minimal App',
     prefix: 'rmt-app',

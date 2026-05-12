@@ -1,0 +1,38 @@
+template surfaces.page {
+  surface root {
+    lane critical weight 100 {
+      mount app-shell
+      hydrate app-shell
+    }
+  }
+
+  surface modal.settings {
+    lane critical {
+      mount settings-card
+    }
+  }
+
+  surface panel.tools {
+    lane normal {
+      hydrate tool-panel
+    }
+  }
+
+  surface overlay.toast {
+    lane idle {
+      prewarm toast-feed
+    }
+  }
+
+  surface workspace.editor {
+    lane transition {
+      invalidate editor-frame
+    }
+  }
+
+  surface portal.help {
+    lane background {
+      hydrate help-center
+    }
+  }
+}

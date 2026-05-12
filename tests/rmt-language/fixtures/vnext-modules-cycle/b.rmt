@@ -1,0 +1,9 @@
+import "./a.rmt"
+
+template cycle.b {
+  surface root {
+    lane critical {
+      hydrate cycle-b
+    }
+  }
+}

@@ -1,0 +1,7 @@
+template docs.page {
+  surface root {
+    lane critical {
+      mount admin-panel when canAccess("admin")
+    }
+  }
+}

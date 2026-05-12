@@ -26,6 +26,16 @@ const {
   getRmtCodeActions
 } = require('../rmt-language/code-actions');
 const {
+  analyzeRmtVNextToolingSource,
+  findRmtVNextPointerAtPosition,
+  getRmtVNextToolingCompletions,
+  getRmtVNextToolingDefinition,
+  getRmtVNextToolingDocumentSymbols,
+  getRmtVNextToolingHover,
+  isLikelyRmtVNextSource,
+  lintRmtVNextToolingSource
+} = require('../rmt-language/vnext-tooling');
+const {
   createJsonRpcError,
   createJsonRpcNotification,
   createJsonRpcResponse,
@@ -279,18 +289,29 @@ class RmtLanguageServer {
     }
 
     const input = createDocumentInput(document);
-    const graph = buildSemanticGraph(input, {
-      rootDir: this.rootDir
-    });
-    const linterReport = lintRmtSource(input, {
-      rootDir: this.rootDir,
-      graph
-    });
+    const vnext = isLikelyRmtVNextSource(input);
+    const graph = vnext
+      ? analyzeRmtVNextToolingSource(input, {
+        rootDir: this.rootDir
+      })
+      : buildSemanticGraph(input, {
+        rootDir: this.rootDir
+      });
+    const linterReport = vnext
+      ? lintRmtVNextToolingSource(input, {
+        rootDir: this.rootDir,
+        analysis: graph
+      })
+      : lintRmtSource(input, {
+        rootDir: this.rootDir,
+        graph
+      });
     const analysis = {
       document,
       input,
       graph,
-      linterReport
+      linterReport,
+      languageMode: vnext ? 'vnext' : 'legacy'
     };
 
     this.analysisCache.set(uri, analysis);
@@ -315,6 +336,10 @@ class RmtLanguageServer {
 
     if (!analysis || !analysis.graph || !analysis.graph.sourceModel || analysis.graph.status === 'source_unavailable') {
       return null;
+    }
+
+    if (analysis.languageMode === 'vnext') {
+      return findRmtVNextPointerAtPosition(analysis.graph, position);
     }
 
     const { graph } = analysis;
@@ -364,12 +389,20 @@ class RmtLanguageServer {
     const pointer = params.xtend && params.xtend.pointer
       ? params.xtend.pointer
       : this.getPointerAtPosition(uri, params.position || {});
-    const report = getRmtCompletions(analysis.input, {
-      rootDir: this.rootDir,
-      graph: analysis.graph,
-      pointer,
-      prefix: params.xtend && params.xtend.prefix ? params.xtend.prefix : ''
-    });
+    const report = analysis.languageMode === 'vnext'
+      ? getRmtVNextToolingCompletions(analysis.input, {
+        rootDir: this.rootDir,
+        analysis: analysis.graph,
+        pointer,
+        prefix: params.xtend && params.xtend.prefix ? params.xtend.prefix : '',
+        context: params.xtend && params.xtend.context ? params.xtend.context : null
+      })
+      : getRmtCompletions(analysis.input, {
+        rootDir: this.rootDir,
+        graph: analysis.graph,
+        pointer,
+        prefix: params.xtend && params.xtend.prefix ? params.xtend.prefix : ''
+      });
 
     return {
       isIncomplete: false,
@@ -388,11 +421,17 @@ class RmtLanguageServer {
     const pointer = params.xtend && params.xtend.pointer
       ? params.xtend.pointer
       : this.getPointerAtPosition(uri, params.position || {});
-    const report = getRmtHover(analysis.input, {
-      rootDir: this.rootDir,
-      graph: analysis.graph,
-      pointer
-    });
+    const report = analysis.languageMode === 'vnext'
+      ? getRmtVNextToolingHover(analysis.input, {
+        rootDir: this.rootDir,
+        analysis: analysis.graph,
+        pointer
+      })
+      : getRmtHover(analysis.input, {
+        rootDir: this.rootDir,
+        graph: analysis.graph,
+        pointer
+      });
 
     return toLspHover(report);
   }
@@ -405,10 +444,15 @@ class RmtLanguageServer {
       return [];
     }
 
-    const report = getRmtDocumentSymbols(analysis.input, {
-      rootDir: this.rootDir,
-      graph: analysis.graph
-    });
+    const report = analysis.languageMode === 'vnext'
+      ? getRmtVNextToolingDocumentSymbols(analysis.input, {
+        rootDir: this.rootDir,
+        analysis: analysis.graph
+      })
+      : getRmtDocumentSymbols(analysis.input, {
+        rootDir: this.rootDir,
+        graph: analysis.graph
+      });
 
     return toArray(report.symbols).map(toLspDocumentSymbol);
   }
@@ -424,11 +468,17 @@ class RmtLanguageServer {
     const pointer = params.xtend && params.xtend.pointer
       ? params.xtend.pointer
       : this.getPointerAtPosition(uri, params.position || {});
-    const report = getRmtDefinition(analysis.input, {
-      rootDir: this.rootDir,
-      graph: analysis.graph,
-      pointer
-    });
+    const report = analysis.languageMode === 'vnext'
+      ? getRmtVNextToolingDefinition(analysis.input, {
+        rootDir: this.rootDir,
+        analysis: analysis.graph,
+        pointer
+      })
+      : getRmtDefinition(analysis.input, {
+        rootDir: this.rootDir,
+        graph: analysis.graph,
+        pointer
+      });
 
     return toLspLocation(uri, report.target);
   }
@@ -438,6 +488,10 @@ class RmtLanguageServer {
     const analysis = this.analyzeDocument(uri);
 
     if (!analysis) {
+      return [];
+    }
+
+    if (analysis.languageMode === 'vnext') {
       return [];
     }
 

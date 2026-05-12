@@ -1,0 +1,10 @@
+template conditions.page {
+  surface root {
+    lane critical {
+      hydrate docs-content when route.visible == true && user.blocked != true
+      mount admin-panel when user.role == "admin"
+      prewarm search-index when viewport.width >= 768
+      suspend beta-panel when !feature.enabled
+    }
+  }
+}

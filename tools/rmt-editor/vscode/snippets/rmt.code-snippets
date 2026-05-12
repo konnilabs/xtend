@@ -1,4 +1,37 @@
 {
+  "RMT vNext Template": {
+    "scope": "rmt",
+    "prefix": "rmt-vnext-template",
+    "body": [
+      "template ${1:app.page} {",
+      "  surface root {",
+      "    lane ${2|critical,visible,transition,idle,background,diagnostics|} {",
+      "      mount ${3:app-shell}",
+      "    }",
+      "  }",
+      "}"
+    ],
+    "description": "Native vNext Template mit Surface, Lane und Lifecycle Operation."
+  },
+  "RMT vNext Stream": {
+    "scope": "rmt",
+    "prefix": "rmt-vnext-stream",
+    "body": [
+      "stream ${1:live-feed} from ${2|endpoint,sse,worker|} ${3:feed.live} {",
+      "  trust boundary \"${4:xtend.security.streaming-boundary.v1}\"",
+      "  sanitize ${5:html}",
+      "}"
+    ],
+    "description": "vNext Stream mit Data Source, Trust Boundary und Sanitizing."
+  },
+  "RMT vNext Event Action": {
+    "scope": "rmt",
+    "prefix": "rmt-vnext-action",
+    "body": [
+      "on ${1:submit} -> action ${2:settings.save}"
+    ],
+    "description": "vNext Event Binding auf eine referenzielle Action."
+  },
   "RMT Minimal App": {
     "scope": "rmt",
     "prefix": "rmt-app",

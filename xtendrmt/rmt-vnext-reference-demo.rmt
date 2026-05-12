@@ -1,0 +1,50 @@
+import "./shared/*.rmt"
+
+template xtend.vnext.reference {
+  surface root {
+    lane critical weight 10 {
+      hydrate app-shell
+      hydrate hero-panel when route.visible == true
+
+      mount dashboard-card {
+        slot body {
+          hydrate metrics-summary from endpoint metrics.load when user.authenticated == true
+        }
+
+        slot aside {
+          stream activity-feed from sse feed.activity {
+            trust boundary "xtend.security.streaming-boundary.v1"
+            sanitize html
+          }
+        }
+
+        on submit -> action dashboard.save
+      }
+    }
+
+    lane idle weight 1 {
+      prewarm search-index from worker search.prepare
+    }
+  }
+
+  surface modal.settings {
+    lane critical weight 8 {
+      mount settings-dialog {
+        slot body {
+          hydrate settings-form from endpoint settings.load
+        }
+
+        on close -> action settings.close
+      }
+    }
+  }
+}
+
+surface overlay.notifications {
+  lane normal weight 3 {
+    stream notifications from sse notifications.live {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize html
+    }
+  }
+}

@@ -1,0 +1,9 @@
+import "./missing.rmt"
+
+template missing.app {
+  surface root {
+    lane critical {
+      hydrate missing-app
+    }
+  }
+}

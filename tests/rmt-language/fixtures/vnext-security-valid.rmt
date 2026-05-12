@@ -1,0 +1,24 @@
+template security.page {
+  surface root {
+    lane critical {
+      hydrate markdown-viewer from endpoint docs.parse {
+        trust boundary "xtend.security.sanitizing-boundary.v1"
+        sanitize html
+      }
+    }
+
+    lane normal {
+      stream docs-feed from sse docs.feed {
+        trust boundary "xtend.security.streaming-boundary.v1"
+        sanitize html
+      }
+    }
+
+    lane idle {
+      hydrate worker-preview from worker preview.render {
+        trust boundary "xtend.security.worker-boundary.v1"
+        sanitize html
+      }
+    }
+  }
+}

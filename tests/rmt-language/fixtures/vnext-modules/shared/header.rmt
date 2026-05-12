@@ -1,0 +1,7 @@
+template shared.header {
+  surface root {
+    lane critical {
+      hydrate shared-header
+    }
+  }
+}

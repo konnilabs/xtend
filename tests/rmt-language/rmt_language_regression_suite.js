@@ -257,7 +257,8 @@ function runFuzzRegressionChecks(context, rootDir) {
 function runCliAndAgentRegressionChecks(context, rootDir) {
   const stdout = createMemoryStream();
   const stderr = createMemoryStream();
-  const exitCode = runRmtLinterCli(['lint', RMT_LANGUAGE_REGRESSION_FIXTURES_DIR, '--json'], {
+  const matrixTargets = REGRESSION_MATRIX.map((entry) => entry.path);
+  const exitCode = runRmtLinterCli(['lint'].concat(matrixTargets).concat('--json'), {
     stdout,
     stderr,
     rootDir
@@ -270,7 +271,7 @@ function runCliAndAgentRegressionChecks(context, rootDir) {
 
   context.assert(exitCode === 1, 'Regression fixture directory fails CLI because negative fixtures exist');
   context.assert(stderr.toString() === '', 'Regression CLI JSON mode keeps stderr empty');
-  context.assert(cliReport.files === REGRESSION_MATRIX.length, 'CLI scans all regression .rmt and .rmt.json fixtures');
+  context.assert(cliReport.files === REGRESSION_MATRIX.length, 'CLI scans all regression matrix .rmt and .rmt.json fixtures');
   context.assert(cliReport.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.syntax.invalid-json'), 'CLI report includes syntax diagnostics');
   context.assert(agentReport.schema === 'xtend.rmt.ai-agent-repair-report.v1', 'Agent regression emits agent report schema');
   context.assert(agentReport.files === REGRESSION_MATRIX.length, 'Agent regression covers full fixture matrix');

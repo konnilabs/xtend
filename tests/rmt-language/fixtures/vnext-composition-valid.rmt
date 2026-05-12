@@ -1,0 +1,23 @@
+template composition.page {
+  surface root {
+    lane critical weight 10 {
+      mount shell {
+        slot header {
+          hydrate app-header
+        }
+
+        slot body {
+          mount content-card {
+            slot body {
+              hydrate content-list
+            }
+          }
+        }
+
+        slot actions {
+          hydrate action-bar
+        }
+      }
+    }
+  }
+}

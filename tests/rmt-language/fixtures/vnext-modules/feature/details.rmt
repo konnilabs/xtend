@@ -1,0 +1,7 @@
+template feature.details {
+  surface root {
+    lane idle {
+      hydrate detail-panel
+    }
+  }
+}

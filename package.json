@@ -95,6 +95,21 @@
     "./catalog/epic14-lsp-handoff": "./catalog/epic14-lsp-handoff.js",
     "./rmt-language/source-model": "./tools/rmt-language/source-model.js",
     "./rmt-language/parser": "./tools/rmt-language/parser.js",
+    "./rmt-language/vnext-parser": "./tools/rmt-language/vnext-parser.js",
+    "./rmt-language/vnext-compiler": "./tools/rmt-language/vnext-compiler.js",
+    "./rmt-language/vnext-lifecycle": "./tools/rmt-language/vnext-lifecycle.js",
+    "./rmt-language/vnext-scheduler": "./tools/rmt-language/vnext-scheduler.js",
+    "./rmt-language/vnext-surfaces": "./tools/rmt-language/vnext-surfaces.js",
+    "./rmt-language/vnext-conditions": "./tools/rmt-language/vnext-conditions.js",
+    "./rmt-language/vnext-composition": "./tools/rmt-language/vnext-composition.js",
+    "./rmt-language/vnext-import-resolver": "./tools/rmt-language/vnext-import-resolver.js",
+    "./rmt-language/vnext-events": "./tools/rmt-language/vnext-events.js",
+    "./rmt-language/vnext-security": "./tools/rmt-language/vnext-security.js",
+    "./rmt-language/vnext-streaming": "./tools/rmt-language/vnext-streaming.js",
+    "./rmt-language/vnext-tooling": "./tools/rmt-language/vnext-tooling.js",
+    "./rmt-language/vnext-compatibility": "./tools/rmt-language/vnext-compatibility.js",
+    "./rmt-language/vnext-regression": "./tools/rmt-language/vnext-regression.js",
+    "./rmt-language/vnext-release": "./tools/rmt-language/vnext-release.js",
     "./rmt-language/format-adapter": "./tools/rmt-language/format-adapter.js",
     "./rmt-language/semantic-graph": "./tools/rmt-language/semantic-graph.js",
     "./rmt-language/diagnostics": "./tools/rmt-language/diagnostics.js",
@@ -202,6 +217,603 @@
       "handoff": [
         "WP-E14-04"
       ]
+    },
+    "rmtVNextParser": {
+      "schema": "xtend.rmt.vnext-parser.v1",
+      "astSchema": "xtend.rmt.vnext.ast.v1",
+      "reportSchema": "xtend.rmt.vnext-parser-report.v1",
+      "workpackage": "WP-E15-04",
+      "status": "accepted-vnext-parser-mvp",
+      "module": "tools/rmt-language/vnext-parser.js",
+      "suite": "tests/rmt-language/rmt_vnext_parser_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-parser --json",
+      "packageScript": "npm run test:rmt-vnext-parser",
+      "grammarContract": "xtend.rmt.vnext.grammar.v1",
+      "coreContract": "xtend.rmt.core-format.vnext.v1",
+      "canonicalFileType": ".rmt",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "capabilities": [
+        "vnext-lexer",
+        "vnext-ast",
+        "template-surface-lane-parser",
+        "lifecycle-operation-parser",
+        "stream-statement-parser",
+        "condition-expression-parser",
+        "source-range-diagnostics"
+      ],
+      "handoff": [
+        "WP-E15-05"
+      ]
+    },
+    "rmtVNextCompiler": {
+      "schema": "xtend.rmt.vnext-compiler.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "reportSchema": "xtend.rmt.vnext-compiler-report.v1",
+      "workpackage": "WP-E15-05",
+      "status": "accepted-vnext-compiler-core",
+      "module": "tools/rmt-language/vnext-compiler.js",
+      "suite": "tests/rmt-language/rmt_vnext_compiler_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-compiler --json",
+      "packageScript": "npm run test:rmt-vnext-compiler",
+      "parser": "xtend.rmt.vnext-parser.v1",
+      "astSchema": "xtend.rmt.vnext.ast.v1",
+      "sourceMap": "sourceRef-to-ast-and-core-pointer",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "capabilities": [
+        "ast-to-core-transform",
+        "deterministic-core-json",
+        "source-map-generation",
+        "diagnostic-aggregation",
+        "golden-compiler-gate"
+      ],
+      "handoff": [
+        "WP-E15-06",
+        "WP-E15-07",
+        "WP-E15-08",
+        "WP-E15-09",
+        "WP-E15-10",
+        "WP-E15-11",
+        "WP-E15-12",
+        "WP-E15-13",
+        "WP-E15-14"
+      ]
+    },
+    "rmtVNextLifecycle": {
+      "schema": "xtend.rmt.vnext-lifecycle.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "operationSchema": "xtend.rmt.vnext-lifecycle-operation.v1",
+      "resultSchema": "xtend.rmt.vnext-lifecycle-result.v1",
+      "reportSchema": "xtend.rmt.vnext-lifecycle-report.v1",
+      "workpackage": "WP-E15-06",
+      "status": "accepted-vnext-lifecycle-operation-contract",
+      "module": "tools/rmt-language/vnext-lifecycle.js",
+      "suite": "tests/rmt-language/rmt_vnext_lifecycle_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-lifecycle --json",
+      "packageScript": "npm run test:rmt-vnext-lifecycle",
+      "compiler": "xtend.rmt.vnext-compiler.v1",
+      "sourceMap": "sourceRef-to-lifecycle-diagnostic",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "operations": [
+        "mount",
+        "hydrate",
+        "suspend",
+        "resume",
+        "invalidate",
+        "dispose",
+        "prewarm",
+        "recycle",
+        "detach",
+        "reattach"
+      ],
+      "capabilityPrefix": "lifecycle.",
+      "adapterBoundary": "host-neutral-adapter-stubs-only",
+      "handoff": [
+        "WP-E15-07",
+        "WP-E15-10",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextScheduler": {
+      "schema": "xtend.rmt.vnext-scheduler-policy.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "laneSchema": "xtend.rmt.vnext-scheduler-lane.v1",
+      "reportSchema": "xtend.rmt.vnext-scheduler-report.v1",
+      "workpackage": "WP-E15-07",
+      "status": "accepted-vnext-scheduler-policy-contract",
+      "module": "tools/rmt-language/vnext-scheduler.js",
+      "suite": "tests/rmt-language/rmt_vnext_scheduler_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-scheduler --json",
+      "packageScript": "npm run test:rmt-vnext-scheduler",
+      "compiler": "xtend.rmt.vnext-compiler.v1",
+      "lifecycle": "xtend.rmt.vnext-lifecycle.v1",
+      "sourceMap": "sourceRef-to-scheduler-diagnostic",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "canonicalLanes": [
+        "user-blocking",
+        "visible",
+        "transition",
+        "idle",
+        "background",
+        "diagnostics"
+      ],
+      "capabilities": [
+        "lane-normalization",
+        "weight-to-priority",
+        "budget-normalization",
+        "chunking-metadata",
+        "backpressure-metadata",
+        "operation-ref-validation"
+      ],
+      "handoff": [
+        "WP-E15-08",
+        "WP-E15-14",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextSurfaces": {
+      "schema": "xtend.rmt.vnext-surface-registry.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "surfaceSchema": "xtend.rmt.vnext-surface.v1",
+      "reportSchema": "xtend.rmt.vnext-surface-report.v1",
+      "workpackage": "WP-E15-08",
+      "status": "accepted-vnext-surface-registry-contract",
+      "module": "tools/rmt-language/vnext-surfaces.js",
+      "suite": "tests/rmt-language/rmt_vnext_surface_registry_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-surfaces --json",
+      "packageScript": "npm run test:rmt-vnext-surfaces",
+      "compiler": "xtend.rmt.vnext-compiler.v1",
+      "scheduler": "xtend.rmt.vnext-scheduler-policy.v1",
+      "sourceMap": "sourceRef-to-surface-diagnostic",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "surfaceTypes": [
+        "root",
+        "modal",
+        "panel",
+        "overlay",
+        "workspace",
+        "portal"
+      ],
+      "capabilities": [
+        "surface-type-normalization",
+        "surface-registry-snapshot",
+        "surface-lane-link-validation",
+        "surface-operation-link-validation",
+        "host-neutral-surface-binding"
+      ],
+      "handoff": [
+        "WP-E15-09",
+        "WP-E15-10",
+        "WP-E15-15",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextConditions": {
+      "schema": "xtend.rmt.vnext-condition-contract.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "conditionSchema": "xtend.rmt.vnext-condition.v1",
+      "expressionSchema": "xtend.rmt.vnext-expression.v1",
+      "reportSchema": "xtend.rmt.vnext-condition-report.v1",
+      "workpackage": "WP-E15-09",
+      "status": "accepted-vnext-condition-expression-contract",
+      "module": "tools/rmt-language/vnext-conditions.js",
+      "suite": "tests/rmt-language/rmt_vnext_conditions_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-conditions --json",
+      "packageScript": "npm run test:rmt-vnext-conditions",
+      "compiler": "xtend.rmt.vnext-compiler.v1",
+      "sourceMap": "sourceRef-to-condition-diagnostic",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "expressionKinds": [
+        "literal",
+        "path",
+        "unary",
+        "binary",
+        "logical",
+        "group"
+      ],
+      "operators": [
+        "==",
+        "!=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "&&",
+        "||",
+        "!"
+      ],
+      "capabilities": [
+        "condition-core-validation",
+        "path-catalog-validation",
+        "type-inference",
+        "operator-validation",
+        "no-runtime-eval"
+      ],
+      "handoff": [
+        "WP-E15-10",
+        "WP-E15-12",
+        "WP-E15-15",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextComposition": {
+      "schema": "xtend.rmt.vnext-composition.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "slotBindingSchema": "xtend.rmt.vnext-slot-binding.v1",
+      "componentBindingSchema": "xtend.rmt.vnext-component-binding.v1",
+      "componentCatalogSchema": "xtend.rmt.vnext-component-catalog.v1",
+      "componentAdapterSchema": "xtend.rmt.vnext-component-adapter.v1",
+      "reportSchema": "xtend.rmt.vnext-composition-report.v1",
+      "workpackage": "WP-E15-10",
+      "status": "accepted-vnext-composition-component-binding-contract",
+      "module": "tools/rmt-language/vnext-composition.js",
+      "suite": "tests/rmt-language/rmt_vnext_composition_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-composition --json",
+      "packageScript": "npm run test:rmt-vnext-composition",
+      "compiler": "xtend.rmt.vnext-compiler.v1",
+      "surfaceRegistry": "xtend.rmt.vnext-surface-registry.v1",
+      "conditionContract": "xtend.rmt.vnext-condition-contract.v1",
+      "componentContract": "xtend.component.contract.v2",
+      "rmtComponentContract": "xtend.rmt.component-contract.v1",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "bindingMode": "component-orchestration",
+      "markupCoupled": false,
+      "capabilities": [
+        "slot-binding-validation",
+        "nested-operation-validation",
+        "component-alias-resolution",
+        "component-adapter-capability-validation",
+        "orchestration-without-markup"
+      ],
+      "handoff": [
+        "WP-E15-11",
+        "WP-E15-12",
+        "WP-E15-15",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextImportResolver": {
+      "schema": "xtend.rmt.vnext-import-resolver.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "moduleGraphSchema": "xtend.rmt.vnext-module-graph.v1",
+      "moduleRecordSchema": "xtend.rmt.vnext-module-record.v1",
+      "importEdgeSchema": "xtend.rmt.vnext-import-edge.v1",
+      "reportSchema": "xtend.rmt.vnext-import-resolver-report.v1",
+      "workpackage": "WP-E15-11",
+      "status": "accepted-vnext-import-resolver-module-graph-contract",
+      "module": "tools/rmt-language/vnext-import-resolver.js",
+      "suite": "tests/rmt-language/rmt_vnext_import_resolver_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-imports --json",
+      "packageScript": "npm run test:rmt-vnext-imports",
+      "compiler": "xtend.rmt.vnext-compiler.v1",
+      "composition": "xtend.rmt.vnext-composition.v1",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "allowedImportModes": [
+        "static_file",
+        "static_glob"
+      ],
+      "allowedExtensions": [
+        ".rmt"
+      ],
+      "allowedGlobForms": [
+        "./dir/*.rmt",
+        "./dir/**/*.rmt"
+      ],
+      "mergeStrategy": "dependency-first-postorder",
+      "capabilities": [
+        "static-file-resolution",
+        "static-glob-resolution",
+        "package-root-boundary-validation",
+        "cycle-diagnostics",
+        "deterministic-module-graph-snapshot"
+      ],
+      "handoff": [
+        "WP-E15-12",
+        "WP-E15-15",
+        "WP-E15-16",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextEvents": {
+      "schema": "xtend.rmt.vnext-event-action-contract.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "eventBindingSchema": "xtend.rmt.vnext-event-binding.v1",
+      "actionRefSchema": "xtend.rmt.vnext-action-ref.v1",
+      "dataSourceSchema": "xtend.rmt.vnext-data-source.v1",
+      "actionCatalogSchema": "xtend.rmt.vnext-action-catalog.v1",
+      "dataSourceCatalogSchema": "xtend.rmt.vnext-data-source-catalog.v1",
+      "adapterSchema": "xtend.rmt.vnext-event-action-adapter.v1",
+      "reportSchema": "xtend.rmt.vnext-event-action-report.v1",
+      "workpackage": "WP-E15-12",
+      "status": "accepted-vnext-event-action-data-source-contract",
+      "module": "tools/rmt-language/vnext-events.js",
+      "suite": "tests/rmt-language/rmt_vnext_events_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-events --json",
+      "packageScript": "npm run test:rmt-vnext-events",
+      "compiler": "xtend.rmt.vnext-compiler.v1",
+      "conditionContract": "xtend.rmt.vnext-condition-contract.v1",
+      "composition": "xtend.rmt.vnext-composition.v1",
+      "importResolver": "xtend.rmt.vnext-import-resolver.v1",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "dataSourceKinds": [
+        "endpoint",
+        "sse",
+        "worker"
+      ],
+      "requiredCapabilities": [
+        "event.bind",
+        "action.invoke",
+        "data.endpoint.fetch",
+        "data.sse.subscribe",
+        "data.worker.invoke"
+      ],
+      "capabilities": [
+        "event-action-ref-validation",
+        "action-payload-shape-contract",
+        "data-source-capability-validation",
+        "endpoint-sse-worker-source-contract",
+        "no-runtime-eval"
+      ],
+      "handoff": [
+        "WP-E15-13",
+        "WP-E15-14",
+        "WP-E15-15",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextSecurity": {
+      "schema": "xtend.rmt.vnext-security-policy-contract.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "trustBoundarySchema": "xtend.rmt.vnext-trust-boundary.v1",
+      "sanitizePolicySchema": "xtend.rmt.vnext-sanitize-policy.v1",
+      "postureSchema": "xtend.rmt.vnext-security-posture.v1",
+      "reportSchema": "xtend.rmt.vnext-security-policy-report.v1",
+      "workpackage": "WP-E15-13",
+      "status": "accepted-vnext-security-policy-contract",
+      "module": "tools/rmt-language/vnext-security.js",
+      "suite": "tests/rmt-language/rmt_vnext_security_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-security --json",
+      "packageScript": "npm run test:rmt-vnext-security",
+      "compiler": "xtend.rmt.vnext-compiler.v1",
+      "eventActionContract": "xtend.rmt.vnext-event-action-contract.v1",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "allowedSanitizeFormats": [
+        "html",
+        "text",
+        "url",
+        "json"
+      ],
+      "trustBoundaryProfiles": [
+        "xtend.security.sanitizing-boundary.v1",
+        "xtend.security.streaming-boundary.v1",
+        "xtend.security.worker-boundary.v1"
+      ],
+      "capabilities": [
+        "trust-boundary-validation",
+        "sanitize-policy-validation",
+        "csp-profile-snapshot",
+        "isolation-sandbox-escaping-profile",
+        "unsafe-flow-required-diagnostics"
+      ],
+      "handoff": [
+        "WP-E15-14",
+        "WP-E15-15",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextStreaming": {
+      "schema": "xtend.rmt.vnext-streaming-contract.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "streamOperationSchema": "xtend.rmt.vnext-stream-operation.v1",
+      "runtimeProbeSchema": "xtend.rmt.vnext-stream-runtime-probe.v1",
+      "reportSchema": "xtend.rmt.vnext-streaming-report.v1",
+      "workpackage": "WP-E15-14",
+      "status": "accepted-vnext-streaming-contract",
+      "module": "tools/rmt-language/vnext-streaming.js",
+      "suite": "tests/rmt-language/rmt_vnext_streaming_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-streaming --json",
+      "packageScript": "npm run test:rmt-vnext-streaming",
+      "schedulerPolicy": "xtend.rmt.vnext-scheduler-policy.v1",
+      "eventActionContract": "xtend.rmt.vnext-event-action-contract.v1",
+      "securityPolicyContract": "xtend.rmt.vnext-security-policy-contract.v1",
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "variants": [
+        "sse",
+        "worker",
+        "ssr",
+        "hydration"
+      ],
+      "capabilities": [
+        "stream.sse.incremental",
+        "stream.worker.incremental",
+        "stream.ssr.incremental",
+        "stream.hydration.chunked"
+      ],
+      "runtimeProbe": {
+        "hostCoupled": false,
+        "domRequired": false
+      },
+      "capabilityContracts": [
+        "chunk-metadata",
+        "completion-signal",
+        "error-path",
+        "backpressure",
+        "security-posture"
+      ],
+      "handoff": [
+        "WP-E15-15",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextTooling": {
+      "schema": "xtend.rmt.vnext-tooling-adapter.v1",
+      "reportSchema": "xtend.rmt.vnext-tooling-report.v1",
+      "formatterSchema": "xtend.rmt.vnext-formatter.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "workpackage": "WP-E15-15",
+      "status": "accepted-vnext-tooling-adapter",
+      "module": "tools/rmt-language/vnext-tooling.js",
+      "suite": "tests/rmt-language/rmt_vnext_tooling_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-tooling --json",
+      "packageScript": "npm run test:rmt-vnext-tooling",
+      "linter": "xtend.rmt.linter.report.v1",
+      "languageServer": "xtend.rmt.language-server.v1",
+      "completionProvider": "xtend.rmt.completion-provider.v1",
+      "navigationProviders": [
+        "hover",
+        "documentSymbols",
+        "definition"
+      ],
+      "formatterStrategy": "conservative-source-preserving",
+      "snippets": [
+        "rmt-vnext-template",
+        "rmt-vnext-stream",
+        "rmt-vnext-action"
+      ],
+      "agentReports": {
+        "sourceMapSummary": true,
+        "languageMode": "vnext"
+      },
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "handoff": [
+        "WP-E15-16",
+        "WP-E15-17"
+      ]
+    },
+    "rmtVNextCompatibility": {
+      "schema": "xtend.rmt.vnext-compatibility-matrix.v1",
+      "migrationReportSchema": "xtend.rmt.vnext-migration-report.v1",
+      "roundtripReportSchema": "xtend.rmt.vnext-roundtrip-report.v1",
+      "projectionSchema": "xtend.rmt.vnext-legacy-core-projection.v1",
+      "reportSchema": "xtend.rmt.vnext-compatibility-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "workpackage": "WP-E15-16",
+      "status": "accepted-vnext-compatibility-migration",
+      "module": "tools/rmt-language/vnext-compatibility.js",
+      "suite": "tests/rmt-language/rmt_vnext_compatibility_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-compatibility --json",
+      "packageScript": "npm run test:rmt-vnext-compatibility",
+      "migrationModes": [
+        "report-only",
+        "preview"
+      ],
+      "legacyDomains": [
+        "adapters",
+        "components",
+        "routes",
+        "schedules",
+        "surfaces",
+        "templates"
+      ],
+      "compatibleWarnings": [
+        "rmt.document.extension.fallback-used",
+        "rmt.vnext.migration.opt_in_required",
+        "rmt.vnext.migration.lossy_domain"
+      ],
+      "roundtrip": {
+        "legacyJsonLossless": true,
+        "comparisonBoundary": "semantic-normalized-json-with-normalization-metadata-excluded",
+        "vnextCoreProjection": "opt-in"
+      },
+      "handoff": [
+        "WP-E15-17",
+        "WP-E15-18"
+      ]
+    },
+    "rmtVNextRegression": {
+      "schema": "xtend.rmt.vnext-regression-gate.v1",
+      "reportSchema": "xtend.rmt.vnext-regression-report.v1",
+      "fixtureMatrixSchema": "xtend.rmt.vnext-fixture-matrix.v1",
+      "goldenReportSchema": "xtend.rmt.vnext-golden-report.v1",
+      "fuzzReportSchema": "xtend.rmt.vnext-fuzz-report.v1",
+      "browserSmokeSchema": "xtend.rmt.vnext-browser-smoke.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "workpackage": "WP-E15-17",
+      "status": "accepted-vnext-fixture-regression-gate",
+      "module": "tools/rmt-language/vnext-regression.js",
+      "suite": "tests/rmt-language/rmt_vnext_regression_suite.js",
+      "fixtureMatrix": "tests/rmt-language/fixtures/vnext-fixture-matrix.json",
+      "browserSmoke": "tests/browser/fixtures/rmt-vnext-reference-smoke.html",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-regression --json",
+      "packageScript": "npm run test:rmt-vnext-regression",
+      "positiveFixtureCount": 10,
+      "negativeFixtureCount": 3,
+      "fuzzSeeds": [
+        "minimal",
+        "complex",
+        "streaming"
+      ],
+      "fuzzMutations": [
+        "drop-final-brace",
+        "imperative-keyword",
+        "function-call-condition",
+        "unterminated-string",
+        "stray-token"
+      ],
+      "browserProbeChecks": [
+        "vNext surface root visible",
+        "vNext lifecycle operation available",
+        "vNext scheduler lane weighted",
+        "vNext security policy attached",
+        "vNext streaming operation available"
+      ],
+      "capabilities": [
+        "fixture-matrix",
+        "compiler-golden-hashes",
+        "parser-fuzzing",
+        "browser-near-reference-probe"
+      ],
+      "handoff": [
+        "WP-E15-18"
+      ]
+    },
+    "rmtVNextReleaseHandoff": {
+      "schema": "xtend.rmt.vnext-release-handoff.v1",
+      "reportSchema": "xtend.rmt.vnext-release-handoff-report.v1",
+      "gateMatrixSchema": "xtend.rmt.vnext-release-gate-matrix.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "workpackage": "WP-E15-18",
+      "status": "accepted-vnext-release-handoff",
+      "targetReadiness": "rmt-vnext-release-ready",
+      "module": "tools/rmt-language/vnext-release.js",
+      "suite": "tests/rmt-language/rmt_vnext_release_handoff_suite.js",
+      "contract": "development/XTendRMT-vNext-Release-Handoff-Contract.md",
+      "workpackageDocument": "development/WP-E15-18-Docs-Reference-Demo-Release-Gates-und-Handoff-finalisieren.md",
+      "docs": [
+        "docs/rmt-vnext-authoring.md",
+        "docs/rmt-vnext-migration-notes.md",
+        "docs/rmt-vnext-release-handoff.md"
+      ],
+      "referenceDemo": "xtendrmt/rmt-vnext-reference-demo.rmt",
+      "referenceCoreOutput": "xtendrmt/rmt-vnext-reference-demo.core.json",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-release --json",
+      "packageScript": "npm run test:rmt-vnext-release",
+      "releaseGateMatrix": [
+        "npm run test:rmt-vnext-parser",
+        "npm run test:rmt-vnext-compiler",
+        "npm run test:rmt-vnext-lifecycle",
+        "npm run test:rmt-vnext-scheduler",
+        "npm run test:rmt-vnext-surfaces",
+        "npm run test:rmt-vnext-conditions",
+        "npm run test:rmt-vnext-composition",
+        "npm run test:rmt-vnext-imports",
+        "npm run test:rmt-vnext-events",
+        "npm run test:rmt-vnext-security",
+        "npm run test:rmt-vnext-streaming",
+        "npm run test:rmt-vnext-tooling",
+        "npm run test:rmt-vnext-compatibility",
+        "npm run test:rmt-vnext-regression",
+        "npm run test:browser",
+        "npm run test:references"
+      ],
+      "followUpEpicCandidates": [
+        "rmt-vnext-runtime-adapters",
+        "rmt-vnext-formatter-writer",
+        "rmt-vnext-project-index",
+        "rmt-vnext-editor-distribution"
+      ],
+      "publishBoundary": "source-ready-not-public-runtime-release",
+      "networkRequired": false,
+      "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types"
     },
     "rmtSemanticGraph": {
       "schema": "xtend.rmt.semantic-graph.v1",
@@ -712,6 +1324,7 @@
       "npm test",
       "npm run test:rmt-tooling",
       "npm run test:epic14-lsp-handoff",
+      "npm run test:rmt-vnext-release",
       "npm run test:catalog-coverage",
       "npm run test:manifest-policy",
       "npm run test:supply-chain",
@@ -4441,6 +5054,21 @@
     "test:rmt-dsl-authoring-polish": "node scripts/run_xtend_tests.js rmt-dsl-authoring-polish",
     "test:rmt-source-model": "node scripts/run_xtend_tests.js rmt-source-model",
     "test:rmt-parser": "node scripts/run_xtend_tests.js rmt-parser",
+    "test:rmt-vnext-parser": "node scripts/run_xtend_tests.js rmt-vnext-parser",
+    "test:rmt-vnext-compiler": "node scripts/run_xtend_tests.js rmt-vnext-compiler",
+    "test:rmt-vnext-lifecycle": "node scripts/run_xtend_tests.js rmt-vnext-lifecycle",
+    "test:rmt-vnext-scheduler": "node scripts/run_xtend_tests.js rmt-vnext-scheduler",
+    "test:rmt-vnext-surfaces": "node scripts/run_xtend_tests.js rmt-vnext-surfaces",
+    "test:rmt-vnext-conditions": "node scripts/run_xtend_tests.js rmt-vnext-conditions",
+    "test:rmt-vnext-composition": "node scripts/run_xtend_tests.js rmt-vnext-composition",
+    "test:rmt-vnext-imports": "node scripts/run_xtend_tests.js rmt-vnext-imports",
+    "test:rmt-vnext-events": "node scripts/run_xtend_tests.js rmt-vnext-events",
+    "test:rmt-vnext-security": "node scripts/run_xtend_tests.js rmt-vnext-security",
+    "test:rmt-vnext-streaming": "node scripts/run_xtend_tests.js rmt-vnext-streaming",
+    "test:rmt-vnext-tooling": "node scripts/run_xtend_tests.js rmt-vnext-tooling",
+    "test:rmt-vnext-compatibility": "node scripts/run_xtend_tests.js rmt-vnext-compatibility",
+    "test:rmt-vnext-regression": "node scripts/run_xtend_tests.js rmt-vnext-regression",
+    "test:rmt-vnext-release": "node scripts/run_xtend_tests.js rmt-vnext-release",
     "test:rmt-semantic-graph": "node scripts/run_xtend_tests.js rmt-semantic-graph",
     "test:rmt-linter-rules": "node scripts/run_xtend_tests.js rmt-linter-rules",
     "test:rmt-linter-cli": "node scripts/run_xtend_tests.js rmt-linter-cli",

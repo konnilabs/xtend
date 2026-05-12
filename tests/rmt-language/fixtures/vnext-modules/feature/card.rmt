@@ -1,0 +1,13 @@
+import "./details.rmt"
+
+template feature.card {
+  surface root {
+    lane normal {
+      mount feature-card {
+        slot body {
+          hydrate feature-details
+        }
+      }
+    }
+  }
+}

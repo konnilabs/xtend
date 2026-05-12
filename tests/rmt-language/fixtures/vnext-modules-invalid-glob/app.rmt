@@ -1,0 +1,9 @@
+import "./shared/*.json"
+
+template invalid.glob {
+  surface root {
+    lane critical {
+      hydrate invalid-glob
+    }
+  }
+}

@@ -1,0 +1,7 @@
+template shared.footer {
+  surface root {
+    lane idle {
+      hydrate shared-footer
+    }
+  }
+}

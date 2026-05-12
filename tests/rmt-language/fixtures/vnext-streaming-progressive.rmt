@@ -1,0 +1,36 @@
+template streaming.page {
+  surface root {
+    lane critical {
+      hydrate hero-shell from endpoint ssr.hero {
+        trust boundary "xtend.security.sanitizing-boundary.v1"
+        sanitize html
+      }
+
+      mount progressive-shell {
+        slot body {
+          stream hero-fragments from endpoint ssr.fragments {
+            trust boundary "xtend.security.streaming-boundary.v1"
+            sanitize html
+          }
+
+          stream live-feed from sse feed.live {
+            trust boundary "xtend.security.streaming-boundary.v1"
+            sanitize html
+          }
+
+          stream preview-frame from worker preview.render {
+            trust boundary "xtend.security.worker-boundary.v1"
+            sanitize html
+          }
+        }
+      }
+    }
+
+    lane idle {
+      hydrate lazy-panel from worker panel.chunk {
+        trust boundary "xtend.security.worker-boundary.v1"
+        sanitize html
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+import "../vnext-valid-minimal.rmt"
+
+template boundaryApp.page {
+  surface root {
+    lane critical {
+      hydrate boundary-app
+    }
+  }
+}

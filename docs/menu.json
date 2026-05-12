@@ -639,6 +639,33 @@
     "rank": 66
   },
   {
+    "slug": "rmt-vnext-authoring",
+    "id": "docs.rmt.vnext.authoring",
+    "label": "RMT vNext Authoring",
+    "group": "rmt",
+    "parent": "xtendrmt-app-dsl",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-migration-notes",
+    "id": "docs.rmt.vnext.migration.notes",
+    "label": "RMT vNext Migration Notes",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-release-handoff",
+    "id": "docs.rmt.vnext.release.handoff",
+    "label": "RMT vNext Release Handoff",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
     "slug": "xtendrmt-runtime-bridge",
     "id": "docs.xtendrmt.runtime.bridge",
     "label": "XTendRMT Runtime Bridge",

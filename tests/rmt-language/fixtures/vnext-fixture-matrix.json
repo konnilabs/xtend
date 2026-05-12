@@ -1,0 +1,236 @@
+{
+  "schema": "xtend.rmt.vnext-fixture-matrix.v1",
+  "workpackage": "WP-E15-17",
+  "positive": [
+    {
+      "id": "minimal",
+      "path": "tests/rmt-language/fixtures/vnext-valid-minimal.rmt",
+      "expected": {
+        "coreSha256": "fba850ae7afa821d0e4c746a5318088c59d925e42712793c7ed0b8dbc7625c50",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 1,
+          "lanes": 1,
+          "operations": 1,
+          "slots": 0,
+          "events": 0,
+          "dataSources": 0,
+          "securityPolicies": 0,
+          "sourceMap": 4
+        }
+      }
+    },
+    {
+      "id": "complex",
+      "path": "tests/rmt-language/fixtures/vnext-valid-complex.rmt",
+      "expected": {
+        "coreSha256": "c802f07792ef9a6d6315ca0defef7342ac4f7a99dbcdc46b2db36253b1429d68",
+        "domainCounts": {
+          "imports": 1,
+          "templates": 1,
+          "surfaces": 3,
+          "lanes": 4,
+          "operations": 6,
+          "slots": 1,
+          "events": 1,
+          "dataSources": 2,
+          "securityPolicies": 2,
+          "sourceMap": 22
+        }
+      }
+    },
+    {
+      "id": "lifecycle",
+      "path": "tests/rmt-language/fixtures/vnext-lifecycle-valid.rmt",
+      "expected": {
+        "coreSha256": "694726f0a8755d2ab7f34b3672880a62071d5f866d36f3e640e62a3a86e58682",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 1,
+          "lanes": 2,
+          "operations": 10,
+          "slots": 0,
+          "events": 0,
+          "dataSources": 0,
+          "securityPolicies": 0,
+          "sourceMap": 14
+        }
+      }
+    },
+    {
+      "id": "scheduler",
+      "path": "tests/rmt-language/fixtures/vnext-scheduler-valid.rmt",
+      "expected": {
+        "coreSha256": "2be5b91c5a312b8a2ca362a866fcc8992a75b52e5dfdad2741235952a77680d5",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 2,
+          "lanes": 6,
+          "operations": 7,
+          "slots": 0,
+          "events": 0,
+          "dataSources": 0,
+          "securityPolicies": 0,
+          "sourceMap": 16
+        }
+      }
+    },
+    {
+      "id": "surfaces",
+      "path": "tests/rmt-language/fixtures/vnext-surfaces-valid.rmt",
+      "expected": {
+        "coreSha256": "cca4bae8ea62e13155d9703a35f7c4a1457ca44701c3e5aea96f6569f7b60241",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 6,
+          "lanes": 6,
+          "operations": 7,
+          "slots": 0,
+          "events": 0,
+          "dataSources": 0,
+          "securityPolicies": 0,
+          "sourceMap": 20
+        }
+      }
+    },
+    {
+      "id": "conditions",
+      "path": "tests/rmt-language/fixtures/vnext-conditions-valid.rmt",
+      "expected": {
+        "coreSha256": "136576cf06664ab101502a8fa316c172d1744b0459aa636d8e1674b72cdd34ac",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 1,
+          "lanes": 1,
+          "operations": 4,
+          "slots": 0,
+          "events": 0,
+          "dataSources": 0,
+          "securityPolicies": 0,
+          "sourceMap": 11
+        }
+      }
+    },
+    {
+      "id": "composition",
+      "path": "tests/rmt-language/fixtures/vnext-composition-valid.rmt",
+      "expected": {
+        "coreSha256": "76c8a4f0d96d8e84a06fc6363d22d5f21eb712ba66bf90621472840a402de474",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 1,
+          "lanes": 1,
+          "operations": 5,
+          "slots": 4,
+          "events": 0,
+          "dataSources": 0,
+          "securityPolicies": 0,
+          "sourceMap": 12
+        }
+      }
+    },
+    {
+      "id": "events",
+      "path": "tests/rmt-language/fixtures/vnext-events-valid.rmt",
+      "expected": {
+        "coreSha256": "03358d5113e6a29303598eacf284be5728e61ebb355619be02d8fd2b6d941b9d",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 1,
+          "lanes": 2,
+          "operations": 4,
+          "slots": 1,
+          "events": 2,
+          "dataSources": 3,
+          "securityPolicies": 0,
+          "sourceMap": 14
+        }
+      }
+    },
+    {
+      "id": "security",
+      "path": "tests/rmt-language/fixtures/vnext-security-valid.rmt",
+      "expected": {
+        "coreSha256": "c48fea69f4c2ca4a8c17fe5482502e1c15007a9e2cbcb720cdb12758366d9e7e",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 1,
+          "lanes": 3,
+          "operations": 3,
+          "slots": 0,
+          "events": 0,
+          "dataSources": 3,
+          "securityPolicies": 6,
+          "sourceMap": 17
+        }
+      }
+    },
+    {
+      "id": "streaming",
+      "path": "tests/rmt-language/fixtures/vnext-streaming-progressive.rmt",
+      "expected": {
+        "coreSha256": "9287a2a30acd2bb51bbfe5ef0b4175c73d98bc96dbf96e7b0ce0bb5cffec3f16",
+        "domainCounts": {
+          "imports": 0,
+          "templates": 1,
+          "surfaces": 1,
+          "lanes": 2,
+          "operations": 6,
+          "slots": 1,
+          "events": 0,
+          "dataSources": 5,
+          "securityPolicies": 10,
+          "sourceMap": 26
+        }
+      }
+    }
+  ],
+  "negative": [
+    {
+      "id": "condition-call",
+      "path": "tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt",
+      "expectedDiagnosticCodes": [
+        "rmt.vnext.syntax.error"
+      ]
+    },
+    {
+      "id": "imperative-keyword",
+      "path": "tests/rmt-language/fixtures/vnext-invalid-imperative.rmt",
+      "expectedDiagnosticCodes": [
+        "rmt.vnext.syntax.context"
+      ]
+    },
+    {
+      "id": "top-level-operation",
+      "path": "tests/rmt-language/fixtures/vnext-invalid-top-level-operation.rmt",
+      "expectedDiagnosticCodes": [
+        "rmt.vnext.syntax.context"
+      ]
+    }
+  ],
+  "fuzzSeeds": [
+    "minimal",
+    "complex",
+    "streaming"
+  ],
+  "browserSmoke": {
+    "path": "tests/browser/fixtures/rmt-vnext-reference-smoke.html",
+    "sourceFixtureId": "complex",
+    "resultKey": "__xtendRmtVNextSmokeResult",
+    "expectedChecks": [
+      "vNext surface root visible",
+      "vNext lifecycle operation available",
+      "vNext scheduler lane weighted",
+      "vNext security policy attached",
+      "vNext streaming operation available"
+    ]
+  }
+}

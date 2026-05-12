@@ -1,0 +1,35 @@
+import "./shared/*.rmt"
+
+template docs.page {
+  surface root {
+    lane critical weight 10 {
+      hydrate docs-header
+      hydrate docs-content when route.visible == true
+    }
+
+    lane idle weight 1 {
+      prewarm search-index
+    }
+  }
+
+  surface modal.settings {
+    lane critical {
+      mount settings-card {
+        slot body {
+          hydrate settings-form from endpoint settings.load
+        }
+
+        on submit -> action settings.save
+      }
+    }
+  }
+}
+
+surface overlay.docs-feed {
+  lane normal {
+    stream docs-content from sse docs.feed {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize html
+    }
+  }
+}

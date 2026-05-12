@@ -83,6 +83,9 @@ Willkommen zur offiziellen Dokumentation des XTend Web Frameworks. Dieses Inhalt
 - [RMT Linter und AI-Agent Repair Report](./rmt-linter.md)
 - [RMT Language Server und Editor Setup](./rmt-language-server.md)
 - [RMT Tooling Release Gates](./rmt-tooling-release-gates.md)
+- [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
+- [RMT vNext Release Handoff](./rmt-vnext-release-handoff.md)
 
 XTendRMT ist nach Epic 05 als produktiver Scheduler-, Runtime- und Templating-Pfad dokumentiert. XTend UI bleibt das Web-Component-Produkt; RMT fuehrt native `adapters`, `components`, `routes`, `schedules` und `templates` als host-neutrale App-DSL. XRouter und XTend Components werden ueber produktive Adapter angebunden, waehrend React-, Vue-, Vanilla- und Custom-Hosts eigene Adapter verwenden koennen.
 
@@ -95,6 +98,8 @@ Die Docs-App selbst nutzt weiterhin PHP/Parsedown fuer Markdown-Rendering und XT
 [RMT Tooling Release Gates](./rmt-tooling-release-gates.md) dokumentiert ab `WP-E14-15` den Contract `xtend.epic14.rmt-tooling.v1`, die optionalen PR-Befehle `npm run test:pr:rmt` und `npm run test:pr:rmt:report`, den Release-Bundle-Gate `npm run test:rmt-tooling` und den Self-Gate `node scripts/run_xtend_tests.js epic14-rmt-tooling --json`.
 
 Epic 14 ist ab `WP-E14-16` abgeschlossen. Der Handoff `xtend.epic14.lsp-handoff.v1` liegt in [Epic 14 Abschluss und LSP Handoff](../development/XTendRMT-Epic14-Abschluss-und-LSP-Handoff.md) und beschreibt die LSP Capability Matrix, Known Limitations und die Folgepfade fuer RMT DSL Syntax, Formatter und Project Index.
+
+[RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md) und [RMT vNext Release Handoff](./rmt-vnext-release-handoff.md) dokumentieren ab `WP-E15-18` den Abschluss `xtend.rmt.vnext-release-handoff.v1`. Die Reference Demo liegt in `xtendrmt/rmt-vnext-reference-demo.rmt`, der stabile Core-Output in `xtendrmt/rmt-vnext-reference-demo.core.json`, und der lokale Gate ist `node scripts/run_xtend_tests.js rmt-vnext-release --json`.
 
 ## Enterprise Runtime
 

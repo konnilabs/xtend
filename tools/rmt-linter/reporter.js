@@ -10,6 +10,11 @@ const {
 const {
   getRmtCodeActions
 } = require('../rmt-language/code-actions');
+const {
+  analyzeRmtVNextToolingSource,
+  isLikelyRmtVNextSource,
+  lintRmtVNextToolingSource
+} = require('../rmt-language/vnext-tooling');
 
 const RMT_AGENT_REPAIR_REPORT_SCHEMA = 'xtend.rmt.ai-agent-repair-report.v1';
 const RMT_AGENT_REPAIR_FILE_SCHEMA = 'xtend.rmt.ai-agent-repair-file.v1';
@@ -298,12 +303,24 @@ function createFileAgentReport(input = {}, options = {}) {
   };
   const uri = createUri(sourceInput);
   const languageOptions = createLanguageToolingOptions(options);
-  const graph = options.graph || buildSemanticGraph(sourceInput, languageOptions);
-  const lintReport = options.lintReport || lintRmtSource(sourceInput, {
-    ...languageOptions,
-    graph
-  });
-  const codeActionReport = options.codeActionReport || getCodeActionReport(sourceInput, graph, lintReport, languageOptions);
+  const vnext = isLikelyRmtVNextSource(sourceInput, languageOptions);
+  const graph = options.graph || (vnext
+    ? analyzeRmtVNextToolingSource(sourceInput, languageOptions)
+    : buildSemanticGraph(sourceInput, languageOptions));
+  const lintReport = options.lintReport || (vnext
+    ? lintRmtVNextToolingSource(sourceInput, {
+      ...languageOptions,
+      analysis: graph
+    })
+    : lintRmtSource(sourceInput, {
+      ...languageOptions,
+      graph
+    }));
+  const codeActionReport = options.codeActionReport || (vnext
+    ? {
+      actions: []
+    }
+    : getCodeActionReport(sourceInput, graph, lintReport, languageOptions));
   const diagnostics = toArray(lintReport.diagnostics).map(normalizeDiagnostic);
   const actions = toArray(codeActionReport.actions);
   const matchedDiagnostics = new Set();
@@ -347,7 +364,9 @@ function createFileAgentReport(input = {}, options = {}) {
     file: sourceInput.filePath,
     status: lintReport.status,
     ok: lintReport.ok,
+    languageMode: vnext ? 'vnext' : 'legacy',
     graphStatus: graph.status,
+    sourceMapSummary: graph.sourceMapSummary || null,
     diagnostics,
     repairPlan: sortedRepairSteps,
     noOps,

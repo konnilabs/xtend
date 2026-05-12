@@ -1,0 +1,7 @@
+template docs.page {
+  surface root {
+    lane critical {
+      hydrate docs-header
+    }
+  }
+}

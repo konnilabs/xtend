@@ -8,6 +8,10 @@ const {
 const {
   getDefaultRmtLinterRules
 } = require('./rules');
+const {
+  isLikelyRmtVNextSource,
+  lintRmtVNextToolingSource
+} = require('./vnext-tooling');
 
 const RMT_LINTER_RULE_ENGINE_SCHEMA = 'xtend.rmt.linter.rule-engine.v1';
 const RMT_LINTER_REPORT_SCHEMA = 'xtend.rmt.linter.report.v1';
@@ -452,6 +456,10 @@ function createRmtLinter(defaultOptions = {}) {
 }
 
 function lintRmtSource(input = {}, options = {}) {
+  if (!options.forceLegacy && isLikelyRmtVNextSource(input, options)) {
+    return lintRmtVNextToolingSource(input, options);
+  }
+
   return createRmtLinter(options).lint(input, options);
 }
 
