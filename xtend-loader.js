@@ -4,6 +4,7 @@ const LOADER_POLICY_CONTRACT = 'xtend.security.loader-policy.v1';
 const MANIFEST_POLICY_CONTRACT = 'xtend.security.manifest-policy.v1';
 const IMPORT_POLICY_CONTRACT = 'xtend.security.import-policy.v1';
 const PERFORMANCE_MEASUREMENT_CONTRACT = 'xtend.performance.measurement.v1';
+const SKELETON_LOADER_CONTRACT = 'xtend.loader.skeleton-loader.v1';
 const LOADER_PERFORMANCE_PHASES = Object.freeze({
   'xtend.loader.manifest': 'load',
   'xtend.loader.module': 'load',
@@ -660,6 +661,116 @@ function collectTreeElements(root = document) {
   return elements;
 }
 
+function normalizeSkeletonLoaderOptions(options = {}) {
+  return {
+    schema: SKELETON_LOADER_CONTRACT,
+    variant: String(options.variant || options.kind || 'block').trim() || 'block',
+    lines: Math.max(1, Math.min(24, Number(options.lines || options.lineCount || 4))),
+    minHeight: String(options.minHeight || options.height || '').trim(),
+    label: String(options.label || options.ariaLabel || 'Inhalt wird geladen').trim(),
+    source: String(options.source || 'xtend-loader').trim(),
+    schedule: String(options.schedule || 'component.dynamic.hydrate').trim()
+  };
+}
+
+function applySkeletonLineStyle(line, index, total) {
+  const widths = ['72%', '94%', '84%', '58%', '88%', '66%'];
+  line.style.display = 'block';
+  line.style.width = widths[index % widths.length];
+  line.style.maxWidth = '100%';
+  line.style.height = index === 0 && total > 5 ? '1.35rem' : '0.82rem';
+  line.style.borderRadius = '999px';
+  line.style.background = 'var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24))';
+}
+
+function createSkeletonLoader(options = {}) {
+  const normalized = normalizeSkeletonLoaderOptions(options);
+  const skeleton = document.createElement('div');
+  skeleton.setAttribute('data-xtend-skeleton-loader', '');
+  skeleton.setAttribute('data-xtend-skeleton-variant', normalized.variant);
+  skeleton.setAttribute('data-xtend-skeleton-source', normalized.source);
+  skeleton.setAttribute('data-xtend-skeleton-schedule', normalized.schedule);
+  skeleton.setAttribute('role', 'status');
+  skeleton.setAttribute('aria-live', 'polite');
+  skeleton.setAttribute('aria-label', normalized.label);
+  skeleton.style.display = 'grid';
+  skeleton.style.gap = '0.68rem';
+  skeleton.style.width = '100%';
+  skeleton.style.minWidth = '0';
+  skeleton.style.boxSizing = 'border-box';
+  skeleton.style.padding = 'var(--xtend-skeleton-padding, 1rem)';
+  skeleton.style.borderRadius = 'var(--xtend-skeleton-radius, 8px)';
+  skeleton.style.background = 'var(--xtend-skeleton-surface, rgba(148, 163, 184, 0.12))';
+  skeleton.style.overflow = 'hidden';
+  skeleton.style.contain = 'layout paint';
+  if (normalized.minHeight) {
+    skeleton.style.minHeight = normalized.minHeight;
+  }
+
+  for (let index = 0; index < normalized.lines; index += 1) {
+    const line = document.createElement('span');
+    line.setAttribute('data-xtend-skeleton-line', '');
+    applySkeletonLineStyle(line, index, normalized.lines);
+    skeleton.appendChild(line);
+  }
+
+  return skeleton;
+}
+
+function findDirectSkeleton(target) {
+  if (!target || typeof target.querySelector !== 'function') return null;
+  try {
+    return target.querySelector(':scope > [data-xtend-skeleton-loader]');
+  } catch (_) {
+    return Array.from(target.children || []).find((child) => (
+      child && child.getAttribute && child.hasAttribute('data-xtend-skeleton-loader')
+    )) || null;
+  }
+}
+
+function showSkeleton(target, options = {}) {
+  if (!target || typeof target.appendChild !== 'function') return null;
+  const normalized = normalizeSkeletonLoaderOptions(options);
+  const existing = findDirectSkeleton(target);
+  if (existing) {
+    existing.setAttribute('data-xtend-skeleton-source', normalized.source);
+    existing.setAttribute('data-xtend-skeleton-schedule', normalized.schedule);
+    existing.setAttribute('aria-label', normalized.label);
+    return existing;
+  }
+
+  if (target.nodeType === 1 && typeof target.setAttribute === 'function') {
+    target.setAttribute('data-xtend-skeleton-active', 'true');
+    target.setAttribute('aria-busy', 'true');
+  }
+
+  const skeleton = createSkeletonLoader(normalized);
+  target.appendChild(skeleton);
+  return skeleton;
+}
+
+function hideSkeleton(target, options = {}) {
+  if (!target) return 0;
+  const skeletons = Array.from(target.children || []).filter((child) => (
+    child && child.getAttribute && child.hasAttribute('data-xtend-skeleton-loader')
+  ));
+  skeletons.forEach((skeleton) => skeleton.remove());
+  if (target.nodeType === 1 && typeof target.removeAttribute === 'function') {
+    target.removeAttribute('data-xtend-skeleton-active');
+    if (!options.preserveBusy) {
+      target.removeAttribute('aria-busy');
+    }
+  }
+  return skeletons.length;
+}
+
+const SkeletonLoader = Object.freeze({
+  schema: SKELETON_LOADER_CONTRACT,
+  create: createSkeletonLoader,
+  show: showSkeleton,
+  hide: hideSkeleton
+});
+
 async function ensureComponent(tag, options = {}) {
   const normalized = normalizeComponentTag(tag);
   if (!isCustomElementTag(normalized) || !window.customElements) return false;
@@ -1011,6 +1122,8 @@ window.XTendLoader = Object.freeze({
   loaderPolicy: LOADER_POLICY_CONTRACT,
   manifestPolicy: MANIFEST_POLICY_CONTRACT,
   importPolicy: IMPORT_POLICY_CONTRACT,
+  skeletonLoader: SkeletonLoader,
+  skeletonLoaderContract: SKELETON_LOADER_CONTRACT,
   verbose: configureLoaderVerbose,
   setVerbose: setLoaderVerbose,
   enableVerbose: () => setLoaderVerbose(true),
@@ -1018,10 +1131,15 @@ window.XTendLoader = Object.freeze({
   getVerboseMode: getLoaderVerboseMode,
   getVerboseState: getLoaderVerboseState,
   isVerbose: isLoaderVerboseEnabled,
+  createSkeleton: createSkeletonLoader,
+  showSkeleton,
+  hideSkeleton,
   ensureComponent,
   hydrateTree,
   initiateXTend
 });
+
+window.XTendSkeletonLoader = SkeletonLoader;
 
 if (!window.__XTendLoaderBootPromise) {
   window.__XTendLoaderBootPromise = initiateXTend();

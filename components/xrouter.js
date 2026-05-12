@@ -8,13 +8,17 @@ import { xstate } from './xstate.js';
  */
 class XRoute extends HTMLElement {
   static get observedAttributes() {
-    return ['path', 'component', 'import', 'title', 'document-title', 'title-template', 'meta-description', 'meta-keywords'];
+    return ['path', 'component', 'import', 'title', 'document-title', 'title-template', 'meta-description', 'meta-keywords', 'skeleton', 'skeleton-lines', 'skeleton-min-height', 'hydrate-schedule'];
   }
   get path() { return this.getAttribute('path'); }
   get component() { return this.getAttribute('component'); }
   get importUrl() { return this.getAttribute('import'); }
   get title() { return this.getAttribute('title'); }
   get documentTitle() { return this.getAttribute('document-title'); }
+  get skeleton() { return this.getAttribute('skeleton'); }
+  get skeletonLines() { return this.getAttribute('skeleton-lines'); }
+  get skeletonMinHeight() { return this.getAttribute('skeleton-min-height'); }
+  get hydrateSchedule() { return this.getAttribute('hydrate-schedule') || this.getAttribute('data-rmt-hydrate-schedule'); }
 }
 customElements.define('x-route', XRoute);
 
@@ -23,7 +27,7 @@ customElements.define('x-route', XRoute);
  * Haupt-Router-Komponente, die die Navigation verwaltet.
  */
 class XRouter extends HTMLElement {
-  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component']; }
+  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component', 'skeleton', 'skeleton-lines', 'skeleton-min-height']; }
 
   static get xtendComponentContract() {
     return {
@@ -58,7 +62,7 @@ class XRouter extends HTMLElement {
       schema: 'xtend.rmt.component-contract.v1',
       adapter: 'xtend.xrouter',
       tag: 'x-router',
-      schedules: ['component.visible.mount', 'route.visible.render', 'route.transition.render', 'route.focus.restore', 'a11y.announce', 'diagnostics.snapshot'],
+      schedules: ['component.visible.mount', 'route.visible.render', 'route.transition.render', 'route.focus.restore', 'component.dynamic.hydrate', 'a11y.announce', 'diagnostics.snapshot'],
       hydration: { policy: 'visible', lane: 'transition' },
       routeContext: 'xtend.router.current',
       kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
@@ -113,8 +117,8 @@ class XRouter extends HTMLElement {
       focusRestore: 'outlet-focus-after-render',
       routeAnnouncement: 'polite-live-region',
       keyboardNavigation: 'delegated-to-x-link',
-      events: ['xrouter-before-navigate', 'route-changed', 'routechange', 'xrouter-after-navigate', 'route-announced', 'xrouter-routes-registered', 'xrouter-route-reused', 'xrouter-scroll-boundary-normalized', 'xrouter-navigation-overlays-closed', 'xrouter-title-updated'],
-      commands: ['navigate', 'register-routes', 'focus-route', 'announce-route', 'rewrite-document-title', 'reuse-route-component', 'normalize-scroll-boundary', 'close-navigation-overlays', 'snapshot'],
+      events: ['xrouter-before-navigate', 'route-changed', 'routechange', 'xrouter-after-navigate', 'route-announced', 'xrouter-routes-registered', 'xrouter-route-reused', 'xrouter-skeleton-shown', 'xrouter-skeleton-hidden', 'xrouter-route-hydrated', 'xrouter-scroll-boundary-normalized', 'xrouter-navigation-overlays-closed', 'xrouter-title-updated'],
+      commands: ['navigate', 'register-routes', 'focus-route', 'announce-route', 'rewrite-document-title', 'show-route-skeleton', 'hydrate-route-component', 'reuse-route-component', 'normalize-scroll-boundary', 'close-navigation-overlays', 'snapshot'],
       stateKey: 'xtend.router.current',
       schedule: 'route.visible.render',
       fabric: {
@@ -370,6 +374,10 @@ class XRouter extends HTMLElement {
       schedule: routeRecord.schedule || routeRecord.scheduleRef || source.schedule || '',
       router: routeRecord.router || routeRecord.routerId || source.router || 'xtend.xrouter',
       import: routeRecord.import || source.import || source.importUrl || source.moduleRef || metadata.import || metadata.importUrl || '',
+      skeleton: routeRecord.skeleton || source.skeleton || metadata.skeleton || '',
+      skeletonLines: routeRecord.skeletonLines || routeRecord.skeleton_lines || source.skeletonLines || source.skeleton_lines || metadata.skeletonLines || metadata.skeleton_lines || '',
+      skeletonMinHeight: routeRecord.skeletonMinHeight || routeRecord.skeleton_min_height || source.skeletonMinHeight || source.skeleton_min_height || metadata.skeletonMinHeight || metadata.skeleton_min_height || '',
+      hydration: routeRecord.hydration || source.hydration || metadata.hydration || {},
       params: routeRecord.params || source.params || {},
       query: routeRecord.query || source.query || {},
       metadata,
@@ -397,10 +405,14 @@ class XRouter extends HTMLElement {
     setAttribute('meta-keywords', route.metaKeywords);
     setAttribute('redirect', route.redirect);
     setAttribute('import', route.import);
+    setAttribute('skeleton', route.skeleton);
+    setAttribute('skeleton-lines', route.skeletonLines);
+    setAttribute('skeleton-min-height', route.skeletonMinHeight);
     setAttribute('data-rmt-route-id', route.id);
     setAttribute('data-rmt-router', route.router);
     setAttribute('data-rmt-template', route.template);
     setAttribute('data-rmt-schedule', typeof route.schedule === 'string' ? route.schedule : (route.schedule && route.schedule.id) || '');
+    setAttribute('data-rmt-hydrate-schedule', route.hydration && (route.hydration.schedule || route.hydration.scheduleRef) || '');
     if (route.params && Object.keys(route.params).length) {
       element.setAttribute('data-rmt-params', JSON.stringify(route.params));
     }
@@ -431,6 +443,31 @@ class XRouter extends HTMLElement {
         #outlet {
           min-height: 1px;
           outline: none;
+        }
+        #outlet[data-xtend-skeleton-active="true"] {
+          display: block;
+        }
+        [data-xtend-skeleton-loader] {
+          display: grid;
+          gap: 0.68rem;
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+          min-height: var(--xtend-router-skeleton-min-height, 12rem);
+          padding: var(--xtend-skeleton-padding, 1rem);
+          border-radius: var(--xtend-skeleton-radius, 8px);
+          background: var(--xtend-skeleton-surface, rgba(148, 163, 184, 0.12));
+          overflow: hidden;
+          contain: layout paint;
+        }
+        [data-xtend-skeleton-line] {
+          display: block;
+          height: 0.82rem;
+          border-radius: 999px;
+          background: var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24));
+        }
+        [data-xtend-skeleton-line]:first-child {
+          height: 1.35rem;
         }
         #outlet:focus-visible {
           outline: var(--xtend-router-focus);
@@ -475,6 +512,7 @@ class XRouter extends HTMLElement {
     this._scrollBoundarySecondFrame = null;
     this._scrollBoundaryTimer = null;
     this._scrollBoundarySettleTimer = null;
+    this._routeSkeleton = null;
     this._initialDocumentTitle = typeof document !== 'undefined' ? document.title : '';
     this._initialDocumentMeta = this._snapshotDocumentMeta();
     if (this._mode === 'history' && !window.history.pushState) {
@@ -958,6 +996,174 @@ class XRouter extends HTMLElement {
     }
   }
 
+  _readRouteNumber(route, attributeName, fallback) {
+    const raw = route && route.getAttribute && route.getAttribute(attributeName);
+    const value = Number(raw || fallback);
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  }
+
+  _routeSkeletonEnabled(route) {
+    if (!route) return this.hasAttribute('skeleton') || this.hasAttribute('data-xtend-skeleton');
+    const value = this._getRouteValue(route, 'skeleton', 'skeleton') ||
+      this._getRouteValue(route, 'data-xtend-skeleton', 'data-xtend-skeleton') ||
+      this.getAttribute('skeleton') ||
+      this.getAttribute('data-xtend-skeleton') ||
+      '';
+    if (value === '') return this.hasAttribute('skeleton') || this.hasAttribute('data-xtend-skeleton');
+    return !['false', '0', 'off', 'none'].includes(String(value).trim().toLowerCase());
+  }
+
+  _getRouteHydrateSchedule(route) {
+    return this._getRouteValue(route, 'hydrateSchedule', 'hydrate-schedule') ||
+      this._getRouteValue(route, 'data-rmt-hydrate-schedule', 'data-rmt-hydrate-schedule') ||
+      this.getAttribute('hydrate-schedule') ||
+      this.getAttribute('data-rmt-hydrate-schedule') ||
+      'component.dynamic.hydrate';
+  }
+
+  _getRouteSkeletonOptions(route, context = {}) {
+    const routeLines = this._readRouteNumber(route, 'skeleton-lines', 0);
+    const routerLines = Number(this.getAttribute('skeleton-lines') || 0);
+    const lines = routeLines || (Number.isFinite(routerLines) && routerLines > 0 ? routerLines : 6);
+    return {
+      variant: this._getRouteValue(route, 'skeleton', 'skeleton') || this.getAttribute('skeleton') || 'route',
+      lines,
+      minHeight: this._getRouteValue(route, 'skeletonMinHeight', 'skeleton-min-height') ||
+        this.getAttribute('skeleton-min-height') ||
+        this.style.getPropertyValue('--xtend-router-skeleton-min-height') ||
+        '12rem',
+      label: this.getAttribute('skeleton-label') || 'Route wird geladen',
+      source: 'x-router',
+      schedule: this._getRouteValue(route, 'schedule', 'data-rmt-schedule') || 'route.visible.render',
+      routeId: this._getRouteValue(route, 'id', 'data-rmt-route-id') || null,
+      path: context.path || this._getCurrentPath()
+    };
+  }
+
+  _showRouteSkeleton(route, context = {}) {
+    if (!this._outlet || !this._routeSkeletonEnabled(route)) return null;
+    const options = this._getRouteSkeletonOptions(route, context);
+    const loader = typeof window !== 'undefined' && window.XTendLoader;
+    const skeleton = loader && typeof loader.showSkeleton === 'function'
+      ? loader.showSkeleton(this._outlet, options)
+      : this._createFallbackRouteSkeleton(options);
+    this._routeSkeleton = skeleton;
+    const detail = {
+      schema: 'xtend.router.skeleton-loader.v1',
+      source: 'x-router',
+      stateKey: 'xtend.router.skeleton',
+      scheduleRef: options.schedule,
+      routeId: options.routeId,
+      path: options.path,
+      active: true
+    };
+    xstate.set('xtend.router.skeleton', detail);
+    this.dispatchEvent(new CustomEvent('xrouter-skeleton-shown', {
+      detail,
+      bubbles: true,
+      composed: true
+    }));
+    return skeleton;
+  }
+
+  _createFallbackRouteSkeleton(options = {}) {
+    const skeleton = document.createElement('div');
+    skeleton.setAttribute('data-xtend-skeleton-loader', '');
+    skeleton.setAttribute('data-xtend-skeleton-source', 'x-router');
+    skeleton.setAttribute('role', 'status');
+    skeleton.setAttribute('aria-label', options.label || 'Route wird geladen');
+    if (options.minHeight) skeleton.style.minHeight = options.minHeight;
+    const lines = Math.max(1, Math.min(24, Number(options.lines || 6)));
+    const widths = ['72%', '94%', '84%', '58%', '88%', '66%'];
+    for (let index = 0; index < lines; index += 1) {
+      const line = document.createElement('span');
+      line.setAttribute('data-xtend-skeleton-line', '');
+      line.style.width = widths[index % widths.length];
+      skeleton.appendChild(line);
+    }
+    this._outlet.setAttribute('data-xtend-skeleton-active', 'true');
+    this._outlet.appendChild(skeleton);
+    return skeleton;
+  }
+
+  _clearRouteSkeleton(route, context = {}) {
+    if (!this._outlet) return;
+    const loader = typeof window !== 'undefined' && window.XTendLoader;
+    if (loader && typeof loader.hideSkeleton === 'function') {
+      loader.hideSkeleton(this._outlet, { preserveBusy: true });
+    } else {
+      Array.from(this._outlet.children || [])
+        .filter((child) => child && child.hasAttribute && child.hasAttribute('data-xtend-skeleton-loader'))
+        .forEach((skeleton) => skeleton.remove());
+      this._outlet.removeAttribute('data-xtend-skeleton-active');
+    }
+    this._routeSkeleton = null;
+    const detail = {
+      schema: 'xtend.router.skeleton-loader.v1',
+      source: 'x-router',
+      stateKey: 'xtend.router.skeleton',
+      scheduleRef: this._getRouteValue(route, 'schedule', 'data-rmt-schedule') || 'route.visible.render',
+      routeId: this._getRouteValue(route, 'id', 'data-rmt-route-id') || null,
+      path: context.path || this._getCurrentPath(),
+      active: false
+    };
+    xstate.set('xtend.router.skeleton', detail);
+    this.dispatchEvent(new CustomEvent('xrouter-skeleton-hidden', {
+      detail,
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  async _ensureRouteComponent(componentTag, importUrl, route = null) {
+    if (!componentTag) return false;
+    if (customElements.get(componentTag)) return true;
+    if (importUrl) {
+      await import(importUrl);
+    } else if (window.XTendLoader && typeof window.XTendLoader.ensureComponent === 'function') {
+      await window.XTendLoader.ensureComponent(componentTag, {
+        source: 'x-router',
+        reason: 'route-component',
+        schedule: this._getRouteValue(route, 'schedule', 'data-rmt-schedule') || 'route.visible.render'
+      });
+    }
+    return Boolean(customElements.get(componentTag));
+  }
+
+  async _hydrateRouteTree(component, route) {
+    if (!component || !component.isConnected) return null;
+    const schedule = this._getRouteHydrateSchedule(route);
+    let detail = null;
+    if (window.XTendLoader && typeof window.XTendLoader.hydrateTree === 'function') {
+      detail = await window.XTendLoader.hydrateTree(component, {
+        tags: [component.localName],
+        source: 'x-router',
+        reason: 'route-render',
+        schedule
+      });
+    } else if (typeof component.hydrate === 'function') {
+      component.hydrate();
+      detail = {
+        schema: 'xtend.router.route-hydration.v1',
+        source: 'x-router',
+        schedule,
+        hydrated: 1
+      };
+    }
+    if (detail) {
+      this.dispatchEvent(new CustomEvent('xrouter-route-hydrated', {
+        detail: {
+          ...detail,
+          routeId: this._getRouteValue(route, 'id', 'data-rmt-route-id') || null,
+          scheduleRef: schedule
+        },
+        bubbles: true,
+        composed: true
+      }));
+    }
+    return detail;
+  }
+
   _snapshotDocumentMeta() {
     if (typeof document === 'undefined') return {};
     const read = (name) => {
@@ -1266,7 +1472,12 @@ class XRouter extends HTMLElement {
       });
       if (!reused) {
         this._outlet.innerHTML = '';
-        await this._renderRoute(match, this._outlet);
+        this._showRouteSkeleton(route, { path: raw });
+        try {
+          await this._renderRoute(match, this._outlet);
+        } finally {
+          this._clearRouteSkeleton(route, { path: raw });
+        }
       }
       const routeDetail = this._buildRouteDetail(raw, match, queryObj, documentMeta);
       if (reused) routeDetail.reused = true;
@@ -1498,14 +1709,16 @@ class XRouter extends HTMLElement {
     const { route, params, child, query, queryObj } = match;
     const componentTag = this._getRouteComponent(route);
     const importUrl = this._getRouteImportUrl(route);
-    if (!customElements.get(componentTag) && importUrl) {
-      try {
-        await import(importUrl);
-      } catch (e) {
-        console.error(`Router: Fehler beim dynamischen Import von ${importUrl}:`, e);
-        container.innerHTML = this._renderError(500, `Fehler beim Laden von <strong>${importUrl}</strong>\n${e.message}`);
-        return;
-      }
+    if (!componentTag) {
+      container.innerHTML = this._renderError(500, 'Route definiert keine Komponente.');
+      return;
+    }
+    try {
+      await this._ensureRouteComponent(componentTag, importUrl, route);
+    } catch (e) {
+      console.error(`Router: Fehler beim dynamischen Import von ${importUrl || componentTag}:`, e);
+      container.innerHTML = this._renderError(500, `Fehler beim Laden von <strong>${importUrl || componentTag}</strong>\n${e.message}`);
+      return;
     }
     if (customElements.get(componentTag)) {
       let component;
@@ -1537,6 +1750,7 @@ class XRouter extends HTMLElement {
         await this._renderRoute(child, outlet);
       }
       container.appendChild(component);
+      await this._hydrateRouteTree(component, route);
     } else {
       container.innerHTML = this._renderError(500, `Komponente <strong>${componentTag}</strong> ist nicht definiert oder konnte nicht geladen werden.`);
       console.warn(`Router: Komponente "${componentTag}" für den Pfad "${route.path}" ist nicht definiert oder noch nicht geladen.`);

@@ -108,8 +108,20 @@ Structured Diagnostics (`xtend-loader-diagnostic`) und Performance Events (`xten
 8. Er laedt Eintraege aus `<meta name="xtend-preload">`.
 9. Er erkennt im DOM verwendete XTend-Tags und laedt sichtbare Komponenten sofort.
 10. Er beobachtet nicht sichtbare Komponenten per `IntersectionObserver`.
-11. Er macht die Seite wieder sichtbar.
-12. Er validiert und importiert lokal `api.js`, dann ruft er `api.initXTendAPI(manifest)` auf.
+11. Er stellt `xtend.loader.skeleton-loader.v1` fuer Shell-, Route- und dynamische Subtree-Fallbacks bereit.
+12. Er macht die Seite wieder sichtbar.
+13. Er validiert und importiert lokal `api.js`, dann ruft er `api.initXTendAPI(manifest)` auf.
+
+## SkeletonLoader
+
+Der Loader exportiert einen nativen SkeletonLoader fuer Shell-first Apps:
+
+```js
+window.XTendLoader.showSkeleton(target, { lines: 8, schedule: 'docs.page.hydrate' });
+window.XTendLoader.hideSkeleton(target);
+```
+
+Zusammen mit `xtend.css` koennen Hosts noch nicht definierte XTend Custom Elements ueber `data-xtend-skeleton` als Skeleton anzeigen. Bekannte XTend-Tags ohne Skeleton-Opt-in bleiben bis zur Definition unsichtbar, damit Light-DOM-Text nicht ungestylt aufblitzt.
 
 ## Preload
 

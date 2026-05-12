@@ -28,6 +28,9 @@
 |----------|-----|--------------|
 | `mode` | string | `hash` oder `history` |
 | `routesrc` | string | optionale JSON-Quelle fuer Routen |
+| `skeleton` | string | aktiviert einen nativen Route-Skeleton-Fallback waehrend Import, Definition und Hydration |
+| `skeleton-lines` | number | Anzahl der Skeleton-Zeilen fuer den Route-Fallback |
+| `skeleton-min-height` | string | stabile Mindesthoehe des Route-Fallbacks |
 | `title-template` / `document-title-template` | string | globales Template fuer den Dokumenttitel, z.B. `{{title}} | App` |
 | `title-prefix` / `title-suffix` | string | einfacher Prefix/Suffix fuer Routentitel ohne Template |
 | `default-title` | string | Fallback, wenn eine Route keinen Titel definiert |
@@ -81,6 +84,8 @@ Unterstuetzte Template-Variablen sind `{{title}}`, `{{routeTitle}}`, `{{document
 | `routechange` | Legacy-Alias zu `route-changed` |
 | `xrouter-after-navigate` | Legacy-Window-Event nach dem Rendern einer Route |
 | `route-announced` | wird nach dem Schreiben der Route-Live-Region emittiert |
+| `xrouter-skeleton-shown` / `xrouter-skeleton-hidden` | markieren den nativen Route-Skeleton-Lifecycle |
+| `xrouter-route-hydrated` | wird nach Loader-basierter Hydration des gerenderten Route-Subtrees emittiert |
 | `xrouter-title-updated` | wird nach dem Schreiben von `document.title` und SEO-Metatags emittiert |
 | `xrouter-scroll-boundary-normalized` | wird emittiert, wenn der Router nach einem Route-Wechsel eine stale Scrollposition oder eine Deadzone unterhalb des Contentbereichs korrigiert |
 | `xrouter-navigation-overlays-closed` | wird emittiert, wenn der Router vor einem Route-Render offene App-Shell-Overlays wie `x-header` schliesst |
@@ -96,6 +101,7 @@ Unterstuetzte Template-Variablen sind `{{title}}`, `{{routeTitle}}`, `{{document
 - `xtend.router.current`: kanonischer Route Context
 - `xtend.router.announcement`: zuletzt angekuendigte Route
 - `xtend.router.documentMeta`: zuletzt gesetzter Dokumenttitel und SEO-Metatags
+- `xtend.router.skeleton`: aktueller Route-Skeleton-Lifecycle
 - `xtend.router.scrollBoundary`: kanonischer Snapshot der letzten Scroll-Boundary-Pruefung
 - `xtend.router.closedNavigationOverlays`: kanonischer Snapshot der vor dem Route-Render geschlossenen Navigationsoverlays
 
@@ -129,6 +135,23 @@ Die kanonischen Spiegelpfade werden ebenfalls gepflegt:
 ```
 
 Bei Nested Routes ist `component` die Leaf-Route; `params` werden aus der kompletten Match-Kette zusammengefuehrt.
+
+## Skeleton und Lazy Hydration
+
+XRouter kann Route-Komponenten shell-first laden:
+
+```html
+<x-router mode="hash" skeleton="article" skeleton-lines="8" skeleton-min-height="20rem">
+  <x-route
+    path="/docs"
+    component="xtend-doc-page"
+    import="/docs/utils/pageloader.js"
+    hydrate-schedule="docs.page.hydrate">
+  </x-route>
+</x-router>
+```
+
+Wenn der Component-Tag noch nicht definiert ist, nutzt XRouter zuerst das explizite `import` der Route. Fehlt ein Import, delegiert er an `window.XTendLoader.ensureComponent(componentTag)`, sodass Manifest-Komponenten route-nativ lazy geladen werden koennen. Nach dem Rendern hydriert XRouter den Route-Subtree ueber `window.XTendLoader.hydrateTree(...)`.
 
 ## Navigation Routing UX Profil
 

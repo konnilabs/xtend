@@ -32,6 +32,7 @@ const DOCS_COMPONENT_DEMOS = Object.freeze(createDocsComponentDemos());
 const DOCS_ROUTE_CONTENT_CACHE_LIMIT = 32;
 const DOCS_ROUTE_IDLE_TIMEOUT_MS = 520;
 const DOCS_ROUTE_CONTENT_CACHE = new Map();
+const DOCS_ROUTE_PAYLOAD_PROMISES = new Map();
 const DOCS_SHELL_SCOPED_CSS = `
   #outlet {
     width: 100%;
@@ -313,6 +314,33 @@ const DOCS_SHELL_SCOPED_CSS = `
     box-sizing: border-box;
     line-height: 1.65;
   }
+  #md-content[data-xtend-skeleton-active="true"] {
+    min-height: var(--docs-content-skeleton-min-height, 24rem);
+  }
+  #md-content[data-xtend-skeleton-active="true"] > :not([data-xtend-skeleton-loader]) {
+    visibility: hidden;
+  }
+  [data-xtend-skeleton-loader] {
+    display: grid;
+    gap: 0.68rem;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    min-height: var(--docs-content-skeleton-min-height, 24rem);
+    padding: 0;
+    border-radius: 8px;
+    background: transparent;
+    contain: layout paint;
+  }
+  [data-xtend-skeleton-line] {
+    display: block;
+    height: 0.82rem;
+    border-radius: 999px;
+    background: var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24));
+  }
+  [data-xtend-skeleton-line]:first-child {
+    height: 1.35rem;
+  }
   #md-content > :first-child {
     margin-top: 0;
   }
@@ -495,6 +523,67 @@ function scheduleDocsIdle(callback, timeout = DOCS_ROUTE_IDLE_TIMEOUT_MS) {
     cancelled = true;
     window.clearTimeout(timer);
   };
+}
+
+function getXtendSkeletonLoader() {
+  if (window.XTendSkeletonLoader && typeof window.XTendSkeletonLoader.show === 'function') {
+    return window.XTendSkeletonLoader;
+  }
+  if (window.XTendLoader && window.XTendLoader.skeletonLoader && typeof window.XTendLoader.skeletonLoader.show === 'function') {
+    return window.XTendLoader.skeletonLoader;
+  }
+  if (window.XTendLoader && typeof window.XTendLoader.showSkeleton === 'function') {
+    return {
+      schema: window.XTendLoader.skeletonLoaderContract || 'xtend.loader.skeleton-loader.v1',
+      show: window.XTendLoader.showSkeleton,
+      hide: window.XTendLoader.hideSkeleton
+    };
+  }
+  return null;
+}
+
+function showDocsSkeleton(target, options = {}) {
+  if (!target) return null;
+  const loader = getXtendSkeletonLoader();
+  const skeletonOptions = {
+    variant: options.variant || 'article',
+    lines: options.lines || 10,
+    minHeight: options.minHeight || '24rem',
+    label: options.label || 'Dokumentation wird geladen',
+    source: options.source || 'docs.parsedown',
+    schedule: options.schedule || 'docs.markdown.parse'
+  };
+  if (loader && typeof loader.show === 'function') {
+    return loader.show(target, skeletonOptions);
+  }
+  target.setAttribute('data-xtend-skeleton-active', 'true');
+  target.setAttribute('aria-busy', 'true');
+  const skeleton = document.createElement('div');
+  skeleton.setAttribute('data-xtend-skeleton-loader', '');
+  skeleton.setAttribute('role', 'status');
+  skeleton.setAttribute('aria-label', skeletonOptions.label);
+  const widths = ['72%', '94%', '84%', '58%', '88%', '66%'];
+  for (let index = 0; index < skeletonOptions.lines; index += 1) {
+    const line = document.createElement('span');
+    line.setAttribute('data-xtend-skeleton-line', '');
+    line.style.width = widths[index % widths.length];
+    skeleton.appendChild(line);
+  }
+  target.appendChild(skeleton);
+  return skeleton;
+}
+
+function hideDocsSkeleton(target, options = {}) {
+  if (!target) return 0;
+  const loader = getXtendSkeletonLoader();
+  if (loader && typeof loader.hide === 'function') {
+    return loader.hide(target, options);
+  }
+  const skeletons = Array.from(target.querySelectorAll ? target.querySelectorAll('[data-xtend-skeleton-loader]') : []);
+  skeletons.forEach((skeleton) => skeleton.remove());
+  target.removeAttribute('data-xtend-skeleton-active');
+  if (!options.preserveBusy) target.removeAttribute('aria-busy');
+  return skeletons.length;
 }
 
 function createRmtSnippet(tag, attributes = {}, children = []) {
@@ -1439,13 +1528,117 @@ function ensureMainBackgroundBinding() {
   applyMainBackground();
 }
 
+function getDocsPageSlugs() {
+  const metaSlugs = Object.keys(window.xtendDocsPagesMeta || {});
+  if (metaSlugs.length) return metaSlugs;
+  return Object.keys(window.xtendDocsPages || {});
+}
+
+function getDocsPageEndpoint() {
+  const endpoint = window.xtendDocsPageEndpoint || '';
+  return typeof endpoint === 'string' && endpoint ? endpoint : '';
+}
+
+function buildDocsPagePayloadUrl(slug) {
+  const endpoint = getDocsPageEndpoint();
+  if (!endpoint) return '';
+  if (endpoint.includes('{slug}')) return endpoint.replace('{slug}', encodeURIComponent(slug));
+  return endpoint + encodeURIComponent(slug);
+}
+
+function rememberDocsPagePayload(slug, payload = {}) {
+  if (!window.xtendDocsPages || typeof window.xtendDocsPages !== 'object') {
+    window.xtendDocsPages = {};
+  }
+  if (typeof payload.html === 'string') {
+    window.xtendDocsPages[slug] = payload.html;
+  }
+  if (payload.meta && typeof payload.meta === 'object') {
+    window.xtendDocsPagesMeta = {
+      ...(window.xtendDocsPagesMeta || {}),
+      [slug]: {
+        ...(window.xtendDocsPagesMeta && window.xtendDocsPagesMeta[slug] || {}),
+        ...payload.meta
+      }
+    };
+  }
+  return payload;
+}
+
+function loadDocsParsedownContent(slug, rmtMeta = {}) {
+  const inlineHtml = window.xtendDocsPages && typeof window.xtendDocsPages[slug] === 'string'
+    ? window.xtendDocsPages[slug]
+    : null;
+  if (inlineHtml !== null) {
+    return Promise.resolve({
+      schema: 'xtend.docs.parsedown-rmt-page-payload.v1',
+      ok: true,
+      slug,
+      html: inlineHtml,
+      meta: rmtMeta,
+      source: 'inline',
+      cacheHit: true,
+      skeletonLoader: 'xtend.loader.skeleton-loader.v1'
+    });
+  }
+
+  if (DOCS_ROUTE_PAYLOAD_PROMISES.has(slug)) {
+    return DOCS_ROUTE_PAYLOAD_PROMISES.get(slug);
+  }
+
+  const url = buildDocsPagePayloadUrl(slug);
+  if (!url) {
+    return Promise.resolve({
+      schema: 'xtend.docs.parsedown-rmt-page-payload.v1',
+      ok: false,
+      slug,
+      html: '<em>Seite nicht gefunden</em>',
+      meta: rmtMeta,
+      source: 'missing-endpoint',
+      cacheHit: false,
+      skeletonLoader: 'xtend.loader.skeleton-loader.v1'
+    });
+  }
+
+  const promise = fetch(url, {
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json'
+    }
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error(`Docs page payload failed with HTTP ${response.status}`);
+      return response.json();
+    })
+    .then((payload) => rememberDocsPagePayload(slug, {
+      ...payload,
+      cacheHit: false
+    }))
+    .catch((error) => ({
+      schema: 'xtend.docs.parsedown-rmt-page-payload.v1',
+      ok: false,
+      slug,
+      html: '<em>Seite nicht gefunden</em>',
+      meta: rmtMeta,
+      source: 'fetch-error',
+      cacheHit: false,
+      error: error && error.message ? error.message : String(error),
+      skeletonLoader: 'xtend.loader.skeleton-loader.v1'
+    }))
+    .finally(() => {
+      DOCS_ROUTE_PAYLOAD_PROMISES.delete(slug);
+    });
+  DOCS_ROUTE_PAYLOAD_PROMISES.set(slug, promise);
+  return promise;
+}
+
 function normalizeMarkdownLinks(html) {
   return String(html || '').replace(/<a href=["']([^"'#?]+)["']>(.*?)<\/a>/g, function(match, href, text) {
     if (!href.endsWith('.md')) return match;
     let norm = href.replace(/^\.\//, '').replace(/^\.\./, '').replace(/^\./, '').replace(/\\/g, '/');
     let foundSlug = null;
 
-    for (const s in (window.xtendDocsPages || {})) {
+    for (const s of getDocsPageSlugs()) {
       let candidate = '';
       if (norm.startsWith('components/')) {
         candidate = 'components-' + norm.slice('components/'.length).replace(/\//g, '-').replace(/\.md$/, '').toLowerCase();
@@ -1460,7 +1653,7 @@ function normalizeMarkdownLinks(html) {
 
     if (!foundSlug) {
       const base = norm.split('/').pop().replace(/\.md$/, '').toLowerCase();
-      for (const s in (window.xtendDocsPages || {})) {
+      for (const s of getDocsPageSlugs()) {
         if (s.endsWith('-' + base) || s === base) {
           foundSlug = s;
           break;
@@ -1983,7 +2176,10 @@ function ensureMenuBinding() {
 }
 
 function docsPageExists(slug) {
-  return Boolean(slug && window.xtendDocsPages && window.xtendDocsPages[slug]);
+  return Boolean(slug && (
+    window.xtendDocsPages && window.xtendDocsPages[slug] ||
+    window.xtendDocsPagesMeta && window.xtendDocsPagesMeta[slug]
+  ));
 }
 
 function docsTitleForSlug(slug) {
@@ -2005,7 +2201,7 @@ function normalizeDocsSlugFromHref(href) {
   value = value.replace(/\.md$/i, '').replace(/\//g, '-').toLowerCase();
   if (docsPageExists(value)) return value;
   const base = value.split('-').pop();
-  const match = Object.keys(window.xtendDocsPages || {}).find((slug) => slug === value || slug.endsWith('-' + base));
+  const match = getDocsPageSlugs().find((slug) => slug === value || slug.endsWith('-' + base));
   return match || value;
 }
 
@@ -2480,33 +2676,61 @@ class XtendDocPage extends HTMLElement {
     ensureRmtSearchShell();
     ensureMainBackgroundBinding();
 
-    const html = window.xtendDocsPages && window.xtendDocsPages[slug]
-      ? window.xtendDocsPages[slug]
-      : '<em>Seite nicht gefunden</em>';
-
-    const trustedDomResult = measuredLane('visible', parseSchedule, 'article.trusted-dom-commit', () => applyDocsTrustedDomHtml(shell.mdContent, html, {
-      slug,
-      source: rmtMeta.source || 'docs.parsedown',
-      markupClass: rmtMeta.markupClass || 'parsedownHtml',
-      trustBoundary: rmtMeta.trustBoundary || DOCS_RMT_TRUST_BOUNDARY
-    }));
-    window.xtendDocsRmtProductionLastRender.trustedDom = {
-      schema: trustedDomResult.schema,
-      sanitizer: trustedDomResult.sanitizer,
-      sanitized: trustedDomResult.sanitized,
-      removedCount: trustedDomResult.removedCount,
-      boundary: trustedDomResult.boundary,
-      markupClass: trustedDomResult.markupClass,
-      cacheHit: trustedDomResult.cacheHit === true
-    };
-
-    const relatedLinks = measuredLane('visible', relatedSchedule, 'article.related-extract', () => {
-      upgradeRoutedLinks(shell.mdContent);
-      return extractDocsRelatedLinks(shell.mdContent);
-    });
-
     syncActiveHeaderLink(slug);
     ensureMenuBinding();
+    while (shell.mdContent.firstChild) {
+      shell.mdContent.removeChild(shell.mdContent.firstChild);
+    }
+    showDocsSkeleton(shell.mdContent, {
+      variant: 'article',
+      lines: 11,
+      minHeight: '24rem',
+      label: 'Dokumentationsinhalt wird geladen',
+      source: 'docs.parsedown',
+      schedule: parseSchedule
+    });
+
+    const contentPayloadPromise = loadDocsParsedownContent(slug, rmtMeta);
+    let relatedLinks = [];
+    let contentCommitted = false;
+
+    const commitParsedownContent = async () => {
+      if (!this.isActiveRouteToken(token) || contentCommitted) return false;
+      const payload = await contentPayloadPromise;
+      if (!this.isActiveRouteToken(token) || contentCommitted) return false;
+      contentCommitted = true;
+      const html = payload && typeof payload.html === 'string'
+        ? payload.html
+        : '<em>Seite nicht gefunden</em>';
+      const payloadMeta = payload && payload.meta && typeof payload.meta === 'object'
+        ? payload.meta
+        : rmtMeta;
+      const trustedDomResult = measuredLane('visible', parseSchedule, 'article.trusted-dom-commit', () => applyDocsTrustedDomHtml(shell.mdContent, html, {
+        slug,
+        source: payloadMeta.source || rmtMeta.source || 'docs.parsedown',
+        markupClass: payloadMeta.markupClass || rmtMeta.markupClass || 'parsedownHtml',
+        trustBoundary: payloadMeta.trustBoundary || rmtMeta.trustBoundary || DOCS_RMT_TRUST_BOUNDARY
+      }));
+      hideDocsSkeleton(shell.mdContent);
+      window.xtendDocsRmtLastRender.lazyPayload = payload && payload.source !== 'inline';
+      window.xtendDocsRmtLastRender.payloadSource = payload ? payload.source : 'unknown';
+      window.xtendDocsRmtLastRender.skeletonLoader = 'xtend.loader.skeleton-loader.v1';
+      window.xtendDocsRmtProductionLastRender.trustedDom = {
+        schema: trustedDomResult.schema,
+        sanitizer: trustedDomResult.sanitizer,
+        sanitized: trustedDomResult.sanitized,
+        removedCount: trustedDomResult.removedCount,
+        boundary: trustedDomResult.boundary,
+        markupClass: trustedDomResult.markupClass,
+        cacheHit: trustedDomResult.cacheHit === true
+      };
+
+      relatedLinks = measuredLane('visible', relatedSchedule, 'article.related-extract', () => {
+        upgradeRoutedLinks(shell.mdContent);
+        return extractDocsRelatedLinks(shell.mdContent);
+      });
+      return true;
+    };
 
     let transitionCompleted = false;
     const finishTransition = () => {
@@ -2544,20 +2768,37 @@ class XtendDocPage extends HTMLElement {
 
     const afterPaintDisposer = scheduleDocsAfterPaint(() => {
       if (!this.isActiveRouteToken(token)) return;
-      measuredLane('idle', relatedSchedule, 'sidebar.related-render', () => renderDocsRelatedSidebar(shell.relatedSlot, slug, relatedLinks));
-      window.dispatchEvent(new CustomEvent('xtend-docs-content-ready', {
-        detail: {
-          schema: 'xtend.docs.content-ready.v1',
-          slug,
-          routeRef: rmtMeta.routeId || ('docs.' + slug.replace(/-/g, '.')),
-          root: shell.mdContent,
-          schedule: hydrateSchedule,
-          syntaxSchedule: 'docs.syntax.highlight',
-          reused,
-          insularHydration: true
-        }
-      }));
-      finishTransition();
+      commitParsedownContent().then((committed) => {
+        if (!committed || !this.isActiveRouteToken(token)) return;
+        measuredLane('idle', relatedSchedule, 'sidebar.related-render', () => renderDocsRelatedSidebar(shell.relatedSlot, slug, relatedLinks));
+        window.dispatchEvent(new CustomEvent('xtend-docs-content-ready', {
+          detail: {
+            schema: 'xtend.docs.content-ready.v1',
+            slug,
+            routeRef: rmtMeta.routeId || ('docs.' + slug.replace(/-/g, '.')),
+            root: shell.mdContent,
+            schedule: hydrateSchedule,
+            syntaxSchedule: 'docs.syntax.highlight',
+            reused,
+            insularHydration: true,
+            skeletonLoader: 'xtend.loader.skeleton-loader.v1'
+          }
+        }));
+        finishTransition();
+      }).catch((error) => {
+        if (!this.isActiveRouteToken(token)) return;
+        hideDocsSkeleton(shell.mdContent);
+        shell.mdContent.innerHTML = '<em>Seite konnte nicht geladen werden.</em>';
+        window.dispatchEvent(new CustomEvent('xtend-docs-content-error', {
+          detail: {
+            schema: 'xtend.docs.content-error.v1',
+            slug,
+            schedule: parseSchedule,
+            message: error && error.message ? error.message : String(error)
+          }
+        }));
+        finishTransition();
+      });
     });
     this.scheduleRouteWork(afterPaintDisposer);
 
@@ -2571,10 +2812,6 @@ class XtendDocPage extends HTMLElement {
       });
     });
     this.scheduleRouteWork(idleDisposer);
-
-    if (reducedMotion) {
-      finishTransition();
-    }
 
     return true;
   }

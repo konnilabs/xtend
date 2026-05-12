@@ -291,11 +291,20 @@ function docsBuildRouteRecord($slug, $rel, $pageMeta) {
         'template' => $pageMeta['template'],
         'shell' => $pageMeta['shellTemplate'],
         'schedule' => $pageMeta['schedules']['route'],
+        'skeleton' => 'article',
+        'skeletonLines' => 10,
+        'skeletonMinHeight' => '26rem',
+        'hydration' => [
+            'schedule' => $pageMeta['schedules']['hydrate'],
+            'policy' => 'visible'
+        ],
         'metadata' => [
             'source' => 'docs/' . $rel,
             'shellTemplate' => $pageMeta['shellTemplate'],
             'searchTemplate' => $pageMeta['searchTemplate'],
             'contentKind' => $pageMeta['contentKind'],
+            'lazyPayload' => true,
+            'skeletonLoader' => 'xtend.loader.skeleton-loader.v1',
             'seo' => [
                 'title' => $pageMeta['title'],
                 'documentTitle' => $pageMeta['documentTitle'],
@@ -305,6 +314,71 @@ function docsBuildRouteRecord($slug, $rel, $pageMeta) {
             ]
         ]
     ];
+}
+
+function docsBuildPageMeta($slug, $rel, $markdown) {
+    $title = docsExtractMarkdownTitle($markdown, $rel);
+    $description = docsExtractMarkdownDescription($markdown, $title);
+    $keywords = [
+        'xtend',
+        'dokumentation',
+        str_replace('-', ' ', $slug)
+    ];
+    $pageMeta = [
+        'schema' => 'xtend.docs.parsedown-rmt-page.v1',
+        'source' => 'docs/' . $rel,
+        'routeId' => docsRouteIdFromSlug($slug),
+        'path' => '/' . $slug,
+        'router' => 'xtend.xrouter',
+        'title' => $title,
+        'documentTitle' => $title . ' | XTend Dokumentation',
+        'titleTemplate' => '{{title}} | XTend Dokumentation',
+        'metaDescription' => $description,
+        'metaKeywords' => $keywords,
+        'template' => 'docs.' . $slug . '.markdown',
+        'shellFirst' => true,
+        'shellTemplate' => 'docs.app.shell',
+        'searchTemplate' => 'docs.header.search',
+        'contentSlot' => 'content',
+        'contentKind' => 'parsedownHtml',
+        'adapter' => 'docs.parsedown',
+        'component' => 'docs.page',
+        'markupClass' => 'parsedownHtml',
+        'trustBoundary' => 'xtend.security.sanitizing-boundary.v1',
+        'lazyPayload' => true,
+        'skeletonLoader' => 'xtend.loader.skeleton-loader.v1',
+        'schedules' => [
+            'shell' => 'docs.shell.render',
+            'parse' => 'docs.markdown.parse',
+            'route' => 'docs.route.render',
+            'hydrate' => 'docs.page.hydrate',
+            'search' => 'docs.search.index',
+            'rich' => 'docs.rich-content.prepare',
+            'media' => 'docs.media.lazy',
+            'diagnostics' => 'docs.diagnostics.snapshot'
+        ],
+        'endpoints' => [
+            'shell' => 'xtendrmt.shell.render',
+            'parse' => 'xtendrmt.docs.parsedown.parse',
+            'route' => 'xtendrmt.route.render',
+            'hydrate' => 'xtendrmt.component.hydrate',
+            'search' => 'xtendrmt.docs.search.index',
+            'rich' => 'xtendrmt.docs.rich-content.prepare',
+            'media' => 'xtendrmt.docs.media.lazy',
+            'diagnostics' => 'xtendrmt.diagnostics.snapshot'
+        ],
+        'extensionSlots' => [
+            'docs.slot.content',
+            'docs.slot.sidebar',
+            'docs.slot.related',
+            'docs.slot.component-demo',
+            'docs.slot.rich-content',
+            'docs.slot.media',
+            'docs.slot.diagnostics'
+        ]
+    ];
+    $pageMeta['route'] = docsBuildRouteRecord($slug, $rel, $pageMeta);
+    return $pageMeta;
 }
 
 function docsMergeRmtRoutes($document, $routes) {
@@ -353,11 +427,16 @@ function docsRenderXRoute($route, $pathOverride = null) {
         'title-template' => $route['titleTemplate'] ?? '',
         'meta-description' => $route['metaDescription'] ?? ($metadata['seo']['description'] ?? ''),
         'meta-keywords' => $route['metaKeywords'] ?? ($metadata['seo']['keywords'] ?? []),
+        'skeleton' => $route['skeleton'] ?? 'article',
+        'skeleton-lines' => $route['skeletonLines'] ?? 10,
+        'skeleton-min-height' => $route['skeletonMinHeight'] ?? '26rem',
+        'hydrate-schedule' => $route['hydration']['schedule'] ?? 'docs.page.hydrate',
         'data-rmt-route-id' => $route['id'] ?? '',
         'data-rmt-router' => $route['router'] ?? 'xtend.xrouter',
         'data-rmt-component' => $route['component'] ?? 'docs.page',
         'data-rmt-template' => $route['template'] ?? '',
         'data-rmt-schedule' => $route['schedule'] ?? '',
+        'data-rmt-hydrate-schedule' => $route['hydration']['schedule'] ?? 'docs.page.hydrate',
         'data-rmt-metadata' => json_encode($metadata, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)
     ];
     $parts = [];
@@ -401,9 +480,40 @@ require_once $parsedownFile;
 $Parsedown = new Parsedown();
 $Parsedown->setSafeMode(true);
 
-// Markdown parsen
-$mdContent = file_get_contents($mdFile);
-$htmlContent = $Parsedown->text($mdContent);
+if (isset($_GET['xtend-docs-page'])) {
+    $requestedSlug = slugify((string) $_GET['xtend-docs-page']);
+    if (!isset($slugToFile[$requestedSlug])) {
+        http_response_code(404);
+        header('Content-Type: application/json; charset=UTF-8');
+        header('X-Content-Type-Options: nosniff');
+        echo json_encode([
+            'schema' => 'xtend.docs.parsedown-rmt-page-payload.v1',
+            'ok' => false,
+            'slug' => $requestedSlug,
+            'error' => 'docs-page-not-found'
+        ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
+    $rel = $slugToFile[$requestedSlug];
+    $markdown = file_get_contents($mdFiles[$rel]);
+    $meta = docsBuildPageMeta($requestedSlug, $rel, $markdown);
+    header('Content-Type: application/json; charset=UTF-8');
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: no-store');
+    echo json_encode([
+        'schema' => 'xtend.docs.parsedown-rmt-page-payload.v1',
+        'ok' => true,
+        'slug' => $requestedSlug,
+        'html' => $Parsedown->text($markdown),
+        'meta' => $meta,
+        'source' => $meta['source'],
+        'schedule' => $meta['schedules']['parse'],
+        'endpoint' => $meta['endpoints']['parse'],
+        'skeletonLoader' => 'xtend.loader.skeleton-loader.v1'
+    ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    exit;
+}
 
 // Navigation generieren
 function navLinks($fileToSlug) {
@@ -424,69 +534,12 @@ $titles = [];
 foreach ($fileToSlug as $rel => $slug) {
     $mdFile = $mdFiles[$slugToFile[$slug]];
     $mdContent = file_get_contents($mdFile);
-    $html = $Parsedown->text($mdContent);
-    $title = docsExtractMarkdownTitle($mdContent, $rel);
-    $description = docsExtractMarkdownDescription($mdContent, $title);
-    $keywords = [
-        'xtend',
-        'dokumentation',
-        str_replace('-', ' ', $slug)
-    ];
-    $allPages[$slug] = $html;
-    $allPagesMeta[$slug] = [
-        'schema' => 'xtend.docs.parsedown-rmt-page.v1',
-        'source' => 'docs/' . $rel,
-        'routeId' => docsRouteIdFromSlug($slug),
-        'path' => '/' . $slug,
-        'router' => 'xtend.xrouter',
-        'title' => $title,
-        'documentTitle' => $title . ' | XTend Dokumentation',
-        'titleTemplate' => '{{title}} | XTend Dokumentation',
-        'metaDescription' => $description,
-        'metaKeywords' => $keywords,
-        'template' => 'docs.' . $slug . '.markdown',
-        'shellFirst' => true,
-        'shellTemplate' => 'docs.app.shell',
-        'searchTemplate' => 'docs.header.search',
-        'contentSlot' => 'content',
-        'contentKind' => 'parsedownHtml',
-        'adapter' => 'docs.parsedown',
-        'component' => 'docs.page',
-        'markupClass' => 'parsedownHtml',
-        'trustBoundary' => 'xtend.security.sanitizing-boundary.v1',
-        'schedules' => [
-            'shell' => 'docs.shell.render',
-            'parse' => 'docs.markdown.parse',
-            'route' => 'docs.route.render',
-            'hydrate' => 'docs.page.hydrate',
-            'search' => 'docs.search.index',
-            'rich' => 'docs.rich-content.prepare',
-            'media' => 'docs.media.lazy',
-            'diagnostics' => 'docs.diagnostics.snapshot'
-        ],
-        'endpoints' => [
-            'shell' => 'xtendrmt.shell.render',
-            'parse' => 'xtendrmt.docs.parsedown.parse',
-            'route' => 'xtendrmt.route.render',
-            'hydrate' => 'xtendrmt.component.hydrate',
-            'search' => 'xtendrmt.docs.search.index',
-            'rich' => 'xtendrmt.docs.rich-content.prepare',
-            'media' => 'xtendrmt.docs.media.lazy',
-            'diagnostics' => 'xtendrmt.diagnostics.snapshot'
-        ],
-        'extensionSlots' => [
-            'docs.slot.content',
-            'docs.slot.sidebar',
-            'docs.slot.related',
-            'docs.slot.component-demo',
-            'docs.slot.rich-content',
-            'docs.slot.media',
-            'docs.slot.diagnostics'
-        ]
-    ];
-    $allPagesMeta[$slug]['route'] = docsBuildRouteRecord($slug, $rel, $allPagesMeta[$slug]);
+    $allPagesMeta[$slug] = docsBuildPageMeta($slug, $rel, $mdContent);
+    if ($slug === $page) {
+        $allPages[$slug] = $Parsedown->text($mdContent);
+    }
     $docsRmtRoutes[] = $allPagesMeta[$slug]['route'];
-    $titles[$slug] = $title;
+    $titles[$slug] = $allPagesMeta[$slug]['title'];
 }
 $readmeTitle = $allPagesMeta['readme']['title'] ?? 'XTend Dokumentation';
 $readmeDocumentTitle = $allPagesMeta['readme']['documentTitle'] ?? 'XTend Dokumentation';
@@ -519,7 +572,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
     <meta name="description" content="<?= htmlspecialchars($initialDescription, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="keywords" content="<?= htmlspecialchars($initialKeywords, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="xtend-preload" content="x-button,x-icon,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer,x-code,x-modal,x-dialog,x-drawer,x-popover,x-tooltip,x-tabs,x-alert,x-toast,x-select,x-checkbox,x-radio,x-textarea,x-calendar,x-status,x-progress,x-side-panel,x-surface-window,x-surface-manager,x-summary,x-section,x-cards,x-type,x-lightbox,x-masonry">
+    <meta name="xtend-preload" content="x-theme,x-button,x-icon,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer,x-section,x-code,x-modal,x-dialog">
     <link rel="icon" href="<?= $docsFaviconIcoUrl ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= $docsFavicon32Url ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">
@@ -1217,6 +1270,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
     window.xtendInitialDocsSlug = <?= json_encode($initialDocsSlug, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
     if (!location.hash) location.hash = '#/' + (window.xtendInitialDocsSlug || 'readme');
     window.xtendDocsPages = <?php echo json_encode($allPages, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendDocsPageEndpoint = 'index.php?xtend-docs-page=';
     window.xtendDocsPagesMeta = <?php echo json_encode($allPagesMeta, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
     window.xtendDocsTitles = <?php echo json_encode($titles, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
     window.xtendDocsAssetUrls = {
@@ -1235,6 +1289,8 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
       document: './<?= htmlspecialchars($rmtPilotDocument, ENT_QUOTES, 'UTF-8') ?>',
       renderMode: 'shell-first',
       insularHydration: true,
+      lazyParsedownRoutes: true,
+      skeletonLoader: 'xtend.loader.skeleton-loader.v1',
       shellTemplate: 'docs.app.shell',
       searchTemplate: 'docs.header.search',
       adapter: 'docs.parsedown',
@@ -1321,7 +1377,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 </head>
 <body xt-ui-effects="none">
 <x-theme></x-theme>
-<x-header src="<?= $docsLogoUrl ?>" logo-size="48" sticky>
+<x-header src="<?= $docsLogoUrl ?>" logo-size="48" sticky data-xtend-skeleton style="--xtend-skeleton-min-height: 4.75rem;">
   <span slot="title">XTend Dokumentation</span>
   <x-button
     id="theme-toggle"
@@ -1345,6 +1401,8 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 </x-header>
       <x-hero
     class="docs-hero"
+    data-xtend-skeleton
+    style="--xtend-skeleton-min-height: clamp(12rem, 30vw, 22rem);"
     background-light="var(--docs-hero-bg-light)"
     background-dark="var(--docs-hero-bg-dark)"
     font-color-light="var(--docs-hero-text-light)"
@@ -1360,15 +1418,15 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 	 <p>Build with XTend today</p>
 </x-hero>
 <main>
-<x-router mode="hash" reuse-component document-title-template="{{title}} | XTend Dokumentation" default-title="XTend Dokumentation">
+<x-router mode="hash" reuse-component skeleton="article" skeleton-lines="10" skeleton-min-height="26rem" skeleton-label="Dokumentation wird geladen" data-xtend-skeleton style="--xtend-skeleton-min-height: 26rem;" document-title-template="{{title}} | XTend Dokumentation" default-title="XTend Dokumentation">
   <?= docsRenderXRoute($allPagesMeta['readme']['route'], '/') . "\n" ?>
   <?php foreach ($fileToSlug as $rel => $slug): ?>
     <?= docsRenderXRoute($allPagesMeta[$slug]['route']) . "\n" ?>
   <?php endforeach; ?>
-  <x-route path="*" component="xtend-doc-page" import="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" title="Seite nicht gefunden" document-title="Seite nicht gefunden | XTend Dokumentation" meta-description="Die angeforderte Dokumentationsseite wurde nicht gefunden." data-rmt-route-id="docs.notFound" data-rmt-router="xtend.xrouter" data-rmt-component="docs.page" data-rmt-schedule="docs.route.render"></x-route>
+  <x-route path="*" component="xtend-doc-page" import="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" title="Seite nicht gefunden" document-title="Seite nicht gefunden | XTend Dokumentation" meta-description="Die angeforderte Dokumentationsseite wurde nicht gefunden." skeleton="article" skeleton-lines="8" skeleton-min-height="20rem" hydrate-schedule="docs.page.hydrate" data-rmt-route-id="docs.notFound" data-rmt-router="xtend.xrouter" data-rmt-component="docs.page" data-rmt-schedule="docs.route.render" data-rmt-hydrate-schedule="docs.page.hydrate"></x-route>
 </x-router>
     </main>
-<x-footer src="<?= $docsLogoUrl ?>" logo-size="32">
+<x-footer src="<?= $docsLogoUrl ?>" logo-size="32" data-xtend-skeleton="inline" style="--xtend-skeleton-min-height: 3.25rem;">
 	<span slot="title">© 2025 – CCS Networks | Powered by XRouter PHP Extension</span>
 </x-footer>
 <script src="utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">

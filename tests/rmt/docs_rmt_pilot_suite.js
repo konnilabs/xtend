@@ -101,6 +101,8 @@ function runDocsRmtPilotSuite(options = {}) {
   const indexPhp = readText('docs/index.php', rootDir);
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
   const fabricRuntime = readText('docs/utils/fabric-runtime.js', rootDir);
+  const xtendLoader = readText('xtend-loader.js', rootDir);
+  const xrouterSource = readText('components/xrouter.js', rootDir);
   const xcodeSource = readText('components/xcode.js', rootDir);
   const xtendCss = readText('xtend.css', rootDir);
   const parsedownAdapter = readText('docs/utils/parsedown.php', rootDir);
@@ -198,6 +200,10 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('window.xtendDocsRmtRuntimeModule'), 'Docs app exposes the XTendRMT runtime module for the Fabric telemetry bridge');
   context.assert(indexPhp.includes("rmtTelemetryBridge: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1'"), 'Docs app declares the persistent RMT telemetry bridge contract');
   context.assert(indexPhp.includes('window.xtendDocsPagesMeta'), 'Docs app exposes per-page RMT metadata');
+  context.assert(indexPhp.includes('window.xtendDocsPageEndpoint'), 'Docs app exposes lazy Parsedown page payload endpoint');
+  context.assert(indexPhp.includes("lazyParsedownRoutes: true"), 'Docs app declares lazy Parsedown route payloads');
+  context.assert(indexPhp.includes('skeleton="article"'), 'Docs app marks XRouter routes for native skeleton loading');
+  context.assert(indexPhp.includes('data-xtend-skeleton'), 'Docs app opts shell custom elements into framework skeleton loading');
   context.assert(indexPhp.includes('docsMergeRmtRoutes'), 'Docs app merges generated page routes into the exposed RMT document');
   context.assert(indexPhp.includes('docsRenderXRoute'), 'Docs app renders XRouter routes from RMT page route records');
   context.assert(indexPhp.includes('document-title='), 'Docs app forwards RMT document titles into XRouter routes');
@@ -223,6 +229,8 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(xtendCss.includes('max-width: var(--xtend-main-max-width, none)'), 'XTend base CSS keeps semantic main full-width by default');
   context.assert(xtendCss.includes('overflow-x: clip'), 'XTend base CSS clips page-level horizontal overflow');
   context.assert(xtendCss.includes('*,\n*::before,\n*::after'), 'XTend base CSS applies border-box sizing globally');
+  context.assert(xtendCss.includes('[data-xtend-skeleton]:not(:defined)'), 'XTend base CSS provides pre-hydration skeletons for custom elements');
+  context.assert(xtendCss.includes('x-router:not(:defined):not([data-xtend-skeleton])'), 'XTend base CSS hides unstyled router light DOM until definition');
   context.assert(!/(?:^|[\n}])\s*main\s*\{[^}]*max-width:\s*800px/u.test(xtendCss), 'XTend base CSS avoids hard-coded global main max-width');
   context.assert(!/(?:^|[\n}])\s*main:not\([^)]*\)\s*\{[^}]*max-width:\s*800px/u.test(xtendCss), 'XTend base CSS avoids legacy hard-coded main:not layout');
   context.assert(indexPhp.includes('--docs-layout-gap'), 'Docs app exposes a shared layout gap token for viewport and sidebar spacing');
@@ -264,6 +272,13 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(fabricRuntime.includes('recordBackpressureSignal'), 'Docs Fabric runtime exposes XTendRMT backpressure awareness');
   context.assert(fabricRuntime.includes('rmtBridge.recordTelemetrySnapshot'), 'Docs Fabric runtime relies on the framework RMT telemetry bridge instead of local patching');
   context.assert(pageLoader.includes('createRmtDocsShell'), 'Docs page loader renders the RMT app shell');
+  context.assert(pageLoader.includes('showDocsSkeleton'), 'Docs page loader uses the framework SkeletonLoader for Parsedown content');
+  context.assert(pageLoader.includes('loadDocsParsedownContent'), 'Docs page loader lazy-loads Parsedown payloads per route');
+  context.assert(pageLoader.includes('xtend.loader.skeleton-loader.v1'), 'Docs page loader records the native SkeletonLoader contract');
+  context.assert(xtendLoader.includes('SKELETON_LOADER_CONTRACT'), 'XTend loader exposes the native SkeletonLoader contract');
+  context.assert(xtendLoader.includes('showSkeleton'), 'XTend loader exposes a native showSkeleton API');
+  context.assert(xrouterSource.includes('xrouter-skeleton-shown'), 'XRouter emits route skeleton lifecycle events');
+  context.assert(xrouterSource.includes('window.XTendLoader.ensureComponent'), 'XRouter can lazy-load route components through the framework loader');
   context.assert(pageLoader.includes('renderDocsRelatedSidebar'), 'Docs page loader moves read-further links into the RMT sidebar');
   context.assert(pageLoader.includes('isDocsTrustedDomUrlAllowed(href)'), 'Docs page loader preserves routable and safe related links in the sidebar');
   context.assert(pageLoader.includes('missing-sidebar-slots'), 'Docs page loader falls back to a complete shell when sidebar slots are missing');

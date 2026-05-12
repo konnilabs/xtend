@@ -111,8 +111,23 @@
       window.__xtendEpic13TrustedDomBoundaryResult.errors.push(`csp:${event.violatedDirective}`);
     });
 
+    function waitForDocsContentReady(callback) {
+      if (document.getElementById('md-content') && window.xtendDocsTrustedDomLastSanitize) {
+        callback();
+        return;
+      }
+      let completed = false;
+      const run = () => {
+        if (completed) return;
+        completed = true;
+        callback();
+      };
+      window.addEventListener('xtend-docs-content-ready', () => requestAnimationFrame(run), { once: true });
+      setTimeout(run, 1200);
+    }
+
     window.addEventListener('load', () => {
-      requestAnimationFrame(() => {
+      waitForDocsContentReady(() => {
         try {
           runTrustedDomBoundarySmokeChecks();
         } catch (error) {

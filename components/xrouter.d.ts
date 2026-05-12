@@ -1,8 +1,8 @@
 import type { XtendCustomEventMap, XtendNavigationRoutingUxProfile, XtendPublicEventContract, XtendRouteMode } from './xtend-public-types';
 
-export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
-export type XRouteAttributeName = 'path' | 'component' | 'import' | 'title' | 'document-title' | 'title-template' | 'meta-description' | 'meta-keywords';
-export type XRouterEventName = 'xrouter-before-navigate' | 'route-changed' | 'routechange' | 'xrouter-after-navigate' | 'route-announced' | 'xrouter-routes-registered' | 'xrouter-route-reused' | 'xrouter-scroll-boundary-normalized' | 'xrouter-navigation-overlays-closed' | 'xrouter-title-updated';
+export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'skeleton' | 'skeleton-lines' | 'skeleton-min-height' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
+export type XRouteAttributeName = 'path' | 'component' | 'import' | 'title' | 'document-title' | 'title-template' | 'meta-description' | 'meta-keywords' | 'skeleton' | 'skeleton-lines' | 'skeleton-min-height' | 'hydrate-schedule';
+export type XRouterEventName = 'xrouter-before-navigate' | 'route-changed' | 'routechange' | 'xrouter-after-navigate' | 'route-announced' | 'xrouter-routes-registered' | 'xrouter-route-reused' | 'xrouter-skeleton-shown' | 'xrouter-skeleton-hidden' | 'xrouter-route-hydrated' | 'xrouter-scroll-boundary-normalized' | 'xrouter-navigation-overlays-closed' | 'xrouter-title-updated';
 export type XRouterNavigationRoutingUxProfile = XtendNavigationRoutingUxProfile<'x-router'>;
 
 export interface RouteConfig {
@@ -20,6 +20,10 @@ export interface RouteConfig {
   'scroll-to'?: string;
   template?: string;
   schedule?: string;
+  skeleton?: string;
+  skeletonLines?: string | number;
+  skeletonMinHeight?: string;
+  hydration?: { schedule?: string; scheduleRef?: string; [key: string]: unknown };
   children?: RouteConfig[];
   [key: string]: unknown;
 }
@@ -33,6 +37,10 @@ export interface XRouterRmtRouteRecord {
   template?: string;
   scheduleRef?: string;
   schedule?: string;
+  skeleton?: string;
+  skeletonLines?: string | number;
+  skeletonMinHeight?: string;
+  hydration?: { schedule?: string; scheduleRef?: string; [key: string]: unknown };
   metadata?: Record<string, unknown>;
   title?: string;
   documentTitle?: string;
@@ -131,6 +139,28 @@ export interface XRouterDocumentMetaDetail {
   metadata: Record<string, unknown>;
 }
 
+export interface XRouterSkeletonDetail {
+  schema: 'xtend.router.skeleton-loader.v1';
+  source: 'x-router';
+  stateKey: 'xtend.router.skeleton';
+  scheduleRef: string;
+  routeId: string | null;
+  path: string;
+  active: boolean;
+}
+
+export interface XRouterRouteHydratedDetail {
+  schema: string;
+  source: string;
+  reason?: string;
+  schedule?: string;
+  scheduleRef: string;
+  routeId: string | null;
+  tags?: string[];
+  elementCount?: number;
+  hydrated?: number;
+}
+
 export interface XRouterSnapshot {
   schema: 'xtend.component.navigation-routing-snapshot.v1';
   source: 'x-router';
@@ -161,13 +191,16 @@ export interface XRouterEventDetailMap {
   'route-announced': XRouterRouteAnnouncedDetail;
   'xrouter-routes-registered': XRouterRoutesRegisteredDetail;
   'xrouter-route-reused': XRouterRouteReusedDetail;
+  'xrouter-skeleton-shown': XRouterSkeletonDetail;
+  'xrouter-skeleton-hidden': XRouterSkeletonDetail;
+  'xrouter-route-hydrated': XRouterRouteHydratedDetail;
   'xrouter-scroll-boundary-normalized': XRouterScrollBoundaryDetail;
   'xrouter-navigation-overlays-closed': XRouterNavigationOverlaysClosedDetail;
   'xrouter-title-updated': XRouterDocumentMetaDetail;
 }
 
 export type XRouterEventMap = XtendCustomEventMap<XRouterEventDetailMap>;
-export type XRouterPublicEventContract = XtendPublicEventContract<XRouterEventName, XRouterRouteChangeDetail | XRouterBeforeNavigateDetail | XRouterRouteAnnouncedDetail | XRouterRoutesRegisteredDetail | XRouterRouteReusedDetail | XRouterScrollBoundaryDetail | XRouterNavigationOverlaysClosedDetail | XRouterDocumentMetaDetail>;
+export type XRouterPublicEventContract = XtendPublicEventContract<XRouterEventName, XRouterRouteChangeDetail | XRouterBeforeNavigateDetail | XRouterRouteAnnouncedDetail | XRouterRoutesRegisteredDetail | XRouterRouteReusedDetail | XRouterSkeletonDetail | XRouterRouteHydratedDetail | XRouterScrollBoundaryDetail | XRouterNavigationOverlaysClosedDetail | XRouterDocumentMetaDetail>;
 
 export interface XRouteElement extends HTMLElement {
   readonly path: string;
@@ -175,6 +208,10 @@ export interface XRouteElement extends HTMLElement {
   readonly importUrl: string | null;
   readonly title: string | null;
   readonly documentTitle: string | null;
+  readonly skeleton: string | null;
+  readonly skeletonLines: string | null;
+  readonly skeletonMinHeight: string | null;
+  readonly hydrateSchedule: string | null;
 }
 
 export interface XRouterElement extends HTMLElement {

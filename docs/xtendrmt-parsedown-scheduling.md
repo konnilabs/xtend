@@ -9,7 +9,7 @@
 
 ## Zweck
 
-Die offizielle XTend Dokumentation ist selbst eine XTend-App. Markdown-Dateien im `docs` Ordner werden serverseitig ueber Parsedown nach HTML gewandelt, in `window.xtendDocsPages` gespiegelt und clientseitig ueber XRouter als SPA angezeigt.
+Die offizielle XTend Dokumentation ist selbst eine XTend-App. Markdown-Dateien im `docs` Ordner werden serverseitig ueber Parsedown nach HTML gewandelt und clientseitig ueber XRouter als SPA angezeigt. Der Host spiegelt nur noch die initial benoetigte HTML-Seite in `window.xtendDocsPages`; weitere Parsedown-Payloads werden pro Route ueber `window.xtendDocsPageEndpoint` nachgeladen.
 
 Der aktuelle Stand ist Shell-first: Die sichtbare Page-Shell wird nicht mehr rein imperativ im PageLoader gebaut, sondern aus `docs.app.shell` im RMT-Pilot-Dokument als `dom_descriptor` gerendert. Parsedown bleibt Host-Adapter und fuellt nur noch den Content-Slot. Damit kann die Docs-App spaeter neben Markdown auch Rich-HTML- oder XPlayer-Tutorial-Inhalte als RMT-geplante Slots nachladen; der maschinenlesbare Content-Kind dafuer ist `xplayerTutorial`. Parsedown und XTend werden dabei nicht in den RMT Kernel eingebettet.
 
@@ -27,14 +27,16 @@ Der Pilot ist bewusst host-neutral: `docs/index.php` bleibt Parser-Host, waehren
 
 Ab `WP-E13-10` besitzt derselbe Pfad zusaetzlich die Production-Hardening-Schicht `xtend.epic13.docs-rmt-production-hardening.v1`. Sie stabilisiert `docs.slot.content`, `docs.slot.rich-content`, `docs.slot.media` und `docs.slot.diagnostics`, sodass Parsedown-HTML, Rich HTML ueber `docs.rich-content.prepare`, XPlayer-Tutorials ueber `docs.media.lazy` und Diagnostics getrennt scheduled werden koennen. Der Gate lautet `node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json`.
 
+Ab der Skeleton-Haertung nutzt der Pilot den nativen `xtend.loader.skeleton-loader.v1`: `xtend.css` deckt undefinierte XTend Custom Elements mit deklarativen Skeletons oder verstecktem Light DOM ab, XRouter zeigt pro Route einen Skeleton-Fallback waehrend Import und Hydration, und `xtend-doc-page` setzt denselben Loader fuer den Parsedown-Content-Slot ein. Dadurch bleibt die App Shell sichtbar und stabil, waehrend der schwere HTML-Commit erst nach dem ersten Paint erfolgt.
+
 ## Aktueller Docs-App-Fluss
 
 1. `docs/index.php` findet alle `.md` Dateien rekursiv.
-2. `docs/utils/parsedown.php` wandelt Markdown in HTML.
-3. `window.xtendDocsPages` enthaelt gerenderte HTML-Seiten nach Slug.
-4. `<x-router mode="hash">` routet auf `xtend-doc-page`.
+2. `docs/utils/parsedown.php` wandelt nur die initiale oder per Route angefragte Markdown-Datei in HTML.
+3. `window.xtendDocsPagesMeta` enthaelt die SEO-, Schedule- und RMT-Metadaten nach Slug; `window.xtendDocsPages` enthaelt nur vorhandene HTML-Payloads.
+4. `<x-router mode="hash" skeleton="article">` routet auf `xtend-doc-page`, lazy-laedt dessen Modul und hydriert den Route-Subtree ueber den Loader.
 5. `docs/utils/pageloader.js` liest `window.xtendDocsRmtDocument` und rendert `docs.app.shell` Shell-first.
-6. Parsedown-HTML wird in den `data-rmt-slot="content"` Slot eingesetzt.
+6. Der `data-rmt-slot="content"` Slot zeigt einen nativen SkeletonLoader, bis Parsedown-HTML nach dem ersten Paint sanitisiert und eingesetzt wurde.
 7. `docs.header.search` liefert die Header-Suche als RMT-Descriptor fuer den `search` Slot von `x-header`.
 8. `docs/menu.json` definiert die sichtbare Navigationshierarchie; `pageloader.js` gruppiert und priorisiert sie fuer die Drawer-Navigation.
 
