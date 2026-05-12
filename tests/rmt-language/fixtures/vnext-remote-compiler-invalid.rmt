@@ -1,0 +1,16 @@
+remote surface checkout.cart from remote "@xtend/checkout-cart" {
+  owner team "checkout-platform"
+  version "^2.4.0"
+  origin "http://cdn.xtend.example"
+  integrity md5 "md5-not-allowed"
+  trust boundary "xtend.security.remote-surface.v1"
+
+  exposes lane critical -> shell.slot "sidebar.cart"
+
+  emits checkout.cart.updated.v1 {
+    owner team "checkout-platform"
+    direction outbound
+    lane critical
+    payload "xtend.schemas.cartUpdated.v1"
+  }
+}

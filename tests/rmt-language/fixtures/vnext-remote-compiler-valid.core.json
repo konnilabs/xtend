@@ -1,0 +1,367 @@
+{
+  "crossSurfaceEvents": {
+    "bindingCount": 4,
+    "crossSurfaceEventCount": 2,
+    "eventCount": 2,
+    "events": [
+      {
+        "event": "checkout.cart.updated.v1",
+        "inboundCount": 1,
+        "outboundCount": 1,
+        "owner": {
+          "id": "checkout-platform",
+          "kind": "team",
+          "known": true
+        },
+        "scopes": [
+          {
+            "ref": "critical",
+            "type": "lane"
+          },
+          {
+            "ref": "shell.slot:sidebar.cart",
+            "type": "shell.slot"
+          }
+        ],
+        "status": "ready",
+        "surfaces": [
+          "enterpriseSurface:remote:checkout.cart",
+          "enterpriseSurface:local:shell.root"
+        ],
+        "version": "v1"
+      },
+      {
+        "event": "user.session.changed.v1",
+        "inboundCount": 1,
+        "outboundCount": 1,
+        "owner": {
+          "id": "identity-platform",
+          "kind": "team",
+          "known": true
+        },
+        "scopes": [
+          {
+            "ref": "shell.session:current",
+            "type": "shell.session"
+          },
+          {
+            "ref": "critical",
+            "type": "lane"
+          }
+        ],
+        "status": "ready",
+        "surfaces": [
+          "enterpriseSurface:local:shell.root",
+          "enterpriseSurface:remote:checkout.cart"
+        ],
+        "version": "v1"
+      }
+    ],
+    "schema": "xtend.rmt.vnext-cross-surface-event-report.v1",
+    "status": "ready"
+  },
+  "degradation": {
+    "schema": "xtend.rmt.vnext-degradation-report.v1",
+    "stateCounts": {
+      "blocked": 0,
+      "compatible": 0,
+      "degraded": 0,
+      "full": 2
+    },
+    "status": "full",
+    "surfaceCount": 2,
+    "surfaces": [
+      {
+        "fallbackResolved": false,
+        "kind": "local",
+        "name": "shell.root",
+        "state": "full",
+        "versionStatus": "matched"
+      },
+      {
+        "fallbackResolved": true,
+        "kind": "remote",
+        "name": "checkout.cart",
+        "state": "full",
+        "versionStatus": "matched"
+      }
+    ]
+  },
+  "document": {
+    "compilerSchema": "xtend.rmt.vnext-compiler.v1",
+    "remoteSurface": {
+      "adapterBoundary": {
+        "adapterId": "xtend.remote-surface.host",
+        "capabilities": [
+          "surface.mount",
+          "event.emit",
+          "event.consume"
+        ],
+        "hostOwned": true,
+        "runtimeLoader": false
+      },
+      "capabilities": [
+        {
+          "id": "surface.mount",
+          "mode": "required"
+        },
+        {
+          "id": "event.emit",
+          "mode": "required"
+        },
+        {
+          "id": "event.consume",
+          "mode": "required"
+        }
+      ],
+      "events": {
+        "consumes": [
+          {
+            "direction": "inbound",
+            "event": "user.session.changed.v1",
+            "from": {
+              "ref": "shell.session:current",
+              "type": "shell.session"
+            },
+            "lane": "critical",
+            "owner": {
+              "id": "identity-platform",
+              "kind": "team"
+            },
+            "payload": {
+              "schema": "xtend.schemas.sessionChanged.v1",
+              "shape": null
+            },
+            "scopes": [
+              "lane:critical",
+              "shell.session:current"
+            ],
+            "version": "v1"
+          }
+        ],
+        "emits": [
+          {
+            "direction": "outbound",
+            "event": "checkout.cart.updated.v1",
+            "from": null,
+            "lane": "critical",
+            "owner": {
+              "id": "checkout-platform",
+              "kind": "team"
+            },
+            "payload": {
+              "schema": "xtend.schemas.cartUpdated.v1",
+              "shape": null
+            },
+            "scopes": [
+              "lane:critical"
+            ],
+            "version": "v1"
+          }
+        ]
+      },
+      "exposes": [
+        {
+          "lane": "critical",
+          "mode": "mount",
+          "target": {
+            "ref": "shell.slot:sidebar.cart",
+            "type": "shell.slot"
+          }
+        },
+        {
+          "lane": "idle",
+          "mode": "mount",
+          "target": {
+            "ref": "shell.slot:background.prefetch",
+            "type": "shell.slot"
+          }
+        }
+      ],
+      "fallback": {
+        "kind": "surface",
+        "ref": "checkout.cart.fallback"
+      },
+      "name": "checkout.cart",
+      "owner": {
+        "id": "checkout-platform",
+        "kind": "team"
+      },
+      "remote": {
+        "id": "@xtend/checkout-cart",
+        "integrity": {
+          "algorithm": "sha256",
+          "digest": "sha256-remotecompilercheckoutcart000000000000000000000001"
+        },
+        "origin": "https://cdn.xtend.example",
+        "versionRange": "^2.4.0"
+      },
+      "runtime": {
+        "hostAdapterRequired": true,
+        "kernelRemoteExecution": false,
+        "networkRequiredByKernel": false
+      },
+      "security": {
+        "capabilityMode": "deny-by-default",
+        "cspRequired": true,
+        "sandboxRequired": true,
+        "trustBoundary": "xtend.security.remote-surface.v1"
+      }
+    },
+    "remoteSurfaceCount": 1,
+    "schema": "xtend.rmt.core-format.vnext.v1",
+    "sourceMapNodeTypes": [
+      "RmtRemoteSurfaceDeclaration",
+      "RmtRemoteOwnerClause",
+      "RmtRemoteVersionClause",
+      "RmtRemoteOriginClause",
+      "RmtRemoteIntegrityClause",
+      "RmtRemoteTrustBoundaryClause",
+      "RmtRemoteFallbackClause",
+      "RmtRemoteExposeClause",
+      "RmtRemoteExposeClause",
+      "RmtRemoteEventClause",
+      "RmtRemoteEventClause"
+    ]
+  },
+  "enterpriseRegistry": {
+    "localSurfaceCount": 1,
+    "remoteSurface": {
+      "events": {
+        "consumes": [],
+        "emits": []
+      },
+      "kind": "remote",
+      "name": "checkout.cart",
+      "owner": {
+        "id": "checkout-platform",
+        "kind": "team",
+        "known": true
+      },
+      "shellTargets": [
+        {
+          "lane": "critical",
+          "mode": "mount",
+          "target": "shell.slot:sidebar.cart"
+        },
+        {
+          "lane": "idle",
+          "mode": "mount",
+          "target": "shell.slot:background.prefetch"
+        }
+      ],
+      "status": "ready",
+      "version": {
+        "active": "2.4.0",
+        "expected": "^2.4.0",
+        "range": "^2.4.0",
+        "status": "declared"
+      }
+    },
+    "remoteSurfaceCount": 1,
+    "schema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+    "status": "ready",
+    "surfaceCount": 2
+  },
+  "eventGovernance": {
+    "crossTeamEventCount": 2,
+    "deliveryModes": {
+      "queued": [
+        "crossSurfaceEvent:checkout.cart.updated.v1",
+        "crossSurfaceEvent:user.session.changed.v1"
+      ]
+    },
+    "eventCount": 2,
+    "governedEventCount": 2,
+    "schema": "xtend.rmt.vnext-event-governance-report.v1",
+    "sensitivities": {
+      "internal": [
+        "crossSurfaceEvent:checkout.cart.updated.v1",
+        "crossSurfaceEvent:user.session.changed.v1"
+      ]
+    },
+    "status": "ready"
+  },
+  "remoteManifest": {
+    "remoteSurface": {
+      "adapterBoundary": {
+        "adapterId": "xtend.remote-surface.host",
+        "capabilities": [
+          "surface.mount",
+          "event.emit",
+          "event.consume"
+        ],
+        "hostOwned": true,
+        "runtimeLoader": false
+      },
+      "capabilities": [
+        {
+          "id": "surface.mount",
+          "mode": "required"
+        },
+        {
+          "id": "event.emit",
+          "mode": "required"
+        },
+        {
+          "id": "event.consume",
+          "mode": "required"
+        }
+      ],
+      "fallback": {
+        "kind": "surface",
+        "ref": "checkout.cart.fallback"
+      },
+      "name": "checkout.cart",
+      "owner": {
+        "id": "checkout-platform",
+        "kind": "team"
+      },
+      "remote": {
+        "id": "@xtend/checkout-cart",
+        "integrity": {
+          "algorithm": "sha256",
+          "digest": "sha256-remotecompilercheckoutcart000000000000000000000001"
+        },
+        "manifestRef": "",
+        "origin": "https://cdn.xtend.example",
+        "source": {
+          "id": "@xtend/checkout-cart",
+          "integrity": {
+            "algorithm": "sha256",
+            "digest": "sha256-remotecompilercheckoutcart000000000000000000000001"
+          },
+          "origin": "https://cdn.xtend.example",
+          "versionRange": "^2.4.0"
+        },
+        "versionRange": "^2.4.0"
+      },
+      "schema": "xtend.rmt.vnext-remote-surface.v1",
+      "security": {
+        "capabilityMode": "deny-by-default",
+        "cspRequired": true,
+        "sandboxRequired": true,
+        "trustBoundary": "xtend.security.remote-surface.v1"
+      },
+      "shellBindings": [
+        {
+          "lane": "critical",
+          "mode": "mount",
+          "target": "shell.slot:sidebar.cart"
+        },
+        {
+          "lane": "idle",
+          "mode": "mount",
+          "target": "shell.slot:background.prefetch"
+        }
+      ],
+      "status": "ready"
+    },
+    "schema": "xtend.rmt.vnext-remote-surface-manifest.v1",
+    "status": "ready",
+    "surfaceCount": 1
+  },
+  "reportSchema": "xtend.rmt.vnext-remote-compiler-report.v1",
+  "schema": "xtend.rmt.vnext-remote-compiler.v1",
+  "status": "compiled"
+}

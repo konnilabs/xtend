@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en" data-rmt-vnext-enterprise-smoke="wp-e16-11">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-rmt-vnext-enterprise-smoke-contract" content="xtend.rmt.vnext-enterprise-browser-smoke.v1">
+  <title>RMT vNext Enterprise MFE Smoke</title>
+</head>
+<body>
+  <main id="rmt-vnext-enterprise-smoke-root" data-enterprise-shell="true">
+    <section data-surface="root" data-lane="critical" data-owner="shell-platform">
+      <div data-operation="hydrate" data-target="shell.root"></div>
+    </section>
+    <section data-surface="workspace.sales" data-lane="critical" data-owner="sales-platform">
+      <div data-operation="mount" data-target="local.dashboard"></div>
+    </section>
+    <aside data-local-fallback="panel.checkoutFallback" data-shell-target="shell.slot:sidebar.cart.fallback">
+      <div data-operation="mount" data-target="checkout.fallback"></div>
+    </aside>
+    <section data-remote-surface="checkout.cart" data-remote-id="@xtend/checkout-cart" data-shell-target="shell.slot:sidebar.cart">
+      <div data-remote-execution="false" data-fallback="panel.checkoutFallback"></div>
+    </section>
+  </main>
+
+  <script type="application/json" id="rmt-vnext-enterprise-probe">
+    {
+      "schema": "xtend.rmt.vnext-enterprise-browser-smoke.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "documentId": "enterprise.shell",
+      "networkRequests": 0,
+      "remoteExecution": false,
+      "surfaces": ["root", "workspace.sales", "panel.checkoutFallback"],
+      "remoteSurfaces": [
+        {
+          "name": "checkout.cart",
+          "remoteId": "@xtend/checkout-cart",
+          "versionRange": "^3.1.0",
+          "fallback": "panel.checkoutFallback",
+          "shellTargets": ["shell.slot:sidebar.cart", "shell.slot:background.prefetch"]
+        }
+      ],
+      "events": [
+        {
+          "event": "checkout.cart.updated.v1",
+          "direction": "outbound",
+          "owner": "checkout-platform",
+          "payload": "xtend.schemas.cartUpdated.v1",
+          "scope": "lane:critical"
+        },
+        {
+          "event": "user.session.changed.v1",
+          "direction": "inbound",
+          "owner": "identity-platform",
+          "payload": "xtend.schemas.sessionChanged.v1",
+          "scope": "shell.session:current"
+        }
+      ],
+      "degradation": {
+        "status": "full",
+        "fallbackResolved": true,
+        "fallback": "panel.checkoutFallback"
+      }
+    }
+  </script>
+
+  <script>
+    (() => {
+      const checks = [];
+      const recordCheck = (name, ok, details = null) => {
+        checks.push({ name, ok: Boolean(ok), details });
+      };
+      const probe = JSON.parse(document.getElementById('rmt-vnext-enterprise-probe').textContent);
+
+      recordCheck('enterprise shell surface visible', Boolean(document.querySelector('[data-enterprise-shell="true"]')), probe.surfaces);
+      recordCheck('enterprise local fallback visible', probe.surfaces.includes('panel.checkoutFallback') && Boolean(document.querySelector('[data-local-fallback="panel.checkoutFallback"]')), probe.degradation);
+      recordCheck('enterprise remote surface contract present', probe.remoteSurfaces.some((surface) => surface.name === 'checkout.cart' && surface.fallback === 'panel.checkoutFallback'), probe.remoteSurfaces);
+      recordCheck('enterprise cross surface event typed', probe.events.some((event) => event.event === 'checkout.cart.updated.v1' && event.payload === 'xtend.schemas.cartUpdated.v1'), probe.events);
+      recordCheck('enterprise degradation fallback resolved', probe.degradation.status === 'full' && probe.degradation.fallbackResolved === true, probe.degradation);
+      recordCheck('enterprise browser smoke offline', probe.networkRequests === 0 && probe.remoteExecution === false, {
+        networkRequests: probe.networkRequests,
+        remoteExecution: probe.remoteExecution
+      });
+
+      window.__xtendRmtVNextEnterpriseSmokeResult = {
+        schema: 'xtend.rmt.vnext-enterprise-browser-smoke.v1',
+        status: checks.every((check) => check.ok) ? 'passed' : 'failed',
+        documentId: probe.documentId,
+        checks,
+        errors: checks.filter((check) => !check.ok).map((check) => check.name)
+      };
+    })();
+  </script>
+</body>
+</html>

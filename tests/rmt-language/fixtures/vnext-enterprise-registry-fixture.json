@@ -1,0 +1,145 @@
+{
+  "registryId": "enterprise:surfaces.checkout",
+  "owners": {
+    "root": {
+      "kind": "team",
+      "id": "shell-platform"
+    },
+    "modal.settings": {
+      "kind": "team",
+      "id": "settings-platform"
+    },
+    "panel.tools": {
+      "kind": "team",
+      "id": "tools-platform"
+    },
+    "overlay.toast": {
+      "kind": "team",
+      "id": "notifications-platform"
+    },
+    "workspace.editor": {
+      "kind": "team",
+      "id": "workspace-platform"
+    },
+    "portal.help": {
+      "kind": "team",
+      "id": "support-platform"
+    },
+    "checkout.cart": {
+      "kind": "team",
+      "id": "checkout-platform"
+    }
+  },
+  "versions": {
+    "root": {
+      "active": "1.0.0",
+      "expected": "^1.0.0"
+    },
+    "modal.settings": {
+      "active": "1.2.0",
+      "expected": "^1.2.0"
+    },
+    "panel.tools": {
+      "active": "1.1.0",
+      "expected": "^1.1.0"
+    },
+    "overlay.toast": {
+      "active": "1.0.4",
+      "expected": "^1.0.0"
+    },
+    "workspace.editor": {
+      "active": "1.3.0",
+      "expected": "^1.3.0"
+    },
+    "portal.help": {
+      "active": "1.0.1",
+      "expected": "^1.0.0"
+    },
+    "checkout.cart": {
+      "active": "2.4.3",
+      "expected": "^2.4.0"
+    }
+  },
+  "shellTargets": {
+    "root": [
+      {
+        "lane": "critical",
+        "target": "shell.slot:app.root"
+      }
+    ],
+    "modal.settings": [
+      {
+        "lane": "critical",
+        "target": "shell.slot:modal.settings"
+      }
+    ],
+    "panel.tools": [
+      {
+        "lane": "normal",
+        "target": "shell.slot:side.tools"
+      }
+    ],
+    "overlay.toast": [
+      {
+        "lane": "idle",
+        "target": "shell.slot:overlay.toast"
+      }
+    ],
+    "workspace.editor": [
+      {
+        "lane": "transition",
+        "target": "shell.slot:workspace.editor"
+      }
+    ],
+    "portal.help": [
+      {
+        "lane": "background",
+        "target": "shell.slot:portal.help"
+      }
+    ]
+  },
+  "eventEmits": {
+    "root": [
+      {
+        "event": "user.session.changed.v1",
+        "owner": "identity-platform",
+        "direction": "outbound",
+        "payload": "xtend.schemas.sessionChanged.v1"
+      }
+    ],
+    "checkout.cart": [
+      {
+        "event": "checkout.cart.updated.v1",
+        "owner": "checkout-platform",
+        "direction": "outbound",
+        "payload": "xtend.schemas.cartUpdated.v1"
+      }
+    ]
+  },
+  "eventConsumes": {
+    "root": [
+      {
+        "event": "checkout.cart.updated.v1",
+        "owner": "checkout-platform",
+        "direction": "inbound",
+        "payload": "xtend.schemas.cartUpdated.v1"
+      }
+    ],
+    "overlay.toast": [
+      {
+        "event": "checkout.cart.updated.v1",
+        "owner": "checkout-platform",
+        "direction": "inbound",
+        "payload": "xtend.schemas.cartUpdated.v1"
+      }
+    ],
+    "checkout.cart": [
+      {
+        "event": "user.session.changed.v1",
+        "owner": "identity-platform",
+        "direction": "inbound",
+        "payload": "xtend.schemas.sessionChanged.v1"
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "governanceId": "eventGovernance:checkout-shell",
+  "ownerCatalog": {
+    "checkout-platform": {
+      "kind": "team",
+      "eventPrefixes": [
+        "checkout."
+      ],
+      "payloadSchemas": [
+        "xtend.schemas.cartUpdated.v1"
+      ]
+    },
+    "identity-platform": {
+      "kind": "team",
+      "eventPrefixes": [
+        "user.session."
+      ],
+      "payloadSchemas": [
+        "xtend.schemas.sessionChanged.v1"
+      ]
+    },
+    "shell-platform": {
+      "kind": "team",
+      "eventPrefixes": [
+        "shell."
+      ],
+      "payloadSchemas": [
+        "xtend.schemas.shellEvent.v1"
+      ]
+    },
+    "notifications-platform": {
+      "kind": "team",
+      "eventPrefixes": [
+        "notifications."
+      ],
+      "payloadSchemas": [
+        "xtend.schemas.notification.v1"
+      ]
+    }
+  },
+  "policies": {
+    "checkout.cart.updated.v1": {
+      "owner": "checkout-platform",
+      "versionOwner": "checkout-platform",
+      "payloadOwner": "checkout-platform",
+      "delivery": {
+        "mode": "queued",
+        "ttlMs": 30000,
+        "correlationId": "required",
+        "idempotencyKey": "required",
+        "sensitivity": "internal",
+        "crossTeamReview": "approved",
+        "ordered": true
+      }
+    },
+    "user.session.changed.v1": {
+      "owner": "identity-platform",
+      "versionOwner": "identity-platform",
+      "payloadOwner": "identity-platform",
+      "delivery": {
+        "mode": "replayable",
+        "ttlMs": 60000,
+        "correlationId": "required",
+        "idempotencyKey": "required",
+        "sensitivity": "confidential",
+        "crossTeamReview": "approved",
+        "replayable": true
+      }
+    }
+  }
+}

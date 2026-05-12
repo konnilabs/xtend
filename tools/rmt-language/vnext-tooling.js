@@ -34,6 +34,7 @@ const RMT_DEFINITION_TARGET_SCHEMA = 'xtend.rmt.definition-target.v1';
 const VNEXT_COMPLETION_KEYWORDS = Object.freeze([
   ['import', 'Statischen vNext Modulimport deklarieren.'],
   ['template', 'Orchestrierungs-Template starten.'],
+  ['remote surface', 'Remote Surface mit Manifest-, Owner- und Fallback-Fakten deklarieren.'],
   ['surface', 'Host-neutrale Surface deklarieren.'],
   ['lane', 'Scheduler Lane innerhalb einer Surface deklarieren.'],
   ['mount', 'Lifecycle Operation mount.'],
@@ -69,7 +70,8 @@ const VNEXT_LANES = Object.freeze([
 const VNEXT_TRUST_BOUNDARIES = Object.freeze([
   ['xtend.security.sanitizing-boundary.v1', 'HTML-/Endpoint-Ergebnisse vor Rendering absichern.'],
   ['xtend.security.streaming-boundary.v1', 'Inkrementelle Stream-Fragmente absichern.'],
-  ['xtend.security.worker-boundary.v1', 'Worker-Resultate an Message- und Sanitizing-Grenze binden.']
+  ['xtend.security.worker-boundary.v1', 'Worker-Resultate an Message- und Sanitizing-Grenze binden.'],
+  ['xtend.security.remote-surface.v1', 'Remote Surface an eine host-owned Trust Boundary binden.']
 ]);
 
 const VNEXT_SNIPPETS = Object.freeze([
@@ -114,6 +116,7 @@ const VNEXT_SNIPPETS = Object.freeze([
 const DOMAIN_CONFIG = Object.freeze({
   templates: { kind: 'template', label: 'Template', childKind: 'template' },
   surfaces: { kind: 'surface', label: 'Surface', childKind: 'namespace' },
+  remoteSurfaces: { kind: 'remote-surface', label: 'Remote Surface', childKind: 'namespace' },
   lanes: { kind: 'lane', label: 'Lane', childKind: 'event' },
   operations: { kind: 'operation', label: 'Operation', childKind: 'function' },
   slots: { kind: 'slot', label: 'Slot', childKind: 'namespace' },
@@ -151,8 +154,8 @@ function isLikelyRmtVNextSource(input = {}, options = {}) {
     return false;
   }
 
-  return /^(?:import|template|surface)\b/u.test(trimmed)
-    || /(?:^|\n)\s*(?:template|surface|lane|mount|hydrate|update|unmount|stream|slot|on\s+\S+\s+->\s+action|trust\s+boundary|sanitize)\b/u.test(text);
+  return /^(?:import|template|surface|remote\s+surface)\b/u.test(trimmed)
+    || /(?:^|\n)\s*(?:remote\s+surface|template|surface|lane|mount|hydrate|update|unmount|stream|slot|on\s+\S+\s+->\s+action|trust\s+boundary|sanitize)\b/u.test(text);
 }
 
 function sourceRefToRange(sourceMap, sourceRef) {
@@ -206,6 +209,10 @@ function describeRecord(domain, record = {}) {
 
   if (domain === 'events') {
     return [record.event || 'event', record.action ? `action: ${record.action}` : ''].filter(Boolean).join(' - ');
+  }
+
+  if (domain === 'remoteSurfaces') {
+    return [record.name || 'remote surface', record.remote && record.remote.id, record.fallback && record.fallback.ref ? `fallback: ${record.fallback.ref}` : 'fallback missing'].filter(Boolean).join(' - ');
   }
 
   return record.name || record.id || domain;

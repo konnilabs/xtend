@@ -32,6 +32,53 @@
     ],
     "description": "vNext Event Binding auf eine referenzielle Action."
   },
+  "RMT vNext Remote Surface": {
+    "scope": "rmt",
+    "prefix": "rmt-vnext-remote-surface",
+    "body": [
+      "remote surface ${1:checkout.cart} from remote \"${2:@xtend/checkout-cart}\" {",
+      "  owner team \"${3:checkout-platform}\"",
+      "  version \"${4:^2.4.0}\"",
+      "  origin \"${5:https://cdn.xtend.example}\"",
+      "  integrity sha256 \"${6:sha256-...}\"",
+      "  trust boundary \"xtend.security.remote-surface.v1\"",
+      "  fallback surface ${7:checkout.cart.fallback}",
+      "",
+      "  exposes lane ${8|critical,visible,idle,background|} -> shell.slot \"${9:sidebar.cart}\"",
+      "}"
+    ],
+    "description": "Remote Surface mit Owner, Integrity, Fallback, Exposes und Events."
+  },
+  "RMT vNext Remote Event": {
+    "scope": "rmt",
+    "prefix": "rmt-vnext-remote-event",
+    "body": [
+      "${1|emits,consumes|} ${2:checkout.cart.updated.v1} {",
+      "  owner team \"${3:checkout-platform}\"",
+      "  direction ${4|outbound,inbound|}",
+      "  lane ${5|critical,visible,idle,background|}",
+      "  payload \"${6:xtend.schemas.cartUpdated.v1}\"",
+      "}"
+    ],
+    "description": "Remote emits/consumes Event mit Owner, Richtung, Lane und Payload."
+  },
+  "RMT vNext Remote Fallback": {
+    "scope": "rmt",
+    "prefix": "rmt-vnext-remote-fallback",
+    "body": [
+      "fallback surface ${1:checkout.cart.fallback}"
+    ],
+    "description": "Fallback Surface fuer Remote Degradation deklarieren."
+  },
+  "RMT vNext Remote Degradation Policy": {
+    "scope": "rmt",
+    "prefix": "rmt-vnext-remote-degradation",
+    "body": [
+      "fallback surface ${1:checkout.cart.fallback}",
+      "exposes lane ${2|critical,visible,idle,background|} -> shell.slot \"${3:sidebar.cart}\""
+    ],
+    "description": "Degradation-relevante Remote-Fakten im Authoring sichtbar machen."
+  },
   "RMT Minimal App": {
     "scope": "rmt",
     "prefix": "rmt-app",

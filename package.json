@@ -110,6 +110,17 @@
     "./rmt-language/vnext-compatibility": "./tools/rmt-language/vnext-compatibility.js",
     "./rmt-language/vnext-regression": "./tools/rmt-language/vnext-regression.js",
     "./rmt-language/vnext-release": "./tools/rmt-language/vnext-release.js",
+    "./rmt-language/vnext-remote-manifest": "./tools/rmt-language/vnext-remote-manifest.js",
+    "./rmt-language/vnext-enterprise-registry": "./tools/rmt-language/vnext-enterprise-registry.js",
+    "./rmt-language/vnext-degradation": "./tools/rmt-language/vnext-degradation.js",
+    "./rmt-language/vnext-remote-security": "./tools/rmt-language/vnext-remote-security.js",
+    "./rmt-language/vnext-cross-surface-events": "./tools/rmt-language/vnext-cross-surface-events.js",
+    "./rmt-language/vnext-event-governance": "./tools/rmt-language/vnext-event-governance.js",
+    "./rmt-language/vnext-remote-compiler": "./tools/rmt-language/vnext-remote-compiler.js",
+    "./rmt-language/vnext-remote-tooling": "./tools/rmt-language/vnext-remote-tooling.js",
+    "./rmt-language/vnext-remote-compatibility": "./tools/rmt-language/vnext-remote-compatibility.js",
+    "./rmt-language/vnext-enterprise-fixtures": "./tools/rmt-language/vnext-enterprise-fixtures.js",
+    "./rmt-language/vnext-enterprise-release": "./tools/rmt-language/vnext-enterprise-release.js",
     "./rmt-language/format-adapter": "./tools/rmt-language/format-adapter.js",
     "./rmt-language/semantic-graph": "./tools/rmt-language/semantic-graph.js",
     "./rmt-language/diagnostics": "./tools/rmt-language/diagnostics.js",
@@ -815,6 +826,588 @@
       "networkRequired": false,
       "kernelBoundary": "no-rmt-kernel-import-of-host-runtime-types"
     },
+    "rmtVNextRemoteManifest": {
+      "schema": "xtend.rmt.vnext-remote-surface-manifest.v1",
+      "remoteSurfaceSchema": "xtend.rmt.vnext-remote-surface.v1",
+      "reportSchema": "xtend.rmt.vnext-remote-surface-manifest-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "workpackage": "WP-E16-02",
+      "status": "accepted-vnext-remote-manifest-contract",
+      "targetReadiness": "rmt-vnext-remote-manifest-ready",
+      "module": "tools/rmt-language/vnext-remote-manifest.js",
+      "suite": "tests/rmt-language/rmt_vnext_remote_manifest_suite.js",
+      "contract": "development/XTendRMT-vNext-Remote-Surface-Manifest-Contract.md",
+      "workpackageDocument": "development/WP-E16-02-Remote-Surface-Manifest-und-Core-Contract-definieren.md",
+      "threatModelContract": "development/XTendRMT-vNext-Remote-Surfaces-Threat-Model-Contract.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-remote-manifest-valid.json",
+        "tests/rmt-language/fixtures/vnext-remote-manifest-invalid.json"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-remote-manifest --json",
+      "packageScript": "npm run test:rmt-vnext-remote-manifest",
+      "boundaries": [
+        "no-remote-runtime-execution-in-rmt-kernel",
+        "remote-surfaces-require-explicit-owner-version-integrity-and-fallback"
+      ],
+      "mandatoryFacts": [
+        "owner",
+        "version",
+        "remote",
+        "origin",
+        "integrity",
+        "trustBoundary",
+        "allowedCapabilities",
+        "adapterBoundary",
+        "shellTargets",
+        "fallback"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-03",
+        "WP-E16-04",
+        "WP-E16-05",
+        "WP-E16-06"
+      ]
+    },
+    "rmtVNextEnterpriseRegistry": {
+      "schema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "enterpriseSurfaceSchema": "xtend.rmt.vnext-enterprise-surface.v1",
+      "reportSchema": "xtend.rmt.vnext-enterprise-surface-registry-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "surfaceRegistrySchema": "xtend.rmt.vnext-surface-registry.v1",
+      "remoteManifestSchema": "xtend.rmt.vnext-remote-surface-manifest.v1",
+      "remoteSurfaceSchema": "xtend.rmt.vnext-remote-surface.v1",
+      "workpackage": "WP-E16-03",
+      "status": "accepted-vnext-enterprise-registry-contract",
+      "targetReadiness": "rmt-vnext-enterprise-registry-ready",
+      "module": "tools/rmt-language/vnext-enterprise-registry.js",
+      "suite": "tests/rmt-language/rmt_vnext_enterprise_registry_suite.js",
+      "contract": "development/XTendRMT-vNext-Enterprise-Surface-Registry-Contract.md",
+      "workpackageDocument": "development/WP-E16-03-Enterprise-surface-registry-fuer-Ownership-und-Discoverability-ausbauen.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-enterprise-registry-fixture.json",
+        "tests/rmt-language/fixtures/vnext-surfaces-valid.rmt",
+        "tests/rmt-language/fixtures/vnext-remote-manifest-valid.json"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry --json",
+      "packageScript": "npm run test:rmt-vnext-enterprise-registry",
+      "boundaries": [
+        "no-remote-runtime-execution-in-rmt-kernel",
+        "no-implicit-global-event-bus"
+      ],
+      "surfaceKinds": [
+        "local",
+        "remote"
+      ],
+      "mandatoryFacts": [
+        "owner",
+        "activeVersion",
+        "expectedVersion",
+        "shellTargets",
+        "discoverability"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-04",
+        "WP-E16-06"
+      ]
+    },
+    "rmtVNextDegradation": {
+      "schema": "xtend.rmt.vnext-degradation-policy.v1",
+      "degradationSurfaceSchema": "xtend.rmt.vnext-degradation-surface.v1",
+      "reportSchema": "xtend.rmt.vnext-degradation-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "enterpriseRegistrySchema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "enterpriseSurfaceSchema": "xtend.rmt.vnext-enterprise-surface.v1",
+      "workpackage": "WP-E16-04",
+      "status": "accepted-vnext-degradation-policy-contract",
+      "targetReadiness": "rmt-vnext-degradation-policy-ready",
+      "module": "tools/rmt-language/vnext-degradation.js",
+      "suite": "tests/rmt-language/rmt_vnext_degradation_suite.js",
+      "contract": "development/XTendRMT-vNext-Degradation-Policy-Contract.md",
+      "workpackageDocument": "development/WP-E16-04-Versionierung-Compatibility-und-Graceful-Degradation-modellieren.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-degradation-policy-fixture.json",
+        "tests/rmt-language/fixtures/vnext-enterprise-registry-fixture.json"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-degradation --json",
+      "packageScript": "npm run test:rmt-vnext-degradation",
+      "states": [
+        "full",
+        "compatible",
+        "degraded",
+        "blocked"
+      ],
+      "capabilities": [
+        "version-range-check",
+        "min-shell-version-check",
+        "required-capability-check",
+        "optional-capability-compatibility",
+        "fallback-resolution",
+        "event-degradation-policy",
+        "datasource-degradation-policy"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-05",
+        "WP-E16-06"
+      ]
+    },
+    "rmtVNextRemoteSecurity": {
+      "schema": "xtend.rmt.vnext-remote-security-policy.v1",
+      "postureSchema": "xtend.rmt.vnext-remote-security-posture.v1",
+      "reportSchema": "xtend.rmt.vnext-remote-security-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "enterpriseRegistrySchema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "enterpriseSurfaceSchema": "xtend.rmt.vnext-enterprise-surface.v1",
+      "degradationReportSchema": "xtend.rmt.vnext-degradation-report.v1",
+      "degradationSurfaceSchema": "xtend.rmt.vnext-degradation-surface.v1",
+      "workpackage": "WP-E16-05",
+      "status": "accepted-vnext-remote-security-policy-contract",
+      "targetReadiness": "rmt-vnext-remote-security-ready",
+      "module": "tools/rmt-language/vnext-remote-security.js",
+      "suite": "tests/rmt-language/rmt_vnext_remote_security_suite.js",
+      "contract": "development/XTendRMT-vNext-Remote-Security-Policy-Contract.md",
+      "workpackageDocument": "development/WP-E16-05-Remote-Trust-Boundaries-Manifest-Integrity-und-Sandbox-Policies-haerten.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-remote-security-policy-fixture.json",
+        "tests/rmt-language/fixtures/vnext-enterprise-registry-fixture.json",
+        "tests/rmt-language/fixtures/vnext-degradation-policy-fixture.json"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-remote-security --json",
+      "packageScript": "npm run test:rmt-vnext-remote-security",
+      "trustBoundary": "xtend.security.remote-surface.v1",
+      "capabilityMode": "deny-by-default",
+      "capabilities": [
+        "trust-boundary-check",
+        "origin-allowlist-check",
+        "manifest-integrity-check",
+        "csp-trusted-types-check",
+        "sandbox-conflict-check",
+        "capability-escalation-check",
+        "remote-event-payload-check",
+        "degradation-block-check"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-06"
+      ]
+    },
+    "rmtVNextCrossSurfaceEvents": {
+      "schema": "xtend.rmt.vnext-cross-surface-event-protocol.v1",
+      "eventSchema": "xtend.rmt.vnext-cross-surface-event.v1",
+      "bindingSchema": "xtend.rmt.vnext-cross-surface-event-binding.v1",
+      "reportSchema": "xtend.rmt.vnext-cross-surface-event-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "eventActionSchema": "xtend.rmt.vnext-event-action-contract.v1",
+      "enterpriseRegistrySchema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "enterpriseSurfaceSchema": "xtend.rmt.vnext-enterprise-surface.v1",
+      "remoteSecuritySchema": "xtend.rmt.vnext-remote-security-policy.v1",
+      "workpackage": "WP-E16-06",
+      "status": "accepted-vnext-cross-surface-event-protocol",
+      "targetReadiness": "rmt-vnext-cross-surface-events-ready",
+      "module": "tools/rmt-language/vnext-cross-surface-events.js",
+      "suite": "tests/rmt-language/rmt_vnext_cross_surface_events_suite.js",
+      "contract": "development/XTendRMT-vNext-Cross-Surface-Event-Protocol-Contract.md",
+      "workpackageDocument": "development/WP-E16-06-Cross-Surface-Event-Protocol-fuer-Lane-und-Shell-Scopes-definieren.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-cross-surface-events-fixture.json",
+        "tests/rmt-language/fixtures/vnext-enterprise-registry-fixture.json"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-cross-surface-events --json",
+      "packageScript": "npm run test:rmt-vnext-cross-surface-events",
+      "directions": [
+        "outbound",
+        "inbound"
+      ],
+      "scopeTypes": [
+        "surface",
+        "lane",
+        "shell.slot",
+        "shell.route",
+        "shell.session"
+      ],
+      "boundaries": [
+        "no-implicit-global-event-bus",
+        "no-remote-runtime-execution-in-rmt-kernel"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-07",
+        "WP-E16-08"
+      ]
+    },
+    "rmtVNextEventGovernance": {
+      "schema": "xtend.rmt.vnext-event-governance-policy.v1",
+      "governanceEventSchema": "xtend.rmt.vnext-event-governance-event.v1",
+      "reportSchema": "xtend.rmt.vnext-event-governance-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "crossSurfaceEventProtocolSchema": "xtend.rmt.vnext-cross-surface-event-protocol.v1",
+      "crossSurfaceEventReportSchema": "xtend.rmt.vnext-cross-surface-event-report.v1",
+      "crossSurfaceEventSchema": "xtend.rmt.vnext-cross-surface-event.v1",
+      "crossSurfaceEventBindingSchema": "xtend.rmt.vnext-cross-surface-event-binding.v1",
+      "enterpriseRegistrySchema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "enterpriseSurfaceSchema": "xtend.rmt.vnext-enterprise-surface.v1",
+      "workpackage": "WP-E16-07",
+      "status": "accepted-vnext-event-governance",
+      "targetReadiness": "rmt-vnext-event-governance-ready",
+      "module": "tools/rmt-language/vnext-event-governance.js",
+      "suite": "tests/rmt-language/rmt_vnext_event_governance_suite.js",
+      "contract": "development/XTendRMT-vNext-Event-Governance-Contract.md",
+      "workpackageDocument": "development/WP-E16-07-Event-Ownership-Delivery-Policy-und-Governance-Diagnostics-bauen.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-event-governance-fixture.json",
+        "tests/rmt-language/fixtures/vnext-cross-surface-events-fixture.json",
+        "tests/rmt-language/fixtures/vnext-enterprise-registry-fixture.json"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-event-governance --json",
+      "packageScript": "npm run test:rmt-vnext-event-governance",
+      "deliveryModes": [
+        "sync",
+        "queued",
+        "replayable",
+        "drop-if-stale"
+      ],
+      "sensitivityLevels": [
+        "public",
+        "internal",
+        "confidential",
+        "restricted"
+      ],
+      "boundaries": [
+        "no-implicit-global-event-bus",
+        "governance-reports-do-not-deliver-runtime-events"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-08"
+      ]
+    },
+    "rmtVNextRemoteCompiler": {
+      "schema": "xtend.rmt.vnext-remote-compiler.v1",
+      "reportSchema": "xtend.rmt.vnext-remote-compiler-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "compilerSchema": "xtend.rmt.vnext-compiler.v1",
+      "remoteManifestSchema": "xtend.rmt.vnext-remote-surface-manifest.v1",
+      "remoteSurfaceSchema": "xtend.rmt.vnext-remote-surface.v1",
+      "enterpriseRegistrySchema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "enterpriseSurfaceSchema": "xtend.rmt.vnext-enterprise-surface.v1",
+      "crossSurfaceEventReportSchema": "xtend.rmt.vnext-cross-surface-event-report.v1",
+      "eventGovernanceReportSchema": "xtend.rmt.vnext-event-governance-report.v1",
+      "degradationReportSchema": "xtend.rmt.vnext-degradation-report.v1",
+      "workpackage": "WP-E16-08",
+      "status": "accepted-vnext-remote-compiler",
+      "targetReadiness": "rmt-vnext-remote-compiler-ready",
+      "module": "tools/rmt-language/vnext-remote-compiler.js",
+      "suite": "tests/rmt-language/rmt_vnext_remote_compiler_suite.js",
+      "contract": "development/XTendRMT-vNext-Remote-Compiler-Core-Contract.md",
+      "workpackageDocument": "development/WP-E16-08-Parser-Compiler-und-Core-Erweiterungen-fuer-Remote-Surfaces-integrieren.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-remote-compiler-valid.rmt",
+        "tests/rmt-language/fixtures/vnext-remote-compiler-invalid.rmt",
+        "tests/rmt-language/fixtures/vnext-remote-compiler-valid.core.json"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-remote-compiler --json",
+      "packageScript": "npm run test:rmt-vnext-remote-compiler",
+      "syntax": [
+        "remote surface ... from remote ...",
+        "owner",
+        "version",
+        "origin",
+        "integrity",
+        "fallback",
+        "exposes",
+        "emits",
+        "consumes"
+      ],
+      "boundaries": [
+        "no-remote-runtime-execution-in-rmt-kernel",
+        "host-owned-adapter-boundary",
+        "deny-by-default-capabilities",
+        "shell-scoped-cross-surface-events"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-09",
+        "WP-E16-10"
+      ]
+    },
+    "rmtVNextRemoteTooling": {
+      "schema": "xtend.rmt.vnext-remote-tooling.v1",
+      "reportSchema": "xtend.rmt.vnext-remote-tooling-report.v1",
+      "agentReportSchema": "xtend.rmt.vnext-remote-agent-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "remoteCompilerSchema": "xtend.rmt.vnext-remote-compiler.v1",
+      "remoteManifestSchema": "xtend.rmt.vnext-remote-surface-manifest.v1",
+      "remoteSurfaceSchema": "xtend.rmt.vnext-remote-surface.v1",
+      "enterpriseRegistrySchema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "enterpriseSurfaceSchema": "xtend.rmt.vnext-enterprise-surface.v1",
+      "crossSurfaceEventReportSchema": "xtend.rmt.vnext-cross-surface-event-report.v1",
+      "eventGovernanceReportSchema": "xtend.rmt.vnext-event-governance-report.v1",
+      "degradationReportSchema": "xtend.rmt.vnext-degradation-report.v1",
+      "workpackage": "WP-E16-09",
+      "status": "accepted-vnext-remote-tooling",
+      "targetReadiness": "rmt-vnext-remote-tooling-ready",
+      "module": "tools/rmt-language/vnext-remote-tooling.js",
+      "suite": "tests/rmt-language/rmt_vnext_remote_tooling_suite.js",
+      "contract": "development/XTendRMT-vNext-Remote-Tooling-Contract.md",
+      "workpackageDocument": "development/WP-E16-09-Tooling-LSP-Snippets-und-Agent-Reports-fuer-Enterprise-MFE-erweitern.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-remote-compiler-valid.rmt",
+        "tests/rmt-language/fixtures/vnext-remote-tooling-invalid.rmt"
+      ],
+      "snippets": [
+        "rmt-vnext-remote-surface",
+        "rmt-vnext-remote-event",
+        "rmt-vnext-remote-fallback",
+        "rmt-vnext-remote-degradation"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-remote-tooling --json",
+      "packageScript": "npm run test:rmt-vnext-remote-tooling",
+      "providerCapabilities": [
+        "lint",
+        "completion",
+        "hover",
+        "documentSymbols",
+        "remoteAgentReport"
+      ],
+      "diagnosticFacts": [
+        "owner",
+        "version",
+        "integrity",
+        "fallback",
+        "eventDirection",
+        "payloadSchema"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-10",
+        "WP-E16-11"
+      ]
+    },
+    "rmtVNextRemoteCompatibility": {
+      "schema": "xtend.rmt.vnext-remote-compatibility-matrix.v1",
+      "migrationReportSchema": "xtend.rmt.vnext-remote-migration-report.v1",
+      "roundtripReportSchema": "xtend.rmt.vnext-remote-roundtrip-report.v1",
+      "previewSchema": "xtend.rmt.vnext-remote-authoring-preview.v1",
+      "reportSchema": "xtend.rmt.vnext-remote-compatibility-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "remoteCompilerSchema": "xtend.rmt.vnext-remote-compiler.v1",
+      "workpackage": "WP-E16-10",
+      "status": "accepted-vnext-remote-compatibility-migration",
+      "targetReadiness": "rmt-vnext-remote-compatibility-ready",
+      "module": "tools/rmt-language/vnext-remote-compatibility.js",
+      "suite": "tests/rmt-language/rmt_vnext_remote_compatibility_suite.js",
+      "contract": "development/XTendRMT-vNext-Remote-Surface-Migration-Contract.md",
+      "workpackageDocument": "development/WP-E16-10-Compatibility-Migration-und-Legacy-Surface-Roundtrip-absichern.md",
+      "fixtures": [
+        "tests/rmt-language/fixtures/vnext-remote-compatibility-legacy-surface.rmt",
+        "tests/rmt-language/fixtures/vnext-remote-compatibility-preview.rmt",
+        "tests/rmt-language/fixtures/vnext-remote-compiler-valid.rmt",
+        "tests/fixtures/rmt-surface-native-domain.rmt"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-remote-compatibility --json",
+      "packageScript": "npm run test:rmt-vnext-remote-compatibility",
+      "migrationModes": [
+        "report-only",
+        "preview"
+      ],
+      "legacySurfaceSources": [
+        "surfaces[]",
+        "components[*].metadata.surface",
+        "components[*].metadata.surfaceManager"
+      ],
+      "requiredPreviewFacts": [
+        "owner",
+        "version",
+        "remote",
+        "origin",
+        "integrity",
+        "trustBoundary",
+        "fallback",
+        "shellTarget"
+      ],
+      "compatibleWarnings": [
+        "rmt.document.extension.fallback-used",
+        "rmt.vnext.remote_migration.report_only",
+        "rmt.vnext.remote_migration.runtime_fact",
+        "rmt.vnext.remote_migration.remote_fact_missing",
+        "rmt.vnext.remote_migration.surface_manager_boundary",
+        "rmt.vnext.remote_migration.native_surface_roundtrip",
+        "rmt.vnext.remote_migration.preview_available"
+      ],
+      "roundtrip": {
+        "legacyJsonLossless": true,
+        "comparisonBoundary": "semantic-normalized-json-with-normalization-metadata-excluded",
+        "remoteAuthoringPreview": "opt-in"
+      },
+      "boundaries": [
+        "migration-report-only-by-default",
+        "surface-manager-runtime-boundary",
+        "non-migratable-runtime-facts-visible",
+        "no-remote-runtime-execution-in-rmt-kernel"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-11"
+      ]
+    },
+    "rmtVNextEnterpriseFixtures": {
+      "schema": "xtend.rmt.vnext-enterprise-fixture.v1",
+      "matrixSchema": "xtend.rmt.vnext-enterprise-fixture-matrix.v1",
+      "browserSmokeSchema": "xtend.rmt.vnext-enterprise-browser-smoke.v1",
+      "reportSchema": "xtend.rmt.vnext-enterprise-fixture-report.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "remoteCompilerSchema": "xtend.rmt.vnext-remote-compiler.v1",
+      "enterpriseRegistrySchema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "crossSurfaceEventReportSchema": "xtend.rmt.vnext-cross-surface-event-report.v1",
+      "eventGovernanceReportSchema": "xtend.rmt.vnext-event-governance-report.v1",
+      "degradationReportSchema": "xtend.rmt.vnext-degradation-report.v1",
+      "workpackage": "WP-E16-11",
+      "status": "accepted-vnext-enterprise-mfe-fixtures",
+      "targetReadiness": "rmt-vnext-enterprise-fixtures-ready",
+      "module": "tools/rmt-language/vnext-enterprise-fixtures.js",
+      "suite": "tests/rmt-language/rmt_vnext_enterprise_fixtures_suite.js",
+      "contract": "development/XTendRMT-vNext-Enterprise-MFE-Fixtures-Contract.md",
+      "workpackageDocument": "development/WP-E16-11-Enterprise-Fixture-Remote-Reference-Demo-und-Browser-Smoke-Probe-bauen.md",
+      "demo": "xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt",
+      "coreOutput": "xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json",
+      "browserSmoke": "tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html",
+      "fixtureMatrix": "tests/rmt-language/fixtures/vnext-enterprise-mfe-fixture-matrix.json",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-enterprise-fixtures --json",
+      "packageScript": "npm run test:rmt-vnext-enterprise-fixtures",
+      "surfaceCoverage": {
+        "local": 3,
+        "remote": 1,
+        "fallback": "panel.checkoutFallback"
+      },
+      "eventCoverage": [
+        "checkout.cart.updated.v1",
+        "user.session.changed.v1"
+      ],
+      "goldenHashes": [
+        "baseCoreSha256",
+        "remoteCompilerCoreSha256",
+        "enterpriseRegistrySha256",
+        "crossSurfaceEventsSha256",
+        "eventGovernanceSha256",
+        "degradationSha256"
+      ],
+      "browserChecks": [
+        "enterprise shell surface visible",
+        "enterprise local fallback visible",
+        "enterprise remote surface contract present",
+        "enterprise cross surface event typed",
+        "enterprise degradation fallback resolved",
+        "enterprise browser smoke offline"
+      ],
+      "networkRequired": false,
+      "nextWorkpackages": [
+        "WP-E16-12"
+      ]
+    },
+    "rmtVNextEnterpriseReleaseHandoff": {
+      "schema": "xtend.rmt.vnext-enterprise-release-handoff.v1",
+      "reportSchema": "xtend.rmt.vnext-enterprise-release-handoff-report.v1",
+      "gateMatrixSchema": "xtend.rmt.vnext-enterprise-release-gate-matrix.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "remoteManifestSchema": "xtend.rmt.vnext-remote-surface-manifest.v1",
+      "remoteSurfaceSchema": "xtend.rmt.vnext-remote-surface.v1",
+      "enterpriseRegistrySchema": "xtend.rmt.vnext-enterprise-surface-registry.v1",
+      "degradationPolicySchema": "xtend.rmt.vnext-degradation-policy.v1",
+      "remoteSecurityPolicySchema": "xtend.rmt.vnext-remote-security-policy.v1",
+      "crossSurfaceEventProtocolSchema": "xtend.rmt.vnext-cross-surface-event-protocol.v1",
+      "eventGovernancePolicySchema": "xtend.rmt.vnext-event-governance-policy.v1",
+      "remoteCompilerSchema": "xtend.rmt.vnext-remote-compiler.v1",
+      "remoteToolingSchema": "xtend.rmt.vnext-remote-tooling.v1",
+      "remoteCompatibilitySchema": "xtend.rmt.vnext-remote-compatibility-matrix.v1",
+      "remoteMigrationReportSchema": "xtend.rmt.vnext-remote-migration-report.v1",
+      "enterpriseFixtureSchema": "xtend.rmt.vnext-enterprise-fixture.v1",
+      "enterpriseFixtureReportSchema": "xtend.rmt.vnext-enterprise-fixture-report.v1",
+      "workpackage": "WP-E16-12",
+      "status": "accepted-vnext-enterprise-mfe-release-handoff",
+      "targetReadiness": "rmt-vnext-enterprise-mfe-ready",
+      "module": "tools/rmt-language/vnext-enterprise-release.js",
+      "suite": "tests/rmt-language/rmt_vnext_enterprise_release_suite.js",
+      "contract": "development/XTendRMT-vNext-Enterprise-MFE-Release-Handoff-Contract.md",
+      "workpackageDocument": "development/WP-E16-12-Docs-Release-Gates-und-Enterprise-MFE-Handoff-finalisieren.md",
+      "docs": [
+        "docs/rmt-vnext-remote-surfaces.md",
+        "docs/rmt-vnext-surface-registry-enterprise.md",
+        "docs/rmt-vnext-cross-surface-events.md",
+        "docs/rmt-vnext-enterprise-mfe-handoff.md"
+      ],
+      "releaseAssets": [
+        "xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt",
+        "xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json",
+        "tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html",
+        "tests/rmt-language/fixtures/vnext-enterprise-mfe-fixture-matrix.json"
+      ],
+      "demo": "xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt",
+      "coreOutput": "xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json",
+      "browserSmoke": "tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html",
+      "fixtureMatrix": "tests/rmt-language/fixtures/vnext-enterprise-mfe-fixture-matrix.json",
+      "localGate": "node scripts/run_xtend_tests.js rmt-vnext-enterprise-release --json",
+      "packageScript": "npm run test:rmt-vnext-enterprise-release",
+      "releaseGateMatrix": [
+        "npm run test:rmt-vnext-remote-manifest",
+        "npm run test:rmt-vnext-enterprise-registry",
+        "npm run test:rmt-vnext-degradation",
+        "npm run test:rmt-vnext-remote-security",
+        "npm run test:rmt-vnext-cross-surface-events",
+        "npm run test:rmt-vnext-event-governance",
+        "npm run test:rmt-vnext-remote-compiler",
+        "npm run test:rmt-vnext-remote-tooling",
+        "npm run test:rmt-vnext-remote-compatibility",
+        "npm run test:rmt-vnext-enterprise-fixtures",
+        "npm run test:rmt-vnext-enterprise-release",
+        "npm run test:browser",
+        "npm run test:references"
+      ],
+      "acceptedContracts": [
+        "xtend.rmt.vnext-remote-surfaces.v1",
+        "xtend.epic16.wp01.remote-surfaces-threat-model.v1",
+        "xtend.epic16.wp02.remote-surface-manifest-core.v1",
+        "xtend.epic16.wp03.enterprise-surface-registry.v1",
+        "xtend.epic16.wp04.degradation-policy.v1",
+        "xtend.epic16.wp05.remote-security-policy.v1",
+        "xtend.epic16.wp06.cross-surface-event-protocol.v1",
+        "xtend.epic16.wp07.event-governance.v1",
+        "xtend.epic16.wp08.remote-compiler-core.v1",
+        "xtend.epic16.wp09.remote-tooling.v1",
+        "xtend.epic16.wp10.remote-surface-migration.v1",
+        "xtend.epic16.wp11.enterprise-mfe-fixtures.v1",
+        "xtend.epic16.wp12.enterprise-mfe-release-handoff.v1",
+        "xtend.rmt.vnext-remote-surfaces-threat-model.v1",
+        "xtend.rmt.vnext-remote-surface-manifest.v1",
+        "xtend.rmt.vnext-remote-surface.v1",
+        "xtend.rmt.vnext-enterprise-surface-registry.v1",
+        "xtend.rmt.vnext-degradation-policy.v1",
+        "xtend.rmt.vnext-remote-security-policy.v1",
+        "xtend.rmt.vnext-cross-surface-event-protocol.v1",
+        "xtend.rmt.vnext-event-governance-policy.v1",
+        "xtend.rmt.vnext-remote-compiler.v1",
+        "xtend.rmt.vnext-remote-tooling.v1",
+        "xtend.rmt.vnext-remote-compatibility-matrix.v1",
+        "xtend.rmt.vnext-remote-migration-report.v1",
+        "xtend.rmt.vnext-enterprise-fixture.v1",
+        "xtend.rmt.vnext-enterprise-release-handoff.v1"
+      ],
+      "operationalBoundaries": [
+        "no-remote-runtime-execution-in-rmt-kernel",
+        "no-implicit-global-event-bus",
+        "remote-surfaces-require-explicit-owner-version-integrity-and-fallback",
+        "surface-registry-is-discoverability-not-runtime-manager"
+      ],
+      "acceptedResiduals": [
+        "productive-remote-runtime-loader-follow-up",
+        "network-backed-mfe-e2e-follow-up",
+        "host-specific-loader-distribution-follow-up"
+      ],
+      "networkRequired": false,
+      "kernelBoundary": "no-remote-runtime-execution-in-rmt-kernel",
+      "eventBoundary": "no-implicit-global-event-bus"
+    },
     "rmtSemanticGraph": {
       "schema": "xtend.rmt.semantic-graph.v1",
       "reportSchema": "xtend.rmt.semantic-graph-report.v1",
@@ -1325,6 +1918,7 @@
       "npm run test:rmt-tooling",
       "npm run test:epic14-lsp-handoff",
       "npm run test:rmt-vnext-release",
+      "npm run test:rmt-vnext-enterprise-release",
       "npm run test:catalog-coverage",
       "npm run test:manifest-policy",
       "npm run test:supply-chain",
@@ -5069,6 +5663,17 @@
     "test:rmt-vnext-compatibility": "node scripts/run_xtend_tests.js rmt-vnext-compatibility",
     "test:rmt-vnext-regression": "node scripts/run_xtend_tests.js rmt-vnext-regression",
     "test:rmt-vnext-release": "node scripts/run_xtend_tests.js rmt-vnext-release",
+    "test:rmt-vnext-remote-manifest": "node scripts/run_xtend_tests.js rmt-vnext-remote-manifest",
+    "test:rmt-vnext-enterprise-registry": "node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry",
+    "test:rmt-vnext-degradation": "node scripts/run_xtend_tests.js rmt-vnext-degradation",
+    "test:rmt-vnext-remote-security": "node scripts/run_xtend_tests.js rmt-vnext-remote-security",
+    "test:rmt-vnext-cross-surface-events": "node scripts/run_xtend_tests.js rmt-vnext-cross-surface-events",
+    "test:rmt-vnext-event-governance": "node scripts/run_xtend_tests.js rmt-vnext-event-governance",
+    "test:rmt-vnext-remote-compiler": "node scripts/run_xtend_tests.js rmt-vnext-remote-compiler",
+    "test:rmt-vnext-remote-tooling": "node scripts/run_xtend_tests.js rmt-vnext-remote-tooling",
+    "test:rmt-vnext-remote-compatibility": "node scripts/run_xtend_tests.js rmt-vnext-remote-compatibility",
+    "test:rmt-vnext-enterprise-fixtures": "node scripts/run_xtend_tests.js rmt-vnext-enterprise-fixtures",
+    "test:rmt-vnext-enterprise-release": "node scripts/run_xtend_tests.js rmt-vnext-enterprise-release",
     "test:rmt-semantic-graph": "node scripts/run_xtend_tests.js rmt-semantic-graph",
     "test:rmt-linter-rules": "node scripts/run_xtend_tests.js rmt-linter-rules",
     "test:rmt-linter-cli": "node scripts/run_xtend_tests.js rmt-linter-cli",

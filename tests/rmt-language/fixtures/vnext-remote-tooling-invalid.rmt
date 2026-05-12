@@ -1,0 +1,11 @@
+remote surface checkout.cart from remote "@xtend/checkout-cart" {
+  version "^2.4.0"
+  origin "https://cdn.xtend.example"
+  integrity sha256 "sha256-remote-tooling-fixture-0000000000000000000001"
+
+  exposes lane critical -> shell.slot "sidebar.cart"
+
+  emits checkout.cart.updated.v1 {
+    lane critical
+  }
+}

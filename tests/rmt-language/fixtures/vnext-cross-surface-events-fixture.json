@@ -1,0 +1,128 @@
+{
+  "protocolId": "crossSurfaceEvents:checkout-shell",
+  "shellRoutes": [
+    "shell.route:/checkout"
+  ],
+  "shellSessions": [
+    "shell.session:current"
+  ],
+  "events": [
+    {
+      "event": "checkout.cart.updated.v1",
+      "owner": "checkout-platform",
+      "version": "1.0.0",
+      "payload": {
+        "schema": "xtend.schemas.cartUpdated.v1",
+        "type": "object",
+        "required": [
+          "cartId",
+          "total"
+        ],
+        "properties": {
+          "cartId": "string",
+          "total": "number",
+          "itemCount": "number"
+        }
+      },
+      "bindings": [
+        {
+          "surface": "checkout.cart",
+          "direction": "outbound",
+          "scopes": [
+            {
+              "type": "lane",
+              "ref": "critical"
+            },
+            {
+              "type": "shell.slot",
+              "ref": "shell.slot:sidebar.cart"
+            },
+            {
+              "type": "shell.route",
+              "ref": "shell.route:/checkout"
+            }
+          ]
+        },
+        {
+          "surface": "root",
+          "direction": "inbound",
+          "scopes": [
+            {
+              "type": "surface",
+              "ref": "root"
+            },
+            {
+              "type": "lane",
+              "ref": "critical"
+            },
+            {
+              "type": "shell.slot",
+              "ref": "shell.slot:app.root"
+            }
+          ]
+        },
+        {
+          "surface": "overlay.toast",
+          "direction": "inbound",
+          "scopes": [
+            {
+              "type": "lane",
+              "ref": "idle"
+            },
+            {
+              "type": "shell.slot",
+              "ref": "shell.slot:overlay.toast"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event": "user.session.changed.v1",
+      "owner": "identity-platform",
+      "version": "1.0.0",
+      "payload": {
+        "schema": "xtend.schemas.sessionChanged.v1",
+        "type": "object",
+        "required": [
+          "userId",
+          "state"
+        ],
+        "properties": {
+          "userId": "string",
+          "state": "string"
+        }
+      },
+      "bindings": [
+        {
+          "surface": "root",
+          "direction": "outbound",
+          "scopes": [
+            {
+              "type": "shell.session",
+              "ref": "shell.session:current"
+            },
+            {
+              "type": "shell.slot",
+              "ref": "shell.slot:app.root"
+            }
+          ]
+        },
+        {
+          "surface": "checkout.cart",
+          "direction": "inbound",
+          "scopes": [
+            {
+              "type": "lane",
+              "ref": "critical"
+            },
+            {
+              "type": "shell.slot",
+              "ref": "shell.slot:sidebar.cart"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

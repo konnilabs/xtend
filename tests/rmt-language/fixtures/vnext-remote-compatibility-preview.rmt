@@ -1,0 +1,72 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "fixture.xtend.remote-compat.preview",
+    "namespace": "fixture.xtend.remoteCompatibility",
+    "metadata": {
+      "contractVersion": "xtend.rmt.surface-authoring.v1",
+      "workpackage": "WP-E16-10",
+      "status": "safe-remote-surface-preview"
+    }
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter",
+      "providedCapabilities": [
+        "components",
+        "slots",
+        "diagnostics"
+      ],
+      "kernelVisible": false
+    }
+  ],
+  "components": [
+    {
+      "id": "checkout.cart.host",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-remote-surface-host",
+      "schedule": "remote.surface.mount",
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "checkout.cart",
+          "type": "remote-placeholder",
+          "stateKey": "checkout.cart.surface.state"
+        },
+        "remoteSurface": {
+          "surfaceName": "checkout.cart",
+          "remote": "@xtend/checkout-cart",
+          "version": "^2.4.0",
+          "origin": "https://cdn.xtend.example",
+          "integrity": {
+            "algorithm": "sha256",
+            "digest": "sha256-remotecompatcheckoutcart000000000000000000000001"
+          },
+          "owner": {
+            "kind": "team",
+            "id": "checkout-platform"
+          },
+          "trustBoundary": "xtend.security.remote-surface.v1",
+          "fallback": {
+            "kind": "surface",
+            "ref": "checkout.cart.fallback"
+          },
+          "shellTarget": "shell.slot:sidebar.cart",
+          "lane": "critical"
+        }
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "id": "remote.surface.mount",
+      "endpointName": "xtendrmt.remote.surface.mount",
+      "scope": "xtend.remote.surface",
+      "lane": "critical",
+      "priority": 95
+    }
+  ]
+}

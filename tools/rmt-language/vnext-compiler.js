@@ -60,6 +60,7 @@ function createCoreDocument(manifest = {}) {
     imports: [],
     templates: [],
     surfaces: [],
+    remoteSurfaces: [],
     lanes: [],
     operations: [],
     slots: [],
@@ -165,6 +166,10 @@ function isSurfaceNode(node) {
   return node && node.type === 'RmtSurfaceDeclaration';
 }
 
+function isRemoteSurfaceNode(node) {
+  return node && node.type === 'RmtRemoteSurfaceDeclaration';
+}
+
 function isImportNode(node) {
   return node && node.type === 'RmtImportDeclaration';
 }
@@ -175,6 +180,38 @@ function isLaneNode(node) {
 
 function isOperationNode(node) {
   return node && (node.type === 'RmtLifecycleStatement' || node.type === 'RmtStreamStatement');
+}
+
+function firstBodyNode(node, type) {
+  return (Array.isArray(node && node.body) ? node.body : []).find((child) => child && child.type === type) || null;
+}
+
+function bodyNodes(node, type) {
+  return (Array.isArray(node && node.body) ? node.body : []).filter((child) => child && child.type === type);
+}
+
+function inferRemoteCapabilities(exposes, emits, consumes) {
+  const capabilities = [];
+  if (exposes.length > 0) capabilities.push('surface.mount');
+  if (emits.length > 0) capabilities.push('event.emit');
+  if (consumes.length > 0) capabilities.push('event.consume');
+  return Array.from(new Set(capabilities)).map((id) => ({
+    id,
+    mode: 'required'
+  }));
+}
+
+function compileRemoteShellTarget(target) {
+  if (!target) return null;
+  return {
+    type: target.type || null,
+    ref: target.ref || target.type || null
+  };
+}
+
+function eventVersionFromName(eventName) {
+  const match = String(eventName || '').match(/\.v(\d+)$/);
+  return match ? `v${match[1]}` : '';
 }
 
 class VNextCompiler {
@@ -196,6 +233,8 @@ class VNextCompiler {
         this.compileImport(node);
       } else if (isTemplateNode(node)) {
         this.compileTemplate(node);
+      } else if (isRemoteSurfaceNode(node)) {
+        this.compileRemoteSurface(node);
       } else if (isSurfaceNode(node)) {
         this.compileSurface(node, null);
       }
@@ -276,6 +315,120 @@ class VNextCompiler {
 
     surfaceRecord.laneRefs = laneRefs;
     return surfaceRecord;
+  }
+
+  compileRemoteSurface(node) {
+    const name = node.name || `remote.surface.${this.core.remoteSurfaces.length}`;
+    const surfaceSegment = normalizeIdSegment(name);
+    const remoteSurfaceId = `remoteSurface:${surfaceSegment}`;
+    const ownerNode = firstBodyNode(node, 'RmtRemoteOwnerClause');
+    const versionNode = firstBodyNode(node, 'RmtRemoteVersionClause');
+    const originNode = firstBodyNode(node, 'RmtRemoteOriginClause');
+    const integrityNode = firstBodyNode(node, 'RmtRemoteIntegrityClause');
+    const trustNode = firstBodyNode(node, 'RmtRemoteTrustBoundaryClause');
+    const fallbackNode = firstBodyNode(node, 'RmtRemoteFallbackClause');
+    const exposeNodes = bodyNodes(node, 'RmtRemoteExposeClause');
+    const eventNodes = bodyNodes(node, 'RmtRemoteEventClause');
+    const emits = eventNodes.filter((event) => event.kind === 'emits').map((event) => this.compileRemoteEvent(event, 'outbound'));
+    const consumes = eventNodes.filter((event) => event.kind === 'consumes').map((event) => this.compileRemoteEvent(event, 'inbound'));
+    const capabilities = inferRemoteCapabilities(exposeNodes, emits, consumes);
+    const capabilityIds = capabilities.map((capability) => capability.id);
+    const record = {
+      id: remoteSurfaceId,
+      manifestId: `remoteManifest:${surfaceSegment}`,
+      name,
+      kind: 'remote_surface',
+      remote: {
+        id: node.remoteId || null,
+        origin: originNode && originNode.value || null,
+        versionRange: versionNode && versionNode.value || null,
+        integrity: {
+          algorithm: integrityNode && integrityNode.algorithm || null,
+          digest: integrityNode && integrityNode.digest || null
+        }
+      },
+      owner: {
+        kind: ownerNode && ownerNode.kind || 'team',
+        id: ownerNode && ownerNode.id || null
+      },
+      security: {
+        trustBoundary: trustNode && trustNode.boundary || null,
+        capabilityMode: 'deny-by-default',
+        sandboxRequired: true,
+        cspRequired: true
+      },
+      exposes: exposeNodes.map((expose) => ({
+        lane: expose.lane || null,
+        target: compileRemoteShellTarget(expose.target),
+        mode: 'mount'
+      })),
+      events: {
+        emits,
+        consumes
+      },
+      capabilities,
+      adapterBoundary: {
+        adapterId: 'xtend.remote-surface.host',
+        capabilities: capabilityIds,
+        hostOwned: true,
+        runtimeLoader: false
+      },
+      fallback: {
+        kind: fallbackNode && fallbackNode.kind || 'surface',
+        ref: fallbackNode && fallbackNode.ref || null
+      },
+      runtime: {
+        kernelRemoteExecution: false,
+        hostAdapterRequired: true,
+        networkRequiredByKernel: false
+      }
+    };
+
+    const remoteRecord = addRecord(this.core, 'remoteSurfaces', record, node, 'RmtRemoteSurfaceDeclaration');
+    this.addRemoteChildSourceMaps(node, remoteRecord);
+    return remoteRecord;
+  }
+
+  compileRemoteEvent(node, fallbackDirection) {
+    const ownerNode = firstBodyNode(node, 'RmtRemoteOwnerClause');
+    const directionNode = firstBodyNode(node, 'RmtRemoteEventDirectionClause');
+    const laneNode = firstBodyNode(node, 'RmtRemoteEventLaneClause');
+    const fromNode = firstBodyNode(node, 'RmtRemoteEventFromClause');
+    const payloadNode = firstBodyNode(node, 'RmtRemoteEventPayloadClause');
+    const lane = laneNode && laneNode.lane || null;
+    const scopes = [];
+
+    if (lane) scopes.push(`lane:${lane}`);
+    if (fromNode && fromNode.source && fromNode.source.ref) {
+      scopes.push(fromNode.source.ref);
+    }
+
+    return {
+      event: node.event || null,
+      owner: {
+        kind: ownerNode && ownerNode.kind || 'team',
+        id: ownerNode && ownerNode.id || null
+      },
+      direction: directionNode && directionNode.direction || fallbackDirection,
+      version: eventVersionFromName(node.event),
+      lane,
+      from: compileRemoteShellTarget(fromNode && fromNode.source),
+      payload: {
+        schema: payloadNode && payloadNode.value || null,
+        shape: null
+      },
+      scopes
+    };
+  }
+
+  addRemoteChildSourceMaps(node, record) {
+    const remoteIndex = this.core.remoteSurfaces.indexOf(record);
+    const pointerBase = `/remoteSurfaces/${remoteIndex}`;
+    const children = Array.isArray(node.body) ? node.body : [];
+    children.forEach((child, index) => {
+      const childSourceRef = makeSourceRef(`${record.id}/${index}`);
+      addSourceMap(this.core, child, child.type, `${pointerBase}/body/${index}`, childSourceRef);
+    });
   }
 
   compileLane(node, scope) {
@@ -474,8 +627,20 @@ function compileRmtVNextAst(ast, options = {}) {
   return compiler.compile();
 }
 
+function coreDocumentForSerialization(coreDocument) {
+  const serializable = {
+    ...coreDocument
+  };
+
+  if (Array.isArray(serializable.remoteSurfaces) && serializable.remoteSurfaces.length === 0) {
+    delete serializable.remoteSurfaces;
+  }
+
+  return serializable;
+}
+
 function serializeRmtVNextCore(coreDocument) {
-  return `${JSON.stringify(coreDocument, null, 2)}\n`;
+  return `${JSON.stringify(coreDocumentForSerialization(coreDocument), null, 2)}\n`;
 }
 
 function compileRmtVNextSource(input = {}, options = {}) {

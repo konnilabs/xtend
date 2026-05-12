@@ -1,0 +1,18 @@
+{
+  "schema": "xtend.rmt.vnext-remote-surface-manifest.v1",
+  "manifestId": "remoteManifest:broken.checkout.cart",
+  "surface": {
+    "name": "checkout.cart",
+    "remote": {
+      "id": "@xtend/checkout-cart",
+      "origin": "cdn.xtend.example"
+    },
+    "capabilities": [
+      "surface.mount"
+    ],
+    "adapterBoundary": {
+      "adapterId": "xtend.remote-surface.host",
+      "capabilities": []
+    }
+  }
+}

@@ -86,6 +86,10 @@ Willkommen zur offiziellen Dokumentation des XTend Web Frameworks. Dieses Inhalt
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
 - [RMT vNext Release Handoff](./rmt-vnext-release-handoff.md)
+- [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md)
+- [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
+- [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md)
+- [RMT vNext Enterprise MFE Handoff](./rmt-vnext-enterprise-mfe-handoff.md)
 
 XTendRMT ist nach Epic 05 als produktiver Scheduler-, Runtime- und Templating-Pfad dokumentiert. XTend UI bleibt das Web-Component-Produkt; RMT fuehrt native `adapters`, `components`, `routes`, `schedules` und `templates` als host-neutrale App-DSL. XRouter und XTend Components werden ueber produktive Adapter angebunden, waehrend React-, Vue-, Vanilla- und Custom-Hosts eigene Adapter verwenden koennen.
 
@@ -100,6 +104,8 @@ Die Docs-App selbst nutzt weiterhin PHP/Parsedown fuer Markdown-Rendering und XT
 Epic 14 ist ab `WP-E14-16` abgeschlossen. Der Handoff `xtend.epic14.lsp-handoff.v1` liegt in [Epic 14 Abschluss und LSP Handoff](../development/XTendRMT-Epic14-Abschluss-und-LSP-Handoff.md) und beschreibt die LSP Capability Matrix, Known Limitations und die Folgepfade fuer RMT DSL Syntax, Formatter und Project Index.
 
 [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md) und [RMT vNext Release Handoff](./rmt-vnext-release-handoff.md) dokumentieren ab `WP-E15-18` den Abschluss `xtend.rmt.vnext-release-handoff.v1`. Die Reference Demo liegt in `xtendrmt/rmt-vnext-reference-demo.rmt`, der stabile Core-Output in `xtendrmt/rmt-vnext-reference-demo.core.json`, und der lokale Gate ist `node scripts/run_xtend_tests.js rmt-vnext-release --json`.
+
+[RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md) und [RMT vNext Enterprise MFE Handoff](./rmt-vnext-enterprise-mfe-handoff.md) dokumentieren ab `WP-E16-12` den Abschluss `xtend.rmt.vnext-enterprise-release-handoff.v1` mit Zielreife `rmt-vnext-enterprise-mfe-ready`. Die Enterprise Demo liegt in `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`, der stabile Core-Output in `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json`, und der lokale Gate ist `node scripts/run_xtend_tests.js rmt-vnext-enterprise-release --json`.
 
 ## Enterprise Runtime
 

@@ -1,0 +1,35 @@
+{
+  "schema": "xtend.rmt.vnext-enterprise-fixture-matrix.v1",
+  "workpackage": "WP-E16-11",
+  "demo": {
+    "id": "enterprise-mfe-demo",
+    "source": "xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt",
+    "coreOutput": "xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json",
+    "browserSmoke": {
+      "path": "tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html",
+      "resultKey": "__xtendRmtVNextEnterpriseSmokeResult",
+      "expectedChecks": [
+        "enterprise shell surface visible",
+        "enterprise local fallback visible",
+        "enterprise remote surface contract present",
+        "enterprise cross surface event typed",
+        "enterprise degradation fallback resolved",
+        "enterprise browser smoke offline"
+      ]
+    },
+    "expected": {
+      "remoteSurfaceCount": 1,
+      "localSurfaceCount": 3,
+      "eventCount": 2,
+      "degradationStatus": "full"
+    },
+    "expectedHashes": {
+      "baseCoreSha256": "a719f032b321263fea44fb55c612c001514b57098320987bc0a220fe8f4910bc",
+      "remoteCompilerCoreSha256": "54116ac405eb9e28099395d175830e7d3ebaba4ec9045598d9d3b8914a745c53",
+      "enterpriseRegistrySha256": "e4bde88621bdede352b3d205816f0a923626d95a1063809c28c11c5556d20e8e",
+      "crossSurfaceEventsSha256": "fd4a5ba4f0a118c94b66833b82733d3a188a13dbed281ec8e5cbe99f82d50737",
+      "eventGovernanceSha256": "d082f1d4193386176ca1d3a21cb7b039ee30b5add653e69d33dcd640a5ba9c53",
+      "degradationSha256": "dfc8b1a478d05e9d51cc728d015ef6498d6a42d2fb7b1959c9d5a87ea6bac9b7"
+    }
+  }
+}

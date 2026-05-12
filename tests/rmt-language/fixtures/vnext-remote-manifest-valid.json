@@ -1,0 +1,63 @@
+{
+  "schema": "xtend.rmt.vnext-remote-surface-manifest.v1",
+  "manifestId": "remoteManifest:checkout.cart",
+  "surface": {
+    "name": "checkout.cart",
+    "owner": {
+      "kind": "team",
+      "id": "checkout-platform"
+    },
+    "remote": {
+      "id": "@xtend/checkout-cart",
+      "origin": "https://cdn.xtend.example",
+      "versionRange": "^2.4.0",
+      "integrity": {
+        "algorithm": "sha256",
+        "digest": "sha256-REPLACE_WITH_MANIFEST_DIGEST"
+      }
+    },
+    "security": {
+      "trustBoundary": "xtend.security.remote-surface.v1",
+      "capabilityMode": "deny-by-default",
+      "sandboxRequired": true,
+      "cspRequired": true
+    },
+    "exposes": [
+      {
+        "lane": "critical",
+        "target": "shell.slot:sidebar.cart"
+      },
+      {
+        "lane": "idle",
+        "target": "shell.slot:background.prefetch"
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "surface.mount",
+        "mode": "required"
+      },
+      {
+        "id": "event.emit",
+        "mode": "required"
+      },
+      {
+        "id": "event.consume",
+        "mode": "required"
+      }
+    ],
+    "adapterBoundary": {
+      "adapterId": "xtend.remote-surface.host",
+      "hostOwned": true,
+      "capabilities": [
+        "surface.mount",
+        "event.emit",
+        "event.consume"
+      ]
+    },
+    "fallback": {
+      "kind": "surface",
+      "ref": "checkout.cart.fallback"
+    }
+  }
+}

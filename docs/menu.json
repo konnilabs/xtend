@@ -666,6 +666,42 @@
     "rank": 66
   },
   {
+    "slug": "rmt-vnext-remote-surfaces",
+    "id": "docs.rmt.vnext.remote.surfaces",
+    "label": "RMT vNext Remote Surfaces",
+    "group": "rmt",
+    "parent": "rmt-vnext-release-handoff",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-surface-registry-enterprise",
+    "id": "docs.rmt.vnext.surface.registry.enterprise",
+    "label": "RMT vNext Enterprise Surface Registry",
+    "group": "rmt",
+    "parent": "rmt-vnext-remote-surfaces",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-cross-surface-events",
+    "id": "docs.rmt.vnext.cross.surface.events",
+    "label": "RMT vNext Cross Surface Events",
+    "group": "rmt",
+    "parent": "rmt-vnext-remote-surfaces",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-enterprise-mfe-handoff",
+    "id": "docs.rmt.vnext.enterprise.mfe.handoff",
+    "label": "RMT vNext Enterprise MFE Handoff",
+    "group": "rmt",
+    "parent": "rmt-vnext-release-handoff",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
     "slug": "xtendrmt-runtime-bridge",
     "id": "docs.xtendrmt.runtime.bridge",
     "label": "XTendRMT Runtime Bridge",

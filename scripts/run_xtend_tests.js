@@ -154,6 +154,50 @@ const {
   runRmtVNextReleaseHandoffSuite
 } = require('../tests/rmt-language/rmt_vnext_release_handoff_suite');
 const {
+  printRmtVNextRemoteManifestReport,
+  runRmtVNextRemoteManifestSuite
+} = require('../tests/rmt-language/rmt_vnext_remote_manifest_suite');
+const {
+  printRmtVNextEnterpriseRegistryReport,
+  runRmtVNextEnterpriseRegistrySuite
+} = require('../tests/rmt-language/rmt_vnext_enterprise_registry_suite');
+const {
+  printRmtVNextDegradationReport,
+  runRmtVNextDegradationSuite
+} = require('../tests/rmt-language/rmt_vnext_degradation_suite');
+const {
+  printRmtVNextRemoteSecurityReport,
+  runRmtVNextRemoteSecuritySuite
+} = require('../tests/rmt-language/rmt_vnext_remote_security_suite');
+const {
+  printRmtVNextCrossSurfaceEventsReport,
+  runRmtVNextCrossSurfaceEventsSuite
+} = require('../tests/rmt-language/rmt_vnext_cross_surface_events_suite');
+const {
+  printRmtVNextEventGovernanceReport,
+  runRmtVNextEventGovernanceSuite
+} = require('../tests/rmt-language/rmt_vnext_event_governance_suite');
+const {
+  printRmtVNextRemoteCompilerReport,
+  runRmtVNextRemoteCompilerSuite
+} = require('../tests/rmt-language/rmt_vnext_remote_compiler_suite');
+const {
+  printRmtVNextRemoteToolingReport,
+  runRmtVNextRemoteToolingSuite
+} = require('../tests/rmt-language/rmt_vnext_remote_tooling_suite');
+const {
+  printRmtVNextRemoteCompatibilityReport,
+  runRmtVNextRemoteCompatibilitySuite
+} = require('../tests/rmt-language/rmt_vnext_remote_compatibility_suite');
+const {
+  printRmtVNextEnterpriseFixturesReport,
+  runRmtVNextEnterpriseFixturesSuite
+} = require('../tests/rmt-language/rmt_vnext_enterprise_fixtures_suite');
+const {
+  printRmtVNextEnterpriseReleaseReport,
+  runRmtVNextEnterpriseReleaseSuite
+} = require('../tests/rmt-language/rmt_vnext_enterprise_release_suite');
+const {
   printRmtSemanticGraphReport,
   runRmtSemanticGraphSuite
 } = require('../tests/rmt-language/rmt_semantic_graph_suite');
@@ -805,6 +849,116 @@ const suites = [
       const result = runRmtVNextReleaseHandoffSuite({ rootDir });
       printRmtVNextReleaseHandoffReport(result);
       return toRunnerResult('rmt-vnext-release', 'Epic 15 RMT vNext Release Handoff', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-remote-manifest',
+    label: 'Epic 16 RMT vNext Remote Surface Manifest Contract',
+    description: 'Runs the WP-E16-02 RMT vNext remote surface manifest, core record and kernel-boundary gates.',
+    run: () => {
+      const result = runRmtVNextRemoteManifestSuite({ rootDir });
+      printRmtVNextRemoteManifestReport(result);
+      return toRunnerResult('rmt-vnext-remote-manifest', 'Epic 16 RMT vNext Remote Surface Manifest Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-enterprise-registry',
+    label: 'Epic 16 RMT vNext Enterprise Surface Registry Contract',
+    description: 'Runs the WP-E16-03 RMT vNext enterprise surface registry, ownership and discoverability gates.',
+    run: () => {
+      const result = runRmtVNextEnterpriseRegistrySuite({ rootDir });
+      printRmtVNextEnterpriseRegistryReport(result);
+      return toRunnerResult('rmt-vnext-enterprise-registry', 'Epic 16 RMT vNext Enterprise Surface Registry Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-degradation',
+    label: 'Epic 16 RMT vNext Degradation Policy Contract',
+    description: 'Runs the WP-E16-04 RMT vNext versioning, compatibility and graceful degradation gates.',
+    run: () => {
+      const result = runRmtVNextDegradationSuite({ rootDir });
+      printRmtVNextDegradationReport(result);
+      return toRunnerResult('rmt-vnext-degradation', 'Epic 16 RMT vNext Degradation Policy Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-remote-security',
+    label: 'Epic 16 RMT vNext Remote Security Policy Contract',
+    description: 'Runs the WP-E16-05 RMT vNext remote trust boundary, manifest integrity, CSP and sandbox gates.',
+    run: () => {
+      const result = runRmtVNextRemoteSecuritySuite({ rootDir });
+      printRmtVNextRemoteSecurityReport(result);
+      return toRunnerResult('rmt-vnext-remote-security', 'Epic 16 RMT vNext Remote Security Policy Contract', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-cross-surface-events',
+    label: 'Epic 16 RMT vNext Cross Surface Event Protocol',
+    description: 'Runs the WP-E16-06 RMT vNext cross surface event owner, direction, payload and scope gates.',
+    run: () => {
+      const result = runRmtVNextCrossSurfaceEventsSuite({ rootDir });
+      printRmtVNextCrossSurfaceEventsReport(result);
+      return toRunnerResult('rmt-vnext-cross-surface-events', 'Epic 16 RMT vNext Cross Surface Event Protocol', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-event-governance',
+    label: 'Epic 16 RMT vNext Event Governance',
+    description: 'Runs the WP-E16-07 RMT vNext event ownership, delivery policy and governance diagnostic gates.',
+    run: () => {
+      const result = runRmtVNextEventGovernanceSuite({ rootDir });
+      printRmtVNextEventGovernanceReport(result);
+      return toRunnerResult('rmt-vnext-event-governance', 'Epic 16 RMT vNext Event Governance', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-remote-compiler',
+    label: 'Epic 16 RMT vNext Remote Compiler',
+    description: 'Runs the WP-E16-08 RMT vNext remote surface parser, compiler, core mapping and golden output gates.',
+    run: () => {
+      const result = runRmtVNextRemoteCompilerSuite({ rootDir });
+      printRmtVNextRemoteCompilerReport(result);
+      return toRunnerResult('rmt-vnext-remote-compiler', 'Epic 16 RMT vNext Remote Compiler', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-remote-tooling',
+    label: 'Epic 16 RMT vNext Remote Tooling',
+    description: 'Runs the WP-E16-09 RMT vNext remote linter, LSP facts, snippets and agent report gates.',
+    run: () => {
+      const result = runRmtVNextRemoteToolingSuite({ rootDir });
+      printRmtVNextRemoteToolingReport(result);
+      return toRunnerResult('rmt-vnext-remote-tooling', 'Epic 16 RMT vNext Remote Tooling', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-remote-compatibility',
+    label: 'Epic 16 RMT vNext Remote Compatibility and Migration',
+    description: 'Runs the WP-E16-10 RMT vNext remote surface migration, report-only compatibility and legacy roundtrip gates.',
+    run: () => {
+      const result = runRmtVNextRemoteCompatibilitySuite({ rootDir });
+      printRmtVNextRemoteCompatibilityReport(result);
+      return toRunnerResult('rmt-vnext-remote-compatibility', 'Epic 16 RMT vNext Remote Compatibility and Migration', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-enterprise-fixtures',
+    label: 'Epic 16 RMT vNext Enterprise MFE Fixtures',
+    description: 'Runs the WP-E16-11 RMT vNext enterprise MFE demo, golden hashes and offline browser smoke gates.',
+    run: () => {
+      const result = runRmtVNextEnterpriseFixturesSuite({ rootDir });
+      printRmtVNextEnterpriseFixturesReport(result);
+      return toRunnerResult('rmt-vnext-enterprise-fixtures', 'Epic 16 RMT vNext Enterprise MFE Fixtures', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-enterprise-release',
+    label: 'Epic 16 RMT vNext Enterprise MFE Release Handoff',
+    description: 'Runs the WP-E16-12 RMT vNext enterprise MFE docs, release matrix and handoff gates.',
+    run: () => {
+      const result = runRmtVNextEnterpriseReleaseSuite({ rootDir });
+      printRmtVNextEnterpriseReleaseReport(result);
+      return toRunnerResult('rmt-vnext-enterprise-release', 'Epic 16 RMT vNext Enterprise MFE Release Handoff', result);
     }
   },
   {
@@ -1678,6 +1832,17 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-compatibility
   node scripts/run_xtend_tests.js rmt-vnext-regression
   node scripts/run_xtend_tests.js rmt-vnext-release
+  node scripts/run_xtend_tests.js rmt-vnext-remote-manifest
+  node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry
+  node scripts/run_xtend_tests.js rmt-vnext-degradation
+  node scripts/run_xtend_tests.js rmt-vnext-remote-security
+  node scripts/run_xtend_tests.js rmt-vnext-cross-surface-events
+  node scripts/run_xtend_tests.js rmt-vnext-event-governance
+  node scripts/run_xtend_tests.js rmt-vnext-remote-compiler
+  node scripts/run_xtend_tests.js rmt-vnext-remote-tooling
+  node scripts/run_xtend_tests.js rmt-vnext-remote-compatibility
+  node scripts/run_xtend_tests.js rmt-vnext-enterprise-fixtures
+  node scripts/run_xtend_tests.js rmt-vnext-enterprise-release
   node scripts/run_xtend_tests.js rmt-semantic-graph
   node scripts/run_xtend_tests.js rmt-linter-rules
   node scripts/run_xtend_tests.js rmt-linter-cli

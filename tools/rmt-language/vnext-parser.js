@@ -16,6 +16,7 @@ const RMT_FILE_FALLBACK_CODE = 'rmt.document.extension.fallback-used';
 
 const RESERVED_WORDS = new Set([
   'template',
+  'remote',
   'surface',
   'lane',
   'weight',
@@ -393,6 +394,8 @@ class VNextParser {
         body.push(this.parseImportDeclaration());
       } else if (this.matches('template')) {
         body.push(this.parseTemplateDeclaration());
+      } else if (this.matches('remote')) {
+        body.push(this.parseRemoteSurfaceDeclaration());
       } else if (this.matches('surface')) {
         body.push(this.parseSurfaceDeclaration(null));
       } else if (LIFECYCLE_OPERATIONS.has(this.current().value) || this.matches('stream')) {
@@ -414,6 +417,7 @@ class VNextParser {
     documentNode.imports = body.filter((node) => node.type === 'RmtImportDeclaration');
     documentNode.templates = body.filter((node) => node.type === 'RmtTemplateDeclaration');
     documentNode.surfaces = body.filter((node) => node.type === 'RmtSurfaceDeclaration');
+    documentNode.remoteSurfaces = body.filter((node) => node.type === 'RmtRemoteSurfaceDeclaration');
     return documentNode;
   }
 
@@ -490,6 +494,251 @@ class VNextParser {
       nameNode: name,
       body: body.items
     });
+  }
+
+  parseRemoteSurfaceDeclaration() {
+    const start = this.expectValue('remote', 'Expected remote surface declaration.');
+    this.expectValue('surface', 'Expected surface keyword after remote.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected remote surface identifier.');
+    this.expectValue('from', 'Expected from in remote surface declaration.');
+    this.expectValue('remote', 'Expected remote keyword after from.');
+    const remoteToken = this.current();
+    let remoteId = null;
+    if (remoteToken.type === 'string') {
+      remoteId = remoteToken.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(remoteToken, 'Remote id must be a static string.');
+      this.consume();
+    }
+
+    const body = this.parseBlock(() => this.parseRemoteSurfaceItem(name && name.value));
+    const end = body.endToken || this.previous();
+
+    return this.createNode('RmtRemoteSurfaceDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      remoteId,
+      body: body.items
+    });
+  }
+
+  parseRemoteSurfaceItem(surfaceName) {
+    if (this.matches('owner')) return this.parseRemoteOwnerClause();
+    if (this.matches('version')) return this.parseRemoteStringClause('version', 'RmtRemoteVersionClause', 'Expected remote version string.');
+    if (this.matches('origin')) return this.parseRemoteStringClause('origin', 'RmtRemoteOriginClause', 'Expected remote origin string.');
+    if (this.matches('integrity')) return this.parseRemoteIntegrityClause();
+    if (this.matches('trust')) return this.parseRemoteTrustBoundaryClause();
+    if (this.matches('fallback')) return this.parseRemoteFallbackClause();
+    if (this.matches('exposes')) return this.parseRemoteExposeClause(surfaceName);
+    if (this.matches('emits') || this.matches('consumes')) return this.parseRemoteEventClause(surfaceName);
+
+    this.addDiagnostic(this.current(), 'Remote surfaces may contain owner, version, origin, integrity, trust boundary, fallback, exposes, emits and consumes clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+    this.skipStatementOrBlock();
+    return null;
+  }
+
+  parseRemoteOwnerClause() {
+    const start = this.expectValue('owner', 'Expected owner clause.');
+    let ownerKind = 'team';
+    if (this.matches('team')) {
+      ownerKind = this.consume().value;
+    }
+    const ownerToken = this.current();
+    let ownerId = null;
+    if (ownerToken.type === 'string') {
+      ownerId = ownerToken.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(ownerToken, 'Remote owner must be a static string.');
+      this.consume();
+    }
+    this.consumeStatementEnd('Expected statement end after owner clause.');
+    const end = this.previous();
+
+    return this.createNode('RmtRemoteOwnerClause', start, end, {
+      kind: ownerKind,
+      id: ownerId
+    });
+  }
+
+  parseRemoteStringClause(keyword, nodeType, message) {
+    const start = this.expectValue(keyword, `Expected ${keyword} clause.`);
+    const valueToken = this.current();
+    let value = null;
+    if (valueToken.type === 'string') {
+      value = valueToken.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(valueToken, message);
+      this.consume();
+    }
+    this.consumeStatementEnd(`Expected statement end after ${keyword} clause.`);
+    const end = this.previous();
+
+    return this.createNode(nodeType, start, end, {
+      value
+    });
+  }
+
+  parseRemoteIntegrityClause() {
+    const start = this.expectValue('integrity', 'Expected integrity clause.');
+    const algorithm = this.parseQualifiedIdentifierAllowReserved('Expected integrity algorithm.');
+    const digestToken = this.current();
+    let digest = null;
+    if (digestToken.type === 'string') {
+      digest = digestToken.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(digestToken, 'Integrity digest must be a static string.');
+      this.consume();
+    }
+    this.consumeStatementEnd('Expected statement end after integrity clause.');
+    const end = this.previous();
+
+    return this.createNode('RmtRemoteIntegrityClause', start, end, {
+      algorithm: algorithm && algorithm.value,
+      algorithmNode: algorithm,
+      digest
+    });
+  }
+
+  parseRemoteTrustBoundaryClause() {
+    const start = this.expectValue('trust', 'Expected trust boundary clause.');
+    this.expectValue('boundary', 'Expected boundary keyword in remote trust clause.');
+    const boundaryToken = this.current();
+    let boundary = null;
+    if (boundaryToken.type === 'string') {
+      boundary = boundaryToken.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(boundaryToken, 'Remote trust boundary must be a static string.');
+      this.consume();
+    }
+    this.consumeStatementEnd('Expected statement end after remote trust boundary clause.');
+    const end = this.previous();
+
+    return this.createNode('RmtRemoteTrustBoundaryClause', start, end, {
+      boundary
+    });
+  }
+
+  parseRemoteFallbackClause() {
+    const start = this.expectValue('fallback', 'Expected fallback clause.');
+    this.expectValue('surface', 'Expected surface keyword in fallback clause.');
+    const ref = this.parseQualifiedIdentifierAllowReserved('Expected fallback surface identifier.');
+    this.consumeStatementEnd('Expected statement end after fallback clause.');
+    const end = this.previous();
+
+    return this.createNode('RmtRemoteFallbackClause', start, end, {
+      kind: 'surface',
+      ref: ref && ref.value,
+      refNode: ref
+    });
+  }
+
+  parseRemoteExposeClause(surfaceName) {
+    const start = this.expectValue('exposes', 'Expected exposes clause.');
+    this.expectValue('lane', 'Expected lane keyword in exposes clause.');
+    const lane = this.parseQualifiedIdentifierAllowReserved('Expected exposed lane identifier.');
+    this.expectValue('->', 'Expected -> in exposes clause.');
+    const target = this.parseRemoteShellTarget('Expected shell target in exposes clause.');
+    this.consumeStatementEnd('Expected statement end after exposes clause.');
+    const end = this.previous();
+
+    return this.createNode('RmtRemoteExposeClause', start, end, {
+      surface: surfaceName,
+      lane: lane && lane.value,
+      laneNode: lane,
+      target
+    });
+  }
+
+  parseRemoteEventClause(surfaceName) {
+    const start = this.consume();
+    const kind = start.value;
+    const event = this.parseQualifiedIdentifierAllowReserved('Expected remote event identifier.');
+    const body = this.parseBlock(() => this.parseRemoteEventItem(kind));
+    const end = body.endToken || this.previous();
+
+    return this.createNode('RmtRemoteEventClause', start, end, {
+      surface: surfaceName,
+      kind,
+      event: event && event.value,
+      eventNode: event,
+      body: body.items
+    });
+  }
+
+  parseRemoteEventItem(kind) {
+    if (this.matches('owner')) return this.parseRemoteOwnerClause();
+    if (this.matches('direction')) return this.parseRemoteEventDirectionClause(kind);
+    if (this.matches('lane')) return this.parseRemoteEventLaneClause();
+    if (this.matches('from')) return this.parseRemoteEventFromClause();
+    if (this.matches('payload')) return this.parseRemoteStringClause('payload', 'RmtRemoteEventPayloadClause', 'Expected event payload schema string.');
+
+    this.addDiagnostic(this.current(), 'Remote event clauses may contain owner, direction, lane, from and payload only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+    this.skipStatementOrBlock();
+    return null;
+  }
+
+  parseRemoteEventDirectionClause(kind) {
+    const start = this.expectValue('direction', 'Expected direction clause.');
+    const token = this.current();
+    let direction = null;
+    if (token.value === 'outbound' || token.value === 'inbound') {
+      direction = token.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(token, 'Event direction must be outbound or inbound.');
+      this.consume();
+    }
+    this.consumeStatementEnd('Expected statement end after direction clause.');
+    const end = this.previous();
+
+    return this.createNode('RmtRemoteEventDirectionClause', start, end, {
+      direction: direction || (kind === 'emits' ? 'outbound' : 'inbound')
+    });
+  }
+
+  parseRemoteEventLaneClause() {
+    const start = this.expectValue('lane', 'Expected lane clause.');
+    const lane = this.parseQualifiedIdentifierAllowReserved('Expected event lane identifier.');
+    this.consumeStatementEnd('Expected statement end after lane clause.');
+    const end = this.previous();
+
+    return this.createNode('RmtRemoteEventLaneClause', start, end, {
+      lane: lane && lane.value,
+      laneNode: lane
+    });
+  }
+
+  parseRemoteEventFromClause() {
+    const start = this.expectValue('from', 'Expected from clause.');
+    const source = this.parseRemoteShellTarget('Expected event source scope.');
+    this.consumeStatementEnd('Expected statement end after from clause.');
+    const end = this.previous();
+
+    return this.createNode('RmtRemoteEventFromClause', start, end, {
+      source
+    });
+  }
+
+  parseRemoteShellTarget(message) {
+    const target = this.parseQualifiedIdentifierAllowReserved(message || 'Expected shell target.');
+    let ref = target && target.value;
+    if (target && target.value && this.current().type === 'string') {
+      ref = `${target.value}:${this.current().value}`;
+      this.consume();
+    } else if (target && target.value === 'shell.session') {
+      ref = 'shell.session:current';
+    }
+
+    return {
+      type: target && target.value,
+      ref,
+      targetNode: target
+    };
   }
 
   parseLaneDeclaration(templateName, surfaceName) {
@@ -868,6 +1117,48 @@ class VNextParser {
       const dot = this.consume();
       const next = this.current();
       if (!this.isIdentifierToken(next)) {
+        this.addDiagnostic(next, 'Expected identifier after dot.');
+        end = dot;
+        break;
+      }
+      parts.push(next.value);
+      end = this.consume();
+    }
+
+    return {
+      type: 'RmtIdentifier',
+      value: parts.join('.'),
+      parts,
+      escaped: Boolean(start.escaped),
+      startToken: start,
+      endToken: end,
+      range: createRange(this.sourceModel, start.startOffset, end.endOffset)
+    };
+  }
+
+  parseQualifiedIdentifierAllowReserved(message) {
+    const first = this.current();
+    if (!first || first.type !== 'identifier') {
+      this.addDiagnostic(first, message || 'Expected identifier.');
+      this.consume();
+      return {
+        type: 'RmtIdentifier',
+        value: null,
+        parts: [],
+        startToken: first,
+        endToken: first,
+        range: createRange(this.sourceModel, first.startOffset, first.endOffset)
+      };
+    }
+
+    const parts = [first.value];
+    const start = this.consume();
+    let end = start;
+
+    while (this.matches('.')) {
+      const dot = this.consume();
+      const next = this.current();
+      if (!next || next.type !== 'identifier') {
         this.addDiagnostic(next, 'Expected identifier after dot.');
         end = dot;
         break;

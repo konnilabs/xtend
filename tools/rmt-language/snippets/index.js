@@ -59,6 +59,65 @@ const RMT_SNIPPETS = Object.freeze([
     ])
   },
   {
+    id: 'rmt-vnext-remote-surface',
+    name: 'RMT vNext Remote Surface',
+    prefix: 'rmt-vnext-remote-surface',
+    description: 'Remote Surface mit Owner, Integrity, Fallback, Exposes und Events.',
+    scope: 'rmt',
+    tags: ['vnext', 'remote', 'surface', 'mfe'],
+    body: body([
+      'remote surface ${1:checkout.cart} from remote "${2:@xtend/checkout-cart}" {',
+      '  owner team "${3:checkout-platform}"',
+      '  version "${4:^2.4.0}"',
+      '  origin "${5:https://cdn.xtend.example}"',
+      '  integrity sha256 "${6:sha256-...}"',
+      '  trust boundary "xtend.security.remote-surface.v1"',
+      '  fallback surface ${7:checkout.cart.fallback}',
+      '',
+      '  exposes lane ${8|critical,visible,idle,background|} -> shell.slot "${9:sidebar.cart}"',
+      '}'
+    ])
+  },
+  {
+    id: 'rmt-vnext-remote-event',
+    name: 'RMT vNext Remote Event',
+    prefix: 'rmt-vnext-remote-event',
+    description: 'Remote emits/consumes Event mit Owner, Richtung, Lane und Payload.',
+    scope: 'rmt',
+    tags: ['vnext', 'remote', 'event'],
+    body: body([
+      '${1|emits,consumes|} ${2:checkout.cart.updated.v1} {',
+      '  owner team "${3:checkout-platform}"',
+      '  direction ${4|outbound,inbound|}',
+      '  lane ${5|critical,visible,idle,background|}',
+      '  payload "${6:xtend.schemas.cartUpdated.v1}"',
+      '}'
+    ])
+  },
+  {
+    id: 'rmt-vnext-remote-fallback',
+    name: 'RMT vNext Remote Fallback',
+    prefix: 'rmt-vnext-remote-fallback',
+    description: 'Fallback Surface fuer Remote Degradation deklarieren.',
+    scope: 'rmt',
+    tags: ['vnext', 'remote', 'fallback', 'degradation'],
+    body: body([
+      'fallback surface ${1:checkout.cart.fallback}'
+    ])
+  },
+  {
+    id: 'rmt-vnext-remote-degradation',
+    name: 'RMT vNext Remote Degradation Policy',
+    prefix: 'rmt-vnext-remote-degradation',
+    description: 'Degradation-relevante Remote-Fakten im Authoring sichtbar machen.',
+    scope: 'rmt',
+    tags: ['vnext', 'remote', 'degradation'],
+    body: body([
+      'fallback surface ${1:checkout.cart.fallback}',
+      'exposes lane ${2|critical,visible,idle,background|} -> shell.slot "${3:sidebar.cart}"'
+    ])
+  },
+  {
     id: 'rmt-minimal-app',
     name: 'RMT Minimal App',
     prefix: 'rmt-app',

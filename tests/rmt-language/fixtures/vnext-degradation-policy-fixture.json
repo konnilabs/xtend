@@ -1,0 +1,39 @@
+{
+  "shellVersion": "1.5.0",
+  "availableCapabilities": [
+    "surface.mount",
+    "event.emit",
+    "event.consume"
+  ],
+  "policies": {
+    "checkout.cart": {
+      "minShellVersion": "1.4.0",
+      "requiredCapabilities": [
+        "surface.mount",
+        "event.emit"
+      ],
+      "optionalCapabilities": [
+        "event.consume",
+        "data.prefetch"
+      ],
+      "fallback": {
+        "kind": "surface",
+        "ref": "checkout.cart.fallback"
+      },
+      "eventPolicy": {
+        "whenDegraded": "allow-safe",
+        "allow": [
+          "checkout.cart.updated.v1"
+        ]
+      },
+      "dataSourcePolicy": {
+        "whenDegraded": "read-only"
+      }
+    },
+    "root": {
+      "minShellVersion": "1.0.0",
+      "requiredCapabilities": [],
+      "optionalCapabilities": []
+    }
+  }
+}

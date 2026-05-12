@@ -1,0 +1,45 @@
+{
+  "policies": {
+    "checkout.cart": {
+      "trustBoundary": "xtend.security.remote-surface.v1",
+      "allowedOrigins": [
+        "https://cdn.xtend.example"
+      ],
+      "allowedIntegrityAlgorithms": [
+        "sha256",
+        "sha384",
+        "sha512"
+      ],
+      "capabilityMode": "deny-by-default",
+      "allowedCapabilities": [
+        "surface.mount",
+        "event.emit",
+        "event.consume"
+      ],
+      "csp": {
+        "requireTrustedTypes": true,
+        "defaultSrc": [
+          "'self'"
+        ],
+        "scriptSrc": [
+          "'self'"
+        ],
+        "connectSrc": [
+          "'self'",
+          "https://cdn.xtend.example"
+        ],
+        "objectSrc": [
+          "'none'"
+        ]
+      },
+      "sandbox": {
+        "mode": "remote-surface-isolated",
+        "allowScripts": false,
+        "allowSameOrigin": false,
+        "allowPopups": false,
+        "allowForms": false
+      },
+      "remoteEventPayloadsRequired": true
+    }
+  }
+}

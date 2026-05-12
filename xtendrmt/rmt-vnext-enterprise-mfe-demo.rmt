@@ -1,0 +1,50 @@
+template enterprise.shell {
+  surface root {
+    lane critical weight 10 {
+      hydrate shell.root from endpoint shell.bootstrap
+    }
+  }
+
+  surface workspace.sales {
+    lane critical weight 8 {
+      mount local.dashboard from endpoint local.dashboard
+    }
+
+    lane idle weight 2 {
+      prewarm local.metrics from endpoint local.metrics
+    }
+  }
+
+  surface panel.checkoutFallback {
+    lane critical weight 9 {
+      mount checkout.fallback from endpoint checkout.fallback
+    }
+  }
+}
+
+remote surface checkout.cart from remote "@xtend/checkout-cart" {
+  owner team "checkout-platform"
+  version "^3.1.0"
+  origin "https://cdn.xtend.example"
+  integrity sha256 "sha256-enterprisemfecheckoutcart0000000000000000000001"
+  trust boundary "xtend.security.remote-surface.v1"
+  fallback surface panel.checkoutFallback
+
+  exposes lane critical -> shell.slot "sidebar.cart"
+  exposes lane idle -> shell.slot "background.prefetch"
+
+  emits checkout.cart.updated.v1 {
+    owner team "checkout-platform"
+    direction outbound
+    lane critical
+    payload "xtend.schemas.cartUpdated.v1"
+  }
+
+  consumes user.session.changed.v1 {
+    owner team "identity-platform"
+    direction inbound
+    from shell.session
+    lane critical
+    payload "xtend.schemas.sessionChanged.v1"
+  }
+}

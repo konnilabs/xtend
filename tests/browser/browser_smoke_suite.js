@@ -24,6 +24,7 @@ const EPIC11_UX_COMPATIBILITY_FIXTURE_PATH = 'tests/browser/fixtures/epic11-ux-c
 const EPIC11_THEME_MATRIX_FIXTURE_PATH = 'tests/browser/fixtures/epic11-theme-matrix-smoke.html';
 const EPIC13_TRUSTED_DOM_BOUNDARY_FIXTURE_PATH = 'tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html';
 const RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-reference-smoke.html';
+const RMT_VNEXT_ENTERPRISE_MFE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html';
 const CORE_FLOW_MANIFEST_PATH = 'tests/browser/fixtures/components/manifest.json';
 const XALERT_COMPONENT_PATH = 'components/xalert.js';
 const BROWSER_FIXTURES = [
@@ -76,6 +77,11 @@ const BROWSER_FIXTURES = [
     label: 'RMT vNext reference smoke fixture',
     path: RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH,
     resultKey: '__xtendRmtVNextSmokeResult'
+  },
+  {
+    label: 'RMT vNext Enterprise MFE smoke fixture',
+    path: RMT_VNEXT_ENTERPRISE_MFE_SMOKE_FIXTURE_PATH,
+    resultKey: '__xtendRmtVNextEnterpriseSmokeResult'
   }
 ];
 const CORE_FLOW_MANIFEST_CONTRACT = {
@@ -737,6 +743,30 @@ function assertRmtVNextReferenceFixtureContract(context, rootDir) {
   });
 }
 
+function assertRmtVNextEnterpriseMfeFixtureContract(context, rootDir) {
+  const fixture = readText(RMT_VNEXT_ENTERPRISE_MFE_SMOKE_FIXTURE_PATH, rootDir);
+
+  context.assert(fixture.includes('xtend.rmt.vnext-enterprise-browser-smoke.v1'), 'RMT vNext Enterprise MFE fixture exposes stable browser contract');
+  context.assert(fixture.includes('data-rmt-vnext-enterprise-smoke="wp-e16-11"'), 'RMT vNext Enterprise MFE fixture exposes WP-E16-11 marker');
+  context.assert(fixture.includes('__xtendRmtVNextEnterpriseSmokeResult'), 'RMT vNext Enterprise MFE fixture exposes smoke result object');
+  context.assert(fixture.includes('data-remote-execution="false"'), 'RMT vNext Enterprise MFE fixture disables remote execution');
+  context.assert(fixture.includes('"networkRequests": 0'), 'RMT vNext Enterprise MFE fixture records zero network requests');
+  context.assert(!/fetch\s*\(/u.test(fixture), 'RMT vNext Enterprise MFE fixture performs no fetch');
+  context.assert(!/import\s*\(/u.test(fixture), 'RMT vNext Enterprise MFE fixture performs no dynamic import');
+  context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'RMT vNext Enterprise MFE fixture has no XTend CDN dependency');
+
+  [
+    'enterprise shell surface visible',
+    'enterprise local fallback visible',
+    'enterprise remote surface contract present',
+    'enterprise cross surface event typed',
+    'enterprise degradation fallback resolved',
+    'enterprise browser smoke offline'
+  ].forEach((check) => {
+    context.assert(fixture.includes(`recordCheck('${check}'`), `RMT vNext Enterprise MFE fixture records ${check}`);
+  });
+}
+
 async function runBrowserSmokeSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir);
   const context = createSuiteContext({
@@ -754,6 +784,7 @@ async function runBrowserSmokeSuite(options = {}) {
   assertEpic11ThemeMatrixFixtureContract(context, rootDir);
   assertEpic13TrustedDomBoundaryFixtureContract(context, rootDir);
   assertRmtVNextReferenceFixtureContract(context, rootDir);
+  assertRmtVNextEnterpriseMfeFixtureContract(context, rootDir);
   await assertLocalDevServerContract(context, rootDir);
 
   const driver = options.driver || process.env.XTEND_BROWSER_SMOKE_DRIVER || '';
