@@ -98,7 +98,7 @@ Structured Diagnostics (`xtend-loader-diagnostic`) und Performance Events (`xten
 
 ## Funktionsweise
 
-1. Der Loader versteckt die Seite kurz, um unhydratisches Markup nicht sichtbar blitzen zu lassen.
+1. Der Loader initialisiert `xtend.loader.style-registry.v1` und injiziert Runtime-Critical Styles fuer Tokens, UI-Effects, Skeletons und undefinierte XTend Custom Elements.
 2. Er wartet auf den Window-Load.
 3. Er validiert `data-manifest` oder `components/manifest.json` gegen die Loader Policy.
 4. Er laedt das Manifest und loest Manifest-URLs relativ zur Manifest-URL auf.
@@ -109,8 +109,31 @@ Structured Diagnostics (`xtend-loader-diagnostic`) und Performance Events (`xten
 9. Er erkennt im DOM verwendete XTend-Tags und laedt sichtbare Komponenten sofort.
 10. Er beobachtet nicht sichtbare Komponenten per `IntersectionObserver`.
 11. Er stellt `xtend.loader.skeleton-loader.v1` fuer Shell-, Route- und dynamische Subtree-Fallbacks bereit.
-12. Er macht die Seite wieder sichtbar.
-13. Er validiert und importiert lokal `api.js`, dann ruft er `api.initXTendAPI(manifest)` auf.
+12. Er validiert und importiert lokal `api.js`, dann ruft er `api.initXTendAPI(manifest)` auf.
+
+## StyleRegistry
+
+Der Loader exportiert die native StyleRegistry:
+
+```js
+window.XTendStyleRegistry
+window.XTendLoader.styles
+```
+
+Beim Auswerten von `xtend-loader.js` ruft der Loader `ensureRuntimeStyles()` sofort auf. Dadurch sind die kritischen CSS-Regeln vorhanden, bevor Komponenten importiert oder hydriert werden. `xtend.css` bleibt der kanonische Standard-Dateiname fuer Host-Theming und Docs-/App-Layout, ist aber keine harte Voraussetzung mehr fuer Skeletons, UI-Effects, Basis-Tokens oder den FOUC-Schutz undefinierter XTend Custom Elements.
+
+Hosts koennen den Theme-Status auslesen:
+
+```js
+XTendLoader.getThemeStylesheetState()
+```
+
+Komponenten koennen eigene Styles registrieren und auf Shadow Roots anwenden:
+
+```js
+const style = XTendLoader.defineComponentStyle('x-example', ':host { display: block; }');
+XTendLoader.adoptStyle(this.shadowRoot, style);
+```
 
 ## SkeletonLoader
 
@@ -121,7 +144,7 @@ window.XTendLoader.showSkeleton(target, { lines: 8, schedule: 'docs.page.hydrate
 window.XTendLoader.hideSkeleton(target);
 ```
 
-Zusammen mit `xtend.css` koennen Hosts noch nicht definierte XTend Custom Elements ueber `data-xtend-skeleton` als Skeleton anzeigen. Bekannte XTend-Tags ohne Skeleton-Opt-in bleiben bis zur Definition unsichtbar, damit Light-DOM-Text nicht ungestylt aufblitzt.
+Hosts koennen noch nicht definierte XTend Custom Elements ueber `data-xtend-skeleton` als Skeleton anzeigen. Bekannte XTend-Tags ohne Skeleton-Opt-in bleiben bis zur Definition unsichtbar, damit Light-DOM-Text nicht ungestylt aufblitzt. Diese Regeln kommen aus der StyleRegistry und funktionieren auch ohne externes `xtend.css`.
 
 ## Preload
 

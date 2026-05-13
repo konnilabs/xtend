@@ -5,6 +5,11 @@ const MANIFEST_POLICY_CONTRACT = 'xtend.security.manifest-policy.v1';
 const IMPORT_POLICY_CONTRACT = 'xtend.security.import-policy.v1';
 const PERFORMANCE_MEASUREMENT_CONTRACT = 'xtend.performance.measurement.v1';
 const SKELETON_LOADER_CONTRACT = 'xtend.loader.skeleton-loader.v1';
+const STYLE_REGISTRY_CONTRACT = 'xtend.loader.style-registry.v1';
+const RUNTIME_STYLES_CONTRACT = 'xtend.loader.runtime-styles.v1';
+const RUNTIME_STYLE_KEY = 'xtend.runtime-critical';
+const RUNTIME_STYLE_ID = 'xtend-runtime-critical-styles';
+const STANDARD_THEME_STYLESHEET = 'xtend.css';
 const LOADER_PERFORMANCE_PHASES = Object.freeze({
   'xtend.loader.manifest': 'load',
   'xtend.loader.module': 'load',
@@ -21,15 +26,60 @@ const CUSTOM_ELEMENT_NAME_PATTERN = /^[a-z][a-z0-9]*-[a-z0-9-]*[a-z0-9]$/;
 const MODULE_CACHE_BUST_PARAM = 'xtend-cache';
 const LOADER_VERBOSE_CONTRACT = 'xtend.loader.verbose.v1';
 const LOADER_VERBOSE_STORAGE_KEY = 'xtend.loader.verbose';
+const XTEND_RUNTIME_CUSTOM_ELEMENT_TAGS = Object.freeze([
+  'x-alert',
+  'x-button',
+  'x-calendar',
+  'x-cards',
+  'x-checkbox',
+  'x-code',
+  'x-dialog',
+  'x-drawer',
+  'x-footer',
+  'x-form',
+  'x-header',
+  'x-hero',
+  'x-icon',
+  'x-input',
+  'x-lightbox',
+  'x-link',
+  'x-masonry',
+  'x-menu',
+  'x-modal',
+  'x-player',
+  'x-popover',
+  'x-progress',
+  'x-radio',
+  'x-router',
+  'x-section',
+  'x-select',
+  'x-side-panel',
+  'x-spinner',
+  'x-status',
+  'x-summary',
+  'x-surface-manager',
+  'x-surface-window',
+  'x-tabs',
+  'x-textarea',
+  'x-toast',
+  'x-tooltip',
+  'x-type',
+  'x-writer',
+  'xtend-doc-page'
+]);
 
 // Loader-local PROD verbosity switch. Supported values: 'true', 'false', 'auto'.
 const verbose_mode = 'auto';
 
 const loadedTags = new Set();
 const loaderMeasurements = [];
+const styleRegistryRecords = new Map();
+const adoptedStyleSheetsByKey = new Map();
 let loaderMeasurementCounter = 0;
 let loaderVerboseRuntimeEnabled = readLoaderVerbosePreference();
 let activeManifest = {};
+let runtimeStylesInitialized = false;
+const loaderStyleNonce = readCurrentScriptNonce();
 
 function normalizeLoaderVerboseMode(mode) {
   const normalized = String(mode || '').trim().toLowerCase();
@@ -147,7 +197,470 @@ function loaderVerboseWarn(...args) {
   }
 }
 
+function readCurrentScriptNonce() {
+  if (typeof document === 'undefined' || !document.currentScript) return '';
+  const script = document.currentScript;
+  return script.nonce || (typeof script.getAttribute === 'function' ? script.getAttribute('nonce') : '') || '';
+}
+
+function sanitizeStyleKey(key) {
+  return String(key || '').trim().replace(/[^a-z0-9_.:-]/gi, '-').replace(/-+/g, '-') || 'style';
+}
+
+function normalizeStyleCss(cssText) {
+  return String(cssText || '').trim();
+}
+
+function createRuntimeCustomElementHideCss() {
+  return XTEND_RUNTIME_CUSTOM_ELEMENT_TAGS
+    .map((tag) => `${tag}:not(:defined):not([data-xtend-skeleton])`)
+    .join(',\n');
+}
+
+function createRuntimeCriticalCss() {
+  const hiddenSelectors = createRuntimeCustomElementHideCss();
+  return `
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --info-color: #17a2b8;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --spacing-small: 0.5em;
+  --spacing-medium: 1em;
+  --spacing-large: 2em;
+  --font-size-small: 0.875rem;
+  --font-size-medium: 1rem;
+  --font-size-large: 1.25rem;
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-dark: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --border-radius: 4px;
+  --padding: 0.5em 1em;
+  --focus-outline: 2px solid #0056b3;
+  --form-background: #ffffff;
+}
+
+[data-theme="dark"] {
+  --primary-color: #0d6efd;
+  --secondary-color: #adb5bd;
+  --info-color: #17a2b8;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --form-background: #1e1e1e;
+  --shadow-light: var(--shadow-dark);
+  --card-bg: #1e1e1e;
+  --card-text: #ffffff;
+  --section-bg: #1e1e1e;
+  --primary-color-hover: #0a58ca;
+}
+
+html {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+img,
+video,
+canvas,
+iframe,
+object,
+embed {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+main {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  max-width: var(--xtend-main-max-width, none);
+  margin: var(--xtend-main-margin, 0);
+  padding: var(--xtend-main-padding, 0);
+}
+
+section {
+  box-sizing: border-box;
+  min-width: 0;
+  margin-block-end: var(--xtend-section-margin-block-end, 0);
+}
+
+body[xt-ui-effects~="fade-in"],
+body[data-xt-ui-effects~="fade-in"] {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity var(--xt-ui-effects-fade-duration, 0.5s) ease;
+}
+
+body[xt-ui-effects~="fade-in"][data-xt-ui-effects-ready="true"],
+body[data-xt-ui-effects~="fade-in"][data-xt-ui-effects-ready="true"],
+body[data-xt-ui-effects-state="ready"] {
+  visibility: visible;
+  opacity: 1;
+}
+
+@keyframes xtend-skeleton-shimmer {
+  0% {
+    background-position: 160% 0;
+  }
+  100% {
+    background-position: -160% 0;
+  }
+}
+
+[data-xtend-skeleton]:not(:defined) {
+  display: block;
+  position: relative;
+  min-width: 0;
+  min-height: var(--xtend-skeleton-min-height, 4rem);
+  overflow: hidden;
+  contain: layout paint;
+  pointer-events: none;
+  color: transparent !important;
+  border-radius: var(--xtend-skeleton-radius, 8px);
+  background:
+    linear-gradient(
+      90deg,
+      var(--xtend-skeleton-bg, rgba(148, 163, 184, 0.16)) 0%,
+      var(--xtend-skeleton-highlight, rgba(255, 255, 255, 0.72)) 48%,
+      var(--xtend-skeleton-bg, rgba(148, 163, 184, 0.16)) 100%
+    );
+  background-size: 220% 100%;
+  animation: xtend-skeleton-shimmer var(--xtend-skeleton-speed, 1.1s) ease-in-out infinite;
+}
+
+[data-xtend-skeleton]:not(:defined) > * {
+  visibility: hidden !important;
+}
+
+[data-xtend-skeleton="inline"]:not(:defined) {
+  display: inline-block;
+  min-width: var(--xtend-skeleton-width, 7rem);
+  min-height: var(--xtend-skeleton-min-height, 2.25rem);
+  vertical-align: middle;
+}
+
+${hiddenSelectors} {
+  visibility: hidden;
+}
+
+[data-xtend-skeleton-active="true"] > :not([data-xtend-skeleton-loader]) {
+  visibility: hidden;
+}
+
+[data-xtend-skeleton-loader] {
+  display: grid;
+  gap: var(--xtend-skeleton-gap, 0.68rem);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: var(--xtend-skeleton-padding, 1rem);
+  border-radius: var(--xtend-skeleton-radius, 8px);
+  background: var(--xtend-skeleton-surface, rgba(148, 163, 184, 0.12));
+  overflow: hidden;
+  contain: layout paint;
+}
+
+[data-xtend-skeleton-line] {
+  display: block;
+  height: 0.82rem;
+  max-width: 100%;
+  border-radius: 999px;
+  background: var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[xt-ui-effects~="fade-in"],
+  body[data-xt-ui-effects~="fade-in"],
+  [data-xtend-skeleton]:not(:defined) {
+    transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+}
+`.trim();
+}
+
+function canUseConstructableStylesheets(root = document) {
+  return Boolean(
+    root &&
+    'adoptedStyleSheets' in root &&
+    typeof CSSStyleSheet !== 'undefined' &&
+    CSSStyleSheet.prototype &&
+    typeof CSSStyleSheet.prototype.replaceSync === 'function'
+  );
+}
+
+function resolveStyleHost() {
+  if (typeof document === 'undefined') return null;
+  return document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+}
+
+function isStandardThemeStylesheetHref(href) {
+  const raw = String(href || '').trim();
+  if (!raw) return false;
+  try {
+    const url = new URL(raw, document.baseURI);
+    return url.pathname.split('/').pop() === STANDARD_THEME_STYLESHEET;
+  } catch (_) {
+    return raw.split('?')[0].split('#')[0].endsWith(STANDARD_THEME_STYLESHEET);
+  }
+}
+
+function findStandardThemeStylesheet() {
+  if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return null;
+  return Array.from(document.querySelectorAll('link[rel~="stylesheet"]'))
+    .find((link) => isStandardThemeStylesheetHref(link.getAttribute('href') || link.href)) || null;
+}
+
+function getThemeStylesheetState() {
+  const link = findStandardThemeStylesheet();
+  return {
+    schema: STYLE_REGISTRY_CONTRACT,
+    standardFileName: STANDARD_THEME_STYLESHEET,
+    present: Boolean(link),
+    href: link ? (link.getAttribute('href') || link.href || '') : '',
+    role: link ? 'optional-host-theme' : 'runtime-critical-only'
+  };
+}
+
+function markRuntimeStylesReady(record) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const themeState = getThemeStylesheetState();
+    document.documentElement.setAttribute('data-xtend-runtime-styles', 'ready');
+    document.documentElement.setAttribute('data-xtend-theme-stylesheet', themeState.present ? 'external' : 'runtime');
+    if (record && record.mode) {
+      document.documentElement.setAttribute('data-xtend-runtime-styles-mode', record.mode);
+    }
+  }
+}
+
+function ensureDocumentStyle(key, cssText, options = {}) {
+  if (typeof document === 'undefined') return null;
+  const css = normalizeStyleCss(cssText);
+  if (!css) return null;
+
+  const normalizedKey = sanitizeStyleKey(key);
+  const id = options.id || `xtend-style-${normalizedKey}`;
+  const preferStyleElement = options.strategy === 'style';
+
+  if (!preferStyleElement && canUseConstructableStylesheets(document)) {
+    try {
+      let sheet = adoptedStyleSheetsByKey.get(id);
+      const createdSheet = !sheet;
+      if (!sheet) {
+        sheet = new CSSStyleSheet();
+        adoptedStyleSheetsByKey.set(id, sheet);
+      }
+      if (createdSheet || !styleRegistryRecords.has(normalizedKey) || styleRegistryRecords.get(normalizedKey).cssText !== css) {
+        sheet.replaceSync(css);
+      }
+      if (!document.adoptedStyleSheets.includes(sheet)) {
+        document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+      }
+      const record = {
+        schema: STYLE_REGISTRY_CONTRACT,
+        key: normalizedKey,
+        id,
+        mode: 'adoptedStyleSheet',
+        cssText: css,
+        sheet,
+        source: options.source || 'xtend-loader'
+      };
+      styleRegistryRecords.set(normalizedKey, record);
+      return record;
+    } catch (error) {
+      loaderVerboseWarn('XTend StyleRegistry: Constructable Stylesheet fallback aktiviert.', error);
+    }
+  }
+
+  const host = resolveStyleHost();
+  if (!host || typeof document.createElement !== 'function') return null;
+
+  let style = document.getElementById(id);
+  if (!style) {
+    style = document.createElement('style');
+    style.id = id;
+    style.setAttribute('data-xtend-style-registry', STYLE_REGISTRY_CONTRACT);
+    style.setAttribute('data-xtend-style-key', normalizedKey);
+    if (loaderStyleNonce) style.setAttribute('nonce', loaderStyleNonce);
+    host.appendChild(style);
+  }
+  if (style.textContent !== css) {
+    style.textContent = css;
+  }
+
+  const record = {
+    schema: STYLE_REGISTRY_CONTRACT,
+    key: normalizedKey,
+    id,
+    mode: 'styleElement',
+    cssText: css,
+    element: style,
+    source: options.source || 'xtend-loader'
+  };
+  styleRegistryRecords.set(normalizedKey, record);
+  return record;
+}
+
+function ensureRuntimeStyles(options = {}) {
+  if (runtimeStylesInitialized && !options.force) {
+    return styleRegistryRecords.get(RUNTIME_STYLE_KEY) || null;
+  }
+
+  try {
+    const record = ensureDocumentStyle(RUNTIME_STYLE_KEY, createRuntimeCriticalCss(), {
+      id: RUNTIME_STYLE_ID,
+      source: options.source || 'xtend-loader.runtime',
+      strategy: options.strategy
+    });
+    runtimeStylesInitialized = Boolean(record);
+    if (record) markRuntimeStylesReady(record);
+    return record;
+  } catch (error) {
+    loaderVerboseWarn('XTend StyleRegistry: Runtime-Styles konnten nicht initialisiert werden.', error);
+    return null;
+  }
+}
+
+function defineComponentStyle(tag, cssText, options = {}) {
+  const normalizedTag = normalizeComponentTag(tag);
+  const key = sanitizeStyleKey(options.key || `component:${normalizedTag || 'anonymous'}`);
+  const record = {
+    schema: STYLE_REGISTRY_CONTRACT,
+    key,
+    tag: normalizedTag,
+    cssText: normalizeStyleCss(cssText),
+    source: options.source || normalizedTag || 'component'
+  };
+  styleRegistryRecords.set(key, record);
+  return record;
+}
+
+function resolveRegisteredStyle(styleOrKey) {
+  if (styleOrKey && typeof styleOrKey === 'object' && typeof styleOrKey.cssText === 'string') {
+    return styleOrKey;
+  }
+  if (typeof styleOrKey === 'string' && styleRegistryRecords.has(styleOrKey)) {
+    return styleRegistryRecords.get(styleOrKey);
+  }
+  return {
+    schema: STYLE_REGISTRY_CONTRACT,
+    key: sanitizeStyleKey('inline-style'),
+    cssText: normalizeStyleCss(styleOrKey),
+    source: 'inline'
+  };
+}
+
+function normalizeStyleRoot(root) {
+  if (root && typeof root === 'object' && (root.nodeType === 9 || root.nodeType === 11 || 'adoptedStyleSheets' in root)) return root;
+  if (root && root.shadowRoot) return root.shadowRoot;
+  if (root && root.ownerDocument) return root.ownerDocument;
+  return typeof document !== 'undefined' ? document : null;
+}
+
+function adoptStyle(root, styleOrKey, options = {}) {
+  const target = normalizeStyleRoot(root);
+  const sourceRecord = resolveRegisteredStyle(styleOrKey);
+  const css = normalizeStyleCss(sourceRecord.cssText);
+  if (!target || !css) return null;
+
+  const key = sanitizeStyleKey(options.key || sourceRecord.key || 'adopted-style');
+  const id = options.id || `xtend-adopted-${key}`;
+
+  if (canUseConstructableStylesheets(target) && options.strategy !== 'style') {
+    let sheet = adoptedStyleSheetsByKey.get(id);
+    if (!sheet) {
+      sheet = new CSSStyleSheet();
+      adoptedStyleSheetsByKey.set(id, sheet);
+    }
+    sheet.replaceSync(css);
+    if (!target.adoptedStyleSheets.includes(sheet)) {
+      target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
+    }
+    return {
+      schema: STYLE_REGISTRY_CONTRACT,
+      key,
+      id,
+      mode: 'adoptedStyleSheet',
+      sheet,
+      target,
+      source: options.source || sourceRecord.source || 'xtend-style-registry'
+    };
+  }
+
+  const appendTarget = target.nodeType === 9 ? resolveStyleHost() : target;
+  const ownerDocument = target.ownerDocument || (target.nodeType === 9 ? target : document);
+  if (!ownerDocument || typeof ownerDocument.createElement !== 'function') return null;
+  if (!appendTarget || typeof appendTarget.appendChild !== 'function') return null;
+  let style = typeof appendTarget.querySelector === 'function'
+    ? appendTarget.querySelector(`[data-xtend-adopted-style="${id}"]`)
+    : null;
+  if (!style) {
+    style = ownerDocument.createElement('style');
+    style.setAttribute('data-xtend-style-registry', STYLE_REGISTRY_CONTRACT);
+    style.setAttribute('data-xtend-adopted-style', id);
+    if (loaderStyleNonce) style.setAttribute('nonce', loaderStyleNonce);
+    appendTarget.appendChild(style);
+  }
+  if (style.textContent !== css) style.textContent = css;
+  return {
+    schema: STYLE_REGISTRY_CONTRACT,
+    key,
+    id,
+    mode: 'styleElement',
+    element: style,
+    target: appendTarget,
+    source: options.source || sourceRecord.source || 'xtend-style-registry'
+  };
+}
+
+function getRegisteredStyle(key) {
+  return styleRegistryRecords.get(sanitizeStyleKey(key)) || null;
+}
+
+function listRegisteredStyles() {
+  return Array.from(styleRegistryRecords.values()).map((record) => ({
+    schema: record.schema,
+    key: record.key,
+    id: record.id || '',
+    mode: record.mode || 'registered',
+    tag: record.tag || '',
+    source: record.source || ''
+  }));
+}
+
 async function initiateXTend(options = {}) {
+  ensureRuntimeStyles({ source: 'loader.boot' });
   const loaderScript = resolveLoaderScript();
   const uiEffectsInput = resolveLoaderUiEffectsInput(options, loaderScript);
   let uiEffectsController = null;
@@ -684,6 +1197,7 @@ function applySkeletonLineStyle(line, index, total) {
 }
 
 function createSkeletonLoader(options = {}) {
+  ensureRuntimeStyles({ source: 'skeleton-loader' });
   const normalized = normalizeSkeletonLoaderOptions(options);
   const skeleton = document.createElement('div');
   skeleton.setAttribute('data-xtend-skeleton-loader', '');
@@ -769,6 +1283,21 @@ const SkeletonLoader = Object.freeze({
   create: createSkeletonLoader,
   show: showSkeleton,
   hide: hideSkeleton
+});
+
+const XTendStyleRegistry = Object.freeze({
+  schema: STYLE_REGISTRY_CONTRACT,
+  runtimeStylesContract: RUNTIME_STYLES_CONTRACT,
+  runtimeStyleKey: RUNTIME_STYLE_KEY,
+  standardThemeStylesheet: STANDARD_THEME_STYLESHEET,
+  ensureRuntimeStyles,
+  ensureDocumentStyle,
+  defineComponentStyle,
+  adopt: adoptStyle,
+  adoptStyle,
+  get: getRegisteredStyle,
+  getThemeStylesheetState,
+  list: listRegisteredStyles
 });
 
 async function ensureComponent(tag, options = {}) {
@@ -1122,6 +1651,10 @@ window.XTendLoader = Object.freeze({
   loaderPolicy: LOADER_POLICY_CONTRACT,
   manifestPolicy: MANIFEST_POLICY_CONTRACT,
   importPolicy: IMPORT_POLICY_CONTRACT,
+  styleRegistry: XTendStyleRegistry,
+  styles: XTendStyleRegistry,
+  styleRegistryContract: STYLE_REGISTRY_CONTRACT,
+  runtimeStylesContract: RUNTIME_STYLES_CONTRACT,
   skeletonLoader: SkeletonLoader,
   skeletonLoaderContract: SKELETON_LOADER_CONTRACT,
   verbose: configureLoaderVerbose,
@@ -1131,6 +1664,10 @@ window.XTendLoader = Object.freeze({
   getVerboseMode: getLoaderVerboseMode,
   getVerboseState: getLoaderVerboseState,
   isVerbose: isLoaderVerboseEnabled,
+  ensureRuntimeStyles,
+  defineComponentStyle,
+  adoptStyle,
+  getThemeStylesheetState,
   createSkeleton: createSkeletonLoader,
   showSkeleton,
   hideSkeleton,
@@ -1139,7 +1676,9 @@ window.XTendLoader = Object.freeze({
   initiateXTend
 });
 
+window.XTendStyleRegistry = XTendStyleRegistry;
 window.XTendSkeletonLoader = SkeletonLoader;
+ensureRuntimeStyles({ source: 'loader.evaluate' });
 
 if (!window.__XTendLoaderBootPromise) {
   window.__XTendLoaderBootPromise = initiateXTend();

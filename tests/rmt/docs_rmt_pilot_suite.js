@@ -276,6 +276,11 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(pageLoader.includes('loadDocsParsedownContent'), 'Docs page loader lazy-loads Parsedown payloads per route');
   context.assert(pageLoader.includes('xtend.loader.skeleton-loader.v1'), 'Docs page loader records the native SkeletonLoader contract');
   context.assert(xtendLoader.includes('SKELETON_LOADER_CONTRACT'), 'XTend loader exposes the native SkeletonLoader contract');
+  context.assert(xtendLoader.includes('STYLE_REGISTRY_CONTRACT'), 'XTend loader exposes the native StyleRegistry contract');
+  context.assert(xtendLoader.includes('createRuntimeCriticalCss'), 'XTend loader owns runtime-critical CSS without requiring xtend.css');
+  context.assert(xtendLoader.includes('STANDARD_THEME_STYLESHEET'), 'XTend loader treats xtend.css as the optional standard theme stylesheet');
+  context.assert(xtendLoader.includes("ensureRuntimeStyles({ source: 'loader.evaluate' })"), 'XTend loader initializes runtime styles before boot');
+  context.assert(xtendLoader.includes('window.XTendStyleRegistry'), 'XTend loader publishes the StyleRegistry namespace');
   context.assert(xtendLoader.includes('showSkeleton'), 'XTend loader exposes a native showSkeleton API');
   context.assert(xrouterSource.includes('xrouter-skeleton-shown'), 'XRouter emits route skeleton lifecycle events');
   context.assert(xrouterSource.includes('window.XTendLoader.ensureComponent'), 'XRouter can lazy-load route components through the framework loader');

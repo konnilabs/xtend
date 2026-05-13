@@ -28,7 +28,6 @@ Lege im Projekt eine HTML-Datei an, zum Beispiel `quick-start.html`:
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="xtend-preload" content="x-theme,x-section,x-button">
   <title>XTend Quick Start</title>
-  <link rel="stylesheet" href="/xtend.css">
   <script
     type="module"
     src="/xtend-loader.js"
@@ -55,11 +54,14 @@ Danach oeffnest du `http://127.0.0.1:4173/quick-start.html`.
 
 - `xtend-loader.js` ist der kanonische lokale Loader.
 - `components/manifest.json` ist die lokale Component Registry.
+- Die Loader-StyleRegistry bringt Runtime-Critical CSS fuer Tokens, Skeletons und FOUC-Schutz selbst mit.
 - `meta name="xtend-preload"` laedt die kritischen Komponenten frueh.
 - `x-theme` initialisiert Theme-Unterstuetzung.
 - `x-section` und `x-button` sind normale XTend Web Components.
 
 Die App bleibt Vanilla HTML. XTend uebernimmt nur Loader, Komponenten, Styling- und Runtime-Kontrakte.
+
+`/xtend.css` ist optional. Der Dateiname bleibt der kanonische XTend-Standard fuer Host-Theming und gezielte 3rd-Party-Anpassungen, ist aber nicht noetig, damit der Loader ohne ungestyltes Pop-In bootet.
 
 ## Optional: Routing
 

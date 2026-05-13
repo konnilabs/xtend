@@ -27,7 +27,7 @@ Der Pilot ist bewusst host-neutral: `docs/index.php` bleibt Parser-Host, waehren
 
 Ab `WP-E13-10` besitzt derselbe Pfad zusaetzlich die Production-Hardening-Schicht `xtend.epic13.docs-rmt-production-hardening.v1`. Sie stabilisiert `docs.slot.content`, `docs.slot.rich-content`, `docs.slot.media` und `docs.slot.diagnostics`, sodass Parsedown-HTML, Rich HTML ueber `docs.rich-content.prepare`, XPlayer-Tutorials ueber `docs.media.lazy` und Diagnostics getrennt scheduled werden koennen. Der Gate lautet `node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json`.
 
-Ab der Skeleton-Haertung nutzt der Pilot den nativen `xtend.loader.skeleton-loader.v1`: `xtend.css` deckt undefinierte XTend Custom Elements mit deklarativen Skeletons oder verstecktem Light DOM ab, XRouter zeigt pro Route einen Skeleton-Fallback waehrend Import und Hydration, und `xtend-doc-page` setzt denselben Loader fuer den Parsedown-Content-Slot ein. Dadurch bleibt die App Shell sichtbar und stabil, waehrend der schwere HTML-Commit erst nach dem ersten Paint erfolgt.
+Ab der Skeleton-Haertung nutzt der Pilot den nativen `xtend.loader.skeleton-loader.v1` und die `xtend.loader.style-registry.v1`: Die Loader-Registry deckt undefinierte XTend Custom Elements mit deklarativen Skeletons oder verstecktem Light DOM ab, XRouter zeigt pro Route einen Skeleton-Fallback waehrend Import und Hydration, und `xtend-doc-page` setzt denselben Loader fuer den Parsedown-Content-Slot ein. Dadurch bleibt die App Shell sichtbar und stabil, waehrend der schwere HTML-Commit erst nach dem ersten Paint erfolgt. `xtend.css` bleibt als Standard-Dateiname fuer Host-Theming optional nutzbar, ist fuer diesen FOUC-Schutz aber keine harte Voraussetzung mehr.
 
 ## Aktueller Docs-App-Fluss
 
