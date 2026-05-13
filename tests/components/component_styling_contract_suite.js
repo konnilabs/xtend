@@ -101,7 +101,7 @@ function runComponentStylingContractSuite(options = {}) {
   context.assert(STYLING_REQUIRED_THEMES.includes('high-contrast'), 'Required themes include high-contrast');
   context.assert(STYLING_REQUIRED_PARTS.includes('control'), 'Required parts include control');
   context.assert(STYLING_MOTION_POLICIES.includes('reduced'), 'Motion policies include reduced');
-  context.assert(packageManifest.exports['./builder/typing/component-styling-contract'] === './xtend-builder/typing/component-styling-contract.js', 'Package exports Component Styling Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/component-styling-contract'] === 'string' ? packageManifest.exports['./builder/typing/component-styling-contract'] : packageManifest.exports['./builder/typing/component-styling-contract'] && packageManifest.exports['./builder/typing/component-styling-contract'].default) === './xtend-builder/typing/component-styling-contract.js', 'Package exports Component Styling Contract module');
   context.assert(packageManifest.scripts['test:component-styling-contract'] === 'node scripts/run_xtend_tests.js component-styling-contract', 'Package exposes Component Styling Contract test script');
   context.assert(metadata && metadata.schema === COMPONENT_STYLING_CONTRACT_SCHEMA, 'Package metadata exposes Component Styling Contract schema');
   context.assert(metadata.reportSchema === COMPONENT_STYLING_REPORT_SCHEMA, 'Package metadata exposes Component Styling report schema');

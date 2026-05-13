@@ -1,0 +1,27 @@
+export * from './rmt-tooling-public-types';
+import type { RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const createRmtVNextRemoteSecurityAdapter: RmtToolingFactory;
+export declare const createRmtVNextRemoteSecurityReport: RmtToolingFactory;
+export declare const REMOTE_SECURITY_ALLOWED_INTEGRITY_ALGORITHMS: RmtToolingConstant;
+export declare const REMOTE_SECURITY_CAPABILITY_ESCALATION_CODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_CAPABILITY_MODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_CSP_MISSING_CODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_DEGRADATION_BLOCKED_CODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_EVENT_PAYLOAD_MISSING_CODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_INTEGRITY_MISSING_CODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_ORIGIN_NOT_ALLOWED_CODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_SANDBOX_CONFLICT_CODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_TRUST_BOUNDARY: RmtToolingConstant;
+export declare const REMOTE_SECURITY_TRUST_BOUNDARY_MISSING_CODE: RmtToolingConstant;
+export declare const REMOTE_SECURITY_TRUST_BOUNDARY_UNKNOWN_CODE: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_CONTRACT_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_POLICY_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_POSTURE_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_WORKPACKAGE: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_SECURITY_WP_PATH: RmtToolingConstant;
+export declare const serializeRemoteSecurityReport: RmtToolingFunction;

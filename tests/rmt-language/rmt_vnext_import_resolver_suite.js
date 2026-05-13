@@ -107,7 +107,7 @@ function runRmtVNextImportResolverSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_IMPORT_RESOLVER_SUITE_PATH, 'package metadata points to import resolver suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-imports --json', 'package metadata declares import resolver local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_IMPORT_RESOLVER_PACKAGE_SCRIPT, 'package metadata declares import resolver package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-import-resolver'] === './tools/rmt-language/vnext-import-resolver.js', 'package exports vNext import resolver contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-import-resolver'] === 'string' ? packageManifest.exports['./rmt-language/vnext-import-resolver'] : packageManifest.exports['./rmt-language/vnext-import-resolver'] && packageManifest.exports['./rmt-language/vnext-import-resolver'].default) === './tools/rmt-language/vnext-import-resolver.js', 'package exports vNext import resolver contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-imports'] === 'node scripts/run_xtend_tests.js rmt-vnext-imports', 'package exposes vNext import resolver script');
   context.assert(runner.includes("id: 'rmt-vnext-imports'"), 'test runner exposes rmt-vnext-imports suite');
   context.assert(epic.includes('| `WP-E15-11` | P1 | completed | WS3 |'), 'Epic marks WP-E15-11 completed');

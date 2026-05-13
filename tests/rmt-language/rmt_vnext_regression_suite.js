@@ -70,7 +70,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.browserSmoke === RMT_VNEXT_BROWSER_SMOKE_FIXTURE_PATH, 'package metadata points to browser smoke fixture');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-regression --json', 'package metadata declares vNext regression gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REGRESSION_PACKAGE_SCRIPT, 'package metadata declares package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-regression'] === './tools/rmt-language/vnext-regression.js', 'package exports vNext regression adapter');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-regression'] === 'string' ? packageManifest.exports['./rmt-language/vnext-regression'] : packageManifest.exports['./rmt-language/vnext-regression'] && packageManifest.exports['./rmt-language/vnext-regression'].default) === './tools/rmt-language/vnext-regression.js', 'package exports vNext regression adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-regression'] === 'node scripts/run_xtend_tests.js rmt-vnext-regression', 'package exposes vNext regression script');
   context.assert(runner.includes("id: 'rmt-vnext-regression'"), 'test runner exposes rmt-vnext-regression suite');
   context.assert(epic.includes('| `WP-E15-17` | P2 | completed | WS6 |'), 'Epic marks WP-E15-17 completed');

@@ -171,7 +171,7 @@ function runComponentLongTailMigrationSuite(options = {}) {
   context.assertIncludes(registry, COMPONENT_LONG_TAIL_MIGRATION_DOC_PATH, 'Reference registry links Long-Tail Migration docs');
   context.assertIncludes(registry, COMPONENT_LONG_TAIL_MIGRATION_SUITE_PATH, 'Reference registry links Long-Tail Migration suite');
 
-  context.assert(packageManifest.exports['./catalog/component-long-tail-migration'] === './catalog/component-long-tail-migration.js', 'Package exports Component Long-Tail Migration module');
+  context.assert((packageManifest.exports['./catalog/component-long-tail-migration'] === './catalog/component-long-tail-migration.js' || (packageManifest.exports['./catalog/component-long-tail-migration'] && packageManifest.exports['./catalog/component-long-tail-migration'].default === './catalog/component-long-tail-migration.js')), 'Package exports Component Long-Tail Migration module');
   context.assert(packageManifest.scripts['test:component-long-tail-migration'] === 'node scripts/run_xtend_tests.js component-long-tail-migration', 'Package exposes Component Long-Tail Migration test script');
   context.assert(metadata && metadata.schema === COMPONENT_LONG_TAIL_MIGRATION_SCHEMA, 'Package metadata exposes Long-Tail Migration schema');
   context.assert(metadata && metadata.entrySchema === COMPONENT_LONG_TAIL_MIGRATION_ENTRY_SCHEMA, 'Package metadata exposes Long-Tail Migration entry schema');

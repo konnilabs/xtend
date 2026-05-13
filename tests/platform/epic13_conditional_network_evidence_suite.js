@@ -140,7 +140,7 @@ function runEpic13ConditionalNetworkEvidenceSuite(options = {}) {
   context.assert(plan.evidenceRecords.every((record) => record.publishBlocking === true), 'Every evidence record blocks publish until accepted');
 
   context.assert(packageManifest.private === true, 'Package remains private for network evidence');
-  context.assert(packageManifest.exports['./catalog/epic13-conditional-network-evidence'] === './catalog/epic13-conditional-network-evidence.js', 'Package exports network evidence module');
+  context.assert((packageManifest.exports['./catalog/epic13-conditional-network-evidence'] === './catalog/epic13-conditional-network-evidence.js' || (packageManifest.exports['./catalog/epic13-conditional-network-evidence'] && packageManifest.exports['./catalog/epic13-conditional-network-evidence'].default === './catalog/epic13-conditional-network-evidence.js')), 'Package exports network evidence module');
   context.assert(packageManifest.scripts['test:epic13-conditional-network-evidence'] === 'node scripts/run_xtend_tests.js epic13-conditional-network-evidence', 'Package exposes network evidence script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_CONDITIONAL_NETWORK_EVIDENCE_PACKAGE_SCRIPT), 'Package release gates include network evidence script');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_CONDITIONAL_NETWORK_EVIDENCE_PACKAGE_SCRIPT), 'Release checklist metadata includes network evidence script');

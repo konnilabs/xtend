@@ -155,7 +155,7 @@ function runEpic13HydrationPerformanceClosureSuite(options = {}) {
   context.assert(decision && decision.ownerDecisionRequired === false && decision.publishBlocking === false, 'Hydration decision removes owner residual and publish blocker');
 
   context.assert(packageManifest.private === true, 'Package remains private for hydration closure');
-  context.assert(packageManifest.exports['./catalog/epic13-hydration-performance-closure'] === './catalog/epic13-hydration-performance-closure.js', 'Package exports hydration closure module');
+  context.assert((packageManifest.exports['./catalog/epic13-hydration-performance-closure'] === './catalog/epic13-hydration-performance-closure.js' || (packageManifest.exports['./catalog/epic13-hydration-performance-closure'] && packageManifest.exports['./catalog/epic13-hydration-performance-closure'].default === './catalog/epic13-hydration-performance-closure.js')), 'Package exports hydration closure module');
   context.assert(packageManifest.scripts['test:epic13-hydration-performance-closure'] === 'node scripts/run_xtend_tests.js epic13-hydration-performance-closure', 'Package exposes hydration closure script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_HYDRATION_PERFORMANCE_CLOSURE_PACKAGE_SCRIPT), 'Package release gates include hydration closure script');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_HYDRATION_PERFORMANCE_CLOSURE_PACKAGE_SCRIPT), 'Release checklist metadata includes hydration closure script');

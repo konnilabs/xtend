@@ -1,0 +1,22 @@
+export * from '../rmt-language/rmt-tooling-public-types';
+import type { RmtHover, RmtJsonRpcMessage, RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from '../rmt-language/rmt-tooling-public-types';
+
+export declare const createJsonRpcError: RmtToolingFactory;
+export declare const createJsonRpcNotification: RmtToolingFactory;
+export declare const createJsonRpcResponse: RmtToolingFactory;
+export declare const encodeProtocolMessage: RmtToolingFunction<string>;
+export declare const LSP_COMPLETION_KIND: RmtToolingConstant;
+export declare const LSP_DIAGNOSTIC_SEVERITY: RmtToolingConstant;
+export declare const LSP_SYMBOL_KIND: RmtToolingConstant;
+export declare const parseProtocolMessages: RmtToolingFunction<RmtJsonRpcMessage[]>;
+export declare const RMT_LANGUAGE_SERVER_PROTOCOL_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_LANGUAGE_SERVER_PROTOCOL_SCHEMA: RmtToolingConstant;
+export declare const RMT_LANGUAGE_SERVER_WORKPACKAGE: RmtToolingConstant;
+export declare const sanitizePosition: RmtToolingFunction;
+export declare const sanitizeRange: RmtToolingFunction;
+export declare const toLspCodeAction: RmtToolingFunction;
+export declare const toLspCompletionItem: RmtToolingFunction;
+export declare const toLspDiagnostic: RmtToolingFunction;
+export declare const toLspDocumentSymbol: RmtToolingFunction;
+export declare const toLspHover: RmtToolingFunction<RmtHover | null>;
+export declare const toLspLocation: RmtToolingFunction;

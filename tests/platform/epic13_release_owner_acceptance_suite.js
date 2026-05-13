@@ -143,7 +143,7 @@ function runEpic13ReleaseOwnerAcceptanceSuite(options = {}) {
   context.assert(contract.reviewChecklist.every((entry) => OWNER_DECISION_STATES.includes(entry.status)), 'All owner checklist statuses are allowed');
 
   context.assert(packageManifest.private === true, 'Package remains private for owner acceptance');
-  context.assert(packageManifest.exports['./catalog/epic13-release-owner-acceptance'] === './catalog/epic13-release-owner-acceptance.js', 'Package exports owner acceptance module');
+  context.assert((packageManifest.exports['./catalog/epic13-release-owner-acceptance'] === './catalog/epic13-release-owner-acceptance.js' || (packageManifest.exports['./catalog/epic13-release-owner-acceptance'] && packageManifest.exports['./catalog/epic13-release-owner-acceptance'].default === './catalog/epic13-release-owner-acceptance.js')), 'Package exports owner acceptance module');
   context.assert(packageManifest.scripts['test:epic13-release-owner-acceptance'] === 'node scripts/run_xtend_tests.js epic13-release-owner-acceptance', 'Package exposes owner acceptance script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_RELEASE_OWNER_ACCEPTANCE_PACKAGE_SCRIPT), 'Package release gates include owner acceptance script');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_RELEASE_OWNER_ACCEPTANCE_PACKAGE_SCRIPT), 'Release checklist metadata includes owner acceptance script');

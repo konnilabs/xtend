@@ -1,0 +1,23 @@
+export * from './rmt-tooling-public-types';
+import type { RmtLanguageServiceReport, RmtToolingConstant, RmtToolingDiagnostic, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const createDiagnosticSummary: RmtToolingFactory;
+export declare const createRmtLinter: RmtToolingFactory;
+export declare const createRmtRule: RmtToolingFactory;
+export declare const createRuleDiagnostic: RmtToolingFactory;
+export declare const DEFAULT_ALLOWED_TOP_LEVEL_DOMAINS: RmtToolingConstant;
+export declare const DIAGNOSTIC_CATALOG: RmtToolingConstant;
+export declare const getCatalogEntry: RmtToolingFunction;
+export declare const lintRmtSource: RmtToolingFunction<RmtLanguageServiceReport>;
+export declare const normalizeDiagnostic: RmtToolingFunction;
+export declare const RMT_LINTER_DIAGNOSTIC_SCHEMA: RmtToolingConstant;
+export declare const RMT_LINTER_DIAGNOSTICS_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_LINTER_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_LINTER_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_LINTER_RULE_ENGINE_SCHEMA: RmtToolingConstant;
+export declare const RMT_LINTER_RULES_DIR: RmtToolingConstant;
+export declare const RMT_LINTER_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_LINTER_WORKPACKAGE: RmtToolingConstant;
+export declare const SEVERITY_ORDER: RmtToolingConstant;
+export declare const sortDiagnostics: RmtToolingFunction;
+export type RmtLinterDiagnostic = RmtToolingDiagnostic;

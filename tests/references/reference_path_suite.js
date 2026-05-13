@@ -837,23 +837,23 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: '"version": "0.0.0-enterprise-readiness"', message: 'declares enterprise readiness package version' },
       { pattern: '"browser": "./xtend-loader.js"', message: 'declares canonical browser loader' },
       { pattern: '"exports"', message: 'declares package exports map' },
-      { pattern: '"./loader": "./xtend-loader.js"', message: 'exports canonical loader' },
-      { pattern: '"./legacy-loader": "./xtend-dev.js"', message: 'exports legacy loader' },
-      { pattern: '"./api": "./api.js"', message: 'exports API module' },
+      { patterns: ['"./loader": "./xtend-loader.js"', '"./loader": {\n      "types": "./xtend-loader.d.ts",\n      "browser": "./xtend-loader.js",\n      "default": "./xtend-loader.js"\n    }'], message: 'exports canonical loader' },
+      { patterns: ['"./legacy-loader": "./xtend-dev.js"', '"./legacy-loader": {\n      "types": "./xtend-dev.d.ts",\n      "browser": "./xtend-dev.js",\n      "default": "./xtend-dev.js"\n    }'], message: 'exports legacy loader' },
+      { patterns: ['"./api": "./api.js"', '"./api": {\n      "types": "./api.d.ts",\n      "browser": "./api.js",\n      "default": "./api.js"\n    }'], message: 'exports API module' },
       { pattern: '"./manifest": "./components/manifest.json"', message: 'exports default manifest' },
-      { pattern: '"./a11y/screenreader-signals": "./a11y/screenreader-signals.js"', message: 'exports Screenreader signal contract module' },
-      { pattern: '"./a11y/motion-contrast-policy": "./a11y/motion-contrast-policy.js"', message: 'exports Motion and Contrast contract module' },
-      { pattern: '"./fabric": "./fabric/xtend-fabric.js"', message: 'exports Fabric runtime' },
-      { pattern: '"./fabric/rmt-lane-mapping": "./fabric/rmt-lane-mapping.js"', message: 'exports Fabric RMT lane mapping' },
-      { pattern: '"./fabric/hydration-policy": "./fabric/hydration-policy.js"', message: 'exports Fabric hydration policy' },
-      { pattern: '"./catalog/component-catalog-coverage": "./catalog/component-catalog-coverage.js"', message: 'exports Component Catalog Coverage module' },
-      { pattern: '"./catalog/component-regression-priority": "./catalog/component-regression-priority.js"', message: 'exports Component Regression Priority module' },
-      { pattern: '"./catalog/epic10-release-handoff": "./catalog/epic10-release-handoff.js"', message: 'exports Epic 10 Release Handoff module' },
+      { patterns: ['"./a11y/screenreader-signals": "./a11y/screenreader-signals.js"', '"./a11y/screenreader-signals": {\n      "types": "./a11y/screenreader-signals.d.ts",\n      "default": "./a11y/screenreader-signals.js"\n    }'], message: 'exports Screenreader signal contract module' },
+      { patterns: ['"./a11y/motion-contrast-policy": "./a11y/motion-contrast-policy.js"', '"./a11y/motion-contrast-policy": {\n      "types": "./a11y/motion-contrast-policy.d.ts",\n      "default": "./a11y/motion-contrast-policy.js"\n    }'], message: 'exports Motion and Contrast contract module' },
+      { patterns: ['"./fabric": "./fabric/xtend-fabric.js"', '"./fabric": {\n      "types": "./fabric/xtend-fabric.d.ts",\n      "default": "./fabric/xtend-fabric.js"\n    }'], message: 'exports Fabric runtime' },
+      { patterns: ['"./fabric/rmt-lane-mapping": "./fabric/rmt-lane-mapping.js"', '"./fabric/rmt-lane-mapping": {\n      "types": "./fabric/rmt-lane-mapping.d.ts",\n      "default": "./fabric/rmt-lane-mapping.js"\n    }'], message: 'exports Fabric RMT lane mapping' },
+      { patterns: ['"./fabric/hydration-policy": "./fabric/hydration-policy.js"', '"./fabric/hydration-policy": {\n      "types": "./fabric/hydration-policy.d.ts",\n      "default": "./fabric/hydration-policy.js"\n    }'], message: 'exports Fabric hydration policy' },
+      { patterns: ['"./catalog/component-catalog-coverage": "./catalog/component-catalog-coverage.js"', '"./catalog/component-catalog-coverage": {\n      "types": "./catalog/component-catalog-coverage.d.ts",\n      "default": "./catalog/component-catalog-coverage.js"\n    }'], message: 'exports Component Catalog Coverage module' },
+      { patterns: ['"./catalog/component-regression-priority": "./catalog/component-regression-priority.js"', '"./catalog/component-regression-priority": {\n      "types": "./catalog/component-regression-priority.d.ts",\n      "default": "./catalog/component-regression-priority.js"\n    }'], message: 'exports Component Regression Priority module' },
+      { patterns: ['"./catalog/epic10-release-handoff": "./catalog/epic10-release-handoff.js"', '"./catalog/epic10-release-handoff": {\n      "types": "./catalog/epic10-release-handoff.d.ts",\n      "default": "./catalog/epic10-release-handoff.js"\n    }'], message: 'exports Epic 10 Release Handoff module' },
       { pattern: '"./rmt"', message: 'exports RMT runtime entry' },
-      { pattern: '"./rmt/browser": "./xtendrmt/rmt-runtime.browser.js"', message: 'exports RMT browser runtime' },
-      { pattern: '"./security/manifest-import-policy": "./security/manifest-import-policy.js"', message: 'exports Manifest Import policy' },
-      { pattern: '"./security/trusted-dom-policy": "./security/trusted-dom-policy.js"', message: 'exports Trusted DOM policy' },
-      { pattern: '"./security/supply-chain-gate-policy": "./security/supply-chain-gate-policy.js"', message: 'exports Supply-Chain policy' },
+      { patterns: ['"./rmt/browser": "./xtendrmt/rmt-runtime.browser.js"', '"./rmt/browser": {\n      "types": "./xtendrmt/rmt-core.d.ts",\n      "browser": "./xtendrmt/rmt-runtime.browser.js",\n      "default": "./xtendrmt/rmt-runtime.browser.js"\n    }'], message: 'exports RMT browser runtime' },
+      { patterns: ['"./security/manifest-import-policy": "./security/manifest-import-policy.js"', '"./security/manifest-import-policy": {\n      "types": "./security/manifest-import-policy.d.ts",\n      "default": "./security/manifest-import-policy.js"\n    }'], message: 'exports Manifest Import policy' },
+      { patterns: ['"./security/trusted-dom-policy": "./security/trusted-dom-policy.js"', '"./security/trusted-dom-policy": {\n      "types": "./security/trusted-dom-policy.d.ts",\n      "default": "./security/trusted-dom-policy.js"\n    }'], message: 'exports Trusted DOM policy' },
+      { patterns: ['"./security/supply-chain-gate-policy": "./security/supply-chain-gate-policy.js"', '"./security/supply-chain-gate-policy": {\n      "types": "./security/supply-chain-gate-policy.d.ts",\n      "default": "./security/supply-chain-gate-policy.js"\n    }'], message: 'exports Supply-Chain policy' },
       { pattern: '"provenance": true', message: 'prepares npm provenance' },
       { pattern: '"schema": "xtend.package-export.release-strategy.v1"', message: 'declares package export strategy schema' },
       { pattern: '"schema": "xtend.performance.regression-gate.v1"', message: 'declares performance regression gate schema' },
@@ -936,7 +936,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: '"domDiffMode": "dom-structure-and-state-diff"', message: 'declares Visual Snapshots DOM diff mode' },
       { pattern: '"pixelDiffMode": "optional-local-pixel-diff"', message: 'declares Visual Snapshots optional pixel diff mode' },
       { pattern: '"test:visual-snapshots": "node scripts/run_xtend_tests.js visual-snapshots"', message: 'exposes Epic 12 Visual Snapshots test script' },
-      { pattern: '"./catalog/epic12-docs-adoption": "./catalog/epic12-docs-adoption.js"', message: 'exports Epic 12 docs adoption module' },
+      { patterns: ['"./catalog/epic12-docs-adoption": "./catalog/epic12-docs-adoption.js"', '"./catalog/epic12-docs-adoption": {\n      "types": "./catalog/epic12-docs-adoption.d.ts",\n      "default": "./catalog/epic12-docs-adoption.js"\n    }'], message: 'exports Epic 12 docs adoption module' },
       { pattern: '"epic12DocsAdoption"', message: 'declares Epic 12 docs adoption metadata' },
       { pattern: '"schema": "xtend.epic12.docs-adoption.v1"', message: 'declares Epic 12 docs adoption schema' },
       { pattern: '"docs": "docs/rc0-adoption-guide.md"', message: 'declares RC0 Adoption Guide docs path' },
@@ -4905,7 +4905,15 @@ const DEMO_REFERENCE_CONTRACTS = [
 
 function assertContracts(context, content, contracts, prefix) {
   contracts.forEach((contract) => {
-    context.assertIncludes(content, contract.pattern, `${prefix}: ${contract.message}`);
+    const patterns = Array.isArray(contract.patterns) ? contract.patterns : [contract.pattern];
+    if (patterns.length === 1) {
+      context.assertIncludes(content, patterns[0], `${prefix}: ${contract.message}`);
+      return;
+    }
+    context.assert(
+      patterns.some((pattern) => content.includes(pattern)),
+      `${prefix}: ${contract.message}`
+    );
   });
 }
 
@@ -7490,14 +7498,14 @@ function assertComponentCatalogCoverageReference(context, rootDir) {
   context.assert(markdown.includes('| `x-status` | `feedback, stateful` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-status enterprise-ready row');
   context.assert(markdown.includes('| `x-progress` | `feedback, stateful` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-progress enterprise-ready row');
   context.assert(markdown.includes('| `x-utils` | `utility` | `typed-contract-gated` |'), 'Catalog markdown matrix includes x-utils typed-contract-gated row');
-  context.assert(packageManifest.exports['./catalog/component-catalog-coverage'] === './catalog/component-catalog-coverage.js', 'Package exports Component Catalog Coverage module');
+  context.assert((packageManifest.exports['./catalog/component-catalog-coverage'] === './catalog/component-catalog-coverage.js' || (packageManifest.exports['./catalog/component-catalog-coverage'] && packageManifest.exports['./catalog/component-catalog-coverage'].default === './catalog/component-catalog-coverage.js')), 'Package exports Component Catalog Coverage module');
   context.assert(packageManifest.scripts['test:catalog-coverage'] === 'node scripts/run_xtend_tests.js catalog-coverage', 'Package exposes Component Catalog Coverage script');
   context.assert(packageManifest.xtend.componentCatalogCoverage.schema === 'xtend.catalog.component-coverage-matrix.v1', 'Package metadata exposes catalog coverage schema');
   context.assert(packageManifest.xtend.componentPublicTypes.schema === 'xtend.enterprise.er-wp-34.public-component-types.v1', 'Package metadata exposes public component types schema');
   context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 41, 'Package metadata exposes public component type coverage count after SurfaceManager side-panel runtime');
   context.assert(packageManifest.xtend.epic10FormSelectionControls.schema === 'xtend.epic10.form-selection-controls.v1', 'Package metadata exposes form selection controls schema');
   context.assert(packageManifest.xtend.epic10FormFeedbackControls.schema === 'xtend.epic10.form-feedback-controls.v1', 'Package metadata exposes form feedback controls schema');
-  context.assert(packageManifest.exports['./catalog/component-regression-priority'] === './catalog/component-regression-priority.js', 'Package exports Component Regression Priority module');
+  context.assert((packageManifest.exports['./catalog/component-regression-priority'] === './catalog/component-regression-priority.js' || (packageManifest.exports['./catalog/component-regression-priority'] && packageManifest.exports['./catalog/component-regression-priority'].default === './catalog/component-regression-priority.js')), 'Package exports Component Regression Priority module');
   context.assert(packageManifest.scripts['test:regression-priority'] === 'node scripts/run_xtend_tests.js regression-priority', 'Package exposes Component Regression Priority script');
   context.assert(packageManifest.xtend.componentRegressionPriority.schema === 'xtend.catalog.component-regression-priority-plan.v1', 'Package metadata exposes regression priority schema');
 }
@@ -8203,7 +8211,7 @@ function assertEpic10P0ComponentWaveReference(context, rootDir) {
   context.assertIncludes(suiteSource, 'runEpic10P0ComponentWaveSuite', 'P0 component wave suite exports runner');
   context.assertIncludes(runner, "id: 'epic10-p0-component-wave'", 'Test runner registers P0 component wave suite');
   context.assertIncludes(scaffoldConfig, 'componentPlatformP0Wave', 'Scaffold config exposes P0 component wave section');
-  context.assert(packageManifest.exports['./catalog/epic10-p0-component-wave'] === './catalog/epic10-p0-component-wave.js', 'Package exports P0 component wave module');
+  context.assert((packageManifest.exports['./catalog/epic10-p0-component-wave'] === './catalog/epic10-p0-component-wave.js' || (packageManifest.exports['./catalog/epic10-p0-component-wave'] && packageManifest.exports['./catalog/epic10-p0-component-wave'].default === './catalog/epic10-p0-component-wave.js')), 'Package exports P0 component wave module');
   context.assert(packageManifest.scripts['test:epic10-p0-component-wave'] === 'node scripts/run_xtend_tests.js epic10-p0-component-wave', 'Package exposes P0 component wave test script');
   context.assert(metadata && metadata.schema === 'xtend.epic10.p0-component-wave.v1', 'Package metadata exposes P0 component wave schema');
   context.assert(metadata.contract === contractPath, 'Package metadata points at P0 component wave contract');
@@ -8546,7 +8554,7 @@ function assertEpic10ComponentLabRmtInspectorReference(context, rootDir) {
   context.assertIncludes(docsReadme, './component-lab.md', 'Docs README links Component Lab docs');
   context.assertIncludes(runner, "id: 'component-lab-rmt-inspector'", 'Runner registers Component Lab gate');
   context.assertIncludes(scaffoldConfig, 'componentLabRmtInspector', 'Scaffold config exposes Component Lab metadata');
-  context.assert(packageManifest.exports['./builder/preview/component-lab'] === './xtend-builder/preview/component-lab.js', 'Package exports Component Lab module');
+  context.assert((typeof packageManifest.exports['./builder/preview/component-lab'] === 'string' ? packageManifest.exports['./builder/preview/component-lab'] : packageManifest.exports['./builder/preview/component-lab'] && packageManifest.exports['./builder/preview/component-lab'].default) === './xtend-builder/preview/component-lab.js', 'Package exports Component Lab module');
   context.assert(packageManifest.scripts['test:component-lab'] === 'node scripts/run_xtend_tests.js component-lab-rmt-inspector', 'Package exposes Component Lab script');
   context.assert(metadata && metadata.schema === 'xtend.epic10.component-lab-rmt-inspector.v1', 'Package metadata exposes Component Lab schema');
   context.assert(metadata && metadata.status === 'accepted-pilot', 'Package metadata accepts Component Lab pilot');
@@ -8609,7 +8617,7 @@ function assertEpic10PlatformGatesReference(context, rootDir) {
   context.assertIncludes(docsMenu, 'epic10-platform-gates', 'Docs menu links Epic 10 Platform Gates');
   context.assertIncludes(runner, "id: 'epic10-platform-gates'", 'Runner registers Epic 10 Platform Gates suite');
   context.assertIncludes(scaffoldConfig, 'epic10PlatformGates', 'Scaffold config exposes Epic 10 Platform Gates');
-  context.assert(packageManifest.exports['./catalog/epic10-platform-gates'] === './catalog/epic10-platform-gates.js', 'Package exports Epic 10 Platform Gates module');
+  context.assert((packageManifest.exports['./catalog/epic10-platform-gates'] === './catalog/epic10-platform-gates.js' || (packageManifest.exports['./catalog/epic10-platform-gates'] && packageManifest.exports['./catalog/epic10-platform-gates'].default === './catalog/epic10-platform-gates.js')), 'Package exports Epic 10 Platform Gates module');
   context.assert(packageManifest.scripts['test:epic10-platform-gates'] === 'node scripts/run_xtend_tests.js epic10-platform-gates', 'Package exposes Epic 10 Platform Gates script');
   context.assert(metadata && metadata.schema === 'xtend.epic10.platform-gates.v1', 'Package metadata exposes Epic 10 Platform Gates schema');
   context.assert(metadata && metadata.workpackage === 'WP-E10-15', 'Package metadata exposes WP-E10-15 owner');
@@ -8692,7 +8700,7 @@ function assertEpic10ReleaseHandoffReference(context, rootDir) {
   context.assertIncludes(docsMenu, 'rmt-first-xtend-apps', 'Docs menu links RMT-first XTend Apps');
   context.assertIncludes(runner, "id: 'epic10-release-handoff'", 'Runner registers Epic 10 Release Handoff suite');
   context.assertIncludes(scaffoldConfig, 'epic10ReleaseHandoff', 'Scaffold config exposes Epic 10 Release Handoff');
-  context.assert(packageManifest.exports['./catalog/epic10-release-handoff'] === './catalog/epic10-release-handoff.js', 'Package exports Epic 10 Release Handoff module');
+  context.assert((packageManifest.exports['./catalog/epic10-release-handoff'] === './catalog/epic10-release-handoff.js' || (packageManifest.exports['./catalog/epic10-release-handoff'] && packageManifest.exports['./catalog/epic10-release-handoff'].default === './catalog/epic10-release-handoff.js')), 'Package exports Epic 10 Release Handoff module');
   context.assert(packageManifest.scripts['test:epic10-release-handoff'] === 'node scripts/run_xtend_tests.js epic10-release-handoff', 'Package exposes Epic 10 Release Handoff script');
   context.assert(metadata && metadata.schema === 'xtend.epic10.release-handoff.v1', 'Package metadata exposes Epic 10 Release Handoff schema');
   context.assert(metadata && metadata.status === 'accepted-release-handoff', 'Package metadata accepts Epic 10 Release Handoff');
@@ -9299,16 +9307,17 @@ function assertEpic11BacklogAndUxMaturityReference(context, rootDir) {
   context.assertIncludes(scaffoldConfig, 'feedbackStatusUxMaturity', 'Scaffold config exposes Feedback Status UX Contract');
   context.assertIncludes(scaffoldConfig, 'navigationRoutingUxMaturity', 'Scaffold config exposes Navigation Routing UX Contract');
   context.assertIncludes(scaffoldConfig, 'overlayInteractionUxMaturity', 'Scaffold config exposes Overlay Interaction UX Contract');
-  context.assert(packageManifest.exports['./builder/typing/component-shell-contract'] === './xtend-builder/typing/component-shell-contract.js', 'Package exports Component Shell Contract module');
-  context.assert(packageManifest.exports['./builder/typing/component-styling-contract'] === './xtend-builder/typing/component-styling-contract.js', 'Package exports Component Styling Contract module');
-  context.assert(packageManifest.exports['./a11y/runtime-a11y-contract'] === './a11y/runtime-a11y-contract.js', 'Package exports Runtime A11y Contract module');
-  context.assert(packageManifest.exports['./builder/performance/component-ux-performance-contract'] === './xtend-builder/performance/component-ux-performance-contract.js', 'Package exports Component UX Performance Contract module');
-  context.assert(packageManifest.exports['./builder/typing/component-network-contract'] === './xtend-builder/typing/component-network-contract.js', 'Package exports Component Network Contract module');
-  context.assert(packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'] === './xtend-builder/typing/rmt-shell-authoring-contract.js', 'Package exports RMT Shell Authoring Contract module');
-  context.assert(packageManifest.exports['./builder/typing/form-controls-ux-contract'] === './xtend-builder/typing/form-controls-ux-contract.js', 'Package exports Form Controls UX Contract module');
-  context.assert(packageManifest.exports['./builder/typing/feedback-status-ux-contract'] === './xtend-builder/typing/feedback-status-ux-contract.js', 'Package exports Feedback Status UX Contract module');
-  context.assert(packageManifest.exports['./builder/typing/navigation-routing-ux-contract'] === './xtend-builder/typing/navigation-routing-ux-contract.js', 'Package exports Navigation Routing UX Contract module');
-  context.assert(packageManifest.exports['./builder/typing/overlay-interaction-ux-contract'] === './xtend-builder/typing/overlay-interaction-ux-contract.js', 'Package exports Overlay Interaction UX Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/component-shell-contract'] === 'string' ? packageManifest.exports['./builder/typing/component-shell-contract'] : packageManifest.exports['./builder/typing/component-shell-contract'] && packageManifest.exports['./builder/typing/component-shell-contract'].default) === './xtend-builder/typing/component-shell-contract.js', 'Package exports Component Shell Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/component-styling-contract'] === 'string' ? packageManifest.exports['./builder/typing/component-styling-contract'] : packageManifest.exports['./builder/typing/component-styling-contract'] && packageManifest.exports['./builder/typing/component-styling-contract'].default) === './xtend-builder/typing/component-styling-contract.js', 'Package exports Component Styling Contract module');
+  const runtimeA11yExport = packageManifest.exports['./a11y/runtime-a11y-contract'];
+  context.assert((typeof runtimeA11yExport === 'string' ? runtimeA11yExport : runtimeA11yExport.default) === './a11y/runtime-a11y-contract.js', 'Package exports Runtime A11y Contract module');
+  context.assert((typeof packageManifest.exports['./builder/performance/component-ux-performance-contract'] === 'string' ? packageManifest.exports['./builder/performance/component-ux-performance-contract'] : packageManifest.exports['./builder/performance/component-ux-performance-contract'] && packageManifest.exports['./builder/performance/component-ux-performance-contract'].default) === './xtend-builder/performance/component-ux-performance-contract.js', 'Package exports Component UX Performance Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/component-network-contract'] === 'string' ? packageManifest.exports['./builder/typing/component-network-contract'] : packageManifest.exports['./builder/typing/component-network-contract'] && packageManifest.exports['./builder/typing/component-network-contract'].default) === './xtend-builder/typing/component-network-contract.js', 'Package exports Component Network Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'] === 'string' ? packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'] : packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'] && packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'].default) === './xtend-builder/typing/rmt-shell-authoring-contract.js', 'Package exports RMT Shell Authoring Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/form-controls-ux-contract'] === 'string' ? packageManifest.exports['./builder/typing/form-controls-ux-contract'] : packageManifest.exports['./builder/typing/form-controls-ux-contract'] && packageManifest.exports['./builder/typing/form-controls-ux-contract'].default) === './xtend-builder/typing/form-controls-ux-contract.js', 'Package exports Form Controls UX Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/feedback-status-ux-contract'] === 'string' ? packageManifest.exports['./builder/typing/feedback-status-ux-contract'] : packageManifest.exports['./builder/typing/feedback-status-ux-contract'] && packageManifest.exports['./builder/typing/feedback-status-ux-contract'].default) === './xtend-builder/typing/feedback-status-ux-contract.js', 'Package exports Feedback Status UX Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/navigation-routing-ux-contract'] === 'string' ? packageManifest.exports['./builder/typing/navigation-routing-ux-contract'] : packageManifest.exports['./builder/typing/navigation-routing-ux-contract'] && packageManifest.exports['./builder/typing/navigation-routing-ux-contract'].default) === './xtend-builder/typing/navigation-routing-ux-contract.js', 'Package exports Navigation Routing UX Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/overlay-interaction-ux-contract'] === 'string' ? packageManifest.exports['./builder/typing/overlay-interaction-ux-contract'] : packageManifest.exports['./builder/typing/overlay-interaction-ux-contract'] && packageManifest.exports['./builder/typing/overlay-interaction-ux-contract'].default) === './xtend-builder/typing/overlay-interaction-ux-contract.js', 'Package exports Overlay Interaction UX Contract module');
   context.assert(packageManifest.scripts['test:component-shell-contract'] === 'node scripts/run_xtend_tests.js component-shell-contract', 'Package exposes Component Shell Contract test script');
   context.assert(packageManifest.scripts['test:component-styling-contract'] === 'node scripts/run_xtend_tests.js component-styling-contract', 'Package exposes Component Styling Contract test script');
   context.assert(packageManifest.scripts['test:runtime-a11y-contract'] === 'node scripts/run_xtend_tests.js runtime-a11y-contract', 'Package exposes Runtime A11y Contract test script');

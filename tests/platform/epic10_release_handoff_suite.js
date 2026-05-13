@@ -139,7 +139,7 @@ function runEpic10ReleaseHandoffSuite(options = {}) {
   context.assertIncludes(registry, RMT_FIRST_XTEND_APPS_DOCS, 'Reference registry links RMT-first XTend Apps docs');
   context.assertIncludes(runner, "id: 'epic10-release-handoff'", 'Runner registers Epic 10 Release Handoff suite');
   context.assertIncludes(scaffoldConfig, 'epic10ReleaseHandoff', 'Scaffold config exposes Epic 10 Release Handoff');
-  context.assert(packageManifest.exports['./catalog/epic10-release-handoff'] === './catalog/epic10-release-handoff.js', 'Package exports Epic 10 Release Handoff module');
+  context.assert((packageManifest.exports['./catalog/epic10-release-handoff'] === './catalog/epic10-release-handoff.js' || (packageManifest.exports['./catalog/epic10-release-handoff'] && packageManifest.exports['./catalog/epic10-release-handoff'].default === './catalog/epic10-release-handoff.js')), 'Package exports Epic 10 Release Handoff module');
   context.assert(packageManifest.scripts['test:epic10-release-handoff'] === 'node scripts/run_xtend_tests.js epic10-release-handoff', 'Package exposes Epic 10 Release Handoff script');
   context.assert(metadata && metadata.schema === EPIC10_RELEASE_HANDOFF_SCHEMA, 'Package metadata exposes Release Handoff schema');
   context.assert(metadata && metadata.workpackage === EPIC10_RELEASE_HANDOFF_WORKPACKAGE, 'Package metadata exposes WP-E10-16 owner');

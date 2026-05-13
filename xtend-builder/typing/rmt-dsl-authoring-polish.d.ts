@@ -1,0 +1,27 @@
+import type { XtendBuilderRecord, XtendBuilderReport } from '../builder-public-types';
+
+export declare const COMPONENT_NETWORK_SCHEMA: string;
+export declare const DIAGNOSTIC_CODES: string[];
+export declare const DSL_ALIAS_NAMES: string[];
+export declare const FABRIC_BOUNDARY_SCHEMA: string;
+export declare const KERNEL_BOUNDARY: string;
+export declare const RMT_DSL_AUTHORING_POLISH_CONTRACT_PATH: string;
+export declare const RMT_DSL_AUTHORING_POLISH_DOC_PATH: string;
+export declare const RMT_DSL_AUTHORING_POLISH_FIXTURE_PATH: string;
+export declare const RMT_DSL_AUTHORING_POLISH_FIXTURE_SCHEMA: string;
+export declare const RMT_DSL_AUTHORING_POLISH_LOCAL_GATE: string;
+export declare const RMT_DSL_AUTHORING_POLISH_MODULE_PATH: string;
+export declare const RMT_DSL_AUTHORING_POLISH_PACKAGE_SCRIPT: string;
+export declare const RMT_DSL_AUTHORING_POLISH_REPORT_SCHEMA: string;
+export declare const RMT_DSL_AUTHORING_POLISH_SCHEMA: string;
+export declare const RMT_DSL_AUTHORING_POLISH_SUITE_PATH: string;
+export declare const RMT_DSL_AUTHORING_POLISH_WORKPACKAGE: string;
+export declare const RMT_DSL_AUTHORING_POLISH_WP_PATH: string;
+export declare const RMT_FIRST_CLASS_APP_AUTHORING_SCHEMA: string;
+export declare const RMT_SHELL_AUTHORING_SCHEMA: string;
+export declare const RMT_STYLE_AUTHORING_SCHEMA: string;
+export declare const RMT_XROUTER_ADAPTER_SCHEMA: string;
+export declare const XTEND_DESIGN_TOKEN_SCHEMA: string;
+export declare function createRmtDslAuthoringPolishPlan(options?: XtendBuilderRecord): XtendBuilderRecord;
+export declare function validateRmtDslAuthoringPolishFixture(fixture?: unknown): XtendBuilderReport<XtendBuilderRecord>;
+export declare function validateRmtDslAuthoringPolishPlan(plan?: unknown): XtendBuilderReport<XtendBuilderRecord>;

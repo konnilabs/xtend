@@ -137,7 +137,7 @@ function runRmtVNextDegradationSuite(options = {}) {
   context.assert(metadata && metadata.contract === RMT_VNEXT_DEGRADATION_CONTRACT_PATH, 'package metadata points to degradation contract');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-degradation --json', 'package metadata declares degradation local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_DEGRADATION_PACKAGE_SCRIPT, 'package metadata declares degradation package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-degradation'] === './tools/rmt-language/vnext-degradation.js', 'package exports vNext degradation contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-degradation'] === 'string' ? packageManifest.exports['./rmt-language/vnext-degradation'] : packageManifest.exports['./rmt-language/vnext-degradation'] && packageManifest.exports['./rmt-language/vnext-degradation'].default) === './tools/rmt-language/vnext-degradation.js', 'package exports vNext degradation contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-degradation'] === 'node scripts/run_xtend_tests.js rmt-vnext-degradation', 'package exposes vNext degradation script');
   context.assert(runner.includes("id: 'rmt-vnext-degradation'"), 'test runner exposes rmt-vnext-degradation suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-degradation'), 'runner help references degradation gate');

@@ -1,0 +1,22 @@
+export * from './rmt-tooling-public-types';
+import type { RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const createLifecycleAdapterStub: RmtToolingFactory;
+export declare const createLifecycleOperationPlan: RmtToolingFactory;
+export declare const createRmtVNextLifecycleContract: RmtToolingFactory;
+export declare const LIFECYCLE_ADAPTER_MISSING_CODE: RmtToolingConstant;
+export declare const LIFECYCLE_CAPABILITY_MISSING_CODE: RmtToolingConstant;
+export declare const LIFECYCLE_OPERATION_MATRIX: RmtToolingConstant;
+export declare const LIFECYCLE_OPERATION_UNSUPPORTED_CODE: RmtToolingConstant;
+export declare const LIFECYCLE_TARGET_MISSING_CODE: RmtToolingConstant;
+export declare const LIFECYCLE_TARGET_UNSUPPORTED_CODE: RmtToolingConstant;
+export declare const listLifecycleOperations: RmtToolingFunction;
+export declare const normalizeLifecycleOperationResult: RmtToolingFunction;
+export declare const RMT_VNEXT_LIFECYCLE_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_LIFECYCLE_OPERATION_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_LIFECYCLE_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_VNEXT_LIFECYCLE_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_LIFECYCLE_RESULT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_LIFECYCLE_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_LIFECYCLE_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_LIFECYCLE_WORKPACKAGE: RmtToolingConstant;

@@ -106,7 +106,7 @@ function runComponentShellContractSuite(options = {}) {
   context.assert(SHELL_DEFAULT_SLOTS.includes('helper'), 'Default slots include helper');
   context.assert(SHELL_DEFAULT_PARTS.includes('icon'), 'Default parts include icon');
   context.assert(SHELL_FOCUS_STRATEGIES.includes('managed-roving'), 'Focus strategies include managed-roving');
-  context.assert(packageManifest.exports['./builder/typing/component-shell-contract'] === './xtend-builder/typing/component-shell-contract.js', 'Package exports Component Shell Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/component-shell-contract'] === 'string' ? packageManifest.exports['./builder/typing/component-shell-contract'] : packageManifest.exports['./builder/typing/component-shell-contract'] && packageManifest.exports['./builder/typing/component-shell-contract'].default) === './xtend-builder/typing/component-shell-contract.js', 'Package exports Component Shell Contract module');
   context.assert(packageManifest.scripts['test:component-shell-contract'] === 'node scripts/run_xtend_tests.js component-shell-contract', 'Package exposes Component Shell Contract test script');
   context.assert(metadata && metadata.schema === COMPONENT_SHELL_CONTRACT_SCHEMA, 'Package metadata exposes Component Shell Contract schema');
   context.assert(metadata.reportSchema === COMPONENT_SHELL_REPORT_SCHEMA, 'Package metadata exposes Component Shell report schema');

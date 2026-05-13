@@ -1,0 +1,25 @@
+export * from './rmt-tooling-public-types';
+import type { RmtCompletionItem, RmtDocumentSymbol, RmtHover, RmtLanguageServiceReport, RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const analyzeRmtVNextRemoteToolingSource: RmtToolingFunction<RmtLanguageServiceReport>;
+export declare const createRmtVNextRemoteAgentReport: RmtToolingFactory;
+export declare const createRmtVNextRemoteToolingAdapter: RmtToolingFactory;
+export declare const getRmtVNextRemoteToolingCompletions: RmtToolingFunction<RmtCompletionItem[]>;
+export declare const getRmtVNextRemoteToolingDocumentSymbols: RmtToolingFunction<RmtDocumentSymbol[]>;
+export declare const getRmtVNextRemoteToolingHover: RmtToolingFunction<RmtHover | null>;
+export declare const lintRmtVNextRemoteToolingSource: RmtToolingFunction<RmtLanguageServiceReport>;
+export declare const REMOTE_KEYWORDS: RmtToolingConstant;
+export declare const REMOTE_SHELL_TARGETS: RmtToolingConstant;
+export declare const REMOTE_SNIPPETS: RmtToolingConstant;
+export declare const REMOTE_TOOLING_EVENT_DIRECTION_MISSING_CODE: RmtToolingConstant;
+export declare const REMOTE_TOOLING_PAYLOAD_SHAPE_MISSING_CODE: RmtToolingConstant;
+export declare const REMOTE_TOOLING_RULES: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_AGENT_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_TOOLING_CONTRACT_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_TOOLING_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_TOOLING_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_TOOLING_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_TOOLING_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_TOOLING_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_TOOLING_WORKPACKAGE: RmtToolingConstant;
+export declare const RMT_VNEXT_REMOTE_TOOLING_WP_PATH: RmtToolingConstant;

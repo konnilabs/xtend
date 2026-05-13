@@ -279,6 +279,86 @@ npm run pack:dry-run:report
 
 `WP-E13-04` locks `package.json#exports`, package `files`, package surface groups and the RC1 pack dry-run artifact paths. The local gate is static; `pack:dry-run:report` writes the Release Owner artifacts.
 
+Run the TypeExports public declaration gate:
+
+```bash
+node scripts/run_xtend_tests.js type-exports --json
+npm run test:type-exports
+```
+
+`WP-TypeExports-01` classifies every public package export, prepares package `types` condition targets and fails locally when the export lock changes without a TypeExports decision.
+
+Run the TypeExports Loader declaration gate:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-loader --json
+npm run test:type-exports-loader
+```
+
+`WP-TypeExports-02` types `window.XTendLoader`, `window.XTendStyleRegistry`, `window.XTendSkeletonLoader`, loader events and the boot promise. The gate checks the declarations against the runtime object surface without changing the loader boot path.
+
+Run the TypeExports API declaration gate:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-api --json
+npm run test:type-exports-api
+```
+
+`WP-TypeExports-03` types `initXTendAPI`, `window.XTend.*`, the legacy global aliases and `xtend-api-ready`. The gate checks `api.d.ts` against `api.js` while keeping the Core API runtime unchanged.
+
+Run the TypeExports RMT declaration gate:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-rmt --json
+npm run test:type-exports-rmt
+```
+
+`WP-TypeExports-04` types `./rmt`, `./rmt/browser`, RMT-Language Tooling, LSP, Linter and Editor package exports. The gate checks package `types` conditions, declaration facades, shared RMT diagnostics/edit/report types and the no-XTend-UI-import boundary.
+
+Run the TypeExports Policy declaration gate:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-policy --json
+npm run test:type-exports-policy
+```
+
+`WP-TypeExports-05` types Fabric, A11y and Security policy package exports. The gate checks package `types` conditions, declaration facades, shared policy diagnostics/report types and the no component/RMT-kernel runtime dependency boundary.
+
+Run the TypeExports Builder declaration gate:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-builder --json
+npm run test:type-exports-builder
+```
+
+`WP-TypeExports-06` types Builder, Scaffold, Component Lab, Blueprint, Preview, Workflow and Typing Contract package exports. The gate checks package `types` conditions, declaration facades, shared builder plan/result/workflow types and the no runtime dependency boundary.
+
+Run the TypeExports Catalog declaration gate:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-catalog --json
+npm run test:type-exports-catalog
+```
+
+`WP-TypeExports-07` types Catalog plan, report, gate and validation package exports. The gate checks package `types` conditions, declaration facades, SurfaceManager/Epic/Release catalog classification and the no runtime dependency boundary.
+
+Run the TypeExports Vendor and Utility facade gate:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-vendor --json
+npm run test:type-exports-vendor
+```
+
+`WP-TypeExports-08` types the remaining utility edges: Prism, Turndown and the Design Token contract. The gate checks narrow vendor facades, the `./design-tokens` package `types` condition, Theme JSON as a documented data boundary and the absence of component `.js` declaration gaps.
+
+Run the TypeExports release handoff gate:
+
+```bash
+npm run test:type-exports:release
+```
+
+`WP-TypeExports-09` productizes TypeExports as a Release Owner artifact. The aggregate gate runs `type-exports`, `type-exports-loader`, `type-exports-api`, `type-exports-rmt`, `type-exports-policy`, `type-exports-builder`, `type-exports-catalog` and `type-exports-vendor`, then writes `.xtend-test-results/xtend-type-exports-report.json`.
+
 Run the Epic 13 Known Residual Triage gate:
 
 ```bash

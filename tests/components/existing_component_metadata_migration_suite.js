@@ -158,7 +158,7 @@ function runExistingComponentMetadataMigrationSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'existingComponentMetadataMigration', 'Scaffold config exposes Existing Component Metadata migration');
   context.assertIncludes(runner, "id: 'existing-component-metadata'", 'Runner registers Existing Component Metadata suite');
   context.assertIncludes(rmtReadme, EXISTING_COMPONENT_METADATA_SCHEMA, 'RMT test README documents Existing Component Metadata gate');
-  context.assert(packageManifest.exports['./catalog/epic10-existing-component-metadata'] === './catalog/epic10-existing-component-metadata.js', 'Package exports Existing Component Metadata module');
+  context.assert((packageManifest.exports['./catalog/epic10-existing-component-metadata'] === './catalog/epic10-existing-component-metadata.js' || (packageManifest.exports['./catalog/epic10-existing-component-metadata'] && packageManifest.exports['./catalog/epic10-existing-component-metadata'].default === './catalog/epic10-existing-component-metadata.js')), 'Package exports Existing Component Metadata module');
   context.assert(packageManifest.scripts['test:existing-component-metadata'] === 'node scripts/run_xtend_tests.js existing-component-metadata', 'Package exposes Existing Component Metadata test script');
   context.assert(metadata && metadata.schema === EXISTING_COMPONENT_METADATA_SCHEMA, 'Package metadata exposes Existing Component Metadata schema');
   context.assert(metadata && metadata.workpackage === EXISTING_COMPONENT_METADATA_WORKPACKAGE, 'Package metadata exposes WP-E10-14 owner');

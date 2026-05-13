@@ -180,7 +180,7 @@ function runComponentLabRmtInspectorSuite(options = {}) {
   context.assertIncludes(registry, COMPONENT_LAB_FIXTURE_PATH, 'Reference registry links Component Lab fixture');
   context.assertIncludes(registry, COMPONENT_LAB_SUITE_PATH, 'Reference registry links Component Lab suite');
   context.assertIncludes(runner, "id: 'component-lab-rmt-inspector'", 'XTend runner registers Component Lab suite');
-  context.assert(packageManifest.exports['./builder/preview/component-lab'] === './xtend-builder/preview/component-lab.js', 'Package exports Component Lab module');
+  context.assert((typeof packageManifest.exports['./builder/preview/component-lab'] === 'string' ? packageManifest.exports['./builder/preview/component-lab'] : packageManifest.exports['./builder/preview/component-lab'] && packageManifest.exports['./builder/preview/component-lab'].default) === './xtend-builder/preview/component-lab.js', 'Package exports Component Lab module');
   context.assert(packageManifest.scripts['test:component-lab'] === 'node scripts/run_xtend_tests.js component-lab-rmt-inspector', 'Package exposes Component Lab test script');
   context.assert(metadata && metadata.schema === COMPONENT_LAB_SCHEMA, 'Package metadata exposes Component Lab schema');
   context.assert(metadata && metadata.fixture === COMPONENT_LAB_FIXTURE_PATH, 'Package metadata exposes Component Lab fixture path');

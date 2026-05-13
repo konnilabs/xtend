@@ -224,7 +224,7 @@ function runFormControlsUxSuite(options = {}) {
   context.assert(formSource.includes('validate()'), 'x-form exposes validate command');
   context.assert(formSource.includes('submit()'), 'x-form exposes submit command');
 
-  context.assert(packageManifest.exports['./builder/typing/form-controls-ux-contract'] === './xtend-builder/typing/form-controls-ux-contract.js', 'Package exports Form Controls UX contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/form-controls-ux-contract'] === 'string' ? packageManifest.exports['./builder/typing/form-controls-ux-contract'] : packageManifest.exports['./builder/typing/form-controls-ux-contract'] && packageManifest.exports['./builder/typing/form-controls-ux-contract'].default) === './xtend-builder/typing/form-controls-ux-contract.js', 'Package exports Form Controls UX contract module');
   context.assert(packageManifest.scripts['test:form-controls-ux'] === 'node scripts/run_xtend_tests.js form-controls-ux', 'Package exposes Form Controls UX test script');
   context.assert(metadata && metadata.schema === FORM_CONTROLS_UX_SCHEMA, 'Package metadata exposes Form Controls UX schema');
   context.assert(metadata.fixture === FORM_CONTROLS_UX_FIXTURE, 'Package metadata exposes Form Controls UX fixture');

@@ -1,0 +1,22 @@
+export * from './rmt-tooling-public-types';
+import type { RmtCompletionItem, RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const BUILT_IN_ADAPTER_IDS: RmtToolingConstant;
+export declare const createCompletionItem: RmtToolingFactory;
+export declare const createRmtCompletionProvider: RmtToolingFactory;
+export declare const DOMAIN_FIELD_COMPLETIONS: RmtToolingConstant;
+export declare const getRmtCompletions: RmtToolingFunction<RmtCompletionItem[]>;
+export declare const HYDRATION_POLICIES: RmtToolingConstant;
+export declare const inferCompletionContext: RmtToolingFunction;
+export declare const loadComponentManifest: RmtToolingFactory;
+export declare const RMT_COMPLETION_ITEM_SCHEMA: RmtToolingConstant;
+export declare const RMT_COMPLETION_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_COMPLETION_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_COMPLETION_PROVIDER_SCHEMA: RmtToolingConstant;
+export declare const RMT_COMPLETION_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_COMPLETION_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_COMPLETION_WORKPACKAGE: RmtToolingConstant;
+export declare const SCHEDULE_LANES: RmtToolingConstant;
+export declare const SURFACE_TYPES: RmtToolingConstant;
+export declare const TEMPLATE_MODES: RmtToolingConstant;
+export declare const TOP_LEVEL_DOMAINS: RmtToolingConstant;

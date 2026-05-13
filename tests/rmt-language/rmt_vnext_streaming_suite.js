@@ -209,7 +209,7 @@ function runRmtVNextStreamingSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_STREAMING_SUITE_PATH, 'package metadata points to streaming suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-streaming --json', 'package metadata declares streaming local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_STREAMING_PACKAGE_SCRIPT, 'package metadata declares streaming package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-streaming'] === './tools/rmt-language/vnext-streaming.js', 'package exports vNext streaming contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-streaming'] === 'string' ? packageManifest.exports['./rmt-language/vnext-streaming'] : packageManifest.exports['./rmt-language/vnext-streaming'] && packageManifest.exports['./rmt-language/vnext-streaming'].default) === './tools/rmt-language/vnext-streaming.js', 'package exports vNext streaming contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-streaming'] === 'node scripts/run_xtend_tests.js rmt-vnext-streaming', 'package exposes vNext streaming script');
   context.assert(runner.includes("id: 'rmt-vnext-streaming'"), 'test runner exposes rmt-vnext-streaming suite');
   context.assert(epic.includes('| `WP-E15-14` | P1 | completed | WS4 |'), 'Epic marks WP-E15-14 completed');

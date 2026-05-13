@@ -212,7 +212,7 @@ function runComponentLabUxInspectorSuite(options = {}) {
   context.assertIncludes(registry, COMPONENT_LAB_UX_INSPECTOR_FIXTURE_PATH, 'Reference registry links UX Inspector fixture');
   context.assertIncludes(registry, COMPONENT_LAB_UX_INSPECTOR_SUITE_PATH, 'Reference registry links UX Inspector suite');
   context.assertIncludes(runner, "id: 'component-lab-ux-inspector'", 'XTend runner registers UX Inspector suite');
-  context.assert(packageManifest.exports['./builder/preview/component-lab-ux-inspector'] === './xtend-builder/preview/component-lab-ux-inspector.js', 'Package exports UX Inspector module');
+  context.assert((typeof packageManifest.exports['./builder/preview/component-lab-ux-inspector'] === 'string' ? packageManifest.exports['./builder/preview/component-lab-ux-inspector'] : packageManifest.exports['./builder/preview/component-lab-ux-inspector'] && packageManifest.exports['./builder/preview/component-lab-ux-inspector'].default) === './xtend-builder/preview/component-lab-ux-inspector.js', 'Package exports UX Inspector module');
   context.assert(packageManifest.scripts['test:component-lab-ux-inspector'] === 'node scripts/run_xtend_tests.js component-lab-ux-inspector', 'Package exposes UX Inspector test script');
   context.assert(metadata && metadata.schema === COMPONENT_LAB_UX_INSPECTOR_SCHEMA, 'Package metadata exposes UX Inspector schema');
   context.assert(metadata && metadata.reportSchema === COMPONENT_LAB_UX_INSPECTOR_REPORT_SCHEMA, 'Package metadata exposes UX Inspector report schema');

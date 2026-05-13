@@ -22,8 +22,11 @@
     "README.md",
     "CHANGELOG.md",
     "api.js",
+    "api.d.ts",
     "xtend-loader.js",
+    "xtend-loader.d.ts",
     "xtend-dev.js",
+    "xtend-dev.d.ts",
     "xtend.css",
     "a11y",
     "components",
@@ -50,115 +53,409 @@
   ],
   "exports": {
     ".": {
+      "types": "./xtend-loader.d.ts",
       "browser": "./xtend-loader.js",
       "default": "./xtend-loader.js"
     },
-    "./loader": "./xtend-loader.js",
-    "./legacy-loader": "./xtend-dev.js",
-    "./api": "./api.js",
+    "./loader": {
+      "types": "./xtend-loader.d.ts",
+      "browser": "./xtend-loader.js",
+      "default": "./xtend-loader.js"
+    },
+    "./legacy-loader": {
+      "types": "./xtend-dev.d.ts",
+      "browser": "./xtend-dev.js",
+      "default": "./xtend-dev.js"
+    },
+    "./api": {
+      "types": "./api.d.ts",
+      "browser": "./api.js",
+      "default": "./api.js"
+    },
     "./style.css": "./xtend.css",
     "./manifest": "./components/manifest.json",
     "./components/manifest.json": "./components/manifest.json",
     "./components/*": "./components/*",
-    "./design-tokens": "./design-tokens/xtend-design-tokens.js",
+    "./design-tokens": {
+      "types": "./design-tokens/xtend-design-tokens.d.ts",
+      "default": "./design-tokens/xtend-design-tokens.js"
+    },
     "./design-tokens/themes/enterprise-light": "./design-tokens/themes/enterprise-light.json",
-    "./a11y/screenreader-signals": "./a11y/screenreader-signals.js",
-    "./a11y/motion-contrast-policy": "./a11y/motion-contrast-policy.js",
-    "./a11y/runtime-a11y-contract": "./a11y/runtime-a11y-contract.js",
-    "./fabric": "./fabric/xtend-fabric.js",
-    "./fabric/rmt-lane-mapping": "./fabric/rmt-lane-mapping.js",
-    "./fabric/hydration-policy": "./fabric/hydration-policy.js",
-    "./catalog/component-catalog-coverage": "./catalog/component-catalog-coverage.js",
-    "./catalog/component-regression-priority": "./catalog/component-regression-priority.js",
-    "./catalog/component-long-tail-migration": "./catalog/component-long-tail-migration.js",
-    "./catalog/epic11-enterprise-ux-handoff": "./catalog/epic11-enterprise-ux-handoff.js",
-    "./catalog/epic10-p0-component-wave": "./catalog/epic10-p0-component-wave.js",
-    "./catalog/epic10-existing-component-metadata": "./catalog/epic10-existing-component-metadata.js",
-    "./catalog/epic10-platform-gates": "./catalog/epic10-platform-gates.js",
-    "./catalog/epic10-release-handoff": "./catalog/epic10-release-handoff.js",
-    "./catalog/epic12-rc0-gate-matrix": "./catalog/epic12-rc0-gate-matrix.js",
-    "./catalog/epic12-docs-adoption": "./catalog/epic12-docs-adoption.js",
-    "./catalog/epic12-rc0-handoff": "./catalog/epic12-rc0-handoff.js",
-    "./catalog/epic13-rc1-readiness": "./catalog/epic13-rc1-readiness.js",
-    "./catalog/epic13-release-owner-acceptance": "./catalog/epic13-release-owner-acceptance.js",
-    "./catalog/epic13-conditional-network-evidence": "./catalog/epic13-conditional-network-evidence.js",
-    "./catalog/epic13-package-export-lock": "./catalog/epic13-package-export-lock.js",
-    "./catalog/epic13-known-residual-triage": "./catalog/epic13-known-residual-triage.js",
-    "./catalog/epic13-hydration-performance-closure": "./catalog/epic13-hydration-performance-closure.js",
-    "./catalog/epic13-prod-browser-csp-smoke": "./catalog/epic13-prod-browser-csp-smoke.js",
-    "./catalog/epic13-visual-owner-artifact": "./catalog/epic13-visual-owner-artifact.js",
-    "./catalog/epic13-rmt-production-readiness": "./catalog/epic13-rmt-production-readiness.js",
-    "./catalog/epic13-docs-rmt-production-hardening": "./catalog/epic13-docs-rmt-production-hardening.js",
-    "./catalog/epic13-trusted-dom-boundary": "./catalog/epic13-trusted-dom-boundary.js",
-    "./catalog/epic13-rc1-migration-notes": "./catalog/epic13-rc1-migration-notes.js",
-    "./catalog/epic14-rmt-tooling": "./catalog/epic14-rmt-tooling.js",
-    "./catalog/epic14-lsp-handoff": "./catalog/epic14-lsp-handoff.js",
-    "./rmt-language/source-model": "./tools/rmt-language/source-model.js",
-    "./rmt-language/parser": "./tools/rmt-language/parser.js",
-    "./rmt-language/vnext-parser": "./tools/rmt-language/vnext-parser.js",
-    "./rmt-language/vnext-compiler": "./tools/rmt-language/vnext-compiler.js",
-    "./rmt-language/vnext-lifecycle": "./tools/rmt-language/vnext-lifecycle.js",
-    "./rmt-language/vnext-scheduler": "./tools/rmt-language/vnext-scheduler.js",
-    "./rmt-language/vnext-surfaces": "./tools/rmt-language/vnext-surfaces.js",
-    "./rmt-language/vnext-conditions": "./tools/rmt-language/vnext-conditions.js",
-    "./rmt-language/vnext-composition": "./tools/rmt-language/vnext-composition.js",
-    "./rmt-language/vnext-import-resolver": "./tools/rmt-language/vnext-import-resolver.js",
-    "./rmt-language/vnext-events": "./tools/rmt-language/vnext-events.js",
-    "./rmt-language/vnext-security": "./tools/rmt-language/vnext-security.js",
-    "./rmt-language/vnext-streaming": "./tools/rmt-language/vnext-streaming.js",
-    "./rmt-language/vnext-tooling": "./tools/rmt-language/vnext-tooling.js",
-    "./rmt-language/vnext-compatibility": "./tools/rmt-language/vnext-compatibility.js",
-    "./rmt-language/vnext-regression": "./tools/rmt-language/vnext-regression.js",
-    "./rmt-language/vnext-release": "./tools/rmt-language/vnext-release.js",
-    "./rmt-language/vnext-remote-manifest": "./tools/rmt-language/vnext-remote-manifest.js",
-    "./rmt-language/vnext-enterprise-registry": "./tools/rmt-language/vnext-enterprise-registry.js",
-    "./rmt-language/vnext-degradation": "./tools/rmt-language/vnext-degradation.js",
-    "./rmt-language/vnext-remote-security": "./tools/rmt-language/vnext-remote-security.js",
-    "./rmt-language/vnext-cross-surface-events": "./tools/rmt-language/vnext-cross-surface-events.js",
-    "./rmt-language/vnext-event-governance": "./tools/rmt-language/vnext-event-governance.js",
-    "./rmt-language/vnext-remote-compiler": "./tools/rmt-language/vnext-remote-compiler.js",
-    "./rmt-language/vnext-remote-tooling": "./tools/rmt-language/vnext-remote-tooling.js",
-    "./rmt-language/vnext-remote-compatibility": "./tools/rmt-language/vnext-remote-compatibility.js",
-    "./rmt-language/vnext-enterprise-fixtures": "./tools/rmt-language/vnext-enterprise-fixtures.js",
-    "./rmt-language/vnext-enterprise-release": "./tools/rmt-language/vnext-enterprise-release.js",
-    "./rmt-language/format-adapter": "./tools/rmt-language/format-adapter.js",
-    "./rmt-language/semantic-graph": "./tools/rmt-language/semantic-graph.js",
-    "./rmt-language/diagnostics": "./tools/rmt-language/diagnostics.js",
-    "./rmt-language/completions": "./tools/rmt-language/completions.js",
-    "./rmt-language/hover": "./tools/rmt-language/hover.js",
-    "./rmt-language/symbols": "./tools/rmt-language/symbols.js",
-    "./rmt-language/definitions": "./tools/rmt-language/definitions.js",
-    "./rmt-language/code-actions": "./tools/rmt-language/code-actions.js",
-    "./rmt-language-server": "./tools/rmt-language-server/server.js",
-    "./rmt-language-server/protocol": "./tools/rmt-language-server/protocol.js",
-    "./rmt-linter/cli": "./tools/rmt-linter/cli.js",
-    "./rmt-linter/reporter": "./tools/rmt-linter/reporter.js",
-    "./rmt-language/snippets": "./tools/rmt-language/snippets/index.js",
-    "./rmt-editor/vscode": "./tools/rmt-editor/vscode/extension.js",
-    "./builder/preview/component-lab": "./xtend-builder/preview/component-lab.js",
-    "./builder/preview/component-lab-ux-inspector": "./xtend-builder/preview/component-lab-ux-inspector.js",
-    "./builder/typing/component-shell-contract": "./xtend-builder/typing/component-shell-contract.js",
-    "./builder/typing/component-styling-contract": "./xtend-builder/typing/component-styling-contract.js",
-    "./builder/typing/component-network-contract": "./xtend-builder/typing/component-network-contract.js",
-    "./builder/typing/rmt-shell-authoring-contract": "./xtend-builder/typing/rmt-shell-authoring-contract.js",
-    "./builder/typing/rmt-dsl-authoring-polish": "./xtend-builder/typing/rmt-dsl-authoring-polish.js",
-    "./builder/typing/form-controls-ux-contract": "./xtend-builder/typing/form-controls-ux-contract.js",
-    "./builder/typing/feedback-status-ux-contract": "./xtend-builder/typing/feedback-status-ux-contract.js",
-    "./builder/typing/navigation-routing-ux-contract": "./xtend-builder/typing/navigation-routing-ux-contract.js",
-    "./builder/typing/overlay-interaction-ux-contract": "./xtend-builder/typing/overlay-interaction-ux-contract.js",
-    "./builder/typing/layout-display-media-ux-contract": "./xtend-builder/typing/layout-display-media-ux-contract.js",
-    "./builder/performance/component-ux-performance-contract": "./xtend-builder/performance/component-ux-performance-contract.js",
+    "./a11y/screenreader-signals": {
+      "types": "./a11y/screenreader-signals.d.ts",
+      "default": "./a11y/screenreader-signals.js"
+    },
+    "./a11y/motion-contrast-policy": {
+      "types": "./a11y/motion-contrast-policy.d.ts",
+      "default": "./a11y/motion-contrast-policy.js"
+    },
+    "./a11y/runtime-a11y-contract": {
+      "types": "./a11y/runtime-a11y-contract.d.ts",
+      "default": "./a11y/runtime-a11y-contract.js"
+    },
+    "./fabric": {
+      "types": "./fabric/xtend-fabric.d.ts",
+      "default": "./fabric/xtend-fabric.js"
+    },
+    "./fabric/rmt-lane-mapping": {
+      "types": "./fabric/rmt-lane-mapping.d.ts",
+      "default": "./fabric/rmt-lane-mapping.js"
+    },
+    "./fabric/hydration-policy": {
+      "types": "./fabric/hydration-policy.d.ts",
+      "default": "./fabric/hydration-policy.js"
+    },
+    "./catalog/component-catalog-coverage": {
+      "types": "./catalog/component-catalog-coverage.d.ts",
+      "default": "./catalog/component-catalog-coverage.js"
+    },
+    "./catalog/component-regression-priority": {
+      "types": "./catalog/component-regression-priority.d.ts",
+      "default": "./catalog/component-regression-priority.js"
+    },
+    "./catalog/component-long-tail-migration": {
+      "types": "./catalog/component-long-tail-migration.d.ts",
+      "default": "./catalog/component-long-tail-migration.js"
+    },
+    "./catalog/epic11-enterprise-ux-handoff": {
+      "types": "./catalog/epic11-enterprise-ux-handoff.d.ts",
+      "default": "./catalog/epic11-enterprise-ux-handoff.js"
+    },
+    "./catalog/epic10-p0-component-wave": {
+      "types": "./catalog/epic10-p0-component-wave.d.ts",
+      "default": "./catalog/epic10-p0-component-wave.js"
+    },
+    "./catalog/epic10-existing-component-metadata": {
+      "types": "./catalog/epic10-existing-component-metadata.d.ts",
+      "default": "./catalog/epic10-existing-component-metadata.js"
+    },
+    "./catalog/epic10-platform-gates": {
+      "types": "./catalog/epic10-platform-gates.d.ts",
+      "default": "./catalog/epic10-platform-gates.js"
+    },
+    "./catalog/epic10-release-handoff": {
+      "types": "./catalog/epic10-release-handoff.d.ts",
+      "default": "./catalog/epic10-release-handoff.js"
+    },
+    "./catalog/epic12-rc0-gate-matrix": {
+      "types": "./catalog/epic12-rc0-gate-matrix.d.ts",
+      "default": "./catalog/epic12-rc0-gate-matrix.js"
+    },
+    "./catalog/epic12-docs-adoption": {
+      "types": "./catalog/epic12-docs-adoption.d.ts",
+      "default": "./catalog/epic12-docs-adoption.js"
+    },
+    "./catalog/epic12-rc0-handoff": {
+      "types": "./catalog/epic12-rc0-handoff.d.ts",
+      "default": "./catalog/epic12-rc0-handoff.js"
+    },
+    "./catalog/epic13-rc1-readiness": {
+      "types": "./catalog/epic13-rc1-readiness.d.ts",
+      "default": "./catalog/epic13-rc1-readiness.js"
+    },
+    "./catalog/epic13-release-owner-acceptance": {
+      "types": "./catalog/epic13-release-owner-acceptance.d.ts",
+      "default": "./catalog/epic13-release-owner-acceptance.js"
+    },
+    "./catalog/epic13-conditional-network-evidence": {
+      "types": "./catalog/epic13-conditional-network-evidence.d.ts",
+      "default": "./catalog/epic13-conditional-network-evidence.js"
+    },
+    "./catalog/epic13-package-export-lock": {
+      "types": "./catalog/epic13-package-export-lock.d.ts",
+      "default": "./catalog/epic13-package-export-lock.js"
+    },
+    "./catalog/epic13-known-residual-triage": {
+      "types": "./catalog/epic13-known-residual-triage.d.ts",
+      "default": "./catalog/epic13-known-residual-triage.js"
+    },
+    "./catalog/epic13-hydration-performance-closure": {
+      "types": "./catalog/epic13-hydration-performance-closure.d.ts",
+      "default": "./catalog/epic13-hydration-performance-closure.js"
+    },
+    "./catalog/epic13-prod-browser-csp-smoke": {
+      "types": "./catalog/epic13-prod-browser-csp-smoke.d.ts",
+      "default": "./catalog/epic13-prod-browser-csp-smoke.js"
+    },
+    "./catalog/epic13-visual-owner-artifact": {
+      "types": "./catalog/epic13-visual-owner-artifact.d.ts",
+      "default": "./catalog/epic13-visual-owner-artifact.js"
+    },
+    "./catalog/epic13-rmt-production-readiness": {
+      "types": "./catalog/epic13-rmt-production-readiness.d.ts",
+      "default": "./catalog/epic13-rmt-production-readiness.js"
+    },
+    "./catalog/epic13-docs-rmt-production-hardening": {
+      "types": "./catalog/epic13-docs-rmt-production-hardening.d.ts",
+      "default": "./catalog/epic13-docs-rmt-production-hardening.js"
+    },
+    "./catalog/epic13-trusted-dom-boundary": {
+      "types": "./catalog/epic13-trusted-dom-boundary.d.ts",
+      "default": "./catalog/epic13-trusted-dom-boundary.js"
+    },
+    "./catalog/epic13-rc1-migration-notes": {
+      "types": "./catalog/epic13-rc1-migration-notes.d.ts",
+      "default": "./catalog/epic13-rc1-migration-notes.js"
+    },
+    "./catalog/epic14-rmt-tooling": {
+      "types": "./catalog/epic14-rmt-tooling.d.ts",
+      "default": "./catalog/epic14-rmt-tooling.js"
+    },
+    "./catalog/epic14-lsp-handoff": {
+      "types": "./catalog/epic14-lsp-handoff.d.ts",
+      "default": "./catalog/epic14-lsp-handoff.js"
+    },
+    "./rmt-language/source-model": {
+      "types": "./tools/rmt-language/source-model.d.ts",
+      "default": "./tools/rmt-language/source-model.js"
+    },
+    "./rmt-language/parser": {
+      "types": "./tools/rmt-language/parser.d.ts",
+      "default": "./tools/rmt-language/parser.js"
+    },
+    "./rmt-language/vnext-parser": {
+      "types": "./tools/rmt-language/vnext-parser.d.ts",
+      "default": "./tools/rmt-language/vnext-parser.js"
+    },
+    "./rmt-language/vnext-compiler": {
+      "types": "./tools/rmt-language/vnext-compiler.d.ts",
+      "default": "./tools/rmt-language/vnext-compiler.js"
+    },
+    "./rmt-language/vnext-lifecycle": {
+      "types": "./tools/rmt-language/vnext-lifecycle.d.ts",
+      "default": "./tools/rmt-language/vnext-lifecycle.js"
+    },
+    "./rmt-language/vnext-scheduler": {
+      "types": "./tools/rmt-language/vnext-scheduler.d.ts",
+      "default": "./tools/rmt-language/vnext-scheduler.js"
+    },
+    "./rmt-language/vnext-surfaces": {
+      "types": "./tools/rmt-language/vnext-surfaces.d.ts",
+      "default": "./tools/rmt-language/vnext-surfaces.js"
+    },
+    "./rmt-language/vnext-conditions": {
+      "types": "./tools/rmt-language/vnext-conditions.d.ts",
+      "default": "./tools/rmt-language/vnext-conditions.js"
+    },
+    "./rmt-language/vnext-composition": {
+      "types": "./tools/rmt-language/vnext-composition.d.ts",
+      "default": "./tools/rmt-language/vnext-composition.js"
+    },
+    "./rmt-language/vnext-import-resolver": {
+      "types": "./tools/rmt-language/vnext-import-resolver.d.ts",
+      "default": "./tools/rmt-language/vnext-import-resolver.js"
+    },
+    "./rmt-language/vnext-events": {
+      "types": "./tools/rmt-language/vnext-events.d.ts",
+      "default": "./tools/rmt-language/vnext-events.js"
+    },
+    "./rmt-language/vnext-security": {
+      "types": "./tools/rmt-language/vnext-security.d.ts",
+      "default": "./tools/rmt-language/vnext-security.js"
+    },
+    "./rmt-language/vnext-streaming": {
+      "types": "./tools/rmt-language/vnext-streaming.d.ts",
+      "default": "./tools/rmt-language/vnext-streaming.js"
+    },
+    "./rmt-language/vnext-tooling": {
+      "types": "./tools/rmt-language/vnext-tooling.d.ts",
+      "default": "./tools/rmt-language/vnext-tooling.js"
+    },
+    "./rmt-language/vnext-compatibility": {
+      "types": "./tools/rmt-language/vnext-compatibility.d.ts",
+      "default": "./tools/rmt-language/vnext-compatibility.js"
+    },
+    "./rmt-language/vnext-regression": {
+      "types": "./tools/rmt-language/vnext-regression.d.ts",
+      "default": "./tools/rmt-language/vnext-regression.js"
+    },
+    "./rmt-language/vnext-release": {
+      "types": "./tools/rmt-language/vnext-release.d.ts",
+      "default": "./tools/rmt-language/vnext-release.js"
+    },
+    "./rmt-language/vnext-remote-manifest": {
+      "types": "./tools/rmt-language/vnext-remote-manifest.d.ts",
+      "default": "./tools/rmt-language/vnext-remote-manifest.js"
+    },
+    "./rmt-language/vnext-enterprise-registry": {
+      "types": "./tools/rmt-language/vnext-enterprise-registry.d.ts",
+      "default": "./tools/rmt-language/vnext-enterprise-registry.js"
+    },
+    "./rmt-language/vnext-degradation": {
+      "types": "./tools/rmt-language/vnext-degradation.d.ts",
+      "default": "./tools/rmt-language/vnext-degradation.js"
+    },
+    "./rmt-language/vnext-remote-security": {
+      "types": "./tools/rmt-language/vnext-remote-security.d.ts",
+      "default": "./tools/rmt-language/vnext-remote-security.js"
+    },
+    "./rmt-language/vnext-cross-surface-events": {
+      "types": "./tools/rmt-language/vnext-cross-surface-events.d.ts",
+      "default": "./tools/rmt-language/vnext-cross-surface-events.js"
+    },
+    "./rmt-language/vnext-event-governance": {
+      "types": "./tools/rmt-language/vnext-event-governance.d.ts",
+      "default": "./tools/rmt-language/vnext-event-governance.js"
+    },
+    "./rmt-language/vnext-remote-compiler": {
+      "types": "./tools/rmt-language/vnext-remote-compiler.d.ts",
+      "default": "./tools/rmt-language/vnext-remote-compiler.js"
+    },
+    "./rmt-language/vnext-remote-tooling": {
+      "types": "./tools/rmt-language/vnext-remote-tooling.d.ts",
+      "default": "./tools/rmt-language/vnext-remote-tooling.js"
+    },
+    "./rmt-language/vnext-remote-compatibility": {
+      "types": "./tools/rmt-language/vnext-remote-compatibility.d.ts",
+      "default": "./tools/rmt-language/vnext-remote-compatibility.js"
+    },
+    "./rmt-language/vnext-enterprise-fixtures": {
+      "types": "./tools/rmt-language/vnext-enterprise-fixtures.d.ts",
+      "default": "./tools/rmt-language/vnext-enterprise-fixtures.js"
+    },
+    "./rmt-language/vnext-enterprise-release": {
+      "types": "./tools/rmt-language/vnext-enterprise-release.d.ts",
+      "default": "./tools/rmt-language/vnext-enterprise-release.js"
+    },
+    "./rmt-language/format-adapter": {
+      "types": "./tools/rmt-language/format-adapter.d.ts",
+      "default": "./tools/rmt-language/format-adapter.js"
+    },
+    "./rmt-language/semantic-graph": {
+      "types": "./tools/rmt-language/semantic-graph.d.ts",
+      "default": "./tools/rmt-language/semantic-graph.js"
+    },
+    "./rmt-language/diagnostics": {
+      "types": "./tools/rmt-language/diagnostics.d.ts",
+      "default": "./tools/rmt-language/diagnostics.js"
+    },
+    "./rmt-language/completions": {
+      "types": "./tools/rmt-language/completions.d.ts",
+      "default": "./tools/rmt-language/completions.js"
+    },
+    "./rmt-language/hover": {
+      "types": "./tools/rmt-language/hover.d.ts",
+      "default": "./tools/rmt-language/hover.js"
+    },
+    "./rmt-language/symbols": {
+      "types": "./tools/rmt-language/symbols.d.ts",
+      "default": "./tools/rmt-language/symbols.js"
+    },
+    "./rmt-language/definitions": {
+      "types": "./tools/rmt-language/definitions.d.ts",
+      "default": "./tools/rmt-language/definitions.js"
+    },
+    "./rmt-language/code-actions": {
+      "types": "./tools/rmt-language/code-actions.d.ts",
+      "default": "./tools/rmt-language/code-actions.js"
+    },
+    "./rmt-language-server": {
+      "types": "./tools/rmt-language-server/server.d.ts",
+      "default": "./tools/rmt-language-server/server.js"
+    },
+    "./rmt-language-server/protocol": {
+      "types": "./tools/rmt-language-server/protocol.d.ts",
+      "default": "./tools/rmt-language-server/protocol.js"
+    },
+    "./rmt-linter/cli": {
+      "types": "./tools/rmt-linter/cli.d.ts",
+      "default": "./tools/rmt-linter/cli.js"
+    },
+    "./rmt-linter/reporter": {
+      "types": "./tools/rmt-linter/reporter.d.ts",
+      "default": "./tools/rmt-linter/reporter.js"
+    },
+    "./rmt-language/snippets": {
+      "types": "./tools/rmt-language/snippets/index.d.ts",
+      "default": "./tools/rmt-language/snippets/index.js"
+    },
+    "./rmt-editor/vscode": {
+      "types": "./tools/rmt-editor/vscode/extension.d.ts",
+      "default": "./tools/rmt-editor/vscode/extension.js"
+    },
+    "./builder/preview/component-lab": {
+      "types": "./xtend-builder/preview/component-lab.d.ts",
+      "default": "./xtend-builder/preview/component-lab.js"
+    },
+    "./builder/preview/component-lab-ux-inspector": {
+      "types": "./xtend-builder/preview/component-lab-ux-inspector.d.ts",
+      "default": "./xtend-builder/preview/component-lab-ux-inspector.js"
+    },
+    "./builder/typing/component-shell-contract": {
+      "types": "./xtend-builder/typing/component-shell-contract.d.ts",
+      "default": "./xtend-builder/typing/component-shell-contract.js"
+    },
+    "./builder/typing/component-styling-contract": {
+      "types": "./xtend-builder/typing/component-styling-contract.d.ts",
+      "default": "./xtend-builder/typing/component-styling-contract.js"
+    },
+    "./builder/typing/component-network-contract": {
+      "types": "./xtend-builder/typing/component-network-contract.d.ts",
+      "default": "./xtend-builder/typing/component-network-contract.js"
+    },
+    "./builder/typing/rmt-shell-authoring-contract": {
+      "types": "./xtend-builder/typing/rmt-shell-authoring-contract.d.ts",
+      "default": "./xtend-builder/typing/rmt-shell-authoring-contract.js"
+    },
+    "./builder/typing/rmt-dsl-authoring-polish": {
+      "types": "./xtend-builder/typing/rmt-dsl-authoring-polish.d.ts",
+      "default": "./xtend-builder/typing/rmt-dsl-authoring-polish.js"
+    },
+    "./builder/typing/form-controls-ux-contract": {
+      "types": "./xtend-builder/typing/form-controls-ux-contract.d.ts",
+      "default": "./xtend-builder/typing/form-controls-ux-contract.js"
+    },
+    "./builder/typing/feedback-status-ux-contract": {
+      "types": "./xtend-builder/typing/feedback-status-ux-contract.d.ts",
+      "default": "./xtend-builder/typing/feedback-status-ux-contract.js"
+    },
+    "./builder/typing/navigation-routing-ux-contract": {
+      "types": "./xtend-builder/typing/navigation-routing-ux-contract.d.ts",
+      "default": "./xtend-builder/typing/navigation-routing-ux-contract.js"
+    },
+    "./builder/typing/overlay-interaction-ux-contract": {
+      "types": "./xtend-builder/typing/overlay-interaction-ux-contract.d.ts",
+      "default": "./xtend-builder/typing/overlay-interaction-ux-contract.js"
+    },
+    "./builder/typing/layout-display-media-ux-contract": {
+      "types": "./xtend-builder/typing/layout-display-media-ux-contract.d.ts",
+      "default": "./xtend-builder/typing/layout-display-media-ux-contract.js"
+    },
+    "./builder/performance/component-ux-performance-contract": {
+      "types": "./xtend-builder/performance/component-ux-performance-contract.d.ts",
+      "default": "./xtend-builder/performance/component-ux-performance-contract.js"
+    },
     "./rmt": {
+      "types": "./xtendrmt/rmt-core.d.ts",
       "import": "./xtendrmt/rmt-runtime.esm.js",
       "browser": "./xtendrmt/rmt-runtime.browser.js",
       "default": "./xtendrmt/rmt-runtime.esm.js"
     },
-    "./rmt/browser": "./xtendrmt/rmt-runtime.browser.js",
-    "./builder": "./xtend-builder/scaffold.js",
-    "./builder/*": "./xtend-builder/*",
-    "./security/manifest-import-policy": "./security/manifest-import-policy.js",
-    "./security/trusted-dom-policy": "./security/trusted-dom-policy.js",
-    "./security/supply-chain-gate-policy": "./security/supply-chain-gate-policy.js",
+    "./rmt/browser": {
+      "types": "./xtendrmt/rmt-core.d.ts",
+      "browser": "./xtendrmt/rmt-runtime.browser.js",
+      "default": "./xtendrmt/rmt-runtime.browser.js"
+    },
+    "./builder": {
+      "types": "./xtend-builder/scaffold.d.ts",
+      "default": "./xtend-builder/scaffold.js"
+    },
+    "./builder/*": {
+      "types": "./xtend-builder/*.d.ts",
+      "default": "./xtend-builder/*"
+    },
+    "./security/manifest-import-policy": {
+      "types": "./security/manifest-import-policy.d.ts",
+      "default": "./security/manifest-import-policy.js"
+    },
+    "./security/trusted-dom-policy": {
+      "types": "./security/trusted-dom-policy.d.ts",
+      "default": "./security/trusted-dom-policy.js"
+    },
+    "./security/supply-chain-gate-policy": {
+      "types": "./security/supply-chain-gate-policy.d.ts",
+      "default": "./security/supply-chain-gate-policy.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -1929,6 +2226,15 @@
       "npm run test:epic13-release-owner-acceptance",
       "npm run test:epic13-conditional-network-evidence",
       "npm run test:epic13-package-export-lock",
+      "npm run test:type-exports",
+      "npm run test:type-exports-loader",
+      "npm run test:type-exports-api",
+      "npm run test:type-exports-rmt",
+      "npm run test:type-exports-policy",
+      "npm run test:type-exports-builder",
+      "npm run test:type-exports-catalog",
+      "npm run test:type-exports-vendor",
+      "npm run test:type-exports:release",
       "npm run test:epic13-known-residual-triage",
       "npm run test:epic13-hydration-performance-closure",
       "npm run test:epic13-prod-browser-csp-smoke",
@@ -2836,6 +3142,15 @@
         "npm run test:epic13-release-owner-acceptance",
         "npm run test:epic13-conditional-network-evidence",
         "npm run test:epic13-package-export-lock",
+        "npm run test:type-exports",
+        "npm run test:type-exports-loader",
+        "npm run test:type-exports-api",
+        "npm run test:type-exports-rmt",
+        "npm run test:type-exports-policy",
+        "npm run test:type-exports-builder",
+        "npm run test:type-exports-catalog",
+        "npm run test:type-exports-vendor",
+        "npm run test:type-exports:release",
         "npm run test:epic13-known-residual-triage",
         "npm run test:epic13-hydration-performance-closure",
         "npm run test:epic13-prod-browser-csp-smoke",
@@ -2868,6 +3183,20 @@
         "development/XTend-Epic13-Release-Owner-Acceptance-Contract.md",
         "development/XTend-Epic13-Conditional-Network-Evidence-Contract.md",
         "development/XTend-Epic13-Package-Export-Lock-Contract.md",
+        "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+        "development/WP-TypeExports-01-Public-Package-Entry-Points-und-types-Conditions-haerten.md",
+        "development/WP-TypeExports-02-XTendLoader-StyleRegistry-und-SkeletonLoader-typisieren.md",
+        "development/WP-TypeExports-03-api-js-und-window-XTend-Namespace-typisieren.md",
+        "development/WP-TypeExports-04-XTendRMT-Runtime-Browser-und-RMT-Language-Exports-typisieren.md",
+        ".xtend-test-results/xtend-type-exports-rmt-report.json",
+        "development/WP-TypeExports-05-Fabric-A11y-und-Security-Policy-APIs-typisieren.md",
+        "development/WP-TypeExports-06-Builder-Scaffold-und-Component-Lab-Programm-APIs-typisieren.md",
+        "development/WP-TypeExports-07-Catalog-Declaration-Pattern-fuer-Plan-und-Report-Module-einfuehren.md",
+        "development/WP-TypeExports-08-Vendor-Utility-Facades-fuer-Prism-Turndown-und-Design-Tokens-ergaenzen.md",
+        ".xtend-test-results/xtend-type-exports-policy-report.json",
+        ".xtend-test-results/xtend-type-exports-builder-report.json",
+        ".xtend-test-results/xtend-type-exports-catalog-report.json",
+        ".xtend-test-results/xtend-type-exports-vendor-report.json",
         "development/XTend-Epic13-Known-Residual-Triage-Contract.md",
         "development/XTend-Epic13-Hydration-Performance-Closure-Contract.md",
         "development/XTend-Epic13-PROD-Browser-CSP-Smoke-Contract.md",
@@ -2882,6 +3211,9 @@
         "docs/release-owner-acceptance.md",
         "docs/conditional-network-evidence.md",
         "docs/package-export-lock.md",
+        "docs/type-exports.md",
+        "docs/xtend-loader-types.md",
+        "docs/xtend-api-types.md",
         "docs/known-residual-triage.md",
         "docs/hydration-performance-closure.md",
         "docs/prod-browser-csp-smokes.md",
@@ -2896,6 +3228,9 @@
         ".xtend-test-results/xtend-pack-dry-run.json",
         ".xtend-test-results/xtend-package-export-surface-lock.json",
         ".xtend-test-results/xtend-package-export-lock-report.json",
+        ".xtend-test-results/xtend-type-exports-report.json",
+        ".xtend-test-results/xtend-type-exports-loader-report.json",
+        ".xtend-test-results/xtend-type-exports-api-report.json",
         ".xtend-test-results/xtend-known-residual-triage-report.json",
         ".xtend-test-results/xtend-hydration-performance-closure-report.json",
         ".xtend-test-results/visual-snapshots/rc1/visual-owner-artifact-report.json",
@@ -2906,7 +3241,10 @@
         "tests/browser/fixtures/epic13-prod-csp-smoke.html",
         "tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html",
         "tests/browser/visual-baselines/rc1-visual-owner-artifact.manifest.json",
-        "npm-pack-dry-run"
+        "npm-pack-dry-run",
+        "development/WP-TypeExports-09-TypeExports-Gate-Drift-Report-und-Docs-Handoff-produktisieren.md",
+        "docs/public-component-types.md",
+        "docs/typescript-components.md"
       ],
       "publishBoundary": "private-until-release-owner-approval",
       "completedRun": "ER-WP-40",
@@ -5382,6 +5720,534 @@
       "publishBoundary": "private-until-release-owner-acceptance",
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
     },
+    "typeExports": {
+      "schema": "xtend.type-exports.plan.v1",
+      "reportSchema": "xtend.type-exports.report.v1",
+      "classificationSchema": "xtend.type-exports.export-classification.v1",
+      "sourcePackageExportLockSchema": "xtend.epic13.package-export-lock.v1",
+      "workpackage": "WP-TypeExports-01",
+      "status": "accepted-public-package-entrypoint-type-classification",
+      "targetReadiness": "typed-public-package-surface-classified",
+      "module": "catalog/type-exports.js",
+      "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+      "workpackageDocument": "development/WP-TypeExports-01-Public-Package-Entry-Points-und-types-Conditions-haerten.md",
+      "docs": "docs/type-exports.md",
+      "suite": "tests/types/type_exports_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js type-exports --json",
+      "packageScript": "npm run test:type-exports",
+      "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
+      "expectedExportCount": 104,
+      "lockedExportFingerprint": "01008dba0231e449004ef55323c124f6d1e04e9cb2a98bd921cade273f0297c8",
+      "p0Exports": [
+        ".",
+        "./loader",
+        "./legacy-loader",
+        "./api",
+        "./style.css",
+        "./manifest",
+        "./components/manifest.json",
+        "./components/*"
+      ],
+      "preparedDeclarationTargets": [
+        "./xtend-loader.d.ts",
+        "./xtend-dev.d.ts",
+        "./api.d.ts",
+        "./components/*.d.ts",
+        "./xtendrmt/rmt-core.d.ts",
+        "./fabric/xtend-fabric.d.ts",
+        "./security/trusted-dom-policy.d.ts",
+        "./xtend-builder/scaffold.d.ts",
+        "./xtend-builder/*.d.ts",
+        "./catalog/epic13-package-export-lock.d.ts",
+        "./design-tokens/xtend-design-tokens.d.ts",
+        "./tools/rmt-language/rmt-tooling-public-types.d.ts",
+        "./tools/rmt-language/source-model.d.ts",
+        "./tools/rmt-language/parser.d.ts",
+        "./tools/rmt-language/vnext-tooling.d.ts",
+        "./tools/rmt-language-server/protocol.d.ts",
+        "./tools/rmt-linter/reporter.d.ts",
+        "./tools/rmt-editor/vscode/extension.d.ts",
+        "./fabric/xtend-policy-public-types.d.ts",
+        "./fabric/rmt-lane-mapping.d.ts",
+        "./fabric/hydration-policy.d.ts",
+        "./a11y/screenreader-signals.d.ts",
+        "./a11y/motion-contrast-policy.d.ts",
+        "./a11y/runtime-a11y-contract.d.ts",
+        "./security/manifest-import-policy.d.ts",
+        "./security/supply-chain-gate-policy.d.ts",
+        "./xtend-builder/builder-public-types.d.ts",
+        "./xtend-builder/scaffold.config.d.ts",
+        "./xtend-builder/lib/cli.d.ts",
+        "./xtend-builder/lib/layout.d.ts",
+        "./xtend-builder/blueprints/component-blueprint.contract.d.ts",
+        "./xtend-builder/generators/component-plan.d.ts",
+        "./xtend-builder/generators/component-files.d.ts",
+        "./xtend-builder/generators/registry.d.ts",
+        "./xtend-builder/templates/loader.d.ts",
+        "./xtend-builder/templates/registry.d.ts",
+        "./xtend-builder/templates/component/component-suite.template.d.ts",
+        "./xtend-builder/templates/component/source.template.d.ts",
+        "./xtend-builder/utils/naming.d.ts",
+        "./xtend-builder/utils/validation.d.ts",
+        "./xtend-builder/wiring/features.d.ts",
+        "./xtend-builder/wiring/hydration.d.ts",
+        "./xtend-builder/wiring/manifest.d.ts",
+        "./xtend-builder/a11y/component-a11y-profile.d.ts",
+        "./xtend-builder/performance/component-performance-profile.d.ts",
+        "./xtend-builder/performance/component-ux-performance-contract.d.ts",
+        "./xtend-builder/preview/component-preview.d.ts",
+        "./xtend-builder/preview/component-lab.d.ts",
+        "./xtend-builder/preview/component-lab-ux-inspector.d.ts",
+        "./xtend-builder/extensions/component-extension-points.d.ts",
+        "./xtend-builder/workflows/developer-workflow.d.ts",
+        "./xtend-builder/typing/component-types.d.ts",
+        "./xtend-builder/typing/component-contract-v2.d.ts",
+        "./xtend-builder/typing/component-shell-contract.d.ts",
+        "./xtend-builder/typing/component-styling-contract.d.ts",
+        "./xtend-builder/typing/component-network-contract.d.ts",
+        "./xtend-builder/typing/rmt-shell-authoring-contract.d.ts",
+        "./xtend-builder/typing/rmt-dsl-authoring-polish.d.ts",
+        "./xtend-builder/typing/form-controls-ux-contract.d.ts",
+        "./xtend-builder/typing/feedback-status-ux-contract.d.ts",
+        "./xtend-builder/typing/navigation-routing-ux-contract.d.ts",
+        "./xtend-builder/typing/overlay-interaction-ux-contract.d.ts",
+        "./xtend-builder/typing/layout-display-media-ux-contract.d.ts",
+        "./catalog/catalog-public-types.d.ts",
+        "./catalog/component-catalog-coverage.d.ts",
+        "./catalog/component-long-tail-migration.d.ts",
+        "./catalog/component-regression-priority.d.ts",
+        "./catalog/epic10-existing-component-metadata.d.ts",
+        "./catalog/epic10-p0-component-wave.d.ts",
+        "./catalog/epic10-platform-gates.d.ts",
+        "./catalog/epic10-release-handoff.d.ts",
+        "./catalog/epic11-enterprise-ux-handoff.d.ts",
+        "./catalog/epic12-docs-adoption.d.ts",
+        "./catalog/epic12-rc0-gate-matrix.d.ts",
+        "./catalog/epic12-rc0-handoff.d.ts",
+        "./catalog/epic13-conditional-network-evidence.d.ts",
+        "./catalog/epic13-docs-rmt-production-hardening.d.ts",
+        "./catalog/epic13-hydration-performance-closure.d.ts",
+        "./catalog/epic13-known-residual-triage.d.ts",
+        "./catalog/epic13-prod-browser-csp-smoke.d.ts",
+        "./catalog/epic13-rc1-migration-notes.d.ts",
+        "./catalog/epic13-rc1-readiness.d.ts",
+        "./catalog/epic13-release-owner-acceptance.d.ts",
+        "./catalog/epic13-rmt-production-readiness.d.ts",
+        "./catalog/epic13-trusted-dom-boundary.d.ts",
+        "./catalog/epic13-visual-owner-artifact.d.ts",
+        "./catalog/epic14-lsp-handoff.d.ts",
+        "./catalog/epic14-rmt-tooling.d.ts",
+        "./catalog/surface-manager-adapter-runtime.d.ts",
+        "./catalog/surface-manager-browser-lab.d.ts",
+        "./catalog/surface-manager-controller.d.ts",
+        "./catalog/surface-manager-layout-engines.d.ts",
+        "./catalog/surface-manager-lazy-loading.d.ts",
+        "./catalog/surface-manager-materialization.d.ts",
+        "./catalog/surface-manager-native-rmt-surfaces.d.ts",
+        "./catalog/surface-manager-overlay-bridge.d.ts",
+        "./catalog/surface-manager-persistence.d.ts",
+        "./catalog/surface-manager-quality-gates.d.ts",
+        "./catalog/surface-manager-release-handoff.d.ts",
+        "./catalog/surface-manager-remote-policy.d.ts",
+        "./catalog/surface-manager-rmt-authoring.d.ts",
+        "./catalog/surface-manager-route-lifecycle.d.ts",
+        "./catalog/surface-manager-runtime-release-handoff.d.ts",
+        "./catalog/surface-manager-side-panel-runtime.d.ts",
+        "./catalog/surface-manager-stack-policy.d.ts",
+        "./catalog/surface-manager-window-runtime.d.ts",
+        "./catalog/surface-manager-workbench-fixture.d.ts",
+        "./components/prism.d.ts",
+        "./components/turndown.d.ts"
+      ],
+      "boundaries": [
+        "types-only-no-runtime-imports",
+        "no-rmt-kernel-import-of-xtend-types",
+        "declarations-follow-js-runtime-surface"
+      ],
+      "packageTypesConditionsApplyInFollowUps": true,
+      "localGateFailsOnNewUntypedPublicExport": true,
+      "completedWorkpackages": [
+        "WP-TypeExports-01",
+        "WP-TypeExports-02",
+        "WP-TypeExports-03",
+        "WP-TypeExports-04",
+        "WP-TypeExports-05",
+        "WP-TypeExports-06",
+        "WP-TypeExports-07",
+        "WP-TypeExports-08",
+        "WP-TypeExports-09"
+      ],
+      "nextWorkpackages": [],
+      "driftReportSchema": "xtend.type-exports.drift-report.v1",
+      "releaseWorkpackage": "WP-TypeExports-09",
+      "releaseStatus": "accepted-productive-type-exports-release-gate",
+      "releaseTargetReadiness": "productive-type-exports-release-gate-ready",
+      "releaseLocalGate": "node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json",
+      "releasePackageScript": "npm run test:type-exports:release",
+      "releaseGateBundle": [
+        "npm run test:type-exports",
+        "npm run test:type-exports-loader",
+        "npm run test:type-exports-api",
+        "npm run test:type-exports-rmt",
+        "npm run test:type-exports-policy",
+        "npm run test:type-exports-builder",
+        "npm run test:type-exports-catalog",
+        "npm run test:type-exports-vendor",
+        "npm run test:type-exports:release"
+      ],
+      "releaseReportArtifacts": [
+        ".xtend-test-results/xtend-type-exports-report.json",
+        ".xtend-test-results/xtend-type-exports-loader-report.json",
+        ".xtend-test-results/xtend-type-exports-api-report.json",
+        ".xtend-test-results/xtend-type-exports-rmt-report.json",
+        ".xtend-test-results/xtend-type-exports-policy-report.json",
+        ".xtend-test-results/xtend-type-exports-builder-report.json",
+        ".xtend-test-results/xtend-type-exports-catalog-report.json",
+        ".xtend-test-results/xtend-type-exports-vendor-report.json"
+      ],
+      "releaseDocs": [
+        "docs/type-exports.md",
+        "docs/public-component-types.md",
+        "docs/typescript-components.md",
+        "docs/package-export-lock.md"
+      ]
+    },
+    "typeExportsLoader": {
+      "schema": "xtend.type-exports.loader-declarations.v1",
+      "reportSchema": "xtend.type-exports.loader-declarations-report.v1",
+      "sourceTypeExportsSchema": "xtend.type-exports.plan.v1",
+      "workpackage": "WP-TypeExports-02",
+      "status": "accepted-loader-style-skeleton-declarations",
+      "targetReadiness": "loader-style-skeleton-types-ready",
+      "module": "catalog/type-exports-loader.js",
+      "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+      "workpackageDocument": "development/WP-TypeExports-02-XTendLoader-StyleRegistry-und-SkeletonLoader-typisieren.md",
+      "docs": "docs/xtend-loader-types.md",
+      "suite": "tests/types/loader_type_exports_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js type-exports-loader --json",
+      "packageScript": "npm run test:type-exports-loader",
+      "reportArtifact": ".xtend-test-results/xtend-type-exports-loader-report.json",
+      "declarationFiles": [
+        "xtend-loader.d.ts",
+        "xtend-dev.d.ts"
+      ],
+      "packageExports": [
+        ".",
+        "./loader",
+        "./legacy-loader"
+      ],
+      "globals": [
+        "XTendLoader",
+        "XTendStyleRegistry",
+        "XTendSkeletonLoader",
+        "__XTendLoaderBootPromise"
+      ],
+      "runtimeApis": [
+        "ensureComponent",
+        "hydrateTree",
+        "showSkeleton",
+        "hideSkeleton",
+        "ensureRuntimeStyles",
+        "defineComponentStyle",
+        "adoptStyle"
+      ],
+      "events": [
+        "xtend-loader-diagnostic",
+        "xtend-loader-performance",
+        "xtend-loader-tree-hydrated"
+      ],
+      "packageTypesConditions": [
+        ".",
+        "./loader",
+        "./legacy-loader"
+      ],
+      "xtendCssDependency": false,
+      "runtimeChanged": false,
+      "nextWorkpackage": "WP-TypeExports-03"
+    },
+    "typeExportsApi": {
+      "schema": "xtend.type-exports.api-declarations.v1",
+      "reportSchema": "xtend.type-exports.api-declarations-report.v1",
+      "sourceTypeExportsSchema": "xtend.type-exports.plan.v1",
+      "workpackage": "WP-TypeExports-03",
+      "status": "accepted-core-api-namespace-declarations",
+      "targetReadiness": "core-api-namespace-types-ready",
+      "module": "catalog/type-exports-api.js",
+      "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+      "workpackageDocument": "development/WP-TypeExports-03-api-js-und-window-XTend-Namespace-typisieren.md",
+      "docs": "docs/xtend-api-types.md",
+      "suite": "tests/types/api_type_exports_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js type-exports-api --json",
+      "packageScript": "npm run test:type-exports-api",
+      "reportArtifact": ".xtend-test-results/xtend-type-exports-api-report.json",
+      "declarationFiles": [
+        "api.d.ts"
+      ],
+      "packageExports": [
+        "./api"
+      ],
+      "globals": [
+        "XTend",
+        "XTheme",
+        "XToast",
+        "XAlert",
+        "XDialog",
+        "XModal",
+        "showToast",
+        "showAlert",
+        "showDialog",
+        "showModal"
+      ],
+      "namespaceKeys": [
+        "compliance",
+        "theme",
+        "themeRuntime",
+        "toast",
+        "alert",
+        "dialog",
+        "modal"
+      ],
+      "events": [
+        "xtend-api-ready"
+      ],
+      "packageTypesConditions": [
+        "./api"
+      ],
+      "runtimeChanged": false,
+      "nextWorkpackage": "WP-TypeExports-04"
+    },
+    "typeExportsRmt": {
+      "schema": "xtend.type-exports.rmt-declarations.v1",
+      "reportSchema": "xtend.type-exports.rmt-declarations-report.v1",
+      "sourceTypeExportsSchema": "xtend.type-exports.plan.v1",
+      "workpackage": "WP-TypeExports-04",
+      "status": "accepted-rmt-runtime-language-declarations",
+      "targetReadiness": "rmt-runtime-language-types-ready",
+      "module": "catalog/type-exports-rmt.js",
+      "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+      "workpackageDocument": "development/WP-TypeExports-04-XTendRMT-Runtime-Browser-und-RMT-Language-Exports-typisieren.md",
+      "docs": "docs/xtend-rmt-types.md",
+      "suite": "tests/types/rmt_type_exports_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js type-exports-rmt --json",
+      "packageScript": "npm run test:type-exports-rmt",
+      "reportArtifact": ".xtend-test-results/xtend-type-exports-rmt-report.json",
+      "declarationFiles": [
+        "xtendrmt/rmt-core.d.ts",
+        "tools/rmt-language/rmt-tooling-public-types.d.ts",
+        "tools/rmt-language/source-model.d.ts",
+        "tools/rmt-language/parser.d.ts",
+        "tools/rmt-language/vnext-parser.d.ts",
+        "tools/rmt-language/vnext-compiler.d.ts",
+        "tools/rmt-language/vnext-lifecycle.d.ts",
+        "tools/rmt-language/vnext-scheduler.d.ts",
+        "tools/rmt-language/vnext-surfaces.d.ts",
+        "tools/rmt-language/vnext-conditions.d.ts",
+        "tools/rmt-language/vnext-composition.d.ts",
+        "tools/rmt-language/vnext-import-resolver.d.ts",
+        "tools/rmt-language/vnext-events.d.ts",
+        "tools/rmt-language/vnext-security.d.ts",
+        "tools/rmt-language/vnext-streaming.d.ts",
+        "tools/rmt-language/vnext-tooling.d.ts",
+        "tools/rmt-language/vnext-compatibility.d.ts",
+        "tools/rmt-language/vnext-regression.d.ts",
+        "tools/rmt-language/vnext-release.d.ts",
+        "tools/rmt-language/vnext-remote-manifest.d.ts",
+        "tools/rmt-language/vnext-enterprise-registry.d.ts",
+        "tools/rmt-language/vnext-degradation.d.ts",
+        "tools/rmt-language/vnext-remote-security.d.ts",
+        "tools/rmt-language/vnext-cross-surface-events.d.ts",
+        "tools/rmt-language/vnext-event-governance.d.ts",
+        "tools/rmt-language/vnext-remote-compiler.d.ts",
+        "tools/rmt-language/vnext-remote-tooling.d.ts",
+        "tools/rmt-language/vnext-remote-compatibility.d.ts",
+        "tools/rmt-language/vnext-enterprise-fixtures.d.ts",
+        "tools/rmt-language/vnext-enterprise-release.d.ts",
+        "tools/rmt-language/format-adapter.d.ts",
+        "tools/rmt-language/semantic-graph.d.ts",
+        "tools/rmt-language/diagnostics.d.ts",
+        "tools/rmt-language/completions.d.ts",
+        "tools/rmt-language/hover.d.ts",
+        "tools/rmt-language/symbols.d.ts",
+        "tools/rmt-language/definitions.d.ts",
+        "tools/rmt-language/code-actions.d.ts",
+        "tools/rmt-language-server/server.d.ts",
+        "tools/rmt-language-server/protocol.d.ts",
+        "tools/rmt-linter/cli.d.ts",
+        "tools/rmt-linter/reporter.d.ts",
+        "tools/rmt-language/snippets/index.d.ts",
+        "tools/rmt-editor/vscode/extension.d.ts"
+      ],
+      "packageExports": [
+        "./rmt",
+        "./rmt/browser",
+        "./rmt-language/source-model",
+        "./rmt-language/parser",
+        "./rmt-language/vnext-parser",
+        "./rmt-language/vnext-compiler",
+        "./rmt-language/vnext-lifecycle",
+        "./rmt-language/vnext-scheduler",
+        "./rmt-language/vnext-surfaces",
+        "./rmt-language/vnext-conditions",
+        "./rmt-language/vnext-composition",
+        "./rmt-language/vnext-import-resolver",
+        "./rmt-language/vnext-events",
+        "./rmt-language/vnext-security",
+        "./rmt-language/vnext-streaming",
+        "./rmt-language/vnext-tooling",
+        "./rmt-language/vnext-compatibility",
+        "./rmt-language/vnext-regression",
+        "./rmt-language/vnext-release",
+        "./rmt-language/vnext-remote-manifest",
+        "./rmt-language/vnext-enterprise-registry",
+        "./rmt-language/vnext-degradation",
+        "./rmt-language/vnext-remote-security",
+        "./rmt-language/vnext-cross-surface-events",
+        "./rmt-language/vnext-event-governance",
+        "./rmt-language/vnext-remote-compiler",
+        "./rmt-language/vnext-remote-tooling",
+        "./rmt-language/vnext-remote-compatibility",
+        "./rmt-language/vnext-enterprise-fixtures",
+        "./rmt-language/vnext-enterprise-release",
+        "./rmt-language/format-adapter",
+        "./rmt-language/semantic-graph",
+        "./rmt-language/diagnostics",
+        "./rmt-language/completions",
+        "./rmt-language/hover",
+        "./rmt-language/symbols",
+        "./rmt-language/definitions",
+        "./rmt-language/code-actions",
+        "./rmt-language-server",
+        "./rmt-language-server/protocol",
+        "./rmt-linter/cli",
+        "./rmt-linter/reporter",
+        "./rmt-language/snippets",
+        "./rmt-editor/vscode"
+      ],
+      "packageTypesConditions": [
+        "./rmt",
+        "./rmt/browser",
+        "./rmt-language/source-model",
+        "./rmt-language/parser",
+        "./rmt-language/vnext-parser",
+        "./rmt-language/vnext-compiler",
+        "./rmt-language/vnext-lifecycle",
+        "./rmt-language/vnext-scheduler",
+        "./rmt-language/vnext-surfaces",
+        "./rmt-language/vnext-conditions",
+        "./rmt-language/vnext-composition",
+        "./rmt-language/vnext-import-resolver",
+        "./rmt-language/vnext-events",
+        "./rmt-language/vnext-security",
+        "./rmt-language/vnext-streaming",
+        "./rmt-language/vnext-tooling",
+        "./rmt-language/vnext-compatibility",
+        "./rmt-language/vnext-regression",
+        "./rmt-language/vnext-release",
+        "./rmt-language/vnext-remote-manifest",
+        "./rmt-language/vnext-enterprise-registry",
+        "./rmt-language/vnext-degradation",
+        "./rmt-language/vnext-remote-security",
+        "./rmt-language/vnext-cross-surface-events",
+        "./rmt-language/vnext-event-governance",
+        "./rmt-language/vnext-remote-compiler",
+        "./rmt-language/vnext-remote-tooling",
+        "./rmt-language/vnext-remote-compatibility",
+        "./rmt-language/vnext-enterprise-fixtures",
+        "./rmt-language/vnext-enterprise-release",
+        "./rmt-language/format-adapter",
+        "./rmt-language/semantic-graph",
+        "./rmt-language/diagnostics",
+        "./rmt-language/completions",
+        "./rmt-language/hover",
+        "./rmt-language/symbols",
+        "./rmt-language/definitions",
+        "./rmt-language/code-actions",
+        "./rmt-language-server",
+        "./rmt-language-server/protocol",
+        "./rmt-linter/cli",
+        "./rmt-linter/reporter",
+        "./rmt-language/snippets",
+        "./rmt-editor/vscode"
+      ],
+      "boundaries": [
+        "types-only-no-runtime-imports",
+        "no-rmt-kernel-import-of-xtend-types",
+        "declarations-follow-js-runtime-surface"
+      ],
+      "sharedTypes": [
+        "RmtToolingDiagnostic",
+        "RmtTextEdit",
+        "RmtWorkspaceEdit",
+        "RmtLanguageServiceReport",
+        "RmtJsonRpcMessage"
+      ],
+      "runtimeChanged": false,
+      "nextWorkpackage": "WP-TypeExports-05"
+    },
+    "typeExportsPolicy": {
+      "schema": "xtend.type-exports.policy-declarations.v1",
+      "reportSchema": "xtend.type-exports.policy-declarations-report.v1",
+      "sourceTypeExportsSchema": "xtend.type-exports.plan.v1",
+      "workpackage": "WP-TypeExports-05",
+      "status": "accepted-fabric-a11y-security-policy-declarations",
+      "targetReadiness": "fabric-a11y-security-policy-types-ready",
+      "module": "catalog/type-exports-policy.js",
+      "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+      "workpackageDocument": "development/WP-TypeExports-05-Fabric-A11y-und-Security-Policy-APIs-typisieren.md",
+      "docs": "docs/xtend-policy-types.md",
+      "suite": "tests/types/policy_type_exports_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js type-exports-policy --json",
+      "packageScript": "npm run test:type-exports-policy",
+      "reportArtifact": ".xtend-test-results/xtend-type-exports-policy-report.json",
+      "declarationFiles": [
+        "fabric/xtend-policy-public-types.d.ts",
+        "fabric/xtend-fabric.d.ts",
+        "fabric/rmt-lane-mapping.d.ts",
+        "fabric/hydration-policy.d.ts",
+        "a11y/screenreader-signals.d.ts",
+        "a11y/motion-contrast-policy.d.ts",
+        "a11y/runtime-a11y-contract.d.ts",
+        "security/manifest-import-policy.d.ts",
+        "security/trusted-dom-policy.d.ts",
+        "security/supply-chain-gate-policy.d.ts"
+      ],
+      "packageExports": [
+        "./fabric",
+        "./fabric/rmt-lane-mapping",
+        "./fabric/hydration-policy",
+        "./a11y/screenreader-signals",
+        "./a11y/motion-contrast-policy",
+        "./a11y/runtime-a11y-contract",
+        "./security/manifest-import-policy",
+        "./security/trusted-dom-policy",
+        "./security/supply-chain-gate-policy"
+      ],
+      "packageTypesConditions": [
+        "./fabric",
+        "./fabric/rmt-lane-mapping",
+        "./fabric/hydration-policy",
+        "./a11y/screenreader-signals",
+        "./a11y/motion-contrast-policy",
+        "./a11y/runtime-a11y-contract",
+        "./security/manifest-import-policy",
+        "./security/trusted-dom-policy",
+        "./security/supply-chain-gate-policy"
+      ],
+      "boundaries": [
+        "types-only-no-runtime-imports",
+        "no-rmt-kernel-import-of-xtend-types",
+        "declarations-follow-js-runtime-surface"
+      ],
+      "sharedTypes": [
+        "XtendPolicyDiagnostic",
+        "XtendPolicyReport",
+        "XtendFabricFiberInput",
+        "XtendA11ySignal",
+        "XtendSecurityClassification"
+      ],
+      "runtimeChanged": false,
+      "nextWorkpackage": "WP-TypeExports-06"
+    },
     "epic13KnownResidualTriage": {
       "schema": "xtend.epic13.known-residual-triage.v1",
       "decisionSchema": "xtend.epic13.known-residual-decision.v1",
@@ -6032,6 +6898,285 @@
       "publishAllowed": false,
       "publishBoundary": "private-until-release-owner-acceptance",
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "typeExportsBuilder": {
+      "schema": "xtend.type-exports.builder-declarations.v1",
+      "reportSchema": "xtend.type-exports.builder-declarations-report.v1",
+      "sourceTypeExportsSchema": "xtend.type-exports.plan.v1",
+      "workpackage": "WP-TypeExports-06",
+      "status": "accepted-builder-scaffold-component-lab-declarations",
+      "targetReadiness": "builder-scaffold-component-lab-types-ready",
+      "module": "catalog/type-exports-builder.js",
+      "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+      "workpackageDocument": "development/WP-TypeExports-06-Builder-Scaffold-und-Component-Lab-Programm-APIs-typisieren.md",
+      "docs": "docs/xtend-builder-types.md",
+      "suite": "tests/types/builder_type_exports_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js type-exports-builder --json",
+      "packageScript": "npm run test:type-exports-builder",
+      "reportArtifact": ".xtend-test-results/xtend-type-exports-builder-report.json",
+      "declarationFiles": [
+        "xtend-builder/builder-public-types.d.ts",
+        "xtend-builder/scaffold.d.ts",
+        "xtend-builder/scaffold.config.d.ts",
+        "xtend-builder/lib/cli.d.ts",
+        "xtend-builder/lib/layout.d.ts",
+        "xtend-builder/blueprints/component-blueprint.contract.d.ts",
+        "xtend-builder/generators/component-plan.d.ts",
+        "xtend-builder/generators/component-files.d.ts",
+        "xtend-builder/generators/registry.d.ts",
+        "xtend-builder/templates/loader.d.ts",
+        "xtend-builder/templates/registry.d.ts",
+        "xtend-builder/templates/component/component-suite.template.d.ts",
+        "xtend-builder/templates/component/source.template.d.ts",
+        "xtend-builder/utils/naming.d.ts",
+        "xtend-builder/utils/validation.d.ts",
+        "xtend-builder/wiring/features.d.ts",
+        "xtend-builder/wiring/hydration.d.ts",
+        "xtend-builder/wiring/manifest.d.ts",
+        "xtend-builder/a11y/component-a11y-profile.d.ts",
+        "xtend-builder/performance/component-performance-profile.d.ts",
+        "xtend-builder/performance/component-ux-performance-contract.d.ts",
+        "xtend-builder/preview/component-preview.d.ts",
+        "xtend-builder/preview/component-lab.d.ts",
+        "xtend-builder/preview/component-lab-ux-inspector.d.ts",
+        "xtend-builder/extensions/component-extension-points.d.ts",
+        "xtend-builder/workflows/developer-workflow.d.ts",
+        "xtend-builder/typing/component-types.d.ts",
+        "xtend-builder/typing/component-contract-v2.d.ts",
+        "xtend-builder/typing/component-shell-contract.d.ts",
+        "xtend-builder/typing/component-styling-contract.d.ts",
+        "xtend-builder/typing/component-network-contract.d.ts",
+        "xtend-builder/typing/rmt-shell-authoring-contract.d.ts",
+        "xtend-builder/typing/rmt-dsl-authoring-polish.d.ts",
+        "xtend-builder/typing/form-controls-ux-contract.d.ts",
+        "xtend-builder/typing/feedback-status-ux-contract.d.ts",
+        "xtend-builder/typing/navigation-routing-ux-contract.d.ts",
+        "xtend-builder/typing/overlay-interaction-ux-contract.d.ts",
+        "xtend-builder/typing/layout-display-media-ux-contract.d.ts"
+      ],
+      "packageExports": [
+        "./builder",
+        "./builder/*",
+        "./builder/preview/component-lab",
+        "./builder/preview/component-lab-ux-inspector",
+        "./builder/typing/component-shell-contract",
+        "./builder/typing/component-styling-contract",
+        "./builder/typing/component-network-contract",
+        "./builder/typing/rmt-shell-authoring-contract",
+        "./builder/typing/rmt-dsl-authoring-polish",
+        "./builder/typing/form-controls-ux-contract",
+        "./builder/typing/feedback-status-ux-contract",
+        "./builder/typing/navigation-routing-ux-contract",
+        "./builder/typing/overlay-interaction-ux-contract",
+        "./builder/typing/layout-display-media-ux-contract",
+        "./builder/performance/component-ux-performance-contract"
+      ],
+      "packageTypesConditions": [
+        "./builder",
+        "./builder/*",
+        "./builder/preview/component-lab",
+        "./builder/preview/component-lab-ux-inspector",
+        "./builder/typing/component-shell-contract",
+        "./builder/typing/component-styling-contract",
+        "./builder/typing/component-network-contract",
+        "./builder/typing/rmt-shell-authoring-contract",
+        "./builder/typing/rmt-dsl-authoring-polish",
+        "./builder/typing/form-controls-ux-contract",
+        "./builder/typing/feedback-status-ux-contract",
+        "./builder/typing/navigation-routing-ux-contract",
+        "./builder/typing/overlay-interaction-ux-contract",
+        "./builder/typing/layout-display-media-ux-contract",
+        "./builder/performance/component-ux-performance-contract"
+      ],
+      "boundaries": [
+        "types-only-no-runtime-imports",
+        "no-rmt-kernel-import-of-xtend-types",
+        "declarations-follow-js-runtime-surface"
+      ],
+      "sharedTypes": [
+        "XtendBuilderComponentInput",
+        "XtendBuilderComponentPlan",
+        "XtendBuilderComponentFilesResult",
+        "XtendBuilderWorkflow",
+        "XtendBuilderComponentLabPlan"
+      ],
+      "runtimeChanged": false,
+      "nextWorkpackage": "WP-TypeExports-07"
+    },
+    "typeExportsCatalog": {
+      "schema": "xtend.type-exports.catalog-declarations.v1",
+      "reportSchema": "xtend.type-exports.catalog-declarations-report.v1",
+      "sourceTypeExportsSchema": "xtend.type-exports.plan.v1",
+      "workpackage": "WP-TypeExports-07",
+      "status": "accepted-catalog-plan-report-declaration-pattern",
+      "targetReadiness": "catalog-plan-report-types-ready",
+      "module": "catalog/type-exports-catalog.js",
+      "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+      "workpackageDocument": "development/WP-TypeExports-07-Catalog-Declaration-Pattern-fuer-Plan-und-Report-Module-einfuehren.md",
+      "docs": "docs/xtend-catalog-types.md",
+      "suite": "tests/types/catalog_type_exports_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js type-exports-catalog --json",
+      "packageScript": "npm run test:type-exports-catalog",
+      "reportArtifact": ".xtend-test-results/xtend-type-exports-catalog-report.json",
+      "declarationFiles": [
+        "catalog/catalog-public-types.d.ts",
+        "catalog/component-catalog-coverage.d.ts",
+        "catalog/component-long-tail-migration.d.ts",
+        "catalog/component-regression-priority.d.ts",
+        "catalog/epic10-existing-component-metadata.d.ts",
+        "catalog/epic10-p0-component-wave.d.ts",
+        "catalog/epic10-platform-gates.d.ts",
+        "catalog/epic10-release-handoff.d.ts",
+        "catalog/epic11-enterprise-ux-handoff.d.ts",
+        "catalog/epic12-docs-adoption.d.ts",
+        "catalog/epic12-rc0-gate-matrix.d.ts",
+        "catalog/epic12-rc0-handoff.d.ts",
+        "catalog/epic13-conditional-network-evidence.d.ts",
+        "catalog/epic13-docs-rmt-production-hardening.d.ts",
+        "catalog/epic13-hydration-performance-closure.d.ts",
+        "catalog/epic13-known-residual-triage.d.ts",
+        "catalog/epic13-package-export-lock.d.ts",
+        "catalog/epic13-prod-browser-csp-smoke.d.ts",
+        "catalog/epic13-rc1-migration-notes.d.ts",
+        "catalog/epic13-rc1-readiness.d.ts",
+        "catalog/epic13-release-owner-acceptance.d.ts",
+        "catalog/epic13-rmt-production-readiness.d.ts",
+        "catalog/epic13-trusted-dom-boundary.d.ts",
+        "catalog/epic13-visual-owner-artifact.d.ts",
+        "catalog/epic14-lsp-handoff.d.ts",
+        "catalog/epic14-rmt-tooling.d.ts",
+        "catalog/surface-manager-adapter-runtime.d.ts",
+        "catalog/surface-manager-browser-lab.d.ts",
+        "catalog/surface-manager-controller.d.ts",
+        "catalog/surface-manager-layout-engines.d.ts",
+        "catalog/surface-manager-lazy-loading.d.ts",
+        "catalog/surface-manager-materialization.d.ts",
+        "catalog/surface-manager-native-rmt-surfaces.d.ts",
+        "catalog/surface-manager-overlay-bridge.d.ts",
+        "catalog/surface-manager-persistence.d.ts",
+        "catalog/surface-manager-quality-gates.d.ts",
+        "catalog/surface-manager-release-handoff.d.ts",
+        "catalog/surface-manager-remote-policy.d.ts",
+        "catalog/surface-manager-rmt-authoring.d.ts",
+        "catalog/surface-manager-route-lifecycle.d.ts",
+        "catalog/surface-manager-runtime-release-handoff.d.ts",
+        "catalog/surface-manager-side-panel-runtime.d.ts",
+        "catalog/surface-manager-stack-policy.d.ts",
+        "catalog/surface-manager-window-runtime.d.ts",
+        "catalog/surface-manager-workbench-fixture.d.ts"
+      ],
+      "packageExports": [
+        "./catalog/component-catalog-coverage",
+        "./catalog/component-regression-priority",
+        "./catalog/component-long-tail-migration",
+        "./catalog/epic11-enterprise-ux-handoff",
+        "./catalog/epic10-p0-component-wave",
+        "./catalog/epic10-existing-component-metadata",
+        "./catalog/epic10-platform-gates",
+        "./catalog/epic10-release-handoff",
+        "./catalog/epic12-rc0-gate-matrix",
+        "./catalog/epic12-docs-adoption",
+        "./catalog/epic12-rc0-handoff",
+        "./catalog/epic13-rc1-readiness",
+        "./catalog/epic13-release-owner-acceptance",
+        "./catalog/epic13-conditional-network-evidence",
+        "./catalog/epic13-package-export-lock",
+        "./catalog/epic13-known-residual-triage",
+        "./catalog/epic13-hydration-performance-closure",
+        "./catalog/epic13-prod-browser-csp-smoke",
+        "./catalog/epic13-visual-owner-artifact",
+        "./catalog/epic13-rmt-production-readiness",
+        "./catalog/epic13-docs-rmt-production-hardening",
+        "./catalog/epic13-trusted-dom-boundary",
+        "./catalog/epic13-rc1-migration-notes",
+        "./catalog/epic14-rmt-tooling",
+        "./catalog/epic14-lsp-handoff"
+      ],
+      "packageTypesConditions": [
+        "./catalog/component-catalog-coverage",
+        "./catalog/component-regression-priority",
+        "./catalog/component-long-tail-migration",
+        "./catalog/epic11-enterprise-ux-handoff",
+        "./catalog/epic10-p0-component-wave",
+        "./catalog/epic10-existing-component-metadata",
+        "./catalog/epic10-platform-gates",
+        "./catalog/epic10-release-handoff",
+        "./catalog/epic12-rc0-gate-matrix",
+        "./catalog/epic12-docs-adoption",
+        "./catalog/epic12-rc0-handoff",
+        "./catalog/epic13-rc1-readiness",
+        "./catalog/epic13-release-owner-acceptance",
+        "./catalog/epic13-conditional-network-evidence",
+        "./catalog/epic13-package-export-lock",
+        "./catalog/epic13-known-residual-triage",
+        "./catalog/epic13-hydration-performance-closure",
+        "./catalog/epic13-prod-browser-csp-smoke",
+        "./catalog/epic13-visual-owner-artifact",
+        "./catalog/epic13-rmt-production-readiness",
+        "./catalog/epic13-docs-rmt-production-hardening",
+        "./catalog/epic13-trusted-dom-boundary",
+        "./catalog/epic13-rc1-migration-notes",
+        "./catalog/epic14-rmt-tooling",
+        "./catalog/epic14-lsp-handoff"
+      ],
+      "catalogFamilies": [
+        "component-catalog",
+        "epic-catalog",
+        "release-catalog",
+        "surface-manager-catalog"
+      ],
+      "sharedTypes": [
+        "XtendCatalogPlan",
+        "XtendCatalogReport",
+        "XtendCatalogGate",
+        "XtendCatalogFactory",
+        "XtendCatalogValidator",
+        "XtendCatalogDiagnostic"
+      ],
+      "boundaries": [
+        "types-only-no-runtime-imports",
+        "no-rmt-kernel-import-of-xtend-types",
+        "declarations-follow-js-runtime-surface"
+      ],
+      "runtimeChanged": false,
+      "nextWorkpackage": "WP-TypeExports-08"
+    },
+    "typeExportsVendor": {
+      "schema": "xtend.type-exports.vendor-facades.v1",
+      "reportSchema": "xtend.type-exports.vendor-facades-report.v1",
+      "sourceTypeExportsSchema": "xtend.type-exports.plan.v1",
+      "workpackage": "WP-TypeExports-08",
+      "status": "accepted-vendor-utility-design-token-facades",
+      "targetReadiness": "vendor-utility-design-token-facades-ready",
+      "module": "catalog/type-exports-vendor.js",
+      "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
+      "workpackageDocument": "development/WP-TypeExports-08-Vendor-Utility-Facades-fuer-Prism-Turndown-und-Design-Tokens-ergaenzen.md",
+      "docs": "docs/xtend-vendor-types.md",
+      "suite": "tests/types/vendor_type_exports_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js type-exports-vendor --json",
+      "packageScript": "npm run test:type-exports-vendor",
+      "reportArtifact": ".xtend-test-results/xtend-type-exports-vendor-report.json",
+      "declarationFiles": [
+        "components/prism.d.ts",
+        "components/turndown.d.ts",
+        "design-tokens/xtend-design-tokens.d.ts"
+      ],
+      "packageExports": [
+        "./design-tokens"
+      ],
+      "wildcardExports": [
+        "./components/*"
+      ],
+      "jsonBoundaries": [
+        "./design-tokens/themes/enterprise-light"
+      ],
+      "boundaries": [
+        "types-only-no-runtime-imports",
+        "no-rmt-kernel-import-of-xtend-types",
+        "declarations-follow-js-runtime-surface"
+      ],
+      "runtimeChanged": false,
+      "nextWorkpackage": "WP-TypeExports-09"
     }
   },
   "supplyChain": {
@@ -6120,6 +7265,11 @@
     "test:epic13-release-owner-acceptance": "node scripts/run_xtend_tests.js epic13-release-owner-acceptance",
     "test:epic13-conditional-network-evidence": "node scripts/run_xtend_tests.js epic13-conditional-network-evidence",
     "test:epic13-package-export-lock": "node scripts/run_xtend_tests.js epic13-package-export-lock",
+    "test:type-exports": "node scripts/run_xtend_tests.js type-exports",
+    "test:type-exports-loader": "node scripts/run_xtend_tests.js type-exports-loader",
+    "test:type-exports-api": "node scripts/run_xtend_tests.js type-exports-api",
+    "test:type-exports-rmt": "node scripts/run_xtend_tests.js type-exports-rmt",
+    "test:type-exports-policy": "node scripts/run_xtend_tests.js type-exports-policy",
     "test:epic13-known-residual-triage": "node scripts/run_xtend_tests.js epic13-known-residual-triage",
     "test:epic13-hydration-performance-closure": "node scripts/run_xtend_tests.js epic13-hydration-performance-closure",
     "test:epic13-prod-browser-csp-smoke": "node scripts/run_xtend_tests.js epic13-prod-browser-csp-smoke",
@@ -6207,6 +7357,10 @@
     "test:epic13-rmt-production-readiness": "node scripts/run_xtend_tests.js epic13-rmt-production-readiness",
     "test:epic13-docs-rmt-production-hardening": "node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening",
     "test:epic13-trusted-dom-boundary": "node scripts/run_xtend_tests.js epic13-trusted-dom-boundary",
-    "test:epic13-rc1-migration-notes": "node scripts/run_xtend_tests.js epic13-rc1-migration-notes"
+    "test:epic13-rc1-migration-notes": "node scripts/run_xtend_tests.js epic13-rc1-migration-notes",
+    "test:type-exports-builder": "node scripts/run_xtend_tests.js type-exports-builder",
+    "test:type-exports-catalog": "node scripts/run_xtend_tests.js type-exports-catalog",
+    "test:type-exports-vendor": "node scripts/run_xtend_tests.js type-exports-vendor",
+    "test:type-exports:release": "node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json"
   }
 }

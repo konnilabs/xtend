@@ -167,7 +167,7 @@ function runRmtVNextEventGovernanceSuite(options = {}) {
   context.assert(metadata && metadata.contract === RMT_VNEXT_EVENT_GOVERNANCE_CONTRACT_PATH, 'package metadata points to event governance contract');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-event-governance --json', 'package metadata declares event governance local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_EVENT_GOVERNANCE_PACKAGE_SCRIPT, 'package metadata declares event governance package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-event-governance'] === './tools/rmt-language/vnext-event-governance.js', 'package exports vNext event governance contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-event-governance'] === 'string' ? packageManifest.exports['./rmt-language/vnext-event-governance'] : packageManifest.exports['./rmt-language/vnext-event-governance'] && packageManifest.exports['./rmt-language/vnext-event-governance'].default) === './tools/rmt-language/vnext-event-governance.js', 'package exports vNext event governance contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-event-governance'] === 'node scripts/run_xtend_tests.js rmt-vnext-event-governance', 'package exposes vNext event governance script');
   context.assert(runner.includes("id: 'rmt-vnext-event-governance'"), 'test runner exposes rmt-vnext-event-governance suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-event-governance'), 'runner help references event governance gate');

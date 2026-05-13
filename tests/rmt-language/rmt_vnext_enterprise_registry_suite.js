@@ -130,7 +130,7 @@ function runRmtVNextEnterpriseRegistrySuite(options = {}) {
   context.assert(metadata && metadata.contract === RMT_VNEXT_ENTERPRISE_REGISTRY_CONTRACT_PATH, 'package metadata points to enterprise registry contract');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry --json', 'package metadata declares enterprise registry local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_ENTERPRISE_REGISTRY_PACKAGE_SCRIPT, 'package metadata declares enterprise registry package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-enterprise-registry'] === './tools/rmt-language/vnext-enterprise-registry.js', 'package exports vNext enterprise registry contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-enterprise-registry'] === 'string' ? packageManifest.exports['./rmt-language/vnext-enterprise-registry'] : packageManifest.exports['./rmt-language/vnext-enterprise-registry'] && packageManifest.exports['./rmt-language/vnext-enterprise-registry'].default) === './tools/rmt-language/vnext-enterprise-registry.js', 'package exports vNext enterprise registry contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-enterprise-registry'] === 'node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry', 'package exposes vNext enterprise registry script');
   context.assert(runner.includes("id: 'rmt-vnext-enterprise-registry'"), 'test runner exposes rmt-vnext-enterprise-registry suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry'), 'runner help references enterprise registry gate');

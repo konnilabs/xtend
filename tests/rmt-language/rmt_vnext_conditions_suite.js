@@ -100,7 +100,7 @@ function runRmtVNextConditionsSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_CONDITION_SUITE_PATH, 'package metadata points to condition suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-conditions --json', 'package metadata declares condition local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_CONDITION_PACKAGE_SCRIPT, 'package metadata declares condition package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-conditions'] === './tools/rmt-language/vnext-conditions.js', 'package exports vNext condition contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-conditions'] === 'string' ? packageManifest.exports['./rmt-language/vnext-conditions'] : packageManifest.exports['./rmt-language/vnext-conditions'] && packageManifest.exports['./rmt-language/vnext-conditions'].default) === './tools/rmt-language/vnext-conditions.js', 'package exports vNext condition contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-conditions'] === 'node scripts/run_xtend_tests.js rmt-vnext-conditions', 'package exposes vNext condition script');
   context.assert(runner.includes("id: 'rmt-vnext-conditions'"), 'test runner exposes rmt-vnext-conditions suite');
   context.assert(epic.includes('| `WP-E15-09` | P1 | completed | WS3 |'), 'Epic marks WP-E15-09 completed');

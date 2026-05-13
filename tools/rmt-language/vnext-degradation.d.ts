@@ -1,0 +1,23 @@
+export * from './rmt-tooling-public-types';
+import type { RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const createDegradationReport: RmtToolingFactory;
+export declare const createRmtVNextDegradationAdapter: RmtToolingFactory;
+export declare const DEGRADATION_CAPABILITY_MISSING_CODE: RmtToolingConstant;
+export declare const DEGRADATION_EVENT_RESTRICTED_CODE: RmtToolingConstant;
+export declare const DEGRADATION_FALLBACK_MISSING_CODE: RmtToolingConstant;
+export declare const DEGRADATION_SHELL_VERSION_UNSUPPORTED_CODE: RmtToolingConstant;
+export declare const DEGRADATION_STATES: RmtToolingConstant;
+export declare const DEGRADATION_SURFACE_BLOCKED_CODE: RmtToolingConstant;
+export declare const DEGRADATION_VERSION_MISMATCH_CODE: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_CONTRACT_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_POLICY_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_SURFACE_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_WORKPACKAGE: RmtToolingConstant;
+export declare const RMT_VNEXT_DEGRADATION_WP_PATH: RmtToolingConstant;
+export declare const satisfiesRange: RmtToolingFunction;
+export declare const serializeDegradationReport: RmtToolingFunction;

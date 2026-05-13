@@ -147,7 +147,8 @@ async function runHydrationPolicySuite(options = {}) {
   assert(recordedFiber && recordedFiber.scheduleRef === 'component.lazy.hydrate', 'Recorded hydration fiber keeps lazy scheduleRef');
   assert(recordedFiber && recordedFiber.metadata.metadata && recordedFiber.metadata.metadata.hydrationPolicyId === 'lazy', 'Recorded hydration fiber keeps policy metadata');
 
-  assert(packageManifest.exports['./fabric/hydration-policy'] === './fabric/hydration-policy.js', 'Package exports hydration policy module');
+  const hydrationPolicyExport = packageManifest.exports['./fabric/hydration-policy'];
+  assert((typeof hydrationPolicyExport === 'string' ? hydrationPolicyExport : hydrationPolicyExport.default) === './fabric/hydration-policy.js', 'Package exports hydration policy module');
   assert(packageManifest.scripts['test:hydration-policy'] === 'node scripts/run_xtend_tests.js hydration-policy', 'Package exposes hydration policy suite script');
   assert(packageManifest.xtend.hydrationPolicy.schema === CONTRACTS.hydrationPolicy, 'Package metadata exposes hydration policy schema');
   assert(packageManifest.xtend.hydrationPolicy.localGate === 'node scripts/run_xtend_tests.js hydration-policy --json', 'Package metadata exposes local hydration policy gate');

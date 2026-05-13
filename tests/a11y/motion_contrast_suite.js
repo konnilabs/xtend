@@ -196,7 +196,8 @@ function runMotionContrastSuite(options = {}) {
   context.assert(manifestPlan.motionContrastPolicy.schema === MOTION_CONTRAST_POLICY_SCHEMA, 'Generated manifest plan exposes motionContrastPolicy contract');
 
   const packageJson = readJson('package.json', rootDir);
-  context.assert(packageJson.exports['./a11y/motion-contrast-policy'] === './a11y/motion-contrast-policy.js', 'Package exports Motion/Contrast policy module');
+  const motionContrastExport = packageJson.exports['./a11y/motion-contrast-policy'];
+  context.assert((typeof motionContrastExport === 'string' ? motionContrastExport : motionContrastExport.default) === './a11y/motion-contrast-policy.js', 'Package exports Motion/Contrast policy module');
   context.assert(packageJson.scripts['test:motion-contrast'] === 'node scripts/run_xtend_tests.js motion-contrast', 'Package exposes Motion/Contrast suite script');
   context.assert(packageJson.xtend.motionContrastPolicy.localGate === 'node scripts/run_xtend_tests.js motion-contrast --json', 'Package metadata exposes Motion/Contrast local gate');
 

@@ -285,7 +285,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-code-actions --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_CODE_ACTION_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert(languageServerMetadata && languageServerMetadata.codeActionProvider === true, 'Language Server metadata enables code actions');
-  context.assert(packageManifest.exports['./rmt-language/code-actions'] === './tools/rmt-language/code-actions.js', 'package exports RMT Code Actions provider');
+  context.assert((typeof packageManifest.exports['./rmt-language/code-actions'] === 'string' ? packageManifest.exports['./rmt-language/code-actions'] : packageManifest.exports['./rmt-language/code-actions'] && packageManifest.exports['./rmt-language/code-actions'].default) === './tools/rmt-language/code-actions.js', 'package exports RMT Code Actions provider');
   context.assert(packageManifest.scripts['test:rmt-code-actions'] === 'node scripts/run_xtend_tests.js rmt-code-actions', 'package exposes rmt-code-actions script');
   context.assert(runner.includes("id: 'rmt-code-actions'"), 'test runner exposes rmt-code-actions suite');
   context.assert(epic.includes('| `WP-E14-10` | P1 | completed | WS5 |'), 'Epic marks WP-E14-10 completed');

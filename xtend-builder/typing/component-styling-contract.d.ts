@@ -1,0 +1,22 @@
+import type { XtendBuilderComponentInput, XtendBuilderOptions, XtendBuilderRecord, XtendBuilderReport } from '../builder-public-types';
+
+export declare const COMPONENT_STYLING_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_STYLING_REPORT_SCHEMA: string;
+export declare const COMPONENT_STYLING_WORKPACKAGE: string;
+export declare const COMPONENT_STYLING_CONTRACT_DOC: string;
+export declare const COMPONENT_SHELL_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_CONTRACT_V2_SCHEMA: string;
+export declare const UX_MATURITY_MODEL_SCHEMA: string;
+export declare const RMT_STYLE_AUTHORING_SCHEMA: string;
+export declare const FABRIC_BOUNDARY_SCHEMA: string;
+export declare const KERNEL_BOUNDARY: string;
+export declare const STYLING_REQUIRED_DOMAINS: string[];
+export declare const STYLING_TOKEN_CATEGORIES: string[];
+export declare const STYLING_REQUIRED_VARIANTS: string[];
+export declare const STYLING_REQUIRED_SIZES: string[];
+export declare const STYLING_REQUIRED_DENSITIES: string[];
+export declare const STYLING_REQUIRED_THEMES: string[];
+export declare const STYLING_REQUIRED_PARTS: string[];
+export declare const STYLING_MOTION_POLICIES: string[];
+export declare function createComponentStylingContract(input?: XtendBuilderComponentInput, options?: XtendBuilderOptions): XtendBuilderRecord;
+export declare function validateComponentStylingContract(contract: unknown): XtendBuilderReport<XtendBuilderRecord>;

@@ -130,7 +130,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_TOOLING_SUITE_PATH, 'package metadata points to vNext tooling suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-tooling --json', 'package metadata declares vNext tooling local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_TOOLING_PACKAGE_SCRIPT, 'package metadata declares vNext tooling package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-tooling'] === './tools/rmt-language/vnext-tooling.js', 'package exports vNext tooling adapter');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-tooling'] === 'string' ? packageManifest.exports['./rmt-language/vnext-tooling'] : packageManifest.exports['./rmt-language/vnext-tooling'] && packageManifest.exports['./rmt-language/vnext-tooling'].default) === './tools/rmt-language/vnext-tooling.js', 'package exports vNext tooling adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-tooling'] === 'node scripts/run_xtend_tests.js rmt-vnext-tooling', 'package exposes vNext tooling script');
   context.assert(runner.includes("id: 'rmt-vnext-tooling'"), 'test runner exposes rmt-vnext-tooling suite');
   context.assert(epic.includes('| `WP-E15-15` | P1 | completed | WS5 |'), 'Epic marks WP-E15-15 completed');

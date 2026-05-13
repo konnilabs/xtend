@@ -271,7 +271,7 @@ function runRmtLinterRulesSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_LINTER_SUITE_PATH, 'package metadata points to linter suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-linter-rules --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_LINTER_PACKAGE_SCRIPT, 'package metadata declares package script');
-  context.assert(packageManifest.exports['./rmt-language/diagnostics'] === './tools/rmt-language/diagnostics.js', 'package exports RMT Linter diagnostics');
+  context.assert((typeof packageManifest.exports['./rmt-language/diagnostics'] === 'string' ? packageManifest.exports['./rmt-language/diagnostics'] : packageManifest.exports['./rmt-language/diagnostics'] && packageManifest.exports['./rmt-language/diagnostics'].default) === './tools/rmt-language/diagnostics.js', 'package exports RMT Linter diagnostics');
   context.assert(packageManifest.scripts['test:rmt-linter-rules'] === 'node scripts/run_xtend_tests.js rmt-linter-rules', 'package exposes rmt-linter-rules script');
   context.assert(runner.includes("id: 'rmt-linter-rules'"), 'test runner exposes rmt-linter-rules suite');
   context.assert(epic.includes('| `WP-E14-05` | P0 | completed | WS2 |'), 'Epic marks WP-E14-05 completed');

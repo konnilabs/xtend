@@ -56,7 +56,8 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(packageManifest.private === true, 'Package remains private during ER-WP-30');
   context.assert(packageManifest.license === 'UNLICENSED', 'Private package license is explicit');
   context.assert(packageManifest.publishConfig && packageManifest.publishConfig.provenance === true, 'Package prepares npm provenance');
-  context.assert(packageManifest.exports['./security/supply-chain-gate-policy'] === './security/supply-chain-gate-policy.js', 'Package exports supply-chain policy module');
+  const supplyChainPolicyExport = packageManifest.exports['./security/supply-chain-gate-policy'];
+  context.assert((typeof supplyChainPolicyExport === 'string' ? supplyChainPolicyExport : supplyChainPolicyExport.default) === './security/supply-chain-gate-policy.js', 'Package exports supply-chain policy module');
   context.assert(packageManifest.scripts['test:supply-chain'] === 'node scripts/run_xtend_tests.js supply-chain', 'Package exposes supply-chain suite script');
   context.assert(packageManifest.scripts['supply-chain:verify'] === 'node scripts/verify_supply_chain_policy.js', 'Package exposes offline supply-chain verify script');
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:supply-chain'), 'Release gates include supply-chain gate');

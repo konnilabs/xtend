@@ -234,9 +234,9 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.modules.hover === RMT_HOVER_MODULE_PATH, 'package metadata points to hover module');
   context.assert(metadata && metadata.modules.symbols === RMT_DOCUMENT_SYMBOLS_MODULE_PATH, 'package metadata points to symbols module');
   context.assert(metadata && metadata.modules.definitions === RMT_DEFINITION_MODULE_PATH, 'package metadata points to definitions module');
-  context.assert(packageManifest.exports['./rmt-language/hover'] === './tools/rmt-language/hover.js', 'package exports RMT Hover provider');
-  context.assert(packageManifest.exports['./rmt-language/symbols'] === './tools/rmt-language/symbols.js', 'package exports RMT Document Symbols provider');
-  context.assert(packageManifest.exports['./rmt-language/definitions'] === './tools/rmt-language/definitions.js', 'package exports RMT Definition provider');
+  context.assert((typeof packageManifest.exports['./rmt-language/hover'] === 'string' ? packageManifest.exports['./rmt-language/hover'] : packageManifest.exports['./rmt-language/hover'] && packageManifest.exports['./rmt-language/hover'].default) === './tools/rmt-language/hover.js', 'package exports RMT Hover provider');
+  context.assert((typeof packageManifest.exports['./rmt-language/symbols'] === 'string' ? packageManifest.exports['./rmt-language/symbols'] : packageManifest.exports['./rmt-language/symbols'] && packageManifest.exports['./rmt-language/symbols'].default) === './tools/rmt-language/symbols.js', 'package exports RMT Document Symbols provider');
+  context.assert((typeof packageManifest.exports['./rmt-language/definitions'] === 'string' ? packageManifest.exports['./rmt-language/definitions'] : packageManifest.exports['./rmt-language/definitions'] && packageManifest.exports['./rmt-language/definitions'].default) === './tools/rmt-language/definitions.js', 'package exports RMT Definition provider');
   context.assert(packageManifest.scripts['test:rmt-navigation'] === 'node scripts/run_xtend_tests.js rmt-navigation', 'package exposes rmt-navigation script');
   context.assert(runner.includes("id: 'rmt-navigation'"), 'test runner exposes rmt-navigation suite');
   context.assert(epic.includes('| `WP-E14-08` | P1 | completed | WS4 |'), 'Epic marks WP-E14-08 completed');

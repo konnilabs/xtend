@@ -230,7 +230,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-agent-report --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_AGENT_REPAIR_REPORT_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert(metadata && metadata.cliCommand === 'xt rmt lint <target> --agent', 'package metadata declares CLI agent command');
-  context.assert(packageManifest.exports['./rmt-linter/reporter'] === './tools/rmt-linter/reporter.js', 'package exports RMT Agent reporter');
+  context.assert((typeof packageManifest.exports['./rmt-linter/reporter'] === 'string' ? packageManifest.exports['./rmt-linter/reporter'] : packageManifest.exports['./rmt-linter/reporter'] && packageManifest.exports['./rmt-linter/reporter'].default) === './tools/rmt-linter/reporter.js', 'package exports RMT Agent reporter');
   context.assert(packageManifest.scripts['test:rmt-agent-report'] === 'node scripts/run_xtend_tests.js rmt-agent-report', 'package exposes rmt-agent-report script');
   context.assert(runner.includes("id: 'rmt-agent-report'"), 'test runner exposes rmt-agent-report suite');
   context.assert(epic.includes('| `WP-E14-11` | P1 | completed | WS6 |'), 'Epic marks WP-E14-11 completed');

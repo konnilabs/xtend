@@ -115,7 +115,8 @@ function runRuntimeA11yContractSuite(options = {}) {
   context.assert(RUNTIME_A11Y_KEYBOARD_KEYS.includes('Shift+Tab'), 'Runtime A11y keyboard keys include Shift+Tab');
   context.assert(RUNTIME_A11Y_FOCUS_BEHAVIORS.includes('route-stable'), 'Runtime A11y focus behaviors include route-stable');
   context.assert(RUNTIME_A11Y_LIVE_REGION_MODES.includes('assertive'), 'Runtime A11y live region modes include assertive');
-  context.assert(packageManifest.exports['./a11y/runtime-a11y-contract'] === './a11y/runtime-a11y-contract.js', 'Package exports Runtime A11y Contract module');
+  const runtimeA11yExport = packageManifest.exports['./a11y/runtime-a11y-contract'];
+  context.assert((typeof runtimeA11yExport === 'string' ? runtimeA11yExport : runtimeA11yExport.default) === './a11y/runtime-a11y-contract.js', 'Package exports Runtime A11y Contract module');
   context.assert(packageManifest.scripts['test:runtime-a11y-contract'] === 'node scripts/run_xtend_tests.js runtime-a11y-contract', 'Package exposes Runtime A11y Contract test script');
   context.assert(metadata && metadata.schema === RUNTIME_A11Y_CONTRACT_SCHEMA, 'Package metadata exposes Runtime A11y schema');
   context.assert(metadata.reportSchema === RUNTIME_A11Y_REPORT_SCHEMA, 'Package metadata exposes Runtime A11y report schema');

@@ -144,7 +144,7 @@ function runEpic11EnterpriseUxHandoffSuite(options = {}) {
   context.assertIncludes(registry, EPIC11_ENTERPRISE_UX_HANDOFF_DOCS, 'Reference registry links Handoff docs');
   context.assertIncludes(runner, "id: 'epic11-enterprise-ux-handoff'", 'Runner registers Epic 11 Enterprise UX Handoff suite');
   context.assertIncludes(scaffoldConfig, 'epic11EnterpriseUxHandoff', 'Scaffold config exposes Epic 11 Enterprise UX Handoff');
-  context.assert(packageManifest.exports['./catalog/epic11-enterprise-ux-handoff'] === './catalog/epic11-enterprise-ux-handoff.js', 'Package exports Epic 11 Enterprise UX Handoff module');
+  context.assert((packageManifest.exports['./catalog/epic11-enterprise-ux-handoff'] === './catalog/epic11-enterprise-ux-handoff.js' || (packageManifest.exports['./catalog/epic11-enterprise-ux-handoff'] && packageManifest.exports['./catalog/epic11-enterprise-ux-handoff'].default === './catalog/epic11-enterprise-ux-handoff.js')), 'Package exports Epic 11 Enterprise UX Handoff module');
   context.assert(packageManifest.scripts['test:epic11-enterprise-ux-handoff'] === 'node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff', 'Package exposes Epic 11 Enterprise UX Handoff script');
   context.assert(metadata && metadata.schema === EPIC11_ENTERPRISE_UX_HANDOFF_SCHEMA, 'Package metadata exposes Handoff schema');
   context.assert(metadata && metadata.workpackage === EPIC11_ENTERPRISE_UX_HANDOFF_WORKPACKAGE, 'Package metadata exposes WP-E11-18 owner');

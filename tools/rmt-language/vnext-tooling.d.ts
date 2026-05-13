@@ -1,0 +1,25 @@
+export * from './rmt-tooling-public-types';
+import type { RmtCompletionItem, RmtDefinitionTarget, RmtDocumentSymbol, RmtHover, RmtLanguageServiceReport, RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const analyzeRmtVNextToolingSource: RmtToolingFunction<RmtLanguageServiceReport>;
+export declare const createRmtVNextToolingAdapter: RmtToolingFactory;
+export declare const findRmtVNextPointerAtPosition: RmtToolingFunction;
+export declare const formatRmtVNextSource: RmtToolingFunction;
+export declare const getRmtVNextToolingCompletions: RmtToolingFunction<RmtCompletionItem[]>;
+export declare const getRmtVNextToolingDefinition: RmtToolingFunction<RmtDefinitionTarget | null>;
+export declare const getRmtVNextToolingDocumentSymbols: RmtToolingFunction<RmtDocumentSymbol[]>;
+export declare const getRmtVNextToolingHover: RmtToolingFunction<RmtHover | null>;
+export declare const isLikelyRmtVNextSource: RmtToolingFunction;
+export declare const lintRmtVNextToolingSource: RmtToolingFunction<RmtLanguageServiceReport>;
+export declare const RMT_VNEXT_TOOLING_FORMATTER_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_TOOLING_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_TOOLING_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_VNEXT_TOOLING_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_TOOLING_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_TOOLING_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_TOOLING_WORKPACKAGE: RmtToolingConstant;
+export declare const VNEXT_COMPLETION_KEYWORDS: RmtToolingConstant;
+export declare const VNEXT_LANES: RmtToolingConstant;
+export declare const VNEXT_SNIPPETS: RmtToolingConstant;
+export declare const VNEXT_SOURCE_KINDS: RmtToolingConstant;
+export declare const VNEXT_TRUST_BOUNDARIES: RmtToolingConstant;

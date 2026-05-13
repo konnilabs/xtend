@@ -80,7 +80,8 @@ function runManifestImportPolicySuite(options = {}) {
   context.assertIncludes(loaderSource, 'emitSecurityDiagnostic', 'Loader emits structured security diagnostics');
   context.assertIncludes(loaderSource, 'xtend.security.import.refused', 'Loader exposes import refusal diagnostic');
   context.assertIncludes(loaderSource, 'xtend.security.manifest.invalid', 'Loader exposes manifest invalid diagnostic');
-  context.assert(packageManifest.exports['./security/manifest-import-policy'] === './security/manifest-import-policy.js', 'Package exports manifest import policy module');
+  const manifestImportPolicyExport = packageManifest.exports['./security/manifest-import-policy'];
+  context.assert((typeof manifestImportPolicyExport === 'string' ? manifestImportPolicyExport : manifestImportPolicyExport.default) === './security/manifest-import-policy.js', 'Package exports manifest import policy module');
   context.assert(packageManifest.scripts['test:manifest-policy'] === 'node scripts/run_xtend_tests.js manifest-import-policy', 'Package exposes manifest policy suite script');
   context.assert(packageManifest.scripts['security:manifest-policy'] === 'node scripts/verify_manifest_import_policy.js', 'Package exposes manifest policy verify script');
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:manifest-policy'), 'Release gates include manifest policy gate');

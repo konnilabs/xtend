@@ -146,7 +146,7 @@ function runComponentUxPerformanceContractSuite(options = {}) {
   context.assert(COMPONENT_UX_PERFORMANCE_LANES.includes('a11y'), 'UX Performance lanes include a11y');
   context.assert(COMPONENT_UX_PERFORMANCE_HYDRATION_POLICIES.includes('lazy'), 'UX Performance hydration policies include lazy');
   context.assert(COMPONENT_UX_PERFORMANCE_REQUIRED_ASSERTIONS.includes('telemetry-correlation'), 'UX Performance assertions include telemetry correlation');
-  context.assert(packageManifest.exports['./builder/performance/component-ux-performance-contract'] === './xtend-builder/performance/component-ux-performance-contract.js', 'Package exports Component UX Performance Contract module');
+  context.assert((typeof packageManifest.exports['./builder/performance/component-ux-performance-contract'] === 'string' ? packageManifest.exports['./builder/performance/component-ux-performance-contract'] : packageManifest.exports['./builder/performance/component-ux-performance-contract'] && packageManifest.exports['./builder/performance/component-ux-performance-contract'].default) === './xtend-builder/performance/component-ux-performance-contract.js', 'Package exports Component UX Performance Contract module');
   context.assert(packageManifest.scripts['test:component-ux-performance'] === 'node scripts/run_xtend_tests.js component-ux-performance', 'Package exposes Component UX Performance test script');
   context.assert(metadata && metadata.schema === COMPONENT_UX_PERFORMANCE_CONTRACT_SCHEMA, 'Package metadata exposes Component UX Performance schema');
   context.assert(metadata.reportSchema === COMPONENT_UX_PERFORMANCE_REPORT_SCHEMA, 'Package metadata exposes Component UX Performance report schema');

@@ -1,0 +1,21 @@
+import type { XtendBuilderComponentInput, XtendBuilderOptions, XtendBuilderRecord, XtendBuilderReport } from '../builder-public-types';
+
+export declare const COMPONENT_SHELL_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_SHELL_REPORT_SCHEMA: string;
+export declare const COMPONENT_SHELL_WORKPACKAGE: string;
+export declare const COMPONENT_SHELL_CONTRACT_DOC: string;
+export declare const COMPONENT_CONTRACT_V2_SCHEMA: string;
+export declare const UX_MATURITY_MODEL_SCHEMA: string;
+export declare const RMT_SHELL_AUTHORING_SCHEMA: string;
+export declare const FABRIC_BOUNDARY_SCHEMA: string;
+export declare const A11Y_COMPONENT_CONTRACT_SCHEMA: string;
+export declare const PERFORMANCE_COMPONENT_PROFILE_SCHEMA: string;
+export declare const KERNEL_BOUNDARY: string;
+export declare const SHELL_REQUIRED_DOMAINS: string[];
+export declare const SHELL_DOM_MODES: string[];
+export declare const SHELL_REQUIRED_STATES: string[];
+export declare const SHELL_DEFAULT_SLOTS: string[];
+export declare const SHELL_DEFAULT_PARTS: string[];
+export declare const SHELL_FOCUS_STRATEGIES: string[];
+export declare function createComponentShellContract(input?: XtendBuilderComponentInput, options?: XtendBuilderOptions): XtendBuilderRecord;
+export declare function validateComponentShellContract(contract: unknown): XtendBuilderReport<XtendBuilderRecord>;

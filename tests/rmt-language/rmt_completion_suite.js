@@ -195,7 +195,7 @@ function runRmtCompletionSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_COMPLETION_SUITE_PATH, 'package metadata points to completion suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-completions --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_COMPLETION_PACKAGE_SCRIPT, 'package metadata declares package script');
-  context.assert(packageManifest.exports['./rmt-language/completions'] === './tools/rmt-language/completions.js', 'package exports RMT Completion provider');
+  context.assert((typeof packageManifest.exports['./rmt-language/completions'] === 'string' ? packageManifest.exports['./rmt-language/completions'] : packageManifest.exports['./rmt-language/completions'] && packageManifest.exports['./rmt-language/completions'].default) === './tools/rmt-language/completions.js', 'package exports RMT Completion provider');
   context.assert(packageManifest.scripts['test:rmt-completions'] === 'node scripts/run_xtend_tests.js rmt-completions', 'package exposes rmt-completions script');
   context.assert(runner.includes("id: 'rmt-completions'"), 'test runner exposes rmt-completions suite');
   context.assert(epic.includes('| `WP-E14-07` | P1 | completed | WS4 |'), 'Epic marks WP-E14-07 completed');

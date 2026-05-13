@@ -136,8 +136,8 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.suite === RMT_EDITOR_PACKAGING_SUITE_PATH, 'package metadata points to editor packaging suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-editor-packaging --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_EDITOR_PACKAGING_PACKAGE_SCRIPT, 'package metadata declares package script');
-  context.assert(packageManifest.exports['./rmt-language/snippets'] === './tools/rmt-language/snippets/index.js', 'package exports RMT snippets');
-  context.assert(packageManifest.exports['./rmt-editor/vscode'] === './tools/rmt-editor/vscode/extension.js', 'package exports VS Code bridge stub');
+  context.assert((typeof packageManifest.exports['./rmt-language/snippets'] === 'string' ? packageManifest.exports['./rmt-language/snippets'] : packageManifest.exports['./rmt-language/snippets'] && packageManifest.exports['./rmt-language/snippets'].default) === './tools/rmt-language/snippets/index.js', 'package exports RMT snippets');
+  context.assert((typeof packageManifest.exports['./rmt-editor/vscode'] === 'string' ? packageManifest.exports['./rmt-editor/vscode'] : packageManifest.exports['./rmt-editor/vscode'] && packageManifest.exports['./rmt-editor/vscode'].default) === './tools/rmt-editor/vscode/extension.js', 'package exports VS Code bridge stub');
   context.assert(packageManifest.scripts['test:rmt-editor-packaging'] === 'node scripts/run_xtend_tests.js rmt-editor-packaging', 'package exposes rmt-editor-packaging script');
   context.assert(runner.includes("id: 'rmt-editor-packaging'"), 'test runner exposes rmt-editor-packaging suite');
   context.assert(epic.includes('| `WP-E14-12` | P2 | completed | WS7 |'), 'Epic marks WP-E14-12 completed');

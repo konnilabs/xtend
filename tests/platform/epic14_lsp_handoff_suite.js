@@ -107,7 +107,7 @@ function runPackageChecks(context, rootDir, plan) {
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.epic14LspHandoff;
 
-  context.assert(packageManifest.exports['./catalog/epic14-lsp-handoff'] === './catalog/epic14-lsp-handoff.js', 'Package exports Epic 14 LSP handoff module');
+  context.assert((packageManifest.exports['./catalog/epic14-lsp-handoff'] === './catalog/epic14-lsp-handoff.js' || (packageManifest.exports['./catalog/epic14-lsp-handoff'] && packageManifest.exports['./catalog/epic14-lsp-handoff'].default === './catalog/epic14-lsp-handoff.js')), 'Package exports Epic 14 LSP handoff module');
   context.assert(packageManifest.scripts['test:epic14-lsp-handoff'] === 'node scripts/run_xtend_tests.js epic14-lsp-handoff', 'Package exposes Epic 14 LSP handoff test script');
   context.assert(Array.isArray(packageManifest.xtend.releaseGates) && packageManifest.xtend.releaseGates.includes(EPIC14_LSP_HANDOFF_PACKAGE_SCRIPT), 'Release gates include Epic 14 LSP handoff script');
   context.assert(metadata && metadata.schema === EPIC14_LSP_HANDOFF_SCHEMA, 'Package metadata declares LSP handoff schema');

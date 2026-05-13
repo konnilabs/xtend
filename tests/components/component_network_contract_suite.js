@@ -150,7 +150,7 @@ function runComponentNetworkContractSuite(options = {}) {
   context.assert(COMPONENT_NETWORK_REQUIRED_EVENTS.includes('xtend:route-change'), 'Required events include route-change');
   context.assert(COMPONENT_NETWORK_REQUIRED_COMMANDS.includes('snapshot'), 'Required commands include snapshot');
   context.assert(COMPONENT_NETWORK_ASSERTIONS.includes('no-global-magic-state'), 'Required assertions forbid global magic state');
-  context.assert(packageManifest.exports['./builder/typing/component-network-contract'] === './xtend-builder/typing/component-network-contract.js', 'Package exports Component Network Contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/component-network-contract'] === 'string' ? packageManifest.exports['./builder/typing/component-network-contract'] : packageManifest.exports['./builder/typing/component-network-contract'] && packageManifest.exports['./builder/typing/component-network-contract'].default) === './xtend-builder/typing/component-network-contract.js', 'Package exports Component Network Contract module');
   context.assert(packageManifest.scripts['test:component-network-contract'] === 'node scripts/run_xtend_tests.js component-network-contract', 'Package exposes Component Network test script');
   context.assert(metadata && metadata.schema === COMPONENT_NETWORK_CONTRACT_SCHEMA, 'Package metadata exposes Component Network schema');
   context.assert(metadata.reportSchema === COMPONENT_NETWORK_REPORT_SCHEMA, 'Package metadata exposes Component Network report schema');

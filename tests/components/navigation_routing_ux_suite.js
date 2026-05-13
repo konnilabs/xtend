@@ -198,7 +198,7 @@ function runNavigationRoutingUxSuite(options = {}) {
     context.assert(docs.includes(paths.stateKey), `${profile.tag} docs describe state key ${paths.stateKey}`);
   });
 
-  context.assert(packageManifest.exports['./builder/typing/navigation-routing-ux-contract'] === './xtend-builder/typing/navigation-routing-ux-contract.js', 'Package exports Navigation Routing UX contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/navigation-routing-ux-contract'] === 'string' ? packageManifest.exports['./builder/typing/navigation-routing-ux-contract'] : packageManifest.exports['./builder/typing/navigation-routing-ux-contract'] && packageManifest.exports['./builder/typing/navigation-routing-ux-contract'].default) === './xtend-builder/typing/navigation-routing-ux-contract.js', 'Package exports Navigation Routing UX contract module');
   context.assert(packageManifest.scripts['test:navigation-routing-ux'] === 'node scripts/run_xtend_tests.js navigation-routing-ux', 'Package exposes Navigation Routing UX test script');
   context.assert(metadata && metadata.schema === NAVIGATION_ROUTING_UX_SCHEMA, 'Package metadata exposes Navigation Routing UX schema');
   context.assert(metadata.reportSchema === NAVIGATION_ROUTING_UX_REPORT_SCHEMA, 'Package metadata exposes Navigation Routing UX report schema');

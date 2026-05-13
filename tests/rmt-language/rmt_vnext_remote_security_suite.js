@@ -153,7 +153,7 @@ function runRmtVNextRemoteSecuritySuite(options = {}) {
   context.assert(metadata && metadata.contract === RMT_VNEXT_REMOTE_SECURITY_CONTRACT_PATH, 'package metadata points to remote security contract');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-remote-security --json', 'package metadata declares remote security local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REMOTE_SECURITY_PACKAGE_SCRIPT, 'package metadata declares remote security package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-remote-security'] === './tools/rmt-language/vnext-remote-security.js', 'package exports vNext remote security contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-security'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-security'] : packageManifest.exports['./rmt-language/vnext-remote-security'] && packageManifest.exports['./rmt-language/vnext-remote-security'].default) === './tools/rmt-language/vnext-remote-security.js', 'package exports vNext remote security contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-security'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-security', 'package exposes vNext remote security script');
   context.assert(runner.includes("id: 'rmt-vnext-remote-security'"), 'test runner exposes rmt-vnext-remote-security suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-security'), 'runner help references remote security gate');

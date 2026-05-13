@@ -172,7 +172,7 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
   });
 
   context.assert(packageManifest.private === true, 'Package remains private for visual owner artifact');
-  context.assert(packageManifest.exports['./catalog/epic13-visual-owner-artifact'] === './catalog/epic13-visual-owner-artifact.js', 'Package exports visual owner artifact module');
+  context.assert((packageManifest.exports['./catalog/epic13-visual-owner-artifact'] === './catalog/epic13-visual-owner-artifact.js' || (packageManifest.exports['./catalog/epic13-visual-owner-artifact'] && packageManifest.exports['./catalog/epic13-visual-owner-artifact'].default === './catalog/epic13-visual-owner-artifact.js')), 'Package exports visual owner artifact module');
   context.assert(packageManifest.scripts['test:epic13-visual-owner-artifact'] === 'node scripts/run_xtend_tests.js epic13-visual-owner-artifact', 'Package exposes visual owner artifact script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_VISUAL_OWNER_ARTIFACT_PACKAGE_SCRIPT), 'Package release gates include visual owner artifact script');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_VISUAL_OWNER_ARTIFACT_PACKAGE_SCRIPT), 'Release checklist metadata includes visual owner artifact script');

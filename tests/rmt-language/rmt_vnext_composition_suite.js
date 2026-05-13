@@ -161,7 +161,7 @@ function runRmtVNextCompositionSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_COMPOSITION_SUITE_PATH, 'package metadata points to composition suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-composition --json', 'package metadata declares composition local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_COMPOSITION_PACKAGE_SCRIPT, 'package metadata declares composition package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-composition'] === './tools/rmt-language/vnext-composition.js', 'package exports vNext composition contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-composition'] === 'string' ? packageManifest.exports['./rmt-language/vnext-composition'] : packageManifest.exports['./rmt-language/vnext-composition'] && packageManifest.exports['./rmt-language/vnext-composition'].default) === './tools/rmt-language/vnext-composition.js', 'package exports vNext composition contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-composition'] === 'node scripts/run_xtend_tests.js rmt-vnext-composition', 'package exposes vNext composition script');
   context.assert(runner.includes("id: 'rmt-vnext-composition'"), 'test runner exposes rmt-vnext-composition suite');
   context.assert(epic.includes('| `WP-E15-10` | P1 | completed | WS3 |'), 'Epic marks WP-E15-10 completed');

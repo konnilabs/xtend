@@ -1,0 +1,26 @@
+import type { XtendBuilderComponentInput, XtendBuilderOptions, XtendBuilderRecord, XtendBuilderReport } from '../builder-public-types';
+
+export declare const COMPONENT_CONTRACT_V2_SCHEMA: string;
+export declare const COMPONENT_NETWORK_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_SHELL_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_STYLING_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_UX_PERFORMANCE_CONTRACT_SCHEMA: string;
+export declare const FABRIC_BOUNDARY_SCHEMA: string;
+export declare const KERNEL_BOUNDARY: string;
+export declare const RMT_A11Y_AUTHORING_SCHEMA: string;
+export declare const RMT_NETWORK_AUTHORING_SCHEMA: string;
+export declare const RMT_PERFORMANCE_AUTHORING_SCHEMA: string;
+export declare const RMT_SHELL_AUTHORING_ASSERTIONS: string[];
+export declare const RMT_SHELL_AUTHORING_CONTRACT_DOC: string;
+export declare const RMT_SHELL_AUTHORING_FIELDS: string[];
+export declare const RMT_SHELL_AUTHORING_FIXTURE: string;
+export declare const RMT_SHELL_AUTHORING_REPORT_SCHEMA: string;
+export declare const RMT_SHELL_AUTHORING_REQUIRED_ADAPTERS: string[];
+export declare const RMT_SHELL_AUTHORING_REQUIRED_DOMAINS: string[];
+export declare const RMT_SHELL_AUTHORING_REQUIRED_SCHEDULES: string[];
+export declare const RMT_SHELL_AUTHORING_SCHEMA: string;
+export declare const RMT_SHELL_AUTHORING_WORKPACKAGE: string;
+export declare const RMT_STYLE_AUTHORING_SCHEMA: string;
+export declare const RUNTIME_A11Y_CONTRACT_SCHEMA: string;
+export declare function createRmtShellAuthoringContract(input?: XtendBuilderComponentInput, options?: XtendBuilderOptions): XtendBuilderRecord;
+export declare function validateRmtShellAuthoringContract(contract: unknown): XtendBuilderReport<XtendBuilderRecord>;

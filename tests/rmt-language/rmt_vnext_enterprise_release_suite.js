@@ -107,7 +107,7 @@ function runPackageChecks(context, rootDir) {
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextEnterpriseReleaseHandoff;
 
-  context.assert(packageManifest.exports['./rmt-language/vnext-enterprise-release'] === './tools/rmt-language/vnext-enterprise-release.js', 'package exports vNext enterprise release adapter');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-enterprise-release'] === 'string' ? packageManifest.exports['./rmt-language/vnext-enterprise-release'] : packageManifest.exports['./rmt-language/vnext-enterprise-release'] && packageManifest.exports['./rmt-language/vnext-enterprise-release'].default) === './tools/rmt-language/vnext-enterprise-release.js', 'package exports vNext enterprise release adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-enterprise-release'] === 'node scripts/run_xtend_tests.js rmt-vnext-enterprise-release', 'package exposes vNext enterprise release script');
   context.assert(Array.isArray(packageManifest.xtend.releaseGates) && packageManifest.xtend.releaseGates.includes(RMT_VNEXT_ENTERPRISE_RELEASE_PACKAGE_SCRIPT), 'package release gates include vNext enterprise release script');
   context.assert(metadata && metadata.schema === RMT_VNEXT_ENTERPRISE_RELEASE_HANDOFF_SCHEMA, 'package metadata declares enterprise release schema');

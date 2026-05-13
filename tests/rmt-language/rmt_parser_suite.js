@@ -122,9 +122,9 @@ function runRmtParserSuite(options = {}) {
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-parser --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_PARSER_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert(Array.isArray(packageManifest.files) && packageManifest.files.includes('tools'), 'package files include RMT language tooling');
-  context.assert(packageManifest.exports['./rmt-language/source-model'] === './tools/rmt-language/source-model.js', 'package exports RMT Source Model');
-  context.assert(packageManifest.exports['./rmt-language/parser'] === './tools/rmt-language/parser.js', 'package exports RMT Parser');
-  context.assert(packageManifest.exports['./rmt-language/format-adapter'] === './tools/rmt-language/format-adapter.js', 'package exports RMT Format Adapter');
+  context.assert((typeof packageManifest.exports['./rmt-language/source-model'] === 'string' ? packageManifest.exports['./rmt-language/source-model'] : packageManifest.exports['./rmt-language/source-model'] && packageManifest.exports['./rmt-language/source-model'].default) === './tools/rmt-language/source-model.js', 'package exports RMT Source Model');
+  context.assert((typeof packageManifest.exports['./rmt-language/parser'] === 'string' ? packageManifest.exports['./rmt-language/parser'] : packageManifest.exports['./rmt-language/parser'] && packageManifest.exports['./rmt-language/parser'].default) === './tools/rmt-language/parser.js', 'package exports RMT Parser');
+  context.assert((typeof packageManifest.exports['./rmt-language/format-adapter'] === 'string' ? packageManifest.exports['./rmt-language/format-adapter'] : packageManifest.exports['./rmt-language/format-adapter'] && packageManifest.exports['./rmt-language/format-adapter'].default) === './tools/rmt-language/format-adapter.js', 'package exports RMT Format Adapter');
   context.assert(runner.includes("id: 'rmt-parser'"), 'test runner exposes rmt-parser suite');
   context.assert(epic.includes('| `WP-E14-03` | P0 | completed | WS1 |'), 'Epic marks WP-E14-03 completed');
   context.assert(epic.includes('WP-E14-04` ist `ready`'), 'Epic hands off WP-E14-04 as ready');

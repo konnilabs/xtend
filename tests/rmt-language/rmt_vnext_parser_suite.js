@@ -115,7 +115,7 @@ function runRmtVNextParserSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_PARSER_SUITE_PATH, 'package metadata points to vNext parser suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-parser --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_PARSER_PACKAGE_SCRIPT, 'package metadata declares package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-parser'] === './tools/rmt-language/vnext-parser.js', 'package exports vNext parser');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-parser'] === 'string' ? packageManifest.exports['./rmt-language/vnext-parser'] : packageManifest.exports['./rmt-language/vnext-parser'] && packageManifest.exports['./rmt-language/vnext-parser'].default) === './tools/rmt-language/vnext-parser.js', 'package exports vNext parser');
   context.assert(packageManifest.scripts['test:rmt-vnext-parser'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser', 'package exposes vNext parser script');
   context.assert(runner.includes("id: 'rmt-vnext-parser'"), 'test runner exposes rmt-vnext-parser suite');
   context.assert(epic.includes('| `WP-E15-04` | P0 | completed | WS1 |'), 'Epic marks WP-E15-04 completed');

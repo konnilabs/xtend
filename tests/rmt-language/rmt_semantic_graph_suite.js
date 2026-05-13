@@ -294,7 +294,7 @@ function runRmtSemanticGraphSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_SEMANTIC_GRAPH_SUITE_PATH, 'package metadata points to semantic graph suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-semantic-graph --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_SEMANTIC_GRAPH_PACKAGE_SCRIPT, 'package metadata declares package script');
-  context.assert(packageManifest.exports['./rmt-language/semantic-graph'] === './tools/rmt-language/semantic-graph.js', 'package exports RMT Semantic Graph');
+  context.assert((typeof packageManifest.exports['./rmt-language/semantic-graph'] === 'string' ? packageManifest.exports['./rmt-language/semantic-graph'] : packageManifest.exports['./rmt-language/semantic-graph'] && packageManifest.exports['./rmt-language/semantic-graph'].default) === './tools/rmt-language/semantic-graph.js', 'package exports RMT Semantic Graph');
   context.assert(runner.includes("id: 'rmt-semantic-graph'"), 'test runner exposes rmt-semantic-graph suite');
   context.assert(epic.includes('| `WP-E14-04` | P0 | completed | WS2 |'), 'Epic marks WP-E14-04 completed');
   context.assert(epic.includes('WP-E14-05` ist `ready`'), 'Epic hands off WP-E14-05 as ready');

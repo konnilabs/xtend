@@ -168,7 +168,7 @@ function runEpic10PlatformGatesSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'epic10PlatformGates', 'Scaffold config exposes Epic 10 Platform Gates');
   context.assertIncludes(runner, "id: 'epic10-platform-gates'", 'Runner registers Epic 10 Platform Gates suite');
 
-  context.assert(packageManifest.exports['./catalog/epic10-platform-gates'] === './catalog/epic10-platform-gates.js', 'Package exports Epic 10 Platform Gates module');
+  context.assert((packageManifest.exports['./catalog/epic10-platform-gates'] === './catalog/epic10-platform-gates.js' || (packageManifest.exports['./catalog/epic10-platform-gates'] && packageManifest.exports['./catalog/epic10-platform-gates'].default === './catalog/epic10-platform-gates.js')), 'Package exports Epic 10 Platform Gates module');
   context.assert(packageManifest.scripts['test:epic10-platform-gates'] === 'node scripts/run_xtend_tests.js epic10-platform-gates', 'Package exposes Epic 10 Platform Gates test script');
   context.assert(metadata && metadata.schema === EPIC10_PLATFORM_GATES_SCHEMA, 'Package metadata exposes Epic 10 Platform Gates schema');
   context.assert(metadata && metadata.reportSchema === EPIC10_PLATFORM_GATES_REPORT_SCHEMA, 'Package metadata exposes Epic 10 Platform Gates report schema');

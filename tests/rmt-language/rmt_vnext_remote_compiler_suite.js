@@ -236,7 +236,7 @@ function runRmtVNextRemoteCompilerSuite(options = {}) {
   context.assert(metadata && metadata.contract === RMT_VNEXT_REMOTE_COMPILER_CONTRACT_PATH, 'package metadata points to remote compiler contract');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-remote-compiler --json', 'package metadata declares remote compiler local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REMOTE_COMPILER_PACKAGE_SCRIPT, 'package metadata declares remote compiler package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-remote-compiler'] === './tools/rmt-language/vnext-remote-compiler.js', 'package exports vNext remote compiler');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-compiler'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-compiler'] : packageManifest.exports['./rmt-language/vnext-remote-compiler'] && packageManifest.exports['./rmt-language/vnext-remote-compiler'].default) === './tools/rmt-language/vnext-remote-compiler.js', 'package exports vNext remote compiler');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-compiler'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-compiler', 'package exposes vNext remote compiler script');
   context.assert(runner.includes("id: 'rmt-vnext-remote-compiler'"), 'test runner exposes rmt-vnext-remote-compiler suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-compiler'), 'runner help references remote compiler gate');

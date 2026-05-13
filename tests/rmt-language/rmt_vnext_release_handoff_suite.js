@@ -89,7 +89,7 @@ function runPackageChecks(context, rootDir) {
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextReleaseHandoff;
 
-  context.assert(packageManifest.exports['./rmt-language/vnext-release'] === './tools/rmt-language/vnext-release.js', 'package exports vNext release handoff adapter');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-release'] === 'string' ? packageManifest.exports['./rmt-language/vnext-release'] : packageManifest.exports['./rmt-language/vnext-release'] && packageManifest.exports['./rmt-language/vnext-release'].default) === './tools/rmt-language/vnext-release.js', 'package exports vNext release handoff adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-release'] === 'node scripts/run_xtend_tests.js rmt-vnext-release', 'package exposes vNext release script');
   context.assert(Array.isArray(packageManifest.xtend.releaseGates) && packageManifest.xtend.releaseGates.includes(RMT_VNEXT_RELEASE_PACKAGE_SCRIPT), 'package release gates include vNext release script');
   context.assert(metadata && metadata.schema === RMT_VNEXT_RELEASE_HANDOFF_SCHEMA, 'package metadata declares release handoff schema');

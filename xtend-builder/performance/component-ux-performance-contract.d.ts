@@ -1,0 +1,27 @@
+import type { XtendBuilderComponentInput, XtendBuilderOptions, XtendBuilderRecord, XtendBuilderReport } from '../builder-public-types';
+
+export declare const COMPONENT_UX_PERFORMANCE_BUDGET_CLASSES: string[];
+export declare const COMPONENT_UX_PERFORMANCE_CONTRACT_DOC: string;
+export declare const COMPONENT_UX_PERFORMANCE_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_UX_PERFORMANCE_HYDRATION_POLICIES: string[];
+export declare const COMPONENT_UX_PERFORMANCE_LANES: string[];
+export declare const COMPONENT_UX_PERFORMANCE_PHASES: string[];
+export declare const COMPONENT_UX_PERFORMANCE_PROFILES: string[];
+export declare const COMPONENT_UX_PERFORMANCE_REPORT_SCHEMA: string;
+export declare const COMPONENT_UX_PERFORMANCE_REQUIRED_ASSERTIONS: string[];
+export declare const COMPONENT_UX_PERFORMANCE_REQUIRED_DOMAINS: string[];
+export declare const COMPONENT_UX_PERFORMANCE_WORKPACKAGE: string;
+export declare const COMPONENT_SHELL_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_STYLING_CONTRACT_SCHEMA: string;
+export declare const FABRIC_BOUNDARY_SCHEMA: string;
+export declare const HYDRATION_POLICY_SCHEMA: string;
+export declare const KERNEL_BOUNDARY: string;
+export declare const PERFORMANCE_BUDGET_MATRIX_SCHEMA: string;
+export declare const PERFORMANCE_COMPONENT_PROFILE_SCHEMA: string;
+export declare const PERFORMANCE_MEASUREMENT_SCHEMA: string;
+export declare const PERFORMANCE_POLICY_SCHEMA: string;
+export declare const PERFORMANCE_REGRESSION_GATE_SCHEMA: string;
+export declare const RMT_PERFORMANCE_AUTHORING_SCHEMA: string;
+export declare const RUNTIME_A11Y_CONTRACT_SCHEMA: string;
+export declare function createComponentUxPerformanceContract(input?: XtendBuilderComponentInput, options?: XtendBuilderOptions): XtendBuilderRecord;
+export declare function validateComponentUxPerformanceContract(contract: unknown): XtendBuilderReport<XtendBuilderRecord>;

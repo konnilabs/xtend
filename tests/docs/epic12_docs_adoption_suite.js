@@ -122,7 +122,7 @@ function runEpic12DocsAdoptionSuite(options = {}) {
   context.assert(guide.handoff.includes('WP-E12-16'), 'Docs adoption hands off to WP-E12-16');
 
   context.assert(packageManifest.private === true, 'Package remains private for docs adoption');
-  context.assert(packageManifest.exports['./catalog/epic12-docs-adoption'] === './catalog/epic12-docs-adoption.js', 'Package exports Epic 12 docs adoption module');
+  context.assert((packageManifest.exports['./catalog/epic12-docs-adoption'] === './catalog/epic12-docs-adoption.js' || (packageManifest.exports['./catalog/epic12-docs-adoption'] && packageManifest.exports['./catalog/epic12-docs-adoption'].default === './catalog/epic12-docs-adoption.js')), 'Package exports Epic 12 docs adoption module');
   context.assert(packageManifest.scripts['test:epic12-docs-adoption'] === 'node scripts/run_xtend_tests.js epic12-docs-adoption', 'Package exposes Epic 12 docs adoption test script');
   context.assert(Array.isArray(packageManifest.xtend.releaseGates) && packageManifest.xtend.releaseGates.includes(EPIC12_DOCS_ADOPTION_PACKAGE_SCRIPT), 'Package release gates include docs adoption script');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC12_DOCS_ADOPTION_PACKAGE_SCRIPT), 'Release checklist metadata includes docs adoption script');

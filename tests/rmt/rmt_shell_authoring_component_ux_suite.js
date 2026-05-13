@@ -196,7 +196,7 @@ function runRmtShellAuthoringComponentUxSuite(options = {}) {
   context.assert(templates.get('app.shell.template').metadata.renderMode === 'shell-first', 'Fixture template is shell-first');
   assertFixtureReferencesResolve(context, fixture);
 
-  context.assert(packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'] === './xtend-builder/typing/rmt-shell-authoring-contract.js', 'Package exports RMT Shell Authoring module');
+  context.assert((typeof packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'] === 'string' ? packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'] : packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'] && packageManifest.exports['./builder/typing/rmt-shell-authoring-contract'].default) === './xtend-builder/typing/rmt-shell-authoring-contract.js', 'Package exports RMT Shell Authoring module');
   context.assert(packageManifest.scripts['test:rmt-shell-authoring-ux'] === 'node scripts/run_xtend_tests.js rmt-shell-authoring-ux', 'Package exposes RMT Shell Authoring test script');
   context.assert(metadata && metadata.schema === RMT_SHELL_AUTHORING_SCHEMA, 'Package metadata exposes RMT Shell Authoring schema');
   context.assert(metadata.reportSchema === RMT_SHELL_AUTHORING_REPORT_SCHEMA, 'Package metadata exposes RMT Shell Authoring report schema');

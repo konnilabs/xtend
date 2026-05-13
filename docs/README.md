@@ -33,6 +33,14 @@ Willkommen zur offiziellen Dokumentation des XTend Web Frameworks. Dieses Inhalt
 - [Release Owner Acceptance](./release-owner-acceptance.md)
 - [Conditional Network Evidence](./conditional-network-evidence.md)
 - [Package Export Lock](./package-export-lock.md)
+- [TypeExports](./type-exports.md)
+- [XTend Loader Types](./xtend-loader-types.md)
+- [XTend API Types](./xtend-api-types.md)
+- [XTend RMT Types](./xtend-rmt-types.md)
+- [XTend Policy Types](./xtend-policy-types.md)
+- [XTend Builder Types](./xtend-builder-types.md)
+- [XTend Catalog Types](./xtend-catalog-types.md)
+- [XTend Vendor and Utility Types](./xtend-vendor-types.md)
 - [Known Residual Triage](./known-residual-triage.md)
 - [Hydration Performance Closure](./hydration-performance-closure.md)
 - [PROD Browser CSP Smokes](./prod-browser-csp-smokes.md)
@@ -158,6 +166,22 @@ Epic 14 ist ab `WP-E14-16` abgeschlossen. Der Handoff `xtend.epic14.lsp-handoff.
 [Conditional Network Evidence](./conditional-network-evidence.md) dokumentiert ab `WP-E13-03` den Contract `xtend.epic13.conditional-network-evidence.v1` fuer `npm audit --audit-level=moderate`, `npm sbom --json`, `.xtend-test-results/` Evidence-Artefakte und strukturierte Offline-/Sandbox-Deferrals. Der lokale Gate `node scripts/run_xtend_tests.js epic13-conditional-network-evidence --json` bleibt netzwerkfrei.
 
 [Package Export Lock](./package-export-lock.md) dokumentiert ab `WP-E13-04` den Contract `xtend.epic13.package-export-lock.v1` fuer `npm pack --dry-run --json`, `.xtend-test-results/xtend-pack-dry-run.json`, `.xtend-test-results/xtend-package-export-surface-lock.json`, Loader, Components, Fabric, XTendRMT, Builder, Docs und den lokalen Gate `node scripts/run_xtend_tests.js epic13-package-export-lock --json`.
+
+[TypeExports](./type-exports.md) dokumentiert ab `WP-TypeExports-09` den Contract `xtend.type-exports.plan.v1`, den Drift-Report `xtend.type-exports.drift-report.v1`, die Public Package Export Matrix, Package `types`-Conditions, `types-not-required` Boundaries, den lokalen Gate `node scripts/run_xtend_tests.js type-exports --json` und den Release-Handoff `npm run test:type-exports:release`.
+
+[XTend Loader Types](./xtend-loader-types.md) dokumentiert ab `WP-TypeExports-02` den Contract `xtend.type-exports.loader-declarations.v1` fuer `window.XTendLoader`, `window.XTendStyleRegistry`, `window.XTendSkeletonLoader`, Loader Events, Boot-Promise und den lokalen Drift-Gate `node scripts/run_xtend_tests.js type-exports-loader --json`.
+
+[XTend API Types](./xtend-api-types.md) dokumentiert ab `WP-TypeExports-03` den Contract `xtend.type-exports.api-declarations.v1` fuer `initXTendAPI`, `window.XTend.*`, globale Legacy-Aliase, `xtend-api-ready` und den lokalen Drift-Gate `node scripts/run_xtend_tests.js type-exports-api --json`.
+
+[XTend RMT Types](./xtend-rmt-types.md) dokumentiert ab `WP-TypeExports-04` den Contract `xtend.type-exports.rmt-declarations.v1` fuer `./rmt`, `./rmt/browser`, RMT-Language Tooling, LSP, Linter, Editor-Facades und den lokalen Drift-Gate `node scripts/run_xtend_tests.js type-exports-rmt --json`.
+
+[XTend Policy Types](./xtend-policy-types.md) dokumentiert ab `WP-TypeExports-05` den Contract `xtend.type-exports.policy-declarations.v1` fuer Fabric-, A11y- und Security-Policy-APIs, gemeinsame Diagnostic-/Report-Typen und den lokalen Drift-Gate `node scripts/run_xtend_tests.js type-exports-policy --json`.
+
+[XTend Builder Types](./xtend-builder-types.md) dokumentiert ab `WP-TypeExports-06` den Contract `xtend.type-exports.builder-declarations.v1` fuer Builder-, Scaffold-, Component-Lab-, Blueprint-, Preview-, Workflow- und Typing-Contract APIs sowie den lokalen Drift-Gate `node scripts/run_xtend_tests.js type-exports-builder --json`.
+
+[XTend Catalog Types](./xtend-catalog-types.md) dokumentiert ab `WP-TypeExports-07` den Contract `xtend.type-exports.catalog-declarations.v1` fuer Catalog-Plan-/Report-Facades, SurfaceManager-/Epic-/Release-Catalog-Klassifizierung und den lokalen Drift-Gate `node scripts/run_xtend_tests.js type-exports-catalog --json`.
+
+[XTend Vendor and Utility Types](./xtend-vendor-types.md) dokumentiert ab `WP-TypeExports-08` den Contract `xtend.type-exports.vendor-facades.v1` fuer Prism-, Turndown- und Design-Token-Facades sowie den lokalen Drift-Gate `node scripts/run_xtend_tests.js type-exports-vendor --json`.
 
 [RMT-first XTend Apps](./rmt-first-xtend-apps.md) dokumentiert ab `WP-E10-16`, wie vollstaendige XTend Apps ueber `xtend.rmt.first-class-app-authoring.v1` mit `xtend.component`, `xtend.xrouter`, `dom_descriptor` Templates, Schedules, Fabric-Lanes und Diagnostics beschrieben werden.
 

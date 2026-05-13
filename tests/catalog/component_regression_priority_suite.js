@@ -142,7 +142,7 @@ function runComponentRegressionPrioritySuite(options = {}) {
   context.assert(xUtils && !xUtils.remediation.includes('public-types-long-tail'), 'x-utils public types are closed after WP-E12-09');
   context.assert(xUtils && !xUtils.remediation.includes('long-tail-component-suite-and-fixture'), 'x-utils suite and fixture are closed after WP-E12-09');
 
-  context.assert(packageManifest.exports['./catalog/component-regression-priority'] === './catalog/component-regression-priority.js', 'Package exports regression priority module');
+  context.assert((packageManifest.exports['./catalog/component-regression-priority'] === './catalog/component-regression-priority.js' || (packageManifest.exports['./catalog/component-regression-priority'] && packageManifest.exports['./catalog/component-regression-priority'].default === './catalog/component-regression-priority.js')), 'Package exports regression priority module');
   context.assert(packageManifest.scripts['test:regression-priority'] === 'node scripts/run_xtend_tests.js regression-priority', 'Package exposes regression priority test script');
   context.assert(packageManifest.xtend.componentRegressionPriority.schema === COMPONENT_REGRESSION_PRIORITY_SCHEMA, 'Package metadata exposes regression priority schema');
   context.assert(packageManifest.xtend.componentRegressionPriority.localGate === 'node scripts/run_xtend_tests.js regression-priority --json', 'Package metadata exposes regression priority gate');

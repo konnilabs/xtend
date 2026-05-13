@@ -1,0 +1,25 @@
+export * from './rmt-tooling-public-types';
+import type { RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const CONDITION_BINARY_OPERATORS: RmtToolingConstant;
+export declare const CONDITION_EXPRESSION_KIND_UNSUPPORTED_CODE: RmtToolingConstant;
+export declare const CONDITION_EXPRESSION_KINDS: RmtToolingConstant;
+export declare const CONDITION_EXPRESSION_MISSING_CODE: RmtToolingConstant;
+export declare const CONDITION_LOGICAL_OPERATORS: RmtToolingConstant;
+export declare const CONDITION_OPERATOR_UNSUPPORTED_CODE: RmtToolingConstant;
+export declare const CONDITION_PATH_UNKNOWN_CODE: RmtToolingConstant;
+export declare const CONDITION_ROOT_TYPE_CODE: RmtToolingConstant;
+export declare const CONDITION_TYPE_MISMATCH_CODE: RmtToolingConstant;
+export declare const CONDITION_UNARY_OPERATORS: RmtToolingConstant;
+export declare const createConditionContract: RmtToolingFactory;
+export declare const createRmtVNextConditionContract: RmtToolingFactory;
+export declare const DEFAULT_CONDITION_PATH_TYPES: RmtToolingConstant;
+export declare const RMT_VNEXT_CONDITION_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_CONDITION_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_VNEXT_CONDITION_RECORD_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_CONDITION_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_CONDITION_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_CONDITION_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_CONDITION_WORKPACKAGE: RmtToolingConstant;
+export declare const RMT_VNEXT_EXPRESSION_SCHEMA: RmtToolingConstant;
+export declare const serializeConditionContract: RmtToolingFunction;

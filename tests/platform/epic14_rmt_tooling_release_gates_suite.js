@@ -109,7 +109,7 @@ function runPackageChecks(context, rootDir, plan) {
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.epic14RmtTooling;
 
-  context.assert(packageManifest.exports['./catalog/epic14-rmt-tooling'] === './catalog/epic14-rmt-tooling.js', 'Package exports Epic 14 RMT tooling module');
+  context.assert((packageManifest.exports['./catalog/epic14-rmt-tooling'] === './catalog/epic14-rmt-tooling.js' || (packageManifest.exports['./catalog/epic14-rmt-tooling'] && packageManifest.exports['./catalog/epic14-rmt-tooling'].default === './catalog/epic14-rmt-tooling.js')), 'Package exports Epic 14 RMT tooling module');
   RMT_TOOLING_EXPORTS.filter((exportKey) => exportKey !== './catalog/epic14-rmt-tooling').forEach((exportKey) => {
     context.assert(Boolean(packageManifest.exports[exportKey]), `Package keeps ${exportKey} export`);
   });

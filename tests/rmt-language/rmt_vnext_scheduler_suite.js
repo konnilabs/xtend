@@ -100,7 +100,7 @@ function runRmtVNextSchedulerSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_SCHEDULER_SUITE_PATH, 'package metadata points to scheduler suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-scheduler --json', 'package metadata declares scheduler local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_SCHEDULER_PACKAGE_SCRIPT, 'package metadata declares scheduler package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-scheduler'] === './tools/rmt-language/vnext-scheduler.js', 'package exports vNext scheduler policy');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-scheduler'] === 'string' ? packageManifest.exports['./rmt-language/vnext-scheduler'] : packageManifest.exports['./rmt-language/vnext-scheduler'] && packageManifest.exports['./rmt-language/vnext-scheduler'].default) === './tools/rmt-language/vnext-scheduler.js', 'package exports vNext scheduler policy');
   context.assert(packageManifest.scripts['test:rmt-vnext-scheduler'] === 'node scripts/run_xtend_tests.js rmt-vnext-scheduler', 'package exposes vNext scheduler script');
   context.assert(runner.includes("id: 'rmt-vnext-scheduler'"), 'test runner exposes rmt-vnext-scheduler suite');
   context.assert(epic.includes('| `WP-E15-07` | P1 | completed | WS2 |'), 'Epic marks WP-E15-07 completed');

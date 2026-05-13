@@ -245,7 +245,7 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   await assertProdLocalServerProbe(context, rootDir);
 
   context.assert(packageManifest.private === true, 'Package remains private for PROD Browser CSP smoke');
-  context.assert(packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'] === './catalog/epic13-prod-browser-csp-smoke.js', 'Package exports PROD Browser CSP smoke module');
+  context.assert((packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'] === './catalog/epic13-prod-browser-csp-smoke.js' || (packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'] && packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'].default === './catalog/epic13-prod-browser-csp-smoke.js')), 'Package exports PROD Browser CSP smoke module');
   context.assert(packageManifest.scripts['test:epic13-prod-browser-csp-smoke'] === 'node scripts/run_xtend_tests.js epic13-prod-browser-csp-smoke', 'Package exposes PROD Browser CSP smoke script');
   context.assert(packageManifest.scripts['dev:local:csp'] === `node scripts/serve_xtend_dev.js --port 4173 --prod-csp --default ${PROD_CSP_FIXTURE}`, 'Package exposes PROD-like local CSP dev server script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_PROD_BROWSER_CSP_SMOKE_PACKAGE_SCRIPT), 'Package release gates include PROD Browser CSP script');

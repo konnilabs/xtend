@@ -161,7 +161,7 @@ function runRmtVNextSecuritySuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_SECURITY_SUITE_PATH, 'package metadata points to security suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-security --json', 'package metadata declares security local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_SECURITY_PACKAGE_SCRIPT, 'package metadata declares security package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-security'] === './tools/rmt-language/vnext-security.js', 'package exports vNext security contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-security'] === 'string' ? packageManifest.exports['./rmt-language/vnext-security'] : packageManifest.exports['./rmt-language/vnext-security'] && packageManifest.exports['./rmt-language/vnext-security'].default) === './tools/rmt-language/vnext-security.js', 'package exports vNext security contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-security'] === 'node scripts/run_xtend_tests.js rmt-vnext-security', 'package exposes vNext security script');
   context.assert(runner.includes("id: 'rmt-vnext-security'"), 'test runner exposes rmt-vnext-security suite');
   context.assert(epic.includes('| `WP-E15-13` | P1 | completed | WS4 |'), 'Epic marks WP-E15-13 completed');

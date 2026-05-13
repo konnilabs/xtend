@@ -446,6 +446,38 @@ const {
   runEpic13PackageExportLockSuite
 } = require('../tests/platform/epic13_package_export_lock_suite');
 const {
+  printTypeExportsReport,
+  runTypeExportsSuite
+} = require('../tests/types/type_exports_suite');
+const {
+  printTypeExportsLoaderReport,
+  runTypeExportsLoaderSuite
+} = require('../tests/types/loader_type_exports_suite');
+const {
+  printTypeExportsApiReport,
+  runTypeExportsApiSuite
+} = require('../tests/types/api_type_exports_suite');
+const {
+  printTypeExportsRmtReport,
+  runTypeExportsRmtSuite
+} = require('../tests/types/rmt_type_exports_suite');
+const {
+  printTypeExportsPolicyReport,
+  runTypeExportsPolicySuite
+} = require('../tests/types/policy_type_exports_suite');
+const {
+  printTypeExportsBuilderReport,
+  runTypeExportsBuilderSuite
+} = require('../tests/types/builder_type_exports_suite');
+const {
+  printTypeExportsCatalogReport,
+  runTypeExportsCatalogSuite
+} = require('../tests/types/catalog_type_exports_suite');
+const {
+  printTypeExportsVendorReport,
+  runTypeExportsVendorSuite
+} = require('../tests/types/vendor_type_exports_suite');
+const {
   printEpic13KnownResidualTriageReport,
   runEpic13KnownResidualTriageSuite
 } = require('../tests/platform/epic13_known_residual_triage_suite');
@@ -1199,6 +1231,86 @@ const suites = [
       const result = runEpic13PackageExportLockSuite({ rootDir });
       printEpic13PackageExportLockReport(result);
       return toRunnerResult('epic13-package-export-lock', 'Epic 13 Package Export Lock', result);
+    }
+  },
+  {
+    id: 'type-exports',
+    label: 'TypeExports Public Declaration Gate',
+    description: 'Runs the WP-TypeExports-01 public package export classification and declaration target gate.',
+    run: () => {
+      const result = runTypeExportsSuite({ rootDir });
+      printTypeExportsReport(result);
+      return toRunnerResult('type-exports', 'TypeExports Public Declaration Gate', result);
+    }
+  },
+  {
+    id: 'type-exports-loader',
+    label: 'TypeExports Loader Declaration Gate',
+    description: 'Runs the WP-TypeExports-02 XTendLoader, StyleRegistry and SkeletonLoader declaration drift gate.',
+    run: () => {
+      const result = runTypeExportsLoaderSuite({ rootDir });
+      printTypeExportsLoaderReport(result);
+      return toRunnerResult('type-exports-loader', 'TypeExports Loader Declaration Gate', result);
+    }
+  },
+  {
+    id: 'type-exports-api',
+    label: 'TypeExports API Declaration Gate',
+    description: 'Runs the WP-TypeExports-03 api.js and window.XTend namespace declaration drift gate.',
+    run: () => {
+      const result = runTypeExportsApiSuite({ rootDir });
+      printTypeExportsApiReport(result);
+      return toRunnerResult('type-exports-api', 'TypeExports API Declaration Gate', result);
+    }
+  },
+  {
+    id: 'type-exports-rmt',
+    label: 'TypeExports RMT Declaration Gate',
+    description: 'Runs the WP-TypeExports-04 XTendRMT runtime, browser and RMT-Language declaration drift gate.',
+    run: () => {
+      const result = runTypeExportsRmtSuite({ rootDir });
+      printTypeExportsRmtReport(result);
+      return toRunnerResult('type-exports-rmt', 'TypeExports RMT Declaration Gate', result);
+    }
+  },
+  {
+    id: 'type-exports-policy',
+    label: 'TypeExports Policy Declaration Gate',
+    description: 'Runs the WP-TypeExports-05 Fabric, A11y and Security policy declaration drift gate.',
+    run: () => {
+      const result = runTypeExportsPolicySuite({ rootDir });
+      printTypeExportsPolicyReport(result);
+      return toRunnerResult('type-exports-policy', 'TypeExports Policy Declaration Gate', result);
+    }
+  },
+  {
+    id: 'type-exports-builder',
+    label: 'TypeExports Builder Declaration Gate',
+    description: 'Runs the WP-TypeExports-06 Builder, Scaffold and Component Lab declaration drift gate.',
+    run: () => {
+      const result = runTypeExportsBuilderSuite({ rootDir });
+      printTypeExportsBuilderReport(result);
+      return toRunnerResult('type-exports-builder', 'TypeExports Builder Declaration Gate', result);
+    }
+  },
+  {
+    id: 'type-exports-catalog',
+    label: 'TypeExports Catalog Declaration Gate',
+    description: 'Runs the WP-TypeExports-07 Catalog plan/report declaration drift gate.',
+    run: () => {
+      const result = runTypeExportsCatalogSuite({ rootDir });
+      printTypeExportsCatalogReport(result);
+      return toRunnerResult('type-exports-catalog', 'TypeExports Catalog Declaration Gate', result);
+    }
+  },
+  {
+    id: 'type-exports-vendor',
+    label: 'TypeExports Vendor and Utility Facade Gate',
+    description: 'Runs the WP-TypeExports-08 Prism, Turndown and Design Token facade drift gate.',
+    run: () => {
+      const result = runTypeExportsVendorSuite({ rootDir });
+      printTypeExportsVendorReport(result);
+      return toRunnerResult('type-exports-vendor', 'TypeExports Vendor and Utility Facade Gate', result);
     }
   },
   {
@@ -2003,6 +2115,14 @@ Examples:
   node scripts/run_xtend_tests.js epic13-release-owner-acceptance
   node scripts/run_xtend_tests.js epic13-conditional-network-evidence
   node scripts/run_xtend_tests.js epic13-package-export-lock
+  node scripts/run_xtend_tests.js type-exports
+  node scripts/run_xtend_tests.js type-exports-loader
+  node scripts/run_xtend_tests.js type-exports-api
+  node scripts/run_xtend_tests.js type-exports-rmt
+  node scripts/run_xtend_tests.js type-exports-policy
+  node scripts/run_xtend_tests.js type-exports-builder
+  node scripts/run_xtend_tests.js type-exports-catalog
+  node scripts/run_xtend_tests.js type-exports-vendor
   node scripts/run_xtend_tests.js epic13-known-residual-triage
   node scripts/run_xtend_tests.js epic13-hydration-performance-closure
   node scripts/run_xtend_tests.js epic13-prod-browser-csp-smoke

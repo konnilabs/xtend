@@ -266,7 +266,7 @@ function runLayoutDisplayMediaUxSuite(options = {}) {
     context.assert(docs.includes(paths.stateKey), `${profile.tag} docs describe state key ${paths.stateKey}`);
   });
 
-  context.assert(packageManifest.exports['./builder/typing/layout-display-media-ux-contract'] === './xtend-builder/typing/layout-display-media-ux-contract.js', 'Package exports Layout Display Media UX contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/layout-display-media-ux-contract'] === 'string' ? packageManifest.exports['./builder/typing/layout-display-media-ux-contract'] : packageManifest.exports['./builder/typing/layout-display-media-ux-contract'] && packageManifest.exports['./builder/typing/layout-display-media-ux-contract'].default) === './xtend-builder/typing/layout-display-media-ux-contract.js', 'Package exports Layout Display Media UX contract module');
   context.assert(packageManifest.scripts['test:layout-display-media-ux'] === 'node scripts/run_xtend_tests.js layout-display-media-ux', 'Package exposes Layout Display Media UX test script');
   context.assert(metadata && metadata.schema === LAYOUT_DISPLAY_MEDIA_UX_SCHEMA, 'Package metadata exposes Layout Display Media UX schema');
   context.assert(metadata.reportSchema === LAYOUT_DISPLAY_MEDIA_UX_REPORT_SCHEMA, 'Package metadata exposes Layout Display Media UX report schema');

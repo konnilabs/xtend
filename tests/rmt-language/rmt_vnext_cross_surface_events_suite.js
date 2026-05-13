@@ -150,7 +150,7 @@ function runRmtVNextCrossSurfaceEventsSuite(options = {}) {
   context.assert(metadata && metadata.contract === RMT_VNEXT_CROSS_SURFACE_EVENT_CONTRACT_PATH, 'package metadata points to cross surface event contract');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-cross-surface-events --json', 'package metadata declares cross surface event local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_CROSS_SURFACE_EVENT_PACKAGE_SCRIPT, 'package metadata declares cross surface event package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-cross-surface-events'] === './tools/rmt-language/vnext-cross-surface-events.js', 'package exports vNext cross surface events contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-cross-surface-events'] === 'string' ? packageManifest.exports['./rmt-language/vnext-cross-surface-events'] : packageManifest.exports['./rmt-language/vnext-cross-surface-events'] && packageManifest.exports['./rmt-language/vnext-cross-surface-events'].default) === './tools/rmt-language/vnext-cross-surface-events.js', 'package exports vNext cross surface events contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-cross-surface-events'] === 'node scripts/run_xtend_tests.js rmt-vnext-cross-surface-events', 'package exposes vNext cross surface events script');
   context.assert(runner.includes("id: 'rmt-vnext-cross-surface-events'"), 'test runner exposes rmt-vnext-cross-surface-events suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-cross-surface-events'), 'runner help references cross surface events gate');

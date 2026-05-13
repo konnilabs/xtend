@@ -294,7 +294,7 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   await assertTrustedDomLocalServerProbe(context, rootDir);
 
   context.assert(packageManifest.private === true, 'Package remains private for Trusted DOM boundary');
-  context.assert(packageManifest.exports['./catalog/epic13-trusted-dom-boundary'] === './catalog/epic13-trusted-dom-boundary.js', 'Package exports Trusted DOM boundary module');
+  context.assert((packageManifest.exports['./catalog/epic13-trusted-dom-boundary'] === './catalog/epic13-trusted-dom-boundary.js' || (packageManifest.exports['./catalog/epic13-trusted-dom-boundary'] && packageManifest.exports['./catalog/epic13-trusted-dom-boundary'].default === './catalog/epic13-trusted-dom-boundary.js')), 'Package exports Trusted DOM boundary module');
   context.assert(packageManifest.scripts['test:epic13-trusted-dom-boundary'] === 'node scripts/run_xtend_tests.js epic13-trusted-dom-boundary', 'Package exposes Trusted DOM boundary script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_TRUSTED_DOM_BOUNDARY_PACKAGE_SCRIPT), 'Release gates include Trusted DOM boundary script');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_TRUSTED_DOM_BOUNDARY_PACKAGE_SCRIPT), 'Release checklist metadata includes Trusted DOM boundary script');

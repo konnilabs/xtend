@@ -102,7 +102,7 @@ function runRmtVNextLifecycleSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_LIFECYCLE_SUITE_PATH, 'package metadata points to lifecycle suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-lifecycle --json', 'package metadata declares lifecycle local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_LIFECYCLE_PACKAGE_SCRIPT, 'package metadata declares lifecycle package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-lifecycle'] === './tools/rmt-language/vnext-lifecycle.js', 'package exports vNext lifecycle contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-lifecycle'] === 'string' ? packageManifest.exports['./rmt-language/vnext-lifecycle'] : packageManifest.exports['./rmt-language/vnext-lifecycle'] && packageManifest.exports['./rmt-language/vnext-lifecycle'].default) === './tools/rmt-language/vnext-lifecycle.js', 'package exports vNext lifecycle contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-lifecycle'] === 'node scripts/run_xtend_tests.js rmt-vnext-lifecycle', 'package exposes vNext lifecycle script');
   context.assert(runner.includes("id: 'rmt-vnext-lifecycle'"), 'test runner exposes rmt-vnext-lifecycle suite');
   context.assert(epic.includes('| `WP-E15-06` | P1 | completed | WS2 |'), 'Epic marks WP-E15-06 completed');

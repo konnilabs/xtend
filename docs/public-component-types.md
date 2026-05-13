@@ -68,8 +68,12 @@ node scripts/run_xtend_tests.js components
 
 Die Component-Suite enthaelt ab `ER-WP-34` den Sub-Gate `component-public-types`. Nach `WP-SM-04` prueft er die Shared-Type-Helfer, alle 41 priorisierten `.d.ts` Dateien, Eventnamen, Detail-Typen, API-Methoden und Element-/Window-Mappings.
 
+Ab `WP-TypeExports-09` ist der Component-Wildcard-Export auch im produktiven TypeExports-Handoff abgedeckt. `./components/*` bleibt eine adjacent-Declaration-Grenze: Consumer bekommen `components/*.d.ts` ueber die nebenliegenden Dateien, waehrend `node scripts/run_xtend_tests.js type-exports --json` verhindert, dass neue Public Component Exports ohne Type-Entscheidung in die Package Surface geraten.
+
 ## Coverage-Status
 
 Nach `WP-SM-04` stehen `types` in der Component Catalog Coverage Matrix bei `41/41`. `x-input`, `x-select`, `x-checkbox`, `x-radio`, `x-textarea`, `x-form`, `x-calendar`, `x-writer`, `x-status`, `x-progress`, `x-tooltip`, `x-popover`, `x-drawer`, `x-surface-manager`, `x-surface-window`, `x-side-panel`, `x-modal`, `x-dialog`, `x-alert`, `x-toast`, `x-spinner`, `x-router`, `x-link`, `x-tabs`, `x-theme`, `x-button`, `x-icon`, `x-menu`, `x-footer`, `x-lightbox`, `x-masonry`, `x-code`, `x-header`, `x-hero`, `x-type`, `x-summary`, `x-section`, `x-cards` und `x-player` sind die aktuelle `enterprise-ready` Referenzlinie mit Public Types, Component-Suite, Fixture, A11y und Performance-Profil. `xstate` besitzt Public Types fuer Boundary Contract, RMT State Adapter, Lifecycle Events und Diagnostics. `x-utils` besitzt Public Types fuer Utility Contract, Import Policy, Boundary Snapshot, UI Effects, Template API sowie die Events `xutils:import-policy-check` und `xutils:ui-effects-change`.
 
 Es gibt nach `WP-E12-09` keinen verbleibenden Type-Gap. `xstate` bleibt nur noch wegen A11y-/Performance-Boundary-Entscheidungen offen; `x-utils` bleibt wegen der Performance-Boundary-Entscheidung `typed-contract-gated`.
+
+Die frueheren Vendor-Grenzen `components/prism.js` und `components/turndown.js` besitzen ab `WP-TypeExports-08` schmale Facade-Declarations. Sie sind keine Public XTend UI Komponenten, werden aber vom TypeExports-Release-Gate gegen unbeabsichtigten Declaration Drift mitgeprueft.

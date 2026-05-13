@@ -256,8 +256,8 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.packageScript === RMT_LANGUAGE_SERVER_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert(metadata && metadata.transport === 'stdio-json-rpc', 'package metadata declares stdio JSON-RPC transport');
   context.assert(metadata && metadata.codeActionProvider === true, 'package metadata enables code actions after WP-E14-10');
-  context.assert(packageManifest.exports['./rmt-language-server'] === './tools/rmt-language-server/server.js', 'package exports RMT Language Server');
-  context.assert(packageManifest.exports['./rmt-language-server/protocol'] === './tools/rmt-language-server/protocol.js', 'package exports RMT Language Server protocol');
+  context.assert((typeof packageManifest.exports['./rmt-language-server'] === 'string' ? packageManifest.exports['./rmt-language-server'] : packageManifest.exports['./rmt-language-server'] && packageManifest.exports['./rmt-language-server'].default) === './tools/rmt-language-server/server.js', 'package exports RMT Language Server');
+  context.assert((typeof packageManifest.exports['./rmt-language-server/protocol'] === 'string' ? packageManifest.exports['./rmt-language-server/protocol'] : packageManifest.exports['./rmt-language-server/protocol'] && packageManifest.exports['./rmt-language-server/protocol'].default) === './tools/rmt-language-server/protocol.js', 'package exports RMT Language Server protocol');
   context.assert(packageManifest.scripts['test:rmt-language-server'] === 'node scripts/run_xtend_tests.js rmt-language-server', 'package exposes rmt-language-server script');
   context.assert(runner.includes("id: 'rmt-language-server'"), 'test runner exposes rmt-language-server suite');
   context.assert(epic.includes('| `WP-E14-09` | P1 | completed | WS5 |'), 'Epic marks WP-E14-09 completed');

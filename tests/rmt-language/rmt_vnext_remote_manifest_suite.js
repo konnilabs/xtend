@@ -105,7 +105,7 @@ function runRmtVNextRemoteManifestSuite(options = {}) {
   context.assert(metadata && metadata.workpackageDocument === RMT_VNEXT_REMOTE_MANIFEST_WP_PATH, 'package metadata points to WP-E16-02 document');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-remote-manifest --json', 'package metadata declares remote manifest local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REMOTE_MANIFEST_PACKAGE_SCRIPT, 'package metadata declares remote manifest package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-remote-manifest'] === './tools/rmt-language/vnext-remote-manifest.js', 'package exports vNext remote manifest contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-manifest'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-manifest'] : packageManifest.exports['./rmt-language/vnext-remote-manifest'] && packageManifest.exports['./rmt-language/vnext-remote-manifest'].default) === './tools/rmt-language/vnext-remote-manifest.js', 'package exports vNext remote manifest contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-manifest'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-manifest', 'package exposes vNext remote manifest script');
   context.assert(runner.includes("id: 'rmt-vnext-remote-manifest'"), 'test runner exposes rmt-vnext-remote-manifest suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-manifest'), 'runner help references remote manifest gate');

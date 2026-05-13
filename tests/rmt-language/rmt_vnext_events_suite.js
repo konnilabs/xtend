@@ -278,7 +278,7 @@ function runRmtVNextEventsSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_EVENT_ACTION_SUITE_PATH, 'package metadata points to event/action suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-events --json', 'package metadata declares event/action local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_EVENT_ACTION_PACKAGE_SCRIPT, 'package metadata declares event/action package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-events'] === './tools/rmt-language/vnext-events.js', 'package exports vNext event/action contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-events'] === 'string' ? packageManifest.exports['./rmt-language/vnext-events'] : packageManifest.exports['./rmt-language/vnext-events'] && packageManifest.exports['./rmt-language/vnext-events'].default) === './tools/rmt-language/vnext-events.js', 'package exports vNext event/action contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-events'] === 'node scripts/run_xtend_tests.js rmt-vnext-events', 'package exposes vNext event/action script');
   context.assert(runner.includes("id: 'rmt-vnext-events'"), 'test runner exposes rmt-vnext-events suite');
   context.assert(epic.includes('| `WP-E15-12` | P1 | completed | WS3 |'), 'Epic marks WP-E15-12 completed');

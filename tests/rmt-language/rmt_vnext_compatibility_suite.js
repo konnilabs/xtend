@@ -84,7 +84,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_COMPATIBILITY_PACKAGE_SCRIPT, 'package metadata declares compatibility package script');
   context.assert(metadata && Array.isArray(metadata.legacyDomains) && LEGACY_DOMAINS.every((domain) => metadata.legacyDomains.includes(domain)), 'package metadata lists legacy migration domains');
   context.assert(metadata && ROUNDTRIP_COMPATIBLE_WARNINGS.every((code) => metadata.compatibleWarnings.includes(code)), 'package metadata documents compatible warning codes');
-  context.assert(packageManifest.exports['./rmt-language/vnext-compatibility'] === './tools/rmt-language/vnext-compatibility.js', 'package exports vNext compatibility adapter');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-compatibility'] === 'string' ? packageManifest.exports['./rmt-language/vnext-compatibility'] : packageManifest.exports['./rmt-language/vnext-compatibility'] && packageManifest.exports['./rmt-language/vnext-compatibility'].default) === './tools/rmt-language/vnext-compatibility.js', 'package exports vNext compatibility adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-compatibility'] === 'node scripts/run_xtend_tests.js rmt-vnext-compatibility', 'package exposes vNext compatibility script');
   context.assert(runner.includes("id: 'rmt-vnext-compatibility'"), 'test runner exposes rmt-vnext-compatibility suite');
   context.assert(epic.includes('| `WP-E15-16` | P2 | completed | WS5 |'), 'Epic marks WP-E15-16 completed');

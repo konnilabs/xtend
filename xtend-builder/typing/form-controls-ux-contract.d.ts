@@ -1,0 +1,25 @@
+import type { XtendBuilderComponentInput, XtendBuilderOptions, XtendBuilderRecord, XtendBuilderReport } from '../builder-public-types';
+
+export declare const COMPONENT_CONTRACT_V2_SCHEMA: string;
+export declare const COMPONENT_NETWORK_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_SHELL_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_STYLING_CONTRACT_SCHEMA: string;
+export declare const COMPONENT_UX_PERFORMANCE_CONTRACT_SCHEMA: string;
+export declare const FABRIC_BOUNDARY_SCHEMA: string;
+export declare const FORM_CONTROLS_UX_CONTRACT_DOC: string;
+export declare const FORM_CONTROLS_UX_FIXTURE: string;
+export declare const FORM_CONTROLS_UX_REPORT_SCHEMA: string;
+export declare const FORM_CONTROLS_UX_SCHEMA: string;
+export declare const FORM_CONTROLS_UX_WORKPACKAGE: string;
+export declare const FORM_CONTROL_PROFILES: string[];
+export declare const FORM_CONTROL_REQUIRED_ASSERTIONS: string[];
+export declare const FORM_CONTROL_REQUIRED_COMMANDS: string[];
+export declare const FORM_CONTROL_REQUIRED_DOMAINS: string[];
+export declare const FORM_CONTROL_REQUIRED_EVENTS: string[];
+export declare const FORM_CONTROL_REQUIRED_SCHEDULES: string[];
+export declare const FORM_CONTROL_TARGETS: string[];
+export declare const KERNEL_BOUNDARY: string;
+export declare const RMT_SHELL_AUTHORING_SCHEMA: string;
+export declare const RUNTIME_A11Y_CONTRACT_SCHEMA: string;
+export declare function createFormControlsUxContract(input?: XtendBuilderComponentInput, options?: XtendBuilderOptions): XtendBuilderRecord;
+export declare function validateFormControlsUxContract(contract: unknown): XtendBuilderReport<XtendBuilderRecord>;

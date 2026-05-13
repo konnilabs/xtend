@@ -140,7 +140,7 @@ function runRmtDslAuthoringPolishSuite(options = {}) {
   assertNoInlineRuntimeCode(context, fixture, 'Fixture');
   context.assert(fixture.upstreamHandoff.nonGoals.some((entry) => entry.includes('RMT kernel')), 'Fixture handoff keeps RMT kernel non-goal visible');
 
-  context.assert(packageManifest.exports['./builder/typing/rmt-dsl-authoring-polish'] === './xtend-builder/typing/rmt-dsl-authoring-polish.js', 'Package exports RMT DSL Authoring Polish module');
+  context.assert((typeof packageManifest.exports['./builder/typing/rmt-dsl-authoring-polish'] === 'string' ? packageManifest.exports['./builder/typing/rmt-dsl-authoring-polish'] : packageManifest.exports['./builder/typing/rmt-dsl-authoring-polish'] && packageManifest.exports['./builder/typing/rmt-dsl-authoring-polish'].default) === './xtend-builder/typing/rmt-dsl-authoring-polish.js', 'Package exports RMT DSL Authoring Polish module');
   context.assert(packageManifest.scripts['test:rmt-dsl-authoring-polish'] === 'node scripts/run_xtend_tests.js rmt-dsl-authoring-polish', 'Package exposes RMT DSL Authoring Polish test script');
   context.assert(metadata && metadata.schema === RMT_DSL_AUTHORING_POLISH_SCHEMA, 'Package metadata exposes RMT DSL Authoring Polish schema');
   context.assert(metadata && metadata.fixtureSchema === RMT_DSL_AUTHORING_POLISH_FIXTURE_SCHEMA, 'Package metadata exposes fixture schema');

@@ -171,7 +171,7 @@ function runDesignTokenContractSuite(options = {}) {
   context.assertIncludes(suiteSource, 'XTEND_DESIGN_TOKEN_SCHEMA', 'Design Token suite asserts schema');
   context.assertIncludes(runnerIndex, "id: 'design-tokens'", 'XTend runner registers Design Token suite');
   context.assert(packageManifest.scripts['test:design-tokens'] === 'node scripts/run_xtend_tests.js design-tokens', 'Package exposes Design Token test script');
-  context.assert(packageManifest.exports['./design-tokens'] === './design-tokens/xtend-design-tokens.js', 'Package exports Design Token contract module');
+  context.assert((packageManifest.exports['./design-tokens'] === './design-tokens/xtend-design-tokens.js' || (packageManifest.exports['./design-tokens'] && packageManifest.exports['./design-tokens'].default === './design-tokens/xtend-design-tokens.js')), 'Package exports Design Token contract module');
   context.assert(metadata && metadata.schema === XTEND_DESIGN_TOKEN_SCHEMA, 'Package metadata exposes Design Token schema');
   context.assert(metadata && metadata.module === XTEND_DESIGN_TOKEN_MODULE_PATH, 'Package metadata exposes Design Token module path');
   context.assert(metadata && metadata.exampleTheme === XTEND_DESIGN_TOKEN_EXAMPLE_THEME_PATH, 'Package metadata exposes Design Token example theme');

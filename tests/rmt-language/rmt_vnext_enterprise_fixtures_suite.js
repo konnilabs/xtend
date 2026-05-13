@@ -93,7 +93,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-enterprise-fixtures --json', 'package metadata declares enterprise fixture local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_ENTERPRISE_FIXTURE_PACKAGE_SCRIPT, 'package metadata declares enterprise fixture package script');
   context.assert(metadata && ENTERPRISE_BROWSER_CHECKS.every((check) => metadata.browserChecks.includes(check)), 'package metadata lists enterprise browser checks');
-  context.assert(packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'] === './tools/rmt-language/vnext-enterprise-fixtures.js', 'package exports vNext enterprise fixtures adapter');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'] === 'string' ? packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'] : packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'] && packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'].default) === './tools/rmt-language/vnext-enterprise-fixtures.js', 'package exports vNext enterprise fixtures adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-enterprise-fixtures'] === 'node scripts/run_xtend_tests.js rmt-vnext-enterprise-fixtures', 'package exposes vNext enterprise fixtures script');
   context.assert(runner.includes("id: 'rmt-vnext-enterprise-fixtures'"), 'test runner exposes rmt-vnext-enterprise-fixtures suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-enterprise-fixtures'), 'runner help references enterprise fixture gate');

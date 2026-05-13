@@ -1,0 +1,24 @@
+export * from './rmt-tooling-public-types';
+import type { RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const createRmtVNextSurfaceRegistry: RmtToolingFactory;
+export declare const createSurfaceRegistry: RmtToolingFactory;
+export declare const listSurfaceTypes: RmtToolingFunction;
+export declare const normalizeSurfaceType: RmtToolingFunction;
+export declare const RMT_VNEXT_SURFACE_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_SURFACE_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_VNEXT_SURFACE_REGISTRY_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_SURFACE_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_SURFACE_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_SURFACE_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_SURFACE_WORKPACKAGE: RmtToolingConstant;
+export declare const serializeSurfaceRegistry: RmtToolingFunction;
+export declare const SURFACE_ID_DUPLICATE_CODE: RmtToolingConstant;
+export declare const SURFACE_KIND_UNKNOWN_CODE: RmtToolingConstant;
+export declare const SURFACE_LANE_REF_MISSING_CODE: RmtToolingConstant;
+export declare const SURFACE_LANE_SCOPE_MISMATCH_CODE: RmtToolingConstant;
+export declare const SURFACE_OPERATION_REF_MISSING_CODE: RmtToolingConstant;
+export declare const SURFACE_OPERATION_SCOPE_MISMATCH_CODE: RmtToolingConstant;
+export declare const SURFACE_TEMPLATE_REF_MISSING_CODE: RmtToolingConstant;
+export declare const SURFACE_TYPE_ALIASES: RmtToolingConstant;
+export declare const SURFACE_TYPE_PROFILES: RmtToolingConstant;

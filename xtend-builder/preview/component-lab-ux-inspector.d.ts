@@ -1,0 +1,20 @@
+import type { XtendBuilderContractPlan, XtendBuilderOptions, XtendBuilderRecord, XtendBuilderReport } from '../builder-public-types';
+
+export declare const COMPONENT_LAB_UX_FAMILY_IDS: Readonly<string[]>;
+export declare const COMPONENT_LAB_UX_INSPECTOR_DOC_PATH: string;
+export declare const COMPONENT_LAB_UX_INSPECTOR_DOMAINS: Readonly<string[]>;
+export declare const COMPONENT_LAB_UX_INSPECTOR_FIXTURE_PATH: string;
+export declare const COMPONENT_LAB_UX_INSPECTOR_LOCAL_GATE: string;
+export declare const COMPONENT_LAB_UX_INSPECTOR_REPORT_SCHEMA: string;
+export declare const COMPONENT_LAB_UX_INSPECTOR_SCHEMA: string;
+export declare const COMPONENT_LAB_UX_INSPECTOR_SUITE_PATH: string;
+export declare const COMPONENT_LAB_UX_INSPECTOR_WORKPACKAGE: string;
+export declare const COMPONENT_LAB_UX_INSPECTOR_WP_PATH: string;
+export declare const COMPONENT_LAB_UX_NEXT_WORKPACKAGE: string;
+export declare const COMPONENT_LAB_UX_REQUIRED_PANELS: Readonly<string[]>;
+export declare const COMPONENT_LAB_UX_TARGET_DIMENSIONS: Readonly<string[]>;
+export declare const FAMILY_DEFINITIONS: Readonly<XtendBuilderRecord[]>;
+export declare const KERNEL_BOUNDARY: string;
+export declare function createComponentLabUxInspectorGate(options?: XtendBuilderOptions): XtendBuilderReport<XtendBuilderContractPlan>;
+export declare function createComponentLabUxInspectorPlan(options?: XtendBuilderOptions): XtendBuilderContractPlan;
+export declare function validateComponentLabUxInspectorPlan(plan?: unknown): XtendBuilderReport<XtendBuilderContractPlan>;

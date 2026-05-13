@@ -100,7 +100,7 @@ function runRmtVNextSurfaceRegistrySuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_SURFACE_SUITE_PATH, 'package metadata points to surface suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-surfaces --json', 'package metadata declares surface local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_SURFACE_PACKAGE_SCRIPT, 'package metadata declares surface package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-surfaces'] === './tools/rmt-language/vnext-surfaces.js', 'package exports vNext surfaces contract');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-surfaces'] === 'string' ? packageManifest.exports['./rmt-language/vnext-surfaces'] : packageManifest.exports['./rmt-language/vnext-surfaces'] && packageManifest.exports['./rmt-language/vnext-surfaces'].default) === './tools/rmt-language/vnext-surfaces.js', 'package exports vNext surfaces contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-surfaces'] === 'node scripts/run_xtend_tests.js rmt-vnext-surfaces', 'package exposes vNext surfaces script');
   context.assert(runner.includes("id: 'rmt-vnext-surfaces'"), 'test runner exposes rmt-vnext-surfaces suite');
   context.assert(epic.includes('| `WP-E15-08` | P1 | completed | WS2 |'), 'Epic marks WP-E15-08 completed');

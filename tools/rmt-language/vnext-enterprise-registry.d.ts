@@ -1,0 +1,21 @@
+export * from './rmt-tooling-public-types';
+import type { RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+
+export declare const createEnterpriseSurfaceRegistry: RmtToolingFactory;
+export declare const createRmtVNextEnterpriseRegistryAdapter: RmtToolingFactory;
+export declare const ENTERPRISE_OWNER_MISSING_CODE: RmtToolingConstant;
+export declare const ENTERPRISE_REMOTE_MANIFEST_BLOCKED_CODE: RmtToolingConstant;
+export declare const ENTERPRISE_SHELL_TARGET_MISSING_CODE: RmtToolingConstant;
+export declare const ENTERPRISE_SURFACE_DUPLICATE_CODE: RmtToolingConstant;
+export declare const ENTERPRISE_SURFACE_KINDS: RmtToolingConstant;
+export declare const ENTERPRISE_VERSION_MISSING_CODE: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_REGISTRY_CONTRACT_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_REGISTRY_MODULE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_REGISTRY_PACKAGE_SCRIPT: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_REGISTRY_REPORT_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_REGISTRY_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_REGISTRY_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_REGISTRY_WORKPACKAGE: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_REGISTRY_WP_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_ENTERPRISE_SURFACE_SCHEMA: RmtToolingConstant;
+export declare const serializeEnterpriseSurfaceRegistry: RmtToolingFunction;

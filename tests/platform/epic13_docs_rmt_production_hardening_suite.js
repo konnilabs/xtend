@@ -211,7 +211,7 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
   ], 'Parsedown scheduling docs');
 
   context.assert(packageManifest.private === true, 'Package remains private for Docs RMT hardening');
-  context.assert(packageManifest.exports['./catalog/epic13-docs-rmt-production-hardening'] === './catalog/epic13-docs-rmt-production-hardening.js', 'Package exports Docs RMT hardening module');
+  context.assert((packageManifest.exports['./catalog/epic13-docs-rmt-production-hardening'] === './catalog/epic13-docs-rmt-production-hardening.js' || (packageManifest.exports['./catalog/epic13-docs-rmt-production-hardening'] && packageManifest.exports['./catalog/epic13-docs-rmt-production-hardening'].default === './catalog/epic13-docs-rmt-production-hardening.js')), 'Package exports Docs RMT hardening module');
   context.assert(packageManifest.scripts['test:epic13-docs-rmt-production-hardening'] === 'node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening', 'Package exposes Docs RMT hardening script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_PACKAGE_SCRIPT), 'Package release gates include Docs RMT hardening script');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_PACKAGE_SCRIPT), 'Release checklist metadata includes Docs RMT hardening script');

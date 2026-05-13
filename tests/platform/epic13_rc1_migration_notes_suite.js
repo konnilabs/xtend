@@ -139,7 +139,7 @@ function runEpic13Rc1MigrationNotesSuite(options = {}) {
   context.assert(report.ok === true, 'RC1 migration notes report validates');
   context.assert(report.migrationSectionCount === REQUIRED_MIGRATION_SECTIONS.length, 'RC1 migration notes report counts migration sections');
 
-  context.assert(packageManifest.exports['./catalog/epic13-rc1-migration-notes'] === './catalog/epic13-rc1-migration-notes.js', 'package exports RC1 migration notes catalog');
+  context.assert((packageManifest.exports['./catalog/epic13-rc1-migration-notes'] === './catalog/epic13-rc1-migration-notes.js' || (packageManifest.exports['./catalog/epic13-rc1-migration-notes'] && packageManifest.exports['./catalog/epic13-rc1-migration-notes'].default === './catalog/epic13-rc1-migration-notes.js')), 'package exports RC1 migration notes catalog');
   context.assert(packageManifest.scripts['test:epic13-rc1-migration-notes'] === 'node scripts/run_xtend_tests.js epic13-rc1-migration-notes', 'package exposes RC1 migration notes test script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_RC1_MIGRATION_NOTES_PACKAGE_SCRIPT), 'release gates include RC1 migration notes package script');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_RC1_MIGRATION_NOTES_PACKAGE_SCRIPT), 'release checklist includes RC1 migration notes package script');

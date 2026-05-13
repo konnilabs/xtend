@@ -123,7 +123,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.workpackageDocument === RMT_VNEXT_REMOTE_TOOLING_WP_PATH, 'package metadata points to WP-E16-09 document');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-remote-tooling --json', 'package metadata declares remote tooling local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REMOTE_TOOLING_PACKAGE_SCRIPT, 'package metadata declares remote tooling package script');
-  context.assert(packageManifest.exports['./rmt-language/vnext-remote-tooling'] === './tools/rmt-language/vnext-remote-tooling.js', 'package exports vNext remote tooling');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-tooling'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-tooling'] : packageManifest.exports['./rmt-language/vnext-remote-tooling'] && packageManifest.exports['./rmt-language/vnext-remote-tooling'].default) === './tools/rmt-language/vnext-remote-tooling.js', 'package exports vNext remote tooling');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-tooling'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-tooling', 'package exposes vNext remote tooling script');
   context.assert(runner.includes("id: 'rmt-vnext-remote-tooling'"), 'test runner exposes rmt-vnext-remote-tooling suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-tooling'), 'runner help references remote tooling gate');

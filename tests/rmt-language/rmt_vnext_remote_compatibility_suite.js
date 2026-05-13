@@ -99,7 +99,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REMOTE_COMPATIBILITY_PACKAGE_SCRIPT, 'package metadata declares remote compatibility package script');
   context.assert(metadata && REMOTE_REQUIRED_FACTS.every((fact) => metadata.requiredPreviewFacts.includes(fact)), 'package metadata documents required preview facts');
   context.assert(metadata && REMOTE_COMPATIBLE_WARNINGS.every((code) => metadata.compatibleWarnings.includes(code)), 'package metadata documents compatible warning codes');
-  context.assert(packageManifest.exports['./rmt-language/vnext-remote-compatibility'] === './tools/rmt-language/vnext-remote-compatibility.js', 'package exports vNext remote compatibility adapter');
+  context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-compatibility'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-compatibility'] : packageManifest.exports['./rmt-language/vnext-remote-compatibility'] && packageManifest.exports['./rmt-language/vnext-remote-compatibility'].default) === './tools/rmt-language/vnext-remote-compatibility.js', 'package exports vNext remote compatibility adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-compatibility'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-compatibility', 'package exposes vNext remote compatibility script');
   context.assert(runner.includes("id: 'rmt-vnext-remote-compatibility'"), 'test runner exposes rmt-vnext-remote-compatibility suite');
   context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-compatibility'), 'runner help references remote compatibility gate');

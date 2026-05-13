@@ -59,7 +59,9 @@ function runSupplyChainVerification(options = {}) {
   ));
   checks.push(createCheck(
     'supply-chain policy module is exported',
-    exportsMap['./security/supply-chain-gate-policy'] === './security/supply-chain-gate-policy.js'
+    (typeof exportsMap['./security/supply-chain-gate-policy'] === 'string'
+      ? exportsMap['./security/supply-chain-gate-policy']
+      : exportsMap['./security/supply-chain-gate-policy'].default) === './security/supply-chain-gate-policy.js'
   ));
   checks.push(createCheck(
     'security directory is part of the package surface',

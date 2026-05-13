@@ -261,7 +261,7 @@ function runComponentCatalogCoverageSuite(options = {}) {
   context.assert(matrix.includes('| `x-player` | `media, interactive` | `enterprise-ready` |'), 'Markdown matrix includes x-player enterprise-ready row');
   context.assert(matrix.includes('| `x-utils` | `utility` | `typed-contract-gated` |'), 'Markdown matrix includes x-utils typed-contract-gated row');
 
-  context.assert(packageManifest.exports['./catalog/component-catalog-coverage'] === './catalog/component-catalog-coverage.js', 'Package exports component catalog coverage module');
+  context.assert((packageManifest.exports['./catalog/component-catalog-coverage'] === './catalog/component-catalog-coverage.js' || (packageManifest.exports['./catalog/component-catalog-coverage'] && packageManifest.exports['./catalog/component-catalog-coverage'].default === './catalog/component-catalog-coverage.js')), 'Package exports component catalog coverage module');
   context.assert(packageManifest.scripts['test:catalog-coverage'] === 'node scripts/run_xtend_tests.js catalog-coverage', 'Package exposes catalog coverage suite script');
   context.assert(packageManifest.xtend.componentCatalogCoverage.schema === COMPONENT_CATALOG_COVERAGE_SCHEMA, 'Package metadata exposes catalog coverage schema');
   context.assert(packageManifest.xtend.componentCatalogCoverage.localGate === 'node scripts/run_xtend_tests.js catalog-coverage --json', 'Package metadata exposes catalog coverage local gate');
@@ -270,7 +270,7 @@ function runComponentCatalogCoverageSuite(options = {}) {
   context.assert(packageManifest.xtend.epic10FormSelectionControls.schema === 'xtend.epic10.form-selection-controls.v1', 'Package metadata exposes WP-E10-09 form selection controls schema');
   context.assert(packageManifest.xtend.epic10FormFeedbackControls.schema === 'xtend.epic10.form-feedback-controls.v1', 'Package metadata exposes WP-E10-10 form feedback controls schema');
   context.assert(packageManifest.xtend.epic10OverlayNavigationControls.schema === 'xtend.epic10.overlay-navigation-controls.v1', 'Package metadata exposes WP-E10-11 overlay navigation controls schema');
-  context.assert(packageManifest.exports['./catalog/component-regression-priority'] === './catalog/component-regression-priority.js', 'Package exports regression priority module');
+  context.assert((packageManifest.exports['./catalog/component-regression-priority'] === './catalog/component-regression-priority.js' || (packageManifest.exports['./catalog/component-regression-priority'] && packageManifest.exports['./catalog/component-regression-priority'].default === './catalog/component-regression-priority.js')), 'Package exports regression priority module');
   context.assert(packageManifest.scripts['test:regression-priority'] === 'node scripts/run_xtend_tests.js regression-priority', 'Package exposes regression priority script');
   context.assert(packageManifest.xtend.componentRegressionPriority.schema === 'xtend.catalog.component-regression-priority-plan.v1', 'Package metadata exposes regression priority schema');
   context.assert(roadmap.includes('| `ER-WP-31` | P0 | completed | Phase 4 | EPIC 09 | Component Catalog Coverage Matrix erzeugen |'), 'Roadmap marks ER-WP-31 completed');

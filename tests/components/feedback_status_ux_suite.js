@@ -213,7 +213,7 @@ function runFeedbackStatusUxSuite(options = {}) {
     context.assert(docs.includes(paths.stateKey), `${profile.tag} docs describe state key ${paths.stateKey}`);
   });
 
-  context.assert(packageManifest.exports['./builder/typing/feedback-status-ux-contract'] === './xtend-builder/typing/feedback-status-ux-contract.js', 'Package exports Feedback Status UX contract module');
+  context.assert((typeof packageManifest.exports['./builder/typing/feedback-status-ux-contract'] === 'string' ? packageManifest.exports['./builder/typing/feedback-status-ux-contract'] : packageManifest.exports['./builder/typing/feedback-status-ux-contract'] && packageManifest.exports['./builder/typing/feedback-status-ux-contract'].default) === './xtend-builder/typing/feedback-status-ux-contract.js', 'Package exports Feedback Status UX contract module');
   context.assert(packageManifest.scripts['test:feedback-status-ux'] === 'node scripts/run_xtend_tests.js feedback-status-ux', 'Package exposes Feedback Status UX test script');
   context.assert(metadata && metadata.schema === FEEDBACK_STATUS_UX_SCHEMA, 'Package metadata exposes Feedback Status UX schema');
   context.assert(metadata.reportSchema === FEEDBACK_STATUS_UX_REPORT_SCHEMA, 'Package metadata exposes Feedback Status UX report schema');

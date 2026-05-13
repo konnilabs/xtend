@@ -41,6 +41,14 @@ node scripts/run_xtend_tests.js epic10-release-handoff --json
 
 Neue Komponenten durchlaufen zusaetzlich ihre Component-Level-Suite, Catalog Coverage, A11y-, Performance- und Visual-Regression-Gates.
 
+Ab `WP-TypeExports-09` gehoert auch der produktive TypeExports-Handoff zur Release-Sicht:
+
+```bash
+npm run test:type-exports:release
+```
+
+Neue TypeScript-first Komponenten duerfen deshalb nicht nur Runtime- und Component-Contract-Artefakte liefern, sondern muessen ihre Public Package Surface entweder ueber `components/*.d.ts`, eine explizite Package `types`-Condition oder eine dokumentierte `types-not-required` Boundary abdecken.
+
 ## RMT und Fabric
 
 Jede neue Komponente braucht einen `xtend.component` RMT Record und eine Fabric Boundary. Die kanonische Laufzeitgrenze fuer Fabric-Kontext ist `adapter-injection-via-xtend-component-resolveFabricContext`; `window.XTendFabric` ist Host-Komfortflaeche und nicht der Component-Contract.
@@ -52,3 +60,4 @@ Jede neue Komponente braucht einen `xtend.component` RMT Record und eine Fabric 
 - kein produktiver TypeScript Compiler im Blueprint-Paket
 - keine automatische Datei-Ausgabe ohne Review
 - RMT Kernel Boundary: `no-rmt-kernel-import-of-xtend-types`
+- TypeExports Boundary: `declarations-follow-js-runtime-surface`
