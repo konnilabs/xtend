@@ -387,7 +387,9 @@ class XSurfaceWindow extends HTMLElement {
     this.toggleAttribute('active', Boolean(record.active));
     this.toggleAttribute('minimized', Boolean(record.minimized));
     this.toggleAttribute('maximized', Boolean(record.maximized));
-    this.shadowRoot.querySelector('.window').setAttribute('aria-hidden', record.status === 'closed' ? 'true' : 'false');
+    const windowSurface = this.shadowRoot.querySelector('.window');
+    windowSurface.setAttribute('aria-hidden', record.status === 'closed' ? 'true' : 'false');
+    windowSurface.setAttribute('aria-modal', record.modal ? 'true' : 'false');
     this._applyingSnapshot = false;
   }
 

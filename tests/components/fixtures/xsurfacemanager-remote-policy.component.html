@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <title>SurfaceManager Remote Policy Fixture</title>
+    <script type="module" src="../../../components/xsurfacewindow.js"></script>
+    <script type="module" src="../../../components/xsidepanel.js"></script>
+    <script type="module" src="../../../components/xsurfacemanager.js"></script>
+  </head>
+  <body>
+    <x-surface-manager
+      id="enterprise-shell"
+      manager-id="enterprise.manager"
+      layout-engine="docked"
+      remote-surface-policy="strict"
+      remote-origin-allowlist="https://cdn.xtend.example"
+      remote-capabilities="surface.mount,event.emit,event.consume">
+      <x-surface-window
+        surface-id="checkout.cart.fallback"
+        label="Checkout fallback"
+        slot="windows"
+        open>
+        <section data-local-fallback="checkout.cart.fallback">
+          Checkout fallback surface
+        </section>
+      </x-surface-window>
+    </x-surface-manager>
+
+    <script type="module">
+      const manager = document.getElementById('enterprise-shell');
+      const remoteSurface = {
+        schema: 'xtend.rmt.vnext-remote-surface.v1',
+        surfaceId: 'remoteSurface:checkout.cart',
+        name: 'checkout.cart',
+        type: 'side-panel',
+        manager: 'enterprise.manager',
+        owner: { kind: 'team', id: 'checkout-platform' },
+        remote: {
+          id: '@xtend/checkout-cart',
+          origin: 'https://cdn.xtend.example',
+          versionRange: '^2.4.0',
+          integrity: {
+            algorithm: 'sha256',
+            digest: 'sha256-remotecompilercheckoutcart000000000000000000000001'
+          }
+        },
+        security: {
+          trustBoundary: 'xtend.security.remote-surface.v1',
+          capabilityMode: 'deny-by-default',
+          sandboxRequired: true,
+          cspRequired: true
+        },
+        adapterBoundary: {
+          adapterId: 'xtend.remote-surface.host',
+          capabilities: ['surface.mount', 'event.emit', 'event.consume'],
+          hostOwned: true,
+          runtimeLoader: false
+        },
+        shellBindings: [
+          { lane: 'critical', target: 'shell.slot:sidebar.cart', mode: 'mount' }
+        ],
+        capabilities: [
+          { id: 'surface.mount', mode: 'required' },
+          { id: 'event.emit', mode: 'required' },
+          { id: 'event.consume', mode: 'required' }
+        ],
+        fallback: {
+          kind: 'surface',
+          ref: 'checkout.cart.fallback'
+        },
+        runtime: {
+          kernelRemoteExecution: false,
+          hostAdapterRequired: true,
+          networkRequiredByKernel: false
+        },
+        events: {
+          emits: [
+            {
+              event: 'checkout.cart.updated.v1',
+              direction: 'outbound',
+              owner: { kind: 'team', id: 'checkout-platform' },
+              payload: { schema: 'xtend.schemas.cartUpdated.v1' },
+              scopes: ['lane:critical', 'shell.slot:sidebar.cart'],
+              version: 'v1'
+            }
+          ],
+          consumes: [
+            {
+              event: 'user.session.changed.v1',
+              direction: 'inbound',
+              owner: { kind: 'team', id: 'identity-platform' },
+              payload: { schema: 'xtend.schemas.sessionChanged.v1' },
+              scopes: ['lane:critical', 'shell.session:current'],
+              version: 'v1'
+            }
+          ]
+        }
+      };
+
+      const blockedRemoteSurface = {
+        ...remoteSurface,
+        surfaceId: 'remoteSurface:blocked.cart',
+        name: 'blocked.cart',
+        remote: {
+          ...remoteSurface.remote,
+          origin: 'https://evil.example',
+          integrity: null
+        }
+      };
+
+      const mounted = manager.registerRemoteSurface(remoteSurface, {
+        source: 'fixture',
+        enterpriseRegistry: {
+          surfaces: [
+            {
+              enterpriseSurfaceId: 'enterpriseSurface:remote:checkout.cart',
+              surfaceId: 'remoteSurface:checkout.cart',
+              name: 'checkout.cart',
+              kind: 'remote',
+              owner: { kind: 'team', id: 'checkout-platform', known: true },
+              version: { active: '2.4.0', expected: '^2.4.0', range: '^2.4.0', status: 'declared' },
+              remote: {
+                enabled: true,
+                remoteId: '@xtend/checkout-cart',
+                origin: 'https://cdn.xtend.example',
+                trustBoundary: 'xtend.security.remote-surface.v1'
+              },
+              capabilities: ['surface.mount', 'event.emit', 'event.consume'],
+              fallback: { kind: 'surface', ref: 'checkout.cart.fallback' },
+              status: 'ready'
+            }
+          ]
+        }
+      });
+      const degraded = manager.applyRemoteSurfacePolicy(blockedRemoteSurface, { source: 'fixture', commit: true });
+      const governed = manager.governRemoteSurfaceEvent(remoteSurface.events.emits[0], { cartId: 'demo' }, { source: 'fixture' });
+      window.__xtendComponentResult = {
+        mounted,
+        degraded,
+        governed,
+        remotePolicy: manager.snapshotRemoteSurfacePolicy()
+      };
+    </script>
+  </body>
+</html>

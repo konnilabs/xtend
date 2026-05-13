@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>XTend SurfaceManager Layout Engines Fixture</title>
+  <script type="module" src="/components/xsurfacemanager.js"></script>
+  <script type="module" src="/components/xsurfacewindow.js"></script>
+  <script type="module" src="/components/xsidepanel.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font: 16px/1.5 system-ui, sans-serif;
+      background: #f8fafc;
+      color: #111827;
+    }
+    x-surface-manager {
+      min-height: 720px;
+      width: 100vw;
+    }
+  </style>
+</head>
+<body>
+  <x-surface-manager
+    id="layout-engine-manager"
+    manager-id="docs.layout-engines"
+    layout-engine="split"
+    surface-layout-gap="12"
+    surface-layout-snap="8"
+    surface-loading-policy="open">
+    <x-surface-window
+      slot="windows"
+      id="editor-window"
+      surface-id="editor-window"
+      label="Editor"
+      initial-x="47"
+      initial-y="51"
+      initial-width="540"
+      initial-height="360"
+      open>
+      <button type="button">Editor action</button>
+    </x-surface-window>
+
+    <x-surface-window
+      slot="windows"
+      id="preview-window"
+      surface-id="preview-window"
+      label="Preview"
+      initial-x="220"
+      initial-y="80"
+      initial-width="520"
+      initial-height="360"
+      open>
+      <button type="button">Preview action</button>
+    </x-surface-window>
+
+    <x-side-panel
+      slot="panels"
+      id="inspector-panel"
+      surface-id="inspector-panel"
+      label="Inspector"
+      mode="docked"
+      placement="right"
+      initial-width="320"
+      open>
+      <button type="button">Inspector action</button>
+    </x-side-panel>
+  </x-surface-manager>
+
+  <script type="module">
+    const manager = document.getElementById('layout-engine-manager');
+    await customElements.whenDefined('x-surface-manager');
+    await customElements.whenDefined('x-surface-window');
+    await customElements.whenDefined('x-side-panel');
+    const split = manager.snapshotSurfaceLayout();
+    manager.applyLayoutEngine('tile', { source: 'fixture-tile' });
+    manager.dockSurface('inspector-panel', 'left', 'docked');
+    manager.undockSurface('inspector-panel', { x: 40, y: 40, width: 300, height: 420 });
+    const finalLayout = manager.snapshotSurfaceLayout();
+    window.__xtendComponentResult = {
+      schema: 'xtend.surface.layout-engine.fixture-result.v1',
+      ok: true,
+      splitEngine: split.engine,
+      finalEngine: finalLayout.engine,
+      surfaceCount: finalLayout.surfaceCount,
+      snapshotCompatible: finalLayout.snapshotCompatible
+    };
+  </script>
+</body>
+</html>

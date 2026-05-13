@@ -54,6 +54,34 @@ const {
   runSurfaceManagerQualityGatesSuite
 } = require('../tests/components/surface_manager_quality_gates_suite');
 const {
+  printSurfaceManagerPersistenceReport,
+  runSurfaceManagerPersistenceSuite
+} = require('../tests/components/surface_manager_persistence_suite');
+const {
+  printSurfaceManagerLazyHydrationReport,
+  runSurfaceManagerLazyHydrationSuite
+} = require('../tests/components/surface_manager_lazy_hydration_suite');
+const {
+  printSurfaceManagerRouteLifecycleReport,
+  runSurfaceManagerRouteLifecycleSuite
+} = require('../tests/components/surface_manager_route_lifecycle_suite');
+const {
+  printSurfaceManagerStackPolicyReport,
+  runSurfaceManagerStackPolicySuite
+} = require('../tests/components/surface_manager_stack_policy_suite');
+const {
+  printSurfaceManagerLayoutEnginesReport,
+  runSurfaceManagerLayoutEnginesSuite
+} = require('../tests/components/surface_manager_layout_engines_suite');
+const {
+  printSurfaceManagerRemotePolicyReport,
+  runSurfaceManagerRemotePolicySuite
+} = require('../tests/components/surface_manager_remote_policy_suite');
+const {
+  printSurfaceManagerBrowserLabReport,
+  runSurfaceManagerBrowserLabSuite
+} = require('../tests/browser/surface_manager_browser_lab_suite');
+const {
   printSurfaceManagerNativeRmtSurfacesReport,
   runSurfaceManagerNativeRmtSurfacesSuite
 } = require('../tests/rmt/surface_manager_native_rmt_surfaces_suite');
@@ -61,6 +89,18 @@ const {
   printSurfaceManagerReleaseHandoffReport,
   runSurfaceManagerReleaseHandoffSuite
 } = require('../tests/rmt/surface_manager_release_handoff_suite');
+const {
+  printSurfaceManagerRuntimeReleaseHandoffReport,
+  runSurfaceManagerRuntimeReleaseHandoffSuite
+} = require('../tests/rmt/surface_manager_runtime_release_handoff_suite');
+const {
+  printSurfaceManagerAdapterRuntimeReport,
+  runSurfaceManagerAdapterRuntimeSuite
+} = require('../tests/rmt/surface_manager_adapter_runtime_suite');
+const {
+  printSurfaceManagerMaterializationReport,
+  runSurfaceManagerMaterializationSuite
+} = require('../tests/rmt/surface_manager_materialization_suite');
 const {
   printRmtShellAuthoringComponentUxReport,
   runRmtShellAuthoringComponentUxSuite
@@ -1682,6 +1722,86 @@ const suites = [
     }
   },
   {
+    id: 'surface-persistence',
+    label: 'SurfaceManager restore-key and snapshot persistence',
+    description: 'Runs the WP-SM-12 SurfaceManager persistence and snapshot hydration gates.',
+    run: () => {
+      const result = runSurfaceManagerPersistenceSuite({ rootDir });
+      printSurfaceManagerPersistenceReport(result);
+      return toRunnerResult('surface-persistence', 'SurfaceManager restore-key and snapshot persistence', result);
+    }
+  },
+  {
+    id: 'surface-lazy-hydration',
+    label: 'SurfaceManager shell-first lazy hydration',
+    description: 'Runs the WP-SM-13 SurfaceManager SkeletonLoader and lazy content hydration gates.',
+    run: () => {
+      const result = runSurfaceManagerLazyHydrationSuite({ rootDir });
+      printSurfaceManagerLazyHydrationReport(result);
+      return toRunnerResult('surface-lazy-hydration', 'SurfaceManager shell-first lazy hydration', result);
+    }
+  },
+  {
+    id: 'surface-route-lifecycle',
+    label: 'SurfaceManager XRouter-bound lifecycle',
+    description: 'Runs the WP-SM-14 XRouter-bound Surface lifecycle gates.',
+    run: () => {
+      const result = runSurfaceManagerRouteLifecycleSuite({ rootDir });
+      printSurfaceManagerRouteLifecycleReport(result);
+      return toRunnerResult('surface-route-lifecycle', 'SurfaceManager XRouter-bound lifecycle', result);
+    }
+  },
+  {
+    id: 'surface-stack-policy',
+    label: 'SurfaceManager modal focus inert stack policy',
+    description: 'Runs the WP-SM-15 mixed Surface stack policy gates for modality, focus, inert, Escape and layers.',
+    run: () => {
+      const result = runSurfaceManagerStackPolicySuite({ rootDir });
+      printSurfaceManagerStackPolicyReport(result);
+      return toRunnerResult('surface-stack-policy', 'SurfaceManager modal focus inert stack policy', result);
+    }
+  },
+  {
+    id: 'surface-layout-engines',
+    label: 'SurfaceManager docking split tile layout engines',
+    description: 'Runs the WP-SM-16 Surface layout engine gates for docking, split, tile, stacked and freeform bounds.',
+    run: () => {
+      const result = runSurfaceManagerLayoutEnginesSuite({ rootDir });
+      printSurfaceManagerLayoutEnginesReport(result);
+      return toRunnerResult('surface-layout-engines', 'SurfaceManager docking split tile layout engines', result);
+    }
+  },
+  {
+    id: 'surface-remote-policy',
+    label: 'SurfaceManager remote surface trust policy bridge',
+    description: 'Runs the WP-SM-17 Remote Surface trust, ownership, capability and degradation gates.',
+    run: () => {
+      const result = runSurfaceManagerRemotePolicySuite({ rootDir });
+      printSurfaceManagerRemotePolicyReport(result);
+      return toRunnerResult('surface-remote-policy', 'SurfaceManager remote surface trust policy bridge', result);
+    }
+  },
+  {
+    id: 'surface-browser-lab',
+    label: 'SurfaceManager Browser Lab visual stability gates',
+    description: 'Runs the WP-SM-18 Browser Lab, visual baseline, CLS and shell-first app-shell probe gates.',
+    run: () => {
+      const result = runSurfaceManagerBrowserLabSuite({ rootDir });
+      printSurfaceManagerBrowserLabReport(result);
+      return toRunnerResult('surface-browser-lab', 'SurfaceManager Browser Lab visual stability gates', result);
+    }
+  },
+  {
+    id: 'surface-runtime-release-handoff',
+    label: 'SurfaceManager productive runtime release handoff',
+    description: 'Runs the WP-SM-19 Surface Runtime release, migration, compatibility and open-scope handoff gates.',
+    run: () => {
+      const result = runSurfaceManagerRuntimeReleaseHandoffSuite({ rootDir });
+      printSurfaceManagerRuntimeReleaseHandoffReport(result);
+      return toRunnerResult('surface-runtime-release-handoff', 'SurfaceManager productive runtime release handoff', result);
+    }
+  },
+  {
     id: 'surface-manager-browser',
     label: 'SurfaceManager browser quality gate',
     description: 'Runs the WP-SM-07 SurfaceManager mixed-stack browser smoke contract.',
@@ -1739,6 +1859,26 @@ const suites = [
       const result = runSurfaceManagerReleaseHandoffSuite({ rootDir });
       printSurfaceManagerReleaseHandoffReport(result);
       return toRunnerResult('surface-release-handoff', 'SurfaceManager release handoff', result);
+    }
+  },
+  {
+    id: 'surface-adapter-runtime',
+    label: 'SurfaceManager productive xtend.surface adapter runtime',
+    description: 'Runs the WP-SM-10 productive xtend.surface host adapter runtime gates.',
+    run: () => {
+      const result = runSurfaceManagerAdapterRuntimeSuite({ rootDir });
+      printSurfaceManagerAdapterRuntimeReport(result);
+      return toRunnerResult('surface-adapter-runtime', 'SurfaceManager productive xtend.surface adapter runtime', result);
+    }
+  },
+  {
+    id: 'surface-native-materialization',
+    label: 'SurfaceManager native surfaces materialization',
+    description: 'Runs the WP-SM-11 native surfaces to XTend UI materialization gates.',
+    run: () => {
+      const result = runSurfaceManagerMaterializationSuite({ rootDir });
+      printSurfaceManagerMaterializationReport(result);
+      return toRunnerResult('surface-native-materialization', 'SurfaceManager native surfaces materialization', result);
     }
   },
   {
@@ -1911,6 +2051,16 @@ Examples:
   node scripts/run_xtend_tests.js surface-manager-a11y
   node scripts/run_xtend_tests.js surface-manager-performance
   node scripts/run_xtend_tests.js surface-manager-visual
+  node scripts/run_xtend_tests.js surface-adapter-runtime
+  node scripts/run_xtend_tests.js surface-native-materialization
+  node scripts/run_xtend_tests.js surface-persistence
+  node scripts/run_xtend_tests.js surface-lazy-hydration
+  node scripts/run_xtend_tests.js surface-route-lifecycle
+  node scripts/run_xtend_tests.js surface-stack-policy
+  node scripts/run_xtend_tests.js surface-layout-engines
+  node scripts/run_xtend_tests.js surface-remote-policy
+  node scripts/run_xtend_tests.js surface-browser-lab
+  node scripts/run_xtend_tests.js surface-runtime-release-handoff
   node scripts/run_xtend_tests.js rmt-component-fabric-ingestion
 	  node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry
 	  node scripts/run_xtend_tests.js docs-rmt-pilot

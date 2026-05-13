@@ -71,3 +71,24 @@ Die Component-Metadata bleibt waehrend des Handoffs im Component Record und verw
 - Die Gates `surface-native-rmt` und `surface-release-handoff` sind gruen.
 
 Details zur generischen RMT-Migration stehen in [XTendRMT Native Migration Guide](./xtendrmt-migration-guide.md). Details zum Surface-Authoring stehen in [SurfaceManager Authoring Guide](./surface-manager-authoring-guide.md).
+
+## WP-SM-19 Runtime Migration Notes
+
+`WP-SM-19` akzeptiert `xtend.surface.runtime-migration-notes.v1` als finale Migrationslinie fuer die produktive Surface Runtime.
+
+Erweiterte Gate-Reihenfolge fuer Migrationen:
+
+```bash
+node scripts/run_xtend_tests.js surface-adapter-runtime --json
+node scripts/run_xtend_tests.js surface-native-materialization --json
+node scripts/run_xtend_tests.js surface-persistence --json
+node scripts/run_xtend_tests.js surface-lazy-hydration --json
+node scripts/run_xtend_tests.js surface-route-lifecycle --json
+node scripts/run_xtend_tests.js surface-stack-policy --json
+node scripts/run_xtend_tests.js surface-layout-engines --json
+node scripts/run_xtend_tests.js surface-remote-policy --json
+node scripts/run_xtend_tests.js surface-browser-lab --json
+node scripts/run_xtend_tests.js surface-runtime-release-handoff --json
+```
+
+Bestehende `components[*].metadata.surface` Records bleiben erlaubt. Der Zielzustand fuer neue Shells ist dennoch `surfaces[*]`, weil Tooling, Materialisierung, Persistenz, Routing, Remote Policy und Browser-Lab-Stabilitaet dort gemeinsam pruefbar sind.

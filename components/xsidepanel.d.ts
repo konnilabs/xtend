@@ -19,7 +19,7 @@ export type XSidePanelAttributeName =
   | 'initial-height';
 
 export type XSidePanelPlacement = 'left' | 'right' | 'bottom' | 'inline';
-export type XSidePanelMode = 'docked' | 'overlay' | 'pinned' | 'collapsed' | 'fullscreen';
+export type XSidePanelMode = 'docked' | 'overlay' | 'pinned' | 'collapsed' | 'fullscreen' | 'floating';
 export type XSidePanelCommand = 'open' | 'close' | 'focus' | 'resize' | 'pin' | 'unpin' | 'collapse' | 'expand' | 'dock' | 'restore' | 'update';
 
 export interface XSidePanelCommandDetail {

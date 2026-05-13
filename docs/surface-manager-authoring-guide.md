@@ -78,3 +78,17 @@ Nach `WP-SM-09` gilt:
 - Dual Records sind der sichere Migrationsmodus.
 - Der RMT Kernel bleibt host-neutral.
 - Die produktive `xtend.surface` Adapter Runtime ist Folgearbeit, nicht Teil dieses Handoffs.
+
+## WP-SM-19 Runtime Authoring
+
+Ab `WP-SM-19` ist die produktive `xtend.surface` Adapter Runtime umgesetzt und ueber `xtend.surface.runtime-release-handoff.v1` gatebar. Fuer neue komplexe App Shells bleibt `native-surfaces-preferred` der Default: `surfaces[*]` beschreibt die fachlichen Surfaces, waehrend Component Records die sichtbaren XTend-UI-Bindings liefern.
+
+Produktive Authoring-Regeln:
+
+- `surfaces[*]` ist die Quelle fuer neue Multi-Surface-App-Shells.
+- `components[*].metadata.surface` bleibt fuer bestehende Shells und Dual-Record-Migrationen kompatibel.
+- `x-surface-manager` und der SurfaceController bleiben die Runtime-Registry.
+- Fabric, XRouter, `xstate` und RMT-Kernel bleiben eigenstaendige Schichten.
+- `node scripts/run_xtend_tests.js surface-runtime-release-handoff --json` prueft den finalen Runtime-Handoff.
+
+Details stehen im [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md).

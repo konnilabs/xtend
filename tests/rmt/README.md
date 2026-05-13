@@ -71,6 +71,13 @@ The SurfaceManager native RMT surfaces gate verifies `xtend.rmt.surfaces-domain.
 
 The SurfaceManager release handoff gate verifies `xtend.surface.release-handoff.v1`, the fixture `tests/fixtures/rmt-surface-manager-component-lab.rmt`, Authoring Guide, Component Lab docs, Migration Guide, Package/Scaffold metadata and the final `surface-release-handoff` runner entry. It keeps the productive `xtend.surface` adapter runtime deferred.
 
+The SurfaceManager runtime release handoff gate verifies `xtend.surface.runtime-release-handoff.v1`, `xtend.surface.runtime-migration-notes.v1`, `xtend.surface.runtime-release-gate-matrix.v1` and `xtend.surface.runtime-compatibility-notes.v1`. It closes `WP-SM-19` with the productive runtime claim, the full Surface Runtime release gate matrix and explicit open scopes:
+
+```bash
+node scripts/run_xtend_tests.js surface-runtime-release-handoff --json
+npm run test:surface-runtime-release-handoff
+```
+
 The Epic 10 component ingestion gate verifies the productive `xtend.component` adapter against both ESM and Browser runtime artifacts. It checks that RMT schedule records win over component metadata, runtime overrides and static contract defaults, that conflicts emit diagnostics and that mount/hydration results carry Fabric lane and Fiber metadata.
 
 The Epic 10 lifecycle telemetry gate verifies that the same adapter emits `xtend.component.lifecycle-telemetry.v1` records for mount, hydration, event and manual render/update/error paths. It also checks that `fabric.createTelemetrySnapshot({ componentTelemetry })` exposes `snapshot.componentTelemetry` and forwards failed or pressured component work into backpressure.

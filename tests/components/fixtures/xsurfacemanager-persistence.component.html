@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-surface-manager persistence fixture</title>
+  <script type="module" src="/components/xsurfacewindow.js"></script>
+  <script type="module" src="/components/xsidepanel.js"></script>
+  <script type="module" src="/components/xsurfacemanager.js"></script>
+</head>
+<body>
+  <x-surface-manager
+    id="persisted-workbench"
+    manager-id="fixture.persistence.manager"
+    restore-key="fixture.persistence.layout"
+    persistence-mode="session"
+    restore-policy="auto"
+    data-wp-sm-12="true">
+    <x-surface-window
+      slot="windows"
+      surface-id="surface.inspector"
+      label="Inspector"
+      open
+      active
+      draggable
+      resizable
+      initial-x="96"
+      initial-y="88"
+      initial-width="520"
+      initial-height="360">
+      Inspector
+    </x-surface-window>
+    <x-surface-window
+      slot="windows"
+      surface-id="surface.editor"
+      label="Editor"
+      open
+      draggable
+      resizable
+      initial-x="180"
+      initial-y="120"
+      initial-width="720"
+      initial-height="460">
+      Editor
+    </x-surface-window>
+    <x-side-panel
+      slot="panels"
+      surface-id="surface.properties"
+      label="Properties"
+      open
+      placement="right"
+      mode="docked"
+      initial-width="320"
+      initial-height="720">
+      Properties
+    </x-side-panel>
+  </x-surface-manager>
+
+  <script type="module">
+    const result = [];
+    const manager = document.querySelector('x-surface-manager');
+    manager.addEventListener('surface-manager-ready', () => {
+      const persistence = manager.snapshotPersistence();
+      const persisted = manager.persistSnapshot(manager.snapshot(), { reason: 'fixture-probe' });
+      const restored = manager.restorePersistedSnapshot({ source: 'fixture-probe' });
+      const cleared = manager.clearPersistedSnapshot({ reason: 'fixture-cleanup' });
+      result.push({
+        persistenceSchema: persistence.schema,
+        persistedSchema: persisted.envelope && persisted.envelope.schema,
+        restored: restored.restored,
+        cleared: cleared.cleared,
+        noSecondRegistry: persistence.createsSecondRegistry === false
+      });
+      window.__xtendComponentResult = result;
+    }, { once: true });
+  </script>
+</body>
+</html>

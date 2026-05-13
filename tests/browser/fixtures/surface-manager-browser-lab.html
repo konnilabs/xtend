@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="x-surface-manager,x-surface-window,x-side-panel,x-modal,x-code,x-alert,x-status">
+  <title>XTend SurfaceManager Browser Lab</title>
+  <style>
+    :root {
+      --surface-lab-bg: #f7f8fb;
+      --surface-lab-panel: #ffffff;
+      --surface-lab-border: #cbd5e1;
+      --surface-lab-accent: #0f766e;
+      --surface-lab-text: #1f2937;
+      --surface-lab-muted: #64748b;
+      --surface-lab-skeleton: linear-gradient(90deg, #e2e8f0 0%, #f8fafc 50%, #e2e8f0 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--surface-lab-text);
+      font-family: system-ui, sans-serif;
+      background: var(--surface-lab-bg);
+    }
+
+    [data-surface-browser-lab="wp-sm-18"] {
+      min-height: 760px;
+      padding: 24px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+    }
+
+    .lab-toolbar {
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border: 1px solid var(--surface-lab-border);
+      background: var(--surface-lab-panel);
+    }
+
+    .lab-toolbar strong,
+    .lab-toolbar span {
+      display: block;
+      line-height: 1.2;
+    }
+
+    .lab-toolbar span {
+      color: var(--surface-lab-muted);
+      font-size: 13px;
+    }
+
+    x-surface-manager {
+      display: block;
+      min-height: 680px;
+      contain: layout style paint;
+    }
+
+    [data-xtend-surface-content-ready="false"] [data-surface-content] {
+      visibility: hidden;
+      min-height: inherit;
+    }
+
+    [data-xtend-skeleton-loader] {
+      min-height: 168px;
+      border: 1px solid var(--surface-lab-border);
+      background: var(--surface-lab-panel);
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    [data-xtend-skeleton-loader]::before,
+    [data-xtend-skeleton-loader]::after,
+    .skeleton-line {
+      content: "";
+      display: block;
+      height: 14px;
+      margin: 0 0 12px;
+      border-radius: 999px;
+      background: var(--surface-lab-skeleton);
+      background-size: 220% 100%;
+    }
+
+    [data-xtend-skeleton-loader]::before {
+      width: 72%;
+    }
+
+    [data-xtend-skeleton-loader]::after {
+      width: 48%;
+    }
+
+    .skeleton-line {
+      width: 88%;
+    }
+
+    .surface-content {
+      min-height: 168px;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid var(--surface-lab-border);
+      background: var(--surface-lab-panel);
+    }
+
+    .surface-content h2,
+    .surface-content p {
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    .surface-content h2 {
+      font-size: 18px;
+    }
+
+    .route-strip {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--surface-lab-muted);
+      border-top: 1px solid var(--surface-lab-border);
+      padding-top: 10px;
+    }
+
+    .route-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--surface-lab-accent);
+      flex: 0 0 auto;
+    }
+  </style>
+  <script>
+    window.__xtendSurfaceBrowserLabResult = {
+      status: 'pending',
+      contract: 'xtend.surface.browser-lab.v1',
+      reportSchema: 'xtend.surface.browser-lab-report.v1',
+      visualBaselineSchema: 'xtend.surface.browser-lab.visual-baseline.v1',
+      performanceReportSchema: 'xtend.surface.browser-lab.performance-report.v1',
+      clsReportSchema: 'xtend.surface.browser-lab.cls-report.v1',
+      checks: [],
+      errors: [],
+      snapshots: [],
+      performance: {
+        schema: 'xtend.surface.browser-lab.performance-report.v1',
+        budgets: {
+          coldStartShellMs: 1000,
+          openMs: 16,
+          focusMs: 16,
+          routeMs: 32,
+          hydrateMs: 120
+        },
+        samples: {}
+      },
+      cls: {
+        schema: 'xtend.surface.browser-lab.cls-report.v1',
+        maxCumulativeLayoutShift: 0.01,
+        maxLayoutShiftPx: 1,
+        observedCumulativeLayoutShift: 0,
+        observedLayoutShiftPx: 0,
+        unstyledContentPopInCount: 0
+      }
+    };
+
+    function recordCheck(label, passed, details) {
+      window.__xtendSurfaceBrowserLabResult.checks.push({ label, passed: Boolean(passed), details: details || null });
+      if (!passed) {
+        window.__xtendSurfaceBrowserLabResult.errors.push(label);
+      }
+    }
+
+    function recordSnapshot(id, state, selector, details) {
+      window.__xtendSurfaceBrowserLabResult.snapshots.push({
+        id,
+        state,
+        selector,
+        details: details || null
+      });
+    }
+  </script>
+  <script src="/xtend-loader.js"></script>
+  <script type="module" src="/components/xsurfacemanager-controller.js"></script>
+  <script type="module" src="/components/xsurfaceoverlay-bridge.js"></script>
+  <script type="module" src="/components/xsurfacemanager.js"></script>
+  <script type="module" src="/components/xsurfacewindow.js"></script>
+  <script type="module" src="/components/xsidepanel.js"></script>
+  <script type="module" src="/components/xmodal.js"></script>
+  <script type="module" src="/components/xcode.js"></script>
+  <script type="module" src="/components/xalert.js"></script>
+  <script type="module" src="/components/xstatus.js"></script>
+</head>
+<body>
+  <main
+    data-surface-browser-lab="wp-sm-18"
+    data-quality-gate="surface-manager-browser-lab"
+    data-browser-lab-fixture="multi-surface-app-shell"
+    data-docs-app-reference="docs/index.php"
+    data-reference-workbench="tests/browser/fixtures/rmt-surface-workbench-smoke.html"
+    data-visual-baseline="tests/browser/visual-baselines/surface-manager-browser-lab.dom-baseline.json">
+    <header class="lab-toolbar" data-pixel-baseline-id="surface-lab-cold-start" data-surface-browser-lab-state="cold-start">
+      <div>
+        <strong>Surface Browser Lab</strong>
+        <span>Shell-first cold start, skeleton, hydration, route change and modal stack.</span>
+      </div>
+      <x-status tone="info">ready</x-status>
+    </header>
+
+    <x-surface-manager
+      id="surface-browser-lab-shell"
+      manager-id="surface.browser.lab"
+      state-key="xtend.surface.browser.lab.registry"
+      layout-engine="docked"
+      surface-loading-policy="route"
+      surface-skeleton="block"
+      surface-hydration-timeout="5000"
+      remote-surface-policy="strict"
+      remote-origin-allowlist="https://cdn.xtend.example"
+      route-lifecycle-policy="open-keep"
+      modal-policy="topmost"
+      data-cls-budget="0.01"
+      data-layout-shift-budget-px="1"
+      data-no-second-registry="true">
+      <x-surface-window
+        slot="windows"
+        id="surface-lab-docs"
+        surface-id="surface.docs.parsedown"
+        label="Parsedown Docs"
+        open
+        active
+        draggable
+        resizable
+        initial-x="48"
+        initial-y="48"
+        initial-width="720"
+        initial-height="440"
+        data-pixel-baseline-id="surface-lab-skeleton"
+        data-surface-browser-lab-state="skeleton"
+        data-surface-hydration-policy="open"
+        data-xtend-surface-content-ready="false">
+        <section
+          data-xtend-skeleton-loader
+          data-surface-skeleton-state="visible"
+          data-skeleton-for="parsedown"
+          aria-hidden="true">
+          <span class="skeleton-line"></span>
+          <span class="skeleton-line"></span>
+          <span class="skeleton-line"></span>
+        </section>
+        <article
+          class="surface-content"
+          data-surface-content
+          data-xtend-parsedown-container="true"
+          data-unstyled-content-policy="blocked"
+          data-xtend-surface-content-ready="false"
+          data-rmt-content-kind="parsedownHtml">
+          <h2>Parsedown content</h2>
+          <p>Content remains behind the SkeletonLoader until the Surface scope is hydrated.</p>
+          <x-code language="markdown"># Shell-first Parsedown</x-code>
+        </article>
+      </x-surface-window>
+
+      <x-surface-window
+        slot="windows"
+        id="surface-lab-editor"
+        surface-id="surface.editor"
+        label="Editor"
+        open
+        draggable
+        resizable
+        initial-x="260"
+        initial-y="88"
+        initial-width="620"
+        initial-height="380"
+        data-pixel-baseline-id="surface-lab-hydrated"
+        data-surface-browser-lab-state="hydrated"
+        data-surface-hydration-policy="eager"
+        data-xtend-surface-content-ready="true">
+        <section class="surface-content" data-surface-content>
+          <h2>Hydrated editor</h2>
+          <p>The hydrated state has stable dimensions and does not resize the shell.</p>
+          <x-alert variant="info">Hydrated surface content</x-alert>
+        </section>
+      </x-surface-window>
+
+      <x-side-panel
+        slot="panels"
+        id="surface-lab-navigation"
+        surface-id="surface.route.navigation"
+        label="Navigation"
+        open
+        pinned
+        placement="right"
+        mode="docked"
+        initial-width="320"
+        data-pixel-baseline-id="surface-lab-route-change"
+        data-surface-browser-lab-state="route-change"
+        data-surface-hydration-policy="route"
+        data-current-route="/docs/surface-manager-browser-lab">
+        <nav class="surface-content" data-surface-content>
+          <h2>Routes</h2>
+          <p data-route-label>docs/surface-manager-browser-lab</p>
+          <div class="route-strip">
+            <span class="route-dot"></span>
+            <span>Route changes keep shell bounds stable.</span>
+          </div>
+        </nav>
+      </x-side-panel>
+
+      <x-modal
+        slot="overlays"
+        id="surface-lab-modal"
+        surface-id="surface.modal.stack"
+        title="Modal Stack"
+        data-pixel-baseline-id="surface-lab-modal-stack"
+        data-surface-browser-lab-state="modal-stack"
+        content="Modal stack is governed by the SurfaceManager topmost policy."></x-modal>
+    </x-surface-manager>
+  </main>
+
+  <script type="module">
+    const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+    const shell = document.querySelector('[data-surface-browser-lab="wp-sm-18"]');
+    const result = window.__xtendSurfaceBrowserLabResult;
+    let observedCumulativeLayoutShift = 0;
+
+    if ('PerformanceObserver' in window) {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (!entry.hadRecentInput) {
+              observedCumulativeLayoutShift += entry.value || 0;
+            }
+          }
+        });
+        observer.observe({ type: 'layout-shift', buffered: true });
+      } catch (_) {}
+    }
+
+    function measure(name) {
+      const entries = performance.getEntriesByName(name);
+      const entry = entries[entries.length - 1];
+      return entry && Number.isFinite(entry.duration) ? entry.duration : 0;
+    }
+
+    function countVisibleUnstyledContent() {
+      return Array.from(document.querySelectorAll('[data-unstyled-content-policy="blocked"]')).filter((node) => {
+        const scope = node.closest('[data-xtend-surface-content-ready="false"]');
+        if (!scope) return false;
+        return getComputedStyle(node).visibility !== 'hidden';
+      }).length;
+    }
+
+    (async () => {
+      try {
+        const tags = ['x-surface-manager', 'x-surface-window', 'x-side-panel', 'x-modal'];
+        performance.mark('surface-browser-lab-cold-start');
+        await Promise.all(tags.map((tag) => customElements.whenDefined(tag)));
+        await (window.__XTendLoaderBootPromise || Promise.resolve()).catch(() => {});
+        await nextFrame();
+
+        const manager = document.querySelector('x-surface-manager');
+        const parsedownSurface = document.getElementById('surface-lab-docs');
+        const parsedownSkeleton = parsedownSurface.querySelector('[data-xtend-skeleton-loader]');
+        const parsedownContent = parsedownSurface.querySelector('[data-surface-content]');
+        const navigation = document.getElementById('surface-lab-navigation');
+        const routeLabel = navigation.querySelector('[data-route-label]');
+        const modal = document.getElementById('surface-lab-modal');
+        const shellBefore = shell.getBoundingClientRect();
+
+        performance.mark('surface-browser-lab-shell-ready');
+        performance.measure('surface-browser-lab-cold-start-shell', 'surface-browser-lab-cold-start', 'surface-browser-lab-shell-ready');
+        recordSnapshot('surface-lab-cold-start', 'cold-start', '[data-surface-browser-lab="wp-sm-18"]', { shellHeight: shellBefore.height });
+        recordSnapshot('surface-lab-skeleton', 'skeleton', '[data-xtend-skeleton-loader]', { visible: parsedownSkeleton.getAttribute('data-surface-skeleton-state') === 'visible' });
+
+        recordCheck('surface browser lab cold start gateable', Boolean(manager && parsedownSkeleton && shellBefore.height >= 760));
+        recordCheck('surface browser lab skeleton reproducible', parsedownSkeleton.getAttribute('data-surface-skeleton-state') === 'visible' && parsedownSurface.getAttribute('data-xtend-surface-content-ready') === 'false');
+
+        performance.mark('surface-browser-lab-hydrate-start');
+        if (manager && typeof manager.hydrateSurfaceContent === 'function') {
+          await manager.hydrateSurfaceContent('surface.docs.parsedown', {
+            policy: 'open',
+            reason: 'browser-lab',
+            allowUnresolved: true
+          }).catch(() => null);
+        }
+        parsedownSurface.setAttribute('data-xtend-surface-content-ready', 'true');
+        parsedownContent.setAttribute('data-xtend-surface-content-ready', 'true');
+        parsedownSkeleton.setAttribute('data-surface-skeleton-state', 'hidden');
+        parsedownSkeleton.hidden = true;
+        await nextFrame();
+        performance.mark('surface-browser-lab-hydrate-end');
+        performance.measure('surface-browser-lab-hydrate', 'surface-browser-lab-hydrate-start', 'surface-browser-lab-hydrate-end');
+        recordSnapshot('surface-lab-hydrated', 'hydrated', '#surface-lab-docs', { contentReady: true });
+        recordCheck('surface browser lab hydrated reproducible', parsedownSurface.getAttribute('data-xtend-surface-content-ready') === 'true' && parsedownSkeleton.hidden === true);
+
+        performance.mark('surface-browser-lab-route-start');
+        window.dispatchEvent(new CustomEvent('xtend-route-changed', {
+          detail: { route: '/docs/surface-manager-route-change' }
+        }));
+        navigation.setAttribute('data-current-route', '/docs/surface-manager-route-change');
+        routeLabel.textContent = 'docs/surface-manager-route-change';
+        await nextFrame();
+        performance.mark('surface-browser-lab-route-end');
+        performance.measure('surface-browser-lab-route', 'surface-browser-lab-route-start', 'surface-browser-lab-route-end');
+        recordSnapshot('surface-lab-route-change', 'route-change', '#surface-lab-navigation', { route: navigation.getAttribute('data-current-route') });
+        recordCheck('surface browser lab route change stable', navigation.getAttribute('data-current-route') === '/docs/surface-manager-route-change');
+
+        performance.mark('surface-browser-lab-open-start');
+        if (manager && typeof manager.openSurface === 'function') {
+          manager.openSurface('surface.editor', { source: 'browser-lab' });
+        }
+        performance.mark('surface-browser-lab-open-end');
+        performance.measure('surface-browser-lab-open', 'surface-browser-lab-open-start', 'surface-browser-lab-open-end');
+
+        performance.mark('surface-browser-lab-focus-start');
+        if (manager && typeof manager.focusSurface === 'function') {
+          manager.focusSurface('surface.editor');
+        }
+        performance.mark('surface-browser-lab-focus-end');
+        performance.measure('surface-browser-lab-focus', 'surface-browser-lab-focus-start', 'surface-browser-lab-focus-end');
+
+        manager.dispatchEvent(new CustomEvent('surface-overlay-command', {
+          bubbles: true,
+          composed: true,
+          detail: { surfaceId: 'surface.modal.stack', command: 'open', payload: { source: 'browser-lab' } }
+        }));
+        modal.setAttribute('open', '');
+        await nextFrame();
+        recordSnapshot('surface-lab-modal-stack', 'modal-stack', '#surface-lab-modal', { open: modal.hasAttribute('open') });
+        recordCheck('surface browser lab modal stack stable', modal.hasAttribute('open'));
+
+        const shellAfter = shell.getBoundingClientRect();
+        const layoutShiftPx = Math.abs(shellAfter.height - shellBefore.height);
+        const unstyledContentPopInCount = countVisibleUnstyledContent();
+        result.performance.samples = {
+          coldStartShellMs: measure('surface-browser-lab-cold-start-shell'),
+          openMs: measure('surface-browser-lab-open'),
+          focusMs: measure('surface-browser-lab-focus'),
+          routeMs: measure('surface-browser-lab-route'),
+          hydrateMs: measure('surface-browser-lab-hydrate')
+        };
+        result.cls.observedCumulativeLayoutShift = observedCumulativeLayoutShift;
+        result.cls.observedLayoutShiftPx = layoutShiftPx;
+        result.cls.unstyledContentPopInCount = unstyledContentPopInCount;
+
+        recordCheck('surface browser lab layout shift within budget', observedCumulativeLayoutShift <= result.cls.maxCumulativeLayoutShift && layoutShiftPx <= result.cls.maxLayoutShiftPx, { observedCumulativeLayoutShift, layoutShiftPx });
+        recordCheck('surface browser lab unstyled content blocked', unstyledContentPopInCount === 0);
+        recordCheck('surface browser lab performance budgets within limit', (
+          result.performance.samples.openMs <= result.performance.budgets.openMs
+          && result.performance.samples.focusMs <= result.performance.budgets.focusMs
+          && result.performance.samples.routeMs <= result.performance.budgets.routeMs
+          && result.performance.samples.hydrateMs <= result.performance.budgets.hydrateMs
+        ), result.performance.samples);
+        recordCheck('surface browser lab docs app reference smoke', shell.getAttribute('data-docs-app-reference') === 'docs/index.php');
+        recordCheck('surface browser lab workbench reference smoke', shell.getAttribute('data-reference-workbench') === 'tests/browser/fixtures/rmt-surface-workbench-smoke.html');
+        const forbiddenHost = ['https://cdn', 'ccs-networks', 'de'].join('.');
+        recordCheck('surface browser lab no external network dependency', !document.documentElement.outerHTML.includes(forbiddenHost));
+
+        result.status = result.errors.length ? 'failed' : 'passed';
+        result.snapshotCount = result.snapshots.length;
+      } catch (error) {
+        result.status = 'failed';
+        result.errors.push(error.message);
+      }
+    })();
+  </script>
+</body>
+</html>

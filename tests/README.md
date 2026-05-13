@@ -168,6 +168,15 @@ npm run test:surface-release-handoff
 
 `WP-SM-09` finalizes SurfaceManager authoring docs, Component Lab fixture, migration guide and release handoff while keeping the productive `xtend.surface` adapter runtime deferred.
 
+Run the SurfaceManager runtime release handoff gate:
+
+```bash
+node scripts/run_xtend_tests.js surface-runtime-release-handoff --json
+npm run test:surface-runtime-release-handoff
+```
+
+`WP-SM-19` finalizes the productive Surface Runtime claim, release gate matrix, migration notes, compatibility notes, SemVer hints and explicit open scopes across `WP-SM-10` to `WP-SM-18`.
+
 Run the Epic 11 component UX browser smoke gate:
 
 ```bash

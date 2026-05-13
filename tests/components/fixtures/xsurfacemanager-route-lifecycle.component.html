@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-surface-manager route lifecycle fixture</title>
+  <script src="/xtend-loader.js"></script>
+  <script type="module" src="/components/xrouter.js"></script>
+  <script type="module" src="/components/xsurfacewindow.js"></script>
+  <script type="module" src="/components/xsidepanel.js"></script>
+  <script type="module" src="/components/xsurfacemanager.js"></script>
+</head>
+<body>
+  <x-router id="fixture-router" mode="hash" reuse-component>
+    <x-route path="/workbench" component="x-section" data-rmt-route-id="route.workbench" title="Workbench"></x-route>
+    <x-route path="/settings" component="x-section" data-rmt-route-id="route.settings" title="Settings"></x-route>
+  </x-router>
+
+  <x-surface-manager
+    id="route-workbench"
+    manager-id="fixture.route.manager"
+    route-aware="true"
+    route-lifecycle-policy="open-close"
+    surface-loading-policy="route"
+    surface-skeleton="block"
+    data-wp-sm-14="true">
+    <x-surface-window
+      slot="windows"
+      surface-id="surface.workbench.inspector"
+      label="Workbench Inspector"
+      open
+      active
+      draggable
+      resizable
+      initial-width="520"
+      initial-height="340"
+      data-surface-route="workbench"
+      data-surface-route-policy="open-close"
+      data-surface-hydration-policy="route">
+      <x-section data-route-bound="workbench">Workbench inspector payload</x-section>
+    </x-surface-window>
+
+    <x-side-panel
+      slot="panels"
+      surface-id="surface.settings.panel"
+      label="Settings Panel"
+      open
+      route-aware
+      placement="right"
+      mode="docked"
+      initial-width="320"
+      data-surface-route="settings"
+      data-surface-route-policy="open-collapse"
+      data-surface-hydration-policy="route">
+      <x-alert data-route-bound="settings">Settings route payload</x-alert>
+    </x-side-panel>
+
+    <x-surface-window
+      slot="windows"
+      surface-id="surface.global.command"
+      label="Global Command"
+      open
+      draggable
+      initial-width="420"
+      initial-height="240"
+      data-surface-route-policy="global"
+      data-surface-route-persistent="true">
+      Global command surface remains stable across route changes.
+    </x-surface-window>
+  </x-surface-manager>
+
+  <script type="module">
+    const manager = document.querySelector('x-surface-manager');
+    const events = [];
+    manager.addEventListener('surface-route-lifecycle-applied', (event) => events.push(event.detail.result));
+    manager.addEventListener('surface-manager-ready', () => {
+      const workbench = manager.applyRouteLifecycle({ path: '/workbench', routeId: 'route.workbench', source: 'fixture' }, { force: true });
+      const settings = manager.applyRouteLifecycle({ path: '/settings', routeId: 'route.settings', source: 'fixture' }, { force: true });
+      window.__xtendComponentResult = {
+        initial: manager.snapshotRouteLifecycle(),
+        workbench,
+        settings,
+        eventCount: events.length,
+        globalStable: manager.snapshotRouteLifecycle().surfaces.some((surface) => surface.surfaceId === 'surface.global.command' && surface.global === true),
+        noSecondRegistry: manager.snapshotRouteLifecycle().createsSecondRegistry === false
+      };
+    }, { once: true });
+  </script>
+</body>
+</html>

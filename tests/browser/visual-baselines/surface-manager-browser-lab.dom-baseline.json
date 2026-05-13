@@ -1,0 +1,178 @@
+{
+  "schema": "xtend.surface.browser-lab.visual-baseline.v1",
+  "workpackage": "WP-SM-18",
+  "fixture": "tests/browser/fixtures/surface-manager-browser-lab.html",
+  "generatedAt": "static-local",
+  "binaryBaselines": false,
+  "pixelReady": true,
+  "snapshotCount": 5,
+  "states": [
+    "cold-start",
+    "skeleton",
+    "hydrated",
+    "route-change",
+    "modal-stack"
+  ],
+  "budgets": {
+    "coldStartShellMs": 1000,
+    "openMs": 16,
+    "focusMs": 16,
+    "routeMs": 32,
+    "hydrateMs": 120,
+    "maxCumulativeLayoutShift": 0.01,
+    "maxLayoutShiftPx": 1,
+    "unstyledContentPopInCount": 0,
+    "textFlashAllowed": false
+  },
+  "appShellProbes": [
+    {
+      "id": "docs-app-parsedown-shell",
+      "path": "docs/index.php",
+      "rmtDocument": "docs/xtendrmt-parsedown-docs.rmt",
+      "assertions": [
+        "shell-first",
+        "parsedown-behind-skeleton",
+        "no-docs-monkeypatch"
+      ]
+    },
+    {
+      "id": "rmt-surface-workbench",
+      "path": "tests/browser/fixtures/rmt-surface-workbench-smoke.html",
+      "assertions": [
+        "surface-manager-shell",
+        "route-bound-content",
+        "offline-smoke"
+      ]
+    }
+  ],
+  "records": [
+    {
+      "id": "surface-lab-cold-start",
+      "state": "cold-start",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "[data-surface-browser-lab=\"wp-sm-18\"]",
+      "root": {
+        "tag": "main",
+        "attributes": {
+          "data-surface-browser-lab": "wp-sm-18",
+          "data-quality-gate": "surface-manager-browser-lab",
+          "data-browser-lab-fixture": "multi-surface-app-shell"
+        }
+      },
+      "children": [
+        "header[data-pixel-baseline-id=\"surface-lab-cold-start\"]",
+        "x-surface-manager#surface-browser-lab-shell"
+      ],
+      "assertions": [
+        "shell-visible-before-hydration",
+        "min-height-stable",
+        "no-external-network"
+      ]
+    },
+    {
+      "id": "surface-lab-skeleton",
+      "state": "skeleton",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "[data-xtend-skeleton-loader]",
+      "root": {
+        "tag": "x-surface-window",
+        "attributes": {
+          "surface-id": "surface.docs.parsedown",
+          "data-xtend-surface-content-ready": "false",
+          "data-surface-hydration-policy": "open"
+        }
+      },
+      "children": [
+        "section[data-xtend-skeleton-loader]",
+        "article[data-xtend-parsedown-container=\"true\"]"
+      ],
+      "assertions": [
+        "skeleton-visible",
+        "parsedown-content-hidden",
+        "unstyled-content-pop-in-count-zero"
+      ]
+    },
+    {
+      "id": "surface-lab-hydrated",
+      "state": "hydrated",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#surface-lab-docs",
+      "root": {
+        "tag": "x-surface-window",
+        "attributes": {
+          "surface-id": "surface.docs.parsedown",
+          "data-pixel-baseline-id": "surface-lab-skeleton"
+        }
+      },
+      "children": [
+        "article[data-rmt-content-kind=\"parsedownHtml\"]",
+        "x-code[language=\"markdown\"]"
+      ],
+      "assertions": [
+        "content-ready-true",
+        "skeleton-hidden",
+        "layout-bounds-preserved"
+      ]
+    },
+    {
+      "id": "surface-lab-route-change",
+      "state": "route-change",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selector": "#surface-lab-navigation",
+      "root": {
+        "tag": "x-side-panel",
+        "attributes": {
+          "surface-id": "surface.route.navigation",
+          "data-surface-hydration-policy": "route",
+          "placement": "right"
+        }
+      },
+      "children": [
+        "nav[data-surface-content]",
+        "[data-route-label]"
+      ],
+      "assertions": [
+        "route-change-recorded",
+        "route-surface-keeps-bounds",
+        "shell-first-state-retained"
+      ]
+    },
+    {
+      "id": "surface-lab-modal-stack",
+      "state": "modal-stack",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#surface-lab-modal",
+      "root": {
+        "tag": "x-modal",
+        "attributes": {
+          "surface-id": "surface.modal.stack",
+          "data-surface-browser-lab-state": "modal-stack"
+        }
+      },
+      "children": [
+        "surface-overlay-command",
+        "modal-policy=\"topmost\""
+      ],
+      "assertions": [
+        "topmost-modal-open",
+        "surface-stack-policy-active",
+        "background-shell-not-resized"
+      ]
+    }
+  ]
+}

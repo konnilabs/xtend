@@ -49,9 +49,20 @@ Folgearbeit:
 - weitere Surface-Typen wie docked workspaces, command palettes und split panes
 - Release-Hardening gegen echte App-Shell-Projekte
 
+## WP-SM-19 Runtime-Handoff
+
+`WP-SM-19` schliesst diese Folgearbeit fuer die produktive Runtime-Linie ab. Der neue Contract `xtend.surface.runtime-release-handoff.v1` dokumentiert die produktive Runtime-Linie aus Adapter Runtime, nativer Materialisierung, Persistenz, Lazy Hydration, Route Lifecycle, Stack Policy, Layout Engines, Remote Policy und Browser Lab.
+
+```bash
+node scripts/run_xtend_tests.js surface-runtime-release-handoff --json
+```
+
+Damit bleibt `WP-SM-09` der historische Authoring-Handoff, waehrend `WP-SM-19` den produktiven Runtime-Claim gatebar macht. Offene Scopes wie projektbezogene Pixel-Artefakte, Release-Owner-Signoff vor npm Publish und optionale weitere Surface-Typen bleiben im Runtime-Handoff explizit benannt.
+
 ## Referenzen
 
 - [SurfaceManager Authoring Guide](./surface-manager-authoring-guide.md)
 - [SurfaceManager Component Lab](./surface-manager-component-lab.md)
 - [SurfaceManager Migration Guide](./surface-manager-migration-guide.md)
 - [SurfaceManager Native RMT Surfaces](./surface-manager-native-rmt-surfaces.md)
+- [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md)

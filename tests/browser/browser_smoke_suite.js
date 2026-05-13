@@ -19,6 +19,7 @@ const CORE_FLOW_FIXTURE_PATH = 'tests/browser/fixtures/core-flows-smoke.html';
 const RMT_XROUTER_XTEND_FIXTURE_PATH = 'tests/browser/fixtures/rmt-xrouter-xtend-smoke.html';
 const RMT_FIRST_DEMO_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-first-demo-app-smoke.html';
 const SURFACE_MANAGER_QUALITY_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/surface-manager-quality-smoke.html';
+const SURFACE_MANAGER_BROWSER_LAB_FIXTURE_PATH = 'tests/browser/fixtures/surface-manager-browser-lab.html';
 const A11Y_FOCUS_KEYBOARD_FIXTURE_PATH = 'tests/browser/fixtures/a11y-focus-keyboard-smoke.html';
 const EPIC11_UX_COMPATIBILITY_FIXTURE_PATH = 'tests/browser/fixtures/epic11-ux-compatibility-smoke.html';
 const EPIC11_THEME_MATRIX_FIXTURE_PATH = 'tests/browser/fixtures/epic11-theme-matrix-smoke.html';
@@ -52,6 +53,11 @@ const BROWSER_FIXTURES = [
     label: 'SurfaceManager quality smoke fixture',
     path: SURFACE_MANAGER_QUALITY_SMOKE_FIXTURE_PATH,
     resultKey: '__xtendSurfaceQualitySmokeResult'
+  },
+  {
+    label: 'SurfaceManager Browser Lab fixture',
+    path: SURFACE_MANAGER_BROWSER_LAB_FIXTURE_PATH,
+    resultKey: '__xtendSurfaceBrowserLabResult'
   },
   {
     label: 'A11y focus keyboard smoke fixture',
@@ -562,6 +568,56 @@ function assertSurfaceManagerQualityFixtureContract(context, rootDir) {
   context.assert(drawerSource.includes('conditional-when-modal'), 'Drawer runtime declares conditional modal focus trap');
 }
 
+function assertSurfaceManagerBrowserLabFixtureContract(context, rootDir) {
+  const fixture = readText(SURFACE_MANAGER_BROWSER_LAB_FIXTURE_PATH, rootDir);
+  const baseline = readJson('tests/browser/visual-baselines/surface-manager-browser-lab.dom-baseline.json', rootDir);
+  const managerSource = readText('components/xsurfacemanager.js', rootDir);
+  const loaderSource = readText('xtend-loader.js', rootDir);
+
+  context.assert(fixture.includes('xtend.surface.browser-lab.v1'), 'SurfaceManager Browser Lab fixture exposes stable browser contract');
+  context.assert(fixture.includes('__xtendSurfaceBrowserLabResult'), 'SurfaceManager Browser Lab fixture exposes smoke result');
+  context.assert(fixture.includes('/xtend-loader.js'), 'SurfaceManager Browser Lab fixture loads XTend loader');
+  context.assert(fixture.includes('/components/xsurfacemanager.js'), 'SurfaceManager Browser Lab fixture loads manager');
+  context.assert(fixture.includes('/components/xsurfacewindow.js'), 'SurfaceManager Browser Lab fixture loads windows');
+  context.assert(fixture.includes('/components/xsidepanel.js'), 'SurfaceManager Browser Lab fixture loads side panel');
+  context.assert(fixture.includes('/components/xmodal.js'), 'SurfaceManager Browser Lab fixture loads modal');
+  context.assert(fixture.includes('data-surface-browser-lab="wp-sm-18"'), 'SurfaceManager Browser Lab fixture marks WP-SM-18 root');
+  context.assert(fixture.includes('data-xtend-skeleton-loader'), 'SurfaceManager Browser Lab fixture renders SkeletonLoader state');
+  context.assert(fixture.includes('data-xtend-parsedown-container="true"'), 'SurfaceManager Browser Lab fixture renders Parsedown container state');
+  context.assert(fixture.includes('data-unstyled-content-policy="blocked"'), 'SurfaceManager Browser Lab fixture blocks unstyled content');
+  context.assert(fixture.includes('data-cls-budget="0.01"'), 'SurfaceManager Browser Lab fixture declares CLS budget');
+  context.assert(fixture.includes('data-layout-shift-budget-px="1"'), 'SurfaceManager Browser Lab fixture declares layout shift budget');
+  context.assert(fixture.includes('performance.mark'), 'SurfaceManager Browser Lab fixture records performance marks');
+  context.assert(fixture.includes('docs/index.php'), 'SurfaceManager Browser Lab fixture references docs app smoke');
+  context.assert(fixture.includes('tests/browser/fixtures/rmt-surface-workbench-smoke.html'), 'SurfaceManager Browser Lab fixture references workbench smoke');
+  context.assert(!fixture.includes('fetch('), 'SurfaceManager Browser Lab fixture does not fetch content during smoke');
+  context.assert(!fixture.includes('https://cdn.ccs-networks.de'), 'SurfaceManager Browser Lab fixture has no XTend CDN dependency');
+
+  [
+    'surface browser lab cold start gateable',
+    'surface browser lab skeleton reproducible',
+    'surface browser lab hydrated reproducible',
+    'surface browser lab route change stable',
+    'surface browser lab modal stack stable',
+    'surface browser lab layout shift within budget',
+    'surface browser lab unstyled content blocked',
+    'surface browser lab performance budgets within limit',
+    'surface browser lab docs app reference smoke',
+    'surface browser lab workbench reference smoke',
+    'surface browser lab no external network dependency'
+  ].forEach((check) => {
+    context.assert(fixture.includes(`recordCheck('${check}'`), `SurfaceManager Browser Lab fixture records ${check}`);
+  });
+
+  context.assert(baseline.schema === 'xtend.surface.browser-lab.visual-baseline.v1', 'SurfaceManager Browser Lab baseline declares schema');
+  context.assert(Array.isArray(baseline.records) && baseline.records.length === 5, 'SurfaceManager Browser Lab baseline contains five states');
+  context.assert(baseline.budgets && baseline.budgets.unstyledContentPopInCount === 0, 'SurfaceManager Browser Lab baseline forbids pop-in');
+  context.assert(managerSource.includes('hydrateSurfaceContent(surfaceRef, options = {})'), 'SurfaceManager runtime supports Browser Lab hydration');
+  context.assert(managerSource.includes('surface-overlay-command'), 'SurfaceManager runtime supports Browser Lab modal command');
+  context.assert(loaderSource.includes('window.XTendSkeletonLoader = SkeletonLoader'), 'XTend loader exposes SkeletonLoader for Browser Lab');
+  context.assert(loaderSource.includes('window.XTendStyleRegistry = XTendStyleRegistry'), 'XTend loader exposes StyleRegistry for Browser Lab');
+}
+
 function assertA11yFocusKeyboardFixtureContract(context, rootDir) {
   const fixture = readText(A11Y_FOCUS_KEYBOARD_FIXTURE_PATH, rootDir);
   const linkSource = readText('components/xlink.js', rootDir);
@@ -779,6 +835,7 @@ async function runBrowserSmokeSuite(options = {}) {
   assertRmtXRouterXtendFixtureContract(context, rootDir);
   assertRmtFirstDemoFixtureContract(context, rootDir);
   assertSurfaceManagerQualityFixtureContract(context, rootDir);
+  assertSurfaceManagerBrowserLabFixtureContract(context, rootDir);
   assertA11yFocusKeyboardFixtureContract(context, rootDir);
   assertEpic11UxCompatibilityFixtureContract(context, rootDir);
   assertEpic11ThemeMatrixFixtureContract(context, rootDir);

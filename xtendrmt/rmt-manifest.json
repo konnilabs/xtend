@@ -93,12 +93,15 @@
         "createRmtFormat",
         "createRmtXRouterAdapter",
         "createRmtXtendComponentAdapter",
+        "createRmtSurfaceAdapter",
         "createRmtStateSchedulerDiagnosticsBridge"
       ],
       "requiredContractIds": [
         "xtend.rmt.runtime-registry.v1",
         "xtend.rmt.xrouter-adapter.v1",
         "xtend.rmt.xtend-component-adapter.v1",
+        "xtend.surface.adapter.v1",
+        "xtend.surface.materialization.v1",
         "xtend.rmt.state-scheduler-diagnostics-bridge.v1",
         "xtend.rmt.artifact-parity.v1"
       ],
@@ -166,6 +169,7 @@
       "templateServerAdapter": "createRmtTemplateServerAdapter",
       "xrouterAdapter": "createRmtXRouterAdapter",
       "xtendComponentAdapter": "createRmtXtendComponentAdapter",
+      "surfaceAdapter": "createRmtSurfaceAdapter",
       "stateSchedulerDiagnosticsBridge": "createRmtStateSchedulerDiagnosticsBridge",
       "prewarmWorkerSource": "createRmtPrewarmWorkerSourceBuilder",
       "prewarmWorkerRuntime": "createRmtPrewarmWorkerRuntime"
@@ -264,6 +268,7 @@
           "createRmtTemplateServerAdapter",
           "createRmtXRouterAdapter",
           "createRmtXtendComponentAdapter",
+          "createRmtSurfaceAdapter",
           "createRmtStateSchedulerDiagnosticsBridge",
           "createRmtPrewarmWorkerSourceBuilder",
           "createRmtPrewarmWorkerRuntime",
@@ -333,6 +338,7 @@
           "createRmtTemplateServerAdapter",
           "createRmtXRouterAdapter",
           "createRmtXtendComponentAdapter",
+          "createRmtSurfaceAdapter",
           "createRmtStateSchedulerDiagnosticsBridge",
           "createRmtPrewarmWorkerSourceBuilder",
           "createRmtPrewarmWorkerRuntime",

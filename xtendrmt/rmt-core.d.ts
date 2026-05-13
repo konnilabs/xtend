@@ -239,6 +239,9 @@ export type RmtHostAdapterOperation =
     | 'resizeSurface'
     | 'dockSurface'
     | 'undockSurface'
+    | 'registerRemoteSurface'
+    | 'applyRemoteSurfacePolicy'
+    | 'governRemoteSurfaceEvent'
     | 'snapshotSurfaces'
     | 'recordAdapterResult'
     | 'recordTelemetrySnapshot'
@@ -834,6 +837,137 @@ export interface RmtXtendComponentAdapterContract {
     diagnosticCodes: RmtXtendComponentAdapterDiagnosticCode[];
     artifactSurfaces: string[];
     kernelBoundary: string;
+    minimumGates: string[];
+    nextWorkpackages?: string[];
+}
+
+export type RmtSurfaceAdapterDiagnosticCode =
+    | 'rmt.surface.missing_id'
+    | 'rmt.surface.missing_manager'
+    | 'rmt.surface.missing_component'
+    | 'rmt.surface.target.missing'
+    | 'rmt.surface.target.unsupported'
+    | 'rmt.surface.materialization.target.missing'
+    | 'rmt.surface.materialization.created'
+    | 'rmt.surface.remote_policy.blocked'
+    | 'rmt.surface.remote_policy.degraded'
+    | 'rmt.surface.remote_policy.kernel_runtime_refused'
+    | 'rmt.surface.remote_event_governance.blocked'
+    | 'rmt.surface.operation.skipped'
+    | 'rmt.surface.diagnostic'
+    | string;
+
+export interface RmtSurfaceMappedSurface {
+    id: string;
+    surfaceId: string;
+    schema: 'xtend.surface.record.v1' | string;
+    type: RmtSurfaceType | string;
+    adapter: 'xtend.surface' | string;
+    manager: string;
+    component: string;
+    route: string;
+    schedule: string;
+    scheduleRef: string;
+    stateKey: string;
+    defaultOpen: boolean;
+    active: boolean;
+    bounds: Record<string, unknown>;
+    placement: string;
+    mode: string;
+    layer: string;
+    capabilities: string[];
+    a11y: Record<string, unknown>;
+    persistence: Record<string, unknown>;
+    metadata: Record<string, unknown>;
+    remoteSurface?: Record<string, unknown> | null;
+    remotePolicy?: Record<string, unknown> | null;
+    enterpriseSurface?: Record<string, unknown> | null;
+    degradation?: Record<string, unknown> | null;
+    eventGovernance?: Record<string, unknown> | null;
+    componentRecord: RmtComponentDomainRecord | Record<string, unknown> | null;
+    managerRecord: RmtComponentDomainRecord | Record<string, unknown> | null;
+    routeRecord: RmtRouteDomainRecord | Record<string, unknown> | null;
+    scheduleRecord: RmtScheduleDomainRecord | Record<string, unknown> | null;
+    sourceSurface: RmtSurfaceDomainRecord | Record<string, unknown>;
+    registryIndex: number;
+}
+
+export interface RmtSurfaceAdapterMapping {
+    schema: 'xtend.surface.adapter.v1' | string;
+    adapterId: 'xtend.surface' | string;
+    status: 'mapped' | 'mapped_with_diagnostics' | string;
+    surfaces: RmtSurfaceMappedSurface[];
+    diagnostics: RmtHostAdapterDiagnosticEvent[];
+    sourceDiagnostics: RmtDslDiagnostic[];
+    surfaceCount: number;
+    scheduleRefs: string[];
+    modelFields: string[];
+}
+
+export interface RmtSurfaceMaterializedElementHandle {
+    surfaceId: string;
+    tag: string;
+    slot: 'windows' | 'panels' | 'overlays' | string;
+    element: Element | unknown;
+    contentElement?: Element | unknown;
+    managerElement?: Element | unknown;
+}
+
+export interface RmtSurfaceMaterializationHandle {
+    schema: 'xtend.surface.materialization.v1' | string;
+    mapping: RmtSurfaceAdapterMapping;
+    materialized: RmtSurfaceMaterializedElementHandle[];
+    bound: RmtSurfaceMaterializedElementHandle[];
+    registered: Array<Record<string, unknown>>;
+    managers: Array<{
+        managerId: string;
+        element: Element | unknown;
+        created: boolean;
+    }>;
+}
+
+export interface RmtSurfaceAdapter {
+    id: 'xtend.surface' | string;
+    schema: 'xtend.surface.adapter.v1' | string;
+    kind: 'surface_adapter' | string;
+    version: string;
+    runtimeSurface: RmtHostAdapterRuntimeSurface[];
+    capabilities: RmtHostAdapterCapabilities;
+    definition: RmtHostAdapterDefinition;
+    mapSurface(surfaceEntry: RmtSurfaceDomainRecord | Record<string, unknown>, options?: Record<string, unknown>): RmtSurfaceMappedSurface;
+    mapSurfaces(surfacesInput?: RmtRmtDocument | RmtSurfaceDomainRecord[] | RmtRuntimeRegistrySnapshot | Record<string, unknown>, options?: Record<string, unknown>): RmtSurfaceAdapterMapping;
+    registerSurface(surfaceInput?: RmtRmtDocument | RmtSurfaceDomainRecord[] | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    registerRemoteSurface(remoteSurfaceInput?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    applyRemoteSurfacePolicy(remoteSurfaceInput?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    openSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, input?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    closeSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, reason?: string, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    focusSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, input?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    moveSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, bounds?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    resizeSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, bounds?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    dockSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, placement?: string, mode?: string, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    undockSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    snapshotSurfaces(surfaceInput?: RmtRmtDocument | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    materializeSurfaces(surfaceInput?: RmtRmtDocument | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult & { handle?: RmtSurfaceMaterializationHandle };
+    governRemoteSurfaceEvent(eventRecord?: Record<string, unknown>, payload?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    emitDiagnostic(event: RmtHostAdapterDiagnosticEvent | Record<string, unknown>, payload?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    listDiagnosticCodes(): RmtSurfaceAdapterDiagnosticCode[];
+}
+
+export interface RmtSurfaceAdapterRuntimeContract {
+    id: 'xtend.surface.adapter.v1' | string;
+    status: 'wp-sm-10-runtime-contract' | string;
+    sourceOfTruth: string;
+    adapterId: 'xtend.surface' | string;
+    inputContract: 'xtend.rmt.runtime-registry.v1' | string;
+    consumes: string[];
+    operations: RmtHostAdapterOperation[];
+    surfaceMappingFields: string[];
+    modelFields: string[];
+    diagnosticCodes: RmtSurfaceAdapterDiagnosticCode[];
+    artifactSurfaces: string[];
+    kernelBoundary: string;
+    createsSecondRegistry: false;
+    runtimeImplemented: true;
     minimumGates: string[];
     nextWorkpackages?: string[];
 }
@@ -3592,6 +3726,7 @@ export declare function createRmtTemplateWorkerAdapter(options?: RmtTemplateApiO
 export declare function createRmtTemplateServerAdapter(options?: RmtTemplateApiOptions): RmtTemplateTransportAdapter;
 export declare function createRmtXRouterAdapter(options?: Record<string, unknown>): RmtXRouterAdapter;
 export declare function createRmtXtendComponentAdapter(options?: Record<string, unknown>): RmtXtendComponentAdapter;
+export declare function createRmtSurfaceAdapter(options?: Record<string, unknown>): RmtSurfaceAdapter;
 export declare function createRmtStateSchedulerDiagnosticsBridge(options?: Record<string, unknown>): RmtStateSchedulerDiagnosticsBridge;
 export declare function createRmtPrewarmWorkerSourceBuilder(options?: { workerName?: string } & Record<string, unknown>): RmtPrewarmWorkerSourceBuilder;
 export declare function createRmtPrewarmWorkerRuntime(options?: RmtPrewarmWorkerRuntimeOptions): RmtPrewarmWorkerRuntime;
@@ -3644,6 +3779,8 @@ export declare function createRenderManTemplateServerAdapter(options?: RmtTempla
 export declare function createRenderManXRouterAdapter(options?: Record<string, unknown>): RmtXRouterAdapter;
 /** @deprecated Use createRmtXtendComponentAdapter(). */
 export declare function createRenderManXtendComponentAdapter(options?: Record<string, unknown>): RmtXtendComponentAdapter;
+/** @deprecated Use createRmtSurfaceAdapter(). */
+export declare function createRenderManSurfaceAdapter(options?: Record<string, unknown>): RmtSurfaceAdapter;
 /** @deprecated Use createRmtStateSchedulerDiagnosticsBridge(). */
 export declare function createRenderManStateSchedulerDiagnosticsBridge(options?: Record<string, unknown>): RmtStateSchedulerDiagnosticsBridge;
 /** @deprecated Use createRmtPrewarmWorkerSourceBuilder(). */

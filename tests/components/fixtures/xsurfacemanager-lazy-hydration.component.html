@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-surface-manager lazy hydration fixture</title>
+  <script src="/xtend-loader.js"></script>
+  <script type="module" src="/components/xsurfacewindow.js"></script>
+  <script type="module" src="/components/xsidepanel.js"></script>
+  <script type="module" src="/components/xsurfacemanager.js"></script>
+</head>
+<body>
+  <x-surface-manager
+    id="lazy-workbench"
+    manager-id="fixture.lazy.manager"
+    surface-loading-policy="open"
+    surface-skeleton="block"
+    surface-hydration-timeout="5000"
+    data-wp-sm-13="true">
+    <x-surface-window
+      slot="windows"
+      surface-id="surface.docs"
+      label="Parsedown Docs"
+      open
+      active
+      draggable
+      resizable
+      initial-x="72"
+      initial-y="64"
+      initial-width="680"
+      initial-height="420"
+      data-surface-hydration-policy="open">
+      <section data-xtend-parsedown-container="true" data-surface-hydration-policy="open">
+        <x-code language="markdown"># Lazy Surface Content</x-code>
+        <p>Parsedown content stays hidden behind a SkeletonLoader until the surface scope is hydrated.</p>
+      </section>
+    </x-surface-window>
+
+    <x-surface-window
+      slot="windows"
+      surface-id="surface.remote.preview"
+      label="Remote Preview"
+      open
+      draggable
+      resizable
+      initial-x="180"
+      initial-y="112"
+      initial-width="560"
+      initial-height="360"
+      data-rmt-content-ref="remote.preview"
+      data-surface-hydration-policy="idle">
+      <div data-remote-capable-content-slot="true">
+        <x-alert variant="info">Remote-capable content slot</x-alert>
+      </div>
+    </x-surface-window>
+
+    <x-side-panel
+      slot="panels"
+      surface-id="surface.route.nav"
+      label="Route Navigation"
+      open
+      placement="right"
+      mode="docked"
+      initial-width="320"
+      data-surface-hydration-policy="route">
+      <nav data-surface-hydration-policy="route">
+        <x-link href="#overview">Overview</x-link>
+        <x-link href="#details">Details</x-link>
+      </nav>
+    </x-side-panel>
+  </x-surface-manager>
+
+  <script type="module">
+    const manager = document.querySelector('x-surface-manager');
+    manager.addEventListener('surface-manager-ready', async () => {
+      const initial = manager.snapshotSurfaceLoading();
+      const hydrated = await manager.hydrateSurfaceContent('surface.docs', {
+        policy: 'open',
+        reason: 'fixture-probe',
+        allowUnresolved: true
+      });
+      window.dispatchEvent(new CustomEvent('xtend-route-changed', { detail: { route: '#overview' } }));
+      window.__xtendComponentResult = {
+        initialSchema: initial.schema,
+        skeletonCount: initial.skeletonCount,
+        hydrated: hydrated.hydrated === true,
+        loadingSnapshot: manager.snapshotSurfaceLoading(),
+        shellFirst: initial.shellFirst === true,
+        protectsUnstyledContent: initial.protectsUnstyledContent === true
+      };
+    }, { once: true });
+  </script>
+</body>
+</html>

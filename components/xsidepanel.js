@@ -161,6 +161,8 @@ class XSidePanel extends HTMLElement {
           --side-panel-width: 320px;
           --side-panel-height: 100%;
           --side-panel-z: 1;
+          --surface-layout-x: 0px;
+          --surface-layout-y: 0px;
           display: none;
           position: absolute;
           inset-block: 0;
@@ -192,6 +194,14 @@ class XSidePanel extends HTMLElement {
           inset: auto;
           inline-size: var(--side-panel-width);
           block-size: 100%;
+        }
+        :host([mode="floating"]) {
+          position: absolute;
+          inset: auto;
+          inset-inline-start: var(--surface-layout-x);
+          inset-block-start: var(--surface-layout-y);
+          inline-size: var(--side-panel-width);
+          block-size: var(--side-panel-height);
         }
         :host([collapsed]) {
           inline-size: var(--side-panel-collapsed-width, 3rem);
@@ -473,12 +483,18 @@ class XSidePanel extends HTMLElement {
     this.style.setProperty('--side-panel-width', `${record.bounds.width}px`);
     this.style.setProperty('--side-panel-height', `${record.bounds.height}px`);
     this.style.setProperty('--side-panel-z', String(record.zIndex || 1));
+    this.style.setProperty('--surface-layout-x', `${record.bounds.x || 0}px`);
+    this.style.setProperty('--surface-layout-y', `${record.bounds.y || 0}px`);
     this.toggleAttribute('open', record.status !== 'closed');
     this.toggleAttribute('active', Boolean(record.active));
     this.toggleAttribute('collapsed', Boolean(record.collapsed) || record.mode === 'collapsed');
     this.toggleAttribute('pinned', Boolean(record.pinned) || record.mode === 'pinned');
     this.toggleAttribute('modal', Boolean(record.modal));
-    if (record.placement) this.setAttribute('placement', record.placement);
+    if (record.placement) {
+      this.setAttribute('placement', record.placement);
+    } else {
+      this.removeAttribute('placement');
+    }
     if (record.mode) this.setAttribute('mode', record.mode);
     this._syncA11y(record);
     this._applyingSnapshot = false;
@@ -527,7 +543,7 @@ class XSidePanel extends HTMLElement {
 
   _mode() {
     const mode = this.getAttribute('mode') || 'docked';
-    return ['docked', 'overlay', 'pinned', 'collapsed', 'fullscreen'].includes(mode) ? mode : 'docked';
+    return ['docked', 'overlay', 'pinned', 'collapsed', 'fullscreen', 'floating'].includes(mode) ? mode : 'docked';
   }
 
   _capabilities() {
@@ -606,6 +622,7 @@ class XSidePanel extends HTMLElement {
 
   _handleRouteChanged() {
     if (!this.hasAttribute('route-aware') || !this.hasAttribute('open')) return;
+    if (this.surfaceManager && typeof this.surfaceManager.applyRouteLifecycle === 'function') return;
     if (this._mode() === 'overlay') {
       this.closePanel('route-change');
       return;

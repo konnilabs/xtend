@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>XTend SurfaceManager Stack Policy Fixture</title>
+  <script type="module" src="/components/xsurfacemanager.js"></script>
+  <script type="module" src="/components/xsurfacewindow.js"></script>
+  <script type="module" src="/components/xsidepanel.js"></script>
+  <script type="module" src="/components/xmodal.js"></script>
+  <script type="module" src="/components/xdialog.js"></script>
+  <script type="module" src="/components/xdrawer.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font: 16px/1.5 system-ui, sans-serif;
+      background: #f8fafc;
+      color: #111827;
+    }
+    x-surface-manager {
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <button id="focus-origin" type="button">Focus origin</button>
+  <x-surface-manager
+    id="stack-policy-manager"
+    manager-id="docs.stack-policy"
+    modal-policy="topmost"
+    surface-loading-policy="open"
+    surface-skeleton="block">
+    <x-surface-window
+      slot="windows"
+      id="workspace-window"
+      surface-id="workspace-window"
+      label="Workspace"
+      initial-x="48"
+      initial-y="48"
+      initial-width="520"
+      initial-height="320"
+      open>
+      <button type="button">Workspace action</button>
+    </x-surface-window>
+
+    <x-surface-window
+      slot="windows"
+      id="blocking-window"
+      surface-id="blocking-window"
+      label="Blocking window"
+      modal
+      initial-x="96"
+      initial-y="96"
+      initial-width="480"
+      initial-height="280">
+      <button type="button" autofocus>Confirm</button>
+    </x-surface-window>
+
+    <x-side-panel
+      slot="panels"
+      id="settings-panel"
+      surface-id="settings-panel"
+      label="Settings panel"
+      mode="overlay"
+      placement="right"
+      modal
+      open>
+      <button type="button">Panel action</button>
+    </x-side-panel>
+
+    <x-modal
+      slot="overlays"
+      id="release-modal"
+      surface-id="release-modal"
+      title="Release modal"
+      overlay>
+      <p>Modal content</p>
+    </x-modal>
+
+    <x-dialog
+      slot="overlays"
+      id="confirm-dialog"
+      surface-id="confirm-dialog"
+      title="Confirm dialog"
+      overlay>
+      <p>Dialog content</p>
+    </x-dialog>
+
+    <x-drawer
+      slot="overlays"
+      id="detail-drawer"
+      surface-id="detail-drawer"
+      label="Detail drawer"
+      modal
+      placement="right">
+      <span slot="header">Detail drawer</span>
+      <button type="button">Drawer action</button>
+    </x-drawer>
+  </x-surface-manager>
+
+  <script type="module">
+    const manager = document.getElementById('stack-policy-manager');
+    const focusOrigin = document.getElementById('focus-origin');
+    await customElements.whenDefined('x-surface-manager');
+    await customElements.whenDefined('x-surface-window');
+    await customElements.whenDefined('x-side-panel');
+    focusOrigin.focus();
+    manager.openSurface('blocking-window');
+    const stackPolicy = manager.snapshotStackPolicy();
+    manager.applyStackPolicy({ source: 'fixture' });
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+    window.__xtendComponentResult = {
+      schema: 'xtend.surface.stack-policy.fixture-result.v1',
+      ok: true,
+      activeModalSurfaceId: stackPolicy.activeModalSurfaceId,
+      escapeTargetSurfaceId: stackPolicy.escapeTargetSurfaceId,
+      inertSurfaceCount: stackPolicy.inertSurfaceCount,
+      modalPolicy: stackPolicy.modalPolicy
+    };
+  </script>
+</body>
+</html>
