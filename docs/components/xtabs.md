@@ -114,3 +114,47 @@ Die Runtime stellt `getPerformanceBudget()` und `snapshotPerformance()` bereit. 
 ---
 
 *Letzte Aktualisierung: 7. Mai 2026*
+
+## ECH-WP-09 Token-Tabelle und Navigation States
+
+`signatureDesign`: `x-tabs` erzeugt eine eigenstaendige Enterprise-Tabnavigation mit sichtbarer Selected-Schiene, wrap-sicheren Labels und frei austauschbarer Typografie. Active/Current/Selected, Hover, Focus und Disabled sind ueber gemeinsame Navigationstokens themebar.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-nav-surface` | Tablist-Surface |
+| `--xtend-nav-text` | Tab-Text |
+| `--xtend-nav-border-color` | Tab- und Tablist-Kanten |
+| `--xtend-nav-radius` | Tab-Radius |
+| `--xtend-nav-gap` | Abstand zwischen Tabs |
+| `--xtend-nav-font-family` | Tab-Typografie |
+| `--xtend-nav-font-size` | Tab-Textgroesse |
+| `--xtend-nav-active-surface` | Selected-Flaeche |
+| `--xtend-nav-active-text` | Selected-Text |
+| `--xtend-nav-current-indicator` | nicht farb-only Selected-Indikator |
+| `--xtend-nav-hover-surface` | Hover-Flaeche |
+| `--xtend-nav-focus-ring` | Tastaturfokus |
+| `--xtend-nav-disabled-opacity` | Disabled-Dimmung |
+
+## ECH-WP-09 Keyboard-Verhalten
+
+`ArrowRight`, `ArrowLeft`, `Home`, `End`, `Enter` und `Space` bleiben die verbindlichen Tasten. Disabled Tabs werden nicht fokussiert oder aktiviert. Active/Current/Selected wird ueber `aria-selected="true"` am Tab und `role="tabpanel"` am Panel gespiegelt; Route-Tabs koennen zusaetzlich `aria-current="page"` durch Host-Logik tragen.
+
+## ECH-WP-09 Fremdtheme
+
+```css
+[data-xtend-nav-theme="enterprise-foreign"] x-tabs {
+  --xtend-nav-surface: #f3f0e8;
+  --xtend-nav-text: #202520;
+  --xtend-nav-border-color: rgba(32, 37, 32, 0.24);
+  --xtend-nav-radius: 0.35rem;
+  --xtend-nav-gap: 0.4rem;
+  --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+  --xtend-nav-font-size: 0.95rem;
+  --xtend-nav-active-surface: #243c34;
+  --xtend-nav-active-text: #fff9ed;
+  --xtend-nav-current-indicator: #a65f2d;
+  --xtend-nav-hover-surface: rgba(166, 95, 45, 0.14);
+  --xtend-nav-focus-ring: 3px solid #a65f2d;
+  --xtend-nav-disabled-opacity: 0.42;
+}
+```

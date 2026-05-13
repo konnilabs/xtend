@@ -90,3 +90,40 @@ x-input {
 ---
 
 *Letzte Aktualisierung: 16. Juli 2025*
+
+## ECH-WP-08 Form Theme/A11y Hardening
+
+`signatureDesign`: Praezises Enterprise-Textfeld mit ruhiger Flaeche, klarer Status-Typografie und dichter, aber lesbarer Form-Rhythmik.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-form-text` | Host-Textfarbe |
+| `--xtend-form-control-surface` | Eingabeflaeche |
+| `--xtend-form-control-text` | Eingabetext |
+| `--xtend-form-label-text` | Label |
+| `--xtend-form-helper-text` | Helper/Hinweis |
+| `--xtend-form-error-text` | Fehlertext |
+| `--xtend-form-error-surface` | Fehlerflaeche |
+| `--xtend-form-error-border` | Fehlerkante und Marker |
+| `--xtend-form-focus-ring` | Native Focus-Outline |
+| `--xtend-form-radius` | Control- und Error-Radius |
+| `--xtend-form-gap` | Label-, Helper- und Error-Abstand |
+| `--xtend-form-font-family` | Form-Typografie |
+| `--xtend-form-control-font-size` | Control-Schrift |
+| `--xtend-form-helper-font-size` | Helper/Error-Schrift |
+| `--xtend-form-icon-color` | Icon-/Affordance-Farbe fuer Controls mit Icon |
+
+Density-Profile: `density="comfortable"`, `density="compact"` und `density="dense"`. Invalid/Error ist nicht farb-only: Control-Kante, innerer Ring und Error-Marker bleiben auch in Dark/Forced-Colors erkennbar.
+
+```css
+[data-xtend-form-theme="enterprise-foreign"] x-input {
+  --xtend-form-control-surface: #fbf8f2;
+  --xtend-form-control-text: #16231f;
+  --xtend-form-label-text: #22312c;
+  --xtend-form-helper-text: #596861;
+  --xtend-form-error-text: #7d231c;
+  --xtend-form-error-border: #a64036;
+  --xtend-form-focus-ring: 3px solid #8f4f2a;
+  --xtend-form-radius: 0.35rem;
+}
+```

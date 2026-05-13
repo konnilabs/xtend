@@ -47,9 +47,29 @@ const icons = Object.freeze({
     aliases: ['expand', 'down'],
     nodes: [path('m6 9 6 6 6-6')]
   },
+  'chevron-up': {
+    aliases: ['collapse-up', 'up'],
+    nodes: [path('m18 15-6-6-6 6')]
+  },
+  'chevron-left': {
+    aliases: ['previous', 'left', 'collapse'],
+    nodes: [path('m15 18-6-6 6-6')]
+  },
   'chevron-right': {
     aliases: ['next', 'right'],
     nodes: [path('m9 18 6-6-6-6')]
+  },
+  pin: {
+    aliases: ['dock', 'pinned'],
+    nodes: [path('M15 4 20 9l-4 4v5l-1 1-4-4-5 5-2-2 5-5-4-4 1-1h5Z')]
+  },
+  minus: {
+    aliases: ['minimize', 'remove'],
+    nodes: [line(5, 12, 19, 12)]
+  },
+  maximize: {
+    aliases: ['restore', 'window'],
+    nodes: [rect(5, 5, 14, 14, { rx: 2 }), path('M9 9h6v6H9Z')]
   },
   sun: {
     aliases: ['light', 'bright'],

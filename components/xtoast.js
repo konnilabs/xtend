@@ -369,7 +369,7 @@ class XToast extends HTMLElement {
       <div class="toast ${type}" part="root content" role="${role}" aria-live="${live}" aria-atomic="true">
         <slot></slot>
         <button class="close" part="close control" type="button" aria-label="Schliessen">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+          <svg part="close-icon control icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.10)"></circle>
             <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
           </svg>

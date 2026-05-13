@@ -84,3 +84,9 @@ Seit `WP-E11-11` deklariert `<x-dialog>` das Runtime-Profil `xtend.component.ove
 | Commands | `open`, `close`, `focus-trap`, `apply-inert`, `lock-scroll`, `snapshot` |
 
 Das Profil standardisiert Focus Trap, Rueckfokus, Escape-Topmost-Regel, Background-Inert, balanced Scroll Lock und host-lokale Portal-Semantik. RMT kann den Dialog in Shell-first Templates planen, waehrend der RMT-Kernel durch `no-rmt-kernel-import-of-xtend-types` framework-agnostisch bleibt.
+
+## ECH-WP-06 Overlay-Paritaet
+
+`x-dialog` expose `surface`, `backdrop`, `close` und `content` als gemeinsame Overlay-Parts. `overlay` bleibt als Alias fuer `backdrop` erhalten. Surface, Text, Backdrop, Elevation, Radius, Z-Index, Action-Farben, Close-Flaeche und Focus Ring sind ueber `--xtend-overlay-*`, `--dialog-*` oder `--xdialog-*` Tokens ueberschreibbar.
+
+`x-dialog` ist modal: Focus Trap, Background-Inert, Scroll Lock, Escape und Rueckfokus bleiben im Standardpfad aktiv. Dialoge ohne `overlay` behalten die Surface-Parts, verzichten aber auf den visuellen Backdrop.

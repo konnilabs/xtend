@@ -3,11 +3,29 @@
 <head>
   <meta charset="utf-8">
   <title>x-link component fixture</title>
+  <style>
+    [data-xtend-nav-theme="enterprise-foreign"] x-link {
+      --xtend-nav-surface: transparent;
+      --xtend-nav-text: #17231f;
+      --xtend-nav-border-color: transparent;
+      --xtend-nav-radius: 0.3rem;
+      --xtend-nav-gap: 0.4rem;
+      --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-nav-font-size: 0.96rem;
+      --xtend-nav-active-surface: rgba(181, 107, 53, 0.16);
+      --xtend-nav-active-text: #173f35;
+      --xtend-nav-current-indicator: #b56b35;
+      --xtend-nav-hover-surface: rgba(181, 107, 53, 0.1);
+      --xtend-nav-focus-ring: 3px solid #b56b35;
+      --xtend-nav-disabled-opacity: 0.44;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-nav-theme="enterprise-foreign">
   <x-router id="component-link-router" mode="history"></x-router>
-  <x-link id="component-link" href="/dashboard">Dashboard</x-link>
+  <x-link id="component-link" href="/dashboard" aria-current="page" aria-selected="true">Dashboard</x-link>
   <x-link id="component-external-link" href="https://example.com">External</x-link>
+  <x-link id="component-disabled-link" href="/disabled" disabled>Lang benannter deaktivierter Navigationslink fuer Enterprise Shells</x-link>
   <script>
     window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
   </script>

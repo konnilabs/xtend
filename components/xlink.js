@@ -1,6 +1,6 @@
 class XLink extends HTMLElement {
   static get observedAttributes() {
-    return ['href'];
+    return ['href', 'disabled'];
   }
 
   static get xtendComponentContract() {
@@ -104,6 +104,32 @@ class XLink extends HTMLElement {
         feedbackStatusCompatible: true,
         activeStateMirrorsRouter: true
       },
+      stateSemantics: {
+        states: ['active', 'current', 'selected', 'hover', 'focus', 'disabled'],
+        current: 'aria-current=page',
+        selected: 'aria-selected-supported-for-composite-navigation-hosts',
+        disabled: 'disabled-or-aria-disabled'
+      },
+      signatureDesign: {
+        note: 'Enterprise router link with visible current-route underline, compact typography rhythm and host-controlled nav states.',
+        tokenStrategy: 'shared --xtend-nav-* tokens feed x-link aliases while legacy link tokens remain overrideable.',
+        themeExpectation: 'third-party themes can restyle active, hover, focus, disabled, radius, typography and current indicator from CSS.'
+      },
+      themeTokens: [
+        '--xtend-nav-surface',
+        '--xtend-nav-text',
+        '--xtend-nav-border-color',
+        '--xtend-nav-radius',
+        '--xtend-nav-gap',
+        '--xtend-nav-font-family',
+        '--xtend-nav-font-size',
+        '--xtend-nav-active-surface',
+        '--xtend-nav-active-text',
+        '--xtend-nav-current-indicator',
+        '--xtend-nav-hover-surface',
+        '--xtend-nav-focus-ring',
+        '--xtend-nav-disabled-opacity'
+      ],
       overflowPolicy: 'inline-overflow-wraps-in-constrained-containers'
     };
   }
@@ -162,22 +188,56 @@ class XLink extends HTMLElement {
           min-width: 0;
           box-sizing: border-box;
           vertical-align: baseline;
+          --xtend-nav-surface: transparent;
+          --xtend-nav-text: var(--xtend-text-primary, var(--xtend-text, currentColor));
+          --xtend-nav-border-color: transparent;
+          --xtend-nav-radius: var(--xtend-radius-control, var(--xtend-radius, 0.45rem));
+          --xtend-nav-gap: var(--xtend-space-control-gap, 0.45rem);
+          --xtend-nav-font-family: var(--xtend-font-family-control, var(--xtend-font-family, inherit));
+          --xtend-nav-font-size: var(--xtend-font-size-control, inherit);
+          --xtend-nav-active-surface: var(--xtend-color-action-subtle, transparent);
+          --xtend-nav-active-text: var(--xtend-color-action, currentColor);
+          --xtend-nav-current-indicator: var(--xtend-color-action, currentColor);
+          --xtend-nav-hover-surface: var(--xtend-color-action-subtle, transparent);
+          --xtend-nav-focus-ring: var(--xtend-focus-ring, var(--focus-outline, 2px solid Highlight));
+          --xtend-nav-disabled-opacity: var(--xtend-disabled-opacity, 0.48);
+          --xtend-link-surface: var(--xtend-nav-surface);
+          --xtend-link-text: var(--xtend-nav-text);
+          --xtend-link-radius: var(--xtend-nav-radius);
+          --xtend-link-gap: var(--xtend-nav-gap);
+          --xtend-link-font-family: var(--xtend-nav-font-family);
+          --xtend-link-font-size: var(--xtend-nav-font-size);
+          --xtend-link-active-surface: var(--xtend-nav-active-surface);
+          --xtend-link-active-text: var(--xtend-nav-active-text);
+          --xtend-link-current-indicator: var(--xtend-nav-current-indicator);
+          --xtend-link-hover-surface: var(--xtend-nav-hover-surface);
+          --xtend-link-focus: var(--xtend-nav-focus-ring);
+          --xtend-link-disabled-opacity: var(--xtend-nav-disabled-opacity);
+          --xtend-link-padding-block: var(--xtend-link-padding-y, 0);
+          --xtend-link-padding-inline: var(--xtend-link-padding-x, 0);
         }
         a {
           display: inline-flex;
           align-items: center;
+          gap: var(--xtend-link-gap);
           max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
-          color: inherit;
-          background: inherit;
+          color: var(--xtend-link-text);
+          background: var(--xtend-link-surface);
           text-decoration: var(--link-decoration, none);
           cursor: pointer;
           border: none;
+          border-radius: var(--xtend-link-radius);
+          padding: var(--xtend-link-padding-block) var(--xtend-link-padding-inline);
+          font-family: var(--xtend-link-font-family);
+          font-size: var(--xtend-link-font-size);
           outline: none;
           overflow-wrap: anywhere;
           word-break: var(--xtend-link-word-break, normal);
           white-space: var(--xtend-link-white-space, normal);
+          position: relative;
+          transition: background var(--xtend-motion-duration-fast, 160ms) var(--xtend-motion-easing-standard, ease), color var(--xtend-motion-duration-fast, 160ms) var(--xtend-motion-easing-standard, ease), box-shadow var(--xtend-motion-duration-fast, 160ms) var(--xtend-motion-easing-standard, ease);
         }
         ::slotted(*) {
           min-width: 0;
@@ -185,7 +245,7 @@ class XLink extends HTMLElement {
           box-sizing: border-box;
         }
         a:focus {
-          outline: var(--focus-outline, 2px solid #0056b3);
+          outline: var(--xtend-link-focus, var(--focus-outline, 2px solid Highlight));
         }
         a:focus-visible {
           outline: var(--xtend-link-focus, var(--focus-outline, 2px solid Highlight));
@@ -193,11 +253,20 @@ class XLink extends HTMLElement {
         }
         a:hover {
           text-decoration: var(--link-hover-decoration, underline);
+          background: var(--xtend-link-hover-surface);
         }
         :host([active]) a {
-          font-weight: bold;
+          font-weight: var(--xtend-link-active-font-weight, 700);
           text-decoration: var(--link-active-decoration, underline);
-          color: var(--xtend-link-active-color, currentColor);
+          color: var(--xtend-link-active-color, var(--xtend-link-active-text));
+          background: var(--xtend-link-active-surface);
+          box-shadow: inset 0 -2px 0 var(--xtend-link-current-indicator);
+        }
+        :host([disabled]) a,
+        :host([aria-disabled="true"]) a {
+          opacity: var(--xtend-link-disabled-opacity);
+          cursor: not-allowed;
+          pointer-events: none;
         }
         .link-status {
           position: absolute;
@@ -238,7 +307,7 @@ class XLink extends HTMLElement {
     }
     this._anchor.addEventListener('click', this._onClick);
     this._anchor.addEventListener('keydown', this._onKeyDown);
-    this.attributeChangedCallback('href', null, this.getAttribute('href'));
+    this._syncAnchorState();
     window.addEventListener('popstate', this._updateActive);
     window.addEventListener('hashchange', this._updateActive);
     window.addEventListener('xrouter-after-navigate', this._onNavigationChange);
@@ -256,15 +325,44 @@ class XLink extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    if (name === 'href') {
-      if (typeof newVal === 'string') {
-        this._anchor.setAttribute('href', newVal);
-      } else {
-        this._anchor.removeAttribute('href');
-      }
-      this._syncExternalAttributes();
+    if (name === 'href' || name === 'disabled') {
+      this._syncAnchorState();
       this._updateActive();
     }
+  }
+
+  _isDisabled() {
+    return this.hasAttribute('disabled') ||
+      (this.getAttribute('aria-disabled') === 'true' && this.getAttribute('data-xtend-managed-disabled') !== 'true');
+  }
+
+  _syncAnchorState() {
+    const href = this.getAttribute('href');
+    const disabled = this._isDisabled();
+    if (disabled) {
+      if (this.hasAttribute('disabled')) {
+        this.setAttribute('aria-disabled', 'true');
+        this.setAttribute('data-xtend-managed-disabled', 'true');
+      }
+      this._anchor.removeAttribute('href');
+      this._anchor.setAttribute('aria-disabled', 'true');
+      this._anchor.setAttribute('tabindex', '-1');
+      return;
+    }
+    if (this.getAttribute('data-xtend-managed-disabled') === 'true') {
+      this.removeAttribute('aria-disabled');
+      this.removeAttribute('data-xtend-managed-disabled');
+    }
+    if (this.getAttribute('aria-disabled') !== 'true') {
+      this._anchor.removeAttribute('aria-disabled');
+      this._anchor.setAttribute('tabindex', '0');
+    }
+    if (typeof href === 'string') {
+      this._anchor.setAttribute('href', href);
+    } else {
+      this._anchor.removeAttribute('href');
+    }
+    this._syncExternalAttributes();
   }
 
   _isExternal(href) {
@@ -303,7 +401,7 @@ class XLink extends HTMLElement {
 
   _updateActive() {
     const href = this.getAttribute('href') || '';
-    if (!href || this._isExternal(href)) {
+    if (!href || this._isDisabled() || this._isExternal(href)) {
       this.removeAttribute('active');
       this._anchor.removeAttribute('aria-current');
       this._syncActiveState(false);
@@ -347,6 +445,10 @@ class XLink extends HTMLElement {
   }
 
   _onClick(event) {
+    if (this._isDisabled()) {
+      event.preventDefault();
+      return;
+    }
     const href = this.getAttribute('href');
     if (!href) return;
     if (this._isExternal(href)) {
@@ -434,6 +536,10 @@ class XLink extends HTMLElement {
   }
 
   _onKeyDown(e) {
+    if (this._isDisabled()) {
+      e.preventDefault();
+      return;
+    }
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       this._anchor.click();

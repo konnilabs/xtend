@@ -77,6 +77,7 @@ export interface XThemeContext {
   availableThemes: string[];
   preferences: XThemeA11yPreferences;
   tokens: XThemeTokenMap;
+  aliasLayer?: XThemeTokenAliasLayer;
   densityTokens: XThemeTokenMap;
   propagationVersion: number;
   reason: string;
@@ -115,13 +116,31 @@ export interface XThemeDesignTokenPack {
   tokens: XThemeTokenMap;
 }
 
+export interface XThemeTokenAliasLayer {
+  schema: 'xtend.theme.token-alias-layer.v1';
+  workpackage: 'ECH-WP-03';
+  runtimeProvider: 'x-theme';
+  globalAliases: XThemeTokenMap;
+  componentAliases: XThemeTokenMap;
+  legacyAliases: Record<string, string>;
+  p0Components: string[];
+  overrideContract: {
+    cssEntry: 'XTend.css';
+    themeEntry: 'x-theme.registerTheme()';
+    noComponentLocalThemeForks: boolean;
+    forcedColorsRequired: boolean;
+  };
+}
+
 export interface XThemeDesignTokenContract {
   schema: 'xtend.design-tokens.product-contract.v1';
   packSchema: 'xtend.design-tokens.pack.v1';
   workpackage: 'WP-E12-12';
+  aliasLayerWorkpackage?: 'ECH-WP-03';
   runtimeProvider: 'x-theme';
   namespace: '--xtend-';
   tokenNames: string[];
+  aliasLayer?: XThemeTokenAliasLayer;
   themePacks: XThemeDesignTokenPack[];
   densityPacks: XThemeDesignTokenPack[];
   cssParts: string[];
@@ -202,6 +221,7 @@ export interface XThemeManager {
   getThemeRegistry(): XThemeRegistry;
   getDesignTokens(themeName?: string): XThemeTokenMap;
   getDesignTokenContract(): XThemeDesignTokenContract;
+  getTokenAliasLayer(): XThemeTokenAliasLayer;
   getA11yProfile(): XThemeA11yProfile;
   getMotionContrastPolicy(): XThemeMotionContrastPolicy;
   getPerformanceProfile(): XThemePerformanceProfile;

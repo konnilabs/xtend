@@ -3,19 +3,42 @@
 <head>
   <meta charset="utf-8">
   <title>x-form component fixture</title>
+  <style>
+    [data-xtend-form-theme="enterprise-foreign"] {
+      --xtend-form-surface: #fffaf2;
+      --xtend-form-text: #16231f;
+      --xtend-form-control-surface: #fbf8f2;
+      --xtend-form-control-text: #16231f;
+      --xtend-form-label-text: #22312c;
+      --xtend-form-helper-text: #596861;
+      --xtend-form-error-text: #7d231c;
+      --xtend-form-error-surface: #fff1ed;
+      --xtend-form-error-border: #a64036;
+      --xtend-form-focus-ring: 3px solid #8f4f2a;
+      --xtend-form-radius: 0.45rem;
+      --xtend-form-gap: 0.8rem;
+      --xtend-form-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-form-control-font-size: 1rem;
+      --xtend-form-helper-font-size: 0.875rem;
+      --xtend-form-icon-color: #8f4f2a;
+    }
+  </style>
 </head>
-<body>
-  <x-form id="component-form">
-    <x-input id="component-form-input" name="email" type="email" required></x-input>
-    <x-select id="component-form-select" name="plan" value="pro" required>
+<body data-xtend-form-theme="enterprise-foreign">
+  <x-form id="component-form" density="comfortable">
+    <x-input id="component-form-input" name="email" type="email" required density="comfortable"></x-input>
+    <x-select id="component-form-select" name="plan" value="pro" required density="compact">
       <option value="starter">Starter</option>
       <option value="pro" selected>Pro</option>
     </x-select>
-    <x-textarea id="component-form-textarea" name="notes" value="Follow-up note"></x-textarea>
-    <x-checkbox id="component-form-checkbox" name="terms" checked required></x-checkbox>
-    <x-radio id="component-form-radio" name="billing" value="annual" checked></x-radio>
+    <x-textarea id="component-form-textarea" name="notes" value="Follow-up note" density="dense"></x-textarea>
+    <x-checkbox id="component-form-checkbox" name="terms" checked required density="compact"></x-checkbox>
+    <x-radio id="component-form-radio" name="billing" value="annual" checked density="dense"></x-radio>
     <x-calendar id="component-form-calendar" name="date"></x-calendar>
     <button type="submit">Submit</button>
+  </x-form>
+  <x-form id="component-form-invalid" density="dense" invalid busy>
+    <x-input id="component-form-invalid-input" name="invalid-email" type="email" invalid></x-input>
   </x-form>
   <script>
     window.__xtendComponentState = {};

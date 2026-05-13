@@ -3,8 +3,25 @@
 <head>
   <meta charset="utf-8">
   <title>x-section component fixture</title>
+  <style>
+    [data-xtend-layout-theme="enterprise-foreign"] x-section {
+      --xtend-layout-surface: #fffaf2;
+      --xtend-layout-text: #1d2722;
+      --xtend-layout-border-color: rgba(29, 39, 34, 0.18);
+      --xtend-layout-radius: 0.4rem;
+      --xtend-layout-elevation: none;
+      --xtend-layout-spacing: 1.6rem;
+      --xtend-layout-gap: 1.2rem;
+      --xtend-layout-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-layout-font-size: 1rem;
+      --xtend-layout-media-radius: 0.35rem;
+      --xtend-layout-focus-ring: 3px solid #8f4f2a;
+      --xtend-layout-grid-min: minmax(14rem, 1fr);
+      --xtend-layout-content-max: 76rem;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-layout-theme="enterprise-foreign">
   <x-section id="component-section" layout="column" label="Component section" bordered>
     <h2 slot="header">Section heading</h2>
     <p>Section content</p>

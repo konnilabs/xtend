@@ -3,9 +3,26 @@
 <head>
   <meta charset="utf-8">
   <title>x-hero component fixture</title>
+  <style>
+    [data-xtend-layout-theme="enterprise-foreign"] x-hero {
+      --xtend-layout-surface: rgba(248, 244, 239, 0.88);
+      --xtend-layout-text: #15231d;
+      --xtend-layout-border-color: rgba(21, 35, 29, 0.22);
+      --xtend-layout-radius: 0.45rem;
+      --xtend-layout-elevation: 0 20px 60px rgba(21, 35, 29, 0.16);
+      --xtend-layout-spacing: 4rem 2rem;
+      --xtend-layout-gap: 1rem;
+      --xtend-layout-font-family: "Aptos Display", "Segoe UI", sans-serif;
+      --xtend-layout-font-size: 1.05rem;
+      --xtend-layout-media-radius: 0.65rem;
+      --xtend-layout-focus-ring: 3px solid #8f4f2a;
+      --xtend-layout-grid-min: minmax(0, 1fr);
+      --xtend-layout-content-max: 42rem;
+    }
+  </style>
 </head>
-<body>
-  <x-hero id="component-hero" background="#123" align="center" overlay scroll-button>
+<body data-xtend-layout-theme="enterprise-foreign">
+  <x-hero id="component-hero" background="var(--xtend-layout-surface)" align="center" overlay scroll-button>
     <h1 slot="hero-title">Component Hero</h1>
     <p>Hero content</p>
   </x-hero>

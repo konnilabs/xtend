@@ -131,7 +131,34 @@ class XRouter extends HTMLElement {
         feedbackStatusCompatible: true,
         announcementStateKey: 'xtend.router.announcement',
         documentMetaStateKey: 'xtend.router.documentMeta'
-      }
+      },
+      stateSemantics: {
+        states: ['active', 'current', 'selected', 'hover', 'focus', 'disabled'],
+        current: 'aria-current=page-delegated-to-links-and-menus',
+        selected: 'aria-selected=true-supported-for-route-tabs',
+        disabled: 'delegated-to-navigation-controls'
+      },
+      signatureDesign: {
+        note: 'Enterprise router outlet with calm route focus, readable announcements and tokenized skeleton/navigation bridge states.',
+        tokenStrategy: 'shared --xtend-nav-* tokens align router announcements, route focus and navigation components.',
+        themeExpectation: 'third-party themes can replace route focus, skeleton, active route and announcement surfaces from CSS.'
+      },
+      themeTokens: [
+        '--xtend-nav-surface',
+        '--xtend-nav-text',
+        '--xtend-nav-border-color',
+        '--xtend-nav-radius',
+        '--xtend-nav-gap',
+        '--xtend-nav-font-family',
+        '--xtend-nav-font-size',
+        '--xtend-nav-active-surface',
+        '--xtend-nav-active-text',
+        '--xtend-nav-current-indicator',
+        '--xtend-nav-hover-surface',
+        '--xtend-nav-focus-ring',
+        '--xtend-nav-disabled-opacity'
+      ],
+      overflowPolicy: 'route-outlet-allows-long-label-navigation-contexts-to-wrap'
     };
   }
 
@@ -438,11 +465,29 @@ class XRouter extends HTMLElement {
       <style>
         :host {
           display: block;
-          --xtend-router-focus: var(--xtend-focus-ring, 2px solid Highlight);
+          --xtend-nav-surface: transparent;
+          --xtend-nav-text: var(--xtend-text-primary, var(--xtend-text, CanvasText));
+          --xtend-nav-border-color: transparent;
+          --xtend-nav-radius: var(--xtend-radius-panel, var(--xtend-radius, 0.75rem));
+          --xtend-nav-gap: var(--xtend-space-2, 0.5rem);
+          --xtend-nav-font-family: var(--xtend-font-family-body, var(--xtend-font-family, system-ui, sans-serif));
+          --xtend-nav-font-size: var(--xtend-font-size-body, 1rem);
+          --xtend-nav-active-surface: var(--xtend-color-action-subtle, transparent);
+          --xtend-nav-active-text: var(--xtend-color-action, LinkText);
+          --xtend-nav-current-indicator: var(--xtend-color-action, Highlight);
+          --xtend-nav-hover-surface: var(--xtend-color-action-subtle, transparent);
+          --xtend-nav-focus-ring: var(--xtend-focus-ring, 2px solid Highlight);
+          --xtend-nav-disabled-opacity: var(--xtend-disabled-opacity, 0.48);
+          --xtend-router-focus: var(--xtend-nav-focus-ring);
+          --xtend-router-surface: var(--xtend-nav-surface);
+          --xtend-router-text: var(--xtend-nav-text);
         }
         #outlet {
           min-height: 1px;
           outline: none;
+          color: var(--xtend-router-text);
+          background: var(--xtend-router-surface);
+          overflow-wrap: anywhere;
         }
         #outlet[data-xtend-skeleton-active="true"] {
           display: block;

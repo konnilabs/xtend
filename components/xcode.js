@@ -55,6 +55,11 @@ class XCode extends HTMLElement {
       lazyPolicy: "idle-hydrate",
       overflowPolicy: "internal-scroll",
       aspectRatio: "content-driven",
+      signatureDesign: {
+        note: "Readable enterprise code surface with crisp copy control, contained overflow and themeable monospace personality.",
+        tokenStrategy: "layout tokens back code surface, text, border, radius, spacing, typography, focus, media radius and elevation.",
+        themeExpectation: "documentation, IDE-like and corporate design themes can replace the code surface without DOM changes."
+      },
       events: ["code-copied"],
       commands: ["render", "copy", "snapshot"],
       stateKey: "xcode-state-<id>",
@@ -221,21 +226,24 @@ class XCode extends HTMLElement {
           display: block;
           position: relative;
           width: 100%;
-          max-width: 100%;
+          max-width: var(--xtend-layout-content-max, 100%);
           min-width: 0;
           box-sizing: border-box;
-          font-family: 'Inter', 'Fira Mono', 'Menlo', 'Consolas', monospace;
-          background: var(--x-code-bg, var(--docs-code-bg, #10131a));
-          color: var(--x-code-text, #f8fafc);
-          border-radius: 1.2em;
-          box-shadow: 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08);
-          backdrop-filter: blur(14px) saturate(1.1);
-          border: 1.5px solid var(--x-code-border, rgba(255,255,255,0.10));
+          --x-code-grid-min: var(--xtend-layout-grid-min, minmax(0, 1fr));
+          --x-code-gap: var(--xtend-layout-gap, 0.75rem);
+          font-family: var(--x-code-font-family, var(--xtend-layout-font-family, 'Inter', 'Fira Mono', 'Menlo', 'Consolas', monospace));
+          background: var(--x-code-bg, var(--xtend-layout-surface, var(--docs-code-bg, #10131a)));
+          color: var(--x-code-text, var(--xtend-layout-text, #f8fafc));
+          border-radius: var(--x-code-radius, var(--xtend-layout-radius, 1.2em));
+          box-shadow: var(--x-code-shadow, var(--xtend-layout-elevation, 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08)));
+          backdrop-filter: var(--x-code-backdrop-filter, blur(14px) saturate(1.1));
+          border: var(--x-code-border-width, 1.5px) solid var(--x-code-border, var(--xtend-layout-border-color, rgba(255,255,255,0.10)));
           overflow: auto;
           overflow-x: auto;
-          padding: 1.2em 1.5em 1.2em 1.5em;
-          margin: 0.5em 0;
+          padding: var(--x-code-padding, var(--xtend-layout-spacing, 1.2em 1.5em 1.2em 1.5em));
+          margin: var(--x-code-margin, 0.5em 0);
           transition: box-shadow 0.22s cubic-bezier(.4,0,.2,1), background 0.22s;
+          overflow-wrap: anywhere;
         }
         pre {
           max-width: 100%;
@@ -243,10 +251,11 @@ class XCode extends HTMLElement {
           margin: 0;
           background: none;
           color: inherit;
-          font-size: 1em;
+          font-size: var(--x-code-font-size, var(--xtend-layout-font-size, 1em));
           line-height: 1.6;
           white-space: pre-wrap;
           word-break: break-word;
+          overflow-wrap: anywhere;
           border: none;
           padding: 0;
         }
@@ -260,9 +269,9 @@ class XCode extends HTMLElement {
           position: absolute;
           top: 1.1em;
           right: 1.1em;
-          background: var(--x-code-copy-bg, rgba(255,255,255,0.10));
-          border: none;
-          border-radius: 50%;
+          background: var(--x-code-copy-bg, var(--xtend-layout-control-surface, rgba(255,255,255,0.10)));
+          border: var(--x-code-copy-border, 1px solid var(--xtend-layout-border-color, transparent));
+          border-radius: var(--x-code-copy-radius, var(--xtend-layout-media-radius, 50%));
           width: 2.2em;
           height: 2.2em;
           display: flex;
@@ -271,16 +280,16 @@ class XCode extends HTMLElement {
           cursor: pointer;
           box-shadow: 0 2px 8px rgba(0,0,0,0.08);
           transition: background 0.18s, color 0.18s, transform 0.15s;
-          color: var(--x-code-copy-color, #fff);
+          color: var(--x-code-copy-color, var(--xtend-layout-control-text, #fff));
           z-index: 2;
         }
         .copy-btn:focus-visible {
-          outline: 2.5px solid var(--focus-color, #4fc3f7);
+          outline: var(--xtend-layout-focus-ring, 2.5px solid var(--focus-color, #4fc3f7));
           outline-offset: 2px;
           z-index: 3;
         }
         .copy-btn:hover {
-          background: rgba(79,195,247,0.18);
+          background: var(--x-code-copy-hover-bg, rgba(79,195,247,0.18));
           color: var(--primary, #4fc3f7);
           transform: scale(1.08);
         }
@@ -306,8 +315,8 @@ class XCode extends HTMLElement {
           }
         }
       </style>
-      <button class="copy-btn" part="copy" aria-label="Code kopieren" title="Code kopieren">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2.5"/><rect x="2" y="2" width="13" height="13" rx="2.5"/></svg>
+      <button class="copy-btn" part="copy control" aria-label="Code kopieren" title="Code kopieren">
+        <svg part="copy-icon control icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2.5"/><rect x="2" y="2" width="13" height="13" rx="2.5"/></svg>
       </button>
       <pre part="root pre"><code part="code" class="language-${lang}">${escapedCode}</code></pre>
     `;

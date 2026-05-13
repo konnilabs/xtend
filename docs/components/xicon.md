@@ -81,6 +81,18 @@ window.XTend.icons.register({
 
 Packs koennen eigene SVG-Node-Descriptoren, einzelne Path-Strings, inline SVG-Records oder URL-Records enthalten. Remote-Quellen sind nicht Default von XTend; sie muessen bewusst vom Host als `src` oder Pack-URL bereitgestellt werden.
 
+## ECH-WP-04 Control-Regel
+
+Keine Textglyphen als Controls: Close-, Menu-, Disclosure-, Status- und Action-Controls duerfen nicht ueber sichtbare Zeichen wie `x`, `&times;`, Pfeile oder Emoji gestaltet werden. Verwende `x-icon`, Inline-SVG oder eine tokenisierte CSS-Grafik.
+
+Pflicht fuer Icon-Controls:
+
+- Der Button hat einen zugaenglichen Namen, z.B. `aria-label`.
+- Der Button exponiert einen stabilen Control-Part, z.B. `part="close control"`.
+- Die Grafik exponiert einen Icon-Part, z.B. `part="control icon"` oder `part="close-icon control icon"`.
+- Das Core-Pack enthaelt fuer Framework-Controls mindestens `close`, `menu`, `chevron-left`, `chevron-right`, `chevron-up`, `chevron-down`, `success`, `warning`, `error` und `info`.
+- Eigene Icon Packs muessen lokale SVG-Node-Descriptoren oder sichere `src`-Quellen verwenden; CDN-Abhaengigkeiten sind keine XTend-Default-Basis.
+
 ## RMT und Fabric
 
 `x-icon` deklariert `xtendRmtMetadata` mit `adapter: 'xtend.component'`, `templateMode: 'dom_descriptor'`, `shellAuthoring.attributes` und der Boundary `no-rmt-kernel-import-of-xtend-types`. RMT kann Icons dadurch in App Shells, Navigationen, Buttons oder Docs-Templates authoren, ohne den XTend-Kernel oder einen Icon-Vendor zu importieren.

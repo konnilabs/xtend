@@ -95,6 +95,22 @@ Pflichtregeln:
 
 Weiterfuehrend: [Komponenten-Entwicklung](./components.md), [Component Catalog Coverage](./component-catalog-coverage.md), [Visual Browser Regression](./visual-browser-regression.md).
 
+Seit `ECH-WP-11` liegt fuer Corporate-Design-Teams ein eigener Guide vor: [Drittanbieter Design Authoring](./third-party-design-authoring.md). Er gehoert zur UI Baseline und dokumentiert den Contract `xtend.enterprise.third-party-authoring-guide.v1`, XTend.css Override Patterns, XTheme Token Bridge, CSS Parts, Icon Pack Registrierung, Layout Modes, A11y-Dos and Donts, P0 Token-/Part-Referenzen und Legacy-Token-Migration.
+
+Lokaler Gate:
+
+```bash
+node scripts/run_xtend_tests.js enterprise-third-party-authoring-guide --json
+```
+
+Seit `ECH-WP-12` ist die Enterprise Component Flexibilitaetswelle als Release Handoff geschnitten: [Enterprise Component Flex Release Handoff](./enterprise-component-flex-release-handoff.md). Der Contract `xtend.enterprise.component-flex-release-handoff.v1` dokumentiert SemVer-Bewertung, Deprecated Aliases, Migration Notes, Release Checklist, Adoption Risiken und den Publish Boundary `private-until-release-owner-acceptance`.
+
+Lokaler Gate:
+
+```bash
+node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff --json
+```
+
 ## 3. Fabric Baseline
 
 XTend-Fabric ist die Sicherheits- und Telemetry-Schicht fuer UI-Arbeit:

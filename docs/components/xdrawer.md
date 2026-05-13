@@ -76,3 +76,9 @@ Seit `WP-E11-11` deklariert `<x-drawer>` das Runtime-Profil `xtend.component.ove
 | Commands | `open`, `close`, `toggle`, `focus-trap`, `apply-inert`, `lock-scroll`, `snapshot` |
 
 Das Profil beschreibt Drawer als route-aware Overlay: modal optional, Focus Trap nur bei modalem Betrieb, Escape schliesst das oberste Overlay und XRouter-Routenwechsel duerfen den Drawer kontrolliert schliessen.
+
+## ECH-WP-06 Overlay-Paritaet
+
+`x-drawer` nutzt die gemeinsamen Overlay-Part-Aliase `surface`, `backdrop`, `close` und `content`. `overlay` bleibt als Legacy-Alias fuer `backdrop` erhalten. Host-Themes koennen Surface, Text, Border, Elevation, Backdrop, Z-Index und Focus Ring ueber `--xtend-overlay-*` oder die kompatiblen `--drawer-*` Tokens steuern.
+
+Modalitaet ist optional: `modal` aktiviert Focus Trap, Background-Inert und Scroll Lock; nicht-modale Drawer bleiben fuer App-Shell-Navigation offen steuerbar.

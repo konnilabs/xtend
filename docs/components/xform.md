@@ -86,3 +86,43 @@ x-form {
 ---
 
 *Letzte Aktualisierung: 16. Juli 2025*
+
+## ECH-WP-08 Form Theme/A11y Hardening
+
+`signatureDesign`: Enterprise-Formhost mit hochwertiger Surface-Komposition, aggregierten Statusregionen und density-sicherem Rhythmus fuer verschachtelte Controls.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-form-text` | Form-Textfarbe |
+| `--xtend-form-surface` | Form-Flaeche |
+| `--xtend-form-control-surface` | Child-Control-Flaeche |
+| `--xtend-form-control-text` | Child-Control-Text |
+| `--xtend-form-label-text` | Label-Cascade |
+| `--xtend-form-helper-text` | Helper-Cascade |
+| `--xtend-form-error-text` | Error-Cascade |
+| `--xtend-form-error-surface` | Error-Cascade-Flaeche |
+| `--xtend-form-error-border` | Form- und Error-Kante |
+| `--xtend-form-focus-ring` | Focus-Cascade |
+| `--xtend-form-radius` | Form- und Control-Radius |
+| `--xtend-form-gap` | Form- und Control-Abstand |
+| `--xtend-form-font-family` | Form-Typografie |
+| `--xtend-form-control-font-size` | Control-Schrift |
+| `--xtend-form-helper-font-size` | Helper-/Error-Schrift fuer Child Controls |
+| `--xtend-form-icon-color` | Child-Control-Icon-Akzent |
+
+Density-Profile: `comfortable`, `compact`, `dense`. `busy`, `disabled` und Invalid werden am Formhost als Flaechenzustand und via ARIA gespiegelt.
+
+```css
+[data-xtend-form-theme="enterprise-foreign"] x-form {
+  --xtend-form-surface: #fffaf2;
+  --xtend-form-control-surface: #fbf8f2;
+  --xtend-form-text: #16231f;
+  --xtend-form-label-text: #22312c;
+  --xtend-form-helper-text: #596861;
+  --xtend-form-error-text: #7d231c;
+  --xtend-form-error-border: #a64036;
+  --xtend-form-focus-ring: 3px solid #8f4f2a;
+  --xtend-form-radius: 0.45rem;
+  --xtend-form-gap: 0.8rem;
+}
+```

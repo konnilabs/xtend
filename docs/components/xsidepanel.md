@@ -22,3 +22,9 @@ Commands: `openPanel()`, `closePanel(reason)`, `focusPanel()`, `pinPanel()`, `co
 Das Element sendet `surface-panel-command` mit `open`, `close`, `focus`, `resize`, `pin`, `unpin`, `collapse`, `expand`, `dock`, `restore` oder `update`. Der Manager uebersetzt diese Commands in Controller-Operationen beziehungsweise `updateSurface`.
 
 RMT: `xtend.rmt.component-contract.v1`, `xtend.surface.record.v1`, `surface.visible.render`, `surface.user-blocking.open`, `surface.user-blocking.close`, `surface.transition.layout`, `surface.diagnostics.snapshot`.
+
+## ECH-WP-06 Overlay-Paritaet
+
+`x-side-panel` expose `surface`, `backdrop`, `close` und `content` als gemeinsame Overlay-Parts. Der bisherige `scrim` Part bleibt als Alias fuer `backdrop` erhalten. Surface, Text, Border, Elevation, Backdrop, Z-Index und Focus Ring laufen ueber `--xtend-overlay-*` und die komponentennahen `--side-panel-*` Tokens.
+
+`mode="docked"` und `mode="pinned"` bleiben nicht-modal und app-shell-nah. `mode="overlay"` oder `modal` aktivieren den Backdrop und die Overlay-Steuerung fuer SurfaceManager-Orchestrierung.

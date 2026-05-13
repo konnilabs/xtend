@@ -100,3 +100,43 @@ x-hero {
 - Events: `hero-rendered`, `hero-animated`
 - Snapshot: `snapshot()`
 - CSS Parts: `root`, `overlay`, `content`, `scroll-button`
+
+## ECH-WP-07 Token-Tabelle und signatureDesign
+
+`signatureDesign`: Immersive Enterprise-Hero-Komposition mit editorialer Tiefe, medienfaehigem Surface und tokenisiertem Content-Block. Die Standardwirkung soll elegant und eigenstaendig sein, aber Bild-, App- und Corporate-Inszenierungen zulassen.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-layout-surface` | Hero- und Content-Flaeche |
+| `--xtend-layout-text` | Hero-Textfarbe |
+| `--xtend-layout-border-color` | Scroll-Control-Kante |
+| `--xtend-layout-radius` | Hero-, Content- und Titelradius |
+| `--xtend-layout-elevation` | Hero-, Content- und Titel-Schatten |
+| `--xtend-layout-spacing` | Hero- und Content-Padding |
+| `--xtend-layout-gap` | Kompositionsabstand fuer Theme-Autoren |
+| `--xtend-layout-font-family` | Hero-Typografie |
+| `--xtend-layout-font-size` | Control- und Content-Skalierung |
+| `--xtend-layout-media-radius` | Bild-/Hero-Radius |
+| `--xtend-layout-focus-ring` | Scroll-Control-Fokus |
+| `--xtend-layout-grid-min` | Responsive Kompositionsbasis |
+| `--xtend-layout-content-max` | Content-Breite |
+
+## ECH-WP-07 Fremdtheme
+
+```css
+[data-xtend-layout-theme="enterprise-foreign"] x-hero {
+  --xtend-layout-surface: rgba(248, 244, 239, 0.88);
+  --xtend-layout-text: #15231d;
+  --xtend-layout-border-color: rgba(21, 35, 29, 0.22);
+  --xtend-layout-radius: 0.45rem;
+  --xtend-layout-elevation: 0 20px 60px rgba(21, 35, 29, 0.16);
+  --xtend-layout-spacing: 4rem 2rem;
+  --xtend-layout-gap: 1rem;
+  --xtend-layout-font-family: "Aptos Display", "Segoe UI", sans-serif;
+  --xtend-layout-font-size: 1.05rem;
+  --xtend-layout-media-radius: 0.65rem;
+  --xtend-layout-focus-ring: 3px solid #8f4f2a;
+  --xtend-layout-grid-min: minmax(0, 1fr);
+  --xtend-layout-content-max: 42rem;
+}
+```

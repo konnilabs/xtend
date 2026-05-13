@@ -66,3 +66,40 @@ Das Control nutzt `role="combobox"`, `aria-describedby`, sichtbare Label-/Hint-/
 ## Form Controls UX ab WP-E11-08
 
 `<x-select>` stellt `xtendFormControlUxProfile` mit `xtend.component.form-control-ux-profile.v1` bereit. Das Profil verbindet Label, Hint, Error, `select-changed`, `select-invalid`, `xselect-value-<id>`, `ui.user-blocking.input`, Fabric-Lane `user-blocking` und RMT Shell Authoring.
+
+## ECH-WP-08 Form Theme/A11y Hardening
+
+`signatureDesign`: Enterprise-Select mit klarer nativer Affordance, nicht-farblicher Validierung und density-sicherem Label-/Helper-Rhythmus.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-form-text` | Host-Textfarbe |
+| `--xtend-form-control-surface` | Select-Flaeche |
+| `--xtend-form-control-text` | Select-Text |
+| `--xtend-form-label-text` | Label |
+| `--xtend-form-helper-text` | Helper |
+| `--xtend-form-error-text` | Fehlertext |
+| `--xtend-form-error-surface` | Fehlerflaeche |
+| `--xtend-form-error-border` | Fehlerkante und Marker |
+| `--xtend-form-focus-ring` | Focus-Outline |
+| `--xtend-form-radius` | Select- und Error-Radius |
+| `--xtend-form-gap` | Vertikaler Rhythmus |
+| `--xtend-form-font-family` | Form-Typografie |
+| `--xtend-form-control-font-size` | Select-Schrift |
+| `--xtend-form-helper-font-size` | Helper/Error-Schrift |
+| `--xtend-form-icon-color` | Native Select-Affordance |
+
+Density-Profile: `comfortable`, `compact`, `dense`. Invalid, `disabled`, `required` und `busy` werden visuell und per ARIA gespiegelt.
+
+```css
+[data-xtend-form-theme="enterprise-foreign"] x-select {
+  --xtend-form-control-surface: #fbf8f2;
+  --xtend-form-control-text: #16231f;
+  --xtend-form-label-text: #22312c;
+  --xtend-form-helper-text: #596861;
+  --xtend-form-error-text: #7d231c;
+  --xtend-form-error-border: #a64036;
+  --xtend-form-focus-ring: 3px solid #8f4f2a;
+  --xtend-form-radius: 0.35rem;
+}
+```

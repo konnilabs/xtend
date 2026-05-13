@@ -1,4 +1,5 @@
 import { xstate } from '../../../components/xstate.js';
+import '../../../components/xicon.js';
 
 export type XStatusEventName = 'status-changed' | 'status-dismissed';
 
@@ -44,7 +45,7 @@ export class XStatus extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot!.innerHTML = '<div id="status" role="status" aria-live="polite"><slot></slot></div><button id="dismiss" type="button" hidden>x</button>';
+    this.shadowRoot!.innerHTML = '<div id="status" role="status" aria-live="polite"><x-icon id="icon" name="info" part="status-icon icon" decorative size="1.125rem"></x-icon><slot></slot></div><button id="dismiss" part="close control" type="button" aria-label="Dismiss status" hidden><x-icon name="close" part="close-icon control icon" decorative size="1rem"></x-icon></button>';
     this.statusRegion = this.shadowRoot!.querySelector('#status') as HTMLElement;
   }
 

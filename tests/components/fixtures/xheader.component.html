@@ -3,17 +3,78 @@
 <head>
   <meta charset="utf-8">
   <title>x-header component fixture</title>
+  <style>
+    [data-xtend-layout-theme="enterprise-foreign"] x-header {
+      --xtend-layout-surface: #f6f2ea;
+      --xtend-layout-text: #17231f;
+      --xtend-layout-border-color: rgba(23, 35, 31, 0.22);
+      --xtend-layout-radius: 0.35rem;
+      --xtend-layout-elevation: 0 14px 34px rgba(23, 35, 31, 0.14);
+      --xtend-layout-spacing: 0.9rem;
+      --xtend-layout-gap: 0.7rem;
+      --xtend-layout-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-layout-font-size: 1rem;
+      --xtend-layout-media-radius: 0.2rem;
+      --xtend-layout-focus-ring: 3px solid #8f4f2a;
+      --xtend-layout-grid-min: minmax(0, 1fr);
+      --xtend-layout-content-max: 24rem;
+    }
+    [data-xtend-nav-theme="enterprise-foreign"] x-header {
+      --xtend-nav-surface: #f7f4ee;
+      --xtend-nav-text: #17231f;
+      --xtend-nav-border-color: rgba(23, 35, 31, 0.22);
+      --xtend-nav-radius: 0.35rem;
+      --xtend-nav-gap: 0.45rem;
+      --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-nav-font-size: 0.98rem;
+      --xtend-nav-active-surface: #173f35;
+      --xtend-nav-active-text: #fffaf0;
+      --xtend-nav-current-indicator: #b56b35;
+      --xtend-nav-hover-surface: rgba(181, 107, 53, 0.14);
+      --xtend-nav-focus-ring: 3px solid #b56b35;
+      --xtend-nav-disabled-opacity: 0.44;
+    }
+  </style>
 </head>
-<body>
-  <x-header id="component-header" logo-size="40" sticky>
+<body data-xtend-layout-theme="enterprise-foreign" data-xtend-nav-theme="enterprise-foreign">
+  <x-header
+    id="component-header"
+    logo-size="40"
+    sticky
+    menu-mode="drawer"
+    menu-placement="end"
+    menu-breakpoint="md"
+    menu-width="min(30rem, 92vw)"
+    menu-max-height="min(72dvh, 820px)"
+    menu-align="stretch">
     <span slot="title">Docs Header</span>
     <form slot="search" role="search" aria-label="Docs search">
       <label for="docs-query">Search</label>
       <input id="docs-query" name="q" type="search" placeholder="Search docs">
     </form>
     <button slot="actions">Theme</button>
-    <a slot="nav" href="/overview">Overview</a>
+    <a slot="nav" href="/overview" aria-current="page">Overview</a>
+    <button slot="nav" type="button" aria-selected="true">Lang benannter Navigationseintrag fuer Enterprise Informationsarchitektur</button>
+    <button slot="nav" type="button" disabled>Disabled nav</button>
+    <button slot="nav" type="button" aria-expanded="false" aria-haspopup="menu" data-menu-disclosure>
+      Nested menu
+      <svg part="disclosure-icon control icon" data-disclosure-icon viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
     <button slot="utility">Legacy Utility</button>
+  </x-header>
+  <x-header
+    id="component-header-side-panel"
+    logo-size="40"
+    menu-mode="side-panel"
+    menu-placement="start"
+    menu-modal
+    menu-open
+    menu-width="min(28rem, 90vw)"
+    menu-align="start">
+    <span slot="title">Side Panel Header</span>
+    <a slot="nav" href="/settings" aria-current="page">Settings</a>
   </x-header>
   <script>
     window.__xtendComponentState = {};

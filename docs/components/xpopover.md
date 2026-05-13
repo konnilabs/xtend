@@ -59,3 +59,9 @@ Seit `WP-E11-11` deklariert `<x-popover>` das Runtime-Profil `xtend.component.ov
 | Commands | `show`, `hide`, `toggle`, `focus-trap`, `snapshot` |
 
 Das Profil trennt die leichte Anchor-Schicht vom modal optionalen Betrieb. Focus Trap wird nur bei `modal` aktiviert, Escape schliesst das oberste Popover und Outside Click bleibt als bewusstes Dismiss-Verhalten dokumentiert.
+
+## ECH-WP-06 Overlay-Paritaet
+
+`x-popover` expose `surface`, `backdrop`, `close` und `content` als gemeinsame Overlay-Parts. Der Backdrop wird nur bei `modal` sichtbar; der Close-Button ist tokenisiert und kann ueber `--popover-close-display` sowie `--xpopover-close-*` an Corporate-Patterns angepasst werden.
+
+Der Default bleibt nicht-modal: kein Inert und kein Scroll Lock. Mit `modal` aktiviert das Popover Backdrop, Focus Trap, Escape und Rueckfokus. Surface, Text, Border, Elevation, Radius, Backdrop und Z-Index laufen ueber `--xtend-overlay-*`, `--popover-*` oder `--xpopover-*` Tokens.

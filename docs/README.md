@@ -23,6 +23,8 @@ Willkommen zur offiziellen Dokumentation des XTend Web Frameworks. Dieses Inhalt
 - [Component Catalog Coverage](./component-catalog-coverage.md)
 - [Public Component Types](./public-component-types.md)
 - [Design Tokens](./design-tokens.md)
+- [Drittanbieter Design Authoring](./third-party-design-authoring.md)
+- [Enterprise Component Flex Release Handoff](./enterprise-component-flex-release-handoff.md)
 - [RMT DSL Authoring Polish](./rmt-dsl-authoring-polish.md)
 - [RMT Linter und AI-Agent Repair Report](./rmt-linter.md)
 - [RMT Language Server und Editor Setup](./rmt-language-server.md)
@@ -150,6 +152,10 @@ Epic 14 ist ab `WP-E14-16` abgeschlossen. Der Handoff `xtend.epic14.lsp-handoff.
 [Public Component Types](./public-component-types.md) dokumentiert ab `ER-WP-34` die lokalen `.d.ts` Artefakte, Public Event Contracts, Detail-Payloads und typed `addEventListener` Overloads. Nach `WP-E10-11` sind 27 priorisierte Komponenten typisiert; `x-select`, `x-checkbox`, `x-radio`, `x-textarea`, `x-status`, `x-progress`, `x-tooltip`, `x-popover` und `x-drawer` bilden die erste `enterprise-ready` Referenzlinie.
 
 [Design Tokens](./design-tokens.md) dokumentiert ab `WP-E12-12` den Contract `xtend.design-tokens.product-contract.v1`, Theme Packs, Density Packs, High-Contrast/Forced-Colors Tokens, CSS Custom Properties, CSS Parts und den lokalen Gate `node scripts/run_xtend_tests.js design-tokens --json`.
+
+[Drittanbieter Design Authoring](./third-party-design-authoring.md) dokumentiert ab `ECH-WP-11` den Contract `xtend.enterprise.third-party-authoring-guide.v1` fuer Corporate Themes, XTend.css Override Patterns, XTheme Token Bridge, CSS Parts, Icon Pack Registrierung, Layout Modes, A11y-Dos and Donts, P0 Token-/Part-Referenzen und Legacy-Token-Migration. Der lokale Gate `node scripts/run_xtend_tests.js enterprise-third-party-authoring-guide --json` prueft die Guide-Linie.
+
+[Enterprise Component Flex Release Handoff](./enterprise-component-flex-release-handoff.md) dokumentiert ab `ECH-WP-12` den Contract `xtend.enterprise.component-flex-release-handoff.v1` fuer SemVer-Bewertung, Deprecated Aliases, Migration Notes, Release Checklist, Adoption Risiken und den Publish Boundary `private-until-release-owner-acceptance`. Der lokale Gate `node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff --json` prueft den finalen Handoff der Enterprise Component Flexibilitaetswelle.
 
 [RMT DSL Authoring Polish](./rmt-dsl-authoring-polish.md) dokumentiert ab `WP-E12-13` den Contract `xtend.rmt.dsl-authoring-polish.v1` fuer Component-, Shell-, Slot-, Style-, Token-, A11y-, Event-, Command-, Hydration-, Lane-, Route-, Link- und Outlet-Aliase. Der lokale Gate `node scripts/run_xtend_tests.js rmt-dsl-authoring-polish --json` prueft, dass XTendRMT upstream freundlicher authoren kann, ohne XTend-Typen in den RMT Kernel zu importieren.
 

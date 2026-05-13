@@ -56,6 +56,11 @@ class XSection extends HTMLElement {
       lazyPolicy: "visible-hydrate",
       overflowPolicy: "horizontal-scroll-contained",
       aspectRatio: "content-driven",
+      signatureDesign: {
+        note: "Editorial enterprise section with tokenized rhythm, optional boundary and overflow-safe content lanes.",
+        tokenStrategy: "layout tokens map to padding, surface, border, radius, typography, gap, content width and focus treatment.",
+        themeExpectation: "sections stay brand-neutral and can become plain, framed or editorial through CSS tokens only."
+      },
       events: ["section-rendered"],
       commands: ["render", "measure", "layout", "snapshot"],
       stateKey: "xsection-state-<id>",
@@ -72,21 +77,39 @@ class XSection extends HTMLElement {
       <style>
         :host {
           display: block;
-          padding: var(--section-padding, 2em);
-          background-color: var(--section-bg, transparent);
-          border-radius: var(--border-radius, 6px);
+          padding: var(--section-padding, var(--xtend-layout-spacing, 2em));
+          background: var(--section-bg, var(--xtend-layout-surface, transparent));
+          color: var(--section-color, var(--xtend-layout-text, var(--xtend-text, inherit)));
+          border-radius: var(--section-radius, var(--xtend-layout-radius, var(--border-radius, 6px)));
+          box-shadow: var(--section-shadow, var(--xtend-layout-elevation, none));
+          font-family: var(--section-font-family, var(--xtend-layout-font-family, inherit));
+          font-size: var(--section-font-size, var(--xtend-layout-font-size, inherit));
+          --section-media-radius: var(--xtend-layout-media-radius, var(--section-radius, 6px));
+          --section-grid-min: var(--xtend-layout-grid-min, minmax(0, 1fr));
           box-sizing: border-box;
           border: none;
+          max-width: var(--section-content-max, var(--xtend-layout-content-max, 100%));
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         :host([bordered]) {
-          border: 1px solid var(--section-border, #ddd);
+          border: var(--section-border-width, 1px) solid var(--section-border, var(--xtend-layout-border-color, #ddd));
+        }
+
+        :host(:focus-within) {
+          outline: var(--xtend-layout-focus-ring, var(--xtend-focus-ring, none));
+          outline-offset: 2px;
         }
 
         .container {
           display: flex;
-          gap: var(--section-gap, 1em);
+          gap: var(--section-gap, var(--xtend-layout-gap, 1em));
           overflow-x: auto; /* Enable horizontal scrolling */
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+          overflow-wrap: anywhere;
         }
 
         :host([layout="column"]) .container {
@@ -100,21 +123,27 @@ class XSection extends HTMLElement {
 
         ::slotted([slot="header"]) {
           font-weight: var(--header-font-weight, bold);
-          font-size: var(--header-font-size, 1.25em);
+          font-size: var(--header-font-size, var(--xtend-layout-heading-font-size, 1.25em));
+          overflow-wrap: anywhere;
         }
 
         ::slotted([slot="footer"]) {
           font-size: var(--footer-font-size, 0.9em);
-          color: var(--footer-color, #666);
+          color: var(--footer-color, var(--xtend-layout-muted-text, #666));
+          overflow-wrap: anywhere;
         }
 
         ::slotted([slot="aside"]) {
           flex: 0 0 var(--aside-width, 25%);
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         ::slotted(:not([slot])) {
           flex: 1;
-          padding: var(--main-content-padding, 1em);
+          padding: var(--main-content-padding, var(--xtend-layout-spacing, 1em));
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         @media (prefers-reduced-motion: reduce) {

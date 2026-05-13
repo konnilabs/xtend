@@ -526,7 +526,7 @@ const priorityComponentConfigs = {
       { pattern: '_syncThemeAttribute', message: 'x-drawer mirrors document theme state' },
       { pattern: 'MutationObserver', message: 'x-drawer observes dynamic theme changes' },
       { pattern: 'aria-label="Close drawer"', message: 'x-drawer exposes labelled close control' },
-      { pattern: '<svg viewBox="0 0 24 24"', message: 'x-drawer uses an icon close glyph instead of text content' },
+      { pattern: 'part="close-icon control icon"', message: 'x-drawer exposes close icon parts instead of text content' },
       { pattern: '_releaseDrawerFocus', message: 'x-drawer releases focus before hiding the drawer surface' },
       { pattern: 'setAttribute(\'inert\'', message: 'x-drawer marks closed surfaces inert' },
       { pattern: "event.key === 'Escape'", message: 'x-drawer supports Escape close' },

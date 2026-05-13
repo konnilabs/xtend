@@ -4,7 +4,7 @@ class XTextarea extends HTMLElement {
   static formAssociated = true;
 
   static get observedAttributes() {
-    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label'];
+    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density'];
   }
 
   static get xtendComponentContract() {
@@ -99,6 +99,13 @@ class XTextarea extends HTMLElement {
       schedule: 'ui.user-blocking.input',
       fabric: { lane: 'user-blocking', a11yLane: 'a11y' },
       rmt: XTextarea.xtendRmtMetadata,
+      signatureDesign: {
+        note: 'Enterprise multiline field with measured writing surface, live status rhythm and density-safe metadata.',
+        tokenStrategy: 'form tokens map label, control, helper, error, status, focus, disabled, busy and density states.',
+        themeExpectation: 'host applications can restyle writing surface, helper, counter and validation independently.'
+      },
+      densityProfiles: ['comfortable', 'compact', 'dense'],
+      states: ['required', 'disabled', 'readonly', 'busy', 'invalid'],
       validation: { validityApi: true, errorRegion: 'role=alert aria-live=assertive' }
     };
   }
@@ -155,48 +162,103 @@ class XTextarea extends HTMLElement {
       <style>
         :host {
           display: block;
-          color: var(--text-color, #111827);
+          box-sizing: border-box;
+          min-width: 0;
+          max-width: 100%;
+          color: var(--xtend-form-text, var(--text-color, #111827));
+          font-family: var(--xtend-form-font-family, var(--xtend-font-family-body, inherit));
+          font-size: var(--xtend-form-control-font-size, 1rem);
+          --xtend-form-control-min-height: var(--xtend-form-density-control-min-height, var(--textarea-min-height, 7rem));
+          --xtend-form-control-padding: var(--xtend-form-density-padding, 0.7rem 0.85rem);
+          --xtend-form-control-gap: var(--xtend-form-gap, 0.35rem);
+          --xtend-form-icon-color: var(--xtend-form-control-text, currentColor);
+        }
+        :host([density="comfortable"]) {
+          --xtend-form-density-control-min-height: 8rem;
+          --xtend-form-density-padding: 0.85rem 1rem;
+          --xtend-form-gap: 0.45rem;
+        }
+        :host([density="compact"]) {
+          --xtend-form-density-control-min-height: 6.25rem;
+          --xtend-form-density-padding: 0.6rem 0.75rem;
+          --xtend-form-gap: 0.3rem;
+        }
+        :host([density="dense"]) {
+          --xtend-form-density-control-min-height: 4.75rem;
+          --xtend-form-density-padding: 0.45rem 0.65rem;
+          --xtend-form-gap: 0.2rem;
+          font-size: var(--xtend-form-dense-font-size, 0.92rem);
         }
         label {
           display: block;
-          margin-bottom: 0.25rem;
-          font-weight: 600;
+          margin-bottom: var(--xtend-form-control-gap);
+          color: var(--xtend-form-label-text, var(--xtend-form-text));
+          font-size: var(--xtend-form-label-font-size, 0.92rem);
+          font-weight: var(--xtend-form-label-font-weight, 650);
+          overflow-wrap: anywhere;
         }
         textarea {
           box-sizing: border-box;
           width: 100%;
-          min-height: var(--textarea-min-height, 7rem);
-          padding: 0.625rem 0.75rem;
-          border: 1px solid var(--xtend-control-border, var(--border-color, #9ca3af));
-          border-radius: var(--xtend-control-radius, var(--border-radius, 4px));
-          background: var(--xtend-control-bg, var(--input-bg, #fff));
-          color: var(--xtend-control-color, var(--text-color, #111827));
+          min-height: var(--xtend-form-control-min-height);
+          padding: var(--xtend-form-control-padding);
+          border: var(--xtend-form-border-width, 1px) solid var(--xtend-form-border-color, var(--xtend-control-border, var(--border-color, #9ca3af)));
+          border-radius: var(--xtend-form-radius, var(--xtend-control-radius, var(--border-radius, 0.5rem)));
+          background: var(--xtend-form-control-surface, var(--xtend-control-bg, var(--input-bg, #fff)));
+          color: var(--xtend-form-control-text, var(--xtend-control-color, var(--text-color, #111827)));
           font: inherit;
+          color-scheme: inherit;
+          box-shadow: var(--xtend-form-control-shadow, 0 1px 2px rgba(15, 23, 42, 0.06));
           resize: var(--textarea-resize, vertical);
+          transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
         }
         textarea:focus {
-          outline: var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb)));
-          outline-offset: 2px;
+          outline: var(--xtend-form-focus-ring, var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb))));
+          outline-offset: var(--xtend-form-focus-offset, 2px);
+          border-color: var(--xtend-form-focus-border-color, var(--primary-color, #2563eb));
         }
+        :host([invalid]) textarea,
         textarea:invalid {
-          border-color: var(--error-color, #dc2626);
+          border-color: var(--xtend-form-error-border, var(--error-color, #dc2626));
+          box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
         }
         .meta {
           display: flex;
           justify-content: space-between;
-          gap: 1rem;
-          margin-top: 0.25rem;
-          font-size: 0.875rem;
-          color: var(--muted-color, #6b7280);
+          gap: var(--xtend-form-gap, 1rem);
+          margin-top: var(--xtend-form-control-gap);
+          font-size: var(--xtend-form-helper-font-size, 0.875rem);
+          color: var(--xtend-form-helper-text, var(--muted-color, #6b7280));
+          line-height: 1.45;
+          overflow-wrap: anywhere;
         }
         .error {
           display: none;
-          margin-top: 0.25rem;
-          color: var(--error-color, #dc2626);
-          font-size: 0.875rem;
+          margin-top: var(--xtend-form-control-gap);
+          color: var(--xtend-form-error-text, var(--error-color, #b42318));
+          background: var(--xtend-form-error-surface, transparent);
+          border-inline-start: var(--xtend-form-error-marker-width, 3px) solid var(--xtend-form-error-border, currentColor);
+          border-radius: var(--xtend-form-error-radius, 0.35rem);
+          padding: var(--xtend-form-error-padding, 0.25rem 0 0.25rem 0.55rem);
+          font-size: var(--xtend-form-helper-font-size, 0.875rem);
+          font-weight: var(--xtend-form-error-font-weight, 600);
+          line-height: 1.45;
+          overflow-wrap: anywhere;
         }
         :host([invalid]) .error {
           display: block;
+        }
+        :host([disabled]),
+        :host([busy]) {
+          opacity: var(--xtend-form-disabled-opacity, 0.72);
+        }
+        :host([busy]) textarea {
+          cursor: progress;
+          border-style: dashed;
+        }
+        :host([disabled]) textarea,
+        :host([readonly]) textarea {
+          background: var(--xtend-form-disabled-surface, color-mix(in srgb, var(--xtend-form-control-surface, #fff) 78%, var(--xtend-form-text, #111827)));
         }
         @media (prefers-reduced-motion: reduce) {
           textarea,
@@ -228,13 +290,13 @@ class XTextarea extends HTMLElement {
           }
         }
       </style>
-      <label id="label" for="control"><slot name="label"><span id="label-text"></span></slot></label>
+      <label id="label" part="label" for="control"><slot name="label"><span id="label-text"></span></slot></label>
       <textarea id="control" part="control" aria-describedby="hint counter error"></textarea>
-      <div class="meta">
+      <div class="meta" part="helper">
         <div id="hint"><slot name="hint"></slot></div>
-        <div id="counter" role="status" aria-live="polite" aria-atomic="true"></div>
+        <div id="counter" part="status" role="status" aria-live="polite" aria-atomic="true"></div>
       </div>
-      <div id="error" class="error" role="alert" aria-live="assertive" aria-atomic="true"><slot name="error">Enter a valid value.</slot></div>
+      <div id="error" class="error" part="error status" role="alert" aria-live="assertive" aria-atomic="true"><slot name="error">Enter a valid value.</slot></div>
     `;
     this._control = this.shadowRoot.querySelector('#control');
     this._labelText = this.shadowRoot.querySelector('#label-text');
@@ -283,7 +345,17 @@ class XTextarea extends HTMLElement {
     if (['required', 'disabled', 'readonly'].includes(name)) {
       const propertyName = name === 'readonly' ? 'readOnly' : name;
       this._control[propertyName] = this.hasAttribute(name);
+      if (name === 'required') this._control.setAttribute('aria-required', String(this.hasAttribute(name)));
+      if (name === 'disabled') this.setAttribute('aria-disabled', String(this.hasAttribute(name)));
       this._syncFormValue();
+      return;
+    }
+    if (name === 'busy') {
+      this._control.setAttribute('aria-busy', String(this.hasAttribute('busy')));
+      return;
+    }
+    if (name === 'invalid') {
+      this._control.setAttribute('aria-invalid', String(this.hasAttribute('invalid')));
       return;
     }
     if (['name', 'placeholder', 'maxlength', 'minlength', 'rows'].includes(name)) {
@@ -311,6 +383,7 @@ class XTextarea extends HTMLElement {
 
   _onInvalid() {
     this.setAttribute('invalid', '');
+    this._control.setAttribute('aria-invalid', 'true');
     this.dispatchEvent(new CustomEvent('textarea-invalid', {
       detail: { value: this.value, message: this._control.validationMessage, source: 'x-textarea' },
       bubbles: true,
@@ -325,7 +398,10 @@ class XTextarea extends HTMLElement {
   }
 
   _syncFormValue() {
-    if (this.checkValidity()) this.removeAttribute('invalid');
+    if (this.checkValidity()) {
+      this.removeAttribute('invalid');
+      this._control.setAttribute('aria-invalid', 'false');
+    }
     this._internals?.setFormValue(this.value);
   }
 

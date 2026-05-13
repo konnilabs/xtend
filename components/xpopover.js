@@ -1,4 +1,5 @@
 import { xstate } from './xstate.js';
+import './xicon.js';
 
 class XPopover extends HTMLElement {
   static get observedAttributes() {
@@ -175,24 +176,51 @@ class XPopover extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
+          --xtend-overlay-surface: var(--xtend-surface, #ffffff);
+          --xtend-overlay-text: var(--xtend-text, #111827);
+          --xtend-overlay-border-color: var(--xtend-border-color, #d1d5db);
+          --xtend-overlay-elevation: var(--xtend-shadow-overlay, 0 20px 48px rgba(15, 23, 42, 0.2));
+          --xtend-overlay-radius: var(--xtend-radius, 6px);
+          --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(15, 23, 42, 0.32));
+          --xtend-overlay-focus-ring: 2px solid var(--xtend-focus-color, var(--xtend-color-primary, #2563eb));
+          --xtend-overlay-z: var(--surface-overlay-popover-z, 2147483601);
+          --xpopover-bg: var(--popover-bg, var(--xtend-overlay-surface));
+          --xpopover-color: var(--popover-color, var(--xtend-overlay-text));
+          --xpopover-border: var(--popover-border, var(--xtend-overlay-border-color));
+          --xpopover-radius: var(--popover-radius, var(--xtend-overlay-radius));
+          --xpopover-shadow: var(--popover-shadow, var(--xtend-overlay-elevation));
+          --xpopover-backdrop: var(--popover-backdrop, var(--xtend-overlay-backdrop));
+          --xpopover-close-display: var(--popover-close-display, inline-grid);
+          --xpopover-close-bg: var(--popover-close-bg, transparent);
+          --xpopover-close-hover-bg: var(--popover-close-hover-bg, rgba(37, 99, 235, 0.10));
           display: inline-block;
           position: relative;
-          color: var(--text-color, #111827);
+          color: var(--xpopover-color);
         }
         .trigger {
           display: inline-flex;
         }
+        .backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: calc(var(--xtend-overlay-z) - 1);
+          display: none;
+          background: var(--xpopover-backdrop);
+        }
+        :host([open][modal]) .backdrop {
+          display: block;
+        }
         .panel {
           position: absolute;
-          z-index: 2147483601;
+          z-index: var(--xtend-overlay-z);
           min-width: min(20rem, 86vw);
           max-width: min(28rem, 90vw);
           padding: 0.875rem;
-          border: 1px solid var(--popover-border, #d1d5db);
-          border-radius: var(--popover-radius, 6px);
-          background: var(--popover-bg, #ffffff);
-          color: var(--popover-color, #111827);
-          box-shadow: var(--popover-shadow, 0 20px 48px rgba(15, 23, 42, 0.2));
+          border: 1px solid var(--xpopover-border);
+          border-radius: var(--xpopover-radius);
+          background: var(--xpopover-bg);
+          color: var(--xpopover-color);
+          box-shadow: var(--xpopover-shadow);
           opacity: 0;
           pointer-events: none;
           transform: translateY(4px);
@@ -227,8 +255,31 @@ class XPopover extends HTMLElement {
           gap: 0.5rem;
           margin-top: 0.75rem;
         }
+        .close {
+          position: absolute;
+          inset-block-start: 0.45rem;
+          inset-inline-end: 0.45rem;
+          inline-size: 1.9rem;
+          block-size: 1.9rem;
+          display: var(--xpopover-close-display);
+          place-items: center;
+          border: 1px solid transparent;
+          border-radius: 999px;
+          background: var(--xpopover-close-bg);
+          color: inherit;
+          cursor: pointer;
+        }
+        .close:hover {
+          background: var(--xpopover-close-hover-bg);
+        }
+        .close x-icon {
+          pointer-events: none;
+        }
+        .close + .content {
+          padding-inline-end: 2rem;
+        }
         .panel:focus-visible {
-          outline: 2px solid var(--popover-focus, #2563eb);
+          outline: var(--xtend-overlay-focus-ring);
           outline-offset: 2px;
         }
         @media (prefers-reduced-motion: reduce) {
@@ -238,6 +289,10 @@ class XPopover extends HTMLElement {
           }
         }
         @media (forced-colors: active) {
+          .backdrop {
+            background: Canvas;
+            opacity: 0.7;
+          }
           .panel {
             forced-color-adjust: auto;
             background: Canvas;
@@ -245,17 +300,28 @@ class XPopover extends HTMLElement {
             border-color: CanvasText;
             box-shadow: none;
           }
+          .close {
+            color: ButtonText;
+            background: ButtonFace;
+            border-color: ButtonText;
+          }
         }
       </style>
       <span class="trigger" part="trigger"><slot name="trigger"></slot></span>
-      <section id="panel" class="panel" part="root surface content" role="dialog" aria-modal="false" aria-hidden="true" tabindex="-1">
-        <slot></slot>
+      <div class="backdrop" part="backdrop" aria-hidden="true"></div>
+      <section id="panel" class="panel" part="root surface overlay-surface" role="dialog" aria-modal="false" aria-hidden="true" tabindex="-1">
+        <button type="button" class="close" part="close control" aria-label="Close popover">
+          <x-icon name="close" part="close-icon control icon" decorative size="1rem"></x-icon>
+        </button>
+        <div class="content" part="content"><slot></slot></div>
         <div class="actions" part="actions"><slot name="actions"></slot></div>
       </section>
     `;
     this._trigger = this.shadowRoot.querySelector('.trigger');
     this._panel = this.shadowRoot.querySelector('#panel');
     this._trigger.addEventListener('click', () => this.toggle());
+    this.shadowRoot.querySelector('.backdrop').addEventListener('click', () => this.hide({ source: 'backdrop' }));
+    this.shadowRoot.querySelector('.close').addEventListener('click', () => this.hide({ source: 'button' }));
   }
 
   connectedCallback() {

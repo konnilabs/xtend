@@ -189,6 +189,24 @@
     "rank": 72
   },
   {
+    "slug": "third-party-design-authoring",
+    "id": "docs.third.party.design.authoring",
+    "label": "Drittanbieter Design Authoring",
+    "group": "platform",
+    "parent": "design-tokens",
+    "tier": "deep-dive",
+    "rank": 70
+  },
+  {
+    "slug": "enterprise-component-flex-release-handoff",
+    "id": "docs.enterprise.component.flex.release.handoff",
+    "label": "Enterprise Component Flex Release Handoff",
+    "group": "platform",
+    "parent": "third-party-design-authoring",
+    "tier": "release-deep-dive",
+    "rank": 68
+  },
+  {
     "slug": "rmt-dsl-authoring-polish",
     "id": "docs.rmt.dsl.authoring.polish",
     "label": "RMT DSL Authoring Polish",

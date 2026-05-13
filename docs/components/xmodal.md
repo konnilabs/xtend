@@ -74,3 +74,9 @@ Seit `WP-E11-11` deklariert `<x-modal>` das Runtime-Profil `xtend.component.over
 Das Profil legt Focus Trap, Rueckfokus, Escape-Topmost-Regel, Background-Inert, balanced Scroll Lock und eine dokumentweite Portal-Schicht fest. RMT beschreibt diese Regeln shell-first ueber `tests/fixtures/rmt-overlay-interaction-ux.rmt`; der RMT-Kernel importiert weiterhin keine XTend-Typen.
 
 Die Portal-Schicht ist dokumentweit: Wenn ein Modal mit `overlay` in verschachtelten App-Shells, XRouter-Routen oder transformierten Layout-Containern geoeffnet wird, wird der Host temporaer unter `document.body` geparkt und nach dem Schliessen an seine urspruengliche Position zurueckgesetzt. Dadurch bleibt die Slot-Faehigkeit erhalten, waehrend Overlay und Blur nicht auf den lokalen `main`- oder Route-Container begrenzt sind.
+
+## ECH-WP-06 Overlay-Paritaet
+
+`x-modal` expose `surface`, `backdrop`, `close` und `content` als gemeinsame Overlay-Parts. `overlay` bleibt als Alias fuer `backdrop` erhalten. Host-Themes koennen Backdrop, Surface, Text, Elevation, Radius, Z-Index, Action-Text, Close-Flaeche und Focus Ring ueber `--xtend-overlay-*`, `--modal-*` oder `--xmodal-*` Tokens steuern.
+
+`x-modal` ist modal: Focus Trap, Background-Inert, Scroll Lock, Escape und Rueckfokus sind Teil des Standardpfads. Ein Modal ohne `overlay` behält die Surface-Parts, rendert aber keinen visuellen Backdrop.

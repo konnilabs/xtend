@@ -2,6 +2,10 @@ import { xstate } from './xstate.js';
 
 // <x-form>
 class XForm extends HTMLElement {
+  static get observedAttributes() {
+    return ["density", "busy", "invalid", "disabled"];
+  }
+
   static get xtendComponentContract() {
     return {
       schema: "xtend.component.contract.v2",
@@ -90,6 +94,13 @@ class XForm extends HTMLElement {
       schedule: "component.visible.mount",
       fabric: { lane: "user-blocking", a11yLane: "a11y", diagnosticsLane: "diagnostics" },
       rmt: XForm.xtendRmtMetadata,
+      signatureDesign: {
+        note: "Enterprise form host with premium surface rhythm, aggregate status regions and density-aware control composition.",
+        tokenStrategy: "form tokens cascade to child controls for label, helper, error, icon, focus, disabled, busy and density states.",
+        themeExpectation: "host applications can rebrand full form surfaces and nested control roles without component-specific overrides."
+      },
+      densityProfiles: ["comfortable", "compact", "dense"],
+      states: ["disabled", "busy", "invalid"],
       validation: { aggregateChildren: true, errorRegion: "role=alert aria-live=assertive" }
     };
   }
@@ -148,6 +159,39 @@ class XForm extends HTMLElement {
           box-sizing: border-box;
           min-width: 0;
           max-width: 100%;
+          color: var(--xtend-form-text, var(--text-color, #0f172a));
+          font-family: var(--xtend-form-font-family, var(--xtend-font-family-body, inherit));
+          --xtend-form-control-height: var(--xtend-form-density-control-height, 2.75rem);
+          --xtend-form-control-padding: var(--xtend-form-density-padding, 0.65rem 0.85rem);
+          --xtend-form-control-gap: var(--xtend-form-gap, 0.35rem);
+          --xtend-form-control-surface: var(--xtend-control-bg, var(--xtend-form-surface, #fff));
+          --xtend-form-control-text: var(--xtend-form-text);
+          --xtend-form-label-text: var(--xtend-form-text);
+          --xtend-form-helper-text: var(--muted-text-color, #64748b);
+          --xtend-form-helper-font-size: 0.875rem;
+          --xtend-form-error-text: var(--error-color, #b42318);
+          --xtend-form-error-surface: transparent;
+          --xtend-form-focus-ring: var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb)));
+          --xtend-form-icon-color: var(--primary-color, #2563eb);
+        }
+
+        :host([density="comfortable"]) {
+          --xtend-form-density-control-height: 3rem;
+          --xtend-form-density-padding: 0.75rem 0.95rem;
+          --xtend-form-gap: 0.65rem;
+        }
+
+        :host([density="compact"]) {
+          --xtend-form-density-control-height: 2.5rem;
+          --xtend-form-density-padding: 0.55rem 0.75rem;
+          --xtend-form-gap: 0.45rem;
+        }
+
+        :host([density="dense"]) {
+          --xtend-form-density-control-height: 2.15rem;
+          --xtend-form-density-padding: 0.4rem 0.65rem;
+          --xtend-form-gap: 0.3rem;
+          --xtend-form-control-font-size: var(--xtend-form-dense-font-size, 0.92rem);
         }
 
         form {
@@ -157,13 +201,13 @@ class XForm extends HTMLElement {
           max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
-          gap: var(--form-gap, 1em);
-          padding: var(--form-padding, 1em);
-          border: var(--form-border, none);
-          background: var(--xtend-control-bg, var(--form-background, #fff));
-          color: var(--xtend-control-color, var(--text-color, #000));
-          border-radius: var(--xtend-control-radius, var(--border-radius, 4px));
-          box-shadow: var(--form-shadow, none);
+          gap: var(--form-gap, var(--xtend-form-gap, 1em));
+          padding: var(--form-padding, var(--xtend-form-surface-padding, 1em));
+          border: var(--form-border, var(--xtend-form-border-width, 1px) solid var(--xtend-form-border-color, transparent));
+          background: var(--xtend-form-surface, var(--xtend-control-bg, var(--form-background, #fff)));
+          color: var(--xtend-form-text, var(--xtend-control-color, var(--text-color, #000)));
+          border-radius: var(--xtend-form-radius, var(--xtend-control-radius, var(--border-radius, 0.65rem)));
+          box-shadow: var(--form-shadow, var(--xtend-form-surface-shadow, 0 12px 32px rgba(15, 23, 42, 0.08)));
         }
 
         ::slotted(*) {
@@ -171,6 +215,22 @@ class XForm extends HTMLElement {
           max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
+          --xtend-form-font-family: inherit;
+        }
+
+        :host([busy]) form,
+        :host([disabled]) form {
+          opacity: var(--xtend-form-disabled-opacity, 0.72);
+        }
+
+        :host([busy]) form {
+          cursor: progress;
+          border-style: dashed;
+        }
+
+        :host([invalid]) form {
+          border-color: var(--xtend-form-error-border, var(--error-color, #dc2626));
+          box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
         }
 
         .sr-only {
@@ -207,11 +267,11 @@ class XForm extends HTMLElement {
           }
         }
       </style>
-      <form part="form" role="form">
-        <slot></slot>
+      <form part="root form" role="form">
+        <slot part="label control icon"></slot>
       </form>
-      <div id="status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
-      <div id="error" class="sr-only" role="alert" aria-live="assertive" aria-atomic="true"></div>
+      <div id="status" class="sr-only" part="helper status" role="status" aria-live="polite" aria-atomic="true"></div>
+      <div id="error" class="sr-only" part="error status" role="alert" aria-live="assertive" aria-atomic="true"></div>
     `;
 
     this._form = this.shadowRoot.querySelector("form");
@@ -223,7 +283,15 @@ class XForm extends HTMLElement {
     this._unsubscribeState = null;
   }
 
+  attributeChangedCallback(name) {
+    if (!this._form) return;
+    if (name === "busy") this._form.setAttribute("aria-busy", String(this.hasAttribute("busy")));
+    if (name === "disabled") this.setAttribute("aria-disabled", String(this.hasAttribute("disabled")));
+    if (name === "invalid") this._form.setAttribute("aria-invalid", String(this.hasAttribute("invalid")));
+  }
+
   connectedCallback() {
+    XForm.observedAttributes.forEach((attribute) => this.attributeChangedCallback(attribute));
     this._form.addEventListener("submit", this._onSubmit.bind(this));
     this._form.addEventListener("reset", this._onReset.bind(this));
 
@@ -303,6 +371,7 @@ class XForm extends HTMLElement {
     }
 
     if (valid) {
+      this.removeAttribute("invalid");
       if (this._statusRegion) this._statusRegion.textContent = "Form submitted.";
       if (this._errorRegion) this._errorRegion.textContent = "";
       this.dispatchEvent(new CustomEvent("submit", {
@@ -313,6 +382,7 @@ class XForm extends HTMLElement {
       // State aktualisieren
       xstate.set(`xform-data-${this.id}`, this.getFormData());
     } else {
+      this.setAttribute("invalid", "");
       if (this._statusRegion) this._statusRegion.textContent = "";
       if (this._errorRegion) this._errorRegion.textContent = `${invalidElements.length} invalid field${invalidElements.length === 1 ? "" : "s"}.`;
       this.dispatchEvent(new CustomEvent("invalid", {

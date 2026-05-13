@@ -3,11 +3,29 @@
 <head>
   <meta charset="utf-8">
   <title>x-tabs component fixture</title>
+  <style>
+    [data-xtend-nav-theme="enterprise-foreign"] x-tabs {
+      --xtend-nav-surface: #f3f0e8;
+      --xtend-nav-text: #202520;
+      --xtend-nav-border-color: rgba(32, 37, 32, 0.24);
+      --xtend-nav-radius: 0.35rem;
+      --xtend-nav-gap: 0.4rem;
+      --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-nav-font-size: 0.95rem;
+      --xtend-nav-active-surface: #243c34;
+      --xtend-nav-active-text: #fff9ed;
+      --xtend-nav-current-indicator: #a65f2d;
+      --xtend-nav-hover-surface: rgba(166, 95, 45, 0.14);
+      --xtend-nav-focus-ring: 3px solid #a65f2d;
+      --xtend-nav-disabled-opacity: 0.42;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-nav-theme="enterprise-foreign">
   <x-tabs id="component-tabs" selected="1" text-color="#0f172a" data-rmt-schedule="ui.user-blocking.tabs" data-xtend-lane="user-blocking">
     <x-tab name="Overview">Overview content</x-tab>
-    <x-tab name="Telemetry">Telemetry content</x-tab>
+    <x-tab name="Telemetry" aria-current="page" aria-selected="true">Telemetry content</x-tab>
+    <x-tab name="Lang benannter Enterprise Navigationsbereich mit sehr langer Beschriftung" disabled>Disabled content</x-tab>
   </x-tabs>
   <script>
     window.__xtendComponentState = {};

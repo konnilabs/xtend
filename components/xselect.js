@@ -4,7 +4,7 @@ class XSelect extends HTMLElement {
   static formAssociated = true;
 
   static get observedAttributes() {
-    return ['name', 'value', 'disabled', 'required', 'multiple', 'placeholder', 'label'];
+    return ['name', 'value', 'disabled', 'required', 'multiple', 'placeholder', 'label', 'busy', 'invalid', 'density'];
   }
 
   static get xtendComponentContract() {
@@ -99,6 +99,13 @@ class XSelect extends HTMLElement {
       schedule: 'ui.user-blocking.input',
       fabric: { lane: 'user-blocking', a11yLane: 'a11y' },
       rmt: XSelect.xtendRmtMetadata,
+      signatureDesign: {
+        note: 'Enterprise selection control with clear native affordance, status-safe validation and density-aware rhythm.',
+        tokenStrategy: 'form tokens map label, control, helper, error, icon, focus, disabled, busy and density states.',
+        themeExpectation: 'host applications can restyle select surfaces and validation without browser-default visual debt.'
+      },
+      densityProfiles: ['comfortable', 'compact', 'dense'],
+      states: ['required', 'disabled', 'busy', 'invalid'],
       validation: { validityApi: true, errorRegion: 'role=alert aria-live=assertive' }
     };
   }
@@ -156,43 +163,99 @@ class XSelect extends HTMLElement {
       <style>
         :host {
           display: block;
-          color: var(--text-color, #111827);
+          box-sizing: border-box;
+          min-width: 0;
+          max-width: 100%;
+          color: var(--xtend-form-text, var(--text-color, #111827));
+          font-family: var(--xtend-form-font-family, var(--xtend-font-family-body, inherit));
+          font-size: var(--xtend-form-control-font-size, 1rem);
+          --xtend-form-control-height: var(--xtend-form-density-control-height, 2.75rem);
+          --xtend-form-control-padding: var(--xtend-form-density-padding, 0.65rem 0.85rem);
+          --xtend-form-control-gap: var(--xtend-form-gap, 0.35rem);
+          --xtend-form-icon-color: var(--xtend-form-control-text, currentColor);
+        }
+        :host([density="comfortable"]) {
+          --xtend-form-density-control-height: 3rem;
+          --xtend-form-density-padding: 0.75rem 0.95rem;
+          --xtend-form-gap: 0.45rem;
+        }
+        :host([density="compact"]) {
+          --xtend-form-density-control-height: 2.5rem;
+          --xtend-form-density-padding: 0.55rem 0.75rem;
+          --xtend-form-gap: 0.3rem;
+        }
+        :host([density="dense"]) {
+          --xtend-form-density-control-height: 2.15rem;
+          --xtend-form-density-padding: 0.4rem 0.65rem;
+          --xtend-form-gap: 0.2rem;
+          font-size: var(--xtend-form-dense-font-size, 0.92rem);
         }
         label {
           display: block;
-          margin-bottom: 0.25rem;
-          font-weight: 600;
+          margin-bottom: var(--xtend-form-control-gap);
+          color: var(--xtend-form-label-text, var(--xtend-form-text));
+          font-size: var(--xtend-form-label-font-size, 0.92rem);
+          font-weight: var(--xtend-form-label-font-weight, 650);
+          overflow-wrap: anywhere;
         }
         select {
           width: 100%;
-          min-height: 2.5rem;
-          padding: 0.5rem 0.75rem;
-          border: 1px solid var(--xtend-control-border, var(--border-color, #9ca3af));
-          border-radius: var(--xtend-control-radius, var(--border-radius, 4px));
-          background: var(--xtend-control-bg, var(--input-bg, #fff));
-          color: var(--xtend-control-color, var(--text-color, #111827));
+          min-height: var(--xtend-form-control-height);
+          padding: var(--xtend-form-control-padding);
+          border: var(--xtend-form-border-width, 1px) solid var(--xtend-form-border-color, var(--xtend-control-border, var(--border-color, #9ca3af)));
+          border-radius: var(--xtend-form-radius, var(--xtend-control-radius, var(--border-radius, 0.5rem)));
+          background: var(--xtend-form-control-surface, var(--xtend-control-bg, var(--input-bg, #fff)));
+          color: var(--xtend-form-control-text, var(--xtend-control-color, var(--text-color, #111827)));
+          accent-color: var(--xtend-form-icon-color);
           font: inherit;
+          color-scheme: inherit;
+          box-shadow: var(--xtend-form-control-shadow, 0 1px 2px rgba(15, 23, 42, 0.06));
+          transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
         }
         select:focus {
-          outline: var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb)));
-          outline-offset: 2px;
+          outline: var(--xtend-form-focus-ring, var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb))));
+          outline-offset: var(--xtend-form-focus-offset, 2px);
+          border-color: var(--xtend-form-focus-border-color, var(--primary-color, #2563eb));
         }
+        :host([invalid]) select,
         select:invalid {
-          border-color: var(--error-color, #dc2626);
+          border-color: var(--xtend-form-error-border, var(--error-color, #dc2626));
+          box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
         }
         .hint {
-          margin-top: 0.25rem;
-          color: var(--muted-color, #6b7280);
-          font-size: 0.875rem;
+          margin-top: var(--xtend-form-control-gap);
+          color: var(--xtend-form-helper-text, var(--muted-color, #6b7280));
+          font-size: var(--xtend-form-helper-font-size, 0.875rem);
+          line-height: 1.45;
+          overflow-wrap: anywhere;
         }
         .error {
           display: none;
-          margin-top: 0.25rem;
-          color: var(--error-color, #dc2626);
-          font-size: 0.875rem;
+          margin-top: var(--xtend-form-control-gap);
+          color: var(--xtend-form-error-text, var(--error-color, #b42318));
+          background: var(--xtend-form-error-surface, transparent);
+          border-inline-start: var(--xtend-form-error-marker-width, 3px) solid var(--xtend-form-error-border, currentColor);
+          border-radius: var(--xtend-form-error-radius, 0.35rem);
+          padding: var(--xtend-form-error-padding, 0.25rem 0 0.25rem 0.55rem);
+          font-size: var(--xtend-form-helper-font-size, 0.875rem);
+          font-weight: var(--xtend-form-error-font-weight, 600);
+          line-height: 1.45;
+          overflow-wrap: anywhere;
         }
         :host([invalid]) .error {
           display: block;
+        }
+        :host([disabled]),
+        :host([busy]) {
+          opacity: var(--xtend-form-disabled-opacity, 0.72);
+        }
+        :host([busy]) select {
+          cursor: progress;
+          border-style: dashed;
+        }
+        :host([disabled]) select {
+          cursor: not-allowed;
+          background: var(--xtend-form-disabled-surface, color-mix(in srgb, var(--xtend-form-control-surface, #fff) 78%, var(--xtend-form-text, #111827)));
         }
         @media (prefers-reduced-motion: reduce) {
           select,
@@ -224,10 +287,10 @@ class XSelect extends HTMLElement {
           }
         }
       </style>
-      <label id="label" for="control"><slot name="label"><span id="label-text"></span></slot></label>
-      <select id="control" part="control" role="combobox" aria-describedby="hint error"></select>
-      <div id="hint" class="hint"><slot name="hint"></slot></div>
-      <div id="error" class="error" role="alert" aria-live="assertive" aria-atomic="true"><slot name="error">Select a valid option.</slot></div>
+      <label id="label" part="label" for="control"><slot name="label"><span id="label-text"></span></slot></label>
+      <select id="control" part="control icon" role="combobox" aria-describedby="hint error"></select>
+      <div id="hint" class="hint" part="helper"><slot name="hint"></slot></div>
+      <div id="error" class="error" part="error status" role="alert" aria-live="assertive" aria-atomic="true"><slot name="error">Select a valid option.</slot></div>
     `;
     this._control = this.shadowRoot.querySelector('#control');
     this._labelText = this.shadowRoot.querySelector('#label-text');
@@ -276,7 +339,17 @@ class XSelect extends HTMLElement {
     }
     if (name === 'required' || name === 'disabled' || name === 'multiple') {
       this._control[name] = this.hasAttribute(name);
+      if (name === 'required') this._control.setAttribute('aria-required', String(this.hasAttribute(name)));
+      if (name === 'disabled') this.setAttribute('aria-disabled', String(this.hasAttribute(name)));
       this._syncFormValue();
+      return;
+    }
+    if (name === 'busy') {
+      this._control.setAttribute('aria-busy', String(this.hasAttribute('busy')));
+      return;
+    }
+    if (name === 'invalid') {
+      this._control.setAttribute('aria-invalid', String(this.hasAttribute('invalid')));
       return;
     }
     if (name === 'name') {
@@ -333,8 +406,10 @@ class XSelect extends HTMLElement {
     const hasValue = this.hasAttribute('multiple') ? this.values.length > 0 : this.value !== '';
     if (this.hasAttribute('required') && !hasValue) {
       this.setAttribute('invalid', '');
+      this._control.setAttribute('aria-invalid', 'true');
     } else {
       this.removeAttribute('invalid');
+      this._control.setAttribute('aria-invalid', 'false');
     }
     this._internals?.setFormValue(this.hasAttribute('multiple') ? this.values.join(',') : this.value);
   }

@@ -66,3 +66,38 @@ Die Komponente nutzt `role="radio"`, `aria-checked`, `aria-describedby`, Space-A
 ## Form Controls UX ab WP-E11-08
 
 `<x-radio>` stellt `xtendFormControlUxProfile` mit `xtend.component.form-control-ux-profile.v1` bereit. Das Profil verbindet Label, Hint, Error, `radio-changed`, `radio-invalid`, `xradio-value-<name>`, `ui.user-blocking.input`, Fabric-Lane `user-blocking` und RMT Shell Authoring.
+
+## ECH-WP-08 Form Theme/A11y Hardening
+
+`signatureDesign`: Enterprise-Radio-Option mit robuster nativer Fokusfuehrung, gruppensicherer Validierung und separat themebarem Selection-Icon.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-form-text` | Host-Textfarbe |
+| `--xtend-form-control-surface` | Native Control-Flaeche |
+| `--xtend-form-control-text` | Control-Text-Fallback |
+| `--xtend-form-label-text` | Label |
+| `--xtend-form-helper-text` | Helper |
+| `--xtend-form-error-text` | Fehlertext |
+| `--xtend-form-error-surface` | Fehlerflaeche |
+| `--xtend-form-error-border` | Fehlerkante und Marker |
+| `--xtend-form-focus-ring` | Focus-Outline |
+| `--xtend-form-radius` | Radio-/Error-Radius |
+| `--xtend-form-gap` | Label-/Helper-Abstand |
+| `--xtend-form-font-family` | Form-Typografie |
+| `--xtend-form-control-font-size` | Label-Schrift |
+| `--xtend-form-helper-font-size` | Helper/Error-Schrift |
+| `--xtend-form-icon-color` | Radio-Akzent |
+
+Density-Profile: `comfortable`, `compact`, `dense`. Invalid ist nicht farb-only und wird per `aria-invalid` gespiegelt.
+
+```css
+[data-xtend-form-theme="enterprise-foreign"] x-radio {
+  --xtend-form-icon-color: #8f4f2a;
+  --xtend-form-label-text: #22312c;
+  --xtend-form-helper-text: #596861;
+  --xtend-form-error-text: #7d231c;
+  --xtend-form-error-border: #a64036;
+  --xtend-form-focus-ring: 3px solid #8f4f2a;
+}
+```

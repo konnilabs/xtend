@@ -3,17 +3,45 @@
 <head>
   <meta charset="utf-8">
   <title>x-input component fixture</title>
+  <style>
+    [data-xtend-form-theme="enterprise-foreign"] {
+      --xtend-form-text: #16231f;
+      --xtend-form-control-surface: #fbf8f2;
+      --xtend-form-control-text: #16231f;
+      --xtend-form-label-text: #22312c;
+      --xtend-form-helper-text: #596861;
+      --xtend-form-error-text: #7d231c;
+      --xtend-form-error-surface: #fff1ed;
+      --xtend-form-error-border: #a64036;
+      --xtend-form-focus-ring: 3px solid #8f4f2a;
+      --xtend-form-radius: 0.35rem;
+      --xtend-form-gap: 0.35rem;
+      --xtend-form-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-form-control-font-size: 1rem;
+      --xtend-form-helper-font-size: 0.875rem;
+      --xtend-form-icon-color: #8f4f2a;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-form-theme="enterprise-foreign">
   <x-input
     id="component-input"
     name="email"
     type="email"
     value="team@example.com"
     placeholder="team@example.com"
+    density="comfortable"
     required>
     <span slot="label">Team email</span>
+    <span slot="hint">Use a monitored enterprise mailbox.</span>
     <span slot="error">Enter a valid email address.</span>
+  </x-input>
+  <x-input id="component-input-compact" name="compact" density="compact" busy placeholder="Compact field">
+    <span slot="label">Compact field</span>
+  </x-input>
+  <x-input id="component-input-dense" name="dense" density="dense" invalid placeholder="Dense field">
+    <span slot="label">Dense field</span>
+    <span slot="error">Dense error state.</span>
   </x-input>
   <script>
     window.__xtendComponentState = {};

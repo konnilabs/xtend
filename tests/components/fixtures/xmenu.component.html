@@ -3,8 +3,25 @@
 <head>
   <meta charset="utf-8">
   <title>x-menu component fixture</title>
+  <style>
+    [data-xtend-nav-theme="enterprise-foreign"] x-menu {
+      --xtend-nav-surface: #f7f4ee;
+      --xtend-nav-text: #19231f;
+      --xtend-nav-border-color: rgba(25, 35, 31, 0.24);
+      --xtend-nav-radius: 0.4rem;
+      --xtend-nav-gap: 0.35rem;
+      --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-nav-font-size: 0.96rem;
+      --xtend-nav-active-surface: #173f35;
+      --xtend-nav-active-text: #fffaf0;
+      --xtend-nav-current-indicator: #b56b35;
+      --xtend-nav-hover-surface: rgba(181, 107, 53, 0.14);
+      --xtend-nav-focus-ring: 3px solid #b56b35;
+      --xtend-nav-disabled-opacity: 0.44;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-nav-theme="enterprise-foreign">
   <x-router id="component-router" mode="hash">
     <x-route path="/overview" component="demo-overview"></x-route>
     <x-route path="/settings" component="demo-settings"></x-route>
@@ -13,10 +30,17 @@
     id="component-menu"
     data-rmt-schedule="ui.user-blocking.navigation"
     data-xtend-lane="user-blocking">
-    <a href="/overview">Overview</a>
+    <a href="/overview" aria-current="page">Overview</a>
     <button type="button">Action</button>
-    <x-link href="/settings">Settings</x-link>
+    <x-link href="/settings" aria-selected="true">Settings</x-link>
     <span role="menuitem">Custom item</span>
+    <button type="button" disabled>Disabled item</button>
+    <button type="button" aria-expanded="false" aria-haspopup="menu" data-menu-disclosure>
+      Lang benannter verschachtelter Navigationspunkt fuer Enterprise Informationsarchitektur
+      <svg part="disclosure-icon control icon" data-disclosure-icon viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
   </x-menu>
   <script>
     window.__xtendComponentState = {};

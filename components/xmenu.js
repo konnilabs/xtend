@@ -177,7 +177,38 @@ class XMenu extends HTMLElement {
         xRouterNavigateEvent: 'x-navigate',
         xRouterStateSignal: 'router-navigate',
         scheduleRef: 'route.transition.navigate'
-      }
+      },
+      stateSemantics: {
+        states: ['active', 'current', 'selected', 'hover', 'focus', 'disabled'],
+        current: 'aria-current=page',
+        selected: 'aria-selected=true-supported-for-composite-hosts',
+        disabled: 'disabled-or-aria-disabled'
+      },
+      disclosureControls: {
+        nestedMenus: 'icon-controls-only',
+        managedPart: 'disclosure-icon control icon'
+      },
+      signatureDesign: {
+        note: 'Enterprise menubar with quiet shell rhythm, visible current-route rail and tokenized premium navigation states.',
+        tokenStrategy: 'shared --xtend-nav-* tokens feed x-menu aliases before component-specific overrides.',
+        themeExpectation: 'third-party themes can replace active, hover, focus, disabled, typography, radius and disclosure icon styling from CSS.'
+      },
+      themeTokens: [
+        '--xtend-nav-surface',
+        '--xtend-nav-text',
+        '--xtend-nav-border-color',
+        '--xtend-nav-radius',
+        '--xtend-nav-gap',
+        '--xtend-nav-font-family',
+        '--xtend-nav-font-size',
+        '--xtend-nav-active-surface',
+        '--xtend-nav-active-text',
+        '--xtend-nav-current-indicator',
+        '--xtend-nav-hover-surface',
+        '--xtend-nav-focus-ring',
+        '--xtend-nav-disabled-opacity'
+      ],
+      overflowPolicy: 'long-labels-wrap-with-overflow-wrap-anywhere'
     };
   }
 
@@ -231,19 +262,66 @@ class XMenu extends HTMLElement {
       <style>
         :host {
           display: block;
+          --xtend-nav-surface: var(--xtend-surface-panel, var(--xtend-surface-muted, Canvas));
+          --xtend-nav-text: var(--xtend-text-primary, var(--xtend-text, CanvasText));
+          --xtend-nav-border-color: var(--xtend-border-color, color-mix(in srgb, currentColor 18%, transparent));
+          --xtend-nav-radius: var(--xtend-radius-panel, var(--xtend-radius, 0.75rem));
+          --xtend-nav-gap: var(--xtend-space-1, 0.5em);
+          --xtend-nav-font-family: var(--xtend-font-family-control, var(--xtend-font-family, system-ui, sans-serif));
+          --xtend-nav-font-size: var(--xtend-font-size-control, 1em);
+          --xtend-nav-active-surface: var(--xtend-color-action-subtle, var(--xtend-surface-inset, ButtonFace));
+          --xtend-nav-active-text: var(--xtend-color-action, LinkText);
+          --xtend-nav-current-indicator: var(--xtend-color-action, Highlight);
+          --xtend-nav-hover-surface: var(--xtend-color-action-subtle, var(--xtend-surface-inset, ButtonFace));
+          --xtend-nav-focus-ring: var(--xtend-focus-ring, var(--xtend-focus-outline, 2px solid Highlight));
+          --xtend-nav-disabled-opacity: var(--xtend-disabled-opacity, 0.48);
           --xtend-menu-min-touch-target: 44px;
+          --xtend-menu-surface: var(--xtend-nav-surface);
+          --xtend-menu-text: var(--xtend-nav-text);
+          --xtend-menu-border-color: var(--xtend-nav-border-color);
+          --xtend-menu-border-width: var(--xtend-border-width, 1px);
+          --xtend-menu-radius: var(--xtend-nav-radius);
+          --xtend-menu-elevation: var(--xtend-elevation-1, none);
+          --xtend-menu-gap: var(--xtend-nav-gap);
+          --xtend-menu-padding-y: var(--xtend-space-1, 0.5em);
+          --xtend-menu-padding-x: var(--xtend-space-3, 1.2em);
+          --xtend-menu-item-surface: transparent;
+          --xtend-menu-item-hover-surface: var(--xtend-nav-hover-surface);
+          --xtend-menu-item-active-surface: var(--xtend-nav-active-surface);
+          --xtend-menu-item-active-text: var(--xtend-nav-active-text);
+          --xtend-menu-current-indicator: var(--xtend-nav-current-indicator);
+          --xtend-menu-item-text: var(--button-text-color, var(--xtend-text-primary, var(--xtend-text, CanvasText)));
+          --xtend-menu-item-primary-surface: var(--xtend-color-action, Highlight);
+          --xtend-menu-item-primary-text: var(--xtend-text-on-action, HighlightText);
+          --xtend-menu-item-secondary-surface: var(--xtend-surface-inset, ButtonFace);
+          --xtend-menu-item-danger-surface: var(--xtend-color-danger, Mark);
+          --xtend-menu-item-radius: var(--xtend-radius-control, var(--xtend-radius, 0.75rem));
+          --xtend-menu-item-padding-y: var(--xtend-space-1, 0.6em);
+          --xtend-menu-item-padding-x: var(--xtend-space-3, 1.6em);
+          --xtend-menu-item-gap: var(--xtend-space-control-gap, 0.6em);
+          --xtend-menu-font-family: var(--xtend-nav-font-family);
+          --xtend-menu-font-size: var(--xtend-nav-font-size);
+          --xtend-menu-font-weight: var(--xtend-font-weight-control, 560);
+          --xtend-menu-focus-outline: var(--xtend-nav-focus-ring);
+          --xtend-menu-focus-elevation: var(--xtend-elevation-focus, none);
+          --xtend-menu-disabled-opacity: var(--xtend-nav-disabled-opacity);
+          --xtend-menu-disclosure-icon-size: 1em;
+          --xtend-menu-motion-duration: var(--xtend-motion-duration-fast, 160ms);
+          --xtend-menu-motion-easing: var(--xtend-motion-easing-standard, ease);
         }
         nav {
           display: flex;
-          gap: 0.5em;
-          background: var(--xtend-menu-bg, rgba(40, 60, 120, 0.25));
-          border-radius: var(--xtend-menu-radius, 1.2em);
-          box-shadow: var(--xtend-menu-shadow, 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08));
-          backdrop-filter: blur(12px) saturate(1.2);
-          padding: 0.5em 1.2em;
+          gap: var(--xtend-menu-gap);
+          background: var(--xtend-menu-surface);
+          color: var(--xtend-menu-text);
+          border: var(--xtend-menu-border-width) solid var(--xtend-menu-border-color);
+          border-radius: var(--xtend-menu-radius);
+          box-shadow: var(--xtend-menu-elevation);
+          backdrop-filter: blur(var(--xtend-glass-blur, 0px)) saturate(1.05);
+          padding: var(--xtend-menu-padding-y) var(--xtend-menu-padding-x);
           align-items: center;
           min-height: 3.2em;
-          transition: box-shadow 0.25s, background 0.25s;
+          transition: box-shadow var(--xtend-menu-motion-duration) var(--xtend-menu-motion-easing), background var(--xtend-menu-motion-duration) var(--xtend-menu-motion-easing);
         }
         ::slotted(a),
         ::slotted(button),
@@ -251,46 +329,51 @@ class XMenu extends HTMLElement {
         ::slotted([role="menuitem"]) {
           all: unset;
           position: relative;
-          background: none;
-          color: var(--button-text-color, var(--xtend-menu-color, #fff));
-          border-radius: 1.2em;
-          padding: 0.6em 1.6em;
+          background: var(--xtend-menu-item-surface);
+          color: var(--xtend-menu-item-text);
+          border-radius: var(--xtend-menu-item-radius);
+          padding: var(--xtend-menu-item-padding-y) var(--xtend-menu-item-padding-x);
           min-width: var(--xtend-menu-min-touch-target, 44px);
           min-height: var(--xtend-menu-min-touch-target, 44px);
           box-sizing: border-box;
-          font-size: 1em;
-          font-weight: 500;
+          font-family: var(--xtend-menu-font-family);
+          font-size: var(--xtend-menu-font-size);
+          font-weight: var(--xtend-menu-font-weight);
           text-align: center;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 0.6em;
-          transition: background 0.25s cubic-bezier(.4,0,.2,1), box-shadow 0.25s, filter 0.2s;
+          gap: var(--xtend-menu-item-gap);
+          transition: background var(--xtend-menu-motion-duration) var(--xtend-menu-motion-easing), box-shadow var(--xtend-menu-motion-duration) var(--xtend-menu-motion-easing), filter var(--xtend-menu-motion-duration) var(--xtend-menu-motion-easing);
           outline: none;
           border: none;
-          overflow: hidden;
+          overflow-wrap: anywhere;
+          word-break: normal;
+          white-space: normal;
+          max-width: 100%;
+          min-inline-size: 0;
         }
         ::slotted(a.primary),
         ::slotted(button.primary),
         ::slotted(x-link.primary),
         ::slotted([role="menuitem"].primary) {
-          background: linear-gradient(135deg, rgba(0,123,255,0.35) 0%, rgba(0,123,255,0.18) 100%);
-          color: #fff;
+          background: var(--xtend-menu-item-primary-surface);
+          color: var(--xtend-menu-item-primary-text);
         }
         ::slotted(a.secondary),
         ::slotted(button.secondary),
         ::slotted(x-link.secondary),
         ::slotted([role="menuitem"].secondary) {
-          background: linear-gradient(135deg, rgba(108,117,125,0.35) 0%, rgba(108,117,125,0.18) 100%);
-          color: #fff;
+          background: var(--xtend-menu-item-secondary-surface);
+          color: var(--xtend-menu-item-text);
         }
         ::slotted(a.danger),
         ::slotted(button.danger),
         ::slotted(x-link.danger),
         ::slotted([role="menuitem"].danger) {
-          background: linear-gradient(135deg, rgba(220,53,69,0.35) 0%, rgba(220,53,69,0.18) 100%);
-          color: #fff;
+          background: var(--xtend-menu-item-danger-surface);
+          color: var(--xtend-error-fg, HighlightText);
         }
         ::slotted(a.small),
         ::slotted(button.small),
@@ -317,16 +400,19 @@ class XMenu extends HTMLElement {
         ::slotted(button:focus-visible),
         ::slotted(x-link:focus-visible),
         ::slotted([role="menuitem"]:focus-visible) {
-          outline: 2.5px solid var(--focus-color, #80bfff);
-          outline-offset: 2px;
-          box-shadow: 0 0 0 4px rgba(0,123,255,0.12);
+          outline: var(--xtend-menu-focus-outline);
+          outline-offset: var(--xtend-focus-outline-offset, 2px);
+          box-shadow: var(--xtend-menu-focus-elevation);
         }
         ::slotted(a:disabled),
+        ::slotted(a[aria-disabled="true"]),
         ::slotted(button:disabled),
+        ::slotted(button[aria-disabled="true"]),
+        ::slotted(x-link[disabled]),
         ::slotted(x-link[aria-disabled="true"]),
         ::slotted([role="menuitem"]:disabled),
         ::slotted([role="menuitem"][aria-disabled="true"]) {
-          opacity: 0.45;
+          opacity: var(--xtend-menu-disabled-opacity);
           cursor: not-allowed;
           filter: grayscale(0.2);
         }
@@ -338,9 +424,26 @@ class XMenu extends HTMLElement {
         ::slotted(button.active),
         ::slotted(x-link.active),
         ::slotted([role="menuitem"].active) {
-          background: rgba(40,60,120,0.32);
-          box-shadow: 0 6px 32px 0 rgba(40,60,120,0.16), 0 2px 8px 0 rgba(40,60,120,0.10);
-          filter: brightness(1.08) saturate(1.1);
+          background: var(--xtend-menu-item-hover-surface);
+          box-shadow: var(--xtend-menu-focus-elevation);
+          filter: brightness(1.03) saturate(1.05);
+        }
+        ::slotted(a[aria-current="page"]),
+        ::slotted(button[aria-current="page"]),
+        ::slotted(x-link[aria-current="page"]),
+        ::slotted(x-link[active]),
+        ::slotted([role="menuitem"][aria-current="page"]),
+        ::slotted(a[aria-selected="true"]),
+        ::slotted(button[aria-selected="true"]),
+        ::slotted(x-link[aria-selected="true"]),
+        ::slotted([role="menuitem"][aria-selected="true"]),
+        ::slotted(a.active),
+        ::slotted(button.active),
+        ::slotted(x-link.active),
+        ::slotted([role="menuitem"].active) {
+          background: var(--xtend-menu-item-active-surface);
+          color: var(--xtend-menu-item-active-text);
+          box-shadow: inset 0 -3px 0 var(--xtend-menu-current-indicator), var(--xtend-menu-focus-elevation);
         }
         ::slotted(.icon) {
           display: inline-flex;
@@ -448,7 +551,7 @@ class XMenu extends HTMLElement {
   }
 
   _handleNavFocus() {
-    const firstItem = this._items[0];
+    const firstItem = this._items.find((item) => !this._isItemDisabled(item));
     if (firstItem) firstItem.focus();
   }
 
@@ -481,7 +584,8 @@ class XMenu extends HTMLElement {
     items.forEach((item, index) => {
       item.setAttribute("role", "menuitem");
       item.setAttribute('data-xtend-menu-index', String(index));
-      item.tabIndex = index === activeIndex ? 0 : -1;
+      this._syncDisclosureIconControl(item);
+      item.tabIndex = !this._isItemDisabled(item) && index === activeIndex ? 0 : -1;
       this._applyItemActiveState(item, index === activeIndex);
 
       const keydown = (event) => this._handleItemKeydown(event, item, index);
@@ -514,13 +618,13 @@ class XMenu extends HTMLElement {
     const key = event.key;
     let nextIndex = null;
     if (key === 'ArrowRight' || key === 'ArrowDown') {
-      nextIndex = (index + 1) % this._items.length;
+      nextIndex = this._resolveNextEnabledIndex(index, 1);
     } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
-      nextIndex = (index - 1 + this._items.length) % this._items.length;
+      nextIndex = this._resolveNextEnabledIndex(index, -1);
     } else if (key === 'Home') {
-      nextIndex = 0;
+      nextIndex = this._resolveFirstEnabledIndex();
     } else if (key === 'End') {
-      nextIndex = this._items.length - 1;
+      nextIndex = this._resolveLastEnabledIndex();
     } else if (key === 'Enter' || key === ' ') {
       event.preventDefault();
       this._activateItem(item, index, event, 'keyboard');
@@ -530,6 +634,7 @@ class XMenu extends HTMLElement {
     }
 
     event.preventDefault();
+    if (nextIndex === null || nextIndex < 0) return;
     this._performanceCounters.keyboardMoves += 1;
     this._focusItem(nextIndex);
     const measurement = this._recordPerformanceMeasurement('xtend.interaction.keyboard', 'keyboardAction', start, { key, fromIndex: index, toIndex: nextIndex });
@@ -582,18 +687,19 @@ class XMenu extends HTMLElement {
 
   _focusItem(index) {
     const item = this._items[index];
-    if (!item) return;
+    if (!item || this._isItemDisabled(item)) return;
     this._items.forEach((candidate, candidateIndex) => {
-      candidate.tabIndex = candidateIndex === index ? 0 : -1;
+      candidate.tabIndex = !this._isItemDisabled(candidate) && candidateIndex === index ? 0 : -1;
     });
     item.focus();
   }
 
   _setActiveItem(index, reason = 'update', options = {}) {
     if (!this._items.length || index < 0 || index >= this._items.length) return;
+    if (this._isItemDisabled(this._items[index])) return;
     this._items.forEach((item, itemIndex) => {
       this._applyItemActiveState(item, itemIndex === index);
-      item.tabIndex = itemIndex === index ? 0 : -1;
+      item.tabIndex = !this._isItemDisabled(item) && itemIndex === index ? 0 : -1;
     });
     if (options.focus) {
       this._items[index].focus();
@@ -605,6 +711,7 @@ class XMenu extends HTMLElement {
     if (!path) return;
     const target = this._normalizePath(path);
     const index = this._items.findIndex((item) => {
+      if (this._isItemDisabled(item)) return false;
       const href = this._resolveItemHref(item);
       return href && this._normalizePath(href.replace(/^#/, '')) === target;
     });
@@ -651,19 +758,41 @@ class XMenu extends HTMLElement {
   }
 
   _resolveActiveIndex(items = this._items) {
+    const firstEnabledIndex = items.findIndex((item) => !this._isItemDisabled(item));
     const state = xstate.get('xmenu-active');
-    if (state && typeof state.index === 'number' && state.index >= 0 && state.index < items.length) {
+    if (state && typeof state.index === 'number' && state.index >= 0 && state.index < items.length && !this._isItemDisabled(items[state.index])) {
       return state.index;
     }
-    if (state && typeof state.activeIndex === 'number' && state.activeIndex >= 0 && state.activeIndex < items.length) {
+    if (state && typeof state.activeIndex === 'number' && state.activeIndex >= 0 && state.activeIndex < items.length && !this._isItemDisabled(items[state.activeIndex])) {
       return state.activeIndex;
     }
     const currentPath = this._getCurrentPath();
     const routeIndex = items.findIndex((item) => {
+      if (this._isItemDisabled(item)) return false;
       const href = this._resolveItemHref(item);
       return href && this._normalizePath(href.replace(/^#/, '')) === currentPath;
     });
-    return routeIndex >= 0 ? routeIndex : 0;
+    return routeIndex >= 0 ? routeIndex : (firstEnabledIndex >= 0 ? firstEnabledIndex : 0);
+  }
+
+  _resolveFirstEnabledIndex() {
+    return this._items.findIndex((item) => !this._isItemDisabled(item));
+  }
+
+  _resolveLastEnabledIndex() {
+    for (let index = this._items.length - 1; index >= 0; index -= 1) {
+      if (!this._isItemDisabled(this._items[index])) return index;
+    }
+    return -1;
+  }
+
+  _resolveNextEnabledIndex(index, direction) {
+    if (!this._items.length) return -1;
+    for (let offset = 1; offset <= this._items.length; offset += 1) {
+      const candidateIndex = (index + (offset * direction) + this._items.length) % this._items.length;
+      if (!this._isItemDisabled(this._items[candidateIndex])) return candidateIndex;
+    }
+    return -1;
   }
 
   _navigateToHref(href, item, source, measurement) {
@@ -710,6 +839,44 @@ class XMenu extends HTMLElement {
     if (typeof item.href === 'string' && item.href) return item.href;
     const anchor = item.shadowRoot && item.shadowRoot.querySelector && item.shadowRoot.querySelector('a[href]');
     return anchor ? anchor.getAttribute('href') : null;
+  }
+
+  _syncDisclosureIconControl(item) {
+    if (!item || typeof item.hasAttribute !== 'function' || !item.querySelector) return;
+    const isDisclosure = item.hasAttribute('aria-expanded') ||
+      item.hasAttribute('data-menu-disclosure') ||
+      item.getAttribute('aria-haspopup') === 'menu';
+    const existing = item.querySelector('[data-xtend-disclosure-icon]');
+    const hasAuthorIcon = item.querySelector('x-icon[part~="icon"], svg[part~="icon"], [data-disclosure-icon]');
+    if (!isDisclosure) {
+      if (existing && existing.getAttribute('data-xtend-managed') === 'true') existing.remove();
+      return;
+    }
+    if (existing || hasAuthorIcon) return;
+
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.setAttribute('focusable', 'false');
+    icon.setAttribute('part', 'disclosure-icon control icon');
+    icon.setAttribute('data-xtend-disclosure-icon', '');
+    icon.setAttribute('data-xtend-managed', 'true');
+    icon.style.width = 'var(--xtend-menu-disclosure-icon-size, 1em)';
+    icon.style.height = 'var(--xtend-menu-disclosure-icon-size, 1em)';
+    icon.style.flex = '0 0 auto';
+    icon.style.marginInlineStart = 'var(--xtend-menu-item-gap, 0.6em)';
+    icon.style.transform = item.getAttribute('aria-expanded') === 'true' ? 'rotate(180deg)' : 'rotate(0deg)';
+    icon.style.transition = 'transform var(--xtend-menu-motion-duration, 160ms) var(--xtend-menu-motion-easing, ease)';
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M6 9l6 6 6-6');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    icon.appendChild(path);
+    item.appendChild(icon);
   }
 
   _isInternalHref(href) {

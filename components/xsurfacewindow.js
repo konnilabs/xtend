@@ -1,3 +1,5 @@
+import './xicon.js';
+
 class XSurfaceWindow extends HTMLElement {
   static get observedAttributes() {
     return ['surface-id', 'label', 'open', 'active', 'minimized', 'maximized', 'resizable', 'draggable', 'modal', 'initial-x', 'initial-y', 'initial-width', 'initial-height'];
@@ -232,6 +234,9 @@ class XSurfaceWindow extends HTMLElement {
           font: 700 0.75rem/1 system-ui, sans-serif;
           cursor: pointer;
         }
+        button x-icon {
+          pointer-events: none;
+        }
         button:hover,
         button:focus-visible {
           border-color: var(--surface-window-border, #94a3b8);
@@ -294,9 +299,15 @@ class XSurfaceWindow extends HTMLElement {
         <header class="titlebar" part="titlebar" tabindex="0">
           <span id="title" class="title" part="title"></span>
           <span class="actions" part="actions">
-            <button type="button" data-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" data-action="maximize" aria-label="Maximize">[]</button>
-            <button type="button" data-action="close" aria-label="Close">x</button>
+            <button type="button" data-action="minimize" part="minimize control" aria-label="Minimize">
+              <x-icon name="minus" decorative size="1rem" part="minimize-icon control icon"></x-icon>
+            </button>
+            <button type="button" data-action="maximize" part="maximize control" aria-label="Maximize">
+              <x-icon name="maximize" decorative size="1rem" part="maximize-icon control icon"></x-icon>
+            </button>
+            <button type="button" data-action="close" part="close control" aria-label="Close">
+              <x-icon name="close" decorative size="1rem" part="close-icon control icon"></x-icon>
+            </button>
           </span>
         </header>
         <div class="content" part="content"><slot></slot></div>
@@ -449,7 +460,8 @@ class XSurfaceWindow extends HTMLElement {
   }
 
   _handleActionClick(event) {
-    const action = event.target && event.target.getAttribute && event.target.getAttribute('data-action');
+    const control = event.target && event.target.closest && event.target.closest('button[data-action]');
+    const action = control && control.getAttribute('data-action');
     if (!action) return;
     event.preventDefault();
     if (action === 'close') this.closeWindow('button');

@@ -3,12 +3,35 @@
 <head>
   <meta charset="utf-8">
   <title>x-checkbox component fixture</title>
+  <style>
+    [data-xtend-form-theme="enterprise-foreign"] {
+      --xtend-form-text: #16231f;
+      --xtend-form-control-surface: #fbf8f2;
+      --xtend-form-control-text: #16231f;
+      --xtend-form-label-text: #22312c;
+      --xtend-form-helper-text: #596861;
+      --xtend-form-error-text: #7d231c;
+      --xtend-form-error-surface: #fff1ed;
+      --xtend-form-error-border: #a64036;
+      --xtend-form-focus-ring: 3px solid #8f4f2a;
+      --xtend-form-radius: 0.35rem;
+      --xtend-form-gap: 0.35rem;
+      --xtend-form-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-form-control-font-size: 1rem;
+      --xtend-form-helper-font-size: 0.875rem;
+      --xtend-form-icon-color: #8f4f2a;
+    }
+  </style>
 </head>
-<body>
-  <x-checkbox id="component-checkbox" name="terms" value="accepted" checked required>
+<body data-xtend-form-theme="enterprise-foreign">
+  <x-checkbox id="component-checkbox" name="terms" value="accepted" checked required density="comfortable">
     <span slot="label">Accept terms</span>
     <span slot="hint">Required before deployment.</span>
     <span slot="error">Accept the terms to continue.</span>
+  </x-checkbox>
+  <x-checkbox id="component-checkbox-dense" name="reviewed" value="yes" density="dense" invalid>
+    <span slot="label">Dense invalid checkbox</span>
+    <span slot="error">Confirm review.</span>
   </x-checkbox>
   <script>
     window.__xtendComponentState = {};

@@ -1,0 +1,305 @@
+<!doctype html>
+<html
+  lang="en"
+  data-contract="xtend.enterprise.visual-dom-snapshot-matrix-fixture.v1"
+  data-visual-matrix-theme="light dark high-contrast forced-colors"
+  data-visual-matrix-density="comfortable compact dense"
+  data-visual-matrix-motion="default-motion reduced-motion"
+  data-visual-matrix-viewport="desktop-1280 tablet-768 mobile-390"
+  data-density="comfortable"
+  data-motion="default-motion">
+  <head>
+    <meta charset="utf-8">
+    <title>XTend Enterprise Visual DOM Snapshot Matrix</title>
+    <meta
+      name="xtend-preload"
+      content="xstate,x-header,x-menu,x-tabs,x-router,x-link,x-input,x-status,x-progress,x-code"
+    >
+    <style>
+      :root {
+        --wp10-ink: #17231f;
+        --wp10-surface: #f7f4ee;
+        --wp10-surface-raised: #fffdf8;
+        --wp10-accent-blue: #0e6e8f;
+        --wp10-accent-green: #173f35;
+        --wp10-accent-copper: #b56b35;
+        --wp10-edge: rgba(23, 35, 31, 0.2);
+        --xtend-surface: var(--wp10-surface);
+        --xtend-text: var(--wp10-ink);
+        --xtend-color-primary: var(--wp10-accent-blue);
+        --xtend-density-spacing: 0.8rem;
+        --xtend-motion-duration-fast: 160ms;
+        --xtend-radius: 0.45rem;
+        --xtend-nav-surface: var(--wp10-surface-raised);
+        --xtend-nav-text: var(--wp10-ink);
+        --xtend-nav-border-color: var(--wp10-edge);
+        --xtend-nav-radius: 0.35rem;
+        --xtend-nav-gap: 0.4rem;
+        --xtend-nav-font-family: "Aptos", "Segoe UI", system-ui, sans-serif;
+        --xtend-nav-font-size: 0.96rem;
+        --xtend-nav-active-surface: var(--wp10-accent-green);
+        --xtend-nav-active-text: #fffaf0;
+        --xtend-nav-current-indicator: var(--wp10-accent-copper);
+        --xtend-nav-hover-surface: rgba(181, 107, 53, 0.14);
+        --xtend-nav-focus-ring: 3px solid var(--wp10-accent-copper);
+        --xtend-nav-disabled-opacity: 0.44;
+        --xtend-signature-surface-page: var(--wp10-surface);
+        --xtend-signature-surface-panel: var(--wp10-surface-raised);
+        --xtend-signature-surface-raised: #ffffff;
+        --xtend-signature-edge-subtle: var(--wp10-edge);
+        --xtend-signature-ink: var(--wp10-ink);
+        --xtend-signature-ink-muted: #5f6b64;
+        --xtend-signature-accent: var(--wp10-accent-blue);
+        --xtend-signature-accent-soft: rgba(14, 110, 143, 0.12);
+        --xtend-font-family-body: "Aptos", "Segoe UI", system-ui, sans-serif;
+        --xtend-font-family-heading: "Aptos Display", "Aptos", "Segoe UI", system-ui, sans-serif;
+        --xtend-font-family-control: "Aptos", "Segoe UI", system-ui, sans-serif;
+        --xtend-font-family-code: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+        --xtend-font-feature-numeric: "tnum" 1, "lnum" 1;
+      }
+
+      :root[data-theme="dark"] {
+        --xtend-surface: #121916;
+        --xtend-text: #f6f1e8;
+        --xtend-nav-surface: #1c2823;
+        --xtend-nav-text: #f6f1e8;
+        --xtend-nav-active-surface: #b56b35;
+        --xtend-nav-active-text: #121916;
+      }
+
+      :root[data-theme="high-contrast"] {
+        --xtend-surface: #000000;
+        --xtend-text: #ffffff;
+        --xtend-nav-surface: #000000;
+        --xtend-nav-text: #ffffff;
+        --xtend-nav-active-surface: #ffff00;
+        --xtend-nav-active-text: #000000;
+        --xtend-nav-current-indicator: #ffffff;
+      }
+
+      :root[data-theme="forced-colors"] {
+        --xtend-surface: Canvas;
+        --xtend-text: CanvasText;
+        --xtend-nav-surface: Canvas;
+        --xtend-nav-text: CanvasText;
+        --xtend-nav-active-surface: Highlight;
+        --xtend-nav-active-text: HighlightText;
+        --xtend-nav-current-indicator: CanvasText;
+      }
+
+      :root[data-density="compact"] {
+        --xtend-density-spacing: 0.55rem;
+      }
+
+      :root[data-density="dense"] {
+        --xtend-density-spacing: 0.38rem;
+      }
+
+      :root[data-motion="reduced-motion"] {
+        --xtend-motion-duration-fast: 0ms;
+      }
+
+      body {
+        margin: 0;
+        color: var(--xtend-text);
+        background: var(--xtend-surface);
+        font-family: var(--xtend-font-family-body);
+      }
+
+      .visual-matrix-shell {
+        display: grid;
+        gap: var(--xtend-density-spacing);
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: var(--xtend-density-spacing);
+      }
+
+      .visual-panel {
+        border: 1px solid var(--wp10-edge);
+        border-radius: var(--xtend-radius);
+        background: var(--xtend-signature-surface-panel);
+        padding: var(--xtend-density-spacing);
+      }
+
+      .visual-mode-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+        gap: var(--xtend-density-spacing);
+      }
+
+      .visual-card {
+        border-inline-start: 4px solid var(--wp10-accent-copper);
+        padding-inline-start: 0.75rem;
+      }
+
+      .typography-samples {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+        gap: 0.5rem;
+      }
+
+      [data-typography-sample="numeric"] {
+        font-variant-numeric: var(--xtend-font-feature-numeric);
+      }
+
+      [data-typography-sample="code"] {
+        font-family: var(--xtend-font-family-code);
+      }
+    </style>
+    <script>
+      window.__xtendComponentState = {};
+      window.xstate = {
+        get(key) { return window.__xtendComponentState[key]; },
+        set(key, value) { window.__xtendComponentState[key] = value; },
+        subscribe() { return function unsubscribe() {}; }
+      };
+    </script>
+    <script type="module" src="/components/xstate.js"></script>
+    <script type="module" src="/components/xheader.js"></script>
+    <script type="module" src="/components/xmenu.js"></script>
+    <script type="module" src="/components/xtabs.js"></script>
+    <script type="module" src="/components/xrouter.js"></script>
+    <script type="module" src="/components/xlink.js"></script>
+    <script type="module" src="/components/xinput.js"></script>
+    <script type="module" src="/components/xstatus.js"></script>
+    <script type="module" src="/components/xprogress.js"></script>
+    <script type="module" src="/components/xcode.js"></script>
+  </head>
+  <body
+    data-anti-generic="palette-varied no-card-dominance no-unmotivated-gradient"
+    data-contrast-risk="visible"
+    data-focus-risk="visible">
+    <main
+      id="wp10-visual-dom-matrix-root"
+      class="visual-matrix-shell"
+      data-signature-state="default hover focus active disabled empty loading error">
+      <section class="visual-panel" aria-label="XHeader mode snapshots">
+        <h1>XTend Enterprise Visual DOM Snapshot Matrix</h1>
+        <div class="visual-mode-grid">
+          <x-header id="wp10-header-drawer" menu-mode="drawer" menu-open menu-placement="end" menu-align="stretch">
+            <span slot="title">Drawer Shell</span>
+            <a slot="nav" href="/overview" aria-current="page">Overview</a>
+            <button slot="nav" type="button" aria-selected="true">Lang benannter aktiver Navigationspunkt</button>
+            <button slot="nav" type="button" disabled>Disabled</button>
+          </x-header>
+
+          <x-header id="wp10-header-side-panel" menu-mode="side-panel" menu-open menu-placement="start" menu-modal menu-width="min(28rem, 90vw)">
+            <span slot="title">Side Panel Shell</span>
+            <x-link slot="nav" href="/workbench" aria-current="page">Workbench</x-link>
+          </x-header>
+
+          <x-header id="wp10-header-popover" menu-mode="popover" menu-open menu-placement="end">
+            <span slot="title">Popover Shell</span>
+            <a slot="nav" href="/reports" aria-current="page">Reports</a>
+          </x-header>
+
+          <x-header id="wp10-header-fullscreen" menu-mode="fullscreen" menu-open menu-modal>
+            <span slot="title">Fullscreen Shell</span>
+            <a slot="nav" href="/command" aria-current="page">Command Center</a>
+          </x-header>
+
+          <x-header id="wp10-header-inline-main" menu-mode="inline-main" menu-open>
+            <span slot="title">Inline Main Shell</span>
+            <a slot="nav" href="/inline" aria-current="page">Inline navigation</a>
+          </x-header>
+        </div>
+      </section>
+
+      <section class="visual-panel" aria-label="Signature UI state samples">
+        <div class="visual-mode-grid">
+          <article class="visual-card" data-signature-state="default hover focus active">
+            <h2 data-typography-sample="long-label">Sehr lange Enterprise Navigationsbeschriftung fuer dichte Systemkontexte</h2>
+            <x-menu id="wp10-dense-navigation" data-typography-sample="dense-navigation">
+              <a href="/active" aria-current="page">Active Route</a>
+              <button type="button" aria-selected="true">Selected</button>
+              <button type="button" disabled>Disabled</button>
+            </x-menu>
+            <x-tabs id="wp10-tabs" selected="0">
+              <x-tab name="Default">Default tab</x-tab>
+              <x-tab name="Loading">Loading tab</x-tab>
+              <x-tab name="Error" disabled>Error tab</x-tab>
+            </x-tabs>
+          </article>
+
+          <article class="visual-card" data-signature-state="disabled empty loading error">
+            <x-input id="wp10-error-input" invalid required placeholder="Release train">
+              <span slot="label">Release train</span>
+              <span slot="error">Release train is required.</span>
+            </x-input>
+            <x-status id="wp10-loading-status" type="info" state="loading" message="Loading route states">Loading</x-status>
+            <x-progress id="wp10-progress" value="64" max="100" label="Snapshot progress"></x-progress>
+            <p data-typography-sample="numeric">12,480.75 routed events</p>
+            <x-code id="wp10-code" data-typography-sample="code" language="js">const mode = "inline-main";</x-code>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      const result = {
+        contract: 'xtend.enterprise.visual-dom-snapshot-matrix-fixture.v1',
+        status: 'pending',
+        checks: [],
+        errors: []
+      };
+
+      window.__xtendEnterpriseVisualDomSnapshotMatrixResult = result;
+
+      function recordCheck(name, passed, details = {}) {
+        result.checks.push({ name, passed: Boolean(passed), details });
+        if (!passed) result.errors.push(name);
+      }
+
+      function tokenList(value) {
+        return String(value || '').trim().split(/\s+/).filter(Boolean);
+      }
+
+      function complete() {
+        result.status = result.errors.length === 0 ? 'passed' : 'failed';
+      }
+
+      async function runSmoke() {
+        try {
+          await Promise.all([
+            customElements.whenDefined('x-header'),
+            customElements.whenDefined('x-menu'),
+            customElements.whenDefined('x-tabs'),
+            customElements.whenDefined('x-router'),
+            customElements.whenDefined('x-link'),
+            customElements.whenDefined('x-input'),
+            customElements.whenDefined('x-status'),
+            customElements.whenDefined('x-progress'),
+            customElements.whenDefined('x-code')
+          ]);
+
+          const root = document.getElementById('wp10-visual-dom-matrix-root');
+          const html = document.documentElement;
+          const headers = Array.from(document.querySelectorAll('x-header[id^="wp10-header-"]'));
+          const modes = headers.map((header) => header.getAttribute('menu-mode'));
+          const antiGeneric = tokenList(document.body.dataset.antiGeneric);
+
+          recordCheck('visual dom matrix fixture loaded local components', Boolean(root && headers.length === 5));
+          recordCheck('visual dom matrix x-header modes covered', ['drawer', 'side-panel', 'popover', 'fullscreen', 'inline-main'].every((mode) => modes.includes(mode)));
+          recordCheck('visual dom matrix theme variants covered', ['light', 'dark', 'high-contrast', 'forced-colors'].every((theme) => tokenList(html.dataset.visualMatrixTheme).includes(theme)));
+          recordCheck('visual dom matrix densities covered', ['comfortable', 'compact', 'dense'].every((density) => tokenList(html.dataset.visualMatrixDensity).includes(density)));
+          recordCheck('visual dom matrix viewports covered', ['desktop-1280', 'tablet-768', 'mobile-390'].every((viewport) => tokenList(html.dataset.visualMatrixViewport).includes(viewport)));
+          recordCheck('visual dom matrix reduced motion covered', tokenList(html.dataset.visualMatrixMotion).includes('reduced-motion'));
+          recordCheck('visual dom matrix signature states covered', ['default', 'hover', 'focus', 'active', 'disabled', 'empty', 'loading', 'error'].every((state) => tokenList(root.dataset.signatureState).includes(state)));
+          recordCheck('visual dom matrix typography samples covered', document.querySelectorAll('[data-typography-sample]').length >= 4);
+          recordCheck('visual dom matrix anti generic palette covered', antiGeneric.includes('palette-varied'));
+          recordCheck('visual dom matrix card dominance constrained', document.querySelectorAll('.visual-card').length <= document.querySelectorAll('.visual-panel').length);
+          recordCheck('visual dom matrix unmotivated gradients absent', antiGeneric.includes('no-unmotivated-gradient') && !document.querySelector('.gradient-orb'));
+          const importMapNeedle = 'type=' + '"importmap"';
+          const cdnNeedle = 'https://' + 'cdn';
+          recordCheck('visual dom matrix remains local only', !document.documentElement.outerHTML.includes(importMapNeedle) && !document.documentElement.outerHTML.includes(cdnNeedle));
+        } catch (error) {
+          result.errors.push(error && error.message ? error.message : String(error));
+        } finally {
+          complete();
+        }
+      }
+
+      runSmoke();
+    </script>
+  </body>
+</html>

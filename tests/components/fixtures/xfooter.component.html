@@ -3,8 +3,25 @@
 <head>
   <meta charset="utf-8">
   <title>x-footer component fixture</title>
+  <style>
+    [data-xtend-layout-theme="enterprise-foreign"] x-footer {
+      --xtend-layout-surface: #f8f4ef;
+      --xtend-layout-text: #1e2420;
+      --xtend-layout-border-color: rgba(30, 36, 32, 0.2);
+      --xtend-layout-radius: 0.25rem;
+      --xtend-layout-elevation: 0 8px 24px rgba(30, 36, 32, 0.1);
+      --xtend-layout-spacing: 1.15rem;
+      --xtend-layout-gap: 0.85rem;
+      --xtend-layout-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-layout-font-size: 0.95rem;
+      --xtend-layout-media-radius: 0.15rem;
+      --xtend-layout-focus-ring: 3px solid #8f4f2a;
+      --xtend-layout-grid-min: minmax(11rem, 1fr);
+      --xtend-layout-content-max: 72rem;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-layout-theme="enterprise-foreign">
   <x-footer id="component-footer" logo-size="32">
     <span slot="title">Docs Footer</span>
     <a slot="nav" href="/legal">Legal</a>

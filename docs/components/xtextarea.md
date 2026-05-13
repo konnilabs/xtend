@@ -59,3 +59,40 @@ Das Control nutzt `role="textbox"` ueber die native Textarea, `aria-describedby`
 ## Form Controls UX ab WP-E11-08
 
 `<x-textarea>` stellt `xtendFormControlUxProfile` mit `xtend.component.form-control-ux-profile.v1` bereit. Das Profil verbindet Label, Hint, Error, `textarea-changed`, `textarea-invalid`, `xtextarea-value-<id>`, `ui.user-blocking.input`, Fabric-Lane `user-blocking` und RMT Shell Authoring.
+
+## ECH-WP-08 Form Theme/A11y Hardening
+
+`signatureDesign`: Enterprise-Schreibflaeche mit ruhiger Flaechenqualitaet, Live-Counter und getrennt themebaren Helper-/Error-Rollen.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-form-text` | Host-Textfarbe |
+| `--xtend-form-control-surface` | Textarea-Flaeche |
+| `--xtend-form-control-text` | Textarea-Text |
+| `--xtend-form-label-text` | Label |
+| `--xtend-form-helper-text` | Helper und Counter |
+| `--xtend-form-error-text` | Fehlertext |
+| `--xtend-form-error-surface` | Fehlerflaeche |
+| `--xtend-form-error-border` | Fehlerkante und Marker |
+| `--xtend-form-focus-ring` | Focus-Outline |
+| `--xtend-form-radius` | Textarea-/Error-Radius |
+| `--xtend-form-gap` | Meta- und Error-Abstand |
+| `--xtend-form-font-family` | Form-Typografie |
+| `--xtend-form-control-font-size` | Textarea-Schrift |
+| `--xtend-form-helper-font-size` | Helper/Error-Schrift |
+| `--xtend-form-icon-color` | Status-/Affordance-Fallback |
+
+Density-Profile: `comfortable`, `compact`, `dense`. Invalid/Error nutzt Kante, Ring und Marker statt ausschliesslich Farbe.
+
+```css
+[data-xtend-form-theme="enterprise-foreign"] x-textarea {
+  --xtend-form-control-surface: #fbf8f2;
+  --xtend-form-control-text: #16231f;
+  --xtend-form-label-text: #22312c;
+  --xtend-form-helper-text: #596861;
+  --xtend-form-error-text: #7d231c;
+  --xtend-form-error-border: #a64036;
+  --xtend-form-focus-ring: 3px solid #8f4f2a;
+  --xtend-form-radius: 0.35rem;
+}
+```

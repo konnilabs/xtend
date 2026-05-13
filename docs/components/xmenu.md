@@ -112,3 +112,47 @@ x-menu {
 ---
 
 *Letzte Aktualisierung: 7. Mai 2026*
+
+## ECH-WP-09 Token-Tabelle und Navigation States
+
+`signatureDesign`: `x-menu` nutzt eine ruhige Enterprise-Menueleiste mit klar sichtbarer aktiver Route, nicht farb-only Current-Indikator und frei ersetzbarer Typografie. Active/Current/Selected, Hover, Focus und Disabled muessen in Fremdthemes sichtbar bleiben.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-nav-surface` | Menue-Surface |
+| `--xtend-nav-text` | Menue- und Item-Text |
+| `--xtend-nav-border-color` | Menuekante |
+| `--xtend-nav-radius` | Menue- und Item-Radius |
+| `--xtend-nav-gap` | Abstand zwischen Navigationseintraegen |
+| `--xtend-nav-font-family` | Navigationstypografie |
+| `--xtend-nav-font-size` | Navigationstextgroesse |
+| `--xtend-nav-active-surface` | Active/Current/Selected Flaeche |
+| `--xtend-nav-active-text` | Active/Current/Selected Text |
+| `--xtend-nav-current-indicator` | nicht farb-only Route-Indikator |
+| `--xtend-nav-hover-surface` | Hover-Flaeche |
+| `--xtend-nav-focus-ring` | Tastaturfokus |
+| `--xtend-nav-disabled-opacity` | Disabled-Dimmung |
+
+## ECH-WP-09 Keyboard-Verhalten
+
+`ArrowRight`, `ArrowDown`, `ArrowLeft`, `ArrowUp`, `Home`, `End`, `Enter` und `Space` bleiben gatebar. Disabled Items werden nicht aktiviert und beim Roving Focus uebersprungen. Verschachtelte Menues duerfen Disclosure Controls nur mit Icon Controls wie `part="disclosure-icon control icon"` oder autorisierten `x-icon`-Elementen darstellen, nicht mit Textglyphen.
+
+## ECH-WP-09 Fremdtheme
+
+```css
+[data-xtend-nav-theme="enterprise-foreign"] x-menu {
+  --xtend-nav-surface: #f7f4ee;
+  --xtend-nav-text: #19231f;
+  --xtend-nav-border-color: rgba(25, 35, 31, 0.24);
+  --xtend-nav-radius: 0.4rem;
+  --xtend-nav-gap: 0.35rem;
+  --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+  --xtend-nav-font-size: 0.96rem;
+  --xtend-nav-active-surface: #173f35;
+  --xtend-nav-active-text: #fffaf0;
+  --xtend-nav-current-indicator: #b56b35;
+  --xtend-nav-hover-surface: rgba(181, 107, 53, 0.14);
+  --xtend-nav-focus-ring: 3px solid #b56b35;
+  --xtend-nav-disabled-opacity: 0.44;
+}
+```

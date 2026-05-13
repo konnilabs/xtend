@@ -1,3 +1,5 @@
+import './xicon.js';
+
 class XSidePanel extends HTMLElement {
   static get observedAttributes() {
     return [
@@ -158,9 +160,22 @@ class XSidePanel extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
+          --xtend-overlay-surface: var(--xtend-surface, #ffffff);
+          --xtend-overlay-text: var(--xtend-text, #111827);
+          --xtend-overlay-border-color: var(--xtend-border-color, #cbd5e1);
+          --xtend-overlay-elevation: var(--xtend-shadow-overlay, -18px 0 44px rgba(15, 23, 42, 0.16));
+          --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(15, 23, 42, 0.38));
+          --xtend-overlay-focus-ring: 2px solid var(--xtend-focus-color, var(--xtend-color-primary, #2563eb));
+          --xtend-overlay-z: var(--surface-overlay-z, var(--side-panel-z, 1));
           --side-panel-width: 320px;
           --side-panel-height: 100%;
           --side-panel-z: 1;
+          --side-panel-bg: var(--xtend-overlay-surface);
+          --side-panel-color: var(--xtend-overlay-text);
+          --side-panel-border: var(--xtend-overlay-border-color);
+          --side-panel-shadow: var(--xtend-overlay-elevation);
+          --side-panel-backdrop: var(--xtend-overlay-backdrop);
+          --side-panel-focus: var(--xtend-focus-color, var(--xtend-color-primary, #2563eb));
           --surface-layout-x: 0px;
           --surface-layout-y: 0px;
           display: none;
@@ -168,10 +183,10 @@ class XSidePanel extends HTMLElement {
           inset-block: 0;
           inline-size: var(--side-panel-width);
           block-size: var(--side-panel-height);
-          z-index: var(--side-panel-z);
+          z-index: var(--xtend-overlay-z);
           min-inline-size: 0;
           min-block-size: 0;
-          color: var(--side-panel-color, #111827);
+          color: var(--side-panel-color);
         }
         :host([open]) {
           display: block;
@@ -214,7 +229,7 @@ class XSidePanel extends HTMLElement {
           position: fixed;
           inset: 0;
           display: none;
-          background: rgba(15, 23, 42, 0.38);
+          background: var(--side-panel-backdrop);
         }
         :host([mode="overlay"]) .scrim,
         :host([modal]) .scrim {
@@ -230,9 +245,9 @@ class XSidePanel extends HTMLElement {
           min-height: 0;
           flex-direction: column;
           overflow: hidden;
-          border: 1px solid var(--side-panel-border, #cbd5e1);
-          background: var(--side-panel-bg, #ffffff);
-          box-shadow: var(--side-panel-shadow, -18px 0 44px rgba(15, 23, 42, 0.16));
+          border: 1px solid var(--side-panel-border);
+          background: var(--side-panel-bg);
+          box-shadow: var(--side-panel-shadow);
           transition: width 160ms ease, height 160ms ease, transform 160ms ease;
         }
         :host([placement="left"]) .panel {
@@ -259,7 +274,7 @@ class XSidePanel extends HTMLElement {
           background: var(--side-panel-chrome, #f8fafc);
         }
         header:focus-visible {
-          outline: 2px solid var(--side-panel-focus, #2563eb);
+          outline: var(--xtend-overlay-focus-ring);
           outline-offset: -2px;
         }
         .title {
@@ -294,6 +309,9 @@ class XSidePanel extends HTMLElement {
           color: inherit;
           font: 700 0.75rem/1 system-ui, sans-serif;
           cursor: pointer;
+        }
+        button x-icon {
+          pointer-events: none;
         }
         button:hover,
         button:focus-visible {
@@ -376,14 +394,20 @@ class XSidePanel extends HTMLElement {
           }
         }
       </style>
-      <div class="scrim" part="scrim" data-action="close"></div>
-      <aside class="panel" part="root surface" role="complementary" aria-labelledby="title" aria-expanded="true">
+      <div class="scrim" part="backdrop scrim" data-action="close"></div>
+      <aside class="panel" part="root surface overlay-surface" role="complementary" aria-labelledby="title" aria-expanded="true">
         <header part="header" tabindex="0">
           <span id="title" class="title" part="title"></span>
           <span class="actions" part="actions">
-            <button type="button" data-action="pin" aria-label="Pin panel">P</button>
-            <button type="button" data-action="collapse" aria-label="Collapse panel">&lt;</button>
-            <button type="button" data-action="close" aria-label="Close panel">x</button>
+            <button type="button" data-action="pin" part="pin control" aria-label="Pin panel">
+              <x-icon name="pin" decorative size="1rem" part="pin-icon control icon"></x-icon>
+            </button>
+            <button type="button" data-action="collapse" part="collapse control" aria-label="Collapse panel">
+              <x-icon name="chevron-left" decorative size="1rem" part="collapse-icon control icon"></x-icon>
+            </button>
+            <button type="button" data-action="close" part="close control" aria-label="Close panel">
+              <x-icon name="close" decorative size="1rem" part="close-icon control icon"></x-icon>
+            </button>
           </span>
         </header>
         <div class="content" part="content"><slot></slot></div>
@@ -395,6 +419,7 @@ class XSidePanel extends HTMLElement {
     this._title = this.shadowRoot.querySelector('#title');
     this._resizeHandle = this.shadowRoot.querySelector('.resize');
     this._collapseButton = this.shadowRoot.querySelector('[data-action="collapse"]');
+    this._collapseIcon = this.shadowRoot.querySelector('[data-action="collapse"] x-icon');
     this._pinButton = this.shadowRoot.querySelector('[data-action="pin"]');
   }
 
@@ -591,11 +616,13 @@ class XSidePanel extends HTMLElement {
     this._panel.setAttribute('aria-hidden', this.hasAttribute('open') ? 'false' : 'true');
     this._panel.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
     if (this._collapseButton) this._collapseButton.setAttribute('aria-label', collapsed ? 'Expand panel' : 'Collapse panel');
+    if (this._collapseIcon) this._collapseIcon.setAttribute('name', collapsed ? 'chevron-right' : 'chevron-left');
     if (this._pinButton) this._pinButton.setAttribute('aria-pressed', this.hasAttribute('pinned') ? 'true' : 'false');
   }
 
   _handleActionClick(event) {
-    const action = event.target && event.target.getAttribute && event.target.getAttribute('data-action');
+    const control = event.target && event.target.closest && event.target.closest('button[data-action]');
+    const action = control && control.getAttribute('data-action');
     if (!action) return;
     event.preventDefault();
     if (action === 'close') this.closePanel('button');

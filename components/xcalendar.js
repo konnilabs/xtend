@@ -1,4 +1,5 @@
 import { xstate } from './xstate.js';
+import './xicon.js';
 
 class XCalendar extends HTMLElement {
   static formAssociated = true;
@@ -117,9 +118,16 @@ class XCalendar extends HTMLElement {
         .header button {
           background: none;
           border: none;
-          font-size: 1.2em;
           cursor: pointer;
           color: var(--text-color, #000);
+          inline-size: 2rem;
+          block-size: 2rem;
+          display: inline-grid;
+          place-items: center;
+          padding: 0;
+        }
+        .header button x-icon {
+          pointer-events: none;
         }
         .grid {
           display: grid;
@@ -153,9 +161,13 @@ class XCalendar extends HTMLElement {
       </style>
       <div class="calendar" role="grid">
         <div class="header">
-          <button id="prev" aria-label="Previous Month">&lt;</button>
+          <button id="prev" part="previous control" aria-label="Previous Month">
+            <x-icon name="chevron-left" part="previous-icon control icon" decorative size="1rem"></x-icon>
+          </button>
           <div id="monthLabel"></div>
-          <button id="next" aria-label="Next Month">&gt;</button>
+          <button id="next" part="next control" aria-label="Next Month">
+            <x-icon name="chevron-right" part="next-icon control icon" decorative size="1rem"></x-icon>
+          </button>
         </div>
         <div class="grid" id="days"></div>
       </div>

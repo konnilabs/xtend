@@ -179,23 +179,37 @@ class XTooltip extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
+          --xtend-overlay-surface: var(--xtend-surface-inverse, #111827);
+          --xtend-overlay-text: var(--xtend-text-inverse, #ffffff);
+          --xtend-overlay-elevation: var(--xtend-shadow-overlay, 0 10px 24px rgba(15, 23, 42, 0.22));
+          --xtend-overlay-radius: var(--xtend-radius, 4px);
+          --xtend-overlay-z: var(--surface-overlay-tooltip-z, 2147483600);
+          --xtooltip-bg: var(--tooltip-bg, var(--xtend-overlay-surface));
+          --xtooltip-color: var(--tooltip-color, var(--xtend-overlay-text));
+          --xtooltip-shadow: var(--tooltip-shadow, var(--xtend-overlay-elevation));
+          --xtooltip-radius: var(--tooltip-radius, var(--xtend-overlay-radius));
+          --xtooltip-font: var(--tooltip-font, 0.875rem/1.4 system-ui, sans-serif);
           display: inline-block;
           position: relative;
-          color: var(--text-color, #111827);
+          color: var(--xtend-text, var(--text-color, #111827));
         }
         .trigger {
           display: inline-flex;
         }
+        .backdrop,
+        .close-sentinel {
+          display: none;
+        }
         .tooltip {
           position: absolute;
-          z-index: 2147483600;
+          z-index: var(--xtend-overlay-z);
           max-width: min(18rem, 80vw);
           padding: 0.5rem 0.625rem;
-          border-radius: var(--tooltip-radius, 4px);
-          background: var(--tooltip-bg, #111827);
-          color: var(--tooltip-color, #ffffff);
-          box-shadow: var(--tooltip-shadow, 0 10px 24px rgba(15, 23, 42, 0.22));
-          font: var(--tooltip-font, 0.875rem/1.4 system-ui, sans-serif);
+          border-radius: var(--xtooltip-radius);
+          background: var(--xtooltip-bg);
+          color: var(--xtooltip-color);
+          box-shadow: var(--xtooltip-shadow);
+          font: var(--xtooltip-font);
           opacity: 0;
           pointer-events: none;
           transform: translateY(2px);
@@ -264,7 +278,9 @@ class XTooltip extends HTMLElement {
         }
       </style>
       <span class="trigger" part="trigger"><slot name="trigger"></slot></span>
-      <div id="tooltip" class="tooltip" part="root surface content" role="tooltip" aria-hidden="true">
+      <span class="backdrop" part="backdrop" aria-hidden="true"></span>
+      <span class="close-sentinel" part="close" aria-hidden="true"></span>
+      <div id="tooltip" class="tooltip" part="root surface overlay-surface content" role="tooltip" aria-hidden="true">
         <slot></slot>
       </div>
     `;

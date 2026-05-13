@@ -1,0 +1,120 @@
+{
+  "schema": "xtend.enterprise.visual-dom-snapshot-matrix-dom-baseline.v1",
+  "matrixSchema": "xtend.enterprise.visual-dom-snapshot-matrix.v1",
+  "recordSchema": "xtend.enterprise.visual-dom-snapshot-matrix-record.v1",
+  "fixtureSchema": "xtend.enterprise.visual-dom-snapshot-matrix-fixture.v1",
+  "workpackage": "ECH-WP-10",
+  "fixture": "tests/browser/fixtures/enterprise-visual-dom-snapshot-matrix.html",
+  "binaryBaselines": false,
+  "optionalScreenshotBaselines": true,
+  "snapshotCount": 5,
+  "headerModeCount": 5,
+  "matrixCombinationCount": 360,
+  "records": [
+    {
+      "schema": "xtend.enterprise.visual-dom-snapshot-matrix-record.v1",
+      "id": "x-header-drawer-signature-state",
+      "component": "x-header",
+      "menuMode": "drawer",
+      "root": "x-header#wp10-header-drawer[menu-mode=\"drawer\"]",
+      "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+      "densities": ["comfortable", "compact", "dense"],
+      "motionModes": ["default-motion", "reduced-motion"],
+      "viewports": ["desktop-1280", "tablet-768", "mobile-390"],
+      "signatureStates": ["default", "hover", "focus", "active", "disabled", "empty", "loading", "error"],
+      "typographySamples": ["long-label", "numeric", "code", "dense-navigation"],
+      "antiGenericChecks": ["palette-varied", "no-card-dominance", "no-unmotivated-gradient"],
+      "domAssertions": ["shadow-root-present", "menu-mode-attribute-present", "snapshot-menuMode-present", "trigger-icon-control-present", "active-current-selected-state-present", "focus-risk-visible", "contrast-risk-visible", "long-label-wrap-present"],
+      "capturePolicy": {
+        "mode": "deterministic-dom-baseline",
+        "fixture": "tests/browser/fixtures/enterprise-visual-dom-snapshot-matrix.html",
+        "binaryBaselines": false,
+        "optionalScreenshotBaseline": true
+      }
+    },
+    {
+      "schema": "xtend.enterprise.visual-dom-snapshot-matrix-record.v1",
+      "id": "x-header-side-panel-signature-state",
+      "component": "x-header",
+      "menuMode": "side-panel",
+      "root": "x-header#wp10-header-side-panel[menu-mode=\"side-panel\"]",
+      "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+      "densities": ["comfortable", "compact", "dense"],
+      "motionModes": ["default-motion", "reduced-motion"],
+      "viewports": ["desktop-1280", "tablet-768", "mobile-390"],
+      "signatureStates": ["default", "hover", "focus", "active", "disabled", "empty", "loading", "error"],
+      "typographySamples": ["long-label", "numeric", "code", "dense-navigation"],
+      "antiGenericChecks": ["palette-varied", "no-card-dominance", "no-unmotivated-gradient"],
+      "domAssertions": ["shadow-root-present", "menu-mode-attribute-present", "snapshot-menuMode-present", "trigger-icon-control-present", "active-current-selected-state-present", "focus-risk-visible", "contrast-risk-visible", "long-label-wrap-present"],
+      "capturePolicy": {
+        "mode": "deterministic-dom-baseline",
+        "fixture": "tests/browser/fixtures/enterprise-visual-dom-snapshot-matrix.html",
+        "binaryBaselines": false,
+        "optionalScreenshotBaseline": true
+      }
+    },
+    {
+      "schema": "xtend.enterprise.visual-dom-snapshot-matrix-record.v1",
+      "id": "x-header-popover-signature-state",
+      "component": "x-header",
+      "menuMode": "popover",
+      "root": "x-header#wp10-header-popover[menu-mode=\"popover\"]",
+      "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+      "densities": ["comfortable", "compact", "dense"],
+      "motionModes": ["default-motion", "reduced-motion"],
+      "viewports": ["desktop-1280", "tablet-768", "mobile-390"],
+      "signatureStates": ["default", "hover", "focus", "active", "disabled", "empty", "loading", "error"],
+      "typographySamples": ["long-label", "numeric", "code", "dense-navigation"],
+      "antiGenericChecks": ["palette-varied", "no-card-dominance", "no-unmotivated-gradient"],
+      "domAssertions": ["shadow-root-present", "menu-mode-attribute-present", "snapshot-menuMode-present", "trigger-icon-control-present", "active-current-selected-state-present", "focus-risk-visible", "contrast-risk-visible", "long-label-wrap-present"],
+      "capturePolicy": {
+        "mode": "deterministic-dom-baseline",
+        "fixture": "tests/browser/fixtures/enterprise-visual-dom-snapshot-matrix.html",
+        "binaryBaselines": false,
+        "optionalScreenshotBaseline": true
+      }
+    },
+    {
+      "schema": "xtend.enterprise.visual-dom-snapshot-matrix-record.v1",
+      "id": "x-header-fullscreen-signature-state",
+      "component": "x-header",
+      "menuMode": "fullscreen",
+      "root": "x-header#wp10-header-fullscreen[menu-mode=\"fullscreen\"]",
+      "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+      "densities": ["comfortable", "compact", "dense"],
+      "motionModes": ["default-motion", "reduced-motion"],
+      "viewports": ["desktop-1280", "tablet-768", "mobile-390"],
+      "signatureStates": ["default", "hover", "focus", "active", "disabled", "empty", "loading", "error"],
+      "typographySamples": ["long-label", "numeric", "code", "dense-navigation"],
+      "antiGenericChecks": ["palette-varied", "no-card-dominance", "no-unmotivated-gradient"],
+      "domAssertions": ["shadow-root-present", "menu-mode-attribute-present", "snapshot-menuMode-present", "trigger-icon-control-present", "active-current-selected-state-present", "focus-risk-visible", "contrast-risk-visible", "long-label-wrap-present"],
+      "capturePolicy": {
+        "mode": "deterministic-dom-baseline",
+        "fixture": "tests/browser/fixtures/enterprise-visual-dom-snapshot-matrix.html",
+        "binaryBaselines": false,
+        "optionalScreenshotBaseline": true
+      }
+    },
+    {
+      "schema": "xtend.enterprise.visual-dom-snapshot-matrix-record.v1",
+      "id": "x-header-inline-main-signature-state",
+      "component": "x-header",
+      "menuMode": "inline-main",
+      "root": "x-header#wp10-header-inline-main[menu-mode=\"inline-main\"]",
+      "themeVariants": ["light", "dark", "high-contrast", "forced-colors"],
+      "densities": ["comfortable", "compact", "dense"],
+      "motionModes": ["default-motion", "reduced-motion"],
+      "viewports": ["desktop-1280", "tablet-768", "mobile-390"],
+      "signatureStates": ["default", "hover", "focus", "active", "disabled", "empty", "loading", "error"],
+      "typographySamples": ["long-label", "numeric", "code", "dense-navigation"],
+      "antiGenericChecks": ["palette-varied", "no-card-dominance", "no-unmotivated-gradient"],
+      "domAssertions": ["shadow-root-present", "menu-mode-attribute-present", "snapshot-menuMode-present", "trigger-icon-control-present", "active-current-selected-state-present", "focus-risk-visible", "contrast-risk-visible", "long-label-wrap-present"],
+      "capturePolicy": {
+        "mode": "deterministic-dom-baseline",
+        "fixture": "tests/browser/fixtures/enterprise-visual-dom-snapshot-matrix.html",
+        "binaryBaselines": false,
+        "optionalScreenshotBaseline": true
+      }
+    }
+  ]
+}

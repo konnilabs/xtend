@@ -55,6 +55,11 @@ class XCards extends HTMLElement {
       lazyPolicy: "visible-hydrate",
       overflowPolicy: "no-page-overflow",
       aspectRatio: "card-content-driven",
+      signatureDesign: {
+        note: "Distinct enterprise card rhythm with tokenized glass, border, spacing and elevation instead of a generic SaaS card grid.",
+        tokenStrategy: "layout tokens feed grid width, gap, card surface, text, radius, typography, media radius, focus and hover elevation.",
+        themeExpectation: "external themes can flatten, sharpen, densify or rebrand the cards without component code changes."
+      },
       events: ["cards-layout"],
       commands: ["render", "measure", "layout", "snapshot"],
       stateKey: "xcards-state-<id>",
@@ -73,18 +78,21 @@ class XCards extends HTMLElement {
         :host {
           display: block;
           --card-columns: 3;
-          --card-gap: 2.2rem;
-          --card-max-width: 1200px;
+          --card-gap: var(--xtend-layout-gap, 2.2rem);
+          --card-max-width: var(--xtend-layout-content-max, 1200px);
+          --xtend-layout-grid-min: minmax(min(100%, 16rem), 1fr);
           /* margin und width entfernt, damit kein Overflow entsteht */
         }
         .grid {
           display: grid;
-          grid-template-columns: repeat(var(--card-columns), 1fr);
+          grid-template-columns: repeat(var(--card-columns), minmax(0, 1fr));
           gap: var(--card-gap);
           max-width: var(--card-max-width);
           width: 100%;
           margin: 0 auto;
           box-sizing: border-box;
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
         @media (max-width: 1024px) {
           .grid { grid-template-columns: repeat(2, 1fr); }
@@ -181,37 +189,58 @@ class XCard extends HTMLElement {
       <style>
         :host {
           display: block;
-          background: var(--card-bg, rgba(40,60,120,0.18));
-          border: none;
-          border-radius: var(--card-radius, 1.2em);
-          box-shadow: var(--card-shadow, 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08));
-          backdrop-filter: blur(14px);
-          padding: var(--card-padding, 2.2rem 2rem 2rem 2rem);
+          background: var(--card-bg, var(--xtend-layout-surface, rgba(40,60,120,0.18)));
+          border: var(--card-border, 1px solid var(--xtend-layout-border-color, rgba(255,255,255,0.14)));
+          border-radius: var(--card-radius, var(--xtend-layout-radius, 1.2em));
+          box-shadow: var(--card-shadow, var(--xtend-layout-elevation, 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08)));
+          backdrop-filter: var(--card-backdrop-filter, blur(14px));
+          padding: var(--card-padding, var(--xtend-layout-spacing, 2.2rem 2rem 2rem 2rem));
           transition: box-shadow 0.22s, transform 0.22s, background 0.22s;
-          color: var(--card-fg, #fff);
+          color: var(--card-fg, var(--xtend-layout-text, #fff));
+          font-family: var(--card-font-family, var(--xtend-layout-font-family, inherit));
+          font-size: var(--card-text-font-size, var(--xtend-layout-font-size, 1rem));
           overflow: hidden;
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
         :host(:hover), :host(:focus-within) {
-          box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
-          background: rgba(79,195,247,0.13);
+          box-shadow: var(--card-hover-shadow, var(--xtend-layout-elevation-hover, 0 8px 32px 0 rgba(31,38,135,0.18)));
+          background: var(--card-hover-bg, rgba(79,195,247,0.13));
           transform: translateY(-6px) scale(1.012);
         }
         :host(:focus-within) {
-          outline: 2.5px solid #4fc3f7;
+          outline: var(--xtend-layout-focus-ring, 2.5px solid var(--xtend-color-primary, #4fc3f7));
           outline-offset: 2px;
         }
         ::slotted(h3) {
           margin-top: 0;
-          font-size: var(--card-title-font-size, 1.35rem);
-          color: var(--card-title-color, #fff);
-          letter-spacing: 0.01em;
+          font-size: var(--card-title-font-size, var(--xtend-layout-heading-font-size, 1.35rem));
+          color: var(--card-title-color, var(--card-fg, var(--xtend-layout-text, #fff)));
+          letter-spacing: 0;
+          overflow-wrap: anywhere;
         }
         ::slotted(p) {
-          font-size: var(--card-text-font-size, 1.05rem);
-          color: var(--card-text-color, #e3e9f0);
+          font-size: var(--card-text-font-size, var(--xtend-layout-font-size, 1.05rem));
+          color: var(--card-text-color, var(--xtend-layout-muted-text, #e3e9f0));
+          overflow-wrap: anywhere;
         }
         ::slotted(a), ::slotted(button) {
           margin-top: 1.2em;
+        }
+        ::slotted(img),
+        ::slotted(video) {
+          border-radius: var(--card-media-radius, var(--xtend-layout-media-radius, var(--card-radius, 1.2em)));
+          max-width: 100%;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          :host { transition: none !important; }
+        }
+        @media (forced-colors: active) {
+          :host {
+            border: 1px solid CanvasText;
+            box-shadow: none;
+            forced-color-adjust: auto;
+          }
         }
       </style>
       <div part="item" role="listitem" tabindex="0">

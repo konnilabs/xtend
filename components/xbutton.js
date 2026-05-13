@@ -164,61 +164,84 @@ class XButton extends HTMLElement {
       <style>
         :host {
           display: inline-block;
+          --xtend-button-surface: var(--xtend-surface-control, var(--xtend-surface-panel, var(--xtend-surface-muted, ButtonFace)));
+          --xtend-button-text: var(--button-text-color, var(--xtend-text-primary, var(--xtend-text, ButtonText)));
+          --xtend-button-primary-surface: var(--xtend-color-action, var(--xtend-color-primary, Highlight));
+          --xtend-button-primary-text: var(--xtend-text-on-action, var(--xtend-color-accent, HighlightText));
+          --xtend-button-secondary-surface: var(--xtend-surface-inset, var(--xtend-surface-muted, ButtonFace));
+          --xtend-button-secondary-text: var(--xtend-text-primary, var(--xtend-text, ButtonText));
+          --xtend-button-danger-surface: var(--xtend-color-danger, var(--xtend-error-bg, Mark));
+          --xtend-button-danger-text: var(--xtend-error-fg, HighlightText);
+          --xtend-button-hover-surface: var(--xtend-color-action-subtle, var(--xtend-surface-inset, ButtonFace));
+          --xtend-button-radius: var(--xtend-radius-control, var(--xtend-radius, 0.6rem));
+          --xtend-button-padding-y: var(--xtend-space-1, 0.6em);
+          --xtend-button-padding-x: var(--xtend-space-3, 1.6em);
+          --xtend-button-gap: var(--xtend-space-control-gap, 0.6em);
+          --xtend-button-font-family: var(--xtend-font-family-control, var(--xtend-font-family, system-ui, sans-serif));
+          --xtend-button-font-size: var(--xtend-font-size-control, 1em);
+          --xtend-button-font-weight: var(--xtend-font-weight-control, 560);
+          --xtend-button-elevation: var(--xtend-elevation-1, none);
+          --xtend-button-hover-elevation: var(--xtend-elevation-2, var(--xtend-button-elevation));
+          --xtend-button-focus-outline: var(--xtend-focus-ring, var(--xtend-focus-outline, 2px solid Highlight));
+          --xtend-button-focus-elevation: var(--xtend-elevation-focus, none);
+          --xtend-button-motion-duration: var(--xtend-motion-duration-fast, 160ms);
+          --xtend-button-motion-easing: var(--xtend-motion-easing-standard, ease);
         }
         button {
           all: unset;
           position: relative;
-          background: rgba(40, 60, 120, 0.25);
-          color: var(--button-text-color, #fff);
-          border-radius: 1.2em;
-          padding: 0.6em 1.6em;
-          font-size: 1em;
-          font-weight: 500;
+          background: var(--xtend-button-surface);
+          color: var(--xtend-button-text);
+          border-radius: var(--xtend-button-radius);
+          padding: var(--xtend-button-padding-y) var(--xtend-button-padding-x);
+          font-family: var(--xtend-button-font-family);
+          font-size: var(--xtend-button-font-size);
+          font-weight: var(--xtend-button-font-weight);
           text-align: center;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 0.6em;
+          gap: var(--xtend-button-gap);
           box-sizing: border-box;
           min-width: var(--xtend-button-min-touch-target, 44px);
           min-height: var(--xtend-button-min-touch-target, 44px);
-          box-shadow: 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08);
-          backdrop-filter: blur(12px) saturate(1.2);
-          transition: background 0.25s cubic-bezier(.4,0,.2,1), box-shadow 0.25s, filter 0.2s;
+          box-shadow: var(--xtend-button-elevation);
+          backdrop-filter: blur(var(--xtend-glass-blur, 0px)) saturate(1.05);
+          transition: background var(--xtend-button-motion-duration) var(--xtend-button-motion-easing), box-shadow var(--xtend-button-motion-duration) var(--xtend-button-motion-easing), filter var(--xtend-button-motion-duration) var(--xtend-button-motion-easing);
           outline: none;
           border: none;
           overflow: hidden;
         }
         button.primary {
-          background: linear-gradient(135deg, rgba(0,123,255,0.35) 0%, rgba(0,123,255,0.18) 100%);
-          color: #fff;
+          background: var(--xtend-button-primary-surface);
+          color: var(--xtend-button-primary-text);
         }
         button.secondary {
-          background: linear-gradient(135deg, rgba(108,117,125,0.35) 0%, rgba(108,117,125,0.18) 100%);
-          color: #fff;
+          background: var(--xtend-button-secondary-surface);
+          color: var(--xtend-button-secondary-text);
         }
         button.danger {
-          background: linear-gradient(135deg, rgba(220,53,69,0.35) 0%, rgba(220,53,69,0.18) 100%);
-          color: #fff;
+          background: var(--xtend-button-danger-surface);
+          color: var(--xtend-button-danger-text);
         }
         button.small {
-          font-size: 0.85em;
-          padding: 0.3em 1em;
+          font-size: var(--xtend-button-small-font-size, 0.85em);
+          padding: var(--xtend-button-small-padding-y, 0.3em) var(--xtend-button-small-padding-x, 1em);
           min-height: var(--xtend-button-small-min-touch-target, 40px);
         }
         button.large {
-          font-size: 1.2em;
-          padding: 0.9em 2em;
+          font-size: var(--xtend-button-large-font-size, 1.2em);
+          padding: var(--xtend-button-large-padding-y, 0.9em) var(--xtend-button-large-padding-x, 2em);
         }
         button[aria-busy="true"] {
           pointer-events: none;
           opacity: 0.7;
         }
         button:focus-visible {
-          outline: 2.5px solid var(--focus-color, #80bfff);
-          outline-offset: 2px;
-          box-shadow: 0 0 0 4px rgba(0,123,255,0.12);
+          outline: var(--xtend-button-focus-outline);
+          outline-offset: var(--xtend-focus-outline-offset, 2px);
+          box-shadow: var(--xtend-button-focus-elevation);
         }
         button:disabled {
           opacity: 0.45;
@@ -227,9 +250,9 @@ class XButton extends HTMLElement {
         }
         button:hover:not(:disabled),
         button:active:not(:disabled) {
-          background: rgba(40,60,120,0.32);
-          box-shadow: 0 6px 32px 0 rgba(40,60,120,0.16), 0 2px 8px 0 rgba(40,60,120,0.10);
-          filter: brightness(1.08) saturate(1.1);
+          background: var(--xtend-button-hover-surface);
+          box-shadow: var(--xtend-button-hover-elevation);
+          filter: brightness(1.03) saturate(1.05);
         }
         .icon {
           display: inline-flex;
@@ -241,8 +264,8 @@ class XButton extends HTMLElement {
         .spinner {
           width: 1.2em; height: 1.2em;
           display: inline-block;
-          border: 2.5px solid rgba(255,255,255,0.18);
-          border-top: 2.5px solid var(--primary-color, #007bff);
+          border: 2.5px solid var(--xtend-border-subtle, ButtonText);
+          border-top: 2.5px solid var(--xtend-color-action, Highlight);
           border-radius: 50%;
           animation: spin 0.7s linear infinite;
           margin-left: 0.3em;

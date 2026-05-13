@@ -3,12 +3,35 @@
 <head>
   <meta charset="utf-8">
   <title>x-textarea component fixture</title>
+  <style>
+    [data-xtend-form-theme="enterprise-foreign"] {
+      --xtend-form-text: #16231f;
+      --xtend-form-control-surface: #fbf8f2;
+      --xtend-form-control-text: #16231f;
+      --xtend-form-label-text: #22312c;
+      --xtend-form-helper-text: #596861;
+      --xtend-form-error-text: #7d231c;
+      --xtend-form-error-surface: #fff1ed;
+      --xtend-form-error-border: #a64036;
+      --xtend-form-focus-ring: 3px solid #8f4f2a;
+      --xtend-form-radius: 0.35rem;
+      --xtend-form-gap: 0.35rem;
+      --xtend-form-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-form-control-font-size: 1rem;
+      --xtend-form-helper-font-size: 0.875rem;
+      --xtend-form-icon-color: #8f4f2a;
+    }
+  </style>
 </head>
-<body>
-  <x-textarea id="component-textarea" name="notes" value="Initial note" maxlength="240" rows="5" required>
+<body data-xtend-form-theme="enterprise-foreign">
+  <x-textarea id="component-textarea" name="notes" value="Initial note" maxlength="240" rows="5" required density="comfortable">
     <span slot="label">Notes</span>
     <span slot="hint">Keep the message concise.</span>
     <span slot="error">A note is required.</span>
+  </x-textarea>
+  <x-textarea id="component-textarea-dense" name="dense-notes" value="" maxlength="80" rows="3" density="dense" invalid>
+    <span slot="label">Dense notes</span>
+    <span slot="error">Dense notes are required.</span>
   </x-textarea>
   <script>
     window.__xtendComponentState = {};

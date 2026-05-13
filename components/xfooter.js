@@ -63,6 +63,11 @@ class XFooter extends HTMLElement {
       lazyPolicy: "visible-hydrate",
       overflowPolicy: "no-page-overflow",
       aspectRatio: "content-driven",
+      signatureDesign: {
+        note: "Composed enterprise footer with restrained surface contrast, logo-safe media slot and brand-neutral navigation rhythm.",
+        tokenStrategy: "layout tokens provide surface, text, border, radius, spacing, typography, media radius and elevation fallbacks.",
+        themeExpectation: "corporate themes can replace footer identity through XTend.css without inline color overrides."
+      },
       events: ["footer-ready", "theme-applied", "logo-loaded"],
       commands: ["render", "measure", "layout", "snapshot"],
       stateKey: "xfooter-state-<id>",
@@ -141,6 +146,18 @@ class XFooter extends HTMLElement {
       <style>
         :host {
           display: block;
+          color: var(--footer-fg, var(--xtend-layout-text, var(--xtend-text, #172033)));
+          font-family: var(--footer-font-family, var(--xtend-layout-font-family, var(--xtend-font-family-body, 'Inter', 'Segoe UI', Arial, sans-serif)));
+          font-size: var(--footer-font-size, var(--xtend-layout-font-size, 1rem));
+          --footer-grid-min: var(--xtend-layout-grid-min, minmax(10rem, 1fr));
+          --footer-content-max: var(--xtend-layout-content-max, 100%);
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+        }
+
+        :host([data-theme-dark]) {
+          color: var(--footer-fg, var(--xtend-layout-text, var(--xtend-text, #f2f5f9)));
         }
 
         footer {
@@ -148,11 +165,25 @@ class XFooter extends HTMLElement {
           flex-wrap: wrap;
           align-items: center;
           justify-content: space-between;
-          gap: 1rem;
-          padding: var(--footer-padding, 1rem);
-          background-color: var(--footer-bg, #333);
-          color: var(--footer-fg, white);
-          transition: background-color 0.3s ease, color 0.3s ease;
+          gap: var(--footer-gap, var(--xtend-layout-gap, 1rem));
+          padding: var(--footer-padding, var(--xtend-layout-spacing, 1rem));
+          background: var(--footer-bg, var(--xtend-layout-surface, var(--xtend-surface, #f7f8fb)));
+          color: inherit;
+          border: var(--footer-border, 1px solid var(--xtend-layout-border-color, rgba(15, 23, 42, 0.14)));
+          border-radius: var(--footer-radius, var(--xtend-layout-radius, var(--xtend-radius-panel, 0.85rem)));
+          box-shadow: var(--footer-shadow, var(--xtend-layout-elevation, var(--xtend-shadow-subtle, 0 10px 28px rgba(15, 23, 42, 0.08))));
+          font-family: inherit;
+          font-size: inherit;
+          overflow-wrap: anywhere;
+          max-width: var(--footer-content-max);
+          min-width: 0;
+          box-sizing: border-box;
+          transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        :host([data-theme-dark]) footer {
+          background: var(--footer-bg, var(--xtend-layout-surface, var(--xtend-surface, #12161f)));
+          border-color: var(--xtend-layout-border-color, rgba(255, 255, 255, 0.18));
         }
 
         :host([sticky]) {
@@ -161,6 +192,7 @@ class XFooter extends HTMLElement {
           left: 0;
           width: 100%;
           z-index: 100;
+          box-sizing: border-box;
         }
 
         .logo-container {
@@ -171,6 +203,8 @@ class XFooter extends HTMLElement {
           height: var(--footer-logo-size, 40px);
           overflow: hidden;
           flex-shrink: 0;
+          border-radius: var(--footer-logo-radius, var(--xtend-layout-media-radius, 50%));
+          background: var(--footer-logo-bg, var(--xtend-layout-media-surface, rgba(15, 23, 42, 0.06)));
         }
 
         .logo-container img,
@@ -181,28 +215,40 @@ class XFooter extends HTMLElement {
         }
 
         .title {
-          font-size: var(--footer-font-size, 1rem);
+          font-size: var(--footer-title-font-size, var(--xtend-layout-font-size, 1rem));
           font-weight: 500;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: var(--footer-title-gap, 0.5rem);
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         nav {
           display: flex;
           flex-wrap: wrap;
-          gap: 1em;
+          gap: var(--footer-nav-gap, var(--xtend-layout-gap, 1em));
+          min-width: 0;
         }
 
         .extra {
           flex-grow: 1;
           text-align: right;
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         ::slotted(a) {
           color: inherit;
           text-decoration: none;
-          padding: 0.25em 0.5em;
+          padding: var(--footer-link-padding, 0.25em 0.5em);
+          border-radius: var(--footer-link-radius, var(--xtend-layout-radius, 0.45rem));
+          overflow-wrap: anywhere;
+        }
+
+        ::slotted(a:focus-visible) {
+          outline: var(--xtend-layout-focus-ring, var(--xtend-focus-ring, 2.5px solid var(--xtend-color-primary, #4fc3f7)));
+          outline-offset: 2px;
         }
 
         @media (max-width: 600px) {
@@ -271,23 +317,8 @@ class XFooter extends HTMLElement {
   }
 
   applyTheme() {
-    const theme = document.documentElement.getAttribute("data-theme");
-    const isDark = theme === "dark";
-
-    const variables = isDark
-      ? {
-          "--footer-bg": "#121212",
-          "--footer-fg": "#f0f0f0"
-        }
-      : {
-          "--footer-bg": "#f5f5f5",
-          "--footer-fg": "#222222"
-        };
-
-    for (const key in variables) {
-      this.style.setProperty(key, variables[key]);
-    }
-
+    const theme = document.documentElement.getAttribute("data-theme") || "light";
+    this.toggleAttribute("data-theme-dark", theme === "dark");
     this.dispatchEvent(new CustomEvent("theme-applied", { detail: { theme } }));
   }
 

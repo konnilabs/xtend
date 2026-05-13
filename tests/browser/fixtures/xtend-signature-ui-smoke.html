@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en" data-contract="xtend.signature-ui.visual-quality.v1" data-theme="xtend-signature" data-density="comfortable">
+  <head>
+    <meta charset="utf-8">
+    <title>XTend Signature UI Visual Quality Smoke</title>
+    <meta
+      name="xtend-preload"
+      content="xstate,x-theme,x-icon,x-button,x-menu,x-header,x-drawer,x-side-panel,x-modal,x-popover,x-toast,x-input"
+    >
+    <style>
+      :root {
+        --xtend-color-primary: #0d7ea7;
+        --xtend-color-primary-dark: #075f80;
+        --xtend-surface: #f4f6f9;
+        --xtend-surface-muted: #e9edf3;
+        --xtend-text: #18212f;
+        --xtend-border-color: rgba(24, 33, 47, 0.14);
+        --xtend-border: 1px solid rgba(24, 33, 47, 0.14);
+        --xtend-focus-outline: 2px solid #0d7ea7;
+        --xtend-focus-outline-offset: 2px;
+        --xtend-radius: 10px;
+        --xtend-shadow: 0 18px 48px rgba(22, 27, 38, 0.16);
+        --xtend-motion-duration-fast: 140ms;
+        --xtend-motion-duration-base: 210ms;
+        --xtend-motion-scale: 1;
+        --xtend-signature-surface-page: #f4f6f9;
+        --xtend-signature-surface-raised: #fbfcfe;
+        --xtend-signature-surface-panel: #ffffff;
+        --xtend-signature-surface-inset: #edf1f6;
+        --xtend-signature-edge-subtle: rgba(24, 33, 47, 0.12);
+        --xtend-signature-edge-strong: rgba(24, 33, 47, 0.22);
+        --xtend-signature-ink: #18212f;
+        --xtend-signature-ink-muted: #536070;
+        --xtend-signature-accent: #0d7ea7;
+        --xtend-signature-accent-soft: rgba(13, 126, 167, 0.12);
+        --xtend-signature-shadow-control: 0 1px 2px rgba(22, 27, 38, 0.08);
+        --xtend-signature-shadow-panel: 0 18px 48px rgba(22, 27, 38, 0.16);
+        --xtend-signature-shadow-overlay: 0 28px 72px rgba(10, 16, 26, 0.24);
+        --xtend-radius-xs: 3px;
+        --xtend-radius-sm: 6px;
+        --xtend-radius-md: 10px;
+        --xtend-radius-lg: 14px;
+        --xtend-radius-panel: 12px;
+        --xtend-radius-control: 8px;
+        --xtend-font-family-body: "Aptos", "Inter", "Segoe UI", system-ui, sans-serif;
+        --xtend-font-family-heading: "Aptos Display", "Aptos", "Inter", "Segoe UI", system-ui, sans-serif;
+        --xtend-font-family-control: "Aptos", "Inter", "Segoe UI", system-ui, sans-serif;
+        --xtend-font-family-code: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+        --xtend-font-size-display: 2rem;
+        --xtend-font-size-heading-md: 1.125rem;
+        --xtend-font-size-body: 0.95rem;
+        --xtend-font-size-label: 0.8125rem;
+        --xtend-font-size-control: 0.925rem;
+        --xtend-font-size-caption: 0.75rem;
+        --xtend-line-height-heading: 1.22;
+        --xtend-line-height-body: 1.55;
+        --xtend-line-height-control: 1.2;
+        --xtend-font-weight-heading: 680;
+        --xtend-font-weight-body: 400;
+        --xtend-font-weight-label: 620;
+        --xtend-font-weight-control: 560;
+        --xtend-font-feature-numeric: "tnum" 1, "lnum" 1;
+      }
+
+      :root[data-density="compact"] {
+        --xtend-density-spacing: 0.5rem;
+        --xtend-control-height: 2.125rem;
+      }
+
+      :root[data-density="dense"] {
+        --xtend-density-spacing: 0.375rem;
+        --xtend-control-height: 1.875rem;
+      }
+
+      body {
+        margin: 0;
+        color: var(--xtend-text);
+        background:
+          linear-gradient(180deg, rgba(13, 126, 167, 0.08), transparent 18rem),
+          var(--xtend-signature-surface-page);
+        font-family: var(--xtend-font-family-body);
+        font-size: var(--xtend-font-size-body);
+        line-height: var(--xtend-line-height-body);
+      }
+
+      .signature-shell {
+        display: grid;
+        gap: 1rem;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+
+      .signature-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.8fr);
+        gap: 1rem;
+      }
+
+      .signature-panel {
+        border: var(--xtend-border);
+        border-radius: var(--xtend-radius-panel);
+        background: var(--xtend-signature-surface-panel);
+        box-shadow: var(--xtend-signature-shadow-control);
+        padding: 1rem;
+      }
+
+      .signature-panel[data-depth="raised"] {
+        background: var(--xtend-signature-surface-raised);
+        box-shadow: var(--xtend-signature-shadow-panel);
+      }
+
+      .signature-panel h2 {
+        margin: 0 0 0.75rem;
+        font-family: var(--xtend-font-family-heading);
+        font-size: var(--xtend-font-size-heading-md);
+        line-height: var(--xtend-line-height-heading);
+        font-weight: var(--xtend-font-weight-heading);
+      }
+
+      .signature-caption {
+        color: var(--xtend-signature-ink-muted);
+        font-size: var(--xtend-font-size-caption);
+        font-weight: var(--xtend-font-weight-label);
+      }
+
+      .signature-actions,
+      .signature-form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.625rem;
+        align-items: center;
+      }
+
+      .signature-corporate {
+        --corp-brand-primary: #5a2ca0;
+        --corp-surface-page: #f7f4fb;
+        --corp-surface-panel: #ffffff;
+        --corp-text-main: #231833;
+        --corp-radius-control: 6px;
+        --xtend-color-primary: var(--corp-brand-primary);
+        --xtend-surface: var(--corp-surface-page);
+        --xtend-signature-surface-raised: var(--corp-surface-panel);
+        --xtend-signature-accent: var(--corp-brand-primary);
+        --xtend-signature-accent-soft: rgba(90, 44, 160, 0.12);
+        --xtend-text: var(--corp-text-main);
+        --xtend-radius-control: var(--corp-radius-control);
+      }
+
+      @media (max-width: 760px) {
+        .signature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <script>
+      window.__xtendComponentState = {};
+      window.xstate = {
+        get(key) { return window.__xtendComponentState[key]; },
+        set(key, value) { window.__xtendComponentState[key] = value; },
+        subscribe() { return function unsubscribe() {}; }
+      };
+    </script>
+    <script type="module" src="/components/xstate.js"></script>
+    <script type="module" src="/components/xicon.js"></script>
+    <script type="module" src="/components/xbutton.js"></script>
+    <script type="module" src="/components/xmenu.js"></script>
+    <script type="module" src="/components/xheader.js"></script>
+    <script type="module" src="/components/xdrawer.js"></script>
+    <script type="module" src="/components/xsidepanel.js"></script>
+    <script type="module" src="/components/xmodal.js"></script>
+    <script type="module" src="/components/xpopover.js"></script>
+    <script type="module" src="/components/xtoast.js"></script>
+    <script type="module" src="/components/xinput.js"></script>
+  </head>
+  <body>
+    <main class="signature-shell" id="xtend-signature-root">
+      <x-header id="signature-header" logo-size="40" sticky>
+        <span slot="title">XTend Operations</span>
+        <form slot="search" role="search" aria-label="Search operations">
+          <input type="search" placeholder="Search incidents, routes, surfaces">
+        </form>
+        <x-button slot="actions" variant="primary" size="md">Deploy</x-button>
+        <x-button slot="actions" variant="neutral" size="md">Review</x-button>
+        <a slot="nav" href="#overview">Overview</a>
+        <a slot="nav" href="#surfaces">Surfaces</a>
+        <a slot="nav" href="#governance">Governance</a>
+      </x-header>
+
+      <section class="signature-grid">
+        <article class="signature-panel" data-depth="raised" data-signature-state="default focus active">
+          <h2>Signature command surface</h2>
+          <p>
+            Quiet precision, clear edge language, strong typography roles and action hierarchy.
+          </p>
+          <div class="signature-actions">
+            <x-button id="signature-primary" variant="primary" size="md">Approve schedule</x-button>
+            <x-button variant="secondary" size="md">Inspect lane</x-button>
+            <x-popover id="signature-popover" label="Context">
+              <button slot="trigger" type="button">Context</button>
+              <p>Compact contextual surface with precise edges.</p>
+            </x-popover>
+          </div>
+        </article>
+
+        <aside class="signature-panel" data-signature-state="empty loading error disabled">
+          <h2>Form rhythm</h2>
+          <div class="signature-form-row">
+            <x-input id="signature-input" name="release" required placeholder="Release train">
+              <span slot="label">Release train</span>
+              <span slot="helper">Uses label, control, helper and error typography roles.</span>
+              <span slot="error">Release train is required.</span>
+            </x-input>
+            <x-button variant="neutral" disabled>Disabled</x-button>
+          </div>
+          <p class="signature-caption">Numeric rhythm: <span style="font-variant-numeric: var(--xtend-font-feature-numeric);">12,480</span> events</p>
+        </aside>
+      </section>
+
+      <section class="signature-grid signature-corporate" data-theme="corporate-override">
+        <article class="signature-panel" data-depth="raised">
+          <h2>Corporate override</h2>
+          <p>
+            Corporate tokens alter color, radius and surface material while preserving XTend structure.
+          </p>
+          <x-menu id="signature-menu">
+            <a href="#overview">Overview</a>
+            <a href="#controls">Controls</a>
+            <a href="#theme">Theme bridge</a>
+          </x-menu>
+        </article>
+        <article class="signature-panel">
+          <h2>Overlay family</h2>
+          <x-drawer id="signature-drawer" label="Navigation drawer" placement="right" modal>
+            <button slot="trigger" type="button">Open drawer</button>
+            <strong slot="header">Navigation</strong>
+            <a href="#surfaces">Surface registry</a>
+            <a href="#policies">Policies</a>
+          </x-drawer>
+          <x-side-panel id="signature-side-panel" label="Inspector">
+            <button slot="trigger" type="button">Open inspector</button>
+            <p>Side panel signature shell.</p>
+          </x-side-panel>
+          <x-modal id="signature-modal" title="Confirm promotion" content="Promotion keeps signature hierarchy visible." overlay></x-modal>
+          <x-toast id="signature-toast" type="info" message="Signature feedback stays calm."></x-toast>
+        </article>
+      </section>
+    </main>
+
+    <script type="module">
+      const result = {
+        contract: 'xtend.signature-ui.visual-quality.v1',
+        status: 'pending',
+        checks: [],
+        errors: []
+      };
+
+      window.__xtendSignatureUiVisualQualityResult = result;
+
+      function recordCheck(name, passed, details = {}) {
+        result.checks.push({ name, passed: Boolean(passed), details });
+        if (!passed) result.errors.push(name);
+      }
+
+      function cssValue(property, target = document.documentElement) {
+        return getComputedStyle(target).getPropertyValue(property).trim();
+      }
+
+      async function runSmoke() {
+        await Promise.all([
+          customElements.whenDefined('x-header'),
+          customElements.whenDefined('x-button'),
+          customElements.whenDefined('x-menu'),
+          customElements.whenDefined('x-drawer'),
+          customElements.whenDefined('x-side-panel'),
+          customElements.whenDefined('x-modal'),
+          customElements.whenDefined('x-popover'),
+          customElements.whenDefined('x-input')
+        ]);
+
+        const root = document.getElementById('xtend-signature-root');
+        const header = document.getElementById('signature-header');
+        const corporate = document.querySelector('.signature-corporate');
+
+        recordCheck('signature fixture loaded local components', Boolean(header && root));
+        recordCheck('signature typography roles visible', Boolean(cssValue('--xtend-font-family-heading') && cssValue('--xtend-font-size-control')));
+        recordCheck('signature surface tokens visible', Boolean(cssValue('--xtend-signature-surface-raised') && cssValue('--xtend-signature-edge-subtle')));
+        recordCheck('signature interaction tokens visible', Boolean(cssValue('--xtend-motion-easing-standard') || cssValue('--xtend-motion-duration-fast')));
+        recordCheck('signature p0 components rendered', document.querySelectorAll('x-header, x-button, x-menu, x-drawer, x-side-panel, x-modal, x-popover, x-input').length >= 8);
+        recordCheck('corporate override keeps xtend bridge', corporate && cssValue('--xtend-color-primary', corporate) === 'var(--corp-brand-primary)');
+        recordCheck('signature visual states annotated', document.querySelectorAll('[data-signature-state]').length >= 2);
+        const importMapNeedle = 'type=' + '"importmap"';
+        const cdnNeedle = 'https://' + 'cdn';
+        recordCheck('signature avoids import maps and cdn', !document.documentElement.innerHTML.includes(importMapNeedle) && !document.documentElement.innerHTML.includes(cdnNeedle));
+
+        result.status = result.errors.length === 0 ? 'passed' : 'failed';
+      }
+
+      runSmoke().catch((error) => {
+        result.errors.push(error && error.message ? error.message : String(error));
+        result.status = 'failed';
+      });
+    </script>
+  </body>
+</html>

@@ -3,8 +3,30 @@
 <head>
   <meta charset="utf-8">
   <title>x-router component fixture</title>
+  <style>
+    [data-xtend-nav-theme="enterprise-foreign"] x-router {
+      --xtend-nav-surface: transparent;
+      --xtend-nav-text: #17231f;
+      --xtend-nav-border-color: rgba(23, 35, 31, 0.22);
+      --xtend-nav-radius: 0.35rem;
+      --xtend-nav-gap: 0.45rem;
+      --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-nav-font-size: 1rem;
+      --xtend-nav-active-surface: #173f35;
+      --xtend-nav-active-text: #fffaf0;
+      --xtend-nav-current-indicator: #b56b35;
+      --xtend-nav-hover-surface: rgba(181, 107, 53, 0.14);
+      --xtend-nav-focus-ring: 3px solid #b56b35;
+      --xtend-nav-disabled-opacity: 0.44;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-nav-theme="enterprise-foreign">
+  <nav aria-label="Router fixture navigation states">
+    <a href="#/" aria-current="page">Overview</a>
+    <button type="button" aria-selected="true">Lang benannte Route fuer Active Current Selected Zustand</button>
+    <button type="button" disabled>Disabled route action</button>
+  </nav>
   <x-router id="component-router" mode="hash">
     <x-route
       path="/"

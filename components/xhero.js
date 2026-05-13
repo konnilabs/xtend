@@ -1,4 +1,5 @@
 import { xstate } from './xstate.js';
+import './xicon.js';
 
 // <x-hero>
 class XHero extends HTMLElement {
@@ -52,6 +53,11 @@ class XHero extends HTMLElement {
       lazyPolicy: "visible-hydrate",
       overflowPolicy: "viewport-bounded",
       aspectRatio: "viewport-or-content",
+      signatureDesign: {
+        note: "Immersive enterprise hero with editorial depth, media-safe surfaces and tokenized title/content composition.",
+        tokenStrategy: "layout tokens back hero surface, text, overlay, content width, spacing, radius, media radius, focus and elevation.",
+        themeExpectation: "brands can move from quiet application hero to image-led campaign surface through CSS tokens and attributes."
+      },
       events: ["hero-rendered", "hero-animated"],
       commands: ["render", "measure", "layout", "snapshot"],
       stateKey: "xhero-state-<id>",
@@ -189,24 +195,10 @@ class XHero extends HTMLElement {
   applyTheme() {
     const theme = document.documentElement.getAttribute("data-theme") || "light";
     const themeSuffix = theme === "dark" ? "dark" : "light";
-    const vars = {
-      light: {
-        "--hero-bg": "#ffffff",
-        "--hero-text": "#000000",
-        "--overlay-color": "rgba(255, 255, 255, 0.18)",
-      },
-      dark: {
-        "--hero-bg": "#121212",
-        "--hero-text": "#ffffff",
-        "--overlay-color": "rgba(0, 0, 0, 0.42)",
-      },
-    };
-    const selected = vars[theme] || vars.light;
-
-    // Apply theme variables
-    for (const key in selected) {
-      this.shadowRoot.host.style.setProperty(key, selected[key]);
-    }
+    this.toggleAttribute("data-theme-dark", theme === "dark");
+    this.shadowRoot.host.style.removeProperty("--hero-bg");
+    this.shadowRoot.host.style.removeProperty("--hero-text");
+    this.shadowRoot.host.style.removeProperty("--overlay-color");
 
     const themedBackground = this.getAttribute(`background-${themeSuffix}`);
     if (themedBackground) {
@@ -235,7 +227,8 @@ class XHero extends HTMLElement {
 
   render() {
     const hasThemedBackground = this.hasAttribute("background-light") || this.hasAttribute("background-dark");
-    const bg = hasThemedBackground ? "var(--hero-bg)" : (this.getAttribute("background") || "var(--hero-bg)");
+    const heroSurface = "var(--hero-bg, var(--xtend-layout-surface, var(--xtend-layout-surface-default)))";
+    const bg = hasThemedBackground ? heroSurface : (this.getAttribute("background") || heroSurface);
     const bgImg = this.getAttribute("background-image") || "";
     const fullHeight = this.hasAttribute("fullheight");
     const overlay = this.hasAttribute("overlay");
@@ -251,17 +244,27 @@ class XHero extends HTMLElement {
     const style = `
       <style>
         :host {
-          --hero-bg: #ffffff;
-          --hero-text: #000000;
-          --hero-max-width: 900px;
-          --hero-radius: 1.2em;
-          --hero-blur: 14px;
-          --hero-shadow: 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08);
+          --xtend-layout-surface-default: #ffffff;
+          --xtend-layout-text-default: #000000;
+          --xtend-layout-overlay-default: rgba(255, 255, 255, 0.18);
+          --hero-max-width: var(--xtend-layout-content-max, 900px);
+          --hero-radius: var(--xtend-layout-radius, 1.2em);
+          --hero-media-radius: var(--xtend-layout-media-radius, var(--hero-radius));
+          --hero-blur: var(--xtend-layout-backdrop-blur, 14px);
+          --hero-shadow: var(--xtend-layout-elevation, 0 4px 24px 0 rgba(40,60,120,0.10), 0 1.5px 6px 0 rgba(40,60,120,0.08));
+          --hero-content-gap: var(--xtend-layout-gap, 1rem);
+          --hero-grid-min: var(--xtend-layout-grid-min, minmax(0, 1fr));
           display: block;
-          color: var(--hero-text);
+          color: var(--hero-text, var(--xtend-layout-text, var(--xtend-layout-text-default)));
+          font-family: var(--hero-font-family, var(--xtend-layout-font-family, inherit));
           max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
+        }
+        :host([data-theme-dark]) {
+          --xtend-layout-surface-default: #121212;
+          --xtend-layout-text-default: #ffffff;
+          --xtend-layout-overlay-default: rgba(0, 0, 0, 0.42);
         }
 
         .hero {
@@ -273,14 +276,14 @@ class XHero extends HTMLElement {
           justify-content: ${justify};
           align-items: ${alignItems};
           text-align: ${align};
-          padding: var(--hero-padding, 3.5rem 1.5rem 3.5rem 1.5rem);
+          padding: var(--hero-padding, var(--xtend-layout-spacing, 3.5rem 1.5rem 3.5rem 1.5rem));
           box-sizing: border-box;
           overflow: hidden;
           width: 100%;
           max-width: 100%;
           min-width: 0;
           margin: 0.5em 0 2.5em 0;
-          border-radius: var(--hero-radius);
+          border-radius: var(--hero-media-radius);
           box-shadow: var(--hero-shadow);
           backdrop-filter: blur(var(--hero-blur));
         }
@@ -294,7 +297,7 @@ class XHero extends HTMLElement {
         }
 
         .hero.has-bgimg {
-          background-color: rgba(40,60,120,0.10);
+          background-color: var(--hero-media-bg, var(--xtend-layout-media-surface, rgba(40,60,120,0.10)));
           box-shadow: none;
           backdrop-filter: none;
         }
@@ -305,9 +308,9 @@ class XHero extends HTMLElement {
           top: 0; left: 0;
           width: 100%;
           height: 100%;
-          background: var(--overlay-color, rgba(0, 0, 0, 0.4));
+          background: var(--overlay-color, var(--xtend-layout-overlay, var(--xtend-layout-overlay-default, rgba(0, 0, 0, 0.4))));
           z-index: 0;
-          border-radius: var(--hero-radius);
+          border-radius: var(--hero-media-radius);
         }
 
         .content {
@@ -317,16 +320,19 @@ class XHero extends HTMLElement {
           transform: translateY(20px);
           transition: opacity 0.6s ease-out, transform 0.6s ease-out;
           width: 100%;
-          max-width: var(--hero-content-max-width, 700px);
+          max-width: var(--hero-content-max-width, var(--xtend-layout-content-max, 700px));
           min-width: 0;
           margin: var(--hero-content-margin, 0 auto);
           font-size: var(--hero-font-size, clamp(1rem, 2.5vw, 2rem));
-          background: var(--hero-content-bg, rgba(255,255,255,0.10));
-          border-radius: var(--hero-content-radius, 1em);
-          box-shadow: var(--hero-content-shadow, 0 2px 8px rgba(40,60,120,0.10));
+          background: var(--hero-content-bg, var(--xtend-layout-surface, rgba(255,255,255,0.10)));
+          border-radius: var(--hero-content-radius, var(--xtend-layout-radius, 1em));
+          box-shadow: var(--hero-content-shadow, var(--xtend-layout-elevation, 0 2px 8px rgba(40,60,120,0.10)));
           backdrop-filter: var(--hero-content-backdrop-filter, blur(8px));
-          padding: var(--hero-content-padding, 2.2rem 2rem);
+          padding: var(--hero-content-padding, var(--xtend-layout-spacing, 2.2rem 2rem));
           box-sizing: border-box;
+          overflow-wrap: anywhere;
+          display: grid;
+          gap: var(--hero-content-gap);
         }
 
         .content.show {
@@ -339,9 +345,9 @@ class XHero extends HTMLElement {
           bottom: 1rem;
           left: 50%;
           transform: translateX(-50%);
-          background: var(--scroll-button-bg, rgba(0, 0, 0, 0.6));
-          color: var(--scroll-button-color, #fff);
-          border: none;
+          background: var(--scroll-button-bg, var(--xtend-layout-control-surface, rgba(0, 0, 0, 0.6)));
+          color: var(--scroll-button-color, var(--xtend-layout-control-text, #fff));
+          border: var(--scroll-button-border, 1px solid var(--xtend-layout-border-color, transparent));
           border-radius: 50%;
           width: 3rem;
           height: 3rem;
@@ -349,21 +355,29 @@ class XHero extends HTMLElement {
           justify-content: center;
           align-items: center;
           cursor: pointer;
-          font-size: 1.5rem;
+          font-size: var(--scroll-button-font-size, var(--xtend-layout-font-size, 1.5rem));
           z-index: 2;
-          transition: background 0.3s ease;
+          transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+        }
+        .scroll-button x-icon {
+          pointer-events: none;
         }
 
         .scroll-button:hover {
           background: var(--scroll-button-hover-bg, rgba(0, 0, 0, 0.8));
         }
 
+        .scroll-button:focus-visible {
+          outline: var(--xtend-layout-focus-ring, var(--xtend-focus-ring, 2.5px solid var(--xtend-color-primary, #4fc3f7)));
+          outline-offset: 2px;
+        }
+
         .hero-title-box {
           display: inline-block;
-          background: rgba(255,255,255,0.18);
-          box-shadow: 0 2px 8px rgba(40,60,120,0.10);
-          border-radius: 0.7em;
-          padding: 0.5em 1.2em;
+          background: var(--hero-title-bg, var(--xtend-layout-surface, rgba(255,255,255,0.18)));
+          box-shadow: var(--hero-title-shadow, var(--xtend-layout-elevation, 0 2px 8px rgba(40,60,120,0.10)));
+          border-radius: var(--hero-title-radius, var(--xtend-layout-radius, 0.7em));
+          padding: var(--hero-title-padding, 0.5em 1.2em);
           margin-bottom: 0.7em;
           backdrop-filter: blur(8px);
           font-weight: 700;
@@ -411,7 +425,7 @@ class XHero extends HTMLElement {
           <slot name="hero-title"></slot>
           <slot></slot>
         </div>
-        ${scrollButton ? `<button class="scroll-button" part="scroll-button" aria-label="Scroll down">↓</button>` : ""}
+        ${scrollButton ? `<button class="scroll-button" part="scroll-button control" aria-label="Scroll down"><x-icon name="chevron-down" part="scroll-icon control icon" decorative size="1.15rem"></x-icon></button>` : ""}
       </section>
     `;
 

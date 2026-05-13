@@ -520,14 +520,24 @@
       this.shadowRoot.innerHTML = `
         <style>
           :host {
-            --xmodal-overlay-bg: var(--xtend-overlay-bg, rgba(30, 34, 44, 0.55));
-            --xmodal-surface: var(--xtend-surface-muted, rgba(255,255,255,0.88));
-            --xmodal-text: var(--xtend-text, #1f2635);
+            --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(30, 34, 44, 0.55));
+            --xtend-overlay-surface: var(--xtend-surface-muted, rgba(255,255,255,0.88));
+            --xtend-overlay-text: var(--xtend-text, #1f2635);
+            --xtend-overlay-elevation: var(--xtend-shadow, 0 8px 32px 0 rgba(31, 38, 135, 0.18));
+            --xtend-overlay-radius: var(--xtend-radius, 18px);
+            --xtend-overlay-focus-ring: var(--xtend-focus-outline, 2px solid #4fc3f7);
+            --xtend-overlay-z: var(--surface-overlay-z, 2147483645);
+            --xmodal-overlay-bg: var(--modal-backdrop, var(--xmodal-backdrop, var(--xtend-overlay-backdrop)));
+            --xmodal-surface: var(--modal-surface, var(--xtend-overlay-surface));
+            --xmodal-text: var(--modal-text, var(--xtend-overlay-text));
             --xmodal-accent: var(--xtend-color-primary, #4fc3f7);
             --xmodal-accent-hover: var(--xtend-color-primary-dark, #0288d1);
-            --xmodal-shadow: var(--xtend-shadow, 0 8px 32px 0 rgba(31, 38, 135, 0.18));
-            --xmodal-radius: var(--xtend-radius, 18px);
-            --xmodal-focus-outline: var(--xtend-focus-outline, 2px solid #4fc3f7);
+            --xmodal-action-text: var(--modal-action-text, var(--xtend-on-primary, #ffffff));
+            --xmodal-close-bg: var(--modal-close-bg, rgba(255,255,255,0.12));
+            --xmodal-close-hover-bg: var(--modal-close-hover-bg, rgba(79,195,247,0.18));
+            --xmodal-shadow: var(--modal-shadow, var(--xtend-overlay-elevation));
+            --xmodal-radius: var(--modal-radius, var(--xtend-overlay-radius));
+            --xmodal-focus-outline: var(--modal-focus-outline, var(--xtend-overlay-focus-ring));
             font-family: var(--xtend-font-family, 'Inter', 'Segoe UI', Arial, sans-serif);
           }
           .x-modal-wrapper {
@@ -536,7 +546,7 @@
             display: ${state.open ? 'flex' : 'none'};
             align-items: center;
             justify-content: center;
-            z-index: var(--surface-overlay-z, 2147483645);
+            z-index: var(--xtend-overlay-z);
           }
           .x-modal-overlay {
             position: absolute;
@@ -581,7 +591,7 @@
           }
           .x-modal-btn {
             background: var(--xmodal-accent);
-            color: #fff;
+            color: var(--xmodal-action-text);
             border: none;
             border-radius: 999px;
             padding: 0.7em 1.4em;
@@ -600,7 +610,7 @@
             position: absolute;
             top: 1.2em;
             right: 1.2em;
-            background: rgba(255,255,255,0.12);
+            background: var(--xmodal-close-bg);
             border: none;
             color: var(--xmodal-text);
             cursor: pointer;
@@ -619,7 +629,7 @@
             outline-offset: 2px;
           }
           .x-modal-close:hover {
-            background: rgba(79,195,247,0.18);
+            background: var(--xmodal-close-hover-bg);
             color: var(--xmodal-accent);
             transform: scale(1.08);
           }
@@ -677,11 +687,11 @@
             }
           }
         </style>
-        <div class="x-modal-wrapper" part="root" role="presentation">
-          ${state.overlay ? '<div class="x-modal-overlay" part="overlay" tabindex="-1" aria-hidden="true"></div>' : ''}
-          <div class="x-modal" part="surface" role="dialog" aria-modal="true" aria-hidden="${state.open ? 'false' : 'true'}" tabindex="0">
-            <button class="x-modal-close" part="close" type="button" aria-label="Schliessen">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <div class="x-modal-wrapper" part="root overlay-root" role="presentation">
+          ${state.overlay ? '<div class="x-modal-overlay" part="backdrop overlay" tabindex="-1" aria-hidden="true"></div>' : ''}
+          <div class="x-modal" part="surface overlay-surface" role="dialog" aria-modal="true" aria-hidden="${state.open ? 'false' : 'true'}" tabindex="0">
+            <button class="x-modal-close" part="close control" type="button" aria-label="Schliessen">
+              <svg part="close-icon control icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.10)"></circle>
                 <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
               </svg>

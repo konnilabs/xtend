@@ -3,12 +3,30 @@
 <head>
   <meta charset="utf-8">
   <title>x-cards component fixture</title>
+  <style>
+    [data-xtend-layout-theme="enterprise-foreign"] x-cards,
+    [data-xtend-layout-theme="enterprise-foreign"] x-card {
+      --xtend-layout-surface: #f8f4ef;
+      --xtend-layout-text: #1b2823;
+      --xtend-layout-border-color: rgba(27, 40, 35, 0.18);
+      --xtend-layout-radius: 0.3rem;
+      --xtend-layout-elevation: 0 12px 30px rgba(27, 40, 35, 0.12);
+      --xtend-layout-spacing: 1.35rem;
+      --xtend-layout-gap: 1.1rem;
+      --xtend-layout-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-layout-font-size: 1rem;
+      --xtend-layout-media-radius: 0.25rem;
+      --xtend-layout-focus-ring: 3px solid #8f4f2a;
+      --xtend-layout-grid-min: minmax(15rem, 1fr);
+      --xtend-layout-content-max: 74rem;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-layout-theme="enterprise-foreign">
   <x-cards id="component-cards" columns="3" gap="1rem">
-    <article>Card one</article>
-    <article>Card two</article>
-    <article>Card three</article>
+    <x-card><h3>Card one</h3><p>Foreign theme content</p></x-card>
+    <x-card><h3>Card two</h3><p>Long label content stays wrapped inside the card.</p></x-card>
+    <x-card><h3>Card three</h3><p>Enterprise composition</p></x-card>
   </x-cards>
   <script>
     window.__xtendComponentState = {};

@@ -3,15 +3,38 @@
 <head>
   <meta charset="utf-8">
   <title>x-radio component fixture</title>
+  <style>
+    [data-xtend-form-theme="enterprise-foreign"] {
+      --xtend-form-text: #16231f;
+      --xtend-form-control-surface: #fbf8f2;
+      --xtend-form-control-text: #16231f;
+      --xtend-form-label-text: #22312c;
+      --xtend-form-helper-text: #596861;
+      --xtend-form-error-text: #7d231c;
+      --xtend-form-error-surface: #fff1ed;
+      --xtend-form-error-border: #a64036;
+      --xtend-form-focus-ring: 3px solid #8f4f2a;
+      --xtend-form-radius: 0.35rem;
+      --xtend-form-gap: 0.35rem;
+      --xtend-form-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-form-control-font-size: 1rem;
+      --xtend-form-helper-font-size: 0.875rem;
+      --xtend-form-icon-color: #8f4f2a;
+    }
+  </style>
 </head>
-<body>
-  <x-radio id="component-radio-starter" name="plan" value="starter">
+<body data-xtend-form-theme="enterprise-foreign">
+  <x-radio id="component-radio-starter" name="plan" value="starter" density="compact">
     <span slot="label">Starter</span>
     <span slot="hint">Small team baseline.</span>
   </x-radio>
-  <x-radio id="component-radio-pro" name="plan" value="pro" checked required>
+  <x-radio id="component-radio-pro" name="plan" value="pro" checked required density="comfortable">
     <span slot="label">Pro</span>
     <span slot="error">Select a plan.</span>
+  </x-radio>
+  <x-radio id="component-radio-dense" name="plan" value="enterprise" density="dense" invalid>
+    <span slot="label">Enterprise dense</span>
+    <span slot="error">Select an enterprise plan.</span>
   </x-radio>
   <script>
     window.__xtendComponentState = {};

@@ -33,6 +33,7 @@
   const THEME_PERFORMANCE_SNAPSHOT_SCHEMA = 'xtend.theme.performance-snapshot.v1';
   const DESIGN_TOKEN_CONTRACT_SCHEMA = 'xtend.design-tokens.product-contract.v1';
   const DESIGN_TOKEN_PACK_SCHEMA = 'xtend.design-tokens.pack.v1';
+  const XTHEME_TOKEN_ALIAS_LAYER_SCHEMA = 'xtend.theme.token-alias-layer.v1';
   const MOTION_CONTRAST_POLICY_SCHEMA = 'xtend.a11y.motion-contrast-policy.v1';
   const MOTION_POLICY_SCHEMA = 'xtend.a11y.motion-policy.v1';
   const CONTRAST_POLICY_SCHEMA = 'xtend.a11y.contrast-policy.v1';
@@ -49,6 +50,104 @@
     'white-space:nowrap',
     'border:0'
   ].join(';');
+  const XTHEME_ALIAS_GLOBAL_TOKENS = Object.freeze({
+    '--xtend-color-action': 'var(--xtend-color-primary, Highlight)',
+    '--xtend-color-action-hover': 'var(--xtend-color-primary-dark, Highlight)',
+    '--xtend-color-action-subtle': 'var(--xtend-signature-accent-soft, color-mix(in srgb, var(--xtend-color-primary, Highlight) 14%, transparent))',
+    '--xtend-color-danger': 'var(--xtend-error-bg, Mark)',
+    '--xtend-color-warning': 'var(--xtend-warning-bg, Mark)',
+    '--xtend-color-success': 'var(--xtend-success-bg, Mark)',
+    '--xtend-surface-page': 'var(--xtend-surface, Canvas)',
+    '--xtend-surface-panel': 'var(--xtend-surface-muted, Canvas)',
+    '--xtend-surface-raised': 'var(--xtend-signature-surface-raised, var(--xtend-surface-muted, Canvas))',
+    '--xtend-surface-inset': 'var(--xtend-signature-surface-inset, var(--xtend-surface, Canvas))',
+    '--xtend-surface-overlay': 'var(--xtend-overlay-bg, Canvas)',
+    '--xtend-surface-control': 'var(--xtend-signature-surface-panel, var(--xtend-surface-muted, ButtonFace))',
+    '--xtend-text-primary': 'var(--xtend-text, CanvasText)',
+    '--xtend-text-muted': 'var(--xtend-signature-ink-muted, var(--xtend-text, CanvasText))',
+    '--xtend-text-inverse': 'var(--xtend-color-accent, HighlightText)',
+    '--xtend-text-on-action': 'var(--xtend-color-accent, HighlightText)',
+    '--xtend-border-subtle': 'var(--xtend-signature-edge-subtle, var(--xtend-border-color, CanvasText))',
+    '--xtend-border-strong': 'var(--xtend-signature-edge-strong, var(--xtend-border-color, CanvasText))',
+    '--xtend-focus-ring': 'var(--xtend-focus-outline, 2px solid Highlight)',
+    '--xtend-space-1': 'calc(var(--xtend-density-spacing, 0.75rem) * 0.5)',
+    '--xtend-space-2': 'var(--xtend-density-spacing, 0.75rem)',
+    '--xtend-space-3': 'calc(var(--xtend-density-spacing, 0.75rem) * 1.5)',
+    '--xtend-space-4': 'calc(var(--xtend-density-spacing, 0.75rem) * 2)',
+    '--xtend-space-control-gap': 'calc(var(--xtend-density-spacing, 0.75rem) * 0.8)',
+    '--xtend-radius-xs': '3px',
+    '--xtend-radius-sm': '6px',
+    '--xtend-radius-md': 'var(--xtend-radius, 10px)',
+    '--xtend-radius-lg': '14px',
+    '--xtend-radius-panel': 'var(--xtend-radius-md, var(--xtend-radius, 10px))',
+    '--xtend-radius-control': 'var(--xtend-radius-sm, 6px)',
+    '--xtend-elevation-0': 'none',
+    '--xtend-elevation-1': 'var(--xtend-signature-shadow-control, 0 1px 2px rgba(22, 27, 38, 0.08))',
+    '--xtend-elevation-2': 'var(--xtend-signature-shadow-panel, var(--xtend-shadow, 0 12px 32px rgba(22, 27, 38, 0.14)))',
+    '--xtend-elevation-3': 'var(--xtend-signature-shadow-overlay, 0 28px 72px rgba(10, 16, 26, 0.24))',
+    '--xtend-elevation-focus': '0 0 0 3px color-mix(in srgb, var(--xtend-color-primary, Highlight) 22%, transparent)',
+    '--xtend-font-family-body': 'var(--xtend-font-family, system-ui, sans-serif)',
+    '--xtend-font-family-heading': 'var(--xtend-font-family-body)',
+    '--xtend-font-family-control': 'var(--xtend-font-family-body)',
+    '--xtend-font-size-body': '0.95rem',
+    '--xtend-font-size-label': '0.8125rem',
+    '--xtend-font-size-control': '0.925rem',
+    '--xtend-font-weight-control': '560',
+    '--xtend-font-weight-label': '620',
+    '--xtend-motion-duration-instant': '80ms',
+    '--xtend-motion-easing-standard': 'cubic-bezier(0.2, 0, 0, 1)',
+    '--xtend-motion-easing-enter': 'cubic-bezier(0.16, 1, 0.3, 1)',
+    '--xtend-motion-easing-exit': 'cubic-bezier(0.4, 0, 1, 1)'
+  });
+  const XTHEME_ALIAS_COMPONENT_TOKENS = Object.freeze({
+    '--xtend-theme-surface': 'var(--xtend-surface-page)',
+    '--xtend-theme-text': 'var(--xtend-text-primary)',
+    '--xtend-header-surface': 'var(--xtend-surface-panel)',
+    '--xtend-header-text': 'var(--xtend-text-primary)',
+    '--xtend-header-border-color': 'var(--xtend-border-subtle)',
+    '--xtend-header-radius': 'var(--xtend-radius-panel)',
+    '--xtend-header-elevation': 'var(--xtend-elevation-1)',
+    '--xtend-button-surface': 'var(--xtend-surface-control)',
+    '--xtend-button-text': 'var(--xtend-text-primary)',
+    '--xtend-button-primary-surface': 'var(--xtend-color-action)',
+    '--xtend-button-primary-text': 'var(--xtend-text-on-action)',
+    '--xtend-button-secondary-surface': 'var(--xtend-surface-inset)',
+    '--xtend-button-danger-surface': 'var(--xtend-color-danger)',
+    '--xtend-button-radius': 'var(--xtend-radius-control)',
+    '--xtend-button-elevation': 'var(--xtend-elevation-1)',
+    '--xtend-menu-surface': 'var(--xtend-surface-panel)',
+    '--xtend-menu-text': 'var(--xtend-text-primary)',
+    '--xtend-menu-radius': 'var(--xtend-radius-panel)',
+    '--xtend-menu-elevation': 'var(--xtend-elevation-1)',
+    '--xtend-menu-item-surface': 'transparent',
+    '--xtend-menu-item-hover-surface': 'var(--xtend-color-action-subtle)',
+    '--xtend-menu-item-text': 'var(--xtend-text-primary)',
+    '--xtend-drawer-surface': 'var(--xtend-surface-panel)',
+    '--xtend-drawer-text': 'var(--xtend-text-primary)',
+    '--xtend-drawer-border': 'var(--xtend-border-subtle)',
+    '--xtend-drawer-elevation': 'var(--xtend-elevation-3)',
+    '--xtend-drawer-overlay-surface': 'var(--xtend-surface-overlay)',
+    '--xtend-side-panel-surface': 'var(--xtend-surface-panel)',
+    '--xtend-side-panel-text': 'var(--xtend-text-primary)',
+    '--xtend-side-panel-border': 'var(--xtend-border-subtle)',
+    '--xtend-side-panel-elevation': 'var(--xtend-elevation-2)',
+    '--xtend-modal-surface': 'var(--xtend-surface-raised)',
+    '--xtend-modal-text': 'var(--xtend-text-primary)',
+    '--xtend-modal-overlay-surface': 'var(--xtend-surface-overlay)',
+    '--xtend-modal-elevation': 'var(--xtend-elevation-3)',
+    '--xtend-dialog-surface': 'var(--xtend-surface-raised)',
+    '--xtend-dialog-text': 'var(--xtend-text-primary)',
+    '--xtend-dialog-elevation': 'var(--xtend-elevation-3)',
+    '--xtend-popover-surface': 'var(--xtend-surface-raised)',
+    '--xtend-popover-text': 'var(--xtend-text-primary)',
+    '--xtend-popover-elevation': 'var(--xtend-elevation-2)',
+    '--xtend-toast-surface': 'var(--xtend-surface-raised)',
+    '--xtend-toast-text': 'var(--xtend-text-primary)',
+    '--xtend-toast-elevation': 'var(--xtend-elevation-2)',
+    '--xtend-icon-color': 'currentColor',
+    '--xtend-icon-size': '1em',
+    '--xtend-icon-stroke-width': '2'
+  });
 
   function isXTendVerboseEnabled() {
     return Boolean(window.XTendLoader &&
@@ -63,6 +162,8 @@
   }
 
   const XTEND_BASE_TOKENS = Object.freeze({
+    ...XTHEME_ALIAS_GLOBAL_TOKENS,
+    ...XTHEME_ALIAS_COMPONENT_TOKENS,
     '--xtend-color-primary': '#4fc3f7',
     '--xtend-color-primary-dark': '#0288d1',
     '--xtend-color-accent': '#ffffff',
@@ -767,6 +868,7 @@
         availableThemes: this.getAvailableThemes(),
         preferences: this.getA11yPreferences(),
         tokens: this.getDesignTokens(this.currentTheme),
+        aliasLayer: this.getTokenAliasLayer(),
         densityTokens: { ...(DENSITY_TOKENS[this.currentDensity] || DENSITY_TOKENS[DEFAULT_DENSITY]) },
         attributes: {
           theme: THEME_ATTRIBUTE,
@@ -1177,13 +1279,16 @@
 
     getDesignTokenContract() {
       const tokenNames = Array.from(new Set(Object.values(DEFAULT_THEMES).flatMap((theme) => Object.keys(theme))));
+      const aliasLayer = this.getTokenAliasLayer();
       return {
         schema: DESIGN_TOKEN_CONTRACT_SCHEMA,
         packSchema: DESIGN_TOKEN_PACK_SCHEMA,
         workpackage: 'WP-E12-12',
+        aliasLayerWorkpackage: 'ECH-WP-03',
         runtimeProvider: 'x-theme',
         namespace: '--xtend-',
         tokenNames,
+        aliasLayer,
         themePacks: Object.keys(DEFAULT_THEMES).map((name) => ({
           schema: DESIGN_TOKEN_PACK_SCHEMA,
           type: 'theme',
@@ -1205,6 +1310,48 @@
         localOnly: true,
         externalNetworkAllowed: false,
         kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+      };
+    }
+
+    getTokenAliasLayer() {
+      return {
+        schema: XTHEME_TOKEN_ALIAS_LAYER_SCHEMA,
+        workpackage: 'ECH-WP-03',
+        runtimeProvider: 'x-theme',
+        globalAliases: { ...XTHEME_ALIAS_GLOBAL_TOKENS },
+        componentAliases: { ...XTHEME_ALIAS_COMPONENT_TOKENS },
+        legacyAliases: {
+          '--xtend-glass-bg': '--xtend-surface-overlay',
+          '--xtend-shadow': '--xtend-elevation-2',
+          '--xtend-radius': '--xtend-radius-md',
+          '--xtend-font-family': '--xtend-font-family-body',
+          '--xtend-overlay-bg': '--xtend-surface-overlay',
+          '--xtend-border-color': '--xtend-border-subtle',
+          '--header-bg': '--xtend-header-surface',
+          '--header-fg': '--xtend-header-text',
+          '--drawer-bg': '--xtend-drawer-surface',
+          '--drawer-color': '--xtend-drawer-text',
+          '--button-text-color': '--xtend-button-text'
+        },
+        p0Components: [
+          'x-theme',
+          'x-header',
+          'x-icon',
+          'x-button',
+          'x-menu',
+          'x-drawer',
+          'x-side-panel',
+          'x-modal',
+          'x-dialog',
+          'x-popover',
+          'x-toast'
+        ],
+        overrideContract: {
+          cssEntry: 'XTend.css',
+          themeEntry: 'x-theme.registerTheme()',
+          noComponentLocalThemeForks: true,
+          forcedColorsRequired: true
+        }
       };
     }
 
@@ -1235,6 +1382,12 @@
         availableThemes: context.availableThemes.slice(),
         preferences: { ...context.preferences },
         tokens: { ...context.tokens },
+        aliasLayer: {
+          ...context.aliasLayer,
+          globalAliases: { ...context.aliasLayer.globalAliases },
+          componentAliases: { ...context.aliasLayer.componentAliases },
+          legacyAliases: { ...context.aliasLayer.legacyAliases }
+        },
         densityTokens: { ...context.densityTokens },
         attributes: { ...context.attributes },
         rmt: {

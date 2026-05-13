@@ -104,3 +104,13 @@ Die Component Shell Theme Matrix und Visual Snapshot Fixture nutzen dieselben `-
 ## RC0 Adoption Update
 
 Seit `WP-E12-15` verweist der [RC0 Adoption Guide](./rc0-adoption-guide.md) auf Design Tokens als verpflichtende Styling-Baseline fuer neue Komponenten und RMT-Shells. Token- oder CSS-Part-Aenderungen gelten als Public-API-Aenderungen und brauchen Migration Notes im RC0-Handoff.
+
+## ECH-WP-11 Drittanbieter Design Authoring Update
+
+Der Guide [Drittanbieter Design Authoring](./third-party-design-authoring.md) uebersetzt die Token-Schicht in einen Corporate-Design-Pfad fuer Host-Apps. Er beschreibt XTend.css Override Patterns, XTheme Token Bridge, CSS Parts, Icon Pack Registrierung, Layout Modes, A11y-Dos and Donts, P0 Token-/Part-Referenzen und Migration von Legacy Token-Namen.
+
+Lokaler Gate:
+
+```bash
+node scripts/run_xtend_tests.js enterprise-third-party-authoring-guide --json
+```

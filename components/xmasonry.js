@@ -55,6 +55,11 @@ class XMasonry extends HTMLElement {
       lazyPolicy: "visible-hydrate",
       overflowPolicy: "drag-contained",
       aspectRatio: "content-driven",
+      signatureDesign: {
+        note: "Reorderable enterprise masonry surface with tactile item depth, icon-only controls and themeable drag feedback.",
+        tokenStrategy: "layout tokens back grid gap, item surface, text, border, radius, typography, focus, media radius and elevation.",
+        themeExpectation: "gallery, dashboard and knowledge-base themes can reshape the component through tokens without glyph controls."
+      },
       events: ["masonry-layout"],
       commands: ["render", "measure", "layout", "snapshot"],
       stateKey: "xmasonry-state-<id>",
@@ -72,30 +77,40 @@ class XMasonry extends HTMLElement {
         :host {
           display: block;
           --masonry-columns: 3;
-          --masonry-gap: 1.5rem;
-          --card-bg: #fff;
-          --card-border: #ddd;
-          --card-padding: 1.5rem;
-          --card-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-          --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.1);
-          --border-radius: 8px;
-          --card-title-font-size: 1.25rem;
-          --card-text-font-size: 1rem;
-          --card-text-color: #333;
+          --masonry-gap: var(--xtend-layout-gap, 1.5rem);
+          --card-bg: var(--xtend-layout-surface, #fff);
+          --card-border: var(--xtend-layout-border-color, #ddd);
+          --card-padding: var(--xtend-layout-spacing, 1.5rem);
+          --card-shadow: var(--xtend-layout-elevation, 0 2px 6px rgba(0, 0, 0, 0.05));
+          --card-shadow-hover: var(--xtend-layout-elevation-hover, 0 4px 12px rgba(0, 0, 0, 0.1));
+          --border-radius: var(--xtend-layout-radius, 8px);
+          --card-title-font-size: var(--xtend-layout-heading-font-size, 1.25rem);
+          --card-text-font-size: var(--xtend-layout-font-size, 1rem);
+          --card-text-color: var(--xtend-layout-text, #333);
+          --masonry-toggle-size: var(--xtend-layout-control-size, 2rem);
+          --masonry-toggle-radius: var(--xtend-layout-media-radius, 999px);
+          --masonry-focus-ring: var(--xtend-layout-focus-ring, 2.5px solid var(--xtend-color-primary, #4fc3f7));
+          --xtend-layout-grid-min: minmax(min(100%, 16rem), 1fr);
+          --xtend-layout-content-max: 100%;
+          font-family: var(--masonry-font-family, var(--xtend-layout-font-family, inherit));
+          max-width: 100%;
+          min-width: 0;
         }
 
         :host([data-theme="dark"]) {
-          --card-bg: #1e1e1e;
-          --card-border: #444;
-          --card-text-color: #eee;
-          --card-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-          --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
+          --card-bg: var(--xtend-layout-surface, #1e1e1e);
+          --card-border: var(--xtend-layout-border-color, #444);
+          --card-text-color: var(--xtend-layout-text, #eee);
+          --card-shadow: var(--xtend-layout-elevation, 0 2px 6px rgba(0, 0, 0, 0.2));
+          --card-shadow-hover: var(--xtend-layout-elevation-hover, 0 4px 12px rgba(0, 0, 0, 0.3));
         }
 
         .grid {
           display: grid;
-          grid-template-columns: repeat(var(--masonry-columns), 1fr);
+          grid-template-columns: repeat(var(--masonry-columns), minmax(0, 1fr));
           gap: var(--masonry-gap);
+          max-width: var(--xtend-layout-content-max);
+          min-width: 0;
         }
 
         .item {
@@ -108,6 +123,8 @@ class XMasonry extends HTMLElement {
           cursor: grab;
           color: var(--card-text-color);
           position: relative;
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         .item:hover {
@@ -131,19 +148,42 @@ class XMasonry extends HTMLElement {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 0.5rem;
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         .item-content {
           font-size: var(--card-text-font-size);
           color: var(--card-text-color);
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         .toggle {
           cursor: pointer;
-          font-size: 1rem;
-          background: none;
-          border: none;
+          width: var(--masonry-toggle-size);
+          height: var(--masonry-toggle-size);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex: 0 0 auto;
+          background: var(--masonry-toggle-bg, transparent);
+          border: var(--masonry-toggle-border, 1px solid transparent);
+          border-radius: var(--masonry-toggle-radius);
           color: inherit;
+          padding: 0;
+        }
+
+        .toggle svg {
+          width: 1rem;
+          height: 1rem;
+          pointer-events: none;
+        }
+
+        .toggle:focus-visible {
+          outline: var(--masonry-focus-ring);
+          outline-offset: 2px;
         }
 
         .collapsed .item-content {
@@ -248,10 +288,10 @@ class XMasonry extends HTMLElement {
       const toggle = document.createElement("button");
       toggle.classList.add("toggle");
       toggle.setAttribute("part", "toggle");
-      toggle.textContent = "▼";
+      this._setToggleIcon(toggle, false);
       toggle.addEventListener("click", () => {
         wrapper.classList.toggle("collapsed");
-        toggle.textContent = wrapper.classList.contains("collapsed") ? "▶" : "▼";
+        this._setToggleIcon(toggle, wrapper.classList.contains("collapsed"));
         this._saveState();
         xstate.set(`xmasonry-state-${this.id}`, {
           order: this._getCurrentOrder(),
@@ -332,11 +372,11 @@ class XMasonry extends HTMLElement {
       if (collapsed[item.dataset.key]) {
         item.classList.add("collapsed");
         const toggle = item.querySelector(".toggle");
-        if (toggle) toggle.textContent = "▶";
+        if (toggle) this._setToggleIcon(toggle, true);
       } else {
         item.classList.remove("collapsed");
         const toggle = item.querySelector(".toggle");
-        if (toggle) toggle.textContent = "▼";
+        if (toggle) this._setToggleIcon(toggle, false);
       }
     });
   }
@@ -359,9 +399,18 @@ class XMasonry extends HTMLElement {
       const item = this._container.querySelector(`.item[data-key="${key}"]`);
       if (item && collapsed) {
         item.classList.add("collapsed");
-        item.querySelector(".toggle").textContent = "▶";
+        this._setToggleIcon(item.querySelector(".toggle"), true);
       }
     });
+  }
+
+  _setToggleIcon(toggle, collapsed) {
+    if (!toggle) return;
+    toggle.setAttribute("aria-label", collapsed ? "Expand item" : "Collapse item");
+    toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    toggle.innerHTML = collapsed
+      ? '<svg part="toggle-icon control icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>'
+      : '<svg part="toggle-icon control icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   }
 
   _enableDragAndDrop() {
@@ -378,8 +427,8 @@ class XMasonry extends HTMLElement {
         overlay.style.cssText = `
           position: absolute;
           inset: 0;
-          background: rgba(79,195,247,0.18);
-          border: 2px dashed var(--primary-color, #4fc3f7);
+          background: var(--masonry-drop-bg, rgba(79,195,247,0.18));
+          border: 2px dashed var(--masonry-drop-border, var(--primary-color, #4fc3f7));
           border-radius: var(--border-radius, 8px);
           opacity: 0;
           pointer-events: none;
@@ -399,7 +448,7 @@ class XMasonry extends HTMLElement {
           pointer-events: none;
           z-index: 9999;
           opacity: 0.8;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+          box-shadow: var(--masonry-drag-shadow, 0 8px 32px rgba(0,0,0,0.18));
           border-radius: var(--border-radius, 8px);
           width: 300px;
           max-width: 90vw;

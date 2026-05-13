@@ -1,4 +1,5 @@
 import { xstate } from './xstate.js';
+import './xicon.js';
 
 class XStatus extends HTMLElement {
   static get observedAttributes() {
@@ -209,6 +210,13 @@ class XStatus extends HTMLElement {
           font: inherit;
           padding: 0.125rem 0.25rem;
         }
+        .status-icon {
+          flex: 0 0 auto;
+          margin-top: 0.125rem;
+        }
+        button x-icon {
+          pointer-events: none;
+        }
         button:focus-visible {
           outline: var(--xtend-feedback-focus, 2px solid currentColor);
           outline-offset: 2px;
@@ -233,17 +241,20 @@ class XStatus extends HTMLElement {
         }
       </style>
       <div id="status" class="status" part="root content" role="status" aria-live="polite" aria-atomic="true">
-        <span id="icon" part="icon" aria-hidden="true">*</span>
+        <x-icon id="icon" class="status-icon" name="info" part="status-icon icon" decorative size="1.125rem"></x-icon>
         <div class="content" part="content">
           <div id="label" class="label" part="label"><slot name="label"><span id="label-text"></span></slot></div>
           <div id="message" class="message" part="message"><slot></slot></div>
         </div>
-        <button id="dismiss" part="close control" type="button" aria-label="Dismiss status" hidden>x</button>
+        <button id="dismiss" part="close control" type="button" aria-label="Dismiss status" hidden>
+          <x-icon name="close" part="close-icon control icon" decorative size="1rem"></x-icon>
+        </button>
       </div>
     `;
     this._status = this.shadowRoot.querySelector('#status');
     this._labelText = this.shadowRoot.querySelector('#label-text');
     this._message = this.shadowRoot.querySelector('#message');
+    this._icon = this.shadowRoot.querySelector('#icon');
     this._dismissButton = this.shadowRoot.querySelector('#dismiss');
     this._onDismiss = this._onDismiss.bind(this);
   }
@@ -295,6 +306,7 @@ class XStatus extends HTMLElement {
     this._status.setAttribute('role', isAlert ? 'alert' : 'status');
     this._status.setAttribute('aria-live', isAlert ? 'assertive' : 'polite');
     this._status.setAttribute('aria-busy', String(this.busy));
+    if (this._icon) this._icon.setAttribute('name', this._iconNameForType(this.type));
     this._dismissButton.hidden = !this.dismissible;
     this.dispatchEvent(new CustomEvent('status-changed', {
       detail: this.state,
@@ -311,6 +323,13 @@ class XStatus extends HTMLElement {
       bubbles: true,
       composed: true
     }));
+  }
+
+  _iconNameForType(type) {
+    if (type === 'success') return 'success';
+    if (type === 'warning') return 'warning';
+    if (type === 'error') return 'error';
+    return 'info';
   }
 
   get type() {

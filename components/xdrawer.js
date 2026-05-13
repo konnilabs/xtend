@@ -201,11 +201,19 @@ class XDrawer extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          --xdrawer-bg: var(--drawer-bg, var(--xtend-surface, var(--section-bg, #ffffff)));
-          --xdrawer-color: var(--drawer-color, var(--xtend-text, var(--text-color, #111827)));
-          --xdrawer-border: var(--drawer-border, var(--xtend-border-color, var(--border-color, #e5e7eb)));
-          --xdrawer-shadow: var(--drawer-shadow, 0 24px 64px rgba(15, 23, 42, 0.24));
-          --xdrawer-overlay-bg: var(--drawer-overlay-bg, var(--xtend-overlay-bg, rgba(15, 23, 42, 0.45)));
+          --xtend-overlay-surface: var(--xtend-surface, var(--section-bg, #ffffff));
+          --xtend-overlay-text: var(--xtend-text, var(--text-color, #111827));
+          --xtend-overlay-border-color: var(--xtend-border-color, var(--border-color, #e5e7eb));
+          --xtend-overlay-elevation: var(--xtend-shadow-overlay, 0 24px 64px rgba(15, 23, 42, 0.24));
+          --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(15, 23, 42, 0.45));
+          --xtend-overlay-focus-ring: 2px solid var(--xtend-focus-color, var(--xtend-color-primary, #2563eb));
+          --xtend-overlay-backdrop-z: var(--surface-overlay-backdrop-z, 2147483602);
+          --xtend-overlay-z: var(--surface-overlay-z, 2147483603);
+          --xdrawer-bg: var(--drawer-bg, var(--xtend-overlay-surface));
+          --xdrawer-color: var(--drawer-color, var(--xtend-overlay-text));
+          --xdrawer-border: var(--drawer-border, var(--xtend-overlay-border-color));
+          --xdrawer-shadow: var(--drawer-shadow, var(--xtend-overlay-elevation));
+          --xdrawer-overlay-bg: var(--drawer-overlay-bg, var(--xtend-overlay-backdrop));
           --xdrawer-focus: var(--drawer-focus, var(--xtend-focus-color, var(--xtend-color-primary, #2563eb)));
           --xdrawer-close-bg: var(--drawer-close-bg, transparent);
           --xdrawer-close-size: var(--drawer-close-size, 2.5rem);
@@ -235,7 +243,7 @@ class XDrawer extends HTMLElement {
         .overlay {
           position: fixed;
           inset: 0;
-          z-index: var(--surface-overlay-backdrop-z, 2147483602);
+          z-index: var(--xtend-overlay-backdrop-z);
           background: var(--xdrawer-overlay-bg);
           opacity: 0;
           pointer-events: none;
@@ -243,7 +251,7 @@ class XDrawer extends HTMLElement {
         }
         .drawer {
           position: fixed;
-          z-index: var(--surface-overlay-z, 2147483603);
+          z-index: var(--xtend-overlay-z);
           display: flex;
           flex-direction: column;
           gap: 1rem;
@@ -341,7 +349,7 @@ class XDrawer extends HTMLElement {
         }
         button:focus-visible,
         .drawer:focus-visible {
-          outline: 2px solid var(--xdrawer-focus);
+          outline: var(--xtend-overlay-focus-ring);
           outline-offset: 2px;
         }
         .sr-status {
@@ -377,12 +385,12 @@ class XDrawer extends HTMLElement {
         }
       </style>
       <span class="trigger" part="trigger"><slot name="trigger"></slot></span>
-      <div class="overlay" part="overlay" aria-hidden="true"></div>
-      <aside id="drawer" class="drawer" part="root surface" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1" inert>
+      <div class="overlay" part="backdrop overlay" aria-hidden="true"></div>
+      <aside id="drawer" class="drawer" part="root surface overlay-surface" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1" inert>
         <header part="header">
           <slot name="header"><span id="label"></span></slot>
-          <button type="button" class="close" part="close" aria-label="Close drawer">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <button type="button" class="close" part="close control" aria-label="Close drawer">
+            <svg part="close-icon control icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
               <path d="M7.75 7.75L16.25 16.25M16.25 7.75L7.75 16.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
             </svg>
           </button>

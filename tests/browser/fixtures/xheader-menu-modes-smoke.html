@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-header menu modes smoke</title>
+  <meta name="xtend-preload" content="xstate,x-header,x-link">
+  <style>
+    body {
+      margin: 0;
+      padding: 1rem;
+      font-family: system-ui, sans-serif;
+      background: Canvas;
+      color: CanvasText;
+    }
+    main {
+      display: grid;
+      gap: 1rem;
+    }
+    x-header {
+      --xtend-header-menu-width: min(28rem, 92vw);
+      --xtend-header-menu-max-height: min(70dvh, 760px);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <x-header id="mode-drawer" menu-mode="drawer" menu-placement="end" menu-open>
+      <span slot="title">Drawer Mode</span>
+      <a slot="nav" href="#drawer">Drawer link</a>
+    </x-header>
+
+    <x-header id="mode-side-panel" menu-mode="side-panel" menu-placement="start" menu-modal menu-open menu-width="min(26rem, 90vw)">
+      <span slot="title">Side Panel Mode</span>
+      <a slot="nav" href="#side-panel">Panel link</a>
+    </x-header>
+
+    <x-header id="mode-popover" menu-mode="popover" menu-placement="end" menu-width="22rem" menu-open>
+      <span slot="title">Popover Mode</span>
+      <a slot="nav" href="#popover">Popover link</a>
+    </x-header>
+
+    <x-header id="mode-fullscreen" menu-mode="fullscreen" menu-placement="top" menu-open>
+      <span slot="title">Fullscreen Mode</span>
+      <a slot="nav" href="#fullscreen">Fullscreen link</a>
+    </x-header>
+
+    <x-header id="mode-inline-main" menu-mode="inline-main" menu-align="stretch" menu-open>
+      <span slot="title">Inline Main Mode</span>
+      <a slot="nav" href="#inline-main">Inline link</a>
+    </x-header>
+  </main>
+
+  <script>
+    window.__xtendHeaderMenuModesResult = { status: 'pending', checks: [] };
+    window.xstate = {
+      get() { return undefined; },
+      set() {},
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xheader.js"></script>
+  <script type="module">
+    const modes = ['drawer', 'side-panel', 'popover', 'fullscreen', 'inline-main'];
+    await customElements.whenDefined('x-header');
+    await Promise.resolve();
+    window.__xtendHeaderMenuModesResult.checks = modes.map((mode) => {
+      const header = document.getElementById(`mode-${mode}`);
+      const snapshot = header.snapshot();
+      return {
+        mode,
+        rendered: Boolean(header.shadowRoot),
+        menuMode: snapshot.menuMode,
+        menuOpen: snapshot.menuOpen,
+        menuPlacement: snapshot.menuPlacement,
+        menuModal: snapshot.menuModal
+      };
+    });
+    window.__xtendHeaderMenuModesResult.status = window.__xtendHeaderMenuModesResult.checks.every((entry) => entry.rendered && entry.menuMode === entry.mode && entry.menuOpen)
+      ? 'passed'
+      : 'failed';
+  </script>
+</body>
+</html>

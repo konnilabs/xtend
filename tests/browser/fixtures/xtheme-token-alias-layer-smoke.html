@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-contract="xtend.theme.token-alias-layer.v1" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <title>XTend XTheme Token Alias Layer Smoke</title>
+    <meta name="xtend-preload" content="xstate,x-theme,x-header,x-button,x-menu,x-drawer,x-modal,x-popover,x-toast,x-icon">
+    <style>
+      :root {
+        --xtend-surface-page: #f7f8fb;
+        --xtend-surface-panel: #ffffff;
+        --xtend-surface-raised: #ffffff;
+        --xtend-surface-inset: #edf1f6;
+        --xtend-surface-overlay: rgba(23, 32, 51, 0.58);
+        --xtend-surface-control: #ffffff;
+        --xtend-text-primary: #172033;
+        --xtend-text-muted: #536070;
+        --xtend-text-on-action: #ffffff;
+        --xtend-color-action: #2457a6;
+        --xtend-color-action-hover: #163d78;
+        --xtend-color-action-subtle: rgba(36, 87, 166, 0.12);
+        --xtend-border-subtle: rgba(23, 32, 51, 0.16);
+        --xtend-border-strong: rgba(23, 32, 51, 0.28);
+        --xtend-radius-control: 6px;
+        --xtend-radius-panel: 10px;
+        --xtend-space-1: 0.375rem;
+        --xtend-space-2: 0.75rem;
+        --xtend-space-3: 1.125rem;
+        --xtend-space-control-gap: 0.6rem;
+        --xtend-elevation-1: none;
+        --xtend-elevation-2: 0 12px 34px rgba(16, 24, 40, 0.14);
+        --xtend-elevation-3: 0 28px 72px rgba(10, 16, 26, 0.24);
+        --xtend-motion-duration-fast: 160ms;
+        --xtend-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+      }
+
+      :root[data-theme="dark"] {
+        --xtend-surface-page: #141923;
+        --xtend-surface-panel: #1f2635;
+        --xtend-surface-raised: #242d3d;
+        --xtend-text-primary: #f5f7fb;
+        --xtend-text-muted: #c8d0dc;
+        --xtend-color-action: #7dd3fc;
+        --xtend-text-on-action: #0f172a;
+        --xtend-border-subtle: rgba(245, 247, 251, 0.18);
+      }
+
+      :root[data-theme="high-contrast"] {
+        --xtend-surface-page: #000000;
+        --xtend-surface-panel: #000000;
+        --xtend-surface-raised: #000000;
+        --xtend-text-primary: #ffffff;
+        --xtend-color-action: #ffff00;
+        --xtend-text-on-action: #000000;
+        --xtend-border-subtle: #ffffff;
+      }
+
+      :root[data-theme="forced-colors"] {
+        --xtend-surface-page: Canvas;
+        --xtend-surface-panel: Canvas;
+        --xtend-surface-raised: Canvas;
+        --xtend-surface-control: ButtonFace;
+        --xtend-text-primary: CanvasText;
+        --xtend-text-muted: CanvasText;
+        --xtend-text-on-action: HighlightText;
+        --xtend-color-action: Highlight;
+        --xtend-border-subtle: CanvasText;
+        --xtend-elevation-1: none;
+        --xtend-elevation-2: none;
+        --xtend-elevation-3: none;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--xtend-font-family-body, system-ui, sans-serif);
+        color: var(--xtend-text-primary);
+        background: var(--xtend-surface-page);
+      }
+
+      main {
+        display: grid;
+        gap: var(--xtend-space-3);
+        padding: var(--xtend-space-3);
+      }
+
+      x-button {
+        --xtend-button-primary-surface: var(--xtend-color-action);
+        --xtend-button-primary-text: var(--xtend-text-on-action);
+        --xtend-button-radius: var(--xtend-radius-control);
+      }
+
+      x-menu {
+        --xtend-menu-surface: var(--xtend-surface-panel);
+        --xtend-menu-item-hover-surface: var(--xtend-color-action-subtle);
+      }
+
+      .surface {
+        background: var(--xtend-surface-panel);
+        color: var(--xtend-text-primary);
+        border: 1px solid var(--xtend-border-subtle);
+        border-radius: var(--xtend-radius-panel);
+        box-shadow: var(--xtend-elevation-2);
+        padding: var(--xtend-space-3);
+      }
+    </style>
+  </head>
+  <body>
+    <main id="xtheme-token-alias-layer-root">
+      <x-header brand="Alias Layer"></x-header>
+      <section class="surface" data-alias-surface="panel">
+        <x-button variant="primary" label="Primary action"></x-button>
+        <x-menu aria-label="Alias menu">
+          <button class="primary" type="button">Overview</button>
+          <button type="button">Details</button>
+        </x-menu>
+      </section>
+    </main>
+
+    <script>
+      const result = {
+        contract: 'xtend.theme.token-alias-layer.v1',
+        status: 'pending',
+        checks: [],
+        errors: []
+      };
+
+      window.__xtendXThemeTokenAliasLayerResult = result;
+
+      function recordCheck(name, passed, details = {}) {
+        result.checks.push({ name, passed: Boolean(passed), details });
+        if (!passed) result.errors.push(name);
+      }
+
+      function cssValue(property) {
+        return getComputedStyle(document.documentElement).getPropertyValue(property).trim();
+      }
+
+      function complete() {
+        result.status = result.errors.length === 0 ? 'passed' : 'failed';
+      }
+
+      function runSmoke() {
+        recordCheck('alias layer light tokens visible', cssValue('--xtend-surface-page') !== '' && cssValue('--xtend-text-primary') !== '');
+        document.documentElement.dataset.theme = 'dark';
+        recordCheck('alias layer dark tokens visible', cssValue('--xtend-surface-page') !== '' && cssValue('--xtend-text-primary') !== '');
+        document.documentElement.dataset.theme = 'high-contrast';
+        recordCheck('alias layer high contrast tokens visible', cssValue('--xtend-color-action') !== '' && cssValue('--xtend-text-on-action') !== '');
+        document.documentElement.dataset.theme = 'forced-colors';
+        recordCheck('alias layer forced colors system tokens visible', cssValue('--xtend-surface-page') === 'Canvas' && cssValue('--xtend-text-primary') === 'CanvasText');
+        recordCheck('alias layer component aliases visible', cssValue('--xtend-button-primary-surface') !== '' && cssValue('--xtend-menu-surface') !== '');
+        recordCheck('alias layer host override path visible', Boolean(document.querySelector('x-button')) && Boolean(document.querySelector('x-menu')));
+        complete();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runSmoke);
+      } else {
+        runSmoke();
+      }
+    </script>
+  </body>
+</html>

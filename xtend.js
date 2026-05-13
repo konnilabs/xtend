@@ -7,6 +7,13 @@
   };
 })();
 
+function xtendLegacyControlIcon(name) {
+  const icons = {
+    close: '<span class="xtend-control-icon" part="close-icon control icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M18 6 6 18"></path><path d="M6 6l12 12"></path></svg></span>'
+  };
+  return icons[name] || '';
+}
+
 // <x-button>
 class XButton extends HTMLElement {
   constructor() {
@@ -200,7 +207,7 @@ class XAlert extends HTMLElement {
     container.className = `alert ${type}`;
     container.innerHTML = `
       <slot></slot>
-      ${closable ? '<button class="close" aria-label="Schließen">&times;</button>' : ''}
+      ${closable ? `<button class="close" part="close control" aria-label="Schließen">${xtendLegacyControlIcon('close')}</button>` : ''}
     `;
 
     const style = document.createElement("style");
@@ -250,7 +257,7 @@ class XToast extends HTMLElement {
     wrapper.className = `toast ${type}`;
     wrapper.innerHTML = `
       <slot></slot>
-      <button class="close" aria-label="Schließen">&times;</button>
+      <button class="close" part="close control" aria-label="Schließen">${xtendLegacyControlIcon('close')}</button>
     `;
 
     const style = document.createElement("style");
@@ -327,7 +334,7 @@ class XDialog extends HTMLElement {
     this.wrapper.innerHTML = `
       ${useOverlay ? '<div class="overlay"></div>' : ''}
       <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
-        <button class="close-btn" aria-label="Schließen">&times;</button>
+        <button class="close-btn" part="close control" aria-label="Schließen">${xtendLegacyControlIcon('close')}</button>
         <div class="content">
           <slot name="title" id="dialog-title"></slot>
           <slot></slot>
@@ -514,7 +521,7 @@ class XLightbox extends HTMLElement {
 
       <div class="overlay" role="dialog" aria-hidden="true">
         <div class="content">
-          <button class="close-btn" aria-label="Schließen">&times;</button>
+          <button class="close-btn" part="close control" aria-label="Schließen">${xtendLegacyControlIcon('close')}</button>
           <img src="" alt="">
         </div>
       </div>
@@ -883,6 +890,4 @@ class XHeader extends HTMLElement {
 }
 
 customElements.define("x-header", XHeader);
-
-
 

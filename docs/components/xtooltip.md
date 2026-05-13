@@ -58,3 +58,9 @@ Seit `WP-E11-11` deklariert `<x-tooltip>` das Runtime-Profil `xtend.component.ov
 | Commands | `show`, `hide`, `toggle`, `snapshot` |
 
 Das Profil haelt Tooltip-Overlays bewusst nicht modal: kein Focus Trap, kein Inert, kein Scroll Lock. RMT kann Positionierung und Dismissal schedulen, waehrend der Host weiterhin `aria-describedby`, Hover/Fokus und Escape verwaltet.
+
+## ECH-WP-06 Overlay-Paritaet
+
+`x-tooltip` expose `surface`, `backdrop`, `close` und `content` als Overlay-Parts, wobei `backdrop` und `close` bewusst nicht-interaktive Sentinels fuer Theme-/Part-Paritaet sind. Der Tooltip bleibt nicht-modal und informationsbezogen.
+
+Surface, Text, Elevation, Radius, Typografie und Z-Index laufen ueber `--xtend-overlay-*`, `--tooltip-*` oder `--xtooltip-*` Tokens. Focus Trap, Inert und Scroll Lock sind fuer Tooltips nicht anwendbar.

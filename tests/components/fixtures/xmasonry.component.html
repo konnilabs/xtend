@@ -3,8 +3,25 @@
 <head>
   <meta charset="utf-8">
   <title>x-masonry component fixture</title>
+  <style>
+    [data-xtend-layout-theme="enterprise-foreign"] x-masonry {
+      --xtend-layout-surface: #fbf7f1;
+      --xtend-layout-text: #1b2823;
+      --xtend-layout-border-color: rgba(27, 40, 35, 0.2);
+      --xtend-layout-radius: 0.35rem;
+      --xtend-layout-elevation: 0 10px 28px rgba(27, 40, 35, 0.12);
+      --xtend-layout-spacing: 1.25rem;
+      --xtend-layout-gap: 1rem;
+      --xtend-layout-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-layout-font-size: 1rem;
+      --xtend-layout-media-radius: 999px;
+      --xtend-layout-focus-ring: 3px solid #8f4f2a;
+      --xtend-layout-grid-min: minmax(14rem, 1fr);
+      --xtend-layout-content-max: 72rem;
+    }
+  </style>
 </head>
-<body>
+<body data-xtend-layout-theme="enterprise-foreign">
   <x-masonry id="component-masonry" columns="3" gap="1rem" save-positions="true">
     <article data-key="one" data-title="One">First item</article>
     <article data-key="two" data-title="Two">Second item</article>

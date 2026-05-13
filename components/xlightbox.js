@@ -227,8 +227,8 @@ class XLightbox extends HTMLElement {
       <span class="trigger" part="trigger"><slot name="trigger"></slot></span>
       <div class="overlay" part="overlay root" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Lightbox" hidden inert>
         <div class="content" part="content">
-          <button class="close-btn" part="close" type="button" aria-label="Schliessen">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <button class="close-btn" part="close control" type="button" aria-label="Schliessen">
+            <svg part="close-icon control icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
               <path d="M7.75 7.75L16.25 16.25M16.25 7.75L7.75 16.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
             </svg>
           </button>

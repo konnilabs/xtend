@@ -452,14 +452,26 @@
       this.shadowRoot.innerHTML = `
         <style>
           :host {
-            --xdialog-glass-bg: var(--xtend-overlay-bg, rgba(30, 34, 44, 0.55));
+            --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(30, 34, 44, 0.55));
+            --xtend-overlay-surface: var(--xtend-surface, var(--xtend-overlay-backdrop));
+            --xtend-overlay-text: var(--xtend-text-inverse, var(--xtend-color-accent, #fff));
+            --xtend-overlay-elevation: var(--xtend-shadow, 0 8px 32px 0 rgba(31, 38, 135, 0.18));
+            --xtend-overlay-radius: var(--xtend-radius, 18px);
+            --xtend-overlay-focus-ring: var(--xtend-focus-outline, 2px solid #4fc3f7);
+            --xtend-overlay-z: var(--surface-overlay-z, 2147483646);
+            --xdialog-glass-bg: var(--dialog-backdrop, var(--xdialog-backdrop, var(--xtend-overlay-backdrop)));
+            --xdialog-surface: var(--dialog-surface, var(--xtend-overlay-surface));
             --xdialog-glass-blur: var(--xtend-glass-blur, 18px);
             --xdialog-primary: var(--xtend-color-primary, #4fc3f7);
             --xdialog-primary-dark: var(--xtend-color-primary-dark, #0288d1);
-            --xdialog-accent: var(--xtend-color-accent, #fff);
-            --xdialog-border-radius: var(--xtend-radius, 18px);
-            --xdialog-shadow: var(--xtend-shadow, 0 8px 32px 0 rgba(31, 38, 135, 0.18));
-            --xdialog-focus-outline: var(--xtend-focus-outline, 2px solid #4fc3f7);
+            --xdialog-accent: var(--dialog-text, var(--xtend-overlay-text));
+            --xdialog-action-text: var(--dialog-action-text, var(--xtend-on-primary, #ffffff));
+            --xdialog-action-secondary-text: var(--dialog-action-secondary-text, #222222);
+            --xdialog-close-bg: var(--dialog-close-bg, transparent);
+            --xdialog-close-hover-bg: var(--dialog-close-hover-bg, rgba(79,195,247,0.18));
+            --xdialog-border-radius: var(--dialog-radius, var(--xtend-overlay-radius));
+            --xdialog-shadow: var(--dialog-shadow, var(--xtend-overlay-elevation));
+            --xdialog-focus-outline: var(--dialog-focus-outline, var(--xtend-overlay-focus-ring));
             font-family: var(--xtend-font-family, 'Inter', 'Segoe UI', Arial, sans-serif);
           }
           .xdialog-wrapper {
@@ -468,14 +480,14 @@
             display: ${state.open ? 'flex' : 'none'};
             align-items: center;
             justify-content: center;
-            z-index: var(--surface-overlay-z, 2147483646);
+            z-index: var(--xtend-overlay-z);
             min-width: 100vw;
             min-height: 100vh;
           }
           .xdialog-overlay {
             position: absolute;
             inset: 0;
-            background: var(--xdialog-glass-bg);
+            background: var(--xdialog-surface);
             backdrop-filter: blur(var(--xdialog-glass-blur));
           }
           .xdialog {
@@ -519,7 +531,7 @@
           }
           .xdialog-actions button {
             background: var(--xdialog-primary);
-            color: #222;
+            color: var(--xdialog-action-secondary-text);
             border: none;
             border-radius: 2em;
             padding: 0.5em 2em;
@@ -530,18 +542,18 @@
           }
           .xdialog-actions button.primary {
             background: var(--xdialog-primary-dark);
-            color: #fff;
+            color: var(--xdialog-action-text);
           }
           .xdialog-actions button:hover {
             background: var(--xdialog-primary-dark);
-            color: #fff;
+            color: var(--xdialog-action-text);
             transform: scale(1.08);
           }
           .xdialog-close {
             position: absolute;
             top: 1.1em;
             right: 1.3em;
-            background: none;
+            background: var(--xdialog-close-bg);
             border: none;
             width: 2.2em;
             height: 2.2em;
@@ -560,7 +572,7 @@
             outline-offset: 2px;
           }
           .xdialog-close:hover {
-            background: rgba(79,195,247,0.18);
+            background: var(--xdialog-close-hover-bg);
             color: var(--xdialog-primary);
             transform: scale(1.08);
           }
@@ -615,11 +627,11 @@
             }
           }
         </style>
-        <div class="xdialog-wrapper" part="root" role="presentation">
-          ${state.overlay ? '<div class="xdialog-overlay" part="overlay" tabindex="-1" aria-hidden="true"></div>' : ''}
-          <div class="xdialog" part="surface" role="dialog" aria-modal="true" aria-hidden="${state.open ? 'false' : 'true'}" tabindex="0">
-            <button class="xdialog-close" part="close" aria-label="Schliessen">
-              <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="xdialog-wrapper" part="root overlay-root" role="presentation">
+          ${state.overlay ? '<div class="xdialog-overlay" part="backdrop overlay" tabindex="-1" aria-hidden="true"></div>' : ''}
+          <div class="xdialog" part="surface overlay-surface" role="dialog" aria-modal="true" aria-hidden="${state.open ? 'false' : 'true'}" tabindex="0">
+            <button class="xdialog-close" part="close control" aria-label="Schliessen">
+              <svg part="close-icon control icon" width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.10)"></circle>
                 <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
               </svg>

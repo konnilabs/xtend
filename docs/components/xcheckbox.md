@@ -65,3 +65,38 @@ Das Control spiegelt `aria-checked`, `aria-describedby`, `required` und `disable
 ## Form Controls UX ab WP-E11-08
 
 `<x-checkbox>` stellt `xtendFormControlUxProfile` mit `xtend.component.form-control-ux-profile.v1` bereit. Das Profil verbindet Label, Hint, Error, `checkbox-changed`, `checkbox-invalid`, `xcheckbox-checked-<id>`, `ui.user-blocking.input`, Fabric-Lane `user-blocking` und RMT Shell Authoring.
+
+## ECH-WP-08 Form Theme/A11y Hardening
+
+`signatureDesign`: Taktile Enterprise-Checkbox mit nativer Zuverlaessigkeit, separat themebarer Selection-Affordance und statusfestem Helper/Error-Rhythmus.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-form-text` | Host-Textfarbe |
+| `--xtend-form-control-surface` | Native Control-Flaeche |
+| `--xtend-form-control-text` | Control-Text-Fallback |
+| `--xtend-form-label-text` | Label |
+| `--xtend-form-helper-text` | Helper |
+| `--xtend-form-error-text` | Fehlertext |
+| `--xtend-form-error-surface` | Fehlerflaeche |
+| `--xtend-form-error-border` | Fehlerkante und Marker |
+| `--xtend-form-focus-ring` | Focus-Outline |
+| `--xtend-form-radius` | Native Control-/Error-Radius |
+| `--xtend-form-gap` | Label-/Helper-Abstand |
+| `--xtend-form-font-family` | Form-Typografie |
+| `--xtend-form-control-font-size` | Label-Schrift |
+| `--xtend-form-helper-font-size` | Helper/Error-Schrift |
+| `--xtend-form-icon-color` | Checkbox-Akzent |
+
+Density-Profile: `comfortable`, `compact`, `dense`. Invalid ist zusaetzlich zu Farbe durch Outline und Error-Marker erkennbar.
+
+```css
+[data-xtend-form-theme="enterprise-foreign"] x-checkbox {
+  --xtend-form-icon-color: #8f4f2a;
+  --xtend-form-label-text: #22312c;
+  --xtend-form-helper-text: #596861;
+  --xtend-form-error-text: #7d231c;
+  --xtend-form-error-border: #a64036;
+  --xtend-form-focus-ring: 3px solid #8f4f2a;
+}
+```

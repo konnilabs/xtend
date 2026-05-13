@@ -294,6 +294,38 @@ const {
   runComponentStylingContractSuite
 } = require('../tests/components/component_styling_contract_suite');
 const {
+  printEnterpriseComponentFlexHardeningContractReport,
+  runEnterpriseComponentFlexHardeningContractSuite
+} = require('../tests/components/enterprise_component_flex_hardening_contract_suite');
+const {
+  printEnterpriseComponentStyleAuditReport,
+  runEnterpriseComponentStyleAuditSuite
+} = require('../tests/components/enterprise_component_style_audit_suite');
+const {
+  printEnterpriseIconControlAuditReport,
+  runEnterpriseIconControlAuditSuite
+} = require('../tests/components/enterprise_icon_control_audit_suite');
+const {
+  printXHeaderMenuModesReport,
+  runXHeaderMenuModesSuite
+} = require('../tests/components/xheader_menu_modes_suite');
+const {
+  printEnterpriseOverlayModeTokenParityReport,
+  runEnterpriseOverlayModeTokenParitySuite
+} = require('../tests/components/enterprise_overlay_mode_token_parity_suite');
+const {
+  printEnterpriseLayoutDisplayMediaTokenizationReport,
+  runEnterpriseLayoutDisplayMediaTokenizationSuite
+} = require('../tests/components/enterprise_layout_display_media_tokenization_suite');
+const {
+  printEnterpriseFormControlThemeA11yReport,
+  runEnterpriseFormControlThemeA11ySuite
+} = require('../tests/components/enterprise_form_control_theme_a11y_suite');
+const {
+  printEnterpriseNavigationRoutingStateHardeningReport,
+  runEnterpriseNavigationRoutingStateHardeningSuite
+} = require('../tests/components/enterprise_navigation_routing_state_hardening_suite');
+const {
   printBuilderTypeScriptBlueprintReport,
   runBuilderTypeScriptBlueprintSuite
 } = require('../tests/builder/typescript_component_blueprint_suite');
@@ -330,6 +362,14 @@ const {
   runComponentShellThemeMatrixSuite
 } = require('../tests/browser/component_shell_theme_matrix_suite');
 const {
+  printSignatureUiVisualQualityReport,
+  runSignatureUiVisualQualitySuite
+} = require('../tests/browser/signature_ui_visual_quality_suite');
+const {
+  printEnterpriseVisualDomSnapshotMatrixReport,
+  runEnterpriseVisualDomSnapshotMatrixSuite
+} = require('../tests/browser/enterprise_visual_dom_snapshot_matrix_suite');
+const {
   printVisualSnapshotAutomationReport,
   runVisualSnapshotAutomationSuite
 } = require('../tests/browser/visual_snapshot_automation_suite');
@@ -341,6 +381,10 @@ const {
   printDesignTokenContractReport,
   runDesignTokenContractSuite
 } = require('../tests/tokens/design_token_contract_suite');
+const {
+  printXThemeTokenAliasLayerReport,
+  runXThemeTokenAliasLayerSuite
+} = require('../tests/tokens/xtheme_token_alias_layer_suite');
 const {
   printComponentUxAuthoringDocsReport,
   runComponentUxAuthoringDocsSuite
@@ -413,6 +457,14 @@ const {
   printEpic12DocsAdoptionReport,
   runEpic12DocsAdoptionSuite
 } = require('../tests/docs/epic12_docs_adoption_suite');
+const {
+  printEnterpriseThirdPartyAuthoringGuideReport,
+  runEnterpriseThirdPartyAuthoringGuideSuite
+} = require('../tests/docs/enterprise_third_party_authoring_guide_suite');
+const {
+  printEnterpriseComponentFlexReleaseHandoffReport,
+  runEnterpriseComponentFlexReleaseHandoffSuite
+} = require('../tests/platform/enterprise_component_flex_release_handoff_suite');
 const {
   printRmtToolingDocsReport,
   runRmtToolingDocsSuite
@@ -654,6 +706,86 @@ const suites = [
     }
   },
   {
+    id: 'enterprise-component-flex-hardening-contract',
+    label: 'ECH-WP-01 Enterprise Component Flex Hardening Contract',
+    description: 'Runs the Enterprise component flexibility, Signature UI, theme and hardening contract gates.',
+    run: () => {
+      const result = runEnterpriseComponentFlexHardeningContractSuite({ rootDir });
+      printEnterpriseComponentFlexHardeningContractReport(result);
+      return toRunnerResult('enterprise-component-flex-hardening-contract', 'ECH-WP-01 Enterprise Component Flex Hardening Contract', result);
+    }
+  },
+  {
+    id: 'enterprise-component-style-audit',
+    label: 'ECH-WP-02 Enterprise Component Style Audit',
+    description: 'Runs static style literal, theme compatibility and text glyph control audit gates.',
+    run: () => {
+      const result = runEnterpriseComponentStyleAuditSuite({ rootDir });
+      printEnterpriseComponentStyleAuditReport(result);
+      return toRunnerResult('enterprise-component-style-audit', 'ECH-WP-02 Enterprise Component Style Audit', result);
+    }
+  },
+  {
+    id: 'enterprise-icon-control-audit',
+    label: 'ECH-WP-04 Enterprise Icon Control Audit',
+    description: 'Runs text glyph control, icon part, accessible name and core icon registry gates.',
+    run: () => {
+      const result = runEnterpriseIconControlAuditSuite({ rootDir });
+      printEnterpriseIconControlAuditReport(result);
+      return toRunnerResult('enterprise-icon-control-audit', 'ECH-WP-04 Enterprise Icon Control Audit', result);
+    }
+  },
+  {
+    id: 'xheader-menu-modes',
+    label: 'ECH-WP-05 XHeader Menu Presentation Modes',
+    description: 'Runs XHeader menu-mode, placement, modal, snapshot, docs, fixture and theme token gates.',
+    run: () => {
+      const result = runXHeaderMenuModesSuite({ rootDir });
+      printXHeaderMenuModesReport(result);
+      return toRunnerResult('xheader-menu-modes', 'ECH-WP-05 XHeader Menu Presentation Modes', result);
+    }
+  },
+  {
+    id: 'enterprise-overlay-mode-token-parity',
+    label: 'ECH-WP-06 Enterprise Overlay Mode/Token Parity',
+    description: 'Runs overlay surface, backdrop, close, content, token, modal/non-modal and SurfaceManager parity gates.',
+    run: () => {
+      const result = runEnterpriseOverlayModeTokenParitySuite({ rootDir });
+      printEnterpriseOverlayModeTokenParityReport(result);
+      return toRunnerResult('enterprise-overlay-mode-token-parity', 'ECH-WP-06 Enterprise Overlay Mode/Token Parity', result);
+    }
+  },
+  {
+    id: 'enterprise-layout-display-media-tokenization',
+    label: 'ECH-WP-07 Enterprise Layout Display/Media Tokenization',
+    description: 'Runs layout, display and media component token, signatureDesign, foreign theme, overflow and icon-control gates.',
+    run: () => {
+      const result = runEnterpriseLayoutDisplayMediaTokenizationSuite({ rootDir });
+      printEnterpriseLayoutDisplayMediaTokenizationReport(result);
+      return toRunnerResult('enterprise-layout-display-media-tokenization', 'ECH-WP-07 Enterprise Layout Display/Media Tokenization', result);
+    }
+  },
+  {
+    id: 'enterprise-form-control-theme-a11y',
+    label: 'ECH-WP-08 Enterprise Form Control Theme/A11y Hardening',
+    description: 'Runs form control token, density, dark/forced-colors, invalid, busy and part exposure gates.',
+    run: () => {
+      const result = runEnterpriseFormControlThemeA11ySuite({ rootDir });
+      printEnterpriseFormControlThemeA11yReport(result);
+      return toRunnerResult('enterprise-form-control-theme-a11y', 'ECH-WP-08 Enterprise Form Control Theme/A11y Hardening', result);
+    }
+  },
+  {
+    id: 'enterprise-navigation-routing-state-hardening',
+    label: 'ECH-WP-09 Enterprise Navigation Routing State Hardening',
+    description: 'Runs navigation token, active/current/selected, disabled, keyboard, long-label and disclosure icon gates.',
+    run: () => {
+      const result = runEnterpriseNavigationRoutingStateHardeningSuite({ rootDir });
+      printEnterpriseNavigationRoutingStateHardeningReport(result);
+      return toRunnerResult('enterprise-navigation-routing-state-hardening', 'ECH-WP-09 Enterprise Navigation Routing State Hardening', result);
+    }
+  },
+  {
     id: 'builder-typescript-blueprint',
     label: 'XTend Builder TypeScript Component Blueprint',
     description: 'Runs the WP-E10-07 TypeScript-first component blueprint, template, metadata and generator gates.',
@@ -714,6 +846,46 @@ const suites = [
     }
   },
   {
+    id: 'signature-ui-visual-quality',
+    label: 'ECH-WP-00 XTend Signature UI Visual Quality',
+    description: 'Runs the XTend Signature UI direction, typography, fixture and x-header pilot gates.',
+    run: () => {
+      const result = runSignatureUiVisualQualitySuite({ rootDir });
+      printSignatureUiVisualQualityReport(result);
+      return toRunnerResult('signature-ui-visual-quality', 'ECH-WP-00 XTend Signature UI Visual Quality', result);
+    }
+  },
+  {
+    id: 'enterprise-visual-dom-snapshot-matrix',
+    label: 'ECH-WP-10 Enterprise Visual DOM Snapshot Matrix',
+    description: 'Runs x-header mode, theme, density, motion, viewport, Signature UI state, typography and anti-generic DOM snapshot gates.',
+    run: () => {
+      const result = runEnterpriseVisualDomSnapshotMatrixSuite({ rootDir });
+      printEnterpriseVisualDomSnapshotMatrixReport(result);
+      return toRunnerResult('enterprise-visual-dom-snapshot-matrix', 'ECH-WP-10 Enterprise Visual DOM Snapshot Matrix', result);
+    }
+  },
+  {
+    id: 'enterprise-third-party-authoring-guide',
+    label: 'ECH-WP-11 Enterprise Third-Party Authoring Guide',
+    description: 'Runs Corporate Theme authoring docs, XTheme bridge, CSS Parts, icon pack, layout mode, A11y and legacy-token migration gates.',
+    run: () => {
+      const result = runEnterpriseThirdPartyAuthoringGuideSuite({ rootDir });
+      printEnterpriseThirdPartyAuthoringGuideReport(result);
+      return toRunnerResult('enterprise-third-party-authoring-guide', 'ECH-WP-11 Enterprise Third-Party Authoring Guide', result);
+    }
+  },
+  {
+    id: 'enterprise-component-flex-release-handoff',
+    label: 'ECH-WP-12 Enterprise Component Flex Release Handoff',
+    description: 'Runs SemVer, deprecated aliases, migration notes, release checklist and adoption-risk handoff gates.',
+    run: () => {
+      const result = runEnterpriseComponentFlexReleaseHandoffSuite({ rootDir });
+      printEnterpriseComponentFlexReleaseHandoffReport(result);
+      return toRunnerResult('enterprise-component-flex-release-handoff', 'ECH-WP-12 Enterprise Component Flex Release Handoff', result);
+    }
+  },
+  {
     id: 'visual-snapshot-automation',
     label: 'Epic 12 Visual Snapshot Automation Contract',
     description: 'Runs the WP-E12-10 local-only visual snapshot automation contract and WP-E12-11 runner handoff gates.',
@@ -741,6 +913,16 @@ const suites = [
       const result = runDesignTokenContractSuite({ rootDir });
       printDesignTokenContractReport(result);
       return toRunnerResult('design-tokens', 'Epic 12 Enterprise Design System Tokens', result);
+    }
+  },
+  {
+    id: 'xtheme-token-alias-layer',
+    label: 'ECH-WP-03 XTheme Token Alias Layer',
+    description: 'Runs the normalized XTheme alias, P0 component alias and theme fixture gates.',
+    run: () => {
+      const result = runXThemeTokenAliasLayerSuite({ rootDir });
+      printXThemeTokenAliasLayerReport(result);
+      return toRunnerResult('xtheme-token-alias-layer', 'ECH-WP-03 XTheme Token Alias Layer', result);
     }
   },
   {
@@ -2058,14 +2240,27 @@ Examples:
   node scripts/run_xtend_tests.js component-contract-v2
   node scripts/run_xtend_tests.js component-shell-contract
   node scripts/run_xtend_tests.js component-styling-contract
+  node scripts/run_xtend_tests.js enterprise-component-flex-hardening-contract
+  node scripts/run_xtend_tests.js enterprise-component-style-audit
+  node scripts/run_xtend_tests.js enterprise-icon-control-audit
+  node scripts/run_xtend_tests.js xheader-menu-modes
+  node scripts/run_xtend_tests.js enterprise-overlay-mode-token-parity
+  node scripts/run_xtend_tests.js enterprise-layout-display-media-tokenization
+  node scripts/run_xtend_tests.js enterprise-form-control-theme-a11y
+  node scripts/run_xtend_tests.js enterprise-navigation-routing-state-hardening
   node scripts/run_xtend_tests.js epic10-p0-component-wave
   node scripts/run_xtend_tests.js component-lab-rmt-inspector
   node scripts/run_xtend_tests.js component-lab-ux-inspector
   node scripts/run_xtend_tests.js component-ux-browser-smokes
   node scripts/run_xtend_tests.js component-shell-theme-matrix
+  node scripts/run_xtend_tests.js signature-ui-visual-quality
+  node scripts/run_xtend_tests.js enterprise-visual-dom-snapshot-matrix
+  node scripts/run_xtend_tests.js enterprise-third-party-authoring-guide
+  node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff
   node scripts/run_xtend_tests.js visual-snapshot-automation
   node scripts/run_xtend_tests.js visual-snapshots
   node scripts/run_xtend_tests.js design-tokens
+  node scripts/run_xtend_tests.js xtheme-token-alias-layer
   node scripts/run_xtend_tests.js rmt-dsl-authoring-polish
   node scripts/run_xtend_tests.js rmt-source-model
   node scripts/run_xtend_tests.js rmt-parser

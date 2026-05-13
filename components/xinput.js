@@ -85,13 +85,20 @@ class XInput extends HTMLElement {
       role: "textbox",
       valueMode: "string",
       slots: ["label", "hint", "error"],
-      parts: ["root", "control", "label", "helper", "error"],
+      parts: ["root", "control", "label", "helper", "error", "status"],
       events: ["input-changed", "validation-failed"],
       commands: ["focus", "validate", "reset", "set-value", "announce-error"],
       stateKey: "xinput-value-<id>",
       schedule: "ui.user-blocking.input",
       fabric: { lane: "user-blocking", a11yLane: "a11y" },
       rmt: XInput.xtendRmtMetadata,
+      signatureDesign: {
+        note: "Precise enterprise text field with calm surface depth, explicit status typography and density-aware rhythm.",
+        tokenStrategy: "form tokens map label, control, helper, error, icon, focus, disabled, busy and density states.",
+        themeExpectation: "host applications can restyle every visible form role without relying on hardcoded color decisions."
+      },
+      densityProfiles: ["comfortable", "compact", "dense"],
+      states: ["required", "disabled", "busy", "invalid"],
       validation: { validityApi: true, errorRegion: "role=alert aria-live=assertive" }
     };
   }
@@ -151,41 +158,72 @@ class XInput extends HTMLElement {
           box-sizing: border-box;
           min-width: 0;
           max-width: 100%;
-          color: var(--xtend-text, var(--text-color, #000));
+          color: var(--xtend-form-text, var(--xtend-text, var(--text-color, #0f172a)));
+          font-family: var(--xtend-form-font-family, var(--xtend-font-family-body, inherit));
+          font-size: var(--xtend-form-control-font-size, 1rem);
+          --xtend-form-control-height: var(--xtend-form-density-control-height, 2.75rem);
+          --xtend-form-control-padding: var(--xtend-form-density-padding, 0.65rem 0.85rem);
+          --xtend-form-control-gap: var(--xtend-form-gap, 0.35rem);
+          --xtend-form-icon-color: var(--xtend-form-control-text, currentColor);
+          --xtend-form-status-marker: "";
+        }
+
+        :host([density="comfortable"]) {
+          --xtend-form-density-control-height: 3rem;
+          --xtend-form-density-padding: 0.75rem 0.95rem;
+          --xtend-form-gap: 0.45rem;
+        }
+
+        :host([density="compact"]) {
+          --xtend-form-density-control-height: 2.5rem;
+          --xtend-form-density-padding: 0.55rem 0.75rem;
+          --xtend-form-gap: 0.3rem;
+        }
+
+        :host([density="dense"]) {
+          --xtend-form-density-control-height: 2.15rem;
+          --xtend-form-density-padding: 0.4rem 0.65rem;
+          --xtend-form-gap: 0.2rem;
+          font-size: var(--xtend-form-dense-font-size, 0.92rem);
         }
 
         label {
           display: block;
-          margin-bottom: 0.25em;
-          font-weight: 500;
-          color: var(--xtend-control-label-color, var(--text-color, var(--xtend-text, #000)));
+          margin-bottom: var(--xtend-form-control-gap);
+          font-weight: var(--xtend-form-label-font-weight, 650);
+          font-size: var(--xtend-form-label-font-size, 0.92rem);
+          color: var(--xtend-form-label-text, var(--xtend-control-label-color, var(--xtend-form-text)));
+          overflow-wrap: anywhere;
         }
 
         input {
           width: 100%;
           max-width: 100%;
           min-width: 0;
+          min-height: var(--xtend-form-control-height);
           box-sizing: border-box;
-          padding: var(--padding, 0.5em);
-          border: 1px solid var(--xtend-control-border, var(--border-color, var(--xtend-border-color, #ccc)));
-          border-radius: var(--xtend-control-radius, var(--border-radius, 4px));
-          background: var(--xtend-control-bg, var(--input-bg, var(--xtend-surface, #fff)));
-          color: var(--xtend-control-color, var(--text-color, var(--xtend-text, #000)));
+          padding: var(--xtend-form-control-padding, var(--padding, 0.5em));
+          border: var(--xtend-form-border-width, 1px) solid var(--xtend-form-border-color, var(--xtend-control-border, var(--border-color, var(--xtend-border-color, #9ca3af))));
+          border-radius: var(--xtend-form-radius, var(--xtend-control-radius, var(--border-radius, 0.5rem)));
+          background: var(--xtend-form-control-surface, var(--xtend-control-bg, var(--input-bg, var(--xtend-surface, #fff))));
+          color: var(--xtend-form-control-text, var(--xtend-control-color, var(--xtend-form-text)));
           color-scheme: inherit;
-          caret-color: var(--xtend-control-color, var(--text-color, var(--xtend-text, #000)));
-          font-size: 1em;
+          caret-color: var(--xtend-form-caret-color, var(--xtend-form-control-text));
+          font: inherit;
+          box-shadow: var(--xtend-form-control-shadow, 0 1px 2px rgba(15, 23, 42, 0.06));
+          transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
         }
 
         input::placeholder {
-          color: var(--xtend-control-placeholder-color, var(--muted-text-color, #64748b));
+          color: var(--xtend-form-placeholder-text, var(--xtend-control-placeholder-color, var(--muted-text-color, #64748b)));
           opacity: 1;
         }
 
         :host-context(html[data-theme="dark"]) input,
         :host-context([data-theme="dark"]) input {
-          background: var(--xtend-control-bg-dark, var(--input-bg-dark, var(--xtend-control-bg, var(--xtend-surface, #1f2635))));
-          color: var(--xtend-control-color-dark, var(--input-color-dark, var(--xtend-control-color, var(--xtend-text, var(--text-color, #f5f7fb)))));
-          caret-color: var(--xtend-control-color-dark, var(--input-color-dark, var(--xtend-control-color, var(--xtend-text, var(--text-color, #f5f7fb)))));
+          background: var(--xtend-form-control-surface-dark, var(--xtend-control-bg-dark, var(--input-bg-dark, var(--xtend-form-control-surface, var(--xtend-surface, #1f2635)))));
+          color: var(--xtend-form-control-text-dark, var(--xtend-control-color-dark, var(--input-color-dark, var(--xtend-form-control-text, #f5f7fb))));
+          caret-color: var(--xtend-form-control-text-dark, var(--xtend-control-color-dark, var(--input-color-dark, var(--xtend-form-control-text, #f5f7fb))));
         }
 
         :host-context(html[data-theme="dark"]) input::placeholder,
@@ -194,22 +232,57 @@ class XInput extends HTMLElement {
         }
 
         input:focus {
-          outline: var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #0056b3)));
+          outline: var(--xtend-form-focus-ring, var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #0056b3))));
+          outline-offset: var(--xtend-form-focus-offset, 2px);
+          border-color: var(--xtend-form-focus-border-color, var(--primary-color, #0056b3));
         }
 
+        :host([invalid]) input,
         input:invalid {
-          border-color: var(--error-color, #dc3545);
+          border-color: var(--xtend-form-error-border, var(--error-color, #dc3545));
+          box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc3545)));
+        }
+
+        .helper,
+        .error {
+          font-size: var(--xtend-form-helper-font-size, 0.875em);
+          margin-top: var(--xtend-form-control-gap);
+          line-height: 1.45;
+          overflow-wrap: anywhere;
+        }
+
+        .helper {
+          color: var(--xtend-form-helper-text, var(--muted-text-color, #64748b));
         }
 
         .error {
-          color: var(--error-color, #dc3545);
-          font-size: 0.875em;
-          margin-top: 0.25em;
+          color: var(--xtend-form-error-text, var(--error-color, #b42318));
+          background: var(--xtend-form-error-surface, transparent);
+          border-inline-start: var(--xtend-form-error-marker-width, 3px) solid var(--xtend-form-error-border, currentColor);
+          border-radius: var(--xtend-form-error-radius, 0.35rem);
+          padding: var(--xtend-form-error-padding, 0.25rem 0 0.25rem 0.55rem);
+          font-weight: var(--xtend-form-error-font-weight, 600);
           display: none;
         }
 
-        input:invalid + .error {
+        :host([invalid]) .error,
+        input:invalid ~ .error {
           display: block;
+        }
+
+        :host([disabled]),
+        :host([busy]) {
+          opacity: var(--xtend-form-disabled-opacity, 0.72);
+        }
+
+        :host([busy]) input {
+          cursor: progress;
+          border-style: dashed;
+        }
+
+        :host([disabled]) input {
+          cursor: not-allowed;
+          background: var(--xtend-form-disabled-surface, color-mix(in srgb, var(--xtend-form-control-surface, #fff) 78%, var(--xtend-form-text, #0f172a)));
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -244,39 +317,20 @@ class XInput extends HTMLElement {
           }
         }
       </style>
-      <template id="label-template">
-        <label id="label" for="input">
-          <slot name="label"></slot>
-        </label>
-      </template>
-      <input id="input" part="control" aria-describedby="error" />
-      <div id="error" class="error" part="error" role="alert" aria-live="assertive" aria-atomic="true"><slot name="error">Invalid input</slot></div>
+      <label id="label" part="label" for="input">
+        <slot name="label"></slot>
+      </label>
+      <input id="input" part="control" aria-describedby="helper error" />
+      <div id="helper" class="helper" part="helper"><slot name="hint"></slot></div>
+      <div id="error" class="error" part="error status" role="alert" aria-live="assertive" aria-atomic="true"><slot name="error">Invalid input</slot></div>
     `;
 
     this._input = this.shadowRoot.querySelector("#input");
     this._unsubscribeState = null;
-    // Label-Logik: Nur anzeigen, wenn Slot belegt
-    const tmpl = this.shadowRoot.getElementById('label-template');
-    const slot = tmpl.content.querySelector('slot');
-    slot.addEventListener('slotchange', () => {
-      if (slot.assignedNodes().length === 0) {
-        tmpl.parentNode && tmpl.parentNode.removeChild(tmpl);
-      } else {
-        if (!tmpl.parentNode) this.shadowRoot.insertBefore(tmpl.content.cloneNode(true), this._input);
-      }
-    });
-    // Initial prüfen
-    setTimeout(() => {
-      if (slot.assignedNodes().length === 0) {
-        tmpl.parentNode && tmpl.parentNode.removeChild(tmpl);
-      } else {
-        if (!tmpl.parentNode) this.shadowRoot.insertBefore(tmpl.content.cloneNode(true), this._input);
-      }
-    }, 0);
   }
 
   static get observedAttributes() {
-    return ["type", "name", "value", "placeholder", "required", "disabled"];
+    return ["type", "name", "value", "placeholder", "required", "disabled", "busy", "invalid", "density"];
   }
 
   connectedCallback() {
@@ -290,6 +344,7 @@ class XInput extends HTMLElement {
 
     this._input.addEventListener("input", () => {
       this._internals?.setFormValue(this.value);
+      if (this._input.checkValidity()) this.removeAttribute("invalid");
       this.dispatchEvent(new CustomEvent("input-changed", {
         detail: { value: this.value, source: "x-input" },
         bubbles: true,
@@ -304,6 +359,7 @@ class XInput extends HTMLElement {
     });
 
     this._input.addEventListener("invalid", () => {
+      this.setAttribute("invalid", "");
       this.dispatchEvent(new CustomEvent("validation-failed", {
         detail: { value: this.value, source: "x-input", message: this._input.validationMessage },
         bubbles: true,
@@ -338,6 +394,12 @@ class XInput extends HTMLElement {
       if (this.id) xstate.set(`xinput-value-${this.id}`, newValue);
     } else if (name === "required" || name === "disabled") {
       this._input[name] = this.hasAttribute(name);
+      if (name === "required") this._input.setAttribute("aria-required", String(this.hasAttribute(name)));
+      if (name === "disabled") this.setAttribute("aria-disabled", String(this.hasAttribute(name)));
+    } else if (name === "busy") {
+      this._input.setAttribute("aria-busy", String(this.hasAttribute("busy")));
+    } else if (name === "invalid") {
+      this._input.setAttribute("aria-invalid", String(this.hasAttribute("invalid")));
     } else if (["type", "name", "placeholder"].includes(name)) {
       this._input.setAttribute(name, newValue);
     }
@@ -360,7 +422,10 @@ class XInput extends HTMLElement {
   }
 
   reportValidity() {
-    return this._input.reportValidity();
+    const valid = this._input.reportValidity();
+    if (valid) this.removeAttribute("invalid");
+    else this.setAttribute("invalid", "");
+    return valid;
   }
 
   validate() {
