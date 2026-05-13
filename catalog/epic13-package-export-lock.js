@@ -42,6 +42,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './components/manifest.json',
   './components/*',
   './design-tokens',
+  './design-tokens/xtheme-token-alias-layer',
   './design-tokens/themes/enterprise-light',
   './a11y/screenreader-signals',
   './a11y/motion-contrast-policy',
@@ -210,6 +211,11 @@ const SURFACE_GROUPS = Object.freeze([
     id: 'security',
     requiredExports: ['./security/manifest-import-policy', './security/trusted-dom-policy', './security/supply-chain-gate-policy'],
     requiredPackRoots: ['security']
+  },
+  {
+    id: 'design-tokens',
+    requiredExports: ['./design-tokens', './design-tokens/xtheme-token-alias-layer', './design-tokens/themes/enterprise-light'],
+    requiredPackRoots: ['design-tokens']
   },
   {
     id: 'catalog',

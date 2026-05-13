@@ -759,7 +759,7 @@ Erledigt:
 - `tests/platform/epic13_rc1_migration_notes_suite.js` prueft Contract, Package, Scaffold, Runner, Docs, Changelog, CI Matrix und Handoff
 - `docs/rc1-migration-notes.md` macht die RC1 Migration Notes in der Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` fuehren `epic13Rc1MigrationNotes`
-- `./catalog/epic13-rc1-migration-notes`, `./catalog/epic14-rmt-tooling`, `./catalog/epic14-lsp-handoff` und die RMT/vNext-Tooling-Surface sind im Package Export Lock enthalten; expectedExportCount ist `104`
+- `./design-tokens/xtheme-token-alias-layer`, `./catalog/epic13-rc1-migration-notes`, `./catalog/epic14-rmt-tooling`, `./catalog/epic14-lsp-handoff` und die RMT/vNext-Tooling-Surface sind im Package Export Lock enthalten; expectedExportCount ist `105`
 - `WP-E13-13` ist `ready`
 
 Naechstes Paket:

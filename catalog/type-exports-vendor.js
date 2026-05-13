@@ -25,17 +25,20 @@ const TYPE_EXPORTS_VENDOR_REPORT_ARTIFACT = '.xtend-test-results/xtend-type-expo
 const VENDOR_DECLARATION_FILES = Object.freeze([
   'components/prism.d.ts',
   'components/turndown.d.ts',
-  'design-tokens/xtend-design-tokens.d.ts'
+  'design-tokens/xtend-design-tokens.d.ts',
+  'design-tokens/xtheme-token-alias-layer.d.ts'
 ]);
 
 const VENDOR_RUNTIME_FILES = Object.freeze([
   'components/prism.js',
   'components/turndown.js',
-  'design-tokens/xtend-design-tokens.js'
+  'design-tokens/xtend-design-tokens.js',
+  'design-tokens/xtheme-token-alias-layer.js'
 ]);
 
 const VENDOR_PACKAGE_EXPORTS = Object.freeze([
-  './design-tokens'
+  './design-tokens',
+  './design-tokens/xtheme-token-alias-layer'
 ]);
 
 const VENDOR_WILDCARD_EXPORTS = Object.freeze([
@@ -49,7 +52,8 @@ const VENDOR_JSON_BOUNDARIES = Object.freeze([
 const VENDOR_REPRESENTATIVE_DECLARATION_TOKENS = Object.freeze({
   'components/prism.d.ts': ['export = Prism', 'highlightElement', 'highlightAllUnder', 'TokenStream'],
   'components/turndown.d.ts': ['TurndownService', 'addRule', 'turndown(input', 'Window'],
-  'design-tokens/xtend-design-tokens.d.ts': ['XtendDesignTokenContract', 'createXtendDesignTokenContract', 'validateXtendDesignTokenContract', 'XTEND_DESIGN_TOKEN_SCHEMA']
+  'design-tokens/xtend-design-tokens.d.ts': ['XtendDesignTokenContract', 'createXtendDesignTokenContract', 'validateXtendDesignTokenContract', 'XTEND_DESIGN_TOKEN_SCHEMA'],
+  'design-tokens/xtheme-token-alias-layer.d.ts': ['XThemeTokenAliasLayer', 'createXThemeTokenAliasLayer', 'validateXThemeTokenAliasLayer', 'XTHEME_TOKEN_ALIAS_LAYER_SCHEMA']
 });
 
 const FORBIDDEN_VENDOR_DECLARATION_IMPORT_PATTERNS = Object.freeze([
@@ -117,11 +121,13 @@ function getRuntimeTarget(packageManifest, exportKey) {
 
 function resolveDeclarationForExport(exportKey) {
   if (exportKey === './design-tokens') return './design-tokens/xtend-design-tokens.d.ts';
+  if (exportKey === './design-tokens/xtheme-token-alias-layer') return './design-tokens/xtheme-token-alias-layer.d.ts';
   return null;
 }
 
 function resolveSourceForExport(exportKey) {
   if (exportKey === './design-tokens') return './design-tokens/xtend-design-tokens.js';
+  if (exportKey === './design-tokens/xtheme-token-alias-layer') return './design-tokens/xtheme-token-alias-layer.js';
   return null;
 }
 
@@ -354,5 +360,6 @@ module.exports = {
   createTypeExportsVendorPlan,
   createTypeExportsVendorReport,
   resolveDeclarationForExport,
+  resolveSourceForExport,
   validateTypeExportsVendorPlan
 };

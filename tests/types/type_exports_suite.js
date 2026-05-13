@@ -160,7 +160,8 @@ function runTypeExportsSuite(options = {}) {
     ['./builder', 'builder', 'WP-TypeExports-06', './xtend-builder/scaffold.d.ts'],
     ['./builder/*', 'builder', 'WP-TypeExports-06', './xtend-builder/*.d.ts'],
     ['./catalog/epic13-package-export-lock', 'catalog', 'WP-TypeExports-07', './catalog/epic13-package-export-lock.d.ts'],
-    ['./design-tokens', 'design-tokens', 'WP-TypeExports-08', './design-tokens/xtend-design-tokens.d.ts']
+    ['./design-tokens', 'design-tokens', 'WP-TypeExports-08', './design-tokens/xtend-design-tokens.d.ts'],
+    ['./design-tokens/xtheme-token-alias-layer', 'design-tokens', 'WP-TypeExports-08', './design-tokens/xtheme-token-alias-layer.d.ts']
   ].forEach(([exportKey, group, workpackageId, proposedTypesCondition]) => {
     const entry = findClassification(plan, exportKey);
     context.assert(entry && entry.group === group, `${exportKey} is classified as ${group}`);

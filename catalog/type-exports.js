@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 104;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '01008dba0231e449004ef55323c124f6d1e04e9cb2a98bd921cade273f0297c8';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 105;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '67aa24f2c3f8ce4f8b8e7b64ce336e4868b35ae874117f6be948617bb1efa033';
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -171,7 +171,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'design-tokens',
     priority: 'P2',
     workpackage: 'WP-TypeExports-08',
-    exports: ['./design-tokens'],
+    exports: ['./design-tokens', './design-tokens/xtheme-token-alias-layer'],
     strategy: 'design-token-facade-declaration'
   }
 ]);

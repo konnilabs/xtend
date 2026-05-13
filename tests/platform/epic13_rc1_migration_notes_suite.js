@@ -154,13 +154,13 @@ function runEpic13Rc1MigrationNotesSuite(options = {}) {
   context.assert(rc1Metadata && rc1Metadata.nextWorkpackage === NEXT_WORKPACKAGE, 'RC1 readiness metadata now hands off to WP-E13-13');
   context.assert(ownerMetadata && ownerMetadata.nextWorkpackage === NEXT_WORKPACKAGE, 'Release owner metadata now hands off to WP-E13-13');
   context.assert(trustedDomMetadata && trustedDomMetadata.nextWorkpackage === NEXT_WORKPACKAGE, 'Trusted DOM metadata now hands off to WP-E13-13');
-  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 104, 'package export lock expects 104 exports after RMT vNext tooling surface');
+  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 105, 'package export lock expects 105 exports after XTheme alias layer surface');
 
   assertTextIncludesAll(context, scaffoldConfig, [
     'epic13Rc1MigrationNotes',
     EPIC13_RC1_MIGRATION_NOTES_SCHEMA,
     PROPOSED_VERSION,
-    'expectedExportCount: 104',
+    'expectedExportCount: 105',
     'nextWorkpackage: "WP-E13-13"'
   ], 'scaffold config');
   assertTextIncludesAll(context, runner, [
@@ -199,7 +199,7 @@ function runEpic13Rc1MigrationNotesSuite(options = {}) {
   assertTextIncludesAll(context, rc1ReadinessDocs, [EPIC13_RC1_MIGRATION_NOTES_SCHEMA, 'WP-E13-13'], 'RC1 readiness docs');
   assertTextIncludesAll(context, ownerDocs, [EPIC13_RC1_MIGRATION_NOTES_SCHEMA, 'accepted', 'WP-E13-13'], 'release owner docs');
   assertTextIncludesAll(context, trustedDomDocs, [EPIC13_RC1_MIGRATION_NOTES_SCHEMA, 'WP-E13-13'], 'Trusted DOM docs');
-  assertTextIncludesAll(context, packageExportContract, ['expectedExportCount: `104`', './catalog/epic13-rc1-migration-notes'], 'package export contract');
+  assertTextIncludesAll(context, packageExportContract, ['expectedExportCount: `105`', './catalog/epic13-rc1-migration-notes'], 'package export contract');
   assertTextIncludesAll(context, releaseChecklist, [
     EPIC13_RC1_MIGRATION_NOTES_PACKAGE_SCRIPT,
     EPIC13_RC1_MIGRATION_NOTES_CONTRACT,

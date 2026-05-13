@@ -38,6 +38,7 @@ const {
   createTypeExportsVendorPlan,
   createTypeExportsVendorReport,
   resolveDeclarationForExport,
+  resolveSourceForExport,
   validateTypeExportsVendorPlan
 } = require('../../catalog/type-exports-vendor');
 
@@ -130,8 +131,9 @@ function runTypeExportsVendorSuite(options = {}) {
 
   VENDOR_PACKAGE_EXPORTS.forEach((exportKey) => {
     const expectedTypes = resolveDeclarationForExport(exportKey);
+    const expectedRuntime = resolveSourceForExport(exportKey);
     context.assert(getTypesCondition(packageManifest, exportKey) === expectedTypes, `${exportKey} package export exposes ${expectedTypes}`);
-    context.assert(getRuntimeTarget(packageManifest, exportKey) === './design-tokens/xtend-design-tokens.js', `${exportKey} keeps runtime target`);
+    context.assert(getRuntimeTarget(packageManifest, exportKey) === expectedRuntime, `${exportKey} keeps runtime target`);
     const classification = typeExportsPlan.classifications.find((entry) => entry.exportKey === exportKey);
     context.assert(classification && classification.proposedTypesCondition === expectedTypes, `TypeExports proposes ${expectedTypes} for ${exportKey}`);
     context.assert(classification && classification.declarationExists === true, `TypeExports sees ${exportKey} declaration`);
@@ -190,16 +192,19 @@ function runTypeExportsVendorSuite(options = {}) {
     './components/prism.d.ts',
     './components/turndown.d.ts',
     './design-tokens/xtend-design-tokens.d.ts',
+    './design-tokens/xtheme-token-alias-layer.d.ts',
     'Theme JSON'
   ], 'Vendor Type docs');
   assertTextIncludesAll(context, typeExportsDocs, [
     'WP-TypeExports-08',
     './design-tokens/xtend-design-tokens.d.ts',
+    './design-tokens/xtheme-token-alias-layer.d.ts',
     './components/prism.d.ts',
     './xtend-vendor-types.md'
   ], 'TypeExports docs');
   assertTextIncludesAll(context, packageExportLockDocs, [
     './design-tokens/xtend-design-tokens.d.ts',
+    './design-tokens/xtheme-token-alias-layer.d.ts',
     TYPE_EXPORTS_VENDOR_LOCAL_GATE
   ], 'Package Export Lock docs');
   assertTextIncludesAll(context, designTokenDocs, [

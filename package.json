@@ -5715,7 +5715,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 104,
+      "expectedExportCount": 105,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -5740,8 +5740,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 104,
-      "lockedExportFingerprint": "01008dba0231e449004ef55323c124f6d1e04e9cb2a98bd921cade273f0297c8",
+      "expectedExportCount": 105,
+      "lockedExportFingerprint": "67aa24f2c3f8ce4f8b8e7b64ce336e4868b35ae874117f6be948617bb1efa033",
       "p0Exports": [
         ".",
         "./loader",
@@ -5764,6 +5764,7 @@
         "./xtend-builder/*.d.ts",
         "./catalog/epic13-package-export-lock.d.ts",
         "./design-tokens/xtend-design-tokens.d.ts",
+        "./design-tokens/xtheme-token-alias-layer.d.ts",
         "./tools/rmt-language/rmt-tooling-public-types.d.ts",
         "./tools/rmt-language/source-model.d.ts",
         "./tools/rmt-language/parser.d.ts",
@@ -5841,6 +5842,15 @@
         "./catalog/epic13-visual-owner-artifact.d.ts",
         "./catalog/epic14-lsp-handoff.d.ts",
         "./catalog/epic14-rmt-tooling.d.ts",
+        "./catalog/enterprise-component-flex-release-handoff.d.ts",
+        "./catalog/enterprise-component-style-audit.d.ts",
+        "./catalog/enterprise-form-control-theme-a11y.d.ts",
+        "./catalog/enterprise-icon-control-audit.d.ts",
+        "./catalog/enterprise-layout-display-media-tokenization.d.ts",
+        "./catalog/enterprise-navigation-routing-state-hardening.d.ts",
+        "./catalog/enterprise-overlay-mode-token-parity.d.ts",
+        "./catalog/enterprise-third-party-authoring-guide.d.ts",
+        "./catalog/enterprise-visual-dom-snapshot-matrix.d.ts",
         "./catalog/surface-manager-adapter-runtime.d.ts",
         "./catalog/surface-manager-browser-lab.d.ts",
         "./catalog/surface-manager-controller.d.ts",
@@ -7049,6 +7059,15 @@
         "catalog/epic13-visual-owner-artifact.d.ts",
         "catalog/epic14-lsp-handoff.d.ts",
         "catalog/epic14-rmt-tooling.d.ts",
+        "catalog/enterprise-component-flex-release-handoff.d.ts",
+        "catalog/enterprise-component-style-audit.d.ts",
+        "catalog/enterprise-form-control-theme-a11y.d.ts",
+        "catalog/enterprise-icon-control-audit.d.ts",
+        "catalog/enterprise-layout-display-media-tokenization.d.ts",
+        "catalog/enterprise-navigation-routing-state-hardening.d.ts",
+        "catalog/enterprise-overlay-mode-token-parity.d.ts",
+        "catalog/enterprise-third-party-authoring-guide.d.ts",
+        "catalog/enterprise-visual-dom-snapshot-matrix.d.ts",
         "catalog/surface-manager-adapter-runtime.d.ts",
         "catalog/surface-manager-browser-lab.d.ts",
         "catalog/surface-manager-controller.d.ts",
@@ -7163,10 +7182,12 @@
       "declarationFiles": [
         "components/prism.d.ts",
         "components/turndown.d.ts",
-        "design-tokens/xtend-design-tokens.d.ts"
+        "design-tokens/xtend-design-tokens.d.ts",
+        "design-tokens/xtheme-token-alias-layer.d.ts"
       ],
       "packageExports": [
-        "./design-tokens"
+        "./design-tokens",
+        "./design-tokens/xtheme-token-alias-layer"
       ],
       "wildcardExports": [
         "./components/*"
