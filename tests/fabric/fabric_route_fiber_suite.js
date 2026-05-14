@@ -47,7 +47,7 @@ async function runFabricRouteFiberSuite(options = {}) {
   assert(!source.includes('rmt-runtime'), 'Route fiber instrumentation does not import the RMT runtime');
 
   context.assertIncludes(routerSource, 'navigate(to, options = {})', 'XRouter exposes runtime navigate surface');
-  context.assertIncludes(routerSource, 'async _handleNavigation()', 'XRouter keeps navigation handling as an instrumentable boundary');
+  context.assertIncludes(routerSource, 'async _handleNavigation(options = {})', 'XRouter keeps navigation handling as an instrumentable boundary');
   context.assertIncludes(routerSource, 'async _renderRoute(match, container)', 'XRouter keeps route rendering as an instrumentable boundary');
   context.assertIncludes(routerSource, 'router-navigate', 'XRouter keeps xstate navigation input for RMT adapter integration');
 
