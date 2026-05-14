@@ -257,6 +257,34 @@
       "types": "./tools/rmt-language/vnext-security.d.ts",
       "default": "./tools/rmt-language/vnext-security.js"
     },
+    "./rmt-language/kernel-trust-authority": {
+      "types": "./tools/rmt-language/kernel-trust-authority.d.ts",
+      "default": "./tools/rmt-language/kernel-trust-authority.js"
+    },
+    "./rmt-language/kernel-panic-monitor": {
+      "types": "./tools/rmt-language/kernel-panic-monitor.d.ts",
+      "default": "./tools/rmt-language/kernel-panic-monitor.js"
+    },
+    "./rmt-language/kernel-recovery": {
+      "types": "./tools/rmt-language/kernel-recovery.d.ts",
+      "default": "./tools/rmt-language/kernel-recovery.js"
+    },
+    "./rmt-language/kernel-escalation": {
+      "types": "./tools/rmt-language/kernel-escalation.d.ts",
+      "default": "./tools/rmt-language/kernel-escalation.js"
+    },
+    "./rmt-language/kernel-scheduler-failure": {
+      "types": "./tools/rmt-language/kernel-scheduler-failure.d.ts",
+      "default": "./tools/rmt-language/kernel-scheduler-failure.js"
+    },
+    "./rmt-language/kernel-policy-parity": {
+      "types": "./tools/rmt-language/kernel-policy-parity.d.ts",
+      "default": "./tools/rmt-language/kernel-policy-parity.js"
+    },
+    "./rmt-language/kernel-security-regression": {
+      "types": "./tools/rmt-language/kernel-security-regression.d.ts",
+      "default": "./tools/rmt-language/kernel-security-regression.js"
+    },
     "./rmt-language/vnext-streaming": {
       "types": "./tools/rmt-language/vnext-streaming.d.ts",
       "default": "./tools/rmt-language/vnext-streaming.js"
@@ -911,6 +939,474 @@
         "WP-E15-15",
         "WP-E15-17"
       ]
+    },
+    "rmtKernelTrustAuthority": {
+      "schema": "xtend.rmt.kernel-trust-authority.v1",
+      "hardeningContract": "xtend.rmt.kernel-trust-hardening.v1",
+      "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+      "diagnosticSchema": "xtend.rmt.kernel-trust-diagnostic.v1",
+      "reportSchema": "xtend.rmt.kernel-trust-authority-report.v1",
+      "workpackage": "RKSH-WP-01",
+      "status": "accepted-kernel-trust-authority-contract",
+      "module": "tools/rmt-language/kernel-trust-authority.js",
+      "suite": "tests/rmt-language/rmt_kernel_trust_authority_suite.js",
+      "contract": "development/XTendRMT-Kernel-Trust-Authority-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-01-KernelTrustAuthority-Contract-definieren.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-trust-authority --json",
+      "packageScript": "npm run test:rmt-kernel-trust-authority",
+      "hostNeutral": true,
+      "runtimeMutations": false,
+      "verdicts": [
+        "trusted",
+        "sanitized",
+        "blocked",
+        "panic"
+      ],
+      "scopes": [
+        "binding",
+        "slot",
+        "template",
+        "surface",
+        "remote-surface",
+        "scheduler-job",
+        "adapter-output",
+        "diagnostics",
+        "kernel"
+      ],
+      "handoff": [
+        "RKSH-WP-02",
+        "RKSH-WP-03",
+        "RKSH-WP-04",
+        "RKSH-WP-05"
+      ]
+    },
+    "rmtKernelTrustedDomRuntime": {
+      "schema": "xtend.rmt.kernel-trusted-dom-runtime.v1",
+      "trustSinkAdapterSchema": "xtend.rmt.runtime-trust-sink-adapter.v1",
+      "trustAuthoritySchema": "xtend.rmt.kernel-trust-authority.v1",
+      "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+      "reportSchema": "xtend.rmt.kernel-trusted-dom-runtime-report.v1",
+      "workpackage": "RKSH-WP-02",
+      "status": "completed-runtime-trusted-dom-sink-adapter",
+      "artifacts": [
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js",
+        "xtendrmt/rmt-core.d.ts"
+      ],
+      "suite": "tests/rmt-language/rmt_kernel_trusted_dom_runtime_suite.js",
+      "contract": "development/XTendRMT-Kernel-Trusted-DOM-Runtime-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-02-Runtime-Trust-Sink-Adapter-anbinden.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-trusted-dom-runtime --json",
+      "packageScript": "npm run test:rmt-kernel-trusted-dom-runtime",
+      "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+      "sinkCoverage": [
+        "slot.html",
+        "prerender.html",
+        "fallback.html",
+        "template.innerHTML",
+        "innerHTML"
+      ],
+      "unsafeHtmlFixtures": [
+        "script",
+        "on*",
+        "javascript:",
+        "srcdoc",
+        "iframe"
+      ]
+    },
+    "rmtKernelBindingSecurity": {
+      "schema": "xtend.rmt.kernel-binding-security.v1",
+      "trustSinkAdapterSchema": "xtend.rmt.runtime-trust-sink-adapter.v1",
+      "trustAuthoritySchema": "xtend.rmt.kernel-trust-authority.v1",
+      "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+      "reportSchema": "xtend.rmt.kernel-binding-security-report.v1",
+      "workpackage": "RKSH-WP-03",
+      "status": "completed-binding-security-policies",
+      "artifacts": [
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js"
+      ],
+      "suite": "tests/rmt-language/rmt_kernel_binding_security_suite.js",
+      "contract": "development/XTendRMT-Kernel-Binding-Security-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-03-Attribute-URL-und-Property-Policies-haerten.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-binding-security --json",
+      "packageScript": "npm run test:rmt-kernel-binding-security",
+      "sinkCoverage": [
+        "attribute",
+        "url-attribute",
+        "property"
+      ],
+      "blockedFixtures": [
+        "on*",
+        "style",
+        "javascript:",
+        "srcdoc",
+        "innerHTML",
+        "unknown-attribute"
+      ]
+    },
+    "rmtKernelPanicMonitor": {
+      "schema": "xtend.rmt.kernel-panic-monitor.v1",
+      "stateSchema": "xtend.rmt.kernel-panic-state.v1",
+      "eventSchema": "xtend.rmt.kernel-panic-event.v1",
+      "trustAuthoritySchema": "xtend.rmt.kernel-trust-authority.v1",
+      "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+      "reportSchema": "xtend.rmt.kernel-panic-monitor-report.v1",
+      "workpackage": "RKSH-WP-04",
+      "status": "completed-panic-monitor-state-machine",
+      "module": "tools/rmt-language/kernel-panic-monitor.js",
+      "suite": "tests/rmt-language/rmt_kernel_panic_monitor_suite.js",
+      "contract": "development/XTendRMT-Kernel-Panic-Monitor-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-04-PanicMonitor-State-Machine-bauen.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-panic-monitor --json",
+      "packageScript": "npm run test:rmt-kernel-panic-monitor",
+      "diagnosticsChannel": "rmt.kernel.panic",
+      "artifacts": [
+        "tools/rmt-language/kernel-panic-monitor.js",
+        "tools/rmt-language/kernel-panic-monitor.d.ts",
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js",
+        "xtendrmt/rmt-core.d.ts"
+      ],
+      "states": [
+        "none",
+        "suspected",
+        "active",
+        "recovering",
+        "recovered",
+        "failed"
+      ],
+      "thresholds": {
+        "repeatedBlockThreshold": 3,
+        "recoveryFailureThreshold": 1
+      },
+      "handoff": [
+        "RKSH-WP-05",
+        "RKSH-WP-06",
+        "RKSH-WP-08",
+        "RKSH-WP-09"
+      ]
+    },
+    "rmtKernelRecovery": {
+      "schema": "xtend.rmt.kernel-recovery.v1",
+      "policySchema": "xtend.rmt.kernel-recovery-policy.v1",
+      "planSchema": "xtend.rmt.kernel-recovery-plan.v1",
+      "outcomeSchema": "xtend.rmt.kernel-recovery-outcome.v1",
+      "safeSnapshotSchema": "xtend.rmt.kernel-recovery-safe-snapshot.v1",
+      "panicMonitorSchema": "xtend.rmt.kernel-panic-monitor.v1",
+      "reportSchema": "xtend.rmt.kernel-recovery-report.v1",
+      "workpackage": "RKSH-WP-05",
+      "status": "completed-kernel-recovery-policy",
+      "module": "tools/rmt-language/kernel-recovery.js",
+      "suite": "tests/rmt-language/rmt_kernel_recovery_suite.js",
+      "contract": "development/XTendRMT-Kernel-Recovery-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-05-Quarantaene-Rollback-und-sicheren-Fallback-modellieren.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-recovery --json",
+      "packageScript": "npm run test:rmt-kernel-recovery",
+      "diagnosticsChannel": "rmt.kernel.recovery",
+      "artifacts": [
+        "tools/rmt-language/kernel-recovery.js",
+        "tools/rmt-language/kernel-recovery.d.ts",
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js",
+        "xtendrmt/rmt-core.d.ts"
+      ],
+      "actions": [
+        "quarantine-scope",
+        "pause-scheduler-jobs",
+        "restore-last-safe-snapshot",
+        "render-safe-fallback",
+        "notify-host"
+      ],
+      "handoff": [
+        "RKSH-WP-06",
+        "RKSH-WP-07",
+        "RKSH-WP-08",
+        "RKSH-WP-09"
+      ]
+    },
+    "rmtKernelEscalation": {
+      "schema": "xtend.rmt.kernel-escalation.v1",
+      "policySchema": "xtend.rmt.kernel-escalation-policy.v1",
+      "envelopeSchema": "xtend.rmt.kernel-escalation-envelope.v1",
+      "panicMonitorSchema": "xtend.rmt.kernel-panic-monitor.v1",
+      "panicStateSchema": "xtend.rmt.kernel-panic-state.v1",
+      "reportSchema": "xtend.rmt.kernel-escalation-report.v1",
+      "workpackage": "RKSH-WP-06",
+      "status": "completed-diagnostics-command-bus-escalation",
+      "module": "tools/rmt-language/kernel-escalation.js",
+      "suite": "tests/rmt-language/rmt_kernel_escalation_suite.js",
+      "contract": "development/XTendRMT-Kernel-Escalation-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-06-Diagnostics-und-Command-Bus-Eskalation-anbinden.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-escalation --json",
+      "packageScript": "npm run test:rmt-kernel-escalation",
+      "diagnosticsChannel": "rmt.kernel.escalation",
+      "artifacts": [
+        "tools/rmt-language/kernel-escalation.js",
+        "tools/rmt-language/kernel-escalation.d.ts",
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js",
+        "xtendrmt/rmt-core.d.ts"
+      ],
+      "sources": [
+        "diagnostics",
+        "command-bus"
+      ],
+      "eventTypes": [
+        "diagnostics-subscriber-failure",
+        "command-handler-failure",
+        "command-response-failed",
+        "command-missing-handler",
+        "command-subscriber-failure"
+      ],
+      "handoff": [
+        "RKSH-WP-07",
+        "RKSH-WP-08",
+        "RKSH-WP-09"
+      ]
+    },
+    "rmtKernelSchedulerFailure": {
+      "schema": "xtend.rmt.kernel-scheduler-failure.v1",
+      "policySchema": "xtend.rmt.kernel-scheduler-failure-policy.v1",
+      "recordSchema": "xtend.rmt.kernel-scheduler-failure-record.v1",
+      "panicMonitorSchema": "xtend.rmt.kernel-panic-monitor.v1",
+      "panicStateSchema": "xtend.rmt.kernel-panic-state.v1",
+      "reportSchema": "xtend.rmt.kernel-scheduler-failure-report.v1",
+      "workpackage": "RKSH-WP-07",
+      "status": "completed-scheduler-failure-semantics",
+      "module": "tools/rmt-language/kernel-scheduler-failure.js",
+      "suite": "tests/rmt-language/rmt_kernel_scheduler_failure_suite.js",
+      "contract": "development/XTendRMT-Kernel-Scheduler-Failure-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-07-Scheduler-Failure-Semantik-korrigieren.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-scheduler-failure --json",
+      "packageScript": "npm run test:rmt-kernel-scheduler-failure",
+      "diagnosticsChannel": "rmt.kernel.scheduler_failure",
+      "escalationDiagnosticsChannel": "rmt.kernel.escalation",
+      "artifacts": [
+        "tools/rmt-language/kernel-scheduler-failure.js",
+        "tools/rmt-language/kernel-scheduler-failure.d.ts",
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js",
+        "xtendrmt/rmt-core.d.ts"
+      ],
+      "failureStatuses": [
+        "failed",
+        "aborted",
+        "panic_blocked"
+      ],
+      "panicTriggers": [
+        "scheduler-failure",
+        "scheduler-backpressure"
+      ],
+      "handoff": [
+        "RKSH-WP-08",
+        "RKSH-WP-09",
+        "RKSH-WP-10"
+      ]
+    },
+    "rmtKernelPolicyParity": {
+      "schema": "xtend.rmt.kernel-policy-parity.v1",
+      "matrixSchema": "xtend.rmt.kernel-policy-parity-matrix.v1",
+      "reportSchema": "xtend.rmt.kernel-policy-parity-report.v1",
+      "driftSchema": "xtend.rmt.kernel-policy-parity-drift.v1",
+      "workpackage": "RKSH-WP-08",
+      "status": "completed-compile-runtime-policy-parity",
+      "module": "tools/rmt-language/kernel-policy-parity.js",
+      "suite": "tests/rmt-language/rmt_kernel_policy_parity_suite.js",
+      "contract": "development/XTendRMT-Kernel-Policy-Parity-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-08-Compile-Time-Runtime-Policy-Paritaet-herstellen.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-policy-parity --json",
+      "packageScript": "npm run test:rmt-kernel-policy-parity",
+      "diagnosticsChannel": "rmt.kernel.policy_parity",
+      "artifacts": [
+        "tools/rmt-language/kernel-policy-parity.js",
+        "tools/rmt-language/kernel-policy-parity.d.ts",
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js",
+        "xtendrmt/rmt-core.d.ts"
+      ],
+      "sourcePolicySchemas": [
+        "xtend.rmt.vnext-security-policy-contract.v1",
+        "xtend.rmt.vnext-remote-security-policy.v1",
+        "xtend.rmt.vnext-degradation-policy.v1",
+        "xtend.rmt.vnext-streaming-contract.v1",
+        "xtend.rmt.vnext-event-governance-policy.v1"
+      ],
+      "runtimeScopes": [
+        "trusted-runtime-output",
+        "binding-output",
+        "remote-output",
+        "degraded-or-blocked-surface",
+        "streaming-output",
+        "event-delivery"
+      ],
+      "handoff": [
+        "RKSH-WP-09",
+        "RKSH-WP-10",
+        "RKSH-WP-11"
+      ]
+    },
+    "rmtKernelSecurityRegression": {
+      "schema": "xtend.rmt.kernel-security-regression.v1",
+      "fixtureSchema": "xtend.rmt.kernel-security-regression-fixture.v1",
+      "reportSchema": "xtend.rmt.kernel-security-regression-report.v1",
+      "browserSmokeSchema": "xtend.rmt.kernel-security-regression-browser-smoke.v1",
+      "workpackage": "RKSH-WP-09",
+      "status": "completed-negative-regression-fixtures",
+      "module": "tools/rmt-language/kernel-security-regression.js",
+      "suite": "tests/rmt-language/rmt_kernel_security_regression_suite.js",
+      "fixture": "tests/rmt-language/fixtures/kernel-security-regression-fixtures.json",
+      "browserSmoke": "tests/browser/fixtures/rmt-kernel-security-regression-smoke.html",
+      "contract": "development/XTendRMT-Kernel-Security-Regression-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-09-Negative-Fixtures-Fuzzing-und-Browser-Smokes-erweitern.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-security-regression --json",
+      "packageScript": "npm run test:rmt-kernel-security-regression",
+      "diagnosticsChannel": "rmt.kernel.security_regression",
+      "artifacts": [
+        "tools/rmt-language/kernel-security-regression.js",
+        "tools/rmt-language/kernel-security-regression.d.ts",
+        "tests/rmt-language/fixtures/kernel-security-regression-fixtures.json",
+        "tests/rmt-language/rmt_kernel_security_regression_suite.js",
+        "tests/browser/fixtures/rmt-kernel-security-regression-smoke.html",
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js"
+      ],
+      "fixtureCategories": [
+        "maliciousHtmlFragments",
+        "maliciousAttributes",
+        "maliciousUrls",
+        "maliciousProperties",
+        "panicSequences",
+        "browserSmokeScenarios"
+      ],
+      "runtimeSinks": [
+        "slot.html",
+        "prerender.html",
+        "fallback.html",
+        "url-attribute",
+        "attribute",
+        "property"
+      ],
+      "handoff": [
+        "RKSH-WP-10",
+        "RKSH-WP-11"
+      ]
+    },
+    "rmtKernelArtifactParity": {
+      "schema": "xtend.rmt.kernel-artifact-parity.v1",
+      "artifactParitySchema": "xtend.rmt.artifact-parity.v1",
+      "workpackage": "RKSH-WP-10",
+      "status": "completed-kernel-artifact-parity",
+      "contract": "development/XTendRMT-Kernel-Artifact-Parity-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-10-Buildprozess-und-Artefakt-Paritaet-fuer-neue-Layer-absichern.md",
+      "localGate": "node scripts/verify_xtendrmt_artifact_parity.js --json",
+      "packageScript": "npm run test:rmt-artifact-parity",
+      "parityScript": "scripts/verify_xtendrmt_artifact_parity.js",
+      "schemaArtifact": "xtendrmt/rmt.schema.json",
+      "manifestArtifact": "xtendrmt/rmt-manifest.json",
+      "typesArtifact": "xtendrmt/rmt-core.d.ts",
+      "runtimeArtifacts": [
+        "xtendrmt/rmt-core.esm.js",
+        "xtendrmt/rmt-runtime.esm.js",
+        "xtendrmt/rmt-runtime.browser.js"
+      ],
+      "requiredFactory": "createRmtKernelPolicyParity",
+      "requiredContracts": [
+        "xtend.rmt.kernel-trust-hardening.v1",
+        "xtend.rmt.kernel-trust-authority.v1",
+        "xtend.rmt.kernel-trust-verdict.v1",
+        "xtend.rmt.kernel-trusted-dom-runtime.v1",
+        "xtend.rmt.kernel-binding-security.v1",
+        "xtend.rmt.kernel-panic-monitor.v1",
+        "xtend.rmt.kernel-panic-state.v1",
+        "xtend.rmt.kernel-panic-event.v1",
+        "xtend.rmt.kernel-recovery.v1",
+        "xtend.rmt.kernel-recovery-outcome.v1",
+        "xtend.rmt.kernel-recovery-safe-snapshot.v1",
+        "xtend.rmt.kernel-escalation.v1",
+        "xtend.rmt.kernel-escalation-envelope.v1",
+        "xtend.rmt.kernel-scheduler-failure.v1",
+        "xtend.rmt.kernel-scheduler-failure-record.v1",
+        "xtend.rmt.kernel-policy-parity.v1",
+        "xtend.rmt.kernel-security-regression.v1"
+      ],
+      "runtimeHooks": [
+        "commitTrustedHtml",
+        "commitTrustedAttribute",
+        "commitTrustedProperty",
+        "listTrustVerdicts",
+        "getPanicSnapshot",
+        "listPanicEvents",
+        "recoverFromPanic",
+        "listRecoveryOutcomes",
+        "recordEscalation",
+        "panicBlockScope",
+        "createRmtKernelPolicyParity"
+      ],
+      "typeSurfaces": [
+        "RmtKernelRuntimeTrustVerdict",
+        "RmtKernelRuntimePanicEvent",
+        "RmtKernelRuntimePanicSnapshot",
+        "RmtKernelRuntimeRecoverySafeSnapshot",
+        "RmtKernelRuntimeRecoveryOutcome",
+        "RmtKernelRuntimeEscalationEnvelope",
+        "RmtKernelRuntimeSchedulerFailureRecord",
+        "RmtKernelRuntimePolicyParityReport"
+      ],
+      "sourceOfTruth": "upstream-rmt-source-plus-local-rksh-handoff",
+      "handoff": [
+        "RKSH-WP-11"
+      ]
+    },
+    "rmtKernelHandoffDocs": {
+      "schema": "xtend.rmt.kernel-migration-authoring-incident-handoff.v1",
+      "reportSchema": "xtend.rmt.kernel-migration-authoring-incident-handoff-report.v1",
+      "workpackage": "RKSH-WP-11",
+      "status": "completed-migration-authoring-incident-handoff",
+      "contract": "development/XTendRMT-Kernel-Migration-Authoring-Incident-Handoff-Contract.md",
+      "workpackageDocument": "development/WP-RKSH-11-Migration-Authoring-und-Incident-Handoff-dokumentieren.md",
+      "docs": [
+        "docs/rmt-kernel-security-hardening-migration.md",
+        "docs/rmt-kernel-trusted-output-authoring.md",
+        "docs/rmt-kernel-panic-recovery-incident-handoff.md"
+      ],
+      "suite": "tests/rmt-language/rmt_kernel_handoff_docs_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js rmt-kernel-handoff-docs --json",
+      "packageScript": "npm run test:rmt-kernel-handoff-docs",
+      "sourceGates": [
+        "node scripts/run_xtend_tests.js rmt-kernel-security-regression --json",
+        "node scripts/verify_xtendrmt_artifact_parity.js --json"
+      ],
+      "incidentChannels": [
+        "rmt.kernel.panic",
+        "rmt.kernel.recovery",
+        "rmt.kernel.escalation",
+        "rmt.kernel.scheduler_failure"
+      ],
+      "authoringPatterns": [
+        "sanitize html",
+        "html_fragment",
+        "textContent",
+        "data-*",
+        "aria-*",
+        "safeFallbackHtml",
+        "commitTrustedHtml",
+        "commitTrustedAttribute",
+        "commitTrustedProperty"
+      ],
+      "semverDecision": {
+        "major": "previously-rendered legacy unsafe outputs are newly blocked",
+        "minor": "warnings, opt-in fallbacks or diagnostics are added without removing safe output",
+        "patch": "docs, tests or report metadata only"
+      }
     },
     "rmtVNextStreaming": {
       "schema": "xtend.rmt.vnext-streaming-contract.v1",
@@ -6060,6 +6556,13 @@
         "tools/rmt-language/vnext-import-resolver.d.ts",
         "tools/rmt-language/vnext-events.d.ts",
         "tools/rmt-language/vnext-security.d.ts",
+        "tools/rmt-language/kernel-trust-authority.d.ts",
+        "tools/rmt-language/kernel-panic-monitor.d.ts",
+        "tools/rmt-language/kernel-recovery.d.ts",
+        "tools/rmt-language/kernel-escalation.d.ts",
+        "tools/rmt-language/kernel-scheduler-failure.d.ts",
+        "tools/rmt-language/kernel-policy-parity.d.ts",
+        "tools/rmt-language/kernel-security-regression.d.ts",
         "tools/rmt-language/vnext-streaming.d.ts",
         "tools/rmt-language/vnext-tooling.d.ts",
         "tools/rmt-language/vnext-compatibility.d.ts",
@@ -6106,6 +6609,13 @@
         "./rmt-language/vnext-import-resolver",
         "./rmt-language/vnext-events",
         "./rmt-language/vnext-security",
+        "./rmt-language/kernel-trust-authority",
+        "./rmt-language/kernel-panic-monitor",
+        "./rmt-language/kernel-recovery",
+        "./rmt-language/kernel-escalation",
+        "./rmt-language/kernel-scheduler-failure",
+        "./rmt-language/kernel-policy-parity",
+        "./rmt-language/kernel-security-regression",
         "./rmt-language/vnext-streaming",
         "./rmt-language/vnext-tooling",
         "./rmt-language/vnext-compatibility",
@@ -6152,6 +6662,13 @@
         "./rmt-language/vnext-import-resolver",
         "./rmt-language/vnext-events",
         "./rmt-language/vnext-security",
+        "./rmt-language/kernel-trust-authority",
+        "./rmt-language/kernel-panic-monitor",
+        "./rmt-language/kernel-recovery",
+        "./rmt-language/kernel-escalation",
+        "./rmt-language/kernel-scheduler-failure",
+        "./rmt-language/kernel-policy-parity",
+        "./rmt-language/kernel-security-regression",
         "./rmt-language/vnext-streaming",
         "./rmt-language/vnext-tooling",
         "./rmt-language/vnext-compatibility",
@@ -7262,6 +7779,16 @@
     "test:rmt-vnext-imports": "node scripts/run_xtend_tests.js rmt-vnext-imports",
     "test:rmt-vnext-events": "node scripts/run_xtend_tests.js rmt-vnext-events",
     "test:rmt-vnext-security": "node scripts/run_xtend_tests.js rmt-vnext-security",
+    "test:rmt-kernel-trust-authority": "node scripts/run_xtend_tests.js rmt-kernel-trust-authority",
+    "test:rmt-kernel-trusted-dom-runtime": "node scripts/run_xtend_tests.js rmt-kernel-trusted-dom-runtime",
+    "test:rmt-kernel-binding-security": "node scripts/run_xtend_tests.js rmt-kernel-binding-security",
+    "test:rmt-kernel-panic-monitor": "node scripts/run_xtend_tests.js rmt-kernel-panic-monitor",
+    "test:rmt-kernel-recovery": "node scripts/run_xtend_tests.js rmt-kernel-recovery",
+    "test:rmt-kernel-escalation": "node scripts/run_xtend_tests.js rmt-kernel-escalation",
+    "test:rmt-kernel-scheduler-failure": "node scripts/run_xtend_tests.js rmt-kernel-scheduler-failure",
+    "test:rmt-kernel-policy-parity": "node scripts/run_xtend_tests.js rmt-kernel-policy-parity",
+    "test:rmt-kernel-security-regression": "node scripts/run_xtend_tests.js rmt-kernel-security-regression",
+    "test:rmt-kernel-handoff-docs": "node scripts/run_xtend_tests.js rmt-kernel-handoff-docs",
     "test:rmt-vnext-streaming": "node scripts/run_xtend_tests.js rmt-vnext-streaming",
     "test:rmt-vnext-tooling": "node scripts/run_xtend_tests.js rmt-vnext-tooling",
     "test:rmt-vnext-compatibility": "node scripts/run_xtend_tests.js rmt-vnext-compatibility",

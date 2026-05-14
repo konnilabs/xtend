@@ -28,6 +28,7 @@ Scope:
 - Epic 10 release handoff `xtend.epic10.release-handoff.v1` for the final documentation surface, migration notes, RMT-first XTend App guide and publish boundary
 - Epic 12 RMT DSL Authoring Polish `xtend.rmt.dsl-authoring-polish.v1` for shell, slot, style, token, a11y, event, command, hydration, Fabric lane, route, link and outlet aliases
 - SurfaceManager native RMT `surfaces` domain `xtend.rmt.surfaces-domain.v1` and `xtend.surface.adapter.v1` handoff for WindowManager, SidePanel and overlay surfaces
+- RMT kernel security handoff docs `xtend.rmt.kernel-migration-authoring-incident-handoff.v1` for migration, trusted-output authoring and panic/recovery incident evaluation
 - local runner, package script and scaffold verify-plan wiring
 - runtime boundaries: XRouter, XTend, xstate, diagnostics hubs and scheduler work only through adapters or host bridges, no template parser and no RMT kernel coupling
 
@@ -50,6 +51,7 @@ node scripts/run_xtend_tests.js surface-release-handoff --json
 npm run test:surface-release-handoff
 node scripts/run_xtend_tests.js rmt-dsl-authoring-polish --json
 npm run test:rmt-dsl-authoring-polish
+npm run test:rmt-kernel-handoff-docs
 npm run test:rmt-component-fabric-ingestion
 ```
 

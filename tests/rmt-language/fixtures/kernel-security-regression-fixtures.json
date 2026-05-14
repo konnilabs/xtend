@@ -1,0 +1,176 @@
+{
+  "schema": "xtend.rmt.kernel-security-regression-fixture.v1",
+  "regressionSchema": "xtend.rmt.kernel-security-regression.v1",
+  "workpackage": "RKSH-WP-09",
+  "status": "active-negative-regression-fixtures",
+  "fixtureCategories": [
+    "maliciousHtmlFragments",
+    "maliciousAttributes",
+    "maliciousUrls",
+    "maliciousProperties",
+    "panicSequences",
+    "browserSmokeScenarios"
+  ],
+  "totalFixtureCount": 16,
+  "maliciousHtmlFragments": [
+    {
+      "id": "html-script-event-url-srcdoc",
+      "sink": "slot.html",
+      "payload": "<img src=\"javascript:alert(1)\" onerror=\"alert(1)\"><script>alert(1)</script><p srcdoc=\"x\">Ok</p><iframe src=\"/frame\"></iframe><a href=\"/safe\">Safe</a>",
+      "expectedVerdict": "sanitized",
+      "expectedRemovedPatterns": [
+        "script",
+        "iframe",
+        "onerror",
+        "javascript:",
+        "srcdoc"
+      ]
+    },
+    {
+      "id": "html-svg-style-data-url",
+      "sink": "prerender.html",
+      "payload": "<svg onload=\"alert(1)\"><a href=\"javascript:alert(1)\">x</a></svg><style>body{background:url(javascript:alert(1))}</style><strong>Keep</strong>",
+      "expectedVerdict": "sanitized",
+      "expectedRemovedPatterns": [
+        "svg",
+        "onload",
+        "style",
+        "javascript:"
+      ]
+    },
+    {
+      "id": "html-fallback-event-handler",
+      "sink": "fallback.html",
+      "payload": "<strong onclick=\"alert(1)\">Recovered</strong><script>alert(1)</script>",
+      "expectedVerdict": "sanitized",
+      "expectedRemovedPatterns": [
+        "onclick",
+        "script"
+      ]
+    }
+  ],
+  "maliciousAttributes": [
+    {
+      "id": "attribute-onclick",
+      "sink": "attribute",
+      "attributeName": "onclick",
+      "payload": "alert(1)",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.attribute_refused"
+    },
+    {
+      "id": "attribute-style-url",
+      "sink": "attribute",
+      "attributeName": "style",
+      "payload": "background:url(javascript:alert(1))",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.attribute_refused"
+    },
+    {
+      "id": "attribute-srcdoc",
+      "sink": "attribute",
+      "attributeName": "srcdoc",
+      "payload": "<script>alert(1)</script>",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.attribute_refused"
+    },
+    {
+      "id": "attribute-custom-danger",
+      "sink": "attribute",
+      "attributeName": "customDanger",
+      "payload": "unknown",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.attribute_refused"
+    }
+  ],
+  "maliciousUrls": [
+    {
+      "id": "url-javascript-newline",
+      "sink": "url-attribute",
+      "attributeName": "href",
+      "payload": "java\nscript:alert(1)",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.url_protocol_refused"
+    },
+    {
+      "id": "url-data-html",
+      "sink": "url-attribute",
+      "attributeName": "src",
+      "payload": "data:text/html,<script>alert(1)</script>",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.url_protocol_refused"
+    },
+    {
+      "id": "url-vbscript",
+      "sink": "url-attribute",
+      "attributeName": "href",
+      "payload": "vbscript:msgbox(1)",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.url_protocol_refused"
+    }
+  ],
+  "maliciousProperties": [
+    {
+      "id": "property-innerhtml",
+      "sink": "property",
+      "propertyName": "innerHTML",
+      "payload": "<script>alert(1)</script>",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.property_refused"
+    },
+    {
+      "id": "property-onclick",
+      "sink": "property",
+      "propertyName": "onclick",
+      "payload": "alert(1)",
+      "expectedVerdict": "blocked",
+      "expectedDiagnosticCode": "rmt.kernel.trust.property_refused"
+    }
+  ],
+  "panicSequences": [
+    {
+      "id": "three-blocks-activate-panic",
+      "repeatedBlockThreshold": 3,
+      "verdicts": [
+        "blocked",
+        "blocked",
+        "blocked"
+      ],
+      "expectedState": "active",
+      "expectedTrigger": "threshold-breached",
+      "expectedRecoveryStatus": "recovered"
+    }
+  ],
+  "browserSmokeScenarios": [
+    {
+      "id": "slot-html-fragment",
+      "sink": "slot.html",
+      "expectedVerdict": "sanitized",
+      "artifactTargets": [
+        "core",
+        "runtime",
+        "browser"
+      ]
+    },
+    {
+      "id": "prerender-chunk",
+      "sink": "prerender.html",
+      "expectedVerdict": "sanitized",
+      "artifactTargets": [
+        "core",
+        "runtime",
+        "browser"
+      ]
+    },
+    {
+      "id": "error-fallback",
+      "sink": "fallback.html",
+      "expectedVerdict": "sanitized",
+      "artifactTargets": [
+        "core",
+        "runtime",
+        "browser"
+      ]
+    }
+  ]
+}

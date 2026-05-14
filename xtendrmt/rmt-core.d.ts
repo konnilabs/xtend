@@ -37,6 +37,15 @@ export interface RmtRuntimeContract {
     insularHydration: boolean;
     minimalDomPatching: boolean;
     prerenderHydration: boolean;
+    kernelTrustAuthority?: boolean;
+    trustedDomRuntime?: boolean;
+    bindingSecurity?: boolean;
+    panicMonitor?: boolean;
+    recovery?: boolean;
+    kernelEscalation?: boolean;
+    schedulerFailureSemantics?: boolean;
+    policyParity?: boolean;
+    securityRegression?: boolean;
 }
 
 export interface RmtDistributionFormat {
@@ -88,7 +97,9 @@ export interface RmtAppModulesFactories {
     templateServerAdapter: string;
     xrouterAdapter?: string;
     xtendComponentAdapter?: string;
+    surfaceAdapter?: string;
     stateSchedulerDiagnosticsBridge?: string;
+    kernelPolicyParity?: string;
     prewarmWorkerSource?: string;
     prewarmWorkerRuntime?: string;
 }
@@ -1067,6 +1078,12 @@ export interface RmtArtifactParityContract {
     driftChecks: string[];
     buildPolicy: string;
     kernelBoundary: string;
+    kernelHardeningSourceOfTruth?: string;
+    kernelHardeningContracts?: string[];
+    kernelHardeningRuntimeHooks?: string[];
+    kernelHardeningTypeSurfaces?: string[];
+    kernelHardeningToolingModules?: string[];
+    kernelHardeningGates?: string[];
     minimumGates: string[];
     nextWorkpackages?: string[];
 }
@@ -1292,6 +1309,181 @@ export interface RmtCommandEnvelope {
     requestedAt?: number;
 }
 
+export interface RmtKernelRuntimeEscalationPolicy {
+    schema?: 'xtend.rmt.kernel-escalation-policy.v1' | string;
+    escalationSchema?: 'xtend.rmt.kernel-escalation.v1' | string;
+    diagnosticsSubscriberFailureSeverity?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    commandHandlerFailureSeverity?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    missingCommandHandlerSeverity?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    commandSubscriberFailureSeverity?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    panicSeverityThreshold?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    diagnosticsChannel?: string;
+    panicDiagnosticsChannel?: string;
+    escalateCriticalDiagnostics?: boolean;
+    escalateCriticalCommandFailures?: boolean;
+    passthroughNonCriticalFailures?: boolean;
+    redactsPayload?: boolean;
+    trustRelevantActivatesPanic?: boolean;
+}
+
+export interface RmtKernelRuntimeEscalationEnvelope {
+    schema: 'xtend.rmt.kernel-escalation-envelope.v1' | string;
+    escalationSchema: 'xtend.rmt.kernel-escalation.v1' | string;
+    policySchema: 'xtend.rmt.kernel-escalation-policy.v1' | string;
+    panicMonitorSchema: 'xtend.rmt.kernel-panic-monitor.v1' | string;
+    panicStateSchema: 'xtend.rmt.kernel-panic-state.v1' | string;
+    workpackage: 'RKSH-WP-06' | string;
+    envelopeId: string;
+    source: 'diagnostics' | 'command-bus' | 'scheduler' | 'adapter' | 'kernel' | string;
+    eventType: 'diagnostics-subscriber-failure' | 'command-handler-failure' | 'command-response-failed' | 'command-missing-handler' | 'command-subscriber-failure' | 'manual' | string;
+    severity: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    panicRelevant: boolean;
+    trustRelevant: boolean;
+    trigger: 'diagnostics-failure' | 'command-bus-failure' | string;
+    scope: string;
+    sourceRef: string | null;
+    channel: string | null;
+    commandName: string | null;
+    correlationId: string | null;
+    rootId: string | null;
+    responseStatus: string | null;
+    reasonCode: string;
+    diagnosticCode: string;
+    error: Record<string, unknown> | null;
+    createdAt: number;
+    panicState?: RmtKernelRuntimePanicSnapshot | Record<string, unknown> | null;
+    metadata: Record<string, unknown>;
+}
+
+export interface RmtKernelRuntimeSchedulerFailurePolicy {
+    schema?: 'xtend.rmt.kernel-scheduler-failure-policy.v1' | string;
+    schedulerFailureSchema?: 'xtend.rmt.kernel-scheduler-failure.v1' | string;
+    callbackFailureSeverity?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    abortSeverity?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    panicBlockedSeverity?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    backpressureSeverity?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    panicSeverityThreshold?: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    diagnosticsChannel?: string;
+    escalationDiagnosticsChannel?: string;
+    callbackFailureActivatesPanic?: boolean;
+    backpressureActivatesPanic?: boolean;
+    trustRelevantActivatesPanic?: boolean;
+    redactsPayload?: boolean;
+}
+
+export interface RmtKernelRuntimeSchedulerFailureRecord {
+    schema: 'xtend.rmt.kernel-scheduler-failure-record.v1' | string;
+    schedulerFailureSchema: 'xtend.rmt.kernel-scheduler-failure.v1' | string;
+    policySchema: 'xtend.rmt.kernel-scheduler-failure-policy.v1' | string;
+    panicMonitorSchema: 'xtend.rmt.kernel-panic-monitor.v1' | string;
+    panicStateSchema: 'xtend.rmt.kernel-panic-state.v1' | string;
+    workpackage: 'RKSH-WP-07' | string;
+    recordId: string;
+    jobId: string | number;
+    status: 'failed' | 'aborted' | 'panic_blocked' | string;
+    reason: string;
+    severity: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    panicRelevant: boolean;
+    trustRelevant: boolean;
+    trigger: 'scheduler-failure' | 'scheduler-backpressure' | string;
+    scope: string;
+    rootId: string;
+    rootVersion: number;
+    lane: string;
+    strategy: string;
+    waitMs: number;
+    runMs: number;
+    scheduledAt: number;
+    startedAt: number;
+    finishedAt: number;
+    diagnosticCode: string;
+    reasonCode: string;
+    error: Record<string, unknown> | null;
+    metadata: Record<string, unknown>;
+    panicState?: RmtKernelRuntimePanicSnapshot | Record<string, unknown> | null;
+}
+
+export interface RmtKernelRuntimePolicyParityMatrixEntry {
+    id: string;
+    sourceSchema: string;
+    policyFamily: string;
+    compileTimeCodes: string[];
+    compileTimeStatuses: string[];
+    runtimeScope: string;
+    runtimeHooks: string[];
+    runtimeSchemas: string[];
+    runtimeVerdicts: Array<'trusted' | 'sanitized' | 'blocked' | 'panic' | 'recovered' | 'drift' | string>;
+    trustBoundary: string | null;
+    panicTrigger: string;
+    recoveryAction: string;
+}
+
+export interface RmtKernelRuntimePolicyParityMatrix {
+    schema: 'xtend.rmt.kernel-policy-parity-matrix.v1' | string;
+    paritySchema: 'xtend.rmt.kernel-policy-parity.v1' | string;
+    workpackage: 'RKSH-WP-08' | string;
+    entryCount: number;
+    entries: RmtKernelRuntimePolicyParityMatrixEntry[];
+}
+
+export interface RmtKernelRuntimePolicyParityAppliedPolicy {
+    blockCode: string;
+    sourceSchema: string;
+    matrixEntryId: string;
+    policyFamily: string;
+    runtimeScope: string;
+    runtimeHooks: string[];
+    missingRuntimeHooks: string[];
+    runtimeSchemas: string[];
+    runtimeVerdicts: string[];
+    appliedPolicy: string;
+    verdict: 'trusted' | 'sanitized' | 'blocked' | 'panic' | 'recovered' | 'drift' | string;
+    panicTrigger: string;
+    recoveryAction: string;
+    trustBoundary: string | null;
+}
+
+export interface RmtKernelRuntimePolicyParityDrift {
+    schema: 'xtend.rmt.kernel-policy-parity-drift.v1' | string;
+    type: 'missing-runtime-mapping' | 'missing-runtime-hook' | string;
+    sourceSchema: string;
+    blockCode: string;
+    sourceRef: string;
+    matrixEntryId?: string;
+    missingRuntimeHooks?: string[];
+    message: string;
+}
+
+export interface RmtKernelRuntimePolicyParityReport {
+    schema: 'xtend.rmt.kernel-policy-parity-report.v1' | string;
+    paritySchema: 'xtend.rmt.kernel-policy-parity.v1' | string;
+    matrixSchema: 'xtend.rmt.kernel-policy-parity-matrix.v1' | string;
+    workpackage: 'RKSH-WP-08' | string;
+    status: 'ready' | 'drift' | string;
+    ok: boolean;
+    compileTimeBlockCount: number;
+    appliedPolicyCount: number;
+    driftCount: number;
+    sourcePolicySchemas: string[];
+    runtimeScopes: string[];
+    runtimeCapabilities: {
+        hooks: string[];
+        missingDefaultHooks: string[];
+    };
+    compileTimeBlocks: Array<Record<string, unknown>>;
+    appliedPolicies: RmtKernelRuntimePolicyParityAppliedPolicy[];
+    drift: RmtKernelRuntimePolicyParityDrift[];
+}
+
+export interface RmtKernelRuntimePolicyParityController {
+    schema: 'xtend.rmt.kernel-policy-parity.v1' | string;
+    contract: Record<string, unknown>;
+    getMatrix(): RmtKernelRuntimePolicyParityMatrix;
+    createRuntimeReport(input?: Record<string, unknown>): RmtKernelRuntimePolicyParityReport;
+    checkDrift(input?: Record<string, unknown>): RmtKernelRuntimePolicyParityDrift[];
+    listReports(): RmtKernelRuntimePolicyParityReport[];
+}
+
 export interface RmtRootHandle {
     dispose(): boolean;
     disposeResource(resourceId: string, reason?: string): boolean;
@@ -1317,9 +1509,10 @@ export interface RmtRootHandle {
 export interface RmtInstance {
     afterPaint(scope: string, callback: () => void, options?: Record<string, unknown>): unknown;
     attachResource(rootId: string, resourceId: string, resourceValue: unknown, options?: Record<string, unknown>): unknown;
-    cancel(scope: string): number;
+    abortScope(scope: string, reason?: string): number;
+    cancel(scope: string, reason?: string): number;
     cancelRoot(rootId: string): number;
-    cancelScope(scope: string): number;
+    cancelScope(scope: string, reason?: string): number;
     deferred(scope: string, callback: () => void, options?: Record<string, unknown>): unknown;
     describeGlobalListener(config?: Record<string, unknown>): number;
     dispatchCommand(command: string | RmtCommandEnvelope, options?: Record<string, unknown>): Promise<unknown>;
@@ -1352,6 +1545,7 @@ export interface RmtInstance {
     off(rootId: string, eventType: string | null, handlerRef: unknown): boolean;
     on(rootId: string, eventType: string, config?: Record<string, unknown>): unknown;
     once(rootId: string, eventType: string, config?: Record<string, unknown>): unknown;
+    panicBlockScope(scope: string, reason?: string): number;
     reportPerformanceSample(sample?: Record<string, unknown>): unknown;
     registerBindings(bindingGroups?: Array<Record<string, unknown>> | Record<string, unknown>): unknown;
     removeGlobalListener(listenerRef: unknown): boolean;
@@ -2967,6 +3161,130 @@ export interface RmtTemplatePrerenderResponseEnvelope {
     respondedAt: number;
 }
 
+export interface RmtKernelRuntimeTrustVerdict {
+    schema: 'xtend.rmt.kernel-trust-verdict.v1' | string;
+    authoritySchema?: 'xtend.rmt.kernel-trust-authority.v1' | string;
+    source?: 'xtend.rmt.runtime-trust-sink-adapter.v1' | string;
+    workpackage?: 'RKSH-WP-02' | string;
+    verdict: 'trusted' | 'sanitized' | 'blocked' | 'panic' | string;
+    scope: string;
+    sink: string;
+    sourceRef: string | null;
+    ownerRef?: string | null;
+    attributeName?: string | null;
+    propertyName?: string | null;
+    severity: 'info' | 'warning' | 'error' | 'fatal' | string;
+    reasonCode: string;
+    commitAllowed: boolean;
+    sanitized: boolean;
+    trustBoundary?: string | null;
+    panicCandidate?: boolean;
+    correlationId: string;
+    diagnosticCode?: string | null;
+    metadata: Record<string, unknown>;
+}
+
+export interface RmtKernelRuntimePanicEvent {
+    schema: 'xtend.rmt.kernel-panic-event.v1' | string;
+    monitorSchema: 'xtend.rmt.kernel-panic-monitor.v1' | string;
+    stateSchema: 'xtend.rmt.kernel-panic-state.v1' | string;
+    workpackage: 'RKSH-WP-04' | string;
+    eventId: string;
+    type: 'signal-recorded' | 'state-transition' | 'recovery-started' | 'recovery-completed' | 'recovery-failed' | 'reset' | string;
+    previousState: 'none' | 'suspected' | 'active' | 'recovering' | 'recovered' | 'failed' | string;
+    state: 'none' | 'suspected' | 'active' | 'recovering' | 'recovered' | 'failed' | string;
+    severity: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    trigger: string;
+    panicId: string | null;
+    correlationId: string | null;
+    sourceRef: string | null;
+    scope: string | null;
+    sink: string | null;
+    reasonCode: string | null;
+    diagnosticCode: string | null;
+    blockedCommitCount: number;
+    criticalViolationCount: number;
+    recoveryAttemptCount: number;
+    recoveryFailureCount: number;
+    recoveryAction: string;
+    at: number;
+    metadata: Record<string, unknown>;
+}
+
+export interface RmtKernelRuntimePanicSnapshot {
+    schema: 'xtend.rmt.kernel-panic-state.v1' | string;
+    monitorSchema: 'xtend.rmt.kernel-panic-monitor.v1' | string;
+    workpackage: 'RKSH-WP-04' | string;
+    state: 'none' | 'suspected' | 'active' | 'recovering' | 'recovered' | 'failed' | string;
+    previousState: 'none' | 'suspected' | 'active' | 'recovering' | 'recovered' | 'failed' | string;
+    severity: 'info' | 'warning' | 'error' | 'critical' | 'fatal' | string;
+    trigger: string;
+    panicId: string | null;
+    correlationId: string | null;
+    sourceRef: string | null;
+    scope: string | null;
+    sink: string | null;
+    reasonCode: string | null;
+    diagnosticCode: string | null;
+    blockedCommitCount: number;
+    criticalViolationCount: number;
+    recoveryAttemptCount: number;
+    recoveryFailureCount: number;
+    recoveryAction: string;
+    affectedScopes: string[];
+    affectedJobs: string[];
+    activeSince: number | null;
+    recoveringSince: number | null;
+    recoveredAt: number | null;
+    failedAt: number | null;
+    lastSeenAt: number;
+    eventCount: number;
+    lastEventId: string | null;
+    lastVerdict: Record<string, unknown> | null;
+    metadata: Record<string, unknown>;
+}
+
+export interface RmtKernelRuntimeRecoverySafeSnapshot {
+    schema: 'xtend.rmt.kernel-recovery-safe-snapshot.v1' | string;
+    recoverySchema: 'xtend.rmt.kernel-recovery.v1' | string;
+    workpackage: 'RKSH-WP-05' | string;
+    snapshotId: string;
+    snapshotKey: string;
+    rootId: string | null;
+    scope: string;
+    sourceRef: string | null;
+    templateQualifiedId: string | null;
+    trustBoundary: string;
+    sanitized: boolean;
+    html: string;
+    textContent: string;
+    modelSnapshot: Record<string, unknown>;
+    capturedAt: number;
+    metadata: Record<string, unknown>;
+}
+
+export interface RmtKernelRuntimeRecoveryOutcome {
+    schema: 'xtend.rmt.kernel-recovery-outcome.v1' | string;
+    recoverySchema: 'xtend.rmt.kernel-recovery.v1' | string;
+    policySchema: 'xtend.rmt.kernel-recovery-policy.v1' | string;
+    safeSnapshotSchema: 'xtend.rmt.kernel-recovery-safe-snapshot.v1' | string;
+    workpackage: 'RKSH-WP-05' | string;
+    outcomeId: string;
+    status: 'planned' | 'recovering' | 'recovered' | 'failed' | 'skipped' | string;
+    scope: string | null;
+    rootId: string | null;
+    panicId: string | null;
+    correlationId: string | null;
+    quarantined: boolean;
+    restoredSnapshotId: string | null;
+    fallbackRendered: boolean;
+    hostNotified: boolean;
+    failures: Array<Record<string, unknown>>;
+    panicState: RmtKernelRuntimePanicSnapshot | Record<string, unknown> | null;
+    completedAt: number;
+    metadata: Record<string, unknown>;
+}
+
 export interface RmtTemplateBindingSession {
     appliedAt: number;
     destroy(): boolean;
@@ -2999,6 +3317,21 @@ export interface RmtTemplateBindingSession {
         templateQualifiedId: string;
         resolved: boolean;
     }>;
+    listTrustVerdicts(): RmtKernelRuntimeTrustVerdict[];
+    getPanicSnapshot(): RmtKernelRuntimePanicSnapshot;
+    listPanicEvents(): RmtKernelRuntimePanicEvent[];
+    beginPanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    completePanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    failPanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    rememberSafeSnapshot(input?: Record<string, unknown>): RmtKernelRuntimeRecoverySafeSnapshot;
+    getLastSafeSnapshot(input?: Record<string, unknown>): RmtKernelRuntimeRecoverySafeSnapshot | null;
+    listSafeSnapshots(): RmtKernelRuntimeRecoverySafeSnapshot[];
+    restoreLastSafeSnapshot(input?: Record<string, unknown>): boolean;
+    renderSafeFallback(input?: Record<string, unknown>): boolean;
+    recoverFromPanic(input?: Record<string, unknown>): RmtKernelRuntimeRecoveryOutcome;
+    listRecoveryOutcomes(): RmtKernelRuntimeRecoveryOutcome[];
+    listQuarantinedScopes(): string[];
+    isScopeQuarantined(input?: Record<string, unknown>): boolean;
     rebindChunk(nextChunkInput?: RmtTemplateChunk | Record<string, unknown> | null): boolean;
     updateModel(nextModelSnapshot?: Record<string, unknown>): number;
 }
@@ -3060,6 +3393,22 @@ export interface RmtTemplateRuntimeRenderer {
     ): RmtTemplateBindingSession;
     listSupportedBindingKinds(): RmtTemplateBindingKind[];
     listSupportedSlotKinds(): RmtTemplateSlotKind[];
+    listTrustVerdicts(): RmtKernelRuntimeTrustVerdict[];
+    getPanicSnapshot(): RmtKernelRuntimePanicSnapshot;
+    listPanicEvents(): RmtKernelRuntimePanicEvent[];
+    beginPanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    completePanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    failPanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    rememberSafeSnapshot(input?: Record<string, unknown>): RmtKernelRuntimeRecoverySafeSnapshot;
+    getLastSafeSnapshot(input?: Record<string, unknown>): RmtKernelRuntimeRecoverySafeSnapshot | null;
+    listSafeSnapshots(): RmtKernelRuntimeRecoverySafeSnapshot[];
+    quarantineScope(input?: Record<string, unknown>): string;
+    restoreLastSafeSnapshot(input?: Record<string, unknown>): boolean;
+    renderSafeFallback(input?: Record<string, unknown>): boolean;
+    recoverFromPanic(input?: Record<string, unknown>): RmtKernelRuntimeRecoveryOutcome;
+    listRecoveryOutcomes(): RmtKernelRuntimeRecoveryOutcome[];
+    listQuarantinedScopes(): string[];
+    isScopeQuarantined(input?: Record<string, unknown>): boolean;
     normalizeBinding(bindingInput?: Record<string, unknown>): RmtTemplateRuntimeBinding | null;
     normalizeBindings(bindingsInput?: Array<Record<string, unknown>>): RmtTemplateRuntimeBinding[];
     normalizeSlot(slotInput?: Record<string, unknown>): RmtTemplateSlot;
@@ -3101,6 +3450,22 @@ export interface RmtTemplateExecutionPath {
     executeTemplate(requestInput: RmtTemplateExecutionRequest, options?: Record<string, unknown>): RmtTemplateExecutionResult;
     getRuntimeRenderer(): RmtTemplateRuntimeRenderer | null;
     getSupportedExecutionModes(): RmtTemplateExecutionMode[];
+    listTrustVerdicts(): RmtKernelRuntimeTrustVerdict[];
+    getPanicSnapshot(): RmtKernelRuntimePanicSnapshot;
+    listPanicEvents(): RmtKernelRuntimePanicEvent[];
+    beginPanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    completePanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    failPanicRecovery(input?: Record<string, unknown>): RmtKernelRuntimePanicSnapshot;
+    rememberSafeSnapshot(input?: Record<string, unknown>): RmtKernelRuntimeRecoverySafeSnapshot;
+    getLastSafeSnapshot(input?: Record<string, unknown>): RmtKernelRuntimeRecoverySafeSnapshot | null;
+    listSafeSnapshots(): RmtKernelRuntimeRecoverySafeSnapshot[];
+    quarantineScope(input?: Record<string, unknown>): string;
+    restoreLastSafeSnapshot(input?: Record<string, unknown>): boolean;
+    renderSafeFallback(input?: Record<string, unknown>): boolean;
+    recoverFromPanic(input?: Record<string, unknown>): RmtKernelRuntimeRecoveryOutcome;
+    listRecoveryOutcomes(): RmtKernelRuntimeRecoveryOutcome[];
+    listQuarantinedScopes(): string[];
+    isScopeQuarantined(input?: Record<string, unknown>): boolean;
     hydrateTemplate(requestInput: RmtTemplateExecutionRequest, options?: Record<string, unknown>): RmtTemplateExecutionResult;
     normalizeChunk(chunkInput: RmtTemplateChunk | string | Record<string, unknown>, options?: Record<string, unknown>): RmtTemplateChunk;
     normalizeExecutionMode(value: string, fallbackValue?: RmtTemplateExecutionMode): RmtTemplateExecutionMode;
@@ -3741,6 +4106,7 @@ export declare function createRmtProductSurface(options?: RmtManifestOptions): R
 export declare function installRmtProductSurface(
     options?: RmtManifestOptions & { windowTarget?: unknown; productSurface?: RmtProductSurface; replace?: boolean; installLegacyAlias?: boolean }
 ): RmtProductSurface;
+export declare function createRmtKernelPolicyParity(options?: Record<string, unknown>): RmtKernelRuntimePolicyParityController;
 export declare function createRmtBrowserHostAdapter(options?: Record<string, unknown>): RmtHostAdapter;
 
 /** @deprecated Use getRmtApiVersion(). */
@@ -3801,6 +4167,8 @@ export declare function createRenderManProductSurface(options?: RmtManifestOptio
 export declare function installRenderManProductSurface(
     options?: RmtManifestOptions & { windowTarget?: unknown; productSurface?: RmtProductSurface; replace?: boolean }
 ): RmtProductSurface;
+/** @deprecated Use createRmtKernelPolicyParity(). */
+export declare function createRenderManKernelPolicyParity(options?: Record<string, unknown>): RmtKernelRuntimePolicyParityController;
 /** @deprecated Use createRmtBrowserHostAdapter(). */
 export declare function createRenderManBrowserHostAdapter(options?: Record<string, unknown>): RmtHostAdapter;
 

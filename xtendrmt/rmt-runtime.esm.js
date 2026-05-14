@@ -12,6 +12,18 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 /* modules/render-man.js */
 (function registerRenderManModule(global) {
     const appModules = global.AppModules || (global.AppModules = {});
+    const RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA = 'xtend.rmt.kernel-scheduler-failure.v1';
+    const RMT_KERNEL_SCHEDULER_FAILURE_POLICY_SCHEMA = 'xtend.rmt.kernel-scheduler-failure-policy.v1';
+    const RMT_KERNEL_SCHEDULER_FAILURE_RECORD_SCHEMA = 'xtend.rmt.kernel-scheduler-failure-record.v1';
+    const RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE = 'RKSH-WP-07';
+    const RMT_KERNEL_SCHEDULER_FAILURE_DIAGNOSTIC_CHANNEL = 'rmt.kernel.scheduler_failure';
+    const RMT_KERNEL_ESCALATION_SCHEMA_FOR_SCHEDULER = 'xtend.rmt.kernel-escalation.v1';
+    const RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA_FOR_SCHEDULER = 'xtend.rmt.kernel-escalation-envelope.v1';
+    const RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL_FOR_SCHEDULER = 'rmt.kernel.escalation';
+    const RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_SCHEDULER = 'xtend.rmt.kernel-panic-monitor.v1';
+    const RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_SCHEDULER = 'xtend.rmt.kernel-panic-state.v1';
+    const RMT_KERNEL_SCHEDULER_FAILURE_STATUSES = Object.freeze(['failed', 'aborted', 'panic_blocked']);
+    const RMT_KERNEL_SCHEDULER_FAILURE_SEVERITIES = Object.freeze(['info', 'warning', 'error', 'critical', 'fatal']);
 
     appModules.createRmtEngine = function createRmtEngine(deps = {}) {
         const legacyWindowTarget = deps.windowTarget || global;
@@ -44,6 +56,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             || deps.renderManDiagnostics
             || deps.renderDiagnostics
             || deps.diagnostics
+            || (typeof appModules.createRmtDiagnostics === 'function'
+                ? appModules.createRmtDiagnostics({ now: schedulerNow })
+                : null)
             || null,
             { now: schedulerNow }
         );
@@ -65,6 +80,22 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             || deps.schedulerDiagnosticsHub
             || null
         );
+        const schedulerPanicMonitor = deps.panicMonitor && typeof deps.panicMonitor.recordSignal === 'function'
+            ? deps.panicMonitor
+            : (deps.kernelPanicMonitor && typeof deps.kernelPanicMonitor.recordSignal === 'function' ? deps.kernelPanicMonitor : null);
+        const schedulerFailurePolicy = {
+            callbackFailureSeverity: normalizeSchedulerFailureSeverity(deps.schedulerCallbackFailureSeverity || deps.schedulerFailureSeverity, 'critical'),
+            abortSeverity: normalizeSchedulerFailureSeverity(deps.schedulerAbortSeverity, 'error'),
+            panicBlockedSeverity: normalizeSchedulerFailureSeverity(deps.schedulerPanicBlockedSeverity, 'critical'),
+            backpressureSeverity: normalizeSchedulerFailureSeverity(deps.schedulerBackpressureSeverity, 'critical'),
+            panicSeverityThreshold: normalizeSchedulerFailureSeverity(deps.schedulerPanicSeverityThreshold, 'critical'),
+            diagnosticsChannel: String(deps.schedulerFailureDiagnosticsChannel || RMT_KERNEL_SCHEDULER_FAILURE_DIAGNOSTIC_CHANNEL).trim() || RMT_KERNEL_SCHEDULER_FAILURE_DIAGNOSTIC_CHANNEL,
+            escalationDiagnosticsChannel: String(deps.schedulerEscalationDiagnosticsChannel || RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL_FOR_SCHEDULER).trim() || RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL_FOR_SCHEDULER,
+            callbackFailureActivatesPanic: deps.schedulerCallbackFailureActivatesPanic === false ? false : true,
+            backpressureActivatesPanic: deps.schedulerBackpressureActivatesPanic === false ? false : true,
+            trustRelevantActivatesPanic: deps.schedulerTrustRelevantActivatesPanic === false ? false : true,
+            redactsPayload: deps.schedulerFailureRedactsPayload === false ? false : true
+        };
         const reactivity = normalizeReactivity(
             deps.reactivity
             || deps.renderManReactivity
@@ -90,14 +121,16 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 ? appModules.createRmtCommandBus({
                     now: schedulerNow,
                     createAbortController: hostAdapter.createAbortController,
-                    diagnosticsHub
+                    diagnosticsHub,
+                    panicMonitor: schedulerPanicMonitor
                 })
                 : null)
             || (typeof appModules.createRenderManCommandBus === 'function'
                 ? appModules.createRenderManCommandBus({
                     now: schedulerNow,
                     createAbortController: hostAdapter.createAbortController,
-                    diagnosticsHub
+                    diagnosticsHub,
+                    panicMonitor: schedulerPanicMonitor
                 })
                 : null)
         );
@@ -112,6 +145,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         let queuePumpReason = '';
         let dispatchPendingJob = null;
         let activeRunningJob = null;
+        let lastSchedulerBackpressurePanicKey = '';
         let queueDispatchLocked = false;
         let delegatedHandlerOrder = 0;
         let delegatedHandlerIdCounter = 0;
@@ -120,6 +154,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         const schedulerTelemetry = {
             scheduled: 0,
             executed: 0,
+            failed: 0,
+            aborted: 0,
+            panicBlocked: 0,
             cancelled: 0,
             staleScope: 0,
             staleRoot: 0,
@@ -132,12 +169,14 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             maxWaitMs: 0,
             maxRunMs: 0,
             byReason: Object.create(null),
+            failures: [],
             byLane: Object.create(null),
             pendingByLane: Object.create(null),
             pendingByStrategy: Object.create(null),
             history: []
         };
         const SCHEDULER_HISTORY_LIMIT = 160;
+        const SCHEDULER_FAILURE_HISTORY_LIMIT = 80;
         const SCHEDULER_DIAGNOSTICS_CHANNEL = 'renderman.scheduler.snapshot';
 
         function normalizeCompatibilityAdapters(rawAdapters) {
@@ -694,12 +733,300 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             return schedulerDiagnostics.normalizeLane(lane, fallbackLane);
         }
 
+        function normalizeSchedulerFailureSeverity(value, fallback = 'error') {
+            const normalized = String(value || '').trim().toLowerCase();
+            return RMT_KERNEL_SCHEDULER_FAILURE_SEVERITIES.includes(normalized) ? normalized : fallback;
+        }
+
+        function schedulerFailureSeverityRank(severity) {
+            const index = RMT_KERNEL_SCHEDULER_FAILURE_SEVERITIES.indexOf(normalizeSchedulerFailureSeverity(severity, 'info'));
+            return index === -1 ? 0 : index;
+        }
+
+        function isSchedulerFailureSeverityAtLeast(severity, threshold) {
+            return schedulerFailureSeverityRank(severity) >= schedulerFailureSeverityRank(threshold);
+        }
+
+        function serializeSchedulerFailureError(error) {
+            if (!error) return null;
+            if (error instanceof Error) {
+                return {
+                    name: String(error.name || 'Error'),
+                    message: String(error.message || 'scheduler callback failed'),
+                    stack: String(error.stack || '')
+                };
+            }
+            if (typeof error === 'object') {
+                return {
+                    name: String(error.name || 'Error'),
+                    message: String(error.message || error.error || 'scheduler callback failed'),
+                    stack: String(error.stack || '')
+                };
+            }
+            return {
+                name: 'Error',
+                message: String(error || 'scheduler callback failed'),
+                stack: ''
+            };
+        }
+
+        function cloneSchedulerFailureValue(value, fallback = null) {
+            if (value === undefined) return fallback;
+            try {
+                return JSON.parse(JSON.stringify(value));
+            } catch (_error) {
+                return fallback;
+            }
+        }
+
+        function redactSchedulerFailureValue(value, key = '') {
+            if (value === null || value === undefined) return value;
+            if (Array.isArray(value)) return value.map((entry) => redactSchedulerFailureValue(entry, key));
+            if (typeof value === 'object') {
+                return Object.keys(value).reduce((result, entryKey) => {
+                    result[entryKey] = redactSchedulerFailureValue(value[entryKey], entryKey);
+                    return result;
+                }, {});
+            }
+            if (typeof value !== 'string') return value;
+            const normalizedKey = String(key || '').toLowerCase();
+            const sensitiveKey = /(payload|value|html|markup|raw|sample|source|script|token|secret|password)/u.test(normalizedKey);
+            const unsafeSample = /<\s*script\b|javascript:|vbscript:|srcdoc|onerror\s*=|onclick\s*=/iu.test(value);
+            if (sensitiveKey || unsafeSample) {
+                return {
+                    redacted: true,
+                    length: value.length
+                };
+            }
+            return value.length > 256 ? value.slice(0, 253) + '...' : value;
+        }
+
+        function normalizeScheduledFinalStatus(status, reason = '') {
+            const safeStatus = String(status || '').trim();
+            if (RMT_KERNEL_SCHEDULER_FAILURE_STATUSES.includes(safeStatus)) return safeStatus;
+            const safeReason = String(reason || '').trim().toLowerCase();
+            if (safeReason === 'panic_blocked' || safeReason.indexOf('panic_blocked') !== -1) return 'panic_blocked';
+            if (safeReason.indexOf('recovery') !== -1 || safeReason.indexOf('abort') !== -1) return 'aborted';
+            return safeStatus || 'cancelled';
+        }
+
+        function isSchedulerFailureStatus(status) {
+            return RMT_KERNEL_SCHEDULER_FAILURE_STATUSES.includes(String(status || '').trim());
+        }
+
+        function createSchedulerFailureRecord(job, status, reason = '', options = {}) {
+            const safeStatus = normalizeScheduledFinalStatus(status, reason);
+            const severity = normalizeSchedulerFailureSeverity(
+                options.severity
+                || (job.meta && job.meta.failureSeverity)
+                || (safeStatus === 'panic_blocked' ? schedulerFailurePolicy.panicBlockedSeverity : (safeStatus === 'aborted' ? schedulerFailurePolicy.abortSeverity : schedulerFailurePolicy.callbackFailureSeverity)),
+                safeStatus === 'aborted' ? 'error' : 'critical'
+            );
+            const trustRelevant = options.trustRelevant === true || !!(job.meta && job.meta.trustRelevant === true);
+            const panicRelevant = options.panicRelevant === true
+                || !!(job.meta && (job.meta.panicRelevant === true || job.meta.panicCritical === true))
+                || (safeStatus === 'failed' && schedulerFailurePolicy.callbackFailureActivatesPanic !== false)
+                || safeStatus === 'panic_blocked'
+                || (trustRelevant && schedulerFailurePolicy.trustRelevantActivatesPanic !== false)
+                || isSchedulerFailureSeverityAtLeast(severity, schedulerFailurePolicy.panicSeverityThreshold);
+            const completedAt = Number.isFinite(job.finishedAt) ? job.finishedAt : schedulerNow();
+            return {
+                schema: RMT_KERNEL_SCHEDULER_FAILURE_RECORD_SCHEMA,
+                schedulerFailureSchema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
+                policySchema: RMT_KERNEL_SCHEDULER_FAILURE_POLICY_SCHEMA,
+                panicMonitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_SCHEDULER,
+                panicStateSchema: RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_SCHEDULER,
+                workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
+                recordId: RMT_KERNEL_SCHEDULER_FAILURE_RECORD_SCHEMA + ':' + job.id + ':' + completedAt,
+                jobId: job.id,
+                status: safeStatus,
+                reason: String(reason || safeStatus || 'unknown').trim() || 'unknown',
+                severity,
+                panicRelevant,
+                trustRelevant,
+                trigger: 'scheduler-failure',
+                scope: job.scope,
+                rootId: job.rootId,
+                rootVersion: job.rootVersion,
+                lane: job.meta && job.meta.lane ? job.meta.lane : '',
+                strategy: job.meta && job.meta.executionStrategy ? job.meta.executionStrategy : '',
+                waitMs: Math.max(Number(job.waitMs) || 0, 0),
+                runMs: Math.max(Number(job.runDurationMs) || 0, 0),
+                scheduledAt: job.scheduledAt,
+                startedAt: job.startedAt,
+                finishedAt: completedAt,
+                diagnosticCode: String(options.diagnosticCode || (job.meta && job.meta.diagnosticCode) || 'rmt.kernel.scheduler.failure').trim() || 'rmt.kernel.scheduler.failure',
+                reasonCode: String(options.reasonCode || (job.meta && job.meta.reasonCode) || 'xtend.rmt.kernel-scheduler-failure.job_failed').trim() || 'xtend.rmt.kernel-scheduler-failure.job_failed',
+                error: serializeSchedulerFailureError(options.error || job.error),
+                metadata: schedulerFailurePolicy.redactsPayload === false
+                    ? cloneSchedulerFailureValue(options.metadata || {}, {})
+                    : redactSchedulerFailureValue(cloneSchedulerFailureValue(options.metadata || {}, {}))
+            };
+        }
+
+        function publishSchedulerFailureRecord(record) {
+            schedulerTelemetry.failures.push(record);
+            if (schedulerTelemetry.failures.length > SCHEDULER_FAILURE_HISTORY_LIMIT) {
+                schedulerTelemetry.failures.splice(0, schedulerTelemetry.failures.length - SCHEDULER_FAILURE_HISTORY_LIMIT);
+            }
+            try {
+                diagnosticsHub.publish(schedulerFailurePolicy.diagnosticsChannel, record, {
+                    source: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
+                    workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
+                    status: record.status,
+                    severity: record.severity,
+                    panicRelevant: record.panicRelevant,
+                    jobId: record.jobId,
+                    scope: record.scope
+                });
+            } catch (_error) {}
+            try {
+                diagnosticsHub.publish(schedulerFailurePolicy.escalationDiagnosticsChannel, {
+                    schema: RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA_FOR_SCHEDULER,
+                    escalationSchema: RMT_KERNEL_ESCALATION_SCHEMA_FOR_SCHEDULER,
+                    source: 'scheduler',
+                    eventType: 'scheduler-job-failure',
+                    severity: record.severity,
+                    panicRelevant: record.panicRelevant,
+                    trustRelevant: record.trustRelevant,
+                    trigger: 'scheduler-failure',
+                    scope: 'scheduler-job',
+                    sourceRef: 'scheduler-job:' + record.jobId,
+                    correlationId: record.recordId,
+                    rootId: record.rootId,
+                    responseStatus: record.status,
+                    reasonCode: record.reasonCode,
+                    diagnosticCode: record.diagnosticCode,
+                    error: record.error,
+                    workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
+                    metadata: {
+                        schedulerFailureSchema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
+                        recordId: record.recordId,
+                        lane: record.lane,
+                        strategy: record.strategy
+                    }
+                }, {
+                    source: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
+                    workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
+                    severity: record.severity,
+                    panicRelevant: record.panicRelevant
+                });
+            } catch (_error) {}
+            if (schedulerPanicMonitor && record.panicRelevant === true) {
+                try {
+                    record.panicState = schedulerPanicMonitor.recordSignal({
+                        trigger: 'scheduler-failure',
+                        severity: record.severity,
+                        critical: true,
+                        scope: 'scheduler-job',
+                        sourceRef: 'scheduler-job:' + record.jobId,
+                        reasonCode: record.reasonCode,
+                        diagnosticCode: record.diagnosticCode,
+                        correlationId: record.recordId,
+                        affectedJobs: [String(record.jobId)],
+                        metadata: {
+                            schedulerFailureSchema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
+                            status: record.status,
+                            reason: record.reason,
+                            lane: record.lane,
+                            strategy: record.strategy,
+                            rootId: record.rootId
+                        }
+                    });
+                } catch (_error) {
+                    record.panicState = null;
+                }
+            } else {
+                record.panicState = null;
+            }
+            return record;
+        }
+
+        function recordSchedulerBackpressurePanic(diagnosticsSnapshot, reason = 'scheduler_backpressure', queueSnapshot = null, previousPressureLevel = '') {
+            if (!schedulerPanicMonitor || schedulerFailurePolicy.backpressureActivatesPanic === false) return null;
+            const pressureLevel = String(
+                (diagnosticsSnapshot && diagnosticsSnapshot.pressureLevel)
+                || schedulerTelemetry.pressureLevel
+                || ''
+            ).trim();
+            if (pressureLevel !== 'critical') return null;
+            const queue = queueSnapshot || (diagnosticsSnapshot && diagnosticsSnapshot.queue) || {};
+            const safeReason = String(reason || 'scheduler_backpressure').trim() || 'scheduler_backpressure';
+            const signalKey = [
+                pressureLevel,
+                safeReason,
+                Number(queue.pending) || 0,
+                Number(queue.oldestWaitMs) || 0,
+                Number(queue.congestionScore) || 0
+            ].join(':');
+            if (previousPressureLevel === 'critical' && signalKey === lastSchedulerBackpressurePanicKey) return null;
+            lastSchedulerBackpressurePanicKey = signalKey;
+            const diagnosticRecord = {
+                schema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
+                policySchema: RMT_KERNEL_SCHEDULER_FAILURE_POLICY_SCHEMA,
+                panicMonitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_SCHEDULER,
+                panicStateSchema: RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_SCHEDULER,
+                workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
+                eventType: 'scheduler-backpressure-critical',
+                status: 'panic_blocked',
+                severity: schedulerFailurePolicy.backpressureSeverity,
+                panicRelevant: true,
+                trustRelevant: true,
+                trigger: 'scheduler-backpressure',
+                scope: 'scheduler-backpressure',
+                reason: safeReason,
+                reasonCode: 'xtend.rmt.kernel-scheduler-failure.backpressure_critical',
+                diagnosticCode: 'rmt.kernel.scheduler.backpressure_critical',
+                pressureLevel,
+                pending: Number(queue.pending) || 0,
+                oldestWaitMs: Number(queue.oldestWaitMs) || 0,
+                congestionScore: Number(queue.congestionScore) || 0,
+                recordedAt: schedulerNow()
+            };
+            try {
+                diagnosticRecord.panicState = schedulerPanicMonitor.recordSignal({
+                    trigger: 'scheduler-backpressure',
+                    severity: diagnosticRecord.severity,
+                    critical: true,
+                    scope: 'scheduler-backpressure',
+                    sourceRef: 'scheduler-pressure:critical',
+                    reasonCode: diagnosticRecord.reasonCode,
+                    diagnosticCode: diagnosticRecord.diagnosticCode,
+                    correlationId: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA + ':backpressure:' + diagnosticRecord.recordedAt,
+                    metadata: {
+                        schedulerFailureSchema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
+                        pressureLevel,
+                        pending: diagnosticRecord.pending,
+                        oldestWaitMs: diagnosticRecord.oldestWaitMs,
+                        congestionScore: diagnosticRecord.congestionScore,
+                        reason: safeReason
+                    }
+                });
+            } catch (_error) {
+                diagnosticRecord.panicState = null;
+            }
+            try {
+                diagnosticsHub.publish(schedulerFailurePolicy.diagnosticsChannel, diagnosticRecord, {
+                    source: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
+                    workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
+                    severity: diagnosticRecord.severity,
+                    panicRelevant: true,
+                    status: 'panic_blocked',
+                    pressureLevel
+                });
+            } catch (_error) {}
+            return diagnosticRecord;
+        }
+
         function ensureSchedulerLaneTelemetry(lane) {
             const safeLane = normalizeScheduledLane(lane, 'visible_commit');
             if (!schedulerTelemetry.byLane[safeLane]) {
                 schedulerTelemetry.byLane[safeLane] = {
                     scheduled: 0,
                     executed: 0,
+                    failed: 0,
+                    aborted: 0,
+                    panicBlocked: 0,
                     cancelled: 0,
                     staleScope: 0,
                     staleRoot: 0,
@@ -720,6 +1047,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 result[lane] = {
                     scheduled: stats.scheduled,
                     executed: stats.executed,
+                    failed: stats.failed,
+                    aborted: stats.aborted,
+                    panicBlocked: stats.panicBlocked,
                     cancelled: stats.cancelled,
                     staleScope: stats.staleScope,
                     staleRoot: stats.staleRoot,
@@ -768,6 +1098,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 
         function syncSchedulerDiagnostics(reason = 'scheduler_state_changed') {
             const snapshot = buildSchedulerQueueSnapshot();
+            const previousPressureLevel = schedulerTelemetry.pressureLevel;
             schedulerTelemetry.pending = snapshot.pending;
             schedulerTelemetry.pendingByLane = { ...snapshot.byLane };
             schedulerTelemetry.pendingByStrategy = { ...snapshot.byStrategy };
@@ -787,6 +1118,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             } else if (typeof schedulerDiagnostics.getPressureLevel === 'function') {
                 schedulerTelemetry.pressureLevel = schedulerDiagnostics.getPressureLevel();
             }
+            recordSchedulerBackpressurePanic(diagnosticsSnapshot, reason, snapshot, previousPressureLevel);
             publishSchedulerSnapshot(reason);
             return snapshot;
         }
@@ -939,6 +1271,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 
         function recordSchedulerOutcome(job, status, reason = '') {
             if (status === 'executed') schedulerTelemetry.executed += 1;
+            else if (status === 'failed') schedulerTelemetry.failed += 1;
+            else if (status === 'aborted') schedulerTelemetry.aborted += 1;
+            else if (status === 'panic_blocked') schedulerTelemetry.panicBlocked += 1;
             else if (status === 'cancelled') schedulerTelemetry.cancelled += 1;
             else if (status === 'stale_scope') schedulerTelemetry.staleScope += 1;
             else if (status === 'stale_root') schedulerTelemetry.staleRoot += 1;
@@ -949,6 +1284,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             const runMs = Math.max(Number(job.runDurationMs) || 0, 0);
 
             if (status === 'executed') laneStats.executed += 1;
+            else if (status === 'failed') laneStats.failed += 1;
+            else if (status === 'aborted') laneStats.aborted += 1;
+            else if (status === 'panic_blocked') laneStats.panicBlocked += 1;
             else if (status === 'cancelled') laneStats.cancelled += 1;
             else if (status === 'stale_scope') laneStats.staleScope += 1;
             else if (status === 'stale_root') laneStats.staleRoot += 1;
@@ -1088,7 +1426,13 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         ? Math.max(plan.deadlineMs, 0)
                         : (Number.isFinite(options.deadlineMs) ? Math.max(options.deadlineMs, 0) : 0),
                     executionStrategy,
-                    pressureLevel: String(plan.pressureLevel || schedulerTelemetry.pressureLevel || 'normal').trim() || 'normal'
+                    pressureLevel: String(plan.pressureLevel || schedulerTelemetry.pressureLevel || 'normal').trim() || 'normal',
+                    failureSeverity: normalizeSchedulerFailureSeverity(plan.failureSeverity || options.failureSeverity, ''),
+                    panicRelevant: plan.panicRelevant === true || options.panicRelevant === true,
+                    panicCritical: plan.panicCritical === true || options.panicCritical === true,
+                    trustRelevant: plan.trustRelevant === true || options.trustRelevant === true,
+                    reasonCode: String(plan.reasonCode || options.reasonCode || '').trim(),
+                    diagnosticCode: String(plan.diagnosticCode || options.diagnosticCode || '').trim()
                 }
             });
         }
@@ -1124,12 +1468,16 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             job.handles.idles.clear();
         }
 
-        function finalizeScheduledJob(job, status, reason = '') {
+        function finalizeScheduledJob(job, status, reason = '', options = {}) {
             if (!job || job.finished) return false;
+            const finalStatus = normalizeScheduledFinalStatus(status, reason);
             job.finished = true;
             job.running = false;
-            job.status = status;
+            job.status = finalStatus;
             job.finishedAt = schedulerNow();
+            if (options && options.error) {
+                job.error = options.error;
+            }
             if (!job.waitMs && job.startedAt) {
                 job.waitMs = Math.max(job.startedAt - job.scheduledAt, 0);
             }
@@ -1139,16 +1487,19 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             clearScheduledJobHandles(job);
             unindexScheduledJob(job);
             priorityQueue.noteJobCompleted(job, { now: schedulerNow() });
-            recordSchedulerOutcome(job, status, reason);
+            if (isSchedulerFailureStatus(finalStatus)) {
+                job.failureRecord = publishSchedulerFailureRecord(createSchedulerFailureRecord(job, finalStatus, reason, options));
+            }
+            recordSchedulerOutcome(job, finalStatus, reason);
             if (!activeRunningJob && !dispatchPendingJob) {
-                pumpPriorityQueue(`finalized:${reason || status}`);
+                pumpPriorityQueue('finalized:' + (reason || finalStatus));
             }
             return true;
         }
 
         function cancelScheduledJob(job, reason = 'manual_cancel') {
             if (!job || job.finished || job.running) return false;
-            return finalizeScheduledJob(job, 'cancelled', reason);
+            return finalizeScheduledJob(job, normalizeScheduledFinalStatus('cancelled', reason), reason);
         }
 
         function cancelScheduledJobsByScope(scope, reason = 'scope_cancelled') {
@@ -1161,6 +1512,26 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 if (cancelScheduledJob(job, reason)) cancelledCount += 1;
             });
             return cancelledCount;
+        }
+
+        function finalizeScheduledJobsByScope(scope, status, reason = 'scope_finalized') {
+            const safeScope = String(scope || 'default');
+            const bucket = scheduledJobsByScope.get(safeScope);
+            if (!bucket || bucket.size === 0) return 0;
+            let finalizedCount = 0;
+            Array.from(bucket).forEach((jobId) => {
+                const job = scheduledJobs.get(jobId);
+                if (job && !job.finished && !job.running && finalizeScheduledJob(job, status, reason)) finalizedCount += 1;
+            });
+            return finalizedCount;
+        }
+
+        function abortScheduledJobsByScope(scope, reason = 'scheduler_aborted') {
+            return finalizeScheduledJobsByScope(scope, 'aborted', reason);
+        }
+
+        function panicBlockScheduledJobsByScope(scope, reason = 'panic_blocked') {
+            return finalizeScheduledJobsByScope(scope, 'panic_blocked', reason);
         }
 
         function cancelScheduledJobsByRoot(rootId, reason = 'root_cancelled') {
@@ -1250,7 +1621,14 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 job.runDurationMs = Math.max(schedulerNow() - runStartedAt, 0);
             } catch (error) {
                 job.runDurationMs = Math.max(schedulerNow() - (job.startedAt || schedulerNow()), 0);
-                finalizeScheduledJob(job, 'executed', 'callback_error');
+                finalizeScheduledJob(job, 'failed', 'callback_error', {
+                    error,
+                    severity: error && error.severity || schedulerFailurePolicy.callbackFailureSeverity,
+                    panicRelevant: error && error.panicRelevant === true || schedulerFailurePolicy.callbackFailureActivatesPanic !== false,
+                    trustRelevant: error && error.trustRelevant === true || job.meta && job.meta.trustRelevant === true,
+                    reasonCode: error && error.reasonCode || job.meta && job.meta.reasonCode || 'xtend.rmt.kernel-scheduler-failure.callback_error',
+                    diagnosticCode: error && error.diagnosticCode || job.meta && job.meta.diagnosticCode || 'rmt.kernel.scheduler.callback_error'
+                });
                 throw error;
             }
             finalizeScheduledJob(job, 'executed', 'callback_completed');
@@ -1272,10 +1650,13 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         }
 
         function getSchedulerStats() {
-            const completedCount = schedulerTelemetry.executed + schedulerTelemetry.cancelled + schedulerTelemetry.staleScope + schedulerTelemetry.staleRoot;
+            const completedCount = schedulerTelemetry.executed + schedulerTelemetry.failed + schedulerTelemetry.aborted + schedulerTelemetry.panicBlocked + schedulerTelemetry.cancelled + schedulerTelemetry.staleScope + schedulerTelemetry.staleRoot;
             return {
                 scheduled: schedulerTelemetry.scheduled,
                 executed: schedulerTelemetry.executed,
+                failed: schedulerTelemetry.failed,
+                aborted: schedulerTelemetry.aborted,
+                panicBlocked: schedulerTelemetry.panicBlocked,
                 cancelled: schedulerTelemetry.cancelled,
                 staleScope: schedulerTelemetry.staleScope,
                 staleRoot: schedulerTelemetry.staleRoot,
@@ -1291,6 +1672,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 pendingByStrategy: { ...schedulerTelemetry.pendingByStrategy },
                 priorityQueue: priorityQueue.getStats(),
                 diagnostics: schedulerDiagnostics.getSnapshot(),
+                failures: schedulerTelemetry.failures.map((entry) => cloneSchedulerFailureValue(entry, {})),
                 history: schedulerTelemetry.history.slice()
             };
         }
@@ -1679,11 +2061,13 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 rootId: rootState.id,
                 rootVersion: rootState.version,
                 scheduler: {
+                    abortScope,
                     afterPaint,
                     cancel,
                     cancelRoot,
                     cancelScope,
                     deferred,
+                    panicBlockScope,
                     getDiagnostics: getSchedulerDiagnostics,
                     getPressureLevel: () => schedulerTelemetry.pressureLevel,
                     getPriorityQueueStats,
@@ -2299,12 +2683,14 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         }
 
         function reportPerformanceSample(sample = {}) {
+            const previousPressureLevel = schedulerTelemetry.pressureLevel;
             const diagnosticsSnapshot = schedulerDiagnostics.reportPerformanceSample(sample);
             if (diagnosticsSnapshot && diagnosticsSnapshot.pressureLevel) {
                 schedulerTelemetry.pressureLevel = diagnosticsSnapshot.pressureLevel;
             } else if (typeof schedulerDiagnostics.getPressureLevel === 'function') {
                 schedulerTelemetry.pressureLevel = schedulerDiagnostics.getPressureLevel();
             }
+            recordSchedulerBackpressurePanic(diagnosticsSnapshot, 'performance_sample', null, previousPressureLevel);
             publishSchedulerSnapshot('performance_sample');
             return diagnosticsSnapshot;
         }
@@ -2335,11 +2721,25 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             }, options);
         }
 
-        function cancelScope(scope) {
+        function cancelScope(scope, reason = 'scope_cancelled') {
             const safeScope = String(scope || 'default');
-            const cancelledCount = cancelScheduledJobsByScope(safeScope, 'scope_cancelled');
+            const cancelledCount = cancelScheduledJobsByScope(safeScope, reason);
             nextScopeToken(safeScope);
             return cancelledCount;
+        }
+
+        function abortScope(scope, reason = 'scheduler_aborted') {
+            const safeScope = String(scope || 'default');
+            const abortedCount = abortScheduledJobsByScope(safeScope, reason);
+            nextScopeToken(safeScope);
+            return abortedCount;
+        }
+
+        function panicBlockScope(scope, reason = 'panic_blocked') {
+            const safeScope = String(scope || 'default');
+            const blockedCount = panicBlockScheduledJobsByScope(safeScope, reason);
+            nextScopeToken(safeScope);
+            return blockedCount;
         }
 
         function cancelRoot(rootId) {
@@ -2350,17 +2750,19 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             return cancelledScheduledJobs + cancelledCommands;
         }
 
-        function cancel(scope) {
-            return cancelScope(scope);
+        function cancel(scope, reason = 'scope_cancelled') {
+            return cancelScope(scope, reason);
         }
 
         const renderManApi = {
+            abortScope,
             afterPaint,
             attachResource,
             cancel,
             cancelRoot,
             cancelScope,
             deferred,
+            panicBlockScope,
             describeGlobalListener,
             dispatchCommand,
             disposeResource,
@@ -2868,6 +3270,14 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 /* modules/renderman-diagnostics-hub.js */
 (function registerRenderManDiagnosticsHubModule(global) {
     const appModules = global.AppModules || (global.AppModules = {});
+    const RMT_KERNEL_ESCALATION_SCHEMA = 'xtend.rmt.kernel-escalation.v1';
+    const RMT_KERNEL_ESCALATION_POLICY_SCHEMA = 'xtend.rmt.kernel-escalation-policy.v1';
+    const RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA = 'xtend.rmt.kernel-escalation-envelope.v1';
+    const RMT_KERNEL_ESCALATION_WORKPACKAGE = 'RKSH-WP-06';
+    const RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL = 'rmt.kernel.escalation';
+    const RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_ESCALATION = 'xtend.rmt.kernel-panic-monitor.v1';
+    const RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_ESCALATION = 'xtend.rmt.kernel-panic-state.v1';
+    const RMT_KERNEL_ESCALATION_SEVERITIES = Object.freeze(['info', 'warning', 'error', 'critical', 'fatal']);
 
     appModules.createRmtDiagnosticsHub = function createRmtDiagnosticsHub(deps = {}) {
         const now = typeof deps.now === 'function'
@@ -2888,7 +3298,19 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             };
         const channels = new Map();
         const subscribers = new Map();
+        const subscriberEscalationMeta = new WeakMap();
         const history = [];
+        const escalationHistory = [];
+        const panicMonitor = deps.panicMonitor && typeof deps.panicMonitor.recordSignal === 'function'
+            ? deps.panicMonitor
+            : (deps.kernelPanicMonitor && typeof deps.kernelPanicMonitor.recordSignal === 'function' ? deps.kernelPanicMonitor : null);
+        const escalationPolicy = {
+            diagnosticsSubscriberFailureSeverity: normalizeEscalationSeverity(deps.diagnosticsSubscriberFailureSeverity || deps.escalationSeverity, 'warning'),
+            panicSeverityThreshold: normalizeEscalationSeverity(deps.panicSeverityThreshold, 'critical'),
+            diagnosticsChannel: normalizeChannelName(deps.escalationDiagnosticsChannel || deps.kernelEscalationDiagnosticsChannel || RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL),
+            trustRelevantActivatesPanic: deps.trustRelevantActivatesPanic === false ? false : true,
+            redactsPayload: deps.redactsPayload === false ? false : true
+        };
 
         function normalizeChannelName(channelName) {
             return String(channelName || '').trim().toLowerCase();
@@ -2897,6 +3319,168 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         function clonePayload(value, fallback = null) {
             const cloned = cloneValue(value);
             return cloned === undefined ? fallback : cloned;
+        }
+
+        function normalizeEscalationSeverity(value, fallback = 'warning') {
+            const normalized = String(value || '').trim().toLowerCase();
+            return RMT_KERNEL_ESCALATION_SEVERITIES.includes(normalized) ? normalized : fallback;
+        }
+
+        function escalationSeverityRank(severity) {
+            const index = RMT_KERNEL_ESCALATION_SEVERITIES.indexOf(normalizeEscalationSeverity(severity, 'info'));
+            return index === -1 ? 0 : index;
+        }
+
+        function isEscalationSeverityAtLeast(severity, threshold) {
+            return escalationSeverityRank(severity) >= escalationSeverityRank(threshold);
+        }
+
+        function serializeEscalationError(error) {
+            if (!error) return null;
+            if (error instanceof Error) {
+                return {
+                    name: String(error.name || 'Error'),
+                    message: String(error.message || 'diagnostics subscriber failure'),
+                    stack: String(error.stack || '')
+                };
+            }
+            if (typeof error === 'object') {
+                return {
+                    name: String(error.name || 'Error'),
+                    message: String(error.message || error.error || 'diagnostics subscriber failure'),
+                    stack: String(error.stack || '')
+                };
+            }
+            return {
+                name: 'Error',
+                message: String(error || 'diagnostics subscriber failure'),
+                stack: ''
+            };
+        }
+
+        function redactEscalationValue(value, key = '') {
+            if (value === null || value === undefined) return value;
+            if (Array.isArray(value)) return value.map((entry) => redactEscalationValue(entry, key));
+            if (typeof value === 'object') {
+                return Object.keys(value).reduce((result, entryKey) => {
+                    result[entryKey] = redactEscalationValue(value[entryKey], entryKey);
+                    return result;
+                }, {});
+            }
+            if (typeof value !== 'string') return value;
+            const normalizedKey = String(key || '').toLowerCase();
+            const sensitiveKey = /(payload|value|html|markup|raw|sample|source|script|token|secret|password)/u.test(normalizedKey);
+            const unsafeSample = /<\s*script\b|javascript:|vbscript:|srcdoc|onerror\s*=|onclick\s*=/iu.test(value);
+            if (sensitiveKey || unsafeSample) {
+                return {
+                    redacted: true,
+                    length: value.length
+                };
+            }
+            return value.length > 256 ? `${value.slice(0, 253)}...` : value;
+        }
+
+        function createRuntimeEscalationEnvelope(input = {}) {
+            const severity = normalizeEscalationSeverity(input.severity, escalationPolicy.diagnosticsSubscriberFailureSeverity);
+            const trustRelevant = input.trustRelevant === true;
+            const panicRelevant = input.panicRelevant === true
+                || input.critical === true
+                || isEscalationSeverityAtLeast(severity, escalationPolicy.panicSeverityThreshold)
+                || (trustRelevant && escalationPolicy.trustRelevantActivatesPanic !== false);
+            const createdAt = now();
+            return {
+                schema: RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA,
+                escalationSchema: RMT_KERNEL_ESCALATION_SCHEMA,
+                policySchema: RMT_KERNEL_ESCALATION_POLICY_SCHEMA,
+                panicMonitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_ESCALATION,
+                panicStateSchema: RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_ESCALATION,
+                workpackage: RMT_KERNEL_ESCALATION_WORKPACKAGE,
+                envelopeId: `${RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA}:diagnostics:${createdAt}:${escalationHistory.length + 1}`,
+                source: 'diagnostics',
+                eventType: 'diagnostics-subscriber-failure',
+                severity,
+                panicRelevant,
+                trustRelevant,
+                trigger: 'diagnostics-failure',
+                scope: String(input.scope || 'diagnostics'),
+                sourceRef: input.sourceRef ? String(input.sourceRef) : null,
+                channel: String(input.channel || ''),
+                commandName: null,
+                correlationId: input.correlationId ? String(input.correlationId) : null,
+                rootId: input.rootId ? String(input.rootId) : null,
+                responseStatus: null,
+                reasonCode: String(input.reasonCode || 'xtend.rmt.kernel-escalation.diagnostics-subscriber-failure'),
+                diagnosticCode: String(input.diagnosticCode || 'rmt.kernel.escalation.diagnostics-subscriber-failure'),
+                error: serializeEscalationError(input.error),
+                createdAt,
+                metadata: escalationPolicy.redactsPayload === false
+                    ? clonePayload(input.metadata || {}, {})
+                    : redactEscalationValue(clonePayload(input.metadata || {}, {}))
+            };
+        }
+
+        function recordRuntimeEscalation(input = {}) {
+            const envelope = createRuntimeEscalationEnvelope(input);
+            if (panicMonitor && envelope.panicRelevant === true) {
+                try {
+                    envelope.panicState = panicMonitor.recordSignal({
+                        trigger: 'diagnostics-failure',
+                        severity: envelope.severity,
+                        critical: true,
+                        scope: envelope.scope,
+                        sourceRef: envelope.sourceRef || envelope.channel,
+                        reasonCode: envelope.reasonCode,
+                        diagnosticCode: envelope.diagnosticCode,
+                        correlationId: envelope.correlationId,
+                        metadata: {
+                            escalationSchema: RMT_KERNEL_ESCALATION_SCHEMA,
+                            envelopeId: envelope.envelopeId,
+                            channel: envelope.channel
+                        }
+                    });
+                } catch (_error) {
+                    envelope.panicState = null;
+                }
+            } else {
+                envelope.panicState = null;
+            }
+            escalationHistory.push(envelope);
+            if (escalationHistory.length > maxHistoryEntries) {
+                escalationHistory.splice(0, escalationHistory.length - maxHistoryEntries);
+            }
+            if (envelope.channel !== escalationPolicy.diagnosticsChannel) {
+                try {
+                    publish(escalationPolicy.diagnosticsChannel, envelope, {
+                        source: RMT_KERNEL_ESCALATION_SCHEMA,
+                        workpackage: RMT_KERNEL_ESCALATION_WORKPACKAGE,
+                        severity: envelope.severity,
+                        eventType: envelope.eventType,
+                        panicRelevant: envelope.panicRelevant
+                    });
+                } catch (_error) {}
+            }
+            return clonePayload(envelope, {});
+        }
+
+        function recordDiagnosticsSubscriberFailure(snapshot, error, subscriberMeta = {}, phase = 'publish') {
+            return recordRuntimeEscalation({
+                channel: snapshot && snapshot.channel,
+                severity: subscriberMeta.severity || escalationPolicy.diagnosticsSubscriberFailureSeverity,
+                panicRelevant: subscriberMeta.panicRelevant === true || subscriberMeta.panicCritical === true,
+                trustRelevant: subscriberMeta.trustRelevant === true,
+                scope: subscriberMeta.scope || 'diagnostics',
+                sourceRef: subscriberMeta.sourceRef || `diagnostics:${snapshot && snapshot.channel || 'unknown'}`,
+                correlationId: subscriberMeta.correlationId || (snapshot && snapshot.meta && snapshot.meta.correlationId),
+                rootId: subscriberMeta.rootId || (snapshot && snapshot.meta && snapshot.meta.rootId),
+                reasonCode: subscriberMeta.reasonCode,
+                diagnosticCode: subscriberMeta.diagnosticCode,
+                error,
+                metadata: {
+                    phase,
+                    snapshotVersion: snapshot && snapshot.version,
+                    subscriber: subscriberMeta.name || subscriberMeta.subscriber || 'anonymous'
+                }
+            });
         }
 
         function pushHistoryEntry(entry) {
@@ -2958,7 +3542,8 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             listSubscribers(snapshot.channel).forEach((subscriber) => {
                 try {
                     subscriber(snapshot);
-                } catch (_error) {
+                } catch (error) {
+                    recordDiagnosticsSubscriberFailure(snapshot, error, subscriberEscalationMeta.get(subscriber), 'publish');
                     // Diagnostics subscribers duerfen den Runtime-Pfad nicht unterbrechen.
                 }
             });
@@ -2977,13 +3562,15 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             }
             const bucket = subscribers.get(safeChannelName);
             bucket.add(subscriber);
+            subscriberEscalationMeta.set(subscriber, options && typeof options === 'object' ? clonePayload(options, {}) : {});
 
             if (options.replayLatest !== false) {
                 const snapshot = getChannelSnapshot(safeChannelName, null);
                 if (snapshot) {
                     try {
                         subscriber(snapshot);
-                    } catch (_error) {
+                    } catch (error) {
+                        recordDiagnosticsSubscriberFailure(snapshot, error, subscriberEscalationMeta.get(subscriber), 'replay');
                         // Diagnostics subscribers duerfen den Runtime-Pfad nicht unterbrechen.
                     }
                 }
@@ -2991,6 +3578,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 
             return function unsubscribe() {
                 bucket.delete(subscriber);
+                subscriberEscalationMeta.delete(subscriber);
                 if (bucket.size === 0) {
                     subscribers.delete(safeChannelName);
                 }
@@ -3056,9 +3644,12 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         return Object.freeze({
             createPublisher,
             getChannelSnapshot,
+            getEscalationPolicy: () => clonePayload(escalationPolicy, {}),
             getHistory,
+            listEscalations: () => escalationHistory.map((entry) => clonePayload(entry, {})),
             listChannels,
             publish,
+            recordEscalation: recordRuntimeEscalation,
             removeChannel,
             reset,
             subscribe
@@ -3072,6 +3663,14 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 /* modules/renderman-command-bus.js */
 (function registerRenderManCommandBusModule(global) {
     const appModules = global.AppModules || (global.AppModules = {});
+    const RMT_KERNEL_ESCALATION_SCHEMA = 'xtend.rmt.kernel-escalation.v1';
+    const RMT_KERNEL_ESCALATION_POLICY_SCHEMA = 'xtend.rmt.kernel-escalation-policy.v1';
+    const RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA = 'xtend.rmt.kernel-escalation-envelope.v1';
+    const RMT_KERNEL_ESCALATION_WORKPACKAGE = 'RKSH-WP-06';
+    const RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL = 'rmt.kernel.escalation';
+    const RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_ESCALATION = 'xtend.rmt.kernel-panic-monitor.v1';
+    const RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_ESCALATION = 'xtend.rmt.kernel-panic-state.v1';
+    const RMT_KERNEL_ESCALATION_SEVERITIES = Object.freeze(['info', 'warning', 'error', 'critical', 'fatal']);
 
     appModules.createRmtCommandBus = function createRmtCommandBus(deps = {}) {
         const now = typeof deps.now === 'function'
@@ -3104,11 +3703,25 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             || deps.schedulerDiagnosticsHub
             || null
         );
+        const panicMonitor = deps.panicMonitor && typeof deps.panicMonitor.recordSignal === 'function'
+            ? deps.panicMonitor
+            : (deps.kernelPanicMonitor && typeof deps.kernelPanicMonitor.recordSignal === 'function' ? deps.kernelPanicMonitor : null);
+        const escalationPolicy = {
+            commandHandlerFailureSeverity: normalizeEscalationSeverity(deps.commandHandlerFailureSeverity || deps.escalationSeverity, 'error'),
+            missingCommandHandlerSeverity: normalizeEscalationSeverity(deps.missingCommandHandlerSeverity, 'error'),
+            commandSubscriberFailureSeverity: normalizeEscalationSeverity(deps.commandSubscriberFailureSeverity, 'warning'),
+            panicSeverityThreshold: normalizeEscalationSeverity(deps.panicSeverityThreshold, 'critical'),
+            diagnosticsChannel: normalizeText(deps.escalationDiagnosticsChannel || deps.kernelEscalationDiagnosticsChannel || RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL, RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL),
+            trustRelevantActivatesPanic: deps.trustRelevantActivatesPanic === false ? false : true,
+            redactsPayload: deps.redactsPayload === false ? false : true
+        };
         const commandHandlers = new Map();
         const pendingCommands = new Map();
         const latestPendingBySupersessionKey = new Map();
         const subscribers = new Set();
+        const subscriberEscalationMeta = new WeakMap();
         const history = [];
+        const escalationHistory = [];
         const counters = {
             issued: 0,
             succeeded: 0,
@@ -3165,6 +3778,42 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             };
         }
 
+        function normalizeEscalationSeverity(value, fallback = 'error') {
+            const normalized = String(value || '').trim().toLowerCase();
+            return RMT_KERNEL_ESCALATION_SEVERITIES.includes(normalized) ? normalized : fallback;
+        }
+
+        function escalationSeverityRank(severity) {
+            const index = RMT_KERNEL_ESCALATION_SEVERITIES.indexOf(normalizeEscalationSeverity(severity, 'info'));
+            return index === -1 ? 0 : index;
+        }
+
+        function isEscalationSeverityAtLeast(severity, threshold) {
+            return escalationSeverityRank(severity) >= escalationSeverityRank(threshold);
+        }
+
+        function redactEscalationValue(value, key = '') {
+            if (value === null || value === undefined) return value;
+            if (Array.isArray(value)) return value.map((entry) => redactEscalationValue(entry, key));
+            if (typeof value === 'object') {
+                return Object.keys(value).reduce((result, entryKey) => {
+                    result[entryKey] = redactEscalationValue(value[entryKey], entryKey);
+                    return result;
+                }, {});
+            }
+            if (typeof value !== 'string') return value;
+            const normalizedKey = String(key || '').toLowerCase();
+            const sensitiveKey = /(payload|value|html|markup|raw|sample|source|script|token|secret|password)/u.test(normalizedKey);
+            const unsafeSample = /<\s*script\b|javascript:|vbscript:|srcdoc|onerror\s*=|onclick\s*=/iu.test(value);
+            if (sensitiveKey || unsafeSample) {
+                return {
+                    redacted: true,
+                    length: value.length
+                };
+            }
+            return value.length > 256 ? `${value.slice(0, 253)}...` : value;
+        }
+
         function pushHistoryEntry(entry) {
             history.push(entry);
             if (history.length > maxHistoryEntries) {
@@ -3183,12 +3832,133 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             };
         }
 
+        function createRuntimeCommandEscalationEnvelope(input = {}) {
+            const severity = normalizeEscalationSeverity(input.severity, escalationPolicy.commandHandlerFailureSeverity);
+            const trustRelevant = input.trustRelevant === true;
+            const panicRelevant = input.panicRelevant === true
+                || input.critical === true
+                || isEscalationSeverityAtLeast(severity, escalationPolicy.panicSeverityThreshold)
+                || (trustRelevant && escalationPolicy.trustRelevantActivatesPanic !== false);
+            const createdAt = now();
+            return {
+                schema: RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA,
+                escalationSchema: RMT_KERNEL_ESCALATION_SCHEMA,
+                policySchema: RMT_KERNEL_ESCALATION_POLICY_SCHEMA,
+                panicMonitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_ESCALATION,
+                panicStateSchema: RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_ESCALATION,
+                workpackage: RMT_KERNEL_ESCALATION_WORKPACKAGE,
+                envelopeId: `${RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA}:command-bus:${createdAt}:${escalationHistory.length + 1}`,
+                source: 'command-bus',
+                eventType: normalizeText(input.eventType, 'command-handler-failure'),
+                severity,
+                panicRelevant,
+                trustRelevant,
+                trigger: 'command-bus-failure',
+                scope: normalizeText(input.scope, 'command-bus'),
+                sourceRef: normalizeText(input.sourceRef, null),
+                channel: null,
+                commandName: normalizeText(input.commandName, null),
+                correlationId: normalizeText(input.correlationId, null),
+                rootId: normalizeText(input.rootId, null),
+                responseStatus: normalizeText(input.responseStatus, 'failed'),
+                reasonCode: normalizeText(input.reasonCode, `xtend.rmt.kernel-escalation.${normalizeText(input.eventType, 'command-handler-failure')}`),
+                diagnosticCode: normalizeText(input.diagnosticCode, `rmt.kernel.escalation.${normalizeText(input.eventType, 'command-handler-failure')}`),
+                error: serializeError(input.error),
+                createdAt,
+                metadata: escalationPolicy.redactsPayload === false
+                    ? clonePayload(input.metadata || {}, {})
+                    : redactEscalationValue(clonePayload(input.metadata || {}, {}))
+            };
+        }
+
+        function recordRuntimeCommandEscalation(input = {}) {
+            const envelope = createRuntimeCommandEscalationEnvelope(input);
+            if (panicMonitor && envelope.panicRelevant === true) {
+                try {
+                    envelope.panicState = panicMonitor.recordSignal({
+                        trigger: 'command-bus-failure',
+                        severity: envelope.severity,
+                        critical: true,
+                        scope: envelope.scope,
+                        sourceRef: envelope.sourceRef || envelope.commandName,
+                        reasonCode: envelope.reasonCode,
+                        diagnosticCode: envelope.diagnosticCode,
+                        correlationId: envelope.correlationId,
+                        metadata: {
+                            escalationSchema: RMT_KERNEL_ESCALATION_SCHEMA,
+                            envelopeId: envelope.envelopeId,
+                            commandName: envelope.commandName,
+                            rootId: envelope.rootId
+                        }
+                    });
+                } catch (_error) {
+                    envelope.panicState = null;
+                }
+            } else {
+                envelope.panicState = null;
+            }
+            escalationHistory.push(envelope);
+            if (escalationHistory.length > maxHistoryEntries) {
+                escalationHistory.splice(0, escalationHistory.length - maxHistoryEntries);
+            }
+            diagnosticsHub.publish(escalationPolicy.diagnosticsChannel, envelope, {
+                source: RMT_KERNEL_ESCALATION_SCHEMA,
+                workpackage: RMT_KERNEL_ESCALATION_WORKPACKAGE,
+                severity: envelope.severity,
+                eventType: envelope.eventType,
+                panicRelevant: envelope.panicRelevant
+            });
+            return clonePayload(envelope, {});
+        }
+
+        function inferFailureEscalation(input = {}) {
+            const commandMeta = input.command && input.command.meta && typeof input.command.meta === 'object' ? input.command.meta : {};
+            const handlerMeta = input.handlerMeta && typeof input.handlerMeta === 'object' ? input.handlerMeta : {};
+            const response = input.response && typeof input.response === 'object' ? input.response : {};
+            const severity = normalizeEscalationSeverity(
+                response.severity
+                || commandMeta.severity
+                || handlerMeta.severity
+                || (input.reason === 'missing_handler' ? escalationPolicy.missingCommandHandlerSeverity : escalationPolicy.commandHandlerFailureSeverity),
+                escalationPolicy.commandHandlerFailureSeverity
+            );
+            return {
+                severity,
+                panicRelevant: response.panicRelevant === true
+                    || commandMeta.panicRelevant === true
+                    || commandMeta.panicCritical === true
+                    || handlerMeta.panicRelevant === true
+                    || handlerMeta.panicCritical === true
+                    || isEscalationSeverityAtLeast(severity, escalationPolicy.panicSeverityThreshold),
+                trustRelevant: response.trustRelevant === true || commandMeta.trustRelevant === true || handlerMeta.trustRelevant === true,
+                reasonCode: response.reasonCode || commandMeta.reasonCode || handlerMeta.reasonCode,
+                diagnosticCode: response.diagnosticCode || commandMeta.diagnosticCode || handlerMeta.diagnosticCode
+            };
+        }
+
         function emitSubscriberEvent(event) {
             const snapshot = clonePayload(event, null);
             subscribers.forEach((subscriber) => {
                 try {
                     subscriber(snapshot);
-                } catch (_error) {
+                } catch (error) {
+                    const meta = subscriberEscalationMeta.get(subscriber) || {};
+                    recordRuntimeCommandEscalation({
+                        eventType: 'command-subscriber-failure',
+                        severity: meta.severity || escalationPolicy.commandSubscriberFailureSeverity,
+                        panicRelevant: meta.panicRelevant === true || meta.panicCritical === true,
+                        trustRelevant: meta.trustRelevant === true,
+                        scope: meta.scope || 'command-bus',
+                        sourceRef: meta.sourceRef || 'command-bus:subscriber',
+                        correlationId: snapshot && snapshot.response && snapshot.response.correlationId,
+                        commandName: snapshot && snapshot.response && snapshot.response.commandName,
+                        rootId: snapshot && snapshot.response && snapshot.response.rootId,
+                        error,
+                        metadata: {
+                            subscriber: meta.name || meta.subscriber || 'anonymous',
+                            eventKind: snapshot && snapshot.kind
+                        }
+                    });
                     // Command-Subscribers duerfen den Runtime-Pfad nicht unterbrechen.
                 }
             });
@@ -3247,6 +4017,12 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 rootId: commandEnvelope.rootId,
                 result: options.result === undefined ? null : clonePayload(options.result, null),
                 error: options.error ? serializeError(options.error) : null,
+                severity: options.severity ? normalizeEscalationSeverity(options.severity, null) : null,
+                panicRelevant: options.panicRelevant === true,
+                trustRelevant: options.trustRelevant === true,
+                reasonCode: normalizeText(options.reasonCode, ''),
+                diagnosticCode: normalizeText(options.diagnosticCode, ''),
+                failureEscalation: options.failureEscalation ? clonePayload(options.failureEscalation, null) : null,
                 superseded: options.superseded === true || status === 'superseded',
                 metrics: {
                     startedAt,
@@ -3280,6 +4056,12 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     : null,
                 error: safeResponse.error || null,
                 superseded: safeResponse.superseded === true,
+                severity: safeResponse.severity,
+                panicRelevant: safeResponse.panicRelevant === true,
+                trustRelevant: safeResponse.trustRelevant === true,
+                reasonCode: safeResponse.reasonCode,
+                diagnosticCode: safeResponse.diagnosticCode,
+                failureEscalation: safeResponse.failureEscalation,
                 metrics: safeResponse.metrics,
                 issuedCommands: Array.isArray(safeResponse.issuedCommands)
                     ? safeResponse.issuedCommands
@@ -3323,6 +4105,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 pendingCommands: listPendingCommands(),
                 handlers: listHandlers(),
                 recentHistory: history.map((entry) => clonePayload(entry, null)).filter(Boolean)
+                ,
+                escalations: escalationHistory.length,
+                lastEscalation: escalationHistory.length > 0 ? clonePayload(escalationHistory[escalationHistory.length - 1], null) : null
             };
         }
 
@@ -3406,6 +4191,50 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             else if (response.status === 'cancelled') counters.cancelled += 1;
             else if (response.status === 'superseded') counters.superseded += 1;
 
+            if (response.status === 'failed') {
+                const failureEscalation = inferFailureEscalation({
+                    command: record.command,
+                    handlerMeta: record.handlerMeta,
+                    response,
+                    reason
+                });
+                response.severity = response.severity || failureEscalation.severity;
+                response.panicRelevant = response.panicRelevant === true || failureEscalation.panicRelevant === true;
+                response.trustRelevant = response.trustRelevant === true || failureEscalation.trustRelevant === true;
+                response.reasonCode = response.reasonCode || failureEscalation.reasonCode || `xtend.rmt.kernel-escalation.${reason}`;
+                response.diagnosticCode = response.diagnosticCode || failureEscalation.diagnosticCode || `rmt.kernel.escalation.${reason}`;
+                const escalation = recordRuntimeCommandEscalation({
+                    eventType: reason === 'missing_handler'
+                        ? 'command-missing-handler'
+                        : (reason === 'handler_response' ? 'command-response-failed' : 'command-handler-failure'),
+                    severity: response.severity,
+                    panicRelevant: response.panicRelevant,
+                    trustRelevant: response.trustRelevant,
+                    scope: response.trustRelevant ? 'command-bus:trust-relevant' : 'command-bus',
+                    sourceRef: `command:${response.commandName}`,
+                    commandName: response.commandName,
+                    correlationId: response.correlationId,
+                    rootId: response.rootId,
+                    responseStatus: response.status,
+                    reasonCode: response.reasonCode,
+                    diagnosticCode: response.diagnosticCode,
+                    error: response.error,
+                    metadata: {
+                        reason,
+                        superseded: response.superseded === true,
+                        metrics: response.metrics
+                    }
+                });
+                response.failureEscalation = {
+                    schema: escalation.schema,
+                    envelopeId: escalation.envelopeId,
+                    severity: escalation.severity,
+                    panicRelevant: escalation.panicRelevant,
+                    trustRelevant: escalation.trustRelevant,
+                    panicState: escalation.panicState || null
+                };
+            }
+
             pushHistoryEntry({
                 kind: 'response',
                 reason: normalizeText(reason, 'completed'),
@@ -3441,11 +4270,17 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         startedAt: record.startedAt,
                         completedAt: now(),
                         error: new Error(`Unbekanntes RenderMan-Kommando: ${record.command.commandName}`),
+                        severity: record.command.meta && record.command.meta.severity || escalationPolicy.missingCommandHandlerSeverity,
+                        panicRelevant: record.command.meta && (record.command.meta.panicRelevant === true || record.command.meta.panicCritical === true),
+                        trustRelevant: record.command.meta && record.command.meta.trustRelevant === true,
+                        reasonCode: record.command.meta && record.command.meta.reasonCode || 'xtend.rmt.kernel-escalation.command-missing-handler',
+                        diagnosticCode: record.command.meta && record.command.meta.diagnosticCode || 'rmt.kernel.escalation.command-missing-handler',
                         issuedCommands: record.issuedCommands
                     }),
                     'missing_handler'
                 );
             }
+            record.handlerMeta = entry.meta || {};
 
             try {
                 const result = await entry.handler(record.command, {
@@ -3498,6 +4333,11 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         startedAt: record.startedAt,
                         completedAt: now(),
                         error,
+                        severity: error && error.severity || record.command.meta && record.command.meta.severity || record.handlerMeta && record.handlerMeta.severity || escalationPolicy.commandHandlerFailureSeverity,
+                        panicRelevant: error && error.panicRelevant === true || record.command.meta && (record.command.meta.panicRelevant === true || record.command.meta.panicCritical === true) || record.handlerMeta && (record.handlerMeta.panicRelevant === true || record.handlerMeta.panicCritical === true),
+                        trustRelevant: error && error.trustRelevant === true || record.command.meta && record.command.meta.trustRelevant === true || record.handlerMeta && record.handlerMeta.trustRelevant === true,
+                        reasonCode: error && error.reasonCode || record.command.meta && record.command.meta.reasonCode || record.handlerMeta && record.handlerMeta.reasonCode || 'xtend.rmt.kernel-escalation.command-handler-failure',
+                        diagnosticCode: error && error.diagnosticCode || record.command.meta && record.command.meta.diagnosticCode || record.handlerMeta && record.handlerMeta.diagnosticCode || 'rmt.kernel.escalation.command-handler-failure',
                         issuedCommands: record.issuedCommands
                     }),
                     'handler_error'
@@ -3545,6 +4385,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 completed: false,
                 status: 'pending',
                 resolve: null,
+                handlerMeta: null,
                 response: null
             };
 
@@ -3660,14 +4501,33 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 return function unsubscribeNoop() {};
             }
             subscribers.add(subscriber);
+            subscriberEscalationMeta.set(subscriber, options && typeof options === 'object' ? clonePayload(options, {}) : {});
             if (options.replayLatest === true) {
-                subscriber({
-                    kind: 'snapshot',
-                    snapshot: getSnapshot()
-                });
+                try {
+                    subscriber({
+                        kind: 'snapshot',
+                        snapshot: getSnapshot()
+                    });
+                } catch (error) {
+                    const meta = subscriberEscalationMeta.get(subscriber) || {};
+                    recordRuntimeCommandEscalation({
+                        eventType: 'command-subscriber-failure',
+                        severity: meta.severity || escalationPolicy.commandSubscriberFailureSeverity,
+                        panicRelevant: meta.panicRelevant === true || meta.panicCritical === true,
+                        trustRelevant: meta.trustRelevant === true,
+                        scope: meta.scope || 'command-bus',
+                        sourceRef: meta.sourceRef || 'command-bus:subscriber',
+                        error,
+                        metadata: {
+                            subscriber: meta.name || meta.subscriber || 'anonymous',
+                            eventKind: 'snapshot'
+                        }
+                    });
+                }
             }
             return function unsubscribe() {
                 subscribers.delete(subscriber);
+                subscriberEscalationMeta.delete(subscriber);
             };
         }
 
@@ -3679,10 +4539,13 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             cancel,
             cancelByRoot,
             dispatch,
+            getEscalationPolicy: () => clonePayload(escalationPolicy, {}),
             getHistory,
             getSnapshot,
             listHandlers,
+            listEscalations: () => escalationHistory.map((entry) => clonePayload(entry, {})),
             listPendingCommands,
+            recordEscalation: recordRuntimeCommandEscalation,
             registerHandler,
             registerHandlers,
             subscribe
@@ -4205,6 +5068,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     scheduled: 0,
                     started: 0,
                     executed: 0,
+                    failed: 0,
+                    aborted: 0,
+                    panicBlocked: 0,
                     cancelled: 0,
                     stale: 0,
                     lastRequestedAt: 0,
@@ -4384,6 +5250,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             if (phase === 'scheduled') statsRecord.scheduled += 1;
             else if (phase === 'started') statsRecord.started += 1;
             else if (phase === 'executed') statsRecord.executed += 1;
+            else if (phase === 'failed') statsRecord.failed += 1;
+            else if (phase === 'aborted') statsRecord.aborted += 1;
+            else if (phase === 'panic_blocked') statsRecord.panicBlocked += 1;
             else if (phase === 'cancelled') statsRecord.cancelled += 1;
             else if (phase === 'stale_scope' || phase === 'stale_root') statsRecord.stale += 1;
 
@@ -4394,7 +5263,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 
             const timestamp = now();
             if (phase === 'scheduled') statsRecord.lastRequestedAt = timestamp;
-            if (phase === 'executed' || phase === 'cancelled' || phase === 'stale_scope' || phase === 'stale_root') {
+            if (phase === 'executed' || phase === 'failed' || phase === 'aborted' || phase === 'panic_blocked' || phase === 'cancelled' || phase === 'stale_scope' || phase === 'stale_root') {
                 statsRecord.lastCompletedAt = timestamp;
             }
 
@@ -4593,6 +5462,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     scheduled: statsRecord.scheduled,
                     started: statsRecord.started,
                     executed: statsRecord.executed,
+                    failed: statsRecord.failed,
+                    aborted: statsRecord.aborted,
+                    panicBlocked: statsRecord.panicBlocked,
                     cancelled: statsRecord.cancelled,
                     stale: statsRecord.stale,
                     lastRequestedAt: statsRecord.lastRequestedAt,
@@ -4657,6 +5529,274 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
     appModules.createRenderManDiagnostics = function createRenderManDiagnostics(...args) {
         return appModules.createRmtDiagnostics(...args);
     };
+})(__XTENDRMT_GLOBAL__);
+
+
+/* modules/renderman-policy-parity.js */
+(function registerRmtKernelPolicyParityModule(global) {
+    const appModules = global.AppModules || (global.AppModules = {});
+    const RMT_KERNEL_POLICY_PARITY_SCHEMA = 'xtend.rmt.kernel-policy-parity.v1';
+    const RMT_KERNEL_POLICY_PARITY_MATRIX_SCHEMA = 'xtend.rmt.kernel-policy-parity-matrix.v1';
+    const RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA = 'xtend.rmt.kernel-policy-parity-report.v1';
+    const RMT_KERNEL_POLICY_PARITY_DRIFT_SCHEMA = 'xtend.rmt.kernel-policy-parity-drift.v1';
+    const RMT_KERNEL_POLICY_PARITY_WORKPACKAGE = 'RKSH-WP-08';
+    const RMT_KERNEL_POLICY_PARITY_DIAGNOSTIC_CHANNEL = 'rmt.kernel.policy_parity';
+    const KERNEL_POLICY_PARITY_RUNTIME_HOOKS = Object.freeze([
+        'recordTrustVerdict',
+        'commitTrustedHtml',
+        'commitTrustedAttribute',
+        'commitTrustedProperty',
+        'applyRemoteSurfacePolicy',
+        'recoverFromPanic',
+        'rememberSafeSnapshot',
+        'listRecoveryOutcomes',
+        'panicBlockScope',
+        'abortScope',
+        'reportPerformanceSample',
+        'dispatchCommand',
+        'recordEscalation',
+        'listEscalations'
+    ]);
+    const DEFAULT_KERNEL_POLICY_PARITY_MATRIX = Object.freeze([
+        Object.freeze({ id: 'vnext-security-trust-boundary-runtime-trust-authority', sourceSchema: 'xtend.rmt.vnext-security-policy-contract.v1', policyFamily: 'vnext-security', compileTimeCodes: Object.freeze(['rmt.vnext.security.policy.owner_missing', 'rmt.vnext.security.trust_boundary.missing', 'rmt.vnext.security.trust_boundary.unknown', 'rmt.vnext.security.sanitize.missing', 'rmt.vnext.security.sanitize.format_unsupported', 'rmt.vnext.security.policy.duplicate', 'rmt.vnext.security.policy.conflict', 'rmt.vnext.security.sanitize.without_boundary']), compileTimeStatuses: Object.freeze(['blocked']), runtimeScope: 'trusted-runtime-output', runtimeHooks: Object.freeze(['recordTrustVerdict', 'commitTrustedHtml']), runtimeSchemas: Object.freeze(['xtend.rmt.kernel-trust-authority.v1', 'xtend.rmt.kernel-trust-verdict.v1']), runtimeVerdicts: Object.freeze(['sanitized', 'blocked', 'panic']), panicTrigger: 'trust-verdict-blocked', recoveryAction: 'quarantine-scope' }),
+        Object.freeze({ id: 'vnext-security-binding-runtime-attribute-property-policy', sourceSchema: 'xtend.rmt.vnext-security-policy-contract.v1', policyFamily: 'vnext-security', compileTimeCodes: Object.freeze(['rmt.vnext.security.trust_boundary.missing', 'rmt.vnext.security.sanitize.without_boundary', 'rmt.vnext.security.policy.conflict']), compileTimeStatuses: Object.freeze(['blocked']), runtimeScope: 'binding-output', runtimeHooks: Object.freeze(['commitTrustedAttribute', 'commitTrustedProperty', 'recordTrustVerdict']), runtimeSchemas: Object.freeze(['xtend.rmt.kernel-trust-authority.v1', 'xtend.rmt.kernel-trust-verdict.v1']), runtimeVerdicts: Object.freeze(['trusted', 'blocked', 'panic']), panicTrigger: 'trust-verdict-blocked', recoveryAction: 'quarantine-scope' }),
+        Object.freeze({ id: 'remote-security-runtime-remote-output-trust-scope', sourceSchema: 'xtend.rmt.vnext-remote-security-policy.v1', policyFamily: 'remote-security', compileTimeCodes: Object.freeze(['rmt.vnext.remote_security.trust_boundary_missing', 'rmt.vnext.remote_security.trust_boundary_unknown', 'rmt.vnext.remote_security.origin_not_allowed', 'rmt.vnext.remote_security.integrity_missing', 'rmt.vnext.remote_security.csp_missing', 'rmt.vnext.remote_security.sandbox_conflict', 'rmt.vnext.remote_security.capability_escalation', 'rmt.vnext.remote_security.event_payload_missing', 'rmt.vnext.remote_security.degradation_blocked']), compileTimeStatuses: Object.freeze(['blocked']), runtimeScope: 'remote-output', runtimeHooks: Object.freeze(['applyRemoteSurfacePolicy', 'recordTrustVerdict', 'recordEscalation']), runtimeSchemas: Object.freeze(['xtend.rmt.kernel-trust-authority.v1', 'xtend.rmt.kernel-trust-verdict.v1', 'xtend.rmt.kernel-escalation.v1']), runtimeVerdicts: Object.freeze(['blocked', 'panic']), trustBoundary: 'xtend.security.remote-surface.v1', panicTrigger: 'remote-output-policy-blocked', recoveryAction: 'quarantine-scope' }),
+        Object.freeze({ id: 'degradation-blocked-runtime-panic-recovery', sourceSchema: 'xtend.rmt.vnext-degradation-policy.v1', policyFamily: 'degradation', compileTimeCodes: Object.freeze(['rmt.vnext.degradation.registry_surface_blocked', 'rmt.vnext.degradation.fallback_missing', 'rmt.vnext.degradation.capability_missing', 'rmt.vnext.degradation.version_mismatch', 'rmt.vnext.degradation.shell_version_unsupported', 'rmt.vnext.degradation.event_restricted']), compileTimeStatuses: Object.freeze(['blocked']), runtimeScope: 'degraded-or-blocked-surface', runtimeHooks: Object.freeze(['recoverFromPanic', 'rememberSafeSnapshot', 'listRecoveryOutcomes', 'panicBlockScope']), runtimeSchemas: Object.freeze(['xtend.rmt.kernel-recovery.v1', 'xtend.rmt.kernel-recovery-outcome.v1', 'xtend.rmt.kernel-scheduler-failure.v1']), runtimeVerdicts: Object.freeze(['blocked', 'recovered', 'panic']), panicTrigger: 'degradation-blocked', recoveryAction: 'render-safe-fallback' }),
+        Object.freeze({ id: 'streaming-error-path-runtime-panic-scheduler', sourceSchema: 'xtend.rmt.vnext-streaming-contract.v1', policyFamily: 'streaming', compileTimeCodes: Object.freeze(['rmt.vnext.streaming.security.missing', 'rmt.vnext.streaming.error_path.missing', 'rmt.vnext.streaming.backpressure.missing', 'rmt.vnext.streaming.data_source.missing', 'rmt.vnext.streaming.data_source.kind_unsupported', 'rmt.vnext.streaming.capability.missing']), compileTimeStatuses: Object.freeze(['blocked']), runtimeScope: 'streaming-output', runtimeHooks: Object.freeze(['reportPerformanceSample', 'panicBlockScope', 'recordTrustVerdict']), runtimeSchemas: Object.freeze(['xtend.rmt.kernel-scheduler-failure.v1', 'xtend.rmt.kernel-scheduler-failure-record.v1', 'xtend.rmt.kernel-trust-verdict.v1']), runtimeVerdicts: Object.freeze(['blocked', 'panic']), panicTrigger: 'scheduler-backpressure', recoveryAction: 'pause-scheduler-jobs' }),
+        Object.freeze({ id: 'event-governance-delivery-block-runtime-signal', sourceSchema: 'xtend.rmt.vnext-event-governance-policy.v1', policyFamily: 'event-governance', compileTimeCodes: Object.freeze(['rmt.vnext.event_governance.delivery_policy_missing', 'rmt.vnext.event_governance.delivery_mode_invalid', 'rmt.vnext.event_governance.protocol_blocked', 'rmt.vnext.event_governance.sensitivity_missing']), compileTimeStatuses: Object.freeze(['blocked']), runtimeScope: 'event-delivery', runtimeHooks: Object.freeze(['dispatchCommand', 'recordEscalation', 'listEscalations']), runtimeSchemas: Object.freeze(['xtend.rmt.kernel-escalation.v1', 'xtend.rmt.kernel-escalation-envelope.v1']), runtimeVerdicts: Object.freeze(['blocked', 'panic']), panicTrigger: 'command-bus-failure', recoveryAction: 'notify-host' })
+    ]);
+    const SOURCE_SCHEMA_ALIASES = Object.freeze({
+        'xtend.rmt.vnext-remote-security-report.v1': 'xtend.rmt.vnext-remote-security-policy.v1',
+        'xtend.rmt.vnext-degradation-report.v1': 'xtend.rmt.vnext-degradation-policy.v1',
+        'xtend.rmt.vnext-event-governance-report.v1': 'xtend.rmt.vnext-event-governance-policy.v1'
+    });
+
+    function normalizeString(value, fallback = '') {
+        if (value === null || value === undefined) return fallback;
+        const normalized = String(value).trim();
+        return normalized || fallback;
+    }
+
+    function normalizeArray(value) {
+        if (Array.isArray(value)) return value;
+        if (value === null || value === undefined) return [];
+        return [value];
+    }
+
+    function uniqueList(values) {
+        return Array.from(new Set(normalizeArray(values).map((value) => normalizeString(value, '')).filter(Boolean))).sort();
+    }
+
+    function cloneJson(value, fallback = null) {
+        if (value === undefined) return fallback;
+        try {
+            return JSON.parse(JSON.stringify(value));
+        } catch (_error) {
+            return fallback;
+        }
+    }
+
+    function normalizeSourceSchema(report = {}) {
+        const raw = normalizeString(report.policySchema || report.sourceSchema || report.schema, '');
+        return SOURCE_SCHEMA_ALIASES[raw] || raw;
+    }
+
+    function normalizeMatrixEntry(entry = {}) {
+        return {
+            id: normalizeString(entry.id, 'policy-parity-rule'),
+            sourceSchema: normalizeSourceSchema(entry),
+            policyFamily: normalizeString(entry.policyFamily, 'kernel'),
+            compileTimeCodes: uniqueList(entry.compileTimeCodes),
+            compileTimeStatuses: uniqueList(entry.compileTimeStatuses || ['blocked']),
+            runtimeScope: normalizeString(entry.runtimeScope, 'runtime-output'),
+            runtimeHooks: uniqueList(entry.runtimeHooks),
+            runtimeSchemas: uniqueList(entry.runtimeSchemas),
+            runtimeVerdicts: uniqueList(entry.runtimeVerdicts || ['blocked']),
+            trustBoundary: normalizeString(entry.trustBoundary, null),
+            panicTrigger: normalizeString(entry.panicTrigger, 'trust-verdict-blocked'),
+            recoveryAction: normalizeString(entry.recoveryAction, 'quarantine-scope')
+        };
+    }
+
+    function createKernelPolicyParityMatrix(input = {}) {
+        const customEntries = normalizeArray(input.matrix || input.entries);
+        const entries = customEntries.length > 0 ? customEntries : DEFAULT_KERNEL_POLICY_PARITY_MATRIX;
+        return {
+            schema: RMT_KERNEL_POLICY_PARITY_MATRIX_SCHEMA,
+            paritySchema: RMT_KERNEL_POLICY_PARITY_SCHEMA,
+            workpackage: RMT_KERNEL_POLICY_PARITY_WORKPACKAGE,
+            entryCount: entries.length,
+            entries: entries.map(normalizeMatrixEntry)
+        };
+    }
+
+    function createKernelPolicyParityContract(options = {}) {
+        const matrix = createKernelPolicyParityMatrix(options);
+        return {
+            schema: RMT_KERNEL_POLICY_PARITY_SCHEMA,
+            matrixSchema: RMT_KERNEL_POLICY_PARITY_MATRIX_SCHEMA,
+            reportSchema: RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA,
+            driftSchema: RMT_KERNEL_POLICY_PARITY_DRIFT_SCHEMA,
+            workpackage: RMT_KERNEL_POLICY_PARITY_WORKPACKAGE,
+            status: 'completed-compile-runtime-policy-parity',
+            localGate: 'node scripts/run_xtend_tests.js rmt-kernel-policy-parity --json',
+            diagnosticsChannel: RMT_KERNEL_POLICY_PARITY_DIAGNOSTIC_CHANNEL,
+            hostNeutral: true,
+            sourcePolicySchemas: uniqueList(matrix.entries.map((entry) => entry.sourceSchema)),
+            runtimeScopes: uniqueList(matrix.entries.map((entry) => entry.runtimeScope)),
+            runtimeHooks: uniqueList(matrix.entries.flatMap((entry) => entry.runtimeHooks)),
+            matrix
+        };
+    }
+
+    function collectDiagnosticBlocks(report) {
+        return normalizeArray(report.diagnostics).map((diagnostic, index) => {
+            const sourceSchema = normalizeSourceSchema(report);
+            const code = normalizeString(diagnostic && (diagnostic.code || diagnostic.diagnosticCode), '');
+            const severity = normalizeString(diagnostic && (diagnostic.severity || diagnostic.level), 'info');
+            if (!code || (severity !== 'error' && severity !== 'fatal')) return null;
+            return {
+                sourceSchema,
+                reportSchema: normalizeString(report.schema, sourceSchema),
+                code,
+                severity,
+                status: 'blocked',
+                message: normalizeString(diagnostic.message, code),
+                sourceRef: normalizeString(diagnostic.sourceRef || diagnostic.path || diagnostic.operationId || diagnostic.surfaceId || diagnostic.eventId, sourceSchema + ':' + index),
+                metadata: cloneJson(diagnostic.metadata || {}, {})
+            };
+        }).filter(Boolean);
+    }
+
+    function collectStatusBlocks(report) {
+        const sourceSchema = normalizeSourceSchema(report);
+        const blocks = [];
+        const candidates = [].concat(normalizeArray(report.postures), normalizeArray(report.surfaces), normalizeArray(report.streams), normalizeArray(report.events));
+        candidates.forEach((record, index) => {
+            if (!record || typeof record !== 'object') return;
+            const status = normalizeString(record.status || record.state, '');
+            if (status !== 'blocked') return;
+            const nestedBlocks = collectDiagnosticBlocks({ ...record, schema: report.schema, policySchema: report.policySchema || sourceSchema, diagnostics: record.diagnostics || [] });
+            if (nestedBlocks.length > 0) {
+                blocks.push(...nestedBlocks);
+                return;
+            }
+            blocks.push({
+                sourceSchema,
+                reportSchema: normalizeString(report.schema, sourceSchema),
+                code: sourceSchema + '.blocked',
+                severity: 'error',
+                status: 'blocked',
+                message: 'Blocked record in ' + sourceSchema,
+                sourceRef: normalizeString(record.id || record.operationId || record.enterpriseSurfaceId || record.eventId, sourceSchema + ':blocked:' + index),
+                metadata: {}
+            });
+        });
+        return blocks;
+    }
+
+    function collectCompileTimeBlocks(input = {}) {
+        const reports = []
+            .concat(normalizeArray(input.reports), normalizeArray(input.contracts), normalizeArray(input.securityContract), normalizeArray(input.remoteSecurityReport), normalizeArray(input.degradationReport), normalizeArray(input.streamingContract), normalizeArray(input.eventGovernanceReport));
+        const blocks = [];
+        reports.forEach((report) => {
+            if (!report || typeof report !== 'object') return;
+            blocks.push(...collectDiagnosticBlocks(report), ...collectStatusBlocks(report));
+        });
+        const seen = new Set();
+        return blocks.filter((block) => {
+            const key = block.sourceSchema + ':' + block.code + ':' + block.sourceRef;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    }
+
+    function createRuntimeCapabilitySnapshot(input = {}, options = {}) {
+        const runtime = input.runtime || options.runtime || {};
+        const explicitHooks = normalizeArray(input.runtimeHooks || options.runtimeHooks);
+        const discoveredHooks = [];
+        if (runtime && typeof runtime === 'object') {
+            KERNEL_POLICY_PARITY_RUNTIME_HOOKS.forEach((hook) => {
+                if (typeof runtime[hook] === 'function') discoveredHooks.push(hook);
+            });
+            const commandBus = typeof runtime.getCommandBus === 'function' ? runtime.getCommandBus() : null;
+            if (commandBus && typeof commandBus === 'object') {
+                if (typeof commandBus.dispatch === 'function') discoveredHooks.push('dispatchCommand');
+                if (typeof commandBus.recordEscalation === 'function') discoveredHooks.push('recordEscalation');
+                if (typeof commandBus.listEscalations === 'function') discoveredHooks.push('listEscalations');
+            }
+            const diagnosticsHub = typeof runtime.getDiagnosticsHub === 'function' ? runtime.getDiagnosticsHub() : null;
+            if (diagnosticsHub && typeof diagnosticsHub === 'object') {
+                if (typeof diagnosticsHub.recordEscalation === 'function') discoveredHooks.push('recordEscalation');
+                if (typeof diagnosticsHub.listEscalations === 'function') discoveredHooks.push('listEscalations');
+            }
+        }
+        const hooks = uniqueList(explicitHooks.length > 0 ? explicitHooks.concat(discoveredHooks) : discoveredHooks);
+        return {
+            hooks,
+            missingDefaultHooks: KERNEL_POLICY_PARITY_RUNTIME_HOOKS.filter((hook) => !hooks.includes(hook))
+        };
+    }
+
+    function findMatrixEntriesForBlock(block, matrixEntries) {
+        return matrixEntries.filter((entry) => entry.sourceSchema === block.sourceSchema && entry.compileTimeStatuses.includes(block.status) && (entry.compileTimeCodes.includes(block.code) || block.code === entry.sourceSchema + '.blocked'));
+    }
+
+    function createKernelPolicyParityRuntimeReport(input = {}, options = {}) {
+        const matrix = createKernelPolicyParityMatrix(options.matrix ? { matrix: options.matrix } : input);
+        const runtimeCapabilities = createRuntimeCapabilitySnapshot(input, options);
+        const compileTimeBlocks = collectCompileTimeBlocks(input);
+        const appliedPolicies = [];
+        const drift = [];
+        compileTimeBlocks.forEach((block) => {
+            const entries = findMatrixEntriesForBlock(block, matrix.entries);
+            if (entries.length === 0) {
+                drift.push({ schema: RMT_KERNEL_POLICY_PARITY_DRIFT_SCHEMA, type: 'missing-runtime-mapping', sourceSchema: block.sourceSchema, blockCode: block.code, sourceRef: block.sourceRef, message: 'No runtime parity mapping for ' + block.code + '.' });
+                return;
+            }
+            entries.forEach((entry) => {
+                const missingRuntimeHooks = entry.runtimeHooks.filter((hook) => !runtimeCapabilities.hooks.includes(hook));
+                const verdict = missingRuntimeHooks.length > 0 ? 'drift' : (entry.runtimeVerdicts.includes('blocked') ? 'blocked' : entry.runtimeVerdicts[0]);
+                const applied = { blockCode: block.code, sourceSchema: block.sourceSchema, matrixEntryId: entry.id, policyFamily: entry.policyFamily, runtimeScope: entry.runtimeScope, runtimeHooks: entry.runtimeHooks.slice(), missingRuntimeHooks, runtimeSchemas: entry.runtimeSchemas.slice(), runtimeVerdicts: entry.runtimeVerdicts.slice(), appliedPolicy: entry.id, verdict, panicTrigger: entry.panicTrigger, recoveryAction: entry.recoveryAction, trustBoundary: entry.trustBoundary || null };
+                appliedPolicies.push(applied);
+                if (missingRuntimeHooks.length > 0) {
+                    drift.push({ schema: RMT_KERNEL_POLICY_PARITY_DRIFT_SCHEMA, type: 'missing-runtime-hook', sourceSchema: block.sourceSchema, blockCode: block.code, matrixEntryId: entry.id, sourceRef: block.sourceRef, missingRuntimeHooks: missingRuntimeHooks.slice(), message: 'Runtime hook missing for ' + entry.id + ': ' + missingRuntimeHooks.join(', ') + '.' });
+                }
+            });
+        });
+        const status = drift.length > 0 ? 'drift' : 'ready';
+        return { schema: RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA, paritySchema: RMT_KERNEL_POLICY_PARITY_SCHEMA, matrixSchema: RMT_KERNEL_POLICY_PARITY_MATRIX_SCHEMA, workpackage: RMT_KERNEL_POLICY_PARITY_WORKPACKAGE, status, ok: status === 'ready', compileTimeBlockCount: compileTimeBlocks.length, appliedPolicyCount: appliedPolicies.length, driftCount: drift.length, sourcePolicySchemas: uniqueList(matrix.entries.map((entry) => entry.sourceSchema)), runtimeScopes: uniqueList(matrix.entries.map((entry) => entry.runtimeScope)), runtimeCapabilities, compileTimeBlocks, appliedPolicies, drift };
+    }
+
+    appModules.createRmtKernelPolicyParity = function createRmtKernelPolicyParity(options = {}) {
+        const diagnosticsHub = options.diagnosticsHub && typeof options.diagnosticsHub.publish === 'function' ? options.diagnosticsHub : null;
+        const reports = [];
+        function publishReport(report) {
+            if (!diagnosticsHub) return;
+            try {
+                diagnosticsHub.publish(RMT_KERNEL_POLICY_PARITY_DIAGNOSTIC_CHANNEL, report, { source: RMT_KERNEL_POLICY_PARITY_SCHEMA, workpackage: RMT_KERNEL_POLICY_PARITY_WORKPACKAGE, status: report.status, driftCount: report.driftCount });
+            } catch (_error) {}
+        }
+        function createRuntimeReport(input = {}) {
+            const report = createRuntimeReportFactory(input, options);
+            reports.push(report);
+            publishReport(report);
+            return cloneJson(report, {});
+        }
+        function createRuntimeReportFactory(input = {}, runtimeOptions = {}) {
+            return createKernelPolicyParityRuntimeReport(input, runtimeOptions);
+        }
+        return Object.freeze({
+            schema: RMT_KERNEL_POLICY_PARITY_SCHEMA,
+            contract: createKernelPolicyParityContract(options),
+            getMatrix: () => cloneJson(createKernelPolicyParityMatrix(options), {}),
+            createRuntimeReport,
+            checkDrift: (input = {}) => createRuntimeReport(input).drift,
+            listReports: () => reports.map((report) => cloneJson(report, {}))
+        });
+    };
+    appModules.createRenderManKernelPolicyParity = appModules.createRmtKernelPolicyParity;
 })(__XTENDRMT_GLOBAL__);
 
 /* modules/renderman-browser-host-adapter.js */
@@ -14680,6 +15820,118 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         'template'
     ]);
     const MISSING_VALUE = Symbol('renderman_template_binding_missing');
+    const RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA = 'xtend.rmt.runtime-trust-sink-adapter.v1';
+    const RMT_KERNEL_TRUST_AUTHORITY_SCHEMA = 'xtend.rmt.kernel-trust-authority.v1';
+    const RMT_KERNEL_TRUST_VERDICT_SCHEMA = 'xtend.rmt.kernel-trust-verdict.v1';
+    const RMT_KERNEL_TRUST_DIAGNOSTIC_SCHEMA = 'xtend.rmt.kernel-trust-diagnostic.v1';
+    const RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE = 'RKSH-WP-02';
+    const RMT_TRUSTED_DOM_BOUNDARY = 'xtend.security.sanitizing-boundary.v1';
+    const RMT_TRUSTED_DOM_SANITIZER_SCHEMA = 'xtend.security.trusted-dom-sanitizer.v1';
+    const RMT_RUNTIME_TRUST_DIAGNOSTIC_CHANNEL = 'rmt.kernel.trust';
+    const RMT_KERNEL_PANIC_MONITOR_SCHEMA = 'xtend.rmt.kernel-panic-monitor.v1';
+    const RMT_KERNEL_PANIC_STATE_SCHEMA = 'xtend.rmt.kernel-panic-state.v1';
+    const RMT_KERNEL_PANIC_EVENT_SCHEMA = 'xtend.rmt.kernel-panic-event.v1';
+    const RMT_KERNEL_PANIC_MONITOR_WORKPACKAGE = 'RKSH-WP-04';
+    const RMT_RUNTIME_PANIC_DIAGNOSTIC_CHANNEL = 'rmt.kernel.panic';
+    const RMT_KERNEL_RECOVERY_SCHEMA = 'xtend.rmt.kernel-recovery.v1';
+    const RMT_KERNEL_RECOVERY_POLICY_SCHEMA = 'xtend.rmt.kernel-recovery-policy.v1';
+    const RMT_KERNEL_RECOVERY_OUTCOME_SCHEMA = 'xtend.rmt.kernel-recovery-outcome.v1';
+    const RMT_KERNEL_RECOVERY_SAFE_SNAPSHOT_SCHEMA = 'xtend.rmt.kernel-recovery-safe-snapshot.v1';
+    const RMT_KERNEL_RECOVERY_WORKPACKAGE = 'RKSH-WP-05';
+    const RMT_RUNTIME_RECOVERY_DIAGNOSTIC_CHANNEL = 'rmt.kernel.recovery';
+    const RMT_KERNEL_BINDING_SECURITY_WORKPACKAGE = 'RKSH-WP-03';
+    const RMT_RUNTIME_URL_ATTRIBUTES = Object.freeze([
+        'href',
+        'src',
+        'srcset',
+        'action',
+        'formaction',
+        'poster',
+        'xlink:href'
+    ]);
+    const RMT_RUNTIME_SAFE_ATTRIBUTES = Object.freeze([
+        'id',
+        'class',
+        'title',
+        'role',
+        'name',
+        'type',
+        'value',
+        'alt',
+        'part',
+        'slot',
+        'for',
+        'rel',
+        'target',
+        'loading',
+        'decoding',
+        'width',
+        'height',
+        'placeholder',
+        'autocomplete',
+        'min',
+        'max',
+        'step',
+        'rows',
+        'cols',
+        'tabindex',
+        'hidden',
+        'disabled',
+        'checked',
+        'selected',
+        'required',
+        'readonly',
+        'multiple',
+        'open',
+        'controls',
+        'muted',
+        'loop',
+        'autoplay',
+        'playsinline',
+        'download',
+        'data-rm-action',
+        'data-rmt-repeat-item',
+        'data-rmt-repeat-key'
+    ]);
+    const RMT_RUNTIME_SAFE_PROPERTY_WRITES = Object.freeze([
+        'textcontent',
+        'innertext',
+        'value',
+        'checked',
+        'disabled',
+        'selected',
+        'selectedindex',
+        'arialabel',
+        'ariadescription',
+        'role',
+        'id',
+        'title',
+        'classname',
+        'name',
+        'type',
+        'placeholder',
+        'tabindex',
+        'hidden',
+        'readonly',
+        'multiple',
+        'required',
+        'open'
+    ]);
+    const RMT_RUNTIME_URL_PROPERTIES = Object.freeze([
+        'href',
+        'src',
+        'action',
+        'formaction',
+        'poster'
+    ]);
+    const RMT_RUNTIME_FORBIDDEN_PROPERTY_WRITES = Object.freeze([
+        'innerhtml',
+        'outerhtml',
+        'srcdoc',
+        'onclick',
+        'onerror',
+        'onload'
+    ]);
 
     function clampString(value, fallbackValue = '') {
         const safeValue = String(value || '').trim();
@@ -14693,6 +15945,384 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         } catch (_error) {
             return fallbackValue;
         }
+    }
+
+    function createRuntimePanicMonitor(options = {}) {
+        const panicDiagnosticsHub = options.diagnosticsHub && typeof options.diagnosticsHub.publish === 'function'
+            ? options.diagnosticsHub
+            : null;
+        const now = typeof options.now === 'function'
+            ? options.now
+            : (() => Date.now());
+        const repeatedBlockThreshold = Number.isFinite(options.repeatedBlockThreshold) && options.repeatedBlockThreshold > 0
+            ? Math.max(Math.floor(options.repeatedBlockThreshold), 1)
+            : 3;
+        const panicEvents = [];
+        let panicEventSequence = 0;
+        let panicSnapshot = {
+            schema: RMT_KERNEL_PANIC_STATE_SCHEMA,
+            monitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA,
+            workpackage: RMT_KERNEL_PANIC_MONITOR_WORKPACKAGE,
+            state: 'none',
+            previousState: 'none',
+            severity: 'info',
+            trigger: 'manual',
+            panicId: null,
+            correlationId: null,
+            sourceRef: null,
+            scope: null,
+            sink: null,
+            reasonCode: null,
+            diagnosticCode: null,
+            blockedCommitCount: 0,
+            criticalViolationCount: 0,
+            recoveryAttemptCount: 0,
+            recoveryFailureCount: 0,
+            recoveryAction: 'none',
+            affectedScopes: [],
+            affectedJobs: [],
+            activeSince: null,
+            recoveringSince: null,
+            recoveredAt: null,
+            failedAt: null,
+            lastSeenAt: now(),
+            eventCount: 0,
+            lastEventId: null,
+            lastVerdict: null,
+            metadata: {
+                repeatedBlockThreshold
+            }
+        };
+
+        function getPanicSnapshot() {
+            return cloneSerializable(panicSnapshot, {});
+        }
+
+        function listPanicEvents() {
+            return panicEvents.map((event) => cloneSerializable(event, {}));
+        }
+
+        function redactRuntimePanicMetadata(value, key = '') {
+            if (value === null || value === undefined) return value;
+            if (Array.isArray(value)) return value.map((entry) => redactRuntimePanicMetadata(entry, key));
+            if (typeof value === 'object') {
+                return Object.keys(value).reduce((result, entryKey) => {
+                    result[entryKey] = redactRuntimePanicMetadata(value[entryKey], entryKey);
+                    return result;
+                }, {});
+            }
+            if (typeof value !== 'string') return value;
+            const normalizedKey = clampString(key, '').toLowerCase();
+            const sensitiveKey = /(value|html|markup|raw|payload|sample|source|script)/.test(normalizedKey);
+            const unsafeSample = /<s*script|javascript:|vbscript:|srcdoc/i.test(value);
+            if (sensitiveKey || unsafeSample) {
+                return {
+                    redacted: true,
+                    length: value.length
+                };
+            }
+            return value.length > 256 ? value.slice(0, 253) + '...' : value;
+        }
+
+        function publishPanicEvent(event) {
+            if (!panicDiagnosticsHub) return;
+            try {
+                panicDiagnosticsHub.publish(RMT_RUNTIME_PANIC_DIAGNOSTIC_CHANNEL, event, {
+                    source: RMT_KERNEL_PANIC_MONITOR_SCHEMA,
+                    workpackage: RMT_KERNEL_PANIC_MONITOR_WORKPACKAGE,
+                    state: event.state,
+                    panicId: event.panicId || undefined,
+                    correlationId: event.correlationId || undefined
+                });
+            } catch (_error) {}
+        }
+
+        function createPanicId(input = {}) {
+            const correlationId = clampString(input.correlationId, '');
+            if (correlationId) return 'panic:' + correlationId;
+            return 'panic:' + clampString(input.scope, 'runtime') + ':' + clampString(input.trigger, 'manual');
+        }
+
+        function rememberPanicTransition(input = {}, type = 'signal-recorded') {
+            const previousState = panicSnapshot.state;
+            const nextState = clampString(input.state, previousState);
+            const at = now();
+            panicEventSequence += 1;
+            const event = {
+                schema: RMT_KERNEL_PANIC_EVENT_SCHEMA,
+                monitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA,
+                stateSchema: RMT_KERNEL_PANIC_STATE_SCHEMA,
+                workpackage: RMT_KERNEL_PANIC_MONITOR_WORKPACKAGE,
+                eventId: RMT_KERNEL_PANIC_EVENT_SCHEMA + ':' + panicEventSequence,
+                type,
+                previousState,
+                state: nextState,
+                severity: clampString(input.severity, panicSnapshot.severity || 'warning'),
+                trigger: clampString(input.trigger, 'manual'),
+                panicId: clampString(input.panicId, panicSnapshot.panicId),
+                correlationId: clampString(input.correlationId, panicSnapshot.correlationId),
+                sourceRef: clampString(input.sourceRef, panicSnapshot.sourceRef),
+                scope: clampString(input.scope, panicSnapshot.scope),
+                sink: clampString(input.sink, panicSnapshot.sink),
+                reasonCode: clampString(input.reasonCode, panicSnapshot.reasonCode),
+                diagnosticCode: clampString(input.diagnosticCode, panicSnapshot.diagnosticCode),
+                blockedCommitCount: Number.isFinite(input.blockedCommitCount) ? input.blockedCommitCount : panicSnapshot.blockedCommitCount,
+                criticalViolationCount: Number.isFinite(input.criticalViolationCount) ? input.criticalViolationCount : panicSnapshot.criticalViolationCount,
+                recoveryAttemptCount: Number.isFinite(input.recoveryAttemptCount) ? input.recoveryAttemptCount : panicSnapshot.recoveryAttemptCount,
+                recoveryFailureCount: Number.isFinite(input.recoveryFailureCount) ? input.recoveryFailureCount : panicSnapshot.recoveryFailureCount,
+                recoveryAction: clampString(input.recoveryAction, panicSnapshot.recoveryAction || 'none'),
+                at,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            };
+            panicEvents.push(event);
+            const affectedScopes = new Set(Array.isArray(panicSnapshot.affectedScopes) ? panicSnapshot.affectedScopes : []);
+            if (event.scope) affectedScopes.add(event.scope);
+            const affectedJobs = new Set(Array.isArray(panicSnapshot.affectedJobs) ? panicSnapshot.affectedJobs : []);
+            (Array.isArray(input.affectedJobs) ? input.affectedJobs : []).forEach((job) => {
+                const safeJob = clampString(job, '');
+                if (safeJob) affectedJobs.add(safeJob);
+            });
+            panicSnapshot = {
+                ...panicSnapshot,
+                state: event.state,
+                previousState,
+                severity: event.severity,
+                trigger: event.trigger,
+                panicId: event.panicId,
+                correlationId: event.correlationId,
+                sourceRef: event.sourceRef,
+                scope: event.scope,
+                sink: event.sink,
+                reasonCode: event.reasonCode,
+                diagnosticCode: event.diagnosticCode,
+                blockedCommitCount: event.blockedCommitCount,
+                criticalViolationCount: event.criticalViolationCount,
+                recoveryAttemptCount: event.recoveryAttemptCount,
+                recoveryFailureCount: event.recoveryFailureCount,
+                recoveryAction: event.recoveryAction,
+                affectedScopes: Array.from(affectedScopes),
+                affectedJobs: Array.from(affectedJobs),
+                activeSince: event.state === 'active' && !panicSnapshot.activeSince ? at : panicSnapshot.activeSince,
+                recoveringSince: event.state === 'recovering' ? at : (event.state === 'active' ? null : panicSnapshot.recoveringSince),
+                recoveredAt: event.state === 'recovered' ? at : panicSnapshot.recoveredAt,
+                failedAt: event.state === 'failed' ? at : panicSnapshot.failedAt,
+                lastSeenAt: at,
+                eventCount: panicEvents.length,
+                lastEventId: event.eventId,
+                lastVerdict: cloneSerializable(input.lastVerdict, panicSnapshot.lastVerdict),
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            };
+            publishPanicEvent(event);
+            return getPanicSnapshot();
+        }
+
+        function recordSignal(input = {}) {
+            const verdictKind = clampString(input.verdict, '');
+            const blocked = input.blocked === true || input.commitAllowed === false || verdictKind === 'blocked';
+            const critical = input.critical === true
+                || input.panicCandidate === true
+                || verdictKind === 'panic'
+                || clampString(input.severity, '') === 'fatal'
+                || clampString(input.severity, '') === 'critical';
+            const nextBlockedCount = panicSnapshot.blockedCommitCount + (blocked ? 1 : 0);
+            const nextCriticalCount = panicSnapshot.criticalViolationCount + (critical ? 1 : 0);
+            let nextState = panicSnapshot.state;
+            let nextSeverity = clampString(input.severity, blocked ? 'warning' : 'info');
+            let nextTrigger = clampString(input.trigger, blocked ? 'trust-verdict-blocked' : 'manual');
+            let eventType = 'signal-recorded';
+
+            if (input.recoveryFailure === true || nextTrigger === 'recovery-failure') {
+                nextState = 'failed';
+                nextSeverity = 'fatal';
+                eventType = 'recovery-failed';
+            } else if (critical) {
+                nextState = 'active';
+                nextSeverity = nextSeverity === 'fatal' ? 'fatal' : 'critical';
+                nextTrigger = 'trust-verdict-panic';
+                eventType = 'state-transition';
+            } else if (blocked && nextBlockedCount >= repeatedBlockThreshold) {
+                nextState = 'active';
+                nextSeverity = 'critical';
+                nextTrigger = 'threshold-breached';
+                eventType = 'state-transition';
+            } else if (blocked && (panicSnapshot.state === 'none' || panicSnapshot.state === 'recovered')) {
+                nextState = 'suspected';
+                eventType = 'state-transition';
+            }
+
+            return rememberPanicTransition({
+                state: nextState,
+                severity: nextSeverity,
+                trigger: nextTrigger,
+                panicId: clampString(input.panicId, '') || panicSnapshot.panicId || (nextState === 'active' ? createPanicId(input) : null),
+                correlationId: input.correlationId,
+                sourceRef: input.sourceRef,
+                scope: input.scope,
+                sink: input.sink,
+                reasonCode: input.reasonCode,
+                diagnosticCode: input.diagnosticCode,
+                blockedCommitCount: nextBlockedCount,
+                criticalViolationCount: nextCriticalCount,
+                recoveryFailureCount: panicSnapshot.recoveryFailureCount + (eventType === 'recovery-failed' ? 1 : 0),
+                recoveryAction: input.recoveryAction || panicSnapshot.recoveryAction,
+                affectedJobs: input.affectedJobs,
+                lastVerdict: input.lastVerdict,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            }, eventType);
+        }
+
+        function recordTrustVerdict(verdict = {}) {
+            const verdictKind = clampString(verdict.verdict, verdict.commitAllowed === false ? 'blocked' : 'trusted');
+            if (verdictKind !== 'blocked' && verdictKind !== 'panic' && verdict.panicCandidate !== true) {
+                return getPanicSnapshot();
+            }
+            return recordSignal({
+                verdict: verdictKind,
+                blocked: verdict.commitAllowed === false || verdictKind === 'blocked',
+                critical: verdict.panicCandidate === true || verdictKind === 'panic',
+                panicCandidate: verdict.panicCandidate === true,
+                severity: verdict.severity,
+                trigger: verdictKind === 'panic' || verdict.panicCandidate === true ? 'trust-verdict-panic' : 'trust-verdict-blocked',
+                sourceRef: verdict.sourceRef,
+                scope: verdict.scope,
+                sink: verdict.sink,
+                reasonCode: verdict.reasonCode,
+                diagnosticCode: verdict.diagnosticCode,
+                correlationId: verdict.correlationId,
+                lastVerdict: {
+                    schema: verdict.schema || RMT_KERNEL_TRUST_VERDICT_SCHEMA,
+                    verdict: verdictKind,
+                    scope: verdict.scope,
+                    sink: verdict.sink,
+                    severity: verdict.severity,
+                    reasonCode: verdict.reasonCode,
+                    diagnosticCode: verdict.diagnosticCode,
+                    commitAllowed: verdict.commitAllowed,
+                    panicCandidate: verdict.panicCandidate === true,
+                    correlationId: verdict.correlationId
+                },
+                metadata: {
+                    trustVerdict: verdictKind,
+                    trustVerdictSchema: verdict.schema || RMT_KERNEL_TRUST_VERDICT_SCHEMA,
+                    source: verdict.source || RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                    workpackage: verdict.workpackage || RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE
+                }
+            });
+        }
+
+        function beginRecovery(input = {}) {
+            return rememberPanicTransition({
+                state: 'recovering',
+                severity: 'warning',
+                trigger: clampString(input.trigger, 'manual'),
+                recoveryAttemptCount: panicSnapshot.recoveryAttemptCount + 1,
+                recoveryAction: clampString(input.recoveryAction || input.action, 'quarantine-scope'),
+                correlationId: input.correlationId,
+                panicId: input.panicId,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            }, 'recovery-started');
+        }
+
+        function completeRecovery(input = {}) {
+            return rememberPanicTransition({
+                state: 'recovered',
+                severity: 'info',
+                trigger: clampString(input.trigger, 'manual'),
+                recoveryAction: clampString(input.recoveryAction || input.action, panicSnapshot.recoveryAction || 'render-safe-fallback'),
+                correlationId: input.correlationId,
+                panicId: input.panicId,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            }, 'recovery-completed');
+        }
+
+        function failRecovery(input = {}) {
+            return rememberPanicTransition({
+                state: 'failed',
+                severity: 'fatal',
+                trigger: 'recovery-failure',
+                recoveryFailureCount: panicSnapshot.recoveryFailureCount + 1,
+                recoveryAction: clampString(input.recoveryAction || input.action, panicSnapshot.recoveryAction || 'manual-intervention'),
+                reasonCode: clampString(input.reasonCode, 'rmt.kernel.panic.recovery_failed'),
+                diagnosticCode: clampString(input.diagnosticCode, 'rmt.kernel.panic.recovery_failed'),
+                correlationId: input.correlationId,
+                panicId: input.panicId,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            }, 'recovery-failed');
+        }
+
+        return Object.freeze({
+            schema: RMT_KERNEL_PANIC_MONITOR_SCHEMA,
+            recordSignal,
+            recordTrustVerdict,
+            beginRecovery,
+            completeRecovery,
+            failRecovery,
+            getSnapshot: getPanicSnapshot,
+            listEvents: listPanicEvents
+        });
+    }
+
+    function isAllowedRuntimeTrustedDomUrl(value) {
+        const normalized = String(value || '').trim().replace(/[\u0000-\u001F\u007F\s]+/g, '').toLowerCase();
+        if (!normalized) return true;
+        if (normalized.startsWith('#') || normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) return true;
+        if (normalized.startsWith('data:')) return normalized.startsWith('data:image/');
+        return !(
+            normalized.startsWith('javascript:')
+            || normalized.startsWith('data:text/html')
+            || normalized.startsWith('data:text/javascript')
+            || normalized.startsWith('data:application/javascript')
+            || normalized.startsWith('data:application/ecmascript')
+            || normalized.startsWith('vbscript:')
+        );
+    }
+
+    function sanitizeRuntimeTrustedDomHtml(html) {
+        let output = String(html || '');
+        const removed = [];
+        ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'base', 'form'].forEach((tagName) => {
+            const paired = new RegExp('<\\s*' + tagName + '\\b[^>]*>[\\s\\S]*?<\\s*\\/\\s*' + tagName + '\\s*>', 'gi');
+            output = output.replace(paired, (match) => {
+                removed.push({ type: 'element', name: tagName, sampleLength: match.length });
+                return '';
+            });
+
+            const single = new RegExp('<\\s*' + tagName + '\\b[^>]*\\/?\\s*>', 'gi');
+            output = output.replace(single, (match) => {
+                removed.push({ type: 'element', name: tagName, sampleLength: match.length });
+                return '';
+            });
+        });
+
+        output = output.replace(/\s+on[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
+            removed.push({ type: 'attribute', name: match.trim().split('=')[0] });
+            return '';
+        });
+
+        output = output.replace(/\s+srcdoc\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, () => {
+            removed.push({ type: 'attribute', name: 'srcdoc' });
+            return '';
+        });
+
+        output = output.replace(/\s+(href|src|srcset|action|formaction|poster|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, (match, name, rawValue) => {
+            const unquoted = String(rawValue || '').replace(/^["']|["']$/g, '');
+            if (!isAllowedRuntimeTrustedDomUrl(unquoted)) {
+                removed.push({ type: 'url', name, valueLength: unquoted.length });
+                return '';
+            }
+            return match;
+        });
+
+        return {
+            schema: RMT_TRUSTED_DOM_SANITIZER_SCHEMA,
+            ok: true,
+            sanitized: true,
+            boundary: RMT_TRUSTED_DOM_BOUNDARY,
+            markupClass: 'htmlFragment',
+            html: output,
+            removed,
+            removedCount: removed.length
+        };
     }
 
     function toPlainObject(value) {
@@ -14866,7 +16496,578 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             ? Math.max(Math.floor(deps.maxSlotDepth), 1)
             : 8;
 
-        function createFragmentFromHtml(html) {
+        const diagnosticsHub = deps.diagnosticsHub && typeof deps.diagnosticsHub.publish === 'function'
+            ? deps.diagnosticsHub
+            : null;
+        const kernelTrustAuthority = deps.kernelTrustAuthority && typeof deps.kernelTrustAuthority === 'object'
+            ? deps.kernelTrustAuthority
+            : null;
+        const sanitizeHtmlOutput = typeof deps.sanitizeHtmlOutput === 'function'
+            ? deps.sanitizeHtmlOutput
+            : (typeof deps.sanitizeTrustedDomHtml === 'function'
+                ? deps.sanitizeTrustedDomHtml
+                : sanitizeRuntimeTrustedDomHtml);
+        const runtimeTrustVerdicts = [];
+        const runtimePanicMonitor = deps.panicMonitor && typeof deps.panicMonitor.recordTrustVerdict === 'function'
+            ? deps.panicMonitor
+            : createRuntimePanicMonitor({
+                diagnosticsHub,
+                now,
+                repeatedBlockThreshold: deps.panicRepeatedBlockThreshold
+            });
+
+        function listTrustVerdicts() {
+            return runtimeTrustVerdicts.map((verdict) => cloneSerializable(verdict, {}));
+        }
+
+        function getPanicSnapshot() {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.getSnapshot === 'function') {
+                return cloneSerializable(runtimePanicMonitor.getSnapshot(), {});
+            }
+            return {};
+        }
+
+        function listPanicEvents() {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.listEvents === 'function') {
+                return runtimePanicMonitor.listEvents().map((event) => cloneSerializable(event, {}));
+            }
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.listPanicEvents === 'function') {
+                return runtimePanicMonitor.listPanicEvents().map((event) => cloneSerializable(event, {}));
+            }
+            return [];
+        }
+
+        function recordRuntimePanicTrustVerdict(verdict) {
+            if (!runtimePanicMonitor || typeof runtimePanicMonitor.recordTrustVerdict !== 'function') return null;
+            try {
+                return runtimePanicMonitor.recordTrustVerdict(verdict, {
+                    source: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA
+                });
+            } catch (_error) {
+                return null;
+            }
+        }
+
+        function beginPanicRecovery(input = {}) {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.beginRecovery === 'function') {
+                return runtimePanicMonitor.beginRecovery(input);
+            }
+            return getPanicSnapshot();
+        }
+
+        function completePanicRecovery(input = {}) {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.completeRecovery === 'function') {
+                return runtimePanicMonitor.completeRecovery(input);
+            }
+            return getPanicSnapshot();
+        }
+
+        function failPanicRecovery(input = {}) {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.failRecovery === 'function') {
+                return runtimePanicMonitor.failRecovery(input);
+            }
+            return getPanicSnapshot();
+        }
+
+        const runtimeRecoveryOutcomes = [];
+        const runtimeSafeSnapshots = new Map();
+        const runtimeQuarantinedScopes = new Set();
+
+        function createRuntimeRecoveryScope(input = {}) {
+            const panicSnapshot = getPanicSnapshot();
+            return clampString(
+                input.scope
+                || input.rootId
+                || input.snapshotKey
+                || input.templateQualifiedId
+                || (panicSnapshot && (panicSnapshot.scope || panicSnapshot.sourceRef || panicSnapshot.panicId)),
+                'kernel'
+            );
+        }
+
+        function createRuntimeRecoverySnapshotKey(input = {}) {
+            return clampString(
+                input.snapshotKey
+                || input.rootId
+                || input.scope
+                || input.templateQualifiedId,
+                createRuntimeRecoveryScope(input)
+            );
+        }
+
+        function publishRuntimeRecoveryOutcome(outcome) {
+            if (!diagnosticsHub || typeof diagnosticsHub.publish !== 'function') return;
+            try {
+                diagnosticsHub.publish(RMT_RUNTIME_RECOVERY_DIAGNOSTIC_CHANNEL, outcome, {
+                    source: RMT_KERNEL_RECOVERY_SCHEMA,
+                    workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                    status: outcome.status,
+                    scope: outcome.scope || undefined,
+                    panicId: outcome.panicId || undefined,
+                    correlationId: outcome.correlationId || undefined
+                });
+            } catch (_error) {}
+        }
+
+        function notifyRuntimeRecoveryHost(outcome) {
+            try {
+                if (deps.hostAdapter && typeof deps.hostAdapter.notifyRecoveryOutcome === 'function') {
+                    deps.hostAdapter.notifyRecoveryOutcome(outcome);
+                    return true;
+                }
+                if (deps.recoveryHostAdapter && typeof deps.recoveryHostAdapter.notifyRecoveryOutcome === 'function') {
+                    deps.recoveryHostAdapter.notifyRecoveryOutcome(outcome);
+                    return true;
+                }
+                if (typeof deps.onRecoveryOutcome === 'function') {
+                    deps.onRecoveryOutcome(outcome);
+                    return true;
+                }
+            } catch (_error) {}
+            return false;
+        }
+
+        function createRuntimeRecoveryOutcome(input = {}) {
+            return {
+                schema: RMT_KERNEL_RECOVERY_OUTCOME_SCHEMA,
+                recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                policySchema: RMT_KERNEL_RECOVERY_POLICY_SCHEMA,
+                safeSnapshotSchema: RMT_KERNEL_RECOVERY_SAFE_SNAPSHOT_SCHEMA,
+                workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                outcomeId: RMT_KERNEL_RECOVERY_OUTCOME_SCHEMA + ':' + String(runtimeRecoveryOutcomes.length + 1),
+                status: clampString(input.status, 'planned'),
+                scope: clampString(input.scope, null),
+                rootId: clampString(input.rootId, null),
+                panicId: clampString(input.panicId, null),
+                correlationId: clampString(input.correlationId, null),
+                quarantined: input.quarantined === true,
+                restoredSnapshotId: clampString(input.restoredSnapshotId, null),
+                fallbackRendered: input.fallbackRendered === true,
+                hostNotified: input.hostNotified === true,
+                failures: cloneSerializable(input.failures, []),
+                panicState: cloneSerializable(input.panicState, null),
+                completedAt: now(),
+                metadata: cloneSerializable(input.metadata, {})
+            };
+        }
+
+        function rememberSafeSnapshot(input = {}) {
+            const element = input.element || input.rootElement || null;
+            const scope = createRuntimeRecoveryScope(input);
+            const snapshotKey = createRuntimeRecoverySnapshotKey({
+                ...input,
+                scope
+            });
+            const html = element && typeof element.innerHTML === 'string'
+                ? element.innerHTML
+                : clampString(input.html, '');
+            const textContent = element && typeof element.textContent === 'string'
+                ? element.textContent
+                : clampString(input.textContent, '');
+            const snapshot = {
+                schema: RMT_KERNEL_RECOVERY_SAFE_SNAPSHOT_SCHEMA,
+                recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                snapshotId: RMT_KERNEL_RECOVERY_SAFE_SNAPSHOT_SCHEMA + ':' + snapshotKey,
+                snapshotKey,
+                rootId: clampString(input.rootId, null),
+                scope,
+                sourceRef: clampString(input.sourceRef, null),
+                templateQualifiedId: clampString(input.templateQualifiedId, null),
+                trustBoundary: clampString(input.trustBoundary, RMT_TRUSTED_DOM_BOUNDARY),
+                sanitized: input.sanitized === true || input.trusted === true,
+                html,
+                textContent,
+                modelSnapshot: cloneSerializable(input.modelSnapshot, {}),
+                capturedAt: now(),
+                metadata: cloneSerializable(input.metadata, {})
+            };
+            runtimeSafeSnapshots.set(snapshot.snapshotKey, snapshot);
+            runtimeSafeSnapshots.set(scope, snapshot);
+            if (snapshot.rootId) runtimeSafeSnapshots.set(snapshot.rootId, snapshot);
+            return cloneSerializable(snapshot, {});
+        }
+
+        function getLastSafeSnapshot(input = {}) {
+            const key = createRuntimeRecoverySnapshotKey(input);
+            const scope = createRuntimeRecoveryScope(input);
+            return cloneSerializable(
+                runtimeSafeSnapshots.get(key)
+                || runtimeSafeSnapshots.get(scope)
+                || (input.rootId ? runtimeSafeSnapshots.get(clampString(input.rootId, '')) : null)
+                || null,
+                null
+            );
+        }
+
+        function listSafeSnapshots() {
+            return Array.from(new Set(Array.from(runtimeSafeSnapshots.values()))).map((snapshot) => cloneSerializable(snapshot, {}));
+        }
+
+        function quarantineScope(input = {}) {
+            const scope = createRuntimeRecoveryScope(input);
+            runtimeQuarantinedScopes.add(scope);
+            return scope;
+        }
+
+        function listQuarantinedScopes() {
+            return Array.from(runtimeQuarantinedScopes);
+        }
+
+        function isScopeQuarantined(input = {}) {
+            return runtimeQuarantinedScopes.has(createRuntimeRecoveryScope(input));
+        }
+
+        function restoreLastSafeSnapshot(input = {}) {
+            const element = input.element || input.rootElement || null;
+            const snapshot = getLastSafeSnapshot(input);
+            if (!element || !snapshot) return false;
+            if (snapshot.html && 'innerHTML' in element) {
+                return commitTrustedHtml(element, snapshot.html, {
+                    scope: 'template',
+                    sink: 'fallback.html',
+                    sourceRef: 'recovery:restore-last-safe-snapshot:' + createRuntimeRecoveryScope(input),
+                    metadata: {
+                        recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                        workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                        snapshotId: snapshot.snapshotId
+                    }
+                });
+            }
+            if ('textContent' in element) {
+                element.textContent = snapshot.textContent || '';
+                return true;
+            }
+            return false;
+        }
+
+        function renderSafeFallback(input = {}) {
+            const element = input.element || input.rootElement || null;
+            if (!element) return false;
+            const fallbackHtml = clampString(input.safeFallbackHtml || input.fallbackHtml || input.html, '');
+            const fallbackText = clampString(input.safeFallbackText || input.fallbackText || input.textContent, '');
+            if (fallbackHtml) {
+                return commitTrustedHtml(element, fallbackHtml, {
+                    scope: 'template',
+                    sink: 'fallback.html',
+                    sourceRef: 'recovery:render-safe-fallback:' + createRuntimeRecoveryScope(input),
+                    metadata: {
+                        recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                        workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                        fallbackLength: fallbackHtml.length
+                    }
+                });
+            }
+            if (fallbackText && 'textContent' in element) {
+                element.textContent = fallbackText;
+                return true;
+            }
+            return false;
+        }
+
+        function recoverFromPanic(input = {}) {
+            const panicSnapshot = getPanicSnapshot();
+            const scope = createRuntimeRecoveryScope(input);
+            const rootId = clampString(input.rootId, null);
+            const element = input.element || input.rootElement || null;
+            beginPanicRecovery({
+                recoveryAction: 'quarantine-scope',
+                panicId: panicSnapshot && panicSnapshot.panicId,
+                correlationId: panicSnapshot && panicSnapshot.correlationId,
+                metadata: {
+                    recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                    scope
+                }
+            });
+            quarantineScope({
+                scope,
+                rootId
+            });
+            let restoredSnapshotId = null;
+            let fallbackRendered = false;
+            const failures = [];
+
+            if (input.restoreSnapshot !== false) {
+                const snapshot = getLastSafeSnapshot({
+                    ...input,
+                    scope,
+                    rootId
+                });
+                if (snapshot && restoreLastSafeSnapshot({
+                    ...input,
+                    scope,
+                    rootId,
+                    element
+                })) {
+                    restoredSnapshotId = snapshot.snapshotId;
+                }
+            }
+
+            if (input.forceFallback === true || !restoredSnapshotId) {
+                fallbackRendered = renderSafeFallback({
+                    ...input,
+                    scope,
+                    rootId,
+                    element
+                });
+            }
+
+            if (!restoredSnapshotId && !fallbackRendered) {
+                failures.push({
+                    action: 'restore-last-safe-snapshot',
+                    message: 'no-safe-restore-or-fallback'
+                });
+            }
+
+            const panicState = failures.length > 0
+                ? failPanicRecovery({
+                    recoveryAction: 'manual-intervention',
+                    panicId: panicSnapshot && panicSnapshot.panicId,
+                    correlationId: panicSnapshot && panicSnapshot.correlationId,
+                    metadata: {
+                        recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                        failures
+                    }
+                })
+                : completePanicRecovery({
+                    recoveryAction: restoredSnapshotId ? 'rollback-last-safe-snapshot' : 'render-safe-fallback',
+                    panicId: panicSnapshot && panicSnapshot.panicId,
+                    correlationId: panicSnapshot && panicSnapshot.correlationId,
+                    metadata: {
+                        recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                        restoredSnapshotId,
+                        fallbackRendered
+                    }
+                });
+            const outcome = createRuntimeRecoveryOutcome({
+                status: failures.length > 0 ? 'failed' : 'recovered',
+                scope,
+                rootId,
+                panicId: panicSnapshot && panicSnapshot.panicId,
+                correlationId: panicSnapshot && panicSnapshot.correlationId,
+                quarantined: true,
+                restoredSnapshotId,
+                fallbackRendered,
+                hostNotified: false,
+                failures,
+                panicState,
+                metadata: {
+                    recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                    workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE
+                }
+            });
+            outcome.hostNotified = notifyRuntimeRecoveryHost(outcome);
+            runtimeRecoveryOutcomes.push(outcome);
+            publishRuntimeRecoveryOutcome(outcome);
+            return cloneSerializable(outcome, {});
+        }
+
+        function listRecoveryOutcomes() {
+            return runtimeRecoveryOutcomes.map((outcome) => cloneSerializable(outcome, {}));
+        }
+
+        function createRuntimeTrustCorrelationId(context = {}) {
+            return [
+                RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                clampString(context.sourceRef, 'runtime-html'),
+                clampString(context.scope, 'template'),
+                clampString(context.sink, 'innerHTML'),
+                String(runtimeTrustVerdicts.length + 1)
+            ].join('#');
+        }
+
+        function normalizeSanitizerResult(rawHtml, sanitizerResult) {
+            if (typeof sanitizerResult === 'string') {
+                return {
+                    ok: true,
+                    html: sanitizerResult,
+                    removed: [],
+                    removedCount: sanitizerResult === rawHtml ? 0 : 1,
+                    boundary: RMT_TRUSTED_DOM_BOUNDARY
+                };
+            }
+            if (sanitizerResult && typeof sanitizerResult === 'object') {
+                const hasHtml = Object.prototype.hasOwnProperty.call(sanitizerResult, 'html');
+                const safeHtml = hasHtml ? String(sanitizerResult.html || '') : rawHtml;
+                return {
+                    ok: sanitizerResult.ok !== false,
+                    html: safeHtml,
+                    removed: cloneSerializable(sanitizerResult.removed, []),
+                    removedCount: Number.isFinite(sanitizerResult.removedCount)
+                        ? sanitizerResult.removedCount
+                        : (safeHtml === rawHtml ? 0 : 1),
+                    boundary: clampString(sanitizerResult.boundary, RMT_TRUSTED_DOM_BOUNDARY)
+                };
+            }
+            return sanitizeRuntimeTrustedDomHtml(rawHtml);
+        }
+
+        function sanitizeTrustedRuntimeHtml(rawHtml, context = {}) {
+            try {
+                return normalizeSanitizerResult(rawHtml, sanitizeHtmlOutput(rawHtml, {
+                    ...context,
+                    boundary: RMT_TRUSTED_DOM_BOUNDARY,
+                    markupClass: 'htmlFragment',
+                    sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA
+                }));
+            } catch (error) {
+                const fallback = sanitizeRuntimeTrustedDomHtml(rawHtml);
+                fallback.sanitizerError = clampString(error && error.message, 'runtime-html-sanitizer-error');
+                return fallback;
+            }
+        }
+
+        function diagnosticCodeForRuntimeTrust(reasonCode, commitAllowed) {
+            if (reasonCode === 'rmt.kernel.trust.attribute_refused') return 'rmt.kernel.trust.attribute_refused';
+            if (reasonCode === 'rmt.kernel.trust.url_protocol_refused') return 'rmt.kernel.trust.url_protocol_refused';
+            if (reasonCode === 'rmt.kernel.trust.property_refused') return 'rmt.kernel.trust.property_refused';
+            if (reasonCode === 'rmt.kernel.trust.html_sanitizer_missing') return 'rmt.kernel.trust.html_sanitizer_missing';
+            if (commitAllowed === false) return 'rmt.kernel.trust.sink_refused';
+            return null;
+        }
+
+        function createRuntimeTrustVerdict(input = {}) {
+            const commitAllowed = typeof input.commitAllowed === 'boolean' ? input.commitAllowed : true;
+            const verdictKind = clampString(input.verdict, commitAllowed ? 'trusted' : 'blocked');
+            const reasonCode = clampString(
+                input.reasonCode,
+                verdictKind === 'sanitized'
+                    ? 'rmt.kernel.trust.html_sanitized'
+                    : (commitAllowed ? 'rmt.kernel.trust.explicit_trust' : 'rmt.kernel.trust.sink_refused')
+            );
+            const verdictInput = {
+                scope: clampString(input.scope, 'template'),
+                sink: clampString(input.sink, 'innerHTML'),
+                sourceRef: clampString(input.sourceRef, 'runtime-output'),
+                ownerRef: clampString(input.ownerRef, ''),
+                attributeName: clampString(input.attributeName || input.name, ''),
+                propertyName: clampString(input.propertyName || input.property, ''),
+                value: String(input.value || ''),
+                verdict: verdictKind,
+                severity: clampString(input.severity, commitAllowed ? 'info' : 'error'),
+                reasonCode,
+                commitAllowed,
+                sanitized: input.sanitized === true || verdictKind === 'sanitized',
+                trusted: input.trusted === true || verdictKind === 'trusted',
+                propertyTrusted: input.propertyTrusted === true,
+                trustBoundary: clampString(input.trustBoundary, verdictKind === 'sanitized' ? RMT_TRUSTED_DOM_BOUNDARY : ''),
+                correlationId: clampString(input.correlationId, '') || createRuntimeTrustCorrelationId(input),
+                workpackage: clampString(input.workpackage, RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE),
+                metadata: cloneSerializable(input.metadata, {})
+            };
+
+            let authorityVerdict = null;
+            try {
+                if (kernelTrustAuthority && typeof kernelTrustAuthority.evaluateOutput === 'function') {
+                    authorityVerdict = kernelTrustAuthority.evaluateOutput(verdictInput);
+                } else if (kernelTrustAuthority && typeof kernelTrustAuthority.createVerdict === 'function') {
+                    authorityVerdict = kernelTrustAuthority.createVerdict(verdictInput);
+                }
+            } catch (_error) {
+                authorityVerdict = null;
+            }
+
+            const baseVerdict = authorityVerdict && authorityVerdict.schema === RMT_KERNEL_TRUST_VERDICT_SCHEMA
+                ? cloneSerializable(authorityVerdict, {})
+                : {
+                    schema: RMT_KERNEL_TRUST_VERDICT_SCHEMA,
+                    authoritySchema: RMT_KERNEL_TRUST_AUTHORITY_SCHEMA,
+                    source: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                    workpackage: verdictInput.workpackage,
+                    verdict: verdictInput.verdict,
+                    scope: verdictInput.scope,
+                    sink: verdictInput.sink,
+                    sourceRef: verdictInput.sourceRef,
+                    ownerRef: verdictInput.ownerRef || null,
+                    attributeName: verdictInput.attributeName || null,
+                    propertyName: verdictInput.propertyName || null,
+                    severity: verdictInput.severity,
+                    reasonCode: verdictInput.reasonCode,
+                    commitAllowed: verdictInput.commitAllowed,
+                    sanitized: verdictInput.sanitized,
+                    trustBoundary: verdictInput.trustBoundary || null,
+                    panicCandidate: input.panicCandidate === true,
+                    correlationId: verdictInput.correlationId,
+                    diagnosticCode: diagnosticCodeForRuntimeTrust(verdictInput.reasonCode, verdictInput.commitAllowed),
+                    metadata: cloneSerializable(verdictInput.metadata, {})
+                };
+            baseVerdict.workpackage = verdictInput.workpackage;
+            baseVerdict.source = clampString(baseVerdict.source, RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA);
+            baseVerdict.metadata = {
+                ...cloneSerializable(baseVerdict.metadata, {}),
+                sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                workpackage: baseVerdict.workpackage
+            };
+            return Object.freeze(baseVerdict);
+        }
+
+        function recordRuntimeTrustVerdict(verdict) {
+            const snapshot = cloneSerializable(verdict, {});
+            runtimeTrustVerdicts.push(snapshot);
+            if (diagnosticsHub && typeof diagnosticsHub.publish === 'function') {
+                try {
+                    diagnosticsHub.publish(RMT_RUNTIME_TRUST_DIAGNOSTIC_CHANNEL, {
+                        schema: 'xtend.rmt.kernel-trust-runtime-diagnostic.v1',
+                        trustDiagnosticSchema: RMT_KERNEL_TRUST_DIAGNOSTIC_SCHEMA,
+                        verdictSchema: RMT_KERNEL_TRUST_VERDICT_SCHEMA,
+                        sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                        workpackage: snapshot.workpackage || RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE,
+                        severity: snapshot.severity,
+                        code: snapshot.diagnosticCode || snapshot.reasonCode,
+                        scope: snapshot.scope,
+                        sink: snapshot.sink,
+                        sourceRef: snapshot.sourceRef,
+                        correlationId: snapshot.correlationId,
+                        verdict: snapshot.verdict,
+                        commitAllowed: snapshot.commitAllowed,
+                        sanitized: snapshot.sanitized,
+                        panicCandidate: snapshot.panicCandidate === true,
+                        metadata: cloneSerializable(snapshot.metadata, {})
+                    }, {
+                        source: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                        workpackage: snapshot.workpackage || RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE
+                    });
+                } catch (_error) {}
+            }
+            recordRuntimePanicTrustVerdict(snapshot);
+            return snapshot;
+        }
+
+        function createTrustedHtmlCommit(html, context = {}) {
+            const rawHtml = String(html || '');
+            const sanitizerResult = sanitizeTrustedRuntimeHtml(rawHtml, context);
+            const trustedHtml = sanitizerResult.ok === false ? '' : String(sanitizerResult.html || '');
+            const verdict = recordRuntimeTrustVerdict(createRuntimeTrustVerdict({
+                ...context,
+                value: trustedHtml,
+                commitAllowed: sanitizerResult.ok !== false,
+                verdict: sanitizerResult.ok !== false ? 'sanitized' : 'blocked',
+                severity: sanitizerResult.ok !== false ? 'info' : 'error',
+                reasonCode: sanitizerResult.ok !== false
+                    ? 'rmt.kernel.trust.html_sanitized'
+                    : 'rmt.kernel.trust.html_sanitizer_missing',
+                sanitized: sanitizerResult.ok !== false,
+                trustBoundary: clampString(sanitizerResult.boundary, RMT_TRUSTED_DOM_BOUNDARY),
+                workpackage: RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE,
+                metadata: {
+                    sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                    sanitizerSchema: RMT_TRUSTED_DOM_SANITIZER_SCHEMA,
+                    trustBoundary: clampString(sanitizerResult.boundary, RMT_TRUSTED_DOM_BOUNDARY),
+                    rawLength: rawHtml.length,
+                    trustedLength: trustedHtml.length,
+                    changed: trustedHtml !== rawHtml,
+                    removedCount: Number.isFinite(sanitizerResult.removedCount) ? sanitizerResult.removedCount : 0,
+                    removed: cloneSerializable(sanitizerResult.removed, []),
+                    sanitizerError: clampString(sanitizerResult.sanitizerError, '')
+                }
+            }));
+            return {
+                html: verdict.commitAllowed === false ? '' : trustedHtml,
+                verdict
+            };
+        }
+
+        function createFragmentFromTrustedHtml(html) {
             if (!documentTarget || typeof documentTarget.createElement !== 'function') return null;
             const templateElement = documentTarget.createElement('template');
             if (!templateElement) return null;
@@ -14875,6 +17076,229 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 return templateElement.content.cloneNode(true);
             }
             return null;
+        }
+
+        function createFragmentFromHtml(html, context = {}) {
+            const trusted = createTrustedHtmlCommit(html, {
+                ...context,
+                sink: clampString(context.sink, 'template.innerHTML')
+            });
+            return createFragmentFromTrustedHtml(trusted.html);
+        }
+
+        function clearElementHtml(element) {
+            if (!element) return false;
+            if (typeof element.replaceChildren === 'function') {
+                element.replaceChildren();
+                return true;
+            }
+            if ('textContent' in element) {
+                element.textContent = '';
+                return true;
+            }
+            if ('innerHTML' in element) {
+                element.innerHTML = '';
+                return true;
+            }
+            return false;
+        }
+
+        function commitTrustedHtml(element, html, context = {}) {
+            if (!element) return false;
+            const trusted = createTrustedHtmlCommit(html, context);
+            if (trusted.html === '') {
+                return clearElementHtml(element) && trusted.verdict.commitAllowed !== false;
+            }
+            if ('innerHTML' in element) {
+                element.innerHTML = trusted.html;
+                return trusted.verdict.commitAllowed !== false;
+            }
+            const fragment = createFragmentFromTrustedHtml(trusted.html);
+            if (fragment && typeof element.replaceChildren === 'function') {
+                element.replaceChildren(fragment);
+                return trusted.verdict.commitAllowed !== false;
+            }
+            if ('textContent' in element) {
+                element.textContent = trusted.html;
+                return trusted.verdict.commitAllowed !== false;
+            }
+            return false;
+        }
+
+        function normalizeRuntimeBindingName(value) {
+            return clampString(value, '').toLowerCase();
+        }
+
+        function isRuntimeEventBindingName(value) {
+            return normalizeRuntimeBindingName(value).startsWith('on');
+        }
+
+        function isRuntimeUrlAttribute(attributeName) {
+            return RMT_RUNTIME_URL_ATTRIBUTES.includes(normalizeRuntimeBindingName(attributeName));
+        }
+
+        function isRuntimeUrlProperty(propertyName) {
+            return RMT_RUNTIME_URL_PROPERTIES.includes(normalizeRuntimeBindingName(propertyName));
+        }
+
+        function isRuntimeAllowedAttribute(attributeName) {
+            const normalized = normalizeRuntimeBindingName(attributeName);
+            if (!normalized) return false;
+            if (normalized.startsWith('data-') || normalized.startsWith('aria-')) return true;
+            return RMT_RUNTIME_SAFE_ATTRIBUTES.includes(normalized) || isRuntimeUrlAttribute(normalized);
+        }
+
+        function removeRuntimeAttribute(element, attributeName) {
+            if (!element || !attributeName) return false;
+            if (typeof element.removeAttribute === 'function') {
+                element.removeAttribute(attributeName);
+                return true;
+            }
+            if (element.attributes && typeof element.attributes === 'object') {
+                delete element.attributes[attributeName];
+                return true;
+            }
+            return false;
+        }
+
+        function setRuntimeAttribute(element, attributeName, serializedValue) {
+            if (typeof element.setAttribute === 'function') {
+                element.setAttribute(attributeName, serializedValue);
+                return true;
+            }
+            if (!element.attributes || typeof element.attributes !== 'object') {
+                element.attributes = {};
+            }
+            element.attributes[attributeName] = serializedValue;
+            return true;
+        }
+
+        function createBindingTrustSourceRef(binding, sinkName) {
+            return 'binding:'
+                + clampString(binding && binding.kind, 'binding')
+                + ':'
+                + clampString(binding && binding.target, ':root')
+                + ':'
+                + sinkName;
+        }
+
+        function createRuntimeBindingVerdict(input = {}) {
+            return recordRuntimeTrustVerdict(createRuntimeTrustVerdict({
+                ...input,
+                scope: 'binding',
+                workpackage: RMT_KERNEL_BINDING_SECURITY_WORKPACKAGE
+            }));
+        }
+
+        function commitTrustedAttribute(element, attributeName, value, binding = {}) {
+            const safeAttributeName = clampString(attributeName, '');
+            if (!element || !safeAttributeName) return false;
+            const serializedValue = value === true ? '' : String(value);
+            const normalizedAttribute = normalizeRuntimeBindingName(safeAttributeName);
+            const isUrlAttribute = isRuntimeUrlAttribute(normalizedAttribute);
+            let commitAllowed = true;
+            let verdict = 'trusted';
+            let reasonCode = 'rmt.kernel.trust.attribute_allowed';
+            let severity = 'info';
+
+            if (isRuntimeEventBindingName(normalizedAttribute) || normalizedAttribute === 'srcdoc' || normalizedAttribute === 'style') {
+                commitAllowed = false;
+                verdict = 'blocked';
+                reasonCode = 'rmt.kernel.trust.attribute_refused';
+                severity = 'error';
+            } else if (isUrlAttribute && !isAllowedRuntimeTrustedDomUrl(serializedValue)) {
+                commitAllowed = false;
+                verdict = 'blocked';
+                reasonCode = 'rmt.kernel.trust.url_protocol_refused';
+                severity = 'error';
+            } else if (!isRuntimeAllowedAttribute(normalizedAttribute)) {
+                commitAllowed = false;
+                verdict = 'blocked';
+                reasonCode = 'rmt.kernel.trust.attribute_refused';
+                severity = 'warning';
+            }
+
+            const trustVerdict = createRuntimeBindingVerdict({
+                sink: isUrlAttribute ? 'url-attribute' : 'attribute',
+                attributeName: safeAttributeName,
+                value: serializedValue,
+                verdict,
+                severity,
+                reasonCode,
+                commitAllowed,
+                trusted: commitAllowed,
+                sourceRef: createBindingTrustSourceRef(binding, safeAttributeName),
+                metadata: {
+                    bindingKind: clampString(binding && binding.kind, ''),
+                    bindingTarget: clampString(binding && binding.target, ''),
+                    sourcePath: clampString(binding && binding.source, ''),
+                    attributeName: safeAttributeName,
+                    valueLength: serializedValue.length,
+                    policy: 'attribute-url-allowlist'
+                }
+            });
+
+            if (trustVerdict.commitAllowed !== true) {
+                removeRuntimeAttribute(element, safeAttributeName);
+                return false;
+            }
+            return setRuntimeAttribute(element, safeAttributeName, serializedValue);
+        }
+
+        function commitTrustedProperty(element, propertyName, value, binding = {}) {
+            const safePropertyName = clampString(propertyName, '');
+            if (!safePropertyName || !element || typeof element !== 'object') return false;
+            const normalizedProperty = normalizeRuntimeBindingName(safePropertyName);
+            const serializedValue = value === null || value === undefined ? '' : String(value);
+            const isUrlProperty = isRuntimeUrlProperty(normalizedProperty);
+            let commitAllowed = true;
+            let verdict = 'trusted';
+            let reasonCode = 'rmt.kernel.trust.property_allowed';
+            let severity = 'info';
+
+            if (RMT_RUNTIME_FORBIDDEN_PROPERTY_WRITES.includes(normalizedProperty) || isRuntimeEventBindingName(normalizedProperty)) {
+                commitAllowed = false;
+                verdict = 'blocked';
+                reasonCode = 'rmt.kernel.trust.property_refused';
+                severity = 'error';
+            } else if (isUrlProperty && !isAllowedRuntimeTrustedDomUrl(serializedValue)) {
+                commitAllowed = false;
+                verdict = 'blocked';
+                reasonCode = 'rmt.kernel.trust.url_protocol_refused';
+                severity = 'error';
+            } else if (!RMT_RUNTIME_SAFE_PROPERTY_WRITES.includes(normalizedProperty) && !isUrlProperty) {
+                commitAllowed = false;
+                verdict = 'blocked';
+                reasonCode = 'rmt.kernel.trust.property_refused';
+                severity = 'warning';
+            }
+
+            const trustVerdict = createRuntimeBindingVerdict({
+                sink: 'property',
+                propertyName: safePropertyName,
+                value: serializedValue,
+                verdict,
+                severity,
+                reasonCode,
+                commitAllowed,
+                trusted: commitAllowed,
+                propertyTrusted: commitAllowed,
+                sourceRef: createBindingTrustSourceRef(binding, safePropertyName),
+                metadata: {
+                    bindingKind: clampString(binding && binding.kind, ''),
+                    bindingTarget: clampString(binding && binding.target, ''),
+                    sourcePath: clampString(binding && binding.source, ''),
+                    propertyName: safePropertyName,
+                    valueLength: serializedValue.length,
+                    policy: 'property-allowlist'
+                }
+            });
+
+            if (trustVerdict.commitAllowed !== true) {
+                return false;
+            }
+            element[safePropertyName] = value;
+            return true;
         }
 
         function resolveElementRef(target, options = {}) {
@@ -15543,33 +17967,14 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     )
                 );
                 if (shouldRemoveAttribute) {
-                    if (typeof element.removeAttribute === 'function') {
-                        element.removeAttribute(attributeName);
-                        return true;
-                    }
-                    if (element.attributes && typeof element.attributes === 'object') {
-                        delete element.attributes[attributeName];
-                        return true;
-                    }
-                    return false;
+                    return removeRuntimeAttribute(element, attributeName);
                 }
-                const serializedValue = value === true ? '' : String(value);
-                if (typeof element.setAttribute === 'function') {
-                    element.setAttribute(attributeName, serializedValue);
-                    return true;
-                }
-                if (!element.attributes || typeof element.attributes !== 'object') {
-                    element.attributes = {};
-                }
-                element.attributes[attributeName] = serializedValue;
-                return true;
+                return commitTrustedAttribute(element, attributeName, value, binding);
             }
 
             if (binding.kind === 'property') {
                 const propertyName = clampString(binding.property, '');
-                if (!propertyName || !element || typeof element !== 'object') return false;
-                element[propertyName] = value;
-                return true;
+                return commitTrustedProperty(element, propertyName, value, binding);
             }
 
             if (binding.kind === 'class_toggle') {
@@ -15591,15 +17996,12 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             if (!element || !safeAction || binding.setActionAttribute === false) return false;
             const attributeName = clampString(binding.actionAttribute, 'data-rm-action');
             if (!attributeName) return false;
-            if (typeof element.setAttribute === 'function') {
-                element.setAttribute(attributeName, safeAction);
-                return true;
-            }
-            if (!element.attributes || typeof element.attributes !== 'object') {
-                element.attributes = {};
-            }
-            element.attributes[attributeName] = safeAction;
-            return true;
+            return commitTrustedAttribute(element, attributeName, safeAction, {
+                ...binding,
+                kind: 'attribute',
+                attribute: attributeName,
+                source: binding && binding.source ? binding.source : 'action'
+            });
         }
 
         function applySlotValue(element, slot, value) {
@@ -15619,20 +18021,17 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 
             if (slot.kind === 'html_fragment') {
                 const html = value === null || value === undefined ? '' : String(value);
-                if ('innerHTML' in element) {
-                    element.innerHTML = html;
-                    return true;
-                }
-                const fragment = createFragmentFromHtml(html);
-                if (fragment && typeof element.replaceChildren === 'function') {
-                    element.replaceChildren(fragment);
-                    return true;
-                }
-                if ('textContent' in element) {
-                    element.textContent = html;
-                    return true;
-                }
-                return false;
+                return commitTrustedHtml(element, html, {
+                    scope: 'slot',
+                    sink: 'slot.html',
+                    sourceRef: `slot:${slot.name || slot.target || 'html_fragment'}`,
+                    metadata: {
+                        slotKind: slot.kind,
+                        slotName: slot.name || '',
+                        slotTarget: slot.target || '',
+                        sourcePath: slot.source || slot.modelSource || ''
+                    }
+                });
             }
 
             return false;
@@ -15716,28 +18115,19 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             }
 
             if (safeEmptyMarkup) {
-                if ('innerHTML' in record.element) {
-                    record.element.innerHTML = safeEmptyMarkup;
-                } else {
-                    const fragment = createFragmentFromHtml(safeEmptyMarkup);
-                    if (fragment && typeof record.element.replaceChildren === 'function') {
-                        record.element.replaceChildren(fragment);
-                    } else if ('textContent' in record.element) {
-                        record.element.textContent = safeEmptyMarkup;
-                    } else {
-                        return false;
+                if (!commitTrustedHtml(record.element, safeEmptyMarkup, {
+                    scope: 'template',
+                    sink: 'fallback.html',
+                    sourceRef: `template:${record.lastTemplateQualifiedId || 'nested'}:empty`,
+                    metadata: {
+                        renderState: record.renderState || '',
+                        templateQualifiedId: record.lastTemplateQualifiedId || ''
                     }
-                }
-            } else {
-                if ('innerHTML' in record.element) {
-                    record.element.innerHTML = '';
-                } else if ('textContent' in record.element) {
-                    record.element.textContent = '';
-                } else if (typeof record.element.replaceChildren === 'function') {
-                    record.element.replaceChildren();
-                } else {
+                })) {
                     return false;
                 }
+            } else if (!clearElementHtml(record.element)) {
+                return false;
             }
             record.renderState = 'empty';
             record.lastEmptyMarkup = safeEmptyMarkup;
@@ -15931,20 +18321,15 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 }
                 return false;
             }
-            if ('innerHTML' in element) {
-                element.innerHTML = String(chunk.markup && chunk.markup.html ? chunk.markup.html : '');
-                return true;
-            }
-            const fragment = createFragmentFromHtml(chunk.markup && chunk.markup.html ? chunk.markup.html : '');
-            if (fragment && typeof element.replaceChildren === 'function') {
-                element.replaceChildren(fragment);
-                return true;
-            }
-            if ('textContent' in element) {
-                element.textContent = String(chunk.markup && chunk.markup.html ? chunk.markup.html : '');
-                return true;
-            }
-            return false;
+            return commitTrustedHtml(element, String(chunk.markup && chunk.markup.html ? chunk.markup.html : ''), {
+                scope: 'template',
+                sink: 'prerender.html',
+                sourceRef: `template:${chunk.template.qualifiedId || chunk.template.id || 'chunk'}:markup`,
+                metadata: {
+                    templateQualifiedId: chunk.template.qualifiedId || '',
+                    templateMode: chunk.template.mode || ''
+                }
+            });
         }
 
         function setRepeatItemElementMetadata(element, itemState) {
@@ -16393,11 +18778,16 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     });
                     claimedRecords.forEach((itemRecord) => destroyRepeatItemRecord(itemRecord));
                     bindingRecord.itemRecords = [];
-                    if ('innerHTML' in bindingRecord.element) {
-                        bindingRecord.element.innerHTML = fallbackMarkup.join('');
-                        return true;
-                    }
-                    return false;
+                    return commitTrustedHtml(bindingRecord.element, fallbackMarkup.join(''), {
+                        scope: 'binding',
+                        sink: 'fallback.html',
+                        sourceRef: `binding:${bindingRecord.binding.target || bindingRecord.binding.kind}:repeat-fallback`,
+                        metadata: {
+                            bindingKind: bindingRecord.binding.kind,
+                            bindingTarget: bindingRecord.binding.target || '',
+                            templateQualifiedId: resolvedTemplateQualifiedId || ''
+                        }
+                    });
                 }
 
                 if (nextItemRecords.length > 0) {
@@ -17183,6 +19573,21 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         : '',
                     resolved: !!slotRecord.element
                 })),
+                listTrustVerdicts,
+                getPanicSnapshot,
+                listPanicEvents,
+                beginPanicRecovery,
+                completePanicRecovery,
+                failPanicRecovery,
+                rememberSafeSnapshot,
+                getLastSafeSnapshot,
+                listSafeSnapshots,
+                restoreLastSafeSnapshot,
+                renderSafeFallback,
+                recoverFromPanic,
+                listRecoveryOutcomes,
+                listQuarantinedScopes,
+                isScopeQuarantined,
                 rebindChunk,
                 updateModel
             });
@@ -17198,6 +19603,22 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             createBindingSession,
             listSupportedBindingKinds: () => SUPPORTED_BINDING_KINDS.slice(),
             listSupportedSlotKinds: () => SUPPORTED_SLOT_KINDS.slice(),
+            listTrustVerdicts,
+            getPanicSnapshot,
+            listPanicEvents,
+            beginPanicRecovery,
+            completePanicRecovery,
+            failPanicRecovery,
+            rememberSafeSnapshot,
+            getLastSafeSnapshot,
+            listSafeSnapshots,
+            quarantineScope,
+            restoreLastSafeSnapshot,
+            renderSafeFallback,
+            recoverFromPanic,
+            listRecoveryOutcomes,
+            listQuarantinedScopes,
+            isScopeQuarantined,
             normalizeBinding,
             normalizeBindings,
             normalizeSlot,
@@ -17226,6 +19647,25 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
     const PRERENDER_REQUEST_KIND = 'renderman_template_prerender_request';
     const PRERENDER_REQUEST_VERSION = '1.0';
     const TEMPLATE_BINDING_SESSION_RESOURCE_ID = 'template.runtime.bindings';
+    const RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA = 'xtend.rmt.runtime-trust-sink-adapter.v1';
+    const RMT_KERNEL_TRUST_AUTHORITY_SCHEMA = 'xtend.rmt.kernel-trust-authority.v1';
+    const RMT_KERNEL_TRUST_VERDICT_SCHEMA = 'xtend.rmt.kernel-trust-verdict.v1';
+    const RMT_KERNEL_TRUST_DIAGNOSTIC_SCHEMA = 'xtend.rmt.kernel-trust-diagnostic.v1';
+    const RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE = 'RKSH-WP-02';
+    const RMT_TRUSTED_DOM_BOUNDARY = 'xtend.security.sanitizing-boundary.v1';
+    const RMT_TRUSTED_DOM_SANITIZER_SCHEMA = 'xtend.security.trusted-dom-sanitizer.v1';
+    const RMT_RUNTIME_TRUST_DIAGNOSTIC_CHANNEL = 'rmt.kernel.trust';
+    const RMT_KERNEL_PANIC_MONITOR_SCHEMA = 'xtend.rmt.kernel-panic-monitor.v1';
+    const RMT_KERNEL_PANIC_STATE_SCHEMA = 'xtend.rmt.kernel-panic-state.v1';
+    const RMT_KERNEL_PANIC_EVENT_SCHEMA = 'xtend.rmt.kernel-panic-event.v1';
+    const RMT_KERNEL_PANIC_MONITOR_WORKPACKAGE = 'RKSH-WP-04';
+    const RMT_RUNTIME_PANIC_DIAGNOSTIC_CHANNEL = 'rmt.kernel.panic';
+    const RMT_KERNEL_RECOVERY_SCHEMA = 'xtend.rmt.kernel-recovery.v1';
+    const RMT_KERNEL_RECOVERY_POLICY_SCHEMA = 'xtend.rmt.kernel-recovery-policy.v1';
+    const RMT_KERNEL_RECOVERY_OUTCOME_SCHEMA = 'xtend.rmt.kernel-recovery-outcome.v1';
+    const RMT_KERNEL_RECOVERY_SAFE_SNAPSHOT_SCHEMA = 'xtend.rmt.kernel-recovery-safe-snapshot.v1';
+    const RMT_KERNEL_RECOVERY_WORKPACKAGE = 'RKSH-WP-05';
+    const RMT_RUNTIME_RECOVERY_DIAGNOSTIC_CHANNEL = 'rmt.kernel.recovery';
 
     function clampString(value, fallbackValue = '') {
         const safeValue = String(value || '').trim();
@@ -17239,6 +19679,384 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         } catch (_error) {
             return fallbackValue;
         }
+    }
+
+    function createRuntimePanicMonitor(options = {}) {
+        const panicDiagnosticsHub = options.diagnosticsHub && typeof options.diagnosticsHub.publish === 'function'
+            ? options.diagnosticsHub
+            : null;
+        const now = typeof options.now === 'function'
+            ? options.now
+            : (() => Date.now());
+        const repeatedBlockThreshold = Number.isFinite(options.repeatedBlockThreshold) && options.repeatedBlockThreshold > 0
+            ? Math.max(Math.floor(options.repeatedBlockThreshold), 1)
+            : 3;
+        const panicEvents = [];
+        let panicEventSequence = 0;
+        let panicSnapshot = {
+            schema: RMT_KERNEL_PANIC_STATE_SCHEMA,
+            monitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA,
+            workpackage: RMT_KERNEL_PANIC_MONITOR_WORKPACKAGE,
+            state: 'none',
+            previousState: 'none',
+            severity: 'info',
+            trigger: 'manual',
+            panicId: null,
+            correlationId: null,
+            sourceRef: null,
+            scope: null,
+            sink: null,
+            reasonCode: null,
+            diagnosticCode: null,
+            blockedCommitCount: 0,
+            criticalViolationCount: 0,
+            recoveryAttemptCount: 0,
+            recoveryFailureCount: 0,
+            recoveryAction: 'none',
+            affectedScopes: [],
+            affectedJobs: [],
+            activeSince: null,
+            recoveringSince: null,
+            recoveredAt: null,
+            failedAt: null,
+            lastSeenAt: now(),
+            eventCount: 0,
+            lastEventId: null,
+            lastVerdict: null,
+            metadata: {
+                repeatedBlockThreshold
+            }
+        };
+
+        function getPanicSnapshot() {
+            return cloneSerializable(panicSnapshot, {});
+        }
+
+        function listPanicEvents() {
+            return panicEvents.map((event) => cloneSerializable(event, {}));
+        }
+
+        function redactRuntimePanicMetadata(value, key = '') {
+            if (value === null || value === undefined) return value;
+            if (Array.isArray(value)) return value.map((entry) => redactRuntimePanicMetadata(entry, key));
+            if (typeof value === 'object') {
+                return Object.keys(value).reduce((result, entryKey) => {
+                    result[entryKey] = redactRuntimePanicMetadata(value[entryKey], entryKey);
+                    return result;
+                }, {});
+            }
+            if (typeof value !== 'string') return value;
+            const normalizedKey = clampString(key, '').toLowerCase();
+            const sensitiveKey = /(value|html|markup|raw|payload|sample|source|script)/.test(normalizedKey);
+            const unsafeSample = /<s*script|javascript:|vbscript:|srcdoc/i.test(value);
+            if (sensitiveKey || unsafeSample) {
+                return {
+                    redacted: true,
+                    length: value.length
+                };
+            }
+            return value.length > 256 ? value.slice(0, 253) + '...' : value;
+        }
+
+        function publishPanicEvent(event) {
+            if (!panicDiagnosticsHub) return;
+            try {
+                panicDiagnosticsHub.publish(RMT_RUNTIME_PANIC_DIAGNOSTIC_CHANNEL, event, {
+                    source: RMT_KERNEL_PANIC_MONITOR_SCHEMA,
+                    workpackage: RMT_KERNEL_PANIC_MONITOR_WORKPACKAGE,
+                    state: event.state,
+                    panicId: event.panicId || undefined,
+                    correlationId: event.correlationId || undefined
+                });
+            } catch (_error) {}
+        }
+
+        function createPanicId(input = {}) {
+            const correlationId = clampString(input.correlationId, '');
+            if (correlationId) return 'panic:' + correlationId;
+            return 'panic:' + clampString(input.scope, 'runtime') + ':' + clampString(input.trigger, 'manual');
+        }
+
+        function rememberPanicTransition(input = {}, type = 'signal-recorded') {
+            const previousState = panicSnapshot.state;
+            const nextState = clampString(input.state, previousState);
+            const at = now();
+            panicEventSequence += 1;
+            const event = {
+                schema: RMT_KERNEL_PANIC_EVENT_SCHEMA,
+                monitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA,
+                stateSchema: RMT_KERNEL_PANIC_STATE_SCHEMA,
+                workpackage: RMT_KERNEL_PANIC_MONITOR_WORKPACKAGE,
+                eventId: RMT_KERNEL_PANIC_EVENT_SCHEMA + ':' + panicEventSequence,
+                type,
+                previousState,
+                state: nextState,
+                severity: clampString(input.severity, panicSnapshot.severity || 'warning'),
+                trigger: clampString(input.trigger, 'manual'),
+                panicId: clampString(input.panicId, panicSnapshot.panicId),
+                correlationId: clampString(input.correlationId, panicSnapshot.correlationId),
+                sourceRef: clampString(input.sourceRef, panicSnapshot.sourceRef),
+                scope: clampString(input.scope, panicSnapshot.scope),
+                sink: clampString(input.sink, panicSnapshot.sink),
+                reasonCode: clampString(input.reasonCode, panicSnapshot.reasonCode),
+                diagnosticCode: clampString(input.diagnosticCode, panicSnapshot.diagnosticCode),
+                blockedCommitCount: Number.isFinite(input.blockedCommitCount) ? input.blockedCommitCount : panicSnapshot.blockedCommitCount,
+                criticalViolationCount: Number.isFinite(input.criticalViolationCount) ? input.criticalViolationCount : panicSnapshot.criticalViolationCount,
+                recoveryAttemptCount: Number.isFinite(input.recoveryAttemptCount) ? input.recoveryAttemptCount : panicSnapshot.recoveryAttemptCount,
+                recoveryFailureCount: Number.isFinite(input.recoveryFailureCount) ? input.recoveryFailureCount : panicSnapshot.recoveryFailureCount,
+                recoveryAction: clampString(input.recoveryAction, panicSnapshot.recoveryAction || 'none'),
+                at,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            };
+            panicEvents.push(event);
+            const affectedScopes = new Set(Array.isArray(panicSnapshot.affectedScopes) ? panicSnapshot.affectedScopes : []);
+            if (event.scope) affectedScopes.add(event.scope);
+            const affectedJobs = new Set(Array.isArray(panicSnapshot.affectedJobs) ? panicSnapshot.affectedJobs : []);
+            (Array.isArray(input.affectedJobs) ? input.affectedJobs : []).forEach((job) => {
+                const safeJob = clampString(job, '');
+                if (safeJob) affectedJobs.add(safeJob);
+            });
+            panicSnapshot = {
+                ...panicSnapshot,
+                state: event.state,
+                previousState,
+                severity: event.severity,
+                trigger: event.trigger,
+                panicId: event.panicId,
+                correlationId: event.correlationId,
+                sourceRef: event.sourceRef,
+                scope: event.scope,
+                sink: event.sink,
+                reasonCode: event.reasonCode,
+                diagnosticCode: event.diagnosticCode,
+                blockedCommitCount: event.blockedCommitCount,
+                criticalViolationCount: event.criticalViolationCount,
+                recoveryAttemptCount: event.recoveryAttemptCount,
+                recoveryFailureCount: event.recoveryFailureCount,
+                recoveryAction: event.recoveryAction,
+                affectedScopes: Array.from(affectedScopes),
+                affectedJobs: Array.from(affectedJobs),
+                activeSince: event.state === 'active' && !panicSnapshot.activeSince ? at : panicSnapshot.activeSince,
+                recoveringSince: event.state === 'recovering' ? at : (event.state === 'active' ? null : panicSnapshot.recoveringSince),
+                recoveredAt: event.state === 'recovered' ? at : panicSnapshot.recoveredAt,
+                failedAt: event.state === 'failed' ? at : panicSnapshot.failedAt,
+                lastSeenAt: at,
+                eventCount: panicEvents.length,
+                lastEventId: event.eventId,
+                lastVerdict: cloneSerializable(input.lastVerdict, panicSnapshot.lastVerdict),
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            };
+            publishPanicEvent(event);
+            return getPanicSnapshot();
+        }
+
+        function recordSignal(input = {}) {
+            const verdictKind = clampString(input.verdict, '');
+            const blocked = input.blocked === true || input.commitAllowed === false || verdictKind === 'blocked';
+            const critical = input.critical === true
+                || input.panicCandidate === true
+                || verdictKind === 'panic'
+                || clampString(input.severity, '') === 'fatal'
+                || clampString(input.severity, '') === 'critical';
+            const nextBlockedCount = panicSnapshot.blockedCommitCount + (blocked ? 1 : 0);
+            const nextCriticalCount = panicSnapshot.criticalViolationCount + (critical ? 1 : 0);
+            let nextState = panicSnapshot.state;
+            let nextSeverity = clampString(input.severity, blocked ? 'warning' : 'info');
+            let nextTrigger = clampString(input.trigger, blocked ? 'trust-verdict-blocked' : 'manual');
+            let eventType = 'signal-recorded';
+
+            if (input.recoveryFailure === true || nextTrigger === 'recovery-failure') {
+                nextState = 'failed';
+                nextSeverity = 'fatal';
+                eventType = 'recovery-failed';
+            } else if (critical) {
+                nextState = 'active';
+                nextSeverity = nextSeverity === 'fatal' ? 'fatal' : 'critical';
+                nextTrigger = 'trust-verdict-panic';
+                eventType = 'state-transition';
+            } else if (blocked && nextBlockedCount >= repeatedBlockThreshold) {
+                nextState = 'active';
+                nextSeverity = 'critical';
+                nextTrigger = 'threshold-breached';
+                eventType = 'state-transition';
+            } else if (blocked && (panicSnapshot.state === 'none' || panicSnapshot.state === 'recovered')) {
+                nextState = 'suspected';
+                eventType = 'state-transition';
+            }
+
+            return rememberPanicTransition({
+                state: nextState,
+                severity: nextSeverity,
+                trigger: nextTrigger,
+                panicId: clampString(input.panicId, '') || panicSnapshot.panicId || (nextState === 'active' ? createPanicId(input) : null),
+                correlationId: input.correlationId,
+                sourceRef: input.sourceRef,
+                scope: input.scope,
+                sink: input.sink,
+                reasonCode: input.reasonCode,
+                diagnosticCode: input.diagnosticCode,
+                blockedCommitCount: nextBlockedCount,
+                criticalViolationCount: nextCriticalCount,
+                recoveryFailureCount: panicSnapshot.recoveryFailureCount + (eventType === 'recovery-failed' ? 1 : 0),
+                recoveryAction: input.recoveryAction || panicSnapshot.recoveryAction,
+                affectedJobs: input.affectedJobs,
+                lastVerdict: input.lastVerdict,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            }, eventType);
+        }
+
+        function recordTrustVerdict(verdict = {}) {
+            const verdictKind = clampString(verdict.verdict, verdict.commitAllowed === false ? 'blocked' : 'trusted');
+            if (verdictKind !== 'blocked' && verdictKind !== 'panic' && verdict.panicCandidate !== true) {
+                return getPanicSnapshot();
+            }
+            return recordSignal({
+                verdict: verdictKind,
+                blocked: verdict.commitAllowed === false || verdictKind === 'blocked',
+                critical: verdict.panicCandidate === true || verdictKind === 'panic',
+                panicCandidate: verdict.panicCandidate === true,
+                severity: verdict.severity,
+                trigger: verdictKind === 'panic' || verdict.panicCandidate === true ? 'trust-verdict-panic' : 'trust-verdict-blocked',
+                sourceRef: verdict.sourceRef,
+                scope: verdict.scope,
+                sink: verdict.sink,
+                reasonCode: verdict.reasonCode,
+                diagnosticCode: verdict.diagnosticCode,
+                correlationId: verdict.correlationId,
+                lastVerdict: {
+                    schema: verdict.schema || RMT_KERNEL_TRUST_VERDICT_SCHEMA,
+                    verdict: verdictKind,
+                    scope: verdict.scope,
+                    sink: verdict.sink,
+                    severity: verdict.severity,
+                    reasonCode: verdict.reasonCode,
+                    diagnosticCode: verdict.diagnosticCode,
+                    commitAllowed: verdict.commitAllowed,
+                    panicCandidate: verdict.panicCandidate === true,
+                    correlationId: verdict.correlationId
+                },
+                metadata: {
+                    trustVerdict: verdictKind,
+                    trustVerdictSchema: verdict.schema || RMT_KERNEL_TRUST_VERDICT_SCHEMA,
+                    source: verdict.source || RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                    workpackage: verdict.workpackage || RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE
+                }
+            });
+        }
+
+        function beginRecovery(input = {}) {
+            return rememberPanicTransition({
+                state: 'recovering',
+                severity: 'warning',
+                trigger: clampString(input.trigger, 'manual'),
+                recoveryAttemptCount: panicSnapshot.recoveryAttemptCount + 1,
+                recoveryAction: clampString(input.recoveryAction || input.action, 'quarantine-scope'),
+                correlationId: input.correlationId,
+                panicId: input.panicId,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            }, 'recovery-started');
+        }
+
+        function completeRecovery(input = {}) {
+            return rememberPanicTransition({
+                state: 'recovered',
+                severity: 'info',
+                trigger: clampString(input.trigger, 'manual'),
+                recoveryAction: clampString(input.recoveryAction || input.action, panicSnapshot.recoveryAction || 'render-safe-fallback'),
+                correlationId: input.correlationId,
+                panicId: input.panicId,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            }, 'recovery-completed');
+        }
+
+        function failRecovery(input = {}) {
+            return rememberPanicTransition({
+                state: 'failed',
+                severity: 'fatal',
+                trigger: 'recovery-failure',
+                recoveryFailureCount: panicSnapshot.recoveryFailureCount + 1,
+                recoveryAction: clampString(input.recoveryAction || input.action, panicSnapshot.recoveryAction || 'manual-intervention'),
+                reasonCode: clampString(input.reasonCode, 'rmt.kernel.panic.recovery_failed'),
+                diagnosticCode: clampString(input.diagnosticCode, 'rmt.kernel.panic.recovery_failed'),
+                correlationId: input.correlationId,
+                panicId: input.panicId,
+                metadata: redactRuntimePanicMetadata(input.metadata)
+            }, 'recovery-failed');
+        }
+
+        return Object.freeze({
+            schema: RMT_KERNEL_PANIC_MONITOR_SCHEMA,
+            recordSignal,
+            recordTrustVerdict,
+            beginRecovery,
+            completeRecovery,
+            failRecovery,
+            getSnapshot: getPanicSnapshot,
+            listEvents: listPanicEvents
+        });
+    }
+
+    function isAllowedRuntimeTrustedDomUrl(value) {
+        const normalized = String(value || '').trim().replace(/[\u0000-\u001F\u007F\s]+/g, '').toLowerCase();
+        if (!normalized) return true;
+        if (normalized.startsWith('#') || normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) return true;
+        if (normalized.startsWith('data:')) return normalized.startsWith('data:image/');
+        return !(
+            normalized.startsWith('javascript:')
+            || normalized.startsWith('data:text/html')
+            || normalized.startsWith('data:text/javascript')
+            || normalized.startsWith('data:application/javascript')
+            || normalized.startsWith('data:application/ecmascript')
+            || normalized.startsWith('vbscript:')
+        );
+    }
+
+    function sanitizeRuntimeTrustedDomHtml(html) {
+        let output = String(html || '');
+        const removed = [];
+        ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'base', 'form'].forEach((tagName) => {
+            const paired = new RegExp('<\\s*' + tagName + '\\b[^>]*>[\\s\\S]*?<\\s*\\/\\s*' + tagName + '\\s*>', 'gi');
+            output = output.replace(paired, (match) => {
+                removed.push({ type: 'element', name: tagName, sampleLength: match.length });
+                return '';
+            });
+
+            const single = new RegExp('<\\s*' + tagName + '\\b[^>]*\\/?\\s*>', 'gi');
+            output = output.replace(single, (match) => {
+                removed.push({ type: 'element', name: tagName, sampleLength: match.length });
+                return '';
+            });
+        });
+
+        output = output.replace(/\s+on[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
+            removed.push({ type: 'attribute', name: match.trim().split('=')[0] });
+            return '';
+        });
+
+        output = output.replace(/\s+srcdoc\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, () => {
+            removed.push({ type: 'attribute', name: 'srcdoc' });
+            return '';
+        });
+
+        output = output.replace(/\s+(href|src|srcset|action|formaction|poster|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, (match, name, rawValue) => {
+            const unquoted = String(rawValue || '').replace(/^["']|["']$/g, '');
+            if (!isAllowedRuntimeTrustedDomUrl(unquoted)) {
+                removed.push({ type: 'url', name, valueLength: unquoted.length });
+                return '';
+            }
+            return match;
+        });
+
+        return {
+            schema: RMT_TRUSTED_DOM_SANITIZER_SCHEMA,
+            ok: true,
+            sanitized: true,
+            boundary: RMT_TRUSTED_DOM_BOUNDARY,
+            markupClass: 'htmlFragment',
+            html: output,
+            removed,
+            removedCount: removed.length
+        };
     }
 
     function toPlainObject(value) {
@@ -17677,7 +20495,578 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             });
         }
 
-        function createFragmentFromHtml(html) {
+        const diagnosticsHub = deps.diagnosticsHub && typeof deps.diagnosticsHub.publish === 'function'
+            ? deps.diagnosticsHub
+            : null;
+        const kernelTrustAuthority = deps.kernelTrustAuthority && typeof deps.kernelTrustAuthority === 'object'
+            ? deps.kernelTrustAuthority
+            : null;
+        const sanitizeHtmlOutput = typeof deps.sanitizeHtmlOutput === 'function'
+            ? deps.sanitizeHtmlOutput
+            : (typeof deps.sanitizeTrustedDomHtml === 'function'
+                ? deps.sanitizeTrustedDomHtml
+                : sanitizeRuntimeTrustedDomHtml);
+        const runtimeTrustVerdicts = [];
+        const runtimePanicMonitor = deps.panicMonitor && typeof deps.panicMonitor.recordTrustVerdict === 'function'
+            ? deps.panicMonitor
+            : createRuntimePanicMonitor({
+                diagnosticsHub,
+                now,
+                repeatedBlockThreshold: deps.panicRepeatedBlockThreshold
+            });
+
+        function listTrustVerdicts() {
+            return runtimeTrustVerdicts.map((verdict) => cloneSerializable(verdict, {}));
+        }
+
+        function getPanicSnapshot() {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.getSnapshot === 'function') {
+                return cloneSerializable(runtimePanicMonitor.getSnapshot(), {});
+            }
+            return {};
+        }
+
+        function listPanicEvents() {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.listEvents === 'function') {
+                return runtimePanicMonitor.listEvents().map((event) => cloneSerializable(event, {}));
+            }
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.listPanicEvents === 'function') {
+                return runtimePanicMonitor.listPanicEvents().map((event) => cloneSerializable(event, {}));
+            }
+            return [];
+        }
+
+        function recordRuntimePanicTrustVerdict(verdict) {
+            if (!runtimePanicMonitor || typeof runtimePanicMonitor.recordTrustVerdict !== 'function') return null;
+            try {
+                return runtimePanicMonitor.recordTrustVerdict(verdict, {
+                    source: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA
+                });
+            } catch (_error) {
+                return null;
+            }
+        }
+
+        function beginPanicRecovery(input = {}) {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.beginRecovery === 'function') {
+                return runtimePanicMonitor.beginRecovery(input);
+            }
+            return getPanicSnapshot();
+        }
+
+        function completePanicRecovery(input = {}) {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.completeRecovery === 'function') {
+                return runtimePanicMonitor.completeRecovery(input);
+            }
+            return getPanicSnapshot();
+        }
+
+        function failPanicRecovery(input = {}) {
+            if (runtimePanicMonitor && typeof runtimePanicMonitor.failRecovery === 'function') {
+                return runtimePanicMonitor.failRecovery(input);
+            }
+            return getPanicSnapshot();
+        }
+
+        const runtimeRecoveryOutcomes = [];
+        const runtimeSafeSnapshots = new Map();
+        const runtimeQuarantinedScopes = new Set();
+
+        function createRuntimeRecoveryScope(input = {}) {
+            const panicSnapshot = getPanicSnapshot();
+            return clampString(
+                input.scope
+                || input.rootId
+                || input.snapshotKey
+                || input.templateQualifiedId
+                || (panicSnapshot && (panicSnapshot.scope || panicSnapshot.sourceRef || panicSnapshot.panicId)),
+                'kernel'
+            );
+        }
+
+        function createRuntimeRecoverySnapshotKey(input = {}) {
+            return clampString(
+                input.snapshotKey
+                || input.rootId
+                || input.scope
+                || input.templateQualifiedId,
+                createRuntimeRecoveryScope(input)
+            );
+        }
+
+        function publishRuntimeRecoveryOutcome(outcome) {
+            if (!diagnosticsHub || typeof diagnosticsHub.publish !== 'function') return;
+            try {
+                diagnosticsHub.publish(RMT_RUNTIME_RECOVERY_DIAGNOSTIC_CHANNEL, outcome, {
+                    source: RMT_KERNEL_RECOVERY_SCHEMA,
+                    workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                    status: outcome.status,
+                    scope: outcome.scope || undefined,
+                    panicId: outcome.panicId || undefined,
+                    correlationId: outcome.correlationId || undefined
+                });
+            } catch (_error) {}
+        }
+
+        function notifyRuntimeRecoveryHost(outcome) {
+            try {
+                if (deps.hostAdapter && typeof deps.hostAdapter.notifyRecoveryOutcome === 'function') {
+                    deps.hostAdapter.notifyRecoveryOutcome(outcome);
+                    return true;
+                }
+                if (deps.recoveryHostAdapter && typeof deps.recoveryHostAdapter.notifyRecoveryOutcome === 'function') {
+                    deps.recoveryHostAdapter.notifyRecoveryOutcome(outcome);
+                    return true;
+                }
+                if (typeof deps.onRecoveryOutcome === 'function') {
+                    deps.onRecoveryOutcome(outcome);
+                    return true;
+                }
+            } catch (_error) {}
+            return false;
+        }
+
+        function createRuntimeRecoveryOutcome(input = {}) {
+            return {
+                schema: RMT_KERNEL_RECOVERY_OUTCOME_SCHEMA,
+                recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                policySchema: RMT_KERNEL_RECOVERY_POLICY_SCHEMA,
+                safeSnapshotSchema: RMT_KERNEL_RECOVERY_SAFE_SNAPSHOT_SCHEMA,
+                workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                outcomeId: RMT_KERNEL_RECOVERY_OUTCOME_SCHEMA + ':' + String(runtimeRecoveryOutcomes.length + 1),
+                status: clampString(input.status, 'planned'),
+                scope: clampString(input.scope, null),
+                rootId: clampString(input.rootId, null),
+                panicId: clampString(input.panicId, null),
+                correlationId: clampString(input.correlationId, null),
+                quarantined: input.quarantined === true,
+                restoredSnapshotId: clampString(input.restoredSnapshotId, null),
+                fallbackRendered: input.fallbackRendered === true,
+                hostNotified: input.hostNotified === true,
+                failures: cloneSerializable(input.failures, []),
+                panicState: cloneSerializable(input.panicState, null),
+                completedAt: now(),
+                metadata: cloneSerializable(input.metadata, {})
+            };
+        }
+
+        function rememberSafeSnapshot(input = {}) {
+            const element = input.element || input.rootElement || null;
+            const scope = createRuntimeRecoveryScope(input);
+            const snapshotKey = createRuntimeRecoverySnapshotKey({
+                ...input,
+                scope
+            });
+            const html = element && typeof element.innerHTML === 'string'
+                ? element.innerHTML
+                : clampString(input.html, '');
+            const textContent = element && typeof element.textContent === 'string'
+                ? element.textContent
+                : clampString(input.textContent, '');
+            const snapshot = {
+                schema: RMT_KERNEL_RECOVERY_SAFE_SNAPSHOT_SCHEMA,
+                recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                snapshotId: RMT_KERNEL_RECOVERY_SAFE_SNAPSHOT_SCHEMA + ':' + snapshotKey,
+                snapshotKey,
+                rootId: clampString(input.rootId, null),
+                scope,
+                sourceRef: clampString(input.sourceRef, null),
+                templateQualifiedId: clampString(input.templateQualifiedId, null),
+                trustBoundary: clampString(input.trustBoundary, RMT_TRUSTED_DOM_BOUNDARY),
+                sanitized: input.sanitized === true || input.trusted === true,
+                html,
+                textContent,
+                modelSnapshot: cloneSerializable(input.modelSnapshot, {}),
+                capturedAt: now(),
+                metadata: cloneSerializable(input.metadata, {})
+            };
+            runtimeSafeSnapshots.set(snapshot.snapshotKey, snapshot);
+            runtimeSafeSnapshots.set(scope, snapshot);
+            if (snapshot.rootId) runtimeSafeSnapshots.set(snapshot.rootId, snapshot);
+            return cloneSerializable(snapshot, {});
+        }
+
+        function getLastSafeSnapshot(input = {}) {
+            const key = createRuntimeRecoverySnapshotKey(input);
+            const scope = createRuntimeRecoveryScope(input);
+            return cloneSerializable(
+                runtimeSafeSnapshots.get(key)
+                || runtimeSafeSnapshots.get(scope)
+                || (input.rootId ? runtimeSafeSnapshots.get(clampString(input.rootId, '')) : null)
+                || null,
+                null
+            );
+        }
+
+        function listSafeSnapshots() {
+            return Array.from(new Set(Array.from(runtimeSafeSnapshots.values()))).map((snapshot) => cloneSerializable(snapshot, {}));
+        }
+
+        function quarantineScope(input = {}) {
+            const scope = createRuntimeRecoveryScope(input);
+            runtimeQuarantinedScopes.add(scope);
+            return scope;
+        }
+
+        function listQuarantinedScopes() {
+            return Array.from(runtimeQuarantinedScopes);
+        }
+
+        function isScopeQuarantined(input = {}) {
+            return runtimeQuarantinedScopes.has(createRuntimeRecoveryScope(input));
+        }
+
+        function restoreLastSafeSnapshot(input = {}) {
+            const element = input.element || input.rootElement || null;
+            const snapshot = getLastSafeSnapshot(input);
+            if (!element || !snapshot) return false;
+            if (snapshot.html && 'innerHTML' in element) {
+                return commitTrustedHtml(element, snapshot.html, {
+                    scope: 'template',
+                    sink: 'fallback.html',
+                    sourceRef: 'recovery:restore-last-safe-snapshot:' + createRuntimeRecoveryScope(input),
+                    metadata: {
+                        recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                        workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                        snapshotId: snapshot.snapshotId
+                    }
+                });
+            }
+            if ('textContent' in element) {
+                element.textContent = snapshot.textContent || '';
+                return true;
+            }
+            return false;
+        }
+
+        function renderSafeFallback(input = {}) {
+            const element = input.element || input.rootElement || null;
+            if (!element) return false;
+            const fallbackHtml = clampString(input.safeFallbackHtml || input.fallbackHtml || input.html, '');
+            const fallbackText = clampString(input.safeFallbackText || input.fallbackText || input.textContent, '');
+            if (fallbackHtml) {
+                return commitTrustedHtml(element, fallbackHtml, {
+                    scope: 'template',
+                    sink: 'fallback.html',
+                    sourceRef: 'recovery:render-safe-fallback:' + createRuntimeRecoveryScope(input),
+                    metadata: {
+                        recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                        workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE,
+                        fallbackLength: fallbackHtml.length
+                    }
+                });
+            }
+            if (fallbackText && 'textContent' in element) {
+                element.textContent = fallbackText;
+                return true;
+            }
+            return false;
+        }
+
+        function recoverFromPanic(input = {}) {
+            const panicSnapshot = getPanicSnapshot();
+            const scope = createRuntimeRecoveryScope(input);
+            const rootId = clampString(input.rootId, null);
+            const element = input.element || input.rootElement || null;
+            beginPanicRecovery({
+                recoveryAction: 'quarantine-scope',
+                panicId: panicSnapshot && panicSnapshot.panicId,
+                correlationId: panicSnapshot && panicSnapshot.correlationId,
+                metadata: {
+                    recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                    scope
+                }
+            });
+            quarantineScope({
+                scope,
+                rootId
+            });
+            let restoredSnapshotId = null;
+            let fallbackRendered = false;
+            const failures = [];
+
+            if (input.restoreSnapshot !== false) {
+                const snapshot = getLastSafeSnapshot({
+                    ...input,
+                    scope,
+                    rootId
+                });
+                if (snapshot && restoreLastSafeSnapshot({
+                    ...input,
+                    scope,
+                    rootId,
+                    element
+                })) {
+                    restoredSnapshotId = snapshot.snapshotId;
+                }
+            }
+
+            if (input.forceFallback === true || !restoredSnapshotId) {
+                fallbackRendered = renderSafeFallback({
+                    ...input,
+                    scope,
+                    rootId,
+                    element
+                });
+            }
+
+            if (!restoredSnapshotId && !fallbackRendered) {
+                failures.push({
+                    action: 'restore-last-safe-snapshot',
+                    message: 'no-safe-restore-or-fallback'
+                });
+            }
+
+            const panicState = failures.length > 0
+                ? failPanicRecovery({
+                    recoveryAction: 'manual-intervention',
+                    panicId: panicSnapshot && panicSnapshot.panicId,
+                    correlationId: panicSnapshot && panicSnapshot.correlationId,
+                    metadata: {
+                        recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                        failures
+                    }
+                })
+                : completePanicRecovery({
+                    recoveryAction: restoredSnapshotId ? 'rollback-last-safe-snapshot' : 'render-safe-fallback',
+                    panicId: panicSnapshot && panicSnapshot.panicId,
+                    correlationId: panicSnapshot && panicSnapshot.correlationId,
+                    metadata: {
+                        recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                        restoredSnapshotId,
+                        fallbackRendered
+                    }
+                });
+            const outcome = createRuntimeRecoveryOutcome({
+                status: failures.length > 0 ? 'failed' : 'recovered',
+                scope,
+                rootId,
+                panicId: panicSnapshot && panicSnapshot.panicId,
+                correlationId: panicSnapshot && panicSnapshot.correlationId,
+                quarantined: true,
+                restoredSnapshotId,
+                fallbackRendered,
+                hostNotified: false,
+                failures,
+                panicState,
+                metadata: {
+                    recoverySchema: RMT_KERNEL_RECOVERY_SCHEMA,
+                    workpackage: RMT_KERNEL_RECOVERY_WORKPACKAGE
+                }
+            });
+            outcome.hostNotified = notifyRuntimeRecoveryHost(outcome);
+            runtimeRecoveryOutcomes.push(outcome);
+            publishRuntimeRecoveryOutcome(outcome);
+            return cloneSerializable(outcome, {});
+        }
+
+        function listRecoveryOutcomes() {
+            return runtimeRecoveryOutcomes.map((outcome) => cloneSerializable(outcome, {}));
+        }
+
+        function createRuntimeTrustCorrelationId(context = {}) {
+            return [
+                RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                clampString(context.sourceRef, 'runtime-html'),
+                clampString(context.scope, 'template'),
+                clampString(context.sink, 'innerHTML'),
+                String(runtimeTrustVerdicts.length + 1)
+            ].join('#');
+        }
+
+        function normalizeSanitizerResult(rawHtml, sanitizerResult) {
+            if (typeof sanitizerResult === 'string') {
+                return {
+                    ok: true,
+                    html: sanitizerResult,
+                    removed: [],
+                    removedCount: sanitizerResult === rawHtml ? 0 : 1,
+                    boundary: RMT_TRUSTED_DOM_BOUNDARY
+                };
+            }
+            if (sanitizerResult && typeof sanitizerResult === 'object') {
+                const hasHtml = Object.prototype.hasOwnProperty.call(sanitizerResult, 'html');
+                const safeHtml = hasHtml ? String(sanitizerResult.html || '') : rawHtml;
+                return {
+                    ok: sanitizerResult.ok !== false,
+                    html: safeHtml,
+                    removed: cloneSerializable(sanitizerResult.removed, []),
+                    removedCount: Number.isFinite(sanitizerResult.removedCount)
+                        ? sanitizerResult.removedCount
+                        : (safeHtml === rawHtml ? 0 : 1),
+                    boundary: clampString(sanitizerResult.boundary, RMT_TRUSTED_DOM_BOUNDARY)
+                };
+            }
+            return sanitizeRuntimeTrustedDomHtml(rawHtml);
+        }
+
+        function sanitizeTrustedRuntimeHtml(rawHtml, context = {}) {
+            try {
+                return normalizeSanitizerResult(rawHtml, sanitizeHtmlOutput(rawHtml, {
+                    ...context,
+                    boundary: RMT_TRUSTED_DOM_BOUNDARY,
+                    markupClass: 'htmlFragment',
+                    sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA
+                }));
+            } catch (error) {
+                const fallback = sanitizeRuntimeTrustedDomHtml(rawHtml);
+                fallback.sanitizerError = clampString(error && error.message, 'runtime-html-sanitizer-error');
+                return fallback;
+            }
+        }
+
+        function diagnosticCodeForRuntimeTrust(reasonCode, commitAllowed) {
+            if (reasonCode === 'rmt.kernel.trust.attribute_refused') return 'rmt.kernel.trust.attribute_refused';
+            if (reasonCode === 'rmt.kernel.trust.url_protocol_refused') return 'rmt.kernel.trust.url_protocol_refused';
+            if (reasonCode === 'rmt.kernel.trust.property_refused') return 'rmt.kernel.trust.property_refused';
+            if (reasonCode === 'rmt.kernel.trust.html_sanitizer_missing') return 'rmt.kernel.trust.html_sanitizer_missing';
+            if (commitAllowed === false) return 'rmt.kernel.trust.sink_refused';
+            return null;
+        }
+
+        function createRuntimeTrustVerdict(input = {}) {
+            const commitAllowed = typeof input.commitAllowed === 'boolean' ? input.commitAllowed : true;
+            const verdictKind = clampString(input.verdict, commitAllowed ? 'trusted' : 'blocked');
+            const reasonCode = clampString(
+                input.reasonCode,
+                verdictKind === 'sanitized'
+                    ? 'rmt.kernel.trust.html_sanitized'
+                    : (commitAllowed ? 'rmt.kernel.trust.explicit_trust' : 'rmt.kernel.trust.sink_refused')
+            );
+            const verdictInput = {
+                scope: clampString(input.scope, 'template'),
+                sink: clampString(input.sink, 'innerHTML'),
+                sourceRef: clampString(input.sourceRef, 'runtime-output'),
+                ownerRef: clampString(input.ownerRef, ''),
+                attributeName: clampString(input.attributeName || input.name, ''),
+                propertyName: clampString(input.propertyName || input.property, ''),
+                value: String(input.value || ''),
+                verdict: verdictKind,
+                severity: clampString(input.severity, commitAllowed ? 'info' : 'error'),
+                reasonCode,
+                commitAllowed,
+                sanitized: input.sanitized === true || verdictKind === 'sanitized',
+                trusted: input.trusted === true || verdictKind === 'trusted',
+                propertyTrusted: input.propertyTrusted === true,
+                trustBoundary: clampString(input.trustBoundary, verdictKind === 'sanitized' ? RMT_TRUSTED_DOM_BOUNDARY : ''),
+                correlationId: clampString(input.correlationId, '') || createRuntimeTrustCorrelationId(input),
+                workpackage: clampString(input.workpackage, RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE),
+                metadata: cloneSerializable(input.metadata, {})
+            };
+
+            let authorityVerdict = null;
+            try {
+                if (kernelTrustAuthority && typeof kernelTrustAuthority.evaluateOutput === 'function') {
+                    authorityVerdict = kernelTrustAuthority.evaluateOutput(verdictInput);
+                } else if (kernelTrustAuthority && typeof kernelTrustAuthority.createVerdict === 'function') {
+                    authorityVerdict = kernelTrustAuthority.createVerdict(verdictInput);
+                }
+            } catch (_error) {
+                authorityVerdict = null;
+            }
+
+            const baseVerdict = authorityVerdict && authorityVerdict.schema === RMT_KERNEL_TRUST_VERDICT_SCHEMA
+                ? cloneSerializable(authorityVerdict, {})
+                : {
+                    schema: RMT_KERNEL_TRUST_VERDICT_SCHEMA,
+                    authoritySchema: RMT_KERNEL_TRUST_AUTHORITY_SCHEMA,
+                    source: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                    workpackage: verdictInput.workpackage,
+                    verdict: verdictInput.verdict,
+                    scope: verdictInput.scope,
+                    sink: verdictInput.sink,
+                    sourceRef: verdictInput.sourceRef,
+                    ownerRef: verdictInput.ownerRef || null,
+                    attributeName: verdictInput.attributeName || null,
+                    propertyName: verdictInput.propertyName || null,
+                    severity: verdictInput.severity,
+                    reasonCode: verdictInput.reasonCode,
+                    commitAllowed: verdictInput.commitAllowed,
+                    sanitized: verdictInput.sanitized,
+                    trustBoundary: verdictInput.trustBoundary || null,
+                    panicCandidate: input.panicCandidate === true,
+                    correlationId: verdictInput.correlationId,
+                    diagnosticCode: diagnosticCodeForRuntimeTrust(verdictInput.reasonCode, verdictInput.commitAllowed),
+                    metadata: cloneSerializable(verdictInput.metadata, {})
+                };
+            baseVerdict.workpackage = verdictInput.workpackage;
+            baseVerdict.source = clampString(baseVerdict.source, RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA);
+            baseVerdict.metadata = {
+                ...cloneSerializable(baseVerdict.metadata, {}),
+                sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                workpackage: baseVerdict.workpackage
+            };
+            return Object.freeze(baseVerdict);
+        }
+
+        function recordRuntimeTrustVerdict(verdict) {
+            const snapshot = cloneSerializable(verdict, {});
+            runtimeTrustVerdicts.push(snapshot);
+            if (diagnosticsHub && typeof diagnosticsHub.publish === 'function') {
+                try {
+                    diagnosticsHub.publish(RMT_RUNTIME_TRUST_DIAGNOSTIC_CHANNEL, {
+                        schema: 'xtend.rmt.kernel-trust-runtime-diagnostic.v1',
+                        trustDiagnosticSchema: RMT_KERNEL_TRUST_DIAGNOSTIC_SCHEMA,
+                        verdictSchema: RMT_KERNEL_TRUST_VERDICT_SCHEMA,
+                        sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                        workpackage: snapshot.workpackage || RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE,
+                        severity: snapshot.severity,
+                        code: snapshot.diagnosticCode || snapshot.reasonCode,
+                        scope: snapshot.scope,
+                        sink: snapshot.sink,
+                        sourceRef: snapshot.sourceRef,
+                        correlationId: snapshot.correlationId,
+                        verdict: snapshot.verdict,
+                        commitAllowed: snapshot.commitAllowed,
+                        sanitized: snapshot.sanitized,
+                        panicCandidate: snapshot.panicCandidate === true,
+                        metadata: cloneSerializable(snapshot.metadata, {})
+                    }, {
+                        source: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                        workpackage: snapshot.workpackage || RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE
+                    });
+                } catch (_error) {}
+            }
+            recordRuntimePanicTrustVerdict(snapshot);
+            return snapshot;
+        }
+
+        function createTrustedHtmlCommit(html, context = {}) {
+            const rawHtml = String(html || '');
+            const sanitizerResult = sanitizeTrustedRuntimeHtml(rawHtml, context);
+            const trustedHtml = sanitizerResult.ok === false ? '' : String(sanitizerResult.html || '');
+            const verdict = recordRuntimeTrustVerdict(createRuntimeTrustVerdict({
+                ...context,
+                value: trustedHtml,
+                commitAllowed: sanitizerResult.ok !== false,
+                verdict: sanitizerResult.ok !== false ? 'sanitized' : 'blocked',
+                severity: sanitizerResult.ok !== false ? 'info' : 'error',
+                reasonCode: sanitizerResult.ok !== false
+                    ? 'rmt.kernel.trust.html_sanitized'
+                    : 'rmt.kernel.trust.html_sanitizer_missing',
+                sanitized: sanitizerResult.ok !== false,
+                trustBoundary: clampString(sanitizerResult.boundary, RMT_TRUSTED_DOM_BOUNDARY),
+                workpackage: RMT_KERNEL_TRUST_RUNTIME_WORKPACKAGE,
+                metadata: {
+                    sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
+                    sanitizerSchema: RMT_TRUSTED_DOM_SANITIZER_SCHEMA,
+                    trustBoundary: clampString(sanitizerResult.boundary, RMT_TRUSTED_DOM_BOUNDARY),
+                    rawLength: rawHtml.length,
+                    trustedLength: trustedHtml.length,
+                    changed: trustedHtml !== rawHtml,
+                    removedCount: Number.isFinite(sanitizerResult.removedCount) ? sanitizerResult.removedCount : 0,
+                    removed: cloneSerializable(sanitizerResult.removed, []),
+                    sanitizerError: clampString(sanitizerResult.sanitizerError, '')
+                }
+            }));
+            return {
+                html: verdict.commitAllowed === false ? '' : trustedHtml,
+                verdict
+            };
+        }
+
+        function createFragmentFromTrustedHtml(html) {
             if (!documentTarget || typeof documentTarget.createElement !== 'function') return null;
             const templateElement = documentTarget.createElement('template');
             if (!templateElement) return null;
@@ -17686,6 +21075,53 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 return templateElement.content.cloneNode(true);
             }
             return null;
+        }
+
+        function createFragmentFromHtml(html, context = {}) {
+            const trusted = createTrustedHtmlCommit(html, {
+                ...context,
+                sink: clampString(context.sink, 'template.innerHTML')
+            });
+            return createFragmentFromTrustedHtml(trusted.html);
+        }
+
+        function clearElementHtml(element) {
+            if (!element) return false;
+            if (typeof element.replaceChildren === 'function') {
+                element.replaceChildren();
+                return true;
+            }
+            if ('textContent' in element) {
+                element.textContent = '';
+                return true;
+            }
+            if ('innerHTML' in element) {
+                element.innerHTML = '';
+                return true;
+            }
+            return false;
+        }
+
+        function commitTrustedHtml(element, html, context = {}) {
+            if (!element) return false;
+            const trusted = createTrustedHtmlCommit(html, context);
+            if (trusted.html === '') {
+                return clearElementHtml(element) && trusted.verdict.commitAllowed !== false;
+            }
+            if ('innerHTML' in element) {
+                element.innerHTML = trusted.html;
+                return trusted.verdict.commitAllowed !== false;
+            }
+            const fragment = createFragmentFromTrustedHtml(trusted.html);
+            if (fragment && typeof element.replaceChildren === 'function') {
+                element.replaceChildren(fragment);
+                return trusted.verdict.commitAllowed !== false;
+            }
+            if ('textContent' in element) {
+                element.textContent = trusted.html;
+                return trusted.verdict.commitAllowed !== false;
+            }
+            return false;
         }
 
         function applyPrerenderChunk(target, chunkInput, options = {}) {
@@ -17711,20 +21147,17 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             }
 
             if (chunk.template.mode === 'html_fragment') {
-                if (options.preferInnerHtml !== false && 'innerHTML' in element) {
-                    element.innerHTML = String(chunk.markup.html || '');
-                    return true;
-                }
-                const fragment = createFragmentFromHtml(chunk.markup.html || '');
-                if (fragment && typeof element.replaceChildren === 'function') {
-                    element.replaceChildren(fragment);
-                    return true;
-                }
-                if ('textContent' in element) {
-                    element.textContent = String(chunk.markup.html || '');
-                    return true;
-                }
-                return false;
+                return commitTrustedHtml(element, String(chunk.markup.html || ''), {
+                    scope: 'template',
+                    sink: 'prerender.html',
+                    sourceRef: `template:${chunk.template.qualifiedId || chunk.template.id || 'chunk'}:prerender`,
+                    metadata: {
+                        templateQualifiedId: chunk.template.qualifiedId || '',
+                        templateMode: chunk.template.mode || '',
+                        rootId: chunk.rootId || '',
+                        preferInnerHtml: options.preferInnerHtml !== false
+                    }
+                });
             }
 
             if (chunk.template.mode === 'dom_descriptor') {
@@ -17812,12 +21245,21 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     fallbackText = '';
                 }
             }
-            if (fallbackMarkup && 'innerHTML' in element) {
-                element.innerHTML = fallbackMarkup;
+            if (fallbackMarkup) {
+                if (!commitTrustedHtml(element, fallbackMarkup, {
+                    scope: 'template',
+                    sink: 'fallback.html',
+                    sourceRef: `template:${request.template && request.template.qualifiedId ? request.template.qualifiedId : 'error-boundary'}:fallback`,
+                    metadata: {
+                        boundaryName: clampString(boundary.name, ''),
+                        boundaryTarget: clampString(boundary.target, ''),
+                        executionMode: normalizeExecutionMode(executionMode || request.executionMode, 'runtime_render')
+                    }
+                })) {
+                    return null;
+                }
             } else if (fallbackText && 'textContent' in element) {
                 element.textContent = fallbackText;
-            } else if (fallbackMarkup && 'textContent' in element) {
-                element.textContent = fallbackMarkup;
             } else {
                 return null;
             }
@@ -17891,7 +21333,8 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 documentTarget,
                 templateApi,
                 publicApi: typeof deps.getPublicApi === 'function' ? deps.getPublicApi() : publicApi,
-                renderMan
+                renderMan,
+                panicMonitor: runtimePanicMonitor
             });
             return runtimeRenderer;
         }
@@ -18262,6 +21705,22 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             executeTemplate,
             getRuntimeRenderer,
             getSupportedExecutionModes: () => EXECUTION_MODES.slice(),
+            listTrustVerdicts,
+            getPanicSnapshot,
+            listPanicEvents,
+            beginPanicRecovery,
+            completePanicRecovery,
+            failPanicRecovery,
+            rememberSafeSnapshot,
+            getLastSafeSnapshot,
+            listSafeSnapshots,
+            quarantineScope,
+            restoreLastSafeSnapshot,
+            renderSafeFallback,
+            recoverFromPanic,
+            listRecoveryOutcomes,
+            listQuarantinedScopes,
+            isScopeQuarantined,
             hydrateTemplate,
             normalizeChunk,
             normalizeExecutionMode,
@@ -19413,6 +22872,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         'createRmtServerRuntime',
         'createRmtProductSurface',
         'installRmtProductSurface',
+        'createRmtKernelPolicyParity',
         'createRmtBrowserHostAdapter',
         'createRmtBrowserRuntime',
         'createRmtWorkerPrerenderRuntime',
@@ -19584,7 +23044,16 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 templateErrorBoundaries: true,
                 insularHydration: true,
                 minimalDomPatching: true,
-                prerenderHydration: true
+                prerenderHydration: true,
+                kernelTrustAuthority: true,
+                trustedDomRuntime: true,
+                bindingSecurity: true,
+                panicMonitor: true,
+                recovery: true,
+                kernelEscalation: true,
+                schedulerFailureSemantics: true,
+                policyParity: true,
+                securityRegression: true
             },
             ownershipModes: OWNERSHIP_MODES.slice(),
             distributionFormats: [
@@ -19644,7 +23113,8 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         'createRmtXRouterAdapter',
                         'createRmtXtendComponentAdapter',
                         'createRmtSurfaceAdapter',
-                        'createRmtStateSchedulerDiagnosticsBridge'
+                        'createRmtStateSchedulerDiagnosticsBridge',
+                        'createRmtKernelPolicyParity'
                     ],
                     requiredContractIds: [
                         'xtend.rmt.runtime-registry.v1',
@@ -19652,7 +23122,25 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         'xtend.rmt.xtend-component-adapter.v1',
                         'xtend.surface.adapter.v1',
                         'xtend.rmt.state-scheduler-diagnostics-bridge.v1',
-                        'xtend.rmt.artifact-parity.v1'
+                        'xtend.rmt.artifact-parity.v1',
+                        'xtend.rmt.kernel-artifact-parity.v1',
+                        'xtend.rmt.kernel-trust-hardening.v1',
+                        'xtend.rmt.kernel-trust-authority.v1',
+                        'xtend.rmt.kernel-trust-verdict.v1',
+                        'xtend.rmt.kernel-trusted-dom-runtime.v1',
+                        'xtend.rmt.kernel-binding-security.v1',
+                        'xtend.rmt.kernel-panic-monitor.v1',
+                        'xtend.rmt.kernel-panic-state.v1',
+                        'xtend.rmt.kernel-panic-event.v1',
+                        'xtend.rmt.kernel-recovery.v1',
+                        'xtend.rmt.kernel-recovery-outcome.v1',
+                        'xtend.rmt.kernel-recovery-safe-snapshot.v1',
+                        'xtend.rmt.kernel-escalation.v1',
+                        'xtend.rmt.kernel-escalation-envelope.v1',
+                        'xtend.rmt.kernel-scheduler-failure.v1',
+                        'xtend.rmt.kernel-scheduler-failure-record.v1',
+                        'xtend.rmt.kernel-policy-parity.v1',
+                        'xtend.rmt.kernel-security-regression.v1'
                     ],
                     artifactSurfaces: [
                         'scripts/verify_xtendrmt_artifact_parity.js',
@@ -19660,17 +23148,94 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         'artifactParityContracts',
                         'createRmtProductManifest',
                         'rmt-manifest.json entryPoints.appModulesFactories',
-                        'ESM namedExports'
+                        'ESM namedExports',
+                        'RmtKernelRuntimeTrustVerdict',
+                        'RmtKernelRuntimePanicSnapshot',
+                        'RmtKernelRuntimeRecoveryOutcome',
+                        'createRmtKernelPolicyParity',
+                        'getPanicSnapshot',
+                        'recoverFromPanic'
                     ],
                     driftChecks: [
                         'schema-contract-present',
                         'manifest-factories-match-runtime',
                         'esm-named-exports-match-manifest',
                         'types-cover-public-factories',
-                        'runtime-bundles-parse'
+                        'runtime-bundles-parse',
+                        'kernel-hardening-contracts-present',
+                        'kernel-hardening-types-cover-runtime',
+                        'runtime-trust-hooks-present',
+                        'panic-recovery-hooks-present',
+                        'browser-runtime-hardening-surfaces'
                     ],
-                    buildPolicy: 'Upstream RMT source remains the source-of-truth; xtendrmt/ artifacts are synchronized regression references in this repository.',
+                    buildPolicy: 'Upstream RMT source remains the source-of-truth; xtendrmt/ artifacts are synchronized regression references in this repository. RKSH-WP-10 keeps the Trust/Panic/Recovery hardening layer in schema, manifest, types and runtime artifacts.',
                     kernelBoundary: 'Artifact parity checks drift only and must not introduce XTend, XRouter, xstate or DOM runtime imports into the RMT kernel.',
+                    kernelHardeningSourceOfTruth: 'development/WP-RKSH-10-Buildprozess-und-Artefakt-Paritaet-fuer-neue-Layer-absichern.md',
+                    kernelHardeningContracts: [
+                        'xtend.rmt.kernel-artifact-parity.v1',
+                        'xtend.rmt.kernel-trust-hardening.v1',
+                        'xtend.rmt.kernel-trust-authority.v1',
+                        'xtend.rmt.kernel-trust-verdict.v1',
+                        'xtend.rmt.kernel-trusted-dom-runtime.v1',
+                        'xtend.rmt.kernel-binding-security.v1',
+                        'xtend.rmt.kernel-panic-monitor.v1',
+                        'xtend.rmt.kernel-panic-state.v1',
+                        'xtend.rmt.kernel-panic-event.v1',
+                        'xtend.rmt.kernel-recovery.v1',
+                        'xtend.rmt.kernel-recovery-outcome.v1',
+                        'xtend.rmt.kernel-recovery-safe-snapshot.v1',
+                        'xtend.rmt.kernel-escalation.v1',
+                        'xtend.rmt.kernel-escalation-envelope.v1',
+                        'xtend.rmt.kernel-scheduler-failure.v1',
+                        'xtend.rmt.kernel-scheduler-failure-record.v1',
+                        'xtend.rmt.kernel-policy-parity.v1',
+                        'xtend.rmt.kernel-security-regression.v1'
+                    ],
+                    kernelHardeningRuntimeHooks: [
+                        'commitTrustedHtml',
+                        'commitTrustedAttribute',
+                        'commitTrustedProperty',
+                        'listTrustVerdicts',
+                        'getPanicSnapshot',
+                        'listPanicEvents',
+                        'recoverFromPanic',
+                        'listRecoveryOutcomes',
+                        'recordEscalation',
+                        'panicBlockScope',
+                        'createRmtKernelPolicyParity'
+                    ],
+                    kernelHardeningTypeSurfaces: [
+                        'RmtKernelRuntimeTrustVerdict',
+                        'RmtKernelRuntimePanicEvent',
+                        'RmtKernelRuntimePanicSnapshot',
+                        'RmtKernelRuntimeRecoverySafeSnapshot',
+                        'RmtKernelRuntimeRecoveryOutcome',
+                        'RmtKernelRuntimeEscalationEnvelope',
+                        'RmtKernelRuntimeSchedulerFailureRecord',
+                        'RmtKernelRuntimePolicyParityReport',
+                        'createRmtKernelPolicyParity'
+                    ],
+                    kernelHardeningToolingModules: [
+                        'tools/rmt-language/kernel-trust-authority.js',
+                        'tools/rmt-language/kernel-panic-monitor.js',
+                        'tools/rmt-language/kernel-recovery.js',
+                        'tools/rmt-language/kernel-escalation.js',
+                        'tools/rmt-language/kernel-scheduler-failure.js',
+                        'tools/rmt-language/kernel-policy-parity.js',
+                        'tools/rmt-language/kernel-security-regression.js'
+                    ],
+                    kernelHardeningGates: [
+                        'node scripts/run_xtend_tests.js rmt-kernel-trust-authority --json',
+                        'node scripts/run_xtend_tests.js rmt-kernel-trusted-dom-runtime --json',
+                        'node scripts/run_xtend_tests.js rmt-kernel-binding-security --json',
+                        'node scripts/run_xtend_tests.js rmt-kernel-panic-monitor --json',
+                        'node scripts/run_xtend_tests.js rmt-kernel-recovery --json',
+                        'node scripts/run_xtend_tests.js rmt-kernel-escalation --json',
+                        'node scripts/run_xtend_tests.js rmt-kernel-scheduler-failure --json',
+                        'node scripts/run_xtend_tests.js rmt-kernel-policy-parity --json',
+                        'node scripts/run_xtend_tests.js rmt-kernel-security-regression --json',
+                        'node scripts/verify_xtendrmt_artifact_parity.js --json'
+                    ],
                     minimumGates: [
                         'node scripts/verify_xtendrmt_artifact_parity.js --json',
                         'node scripts/run_xtend_tests.js rmt-compatibility --json',
@@ -19713,6 +23278,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     xtendComponentAdapter: 'createRmtXtendComponentAdapter',
                     surfaceAdapter: 'createRmtSurfaceAdapter',
                     stateSchedulerDiagnosticsBridge: 'createRmtStateSchedulerDiagnosticsBridge',
+                    kernelPolicyParity: 'createRmtKernelPolicyParity',
                     prewarmWorkerSource: 'createRmtPrewarmWorkerSourceBuilder',
                     prewarmWorkerRuntime: 'createRmtPrewarmWorkerRuntime'
                 }),
@@ -22634,6 +26200,7 @@ const createRmtWorkerRuntime = (...args) => AppModules.createRmtWorkerRuntime(..
 const createRmtServerRuntime = (...args) => AppModules.createRmtServerRuntime(...args);
 const createRmtProductSurface = (...args) => AppModules.createRmtProductSurface(...args);
 const installRmtProductSurface = (...args) => AppModules.installRmtProductSurface(...args);
+const createRmtKernelPolicyParity = (...args) => AppModules.createRmtKernelPolicyParity(...args);
 const createRmtBrowserHostAdapter = (...args) => AppModules.createRmtBrowserHostAdapter(...args);
 const createRmtBrowserRuntime = (...args) => AppModules.createRmtBrowserRuntime(...args);
 const createRmtWorkerPrerenderRuntime = (...args) => AppModules.createRmtWorkerPrerenderRuntime(...args);
@@ -22643,5 +26210,5 @@ const version = typeof AppModules.getRmtApiVersion === 'function'
     : "0.2.0";
 const XtendRmtProduct = createRmtProductSurface();
 
-export { version, getRmtApiVersion, createRmtProductManifest, createRmtCore, createRmtDomCompat, createRmtPublicApi, createRmtTemplateApi, createRmtFormat, createRmtTemplateRegistry, createRmtTemplateLoader, createRmtTemplateCompiler, createRmtTemplateArtifacts, createRmtTemplateRuntimeRenderer, createRmtTemplateExecutionPath, createRmtTemplateWorkerAdapter, createRmtTemplateServerAdapter, createRmtXRouterAdapter, createRmtXtendComponentAdapter, createRmtSurfaceAdapter, createRmtStateSchedulerDiagnosticsBridge, createRmtPrewarmWorkerSourceBuilder, createRmtPrewarmWorkerRuntime, createRmtPerformanceRuntime, createRmtRuntime, createRmtDetachedRuntime, createRmtWorkerRuntime, createRmtServerRuntime, createRmtProductSurface, installRmtProductSurface, createRmtBrowserHostAdapter, createRmtBrowserRuntime, createRmtWorkerPrerenderRuntime, createRmtServerPrerenderRuntime };
+export { version, getRmtApiVersion, createRmtProductManifest, createRmtCore, createRmtDomCompat, createRmtPublicApi, createRmtTemplateApi, createRmtFormat, createRmtTemplateRegistry, createRmtTemplateLoader, createRmtTemplateCompiler, createRmtTemplateArtifacts, createRmtTemplateRuntimeRenderer, createRmtTemplateExecutionPath, createRmtTemplateWorkerAdapter, createRmtTemplateServerAdapter, createRmtXRouterAdapter, createRmtXtendComponentAdapter, createRmtSurfaceAdapter, createRmtStateSchedulerDiagnosticsBridge, createRmtPrewarmWorkerSourceBuilder, createRmtPrewarmWorkerRuntime, createRmtPerformanceRuntime, createRmtRuntime, createRmtDetachedRuntime, createRmtWorkerRuntime, createRmtServerRuntime, createRmtProductSurface, installRmtProductSurface, createRmtKernelPolicyParity, createRmtBrowserHostAdapter, createRmtBrowserRuntime, createRmtWorkerPrerenderRuntime, createRmtServerPrerenderRuntime };
 export default XtendRmtProduct;

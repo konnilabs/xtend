@@ -174,6 +174,46 @@ const {
   runRmtVNextSecuritySuite
 } = require('../tests/rmt-language/rmt_vnext_security_suite');
 const {
+  printRmtKernelTrustAuthorityReport,
+  runRmtKernelTrustAuthoritySuite
+} = require('../tests/rmt-language/rmt_kernel_trust_authority_suite');
+const {
+  printRmtKernelTrustedDomRuntimeReport,
+  runRmtKernelTrustedDomRuntimeSuite
+} = require('../tests/rmt-language/rmt_kernel_trusted_dom_runtime_suite');
+const {
+  printRmtKernelBindingSecurityReport,
+  runRmtKernelBindingSecuritySuite
+} = require('../tests/rmt-language/rmt_kernel_binding_security_suite');
+const {
+  printRmtKernelPanicMonitorReport,
+  runRmtKernelPanicMonitorSuite
+} = require('../tests/rmt-language/rmt_kernel_panic_monitor_suite');
+const {
+  printRmtKernelRecoveryReport,
+  runRmtKernelRecoverySuite
+} = require('../tests/rmt-language/rmt_kernel_recovery_suite');
+const {
+  printRmtKernelEscalationReport,
+  runRmtKernelEscalationSuite
+} = require('../tests/rmt-language/rmt_kernel_escalation_suite');
+const {
+  printRmtKernelSchedulerFailureReport,
+  runRmtKernelSchedulerFailureSuite
+} = require('../tests/rmt-language/rmt_kernel_scheduler_failure_suite');
+const {
+  printRmtKernelPolicyParityReport,
+  runRmtKernelPolicyParitySuite
+} = require('../tests/rmt-language/rmt_kernel_policy_parity_suite');
+const {
+  printRmtKernelSecurityRegressionReport,
+  runRmtKernelSecurityRegressionSuite
+} = require('../tests/rmt-language/rmt_kernel_security_regression_suite');
+const {
+  printRmtKernelHandoffDocsReport,
+  runRmtKernelHandoffDocsSuite
+} = require('../tests/rmt-language/rmt_kernel_handoff_docs_suite');
+const {
   printRmtVNextStreamingReport,
   runRmtVNextStreamingSuite
 } = require('../tests/rmt-language/rmt_vnext_streaming_suite');
@@ -1053,6 +1093,106 @@ const suites = [
       const result = runRmtVNextSecuritySuite({ rootDir });
       printRmtVNextSecurityReport(result);
       return toRunnerResult('rmt-vnext-security', 'Epic 15 RMT vNext Security Policy Contract', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-trust-authority',
+    label: 'RKSH-WP-01 Kernel Trust Authority Contract',
+    description: 'Runs the kernel trust verdict, scope, sink and diagnostics contract gates.',
+    run: () => {
+      const result = runRmtKernelTrustAuthoritySuite({ rootDir });
+      printRmtKernelTrustAuthorityReport(result);
+      return toRunnerResult('rmt-kernel-trust-authority', 'RKSH-WP-01 Kernel Trust Authority Contract', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-trusted-dom-runtime',
+    label: 'RKSH-WP-02 Runtime Trust-Sink Adapter',
+    description: 'Runs the Runtime Trusted DOM sanitizer, trust verdict and unsafe HTML sink gates.',
+    run: () => {
+      const result = runRmtKernelTrustedDomRuntimeSuite({ rootDir });
+      printRmtKernelTrustedDomRuntimeReport(result);
+      return toRunnerResult('rmt-kernel-trusted-dom-runtime', 'RKSH-WP-02 Runtime Trust-Sink Adapter', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-binding-security',
+    label: 'RKSH-WP-03 Attribute, URL and Property Policies',
+    description: 'Runs the runtime binding attribute allowlist, URL protocol and property write gates.',
+    run: () => {
+      const result = runRmtKernelBindingSecuritySuite({ rootDir });
+      printRmtKernelBindingSecurityReport(result);
+      return toRunnerResult('rmt-kernel-binding-security', 'RKSH-WP-03 Attribute, URL and Property Policies', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-panic-monitor',
+    label: 'RKSH-WP-04 PanicMonitor State Machine',
+    description: 'Runs the kernel panic state, threshold, recovery and runtime diagnostic gates.',
+    run: () => {
+      const result = runRmtKernelPanicMonitorSuite({ rootDir });
+      printRmtKernelPanicMonitorReport(result);
+      return toRunnerResult('rmt-kernel-panic-monitor', 'RKSH-WP-04 PanicMonitor State Machine', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-recovery',
+    label: 'RKSH-WP-05 Kernel Recovery Policy',
+    description: 'Runs the kernel recovery quarantine, snapshot restore and safe fallback gates.',
+    run: () => {
+      const result = runRmtKernelRecoverySuite({ rootDir });
+      printRmtKernelRecoveryReport(result);
+      return toRunnerResult('rmt-kernel-recovery', 'RKSH-WP-05 Kernel Recovery Policy', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-escalation',
+    label: 'RKSH-WP-06 Diagnostics and Command Bus Escalation',
+    description: 'Runs the kernel diagnostics subscriber and command bus escalation gates.',
+    run: async () => {
+      const result = await runRmtKernelEscalationSuite({ rootDir });
+      printRmtKernelEscalationReport(result);
+      return toRunnerResult('rmt-kernel-escalation', 'RKSH-WP-06 Diagnostics and Command Bus Escalation', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-scheduler-failure',
+    label: 'RKSH-WP-07 Scheduler Failure Semantics',
+    description: 'Runs the kernel scheduler failed, aborted, panic-blocked and backpressure panic gates.',
+    run: async () => {
+      const result = await runRmtKernelSchedulerFailureSuite({ rootDir });
+      printRmtKernelSchedulerFailureReport(result);
+      return toRunnerResult('rmt-kernel-scheduler-failure', 'RKSH-WP-07 Scheduler Failure Semantics', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-policy-parity',
+    label: 'RKSH-WP-08 Compile-Time Runtime Policy Parity',
+    description: 'Runs the kernel compile-time to runtime policy parity, verdict and drift gates.',
+    run: async () => {
+      const result = await runRmtKernelPolicyParitySuite({ rootDir });
+      printRmtKernelPolicyParityReport(result);
+      return toRunnerResult('rmt-kernel-policy-parity', 'RKSH-WP-08 Compile-Time Runtime Policy Parity', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-security-regression',
+    label: 'RKSH-WP-09 Kernel Security Regression',
+    description: 'Runs the kernel negative fixtures, panic recovery and browser-smoke regression gates.',
+    run: async () => {
+      const result = await runRmtKernelSecurityRegressionSuite({ rootDir });
+      printRmtKernelSecurityRegressionReport(result);
+      return toRunnerResult('rmt-kernel-security-regression', 'RKSH-WP-09 Kernel Security Regression', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-handoff-docs',
+    label: 'RKSH-WP-11 Kernel Migration Authoring Incident Handoff',
+    description: 'Runs the kernel migration, trusted-output authoring and panic/recovery incident handoff docs gate.',
+    run: () => {
+      const result = runRmtKernelHandoffDocsSuite({ rootDir });
+      printRmtKernelHandoffDocsReport(result);
+      return toRunnerResult('rmt-kernel-handoff-docs', 'RKSH-WP-11 Kernel Migration Authoring Incident Handoff', result);
     }
   },
   {

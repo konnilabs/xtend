@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'nonce-rmt-kernel-security-regression'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'">
+  <title>XTendRMT Kernel Security Regression Smoke</title>
+</head>
+<body data-xtend-fixture="rmt-kernel-security-regression">
+  <main id="rmt-kernel-security-regression-root" data-contract="xtend.rmt.kernel-security-regression-browser-smoke.v1">
+    <section id="binding-root">
+      <a data-bind="href">safe</a>
+      <button data-bind="onclick">safe</button>
+      <div data-bind="inner"></div>
+      <div data-slot="danger"></div>
+    </section>
+    <section id="prerender-root"></section>
+    <section id="fallback-root"></section>
+  </main>
+
+  <script src="/xtendrmt/rmt-runtime.browser.js" nonce="rmt-kernel-security-regression"></script>
+  <script nonce="rmt-kernel-security-regression">
+    window.__xtendRmtKernelSecurityRegressionSmokeResult = {
+      schema: 'xtend.rmt.kernel-security-regression-browser-smoke.v1',
+      workpackage: 'RKSH-WP-09',
+      status: 'pending',
+      scenarios: ['slot-html-fragment', 'prerender-chunk', 'error-fallback'],
+      checks: [],
+      errors: []
+    };
+
+    function recordCheck(name, ok, detail) {
+      window.__xtendRmtKernelSecurityRegressionSmokeResult.checks.push({ name, ok, detail: detail || null });
+      if (!ok) {
+        window.__xtendRmtKernelSecurityRegressionSmokeResult.errors.push(name);
+      }
+    }
+
+    function complete(status) {
+      window.__xtendRmtKernelSecurityRegressionSmokeResult.status = status;
+      window.__xtendRmtKernelSecurityRegressionSmokeResult.completedAt = new Date().toISOString();
+    }
+
+    function assertNoUnsafeCommit(label, html) {
+      const normalized = String(html || '').toLowerCase();
+      recordCheck(label + ': no script', !normalized.includes('<script'));
+      recordCheck(label + ': no iframe', !normalized.includes('<iframe'));
+      recordCheck(label + ': no event attributes', !/onerror|onclick|onload/.test(normalized));
+      recordCheck(label + ': no javascript urls', !normalized.includes('javascript:'));
+      recordCheck(label + ': no srcdoc', !normalized.includes('srcdoc'));
+    }
+
+    function createChunk(html) {
+      return {
+        kind: 'renderman_template_chunk',
+        version: '1.0',
+        executionMode: 'runtime_render',
+        transport: 'main',
+        rootId: 'security-regression-prerender',
+        template: {
+          id: 'security-regression-template',
+          qualifiedId: 'security.regression.template',
+          namespace: '',
+          documentId: 'security-regression-doc',
+          mode: 'html_fragment',
+          props: []
+        },
+        target: {
+          elementId: '',
+          selector: '',
+          ownershipMode: 'replace_children'
+        },
+        markup: {
+          html,
+          textContent: '',
+          descriptor: null
+        },
+        hydration: {
+          bindings: [],
+          slots: [],
+          props: [],
+          templateHydration: {},
+          errorBoundary: {},
+          reactivityHints: {},
+          ownershipMode: 'replace_children',
+          resourceId: 'template.chunk:security.regression.template',
+          metadata: {}
+        },
+        modelSnapshot: {},
+        plan: {
+          executionMode: 'runtime_render',
+          rootId: 'security-regression-prerender',
+          templateQualifiedId: 'security.regression.template',
+          namespace: '',
+          phases: []
+        },
+        renderedAt: 0
+      };
+    }
+
+    function createTemplateRegistry(fallbackMarkup) {
+      return {
+        resolveTemplate() {
+          return {
+            id: 'security-regression-boundary',
+            qualifiedId: 'security.regression.boundary',
+            namespace: '',
+            documentId: 'security-regression-doc',
+            mode: 'html_fragment',
+            markup: '<section>normal</section>',
+            props: [],
+            bindings: [],
+            slots: [],
+            hydration: {},
+            reactivityHints: {},
+            errorBoundary: {
+              enabled: true,
+              name: 'security-regression-boundary',
+              fallbackMarkup
+            }
+          };
+        }
+      };
+    }
+
+    function runSmoke() {
+      const AppModules = window.AppModules || window.XtendRmtProduct && window.XtendRmtProduct.AppModules;
+      recordCheck('AppModules exposed', Boolean(AppModules));
+      if (!AppModules) {
+        complete('failed');
+        return;
+      }
+
+      const dangerousHtml = '<img src="javascript:alert(1)" onerror="alert(1)"><script>alert(1)</' + 'script><p srcdoc="x">Ok</p><iframe src="/frame"></iframe><a href="/safe">Safe</a>';
+      const diagnostics = [];
+      const diagnosticsHub = {
+        publish(channel, payload, meta) {
+          diagnostics.push({ channel, payload, meta: meta || {} });
+        }
+      };
+      const renderer = AppModules.createRmtTemplateRuntimeRenderer({
+        documentTarget: document,
+        diagnosticsHub
+      });
+
+      renderer.applyBindings({
+        rootId: 'security-regression-browser-root',
+        element: document.getElementById('binding-root'),
+        templateQualifiedId: 'security.regression.browser',
+        bindings: [
+          { kind: 'attribute', target: '[data-bind="href"]', attribute: 'href', source: 'unsafeHref' },
+          { kind: 'attribute', target: '[data-bind="onclick"]', attribute: 'onclick', source: 'handler' },
+          { kind: 'property', target: '[data-bind="inner"]', property: 'innerHTML', source: 'html' }
+        ],
+        slots: [{
+          name: 'danger',
+          kind: 'html_fragment',
+          target: '[data-slot="danger"]',
+          source: 'danger'
+        }],
+        modelSnapshot: {
+          unsafeHref: 'java\nscript:alert(1)',
+          handler: 'alert(1)',
+          html: '<script>alert(1)</' + 'script>',
+          danger: dangerousHtml
+        }
+      });
+
+      const bindingRoot = document.getElementById('binding-root');
+      assertNoUnsafeCommit('slot-html-fragment', bindingRoot.innerHTML);
+      recordCheck('href attribute blocked', !bindingRoot.querySelector('[data-bind="href"]').hasAttribute('href'));
+      recordCheck('onclick attribute blocked', !bindingRoot.querySelector('[data-bind="onclick"]').hasAttribute('onclick'));
+      recordCheck('innerHTML property blocked', bindingRoot.querySelector('[data-bind="inner"]').innerHTML === '');
+      recordCheck('panic threshold reached', renderer.getPanicSnapshot().blockedCommitCount >= 3);
+
+      const executionPath = AppModules.createRmtTemplateExecutionPath({
+        documentTarget: document,
+        diagnosticsHub,
+        registry: createTemplateRegistry('<strong>Fallback</strong>')
+      });
+      const prerenderRoot = document.getElementById('prerender-root');
+      executionPath.applyPrerenderChunk(prerenderRoot, createChunk(dangerousHtml));
+      assertNoUnsafeCommit('prerender-chunk', prerenderRoot.innerHTML);
+
+      const fallbackRoot = document.getElementById('fallback-root');
+      const boundaryPath = AppModules.createRmtTemplateExecutionPath({
+        documentTarget: document,
+        diagnosticsHub,
+        registry: createTemplateRegistry('<strong onclick="alert(1)">Recovered</strong><script>alert(1)</' + 'script>'),
+        publicApi: {
+          mountIsland() {
+            throw new Error('intentional smoke fallback');
+          }
+        }
+      });
+      boundaryPath.renderTemplate({
+        rootId: 'security-regression-browser-boundary',
+        target: fallbackRoot,
+        template: {
+          id: 'security-regression-boundary'
+        },
+        model: {}
+      });
+      assertNoUnsafeCommit('error-fallback', fallbackRoot.innerHTML);
+
+      const verdicts = renderer.listTrustVerdicts()
+        .concat(executionPath.listTrustVerdicts())
+        .concat(boundaryPath.listTrustVerdicts());
+      recordCheck('trust verdicts recorded', verdicts.length >= 5);
+      recordCheck('slot verdict sanitized', verdicts.some((verdict) => verdict.sink === 'slot.html' && verdict.verdict === 'sanitized'));
+      recordCheck('prerender verdict sanitized', verdicts.some((verdict) => verdict.sink === 'prerender.html' && verdict.verdict === 'sanitized'));
+      recordCheck('fallback verdict sanitized', verdicts.some((verdict) => verdict.sink === 'fallback.html' && verdict.verdict === 'sanitized'));
+      recordCheck('panic diagnostics published', diagnostics.some((entry) => entry.channel === 'rmt.kernel.panic'));
+      complete(window.__xtendRmtKernelSecurityRegressionSmokeResult.errors.length === 0 ? 'passed' : 'failed');
+    }
+
+    window.addEventListener('securitypolicyviolation', (event) => {
+      window.__xtendRmtKernelSecurityRegressionSmokeResult.errors.push('csp:' + event.violatedDirective);
+    });
+    window.addEventListener('load', () => {
+      try {
+        runSmoke();
+      } catch (error) {
+        window.__xtendRmtKernelSecurityRegressionSmokeResult.errors.push(error && error.message ? error.message : String(error));
+        complete('failed');
+      }
+    });
+  </script>
+</body>
+</html>

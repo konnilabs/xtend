@@ -3,6 +3,8 @@ const path = require('path');
 const vm = require('vm');
 
 const ARTIFACT_PARITY_SCHEMA = 'xtend.rmt.artifact-parity.v1';
+const KERNEL_ARTIFACT_PARITY_SCHEMA = 'xtend.rmt.kernel-artifact-parity.v1';
+const KERNEL_HARDENING_SOURCE_OF_TRUTH = 'development/WP-RKSH-10-Buildprozess-und-Artefakt-Paritaet-fuer-neue-Layer-absichern.md';
 const REQUIRED_ARTIFACTS = [
   'xtendrmt/rmt-core.esm.js',
   'xtendrmt/rmt-runtime.esm.js',
@@ -11,18 +13,90 @@ const REQUIRED_ARTIFACTS = [
   'xtendrmt/rmt.schema.json',
   'xtendrmt/rmt-manifest.json'
 ];
+const REQUIRED_KERNEL_HARDENING_DOCS = [
+  'development/XTendRMT-Kernel-Artifact-Parity-Contract.md',
+  KERNEL_HARDENING_SOURCE_OF_TRUTH
+];
+const REQUIRED_KERNEL_TOOLING_MODULES = [
+  'tools/rmt-language/kernel-trust-authority.js',
+  'tools/rmt-language/kernel-panic-monitor.js',
+  'tools/rmt-language/kernel-recovery.js',
+  'tools/rmt-language/kernel-escalation.js',
+  'tools/rmt-language/kernel-scheduler-failure.js',
+  'tools/rmt-language/kernel-policy-parity.js',
+  'tools/rmt-language/kernel-security-regression.js'
+];
+const REQUIRED_KERNEL_CONTRACT_IDS = [
+  KERNEL_ARTIFACT_PARITY_SCHEMA,
+  'xtend.rmt.kernel-trust-hardening.v1',
+  'xtend.rmt.kernel-trust-authority.v1',
+  'xtend.rmt.kernel-trust-verdict.v1',
+  'xtend.rmt.kernel-trusted-dom-runtime.v1',
+  'xtend.rmt.kernel-binding-security.v1',
+  'xtend.rmt.kernel-panic-monitor.v1',
+  'xtend.rmt.kernel-panic-state.v1',
+  'xtend.rmt.kernel-panic-event.v1',
+  'xtend.rmt.kernel-recovery.v1',
+  'xtend.rmt.kernel-recovery-outcome.v1',
+  'xtend.rmt.kernel-recovery-safe-snapshot.v1',
+  'xtend.rmt.kernel-escalation.v1',
+  'xtend.rmt.kernel-escalation-envelope.v1',
+  'xtend.rmt.kernel-scheduler-failure.v1',
+  'xtend.rmt.kernel-scheduler-failure-record.v1',
+  'xtend.rmt.kernel-policy-parity.v1',
+  'xtend.rmt.kernel-security-regression.v1'
+];
+const REQUIRED_KERNEL_RUNTIME_HOOKS = [
+  'commitTrustedHtml',
+  'commitTrustedAttribute',
+  'commitTrustedProperty',
+  'listTrustVerdicts',
+  'getPanicSnapshot',
+  'listPanicEvents',
+  'recoverFromPanic',
+  'listRecoveryOutcomes',
+  'recordEscalation',
+  'panicBlockScope',
+  'createRmtKernelPolicyParity'
+];
+const REQUIRED_KERNEL_TYPE_SURFACES = [
+  'RmtKernelRuntimeTrustVerdict',
+  'RmtKernelRuntimePanicEvent',
+  'RmtKernelRuntimePanicSnapshot',
+  'RmtKernelRuntimeRecoverySafeSnapshot',
+  'RmtKernelRuntimeRecoveryOutcome',
+  'RmtKernelRuntimeEscalationEnvelope',
+  'RmtKernelRuntimeSchedulerFailureRecord',
+  'RmtKernelRuntimePolicyParityReport',
+  'createRmtKernelPolicyParity'
+];
+const REQUIRED_KERNEL_GATES = [
+  'node scripts/run_xtend_tests.js rmt-kernel-trust-authority --json',
+  'node scripts/run_xtend_tests.js rmt-kernel-trusted-dom-runtime --json',
+  'node scripts/run_xtend_tests.js rmt-kernel-binding-security --json',
+  'node scripts/run_xtend_tests.js rmt-kernel-panic-monitor --json',
+  'node scripts/run_xtend_tests.js rmt-kernel-recovery --json',
+  'node scripts/run_xtend_tests.js rmt-kernel-escalation --json',
+  'node scripts/run_xtend_tests.js rmt-kernel-scheduler-failure --json',
+  'node scripts/run_xtend_tests.js rmt-kernel-policy-parity --json',
+  'node scripts/run_xtend_tests.js rmt-kernel-security-regression --json',
+  'node scripts/verify_xtendrmt_artifact_parity.js --json'
+];
 const REQUIRED_CONTRACT_IDS = [
   'xtend.rmt.runtime-registry.v1',
   'xtend.rmt.xrouter-adapter.v1',
   'xtend.rmt.xtend-component-adapter.v1',
   'xtend.rmt.state-scheduler-diagnostics-bridge.v1',
-  ARTIFACT_PARITY_SCHEMA
+  ARTIFACT_PARITY_SCHEMA,
+  ...REQUIRED_KERNEL_CONTRACT_IDS
 ];
 const REQUIRED_FACTORIES = [
   'createRmtFormat',
   'createRmtXRouterAdapter',
   'createRmtXtendComponentAdapter',
-  'createRmtStateSchedulerDiagnosticsBridge'
+  'createRmtSurfaceAdapter',
+  'createRmtStateSchedulerDiagnosticsBridge',
+  'createRmtKernelPolicyParity'
 ];
 const ESM_TARGETS = [
   { id: 'rmt-core.esm', path: 'xtendrmt/rmt-core.esm.js' },
@@ -172,8 +246,52 @@ function assertArtifactParityContract(checks, label, contract) {
   addCheck(
     checks,
     `${label}:artifactSurfaces`,
-    includesAll(contract.artifactSurfaces, ['scripts/verify_xtendrmt_artifact_parity.js', 'RmtArtifactParityContract', 'artifactParityContracts']),
+    includesAll(contract.artifactSurfaces, [
+      'scripts/verify_xtendrmt_artifact_parity.js',
+      'RmtArtifactParityContract',
+      'artifactParityContracts',
+      'RmtKernelRuntimeTrustVerdict',
+      'RmtKernelRuntimePanicSnapshot',
+      'RmtKernelRuntimeRecoveryOutcome',
+      'createRmtKernelPolicyParity'
+    ]),
     `${label} lists the artifact parity gate and type surfaces`
+  );
+  addCheck(
+    checks,
+    `${label}:kernelHardeningSourceOfTruth`,
+    contract.kernelHardeningSourceOfTruth === KERNEL_HARDENING_SOURCE_OF_TRUTH,
+    `${label} points kernel hardening artifact parity to RKSH-WP-10`
+  );
+  addCheck(
+    checks,
+    `${label}:kernelHardeningContracts`,
+    includesAll(contract.kernelHardeningContracts, REQUIRED_KERNEL_CONTRACT_IDS),
+    `${label} lists kernel hardening contract ids`
+  );
+  addCheck(
+    checks,
+    `${label}:kernelHardeningRuntimeHooks`,
+    includesAll(contract.kernelHardeningRuntimeHooks, REQUIRED_KERNEL_RUNTIME_HOOKS),
+    `${label} lists kernel hardening runtime hooks`
+  );
+  addCheck(
+    checks,
+    `${label}:kernelHardeningTypeSurfaces`,
+    includesAll(contract.kernelHardeningTypeSurfaces, REQUIRED_KERNEL_TYPE_SURFACES),
+    `${label} lists kernel hardening type surfaces`
+  );
+  addCheck(
+    checks,
+    `${label}:kernelHardeningToolingModules`,
+    includesAll(contract.kernelHardeningToolingModules, REQUIRED_KERNEL_TOOLING_MODULES),
+    `${label} lists kernel hardening tooling modules`
+  );
+  addCheck(
+    checks,
+    `${label}:kernelHardeningGates`,
+    includesAll(contract.kernelHardeningGates, REQUIRED_KERNEL_GATES),
+    `${label} lists kernel hardening gates`
   );
 }
 
@@ -188,6 +306,14 @@ function runXtendRmtArtifactParity(options = {}) {
     if (exists) {
       sources[relativePath] = readText(rootDir, relativePath);
     }
+  });
+  [...REQUIRED_KERNEL_HARDENING_DOCS, ...REQUIRED_KERNEL_TOOLING_MODULES].forEach((relativePath) => {
+    addCheck(
+      checks,
+      `exists:${relativePath}`,
+      fs.existsSync(resolvePath(rootDir, relativePath)),
+      `${relativePath} exists`
+    );
   });
 
   let schema = null;
@@ -254,6 +380,14 @@ function runXtendRmtArtifactParity(options = {}) {
       `rmt-core.d.ts exposes ${typeSurface}`
     );
   });
+  REQUIRED_KERNEL_TYPE_SURFACES.forEach((typeSurface) => {
+    addCheck(
+      checks,
+      `kernel-types-surface:${typeSurface}`,
+      typesSource.includes(typeSurface),
+      `rmt-core.d.ts exposes ${typeSurface}`
+    );
+  });
 
   ESM_TARGETS.forEach((target) => {
     const source = sources[target.path] || '';
@@ -287,6 +421,14 @@ function runXtendRmtArtifactParity(options = {}) {
         `${target.id} exposes ${factoryName} through AppModules wrapper`
       );
     });
+    REQUIRED_KERNEL_RUNTIME_HOOKS.forEach((hookName) => {
+      addCheck(
+        checks,
+        `esm-kernel-hook:${target.id}:${hookName}`,
+        source.includes(hookName),
+        `${target.id} contains kernel hardening hook ${hookName}`
+      );
+    });
 
     const appModules = evaluateAppModules(checks, target.path, source);
     if (appModules && typeof appModules.createRmtProductManifest === 'function') {
@@ -314,6 +456,14 @@ function runXtendRmtArtifactParity(options = {}) {
       `browser runtime artifact contains ${factoryName}`
     );
   });
+  REQUIRED_KERNEL_RUNTIME_HOOKS.forEach((hookName) => {
+    addCheck(
+      checks,
+      `browser-kernel-hook:${hookName}`,
+      browserSource.includes(hookName),
+      `browser runtime artifact contains kernel hardening hook ${hookName}`
+    );
+  });
   addCheck(
     checks,
     'browser-artifact-parity-contract',
@@ -326,6 +476,19 @@ function runXtendRmtArtifactParity(options = {}) {
     'package-script:test-rmt-artifact-parity',
     packageJson && packageJson.scripts && packageJson.scripts['test:rmt-artifact-parity'] === 'node scripts/verify_xtendrmt_artifact_parity.js',
     'package.json exposes npm run test:rmt-artifact-parity'
+  );
+  const kernelArtifactParityMetadata = packageJson && packageJson.xtend && packageJson.xtend.rmtKernelArtifactParity;
+  addCheck(
+    checks,
+    'package-metadata:rmtKernelArtifactParity',
+    kernelArtifactParityMetadata && kernelArtifactParityMetadata.schema === KERNEL_ARTIFACT_PARITY_SCHEMA,
+    'package.json exposes RKSH-WP-10 kernel artifact parity metadata'
+  );
+  addCheck(
+    checks,
+    'package-metadata:rmtKernelArtifactParity-gate',
+    kernelArtifactParityMetadata && kernelArtifactParityMetadata.localGate === 'node scripts/verify_xtendrmt_artifact_parity.js --json',
+    'package.json exposes RKSH-WP-10 kernel artifact parity gate'
   );
 
   const failedChecks = checks.filter((check) => check.status === 'failed');
@@ -372,6 +535,10 @@ if (require.main === module) {
 
 module.exports = {
   ARTIFACT_PARITY_SCHEMA,
+  KERNEL_ARTIFACT_PARITY_SCHEMA,
+  REQUIRED_KERNEL_CONTRACT_IDS,
+  REQUIRED_KERNEL_RUNTIME_HOOKS,
+  REQUIRED_KERNEL_TYPE_SURFACES,
   REQUIRED_ARTIFACTS,
   REQUIRED_CONTRACT_IDS,
   REQUIRED_FACTORIES,

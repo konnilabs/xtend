@@ -720,6 +720,33 @@
     "rank": 66
   },
   {
+    "slug": "rmt-kernel-security-hardening-migration",
+    "id": "docs.rmt.kernel.security.hardening.migration",
+    "label": "RMT Kernel Security Migration",
+    "group": "rmt",
+    "parent": "xtendrmt-overview",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-kernel-trusted-output-authoring",
+    "id": "docs.rmt.kernel.trusted.output.authoring",
+    "label": "RMT Kernel Trusted Output Authoring",
+    "group": "rmt",
+    "parent": "rmt-kernel-security-hardening-migration",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-kernel-panic-recovery-incident-handoff",
+    "id": "docs.rmt.kernel.panic.recovery.incident.handoff",
+    "label": "RMT Kernel Panic Recovery Handoff",
+    "group": "rmt",
+    "parent": "rmt-kernel-security-hardening-migration",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
     "slug": "xtendrmt-runtime-bridge",
     "id": "docs.xtendrmt.runtime.bridge",
     "label": "XTendRMT Runtime Bridge",
