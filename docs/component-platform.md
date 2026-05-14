@@ -103,7 +103,7 @@ node scripts/run_xtend_tests.js epic10-release-handoff --json
 
 `WP-E11-18` finalisiert die sichtbare Component-UX-Reife als `xtend.epic11.enterprise-ux-handoff.v1`. Der maschinenlesbare Plan liegt in `catalog/epic11-enterprise-ux-handoff.js`.
 
-Der Abschlussmodus lautet `completed-with-accepted-long-tail-handoff`: Shell, Styling, Runtime-A11y, Performance, Component Network, RMT Shell Authoring, Component Lab, Browser-Smokes, Theme-Matrix und Authoring Guides sind als Produktlinie akzeptiert. Nach `WP-E12-09` sind `x-tabs`, `x-theme`, `x-button` und `x-menu` runtime-seitig geschlossen; `xstate` besitzt Suite, Fixture, Types und Adapter-Boundary-Probe; `x-utils` besitzt Utility Contract, Import Policy, Fixture und Types. `xstate` und `x-utils` bleiben nur wegen Boundary-Profilentscheidungen als Handoff sichtbar.
+Der Abschlussmodus lautet `completed-with-accepted-long-tail-handoff`: Shell, Styling, Runtime-A11y, Performance, Component Network, RMT Shell Authoring, Component Lab, Browser-Smokes, Theme-Matrix und Authoring Guides sind als Produktlinie akzeptiert. Nach `WP-E12-09` sind `x-tabs`, `x-theme`, `x-button` und `x-menu` runtime-seitig geschlossen; `xstate` besitzt Suite, Fixture, Types und Adapter-Boundary-Probe; `x-utils` besitzt Utility Contract, Import Policy, Fixture und Types. Seit `WP-E13-05` sind `xstate` als Runtime-Boundary und `x-utils` als Utility-Boundary fuer RC1 geschlossen.
 
 Der lokale Gate lautet:
 

@@ -67,17 +67,17 @@ Authoring-Regeln:
 - `route` bindet die Surface an den App-Shell-Kontext.
 - `schedule` bindet Open, Layout, Persistenz oder Diagnostics an RMT Scheduling.
 - `stateKey` bleibt stabil zwischen Component-Metadata und nativer Domain.
-- `xtend.surface` bleibt vorerst Adapter-Handoff; die sichtbare Runtime laeuft weiterhin ueber die Komponentenfamilie.
+- Historisch blieb `xtend.surface` bis `WP-SM-19` ein Adapter-Handoff; seit dem Runtime-Handoff ist der produktive Adapter-Claim gatebar, waehrend die sichtbare UI weiterhin ueber die SurfaceManager-Komponentenfamilie materialisiert wird.
 
 ## Release-Handoff
 
-Nach `WP-SM-09` gilt:
+Nach `WP-SM-09` galt fuer den historischen Authoring-Handoff:
 
 - Component-Metadata ist stabiler Compatibility-Pfad.
 - Native `surfaces[*]` ist der bevorzugte Authoring-Pfad fuer neue App Shells.
 - Dual Records sind der sichere Migrationsmodus.
 - Der RMT Kernel bleibt host-neutral.
-- Die produktive `xtend.surface` Adapter Runtime ist Folgearbeit, nicht Teil dieses Handoffs.
+- Die produktive `xtend.surface` Adapter Runtime war Folgearbeit und ist seit `WP-SM-19` umgesetzt.
 
 ## WP-SM-19 Runtime Authoring
 

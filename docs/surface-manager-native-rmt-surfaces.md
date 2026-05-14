@@ -23,7 +23,7 @@ Die Fixture `tests/fixtures/rmt-surface-native-domain.rmt` zeigt sechs Surface R
 
 ## Adapter
 
-`xtend.surface` ist als `surface_adapter` registrierbar, bleibt aber in WP-SM-08 ein Handoff-Contract. `runtimeImplemented: false` ist Absicht. Die spaetere Runtime konsumiert `surfaces[*]`, ruft den SurfaceController und haelt DOM, xstate und Fabric ausserhalb des RMT Kernels.
+`xtend.surface` ist als `surface_adapter` registrierbar. In `WP-SM-08` war `runtimeImplemented: false` Absicht und der Adapter blieb ein Handoff-Contract. Seit `WP-SM-19` ist die produktive Runtime-Linie im [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md) gatebar: Die Runtime konsumiert `surfaces[*]`, ruft den SurfaceController und haelt DOM, xstate und Fabric ausserhalb des RMT Kernels.
 
 ## Migration
 

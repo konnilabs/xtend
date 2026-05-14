@@ -18,14 +18,16 @@ Das bedeutet: Die zentrale Component-UX-Plattform ist akzeptiert. Offene Long-Ta
 node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff --json
 ```
 
-## Accepted Residuals
+## Historische Accepted Residuals
+
+Diese Tabelle beschreibt den Stand des Epic-11-Handoffs. Der aktuelle RC1-Stand wird durch [Known Residual Triage](./known-residual-triage.md) fortgeschrieben.
 
 | Komponente | Prio | Ziel | Restdimension |
 |------------|------|------|---------------|
-| `xstate` | P1 | `ux-baseline-probe` | A11y, Performance |
-| `x-utils` | P2 | `ux-baseline-probe` | Suite, Fixture, Types, Performance |
+| `xstate` | P1 | `ux-baseline-probe` | historisch: A11y, Performance |
+| `x-utils` | P2 | `ux-baseline-probe` | historisch: Suite, Fixture, Types, Performance |
 
-`x-tabs` ist durch `WP-E12-02`/`WP-E12-03` geschlossen. `x-theme` ist durch `WP-E12-04`/`WP-E12-05` geschlossen. `x-button` ist durch `WP-E12-06` geschlossen. `x-menu` ist durch `WP-E12-07` geschlossen und nun `enterprise-ready`. `xstate` besitzt seit `WP-E12-08` Suite, Fixture, Public Types, Lifecycle Events, Fabric Diagnostics und RMT State Adapter und bleibt als nicht-visuelle Boundary-Probe `contract-gated`. `x-utils` besitzt seit `WP-E12-09` Utility Contract, Import Policy, Fixture und Public Types und bleibt als Utility-Boundary `typed-contract-gated`.
+`x-tabs` ist durch `WP-E12-02`/`WP-E12-03` geschlossen. `x-theme` ist durch `WP-E12-04`/`WP-E12-05` geschlossen. `x-button` ist durch `WP-E12-06` geschlossen. `x-menu` ist durch `WP-E12-07` geschlossen und nun `enterprise-ready`. `xstate` besitzt seit `WP-E12-08` Suite, Fixture, Public Types, Lifecycle Events, Fabric Diagnostics und RMT State Adapter. `x-utils` besitzt seit `WP-E12-09` Utility Contract, Import Policy, Fixture und Public Types. Die spaetere [Known Residual Triage](./known-residual-triage.md) schliesst beide Scopes fuer RC1 als Runtime- beziehungsweise Utility-Boundary.
 
 ## Gate-Kette
 

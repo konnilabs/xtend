@@ -10,13 +10,13 @@
 
 Die erste SurfaceManager-Linie ist mit `WP-SM-09` authoring- und gatebereit. XTend kann App Shells mit Multi Window, SidePanels, Overlay-Kompatibilitaet, Quality Gates und nativen RMT Surface Records beschreiben.
 
-Release Boundary:
+Historische `WP-SM-09` Release Boundary:
 
 ```text
 no-public-runtime-claim-for-xtend.surface-adapter-yet
 ```
 
-Das bedeutet: `surfaces[*]` und `xtend.surface.adapter.v1` sind stabiler Handoff fuer Tooling und naechste Runtime-Arbeit. Die produktive Runtime-Ausfuehrung bleibt bei `x-surface-manager`, `x-surface-window`, `x-side-panel` und den bestehenden Overlay-Komponenten, bis ein echter `xtend.surface` Adapter implementiert ist.
+Das bedeutete im `WP-SM-09` Authoring-Handoff: `surfaces[*]` und `xtend.surface.adapter.v1` waren stabiler Handoff fuer Tooling und die naechste Runtime-Arbeit. Seit `WP-SM-19` ist diese Runtime-Arbeit ueber [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md) geschlossen und der produktive `xtend.surface` Adapter-Claim gatebar.
 
 ## Gate-Kette
 
@@ -42,9 +42,9 @@ Bereit:
 - Migration Guide fuer `components[*].metadata.surface` zu `surfaces[*]`
 - lokale statische Gates fuer RMT-Normalisierung, Semantic Graph, Docs und Referenzpfade
 
-Folgearbeit:
+Historische Folgearbeit aus `WP-SM-09`:
 
-- produktive `xtend.surface` Adapter Runtime
+- produktive `xtend.surface` Adapter Runtime, geschlossen durch `WP-SM-19`
 - optionaler Browser-Lab-Server oder visuelle Pixel-Baselines
 - weitere Surface-Typen wie docked workspaces, command palettes und split panes
 - Release-Hardening gegen echte App-Shell-Projekte

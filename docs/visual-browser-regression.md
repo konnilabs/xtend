@@ -44,13 +44,14 @@ P0-Komponenten wie `x-router`, `x-link`, `x-modal`, `x-input`, `x-select`, `x-ch
 | `iconography` | Layout Stability, Theme Token Color | Default Layout, High Contrast CurrentColor |
 | `utility` | Utility Integration Probe | Helper Ready |
 
-## Offene Restpunkte
+## Boundary-Abschluss
 
-Der Plan haelt die aktuellen Luecken bewusst sichtbar:
+Der Plan haelt die frueheren Boundary-Luecken nachvollziehbar, aber nicht mehr als offene RC1-Restpunkte:
 
-- 2 Manifest-Eintraege brauchen noch explizites Runtime-/Source-Performance-Profil-Authoring: `xstate` und `x-utils`.
-- 1 Infrastruktur-Eintrag braucht A11y-Remediation: `xstate`.
-- 0 Long-Tail-Eintraege brauchen Suite-, Fixture- und Type-Nacharbeit. `xstate` besitzt seit `WP-E12-08` Suite, Fixture und Types; `x-utils` besitzt seit `WP-E12-09` Suite, Fixture und Types. Beide bleiben nur wegen ihrer Boundary-Profilentscheidungen sichtbar.
+- 0 Manifest-Eintraege brauchen noch Suite-, Fixture- oder Type-Nacharbeit.
+- `xstate` ist seit `WP-E13-05` als Runtime-Boundary geschlossen.
+- `x-utils` ist seit `WP-E13-05` als Utility-Boundary geschlossen.
+- Die 39 sichtbaren Runtime-/UI-Komponenten behalten explizite Performance-Profile; `xstate` und `x-utils` werden nicht kuenstlich zu visuellen Profiltraegern umgedeutet.
 
 Damit ist klar, dass `ER-WP-35` priorisiert, aber die eigentliche Screenshot-/Pixel-Regression an CI und Release Readiness uebergibt.
 

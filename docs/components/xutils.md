@@ -140,5 +140,5 @@ Die Host-Seite bleibt Ausfuehrungsort. RMT beschreibt nur den Intent; `XUtils.pr
 
 - Neue Komponenten sollten fuer produktive UI-Vertraege bevorzugt eigene Component-APIs und XTend-Fabric-Gates nutzen.
 - `x-utils` bleibt ein kleiner Hilfsmodul-Pfad fuer Bestand, Demos und einfache DOM-Arbeit.
-- Suite, Fixture und Utility-Typisierung sind seit `WP-E12-09` vorhanden. Offen bleibt ein explizites Performance-Profil fuer die Utility-Boundary.
-- Die verbliebene Performance-Entscheidung bleibt im `ER-WP-35` Regression-Priority-Plan sichtbar.
+- Suite, Fixture und Utility-Typisierung sind seit `WP-E12-09` vorhanden.
+- Seit `WP-E13-05` ist `x-utils` als `closed-as-utility-boundary` bewertet. Ein eigenes visuelles Performance-Profil ist fuer diese Utility-Boundary keine offene RC1-Aufgabe.

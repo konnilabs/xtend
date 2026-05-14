@@ -4512,9 +4512,9 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: '41 Komponenten-Dokumente', message: 'documents complete docs coverage' },
       { pattern: '41 Component-Level-Suites', message: 'documents component-suite coverage after SurfaceManager side-panel runtime' },
       { pattern: '41 Public-Type-Artefakte', message: 'documents public type coverage after SurfaceManager side-panel runtime' },
-      { pattern: '`xstate` ist als nicht-visuelle Boundary-Probe `contract-gated`', message: 'documents xstate contract-gated catalog status after WP-E12-08' },
+      { pattern: '`xstate` ist seit [Known Residual Triage](./known-residual-triage.md) als Runtime-Boundary geschlossen', message: 'documents xstate closed runtime boundary status after WP-E13-05' },
       { pattern: 'x-summary', message: 'documents x-summary catalog status' },
-      { pattern: '`x-utils` ist als Utility-Boundary `typed-contract-gated`', message: 'documents x-utils typed-contract-gated catalog status after WP-E12-09' },
+      { pattern: '`x-utils` ist als Utility-Boundary geschlossen', message: 'documents x-utils closed utility boundary status after WP-E13-05' },
       { pattern: 'ER-WP-32` | abgeschlossen', message: 'marks naming and docs gaps closed' },
       { pattern: 'ER-WP-33` | abgeschlossen', message: 'marks component-suite priority work completed' },
       { pattern: 'ER-WP-34` | abgeschlossen', message: 'marks public types work completed' },
@@ -4814,7 +4814,7 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: 'tag": "ui-effects"', message: 'documents RMT UI effects tag' },
       { pattern: 'XTemplate', message: 'documents template recipes' },
       { pattern: 'registriert kein `customElements.define()`', message: 'documents non-custom-element contract' },
-      { pattern: 'ER-WP-35', message: 'hands off long-tail follow-up' }
+      { pattern: 'closed-as-utility-boundary', message: 'documents closed x-utils utility boundary status' }
     ]
   },
   {

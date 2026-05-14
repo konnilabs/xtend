@@ -18,7 +18,7 @@ Dieser Guide beschreibt die additive Migration von Surface-Metadata in Component
 | `add-native-surfaces-records` | parallele `surfaces[*]` Records mit gleicher Identitaet anlegen |
 | `keep-dual-records-during-handoff` | Component-Metadata und native Records im Gate vergleichen |
 | `switch-authoring-default-to-surfaces-domain` | neue komplexe Shells direkt in `surfaces[*]` schreiben |
-| `defer-xtend-surface-runtime-until-adapter-implementation` | `xtend.surface` als Adapter-Handoff sichtbar lassen |
+| `close-xtend-surface-runtime-after-adapter-implementation` | historisches Adapter-Handoff aus `WP-SM-09` durch `WP-SM-19` Runtime-Gates schliessen |
 
 ## Vorher
 
@@ -67,8 +67,8 @@ Die Component-Metadata bleibt waehrend des Handoffs im Component Record und verw
 - `manager` zeigt auf den `x-surface-manager` Record.
 - `route` und `schedule` loesen auf native RMT Records auf.
 - `stateKey` ist identisch zwischen `components[*].metadata.surface` und `surfaces[*]`.
-- `xtend.surface` ist als `surface_adapter` deklariert, aber nicht als produktive Runtime beworben.
-- Die Gates `surface-native-rmt` und `surface-release-handoff` sind gruen.
+- `xtend.surface` ist als `surface_adapter` deklariert und seit `WP-SM-19` ueber die Runtime-Gates produktiv beworben.
+- Die Gates `surface-native-rmt`, `surface-release-handoff` und `surface-runtime-release-handoff` sind gruen.
 
 Details zur generischen RMT-Migration stehen in [XTendRMT Native Migration Guide](./xtendrmt-migration-guide.md). Details zum Surface-Authoring stehen in [SurfaceManager Authoring Guide](./surface-manager-authoring-guide.md).
 
