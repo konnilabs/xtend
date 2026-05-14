@@ -241,6 +241,10 @@ function createRuntimeCriticalCss() {
   --padding: 0.5em 1em;
   --focus-outline: 2px solid #0056b3;
   --form-background: #ffffff;
+  --xtend-skeleton-bg: rgba(148, 163, 184, 0.16);
+  --xtend-skeleton-highlight: rgba(255, 255, 255, 0.72);
+  --xtend-skeleton-surface: rgba(148, 163, 184, 0.12);
+  --xtend-skeleton-line-bg: rgba(148, 163, 184, 0.24);
 }
 
 [data-theme="dark"] {
@@ -258,6 +262,19 @@ function createRuntimeCriticalCss() {
   --card-text: #ffffff;
   --section-bg: #1e1e1e;
   --primary-color-hover: #0a58ca;
+  --xtend-skeleton-bg: rgba(148, 163, 184, 0.12);
+  --xtend-skeleton-highlight: rgba(226, 232, 240, 0.10);
+  --xtend-skeleton-surface: rgba(226, 232, 240, 0.045);
+  --xtend-skeleton-line-bg: rgba(148, 163, 184, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --xtend-skeleton-bg: rgba(148, 163, 184, 0.12);
+    --xtend-skeleton-highlight: rgba(226, 232, 240, 0.10);
+    --xtend-skeleton-surface: rgba(226, 232, 240, 0.045);
+    --xtend-skeleton-line-bg: rgba(148, 163, 184, 0.18);
+  }
 }
 
 html {
@@ -303,8 +320,6 @@ main {
   box-sizing: border-box;
   min-width: 0;
   width: 100%;
-  max-width: var(--xtend-main-max-width, none);
-  margin: var(--xtend-main-margin, 0);
   padding: var(--xtend-main-padding, 0);
 }
 
@@ -380,7 +395,9 @@ ${hiddenSelectors} {
 [data-xtend-skeleton-loader] {
   display: grid;
   gap: var(--xtend-skeleton-gap, 0.68rem);
-  width: 100%;
+  width: var(--xtend-skeleton-width, 100%);
+  max-width: var(--xtend-skeleton-max-width, 100%);
+  margin-inline: var(--xtend-skeleton-margin-inline, 0);
   min-width: 0;
   box-sizing: border-box;
   padding: var(--xtend-skeleton-padding, 1rem);
@@ -1209,7 +1226,9 @@ function createSkeletonLoader(options = {}) {
   skeleton.setAttribute('aria-label', normalized.label);
   skeleton.style.display = 'grid';
   skeleton.style.gap = '0.68rem';
-  skeleton.style.width = '100%';
+  skeleton.style.width = 'var(--xtend-skeleton-width, 100%)';
+  skeleton.style.maxWidth = 'var(--xtend-skeleton-max-width, 100%)';
+  skeleton.style.marginInline = 'var(--xtend-skeleton-margin-inline, 0)';
   skeleton.style.minWidth = '0';
   skeleton.style.boxSizing = 'border-box';
   skeleton.style.padding = 'var(--xtend-skeleton-padding, 1rem)';

@@ -185,6 +185,11 @@ function runNavigationRoutingUxSuite(options = {}) {
     context.assert(source.includes('aria-live'), `${profile.tag} source declares route announcement behavior`);
     context.assert(source.includes('aria-atomic'), `${profile.tag} source declares atomic route announcements`);
     context.assert(source.includes('focus('), `${profile.tag} source exposes focus behavior`);
+    if (profile.tag === 'x-router') {
+      context.assert(source.includes("this._handleNavigation({ focus: false, source: 'initial-load' })"), 'x-router preserves document focus on cold-start initial render');
+      context.assert(source.includes('if (options.focus === false)'), 'x-router can skip route outlet focus restore for non-interactive renders');
+      context.assert(source.includes('this.focusRoute(enrichedDetail)'), 'x-router keeps focus restore for interactive route changes');
+    }
     context.assert(source.includes('prefers-reduced-motion'), `${profile.tag} source is reduced-motion safe`);
     context.assert(source.includes('forced-colors'), `${profile.tag} source is forced-colors safe`);
     context.assert(source.includes('part=') || source.includes('setAttribute("part"') || source.includes("setAttribute('part'"), `${profile.tag} source exposes CSS parts`);

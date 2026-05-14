@@ -27,6 +27,10 @@
   --padding: 0.5em 1em;
   --focus-outline: 2px solid #0056b3;
   --form-background: #ffffff;
+  --xtend-skeleton-bg: rgba(148, 163, 184, 0.16);
+  --xtend-skeleton-highlight: rgba(255, 255, 255, 0.72);
+  --xtend-skeleton-surface: rgba(148, 163, 184, 0.12);
+  --xtend-skeleton-line-bg: rgba(148, 163, 184, 0.24);
 }
 
 html {
@@ -72,8 +76,6 @@ main {
   box-sizing: border-box;
   min-width: 0;
   width: 100%;
-  max-width: var(--xtend-main-max-width, none);
-  margin: var(--xtend-main-margin, 0);
   padding: var(--xtend-main-padding, 0);
 }
 
@@ -98,6 +100,19 @@ section {
   --card-text: #ffffff;
   --section-bg: #1e1e1e;
   --primary-color-hover: #0a58ca;
+  --xtend-skeleton-bg: rgba(148, 163, 184, 0.12);
+  --xtend-skeleton-highlight: rgba(226, 232, 240, 0.10);
+  --xtend-skeleton-surface: rgba(226, 232, 240, 0.045);
+  --xtend-skeleton-line-bg: rgba(148, 163, 184, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --xtend-skeleton-bg: rgba(148, 163, 184, 0.12);
+    --xtend-skeleton-highlight: rgba(226, 232, 240, 0.10);
+    --xtend-skeleton-surface: rgba(226, 232, 240, 0.045);
+    --xtend-skeleton-line-bg: rgba(148, 163, 184, 0.18);
+  }
 }
 
 body {

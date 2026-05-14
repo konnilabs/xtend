@@ -283,11 +283,12 @@ class XHeader extends HTMLElement {
           --xtend-header-logo-surface: var(--xtend-signature-surface-inset, rgba(15, 23, 42, 0.06));
           --xtend-header-logo-elevation: var(--xtend-signature-shadow-control, 0 2px 8px rgba(15, 23, 42, 0.10));
           --xtend-header-trigger-size: var(--xtend-control-height, 44px);
-          --xtend-header-trigger-radius: var(--xtend-radius-control, 50%);
+          --xtend-header-trigger-radius: var(--xtend-header-control-radius, 999px);
           --xtend-header-trigger-surface: var(--xtend-signature-surface-inset, rgba(15, 23, 42, 0.06));
           --xtend-header-trigger-hover-surface: var(--xtend-signature-accent-soft, rgba(14, 78, 129, 0.12));
           --xtend-header-trigger-icon-size: 24px;
           --xtend-header-trigger-icon-stroke: 3px;
+          --xtend-header-trigger-line-offset: 7px;
           --xtend-header-menu-surface: var(--xtend-signature-surface-raised, var(--xtend-surface-raised, var(--section-bg, #ffffff)));
           --xtend-header-menu-text: var(--xtend-header-text);
           --xtend-header-menu-border-color: var(--xtend-header-border-color);
@@ -612,15 +613,18 @@ class XHeader extends HTMLElement {
           background-color: var(--burger-color);
           border-radius: 2px;
           position: absolute;
-          left: 9px;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          transform-origin: center;
           transition: transform 0.22s ease, opacity 0.22s ease;
         }
-        .burger-menu span:nth-child(1) { top: 13px; }
-        .burger-menu span:nth-child(2) { top: 20px; }
-        .burger-menu span:nth-child(3) { top: 27px; }
-        .burger-menu.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .burger-menu span:nth-child(1) { transform: translate(-50%, calc(-50% - var(--xtend-header-trigger-line-offset))); }
+        .burger-menu span:nth-child(2) { transform: translate(-50%, -50%); }
+        .burger-menu span:nth-child(3) { transform: translate(-50%, calc(-50% + var(--xtend-header-trigger-line-offset))); }
+        .burger-menu.open span:nth-child(1) { transform: translate(-50%, -50%) rotate(45deg); }
         .burger-menu.open span:nth-child(2) { opacity: 0 !important; }
-        .burger-menu.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .burger-menu.open span:nth-child(3) { transform: translate(-50%, -50%) rotate(-45deg); }
         .drawer-inner ::slotted(a),
         .drawer-inner ::slotted(button),
         .drawer-inner ::slotted([role="menuitem"]),
@@ -699,6 +703,9 @@ class XHeader extends HTMLElement {
           max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
+          display: block;
+          isolation: isolate;
+          overflow: visible;
           overflow-wrap: anywhere;
         }
         @media (max-width: 900px) {

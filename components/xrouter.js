@@ -495,7 +495,9 @@ class XRouter extends HTMLElement {
         [data-xtend-skeleton-loader] {
           display: grid;
           gap: 0.68rem;
-          width: 100%;
+          width: var(--xtend-skeleton-width, 100%);
+          max-width: var(--xtend-skeleton-max-width, 100%);
+          margin-inline: var(--xtend-skeleton-margin-inline, 0);
           min-width: 0;
           box-sizing: border-box;
           min-height: var(--xtend-router-skeleton-min-height, 12rem);
@@ -630,7 +632,7 @@ class XRouter extends HTMLElement {
         }
       });
     }
-    initialRouteLoad.then(() => this._handleNavigation());
+    initialRouteLoad.then(() => this._handleNavigation({ focus: false, source: 'initial-load' }));
   }
 
   disconnectedCallback() {
@@ -873,7 +875,7 @@ class XRouter extends HTMLElement {
     };
   }
 
-  _emitRouteChange(detail) {
+  _emitRouteChange(detail, options = {}) {
     const enrichedDetail = {
       ...detail,
       announcement: this._getRouteAnnouncement(detail),
@@ -903,6 +905,10 @@ class XRouter extends HTMLElement {
     this.dispatchEvent(legacyRouteChangeEvent);
     window.dispatchEvent(new CustomEvent('xrouter-after-navigate', { detail: enrichedDetail }));
     this.announceRoute(enrichedDetail);
+    if (options.focus === false) {
+      if (this._outlet) this._outlet.setAttribute('aria-busy', 'false');
+      return;
+    }
     this.focusRoute(enrichedDetail);
   }
 
@@ -1463,7 +1469,7 @@ class XRouter extends HTMLElement {
     return `<div style="padding:2em;text-align:center"><h2>${msg.title}</h2><p>${msg.desc}</p>${details ? `<pre style='color:#b00'>${details}</pre>` : ''}</div>`;
   }
 
-  async _handleNavigation() {
+  async _handleNavigation(options = {}) {
     const raw = this._getCurrentPath();
     const { path, query, queryObj } = this._parsePathAndQuery(raw);
     const match = this._matchRoute(path);
@@ -1526,7 +1532,7 @@ class XRouter extends HTMLElement {
       }
       const routeDetail = this._buildRouteDetail(raw, match, queryObj, documentMeta);
       if (reused) routeDetail.reused = true;
-      this._emitRouteChange(routeDetail);
+      this._emitRouteChange(routeDetail, options);
       // Scroll-Verhalten nach erfolgreichem Rendern
       const scrollIntent = this._handleScrollAfterNavigation(route);
       this._scheduleScrollBoundaryCheck(scrollIntent, routeDetail);
@@ -1539,7 +1545,7 @@ class XRouter extends HTMLElement {
         fallbackTitle: '404'
       });
       const routeDetail = this._buildRouteDetail(raw, null, queryObj, documentMeta);
-      this._emitRouteChange(routeDetail);
+      this._emitRouteChange(routeDetail, options);
       const scrollIntent = this._handleScrollAfterNavigation(null);
       this._scheduleScrollBoundaryCheck(scrollIntent, routeDetail);
     }

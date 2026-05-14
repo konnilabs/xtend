@@ -95,8 +95,9 @@ const DOCS_SHELL_SCOPED_CSS = `
     grid-template-columns: minmax(0, 1fr) var(--docs-sidebar-width, clamp(20rem, 24vw, 27rem));
     gap: var(--docs-layout-gap, clamp(1rem, 2.2vw, 2.5rem));
     align-items: start;
-    width: 100%;
-    max-width: 100%;
+    width: calc(100% - var(--docs-viewport-gutter, 0.5rem) - var(--docs-viewport-gutter, 0.5rem));
+    max-width: calc(100% - var(--docs-viewport-gutter, 0.5rem) - var(--docs-viewport-gutter, 0.5rem));
+    margin-inline: var(--docs-viewport-gutter, 0.5rem);
     min-width: 0;
     box-sizing: border-box;
   }
@@ -1850,7 +1851,7 @@ function closeSiblingDocsSubmenus(details) {
 
 async function loadMenuConfig() {
   try {
-    const resp = await fetch('./menu.json', { cache: 'no-store' });
+    const resp = await fetch('/docs/menu.json', { cache: 'no-store' });
     if (resp.ok) {
       const json = await resp.json();
       if (Array.isArray(json)) {

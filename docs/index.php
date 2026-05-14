@@ -604,10 +604,15 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           --docs-sidebar-bg: #ffffff;
           --docs-sidebar-link-bg: #f7fafc;
           --docs-sidebar-link-hover-bg: #e7f0f7;
+          --docs-menu-highlight-bg: rgba(14, 78, 129, 0.11);
+          --docs-menu-highlight-border: rgba(14, 78, 129, 0.28);
+          --docs-menu-active-rail: rgba(14, 78, 129, 0.72);
           --docs-code-bg: #10131a;
           --x-code-bg: #10131a;
           --x-code-text: #f8fafc;
           --x-code-border: rgba(15, 23, 42, 0.18);
+          --docs-shell-vertical-gap: 1.2rem;
+          --docs-viewport-gutter: 0.5rem;
           --docs-layout-gap: clamp(1rem, 2.2vw, 2.5rem);
           --docs-sidebar-width: clamp(20rem, 24vw, 27rem);
           --docs-hero-bg-light: linear-gradient(135deg, #f8fbff 0%, #e7f0f7 100%);
@@ -640,6 +645,9 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           --docs-sidebar-bg: #0d0d10;
           --docs-sidebar-link-bg: #111114;
           --docs-sidebar-link-hover-bg: #17171b;
+          --docs-menu-highlight-bg: rgba(143, 211, 255, 0.12);
+          --docs-menu-highlight-border: rgba(143, 211, 255, 0.32);
+          --docs-menu-active-rail: rgba(143, 211, 255, 0.74);
           --docs-code-bg: #050506;
           --x-code-bg: #050506;
           --x-code-text: #f4f4f5;
@@ -661,16 +669,17 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         }
         main {
           width: 100%;
-          max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
-          margin: 1.2rem 0 2.5rem;
           background: transparent;
-          padding: 0 var(--docs-layout-gap);
           border: 0;
           border-radius: 0;
           box-shadow: none;
           transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+        }
+        x-footer {
+          display: block;
+          margin: var(--docs-shell-vertical-gap) var(--docs-viewport-gutter) 0;
         }
         main > x-router {
           display: block;
@@ -696,6 +705,10 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           --header-drawer-content-max: none;
           position: relative;
           z-index: 20;
+        }
+        x-header::part(root) {
+          margin-left: var(--docs-viewport-gutter);
+          margin-right: var(--docs-viewport-gutter);
         }
         .docs-icon-button {
           --xtend-button-min-touch-target: 44px;
@@ -777,15 +790,16 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         }
         .docs-menu-section-links {
           display: grid;
-          gap: 0.35rem;
+          gap: 0.42rem;
           min-width: 0;
           max-width: 100%;
         }
         .docs-menu-node {
           display: grid;
-          gap: 0.2rem;
+          gap: 0.3rem;
           min-width: 0;
           max-width: 100%;
+          isolation: isolate;
         }
         .docs-menu-node[data-doc-depth="0"] > x-link {
           font-weight: 650;
@@ -801,10 +815,11 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           box-sizing: border-box;
           min-height: 36px;
           padding: 0.42rem 0.55rem;
+          border: 1px solid transparent;
           border-radius: 0.45rem;
           color: var(--text-color);
           overflow-wrap: anywhere;
-          transition: background 0.14s ease, color 0.14s ease, transform 0.14s ease;
+          transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
         }
         .docs-menu-section x-link::part(link),
         .docs-nav-link::part(link) {
@@ -833,15 +848,16 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         }
         .docs-menu-section x-link:hover,
         .docs-menu-section x-link[active] {
-          background: rgba(14, 78, 129, 0.12);
+          background: var(--docs-menu-highlight-bg);
+          border-color: var(--docs-menu-highlight-border);
           color: var(--primary-color);
-          transform: translateX(2px);
         }
         .docs-menu-section x-link[active] {
           font-weight: 700;
+          box-shadow: inset 3px 0 0 var(--docs-menu-active-rail);
         }
         .docs-menu-children {
-          margin: 0.08rem 0 0;
+          margin: 0.12rem 0 0;
           padding: 0;
           border: 0;
           min-width: 0;
@@ -876,8 +892,8 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         .docs-menu-children summary:focus-visible,
         .docs-menu-children[open] summary {
           color: var(--primary-color);
-          background: rgba(14, 78, 129, 0.1);
-          border-color: color-mix(in srgb, var(--primary-color) 34%, var(--border-color));
+          background: var(--docs-menu-highlight-bg);
+          border-color: var(--docs-menu-highlight-border);
           outline: none;
         }
         .docs-menu-disclosure-icon {
@@ -907,8 +923,8 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         }
         .docs-menu-child-list {
           display: grid;
-          gap: 0.2rem;
-          margin: 0.25rem 0 0.18rem;
+          gap: 0.28rem;
+          margin: 0.3rem 0 0.18rem;
           padding: 0.2rem 0 0 0.65rem;
           border-left: 1px solid var(--border-color);
           min-width: 0;
@@ -975,8 +991,8 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
         }
         x-hero.docs-hero {
           display: block;
-          margin: 0 0.5rem;
-          max-width: calc(100% - 1rem);
+          margin: 0 var(--docs-viewport-gutter);
+          max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
           min-width: 0;
           box-sizing: border-box;
           --hero-padding: clamp(2.5rem, 6vw, 4.5rem) 1.25rem;
@@ -1030,8 +1046,9 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           grid-template-columns: minmax(0, 1fr) var(--docs-sidebar-width);
           gap: var(--docs-layout-gap);
           align-items: start;
-          width: 100%;
-          max-width: 100%;
+          width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
+          max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
+          margin-inline: var(--docs-viewport-gutter);
           min-width: 0;
           box-sizing: border-box;
         }
@@ -1227,13 +1244,12 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
         }
         @media (max-width: 700px) {
-          main {
-            margin: 1rem 0 2rem;
-            padding: 0 clamp(0.5rem, 3vw, 0.75rem);
+          :root {
+            --docs-shell-vertical-gap: 1rem;
           }
           x-hero.docs-hero {
-            margin: 0;
-            max-width: 100%;
+            margin: 0 var(--docs-viewport-gutter);
+            max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
           }
           .docs-shell-layout {
             grid-template-columns: 1fr;
@@ -1418,7 +1434,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 	 <p>Build with XTend today</p>
 </x-hero>
 <main>
-<x-router mode="hash" reuse-component skeleton="article" skeleton-lines="10" skeleton-min-height="26rem" skeleton-label="Dokumentation wird geladen" data-xtend-skeleton style="--xtend-skeleton-min-height: 26rem;" document-title-template="{{title}} | XTend Dokumentation" default-title="XTend Dokumentation">
+<x-router mode="hash" reuse-component skeleton="article" skeleton-lines="10" skeleton-min-height="26rem" skeleton-label="Dokumentation wird geladen" data-xtend-skeleton style="--xtend-skeleton-min-height: 26rem; --xtend-skeleton-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter)); --xtend-skeleton-max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter)); --xtend-skeleton-margin-inline: var(--docs-viewport-gutter);" document-title-template="{{title}} | XTend Dokumentation" default-title="XTend Dokumentation">
   <?= docsRenderXRoute($allPagesMeta['readme']['route'], '/') . "\n" ?>
   <?php foreach ($fileToSlug as $rel => $slug): ?>
     <?= docsRenderXRoute($allPagesMeta[$slug]['route']) . "\n" ?>
@@ -1429,7 +1445,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 <x-footer src="<?= $docsLogoUrl ?>" logo-size="32" data-xtend-skeleton="inline" style="--xtend-skeleton-min-height: 3.25rem;">
 	<span slot="title">© 2025 – CCS Networks | Powered by XRouter PHP Extension</span>
 </x-footer>
-<script src="utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
+<script src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
 </script>
 <script nonce="<?= $nonce ?>">
 document.addEventListener('DOMContentLoaded', function() {
