@@ -1443,7 +1443,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 </x-router>
     </main>
 <x-footer src="<?= $docsLogoUrl ?>" logo-size="32" data-xtend-skeleton="inline" style="--xtend-skeleton-min-height: 3.25rem;">
-	<span slot="title">© 2025 – CCS Networks | Powered by XRouter PHP Extension</span>
+	<span slot="title">© 2026 – CCS Networks | Powered by XRouter PHP Extension</span>
 </x-footer>
 <script src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
 </script>
