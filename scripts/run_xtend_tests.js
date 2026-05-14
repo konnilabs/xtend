@@ -534,6 +534,10 @@ const {
   runEpic13ConditionalNetworkEvidenceSuite
 } = require('../tests/platform/epic13_conditional_network_evidence_suite');
 const {
+  printEpic13ConditionalNetworkEvidenceCiReport,
+  runEpic13ConditionalNetworkEvidenceCiSuite
+} = require('../tests/platform/epic13_conditional_network_evidence_ci_suite');
+const {
   printEpic13PackageExportLockReport,
   runEpic13PackageExportLockSuite
 } = require('../tests/platform/epic13_package_export_lock_suite');
@@ -601,6 +605,14 @@ const {
   printEpic13Rc1MigrationNotesReport,
   runEpic13Rc1MigrationNotesSuite
 } = require('../tests/platform/epic13_rc1_migration_notes_suite');
+const {
+  printEpic13Rc1GateMatrixCiHandoffReport,
+  runEpic13Rc1GateMatrixCiHandoffSuite
+} = require('../tests/platform/epic13_rc1_gate_matrix_ci_handoff_suite');
+const {
+  printEpic13ReleaseReportPackDryRunEvidenceReport,
+  runEpic13ReleaseReportPackDryRunEvidenceSuite
+} = require('../tests/platform/epic13_release_report_pack_dry_run_evidence_suite');
 const {
   printFabricRuntimeReport,
   runFabricRuntimeSuite
@@ -1546,6 +1558,16 @@ const suites = [
     }
   },
   {
+    id: 'epic13-conditional-network-evidence-ci',
+    label: 'Epic 13 Conditional Network Evidence CI',
+    description: 'Runs the DPF-WP-03 audit/SBOM CI evidence, deferral artifact and workflow handoff gates.',
+    run: () => {
+      const result = runEpic13ConditionalNetworkEvidenceCiSuite({ rootDir });
+      printEpic13ConditionalNetworkEvidenceCiReport(result);
+      return toRunnerResult('epic13-conditional-network-evidence-ci', 'Epic 13 Conditional Network Evidence CI', result);
+    }
+  },
+  {
     id: 'epic13-package-export-lock',
     label: 'Epic 13 Package Export Lock',
     description: 'Runs the WP-E13-04 package dry-run artifact, package-files and export-surface lock gates.',
@@ -1713,6 +1735,26 @@ const suites = [
       const result = runEpic13Rc1MigrationNotesSuite({ rootDir });
       printEpic13Rc1MigrationNotesReport(result);
       return toRunnerResult('epic13-rc1-migration-notes', 'Epic 13 RC1 Migration Notes', result);
+    }
+  },
+  {
+    id: 'epic13-rc1-gate-matrix-ci-handoff',
+    label: 'Epic 13 RC1 Gate Matrix and CI Handoff',
+    description: 'Runs the WP-E13-13 RC1 gate matrix, report artifact and CI handoff gates.',
+    run: () => {
+      const result = runEpic13Rc1GateMatrixCiHandoffSuite({ rootDir });
+      printEpic13Rc1GateMatrixCiHandoffReport(result);
+      return toRunnerResult('epic13-rc1-gate-matrix-ci-handoff', 'Epic 13 RC1 Gate Matrix and CI Handoff', result);
+    }
+  },
+  {
+    id: 'epic13-release-report-pack-dry-run-evidence',
+    label: 'Epic 13 Release Report and Pack Dry Run Evidence',
+    description: 'Runs the DPF-WP-02 release report, pack dry-run artifact and owner evidence gates.',
+    run: () => {
+      const result = runEpic13ReleaseReportPackDryRunEvidenceSuite({ rootDir });
+      printEpic13ReleaseReportPackDryRunEvidenceReport(result);
+      return toRunnerResult('epic13-release-report-pack-dry-run-evidence', 'Epic 13 Release Report and Pack Dry Run Evidence', result);
     }
   },
   {
@@ -2449,6 +2491,7 @@ Examples:
   node scripts/run_xtend_tests.js epic13-rc1-readiness
   node scripts/run_xtend_tests.js epic13-release-owner-acceptance
   node scripts/run_xtend_tests.js epic13-conditional-network-evidence
+  node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci
   node scripts/run_xtend_tests.js epic13-package-export-lock
   node scripts/run_xtend_tests.js type-exports
   node scripts/run_xtend_tests.js type-exports-loader
@@ -2466,6 +2509,8 @@ Examples:
   node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening
   node scripts/run_xtend_tests.js epic13-trusted-dom-boundary
   node scripts/run_xtend_tests.js epic13-rc1-migration-notes
+  node scripts/run_xtend_tests.js epic13-rc1-gate-matrix-ci-handoff
+  node scripts/run_xtend_tests.js epic13-release-report-pack-dry-run-evidence
   node scripts/run_xtend_tests.js component-ux-authoring-docs
   node scripts/run_xtend_tests.js component-long-tail-migration
   node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff

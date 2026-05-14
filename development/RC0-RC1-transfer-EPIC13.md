@@ -15,8 +15,8 @@
   - `docs/epic12-rc0-handoff.md`
 - Zielzustand: `rc1-production-candidate-ready`
 - Publish Boundary: `private-until-release-owner-acceptance`
-- Aktuelles Paket: `WP-E13-12` completed
-- Naechstes Paket: `WP-E13-13`
+- Aktuelles Paket: `WP-E13-13` completed
+- Naechstes Paket: `WP-E13-14`
 
 ## Zweck
 
@@ -72,7 +72,7 @@ Die folgenden Punkte sind bewusst **nicht** Ziel von Epic 13:
 
 | Luecke | Warum wichtig fuer PROD | Zielpaket |
 |--------|--------------------------|-----------|
-| RC1 Gate Matrix fehlt | RC0 ist reviewbar, RC1 braucht finalen Acceptance-Schnitt | `WP-E13-01`, `WP-E13-13` |
+| RC1 Gate Matrix fehlt | RC0 ist reviewbar, RC1 braucht finalen Acceptance-Schnitt | `WP-E13-01`, `WP-E13-13` completed |
 | Release Owner Acceptance Contract ist definiert | Publish Boundary ist formalisiert, aber noch nicht geoeffnet | `WP-E13-02` completed |
 | Network-Gate-Resultate sind als Evidence/Deferral vorbereitet | Audit/SBOM bleiben vor Publish owner-pflichtig | `WP-E13-03` completed |
 | `npm pack --dry-run` ist als Package Export Lock vorbereitet | Paketinhalt bleibt fuer RC1 maschinenlesbar pruefbar | `WP-E13-04` completed |
@@ -134,8 +134,8 @@ Ein Workpackage ist abgeschlossen, wenn:
 | `WP-E13-10` | P1 | completed | WS4 | Docs-App RMT Parsedown Shell fuer PROD-nahe Erweiterungen haerten | `WP-E13-09` |
 | `WP-E13-11` | P1 | completed | WS5 | Trusted DOM, Parsedown und RMT HTML Boundary browsernah pruefen | `WP-E13-10` |
 | `WP-E13-12` | P1 | completed | WS6 | RC1 Migration Notes, SemVer-Entscheid und Changelog vorbereiten | `WP-E13-04`, `WP-E13-05` |
-| `WP-E13-13` | P2 | ready | WS7 | RC1 Gate Matrix und CI-Handoff erstellen | `WP-E13-03` bis `WP-E13-12` |
-| `WP-E13-14` | P2 | planned | WS8 | Epic-13-Abschlussreview und RC1-Handoff erstellen | `WP-E13-13` |
+| `WP-E13-13` | P2 | completed | WS7 | RC1 Gate Matrix und CI-Handoff erstellen | `WP-E13-03` bis `WP-E13-12` |
+| `WP-E13-14` | P2 | ready | WS8 | Epic-13-Abschlussreview und RC1-Handoff erstellen | `WP-E13-13` |
 
 ## Workstreams
 
@@ -719,11 +719,12 @@ Erledigt:
 - `docs/docs-rmt-production-hardening.md` macht den PROD-nahen Docs-App-Pfad in der Docs-App sichtbar
 - `WP-E13-11` ist `completed`
 - `WP-E13-12` ist `completed`
-- `WP-E13-13` ist `ready`
+- `WP-E13-13` ist `completed`
+- `WP-E13-14` ist `ready`
 
 Naechstes Paket:
 
-- `WP-E13-13` RC1 Gate Matrix und CI-Handoff erstellen
+- `WP-E13-14` Epic-13-Abschlussreview und RC1-Handoff erstellen
 
 ## Handoff nach WP-E13-11
 
@@ -740,11 +741,12 @@ Erledigt:
 - `docs/trusted-dom-boundary-browser-proof.md` macht den Trusted-DOM-Beweis in der Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` fuehren `epic13TrustedDomBoundary`
 - `WP-E13-12` ist `completed`
-- `WP-E13-13` ist `ready`
+- `WP-E13-13` ist `completed`
+- `WP-E13-14` ist `ready`
 
 Naechstes Paket:
 
-- `WP-E13-13` RC1 Gate Matrix und CI-Handoff erstellen
+- `WP-E13-14` Epic-13-Abschlussreview und RC1-Handoff erstellen
 
 ## Handoff nach WP-E13-12
 
@@ -759,9 +761,30 @@ Erledigt:
 - `tests/platform/epic13_rc1_migration_notes_suite.js` prueft Contract, Package, Scaffold, Runner, Docs, Changelog, CI Matrix und Handoff
 - `docs/rc1-migration-notes.md` macht die RC1 Migration Notes in der Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` fuehren `epic13Rc1MigrationNotes`
-- `./design-tokens/xtheme-token-alias-layer`, `./catalog/epic13-rc1-migration-notes`, `./catalog/epic14-rmt-tooling`, `./catalog/epic14-lsp-handoff` und die RMT/vNext-Tooling-Surface sind im Package Export Lock enthalten; expectedExportCount ist `105`
-- `WP-E13-13` ist `ready`
+- `./design-tokens/xtheme-token-alias-layer`, `./catalog/epic13-rc1-migration-notes`, `./catalog/epic13-rc1-gate-matrix-ci-handoff`, `./catalog/epic13-release-report-pack-dry-run-evidence`, `./catalog/epic13-conditional-network-evidence-ci`, `./rmt-language/kernel-trust-authority`, `./rmt-language/kernel-security-regression`, `./catalog/epic14-rmt-tooling`, `./catalog/epic14-lsp-handoff` und die RMT/vNext-Tooling-Surface sind im Package Export Lock enthalten; expectedExportCount ist `115`
+- `WP-E13-13` ist `completed`
+- `WP-E13-14` ist `ready`
 
 Naechstes Paket:
 
-- `WP-E13-13` RC1 Gate Matrix und CI-Handoff erstellen
+- `WP-E13-14` Epic-13-Abschlussreview und RC1-Handoff erstellen
+
+## Handoff nach WP-E13-13
+
+`WP-E13-13` ist abgeschlossen und akzeptiert den Contract `xtend.epic13.rc1-gate-matrix-ci-handoff.v1`.
+
+Handoff-Entscheidung: `epic13-final-rc1-handoff`.
+
+Erledigt:
+
+- `development/XTend-Epic13-RC1-Gate-Matrix-und-CI-Handoff.md` beschreibt Source Gates, CI Lanes, Report-Artefakte, Referenzpfade und Publish Boundary
+- `catalog/epic13-rc1-gate-matrix-ci-handoff.js` stellt Factory, Validator und Report Factory bereit
+- `tests/platform/epic13_rc1_gate_matrix_ci_handoff_suite.js` prueft Contract, Package, Scaffold, Runner, Docs, Changelog, CI Matrix, TypeExports und Handoff
+- `node scripts/run_xtend_tests.js epic13-rc1-gate-matrix-ci-handoff --json` ist der lokale Gate
+- `docs/rc1-gate-matrix-ci-handoff.md` macht die RC1 Gate Matrix in der Docs-App sichtbar
+- `package.json` und `xtend-builder/scaffold.config.js` fuehren `epic13Rc1GateMatrixCiHandoff`
+- `WP-E13-14` ist `ready`
+
+Naechstes Paket:
+
+- `WP-E13-14` Epic-13-Abschlussreview und RC1-Handoff erstellen

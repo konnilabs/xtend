@@ -23,4 +23,4 @@ Die Docs-App ist weiterhin framework-agnostisch und nutzt keine CDN- oder Remote
 
 ## Handoff
 
-`WP-E13-11` ist abgeschlossen. `WP-E13-12` ist abgeschlossen. `WP-E13-13` ist ready. Naechste Entscheidung: `rc1-gate-matrix-ci-handoff`.
+`WP-E13-11` ist abgeschlossen. `WP-E13-12` ist abgeschlossen. `WP-E13-13` ist abgeschlossen. Naechste Entscheidung: `epic13-final-rc1-handoff`.

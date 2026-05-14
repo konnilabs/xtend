@@ -26,10 +26,13 @@ XTend ist ein Web-Component-Framework fuer lokale, CDN-freie Entwicklung. Die ak
 | Visual Owner Artifacts | `docs/visual-owner-artifacts.md` |
 | Trusted DOM Boundary Proof | `docs/trusted-dom-boundary-browser-proof.md` |
 | RC1 Migration Notes | `docs/rc1-migration-notes.md` |
+| RC1 Gate Matrix und CI-Handoff | `docs/rc1-gate-matrix-ci-handoff.md` |
+| Release Report und Pack Dry Run Evidence | `docs/release-report-pack-dry-run-evidence.md` |
 | A11y Keyboard Smokes | `docs/a11y-keyboard-smokes.md` |
 | Screenreader Signals | `docs/screenreader-signals.md` |
 | Motion und Contrast | `docs/motion-contrast.md` |
 | Manifest Import Policy | `security/manifest-import-policy.js` |
+| Conditional Network Evidence CI | `docs/conditional-network-evidence-ci.md` |
 | Component Catalog Coverage | `catalog/component-catalog-coverage.js` |
 | Visual/Browser Regression Priority | `catalog/component-regression-priority.js` |
 | Enterprise Adoption Guide | `docs/enterprise-adoption.md` |
@@ -69,6 +72,10 @@ npm run test:epic13-prod-browser-csp-smoke
 npm run test:epic13-visual-owner-artifact
 npm run test:epic13-trusted-dom-boundary
 npm run test:epic13-rc1-migration-notes
+npm run test:epic13-rc1-gate-matrix-ci-handoff
+npm run test:epic13-release-report-pack-dry-run-evidence
+npm run test:epic13-conditional-network-evidence-ci
+npm run conditional-network:evidence
 npm run dev:local:csp
 npm run test:docs-rmt-pilot
 npm run release:check
@@ -112,6 +119,12 @@ Enterprise-Teams starten mit `docs/enterprise-adoption.md`. Der Guide verbindet 
 
 `WP-E13-12` definiert die RC1 Migration Notes unter `docs/rc1-migration-notes.md`. `xtend.epic13.rc1-migration-notes-semver.v1` dokumentiert den SemVer-Entscheid von `0.0.0-enterprise-readiness` zu `0.1.0-rc.1`, Consumer-Migrationen fuer Loader, RMT, Docs, Trusted DOM, Fabric, Typing, Visual Owner Artifacts und Supply Chain sowie den Handoff nach `WP-E13-13`. Die Package-Metadatenflaeche liegt unter `xtend.epic13Rc1MigrationNotes`.
 
+`WP-E13-13` definiert die RC1 Gate Matrix und den CI-Handoff unter `docs/rc1-gate-matrix-ci-handoff.md`. `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` registriert Epic-13-Source-Gates, CI Lanes, Report-Artefakte, Referenzpfade und den Handoff nach `WP-E13-14`. Die Package-Metadatenflaeche liegt unter `xtend.epic13Rc1GateMatrixCiHandoff`.
+
+`DPF-WP-02` definiert die Release Report und Pack Dry Run Evidence unter `docs/release-report-pack-dry-run-evidence.md`. `xtend.epic13.release-report-pack-dry-run-evidence.v1` macht `npm run release:report` und `npm run pack:dry-run` zu reproduzierbaren Owner-Artefakten; der lokale Gate ist `npm run test:epic13-release-report-pack-dry-run-evidence`. Die Package-Metadatenflaeche liegt unter `xtend.epic13ReleaseReportPackDryRunEvidence`.
+
+`DPF-WP-03` definiert die Conditional Network Evidence CI unter `docs/conditional-network-evidence-ci.md`. `xtend.epic13.conditional-network-evidence-ci.v1` macht `npm run conditional-network:evidence`, den CI-Job `conditional-network-evidence` und Audit-/SBOM-Deferrals fuer Release Owner sichtbar. Die Package-Metadatenflaeche liegt unter `xtend.epic13ConditionalNetworkEvidenceCi`.
+
 `ER-WP-40` finalisiert den Enterprise-Reife-Paketlauf mit dem Docs-App RMT Parsedown Pilot. Das RMT-Dokument `docs/xtendrmt-parsedown-docs.rmt` beschreibt `xtend.docs.parsedown-rmt-pilot.v1` inzwischen Shell-first: `docs.app.shell` und `docs.header.search` werden als RMT-`dom_descriptor` gerendert, waehrend Parsedown, PHP und Sanitizing in der Docs-App Boundary bleiben. Die Package-Metadatenflaeche liegt unter `xtend.docsRmtPilot`.
 
 ## Dokumentation
@@ -140,6 +153,9 @@ Enterprise-Teams starten mit `docs/enterprise-adoption.md`. Der Guide verbindet 
 - `development/XTend-Epic13-Docs-RMT-Production-Hardening-Contract.md` beschreibt `xtend.epic13.docs-rmt-production-hardening.v1`, Docs-App Extension-Slots, Parsedown-Host-Boundary, Rich-HTML-/XPlayer-Schedules und Diagnostics.
 - `development/XTend-Epic13-Trusted-DOM-Boundary-Contract.md` beschreibt `xtend.epic13.trusted-dom-boundary.v1`, Parsedown/RMT HTML Sanitizer, Browser-Fixture und Kernel Boundary.
 - `development/XTend-Epic13-RC1-Migration-Notes-und-SemVer-Entscheid.md` beschreibt `xtend.epic13.rc1-migration-notes-semver.v1`, vorgeschlagene RC-Version `0.1.0-rc.1`, Migration Sections, Changelog-Pflichten und Handoff nach `WP-E13-13`.
+- `development/XTend-Epic13-RC1-Gate-Matrix-und-CI-Handoff.md` beschreibt `xtend.epic13.rc1-gate-matrix-ci-handoff.v1`, CI Lanes, Report-Artefakte, Referenzpfade und Handoff nach `WP-E13-14`.
+- `development/XTend-Epic13-Release-Report-und-Pack-Dry-Run-Evidence.md` beschreibt `xtend.epic13.release-report-pack-dry-run-evidence.v1`, Release Report, Pack Dry Run, Owner-Artefakte und Handoff nach `DPF-WP-03`.
+- `development/XTend-Epic13-Conditional-Network-Evidence-CI-Contract.md` beschreibt `xtend.epic13.conditional-network-evidence-ci.v1`, Audit/SBOM-CI-Evidence, Deferral-Artefakte und Handoff nach `DPF-WP-04`.
 - `development/XTend-Component-Catalog-Coverage-Matrix.md` beschreibt `xtend.catalog.component-coverage-matrix.v1` fuer Manifest-weite Component-Reife.
 - `development/XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md` beschreibt `xtend.catalog.component-regression-priority-plan.v1` fuer Visual-/Browser-Regression.
 - `development/XTend-CI-Default-Gates-Workflow.md` beschreibt `xtend.ci.default-gates.v1` fuer den aktiven CI-Workflow.

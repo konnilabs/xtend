@@ -83,4 +83,4 @@ XTend besitzt:
 
 ## Handoff
 
-`WP-E13-09` ist abgeschlossen. `WP-E13-10` hat `xtend.epic13.docs-rmt-production-hardening.v1` nachgezogen; `WP-E13-11` hat `xtend.epic13.trusted-dom-boundary.v1` abgeschlossen; `WP-E13-12` hat `xtend.epic13.rc1-migration-notes-semver.v1` abgeschlossen. `WP-E13-13` ist ready und nutzt `rc1-gate-matrix-ci-handoff` als naechste Entscheidung.
+`WP-E13-09` ist abgeschlossen. `WP-E13-10` hat `xtend.epic13.docs-rmt-production-hardening.v1` nachgezogen; `WP-E13-11` hat `xtend.epic13.trusted-dom-boundary.v1` abgeschlossen; `WP-E13-12` hat `xtend.epic13.rc1-migration-notes-semver.v1` abgeschlossen. `WP-E13-13` hat `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` abgeschlossen und uebergibt an `WP-E13-14`.

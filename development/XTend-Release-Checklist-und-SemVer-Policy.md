@@ -90,6 +90,9 @@ npm run test:epic13-rmt-production-readiness
 npm run test:epic13-docs-rmt-production-hardening
 npm run test:epic13-trusted-dom-boundary
 npm run test:epic13-rc1-migration-notes
+npm run test:epic13-rc1-gate-matrix-ci-handoff
+npm run test:epic13-release-report-pack-dry-run-evidence
+npm run test:epic13-conditional-network-evidence-ci
 npm run test:docs-rmt-pilot
 npm run test:rmt-artifact-parity
 npm run release:report
@@ -135,6 +138,15 @@ Wenn diese Netzwerk-Gates nicht laufen, muss der Release-Kandidat den Grund doku
 | `docs/rc1-migration-notes.md` | ja | RC1 Migration Notes, SemVer-Entscheid und Consumer-Kommunikation |
 | `development/XTend-Epic13-RC1-Migration-Notes-und-SemVer-Entscheid.md` | ja | maschinenlesbarer Migration-/SemVer-Contract |
 | `.xtend-test-results/xtend-epic13-rc1-migration-notes-report.json` | ja | RC1 Migration Notes Report |
+| `docs/rc1-gate-matrix-ci-handoff.md` | ja | RC1 Gate Matrix und CI-Handoff |
+| `development/XTend-Epic13-RC1-Gate-Matrix-und-CI-Handoff.md` | ja | Source Gates, CI Lanes, Reports und Handoff Contract |
+| `.xtend-test-results/xtend-epic13-rc1-gate-matrix-ci-handoff-report.json` | ja | RC1 Gate Matrix und CI-Handoff Report |
+| `docs/release-report-pack-dry-run-evidence.md` | ja | Release Report und Pack Dry Run Owner-Evidence |
+| `development/XTend-Epic13-Release-Report-und-Pack-Dry-Run-Evidence.md` | ja | maschinenlesbarer Release-/Pack-Evidence-Contract |
+| `.xtend-test-results/xtend-epic13-release-report-pack-dry-run-evidence-report.json` | ja | Release Report und Pack Dry Run Evidence Report |
+| `docs/conditional-network-evidence-ci.md` | ja | Conditional Network Evidence CI |
+| `development/XTend-Epic13-Conditional-Network-Evidence-CI-Contract.md` | ja | Audit-/SBOM-CI-Evidence und Deferral Capture |
+| `.xtend-test-results/xtend-epic13-conditional-network-evidence-ci-report.json` | ja | Conditional Network Evidence CI Report |
 | `development/XTend-Epic13-Package-Export-Lock-Contract.md` | ja | Dry-Run-Artefakte, Export Surface und Drift-Regeln |
 | `.xtend-test-results/xtend-pack-dry-run.json` | ja | rohe `npm pack --dry-run --json` Ausgabe |
 | `.xtend-test-results/xtend-package-export-surface-lock.json` | ja | maschinenlesbarer Export-/Files-Snapshot |
@@ -181,6 +193,9 @@ Jeder Release-Eintrag muss mindestens diese Abschnitte pruefen:
 - Epic 13 Visual Owner Artifact, Manifest, deterministische Viewports und optionale Browser-/CI-Screenshots
 - Epic 13 Trusted DOM Boundary, `xtend.epic13.trusted-dom-boundary.v1`, Parsedown/RMT HTML Sanitizer und Browser-Fixture
 - Epic 13 RC1 Migration Notes, `xtend.epic13.rc1-migration-notes-semver.v1`, vorgeschlagene Version `0.1.0-rc.1` und Handoff zu `WP-E13-13`
+- Epic 13 RC1 Gate Matrix und CI-Handoff, `xtend.epic13.rc1-gate-matrix-ci-handoff.v1`, CI Lanes, Report-Artefakte und Handoff zu `WP-E13-14`
+- Epic 13 Release Report und Pack Dry Run Evidence, `xtend.epic13.release-report-pack-dry-run-evidence.v1`, `release:report`, `pack:dry-run` und Handoff zu `DPF-WP-03`
+- Epic 13 Conditional Network Evidence CI, `xtend.epic13.conditional-network-evidence-ci.v1`, `conditional-network:evidence`, Audit/SBOM-Artefakte und Handoff zu `DPF-WP-04`
 - Breaking Changes und Migration Notes
 
 Nicht betroffene Abschnitte duerfen als `keine Aenderung` zusammengefasst werden.

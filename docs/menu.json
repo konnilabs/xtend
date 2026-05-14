@@ -297,6 +297,15 @@
     "rank": 66
   },
   {
+    "slug": "conditional-network-evidence-ci",
+    "id": "docs.conditional.network.evidence.ci",
+    "label": "Conditional Network Evidence CI",
+    "group": "security",
+    "parent": "conditional-network-evidence",
+    "tier": "policy-deep-dive",
+    "rank": 66
+  },
+  {
     "slug": "package-export-lock",
     "id": "docs.package.export.lock",
     "label": "Package Export Lock",
@@ -365,6 +374,24 @@
     "label": "RC1 Migration Notes",
     "group": "release",
     "parent": "rc1-readiness",
+    "tier": "release-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rc1-gate-matrix-ci-handoff",
+    "id": "docs.rc1.gate.matrix.ci.handoff",
+    "label": "RC1 Gate Matrix und CI-Handoff",
+    "group": "release",
+    "parent": "rc1-readiness",
+    "tier": "release-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "release-report-pack-dry-run-evidence",
+    "id": "docs.release.report.pack.dry.run.evidence",
+    "label": "Release Report und Pack Dry Run Evidence",
+    "group": "release",
+    "parent": "rc1-gate-matrix-ci-handoff",
     "tier": "release-deep-dive",
     "rank": 66
   },

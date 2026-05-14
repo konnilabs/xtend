@@ -45,4 +45,4 @@ npm run test:epic13-docs-rmt-production-hardening
 
 ## Handoff
 
-`WP-E13-11` ist abgeschlossen. `WP-E13-12` hat `xtend.epic13.rc1-migration-notes-semver.v1` abgeschlossen. `WP-E13-13` ist ready und bereitet RC1 Gate Matrix und CI-Handoff vor. Die Handoff-Entscheidung lautet `rc1-gate-matrix-ci-handoff`.
+`WP-E13-11` ist abgeschlossen. `WP-E13-12` hat `xtend.epic13.rc1-migration-notes-semver.v1` abgeschlossen. `WP-E13-13` hat `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` abgeschlossen. Die naechste Handoff-Entscheidung lautet `epic13-final-rc1-handoff`.

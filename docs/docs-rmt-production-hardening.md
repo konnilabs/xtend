@@ -28,4 +28,4 @@ Die Docs-App bleibt eine XTend-App mit PHP/Parsedown als Parser-Host. RMT render
 
 ## Handoff
 
-`WP-E13-10` ist abgeschlossen. `WP-E13-11` hat Trusted DOM, Parsedown und RMT HTML Boundary browsernah unter [Trusted DOM Boundary Browser Proof](./trusted-dom-boundary-browser-proof.md) geprueft. `WP-E13-12` hat [RC1 Migration Notes](./rc1-migration-notes.md) und `xtend.epic13.rc1-migration-notes-semver.v1` abgeschlossen. `WP-E13-13` ist ready.
+`WP-E13-10` ist abgeschlossen. `WP-E13-11` hat Trusted DOM, Parsedown und RMT HTML Boundary browsernah unter [Trusted DOM Boundary Browser Proof](./trusted-dom-boundary-browser-proof.md) geprueft. `WP-E13-12` hat [RC1 Migration Notes](./rc1-migration-notes.md) und `xtend.epic13.rc1-migration-notes-semver.v1` abgeschlossen. `WP-E13-13` hat [RC1 Gate Matrix und CI-Handoff](./rc1-gate-matrix-ci-handoff.md) und `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` abgeschlossen.

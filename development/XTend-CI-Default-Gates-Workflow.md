@@ -54,9 +54,9 @@ Der Lauf umfasst damit die Default-Suites des lokalen Runners, darunter Core, Ar
 
 - kein `npm publish`
 - keine aktive SemVer-Entscheidung fuer einen konkreten Release
-- keine verpflichtenden Netzwerk-Gates wie `npm audit` oder `npm sbom`
+- keine verpflichtenden Netzwerk-Gates in lokalen Default-Gates wie `npm audit` oder `npm sbom`
 
-`ER-WP-38` hat diese Punkte als Release-Checklist-Policy und Conditional Network Gates eingeordnet. `ER-WP-39` dokumentiert darauf den Enterprise Adoption Guide.
+`ER-WP-38` hat diese Punkte als Release-Checklist-Policy und Conditional Network Gates eingeordnet. `ER-WP-39` dokumentiert darauf den Enterprise Adoption Guide. `DPF-WP-03` ergaenzt fuer CI/Release einen separaten, nicht fuer Pull Requests verpflichtenden Job `conditional-network-evidence`, der `npm run conditional-network:evidence` mit `XTEND_CONDITIONAL_NETWORK_EXECUTE=1` ausfuehrt oder strukturierte Owner-Deferrals als Artefakte hochlaedt.
 
 ## Verifikation
 

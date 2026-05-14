@@ -66,4 +66,4 @@ node scripts/run_xtend_tests.js epic13-rc1-migration-notes --json
 npm run test:epic13-rc1-migration-notes
 ```
 
-Der naechste Handoff ist `WP-E13-13` mit `rc1-gate-matrix-ci-handoff`.
+Der direkte Handoff aus diesem Paket war `WP-E13-13` mit `rc1-gate-matrix-ci-handoff`; die zugehoerige Gate Matrix ist inzwischen unter [RC1 Gate Matrix und CI-Handoff](./rc1-gate-matrix-ci-handoff.md) dokumentiert.

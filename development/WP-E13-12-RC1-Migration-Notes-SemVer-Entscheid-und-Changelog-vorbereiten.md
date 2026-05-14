@@ -45,4 +45,4 @@ npm test
 
 ## Handoff
 
-`WP-E13-13` ist ready. Der naechste Schritt ist `rc1-gate-matrix-ci-handoff`: die finale RC1 Gate Matrix und CI-Handoff-Artefakte werden aus den akzeptierten WP-E13-01 bis WP-E13-12 gebuendelt.
+`WP-E13-13` ist abgeschlossen. `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` buendelt die finale RC1 Gate Matrix und CI-Handoff-Artefakte aus den akzeptierten WP-E13-01 bis WP-E13-12.

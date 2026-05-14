@@ -27,6 +27,8 @@ Der aggregierte Report liegt unter `.xtend-test-results/xtend-conditional-networ
 
 Der lokale Gate fuehrt die Netzwerkbefehle nicht automatisch aus. Stattdessen prueft er, dass XTend fuer Offline-, Sandbox- und CI-Umgebungen ein stabiles Evidence-/Deferral-Format besitzt.
 
+Ab `DPF-WP-03` produktisiert [Conditional Network Evidence CI](./conditional-network-evidence-ci.md) den CI-Job und den Capture-Befehl `npm run conditional-network:evidence` unter `xtend.epic13.conditional-network-evidence-ci.v1`. Der Job kann die Audit-/SBOM-Kommandos ausfuehren oder Owner-Deferrals in denselben Artefaktpfaden ablegen.
+
 Default-Reason fuer lokale Deferrals:
 
 ```text

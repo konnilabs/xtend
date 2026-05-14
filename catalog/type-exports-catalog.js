@@ -47,6 +47,9 @@ const CATALOG_PACKAGE_EXPORTS = Object.freeze([
   './catalog/epic13-docs-rmt-production-hardening',
   './catalog/epic13-trusted-dom-boundary',
   './catalog/epic13-rc1-migration-notes',
+  './catalog/epic13-rc1-gate-matrix-ci-handoff',
+  './catalog/epic13-release-report-pack-dry-run-evidence',
+  './catalog/epic13-conditional-network-evidence-ci',
   './catalog/epic14-rmt-tooling',
   './catalog/epic14-lsp-handoff'
 ]);

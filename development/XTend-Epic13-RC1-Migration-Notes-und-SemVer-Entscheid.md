@@ -58,4 +58,4 @@ RC1-Changelog-Eintraege muessen mindestens diese Abschnitte tragen:
 
 ## Handoff
 
-`WP-E13-12` ist abgeschlossen. `WP-E13-13` ist ready und erstellt die finale RC1 Gate Matrix sowie den CI-Handoff unter der Entscheidung `rc1-gate-matrix-ci-handoff`.
+`WP-E13-12` ist abgeschlossen. `WP-E13-13` hat die finale RC1 Gate Matrix sowie den CI-Handoff unter `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` abgeschlossen und uebergibt an `WP-E13-14`.

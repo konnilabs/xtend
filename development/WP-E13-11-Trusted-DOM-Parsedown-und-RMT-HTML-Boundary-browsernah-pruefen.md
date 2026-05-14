@@ -27,4 +27,4 @@ Das Paket haertet die Trusted-DOM-Boundary fuer Docs/Parsedown und RMT HTML-Frag
 
 ## Handoff
 
-`WP-E13-12` ist abgeschlossen. `WP-E13-13` ist ready. Naechste Entscheidung: `rc1-gate-matrix-ci-handoff`.
+`WP-E13-12` ist abgeschlossen. `WP-E13-13` ist abgeschlossen. Naechste Entscheidung: `epic13-final-rc1-handoff`.

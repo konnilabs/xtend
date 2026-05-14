@@ -423,6 +423,33 @@ npm run test:epic13-rc1-migration-notes
 
 `WP-E13-12` proves `xtend.epic13.rc1-migration-notes-semver.v1` with consumer-facing migration sections, the proposed `0.1.0-rc.1` SemVer decision, changelog requirements and the handoff to the final RC1 gate matrix.
 
+Run the Epic 13 RC1 Gate Matrix and CI Handoff gate:
+
+```bash
+node scripts/run_xtend_tests.js epic13-rc1-gate-matrix-ci-handoff --json
+npm run test:epic13-rc1-gate-matrix-ci-handoff
+```
+
+`WP-E13-13` proves `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` with source gates, CI lanes, report artifacts, reference paths and the handoff to `WP-E13-14`.
+
+Run the Epic 13 Release Report and Pack Dry Run Evidence gate:
+
+```bash
+node scripts/run_xtend_tests.js epic13-release-report-pack-dry-run-evidence --json
+npm run test:epic13-release-report-pack-dry-run-evidence
+```
+
+`DPF-WP-02` proves `xtend.epic13.release-report-pack-dry-run-evidence.v1` with `release:report`, `pack:dry-run`, reproducible owner artifacts and the handoff to `DPF-WP-03`.
+
+Run the Epic 13 Conditional Network Evidence CI gate:
+
+```bash
+node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci --json
+npm run test:epic13-conditional-network-evidence-ci
+```
+
+`DPF-WP-03` proves `xtend.epic13.conditional-network-evidence-ci.v1` with the `conditional-network-evidence` CI job, `npm run conditional-network:evidence`, Audit/SBOM artifacts and owner-deferral output.
+
 Run the Epic 11 Component UX Authoring Docs gate:
 
 ```bash
@@ -520,7 +547,7 @@ The runner exits with `0` when all selected suites pass and `1` when at least on
 
 The active CI default gate is `.github/workflows/xtend-default-gates.yml` under `xtend.ci.default-gates.v1`. Since `ER-WP-37`, the workflow also follows `xtend.ci.gate-matrix.v1`: pull requests run `npm run test:pr:report` and upload `xtend-pr-gate-report-node-26`; push, manual and nightly runs use `npm run test:release:full:report` and upload `xtend-release-gate-report-node-26`.
 
-Epic 13 adds RC1 owner-readiness suites on top of the RC0 matrix, including `node scripts/run_xtend_tests.js epic13-known-residual-triage --json` for `xtend.epic13.known-residual-triage.v1`, `node scripts/run_xtend_tests.js epic13-rmt-production-readiness --json` for `xtend.epic13.rmt-production-readiness.v1`, `node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json` for `xtend.epic13.docs-rmt-production-hardening.v1`, `node scripts/run_xtend_tests.js epic13-trusted-dom-boundary --json` for `xtend.epic13.trusted-dom-boundary.v1` and `node scripts/run_xtend_tests.js epic13-rc1-migration-notes --json` for `xtend.epic13.rc1-migration-notes-semver.v1`.
+Epic 13 adds RC1 owner-readiness suites on top of the RC0 matrix, including `node scripts/run_xtend_tests.js epic13-known-residual-triage --json` for `xtend.epic13.known-residual-triage.v1`, `node scripts/run_xtend_tests.js epic13-rmt-production-readiness --json` for `xtend.epic13.rmt-production-readiness.v1`, `node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json` for `xtend.epic13.docs-rmt-production-hardening.v1`, `node scripts/run_xtend_tests.js epic13-trusted-dom-boundary --json` for `xtend.epic13.trusted-dom-boundary.v1`, `node scripts/run_xtend_tests.js epic13-rc1-migration-notes --json` for `xtend.epic13.rc1-migration-notes-semver.v1` and `node scripts/run_xtend_tests.js epic13-rc1-gate-matrix-ci-handoff --json` for `xtend.epic13.rc1-gate-matrix-ci-handoff.v1`.
 
 `XTend-Scaffold` exposes its local verification workflow through schema `xtend.scaffold.verify-plan.v1`. The plan does not replace the test runner; it lists the smallest useful verification commands, the JSON report command and the full `npm test` handoff gate. Scaffolded type artifacts are planned through `xtend.scaffold.component-typing.v1` and remain `types-only-no-runtime-imports`. Scaffolded preview references are planned through `xtend.scaffold.component-preview.v1` and remain repo-local dry-run outputs until explicitly registered. Scaffolded extension points are planned through `xtend.scaffold.component-extension-points.v1` and remain no-op metadata until Epic 04 or Epic 05 implements a runtime. The A11y-Hydration gate also tracks `xtend.a11y.browser-keyboard-smoke.v1` for browser-near focus and keyboard behavior. The Screenreader signal gate tracks `xtend.a11y.screenreader-signals.v1` for `aria-live`, status regions, error regions, announcements and scaffold manifest output. The Component Catalog Coverage gate tracks `xtend.catalog.component-coverage-matrix.v1` for manifest-wide Source, Docs, Component-Suite, Fixture, Types, A11y and Performance maturity. The Manifest/Dynamic Import gate tracks `xtend.security.manifest-import-gate.v1` for local URL policy, allowlist and refusal diagnostics. The RMT compatibility gate uses `xtend.scaffold.rmt-compatibility-binding.v1` to verify that typing, manifest-plan, preview-plan, extension-points, component-files and workflow stay aligned. The same gate now also checks `xtend.rmt.template-pilot-flow.v1` as a reference-only pilot for RMT-based XTend templating, `xtend.rmt.upstream-handoff.v1` as the Epic 05 start contract, `xtend.rmt.components-domain.v1` as the native Component-Domain-Contract from Epic 05 / WP-05, `xtend.rmt.routes-domain.v1` as the native Route-Domain-Contract from Epic 05 / WP-06, `xtend.rmt.schedules-domain.v1` as the native Schedule-Policy-Domain-Contract from Epic 05 / WP-07, `xtend.rmt.dsl-normalization.v1` as the DSL-Normalization-Contract from Epic 05 / WP-08, `xtend.rmt.runtime-registry.v1` as the Route-/Component-Registry-Contract from Epic 05 / WP-09, `xtend.rmt.xrouter-adapter.v1` as the productive XRouter Adapter Contract from Epic 05 / WP-10, `xtend.rmt.xtend-component-adapter.v1` as the productive XTend Component Adapter Contract from Epic 05 / WP-11, `xtend.rmt.state-scheduler-diagnostics-bridge.v1` as the productive State/Scheduler/Diagnostics Bridge Contract from Epic 05 / WP-12, `xtend.rmt.artifact-parity.v1` as the Artifact-Parity-Contract from Epic 05 / WP-13, the native bestcase-demo migration from Epic 05 / WP-14, `xtend.rmt.wp15.native-bridge-fixture.v1` as the native bridge regression from Epic 05 / WP-15, `xtend.rmt.wp16.browser-smoke-fixture.v1` as the browser-smoke regression from Epic 05 / WP-16, `xtend.rmt.native-authoring-guide.v1` as the native authoring guide from Epic 05 / WP-17, `xtend.rmt.native-migration-guide.v1` as the native migration guide from Epic 05 / WP-17 and `xtend.rmt.epic05-closure.v1` as the Epic 05 closure review from WP-18.
 

@@ -87,9 +87,9 @@ Er umfasst damit Browser-Smokes, Performance Regression, Hydration Policies, Fab
 
 ## Nightly Policy
 
-Nightly nutzt denselben Command wie `full-release`. Das haelt die Matrix klein und vermeidet ein drittes semantisches Gate, solange keine echten externen Network-Gates oder Visual-Snapshot-Artefakte angebunden sind.
+Nightly nutzt denselben Command wie `full-release`. Das haelt die Matrix klein und vermeidet ein drittes semantisches Gate, solange keine zusaetzlichen Visual-Snapshot-Artefakte angebunden sind.
 
-Netzwerkbasierte Supply-Chain-Gates wie `npm audit --audit-level=moderate` und `npm sbom --json` sind nicht Teil dieser Matrix. `ER-WP-38` ordnet sie als Conditional Network Gates der Release Checklist zu.
+Netzwerkbasierte Supply-Chain-Gates wie `npm audit --audit-level=moderate` und `npm sbom --json` bleiben ausserhalb der lokalen Default-Matrix. `ER-WP-38` ordnet sie als Conditional Network Gates der Release Checklist zu; `DPF-WP-03` produktisiert dafuer den separaten CI-Job `conditional-network-evidence` mit `npm run conditional-network:evidence` und Owner-Deferral-Artefakten.
 
 ## RC0 Overlay
 
@@ -118,6 +118,9 @@ Der RC0 Overlay nutzt:
 - `node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json` als Docs RMT Production Hardening Gate aus `WP-E13-10`
 - `node scripts/run_xtend_tests.js epic13-trusted-dom-boundary --json` als Trusted DOM Boundary Gate aus `WP-E13-11`
 - `node scripts/run_xtend_tests.js epic13-rc1-migration-notes --json` / `npm run test:epic13-rc1-migration-notes` als RC1 Migration Notes-, SemVer- und Changelog-Gate aus `WP-E13-12`
+- `node scripts/run_xtend_tests.js epic13-rc1-gate-matrix-ci-handoff --json` / `npm run test:epic13-rc1-gate-matrix-ci-handoff` als RC1 Gate Matrix-, Report-Artefakt- und CI-Handoff-Gate aus `WP-E13-13`
+- `node scripts/run_xtend_tests.js epic13-release-report-pack-dry-run-evidence --json` / `npm run test:epic13-release-report-pack-dry-run-evidence` als Release Report-, `npm run release:report`- und `npm run pack:dry-run`-Owner-Evidence-Gate aus `DPF-WP-02`
+- `node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci --json` / `npm run test:epic13-conditional-network-evidence-ci` als Conditional Network Evidence CI-, `npm run conditional-network:evidence`- und `conditional-network-evidence`-Workflow-Gate aus `DPF-WP-03`
 - `npm run pack:dry-run:report` als Release-Owner-Artefaktlauf fuer `npm pack --dry-run --json`
 
 Publish bleibt trotz gruener RC0 Matrix durch `private-until-release-owner-approval` blockiert.

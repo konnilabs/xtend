@@ -80,3 +80,39 @@ jobs:
           name: xtend-release-gate-report-node-26
           path: .xtend-test-results/xtend-release-gate-report.json
           if-no-files-found: warn
+
+  conditional-network-evidence:
+    name: Conditional network evidence (Node 26.x)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js 26.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: 26.x
+
+      - name: Print runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Capture conditional network evidence
+        env:
+          XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
+        run: npm run conditional-network:evidence
+
+      - name: Upload conditional network evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xtend-conditional-network-evidence-node-26
+          path: |
+            .xtend-test-results/xtend-npm-audit-report.json
+            .xtend-test-results/xtend-npm-sbom.json
+            .xtend-test-results/xtend-conditional-network-evidence-report.json
+          if-no-files-found: warn

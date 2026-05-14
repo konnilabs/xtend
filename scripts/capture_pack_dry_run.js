@@ -35,12 +35,29 @@ fs.mkdirSync(cacheDir, { recursive: true });
 const result = spawnSync('npm', ['pack', '--dry-run', '--json'], {
   cwd: rootDir,
   encoding: 'utf8',
+  maxBuffer: 16 * 1024 * 1024,
   env: {
     ...process.env,
     npm_config_cache: cacheDir,
     NPM_CONFIG_CACHE: cacheDir
   }
 });
+
+if (result.error) {
+  writeJson(PACKAGE_DRY_RUN_ARTIFACT, {
+    ok: false,
+    command: 'npm pack --dry-run --json',
+    error: {
+      code: result.error.code,
+      message: result.error.message
+    },
+    stdout: result.stdout || '',
+    stderr: result.stderr || ''
+  });
+  process.stderr.write(result.error.message);
+  process.stderr.write('\n');
+  process.exit(1);
+}
 
 if (result.status !== 0) {
   writeJson(PACKAGE_DRY_RUN_ARTIFACT, {

@@ -955,7 +955,8 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: '"supply-chain:verify": "node scripts/verify_supply_chain_policy.js"', message: 'exposes Supply-Chain verify script' },
       { pattern: '"release:check": "npm test"', message: 'exposes release check script' },
       { pattern: '"release:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-report.json"', message: 'exposes release report script' },
-      { pattern: '"pack:dry-run": "npm pack --dry-run"', message: 'exposes package dry-run script' }
+      { pattern: '"pack:dry-run": "node scripts/capture_pack_dry_run.js"', message: 'exposes package dry-run artifact capture script' },
+      { pattern: '"pack:dry-run:raw": "npm pack --dry-run"', message: 'exposes raw package dry-run script' }
     ]
   },
   {

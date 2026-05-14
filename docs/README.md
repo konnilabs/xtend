@@ -34,6 +34,7 @@ Willkommen zur offiziellen Dokumentation des XTend Web Frameworks. Dieses Inhalt
 - [RC1 Readiness](./rc1-readiness.md)
 - [Release Owner Acceptance](./release-owner-acceptance.md)
 - [Conditional Network Evidence](./conditional-network-evidence.md)
+- [Conditional Network Evidence CI](./conditional-network-evidence-ci.md)
 - [Package Export Lock](./package-export-lock.md)
 - [TypeExports](./type-exports.md)
 - [XTend Loader Types](./xtend-loader-types.md)
@@ -50,6 +51,8 @@ Willkommen zur offiziellen Dokumentation des XTend Web Frameworks. Dieses Inhalt
 - [RMT Production Readiness](./rmt-production-readiness.md)
 - [Docs RMT Production Hardening](./docs-rmt-production-hardening.md)
 - [RC1 Migration Notes](./rc1-migration-notes.md)
+- [RC1 Gate Matrix und CI-Handoff](./rc1-gate-matrix-ci-handoff.md)
+- [Release Report und Pack Dry Run Evidence](./release-report-pack-dry-run-evidence.md)
 - [RMT-first XTend Apps](./rmt-first-xtend-apps.md)
 - [SurfaceManager RMT Authoring](./surface-manager-rmt-authoring.md)
 - [SurfaceManager Controller](./surface-manager-controller.md)
@@ -150,6 +153,10 @@ Epic 14 ist ab `WP-E14-16` abgeschlossen. Der Handoff `xtend.epic14.lsp-handoff.
 
 [RC1 Migration Notes](./rc1-migration-notes.md) dokumentiert ab `WP-E13-12` den Contract `xtend.epic13.rc1-migration-notes-semver.v1`, die vorgeschlagene Version `0.1.0-rc.1`, Migration Sections fuer Loader, RMT, Docs, Trusted DOM, Fabric, Typing, Visual Owner Artifacts und Supply Chain sowie den Gate `node scripts/run_xtend_tests.js epic13-rc1-migration-notes --json`.
 
+[RC1 Gate Matrix und CI-Handoff](./rc1-gate-matrix-ci-handoff.md) dokumentiert ab `WP-E13-13` den Contract `xtend.epic13.rc1-gate-matrix-ci-handoff.v1`, Source Gates, CI Lanes, Report-Artefakte, Referenzpfade und den Gate `node scripts/run_xtend_tests.js epic13-rc1-gate-matrix-ci-handoff --json`.
+
+[Release Report und Pack Dry Run Evidence](./release-report-pack-dry-run-evidence.md) dokumentiert ab `DPF-WP-02` den Contract `xtend.epic13.release-report-pack-dry-run-evidence.v1`, `npm run release:report`, `npm run pack:dry-run`, reproduzierbare Owner-Artefakte und den Gate `node scripts/run_xtend_tests.js epic13-release-report-pack-dry-run-evidence --json`.
+
 [Supply-Chain Gates](./supply-chain-gates.md) dokumentiert ab `ER-WP-30`, wie Dependency Inventory, License Policy, Vulnerability Policy, SBOM-/Audit-Stufen, Provenance und private Publish Boundary vorbereitet sind. Der lokale Gate bleibt offline; Registry-Audits gehoeren in CI-/Release-Stufen.
 
 [Component Catalog Coverage](./component-catalog-coverage.md) dokumentiert ab `ER-WP-31`, wie Manifest-Komponenten nach Source, Docs, Component-Suite, Fixture, Types, A11y und Performance bewertet werden. `ER-WP-32`, `ER-WP-33`, `ER-WP-34` und `ER-WP-35` sind abgeschlossen; die Matrix ist nun der Handoff fuer CI und Release Readiness.
@@ -175,6 +182,8 @@ Epic 14 ist ab `WP-E14-16` abgeschlossen. Der Handoff `xtend.epic14.lsp-handoff.
 [Release Owner Acceptance](./release-owner-acceptance.md) dokumentiert ab `WP-E13-02` den Contract `xtend.epic13.release-owner-acceptance.v1` fuer Owner Inputs, `accepted`/`deferred`/`blocked` Entscheidungen, `automatic-publish-approval` als blockierte Entscheidung und den weiterhin geschlossenen Publish Boundary. Der lokale Gate `node scripts/run_xtend_tests.js epic13-release-owner-acceptance --json` prueft den Owner-Acceptance-Schnitt.
 
 [Conditional Network Evidence](./conditional-network-evidence.md) dokumentiert ab `WP-E13-03` den Contract `xtend.epic13.conditional-network-evidence.v1` fuer `npm audit --audit-level=moderate`, `npm sbom --json`, `.xtend-test-results/` Evidence-Artefakte und strukturierte Offline-/Sandbox-Deferrals. Der lokale Gate `node scripts/run_xtend_tests.js epic13-conditional-network-evidence --json` bleibt netzwerkfrei.
+
+[Conditional Network Evidence CI](./conditional-network-evidence-ci.md) dokumentiert ab `DPF-WP-03` den Contract `xtend.epic13.conditional-network-evidence-ci.v1`, `npm run conditional-network:evidence`, den GitHub-Actions-Job `conditional-network-evidence` und den Gate `node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci --json`.
 
 [Package Export Lock](./package-export-lock.md) dokumentiert ab `WP-E13-04` den Contract `xtend.epic13.package-export-lock.v1` fuer `npm pack --dry-run --json`, `.xtend-test-results/xtend-pack-dry-run.json`, `.xtend-test-results/xtend-package-export-surface-lock.json`, Loader, Components, Fabric, XTendRMT, Builder, Docs und den lokalen Gate `node scripts/run_xtend_tests.js epic13-package-export-lock --json`.
 

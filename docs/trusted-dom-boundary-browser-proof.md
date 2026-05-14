@@ -29,4 +29,4 @@ Die Fixture legt absichtlich feindliche Inhalte in `window.xtendDocsPages` ab un
 
 ## Handoff
 
-`WP-E13-11` ist abgeschlossen. `WP-E13-12` ist mit [RC1 Migration Notes](./rc1-migration-notes.md) und `xtend.epic13.rc1-migration-notes-semver.v1` abgeschlossen. `WP-E13-13` ist ready und bereitet RC1 Gate Matrix und CI-Handoff vor.
+`WP-E13-11` ist abgeschlossen. `WP-E13-12` ist mit [RC1 Migration Notes](./rc1-migration-notes.md) und `xtend.epic13.rc1-migration-notes-semver.v1` abgeschlossen. `WP-E13-13` ist mit [RC1 Gate Matrix und CI-Handoff](./rc1-gate-matrix-ci-handoff.md) und `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` abgeschlossen.
