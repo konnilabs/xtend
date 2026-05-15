@@ -472,7 +472,12 @@ Der Contract `xtend.epic14.lsp-handoff.v1` dokumentiert die LSP Capability Matri
 |------|--------|-----------|
 | `index.html` | automated-static | Hauptdemo mit lokalem Loader, CSS und Kernkomponenten |
 | `xtendrmt-bestcase.html` | automated-static | XTendRMT Bestcase Demo mit lokaler XTend UI und XRouter |
+<<<<<<< HEAD
 | `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static | Native RMT-Domains fuer Routen, XTend-Components, Adapter, Schedules, Template-Hydration und `xtend.rmt.template-pilot-flow.v1` |
+=======
+| `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static | RMT-vNext-Authoring fuer Bestcase Surfaces, Lanes, Lifecycle-Operationen, Slots, Event-Actions und `xtend.rmt.template-pilot-flow.v1` |
+| `xtendrmt/xtendrmt-bestcase-demo.core.json` | automated-static | Byte-stabiler vNext-Core-Output fuer die Bestcase Runtime-Projektion auf XRouter, XTend Components und Scheduler Policies |
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 | `tests/fixtures/rmt-app-dsl.native-bridge.rmt` | automated-static | Native Bridge-Fixture fuer RMT Route-/Component-/Schedule-Adapter-Regression unter `xtend.rmt.wp15.native-bridge-fixture.v1` |
 | `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` | browser-smoke | Browsernahe RMT/XRouter/XTend/Vanilla-Fixture fuer native Routes, Component-Hydration und Scheduler Endpoints unter `xtend.rmt.wp16.browser-smoke-fixture.v1` |
 | `docs/previews/<name>.preview.md` | automated-static-candidate | Zielmuster fuer scaffolded Component-Preview-Plaene |
@@ -566,7 +571,11 @@ node scripts/run_xtend_tests.js rmt-compatibility --json
 node scripts/run_xtend_tests.js references --json
 ```
 
+<<<<<<< HEAD
 Der Pilot liegt in `xtendrmt/xtendrmt-bestcase-demo.rmt` unter `manifest.metadata.pilotFlow`, Route `/templating` und Template `demo.templating.pilot`. Seit Epic 05 / `WP-E05-14` liegen Routen, Components, Adapter und Schedules in nativen Top-Level-Domains; die Demo nutzt produktive XRouter-, XTend-Component- und State/Scheduler/Diagnostics-Adapterpfade. `bridgeRuntime: reserved-for-Epic-05` bleibt als historischer Pilot-Handoff sichtbar, ist aber nicht mehr die operative Demo-Bridge.
+=======
+Der Pilot liegt in `xtendrmt/xtendrmt-bestcase-demo.rmt` als RMT-vNext `surface templating` mit `slot`-Composition und `on pilot-run -> action ...`; der stabile Compiler-Output liegt in `xtendrmt/xtendrmt-bestcase-demo.core.json`. Die Demo-Runtime projiziert daraus Route `/templating`, Template `demo.templating.pilot`, Adapter-, Component- und Schedule-Records fuer die produktiven XRouter-, XTend-Component- und State/Scheduler/Diagnostics-Adapterpfade. `bridgeRuntime: reserved-for-Epic-05` bleibt als historischer Pilot-Handoff in der Projektion sichtbar, ist aber nicht mehr die operative Demo-Bridge.
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 
 ## XTendRMT Upstream-Handoff
 

@@ -1,0 +1,1187 @@
+{
+  "schema": "xtend.rmt.core-format.vnext.v1",
+  "kind": "rmt_document",
+  "version": "2.0-vnext",
+  "manifest": {
+    "documentId": "xtendrmt.bestcase.demo",
+    "namespace": "xtendrmt.demo",
+    "sourceSyntax": "rmt-vnext",
+    "contracts": [
+      "xtend.rmt.vnext.grammar.v1",
+      "xtend.rmt.core-format.vnext.v1"
+    ]
+  },
+  "imports": [],
+  "templates": [
+    {
+      "id": "template:xtendrmt.bestcase.demo",
+      "name": "xtendrmt.bestcase.demo",
+      "mode": "orchestration",
+      "surfaceRefs": [
+        "surface:xtendrmt.bestcase.demo/kernel",
+        "surface:xtendrmt.bestcase.demo/scheduler",
+        "surface:xtendrmt.bestcase.demo/routing",
+        "surface:xtendrmt.bestcase.demo/templating",
+        "surface:xtendrmt.bestcase.demo/adapter"
+      ],
+      "sourceRef": "src:template:xtendrmt.bestcase.demo"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface:xtendrmt.bestcase.demo/kernel",
+      "name": "kernel",
+      "kind": "named_surface",
+      "laneRefs": [
+        "lane:xtendrmt.bestcase.demo/kernel/visible",
+        "lane:xtendrmt.bestcase.demo/kernel/idle"
+      ],
+      "scope": {
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:surface:xtendrmt.bestcase.demo/kernel"
+    },
+    {
+      "id": "surface:xtendrmt.bestcase.demo/scheduler",
+      "name": "scheduler",
+      "kind": "named_surface",
+      "laneRefs": [
+        "lane:xtendrmt.bestcase.demo/scheduler/visible",
+        "lane:xtendrmt.bestcase.demo/scheduler/idle",
+        "lane:xtendrmt.bestcase.demo/scheduler/diagnostics"
+      ],
+      "scope": {
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:surface:xtendrmt.bestcase.demo/scheduler"
+    },
+    {
+      "id": "surface:xtendrmt.bestcase.demo/routing",
+      "name": "routing",
+      "kind": "named_surface",
+      "laneRefs": [
+        "lane:xtendrmt.bestcase.demo/routing/visible"
+      ],
+      "scope": {
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:surface:xtendrmt.bestcase.demo/routing"
+    },
+    {
+      "id": "surface:xtendrmt.bestcase.demo/templating",
+      "name": "templating",
+      "kind": "named_surface",
+      "laneRefs": [
+        "lane:xtendrmt.bestcase.demo/templating/visible"
+      ],
+      "scope": {
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:surface:xtendrmt.bestcase.demo/templating"
+    },
+    {
+      "id": "surface:xtendrmt.bestcase.demo/adapter",
+      "name": "adapter",
+      "kind": "named_surface",
+      "laneRefs": [
+        "lane:xtendrmt.bestcase.demo/adapter/idle"
+      ],
+      "scope": {
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:surface:xtendrmt.bestcase.demo/adapter"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "lane:xtendrmt.bestcase.demo/kernel/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/kernel",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/kernel/visible/0"
+      ],
+      "weight": 88,
+      "sourceRef": "src:lane:xtendrmt.bestcase.demo/kernel/visible"
+    },
+    {
+      "id": "lane:xtendrmt.bestcase.demo/kernel/idle",
+      "name": "idle",
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/kernel",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/kernel/idle/0"
+      ],
+      "weight": 1,
+      "sourceRef": "src:lane:xtendrmt.bestcase.demo/kernel/idle"
+    },
+    {
+      "id": "lane:xtendrmt.bestcase.demo/scheduler/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/scheduler",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/scheduler/visible/0"
+      ],
+      "weight": 88,
+      "sourceRef": "src:lane:xtendrmt.bestcase.demo/scheduler/visible"
+    },
+    {
+      "id": "lane:xtendrmt.bestcase.demo/scheduler/idle",
+      "name": "idle",
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/scheduler",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/scheduler/idle/0"
+      ],
+      "weight": 42,
+      "sourceRef": "src:lane:xtendrmt.bestcase.demo/scheduler/idle"
+    },
+    {
+      "id": "lane:xtendrmt.bestcase.demo/scheduler/diagnostics",
+      "name": "diagnostics",
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/scheduler",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/scheduler/diagnostics/0"
+      ],
+      "weight": 34,
+      "sourceRef": "src:lane:xtendrmt.bestcase.demo/scheduler/diagnostics"
+    },
+    {
+      "id": "lane:xtendrmt.bestcase.demo/routing/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/routing",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/routing/visible/0"
+      ],
+      "weight": 88,
+      "sourceRef": "src:lane:xtendrmt.bestcase.demo/routing/visible"
+    },
+    {
+      "id": "lane:xtendrmt.bestcase.demo/templating/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/templating",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/templating/visible/0"
+      ],
+      "weight": 70,
+      "sourceRef": "src:lane:xtendrmt.bestcase.demo/templating/visible"
+    },
+    {
+      "id": "lane:xtendrmt.bestcase.demo/adapter/idle",
+      "name": "idle",
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/adapter",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/adapter/idle/0"
+      ],
+      "weight": 42,
+      "sourceRef": "src:lane:xtendrmt.bestcase.demo/adapter/idle"
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation:xtendrmt.bestcase.demo/kernel/visible/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "x-rmt-route-overview"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/kernel",
+        "lane": "lane:xtendrmt.bestcase.demo/kernel/visible",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "source": {
+        "ref": "dataSource:xtendrmt.bestcase.demo/kernel/visible/0",
+        "kind": "endpoint",
+        "id": "xtendrmt.route.render"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/kernel/visible/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/kernel/idle/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "code.snapshot"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/kernel",
+        "lane": "lane:xtendrmt.bestcase.demo/kernel/idle",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/kernel/idle/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/scheduler/visible/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "x-rmt-route-scheduler"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/scheduler",
+        "lane": "lane:xtendrmt.bestcase.demo/scheduler/visible",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "source": {
+        "ref": "dataSource:xtendrmt.bestcase.demo/scheduler/visible/0",
+        "kind": "endpoint",
+        "id": "xtendrmt.route.render"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/scheduler/visible/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/scheduler/idle/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "scheduler.snapshot"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/scheduler",
+        "lane": "lane:xtendrmt.bestcase.demo/scheduler/idle",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "source": {
+        "ref": "dataSource:xtendrmt.bestcase.demo/scheduler/idle/0",
+        "kind": "endpoint",
+        "id": "xtendrmt.component-hydrate"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/scheduler/idle/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/scheduler/diagnostics/0",
+      "kind": "lifecycle",
+      "op": "prewarm",
+      "target": {
+        "kind": "ref",
+        "ref": "diagnostics.snapshot"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/scheduler",
+        "lane": "lane:xtendrmt.bestcase.demo/scheduler/diagnostics",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "source": {
+        "ref": "dataSource:xtendrmt.bestcase.demo/scheduler/diagnostics/0",
+        "kind": "worker",
+        "id": "xtendrmt.diagnostics.snapshot"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/scheduler/diagnostics/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/routing/visible/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "x-rmt-route-routing"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/routing",
+        "lane": "lane:xtendrmt.bestcase.demo/routing/visible",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "source": {
+        "ref": "dataSource:xtendrmt.bestcase.demo/routing/visible/0",
+        "kind": "endpoint",
+        "id": "xtendrmt.route.render"
+      },
+      "condition": {
+        "kind": "condition",
+        "expression": {
+          "kind": "binary",
+          "op": "==",
+          "left": {
+            "kind": "path",
+            "path": [
+              "route",
+              "visible"
+            ]
+          },
+          "right": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        "sourceRef": "src:condition:xtendrmt.bestcase.demo/routing/visible/0"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/routing/visible/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/templating/visible/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "x-rmt-route-template-pilot"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/templating",
+        "lane": "lane:xtendrmt.bestcase.demo/templating/visible",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "source": {
+        "ref": "dataSource:xtendrmt.bestcase.demo/templating/visible/0",
+        "kind": "endpoint",
+        "id": "xtendrmt.template-inspect"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/templating/visible/0",
+      "policyRefs": [
+        "slot:xtendrmt.bestcase.demo/templating/visible/0/title",
+        "slot:xtendrmt.bestcase.demo/templating/visible/0/cards",
+        "slot:xtendrmt.bestcase.demo/templating/visible/0/feedback",
+        "event:xtendrmt.bestcase.demo/templating/visible/0/pilot-run"
+      ]
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/templating/visible/0/title/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "pilot.title"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/templating",
+        "lane": "lane:xtendrmt.bestcase.demo/templating/visible",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/templating/visible/0/title/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/templating/visible/0/cards/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "kernel.cards"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/templating",
+        "lane": "lane:xtendrmt.bestcase.demo/templating/visible",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/templating/visible/0/cards/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/templating/visible/0/feedback/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "feedback.status"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/templating",
+        "lane": "lane:xtendrmt.bestcase.demo/templating/visible",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/templating/visible/0/feedback/0"
+    },
+    {
+      "id": "operation:xtendrmt.bestcase.demo/adapter/idle/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "x-rmt-route-adapter"
+      },
+      "scope": {
+        "surface": "surface:xtendrmt.bestcase.demo/adapter",
+        "lane": "lane:xtendrmt.bestcase.demo/adapter/idle",
+        "template": "template:xtendrmt.bestcase.demo"
+      },
+      "source": {
+        "ref": "dataSource:xtendrmt.bestcase.demo/adapter/idle/0",
+        "kind": "endpoint",
+        "id": "xtendrmt.component-hydrate"
+      },
+      "sourceRef": "src:operation:xtendrmt.bestcase.demo/adapter/idle/0"
+    }
+  ],
+  "slots": [
+    {
+      "id": "slot:xtendrmt.bestcase.demo/templating/visible/0/title",
+      "name": "title",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/templating/visible/0",
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/templating/visible/0/title/0"
+      ],
+      "sourceRef": "src:slot:xtendrmt.bestcase.demo/templating/visible/0/title"
+    },
+    {
+      "id": "slot:xtendrmt.bestcase.demo/templating/visible/0/cards",
+      "name": "cards",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/templating/visible/0",
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/templating/visible/0/cards/0"
+      ],
+      "sourceRef": "src:slot:xtendrmt.bestcase.demo/templating/visible/0/cards"
+    },
+    {
+      "id": "slot:xtendrmt.bestcase.demo/templating/visible/0/feedback",
+      "name": "feedback",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/templating/visible/0",
+      "operationRefs": [
+        "operation:xtendrmt.bestcase.demo/templating/visible/0/feedback/0"
+      ],
+      "sourceRef": "src:slot:xtendrmt.bestcase.demo/templating/visible/0/feedback"
+    }
+  ],
+  "events": [
+    {
+      "id": "event:xtendrmt.bestcase.demo/templating/visible/0/pilot-run",
+      "event": "pilot-run",
+      "action": "xtendrmt.template-pilot.inspect",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/templating/visible/0",
+      "condition": null,
+      "sourceRef": "src:event:xtendrmt.bestcase.demo/templating/visible/0/pilot-run"
+    }
+  ],
+  "dataSources": [
+    {
+      "id": "dataSource:xtendrmt.bestcase.demo/kernel/visible/0",
+      "kind": "endpoint",
+      "target": "xtendrmt.route.render",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/kernel/visible/0",
+      "sourceRef": "src:dataSource:xtendrmt.bestcase.demo/kernel/visible/0"
+    },
+    {
+      "id": "dataSource:xtendrmt.bestcase.demo/scheduler/visible/0",
+      "kind": "endpoint",
+      "target": "xtendrmt.route.render",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/scheduler/visible/0",
+      "sourceRef": "src:dataSource:xtendrmt.bestcase.demo/scheduler/visible/0"
+    },
+    {
+      "id": "dataSource:xtendrmt.bestcase.demo/scheduler/idle/0",
+      "kind": "endpoint",
+      "target": "xtendrmt.component-hydrate",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/scheduler/idle/0",
+      "sourceRef": "src:dataSource:xtendrmt.bestcase.demo/scheduler/idle/0"
+    },
+    {
+      "id": "dataSource:xtendrmt.bestcase.demo/scheduler/diagnostics/0",
+      "kind": "worker",
+      "target": "xtendrmt.diagnostics.snapshot",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/scheduler/diagnostics/0",
+      "sourceRef": "src:dataSource:xtendrmt.bestcase.demo/scheduler/diagnostics/0"
+    },
+    {
+      "id": "dataSource:xtendrmt.bestcase.demo/routing/visible/0",
+      "kind": "endpoint",
+      "target": "xtendrmt.route.render",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/routing/visible/0",
+      "sourceRef": "src:dataSource:xtendrmt.bestcase.demo/routing/visible/0"
+    },
+    {
+      "id": "dataSource:xtendrmt.bestcase.demo/templating/visible/0",
+      "kind": "endpoint",
+      "target": "xtendrmt.template-inspect",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/templating/visible/0",
+      "sourceRef": "src:dataSource:xtendrmt.bestcase.demo/templating/visible/0"
+    },
+    {
+      "id": "dataSource:xtendrmt.bestcase.demo/adapter/idle/0",
+      "kind": "endpoint",
+      "target": "xtendrmt.component-hydrate",
+      "ownerOperation": "operation:xtendrmt.bestcase.demo/adapter/idle/0",
+      "sourceRef": "src:dataSource:xtendrmt.bestcase.demo/adapter/idle/0"
+    }
+  ],
+  "securityPolicies": [],
+  "sourceMap": [
+    {
+      "id": "src:template:xtendrmt.bestcase.demo",
+      "nodeType": "RmtTemplateDeclaration",
+      "corePointer": "/templates/0",
+      "astPointer": "/body/0",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 56,
+          "character": 1
+        },
+        "startOffset": 0,
+        "endOffset": 1274
+      }
+    },
+    {
+      "id": "src:surface:xtendrmt.bestcase.demo/kernel",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/0",
+      "astPointer": "/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 2
+        },
+        "end": {
+          "line": 9,
+          "character": 3
+        },
+        "startOffset": 36,
+        "endOffset": 220
+      }
+    },
+    {
+      "id": "src:lane:xtendrmt.bestcase.demo/kernel/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/0",
+      "astPointer": "/body/0/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 4
+        },
+        "end": {
+          "line": 4,
+          "character": 5
+        },
+        "startOffset": 57,
+        "endOffset": 156
+      }
+    },
+    {
+      "id": "src:dataSource:xtendrmt.bestcase.demo/kernel/visible/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/0",
+      "astPointer": "/body/0/body/0/body/0/body/0/source",
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 33
+        },
+        "end": {
+          "line": 3,
+          "character": 68
+        },
+        "startOffset": 115,
+        "endOffset": 150
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/kernel/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/0",
+      "astPointer": "/body/0/body/0/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 6
+        },
+        "end": {
+          "line": 4,
+          "character": 0
+        },
+        "startOffset": 88,
+        "endOffset": 151
+      }
+    },
+    {
+      "id": "src:lane:xtendrmt.bestcase.demo/kernel/idle",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/1",
+      "astPointer": "/body/0/body/0/body/1",
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 4
+        },
+        "end": {
+          "line": 8,
+          "character": 5
+        },
+        "startOffset": 162,
+        "endOffset": 216
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/kernel/idle/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/1",
+      "astPointer": "/body/0/body/0/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 6
+        },
+        "end": {
+          "line": 8,
+          "character": 0
+        },
+        "startOffset": 189,
+        "endOffset": 211
+      }
+    },
+    {
+      "id": "src:surface:xtendrmt.bestcase.demo/scheduler",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/1",
+      "astPointer": "/body/0/body/1",
+      "range": {
+        "start": {
+          "line": 11,
+          "character": 2
+        },
+        "end": {
+          "line": 23,
+          "character": 3
+        },
+        "startOffset": 224,
+        "endOffset": 576
+      }
+    },
+    {
+      "id": "src:lane:xtendrmt.bestcase.demo/scheduler/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/2",
+      "astPointer": "/body/0/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 4
+        },
+        "end": {
+          "line": 14,
+          "character": 5
+        },
+        "startOffset": 248,
+        "endOffset": 348
+      }
+    },
+    {
+      "id": "src:dataSource:xtendrmt.bestcase.demo/scheduler/visible/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/1",
+      "astPointer": "/body/0/body/1/body/0/body/0/source",
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 34
+        },
+        "end": {
+          "line": 13,
+          "character": 69
+        },
+        "startOffset": 307,
+        "endOffset": 342
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/scheduler/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/2",
+      "astPointer": "/body/0/body/1/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 6
+        },
+        "end": {
+          "line": 14,
+          "character": 0
+        },
+        "startOffset": 279,
+        "endOffset": 343
+      }
+    },
+    {
+      "id": "src:lane:xtendrmt.bestcase.demo/scheduler/idle",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/3",
+      "astPointer": "/body/0/body/1/body/1",
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 4
+        },
+        "end": {
+          "line": 18,
+          "character": 5
+        },
+        "startOffset": 354,
+        "endOffset": 455
+      }
+    },
+    {
+      "id": "src:dataSource:xtendrmt.bestcase.demo/scheduler/idle/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/2",
+      "astPointer": "/body/0/body/1/body/1/body/0/source",
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 33
+        },
+        "end": {
+          "line": 17,
+          "character": 73
+        },
+        "startOffset": 409,
+        "endOffset": 449
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/scheduler/idle/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/3",
+      "astPointer": "/body/0/body/1/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 6
+        },
+        "end": {
+          "line": 18,
+          "character": 0
+        },
+        "startOffset": 382,
+        "endOffset": 450
+      }
+    },
+    {
+      "id": "src:lane:xtendrmt.bestcase.demo/scheduler/diagnostics",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/4",
+      "astPointer": "/body/0/body/1/body/2",
+      "range": {
+        "start": {
+          "line": 20,
+          "character": 4
+        },
+        "end": {
+          "line": 22,
+          "character": 5
+        },
+        "startOffset": 461,
+        "endOffset": 572
+      }
+    },
+    {
+      "id": "src:dataSource:xtendrmt.bestcase.demo/scheduler/diagnostics/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/3",
+      "astPointer": "/body/0/body/1/body/2/body/0/source",
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 35
+        },
+        "end": {
+          "line": 21,
+          "character": 76
+        },
+        "startOffset": 525,
+        "endOffset": 566
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/scheduler/diagnostics/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/4",
+      "astPointer": "/body/0/body/1/body/2/body/0",
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 6
+        },
+        "end": {
+          "line": 22,
+          "character": 0
+        },
+        "startOffset": 496,
+        "endOffset": 567
+      }
+    },
+    {
+      "id": "src:surface:xtendrmt.bestcase.demo/routing",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/2",
+      "astPointer": "/body/0/body/2",
+      "range": {
+        "start": {
+          "line": 25,
+          "character": 2
+        },
+        "end": {
+          "line": 29,
+          "character": 3
+        },
+        "startOffset": 580,
+        "endOffset": 731
+      }
+    },
+    {
+      "id": "src:lane:xtendrmt.bestcase.demo/routing/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/5",
+      "astPointer": "/body/0/body/2/body/0",
+      "range": {
+        "start": {
+          "line": 26,
+          "character": 4
+        },
+        "end": {
+          "line": 28,
+          "character": 5
+        },
+        "startOffset": 602,
+        "endOffset": 727
+      }
+    },
+    {
+      "id": "src:dataSource:xtendrmt.bestcase.demo/routing/visible/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/4",
+      "astPointer": "/body/0/body/2/body/0/body/0/source",
+      "range": {
+        "start": {
+          "line": 27,
+          "character": 32
+        },
+        "end": {
+          "line": 27,
+          "character": 67
+        },
+        "startOffset": 659,
+        "endOffset": 694
+      }
+    },
+    {
+      "id": "src:condition:xtendrmt.bestcase.demo/routing/visible/0",
+      "nodeType": "RmtConditionClause",
+      "corePointer": "/operations/5/condition",
+      "astPointer": "/body/0/body/2/body/0/body/0/condition",
+      "range": {
+        "start": {
+          "line": 27,
+          "character": 68
+        },
+        "end": {
+          "line": 27,
+          "character": 94
+        },
+        "startOffset": 695,
+        "endOffset": 721
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/routing/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/5",
+      "astPointer": "/body/0/body/2/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 27,
+          "character": 6
+        },
+        "end": {
+          "line": 28,
+          "character": 0
+        },
+        "startOffset": 633,
+        "endOffset": 722
+      }
+    },
+    {
+      "id": "src:surface:xtendrmt.bestcase.demo/templating",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/3",
+      "astPointer": "/body/0/body/3",
+      "range": {
+        "start": {
+          "line": 31,
+          "character": 2
+        },
+        "end": {
+          "line": 49,
+          "character": 3
+        },
+        "startOffset": 735,
+        "endOffset": 1140
+      }
+    },
+    {
+      "id": "src:lane:xtendrmt.bestcase.demo/templating/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/6",
+      "astPointer": "/body/0/body/3/body/0",
+      "range": {
+        "start": {
+          "line": 32,
+          "character": 4
+        },
+        "end": {
+          "line": 48,
+          "character": 5
+        },
+        "startOffset": 760,
+        "endOffset": 1136
+      }
+    },
+    {
+      "id": "src:dataSource:xtendrmt.bestcase.demo/templating/visible/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/5",
+      "astPointer": "/body/0/body/3/body/0/body/0/source",
+      "range": {
+        "start": {
+          "line": 33,
+          "character": 39
+        },
+        "end": {
+          "line": 33,
+          "character": 78
+        },
+        "startOffset": 824,
+        "endOffset": 863
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/templating/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/6",
+      "astPointer": "/body/0/body/3/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 33,
+          "character": 6
+        },
+        "end": {
+          "line": 47,
+          "character": 7
+        },
+        "startOffset": 791,
+        "endOffset": 1130
+      }
+    },
+    {
+      "id": "src:slot:xtendrmt.bestcase.demo/templating/visible/0/title",
+      "nodeType": "RmtSlotDeclaration",
+      "corePointer": "/slots/0",
+      "astPointer": "/body/0/body/3/body/0/body/0/policy/body/0",
+      "range": {
+        "start": {
+          "line": 34,
+          "character": 8
+        },
+        "end": {
+          "line": 36,
+          "character": 9
+        },
+        "startOffset": 874,
+        "endOffset": 926
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/templating/visible/0/title/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/7",
+      "astPointer": "/body/0/body/3/body/0/body/0/policy/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 10
+        },
+        "end": {
+          "line": 36,
+          "character": 0
+        },
+        "startOffset": 897,
+        "endOffset": 917
+      }
+    },
+    {
+      "id": "src:slot:xtendrmt.bestcase.demo/templating/visible/0/cards",
+      "nodeType": "RmtSlotDeclaration",
+      "corePointer": "/slots/1",
+      "astPointer": "/body/0/body/3/body/0/body/0/policy/body/1",
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 8
+        },
+        "end": {
+          "line": 40,
+          "character": 9
+        },
+        "startOffset": 936,
+        "endOffset": 989
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/templating/visible/0/cards/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/8",
+      "astPointer": "/body/0/body/3/body/0/body/0/policy/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 39,
+          "character": 10
+        },
+        "end": {
+          "line": 40,
+          "character": 0
+        },
+        "startOffset": 959,
+        "endOffset": 980
+      }
+    },
+    {
+      "id": "src:slot:xtendrmt.bestcase.demo/templating/visible/0/feedback",
+      "nodeType": "RmtSlotDeclaration",
+      "corePointer": "/slots/2",
+      "astPointer": "/body/0/body/3/body/0/body/0/policy/body/2",
+      "range": {
+        "start": {
+          "line": 42,
+          "character": 8
+        },
+        "end": {
+          "line": 44,
+          "character": 9
+        },
+        "startOffset": 999,
+        "endOffset": 1058
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/templating/visible/0/feedback/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/9",
+      "astPointer": "/body/0/body/3/body/0/body/0/policy/body/2/body/0",
+      "range": {
+        "start": {
+          "line": 43,
+          "character": 10
+        },
+        "end": {
+          "line": 44,
+          "character": 0
+        },
+        "startOffset": 1025,
+        "endOffset": 1049
+      }
+    },
+    {
+      "id": "src:event:xtendrmt.bestcase.demo/templating/visible/0/pilot-run",
+      "nodeType": "RmtEventBinding",
+      "corePointer": "/events/0",
+      "astPointer": "/body/0/body/3/body/0/body/0/policy/body/3",
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 8
+        },
+        "end": {
+          "line": 47,
+          "character": 0
+        },
+        "startOffset": 1068,
+        "endOffset": 1123
+      }
+    },
+    {
+      "id": "src:surface:xtendrmt.bestcase.demo/adapter",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/4",
+      "astPointer": "/body/0/body/4",
+      "range": {
+        "start": {
+          "line": 51,
+          "character": 2
+        },
+        "end": {
+          "line": 55,
+          "character": 3
+        },
+        "startOffset": 1144,
+        "endOffset": 1272
+      }
+    },
+    {
+      "id": "src:lane:xtendrmt.bestcase.demo/adapter/idle",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/7",
+      "astPointer": "/body/0/body/4/body/0",
+      "range": {
+        "start": {
+          "line": 52,
+          "character": 4
+        },
+        "end": {
+          "line": 54,
+          "character": 5
+        },
+        "startOffset": 1166,
+        "endOffset": 1268
+      }
+    },
+    {
+      "id": "src:dataSource:xtendrmt.bestcase.demo/adapter/idle/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/6",
+      "astPointer": "/body/0/body/4/body/0/body/0/source",
+      "range": {
+        "start": {
+          "line": 53,
+          "character": 34
+        },
+        "end": {
+          "line": 53,
+          "character": 74
+        },
+        "startOffset": 1222,
+        "endOffset": 1262
+      }
+    },
+    {
+      "id": "src:operation:xtendrmt.bestcase.demo/adapter/idle/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/10",
+      "astPointer": "/body/0/body/4/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 53,
+          "character": 6
+        },
+        "end": {
+          "line": 54,
+          "character": 0
+        },
+        "startOffset": 1194,
+        "endOffset": 1263
+      }
+    }
+  ]
+}

@@ -179,6 +179,7 @@ Wenn Speziallogik weiterhin notwendig ist, gehoert sie in einen Adapter oder in 
 
 ## Bestcase-Referenz
 
+<<<<<<< HEAD
 `xtendrmt/xtendrmt-bestcase-demo.rmt` ist die produktive Referenz fuer die Migration:
 
 - `adapters` enthaelt `xtend.xrouter`, `xtend.component` und `rmt.state-scheduler-diagnostics`
@@ -186,6 +187,15 @@ Wenn Speziallogik weiterhin notwendig ist, gehoert sie in einen Adapter oder in 
 - `routes` enthaelt native XRouter Route Records
 - `schedules` enthaelt zentrale Endpoint Policies
 - `manifest.metadata.nativeDemoMigration` dokumentiert die historische Migration
+=======
+`xtendrmt/xtendrmt-bestcase-demo.rmt` ist die produktive Authoring-Referenz fuer RMT vNext:
+
+- die `.rmt` Datei nutzt `template`, `surface`, `lane`, Lifecycle-Operationen, Slots und Event-Actions statt JSON
+- `xtendrmt/xtendrmt-bestcase-demo.core.json` ist der byte-stabile vNext-Core-Output
+- die Browser-Demo projiziert vNext-Core zur Laufzeit auf `adapters`, `components`, `routes` und `schedules`
+- `createRmtXRouterAdapter`, `createRmtXtendComponentAdapter` und `createRmtStateSchedulerDiagnosticsBridge` bleiben die produktiven Adapterpfade
+- `nativeDemoMigration` wird in der Runtime-Projektion als Handoff-Metadatum erhalten
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 
 `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` ist die browsernahe Regression fuer den migrierten Pfad. Sie prueft zusaetzlich `vanilla.component`, damit der Zielzustand framework-agnostisch bleibt.
 

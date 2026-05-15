@@ -16,7 +16,11 @@ Scope:
 - Epic 10 XTend component lifecycle telemetry `xtend.component.lifecycle-telemetry.v1` for `result.metadata.telemetry`, `recordComponentTelemetry`, Fabric snapshot aggregation and component backpressure signals
 - productive State/Scheduler/Diagnostics bridge contract `xtend.rmt.state-scheduler-diagnostics-bridge.v1` for adapter result mirroring, scheduler endpoints and diagnostics
 - artifact parity contract `xtend.rmt.artifact-parity.v1` for schema, manifest, type and bundle drift checks
+<<<<<<< HEAD
 - native bestcase-demo migration `xtend.rmt.native-demo-migration.v1` with top-level `adapters`, `components`, `routes` and `schedules`
+=======
+- vNext bestcase-demo migration `xtend.rmt.native-demo-migration.v1` with `.rmt` authoring, byte-stable Core output and runtime projection onto `adapters`, `components`, `routes` and `schedules`
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 - WP-15 native bridge fixture `xtend.rmt.wp15.native-bridge-fixture.v1` for route/component/schedule adapter regression
 - ESM and browser-near runtime probes for productive adapter factories
 - WP-16 browser smoke fixture `xtend.rmt.wp16.browser-smoke-fixture.v1` for XRouter, XTend component hydration, scheduler endpoint signals and vanilla host regression

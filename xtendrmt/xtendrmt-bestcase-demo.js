@@ -8,6 +8,10 @@ import {
 } from './rmt-runtime.esm.js';
 
 const DEMO_DOCUMENT_URL = './xtendrmt/xtendrmt-bestcase-demo.rmt';
+<<<<<<< HEAD
+=======
+const DEMO_CORE_DOCUMENT_URL = './xtendrmt/xtendrmt-bestcase-demo.core.json';
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 const ROUTE_COMPONENTS = Object.freeze({
   overview: 'x-rmt-route-overview',
   scheduler: 'x-rmt-route-scheduler',
@@ -37,11 +41,225 @@ const XTEND_COMPONENT_MANIFEST = Object.freeze({
   'x-footer': '../components/xfooter.js'
 });
 
+<<<<<<< HEAD
+=======
+const DEMO_ROUTE_ORDER = Object.freeze(['kernel', 'scheduler', 'routing', 'templating', 'adapter']);
+const DEMO_ROUTE_CONFIG = Object.freeze({
+  kernel: Object.freeze({
+    path: '/',
+    title: 'XTendRMT Kernel BestCase',
+    component: ROUTE_COMPONENTS.overview,
+    template: 'demo.kernel',
+    schedule: 'route.visible.render',
+    metadata: Object.freeze({
+      metaDescription: 'RMT Kernel und XTend UI in einer Demo.'
+    })
+  }),
+  scheduler: Object.freeze({
+    path: '/scheduler',
+    title: 'XTendRMT Scheduler',
+    component: ROUTE_COMPONENTS.scheduler,
+    template: 'demo.scheduler',
+    schedule: 'route.visible.render',
+    metadata: Object.freeze({
+      metaDescription: 'RMT Scheduler Diagnostics und Endpoint-Ausfuehrung.'
+    })
+  }),
+  routing: Object.freeze({
+    path: '/routing',
+    title: 'XTendRMT Routing DSL',
+    component: ROUTE_COMPONENTS.routing,
+    template: 'demo.routing',
+    schedule: 'route.visible.render',
+    metadata: Object.freeze({
+      metaDescription: 'XRouter-Routen werden aus RMT vNext Surfaces erzeugt.'
+    })
+  }),
+  templating: Object.freeze({
+    path: '/templating',
+    title: 'RMT Template Pilot',
+    component: ROUTE_COMPONENTS.templating,
+    template: 'demo.templating.pilot',
+    schedule: 'route.visible.render',
+    metadata: Object.freeze({
+      metaDescription: 'Pilot-Flow fuer RMT-vNext-basiertes XTend-Templating mit Component Attachment.'
+    })
+  }),
+  adapter: Object.freeze({
+    path: '/adapter',
+    title: 'XTend Product Adapter',
+    component: ROUTE_COMPONENTS.adapter,
+    template: 'demo.adapter',
+    schedule: 'component.idle.hydrate',
+    metadata: Object.freeze({
+      metaDescription: 'XTend ist der First-Class Product Adapter fuer RMT.'
+    })
+  })
+});
+
+const DEMO_ADAPTERS = Object.freeze([
+  Object.freeze({
+    id: 'xtend',
+    kind: 'host_adapter',
+    runtimeSurface: Object.freeze(['esm', 'browser_classic']),
+    providedCapabilities: Object.freeze([
+      'manifest',
+      'customElements',
+      'stateBridge',
+      'hydration',
+      'schedulerEndpoints',
+      'theme',
+      'api',
+      'diagnostics'
+    ]),
+    kernelVisible: false,
+    metadata: Object.freeze({
+      factory: 'host-provided',
+      boundary: 'RMT schedules host work without importing XTend.'
+    })
+  }),
+  Object.freeze({
+    id: 'xtend.component',
+    kind: 'component_adapter',
+    runtimeSurface: Object.freeze(['esm', 'browser_classic']),
+    providedCapabilities: Object.freeze([
+      'components',
+      'customElements',
+      'manifestLookup',
+      'props',
+      'attributes',
+      'slots',
+      'events',
+      'hydration',
+      'diagnostics',
+      'scheduleRefs'
+    ]),
+    kernelVisible: false,
+    metadata: Object.freeze({
+      factory: 'createRmtXtendComponentAdapter',
+      contract: 'xtend.rmt.xtend-component-adapter.v1'
+    })
+  }),
+  Object.freeze({
+    id: 'xtend.template',
+    kind: 'component_adapter',
+    runtimeSurface: Object.freeze(['esm', 'browser_classic']),
+    providedCapabilities: Object.freeze(['templates', 'slots', 'events', 'hydration', 'diagnostics']),
+    kernelVisible: false,
+    metadata: Object.freeze({
+      factory: 'RMT Template API',
+      contract: 'xtend.rmt.template-authoring.v1'
+    })
+  }),
+  Object.freeze({
+    id: 'xtend.xrouter',
+    kind: 'router_adapter',
+    runtimeSurface: Object.freeze(['esm', 'browser_classic']),
+    providedCapabilities: Object.freeze(['routes', 'navigation', 'params', 'query', 'diagnostics', 'scheduleRefs']),
+    kernelVisible: false,
+    metadata: Object.freeze({
+      factory: 'createRmtXRouterAdapter',
+      contract: 'xtend.rmt.xrouter-adapter.v1'
+    })
+  }),
+  Object.freeze({
+    id: 'rmt.state-scheduler-diagnostics',
+    kind: 'scheduler_adapter',
+    runtimeSurface: Object.freeze(['esm', 'browser_classic']),
+    providedCapabilities: Object.freeze([
+      'stateBridge',
+      'schedulerEndpoints',
+      'diagnostics',
+      'adapterResults',
+      'performanceBudgets',
+      'lifecycleEvents'
+    ]),
+    kernelVisible: false,
+    metadata: Object.freeze({
+      factory: 'createRmtStateSchedulerDiagnosticsBridge',
+      contract: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1'
+    })
+  })
+]);
+
+const DEMO_STATIC_COMPONENTS = Object.freeze([
+  Object.freeze({ id: 'shell.header', tag: 'x-header', schedule: 'component.visible.mount' }),
+  Object.freeze({ id: 'kernel.cards', tag: 'x-cards', schedule: 'component.visible.mount' }),
+  Object.freeze({ id: 'code.snapshot', tag: 'x-code', schedule: 'component.idle.hydrate' }),
+  Object.freeze({ id: 'feedback.status', tag: 'x-alert', schedule: 'component.visible.mount' }),
+  Object.freeze({ id: 'pilot.shell', tag: 'x-section', schedule: 'component.visible.mount' })
+]);
+
+const DEMO_SCHEDULES = Object.freeze([
+  Object.freeze({
+    id: 'template.visible.inspect',
+    endpointName: 'xtendrmt.template.inspect',
+    scope: 'xtendrmt.template.pilot',
+    lane: 'visible',
+    priority: 70,
+    preferIdle: false,
+    deadlineMs: 150,
+    coalesceKey: 'template.pilot.inspect',
+    budgetClass: 'interactive'
+  }),
+  Object.freeze({
+    id: 'route.visible.render',
+    endpointName: 'xtendrmt.route.render',
+    scope: 'xtendrmt.router.current',
+    lane: 'visible',
+    priority: 88,
+    preferIdle: false,
+    deadlineMs: 120,
+    coalesceKey: 'route.current',
+    budgetClass: 'interactive'
+  }),
+  Object.freeze({
+    id: 'component.visible.mount',
+    endpointName: 'xtendrmt.component.mount',
+    scope: 'xtendrmt.component.visible',
+    lane: 'visible',
+    priority: 76,
+    preferIdle: false,
+    deadlineMs: 160,
+    coalesceKey: 'component.mount',
+    budgetClass: 'interactive'
+  }),
+  Object.freeze({
+    id: 'component.idle.hydrate',
+    endpointName: 'xtendrmt.component.hydrate',
+    scope: 'xtendrmt.component.idle',
+    lane: 'idle',
+    priority: 42,
+    preferIdle: true,
+    deadlineMs: 420,
+    coalesceKey: 'component.hydrate',
+    budgetClass: 'background'
+  }),
+  Object.freeze({
+    id: 'diagnostics.snapshot',
+    endpointName: 'xtendrmt.diagnostics.snapshot',
+    scope: 'xtendrmt.diagnostics',
+    lane: 'diagnostics',
+    priority: 34,
+    preferIdle: true,
+    deadlineMs: 260,
+    coalesceKey: 'diagnostics.snapshot',
+    budgetClass: 'background'
+  })
+]);
+
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 const state = {
   initialized: false,
   document: null,
   rawDocument: null,
   normalizedDocument: null,
+<<<<<<< HEAD
+=======
+  vnextSource: '',
+  vnextCore: null,
+  sourceSyntax: 'legacy-json',
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   rmtFormat: null,
   registries: null,
   metadata: {
@@ -74,6 +292,442 @@ const state = {
   schedulerPressure: 'normal'
 };
 
+<<<<<<< HEAD
+=======
+function cloneSerializable(value, fallback = null) {
+  if (value === undefined) return fallback;
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch (_error) {
+    return fallback;
+  }
+}
+
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function createDemoMetadata(vnextCore = {}) {
+  return {
+    title: 'XTendRMT BestCase Demo',
+    description: 'RMT vNext beschreibt Surfaces, Lanes und Lifecycle-Operationen; die Demo projiziert diese Core-Records auf XTend und XRouter Adapter.',
+    sourceSyntax: 'rmt-vnext',
+    vNextCore: {
+      schema: vnextCore.schema || 'xtend.rmt.core-format.vnext.v1',
+      sourceUrl: DEMO_DOCUMENT_URL,
+      coreUrl: DEMO_CORE_DOCUMENT_URL,
+      surfaceCount: asArray(vnextCore.surfaces).length,
+      laneCount: asArray(vnextCore.lanes).length,
+      operationCount: asArray(vnextCore.operations).length
+    },
+    templateAuthoring: {
+      contractVersion: 'xtend.rmt.template-authoring.v1',
+      adapter: 'xtend.template',
+      componentAdapter: 'xtend.component',
+      componentRefField: 'metadata.authoring.componentRefs',
+      slotBindingMode: 'named-slot-to-template-ref',
+      eventBindingMode: 'dom-event-to-rmt-command',
+      dataBindingMode: 'explicit-props-attributes-and-slots-only',
+      kernelVisible: false,
+      sourceSyntax: 'rmt-vnext'
+    },
+    rootLifecycle: {
+      contractVersion: 'xtend.rmt.root-handshake.v1',
+      planner: 'rmt-scheduler',
+      executor: 'xtend-host-adapter',
+      phaseSequence: ['create', 'mount', 'hydrate', 'activate', 'update', 'unmount', 'diagnostics'],
+      statePolicy: 'digital-twin-ssot-xstate',
+      schedulerEndpointHints: [
+        {
+          phase: 'mount',
+          schedule: 'component.visible.mount',
+          endpointName: 'xtendrmt.component.mount',
+          lane: 'visible',
+          preferIdle: false
+        },
+        {
+          phase: 'hydrate',
+          schedule: 'component.idle.hydrate',
+          endpointName: 'xtendrmt.component.hydrate',
+          lane: 'idle',
+          preferIdle: true
+        },
+        {
+          phase: 'activate',
+          schedule: 'route.visible.render',
+          endpointName: 'xtendrmt.route.render',
+          lane: 'visible',
+          preferIdle: false
+        },
+        {
+          phase: 'diagnostics',
+          schedule: 'diagnostics.snapshot',
+          endpointName: 'xtendrmt.diagnostics.snapshot',
+          lane: 'diagnostics',
+          preferIdle: true
+        }
+      ],
+      kernelVisible: false
+    },
+    hostCapabilities: {
+      contractVersion: 'xtend.rmt.host-capabilities.v1',
+      adapterId: 'xtend',
+      adapterKind: 'host_adapter',
+      requiredCapabilities: ['manifest', 'customElements', 'stateBridge', 'hydration', 'schedulerEndpoints'],
+      optionalCapabilities: ['theme', 'api', 'router', 'diagnostics'],
+      capabilityRefs: [
+        'xtend.manifest',
+        'xtend.custom-elements',
+        'xtend.state-bridge.xstate',
+        'xtend.hydration',
+        'xtend.scheduler-endpoints',
+        'xtend.theme',
+        'xtend.api',
+        'xtend.xrouter',
+        'xtend.diagnostics'
+      ],
+      negotiation: {
+        missingRequiredCapability: 'diagnostic-fail-fast-before-mount',
+        missingOptionalCapability: 'degrade-or-skip-with-diagnostics'
+      },
+      kernelVisible: false
+    },
+    scaffoldCompatibility: {
+      schema: 'xtend.scaffold.rmt-compatibility-binding.v1',
+      status: 'demo-reference-only',
+      surfaces: ['typing', 'manifest-plan', 'preview-plan', 'extension-points', 'component-files'],
+      requiredContracts: [
+        'xtend.rmt.component-contract.v1',
+        'xtend.rmt.template-authoring.v1',
+        'xtend.rmt.root-handshake.v1',
+        'xtend.rmt.host-capabilities.v1'
+      ],
+      minimumGate: 'node scripts/run_xtend_tests.js rmt-compatibility --json',
+      bridgeRuntime: 'reserved-for-Epic-05',
+      kernelVisible: false
+    },
+    pilotFlow: {
+      contractVersion: 'xtend.rmt.template-pilot-flow.v1',
+      status: 'reference-only',
+      templateRef: 'demo.templating.pilot',
+      routeRef: 'templating',
+      componentAttachment: {
+        adapter: 'xtend.template',
+        componentAdapter: 'xtend.component',
+        componentRefs: ['pilot.shell', 'kernel.cards', 'feedback.status'],
+        slotBindingMode: 'named-slot-to-template-ref',
+        eventBindingMode: 'dom-event-to-rmt-command',
+        dataBindingMode: 'explicit-props-attributes-and-slots-only'
+      },
+      adapterSequence: [
+        'rmt-vnext compiler emits template/surface/lane/operation Core',
+        'runtime projection maps route surfaces to XRouter records',
+        'xtend-host-adapter materializes Custom Elements',
+        'xstate records pilot diagnostics'
+      ],
+      minimumGate: 'node scripts/run_xtend_tests.js rmt-compatibility --json',
+      bridgeRuntime: 'reserved-for-Epic-05',
+      kernelVisible: false
+    },
+    nativeDemoMigration: {
+      contractVersion: 'xtend.rmt.native-demo-migration.v1',
+      status: 'vnext-demo-runtime-projection',
+      usesTopLevelDomains: true,
+      sourceSyntax: 'rmt-vnext',
+      routesSource: 'vnext.surfaces',
+      componentsSource: 'vnext.operations',
+      adaptersSource: 'runtimeProjection.adapters',
+      schedulesSource: 'vnext.lanes',
+      productiveAdapters: [
+        'createRmtXRouterAdapter',
+        'createRmtXtendComponentAdapter',
+        'createRmtStateSchedulerDiagnosticsBridge'
+      ],
+      kernelVisible: false
+    }
+  };
+}
+
+function createTemplateAuthoring(templateRef, componentRefs = [], extra = {}) {
+  return {
+    contractVersion: 'xtend.rmt.template-authoring.v1',
+    templateRef,
+    componentRefs,
+    slotBindingMode: 'named-slot-to-template-ref',
+    eventBindingMode: 'dom-event-to-rmt-command',
+    kernelVisible: false,
+    ...extra
+  };
+}
+
+function createRuntimeTemplates() {
+  return [
+    {
+      id: 'demo.kernel',
+      mode: 'html_fragment',
+      markup: '<x-section layout="column"><x-cards columns="3"><x-card><h3>RMT Kernel</h3><p>Scheduler, roots, diagnostics and execution planning.</p></x-card><x-card><h3>XTend UI</h3><p>Visible surface is composed with XTend components.</p></x-card><x-card><h3>XRouter</h3><p>Routes are declared in RMT vNext and mounted through XRouter.</p></x-card></x-cards></x-section>',
+      metadata: {
+        route: 'kernel',
+        adapter: 'xtend.component',
+        authoring: createTemplateAuthoring('demo.kernel', ['kernel.cards'])
+      },
+      hydration: {
+        mode: 'runtime_render',
+        ownershipMode: 'managed_subtree',
+        preferInsularHydration: true
+      }
+    },
+    {
+      id: 'demo.scheduler',
+      mode: 'html_fragment',
+      markup: '<x-section layout="column"><x-cards columns="2"><x-card><h3>Visible lane</h3><p>Interactive route work.</p></x-card><x-card><h3>Idle lane</h3><p>Background hydration and diagnostics.</p></x-card></x-cards></x-section>',
+      metadata: {
+        route: 'scheduler',
+        adapter: 'xtend.component',
+        authoring: createTemplateAuthoring('demo.scheduler', ['kernel.cards'])
+      },
+      hydration: {
+        mode: 'runtime_render',
+        ownershipMode: 'managed_subtree',
+        preferInsularHydration: true
+      }
+    },
+    {
+      id: 'demo.routing',
+      mode: 'html_fragment',
+      markup: '<x-section layout="column"><x-card><h3>Routes from RMT vNext</h3><p>XRouter consumes route records projected from vNext Surfaces and Lifecycle operations.</p></x-card></x-section>',
+      metadata: {
+        route: 'routing',
+        adapter: 'xtend.xrouter',
+        authoring: createTemplateAuthoring('demo.routing', [])
+      },
+      hydration: {
+        mode: 'runtime_render',
+        ownershipMode: 'managed_subtree',
+        preferInsularHydration: true
+      }
+    },
+    {
+      id: 'demo.templating.pilot',
+      mode: 'dom_descriptor',
+      markup: '<x-section layout="column" label="RMT Template Pilot"><div slot="header"><h2 data-slot="title"></h2><p data-slot="summary"></p></div><x-cards columns="2" data-slot="cards"></x-cards><x-alert type="info" data-slot="feedback"></x-alert></x-section>',
+      props: {
+        layout: 'column'
+      },
+      slots: {
+        title: {
+          kind: 'text',
+          value: 'RMT vNext authors; XTend host materializes.'
+        },
+        summary: {
+          kind: 'text',
+          value: 'The vNext source stays declarative while XTend component attachments remain host adapter data.'
+        },
+        cards: {
+          kind: 'template',
+          template: 'demo.kernel'
+        },
+        feedback: {
+          kind: 'template',
+          markup: 'Bridge runtime stays reserved for Epic 05.'
+        }
+      },
+      events: {
+        'pilot-run': {
+          kind: 'command',
+          target: 'x-section',
+          commandName: 'xtendrmt.template.pilot.inspect',
+          payload: {
+            templateRef: 'demo.templating.pilot',
+            componentRefs: ['pilot.shell', 'kernel.cards', 'feedback.status']
+          }
+        }
+      },
+      metadata: {
+        route: 'templating',
+        adapter: 'xtend.template',
+        pilotFlow: true,
+        authoring: createTemplateAuthoring('demo.templating.pilot', ['pilot.shell', 'kernel.cards', 'feedback.status'], {
+          componentAttachment: {
+            adapter: 'xtend.template',
+            componentAdapter: 'xtend.component',
+            componentRefs: ['pilot.shell', 'kernel.cards', 'feedback.status'],
+            slotBindingMode: 'named-slot-to-template-ref',
+            eventBindingMode: 'dom-event-to-rmt-command',
+            dataBindingMode: 'explicit-props-attributes-and-slots-only'
+          },
+          dataBindingMode: 'explicit-props-attributes-and-slots-only',
+          bridgeRuntime: 'reserved-for-Epic-05'
+        })
+      },
+      hydration: {
+        mode: 'runtime_render',
+        ownershipMode: 'managed_subtree',
+        preferInsularHydration: true,
+        metadata: {
+          planner: 'rmt-scheduler',
+          executor: 'xtend-host-adapter',
+          endpointHint: 'xtendrmt.template.inspect'
+        }
+      }
+    },
+    {
+      id: 'demo.adapter',
+      mode: 'html_fragment',
+      markup: '<x-section layout="column"><x-card><h3>XTend Product Adapter</h3><p>XTend remains a product adapter; RMT remains framework-agnostic.</p></x-card></x-section>',
+      metadata: {
+        route: 'adapter',
+        adapter: 'xtend.component',
+        authoring: createTemplateAuthoring('demo.adapter', [])
+      },
+      hydration: {
+        mode: 'runtime_render',
+        ownershipMode: 'managed_subtree',
+        preferInsularHydration: true
+      }
+    }
+  ];
+}
+
+function getCoreRecordById(records, id) {
+  return asArray(records).find((record) => record && record.id === id) || null;
+}
+
+function findSurfaceOperation(vnextCore, surfaceName) {
+  const surface = asArray(vnextCore.surfaces).find((entry) => entry && entry.name === surfaceName);
+  if (!surface) return null;
+  const laneRefs = asArray(surface.laneRefs);
+  const lanes = laneRefs.map((laneRef) => getCoreRecordById(vnextCore.lanes, laneRef)).filter(Boolean);
+  const operationRefs = lanes.flatMap((lane) => asArray(lane.operationRefs));
+  return operationRefs
+    .map((operationRef) => getCoreRecordById(vnextCore.operations, operationRef))
+    .find((operation) => operation && operation.target && operation.target.ref)
+    || null;
+}
+
+function createRoutesFromVNextCore(vnextCore = {}) {
+  const routes = DEMO_ROUTE_ORDER.map((routeId) => {
+    const config = DEMO_ROUTE_CONFIG[routeId];
+    const surface = asArray(vnextCore.surfaces).find((entry) => entry && entry.name === routeId);
+    const operation = findSurfaceOperation(vnextCore, routeId);
+    return {
+      id: routeId,
+      path: config.path,
+      router: 'xtend.xrouter',
+      title: config.title,
+      component: operation && operation.target && operation.target.ref ? operation.target.ref : config.component,
+      template: config.template,
+      schedule: config.schedule,
+      metadata: {
+        ...cloneSerializable(config.metadata, {}),
+        sourceSyntax: 'rmt-vnext',
+        vNextSurface: surface ? surface.id : null,
+        vNextOperation: operation ? operation.id : null
+      }
+    };
+  });
+
+  routes.push({
+    id: 'not-found',
+    path: '*',
+    router: 'xtend.xrouter',
+    title: 'XTendRMT Route Fallback',
+    component: ROUTE_COMPONENTS.overview,
+    template: 'demo.kernel',
+    schedule: 'route.visible.render',
+    metadata: {
+      sourceSyntax: 'rmt-vnext',
+      fallback: true
+    }
+  });
+
+  return routes;
+}
+
+function createComponentsFromVNextCore(vnextCore = {}) {
+  const routeComponents = DEMO_ROUTE_ORDER.map((routeId) => {
+    const config = DEMO_ROUTE_CONFIG[routeId];
+    const operation = findSurfaceOperation(vnextCore, routeId);
+    const id = operation && operation.target && operation.target.ref ? operation.target.ref : config.component;
+    return {
+      id,
+      adapter: 'xtend.component',
+      kind: 'custom_element',
+      tag: id,
+      schedule: routeId === 'adapter' ? 'component.idle.hydrate' : 'component.visible.mount',
+      metadata: {
+        routeComponent: true,
+        template: config.template,
+        sourceSyntax: 'rmt-vnext',
+        vNextOperation: operation ? operation.id : null
+      }
+    };
+  });
+
+  const staticComponents = DEMO_STATIC_COMPONENTS.map((component) => ({
+    id: component.id,
+    adapter: 'xtend.component',
+    kind: 'custom_element',
+    tag: component.tag,
+    schedule: component.schedule,
+    metadata: {
+      sourceSyntax: 'runtime-projection'
+    }
+  }));
+
+  return routeComponents.concat(staticComponents);
+}
+
+function createSchedulesFromVNextCore(vnextCore = {}) {
+  return DEMO_SCHEDULES.map((schedule) => {
+    const matchingLanes = asArray(vnextCore.lanes)
+      .filter((lane) => lane && lane.name === schedule.lane)
+      .map((lane) => lane.id);
+    return {
+      ...cloneSerializable(schedule, {}),
+      metadata: {
+        sourceSyntax: 'rmt-vnext',
+        vNextLaneRefs: matchingLanes
+      }
+    };
+  });
+}
+
+function createRuntimeDocumentFromVNextCore(vnextCore = {}, options = {}) {
+  const manifest = vnextCore.manifest && typeof vnextCore.manifest === 'object'
+    ? vnextCore.manifest
+    : {};
+  return {
+    kind: 'rmt_document',
+    version: '2.0-vnext',
+    documentId: manifest.documentId || 'xtendrmt.bestcase.demo',
+    namespace: manifest.namespace || 'xtendrmt.demo',
+    manifest: {
+      documentId: manifest.documentId || 'xtendrmt.bestcase.demo',
+      namespace: manifest.namespace || 'xtendrmt.demo',
+      contentType: 'application/vnd.xtendrmt.rmt+vnext',
+      loaderHint: 'xtendrmt-bestcase-vnext',
+      sourceUrl: options.sourceUrl || DEMO_DOCUMENT_URL,
+      metadata: createDemoMetadata(vnextCore),
+      reactivityHints: {
+        stateBridge: 'xstate',
+        schedulerSnapshot: 'xtend.rmt.scheduler.snapshot',
+        routeSnapshot: 'xtend.rmt.router.current'
+      }
+    },
+    adapters: cloneSerializable(DEMO_ADAPTERS, []),
+    components: createComponentsFromVNextCore(vnextCore),
+    routes: createRoutesFromVNextCore(vnextCore),
+    schedules: createSchedulesFromVNextCore(vnextCore),
+    templates: createRuntimeTemplates(),
+    metadata: {
+      sourceSyntax: 'rmt-vnext',
+      coreSchema: vnextCore.schema || null
+    }
+  };
+}
+
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 function ensureXTendNamespace() {
   window.XTend = window.XTend || {};
   window.XTend.rmt = window.XTend.rmt || {};
@@ -320,6 +974,17 @@ function refreshDemoUi() {
   renderTimeline();
   setXCode('demo-runtime-snapshot', snapshot);
   setXCode('demo-route-dsl', {
+<<<<<<< HEAD
+=======
+    sourceSyntax: state.sourceSyntax,
+    vNextSurfaces: state.vnextCore
+      ? state.vnextCore.surfaces.map((surface) => ({
+        id: surface.id,
+        name: surface.name,
+        laneRefs: surface.laneRefs
+      }))
+      : [],
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
     routes: state.metadata.routes.map((route) => ({
       id: route.id,
       path: route.path,
@@ -366,8 +1031,27 @@ function refreshDemoUi() {
   });
   setXCode('demo-document-preview', {
     kind: state.document ? state.document.kind : 'rmt_document',
+<<<<<<< HEAD
     documentId: state.document && state.document.manifest ? state.document.manifest.documentId : '',
     nativeDomains: ['adapters', 'components', 'routes', 'schedules'],
+=======
+    version: state.document ? state.document.version : '2.0-vnext',
+    documentId: state.document && state.document.manifest ? state.document.manifest.documentId : '',
+    sourceSyntax: state.sourceSyntax,
+    vNextCore: state.vnextCore
+      ? {
+        schema: state.vnextCore.schema,
+        templates: state.vnextCore.templates.length,
+        surfaces: state.vnextCore.surfaces.length,
+        lanes: state.vnextCore.lanes.length,
+        operations: state.vnextCore.operations.length,
+        slots: state.vnextCore.slots.length,
+        events: state.vnextCore.events.length,
+        dataSources: state.vnextCore.dataSources.length
+      }
+      : null,
+    runtimeProjectionDomains: ['adapters', 'components', 'routes', 'schedules'],
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
     normalization: state.document ? state.document.normalization : null,
     registries: state.registries
       ? {
@@ -578,7 +1262,11 @@ function defineDemoRouteComponents() {
           <x-section layout="column" label="RMT Kernel Overview">
             <div slot="header">
               <h2>RMT orchestrates; XTend renders.</h2>
+<<<<<<< HEAD
               <p class="muted">The active <code>.rmt</code> document is loaded by the RMT Template API. XRouter receives native RMT route records through the productive adapter. Every visible panel below is composed with XTend components.</p>
+=======
+              <p class="muted">The active <code>.rmt</code> document is RMT vNext syntax. XRouter receives route records projected from vNext Core through the productive adapter. Every visible panel below is composed with XTend components.</p>
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
               <div class="demo-actions">
                 <x-button data-demo-run="full" variant="primary">Run full RMT cycle</x-button>
                 <x-button data-demo-route="/scheduler" variant="secondary">Open scheduler route</x-button>
@@ -588,7 +1276,11 @@ function defineDemoRouteComponents() {
               <x-card>
                 <h3>Routes</h3>
                 <span id="metric-routes" class="metric">0</span>
+<<<<<<< HEAD
                 <span class="metric-label">XRouter entries generated from native RMT routes</span>
+=======
+                <span class="metric-label">XRouter entries projected from vNext Surfaces</span>
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
               </x-card>
               <x-card>
                 <h3>XTend Components</h3>
@@ -683,7 +1375,11 @@ function defineDemoRouteComponents() {
           <x-section layout="column" label="RMT Routing DSL">
             <div slot="header">
               <h2>XRouter routes generated from <code>.rmt</code></h2>
+<<<<<<< HEAD
               <p class="muted">The RMT document stores route records in the native <code>routes</code> domain. The productive XRouter adapter turns them into live routes and schedules navigation work through RMT.</p>
+=======
+              <p class="muted">The RMT document now stores route intent as vNext <code>surface</code>, <code>lane</code> and lifecycle records. The productive XRouter adapter receives the runtime projection and schedules navigation work through RMT.</p>
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
               <div class="demo-route-nav">
                 <x-button data-demo-route="/" variant="secondary">Kernel</x-button>
                 <x-button data-demo-route="/scheduler" variant="secondary">Scheduler</x-button>
@@ -705,7 +1401,11 @@ function defineDemoRouteComponents() {
               </x-card>
             </x-cards>
             <x-code id="demo-route-dsl" lang="json"><template>{}</template></x-code>
+<<<<<<< HEAD
             <p class="code-note">This is intentionally adapter-shaped: the RMT Kernel can later map the same route domain to React Router, Vue Router or custom routing.</p>
+=======
+            <p class="code-note">This is intentionally adapter-shaped: the RMT Kernel stays on vNext Core while host adapters map it to XRouter, React Router, Vue Router or custom routing.</p>
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
           </x-section>
         `;
         bindRouteControls(this);
@@ -721,7 +1421,11 @@ function defineDemoRouteComponents() {
           <x-section layout="column" label="RMT Template Pilot">
             <div slot="header">
               <h2>RMT authors the template record; XTend materializes the component tree.</h2>
+<<<<<<< HEAD
               <p class="muted">This pilot uses a real <code>.rmt</code> template with XTend component attachment data. The demo now runs through the productive Bridge, Component Adapter and XRouter Adapter.</p>
+=======
+              <p class="muted">This pilot uses a real vNext <code>.rmt</code> template flow with XTend component attachment data. The demo runs through the productive Bridge, Component Adapter and XRouter Adapter.</p>
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
               <div class="demo-actions">
                 <x-button data-demo-run="template-pilot" variant="primary">Inspect template pilot</x-button>
                 <x-button data-demo-run="full" variant="secondary">Run full cycle</x-button>
@@ -941,13 +1645,42 @@ async function loadDemoDocument() {
   }
   const rmtFormat = getRmtFormat();
   const documentText = await response.text();
+<<<<<<< HEAD
   const documentInput = rmtFormat.parseDocument(documentText, { sourceUrl: DEMO_DOCUMENT_URL });
   const normalizedDocument = rmtFormat.normalizeDocument(documentInput);
+=======
+  const isLegacyJson = documentText.trimStart().startsWith('{');
+  let documentInput;
+  let normalizedDocument;
+  let vnextCore = null;
+
+  if (isLegacyJson) {
+    documentInput = rmtFormat.parseDocument(documentText, { sourceUrl: DEMO_DOCUMENT_URL });
+    normalizedDocument = rmtFormat.normalizeDocument(documentInput);
+  } else {
+    const coreResponse = await fetch(DEMO_CORE_DOCUMENT_URL, { cache: 'no-store' });
+    if (!coreResponse.ok) {
+      throw new Error(`RMT vNext core document failed to load: ${coreResponse.status}`);
+    }
+    vnextCore = await coreResponse.json();
+    documentInput = createRuntimeDocumentFromVNextCore(vnextCore, {
+      sourceUrl: DEMO_DOCUMENT_URL
+    });
+    normalizedDocument = rmtFormat.normalizeDocument(documentInput);
+  }
+
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   const registries = rmtFormat.createRuntimeRegistries(normalizedDocument);
   const metadata = normalizedDocument && normalizedDocument.manifest && normalizedDocument.manifest.metadata
     ? normalizedDocument.manifest.metadata
     : {};
 
+<<<<<<< HEAD
+=======
+  state.vnextSource = isLegacyJson ? '' : documentText;
+  state.vnextCore = vnextCore;
+  state.sourceSyntax = isLegacyJson ? 'legacy-json' : 'rmt-vnext';
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   state.rawDocument = documentInput;
   state.document = normalizedDocument;
   state.normalizedDocument = normalizedDocument;
@@ -1007,7 +1740,11 @@ async function initDemo() {
     bindGlobalControls();
 
     state.initialized = true;
+<<<<<<< HEAD
     setStatus('XTendRMT Demo bereit: native RMT Domains geladen, produktive Adapter aktiv, XTend UI gemountet.', 'success');
+=======
+    setStatus('XTendRMT Demo bereit: RMT vNext Core geladen, Runtime-Projektion erstellt, produktive Adapter aktiv.', 'success');
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
     refreshDemoUi();
   } catch (error) {
     console.error('XTendRMT BestCase Demo failed.', error);

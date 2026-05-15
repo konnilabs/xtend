@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "$schema": "./rmt.schema.json",
   "kind": "rmt_document",
@@ -691,4 +692,62 @@
       }
     }
   ]
+=======
+template xtendrmt.bestcase.demo {
+  surface kernel {
+    lane visible weight 88 {
+      mount x-rmt-route-overview from endpoint xtendrmt.route.render
+    }
+
+    lane idle weight 1 {
+      hydrate code.snapshot
+    }
+  }
+
+  surface scheduler {
+    lane visible weight 88 {
+      mount x-rmt-route-scheduler from endpoint xtendrmt.route.render
+    }
+
+    lane idle weight 42 {
+      hydrate scheduler.snapshot from endpoint xtendrmt.component-hydrate
+    }
+
+    lane diagnostics weight 34 {
+      prewarm diagnostics.snapshot from worker xtendrmt.diagnostics.snapshot
+    }
+  }
+
+  surface routing {
+    lane visible weight 88 {
+      mount x-rmt-route-routing from endpoint xtendrmt.route.render when route.visible == true
+    }
+  }
+
+  surface templating {
+    lane visible weight 70 {
+      mount x-rmt-route-template-pilot from endpoint xtendrmt.template-inspect {
+        slot title {
+          hydrate pilot.title
+        }
+
+        slot cards {
+          hydrate kernel.cards
+        }
+
+        slot feedback {
+          hydrate feedback.status
+        }
+
+        on pilot-run -> action xtendrmt.template-pilot.inspect
+      }
+    }
+  }
+
+  surface adapter {
+    lane idle weight 42 {
+      hydrate x-rmt-route-adapter from endpoint xtendrmt.component-hydrate
+    }
+  }
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 }

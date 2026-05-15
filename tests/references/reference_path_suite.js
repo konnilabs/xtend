@@ -9,6 +9,12 @@ const {
   resolveRepoPath,
   resolveRootDir
 } = require('../utils/files');
+<<<<<<< HEAD
+=======
+const {
+  readBestcaseVNextDemo
+} = require('../utils/rmt-bestcase');
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 
 const REFERENCE_REGISTRY_PATH = 'development/XTend-Dokumentations-und-Demo-Referenzpfade.md';
 const UPSTREAM_HANDOFF_SCHEMA = 'xtend.rmt.upstream-handoff.v1';
@@ -5110,7 +5116,14 @@ function assertDemoReferences(context, rootDir) {
 
 function assertRmtReference(context, rootDir) {
   const rmtSchema = readJson('xtendrmt/rmt.schema.json', rootDir);
+<<<<<<< HEAD
   const rmt = readJson('xtendrmt/xtendrmt-bestcase-demo.rmt', rootDir);
+=======
+  const bestcaseDemo = readBestcaseVNextDemo(rootDir);
+  const rmt = bestcaseDemo.projection;
+  const rmtSource = bestcaseDemo.source;
+  const rmtCore = bestcaseDemo.core;
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   const registry = readText(REFERENCE_REGISTRY_PATH, rootDir);
   const scaffoldBindings = rmtSchema['x-xtendrmt'] && rmtSchema['x-xtendrmt'].scaffoldCompatibilityBindings;
   const pilotModels = rmtSchema['x-xtendrmt'] && rmtSchema['x-xtendrmt'].templatePilotFlowModels;
@@ -5135,6 +5148,13 @@ function assertRmtReference(context, rootDir) {
     : {};
   const pilotAttachment = pilotFlow && pilotFlow.componentAttachment ? pilotFlow.componentAttachment : {};
 
+<<<<<<< HEAD
+=======
+  context.assert(rmtSource.trimStart().startsWith('template xtendrmt.bestcase.demo'), 'XTendRMT demo authoring source uses vNext template syntax');
+  context.assert(!rmtSource.trimStart().startsWith('{'), 'XTendRMT demo authoring source is no longer legacy JSON');
+  context.assert(rmtCore.schema === 'xtend.rmt.core-format.vnext.v1', 'XTendRMT demo has deterministic vNext Core output');
+  context.assert(Array.isArray(rmtCore.lanes) && rmtCore.lanes.some((lane) => lane.name === 'visible' && lane.weight === 88), 'XTendRMT demo vNext Core preserves weighted visible lane');
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   context.assert(rmt.documentId === 'xtendrmt.bestcase.demo', 'XTendRMT demo document id is stable');
   context.assert(
     Array.isArray(scaffoldBindings) && scaffoldBindings.some((entry) => entry.id === 'xtend.scaffold.rmt-compatibility-binding.v1'),
@@ -5254,7 +5274,12 @@ function assertRmtReference(context, rootDir) {
   context.assertIncludes(registry, 'xtend.rmt.artifact-parity.v1', 'Reference registry documents artifact parity schema');
   context.assertIncludes(registry, 'scripts/verify_xtendrmt_artifact_parity.js', 'Reference registry documents artifact parity gate script');
   context.assertIncludes(registry, 'WP-E05-14-Bestcase-Demo-auf-native-Routes-und-Components-migrieren.md', 'XTendRMT native demo migration reference is listed');
+<<<<<<< HEAD
   context.assertIncludes(registry, 'Native RMT-Domains fuer Routen, XTend-Components, Adapter, Schedules', 'Reference registry documents native demo domains');
+=======
+  context.assertIncludes(registry, 'RMT-vNext-Authoring fuer Bestcase Surfaces, Lanes, Lifecycle-Operationen', 'Reference registry documents vNext bestcase authoring');
+  context.assertIncludes(registry, 'xtendrmt/xtendrmt-bestcase-demo.core.json', 'Reference registry documents bestcase vNext Core output');
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   context.assertIncludes(registry, 'WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md', 'XTendRMT WP-15 runtime test reference is listed');
   context.assertIncludes(registry, 'tests/fixtures/rmt-app-dsl.native-bridge.rmt', 'Reference registry documents native bridge fixture path');
   context.assertIncludes(registry, 'xtend.rmt.wp15.native-bridge-fixture.v1', 'Reference registry documents native bridge fixture schema');

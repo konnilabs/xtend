@@ -10,6 +10,12 @@ const {
   resolveRepoPath,
   resolveRootDir
 } = require('../utils/files');
+<<<<<<< HEAD
+=======
+const {
+  readBestcaseVNextDemo
+} = require('../utils/rmt-bestcase');
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 
 const RMT_COMPATIBILITY_SCHEMA = 'xtend.scaffold.rmt-compatibility-binding.v1';
 const TEMPLATE_PILOT_FLOW_SCHEMA = 'xtend.rmt.template-pilot-flow.v1';
@@ -262,7 +268,14 @@ function assertTypingPreviewExtensionScenario(context, modules, input) {
 function assertRmtSchemaAndDemo(context, rootDir) {
   const schema = readJson('xtendrmt/rmt.schema.json', rootDir);
   const manifest = readJson('xtendrmt/rmt-manifest.json', rootDir);
+<<<<<<< HEAD
   const demo = readJson('xtendrmt/xtendrmt-bestcase-demo.rmt', rootDir);
+=======
+  const bestcaseDemo = readBestcaseVNextDemo(rootDir);
+  const demo = bestcaseDemo.projection;
+  const demoCore = bestcaseDemo.core;
+  const demoSource = bestcaseDemo.source;
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   const demoJs = readText('xtendrmt/xtendrmt-bestcase-demo.js', rootDir);
   const demoHtml = readText('xtendrmt-bestcase.html', rootDir);
   const coreTypes = readText('xtendrmt/rmt-core.d.ts', rootDir);
@@ -361,6 +374,14 @@ function assertRmtSchemaAndDemo(context, rootDir) {
     : {};
   const pilotTemplateAttachment = pilotAuthoring.componentAttachment || {};
 
+<<<<<<< HEAD
+=======
+  context.assert(demoSource.trimStart().startsWith('template xtendrmt.bestcase.demo'), 'RMT demo authoring source uses vNext template syntax');
+  context.assert(!demoSource.trimStart().startsWith('{'), 'RMT demo authoring source is no longer legacy JSON');
+  context.assert(demoCore.schema === 'xtend.rmt.core-format.vnext.v1', 'RMT demo has deterministic vNext Core output');
+  context.assert(Array.isArray(demoCore.surfaces) && demoCore.surfaces.some((surface) => surface.name === 'templating'), 'RMT demo vNext Core exposes templating surface');
+  context.assert(Array.isArray(demoCore.operations) && demoCore.operations.some((operation) => operation.target && operation.target.ref === 'x-rmt-route-template-pilot'), 'RMT demo vNext Core exposes template pilot operation');
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   context.assert(Boolean(schemaBinding), 'RMT schema exposes scaffold compatibility binding metadata');
   assertIncludesAll(context, schemaBinding && schemaBinding.surfaces, REQUIRED_SURFACES, 'RMT schema scaffold compatibility surfaces');
   assertIncludesAll(context, schemaBinding && schemaBinding.requiredContracts, REQUIRED_RMT_CONTRACTS, 'RMT schema scaffold required contracts');
@@ -1140,7 +1161,11 @@ function assertRmtDslNormalizationRuntime(context, rootDir) {
   const legacyFixture = readJson('tests/fixtures/rmt-template-only.legacy.rmt', rootDir);
   const normalizedFixture = readJson('tests/fixtures/rmt-app-dsl.normalized.rmt', rootDir);
   const missingRefsFixture = readJson('tests/fixtures/rmt-app-dsl.missing-refs.rmt', rootDir);
+<<<<<<< HEAD
   const demo = readJson('xtendrmt/xtendrmt-bestcase-demo.rmt', rootDir);
+=======
+  const demo = readBestcaseVNextDemo(rootDir).projection;
+>>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   const legacyDocument = format.normalizeDocument(legacyFixture);
   const normalizedDocument = format.normalizeDocument(normalizedFixture);
   const missingRefsDocument = format.normalizeDocument(missingRefsFixture);
