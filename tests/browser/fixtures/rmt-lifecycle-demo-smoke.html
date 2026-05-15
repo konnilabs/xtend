@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="xstate,x-theme,x-section,x-cards,x-code,x-status,x-progress">
+  <title>XTend RMT Lifecycle Demo Smoke</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="rmt-lifecycle-demo-smoke-root" data-rmt-lifecycle-demo-root aria-busy="true"></div>
+  <script>
+    window.__xtendRmtLifecycleDemoSmokeResult = {
+      status: 'pending',
+      contract: 'xtend.rmt.lifecycle-demo.browser-smoke.v1',
+      checks: [],
+      errors: []
+    };
+
+    function recordCheck(label, passed, details) {
+      window.__xtendRmtLifecycleDemoSmokeResult.checks.push({ label, passed: Boolean(passed), details: details || null });
+      if (!passed) {
+        window.__xtendRmtLifecycleDemoSmokeResult.errors.push(label);
+      }
+    }
+  </script>
+  <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
+  <script type="module">
+    (async () => {
+      try {
+        await (window.__XTendLoaderBootPromise || Promise.resolve()).catch(() => {});
+        const module = await import('/xtendrmt/rmt-lifecycle-demo.app.js');
+        const root = document.querySelector('[data-rmt-lifecycle-demo-root]');
+        const result = await module.bootRmtLifecycleDemo({ root });
+        recordCheck('lifecycle source loaded', result.core.manifest.sourceSyntax === 'rmt-vnext');
+        recordCheck('lifecycle scaffold component defined', customElements.get('x-rmt-lifecycle-demo'));
+        recordCheck('lifecycle generated app rendered', root.getAttribute('data-rmt-lifecycle-rendered') === 'true');
+        recordCheck('lifecycle core has surfaces', result.core.surfaces.length >= 4);
+        recordCheck('lifecycle scaffold report linked app', result.report.generated.app === 'xtendrmt/rmt-lifecycle-demo.app.js');
+        const blockedOrigin = 'https://cdn.' + 'ccs-networks.de';
+        const externalAssets = Array.from(document.querySelectorAll('script[src], link[href], img[src]'))
+          .map((node) => node.getAttribute('src') || node.getAttribute('href') || '')
+          .filter((value) => value.includes(blockedOrigin));
+        recordCheck('lifecycle local http assets only', externalAssets.length === 0, externalAssets.join(', '));
+        window.__xtendRmtLifecycleDemoSmokeResult.status = window.__xtendRmtLifecycleDemoSmokeResult.errors.length ? 'failed' : 'passed';
+        window.__xtendRmtLifecycleDemoSmokeResult.counts = result.fingerprint.counts;
+      } catch (error) {
+        window.__xtendRmtLifecycleDemoSmokeResult.status = 'failed';
+        window.__xtendRmtLifecycleDemoSmokeResult.errors.push(error.message);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -594,6 +594,15 @@
     "rank": 66
   },
   {
+    "slug": "rmt-lifecycle-demo",
+    "id": "docs.rmt.lifecycle.demo",
+    "label": "RMT Lifecycle Demo",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
     "slug": "existing-component-metadata",
     "id": "docs.existing.component.metadata",
     "label": "Existing Component Metadata",

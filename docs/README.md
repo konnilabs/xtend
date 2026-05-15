@@ -73,6 +73,7 @@ Willkommen zur offiziellen Dokumentation des XTend Web Frameworks. Dieses Inhalt
 - [Epic 11 Enterprise UX Handoff](./epic11-enterprise-ux-handoff.md)
 - [Component Lab](./component-lab.md)
 - [RMT-first Demo-App](./rmt-first-demo-app.md)
+- [RMT Lifecycle Demo](./rmt-lifecycle-demo.md)
 - [Existing Component Metadata](./existing-component-metadata.md)
 - [Epic 10 Platform Gates](./epic10-platform-gates.md)
 - [Epic 10 Release Handoff](./epic10-release-handoff.md)
@@ -204,6 +205,8 @@ Epic 14 ist ab `WP-E14-16` abgeschlossen. Der Handoff `xtend.epic14.lsp-handoff.
 [XTend Vendor and Utility Types](./xtend-vendor-types.md) dokumentiert ab `WP-TypeExports-08` den Contract `xtend.type-exports.vendor-facades.v1` fuer Prism-, Turndown- und Design-Token-Facades sowie den lokalen Drift-Gate `node scripts/run_xtend_tests.js type-exports-vendor --json`.
 
 [RMT-first XTend Apps](./rmt-first-xtend-apps.md) dokumentiert ab `WP-E10-16`, wie vollstaendige XTend Apps ueber `xtend.rmt.first-class-app-authoring.v1` mit `xtend.component`, `xtend.xrouter`, `dom_descriptor` Templates, Schedules, Fabric-Lanes und Diagnostics beschrieben werden.
+
+[RMT Lifecycle Demo](./rmt-lifecycle-demo.md) zeigt den vollstaendigen lokalen Buildpfad: `xtendrmt/rmt-lifecycle-demo.rmt` wird als RMT vNext Template authored, der Scaffold-Befehl `node xtend-builder/scaffold.js rmt-lifecycle-demo --write --json` erzeugt Core JSON, XTend Custom Element, App-Modul, Host und Browser-Smoke, und `node scripts/run_xtend_tests.js rmt-lifecycle-demo --json` prueft die Artefakte gegen den Build.
 
 [SurfaceManager RMT Authoring](./surface-manager-rmt-authoring.md) dokumentiert ab `WP-SM-01` den Contract `xtend.rmt.surface-authoring.v1` fuer `x-surface-manager`, `x-surface-window`, `x-side-panel`, `metadata.surfaceManager`, `metadata.surface`, Surface-Schedules und die reservierte spaetere `xtend.surface` Adaptergrenze. Der lokale Gate `node scripts/run_xtend_tests.js rmt-surface-authoring --json` prueft Contract, Fixture, Package, Scaffold und RMT-Core-Normalisierung.
 

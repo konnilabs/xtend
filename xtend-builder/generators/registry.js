@@ -13,6 +13,9 @@ const {
 const {
   createComponentExtensionPoints
 } = require('../extensions/component-extension-points');
+const {
+  createRmtLifecycleDemoBuild
+} = require('./rmt-lifecycle-demo');
 
 const GENERATOR_REGISTRY_SCHEMA = 'xtend.scaffold.generator-registry.v1';
 
@@ -56,6 +59,14 @@ const GENERATORS = [
     owner: 'WP-E03-11',
     description: 'Creates the component templating, rendering and root-lifecycle extension-point contract.',
     run: createComponentExtensionPoints
+  },
+  {
+    id: 'rmt-lifecycle-demo',
+    command: 'rmt-lifecycle-demo',
+    status: 'productive-demo-build',
+    owner: 'RMT-Lifecycle-Demo',
+    description: 'Compiles the RMT vNext lifecycle template and writes the generated XTend demo app artifacts when --write is set.',
+    run: createRmtLifecycleDemoBuild
   }
 ];
 

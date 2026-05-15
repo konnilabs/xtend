@@ -1,0 +1,35 @@
+template xtendrmt.lifecycle.demo {
+  surface source {
+    lane visible weight 96 {
+      mount lifecycle-template from endpoint rmt.lifecycle.source.load
+    }
+  }
+
+  surface compiler {
+    lane critical weight 88 {
+      hydrate lifecycle-core from endpoint rmt.lifecycle.compile.vnext when source.ready == true
+    }
+
+    lane diagnostics weight 34 {
+      prewarm compiler-report from worker rmt.lifecycle.compiler.report
+    }
+  }
+
+  surface scaffold {
+    lane visible weight 76 {
+      mount lifecycle-app from endpoint scaffold.lifecycle.build {
+        slot generated {
+          hydrate scaffold-component from endpoint scaffold.component.render
+        }
+
+        on rebuild -> action scaffold.lifecycle.rebuild
+      }
+    }
+  }
+
+  surface http {
+    lane idle weight 42 {
+      prewarm lifecycle-server from worker http.devserver.prepare
+    }
+  }
+}

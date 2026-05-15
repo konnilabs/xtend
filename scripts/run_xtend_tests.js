@@ -122,6 +122,10 @@ const {
   runRmtFirstDemoAppSuite
 } = require('../tests/rmt/rmt_first_demo_app_suite');
 const {
+  printRmtLifecycleDemoReport,
+  runRmtLifecycleDemoSuite
+} = require('../tests/rmt/rmt_lifecycle_demo_suite');
+const {
   printDocsRmtPilotReport,
   runDocsRmtPilotSuite
 } = require('../tests/rmt/docs_rmt_pilot_suite');
@@ -1798,6 +1802,16 @@ const suites = [
     }
   },
   {
+    id: 'rmt-lifecycle-demo',
+    label: 'RMT Lifecycle Demo',
+    description: 'Runs the RMT vNext template, compiler, Scaffold build, generated app and HTTP smoke gates.',
+    run: () => {
+      const result = runRmtLifecycleDemoSuite({ rootDir });
+      printRmtLifecycleDemoReport(result);
+      return toRunnerResult('rmt-lifecycle-demo', 'RMT Lifecycle Demo', result);
+    }
+  },
+  {
     id: 'existing-component-metadata',
     label: 'Epic 10 Existing Component RMT/Fabric Metadata Migration',
     description: 'Runs the WP-E10-14 metadata overlay gates for prioritized existing XTend components.',
@@ -2514,6 +2528,7 @@ Examples:
   node scripts/run_xtend_tests.js component-ux-authoring-docs
   node scripts/run_xtend_tests.js component-long-tail-migration
   node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff
+  node scripts/run_xtend_tests.js rmt-lifecycle-demo
   node scripts/run_xtend_tests.js a11y-hydration
   node scripts/run_xtend_tests.js screenreader-signals
   node scripts/run_xtend_tests.js motion-contrast

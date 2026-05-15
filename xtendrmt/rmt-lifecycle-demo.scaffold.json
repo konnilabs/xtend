@@ -1,0 +1,187 @@
+{
+  "schema": "xtend.rmt.lifecycle-demo.scaffold-build.v1",
+  "demoSchema": "xtend.rmt.lifecycle-demo.v1",
+  "browserSmokeSchema": "xtend.rmt.lifecycle-demo.browser-smoke.v1",
+  "status": "built",
+  "source": "xtendrmt/rmt-lifecycle-demo.rmt",
+  "sourceSyntax": "rmt-vnext",
+  "sourceSha256": "77ca654f845c8dd26e5c6ab58471548f24299b393baa27485653706771b06f0d",
+  "coreOutput": "xtendrmt/rmt-lifecycle-demo.core.json",
+  "coreSha256": "537da4d45e582d8bd970948da92eef1a99791301f0198b05fa3cd3c457b116b9",
+  "buildCommand": "node xtend-builder/scaffold.js rmt-lifecycle-demo --write --json",
+  "localGate": "node scripts/run_xtend_tests.js rmt-lifecycle-demo --json",
+  "generated": {
+    "component": "components/x-rmt-lifecycle-demo.js",
+    "app": "xtendrmt/rmt-lifecycle-demo.app.js",
+    "host": "xtendrmt-rmt-lifecycle-demo.html",
+    "browserSmoke": "tests/browser/fixtures/rmt-lifecycle-demo-smoke.html",
+    "report": "xtendrmt/rmt-lifecycle-demo.scaffold.json"
+  },
+  "scaffold": {
+    "entryPoint": "xtend-builder/scaffold.js",
+    "generator": "rmt-lifecycle-demo",
+    "componentGenerator": "xtend.scaffold.component-files.v1",
+    "componentMode": "dry-run",
+    "componentTag": "x-rmt-lifecycle-demo",
+    "writeStrategy": "dry-run-first",
+    "files": [
+      {
+        "id": "component",
+        "action": "plan-create",
+        "targetPath": "components/x-rmt-lifecycle-demo.js",
+        "templateId": "component.source",
+        "templatePath": "xtend-builder/templates/component/source.template.js",
+        "sha256": "b2d002d12e292acb87169d55b1443eef1621e82a5089e01eaaa36503984ccccb"
+      },
+      {
+        "id": "docs",
+        "action": "plan-create",
+        "targetPath": "docs/components/rmt-lifecycle-demo.md",
+        "templateId": "component.docs",
+        "templatePath": "xtend-builder/templates/component/docs.template.md",
+        "sha256": "32ae7bd6b19af62a8305ed6e957006716daeb1e523df2ac65323fad6e136b70e"
+      },
+      {
+        "id": "tests",
+        "action": "plan-create",
+        "targetPath": "tests/components/x-rmt-lifecycle-demo.component_suite.js",
+        "templateId": "component.tests",
+        "templatePath": "xtend-builder/templates/component/component-suite.template.js",
+        "sha256": "38a4104f8ce5b69165a732153b0cee78bd171cb0cc4a26091f0a110c1d579a28"
+      },
+      {
+        "id": "fixtures",
+        "action": "plan-create",
+        "targetPath": "tests/components/fixtures/x-rmt-lifecycle-demo.component.html",
+        "templateId": "component.fixture",
+        "templatePath": "xtend-builder/templates/component/fixture.template.html",
+        "sha256": "be5ec80de21205641d071b937d3e97a74df5b4c6f5fb8c35a3ab73b894c6b972"
+      },
+      {
+        "id": "types",
+        "action": "plan-create",
+        "targetPath": "components/x-rmt-lifecycle-demo.d.ts",
+        "templateId": "component.types",
+        "templatePath": "xtend-builder/templates/component/types.template.d.ts",
+        "sha256": "15f5246c0a163d6ff443a06562961d327ad1940f848c3c867c7426a421af08ce"
+      },
+      {
+        "id": "manifest",
+        "action": "plan-patch",
+        "targetPath": "components/manifest.json",
+        "templateId": "component.manifest-plan",
+        "templatePath": "xtend-builder/templates/component/manifest-plan.template.json",
+        "sha256": "28697c4c5345a99cb04fa90ff3f2202d9e8e3a52760e195542a1cdbf0e0275d6"
+      },
+      {
+        "id": "demo",
+        "action": "plan-reference",
+        "targetPath": "docs/previews/rmt-lifecycle-demo.preview.md",
+        "templateId": "component.demo-plan",
+        "templatePath": "xtend-builder/templates/component/demo-plan.template.md",
+        "sha256": "9bff0fdabacb1af3afc6e7405903c18fff8646b0718ce65e22c514bcea323af9"
+      },
+      {
+        "id": "ts-source",
+        "action": "plan-create",
+        "targetPath": "src/components/x-rmt-lifecycle-demo/x-rmt-lifecycle-demo.ts",
+        "templateId": "component.ts-source",
+        "templatePath": "xtend-builder/templates/component/source.template.ts",
+        "sha256": "20df5baa6bfcf5a4f6fa0493355dc8d1bf52dd22d7de349adf59dd90471396ed"
+      },
+      {
+        "id": "ts-contract",
+        "action": "plan-create",
+        "targetPath": "src/components/x-rmt-lifecycle-demo/x-rmt-lifecycle-demo.contract.ts",
+        "templateId": "component.ts-contract",
+        "templatePath": "xtend-builder/templates/component/contract.template.ts",
+        "sha256": "8daad3ede18b5fe45acef9e901179b08d55c4a849b6be39fd3496f72bacac76d"
+      },
+      {
+        "id": "ts-rmt",
+        "action": "plan-create",
+        "targetPath": "src/components/x-rmt-lifecycle-demo/x-rmt-lifecycle-demo.rmt.ts",
+        "templateId": "component.ts-rmt",
+        "templatePath": "xtend-builder/templates/component/rmt.template.ts",
+        "sha256": "fee0e6e70f4e7de01afca35d9c3295af44c7553efcdb3f54eb3979e46a1ff82a"
+      },
+      {
+        "id": "ts-a11y",
+        "action": "plan-create",
+        "targetPath": "src/components/x-rmt-lifecycle-demo/x-rmt-lifecycle-demo.a11y.ts",
+        "templateId": "component.ts-a11y",
+        "templatePath": "xtend-builder/templates/component/a11y.template.ts",
+        "sha256": "d65d312d84272878f46e21d8193f974f8ec1ce7fe75e5c432afeeeb9e30cd0f7"
+      },
+      {
+        "id": "ts-performance",
+        "action": "plan-create",
+        "targetPath": "src/components/x-rmt-lifecycle-demo/x-rmt-lifecycle-demo.performance.ts",
+        "templateId": "component.ts-performance",
+        "templatePath": "xtend-builder/templates/component/performance.template.ts",
+        "sha256": "10da1ee75cc950716d7c5efbd272bc8ee60526e8772737b695417049d91b6a84"
+      },
+      {
+        "id": "ts-fixture",
+        "action": "plan-create",
+        "targetPath": "src/components/x-rmt-lifecycle-demo/x-rmt-lifecycle-demo.fixture.ts",
+        "templateId": "component.ts-fixture",
+        "templatePath": "xtend-builder/templates/component/fixture-data.template.ts",
+        "sha256": "c68f24a35187ba624270b3e3a3d4a29a1c0c9e0a6f2e5fc0381bdaff24f83c9c"
+      }
+    ]
+  },
+  "lifecycle": [
+    {
+      "id": "template",
+      "label": "RMT vNext Template",
+      "artifact": "xtendrmt/rmt-lifecycle-demo.rmt",
+      "status": "source",
+      "detail": "Authoring source; kein JSON-Fallback und keine manuelle App-Shell."
+    },
+    {
+      "id": "core",
+      "label": "Compiler Core",
+      "artifact": "xtendrmt/rmt-lifecycle-demo.core.json",
+      "status": "compiled",
+      "detail": "4 Surfaces, 5 Lanes und 6 Lifecycle-Operationen."
+    },
+    {
+      "id": "scaffold",
+      "label": "Scaffold Build",
+      "artifact": "components/x-rmt-lifecycle-demo.js",
+      "status": "generated",
+      "detail": "XTend Custom Element und Demo-App werden vom Scaffold-Generator geschrieben."
+    },
+    {
+      "id": "http",
+      "label": "HTTP/Test",
+      "artifact": "xtendrmt-rmt-lifecycle-demo.html",
+      "status": "servable",
+      "detail": "Host und Browser-Smoke laufen ueber den lokalen XTend Dev Server."
+    }
+  ],
+  "counts": {
+    "templates": 1,
+    "surfaces": 4,
+    "lanes": 5,
+    "operations": 6,
+    "slots": 1,
+    "events": 1,
+    "dataSources": 6
+  },
+  "checks": [
+    "template-source-is-rmt-vnext",
+    "compiler-emits-deterministic-core-json",
+    "scaffold-writes-generated-xtend-component",
+    "scaffold-writes-generated-demo-app",
+    "host-loads-over-http-dev-server",
+    "browser-smoke-renders-generated-app"
+  ],
+  "boundaries": [
+    "source-owned-by-rmt-template",
+    "generated-files-owned-by-scaffold-build",
+    "no-cdn-runtime-dependency",
+    "no-rmt-kernel-import-of-xtend-types"
+  ]
+}
