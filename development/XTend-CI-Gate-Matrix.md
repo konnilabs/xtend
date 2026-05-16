@@ -123,7 +123,7 @@ Der RC0 Overlay nutzt:
 - `node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci --json` / `npm run test:epic13-conditional-network-evidence-ci` als Conditional Network Evidence CI-, `npm run conditional-network:evidence`- und `conditional-network-evidence`-Workflow-Gate aus `DPF-WP-03`
 - `npm run pack:dry-run:report` als Release-Owner-Artefaktlauf fuer `npm pack --dry-run --json`
 - `package-structure` als GitHub-Actions-Paketstruktur-Gate mit `npm run pack:dry-run`, Workspace-`npm pack --dry-run --json` und `npm publish --dry-run --tag next --access public`
-- `npm-publish-next` als manueller GitHub-Actions-Publish-Job mit `id-token: write`, `publish_to_npm=true` und `npm publish --tag next --provenance --access public`
+- `npm-publish-next` als GitHub-Actions-Publish-Job mit `id-token: write`, `publish_to_npm=true` oder `release: published` und `npm publish --tag next --provenance --access public`
 
 Publish bleibt trotz gruener RC0 Matrix durch `private-until-release-owner-approval` blockiert.
 

@@ -96,7 +96,7 @@ npm run pack:dry-run:report
 npm run pack:dry-run
 ```
 
-`npm publish` bleibt ein manueller Owner-Schritt. Root bleibt fuer RC1-Publish-Prep auf `private: false`; der aktive GitHub-Actions-Workflow kann diesen Schritt jetzt ueber `workflow_dispatch` mit `publish_to_npm=true` fahren: Vor dem Publish laufen Full Release Gates, `release:report`, Package Dry Run, Publish Dry Run und Audit/SBOM Evidence erneut; der finale Befehl ist `npm publish --tag next --provenance --access public`.
+`npm publish` bleibt ein Owner-kontrollierter Schritt. Root bleibt fuer RC1-Publish-Prep auf `private: false`; der aktive GitHub-Actions-Workflow kann diesen Schritt ueber `workflow_dispatch` mit `publish_to_npm=true` oder automatisch nach einem `release: published` Event fahren: Vor dem Publish laufen Full Release Gates, `release:report`, Package Dry Run, Publish Dry Run und Audit/SBOM Evidence erneut; der finale Befehl ist `npm publish --tag next --provenance --access public`.
 
 Der aktive GitHub-Actions-Workflow `.github/workflows/xtend-default-gates.yml` nutzt Node `26.x` und trennt Pull-Request-Feedback von Full-Release-Gates: `npm run test:pr:report` laedt `xtend-pr-gate-report-node-26`, `npm run test:release:full:report` laedt `xtend-release-gate-report-node-26`, `package-structure` laedt `xtend-package-structure-node-26`.
 

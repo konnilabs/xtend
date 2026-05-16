@@ -33,6 +33,6 @@ Ohne `XTEND_CONDITIONAL_NETWORK_EXECUTE=1` schreibt der Capture lokale Deferral-
 
 Nicht enthalten sind Dependency-Upgrades, Vulnerability-Fixes und Public Publish. Publish bleibt durch `private-until-release-owner-acceptance` blockiert, bis Audit/SBOM ausgefuehrt oder durch den Owner akzeptiert deferred sind.
 
-Der separate GitHub-Actions-Job `npm-publish-next` erlaubt keine Deferrals: Er setzt `XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL=0`, wiederholt `release:report`, Pack- und Audit/SBOM-Evidence und fuehrt danach `npm publish --tag next --provenance --access public` aus.
+Der separate GitHub-Actions-Job `npm-publish-next` laeuft per `workflow_dispatch` mit `publish_to_npm=true` oder nach `release: published` und erlaubt keine Deferrals: Er setzt `XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL=0`, wiederholt `release:report`, Pack- und Audit/SBOM-Evidence und fuehrt danach `npm publish --tag next --provenance --access public` aus.
 
 Der naechste Schritt ist `DPF-WP-04-visual-pixel-evidence-storage`.

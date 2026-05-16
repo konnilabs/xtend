@@ -94,14 +94,14 @@ npm run pack:dry-run
 
 ## Provenance und Publish Boundary
 
-`publishConfig.provenance` ist in Root- und Teilpaket-Manifests auf `true` vorbereitet, damit npm-Releases Herkunftsnachweise erzeugen koennen. Die Package-Manifeste referenzieren `git+https://github.com/konnilabs/xtend.git`, damit npm die Provenance-Quelle dem GitHub-Workflow zuordnen kann. `private: false` ist fuer RC1-Publish-Prep gesetzt; der Publish-Pfad wird weiterhin durch Owner-Entscheid, Gate-Artefakte und den manuell gestarteten GitHub-Actions-Job `npm-publish-next` kontrolliert. Eine Freigabe darf erst erfolgen, wenn:
+`publishConfig.provenance` ist in Root- und Teilpaket-Manifests auf `true` vorbereitet, damit npm-Releases Herkunftsnachweise erzeugen koennen. Die Package-Manifeste referenzieren `git+https://github.com/konnilabs/xtend.git`, damit npm die Provenance-Quelle dem GitHub-Workflow zuordnen kann. `private: false` ist fuer RC1-Publish-Prep gesetzt; der Publish-Pfad wird weiterhin durch Owner-Entscheid, Gate-Artefakte und den GitHub-Actions-Job `npm-publish-next` kontrolliert. Eine Freigabe darf erst erfolgen, wenn:
 
 - `ER-WP-30` Dependency-, License- und Vulnerability-Gates geplant und lokal gatebar gemacht hat
 - `ER-WP-36` CI/CD-Gates produktisiert hat
 - `ER-WP-38` Release Checklist und SemVer Policy finalisiert hat und ein Release Owner den Publish Boundary akzeptiert
 - `CHANGELOG.md` und Root-`README.md` fuer den konkreten Release-Kandidaten aktualisiert sind
 
-Der Publish-Job laeuft nur per `workflow_dispatch` mit `publish_to_npm=true`. Er nutzt `id-token: write`, `registry-url: https://registry.npmjs.org`, fuehrt `npm run test:release:full:report`, `npm run release:report`, `npm run pack:dry-run`, `npm run conditional-network:evidence`, `npm publish --dry-run --tag next --access public` und danach `npm publish --tag next --provenance --access public` aus.
+Der Publish-Job laeuft per `workflow_dispatch` mit `publish_to_npm=true` oder nach einem GitHub-Release-Event `release: published`. Er nutzt `id-token: write`, `registry-url: https://registry.npmjs.org`, fuehrt `npm run test:release:full:report`, `npm run release:report`, `npm run pack:dry-run`, `npm run conditional-network:evidence`, `npm publish --dry-run --tag next --access public` und danach `npm publish --tag next --provenance --access public` aus.
 
 ## Architekturgrenzen
 

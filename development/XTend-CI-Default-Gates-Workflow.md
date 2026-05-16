@@ -47,10 +47,10 @@ Der Lauf umfasst damit die Default-Suites des lokalen Runners, darunter Core, Ar
 | Gate | Contract | Trigger | Command | Artifact |
 |------|----------|---------|---------|----------|
 | `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `xtend-pr-gate-report-node-26` |
-| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
-| `package-structure` | `xtend.ci.package-structure-gate.v1` | `pull_request`, `push`, `workflow_dispatch`, `schedule` | `npm run pack:dry-run` + `npm publish --dry-run --tag next --access public` | `xtend-package-structure-node-26` |
+| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `release: published`, `schedule` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
+| `package-structure` | `xtend.ci.package-structure-gate.v1` | `pull_request`, `push`, `workflow_dispatch`, `release: published`, `schedule` | `npm run pack:dry-run` + `npm publish --dry-run --tag next --access public` | `xtend-package-structure-node-26` |
 | `nightly` | `xtend.ci.nightly-gate.v1` | `17 3 * * *` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
-| `npm-publish-next` | `xtend.npm.publish-next.github-actions.v1` | `workflow_dispatch` mit `publish_to_npm=true` | `npm publish --tag next --provenance --access public` | npm Provenance |
+| `npm-publish-next` | `xtend.npm.publish-next.github-actions.v1` | `workflow_dispatch` mit `publish_to_npm=true` oder `release: published` | `npm publish --tag next --provenance --access public` | npm Provenance |
 
 ## Nicht im Scope
 

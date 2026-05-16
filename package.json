@@ -3681,6 +3681,11 @@
       "workflow": ".github/workflows/xtend-default-gates.yml",
       "job": "npm-publish-next",
       "dispatchInput": "publish_to_npm",
+      "releaseTrigger": "release.published",
+      "activationModes": [
+        "workflow_dispatch:publish_to_npm=true",
+        "release:published"
+      ],
       "nodeVersion": "26.x",
       "registry": "https://registry.npmjs.org",
       "tag": "next",
@@ -3709,7 +3714,7 @@
       ],
       "repository": "git+https://github.com/konnilabs/xtend.git",
       "provenance": true,
-      "publishBoundary": "manual-workflow-dispatch-release-owner-approval"
+      "publishBoundary": "manual-workflow-dispatch-or-github-release-published-owner-approval"
     },
     "releaseChecklist": {
       "schema": "xtend.release.checklist-semver-policy.v1",
