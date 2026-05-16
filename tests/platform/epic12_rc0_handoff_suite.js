@@ -127,7 +127,7 @@ function runEpic12Rc0HandoffSuite(options = {}) {
     'xtend.epic12.rc0-gate-matrix.v1',
     'xtend.epic12.docs-adoption.v1'
   ], 'Source schemas');
-  context.assert(plan.sourceSnapshots.manifestEntries === 41, 'RC0 Handoff captures 41 manifest entries');
+  context.assert(plan.sourceSnapshots.manifestEntries === 42, 'RC0 Handoff captures 42 manifest entries');
   context.assert(plan.sourceSnapshots.sourceCoveragePercent === 100, 'RC0 Handoff captures source coverage');
   context.assert(plan.sourceSnapshots.docsCoveragePercent === 100, 'RC0 Handoff captures docs coverage');
   context.assert(plan.sourceSnapshots.componentSuiteCoveragePercent === 100, 'RC0 Handoff captures component suite coverage');

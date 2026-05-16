@@ -2,6 +2,15 @@
 
 Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend bleibt bis zur Freigabe der Supply-Chain- und Release-Gates als privates Paket markiert.
 
+## 0.1.0-rc.1 Test-Build - 2026-05-16
+
+- Ersten lokalen RC1-Test-Build-Schnitt unter `xtend.rc1.test-build-handoff.v1` dokumentiert.
+- Handoff in `development/XTend-RC1-Test-Build-Handoff.md` mit Datum, Commit-Basis `4e0ae07`, Gate-Reports, Pack Dry Run Evidence und offenen Owner-Entscheidungen ergaenzt.
+- RMT vNext Reference Demo und XTendRMT Bestcase Demo als Test-Build-Referenzpfade aufgenommen.
+- RC1-Test-Build bleibt ein privater, nicht publishender Schnitt: `package.json` bleibt bei Version `0.0.0-enterprise-readiness`, `private: true` bleibt aktiv und `publishAllowed` bleibt `false`.
+- Netzwerkpflichtige Audit-/SBOM-Evidence bleibt bis zur Owner-Freigabe formal deferiert und publish-blocking.
+- Release Owner Test-Build Acceptance unter `xtend.rc1.test-build-owner-acceptance.v1` dokumentiert: interne Testnutzung akzeptiert, `npm publish` und automatische Publish-Freigaben bleiben blockiert.
+
 ## 0.0.0-enterprise-readiness - 2026-05-06
 
 - Package-Export-Strategie unter `xtend.package-export.release-strategy.v1` vorbereitet.

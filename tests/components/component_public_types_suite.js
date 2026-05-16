@@ -92,6 +92,15 @@ const publicTypeContracts = [
     elementMap: true
   },
   {
+    tag: 'x-rmt-lifecycle-demo-build',
+    path: 'components/x-rmt-lifecycle-demo-build.d.ts',
+    typeNames: ['XRmtLifecycleDemoBuildEventName', 'XRmtLifecycleDemoBuildEventDetail', 'XRmtLifecycleDemoBuildEventDetailMap', 'XRmtLifecycleDemoBuildPublicEventContract', 'XRmtLifecycleDemoBuildElement'],
+    events: ['rmt-lifecycle-demo-build-ready', 'rmt-lifecycle-demo-build-changed'],
+    attributes: ['variant', 'aria-label'],
+    methods: ['hydrate(): void', 'render(): void'],
+    elementMap: true
+  },
+  {
     tag: 'x-textarea',
     path: 'components/xtextarea.d.ts',
     typeNames: ['XTextareaAttributeName', 'XTextareaEventName', 'XTextareaEventDetail', 'XTextareaEventMap', 'XTextareaPublicEventContract', 'XTextareaElement'],

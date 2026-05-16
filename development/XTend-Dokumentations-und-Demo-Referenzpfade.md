@@ -4,6 +4,8 @@
 - Bezug:
   - `development/EPIC-02-XTend-Test-Suite-und-Qualitaetsbarrieren.md`
   - `tests/references/reference_path_suite.js`
+  - `development/XTend-RC1-Test-Build-Handoff.md`
+  - `development/XTend-RC1-Test-Build-Owner-Acceptance.md`
   - `tests/browser/browser_smoke_suite.js`
   - `docs/menu.json`
   - `docs/previews/README.md`
@@ -472,12 +474,11 @@ Der Contract `xtend.epic14.lsp-handoff.v1` dokumentiert die LSP Capability Matri
 |------|--------|-----------|
 | `index.html` | automated-static | Hauptdemo mit lokalem Loader, CSS und Kernkomponenten |
 | `xtendrmt-bestcase.html` | automated-static | XTendRMT Bestcase Demo mit lokaler XTend UI und XRouter |
-<<<<<<< HEAD
-| `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static | Native RMT-Domains fuer Routen, XTend-Components, Adapter, Schedules, Template-Hydration und `xtend.rmt.template-pilot-flow.v1` |
-=======
-| `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static | RMT-vNext-Authoring fuer Bestcase Surfaces, Lanes, Lifecycle-Operationen, Slots, Event-Actions und `xtend.rmt.template-pilot-flow.v1` |
+| `xtendrmt/rmt-vnext-reference-demo.rmt` | automated-static | RMT vNext Reference Demo Source fuer den RC1-Test-Build-Schnitt und `rmt-vnext-release` |
+| `xtendrmt/rmt-vnext-reference-demo.core.json` | automated-static | stabiler Core-Output fuer die RMT vNext Reference Demo im RC1-Test-Build-Schnitt |
+| `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static | RMT-vNext-Authoring fuer Bestcase Surfaces, Lanes, Lifecycle-Operationen, Slots, Event-Actions und `xtend.rmt.template-pilot-flow.v1`; Runtime-Projektion auf Native RMT-Domains fuer Routen, XTend-Components, Adapter, Schedules |
 | `xtendrmt/xtendrmt-bestcase-demo.core.json` | automated-static | Byte-stabiler vNext-Core-Output fuer die Bestcase Runtime-Projektion auf XRouter, XTend Components und Scheduler Policies |
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
+| `xtendrmt/xtendrmt-bestcase-demo.js` | automated-static | Runtime-Projektion der XTendRMT Bestcase Demo fuer den nicht publishenden RC1-Test-Build-Schnitt |
 | `tests/fixtures/rmt-app-dsl.native-bridge.rmt` | automated-static | Native Bridge-Fixture fuer RMT Route-/Component-/Schedule-Adapter-Regression unter `xtend.rmt.wp15.native-bridge-fixture.v1` |
 | `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` | browser-smoke | Browsernahe RMT/XRouter/XTend/Vanilla-Fixture fuer native Routes, Component-Hydration und Scheduler Endpoints unter `xtend.rmt.wp16.browser-smoke-fixture.v1` |
 | `docs/previews/<name>.preview.md` | automated-static-candidate | Zielmuster fuer scaffolded Component-Preview-Plaene |
@@ -571,11 +572,7 @@ node scripts/run_xtend_tests.js rmt-compatibility --json
 node scripts/run_xtend_tests.js references --json
 ```
 
-<<<<<<< HEAD
-Der Pilot liegt in `xtendrmt/xtendrmt-bestcase-demo.rmt` unter `manifest.metadata.pilotFlow`, Route `/templating` und Template `demo.templating.pilot`. Seit Epic 05 / `WP-E05-14` liegen Routen, Components, Adapter und Schedules in nativen Top-Level-Domains; die Demo nutzt produktive XRouter-, XTend-Component- und State/Scheduler/Diagnostics-Adapterpfade. `bridgeRuntime: reserved-for-Epic-05` bleibt als historischer Pilot-Handoff sichtbar, ist aber nicht mehr die operative Demo-Bridge.
-=======
 Der Pilot liegt in `xtendrmt/xtendrmt-bestcase-demo.rmt` als RMT-vNext `surface templating` mit `slot`-Composition und `on pilot-run -> action ...`; der stabile Compiler-Output liegt in `xtendrmt/xtendrmt-bestcase-demo.core.json`. Die Demo-Runtime projiziert daraus Route `/templating`, Template `demo.templating.pilot`, Adapter-, Component- und Schedule-Records fuer die produktiven XRouter-, XTend-Component- und State/Scheduler/Diagnostics-Adapterpfade. `bridgeRuntime: reserved-for-Epic-05` bleibt als historischer Pilot-Handoff in der Projektion sichtbar, ist aber nicht mehr die operative Demo-Bridge.
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 
 ## XTendRMT Upstream-Handoff
 
@@ -1028,6 +1025,10 @@ Epic 13 ist als RC0-zu-RC1-Transfer in `development/RC0-RC1-transfer-EPIC13.md` 
 `DPF-WP-02` ist in `development/DPF-WP-02-Release-Report-und-Pack-Dry-Run-Evidence.md` abgeschlossen und traegt `xtend.epic13.release-report-pack-dry-run-evidence.v1`. Der akzeptierte Release Report und Pack Dry Run Evidence Contract liegt in `development/XTend-Epic13-Release-Report-und-Pack-Dry-Run-Evidence.md`. Die maschinenlesbare Quelle liegt in `catalog/epic13-release-report-pack-dry-run-evidence.js`, die oeffentliche Entwicklerdokumentation liegt in `docs/release-report-pack-dry-run-evidence.md`, und der lokale Gate liegt unter `tests/platform/epic13_release_report_pack_dry_run_evidence_suite.js` und ist ueber `node scripts/run_xtend_tests.js epic13-release-report-pack-dry-run-evidence --json` erreichbar.
 
 `DPF-WP-03` ist in `development/DPF-WP-03-Conditional-Network-Evidence-CI.md` abgeschlossen und traegt `xtend.epic13.conditional-network-evidence-ci.v1`. Der akzeptierte Conditional Network Evidence CI Contract liegt in `development/XTend-Epic13-Conditional-Network-Evidence-CI-Contract.md`. Die maschinenlesbare Quelle liegt in `catalog/epic13-conditional-network-evidence-ci.js`, die oeffentliche Entwicklerdokumentation liegt in `docs/conditional-network-evidence-ci.md`, und der lokale Gate liegt unter `tests/platform/epic13_conditional_network_evidence_ci_suite.js` und ist ueber `node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci --json` erreichbar. `npm run conditional-network:evidence` schreibt Audit-/SBOM-Evidence oder Owner-Deferrals fuer den CI-Job `conditional-network-evidence`.
+
+`RC1TB-WP-07` ist in `development/XTend-RC1-Test-Build-Handoff.md` dokumentiert und traegt `xtend.rc1.test-build-handoff.v1`. Der Handoff beschreibt den ersten lokalen RC1-Test-Build-Schnitt fuer `0.1.0-rc.1` als nicht publishenden Owner-Review-Stand. Die Referenzpfade fuer diesen Schnitt sind `xtendrmt/rmt-vnext-reference-demo.rmt`, `xtendrmt/rmt-vnext-reference-demo.core.json`, `xtendrmt/xtendrmt-bestcase-demo.rmt`, `xtendrmt/xtendrmt-bestcase-demo.core.json`, `xtendrmt/xtendrmt-bestcase-demo.js` und `xtendrmt-bestcase.html`; `private: true` und `publishAllowed: false` bleiben verbindliche Publish Boundary.
+
+`RC1TB-WP-08` ist in `development/XTend-RC1-Test-Build-Owner-Acceptance.md` dokumentiert und traegt `xtend.rc1.test-build-owner-acceptance.v1`. Der Decision Record akzeptiert den RC1-Test-Build fuer interne Nutzung, buendelt Gate Report, Package Dry Run, TypeExports und Conditional Network Evidence, laesst `npm-audit-moderate` und `npm-sbom-json` publish-blocking deferred und blockiert `npm publish`, `private: true`-Aufhebung sowie automatische Publish-Freigaben.
 
 `WP-SM-01` ist in `development/WP-SM-01-SurfaceManager-Contract-und-RMT-Authoring-Model-definieren.md` abgeschlossen und traegt `xtend.rmt.surface-authoring.v1`. Der akzeptierte SurfaceManager Contract liegt in `development/XTend-SurfaceManager-Contract-und-RMT-Authoring-Model.md`. Die maschinenlesbare Quelle liegt in `catalog/surface-manager-rmt-authoring.js`, das RMT-Fixture liegt in `tests/fixtures/rmt-surface-manager-workbench.rmt`, die oeffentliche Entwicklerdokumentation liegt in `docs/surface-manager-rmt-authoring.md`, und der lokale Gate liegt unter `tests/rmt/rmt_surface_manager_authoring_suite.js` und ist ueber `node scripts/run_xtend_tests.js rmt-surface-authoring --json` erreichbar. Das Paket definiert `x-surface-manager`, `x-surface-window`, `x-side-panel`, `metadata.surfaceManager`, `metadata.surface`, Surface-Schedules und die reservierte `xtend.surface` Adaptergrenze fuer `WP-SM-02`.
 

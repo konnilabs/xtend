@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-rmt-lifecycle-demo-build component fixture</title>
+</head>
+<body>
+  <x-rmt-lifecycle-demo-build
+    id="component-rmt-lifecycle-demo-build"
+    variant="rc1"
+    aria-label="RMT Lifecycle Demo Build">
+    Lifecycle Demo
+  </x-rmt-lifecycle-demo-build>
+
+  <script>
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+  </script>
+  <script type="module" src="/components/x-rmt-lifecycle-demo-build.js"></script>
+  <script type="module">
+    const result = window.__xtendComponentResult;
+    const record = (name, passed, detail = {}) => {
+      result.checks.push({ name, passed: Boolean(passed), detail });
+      if (!passed) result.errors.push(name);
+    };
+
+    await customElements.whenDefined('x-rmt-lifecycle-demo-build');
+    const element = document.getElementById('component-rmt-lifecycle-demo-build');
+    const constructorRef = customElements.get('x-rmt-lifecycle-demo-build');
+    const section = element.shadowRoot.querySelector('section');
+
+    record('custom element defined', Boolean(constructorRef));
+    record('shadow root attached', Boolean(element.shadowRoot));
+    record('hydrated attribute set', element.getAttribute('data-xtend-hydrated') === 'true');
+    record('semantic region rendered', section && section.getAttribute('role') === 'region');
+    record('accessible name reflected', section && section.getAttribute('aria-label') === 'RMT Lifecycle Demo Build');
+    record('scaffold wiring exposed', constructorRef.xtendScaffoldWiring.schema === 'xtend.scaffold.feature-wiring.v1');
+    record('extension points exposed', constructorRef.xtendScaffoldExtensionPoints.schema === 'xtend.scaffold.component-extension-points.v1');
+    record('a11y profile exposed', constructorRef.xtendScaffoldA11yProfile.schema === 'xtend.a11y.profile.v1');
+    record('performance profile exposed', constructorRef.xtendScaffoldPerformanceProfile.schema === 'xtend.performance.component-profile.v1');
+
+    result.status = result.errors.length === 0 ? 'passed' : 'failed';
+  </script>
+</body>
+</html>

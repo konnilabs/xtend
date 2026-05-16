@@ -46,3 +46,9 @@ Wenn diese Gates lokal wegen Sandbox, Netzwerk oder Policy nicht laufen koennen,
 Der Checklist-Eintrag `known-residual-renewal` ist damit `accepted`: `xstate` und `x-utils` sind Boundary-Contracts, `xtend.component.hydrate` ist owner-frei geschlossen. Der Checklist-Eintrag `visual-owner-artifact` ist `accepted`; `rmt-production-readiness` ist seit `WP-E13-09` und `xtend.epic13.rmt-production-readiness.v1` ebenfalls `accepted`. `docs-rmt-production-hardening` ist seit `WP-E13-10` und `xtend.epic13.docs-rmt-production-hardening.v1` accepted. `prod-browser-csp-smoke` und `trusted-dom-boundary` sind seit `WP-E13-11` accepted; die Trusted-DOM-Evidence liegt unter [Trusted DOM Boundary Browser Proof](./trusted-dom-boundary-browser-proof.md) und `xtend.epic13.trusted-dom-boundary.v1`. `rc1-migration-notes` ist seit `WP-E13-12` accepted; die Evidence liegt unter [RC1 Migration Notes](./rc1-migration-notes.md) und `xtend.epic13.rc1-migration-notes-semver.v1`. `rc1-gate-matrix-ci-handoff` ist seit `WP-E13-13` accepted; die Evidence liegt unter [RC1 Gate Matrix und CI-Handoff](./rc1-gate-matrix-ci-handoff.md) und `xtend.epic13.rc1-gate-matrix-ci-handoff.v1`. Der naechste Handoff geht nach `WP-E13-14`.
 
 Weiterfuehrend: [RC1 Readiness](./rc1-readiness.md).
+
+## RC1 Test-Build Acceptance
+
+`RC1TB-WP-08` konkretisiert den Owner-Schnitt fuer den ersten lokalen RC1-Test-Build in `development/XTend-RC1-Test-Build-Owner-Acceptance.md` unter `xtend.rc1.test-build-owner-acceptance.v1`.
+
+Die Entscheidung fuer diesen Schnitt lautet `accepted-for-internal-test-build-not-publish`: Der Test-Build darf intern gegen die dokumentierten Gate-Reports, die RMT vNext Reference Demo und die XTendRMT Bestcase Demo verwendet werden. `npm-audit-moderate` und `npm-sbom-json` bleiben als Conditional-Network-Deferrals publish-blocking. `private: true`, `publishAllowed: false` und `automaticPublishApproval: false` bleiben aktiv.

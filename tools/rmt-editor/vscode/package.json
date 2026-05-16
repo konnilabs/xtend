@@ -4,8 +4,8 @@
   "description": "Thin VS Code bridge for native .rmt authoring through the XTendRMT Language Server.",
   "version": "0.0.0-enterprise-readiness",
   "private": true,
-  "publisher": "xtend",
-  "license": "UNLICENSED",
+  "publisher": "CCS Networks",
+  "license": "CCS Open Source License",
   "engines": {
     "vscode": "^1.90.0"
   },

@@ -3,7 +3,7 @@
 - Contract: `xtend.docs.component-catalog-coverage.v1`
 - Matrix Contract: `xtend.catalog.component-coverage-matrix.v1`
 - Gate Contract: `xtend.catalog.component-coverage-gate.v1`
-- Workpackage: `ER-WP-31`, fortgeschrieben durch `ER-WP-32`, `ER-WP-33`, `ER-WP-34`, `ER-WP-35`, `WP-E11-12`, `WP-E11-17`, `WP-E12-02`, `WP-E12-03`, `WP-E12-04`, `WP-E12-05`, `WP-E12-06`, `WP-E12-07`, `WP-E12-08`, `WP-E12-09`, `WP-E13-12A`, `WP-SM-03` und `WP-SM-04`
+- Workpackage: `ER-WP-31`, fortgeschrieben durch `ER-WP-32`, `ER-WP-33`, `ER-WP-34`, `ER-WP-35`, `WP-E11-12`, `WP-E11-17`, `WP-E12-02`, `WP-E12-03`, `WP-E12-04`, `WP-E12-05`, `WP-E12-06`, `WP-E12-07`, `WP-E12-08`, `WP-E12-09`, `WP-E13-12A`, `WP-SM-03`, `WP-SM-04` und `RC1TB-WP-03`
 
 Die Component Catalog Coverage Matrix zeigt, wie reif jede Komponente aus `components/manifest.json` gerade ist. Sie verbindet Source, Dokumentation, Component-Level-Suite, Fixture, Types, A11y und Performance zu einem Statusmodell.
 
@@ -29,19 +29,19 @@ Der Gate ist aktuell gruen, wenn alle Manifest-Sources lokal aufloesbar sind und
 
 ## Aktueller Stand
 
-Der Snapshot nach `WP-SM-04` zeigt:
+Der Snapshot nach `RC1TB-WP-03` zeigt:
 
-- 41 Manifest-Komponenten
-- 41 lokale Source-Dateien
-- 41 Komponenten-Dokumente
-- 41 Component-Level-Suites und Fixtures
-- 41 Public-Type-Artefakte fuer priorisierte Komponenten
-- 40 Komponenten mit erkennbarer A11y-Oberflaeche
-- 39 Komponenten mit explizitem Runtime-/UI-Performance-Profil
+- 42 Manifest-Komponenten
+- 42 lokale Source-Dateien
+- 42 Komponenten-Dokumente
+- 42 Component-Level-Suites und Fixtures
+- 42 Public-Type-Artefakte fuer priorisierte Komponenten
+- 41 Komponenten mit erkennbarer A11y-Oberflaeche
+- 40 Komponenten mit explizitem Runtime-/UI-Performance-Profil
 
-`x-input`, `x-select`, `x-checkbox`, `x-radio`, `x-textarea`, `x-form`, `x-calendar`, `x-writer`, `x-status`, `x-progress`, `x-tooltip`, `x-popover`, `x-drawer`, `x-surface-manager`, `x-surface-window`, `x-side-panel`, `x-modal`, `x-dialog`, `x-alert`, `x-toast`, `x-spinner`, `x-router`, `x-link`, `x-tabs`, `x-theme`, `x-button`, `x-icon`, `x-menu`, `x-footer`, `x-lightbox`, `x-masonry`, `x-code`, `x-header`, `x-hero`, `x-type`, `x-summary`, `x-section`, `x-cards` und `x-player` bilden die aktuelle `enterprise-ready` Linie: Source, Docs, Component-Suite, Fixture, Public Types, A11y und Performance-Profil sind vollstaendig vorhanden. `xstate` ist seit [Known Residual Triage](./known-residual-triage.md) als Runtime-Boundary geschlossen; `x-utils` ist als Utility-Boundary geschlossen. Beide bleiben bewusst nicht als visuelle `enterprise-ready` Komponenten klassifiziert.
+`x-input`, `x-select`, `x-checkbox`, `x-radio`, `x-rmt-lifecycle-demo-build`, `x-textarea`, `x-form`, `x-calendar`, `x-writer`, `x-status`, `x-progress`, `x-tooltip`, `x-popover`, `x-drawer`, `x-surface-manager`, `x-surface-window`, `x-side-panel`, `x-modal`, `x-dialog`, `x-alert`, `x-toast`, `x-spinner`, `x-router`, `x-link`, `x-tabs`, `x-theme`, `x-button`, `x-icon`, `x-menu`, `x-footer`, `x-lightbox`, `x-masonry`, `x-code`, `x-header`, `x-hero`, `x-type`, `x-summary`, `x-section`, `x-cards` und `x-player` bilden die aktuelle `enterprise-ready` Linie: Source, Docs, Component-Suite, Fixture, Public Types, A11y und Performance-Profil sind vollstaendig vorhanden. `xstate` ist seit [Known Residual Triage](./known-residual-triage.md) als Runtime-Boundary geschlossen; `x-utils` ist als Utility-Boundary geschlossen. Beide bleiben bewusst nicht als visuelle `enterprise-ready` Komponenten klassifiziert.
 
-Seit `ER-WP-35` existiert zusaetzlich der Regression-Priority-Plan `xtend.catalog.component-regression-priority-plan.v1`. Er priorisiert alle 41 Manifest-Eintraege fuer `desktop-1280`, `mobile-390`, `light`, `dark`, `forced-colors`, `reduced-motion`, Browser-Smokes und Performance-Profil-Ableitung. Die 39 sichtbaren Runtime-/UI-Komponenten bringen ihre Performance-Profile mit; `xstate` und `x-utils` werden stattdessen ueber ihre Boundary-Contracts bewertet.
+Seit `ER-WP-35` existiert zusaetzlich der Regression-Priority-Plan `xtend.catalog.component-regression-priority-plan.v1`. Er priorisiert alle 42 Manifest-Eintraege fuer `desktop-1280`, `mobile-390`, `light`, `dark`, `forced-colors`, `reduced-motion`, Browser-Smokes und Performance-Profil-Ableitung. Die 40 sichtbaren Runtime-/UI-Komponenten bringen ihre Performance-Profile mit; `xstate` und `x-utils` werden stattdessen ueber ihre Boundary-Contracts bewertet.
 
 ## Handoff
 

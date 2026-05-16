@@ -2201,12 +2201,12 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'xtend.catalog.component-coverage-matrix.v1', message: 'declares coverage matrix contract' },
       { pattern: 'xtend.catalog.component-coverage-entry.v1', message: 'declares coverage entry contract' },
       { pattern: 'xtend.catalog.component-coverage-gate.v1', message: 'declares coverage gate contract' },
-      { pattern: '41 | 0 | 100', message: 'documents complete source coverage' },
-      { pattern: '| `docs` | 41 | 0 | 100 |', message: 'documents complete docs coverage' },
+      { pattern: '42 | 0 | 100', message: 'documents complete source coverage' },
+      { pattern: '| `docs` | 42 | 0 | 100 |', message: 'documents complete docs coverage' },
       { pattern: '`documented` | 0', message: 'documents current documented status count after WP-E12-09' },
       { pattern: '`contract-gated` | 1', message: 'documents current contract-gated status count after WP-E12-09' },
       { pattern: '`typed-contract-gated` | 1', message: 'documents current typed-contract-gated status count after WP-E12-09' },
-      { pattern: '`enterprise-ready` | 39', message: 'documents current enterprise-ready status count after SurfaceManager side-panel runtime' },
+      { pattern: '`enterprise-ready` | 40', message: 'documents current enterprise-ready status count after RMT lifecycle build closure' },
       { pattern: '| `x-summary` | `display, stateful` | `enterprise-ready` |', message: 'documents x-summary enterprise-ready row' },
       { pattern: '| `x-router` | `routing` | `enterprise-ready` |', message: 'documents x-router enterprise-ready row' },
       { pattern: '| `x-utils` | `utility` | `typed-contract-gated` |', message: 'documents x-utils typed-contract-gated row' },
@@ -4513,9 +4513,9 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: 'xtend.catalog.component-coverage-gate.v1', message: 'documents coverage gate contract' },
       { pattern: 'npm run test:catalog-coverage', message: 'documents package gate' },
       { pattern: 'node scripts/run_xtend_tests.js catalog-coverage --json', message: 'documents JSON runner gate' },
-      { pattern: '41 Komponenten-Dokumente', message: 'documents complete docs coverage' },
-      { pattern: '41 Component-Level-Suites', message: 'documents component-suite coverage after SurfaceManager side-panel runtime' },
-      { pattern: '41 Public-Type-Artefakte', message: 'documents public type coverage after SurfaceManager side-panel runtime' },
+      { pattern: '42 Komponenten-Dokumente', message: 'documents complete docs coverage' },
+      { pattern: '42 Component-Level-Suites', message: 'documents component-suite coverage after RMT lifecycle build closure' },
+      { pattern: '42 Public-Type-Artefakte', message: 'documents public type coverage after RMT lifecycle build closure' },
       { pattern: '`xstate` ist seit [Known Residual Triage](./known-residual-triage.md) als Runtime-Boundary geschlossen', message: 'documents xstate closed runtime boundary status after WP-E13-05' },
       { pattern: 'x-summary', message: 'documents x-summary catalog status' },
       { pattern: '`x-utils` ist als Utility-Boundary geschlossen', message: 'documents x-utils closed utility boundary status after WP-E13-05' },
@@ -4534,7 +4534,7 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: 'components/xtend-public-types.d.ts', message: 'documents shared public type helpers' },
       { pattern: 'components/xrouter.d.ts', message: 'documents x-router public type artifact' },
       { pattern: 'component-public-types', message: 'documents component public types gate' },
-      { pattern: '41 priorisierten `.d.ts`', message: 'documents priority type artifact count after SurfaceManager side-panel runtime' }
+      { pattern: '42 priorisierten `.d.ts`', message: 'documents priority type artifact count after RMT lifecycle build closure' }
     ]
   },
   {
@@ -5601,10 +5601,10 @@ function assertScaffoldConfigReference(context, rootDir) {
 
   context.assert(config.scaffoldName === 'XTend-Scaffold', 'Scaffold config declares canonical product name');
   context.assert(config.scaffoldRole === 'repo-local-build-environment', 'Scaffold config declares build-environment role');
-  context.assert(config.runtimeBoundary === 'generator-only', 'Scaffold config keeps runtime boundary generator-only');
+  context.assert(config.runtimeBoundary === 'dry-run-first-but-write-capable', 'Scaffold config keeps dry-run-first write-capable runtime boundary');
   context.assert(tooling.runtime === 'node', 'Scaffold config declares Node tooling runtime');
   context.assert(tooling.moduleSystem === 'commonjs', 'Scaffold config declares CommonJS module system');
-  context.assert(tooling.writeStrategy === 'dry-run-first', 'Scaffold config declares dry-run-first write strategy');
+  context.assert(tooling.writeStrategy === 'dry-run-first-but-write-capable', 'Scaffold config declares dry-run-first write-capable strategy');
   context.assert(entryPoints.cli === 'xtend-builder/scaffold.js', 'Scaffold config declares CLI entry point');
   context.assert(entryPoints.cliModule === 'xtend-builder/lib/cli.js', 'Scaffold config declares CLI module');
   context.assert(entryPoints.layoutContract === 'xtend-builder/lib/layout.js', 'Scaffold config declares layout contract module');
@@ -5648,8 +5648,8 @@ function assertScaffoldConfigReference(context, rootDir) {
   context.assert(generatorConfig.componentExtensions === 'xtend-builder/extensions/component-extension-points.js', 'Scaffold config links component extension generator');
   context.assert(generatorConfig.componentA11y === 'xtend-builder/a11y/component-a11y-profile.js', 'Scaffold config links component A11y profile generator');
   context.assert(generatorConfig.componentPerformance === 'xtend-builder/performance/component-performance-profile.js', 'Scaffold config links component Performance profile generator');
-  context.assert(generatorConfig.mode === 'plan-dry-run-render-type-preview-and-extension-contract', 'Scaffold config exposes plan, render, type, preview and extension contract mode');
-  context.assert(generatorConfig.fileOutputMode === 'dry-run-render-with-feature-type-preview-and-extension-wiring', 'Scaffold config keeps component file output dry-run render-only with feature, type, preview and extension wiring');
+  context.assert(generatorConfig.mode === 'plan-dry-run-render-type-preview-extension-and-write-plan-contract', 'Scaffold config exposes plan, render, type, preview, extension and write-plan contract mode');
+  context.assert(generatorConfig.fileOutputMode === 'dry-run-render-or-write-with-feature-type-preview-extension-ownership-manifest-patch-and-build-report', 'Scaffold config keeps component file output dry-run first with write-plan ownership, manifest patch and build report wiring');
   context.assert(templateLoader.schema === 'xtend.scaffold.template-registry.v1', 'Scaffold config declares template registry schema');
   context.assert(templateLoader.registry === 'xtend-builder/templates/registry.js', 'Scaffold config links template registry');
   context.assert(templateLoader.loader === 'xtend-builder/templates/loader.js', 'Scaffold config links template loader');
@@ -6280,8 +6280,8 @@ function assertScaffoldGeneratorReference(context, rootDir) {
     'Generator registry exposes plan-only component-plan command'
   );
   context.assert(
-    generatorRegistry.generators.some((generator) => generator.command === 'component-files' && generator.status === 'template-render-with-feature-type-preview-and-extension-wiring'),
-    'Generator registry exposes template-render-with-feature-type-preview-and-extension-wiring component-files command'
+    generatorRegistry.generators.some((generator) => generator.command === 'component-files' && generator.status === 'template-render-write-plan-manifest-patch-and-build-report-output'),
+    'Generator registry exposes template-render-write-plan-manifest-patch-and-build-report-output component-files command'
   );
   context.assert(
     generatorRegistry.generators.some((generator) => generator.command === 'typing' && generator.status === 'type-contract-and-rmt-attachment'),
@@ -6361,7 +6361,7 @@ function assertScaffoldGeneratorReference(context, rootDir) {
   context.assert(plan.ok === true, 'Component plan validates a display component input');
   context.assert(plan.schema === 'xtend.scaffold.component-plan.v1', 'Component plan exposes stable schema');
   context.assert(plan.mode === 'dry-run', 'Component plan remains dry-run');
-  context.assert(plan.writeStrategy === 'dry-run-first', 'Component plan preserves dry-run-first strategy');
+  context.assert(plan.writeStrategy === 'dry-run-first-but-write-capable', 'Component plan preserves dry-run-first write-capable strategy');
   context.assert(plan.a11yProfile && plan.a11yProfile.schema === 'xtend.a11y.profile.v1', 'Component plan includes A11y profile');
   context.assert(plan.a11yProfile && plan.a11yProfile.testContract === 'xtend.a11y.test-contract.v1', 'Component plan includes A11y test contract');
   context.assert(plan.a11yProfile && plan.a11yProfile.screenreader && plan.a11yProfile.screenreader.contract === 'xtend.a11y.screenreader-signals.v1', 'Component plan includes Screenreader signal contract');
@@ -7469,14 +7469,14 @@ function assertComponentCatalogCoverageReference(context, rootDir) {
   context.assert(catalogModule.COMPONENT_CATALOG_ENTRY_SCHEMA === 'xtend.catalog.component-coverage-entry.v1', 'Catalog module exports entry schema');
   context.assert(catalogModule.COMPONENT_CATALOG_GATE_SCHEMA === 'xtend.catalog.component-coverage-gate.v1', 'Catalog module exports gate schema');
   context.assert(report.schema === 'xtend.catalog.component-coverage-matrix.v1', 'Catalog report exposes coverage matrix schema');
-  context.assert(report.entries.length === 41, 'Catalog report covers all 41 manifest entries');
+  context.assert(report.entries.length === 42, 'Catalog report covers all 42 manifest entries');
   context.assert(report.entries.every((entry) => entry.coverage.source === true), 'Catalog report resolves every manifest source');
-  context.assert(report.summary.byDimension.docs.covered === 41, 'Catalog report tracks complete docs coverage');
+  context.assert(report.summary.byDimension.docs.covered === 42, 'Catalog report tracks complete docs coverage');
   context.assert(!report.summary.missingByDimension.docs, 'Catalog report has no docs missing dimension after ER-WP-32');
-  context.assert(report.summary.byDimension.componentSuite.covered === 41, 'Catalog report tracks complete component-suite coverage after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.fixture.covered === 41, 'Catalog report tracks complete fixture coverage after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.types.covered === 41, 'Catalog report tracks complete type coverage after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.a11y.covered === 40, 'Catalog report tracks SurfaceManager side-panel A11y coverage');
+  context.assert(report.summary.byDimension.componentSuite.covered === 42, 'Catalog report tracks complete component-suite coverage after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.fixture.covered === 42, 'Catalog report tracks complete fixture coverage after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.types.covered === 42, 'Catalog report tracks complete type coverage after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.a11y.covered === 41, 'Catalog report tracks RMT lifecycle build A11y coverage');
   context.assert(report.summary.byDimension.performance.missing === 2, 'Catalog report tracks current performance profile gap after WP-E12-07');
   context.assert(gate.ok === true, 'Catalog gate passes while exposing open dimensions as warnings');
   context.assert(gate.warnings.some((warning) => warning.dimension === 'performance'), 'Catalog gate exposes performance warning');
@@ -7494,6 +7494,8 @@ function assertComponentCatalogCoverageReference(context, rootDir) {
   context.assert(byTag.get('x-select') && byTag.get('x-select').status === 'enterprise-ready', 'Catalog report classifies x-select as enterprise-ready');
   context.assert(byTag.get('x-checkbox') && byTag.get('x-checkbox').status === 'enterprise-ready', 'Catalog report classifies x-checkbox as enterprise-ready');
   context.assert(byTag.get('x-radio') && byTag.get('x-radio').status === 'enterprise-ready', 'Catalog report classifies x-radio as enterprise-ready');
+  context.assert(byTag.get('x-rmt-lifecycle-demo-build') && byTag.get('x-rmt-lifecycle-demo-build').status === 'enterprise-ready', 'Catalog report classifies x-rmt-lifecycle-demo-build as enterprise-ready');
+  context.assert(byTag.get('x-rmt-lifecycle-demo-build') && byTag.get('x-rmt-lifecycle-demo-build').coverage.types === true, 'Catalog report detects x-rmt-lifecycle-demo-build type artifact');
   context.assert(byTag.get('x-textarea') && byTag.get('x-textarea').status === 'enterprise-ready', 'Catalog report classifies x-textarea as enterprise-ready');
   context.assert(byTag.get('x-status') && byTag.get('x-status').status === 'enterprise-ready', 'Catalog report classifies x-status as enterprise-ready');
   context.assert(byTag.get('x-progress') && byTag.get('x-progress').status === 'enterprise-ready', 'Catalog report classifies x-progress as enterprise-ready');
@@ -7507,6 +7509,7 @@ function assertComponentCatalogCoverageReference(context, rootDir) {
   context.assert(markdown.includes('| `x-modal` | `overlay` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-modal enterprise-ready row');
   context.assert(markdown.includes('| `x-dialog` | `overlay` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-dialog enterprise-ready row');
   context.assert(markdown.includes('| `x-select` | `form, interactive, stateful` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-select enterprise-ready row');
+  context.assert(markdown.includes('| `x-rmt-lifecycle-demo-build` | `display, stateful` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-rmt-lifecycle-demo-build enterprise-ready row');
   context.assert(markdown.includes('| `x-textarea` | `form, stateful` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-textarea enterprise-ready row');
   context.assert(markdown.includes('| `x-status` | `feedback, stateful` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-status enterprise-ready row');
   context.assert(markdown.includes('| `x-progress` | `feedback, stateful` | `enterprise-ready` |'), 'Catalog markdown matrix includes x-progress enterprise-ready row');
@@ -7515,7 +7518,7 @@ function assertComponentCatalogCoverageReference(context, rootDir) {
   context.assert(packageManifest.scripts['test:catalog-coverage'] === 'node scripts/run_xtend_tests.js catalog-coverage', 'Package exposes Component Catalog Coverage script');
   context.assert(packageManifest.xtend.componentCatalogCoverage.schema === 'xtend.catalog.component-coverage-matrix.v1', 'Package metadata exposes catalog coverage schema');
   context.assert(packageManifest.xtend.componentPublicTypes.schema === 'xtend.enterprise.er-wp-34.public-component-types.v1', 'Package metadata exposes public component types schema');
-  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 41, 'Package metadata exposes public component type coverage count after SurfaceManager side-panel runtime');
+  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 42, 'Package metadata exposes public component type coverage count after RMT lifecycle build closure');
   context.assert(packageManifest.xtend.epic10FormSelectionControls.schema === 'xtend.epic10.form-selection-controls.v1', 'Package metadata exposes form selection controls schema');
   context.assert(packageManifest.xtend.epic10FormFeedbackControls.schema === 'xtend.epic10.form-feedback-controls.v1', 'Package metadata exposes form feedback controls schema');
   context.assert((packageManifest.exports['./catalog/component-regression-priority'] === './catalog/component-regression-priority.js' || (packageManifest.exports['./catalog/component-regression-priority'] && packageManifest.exports['./catalog/component-regression-priority'].default === './catalog/component-regression-priority.js')), 'Package exports Component Regression Priority module');
@@ -7548,7 +7551,7 @@ function assertComponentRegressionPriorityReference(context, rootDir) {
   context.assert(priorityModule.COMPONENT_REGRESSION_PRIORITY_ENTRY_SCHEMA === 'xtend.catalog.component-regression-priority-entry.v1', 'Regression priority module exports entry schema');
   context.assert(priorityModule.COMPONENT_REGRESSION_PRIORITY_GATE_SCHEMA === 'xtend.catalog.component-regression-priority-gate.v1', 'Regression priority module exports gate schema');
   context.assert(plan.schema === 'xtend.catalog.component-regression-priority-plan.v1', 'Regression priority plan exposes schema');
-  context.assert(plan.entries.length === 41, 'Regression priority plan covers all 41 manifest entries');
+  context.assert(plan.entries.length === 42, 'Regression priority plan covers all 42 manifest entries');
   context.assert(plan.summary.requiresPerformanceProfile === 2, 'Regression priority plan tracks performance authoring for remaining legacy entries after WP-E12-07');
   context.assert(plan.summary.requiresA11yRemediation === 1, 'Regression priority plan tracks remaining A11y remediation count after WP-E12-04');
   context.assert(plan.summary.requiresLongTailSuite === 0, 'Regression priority plan closes long-tail suite count after WP-E12-09');
@@ -8309,9 +8312,9 @@ function assertEpic10FormSelectionControlsReference(context, rootDir) {
   context.assertIncludes(contract, 'no-rmt-kernel-import-of-xtend-types', 'Form Selection Controls contract keeps RMT boundary');
   context.assert(metadata && metadata.schema === 'xtend.epic10.form-selection-controls.v1', 'Package metadata exposes WP-E10-09 schema');
   context.assert(metadata && metadata.status === 'accepted', 'Package metadata accepts WP-E10-09');
-  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 41, 'Package metadata counts 41 public type artifacts after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.componentSuite.covered === 41, 'Coverage report counts 41 component suites after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.performance.covered === 39, 'Coverage report counts thirty-nine performance-ready components after SurfaceManager side-panel runtime');
+  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 42, 'Package metadata counts 42 public type artifacts after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.componentSuite.covered === 42, 'Coverage report counts 42 component suites after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.performance.covered === 40, 'Coverage report counts forty performance-ready components after RMT lifecycle build closure');
   context.assertIncludes(xFormSource, 'x-select, x-checkbox, x-radio', 'x-form discovers selection controls');
   context.assertIncludes(xFormSource, 'select-changed', 'x-form listens to select changes');
   context.assertIncludes(xFormSource, 'checkbox-changed', 'x-form listens to checkbox changes');
@@ -8398,9 +8401,9 @@ function assertEpic10FormFeedbackControlsReference(context, rootDir) {
   context.assertIncludes(contract, 'no-rmt-kernel-import-of-xtend-types', 'Form Feedback Controls contract keeps RMT boundary');
   context.assert(metadata && metadata.schema === 'xtend.epic10.form-feedback-controls.v1', 'Package metadata exposes WP-E10-10 schema');
   context.assert(metadata && metadata.status === 'accepted', 'Package metadata accepts WP-E10-10');
-  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 41, 'Package metadata counts 41 public type artifacts after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.componentSuite.covered === 41, 'Coverage report counts 41 component suites after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.performance.covered === 39, 'Coverage report counts thirty-nine performance-ready components after SurfaceManager side-panel runtime');
+  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 42, 'Package metadata counts 42 public type artifacts after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.componentSuite.covered === 42, 'Coverage report counts 42 component suites after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.performance.covered === 40, 'Coverage report counts forty performance-ready components after RMT lifecycle build closure');
   context.assertIncludes(xFormSource, 'x-select, x-checkbox, x-radio, x-textarea', 'x-form discovers textarea control');
   context.assertIncludes(xFormSource, 'textarea-changed', 'x-form listens to textarea changes');
 
@@ -8492,9 +8495,9 @@ function assertEpic10OverlayNavigationControlsReference(context, rootDir) {
   context.assertIncludes(contract, 'no-rmt-kernel-import-of-xtend-types', 'Overlay Navigation Controls contract keeps RMT boundary');
   context.assert(metadata && metadata.schema === 'xtend.epic10.overlay-navigation-controls.v1', 'Package metadata exposes WP-E10-11 schema');
   context.assert(metadata && metadata.status === 'accepted', 'Package metadata accepts WP-E10-11');
-  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 41, 'Package metadata counts 41 public type artifacts after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.componentSuite.covered === 41, 'Coverage report counts 41 component suites after SurfaceManager side-panel runtime');
-  context.assert(report.summary.byDimension.performance.covered === 39, 'Coverage report counts thirty-nine performance-ready components after SurfaceManager side-panel runtime');
+  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 42, 'Package metadata counts 42 public type artifacts after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.componentSuite.covered === 42, 'Coverage report counts 42 component suites after RMT lifecycle build closure');
+  context.assert(report.summary.byDimension.performance.covered === 40, 'Coverage report counts forty performance-ready components after RMT lifecycle build closure');
 
   expected.forEach((entry) => {
     assertFileExists(context, entry.runtime, rootDir, `${entry.tag} runtime exists`);

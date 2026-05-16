@@ -51,7 +51,7 @@ Der Plan haelt die frueheren Boundary-Luecken nachvollziehbar, aber nicht mehr a
 - 0 Manifest-Eintraege brauchen noch Suite-, Fixture- oder Type-Nacharbeit.
 - `xstate` ist seit `WP-E13-05` als Runtime-Boundary geschlossen.
 - `x-utils` ist seit `WP-E13-05` als Utility-Boundary geschlossen.
-- Die 39 sichtbaren Runtime-/UI-Komponenten behalten explizite Performance-Profile; `xstate` und `x-utils` werden nicht kuenstlich zu visuellen Profiltraegern umgedeutet.
+- Die 40 sichtbaren Runtime-/UI-Komponenten behalten explizite Performance-Profile; `xstate` und `x-utils` werden nicht kuenstlich zu visuellen Profiltraegern umgedeutet.
 
 Damit ist klar, dass `ER-WP-35` priorisiert, aber die eigentliche Screenshot-/Pixel-Regression an CI und Release Readiness uebergibt.
 

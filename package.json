@@ -3537,7 +3537,7 @@
       "schema": "xtend.enterprise.er-wp-34.public-component-types.v1",
       "sharedTypes": "components/xtend-public-types.d.ts",
       "localGate": "node scripts/run_xtend_tests.js components --json",
-      "typedPriorityComponents": 41
+      "typedPriorityComponents": 42
     },
     "componentRegressionPriority": {
       "schema": "xtend.catalog.component-regression-priority-plan.v1",

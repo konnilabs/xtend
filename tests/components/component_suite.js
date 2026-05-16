@@ -111,6 +111,9 @@ const {
   runXMasonryComponentSuite
 } = require('./xmasonry.component_suite');
 const {
+  runXRmtLifecycleDemoBuildComponentSuite
+} = require('./x-rmt-lifecycle-demo-build.component_suite');
+const {
   runXStateComponentSuite
 } = require('./xstate.component_suite');
 const {
@@ -157,6 +160,7 @@ const componentSuites = [
   runXTypeComponentSuite,
   runXCodeComponentSuite,
   runXMasonryComponentSuite,
+  runXRmtLifecycleDemoBuildComponentSuite,
   runXStateComponentSuite,
   runXUtilsComponentSuite,
   runComponentPublicTypesSuite

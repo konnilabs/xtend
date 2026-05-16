@@ -37,6 +37,7 @@ const EXPECTED_PROFILES_BY_TAG = Object.freeze({
   'x-select': ['form', 'interactive', 'stateful'],
   'x-checkbox': ['form', 'interactive'],
   'x-radio': ['form', 'interactive'],
+  'x-rmt-lifecycle-demo-build': ['display', 'stateful'],
   'x-textarea': ['form', 'stateful'],
   'x-status': ['feedback', 'stateful'],
   'x-progress': ['feedback', 'stateful'],

@@ -8,10 +8,7 @@ import {
 } from './rmt-runtime.esm.js';
 
 const DEMO_DOCUMENT_URL = './xtendrmt/xtendrmt-bestcase-demo.rmt';
-<<<<<<< HEAD
-=======
 const DEMO_CORE_DOCUMENT_URL = './xtendrmt/xtendrmt-bestcase-demo.core.json';
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 const ROUTE_COMPONENTS = Object.freeze({
   overview: 'x-rmt-route-overview',
   scheduler: 'x-rmt-route-scheduler',
@@ -41,8 +38,6 @@ const XTEND_COMPONENT_MANIFEST = Object.freeze({
   'x-footer': '../components/xfooter.js'
 });
 
-<<<<<<< HEAD
-=======
 const DEMO_ROUTE_ORDER = Object.freeze(['kernel', 'scheduler', 'routing', 'templating', 'adapter']);
 const DEMO_ROUTE_CONFIG = Object.freeze({
   kernel: Object.freeze({
@@ -248,18 +243,14 @@ const DEMO_SCHEDULES = Object.freeze([
   })
 ]);
 
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 const state = {
   initialized: false,
   document: null,
   rawDocument: null,
   normalizedDocument: null,
-<<<<<<< HEAD
-=======
   vnextSource: '',
   vnextCore: null,
   sourceSyntax: 'legacy-json',
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   rmtFormat: null,
   registries: null,
   metadata: {
@@ -292,8 +283,6 @@ const state = {
   schedulerPressure: 'normal'
 };
 
-<<<<<<< HEAD
-=======
 function cloneSerializable(value, fallback = null) {
   if (value === undefined) return fallback;
   try {
@@ -727,7 +716,6 @@ function createRuntimeDocumentFromVNextCore(vnextCore = {}, options = {}) {
   };
 }
 
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
 function ensureXTendNamespace() {
   window.XTend = window.XTend || {};
   window.XTend.rmt = window.XTend.rmt || {};
@@ -974,8 +962,6 @@ function refreshDemoUi() {
   renderTimeline();
   setXCode('demo-runtime-snapshot', snapshot);
   setXCode('demo-route-dsl', {
-<<<<<<< HEAD
-=======
     sourceSyntax: state.sourceSyntax,
     vNextSurfaces: state.vnextCore
       ? state.vnextCore.surfaces.map((surface) => ({
@@ -984,7 +970,6 @@ function refreshDemoUi() {
         laneRefs: surface.laneRefs
       }))
       : [],
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
     routes: state.metadata.routes.map((route) => ({
       id: route.id,
       path: route.path,
@@ -1031,10 +1016,6 @@ function refreshDemoUi() {
   });
   setXCode('demo-document-preview', {
     kind: state.document ? state.document.kind : 'rmt_document',
-<<<<<<< HEAD
-    documentId: state.document && state.document.manifest ? state.document.manifest.documentId : '',
-    nativeDomains: ['adapters', 'components', 'routes', 'schedules'],
-=======
     version: state.document ? state.document.version : '2.0-vnext',
     documentId: state.document && state.document.manifest ? state.document.manifest.documentId : '',
     sourceSyntax: state.sourceSyntax,
@@ -1051,7 +1032,6 @@ function refreshDemoUi() {
       }
       : null,
     runtimeProjectionDomains: ['adapters', 'components', 'routes', 'schedules'],
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
     normalization: state.document ? state.document.normalization : null,
     registries: state.registries
       ? {
@@ -1262,11 +1242,7 @@ function defineDemoRouteComponents() {
           <x-section layout="column" label="RMT Kernel Overview">
             <div slot="header">
               <h2>RMT orchestrates; XTend renders.</h2>
-<<<<<<< HEAD
-              <p class="muted">The active <code>.rmt</code> document is loaded by the RMT Template API. XRouter receives native RMT route records through the productive adapter. Every visible panel below is composed with XTend components.</p>
-=======
               <p class="muted">The active <code>.rmt</code> document is RMT vNext syntax. XRouter receives route records projected from vNext Core through the productive adapter. Every visible panel below is composed with XTend components.</p>
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
               <div class="demo-actions">
                 <x-button data-demo-run="full" variant="primary">Run full RMT cycle</x-button>
                 <x-button data-demo-route="/scheduler" variant="secondary">Open scheduler route</x-button>
@@ -1276,11 +1252,7 @@ function defineDemoRouteComponents() {
               <x-card>
                 <h3>Routes</h3>
                 <span id="metric-routes" class="metric">0</span>
-<<<<<<< HEAD
-                <span class="metric-label">XRouter entries generated from native RMT routes</span>
-=======
                 <span class="metric-label">XRouter entries projected from vNext Surfaces</span>
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
               </x-card>
               <x-card>
                 <h3>XTend Components</h3>
@@ -1375,11 +1347,7 @@ function defineDemoRouteComponents() {
           <x-section layout="column" label="RMT Routing DSL">
             <div slot="header">
               <h2>XRouter routes generated from <code>.rmt</code></h2>
-<<<<<<< HEAD
-              <p class="muted">The RMT document stores route records in the native <code>routes</code> domain. The productive XRouter adapter turns them into live routes and schedules navigation work through RMT.</p>
-=======
               <p class="muted">The RMT document now stores route intent as vNext <code>surface</code>, <code>lane</code> and lifecycle records. The productive XRouter adapter receives the runtime projection and schedules navigation work through RMT.</p>
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
               <div class="demo-route-nav">
                 <x-button data-demo-route="/" variant="secondary">Kernel</x-button>
                 <x-button data-demo-route="/scheduler" variant="secondary">Scheduler</x-button>
@@ -1401,11 +1369,7 @@ function defineDemoRouteComponents() {
               </x-card>
             </x-cards>
             <x-code id="demo-route-dsl" lang="json"><template>{}</template></x-code>
-<<<<<<< HEAD
-            <p class="code-note">This is intentionally adapter-shaped: the RMT Kernel can later map the same route domain to React Router, Vue Router or custom routing.</p>
-=======
             <p class="code-note">This is intentionally adapter-shaped: the RMT Kernel stays on vNext Core while host adapters map it to XRouter, React Router, Vue Router or custom routing.</p>
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
           </x-section>
         `;
         bindRouteControls(this);
@@ -1421,11 +1385,7 @@ function defineDemoRouteComponents() {
           <x-section layout="column" label="RMT Template Pilot">
             <div slot="header">
               <h2>RMT authors the template record; XTend materializes the component tree.</h2>
-<<<<<<< HEAD
-              <p class="muted">This pilot uses a real <code>.rmt</code> template with XTend component attachment data. The demo now runs through the productive Bridge, Component Adapter and XRouter Adapter.</p>
-=======
               <p class="muted">This pilot uses a real vNext <code>.rmt</code> template flow with XTend component attachment data. The demo runs through the productive Bridge, Component Adapter and XRouter Adapter.</p>
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
               <div class="demo-actions">
                 <x-button data-demo-run="template-pilot" variant="primary">Inspect template pilot</x-button>
                 <x-button data-demo-run="full" variant="secondary">Run full cycle</x-button>
@@ -1645,10 +1605,6 @@ async function loadDemoDocument() {
   }
   const rmtFormat = getRmtFormat();
   const documentText = await response.text();
-<<<<<<< HEAD
-  const documentInput = rmtFormat.parseDocument(documentText, { sourceUrl: DEMO_DOCUMENT_URL });
-  const normalizedDocument = rmtFormat.normalizeDocument(documentInput);
-=======
   const isLegacyJson = documentText.trimStart().startsWith('{');
   let documentInput;
   let normalizedDocument;
@@ -1669,18 +1625,14 @@ async function loadDemoDocument() {
     normalizedDocument = rmtFormat.normalizeDocument(documentInput);
   }
 
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   const registries = rmtFormat.createRuntimeRegistries(normalizedDocument);
   const metadata = normalizedDocument && normalizedDocument.manifest && normalizedDocument.manifest.metadata
     ? normalizedDocument.manifest.metadata
     : {};
 
-<<<<<<< HEAD
-=======
   state.vnextSource = isLegacyJson ? '' : documentText;
   state.vnextCore = vnextCore;
   state.sourceSyntax = isLegacyJson ? 'legacy-json' : 'rmt-vnext';
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
   state.rawDocument = documentInput;
   state.document = normalizedDocument;
   state.normalizedDocument = normalizedDocument;
@@ -1740,11 +1692,7 @@ async function initDemo() {
     bindGlobalControls();
 
     state.initialized = true;
-<<<<<<< HEAD
-    setStatus('XTendRMT Demo bereit: native RMT Domains geladen, produktive Adapter aktiv, XTend UI gemountet.', 'success');
-=======
     setStatus('XTendRMT Demo bereit: RMT vNext Core geladen, Runtime-Projektion erstellt, produktive Adapter aktiv.', 'success');
->>>>>>> 52a69eb (Updated RMT Best Case demo to new RMT vNext syntax)
     refreshDemoUi();
   } catch (error) {
     console.error('XTendRMT BestCase Demo failed.', error);
