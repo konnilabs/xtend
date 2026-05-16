@@ -10,13 +10,19 @@ on:
   schedule:
     - cron: '17 3 * * *'
   workflow_dispatch:
+    inputs:
+      publish_to_npm:
+        description: 'Publish @ccslabs/xtend to npm with the next dist-tag after all release gates pass.'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
 
 concurrency:
   group: xtend-ci-gates-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   pr-fast-gates:
@@ -81,6 +87,55 @@ jobs:
           path: .xtend-test-results/xtend-release-gate-report.json
           if-no-files-found: warn
 
+  package-structure:
+    name: Package structure and publish dry run (Node 26.x)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NPM_CONFIG_CACHE: .xtend-test-results/npm-cache
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js 26.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: 26.x
+
+      - name: Print runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Validate root package dry run
+        run: |
+          mkdir -p .xtend-test-results
+          npm run pack:dry-run
+          npm publish --dry-run --tag next --access public
+
+      - name: Validate workspace package dry runs
+        run: |
+          npm pack --workspace xtendrmt --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
+          npm pack --workspace fabric --dry-run --json > .xtend-test-results/xtend-pack-dry-run-fabric.json
+          npm pack --workspace tools --dry-run --json > .xtend-test-results/xtend-pack-dry-run-tools.json
+          npm pack --workspace xtend-builder --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
+
+      - name: Upload package structure evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xtend-package-structure-node-26
+          path: |
+            .xtend-test-results/xtend-pack-dry-run.json
+            .xtend-test-results/xtend-package-export-surface-lock.json
+            .xtend-test-results/xtend-package-export-lock-report.json
+            .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
+            .xtend-test-results/xtend-pack-dry-run-fabric.json
+            .xtend-test-results/xtend-pack-dry-run-tools.json
+            .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
+          if-no-files-found: warn
+
   conditional-network-evidence:
     name: Conditional network evidence (Node 26.x)
     if: github.event_name != 'pull_request'
@@ -101,9 +156,13 @@ jobs:
           node --version
           npm --version
 
+      - name: Install workspace links for npm SBOM
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
       - name: Capture conditional network evidence
         env:
           XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
+          XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10: "1"
         run: npm run conditional-network:evidence
 
       - name: Upload conditional network evidence
@@ -112,6 +171,75 @@ jobs:
         with:
           name: xtend-conditional-network-evidence-node-26
           path: |
+            .xtend-test-results/xtend-npm-audit-report.json
+            .xtend-test-results/xtend-npm-sbom.json
+            .xtend-test-results/xtend-conditional-network-evidence-report.json
+          if-no-files-found: warn
+
+  npm-publish-next:
+    name: Publish npm next with provenance (Node 26.x)
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
+    needs:
+      - full-release-gates
+      - package-structure
+      - conditional-network-evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    environment: npm-publish
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js 26.x for npm
+        uses: actions/setup-node@v6
+        with:
+          node-version: 26.x
+          registry-url: https://registry.npmjs.org
+          scope: '@ccslabs'
+          package-manager-cache: false
+
+      - name: Print runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install workspace links for release evidence
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Re-run blocking release evidence
+        env:
+          XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
+          XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"
+          XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10: "1"
+        run: |
+          npm run test:release:full:report
+          npm run release:report
+          npm run pack:dry-run
+          npm run conditional-network:evidence
+
+      - name: Final npm publish dry run
+        run: npm publish --dry-run --tag next --access public
+
+      - name: Publish root package to npm next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --tag next --provenance --access public
+
+      - name: Upload npm publish evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xtend-npm-publish-next-evidence-node-26
+          path: |
+            .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-release-report.json
+            .xtend-test-results/xtend-pack-dry-run.json
+            .xtend-test-results/xtend-package-export-surface-lock.json
+            .xtend-test-results/xtend-package-export-lock-report.json
             .xtend-test-results/xtend-npm-audit-report.json
             .xtend-test-results/xtend-npm-sbom.json
             .xtend-test-results/xtend-conditional-network-evidence-report.json

@@ -4,6 +4,11 @@
   "private": false,
   "description": "XTend scaffold, builder and component authoring CLI.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konnilabs/xtend.git",
+    "directory": "xtend-builder"
+  },
   "keywords": [
     "ccslabs",
     "xtend",

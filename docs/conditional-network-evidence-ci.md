@@ -23,7 +23,7 @@ npm run test:epic13-conditional-network-evidence-ci
 npm run conditional-network:evidence
 ```
 
-Ohne `XTEND_CONDITIONAL_NETWORK_EXECUTE=1` schreibt der Capture lokale Deferral-Artefakte. In CI setzt `.github/workflows/xtend-default-gates.yml` `XTEND_CONDITIONAL_NETWORK_EXECUTE=1` und laedt die Artefakte hoch:
+Ohne `XTEND_CONDITIONAL_NETWORK_EXECUTE=1` schreibt der Capture lokale Deferral-Artefakte. In CI setzt `.github/workflows/xtend-default-gates.yml` `XTEND_CONDITIONAL_NETWORK_EXECUTE=1`, installiert Workspace-Links per `npm ci --ignore-scripts --no-audit --fund=false`, nutzt `XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10=1` fuer stabile SBOM-Ausgabe und laedt die Artefakte hoch:
 
 - `.xtend-test-results/xtend-npm-audit-report.json`
 - `.xtend-test-results/xtend-npm-sbom.json`
@@ -32,5 +32,7 @@ Ohne `XTEND_CONDITIONAL_NETWORK_EXECUTE=1` schreibt der Capture lokale Deferral-
 ## Grenzen
 
 Nicht enthalten sind Dependency-Upgrades, Vulnerability-Fixes und Public Publish. Publish bleibt durch `private-until-release-owner-acceptance` blockiert, bis Audit/SBOM ausgefuehrt oder durch den Owner akzeptiert deferred sind.
+
+Der separate GitHub-Actions-Job `npm-publish-next` erlaubt keine Deferrals: Er setzt `XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL=0`, wiederholt `release:report`, Pack- und Audit/SBOM-Evidence und fuehrt danach `npm publish --tag next --provenance --access public` aus.
 
 Der naechste Schritt ist `DPF-WP-04-visual-pixel-evidence-storage`.

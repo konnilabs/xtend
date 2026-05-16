@@ -6163,15 +6163,15 @@ function assertScaffoldProjectLayoutReference(context, rootDir) {
     'Package scripts expose npm run test:rmt-artifact-parity'
   );
   context.assert(
-    packageJson.bin && packageJson.bin.xt === './xtend-builder/scaffold.js',
+    packageJson.bin && packageJson.bin.xt === 'xtend-builder/scaffold.js',
     'Package bin exposes xt shortcut'
   );
   context.assert(
-    packageJson.bin && packageJson.bin.xtend === './xtend-builder/scaffold.js',
+    packageJson.bin && packageJson.bin.xtend === 'xtend-builder/scaffold.js',
     'Package bin exposes xtend command'
   );
   context.assert(
-    packageJson.bin && packageJson.bin['xtend-scaffold'] === './xtend-builder/scaffold.js',
+    packageJson.bin && packageJson.bin['xtend-scaffold'] === 'xtend-builder/scaffold.js',
     'Package bin keeps legacy xtend-scaffold command'
   );
 
@@ -7578,6 +7578,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   const prFastGate = (gateMatrix && gateMatrix.prFastGate) || {};
   const fullReleaseGate = (gateMatrix && gateMatrix.fullReleaseGate) || {};
   const nightlyGate = (gateMatrix && gateMatrix.nightlyGate) || {};
+  const packageStructureGate = (gateMatrix && gateMatrix.packageStructureGate) || {};
+  const npmPublishNext = packageManifest.xtend && packageManifest.xtend.npmPublishNext;
 
   assertFileExists(context, workflowPath, rootDir, 'CI default gates workflow exists');
   context.assertIncludes(workflow, 'name: XTend CI Gates', 'CI workflow declares stable name');
@@ -7597,6 +7599,18 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, '.xtend-test-results/xtend-release-gate-report.json', 'CI workflow uploads full release JSON report');
   context.assertIncludes(workflow, 'xtend-pr-gate-report-node-26', 'CI workflow uses stable PR report artifact name');
   context.assertIncludes(workflow, 'xtend-release-gate-report-node-26', 'CI workflow uses stable release report artifact name');
+  context.assertIncludes(workflow, 'package-structure:', 'CI workflow declares package structure job');
+  context.assertIncludes(workflow, 'npm run pack:dry-run', 'CI workflow runs package dry run');
+  context.assertIncludes(workflow, 'npm publish --dry-run --tag next --access public', 'CI workflow runs npm publish dry run');
+  context.assertIncludes(workflow, 'xtend-package-structure-node-26', 'CI workflow uploads package structure artifact');
+  context.assertIncludes(workflow, 'npm-publish-next:', 'CI workflow declares manual npm publish job');
+  context.assertIncludes(workflow, 'publish_to_npm:', 'CI workflow requires explicit publish dispatch input');
+  context.assertIncludes(workflow, 'id-token: write', 'CI workflow grants OIDC for npm provenance publish');
+  context.assertIncludes(workflow, 'registry-url: https://registry.npmjs.org', 'CI workflow targets npm registry for publish');
+  context.assertIncludes(workflow, 'XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"', 'CI publish job rejects Audit/SBOM deferrals');
+  context.assertIncludes(workflow, 'npm run release:report', 'CI publish job writes release report evidence');
+  context.assertIncludes(workflow, 'npm publish --tag next --provenance --access public', 'CI workflow publishes with npm provenance');
+  context.assertIncludes(workflow, 'xtend-npm-publish-next-evidence-node-26', 'CI publish job uploads npm publish evidence');
 
   context.assert(ciMetadata && ciMetadata.schema === 'xtend.ci.default-gates.v1', 'Package metadata exposes CI default gates schema');
   context.assert(ciMetadata.workflow === workflowPath, 'Package metadata exposes CI workflow path');
@@ -7645,6 +7659,19 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(nightlyGate.schema === 'xtend.ci.nightly-gate.v1', 'Package metadata exposes nightly gate schema');
   context.assert(nightlyGate.cron === '17 3 * * *', 'Package metadata exposes nightly cron');
   context.assert(nightlyGate.command === 'npm run test:release:full:report', 'Package metadata exposes nightly full release command');
+  context.assert(packageStructureGate.schema === 'xtend.ci.package-structure-gate.v1', 'Package metadata exposes package structure gate schema');
+  context.assert(packageStructureGate.command === 'npm run pack:dry-run', 'Package metadata exposes package structure pack command');
+  context.assert(packageStructureGate.publishDryRunCommand === 'npm publish --dry-run --tag next --access public', 'Package metadata exposes publish dry-run command');
+  context.assert(packageStructureGate.artifactName === 'xtend-package-structure-node-26', 'Package metadata exposes package structure artifact name');
+  context.assert(npmPublishNext && npmPublishNext.schema === 'xtend.npm.publish-next.github-actions.v1', 'Package metadata exposes npm publish-next schema');
+  context.assert(npmPublishNext.workflow === workflowPath, 'Package metadata exposes npm publish workflow path');
+  context.assert(npmPublishNext.job === 'npm-publish-next', 'Package metadata exposes npm publish job id');
+  context.assert(npmPublishNext.dispatchInput === 'publish_to_npm', 'Package metadata exposes explicit publish input');
+  context.assert(npmPublishNext.command === 'npm publish --tag next --provenance --access public', 'Package metadata exposes provenance publish command');
+  context.assert(npmPublishNext.evidenceArtifactName === 'xtend-npm-publish-next-evidence-node-26', 'Package metadata exposes npm publish evidence artifact');
+  context.assert(Array.isArray(npmPublishNext.requiredCommands) && npmPublishNext.requiredCommands.includes('npm run release:report'), 'Package metadata requires release report before npm publish');
+  context.assert(npmPublishNext.provenance === true, 'Package metadata requires npm provenance');
+  context.assert(packageManifest.repository && packageManifest.repository.url === 'git+https://github.com/konnilabs/xtend.git', 'Package metadata exposes GitHub repository for provenance');
   context.assert(packageManifest.scripts['test:pr:report'] === 'node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot --report .xtend-test-results/xtend-pr-gate-report.json', 'Package exposes PR fast report gate script');
   context.assert(packageManifest.scripts['test:release:full:report'] === 'node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-gate-report.json', 'Package exposes full release report gate script');
 }

@@ -4,6 +4,10 @@
   "private": false,
   "description": "XTend UI Web Component Framework with XTendRMT scheduler integration.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konnilabs/xtend.git"
+  },
   "keywords": [
     "ccslabs",
     "web-components",
@@ -21,9 +25,9 @@
   ],
   "browser": "./xtend-loader.js",
   "bin": {
-    "xt": "./xtend-builder/scaffold.js",
-    "xtend": "./xtend-builder/scaffold.js",
-    "xtend-scaffold": "./xtend-builder/scaffold.js"
+    "xt": "xtend-builder/scaffold.js",
+    "xtend": "xtend-builder/scaffold.js",
+    "xtend-scaffold": "xtend-builder/scaffold.js"
   },
   "files": [
     "README.md",
@@ -3664,7 +3668,48 @@
         "schema": "xtend.ci.nightly-gate.v1",
         "cron": "17 3 * * *",
         "command": "npm run test:release:full:report"
+      },
+      "packageStructureGate": {
+        "schema": "xtend.ci.package-structure-gate.v1",
+        "command": "npm run pack:dry-run",
+        "publishDryRunCommand": "npm publish --dry-run --tag next --access public",
+        "artifactName": "xtend-package-structure-node-26"
       }
+    },
+    "npmPublishNext": {
+      "schema": "xtend.npm.publish-next.github-actions.v1",
+      "workflow": ".github/workflows/xtend-default-gates.yml",
+      "job": "npm-publish-next",
+      "dispatchInput": "publish_to_npm",
+      "nodeVersion": "26.x",
+      "registry": "https://registry.npmjs.org",
+      "tag": "next",
+      "dryRunCommand": "npm publish --dry-run --tag next --access public",
+      "command": "npm publish --tag next --provenance --access public",
+      "evidenceArtifactName": "xtend-npm-publish-next-evidence-node-26",
+      "requiredCommands": [
+        "npm run test:release:full:report",
+        "npm run release:report",
+        "npm run pack:dry-run",
+        "npm run conditional-network:evidence",
+        "npm publish --dry-run --tag next --access public",
+        "npm publish --tag next --provenance --access public"
+      ],
+      "requires": [
+        "full-release-gates",
+        "package-structure",
+        "conditional-network-evidence"
+      ],
+      "permissions": [
+        "contents: read",
+        "id-token: write"
+      ],
+      "packageSet": [
+        "@ccslabs/xtend"
+      ],
+      "repository": "git+https://github.com/konnilabs/xtend.git",
+      "provenance": true,
+      "publishBoundary": "manual-workflow-dispatch-release-owner-approval"
     },
     "releaseChecklist": {
       "schema": "xtend.release.checklist-semver-policy.v1",
