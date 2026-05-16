@@ -36,7 +36,7 @@ function createManifestWiring(input = {}) {
     reviewRules: [
       'Manifest patch output must be deterministic for identical scaffold input.',
       'Generated component imports must stay repo-local unless a later review explicitly allows another source.',
-      'The manifest plan remains review-first until productive write support is introduced.'
+      'The manifest plan is reviewable in dry-run and applied through the structured manifest patcher in productive writes.'
     ]
   };
 }

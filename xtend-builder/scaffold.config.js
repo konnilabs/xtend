@@ -10,13 +10,20 @@ module.exports = {
   pluginsDir: "plugins/",
   scaffoldName: "XTend-Scaffold",
   scaffoldRole: "repo-local-build-environment",
-  runtimeBoundary: "generator-only",
+  runtimeBoundary: "dry-run-first-but-write-capable",
   tooling: {
     runtime: "node",
     moduleSystem: "commonjs",
     packageManager: "npm-scripts",
     dependencyPolicy: "no-new-runtime-dependencies-for-core-generator",
-    writeStrategy: "dry-run-first"
+    writeStrategy: "dry-run-first-but-write-capable",
+    writePlanSchema: "xtend.scaffold.write-plan.v1",
+    writeReportSchema: "xtend.scaffold.write-report.v1",
+    ownershipSchema: "xtend.scaffold.generated-ownership.v1",
+    patchersSchema: "xtend.scaffold.patchers.v1",
+    manifestPatcherSchema: "xtend.scaffold.manifest-patcher.v1",
+    buildReportSchema: "xtend.scaffold.build-report.v1",
+    writeCapability: "central-writer-and-structured-patchers"
   },
   entryPoints: {
     cli: "xtend-builder/scaffold.js",
@@ -38,7 +45,8 @@ module.exports = {
     a11y: "xtend-builder/a11y/",
     performance: "xtend-builder/performance/",
     workflows: "xtend-builder/workflows/",
-    utils: "xtend-builder/utils/"
+    utils: "xtend-builder/utils/",
+    writing: "xtend-builder/writing/"
   },
   namingConventions: {
     componentTagPattern: "^x-[a-z0-9]+(?:-[a-z0-9]+)*$",
@@ -69,9 +77,26 @@ module.exports = {
     componentExtensions: "xtend-builder/extensions/component-extension-points.js",
     componentA11y: "xtend-builder/a11y/component-a11y-profile.js",
     componentPerformance: "xtend-builder/performance/component-performance-profile.js",
-    mode: "plan-dry-run-render-type-preview-and-extension-contract",
+    rmtBuild: "xtend-builder/generators/rmt-build.js",
+    mode: "plan-dry-run-render-type-preview-extension-and-write-plan-contract",
     defaultCommand: "component-plan",
-    fileOutputMode: "dry-run-render-with-feature-type-preview-and-extension-wiring"
+    fileOutputMode: "dry-run-render-or-write-with-feature-type-preview-extension-ownership-manifest-patch-and-build-report"
+  },
+  rmtAppBuild: {
+    schema: "xtend.scaffold.rmt-app-build.v1",
+    reportSchema: "xtend.scaffold.rmt-app-build-report.v1",
+    browserSmokeSchema: "xtend.scaffold.rmt-app-browser-smoke.v1",
+    generator: "xtend-builder/generators/rmt-build.js",
+    sourcePattern: "xtendrmt/*.rmt",
+    outputMode: "rmt-vnext-template-to-core-json-xtend-app-host-smoke-and-report",
+    buildCommand: "node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json",
+    checkCommand: "node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --check --json",
+    localGate: "node scripts/run_xtend_tests.js scaffold-rmt-build --json",
+    writer: "xtend.scaffold.write-plan.v1",
+    manifestPatcher: "xtend.scaffold.manifest-patcher.v1",
+    ownership: "xtend.scaffold.generated-ownership.v1",
+    httpServerCompatible: true,
+    networkPolicy: "repo-local-assets-only"
   },
   a11y: {
     schema: "xtend.scaffold.a11y-profile-plan.v1",

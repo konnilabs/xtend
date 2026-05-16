@@ -105,6 +105,13 @@ const SCAFFOLD_LAYOUT = [
     purpose: 'Local dry-run and verification workflow contracts for developers and AI agents.'
   },
   {
+    id: 'writing',
+    path: 'xtend-builder/writing/',
+    kind: 'writer-directory',
+    owner: 'WP-E17-03',
+    purpose: 'Central WritePlan, structured patchers and controlled file-write helpers for productive Scaffold builds.'
+  },
+  {
     id: 'utils',
     path: 'xtend-builder/utils/',
     kind: 'helper-directory',

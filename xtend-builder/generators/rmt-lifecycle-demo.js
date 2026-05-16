@@ -9,6 +9,9 @@ const {
 const {
   createComponentFiles
 } = require('./component-files');
+const {
+  writeScaffoldFiles
+} = require('../writing/write-plan');
 
 const RMT_LIFECYCLE_DEMO_SCHEMA = 'xtend.rmt.lifecycle-demo.v1';
 const RMT_LIFECYCLE_DEMO_BUILD_SCHEMA = 'xtend.rmt.lifecycle-demo.scaffold-build.v1';
@@ -23,6 +26,13 @@ const GENERATED_COMPONENT_TAG = 'x-rmt-lifecycle-demo';
 const GENERATED_COMPONENT_PATH = 'components/x-rmt-lifecycle-demo.js';
 const BUILD_COMMAND = 'node xtend-builder/scaffold.js rmt-lifecycle-demo --write --json';
 const LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-lifecycle-demo --json';
+const RMT_LIFECYCLE_ALLOWED_WRITE_ROOTS = Object.freeze([
+  '.xtend-build/',
+  'components/',
+  'xtendrmt/',
+  'tests/browser/fixtures/',
+  HOST_PATH
+]);
 
 function toBoolean(value) {
   return value === true || value === 'true' || value === '1' || value === 'yes';
@@ -42,21 +52,6 @@ function sha256(value) {
 
 function stableJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
-}
-
-function ensureDirectoryFor(rootDir, relativePath) {
-  fs.mkdirSync(path.dirname(repoPath(rootDir, relativePath)), { recursive: true });
-}
-
-function writeFileIfChanged(rootDir, relativePath, content) {
-  const absolutePath = repoPath(rootDir, relativePath);
-  ensureDirectoryFor(rootDir, relativePath);
-  if (fs.existsSync(absolutePath) && fs.readFileSync(absolutePath, 'utf8') === content) {
-    return false;
-  }
-
-  fs.writeFileSync(absolutePath, content);
-  return true;
 }
 
 function countCore(core) {
@@ -844,16 +839,37 @@ function createRmtLifecycleDemoBuild(input = {}, options = {}) {
       content: renderBrowserSmokeHtml()
     }
   ];
-  const written = [];
+  const writeReport = writeScaffoldFiles(outputs, {
+    rootDir,
+    write,
+    generator: 'rmt-lifecycle-demo',
+    owner: 'rmt-lifecycle-demo',
+    adoptUnowned: true,
+    allowedRoots: RMT_LIFECYCLE_ALLOWED_WRITE_ROOTS
+  });
 
-  if (write) {
-    outputs.forEach((output) => {
-      const changed = writeFileIfChanged(rootDir, output.path, output.content);
-      written.push({
+  if (!writeReport.ok) {
+    return {
+      schema: RMT_LIFECYCLE_DEMO_BUILD_SCHEMA,
+      ok: false,
+      status: writeReport.status,
+      mode: write ? 'write' : 'dry-run',
+      source: SOURCE_PATH,
+      coreOutput: CORE_PATH,
+      buildCommand: BUILD_COMMAND,
+      localGate: LOCAL_GATE,
+      errors: writeReport.errors,
+      outputs: outputs.map((output) => ({
+        id: output.id,
         path: output.path,
-        changed
-      });
-    });
+        kind: output.kind,
+        generated: output.generated,
+        sha256: sha256(output.content)
+      })),
+      writePlan: writeReport.plan,
+      written: writeReport.writes,
+      ownershipManifest: writeReport.ownershipManifest
+    };
   }
 
   return {
@@ -875,7 +891,9 @@ function createRmtLifecycleDemoBuild(input = {}, options = {}) {
       sha256: sha256(output.content),
       content: output.content
     })),
-    written
+    writePlan: writeReport.plan,
+    written: writeReport.writes,
+    ownershipManifest: writeReport.ownershipManifest
   };
 }
 

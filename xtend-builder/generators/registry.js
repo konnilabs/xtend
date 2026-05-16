@@ -16,6 +16,9 @@ const {
 const {
   createRmtLifecycleDemoBuild
 } = require('./rmt-lifecycle-demo');
+const {
+  createRmtAppBuild
+} = require('./rmt-build');
 
 const GENERATOR_REGISTRY_SCHEMA = 'xtend.scaffold.generator-registry.v1';
 
@@ -31,9 +34,9 @@ const GENERATORS = [
   {
     id: 'component-files',
     command: 'component-files',
-    status: 'template-render-with-feature-type-preview-and-extension-wiring',
-    owner: 'WP-E03-07',
-    description: 'Renders all required scaffold component artifacts plus manifest, hydration, feature, type, preview and extension wiring as dry-run output.',
+    status: 'template-render-write-plan-manifest-patch-and-build-report-output',
+    owner: 'WP-E17-03',
+    description: 'Renders scaffold component artifacts and can write them through WritePlan ownership guards, manifest patchers and build reports.',
     run: createComponentFiles
   },
   {
@@ -67,6 +70,14 @@ const GENERATORS = [
     owner: 'RMT-Lifecycle-Demo',
     description: 'Compiles the RMT vNext lifecycle template and writes the generated XTend demo app artifacts when --write is set.',
     run: createRmtLifecycleDemoBuild
+  },
+  {
+    id: 'rmt-build',
+    command: 'rmt-build',
+    status: 'rmt-vnext-app-build-pipeline',
+    owner: 'WP-E17-04',
+    description: 'Compiles an RMT vNext template into Core JSON, XTend component/app, host, browser smoke and Scaffold report artifacts.',
+    run: createRmtAppBuild
   }
 ];
 

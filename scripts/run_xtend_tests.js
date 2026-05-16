@@ -374,6 +374,22 @@ const {
   runBuilderTypeScriptBlueprintSuite
 } = require('../tests/builder/typescript_component_blueprint_suite');
 const {
+  printScaffoldWritePlanReport,
+  runScaffoldWritePlanSuite
+} = require('../tests/builder/scaffold_write_plan_suite');
+const {
+  printScaffoldComponentWriteReport,
+  runScaffoldComponentWriteSuite
+} = require('../tests/builder/scaffold_component_write_suite');
+const {
+  printScaffoldManifestPatchReport,
+  runScaffoldManifestPatchSuite
+} = require('../tests/builder/scaffold_manifest_patch_suite');
+const {
+  printScaffoldRmtBuildReport,
+  runScaffoldRmtBuildSuite
+} = require('../tests/builder/scaffold_rmt_build_suite');
+const {
   printEpic10P0ComponentWaveReport,
   runEpic10P0ComponentWaveSuite
 } = require('../tests/components/epic10_p0_component_wave_suite');
@@ -849,6 +865,46 @@ const suites = [
       const result = runBuilderTypeScriptBlueprintSuite({ rootDir });
       printBuilderTypeScriptBlueprintReport(result);
       return toRunnerResult('builder-typescript-blueprint', 'XTend Builder TypeScript Component Blueprint', result);
+    }
+  },
+  {
+    id: 'scaffold-write-plan',
+    label: 'XTend Scaffold WritePlan',
+    description: 'Runs the WP-E17-01 central WritePlan, root guard, idempotent write and check-mode gates.',
+    run: () => {
+      const result = runScaffoldWritePlanSuite({ rootDir });
+      printScaffoldWritePlanReport(result);
+      return toRunnerResult('scaffold-write-plan', 'XTend Scaffold WritePlan', result);
+    }
+  },
+  {
+    id: 'scaffold-component-write',
+    label: 'XTend Scaffold Component Write',
+    description: 'Runs the WP-E17-02 component-files write, ownership, conflict and force-update gates.',
+    run: () => {
+      const result = runScaffoldComponentWriteSuite({ rootDir });
+      printScaffoldComponentWriteReport(result);
+      return toRunnerResult('scaffold-component-write', 'XTend Scaffold Component Write', result);
+    }
+  },
+  {
+    id: 'scaffold-manifest-patch',
+    label: 'XTend Scaffold Manifest Patch',
+    description: 'Runs the WP-E17-03 manifest JSON patcher, build report and idempotent patch gates.',
+    run: () => {
+      const result = runScaffoldManifestPatchSuite({ rootDir });
+      printScaffoldManifestPatchReport(result);
+      return toRunnerResult('scaffold-manifest-patch', 'XTend Scaffold Manifest Patch', result);
+    }
+  },
+  {
+    id: 'scaffold-rmt-build',
+    label: 'XTend Scaffold RMT Build',
+    description: 'Runs the WP-E17-04 RMT vNext template to XTend app build pipeline and 1.0 gate.',
+    run: () => {
+      const result = runScaffoldRmtBuildSuite({ rootDir });
+      printScaffoldRmtBuildReport(result);
+      return toRunnerResult('scaffold-rmt-build', 'XTend Scaffold RMT Build', result);
     }
   },
   {
@@ -2444,6 +2500,10 @@ Examples:
   node scripts/run_xtend_tests.js enterprise-layout-display-media-tokenization
   node scripts/run_xtend_tests.js enterprise-form-control-theme-a11y
   node scripts/run_xtend_tests.js enterprise-navigation-routing-state-hardening
+  node scripts/run_xtend_tests.js scaffold-write-plan
+  node scripts/run_xtend_tests.js scaffold-component-write
+  node scripts/run_xtend_tests.js scaffold-manifest-patch
+  node scripts/run_xtend_tests.js scaffold-rmt-build
   node scripts/run_xtend_tests.js epic10-p0-component-wave
   node scripts/run_xtend_tests.js component-lab-rmt-inspector
   node scripts/run_xtend_tests.js component-lab-ux-inspector

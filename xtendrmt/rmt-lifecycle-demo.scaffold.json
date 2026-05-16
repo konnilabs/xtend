@@ -23,7 +23,7 @@
     "componentGenerator": "xtend.scaffold.component-files.v1",
     "componentMode": "dry-run",
     "componentTag": "x-rmt-lifecycle-demo",
-    "writeStrategy": "dry-run-first",
+    "writeStrategy": "dry-run-first-but-write-capable",
     "files": [
       {
         "id": "component",

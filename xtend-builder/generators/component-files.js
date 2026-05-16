@@ -35,6 +35,13 @@ const {
 const {
   createComponentPerformanceProfile
 } = require('../performance/component-performance-profile');
+const {
+  writeScaffoldFiles
+} = require('../writing/write-plan');
+const {
+  createComponentBuildReportEntry,
+  createManifestPatchEntry
+} = require('../writing/manifest-patcher');
 
 const COMPONENT_FILES_SCHEMA = 'xtend.scaffold.component-files.v1';
 const TYPESCRIPT_COMPONENT_BLUEPRINT_SCHEMA = 'xtend.scaffold.typescript-component-blueprint.v1';
@@ -101,6 +108,36 @@ function toRegionCsv(regions) {
 
 function toBooleanLiteral(value) {
   return value ? 'true' : 'false';
+}
+
+function toFlagBoolean(value) {
+  return value === true || value === 'true' || value === '1' || value === 'yes';
+}
+
+function getRootDir(input) {
+  return input.rootDir || input['root-dir'] || process.cwd();
+}
+
+function createComponentWriteEntries(files, manifestEntry, buildReportEntry) {
+  let manifestReplaced = false;
+  const entries = files.map((file) => {
+    if (file.id !== 'manifest') {
+      return file;
+    }
+
+    manifestReplaced = true;
+    return manifestEntry;
+  });
+
+  if (!manifestReplaced) {
+    entries.push(manifestEntry);
+  }
+
+  if (buildReportEntry) {
+    entries.push(buildReportEntry);
+  }
+
+  return entries;
 }
 
 function toInterfaceFields(entries, emptyComment) {
@@ -612,10 +649,55 @@ function createComponentFiles(input = {}, options = {}) {
     };
   }
 
-  return {
+  const rootDir = getRootDir(input);
+  const manifestArtifact = files.find((file) => file.id === 'manifest') || null;
+  const manifestPatch = createManifestPatchEntry({
+    rootDir,
+    patchPlan: manifestPatchPlan,
+    targetPath: manifestArtifact ? manifestArtifact.targetPath : manifestWiring.loader.target,
+    tag: plan.input.tag,
+    templateId: manifestArtifact ? manifestArtifact.templateId : null,
+    templatePath: manifestArtifact ? manifestArtifact.templatePath : null
+  });
+  if (!manifestPatch.ok) {
+    return {
+      schema: COMPONENT_FILES_SCHEMA,
+      ok: false,
+      mode: toFlagBoolean(input.write) ? 'write' : (toFlagBoolean(input.check) ? 'check' : 'dry-run'),
+      errors: manifestPatch.errors,
+      files,
+      patches: [],
+      exceptions: []
+    };
+  }
+
+  const patchedWriteEntries = createComponentWriteEntries(files, manifestPatch.entry, null);
+  const buildReport = createComponentBuildReportEntry({
+    tag: plan.input.tag,
+    input: plan.input,
+    files,
+    writeEntries: patchedWriteEntries,
+    patches: [manifestPatch.patch],
+    generator: 'component-files',
+    owner: `component-files:${plan.input.tag}`
+  });
+  if (!buildReport.ok) {
+    return {
+      schema: COMPONENT_FILES_SCHEMA,
+      ok: false,
+      mode: toFlagBoolean(input.write) ? 'write' : (toFlagBoolean(input.check) ? 'check' : 'dry-run'),
+      errors: buildReport.errors,
+      files,
+      patches: [manifestPatch.patch],
+      exceptions: []
+    };
+  }
+
+  const writeEntries = createComponentWriteEntries(files, manifestPatch.entry, buildReport.entry);
+  const result = {
     schema: COMPONENT_FILES_SCHEMA,
     ok: true,
-    mode: 'dry-run',
+    mode: toFlagBoolean(input.write) ? 'write' : (toFlagBoolean(input.check) ? 'check' : 'dry-run'),
     generator: 'component-files',
     writeStrategy: plan.writeStrategy,
     input: plan.input,
@@ -649,8 +731,34 @@ function createComponentFiles(input = {}, options = {}) {
     },
     rmtCompatibility: extensionPoints.rmtCompatibilityBinding || previewCompatibility || rmtCompatibility,
     files,
+    patches: [manifestPatch.patch],
+    buildReport: buildReport.report,
+    buildReportPath: buildReport.entry.targetPath,
     exceptions: [],
     nextStep: 'Review rendered TypeScript, A11y, Performance, RMT and Contract v2 files before productive writes; WP-E10-08 can now select the first P0 component wave.'
+  };
+
+  if (!toFlagBoolean(input.write) && !toFlagBoolean(input.check)) {
+    return result;
+  }
+
+  const writeReport = writeScaffoldFiles(writeEntries, {
+    rootDir,
+    write: toFlagBoolean(input.write),
+    check: toFlagBoolean(input.check),
+    force: toFlagBoolean(input.force),
+    generator: 'component-files',
+    owner: `component-files:${plan.input.tag}`
+  });
+
+  return {
+    ...result,
+    ok: writeReport.ok,
+    status: writeReport.status,
+    errors: writeReport.errors,
+    writePlan: writeReport.plan,
+    written: writeReport.writes,
+    ownershipManifest: writeReport.ownershipManifest
   };
 }
 

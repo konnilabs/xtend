@@ -1,6 +1,6 @@
 # XTend-Scaffold
 
-`XTend-Scaffold` ist das repo-lokale Build-Environment fuer kuenftige XTend-Generatoren. Epic 03 hat es als generator-only, dry-run-first Scaffold abgeschlossen; produktive Schreibpfade bleiben spaeteren Workpackages vorbehalten.
+`XTend-Scaffold` ist das repo-lokale Build-Environment fuer kuenftige XTend-Generatoren. Epic 03 hat es als generator-only, dry-run-first Scaffold abgeschlossen; Epic 17 baut daraus einen dry-run-first, aber produktiv schreibfaehigen Buildpfad.
 
 ## Local Entry Points
 
@@ -18,9 +18,12 @@ node xtend-builder/scaffold.js generators --json
 node xtend-builder/scaffold.js templates --json
 node xtend-builder/scaffold.js component-plan --tag x-example --profile display --json
 node xtend-builder/scaffold.js component-files --tag x-example --profile display --json
+node xtend-builder/scaffold.js component-files --tag x-example --profile display --write --json
+node xtend-builder/scaffold.js component-files --tag x-example --profile display --check --json
 node xtend-builder/scaffold.js typing --tag x-example --profile display --json
 node xtend-builder/scaffold.js preview --tag x-example --profile display --json
 node xtend-builder/scaffold.js extensions --tag x-example --profile display --json
+node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json
 node xtend-builder/scaffold.js workflow --json
 node xtend-builder/scaffold.js verify --json
 node scripts/run_xtend_tests.js rmt-compatibility --json
@@ -53,6 +56,7 @@ npm run scaffold:extensions
 | Performance | `xtend-builder/performance/` | Performance-Profilplan fuer neue Komponenten, Budgets, Lanes, Hydration und Gates |
 | Workflows | `xtend-builder/workflows/` | lokale Dry-Run-, Verify- und Reporting-Schrittfolgen |
 | Utils | `xtend-builder/utils/` | pure Helfer fuer Naming, Tokenersetzung und Validierung |
+| Writing | `xtend-builder/writing/` | zentraler WritePlan, strukturierte Patcher und kontrollierte Dateischreibpfade fuer produktive Scaffold-Builds |
 | Config | `xtend-builder/scaffold.config.js` | zentrale Profile, Pfade, Testpflicht und Tooling-Entscheidung |
 
 ## Modulgrenzen
@@ -69,6 +73,10 @@ npm run scaffold:extensions
 - `performance/` enthaelt ab `ER-WP-21` reine Performance-Profilplaene nach `xtend.performance.component-profile.v1`; sie erzeugen keine Runtime, sondern verpflichten neue Artefakte auf Budgetklasse, Lane, Hydration Policy, Messpunkte und lokale Gates.
 - `workflows/` enthaelt ab `WP-E03-08` lokale Dry-Run- und Verify-Contracts ohne Schreibzugriff.
 - `utils/` enthaelt nur seiteneffektarme Helfer; Schreibstrategien muessen dry-run-first bleiben.
+- `writing/` enthaelt ab `WP-E17-01` den zentralen WritePlan und Writer fuer kontrollierte Dateioperationen. Produktive Buildbefehle duerfen darueber schreiben, muessen aber weiterhin dry-run-first, reportbar und root-begrenzt bleiben.
+- `component-files --write` nutzt ab `WP-E17-02` das Sidecar `.xtend-build/scaffold-ownership.json` nach `xtend.scaffold.generated-ownership.v1`, damit generierte Dateien idempotent aktualisiert und unowned Dateien ohne `--force` blockiert werden.
+- `manifest-patcher.js` patcht ab `WP-E17-03` `components/manifest.json` als echtes JSON nach `xtend.scaffold.manifest-patcher.v1` und schreibt stabile Build Reports nach `.xtend-build/component-files/`.
+- `rmt-build` uebersetzt ab `WP-E17-04` RMT vNext Templates in Core JSON, XTend Custom Element, App-Modul, HTTP-Host, Browser-Smoke-Fixture und Scaffold Report.
 
 ## Aktueller Stand
 
