@@ -16,7 +16,7 @@ Dieser Guide ist der offizielle Startpfad fuer Teams, die XTend in Enterprise-We
 - XTend-Fabric ist die lokale Safety-, Diagnostics-, Telemetry- und Reporter-Schicht.
 - Lokale Entwicklung bleibt CDN-frei und nutzt den kanonischen ESM Loader `xtend-loader.js`.
 
-Der Guide startet keinen Publish-Prozess. `package.json` bleibt `private: true`, bis die Release Checklist und ein Release Owner die Publish Boundary explizit freigeben.
+Der Guide startet keinen Publish-Prozess. `package.json` traegt fuer RC1-Publish-Prep `private: false`, nachdem Release Checklist und Release Owner die Publish Boundary explizit freigegeben haben.
 
 ## Adoption-Stufen
 
@@ -245,10 +245,10 @@ Conditional Network Gates:
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 ```
 
-Wenn Netzwerk-Gates nicht laufen, bleibt der Kandidat ein lokaler Dry-Run. Publishing bleibt durch `private: true` blockiert, bis Release Owner, License-Entscheidung, Changelog, Migration Notes und Gate-Artefakte akzeptiert sind.
+Wenn Netzwerk-Gates nicht laufen, bleibt der Kandidat ein lokaler Dry-Run. Fuer RC1-Publish-Prep sind Release Owner, License-Entscheidung, Changelog, Migration Notes und Gate-Artefakte akzeptiert; `npm publish` bleibt ein separater manueller Schritt.
 
 Weiterfuehrend: [Release Checklist und SemVer Policy](../development/XTend-Release-Checklist-und-SemVer-Policy.md), [CI Gate Matrix](../development/XTend-CI-Gate-Matrix.md).
 
@@ -364,7 +364,7 @@ npm run test:epic13-hydration-performance-closure
 npm run test:epic13-visual-owner-artifact
 ```
 
-Lokale Network Evidence nutzt standardmaessig `network-restricted-local-default`, bis `npm audit --audit-level=moderate` und `npm sbom --json` in einer Netzwerk-/CI-Umgebung ausgefuehrt oder owner-akzeptiert deferred sind.
+Lokale Network Evidence nutzt standardmaessig `network-restricted-local-default`, bis `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` in einer Netzwerk-/CI-Umgebung ausgefuehrt oder owner-akzeptiert deferred sind.
 
 Weiterfuehrend: [RC1 Readiness](./rc1-readiness.md), [Release Owner Acceptance](./release-owner-acceptance.md), [Conditional Network Evidence](./conditional-network-evidence.md), [Package Export Lock](./package-export-lock.md), [Known Residual Triage](./known-residual-triage.md), [Visual Owner Artifacts](./visual-owner-artifacts.md), [RMT Production Readiness](./rmt-production-readiness.md) und [Docs RMT Production Hardening](./docs-rmt-production-hardening.md).
 
@@ -389,7 +389,7 @@ Weiterfuehrend: [RC1 Readiness](./rc1-readiness.md), [Release Owner Acceptance](
 
 XTend ist nach `ER-WP-40`, `WP-E10-16` und `WP-E11-18` enterprise-adoptionsfaehig vorbereitet, aber noch kein finaler `1.0.0`-Release:
 
-- `private: true` bleibt aktiv.
+- `private: false` ist fuer RC1-Publish-Prep aktiv.
 - Component Catalog Coverage steht nach `RC1TB-WP-03` bei 42/42 Source und Docs, 42/42 Component-Suites, Fixtures und Types, 41/42 A11y sowie 40 expliziten Runtime-/UI-Performance-Profilen. `x-input`, `x-select`, `x-checkbox`, `x-radio`, `x-rmt-lifecycle-demo-build`, `x-textarea`, `x-form`, `x-calendar`, `x-writer`, `x-status`, `x-progress`, `x-tooltip`, `x-popover`, `x-drawer`, `x-surface-manager`, `x-surface-window`, `x-side-panel`, `x-modal`, `x-dialog`, `x-alert`, `x-toast`, `x-spinner`, `x-router`, `x-link`, `x-tabs`, `x-theme`, `x-button`, `x-icon`, `x-menu`, `x-footer`, `x-lightbox`, `x-masonry`, `x-code`, `x-header`, `x-hero`, `x-type`, `x-summary`, `x-section`, `x-cards` und `x-player` sind `enterprise-ready`; `xstate` ist seit `WP-E13-05` als Runtime-Boundary geschlossen; `x-utils` ist seit `WP-E13-05` als Utility-Boundary geschlossen. `x-icon` stellt den lokalen, CDN-freien Iconography Adapter mit internem Core Pack, lokalem Lucide Superset und RMT-kompatibler Pack-Schnittstelle bereit; `x-surface-manager`, `x-surface-window` und `x-side-panel` bilden die erste native Multi-Window- und SidePanel-Surface-Schicht.
 - Performance-Profile sind fuer alle sichtbaren Runtime-/UI-Komponenten priorisiert und vorhanden; Infrastruktur-/Utility-Pfade werden ueber Boundary-Contracts bewertet.
 - Netzwerkbasierte Supply-Chain-Gates sind Conditional Gates.

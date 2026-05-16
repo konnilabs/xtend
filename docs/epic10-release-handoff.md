@@ -65,7 +65,7 @@ Conditional Network Gates:
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 ```
 
 Publishing bleibt blockiert, bis ein Release Owner `private-until-release-owner-acceptance` explizit freigibt.

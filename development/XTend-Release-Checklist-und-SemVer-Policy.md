@@ -19,7 +19,7 @@
 
 Diese Policy macht XTend releasefaehig planbar, ohne den Publish-Prozess zu starten. Sie verbindet Package-Exports, SemVer, Changelog, Migration Notes, Gate-Matrix, Supply-Chain und Artifact-Review zu einer nachvollziehbaren Release-Checkliste.
 
-`private: true` bleibt bestehen, bis ein Release Owner den Publish Boundary bewusst oeffnet. Diese Datei beschreibt also den Prozess fuer Release-Kandidaten, nicht die Freigabe selbst.
+`private: false` ist fuer RC1-Publish-Prep gesetzt, nachdem der Release Owner den Publish Boundary bewusst geoeffnet hat. Diese Datei beschreibt weiterhin den Prozess fuer Release-Kandidaten; der eigentliche Publish-Befehl bleibt separat.
 
 ## Release-Kandidat
 
@@ -27,7 +27,7 @@ Ein Release-Kandidat ist erst reviewbar, wenn alle folgenden Punkte erfuellt sin
 
 | Bereich | Pflicht |
 |---------|---------|
-| Version | `package.json` enthaelt die geplante Version und bleibt bis zur Freigabe `private: true` |
+| Version | `package.json` enthaelt die geplante Version und traegt fuer RC1-Publish-Prep `private: false` |
 | Changelog | `CHANGELOG.md` enthaelt Loader-, Component-, Fabric-, RMT-, Security-, A11y-, Performance- und CI-Auswirkungen |
 | SemVer | Breaking-/Feature-/Patch-Klasse ist nach dieser Policy dokumentiert |
 | Migration Notes | Breaking Changes haben konkrete Migrationshinweise |
@@ -104,7 +104,7 @@ Netzwerkbasierte Gates bleiben conditional, weil sie lokale Entwicklung nicht bl
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 ```
 
 Wenn diese Netzwerk-Gates nicht laufen, muss der Release-Kandidat den Grund dokumentieren und darf nur als lokaler Dry-Run, nicht als Publish-Freigabe, gelten.
@@ -121,6 +121,7 @@ Wenn diese Netzwerk-Gates nicht laufen, muss der Release-Kandidat den Grund doku
 | `docs/rc1-readiness.md` | ja | RC1 Readiness und offene Gate-Luecken |
 | `docs/release-owner-acceptance.md` | ja | Epic 13 Release Owner Acceptance und Publish Boundary |
 | `development/XTend-Epic13-Release-Owner-Acceptance-Contract.md` | ja | Owner Checklist, Deferrals und blockierte automatische Publish-Freigabe |
+| `development/XTend-RC1-Release-Owner-Publish-Decision.md` | ja | separater Owner-Publish-Entscheid fuer RC1 mit akzeptierten Audit/SBOM-, License-, Version- und `private: false`-Entscheiden |
 | `docs/conditional-network-evidence.md` | ja | Conditional Network Evidence und Deferral-Regeln |
 | `development/XTend-Epic13-Conditional-Network-Evidence-Contract.md` | ja | Audit-/SBOM-Artefakte und Owner-Deferrals |
 | `.xtend-test-results/xtend-conditional-network-evidence-report.json` | ja | aggregierte Conditional Network Evidence oder Deferral |
@@ -202,11 +203,12 @@ Nicht betroffene Abschnitte duerfen als `keine Aenderung` zusammengefasst werden
 
 ## Publish Boundary
 
-`package.json` bleibt `private: true`. Die Publish Boundary darf nur geoeffnet werden, wenn:
+`package.json` traegt fuer RC1-Publish-Prep `private: false`. Die Publish Boundary durfte nur geoeffnet werden, weil:
 
 - Release Owner und technische Review die Checkliste akzeptieren.
-- `license` fuer einen oeffentlichen Release nicht mehr `UNLICENSED` ist oder bewusst als private/internal bestaetigt wird.
-- `npm audit --audit-level=moderate` und `npm sbom --json` ausgefuehrt oder explizit als nicht verfuegbar dokumentiert sind.
+- `development/XTend-RC1-Release-Owner-Publish-Decision.md` auf `accepted-for-publish` steht.
+- `license` fuer den kompletten XTend-Stack auf `Apache-2.0` gesetzt bleibt.
+- `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` ausgefuehrt oder explizit als nicht verfuegbar dokumentiert sind.
 - `publishConfig.provenance` aktiv bleibt.
 - `pack:dry-run:report` keine unerwarteten Artefakte, fehlenden Kernpfade oder Export-Surface-Drift zeigt.
 

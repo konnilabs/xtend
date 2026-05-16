@@ -142,7 +142,7 @@ function runEpic13KnownResidualTriageSuite(options = {}) {
   context.assert(hydrateDecision && hydrateDecision.targetWorkpackage === 'WP-E13-06', 'Hydration warning targets WP-E13-06');
   context.assert(hydrateDecision && hydrateDecision.measurement.status === 'warn-not-fail', 'Hydration warning preserves warn-not-fail status');
 
-  context.assert(packageManifest.private === true, 'Package remains private for known residual triage');
+  context.assert(packageManifest.private === false, 'Package is public-ready for known residual triage');
   context.assert((packageManifest.exports['./catalog/epic13-known-residual-triage'] === './catalog/epic13-known-residual-triage.js' || (packageManifest.exports['./catalog/epic13-known-residual-triage'] && packageManifest.exports['./catalog/epic13-known-residual-triage'].default === './catalog/epic13-known-residual-triage.js')), 'Package exports known residual triage module');
   context.assert(packageManifest.scripts['test:epic13-known-residual-triage'] === 'node scripts/run_xtend_tests.js epic13-known-residual-triage', 'Package exposes known residual triage script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_KNOWN_RESIDUAL_TRIAGE_PACKAGE_SCRIPT), 'Package release gates include known residual triage script');

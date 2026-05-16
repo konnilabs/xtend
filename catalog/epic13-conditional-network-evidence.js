@@ -82,8 +82,8 @@ const COMMAND_ARTIFACTS = Object.freeze([
   },
   {
     id: 'npm-sbom-json',
-    command: 'npm sbom --json',
-    jsonCommand: 'npm sbom --json',
+    command: 'npm sbom --sbom-format=cyclonedx --json',
+    jsonCommand: 'npm sbom --sbom-format=cyclonedx --json',
     expectedArtifact: '.xtend-test-results/xtend-npm-sbom.json',
     validates: ['dependency-inventory', 'sbom-export'],
     publishRequired: true

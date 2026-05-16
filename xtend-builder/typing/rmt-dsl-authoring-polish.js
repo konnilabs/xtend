@@ -1,7 +1,14 @@
 const {
+  requireLocalOrScoped
+} = require('../lib/package-resolver');
+const {
   XTEND_DESIGN_TOKEN_SCHEMA,
   tokenNames
-} = require('../../design-tokens/xtend-design-tokens');
+} = requireLocalOrScoped(
+  __filename,
+  '../../design-tokens/xtend-design-tokens',
+  '@ccslabs/xtend/design-tokens'
+);
 
 const RMT_DSL_AUTHORING_POLISH_SCHEMA = 'xtend.rmt.dsl-authoring-polish.v1';
 const RMT_DSL_AUTHORING_POLISH_REPORT_SCHEMA = 'xtend.rmt.dsl-authoring-polish-report.v1';

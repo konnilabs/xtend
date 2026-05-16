@@ -28,7 +28,7 @@ Das Modell ist bewusst kein Feature-Wunschzettel. Es trennt vorhandene Gates, ec
 | Package Dry Run | `npm run pack:dry-run` | maschinenlesbar pruefen |
 | Manifest Security | `npm run test:manifest-policy`, `npm run test:epic13-prod-browser-csp-smoke` | PROD/CSP-Smoke vorbereitet |
 | Supply Chain lokal | `npm run test:supply-chain` | mit Network Evidence verbinden |
-| Conditional Network Gates | `npm audit --audit-level=moderate`, `npm sbom --json` | ausfuehren oder Owner-Deferral dokumentieren |
+| Conditional Network Gates | `npm audit --audit-level=moderate`, `npm sbom --sbom-format=cyclonedx --json` | ausfuehren oder Owner-Deferral dokumentieren |
 | Visual DOM Snapshots | `npm run test:visual-snapshots` | behalten, optionales Pixel-Artefakt ergaenzen |
 | Performance Regression | `npm run test:performance` | Hydration-Warnung schliessen oder neu entscheiden |
 | A11y Baseline | `npm run test:a11y`, `npm run test:screenreader-signals`, `npm run test:motion-contrast` | browsernah verdichten |

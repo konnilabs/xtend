@@ -8,7 +8,7 @@ Workpackage: `DPF-WP-03-conditional-network-evidence-ci`
 
 ## Ziel
 
-Dieses Paket produktisiert Audit- und SBOM-Evidence fuer CI und Release Owner. Der lokale Gate bleibt netzwerkfrei; der CI-Job kann `npm audit --audit-level=moderate` und `npm sbom --json` ausfuehren oder bei nicht verfuegbarem Netzwerk ein Owner-Deferral im Format `xtend.epic13.conditional-network-deferral.v1` schreiben.
+Dieses Paket produktisiert Audit- und SBOM-Evidence fuer CI und Release Owner. Der lokale Gate bleibt netzwerkfrei; der CI-Job kann `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` ausfuehren oder bei nicht verfuegbarem Netzwerk ein Owner-Deferral im Format `xtend.epic13.conditional-network-deferral.v1` schreiben.
 
 ## Lokaler Gate
 

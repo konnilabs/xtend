@@ -5,6 +5,7 @@ const path = require('path');
 const {
   DEPENDENCY_SECTIONS,
   LOCKFILE_CANDIDATES,
+  SCOPED_RELEASE_PACKAGES,
   createSupplyChainGatePlan,
   classifyPackageSupplyChain
 } = require('../security/supply-chain-gate-policy');
@@ -39,19 +40,59 @@ function runSupplyChainVerification(options = {}) {
   const scripts = packageManifest.scripts || {};
   const exportsMap = packageManifest.exports || {};
   const packageFiles = Array.isArray(packageManifest.files) ? packageManifest.files : [];
+  const workspacePaths = Array.isArray(packageManifest.workspaces) ? packageManifest.workspaces : [];
+  const scopedPackageMetadata = Array.isArray(packageManifest.scopedPackages) ? packageManifest.scopedPackages : [];
   const checks = [];
 
+  checks.push(createCheck(
+    'root package is scoped for CCS Labs release',
+    packageManifest.name === '@ccslabs/xtend'
+  ));
+  checks.push(createCheck(
+    'root package declares scoped workspaces',
+    SCOPED_RELEASE_PACKAGES
+      .filter((entry) => entry.path !== '.')
+      .every((entry) => workspacePaths.includes(entry.path))
+  ));
+  checks.push(createCheck(
+    'root package documents scoped install choices',
+    SCOPED_RELEASE_PACKAGES.every((entry) => (
+      scopedPackageMetadata.some((candidate) => (
+        candidate
+          && candidate.name === entry.name
+          && candidate.path === entry.path
+          && candidate.install === `npm install ${entry.name}`
+      ))
+    ))
+  ));
+  SCOPED_RELEASE_PACKAGES.forEach((entry) => {
+    const manifest = readJson(path.join(rootDir, entry.manifest));
+    checks.push(createCheck(
+      `scoped manifest ${entry.name} is public RC1 package`,
+      manifest.name === entry.name
+        && manifest.version === packageManifest.version
+        && manifest.private === false
+        && manifest.license === 'Apache-2.0'
+    ));
+    checks.push(createCheck(
+      `scoped manifest ${entry.name} prepares public provenance`,
+      manifest.publishConfig
+        && manifest.publishConfig.access === 'public'
+        && manifest.publishConfig.provenance === true
+        && manifest.publishConfig.tag === 'next'
+    ));
+  });
   checks.push(createCheck(
     'package declares enterprise release strategy schema',
     packageManifest.xtend && packageManifest.xtend.schema === 'xtend.package-export.release-strategy.v1'
   ));
   checks.push(createCheck(
-    'package remains private until release readiness gates finish',
-    packageManifest.private === true
+    'package private boundary is opened for RC1 owner publish prep',
+    packageManifest.private === false
   ));
   checks.push(createCheck(
-    'current private package license remains explicit',
-    packageManifest.license === 'UNLICENSED'
+    'project package license is Apache-2.0',
+    packageManifest.license === 'Apache-2.0'
   ));
   checks.push(createCheck(
     'npm provenance is prepared for later public releases',
@@ -100,8 +141,10 @@ function runSupplyChainVerification(options = {}) {
     DEPENDENCY_SECTIONS.every((section) => plan.dependencySections.includes(section))
   ));
   checks.push(createCheck(
-    'license policy blocks public release without explicit license decision',
-    plan.license.publicReleaseRequiresLicenseDecision === true
+    'license policy records Apache-2.0 project decision',
+    plan.license.currentPackageLicense === 'Apache-2.0'
+      && plan.license.projectLicenseDecision === 'accepted-apache-2.0'
+      && plan.license.publicReleaseRequiresLicenseDecision === false
   ));
   checks.push(createCheck(
     'vulnerability policy blocks high and critical release findings',
@@ -111,7 +154,7 @@ function runSupplyChainVerification(options = {}) {
   checks.push(createCheck(
     'ci network audit commands are planned but not part of the local default gate',
     plan.ciNetworkGates.includes('npm audit --audit-level=moderate')
-      && plan.ciNetworkGates.includes('npm sbom --json')
+      && plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json')
   ));
 
   const failures = checks.filter((check) => !check.ok);

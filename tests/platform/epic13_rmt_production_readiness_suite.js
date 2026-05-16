@@ -207,7 +207,7 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   context.assertIncludes(rmtBrowser, 'createRmtXtendComponentAdapter', 'RMT browser runtime exposes XTend component adapter factory');
   context.assert(!/from ['"].*components\//u.test(rmtCore), 'RMT core does not import XTend component implementations');
 
-  context.assert(packageManifest.private === true, 'Package remains private for RMT production readiness');
+  context.assert(packageManifest.private === false, 'Package is public-ready for RMT production readiness');
   context.assert((packageManifest.exports['./catalog/epic13-rmt-production-readiness'] === './catalog/epic13-rmt-production-readiness.js' || (packageManifest.exports['./catalog/epic13-rmt-production-readiness'] && packageManifest.exports['./catalog/epic13-rmt-production-readiness'].default === './catalog/epic13-rmt-production-readiness.js')), 'Package exports RMT production readiness module');
   context.assert(packageManifest.scripts['test:epic13-rmt-production-readiness'] === 'node scripts/run_xtend_tests.js epic13-rmt-production-readiness', 'Package exposes RMT production readiness script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_RMT_PRODUCTION_READINESS_PACKAGE_SCRIPT), 'Package release gates include RMT production readiness script');

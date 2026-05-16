@@ -30,7 +30,7 @@ Der Publish-Prozess wird dabei nicht gestartet. `package.json` bleibt `private: 
 | SemVer vor `1.0.0` | Minor darf breaking sein, braucht aber Changelog, Migration Notes, Contract Impact und Owner Signoff |
 | SemVer ab `1.0.0` | Major fuer Breaking, Minor fuer kompatible Features, Patch fuer kompatible Fixes |
 | Pflichtgates | Full-Release-Report, Manifest Policy, Supply-Chain, RMT Artifact Parity, Release Report, Pack Dry Run |
-| Conditional Gates | `npm audit --audit-level=moderate`, `npm sbom --json` |
+| Conditional Gates | `npm audit --audit-level=moderate`, `npm sbom --sbom-format=cyclonedx --json` |
 | Publish Boundary | `private: true` bleibt bis Release Owner Approval |
 | Handoff | `ER-WP-39` hat den Enterprise Adoption Guide auf dieser Policy aufgesetzt; `ER-WP-40` hat den Docs-App-Pilot abgeschlossen |
 

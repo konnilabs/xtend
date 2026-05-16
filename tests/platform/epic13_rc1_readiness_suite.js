@@ -144,9 +144,9 @@ function runEpic13Rc1ReadinessSuite(options = {}) {
   context.assert(model.rc0Snapshot.rc0KpiFailed === 0, 'RC1 readiness captures clean RC0 KPI state');
   context.assert(model.rc0Snapshot.visualSnapshotDomDiffCount === 0, 'RC1 readiness captures clean RC0 DOM snapshots');
   context.assert(model.rc1Inputs.conditionalNetworkGates.includes('npm audit --audit-level=moderate'), 'RC1 readiness captures npm audit gate');
-  context.assert(model.rc1Inputs.conditionalNetworkGates.includes('npm sbom --json'), 'RC1 readiness captures npm sbom gate');
+  context.assert(model.rc1Inputs.conditionalNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json'), 'RC1 readiness captures npm sbom gate');
 
-  context.assert(packageManifest.private === true, 'Package remains private for RC1 readiness');
+  context.assert(packageManifest.private === false, 'Package is public-ready for RC1 readiness');
   context.assert((packageManifest.exports['./catalog/epic13-rc1-readiness'] === './catalog/epic13-rc1-readiness.js' || (packageManifest.exports['./catalog/epic13-rc1-readiness'] && packageManifest.exports['./catalog/epic13-rc1-readiness'].default === './catalog/epic13-rc1-readiness.js')), 'Package exports Epic 13 RC1 readiness module');
   context.assert(packageManifest.scripts['test:epic13-rc1-readiness'] === 'node scripts/run_xtend_tests.js epic13-rc1-readiness', 'Package exposes Epic 13 RC1 readiness script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_RC1_READINESS_PACKAGE_SCRIPT), 'Package release gates include RC1 readiness script');

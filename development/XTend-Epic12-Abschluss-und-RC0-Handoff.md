@@ -77,7 +77,7 @@ Conditional Network Gates:
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 ```
 
 Wenn Netzwerkzugriff nicht verfuegbar ist, muss der Owner-Handoff die Deferral dokumentieren. Publishing bleibt blockiert.

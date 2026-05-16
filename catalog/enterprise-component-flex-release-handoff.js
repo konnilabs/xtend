@@ -16,7 +16,7 @@ const ENTERPRISE_COMPONENT_FLEX_RELEASE_HANDOFF_SUITE = 'tests/platform/enterpri
 const ENTERPRISE_COMPONENT_FLEX_RELEASE_HANDOFF_LOCAL_GATE = 'node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff --json';
 const ENTERPRISE_COMPONENT_FLEX_RELEASE_HANDOFF_PACKAGE_SCRIPT = 'npm run test:enterprise-component-flex-release-handoff';
 const ENTERPRISE_COMPONENT_FLEX_RELEASE_HANDOFF_BACKLOG = 'development/XTend-Enterprise-Component-Flexibilitaets-und-Theme-Hardening-Backlog.md';
-const CURRENT_VERSION = '0.0.0-enterprise-readiness';
+const CURRENT_VERSION = '0.1.0-rc.1';
 const PROPOSED_VERSION = '0.1.0-enterprise-design-system-rc.1';
 const PUBLISH_BOUNDARY = 'private-until-release-owner-acceptance';
 

@@ -1,11 +1,24 @@
 # XTend
 
-- Status: Enterprise Readiness / private package
+- Status: Enterprise Readiness / RC1 scoped publish prep
 - Package contract: `xtend.package-export.release-strategy.v1`
 - Release checklist: `xtend.release.checklist-semver-policy.v1`
+- Root package: `@ccslabs/xtend`
 - Canonical loader: `xtend-loader.js`
 
 XTend ist ein Web-Component-Framework fuer lokale, CDN-freie Entwicklung. Die aktuelle Enterprise-Reife-Strecke trennt XTend UI als Component-/UI-Builder-Produkt von XTendRMT als framework-agnostischem Scheduler und Templating Kernel.
+
+## Scoped Packages
+
+Anwender koennen entweder das Gesamtpaket oder einzelne Laufzeit-/Tooling-Pakete installieren:
+
+| Package | Inhalt | Manifest |
+|---------|--------|----------|
+| `@ccslabs/xtend` | kompletter XTend Stack mit UI, Fabric, RMT, CLI, Compiler, Security und Docs | `package.json` |
+| `@ccslabs/xtend-rmt` | XTendRMT Runtime, Browser Bundle, Core Types und RMT Schema | `xtendrmt/package.json` |
+| `@ccslabs/xtend-fabric` | Fabric Runtime, Hydration Policy und RMT Lane Mapping | `fabric/package.json` |
+| `@ccslabs/xtend-cli` | Scaffold-/Builder-CLI mit `xt`, `xtend` und `xtend-scaffold` | `xtend-builder/package.json` |
+| `@ccslabs/xtend-compiler` | RMT vNext Compiler, Parser, Linter und Language-Server Tooling | `tools/package.json` |
 
 ## Einstiegspunkte
 
@@ -83,11 +96,15 @@ npm run pack:dry-run:report
 npm run pack:dry-run
 ```
 
-`npm publish` ist durch `private: true` absichtlich gesperrt. Die Package-Exports, Supply-Chain-Gates, Release-Gates und Provenance-Defaults sind vorbereitet, damit spaetere Release-Pakete ohne Architektur-Refactor aufsetzen koennen.
+`npm publish` bleibt ein manueller Owner-Schritt. Die Package-Exports, Supply-Chain-Gates, Release-Gates und Provenance-Defaults sind vorbereitet; `private: false` ist fuer den RC1-Publish-Prep gesetzt.
 
 Der aktive GitHub-Actions-Workflow `.github/workflows/xtend-default-gates.yml` nutzt Node `26.x` und trennt Pull-Request-Feedback von Full-Release-Gates: `npm run test:pr:report` laedt `xtend-pr-gate-report-node-26`, `npm run test:release:full:report` laedt `xtend-release-gate-report-node-26`.
 
-Release-Kandidaten folgen `xtend.release.checklist-semver-policy.v1`. `package.json` spiegelt die Pflichten unter `xtend.releaseChecklist`; `private: true` bleibt bis zum Release-Owner-Approval bestehen.
+Release-Kandidaten folgen `xtend.release.checklist-semver-policy.v1`. `package.json` spiegelt die Pflichten unter `xtend.releaseChecklist`; die RC1-Publish-Prep-Boundary ist durch den Release Owner geoeffnet.
+
+## Lizenz
+
+XTend und der komplette XTendRMT-Stack stehen unter der Apache License 2.0. Die vollstaendige Lizenz liegt in `LICENSE`; die Package-Manifeste nutzen `Apache-2.0`.
 
 Enterprise-Teams starten mit `docs/enterprise-adoption.md`. Der Guide verbindet Loader, lokalen Dev Server, XTend UI, XTend-Fabric, XTendRMT, Security, A11y, Performance, CI Gates und Release Readiness zu einem operativen Einfuehrungspfad. Die zugehoerige Package-Metadatenflaeche liegt unter `xtend.enterpriseAdoption`.
 
@@ -99,7 +116,7 @@ Enterprise-Teams starten mit `docs/enterprise-adoption.md`. Der Guide verbindet 
 
 `WP-E13-02` definiert den Release Owner Acceptance Contract unter `docs/release-owner-acceptance.md`. Die Owner Checklist nutzt `accepted`, `deferred` und `blocked`, blockiert `automatic-publish-approval` und haelt `private-until-release-owner-acceptance` aktiv. Die Package-Metadatenflaeche liegt unter `xtend.epic13ReleaseOwnerAcceptance`; nach `WP-E13-09` zeigt der Handoff auf `WP-E13-10`.
 
-`WP-E13-03` definiert die Conditional Network Evidence unter `docs/conditional-network-evidence.md`. `npm audit --audit-level=moderate` und `npm sbom --json` besitzen erwartete `.xtend-test-results/` Artefakte, waehrend lokale Default-Gates netzwerkfrei bleiben und strukturierte Deferrals wie `network-restricted-local-default` erzeugen koennen. Die Package-Metadatenflaeche liegt unter `xtend.epic13ConditionalNetworkEvidence`.
+`WP-E13-03` definiert die Conditional Network Evidence unter `docs/conditional-network-evidence.md`. `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` besitzen erwartete `.xtend-test-results/` Artefakte, waehrend lokale Default-Gates netzwerkfrei bleiben und strukturierte Deferrals wie `network-restricted-local-default` erzeugen koennen. Die Package-Metadatenflaeche liegt unter `xtend.epic13ConditionalNetworkEvidence`.
 
 `WP-E13-04` definiert den Package Export Lock unter `docs/package-export-lock.md`. `npm run pack:dry-run:report` erzeugt `.xtend-test-results/xtend-pack-dry-run.json`, `.xtend-test-results/xtend-package-export-surface-lock.json` und `.xtend-test-results/xtend-package-export-lock-report.json`. Die Package-Metadatenflaeche liegt unter `xtend.epic13PackageExportLock`.
 
@@ -117,7 +134,7 @@ Enterprise-Teams starten mit `docs/enterprise-adoption.md`. Der Guide verbindet 
 
 `WP-E13-11` definiert den Trusted DOM Boundary Browser Proof unter `docs/trusted-dom-boundary-browser-proof.md`. `xtend.epic13.trusted-dom-boundary.v1` prueft Parsedown HTML, RMT `html_fragment`, `dom_descriptor`-Praeferenz, Sanitizer `xtend.security.trusted-dom-sanitizer.v1`, CSP-Anschluss und die Fixture `tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html`. Die Package-Metadatenflaeche liegt unter `xtend.epic13TrustedDomBoundary`.
 
-`WP-E13-12` definiert die RC1 Migration Notes unter `docs/rc1-migration-notes.md`. `xtend.epic13.rc1-migration-notes-semver.v1` dokumentiert den SemVer-Entscheid von `0.0.0-enterprise-readiness` zu `0.1.0-rc.1`, Consumer-Migrationen fuer Loader, RMT, Docs, Trusted DOM, Fabric, Typing, Visual Owner Artifacts und Supply Chain sowie den Handoff nach `WP-E13-13`. Die Package-Metadatenflaeche liegt unter `xtend.epic13Rc1MigrationNotes`.
+`WP-E13-12` definiert die RC1 Migration Notes unter `docs/rc1-migration-notes.md`. `xtend.epic13.rc1-migration-notes-semver.v1` dokumentiert den SemVer-Entscheid fuer `0.1.0-rc.1`, Consumer-Migrationen fuer Loader, RMT, Docs, Trusted DOM, Fabric, Typing, Visual Owner Artifacts und Supply Chain sowie den Handoff nach `WP-E13-13`. Die Package-Metadatenflaeche liegt unter `xtend.epic13Rc1MigrationNotes`.
 
 `WP-E13-13` definiert die RC1 Gate Matrix und den CI-Handoff unter `docs/rc1-gate-matrix-ci-handoff.md`. `xtend.epic13.rc1-gate-matrix-ci-handoff.v1` registriert Epic-13-Source-Gates, CI Lanes, Report-Artefakte, Referenzpfade und den Handoff nach `WP-E13-14`. Die Package-Metadatenflaeche liegt unter `xtend.epic13Rc1GateMatrixCiHandoff`.
 

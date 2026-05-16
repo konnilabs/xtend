@@ -34,7 +34,7 @@ Vor Publish muessen Netzwerk-Gates laufen oder im Handoff bewusst deferred werde
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 ```
 
 Diese Gates sind nicht Teil des lokalen Default-Runners.

@@ -4,8 +4,15 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const {
+  requireLocalOrScoped
+} = require('../lib/package-resolver');
+const {
   compileRmtVNextSource
-} = require('../../tools/rmt-language/vnext-compiler');
+} = requireLocalOrScoped(
+  __filename,
+  '../../tools/rmt-language/vnext-compiler',
+  '@ccslabs/xtend-compiler/rmt-language/vnext-compiler'
+);
 const {
   createComponentFiles
 } = require('./component-files');

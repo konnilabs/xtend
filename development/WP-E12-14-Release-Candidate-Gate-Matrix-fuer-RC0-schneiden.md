@@ -39,7 +39,7 @@ WP-E12-14 schneidet die Gate-Kette fuer einen ersten lokalen Release Candidate `
 | Full Release Gate | nutzt `npm run test:release:full:report` |
 | Snapshot Gate | nutzt `component-shell-theme-matrix`, `visual-snapshot-automation`, `visual-snapshots`, `design-tokens` |
 | RMT Authoring Gate | nutzt `rmt-shell-authoring-ux`, `rmt-first-class-app`, `rmt-first-demo-app`, `docs-rmt-pilot`, `rmt-dsl-authoring-polish` |
-| Conditional Network Gates | `npm audit --audit-level=moderate`, `npm sbom --json` |
+| Conditional Network Gates | `npm audit --audit-level=moderate`, `npm sbom --sbom-format=cyclonedx --json` |
 | Package Dry Run | `npm run pack:dry-run` |
 | Known Residual Policy | keine Blocker, Publish bleibt gesperrt |
 

@@ -37,7 +37,7 @@ Der bewusst blockierte Eintrag ist `automatic-publish-approval`. Damit bleibt ei
 `WP-E13-03` hat die Conditional Network Gate Evidence unter [Conditional Network Evidence](./conditional-network-evidence.md) mit `xtend.epic13.conditional-network-evidence.v1` vorbereitet:
 
 - `npm audit --audit-level=moderate`
-- `npm sbom --json`
+- `npm sbom --sbom-format=cyclonedx --json`
 
 Wenn diese Gates lokal wegen Sandbox, Netzwerk oder Policy nicht laufen koennen, entsteht eine strukturierte Owner-Deferral.
 
@@ -51,4 +51,6 @@ Weiterfuehrend: [RC1 Readiness](./rc1-readiness.md).
 
 `RC1TB-WP-08` konkretisiert den Owner-Schnitt fuer den ersten lokalen RC1-Test-Build in `development/XTend-RC1-Test-Build-Owner-Acceptance.md` unter `xtend.rc1.test-build-owner-acceptance.v1`.
 
-Die Entscheidung fuer diesen Schnitt lautet `accepted-for-internal-test-build-not-publish`: Der Test-Build darf intern gegen die dokumentierten Gate-Reports, die RMT vNext Reference Demo und die XTendRMT Bestcase Demo verwendet werden. `npm-audit-moderate` und `npm-sbom-json` bleiben als Conditional-Network-Deferrals publish-blocking. `private: true`, `publishAllowed: false` und `automaticPublishApproval: false` bleiben aktiv.
+Die Entscheidung fuer diesen Schnitt lautet `accepted-for-internal-test-build-not-publish`: Der Test-Build darf intern gegen die dokumentierten Gate-Reports, die RMT vNext Reference Demo und die XTendRMT Bestcase Demo verwendet werden. `npm-audit-moderate` und `npm-sbom-json` sind im Owner-Publish-Schritt ausgefuehrt und akzeptiert; Version `0.1.0-rc.1` und `private: false` sind fuer Publish Prep gesetzt, `automaticPublishApproval: false` bleibt aktiv.
+
+Der separate Owner-Publish-Entscheid ist in `development/XTend-RC1-Release-Owner-Publish-Decision.md` unter `xtend.rc1.release-owner-publish-decision.v1` angelegt. Sein aktueller Zustand ist `accepted-for-publish-prep`; der eigentliche Publish-Befehl wurde nicht ausgefuehrt. Die License-Entscheidung fuer den kompletten Stack ist `Apache-2.0`; Audit und SBOM sind akzeptiert.

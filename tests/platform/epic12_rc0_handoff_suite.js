@@ -140,7 +140,7 @@ function runEpic12Rc0HandoffSuite(options = {}) {
   context.assert(plan.knownResidualPolicy.blockers.length === 0, 'RC0 Handoff has no known residual blockers');
   context.assert(plan.nextDecision === 'release-owner-acceptance', 'RC0 Handoff stops at release owner acceptance');
 
-  context.assert(packageManifest.private === true, 'Package remains private for RC0 Handoff');
+  context.assert(packageManifest.private === false, 'Package is public-ready after RC1 owner publish prep');
   context.assert((packageManifest.exports['./catalog/epic12-rc0-handoff'] === './catalog/epic12-rc0-handoff.js' || (packageManifest.exports['./catalog/epic12-rc0-handoff'] && packageManifest.exports['./catalog/epic12-rc0-handoff'].default === './catalog/epic12-rc0-handoff.js')), 'Package exports Epic 12 RC0 Handoff module');
   context.assert(packageManifest.scripts['test:epic12-rc0-handoff'] === 'node scripts/run_xtend_tests.js epic12-rc0-handoff', 'Package exposes Epic 12 RC0 Handoff test script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC12_RC0_HANDOFF_PACKAGE_SCRIPT), 'Package release gates include RC0 Handoff script');

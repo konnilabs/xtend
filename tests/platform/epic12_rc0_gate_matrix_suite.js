@@ -150,7 +150,7 @@ function runEpic12Rc0GateMatrixSuite(options = {}) {
   context.assert(matrix.knownResidualPolicy.ownerAcceptanceRequired === true, 'Known residual policy requires owner acceptance');
   context.assert(matrix.handoff.includes('WP-E12-15'), 'RC0 matrix hands off to WP-E12-15');
 
-  context.assert(packageManifest.private === true, 'Package remains private for RC0');
+  context.assert(packageManifest.private === false, 'Package is public-ready after RC1 owner publish prep');
   context.assert((packageManifest.exports['./catalog/epic12-rc0-gate-matrix'] === './catalog/epic12-rc0-gate-matrix.js' || (packageManifest.exports['./catalog/epic12-rc0-gate-matrix'] && packageManifest.exports['./catalog/epic12-rc0-gate-matrix'].default === './catalog/epic12-rc0-gate-matrix.js')), 'Package exports RC0 Gate Matrix module');
   context.assert(packageManifest.scripts['test:rc0-gate-matrix'] === 'node scripts/run_xtend_tests.js rc0-gate-matrix', 'Package exposes RC0 Gate Matrix test script');
   context.assert(Array.isArray(packageManifest.xtend.releaseGates) && packageManifest.xtend.releaseGates.includes(RC0_GATE_MATRIX_PACKAGE_SCRIPT), 'Package release gates include RC0 gate matrix script');

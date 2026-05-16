@@ -97,7 +97,7 @@ const RC0_RELEASE_MUST_INCLUDE = Object.freeze([
 
 const CONDITIONAL_NETWORK_COMMANDS = Object.freeze([
   'npm audit --audit-level=moderate',
-  'npm sbom --json'
+  'npm sbom --sbom-format=cyclonedx --json'
 ]);
 
 function unique(values) {

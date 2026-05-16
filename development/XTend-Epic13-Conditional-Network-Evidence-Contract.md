@@ -23,7 +23,7 @@ Beide Zustaende sind maschinenlesbar. Publish bleibt blockiert, bis die Befehle 
 | ID | Command | JSON/Evidence Command | Artefakt |
 |----|---------|------------------------|----------|
 | `npm-audit-moderate` | `npm audit --audit-level=moderate` | `npm audit --audit-level=moderate --json` | `.xtend-test-results/xtend-npm-audit-report.json` |
-| `npm-sbom-json` | `npm sbom --json` | `npm sbom --json` | `.xtend-test-results/xtend-npm-sbom.json` |
+| `npm-sbom-json` | `npm sbom --sbom-format=cyclonedx --json` | `npm sbom --sbom-format=cyclonedx --json` | `.xtend-test-results/xtend-npm-sbom.json` |
 
 Das aggregierte RC1-Report-Artefakt ist `.xtend-test-results/xtend-conditional-network-evidence-report.json`.
 

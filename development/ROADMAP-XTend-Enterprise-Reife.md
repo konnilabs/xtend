@@ -953,7 +953,7 @@ Empfohlene Sequenz: `ER-WP-31` hat die Component Catalog Coverage Matrix erzeugt
 - Ergebnis:
   - abgeschlossen: Supply-Chain-Gates sind unter `xtend.security.supply-chain-gate-plan.v1`, `xtend.security.dependency-audit-gate.v1`, `xtend.security.license-policy.v1`, `xtend.security.vulnerability-policy.v1` und `xtend.security.release-supply-chain-gate.v1` dokumentiert.
   - `security/supply-chain-gate-policy.js` und `scripts/verify_supply_chain_policy.js` liefern einen lokalen Offline-Gate ohne Registry-Zugriff.
-  - `npm run test:supply-chain` ist als Runner-Suite angebunden; CI-/Release-Handoff fuer `npm audit --audit-level=moderate` und `npm sbom --json` ist dokumentiert.
+  - `npm run test:supply-chain` ist als Runner-Suite angebunden; CI-/Release-Handoff fuer `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` ist dokumentiert.
 
 ### ER-WP-31 - Component Catalog Coverage Matrix erzeugen
 

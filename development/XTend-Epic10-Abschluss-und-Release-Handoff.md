@@ -87,7 +87,7 @@ Conditional Network Gates bleiben ausserhalb des lokalen Default-Gates:
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 ```
 
 ## Migration Notes

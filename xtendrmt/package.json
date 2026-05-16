@@ -1,0 +1,59 @@
+{
+  "name": "@ccslabs/xtend-rmt",
+  "version": "0.1.0-rc.1",
+  "private": false,
+  "description": "XTendRMT scheduler runtime and browser bridge.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "keywords": [
+    "ccslabs",
+    "xtend",
+    "xtendrmt",
+    "scheduler",
+    "runtime"
+  ],
+  "main": "./rmt-runtime.esm.js",
+  "types": "./rmt-core.d.ts",
+  "browser": "./rmt-runtime.browser.js",
+  "files": [
+    "rmt-core.d.ts",
+    "rmt-core.esm.js",
+    "rmt-runtime.esm.js",
+    "rmt-runtime.browser.js",
+    "rmt.schema.json",
+    "rmt-manifest.json",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./rmt-core.d.ts",
+      "browser": "./rmt-runtime.browser.js",
+      "default": "./rmt-runtime.esm.js"
+    },
+    "./core": {
+      "types": "./rmt-core.d.ts",
+      "default": "./rmt-core.esm.js"
+    },
+    "./runtime": {
+      "types": "./rmt-core.d.ts",
+      "browser": "./rmt-runtime.browser.js",
+      "default": "./rmt-runtime.esm.js"
+    },
+    "./browser": {
+      "types": "./rmt-core.d.ts",
+      "browser": "./rmt-runtime.browser.js",
+      "default": "./rmt-runtime.browser.js"
+    },
+    "./schema": "./rmt.schema.json",
+    "./manifest": "./rmt-manifest.json",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "tag": "next"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

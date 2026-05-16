@@ -13,7 +13,7 @@ RC1 fuehrt den RC0-Handoff in einen PROD-naeheren Release Candidate. Der Status 
 | Bereich | RC1-Pflicht |
 |---------|-------------|
 | Release Owner Acceptance | formaler Contract mit Accepted, Deferred und Blocked Entscheidungen |
-| Conditional Network Gates | `npm audit --audit-level=moderate` und `npm sbom --json` ausfuehren oder Owner-Deferral dokumentieren |
+| Conditional Network Gates | `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` ausfuehren oder Owner-Deferral dokumentieren |
 | Package Dry Run | Paketinhalt und Export Surface maschinenlesbar pruefen |
 | Known Residuals | `xstate` und `x-utils` sind geschlossen; `xtend.component.hydrate` ist in `WP-E13-06` owner-frei geschlossen |
 | Browser/CSP | PROD-nahe same-origin, Nonce und Loader-Smokes sind unter [PROD Browser CSP Smokes](./prod-browser-csp-smokes.md) vorbereitet |

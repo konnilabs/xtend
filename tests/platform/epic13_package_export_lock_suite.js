@@ -149,7 +149,7 @@ function runEpic13PackageExportLockSuite(options = {}) {
   context.assert(plan.status === EPIC13_PACKAGE_EXPORT_LOCK_STATUS, 'Package export lock is accepted');
   context.assert(plan.targetReadiness === EPIC13_PACKAGE_EXPORT_LOCK_TARGET, 'Package export lock target is ready');
   context.assert(plan.sourceValidationOk === true && plan.sourceReportOk === true, 'Package export lock consumes conditional network evidence');
-  context.assert(plan.packagePrivate === true, 'Package export lock keeps package private');
+  context.assert(plan.packagePrivate === true && plan.packagePrivateRequired === false, 'Package export lock records public-ready package boundary');
   context.assert(plan.packageDryRunCommand === PACKAGE_DRY_RUN_COMMAND, 'Package dry-run command remains stable');
   context.assert(plan.packageDryRunJsonCommand === PACKAGE_DRY_RUN_JSON_COMMAND, 'Package dry-run JSON command is documented');
   context.assert(plan.captureScript === EPIC13_PACKAGE_EXPORT_LOCK_CAPTURE_SCRIPT, 'Package export lock exposes capture script');
@@ -183,7 +183,7 @@ function runEpic13PackageExportLockSuite(options = {}) {
   context.assert(plan.surfaceSnapshot.surfaceGroups.length === SURFACE_GROUPS.length, 'Surface snapshot exposes all surface groups');
   context.assert(plan.surfaceSnapshot.surfaceGroups.every((group) => group.ok), 'All package surface groups are complete');
 
-  context.assert(packageManifest.private === true, 'Package remains private for package export lock');
+  context.assert(packageManifest.private === false, 'Package private boundary is opened for package export lock');
   context.assert((packageManifest.exports['./catalog/epic13-package-export-lock'] === './catalog/epic13-package-export-lock.js' || (packageManifest.exports['./catalog/epic13-package-export-lock'] && packageManifest.exports['./catalog/epic13-package-export-lock'].default === './catalog/epic13-package-export-lock.js')), 'Package exports package export lock module');
   context.assert((packageManifest.exports['./catalog/epic13-known-residual-triage'] === './catalog/epic13-known-residual-triage.js' || (packageManifest.exports['./catalog/epic13-known-residual-triage'] && packageManifest.exports['./catalog/epic13-known-residual-triage'].default === './catalog/epic13-known-residual-triage.js')), 'Package exports known residual triage module');
   context.assert((packageManifest.exports['./catalog/epic13-hydration-performance-closure'] === './catalog/epic13-hydration-performance-closure.js' || (packageManifest.exports['./catalog/epic13-hydration-performance-closure'] && packageManifest.exports['./catalog/epic13-hydration-performance-closure'].default === './catalog/epic13-hydration-performance-closure.js')), 'Package exports hydration performance closure module');

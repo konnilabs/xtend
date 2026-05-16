@@ -29,8 +29,8 @@ XTend bleibt bis zur Release-Reife ein privates Paket. Trotzdem muss der Publish
 - Lokale Tests bleiben deterministisch und offline.
 - Externe Audit-Kommandos werden als CI-/Release-Gates geplant, nicht als Default-Entwicklungsbremse.
 - Neue Dependencies brauchen ein Lockfile und eine License-/Vulnerability-Bewertung.
-- `private: true` bleibt gesetzt, bis Release-Checklist, CI und Supply-Chain-Gates finalisiert sind.
-- `UNLICENSED` ist fuer den aktuellen privaten Paketstatus akzeptiert; ein oeffentlicher Release braucht eine explizite License-Entscheidung.
+- `private: false` ist fuer RC1-Publish-Prep gesetzt; Release-Checklist, CI und Supply-Chain-Gates bleiben pruefpflichtig.
+- `Apache-2.0` ist als Projektlizenz fuer den kompletten XTend-Stack akzeptiert; ein oeffentlicher Release braucht weiterhin den separaten Owner-Publish-Entscheid.
 - `publishConfig.provenance = true` bleibt Pflicht fuer spaetere npm-Releases.
 
 ## Gate Matrix
@@ -61,7 +61,7 @@ Folgende Gates sind seit `ER-WP-36` und `ER-WP-38` als CI-/Release-Stufen eingeo
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 npm run release:report
 npm run pack:dry-run
 ```
@@ -84,8 +84,9 @@ Der aktuelle Stand hat keine externen Dependencies. Damit ist das lokale Depende
 
 | Kontext | Regel |
 |---------|-------|
-| aktuelles privates Paket | `UNLICENSED` ist erlaubt |
-| oeffentlicher XTend Release | explizite License-Entscheidung ist Pflicht |
+| aktuelles privates Paket | `Apache-2.0` ist gesetzt |
+| kompletter XTend-Stack | `Apache-2.0` ist die Projektlizenz |
+| oeffentlicher XTend Release | Owner-Publish-Entscheid muss die Apache-2.0 License-Entscheidung bestaetigen |
 | Third-Party Dependencies | permissive Lizenzen wie MIT, ISC, BSD, Apache-2.0 sind Default-ok |
 | Review-Lizenzen | LGPL, CC-Lizenzen und nicht-standardisierte Expressions brauchen Review |
 | verbotene Default-Lizenzen | AGPL, GPL und `UNLICENSED` als Third-Party Dependency |

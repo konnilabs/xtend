@@ -89,7 +89,7 @@ Er umfasst damit Browser-Smokes, Performance Regression, Hydration Policies, Fab
 
 Nightly nutzt denselben Command wie `full-release`. Das haelt die Matrix klein und vermeidet ein drittes semantisches Gate, solange keine zusaetzlichen Visual-Snapshot-Artefakte angebunden sind.
 
-Netzwerkbasierte Supply-Chain-Gates wie `npm audit --audit-level=moderate` und `npm sbom --json` bleiben ausserhalb der lokalen Default-Matrix. `ER-WP-38` ordnet sie als Conditional Network Gates der Release Checklist zu; `DPF-WP-03` produktisiert dafuer den separaten CI-Job `conditional-network-evidence` mit `npm run conditional-network:evidence` und Owner-Deferral-Artefakten.
+Netzwerkbasierte Supply-Chain-Gates wie `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` bleiben ausserhalb der lokalen Default-Matrix. `ER-WP-38` ordnet sie als Conditional Network Gates der Release Checklist zu; `DPF-WP-03` produktisiert dafuer den separaten CI-Job `conditional-network-evidence` mit `npm run conditional-network:evidence` und Owner-Deferral-Artefakten.
 
 ## RC0 Overlay
 
@@ -101,7 +101,7 @@ Der RC0 Overlay nutzt:
 - `npm run test:release:full:report` als Full Release Gate
 - `node scripts/run_xtend_tests.js component-shell-theme-matrix visual-snapshot-automation visual-snapshots design-tokens --json` als Snapshot Gate
 - `node scripts/run_xtend_tests.js rmt-shell-authoring-ux rmt-first-class-app rmt-first-demo-app docs-rmt-pilot rmt-dsl-authoring-polish --json` als RMT Authoring Gate
-- `npm audit --audit-level=moderate` und `npm sbom --json` als Conditional Network Gates
+- `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` als Conditional Network Gates
 - `npm run pack:dry-run` als Package Dry Run
 - `node scripts/run_xtend_tests.js rc0-gate-matrix --json` als Matrix Self Check
 - `node scripts/run_xtend_tests.js epic12-docs-adoption --json` als Docs-, Migration-Notes- und Adoption-Gate aus `WP-E12-15`

@@ -2,16 +2,16 @@
 
 Contract: `xtend.epic13.rc1-migration-notes-semver.v1`
 
-WP-E13-12 bereitet die Konsumentenkommunikation fuer den ersten RC1-Kandidaten vor. Der vorgeschlagene Stand ist `0.1.0-rc.1`, bleibt aber bis zur finalen Release-Owner-Freigabe privat und nicht publishbar.
+WP-E13-12 bereitet die Konsumentenkommunikation fuer den ersten RC1-Kandidaten vor. Der angewendete Stand ist `0.1.0-rc.1`; die Package Boundary ist fuer RC1-Publish-Prep auf `private: false` geoeffnet. Der eigentliche Publish-Befehl bleibt weiterhin ein separater manueller Owner-Schritt.
 
 ## SemVer
 
 | Feld | Wert |
 | --- | --- |
-| Current Version | `0.0.0-enterprise-readiness` |
+| Current Version | `0.1.0-rc.1` |
 | Proposed Version | `0.1.0-rc.1` |
 | Classification | `minor-pre-1.0-release-candidate` |
-| Publish | blockiert, `private: true` |
+| Publish | vorbereitet, `private: false`; `npm publish` nicht ausgefuehrt |
 
 ## Migration Sections
 
@@ -57,7 +57,7 @@ Audit und SBOM werden entweder ausgefuehrt oder explizit owner-deferred. Ohne Ev
 
 ### publish-boundary
 
-`private: true` bleibt gesetzt. Automatisches Publish ist bis zum finalen RC1-Handoff blockiert.
+`private: false` ist fuer RC1-Publish-Prep gesetzt. Automatisches Publish bleibt blockiert; der finale `npm publish` braucht weiterhin den manuellen Owner-Befehl.
 
 ## Lokaler Gate
 

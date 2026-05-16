@@ -18,8 +18,15 @@ const {
   createVerifyPlan
 } = require('../workflows/developer-workflow');
 const {
+  requireLocalOrScoped
+} = require('./package-resolver');
+const {
   runRmtLinterCli
-} = require('../../tools/rmt-linter/cli');
+} = requireLocalOrScoped(
+  __filename,
+  '../../tools/rmt-linter/cli',
+  '@ccslabs/xtend-compiler/rmt-linter/cli'
+);
 
 const CLI_SCHEMA = 'xtend.scaffold.cli.v1';
 const LAYOUT_SCHEMA = 'xtend.scaffold.layout.v1';

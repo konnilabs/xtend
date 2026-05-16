@@ -99,7 +99,7 @@ function createEpic12DocsAdoptionGuide(options = {}) {
     ],
     conditionalNetworkGates: [
       'npm audit --audit-level=moderate',
-      'npm sbom --json'
+      'npm sbom --sbom-format=cyclonedx --json'
     ],
     knownResiduals: [
       'xstate',

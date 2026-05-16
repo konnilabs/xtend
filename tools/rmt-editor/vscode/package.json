@@ -2,10 +2,10 @@
   "name": "xtend-rmt-language",
   "displayName": "XTendRMT Language Support",
   "description": "Thin VS Code bridge for native .rmt authoring through the XTendRMT Language Server.",
-  "version": "0.0.0-enterprise-readiness",
-  "private": true,
+  "version": "0.1.0-rc.1",
+  "private": false,
   "publisher": "CCS Networks",
-  "license": "CCS Open Source License",
+  "license": "Apache-2.0",
   "engines": {
     "vscode": "^1.90.0"
   },

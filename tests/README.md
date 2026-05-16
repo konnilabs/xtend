@@ -267,7 +267,7 @@ node scripts/run_xtend_tests.js epic13-conditional-network-evidence --json
 npm run test:epic13-conditional-network-evidence
 ```
 
-`WP-E13-03` defines the Evidence/Deferral contract for `npm audit --audit-level=moderate` and `npm sbom --json`. The local gate stays offline and marks network execution as publish-blocking until real artifacts exist or an owner accepts the deferral.
+`WP-E13-03` defines the Evidence/Deferral contract for `npm audit --audit-level=moderate` and `npm sbom --sbom-format=cyclonedx --json`. The local gate stays offline and marks network execution as publish-blocking until real artifacts exist or an owner accepts the deferral.
 
 Run the Epic 13 Package Export Lock gate:
 

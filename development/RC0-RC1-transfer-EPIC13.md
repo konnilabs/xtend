@@ -57,7 +57,7 @@ Die folgenden Punkte sind bewusst **nicht** Ziel von Epic 13:
 | Package Dry Run | `npm run pack:dry-run` | vorhanden | stdout/Dateiliste maschinenlesbar pruefen |
 | Manifest Security | `npm run test:manifest-policy`, `npm run test:epic13-prod-browser-csp-smoke`, `npm run test:epic13-trusted-dom-boundary` | vorhanden, PROD/CSP-Smoke und Trusted-DOM-Boundary vorbereitet | fuer RC1 beibehalten |
 | Supply Chain lokal | `npm run test:supply-chain` | vorhanden | mit Network-Deferral/Execution-Log verbinden |
-| Network Gates | `npm audit --audit-level=moderate`, `npm sbom --json` | conditional | fuer RC1 ausfuehren oder Owner-Deferral dokumentieren |
+| Network Gates | `npm audit --audit-level=moderate`, `npm sbom --sbom-format=cyclonedx --json` | conditional | fuer RC1 ausfuehren oder Owner-Deferral dokumentieren |
 | Visual Snapshot DOM | `npm run test:visual-snapshots`, `npm run test:epic13-visual-owner-artifact` | vorhanden, Owner-Artefakt normalisiert | beibehalten; Screenshot-/Pixel-Artefakt bleibt optionaler Owner-/CI-Pfad |
 | Design Tokens | `npm run test:design-tokens` | vorhanden | beibehalten |
 | Performance Regression | `npm run test:performance` | vorhanden, Hydration-Warnung in `WP-E13-06` geschlossen | als RC1-Baseline ohne Warnungen weiterfuehren |
@@ -247,7 +247,7 @@ Naechstes Paket:
 - Prioritaet: `P0`
 - Status: `completed`
 - Ziel:
-  - `npm audit --audit-level=moderate` und `npm sbom --json` als RC1-Evidence erfassbar machen
+  - `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` als RC1-Evidence erfassbar machen
 - Bestehende Gates:
   - `npm run test:supply-chain`
   - `npm run supply-chain:verify`
@@ -264,7 +264,7 @@ Naechstes Paket:
 - Gate:
   - `node scripts/run_xtend_tests.js epic13-conditional-network-evidence --json`
 - Definition of Done:
-  - `npm audit --audit-level=moderate` und `npm sbom --json` haben erwartete Artefaktpfade
+  - `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` haben erwartete Artefaktpfade
   - Offline-/Sandbox-Laeufe erzeugen strukturierte Deferral-Records
   - lokale Default-Gates bleiben netzwerkfrei
   - `WP-E13-04` ist startbar

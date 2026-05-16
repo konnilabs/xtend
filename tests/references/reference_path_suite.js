@@ -714,7 +714,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
     contracts: [
       { pattern: 'xtend.package-export.release-strategy.v1', message: 'declares package export strategy contract' },
       { pattern: 'Status: Accepted', message: 'accepts the package export strategy' },
-      { pattern: '`private: true`', message: 'keeps package publishing blocked' },
+      { pattern: '`private: false`', message: 'documents RC1 publish-prep boundary' },
       { pattern: 'xtend-loader.js', message: 'documents canonical loader export' },
       { pattern: 'xtend-dev.js', message: 'documents legacy loader export' },
       { pattern: '`xtend/fabric`', message: 'documents Fabric export path' },
@@ -744,7 +744,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'package.json', message: 'documents package metadata changes' },
       { pattern: 'README.md', message: 'documents root README' },
       { pattern: 'CHANGELOG.md', message: 'documents changelog' },
-      { pattern: 'private: true', message: 'keeps publish boundary visible' },
+      { pattern: 'private: false', message: 'keeps RC1 publish-prep boundary visible' },
       { pattern: '`ER-WP-30` | completed', message: 'marks ER-WP-30 completed after supply-chain gates' },
       { pattern: 'EPIC 06 ist damit fachlich vollstaendig', message: 'closes Epic 06 explicitly' }
     ]
@@ -792,14 +792,14 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'npm run test:manifest-policy', message: 'documents Manifest Import policy gate command' },
       { pattern: 'npm run test:supply-chain', message: 'documents Supply-Chain gate command' },
       { pattern: 'npm run pack:dry-run', message: 'documents pack dry-run command' },
-      { pattern: '`private: true`', message: 'documents private package boundary' }
+      { pattern: '`private: false`', message: 'documents RC1 publish-prep package boundary' }
     ]
   },
   {
     path: 'CHANGELOG.md',
     label: 'XTend package changelog',
     contracts: [
-      { pattern: '0.0.0-enterprise-readiness', message: 'documents enterprise readiness version' },
+      { pattern: '0.1.0-rc.1', message: 'documents RC1 version' },
       { pattern: 'xtend.package-export.release-strategy.v1', message: 'documents package export strategy' },
       { pattern: 'xtend.security.supply-chain-gate-plan.v1', message: 'documents supply-chain gate plan' },
       { pattern: 'xtend.scaffold.performance-policy.v1', message: 'documents Performance scaffold policy' },
@@ -815,7 +815,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'xtend.docs.enterprise-adoption.v1', message: 'documents Enterprise Adoption guide contract' },
       { pattern: 'Release-Gates', message: 'documents release gate changes' },
       { pattern: 'Provenance', message: 'documents provenance preparation' },
-      { pattern: 'private: true', message: 'documents private package boundary' }
+      { pattern: 'private: false', message: 'documents RC1 publish-prep package boundary' }
     ]
   },
   {
@@ -837,7 +837,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
     path: 'package.json',
     label: 'XTend enterprise package scripts',
     contracts: [
-      { pattern: '"version": "0.0.0-enterprise-readiness"', message: 'declares enterprise readiness package version' },
+      { pattern: '"version": "0.1.0-rc.1"', message: 'declares RC1 package version' },
       { pattern: '"browser": "./xtend-loader.js"', message: 'declares canonical browser loader' },
       { pattern: '"exports"', message: 'declares package exports map' },
       { patterns: ['"./loader": "./xtend-loader.js"', '"./loader": {\n      "types": "./xtend-loader.d.ts",\n      "browser": "./xtend-loader.js",\n      "default": "./xtend-loader.js"\n    }'], message: 'exports canonical loader' },
@@ -2136,9 +2136,9 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'node scripts/verify_supply_chain_policy.js --json', message: 'documents offline verify gate' },
       { pattern: 'npm run test:supply-chain', message: 'documents package supply-chain gate' },
       { pattern: 'npm audit --audit-level=moderate', message: 'documents CI audit gate' },
-      { pattern: 'npm sbom --json', message: 'documents CI SBOM gate' },
-      { pattern: 'private: true', message: 'keeps private package boundary' },
-      { pattern: 'UNLICENSED', message: 'documents current private license boundary' }
+      { pattern: 'npm sbom --sbom-format=cyclonedx --json', message: 'documents CI SBOM gate' },
+      { pattern: 'private: false', message: 'documents RC1 publish-prep package boundary' },
+      { pattern: 'Apache-2.0', message: 'documents Apache-2.0 project license decision' }
     ]
   },
   {
@@ -2168,7 +2168,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'createSupplyChainGatePlan', message: 'exports plan factory' },
       { pattern: 'classifyPackageSupplyChain', message: 'exports package classifier' },
       { pattern: 'npm audit --audit-level=moderate', message: 'plans audit gate' },
-      { pattern: 'npm sbom --json', message: 'plans SBOM gate' }
+      { pattern: 'npm sbom --sbom-format=cyclonedx --json', message: 'plans SBOM gate' }
     ]
   },
   {
@@ -2425,7 +2425,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
     contracts: [
       { pattern: 'xtend.release.checklist-semver-policy.v1', message: 'declares release checklist and SemVer policy contract' },
       { pattern: 'Release-Kandidat', message: 'defines release candidate checklist' },
-      { pattern: '`private: true`', message: 'keeps package publishing blocked' },
+      { pattern: '`private: false`', message: 'documents RC1 publish-prep package boundary' },
       { pattern: '0.x', message: 'documents pre-1.0 SemVer phase' },
       { pattern: '1.0.0', message: 'documents post-1.0 SemVer boundary' },
       { pattern: 'Breaking-Change-Definition', message: 'defines breaking changes' },
@@ -2434,7 +2434,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'npm run release:report', message: 'requires local release report' },
       { pattern: 'npm run pack:dry-run', message: 'requires pack dry run' },
       { pattern: 'npm audit --audit-level=moderate', message: 'documents conditional audit gate' },
-      { pattern: 'npm sbom --json', message: 'documents conditional SBOM gate' },
+      { pattern: 'npm sbom --sbom-format=cyclonedx --json', message: 'documents conditional SBOM gate' },
       { pattern: 'xtend.releaseChecklist', message: 'documents package metadata surface' },
       { pattern: '| `ER-WP-39` | `completed` |', message: 'marks ER-WP-39 completed' },
       { pattern: '| `ER-WP-40` | `completed` |', message: 'marks ER-WP-40 completed' }
@@ -4174,7 +4174,7 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: 'npm run test:docs-rmt-pilot', message: 'documents Docs RMT pilot gate' },
       { pattern: 'Epic 11 Enterprise UX Handoff', message: 'documents Epic 11 handoff' },
       { pattern: 'npm run pack:dry-run', message: 'documents package dry-run gate' },
-      { pattern: 'private: true', message: 'keeps publish boundary visible' },
+      { pattern: 'private: false', message: 'keeps publish-prep boundary visible' },
       { pattern: 'ER-WP-40` ist ebenfalls abgeschlossen', message: 'records completed Docs-App RMT pilot' },
       { pattern: 'WP-E11-18` ist abgeschlossen', message: 'records completed Epic 11 Enterprise UX Handoff' }
     ]
@@ -4500,7 +4500,7 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: 'node scripts/verify_supply_chain_policy.js --json', message: 'documents offline verify command' },
       { pattern: 'npm run test:supply-chain', message: 'documents package script' },
       { pattern: 'npm audit --audit-level=moderate', message: 'documents audit CI handoff' },
-      { pattern: 'npm sbom --json', message: 'documents SBOM CI handoff' },
+      { pattern: 'npm sbom --sbom-format=cyclonedx --json', message: 'documents SBOM CI handoff' },
       { pattern: 'security/supply-chain-gate-policy.js', message: 'links machine-readable policy module' }
     ]
   },
@@ -7437,7 +7437,7 @@ function assertSupplyChainPolicyReference(context, rootDir) {
   context.assert(plan.localGate === 'node scripts/verify_supply_chain_policy.js --json', 'Supply-Chain plan exposes offline local gate');
   context.assert(plan.packageScript === 'npm run test:supply-chain', 'Supply-Chain plan exposes package script');
   context.assert(plan.ciNetworkGates.includes('npm audit --audit-level=moderate'), 'Supply-Chain plan includes npm audit CI handoff');
-  context.assert(plan.ciNetworkGates.includes('npm sbom --json'), 'Supply-Chain plan includes npm SBOM CI handoff');
+  context.assert(plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json'), 'Supply-Chain plan includes npm SBOM CI handoff');
   context.assert(classification.ok === true, 'Supply-Chain classifier accepts current package inventory');
   context.assert(report.schema === 'xtend.security.supply-chain-report.v1', 'Supply-Chain verify emits stable report schema');
   context.assert(report.ok === true, 'Supply-Chain verify passes for current package');
@@ -7662,7 +7662,7 @@ function assertReleaseChecklistReference(context, rootDir) {
   context.assertIncludes(policy, 'Release-Kandidat', 'Release checklist defines release candidate flow');
   context.assertIncludes(policy, 'Breaking-Change-Definition', 'Release checklist defines breaking changes');
   context.assertIncludes(policy, 'npm audit --audit-level=moderate', 'Release checklist documents conditional audit gate');
-  context.assertIncludes(policy, 'npm sbom --json', 'Release checklist documents conditional SBOM gate');
+  context.assertIncludes(policy, 'npm sbom --sbom-format=cyclonedx --json', 'Release checklist documents conditional SBOM gate');
   context.assert(metadata && metadata.schema === 'xtend.release.checklist-semver-policy.v1', 'Package metadata exposes release checklist schema');
   context.assert(metadata.workpackage === 'ER-WP-38', 'Package metadata exposes release checklist workpackage');
   context.assert(metadata.policy === policyPath, 'Package metadata exposes release checklist policy path');
@@ -7673,13 +7673,13 @@ function assertReleaseChecklistReference(context, rootDir) {
   context.assert(Array.isArray(metadata.candidateGates) && metadata.candidateGates.includes('npm run test:docs-rmt-pilot'), 'Release checklist requires Docs RMT pilot gate');
   context.assert(Array.isArray(metadata.candidateGates) && metadata.candidateGates.includes('npm run pack:dry-run'), 'Release checklist requires pack dry run');
   context.assert(Array.isArray(metadata.conditionalNetworkGates) && metadata.conditionalNetworkGates.includes('npm audit --audit-level=moderate'), 'Release checklist exposes audit as conditional network gate');
-  context.assert(Array.isArray(metadata.conditionalNetworkGates) && metadata.conditionalNetworkGates.includes('npm sbom --json'), 'Release checklist exposes SBOM as conditional network gate');
+  context.assert(Array.isArray(metadata.conditionalNetworkGates) && metadata.conditionalNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json'), 'Release checklist exposes SBOM as conditional network gate');
   context.assert(Array.isArray(metadata.artifactChecklist) && metadata.artifactChecklist.includes('CHANGELOG.md'), 'Release checklist requires changelog artifact');
   context.assert(Array.isArray(metadata.artifactChecklist) && metadata.artifactChecklist.includes(policyPath), 'Release checklist requires policy artifact');
   context.assert(metadata.publishBoundary === 'private-until-release-owner-approval', 'Release checklist keeps release-owner publish boundary');
   context.assert(metadata.completedRun === 'ER-WP-40', 'Release checklist records completed ER-WP-40 run');
   context.assert(metadata.nextWorkpackage === null, 'Release checklist has no next ER workpackage');
-  context.assert(packageManifest.private === true, 'Package remains private while release checklist is policy-only');
+  context.assert(packageManifest.private === false, 'Package private boundary is opened for RC1 publish prep');
   context.assertIncludes(readme, 'xtend.release.checklist-semver-policy.v1', 'README documents release checklist schema');
   context.assertIncludes(readme, 'xtend.releaseChecklist', 'README documents release checklist metadata');
   context.assertIncludes(changelog, 'xtend.release.checklist-semver-policy.v1', 'Changelog records release checklist schema');
@@ -7708,7 +7708,7 @@ function assertEnterpriseAdoptionReference(context, rootDir) {
   context.assertIncludes(guide, 'npm run test:release:full:report', 'Enterprise Adoption guide documents full release gate');
   context.assertIncludes(guide, 'npm run test:docs-rmt-pilot', 'Enterprise Adoption guide documents Docs RMT pilot gate');
   context.assertIncludes(guide, 'npm run pack:dry-run', 'Enterprise Adoption guide documents package dry run');
-  context.assertIncludes(guide, 'private: true', 'Enterprise Adoption guide keeps publish boundary visible');
+  context.assertIncludes(guide, 'private: false', 'Enterprise Adoption guide keeps publish boundary visible');
   context.assertIncludes(guide, 'ER-WP-40` ist ebenfalls abgeschlossen', 'Enterprise Adoption guide records completed ER-WP-40');
   context.assert(metadata && metadata.schema === 'xtend.docs.enterprise-adoption.v1', 'Package metadata exposes Enterprise Adoption schema');
   context.assert(metadata.workpackage === 'ER-WP-39', 'Package metadata exposes Enterprise Adoption workpackage');

@@ -10,13 +10,13 @@
 
 `WP-E13-12` macht die RC1-Konsumentenkommunikation maschinenlesbar. Nach den Gates aus RC0, RMT-Production, Docs-RMT-Hardening und Trusted DOM Boundary gibt es jetzt einen stabilen SemVer- und Migration-Notes-Schnitt fuer App-Autoren, Komponenten-Autoren, Release Owner, Security Reviewer und CI-Maintainer.
 
-Der Entscheid bleibt bewusst konservativ: XTend ist weiterhin `private: true`, Publish ist nicht freigegeben, und RC1 ist erst nach der finalen Gate-Matrix und dem Abschluss-Handoff entscheidungsreif.
+Der Entscheid bleibt bewusst konservativ: XTend traegt den RC1-Stand `0.1.0-rc.1`, ist fuer Publish Prep auf `private: false` geoeffnet, und der eigentliche Publish-Befehl bleibt ein separater manueller Owner-Schritt.
 
 ## SemVer-Entscheid
 
 | Feld | Wert |
 | --- | --- |
-| Current Version | `0.0.0-enterprise-readiness` |
+| Current Version | `0.1.0-rc.1` |
 | Proposed RC Version | `0.1.0-rc.1` |
 | Phase | `pre-1.0-enterprise-rc` |
 | Classification | `minor-pre-1.0-release-candidate` |
@@ -42,7 +42,7 @@ Die Public Surface hat sich bewusst erweitert: Package Export Lock, RMT-first Ap
 | `known-residuals-and-watchpoints` | Release Owner | `xstate` und `x-utils` bleiben Boundary Contracts; Hydration Watchpoints beobachten. |
 | `visual-owner-artifacts` | Quality | CI-Screenshots oder Owner-Artefakte vor Publish-Freigabe bereitstellen. |
 | `conditional-network-evidence` | Supply Chain | Audit/SBOM ausfuehren oder explizit deferred owner-entscheiden. |
-| `publish-boundary` | Release Owner | `private: true` bleibt bis zur finalen Freigabe gesetzt. |
+| `publish-boundary` | Release Owner | `private: false` ist fuer RC1-Publish-Prep gesetzt; `npm publish` bleibt manuell. |
 
 ## Changelog-Pflichtfelder
 

@@ -1,16 +1,23 @@
 {
-  "name": "xtend",
-  "version": "0.0.0-enterprise-readiness",
-  "private": true,
+  "name": "@ccslabs/xtend",
+  "version": "0.1.0-rc.1",
+  "private": false,
   "description": "XTend UI Web Component Framework with XTendRMT scheduler integration.",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "keywords": [
+    "ccslabs",
     "web-components",
     "custom-elements",
     "xtend",
     "xtendrmt",
     "scheduler",
     "ui-framework"
+  ],
+  "workspaces": [
+    "xtendrmt",
+    "fabric",
+    "xtend-builder",
+    "tools"
   ],
   "browser": "./xtend-loader.js",
   "bin": {
@@ -50,6 +57,38 @@
     "catalog/*.js",
     "design-tokens/*.js",
     "xtendrmt/*.js"
+  ],
+  "scopedPackages": [
+    {
+      "name": "@ccslabs/xtend",
+      "path": ".",
+      "install": "npm install @ccslabs/xtend",
+      "scope": "complete-stack"
+    },
+    {
+      "name": "@ccslabs/xtend-rmt",
+      "path": "xtendrmt",
+      "install": "npm install @ccslabs/xtend-rmt",
+      "scope": "rmt-runtime"
+    },
+    {
+      "name": "@ccslabs/xtend-fabric",
+      "path": "fabric",
+      "install": "npm install @ccslabs/xtend-fabric",
+      "scope": "fabric-runtime"
+    },
+    {
+      "name": "@ccslabs/xtend-cli",
+      "path": "xtend-builder",
+      "install": "npm install @ccslabs/xtend-cli",
+      "scope": "builder-cli"
+    },
+    {
+      "name": "@ccslabs/xtend-compiler",
+      "path": "tools",
+      "install": "npm install @ccslabs/xtend-compiler",
+      "scope": "rmt-compiler-tooling"
+    }
   ],
   "exports": {
     ".": {
@@ -2770,7 +2809,7 @@
       "localGate": "node scripts/verify_supply_chain_policy.js --json",
       "ciNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --json"
+        "npm sbom --sbom-format=cyclonedx --json"
       ]
     },
     "manifestImportPolicy": {
@@ -3687,7 +3726,7 @@
       ],
       "conditionalNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --json"
+        "npm sbom --sbom-format=cyclonedx --json"
       ],
       "artifactChecklist": [
         "CHANGELOG.md",
@@ -5963,7 +6002,7 @@
       ],
       "conditionalNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --json"
+        "npm sbom --sbom-format=cyclonedx --json"
       ],
       "packageDryRun": "npm run pack:dry-run",
       "knownResiduals": [
@@ -6020,7 +6059,7 @@
       ],
       "conditionalNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --json"
+        "npm sbom --sbom-format=cyclonedx --json"
       ],
       "knownResiduals": [
         "xstate",
@@ -6084,7 +6123,7 @@
       ],
       "conditionalNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --json"
+        "npm sbom --sbom-format=cyclonedx --json"
       ],
       "knownResiduals": [
         "xstate",
@@ -6201,7 +6240,7 @@
       "packageScript": "npm run test:epic13-conditional-network-evidence",
       "commands": [
         "npm audit --audit-level=moderate",
-        "npm sbom --json"
+        "npm sbom --sbom-format=cyclonedx --json"
       ],
       "requiredArtifacts": [
         ".xtend-test-results/xtend-npm-audit-report.json",
@@ -7508,7 +7547,7 @@
       "localGate": "node scripts/run_xtend_tests.js epic13-rc1-migration-notes --json",
       "packageScript": "npm run test:epic13-rc1-migration-notes",
       "reportArtifact": ".xtend-test-results/xtend-epic13-rc1-migration-notes-report.json",
-      "currentVersion": "0.0.0-enterprise-readiness",
+      "currentVersion": "0.1.0-rc.1",
       "proposedVersion": "0.1.0-rc.1",
       "semverClassification": "minor-pre-1.0-release-candidate",
       "migrationNotesRequired": true,

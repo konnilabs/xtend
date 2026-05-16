@@ -1,10 +1,21 @@
 const {
+  requireLocalOrScoped
+} = require('../lib/package-resolver');
+const {
   createComponentCatalogCoverageReport
-} = require('../../catalog/component-catalog-coverage');
+} = requireLocalOrScoped(
+  __filename,
+  '../../catalog/component-catalog-coverage',
+  '@ccslabs/xtend/catalog/component-catalog-coverage'
+);
 const {
   EXPECTED_COMPONENT_ORDER,
   createP0ComponentWavePlan
-} = require('../../catalog/epic10-p0-component-wave');
+} = requireLocalOrScoped(
+  __filename,
+  '../../catalog/epic10-p0-component-wave',
+  '@ccslabs/xtend/catalog/epic10-p0-component-wave'
+);
 
 const COMPONENT_LAB_SCHEMA = 'xtend.epic10.component-lab-rmt-inspector.v1';
 const COMPONENT_LAB_GATE_SCHEMA = 'xtend.epic10.component-lab-rmt-inspector-gate.v1';

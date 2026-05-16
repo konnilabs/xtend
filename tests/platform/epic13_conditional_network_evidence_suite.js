@@ -139,7 +139,7 @@ function runEpic13ConditionalNetworkEvidenceSuite(options = {}) {
   context.assert(plan.evidenceRecords.every((record) => record.localGateBlocking === false), 'No evidence record blocks local gate');
   context.assert(plan.evidenceRecords.every((record) => record.publishBlocking === true), 'Every evidence record blocks publish until accepted');
 
-  context.assert(packageManifest.private === true, 'Package remains private for network evidence');
+  context.assert(packageManifest.private === false, 'Package is public-ready for network evidence');
   context.assert((packageManifest.exports['./catalog/epic13-conditional-network-evidence'] === './catalog/epic13-conditional-network-evidence.js' || (packageManifest.exports['./catalog/epic13-conditional-network-evidence'] && packageManifest.exports['./catalog/epic13-conditional-network-evidence'].default === './catalog/epic13-conditional-network-evidence.js')), 'Package exports network evidence module');
   context.assert(packageManifest.scripts['test:epic13-conditional-network-evidence'] === 'node scripts/run_xtend_tests.js epic13-conditional-network-evidence', 'Package exposes network evidence script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_CONDITIONAL_NETWORK_EVIDENCE_PACKAGE_SCRIPT), 'Package release gates include network evidence script');
@@ -174,7 +174,7 @@ function runEpic13ConditionalNetworkEvidenceSuite(options = {}) {
     EPIC13_CONDITIONAL_NETWORK_DEFERRAL_SCHEMA,
     EPIC13_CONDITIONAL_NETWORK_EVIDENCE_LOCAL_GATE,
     'npm audit --audit-level=moderate',
-    'npm sbom --json',
+    'npm sbom --sbom-format=cyclonedx --json',
     '.xtend-test-results/xtend-npm-audit-report.json',
     'WP-E13-09'
   ], 'Network evidence contract doc');
@@ -189,7 +189,7 @@ function runEpic13ConditionalNetworkEvidenceSuite(options = {}) {
     EPIC13_CONDITIONAL_NETWORK_EVIDENCE_SCHEMA,
     EPIC13_CONDITIONAL_NETWORK_EVIDENCE_LOCAL_GATE,
     'npm audit --audit-level=moderate',
-    'npm sbom --json',
+    'npm sbom --sbom-format=cyclonedx --json',
     'network-restricted-local-default',
     PUBLISH_BOUNDARY
   ], 'Network evidence docs');

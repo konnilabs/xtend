@@ -8,7 +8,7 @@ Report Schema: `xtend.epic13.conditional-network-evidence-ci-report.v1`
 
 ## Umfang
 
-Audit- und SBOM-Evidence werden fuer CI/Release produktisiert. `npm audit --audit-level=moderate` und `npm sbom --json` koennen als ausgefuehrte Evidence oder als Owner-Deferral ausgewiesen werden.
+Audit- und SBOM-Evidence werden fuer CI/Release produktisiert. `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` koennen als ausgefuehrte Evidence oder als Owner-Deferral ausgewiesen werden.
 
 ## Umsetzung
 

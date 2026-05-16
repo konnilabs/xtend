@@ -56,7 +56,7 @@ Der Backlog priorisiert daher keine neuen Produktfeatures, sondern die Wiederher
 ## Leitplanken
 
 - Kein Publish und keine Registry-Aktion im Recovery-Backlog.
-- `package.json` bleibt `private: true`, bis Release Owner Acceptance aktiv entschieden ist.
+- `package.json` ist fuer RC1-Publish-Prep auf `private: false` gesetzt; `npm publish` bleibt ein manueller Owner-Schritt.
 - Netzwerk-Gates duerfen lokal deferral-faehig bleiben; fuer Publish muessen Audit/SBOM ausgefuehrt oder owner-akzeptiert deferiert sein.
 - Konfliktaufloesungen muessen fachlich entschieden werden, nicht mechanisch per "ours/theirs".
 - Die vNext Reference Demo bleibt Source of Truth fuer neue Syntax; die Bestcase-Demo muss kompatibel migriert werden.
@@ -91,7 +91,7 @@ Ein Workpackage darf gestartet werden, wenn:
 
 | ID | Grund |
 |----|-------|
-| - | Alle RC1TB-Workpackages sind abgeschlossen; ein echter Publish braucht einen separaten Release-Owner-Publish-Entscheid |
+| `RC1PUB-WP-01` | Owner-Publish-Entscheid ist als `accepted-for-publish-prep` dokumentiert; Audit/SBOM, License, Version und `private: false` sind akzeptiert; Publish-Befehl bleibt manuell |
 
 ## Backlog-Uebersicht
 
@@ -105,6 +105,7 @@ Ein Workpackage darf gestartet werden, wenn:
 | `RC1TB-WP-06` | P1 | completed | WS5 | RC1 Gate Matrix, Release Report und Type-Export-Gates durchlaufen lassen | `RC1TB-WP-04`, `RC1TB-WP-05` |
 | `RC1TB-WP-07` | P2 | completed | WS6 | RC1 Test-Build-Handoff und Changelog-Schnitt schreiben | `RC1TB-WP-06` |
 | `RC1TB-WP-08` | P2 | completed | WS7 | Release Owner Test-Build Acceptance vorbereiten | `RC1TB-WP-07` |
+| `RC1PUB-WP-01` | P0 | ready-for-final-publish-run | WS8 | Release Owner Publish Decision abschliessen | `RC1TB-WP-08` |
 
 ## Workstreams
 
@@ -118,6 +119,7 @@ Ein Workpackage darf gestartet werden, wenn:
 | WS5 | Release Report, Type Exports, Gate Matrix und CI-Handoff |
 | WS6 | Test-Build-Dokumentation, Changelog und Referenzpfade |
 | WS7 | Owner Acceptance ohne Publish |
+| WS8 | Owner-Publish-Entscheid und Publish-Blocker |
 
 ## Workpackages im Detail
 
@@ -323,10 +325,10 @@ Naechstes primaeres Paket:
   - `.xtend-test-results/xtend-pack-dry-run.json`
   - `.xtend-test-results/xtend-package-export-surface-lock.json`
   - `.xtend-test-results/xtend-package-export-lock-report.json`
-  - Audit-/SBOM-Deferral oder owner-approved Ausfuehrung
+  - Audit-/SBOM-Deferral oder owner-approved Ausfuehrung; im RC1PUB-Folgepaket inzwischen ausgefuehrt und akzeptiert
 - Ergebnis:
-  - `npm run conditional-network:evidence` erzeugt formale Owner-Deferral-Artefakte fuer `npm-audit-moderate` und `npm-sbom-json`
-  - `npm run pack:dry-run` erzeugt frische Pack-/Export-Lock-Artefakte mit `ok: true`, `exportCount: 115` und `packFileCount: 657`
+  - `npm run conditional-network:evidence` erzeugt formale Evidence-Artefakte fuer `npm-audit-moderate` und `npm-sbom-json`; aktueller RC1PUB-Stand ist `executed: 2`, `deferred: []`
+  - `npm run pack:dry-run` erzeugt frische Pack-/Export-Lock-Artefakte mit `ok: true`, `exportCount: 115` und `packFileCount: 664`
   - Pack-Dateiliste ist frei von Conflict-Artefakten
 - Validierung:
   - `npm run pack:dry-run`
@@ -334,13 +336,13 @@ Naechstes primaeres Paket:
   - `npm run test:epic13-release-report-pack-dry-run-evidence`
   - `npm run test:epic13-conditional-network-evidence`
   - `npm run test:epic13-conditional-network-evidence-ci`
-  - bei Owner-Freigabe: `npm audit --audit-level=moderate --json` und `npm sbom --json`
+  - bei Owner-Freigabe: `npm audit --audit-level=moderate --json` und `npm sbom --sbom-format=cyclonedx --json`
 - Definition of Done:
   - Pack-Dry-Run-Report meldet `ok: true`
   - Conditional Network Evidence ist ausgefuehrt oder formal owner-deferred
   - Pack-Dateiliste enthaelt keine Conflict-Artefakte
 - Handoff:
-  - Owner-/Netzwerkpflichtige Audit- und SBOM-Laeufe bleiben fuer Publish blockierend, sind lokal aber reproduzierbar deferiert
+  - Owner-/Netzwerkpflichtige Audit- und SBOM-Laeufe sind im RC1PUB-Folgepaket ausgefuehrt und akzeptiert
   - naechstes primaeres Paket: `RC1TB-WP-06`
 
 ### RC1TB-WP-06 - RC1 Gate Matrix, Release Report und Type-Export-Gates durchlaufen lassen
@@ -362,6 +364,8 @@ Naechstes primaeres Paket:
   - `.xtend-test-results/xtend-release-report.json` meldet `status: passed` fuer 175 Release-Suites
   - `.xtend-test-results/xtend-pr-gate-report.json` meldet `status: passed` fuer 43 PR-Suites
   - Pack-Dry-Run nach der neuen Declaration erneut ausgefuehrt; Export-Lock-Report meldet `ok: true`, `exportCount: 115`, `packFileCount: 658`
+  - Pack-Dry-Run nach Apache-2.0-Lizenzdatei erneut ausgefuehrt; Export-Lock-Report meldet `ok: true`, `exportCount: 115`, `packFileCount: 659`
+  - Pack-Dry-Run nach der scoped Package-Matrix erneut ausgefuehrt; Export-Lock-Report meldet `ok: true`, `exportCount: 115`, `packFileCount: 664`
 - Validierung:
   - `npm run test:epic13-rc1-gate-matrix-ci-handoff`
   - `npm run test:type-exports:release`
@@ -377,7 +381,7 @@ Naechstes primaeres Paket:
   - Test-Build bleibt private und unveroeffentlicht
 - Handoff:
   - lokale Browser-/Server-Gates wurden ausserhalb der Sandbox ausgefuehrt, weil die Sandbox `127.0.0.1`-Bind mit `listen EPERM` blockiert
-  - Audit-/SBOM-Netzwerklaeufe bleiben wie in `RC1TB-WP-05` formal owner-deferred und publish-blocking
+  - Audit-/SBOM-Netzwerklaeufe sind im RC1PUB-Folgepaket ausgefuehrt und akzeptiert
   - naechstes primaeres Paket: `RC1TB-WP-07`
 
 ### RC1TB-WP-07 - RC1 Test-Build-Handoff und Changelog-Schnitt schreiben
@@ -390,13 +394,13 @@ Naechstes primaeres Paket:
   - Test-Build-Notiz mit Datum, Commit, Gate-Reports und offenen Owner-Entscheidungen
   - Changelog-Abschnitt fuer `0.1.0-rc.1`
   - Referenzpfade fuer RMT vNext und Bestcase-Demo
-  - Hinweis auf `private: true` und Publish Boundary
+  - Hinweis auf Publish Boundary und den spaeteren Owner-Schritt
 - Ergebnis:
   - `development/XTend-RC1-Test-Build-Handoff.md` unter `xtend.rc1.test-build-handoff.v1` ergaenzt
-  - Handoff enthaelt Datum `2026-05-16`, Commit-Basis `4e0ae07`, Gate-Reports, Pack Dry Run Evidence, Conditional Network Deferrals und offene Owner-Entscheidungen
+  - Handoff enthaelt Datum `2026-05-16`, Commit-Basis `4e0ae07`, Gate-Reports, Pack Dry Run Evidence, Conditional Network Evidence und offene Owner-Entscheidungen
   - `CHANGELOG.md` enthaelt den nicht publishenden Abschnitt `0.1.0-rc.1 Test-Build - 2026-05-16`
   - `development/XTend-Dokumentations-und-Demo-Referenzpfade.md` registriert die RMT vNext Reference Demo und die XTendRMT Bestcase Demo als Test-Build-Referenzpfade
-  - Publish Boundary bleibt geschlossen: `package.json` bleibt bei `version: 0.0.0-enterprise-readiness`, `private: true` bleibt aktiv, `publishAllowed` bleibt `false`
+  - Publish Boundary ist im RC1PUB-Folgepaket geoeffnet: `package.json` traegt `version: 0.1.0-rc.1`, `private: false`, `publishAllowed` fuer Prep `true`
 - Validierung:
   - `npm run test:references`
   - `npm run test:epic13-rc1-migration-notes`
@@ -427,9 +431,9 @@ Naechstes primaeres Paket:
   - `development/XTend-RC1-Test-Build-Owner-Acceptance.md` unter `xtend.rc1.test-build-owner-acceptance.v1` ergaenzt
   - Entscheidung dokumentiert: `accepted-for-internal-test-build-not-publish`
   - interne Testnutzung fuer RMT vNext Reference Demo, XTendRMT Bestcase Demo, Gate-Reports, TypeExports und Pack Dry Run Evidence freigegeben
-  - `npm-audit-moderate` und `npm-sbom-json` bleiben formal deferred und publish-blocking
+  - `npm-audit-moderate` und `npm-sbom-json` wurden im nachgelagerten RC1PUB-Schritt ausgefuehrt und fuer die Owner-Publish-Evidence akzeptiert
   - `docs/release-owner-acceptance.md`, `development/XTend-RC1-Test-Build-Handoff.md`, `development/XTend-Dokumentations-und-Demo-Referenzpfade.md` und `CHANGELOG.md` referenzieren den Acceptance-Schnitt
-  - Publish Boundary bleibt geschlossen: `private: true`, `publishAllowed: false`, `automaticPublishApproval: false`
+  - Publish Boundary ist im RC1PUB-Folgepaket fuer Prep geoeffnet: `private: false`, `publishAllowed: true`, `automaticPublishApproval: false`
 - Validierung:
   - `npm run test:epic13-release-owner-acceptance`
   - `npm run test:epic13-release-report-pack-dry-run-evidence`
@@ -440,7 +444,40 @@ Naechstes primaeres Paket:
   - Publish bleibt bis zur separaten Freigabe blockiert
 - Handoff:
   - RC1 Test-Build Recovery Backlog ist abgeschlossen
-  - ein echter Publish braucht einen separaten Release-Owner-Publish-Entscheid inklusive Audit/SBOM-Ausfuehrung oder explizit publish-tauglicher Deferral
+  - ein echter Publish braucht einen separaten Release-Owner-Publish-Entscheid; Audit/SBOM, Version, Scoped-Manifests und Package Boundary sind fuer Publish Prep akzeptiert
+
+### RC1PUB-WP-01 - Release Owner Publish Decision abschliessen
+
+- Prioritaet: `P0`
+- Status: `ready-for-final-publish-run`
+- Ziel:
+  - Release Owner entscheidet explizit, ob der RC1-Schnitt published, deferred oder blockiert wird
+- Bereits angelegt:
+  - `development/XTend-RC1-Release-Owner-Publish-Decision.md` unter `xtend.rc1.release-owner-publish-decision.v1`
+- Aktueller Entscheid:
+  - `accepted-for-publish-prep`
+  - `publishAllowed: true`
+  - `automaticPublishApproval: false`
+  - `private: false`
+  - Scoped Root Package: `@ccslabs/xtend`
+- Ausstehend:
+  - kein `npm publish` ausgefuehrt; der Publish-Befehl bleibt ein separater manueller Owner-Schritt
+- Bereits entschieden:
+  - `npm-audit-moderate` ist ausgefuehrt und meldet 0 Vulnerabilities
+  - `npm-sbom-json` ist als CycloneDX `1.5` mit `Apache-2.0` License Evidence erzeugt
+  - `package.json` und `tools/rmt-editor/vscode/package.json` tragen `license: Apache-2.0`
+  - `xtendrmt/package.json`, `fabric/package.json`, `xtend-builder/package.json` und `tools/package.json` bilden die Teilpakete `@ccslabs/xtend-rmt`, `@ccslabs/xtend-fabric`, `@ccslabs/xtend-cli` und `@ccslabs/xtend-compiler` ab
+  - `LICENSE` enthaelt Apache License 2.0
+- Validierung vor einer Publish-Freigabe:
+  - `npm run test:release:full:report`
+  - `npm run release:report`
+  - `npm run pack:dry-run`
+  - `npm audit --audit-level=moderate --json` bei Bedarf erneut aktualisieren
+  - `npm sbom --sbom-format=cyclonedx --json` bei Bedarf erneut aktualisieren
+- Definition of Done:
+  - Owner-Entscheid steht auf `accepted-for-publish-prep`
+  - Version, License, Audit/SBOM, Scoped-Manifests und Package Boundary sind akzeptiert
+  - Publish-Befehl bleibt bis zum finalen manuellen Owner-Check verboten
 
 ## RC1 Test-Build Gate Ladder
 
@@ -470,8 +507,8 @@ Der erste RC1-Test-Build ist bereit, wenn:
 - `epic13-rc1-readiness` und `epic13-rc1-gate-matrix-ci-handoff` gruen sind
 - `pack:dry-run` einen `ok: true` Export-Lock-Report erzeugt
 - Release Report, Type Exports und References gruen sind
-- Conditional Network Evidence ausgefuehrt oder owner-akzeptiert deferiert ist
-- `package.json` weiterhin `private: true` ist
+- Conditional Network Evidence ausgefuehrt oder owner-akzeptiert deferiert ist; aktueller RC1PUB-Stand ist ausgefuehrt und akzeptiert
+- `package.json` fuer RC1-Publish-Prep `private: false` traegt
 - Release Owner Acceptance den Test-Build erlaubt, aber Publish nicht automatisch oeffnet
 
 ## Nicht-Ziele

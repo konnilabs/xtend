@@ -88,7 +88,7 @@ function createEpic10ReleaseHandoffPlan(options = {}) {
       fastPrGate: platformGates.ci.fastPr.command,
       releaseGate: platformGates.ci.release.command,
       requiredGates: REQUIRED_RELEASE_GATES.slice(),
-      conditionalNetworkGates: ['npm audit --audit-level=moderate', 'npm sbom --json']
+      conditionalNetworkGates: ['npm audit --audit-level=moderate', 'npm sbom --sbom-format=cyclonedx --json']
     },
     epicCompletion: {
       status: 'completed',

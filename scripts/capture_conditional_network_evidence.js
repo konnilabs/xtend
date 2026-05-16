@@ -14,13 +14,14 @@ const outputDir = path.resolve(rootDir, '.xtend-test-results');
 const executeNetworkCommands = process.env.XTEND_CONDITIONAL_NETWORK_EXECUTE === '1';
 const allowDeferral = process.env.XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL !== '0';
 const fallbackReason = process.env.XTEND_CONDITIONAL_NETWORK_DEFERRAL_REASON || (executeNetworkCommands ? 'sandbox-network-unavailable' : 'network-restricted-local-default');
+const useNpxNpm10 = process.env.XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10 === '1';
 const cacheDir = process.env.XTEND_NPM_CACHE
   ? path.resolve(process.env.XTEND_NPM_CACHE)
   : path.resolve(outputDir, 'npm-cache');
 
 const commandArgs = {
   'npm-audit-moderate': ['audit', '--audit-level=moderate', '--json'],
-  'npm-sbom-json': ['sbom', '--json']
+  'npm-sbom-json': ['sbom', '--sbom-format=cyclonedx', '--json']
 };
 
 function writeJson(relativePath, value) {
@@ -55,6 +56,36 @@ function parseJson(stdout) {
   return JSON.parse(trimmed);
 }
 
+function createNpmInvocation(args) {
+  if (useNpxNpm10) {
+    return {
+      command: 'npx',
+      args: ['--yes', 'npm@10', ...args]
+    };
+  }
+  return {
+    command: 'npm',
+    args
+  };
+}
+
+function createCommandFailure(commandArtifact, result) {
+  const parsed = (() => {
+    try {
+      return parseJson(result.stdout);
+    } catch (error) {
+      return null;
+    }
+  })();
+  return {
+    code: 'COMMAND_FAILED',
+    message: `${commandArtifact.jsonCommand} failed with exit code ${result.status}`,
+    exitCode: result.status,
+    stderr: result.stderr || '',
+    npmErrorCode: parsed && parsed.error && parsed.error.code ? parsed.error.code : null
+  };
+}
+
 function captureCommand(commandArtifact) {
   if (!executeNetworkCommands) {
     const deferral = createDeferral(commandArtifact, fallbackReason);
@@ -66,7 +97,8 @@ function captureCommand(commandArtifact) {
     };
   }
 
-  const result = spawnSync('npm', commandArgs[commandArtifact.id], {
+  const invocation = createNpmInvocation(commandArgs[commandArtifact.id]);
+  const result = spawnSync(invocation.command, invocation.args, {
     cwd: rootDir,
     encoding: 'utf8',
     maxBuffer: 16 * 1024 * 1024,
@@ -83,6 +115,25 @@ function captureCommand(commandArtifact) {
       code: result.error.code,
       message: result.error.message
     });
+    writeJson(commandArtifact.expectedArtifact, deferral);
+    return {
+      status: 'deferred',
+      reason: deferral.reason,
+      artifactPresent: true
+    };
+  }
+
+  if (result.status !== 0) {
+    const commandFailure = createCommandFailure(commandArtifact, result);
+    if (!allowDeferral) {
+      const error = new Error(commandFailure.message);
+      error.code = commandFailure.code;
+      error.exitCode = commandFailure.exitCode;
+      error.stderr = commandFailure.stderr;
+      error.npmErrorCode = commandFailure.npmErrorCode;
+      throw error;
+    }
+    const deferral = createDeferral(commandArtifact, fallbackReason, commandFailure);
     writeJson(commandArtifact.expectedArtifact, deferral);
     return {
       status: 'deferred',

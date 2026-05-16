@@ -32,7 +32,7 @@ const EPIC13_RC1_MIGRATION_NOTES_REPORT_ARTIFACT = '.xtend-test-results/xtend-ep
 const NEXT_DECISION = 'rc1-gate-matrix-ci-handoff';
 const NEXT_WORKPACKAGE = 'WP-E13-13';
 const PUBLISH_BOUNDARY = 'private-until-release-owner-acceptance';
-const CURRENT_VERSION = '0.0.0-enterprise-readiness';
+const CURRENT_VERSION = '0.1.0-rc.1';
 const PROPOSED_VERSION = '0.1.0-rc.1';
 
 const REQUIRED_SOURCE_GATES = Object.freeze([

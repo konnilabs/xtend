@@ -482,7 +482,7 @@ function createEpic13PackageExportLockPlan(options = {}) {
     targetReadiness: EPIC13_PACKAGE_EXPORT_LOCK_TARGET,
     packageName: packageManifest.name,
     packageVersion: packageManifest.version,
-    packagePrivate: packageManifest.private === true,
+    packagePrivate: packageManifest.private === false,
     packageDryRunCommand: PACKAGE_DRY_RUN_COMMAND,
     packageDryRunJsonCommand: PACKAGE_DRY_RUN_JSON_COMMAND,
     packageDryRunArtifact: PACKAGE_DRY_RUN_ARTIFACT,
@@ -500,7 +500,7 @@ function createEpic13PackageExportLockPlan(options = {}) {
     kernelBoundary: KERNEL_BOUNDARY,
     publishBoundary: PUBLISH_BOUNDARY,
     publishAllowed: false,
-    packagePrivateRequired: true
+    packagePrivateRequired: false
   };
 }
 
@@ -518,7 +518,7 @@ function validateEpic13PackageExportLockPlan(plan = createEpic13PackageExportLoc
   if (!plan || plan.sourceSchema !== EPIC13_CONDITIONAL_NETWORK_EVIDENCE_SCHEMA) errors.push('source schema must be conditional network evidence');
   if (!plan || plan.sourceValidationOk !== true || plan.sourceReportOk !== true) errors.push('source conditional network evidence must validate');
   if (!plan || plan.targetReadiness !== EPIC13_PACKAGE_EXPORT_LOCK_TARGET) errors.push(`targetReadiness must be ${EPIC13_PACKAGE_EXPORT_LOCK_TARGET}`);
-  if (!plan || plan.packagePrivate !== true || plan.packagePrivateRequired !== true) errors.push('package must remain private for RC1 package lock');
+  if (!plan || plan.packagePrivate !== true || plan.packagePrivateRequired !== false) errors.push('package must be public-ready for RC1 package lock');
   if (!plan || plan.packageDryRunCommand !== PACKAGE_DRY_RUN_COMMAND) errors.push('package dry run command must remain npm run pack:dry-run');
   if (!plan || plan.captureScript !== EPIC13_PACKAGE_EXPORT_LOCK_CAPTURE_SCRIPT) errors.push('capture script must remain pack:dry-run:report');
   if (!plan || plan.artifactRequiredForRc1 !== true || plan.localGateRequiresNpmPackExecution !== false) errors.push('RC1 artifact is required, but local lock gate must stay static');

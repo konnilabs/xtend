@@ -56,7 +56,7 @@ const RMT_LANGUAGE_SERVER_SUITE_PATH = 'tests/rmt-language/rmt_language_server_s
 const RMT_LANGUAGE_SERVER_PACKAGE_SCRIPT = 'npm run test:rmt-language-server';
 const RMT_LANGUAGE_SERVER_WORKPACKAGE = 'WP-E14-09';
 const SERVER_NAME = 'xtend-rmt-language-server';
-const SERVER_VERSION = '0.0.0-enterprise-readiness';
+const SERVER_VERSION = '0.1.0-rc.1';
 
 function normalizeString(value) {
   return typeof value === 'string' ? value.trim() : '';

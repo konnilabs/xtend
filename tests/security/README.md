@@ -20,4 +20,4 @@ npm run test:supply-chain
 node scripts/verify_supply_chain_policy.js --json
 ```
 
-The suite does not call external registries. Network-backed audit commands such as `npm audit --audit-level=moderate` and `npm sbom --json` are planned for CI/release stages, not for the default local test path.
+The suite does not call external registries. Network-backed audit commands such as `npm audit --audit-level=moderate` and `npm sbom --sbom-format=cyclonedx --json` are planned for CI/release stages, not for the default local test path.

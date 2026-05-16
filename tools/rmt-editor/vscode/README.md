@@ -16,7 +16,7 @@ The packaged VSIX includes a local copy of `snippets/rmt.code-snippets` because 
 Build locally with:
 
 ```bash
-npx --yes @vscode/vsce package --allow-missing-repository --out xtend-rmt-language-0.0.0-enterprise-readiness.vsix
+npx --yes @vscode/vsce package --allow-missing-repository --out xtend-rmt-language-0.1.0-rc.1.vsix
 ```
 
 ## Language Server

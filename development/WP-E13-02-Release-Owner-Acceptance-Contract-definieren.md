@@ -62,4 +62,4 @@ Aktualisiert:
 
 ## Handoff
 
-`WP-E13-03` hat `npm audit --audit-level=moderate` und `npm sbom --json` als RC1-Evidence/Deferral-Flaeche vorbereitet. `WP-E13-04` hat `npm run pack:dry-run` und die Export-Oberflaeche als Package Export Lock ausgewertet. `WP-E13-05` hat die Known Residuals triagiert. `WP-E13-06` hat die Hydration-Warnung owner-frei geschlossen. `WP-E13-07` hat die PROD-nahen Browser-, Local-Server- und CSP-Smokes vorbereitet. `WP-E13-08` hat Visual Owner Artifacts normalisiert. Das naechste Paket ist `WP-E13-09`.
+`WP-E13-03` hat `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` als RC1-Evidence/Deferral-Flaeche vorbereitet. `WP-E13-04` hat `npm run pack:dry-run` und die Export-Oberflaeche als Package Export Lock ausgewertet. `WP-E13-05` hat die Known Residuals triagiert. `WP-E13-06` hat die Hydration-Warnung owner-frei geschlossen. `WP-E13-07` hat die PROD-nahen Browser-, Local-Server- und CSP-Smokes vorbereitet. `WP-E13-08` hat Visual Owner Artifacts normalisiert. Das naechste Paket ist `WP-E13-09`.

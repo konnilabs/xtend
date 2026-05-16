@@ -1,0 +1,72 @@
+{
+  "name": "@ccslabs/xtend-compiler",
+  "version": "0.1.0-rc.1",
+  "private": false,
+  "description": "XTendRMT compiler, parser, linter and language tooling.",
+  "license": "Apache-2.0",
+  "keywords": [
+    "ccslabs",
+    "xtend",
+    "rmt",
+    "compiler",
+    "parser"
+  ],
+  "main": "./rmt-language/vnext-compiler.js",
+  "types": "./rmt-language/vnext-compiler.d.ts",
+  "bin": {
+    "xtend-rmt-lint": "./rmt-linter/cli.js"
+  },
+  "files": [
+    "rmt-language",
+    "rmt-linter",
+    "rmt-language-server",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./rmt-language/vnext-compiler.d.ts",
+      "default": "./rmt-language/vnext-compiler.js"
+    },
+    "./rmt-language/vnext-compiler": {
+      "types": "./rmt-language/vnext-compiler.d.ts",
+      "default": "./rmt-language/vnext-compiler.js"
+    },
+    "./rmt-language/vnext-parser": {
+      "types": "./rmt-language/vnext-parser.d.ts",
+      "default": "./rmt-language/vnext-parser.js"
+    },
+    "./rmt-language/parser": {
+      "types": "./rmt-language/parser.d.ts",
+      "default": "./rmt-language/parser.js"
+    },
+    "./rmt-language/source-model": {
+      "types": "./rmt-language/source-model.d.ts",
+      "default": "./rmt-language/source-model.js"
+    },
+    "./rmt-language/diagnostics": {
+      "types": "./rmt-language/diagnostics.d.ts",
+      "default": "./rmt-language/diagnostics.js"
+    },
+    "./rmt-linter/cli": {
+      "types": "./rmt-linter/cli.d.ts",
+      "default": "./rmt-linter/cli.js"
+    },
+    "./rmt-language-server/server": {
+      "types": "./rmt-language-server/server.d.ts",
+      "default": "./rmt-language-server/server.js"
+    },
+    "./rmt-language-server/protocol": {
+      "types": "./rmt-language-server/protocol.d.ts",
+      "default": "./rmt-language-server/protocol.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "tag": "next"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

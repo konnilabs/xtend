@@ -19,7 +19,7 @@ npm run test:epic13-conditional-network-evidence
 | Command | Artefakt |
 |---------|----------|
 | `npm audit --audit-level=moderate` | `.xtend-test-results/xtend-npm-audit-report.json` |
-| `npm sbom --json` | `.xtend-test-results/xtend-npm-sbom.json` |
+| `npm sbom --sbom-format=cyclonedx --json` | `.xtend-test-results/xtend-npm-sbom.json` |
 
 Der aggregierte Report liegt unter `.xtend-test-results/xtend-conditional-network-evidence-report.json`.
 

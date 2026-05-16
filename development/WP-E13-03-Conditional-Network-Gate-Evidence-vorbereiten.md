@@ -15,7 +15,7 @@ WP-E13-03 macht die Conditional Network Gates fuer RC1 nachvollziehbar, ohne lok
 Die Gates:
 
 - `npm audit --audit-level=moderate`
-- `npm sbom --json`
+- `npm sbom --sbom-format=cyclonedx --json`
 
 werden als erwartete Evidence-Pfade und als strukturiertes Deferral-Format beschrieben.
 

@@ -5,16 +5,16 @@
 - Datum: `2026-05-16`
 - Quelle: `xtend.rc1.test-build-handoff.v1`
 - Handoff: `development/XTend-RC1-Test-Build-Handoff.md`
-- Aktuelle Package-Version: `0.0.0-enterprise-readiness`
+- Aktuelle Package-Version: `0.1.0-rc.1`
 - Vorgeschlagener RC-Schnitt: `0.1.0-rc.1`
 - Entscheidung: `accepted-for-internal-test-build-not-publish`
-- Publish Boundary: `private: true`, `publishAllowed: false`, `automaticPublishApproval: false`
+- Publish Boundary: `private: false`, `publishAllowed: true`, `automaticPublishApproval: false`
 
 ## Entscheidung
 
 Der lokale RC1-Test-Build-Schnitt aus `RC1TB-WP-07` ist fuer interne Tests akzeptiert. Diese Acceptance erlaubt Review, lokale Integration, Demo-Pruefung und Gate-Reproduktion gegen die dokumentierten Artefakte.
 
-Diese Acceptance ist keine npm-Publish-Freigabe. Sie hebt `private: true` nicht auf, setzt keinen oeffentlichen SemVer-Release und ersetzt keine netzwerkpflichtige Audit-/SBOM-Entscheidung.
+Diese Acceptance war keine npm-Publish-Freigabe. Die nachgelagerte Owner-Publish-Evidence hat Audit, SBOM, Version und Package Boundary inzwischen akzeptiert; `npm publish` bleibt trotzdem ein separater manueller Owner-Schritt.
 
 ## Owner Checklist
 
@@ -25,10 +25,10 @@ Diese Acceptance ist keine npm-Publish-Freigabe. Sie hebt `private: true` nicht 
 | `release-report` | `accepted` | `.xtend-test-results/xtend-release-report.json` meldet `status: passed`, `suiteCount: 175` | lokal erzeugte Evidence |
 | `pr-gate-report` | `accepted` | `.xtend-test-results/xtend-pr-gate-report.json` meldet `status: passed`, `suiteCount: 43` | lokal erzeugte Evidence |
 | `type-exports-release` | `accepted` | `.xtend-test-results/xtend-type-exports-report.json` meldet `status: passed`, `suiteCount: 8` | Export-Typflaeche ist pruefbar |
-| `package-dry-run-evidence` | `accepted` | `.xtend-test-results/xtend-package-export-lock-report.json` meldet `ok: true`, `exportCount: 115`, `packFileCount: 658` | Pack bleibt Dry Run, kein Publish |
-| `conditional-network-evidence` | `deferred` | `.xtend-test-results/xtend-npm-audit-report.json`, `.xtend-test-results/xtend-npm-sbom.json` | beide Deferrals bleiben publish-blocking |
+| `package-dry-run-evidence` | `accepted` | `.xtend-test-results/xtend-package-export-lock-report.json` meldet `ok: true`, `exportCount: 115`, `packFileCount: 664` | Pack bleibt Dry Run, kein Publish |
+| `conditional-network-evidence` | `accepted` | `.xtend-test-results/xtend-npm-audit-report.json` meldet 0 Vulnerabilities; `.xtend-test-results/xtend-npm-sbom.json` ist CycloneDX `1.5` | offene Audit/SBOM-Blocker sind geschlossen; Evidence bleibt publish-required |
 | `semver-rc-label` | `accepted-for-test-build` | `0.1.0-rc.1` im Changelog und Handoff | keine oeffentliche Version ohne separaten Owner-Entscheid |
-| `publish-boundary` | `blocked` | `package.json` bleibt `private: true`; `publishAllowed` bleibt `false` | npm Publish ist nicht freigegeben |
+| `publish-boundary` | `accepted-for-publish-prep` | `package.json` und VS-Code-Bridge tragen `private: false`; `publishAllowed` ist fuer Prep `true` | npm Publish wurde nicht ausgefuehrt |
 
 ## Gate Report Bundle
 
@@ -41,7 +41,7 @@ Diese Acceptance ist keine npm-Publish-Freigabe. Sie hebt `private: true` nicht 
 | `.xtend-test-results/xtend-pack-dry-run.json` | `npm run pack:dry-run` | Pack-Dateiliste und Dry-Run-Metadaten |
 | `.xtend-test-results/xtend-package-export-surface-lock.json` | `npm run pack:dry-run` | exportierte Package-Oberflaeche |
 | `.xtend-test-results/xtend-package-export-lock-report.json` | `npm run pack:dry-run` | Export-Lock-Status |
-| `.xtend-test-results/xtend-conditional-network-evidence-report.json` | `npm run conditional-network:evidence` | Audit-/SBOM-Status oder Owner-Deferral |
+| `.xtend-test-results/xtend-conditional-network-evidence-report.json` | `XTEND_CONDITIONAL_NETWORK_EXECUTE=1 XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10=1 npm run conditional-network:evidence` | Audit-/SBOM-Status `executed: 2`, `deferred: []` |
 
 ## Interne Testnutzung
 
@@ -57,25 +57,20 @@ Freigegeben fuer interne Tests sind:
 
 Nicht freigegeben sind:
 
-- `npm publish`
-- Entfernen von `private: true`
-- Umbenennen der Package-Version auf `0.1.0-rc.1` ohne separaten Release-Owner-Schritt
+- `npm publish` ohne finalen manuellen Owner-Check
 - automatische Publish-Freigaben aus gruenen Gates
-- Ueberspringen der Audit-/SBOM-Entscheidung vor einem echten Publish
+- Ueberspringen der Version- und Package-Boundary-Entscheidung vor einem echten Publish
 
 ## Network Evidence Decision
 
-`npm-audit-moderate` und `npm-sbom-json` sind fuer den lokalen Test-Build formal deferred. Die Deferrals sind fuer lokale Testnutzung nicht blockierend, bleiben aber fuer Publish blockierend.
-
-Ein echter Publish darf erst vorbereitet werden, wenn entweder:
-
-- `npm audit --audit-level=moderate --json` und `npm sbom --json` ausgefuehrt und akzeptiert wurden, oder
-- der Release Owner eine explizite, publish-taugliche Deferral-Entscheidung dokumentiert.
+`npm-audit-moderate` und `npm-sbom-json` sind im nachgelagerten Owner-Publish-Schritt ausgefuehrt und akzeptiert. `.xtend-test-results/xtend-conditional-network-evidence-report.json` meldet `executed: 2` und `deferred: []`; das Audit meldet 0 Vulnerabilities, das SBOM liegt als CycloneDX `1.5` vor.
 
 ## SemVer und Publish
 
-`0.1.0-rc.1` ist fuer diesen WP ein Changelog- und Handoff-Schnitt. Die Package-Version bleibt `0.0.0-enterprise-readiness`. Ein spaeterer RC-Publish braucht einen separaten Owner-Entscheid zu SemVer, License, Audit/SBOM und `private: true`.
+`0.1.0-rc.1` ist jetzt die angewendete Package-Version. License, Audit, SBOM und `private: false` sind fuer den aktuellen Entscheid akzeptiert; der eigentliche Publish-Befehl bleibt separat.
 
 ## Handoff
 
 Dieser Decision Record schliesst `RC1TB-WP-08` als vorbereitete Test-Build Acceptance. Der Test-Build kann intern verwendet werden; Publish bleibt bis zur separaten Freigabe blockiert.
+
+Der separate Owner-Publish-Entscheid liegt in `development/XTend-RC1-Release-Owner-Publish-Decision.md` unter `xtend.rc1.release-owner-publish-decision.v1`. Er steht auf `accepted-for-publish-prep`; Version, `private: false`, License, Audit und SBOM sind akzeptiert. `npm publish` wurde nicht ausgefuehrt.

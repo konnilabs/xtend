@@ -228,7 +228,7 @@ const CI_LANES = Object.freeze([
     id: 'conditional-network-evidence',
     trigger: 'owner-approved-network',
     reportArtifact: '.xtend-test-results/xtend-conditional-network-evidence-report.json',
-    requiredGates: ['npm audit --audit-level=moderate', 'npm sbom --json']
+    requiredGates: ['npm audit --audit-level=moderate', 'npm sbom --sbom-format=cyclonedx --json']
   },
   {
     id: 'owner-handoff',

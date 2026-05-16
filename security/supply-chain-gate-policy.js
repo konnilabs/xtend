@@ -18,10 +18,45 @@ const LOCKFILE_CANDIDATES = [
   'yarn.lock'
 ];
 
+const SCOPED_RELEASE_PACKAGES = Object.freeze([
+  {
+    name: '@ccslabs/xtend',
+    path: '.',
+    manifest: 'package.json',
+    scope: 'complete-stack'
+  },
+  {
+    name: '@ccslabs/xtend-rmt',
+    path: 'xtendrmt',
+    manifest: 'xtendrmt/package.json',
+    scope: 'rmt-runtime'
+  },
+  {
+    name: '@ccslabs/xtend-fabric',
+    path: 'fabric',
+    manifest: 'fabric/package.json',
+    scope: 'fabric-runtime'
+  },
+  {
+    name: '@ccslabs/xtend-cli',
+    path: 'xtend-builder',
+    manifest: 'xtend-builder/package.json',
+    scope: 'builder-cli'
+  },
+  {
+    name: '@ccslabs/xtend-compiler',
+    path: 'tools',
+    manifest: 'tools/package.json',
+    scope: 'rmt-compiler-tooling'
+  }
+]);
+
 const LICENSE_POLICY = {
-  currentPackageLicense: 'UNLICENSED',
-  privatePackageAllowedLicenses: ['UNLICENSED'],
-  publicReleaseRequiresLicenseDecision: true,
+  currentPackageLicense: 'Apache-2.0',
+  projectLicenseDecision: 'accepted-apache-2.0',
+  privatePackageAllowedLicenses: ['Apache-2.0'],
+  publicReleaseRequiresLicenseDecision: false,
+  publicReleaseLicenseDecision: 'accepted-apache-2.0',
   allowedDependencyLicenses: [
     'Apache-2.0',
     'BSD-2-Clause',
@@ -142,18 +177,20 @@ function createSupplyChainGatePlan(options = {}) {
     ],
     ciNetworkGates: [
       'npm audit --audit-level=moderate',
-      'npm sbom --json'
+      'npm sbom --sbom-format=cyclonedx --json'
     ],
     gates: clone(SUPPLY_CHAIN_GATES),
     dependencySections: clone(DEPENDENCY_SECTIONS),
     lockfileCandidates: clone(LOCKFILE_CANDIDATES),
+    scopedReleasePackages: clone(SCOPED_RELEASE_PACKAGES),
     license: clone(LICENSE_POLICY),
     vulnerabilities: clone(VULNERABILITY_POLICY),
     publishBoundary: {
       privateUntil: ['ER-WP-30', 'ER-WP-36', 'ER-WP-38'],
-      currentPublishState: 'blocked-by-private-package',
+      currentPublishState: 'owner-approved-public-rc-boundary',
       provenanceRequired: true,
-      publicReleaseRequiresLicenseDecision: true
+      publicReleaseRequiresLicenseDecision: false,
+      licenseDecision: 'accepted-apache-2.0'
     }
   };
 }
@@ -168,7 +205,7 @@ function classifyPackageSupplyChain(packageManifest = {}, lockfiles = []) {
     diagnostics.push('xtend.security.supply_chain.lockfile.missing');
   }
 
-  if (packageManifest.private !== true) {
+  if (packageManifest.private !== false) {
     diagnostics.push('xtend.security.supply_chain.private_boundary.missing');
   }
 
@@ -188,6 +225,7 @@ function classifyPackageSupplyChain(packageManifest = {}, lockfiles = []) {
     lockfiles,
     hasLockfile,
     privatePackage: packageManifest.private === true,
+    publicRcPackage: packageManifest.private === false,
     packageLicense: packageManifest.license || null,
     diagnostics
   };
@@ -199,6 +237,7 @@ module.exports = {
   LICENSE_POLICY,
   LICENSE_POLICY_CONTRACT,
   LOCKFILE_CANDIDATES,
+  SCOPED_RELEASE_PACKAGES,
   RELEASE_SUPPLY_CHAIN_GATE_CONTRACT,
   SUPPLY_CHAIN_GATE_PLAN_CONTRACT,
   SUPPLY_CHAIN_GATES,

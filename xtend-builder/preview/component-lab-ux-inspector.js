@@ -1,6 +1,13 @@
 const {
+  requireLocalOrScoped
+} = require('../lib/package-resolver');
+const {
   createComponentCatalogCoverageReport
-} = require('../../catalog/component-catalog-coverage');
+} = requireLocalOrScoped(
+  __filename,
+  '../../catalog/component-catalog-coverage',
+  '@ccslabs/xtend/catalog/component-catalog-coverage'
+);
 const {
   FORM_CONTROLS_UX_FIXTURE,
   FORM_CONTROLS_UX_SCHEMA,

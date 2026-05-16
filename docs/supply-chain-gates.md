@@ -10,7 +10,7 @@
 
 ## Uebersicht
 
-XTend bleibt aktuell ein privates Enterprise-Readiness-Paket. Supply-Chain-Gates sind trotzdem bereits vorbereitet, damit spaetere CI- und Release-Workflows Dependencies, Lizenzen, Vulnerabilities, SBOM, Provenance und Package-Oberflaeche kontrolliert pruefen koennen.
+XTend ist fuer RC1-Publish-Prep als scoped Public-Package-Flaeche vorbereitet. Supply-Chain-Gates kontrollieren dafuer Dependencies, Lizenzen, Vulnerabilities, SBOM, Provenance und die installierbare Package-Oberflaeche.
 
 Der lokale Default-Pfad ist offline und reproduzierbar. Er fragt keine npm Registry ab.
 
@@ -24,8 +24,8 @@ npm run test:supply-chain
 
 Der Verify prueft:
 
-- `private: true`
-- `license: "UNLICENSED"` fuer den aktuellen privaten Paketstatus
+- `private: false` fuer RC1-Publish-Prep
+- `license: "Apache-2.0"` fuer den kompletten XTend-Stack
 - `publishConfig.provenance = true`
 - Export von `security/supply-chain-gate-policy.js`
 - Release-Gate-Metadaten in `package.json`
@@ -37,7 +37,7 @@ Diese Kommandos sind fuer CI und Release Automation geplant:
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 npm run release:report
 npm run pack:dry-run
 ```
@@ -46,11 +46,21 @@ npm run pack:dry-run
 
 ## License Policy
 
-Das Paket bleibt bis zur Release-Reife `UNLICENSED` und `private: true`.
+Der komplette XTend-Stack ist auf `Apache-2.0` gesetzt. Fuer RC1-Publish-Prep ist `private: false` gesetzt; der eigentliche `npm publish` bleibt ein separater Owner-Schritt.
+
+Die scoped Release-Manifests sind Teil des Supply-Chain-Gates:
+
+| Package | Manifest |
+|---------|----------|
+| `@ccslabs/xtend` | `package.json` |
+| `@ccslabs/xtend-rmt` | `xtendrmt/package.json` |
+| `@ccslabs/xtend-fabric` | `fabric/package.json` |
+| `@ccslabs/xtend-cli` | `xtend-builder/package.json` |
+| `@ccslabs/xtend-compiler` | `tools/package.json` |
 
 Ein oeffentlicher Release braucht vorher:
 
-- explizite License-Entscheidung
+- bestaetigte Apache-2.0 License-Entscheidung
 - Dependency-License-Inventar
 - Review aller nicht-permissiven Dependency-Lizenzen
 - Ausschluss von AGPL/GPL/UNLICENSED als Default-Third-Party-Abhaengigkeiten

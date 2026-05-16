@@ -28,7 +28,7 @@ Dieses Paket schliesst die offene RC1-Luecke fuer Migration Notes, SemVer-Entsch
 
 | Kriterium | Status |
 | --- | --- |
-| SemVer-Entscheid `0.0.0-enterprise-readiness` -> `0.1.0-rc.1` dokumentiert | done |
+| SemVer-Entscheid `0.1.0-rc.1` dokumentiert | done |
 | Consumer-facing Migration Notes mit Loader, RMT, Trusted DOM, Fabric, Typing, Visual und Supply Chain Sections vorhanden | done |
 | Changelog-Pflichtfelder dokumentiert | done |
 | Package Export Lock von 59 auf 60 erweitert; nach Epic-14/RMT-Tooling auf 78 nachgezogen | done |

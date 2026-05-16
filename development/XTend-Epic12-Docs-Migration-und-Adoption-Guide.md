@@ -60,7 +60,7 @@ Conditional Network Gates:
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 ```
 
 Wenn diese Netzwerk-Gates lokal nicht laufen koennen, muss `WP-E12-16` die Deferral explizit im Handoff dokumentieren. Publishing bleibt blockiert.

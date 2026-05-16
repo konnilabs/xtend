@@ -182,7 +182,7 @@ Epic 14 ist ab `WP-E14-16` abgeschlossen. Der Handoff `xtend.epic14.lsp-handoff.
 
 [Release Owner Acceptance](./release-owner-acceptance.md) dokumentiert ab `WP-E13-02` den Contract `xtend.epic13.release-owner-acceptance.v1` fuer Owner Inputs, `accepted`/`deferred`/`blocked` Entscheidungen, `automatic-publish-approval` als blockierte Entscheidung und den weiterhin geschlossenen Publish Boundary. Der lokale Gate `node scripts/run_xtend_tests.js epic13-release-owner-acceptance --json` prueft den Owner-Acceptance-Schnitt.
 
-[Conditional Network Evidence](./conditional-network-evidence.md) dokumentiert ab `WP-E13-03` den Contract `xtend.epic13.conditional-network-evidence.v1` fuer `npm audit --audit-level=moderate`, `npm sbom --json`, `.xtend-test-results/` Evidence-Artefakte und strukturierte Offline-/Sandbox-Deferrals. Der lokale Gate `node scripts/run_xtend_tests.js epic13-conditional-network-evidence --json` bleibt netzwerkfrei.
+[Conditional Network Evidence](./conditional-network-evidence.md) dokumentiert ab `WP-E13-03` den Contract `xtend.epic13.conditional-network-evidence.v1` fuer `npm audit --audit-level=moderate`, `npm sbom --sbom-format=cyclonedx --json`, `.xtend-test-results/` Evidence-Artefakte und strukturierte Offline-/Sandbox-Deferrals. Der lokale Gate `node scripts/run_xtend_tests.js epic13-conditional-network-evidence --json` bleibt netzwerkfrei.
 
 [Conditional Network Evidence CI](./conditional-network-evidence-ci.md) dokumentiert ab `DPF-WP-03` den Contract `xtend.epic13.conditional-network-evidence-ci.v1`, `npm run conditional-network:evidence`, den GitHub-Actions-Job `conditional-network-evidence` und den Gate `node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci --json`.
 

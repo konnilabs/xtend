@@ -1,3 +1,6 @@
+const {
+  requireLocalOrScoped
+} = require('../lib/package-resolver');
 const A11Y_COMPONENT_CONTRACT_SCHEMA = 'xtend.a11y.component-contract.v1';
 const A11Y_PROFILE_SCHEMA = 'xtend.a11y.profile.v1';
 const A11Y_TEST_CONTRACT_SCHEMA = 'xtend.a11y.test-contract.v1';
@@ -6,14 +9,22 @@ const {
   SCREENREADER_SIGNALS_SCHEMA: A11Y_SCREENREADER_SIGNALS_SCHEMA,
   SCREENREADER_SIGNAL_RECORD_SCHEMA: A11Y_SCREENREADER_SIGNAL_RECORD_SCHEMA,
   createScreenreaderSignalContract
-} = require('../../a11y/screenreader-signals');
+} = requireLocalOrScoped(
+  __filename,
+  '../../a11y/screenreader-signals',
+  '@ccslabs/xtend/a11y/screenreader-signals'
+);
 const {
   MOTION_CONTRAST_POLICY_SCHEMA: A11Y_MOTION_CONTRAST_POLICY_SCHEMA,
   MOTION_POLICY_SCHEMA: A11Y_MOTION_POLICY_SCHEMA,
   CONTRAST_POLICY_SCHEMA: A11Y_CONTRAST_POLICY_SCHEMA,
   MOTION_CONTRAST_TEST_SCHEMA: A11Y_MOTION_CONTRAST_TEST_SCHEMA,
   createMotionContrastPolicy
-} = require('../../a11y/motion-contrast-policy');
+} = requireLocalOrScoped(
+  __filename,
+  '../../a11y/motion-contrast-policy',
+  '@ccslabs/xtend/a11y/motion-contrast-policy'
+);
 
 const PROFILE_PRIORITY = [
   'overlay',

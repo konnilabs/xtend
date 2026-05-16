@@ -21,13 +21,13 @@ XTend benoetigt nach Loader-Rename, lokaler Entwicklung, CDN-Entkopplung und Dem
 
 - `package.json` besitzt nun Version, Beschreibung, License-Status, Browser Entry, `files`, `exports`, `publishConfig.provenance`, `engines`, Package-Metadaten unter `xtend.schema` und Release-Scripts.
 - Die Export-Matrix trennt kanonische Browser-Loader, Legacy-Loader, UI API, CSS, Komponentenmanifest, Komponenten, Fabric, RMT Runtime, Builder und Security-Policy.
-- `README.md` dokumentiert lokale Nutzung, zentrale Entry Points und die private Release Boundary.
-- `CHANGELOG.md` startet mit `0.0.0-enterprise-readiness`.
+- `README.md` dokumentiert lokale Nutzung, zentrale Entry Points und die Release Boundary.
+- `CHANGELOG.md` fuehrt den aktuellen RC1-Stand `0.1.0-rc.1`.
 - `development/XTend-Package-Export-und-Release-Strategie.md` akzeptiert die Strategie unter `xtend.package-export.release-strategy.v1`.
 
 ## Bewusste Grenzen
 
-- `private: true` bleibt gesetzt.
+- `private: false` ist im spaeteren RC1-Publish-Prep gesetzt; ER-WP-06 selbst fuehrte keinen Publish aus.
 - Es wird kein oeffentlicher Publish durchgefuehrt.
 - Es wird kein neues `dist/`-Bundle eingefuehrt.
 - CommonJS-Test-/Scaffold-Pfade bleiben erhalten; browsernahe ESM-Pfade bleiben die Produktbasis.
@@ -41,7 +41,7 @@ XTend benoetigt nach Loader-Rename, lokaler Entwicklung, CDN-Entkopplung und Dem
 | `package.json` Export-Entscheidung vorbereitet | erfuellt |
 | SemVer-, Changelog- und Provenance-Policy benannt | erfuellt |
 | Spaetere Veroeffentlichung braucht keinen Architektur-Refactor | erfuellt |
-| `private: true` verhindert versehentlichen Publish | erfuellt |
+| `private: false` ist fuer RC1-Publish-Prep gesetzt; Publish bleibt manuell | erfuellt |
 
 ## Validierung
 
@@ -62,6 +62,6 @@ Hinweis: Der normale npm-Cache unter `~/.npm` meldete lokale Ownership-Probleme.
 | `ER-WP-30` | completed | Dependency-, License- und Vulnerability-Gates setzen auf Package-Exports und Release-Scripts auf |
 | `ER-WP-38` | completed | Release Checklist und SemVer Policy uebernehmen die hier definierte Export-Matrix sowie die ER-WP-37-Gate-Matrix |
 | `ER-WP-39` | completed | Enterprise Adoption Guide nutzt README, Changelog, Release-Strategie und Release Checklist |
-| `ER-WP-40` | completed | Docs-App RMT Pilot bleibt innerhalb der privaten Release Boundary |
+| `ER-WP-40` | completed | Docs-App RMT Pilot bleibt innerhalb der Release Boundary |
 
 `ER-WP-06` ist abgeschlossen. EPIC 06 ist damit fachlich vollstaendig.

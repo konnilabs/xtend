@@ -61,7 +61,7 @@ Conditional Network Gates:
 
 ```bash
 npm audit --audit-level=moderate
-npm sbom --json
+npm sbom --sbom-format=cyclonedx --json
 ```
 
 Wenn Netzwerkzugriff nicht verfuegbar ist, bleibt RC0 lokal reviewbar; Publish bleibt blockiert.

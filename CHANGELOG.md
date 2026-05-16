@@ -1,17 +1,20 @@
 # Changelog
 
-Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend bleibt bis zur Freigabe der Supply-Chain- und Release-Gates als privates Paket markiert.
+Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend ist fuer RC1-Publish-Prep auf `private: false` geoeffnet; der eigentliche Publish-Befehl bleibt ein separater manueller Owner-Schritt.
 
 ## 0.1.0-rc.1 Test-Build - 2026-05-16
 
 - Ersten lokalen RC1-Test-Build-Schnitt unter `xtend.rc1.test-build-handoff.v1` dokumentiert.
 - Handoff in `development/XTend-RC1-Test-Build-Handoff.md` mit Datum, Commit-Basis `4e0ae07`, Gate-Reports, Pack Dry Run Evidence und offenen Owner-Entscheidungen ergaenzt.
 - RMT vNext Reference Demo und XTendRMT Bestcase Demo als Test-Build-Referenzpfade aufgenommen.
-- RC1-Test-Build bleibt ein privater, nicht publishender Schnitt: `package.json` bleibt bei Version `0.0.0-enterprise-readiness`, `private: true` bleibt aktiv und `publishAllowed` bleibt `false`.
-- Netzwerkpflichtige Audit-/SBOM-Evidence bleibt bis zur Owner-Freigabe formal deferiert und publish-blocking.
+- RC1-Publish-Prep ist auf Version `0.1.0-rc.1` umgestellt: `package.json`, `package-lock.json` und die XTendRMT VS-Code-Bridge tragen die RC-Version; `private: false` ist gesetzt, `npm publish` wurde noch nicht ausgefuehrt.
+- Netzwerkpflichtige Audit-/SBOM-Evidence im Owner-Publish-Schritt ausgefuehrt und akzeptiert: Audit meldet 0 Vulnerabilities, SBOM liegt als CycloneDX `1.5` mit `Apache-2.0` License Evidence vor.
 - Release Owner Test-Build Acceptance unter `xtend.rc1.test-build-owner-acceptance.v1` dokumentiert: interne Testnutzung akzeptiert, `npm publish` und automatische Publish-Freigaben bleiben blockiert.
+- Separaten Owner-Publish-Entscheid unter `xtend.rc1.release-owner-publish-decision.v1` auf `accepted-for-publish-prep` gestellt; Version, License, Audit/SBOM und Package Boundary sind akzeptiert, der eigentliche Publish-Befehl bleibt manuell.
+- Apache License 2.0 als Projektlizenz fuer den kompletten XTend-Stack gesetzt: Root-Manifest, XTendRMT VS-Code-Bridge, `LICENSE`, Supply-Chain-Policy und Owner-Publish-Decision sind auf `Apache-2.0` aktualisiert.
+- Scoped Release-Matrix ergaenzt: Root-Package `@ccslabs/xtend` sowie Teilpakete `@ccslabs/xtend-rmt`, `@ccslabs/xtend-fabric`, `@ccslabs/xtend-cli` und `@ccslabs/xtend-compiler` sind ueber Root-Workspaces und untergeordnete Manifests abgebildet.
 
-## 0.0.0-enterprise-readiness - 2026-05-06
+## Enterprise-Readiness Baseline - 2026-05-06
 
 - Package-Export-Strategie unter `xtend.package-export.release-strategy.v1` vorbereitet.
 - Kanonische Package-Subpaths fuer Loader, API, Komponentenmanifest, Fabric, Fabric/RMT Lane Mapping, XTendRMT Runtime und Scaffold CLI festgelegt.
@@ -58,5 +61,5 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend bl
 - Docs-App Parsedown SafeMode-Nachbearbeitung fuer Inline-Code ergaenzt, damit Komponenten-Namen wie `<x-code>` nicht als doppelt escapete Entities angezeigt werden und die Trusted-DOM-Boundary trotzdem erhalten bleibt.
 - Docs-App Navigation von flacher Linkliste auf kaskadierende Artikelhierarchie mit `id`, `group`, `parent`, `tier` und PageRank-artigem `rank` umgestellt, sodass Basics zuerst sichtbar sind und Spezialthemen als Deep Dives aufklappen.
 - `x-icon` als RMT-kompatible XTend-Komponente ergaenzt: lokale Core-Icons, lokaler Lucide-Adapter, globale `window.XTend.icons` Registry, Public Types, Component-Suite, Fixture und Docs-App-Menue-Ikonographie ohne CDN-Abhaengigkeit.
-- npm Provenance fuer spaetere Releases vorbereitet, aber Publishing durch `private: true` bewusst blockiert.
+- npm Provenance fuer spaetere Releases vorbereitet.
 - Root-README fuer Package-Konsumenten und lokale Enterprise-Entwicklung ergaenzt.

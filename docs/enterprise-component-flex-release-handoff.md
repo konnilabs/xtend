@@ -4,7 +4,7 @@
 - Workpackage: `ECH-WP-12`
 - Status: `accepted-enterprise-design-system-ready-handoff`
 - Target: `enterprise-design-system-ready-release-candidate`
-- Current Version: `0.0.0-enterprise-readiness`
+- Current Version: `0.1.0-rc.1`
 - Proposed Version: `0.1.0-enterprise-design-system-rc.1`
 - Publish Boundary: `private-until-release-owner-acceptance`
 - Local Gate: `node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff --json`
@@ -14,7 +14,7 @@
 
 Dieses Handoff schliesst die Enterprise Component Flexibilitaets- und Theme-Hardening-Welle ab. Es bewertet die SemVer-Auswirkung der neuen Attribute, Tokens, Parts und Doku-Oberflaechen, dokumentiert Deprecated Aliases, beschreibt die Migration fuer bestehende Apps und benennt die letzten Adoption Risiken vor einem Release Owner Review.
 
-Das Paket ist release-ready, aber nicht automatisch publish-ready. `package.json` bleibt `private: true`; ein Publish braucht weiterhin Release Owner Acceptance und bei Bedarf Conditional Network Evidence.
+Das Paket ist release-ready, aber nicht automatisch published. `package.json` ist fuer RC1-Publish-Prep inzwischen auf `private: false` gesetzt; ein Publish braucht weiterhin den manuellen Release-Owner-Befehl und bei Bedarf Conditional Network Evidence.
 
 ## SemVer-Bewertung
 

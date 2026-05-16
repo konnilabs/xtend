@@ -1,0 +1,53 @@
+{
+  "name": "@ccslabs/xtend-fabric",
+  "version": "0.1.0-rc.1",
+  "private": false,
+  "description": "XTend Fabric runtime for safety, telemetry, diagnostics and lane mapping.",
+  "license": "Apache-2.0",
+  "keywords": [
+    "ccslabs",
+    "xtend",
+    "fabric",
+    "telemetry",
+    "runtime"
+  ],
+  "main": "./xtend-fabric.js",
+  "types": "./xtend-fabric.d.ts",
+  "files": [
+    "xtend-fabric.js",
+    "xtend-fabric.d.ts",
+    "rmt-lane-mapping.js",
+    "rmt-lane-mapping.d.ts",
+    "hydration-policy.js",
+    "hydration-policy.d.ts",
+    "xtend-policy-public-types.d.ts",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./xtend-fabric.d.ts",
+      "default": "./xtend-fabric.js"
+    },
+    "./rmt-lane-mapping": {
+      "types": "./rmt-lane-mapping.d.ts",
+      "default": "./rmt-lane-mapping.js"
+    },
+    "./hydration-policy": {
+      "types": "./hydration-policy.d.ts",
+      "default": "./hydration-policy.js"
+    },
+    "./policy-types": {
+      "types": "./xtend-policy-public-types.d.ts",
+      "default": "./xtend-policy-public-types.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "tag": "next"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

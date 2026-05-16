@@ -19,11 +19,21 @@
 
 ## Entscheidung
 
-XTend erhaelt eine konsumierbare Package-Oberflaeche, bleibt in ER-WP-06 aber bewusst `private: true`. Das Paket ist damit fuer lokale Enterprise-Gates, `npm pack --dry-run`, Dokumentation und spaetere Release-Automation vorbereitet, ohne bereits einen oeffentlichen Publish-Pfad zu aktivieren.
+XTend erhaelt eine konsumierbare Package-Oberflaeche. In ER-WP-06 blieb der Boundary bewusst privat; fuer RC1-Publish-Prep ist das Root-Package `@ccslabs/xtend` inzwischen auf `private: false` geoeffnet. Das Paket ist damit fuer lokale Enterprise-Gates, `npm pack --dry-run`, Dokumentation und spaetere Release-Automation vorbereitet, ohne den finalen `npm publish` automatisch auszufuehren.
 
 Die Distribution ist browser-first und local-first. `xtend-loader.js` ist der kanonische Loader, `xtend-dev.js` bleibt nur Legacy-Stub, CDN ist kein Default- oder Testpfad. ES6-/ESM-Artefakte bleiben die Basistechnologie fuer Browser- und Runtime-Module; CommonJS bleibt nur fuer bestehende Node-Test-, Scaffold- und Utility-Pfade erlaubt.
 
 ## Export-Matrix
+
+Die scoped Release-Matrix trennt Gesamtpaket und installierbare Teilpakete:
+
+| Package | Manifest | Installationszweck |
+|---------|----------|--------------------|
+| `@ccslabs/xtend` | `package.json` | kompletter XTend Stack |
+| `@ccslabs/xtend-rmt` | `xtendrmt/package.json` | XTendRMT Runtime und Browser Bundle |
+| `@ccslabs/xtend-fabric` | `fabric/package.json` | Fabric Runtime, Hydration und Lane Mapping |
+| `@ccslabs/xtend-cli` | `xtend-builder/package.json` | Scaffold-/Builder-CLI |
+| `@ccslabs/xtend-compiler` | `tools/package.json` | RMT Compiler, Parser, Linter und Language Tooling |
 
 | Package Subpath | Artefakt | Stabilitaet | Zweck |
 |-----------------|----------|-------------|-------|
@@ -44,7 +54,7 @@ Die Distribution ist browser-first und local-first. `xtend-loader.js` ist der ka
 | `xtend/security/trusted-dom-policy` | `security/trusted-dom-policy.js` | policy | Trusted DOM Policy Modul |
 | `xtend/security/supply-chain-gate-policy` | `security/supply-chain-gate-policy.js` | policy | Supply-Chain Gate Policy Modul |
 
-Die Export-Matrix ist eine Produktentscheidung, keine Aufforderung zur sofortigen Veroeffentlichung. `private: true` bleibt auch nach `ER-WP-38` gesetzt und darf erst nach Release Owner Approval geoeffnet werden.
+Die Export-Matrix ist eine Produktentscheidung, keine Aufforderung zur automatischen Veroeffentlichung. `private: false` ist erst nach Release Owner Approval fuer RC1-Publish-Prep gesetzt; der eigentliche Publish-Befehl bleibt manuell.
 
 ## Browser-Bundle-Policy
 
@@ -84,7 +94,7 @@ npm run pack:dry-run
 
 ## Provenance und Publish Boundary
 
-`publishConfig.provenance` ist auf `true` vorbereitet, damit spaetere npm-Releases Herkunftsnachweise erzeugen koennen. `private: true` blockiert den Publish-Pfad weiterhin. Eine Freigabe darf erst erfolgen, wenn:
+`publishConfig.provenance` ist in Root- und Teilpaket-Manifests auf `true` vorbereitet, damit npm-Releases Herkunftsnachweise erzeugen koennen. `private: false` ist fuer RC1-Publish-Prep gesetzt; der Publish-Pfad wird weiterhin durch Owner-Entscheid, Gate-Artefakte und den manuellen `npm publish`-Befehl kontrolliert. Eine Freigabe darf erst erfolgen, wenn:
 
 - `ER-WP-30` Dependency-, License- und Vulnerability-Gates geplant und lokal gatebar gemacht hat
 - `ER-WP-36` CI/CD-Gates produktisiert hat
