@@ -181,7 +181,7 @@ Der verbleibende Type-Gap liegt nicht primaer bei Komponenten, sondern bei expor
 - Ziel:
   - RMT Runtime und RMT-Language Tooling sind fuer Integrationen typisiert importierbar.
 - Scope:
-  - `./rmt` und `./rmt/browser` auf `xtendrmt/rmt-core.d.ts` oder spezialisierte Declarations mappen
+  - `./rmt`, `./rmt/browser`, `./rmt/dom-descriptor-renderer`, `./rmt/state-selector-runtime`, `./rmt/action-effect-runtime`, `./rmt/event-routing-runtime` und `./rmt/surface-resource-graph-runtime` auf `xtendrmt/rmt-core.d.ts` oder spezialisierte Declarations mappen
   - `tools/rmt-language/source-model.d.ts`
   - `parser`, `vnext-parser`, `vnext-compiler`, `semantic-graph`, `diagnostics`, `completions`, `hover`, `symbols`, `definitions`, `code-actions`
   - LSP-/Editor-Protokolltypen
@@ -190,7 +190,7 @@ Der verbleibende Type-Gap liegt nicht primaer bei Komponenten, sondern bei expor
   - Package `types`-Conditions fuer `./rmt-language/*`
   - Tooling Type Gate
 - Ergebnis:
-  - `xtendrmt/rmt-core.d.ts` ist Type-Ziel fuer `./rmt` und `./rmt/browser`
+  - `xtendrmt/rmt-core.d.ts` ist Type-Ziel fuer `./rmt` und `./rmt/browser`; `xtendrmt/rmt-dom-descriptor-renderer.d.ts` ist Type-Ziel fuer `./rmt/dom-descriptor-renderer`; `xtendrmt/rmt-state-selector-runtime.d.ts` ist Type-Ziel fuer `./rmt/state-selector-runtime`; `xtendrmt/rmt-action-effect-runtime.d.ts` ist Type-Ziel fuer `./rmt/action-effect-runtime`; `xtendrmt/rmt-event-routing-runtime.d.ts` ist Type-Ziel fuer `./rmt/event-routing-runtime`; `xtendrmt/rmt-surface-resource-graph-runtime.d.ts` ist Type-Ziel fuer `./rmt/surface-resource-graph-runtime`
   - `tools/rmt-language/rmt-tooling-public-types.d.ts`
   - RMT-Language-, LSP-, Linter- und Editor-Facades unter `tools/**/*.d.ts`
   - `catalog/type-exports-rmt.js`

@@ -412,6 +412,10 @@
       "types": "./tools/rmt-language/diagnostics.d.ts",
       "default": "./tools/rmt-language/diagnostics.js"
     },
+    "./rmt-language/app-platform-tooling": {
+      "types": "./tools/rmt-language/app-platform-tooling.d.ts",
+      "default": "./tools/rmt-language/app-platform-tooling.js"
+    },
     "./rmt-language/completions": {
       "types": "./tools/rmt-language/completions.d.ts",
       "default": "./tools/rmt-language/completions.js"
@@ -519,6 +523,26 @@
       "browser": "./xtendrmt/rmt-runtime.browser.js",
       "default": "./xtendrmt/rmt-runtime.browser.js"
     },
+    "./rmt/dom-descriptor-renderer": {
+      "types": "./xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+      "default": "./xtendrmt/rmt-dom-descriptor-renderer.js"
+    },
+    "./rmt/state-selector-runtime": {
+      "types": "./xtendrmt/rmt-state-selector-runtime.d.ts",
+      "default": "./xtendrmt/rmt-state-selector-runtime.js"
+    },
+    "./rmt/action-effect-runtime": {
+      "types": "./xtendrmt/rmt-action-effect-runtime.d.ts",
+      "default": "./xtendrmt/rmt-action-effect-runtime.js"
+    },
+    "./rmt/event-routing-runtime": {
+      "types": "./xtendrmt/rmt-event-routing-runtime.d.ts",
+      "default": "./xtendrmt/rmt-event-routing-runtime.js"
+    },
+    "./rmt/surface-resource-graph-runtime": {
+      "types": "./xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+      "default": "./xtendrmt/rmt-surface-resource-graph-runtime.js"
+    },
     "./builder": {
       "types": "./xtend-builder/scaffold.d.ts",
       "default": "./xtend-builder/scaffold.js"
@@ -558,6 +582,313 @@
     "rmtRuntime": {
       "esm": "xtendrmt/rmt-runtime.esm.js",
       "browser": "xtendrmt/rmt-runtime.browser.js"
+    },
+    "rmtDomDescriptorRenderer": {
+      "schema": "xtend.epic18.rmt-dom-descriptor-renderer.v1",
+      "reportSchema": "xtend.epic18.rmt-dom-descriptor-renderer-report.v1",
+      "fixtureSchema": "xtend.epic18.rmt-dom-descriptor-renderer-fixture.v1",
+      "diagnosticSchema": "xtend.epic18.rmt-dom-renderer-diagnostic.v1",
+      "workpackage": "WP-E18-05",
+      "status": "accepted-dom-descriptor-renderer",
+      "runtime": "xtendrmt/rmt-dom-descriptor-renderer.js",
+      "types": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+      "fixture": "tests/fixtures/rmt-dom-descriptor-renderer.rmt",
+      "docs": "docs/rmt-dom-descriptor-renderer.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer --json",
+      "packageScript": "npm run test:rmt-dom-descriptor-renderer",
+      "trustedDomBoundary": "xtend.rmt.trusted-dom-boundary.explicit",
+      "normalUiAllowsManualHtml": false,
+      "nextWorkpackage": "WP-E18-06",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "rmtComponentTemplatePrimitives": {
+      "schema": "xtend.epic18.rmt-component-template-primitives.v1",
+      "reportSchema": "xtend.epic18.rmt-component-template-primitives-report.v1",
+      "fixtureSchema": "xtend.epic18.rmt-component-template-primitives-fixture.v1",
+      "workpackage": "WP-E18-06",
+      "status": "accepted-component-template-primitives",
+      "runtime": "xtendrmt/rmt-dom-descriptor-renderer.js",
+      "types": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+      "fixture": "tests/fixtures/rmt-component-template-primitives.rmt",
+      "docs": "docs/rmt-component-template-primitives.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-component-template-primitives --json",
+      "packageScript": "npm run test:rmt-component-template-primitives",
+      "htmlStringRendererRequired": false,
+      "nextWorkpackage": "WP-E18-07",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "rmtStateSelectorRuntime": {
+      "schema": "xtend.epic18.rmt-state-selector-runtime.v1",
+      "reportSchema": "xtend.epic18.rmt-state-selector-runtime-report.v1",
+      "fixtureSchema": "xtend.epic18.rmt-state-selector-runtime-fixture.v1",
+      "workpackage": "WP-E18-07",
+      "status": "accepted-typed-state-selector-xstate-bridge",
+      "runtime": "xtendrmt/rmt-state-selector-runtime.js",
+      "types": "xtendrmt/rmt-state-selector-runtime.d.ts",
+      "fixture": "tests/fixtures/rmt-state-selector-runtime.rmt",
+      "docs": "docs/rmt-state-selector-runtime.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-state-selector-runtime --json",
+      "packageScript": "npm run test:rmt-state-selector-runtime",
+      "xstateImportedByRuntime": false,
+      "xstateBridgeMode": "injected-host-adapter",
+      "selectionUpdatesPreserveDom": true,
+      "nextWorkpackage": "WP-E18-08",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "rmtActionEffectRuntime": {
+      "schema": "xtend.epic18.rmt-action-effect-runtime.v1",
+      "reportSchema": "xtend.epic18.rmt-action-effect-runtime-report.v1",
+      "fixtureSchema": "xtend.epic18.rmt-action-effect-runtime-fixture.v1",
+      "diagnosticSchema": "xtend.epic18.rmt-action-effect-diagnostic.v1",
+      "workpackage": "WP-E18-08",
+      "status": "accepted-actions-effects-datasources-resource-runtime",
+      "runtime": "xtendrmt/rmt-action-effect-runtime.js",
+      "types": "xtendrmt/rmt-action-effect-runtime.d.ts",
+      "fixture": "tests/fixtures/rmt-action-effect-runtime.rmt",
+      "docs": "docs/rmt-action-effect-runtime.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-action-effect-runtime --json",
+      "packageScript": "npm run test:rmt-action-effect-runtime",
+      "dataSourceKinds": [
+        "fixture",
+        "rest",
+        "ssr",
+        "host"
+      ],
+      "effectKinds": [
+        "toast",
+        "feedback",
+        "navigation",
+        "focus",
+        "lazy-import",
+        "side-effect"
+      ],
+      "resourceKinds": [
+        "object-url",
+        "stream",
+        "observer",
+        "timer",
+        "lazy-import"
+      ],
+      "productActionFrameworkAllowed": false,
+      "nextWorkpackage": "WP-E18-09",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "rmtEventRoutingRuntime": {
+      "schema": "xtend.epic18.rmt-event-routing-runtime.v1",
+      "reportSchema": "xtend.epic18.rmt-event-routing-runtime-report.v1",
+      "fixtureSchema": "xtend.epic18.rmt-event-routing-runtime-fixture.v1",
+      "diagnosticSchema": "xtend.epic18.rmt-event-routing-diagnostic.v1",
+      "workpackage": "WP-E18-09",
+      "status": "accepted-declarative-event-routing-component-interactions",
+      "runtime": "xtendrmt/rmt-event-routing-runtime.js",
+      "types": "xtendrmt/rmt-event-routing-runtime.d.ts",
+      "fixture": "tests/fixtures/rmt-event-routing-runtime.rmt",
+      "docs": "docs/rmt-event-routing-runtime.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-event-routing-runtime --json",
+      "packageScript": "npm run test:rmt-event-routing-runtime",
+      "eventKinds": [
+        "dom",
+        "custom",
+        "keyboard",
+        "form",
+        "surface",
+        "drop"
+      ],
+      "governancePolicies": [
+        "preventDefault",
+        "stopPropagation",
+        "stopImmediatePropagation",
+        "capture",
+        "passive",
+        "once",
+        "retarget"
+      ],
+      "productEventFrameworkAllowed": false,
+      "closestDelegationRequired": false,
+      "nextWorkpackage": "WP-E18-10",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "rmtSurfaceResourceGraphRuntime": {
+      "schema": "xtend.epic18.rmt-surface-resource-graph-runtime.v1",
+      "reportSchema": "xtend.epic18.rmt-surface-resource-graph-runtime-report.v1",
+      "fixtureSchema": "xtend.epic18.rmt-surface-resource-graph-runtime-fixture.v1",
+      "diagnosticSchema": "xtend.epic18.rmt-surface-resource-graph-diagnostic.v1",
+      "workpackage": "WP-E18-10",
+      "status": "accepted-surface-overlay-portal-resource-graph-runtime",
+      "runtime": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "types": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+      "fixture": "tests/fixtures/rmt-surface-resource-graph-runtime.rmt",
+      "docs": "docs/rmt-surface-resource-graph-runtime.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime --json",
+      "packageScript": "npm run test:rmt-surface-resource-graph-runtime",
+      "surfaceKinds": [
+        "window",
+        "panel",
+        "overlay-host"
+      ],
+      "overlayKinds": [
+        "tooltip",
+        "toast",
+        "popover",
+        "lightbox",
+        "menu",
+        "dialog"
+      ],
+      "portalPolicies": [
+        "stacked",
+        "modal",
+        "nonmodal",
+        "toast-region",
+        "clipping-escape"
+      ],
+      "resourceOwnership": [
+        "surface-instance",
+        "overlay-instance",
+        "destroy-release-owner",
+        "minimize-preserve"
+      ],
+      "productSurfaceTaxonomyAllowed": false,
+      "productRegistryRepaintRequired": false,
+      "nextWorkpackage": "WP-E18-11",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "rmtAppPlatformTooling": {
+      "schema": "xtend.epic18.rmt-app-platform-tooling.v1",
+      "reportSchema": "xtend.epic18.rmt-app-platform-tooling-report.v1",
+      "fixtureSchema": "xtend.epic18.rmt-app-platform-tooling-fixture.v1",
+      "scaffoldSchema": "xtend.epic18.rmt-app-platform-scaffold.v1",
+      "sourceMapSchema": "xtend.epic18.rmt-app-platform-source-map.v1",
+      "workpackage": "WP-E18-11",
+      "status": "accepted-rmt-app-platform-scaffold-linter-lsp-diagnostics",
+      "module": "tools/rmt-language/app-platform-tooling.js",
+      "types": "tools/rmt-language/app-platform-tooling.d.ts",
+      "generator": "xtend-builder/generators/rmt-app-platform.js",
+      "fixture": "tests/fixtures/rmt-app-platform-tooling.rmt",
+      "docs": "docs/rmt-app-platform-tooling.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-app-platform-tooling --json",
+      "packageScript": "npm run test:rmt-app-platform-tooling",
+      "diagnosticCodes": [
+        "rmt.app.no-manual-shell.html-sink",
+        "rmt.app.unsafe-html.boundary-missing",
+        "rmt.app.repeat.key.missing",
+        "rmt.app.event.payload-contract.missing",
+        "rmt.app.resource.ownership.missing",
+        "rmt.app.resource.unresolved",
+        "rmt.app.portal.unresolved",
+        "rmt.app.surface.source.unresolved"
+      ],
+      "completionContexts": [
+        "portal-ids",
+        "portal-policies",
+        "overlay-kinds",
+        "resource-kinds",
+        "resource-ids",
+        "event-kinds",
+        "surface-states"
+      ],
+      "nextWorkpackage": "WP-E18-12",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "rmtAppPlatformFixture": {
+      "schema": "xtend.epic18.rmt-app-platform-fixture.v1",
+      "reportSchema": "xtend.epic18.rmt-app-platform-fixture-report.v1",
+      "fixtureSchema": "xtend.epic18.rmt-app-platform-fixture-source.v1",
+      "toolingSchema": "xtend.epic18.rmt-app-platform-tooling.v1",
+      "workpackage": "WP-E18-12",
+      "status": "accepted-generic-rmt-app-platform-fixture",
+      "module": "catalog/epic18-rmt-app-platform-fixture.js",
+      "fixture": "tests/fixtures/rmt-app-platform-fixture.rmt",
+      "suite": "tests/rmt/rmt_app_platform_fixture_suite.js",
+      "docs": "docs/rmt-app-platform-fixture.md",
+      "localGate": "node scripts/run_xtend_tests.js rmt-app-platform-fixture --json",
+      "packageScript": "npm run test:rmt-app-platform-fixture",
+      "domainVariants": [
+        "generic-catalog",
+        "admin-queue",
+        "content-board"
+      ],
+      "dataSourceKinds": [
+        "fixture",
+        "rest",
+        "ssr",
+        "host"
+      ],
+      "capabilities": [
+        "configurable-record-contracts",
+        "list-detail-template-composition",
+        "action-feedback-flow",
+        "dynamic-surface-materialization",
+        "overlay-portal-flow",
+        "resource-cleanup",
+        "swappable-datasources",
+        "scaffold-build-evidence",
+        "product-agnostic-domain-variants",
+        "no-manual-html-renderer"
+      ],
+      "productSurfaceTaxonomyAllowed": false,
+      "fixedRecordContractRequired": false,
+      "manualHtmlRendererAllowed": false,
+      "nextWorkpackage": "WP-E18-13",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "epic18RmtAppPlatformReleaseHandoff": {
+      "schema": "xtend.epic18.rmt-app-platform-release-handoff.v1",
+      "reportSchema": "xtend.epic18.rmt-app-platform-release-handoff-report.v1",
+      "gateMatrixSchema": "xtend.epic18.rmt-app-platform-gate-matrix.v1",
+      "workpackage": "WP-E18-13",
+      "status": "accepted-docs-migration-vendor-rebuild-release-handoff",
+      "targetReadiness": "epic18-rmt-app-platform-release-ready",
+      "module": "catalog/epic18-rmt-app-platform-release-handoff.js",
+      "suite": "tests/platform/epic18_rmt_app_platform_release_handoff_suite.js",
+      "docs": "docs/epic18-rmt-app-platform-release-handoff.md",
+      "migrationGuide": "docs/rmt-app-platform-migration-guide.md",
+      "vendorBugfixDocs": "docs/epic18-vendor-bugfixes.md",
+      "workpackageDocument": "development/WP-E18-13-Docs-Migration-Guide-Vendor-Rebuild-und-Release-Handoff.md",
+      "localGate": "node scripts/run_xtend_tests.js epic18-rmt-app-platform --json",
+      "packageScript": "npm run test:epic18-rmt-app-platform",
+      "releaseGates": [
+        "epic18-vendor-bugfix-smokes",
+        "rmt-app-platform-authoring",
+        "rmt-dom-descriptor-renderer",
+        "rmt-component-template-primitives",
+        "rmt-state-selector-runtime",
+        "rmt-action-effect-runtime",
+        "rmt-event-routing-runtime",
+        "rmt-surface-resource-graph-runtime",
+        "rmt-app-platform-tooling",
+        "rmt-app-platform-fixture",
+        "type-exports-rmt",
+        "type-exports",
+        "epic13-package-export-lock",
+        "epic18-rmt-app-platform"
+      ],
+      "githubActions": {
+        "workflow": ".github/workflows/xtend-default-gates.yml",
+        "nodeVersion": "26.x",
+        "prFastCommand": "npm run test:pr:report",
+        "prFastReport": ".xtend-test-results/xtend-pr-gate-report.json",
+        "prFastArtifact": "xtend-pr-gate-report-node-26",
+        "fullReleaseCommand": "npm run test:release:full:report",
+        "fullReleaseReport": ".xtend-test-results/xtend-release-gate-report.json",
+        "fullReleaseArtifact": "xtend-release-gate-report-node-26",
+        "conditionalNetworkCommand": "npm run conditional-network:evidence",
+        "conditionalNetworkExecuteEnv": "XTEND_CONDITIONAL_NETWORK_EXECUTE=1"
+      },
+      "releaseEvidence": {
+        "packDryRunCommand": "npm run pack:dry-run",
+        "packageExportLockGate": "node scripts/run_xtend_tests.js epic13-package-export-lock --json",
+        "packageExportLockReport": ".xtend-test-results/xtend-package-export-lock-report.json",
+        "packageExportSurfaceLock": ".xtend-test-results/xtend-package-export-surface-lock.json",
+        "releaseReportCommand": "npm run release:report"
+      },
+      "completion": {
+        "epicStatus": "completed",
+        "completedWorkpackageCount": 13,
+        "nextWorkpackage": null,
+        "publishAllowed": false,
+        "publishBoundary": "private-until-release-owner-acceptance"
+      },
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
     },
     "rmtSourceModel": {
       "schema": "xtend.rmt.source-model.v1",
@@ -2685,6 +3016,7 @@
         "./rmt-language/format-adapter",
         "./rmt-language/semantic-graph",
         "./rmt-language/diagnostics",
+        "./rmt-language/app-platform-tooling",
         "./rmt-language/completions",
         "./rmt-language/hover",
         "./rmt-language/symbols",
@@ -2797,6 +3129,7 @@
       "npm run test:epic13-rc1-migration-notes",
       "npm run test:epic13-rc1-gate-matrix-ci-handoff",
       "npm run test:epic13-release-report-pack-dry-run-evidence",
+      "npm run test:epic18-rmt-app-platform",
       "npm run test:rmt-artifact-parity",
       "npm run pack:dry-run"
     ],
@@ -3648,7 +3981,8 @@
           "references",
           "supply-chain",
           "manifest-import-policy",
-          "docs-rmt-pilot"
+          "docs-rmt-pilot",
+          "epic18-rmt-app-platform"
         ]
       },
       "fullReleaseGate": {
@@ -6280,7 +6614,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 115,
+      "expectedExportCount": 121,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -6305,8 +6639,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 115,
-      "lockedExportFingerprint": "276e93d51ccfb779d1e5750cf6d3f80b58aaa57c68b95417c6df5fe4ba0ae62d",
+      "expectedExportCount": 121,
+      "lockedExportFingerprint": "a45481ae0693b2fb82c3b634bbc529fc262bab3f94ba598cb2e6a602a7c5af63",
       "p0Exports": [
         ".",
         "./loader",
@@ -6651,6 +6985,7 @@
         "tools/rmt-language/format-adapter.d.ts",
         "tools/rmt-language/semantic-graph.d.ts",
         "tools/rmt-language/diagnostics.d.ts",
+        "tools/rmt-language/app-platform-tooling.d.ts",
         "tools/rmt-language/completions.d.ts",
         "tools/rmt-language/hover.d.ts",
         "tools/rmt-language/symbols.d.ts",
@@ -6704,6 +7039,7 @@
         "./rmt-language/format-adapter",
         "./rmt-language/semantic-graph",
         "./rmt-language/diagnostics",
+        "./rmt-language/app-platform-tooling",
         "./rmt-language/completions",
         "./rmt-language/hover",
         "./rmt-language/symbols",
@@ -6757,6 +7093,7 @@
         "./rmt-language/format-adapter",
         "./rmt-language/semantic-graph",
         "./rmt-language/diagnostics",
+        "./rmt-language/app-platform-tooling",
         "./rmt-language/completions",
         "./rmt-language/hover",
         "./rmt-language/symbols",
@@ -8140,6 +8477,16 @@
     "test:supply-chain": "node scripts/run_xtend_tests.js supply-chain",
     "test:manifest-policy": "node scripts/run_xtend_tests.js manifest-import-policy",
     "test:rmt-compatibility": "node scripts/run_xtend_tests.js rmt-compatibility",
+    "test:rmt-app-platform-authoring": "node scripts/run_xtend_tests.js rmt-app-platform-authoring",
+    "test:rmt-dom-descriptor-renderer": "node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer",
+    "test:rmt-component-template-primitives": "node scripts/run_xtend_tests.js rmt-component-template-primitives",
+    "test:rmt-state-selector-runtime": "node scripts/run_xtend_tests.js rmt-state-selector-runtime",
+    "test:rmt-action-effect-runtime": "node scripts/run_xtend_tests.js rmt-action-effect-runtime",
+    "test:rmt-event-routing-runtime": "node scripts/run_xtend_tests.js rmt-event-routing-runtime",
+    "test:rmt-surface-resource-graph-runtime": "node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime",
+    "test:rmt-app-platform-tooling": "node scripts/run_xtend_tests.js rmt-app-platform-tooling",
+    "test:rmt-app-platform-fixture": "node scripts/run_xtend_tests.js rmt-app-platform-fixture",
+    "test:epic18-rmt-app-platform": "node scripts/run_xtend_tests.js epic18-rmt-app-platform",
     "test:docs-rmt-pilot": "node scripts/run_xtend_tests.js docs-rmt-pilot",
     "test:rmt-artifact-parity": "node scripts/verify_xtendrmt_artifact_parity.js",
     "test:browser": "node scripts/run_xtend_tests.js browser",
@@ -8147,8 +8494,8 @@
     "dev:local": "node scripts/serve_xtend_dev.js --port 4173",
     "dev:local:csp": "node scripts/serve_xtend_dev.js --port 4173 --prod-csp --default tests/browser/fixtures/epic13-prod-csp-smoke.html",
     "test:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.json",
-    "test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot",
-    "test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot --report .xtend-test-results/xtend-pr-gate-report.json",
+    "test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot epic18-rmt-app-platform",
+    "test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json",
     "test:release:full": "node scripts/run_xtend_tests.js",
     "test:release:full:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-gate-report.json",
     "supply-chain:verify": "node scripts/verify_supply_chain_policy.js",

@@ -69,10 +69,21 @@ class XPlayer extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._autoplayUnmuted = false;
     this._dialogOpen = false; // <--- NEU: Globales Dialog-Flag für Endlosschutz
+    this._resizeObserver = null;
+    this._resizeFrame = null;
     this.shadowRoot.innerHTML = `
       <style>
         :host {
           display: block;
+          width: 100%;
+          height: 100%;
+          min-width: 0;
+          min-height: 0;
+          max-width: 100%;
+          max-height: 100%;
+          overflow: hidden;
+          box-sizing: border-box;
+          container-type: inline-size;
           font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
           --glass-bg: rgba(30, 34, 44, 0.55);
           --glass-blur: 18px;
@@ -85,6 +96,13 @@ class XPlayer extends HTMLElement {
           --focus-outline: 2px solid var(--primary);
         }
         .player {
+          width: 100%;
+          height: 100%;
+          min-width: 0;
+          min-height: 0;
+          max-width: 100%;
+          max-height: 100%;
+          box-sizing: border-box;
           background: var(--glass-bg);
           border-radius: var(--border-radius);
           box-shadow: var(--shadow);
@@ -110,6 +128,10 @@ class XPlayer extends HTMLElement {
           left: 1.2em;
           right: 1.2em;
           z-index: 10;
+          box-sizing: border-box;
+          min-width: 0;
+          max-width: calc(100% - 2.4em);
+          overflow: visible;
           opacity: 0;
           pointer-events: none;
           transition: opacity 0.3s, box-shadow 0.3s;
@@ -122,7 +144,8 @@ class XPlayer extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 0.5em;
-          flex: none;
+          flex: 0 1 auto;
+          min-width: 0;
         }
         .progress {
           flex: 1 1 0%;
@@ -140,11 +163,12 @@ class XPlayer extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: flex-end;
-          min-width: unset;
-          max-width: unset;
+          min-width: 0;
+          max-width: 100%;
           width: auto;
           gap: 0.5em;
-          flex: none;
+          flex: 0 1 auto;
+          overflow: visible;
         }
         .volume-container {
           display: flex;
@@ -181,6 +205,8 @@ class XPlayer extends HTMLElement {
           justify-content: center;
           padding: 0.7em 0;
         }
+        .volume-container:hover .volume-slider,
+        .volume-container:focus-within .volume-slider,
         .volume-container.expanded .volume-slider {
           opacity: 1;
           transform: translateX(-50%) scaleY(1);
@@ -201,8 +227,18 @@ class XPlayer extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 0.5em;
-          flex-shrink: 0;
+          min-width: 0;
+          max-width: 100%;
+          overflow: hidden;
+          flex: 0 1 auto;
           transition: none;
+        }
+        .time,
+        .branding {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         button, .icon-btn {
           background: rgba(255,255,255,0.08);
@@ -340,6 +376,13 @@ class XPlayer extends HTMLElement {
           position: absolute;
           top: 1.2em;
           left: 1.2em;
+          box-sizing: border-box;
+          max-width: calc(100% - 2.4em);
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow-wrap: normal;
           color: var(--accent);
           background: rgba(30,34,44,0.38);
           padding: 0.4em 1.2em;
@@ -548,6 +591,8 @@ class XPlayer extends HTMLElement {
           justify-content: center;
           padding: 0.7em 0;
         }
+        .volume-container:hover .volume-slider,
+        .volume-container:focus-within .volume-slider,
         .volume-container.expanded .volume-slider {
           opacity: 1;
           transform: translateX(-50%) scaleY(1);
@@ -567,6 +612,12 @@ class XPlayer extends HTMLElement {
         .media-container {
           width: 100%;
           height: 100%;
+          min-width: 0;
+          min-height: 0;
+          max-width: 100%;
+          max-height: 100%;
+          box-sizing: border-box;
+          overflow: hidden;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -575,6 +626,11 @@ class XPlayer extends HTMLElement {
         video, audio {
           width: 100%;
           height: 100%;
+          min-width: 0;
+          min-height: 0;
+          max-width: 100%;
+          max-height: 100%;
+          box-sizing: border-box;
           object-fit: cover;
           display: block;
           border-radius: var(--border-radius);
@@ -587,6 +643,23 @@ class XPlayer extends HTMLElement {
           .player, .controls, .overlay, .big-controls, .spinner, .xplayer-context-menu {
             animation: none !important;
             transition: none !important;
+          }
+        }
+        @container (max-width: 520px) {
+          .controls {
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-width: 100%;
+            gap: 0.35em;
+            padding: 0.5em;
+          }
+          .progress {
+            min-width: 28px;
+            margin: 0 0.35em;
+          }
+          .branding {
+            display: none;
           }
         }
         @media (forced-colors: active) {
@@ -650,6 +723,13 @@ class XPlayer extends HTMLElement {
     `;
   }
 
+  _removeNativeTitles() {
+    if (!this.shadowRoot) return;
+    Array.from(this.shadowRoot.querySelectorAll('[title]')).forEach((element) => {
+      element.removeAttribute('title');
+    });
+  }
+
   connectedCallback() {
     this._loadMedia();
     this._initControls();
@@ -661,6 +741,8 @@ class XPlayer extends HTMLElement {
     this._setupBigControls();
     this._setupCursorHiding();
     this._updateDimensions();
+    this._observePlayerResize();
+    this._removeNativeTitles();
 
     // Add the loaded class to trigger branding animation
     this.classList.add("loaded");
@@ -906,6 +988,18 @@ class XPlayer extends HTMLElement {
 
   disconnectedCallback() {
     if (this._unsubscribeState) this._unsubscribeState();
+    if (this._removeTitleInterval) {
+      clearInterval(this._removeTitleInterval);
+      this._removeTitleInterval = null;
+    }
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
+    if (this._resizeFrame) {
+      cancelAnimationFrame(this._resizeFrame);
+      this._resizeFrame = null;
+    }
   }
 
   snapshot() {
@@ -1074,6 +1168,13 @@ class XPlayer extends HTMLElement {
       hasPlayed = true; // <-- Mark as played
       this.updatePlayPauseIcon();
       this._hideOverlay();
+      this.dispatchEvent(new CustomEvent("xplayer-play", {
+        detail: {
+          currentTime: media.currentTime,
+          src: media.currentSrc || media.src,
+          source: "media-event"
+        }
+      }));
 
       this._internalStateUpdate = true;
       const prev = xstate.get(`xplayer-state-${this.id}`) || {};
@@ -1089,6 +1190,15 @@ class XPlayer extends HTMLElement {
 
     media.addEventListener("pause", () => {
       if (hasPlayed) this._showOverlay();
+      if (hasPlayed) {
+        this.dispatchEvent(new CustomEvent("xplayer-pause", {
+          detail: {
+            currentTime: media.currentTime,
+            src: media.currentSrc || media.src,
+            source: "media-event"
+          }
+        }));
+      }
 
       this._internalStateUpdate = true;
       const prev = xstate.get(`xplayer-state-${this.id}`) || {};
@@ -1254,10 +1364,8 @@ class XPlayer extends HTMLElement {
           e.preventDefault();
           if (media.paused) {
             media.play();
-            this.dispatchEvent(new CustomEvent("xplayer-play", { detail: { currentTime: media.currentTime } }));
           } else {
             media.pause();
-            this.dispatchEvent(new CustomEvent("xplayer-pause", { detail: { currentTime: media.currentTime } }));
           }
           this.updatePlayPauseIcon();
         };
@@ -1493,10 +1601,8 @@ class XPlayer extends HTMLElement {
       e.preventDefault();
       if (this._media.paused) {
         this._media.play();
-        this.dispatchEvent(new CustomEvent("xplayer-play", { detail: { currentTime: this._media.currentTime } }));
       } else {
         this._media.pause();
-        this.dispatchEvent(new CustomEvent("xplayer-pause", { detail: { currentTime: this._media.currentTime } }));
       }
       this.updatePlayPauseIcon();
     });
@@ -1681,6 +1787,18 @@ class XPlayer extends HTMLElement {
     return `${m}:${s}`;
   }
 
+  _observePlayerResize() {
+    if (typeof ResizeObserver !== "function" || this._resizeObserver) return;
+    this._resizeObserver = new ResizeObserver(() => {
+      if (this._resizeFrame) cancelAnimationFrame(this._resizeFrame);
+      this._resizeFrame = requestAnimationFrame(() => {
+        this._resizeFrame = null;
+        this._updateDimensions();
+      });
+    });
+    this._resizeObserver.observe(this);
+  }
+
   _updateDimensions() {
     const container = this.shadowRoot.querySelector("#media-container");
     const player = this.shadowRoot.querySelector(".player");
@@ -1724,7 +1842,9 @@ class XPlayer extends HTMLElement {
   }
 }
 
-customElements.define("x-player", XPlayer);
+if (!customElements.get("x-player")) {
+  customElements.define("x-player", XPlayer);
+}
 
 // SVG-Icon Helper (direkt im File, keine Abhängigkeit)
 function svgIcon(name) {
@@ -1741,8 +1861,3 @@ function svgIcon(name) {
     default: return '';
   }
 }
-
-// Entferne alle title-Attribute von Steuerelementen im Shadow DOM
-Array.from(this.shadowRoot.querySelectorAll('[title]')).forEach(el => {
-  el.removeAttribute('title');
-});

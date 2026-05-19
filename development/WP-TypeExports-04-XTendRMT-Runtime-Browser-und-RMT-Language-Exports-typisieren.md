@@ -14,7 +14,7 @@
 
 ## Ergebnis
 
-`./rmt` und `./rmt/browser` besitzen jetzt package-native `types`-Conditions auf `./xtendrmt/rmt-core.d.ts`. Die Runtime-Ziele bleiben unveraendert: ESM nutzt `xtendrmt/rmt-runtime.esm.js`, Browser nutzt `xtendrmt/rmt-runtime.browser.js`.
+`./rmt`, `./rmt/browser`, `./rmt/dom-descriptor-renderer`, `./rmt/state-selector-runtime`, `./rmt/action-effect-runtime`, `./rmt/event-routing-runtime` und `./rmt/surface-resource-graph-runtime` besitzen jetzt package-native `types`-Conditions. Die klassischen Runtime-Ziele bleiben unveraendert: ESM nutzt `xtendrmt/rmt-runtime.esm.js`, Browser nutzt `xtendrmt/rmt-runtime.browser.js`; der DOM Descriptor Renderer nutzt `xtendrmt/rmt-dom-descriptor-renderer.js` und `xtendrmt/rmt-dom-descriptor-renderer.d.ts`; die State Selector Runtime nutzt `xtendrmt/rmt-state-selector-runtime.js` und `xtendrmt/rmt-state-selector-runtime.d.ts`; die Action Effect Runtime nutzt `xtendrmt/rmt-action-effect-runtime.js` und `xtendrmt/rmt-action-effect-runtime.d.ts`; die Event Routing Runtime nutzt `xtendrmt/rmt-event-routing-runtime.js` und `xtendrmt/rmt-event-routing-runtime.d.ts`; die Surface Resource Graph Runtime nutzt `xtendrmt/rmt-surface-resource-graph-runtime.js` und `xtendrmt/rmt-surface-resource-graph-runtime.d.ts`.
 
 Fuer die RMT-Language-, LSP-, Linter- und Editor-Exports wurde ein Declaration-Set ergaenzt:
 
@@ -23,6 +23,7 @@ Fuer die RMT-Language-, LSP-, Linter- und Editor-Exports wurde ein Declaration-S
 - `tools/rmt-language/parser.d.ts`
 - `tools/rmt-language/vnext-*.d.ts`
 - `tools/rmt-language/diagnostics.d.ts`
+- `tools/rmt-language/app-platform-tooling.d.ts`
 - `tools/rmt-language/completions.d.ts`
 - `tools/rmt-language/hover.d.ts`
 - `tools/rmt-language/symbols.d.ts`

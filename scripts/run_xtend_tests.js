@@ -30,6 +30,42 @@ const {
   runRmtSurfaceManagerAuthoringSuite
 } = require('../tests/rmt/rmt_surface_manager_authoring_suite');
 const {
+  printRmtAppPlatformAuthoringReport,
+  runRmtAppPlatformAuthoringSuite
+} = require('../tests/rmt/rmt_app_platform_authoring_suite');
+const {
+  printRmtDomDescriptorRendererReport,
+  runRmtDomDescriptorRendererSuite
+} = require('../tests/rmt/rmt_dom_descriptor_renderer_suite');
+const {
+  printRmtComponentTemplatePrimitivesReport,
+  runRmtComponentTemplatePrimitivesSuite
+} = require('../tests/rmt/rmt_component_template_primitives_suite');
+const {
+  printRmtStateSelectorRuntimeReport,
+  runRmtStateSelectorRuntimeSuite
+} = require('../tests/rmt/rmt_state_selector_runtime_suite');
+const {
+  printRmtActionEffectRuntimeReport,
+  runRmtActionEffectRuntimeSuite
+} = require('../tests/rmt/rmt_action_effect_runtime_suite');
+const {
+  printRmtEventRoutingRuntimeReport,
+  runRmtEventRoutingRuntimeSuite
+} = require('../tests/rmt/rmt_event_routing_runtime_suite');
+const {
+  printRmtSurfaceResourceGraphRuntimeReport,
+  runRmtSurfaceResourceGraphRuntimeSuite
+} = require('../tests/rmt/rmt_surface_resource_graph_runtime_suite');
+const {
+  printRmtAppPlatformToolingReport,
+  runRmtAppPlatformToolingSuite
+} = require('../tests/rmt-language/rmt_app_platform_tooling_suite');
+const {
+  printRmtAppPlatformFixtureReport,
+  runRmtAppPlatformFixtureSuite
+} = require('../tests/rmt/rmt_app_platform_fixture_suite');
+const {
   printSurfaceControllerReport,
   runSurfaceControllerSuite
 } = require('../tests/components/surface_controller_suite');
@@ -81,6 +117,14 @@ const {
   printSurfaceManagerBrowserLabReport,
   runSurfaceManagerBrowserLabSuite
 } = require('../tests/browser/surface_manager_browser_lab_suite');
+const {
+  printEpic18VendorBugfixSmokeReport,
+  runEpic18VendorBugfixSmokeSuite
+} = require('../tests/components/epic18_vendor_bugfix_smoke_suite');
+const {
+  printEpic18RmtAppPlatformReleaseHandoffReport,
+  runEpic18RmtAppPlatformReleaseHandoffSuite
+} = require('../tests/platform/epic18_rmt_app_platform_release_handoff_suite');
 const {
   printSurfaceManagerNativeRmtSurfacesReport,
   runSurfaceManagerNativeRmtSurfacesSuite
@@ -2208,6 +2252,96 @@ const suites = [
     }
   },
   {
+    id: 'rmt-app-platform-authoring',
+    label: 'Epic 18 RMT App Platform authoring model',
+    description: 'Runs the WP-E18-04 generic RMT App Platform authoring contract and fixture gates.',
+    run: () => {
+      const result = runRmtAppPlatformAuthoringSuite({ rootDir });
+      printRmtAppPlatformAuthoringReport(result);
+      return toRunnerResult('rmt-app-platform-authoring', 'Epic 18 RMT App Platform authoring model', result);
+    }
+  },
+  {
+    id: 'rmt-dom-descriptor-renderer',
+    label: 'Epic 18 RMT DOM Descriptor renderer',
+    description: 'Runs the WP-E18-05 DOM Descriptor renderer, trusted boundary and no-manual-HTML gates.',
+    run: async () => {
+      const result = await runRmtDomDescriptorRendererSuite({ rootDir });
+      printRmtDomDescriptorRendererReport(result);
+      return toRunnerResult('rmt-dom-descriptor-renderer', 'Epic 18 RMT DOM Descriptor renderer', result);
+    }
+  },
+  {
+    id: 'rmt-component-template-primitives',
+    label: 'Epic 18 RMT component-native template primitives',
+    description: 'Runs the WP-E18-06 component-native RMT template primitive and fixture gates.',
+    run: async () => {
+      const result = await runRmtComponentTemplatePrimitivesSuite({ rootDir });
+      printRmtComponentTemplatePrimitivesReport(result);
+      return toRunnerResult('rmt-component-template-primitives', 'Epic 18 RMT component-native template primitives', result);
+    }
+  },
+  {
+    id: 'rmt-state-selector-runtime',
+    label: 'Epic 18 RMT typed state selector runtime',
+    description: 'Runs the WP-E18-07 typed state, selector, reducer and xstate bridge gates.',
+    run: async () => {
+      const result = await runRmtStateSelectorRuntimeSuite({ rootDir });
+      printRmtStateSelectorRuntimeReport(result);
+      return toRunnerResult('rmt-state-selector-runtime', 'Epic 18 RMT typed state selector runtime', result);
+    }
+  },
+  {
+    id: 'rmt-action-effect-runtime',
+    label: 'Epic 18 RMT action/effect runtime',
+    description: 'Runs the WP-E18-08 action, effect, datasource and resource runtime gates.',
+    run: async () => {
+      const result = await runRmtActionEffectRuntimeSuite({ rootDir });
+      printRmtActionEffectRuntimeReport(result);
+      return toRunnerResult('rmt-action-effect-runtime', 'Epic 18 RMT action/effect runtime', result);
+    }
+  },
+  {
+    id: 'rmt-event-routing-runtime',
+    label: 'Epic 18 RMT event routing runtime',
+    description: 'Runs the WP-E18-09 declarative event routing and component interaction gates.',
+    run: async () => {
+      const result = await runRmtEventRoutingRuntimeSuite({ rootDir });
+      printRmtEventRoutingRuntimeReport(result);
+      return toRunnerResult('rmt-event-routing-runtime', 'Epic 18 RMT event routing runtime', result);
+    }
+  },
+  {
+    id: 'rmt-surface-resource-graph-runtime',
+    label: 'Epic 18 RMT surface resource graph runtime',
+    description: 'Runs the WP-E18-10 surface, overlay, portal and resource graph gates.',
+    run: async () => {
+      const result = await runRmtSurfaceResourceGraphRuntimeSuite({ rootDir });
+      printRmtSurfaceResourceGraphRuntimeReport(result);
+      return toRunnerResult('rmt-surface-resource-graph-runtime', 'Epic 18 RMT surface resource graph runtime', result);
+    }
+  },
+  {
+    id: 'rmt-app-platform-tooling',
+    label: 'Epic 18 RMT App Platform tooling',
+    description: 'Runs the WP-E18-11 scaffold, linter, LSP diagnostics and source-map build gates.',
+    run: () => {
+      const result = runRmtAppPlatformToolingSuite({ rootDir });
+      printRmtAppPlatformToolingReport(result);
+      return toRunnerResult('rmt-app-platform-tooling', 'Epic 18 RMT App Platform tooling', result);
+    }
+  },
+  {
+    id: 'rmt-app-platform-fixture',
+    label: 'Epic 18 RMT App Platform fixture',
+    description: 'Runs the WP-E18-12 generic App Platform fixture, runtime, scaffold and cleanup gates.',
+    run: async () => {
+      const result = await runRmtAppPlatformFixtureSuite({ rootDir });
+      printRmtAppPlatformFixtureReport(result);
+      return toRunnerResult('rmt-app-platform-fixture', 'Epic 18 RMT App Platform fixture', result);
+    }
+  },
+  {
     id: 'surface-controller',
     label: 'Surface Controller and state snapshot contract',
     description: 'Runs the WP-SM-02 Surface Controller runtime, xstate mirror and diagnostics gates.',
@@ -2335,6 +2469,26 @@ const suites = [
       const result = runSurfaceManagerBrowserLabSuite({ rootDir });
       printSurfaceManagerBrowserLabReport(result);
       return toRunnerResult('surface-browser-lab', 'SurfaceManager Browser Lab visual stability gates', result);
+    }
+  },
+  {
+    id: 'epic18-vendor-bugfix-smokes',
+    label: 'Epic 18 vendor component bugfix smokes',
+    description: 'Runs WP-E18-03 contract and browser-near regression smokes for the five vendor component backports.',
+    run: () => {
+      const result = runEpic18VendorBugfixSmokeSuite({ rootDir });
+      printEpic18VendorBugfixSmokeReport(result);
+      return toRunnerResult('epic18-vendor-bugfix-smokes', 'Epic 18 vendor component bugfix smokes', result);
+    }
+  },
+  {
+    id: 'epic18-rmt-app-platform',
+    label: 'Epic 18 RMT App Platform release handoff',
+    description: 'Runs the WP-E18-13 docs, migration, GitHub gates and release handoff checks.',
+    run: () => {
+      const result = runEpic18RmtAppPlatformReleaseHandoffSuite({ rootDir });
+      printEpic18RmtAppPlatformReleaseHandoffReport(result);
+      return toRunnerResult('epic18-rmt-app-platform', 'Epic 18 RMT App Platform release handoff', result);
     }
   },
   {
@@ -2616,6 +2770,16 @@ Examples:
   node scripts/run_xtend_tests.js rmt-compatibility
   node scripts/run_xtend_tests.js rmt-first-class-app
   node scripts/run_xtend_tests.js rmt-surface-authoring
+  node scripts/run_xtend_tests.js rmt-app-platform-authoring
+  node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer
+  node scripts/run_xtend_tests.js rmt-component-template-primitives
+  node scripts/run_xtend_tests.js rmt-state-selector-runtime
+  node scripts/run_xtend_tests.js rmt-action-effect-runtime
+  node scripts/run_xtend_tests.js rmt-event-routing-runtime
+  node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime
+  node scripts/run_xtend_tests.js rmt-app-platform-tooling
+  node scripts/run_xtend_tests.js rmt-app-platform-fixture
+  node scripts/run_xtend_tests.js epic18-rmt-app-platform
   node scripts/run_xtend_tests.js surface-controller
   node scripts/run_xtend_tests.js surface-manager
   node scripts/run_xtend_tests.js surface-side-panel
@@ -2635,6 +2799,7 @@ Examples:
   node scripts/run_xtend_tests.js surface-layout-engines
   node scripts/run_xtend_tests.js surface-remote-policy
   node scripts/run_xtend_tests.js surface-browser-lab
+  node scripts/run_xtend_tests.js epic18-vendor-bugfix-smokes
   node scripts/run_xtend_tests.js surface-runtime-release-handoff
   node scripts/run_xtend_tests.js rmt-component-fabric-ingestion
 	  node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry

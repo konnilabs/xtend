@@ -19,6 +19,9 @@ const {
 const {
   createRmtAppBuild
 } = require('./rmt-build');
+const {
+  createRmtAppPlatformBuild
+} = require('./rmt-app-platform');
 
 const GENERATOR_REGISTRY_SCHEMA = 'xtend.scaffold.generator-registry.v1';
 
@@ -78,6 +81,14 @@ const GENERATORS = [
     owner: 'WP-E17-04',
     description: 'Compiles an RMT vNext template into Core JSON, XTend component/app, host, browser smoke and Scaffold report artifacts.',
     run: createRmtAppBuild
+  },
+  {
+    id: 'rmt-app-platform',
+    command: 'rmt-app-platform',
+    status: 'rmt-app-platform-diagnostics-source-map-and-scaffold-report',
+    owner: 'WP-E18-11',
+    description: 'Builds diagnostics, source maps and scaffold reports for generic Epic 18 RMT App Platform sources.',
+    run: createRmtAppPlatformBuild
   }
 ];
 

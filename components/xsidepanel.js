@@ -322,7 +322,8 @@ class XSidePanel extends HTMLElement {
         .content {
           flex: 1;
           min-height: 0;
-          overflow: auto;
+          overflow-y: auto;
+          overflow-x: hidden;
           padding: var(--side-panel-content-padding, 1rem);
         }
         :host([collapsed]) .content {
@@ -609,6 +610,7 @@ class XSidePanel extends HTMLElement {
   _syncA11y(record) {
     if (!this._panel) return;
     const mode = record && record.mode || this._mode();
+    const placement = record && record.placement || this._placement();
     const collapsed = Boolean(record && record.collapsed) || this.hasAttribute('collapsed') || mode === 'collapsed';
     const modal = Boolean(record && record.modal) || this.hasAttribute('modal') || mode === 'overlay';
     this._panel.setAttribute('role', modal ? 'dialog' : 'complementary');
@@ -616,8 +618,14 @@ class XSidePanel extends HTMLElement {
     this._panel.setAttribute('aria-hidden', this.hasAttribute('open') ? 'false' : 'true');
     this._panel.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
     if (this._collapseButton) this._collapseButton.setAttribute('aria-label', collapsed ? 'Expand panel' : 'Collapse panel');
-    if (this._collapseIcon) this._collapseIcon.setAttribute('name', collapsed ? 'chevron-right' : 'chevron-left');
+    if (this._collapseIcon) this._collapseIcon.setAttribute('name', this._collapseIconName(collapsed, placement));
     if (this._pinButton) this._pinButton.setAttribute('aria-pressed', this.hasAttribute('pinned') ? 'true' : 'false');
+  }
+
+  _collapseIconName(collapsed, placement) {
+    if (placement === 'right' || placement === 'inline') return collapsed ? 'chevron-left' : 'chevron-right';
+    if (placement === 'bottom') return collapsed ? 'chevron-up' : 'chevron-down';
+    return collapsed ? 'chevron-right' : 'chevron-left';
   }
 
   _handleActionClick(event) {

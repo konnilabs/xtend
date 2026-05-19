@@ -121,6 +121,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './rmt-language/symbols',
   './rmt-language/definitions',
   './rmt-language/code-actions',
+  './rmt-language/app-platform-tooling',
   './rmt-language-server',
   './rmt-language-server/protocol',
   './rmt-linter/cli',
@@ -142,6 +143,11 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './builder/performance/component-ux-performance-contract',
   './rmt',
   './rmt/browser',
+  './rmt/dom-descriptor-renderer',
+  './rmt/state-selector-runtime',
+  './rmt/action-effect-runtime',
+  './rmt/event-routing-runtime',
+  './rmt/surface-resource-graph-runtime',
   './builder',
   './builder/*',
   './security/manifest-import-policy',
@@ -188,7 +194,7 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'xtendrmt',
-    requiredExports: ['./rmt', './rmt/browser'],
+    requiredExports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/surface-resource-graph-runtime'],
     requiredPackRoots: ['xtendrmt']
   },
   {
@@ -296,6 +302,7 @@ const SURFACE_GROUPS = Object.freeze([
       './rmt-language/symbols',
       './rmt-language/definitions',
       './rmt-language/code-actions',
+      './rmt-language/app-platform-tooling',
       './rmt-language-server',
       './rmt-language-server/protocol',
       './rmt-linter/cli',

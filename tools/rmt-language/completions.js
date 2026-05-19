@@ -18,7 +18,17 @@ const TOP_LEVEL_DOMAINS = Object.freeze([
   ['components', 'array', 'Component records and XTend custom element bindings.'],
   ['routes', 'array', 'Route records for router adapters.'],
   ['schedules', 'array', 'Scheduler policies and endpoint names.'],
-  ['surfaces', 'array', 'Surface records for WindowManager, SidePanel and overlay adapter handoff.'],
+  ['state', 'array', 'Typed App State records.'],
+  ['selectors', 'array', 'Derived selector records.'],
+  ['dataSources', 'array', 'Fixture, REST, SSR or host data source records.'],
+  ['actions', 'array', 'Declarative action records.'],
+  ['effects', 'array', 'Feedback, navigation, focus and lazy import effects.'],
+  ['resources', 'array', 'Owned object URL, stream, observer, timer and import resources.'],
+  ['events', 'array', 'Declarative event bindings with payload contracts.'],
+  ['portals', 'array', 'Generic overlay portal layer definitions.'],
+  ['overlays', 'array', 'Tooltip, toast, popover, lightbox, menu and dialog overlay definitions.'],
+  ['records', 'object', 'Named fixture or SSR record collections.'],
+  ['surfaces', 'array', 'Generic keyed Surface Graph records.'],
   ['templates', 'array', 'Template records and DOM descriptors.'],
   ['diagnostics', 'object', 'Optional diagnostics and gate metadata.'],
   ['extensionSlots', 'object', 'Optional host extension slots.']
@@ -30,7 +40,16 @@ const DOMAIN_FIELD_COMPLETIONS = Object.freeze({
   components: ['id', 'kind', 'adapter', 'tag', 'schedule', 'props', 'attributes', 'slots', 'events', 'hydration', 'metadata'],
   routes: ['id', 'path', 'router', 'component', 'template', 'shell', 'schedule', 'documentTitle', 'metaDescription', 'metadata'],
   schedules: ['id', 'endpointName', 'lane', 'fiber', 'priority', 'budgetMs', 'deadlineMs', 'preferIdle', 'coalesceKey'],
-  surfaces: ['id', 'schema', 'type', 'adapter', 'manager', 'component', 'route', 'schedule', 'stateKey', 'defaultOpen', 'active', 'bounds', 'placement', 'mode', 'layer', 'capabilities', 'a11y', 'persistence', 'metadata'],
+  state: ['id', 'type', 'schema', 'initial', 'preserve', 'metadata'],
+  selectors: ['id', 'from', 'compute', 'output', 'structural', 'metadata'],
+  dataSources: ['id', 'kind', 'endpoint', 'adapter', 'records', 'payload', 'resultPath', 'contract', 'metadata'],
+  actions: ['id', 'datasource', 'resultState', 'loadingState', 'statusState', 'resourceOwner', 'effects', 'resources', 'cancelable', 'metadata'],
+  effects: ['id', 'kind', 'target', 'message', 'path', 'severity', 'resource', 'resources', 'metadata'],
+  resources: ['id', 'kind', 'owner', 'source', 'importId', 'delayMs', 'metadata'],
+  events: ['id', 'kind', 'event', 'target', 'component', 'owner', 'action', 'payload', 'payloadContract', 'governance', 'metadata'],
+  portals: ['id', 'root', 'layer', 'policy', 'focusPolicy', 'pointerPolicy', 'scrollPolicy', 'zIndexStart', 'zStep', 'metadata'],
+  overlays: ['id', 'kind', 'portal', 'layer', 'surface', 'resources', 'dismissible', 'singleton', 'focusPolicy', 'escapePolicy', 'pointerPolicy', 'scrollPolicy', 'metadata'],
+  surfaces: ['id', 'schema', 'kind', 'type', 'source', 'repeat', 'key', 'owner', 'portal', 'adapter', 'manager', 'component', 'template', 'route', 'schedule', 'resources', 'bounds', 'placement', 'mode', 'initialState', 'persistent', 'closeReleasesResources', 'destroyOnClose', 'metadata'],
   templates: ['id', 'mode', 'nodes', 'slots', 'hydration', 'metadata', 'security'],
   routeMetadata: ['title', 'documentTitle', 'titleTemplate', 'metaDescription', 'contentKind', 'announcement', 'a11y'],
   hydrationMetadata: ['endpointHint', 'scheduleRef', 'policy', 'deferUntil']
@@ -73,10 +92,52 @@ const TEMPLATE_MODES = Object.freeze([
 
 const SURFACE_TYPES = Object.freeze([
   ['window', 'Movable and resizable workspace window.'],
+  ['panel', 'Dockable or responsive app panel.'],
+  ['overlay-host', 'Invisible owner surface for overlay lifecycle.'],
   ['side-panel', 'Docked, pinned, collapsed or responsive side panel.'],
   ['modal', 'Modal overlay surface in the shared stack.'],
   ['dialog', 'Dialog overlay surface in the shared stack.'],
   ['drawer', 'Drawer overlay surface in the shared stack.']
+]);
+
+const OVERLAY_KINDS = Object.freeze([
+  ['tooltip', 'Viewport-fixed hint overlay.'],
+  ['toast', 'Nonmodal feedback overlay.'],
+  ['popover', 'Anchored interactive overlay.'],
+  ['lightbox', 'Modal media or detail overlay.'],
+  ['menu', 'Keyboard navigable menu overlay.'],
+  ['dialog', 'Modal or nonmodal dialog overlay.']
+]);
+
+const PORTAL_POLICIES = Object.freeze([
+  ['stacked', 'Generic stacked app layer.'],
+  ['modal', 'Blocks interaction below the portal.'],
+  ['nonmodal', 'Allows interaction outside the portal.'],
+  ['toast-region', 'Feedback region for transient messages.'],
+  ['clipping-escape', 'Viewport layer that escapes clipping containers.']
+]);
+
+const RESOURCE_KINDS = Object.freeze([
+  ['object-url', 'Object URL resource with revoke cleanup.'],
+  ['stream', 'Stream resource with open and close lifecycle.'],
+  ['observer', 'Observer resource with disconnect cleanup.'],
+  ['timer', 'Timer or idle handle resource.'],
+  ['lazy-import', 'Lazy module import resource.']
+]);
+
+const EVENT_KINDS = Object.freeze([
+  ['dom', 'DOM event binding.'],
+  ['custom', 'Custom component event binding.'],
+  ['keyboard', 'Keyboard event binding.'],
+  ['form', 'Form event binding.'],
+  ['surface', 'Surface lifecycle event binding.'],
+  ['drop', 'Drag and drop event binding.']
+]);
+
+const SURFACE_STATES = Object.freeze([
+  ['closed', 'Surface starts closed.'],
+  ['open', 'Surface starts open.'],
+  ['minimized', 'Surface starts minimized.']
 ]);
 
 function normalizeString(value) {
@@ -214,6 +275,24 @@ function referenceItems(graph, domain, options = {}) {
   }));
 }
 
+function documentIds(graph, domain) {
+  const document = graph && graph.sourceDocument && typeof graph.sourceDocument === 'object' ? graph.sourceDocument : {};
+  return toArray(document[domain])
+    .map((record) => normalizeString(record && record.id))
+    .filter(Boolean);
+}
+
+function documentReferenceItems(graph, domain, detail) {
+  return documentIds(graph, domain).map((id) => createCompletionItem({
+    label: id,
+    kind: 'reference',
+    detail,
+    documentation: `Referenz auf ${domain}[*].id.`,
+    source: 'rmt-app-platform-document',
+    targetDomain: domain
+  }));
+}
+
 function inferCompletionContext(input = {}) {
   if (input.context) {
     return input.context;
@@ -263,8 +342,36 @@ function inferCompletionContext(input = {}) {
     return 'route-paths';
   }
 
-  if ((field === 'type' || /\/type$/.test(pointer)) && (pointer.includes('/surfaces/') || domain === 'surfaces')) {
+  if ((field === 'type' || field === 'kind' || /\/(type|kind)$/.test(pointer)) && (pointer.includes('/surfaces/') || domain === 'surfaces')) {
     return 'surface-types';
+  }
+
+  if ((field === 'kind' || /\/kind$/.test(pointer)) && (pointer.includes('/overlays/') || domain === 'overlays')) {
+    return 'overlay-kinds';
+  }
+
+  if ((field === 'kind' || /\/kind$/.test(pointer)) && (pointer.includes('/resources/') || domain === 'resources')) {
+    return 'resource-kinds';
+  }
+
+  if ((field === 'kind' || /\/kind$/.test(pointer)) && (pointer.includes('/events/') || domain === 'events')) {
+    return 'event-kinds';
+  }
+
+  if (field === 'portal' || /\/portal$/.test(pointer)) {
+    return 'portal-ids';
+  }
+
+  if (field === 'resources' || /\/resources(?:\/\d+)?$/.test(pointer)) {
+    return 'resource-ids';
+  }
+
+  if ((field === 'policy' || /\/policy$/.test(pointer)) && (pointer.includes('/portals/') || domain === 'portals')) {
+    return 'portal-policies';
+  }
+
+  if ((field === 'initialState' || field === 'state' || /\/(initialState|state)$/.test(pointer)) && (pointer.includes('/surfaces/') || domain === 'surfaces')) {
+    return 'surface-states';
   }
 
   if (field === 'mode' || /\/mode$/.test(pointer)) {
@@ -293,6 +400,30 @@ function inferCompletionContext(input = {}) {
 
   if (/^\/surfaces\/\d+$/.test(pointer) || domain === 'surfaces') {
     return 'surface-fields';
+  }
+
+  if (/^\/portals\/\d+$/.test(pointer) || domain === 'portals') {
+    return 'portal-fields';
+  }
+
+  if (/^\/overlays\/\d+$/.test(pointer) || domain === 'overlays') {
+    return 'overlay-fields';
+  }
+
+  if (/^\/resources\/\d+$/.test(pointer) || domain === 'resources') {
+    return 'resource-fields';
+  }
+
+  if (/^\/events\/\d+$/.test(pointer) || domain === 'events') {
+    return 'event-fields';
+  }
+
+  if (/^\/actions\/\d+$/.test(pointer) || domain === 'actions') {
+    return 'action-fields';
+  }
+
+  if (/^\/dataSources\/\d+$/.test(pointer) || domain === 'dataSources') {
+    return 'data-source-fields';
   }
 
   if (/^\/adapters\/\d+$/.test(pointer) || domain === 'adapters') {
@@ -336,6 +467,18 @@ function buildContextItems(graph, context, options = {}) {
       return domainFieldItems('schedules', 'schedules[*]');
     case 'surface-fields':
       return domainFieldItems('surfaces', 'surfaces[*]');
+    case 'portal-fields':
+      return domainFieldItems('portals', 'portals[*]');
+    case 'overlay-fields':
+      return domainFieldItems('overlays', 'overlays[*]');
+    case 'resource-fields':
+      return domainFieldItems('resources', 'resources[*]');
+    case 'event-fields':
+      return domainFieldItems('events', 'events[*]');
+    case 'action-fields':
+      return domainFieldItems('actions', 'actions[*]');
+    case 'data-source-fields':
+      return domainFieldItems('dataSources', 'dataSources[*]');
     case 'template-fields':
       return domainFieldItems('templates', 'templates[*]');
     case 'hydration-metadata-fields':
@@ -383,6 +526,40 @@ function buildContextItems(graph, context, options = {}) {
         detail: 'Surface Type aus aktivem Dokument',
         source: 'semantic-graph.catalogHints'
       })));
+    case 'overlay-kinds':
+      return createStaticItems(OVERLAY_KINDS, {
+        kind: 'enum',
+        detail: 'RMT Overlay Kind',
+        source: 'rmt-app-platform-overlay-catalog'
+      });
+    case 'portal-policies':
+      return createStaticItems(PORTAL_POLICIES, {
+        kind: 'enum',
+        detail: 'RMT Portal Policy',
+        source: 'rmt-app-platform-portal-catalog'
+      });
+    case 'resource-kinds':
+      return createStaticItems(RESOURCE_KINDS, {
+        kind: 'enum',
+        detail: 'RMT Resource Kind',
+        source: 'rmt-app-platform-resource-catalog'
+      });
+    case 'event-kinds':
+      return createStaticItems(EVENT_KINDS, {
+        kind: 'enum',
+        detail: 'RMT Event Kind',
+        source: 'rmt-app-platform-event-catalog'
+      });
+    case 'surface-states':
+      return createStaticItems(SURFACE_STATES, {
+        kind: 'enum',
+        detail: 'RMT Surface Initial State',
+        source: 'rmt-app-platform-surface-state-catalog'
+      });
+    case 'portal-ids':
+      return documentReferenceItems(graph, 'portals', 'Portal ID');
+    case 'resource-ids':
+      return documentReferenceItems(graph, 'resources', 'Resource ID');
     case 'hydration-policies':
       return createStaticItems(HYDRATION_POLICIES, {
         kind: 'enum',
@@ -455,7 +632,10 @@ function getRmtCompletions(input = {}, options = {}) {
 module.exports = {
   BUILT_IN_ADAPTER_IDS,
   DOMAIN_FIELD_COMPLETIONS,
+  EVENT_KINDS,
   HYDRATION_POLICIES,
+  OVERLAY_KINDS,
+  PORTAL_POLICIES,
   RMT_COMPLETION_ITEM_SCHEMA,
   RMT_COMPLETION_MODULE_PATH,
   RMT_COMPLETION_PACKAGE_SCRIPT,
@@ -463,7 +643,9 @@ module.exports = {
   RMT_COMPLETION_REPORT_SCHEMA,
   RMT_COMPLETION_SUITE_PATH,
   RMT_COMPLETION_WORKPACKAGE,
+  RESOURCE_KINDS,
   SCHEDULE_LANES,
+  SURFACE_STATES,
   SURFACE_TYPES,
   TEMPLATE_MODES,
   TOP_LEVEL_DOMAINS,

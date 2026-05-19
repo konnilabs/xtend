@@ -1,0 +1,275 @@
+{
+  "kind": "rmt_document",
+  "schema": "xtend.epic18.rmt-dom-descriptor-renderer-fixture.v1",
+  "manifest": {
+    "id": "epic18.dom-descriptor-renderer.fixture",
+    "metadata": {
+      "contractVersion": "xtend.epic18.rmt-dom-descriptor-renderer.v1",
+      "authoringContract": "xtend.epic18.rmt-app-platform-authoring.v1",
+      "workpackage": "WP-E18-05",
+      "renderMode": "dom_descriptor",
+      "manualHtmlRendererAllowed": false,
+      "normalUiAllowsManualHtml": false,
+      "trustedHtmlBoundary": "xtend.rmt.trusted-dom-boundary.explicit",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    }
+  },
+  "app": {
+    "id": "app.generic-renderer-shell",
+    "shell": "template.shell",
+    "state": ["state.items", "state.filters"],
+    "surfaces": ["surface.main", "surface.detail"]
+  },
+  "renderUnits": [
+    {
+      "id": "unit.shell",
+      "rootSelector": "[data-rmt-host=\"generic-app\"]",
+      "template": "template.shell",
+      "ownershipMode": "replace_children",
+      "source": {
+        "documentId": "epic18.dom-descriptor-renderer.fixture",
+        "templateId": "template.shell",
+        "pointer": "/templates/0/root"
+      }
+    },
+    {
+      "id": "unit.keyed-list",
+      "rootSelector": "[data-rmt-host=\"generic-list\"]",
+      "template": "template.collection",
+      "ownershipMode": "keyed_children",
+      "source": {
+        "documentId": "epic18.dom-descriptor-renderer.fixture",
+        "templateId": "template.collection",
+        "pointer": "/templates/1/root"
+      }
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface.main",
+      "template": "template.collection",
+      "state": "state.items"
+    },
+    {
+      "id": "surface.detail",
+      "template": "template.detail",
+      "state": "state.selection"
+    }
+  ],
+  "slots": [
+    {
+      "id": "slot.shell.toolbar",
+      "owner": "template.shell",
+      "name": "toolbar",
+      "template": "template.toolbar"
+    },
+    {
+      "id": "slot.shell.content",
+      "owner": "template.shell",
+      "name": "content",
+      "template": "template.collection"
+    }
+  ],
+  "components": [
+    {
+      "id": "component.shell",
+      "tag": "x-section",
+      "adapter": "xtend.component"
+    },
+    {
+      "id": "component.toolbar",
+      "tag": "x-form",
+      "adapter": "xtend.component"
+    },
+    {
+      "id": "component.row",
+      "tag": "x-card",
+      "adapter": "xtend.component"
+    },
+    {
+      "id": "component.empty",
+      "tag": "x-alert",
+      "adapter": "xtend.component"
+    },
+    {
+      "id": "component.detail",
+      "tag": "x-side-panel",
+      "adapter": "xtend.component"
+    }
+  ],
+  "templates": [
+    {
+      "id": "template.shell",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.shell",
+        "id": "node.shell",
+        "attributes": {
+          "label": "Generic workspace"
+        },
+        "slots": {
+          "toolbar": "slot.shell.toolbar",
+          "content": "slot.shell.content"
+        },
+        "source": {
+          "pointer": "/templates/0/root"
+        }
+      }
+    },
+    {
+      "id": "template.collection",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "when",
+        "test": "hasItems",
+        "then": {
+          "type": "element",
+          "tag": "section",
+          "id": "node.collection",
+          "attributes": {
+            "data-rmt-surface": "surface.main"
+          },
+          "children": [
+            {
+              "type": "repeat",
+              "source": "items",
+              "key": "item.id",
+              "item": "template.row"
+            }
+          ]
+        },
+        "else": {
+          "type": "empty",
+          "template": "template.empty"
+        },
+        "source": {
+          "pointer": "/templates/1/root"
+        }
+      }
+    },
+    {
+      "id": "template.row",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.row",
+        "id": "node.row",
+        "key": "$item.id",
+        "attributes": {
+          "title": "$item.title",
+          "data-kind": "$item.kind"
+        },
+        "properties": {
+          "value": "$item.id"
+        },
+        "events": {
+          "click": "event.item-selected"
+        },
+        "children": [
+          {
+            "type": "text",
+            "text": "$item.title"
+          }
+        ],
+        "source": {
+          "pointer": "/templates/2/root"
+        }
+      }
+    },
+    {
+      "id": "template.toolbar",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.toolbar",
+        "id": "node.toolbar",
+        "attributes": {
+          "aria-label": "Filter"
+        },
+        "source": {
+          "pointer": "/templates/3/root"
+        }
+      }
+    },
+    {
+      "id": "template.empty",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.empty",
+        "id": "node.empty",
+        "attributes": {
+          "type": "info",
+          "title": "No records"
+        },
+        "children": [
+          {
+            "type": "text",
+            "text": "No records match this generic view."
+          }
+        ],
+        "source": {
+          "pointer": "/templates/4/root"
+        }
+      }
+    },
+    {
+      "id": "template.detail",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.detail",
+        "id": "node.detail",
+        "attributes": {
+          "placement": "side",
+          "label": "Details"
+        },
+        "source": {
+          "pointer": "/templates/5/root"
+        }
+      }
+    },
+    {
+      "id": "template.trusted-fragment",
+      "renderMode": "trusted_html",
+      "trustedBoundary": "xtend.rmt.trusted-dom-boundary.explicit",
+      "resource": "resource.trusted-fragment",
+      "source": {
+        "pointer": "/templates/6"
+      }
+    }
+  ],
+  "state": [
+    {
+      "id": "state.items",
+      "type": "collection",
+      "initial": []
+    },
+    {
+      "id": "state.filters",
+      "type": "object",
+      "initial": {
+        "query": ""
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "event.item-selected",
+      "source": "component.row",
+      "scope": "surface.detail"
+    }
+  ],
+  "resources": [
+    {
+      "id": "resource.trusted-fragment",
+      "kind": "trusted-html",
+      "trustedBoundary": "xtend.rmt.trusted-dom-boundary.explicit"
+    }
+  ],
+  "diagnostics": {
+    "schema": "xtend.epic18.rmt-dom-renderer-diagnostic.v1",
+    "sourceMapRequired": true
+  }
+}

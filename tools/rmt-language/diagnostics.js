@@ -32,15 +32,29 @@ const SEVERITY_ORDER = {
 const DEFAULT_ALLOWED_TOP_LEVEL_DOMAINS = Object.freeze([
   'kind',
   'version',
+  'schema',
   'manifest',
   'adapters',
   'components',
   'routes',
   'schedules',
   'surfaces',
+  'portals',
+  'overlays',
+  'state',
+  'states',
+  'selectors',
+  'dataSources',
+  'datasources',
+  'actions',
+  'effects',
+  'resources',
+  'events',
+  'records',
   'templates',
   'diagnostics',
   'extensionSlots',
+  'acceptance',
   'metadata'
 ]);
 
@@ -169,6 +183,46 @@ const DIAGNOSTIC_CATALOG = Object.freeze({
     severity: 'warning',
     category: 'migration',
     repair: { kind: 'replace-field-value', title: 'Feld auf aktuellen Domain-Contract migrieren', safe: false }
+  },
+  'rmt.app.no-manual-shell.html-sink': {
+    severity: 'error',
+    category: 'security',
+    repair: { kind: 'replace-with-dom-descriptor', title: 'DOM Descriptor oder Component Template verwenden', safe: false }
+  },
+  'rmt.app.unsafe-html.boundary-missing': {
+    severity: 'warning',
+    category: 'security',
+    repair: { kind: 'add-trusted-dom-boundary', title: 'Trusted-DOM-Boundary explizit setzen', safe: true }
+  },
+  'rmt.app.repeat.key.missing': {
+    severity: 'error',
+    category: 'state',
+    repair: { kind: 'add-key', title: 'Stabilen key fuer repeat setzen', safe: true }
+  },
+  'rmt.app.event.payload-contract.missing': {
+    severity: 'error',
+    category: 'events',
+    repair: { kind: 'add-payload-contract', title: 'Payload Contract fuer Event Binding ergaenzen', safe: true }
+  },
+  'rmt.app.resource.ownership.missing': {
+    severity: 'warning',
+    category: 'lifecycle',
+    repair: { kind: 'add-owner-template', title: 'Resource Owner deklarieren', safe: true }
+  },
+  'rmt.app.resource.unresolved': {
+    severity: 'error',
+    category: 'references',
+    repair: { kind: 'create-resource', title: 'Resource Record anlegen oder Referenz korrigieren', safe: true }
+  },
+  'rmt.app.portal.unresolved': {
+    severity: 'error',
+    category: 'references',
+    repair: { kind: 'create-portal', title: 'Portal Record anlegen oder Referenz korrigieren', safe: true }
+  },
+  'rmt.app.surface.source.unresolved': {
+    severity: 'warning',
+    category: 'references',
+    repair: { kind: 'create-record-source', title: 'Record Source, DataSource oder State deklarieren', safe: true }
   }
 });
 

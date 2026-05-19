@@ -36,7 +36,8 @@ const RULE_MODULE_PATHS = [
   'tools/rmt-language/rules/route-policy.js',
   'tools/rmt-language/rules/template-policy.js',
   'tools/rmt-language/rules/scheduler-policy.js',
-  'tools/rmt-language/rules/boundary-policy.js'
+  'tools/rmt-language/rules/boundary-policy.js',
+  'tools/rmt-language/rules/app-platform-policy.js'
 ];
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -119,7 +120,7 @@ function runValidFixtureChecks(context, rootDir) {
   context.assert(report.workpackage === RMT_LINTER_WORKPACKAGE, 'Linter report belongs to WP-E14-05');
   context.assert(report.status === 'passed', 'Valid RMT-first fixture passes linter');
   context.assert(report.errorCount === 0, 'Valid RMT-first fixture has no linter errors');
-  context.assert(report.ruleCount === 5, 'Default linter registers five basis rules');
+  context.assert(report.ruleCount === 6, 'Default linter registers five basis rules plus App Platform policy');
   context.assert(report.graphStatus === 'indexed', 'Linter report exposes graph status instead of graph internals');
   context.assert(!Object.prototype.hasOwnProperty.call(report, 'graph'), 'JSON report does not expose non-deterministic graph internals');
   context.assert(report.manifestHints.documentId === 'demo.xtend.rmt-first-app', 'Linter report exposes manifest hints');

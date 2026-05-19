@@ -1,0 +1,336 @@
+{
+  "kind": "rmt_document",
+  "schema": "xtend.epic18.rmt-component-template-primitives-fixture.v1",
+  "manifest": {
+    "id": "epic18.component-template-primitives.fixture",
+    "metadata": {
+      "contractVersion": "xtend.epic18.rmt-component-template-primitives.v1",
+      "rendererContract": "xtend.epic18.rmt-dom-descriptor-renderer.v1",
+      "workpackage": "WP-E18-06",
+      "renderMode": "component_native_dom_descriptor",
+      "manualHtmlRendererAllowed": false,
+      "htmlStringRendererRequired": false,
+      "productSurfaceClone": false,
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    }
+  },
+  "componentFamilies": [
+    { "id": "icons", "components": ["component.icon.refresh", "component.icon.warning"] },
+    { "id": "tooltips", "components": ["component.tooltip"] },
+    { "id": "form-controls", "components": ["component.filter-form", "component.search-input", "component.kind-select", "component.boolean-filter"] },
+    { "id": "navigation", "components": ["component.action-menu"] },
+    { "id": "list", "components": ["component.item-card"] },
+    { "id": "selection", "components": ["component.detail-panel"] },
+    { "id": "empty-state", "components": ["component.empty-state"] },
+    { "id": "error-state", "components": ["component.error-state"] },
+    { "id": "custom-elements", "components": ["component.shell", "component.custom-widget"] }
+  ],
+  "app": {
+    "id": "app.generic-component-primitives",
+    "shell": "template.shell",
+    "surfaces": ["surface.workspace", "surface.detail", "surface.feedback"],
+    "state": ["state.items", "state.selection", "state.filters", "state.error"]
+  },
+  "surfaces": [
+    { "id": "surface.workspace", "template": "template.collection", "state": "state.items" },
+    { "id": "surface.detail", "template": "template.selection", "state": "state.selection" },
+    { "id": "surface.feedback", "template": "template.error", "state": "state.error" }
+  ],
+  "slots": [
+    { "id": "slot.shell.toolbar", "owner": "template.shell", "name": "toolbar", "template": "template.toolbar" },
+    { "id": "slot.shell.content", "owner": "template.shell", "name": "content", "template": "template.collection" },
+    { "id": "slot.shell.detail", "owner": "template.shell", "name": "detail", "template": "template.selection" }
+  ],
+  "components": [
+    {
+      "id": "component.shell",
+      "tag": "x-section",
+      "adapter": "xtend.component",
+      "attributes": { "label": "Generic Component Workspace" },
+      "parts": ["root", "toolbar", "content", "detail"],
+      "slots": {}
+    },
+    {
+      "id": "component.filter-form",
+      "tag": "x-form",
+      "adapter": "xtend.component",
+      "attributes": { "aria-label": "Filters" },
+      "parts": ["root", "control", "actions"]
+    },
+    {
+      "id": "component.search-input",
+      "tag": "x-input",
+      "adapter": "xtend.component",
+      "attributes": { "name": "query", "label": "Search" },
+      "props": { "value": "$model.query" },
+      "parts": ["root", "control", "label"]
+    },
+    {
+      "id": "component.kind-select",
+      "tag": "x-select",
+      "adapter": "xtend.component",
+      "attributes": { "name": "kind", "label": "Kind" },
+      "props": { "value": "$model.kind" },
+      "parts": ["root", "control", "listbox"]
+    },
+    {
+      "id": "component.boolean-filter",
+      "tag": "x-checkbox",
+      "adapter": "xtend.component",
+      "attributes": { "name": "onlySelected", "label": "Selected only" },
+      "props": { "checked": "$model.onlySelected" },
+      "parts": ["root", "control", "label"]
+    },
+    {
+      "id": "component.action-menu",
+      "tag": "x-menu",
+      "adapter": "xtend.component",
+      "attributes": { "orientation": "horizontal" },
+      "parts": ["root", "item", "icon"]
+    },
+    {
+      "id": "component.icon.refresh",
+      "tag": "x-icon",
+      "adapter": "xtend.component",
+      "attributes": { "name": "refresh" },
+      "parts": ["root", "glyph"]
+    },
+    {
+      "id": "component.icon.warning",
+      "tag": "x-icon",
+      "adapter": "xtend.component",
+      "attributes": { "name": "warning" },
+      "parts": ["root", "glyph"]
+    },
+    {
+      "id": "component.tooltip",
+      "tag": "x-tooltip",
+      "adapter": "xtend.component",
+      "attributes": { "placement": "bottom" },
+      "parts": ["root", "trigger", "panel"]
+    },
+    {
+      "id": "component.item-card",
+      "tag": "x-card",
+      "adapter": "xtend.component",
+      "parts": ["root", "body", "actions", "status"],
+      "styleTokens": { "density": "$model.density", "accent": "$item.kind" }
+    },
+    {
+      "id": "component.detail-panel",
+      "tag": "x-side-panel",
+      "adapter": "xtend.component",
+      "attributes": { "placement": "side", "mode": "inline" },
+      "parts": ["root", "header", "content", "actions"]
+    },
+    {
+      "id": "component.empty-state",
+      "tag": "x-alert",
+      "adapter": "xtend.component",
+      "attributes": { "type": "info", "title": "No records" },
+      "parts": ["root", "title", "content", "actions"]
+    },
+    {
+      "id": "component.error-state",
+      "tag": "x-alert",
+      "adapter": "xtend.component",
+      "attributes": { "type": "error", "title": "Load failed" },
+      "parts": ["root", "title", "content", "actions"]
+    },
+    {
+      "id": "component.custom-widget",
+      "tag": "x-app-widget",
+      "adapter": "xtend.component",
+      "attributes": { "role": "status" },
+      "parts": ["root", "value"]
+    }
+  ],
+  "templates": [
+    {
+      "id": "template.shell",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.shell",
+        "id": "node.shell",
+        "ref": "shell.root",
+        "class": ["rmt-shell", { "is-loading": "$model.loading" }],
+        "styleTokens": { "density": "$model.density", "tone": "neutral" },
+        "slots": {
+          "toolbar": "slot.shell.toolbar",
+          "content": "slot.shell.content",
+          "detail": "slot.shell.detail"
+        }
+      }
+    },
+    {
+      "id": "template.toolbar",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.filter-form",
+        "id": "node.toolbar",
+        "ref": "toolbar.form",
+        "slots": {
+          "controls": {
+            "type": "fragment",
+            "children": [
+              { "type": "component", "component": "component.search-input", "ref": "filter.search" },
+              { "type": "component", "component": "component.kind-select", "ref": "filter.kind" },
+              { "type": "component", "component": "component.boolean-filter", "ref": "filter.selected" }
+            ]
+          },
+          "actions": {
+            "type": "component",
+            "component": "component.action-menu",
+            "slots": {
+              "default": {
+                "type": "component",
+                "component": "component.tooltip",
+                "slots": {
+                  "trigger": { "type": "component", "component": "component.icon.refresh" },
+                  "default": { "type": "text", "text": "Refresh generic records" }
+                }
+              }
+            }
+          }
+        },
+        "events": { "submit": "event.filters-submitted" }
+      }
+    },
+    {
+      "id": "template.collection",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "when",
+        "test": "hasError",
+        "then": { "type": "template", "template": "template.error" },
+        "else": {
+          "type": "when",
+          "test": "hasItems",
+          "then": {
+            "type": "element",
+            "tag": "section",
+            "id": "node.collection",
+            "parts": ["root", "list"],
+            "class": ["rmt-list", { "has-selection": "$model.hasSelection" }],
+            "children": [
+              {
+                "type": "repeat",
+                "source": "items",
+                "key": "$item.id",
+                "item": "template.item-row"
+              }
+            ]
+          },
+          "else": {
+            "type": "empty",
+            "fallback": { "type": "template", "template": "template.empty" }
+          }
+        }
+      }
+    },
+    {
+      "id": "template.item-row",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.item-card",
+        "id": "node.item-row",
+        "key": "$item.id",
+        "ref": "$item.ref",
+        "class": ["rmt-row", { "is-selected": "$item.selected", "is-disabled": "$item.disabled" }],
+        "attributes": {
+          "title": "$item.title",
+          "aria-selected": "$item.selected",
+          "data-kind": "$item.kind"
+        },
+        "props": {
+          "value": "$item.id",
+          "selected": "$item.selected"
+        },
+        "slots": {
+          "body": { "type": "text", "text": "$item.title" },
+          "actions": {
+            "type": "component",
+            "component": "component.tooltip",
+            "slots": {
+              "trigger": { "type": "component", "component": "component.icon.refresh" },
+              "default": { "type": "text", "text": "$item.hint" }
+            }
+          }
+        },
+        "events": { "click": "event.item-selected" }
+      }
+    },
+    {
+      "id": "template.selection",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "when",
+        "test": "hasSelection",
+        "then": {
+          "type": "component",
+          "component": "component.detail-panel",
+          "id": "node.selection",
+          "ref": "detail.panel",
+          "attributes": { "label": "$model.selectedTitle" },
+          "slots": {
+            "content": { "type": "component", "component": "component.custom-widget", "props": { "value": "$model.selectedTitle" } }
+          }
+        },
+        "else": { "type": "fallback", "template": "template.no-selection" }
+      }
+    },
+    {
+      "id": "template.no-selection",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "element",
+        "tag": "p",
+        "class": "rmt-muted",
+        "text": "Select a record to inspect details."
+      }
+    },
+    {
+      "id": "template.empty",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.empty-state",
+        "id": "node.empty",
+        "slots": {
+          "default": { "type": "text", "text": "No records match this generic view." }
+        }
+      }
+    },
+    {
+      "id": "template.error",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.error-state",
+        "id": "node.error",
+        "slots": {
+          "default": { "type": "text", "text": "$model.errorMessage" },
+          "actions": { "type": "component", "component": "component.icon.warning" }
+        }
+      }
+    }
+  ],
+  "state": [
+    { "id": "state.items", "type": "collection", "initial": [] },
+    { "id": "state.selection", "type": "object", "initial": { "id": null } },
+    { "id": "state.filters", "type": "object", "initial": { "query": "", "kind": "all" } },
+    { "id": "state.error", "type": "object", "initial": { "message": "" } }
+  ],
+  "events": [
+    { "id": "event.filters-submitted", "source": "component.filter-form", "scope": "app" },
+    { "id": "event.item-selected", "source": "component.item-card", "scope": "surface.detail" }
+  ],
+  "acceptance": {
+    "normalUiContainsHtmlStrings": false,
+    "externalInnerHtmlHelperRequired": false,
+    "componentNativeFamilies": ["icons", "tooltips", "form-controls", "navigation", "list", "selection", "empty-state", "error-state", "custom-elements"]
+  }
+}

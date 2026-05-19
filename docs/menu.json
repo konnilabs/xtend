@@ -594,6 +594,114 @@
     "rank": 66
   },
   {
+    "slug": "epic18-media-manager-vendor-upstream",
+    "id": "docs.epic18.media.manager.vendor.upstream",
+    "label": "Epic 18 RMT App Platform",
+    "group": "rmt",
+    "parent": "rmt-first-xtend-apps",
+    "tier": "rmt-deep-dive",
+    "rank": 64
+  },
+  {
+    "slug": "rmt-dom-descriptor-renderer",
+    "id": "docs.rmt.dom.descriptor.renderer",
+    "label": "RMT DOM Descriptor Renderer",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 65
+  },
+  {
+    "slug": "rmt-component-template-primitives",
+    "id": "docs.rmt.component.template.primitives",
+    "label": "RMT Component Template Primitives",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-state-selector-runtime",
+    "id": "docs.rmt.state.selector.runtime",
+    "label": "RMT State Selector Runtime",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 67
+  },
+  {
+    "slug": "rmt-action-effect-runtime",
+    "id": "docs.rmt.action.effect.runtime",
+    "label": "RMT Action Effect Runtime",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 68
+  },
+  {
+    "slug": "rmt-event-routing-runtime",
+    "id": "docs.rmt.event.routing.runtime",
+    "label": "RMT Event Routing Runtime",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 69
+  },
+  {
+    "slug": "rmt-surface-resource-graph-runtime",
+    "id": "docs.rmt.surface.resource.graph.runtime",
+    "label": "RMT Surface Resource Graph Runtime",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 70
+  },
+  {
+    "slug": "rmt-app-platform-tooling",
+    "id": "docs.rmt.app.platform.tooling",
+    "label": "RMT App Platform Tooling",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 71
+  },
+  {
+    "slug": "rmt-app-platform-fixture",
+    "id": "docs.rmt.app.platform.fixture",
+    "label": "RMT App Platform Fixture",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 72
+  },
+  {
+    "slug": "epic18-vendor-bugfixes",
+    "id": "docs.epic18.vendor.bugfixes",
+    "label": "Epic 18 Vendor Bugfixes",
+    "group": "components",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "deep-dive",
+    "rank": 73
+  },
+  {
+    "slug": "rmt-app-platform-migration-guide",
+    "id": "docs.rmt.app.platform.migration.guide",
+    "label": "RMT App Platform Migration Guide",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 74
+  },
+  {
+    "slug": "epic18-rmt-app-platform-release-handoff",
+    "id": "docs.epic18.rmt.app.platform.release.handoff",
+    "label": "Epic 18 RMT App Platform Release Handoff",
+    "group": "rmt",
+    "parent": "epic18-media-manager-vendor-upstream",
+    "tier": "rmt-deep-dive",
+    "rank": 75
+  },
+  {
     "slug": "rmt-lifecycle-demo",
     "id": "docs.rmt.lifecycle.demo",
     "label": "RMT Lifecycle Demo",

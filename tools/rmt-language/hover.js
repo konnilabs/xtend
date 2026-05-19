@@ -4,8 +4,14 @@ const {
 const {
   BUILT_IN_ADAPTER_IDS,
   DOMAIN_FIELD_COMPLETIONS,
+  EVENT_KINDS,
   HYDRATION_POLICIES,
+  OVERLAY_KINDS,
+  PORTAL_POLICIES,
+  RESOURCE_KINDS,
   SCHEDULE_LANES,
+  SURFACE_STATES,
+  SURFACE_TYPES,
   TEMPLATE_MODES,
   TOP_LEVEL_DOMAINS,
   loadComponentManifest
@@ -225,6 +231,36 @@ function inferStaticHover(graph, pointer, options = {}) {
   if (field === 'lane') {
     const entry = lookupEntry(SCHEDULE_LANES, stringValue);
     return entry ? createStaticHover(graph, pointer, 'lane', stringValue, entry, 'rmt-lane-catalog') : null;
+  }
+
+  if ((field === 'type' || field === 'kind') && pointer.startsWith('/surfaces/')) {
+    const entry = lookupEntry(SURFACE_TYPES, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'surface-kind', stringValue, entry, 'rmt-surface-type-catalog') : null;
+  }
+
+  if (field === 'kind' && pointer.startsWith('/overlays/')) {
+    const entry = lookupEntry(OVERLAY_KINDS, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'overlay-kind', stringValue, entry, 'rmt-app-platform-overlay-catalog') : null;
+  }
+
+  if (field === 'kind' && pointer.startsWith('/resources/')) {
+    const entry = lookupEntry(RESOURCE_KINDS, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'resource-kind', stringValue, entry, 'rmt-app-platform-resource-catalog') : null;
+  }
+
+  if (field === 'kind' && pointer.startsWith('/events/')) {
+    const entry = lookupEntry(EVENT_KINDS, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'event-kind', stringValue, entry, 'rmt-app-platform-event-catalog') : null;
+  }
+
+  if (field === 'policy' && pointer.startsWith('/portals/')) {
+    const entry = lookupEntry(PORTAL_POLICIES, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'portal-policy', stringValue, entry, 'rmt-app-platform-portal-catalog') : null;
+  }
+
+  if ((field === 'initialState' || field === 'state') && pointer.startsWith('/surfaces/')) {
+    const entry = lookupEntry(SURFACE_STATES, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'surface-state', stringValue, entry, 'rmt-app-platform-surface-state-catalog') : null;
   }
 
   if (field === 'mode' && pointer.includes('/hydration/')) {

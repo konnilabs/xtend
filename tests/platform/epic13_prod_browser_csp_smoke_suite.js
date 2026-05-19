@@ -119,7 +119,13 @@ async function assertProdLocalServerProbe(context, rootDir) {
     context.assert(manifestResponse.statusCode === 200, 'PROD CSP server serves same-origin fixture manifest');
     context.assert(manifestResponse.headers['content-type'].includes('application/json'), 'PROD CSP server serves manifest as JSON');
   } catch (error) {
-    context.fail(`PROD CSP local server probe (${error.message})`);
+    const message = error && error.message ? error.message : String(error);
+    const code = error && error.code ? error.code : '';
+    if ((code === 'EPERM' || code === 'EACCES') && /listen/u.test(message)) {
+      context.skip(`PROD CSP local server probe skipped because this environment denies loopback listen (${message})`);
+      return;
+    }
+    context.fail(`PROD CSP local server probe (${message})`);
   } finally {
     if (handle && handle.server) {
       await new Promise((resolve) => handle.server.close(resolve));

@@ -47,6 +47,10 @@
       "types": "./rmt-language/diagnostics.d.ts",
       "default": "./rmt-language/diagnostics.js"
     },
+    "./rmt-language/app-platform-tooling": {
+      "types": "./rmt-language/app-platform-tooling.d.ts",
+      "default": "./rmt-language/app-platform-tooling.js"
+    },
     "./rmt-linter/cli": {
       "types": "./rmt-linter/cli.d.ts",
       "default": "./rmt-linter/cli.js"

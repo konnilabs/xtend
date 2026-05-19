@@ -13,6 +13,9 @@ const {
 const {
   createTemplatePolicyRule
 } = require('./template-policy');
+const {
+  createAppPlatformPolicyRule
+} = require('./app-platform-policy');
 
 function getDefaultRmtLinterRules() {
   return [
@@ -20,7 +23,8 @@ function getDefaultRmtLinterRules() {
     createRoutePolicyRule(),
     createTemplatePolicyRule(),
     createSchedulerPolicyRule(),
-    createBoundaryPolicyRule()
+    createBoundaryPolicyRule(),
+    createAppPlatformPolicyRule()
   ];
 }
 

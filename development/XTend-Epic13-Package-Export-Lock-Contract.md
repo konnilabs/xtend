@@ -30,9 +30,9 @@
 
 ## Export Surface
 
-Der Lock erwartet 115 Package-Exports inklusive `./design-tokens/xtheme-token-alias-layer`, `./catalog/epic13-known-residual-triage`, `./catalog/epic13-hydration-performance-closure`, `./catalog/epic13-prod-browser-csp-smoke`, `./catalog/epic13-visual-owner-artifact`, `./catalog/epic13-rmt-production-readiness`, `./catalog/epic13-docs-rmt-production-hardening`, `./catalog/epic13-trusted-dom-boundary`, `./catalog/epic13-rc1-migration-notes`, `./catalog/epic13-rc1-gate-matrix-ci-handoff`, `./catalog/epic13-release-report-pack-dry-run-evidence`, `./catalog/epic13-conditional-network-evidence-ci`, `./rmt-language/kernel-trust-authority`, `./rmt-language/kernel-security-regression`, `./catalog/epic14-rmt-tooling`, `./catalog/epic14-lsp-handoff` und der RMT-Tooling-Surface unter `./rmt-language/*`, `./rmt-language-server`, `./rmt-linter/*` und `./rmt-editor/vscode`. Neue Public Exports muessen bewusst in `catalog/epic13-package-export-lock.js`, `package.json`, Changelog, README und Docs nachgezogen werden. Dadurch werden zufaellige Surface-Drifts vor RC1 sichtbar.
+Der Lock erwartet 121 Package-Exports inklusive `./design-tokens/xtheme-token-alias-layer`, `./catalog/epic13-known-residual-triage`, `./catalog/epic13-hydration-performance-closure`, `./catalog/epic13-prod-browser-csp-smoke`, `./catalog/epic13-visual-owner-artifact`, `./catalog/epic13-rmt-production-readiness`, `./catalog/epic13-docs-rmt-production-hardening`, `./catalog/epic13-trusted-dom-boundary`, `./catalog/epic13-rc1-migration-notes`, `./catalog/epic13-rc1-gate-matrix-ci-handoff`, `./catalog/epic13-release-report-pack-dry-run-evidence`, `./catalog/epic13-conditional-network-evidence-ci`, `./rmt-language/kernel-trust-authority`, `./rmt-language/kernel-security-regression`, `./rmt-language/app-platform-tooling`, `./catalog/epic14-rmt-tooling`, `./catalog/epic14-lsp-handoff` und der RMT-Tooling-Surface unter `./rmt-language/*`, `./rmt-language-server`, `./rmt-linter/*` und `./rmt-editor/vscode`. Neue Public Exports muessen bewusst in `catalog/epic13-package-export-lock.js`, `package.json`, Changelog, README und Docs nachgezogen werden. Dadurch werden zufaellige Surface-Drifts vor RC1 sichtbar.
 
-Maschinenlesbarer Status: expectedExportCount: `115`.
+Maschinenlesbarer Status: expectedExportCount: `121`.
 
 Die Surface Groups sind:
 

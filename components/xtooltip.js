@@ -139,7 +139,7 @@ class XTooltip extends HTMLElement {
       escapeBehavior: 'dismiss-visible-tooltip',
       outsideClick: 'anchor-blur-or-hover-leave',
       scrollLock: 'not-applicable',
-      portalStrategy: 'anchor-local-layer',
+      portalStrategy: 'viewport-fixed-layer',
       events: ['tooltip-opened', 'tooltip-closed'],
       commands: ['show', 'hide', 'toggle', 'snapshot'],
       stateKey: 'xtooltip-open-<id>',
@@ -157,7 +157,8 @@ class XTooltip extends HTMLElement {
       overlaySemantics: {
         escapeDismissesVisibleTooltip: true,
         describedbyRequired: true,
-        anchorLocalPortal: true
+        anchorLocalPortal: false,
+        viewportFixedLayer: true
       }
     };
   }
@@ -168,12 +169,14 @@ class XTooltip extends HTMLElement {
     this._open = false;
     this._showTimer = 0;
     this._hideTimer = 0;
+    this._positionFrame = 0;
     this._unsubscribeState = null;
     this._synchronizingAttribute = false;
     this._onAnchorEnter = () => this.show({ source: 'anchor' });
     this._onAnchorLeave = () => this.hide({ source: 'anchor' });
     this._onAnchorFocus = () => this.show({ source: 'focus' });
     this._onAnchorBlur = () => this.hide({ source: 'blur' });
+    this._onViewportChange = () => this._schedulePositionUpdate();
     this._onKeyDown = this._handleKeyDown.bind(this);
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
@@ -201,9 +204,15 @@ class XTooltip extends HTMLElement {
           display: none;
         }
         .tooltip {
-          position: absolute;
+          position: fixed;
+          top: var(--xtooltip-top, -9999px);
+          left: var(--xtooltip-left, -9999px);
+          right: auto;
+          bottom: auto;
           z-index: var(--xtend-overlay-z);
-          max-width: min(18rem, 80vw);
+          box-sizing: border-box;
+          width: max-content;
+          max-width: min(18rem, calc(100vw - 1rem));
           padding: 0.5rem 0.625rem;
           border-radius: var(--xtooltip-radius);
           background: var(--xtooltip-bg);
@@ -221,41 +230,30 @@ class XTooltip extends HTMLElement {
           pointer-events: auto;
         }
         :host([placement="bottom"]) .tooltip {
-          top: calc(100% + 0.5rem);
-          left: 50%;
-          transform: translate(-50%, 2px);
+          transform: translateY(2px);
         }
         :host([placement="bottom"][open]) .tooltip {
-          transform: translate(-50%, 0);
+          transform: translateY(0);
         }
         :host([placement="top"]) .tooltip,
         .tooltip {
-          bottom: calc(100% + 0.5rem);
-          left: 50%;
-          transform: translate(-50%, 2px);
+          transform: translateY(-2px);
         }
         :host([placement="top"][open]) .tooltip,
         :host([open]) .tooltip {
-          transform: translate(-50%, 0);
+          transform: translateY(0);
         }
         :host([placement="left"]) .tooltip {
-          right: calc(100% + 0.5rem);
-          top: 50%;
-          bottom: auto;
-          left: auto;
-          transform: translate(-2px, -50%);
+          transform: translateX(-2px);
         }
         :host([placement="left"][open]) .tooltip {
-          transform: translate(0, -50%);
+          transform: translateX(0);
         }
         :host([placement="right"]) .tooltip {
-          left: calc(100% + 0.5rem);
-          top: 50%;
-          bottom: auto;
-          transform: translate(2px, -50%);
+          transform: translateX(2px);
         }
         :host([placement="right"][open]) .tooltip {
-          transform: translate(0, -50%);
+          transform: translateX(0);
         }
         .tooltip:focus-visible {
           outline: 2px solid currentColor;
@@ -310,6 +308,12 @@ class XTooltip extends HTMLElement {
     if (this._unsubscribeState) this._unsubscribeState();
     window.clearTimeout(this._showTimer);
     window.clearTimeout(this._hideTimer);
+    window.removeEventListener('resize', this._onViewportChange);
+    window.removeEventListener('scroll', this._onViewportChange, true);
+    if (this._positionFrame) {
+      window.cancelAnimationFrame(this._positionFrame);
+      this._positionFrame = 0;
+    }
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -322,6 +326,9 @@ class XTooltip extends HTMLElement {
     }
     if (name === 'label') {
       this._tooltip.setAttribute('aria-label', this.label);
+    }
+    if (name === 'placement' && this.isConnected && this.open) {
+      this._schedulePositionUpdate();
     }
   }
 
@@ -383,11 +390,22 @@ class XTooltip extends HTMLElement {
 
   _setOpen(isOpen, source) {
     if (this._open === isOpen) return;
+    if (isOpen) {
+      this._updatePosition();
+    }
     this._open = isOpen;
     this._synchronizingAttribute = true;
     this.toggleAttribute('open', isOpen);
     this._synchronizingAttribute = false;
     this._tooltip.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    if (isOpen) {
+      window.addEventListener('resize', this._onViewportChange);
+      window.addEventListener('scroll', this._onViewportChange, true);
+      this._schedulePositionUpdate();
+    } else {
+      window.removeEventListener('resize', this._onViewportChange);
+      window.removeEventListener('scroll', this._onViewportChange, true);
+    }
     xstate.set(`xtooltip-open-${this.id}`, isOpen);
     this.dispatchEvent(new CustomEvent(isOpen ? 'tooltip-opened' : 'tooltip-closed', {
       detail: { id: this.id, open: isOpen, source, placement: this.getAttribute('placement') || 'top' },
@@ -406,6 +424,9 @@ class XTooltip extends HTMLElement {
     this._anchor.addEventListener('focus', this._onAnchorFocus);
     this._anchor.addEventListener('blur', this._onAnchorBlur);
     this._anchor.setAttribute('aria-describedby', this._tooltip.id);
+    if (this.open) {
+      this._schedulePositionUpdate();
+    }
   }
 
   _unbindAnchor() {
@@ -424,6 +445,51 @@ class XTooltip extends HTMLElement {
     if (event.key === 'Escape' && this.open) {
       this.hide({ source: 'escape', immediate: true });
     }
+  }
+
+  _schedulePositionUpdate() {
+    if (!this.open || this._positionFrame) return;
+    this._positionFrame = window.requestAnimationFrame(() => {
+      this._positionFrame = 0;
+      this._updatePosition();
+    });
+  }
+
+  _updatePosition() {
+    const anchor = this._anchor || this.shadowRoot.querySelector('.trigger');
+    if (!anchor || !this._tooltip) return;
+
+    const anchorRect = anchor.getBoundingClientRect();
+    if (!anchorRect.width && !anchorRect.height) return;
+
+    const tooltipRect = this._tooltip.getBoundingClientRect();
+    const width = tooltipRect.width || this._tooltip.offsetWidth;
+    const height = tooltipRect.height || this._tooltip.offsetHeight;
+    if (!width || !height) return;
+
+    const gap = 8;
+    const margin = 8;
+    const placement = this.getAttribute('placement') || 'top';
+    let left = anchorRect.left + (anchorRect.width / 2) - (width / 2);
+    let top = anchorRect.top - height - gap;
+
+    if (placement === 'bottom') {
+      top = anchorRect.bottom + gap;
+    } else if (placement === 'left') {
+      left = anchorRect.left - width - gap;
+      top = anchorRect.top + (anchorRect.height / 2) - (height / 2);
+    } else if (placement === 'right') {
+      left = anchorRect.right + gap;
+      top = anchorRect.top + (anchorRect.height / 2) - (height / 2);
+    }
+
+    const maxLeft = Math.max(margin, window.innerWidth - width - margin);
+    const maxTop = Math.max(margin, window.innerHeight - height - margin);
+    const clampedLeft = Math.min(Math.max(left, margin), maxLeft);
+    const clampedTop = Math.min(Math.max(top, margin), maxTop);
+
+    this._tooltip.style.setProperty('--xtooltip-left', `${Math.round(clampedLeft)}px`);
+    this._tooltip.style.setProperty('--xtooltip-top', `${Math.round(clampedTop)}px`);
   }
 }
 

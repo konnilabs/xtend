@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en" data-contract="xtend.epic18.vendor-component-bugfix.browser-smoke.v1">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>XTend Epic 18 Vendor Bugfix Smoke</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #f7f8fb;
+        color: #111827;
+      }
+
+      main {
+        display: grid;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .overflow-host {
+        width: 560px;
+        max-width: calc(100vw - 2rem);
+        height: 420px;
+        overflow: hidden;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+      }
+
+      x-surface-manager {
+        min-height: 420px;
+        display: block;
+      }
+
+      x-player {
+        width: 100%;
+        max-width: 100%;
+        display: block;
+      }
+
+      .long-token {
+        display: block;
+        width: 960px;
+        white-space: nowrap;
+      }
+    </style>
+    <script>
+      window.__xtendEpic18VendorBugfixSmokeResult = {
+        status: 'pending',
+        contract: 'xtend.epic18.vendor-component-bugfix.browser-smoke.v1',
+        checks: [],
+        errors: []
+      };
+
+      function recordCheck(label, passed, details) {
+        window.__xtendEpic18VendorBugfixSmokeResult.checks.push({
+          label,
+          passed: Boolean(passed),
+          details: details || null
+        });
+        if (!passed) {
+          window.__xtendEpic18VendorBugfixSmokeResult.errors.push(label);
+        }
+      }
+    </script>
+    <script type="module" src="/components/xsurfacemanager-controller.js"></script>
+    <script type="module" src="/components/xsurfacemanager.js"></script>
+    <script type="module" src="/components/xsurfacewindow.js"></script>
+    <script type="module" src="/components/xsidepanel.js"></script>
+    <script type="module" src="/components/xtooltip.js"></script>
+    <script type="module" src="/components/xplayer.js"></script>
+  </head>
+  <body>
+    <main>
+      <div class="overflow-host" data-epic18-overflow-host>
+        <x-surface-manager
+          id="epic18-manager"
+          manager-id="epic18.manager"
+          state-key="xtend.epic18.surface.registry">
+          <x-surface-window
+            slot="windows"
+            id="epic18-window"
+            surface-id="epic18.window"
+            label="Epic 18 Window"
+            open
+            resizable
+            initial-x="24"
+            initial-y="20"
+            initial-width="520"
+            initial-height="360">
+            <button id="epic18-tooltip-anchor" type="button">Tooltip target</button>
+            <x-tooltip
+              id="epic18-tooltip"
+              for="epic18-tooltip-anchor"
+              placement="bottom"
+              delay="0"
+              label="Viewport tooltip"
+              open>Tooltip must escape the clipped surface viewport.</x-tooltip>
+            <span class="long-token">epic18-long-token-that-must-not-create-a-horizontal-surface-scrollbar-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+            <x-player
+              id="epic18-player"
+              type="audio"
+              width="100%"
+              height="100%"
+              title="A deliberately long Epic 18 player title that has to ellipsize inside a resizeable surface"></x-player>
+          </x-surface-window>
+          <x-side-panel
+            slot="panels"
+            id="epic18-panel"
+            surface-id="epic18.panel"
+            label="Epic 18 Panel"
+            open
+            collapsed
+            placement="bottom"
+            mode="collapsed"
+            initial-width="520"
+            initial-height="180">
+            <span class="long-token">epic18-panel-long-token-that-must-not-create-a-horizontal-panel-scrollbar-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+          </x-side-panel>
+        </x-surface-manager>
+      </div>
+    </main>
+
+    <script type="module">
+      const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+
+      function readControllerSurface(snapshot, id) {
+        return (snapshot.surfaces || []).find((surface) => surface.id === id);
+      }
+
+      async function waitFor(predicate, timeoutMs = 4000) {
+        const started = Date.now();
+        return new Promise((resolve, reject) => {
+          const tick = () => {
+            try {
+              if (predicate()) {
+                resolve(true);
+                return;
+              }
+            } catch (error) {
+              reject(error);
+              return;
+            }
+            if (Date.now() - started >= timeoutMs) {
+              reject(new Error('Timed out while waiting for Epic 18 vendor bugfix smoke condition.'));
+              return;
+            }
+            setTimeout(tick, 50);
+          };
+          tick();
+        });
+      }
+
+      function exerciseControllerPreserve() {
+        const controller = window.XTendSurfaceController.createSurfaceController({
+          managerId: 'epic18.browser.manager',
+          stateKey: 'xtend.epic18.browser.surface.registry',
+          now: () => '2026-05-19T00:00:00.000Z',
+          baseZIndex: 300
+        });
+        controller.registerSurface({
+          id: 'epic18.browser.window',
+          type: 'window',
+          manager: 'epic18.browser.manager',
+          label: 'Browser Window',
+          defaultOpen: true,
+          initialBounds: {
+            x: 40,
+            y: 48,
+            width: 420,
+            height: 280
+          },
+          capabilities: ['open', 'focus', 'move', 'resize', 'minimize', 'maximize', 'restore', 'close']
+        });
+        controller.openSurface('epic18.browser.window');
+        controller.moveSurface('epic18.browser.window', { x: 120, y: 84 });
+        controller.resizeSurface('epic18.browser.window', { width: 620, height: 340 });
+        controller.maximizeSurface('epic18.browser.window');
+        const beforeWindow = readControllerSurface(controller.snapshot(), 'epic18.browser.window');
+        controller.registerSurface({
+          id: 'epic18.browser.window',
+          type: 'window',
+          manager: 'epic18.browser.manager',
+          label: 'Browser Window Again',
+          initialBounds: {
+            x: 0,
+            y: 0,
+            width: 260,
+            height: 180
+          },
+          capabilities: ['open', 'focus', 'move', 'resize', 'minimize', 'maximize', 'restore', 'close']
+        });
+        const afterWindow = readControllerSurface(controller.snapshot(), 'epic18.browser.window');
+
+        controller.registerSurface({
+          id: 'epic18.browser.panel',
+          type: 'side-panel',
+          manager: 'epic18.browser.manager',
+          label: 'Browser Panel',
+          defaultOpen: true,
+          placement: 'right',
+          mode: 'docked',
+          initialBounds: {
+            width: 320,
+            height: 680
+          },
+          capabilities: ['open', 'focus', 'resize', 'dock', 'collapse', 'restore', 'close']
+        });
+        controller.openSurface('epic18.browser.panel');
+        controller.updateSurface('epic18.browser.panel', {
+          placement: 'bottom',
+          mode: 'collapsed',
+          pinned: true,
+          collapsed: true,
+          bounds: {
+            width: 520,
+            height: 180
+          }
+        });
+        controller.registerSurface({
+          id: 'epic18.browser.panel',
+          type: 'side-panel',
+          manager: 'epic18.browser.manager',
+          label: 'Browser Panel Again',
+          placement: 'right',
+          mode: 'docked',
+          initialBounds: {
+            width: 260,
+            height: 640
+          },
+          capabilities: ['open', 'focus', 'resize', 'dock', 'collapse', 'restore', 'close']
+        });
+        const afterPanel = readControllerSurface(controller.snapshot(), 'epic18.browser.panel');
+
+        return Boolean(
+          beforeWindow &&
+          afterWindow &&
+          afterWindow.maximized === true &&
+          afterWindow.previousBounds &&
+          afterWindow.previousBounds.x === 120 &&
+          afterWindow.previousBounds.width === 620 &&
+          afterWindow.bounds.width === beforeWindow.bounds.width &&
+          afterPanel &&
+          afterPanel.placement === 'bottom' &&
+          afterPanel.mode === 'collapsed' &&
+          afterPanel.pinned === true &&
+          afterPanel.collapsed === true
+        );
+      }
+
+      (async () => {
+        try {
+          const tags = ['x-surface-manager', 'x-surface-window', 'x-side-panel', 'x-tooltip', 'x-player'];
+          await Promise.all(tags.map((tag) => customElements.whenDefined(tag)));
+          await nextFrame();
+          await nextFrame();
+
+          recordCheck('epic18 all custom elements defined', tags.every((tag) => customElements.get(tag)));
+
+          let importIdempotent = false;
+          try {
+            await import('/components/xplayer.js?epic18-reimport=1');
+            importIdempotent = true;
+          } catch (error) {
+            importIdempotent = false;
+          }
+          recordCheck('epic18 xplayer import is idempotent', importIdempotent);
+
+          const tooltip = document.getElementById('epic18-tooltip');
+          const tooltipSurface = tooltip.shadowRoot.querySelector('#tooltip');
+          tooltip.show({ immediate: true, source: 'epic18-browser-smoke' });
+          await nextFrame();
+          window.dispatchEvent(new Event('scroll'));
+          await nextFrame();
+          const tooltipStyle = getComputedStyle(tooltipSurface);
+          const tooltipRect = tooltipSurface.getBoundingClientRect();
+          recordCheck('epic18 tooltip uses fixed viewport layer', tooltipStyle.position === 'fixed' && Number(tooltipStyle.zIndex) > 1000000, {
+            position: tooltipStyle.position,
+            zIndex: tooltipStyle.zIndex
+          });
+          recordCheck('epic18 tooltip positions within viewport after scroll', tooltipRect.left >= 0 && tooltipRect.top >= 0 && tooltipRect.right <= window.innerWidth && tooltipRect.bottom <= window.innerHeight, {
+            left: tooltipRect.left,
+            top: tooltipRect.top,
+            right: tooltipRect.right,
+            bottom: tooltipRect.bottom
+          });
+
+          const player = document.getElementById('epic18-player');
+          const playEvents = [];
+          const pauseEvents = [];
+          player.addEventListener('xplayer-play', (event) => playEvents.push(event.detail));
+          player.addEventListener('xplayer-pause', (event) => pauseEvents.push(event.detail));
+          await waitFor(() => player.shadowRoot && player.shadowRoot.querySelector('audio, video'));
+          const media = player.shadowRoot.querySelector('audio, video');
+          media.dispatchEvent(new Event('play'));
+          media.dispatchEvent(new Event('pause'));
+          await nextFrame();
+          recordCheck('epic18 xplayer media events are canonical', playEvents.length === 1 && pauseEvents.length === 1 && playEvents[0].source === 'media-event' && pauseEvents[0].source === 'media-event', {
+            playEvents,
+            pauseEvents
+          });
+
+          const surfaceWindow = document.getElementById('epic18-window');
+          const surfaceContent = surfaceWindow.shadowRoot.querySelector('.content');
+          const surfaceContentStyle = getComputedStyle(surfaceContent);
+          const playerBox = player.getBoundingClientRect();
+          const surfaceBox = surfaceContent.getBoundingClientRect();
+          recordCheck('epic18 xplayer stays contained in surface', playerBox.width <= surfaceBox.width + 1 && playerBox.right <= surfaceBox.right + 1, {
+            playerWidth: playerBox.width,
+            surfaceWidth: surfaceBox.width
+          });
+          recordCheck('epic18 surface content blocks horizontal scrollbars', surfaceContentStyle.overflowX === 'hidden' && surfaceContentStyle.overflowY === 'auto', {
+            overflowX: surfaceContentStyle.overflowX,
+            overflowY: surfaceContentStyle.overflowY
+          });
+
+          const sidePanel = document.getElementById('epic18-panel');
+          const sidePanelContent = sidePanel.shadowRoot.querySelector('.content');
+          const sidePanelContentStyle = getComputedStyle(sidePanelContent);
+          const collapseIcon = sidePanel.shadowRoot.querySelector('[data-action="collapse"] x-icon');
+          recordCheck('epic18 side panel icon follows placement', collapseIcon && collapseIcon.getAttribute('name') === 'chevron-up' && sidePanelContentStyle.overflowX === 'hidden', {
+            icon: collapseIcon && collapseIcon.getAttribute('name'),
+            overflowX: sidePanelContentStyle.overflowX
+          });
+
+          recordCheck('epic18 controller preserves re-register state', exerciseControllerPreserve());
+          const forbiddenHost = ['https://cdn', 'ccs-networks', 'de'].join('.');
+          recordCheck('epic18 no external network dependency', !document.documentElement.outerHTML.includes(forbiddenHost));
+
+          window.__xtendEpic18VendorBugfixSmokeResult.status = window.__xtendEpic18VendorBugfixSmokeResult.errors.length ? 'failed' : 'passed';
+        } catch (error) {
+          window.__xtendEpic18VendorBugfixSmokeResult.status = 'failed';
+          window.__xtendEpic18VendorBugfixSmokeResult.errors.push(error.message);
+        }
+      })();
+    </script>
+  </body>
+</html>

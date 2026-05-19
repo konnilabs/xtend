@@ -20,6 +20,16 @@
     "rmt-core.esm.js",
     "rmt-runtime.esm.js",
     "rmt-runtime.browser.js",
+    "rmt-dom-descriptor-renderer.d.ts",
+    "rmt-dom-descriptor-renderer.js",
+    "rmt-state-selector-runtime.d.ts",
+    "rmt-state-selector-runtime.js",
+    "rmt-action-effect-runtime.d.ts",
+    "rmt-action-effect-runtime.js",
+    "rmt-event-routing-runtime.d.ts",
+    "rmt-event-routing-runtime.js",
+    "rmt-surface-resource-graph-runtime.d.ts",
+    "rmt-surface-resource-graph-runtime.js",
     "rmt.schema.json",
     "rmt-manifest.json",
     "package.json"
@@ -43,6 +53,26 @@
       "types": "./rmt-core.d.ts",
       "browser": "./rmt-runtime.browser.js",
       "default": "./rmt-runtime.browser.js"
+    },
+    "./dom-descriptor-renderer": {
+      "types": "./rmt-dom-descriptor-renderer.d.ts",
+      "default": "./rmt-dom-descriptor-renderer.js"
+    },
+    "./state-selector-runtime": {
+      "types": "./rmt-state-selector-runtime.d.ts",
+      "default": "./rmt-state-selector-runtime.js"
+    },
+    "./action-effect-runtime": {
+      "types": "./rmt-action-effect-runtime.d.ts",
+      "default": "./rmt-action-effect-runtime.js"
+    },
+    "./event-routing-runtime": {
+      "types": "./rmt-event-routing-runtime.d.ts",
+      "default": "./rmt-event-routing-runtime.js"
+    },
+    "./surface-resource-graph-runtime": {
+      "types": "./rmt-surface-resource-graph-runtime.d.ts",
+      "default": "./rmt-surface-resource-graph-runtime.js"
     },
     "./schema": "./rmt.schema.json",
     "./manifest": "./rmt-manifest.json",

@@ -496,9 +496,19 @@
 
       const previous = registry.get(record.id);
       if (previous) {
+        record.bounds = normalizeSurfaceBounds(previous.bounds, record.type);
+        record.previousBounds = previous.previousBounds
+          ? normalizeSurfaceBounds(previous.previousBounds, record.type)
+          : null;
         record.zIndex = previous.zIndex;
         record.active = previous.active;
         record.status = previous.status;
+        record.minimized = previous.minimized;
+        record.maximized = previous.maximized;
+        record.pinned = previous.pinned;
+        record.collapsed = previous.collapsed;
+        record.placement = previous.placement;
+        record.mode = previous.mode;
       }
       registry.set(record.id, record);
       if (record.status === 'open') {

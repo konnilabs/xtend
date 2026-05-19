@@ -78,6 +78,7 @@ module.exports = {
     componentA11y: "xtend-builder/a11y/component-a11y-profile.js",
     componentPerformance: "xtend-builder/performance/component-performance-profile.js",
     rmtBuild: "xtend-builder/generators/rmt-build.js",
+    rmtAppPlatform: "xtend-builder/generators/rmt-app-platform.js",
     mode: "plan-dry-run-render-type-preview-extension-and-write-plan-contract",
     defaultCommand: "component-plan",
     fileOutputMode: "dry-run-render-or-write-with-feature-type-preview-extension-ownership-manifest-patch-and-build-report"
@@ -96,6 +97,32 @@ module.exports = {
     manifestPatcher: "xtend.scaffold.manifest-patcher.v1",
     ownership: "xtend.scaffold.generated-ownership.v1",
     httpServerCompatible: true,
+    networkPolicy: "repo-local-assets-only"
+  },
+  rmtAppPlatformTooling: {
+    schema: "xtend.epic18.rmt-app-platform-tooling.v1",
+    reportSchema: "xtend.epic18.rmt-app-platform-tooling-report.v1",
+    scaffoldSchema: "xtend.epic18.rmt-app-platform-scaffold.v1",
+    sourceMapSchema: "xtend.epic18.rmt-app-platform-source-map.v1",
+    generator: "xtend-builder/generators/rmt-app-platform.js",
+    sourcePattern: "tests/fixtures/*.rmt",
+    outputMode: "diagnostics-source-map-and-scaffold-report",
+    buildCommand: "node xtend-builder/scaffold.js rmt-app-platform --source tests/fixtures/rmt-surface-resource-graph-runtime.rmt --write --json",
+    checkCommand: "node xtend-builder/scaffold.js rmt-app-platform --source tests/fixtures/rmt-surface-resource-graph-runtime.rmt --check --json",
+    localGate: "node scripts/run_xtend_tests.js rmt-app-platform-tooling --json",
+    diagnostics: [
+      "no-manual-shell-html-sinks",
+      "unsafe-html-boundaries",
+      "unkeyed-repeat",
+      "untyped-events",
+      "missing-resource-ownership",
+      "portal-and-resource-references"
+    ],
+    lsp: [
+      "completion",
+      "hover",
+      "diagnostics"
+    ],
     networkPolicy: "repo-local-assets-only"
   },
   a11y: {
@@ -1459,7 +1486,7 @@ module.exports = {
     packageDryRunArtifact: ".xtend-test-results/xtend-pack-dry-run.json",
     packageExportSurfaceArtifact: ".xtend-test-results/xtend-package-export-surface-lock.json",
     packageExportLockReportArtifact: ".xtend-test-results/xtend-package-export-lock-report.json",
-    expectedExportCount: 115,
+    expectedExportCount: 121,
     localGateRequiresNpmPackExecution: false,
     artifactRequiredForRc1: true,
     nextWorkpackage: "WP-E13-13",

@@ -246,7 +246,8 @@ class XSurfaceWindow extends HTMLElement {
         .content {
           flex: 1;
           min-height: 0;
-          overflow: auto;
+          overflow-y: auto;
+          overflow-x: hidden;
           padding: var(--surface-window-content-padding, 1rem);
         }
         .resize {

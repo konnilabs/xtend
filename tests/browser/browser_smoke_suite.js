@@ -21,6 +21,7 @@ const RMT_FIRST_DEMO_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-first-demo
 const RMT_LIFECYCLE_DEMO_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-lifecycle-demo-smoke.html';
 const SURFACE_MANAGER_QUALITY_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/surface-manager-quality-smoke.html';
 const SURFACE_MANAGER_BROWSER_LAB_FIXTURE_PATH = 'tests/browser/fixtures/surface-manager-browser-lab.html';
+const EPIC18_VENDOR_BUGFIX_FIXTURE_PATH = 'tests/browser/fixtures/epic18-vendor-bugfix-smoke.html';
 const A11Y_FOCUS_KEYBOARD_FIXTURE_PATH = 'tests/browser/fixtures/a11y-focus-keyboard-smoke.html';
 const EPIC11_UX_COMPATIBILITY_FIXTURE_PATH = 'tests/browser/fixtures/epic11-ux-compatibility-smoke.html';
 const EPIC11_THEME_MATRIX_FIXTURE_PATH = 'tests/browser/fixtures/epic11-theme-matrix-smoke.html';
@@ -64,6 +65,11 @@ const BROWSER_FIXTURES = [
     label: 'SurfaceManager Browser Lab fixture',
     path: SURFACE_MANAGER_BROWSER_LAB_FIXTURE_PATH,
     resultKey: '__xtendSurfaceBrowserLabResult'
+  },
+  {
+    label: 'Epic 18 vendor bugfix fixture',
+    path: EPIC18_VENDOR_BUGFIX_FIXTURE_PATH,
+    resultKey: '__xtendEpic18VendorBugfixSmokeResult'
   },
   {
     label: 'A11y focus keyboard smoke fixture',
@@ -366,6 +372,12 @@ async function assertLocalDevServerContract(context, rootDir) {
     const forbiddenResponse = await requestText(`${handle.origin}/%2e%2e/package.json`);
     context.assert(forbiddenResponse.statusCode === 403 || forbiddenResponse.statusCode === 404, 'XTend local dev server rejects path traversal');
   } catch (error) {
+    const message = error && error.message ? error.message : String(error);
+    const code = error && error.code ? error.code : '';
+    if ((code === 'EPERM' || code === 'EACCES') && /listen/u.test(message)) {
+      context.skip(`XTend local dev server contract skipped because this environment denies loopback listen (${message})`);
+      return;
+    }
     context.fail(`XTend local dev server contract (${error.message})`);
   } finally {
     if (handle && handle.server) {
@@ -664,6 +676,49 @@ function assertSurfaceManagerBrowserLabFixtureContract(context, rootDir) {
   context.assert(loaderSource.includes('window.XTendStyleRegistry = XTendStyleRegistry'), 'XTend loader exposes StyleRegistry for Browser Lab');
 }
 
+function assertEpic18VendorBugfixFixtureContract(context, rootDir) {
+  const fixture = readText(EPIC18_VENDOR_BUGFIX_FIXTURE_PATH, rootDir);
+  const tooltipSource = readText('components/xtooltip.js', rootDir);
+  const playerSource = readText('components/xplayer.js', rootDir);
+  const windowSource = readText('components/xsurfacewindow.js', rootDir);
+  const sidePanelSource = readText('components/xsidepanel.js', rootDir);
+  const controllerSource = readText('components/xsurfacemanager-controller.js', rootDir);
+
+  context.assert(fixture.includes('xtend.epic18.vendor-component-bugfix.browser-smoke.v1'), 'Epic 18 vendor fixture exposes stable browser contract');
+  context.assert(fixture.includes('__xtendEpic18VendorBugfixSmokeResult'), 'Epic 18 vendor fixture exposes smoke result object');
+  context.assert(fixture.includes('/components/xsurfacemanager-controller.js'), 'Epic 18 vendor fixture loads Surface Controller');
+  context.assert(fixture.includes('/components/xsurfacemanager.js'), 'Epic 18 vendor fixture loads SurfaceManager');
+  context.assert(fixture.includes('/components/xsurfacewindow.js'), 'Epic 18 vendor fixture loads SurfaceWindow');
+  context.assert(fixture.includes('/components/xsidepanel.js'), 'Epic 18 vendor fixture loads SidePanel');
+  context.assert(fixture.includes('/components/xtooltip.js'), 'Epic 18 vendor fixture loads Tooltip');
+  context.assert(fixture.includes('/components/xplayer.js'), 'Epic 18 vendor fixture loads XPlayer');
+  context.assert(fixture.includes("import('/components/xplayer.js?epic18-reimport=1')"), 'Epic 18 vendor fixture re-imports XPlayer to prove idempotent registration');
+  context.assert(!fixture.includes('https://cdn.ccs-networks.de'), 'Epic 18 vendor fixture has no XTend CDN dependency');
+
+  [
+    'epic18 all custom elements defined',
+    'epic18 xplayer import is idempotent',
+    'epic18 tooltip uses fixed viewport layer',
+    'epic18 tooltip positions within viewport after scroll',
+    'epic18 xplayer media events are canonical',
+    'epic18 xplayer stays contained in surface',
+    'epic18 surface content blocks horizontal scrollbars',
+    'epic18 side panel icon follows placement',
+    'epic18 controller preserves re-register state',
+    'epic18 no external network dependency'
+  ].forEach((check) => {
+    context.assert(fixture.includes(`recordCheck('${check}'`), `Epic 18 vendor fixture records ${check}`);
+  });
+
+  context.assert(tooltipSource.includes('viewportFixedLayer: true'), 'x-tooltip source declares viewport fixed layer for Epic 18 fixture');
+  context.assert(tooltipSource.includes('position: fixed'), 'x-tooltip source uses fixed positioning for Epic 18 fixture');
+  context.assert(playerSource.includes('source: "media-event"'), 'x-player source emits canonical media-event playback payloads');
+  context.assert(playerSource.includes('new ResizeObserver'), 'x-player source observes host resize for Epic 18 fixture');
+  context.assert(windowSource.includes('overflow-x: hidden;'), 'x-surface-window source blocks horizontal content scrollbars');
+  context.assert(sidePanelSource.includes('_collapseIconName(collapsed, placement)'), 'x-side-panel source maps collapse icon by placement');
+  context.assert(controllerSource.includes('record.previousBounds = previous.previousBounds'), 'Surface Controller source preserves previous bounds during re-register');
+}
+
 function assertA11yFocusKeyboardFixtureContract(context, rootDir) {
   const fixture = readText(A11Y_FOCUS_KEYBOARD_FIXTURE_PATH, rootDir);
   const linkSource = readText('components/xlink.js', rootDir);
@@ -883,6 +938,7 @@ async function runBrowserSmokeSuite(options = {}) {
   assertRmtLifecycleDemoFixtureContract(context, rootDir);
   assertSurfaceManagerQualityFixtureContract(context, rootDir);
   assertSurfaceManagerBrowserLabFixtureContract(context, rootDir);
+  assertEpic18VendorBugfixFixtureContract(context, rootDir);
   assertA11yFocusKeyboardFixtureContract(context, rootDir);
   assertEpic11UxCompatibilityFixtureContract(context, rootDir);
   assertEpic11ThemeMatrixFixtureContract(context, rootDir);

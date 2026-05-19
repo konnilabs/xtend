@@ -25,7 +25,12 @@ const RMT_SHARED_DECLARATION_FILE = 'tools/rmt-language/rmt-tooling-public-types
 
 const RMT_RUNTIME_PACKAGE_EXPORTS = Object.freeze([
   './rmt',
-  './rmt/browser'
+  './rmt/browser',
+  './rmt/dom-descriptor-renderer',
+  './rmt/state-selector-runtime',
+  './rmt/action-effect-runtime',
+  './rmt/event-routing-runtime',
+  './rmt/surface-resource-graph-runtime'
 ]);
 
 const RMT_TOOLING_PACKAGE_EXPORTS = Object.freeze([
@@ -72,6 +77,7 @@ const RMT_TOOLING_PACKAGE_EXPORTS = Object.freeze([
   './rmt-language/symbols',
   './rmt-language/definitions',
   './rmt-language/code-actions',
+  './rmt-language/app-platform-tooling',
   './rmt-language-server',
   './rmt-language-server/protocol',
   './rmt-linter/cli',
@@ -106,6 +112,7 @@ const RMT_REPRESENTATIVE_DECLARATION_TOKENS = Object.freeze({
   'tools/rmt-language/vnext-compiler.d.ts': ['RmtCompileResult', 'createRmtVNextCompiler', 'compileRmtVNextSource'],
   'tools/rmt-language/vnext-tooling.d.ts': ['RmtCompletionItem', 'RmtHover', 'RmtDocumentSymbol', 'getRmtVNextToolingCompletions'],
   'tools/rmt-language/diagnostics.d.ts': ['RmtToolingDiagnostic', 'createRmtLinter', 'lintRmtSource'],
+  'tools/rmt-language/app-platform-tooling.d.ts': ['RmtAppPlatformToolingReport', 'analyzeRmtAppPlatformSource', 'createRmtAppPlatformScaffoldPlan'],
   'tools/rmt-language/code-actions.d.ts': ['RmtCodeAction', 'RmtWorkspaceEdit', 'getRmtCodeActions'],
   'tools/rmt-language/kernel-panic-monitor.d.ts': ['RmtKernelPanicMonitor', 'RmtKernelPanicState', 'createKernelPanicMonitor'],
   'tools/rmt-language/kernel-recovery.d.ts': ['RmtKernelRecoveryController', 'RmtKernelRecoveryOutcome', 'createKernelRecoveryController'],
@@ -173,6 +180,11 @@ function getRuntimeTarget(packageManifest, exportKey) {
 
 function resolveDeclarationForExport(exportKey) {
   if (exportKey === './rmt' || exportKey === './rmt/browser') return './xtendrmt/rmt-core.d.ts';
+  if (exportKey === './rmt/dom-descriptor-renderer') return './xtendrmt/rmt-dom-descriptor-renderer.d.ts';
+  if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.d.ts';
+  if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.d.ts';
+  if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.d.ts';
+  if (exportKey === './rmt/surface-resource-graph-runtime') return './xtendrmt/rmt-surface-resource-graph-runtime.d.ts';
   if (exportKey === './rmt-language/snippets') return './tools/rmt-language/snippets/index.d.ts';
   if (exportKey === './rmt-language-server') return './tools/rmt-language-server/server.d.ts';
   if (exportKey === './rmt-language-server/protocol') return './tools/rmt-language-server/protocol.d.ts';
@@ -185,6 +197,11 @@ function resolveDeclarationForExport(exportKey) {
 function resolveSourceForExport(exportKey) {
   if (exportKey === './rmt') return './xtendrmt/rmt-runtime.esm.js';
   if (exportKey === './rmt/browser') return './xtendrmt/rmt-runtime.browser.js';
+  if (exportKey === './rmt/dom-descriptor-renderer') return './xtendrmt/rmt-dom-descriptor-renderer.js';
+  if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.js';
+  if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.js';
+  if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.js';
+  if (exportKey === './rmt/surface-resource-graph-runtime') return './xtendrmt/rmt-surface-resource-graph-runtime.js';
   if (exportKey === './rmt-language/snippets') return './tools/rmt-language/snippets/index.js';
   if (exportKey === './rmt-language-server') return './tools/rmt-language-server/server.js';
   if (exportKey === './rmt-language-server/protocol') return './tools/rmt-language-server/protocol.js';
@@ -196,6 +213,11 @@ function resolveSourceForExport(exportKey) {
 
 const RMT_DECLARATION_FILES = Object.freeze([
   'xtendrmt/rmt-core.d.ts',
+  'xtendrmt/rmt-dom-descriptor-renderer.d.ts',
+  'xtendrmt/rmt-state-selector-runtime.d.ts',
+  'xtendrmt/rmt-action-effect-runtime.d.ts',
+  'xtendrmt/rmt-event-routing-runtime.d.ts',
+  'xtendrmt/rmt-surface-resource-graph-runtime.d.ts',
   RMT_SHARED_DECLARATION_FILE,
   ...RMT_TOOLING_PACKAGE_EXPORTS.map((exportKey) => toRepoRelative(resolveDeclarationForExport(exportKey)))
 ]);

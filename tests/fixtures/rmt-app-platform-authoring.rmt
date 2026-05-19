@@ -1,0 +1,531 @@
+{
+  "kind": "rmt_document",
+  "schema": "xtend.epic18.rmt-app-platform-authoring-fixture.v1",
+  "manifest": {
+    "id": "epic18.generic-app-platform.fixture",
+    "metadata": {
+      "contractVersion": "xtend.epic18.rmt-app-platform-authoring.v1",
+      "workpackage": "WP-E18-04",
+      "renderMode": "shell-first",
+      "appPlatform": true,
+      "productSurfaceClone": false,
+      "manualHtmlRendererAllowed": false,
+      "trustedHtmlBoundary": "xtend.rmt.trusted-dom-boundary.explicit",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    }
+  },
+  "app": {
+    "id": "app.generic-workspace",
+    "domain": "content-operations",
+    "shell": "template.app.shell",
+    "recordContract": "domain.record.generic-item.v1",
+    "routes": ["route.collection", "route.detail"],
+    "surfaces": ["surface.workspace", "surface.detail", "surface.feedback"],
+    "state": ["state.items", "state.selection", "state.filters"]
+  },
+  "domains": [
+    {
+      "id": "content-operations",
+      "recordContracts": ["domain.record.generic-item.v1", "domain.selection.generic-item.v1"]
+    },
+    {
+      "id": "admin-console",
+      "recordContracts": ["domain.record.generic-user-task.v1"]
+    },
+    {
+      "id": "dashboard",
+      "recordContracts": ["domain.record.generic-metric.v1"]
+    }
+  ],
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter",
+      "kernelVisible": false,
+      "capabilities": [
+        "component.tag",
+        "component.attributes",
+        "component.properties",
+        "component.slots",
+        "component.parts",
+        "component.events",
+        "component.methods",
+        "component.state-bindings",
+        "component.a11y",
+        "component.theme-tokens"
+      ]
+    },
+    {
+      "id": "xtend.router",
+      "kind": "route_adapter",
+      "kernelVisible": false,
+      "capabilities": ["route.match", "route.surface-target", "route.title"]
+    },
+    {
+      "id": "rmt.state",
+      "kind": "state_adapter",
+      "kernelVisible": false,
+      "capabilities": ["state.define", "selector.evaluate", "derive.evaluate", "xstate.bridge"]
+    },
+    {
+      "id": "rmt.datasource",
+      "kind": "datasource_adapter",
+      "kernelVisible": false,
+      "capabilities": ["datasource.fixture", "datasource.rest", "datasource.pagination", "datasource.schema"]
+    },
+    {
+      "id": "rmt.resource",
+      "kind": "resource_adapter",
+      "kernelVisible": false,
+      "capabilities": ["resource.lazy", "resource.preload", "resource.cleanup", "resource.trusted-html-boundary"]
+    },
+    {
+      "id": "rmt.action",
+      "kind": "action_adapter",
+      "kernelVisible": false,
+      "capabilities": ["action.invoke", "effect.schedule", "feedback.publish"]
+    },
+    {
+      "id": "rmt.event",
+      "kind": "event_adapter",
+      "kernelVisible": false,
+      "capabilities": ["event.bind", "event.route", "event.payload-schema", "event.scope"]
+    }
+  ],
+  "routes": [
+    {
+      "id": "route.collection",
+      "path": "/",
+      "surface": "surface.workspace",
+      "template": "template.collection",
+      "schedule": "route.visible.render"
+    },
+    {
+      "id": "route.detail",
+      "path": "/item/:id",
+      "surface": "surface.detail",
+      "template": "template.detail",
+      "schedule": "route.visible.render"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface.workspace",
+      "type": "workspace",
+      "placement": "main",
+      "template": "template.collection",
+      "state": "state.items",
+      "persistence": "layout-only",
+      "lifecycle": ["mount", "hydrate", "focus", "dispose"]
+    },
+    {
+      "id": "surface.detail",
+      "type": "detail",
+      "placement": "side",
+      "template": "template.detail",
+      "state": "state.selection",
+      "persistence": "layout-only",
+      "lifecycle": ["mount", "hydrate", "open", "close", "dispose"]
+    },
+    {
+      "id": "surface.feedback",
+      "type": "feedback",
+      "placement": "overlay",
+      "template": "template.feedback",
+      "state": "derive.feedback-state",
+      "persistence": "none",
+      "lifecycle": ["mount", "announce", "dispose"]
+    }
+  ],
+  "slots": [
+    {
+      "id": "slot.shell.toolbar",
+      "owner": "template.app.shell",
+      "name": "toolbar",
+      "template": "template.toolbar"
+    },
+    {
+      "id": "slot.shell.content",
+      "owner": "template.app.shell",
+      "name": "content",
+      "template": "template.collection"
+    },
+    {
+      "id": "slot.detail.actions",
+      "owner": "template.detail",
+      "name": "actions",
+      "template": "template.detail.actions"
+    }
+  ],
+  "templates": [
+    {
+      "id": "template.app.shell",
+      "kind": "template",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.app-shell",
+        "slots": {
+          "toolbar": "slot.shell.toolbar",
+          "content": "slot.shell.content"
+        }
+      },
+      "uses": ["component", "slot", "bind", "event"]
+    },
+    {
+      "id": "template.toolbar",
+      "kind": "template",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.toolbar",
+        "bindings": ["bind.filter-query"],
+        "events": ["event.filter-changed"]
+      },
+      "uses": ["component", "bind", "event"]
+    },
+    {
+      "id": "template.collection",
+      "kind": "template",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "when",
+        "test": "selector.has-items",
+        "then": {
+          "type": "repeat",
+          "source": "selector.filtered-items",
+          "key": "item.id",
+          "item": "template.item-row"
+        },
+        "else": {
+          "type": "empty",
+          "template": "template.empty"
+        }
+      },
+      "uses": ["when", "repeat", "empty", "component", "bind", "event"]
+    },
+    {
+      "id": "template.item-row",
+      "kind": "template",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.item-row",
+        "bindings": ["bind.row-active", "bind.row-label"],
+        "events": ["event.item-selected"]
+      },
+      "uses": ["component", "text", "bind", "event"]
+    },
+    {
+      "id": "template.detail",
+      "kind": "template",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.detail-panel",
+        "slots": {
+          "actions": "slot.detail.actions"
+        },
+        "bindings": ["bind.detail-title"]
+      },
+      "uses": ["component", "slot", "bind", "fallback"]
+    },
+    {
+      "id": "template.detail.actions",
+      "kind": "template",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.action-bar",
+        "events": ["event.refresh-requested", "event.delete-requested"]
+      },
+      "uses": ["component", "event"]
+    },
+    {
+      "id": "template.feedback",
+      "kind": "template",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.feedback-status",
+        "bindings": ["bind.feedback-state"]
+      },
+      "uses": ["component", "bind", "text"]
+    },
+    {
+      "id": "template.empty",
+      "kind": "template",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.empty-state",
+        "text": "No records match this view."
+      },
+      "uses": ["component", "text"]
+    },
+    {
+      "id": "template.trusted-fragment",
+      "kind": "template",
+      "renderMode": "trusted_html",
+      "resource": "resource.trusted-fragment",
+      "trustedBoundary": "xtend.rmt.trusted-dom-boundary.explicit",
+      "uses": ["resource", "fallback"]
+    }
+  ],
+  "components": [
+    {
+      "id": "component.app-shell",
+      "tag": "x-section",
+      "adapter": "xtend.component",
+      "slots": ["toolbar", "content"],
+      "attributes": ["label"],
+      "events": [],
+      "parts": ["root", "header", "content"]
+    },
+    {
+      "id": "component.toolbar",
+      "tag": "x-form",
+      "adapter": "xtend.component",
+      "slots": ["controls"],
+      "attributes": ["aria-label"],
+      "events": ["form-submit"]
+    },
+    {
+      "id": "component.item-row",
+      "tag": "x-card",
+      "adapter": "xtend.component",
+      "slots": ["body", "actions"],
+      "attributes": ["title", "active"],
+      "events": ["item-selected"]
+    },
+    {
+      "id": "component.detail-panel",
+      "tag": "x-side-panel",
+      "adapter": "xtend.component",
+      "slots": ["actions", "content"],
+      "attributes": ["label", "placement", "mode"],
+      "events": ["surface-panel-command"]
+    },
+    {
+      "id": "component.action-bar",
+      "tag": "x-menu",
+      "adapter": "xtend.component",
+      "slots": ["items"],
+      "attributes": ["orientation"],
+      "events": ["menu-select"]
+    },
+    {
+      "id": "component.feedback-status",
+      "tag": "x-status",
+      "adapter": "xtend.component",
+      "slots": [],
+      "attributes": ["state", "message"],
+      "events": []
+    },
+    {
+      "id": "component.empty-state",
+      "tag": "x-alert",
+      "adapter": "xtend.component",
+      "slots": ["actions"],
+      "attributes": ["type", "title"],
+      "events": []
+    }
+  ],
+  "state": [
+    {
+      "id": "state.items",
+      "type": "collection",
+      "schema": "domain.record.generic-item.v1",
+      "initial": []
+    },
+    {
+      "id": "state.selection",
+      "type": "object",
+      "schema": "domain.selection.generic-item.v1",
+      "initial": { "ids": [] }
+    },
+    {
+      "id": "state.filters",
+      "type": "object",
+      "schema": "domain.filter.generic-item.v1",
+      "initial": { "query": "", "tags": [] }
+    }
+  ],
+  "selectors": [
+    {
+      "id": "selector.filtered-items",
+      "from": "state.items",
+      "params": ["state.filters"],
+      "output": "domain.record.generic-item.v1[]"
+    },
+    {
+      "id": "selector.has-items",
+      "from": "selector.filtered-items",
+      "output": "boolean"
+    }
+  ],
+  "derive": [
+    {
+      "id": "derive.selection-count",
+      "from": "state.selection",
+      "expression": "selection.ids.length",
+      "output": "number"
+    },
+    {
+      "id": "derive.feedback-state",
+      "from": "action.last-result",
+      "expression": "result.status",
+      "output": "status"
+    }
+  ],
+  "bind": [
+    {
+      "id": "bind.filter-query",
+      "target": "component.toolbar",
+      "property": "value",
+      "from": "state.filters"
+    },
+    {
+      "id": "bind.row-active",
+      "target": "component.item-row",
+      "attribute": "active",
+      "from": "state.selection"
+    },
+    {
+      "id": "bind.row-label",
+      "target": "component.item-row",
+      "property": "title",
+      "from": "selector.filtered-items"
+    },
+    {
+      "id": "bind.detail-title",
+      "target": "component.detail-panel",
+      "attribute": "label",
+      "from": "state.selection"
+    },
+    {
+      "id": "bind.feedback-state",
+      "target": "component.feedback-status",
+      "attribute": "state",
+      "from": "derive.feedback-state"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action.load-items",
+      "datasource": "datasource.primary",
+      "effect": "effect.fetch-items",
+      "result": "state.items",
+      "feedback": "event.items-loaded"
+    },
+    {
+      "id": "action.select-item",
+      "input": "domain.selection.generic-item.v1",
+      "result": "state.selection",
+      "feedback": "event.item-selected"
+    },
+    {
+      "id": "action.refresh-items",
+      "datasource": "datasource.primary",
+      "effect": "effect.refresh-items",
+      "result": "state.items",
+      "feedback": "event.items-loaded"
+    }
+  ],
+  "effects": [
+    {
+      "id": "effect.fetch-items",
+      "kind": "async",
+      "lane": "background",
+      "datasource": "datasource.primary",
+      "resource": "resource.item-list"
+    },
+    {
+      "id": "effect.refresh-items",
+      "kind": "async",
+      "lane": "user-blocking",
+      "datasource": "datasource.primary",
+      "resource": "resource.item-list"
+    }
+  ],
+  "datasources": [
+    {
+      "id": "datasource.primary",
+      "kind": "fixture",
+      "contract": "domain.datasource.generic-items.v1",
+      "schema": "domain.record.generic-item.v1",
+      "pagination": { "mode": "cursor", "optional": true }
+    }
+  ],
+  "resources": [
+    {
+      "id": "resource.item-list",
+      "kind": "json",
+      "lifecycle": "lazy",
+      "cleanup": "on-surface-dispose"
+    },
+    {
+      "id": "resource.trusted-fragment",
+      "kind": "trusted-html",
+      "lifecycle": "explicit",
+      "trustedBoundary": "xtend.rmt.trusted-dom-boundary.explicit",
+      "fallback": "template.empty"
+    }
+  ],
+  "events": [
+    {
+      "id": "event.filter-changed",
+      "type": "filter.changed.v1",
+      "source": "component.toolbar",
+      "action": "action.load-items",
+      "payload": "domain.filter.generic-item.v1",
+      "scope": "app"
+    },
+    {
+      "id": "event.item-selected",
+      "type": "item.selected.v1",
+      "source": "component.item-row",
+      "action": "action.select-item",
+      "payload": "domain.selection.generic-item.v1",
+      "scope": "surface.detail"
+    },
+    {
+      "id": "event.refresh-requested",
+      "type": "items.refresh-requested.v1",
+      "source": "component.action-bar",
+      "action": "action.refresh-items",
+      "payload": "domain.action.refresh.v1",
+      "scope": "app"
+    },
+    {
+      "id": "event.delete-requested",
+      "type": "item.delete-requested.v1",
+      "source": "component.action-bar",
+      "action": "action.select-item",
+      "payload": "domain.action.delete.v1",
+      "scope": "surface.detail"
+    },
+    {
+      "id": "event.items-loaded",
+      "type": "items.loaded.v1",
+      "source": "action.load-items",
+      "payload": "domain.datasource.result.v1",
+      "scope": "app"
+    }
+  ],
+  "schedules": [
+    { "id": "app.shell.render", "lane": "visible" },
+    { "id": "route.visible.render", "lane": "visible" },
+    { "id": "surface.visible.mount", "lane": "visible" },
+    { "id": "component.visible.mount", "lane": "visible" },
+    { "id": "component.idle.hydrate", "lane": "idle" },
+    { "id": "state.derive.evaluate", "lane": "user-blocking" },
+    { "id": "action.user-blocking.run", "lane": "user-blocking" },
+    { "id": "effect.background.run", "lane": "background" },
+    { "id": "datasource.background.load", "lane": "background" },
+    { "id": "resource.idle.prepare", "lane": "idle" },
+    { "id": "event.user-blocking.dispatch", "lane": "user-blocking" },
+    { "id": "diagnostics.snapshot", "lane": "diagnostics" },
+    { "id": "surface.transition.layout", "lane": "transition" }
+  ]
+}
