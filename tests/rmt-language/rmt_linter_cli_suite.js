@@ -214,7 +214,7 @@ function runRmtLinterCliSuite(options = {}) {
     context.assert(metadata && metadata.packageScript === RMT_LINTER_CLI_PACKAGE_SCRIPT, 'package metadata declares package script');
     context.assert((typeof packageManifest.exports['./rmt-linter/cli'] === 'string' ? packageManifest.exports['./rmt-linter/cli'] : packageManifest.exports['./rmt-linter/cli'] && packageManifest.exports['./rmt-linter/cli'].default) === './tools/rmt-linter/cli.js', 'package exports RMT Linter CLI');
     context.assert(packageManifest.scripts['test:rmt-linter-cli'] === 'node scripts/run_xtend_tests.js rmt-linter-cli', 'package exposes rmt-linter-cli script');
-    context.assert(packageManifest.bin.xt === './xtend-builder/scaffold.js', 'package keeps xt bin alias');
+    context.assert(packageManifest.bin.xt === 'xtend-builder/scaffold.js', 'package keeps xt bin alias');
     context.assert(runner.includes("id: 'rmt-linter-cli'"), 'test runner exposes rmt-linter-cli suite');
     context.assert(epic.includes('| `WP-E14-06` | P0 | completed | WS3 |'), 'Epic marks WP-E14-06 completed');
     context.assert(epic.includes('WP-E14-07` ist `ready`'), 'Epic hands off WP-E14-07 as ready');

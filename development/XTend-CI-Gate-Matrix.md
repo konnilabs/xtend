@@ -89,7 +89,7 @@ Er umfasst damit Browser-Smokes, Performance Regression, Hydration Policies, Fab
 
 Nightly nutzt denselben Command wie `full-release`. Das haelt die Matrix klein und vermeidet ein drittes semantisches Gate, solange keine zusaetzlichen Visual-Snapshot-Artefakte angebunden sind.
 
-Netzwerkbasierte Supply-Chain-Gates wie `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` bleiben ausserhalb der lokalen Default-Matrix. `ER-WP-38` ordnet sie als Conditional Network Gates der Release Checklist zu; `DPF-WP-03` produktisiert dafuer den separaten CI-Job `conditional-network-evidence` mit `npm run conditional-network:evidence` und Owner-Deferral-Artefakten.
+Netzwerkbasierte Supply-Chain-Gates wie `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` bleiben ausserhalb der lokalen Default-Matrix. `ER-WP-38` ordnet sie als Conditional Network Gates der Release Checklist zu; `DPF-WP-03` produktisiert dafuer den separaten CI-Job `conditional-network-evidence` mit `npm run conditional-network:evidence` und Owner-Deferral-Artefakten. Fuer den GitHub-basierten Publish-Pfad sperrt `npm-publish-next` Deferrals mit `XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL=0`, bevor `npm publish --tag next --provenance --access public` laeuft.
 
 ## RC0 Overlay
 
@@ -122,6 +122,8 @@ Der RC0 Overlay nutzt:
 - `node scripts/run_xtend_tests.js epic13-release-report-pack-dry-run-evidence --json` / `npm run test:epic13-release-report-pack-dry-run-evidence` als Release Report-, `npm run release:report`- und `npm run pack:dry-run`-Owner-Evidence-Gate aus `DPF-WP-02`
 - `node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci --json` / `npm run test:epic13-conditional-network-evidence-ci` als Conditional Network Evidence CI-, `npm run conditional-network:evidence`- und `conditional-network-evidence`-Workflow-Gate aus `DPF-WP-03`
 - `npm run pack:dry-run:report` als Release-Owner-Artefaktlauf fuer `npm pack --dry-run --json`
+- `package-structure` als GitHub-Actions-Paketstruktur-Gate mit `npm run pack:dry-run`, Workspace-`npm pack --dry-run --json` und `npm publish --dry-run --tag next --access public`
+- `npm-publish-next` als GitHub-Actions-Publish-Job mit `id-token: write`, `publish_to_npm=true` oder `release: published` und `npm publish --tag next --provenance --access public`
 
 Publish bleibt trotz gruener RC0 Matrix durch `private-until-release-owner-approval` blockiert.
 

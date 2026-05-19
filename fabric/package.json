@@ -4,6 +4,11 @@
   "private": false,
   "description": "XTend Fabric runtime for safety, telemetry, diagnostics and lane mapping.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konnilabs/xtend.git",
+    "directory": "fabric"
+  },
   "keywords": [
     "ccslabs",
     "xtend",

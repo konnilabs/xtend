@@ -96,9 +96,9 @@ npm run pack:dry-run:report
 npm run pack:dry-run
 ```
 
-`npm publish` bleibt ein manueller Owner-Schritt. Die Package-Exports, Supply-Chain-Gates, Release-Gates und Provenance-Defaults sind vorbereitet; `private: false` ist fuer den RC1-Publish-Prep gesetzt.
+`npm publish` bleibt ein Owner-kontrollierter Schritt. Root bleibt fuer RC1-Publish-Prep auf `private: false`; der aktive GitHub-Actions-Workflow kann diesen Schritt ueber `workflow_dispatch` mit `publish_to_npm=true` oder automatisch nach einem `release: published` Event fahren: Vor dem Publish laufen Full Release Gates, `release:report`, Package Dry Run, Publish Dry Run und Audit/SBOM Evidence erneut; der finale Befehl ist `npm publish --tag next --provenance --access public`.
 
-Der aktive GitHub-Actions-Workflow `.github/workflows/xtend-default-gates.yml` nutzt Node `26.x` und trennt Pull-Request-Feedback von Full-Release-Gates: `npm run test:pr:report` laedt `xtend-pr-gate-report-node-26`, `npm run test:release:full:report` laedt `xtend-release-gate-report-node-26`.
+Der aktive GitHub-Actions-Workflow `.github/workflows/xtend-default-gates.yml` nutzt Node `26.x` und trennt Pull-Request-Feedback von Full-Release-Gates: `npm run test:pr:report` laedt `xtend-pr-gate-report-node-26`, `npm run test:release:full:report` laedt `xtend-release-gate-report-node-26`, `package-structure` laedt `xtend-package-structure-node-26`.
 
 Release-Kandidaten folgen `xtend.release.checklist-semver-policy.v1`. `package.json` spiegelt die Pflichten unter `xtend.releaseChecklist`; die RC1-Publish-Prep-Boundary ist durch den Release Owner geoeffnet.
 

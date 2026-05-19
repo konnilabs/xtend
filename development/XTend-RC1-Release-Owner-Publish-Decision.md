@@ -96,8 +96,8 @@ Erst nach `accepted-for-publish`:
 4. `npm run test:release:full:report` ausfuehren.
 5. `npm run release:report` ausfuehren.
 6. `npm run pack:dry-run` ausfuehren.
-7. `npm publish --tag next --provenance` nur nach erneutem Owner-Check ausfuehren.
+7. In GitHub einen Release veroeffentlichen oder in GitHub Actions `.github/workflows/xtend-default-gates.yml` den manuellen Dispatch mit `publish_to_npm=true` starten; der Job `npm-publish-next` fuehrt `npm publish --tag next --provenance --access public` erst nach Release-, Pack-, Audit/SBOM- und Publish-Dry-Run-Gates aus.
 
 ## Handoff
 
-Dieses Dokument macht den Owner-Publish-Entscheid auffindbar und setzt ihn auf `accepted-for-publish-prep`. Es fuehrt keinen Publish aus. Der naechste echte Arbeitsschritt ist der finale manuelle Owner-Check vor `npm publish --tag next --provenance`.
+Dieses Dokument macht den Owner-Publish-Entscheid auffindbar und setzt ihn auf `accepted-for-publish-prep`. Es fuehrt keinen Publish aus. Der naechste echte Arbeitsschritt ist der finale Owner-Check vor einem GitHub Release Publish oder vor dem GitHub-Actions-Dispatch `publish_to_npm=true`.
