@@ -29,6 +29,12 @@ export interface RmtDomDescriptorRendererOptions {
   diagnosticChannel?: string;
 }
 
+export interface RmtComponentRegistryLike {
+  resolveComponentCapability?(tag: string): unknown;
+  buildComponentDescriptor?(input: Record<string, unknown>, options?: Record<string, unknown>): unknown;
+  bindComponentInstance?(element: Element, binding?: Record<string, unknown>, options?: Record<string, unknown>): unknown;
+}
+
 export interface RmtDomDescriptorRenderOptions {
   model?: Record<string, unknown>;
   selectorValues?: Record<string, unknown>;
@@ -36,10 +42,43 @@ export interface RmtDomDescriptorRenderOptions {
   templates?: Map<string, unknown> | unknown[];
   slots?: Map<string, unknown> | unknown[];
   selectors?: Map<string, unknown> | unknown[];
+  componentRegistry?: RmtComponentRegistryLike;
+  registry?: RmtComponentRegistryLike;
+  componentBindingOptions?: Record<string, unknown>;
+  stateBridge?: {
+    read?: (key: string) => unknown;
+    write?: (key: string, value: unknown) => void;
+  };
   refs?: Map<string, Element>;
   source?: RmtDomDescriptorSource;
   dispatchEvent?: (event: unknown) => void;
   trustedDomRenderer?: (descriptor: unknown, context: unknown) => Node | Node[];
+}
+
+export interface RmtDomDescriptorTransformExpression {
+  op?: 'path' | 'map' | 'filter' | 'reduce' | 'countBy' | 'slice' | 'contains' | 'uppercase' | 'lowercase' | 'replace' | 'concat' | 'interpolate' | 'formatBytes' | 'formatDateShort' | 'formatDuration' | 'fallback' | string;
+  operator?: string;
+  kind?: string;
+  format?: string;
+  value?: unknown;
+  from?: unknown;
+  source?: unknown;
+  path?: string;
+  expression?: unknown;
+  where?: unknown[] | unknown;
+  filter?: unknown[] | unknown;
+  rules?: unknown[] | unknown;
+  values?: unknown[];
+  parts?: unknown[];
+  separator?: string;
+  start?: unknown;
+  end?: unknown;
+  search?: unknown;
+  replacement?: unknown;
+  flags?: string;
+  fallback?: unknown;
+  key?: unknown;
+  mode?: string;
 }
 
 export interface RmtNoManualHtmlGate {
@@ -59,6 +98,7 @@ export interface RmtDomDescriptorRenderer {
   };
   renderNode(descriptor: unknown, options?: RmtDomDescriptorRenderOptions): Node | Node[];
   renderKeyed(root: Element, descriptors: unknown[], options?: RmtDomDescriptorRenderOptions): Node[];
+  resolveValue(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): unknown;
   createNoManualHtmlGate(options?: unknown): RmtNoManualHtmlGate;
   listDiagnostics(): RmtDomDescriptorDiagnostic[];
 }

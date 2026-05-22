@@ -144,10 +144,12 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './rmt',
   './rmt/browser',
   './rmt/dom-descriptor-renderer',
+  './rmt/component-capability-registry',
   './rmt/state-selector-runtime',
   './rmt/action-effect-runtime',
   './rmt/event-routing-runtime',
   './rmt/surface-resource-graph-runtime',
+  './rmt/native-shell-runtime',
   './builder',
   './builder/*',
   './security/manifest-import-policy',
@@ -194,7 +196,7 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'xtendrmt',
-    requiredExports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/surface-resource-graph-runtime'],
+    requiredExports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/surface-resource-graph-runtime', './rmt/native-shell-runtime'],
     requiredPackRoots: ['xtendrmt']
   },
   {

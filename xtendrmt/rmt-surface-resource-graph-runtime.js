@@ -28,6 +28,15 @@
     }
   }
 
+  function cloneOverlayInstance(overlay, fallback = null) {
+    if (!overlay) return fallback;
+    const { element, ...safeOverlay } = overlay;
+    return {
+      ...cloneValue(safeOverlay, safeOverlay),
+      elementMounted: Boolean(element)
+    };
+  }
+
   function readPath(source, path) {
     if (!path) return source;
     if (source && typeof source === 'object' && Object.prototype.hasOwnProperty.call(source, path)) return source[path];
@@ -190,6 +199,9 @@
         portal: clampString(source.portal, DEFAULT_PORTAL_ID),
         layer: clampString(source.layer, source.kind || source.type || 'overlay'),
         surface: clampString(source.surface, ''),
+        component: clampString(source.component || source.tag, ''),
+        template: source.template || null,
+        attributes: objectRecord(source.attributes),
         resources: resourceIds(source.resources),
         dismissible: source.dismissible !== false,
         singleton: source.singleton !== false,
@@ -215,6 +227,7 @@
     const eventRuntime = options.eventRuntime || null;
     const persistenceAdapter = options.persistenceAdapter || null;
     const focusAdapter = options.focusAdapter || null;
+    const documentTarget = options.documentTarget || options.document || (globalTarget && globalTarget.document) || null;
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     let focusSequence = 0;
     let overlaySequence = 0;
@@ -490,6 +503,67 @@
       return cloneValue(portal, portal);
     }
 
+    function setDomAttribute(element, name, value) {
+      if (!element || typeof element.setAttribute !== 'function' || value === null || typeof value === 'undefined' || value === false) return;
+      element.setAttribute(name, value === true ? '' : String(value));
+    }
+
+    function resolvePortalTarget(portal, metadata = {}) {
+      if (metadata.target && typeof metadata.target.appendChild === 'function') return metadata.target;
+      if (portal && portal.target && typeof portal.target.appendChild === 'function') return portal.target;
+      if (documentTarget && documentTarget.body && typeof documentTarget.body.appendChild === 'function') return documentTarget.body;
+      return null;
+    }
+
+    function materializeOverlayElement(overlay, definition, portal, metadata = {}) {
+      if (metadata.materialize === false) return null;
+      const target = resolvePortalTarget(portal, metadata);
+      if (!target || !documentTarget || typeof documentTarget.createElement !== 'function') return null;
+      const tag = clampString(metadata.tag || definition.component || definition.tag, definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div');
+      const element = documentTarget.createElement(tag);
+      setDomAttribute(element, 'data-rmt-overlay', overlay.id);
+      setDomAttribute(element, 'data-rmt-overlay-ref', overlay.overlayId);
+      setDomAttribute(element, 'data-rmt-owner', overlay.ownerId);
+      setDomAttribute(element, 'data-rmt-portal', overlay.portal);
+      setDomAttribute(element, 'data-overlay-kind', overlay.kind);
+      setDomAttribute(element, 'role', definition.kind === 'dialog' || definition.kind === 'lightbox' ? 'dialog' : undefined);
+      setDomAttribute(element, 'open', true);
+      Object.entries(objectRecord(definition.attributes)).forEach(([name, value]) => setDomAttribute(element, name, value));
+      if (element.style && typeof element.style.setProperty === 'function') {
+        element.style.setProperty('z-index', String(overlay.zIndex));
+      }
+      if (metadata.text && typeof documentTarget.createTextNode === 'function' && typeof element.appendChild === 'function') {
+        element.appendChild(documentTarget.createTextNode(String(metadata.text)));
+      }
+      target.appendChild(element);
+      portal.mounted = true;
+      overlay.element = element;
+      publish('rmt.overlay.materialized', `RMT Overlay ${overlay.id} wurde im Portal materialisiert.`, {
+        overlayId: overlay.overlayId,
+        instanceId: overlay.id,
+        portal: portal.id,
+        tag
+      });
+      return element;
+    }
+
+    function removeOverlayElement(overlay) {
+      const element = overlay && overlay.element;
+      if (!element) return false;
+      if (typeof element.remove === 'function') {
+        element.remove();
+        overlay.element = null;
+        return true;
+      }
+      if (element.parentNode && typeof element.parentNode.removeChild === 'function') {
+        element.parentNode.removeChild(element);
+        overlay.element = null;
+        return true;
+      }
+      overlay.element = null;
+      return false;
+    }
+
     async function openOverlay(overlayRef, metadata = {}) {
       const definition = overlayIndex.get(clampString(overlayRef));
       if (!definition) throw new Error(`RMT Overlay ${overlayRef} ist nicht definiert.`);
@@ -497,7 +571,7 @@
       const ownerId = clampString(metadata.ownerId || metadata.surfaceId || definition.surface, 'global');
       if (definition.singleton) {
         const existing = overlayStack.find((entry) => entry.state === 'open' && entry.overlayId === definition.id && entry.ownerId === ownerId);
-        if (existing) return cloneValue(existing, existing);
+        if (existing) return cloneOverlayInstance(existing, existing);
       }
       overlaySequence += 1;
       const openInPortal = overlayStack.filter((entry) => entry.state === 'open' && entry.portal === portal.id).length;
@@ -520,7 +594,8 @@
         resourcesAcquired: false,
         payload: cloneValue(metadata.payload, {}),
         openedAt: metadata.at || 'static-local',
-        closedAt: null
+        closedAt: null,
+        element: null
       };
       overlayStack.push(overlay);
       if (definition.resources.length > 0) {
@@ -538,6 +613,7 @@
           }, 'warning');
         }
       }
+      materializeOverlayElement(overlay, definition, portal, metadata);
       publish('rmt.overlay.opened', `RMT Overlay ${definition.id} wurde geoeffnet.`, {
         overlayId: definition.id,
         instanceId: overlay.id,
@@ -545,7 +621,7 @@
         portal: overlay.portal,
         zIndex: overlay.zIndex
       });
-      return cloneValue(overlay, overlay);
+      return cloneOverlayInstance(overlay, overlay);
     }
 
     function closeOverlay(overlayRef, metadata = {}) {
@@ -564,6 +640,7 @@
       overlay.state = 'closed';
       overlay.closedAt = metadata.at || 'static-local';
       const definition = overlayIndex.get(overlay.overlayId) || {};
+      const removedElement = removeOverlayElement(overlay);
       if (overlay.resourcesAcquired && definition.closeReleasesResources !== false && resourceManager && typeof resourceManager.releaseOwner === 'function') {
         resourceManager.releaseOwner(overlay.id);
         overlay.resourcesAcquired = false;
@@ -571,12 +648,13 @@
       publish('rmt.overlay.closed', `RMT Overlay ${overlay.overlayId} wurde geschlossen.`, {
         overlayId: overlay.overlayId,
         instanceId: overlay.id,
-        reason: metadata.reason || 'close'
+        reason: metadata.reason || 'close',
+        removedElement
       });
       return {
         schema: 'xtend.epic18.rmt-overlay-close-report.v1',
         closed: true,
-        overlay: cloneValue(overlay, overlay)
+        overlay: cloneOverlayInstance(overlay, overlay)
       };
     }
 
@@ -617,7 +695,7 @@
           resourcesAcquired: instance.resourcesAcquired,
           metadata: cloneValue(instance.metadata, {})
         })),
-        overlays: overlayStack.filter((entry) => entry.state === 'open').map((entry) => cloneValue(entry, entry)),
+        overlays: overlayStack.filter((entry) => entry.state === 'open').map((entry) => cloneOverlayInstance(entry, entry)),
         portals: portals.map((portal) => ({
           id: portal.id,
           layer: portal.layer,
@@ -704,7 +782,7 @@
       listOverlays(optionsForList = {}) {
         return overlayStack
           .filter((overlay) => optionsForList.includeClosed === true || overlay.state === 'open')
-          .map((overlay) => cloneValue(overlay, overlay));
+          .map((overlay) => cloneOverlayInstance(overlay, overlay));
       },
       listPortals() {
         return portals.map((portal) => cloneValue(portal, portal));

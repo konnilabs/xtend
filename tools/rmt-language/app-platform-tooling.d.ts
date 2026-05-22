@@ -2,6 +2,7 @@ export const RMT_APP_PLATFORM_TOOLING_SCHEMA: 'xtend.epic18.rmt-app-platform-too
 export const RMT_APP_PLATFORM_TOOLING_REPORT_SCHEMA: 'xtend.epic18.rmt-app-platform-tooling-report.v1';
 export const RMT_APP_PLATFORM_SCAFFOLD_SCHEMA: 'xtend.epic18.rmt-app-platform-scaffold.v1';
 export const RMT_APP_PLATFORM_SOURCE_MAP_SCHEMA: 'xtend.epic18.rmt-app-platform-source-map.v1';
+export const RMT_DOWNSTREAM_NO_MANUAL_HTML_GATE_SCHEMA: 'xtend.mm-rmt.downstream-no-manual-html-gate.v1';
 export const RMT_APP_PLATFORM_TOOLING_WORKPACKAGE: 'WP-E18-11';
 export const RMT_APP_PLATFORM_TOOLING_LOCAL_GATE: 'node scripts/run_xtend_tests.js rmt-app-platform-tooling --json';
 export const RMT_APP_PLATFORM_TOOLING_MODULE_PATH: 'tools/rmt-language/app-platform-tooling.js';
@@ -88,6 +89,26 @@ export interface RmtAppPlatformScaffoldPlan {
   }>;
 }
 
+export interface RmtDownstreamNoManualHtmlReport {
+  schema: typeof RMT_DOWNSTREAM_NO_MANUAL_HTML_GATE_SCHEMA;
+  status: 'passed' | 'failed';
+  ok: boolean;
+  acceptanceNames: string[];
+  diagnostics: RmtAppPlatformDiagnostic[];
+  summary: {
+    totalCount: number;
+    errorCount: number;
+    warningCount: number;
+  };
+}
+
+export interface RmtDownstreamNoManualHtmlGate {
+  schema: typeof RMT_DOWNSTREAM_NO_MANUAL_HTML_GATE_SCHEMA;
+  scanText(text: string, metadata?: Record<string, unknown>, options?: Record<string, unknown>): RmtAppPlatformDiagnostic[];
+  scanFiles(files?: Record<string, string>, options?: Record<string, unknown>): RmtAppPlatformDiagnostic[];
+  analyze(input?: Record<string, unknown>, options?: Record<string, unknown>): RmtDownstreamNoManualHtmlReport;
+}
+
 export interface RmtAppPlatformToolingInput {
   text?: string;
   filePath?: string;
@@ -99,6 +120,8 @@ export interface RmtAppPlatformToolingInput {
 }
 
 export function analyzeRmtAppPlatformSource(input?: RmtAppPlatformToolingInput, options?: Record<string, unknown>): RmtAppPlatformToolingReport;
+export function analyzeDownstreamNoManualHtml(input?: Record<string, unknown>, options?: Record<string, unknown>): RmtDownstreamNoManualHtmlReport;
+export function createDownstreamNoManualHtmlGate(options?: Record<string, unknown>): RmtDownstreamNoManualHtmlGate;
 export function createRmtAppPlatformScaffoldPlan(input?: RmtAppPlatformToolingInput, options?: Record<string, unknown>): RmtAppPlatformScaffoldPlan;
 export function getRmtAppPlatformCompletions(input?: RmtAppPlatformToolingInput, options?: Record<string, unknown>): unknown;
 export function getRmtAppPlatformHover(input?: RmtAppPlatformToolingInput, options?: Record<string, unknown>): unknown;

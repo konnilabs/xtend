@@ -62,6 +62,10 @@ export interface RmtOverlayDefinition {
   portal?: string;
   layer?: string;
   surface?: string;
+  component?: string;
+  tag?: string;
+  template?: unknown;
+  attributes?: Record<string, unknown>;
   resources?: string[] | Array<{ id: string }>;
   dismissible?: boolean;
   singleton?: boolean;
@@ -118,6 +122,7 @@ export interface RmtOverlayInstance {
   payload: unknown;
   openedAt: string;
   closedAt: string | null;
+  elementMounted?: boolean;
 }
 
 export interface RmtSurfaceResourceGraphDiagnostic {
@@ -159,6 +164,12 @@ export interface RmtSurfaceResourceGraphRuntimeOptions {
     load(): RmtSurfaceResourceGraphSnapshot | null | undefined;
   };
   focusAdapter?: { focus(surface: RmtSurfaceInstance, metadata?: Record<string, unknown>): unknown };
+  documentTarget?: {
+    body?: { appendChild(node: unknown): unknown };
+    createElement(tag: string): unknown;
+    createTextNode?(text: string): unknown;
+  };
+  document?: RmtSurfaceResourceGraphRuntimeOptions['documentTarget'];
   diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };
   diagnosticChannel?: string;
 }

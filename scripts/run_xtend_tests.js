@@ -66,6 +66,10 @@ const {
   runRmtAppPlatformFixtureSuite
 } = require('../tests/rmt/rmt_app_platform_fixture_suite');
 const {
+  printRmtNativeShellMigrationReport,
+  runRmtNativeShellMigrationSuite
+} = require('../tests/rmt/rmt_native_shell_migration_suite');
+const {
   printSurfaceControllerReport,
   runSurfaceControllerSuite
 } = require('../tests/components/surface_controller_suite');
@@ -193,6 +197,10 @@ const {
   printRmtVNextSourceToSeaReport,
   runRmtVNextSourceToSeaSuite
 } = require('../tests/rmt-language/rmt_vnext_source_to_sea_suite');
+const {
+  printRmtVNextComponentPrimitivesReport,
+  runRmtVNextComponentPrimitivesSuite
+} = require('../tests/rmt-language/rmt_vnext_component_primitives_suite');
 const {
   printRmtVNextFabricBridgeReport,
   runRmtVNextFabricBridgeSuite
@@ -1147,6 +1155,16 @@ const suites = [
       const result = await runRmtVNextSourceToSeaSuite({ rootDir });
       printRmtVNextSourceToSeaReport(result);
       return toRunnerResult('rmt-vnext-source-to-sea', 'RMT vNext Source-to-Sea Browser Gate', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-component-primitives',
+    label: 'RMT vNext XTend Component Primitive Compatibility',
+    description: 'Runs the all-manifest XTend component capability registry, descriptor, event/state bridge and tiered matrix gate.',
+    run: async () => {
+      const result = await runRmtVNextComponentPrimitivesSuite({ rootDir });
+      printRmtVNextComponentPrimitivesReport(result);
+      return toRunnerResult('rmt-vnext-component-primitives', 'RMT vNext XTend Component Primitive Compatibility', result);
     }
   },
   {
@@ -2370,6 +2388,16 @@ const suites = [
     }
   },
   {
+    id: 'rmt-native-shell-migration',
+    label: 'RMT Native Shell migration gap',
+    description: 'Runs the MM-RMT native shell migration transform, event, surface, player and downstream gate checks.',
+    run: async () => {
+      const result = await runRmtNativeShellMigrationSuite({ rootDir });
+      printRmtNativeShellMigrationReport(result);
+      return toRunnerResult('rmt-native-shell-migration', 'RMT Native Shell migration gap', result);
+    }
+  },
+  {
     id: 'surface-controller',
     label: 'Surface Controller and state snapshot contract',
     description: 'Runs the WP-SM-02 Surface Controller runtime, xstate mirror and diagnostics gates.',
@@ -2705,6 +2733,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-parser
   node scripts/run_xtend_tests.js rmt-vnext-compiler
   node scripts/run_xtend_tests.js rmt-vnext-source-to-sea
+  node scripts/run_xtend_tests.js rmt-vnext-component-primitives
   node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge
   node scripts/run_xtend_tests.js rmt-vnext-lifecycle
   node scripts/run_xtend_tests.js rmt-vnext-scheduler
@@ -2809,6 +2838,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime
   node scripts/run_xtend_tests.js rmt-app-platform-tooling
   node scripts/run_xtend_tests.js rmt-app-platform-fixture
+  node scripts/run_xtend_tests.js rmt-native-shell-migration
   node scripts/run_xtend_tests.js epic18-rmt-app-platform
   node scripts/run_xtend_tests.js surface-controller
   node scripts/run_xtend_tests.js surface-manager

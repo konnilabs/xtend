@@ -355,49 +355,253 @@
     });
   }
 
+  function normalizePathSegments(path) {
+    return String(path || '')
+      .replace(/\[([0-9]+)\]/gu, '.$1')
+      .split('.')
+      .filter(Boolean);
+  }
+
   function readPath(model, path) {
-    const parts = String(path || '').split('.').filter(Boolean);
+    const parts = normalizePathSegments(path);
     let cursor = model;
     for (const part of parts) {
       if (cursor == null) return undefined;
+      if (part === 'length' && (Array.isArray(cursor) || typeof cursor === 'string')) return cursor.length;
       cursor = cursor[part];
     }
     return cursor;
   }
 
-  function resolveValue(value, context, item) {
-    if (typeof value !== 'string') return value;
-    if (value === '$item') return item;
-    if (value.startsWith('$item.')) return readPath(item, value.slice(6));
-    if (value.startsWith('$selector.')) {
-      const selectorKey = `selector.${value.slice(10)}`;
+  function isEmptyValue(value) {
+    return value === null || typeof value === 'undefined' || value === '';
+  }
+
+  function applyFallback(value, fallback, context, item) {
+    return isEmptyValue(value) && typeof fallback !== 'undefined'
+      ? resolveValue(fallback, context, item)
+      : value;
+  }
+
+  function compareValues(left, right, op, options = {}) {
+    const normalizedOp = clampString(op, 'equals');
+    if ((right === '' || right == null) && options.empty === 'pass') return true;
+    if (normalizedOp === 'equals' || normalizedOp === 'eq') return left === right;
+    if (normalizedOp === 'not-equals' || normalizedOp === 'neq') return left !== right;
+    if (normalizedOp === 'truthy') return !!left;
+    if (normalizedOp === 'falsy') return !left;
+    if (normalizedOp === 'gt') return Number(left) > Number(right);
+    if (normalizedOp === 'gte') return Number(left) >= Number(right);
+    if (normalizedOp === 'lt') return Number(left) < Number(right);
+    if (normalizedOp === 'lte') return Number(left) <= Number(right);
+    if (normalizedOp === 'in') return Array.isArray(right) && right.includes(left);
+    if (normalizedOp === 'includes' || normalizedOp === 'contains') {
+      if (Array.isArray(left)) return left.includes(right);
+      const leftText = String(left == null ? '' : left);
+      const rightText = String(right == null ? '' : right);
+      return options.ignoreCase ? leftText.toLowerCase().includes(rightText.toLowerCase()) : leftText.includes(rightText);
+    }
+    return left === right;
+  }
+
+  function evaluateRule(rule, context, item) {
+    if (typeof rule === 'string') return !!resolveValue(rule, context, item);
+    const record = objectRecord(rule);
+    const left = record.left
+      ? resolveValue(record.left, context, item)
+      : readPath(item, record.path || record.field || '');
+    const right = Object.prototype.hasOwnProperty.call(record, 'right')
+      ? resolveValue(record.right, context, item)
+      : resolveValue(record.value, context, item);
+    return compareValues(left, right, record.op || record.operator, record);
+  }
+
+  function formatBytes(value) {
+    const bytes = Number(value);
+    if (!Number.isFinite(bytes)) return '';
+    if (bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const index = Math.min(Math.floor(Math.log(Math.abs(bytes)) / Math.log(1024)), units.length - 1);
+    const amount = bytes / Math.pow(1024, index);
+    const precision = index === 0 || Math.abs(amount) >= 10 ? 0 : 1;
+    return `${amount.toFixed(precision)} ${units[index]}`;
+  }
+
+  function formatDateShort(value) {
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toISOString().slice(0, 10);
+  }
+
+  function formatDuration(value) {
+    const totalSeconds = Math.max(0, Math.floor(Number(value) || 0));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const padded = (entry) => String(entry).padStart(2, '0');
+    return hours > 0 ? `${hours}:${padded(minutes)}:${padded(seconds)}` : `${minutes}:${padded(seconds)}`;
+  }
+
+  function resolvePathExpression(path, context, item) {
+    const expression = clampString(path, '');
+    if (!expression) return undefined;
+    if (expression === '$item') return item;
+    if (expression.startsWith('$item.')) return readPath(item, expression.slice(6));
+    if (expression.startsWith('$selector.')) {
+      const selectorKey = `selector.${expression.slice(10)}`;
       if (context.selectorValues && Object.prototype.hasOwnProperty.call(context.selectorValues, selectorKey)) return context.selectorValues[selectorKey];
       return readPath(context.model, selectorKey);
     }
-    if (value.startsWith('selector.') && context.selectorValues && Object.prototype.hasOwnProperty.call(context.selectorValues, value)) {
-      return context.selectorValues[value];
+    if (expression.startsWith('selector.') && context.selectorValues && Object.prototype.hasOwnProperty.call(context.selectorValues, expression)) {
+      return context.selectorValues[expression];
     }
-    if (value.startsWith('$derive.')) {
-      const deriveKey = `derive.${value.slice(8)}`;
+    if (expression.startsWith('$derive.')) {
+      const deriveKey = `derive.${expression.slice(8)}`;
       return readPath(context.model, deriveKey);
     }
-    if (value.startsWith('$state.')) return readPath(context.model, value.slice(7));
-    if (value.startsWith('$model.')) return readPath(context.model, value.slice(7));
-    if (Object.prototype.hasOwnProperty.call(context.model || {}, value)) return context.model[value];
-    return value;
+    if (expression.startsWith('$state.')) return readPath(context.model, expression.slice(7));
+    if (expression.startsWith('$model.')) return readPath(context.model, expression.slice(7));
+    if (Object.prototype.hasOwnProperty.call(context.model || {}, expression)) return context.model[expression];
+    return readPath(context.model, expression);
+  }
+
+  function interpolateString(value, context, item) {
+    return String(value).replace(/\$\{([^}]+)\}/gu, (_, expression) => {
+      const normalized = clampString(expression, '');
+      const resolved = resolveValue(normalized.startsWith('$') ? normalized : `$${normalized}`, context, item);
+      return String(resolved == null ? '' : resolved);
+    });
+  }
+
+  function evaluateExpression(record, context, item) {
+    const op = clampString(record.op || record.operator || record.kind || record.format, '');
+    const hasValue = Object.prototype.hasOwnProperty.call(record, 'value') || Object.prototype.hasOwnProperty.call(record, 'from') || Object.prototype.hasOwnProperty.call(record, 'source');
+    const sourceExpression = Object.prototype.hasOwnProperty.call(record, 'value')
+      ? record.value
+      : (Object.prototype.hasOwnProperty.call(record, 'from') ? record.from : record.source);
+    const source = hasValue ? resolveValue(sourceExpression, context, item) : (record.path ? resolvePathExpression(record.path, context, item) : undefined);
+    let result;
+
+    switch (op) {
+      case '':
+      case 'path':
+        result = record.path ? resolvePathExpression(record.path, context, item) : source;
+        break;
+      case 'fallback':
+        result = applyFallback(source, record.fallback, context, item);
+        break;
+      case 'uppercase':
+      case 'upper':
+        result = String(source == null ? '' : source).toUpperCase();
+        break;
+      case 'lowercase':
+      case 'lower':
+        result = String(source == null ? '' : source).toLowerCase();
+        break;
+      case 'replace': {
+        const search = resolveValue(record.search, context, item);
+        const replacement = resolveValue(record.replacement, context, item);
+        result = String(source == null ? '' : source).replace(new RegExp(String(search == null ? '' : search), record.flags || 'gu'), String(replacement == null ? '' : replacement));
+        break;
+      }
+      case 'concat':
+      case 'interpolate':
+        result = toArray(record.values || record.parts || source).map((entry) => resolveValue(entry, context, item)).join(record.separator || '');
+        break;
+      case 'slice':
+        result = Array.isArray(source) || typeof source === 'string'
+          ? source.slice(Number(resolveValue(record.start || 0, context, item)), typeof record.end === 'undefined' ? undefined : Number(resolveValue(record.end, context, item)))
+          : [];
+        break;
+      case 'contains':
+      case 'includes':
+        result = compareValues(source, resolveValue(record.search || record.item || record.right, context, item), 'contains', record);
+        break;
+      case 'map':
+        result = Array.isArray(source)
+          ? source.map((entry) => record.path ? readPath(entry, record.path) : resolveValue(record.expression || '$item', { ...context, item: entry }, entry))
+          : [];
+        break;
+      case 'filter':
+        result = Array.isArray(source)
+          ? source.filter((entry) => toArray(record.where || record.filter || record.rules).every((rule) => evaluateRule(rule, context, entry)))
+          : [];
+        break;
+      case 'reduce':
+        if (record.mode === 'sum') {
+          result = Array.isArray(source) ? source.reduce((sum, entry) => sum + Number(record.path ? readPath(entry, record.path) : entry || 0), 0) : 0;
+        } else {
+          result = Array.isArray(source) || typeof source === 'string' ? source.length : Object.keys(objectRecord(source)).length;
+        }
+        break;
+      case 'countBy':
+      case 'count-by':
+        result = {};
+        if (Array.isArray(source)) {
+          source.forEach((entry) => {
+            const key = clampString(record.path ? readPath(entry, record.path) : resolveValue(record.key || '$item', { ...context, item: entry }, entry), 'unknown');
+            result[key] = (result[key] || 0) + 1;
+          });
+        }
+        break;
+      case 'formatBytes':
+      case 'bytes':
+        result = formatBytes(source);
+        break;
+      case 'formatDateShort':
+      case 'dateShort':
+        result = formatDateShort(source);
+        break;
+      case 'formatDuration':
+      case 'duration':
+        result = formatDuration(source);
+        break;
+      default:
+        result = hasValue ? source : record;
+        break;
+    }
+
+    return applyFallback(result, record.fallback, context, item);
+  }
+
+  function resolveValue(value, context, item) {
+    if (Array.isArray(value)) return value.map((entry) => resolveValue(entry, context, item));
+    if (value && typeof value === 'object' && !isNodeLike(value)) return evaluateExpression(value, context, item);
+    if (typeof value !== 'string') return value;
+    if (value.includes('${')) return interpolateString(value, context, item);
+    const resolved = resolvePathExpression(value, context, item);
+    return typeof resolved === 'undefined' ? value : resolved;
   }
 
   function resolveComponent(descriptor, context) {
     const componentId = descriptor.component || descriptor.ref || descriptor.id || '';
     const component = componentId && context.components ? context.components.get(componentId) : null;
+    const registry = context.componentRegistry || null;
+    const requestedTag = clampString(descriptor.tag || descriptor.componentTag || (component && component.tag) || componentId, '');
+    const capability = registry && typeof registry.resolveComponentCapability === 'function'
+      ? registry.resolveComponentCapability(requestedTag) || registry.resolveComponentCapability(componentId)
+      : null;
+    const registryDescriptor = capability && typeof registry.buildComponentDescriptor === 'function'
+      ? registry.buildComponentDescriptor({
+          ...descriptor,
+          id: descriptor.id || componentId || capability.tag,
+          component: componentId || capability.tag,
+          tag: descriptor.tag || capability.tag
+        }, {
+          source: context.source || null
+        })
+      : null;
     return {
       id: componentId,
-      tag: clampString(descriptor.tag || (component && component.tag), 'div'),
+      tag: clampString(descriptor.tag || (component && component.tag) || (capability && capability.tag), 'div'),
+      capability,
       attributes: {
+        ...objectRecord(registryDescriptor && registryDescriptor.attributes),
         ...objectRecord(component && component.attributes),
         ...(descriptor.attributes || {})
       },
       properties: {
+        ...objectRecord(registryDescriptor && registryDescriptor.properties),
         ...objectRecord(component && component.properties),
         ...objectRecord(component && component.props),
         ...(descriptor.properties || descriptor.props || {})
@@ -407,6 +611,7 @@
         ...objectRecord(descriptor.slots)
       },
       parts: [
+        ...toArray(registryDescriptor && registryDescriptor.parts),
         ...toArray(component && component.parts),
         ...toArray(descriptor.parts || descriptor.part)
       ],
@@ -417,6 +622,11 @@
       styleTokens: {
         ...objectRecord(component && (component.styleTokens || component.styleToken || component['style-token'])),
         ...objectRecord(descriptor.styleTokens || descriptor.styleToken || descriptor['style-token'])
+      },
+      events: {
+        ...objectRecord(registryDescriptor && registryDescriptor.events),
+        ...objectRecord(component && component.events),
+        ...objectRecord(descriptor.events)
       }
     };
   }
@@ -530,7 +740,8 @@
       properties: component.properties,
       class: component.classes,
       parts: component.parts,
-      styleTokens: component.styleTokens
+      styleTokens: component.styleTokens,
+      events: component.events
     }, context);
     Object.entries(component.slots || {}).forEach(([slotName, slotId]) => {
       const slotContainer = context.documentTarget.createElement('div');
@@ -540,6 +751,14 @@
     });
     if (descriptor.bindings) {
       setAttributeSafe(element, 'data-rmt-bindings', toArray(descriptor.bindings).join(' '), descriptor, context);
+    }
+    if (context.componentRegistry && typeof context.componentRegistry.bindComponentInstance === 'function') {
+      context.componentRegistry.bindComponentInstance(element, {
+        tag: component.tag,
+        events: component.events,
+        dispatchEvent: context.dispatchEvent,
+        stateBridge: context.stateBridge
+      }, context.componentBindingOptions || {});
     }
     return element;
   }
@@ -720,6 +939,9 @@
       templates: options.templates instanceof Map ? options.templates : createMap(options.templates),
       slots: options.slots instanceof Map ? options.slots : createMap(options.slots),
       selectors: options.selectors instanceof Map ? options.selectors : createMap(options.selectors),
+      componentRegistry: options.componentRegistry || options.registry || null,
+      componentBindingOptions: options.componentBindingOptions || {},
+      stateBridge: options.stateBridge || null,
       refs: options.refs instanceof Map ? options.refs : new Map(),
       dispatchEvent: options.dispatchEvent,
       trustedDomRenderer: options.trustedDomRenderer,
@@ -803,6 +1025,12 @@
       },
       renderKeyed(root, descriptors, options = {}) {
         return runWithDiagnostics(() => renderKeyed(root, descriptors, createRenderContext(documentTarget, options, diagnosticsRecorder)));
+      },
+      resolveValue(value, options = {}) {
+        return runWithDiagnostics(() => {
+          const context = createRenderContext(documentTarget, options, diagnosticsRecorder);
+          return resolveValue(value, context, options.item);
+        });
       },
       createNoManualHtmlGate,
       listDiagnostics() {

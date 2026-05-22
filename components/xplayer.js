@@ -23,6 +23,19 @@ class XPlayer extends HTMLElement {
     };
   }
 
+  static get xtendRmtPlayerContract() {
+    return {
+      schema: "xtend.mm-rmt.player-contract.v1",
+      tag: "x-player",
+      commands: ["play-media", "pause-media", "set-source", "set-state", "apply-theme"],
+      events: ["xplayer-play", "xplayer-pause", "xplayer-state", "xplayer-fullscreen", "xplayer-pip", "xplayer-caption", "xplayer-mute"],
+      stateKey: "xplayer-state-<id>",
+      stateBridge: "xstate-host-bridge",
+      themeTokens: ["--x-player-primary", "--x-player-accent", "--x-player-background", "--x-player-radius"],
+      parts: ["root", "media", "title", "overlay", "spinner-overlay", "spinner", "big-controls", "controls", "progress"]
+    };
+  }
+
   static get xtendScaffoldA11yProfile() {
     return {
       schema: "xtend.a11y.screenreader-signals.v1",
@@ -1013,6 +1026,89 @@ class XPlayer extends HTMLElement {
       playing: this._media ? !this._media.paused : false,
       currentTime: this._media ? this._media.currentTime : 0
     };
+  }
+
+  getRmtPlayerContract() {
+    return XPlayer.xtendRmtPlayerContract;
+  }
+
+  setMediaState(patch = {}) {
+    const stateKey = `xplayer-state-${this.id || "unmounted"}`;
+    const currentState = typeof xstate.get === "function" ? (xstate.get(stateKey) || {}) : {};
+    if (patch.src && patch.src !== this.getAttribute("src")) {
+      this.setAttribute("src", patch.src);
+    }
+    if (this._media) {
+      if (typeof patch.currentTime === "number") this._media.currentTime = patch.currentTime;
+      if (typeof patch.volume === "number") this._media.volume = Math.max(0, Math.min(1, patch.volume));
+      if (typeof patch.muted === "boolean") this._media.muted = patch.muted;
+    }
+    const nextState = {
+      ...currentState,
+      ...patch,
+      src: patch.src || this.getAttribute("src"),
+      playing: typeof patch.playing === "boolean" ? patch.playing : (this._media ? !this._media.paused : Boolean(currentState.playing)),
+      currentTime: this._media ? this._media.currentTime : (patch.currentTime || currentState.currentTime || 0),
+      volume: this._media ? this._media.volume : (typeof patch.volume === "number" ? patch.volume : currentState.volume || 1),
+      muted: this._media ? this._media.muted : (typeof patch.muted === "boolean" ? patch.muted : Boolean(currentState.muted))
+    };
+    if (typeof xstate.set === "function") xstate.set(stateKey, nextState);
+    if (typeof CustomEvent === "function") {
+      this.dispatchEvent(new CustomEvent("xplayer-state", { detail: nextState }));
+    }
+    return nextState;
+  }
+
+  playMedia() {
+    if (!this._media || typeof this._media.play !== "function") {
+      return Promise.resolve(this.setMediaState({ playing: false }));
+    }
+    const playRequest = this._media.play();
+    this.setMediaState({ playing: true });
+    return playRequest && typeof playRequest.then === "function"
+      ? playRequest.then(() => this.snapshot()).catch((error) => {
+        this.setMediaState({ playing: this._media ? !this._media.paused : false });
+        throw error;
+      })
+      : Promise.resolve(this.snapshot());
+  }
+
+  pauseMedia() {
+    if (this._media && typeof this._media.pause === "function") {
+      this._media.pause();
+    }
+    return this.setMediaState({ playing: false });
+  }
+
+  applyRmtThemeTokens(tokens = {}) {
+    Object.entries(tokens || {}).forEach(([name, value]) => {
+      if (value === null || typeof value === "undefined") return;
+      const tokenName = String(name).startsWith("--") ? String(name) : `--x-player-${String(name).replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}`;
+      this.style.setProperty(tokenName, String(value));
+    });
+    return {
+      schema: "xtend.mm-rmt.player-theme-report.v1",
+      tokenCount: Object.keys(tokens || {}).length
+    };
+  }
+
+  applyRmtPlayerCommand(command, payload = {}) {
+    const kind = typeof command === "string" ? command : command && (command.kind || command.type || command.command);
+    const data = typeof command === "object" && command && !Array.isArray(command)
+      ? { ...command, ...payload }
+      : payload;
+    if (kind === "play-media" || kind === "play") return this.playMedia(data);
+    if (kind === "pause-media" || kind === "pause") return this.pauseMedia(data);
+    if (kind === "set-source") {
+      const src = data.src || data.source || "";
+      if (src) this.setAttribute("src", src);
+      if (data.type) this.setAttribute("type", data.type);
+      if (data.poster) this.setAttribute("poster", data.poster);
+      return this.setMediaState({ src, type: data.type || this.getAttribute("type") || "video", playing: false });
+    }
+    if (kind === "set-state") return this.setMediaState(data.state || data);
+    if (kind === "apply-theme") return this.applyRmtThemeTokens(data.tokens || data.theme || data);
+    throw new Error(`Unsupported x-player RMT command: ${kind || "unknown"}`);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {

@@ -26,12 +26,19 @@
     }
   }
 
+  function normalizePathSegments(path) {
+    return String(path || '')
+      .replace(/\[([0-9]+)\]/gu, '.$1')
+      .split('.')
+      .filter(Boolean);
+  }
+
   function readPath(source, path) {
     if (!path) return source;
     if (source && typeof source === 'object' && Object.prototype.hasOwnProperty.call(source, path)) {
       return source[path];
     }
-    const parts = String(path).split('.').filter(Boolean);
+    const parts = normalizePathSegments(path);
     let cursor = source;
     for (const part of parts) {
       if (cursor == null) return undefined;
@@ -225,7 +232,10 @@
   }
 
   function resolveReference(expression, context, item) {
+    if (Array.isArray(expression)) return expression.map((entry) => resolveReference(entry, context, item));
+    if (expression && typeof expression === 'object') return evaluateTransformExpression(expression, context, item);
     if (typeof expression !== 'string') return expression;
+    if (expression.includes('${')) return interpolateString(expression, context, item);
     if (expression === '$item') return item;
     if (expression.startsWith('$item.')) return readPath(item, expression.slice(6));
     if (expression === '$payload') return context.payload;
@@ -246,6 +256,157 @@
     }
     if (Object.prototype.hasOwnProperty.call(context.params || {}, expression)) return context.params[expression];
     return expression;
+  }
+
+  function isEmptyValue(value) {
+    return value === null || typeof value === 'undefined' || value === '';
+  }
+
+  function applyFallback(value, fallback, context, item) {
+    return isEmptyValue(value) && typeof fallback !== 'undefined'
+      ? resolveReference(fallback, context, item)
+      : value;
+  }
+
+  function interpolateString(value, context, item) {
+    return String(value).replace(/\$\{([^}]+)\}/gu, (_, expression) => {
+      const normalized = clampString(expression, '');
+      const resolved = resolveReference(normalized.startsWith('$') ? normalized : `$${normalized}`, context, item);
+      return String(resolved == null ? '' : resolved);
+    });
+  }
+
+  function formatBytes(value) {
+    const bytes = Number(value);
+    if (!Number.isFinite(bytes)) return '';
+    if (bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const index = Math.min(Math.floor(Math.log(Math.abs(bytes)) / Math.log(1024)), units.length - 1);
+    const amount = bytes / Math.pow(1024, index);
+    const precision = index === 0 || Math.abs(amount) >= 10 ? 0 : 1;
+    return `${amount.toFixed(precision)} ${units[index]}`;
+  }
+
+  function formatDateShort(value) {
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toISOString().slice(0, 10);
+  }
+
+  function formatDuration(value) {
+    const totalSeconds = Math.max(0, Math.floor(Number(value) || 0));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const padded = (entry) => String(entry).padStart(2, '0');
+    return hours > 0 ? `${hours}:${padded(minutes)}:${padded(seconds)}` : `${minutes}:${padded(seconds)}`;
+  }
+
+  function evaluateTransformExpression(recordInput, context, item) {
+    const record = objectRecord(recordInput);
+    const op = clampString(record.op || record.operator || record.kind || record.compute || record.format, '');
+    const hasValue = Object.prototype.hasOwnProperty.call(record, 'value') || Object.prototype.hasOwnProperty.call(record, 'from') || Object.prototype.hasOwnProperty.call(record, 'source');
+    const sourceExpression = Object.prototype.hasOwnProperty.call(record, 'value')
+      ? record.value
+      : (Object.prototype.hasOwnProperty.call(record, 'from') ? record.from : record.source);
+    const source = hasValue ? resolveReference(sourceExpression, context, item) : (record.path ? readPath(item, record.path) : undefined);
+    let result;
+
+    switch (op) {
+      case '':
+      case 'path':
+        result = record.path && !hasValue ? readPath(item, record.path) : source;
+        break;
+      case 'uppercase':
+      case 'upper':
+        result = String(source == null ? '' : source).toUpperCase();
+        break;
+      case 'lowercase':
+      case 'lower':
+        result = String(source == null ? '' : source).toLowerCase();
+        break;
+      case 'replace': {
+        const search = resolveReference(record.search, context, item);
+        const replacement = resolveReference(record.replacement, context, item);
+        result = String(source == null ? '' : source).replace(new RegExp(String(search == null ? '' : search), record.flags || 'gu'), String(replacement == null ? '' : replacement));
+        break;
+      }
+      case 'concat':
+      case 'interpolate':
+        result = toArray(record.values || record.parts || source).map((entry) => resolveReference(entry, context, item)).join(record.separator || '');
+        break;
+      case 'slice':
+        result = Array.isArray(source) || typeof source === 'string'
+          ? source.slice(Number(resolveReference(record.start || 0, context, item)), typeof record.end === 'undefined' ? undefined : Number(resolveReference(record.end, context, item)))
+          : [];
+        break;
+      case 'contains':
+      case 'includes':
+        result = compareValues(source, resolveReference(record.search || record.item || record.right, context, item), 'contains', record);
+        break;
+      case 'map':
+        result = Array.isArray(source)
+          ? source.map((entry) => record.path ? readPath(entry, record.path) : resolveReference(record.expression || '$item', context, entry))
+          : [];
+        break;
+      case 'filter':
+        result = Array.isArray(source)
+          ? source.filter((entry) => toArray(record.where || record.filter || record.rules).every((rule) => evaluateRule(rule, context, entry)))
+          : [];
+        break;
+      case 'reduce':
+        if (record.mode === 'sum') {
+          result = Array.isArray(source) ? source.reduce((sum, entry) => sum + Number(record.path ? readPath(entry, record.path) : entry || 0), 0) : 0;
+        } else {
+          result = Array.isArray(source) || typeof source === 'string' ? source.length : Object.keys(objectRecord(source)).length;
+        }
+        break;
+      case 'countBy':
+      case 'count-by':
+        result = {};
+        if (Array.isArray(source)) {
+          source.forEach((entry) => {
+            const key = clampString(record.path ? readPath(entry, record.path) : resolveReference(record.key || '$item', context, entry), 'unknown');
+            result[key] = (result[key] || 0) + 1;
+          });
+        }
+        break;
+      case 'count':
+        result = Array.isArray(source) || typeof source === 'string' ? source.length : Object.keys(objectRecord(source)).length;
+        break;
+      case 'not-empty':
+        result = Array.isArray(source) || typeof source === 'string' ? source.length > 0 : !!source;
+        break;
+      case 'empty':
+        result = Array.isArray(source) || typeof source === 'string' ? source.length === 0 : !source;
+        break;
+      case 'boolean':
+        result = !!source;
+        break;
+      case 'first':
+        result = Array.isArray(source) ? source[0] || null : source;
+        break;
+      case 'formatBytes':
+      case 'bytes':
+        result = formatBytes(source);
+        break;
+      case 'formatDateShort':
+      case 'dateShort':
+        result = formatDateShort(source);
+        break;
+      case 'formatDuration':
+      case 'duration':
+        result = formatDuration(source);
+        break;
+      case 'fallback':
+        result = applyFallback(source, record.fallback, context, item);
+        break;
+      default:
+        result = hasValue ? source : recordInput;
+        break;
+    }
+
+    return applyFallback(result, record.fallback, context, item);
   }
 
   function compareValues(left, right, op, options = {}) {
@@ -301,11 +462,29 @@
         return String(leftValue == null ? '' : leftValue).localeCompare(String(rightValue == null ? '' : rightValue)) * direction;
       });
     }
-    if (selector.map) {
-      const mapPath = typeof selector.map === 'string' ? selector.map : selector.map.path;
-      value = Array.isArray(value) ? value.map((item) => readPath(item, mapPath)) : [];
+    if (selector.slice && (Array.isArray(value) || typeof value === 'string')) {
+      const slice = objectRecord(selector.slice);
+      value = value.slice(Number(resolveReference(slice.start || 0, context)), typeof slice.end === 'undefined' ? undefined : Number(resolveReference(slice.end, context)));
     }
+    if (selector.map) {
+      const mapRecord = typeof selector.map === 'string' ? { path: selector.map } : objectRecord(selector.map);
+      value = Array.isArray(value)
+        ? value.map((item) => mapRecord.path ? readPath(item, mapRecord.path) : resolveReference(mapRecord.expression || mapRecord.value || '$item', context, item))
+        : [];
+    }
+    if (selector.transform) value = evaluateTransformExpression({ ...objectRecord(selector.transform), value }, context);
     if (selector.compute === 'count') return Array.isArray(value) || typeof value === 'string' ? value.length : Object.keys(objectRecord(value)).length;
+    if (selector.compute === 'countBy' || selector.compute === 'count-by') {
+      const result = {};
+      if (Array.isArray(value)) {
+        const path = selector.countBy || selector.path || selector.key || '';
+        value.forEach((item) => {
+          const key = clampString(path ? readPath(item, path) : item, 'unknown');
+          result[key] = (result[key] || 0) + 1;
+        });
+      }
+      return result;
+    }
     if (selector.compute === 'not-empty') return Array.isArray(value) || typeof value === 'string' ? value.length > 0 : !!value;
     if (selector.compute === 'empty') return Array.isArray(value) || typeof value === 'string' ? value.length === 0 : !value;
     if (selector.compute === 'first') return Array.isArray(value) ? value[0] || null : value;
@@ -317,12 +496,18 @@
     let value = resolveReference(entry.from, context);
     if (entry.path) value = readPath(value, entry.path);
     if (entry.expression) {
-      const expression = clampString(entry.expression);
-      const sourceName = clampString(entry.sourceName || entry.from.split('.').pop());
-      if (expression.startsWith(`${sourceName}.`)) value = readPath(value, expression.slice(sourceName.length + 1));
-      else value = resolveReference(expression, context);
+      if (typeof entry.expression === 'object') {
+        value = resolveReference({ ...entry.expression, value }, context);
+      } else {
+        const expression = clampString(entry.expression);
+        const sourceName = clampString(entry.sourceName || entry.from.split('.').pop());
+        if (expression.startsWith(`${sourceName}.`)) value = readPath(value, expression.slice(sourceName.length + 1));
+        else value = resolveReference(expression, context);
+      }
     }
+    if (entry.transform) value = evaluateTransformExpression({ ...objectRecord(entry.transform), value }, context);
     if (entry.compute === 'count') return Array.isArray(value) || typeof value === 'string' ? value.length : Object.keys(objectRecord(value)).length;
+    if (entry.compute === 'countBy' || entry.compute === 'count-by') return evaluateTransformExpression({ op: 'countBy', value, path: entry.countBy || entry.path }, context);
     if (entry.compute === 'not-empty') return Array.isArray(value) || typeof value === 'string' ? value.length > 0 : !!value;
     if (entry.compute === 'empty') return Array.isArray(value) || typeof value === 'string' ? value.length === 0 : !value;
     if (entry.compute === 'boolean') return !!value;

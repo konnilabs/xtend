@@ -39,6 +39,83 @@
     return cursor;
   }
 
+  function toDatasetRecord(target) {
+    const dataset = target && target.dataset && typeof target.dataset === 'object' ? target.dataset : {};
+    const result = {};
+    Object.keys(dataset).forEach((key) => {
+      result[key] = dataset[key];
+    });
+    return result;
+  }
+
+  function getAttributeValue(target, name) {
+    if (!target || !name) return undefined;
+    if (typeof target.getAttribute === 'function') return target.getAttribute(name);
+    if (target.attributes && Object.prototype.hasOwnProperty.call(target.attributes, name)) return target.attributes[name];
+    return undefined;
+  }
+
+  function eventPath(event) {
+    if (event && typeof event.composedPath === 'function') {
+      const path = event.composedPath();
+      if (Array.isArray(path)) return path;
+    }
+    const path = [];
+    let cursor = event && event.target || null;
+    while (cursor) {
+      path.push(cursor);
+      cursor = cursor.parentElement || cursor.parentNode || null;
+    }
+    return path;
+  }
+
+  function matchesSelector(target, selector) {
+    if (!target || !selector) return false;
+    if (typeof target.matches === 'function') return target.matches(selector);
+    if (selector.startsWith('[data-') && selector.endsWith(']')) {
+      const match = selector.match(/^\[([^=\]]+)(?:="([^"]*)")?\]$/u);
+      if (!match) return false;
+      const value = getAttributeValue(target, match[1]);
+      return typeof match[2] === 'undefined' ? value != null : String(value) === match[2];
+    }
+    if (selector.startsWith('#')) return target.id === selector.slice(1);
+    if (selector.startsWith('.')) return String(target.className || '').split(/\s+/u).includes(selector.slice(1));
+    return String(target.tagName || target.localName || '').toLowerCase() === selector.toLowerCase();
+  }
+
+  function closestTarget(event, selector, fallback) {
+    if (!selector) return fallback;
+    const start = event && event.target || fallback;
+    if (start && typeof start.closest === 'function') {
+      const nativeClosest = start.closest;
+      const closest = nativeClosest.call(start, selector);
+      if (closest) return closest;
+    }
+    return eventPath(event).find((entry) => matchesSelector(entry, selector)) || fallback;
+  }
+
+  function fileSummary(file) {
+    return {
+      name: clampString(file && file.name, ''),
+      size: Number.isFinite(file && file.size) ? file.size : 0,
+      type: clampString(file && file.type, ''),
+      lastModified: Number.isFinite(file && file.lastModified) ? file.lastModified : null
+    };
+  }
+
+  function fileListToArray(files) {
+    if (!files) return [];
+    try {
+      return Array.from(files).map(fileSummary);
+    } catch (_) {
+      const result = [];
+      for (let index = 0; index < (files.length || 0); index += 1) {
+        result.push(fileSummary(files[index]));
+      }
+      return result;
+    }
+  }
+
   function resolveEventSource(binding, event) {
     const governance = objectRecord(binding.governance);
     if (governance.retarget === 'current-target') return event && event.currentTarget || null;
@@ -129,6 +206,10 @@
           stopImmediatePropagation: Boolean(source.stopImmediatePropagation || source.governance && source.governance.stopImmediatePropagation),
           retarget: clampString(source.retarget || source.governance && source.governance.retarget, 'target')
         },
+        payloadAdapter: source.payloadAdapter || source.adapter || source.payloadKind || null,
+        closest: source.closest || source.closestSelector || source.delegate || null,
+        guard: source.guard || source.confirm || null,
+        postAction: toArray(source.postAction || source.after || source.afterAction),
         condition: source.condition || source.when || null,
         enabled: source.enabled !== false
       };
@@ -213,8 +294,106 @@
       currentTarget: event && event.currentTarget || null,
       source: resolveEventSource(binding, event)
     };
-    const payload = resolveValue(binding.payload, context);
+    const adapterPayload = createAdapterPayload(binding, event, context);
+    const explicitPayload = binding.payload === '$detail' && adapterPayload !== null
+      ? null
+      : resolveValue(binding.payload, context);
+    const payload = adapterPayload && explicitPayload && typeof adapterPayload === 'object' && typeof explicitPayload === 'object' && !Array.isArray(adapterPayload) && !Array.isArray(explicitPayload)
+      ? { ...adapterPayload, ...explicitPayload }
+      : (adapterPayload !== null ? adapterPayload : explicitPayload);
     return cloneValue(payload, payload);
+  }
+
+  function normalizePayloadAdapter(binding) {
+    const adapter = binding.payloadAdapter;
+    if (!adapter) return null;
+    return typeof adapter === 'string' ? { kind: adapter } : objectRecord(adapter);
+  }
+
+  function createAdapterPayload(binding, event, context) {
+    const adapter = normalizePayloadAdapter(binding);
+    if (!adapter) return null;
+    const kind = clampString(adapter.kind || adapter.type, '');
+    const delegated = closestTarget(event, adapter.closest || binding.closest, context.source || context.target);
+    const target = delegated || context.source || context.target || {};
+    if (kind === 'dataset') {
+      return {
+        dataset: toDatasetRecord(target),
+        action: getAttributeValue(target, 'data-action') || undefined,
+        id: getAttributeValue(target, 'data-id') || getAttributeValue(target, 'data-record-id') || undefined
+      };
+    }
+    if (kind === 'input' || kind === 'change') {
+      return {
+        name: target.name || getAttributeValue(target, 'name') || '',
+        value: typeof target.value === 'undefined' ? getAttributeValue(target, 'value') : target.value,
+        checked: typeof target.checked === 'boolean' ? target.checked : undefined,
+        dataset: toDatasetRecord(target)
+      };
+    }
+    if (kind === 'file-input') {
+      const files = fileListToArray(target.files);
+      return {
+        name: target.name || getAttributeValue(target, 'name') || '',
+        files,
+        fileCount: files.length,
+        dataset: toDatasetRecord(target)
+      };
+    }
+    if (kind === 'drop-files' || kind === 'drag-drop') {
+      const dataTransfer = event && event.dataTransfer || {};
+      const files = fileListToArray(dataTransfer.files);
+      return {
+        files,
+        fileCount: files.length,
+        types: Array.isArray(dataTransfer.types) ? dataTransfer.types.slice() : fileListToArray(dataTransfer.items).map((entry) => entry.type).filter(Boolean),
+        dataset: toDatasetRecord(target)
+      };
+    }
+    if (kind === 'surface-event') {
+      return {
+        surfaceId: getAttributeValue(target, 'surface-id') || getAttributeValue(target, 'data-rmt-surface') || readPath(event && event.detail, 'surfaceId') || '',
+        detail: cloneValue(event && event.detail, {}),
+        dataset: toDatasetRecord(target)
+      };
+    }
+    if (kind === 'beforeunload') {
+      return {
+        returnValue: event && event.returnValue,
+        detail: cloneValue(event && event.detail, {})
+      };
+    }
+    return null;
+  }
+
+  function shouldConfirm(binding, payload, event, metadata, options = {}) {
+    const guard = binding.guard;
+    if (!guard) return true;
+    const record = guard === true ? { kind: 'confirm' } : (typeof guard === 'string' ? { kind: guard } : objectRecord(guard));
+    const kind = clampString(record.kind || record.type, '');
+    if (kind !== 'confirm') return true;
+    const adapter = options.confirmAdapter || null;
+    const message = resolveValue(record.message || binding.confirmMessage || 'Confirm action?', { binding, event, payload, metadata });
+    if (adapter && typeof adapter.confirm === 'function') return adapter.confirm(message, { binding, payload, event, metadata }) !== false;
+    if (typeof globalTarget !== 'undefined' && globalTarget && typeof globalTarget.confirm === 'function') return globalTarget.confirm(message);
+    return record.default !== false;
+  }
+
+  function applyPostAction(binding, event, routeResult, metadata, options = {}) {
+    const operations = [];
+    binding.postAction.forEach((entry) => {
+      const action = typeof entry === 'string' ? { kind: entry } : objectRecord(entry);
+      const kind = clampString(action.kind || action.type, '');
+      if (kind !== 'reset-file-input' && kind !== 'reset-input') return;
+      const target = action.target
+        ? defaultResolveTarget({ ...binding, target: action.target }, options.root || null, options)
+        : closestTarget(event, action.closest || binding.closest, event && event.target || null);
+      if (target && Object.prototype.hasOwnProperty.call(target, 'value')) {
+        target.value = '';
+        operations.push({ kind, target: action.target || binding.target || '', reset: true });
+      }
+    });
+    return operations;
   }
 
   function defaultResolveTarget(binding, root, options = {}) {
@@ -295,6 +474,20 @@
 
       const governanceResult = applyGovernance(binding, event);
       const payload = createPayload(binding, event, metadata);
+      if (!shouldConfirm(binding, payload, event, metadata, options)) {
+        const blocked = createRouteResult(binding, 'blocked', payload, {
+          reason: 'confirm-declined',
+          governance: governanceResult
+        });
+        diagnosticsRecorder.publish(createDiagnostic('rmt.event.guard.confirm_declined', `RMT Event ${binding.id} wurde durch Confirm Guard blockiert.`, {
+          bindingId: binding.id,
+          event: binding.event,
+          component: binding.component,
+          action: binding.action
+        }, 'warning'));
+        routeHistory.push(blocked);
+        return blocked;
+      }
       const contractErrors = validateShape(payload, binding.payloadContract);
       if (contractErrors.length > 0) {
         const blocked = createRouteResult(binding, 'blocked', payload, {
@@ -344,9 +537,11 @@
       }
 
       const status = actionResult && actionResult.status || (binding.actionMode === 'cancel-action' ? 'cancelled' : 'success');
+      const postAction = applyPostAction(binding, event, null, metadata, options);
       const result = createRouteResult(binding, status, payload, {
         actionResult: cloneValue(actionResult, actionResult),
-        governance: governanceResult
+        governance: governanceResult,
+        postAction
       });
       diagnosticsRecorder.publish(createDiagnostic('rmt.event.route.success', `RMT Event ${binding.id} wurde an Action ${binding.action} geroutet.`, {
         bindingId: binding.id,

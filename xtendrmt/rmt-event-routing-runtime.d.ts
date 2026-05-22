@@ -51,11 +51,23 @@ export interface RmtEventBindingDefinition {
   ownerId?: string;
   scope?: string;
   payload?: unknown;
+  payloadAdapter?: string | Record<string, unknown>;
+  adapter?: string | Record<string, unknown>;
+  payloadKind?: string;
+  closest?: string;
+  closestSelector?: string;
+  delegate?: string;
   payloadContract?: RmtPayloadContract;
   contract?: RmtPayloadContract;
   governance?: RmtEventGovernance;
   condition?: RmtEventCondition;
   when?: RmtEventCondition;
+  guard?: boolean | string | { kind?: 'confirm' | string; type?: string; message?: unknown; default?: boolean };
+  confirm?: boolean | string | Record<string, unknown>;
+  confirmMessage?: unknown;
+  postAction?: string[] | Array<string | Record<string, unknown>>;
+  after?: string[] | Array<string | Record<string, unknown>>;
+  afterAction?: string[] | Array<string | Record<string, unknown>>;
   capture?: boolean;
   passive?: boolean;
   once?: boolean;
@@ -124,6 +136,7 @@ export interface RmtEventRoutingRuntimeOptions {
   root?: unknown;
   targets?: Record<string, unknown>;
   targetResolver?: (binding: RmtEventBindingDefinition, root?: unknown) => unknown;
+  confirmAdapter?: { confirm(message: unknown, context?: Record<string, unknown>): boolean };
   diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };
   diagnosticChannel?: string;
 }

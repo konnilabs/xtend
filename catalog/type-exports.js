@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 121;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = 'a45481ae0693b2fb82c3b634bbc529fc262bab3f94ba598cb2e6a602a7c5af63';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 123;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = 'c6d08a2ea22a3e0a1daaab83e690de8fb2b1d5f9f853ee726315bb529fbe8d74';
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -115,7 +115,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'rmt-runtime',
     priority: 'P1',
     workpackage: 'WP-TypeExports-04',
-    exports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/surface-resource-graph-runtime'],
+    exports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/surface-resource-graph-runtime', './rmt/native-shell-runtime'],
     strategy: 'runtime-types-condition-to-rmt-core'
   },
   {

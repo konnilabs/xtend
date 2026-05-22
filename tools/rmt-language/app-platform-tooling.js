@@ -13,6 +13,7 @@ const RMT_APP_PLATFORM_TOOLING_SCHEMA = 'xtend.epic18.rmt-app-platform-tooling.v
 const RMT_APP_PLATFORM_TOOLING_REPORT_SCHEMA = 'xtend.epic18.rmt-app-platform-tooling-report.v1';
 const RMT_APP_PLATFORM_SCAFFOLD_SCHEMA = 'xtend.epic18.rmt-app-platform-scaffold.v1';
 const RMT_APP_PLATFORM_SOURCE_MAP_SCHEMA = 'xtend.epic18.rmt-app-platform-source-map.v1';
+const RMT_DOWNSTREAM_NO_MANUAL_HTML_GATE_SCHEMA = 'xtend.mm-rmt.downstream-no-manual-html-gate.v1';
 const RMT_APP_PLATFORM_TOOLING_WORKPACKAGE = 'WP-E18-11';
 const RMT_APP_PLATFORM_TOOLING_MODULE_PATH = 'tools/rmt-language/app-platform-tooling.js';
 const RMT_APP_PLATFORM_TOOLING_SUITE_PATH = 'tests/rmt-language/rmt_app_platform_tooling_suite.js';
@@ -29,6 +30,10 @@ const RMT_APP_PLATFORM_DIAGNOSTIC_CODES = Object.freeze({
   unresolvedPortal: 'rmt.app.portal.unresolved',
   unresolvedSurfaceSource: 'rmt.app.surface.source.unresolved'
 });
+const DOWNSTREAM_HTML_SINK_PATTERN = /\binnerHTML\s*=|\bouterHTML\s*=|\binsertAdjacentHTML\s*\(|\bdocument\.write\s*\(/gu;
+const DEFAULT_DOWNSTREAM_HTML_GATE_ALLOWED_FILES = Object.freeze([
+  'components/xplayer.js'
+]);
 
 function toArray(value) {
   return Array.isArray(value) ? value : [];
@@ -40,6 +45,10 @@ function toObject(value) {
 
 function normalizeString(value) {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function normalizeFilePath(value) {
+  return String(value == null ? '' : value).replace(/\\/g, '/');
 }
 
 function escapePointerSegment(value) {
@@ -85,6 +94,76 @@ function createDiagnostic(context, input = {}) {
     repair: input.repair || null,
     relatedInformation: input.relatedInformation || []
   };
+}
+
+function lineColumnAt(text, index) {
+  const lines = String(text || '').slice(0, index).split(/\r?\n/u);
+  return {
+    line: lines.length,
+    column: lines[lines.length - 1].length + 1
+  };
+}
+
+function shouldAllowManualHtmlFile(filePath, options = {}) {
+  const normalized = normalizeFilePath(filePath);
+  const allowedFiles = new Set(DEFAULT_DOWNSTREAM_HTML_GATE_ALLOWED_FILES.concat(toArray(options.allowedFiles).map(normalizeFilePath)));
+  if (allowedFiles.has(normalized)) return true;
+  return toArray(options.allowedPatterns).some((pattern) => {
+    if (typeof pattern === 'string') return normalized.includes(pattern);
+    return pattern && typeof pattern.test === 'function' ? pattern.test(normalized) : false;
+  });
+}
+
+function scanDownstreamManualHtmlSinks(text, metadata = {}, options = {}) {
+  const filePath = normalizeFilePath(metadata.filePath || metadata.file || 'virtual-downstream.js');
+  if (shouldAllowManualHtmlFile(filePath, options)) return [];
+  const source = String(text || '');
+  const diagnostics = [];
+  DOWNSTREAM_HTML_SINK_PATTERN.lastIndex = 0;
+  let match = DOWNSTREAM_HTML_SINK_PATTERN.exec(source);
+  while (match) {
+    const position = lineColumnAt(source, match.index);
+    diagnostics.push({
+      schema: 'xtend.rmt.linter.diagnostic.v1',
+      source: 'rmt-downstream-no-manual-html-gate',
+      code: RMT_APP_PLATFORM_DIAGNOSTIC_CODES.manualHtmlSink,
+      ruleId: 'rmt.downstream.no-manual-html',
+      severity: 'error',
+      category: 'security',
+      message: 'Downstream RMT Shell UI darf keine manuellen HTML-Sinks verwenden.',
+      file: filePath,
+      range: {
+        start: position,
+        end: {
+          line: position.line,
+          column: position.column + match[0].length
+        }
+      },
+      sink: match[0].replace(/\s*$/u, ''),
+      repair: {
+        kind: 'replace-with-rmt-dom-descriptor',
+        title: 'DOM Descriptor, Surface Island oder Trusted-DOM-Boundary verwenden',
+        safe: false
+      }
+    });
+    match = DOWNSTREAM_HTML_SINK_PATTERN.exec(source);
+  }
+  return diagnostics;
+}
+
+function createDownstreamNoManualHtmlGate(defaultOptions = {}) {
+  return Object.freeze({
+    schema: RMT_DOWNSTREAM_NO_MANUAL_HTML_GATE_SCHEMA,
+    scanText(text, metadata = {}, options = {}) {
+      return scanDownstreamManualHtmlSinks(text, metadata, { ...defaultOptions, ...options });
+    },
+    scanFiles(files = {}, options = {}) {
+      return Object.entries(toObject(files)).flatMap(([filePath, text]) => scanDownstreamManualHtmlSinks(text, { filePath }, { ...defaultOptions, ...options }));
+    },
+    analyze(input = {}, options = {}) {
+      return analyzeDownstreamNoManualHtml(input, { ...defaultOptions, ...options });
+    }
+  });
 }
 
 function parseSource(input = {}, options = {}) {
@@ -470,6 +549,24 @@ function analyzeRmtAppPlatformSource(input = {}, options = {}) {
   };
 }
 
+function analyzeDownstreamNoManualHtml(input = {}, options = {}) {
+  const files = input.files || input.sources || input;
+  const diagnostics = Object.entries(toObject(files)).flatMap(([filePath, text]) => scanDownstreamManualHtmlSinks(text, { filePath }, options));
+  const errorCount = diagnostics.filter((entry) => entry.severity === 'error').length;
+  return {
+    schema: RMT_DOWNSTREAM_NO_MANUAL_HTML_GATE_SCHEMA,
+    status: errorCount > 0 ? 'failed' : 'passed',
+    ok: errorCount === 0,
+    acceptanceNames: ['rmt:check', 'check:syntax'],
+    diagnostics,
+    summary: {
+      totalCount: diagnostics.length,
+      errorCount,
+      warningCount: diagnostics.filter((entry) => entry.severity === 'warning').length
+    }
+  };
+}
+
 function createRmtAppPlatformScaffoldPlan(input = {}, options = {}) {
   const sourcePath = input.source || input.src || input.filePath || 'app.rmt';
   const analysis = analyzeRmtAppPlatformSource(input, options);
@@ -569,7 +666,10 @@ module.exports = {
   RMT_APP_PLATFORM_TOOLING_SCHEMA,
   RMT_APP_PLATFORM_TOOLING_SUITE_PATH,
   RMT_APP_PLATFORM_TOOLING_WORKPACKAGE,
+  RMT_DOWNSTREAM_NO_MANUAL_HTML_GATE_SCHEMA,
+  analyzeDownstreamNoManualHtml,
   analyzeRmtAppPlatformSource,
+  createDownstreamNoManualHtmlGate,
   createRmtAppPlatformScaffoldPlan,
   getRmtAppPlatformCompletions,
   getRmtAppPlatformHover,

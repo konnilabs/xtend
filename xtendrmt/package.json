@@ -27,6 +27,8 @@
     "rmt-runtime.browser.js",
     "rmt-dom-descriptor-renderer.d.ts",
     "rmt-dom-descriptor-renderer.js",
+    "rmt-component-capability-registry.d.ts",
+    "rmt-component-capability-registry.js",
     "rmt-state-selector-runtime.d.ts",
     "rmt-state-selector-runtime.js",
     "rmt-action-effect-runtime.d.ts",
@@ -35,6 +37,8 @@
     "rmt-event-routing-runtime.js",
     "rmt-surface-resource-graph-runtime.d.ts",
     "rmt-surface-resource-graph-runtime.js",
+    "rmt-native-shell-runtime.d.ts",
+    "rmt-native-shell-runtime.js",
     "rmt.schema.json",
     "rmt-manifest.json",
     "package.json"
@@ -63,6 +67,10 @@
       "types": "./rmt-dom-descriptor-renderer.d.ts",
       "default": "./rmt-dom-descriptor-renderer.js"
     },
+    "./component-capability-registry": {
+      "types": "./rmt-component-capability-registry.d.ts",
+      "default": "./rmt-component-capability-registry.js"
+    },
     "./state-selector-runtime": {
       "types": "./rmt-state-selector-runtime.d.ts",
       "default": "./rmt-state-selector-runtime.js"
@@ -78,6 +86,10 @@
     "./surface-resource-graph-runtime": {
       "types": "./rmt-surface-resource-graph-runtime.d.ts",
       "default": "./rmt-surface-resource-graph-runtime.js"
+    },
+    "./native-shell-runtime": {
+      "types": "./rmt-native-shell-runtime.d.ts",
+      "default": "./rmt-native-shell-runtime.js"
     },
     "./schema": "./rmt.schema.json",
     "./manifest": "./rmt-manifest.json",

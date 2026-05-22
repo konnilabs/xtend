@@ -20,8 +20,12 @@ export interface RmtSelectorDefinition {
   filter?: unknown[] | unknown;
   find?: unknown[] | unknown;
   sort?: { by?: string; path?: string; direction?: 'asc' | 'desc' };
-  map?: string | { path?: string };
-  compute?: 'count' | 'not-empty' | 'empty' | 'first' | 'boolean' | string;
+  slice?: { start?: unknown; end?: unknown };
+  map?: string | { path?: string; expression?: unknown; value?: unknown };
+  transform?: RmtTransformExpression;
+  countBy?: string;
+  key?: string;
+  compute?: 'count' | 'countBy' | 'count-by' | 'not-empty' | 'empty' | 'first' | 'boolean' | string;
   structural?: boolean;
   output?: string;
 }
@@ -30,10 +34,39 @@ export interface RmtDerivedDefinition {
   id: string;
   from: string;
   path?: string;
-  expression?: string;
-  compute?: 'count' | 'not-empty' | 'empty' | 'boolean' | string;
+  expression?: unknown;
+  transform?: RmtTransformExpression;
+  countBy?: string;
+  compute?: 'count' | 'countBy' | 'count-by' | 'not-empty' | 'empty' | 'boolean' | string;
   structural?: boolean;
   output?: string;
+}
+
+export interface RmtTransformExpression {
+  op?: 'path' | 'map' | 'filter' | 'reduce' | 'countBy' | 'slice' | 'contains' | 'uppercase' | 'lowercase' | 'replace' | 'concat' | 'interpolate' | 'formatBytes' | 'formatDateShort' | 'formatDuration' | 'fallback' | string;
+  operator?: string;
+  kind?: string;
+  compute?: string;
+  format?: string;
+  value?: unknown;
+  from?: unknown;
+  source?: unknown;
+  path?: string;
+  expression?: unknown;
+  where?: unknown[] | unknown;
+  filter?: unknown[] | unknown;
+  rules?: unknown[] | unknown;
+  values?: unknown[];
+  parts?: unknown[];
+  separator?: string;
+  start?: unknown;
+  end?: unknown;
+  search?: unknown;
+  replacement?: unknown;
+  flags?: string;
+  fallback?: unknown;
+  key?: unknown;
+  mode?: string;
 }
 
 export interface RmtReducerDefinition {
