@@ -16,6 +16,22 @@ $rmtPilotDocument = 'xtendrmt-parsedown-docs.rmt';
 $rmtPilotDocumentPath = $docsRoot . '/' . $rmtPilotDocument;
 $rmtPilotDocumentData = null;
 $rmtPilotDocumentJson = '{}';
+$docsDefaultLocale = 'de';
+$docsFallbackLocale = 'de';
+$docsAvailableLocales = [
+    'de' => [
+        'label' => 'Deutsch',
+        'nativeLabel' => 'Deutsch',
+        'htmlLang' => 'de',
+        'titleSuffix' => 'XTend Dokumentation'
+    ],
+    'en' => [
+        'label' => 'English',
+        'nativeLabel' => 'English',
+        'htmlLang' => 'en',
+        'titleSuffix' => 'XTend Documentation'
+    ]
+];
 
 function docsAssetMap($docsRoot) {
     return [
@@ -175,6 +191,7 @@ $docsLightboxLogoUrl = htmlspecialchars(docsAssetUrl('xtend-logo.png', $xtendAss
 // Alle Markdown-Dateien finden (rekursiv)
 function findMarkdownFiles($dir, $base = '') {
     $files = [];
+    if (!is_dir($dir)) return $files;
     foreach (scandir($dir) as $file) {
         if ($file === '.' || $file === '..') continue;
         $path = "$dir/$file";
@@ -188,7 +205,53 @@ function findMarkdownFiles($dir, $base = '') {
     return $files;
 }
 
-$mdFiles = findMarkdownFiles($docsRoot);
+function docsNormalizeLocale($locale, $availableLocales, $fallbackLocale = 'de') {
+    $candidate = strtolower(trim((string) $locale));
+    $candidate = preg_replace('/[^a-z-]/', '', $candidate);
+    if (isset($availableLocales[$candidate])) return $candidate;
+    $short = substr($candidate, 0, 2);
+    if (isset($availableLocales[$short])) return $short;
+    return isset($availableLocales[$fallbackLocale]) ? $fallbackLocale : array_key_first($availableLocales);
+}
+
+function docsSplitLocalizedPath($value, $availableLocales) {
+    $path = trim((string) $value);
+    $path = preg_replace('/^#\\/?/', '', $path);
+    $path = preg_replace('/^\\/+/', '', $path);
+    $path = preg_replace('/\\?.*$/', '', $path);
+    if ($path === '' || $path === '/') {
+        return ['locale' => null, 'slug' => 'readme'];
+    }
+    $parts = explode('/', $path, 2);
+    $first = strtolower($parts[0] ?? '');
+    if (isset($availableLocales[$first])) {
+        return ['locale' => $first, 'slug' => $parts[1] ?? 'readme'];
+    }
+    return ['locale' => null, 'slug' => $path];
+}
+
+function docsLocaleTitleSuffix($locale, $availableLocales) {
+    return $availableLocales[$locale]['titleSuffix'] ?? 'XTend Dokumentation';
+}
+
+function docsBuildLocalizedMarkdownFiles($docsRoot, $availableLocales, $fallbackLocale) {
+    $localized = [];
+    foreach ($availableLocales as $locale => $config) {
+        $localeRoot = $docsRoot . '/' . $locale;
+        $localized[$locale] = findMarkdownFiles($localeRoot);
+    }
+    if (empty($localized[$fallbackLocale])) {
+        $rootFiles = findMarkdownFiles($docsRoot);
+        $localized[$fallbackLocale] = array_filter($rootFiles, function($path) use ($availableLocales) {
+            $first = explode('/', (string) $path, 2)[0] ?? '';
+            return !isset($availableLocales[$first]);
+        }, ARRAY_FILTER_USE_KEY);
+    }
+    return $localized;
+}
+
+$localizedMdFiles = docsBuildLocalizedMarkdownFiles($docsRoot, $docsAvailableLocales, $docsFallbackLocale);
+$mdFiles = $localizedMdFiles[$docsDefaultLocale] ?? [];
 
 // Slug-Generierung: z.B. components/xalert.md => components-xalert
 function slugify($path) {
@@ -278,9 +341,10 @@ function docsExtractMarkdownDescription($markdown, $fallbackTitle) {
 }
 
 function docsBuildRouteRecord($slug, $rel, $pageMeta) {
+    $locale = $pageMeta['locale'] ?? 'de';
     return [
         'id' => docsRouteIdFromSlug($slug),
-        'path' => '/' . $slug,
+        'path' => '/' . $locale . '/' . $slug,
         'router' => 'xtend.xrouter',
         'component' => 'docs.page',
         'title' => $pageMeta['title'],
@@ -299,7 +363,13 @@ function docsBuildRouteRecord($slug, $rel, $pageMeta) {
             'policy' => 'visible'
         ],
         'metadata' => [
-            'source' => 'docs/' . $rel,
+            'source' => $pageMeta['source'],
+            'slug' => $slug,
+            'locale' => $locale,
+            'requestedLocale' => $pageMeta['requestedLocale'] ?? $locale,
+            'resolvedLocale' => $pageMeta['resolvedLocale'] ?? $locale,
+            'fallbackLocale' => $pageMeta['fallbackLocale'] ?? 'de',
+            'translationAvailable' => $pageMeta['translationAvailable'] ?? true,
             'shellTemplate' => $pageMeta['shellTemplate'],
             'searchTemplate' => $pageMeta['searchTemplate'],
             'contentKind' => $pageMeta['contentKind'],
@@ -316,23 +386,33 @@ function docsBuildRouteRecord($slug, $rel, $pageMeta) {
     ];
 }
 
-function docsBuildPageMeta($slug, $rel, $markdown) {
+function docsBuildPageMeta($slug, $rel, $markdown, $locale = 'de', $requestedLocale = null, $translationAvailable = true) {
+    global $docsAvailableLocales, $docsFallbackLocale;
     $title = docsExtractMarkdownTitle($markdown, $rel);
     $description = docsExtractMarkdownDescription($markdown, $title);
+    $locale = docsNormalizeLocale($locale, $docsAvailableLocales, $docsFallbackLocale);
+    $requestedLocale = docsNormalizeLocale($requestedLocale ?? $locale, $docsAvailableLocales, $docsFallbackLocale);
+    $titleSuffix = docsLocaleTitleSuffix($locale, $docsAvailableLocales);
     $keywords = [
         'xtend',
-        'dokumentation',
+        $locale === 'en' ? 'documentation' : 'dokumentation',
         str_replace('-', ' ', $slug)
     ];
     $pageMeta = [
         'schema' => 'xtend.docs.parsedown-rmt-page.v1',
-        'source' => 'docs/' . $rel,
+        'source' => 'docs/' . $locale . '/' . $rel,
+        'slug' => $slug,
+        'locale' => $locale,
+        'requestedLocale' => $requestedLocale,
+        'resolvedLocale' => $locale,
+        'fallbackLocale' => $docsFallbackLocale,
+        'translationAvailable' => (bool) $translationAvailable,
         'routeId' => docsRouteIdFromSlug($slug),
-        'path' => '/' . $slug,
+        'path' => '/' . $locale . '/' . $slug,
         'router' => 'xtend.xrouter',
         'title' => $title,
-        'documentTitle' => $title . ' | XTend Dokumentation',
-        'titleTemplate' => '{{title}} | XTend Dokumentation',
+        'documentTitle' => $title . ' | ' . $titleSuffix,
+        'titleTemplate' => '{{title}} | ' . $titleSuffix,
         'metaDescription' => $description,
         'metaKeywords' => $keywords,
         'template' => 'docs.' . $slug . '.markdown',
@@ -450,25 +530,66 @@ function docsRenderXRoute($route, $pathOverride = null) {
 // Slug <-> Datei-Mapping
 $slugToFile = [];
 $fileToSlug = [];
-foreach ($mdFiles as $rel => $abs) {
-    $slug = slugify($rel);
-    $slugToFile[$slug] = $rel;
-    $fileToSlug[$rel] = $slug;
+$localizedSlugToFile = [];
+$localizedFileToSlug = [];
+foreach ($localizedMdFiles as $locale => $localeFiles) {
+    $localizedSlugToFile[$locale] = [];
+    $localizedFileToSlug[$locale] = [];
+    foreach ($localeFiles as $rel => $abs) {
+        $slug = slugify($rel);
+        $localizedSlugToFile[$locale][$slug] = $rel;
+        $localizedFileToSlug[$locale][$rel] = $slug;
+        if ($locale === $docsDefaultLocale) {
+            $slugToFile[$slug] = $rel;
+            $fileToSlug[$rel] = $slug;
+        }
+    }
+}
+
+function docsResolveLocalizedPage($rawSlug, $rawLocale, $localizedSlugToFile, $availableLocales, $fallbackLocale) {
+    $parts = docsSplitLocalizedPath($rawSlug, $availableLocales);
+    $requestedLocale = docsNormalizeLocale($parts['locale'] ?? $rawLocale, $availableLocales, $fallbackLocale);
+    $slug = slugify($parts['slug'] ?? 'readme');
+    if ($slug === '') $slug = 'readme';
+    $hasRequested = isset($localizedSlugToFile[$requestedLocale][$slug]);
+    $resolvedLocale = $hasRequested ? $requestedLocale : $fallbackLocale;
+    $translationAvailable = $hasRequested;
+    if (!isset($localizedSlugToFile[$resolvedLocale][$slug])) {
+        return null;
+    }
+    return [
+        'slug' => $slug,
+        'requestedLocale' => $requestedLocale,
+        'resolvedLocale' => $resolvedLocale,
+        'translationAvailable' => $translationAvailable,
+        'rel' => $localizedSlugToFile[$resolvedLocale][$slug]
+    ];
 }
 
 // Routing: Slug aus URL
-$page = $_GET['page'] ?? '';
-if ($page && isset($slugToFile[$page])) {
-    $mdFile = $mdFiles[$slugToFile[$page]];
+$pageRequest = docsResolveLocalizedPage($_GET['page'] ?? 'readme', $_GET['locale'] ?? $docsDefaultLocale, $localizedSlugToFile, $docsAvailableLocales, $docsFallbackLocale);
+if ($pageRequest) {
+    $page = $pageRequest['slug'];
+    $pageLocale = $pageRequest['resolvedLocale'];
+    $mdFile = $localizedMdFiles[$pageLocale][$pageRequest['rel']];
 } else {
     // Default: README.md
-    $mdFile = $docsRoot . '/README.md';
+    $page = 'readme';
+    $pageLocale = $docsDefaultLocale;
+    $mdFile = $localizedMdFiles[$pageLocale]['README.md'] ?? ($docsRoot . '/' . $pageLocale . '/README.md');
     $page = $fileToSlug['README.md'] ?? slugify('README.md');
 }
 
 // Download-Handler
-if (isset($_GET['download']) && isset($slugToFile[$_GET['download']])) {
-    $dlFile = $mdFiles[$slugToFile[$_GET['download']]];
+if (isset($_GET['download'])) {
+    $downloadRequest = docsResolveLocalizedPage($_GET['download'], $_GET['locale'] ?? $docsDefaultLocale, $localizedSlugToFile, $docsAvailableLocales, $docsFallbackLocale);
+    if (!$downloadRequest) {
+        http_response_code(404);
+        header('Content-Type: text/plain; charset=UTF-8');
+        echo 'Docs page not found.';
+        exit;
+    }
+    $dlFile = $localizedMdFiles[$downloadRequest['resolvedLocale']][$downloadRequest['rel']];
     header('Content-Type: text/markdown');
     header('Content-Disposition: attachment; filename="' . basename($dlFile) . '"');
     readfile($dlFile);
@@ -481,8 +602,9 @@ $Parsedown = new Parsedown();
 $Parsedown->setSafeMode(true);
 
 if (isset($_GET['xtend-docs-page'])) {
-    $requestedSlug = slugify((string) $_GET['xtend-docs-page']);
-    if (!isset($slugToFile[$requestedSlug])) {
+    $pagePayloadRequest = docsResolveLocalizedPage($_GET['xtend-docs-page'], $_GET['locale'] ?? $docsDefaultLocale, $localizedSlugToFile, $docsAvailableLocales, $docsFallbackLocale);
+    if (!$pagePayloadRequest) {
+        $requestedSlug = slugify((string) $_GET['xtend-docs-page']);
         http_response_code(404);
         header('Content-Type: application/json; charset=UTF-8');
         header('X-Content-Type-Options: nosniff');
@@ -490,14 +612,20 @@ if (isset($_GET['xtend-docs-page'])) {
             'schema' => 'xtend.docs.parsedown-rmt-page-payload.v1',
             'ok' => false,
             'slug' => $requestedSlug,
+            'requestedLocale' => docsNormalizeLocale($_GET['locale'] ?? $docsDefaultLocale, $docsAvailableLocales, $docsFallbackLocale),
+            'fallbackLocale' => $docsFallbackLocale,
+            'translationAvailable' => false,
             'error' => 'docs-page-not-found'
         ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
         exit;
     }
 
-    $rel = $slugToFile[$requestedSlug];
-    $markdown = file_get_contents($mdFiles[$rel]);
-    $meta = docsBuildPageMeta($requestedSlug, $rel, $markdown);
+    $requestedSlug = $pagePayloadRequest['slug'];
+    $requestedLocale = $pagePayloadRequest['requestedLocale'];
+    $resolvedLocale = $pagePayloadRequest['resolvedLocale'];
+    $rel = $pagePayloadRequest['rel'];
+    $markdown = file_get_contents($localizedMdFiles[$resolvedLocale][$rel]);
+    $meta = docsBuildPageMeta($requestedSlug, $rel, $markdown, $resolvedLocale, $requestedLocale, $pagePayloadRequest['translationAvailable']);
     header('Content-Type: application/json; charset=UTF-8');
     header('X-Content-Type-Options: nosniff');
     header('Cache-Control: no-store');
@@ -505,6 +633,11 @@ if (isset($_GET['xtend-docs-page'])) {
         'schema' => 'xtend.docs.parsedown-rmt-page-payload.v1',
         'ok' => true,
         'slug' => $requestedSlug,
+        'locale' => $resolvedLocale,
+        'requestedLocale' => $requestedLocale,
+        'resolvedLocale' => $resolvedLocale,
+        'fallbackLocale' => $docsFallbackLocale,
+        'translationAvailable' => $pagePayloadRequest['translationAvailable'],
         'html' => $Parsedown->text($markdown),
         'meta' => $meta,
         'source' => $meta['source'],
@@ -529,28 +662,45 @@ function navLinks($fileToSlug) {
 // --- Nach dem Parsen aller Seiten: JS-Objekt für alle Seiteninhalte ---
 $allPages = [];
 $allPagesMeta = [];
+$localizedAllPages = [];
+$localizedAllPagesMeta = [];
+$localizedTitles = [];
 $docsRmtRoutes = [];
 $titles = [];
-foreach ($fileToSlug as $rel => $slug) {
-    $mdFile = $mdFiles[$slugToFile[$slug]];
-    $mdContent = file_get_contents($mdFile);
-    $allPagesMeta[$slug] = docsBuildPageMeta($slug, $rel, $mdContent);
-    if ($slug === $page) {
-        $allPages[$slug] = $Parsedown->text($mdContent);
+foreach ($localizedFileToSlug as $locale => $localeFileToSlug) {
+    $localizedAllPages[$locale] = [];
+    $localizedAllPagesMeta[$locale] = [];
+    $localizedTitles[$locale] = [];
+    foreach ($localeFileToSlug as $rel => $slug) {
+        $mdFile = $localizedMdFiles[$locale][$rel];
+        $mdContent = file_get_contents($mdFile);
+        $meta = docsBuildPageMeta($slug, $rel, $mdContent, $locale, $locale, true);
+        $localizedAllPagesMeta[$locale][$slug] = $meta;
+        if ($slug === $page && $locale === $pageLocale) {
+            $localizedAllPages[$locale][$slug] = $Parsedown->text($mdContent);
+        }
+        $localizedTitles[$locale][$slug] = $meta['title'];
+        if ($locale === $docsDefaultLocale) {
+            $allPagesMeta[$slug] = $meta;
+            if ($slug === $page && $locale === $pageLocale) {
+                $allPages[$slug] = $Parsedown->text($mdContent);
+            }
+            $docsRmtRoutes[] = $meta['route'];
+            $titles[$slug] = $meta['title'];
+        }
     }
-    $docsRmtRoutes[] = $allPagesMeta[$slug]['route'];
-    $titles[$slug] = $allPagesMeta[$slug]['title'];
 }
-$readmeTitle = $allPagesMeta['readme']['title'] ?? 'XTend Dokumentation';
-$readmeDocumentTitle = $allPagesMeta['readme']['documentTitle'] ?? 'XTend Dokumentation';
-$readmeDescription = $allPagesMeta['readme']['metaDescription'] ?? 'XTend Dokumentation';
+$initialLocaleConfig = $docsAvailableLocales[$pageLocale] ?? $docsAvailableLocales[$docsDefaultLocale];
+$readmeTitle = $localizedAllPagesMeta[$docsDefaultLocale]['readme']['title'] ?? 'XTend Dokumentation';
+$readmeDocumentTitle = $localizedAllPagesMeta[$docsDefaultLocale]['readme']['documentTitle'] ?? 'XTend Dokumentation';
+$readmeDescription = $localizedAllPagesMeta[$docsDefaultLocale]['readme']['metaDescription'] ?? 'XTend Dokumentation';
 $docsRmtRoutes[] = array_replace_recursive($allPagesMeta['readme']['route'] ?? [], [
     'id' => 'docs.home',
     'path' => '/',
     'title' => $readmeTitle,
     'documentTitle' => $readmeDocumentTitle,
     'metadata' => [
-        'source' => 'docs/README.md',
+        'source' => 'docs/' . $docsDefaultLocale . '/README.md',
         'seo' => [
             'title' => $readmeTitle,
             'documentTitle' => $readmeDocumentTitle,
@@ -560,19 +710,19 @@ $docsRmtRoutes[] = array_replace_recursive($allPagesMeta['readme']['route'] ?? [
 ]);
 $rmtPilotDocumentData = docsMergeRmtRoutes($rmtPilotDocumentData, $docsRmtRoutes);
 $rmtPilotDocumentJson = json_encode($rmtPilotDocumentData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-$initialDocsSlug = isset($allPagesMeta[$page]) ? $page : 'readme';
-$initialTitle = $allPagesMeta[$initialDocsSlug]['documentTitle'] ?? 'XTend Dokumentation';
-$initialDescription = $allPagesMeta[$initialDocsSlug]['metaDescription'] ?? 'XTend Dokumentation';
-$initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords'] ?? ['xtend', 'dokumentation']);
+$initialDocsSlug = isset($localizedAllPagesMeta[$pageLocale][$page]) ? $page : 'readme';
+$initialTitle = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['documentTitle'] ?? 'XTend Dokumentation';
+$initialDescription = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaDescription'] ?? 'XTend Dokumentation';
+$initialKeywords = implode(', ', $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaKeywords'] ?? ['xtend', 'dokumentation']);
 ?><!DOCTYPE html>
-<html lang="de">
+<html lang="<?= htmlspecialchars($initialLocaleConfig['htmlLang'] ?? $pageLocale, ENT_QUOTES, 'UTF-8') ?>">
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($initialTitle, ENT_QUOTES, 'UTF-8') ?></title>
     <meta name="description" content="<?= htmlspecialchars($initialDescription, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="keywords" content="<?= htmlspecialchars($initialKeywords, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="xtend-preload" content="x-theme,x-button,x-icon,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer,x-section,x-code,x-modal,x-dialog">
+    <meta name="xtend-preload" content="x-theme,x-button,x-icon,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer,x-select,x-section,x-code,x-modal,x-dialog">
     <link rel="icon" href="<?= $docsFaviconIcoUrl ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= $docsFavicon32Url ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">
@@ -581,6 +731,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
     <script src="/fabric/xtend-fabric.js?v=<?= $xtendAssetVersionAttr ?>"></script>
     <script type="module" src="/xtend-loader.js?v=<?= $xtendAssetVersionAttr ?>" data-manifest="/components/manifest.json?v=<?= $xtendAssetVersionAttr ?>" data-module-cache-bust="<?= $xtendAssetVersionAttr ?>"></script>
     <script src="/components/prism.js" nonce="<?= $nonce ?>"></script>
+    <script src="/components/prism-rmt.js" nonce="<?= $nonce ?>"></script>
     <style>
         html {
           --body-bg: #f7f8fb;
@@ -1224,6 +1375,68 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           float: none;
           font-size: 0.9em;
         }
+        .docs-language-control {
+          display: inline-grid;
+          grid-template-columns: auto minmax(7.35rem, 8.8rem) auto;
+          align-items: center;
+          gap: 0.42rem;
+          min-height: 44px;
+          padding: 0 0.32rem 0 0.58rem;
+          border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--surface-muted) 82%, transparent);
+          color: var(--text-color);
+          box-sizing: border-box;
+        }
+        .docs-language-control:focus-within {
+          outline: 2px solid color-mix(in srgb, var(--primary-color) 56%, transparent);
+          outline-offset: 2px;
+        }
+        .docs-language-icon {
+          color: var(--primary-color);
+          flex: none;
+          opacity: 0.9;
+        }
+        .docs-language-status {
+          display: none;
+          align-items: center;
+          gap: 0.32rem;
+          color: var(--muted-text-color);
+          font-size: 0.78rem;
+          line-height: 1;
+          white-space: nowrap;
+        }
+        .docs-language-control[data-docs-locale-busy="true"] .docs-language-status {
+          display: inline-flex;
+        }
+        .docs-language-status-spinner {
+          width: 0.85rem;
+          height: 0.85rem;
+          border: 2px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
+          border-top-color: var(--primary-color);
+          border-radius: 999px;
+          box-sizing: border-box;
+          animation: docs-language-spin 0.78s linear infinite;
+        }
+        .docs-language-status-label {
+          max-width: 4.8rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        @keyframes docs-language-spin {
+          to { transform: rotate(360deg); }
+        }
+        .docs-language-select {
+          display: block;
+          min-width: 7.5rem;
+          max-width: 8.8rem;
+          --xtend-form-control-min-height: 44px;
+        }
+        .docs-language-select::part(label),
+        .docs-language-select::part(helper),
+        .docs-language-select::part(error) {
+          display: none;
+        }
         xtend-doc-page {
           display: block;
           width: 100%;
@@ -1280,13 +1493,62 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
           xtend-doc-page[data-docs-route-state="loading"] {
             transform: none;
           }
+          .docs-language-status-spinner {
+            animation: none;
+          }
         }
     </style>
     <script nonce="<?= $nonce ?>">
     window.xtendInitialDocsSlug = <?= json_encode($initialDocsSlug, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-    if (!location.hash) location.hash = '#/' + (window.xtendInitialDocsSlug || 'readme');
+    window.xtendInitialDocsLocale = <?= json_encode($pageLocale, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendDocsLocales = <?php echo json_encode($docsAvailableLocales, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendDocsI18n = {
+      schema: 'xtend.docs.i18n.v1',
+      defaultLocale: <?= json_encode($docsDefaultLocale, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>,
+      fallbackLocale: <?= json_encode($docsFallbackLocale, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>,
+      storageKey: 'xtend.docs.locale',
+      stateKeys: {
+        locale: 'xtend.docs.locale',
+        target: 'xtend.docs.locale.target',
+        source: 'xtend.docs.locale.source',
+        status: 'xtend.docs.locale.status',
+        busy: 'xtend.docs.locale.busy',
+        transition: 'xtend.docs.locale.transition',
+        error: 'xtend.docs.locale.error',
+        available: 'xtend.docs.locale.available',
+        fallback: 'xtend.docs.locale.fallback'
+      },
+      available: Object.keys(window.xtendDocsLocales || {})
+    };
+    window.xtendDocsLocalizedPages = <?php echo json_encode($localizedAllPages, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendDocsLocalizedPagesMeta = <?php echo json_encode($localizedAllPagesMeta, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendDocsLocalizedTitles = <?php echo json_encode($localizedTitles, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    (function() {
+      const config = window.xtendDocsI18n || {};
+      const available = config.available || ['de'];
+      const fallback = config.fallbackLocale || 'de';
+      const normalizeLocale = (value) => {
+        const raw = String(value || '').toLowerCase();
+        if (available.includes(raw)) return raw;
+        const short = raw.slice(0, 2);
+        return available.includes(short) ? short : fallback;
+      };
+      const stored = (() => {
+        try { return localStorage.getItem(config.storageKey || 'xtend.docs.locale'); } catch (error) { return ''; }
+      })();
+      const browser = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+      const locale = normalizeLocale(stored || browser || config.defaultLocale || fallback);
+      const rawHash = location.hash.replace(/^#\/?/, '').replace(/^\/+/, '');
+      const parts = rawHash.split('/');
+      const hashLocale = available.includes(parts[0]) ? parts[0] : '';
+      const slug = hashLocale ? (parts.slice(1).join('/') || window.xtendInitialDocsSlug || 'readme') : (rawHash || window.xtendInitialDocsSlug || 'readme');
+      window.xtendDocsCurrentLocale = hashLocale || locale;
+      if (!location.hash || !hashLocale) {
+        location.hash = '#/' + window.xtendDocsCurrentLocale + '/' + slug;
+      }
+    })();
     window.xtendDocsPages = <?php echo json_encode($allPages, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-    window.xtendDocsPageEndpoint = 'index.php?xtend-docs-page=';
+    window.xtendDocsPageEndpoint = 'index.php?xtend-docs-page={slug}&locale={locale}';
     window.xtendDocsPagesMeta = <?php echo json_encode($allPagesMeta, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
     window.xtendDocsTitles = <?php echo json_encode($titles, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
     window.xtendDocsAssetUrls = {
@@ -1395,6 +1657,29 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 <x-theme></x-theme>
 <x-header src="<?= $docsLogoUrl ?>" logo-size="48" sticky data-xtend-skeleton style="--xtend-skeleton-min-height: 4.75rem;">
   <span slot="title">XTend Dokumentation</span>
+  <span
+    class="docs-language-control"
+    slot="actions"
+    data-docs-language-control
+    aria-label="<?= $pageLocale === 'en' ? 'Change language' : 'Sprache wechseln' ?>"
+  >
+    <x-icon class="docs-language-icon" name="globe" pack="lucide" decorative size="1.05rem"></x-icon>
+    <x-select
+      id="docs-language-select"
+      class="docs-language-select"
+      label="Sprache"
+      value="<?= htmlspecialchars($pageLocale, ENT_QUOTES, 'UTF-8') ?>"
+      data-docs-language-select
+    >
+      <?php foreach ($docsAvailableLocales as $locale => $localeConfig): ?>
+        <option value="<?= htmlspecialchars($locale, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($localeConfig['nativeLabel'] ?? strtoupper($locale), ENT_QUOTES, 'UTF-8') ?></option>
+      <?php endforeach; ?>
+    </x-select>
+    <span class="docs-language-status" data-docs-language-status role="status" aria-live="polite" hidden>
+      <span class="docs-language-status-spinner" aria-hidden="true"></span>
+      <span class="docs-language-status-label" data-docs-language-status-label><?= $pageLocale === 'en' ? 'Loading' : 'Lädt' ?></span>
+    </span>
+  </span>
   <x-button
     id="theme-toggle"
     class="docs-icon-button docs-theme-toggle"
@@ -1409,7 +1694,7 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
     <span id="theme-toggle-label" class="docs-visually-hidden">Dunkelmodus aktivieren</span>
   </x-button>
   <?php foreach ($fileToSlug as $rel => $slug): ?>
-    <x-link class="docs-nav-link" slot="nav" href="/<?= $slug ?>" <?= $page === $slug ? 'active' : '' ?>>
+    <x-link class="docs-nav-link" slot="nav" href="/<?= $docsDefaultLocale ?>/<?= $slug ?>" <?= $page === $slug ? 'active' : '' ?>>
       <x-icon class="docs-nav-link-icon" name="<?= htmlspecialchars(docsMenuIconForSlug($slug), ENT_QUOTES, 'UTF-8') ?>" decorative size="1rem"></x-icon>
       <span class="docs-nav-link-label"><?= htmlspecialchars(ucfirst(preg_replace('/[-_]/', ' ', preg_replace('/\.md$/i', '', basename($rel))))) ?></span>
     </x-link>
@@ -1436,8 +1721,13 @@ $initialKeywords = implode(', ', $allPagesMeta[$initialDocsSlug]['metaKeywords']
 <main>
 <x-router mode="hash" reuse-component skeleton="article" skeleton-lines="10" skeleton-min-height="26rem" skeleton-label="Dokumentation wird geladen" data-xtend-skeleton style="--xtend-skeleton-min-height: 26rem; --xtend-skeleton-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter)); --xtend-skeleton-max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter)); --xtend-skeleton-margin-inline: var(--docs-viewport-gutter);" document-title-template="{{title}} | XTend Dokumentation" default-title="XTend Dokumentation">
   <?= docsRenderXRoute($allPagesMeta['readme']['route'], '/') . "\n" ?>
+  <?php foreach ($localizedAllPagesMeta as $locale => $localePagesMeta): ?>
+    <?php foreach ($localePagesMeta as $slug => $meta): ?>
+      <?= docsRenderXRoute($meta['route'], '/' . $locale . '/' . $slug) . "\n" ?>
+    <?php endforeach; ?>
+  <?php endforeach; ?>
   <?php foreach ($fileToSlug as $rel => $slug): ?>
-    <?= docsRenderXRoute($allPagesMeta[$slug]['route']) . "\n" ?>
+    <?= docsRenderXRoute($allPagesMeta[$slug]['route'], '/' . $slug) . "\n" ?>
   <?php endforeach; ?>
   <x-route path="*" component="xtend-doc-page" import="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" title="Seite nicht gefunden" document-title="Seite nicht gefunden | XTend Dokumentation" meta-description="Die angeforderte Dokumentationsseite wurde nicht gefunden." skeleton="article" skeleton-lines="8" skeleton-min-height="20rem" hydrate-schedule="docs.page.hydrate" data-rmt-route-id="docs.notFound" data-rmt-router="xtend.xrouter" data-rmt-component="docs.page" data-rmt-schedule="docs.route.render" data-rmt-hydrate-schedule="docs.page.hydrate"></x-route>
 </x-router>
@@ -1456,16 +1746,19 @@ document.addEventListener('DOMContentLoaded', function() {
   function updateThemeButton() {
     if (!btn || !label) return;
     const theme = document.documentElement.getAttribute('data-theme');
+    const locale = window.xtendDocsCurrentLocale === 'en' ? 'en' : 'de';
+    const darkLabel = locale === 'en' ? 'Enable dark mode' : 'Dunkelmodus aktivieren';
+    const lightLabel = locale === 'en' ? 'Enable light mode' : 'Hellmodus aktivieren';
     if (theme === 'dark') {
-      label.textContent = 'Hellmodus aktivieren';
-      btn.setAttribute('aria-label', 'Hellmodus aktivieren');
-      btn.setAttribute('title', 'Hellmodus aktivieren');
+      label.textContent = lightLabel;
+      btn.setAttribute('aria-label', lightLabel);
+      btn.setAttribute('title', lightLabel);
       btn.setAttribute('aria-pressed', 'true');
       if (icon) icon.setAttribute('name', 'sun');
     } else {
-      label.textContent = 'Dunkelmodus aktivieren';
-      btn.setAttribute('aria-label', 'Dunkelmodus aktivieren');
-      btn.setAttribute('title', 'Dunkelmodus aktivieren');
+      label.textContent = darkLabel;
+      btn.setAttribute('aria-label', darkLabel);
+      btn.setAttribute('title', darkLabel);
       btn.setAttribute('aria-pressed', 'false');
       if (icon) icon.setAttribute('name', 'moon');
     }
@@ -1481,6 +1774,7 @@ document.addEventListener('DOMContentLoaded', function() {
   updateThemeButton();
   document.addEventListener('theme-changed', updateThemeButton);
   document.addEventListener('theme-initialized', updateThemeButton);
+  window.addEventListener('xtend-docs-locale-changed', updateThemeButton);
   // Standardfarben für beide Themes setzen
   if (window.XTend && window.XTend.theme) {
     window.XTend.theme.setTheme('light');
@@ -1589,7 +1883,13 @@ document.addEventListener('DOMContentLoaded', function() {
   function schedulePrismHighlight(root) {
     const scope = root && root.querySelectorAll ? root : document;
     const run = () => {
+      scope.querySelectorAll('x-code').forEach((node) => {
+        if (typeof node.hydrate === 'function') node.hydrate();
+      });
       if (!window.Prism) return;
+      if (window.XTendRmtPrism && typeof window.XTendRmtPrism.register === 'function') {
+        window.XTendRmtPrism.register(window.Prism);
+      }
       if (typeof Prism.highlightAllUnder === 'function') {
         Prism.highlightAllUnder(scope);
         return;

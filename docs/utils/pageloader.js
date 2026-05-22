@@ -33,6 +33,8 @@ const DOCS_ROUTE_CONTENT_CACHE_LIMIT = 32;
 const DOCS_ROUTE_IDLE_TIMEOUT_MS = 520;
 const DOCS_ROUTE_CONTENT_CACHE = new Map();
 const DOCS_ROUTE_PAYLOAD_PROMISES = new Map();
+const DOCS_I18N_SCHEMA = 'xtend.docs.i18n.v1';
+const DOCS_I18N_STORAGE_KEY = 'xtend.docs.locale';
 const DOCS_SHELL_SCOPED_CSS = `
   #outlet {
     width: 100%;
@@ -435,6 +437,277 @@ function docsRoundDuration(value) {
   return Math.round(Number(value || 0) * 10) / 10;
 }
 
+function getDocsI18nConfig() {
+  const config = window.xtendDocsI18n && typeof window.xtendDocsI18n === 'object'
+    ? window.xtendDocsI18n
+    : {};
+  const locales = window.xtendDocsLocales && typeof window.xtendDocsLocales === 'object'
+    ? window.xtendDocsLocales
+    : { de: { label: 'Deutsch', nativeLabel: 'Deutsch' } };
+  const available = Array.isArray(config.available) && config.available.length
+    ? config.available.slice()
+    : Object.keys(locales);
+  const fallbackLocale = config.fallbackLocale || config.defaultLocale || available[0] || 'de';
+  return {
+    schema: config.schema || DOCS_I18N_SCHEMA,
+    defaultLocale: config.defaultLocale || fallbackLocale,
+    fallbackLocale,
+    storageKey: config.storageKey || DOCS_I18N_STORAGE_KEY,
+    stateKeys: {
+      locale: 'xtend.docs.locale',
+      target: 'xtend.docs.locale.target',
+      source: 'xtend.docs.locale.source',
+      status: 'xtend.docs.locale.status',
+      busy: 'xtend.docs.locale.busy',
+      transition: 'xtend.docs.locale.transition',
+      error: 'xtend.docs.locale.error',
+      available: 'xtend.docs.locale.available',
+      fallback: 'xtend.docs.locale.fallback',
+      ...(config.stateKeys || {})
+    },
+    locales,
+    available
+  };
+}
+
+function normalizeDocsLocale(value) {
+  const config = getDocsI18nConfig();
+  const raw = String(value || '').trim().toLowerCase();
+  if (config.available.includes(raw)) return raw;
+  const short = raw.slice(0, 2);
+  if (config.available.includes(short)) return short;
+  return config.fallbackLocale;
+}
+
+function readStoredDocsLocale() {
+  const config = getDocsI18nConfig();
+  try {
+    return window.localStorage ? window.localStorage.getItem(config.storageKey) : '';
+  } catch (error) {
+    return '';
+  }
+}
+
+function writeStoredDocsLocale(locale) {
+  const config = getDocsI18nConfig();
+  try {
+    if (window.localStorage) window.localStorage.setItem(config.storageKey, locale);
+  } catch (error) {
+    // Storage can be unavailable in hardened or test environments.
+  }
+}
+
+function detectBrowserDocsLocale() {
+  const languages = Array.isArray(navigator.languages) && navigator.languages.length
+    ? navigator.languages
+    : [navigator.language || ''];
+  for (const language of languages) {
+    const locale = normalizeDocsLocale(language);
+    if (locale) return locale;
+  }
+  return getDocsI18nConfig().fallbackLocale;
+}
+
+function writeDocsLocaleState(values = {}) {
+  if (!window.xstate || typeof window.xstate.set !== 'function') return;
+  const keys = getDocsI18nConfig().stateKeys;
+  Object.entries(values).forEach(([name, value]) => {
+    const stateKey = keys[name];
+    if (stateKey) window.xstate.set(stateKey, value);
+  });
+}
+
+function createDocsLocaleTransitionSnapshot(status, detail = {}) {
+  const targetLocale = normalizeDocsLocale(detail.targetLocale || detail.locale || getCurrentDocsLocale());
+  const activeLocale = window.xtendDocsCurrentLocale ? normalizeDocsLocale(window.xtendDocsCurrentLocale) : '';
+  return {
+    schema: 'xtend.docs.locale-transition.v1',
+    status,
+    busy: status === 'loading',
+    activeLocale,
+    targetLocale,
+    slug: detail.slug || getCurrentDocsSlug(),
+    source: detail.source || 'route',
+    startedAt: detail.startedAt || (window.__xtendDocsLocaleTransition && window.__xtendDocsLocaleTransition.startedAt) || new Date().toISOString(),
+    startedAtMs: detail.startedAtMs || (window.__xtendDocsLocaleTransition && window.__xtendDocsLocaleTransition.startedAtMs) || docsPerfNow(),
+    completedAt: status === 'loading' ? null : new Date().toISOString(),
+    durationMs: detail.startedAtMs ? docsRoundDuration(docsPerfNow() - detail.startedAtMs) : detail.durationMs || 0,
+    token: detail.token || (window.__xtendDocsLocaleTransition && window.__xtendDocsLocaleTransition.token) || 0,
+    error: detail.error || null
+  };
+}
+
+function setDocsLocaleTransitionState(status, detail = {}) {
+  const snapshot = createDocsLocaleTransitionSnapshot(status, detail);
+  if (status === 'loading') {
+    window.__xtendDocsLocaleTransition = snapshot;
+  } else if (!window.__xtendDocsLocaleTransition ||
+    window.__xtendDocsLocaleTransition.token === snapshot.token ||
+    window.__xtendDocsLocaleTransition.targetLocale === snapshot.targetLocale) {
+    window.__xtendDocsLocaleTransition = null;
+  }
+  window.__xtendDocsLocaleLastTransition = snapshot;
+  writeDocsLocaleState({
+    target: snapshot.targetLocale,
+    status,
+    busy: snapshot.busy,
+    transition: snapshot,
+    error: snapshot.error
+  });
+  document.documentElement.toggleAttribute('data-docs-locale-busy', snapshot.busy);
+  document.documentElement.setAttribute('data-docs-locale-status', status);
+  updateDocsLocaleBusyUi(snapshot);
+  window.dispatchEvent(new CustomEvent('xtend-docs-locale-transition', { detail: snapshot }));
+  return snapshot;
+}
+
+function beginDocsLocaleTransition(targetLocale, detail = {}) {
+  const token = Number(window.__xtendDocsLocaleTransitionToken || 0) + 1;
+  window.__xtendDocsLocaleTransitionToken = token;
+  return setDocsLocaleTransitionState('loading', {
+    ...detail,
+    targetLocale,
+    token,
+    startedAt: new Date().toISOString(),
+    startedAtMs: docsPerfNow()
+  });
+}
+
+function completeDocsLocaleTransition(locale, slug, detail = {}) {
+  const normalized = normalizeDocsLocale(locale);
+  const pending = window.__xtendDocsLocaleTransition;
+  if (pending && (pending.targetLocale !== normalized || pending.slug !== slug)) {
+    return false;
+  }
+  setDocsLocaleTransitionState(detail.status || 'ready', {
+    ...detail,
+    targetLocale: normalized,
+    slug,
+    token: pending ? pending.token : detail.token,
+    startedAt: pending ? pending.startedAt : detail.startedAt,
+    startedAtMs: pending ? pending.startedAtMs : detail.startedAtMs,
+    source: pending ? pending.source : detail.source
+  });
+  updateDocsLocaleUi(normalized, { publish: false, busy: false, slug });
+  return true;
+}
+
+function parseDocsRoutePath(rawValue) {
+  const config = getDocsI18nConfig();
+  const raw = String(rawValue || location.hash || '')
+    .split('?')[0]
+    .replace(/^#\/?/, '')
+    .replace(/^\/+/, '');
+  if (!raw || raw === '/') {
+    return { locale: getCurrentDocsLocale(), slug: 'readme', localized: true };
+  }
+  const parts = raw.split('/');
+  const first = parts[0] || '';
+  if (config.available.includes(first)) {
+    return {
+      locale: normalizeDocsLocale(first),
+      slug: parts.slice(1).join('/') || 'readme',
+      localized: true
+    };
+  }
+  return {
+    locale: getCurrentDocsLocale(),
+    slug: raw || 'readme',
+    localized: false
+  };
+}
+
+function publishDocsLocale(locale, source = 'default') {
+  const config = getDocsI18nConfig();
+  const normalized = normalizeDocsLocale(locale);
+  const previous = window.xtendDocsCurrentLocale ? normalizeDocsLocale(window.xtendDocsCurrentLocale) : '';
+  const changed = previous !== normalized;
+  window.xtendDocsCurrentLocale = normalized;
+  document.documentElement.setAttribute('lang', (config.locales[normalized] && config.locales[normalized].htmlLang) || normalized);
+  document.documentElement.setAttribute('data-docs-locale', normalized);
+  writeDocsLocaleState({
+    locale: normalized,
+    source,
+    target: window.__xtendDocsLocaleTransition ? window.__xtendDocsLocaleTransition.targetLocale : normalized,
+    available: config.available.slice(),
+    fallback: config.fallbackLocale
+  });
+  if (!window.__xtendDocsLocaleTransition) {
+    writeDocsLocaleState({
+      status: 'ready',
+      busy: false,
+      error: null
+    });
+  }
+  if (changed || source === 'user' || source === 'browser' || source === 'default' || source === 'xstate') {
+    window.dispatchEvent(new CustomEvent('xtend-docs-locale-changed', {
+      detail: {
+        schema: DOCS_I18N_SCHEMA,
+        locale: normalized,
+        previousLocale: previous || null,
+        changed,
+        source,
+        available: config.available.slice(),
+        fallbackLocale: config.fallbackLocale
+      }
+    }));
+  }
+  return normalized;
+}
+
+function getCurrentDocsLocale() {
+  if (window.xtendDocsCurrentLocale) return normalizeDocsLocale(window.xtendDocsCurrentLocale);
+  const stored = readStoredDocsLocale();
+  if (stored) return publishDocsLocale(stored, 'user');
+  return publishDocsLocale(detectBrowserDocsLocale(), 'browser');
+}
+
+function getLocalizedDocsPath(slug, locale = getCurrentDocsLocale()) {
+  return '/' + normalizeDocsLocale(locale) + '/' + (slug || 'readme');
+}
+
+function normalizeDocsRouteHref(slugOrHref, locale = getCurrentDocsLocale()) {
+  const parsed = parseDocsRoutePath(slugOrHref || 'readme');
+  return getLocalizedDocsPath(parsed.slug || 'readme', locale);
+}
+
+function getLocalizedDocsMap(recordName, locale = getCurrentDocsLocale()) {
+  const root = window[recordName];
+  if (!root || typeof root !== 'object') return {};
+  return root[normalizeDocsLocale(locale)] || root[getDocsI18nConfig().fallbackLocale] || {};
+}
+
+function createDocsActiveRecordPatch(record, slug) {
+  if (!slug || !record || typeof record !== 'object' || !Object.prototype.hasOwnProperty.call(record, slug)) {
+    return record || {};
+  }
+  return { [slug]: record[slug] };
+}
+
+function syncLegacyDocsGlobals(locale = getCurrentDocsLocale(), options = {}) {
+  const normalized = normalizeDocsLocale(locale);
+  const pages = getLocalizedDocsMap('xtendDocsLocalizedPages', normalized);
+  const meta = getLocalizedDocsMap('xtendDocsLocalizedPagesMeta', normalized);
+  const titles = getLocalizedDocsMap('xtendDocsLocalizedTitles', normalized);
+  const slug = options && options.slug ? String(options.slug) : '';
+  const pagePatch = createDocsActiveRecordPatch(pages, slug);
+  const metaPatch = createDocsActiveRecordPatch(meta, slug);
+  const titlePatch = createDocsActiveRecordPatch(titles, slug);
+  window.xtendDocsPages = {
+    ...(window.xtendDocsPages || {}),
+    ...pagePatch
+  };
+  window.xtendDocsPagesMeta = {
+    ...(window.xtendDocsPagesMeta || {}),
+    ...metaPatch
+  };
+  window.xtendDocsTitles = {
+    ...(window.xtendDocsTitles || {}),
+    ...titlePatch
+  };
+  return { pages, meta, titles };
+}
+
 function rememberDocsCacheEntry(key, value) {
   DOCS_ROUTE_CONTENT_CACHE.set(key, value);
   while (DOCS_ROUTE_CONTENT_CACHE.size > DOCS_ROUTE_CONTENT_CACHE_LIMIT) {
@@ -446,6 +719,7 @@ function rememberDocsCacheEntry(key, value) {
 
 function createDocsRouteContentCacheKey(slug, html, options = {}) {
   return [
+    options.locale || getCurrentDocsLocale(),
     slug || 'readme',
     options.source || 'docs.parsedown',
     options.markupClass || 'parsedownHtml',
@@ -588,7 +862,31 @@ function hideDocsSkeleton(target, options = {}) {
 }
 
 function createRmtSnippet(tag, attributes = {}, children = []) {
-  return JSON.stringify({ tag, attributes, children }, null, 2);
+  const component = String(tag || 'x-component');
+  const id = component.replace(/^x-/, '').replace(/[^A-Za-z0-9_-]+/g, '-');
+  const attributeLines = Object.entries(attributes || {})
+    .map(([key, value]) => `      ${key} ${JSON.stringify(value)}`);
+  const childCount = Array.isArray(children) ? children.length : 0;
+  return [
+    `template docs.demo.${id} {`,
+    '  portal surface.root root "#docs-demo-root" layer surface',
+    '',
+    `  state docs.demo.${id}.props type object preserve {`,
+    '    initial {',
+    ...attributeLines,
+    `      childCount ${childCount}`,
+    '    }',
+    '  }',
+    '',
+    `  surface docs.demo.${id} kind component component ${component} {`,
+    `    source state docs.demo.${id}.props`,
+    '    portal surface.root',
+    '    lane visible weight 50 {',
+    `      hydrate ${id}-preview`,
+    '    }',
+    '  }',
+    '}'
+  ].join('\n');
 }
 
 function createDocsComponentDemos() {
@@ -907,7 +1205,9 @@ function renderRmtDomTemplate(templateId, model = {}) {
   };
 }
 
-function getDocsPageMeta(slug) {
+function getDocsPageMeta(slug, locale = getCurrentDocsLocale()) {
+  const localized = getLocalizedDocsMap('xtendDocsLocalizedPagesMeta', locale);
+  if (localized && localized[slug]) return localized[slug];
   return window.xtendDocsPagesMeta && window.xtendDocsPagesMeta[slug]
     ? window.xtendDocsPagesMeta[slug]
     : null;
@@ -1295,7 +1595,7 @@ function wireDownloadButton(download, slug) {
   configureDocsIconButton(download, {
     icon: 'download',
     pack: 'core',
-    label: 'Download als Markdown'
+    label: getCurrentDocsLocale() === 'en' ? 'Download as Markdown' : 'Download als Markdown'
   });
   download.setAttribute('type', 'button');
   bindDocsButtonAction(download, async function(e) {
@@ -1305,9 +1605,10 @@ function wireDownloadButton(download, slug) {
     }
     if (download.hasAttribute('disabled')) return;
     const activeSlug = download.__xtendDocsDownloadSlug || slug;
+    const locale = getCurrentDocsLocale();
     setDocsButtonBusy(download, true);
     try {
-      const resp = await fetch(`?download=${activeSlug}`);
+      const resp = await fetch(`?download=${encodeURIComponent(activeSlug)}&locale=${encodeURIComponent(locale)}`);
       if (!resp.ok) throw new Error('Download fehlgeschlagen');
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
@@ -1322,11 +1623,11 @@ function wireDownloadButton(download, slug) {
         URL.revokeObjectURL(url);
       }, 100);
       setTimeout(() => {
-        window.xtendShowToast('Download erfolgreich!', 'success', 3000);
+        window.xtendShowToast(locale === 'en' ? 'Download complete.' : 'Download erfolgreich!', 'success', 3000);
       }, 200);
     } catch (err) {
       setTimeout(() => {
-        window.xtendShowToast('Download fehlgeschlagen!', 'error', 3000);
+        window.xtendShowToast(getCurrentDocsLocale() === 'en' ? 'Download failed.' : 'Download fehlgeschlagen!', 'error', 3000);
       }, 200);
     } finally {
       setTimeout(() => {
@@ -1337,6 +1638,7 @@ function wireDownloadButton(download, slug) {
 }
 
 function createFallbackSearchShell() {
+  const locale = getCurrentDocsLocale();
   const form = document.createElement('x-form');
   form.id = 'xtend-search-form';
   form.setAttribute('slot', 'search');
@@ -1346,12 +1648,12 @@ function createFallbackSearchShell() {
 
   const label = document.createElement('label');
   label.setAttribute('for', 'search-input');
-  label.textContent = 'Suche:';
+  label.textContent = locale === 'en' ? 'Search:' : 'Suche:';
 
   const input = document.createElement('x-input');
   input.id = 'search-input';
   input.setAttribute('name', 'search');
-  input.setAttribute('placeholder', 'Suche...');
+  input.setAttribute('placeholder', locale === 'en' ? 'Search...' : 'Suche...');
 
   const searchResults = document.createElement('div');
   searchResults.id = 'search-results';
@@ -1433,7 +1735,8 @@ function wireSearchForm(form, input, searchResults) {
   input.addEventListener('input', function() {
     const q = String(input.value || '').toLowerCase();
     const results = [];
-    Object.entries(window.xtendDocsTitles || {}).forEach(([slug, title]) => {
+    const localizedTitles = getLocalizedDocsMap('xtendDocsLocalizedTitles', getCurrentDocsLocale());
+    Object.entries(Object.keys(localizedTitles).length ? localizedTitles : (window.xtendDocsTitles || {})).forEach(([slug, title]) => {
       if (String(title).toLowerCase().includes(q)) {
         results.push({ slug, title });
       }
@@ -1443,14 +1746,14 @@ function wireSearchForm(form, input, searchResults) {
     if (q && results.length) {
       results.forEach((result, index) => {
         const link = document.createElement('x-link');
-        link.setAttribute('href', '/' + result.slug);
+        link.setAttribute('href', getLocalizedDocsPath(result.slug));
         link.textContent = result.title;
         searchResults.appendChild(link);
       });
       searchResults.style.display = 'block';
     } else if (q) {
       const empty = document.createElement('em');
-      empty.textContent = 'Keine Treffer';
+      empty.textContent = getCurrentDocsLocale() === 'en' ? 'No results' : 'Keine Treffer';
       searchResults.appendChild(empty);
       searchResults.style.display = 'block';
     } else {
@@ -1530,8 +1833,14 @@ function ensureMainBackgroundBinding() {
 }
 
 function getDocsPageSlugs() {
-  const metaSlugs = Object.keys(window.xtendDocsPagesMeta || {});
+  const localizedMeta = getLocalizedDocsMap('xtendDocsLocalizedPagesMeta', getCurrentDocsLocale());
+  const metaSlugs = Object.keys(localizedMeta || {});
   if (metaSlugs.length) return metaSlugs;
+  const localizedPages = getLocalizedDocsMap('xtendDocsLocalizedPages', getCurrentDocsLocale());
+  const pageSlugs = Object.keys(localizedPages || {});
+  if (pageSlugs.length) return pageSlugs;
+  const legacyMetaSlugs = Object.keys(window.xtendDocsPagesMeta || {});
+  if (legacyMetaSlugs.length) return legacyMetaSlugs;
   return Object.keys(window.xtendDocsPages || {});
 }
 
@@ -1540,19 +1849,32 @@ function getDocsPageEndpoint() {
   return typeof endpoint === 'string' && endpoint ? endpoint : '';
 }
 
-function buildDocsPagePayloadUrl(slug) {
+function buildDocsPagePayloadUrl(slug, locale = getCurrentDocsLocale()) {
   const endpoint = getDocsPageEndpoint();
   if (!endpoint) return '';
-  if (endpoint.includes('{slug}')) return endpoint.replace('{slug}', encodeURIComponent(slug));
-  return endpoint + encodeURIComponent(slug);
+  if (endpoint.includes('{slug}') || endpoint.includes('{locale}')) {
+    return endpoint
+      .replace('{slug}', encodeURIComponent(slug))
+      .replace('{locale}', encodeURIComponent(normalizeDocsLocale(locale)));
+  }
+  const separator = endpoint.includes('?') ? '&' : '?';
+  return endpoint + encodeURIComponent(slug) + separator + 'locale=' + encodeURIComponent(normalizeDocsLocale(locale));
 }
 
-function rememberDocsPagePayload(slug, payload = {}) {
+function rememberDocsPagePayload(slug, payload = {}, locale = getCurrentDocsLocale()) {
+  const normalizedLocale = normalizeDocsLocale(payload.resolvedLocale || payload.locale || locale);
   if (!window.xtendDocsPages || typeof window.xtendDocsPages !== 'object') {
     window.xtendDocsPages = {};
   }
+  if (!window.xtendDocsLocalizedPages || typeof window.xtendDocsLocalizedPages !== 'object') {
+    window.xtendDocsLocalizedPages = {};
+  }
+  if (!window.xtendDocsLocalizedPages[normalizedLocale]) {
+    window.xtendDocsLocalizedPages[normalizedLocale] = {};
+  }
   if (typeof payload.html === 'string') {
     window.xtendDocsPages[slug] = payload.html;
+    window.xtendDocsLocalizedPages[normalizedLocale][slug] = payload.html;
   }
   if (payload.meta && typeof payload.meta === 'object') {
     window.xtendDocsPagesMeta = {
@@ -1562,19 +1884,38 @@ function rememberDocsPagePayload(slug, payload = {}) {
         ...payload.meta
       }
     };
+    window.xtendDocsLocalizedPagesMeta = {
+      ...(window.xtendDocsLocalizedPagesMeta || {}),
+      [normalizedLocale]: {
+        ...((window.xtendDocsLocalizedPagesMeta && window.xtendDocsLocalizedPagesMeta[normalizedLocale]) || {}),
+        [slug]: {
+          ...(((window.xtendDocsLocalizedPagesMeta && window.xtendDocsLocalizedPagesMeta[normalizedLocale]) || {})[slug] || {}),
+          ...payload.meta
+        }
+      }
+    };
   }
   return payload;
 }
 
-function loadDocsParsedownContent(slug, rmtMeta = {}) {
-  const inlineHtml = window.xtendDocsPages && typeof window.xtendDocsPages[slug] === 'string'
-    ? window.xtendDocsPages[slug]
+function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLocale()) {
+  const normalizedLocale = normalizeDocsLocale(locale);
+  const localizedPages = getLocalizedDocsMap('xtendDocsLocalizedPages', normalizedLocale);
+  const inlineHtml = localizedPages && typeof localizedPages[slug] === 'string'
+    ? localizedPages[slug]
+    : normalizedLocale === getDocsI18nConfig().fallbackLocale && window.xtendDocsPages && typeof window.xtendDocsPages[slug] === 'string'
+      ? window.xtendDocsPages[slug]
     : null;
   if (inlineHtml !== null) {
     return Promise.resolve({
       schema: 'xtend.docs.parsedown-rmt-page-payload.v1',
       ok: true,
       slug,
+      locale: normalizedLocale,
+      requestedLocale: normalizedLocale,
+      resolvedLocale: normalizedLocale,
+      fallbackLocale: getDocsI18nConfig().fallbackLocale,
+      translationAvailable: true,
       html: inlineHtml,
       meta: rmtMeta,
       source: 'inline',
@@ -1583,16 +1924,22 @@ function loadDocsParsedownContent(slug, rmtMeta = {}) {
     });
   }
 
-  if (DOCS_ROUTE_PAYLOAD_PROMISES.has(slug)) {
-    return DOCS_ROUTE_PAYLOAD_PROMISES.get(slug);
+  const promiseKey = normalizedLocale + ':' + slug;
+  if (DOCS_ROUTE_PAYLOAD_PROMISES.has(promiseKey)) {
+    return DOCS_ROUTE_PAYLOAD_PROMISES.get(promiseKey);
   }
 
-  const url = buildDocsPagePayloadUrl(slug);
+  const url = buildDocsPagePayloadUrl(slug, normalizedLocale);
   if (!url) {
     return Promise.resolve({
       schema: 'xtend.docs.parsedown-rmt-page-payload.v1',
       ok: false,
       slug,
+      locale: normalizedLocale,
+      requestedLocale: normalizedLocale,
+      resolvedLocale: getDocsI18nConfig().fallbackLocale,
+      fallbackLocale: getDocsI18nConfig().fallbackLocale,
+      translationAvailable: false,
       html: '<em>Seite nicht gefunden</em>',
       meta: rmtMeta,
       source: 'missing-endpoint',
@@ -1614,11 +1961,16 @@ function loadDocsParsedownContent(slug, rmtMeta = {}) {
     .then((payload) => rememberDocsPagePayload(slug, {
       ...payload,
       cacheHit: false
-    }))
+    }, normalizedLocale))
     .catch((error) => ({
       schema: 'xtend.docs.parsedown-rmt-page-payload.v1',
       ok: false,
       slug,
+      locale: normalizedLocale,
+      requestedLocale: normalizedLocale,
+      resolvedLocale: getDocsI18nConfig().fallbackLocale,
+      fallbackLocale: getDocsI18nConfig().fallbackLocale,
+      translationAvailable: false,
       html: '<em>Seite nicht gefunden</em>',
       meta: rmtMeta,
       source: 'fetch-error',
@@ -1627,10 +1979,44 @@ function loadDocsParsedownContent(slug, rmtMeta = {}) {
       skeletonLoader: 'xtend.loader.skeleton-loader.v1'
     }))
     .finally(() => {
-      DOCS_ROUTE_PAYLOAD_PROMISES.delete(slug);
+      DOCS_ROUTE_PAYLOAD_PROMISES.delete(promiseKey);
     });
-  DOCS_ROUTE_PAYLOAD_PROMISES.set(slug, promise);
+  DOCS_ROUTE_PAYLOAD_PROMISES.set(promiseKey, promise);
   return promise;
+}
+
+function prefetchDocsLocalePage(slug = getCurrentDocsSlug(), locale = getCurrentDocsLocale()) {
+  const normalizedSlug = slug || 'readme';
+  const normalizedLocale = normalizeDocsLocale(locale);
+  const localizedPages = getLocalizedDocsMap('xtendDocsLocalizedPages', normalizedLocale);
+  if (localizedPages && typeof localizedPages[normalizedSlug] === 'string') {
+    return Promise.resolve({
+      schema: 'xtend.docs.locale-prefetch.v1',
+      slug: normalizedSlug,
+      locale: normalizedLocale,
+      source: 'inline',
+      cacheHit: true
+    });
+  }
+  const rmtMeta = getDocsPageMeta(normalizedSlug, normalizedLocale) || {};
+  return loadDocsParsedownContent(normalizedSlug, rmtMeta, normalizedLocale).then((payload) => ({
+    schema: 'xtend.docs.locale-prefetch.v1',
+    slug: normalizedSlug,
+    locale: normalizedLocale,
+    source: payload && payload.source ? payload.source : 'unknown',
+    cacheHit: payload && payload.cacheHit === true,
+    translationAvailable: payload ? payload.translationAvailable !== false : false
+  }));
+}
+
+function prefetchAlternateDocsLocales(slug = getCurrentDocsSlug()) {
+  const config = getDocsI18nConfig();
+  const current = getCurrentDocsLocale();
+  config.available.forEach((locale) => {
+    if (normalizeDocsLocale(locale) !== current) {
+      prefetchDocsLocalePage(slug, locale).catch(() => {});
+    }
+  });
 }
 
 function normalizeMarkdownLinks(html) {
@@ -1669,7 +2055,7 @@ function normalizeMarkdownLinks(html) {
         foundSlug = norm.replace(/\//g, '-').replace(/\.md$/, '').toLowerCase();
       }
     }
-    return `<x-link href='/${foundSlug}'>${text}</x-link>`;
+    return `<x-link href='${getLocalizedDocsPath(foundSlug)}'>${text}</x-link>`;
   });
 }
 
@@ -1705,6 +2091,57 @@ function normalizeDocsParsedownCodeEntities(root) {
     normalizedCount += 1;
   });
   return normalizedCount;
+}
+
+function normalizeDocsCodeLanguage(value) {
+  const raw = String(value || 'text').trim().toLowerCase();
+  const aliases = {
+    js: 'javascript',
+    html: 'markup',
+    xml: 'markup',
+    svg: 'markup',
+    md: 'markdown',
+    txt: 'text',
+    plaintext: 'text',
+    'rmt-vnext': 'rmt',
+    xtendrmt: 'rmt'
+  };
+  return aliases[raw] || raw || 'text';
+}
+
+function readDocsCodeLanguage(node) {
+  const className = String(node.getAttribute('class') || '');
+  const match = className.match(/(?:^|\s)(?:language|lang)-([A-Za-z0-9_+-]+)/);
+  return normalizeDocsCodeLanguage(node.getAttribute('data-language') || (match && match[1]) || 'text');
+}
+
+function upgradeDocsParsedownCodeFences(root, options = {}) {
+  const schedule = options.schedule || 'docs.syntax.highlight';
+  const scope = root && root.querySelectorAll ? root : document;
+  let count = 0;
+  Array.from(scope.querySelectorAll('pre > code')).forEach((codeNode) => {
+    const pre = codeNode.parentElement;
+    if (!pre || pre.closest('x-code') || pre.hasAttribute('data-docs-code-fence-upgraded')) return;
+    const language = readDocsCodeLanguage(codeNode);
+    const codeElement = document.createElement('x-code');
+    codeElement.className = 'docs-code-fence';
+    codeElement.setAttribute('lang', language);
+    codeElement.setAttribute('data-docs-code-fence-upgraded', 'true');
+    codeElement.setAttribute('data-rmt-component', 'docs.codeFence');
+    codeElement.setAttribute('data-rmt-schedule', schedule);
+    codeElement.setAttribute('data-rmt-syntax-language', language);
+    const template = document.createElement('template');
+    template.setAttribute('data-x-code-mode', 'text');
+    template.content.appendChild(document.createTextNode(codeNode.textContent || ''));
+    codeElement.appendChild(template);
+    pre.replaceWith(codeElement);
+    count += 1;
+  });
+  return {
+    schema: 'xtend.docs.xcode-fence-upgrade.v1',
+    upgraded: count,
+    schedule
+  };
 }
 
 function sanitizeDocsTrustedDomHtml(html, options = {}) {
@@ -1753,7 +2190,10 @@ function sanitizeDocsTrustedDomHtml(html, options = {}) {
 }
 
 function prepareDocsTrustedDomHtml(slug, html, options = {}) {
-  const cacheKey = createDocsRouteContentCacheKey(slug, html, options);
+  const cacheKey = createDocsRouteContentCacheKey(slug, html, {
+    ...options,
+    locale: options.locale || getCurrentDocsLocale()
+  });
   const cached = DOCS_ROUTE_CONTENT_CACHE.get(cacheKey);
   if (cached) return cloneDocsSanitizeResult(cached, true);
 
@@ -1768,9 +2208,15 @@ function prepareDocsTrustedDomHtml(slug, html, options = {}) {
 function applyDocsTrustedDomHtml(target, html, options = {}) {
   const result = prepareDocsTrustedDomHtml(options.slug || '', html, options);
   target.innerHTML = result.html;
+  const codeFenceUpgrade = upgradeDocsParsedownCodeFences(target, {
+    schedule: options.syntaxSchedule || 'docs.syntax.highlight'
+  });
+  result.codeFenceUpgrade = codeFenceUpgrade;
+  result.upgradedCodeFenceCount = codeFenceUpgrade.upgraded;
   target.setAttribute('data-rmt-sanitized', 'true');
   target.setAttribute('data-rmt-sanitizer', DOCS_RMT_TRUSTED_DOM_SANITIZER);
   target.setAttribute('data-rmt-trusted-dom-proof', DOCS_RMT_TRUSTED_DOM_PROOF_SCHEMA);
+  target.setAttribute('data-docs-code-fence-upgraded', String(codeFenceUpgrade.upgraded));
   target.setAttribute('data-rmt-content-cache-hit', result.cacheHit ? 'true' : 'false');
   window.xtendDocsTrustedDomLastSanitize = result;
   return result;
@@ -1781,7 +2227,8 @@ window.xtendDocsTrustedDomBoundary = Object.freeze({
   sanitizer: DOCS_RMT_TRUSTED_DOM_SANITIZER,
   trustBoundary: DOCS_RMT_TRUST_BOUNDARY,
   sanitize: sanitizeDocsTrustedDomHtml,
-  apply: applyDocsTrustedDomHtml
+  apply: applyDocsTrustedDomHtml,
+  upgradeCodeFences: upgradeDocsParsedownCodeFences
 });
 
 function upgradeRoutedLinks(root) {
@@ -1799,12 +2246,14 @@ function upgradeRoutedLinks(root) {
 function syncActiveHeaderLink(slug) {
   const header = document.querySelector('x-header');
   if (!header) return;
+  const locale = getCurrentDocsLocale();
+  const localizedHref = getLocalizedDocsPath(slug, locale);
   header.querySelectorAll('x-link').forEach((a) => a.removeAttribute('active'));
   header.querySelectorAll('details[data-docs-menu-children]').forEach((details) => {
     details.open = false;
     syncDocsMenuDisclosureState(details);
   });
-  const active = header.querySelector('x-link[href="#/' + slug + '"], x-link[href="/' + slug + '"]');
+  const active = header.querySelector('x-link[href="#' + localizedHref + '"], x-link[href="' + localizedHref + '"], x-link[href="#/' + slug + '"], x-link[href="/' + slug + '"]');
   if (active) {
     active.setAttribute('active', '');
     let parent = active.parentElement;
@@ -1864,8 +2313,8 @@ async function loadMenuConfig() {
 }
 
 function getCurrentDocsSlug() {
-  const slug = location.hash.replace(/^#\/?/, '').replace(/^\/+/, '') || 'readme';
-  return slug === '' || slug === '/' ? 'readme' : slug;
+  const parsed = parseDocsRoutePath(location.hash);
+  return parsed.slug === '' || parsed.slug === '/' ? 'readme' : parsed.slug;
 }
 
 function resolveDocsMenuGroup(entry) {
@@ -1882,17 +2331,30 @@ function resolveDocsMenuGroup(entry) {
 }
 
 function getDocsMenuGroupLabel(groupId) {
+  const locale = getCurrentDocsLocale();
   const labels = {
-    start: 'Start',
-    core: 'Core',
-    platform: 'Platform',
-    components: 'Komponenten',
-    rmt: 'XTendRMT',
-    quality: 'Quality',
-    security: 'Security',
-    release: 'Release'
+    de: {
+      start: 'Start',
+      core: 'Core',
+      platform: 'Platform',
+      components: 'Komponenten',
+      rmt: 'XTendRMT',
+      quality: 'Quality',
+      security: 'Security',
+      release: 'Release'
+    },
+    en: {
+      start: 'Start',
+      core: 'Core',
+      platform: 'Platform',
+      components: 'Components',
+      rmt: 'XTendRMT',
+      quality: 'Quality',
+      security: 'Security',
+      release: 'Release'
+    }
   };
-  return labels[groupId] || groupId;
+  return (labels[locale] && labels[locale][groupId]) || labels.de[groupId] || groupId;
 }
 
 function getDocsMenuGroupIcon(groupId) {
@@ -1982,8 +2444,12 @@ function getDocsMenuTier(entry) {
 }
 
 function normalizeDocsMenuEntry(entry) {
+  const locale = getCurrentDocsLocale();
   const slug = entry && entry.slug ? String(entry.slug) : '';
-  const label = entry && entry.label
+  const localizedLabel = entry && entry.labels && (entry.labels[locale] || entry.labels[getDocsI18nConfig().fallbackLocale]);
+  const label = localizedLabel
+    ? String(localizedLabel)
+    : entry && entry.label
     ? String(entry.label)
     : slug.replace(/^components-/, '').replace(/-/g, ' ');
   const parent = entry && entry.parent ? String(entry.parent) : '';
@@ -2003,7 +2469,7 @@ function normalizeDocsMenuEntry(entry) {
 function sortDocsMenuEntries(entries = []) {
   return entries.sort((a, b) => {
     if (b.rank !== a.rank) return b.rank - a.rank;
-    return String(a.label).localeCompare(String(b.label), 'de');
+    return String(a.label).localeCompare(String(b.label), getCurrentDocsLocale());
   });
 }
 
@@ -2046,6 +2512,7 @@ function groupDocsMenuEntries(entries = []) {
 function renderMenu() {
   const header = document.querySelector('x-header');
   if (!header) return;
+  const locale = getCurrentDocsLocale();
   Array.from(header.querySelectorAll('x-link[slot="nav"]')).forEach((el) => el.remove());
   Array.from(header.querySelectorAll('[data-docs-menu-shell]')).forEach((el) => el.remove());
   const menu = window.xtendMenuConfig && window.xtendMenuConfig.length
@@ -2058,7 +2525,7 @@ function renderMenu() {
   shell.setAttribute('data-docs-menu-shell', '');
   shell.className = 'docs-menu-shell';
   shell.setAttribute('role', 'list');
-  shell.setAttribute('aria-label', 'Dokumentationsbereiche');
+  shell.setAttribute('aria-label', locale === 'en' ? 'Documentation sections' : 'Dokumentationsbereiche');
 
   const renderMenuNode = (entry, depth = 0) => {
     const node = document.createElement('div');
@@ -2070,7 +2537,7 @@ function renderMenu() {
 
     const link = document.createElement('x-link');
     link.className = 'docs-menu-link';
-    link.setAttribute('href', '/' + entry.slug);
+    link.setAttribute('href', getLocalizedDocsPath(entry.slug, locale));
     link.setAttribute('data-docs-menu-link', '');
     link.setAttribute('data-doc-id', entry.id);
     link.setAttribute('data-doc-rank', String(entry.rank));
@@ -2104,7 +2571,10 @@ function renderMenu() {
       summaryIcon.setAttribute('size', '0.9rem');
       const summaryLabel = document.createElement('span');
       summaryLabel.className = 'docs-menu-disclosure-label';
-      summaryLabel.textContent = depth === 0 ? 'Deep Dives' : 'Weitere Themen';
+      // Contract anchor: summaryLabel.textContent = depth === 0 ? 'Deep Dives' : 'Weitere Themen'
+      summaryLabel.textContent = locale === 'en'
+        ? (depth === 0 ? 'Deep Dives' : 'More Topics')
+        : (depth === 0 ? 'Deep Dives' : 'Weitere Themen');
       const summaryCount = document.createElement('span');
       summaryCount.className = 'docs-menu-disclosure-count';
       summaryCount.textContent = String(entry.children.length);
@@ -2174,9 +2644,142 @@ function ensureMenuBinding() {
   window.__xtendDocsMenuBound = true;
   loadMenuConfig().then(renderMenu);
   window.addEventListener('hashchange', () => syncActiveHeaderLink(getCurrentDocsSlug()));
+  window.addEventListener('xtend-docs-locale-changed', (event) => {
+    const locale = event && event.detail && event.detail.locale ? event.detail.locale : getCurrentDocsLocale();
+    const slug = getCurrentDocsSlug();
+    syncLegacyDocsGlobals(locale, { slug });
+    if (window.__xtendDocsMenuLocaleDisposer) window.__xtendDocsMenuLocaleDisposer();
+    window.__xtendDocsMenuLocaleDisposer = scheduleDocsIdle(() => {
+      window.__xtendDocsMenuLocaleDisposer = null;
+      renderMenu();
+    }, 140);
+  });
+}
+
+function updateDocsLocaleBusyUi(transition = window.__xtendDocsLocaleTransition || window.__xtendDocsLocaleLastTransition || null) {
+  const busy = Boolean(transition && transition.busy);
+  const locale = transition && transition.targetLocale ? transition.targetLocale : getCurrentDocsLocale();
+  const control = document.querySelector('[data-docs-language-control]');
+  const status = document.querySelector('[data-docs-language-status]');
+  const label = document.querySelector('[data-docs-language-status-label]');
+  if (control) {
+    control.toggleAttribute('data-docs-locale-busy', busy);
+    control.setAttribute('aria-busy', busy ? 'true' : 'false');
+  }
+  if (status) {
+    status.hidden = !busy;
+  }
+  if (label) {
+    label.textContent = locale === 'en' ? 'Loading' : 'Lädt';
+  }
+}
+
+function updateDocsLocaleUi(locale = getCurrentDocsLocale(), options = {}) {
+  const targetLocale = normalizeDocsLocale(locale);
+  const shouldPublish = options.publish !== false;
+  const normalized = !shouldPublish
+    ? targetLocale
+    : window.xtendDocsCurrentLocale && normalizeDocsLocale(window.xtendDocsCurrentLocale) === targetLocale
+    ? targetLocale
+    : publishDocsLocale(targetLocale, window.__xtendDocsLocaleUserSelected ? 'user' : 'route');
+  syncLegacyDocsGlobals(normalized, { slug: options.slug || getCurrentDocsSlug() });
+  const headerTitle = document.querySelector('x-header [slot="title"]');
+  if (headerTitle) {
+    headerTitle.textContent = normalized === 'en' ? 'XTend Documentation' : 'XTend Dokumentation';
+  }
+  const control = document.querySelector('[data-docs-language-control]');
+  if (control) {
+    control.setAttribute('aria-label', normalized === 'en' ? 'Change language' : 'Sprache wechseln');
+  }
+  const select = document.getElementById('docs-language-select');
+  if (select && select.getAttribute('value') !== normalized) {
+    select.setAttribute('value', normalized);
+    if ('value' in select) {
+      try { select.value = normalized; } catch (error) {}
+    }
+  }
+  if (select) {
+    select.setAttribute('label', normalized === 'en' ? 'Language' : 'Sprache');
+  }
+  updateDocsLocaleBusyUi(options.busy === false ? { busy: false, targetLocale: normalized } : window.__xtendDocsLocaleTransition);
+  document.querySelectorAll('[data-docs-locale-label]').forEach((node) => {
+    const text = node.getAttribute('data-docs-locale-label-' + normalized);
+    if (text) node.textContent = text;
+  });
+  return normalized;
+}
+
+function navigateDocsLocale(locale, source = 'user') {
+  const normalized = normalizeDocsLocale(locale);
+  const slug = getCurrentDocsSlug();
+  const currentRoute = parseDocsRoutePath(location.hash);
+  if (source === 'user') {
+    window.__xtendDocsLocaleUserSelected = true;
+    writeStoredDocsLocale(normalized);
+  }
+  if (normalized === getCurrentDocsLocale() && currentRoute.localized && currentRoute.locale === normalized && !window.__xtendDocsLocaleTransition) {
+    completeDocsLocaleTransition(normalized, slug, { source, status: 'ready' });
+    updateDocsLocaleUi(normalized, { publish: false, busy: false, slug });
+    return;
+  }
+  beginDocsLocaleTransition(normalized, { source, slug });
+  syncLegacyDocsGlobals(normalized, { slug });
+  prefetchDocsLocalePage(slug, normalized).catch(() => {});
+  window.__xtendDocsPendingLocaleRoute = window.__xtendDocsLocaleTransition;
+  const nextHash = '#' + getLocalizedDocsPath(slug, normalized);
+  if (location.hash !== nextHash) {
+    location.hash = nextHash;
+  } else {
+    const page = document.querySelector('xtend-doc-page');
+    if (page && typeof page.updateRoute === 'function') {
+      page.updateRoute({ path: getLocalizedDocsPath(slug, normalized), source: 'locale-change' });
+    }
+  }
+  updateDocsLocaleUi(normalized, { publish: false, busy: true, slug });
+}
+
+function ensureDocsLanguageSelectBinding() {
+  if (window.__xtendDocsLanguageSelectBound) return;
+  window.__xtendDocsLanguageSelectBound = true;
+  updateDocsLocaleUi(getCurrentDocsLocale());
+  const maybePrefetchLanguageTarget = (event) => {
+    const control = event.target && event.target.closest
+      ? event.target.closest('[data-docs-language-control], #docs-language-select')
+      : null;
+    if (!control) return;
+    prefetchAlternateDocsLocales(getCurrentDocsSlug());
+  };
+  document.addEventListener('pointerdown', maybePrefetchLanguageTarget, { passive: true });
+  document.addEventListener('focusin', maybePrefetchLanguageTarget);
+  document.addEventListener('select-changed', (event) => {
+    const select = event.target && event.target.closest
+      ? event.target.closest('#docs-language-select')
+      : null;
+    if (!select) return;
+    const value = event.detail && event.detail.value ? event.detail.value : select.getAttribute('value');
+    navigateDocsLocale(value, 'user');
+  });
+  window.addEventListener('hashchange', () => {
+    const parsed = parseDocsRoutePath(location.hash);
+    updateDocsLocaleUi(parsed.locale, {
+      publish: false,
+      busy: Boolean(window.__xtendDocsLocaleTransition),
+      slug: parsed.slug || getCurrentDocsSlug()
+    });
+  });
+  if (window.xstate && typeof window.xstate.subscribe === 'function') {
+    const config = getDocsI18nConfig();
+    window.xstate.subscribe((key, value) => {
+      if (key === config.stateKeys.locale && value && normalizeDocsLocale(value) !== getCurrentDocsLocale()) {
+        navigateDocsLocale(value, 'xstate');
+      }
+    }, config.stateKeys.locale);
+  }
 }
 
 function docsPageExists(slug) {
+  const localized = getLocalizedDocsMap('xtendDocsLocalizedPagesMeta', getCurrentDocsLocale());
+  if (localized && localized[slug]) return true;
   return Boolean(slug && (
     window.xtendDocsPages && window.xtendDocsPages[slug] ||
     window.xtendDocsPagesMeta && window.xtendDocsPagesMeta[slug]
@@ -2184,7 +2787,9 @@ function docsPageExists(slug) {
 }
 
 function docsTitleForSlug(slug) {
-  return (window.xtendDocsTitles && window.xtendDocsTitles[slug]) ||
+  const localizedTitles = getLocalizedDocsMap('xtendDocsLocalizedTitles', getCurrentDocsLocale());
+  return (localizedTitles && localizedTitles[slug]) ||
+    (window.xtendDocsTitles && window.xtendDocsTitles[slug]) ||
     (slug ? slug.replace(/^components-/, '').replace(/-/g, ' ') : '');
 }
 
@@ -2325,7 +2930,7 @@ function fallbackRelatedLinksForSlug(slug) {
 function createRelatedLink(entry) {
   const link = document.createElement('x-link');
   link.className = 'docs-related-link';
-  const href = entry.href || (entry.slug ? '/' + entry.slug : '#');
+  const href = entry.href || (entry.slug ? getLocalizedDocsPath(entry.slug) : '#');
   link.setAttribute('href', href);
   link.setAttribute('data-rmt-component', 'docs.relatedLinks');
   if (entry.slug) {
@@ -2527,16 +3132,22 @@ function renderDocsComponentDemo(demoSlot, slug) {
   if (code) {
     while (code.firstChild) code.removeChild(code.firstChild);
     code.appendChild(createDemoCodeBlock('HTML', 'html', demo.html, 'html'));
-    code.appendChild(createDemoCodeBlock('RMT', 'json', demo.rmt, 'text'));
+    code.appendChild(createDemoCodeBlock('RMT', 'rmt', demo.rmt, 'text'));
   }
 }
 
 function resolveDocsSlugFromRouteContext(context = {}) {
   const explicit = context.slug || context.path || context.to || '';
-  const raw = explicit ? String(explicit) : location.hash;
-  const withoutQuery = raw.split('?')[0];
-  let slug = withoutQuery.replace(/^#\/?/, '').replace(/^\/+/, '') || 'readme';
+  const parsed = parseDocsRoutePath(explicit ? String(explicit) : location.hash);
+  publishDocsLocale(parsed.locale, parsed.localized ? 'route' : 'compat-route');
+  let slug = parsed.slug || 'readme';
   if (slug === '' || slug === '/') slug = 'readme';
+  if (!parsed.localized) {
+    const localizedPath = getLocalizedDocsPath(slug, parsed.locale);
+    if (location.hash !== '#' + localizedPath) {
+      history.replaceState(null, '', '#' + localizedPath);
+    }
+  }
   return slug;
 }
 
@@ -2557,7 +3168,7 @@ class XtendDocPage extends HTMLElement {
   }
 
   updateRoute(context = {}) {
-    return this.renderRoute({ ...context, source: 'x-router-reuse' });
+    return this.renderRoute({ ...context, source: context.source || 'x-router-reuse' });
   }
 
   cancelScheduledRouteWork() {
@@ -2592,18 +3203,31 @@ class XtendDocPage extends HTMLElement {
     this.__xtendDocsRouteToken = token;
 
     const slug = resolveDocsSlugFromRouteContext(context);
+    const locale = getCurrentDocsLocale();
+    syncLegacyDocsGlobals(locale, { slug });
+    const pendingLocaleRoute = window.__xtendDocsPendingLocaleRoute;
+    const localeRouteFastPath = context.source === 'locale-change' || Boolean(
+      pendingLocaleRoute &&
+      pendingLocaleRoute.slug === slug &&
+      pendingLocaleRoute.targetLocale === locale &&
+      docsPerfNow() - Number(pendingLocaleRoute.startedAtMs || 0) < 8000
+    );
+    if (localeRouteFastPath) {
+      window.__xtendDocsPendingLocaleRoute = null;
+    }
     const docsRouteStartedAt = new Date().toISOString();
     const routePerfStartedAt = docsPerfNow();
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const reused = context.source === 'x-router-reuse' || context.reused === true;
+    const reused = context.source === 'x-router-reuse' || context.source === 'locale-change' || context.reused === true;
 
     this.setAttribute('data-docs-route-state', reducedMotion ? 'ready' : 'loading');
     this.setAttribute('data-docs-route-slug', slug);
+    this.setAttribute('data-docs-route-locale', locale);
     this.setAttribute('data-docs-route-reused', reused ? 'true' : 'false');
     this.setAttribute('aria-busy', 'true');
     ensureDocsShellScopedStyles(this.getRootNode());
 
-    const rmtMeta = getDocsPageMeta(slug) || {};
+    const rmtMeta = getDocsPageMeta(slug, locale) || {};
     const hadShell = Boolean(this.__xtendDocsShell);
     const shell = this.ensureRouteShell(slug, rmtMeta);
     applyRmtPageMetadata(shell.section, shell.mdContent, shell.richSlot, shell.diagnosticsSlot, rmtMeta, shell.sidebar, shell.relatedSlot, shell.demoSlot);
@@ -2638,6 +3262,7 @@ class XtendDocPage extends HTMLElement {
     window.xtendDocsRmtLastRender = {
       schema: DOCS_RMT_RENDER_SCHEMA,
       slug,
+      locale,
       shellFirst: true,
       shellReused: hadShell,
       routeReuse: reused,
@@ -2686,12 +3311,12 @@ class XtendDocPage extends HTMLElement {
       variant: 'article',
       lines: 11,
       minHeight: '24rem',
-      label: 'Dokumentationsinhalt wird geladen',
+      label: locale === 'en' ? 'Documentation content is loading' : 'Dokumentationsinhalt wird geladen',
       source: 'docs.parsedown',
       schedule: parseSchedule
     });
 
-    const contentPayloadPromise = loadDocsParsedownContent(slug, rmtMeta);
+    const contentPayloadPromise = loadDocsParsedownContent(slug, rmtMeta, locale);
     let relatedLinks = [];
     let contentCommitted = false;
 
@@ -2708,13 +3333,18 @@ class XtendDocPage extends HTMLElement {
         : rmtMeta;
       const trustedDomResult = measuredLane('visible', parseSchedule, 'article.trusted-dom-commit', () => applyDocsTrustedDomHtml(shell.mdContent, html, {
         slug,
+        locale,
         source: payloadMeta.source || rmtMeta.source || 'docs.parsedown',
         markupClass: payloadMeta.markupClass || rmtMeta.markupClass || 'parsedownHtml',
-        trustBoundary: payloadMeta.trustBoundary || rmtMeta.trustBoundary || DOCS_RMT_TRUST_BOUNDARY
+        trustBoundary: payloadMeta.trustBoundary || rmtMeta.trustBoundary || DOCS_RMT_TRUST_BOUNDARY,
+        syntaxSchedule: 'docs.syntax.highlight'
       }));
       hideDocsSkeleton(shell.mdContent);
       window.xtendDocsRmtLastRender.lazyPayload = payload && payload.source !== 'inline';
       window.xtendDocsRmtLastRender.payloadSource = payload ? payload.source : 'unknown';
+      window.xtendDocsRmtLastRender.requestedLocale = payload ? payload.requestedLocale : locale;
+      window.xtendDocsRmtLastRender.resolvedLocale = payload ? payload.resolvedLocale : locale;
+      window.xtendDocsRmtLastRender.translationAvailable = payload ? payload.translationAvailable !== false : true;
       window.xtendDocsRmtLastRender.skeletonLoader = 'xtend.loader.skeleton-loader.v1';
       window.xtendDocsRmtProductionLastRender.trustedDom = {
         schema: trustedDomResult.schema,
@@ -2734,15 +3364,21 @@ class XtendDocPage extends HTMLElement {
     };
 
     let transitionCompleted = false;
-    const finishTransition = () => {
+    const finishTransition = (status = 'ready', error = null) => {
       if (!this.isActiveRouteToken(token) || transitionCompleted) return;
       transitionCompleted = true;
       this.setAttribute('data-docs-route-state', 'ready');
       this.removeAttribute('aria-busy');
+      completeDocsLocaleTransition(locale, slug, {
+        status,
+        error,
+        source: context.source || 'route'
+      });
       window.dispatchEvent(new CustomEvent('xtend-docs-route-transition', {
         detail: {
           schema: 'xtend.docs.route-transition.v1',
           slug,
+          locale,
           reducedMotion,
           reused,
           insularHydration: true,
@@ -2757,6 +3393,7 @@ class XtendDocPage extends HTMLElement {
           schedule: routeSchedule,
           routeSchedule,
           hydrateSchedule,
+          localeStatus: status,
           relatedSchedule,
           demoSchedule,
           diagnosticsSchedule,
@@ -2767,7 +3404,7 @@ class XtendDocPage extends HTMLElement {
       }));
     };
 
-    const afterPaintDisposer = scheduleDocsAfterPaint(() => {
+    const completeParsedownCommit = () => {
       if (!this.isActiveRouteToken(token)) return;
       commitParsedownContent().then((committed) => {
         if (!committed || !this.isActiveRouteToken(token)) return;
@@ -2776,6 +3413,10 @@ class XtendDocPage extends HTMLElement {
           detail: {
             schema: 'xtend.docs.content-ready.v1',
             slug,
+            locale,
+            requestedLocale: window.xtendDocsRmtLastRender.requestedLocale,
+            resolvedLocale: window.xtendDocsRmtLastRender.resolvedLocale,
+            translationAvailable: window.xtendDocsRmtLastRender.translationAvailable,
             routeRef: rmtMeta.routeId || ('docs.' + slug.replace(/-/g, '.')),
             root: shell.mdContent,
             schedule: hydrateSchedule,
@@ -2785,6 +3426,11 @@ class XtendDocPage extends HTMLElement {
             skeletonLoader: 'xtend.loader.skeleton-loader.v1'
           }
         }));
+        hydrateDocsCodeBlocks(shell.mdContent, {
+          slug,
+          reason: 'parsedown-code-fence-syntax-highlight',
+          schedule: 'docs.syntax.highlight'
+        });
         finishTransition();
       }).catch((error) => {
         if (!this.isActiveRouteToken(token)) return;
@@ -2794,14 +3440,26 @@ class XtendDocPage extends HTMLElement {
           detail: {
             schema: 'xtend.docs.content-error.v1',
             slug,
+            locale,
             schedule: parseSchedule,
             message: error && error.message ? error.message : String(error)
           }
         }));
-        finishTransition();
+        finishTransition('error', error && error.message ? error.message : String(error));
       });
-    });
-    this.scheduleRouteWork(afterPaintDisposer);
+    };
+    if (localeRouteFastPath) {
+      let cancelled = false;
+      Promise.resolve().then(() => {
+        if (!cancelled) completeParsedownCommit();
+      });
+      this.scheduleRouteWork(() => {
+        cancelled = true;
+      });
+    } else {
+      const afterPaintDisposer = scheduleDocsAfterPaint(completeParsedownCommit);
+      this.scheduleRouteWork(afterPaintDisposer);
+    }
 
     const idleDisposer = scheduleDocsIdle(() => {
       if (!this.isActiveRouteToken(token)) return;
@@ -2821,3 +3479,15 @@ class XtendDocPage extends HTMLElement {
 if (!customElements.get('xtend-doc-page')) {
   customElements.define('xtend-doc-page', XtendDocPage);
 }
+
+window.xtendDocsI18n = {
+  ...getDocsI18nConfig(),
+  normalizeLocale: normalizeDocsLocale,
+  getCurrentLocale: getCurrentDocsLocale,
+  getTransition: () => window.__xtendDocsLocaleTransition || window.__xtendDocsLocaleLastTransition || null,
+  navigate: navigateDocsLocale,
+  sync: syncLegacyDocsGlobals
+};
+publishDocsLocale(getCurrentDocsLocale(), 'initial');
+syncLegacyDocsGlobals(getCurrentDocsLocale());
+ensureDocsLanguageSelectBinding();

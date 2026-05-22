@@ -191,7 +191,10 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
     "diagnosticsSchedule: 'docs.diagnostics.snapshot'",
     "extensionSlots: ['docs.slot.content', 'docs.slot.sidebar', 'docs.slot.related', 'docs.slot.component-demo', 'docs.slot.rich-content', 'docs.slot.media', 'docs.slot.diagnostics']",
     '$Parsedown->setSafeMode(true);',
-    "diagnostics' => 'docs.diagnostics.snapshot'"
+    "diagnostics' => 'docs.diagnostics.snapshot'",
+    '/components/prism-rmt.js',
+    'XTendRmtPrism.register',
+    'xtendDocsHighlightPrism'
   ], 'Docs PHP host');
   assertTextIncludesAll(context, pageLoader, [
     EPIC13_DOCS_RMT_PRODUCTION_HARDENING_SCHEMA,
@@ -201,7 +204,11 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
     'xtendDocsRmtProductionLastRender',
     'parsedownEmbeddedInRmtKernel: false',
     'diagnosticsSlotAvailable',
-    'DOCS_RMT_EXTENSION_SLOTS'
+    'DOCS_RMT_EXTENSION_SLOTS',
+    'upgradeDocsParsedownCodeFences',
+    'data-docs-code-fence-upgraded',
+    'docs.syntax.highlight',
+    "createDemoCodeBlock('RMT', 'rmt'"
   ], 'Docs page loader');
   assertTextIncludesAll(context, parsedownSchedulingDocs, [
     DOCS_RMT_PILOT_SCHEMA,

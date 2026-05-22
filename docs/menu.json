@@ -6,7 +6,11 @@
     "group": "start",
     "parent": null,
     "tier": "basic",
-    "rank": 100
+    "rank": 100,
+    "labels": {
+      "de": "Startseite",
+      "en": "Home"
+    }
   },
   {
     "slug": "changelog",
@@ -15,7 +19,11 @@
     "group": "start",
     "parent": "readme",
     "tier": "basic",
-    "rank": 97
+    "rank": 97,
+    "labels": {
+      "de": "XTend Changelog",
+      "en": "XTend Changelog"
+    }
   },
   {
     "slug": "quick-start-guide",
@@ -24,7 +32,11 @@
     "group": "start",
     "parent": null,
     "tier": "basic",
-    "rank": 98
+    "rank": 98,
+    "labels": {
+      "de": "Quick Start Guide",
+      "en": "Quick Start Guide"
+    }
   },
   {
     "slug": "manifest",
@@ -33,7 +45,11 @@
     "group": "core",
     "parent": null,
     "tier": "basic",
-    "rank": 96
+    "rank": 96,
+    "labels": {
+      "de": "Manifest",
+      "en": "Manifest"
+    }
   },
   {
     "slug": "api",
@@ -42,7 +58,11 @@
     "group": "core",
     "parent": "manifest",
     "tier": "deep-dive",
-    "rank": 94
+    "rank": 94,
+    "labels": {
+      "de": "API",
+      "en": "API"
+    }
   },
   {
     "slug": "xtend-loader",
@@ -51,7 +71,11 @@
     "group": "core",
     "parent": "manifest",
     "tier": "deep-dive",
-    "rank": 92
+    "rank": 92,
+    "labels": {
+      "de": "XTend Loader",
+      "en": "XTend Loader"
+    }
   },
   {
     "slug": "xtend-fabric",
@@ -60,7 +84,11 @@
     "group": "core",
     "parent": null,
     "tier": "basic",
-    "rank": 78
+    "rank": 78,
+    "labels": {
+      "de": "XTend-Fabric",
+      "en": "XTend Fabric"
+    }
   },
   {
     "slug": "xtend-fabric-rmt-lane-mapping",
@@ -69,7 +97,11 @@
     "group": "core",
     "parent": "xtend-fabric",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Fabric RMT Lane Mapping",
+      "en": "Fabric RMT Lane Mapping"
+    }
   },
   {
     "slug": "performance",
@@ -78,7 +110,11 @@
     "group": "quality",
     "parent": null,
     "tier": "basic",
-    "rank": 92
+    "rank": 92,
+    "labels": {
+      "de": "Performance fuer Komponentenautoren",
+      "en": "Performance for Component Authors"
+    }
   },
   {
     "slug": "performance-measurements",
@@ -87,7 +123,11 @@
     "group": "quality",
     "parent": "performance",
     "tier": "quality-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Performance Measurements",
+      "en": "Performance Measurements"
+    }
   },
   {
     "slug": "performance-regression",
@@ -96,7 +136,11 @@
     "group": "quality",
     "parent": "performance",
     "tier": "quality-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Performance Regression",
+      "en": "Performance Regression"
+    }
   },
   {
     "slug": "hydration-policies",
@@ -105,7 +149,11 @@
     "group": "quality",
     "parent": null,
     "tier": "basic",
-    "rank": 88
+    "rank": 88,
+    "labels": {
+      "de": "Hydration Policies",
+      "en": "Hydration Policies"
+    }
   },
   {
     "slug": "a11y-keyboard-smokes",
@@ -114,7 +162,11 @@
     "group": "quality",
     "parent": null,
     "tier": "basic",
-    "rank": 86
+    "rank": 86,
+    "labels": {
+      "de": "A11y Keyboard Smokes",
+      "en": "A11y Keyboard Smokes"
+    }
   },
   {
     "slug": "screenreader-signals",
@@ -123,7 +175,11 @@
     "group": "quality",
     "parent": "a11y-keyboard-smokes",
     "tier": "quality-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Screenreader Signals",
+      "en": "Screenreader Signals"
+    }
   },
   {
     "slug": "motion-contrast",
@@ -132,7 +188,11 @@
     "group": "quality",
     "parent": "a11y-keyboard-smokes",
     "tier": "quality-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Motion & Contrast",
+      "en": "Motion & Contrast"
+    }
   },
   {
     "slug": "manifest-import-policy",
@@ -141,7 +201,11 @@
     "group": "security",
     "parent": null,
     "tier": "basic",
-    "rank": 72
+    "rank": 72,
+    "labels": {
+      "de": "Manifest Import Policy",
+      "en": "Manifest Import Policy"
+    }
   },
   {
     "slug": "trusted-dom-sanitizing",
@@ -150,7 +214,11 @@
     "group": "security",
     "parent": null,
     "tier": "basic",
-    "rank": 88
+    "rank": 88,
+    "labels": {
+      "de": "Trusted DOM & Sanitizing",
+      "en": "Trusted DOM and Sanitizing"
+    }
   },
   {
     "slug": "trusted-dom-boundary-browser-proof",
@@ -159,7 +227,11 @@
     "group": "security",
     "parent": "trusted-dom-sanitizing",
     "tier": "policy-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Trusted DOM Boundary Proof",
+      "en": "Trusted DOM Boundary Browser Proof"
+    }
   },
   {
     "slug": "supply-chain-gates",
@@ -168,7 +240,11 @@
     "group": "security",
     "parent": null,
     "tier": "basic",
-    "rank": 84
+    "rank": 84,
+    "labels": {
+      "de": "Supply-Chain Gates",
+      "en": "Supply-Chain Gates"
+    }
   },
   {
     "slug": "component-catalog-coverage",
@@ -177,7 +253,11 @@
     "group": "platform",
     "parent": null,
     "tier": "basic",
-    "rank": 72
+    "rank": 72,
+    "labels": {
+      "de": "Component Catalog Coverage",
+      "en": "Component Catalog Coverage"
+    }
   },
   {
     "slug": "public-component-types",
@@ -186,7 +266,11 @@
     "group": "platform",
     "parent": "component-catalog-coverage",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Public Component Types",
+      "en": "Public Component Types"
+    }
   },
   {
     "slug": "design-tokens",
@@ -195,7 +279,11 @@
     "group": "platform",
     "parent": null,
     "tier": "basic",
-    "rank": 72
+    "rank": 72,
+    "labels": {
+      "de": "Design Tokens",
+      "en": "Design Tokens"
+    }
   },
   {
     "slug": "third-party-design-authoring",
@@ -204,7 +292,11 @@
     "group": "platform",
     "parent": "design-tokens",
     "tier": "deep-dive",
-    "rank": 70
+    "rank": 70,
+    "labels": {
+      "de": "Drittanbieter Design Authoring",
+      "en": "Third Party Design Authoring"
+    }
   },
   {
     "slug": "enterprise-component-flex-release-handoff",
@@ -213,7 +305,11 @@
     "group": "platform",
     "parent": "third-party-design-authoring",
     "tier": "release-deep-dive",
-    "rank": 68
+    "rank": 68,
+    "labels": {
+      "de": "Enterprise Component Flex Release Handoff",
+      "en": "Enterprise Component Flex Release Handoff"
+    }
   },
   {
     "slug": "rmt-dsl-authoring-polish",
@@ -222,7 +318,11 @@
     "group": "rmt",
     "parent": "xtendrmt-app-dsl",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT DSL Authoring Polish",
+      "en": "RMT DSL Authoring Polish"
+    }
   },
   {
     "slug": "rmt-linter",
@@ -231,7 +331,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 93
+    "rank": 93,
+    "labels": {
+      "de": "RMT Linter",
+      "en": "RMT Linter and AI-Agent Repair Report"
+    }
   },
   {
     "slug": "rmt-language-server",
@@ -240,7 +344,11 @@
     "group": "rmt",
     "parent": "rmt-linter",
     "tier": "rmt-deep-dive",
-    "rank": 92
+    "rank": 92,
+    "labels": {
+      "de": "RMT Language Server",
+      "en": "RMT Language Server and Editor Setup"
+    }
   },
   {
     "slug": "rmt-tooling-release-gates",
@@ -249,7 +357,11 @@
     "group": "rmt",
     "parent": "rmt-language-server",
     "tier": "rmt-deep-dive",
-    "rank": 84
+    "rank": 84,
+    "labels": {
+      "de": "RMT Tooling Gates",
+      "en": "RMT Tooling Gates"
+    }
   },
   {
     "slug": "rc0-gate-matrix",
@@ -258,7 +370,11 @@
     "group": "release",
     "parent": null,
     "tier": "basic",
-    "rank": 82
+    "rank": 82,
+    "labels": {
+      "de": "RC0 Gate Matrix",
+      "en": "RC0 Gate Matrix"
+    }
   },
   {
     "slug": "rc0-adoption-guide",
@@ -267,7 +383,11 @@
     "group": "release",
     "parent": "rc0-gate-matrix",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RC0 Adoption Guide",
+      "en": "RC0 Adoption Guide"
+    }
   },
   {
     "slug": "epic12-rc0-handoff",
@@ -276,7 +396,11 @@
     "group": "release",
     "parent": "rc0-gate-matrix",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Epic 12 RC0 Handoff",
+      "en": "Epic 12 RC0 Handoff"
+    }
   },
   {
     "slug": "rc1-readiness",
@@ -285,7 +409,11 @@
     "group": "release",
     "parent": "rc0-gate-matrix",
     "tier": "release-deep-dive",
-    "rank": 84
+    "rank": 84,
+    "labels": {
+      "de": "RC1 Readiness",
+      "en": "RC1 Readiness"
+    }
   },
   {
     "slug": "release-owner-acceptance",
@@ -294,7 +422,11 @@
     "group": "release",
     "parent": "rc1-readiness",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Release Owner Acceptance",
+      "en": "Release Owner Acceptance"
+    }
   },
   {
     "slug": "conditional-network-evidence",
@@ -303,7 +435,11 @@
     "group": "security",
     "parent": "supply-chain-gates",
     "tier": "policy-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Conditional Network Evidence",
+      "en": "Conditional Network Evidence"
+    }
   },
   {
     "slug": "conditional-network-evidence-ci",
@@ -312,7 +448,11 @@
     "group": "security",
     "parent": "conditional-network-evidence",
     "tier": "policy-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Conditional Network Evidence CI",
+      "en": "Conditional Network Evidence CI"
+    }
   },
   {
     "slug": "package-export-lock",
@@ -321,7 +461,11 @@
     "group": "release",
     "parent": "rc1-readiness",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Package Export Lock",
+      "en": "Package Export Lock"
+    }
   },
   {
     "slug": "known-residual-triage",
@@ -330,7 +474,11 @@
     "group": "release",
     "parent": "rc1-readiness",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Known Residual Triage",
+      "en": "Known Residual Triage"
+    }
   },
   {
     "slug": "hydration-performance-closure",
@@ -339,7 +487,11 @@
     "group": "quality",
     "parent": "hydration-policies",
     "tier": "quality-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Hydration Performance Closure",
+      "en": "Hydration Performance Closure"
+    }
   },
   {
     "slug": "prod-browser-csp-smokes",
@@ -348,7 +500,11 @@
     "group": "security",
     "parent": "manifest-import-policy",
     "tier": "policy-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "PROD Browser CSP Smokes",
+      "en": "PROD Browser CSP Smokes"
+    }
   },
   {
     "slug": "visual-owner-artifacts",
@@ -357,7 +513,11 @@
     "group": "release",
     "parent": "rc1-readiness",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Visual Owner Artifacts",
+      "en": "Visual Owner Artifacts"
+    }
   },
   {
     "slug": "rmt-production-readiness",
@@ -366,7 +526,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT Production Readiness",
+      "en": "RMT Production Readiness"
+    }
   },
   {
     "slug": "docs-rmt-production-hardening",
@@ -375,7 +539,11 @@
     "group": "rmt",
     "parent": "xtendrmt-parsedown-scheduling",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Docs RMT Production Hardening",
+      "en": "Docs RMT Production Hardening"
+    }
   },
   {
     "slug": "rc1-migration-notes",
@@ -384,7 +552,11 @@
     "group": "release",
     "parent": "rc1-readiness",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RC1 Migration Notes",
+      "en": "RC1 Migration Notes"
+    }
   },
   {
     "slug": "rc1-gate-matrix-ci-handoff",
@@ -393,7 +565,11 @@
     "group": "release",
     "parent": "rc1-readiness",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RC1 Gate Matrix und CI-Handoff",
+      "en": "RC1 Gate Matrix CI Handoff"
+    }
   },
   {
     "slug": "release-report-pack-dry-run-evidence",
@@ -402,7 +578,11 @@
     "group": "release",
     "parent": "rc1-gate-matrix-ci-handoff",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Release Report und Pack Dry Run Evidence",
+      "en": "Release Report Pack DRY RUN Evidence"
+    }
   },
   {
     "slug": "typescript-components",
@@ -411,7 +591,11 @@
     "group": "platform",
     "parent": "component-platform",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "TypeScript Components",
+      "en": "TypeScript Components"
+    }
   },
   {
     "slug": "component-platform",
@@ -420,7 +604,11 @@
     "group": "platform",
     "parent": null,
     "tier": "basic",
-    "rank": 92
+    "rank": 92,
+    "labels": {
+      "de": "Component Platform",
+      "en": "Component Platform"
+    }
   },
   {
     "slug": "component-ux-authoring",
@@ -429,7 +617,11 @@
     "group": "platform",
     "parent": "component-platform",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Component UX Authoring",
+      "en": "Component UX Authoring"
+    }
   },
   {
     "slug": "component-ux-app-authoring",
@@ -438,7 +630,11 @@
     "group": "platform",
     "parent": "component-platform",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Component UX App Authoring",
+      "en": "Component UX App Authoring"
+    }
   },
   {
     "slug": "surface-manager-rmt-authoring",
@@ -447,7 +643,11 @@
     "group": "platform",
     "parent": "component-platform",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager RMT Authoring",
+      "en": "SurfaceManager RMT Authoring"
+    }
   },
   {
     "slug": "surface-manager-controller",
@@ -456,7 +656,11 @@
     "group": "platform",
     "parent": "surface-manager-rmt-authoring",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Controller",
+      "en": "SurfaceManager Controller"
+    }
   },
   {
     "slug": "surface-manager-window-runtime",
@@ -465,7 +669,11 @@
     "group": "platform",
     "parent": "surface-manager-controller",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Window Runtime",
+      "en": "SurfaceManager Window Runtime"
+    }
   },
   {
     "slug": "surface-manager-side-panel-runtime",
@@ -474,7 +682,11 @@
     "group": "platform",
     "parent": "surface-manager-window-runtime",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager SidePanel Runtime",
+      "en": "SurfaceManager SidePanel Runtime"
+    }
   },
   {
     "slug": "surface-manager-workbench-fixture",
@@ -483,7 +695,11 @@
     "group": "platform",
     "parent": "surface-manager-side-panel-runtime",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Workbench Fixture",
+      "en": "SurfaceManager Workbench Fixture"
+    }
   },
   {
     "slug": "surface-manager-overlay-bridge",
@@ -492,7 +708,11 @@
     "group": "platform",
     "parent": "surface-manager-workbench-fixture",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Overlay Bridge",
+      "en": "SurfaceManager Overlay Bridge"
+    }
   },
   {
     "slug": "surface-manager-quality-gates",
@@ -501,7 +721,11 @@
     "group": "platform",
     "parent": "surface-manager-overlay-bridge",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Quality Gates",
+      "en": "SurfaceManager Quality Gates"
+    }
   },
   {
     "slug": "surface-manager-native-rmt-surfaces",
@@ -510,7 +734,11 @@
     "group": "platform",
     "parent": "surface-manager-quality-gates",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Native RMT Surfaces",
+      "en": "SurfaceManager Native RMT Surfaces"
+    }
   },
   {
     "slug": "surface-manager-authoring-guide",
@@ -519,7 +747,11 @@
     "group": "platform",
     "parent": "surface-manager-native-rmt-surfaces",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Authoring Guide",
+      "en": "SurfaceManager Authoring Guide"
+    }
   },
   {
     "slug": "surface-manager-component-lab",
@@ -528,7 +760,11 @@
     "group": "platform",
     "parent": "surface-manager-authoring-guide",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Component Lab",
+      "en": "SurfaceManager Component Lab"
+    }
   },
   {
     "slug": "surface-manager-migration-guide",
@@ -537,7 +773,11 @@
     "group": "platform",
     "parent": "surface-manager-component-lab",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Migration Guide",
+      "en": "SurfaceManager Migration Guide"
+    }
   },
   {
     "slug": "surface-manager-release-handoff",
@@ -546,7 +786,11 @@
     "group": "platform",
     "parent": "surface-manager-migration-guide",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "SurfaceManager Release Handoff",
+      "en": "SurfaceManager Release Handoff"
+    }
   },
   {
     "slug": "component-ux-gates",
@@ -555,7 +799,11 @@
     "group": "platform",
     "parent": "component-platform",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Component UX Gates",
+      "en": "Component UX Gates"
+    }
   },
   {
     "slug": "component-long-tail-migration",
@@ -564,7 +812,11 @@
     "group": "platform",
     "parent": "component-catalog-coverage",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Component Long-Tail Migration",
+      "en": "Component Long-Tail Migration"
+    }
   },
   {
     "slug": "epic11-enterprise-ux-handoff",
@@ -573,7 +825,11 @@
     "group": "release",
     "parent": "component-platform",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Epic 11 Enterprise UX Handoff",
+      "en": "Epic 11 Enterprise UX Handoff"
+    }
   },
   {
     "slug": "rmt-first-xtend-apps",
@@ -582,7 +838,11 @@
     "group": "rmt",
     "parent": "xtendrmt-app-dsl",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT-first XTend Apps",
+      "en": "RMT-first XTend Apps"
+    }
   },
   {
     "slug": "component-lab",
@@ -591,7 +851,11 @@
     "group": "platform",
     "parent": "component-platform",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Component Lab",
+      "en": "Component Lab"
+    }
   },
   {
     "slug": "rmt-first-demo-app",
@@ -600,7 +864,11 @@
     "group": "rmt",
     "parent": "rmt-first-xtend-apps",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT-first Demo-App",
+      "en": "RMT-first Demo-App"
+    }
   },
   {
     "slug": "epic18-media-manager-vendor-upstream",
@@ -609,7 +877,11 @@
     "group": "rmt",
     "parent": "rmt-first-xtend-apps",
     "tier": "rmt-deep-dive",
-    "rank": 64
+    "rank": 64,
+    "labels": {
+      "de": "Epic 18 RMT App Platform",
+      "en": "Epic 18 RMT App Platform"
+    }
   },
   {
     "slug": "rmt-dom-descriptor-renderer",
@@ -618,7 +890,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 65
+    "rank": 65,
+    "labels": {
+      "de": "RMT DOM Descriptor Renderer",
+      "en": "RMT DOM Descriptor Renderer"
+    }
   },
   {
     "slug": "rmt-component-template-primitives",
@@ -627,7 +903,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT Component Template Primitives",
+      "en": "RMT Component Template Primitives"
+    }
   },
   {
     "slug": "rmt-state-selector-runtime",
@@ -636,7 +916,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 67
+    "rank": 67,
+    "labels": {
+      "de": "RMT State Selector Runtime",
+      "en": "RMT State Selector Runtime"
+    }
   },
   {
     "slug": "rmt-action-effect-runtime",
@@ -645,7 +929,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 68
+    "rank": 68,
+    "labels": {
+      "de": "RMT Action Effect Runtime",
+      "en": "RMT Action Effect Runtime"
+    }
   },
   {
     "slug": "rmt-event-routing-runtime",
@@ -654,7 +942,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 69
+    "rank": 69,
+    "labels": {
+      "de": "RMT Event Routing Runtime",
+      "en": "RMT Event Routing Runtime"
+    }
   },
   {
     "slug": "rmt-surface-resource-graph-runtime",
@@ -663,7 +955,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 70
+    "rank": 70,
+    "labels": {
+      "de": "RMT Surface Resource Graph Runtime",
+      "en": "RMT Surface Resource Graph Runtime"
+    }
   },
   {
     "slug": "rmt-app-platform-tooling",
@@ -672,7 +968,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 71
+    "rank": 71,
+    "labels": {
+      "de": "RMT App Platform Tooling",
+      "en": "RMT App Platform Tooling"
+    }
   },
   {
     "slug": "rmt-app-platform-fixture",
@@ -681,7 +981,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 72
+    "rank": 72,
+    "labels": {
+      "de": "RMT App Platform Fixture",
+      "en": "RMT App Platform Fixture"
+    }
   },
   {
     "slug": "epic18-vendor-bugfixes",
@@ -690,7 +994,11 @@
     "group": "components",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "deep-dive",
-    "rank": 73
+    "rank": 73,
+    "labels": {
+      "de": "Epic 18 Vendor Bugfixes",
+      "en": "Epic 18 Vendor Bugfixes"
+    }
   },
   {
     "slug": "rmt-app-platform-migration-guide",
@@ -699,7 +1007,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 74
+    "rank": 74,
+    "labels": {
+      "de": "RMT App Platform Migration Guide",
+      "en": "RMT App Platform Migration Guide"
+    }
   },
   {
     "slug": "epic18-rmt-app-platform-release-handoff",
@@ -708,7 +1020,11 @@
     "group": "rmt",
     "parent": "epic18-media-manager-vendor-upstream",
     "tier": "rmt-deep-dive",
-    "rank": 75
+    "rank": 75,
+    "labels": {
+      "de": "Epic 18 RMT App Platform Release Handoff",
+      "en": "Epic 18 RMT App Platform Release Handoff"
+    }
   },
   {
     "slug": "rmt-lifecycle-demo",
@@ -717,7 +1033,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-authoring",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT Lifecycle Demo",
+      "en": "RMT Lifecycle Demo"
+    }
   },
   {
     "slug": "existing-component-metadata",
@@ -726,7 +1046,11 @@
     "group": "platform",
     "parent": "component-platform",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Existing Component Metadata",
+      "en": "Existing Component Metadata"
+    }
   },
   {
     "slug": "epic10-platform-gates",
@@ -735,7 +1059,11 @@
     "group": "release",
     "parent": "component-platform",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Epic 10 Platform Gates",
+      "en": "Epic 10 Platform Gates"
+    }
   },
   {
     "slug": "epic10-release-handoff",
@@ -744,7 +1072,11 @@
     "group": "release",
     "parent": "component-platform",
     "tier": "release-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Epic 10 Release Handoff",
+      "en": "Epic 10 Release Handoff"
+    }
   },
   {
     "slug": "visual-browser-regression",
@@ -753,7 +1085,11 @@
     "group": "platform",
     "parent": "visual-snapshot-automation",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Visual Browser Regression",
+      "en": "Visual Browser Regression"
+    }
   },
   {
     "slug": "visual-snapshot-automation",
@@ -762,7 +1098,11 @@
     "group": "platform",
     "parent": "component-platform",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Visual Snapshot Automation",
+      "en": "Visual Snapshot Automation"
+    }
   },
   {
     "slug": "enterprise-adoption",
@@ -771,7 +1111,11 @@
     "group": "start",
     "parent": "readme",
     "tier": "deep-dive",
-    "rank": 90
+    "rank": 90,
+    "labels": {
+      "de": "Enterprise Adoption",
+      "en": "Enterprise Adoption"
+    }
   },
   {
     "slug": "best-practices",
@@ -780,7 +1124,11 @@
     "group": "start",
     "parent": "readme",
     "tier": "deep-dive",
-    "rank": 88
+    "rank": 88,
+    "labels": {
+      "de": "Best Practices",
+      "en": "Best Practices"
+    }
   },
   {
     "slug": "xtendrmt-overview",
@@ -789,7 +1137,11 @@
     "group": "rmt",
     "parent": null,
     "tier": "basic",
-    "rank": 97
+    "rank": 97,
+    "labels": {
+      "de": "XTendRMT Overview",
+      "en": "XTendRMT Developer Overview"
+    }
   },
   {
     "slug": "xtendrmt-native-authoring",
@@ -798,7 +1150,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "XTendRMT Native Authoring",
+      "en": "XTendRMT Native Authoring"
+    }
   },
   {
     "slug": "xtendrmt-app-dsl",
@@ -807,7 +1163,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "XTendRMT App-DSL",
+      "en": "XTendRMT App-DSL"
+    }
   },
   {
     "slug": "rmt-vnext-authoring",
@@ -816,7 +1176,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "basic",
-    "rank": 95
+    "rank": 95,
+    "labels": {
+      "de": "RMT vNext Authoring",
+      "en": "RMT vNext Authoring Guide"
+    }
   },
   {
     "slug": "rmt-vnext-primitives-compiler-backlog",
@@ -825,7 +1189,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-authoring",
     "tier": "rmt-deep-dive",
-    "rank": 65
+    "rank": 65,
+    "labels": {
+      "de": "RMT vNext Primitive Compiler Backlog",
+      "en": "RMT vNext Primitive Compiler Backlog"
+    }
   },
   {
     "slug": "rmt-vnext-primitive-grammar-design",
@@ -834,7 +1202,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-primitives-compiler-backlog",
     "tier": "rmt-deep-dive",
-    "rank": 65
+    "rank": 65,
+    "labels": {
+      "de": "RMT vNext Primitive Grammar Design",
+      "en": "RMT vNext Primitive Grammar Design"
+    }
   },
   {
     "slug": "rmt-vnext-primitive-parser-ast",
@@ -843,7 +1215,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-primitive-grammar-design",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Primitive Parser AST",
+      "en": "RMT vNext Primitive Parser AST"
+    }
   },
   {
     "slug": "rmt-vnext-primitive-semantic-graph",
@@ -852,7 +1228,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-primitive-parser-ast",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Primitive Semantic Graph",
+      "en": "RMT vNext Primitive Semantic Graph"
+    }
   },
   {
     "slug": "rmt-vnext-primitive-lowering",
@@ -861,7 +1241,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-primitive-semantic-graph",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Primitive Lowering",
+      "en": "RMT vNext Primitive Lowering"
+    }
   },
   {
     "slug": "rmt-vnext-fabric-bridge-evidence",
@@ -870,7 +1254,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-primitive-lowering",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Fabric Bridge Evidence",
+      "en": "RMT vNext Fabric Bridge Evidence"
+    }
   },
   {
     "slug": "rmt-vnext-source-to-sea-gate",
@@ -879,7 +1267,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-fabric-bridge-evidence",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Source-to-Sea Gate",
+      "en": "RMT vNext Source-to-Sea Gate"
+    }
   },
   {
     "slug": "rmt-vnext-primitive-authoring-tooling",
@@ -888,7 +1280,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-source-to-sea-gate",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Primitive Authoring Tooling",
+      "en": "RMT vNext Primitive Authoring Tooling"
+    }
   },
   {
     "slug": "rmt-vnext-primitive-migration",
@@ -897,7 +1293,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-primitive-authoring-tooling",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Primitive Migration",
+      "en": "RMT vNext Primitive Migration"
+    }
   },
   {
     "slug": "rmt-vnext-migration-notes",
@@ -906,7 +1306,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-authoring",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Migration Notes",
+      "en": "RMT vNext Migration Notes"
+    }
   },
   {
     "slug": "rmt-vnext-release-handoff",
@@ -915,7 +1319,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-authoring",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Release Handoff",
+      "en": "RMT vNext Release Handoff"
+    }
   },
   {
     "slug": "rmt-vnext-remote-surfaces",
@@ -924,7 +1332,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-release-handoff",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Remote Surfaces",
+      "en": "RMT vNext Remote Surfaces"
+    }
   },
   {
     "slug": "rmt-vnext-surface-registry-enterprise",
@@ -933,7 +1345,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-remote-surfaces",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Enterprise Surface Registry",
+      "en": "RMT vNext Enterprise Surface Registry"
+    }
   },
   {
     "slug": "rmt-vnext-cross-surface-events",
@@ -942,7 +1358,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-remote-surfaces",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Cross Surface Events",
+      "en": "RMT vNext Cross Surface Events"
+    }
   },
   {
     "slug": "rmt-vnext-enterprise-mfe-handoff",
@@ -951,7 +1371,11 @@
     "group": "rmt",
     "parent": "rmt-vnext-release-handoff",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT vNext Enterprise MFE Handoff",
+      "en": "RMT vNext Enterprise MFE Handoff"
+    }
   },
   {
     "slug": "rmt-kernel-security-hardening-migration",
@@ -960,7 +1384,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT Kernel Security Migration",
+      "en": "RMT Kernel Security Migration"
+    }
   },
   {
     "slug": "rmt-kernel-trusted-output-authoring",
@@ -969,7 +1397,11 @@
     "group": "rmt",
     "parent": "rmt-kernel-security-hardening-migration",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT Kernel Trusted Output Authoring",
+      "en": "RMT Kernel Trusted Output Authoring"
+    }
   },
   {
     "slug": "rmt-kernel-panic-recovery-incident-handoff",
@@ -978,7 +1410,11 @@
     "group": "rmt",
     "parent": "rmt-kernel-security-hardening-migration",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "RMT Kernel Panic Recovery Handoff",
+      "en": "RMT Kernel Panic Recovery Handoff"
+    }
   },
   {
     "slug": "xtendrmt-runtime-bridge",
@@ -987,7 +1423,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "XTendRMT Runtime Bridge",
+      "en": "XTendRMT Runtime Bridge"
+    }
   },
   {
     "slug": "xtendrmt-migration-guide",
@@ -996,7 +1436,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "XTendRMT Migration Guide",
+      "en": "XTendRMT Migration Guide"
+    }
   },
   {
     "slug": "xtendrmt-parsedown-scheduling",
@@ -1005,7 +1449,11 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Parsedown RMT Scheduling",
+      "en": "Parsedown RMT Scheduling"
+    }
   },
   {
     "slug": "about",
@@ -1014,7 +1462,11 @@
     "group": "start",
     "parent": "readme",
     "tier": "deep-dive",
-    "rank": 70
+    "rank": 70,
+    "labels": {
+      "de": "Über XTend",
+      "en": "About"
+    }
   },
   {
     "slug": "xtend-adr",
@@ -1023,7 +1475,11 @@
     "group": "core",
     "parent": "readme",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "XTend ADR",
+      "en": "XTend ADR"
+    }
   },
   {
     "slug": "core-migration-guide",
@@ -1032,7 +1488,11 @@
     "group": "core",
     "parent": "readme",
     "tier": "deep-dive",
-    "rank": 66
+    "rank": 66,
+    "labels": {
+      "de": "Core Migration Guide",
+      "en": "Core Migration Guide"
+    }
   },
   {
     "slug": "components",
@@ -1041,7 +1501,11 @@
     "group": "components",
     "parent": null,
     "tier": "basic",
-    "rank": 96
+    "rank": 96,
+    "labels": {
+      "de": "Komponenten-Entwicklung",
+      "en": "Component Development"
+    }
   },
   {
     "slug": "components-xcode",
@@ -1050,7 +1514,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Code",
+      "en": "X-Code"
+    }
   },
   {
     "slug": "components-xlightbox",
@@ -1059,7 +1527,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Lightbox",
+      "en": "X-Lightbox"
+    }
   },
   {
     "slug": "components-xbutton",
@@ -1068,7 +1540,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 82
+    "rank": 82,
+    "labels": {
+      "de": "X-Button",
+      "en": "X-Button"
+    }
   },
   {
     "slug": "components-xicon",
@@ -1077,7 +1553,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 83
+    "rank": 83,
+    "labels": {
+      "de": "X-Icon",
+      "en": "X-Icon"
+    }
   },
   {
     "slug": "components-xcards",
@@ -1086,7 +1566,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 74
+    "rank": 74,
+    "labels": {
+      "de": "X-Cards",
+      "en": "X-Cards"
+    }
   },
   {
     "slug": "components-xheader",
@@ -1095,7 +1579,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 78
+    "rank": 78,
+    "labels": {
+      "de": "X-Header",
+      "en": "X-Header"
+    }
   },
   {
     "slug": "components-xlink",
@@ -1104,7 +1592,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 82
+    "rank": 82,
+    "labels": {
+      "de": "X-Link",
+      "en": "X-Link"
+    }
   },
   {
     "slug": "components-xtabs",
@@ -1113,7 +1605,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Tabs",
+      "en": "X-Tabs"
+    }
   },
   {
     "slug": "components-xplayer",
@@ -1122,7 +1618,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Player",
+      "en": "X-Player"
+    }
   },
   {
     "slug": "components-xsection",
@@ -1131,7 +1631,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 76
+    "rank": 76,
+    "labels": {
+      "de": "X-Section",
+      "en": "X-Section"
+    }
   },
   {
     "slug": "components-xrouter",
@@ -1140,7 +1644,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 84
+    "rank": 84,
+    "labels": {
+      "de": "X-Router",
+      "en": "X-Router"
+    }
   },
   {
     "slug": "components-xstate",
@@ -1149,7 +1657,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 80
+    "rank": 80,
+    "labels": {
+      "de": "X-State",
+      "en": "X-State"
+    }
   },
   {
     "slug": "components-xfooter",
@@ -1158,7 +1670,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Footer",
+      "en": "X-Footer"
+    }
   },
   {
     "slug": "components-xmasonry",
@@ -1167,7 +1683,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Masonry",
+      "en": "X-Masonry"
+    }
   },
   {
     "slug": "components-xtheme",
@@ -1176,7 +1696,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 78
+    "rank": 78,
+    "labels": {
+      "de": "X-Theme",
+      "en": "X-Theme"
+    }
   },
   {
     "slug": "components-xmenu",
@@ -1185,7 +1709,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Menu",
+      "en": "X-Menu"
+    }
   },
   {
     "slug": "components-xinput",
@@ -1194,7 +1722,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 80
+    "rank": 80,
+    "labels": {
+      "de": "X-Input",
+      "en": "X-Input"
+    }
   },
   {
     "slug": "components-xselect",
@@ -1203,7 +1735,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 76
+    "rank": 76,
+    "labels": {
+      "de": "X-Select",
+      "en": "X-Select"
+    }
   },
   {
     "slug": "components-xcheckbox",
@@ -1212,7 +1748,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 74
+    "rank": 74,
+    "labels": {
+      "de": "X-Checkbox",
+      "en": "X-Checkbox"
+    }
   },
   {
     "slug": "components-xradio",
@@ -1221,7 +1761,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 73
+    "rank": 73,
+    "labels": {
+      "de": "X-Radio",
+      "en": "X-Radio"
+    }
   },
   {
     "slug": "components-xtextarea",
@@ -1230,7 +1774,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 72
+    "rank": 72,
+    "labels": {
+      "de": "X-Textarea",
+      "en": "X-Textarea"
+    }
   },
   {
     "slug": "components-xstatus",
@@ -1239,7 +1787,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Status",
+      "en": "X-Status"
+    }
   },
   {
     "slug": "components-xprogress",
@@ -1248,7 +1800,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Progress",
+      "en": "X-Progress"
+    }
   },
   {
     "slug": "components-xtooltip",
@@ -1257,7 +1813,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Tooltip",
+      "en": "X-Tooltip"
+    }
   },
   {
     "slug": "components-xpopover",
@@ -1266,7 +1826,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Popover",
+      "en": "X-Popover"
+    }
   },
   {
     "slug": "components-xdrawer",
@@ -1275,7 +1839,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Drawer",
+      "en": "X-Drawer"
+    }
   },
   {
     "slug": "components-xform",
@@ -1284,7 +1852,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 79
+    "rank": 79,
+    "labels": {
+      "de": "X-Form",
+      "en": "X-Form"
+    }
   },
   {
     "slug": "components-xwriter",
@@ -1293,7 +1865,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Writer",
+      "en": "X-Writer"
+    }
   },
   {
     "slug": "components-xcalendar",
@@ -1302,7 +1878,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Calendar",
+      "en": "X-Calendar"
+    }
   },
   {
     "slug": "components-xsummary",
@@ -1311,7 +1891,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Summary",
+      "en": "X-Summary"
+    }
   },
   {
     "slug": "components-xalert",
@@ -1320,7 +1904,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 72
+    "rank": 72,
+    "labels": {
+      "de": "X-Alert",
+      "en": "X-Alert"
+    }
   },
   {
     "slug": "components-xtoast",
@@ -1329,7 +1917,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 71
+    "rank": 71,
+    "labels": {
+      "de": "X-Toast",
+      "en": "X-Toast"
+    }
   },
   {
     "slug": "components-xdialog",
@@ -1338,7 +1930,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 69
+    "rank": 69,
+    "labels": {
+      "de": "X-Dialog",
+      "en": "X-Dialog"
+    }
   },
   {
     "slug": "components-xmodal",
@@ -1347,7 +1943,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 70
+    "rank": 70,
+    "labels": {
+      "de": "X-Modal",
+      "en": "X-Modal"
+    }
   },
   {
     "slug": "components-xhero",
@@ -1356,7 +1956,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Hero",
+      "en": "X-Hero"
+    }
   },
   {
     "slug": "components-xspinner",
@@ -1365,7 +1969,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Spinner",
+      "en": "X-Spinner"
+    }
   },
   {
     "slug": "components-xtype",
@@ -1374,7 +1982,11 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Type",
+      "en": "X-Type"
+    }
   },
   {
     "slug": "components-xutils",
@@ -1383,6 +1995,10 @@
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
-    "rank": 58
+    "rank": 58,
+    "labels": {
+      "de": "X-Utils",
+      "en": "X-Utils"
+    }
   }
 ]

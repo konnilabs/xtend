@@ -1,8 +1,92 @@
 import { xstate } from './xstate.js';
 
+const XCODE_LANGUAGE_ALIASES = Object.freeze({
+  js: 'javascript',
+  jsx: 'jsx',
+  ts: 'typescript',
+  tsx: 'tsx',
+  html: 'markup',
+  xml: 'markup',
+  svg: 'markup',
+  md: 'markdown',
+  plaintext: 'text',
+  plain: 'text',
+  txt: 'text',
+  'rmt-vnext': 'rmt',
+  xtendrmt: 'rmt'
+});
+
+function getGlobalTarget() {
+  if (typeof window !== 'undefined') return window;
+  if (typeof globalThis !== 'undefined') return globalThis;
+  return {};
+}
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/`/g, '&#96;');
+}
+
+function escapeAttribute(str) {
+  return escapeHtml(str).replace(/\s+/g, '-');
+}
+
+function normalizeLanguage(value) {
+  const raw = String(value || 'text').trim().toLowerCase();
+  return XCODE_LANGUAGE_ALIASES[raw] || raw || 'text';
+}
+
+function safeHighlightResult(result, fallbackCode, fallbackLanguage) {
+  if (!result || typeof result.html !== 'string') {
+    return {
+      html: escapeHtml(fallbackCode),
+      highlighted: false,
+      engine: 'plain-text',
+      language: fallbackLanguage
+    };
+  }
+  return {
+    html: result.html,
+    highlighted: result.highlighted === true,
+    engine: result.engine || (result.highlighted ? 'prism' : 'plain-text'),
+    language: result.language || fallbackLanguage
+  };
+}
+
+function callHighlighter(provider, input) {
+  if (!provider) return null;
+  try {
+    if (typeof provider === 'function') return provider(input);
+    if (typeof provider.highlight === 'function') return provider.highlight(input);
+  } catch (error) {
+    return {
+      html: escapeHtml(input.code),
+      highlighted: false,
+      engine: 'plain-text',
+      language: input.language,
+      error: error && error.message ? error.message : String(error)
+    };
+  }
+  return null;
+}
+
 class XCode extends HTMLElement {
   static get observedAttributes() {
-    return ['lang'];
+    return ['lang', 'language'];
+  }
+
+  static registerHighlighter(provider) {
+    this._highlighter = provider || null;
+    return this._highlighter;
+  }
+
+  static getHighlighter() {
+    return this._highlighter || null;
   }
 
   static get xtendComponentContract() {
@@ -76,6 +160,12 @@ class XCode extends HTMLElement {
     this._lightDomObserver = null;
     this._pendingHydration = false;
     this._suppressLightDomObserver = false;
+    this._lastHighlightSnapshot = {
+      highlighted: false,
+      highlightEngine: 'plain-text',
+      highlightLanguage: 'text',
+      languageAlias: 'default'
+    };
   }
 
   connectedCallback() {
@@ -87,8 +177,11 @@ class XCode extends HTMLElement {
     // State-Änderungen abonnieren (z.B. externes Setzen von Code oder Sprache)
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xcode-state-${this.id}` && typeof value === "object") {
-        if (typeof value.lang === "string" && value.lang !== this.getAttribute('lang')) {
+        if (typeof value.lang === "string" && value.lang !== this._getLanguageMeta().language) {
           this.setAttribute('lang', value.lang);
+        }
+        if (typeof value.language === "string" && !this.hasAttribute('lang') && value.language !== this.getAttribute('language')) {
+          this.setAttribute('language', value.language);
         }
         if (typeof value.code === "string" && value.code !== this._getRawCode()) {
           this._setRawCode(value.code);
@@ -107,13 +200,16 @@ class XCode extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'lang' && oldValue !== newValue) {
+    if ((name === 'lang' || name === 'language') && oldValue !== newValue) {
       if (!this.isConnected) return;
       this._render();
       // State aktualisieren
       if (this.id) {
+        const languageMeta = this._getLanguageMeta();
         xstate.set(`xcode-state-${this.id}`, {
-          lang: newValue,
+          lang: languageMeta.language,
+          language: languageMeta.language,
+          languageAlias: languageMeta.alias,
           code: this._getRawCode()
         });
       }
@@ -162,8 +258,11 @@ class XCode extends HTMLElement {
   hydrate() {
     this._render();
     if (this.id) {
+      const languageMeta = this._getLanguageMeta();
       xstate.set(`xcode-state-${this.id}`, {
-        lang: this.getAttribute('lang') || 'text',
+        lang: languageMeta.language,
+        language: languageMeta.language,
+        languageAlias: languageMeta.alias,
         code: this._getRawCode(),
         hydrated: true
       });
@@ -192,6 +291,60 @@ class XCode extends HTMLElement {
     tpl.innerHTML = code;
   }
 
+  _getLanguageMeta() {
+    const langAttribute = this.getAttribute('lang');
+    const languageAttribute = this.getAttribute('language');
+    const raw = langAttribute || languageAttribute || 'text';
+    return {
+      language: normalizeLanguage(raw),
+      rawLanguage: raw,
+      alias: langAttribute ? 'lang' : (languageAttribute ? 'language' : 'default')
+    };
+  }
+
+  _highlightCode(rawCode, languageMeta) {
+    const globalTarget = getGlobalTarget();
+    const language = languageMeta.language || 'text';
+    const input = {
+      code: rawCode,
+      language,
+      rawLanguage: languageMeta.rawLanguage,
+      languageAlias: languageMeta.alias,
+      element: this
+    };
+    const registeredResult = callHighlighter(this.constructor.getHighlighter(), input)
+      || callHighlighter(globalTarget.XTendXCodeHighlighter, input);
+    if (registeredResult) return safeHighlightResult(registeredResult, rawCode, language);
+
+    const prism = globalTarget.Prism;
+    if (!prism || !prism.languages || typeof prism.highlight !== 'function') {
+      return safeHighlightResult(null, rawCode, language);
+    }
+
+    if (globalTarget.XTendRmtPrism && typeof globalTarget.XTendRmtPrism.register === 'function') {
+      globalTarget.XTendRmtPrism.register(prism);
+    }
+    const prismHighlighter = globalTarget.XTendRmtPrism && typeof globalTarget.XTendRmtPrism.createHighlighter === 'function'
+      ? globalTarget.XTendRmtPrism.createHighlighter(prism)
+      : null;
+    const prismResult = callHighlighter(prismHighlighter, input);
+    if (prismResult) return safeHighlightResult(prismResult, rawCode, language);
+
+    const grammar = prism.languages[language] || prism.languages[languageMeta.rawLanguage] || null;
+    if (!grammar) return safeHighlightResult(null, rawCode, language);
+
+    try {
+      return safeHighlightResult({
+        html: prism.highlight(rawCode, grammar, language),
+        highlighted: true,
+        engine: 'prism',
+        language
+      }, rawCode, language);
+    } catch (error) {
+      return safeHighlightResult(null, rawCode, language);
+    }
+  }
+
   _render() {
     this._suppressLightDomObserver = true;
     // Always wrap content in a <template> (virtual, not rendered)
@@ -209,17 +362,15 @@ class XCode extends HTMLElement {
       if (template !== tpl) template.remove();
     });
     const rawCode = this._readTemplateCode(tpl);
-    const lang = this.getAttribute('lang') || 'text';
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/`/g, '&#96;');
-    }
-    const escapedCode = escapeHtml(rawCode);
+    const languageMeta = this._getLanguageMeta();
+    const highlightedCode = this._highlightCode(rawCode, languageMeta);
+    this._lastHighlightSnapshot = {
+      highlighted: highlightedCode.highlighted,
+      highlightEngine: highlightedCode.engine,
+      highlightLanguage: highlightedCode.language,
+      languageAlias: languageMeta.alias
+    };
+    const lang = escapeAttribute(highlightedCode.language || languageMeta.language || 'text');
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -264,6 +415,41 @@ class XCode extends HTMLElement {
           color: inherit;
           font-family: inherit;
           font-size: inherit;
+        }
+        .token.comment {
+          color: var(--x-code-token-comment, #8b949e);
+          font-style: italic;
+        }
+        .token.string {
+          color: var(--x-code-token-string, #a5d6ff);
+        }
+        .token.number,
+        .token.boolean {
+          color: var(--x-code-token-number, #79c0ff);
+        }
+        .token.keyword,
+        .token.rmt-primitive,
+        .token.rmt-lifecycle,
+        .token.rmt-boundary {
+          color: var(--x-code-token-keyword, #ff7b72);
+        }
+        .token.function,
+        .token.rmt-action {
+          color: var(--x-code-token-function, #d2a8ff);
+        }
+        .token.property,
+        .token.variable,
+        .token.rmt-identifier,
+        .token.rmt-reference {
+          color: var(--x-code-token-property, #ffa657);
+        }
+        .token.class-name,
+        .token.rmt-component {
+          color: var(--x-code-token-class, #7ee787);
+        }
+        .token.operator,
+        .token.punctuation {
+          color: var(--x-code-token-punctuation, #c9d1d9);
         }
         .copy-btn {
           position: absolute;
@@ -318,7 +504,7 @@ class XCode extends HTMLElement {
       <button class="copy-btn" part="copy control" aria-label="Code kopieren" title="Code kopieren">
         <svg part="copy-icon control icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2.5"/><rect x="2" y="2" width="13" height="13" rx="2.5"/></svg>
       </button>
-      <pre part="root pre"><code part="code" class="language-${lang}">${escapedCode}</code></pre>
+      <pre part="root pre"><code part="code" class="language-${lang}" data-x-code-highlight-engine="${escapeAttribute(highlightedCode.engine)}">${highlightedCode.html}</code></pre>
     `;
     const copyBtn = this.shadowRoot.querySelector('.copy-btn');
     copyBtn.addEventListener('click', async () => {
@@ -332,8 +518,11 @@ class XCode extends HTMLElement {
         }, 1500);
         // State aktualisieren (optional: z.B. für Kopier-Status)
         if (this.id) {
+          const nextLanguageMeta = this._getLanguageMeta();
           xstate.set(`xcode-state-${this.id}`, {
-            lang: this.getAttribute('lang') || 'text',
+            lang: nextLanguageMeta.language,
+            language: nextLanguageMeta.language,
+            languageAlias: nextLanguageMeta.alias,
             code: rawCode,
             copied: true
           });
@@ -356,13 +545,19 @@ class XCode extends HTMLElement {
   }
 
   snapshot() {
+    const languageMeta = this._getLanguageMeta();
     return {
       schema: "xtend.component.layout-display-media-snapshot.v1",
       componentRef: "x-code",
       stateKey: `xcode-state-${this.id}`,
       schedule: "component.idle.hydrate",
-      lang: this.getAttribute('lang') || 'text',
-      codeLength: this._getRawCode().length
+      lang: languageMeta.language,
+      language: languageMeta.language,
+      codeLength: this._getRawCode().length,
+      highlighted: this._lastHighlightSnapshot.highlighted === true,
+      highlightEngine: this._lastHighlightSnapshot.highlightEngine || 'plain-text',
+      highlightLanguage: this._lastHighlightSnapshot.highlightLanguage || languageMeta.language,
+      languageAlias: this._lastHighlightSnapshot.languageAlias || languageMeta.alias
     };
   }
 }

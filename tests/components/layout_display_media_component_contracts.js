@@ -10,6 +10,7 @@ const {
 const {
   syntaxCheckFile
 } = require('../utils/process');
+const vm = require('vm');
 
 const layoutDisplayMediaComponentConfigs = {
   'x-section': {
@@ -80,7 +81,7 @@ const layoutDisplayMediaComponentConfigs = {
     types: 'components/xcode.d.ts',
     event: 'code-copied',
     stateKey: 'xcode-state-<id>',
-    attributes: ['lang']
+    attributes: ['lang', 'language']
   },
   'x-masonry': {
     fileName: 'xmasonry.js',
@@ -171,11 +172,50 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
     context.assert(docs.includes('Viewport-Sicherheit'), 'x-hero docs describe viewport-safe mobile layout');
   }
   if (tag === 'x-code') {
+    const prismRmtSource = readText('components/prism-rmt.js', rootDir);
+    const prismRmtTypes = readText('components/prism-rmt.d.ts', rootDir);
+    const prismRmtSyntax = syntaxCheckFile('components/prism-rmt.js', { rootDir, extension: '.js' });
+    const fakePrism = {
+      languages: {},
+      highlight(code, grammar, language) {
+        return `<span class="token ${language}">${code}</span>`;
+      }
+    };
+    const sandbox = { window: { Prism: fakePrism } };
+    vm.runInNewContext(prismRmtSource, sandbox, { filename: 'components/prism-rmt.js' });
+    const rmtPrism = sandbox.window.XTendRmtPrism;
+    const rmtHighlighter = rmtPrism && rmtPrism.createHighlighter(fakePrism);
+    const rmtHighlightResult = rmtHighlighter && rmtHighlighter.highlight({
+      code: 'template docs.demo { state app.ready type boolean initial true }',
+      language: 'rmt'
+    });
+
     const constructorMatch = source.match(/constructor\(\)\s*\{[\s\S]*?\n  \}/u);
     const constructorSource = constructorMatch ? constructorMatch[0] : '';
     context.assert(!constructorSource.includes('this._render()'), 'x-code constructor avoids Light DOM mutation before Custom Element upgrade completes');
     context.assert(source.includes('if (!this.isConnected) return;'), 'x-code defers attribute-triggered render until connected');
     context.assert(source.includes('hydrate()'), 'x-code exposes public hydrate for dynamic route content');
+    context.assert(source.includes("return ['lang', 'language'];"), 'x-code observes lang and language attributes');
+    context.assert(source.includes('registerHighlighter(provider)'), 'x-code exposes registerHighlighter');
+    context.assert(source.includes('XTendRmtPrism'), 'x-code auto-connects the RMT Prism middleware');
+    context.assert(source.includes('highlightLanguage'), 'x-code snapshots highlight language');
+    context.assert(source.includes('languageAlias'), 'x-code snapshots language alias');
+    context.assert(source.includes('.token.rmt-primitive'), 'x-code styles RMT Prism primitive tokens inside shadow DOM');
+    context.assert(types.includes("export type XCodeAttributeName = 'lang' | 'language'"), 'x-code types expose language alias');
+    context.assert(types.includes('XCodeHighlighter'), 'x-code types expose highlighter bridge');
+    context.assert(types.includes('highlightLanguage: string'), 'x-code types expose highlight snapshot language');
+    context.assert(prismRmtSyntax.ok, `RMT Prism middleware syntax passes${prismRmtSyntax.ok ? '' : ` (${prismRmtSyntax.message})`}`);
+    context.assert(prismRmtSource.includes('xtend.rmt.prism-middleware.v1'), 'RMT Prism middleware declares schema');
+    context.assert(prismRmtSource.includes("prism.languages['rmt-vnext']"), 'RMT Prism middleware registers rmt-vnext alias');
+    context.assert(prismRmtSource.includes('Prism.languages.xtendrmt') || prismRmtSource.includes('prism.languages.xtendrmt'), 'RMT Prism middleware registers xtendrmt alias');
+    context.assert(prismRmtSource.includes('trust\\s+boundary'), 'RMT Prism middleware highlights trust boundary');
+    context.assert(prismRmtSource.includes('remote\\s+surface'), 'RMT Prism middleware highlights remote surface');
+    context.assert(prismRmtTypes.includes('XtendRmtPrismApi'), 'RMT Prism types expose public API');
+    context.assert(rmtPrism && rmtPrism.register(fakePrism) === true, 'RMT Prism middleware registers against Prism');
+    context.assert(fakePrism.languages.rmt && fakePrism.languages['rmt-vnext'] === fakePrism.languages.rmt, 'RMT Prism middleware wires aliases to rmt grammar');
+    context.assert(rmtHighlightResult && rmtHighlightResult.highlighted === true && rmtHighlightResult.language === 'rmt', 'RMT Prism highlighter highlights rmt source');
+    context.assert(docs.includes('components/prism-rmt.js'), 'x-code docs document RMT Prism middleware');
+    context.assert(docs.includes('docs.syntax.highlight'), 'x-code docs document Developer Center syntax schedule');
   }
 
   return context.result({ tag });
