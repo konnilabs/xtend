@@ -155,13 +155,13 @@ function runEpic13Rc1GateMatrixCiHandoffSuite(options = {}) {
   context.assert(metadata && metadata.nextWorkpackage === NEXT_WORKPACKAGE, 'package metadata hands off to WP-E13-14');
   context.assert(metadata && metadata.nextDecision === NEXT_DECISION, 'package metadata hands off to final RC1 decision');
   context.assert(metadata && metadata.reportArtifact === EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_REPORT_ARTIFACT, 'package metadata exposes report artifact');
-  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 121, 'package export lock expects 121 exports after RC1 gate matrix and kernel catalogs');
-  context.assert(typeExportsMetadata && typeExportsMetadata.expectedExportCount === 121, 'TypeExports lock expects 121 exports after RC1 gate matrix and kernel catalogs');
+  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 123, 'package export lock expects 123 exports after RC1 gate matrix and kernel catalogs');
+  context.assert(typeExportsMetadata && typeExportsMetadata.expectedExportCount === 123, 'TypeExports lock expects 123 exports after RC1 gate matrix and kernel catalogs');
 
   assertTextIncludesAll(context, scaffoldConfig, [
     'epic13Rc1GateMatrixCiHandoff',
     EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA,
-    'expectedExportCount: 121',
+    'expectedExportCount: 123',
     'nextWorkpackage: "WP-E13-14"'
   ], 'scaffold config');
   assertTextIncludesAll(context, runner, [
@@ -202,7 +202,7 @@ function runEpic13Rc1GateMatrixCiHandoffSuite(options = {}) {
     EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_REPORT_ARTIFACT
   ], 'release checklist');
   assertTextIncludesAll(context, registry, [EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA, EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_DOCS], 'documentation registry');
-  assertTextIncludesAll(context, packageExportContract, ['expectedExportCount: `121`', EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_PACKAGE_EXPORT], 'package export contract');
+  assertTextIncludesAll(context, packageExportContract, ['expectedExportCount: `123`', EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_PACKAGE_EXPORT], 'package export contract');
   assertTextIncludesAll(context, docsReadme, ['./rc1-gate-matrix-ci-handoff.md', EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA], 'docs README');
   assertTextIncludesAll(context, docsMenu, ['"slug": "rc1-gate-matrix-ci-handoff"', 'RC1 Gate Matrix und CI-Handoff'], 'docs menu');
   assertTextIncludesAll(context, testsReadme, [EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_LOCAL_GATE, EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA], 'tests README');

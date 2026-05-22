@@ -232,11 +232,11 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
     context.assert(entry && entry.nextWorkpackage === NEXT_WORKPACKAGE, `${entry && entry.schema ? entry.schema : 'Epic 13 metadata'} hands off to ${NEXT_WORKPACKAGE}`);
     context.assert(entry && entry.nextDecision === NEXT_DECISION, `${entry && entry.schema ? entry.schema : 'Epic 13 metadata'} hands off to ${NEXT_DECISION}`);
   });
-  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 121, 'Package export lock metadata includes RC1 gate matrix and kernel exports');
+  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 123, 'Package export lock metadata includes RC1 gate matrix and kernel exports');
   context.assertIncludes(scaffoldConfig, 'epic13RmtProductionReadiness', 'Scaffold config exposes RMT production readiness metadata');
   context.assertIncludes(scaffoldConfig, EPIC13_RMT_PRODUCTION_READINESS_SCHEMA, 'Scaffold config declares RMT production readiness schema');
   context.assertIncludes(scaffoldConfig, EPIC13_RMT_PRODUCTION_READINESS_LOCAL_GATE, 'Scaffold config references RMT production readiness local gate');
-  context.assertIncludes(scaffoldConfig, 'expectedExportCount: 121', 'Scaffold config updates package export count');
+  context.assertIncludes(scaffoldConfig, 'expectedExportCount: 123', 'Scaffold config updates package export count');
   context.assertIncludes(scaffoldConfig, `nextWorkpackage: "${NEXT_WORKPACKAGE}"`, 'Scaffold config advances Epic 13 handoff to WP-E13-11');
   context.assertIncludes(runner, "id: 'epic13-rmt-production-readiness'", 'Runner registers RMT production readiness suite');
 
@@ -343,7 +343,7 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   ], 'CI gate matrix');
   assertTextIncludesAll(context, packageExportContract, [
     './catalog/epic13-rmt-production-readiness',
-    'expectedExportCount: `121`'
+    'expectedExportCount: `123`'
   ], 'Package export lock contract');
   context.assertIncludes(docsReadme, './rmt-production-readiness.md', 'Docs README links RMT production readiness');
   context.assertIncludes(docsMenu, 'rmt-production-readiness', 'Docs menu exposes RMT production readiness');

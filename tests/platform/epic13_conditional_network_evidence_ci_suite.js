@@ -170,8 +170,8 @@ function runEpic13ConditionalNetworkEvidenceCiSuite(options = {}) {
   context.assert(metadata && metadata.workpackage === EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_WORKPACKAGE, 'package metadata exposes DPF-WP-03');
   context.assert(metadata && metadata.nextWorkpackage === NEXT_WORKPACKAGE, 'package metadata hands off to DPF-WP-04');
   context.assert(metadata && metadata.workflowJob === CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_JOB, 'package metadata exposes CI workflow job');
-  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 121, 'package export lock expects 121 exports after conditional network CI catalog');
-  context.assert(typeExportsMetadata && typeExportsMetadata.expectedExportCount === 121, 'TypeExports lock expects 121 exports after conditional network CI catalog');
+  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 123, 'package export lock expects 123 exports after conditional network CI catalog');
+  context.assert(typeExportsMetadata && typeExportsMetadata.expectedExportCount === 123, 'TypeExports lock expects 123 exports after conditional network CI catalog');
 
   assertTextIncludesAll(context, workflow, [
     `${CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_JOB}:`,
@@ -192,7 +192,7 @@ function runEpic13ConditionalNetworkEvidenceCiSuite(options = {}) {
   assertTextIncludesAll(context, scaffoldConfig, [
     'epic13ConditionalNetworkEvidenceCi',
     EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_SCHEMA,
-    'expectedExportCount: 121'
+    'expectedExportCount: 123'
   ], 'scaffold config');
   assertTextIncludesAll(context, runner, [
     'epic13_conditional_network_evidence_ci_suite',
@@ -229,7 +229,7 @@ function runEpic13ConditionalNetworkEvidenceCiSuite(options = {}) {
     EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_REPORT_ARTIFACT
   ], 'release checklist');
   assertTextIncludesAll(context, registry, [EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_SCHEMA, EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_DOCS], 'documentation registry');
-  assertTextIncludesAll(context, packageExportContract, ['expectedExportCount: `121`', EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_PACKAGE_EXPORT], 'package export contract');
+  assertTextIncludesAll(context, packageExportContract, ['expectedExportCount: `123`', EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_PACKAGE_EXPORT], 'package export contract');
   assertTextIncludesAll(context, docsReadme, ['./conditional-network-evidence-ci.md', EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_SCHEMA], 'docs README');
   assertTextIncludesAll(context, docsMenu, ['"slug": "conditional-network-evidence-ci"', 'Conditional Network Evidence CI'], 'docs menu');
   assertTextIncludesAll(context, testsReadme, [EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_LOCAL_GATE, EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_SCHEMA], 'tests README');

@@ -162,13 +162,13 @@ function runEpic13ReleaseReportPackDryRunEvidenceSuite(options = {}) {
   context.assert(metadata && metadata.workpackage === EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_WORKPACKAGE, 'package metadata exposes DPF-WP-02');
   context.assert(metadata && metadata.nextWorkpackage === NEXT_WORKPACKAGE, 'package metadata hands off to DPF-WP-03');
   context.assert(metadata && metadata.reportArtifact === EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_REPORT_ARTIFACT, 'package metadata exposes report artifact');
-  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 121, 'package export lock expects 121 exports after release evidence catalog');
-  context.assert(typeExportsMetadata && typeExportsMetadata.expectedExportCount === 121, 'TypeExports lock expects 121 exports after release evidence catalog');
+  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 123, 'package export lock expects 123 exports after release evidence catalog');
+  context.assert(typeExportsMetadata && typeExportsMetadata.expectedExportCount === 123, 'TypeExports lock expects 123 exports after release evidence catalog');
 
   assertTextIncludesAll(context, scaffoldConfig, [
     'epic13ReleaseReportPackDryRunEvidence',
     EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_SCHEMA,
-    'expectedExportCount: 121'
+    'expectedExportCount: 123'
   ], 'scaffold config');
   assertTextIncludesAll(context, runner, [
     'epic13_release_report_pack_dry_run_evidence_suite',
@@ -203,7 +203,7 @@ function runEpic13ReleaseReportPackDryRunEvidenceSuite(options = {}) {
     EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_REPORT_ARTIFACT
   ], 'release checklist');
   assertTextIncludesAll(context, registry, [EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_SCHEMA, EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_DOCS], 'documentation registry');
-  assertTextIncludesAll(context, packageExportContract, ['expectedExportCount: `121`', EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_PACKAGE_EXPORT], 'package export contract');
+  assertTextIncludesAll(context, packageExportContract, ['expectedExportCount: `123`', EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_PACKAGE_EXPORT], 'package export contract');
   assertTextIncludesAll(context, docsReadme, ['./release-report-pack-dry-run-evidence.md', EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_SCHEMA], 'docs README');
   assertTextIncludesAll(context, docsMenu, ['"slug": "release-report-pack-dry-run-evidence"', 'Release Report und Pack Dry Run Evidence'], 'docs menu');
   assertTextIncludesAll(context, testsReadme, [EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_LOCAL_GATE, EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_SCHEMA], 'tests README');

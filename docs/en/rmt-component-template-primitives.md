@@ -5,6 +5,7 @@
 - Runtime base: `xtendrmt/rmt-dom-descriptor-renderer.js`
 - Local gate: `node scripts/run_xtend_tests.js rmt-component-template-primitives --json`
 - Workpackage: `WP-E18-06`
+- Handoff: `WP-E18-07`
 
 RMT can now compose XTend components natively without host apps assembling HTML strings. This slice extends the DOM Descriptor Renderer with component-close primitives for app shells, lists, forms, tooltips, icons, empty states and error states.
 

@@ -5,6 +5,7 @@
 - Runtime Basis: `xtendrmt/rmt-dom-descriptor-renderer.js`
 - Local Gate: `node scripts/run_xtend_tests.js rmt-component-template-primitives --json`
 - Workpackage: `WP-E18-06`
+- Handoff: `WP-E18-07`
 
 RMT kann XTend-Komponenten jetzt nativ komponieren, ohne dass Host-Apps
 HTML-Strings zusammenbauen. Der Slice erweitert den DOM Descriptor Renderer um
