@@ -552,6 +552,7 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiBrowserName === RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_NAME, 'package metadata records source-to-sea CI browser name');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiWebDriverPort === RMT_VNEXT_SOURCE_TO_SEA_CI_WEBDRIVER_PORT, 'package metadata records source-to-sea CI WebDriver port');
   context.assert(workflow.includes('npm run test:rmt-vnext-source-to-sea:chromedriver'), 'CI workflow requires source-to-sea chromedriver execution');
+  context.assert(workflow.includes('- name: Capture RMT vNext source-to-sea browser evidence\n        if: always()'), 'CI workflow captures source-to-sea evidence even after primitive report failures');
   context.assert(workflow.includes('RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome'), 'CI workflow pins source-to-sea browser name');
   context.assert(workflow.includes('RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"'), 'CI workflow pins source-to-sea WebDriver port');
   context.assert(workflow.includes(RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH), 'CI workflow uploads source-to-sea evidence artifact');

@@ -113,6 +113,7 @@ jobs:
         run: npm run test:rmt-vnext-primitives:report
 
       - name: Capture RMT vNext source-to-sea browser evidence
+        if: always()
         run: npm run test:rmt-vnext-source-to-sea:chromedriver
         env:
           RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome

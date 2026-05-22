@@ -7605,6 +7605,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'rmt-vnext-primitive-gates:', 'CI workflow declares RMT vNext primitive gate job');
   context.assertIncludes(workflow, 'npm run test:rmt-vnext-primitives:report', 'CI workflow runs RMT vNext primitive gate report');
   context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:chromedriver', 'CI workflow requires RMT vNext source-to-sea browser evidence');
+  context.assertIncludes(workflow, '- name: Capture RMT vNext source-to-sea browser evidence\n        if: always()', 'CI workflow captures RMT vNext source-to-sea evidence after primitive report failures');
   context.assertIncludes(workflow, 'RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome', 'CI workflow pins RMT vNext source-to-sea browser name');
   context.assertIncludes(workflow, 'RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"', 'CI workflow pins RMT vNext source-to-sea WebDriver port');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'CI workflow uploads RMT vNext primitive JSON report');
