@@ -1,11 +1,24 @@
 #!/usr/bin/env node
 
+const fs = require('fs');
 const path = require('path');
-const {
-  RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH,
-  validateRmtVNextSourceToSeaCiArtifactFile,
-  writeRmtVNextSourceToSeaEvidenceReport
-} = require('../tools/rmt-language/vnext-source-to-sea');
+
+const RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH = '.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json';
+const RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_SCHEMA = 'xtend.rmt.vnext.source-to-sea-evidence-report.v1';
+const RMT_VNEXT_SOURCE_TO_SEA_CI_ARTIFACT_SCHEMA = 'xtend.rmt.vnext.source-to-sea-ci-artifact-validation.v1';
+const RMT_VNEXT_BROWSER_EXECUTION_EVIDENCE_SCHEMA = 'xtend.rmt.vnext.browser-execution-evidence.v1';
+const RMT_VNEXT_SOURCE_TO_SEA_WORKPACKAGE = 'RMT-VNEXT-PRIM-06';
+const RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY = '__xtendRmtVNextSourceToSeaResult';
+
+function resolveReportOutputPath(outputPath, rootDir) {
+  return path.isAbsolute(outputPath)
+    ? outputPath
+    : path.resolve(rootDir, outputPath);
+}
+
+function createCheck(name, ok, detail = null) {
+  return { name, ok: ok === true, detail };
+}
 
 function parseArgs(argv) {
   const options = {
@@ -51,15 +64,85 @@ function parseArgs(argv) {
     } else if (arg === '--timeout-ms' && next) {
       options.timeoutMs = Number(next);
       index += 1;
+    } else if (arg === '--simulate-fatal-before-report') {
+      options.simulateFatalBeforeReport = true;
     }
   }
 
   return options;
 }
 
+function writeFatalEvidenceReport(error, options, rootDir) {
+  const outputPath = resolveReportOutputPath(
+    options.outputPath || RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH,
+    rootDir
+  );
+  const reason = error && error.message ? error.message : String(error);
+  const driver = options.browserDriver || process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER || null;
+  const checks = [
+    createCheck('source-to-sea capture reached fatal error fallback', true, outputPath),
+    createCheck('source-to-sea evidence capture completed', false, reason)
+  ];
+  const report = {
+    schema: RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_SCHEMA,
+    workpackage: RMT_VNEXT_SOURCE_TO_SEA_WORKPACKAGE,
+    ok: false,
+    status: 'failed',
+    source: null,
+    browserFixture: null,
+    resultKey: RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY,
+    artifact: {
+      path: RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH,
+      browserExecutionRequired: options.requireBrowserExecution === true,
+      browserExecutionStatus: 'failed'
+    },
+    evidence: null,
+    objectMatrix: null,
+    browserExecution: {
+      schema: RMT_VNEXT_BROWSER_EXECUTION_EVIDENCE_SCHEMA,
+      workpackage: RMT_VNEXT_SOURCE_TO_SEA_WORKPACKAGE,
+      resultKey: RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY,
+      fixture: null,
+      url: null,
+      driver,
+      required: options.requireBrowserExecution === true,
+      ok: false,
+      status: 'failed',
+      mode: 'fatal-error',
+      reason,
+      checks
+    },
+    ciArtifactValidation: {
+      schema: RMT_VNEXT_SOURCE_TO_SEA_CI_ARTIFACT_SCHEMA,
+      workpackage: RMT_VNEXT_SOURCE_TO_SEA_WORKPACKAGE,
+      ok: false,
+      status: 'failed',
+      required: true,
+      driver,
+      artifactPath: outputPath,
+      replayed: false,
+      checks
+    },
+    fatalError: {
+      message: reason,
+      stack: error && error.stack ? error.stack : null
+    },
+    checks
+  };
+
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+
+  return outputPath;
+}
+
 async function main() {
   const rootDir = path.resolve(__dirname, '..');
   const options = parseArgs(process.argv.slice(2));
+  const {
+    validateRmtVNextSourceToSeaCiArtifactFile,
+    writeRmtVNextSourceToSeaEvidenceReport
+  } = require('../tools/rmt-language/vnext-source-to-sea');
 
   if (options.validateArtifact) {
     const validation = validateRmtVNextSourceToSeaCiArtifactFile(
@@ -80,6 +163,10 @@ async function main() {
       process.exitCode = 1;
     }
     return;
+  }
+
+  if (options.simulateFatalBeforeReport) {
+    throw new Error('simulated source-to-sea capture fatal error before report write');
   }
 
   const result = await writeRmtVNextSourceToSeaEvidenceReport({
@@ -109,6 +196,16 @@ async function main() {
 }
 
 main().catch((error) => {
+  const rootDir = path.resolve(__dirname, '..');
+  const options = parseArgs(process.argv.slice(2));
   console.error(error && error.stack ? error.stack : error);
+  if (!options.validateArtifact) {
+    try {
+      const outputPath = writeFatalEvidenceReport(error, options, rootDir);
+      console.error(`RMT vNext Source-to-Sea failure evidence written: ${outputPath}`);
+    } catch (writeError) {
+      console.error(writeError && writeError.stack ? writeError.stack : writeError);
+    }
+  }
   process.exitCode = 1;
 });

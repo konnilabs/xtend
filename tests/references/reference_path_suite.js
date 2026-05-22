@@ -7606,6 +7606,10 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'npm run test:rmt-vnext-primitives:report', 'CI workflow runs RMT vNext primitive gate report');
   context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:chromedriver', 'CI workflow requires RMT vNext source-to-sea browser evidence');
   context.assertIncludes(workflow, '- name: Capture RMT vNext source-to-sea browser evidence\n        if: always()', 'CI workflow captures RMT vNext source-to-sea evidence after primitive report failures');
+  context.assertIncludes(workflow, 'xtend-rmt-vnext-source-to-sea-capture.exitcode', 'CI workflow records RMT vNext source-to-sea capture exit status');
+  context.assertIncludes(workflow, 'exit 0', 'CI workflow keeps RMT vNext source-to-sea capture step green until artifact validation runs');
+  context.assertIncludes(workflow, 'Ensure RMT vNext source-to-sea evidence artifact', 'CI workflow creates failed fallback RMT vNext source-to-sea evidence when capture exits early');
+  context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:validate-artifact', 'CI workflow validates RMT vNext source-to-sea evidence after artifact upload');
   context.assertIncludes(workflow, 'RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome', 'CI workflow pins RMT vNext source-to-sea browser name');
   context.assertIncludes(workflow, 'RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"', 'CI workflow pins RMT vNext source-to-sea WebDriver port');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'CI workflow uploads RMT vNext primitive JSON report');

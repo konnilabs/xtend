@@ -114,10 +114,24 @@ jobs:
 
       - name: Capture RMT vNext source-to-sea browser evidence
         if: always()
-        run: npm run test:rmt-vnext-source-to-sea:chromedriver
+        run: |
+          mkdir -p .xtend-test-results
+          set +e
+          npm run test:rmt-vnext-source-to-sea:chromedriver
+          status=$?
+          printf "%s\n" "$status" > .xtend-test-results/xtend-rmt-vnext-source-to-sea-capture.exitcode
+          exit 0
         env:
           RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome
           RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"
+
+      - name: Ensure RMT vNext source-to-sea evidence artifact
+        if: always()
+        run: |
+          mkdir -p .xtend-test-results
+          if [ ! -f .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json ]; then
+            node -e "const fs=require('fs'); const path='.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json'; const report={schema:'xtend.rmt.vnext.source-to-sea-evidence-report.v1',workpackage:'RMT-VNEXT-PRIM-06',ok:false,status:'failed',source:null,browserFixture:null,resultKey:'__xtendRmtVNextSourceToSeaResult',artifact:{path, browserExecutionRequired:true,browserExecutionStatus:'failed'},evidence:null,objectMatrix:null,browserExecution:{schema:'xtend.rmt.vnext.browser-execution-evidence.v1',workpackage:'RMT-VNEXT-PRIM-06',resultKey:'__xtendRmtVNextSourceToSeaResult',driver:'chromedriver',required:true,ok:false,status:'failed',mode:'missing-artifact-fallback',reason:'Capture RMT vNext source-to-sea browser evidence did not create an artifact before exiting.',checks:[{name:'source-to-sea evidence artifact was created by capture step',ok:false,detail:path}]},checks:[{name:'source-to-sea evidence artifact was created by capture step',ok:false,detail:path}]}; fs.writeFileSync(path, JSON.stringify(report,null,2)+'\n');"
+          fi
 
       - name: Upload RMT vNext primitive JSON report
         if: always()
@@ -134,6 +148,10 @@ jobs:
           name: xtend-rmt-vnext-source-to-sea-evidence-node-26
           path: .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
           if-no-files-found: error
+
+      - name: Validate RMT vNext source-to-sea evidence
+        if: always()
+        run: npm run test:rmt-vnext-source-to-sea:validate-artifact
 
   package-structure:
     name: Package structure and publish dry run (Node 26.x)

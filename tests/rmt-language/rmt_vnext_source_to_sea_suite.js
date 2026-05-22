@@ -1,6 +1,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const {
   createSuiteContext,
   printSuiteReport
@@ -68,6 +69,7 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   const moduleSyntax = syntaxCheckFile(RMT_VNEXT_SOURCE_TO_SEA_MODULE_PATH, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(RMT_VNEXT_SOURCE_TO_SEA_SUITE_PATH, { rootDir, extension: '.js' });
   const evidenceScriptSyntax = syntaxCheckFile(SOURCE_TO_SEA_EVIDENCE_SCRIPT_PATH, { rootDir, extension: '.js' });
+  const fatalReplayPath = path.join(os.tmpdir(), `xtend-rmt-vnext-source-to-sea-fatal-${process.pid}.json`);
 
   assertFileExists(context, RMT_VNEXT_SOURCE_TO_SEA_MODULE_PATH, rootDir, 'source-to-sea module exists');
   assertFileExists(context, RMT_VNEXT_SOURCE_TO_SEA_SUITE_PATH, rootDir, 'source-to-sea suite exists');
@@ -83,6 +85,27 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(moduleSyntax.ok, `source-to-sea module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `source-to-sea suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
   context.assert(evidenceScriptSyntax.ok, `source-to-sea evidence script syntax passes${evidenceScriptSyntax.ok ? '' : ` (${evidenceScriptSyntax.message})`}`);
+
+  try {
+    fs.unlinkSync(fatalReplayPath);
+  } catch (_) {}
+  const fatalReplay = spawnSync(process.execPath, [
+    resolveRepoPath(SOURCE_TO_SEA_EVIDENCE_SCRIPT_PATH, rootDir),
+    '--chromedriver',
+    '--simulate-fatal-before-report',
+    '--output',
+    fatalReplayPath
+  ], {
+    cwd: rootDir,
+    encoding: 'utf8'
+  });
+  const fatalReplayReport = fs.existsSync(fatalReplayPath)
+    ? JSON.parse(fs.readFileSync(fatalReplayPath, 'utf8'))
+    : null;
+  context.assert(fatalReplay.status === 1, 'source-to-sea fatal capture simulation fails the step');
+  context.assert(fatalReplayReport && fatalReplayReport.schema === RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_SCHEMA, 'source-to-sea fatal capture simulation writes evidence report artifact');
+  context.assert(fatalReplayReport && fatalReplayReport.status === 'failed' && fatalReplayReport.ok === false, 'source-to-sea fatal capture artifact records failed status');
+  context.assert(fatalReplayReport && fatalReplayReport.browserExecution && fatalReplayReport.browserExecution.mode === 'fatal-error', 'source-to-sea fatal capture artifact records fatal browser execution mode');
 
   const fixturePath = resolveRepoPath(RMT_VNEXT_SOURCE_TO_SEA_FIXTURE_PATH, rootDir);
   const sourceToSeaModule = readText(RMT_VNEXT_SOURCE_TO_SEA_MODULE_PATH, rootDir);
@@ -553,6 +576,10 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiWebDriverPort === RMT_VNEXT_SOURCE_TO_SEA_CI_WEBDRIVER_PORT, 'package metadata records source-to-sea CI WebDriver port');
   context.assert(workflow.includes('npm run test:rmt-vnext-source-to-sea:chromedriver'), 'CI workflow requires source-to-sea chromedriver execution');
   context.assert(workflow.includes('- name: Capture RMT vNext source-to-sea browser evidence\n        if: always()'), 'CI workflow captures source-to-sea evidence even after primitive report failures');
+  context.assert(workflow.includes('xtend-rmt-vnext-source-to-sea-capture.exitcode'), 'CI workflow records source-to-sea capture exit status');
+  context.assert(workflow.includes('exit 0'), 'CI workflow keeps source-to-sea capture step green until artifact validation runs');
+  context.assert(workflow.includes('Ensure RMT vNext source-to-sea evidence artifact'), 'CI workflow creates a failed fallback source-to-sea artifact when capture exits early');
+  context.assert(workflow.includes('Validate RMT vNext source-to-sea evidence'), 'CI workflow validates source-to-sea evidence after upload');
   context.assert(workflow.includes('RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome'), 'CI workflow pins source-to-sea browser name');
   context.assert(workflow.includes('RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"'), 'CI workflow pins source-to-sea WebDriver port');
   context.assert(workflow.includes(RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH), 'CI workflow uploads source-to-sea evidence artifact');
