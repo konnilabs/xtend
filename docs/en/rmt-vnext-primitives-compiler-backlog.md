@@ -2,116 +2,83 @@
 
 - Contract: `xtend.rmt.vnext-primitives-compiler-backlog.v1`
 - Status: `in_progress`
-- Quelle: Media-Manager-Downstream-Integration, `2026-05-19`
-- Transfer-Typ: Lessons Learned / Backlog
-- Downstream-Evidence:
+- Source: Media Manager downstream integration, `2026-05-19`
+- Transfer type: lessons learned / backlog
+- Downstream evidence:
   - `/home/konni/Dokumente/net.ccs.cloud/media-manager/src/rmt/media-manager-shell.rmt`
   - `/home/konni/Dokumente/net.ccs.cloud/media-manager/src/rmt/media-manager-shell.orchestration.rmt`
   - `/home/konni/Dokumente/net.ccs.cloud/media-manager/docs/xtend-component-bugfixes.md`
 
 ## Problem
 
-Die Media-Manager-Integration zeigt, dass die neuen RMT App-Platform-
-Primitives fachlich richtig sind, die Developer Experience aber noch in zwei
-Authoring-Modelle zerfaellt.
+The Media Manager integration shows that the new RMT App Platform primitives are conceptually correct, but the developer experience still splits into two authoring models.
 
-- RMT vNext ist die verstaendliche, menschenfreundliche Developer-Syntax.
-- App-Platform-Primitives liegen aktuell in einer separaten JSON-foermigen
-  Quelle.
-- Der klassische RMT-Build besitzt weiterhin den Scaffold-/Core-
-  Kompatibilitaetspfad.
-- Entwickler muessen wissen, welcher Compiler welche Ebene besitzt, bevor sie
-  eine koharente App Shell bauen koennen.
+- RMT vNext is the understandable, human-friendly developer syntax.
+- App Platform primitives currently live in a separate JSON-shaped source.
+- The classic RMT build still has the scaffold/core compatibility path.
+- Developers need to know which compiler owns which layer before they can build a coherent app shell.
 
-Damit verliert RMT einen Teil seines Plattformwertes. Eine Plattform ist nur
-dann glaubwuerdig, wenn App-Autoren die komplette Produkt-Shell in einer
-einheitlichen, lesbaren und diagnostizierbaren Authoring Experience ausdruecken
-koennen.
+This makes RMT lose part of its platform value. A platform is only credible when app authors can express the complete product shell in one unified, readable and diagnosable authoring experience.
 
-## Epic-Ziel
+## Epic Goal
 
-Das naechste RMT-Epic muss den vNext-Compiler massiv erweitern: App-Autoren
-muessen App-Platform-Primitives direkt in RMT vNext deklarieren koennen.
+The next RMT epic must massively expand the vNext compiler: app authors must be able to declare App Platform primitives directly in RMT vNext.
 
-RMT Legacy und kompatible JSON-Zwischenformate sollen in den Hintergrund
-treten. Entwickler sollen fuer normale App-Shell-Arbeit nicht mehr in Legacy-
-Formaten arbeiten muessen. Die primaere Authoring-Oberflaeche ist vNext; der
-Compiler senkt diese Quelle in alle Runtime-Artefakte ab, die Kernel, Fabric
-und UI-Host brauchen.
+RMT Legacy and compatible JSON intermediate formats should move into the background. Developers should no longer have to work in legacy formats for normal app-shell work. The primary authoring surface is vNext; the compiler lowers that source into all runtime artifacts required by kernel, Fabric and UI host.
 
-## Erforderliche vNext-Primitive-Oberflaeche
+## Required vNext Primitive Surface
 
-Grammar, Parser, Semantic Graph und Compiler-Output von vNext muessen
-mindestens diese Primitive-Familien tragen:
+Grammar, parser, semantic graph and compiler output for vNext must support at least these primitive families:
 
-| Primitive-Familie | Erforderliche vNext-Faehigkeit |
-|-------------------|--------------------------------|
-| App Shell | template, route, root, Shell Chrome, Slots und stabile Islands |
-| Components | Component refs, Attribute, Textknoten, Slots, keyed Lists, Conditions und DOM Descriptoren |
-| State | State Records, Selectors, derived Values, Reducers, Persistenz und XState-Bridge-Hints |
-| Data | Fixtures, REST-Endpunkte, SSR-Payloads, Streams, Pagination und Schema-Contracts |
-| Actions | Action-Deklarationen, async Effects, Loading-/Success-/Error-Status, Retries und Result Routing |
-| Events | DOM-/Custom-Event-Bindings, Payload Contracts, Governance, Bubbling-/Capture-Policy und Action-Ziele |
-| Surfaces | statische Surfaces, dynamische keyed Surface-Repeater, Bounds, Focus, Close, Minimize, Restore und Persistenz |
-| Overlays | Tooltip-, Toast-, Lightbox-, Popover-, Dialog- und Menu-Portal-Semantik |
-| Resources | Object URLs, Streams, Observer, Timer, Lazy Imports und owner-scoped Teardown |
-| Security | Trust Boundaries, Sanitizer Policies, Import Policy und No-Kernel-Host-Import-Assertions |
-| Diagnostics | Source Maps, Source Pointer, Primitive IDs, Schedule Refs und Runtime Correlation IDs |
+| Primitive Family | Required vNext Capability |
+|------------------|---------------------------|
+| App Shell | template, route, root, shell chrome, slots and stable islands |
+| Components | component refs, attributes, text nodes, slots, keyed lists, conditions and DOM descriptors |
+| State | state records, selectors, derived values, reducers, persistence and XState bridge hints |
+| Data | fixtures, REST endpoints, SSR payloads, streams, pagination and schema contracts |
+| Actions | action declarations, async effects, loading/success/error status, retries and result routing |
+| Events | DOM/custom event bindings, payload contracts, governance, bubbling/capture policy and action targets |
+| Surfaces | static surfaces, dynamic keyed surface repeaters, bounds, focus, close, minimize, restore and persistence |
+| Overlays | tooltip, toast, lightbox, popover, dialog and menu portal semantics |
+| Resources | object URLs, streams, observers, timers, lazy imports and owner-scoped teardown |
+| Security | trust boundaries, sanitizer policies, import policy and no-kernel-host-import assertions |
+| Diagnostics | source maps, source pointers, primitive IDs, schedule refs and runtime correlation IDs |
 
-Das Ergebnis muss erlauben, eine granulare App Shell ausschliesslich in RMT
-vNext aufzubauen. Host-Adapter duerfen weiterhin Endpunkte, Component-Imports
-und Browser-Ausfuehrung bereitstellen. UI-Struktur, State Graph, Event Routing,
-Effects und Lifecycle Ownership muessen aber aus vNext-Source stammen.
+The result must make it possible to build a granular app shell exclusively in RMT vNext. Host adapters may still provide endpoints, component imports and browser execution. UI structure, state graph, event routing, effects and lifecycle ownership must come from vNext source.
 
-## Compiler-Anforderungen
+## Compiler Requirements
 
-Der Compiler muss zu einer vollstaendigen App-Platform-Lowering-Pipeline
-werden:
+The compiler must become a complete App Platform lowering pipeline:
 
-1. vNext-Primitive-Syntax in eine typisierte AST parsen.
-2. Einen Semantic Graph fuer Components, State, Selectors, Actions, Events,
-   Surfaces, Portals, Overlays, Resources und DataSources aufbauen.
-3. Referenzen und Contracts vor der Runtime validieren.
-4. Deterministische RMT-Core-Records fuer Kernel-Ingestion erzeugen.
-5. App-Platform-Buildreports, Diagnosen und Source Maps aus derselben vNext-
-   Quelle erzeugen.
-6. Scaffold- und Runtime-Adapter-Artefakte fuer XTend UI erzeugen, ohne App-
-   Autoren in generierte oder Legacy-Zwischenformate zu zwingen.
-7. Source-to-Runtime-Korrelation fuer jedes sichtbare Objekt und jedes Event
-   erhalten.
-8. Die RMT-Kernel-Grenze frameworkneutral halten: keine XTend-Component-
-   Imports im Kernel, kein Fabric-Import im Kernel und keine Browser-Annahmen
-   in Core Records.
+1. Parse vNext primitive syntax into a typed AST.
+2. Build a semantic graph for components, state, selectors, actions, events, surfaces, portals, overlays, resources and data sources.
+3. Validate references and contracts before runtime.
+4. Generate deterministic RMT Core records for kernel ingestion.
+5. Generate App Platform build reports, diagnostics and source maps from the same vNext source.
+6. Generate scaffold and runtime adapter artifacts for XTend UI without forcing app authors into generated or legacy intermediate formats.
+7. Preserve source-to-runtime correlation for every visible object and every event.
+8. Keep the RMT kernel boundary framework-neutral: no XTend component imports in the kernel, no Fabric import in the kernel and no browser assumptions in Core records.
 
-Der alte Kompatibilitaetspfad darf als Compiler-Target weiter existieren, darf
-aber nicht der Authoring-Pfad sein.
+The old compatibility path may continue to exist as a compiler target, but must not be the authoring path.
 
-## Kernel-Retest nach dem Upgrade
+## Kernel Retest After the Upgrade
 
-Nach dem Compiler-Upgrade muss der neue Output erneut gegen den RMT-Kernel
-getestet werden. Es reicht nicht, zu beweisen, dass vNext parsen und JSON
-erzeugen kann. Beweisbar sein muss, dass vNext-authorierte Primitives den
-Runtime-Stack treiben koennen.
+After the compiler upgrade, the new output must be tested against the RMT kernel again. It is not enough to prove that vNext can parse and generate JSON. What must be provable is that vNext-authored primitives can drive the runtime stack.
 
-Der Kernel-Gate muss zeigen:
+The kernel gate must show that:
 
-- vNext-Source kann Lanes und Fibers ueber erstklassige Syntax deklarieren.
-- Der Compiler senkt diese Deklarationen in kernel-lesbare Schedule- und
-  Lifecycle-Records ab.
-- Der RMT-Kernel kann diese Records ohne framework-spezifische Imports
-  ingestieren.
-- Fabric kann die erwarteten Lanes, Fibers und Schedule Refs empfangen oder
-  ableiten.
-- Der UI-Host kann das angeforderte Objekt oder Event materialisieren.
-- Ein Headless-Browser kann das finale Objekt, die State-Aenderung oder das
-  Event im sichtbaren Viewport beobachten.
+- vNext source can declare lanes and fibers through first-class syntax.
+- The compiler lowers these declarations into kernel-readable schedule and lifecycle records.
+- The RMT kernel can ingest these records without framework-specific imports.
+- Fabric can receive or derive the expected lanes, fibers and schedule refs.
+- The UI host can materialize the requested object or event.
+- A headless browser can observe the final object, state change or event in the visible viewport.
 
-## Source-to-Sea-Fullstack-Gate
+## Source-to-Sea Fullstack Gate
 
-Fuer RMT vNext ist ein verpflichtendes "source to sea"-Gate einzufuehren.
+A required "source to sea" gate must be introduced for RMT vNext.
 
-Das Gate rekonstruiert den Lifecycle eines UI-Objektes von RMT-Source bis zur
-Browser-Evidence:
+The gate reconstructs the lifecycle of a UI object from RMT source to browser evidence:
 
 ```text
 RMT vNext source
@@ -125,42 +92,33 @@ RMT vNext source
   -> visible headless-browser viewport assertion
 ```
 
-Das Gate muss fehlschlagen, wenn ein Korrelationsglied fehlt. Dieselbe
-Primitive ID muss ueber Source-Map-Pointer, Compiler-Output, Kernel-Record,
-Fabric-Fiber, DOM-Marker und Browser-Assertion nachvollziehbar sein.
+The gate must fail if any correlation link is missing. The same primitive ID must be traceable through source-map pointer, compiler output, kernel record, Fabric fiber, DOM marker and browser assertion.
 
-### Minimale Fixture
+### Minimal Fixture
 
-Eine kleine vNext-Fixture soll deklarieren:
+A small vNext fixture should declare:
 
-- ein sichtbares Component-Objekt, zum Beispiel Status-, Toast- oder Card-
-  Surface;
-- ein user-facing Event, zum Beispiel Button-Click oder Custom-Component-
-  Event;
-- eine Action oder einen Effect mit Success-Status;
-- ein State Update und einen Selector;
-- eine Fabric-Lane- und Fiber-Erwartung;
-- eine Resource- oder Surface-Lifecycle-Grenze.
+- a visible component object, for example status, toast or card surface;
+- a user-facing event, for example button click or custom component event;
+- an action or effect with success status;
+- a state update and selector;
+- a Fabric lane and fiber expectation;
+- a resource or surface lifecycle boundary.
 
-Der Browser-Smoke muss das Event ausloesen und pruefen:
+The browser smoke must trigger the event and verify:
 
-- Das Objekt existiert im Viewport.
-- State oder Text aendert sich sichtbar.
-- Das Event wird mit der erwarteten RMT Action ID aufgezeichnet.
-- Fabric meldet die erwartete Lane-/Fiber-Metadaten.
-- Kernel-Diagnosen enthalten den erwarteten Schedule-/Lifecycle-Record.
-- Source-Map-Metadaten zeigen auf die vNext-Source-Position zurueck.
+- The object exists in the viewport.
+- State or text changes visibly.
+- The event is recorded with the expected RMT action ID.
+- Fabric reports the expected lane/fiber metadata.
+- Kernel diagnostics contain the expected schedule/lifecycle record.
+- Source-map metadata points back to the vNext source position.
 
 ## Evidence Contract
 
-Das Fullstack-Gate schreibt eine maschinenlesbare Evidence-Datei. Der
-artefaktierte Report nutzt
-`xtend.rmt.vnext.source-to-sea-evidence-report.v1` und liegt unter
-`.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`; die
-eingebettete Lifecycle-Evidence bleibt
-`xtend.rmt.vnext.source-to-sea-evidence.v1`.
+The full-stack gate writes a machine-readable evidence file. The artifact report uses `xtend.rmt.vnext.source-to-sea-evidence-report.v1` and lives at `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`; the embedded lifecycle evidence remains `xtend.rmt.vnext.source-to-sea-evidence.v1`.
 
-Beispiel der eingebetteten Lifecycle-Evidence:
+Example embedded lifecycle evidence:
 
 ```json
 {
@@ -205,519 +163,149 @@ Beispiel der eingebetteten Lifecycle-Evidence:
 }
 ```
 
-## Aktueller Stand am 2026-05-20
+## Current State on 2026-05-20
 
-Die erste Compiler- und DX-Schiene fuer vNext-Primitives ist release-gated:
+The first compiler and DX track for vNext primitives is release-gated:
 
-- `RMT-VNEXT-PRIM-01` bis `RMT-VNEXT-PRIM-04` sind abgeschlossen. Grammar,
-  Parser/AST, Semantic Graph und Lowering erzeugen deterministische Core-,
-  App-Platform- und Kernel-Records aus vNext-Source.
-- `RMT-VNEXT-PRIM-06` besitzt eine deterministische Source-to-Sea-Scheibe.
-  `createRmtVNextSourceToSeaEvidence(...)` korreliert vNext-Source-Maps,
-  Kernel-Schedules, ableitbare Fabric-Fiber, UI-Marker und Browser-Probe.
-- `RMT-VNEXT-PRIM-06` besitzt ausserdem einen Browser-Execution-Pfad.
-  `runRmtVNextSourceToSeaBrowserExecution(...)` kann dieselbe Fixture per
-  WebDriver, ChromeDriver oder Safari-Driver oeffnen,
-  `window.__xtendRmtVNextSourceToSeaResult` auslesen und das echte Browser-
-  Ergebnis gegen Compiler-, Kernel- und Fabric-Evidence vergleichen. Ohne
-  lokale Browser-Umgebung bleibt der Standardlauf als Fixture-Contract
-  deterministisch.
-- `RMT-VNEXT-PRIM-06` schreibt die Source-to-Sea-Evidence nun als Release-
-  Artefakt. `node scripts/capture_rmt_vnext_source_to_sea_evidence.js`
-  erzeugt `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`;
-  `npm run test:rmt-vnext-source-to-sea:browser-required` schaltet denselben
-  Pfad fuer lokale/CI-Headless-Profile verpflichtend.
-- `RMT-VNEXT-PRIM-06` ist in GitHub Actions jetzt fuer Browser-Execution
-  verpflichtend. Der Job `rmt-vnext-primitive-gates` nutzt
-  `npm run test:rmt-vnext-source-to-sea:chromedriver` und uploaded danach das
-  gleiche Source-to-Sea-Evidence-Artefakt.
-- ChromeDriver-Auto-Cleanup ist fuer lokale Snap-/Chromium-Installationen
-  robust. Der automatisch gestartete ChromeDriver wird zuerst ueber den
-  WebDriver-Endpunkt `/shutdown` beendet; `process.kill()` bleibt nur Fallback.
-  Damit laeuft `npm run test:rmt-vnext-source-to-sea:chromedriver` lokal mit
-  Required-Browser-Policy durch und artefaktiert `driver: "chromedriver"`,
-  `objectCount: 4`, ein Cross-Primitive-Event, zwei Route-Switches und zwei
-  Route-Lifecycle-Cycles.
-- `RMT-VNEXT-PRIM-06` besitzt nun eine Multi-Object-Scheibe. Die Fixture
-  korreliert `demo.feedback.status` und `demo.feedback.toast` als zwei
-  gleichzeitige sichtbare Primitives ueber vNext-Source, Kernel-Schedules,
-  Fabric-Fibers, UI-Marker und Browser-Probe.
-- Die Multi-Object-Scheibe deckt jetzt getrennte Lanes und ein
-  Cross-Primitive-Event ab: `demo.feedback.status` laeuft sichtbar,
-  `demo.feedback.toast` laeuft auf `idle`, und `demo.feedback.save` reduziert
-  den Toast-State und emittiert `demo.feedback.toast.promoted`.
-- Die Cross-Primitive-Matrix deckt nun auch einen mehrstufigen Cross-Route-
-  Event ab: Nach dem Route-Mount fuehrt `demo.feedback.detail.ack ->
-  demo.feedback.audit` ueber `demo.feedback.audit.escalated` und
-  `state.demo.feedback.audit.text` von einem `transition`-Target zum naechsten.
-  Das Browser-Result muss zwei Cross-Primitive-Events ausweisen und fuer den
-  zweiten Eintrag `stage: "route-target"`, `sourceLane: "transition"` und
-  `targetLane: "transition"` melden.
-- Die Browser-Matrix fuehrt zusaetzlich einen Route-Switch als PRIM-06-
-  Evidence: `demo.feedback.save` wechselt von `/rmt-vnext-source-to-sea` nach
-  `/rmt-vnext-source-to-sea/toast`, nutzt `ui.user-blocking.input` fuer
-  Navigation, `route.transition.render` fuer Rendering und schreibt diese
-  Route-Telemetrie in den Browser-Required-Result.
-- Der Route-Switch besitzt jetzt ein echtes Route-Target-Objekt:
-  `demo.feedback.detail` wird in vNext als eigenes Surface mit
-  `transition`-Lane authoriert, bleibt in der Browser-Fixture initial
-  ungemountet und wird erst nach dem Route-Wechsel sichtbar. Die Matrix
-  korreliert Source, Kernel-Schedule, Fabric-Fiber, Route-Render-Schedule,
-  UI-Marker und Browser-Viewport.
-- Der Route-Target-Slice besitzt jetzt auch Remount-/Unmount-Evidence:
-  `demo.feedback.detail` wird nach dem ersten Mount wieder ungemountet,
-  `demo.feedback.detailTimer` wird ueber `dispose on surface.destroy` als
-  Resource-Cleanup nachgewiesen, und das Target wird anschliessend erneut ueber
-  `route.transition.render` sichtbar gemountet.
-- Der Route-Lifecycle-Slice deckt nun mehrere Targets ab. Zusaetzlich zu
-  `demo.feedback.detail` wird `demo.feedback.audit` als zweites vNext-
-  authoriertes Route-Target mit eigener `transition`-Lane und
-  `demo.feedback.auditTimer` gemountet. Der echte Browser-Required-Lauf muss
-  zwei sequenzielle Route-Switches sowie getrennte `unmountCount`-/
-  `remountCount`-Paare pro Target mit `countsMatch: true` reporten.
-- Die Route-Lifecycle-Matrix deckt jetzt mehrere Cleanup-Resource-Arten pro
-  Target ab. `demo.feedback.audit` besitzt neben dem Timer auch
-  `demo.feedback.auditSubscription` mit `kind subscription`; die statische
-  Object-Matrix und das echte Browser-Result muessen beide Resource IDs,
-  `resourceKinds: ["timer", "subscription"]` und `resourceDisposed: true`
-  fuer den Audit-Zyklus ausweisen.
-- Negative Cleanup-Diagnosen sind im Gate verankert. Die Fixture
-  `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-invalid.rmt`
-  laesst `demo.feedback.detailTimer` absichtlich ohne
-  `dispose on surface.destroy`; die Route-Lifecycle-Matrix muss kontrolliert
-  fehlschlagen und
-  `rmt.vnext.source_to_sea.cleanup_dispose_policy_missing` melden.
-- Owner-Mismatch-Diagnosen sind ebenfalls gatebar. Die Fixture
-  `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-owner-invalid.rmt`
-  besitzt zwar `dispose on surface.destroy`, bindet
-  `demo.feedback.detailTimer` aber absichtlich an
-  `surface.demo.feedback.toast`; die Route-Lifecycle-Matrix muss
-  `rmt.vnext.source_to_sea.cleanup_owner_mismatch` melden und den falschen
-  Owner in der Evidence ausweisen.
-- Fehlende Cleanup-Resource-Records sind jetzt ebenfalls gatebar. Die Fixture
-  `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-resource-missing.rmt`
-  laesst das Route-Target `demo.feedback.audit` bestehen, entfernt aber
-  `demo.feedback.auditTimer` vollstaendig aus der vNext-Quelle. Die Matrix muss
-  gezielt fuer `demo.feedback.audit` mit
-  `rmt.vnext.source_to_sea.cleanup_resource_missing` fehlschlagen, waehrend der
-  `demo.feedback.detail`-Lifecycle weiter `passed` bleibt.
-- Resource-Kind-Drift ist jetzt ebenfalls gatebar. Die Fixture
-  `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-kind-invalid.rmt`
-  bindet `demo.feedback.auditSubscription` weiterhin an
-  `surface.demo.feedback.audit` und behaelt `dispose on surface.destroy`,
-  deklariert sie aber absichtlich als `kind cache`. Die Matrix muss mit
-  `rmt.vnext.source_to_sea.cleanup_kind_mismatch` fehlschlagen und zugleich
-  `expectedKind: "subscription"` sowie `actualKind: "cache"` ausweisen.
-- Der ChromeDriver-Evidence-Report besitzt jetzt eine eigene
-  CI-Artefaktvalidierung:
-  `xtend.rmt.vnext.source-to-sea-ci-artifact-validation.v1`. Im lokalen
-  Browser-Skip-Modus bleibt sie `skipped`; im Required-Browser-Pfad muss sie
-  `passed` sein und `objectCount: 4`, zwei Cross-Primitive-Events, zwei
-  Route-Switches, zwei Route-Lifecycle-Cycles, `targetMounted`,
-  `targetVisible`, `countsMatch` sowie die Audit-Resources
-  `demo.feedback.auditTimer` und `demo.feedback.auditSubscription`
-  nachweisen.
-- `RMT-VNEXT-PRIM-07` besitzt die erste Tooling-Scheibe fuer Completions,
-  Hover, Symbols und Docs, damit vNext der Default-Autorenpfad bleibt.
-- `RMT-VNEXT-PRIM-07` besitzt nun auch cursor-nahe Primitive-Completions:
-  `getRmtVNextToolingCompletions(...)` und der Language Server koennen
-  State-Klauseln, Resource-Kinds und Action-Teilwoerter aus Position,
-  Source-Map-Pointer und aktueller Zeile ableiten, ohne dass Editoren
-  explizit `xtend.context` setzen muessen.
-- `RMT-VNEXT-PRIM-07` besitzt die erste Quick-Fix-Scheibe:
-  `getRmtVNextToolingCodeActions(...)` und `textDocument/codeAction` erzeugen
-  sichere Workspace-Edits fuer `owner-missing`, `unkeyed-repeat` und
-  `payload-contract-missing`, sodass vNext-Autoren Primitive-Fehler direkt im
-  Editor reparieren koennen.
-- `RMT-VNEXT-PRIM-07` besitzt nun eine zweite Quick-Fix-Scheibe:
-  `initial-missing`, `resource-kind-missing` sowie `unknown-reference` fuer
-  Selector- und Portal-Referenzen bekommen source-erhaltende Reparaturen. Damit
-  fuehrt die vNext-DX Autoren von typischen Tipp-/Geruestluecken direkt zur
-  gueltigen Primitive-Struktur.
-- `RMT-VNEXT-PRIM-07` besitzt die Action-Authoring-Scheibe:
-  `action-reducer-missing` und `effect-source-missing` erzeugen sichere
-  Textedits fuer Reducer-Ziele und `effect fetch datasource`-Quellen.
-  `kernel-boundary` bleibt bewusst ein Command-Handoff ohne Textedit, damit
-  Kernel-/Fabric-Imports in Host-Adapter ausgelagert werden.
-- `RMT-VNEXT-PRIM-07` besitzt die Preview-/Fix-All-Scheibe:
-  jede Primitive-Code-Action traegt eine
-  `xtend.rmt.vnext.primitive-code-action-preview.v1` Preview, und
-  `source.fixAll.rmt.vnext.primitives` buendelt alle sicheren Textedit-
-  Reparaturen eines Dokuments. Manuelle Boundary-Commands bleiben aus der
-  Sammelanwendung ausgeschlossen.
-- `RMT-VNEXT-PRIM-07` besitzt nun auch den Command-Handoff fuer manuelle
-  Boundary-Faelle: der Language Server meldet
-  `xtend.rmt.vnext.extractKernelImport` als `workspace/executeCommand` und
-  liefert `xtend.rmt.vnext.primitive-command-handoff.v1` ohne WorkspaceEdit
-  zurueck. Damit kann ein Editor Kernel-/Fabric-Importverletzungen sichtbar in
-  einen Host-Adapter-Pfad ueberfuehren, ohne vNext-Source automatisch
-  framework-spezifisch umzuschreiben.
-- `RMT-VNEXT-PRIM-07` besitzt jetzt die erste VS-Code-Bridge-Apply-
-  Experience: `tools/rmt-editor/vscode/extension.js` klassifiziert
-  vNext-Primitive-CodeActions in `workspace-edit`, `fix-all` und
-  `manual-command`, exponiert vier VS-Code-Commands und rendert
-  `xtend.rmt.editor.vscode-primitive-authoring-experience.v1` im Output
-  Channel. Damit ist die DX nicht nur protokolliert, sondern im Editor
-  sichtbar.
-- `RMT-VNEXT-PRIM-07` ist abgeschlossen. Die VS-Code-Bridge liest nun ohne
-  uebergebenen Report das aktive `.rmt`-Dokument, fragt den lokalen RMT
-  Language Server in-process per `textDocument/codeAction` ab, bietet
-  QuickPick-Pfade fuer Preview/Fix-All/Handoff und wendet nur sichere
-  WorkspaceEdits an. `kernel-boundary` bleibt ein sichtbarer manueller
-  Handoff ohne `WorkspaceEdit`.
-- `RMT-VNEXT-PRIM-08` besitzt die erste Migration-Scheibe:
-  App-Platform-Primitive-JSON wird als Legacy-Target erkannt, gespiegelt und
-  mit vNext-Migrationsdiagnosen versehen.
-- `RMT-VNEXT-PRIM-08` ist abgeschlossen. Der neue
-  `xtend.rmt.vnext.primitive-migration-apply-plan.v1` Apply-Plan erzeugt aus
-  App-Platform-Primitive-JSON denselben vNext-Draft wie die Preview, weist
-  einen `.vnext.rmt`-Zielpfad aus, prueft den Draft gegen den vNext-Compiler
-  und setzt `automaticWrite: false`. Die Compatibility-Reports unterscheiden
-  nun `report-only`, `preview-ready`, `apply-plan-ready` und `blocked`;
-  Legacy bleibt Mirror/Compiler-Target, nicht Authoring-Pfad.
-- `RMT-VNEXT-PRIM-05` ist abgeschlossen. Das neue standalone Gate
-  `rmt-vnext-fabric-bridge` prueft die Fabric/RMT-Lane-Aufloesung, die
-  primaere Fabric-Runtime-Fiber, die Lane-Matrix, Host-Adapter-Telemetrie,
-  Route-/Component-Fiber, Telemetry-Snapshot und Browser-Marker als eigenen
-  PRIM-05-Contract.
-- Die Release-Matrix enthaelt nun das Primitive-Aggregat
-  `npm run test:rmt-vnext-primitives:report`; der Report wird unter
-  `.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json`
-  geschrieben.
-- GitHub Actions fuehren die Primitive-Gates im Job
-  `rmt-vnext-primitive-gates` aus. Das Gate umfasst Parser, Compiler,
-  Semantic Graph, Source-to-Sea, Tooling, Compatibility und Type-Exports und
-  laedt die Source-to-Sea-Evidence als eigenes Artefakt hoch.
-- Der Source-to-Sea-Evidence-Report enthaelt jetzt ein maschinenlesbares
-  CI-Artefakt-Gate. `createRmtVNextSourceToSeaCiArtifactValidation(...)`
-  vergleicht den geschriebenen ChromeDriver-Report gegen die erwartete PRIM-06-
-  Matrix und schlaegt bei Objekt-, Route-, Lifecycle- oder Resource-Drift fehl.
-- Der CI-Artefakt-Pfad ist nun replaybar:
-  `test:rmt-vnext-source-to-sea:validate-artifact` ruft
-  `validateRmtVNextSourceToSeaCiArtifactFile(...)` auf, validiert ein bereits
-  geschriebenes ChromeDriver-Release-Artefakt ohne neuen Browser-Lauf und
-  faellt fuer fehlende, nicht parsebare oder gedriftete Artefakte geschlossen
-  durch.
-- Cross-Route-Drift ist nun als negativer Runtime-Slice gatebar. Die Browser-
-  Probe `tests/browser/fixtures/rmt-vnext-source-to-sea-cross-route-invalid.html`
-  verdrahtet `demo.feedback.detail.ack` absichtlich auf das falsche
-  Ziel-Primitive und muss ueber
-  `cross event route-target state belongs to target primitive`,
-  `cross event route-target event belongs to target primitive` sowie
-  `cross event route-target stage uses transition lanes` fehlschlagen.
-- Browser-Result-Drift ist nun ebenfalls ohne neuen Browserstart pruefbar.
-  `xtend.rmt.vnext.source-to-sea-browser-result-validation.v1` und
-  `createRmtVNextSourceToSeaBrowserResultValidation(...)` validieren die
-  ChromeDriver-Resultstruktur direkt; Route-Switch-Drift muss ueber
-  `browser execution route switches pass` und Lifecycle-Zaehler-Drift ueber
-  `browser execution route lifecycle cycles pass` fehlschlagen.
-  Cross-Primitive-Event-Drift und Viewport-/Objektstatus-Drift muessen
-  entsprechend ueber `browser execution cross-primitive events pass` und
-  `browser execution object matrix passes` fehlschlagen.
-- Der Release-Handoff zieht `npm run test:rmt-semantic-graph`,
-  `npm run test:rmt-vnext-source-to-sea`,
-  `npm run test:rmt-vnext-source-to-sea:evidence` und
-  `npm run test:rmt-vnext-primitives:report` als verpflichtende Gates nach.
-- Der vollstaendige Release-Report wurde lokal erneut erfolgreich gefahren.
-  Lokale Browser-/Loopback-Skips bleiben akzeptierte Umgebungsresiduen; die
-  Primitive-, PR-, Pack- und Release-Reports sind konsistent.
+- `RMT-VNEXT-PRIM-01` through `RMT-VNEXT-PRIM-04` are complete. Grammar, parser/AST, semantic graph and lowering create deterministic Core, App Platform and Kernel records from vNext source.
+- `RMT-VNEXT-PRIM-06` has a deterministic source-to-sea slice. `createRmtVNextSourceToSeaEvidence(...)` correlates vNext source maps, kernel schedules, derivable Fabric fibers, UI markers and browser probe.
+- `RMT-VNEXT-PRIM-06` also has a browser execution path. `runRmtVNextSourceToSeaBrowserExecution(...)` can open the same fixture through WebDriver, ChromeDriver or Safari Driver, read `window.__xtendRmtVNextSourceToSeaResult` and compare the real browser result against compiler, kernel and Fabric evidence. Without a local browser environment, the default run remains deterministic as a fixture contract.
+- `RMT-VNEXT-PRIM-06` now writes source-to-sea evidence as a release artifact. `node scripts/capture_rmt_vnext_source_to_sea_evidence.js` creates `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`; `npm run test:rmt-vnext-source-to-sea:browser-required` makes the same path required for local/CI headless profiles.
+- `RMT-VNEXT-PRIM-06` is now required for browser execution in GitHub Actions. The job `rmt-vnext-primitive-gates` uses `npm run test:rmt-vnext-source-to-sea:chromedriver` and then uploads the same source-to-sea evidence artifact.
+- ChromeDriver auto-cleanup is robust for local Snap/Chromium installations. Automatically started ChromeDriver is first stopped through the WebDriver endpoint `/shutdown`; `process.kill()` remains only the fallback. This lets `npm run test:rmt-vnext-source-to-sea:chromedriver` pass locally with required-browser policy and artifact `driver: "chromedriver"`, `objectCount: 4`, one cross-primitive event, two route switches and two route lifecycle cycles.
+- `RMT-VNEXT-PRIM-06` now has a multi-object slice. The fixture correlates `demo.feedback.status` and `demo.feedback.toast` as two simultaneous visible primitives across vNext source, kernel schedules, Fabric fibers, UI markers and browser probe.
+- The multi-object slice now covers separate lanes and a cross-primitive event: `demo.feedback.status` runs visible, `demo.feedback.toast` runs on `idle`, and `demo.feedback.save` reduces toast state and emits `demo.feedback.toast.promoted`.
+- The cross-primitive matrix now also covers a multi-stage cross-route event: after route mount, `demo.feedback.detail.ack -> demo.feedback.audit` goes through `demo.feedback.audit.escalated` and `state.demo.feedback.audit.text` from one `transition` target to the next. The browser result must show two cross-primitive events and report `stage: "route-target"`, `sourceLane: "transition"` and `targetLane: "transition"` for the second entry.
+- The browser matrix additionally carries a route switch as PRIM-06 evidence: `demo.feedback.save` switches from `/rmt-vnext-source-to-sea` to `/rmt-vnext-source-to-sea/toast`, uses `ui.user-blocking.input` for navigation, `route.transition.render` for rendering and writes this route telemetry into the browser-required result.
+- The route switch now has a real route-target object: `demo.feedback.detail` is authored in vNext as its own surface with `transition` lane, starts unmounted in the browser fixture and becomes visible only after the route change. The matrix correlates source, kernel schedule, Fabric fiber, route render schedule, UI marker and browser viewport.
+- The route-target slice now also has remount/unmount evidence: `demo.feedback.detail` is unmounted after the first mount, `demo.feedback.detailTimer` is proven as resource cleanup through `dispose on surface.destroy`, and the target is then mounted visibly again through `route.transition.render`.
+- The route-lifecycle slice now covers multiple targets. In addition to `demo.feedback.detail`, `demo.feedback.audit` is mounted as a second vNext-authored route target with its own `transition` lane and `demo.feedback.auditTimer`. The real browser-required run must report two sequential route switches and separate `unmountCount`/`remountCount` pairs per target with `countsMatch: true`.
+- The route-lifecycle matrix now covers multiple cleanup resource kinds per target. Beside the timer, `demo.feedback.audit` also has `demo.feedback.auditSubscription` with `kind subscription`; the static object matrix and the real browser result must both show both resource IDs, `resourceKinds: ["timer", "subscription"]` and `resourceDisposed: true` for the audit cycle.
+- Negative cleanup diagnostics are anchored in the gate. The fixture `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-invalid.rmt` intentionally leaves `demo.feedback.detailTimer` without `dispose on surface.destroy`; the route-lifecycle matrix must fail in a controlled way and report `rmt.vnext.source_to_sea.cleanup_dispose_policy_missing`.
+- Owner mismatch diagnostics are also gateable. The fixture `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-owner-invalid.rmt` has `dispose on surface.destroy`, but intentionally binds `demo.feedback.detailTimer` to `surface.demo.feedback.toast`; the route-lifecycle matrix must report `rmt.vnext.source_to_sea.cleanup_owner_mismatch` and show the wrong owner in evidence.
+- Missing cleanup resource records are now gateable as well. The fixture `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-resource-missing.rmt` keeps the route target `demo.feedback.audit`, but completely removes `demo.feedback.auditTimer` from the vNext source. The matrix must fail specifically for `demo.feedback.audit` with `rmt.vnext.source_to_sea.cleanup_resource_missing`, while the `demo.feedback.detail` lifecycle stays `passed`.
+- Resource-kind drift is also gateable. The fixture `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-kind-invalid.rmt` keeps `demo.feedback.auditSubscription` bound to `surface.demo.feedback.audit` and keeps `dispose on surface.destroy`, but intentionally declares it as `kind cache`. The matrix must fail with `rmt.vnext.source_to_sea.cleanup_kind_mismatch` and show both `expectedKind: "subscription"` and `actualKind: "cache"`.
+- The ChromeDriver evidence report now has its own CI artifact validation: `xtend.rmt.vnext.source-to-sea-ci-artifact-validation.v1`. In local browser-skip mode it remains `skipped`; in the required-browser path it must be `passed` and prove `objectCount: 4`, two cross-primitive events, two route switches, two route lifecycle cycles, `targetMounted`, `targetVisible`, `countsMatch` and the audit resources `demo.feedback.auditTimer` and `demo.feedback.auditSubscription`.
+- `RMT-VNEXT-PRIM-07` has the first tooling slice for completions, hover, symbols and docs so vNext remains the default authoring path.
+- `RMT-VNEXT-PRIM-07` now also has cursor-near primitive completions: `getRmtVNextToolingCompletions(...)` and the language server can derive state clauses, resource kinds and action partial words from position, source-map pointer and current line without editors having to set `xtend.context` explicitly.
+- `RMT-VNEXT-PRIM-07` has the first quick-fix slice: `getRmtVNextToolingCodeActions(...)` and `textDocument/codeAction` create safe WorkspaceEdits for `owner-missing`, `unkeyed-repeat` and `payload-contract-missing`, so vNext authors can repair primitive errors directly in the editor.
+- `RMT-VNEXT-PRIM-07` now has a second quick-fix slice: `initial-missing`, `resource-kind-missing` and `unknown-reference` for selector and portal references receive source-preserving repairs. This guides authors from common typo/scaffold gaps directly to valid primitive structure.
+- `RMT-VNEXT-PRIM-07` has the action-authoring slice: `action-reducer-missing` and `effect-source-missing` create safe text edits for reducer targets and `effect fetch datasource` sources. `kernel-boundary` deliberately remains a command handoff without text edit so Kernel/Fabric imports are moved to host adapters.
+- `RMT-VNEXT-PRIM-07` has the preview/fix-all slice: every primitive code action carries an `xtend.rmt.vnext.primitive-code-action-preview.v1` preview, and `source.fixAll.rmt.vnext.primitives` bundles all safe text-edit repairs in a document. Manual boundary commands are excluded from the bulk apply.
+- `RMT-VNEXT-PRIM-07` now also has the command handoff for manual boundary cases: the language server reports `xtend.rmt.vnext.extractKernelImport` as `workspace/executeCommand` and returns `xtend.rmt.vnext.primitive-command-handoff.v1` without WorkspaceEdit. This lets an editor visibly move Kernel/Fabric import violations into a host-adapter path without automatically rewriting vNext source in a framework-specific way.
+- `RMT-VNEXT-PRIM-07` now has the first VS Code bridge apply experience: `tools/rmt-editor/vscode/extension.js` classifies vNext primitive CodeActions into `workspace-edit`, `fix-all` and `manual-command`, exposes four VS Code commands and renders `xtend.rmt.editor.vscode-primitive-authoring-experience.v1` in the Output Channel. The DX is now not only documented, but visible in the editor.
+- `RMT-VNEXT-PRIM-07` is complete. The VS Code bridge now reads the active `.rmt` document when no report is passed, asks the local RMT Language Server in-process through `textDocument/codeAction`, offers QuickPick paths for preview/fix-all/handoff and applies only safe WorkspaceEdits. `kernel-boundary` remains a visible manual handoff without `WorkspaceEdit`.
+- `RMT-VNEXT-PRIM-08` has the first migration slice: App Platform primitive JSON is detected as legacy target, mirrored and annotated with vNext migration diagnostics.
+- `RMT-VNEXT-PRIM-08` is complete. The new `xtend.rmt.vnext.primitive-migration-apply-plan.v1` apply plan creates the same vNext draft from App Platform primitive JSON as the preview, points to a `.vnext.rmt` target path, checks the draft against the vNext compiler and sets `automaticWrite: false`. Compatibility reports now distinguish `report-only`, `preview-ready`, `apply-plan-ready` and `blocked`; legacy remains mirror/compiler target, not authoring path.
+- `RMT-VNEXT-PRIM-05` is complete. The new standalone gate `rmt-vnext-fabric-bridge` checks Fabric/RMT lane resolution, primary Fabric runtime fiber, lane matrix, host-adapter telemetry, route/component fibers, telemetry snapshot and browser markers as its own PRIM-05 contract.
+- The release matrix now contains the primitive aggregate `npm run test:rmt-vnext-primitives:report`; the report is written to `.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json`.
+- GitHub Actions runs the primitive gates in the job `rmt-vnext-primitive-gates`. The gate covers parser, compiler, semantic graph, source-to-sea, tooling, compatibility and type exports, and uploads source-to-sea evidence as its own artifact.
+- The source-to-sea evidence report now contains a machine-readable CI artifact gate. `createRmtVNextSourceToSeaCiArtifactValidation(...)` compares the written ChromeDriver report against the expected PRIM-06 matrix and fails on object, route, lifecycle or resource drift.
+- The CI artifact path is now replayable: `test:rmt-vnext-source-to-sea:validate-artifact` calls `validateRmtVNextSourceToSeaCiArtifactFile(...)`, validates an already written ChromeDriver release artifact without a new browser run and fails closed for missing, unparseable or drifted artifacts.
+- Cross-route drift is now gateable as a negative runtime slice. The browser probe `tests/browser/fixtures/rmt-vnext-source-to-sea-cross-route-invalid.html` intentionally wires `demo.feedback.detail.ack` to the wrong target primitive and must fail through `cross event route-target state belongs to target primitive`, `cross event route-target event belongs to target primitive` and `cross event route-target stage uses transition lanes`.
+- Browser result drift is now also testable without a new browser start. `xtend.rmt.vnext.source-to-sea-browser-result-validation.v1` and `createRmtVNextSourceToSeaBrowserResultValidation(...)` validate the ChromeDriver result structure directly; route-switch drift must fail through `browser execution route switches pass` and lifecycle counter drift through `browser execution route lifecycle cycles pass`. Cross-primitive event drift and viewport/object-status drift must fail through `browser execution cross-primitive events pass` and `browser execution object matrix passes`.
+- The release handoff adds `npm run test:rmt-semantic-graph`, `npm run test:rmt-vnext-source-to-sea`, `npm run test:rmt-vnext-source-to-sea:evidence` and `npm run test:rmt-vnext-primitives:report` as required gates.
+- The full release report was run locally again successfully. Local browser/loopback skips remain accepted environment residuals; the primitive, PR, pack and release reports are consistent.
 
-`RMT-VNEXT-PRIM-06`, `RMT-VNEXT-PRIM-07` und `RMT-VNEXT-PRIM-08` sind lokal
-abgeschlossen. Paket 6 deckt Source -> Kernel -> Fabric -> UI -> Browser,
-ChromeDriver-Required-Evidence, CI-Artefakt-Replay und negative Drift-Faelle
-fuer Cross-Route, Route-Switch, Lifecycle, Cross-Primitive-Events und
-Viewport-/Objektstatus ab. Paket 7 macht diese Primitive-Diagnosen im Editor
-aktiv anwendbar. Paket 8 liefert den deterministischen Legacy-Backgrounding-
-und Migration-Apply-Plan. Der echte GitHub-Actions-Artefaktabgleich bleibt ein
-Release-Handoff-Schritt fuer den Release-Branch, nicht mehr ein lokaler
-Implementierungsblock der Pakete.
+`RMT-VNEXT-PRIM-06`, `RMT-VNEXT-PRIM-07` and `RMT-VNEXT-PRIM-08` are locally complete. Package 6 covers source -> kernel -> Fabric -> UI -> browser, ChromeDriver-required evidence, CI artifact replay and negative drift cases for cross-route, route switch, lifecycle, cross-primitive events and viewport/object status. Package 7 makes these primitive diagnostics actively applicable in the editor. Package 8 provides the deterministic legacy-backgrounding and migration apply plan. The real GitHub Actions artifact comparison remains a release-handoff step for the release branch, no longer a local implementation blocker for the packages.
 
 ## Workpackages
 
-| ID | Prioritaet | Status | Titel | Akzeptanz |
-|----|------------|--------|-------|-----------|
-| `RMT-VNEXT-PRIM-01` | P0 | completed | vNext Primitive Grammar Design | Syntax deckt State, Selectors, Actions, Events, Data, Surfaces, Overlays, Portals und Resources ab, ohne auf JSON-Authoring auszuweichen. |
-| `RMT-VNEXT-PRIM-02` | P0 | completed | Parser- und AST-Upgrade | Parser erzeugt typisierte AST-Nodes mit stabilen Source Ranges fuer jedes Primitive. |
-| `RMT-VNEXT-PRIM-03` | P0 | completed | Semantic Graph und Diagnostics | Cross-Reference-, Ownership-, Event-Payload- und Trust-Boundary-Diagnosen laufen vor der Runtime. |
-| `RMT-VNEXT-PRIM-04` | P0 | completed | Compiler-Lowering in Kernel Records | vNext-Primitives werden in deterministische Core-/App-Artefakte abgesenkt, die der RMT-Kernel ingestieren kann. |
-| `RMT-VNEXT-PRIM-05` | P0 | completed | Fabric Lane/Fiber Bridge Evidence | vNext-authorierte Lanes und Fibers sind in Fabric-Telemetrie sichtbar, ohne Fabric in den Kernel zu importieren. |
-| `RMT-VNEXT-PRIM-06` | P0 | completed | Source-to-Sea Browser Gate | Ein Headless-Browser-Test beweist Source -> Kernel -> Fabric -> UI -> Viewport fuer sichtbare Objekt-, Route-, Event- und Lifecycle-Pfade. |
-| `RMT-VNEXT-PRIM-07` | P1 | completed | Language Server und Authoring Docs | Completions, Hover, Symbols, CodeActions, Safe-Fix-All und VS-Code-Bridge lehren vNext-Primitive-Syntax als primaere Developer Experience. |
-| `RMT-VNEXT-PRIM-08` | P1 | completed | Migration und Legacy-Backgrounding | Bestehende App-Platform-JSON-Fixtures koennen per Preview/Apply-Plan nach vNext konvertiert oder gespiegelt werden; Legacy bleibt Target, nicht Workflow. |
+| ID | Priority | Status | Title | Acceptance |
+|----|----------|--------|-------|------------|
+| `RMT-VNEXT-PRIM-01` | P0 | completed | vNext Primitive Grammar Design | Syntax covers state, selectors, actions, events, data, surfaces, overlays, portals and resources without falling back to JSON authoring. |
+| `RMT-VNEXT-PRIM-02` | P0 | completed | Parser and AST Upgrade | Parser creates typed AST nodes with stable source ranges for every primitive. |
+| `RMT-VNEXT-PRIM-03` | P0 | completed | Semantic Graph and Diagnostics | Cross-reference, ownership, event-payload and trust-boundary diagnostics run before runtime. |
+| `RMT-VNEXT-PRIM-04` | P0 | completed | Compiler Lowering into Kernel Records | vNext primitives are lowered into deterministic Core/app artifacts that the RMT kernel can ingest. |
+| `RMT-VNEXT-PRIM-05` | P0 | completed | Fabric Lane/Fiber Bridge Evidence | vNext-authored lanes and fibers are visible in Fabric telemetry without importing Fabric into the kernel. |
+| `RMT-VNEXT-PRIM-06` | P0 | completed | Source-to-Sea Browser Gate | A headless browser test proves source -> kernel -> Fabric -> UI -> viewport for visible object, route, event and lifecycle paths. |
+| `RMT-VNEXT-PRIM-07` | P1 | completed | Language Server and Authoring Docs | Completions, hover, symbols, CodeActions, Safe Fix-All and VS Code bridge teach vNext primitive syntax as the primary developer experience. |
+| `RMT-VNEXT-PRIM-08` | P1 | completed | Migration and Legacy Backgrounding | Existing App Platform JSON fixtures can be converted or mirrored to vNext through preview/apply plan; legacy remains target, not workflow. |
 
-## Akzeptanzkriterien
+## Acceptance Criteria
 
-- App-Autoren koennen eine granulare App Shell nur in RMT vNext deklarieren.
-- Der Compiler erzeugt App-Platform-Primitive-Reports aus vNext-Source.
-- RMT Legacy oder JSON-Primitive-Dateien sind fuer normales Authoring nicht
-  erforderlich.
-- Kernel-, Fabric- und UI-Evidence lassen sich ueber Primitive ID und Source
-  Pointer korrelieren.
-- Fabric-Lane-/Fiber-Evidence wird aus vNext-Source-Maps,
-  `kernelRecords.schedules`, `kernelRecords.fibers`, Fabric Runtime Telemetry
-  und Browser-Markern rekonstruiert.
-- Das Source-to-Sea-Gate ist Teil der RMT-Release-Gate-Matrix.
-- Das Primitive-Aggregat laeuft in GitHub Actions und im lokalen Release-
-  Report als eigenstaendiges Gate.
-- Docs und Language Tooling praesentieren vNext als Default-Pfad und Legacy als
-  Kompatibilitaetsziel.
+- App authors can declare a granular app shell only in RMT vNext.
+- The compiler creates App Platform primitive reports from vNext source.
+- RMT Legacy or JSON primitive files are not required for normal authoring.
+- Kernel, Fabric and UI evidence can be correlated through primitive ID and source pointer.
+- Fabric lane/fiber evidence is reconstructed from vNext source maps, `kernelRecords.schedules`, `kernelRecords.fibers`, Fabric runtime telemetry and browser markers.
+- The source-to-sea gate is part of the RMT release gate matrix.
+- The primitive aggregate runs in GitHub Actions and in the local release report as an independent gate.
+- Docs and language tooling present vNext as the default path and legacy as compatibility target.
 
-## Gestartete Arbeit
+## Started Work
 
-- `RMT-VNEXT-PRIM-01` ist abgeschlossen.
-- Syntax-Contract: [RMT vNext Primitive Grammar Design](./rmt-vnext-primitive-grammar-design.md)
-- Design-Fixture: `tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt`
-- `RMT-VNEXT-PRIM-02` ist abgeschlossen.
-- Parser-/AST-Handoff: [RMT vNext Primitive Parser AST](./rmt-vnext-primitive-parser-ast.md)
-- `RMT-VNEXT-PRIM-03` ist abgeschlossen.
-- Semantic-Graph-Handoff: [RMT vNext Primitive Semantic Graph](./rmt-vnext-primitive-semantic-graph.md)
-- Neue API: `buildRmtVNextPrimitiveSemanticGraph(...)` in
-  `tools/rmt-language/semantic-graph.js`
-- `RMT-VNEXT-PRIM-04` ist abgeschlossen.
-- Lowering-Handoff: [RMT vNext Primitive Lowering](./rmt-vnext-primitive-lowering.md)
-- Compiler-API: `compileRmtVNextSource(...)` nutzt den PRIM-03 Graph als
-  Pre-Lowering-Gate und erzeugt `appPlatform` sowie `kernelRecords`.
-- `RMT-VNEXT-PRIM-05` ist abgeschlossen.
-- Fabric-Bridge-Handoff: [RMT vNext Fabric Bridge Evidence](./rmt-vnext-fabric-bridge-evidence.md)
-- Fabric-Bridge-Evidence:
-  `createRmtVNextFabricBridgeEvidence(...)` erzeugt aus PRIM-04
-  Kernel-Schedules und Fibers eine echte `xtend.fabric.fiber.v1`, loest sie
-  ueber `xtend.fabric.rmt-lane-mapping.v1` auf und korreliert sie mit einem
-  `xtend.fabric.telemetry-snapshot.v1`.
-- Browser-Marker:
-  `tests/browser/fixtures/rmt-vnext-source-to-sea-smoke.html` traegt
-  `data-xtend-fabric-lane`, `data-xtend-fabric-fiber` und
-  `data-xtend-fabric-schedule`, damit die Fabric-Bruecke bis in den Viewport
-  sichtbar bleibt.
-- Lane-Matrix:
-  `RMT_VNEXT_FABRIC_BRIDGE_LANE_MATRIX` haertet die Bridge fuer
-  `user-blocking`, `transition`, `idle`, `background` und `diagnostics`.
-  Jede Lane erzeugt eine abgeschlossene `xtend.fabric.fiber.v1`, eine
-  `xtend.fabric.rmt-lane-mapping.v1`-Entscheidung und einen
-  `xtend.fabric.telemetry-snapshot.v1`-Schedule-Eintrag.
-- Host-/Adapter-Telemetrie:
-  Die Source-to-Sea-Bridge liest `xtend.component.lifecycle-telemetry.v1` aus
-  der Browser-Probe, normalisiert sie ueber `fabric.recordComponentTelemetry(...)`
-  und weist sie im Fabric-Telemetry-Snapshot nach. Damit ist die XTend UI Host-
-  Adapter-Ebene nicht mehr nur statischer DOM-Marker, sondern Teil der
-  PRIM-05-Evidence.
-- Route-/Component-Fiber:
-  Die Bridge nutzt nun `createComponentFiberInstrumentation(...)` fuer
-  `component.mount` und `component.hydrate` sowie
-  `createRouteFiberInstrumentation(...)` fuer `route.navigate` und
-  `route.render`. Die Evidence prueft die Schedule Refs
-  `component.visible.mount`, `component.idle.hydrate`,
-  `ui.user-blocking.input` und `route.transition.render` bis in den Fabric-
-  Telemetry-Snapshot.
-- Standalone Gate:
-  `tests/rmt-language/rmt_vnext_fabric_bridge_suite.js` validiert PRIM-05 als
-  eigenes Release-Gate. `npm run test:rmt-vnext-primitives:report` enthaelt
-  jetzt `rmt-vnext-fabric-bridge` vor dem Source-to-Sea-Gate.
-- `RMT-VNEXT-PRIM-06` hat eine erste release-gated Scheibe.
-- Source-to-Sea-Handoff: [RMT vNext Source-to-Sea Gate](./rmt-vnext-source-to-sea-gate.md)
-- Evidence-API: `createRmtVNextSourceToSeaEvidence(...)` korreliert vNext-
-  Source-Maps, PRIM-04 Kernel-Records, Fabric-Fiber-Ableitung, UI-Marker und
-  Browser-Fixture-Probe.
-- Browser-Execution-Evidence:
-  `runRmtVNextSourceToSeaBrowserExecution(...)` liest optional per WebDriver
-  den Result-Key `window.__xtendRmtVNextSourceToSeaResult` aus der echten
-  Browser-Fixture und vergleicht Primitive ID, Kernel Schedule, Fabric Fiber,
-  Fabric Schedule, Host-Adapter-Telemetrie und Action Event mit der
-  Source-to-Sea-Evidence. Ohne `RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER` wird
-  dieser Schritt als lokaler Umgebungs-Skip dokumentiert, nicht als
-  Release-Blocker.
-- Evidence-Report:
-  `createRmtVNextSourceToSeaEvidenceReport(...)` und
-  `writeRmtVNextSourceToSeaEvidenceReport(...)` kapseln Lifecycle- und Browser-
-  Execution-Evidence in
-  `xtend.rmt.vnext.source-to-sea-evidence-report.v1`.
-- Release-Artefakt:
-  `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json` wird ueber
-  `npm run test:rmt-vnext-source-to-sea:evidence` erzeugt. In GitHub Actions
-  wird der gleiche Report ueber
-  `npm run test:rmt-vnext-source-to-sea:chromedriver` mit Required-Browser-
-  Policy geschrieben und im Job `rmt-vnext-primitive-gates` als
-  `xtend-rmt-vnext-source-to-sea-evidence-node-26` hochgeladen.
-- ChromeDriver-Auto-Cleanup:
-  `runWebDriverBrowserProbe(...)` beendet automatisch gestartete ChromeDriver
-  nun zuerst ueber `/shutdown` und nutzt Prozess-Signale nur als Fallback. Das
-  behebt Snap/AppArmor-Umgebungen, in denen ein direkter `kill()` mit `EACCES`
-  fehlschlaegt und zuvor ein erfolgreiches Browser-Result ueberschrieben hat.
-  Der lokale Required-Browser-Lauf
-  `npm run test:rmt-vnext-source-to-sea:chromedriver` ist jetzt `passed`.
-- Object-Matrix:
-  `createRmtVNextSourceToSeaObjectMatrix(...)` erzeugt
-  `xtend.rmt.vnext.source-to-sea-object-matrix.v1` und beweist vier sichtbare
-  Primitive-Lifecycles: `demo.feedback.status`, `demo.feedback.toast`,
-  `demo.feedback.detail` und `demo.feedback.audit`. Die Matrix prueft
-  getrennte `visible`-/`idle`-/`transition`-Lanes und das Cross-Primitive-
-  Event `demo.feedback.status -> demo.feedback.toast`.
-- Cross-Route-Event-Matrix:
-  Dieselbe Matrix beweist jetzt ein zweites, route-gebundenes
-  Cross-Primitive-Event. `demo.feedback.detail.ack -> demo.feedback.audit`
-  reduziert `state.demo.feedback.audit.text`, emittiert
-  `demo.feedback.audit.escalated` und muss als `stage: "route-target"` mit
-  `sourceLane: "transition"` und `targetLane: "transition"` sowohl statisch als
-  auch im echten Browser-Result sichtbar sein.
-- Route-Switch-Matrix:
-  Dieselbe Object-Matrix validiert nun zwei sequenzielle Browser-Route-Wechsel:
-  `/rmt-vnext-source-to-sea -> /rmt-vnext-source-to-sea/toast` fuer
-  `demo.feedback.detail` und
-  `/rmt-vnext-source-to-sea/toast -> /rmt-vnext-source-to-sea/audit` fuer
-  `demo.feedback.audit`. Beide nutzen `ui.user-blocking.input`,
-  `route.transition.render` und die `transition`-Lane. Der echte Browser-
-  Execution-Pfad muss zwei `routeSwitches` mit `status: "passed"`,
-  `targetMounted: true` und `targetVisible: true` liefern.
-- Route-Lifecycle-Matrix:
-  `routeLifecycleCycles` validiert fuer `demo.feedback.detail` und
-  `demo.feedback.audit` getrennte wiederholte Route-Zyklen. Die Targets werden
-  ungemountet, die Resource-Records `demo.feedback.detailTimer` und
-  `demo.feedback.auditTimer` werden gegen `dispose on surface.destroy`
-  validiert, und beide Targets werden danach remountet. Der echte Browser-
-  Execution-Pfad muss `unmounted`, `remounted`, `resourceDisposed` und
-  `countsMatch` als `true` sowie `unmountCount: 1` und `remountCount: 1` pro
-  Target reporten.
-- Multi-Resource-Cleanup:
-  Der Audit-Zyklus traegt jetzt mehrere Cleanup-Records. Neben
-  `demo.feedback.auditTimer` muss auch
-  `demo.feedback.auditSubscription` als `kind subscription`, Owner
-  `surface.demo.feedback.audit` und `dispose on surface.destroy` durch vNext-
-  Lowering, Object-Matrix und Browser-Execution nachweisbar sein. Alte
-  `resourceId`-Zyklen bleiben kompatibel; neue Zyklen koennen `resources`
-  mit mehreren Resource-IDs und erwarteten Kinds angeben.
-- Negative Cleanup-Kind-Fixture:
-  `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-kind-invalid.rmt`
-  beweist, dass Multi-Resource-Cleanup nicht nur Existenz, Owner und Dispose-
-  Policy prueft, sondern auch die erwartete Resource-Art. Die Matrix erzeugt
-  `rmt.vnext.source_to_sea.cleanup_kind_mismatch` fuer
-  `demo.feedback.auditSubscription`, haelt `expectedKind: "subscription"` fest
-  und weist `actualKind: "cache"` aus.
-- Negative Cleanup-Fixture:
-  `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-invalid.rmt`
-  beweist, dass derselbe Lifecycle-Cycle ohne Dispose-Policy nicht als
-  gueltige Evidence akzeptiert wird. Die Matrix erzeugt den Diagnosecode
-  `rmt.vnext.source_to_sea.cleanup_dispose_policy_missing` und haelt die
-  fehlende Policy mit `dispose: null` fest.
-- Negative Cleanup-Owner-Fixture:
-  `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-owner-invalid.rmt`
-  beweist, dass ein Cleanup-Resource-Record mit vorhandener Dispose-Policy
-  trotzdem ungueltig ist, wenn der Owner nicht zum Route-Target passt. Die
-  Matrix erzeugt `rmt.vnext.source_to_sea.cleanup_owner_mismatch` und weist
-  `surface.demo.feedback.toast` als falschen Owner aus.
-- Negative Cleanup-Resource-Fixture:
-  `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-resource-missing.rmt`
-  beweist, dass ein Route-Lifecycle-Cycle ohne emittierten Resource-Record
-  ungueltig ist. `demo.feedback.audit` bleibt als Route-Target authoriert, aber
-  `demo.feedback.auditTimer` fehlt vollstaendig; die Matrix erzeugt
-  `rmt.vnext.source_to_sea.cleanup_resource_missing`, haelt `resource: null`
-  fest und zeigt zugleich, dass der `demo.feedback.detail`-Cycle weiterhin
-  `passed` ist.
-- Positive Source-to-Sea-Fixture:
-  `tests/rmt-language/fixtures/vnext-source-to-sea.rmt`
-- Browser-Smoke-Fixture:
-  `tests/browser/fixtures/rmt-vnext-source-to-sea-smoke.html`
-- `RMT-VNEXT-PRIM-07` hat eine erste release-gated Tooling-Scheibe.
-- Authoring-Tooling-Handoff:
-  [RMT vNext Primitive Authoring Tooling](./rmt-vnext-primitive-authoring-tooling.md)
-- Tooling-API: `getRmtVNextToolingCompletions(...)`,
-  `getRmtVNextToolingHover(...)` und
-  `getRmtVNextToolingDocumentSymbols(...)` indexieren Primitive-Domains aus
-  PRIM-04 und praesentieren vNext als Default-Autorenpfad.
-- Code-Action-Preview:
-  `getRmtVNextToolingCodeActions(...)` liefert fuer jede Primitive-Reparatur
-  eine `xtend.rmt.vnext.primitive-code-action-preview.v1` Preview sowie
-  `source.fixAll.rmt.vnext.primitives` fuer alle sicheren Textedits.
-- Command-Handoff:
-  `workspace/executeCommand` fuer `xtend.rmt.vnext.extractKernelImport`
-  liefert `xtend.rmt.vnext.primitive-command-handoff.v1`, bleibt ohne
-  WorkspaceEdit und benennt den Host-Adapter-Pfad fuer manuelle
-  Kernel-/Fabric-Boundary-Reparaturen.
-- Aktive VS-Code-Bridge:
-  `createActiveDocumentPrimitiveAuthoringExperience(...)` liest das aktive
-  `.rmt`-Dokument, nutzt den lokalen Language Server in-process und baut aus
-  echten LSP-CodeActions die
-  `xtend.rmt.editor.vscode-primitive-authoring-experience.v1`. Sichere
-  WorkspaceEdits laufen ueber `applyPrimitiveAuthoringWorkspaceEdit(...)`;
-  `xtendRmt.rmtVNext.applySafePrimitiveFixAll` wendet nur
-  `source.fixAll.rmt.vnext.primitives` an.
-- `RMT-VNEXT-PRIM-08` ist abgeschlossen.
-- Migration-Handoff:
-  [RMT vNext Primitive Migration](./rmt-vnext-primitive-migration.md)
-- Migration-API:
-  `createAppPlatformPrimitiveMigrationPreview(...)` erzeugt den vNext-Draft
-  aus App-Platform-Primitive-JSON; `createAppPlatformPrimitiveMigrationApplyPlan(...)`
-  kapselt denselben Draft in
-  `xtend.rmt.vnext.primitive-migration-apply-plan.v1`, setzt
-  `automaticWrite: false`, liefert den Zielpfad-Hinweis und blockiert bei
-  Parse-/Compile-Fehlern.
-- VS-Code-Bridge-Apply-Experience:
-  `createPrimitiveAuthoringApplyExperience(...)` erzeugt
-  `xtend.rmt.editor.vscode-primitive-authoring-experience.v1` und die Commands
-  `XTendRMT: Show vNext Primitive Apply Experience`,
-  `XTendRMT: Show vNext Primitive Code Action Preview` und
-  `XTendRMT: Show vNext Primitive Command Handoff` machen Quick-Fix, Fix-All
-  und Handoff im Output Channel unterscheidbar.
-- Neues Snippet: `rmt-vnext-primitive-shell`
-- Positive Fixture: `tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt`
-- Negative Fixture:
-  `tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt`
-- `RMT-VNEXT-PRIM-08` hat eine erste release-gated Migration-Scheibe.
-- Primitive-Migration-Handoff:
-  [RMT vNext Primitive Migration](./rmt-vnext-primitive-migration.md)
-- Migrations-API:
-  `createAppPlatformPrimitiveMigrationPreview(...)` erkennt App-Platform-
-  Primitive-JSON, erzeugt einen kompilierbaren vNext-Draft und markiert Legacy
-  als `compiler-target`.
-- Positive App-Platform-Fixture: `tests/fixtures/rmt-app-platform-tooling.rmt`
-- Compatibility-Diagnosen:
-  `rmt.vnext.primitive_migration.preview_available` fuer report-only Mode und
-  `rmt.vnext.primitive_migration.legacy_backgrounded` fuer den Preview-Pfad.
-- Der vNext-Parser erzeugt initiale Primitive-Nodes fuer die Design-Fixture:
-  `RmtStateDeclaration`, `RmtSelectorDeclaration`,
-  `RmtDataSourceDeclaration`, `RmtActionDeclaration`,
-  `RmtPortalDeclaration`, `RmtOverlayDeclaration`,
-  `RmtResourceDeclaration`, erweiterte `RmtSurfaceDeclaration` und
-  Event-Payload-Nodes.
-- Release-Gates nachgezogen:
-  `.github/workflows/xtend-default-gates.yml`, `package.json`,
-  `scripts/run_xtend_tests.js`, `tools/rmt-language/vnext-release.js`,
-  `tests/references/reference_path_suite.js` und
-  [RMT vNext Release Handoff](./rmt-vnext-release-handoff.md).
+- `RMT-VNEXT-PRIM-01` is complete.
+- Syntax contract: [RMT vNext Primitive Grammar Design](./rmt-vnext-primitive-grammar-design.md)
+- Design fixture: `tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt`
+- `RMT-VNEXT-PRIM-02` is complete.
+- Parser/AST handoff: [RMT vNext Primitive Parser AST](./rmt-vnext-primitive-parser-ast.md)
+- `RMT-VNEXT-PRIM-03` is complete.
+- Semantic graph handoff: [RMT vNext Primitive Semantic Graph](./rmt-vnext-primitive-semantic-graph.md)
+- New API: `buildRmtVNextPrimitiveSemanticGraph(...)` in `tools/rmt-language/semantic-graph.js`
+- `RMT-VNEXT-PRIM-04` is complete.
+- Lowering handoff: [RMT vNext Primitive Lowering](./rmt-vnext-primitive-lowering.md)
+- Compiler API: `compileRmtVNextSource(...)` uses the PRIM-03 graph as pre-lowering gate and creates `appPlatform` plus `kernelRecords`.
+- `RMT-VNEXT-PRIM-05` is complete.
+- Fabric bridge handoff: [RMT vNext Fabric Bridge Evidence](./rmt-vnext-fabric-bridge-evidence.md)
+- Fabric bridge evidence: `createRmtVNextFabricBridgeEvidence(...)` creates a real `xtend.fabric.fiber.v1` from PRIM-04 kernel schedules and fibers, resolves it through `xtend.fabric.rmt-lane-mapping.v1` and correlates it with an `xtend.fabric.telemetry-snapshot.v1`.
+- Browser markers: `tests/browser/fixtures/rmt-vnext-source-to-sea-smoke.html` carries `data-xtend-fabric-lane`, `data-xtend-fabric-fiber` and `data-xtend-fabric-schedule` so the Fabric bridge remains visible into the viewport.
+- Lane matrix: `RMT_VNEXT_FABRIC_BRIDGE_LANE_MATRIX` hardens the bridge for `user-blocking`, `transition`, `idle`, `background` and `diagnostics`. Every lane creates a completed `xtend.fabric.fiber.v1`, an `xtend.fabric.rmt-lane-mapping.v1` decision and an `xtend.fabric.telemetry-snapshot.v1` schedule entry.
+- Host/adapter telemetry: the source-to-sea bridge reads `xtend.component.lifecycle-telemetry.v1` from the browser probe, normalizes it through `fabric.recordComponentTelemetry(...)` and proves it in the Fabric telemetry snapshot. The XTend UI host-adapter layer is therefore no longer only a static DOM marker, but part of PRIM-05 evidence.
+- Route/component fiber: the bridge now uses `createComponentFiberInstrumentation(...)` for `component.mount` and `component.hydrate` plus `createRouteFiberInstrumentation(...)` for `route.navigate` and `route.render`. Evidence checks the schedule refs `component.visible.mount`, `component.idle.hydrate`, `ui.user-blocking.input` and `route.transition.render` all the way into the Fabric telemetry snapshot.
+- Standalone gate: `tests/rmt-language/rmt_vnext_fabric_bridge_suite.js` validates PRIM-05 as its own release gate. `npm run test:rmt-vnext-primitives:report` now includes `rmt-vnext-fabric-bridge` before the source-to-sea gate.
+- `RMT-VNEXT-PRIM-06` has a first release-gated slice.
+- Source-to-sea handoff: [RMT vNext Source-to-Sea Gate](./rmt-vnext-source-to-sea-gate.md)
+- Evidence API: `createRmtVNextSourceToSeaEvidence(...)` correlates vNext source maps, PRIM-04 kernel records, Fabric fiber derivation, UI markers and browser fixture probe.
+- Browser execution evidence: `runRmtVNextSourceToSeaBrowserExecution(...)` optionally reads the result key `window.__xtendRmtVNextSourceToSeaResult` from the real browser fixture through WebDriver and compares primitive ID, kernel schedule, Fabric fiber, Fabric schedule, host-adapter telemetry and action event with source-to-sea evidence. Without `RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER`, this step is documented as a local environment skip, not as a release blocker.
+- Evidence report: `createRmtVNextSourceToSeaEvidenceReport(...)` and `writeRmtVNextSourceToSeaEvidenceReport(...)` wrap lifecycle and browser-execution evidence in `xtend.rmt.vnext.source-to-sea-evidence-report.v1`.
+- Release artifact: `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json` is created through `npm run test:rmt-vnext-source-to-sea:evidence`. In GitHub Actions, the same report is written through `npm run test:rmt-vnext-source-to-sea:chromedriver` with required-browser policy and uploaded in the job `rmt-vnext-primitive-gates` as `xtend-rmt-vnext-source-to-sea-evidence-node-26`.
+- ChromeDriver auto-cleanup: `runWebDriverBrowserProbe(...)` now stops automatically started ChromeDriver first through `/shutdown` and uses process signals only as fallback. This fixes Snap/AppArmor environments where a direct `kill()` fails with `EACCES` and previously overwrote a successful browser result. The local required-browser run `npm run test:rmt-vnext-source-to-sea:chromedriver` is now `passed`.
+- Object matrix: `createRmtVNextSourceToSeaObjectMatrix(...)` creates `xtend.rmt.vnext.source-to-sea-object-matrix.v1` and proves four visible primitive lifecycles: `demo.feedback.status`, `demo.feedback.toast`, `demo.feedback.detail` and `demo.feedback.audit`. The matrix checks separate `visible`/`idle`/`transition` lanes and the cross-primitive event `demo.feedback.status -> demo.feedback.toast`.
+- Cross-route event matrix: the same matrix now proves a second route-bound cross-primitive event. `demo.feedback.detail.ack -> demo.feedback.audit` reduces `state.demo.feedback.audit.text`, emits `demo.feedback.audit.escalated` and must be visible both statically and in the real browser result as `stage: "route-target"` with `sourceLane: "transition"` and `targetLane: "transition"`.
+- Route-switch matrix: the same object matrix now validates two sequential browser route changes: `/rmt-vnext-source-to-sea -> /rmt-vnext-source-to-sea/toast` for `demo.feedback.detail` and `/rmt-vnext-source-to-sea/toast -> /rmt-vnext-source-to-sea/audit` for `demo.feedback.audit`. Both use `ui.user-blocking.input`, `route.transition.render` and the `transition` lane. The real browser-execution path must provide two `routeSwitches` with `status: "passed"`, `targetMounted: true` and `targetVisible: true`.
+- Route-lifecycle matrix: `routeLifecycleCycles` validates separate repeated route cycles for `demo.feedback.detail` and `demo.feedback.audit`. Targets are unmounted, resource records `demo.feedback.detailTimer` and `demo.feedback.auditTimer` are validated against `dispose on surface.destroy`, and both targets are remounted afterward. The real browser-execution path must report `unmounted`, `remounted`, `resourceDisposed` and `countsMatch` as `true`, plus `unmountCount: 1` and `remountCount: 1` per target.
+- Multi-resource cleanup: the audit cycle now carries multiple cleanup records. Beside `demo.feedback.auditTimer`, `demo.feedback.auditSubscription` must be provable as `kind subscription`, owner `surface.demo.feedback.audit` and `dispose on surface.destroy` through vNext lowering, object matrix and browser execution. Old `resourceId` cycles remain compatible; new cycles can specify `resources` with multiple resource IDs and expected kinds.
+- Negative cleanup-kind fixture: `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-kind-invalid.rmt` proves that multi-resource cleanup checks not only existence, owner and dispose policy, but also the expected resource kind. The matrix creates `rmt.vnext.source_to_sea.cleanup_kind_mismatch` for `demo.feedback.auditSubscription`, records `expectedKind: "subscription"` and shows `actualKind: "cache"`.
+- Negative cleanup fixture: `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-invalid.rmt` proves that the same lifecycle cycle without dispose policy is not accepted as valid evidence. The matrix creates diagnostic code `rmt.vnext.source_to_sea.cleanup_dispose_policy_missing` and records the missing policy with `dispose: null`.
+- Negative cleanup owner fixture: `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-owner-invalid.rmt` proves that a cleanup resource record with present dispose policy is still invalid when the owner does not match the route target. The matrix creates `rmt.vnext.source_to_sea.cleanup_owner_mismatch` and shows `surface.demo.feedback.toast` as wrong owner.
+- Negative cleanup resource fixture: `tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-resource-missing.rmt` proves that a route lifecycle cycle without emitted resource record is invalid. `demo.feedback.audit` remains authored as a route target, but `demo.feedback.auditTimer` is completely missing; the matrix creates `rmt.vnext.source_to_sea.cleanup_resource_missing`, records `resource: null` and also shows that the `demo.feedback.detail` cycle remains `passed`.
+- Positive source-to-sea fixture: `tests/rmt-language/fixtures/vnext-source-to-sea.rmt`
+- Browser smoke fixture: `tests/browser/fixtures/rmt-vnext-source-to-sea-smoke.html`
+- `RMT-VNEXT-PRIM-07` has a first release-gated tooling slice.
+- Authoring tooling handoff: [RMT vNext Primitive Authoring Tooling](./rmt-vnext-primitive-authoring-tooling.md)
+- Tooling API: `getRmtVNextToolingCompletions(...)`, `getRmtVNextToolingHover(...)` and `getRmtVNextToolingDocumentSymbols(...)` index primitive domains from PRIM-04 and present vNext as the default authoring path.
+- Code-action preview: `getRmtVNextToolingCodeActions(...)` provides an `xtend.rmt.vnext.primitive-code-action-preview.v1` preview for every primitive repair plus `source.fixAll.rmt.vnext.primitives` for all safe text edits.
+- Command handoff: `workspace/executeCommand` for `xtend.rmt.vnext.extractKernelImport` returns `xtend.rmt.vnext.primitive-command-handoff.v1`, remains without WorkspaceEdit and names the host-adapter path for manual Kernel/Fabric boundary repairs.
+- Active VS Code bridge: `createActiveDocumentPrimitiveAuthoringExperience(...)` reads the active `.rmt` document, uses the local language server in-process and builds `xtend.rmt.editor.vscode-primitive-authoring-experience.v1` from real LSP CodeActions. Safe WorkspaceEdits run through `applyPrimitiveAuthoringWorkspaceEdit(...)`; `xtendRmt.rmtVNext.applySafePrimitiveFixAll` applies only `source.fixAll.rmt.vnext.primitives`.
+- `RMT-VNEXT-PRIM-08` is complete.
+- Migration handoff: [RMT vNext Primitive Migration](./rmt-vnext-primitive-migration.md)
+- Migration API: `createAppPlatformPrimitiveMigrationPreview(...)` creates the vNext draft from App Platform primitive JSON; `createAppPlatformPrimitiveMigrationApplyPlan(...)` wraps the same draft in `xtend.rmt.vnext.primitive-migration-apply-plan.v1`, sets `automaticWrite: false`, provides the target path hint and blocks on parse/compile errors.
+- VS Code bridge apply experience: `createPrimitiveAuthoringApplyExperience(...)` creates `xtend.rmt.editor.vscode-primitive-authoring-experience.v1`, and the commands `XTendRMT: Show vNext Primitive Apply Experience`, `XTendRMT: Show vNext Primitive Code Action Preview` and `XTendRMT: Show vNext Primitive Command Handoff` distinguish quick fix, fix-all and handoff in the Output Channel.
+- New snippet: `rmt-vnext-primitive-shell`
+- Positive fixture: `tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt`
+- Negative fixture: `tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt`
+- `RMT-VNEXT-PRIM-08` has a first release-gated migration slice.
+- Primitive migration handoff: [RMT vNext Primitive Migration](./rmt-vnext-primitive-migration.md)
+- Migration API: `createAppPlatformPrimitiveMigrationPreview(...)` detects App Platform primitive JSON, creates a compilable vNext draft and marks legacy as `compiler-target`.
+- Positive App Platform fixture: `tests/fixtures/rmt-app-platform-tooling.rmt`
+- Compatibility diagnostics: `rmt.vnext.primitive_migration.preview_available` for report-only mode and `rmt.vnext.primitive_migration.legacy_backgrounded` for the preview path.
+- The vNext parser creates initial primitive nodes for the design fixture: `RmtStateDeclaration`, `RmtSelectorDeclaration`, `RmtDataSourceDeclaration`, `RmtActionDeclaration`, `RmtPortalDeclaration`, `RmtOverlayDeclaration`, `RmtResourceDeclaration`, extended `RmtSurfaceDeclaration` and event payload nodes.
+- Release gates updated: `.github/workflows/xtend-default-gates.yml`, `package.json`, `scripts/run_xtend_tests.js`, `tools/rmt-language/vnext-release.js`, `tests/references/reference_path_suite.js` and [RMT vNext Release Handoff](./rmt-vnext-release-handoff.md).
 
-## Naechster Implementierungsschritt
+## Next Implementation Step
 
-`RMT-VNEXT-PRIM-06` ist abgeschlossen. `RMT-VNEXT-PRIM-05` ist als eigenes
-Fabric-Bridge-Paket abgeschlossen: vNext-Source, Kernel-Schedule, Kernel-Fiber,
-Fabric-Mapping, Fabric-Runtime-Fiber, Telemetry-Snapshot, Route-/Component-
-Fiber und Browser-Marker sind ueber dieselbe Primitive ID korreliert. Der
-Browser-Pfad kann lokal optional laufen, ist in CI ueber ChromeDriver
-verpflichtend und deckt mehrere sichtbare UI-Objekte sowie negative
-Runtime-Drifts ab.
+`RMT-VNEXT-PRIM-06` is complete. `RMT-VNEXT-PRIM-05` is complete as its own Fabric bridge package: vNext source, kernel schedule, kernel fiber, Fabric mapping, Fabric runtime fiber, telemetry snapshot, route/component fiber and browser marker are correlated through the same primitive ID. The browser path can run optionally locally, is required in CI through ChromeDriver and covers multiple visible UI objects plus negative runtime drifts.
 
-Der naechste Patch sollte:
+The next patch should:
 
-- Als Release-Handoff die naechste GitHub-Actions-Ausfuehrung gegen
-  `ciArtifactValidation.status: "passed"` abgleichen und das hochgeladene
-  Artefakt mit `npm run test:rmt-vnext-source-to-sea:validate-artifact` als
-  Release-Handoff-Beleg referenzieren.
-- Die Implementierung wieder bei `RMT-VNEXT-PRIM-07` oder
-  `RMT-VNEXT-PRIM-08` aufnehmen.
-- Fuer `RMT-VNEXT-PRIM-07` als naechsten DX-Schritt die VS-Code-Bridge von der
-  Output-Channel-Erfahrung zur produktiven aktiven-Dokument-Integration
-  ausbauen: echte LSP-CodeActions anfordern, Preview-Auswahl anbieten,
-  sichere WorkspaceEdits anwenden und Handoff-Follow-ups sichtbar fuehren.
-  Danach pruefen, ob PRIM-07 auf `completed` gesetzt werden kann.
-- PRIM-05 nur noch erweitern, wenn neue Fabric-Lanes oder produktive Fiber-
-  Instrumentations hinzukommen; die aktuelle Lane/Fiber-Bridge ist gatebar.
-- Danach mindestens `npm run test:rmt-vnext-primitives:report`,
-  `npm run test:rmt-vnext-source-to-sea:chromedriver` in einer Umgebung mit
-  ChromeDriver,
-  `npm run test:rmt-vnext-source-to-sea:validate-artifact`,
-  `node scripts/run_xtend_tests.js rmt-vnext-source-to-sea --json`,
-  `node scripts/run_xtend_tests.js references --json` und vor Release erneut
-  `npm run test:release:full:report` fahren.
+- As release handoff, compare the next GitHub Actions run against `ciArtifactValidation.status: "passed"` and reference the uploaded artifact with `npm run test:rmt-vnext-source-to-sea:validate-artifact` as release-handoff evidence.
+- Resume implementation at `RMT-VNEXT-PRIM-07` or `RMT-VNEXT-PRIM-08`.
+- For `RMT-VNEXT-PRIM-07`, as the next DX step, expand the VS Code bridge from Output Channel experience to production active-document integration: request real LSP CodeActions, offer preview selection, apply safe WorkspaceEdits and keep handoff follow-ups visible. Then check whether PRIM-07 can be set to `completed`.
+- Extend PRIM-05 only when new Fabric lanes or production fiber instrumentations are added; the current lane/fiber bridge is gateable.
+- Then run at least `npm run test:rmt-vnext-primitives:report`, `npm run test:rmt-vnext-source-to-sea:chromedriver` in an environment with ChromeDriver, `npm run test:rmt-vnext-source-to-sea:validate-artifact`, `node scripts/run_xtend_tests.js rmt-vnext-source-to-sea --json`, `node scripts/run_xtend_tests.js references --json` and, before release, `npm run test:release:full:report` again.
 
-## Verwandte Dokumente
+## Related Documents
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT vNext Primitive Grammar Design](./rmt-vnext-primitive-grammar-design.md)

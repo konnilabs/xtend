@@ -1,66 +1,66 @@
 # XTendRMT Parsedown Scheduling Pilot
 
-- Status: aktiver Docs-App-Pilot ab `ER-WP-40`, Shell-first-Refactor aktiv
+- Status: active Docs App pilot since `ER-WP-40`, shell-first refactor active
 - Contract: `xtend.docs.parsedown-rmt-scheduling.v1`
 - Pilot Contract: `xtend.docs.parsedown-rmt-pilot.v1`
 - Production-Hardening Contract: `xtend.epic13.docs-rmt-production-hardening.v1`
-- Pilot-Dokument: `docs/xtendrmt-parsedown-docs.rmt`
-- Aktuelle Runtime: `docs/index.php` + `docs/utils/parsedown.php` + `docs/utils/pageloader.js`
+- Pilot document: `docs/xtendrmt-parsedown-docs.rmt`
+- Current runtime: `docs/index.php` + `docs/utils/parsedown.php` + `docs/utils/pageloader.js`
 
-## Zweck
+## Purpose
 
-Die offizielle XTend Dokumentation ist selbst eine XTend-App. Markdown-Dateien im `docs` Ordner werden serverseitig ueber Parsedown nach HTML gewandelt und clientseitig ueber XRouter als SPA angezeigt. Der Host spiegelt nur noch die initial benoetigte HTML-Seite in `window.xtendDocsPages`; weitere Parsedown-Payloads werden pro Route ueber `window.xtendDocsPageEndpoint` nachgeladen.
+The official XTend documentation is itself an XTend app. Markdown files in the `docs` folder are converted to HTML server-side through Parsedown and displayed client-side as an SPA through XRouter. The host now mirrors only the initially required HTML page into `window.xtendDocsPages`; additional Parsedown payloads are loaded per route through `window.xtendDocsPageEndpoint`.
 
-Der aktuelle Stand ist Shell-first: Die sichtbare Page-Shell wird nicht mehr rein imperativ im PageLoader gebaut, sondern aus `docs.app.shell` im RMT-Pilot-Dokument als `dom_descriptor` gerendert. Parsedown bleibt Host-Adapter und fuellt nur noch den Content-Slot. Damit kann die Docs-App spaeter neben Markdown auch Rich-HTML- oder XPlayer-Tutorial-Inhalte als RMT-geplante Slots nachladen; der maschinenlesbare Content-Kind dafuer ist `xplayerTutorial`. Parsedown und XTend werden dabei nicht in den RMT Kernel eingebettet.
+The current state is shell-first: the visible page shell is no longer built purely imperatively in PageLoader, but rendered as a `dom_descriptor` from `docs.app.shell` in the RMT pilot document. Parsedown remains the host adapter and only fills the content slot. This lets the Docs App later load rich HTML or XPlayer tutorial content alongside Markdown as RMT-planned slots; the machine-readable content kind for this is `xplayerTutorial`. Parsedown and XTend are not embedded into the RMT kernel.
 
-## ER-WP-40 Pilot-Artefakte
+## ER-WP-40 Pilot Artifacts
 
-| Artefakt | Rolle |
-|----------|-------|
-| `docs/xtendrmt-parsedown-docs.rmt` | RMT-Pilot-Dokument fuer Shell-first-Templates, Docs-Routen, Parsedown-Templates, Schedules, Rich-Content-Slots und Host-Adapter |
-| `docs/index.php` | aktiver Parser-Host, setzt `Parsedown::setSafeMode(true)` und spiegelt `window.xtendDocsRmtDocument`, `window.xtendDocsRmtPilot` sowie `window.xtendDocsPagesMeta` |
-| `docs/utils/pageloader.js` | rendert `docs.app.shell` und `docs.header.search` aus RMT-`dom_descriptor`-Templates, markiert Content-Slots mit `data-rmt-template`, `data-rmt-parse-schedule`, `data-rmt-trust-boundary` und `xtend.docs.parsedown-rmt-render.v1` |
-| `tests/rmt/docs_rmt_pilot_suite.js` | Gate fuer RMT-Normalisierung, Runtime-Registry, Trusted-DOM-Boundary und Docs-App-Anschluss |
-| `package.json` | Metadaten unter `xtend.docsRmtPilot` und Script `npm run test:docs-rmt-pilot` |
+| Artifact | Role |
+|----------|------|
+| `docs/xtendrmt-parsedown-docs.rmt` | RMT pilot document for shell-first templates, docs routes, Parsedown templates, schedules, rich-content slots and host adapter |
+| `docs/index.php` | active parser host, sets `Parsedown::setSafeMode(true)` and mirrors `window.xtendDocsRmtDocument`, `window.xtendDocsRmtPilot` and `window.xtendDocsPagesMeta` |
+| `docs/utils/pageloader.js` | renders `docs.app.shell` and `docs.header.search` from RMT `dom_descriptor` templates, marks content slots with `data-rmt-template`, `data-rmt-parse-schedule`, `data-rmt-trust-boundary` and `xtend.docs.parsedown-rmt-render.v1` |
+| `tests/rmt/docs_rmt_pilot_suite.js` | gate for RMT normalization, runtime registry, Trusted DOM boundary and Docs App wiring |
+| `package.json` | metadata under `xtend.docsRmtPilot` and script `npm run test:docs-rmt-pilot` |
 
-Der Pilot ist bewusst host-neutral: `docs/index.php` bleibt Parser-Host, waehrend RMT die Shell, Search-UI, Schedules und zukuenftige Content-Slots beschreibt. Der PageLoader ist dadurch ein Host-Adapter fuer RMT-Descriptoren.
+The pilot is deliberately host-neutral: `docs/index.php` remains the parser host while RMT describes the shell, search UI, schedules and future content slots. PageLoader is therefore a host adapter for RMT descriptors.
 
-Ab `WP-E13-10` besitzt derselbe Pfad zusaetzlich die Production-Hardening-Schicht `xtend.epic13.docs-rmt-production-hardening.v1`. Sie stabilisiert `docs.slot.content`, `docs.slot.rich-content`, `docs.slot.media` und `docs.slot.diagnostics`, sodass Parsedown-HTML, Rich HTML ueber `docs.rich-content.prepare`, XPlayer-Tutorials ueber `docs.media.lazy` und Diagnostics getrennt scheduled werden koennen. Der Gate lautet `node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json`.
+Starting with `WP-E13-10`, the same path also has the production-hardening layer `xtend.epic13.docs-rmt-production-hardening.v1`. It stabilizes `docs.slot.content`, `docs.slot.rich-content`, `docs.slot.media` and `docs.slot.diagnostics` so Parsedown HTML, rich HTML through `docs.rich-content.prepare`, XPlayer tutorials through `docs.media.lazy` and diagnostics can be scheduled separately. The gate is `node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json`.
 
-Ab der Skeleton-Haertung nutzt der Pilot den nativen `xtend.loader.skeleton-loader.v1` und die `xtend.loader.style-registry.v1`: Die Loader-Registry deckt undefinierte XTend Custom Elements mit deklarativen Skeletons oder verstecktem Light DOM ab, XRouter zeigt pro Route einen Skeleton-Fallback waehrend Import und Hydration, und `xtend-doc-page` setzt denselben Loader fuer den Parsedown-Content-Slot ein. Dadurch bleibt die App Shell sichtbar und stabil, waehrend der schwere HTML-Commit erst nach dem ersten Paint erfolgt. `xtend.css` bleibt als Standard-Dateiname fuer Host-Theming optional nutzbar, ist fuer diesen FOUC-Schutz aber keine harte Voraussetzung mehr.
+Since skeleton hardening, the pilot uses the native `xtend.loader.skeleton-loader.v1` and `xtend.loader.style-registry.v1`: the loader registry covers undefined XTend Custom Elements with declarative skeletons or hidden Light DOM, XRouter shows a per-route skeleton fallback during import and hydration, and `xtend-doc-page` uses the same loader for the Parsedown content slot. This keeps the app shell visible and stable while the heavy HTML commit happens only after first paint. `xtend.css` remains usable as the standard file name for host theming, but it is no longer a hard requirement for this FOUC protection.
 
-## Aktueller Docs-App-Fluss
+## Current Docs App Flow
 
-1. `docs/index.php` findet alle `.md` Dateien rekursiv.
-2. `docs/utils/parsedown.php` wandelt nur die initiale oder per Route angefragte Markdown-Datei in HTML.
-3. `window.xtendDocsPagesMeta` enthaelt die SEO-, Schedule- und RMT-Metadaten nach Slug; `window.xtendDocsPages` enthaelt nur vorhandene HTML-Payloads.
-4. `<x-router mode="hash" skeleton="article">` routet auf `xtend-doc-page`, lazy-laedt dessen Modul und hydriert den Route-Subtree ueber den Loader.
-5. `docs/utils/pageloader.js` liest `window.xtendDocsRmtDocument` und rendert `docs.app.shell` Shell-first.
-6. Der `data-rmt-slot="content"` Slot zeigt einen nativen SkeletonLoader, bis Parsedown-HTML nach dem ersten Paint sanitisiert und eingesetzt wurde.
-7. `docs.header.search` liefert die Header-Suche als RMT-Descriptor fuer den `search` Slot von `x-header`.
-8. `docs/menu.json` definiert die sichtbare Navigationshierarchie; `pageloader.js` gruppiert und priorisiert sie fuer die Drawer-Navigation.
+1. `docs/index.php` finds all `.md` files recursively.
+2. `docs/utils/parsedown.php` converts only the initial or route-requested Markdown file to HTML.
+3. `window.xtendDocsPagesMeta` contains SEO, schedule and RMT metadata by slug; `window.xtendDocsPages` contains only existing HTML payloads.
+4. `<x-router mode="hash" skeleton="article">` routes to `xtend-doc-page`, lazy-loads its module and hydrates the route subtree through the loader.
+5. `docs/utils/pageloader.js` reads `window.xtendDocsRmtDocument` and renders `docs.app.shell` shell-first.
+6. The `data-rmt-slot="content"` slot shows a native SkeletonLoader until Parsedown HTML has been sanitized and inserted after first paint.
+7. `docs.header.search` provides header search as an RMT descriptor for the `search` slot of `x-header`.
+8. `docs/menu.json` defines the visible navigation hierarchy; `pageloader.js` groups and prioritizes it for drawer navigation.
 
-Seit dem Document-Title-Rewrite werden pro Markdown-Datei zusaetzlich RMT Route Records erzeugt und in `window.xtendDocsRmtDocument.routes` gespiegelt. `docs/index.php` extrahiert den ersten H1 als `title`, erzeugt `documentTitle`, `titleTemplate`, `metaDescription` und `metaKeywords` und rendert daraus die sichtbaren `<x-route>` Attribute `title`, `document-title`, `title-template`, `meta-description` und `meta-keywords`. XRouter fuehrt anschliessend das eigentliche Schreiben von `document.title` und der SEO-Metatags aus. Damit bleibt der Use Case RMT-deklarativ, waehrend die Browser-Seiteneffekte im XRouter Adapter liegen.
+Since the document-title rewrite, additional RMT route records are generated for every Markdown file and mirrored into `window.xtendDocsRmtDocument.routes`. `docs/index.php` extracts the first H1 as `title`, creates `documentTitle`, `titleTemplate`, `metaDescription` and `metaKeywords`, and renders the visible `<x-route>` attributes `title`, `document-title`, `title-template`, `meta-description` and `meta-keywords` from them. XRouter then performs the actual writes to `document.title` and the SEO meta tags. This keeps the use case declarative in RMT while browser side effects remain in the XRouter adapter.
 
-Dieser Fluss bleibt ein Host-Fluss. RMT liefert die Shell- und Schedule-Records; DOM-Sinks, Parsedown und konkrete Event-Bindings bleiben im Docs Host Adapter.
+This flow remains a host flow. RMT provides the shell and schedule records; DOM sinks, Parsedown and concrete event bindings remain in the Docs host adapter.
 
-Der Host Adapter normalisiert nach dem Sanitizing zusaetzlich Inline-Code aus Parsedown SafeMode. SafeMode escaped Backtick-Inhalte wie `` `<x-code>` `` in einzelnen Faellen doppelt (`&amp;lt;...&amp;gt;`). `pageloader.js` decodiert solche Entities ausschliesslich innerhalb von `<code>`-Nodes und schreibt sie als `textContent` zurueck. Dadurch bleibt die Trusted-DOM-Boundary intakt, waehrend Komponenten- und API-Namen in der Dokumentation lesbar bleiben.
+After sanitizing, the host adapter also normalizes inline code from Parsedown SafeMode. SafeMode escapes backtick content such as `` `<x-code>` `` twice in some cases (`&amp;lt;...&amp;gt;`). `pageloader.js` decodes these entities only inside `<code>` nodes and writes them back as `textContent`. This keeps the Trusted DOM boundary intact while component and API names remain readable in the documentation.
 
-## Navigationshierarchie
+## Navigation Hierarchy
 
-Die Docs-Navigation nutzt seit dem Hierarchie-Hardening pro Artikel stabile Metadaten:
+Since hierarchy hardening, docs navigation uses stable metadata per article:
 
-- `id`: kanonische Artikel-ID, z.B. `docs.components.xcode`
-- `group`: sichtbarer Navigationsbereich wie `core`, `components`, `rmt` oder `release`
-- `parent`: optionaler Parent-Slug fuer Deep-Dive-Zweige
-- `tier`: Einordnung wie `basic`, `deep-dive`, `component-reference` oder `release-deep-dive`
-- `rank`: PageRank-artiger Sichtbarkeitswert, bei dem hohe Werte zuerst und direkt sichtbar erscheinen
+- `id`: canonical article ID, for example `docs.components.xcode`
+- `group`: visible navigation area such as `core`, `components`, `rmt` or `release`
+- `parent`: optional parent slug for deep-dive branches
+- `tier`: classification such as `basic`, `deep-dive`, `component-reference` or `release-deep-dive`
+- `rank`: PageRank-like visibility value where high values appear first and directly visible
 
-Damit sieht der User zuerst Grundlagen wie Startseite, Manifest, API, Komponentenuebersicht oder XTendRMT Overview. Spezifische Artikel werden kaskadierend unter dem jeweiligen Einstiegspunkt als Deep Dive angeboten.
+This means users first see foundations such as the start page, manifest, API, component overview or XTendRMT overview. Specific articles are offered cascaded under the respective entry point as deep dives.
 
-## RMT-Zielbild
+## RMT Target Shape
 
-Parsedown wird als eigener Host Adapter beschrieben:
+Parsedown is described as its own host adapter:
 
 ```json
 {
@@ -72,7 +72,7 @@ Parsedown wird als eigener Host Adapter beschrieben:
 }
 ```
 
-Die Docs-App bleibt XTend UI:
+The Docs App remains XTend UI:
 
 ```json
 {
@@ -84,7 +84,7 @@ Die Docs-App bleibt XTend UI:
 }
 ```
 
-Die Shell selbst ist ein RMT-Template:
+The shell itself is an RMT template:
 
 ```json
 {
@@ -103,7 +103,7 @@ Die Shell selbst ist ein RMT-Template:
 }
 ```
 
-Parsedown-Arbeit wird als Schedule Policy geplant:
+Parsedown work is planned as a schedule policy:
 
 ```json
 {
@@ -117,15 +117,15 @@ Parsedown-Arbeit wird als Schedule Policy geplant:
 }
 ```
 
-## Pilot-Dokument
+## Pilot Document
 
-Das produktive Pilot-Dokument liegt unter `docs/xtendrmt-parsedown-docs.rmt`. Es enthaelt drei reale Docs-Routen:
+The production pilot document lives at `docs/xtendrmt-parsedown-docs.rmt`. It contains three real docs routes:
 
 - `/readme`
 - `/enterprise-adoption`
 - `/xtendrmt-parsedown-scheduling`
 
-Die gekuerzte Struktur:
+Abbreviated structure:
 
 ```json
 {
@@ -254,41 +254,41 @@ Die gekuerzte Struktur:
 }
 ```
 
-## Verantwortungsgrenzen
+## Responsibility Boundaries
 
-| Verantwortung | Ort |
-|----------------|-----|
-| Markdown lesen | Docs-App oder Docs Host Adapter |
-| Parsedown ausfuehren | `docs.parsedown` Adapter |
-| HTML-Fragmente bereitstellen | Docs-App Host Boundary mit `xtend.security.sanitizing-boundary.v1` |
-| Shell-first-App-Shell rendern | `docs.app.shell` ueber Docs Host Adapter |
-| Header-Suche rendern | `docs.header.search` ueber Docs Host Adapter |
-| Rich HTML und Tutorial-Videos vorbereiten | `docs.rich-content` und `docs.media.lazy` |
-| Routen registrieren | `createRmtXRouterAdapter` |
-| Seite hydrieren | `createRmtXtendComponentAdapter` |
-| Scheduling und Diagnostics spiegeln | `createRmtStateSchedulerDiagnosticsBridge` |
+| Responsibility | Location |
+|----------------|----------|
+| Read Markdown | Docs App or Docs host adapter |
+| Execute Parsedown | `docs.parsedown` adapter |
+| Provide HTML fragments | Docs App host boundary with `xtend.security.sanitizing-boundary.v1` |
+| Render shell-first app shell | `docs.app.shell` through Docs host adapter |
+| Render header search | `docs.header.search` through Docs host adapter |
+| Prepare rich HTML and tutorial videos | `docs.rich-content` and `docs.media.lazy` |
+| Register routes | `createRmtXRouterAdapter` |
+| Hydrate page | `createRmtXtendComponentAdapter` |
+| Mirror scheduling and diagnostics | `createRmtStateSchedulerDiagnosticsBridge` |
 
-Der RMT Kernel bekommt nur Records, Policies und Diagnostics. Er parst kein Markdown, ruft kein PHP auf und sanitized kein HTML. Parsedown-Ausgabe gilt trotz `Parsedown::setSafeMode(true)` als `parsedownHtml` und muss ueber die Trusted-DOM-Policy aus [Trusted DOM und Sanitizing](./trusted-dom-sanitizing.md) laufen.
+The RMT kernel receives only records, policies and diagnostics. It parses no Markdown, calls no PHP and sanitizes no HTML. Parsedown output counts as `parsedownHtml` despite `Parsedown::setSafeMode(true)` and must pass through the Trusted DOM policy from [Trusted DOM and Sanitizing](./trusted-dom-sanitizing.md).
 
-## Umgesetzte Pilot-Schritte
+## Implemented Pilot Steps
 
-| Schritt | Status |
-|---------|--------|
-| Docs-App-Fluss auf Shell-first-RMT-Shell umstellen | `done` |
-| `.rmt` Pilot fuer Docs-Routen und Parsedown-Schedules anlegen | `done` |
-| `docs.parsedown` Adapter als Host-Schicht beschreiben | `done` |
-| `docs.app.shell` als produktive RMT-App-Shell rendern | `done` |
-| `docs.header.search` als RMT-Header-Suchtemplate rendern | `done` |
-| Rich-Content- und `x-player`-Slots als future-ready RMT-Schedules vorbereiten | `done` |
-| `xtend.security.sanitizing-boundary.v1` fuer Parsedown HTML im Host Adapter nachweisen | `done` |
-| `createRmtFormat().normalizeDocument(...)` und `createRuntimeRegistries(...)` fuer Docs-Routes nutzen | `done` |
-| Docs-App mit per-page RMT-Metadaten ausstatten | `done` |
-| Parsedown-Parse-Jobs ueber `xtendrmt.docs.parsedown.parse` schedulbar machen | `done` |
-| Reference- und RMT-Pilot-Gates erweitern | `done` |
+| Step | Status |
+|------|--------|
+| Convert Docs App flow to shell-first RMT shell | `done` |
+| Create `.rmt` pilot for docs routes and Parsedown schedules | `done` |
+| Describe `docs.parsedown` adapter as host layer | `done` |
+| Render `docs.app.shell` as production RMT app shell | `done` |
+| Render `docs.header.search` as RMT header-search template | `done` |
+| Prepare rich-content and `x-player` slots as future-ready RMT schedules | `done` |
+| Prove `xtend.security.sanitizing-boundary.v1` for Parsedown HTML in the host adapter | `done` |
+| Use `createRmtFormat().normalizeDocument(...)` and `createRuntimeRegistries(...)` for docs routes | `done` |
+| Add per-page RMT metadata to the Docs App | `done` |
+| Make Parsedown parse jobs schedulable through `xtendrmt.docs.parsedown.parse` | `done` |
+| Extend reference and RMT pilot gates | `done` |
 
-Noch nicht Teil des Pilots: Produktive XRouter-Routen werden nicht aus dem RMT-Dokument registriert. Das bleibt ein spaeterer Runtime-Ausbau. Ebenfalls noch nicht aktiv: Rich-HTML- und XPlayer-Inhalte werden nur als Slots und Schedules vorbereitet, aber noch nicht mit externen Tutorial-Payloads befuellt.
+Not yet part of the pilot: production XRouter routes are not registered from the RMT document. That remains a later runtime expansion. Also not active yet: rich HTML and XPlayer content are only prepared as slots and schedules, but not filled with external tutorial payloads.
 
-## Mindestgates
+## Minimum Gates
 
 ```bash
 php -l docs/index.php
@@ -298,4 +298,4 @@ node scripts/run_xtend_tests.js browser --json
 node scripts/run_xtend_tests.js rmt-compatibility --json
 ```
 
-Der Pilot ist Shell-first, aber weiterhin framework-agnostisch. Solange kein produktiver `docs.parsedown` Runtime-Adapter die PHP-Seite ersetzt, bleibt `docs/index.php` der aktive Parser-Host.
+The pilot is shell-first, but remains framework-agnostic. Until a production `docs.parsedown` runtime adapter replaces the PHP side, `docs/index.php` remains the active parser host.

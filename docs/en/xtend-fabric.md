@@ -1,6 +1,6 @@
 # XTend-Fabric Runtime
 
-- Status: Runtime Skeleton ab `ER-WP-08`, Lifecycle Boundary ab `ER-WP-09`, Reporter Adapter ab `ER-WP-10`, Runtime Diagnostics Bridge ab `ER-WP-11`, Component Fiber Instrumentierung ab `ER-WP-14`, Route Fiber Instrumentierung ab `ER-WP-15`, Telemetry Snapshots ab `ER-WP-16`, Performance Measurements ab `ER-WP-18`, Performance Regression ab `ER-WP-19`, Hydration Policies ab `ER-WP-20`, Performance Authoring ab `ER-WP-21`
+- Status: runtime skeleton since `ER-WP-08`, lifecycle boundary since `ER-WP-09`, reporter adapter since `ER-WP-10`, runtime diagnostics bridge since `ER-WP-11`, component fiber instrumentation since `ER-WP-14`, route fiber instrumentation since `ER-WP-15`, telemetry snapshots since `ER-WP-16`, performance measurements since `ER-WP-18`, performance regression since `ER-WP-19`, hydration policies since `ER-WP-20`, performance authoring since `ER-WP-21`
 - Contract: `xtend.docs.xtend-fabric.v1`
 - API Contract: `xtend.fabric.api.v1`
 - Lifecycle Boundary Contract: `xtend.fabric.lifecycle-error-boundary.v1`
@@ -12,25 +12,25 @@
 - Performance Measurement Contract: `xtend.performance.measurement.v1`
 - Component Lifecycle Telemetry Contract: `xtend.component.lifecycle-telemetry.v1`
 - Hydration Policy Contract: `xtend.fabric.hydration-policy.v1`
-- Performance Authoring: [Performance fuer Komponentenautoren](./performance.md)
+- Performance Authoring: [Performance for Component Authors](./performance.md)
 - Runtime: `fabric/xtend-fabric.js`
 - Lane Mapping: `docs/xtend-fabric-rmt-lane-mapping.md`
 
-## Zweck
+## Purpose
 
-`XTend-Fabric` ist die lokale Host-Schicht fuer Safety, Diagnostics, Error Boundaries, Reporter und spaetere UI-Scheduler-Anbindung.
+`XTend-Fabric` is the local host layer for safety, diagnostics, error boundaries, reporters and later UI scheduler integration.
 
-Fabric ersetzt weder XTend UI noch XTendRMT. Die Schicht sitzt zwischen Loader/API/Komponenten und App-spezifischem Code. XTendRMT bleibt framework-agnostischer Scheduler und Kernel; Fabric konsumiert nur Adapter-, Bridge- und Diagnostic-Signale.
+Fabric replaces neither XTend UI nor XTendRMT. The layer sits between loader/API/components and app-specific code. XTendRMT remains a framework-agnostic scheduler and kernel; Fabric consumes only adapter, bridge and diagnostic signals.
 
 ## Runtime Entry
 
-Der erste produktive Runtime-Pfad ist:
+The first production runtime path is:
 
 ```html
 <script src="/fabric/xtend-fabric.js"></script>
 ```
 
-Im Browser steht danach die Fassade `window.XTendFabric` bereit. In lokalen Node-Gates kann dasselbe Modul per CommonJS geladen werden.
+In the browser, the facade `window.XTendFabric` is then available. In local Node gates, the same module can be loaded through CommonJS.
 
 ## API
 
@@ -38,32 +38,32 @@ Im Browser steht danach die Fassade `window.XTendFabric` bereit. In lokalen Node
 const fabric = window.XTendFabric.createXtendFabric();
 ```
 
-Die Instanz stellt bereit:
+The instance provides:
 
-| API | Zweck |
-|-----|-------|
-| `createBoundary(scope, options)` | wiederverwendbare Boundary fuer Loader-, Component-, Router-, API- oder RMT-nahe Arbeit |
-| `createComponentLifecycleBoundary(componentRef, options)` | Component-spezifische Boundary fuer Lifecycle-, Hydration- und Event-Handler-Fehler |
-| `wrapComponent(componentClassOrInstance, options)` | vorbereitetes Lifecycle-Wrapping fuer Component-Fehler |
-| `runFiber(fiberInput, callback)` | fuehrt UI-Arbeit als Fiber aus und zeichnet Ergebnis/Fehler lokal auf |
-| `emitDiagnostic(event)` | normalisiert, redigiert und speichert lokale Diagnostics |
-| `registerReporter(reporter)` | registriert opt-in Reporter |
-| `createReporterAdapter(options)` | generische Adapterflaeche fuer Custom- und Enterprise-Reporter |
-| `createConsoleReporter(options)` | lokaler Console Reporter fuer Entwicklung |
-| `createTestReporter(options)` | Memory Reporter fuer Tests und lokale Gates |
-| `createRuntimeDiagnosticsBridge(options)` | verbindet Fabric mit `xstate`, XTend API Compliance und XTendRMT Diagnostics |
-| `createComponentFiberInstrumentation(componentRef, options)` | Mount, Hydration und Preload als Component-Fibers instrumentieren |
-| `createRouteFiberInstrumentation(routerRef, options)` | XRouter Navigation und Route Render als Route-Fibers instrumentieren |
-| `createTelemetrySnapshot(options)` | aggregiert Fibers, Diagnostics, Performance Runtime, Runtime Bridge und Backpressure |
-| `publishTelemetrySnapshot(snapshotOrOptions, options)` | exportiert einen Snapshot als redigierte Diagnostic an opt-in Reporter |
-| `createBackpressureSignal(signal, defaults)` | erzeugt redigierte Backpressure-Hinweise fuer Scheduler-/Host-Schichten |
-| `recordComponentTelemetry(record)` | speichert `xtend.component.lifecycle-telemetry.v1` Records fuer Snapshot-Aggregation |
-| `captureError(error, context)` | wandelt Fehler in `xtend.fabric.diagnostic.v1` um |
-| `connectRmtDiagnostics(source, options)` | konsumiert RMT Adapter-/Bridge-Diagnostics ohne Kernel-Import |
+| API | Purpose |
+|-----|---------|
+| `createBoundary(scope, options)` | reusable boundary for loader, component, router, API or RMT-near work |
+| `createComponentLifecycleBoundary(componentRef, options)` | component-specific boundary for lifecycle, hydration and event-handler errors |
+| `wrapComponent(componentClassOrInstance, options)` | prepared lifecycle wrapping for component errors |
+| `runFiber(fiberInput, callback)` | executes UI work as a fiber and records result/error locally |
+| `emitDiagnostic(event)` | normalizes, redacts and stores local diagnostics |
+| `registerReporter(reporter)` | registers opt-in reporters |
+| `createReporterAdapter(options)` | generic adapter surface for custom and enterprise reporters |
+| `createConsoleReporter(options)` | local console reporter for development |
+| `createTestReporter(options)` | memory reporter for tests and local gates |
+| `createRuntimeDiagnosticsBridge(options)` | connects Fabric with `xstate`, XTend API compliance and XTendRMT diagnostics |
+| `createComponentFiberInstrumentation(componentRef, options)` | instrument mount, hydration and preload as component fibers |
+| `createRouteFiberInstrumentation(routerRef, options)` | instrument XRouter navigation and route render as route fibers |
+| `createTelemetrySnapshot(options)` | aggregates fibers, diagnostics, performance runtime, runtime bridge and backpressure |
+| `publishTelemetrySnapshot(snapshotOrOptions, options)` | exports a snapshot as redacted diagnostic to opt-in reporters |
+| `createBackpressureSignal(signal, defaults)` | creates redacted backpressure hints for scheduler/host layers |
+| `recordComponentTelemetry(record)` | stores `xtend.component.lifecycle-telemetry.v1` records for snapshot aggregation |
+| `captureError(error, context)` | converts errors into `xtend.fabric.diagnostic.v1` |
+| `connectRmtDiagnostics(source, options)` | consumes RMT adapter/bridge diagnostics without kernel import |
 
 ## Contracts
 
-Fabric exportiert diese stabilen Contract IDs:
+Fabric exports these stable contract IDs:
 
 - `xtend.fabric.api.v1`
 - `xtend.fabric.diagnostic.v1`
@@ -81,13 +81,13 @@ Fabric exportiert diese stabilen Contract IDs:
 - `xtend.component.lifecycle-telemetry.v1`
 - `xtend.fabric.hydration-policy.v1`
 
-Das RMT-Lane-Mapping ist als separates Modul unter `fabric/rmt-lane-mapping.js` gefuehrt und traegt `xtend.fabric.rmt-lane-mapping.v1`.
+The RMT lane mapping is maintained as a separate module under `fabric/rmt-lane-mapping.js` and carries `xtend.fabric.rmt-lane-mapping.v1`.
 
 ## Diagnostics
 
-Diagnostics werden lokal gespeichert und als Browser-Event `xtend-fabric-diagnostic` publiziert, sofern eine Browser-Umgebung vorhanden ist.
+Diagnostics are stored locally and published as the browser event `xtend-fabric-diagnostic` when a browser environment exists.
 
-Mindestfelder:
+Minimum fields:
 
 - `schema`
 - `id`
@@ -98,7 +98,7 @@ Mindestfelder:
 - `source`
 - `phase`
 
-Optionale Korrelation:
+Optional correlation:
 
 - `componentRef`
 - `component`
@@ -111,7 +111,7 @@ Optionale Korrelation:
 
 ## Component Lifecycle Error Boundary
 
-Ab `ER-WP-09` besitzt Fabric eine produktive Component Lifecycle Error Boundary. Sie faengt Fehler aus `connectedCallback`, `attributeChangedCallback`, `render`, `hydrate`, `disconnectedCallback` und explizit gewrappten Event Handlern ab.
+Starting with `ER-WP-09`, Fabric has a production component lifecycle error boundary. It catches errors from `connectedCallback`, `attributeChangedCallback`, `render`, `hydrate`, `disconnectedCallback` and explicitly wrapped event handlers.
 
 ```js
 const boundary = fabric.createComponentLifecycleBoundary('x-alert', {
@@ -125,7 +125,7 @@ const safeDismiss = boundary.wrapEventHandler(component.handleDismiss, {
 });
 ```
 
-`wrapComponent` nutzt dieselbe Boundary:
+`wrapComponent` uses the same boundary:
 
 ```js
 const SafeAlert = fabric.wrapComponent(XAlert, {
@@ -134,7 +134,7 @@ const SafeAlert = fabric.wrapComponent(XAlert, {
 });
 ```
 
-Lifecycle-Fehler verwenden den Code `xtend.fabric.component.lifecycle.failed` und tragen mindestens `component`, `componentRef`, `phase`, `fiberId`, `lane`, `severity` und `cause`. Das Mapping ist stabil:
+Lifecycle errors use the code `xtend.fabric.component.lifecycle.failed` and carry at least `component`, `componentRef`, `phase`, `fiberId`, `lane`, `severity` and `cause`. The mapping is stable:
 
 | Phase | Fiber Kind | Lane |
 |-------|------------|------|
@@ -145,11 +145,11 @@ Lifecycle-Fehler verwenden den Code `xtend.fabric.component.lifecycle.failed` un
 | `disconnectedCallback` | `component.disconnect` | `background` |
 | `eventHandler` | `event.handler` | `user-blocking` |
 
-## Reporter
+## Reporters
 
-Der Default ist ein `noop` Reporter. Ohne `registerReporter` gibt es keine externe Uebertragung. Ab `ER-WP-10` gibt es einen expliziten Reporter Adapter Contract fuer Console-, Test- und spaetere Enterprise-Reporter.
+The default is a `noop` reporter. Without `registerReporter`, there is no external transmission. Starting with `ER-WP-10`, there is an explicit reporter adapter contract for console, test and later enterprise reporters.
 
-Reporter muessen mindestens dieses Shape haben:
+Reporters must have at least this shape:
 
 ```js
 {
@@ -166,14 +166,14 @@ Reporter muessen mindestens dieses Shape haben:
 }
 ```
 
-Runtime-Factories:
+Runtime factories:
 
-| Factory | Zweck |
-|---------|-------|
-| `createNoopReporter()` | Default ohne externe Ausgabe |
-| `createReporterAdapter(options)` | Vendor-neutraler Adapter fuer Custom- und Enterprise-Reporter |
-| `createConsoleReporter(options)` | lokale Console-Ausgabe, opt-in |
-| `createTestReporter(options)` | Memory-Reporter fuer Gates, opt-in |
+| Factory | Purpose |
+|---------|---------|
+| `createNoopReporter()` | default without external output |
+| `createReporterAdapter(options)` | vendor-neutral adapter for custom and enterprise reporters |
+| `createConsoleReporter(options)` | local console output, opt-in |
+| `createTestReporter(options)` | memory reporter for gates, opt-in |
 
 ```js
 const testReporter = window.XTendFabric.createTestReporter({
@@ -195,11 +195,11 @@ const enterpriseReporter = window.XTendFabric.createReporterAdapter({
 });
 ```
 
-Reporter erhalten nur redigierte Diagnostics. Sensitive Felder wie `token`, `password`, `cookie`, `authorization`, `header`, `query` oder `form` werden entfernt. DOM Nodes werden nicht serialisiert. `minimumLevel`, `filter(event, context)` und `mapEvent(event, context)` koennen Auslieferung und Zielpayload kontrollieren. `mapEvent` wird nach dem Mapping erneut redigiert. Fehler in Reportern erzeugen lokale Diagnostics mit `xtend.fabric.reporter.failed`.
+Reporters receive only redacted diagnostics. Sensitive fields such as `token`, `password`, `cookie`, `authorization`, `header`, `query` or `form` are removed. DOM nodes are not serialized. `minimumLevel`, `filter(event, context)` and `mapEvent(event, context)` can control delivery and target payload. `mapEvent` is redacted again after mapping. Errors in reporters create local diagnostics with `xtend.fabric.reporter.failed`.
 
 ## Runtime Diagnostics Bridge
 
-Ab `ER-WP-11` verbindet `createRuntimeDiagnosticsBridge(options)` Fabric mit `xstate`, XTend API Compliance und XTendRMT Diagnostics. Die Bridge importiert keinen RMT Kernel. Sie konsumiert Adapterdaten, Bridge-Outputs und Diagnostics-Hubs.
+Starting with `ER-WP-11`, `createRuntimeDiagnosticsBridge(options)` connects Fabric with `xstate`, XTend API compliance and XTendRMT diagnostics. The bridge imports no RMT kernel. It consumes adapter data, bridge outputs and diagnostics hubs.
 
 ```js
 const runtimeBridge = fabric.createRuntimeDiagnosticsBridge({
@@ -212,31 +212,31 @@ runtimeBridge.connectApi();
 const diagnosticsHub = runtimeBridge.createRmtDiagnosticsHub();
 ```
 
-`connectXState` schreibt stabile Mirror-Keys:
+`connectXState` writes stable mirror keys:
 
-| Key | Zweck |
-|-----|-------|
-| `xtend.fabric.bridge.ready` | Bridge-Readiness mit Contract-ID |
-| `xtend.fabric.diagnostics.last` | letzte redigierte Fabric Diagnostic |
-| `xtend.fabric.diagnostics.snapshot` | lokaler Snapshot mit Diagnostic- und Fiber-Zaehlern |
+| Key | Purpose |
+|-----|---------|
+| `xtend.fabric.bridge.ready` | bridge readiness with contract ID |
+| `xtend.fabric.diagnostics.last` | latest redacted Fabric diagnostic |
+| `xtend.fabric.diagnostics.snapshot` | local snapshot with diagnostic and fiber counters |
 
-Stabile Bridge-Diagnostics:
+Stable bridge diagnostics:
 
-| Code | Quelle |
+| Code | Source |
 |------|--------|
-| `xtend.fabric.xstate.connected` | xstate ist angebunden |
-| `xtend.fabric.xstate.changed` | ein externer State-Key wurde geaendert |
-| `xtend.fabric.api.connected` | XTend API Compliance-Metadaten wurden gelesen |
-| `xtend.fabric.rmt.connected` | RMT Diagnostic Source ist angebunden |
-| `xtend.rmt.bridge.adapter.result.degraded` | RMT Adapter Result wurde in Fabric normalisiert |
+| `xtend.fabric.xstate.connected` | xstate is connected |
+| `xtend.fabric.xstate.changed` | an external state key was changed |
+| `xtend.fabric.api.connected` | XTend API compliance metadata was read |
+| `xtend.fabric.rmt.connected` | RMT diagnostic source is connected |
+| `xtend.rmt.bridge.adapter.result.degraded` | RMT adapter result was normalized into Fabric |
 
-`connectRmtDiagnostics` akzeptiert Arrays, `source.diagnostics`, `source.listDiagnostics()`, `source.subscribe(fn)`, DOM Events und das von `createRmtDiagnosticsHub()` erzeugte Hub-Shape. Alle Payloads werden vor State- oder Reporter-Ausgabe redigiert.
+`connectRmtDiagnostics` accepts arrays, `source.diagnostics`, `source.listDiagnostics()`, `source.subscribe(fn)`, DOM events and the hub shape created by `createRmtDiagnosticsHub()`. All payloads are redacted before state or reporter output.
 
-Details stehen im Contract [XTend-Fabric Runtime Diagnostics Bridge](../development/XTend-Fabric-Runtime-Diagnostics-Bridge.md).
+Details are in the contract [XTend-Fabric Runtime Diagnostics Bridge](../development/XTend-Fabric-Runtime-Diagnostics-Bridge.md).
 
 ## Fiber
 
-`runFiber` normalisiert UI-Arbeit in `xtend.fabric.fiber.v1`.
+`runFiber` normalizes UI work into `xtend.fabric.fiber.v1`.
 
 ```js
 fabric.runFiber({
@@ -249,11 +249,11 @@ fabric.runFiber({
 });
 ```
 
-Fabric inferiert die Lane aus dem Fiber-Kind, zum Beispiel `component.hydrate` -> `visible` und `route.navigate` -> `user-blocking`.
+Fabric infers the lane from the fiber kind, for example `component.hydrate` -> `visible` and `route.navigate` -> `user-blocking`.
 
-## Component Fiber Instrumentierung
+## Component Fiber Instrumentation
 
-Ab `ER-WP-14` koennen Hosts und Adapter Component Mount, Hydration und Loader-Preload explizit als Fibers ausfuehren:
+Starting with `ER-WP-14`, hosts and adapters can explicitly execute component mount, hydration and loader preload as fibers:
 
 ```js
 const componentFibers = fabric.createComponentFiberInstrumentation('x-alert', {
@@ -267,7 +267,7 @@ await componentFibers.hydrate((fiber) => element.hydrate(model, { fiber }));
 componentFibers.preload(() => import('/components/xalert.js'));
 ```
 
-Operation Profiles:
+Operation profiles:
 
 | Operation | Fiber Kind | Default Lane | ScheduleRef | Endpoint Hint |
 |-----------|------------|--------------|-------------|---------------|
@@ -275,13 +275,13 @@ Operation Profiles:
 | `hydrate` | `component.hydrate` | `idle` | `component.idle.hydrate` | `xtendrmt.component.hydrate` |
 | `preload` | `loader.module` | `visible` | `component.visible.mount` | `xtendrmt.component.mount` |
 
-Jeder abgeschlossene Lauf erzeugt einen `xtend.fabric.fiber.v1` Record mit `durationMs`, `result`, `lane`, `scheduleRef`, `endpointNameHint` und `diagnostics`. Fehler erzeugen `xtend.fabric.component.mount.failed`, `xtend.fabric.component.hydrate.failed` oder `xtend.fabric.component.preload.failed` und werden an opt-in Reporter weitergereicht. Metadata wird redigiert, bevor sie im Fiber Store landet.
+Every completed run creates an `xtend.fabric.fiber.v1` record with `durationMs`, `result`, `lane`, `scheduleRef`, `endpointNameHint` and `diagnostics`. Errors create `xtend.fabric.component.mount.failed`, `xtend.fabric.component.hydrate.failed` or `xtend.fabric.component.preload.failed` and are forwarded to opt-in reporters. Metadata is redacted before it lands in the fiber store.
 
-Fabric importiert dabei keinen RMT Kernel. `scheduleRef` und `endpointNameHint` sind nur Host-/Adapter-Hinweise fuer XTendRMT oder andere Scheduler.
+Fabric imports no RMT kernel here. `scheduleRef` and `endpointNameHint` are only host/adapter hints for XTendRMT or other schedulers.
 
-## Route Fiber Instrumentierung
+## Route Fiber Instrumentation
 
-Ab `ER-WP-15` koennen Hosts, App-Shells und XRouter-Adapter Navigation und Route Render explizit als Fibers ausfuehren:
+Starting with `ER-WP-15`, hosts, app shells and XRouter adapters can explicitly execute navigation and route render as fibers:
 
 ```js
 const routeFibers = fabric.createRouteFiberInstrumentation('xtend.xrouter', {
@@ -302,20 +302,20 @@ await routeFibers.render((fiber) => router._renderRoute(match, outlet, { fiber }
 });
 ```
 
-Operation Profiles:
+Operation profiles:
 
 | Operation | Fiber Kind | Default Lane | ScheduleRef | Endpoint Hint |
 |-----------|------------|--------------|-------------|---------------|
 | `navigate` | `route.navigate` | `user-blocking` | `ui.user-blocking.input` | `xtendrmt.ui.user-blocking` |
 | `render` | `route.render` | `transition` | `route.transition.render` | `xtendrmt.route.render` |
 
-Route Render kann per Override sichtbar geplant werden, zum Beispiel mit `lane: "visible"` und `scheduleRef: "route.visible.render"`. Fehler erzeugen `xtend.fabric.route.navigate.failed` oder `xtend.fabric.route.render.failed`. Metadata wird redigiert und kann `routeId`, `from`, `to`, `params`, `query`, `componentRef`, `adapterRef`, `hostRef` und `backpressureSignal` tragen.
+Route render can be scheduled visibly through overrides, for example with `lane: "visible"` and `scheduleRef: "route.visible.render"`. Errors create `xtend.fabric.route.navigate.failed` or `xtend.fabric.route.render.failed`. Metadata is redacted and can carry `routeId`, `from`, `to`, `params`, `query`, `componentRef`, `adapterRef`, `hostRef` and `backpressureSignal`.
 
-Die XRouter-Kante bleibt framework-neutral: `navigate(to, options)`, `_handleNavigation()`, `_renderRoute(match, container)` und das `router-navigate` Signal sind instrumentierbare Grenzen. Fabric importiert keinen RMT Kernel; `scheduleRef` und `endpointNameHint` sind nur Scheduler-Hints fuer XTendRMT oder andere Hosts.
+The XRouter edge remains framework-neutral: `navigate(to, options)`, `_handleNavigation()`, `_renderRoute(match, container)` and the `router-navigate` signal are instrumentable boundaries. Fabric imports no RMT kernel; `scheduleRef` and `endpointNameHint` are only scheduler hints for XTendRMT or other hosts.
 
-## Telemetry Snapshots und Backpressure
+## Telemetry Snapshots and Backpressure
 
-Ab `ER-WP-16` fasst `createTelemetrySnapshot(options)` lokale Runtime-Daten zusammen:
+Starting with `ER-WP-16`, `createTelemetrySnapshot(options)` summarizes local runtime data:
 
 ```js
 const snapshot = fabric.createTelemetrySnapshot({
@@ -328,24 +328,24 @@ const snapshot = fabric.createTelemetrySnapshot({
 fabric.publishTelemetrySnapshot(snapshot);
 ```
 
-Ein Snapshot traegt `xtend.fabric.telemetry-snapshot.v1` und enthaelt:
+A snapshot carries `xtend.fabric.telemetry-snapshot.v1` and contains:
 
-| Bereich | Inhalt |
-|---------|--------|
-| `totals` | Fiber-Zaehler, Fehler, Budget-Misses, Durchschnitts- und Maximaldauer |
-| `lanes` | Aggregation pro Fabric-Lane inklusive `scheduleRefs` |
-| `backpressure` | Score, Level, Aktion, Signale und Lane-Gruppierung |
-| `componentTelemetry` | Component Lifecycle Records nach Operation, Component und Lane |
-| `performance` | optionale `mark`/`measure` Eintraege, normalisierte Measurements und `phaseSummary` |
-| `runtime` | optionaler Snapshot aus `createRuntimeDiagnosticsBridge` |
+| Area | Content |
+|------|---------|
+| `totals` | fiber counters, errors, budget misses, average and maximum duration |
+| `lanes` | aggregation per Fabric lane including `scheduleRefs` |
+| `backpressure` | score, level, action, signals and lane grouping |
+| `componentTelemetry` | component lifecycle records by operation, component and lane |
+| `performance` | optional `mark`/`measure` entries, normalized measurements and `phaseSummary` |
+| `runtime` | optional snapshot from `createRuntimeDiagnosticsBridge` |
 
-Component Lifecycle Telemetry traegt `xtend.component.lifecycle-telemetry.v1`. `recordComponentTelemetry(record)` speichert Records lokal; `createTelemetrySnapshot({ componentTelemetry })` kann alternativ explizite Records normalisieren. Beide Pfade decken `mount`, `hydrate`, `render`, `update`, `event`, `unmount` und `error` ab. Die Snapshot-Sektion `componentTelemetry` enthaelt `recordCount`, `operations`, `components`, `lanes`, `statusCounts`, Dauerwerte, Diagnostics und die letzten Records.
+Component lifecycle telemetry carries `xtend.component.lifecycle-telemetry.v1`. `recordComponentTelemetry(record)` stores records locally; `createTelemetrySnapshot({ componentTelemetry })` can alternatively normalize explicit records. Both paths cover `mount`, `hydrate`, `render`, `update`, `event`, `unmount` and `error`. The snapshot section `componentTelemetry` contains `recordCount`, `operations`, `components`, `lanes`, `statusCounts`, durations, diagnostics and the latest records.
 
-Backpressure-Signale tragen `xtend.fabric.backpressure-signal.v1`. Fabric erzeugt sie aus Fiber-Fehlern, Deadline-Ueberschreitungen, expliziter `backpressureSignal` Metadata, Component Lifecycle Telemetry und optionalen Snapshot-Inputs.
+Backpressure signals carry `xtend.fabric.backpressure-signal.v1`. Fabric creates them from fiber errors, deadline overruns, explicit `backpressureSignal` metadata, component lifecycle telemetry and optional snapshot inputs.
 
-Wenn `createTelemetrySnapshot({ rmtBridge })` eine XTendRMT `createRmtStateSchedulerDiagnosticsBridge` erhaelt, wird der Snapshot automatisch ueber `recordTelemetrySnapshot` an RMT gespiegelt. Dadurch landen `snapshot.backpressure` und die Scheduler-Aktion dauerhaft in `rmt.backpressure.*`, ohne dass Hosts eine eigene Backpressure-API bauen muessen.
+When `createTelemetrySnapshot({ rmtBridge })` receives an XTendRMT `createRmtStateSchedulerDiagnosticsBridge`, the snapshot is automatically mirrored to RMT through `recordTelemetrySnapshot`. This lands `snapshot.backpressure` and the scheduler action permanently in `rmt.backpressure.*`, without hosts having to build their own backpressure API.
 
-| Level | Aktion |
+| Level | Action |
 |-------|--------|
 | `none` | `continue` |
 | `low` | `observe` |
@@ -353,11 +353,11 @@ Wenn `createTelemetrySnapshot({ rmtBridge })` eine XTendRMT `createRmtStateSched
 | `high` | `defer-background-work` |
 | `critical` | `protect-user-blocking-work` |
 
-`publishTelemetrySnapshot` erzeugt die lokale Diagnostic `xtend.fabric.telemetry.snapshot` auf der `diagnostics` Lane. Reporter bleiben opt-in; der Default `noop` sendet nichts extern.
+`publishTelemetrySnapshot` creates the local diagnostic `xtend.fabric.telemetry.snapshot` on the `diagnostics` lane. Reporters remain opt-in; the default `noop` sends nothing externally.
 
-Details stehen im Contract [XTend Telemetry Snapshot und Backpressure Contract](../development/XTend-Telemetry-Snapshot-und-Backpressure-Contract.md).
+Details are in the contract [XTend Telemetry Snapshot and Backpressure Contract](../development/XTend-Telemetry-Snapshot-und-Backpressure-Contract.md).
 
-Der Component Lifecycle Anschluss ist in [XTend Component Lifecycle Telemetry Contract](../development/XTend-Component-Lifecycle-Telemetry-Contract.md) beschrieben. Der lokale Gate ist:
+The component lifecycle connection is described in [XTend Component Lifecycle Telemetry Contract](../development/XTend-Component-Lifecycle-Telemetry-Contract.md). The local gate is:
 
 ```bash
 node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry --json
@@ -365,7 +365,7 @@ node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry --json
 
 ## Performance Measurements
 
-Ab `ER-WP-18` misst Fabric bekannte Fiber-Kinds automatisch ueber `performance.mark` und `performance.measure`.
+Starting with `ER-WP-18`, Fabric automatically measures known fiber kinds through `performance.mark` and `performance.measure`.
 
 | Fiber Kind | Measure | Phase |
 |------------|---------|-------|
@@ -379,7 +379,7 @@ Ab `ER-WP-18` misst Fabric bekannte Fiber-Kinds automatisch ueber `performance.m
 | `route.render` | `xtend.route.render` | `route` |
 | `diagnostics.snapshot` | `xtend.diagnostics.snapshot` | `diagnostics` |
 
-`createTelemetrySnapshot()` wandelt Performance Entries mit Prefix `xtend.` in `xtend.performance.measurement.v1` Records um. Die Snapshot-Sektion `performance.phaseSummary` aggregiert unter anderem `load`, `hydrate`, `render` und `route`.
+`createTelemetrySnapshot()` converts performance entries with prefix `xtend.` into `xtend.performance.measurement.v1` records. The snapshot section `performance.phaseSummary` aggregates `load`, `hydrate`, `render` and `route`, among others.
 
 ```js
 const snapshot = fabric.createTelemetrySnapshot({
@@ -390,13 +390,13 @@ console.log(snapshot.performance.measurements);
 console.log(snapshot.performance.phaseSummary.hydrate);
 ```
 
-Details stehen in [Performance Measurements](./performance-measurements.md) und im Contract [XTend Performance Messpunkte und Snapshots](../development/XTend-Performance-Messpunkte-und-Snapshots.md).
+Details are in [Performance Measurements](./performance-measurements.md) and in the contract [XTend Performance Measurement Points and Snapshots](../development/XTend-Performance-Messpunkte-und-Snapshots.md).
 
-Seit `ER-WP-19` wertet [Performance Regression](./performance-regression.md) diese Measurements ueber lokale deterministische Baselines als `xtend.performance.regression-report.v1` aus.
+Since `ER-WP-19`, [Performance Regression](./performance-regression.md) evaluates these measurements against local deterministic baselines as `xtend.performance.regression-report.v1`.
 
 ## Hydration Policies
 
-Ab `ER-WP-20` entscheidet `fabric/hydration-policy.js`, ob Component-Hydration sichtbar, idle oder lazy geplant wird:
+Starting with `ER-WP-20`, `fabric/hydration-policy.js` decides whether component hydration is scheduled visible, idle or lazy:
 
 | Policy | Lane | ScheduleRef |
 |--------|------|-------------|
@@ -404,32 +404,32 @@ Ab `ER-WP-20` entscheidet `fabric/hydration-policy.js`, ob Component-Hydration s
 | `idle` | `idle` | `component.idle.hydrate` |
 | `lazy` | `idle` | `component.lazy.hydrate` |
 
-Nicht sichtbare Hydration darf keine `user-blocking` Lane verwenden. RMT erhaelt nur Schedule-Records; XTend-Ausfuehrung bleibt in Fabric oder Host-Adaptern. Details stehen in [Hydration Policies](./hydration-policies.md).
+Non-visible hydration must not use the `user-blocking` lane. RMT receives only schedule records; XTend execution remains in Fabric or host adapters. Details are in [Hydration Policies](./hydration-policies.md).
 
 ## RMT Boundary
 
-`connectRmtDiagnostics` akzeptiert RMT-nahe Adapter- und Bridge-Outputs, aber importiert keinen RMT Kernel und parst keine `.rmt` Dokumente.
+`connectRmtDiagnostics` accepts RMT-near adapter and bridge outputs, but imports no RMT kernel and parses no `.rmt` documents.
 
-Erlaubt:
+Allowed:
 
-- Adapter Results
-- Bridge Diagnostics
-- Schedule Endpoint Signals
-- Diagnostics Snapshots
+- adapter results
+- bridge diagnostics
+- schedule endpoint signals
+- diagnostics snapshots
 
-Nicht erlaubt:
+Not allowed:
 
-- XTendRMT Kernel importieren
-- RMT Scheduler Policies in Fabric umschreiben
-- XTend als Pflicht-Host in RMT etablieren
+- import the XTendRMT kernel
+- rewrite RMT scheduler policies in Fabric
+- establish XTend as a required host in RMT
 
 ## RMT Lane Mapping
 
-Ab `ER-WP-13` bildet `fabric/rmt-lane-mapping.js` Fabric-Lanes auf RMT Schedule Records ab. Der RMT Kernel bleibt framework-agnostisch: er sieht Schedule Policies und Endpoint-Namen, aber keine XTend-Komponentenlogik.
+Starting with `ER-WP-13`, `fabric/rmt-lane-mapping.js` maps Fabric lanes to RMT schedule records. The RMT kernel remains framework-agnostic: it sees schedule policies and endpoint names, but no XTend component logic.
 
-Kurzform:
+Short form:
 
-| Fabric-Lane | RMT Schedule Lane |
+| Fabric Lane | RMT Schedule Lane |
 |-------------|-------------------|
 | `user-blocking` | `user-blocking` |
 | `a11y` | `user-blocking` |
@@ -439,7 +439,7 @@ Kurzform:
 | `background` | `background` |
 | `diagnostics` | `diagnostics` |
 
-Details, Beispiele und Gates stehen in [XTend-Fabric RMT Lane Mapping](./xtend-fabric-rmt-lane-mapping.md).
+Details, examples and gates are in [XTend-Fabric RMT Lane Mapping](./xtend-fabric-rmt-lane-mapping.md).
 
 ## Gates
 
@@ -471,4 +471,4 @@ node scripts/run_xtend_tests.js references --json
 npm test
 ```
 
-`ER-WP-19` ist abgeschlossen. Loader-, Hydration-, Render- und Route-Messpunkte haengen jetzt in der Performance Runtime, in Fabric Telemetry Snapshots und im lokalen Performance Regression Gate.
+`ER-WP-19` is complete. Loader, hydration, render and route measurement points now hang in the performance runtime, in Fabric telemetry snapshots and in the local performance regression gate.

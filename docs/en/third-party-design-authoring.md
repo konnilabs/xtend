@@ -1,30 +1,30 @@
-# Drittanbieter Design Authoring
+# Third-Party Design Authoring
 
 Docs Contract: `xtend.enterprise.third-party-authoring-guide.v1`
 
 Workpackage: `ECH-WP-11`
 
-Lokaler Gate:
+Local gate:
 
 ```bash
 node scripts/run_xtend_tests.js enterprise-third-party-authoring-guide --json
 npm run test:enterprise-third-party-authoring-guide
 ```
 
-Dieser Guide richtet sich an Teams, die XTend-Komponenten in ein eigenes Corporate Design, White-Label-Produkt oder internes Enterprise Designsystem einbinden wollen. Der Zielpfad ist: XTend bleibt optisch hochwertig und eigenstaendig, aber alle sichtbaren Entscheidungen laufen ueber XTend.css, XTheme, CSS Parts, Slots, Attribute oder Icon Packs. Forks von Komponenten sind kein regulaerer Skinning-Pfad.
+This guide is for teams that want to embed XTend components into their own corporate design, white-label product or internal enterprise design system. The target path is: XTend remains visually polished and distinct, but every visible decision flows through XTend.css, XTheme, CSS parts, slots, attributes or icon packs. Component forks are not a regular skinning path.
 
-## Prinzipien
+## Principles
 
-1. Corporate Tokens zuerst definieren, dann Komponententokens ableiten.
-2. XTend Signature UI als Qualitaetsbasis behalten, aber Markenfarbe, Typografie, Radius, Elevation und Dichte bewusst ersetzen.
-3. Shadow-DOM-Interna nicht selektieren. Skinning passiert ueber CSS Custom Properties und `::part(...)`.
-4. Light, Dark, High Contrast, Forced Colors, Reduced Motion, Comfortable, Compact und Dense sind Pflichtvarianten.
-5. Controls verwenden `x-icon`, Inline-SVG oder tokenisierte CSS-Grafik, nie sichtbare Textzeichen.
-6. Status, Active, Error, Disabled und Focus duerfen nicht nur ueber Farbe kommunizieren.
+1. Define corporate tokens first, then derive component tokens.
+2. Keep XTend Signature UI as the quality baseline, but deliberately replace brand color, typography, radius, elevation and density.
+3. Do not select Shadow DOM internals. Skinning happens through CSS Custom Properties and `::part(...)`.
+4. Light, Dark, High Contrast, Forced Colors, Reduced Motion, Comfortable, Compact and Dense are required variants.
+5. Controls use `x-icon`, inline SVG or tokenized CSS graphics, never visible text characters.
+6. Status, active, error, disabled and focus states must not communicate only through color.
 
 ## XTend.css Override Patterns
 
-Corporate Overrides gehoeren in eine eigene Cascade Layer. Dadurch bleiben Host-Tokens nachvollziehbar, und Produktteams koennen XTend-Updates einspielen, ohne Shadow-DOM-Regeln zu kopieren.
+Corporate overrides belong in their own cascade layer. This keeps host tokens traceable, and product teams can apply XTend updates without copying Shadow DOM rules.
 
 ```css
 @layer xtend-customer {
@@ -94,7 +94,7 @@ Corporate Overrides gehoeren in eine eigene Cascade Layer. Dadurch bleiben Host-
 
 ## XTheme Token Bridge
 
-`x-theme` und `window.XTend.theme` sind der Runtime-Pfad fuer Theme-Wechsel, Density, Reduced Motion und Forced Colors. Ein Corporate Theme sollte dieselben Werte setzen wie XTend.css, damit statische CSS-Overrides und Runtime-Wechsel identisch bleiben.
+`x-theme` and `window.XTend.theme` are the runtime path for theme changes, density, reduced motion and forced colors. A corporate theme should set the same values as XTend.css so static CSS overrides and runtime changes stay identical.
 
 ```js
 window.XTend.theme.registerTheme('acme-enterprise', {
@@ -127,26 +127,26 @@ window.XTend.theme.setTheme('acme-enterprise');
 window.XTend.theme.setDensity('compact');
 ```
 
-Pflichtmodi:
+Required modes:
 
-| Modus | Regel |
-|-------|-------|
-| `light` | Text, Icons, Controls und Focus muessen auf hellen Flaechen lesbar bleiben |
-| `dark` | keine hart gesetzten Light-Flaechen ohne dunklen Text-Fallback |
-| `high-contrast` | aktive und fehlerhafte Zustaende brauchen Form, Border oder Marker |
-| `forced-colors` | Systemfarben wie `Canvas`, `CanvasText`, `Highlight`, `HighlightText`, `ButtonFace`, `ButtonText` verwenden |
+| Mode | Rule |
+|------|------|
+| `light` | text, icons, controls and focus must remain readable on light surfaces |
+| `dark` | no hard-coded light surfaces without dark text fallback |
+| `high-contrast` | active and error states need shape, border or marker |
+| `forced-colors` | use system colors such as `Canvas`, `CanvasText`, `Highlight`, `HighlightText`, `ButtonFace`, `ButtonText` |
 
-Density-Presets:
+Density presets:
 
-| Density | Einsatz |
-|---------|---------|
-| `comfortable` | Default fuer gemischte Enterprise-Shells |
-| `compact` | Toolbars, Datendichte, Workbench-Shells |
-| `dense` | Navigation, Filterleisten, Tabellenumfelder |
+| Density | Use |
+|---------|-----|
+| `comfortable` | default for mixed enterprise shells |
+| `compact` | toolbars, data density, workbench shells |
+| `dense` | navigation, filter bars, table surroundings |
 
 ## CSS Parts
 
-CSS Parts sind Skinning API. Verwende sie fuer Zonen, nicht fuer private Shadow-DOM-Strukturen.
+CSS parts are the skinning API. Use them for zones, not private Shadow DOM structures.
 
 ```css
 @layer xtend-customer {
@@ -175,11 +175,11 @@ CSS Parts sind Skinning API. Verwende sie fuer Zonen, nicht fuer private Shadow-
 }
 ```
 
-Regel: Ein `::part(...)` darf Corporate-Optik setzen, aber keine semantische Bedienbarkeit entfernen. Focus, Disabled, Busy, Active und Error muessen erhalten bleiben.
+Rule: a `::part(...)` may set corporate styling, but must not remove semantic usability. Focus, disabled, busy, active and error states must remain intact.
 
-## Icon Pack Registrierung
+## Icon Pack Registration
 
-Produkticons gehoeren in ein lokales Icon Pack. Remote-CDNs sind kein XTend-Default-Pfad.
+Product icons belong in a local icon pack. Remote CDNs are not an XTend default path.
 
 ```js
 window.XTend.icons.register({
@@ -202,11 +202,11 @@ window.XTend.icons.register({
 });
 ```
 
-Controls brauchen ein echtes Button-Element, einen zugaenglichen Namen und getrennte Parts fuer Control und Icon. Sichtbare Zeichen wie `X`, `+`, `-`, `...` oder Emoji sind als Control-Grafik nicht erlaubt.
+Controls need a real button element, an accessible name and separate parts for control and icon. Visible characters such as `X`, `+`, `-`, `...` or emoji are not allowed as control graphics.
 
 ## Layout Modes
 
-Layoutvarianten sind Public API. Host-Apps sollen Modi deklarativ setzen und per Token feinjustieren.
+Layout variants are public API. Host apps should set modes declaratively and fine-tune them through tokens.
 
 ```html
 <x-header
@@ -222,34 +222,34 @@ Layoutvarianten sind Public API. Host-Apps sollen Modi deklarativ setzen und per
 </x-header>
 ```
 
-`x-header` unterstuetzt `drawer`, `side-panel`, `popover`, `fullscreen` und `inline-main`. Modale Varianten brauchen Escape, Focus Return und bei Focus Trap einen sichtbaren Backdrop. Nicht-modale Varianten duerfen den Hauptinhalt nicht aus dem Lesefluss nehmen.
+`x-header` supports `drawer`, `side-panel`, `popover`, `fullscreen` and `inline-main`. Modal variants need escape, focus return and, when focus trap is used, a visible backdrop. Non-modal variants must not remove main content from reading flow.
 
-Overlay-nahe Komponenten nutzen gemeinsame Skinning-Zonen:
+Overlay-near components use shared skinning zones:
 
-| Komponente | Modi/Variante | Pflichtparts |
-|------------|---------------|--------------|
+| Component | Modes/Variant | Required Parts |
+|-----------|---------------|----------------|
 | `x-drawer` | Drawer/Overlay | `surface`, `backdrop`, `close`, `content` |
 | `x-side-panel` | docked, pinned, overlay, collapsed | `surface`, `backdrop`, `close`, `content` |
 | `x-modal` | modal overlay | `surface`, `backdrop`, `close`, `content` |
 | `x-dialog` | modal dialog | `surface`, `backdrop`, `close`, `content` |
-| `x-popover` | non-modal oder `modal` | `surface`, `backdrop`, `close`, `content` |
+| `x-popover` | non-modal or `modal` | `surface`, `backdrop`, `close`, `content` |
 
-## A11y-Dos and Donts
+## A11y Dos and Donts
 
 | Do | Dont |
 |----|------|
-| sichtbaren `focus-visible` Ring ueber Token erhalten | Fokus durch `outline: none` ohne Ersatz entfernen |
-| `prefers-reduced-motion` bis in Overlay- und Feedback-Komponenten respektieren | Motion nur in Light Mode testen |
-| `forced-colors` mit `Canvas`, `CanvasText`, `Highlight` und `HighlightText` pruefen | Markenfarben in Forced Colors erzwingen |
-| Active, Selected, Error und Disabled nicht nur ueber Farbe darstellen | Status nur durch Rot/Gruen kommunizieren |
-| Long Labels mit `overflow-wrap` und stabiler Control-Hoehe absichern | Text in Buttons, Tabs oder Menues clippen |
-| Icon Controls mit `aria-label`, `part="... control"` und `part="... icon"` authoren | sichtbare Textglyphen als Close/Menu/Disclosure verwenden |
+| keep a visible `focus-visible` ring through tokens | remove focus through `outline: none` without replacement |
+| respect `prefers-reduced-motion` down into overlay and feedback components | test motion only in light mode |
+| test `forced-colors` with `Canvas`, `CanvasText`, `Highlight` and `HighlightText` | force brand colors in Forced Colors |
+| do not represent active, selected, error and disabled only through color | communicate status only through red/green |
+| protect long labels with `overflow-wrap` and stable control height | clip text in buttons, tabs or menus |
+| author icon controls with `aria-label`, `part="... control"` and `part="... icon"` | use visible text glyphs for close/menu/disclosure |
 
-Status- und Routeninformationen muessen in jedem Theme lesbar bleiben und nicht nur ueber Farbe kommunizieren. Nutze Border, Marker, Unterstreichung, Icon, Text oder Form als zweites Signal.
+Status and route information must remain readable in every theme and must not communicate only through color. Use border, marker, underline, icon, text or shape as a second signal.
 
-## Vollstaendiges Fremdtheme-Beispiel
+## Complete Third-Party Theme Example
 
-Dieses Beispiel kombiniert XTend.css, XTheme, CSS Parts, Icon Pack, Header Mode, Density und A11y-Modi. Es ist bewusst nicht blau-generisch: die Palette mischt Tinte, warmes Panel, kuehles Action-Blau, tiefes Gruen und Kupfer-Akzent.
+This example combines XTend.css, XTheme, CSS parts, icon pack, header mode, density and a11y modes. It is deliberately not generic blue: the palette mixes ink, warm panel, cool action blue, deep green and copper accent.
 
 ```html
 <html data-theme="light" data-xtend-density="compact">
@@ -348,30 +348,30 @@ Dieses Beispiel kombiniert XTend.css, XTheme, CSS Parts, Icon Pack, Header Mode,
 </html>
 ```
 
-## P0 Token-/Part-Referenz
+## P0 Token/Part Reference
 
-Jede P0-Komponente muss in diesem Guide eine Token-/Part-Referenz haben. Die Detailtabellen bleiben in den Komponentendokumenten, damit sie neben Attributen, Slots, Events und A11y-Regeln gepflegt werden.
+Every P0 component must have a token/part reference in this guide. The detail tables remain in the component documents so they can be maintained beside attributes, slots, events and a11y rules.
 
-| Komponente | Doku | Alias Prefix | Token-/Part-Tabelle | Pflichtparts |
-|------------|------|--------------|---------------------|--------------|
-| `x-theme` | [xtheme](./components/xtheme.md) | `--xtend-theme-` | `Zentrale XTend-Tokens` / [Design Tokens](./design-tokens.md) | `root` |
-| `x-header` | [xheader](./components/xheader.md) | `--xtend-header-` | `ECH-WP-07 Token-Tabelle und signatureDesign`, `ECH-WP-09 Token-Tabelle und Navigation States` | `root`, `brand`, `trigger`, `trigger-icon`, `menu`, `menu-surface`, `backdrop` |
-| `x-icon` | [xicon](./components/xicon.md) | `--xtend-icon-` | `Styling & Theming`, `ECH-WP-04 Control-Regel` | `root`, `control`, `icon` |
+| Component | Docs | Alias Prefix | Token/Part Table | Required Parts |
+|-----------|------|--------------|------------------|----------------|
+| `x-theme` | [xtheme](./components/xtheme.md) | `--xtend-theme-` | `Central XTend Tokens` / [Design Tokens](./design-tokens.md) | `root` |
+| `x-header` | [xheader](./components/xheader.md) | `--xtend-header-` | `ECH-WP-07 Token Table and signatureDesign`, `ECH-WP-09 Token Table and Navigation States` | `root`, `brand`, `trigger`, `trigger-icon`, `menu`, `menu-surface`, `backdrop` |
+| `x-icon` | [xicon](./components/xicon.md) | `--xtend-icon-` | `Styling & Theming`, `ECH-WP-04 Control Rule` | `root`, `control`, `icon` |
 | `x-button` | [xbutton](./components/xbutton.md) | `--xtend-button-` | `Styling & Theming` | `root`, `control`, `label`, `icon` |
-| `x-menu` | [xmenu](./components/xmenu.md) | `--xtend-menu-` | `ECH-WP-09 Token-Tabelle und Navigation States` | `root`, `nav`, `item`, `disclosure-icon` |
-| `x-drawer` | [xdrawer](./components/xdrawer.md) | `--xtend-drawer-` | `ECH-WP-06 Overlay-Paritaet` | `root`, `surface`, `backdrop`, `close`, `content` |
-| `x-side-panel` | [xsidepanel](./components/xsidepanel.md) | `--xtend-side-panel-` | `ECH-WP-06 Overlay-Paritaet` | `root`, `surface`, `backdrop`, `close`, `content` |
-| `x-modal` | [xmodal](./components/xmodal.md) | `--xtend-modal-` | `ECH-WP-06 Overlay-Paritaet` | `root`, `surface`, `backdrop`, `close`, `content` |
-| `x-dialog` | [xdialog](./components/xdialog.md) | `--xtend-dialog-` | `ECH-WP-06 Overlay-Paritaet` | `root`, `surface`, `backdrop`, `close`, `content` |
-| `x-popover` | [xpopover](./components/xpopover.md) | `--xtend-popover-` | `ECH-WP-06 Overlay-Paritaet` | `root`, `surface`, `backdrop`, `close`, `content` |
+| `x-menu` | [xmenu](./components/xmenu.md) | `--xtend-menu-` | `ECH-WP-09 Token Table and Navigation States` | `root`, `nav`, `item`, `disclosure-icon` |
+| `x-drawer` | [xdrawer](./components/xdrawer.md) | `--xtend-drawer-` | `ECH-WP-06 Overlay Parity` | `root`, `surface`, `backdrop`, `close`, `content` |
+| `x-side-panel` | [xsidepanel](./components/xsidepanel.md) | `--xtend-side-panel-` | `ECH-WP-06 Overlay Parity` | `root`, `surface`, `backdrop`, `close`, `content` |
+| `x-modal` | [xmodal](./components/xmodal.md) | `--xtend-modal-` | `ECH-WP-06 Overlay Parity` | `root`, `surface`, `backdrop`, `close`, `content` |
+| `x-dialog` | [xdialog](./components/xdialog.md) | `--xtend-dialog-` | `ECH-WP-06 Overlay Parity` | `root`, `surface`, `backdrop`, `close`, `content` |
+| `x-popover` | [xpopover](./components/xpopover.md) | `--xtend-popover-` | `ECH-WP-06 Overlay Parity` | `root`, `surface`, `backdrop`, `close`, `content` |
 | `x-toast` | [xtoast](./components/xtoast.md) | `--xtend-toast-` | `Styling & Theming` | `root`, `surface`, `content`, `close`, `icon` |
 
-## Migration von Legacy Token-Namen
+## Migrating Legacy Token Names
 
-Legacy Tokens bleiben als Bridge sichtbar, sollen in neuen Corporate Themes aber auf die normalisierte Alias-Schicht gemappt werden.
+Legacy tokens remain visible as bridges, but new corporate themes should map them to the normalized alias layer.
 
-| Legacy Token | Neuer Alias |
-|--------------|-------------|
+| Legacy Token | New Alias |
+|--------------|-----------|
 | `--xtend-glass-bg` | `--xtend-surface-overlay` |
 | `--xtend-shadow` | `--xtend-elevation-2` |
 | `--xtend-radius` | `--xtend-radius-md` |
@@ -384,11 +384,11 @@ Legacy Tokens bleiben als Bridge sichtbar, sollen in neuen Corporate Themes aber
 | `--drawer-color` | `--xtend-drawer-text` |
 | `--button-text-color` | `--xtend-button-text` |
 
-Migrationsregel: Alte Namen duerfen als Fallback bleiben, aber neue Dokumentation, neue Themes und neue Komponenten muessen die `--xtend-*` Alias-Kette fuehren. Entfernen oder Umbenennen von Public Parts und Tokens braucht Migration Notes.
+Migration rule: old names may remain as fallback, but new documentation, new themes and new components must lead with the `--xtend-*` alias chain. Removing or renaming public parts and tokens requires migration notes.
 
-## Abnahme fuer Corporate Themes
+## Acceptance for Corporate Themes
 
-Vor der Uebergabe an ein Host-Designsystem sollten diese Gates laufen:
+Before handoff to a host design system, these gates should run:
 
 ```bash
 node scripts/run_xtend_tests.js enterprise-third-party-authoring-guide --json
@@ -399,8 +399,8 @@ node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff --json
 node scripts/run_xtend_tests.js component-shell-theme-matrix --json
 ```
 
-Die Abnahme ist erst belastbar, wenn Light, Dark, High Contrast, Forced Colors, Reduced Motion, Comfortable, Compact und Dense im selben Corporate Theme geprueft wurden.
+Acceptance is only robust when Light, Dark, High Contrast, Forced Colors, Reduced Motion, Comfortable, Compact and Dense have been tested in the same corporate theme.
 
 ## Release Handoff
 
-Ab `ECH-WP-12` fuehrt [Enterprise Component Flex Release Handoff](./enterprise-component-flex-release-handoff.md) den Contract `xtend.enterprise.component-flex-release-handoff.v1`. Er verbindet SemVer-Bewertung, Deprecated Aliases, Migration Notes, Release Checklist und Adoption Risiken fuer Corporate Themes. Der lokale Gate `node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff --json` muss vor Release Owner Review gruen sein; Publishing bleibt bis dahin durch `private-until-release-owner-acceptance` blockiert.
+Starting with `ECH-WP-12`, [Enterprise Component Flex Release Handoff](./enterprise-component-flex-release-handoff.md) carries the contract `xtend.enterprise.component-flex-release-handoff.v1`. It connects SemVer assessment, deprecated aliases, migration notes, release checklist and adoption risks for corporate themes. The local gate `node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff --json` must be green before release-owner review; publishing remains blocked by `private-until-release-owner-acceptance` until then.
