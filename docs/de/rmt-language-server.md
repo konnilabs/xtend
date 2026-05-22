@@ -120,6 +120,10 @@ Es registriert:
 - Command `XTendRMT: Debug Language Server`
 - Command `XTendRMT: Debug Active RMT Lint`
 - Command `XTendRMT: Debug Active RMT Build`
+- Command `XTendRMT: Open XTend CLI Terminal`
+- Command `XTendRMT: Run XTend CLI Command...`
+- Command `XTendRMT: Run Agent Repair Report`
+- Command `XTendRMT: Run RMT Build Write`
 - Command `XTendRMT: Open VS Code Tasks Template`
 - Command `XTendRMT: Open VS Code Launch Template`
 - Command `XTendRMT: Show vNext Primitive Apply Experience`
@@ -136,7 +140,11 @@ Der gepackte LanguageClient startet den Server per stdio:
 ```
 
 Terminal-Tasks nutzen die XTend CLI als Orchestrator und pflegen keine eigene
-RMT-Semantik. Die versionierte Vorlage liegt unter:
+RMT-Semantik. Die Extension sucht die CLI im Workspace zuerst unter
+`xtend-builder/scaffold.js`, danach unter `node_modules/.bin/xt` und danach
+unter `node_modules/@ccslabs/xtend-cli/scaffold.js`. Falls ein Projekt anders
+aufgebaut ist, kann `xtendRmt.xtendCli.path` explizit auf ein Executable oder
+eine `scaffold.js` zeigen. Die versionierte Vorlage liegt unter:
 
 ```text
 tools/rmt-editor/vscode/templates/tasks.json

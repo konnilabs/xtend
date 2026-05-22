@@ -2929,6 +2929,10 @@
         "xtendRmt.debugLanguageServer",
         "xtendRmt.debugActiveLint",
         "xtendRmt.debugActiveBuild",
+        "xtendRmt.openCliTerminal",
+        "xtendRmt.runCliCommandPalette",
+        "xtendRmt.runAgentRepairReport",
+        "xtendRmt.runRmtBuildWrite",
         "xtendRmt.openTasksTemplate",
         "xtendRmt.openLaunchTemplate"
       ],

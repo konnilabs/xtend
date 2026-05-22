@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
@@ -11,6 +12,7 @@ const RMT_VSCODE_PRIMITIVE_AUTHORING_WORKPACKAGE = 'RMT-VNEXT-PRIM-07';
 const RMT_VSCODE_DX_WORKPACKAGE = 'RMT-VSCODE-DX-01';
 const DEFAULT_SERVER_RELATIVE_PATH = '../../rmt-language-server/server.js';
 const DEFAULT_XTEND_CLI_RELATIVE_PATH = '../../../xtend-builder/scaffold.js';
+const DEFAULT_XTEND_CLI_ARGS = Object.freeze(['${workspaceFolder}/xtend-builder/scaffold.js']);
 const TASKS_TEMPLATE_RELATIVE_PATH = 'templates/tasks.json';
 const LAUNCH_TEMPLATE_RELATIVE_PATH = 'templates/launch.json';
 const RMT_VNEXT_PRIMITIVE_FIX_ALL_KIND = 'source.fixAll.rmt.vnext.primitives';
@@ -31,6 +33,10 @@ const RMT_VSCODE_DX_COMMANDS = Object.freeze([
   'xtendRmt.debugLanguageServer',
   'xtendRmt.debugActiveLint',
   'xtendRmt.debugActiveBuild',
+  'xtendRmt.openCliTerminal',
+  'xtendRmt.runCliCommandPalette',
+  'xtendRmt.runAgentRepairReport',
+  'xtendRmt.runRmtBuildWrite',
   'xtendRmt.openTasksTemplate',
   'xtendRmt.openLaunchTemplate'
 ]);
@@ -148,9 +154,73 @@ function createXtendCliArgs(commandArgs = []) {
   return ['${workspaceFolder}/xtend-builder/scaffold.js'].concat(commandArgs);
 }
 
+function createXtendCliWorkflowDefinitions(options = {}) {
+  const failOn = options.failOn || 'warning';
+
+  return [
+    {
+      id: 'open-terminal',
+      label: 'XTendRMT: Open XTend CLI Terminal',
+      description: 'Open a terminal at the resolved XTend CLI workspace root.',
+      args: [],
+      requiresFile: false
+    },
+    {
+      id: 'lint-active',
+      label: 'XTendRMT: Lint active RMT',
+      description: 'Run xt rmt lint for the active .rmt file.',
+      args: ['rmt', 'lint', '${file}', '--format', 'problem-matcher', '--fail-on', failOn],
+      requiresFile: true
+    },
+    {
+      id: 'lint-workspace',
+      label: 'XTendRMT: Lint workspace RMT',
+      description: 'Run xt rmt lint for the current workspace.',
+      args: ['rmt', 'lint', '${workspaceFolder}', '--format', 'problem-matcher', '--fail-on', failOn],
+      requiresFile: false
+    },
+    {
+      id: 'agent-repair-report',
+      label: 'XTendRMT: Agent repair report',
+      description: 'Render the AI-agent repair report for the active .rmt file.',
+      args: ['rmt', 'lint', '${file}', '--agent'],
+      requiresFile: true
+    },
+    {
+      id: 'rmt-build-check',
+      label: 'XTendRMT: RMT build check',
+      description: 'Compile the active RMT file in check mode.',
+      args: ['rmt-build', '--source', '${file}', '--check', '--json'],
+      requiresFile: true
+    },
+    {
+      id: 'rmt-build-write',
+      label: 'XTendRMT: RMT build write',
+      description: 'Compile the active RMT file and write generated artifacts.',
+      args: ['rmt-build', '--source', '${file}', '--write', '--json'],
+      requiresFile: true
+    },
+    {
+      id: 'scaffold-verify',
+      label: 'XTendRMT: Scaffold verify',
+      description: 'Run the local XTend scaffold verification plan.',
+      args: ['verify', '--json'],
+      requiresFile: false
+    },
+    {
+      id: 'scaffold-dry-run',
+      label: 'XTendRMT: Scaffold dry-run component',
+      description: 'Render a dry-run component scaffold plan.',
+      args: ['component-files', '--tag', 'x-example', '--profile', 'display', '--feature', 'state', '--json'],
+      requiresFile: false
+    }
+  ];
+}
+
 function createVsCodeTaskDefinitions(options = {}) {
   const failOn = options.failOn || 'warning';
   const presentation = taskPresentation();
+  const workflows = Object.fromEntries(createXtendCliWorkflowDefinitions({ failOn }).map((workflow) => [workflow.id, workflow]));
 
   return {
     schema: RMT_VSCODE_TASKS_SCHEMA,
@@ -163,7 +233,8 @@ function createVsCodeTaskDefinitions(options = {}) {
         type: 'xtendRmt',
         label: 'XTendRMT: Lint active RMT',
         command: 'node',
-        args: createXtendCliArgs(['rmt', 'lint', '${file}', '--format', 'problem-matcher', '--fail-on', failOn]),
+        args: createXtendCliArgs(workflows['lint-active'].args),
+        requiresFile: true,
         problemMatcher: ['$xtend-rmt-lint'],
         group: 'build',
         presentation
@@ -173,7 +244,8 @@ function createVsCodeTaskDefinitions(options = {}) {
         type: 'xtendRmt',
         label: 'XTendRMT: Lint workspace RMT',
         command: 'node',
-        args: createXtendCliArgs(['rmt', 'lint', '${workspaceFolder}', '--format', 'problem-matcher', '--fail-on', failOn]),
+        args: createXtendCliArgs(workflows['lint-workspace'].args),
+        requiresFile: false,
         problemMatcher: ['$xtend-rmt-lint'],
         group: 'build',
         presentation
@@ -183,7 +255,8 @@ function createVsCodeTaskDefinitions(options = {}) {
         type: 'xtendRmt',
         label: 'XTendRMT: Agent repair report',
         command: 'node',
-        args: createXtendCliArgs(['rmt', 'lint', '${file}', '--agent']),
+        args: createXtendCliArgs(workflows['agent-repair-report'].args),
+        requiresFile: true,
         problemMatcher: [],
         group: 'test',
         presentation
@@ -193,7 +266,8 @@ function createVsCodeTaskDefinitions(options = {}) {
         type: 'xtendRmt',
         label: 'XTendRMT: RMT build check',
         command: 'node',
-        args: createXtendCliArgs(['rmt-build', '--source', '${file}', '--check', '--json']),
+        args: createXtendCliArgs(workflows['rmt-build-check'].args),
+        requiresFile: true,
         problemMatcher: [],
         group: 'build',
         presentation
@@ -203,7 +277,8 @@ function createVsCodeTaskDefinitions(options = {}) {
         type: 'xtendRmt',
         label: 'XTendRMT: RMT build write',
         command: 'node',
-        args: createXtendCliArgs(['rmt-build', '--source', '${file}', '--write', '--json']),
+        args: createXtendCliArgs(workflows['rmt-build-write'].args),
+        requiresFile: true,
         problemMatcher: [],
         group: 'build',
         presentation
@@ -213,7 +288,8 @@ function createVsCodeTaskDefinitions(options = {}) {
         type: 'xtendRmt',
         label: 'XTend: Scaffold verify',
         command: 'node',
-        args: createXtendCliArgs(['verify', '--json']),
+        args: createXtendCliArgs(workflows['scaffold-verify'].args),
+        requiresFile: false,
         problemMatcher: [],
         group: 'test',
         presentation
@@ -223,7 +299,8 @@ function createVsCodeTaskDefinitions(options = {}) {
         type: 'xtendRmt',
         label: 'XTend: Scaffold dry-run component',
         command: 'node',
-        args: createXtendCliArgs(['component-files', '--tag', 'x-example', '--profile', 'display', '--feature', 'state', '--json']),
+        args: createXtendCliArgs(workflows['scaffold-dry-run'].args),
+        requiresFile: false,
         problemMatcher: [],
         group: 'test',
         presentation
@@ -438,6 +515,44 @@ function normalizeWorkspaceFolderPath(folder) {
   return folder && folder.uri && folder.uri.fsPath ? folder.uri.fsPath : process.cwd();
 }
 
+function pathExists(filePath, options = {}) {
+  if (!filePath) return false;
+  if (typeof options.fileExists === 'function') {
+    return !!options.fileExists(filePath);
+  }
+  return fs.existsSync(filePath);
+}
+
+function isAbsoluteOrRelativePath(value) {
+  return typeof value === 'string' && (
+    path.isAbsolute(value) ||
+    value.startsWith('./') ||
+    value.startsWith('../') ||
+    value.includes(path.sep)
+  );
+}
+
+function resolveWorkspacePath(value, workspaceFolderPath) {
+  if (!value) return '';
+  const normalized = String(value);
+  return path.isAbsolute(normalized) ? normalized : path.resolve(workspaceFolderPath, normalized);
+}
+
+function shellQuote(value) {
+  const text = String(value || '');
+  if (/^[A-Za-z0-9_./:@%+=,-]+$/.test(text)) {
+    return text;
+  }
+  return `'${text.replace(/'/g, "'\\''")}'`;
+}
+
+function normalizeExecutablePath(filePath) {
+  if (process.platform === 'win32' && filePath && !/\.(cmd|exe|bat)$/i.test(filePath)) {
+    return `${filePath}.cmd`;
+  }
+  return filePath;
+}
+
 function substituteVariables(value, variables = {}) {
   if (Array.isArray(value)) {
     return value.map((entry) => substituteVariables(entry, variables));
@@ -472,33 +587,178 @@ function getConfigurationValue(vscodeApi, key, fallback) {
   return fallback;
 }
 
-function resolveXtendCliInvocation(vscodeApi, context = {}, options = {}) {
+function getWorkspaceContext(vscodeApi, options = {}) {
   const document = activeRmtTextDocument(vscodeApi, options);
   const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
-  const workspaceFolderPath = normalizeWorkspaceFolderPath(workspaceFolder);
+  const workspaceFolderPath = path.resolve(options.workspaceFolderPath || normalizeWorkspaceFolderPath(workspaceFolder));
   const activeFile = normalizeDocumentFilePath(document || {}) || options.file || '';
-  const command = options.command || getConfigurationValue(vscodeApi, 'xtendCli.command', 'node');
-  const configuredArgs = options.args || getConfigurationValue(vscodeApi, 'xtendCli.args', ['${workspaceFolder}/xtend-builder/scaffold.js']);
-  const fallbackCliPath = path.resolve(context.extensionPath || __dirname, DEFAULT_XTEND_CLI_RELATIVE_PATH);
-  const variables = {
-    workspaceFolder: workspaceFolderPath,
-    file: activeFile
-  };
-  const args = substituteVariables(toArray(configuredArgs), variables);
 
-  if (args.length === 0) {
-    args.push(fallbackCliPath);
+  return {
+    document,
+    workspaceFolder,
+    workspaceFolderPath,
+    activeFile,
+    variables: {
+      workspaceFolder: workspaceFolderPath,
+      file: activeFile
+    }
+  };
+}
+
+function isActiveRmtFile(activeFile, document = {}) {
+  if (document && document.languageId === 'rmt') return true;
+  return typeof activeFile === 'string' && activeFile.toLowerCase().endsWith('.rmt');
+}
+
+function createCliCandidate(input = {}, workspace = {}, options = {}) {
+  const command = substituteVariables(input.command || 'node', workspace.variables || {});
+  const args = substituteVariables(toArray(input.args), workspace.variables || {});
+  const executablePath = input.executablePath
+    ? resolveWorkspacePath(substituteVariables(input.executablePath, workspace.variables || {}), workspace.workspaceFolderPath)
+    : null;
+  const nodeProgramPath = input.nodeProgramPath
+    ? resolveWorkspacePath(substituteVariables(input.nodeProgramPath, workspace.variables || {}), workspace.workspaceFolderPath)
+    : (command === 'node' && args[0] && isAbsoluteOrRelativePath(args[0])
+      ? resolveWorkspacePath(args[0], workspace.workspaceFolderPath)
+      : null);
+  const probePath = input.probePath
+    ? resolveWorkspacePath(substituteVariables(input.probePath, workspace.variables || {}), workspace.workspaceFolderPath)
+    : (nodeProgramPath || executablePath);
+  const exists = input.unverified === true ? true : pathExists(probePath, options);
+
+  return {
+    id: input.id,
+    label: input.label,
+    source: input.source,
+    command,
+    args,
+    exists,
+    executablePath,
+    nodeProgramPath,
+    probePath,
+    debugSupported: !!nodeProgramPath && exists
+  };
+}
+
+function createXtendCliCandidates(vscodeApi, context = {}, options = {}) {
+  const workspace = getWorkspaceContext(vscodeApi, options);
+  const configuredPath = substituteVariables(getConfigurationValue(vscodeApi, 'xtendCli.path', options.configuredPath || ''), workspace.variables);
+  const configuredCommand = options.command || getConfigurationValue(vscodeApi, 'xtendCli.command', 'node');
+  const configuredArgs = options.args || getConfigurationValue(vscodeApi, 'xtendCli.args', DEFAULT_XTEND_CLI_ARGS.slice());
+  const defaultConfigured = configuredCommand === 'node' &&
+    JSON.stringify(toArray(configuredArgs)) === JSON.stringify(DEFAULT_XTEND_CLI_ARGS);
+  const workspaceScaffold = path.join(workspace.workspaceFolderPath, 'xtend-builder', 'scaffold.js');
+  const binXt = normalizeExecutablePath(path.join(workspace.workspaceFolderPath, 'node_modules', '.bin', 'xt'));
+  const packageScaffold = path.join(workspace.workspaceFolderPath, 'node_modules', '@ccslabs', 'xtend-cli', 'scaffold.js');
+  const extensionFallback = path.resolve(context.extensionPath || __dirname, DEFAULT_XTEND_CLI_RELATIVE_PATH);
+  const candidates = [];
+
+  if (configuredPath) {
+    const absoluteConfigured = resolveWorkspacePath(configuredPath, workspace.workspaceFolderPath);
+    const configuredIsNodeProgram = absoluteConfigured.endsWith('.js');
+    candidates.push(createCliCandidate({
+      id: 'configured-path',
+      label: 'Configured XTend CLI path',
+      source: 'setting:xtendRmt.xtendCli.path',
+      command: configuredIsNodeProgram ? 'node' : absoluteConfigured,
+      args: configuredIsNodeProgram ? [absoluteConfigured] : [],
+      probePath: absoluteConfigured,
+      nodeProgramPath: configuredIsNodeProgram ? absoluteConfigured : null,
+      executablePath: configuredIsNodeProgram ? null : absoluteConfigured
+    }, workspace, options));
   }
+
+  if (!defaultConfigured) {
+    const configuredNodeProgram = configuredCommand === 'node' && toArray(configuredArgs)[0] && isAbsoluteOrRelativePath(toArray(configuredArgs)[0])
+      ? resolveWorkspacePath(substituteVariables(toArray(configuredArgs)[0], workspace.variables), workspace.workspaceFolderPath)
+      : null;
+    candidates.push(createCliCandidate({
+      id: 'configured-command',
+      label: 'Configured XTend CLI command',
+      source: 'settings:xtendRmt.xtendCli.command,args',
+      command: configuredCommand,
+      args: configuredArgs,
+      probePath: configuredNodeProgram,
+      nodeProgramPath: configuredNodeProgram,
+      unverified: !configuredNodeProgram
+    }, workspace, options));
+  }
+
+  candidates.push(createCliCandidate({
+    id: 'workspace-scaffold',
+    label: 'Workspace xtend-builder scaffold',
+    source: 'workspace',
+    command: 'node',
+    args: [workspaceScaffold],
+    probePath: workspaceScaffold,
+    nodeProgramPath: workspaceScaffold
+  }, workspace, options));
+
+  candidates.push(createCliCandidate({
+    id: 'workspace-bin',
+    label: 'Workspace node_modules/.bin/xt',
+    source: 'workspace-node-modules-bin',
+    command: binXt,
+    args: [],
+    probePath: binXt,
+    executablePath: binXt
+  }, workspace, options));
+
+  candidates.push(createCliCandidate({
+    id: 'scoped-package',
+    label: 'Workspace @ccslabs/xtend-cli scaffold',
+    source: 'workspace-node-modules-package',
+    command: 'node',
+    args: [packageScaffold],
+    probePath: packageScaffold,
+    nodeProgramPath: packageScaffold
+  }, workspace, options));
+
+  candidates.push(createCliCandidate({
+    id: 'extension-fallback',
+    label: 'Extension development fallback scaffold',
+    source: 'extension-development-fallback',
+    command: 'node',
+    args: [extensionFallback],
+    probePath: extensionFallback,
+    nodeProgramPath: extensionFallback
+  }, workspace, options));
+
+  const order = ['workspace-scaffold', 'workspace-bin', 'scoped-package', 'configured-path', 'configured-command', 'extension-fallback'];
+  candidates.sort((left, right) => order.indexOf(left.id) - order.indexOf(right.id));
 
   return {
     schema: RMT_VSCODE_DX_SCHEMA,
     workpackage: RMT_VSCODE_DX_WORKPACKAGE,
-    command,
-    args,
-    workspaceFolder,
-    workspaceFolderPath,
-    activeFile,
-    fallbackCliPath
+    ...workspace,
+    candidates
+  };
+}
+
+function resolveXtendCliInvocation(vscodeApi, context = {}, options = {}) {
+  const resolution = createXtendCliCandidates(vscodeApi, context, options);
+  const selected = resolution.candidates.find((candidate) => {
+    if (!candidate.exists) return false;
+    if (options.requireNodeProgram && !candidate.debugSupported) return false;
+    return true;
+  }) || null;
+
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: selected ? 'resolved' : 'missing',
+    ok: !!selected,
+    command: selected ? selected.command : 'node',
+    args: selected ? selected.args : [],
+    source: selected ? selected.source : null,
+    selected,
+    candidates: resolution.candidates,
+    workspaceFolder: resolution.workspaceFolder,
+    workspaceFolderPath: resolution.workspaceFolderPath,
+    activeFile: resolution.activeFile,
+    document: resolution.document,
+    requiresNodeProgram: !!options.requireNodeProgram,
+    nodeProgramPath: selected ? selected.nodeProgramPath : null
   };
 }
 
@@ -530,6 +790,61 @@ function resolveTaskDefinition(taskId, options = {}) {
   return tasks.find((task) => task.id === taskId || task.label === taskId) || null;
 }
 
+function commandArgsFromTaskDefinition(definition = {}) {
+  const args = toArray(definition.args);
+  return definition.command === 'node' && args[0] === '${workspaceFolder}/xtend-builder/scaffold.js'
+    ? args.slice(1)
+    : args;
+}
+
+function createCliUnavailableResult(cli = {}, options = {}) {
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: 'missing-cli',
+    ok: false,
+    reason: options.reason || 'xtend-cli-not-found',
+    message: 'XTend CLI konnte nicht im Workspace gefunden werden. Installiere @ccslabs/xtend-cli oder setze xtendRmt.xtendCli.path.',
+    candidates: toArray(cli.candidates).map((candidate) => ({
+      id: candidate.id,
+      label: candidate.label,
+      probePath: candidate.probePath,
+      exists: candidate.exists,
+      debugSupported: candidate.debugSupported
+    }))
+  };
+}
+
+function createActiveFileUnavailableResult(options = {}) {
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: 'missing-active-rmt',
+    ok: false,
+    reason: 'active-rmt-file-required',
+    message: 'Dieser XTendRMT Befehl braucht eine aktive .rmt Datei.',
+    taskId: options.taskId || null
+  };
+}
+
+function showDxProblem(vscodeApi, output, result = {}) {
+  const message = result.message || result.reason || 'XTendRMT command failed.';
+
+  if (output && typeof output.appendLine === 'function') {
+    output.appendLine(message);
+    toArray(result.candidates).forEach((candidate) => {
+      output.appendLine(`- ${candidate.exists ? 'found' : 'missing'} ${candidate.id}: ${candidate.probePath || candidate.label}`);
+    });
+    if (typeof output.show === 'function') output.show(true);
+  }
+
+  if (vscodeApi && vscodeApi.window && typeof vscodeApi.window.showErrorMessage === 'function') {
+    vscodeApi.window.showErrorMessage(message);
+  }
+
+  return result;
+}
+
 function toVsCodeTask(vscodeApi, context = {}, definition = {}, options = {}) {
   if (!vscodeApi || !vscodeApi.Task || !vscodeApi.ShellExecution) {
     return {
@@ -541,18 +856,21 @@ function toVsCodeTask(vscodeApi, context = {}, definition = {}, options = {}) {
     };
   }
 
-  const document = activeRmtTextDocument(vscodeApi, options);
-  const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
-  const workspaceFolderPath = normalizeWorkspaceFolderPath(workspaceFolder);
-  const activeFile = normalizeDocumentFilePath(document || {}) || options.file || '';
+  const workspaceContext = getWorkspaceContext(vscodeApi, options);
+  const workspaceFolder = workspaceContext.workspaceFolder;
+  const workspaceFolderPath = workspaceContext.workspaceFolderPath;
+  const activeFile = workspaceContext.activeFile;
   const cli = resolveXtendCliInvocation(vscodeApi, context, options);
+  if (!cli.ok) {
+    return createCliUnavailableResult(cli);
+  }
   const variables = {
     workspaceFolder: workspaceFolderPath,
     file: activeFile
   };
   const usesDefaultXtendCli = definition.command === 'node' && toArray(definition.args)[0] === '${workspaceFolder}/xtend-builder/scaffold.js';
   const command = substituteVariables(usesDefaultXtendCli ? cli.command : (definition.command || cli.command), variables);
-  const rawArgs = usesDefaultXtendCli ? cli.args.concat(toArray(definition.args).slice(1)) : toArray(definition.args);
+  const rawArgs = usesDefaultXtendCli ? cli.args.concat(commandArgsFromTaskDefinition(definition)) : toArray(definition.args);
   const args = substituteVariables(rawArgs, variables);
   const scope = workspaceFolder || vscodeApi.TaskScope.Workspace;
   const task = new vscodeApi.Task(
@@ -573,12 +891,15 @@ function toVsCodeTask(vscodeApi, context = {}, definition = {}, options = {}) {
 function createVsCodeTaskProvider(vscodeApi, context = {}, options = {}) {
   return {
     provideTasks() {
-      return createVsCodeTaskDefinitions(options).tasks.map((definition) => toVsCodeTask(vscodeApi, context, definition, options));
+      return createVsCodeTaskDefinitions(options).tasks
+        .map((definition) => toVsCodeTask(vscodeApi, context, definition, options))
+        .filter((task) => task && task.ok !== false && task.status !== 'dry-run');
     },
     resolveTask(task) {
       const taskId = task && task.definition ? task.definition.task : null;
       const definition = resolveTaskDefinition(taskId, options);
-      return definition ? toVsCodeTask(vscodeApi, context, definition, options) : undefined;
+      const resolved = definition ? toVsCodeTask(vscodeApi, context, definition, options) : undefined;
+      return resolved && resolved.ok !== false && resolved.status !== 'dry-run' ? resolved : undefined;
     }
   };
 }
@@ -599,6 +920,17 @@ function runXtendRmtTask(vscodeApi, context = {}, taskId, options = {}) {
   }
 
   const task = toVsCodeTask(vscodeApi, context, definition, options);
+
+  const activeDocument = activeRmtTextDocument(vscodeApi, options) || {};
+  const activeFile = normalizeDocumentFilePath(activeDocument) || options.file || '';
+  if (vscodeApi && definition.requiresFile && !isActiveRmtFile(activeFile, activeDocument)) {
+    const activeResult = createActiveFileUnavailableResult({ taskId: definition.id });
+    return showDxProblem(vscodeApi, options.output, activeResult);
+  }
+
+  if (task && task.ok === false) {
+    return showDxProblem(vscodeApi, options.output, task);
+  }
 
   if (vscodeApi && vscodeApi.tasks && typeof vscodeApi.tasks.executeTask === 'function') {
     const execution = vscodeApi.tasks.executeTask(task);
@@ -624,6 +956,186 @@ function runXtendRmtTask(vscodeApi, context = {}, taskId, options = {}) {
   };
 }
 
+function createTerminalCommandLine(cli = {}, commandArgs = [], variables = {}) {
+  const args = cli.args.concat(substituteVariables(commandArgs, variables));
+  return [cli.command].concat(args).map(shellQuote).join(' ');
+}
+
+function openXtendCliTerminal(vscodeApi, context = {}, options = {}) {
+  const cli = resolveXtendCliInvocation(vscodeApi, context, options);
+
+  if (!cli.ok) {
+    return showDxProblem(vscodeApi, options.output, createCliUnavailableResult(cli));
+  }
+
+  if (!vscodeApi || !vscodeApi.window || typeof vscodeApi.window.createTerminal !== 'function') {
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'dry-run',
+      ok: true,
+      cli
+    };
+  }
+
+  const terminal = vscodeApi.window.createTerminal({
+    name: options.name || 'XTendRMT CLI',
+    cwd: cli.workspaceFolderPath
+  });
+  if (typeof terminal.show === 'function') terminal.show(true);
+
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: 'opened',
+    ok: true,
+    cli,
+    terminal
+  };
+}
+
+function runXtendCliInTerminal(vscodeApi, context = {}, workflowId, options = {}) {
+  const failOn = options.failOn || getConfigurationValue(vscodeApi, 'tasks.defaultFailOn', 'warning');
+  const workflow = createXtendCliWorkflowDefinitions({ failOn }).find((entry) => entry.id === workflowId);
+
+  if (!workflow) {
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'not-found',
+      ok: false,
+      workflowId
+    };
+  }
+
+  const cli = resolveXtendCliInvocation(vscodeApi, context, options);
+  if (!cli.ok) {
+    return showDxProblem(vscodeApi, options.output, createCliUnavailableResult(cli));
+  }
+
+  if (workflow.requiresFile && !isActiveRmtFile(cli.activeFile, cli.document || {})) {
+    return showDxProblem(vscodeApi, options.output, createActiveFileUnavailableResult({ taskId: workflow.id }));
+  }
+
+  if (!vscodeApi || !vscodeApi.window || typeof vscodeApi.window.createTerminal !== 'function') {
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'dry-run',
+      ok: true,
+      workflowId,
+      commandLine: createTerminalCommandLine(cli, workflow.args, {
+        workspaceFolder: cli.workspaceFolderPath,
+        file: cli.activeFile
+      }),
+      cli
+    };
+  }
+
+  const terminal = vscodeApi.window.createTerminal({
+    name: 'XTendRMT CLI',
+    cwd: cli.workspaceFolderPath
+  });
+  const commandLine = createTerminalCommandLine(cli, workflow.args, {
+    workspaceFolder: cli.workspaceFolderPath,
+    file: cli.activeFile
+  });
+
+  if (typeof terminal.show === 'function') terminal.show(true);
+  if (typeof terminal.sendText === 'function') terminal.sendText(commandLine);
+
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: 'started',
+    ok: true,
+    workflowId,
+    commandLine,
+    cli,
+    terminal
+  };
+}
+
+async function showXtendCliCommandPalette(vscodeApi, context = {}, options = {}) {
+  const failOn = options.failOn || getConfigurationValue(vscodeApi, 'tasks.defaultFailOn', 'warning');
+  const workflows = createXtendCliWorkflowDefinitions({ failOn });
+  const items = workflows.map((workflow) => ({
+    label: workflow.label,
+    description: workflow.description,
+    workflow
+  })).concat({
+    label: 'XTendRMT: Custom XTend CLI command',
+    description: 'Run a custom command after the resolved XTend CLI.',
+    workflow: { id: 'custom', args: [], requiresFile: false }
+  });
+
+  if (!vscodeApi || !vscodeApi.window || typeof vscodeApi.window.showQuickPick !== 'function') {
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'dry-run',
+      ok: true,
+      items: items.map((item) => item.workflow.id)
+    };
+  }
+
+  const selected = await vscodeApi.window.showQuickPick(items, {
+    placeHolder: 'XTend CLI Workflow im VS Code Terminal starten'
+  });
+  if (!selected) {
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'cancelled',
+      ok: true
+    };
+  }
+
+  if (selected.workflow.id === 'open-terminal') {
+    return openXtendCliTerminal(vscodeApi, context, options);
+  }
+
+  if (selected.workflow.id === 'custom') {
+    const value = typeof vscodeApi.window.showInputBox === 'function'
+      ? await vscodeApi.window.showInputBox({
+        prompt: 'XTend CLI Argumente, z.B. rmt lint app.rmt --json',
+        placeHolder: 'rmt lint app.rmt --json'
+      })
+      : '';
+    if (!value) {
+      return {
+        schema: RMT_VSCODE_DX_SCHEMA,
+        workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+        status: 'cancelled',
+        ok: true
+      };
+    }
+    const cli = resolveXtendCliInvocation(vscodeApi, context, options);
+    if (!cli.ok) {
+      return showDxProblem(vscodeApi, options.output, createCliUnavailableResult(cli));
+    }
+    const terminal = vscodeApi.window.createTerminal({
+      name: 'XTendRMT CLI',
+      cwd: cli.workspaceFolderPath
+    });
+    const commandLine = [cli.command].concat(cli.args).map(shellQuote).join(' ') + ` ${value}`;
+    terminal.show(true);
+    terminal.sendText(commandLine);
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'started',
+      ok: true,
+      workflowId: 'custom',
+      commandLine,
+      cli,
+      terminal
+    };
+  }
+
+  return runXtendCliInTerminal(vscodeApi, context, selected.workflow.id, options);
+}
+
 function resolveDebugConfiguration(debugId) {
   const launch = createVsCodeLaunchConfigurations();
   return launch.configurations.find((config) => config.name === debugId || config.name.toLowerCase().includes(String(debugId).toLowerCase())) || null;
@@ -642,14 +1154,34 @@ function startXtendRmtDebugSession(vscodeApi, context = {}, debugId, options = {
     };
   }
 
-  const document = activeRmtTextDocument(vscodeApi, options);
-  const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
-  const workspaceFolderPath = normalizeWorkspaceFolderPath(workspaceFolder);
-  const activeFile = normalizeDocumentFilePath(document || {}) || options.file || '';
+  const workspaceContext = getWorkspaceContext(vscodeApi, options);
+  const workspaceFolder = workspaceContext.workspaceFolder;
+  const workspaceFolderPath = workspaceContext.workspaceFolderPath;
+  const activeFile = workspaceContext.activeFile;
   const resolved = substituteVariables(configuration, {
     workspaceFolder: workspaceFolderPath,
     file: activeFile
   });
+  const needsXtendCli = resolved.program && String(resolved.program).includes('xtend-builder/scaffold.js');
+
+  if (needsXtendCli) {
+    const cli = resolveXtendCliInvocation(vscodeApi, context, {
+      ...options,
+      requireNodeProgram: true
+    });
+
+    if (!cli.ok) {
+      return showDxProblem(vscodeApi, options.output, createCliUnavailableResult(cli, {
+        reason: 'debug-node-cli-not-found'
+      }));
+    }
+
+    if (/Active RMT/.test(resolved.name || '') && !isActiveRmtFile(cli.activeFile, cli.document || {})) {
+      return showDxProblem(vscodeApi, options.output, createActiveFileUnavailableResult({ taskId: resolved.name }));
+    }
+
+    resolved.program = cli.nodeProgramPath;
+  }
 
   if (vscodeApi && vscodeApi.debug && typeof vscodeApi.debug.startDebugging === 'function') {
     const started = vscodeApi.debug.startDebugging(workspaceFolder, resolved);
@@ -1112,30 +1644,42 @@ function activate(context) {
     ? vscode.tasks.registerTaskProvider('xtendRmt', createVsCodeTaskProvider(vscode, context))
     : null;
   const runActiveLintDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[1], () => {
-    return runXtendRmtTask(vscode, context, 'lint-active');
+    return runXtendRmtTask(vscode, context, 'lint-active', { output });
   });
   const runWorkspaceLintDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[2], () => {
-    return runXtendRmtTask(vscode, context, 'lint-workspace');
+    return runXtendRmtTask(vscode, context, 'lint-workspace', { output });
   });
   const runRmtBuildCheckDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[3], () => {
-    return runXtendRmtTask(vscode, context, 'rmt-build-check');
+    return runXtendRmtTask(vscode, context, 'rmt-build-check', { output });
   });
   const runScaffoldVerifyDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[4], () => {
-    return runXtendRmtTask(vscode, context, 'scaffold-verify');
+    return runXtendRmtTask(vscode, context, 'scaffold-verify', { output });
   });
   const debugLanguageServerDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[5], () => {
-    return startXtendRmtDebugSession(vscode, context, 'Debug Language Server');
+    return startXtendRmtDebugSession(vscode, context, 'Debug Language Server', { output });
   });
   const debugActiveLintDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[6], () => {
-    return startXtendRmtDebugSession(vscode, context, 'Debug Active RMT Lint');
+    return startXtendRmtDebugSession(vscode, context, 'Debug Active RMT Lint', { output });
   });
   const debugActiveBuildDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[7], () => {
-    return startXtendRmtDebugSession(vscode, context, 'Debug Active RMT Build');
+    return startXtendRmtDebugSession(vscode, context, 'Debug Active RMT Build', { output });
   });
-  const openTasksTemplateDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[8], () => {
+  const openCliTerminalDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[8], () => {
+    return openXtendCliTerminal(vscode, context, { output });
+  });
+  const runCliCommandPaletteDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[9], () => {
+    return showXtendCliCommandPalette(vscode, context, { output });
+  });
+  const runAgentRepairReportDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[10], () => {
+    return runXtendCliInTerminal(vscode, context, 'agent-repair-report', { output });
+  });
+  const runRmtBuildWriteDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[11], () => {
+    return runXtendCliInTerminal(vscode, context, 'rmt-build-write', { output });
+  });
+  const openTasksTemplateDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[12], () => {
     return openVsCodeTemplate(vscode, context, TASKS_TEMPLATE_RELATIVE_PATH);
   });
-  const openLaunchTemplateDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[9], () => {
+  const openLaunchTemplateDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[13], () => {
     return openVsCodeTemplate(vscode, context, LAUNCH_TEMPLATE_RELATIVE_PATH);
   });
   const applyExperienceDisposable = vscode.commands.registerCommand(RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS[0], async (input = {}) => {
@@ -1196,6 +1740,10 @@ function activate(context) {
     debugLanguageServerDisposable,
     debugActiveLintDisposable,
     debugActiveBuildDisposable,
+    openCliTerminalDisposable,
+    runCliCommandPaletteDisposable,
+    runAgentRepairReportDisposable,
+    runRmtBuildWriteDisposable,
     openTasksTemplateDisposable,
     openLaunchTemplateDisposable,
     applyExperienceDisposable,
@@ -1231,6 +1779,9 @@ module.exports = {
   applyPrimitiveAuthoringWorkspaceEdit,
   createActiveDocumentPrimitiveAuthoringExperience,
   createRuntimeLanguageClientServerOptions,
+  createTerminalCommandLine,
+  createXtendCliCandidates,
+  createXtendCliWorkflowDefinitions,
   createVsCodeLanguageClientConfig,
   createVsCodeLaunchConfigurations,
   createVsCodeProblemMatcher,
@@ -1240,13 +1791,17 @@ module.exports = {
   createServerCommand,
   deactivate,
   executePrimitiveCommandHandoff,
+  openXtendCliTerminal,
   openVsCodeTemplate,
   renderPrimitiveAuthoringApplyExperience,
   requestPrimitiveCodeActionsForDocument,
   resolveDebugConfiguration,
   resolveLanguageServerInvocation,
   resolveServerModule,
+  resolveXtendCliInvocation,
+  runXtendCliInTerminal,
   runXtendRmtTask,
+  showXtendCliCommandPalette,
   startLanguageClient,
   startXtendRmtDebugSession
 };

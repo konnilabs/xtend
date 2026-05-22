@@ -59,15 +59,28 @@ Default task coverage:
 
 ## XTend CLI Terminal Commands
 
-The commands below run through VS Code Tasks, so output, exit codes and problem markers stay in the integrated terminal:
+The extension resolves the XTend CLI from the active workspace before it starts tasks, terminal commands or debug sessions. Resolution order:
+
+1. `${workspaceFolder}/xtend-builder/scaffold.js`
+2. `${workspaceFolder}/node_modules/.bin/xt`
+3. `${workspaceFolder}/node_modules/@ccslabs/xtend-cli/scaffold.js`
+4. explicit `xtendRmt.xtendCli.path`
+5. advanced `xtendRmt.xtendCli.command` / `xtendRmt.xtendCli.args`
+
+The commands below run through VS Code Tasks or the integrated terminal, so output, exit codes and problem markers stay inside VS Code:
 
 - `XTendRMT: Run Active RMT Lint`
 - `XTendRMT: Run Workspace RMT Lint`
 - `XTendRMT: Run RMT Build Check`
 - `XTendRMT: Run Scaffold Verify`
+- `XTendRMT: Open XTend CLI Terminal`
+- `XTendRMT: Run XTend CLI Command...`
+- `XTendRMT: Run Agent Repair Report`
+- `XTendRMT: Run RMT Build Write`
 
 Settings:
 
+- `xtendRmt.xtendCli.path`
 - `xtendRmt.xtendCli.command`
 - `xtendRmt.xtendCli.args`
 - `xtendRmt.tasks.defaultFailOn`

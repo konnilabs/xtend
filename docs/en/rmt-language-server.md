@@ -128,6 +128,10 @@ It registers:
 - Command `XTendRMT: Debug Language Server`
 - Command `XTendRMT: Debug Active RMT Lint`
 - Command `XTendRMT: Debug Active RMT Build`
+- Command `XTendRMT: Open XTend CLI Terminal`
+- Command `XTendRMT: Run XTend CLI Command...`
+- Command `XTendRMT: Run Agent Repair Report`
+- Command `XTendRMT: Run RMT Build Write`
 - Command `XTendRMT: Open VS Code Tasks Template`
 - Command `XTendRMT: Open VS Code Launch Template`
 - Command `XTendRMT: Show vNext Primitive Apply Experience`
@@ -144,7 +148,11 @@ The packaged LanguageClient starts the server through stdio:
 ```
 
 Terminal tasks use the XTend CLI as their orchestrator and do not maintain a
-second RMT semantics layer. The versioned template lives at:
+second RMT semantics layer. The extension resolves the CLI from the workspace
+first at `xtend-builder/scaffold.js`, then `node_modules/.bin/xt`, and then
+`node_modules/@ccslabs/xtend-cli/scaffold.js`. If a project uses another
+layout, `xtendRmt.xtendCli.path` can point to an executable or `scaffold.js`.
+The versioned template lives at:
 
 ```text
 tools/rmt-editor/vscode/templates/tasks.json

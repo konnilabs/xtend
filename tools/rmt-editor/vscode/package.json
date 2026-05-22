@@ -6,6 +6,7 @@
   "private": false,
   "publisher": "CCS Networks",
   "license": "Apache-2.0",
+  "icon": "XTend-Logo.png",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -28,6 +29,10 @@
     "onCommand:xtendRmt.debugLanguageServer",
     "onCommand:xtendRmt.debugActiveLint",
     "onCommand:xtendRmt.debugActiveBuild",
+    "onCommand:xtendRmt.openCliTerminal",
+    "onCommand:xtendRmt.runCliCommandPalette",
+    "onCommand:xtendRmt.runAgentRepairReport",
+    "onCommand:xtendRmt.runRmtBuildWrite",
     "onCommand:xtendRmt.openTasksTemplate",
     "onCommand:xtendRmt.openLaunchTemplate",
     "onCommand:xtendRmt.rmtVNext.showPrimitiveAuthoringApplyExperience",
@@ -42,6 +47,7 @@
     "syntaxes/**",
     "snippets/**",
     "templates/**",
+    "XTend-Logo.png",
     "README.md"
   ],
   "contributes": {
@@ -164,6 +170,22 @@
         "title": "XTendRMT: Debug Active RMT Build"
       },
       {
+        "command": "xtendRmt.openCliTerminal",
+        "title": "XTendRMT: Open XTend CLI Terminal"
+      },
+      {
+        "command": "xtendRmt.runCliCommandPalette",
+        "title": "XTendRMT: Run XTend CLI Command..."
+      },
+      {
+        "command": "xtendRmt.runAgentRepairReport",
+        "title": "XTendRMT: Run Agent Repair Report"
+      },
+      {
+        "command": "xtendRmt.runRmtBuildWrite",
+        "title": "XTendRMT: Run RMT Build Write"
+      },
+      {
         "command": "xtendRmt.openTasksTemplate",
         "title": "XTendRMT: Open VS Code Tasks Template"
       },
@@ -209,7 +231,7 @@
         "xtendRmt.xtendCli.command": {
           "type": "string",
           "default": "node",
-          "description": "Command used by VS Code tasks to start the XTend CLI."
+          "description": "Advanced override for the command used by VS Code tasks to start the XTend CLI."
         },
         "xtendRmt.xtendCli.args": {
           "type": "array",
@@ -219,7 +241,12 @@
           "items": {
             "type": "string"
           },
-          "description": "Base arguments used by VS Code tasks to start the XTend CLI."
+          "description": "Advanced override for base arguments used by VS Code tasks to start the XTend CLI."
+        },
+        "xtendRmt.xtendCli.path": {
+          "type": "string",
+          "default": "",
+          "description": "Optional explicit XTend CLI executable or scaffold.js path. When empty, the extension resolves the CLI from the workspace."
         },
         "xtendRmt.tasks.defaultFailOn": {
           "type": "string",
