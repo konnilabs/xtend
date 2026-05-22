@@ -27,11 +27,14 @@ const {
 } = require('../rmt-language/code-actions');
 const {
   analyzeRmtVNextToolingSource,
+  createRmtVNextPrimitiveCommandHandoff,
   findRmtVNextPointerAtPosition,
+  getRmtVNextToolingCodeActions,
   getRmtVNextToolingCompletions,
   getRmtVNextToolingDefinition,
   getRmtVNextToolingDocumentSymbols,
   getRmtVNextToolingHover,
+  RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND,
   isLikelyRmtVNextSource,
   lintRmtVNextToolingSource
 } = require('../rmt-language/vnext-tooling');
@@ -170,7 +173,10 @@ function createCapabilities() {
     documentSymbolProvider: true,
     definitionProvider: true,
     codeActionProvider: {
-      codeActionKinds: ['quickfix']
+      codeActionKinds: ['quickfix', 'source.fixAll', 'source.fixAll.rmt.vnext.primitives']
+    },
+    executeCommandProvider: {
+      commands: [RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND]
     }
   };
 }
@@ -378,6 +384,7 @@ class RmtLanguageServer {
   completion(params = {}) {
     const uri = normalizeString(params.textDocument && params.textDocument.uri);
     const analysis = this.analyzeDocument(uri);
+    const xtend = params.xtend || {};
 
     if (!analysis) {
       return {
@@ -386,22 +393,23 @@ class RmtLanguageServer {
       };
     }
 
-    const pointer = params.xtend && params.xtend.pointer
-      ? params.xtend.pointer
+    const pointer = xtend.pointer
+      ? xtend.pointer
       : this.getPointerAtPosition(uri, params.position || {});
     const report = analysis.languageMode === 'vnext'
       ? getRmtVNextToolingCompletions(analysis.input, {
         rootDir: this.rootDir,
         analysis: analysis.graph,
-        pointer,
-        prefix: params.xtend && params.xtend.prefix ? params.xtend.prefix : '',
-        context: params.xtend && params.xtend.context ? params.xtend.context : null
+        pointer: xtend.pointer || null,
+        prefix: xtend.prefix || '',
+        context: xtend.context || null,
+        position: params.position || null
       })
       : getRmtCompletions(analysis.input, {
         rootDir: this.rootDir,
         graph: analysis.graph,
         pointer,
-        prefix: params.xtend && params.xtend.prefix ? params.xtend.prefix : ''
+        prefix: xtend.prefix || ''
       });
 
     return {
@@ -491,18 +499,44 @@ class RmtLanguageServer {
       return [];
     }
 
-    if (analysis.languageMode === 'vnext') {
-      return [];
-    }
-
-    const report = getRmtCodeActions(analysis.input, {
-      rootDir: this.rootDir,
-      graph: analysis.graph,
-      lintReport: analysis.linterReport,
-      contextDiagnostics: params.context && params.context.diagnostics ? params.context.diagnostics : []
-    });
+    const report = analysis.languageMode === 'vnext'
+      ? getRmtVNextToolingCodeActions(analysis.input, {
+        rootDir: this.rootDir,
+        analysis: analysis.graph,
+        lintReport: analysis.linterReport,
+        contextDiagnostics: params.context && params.context.diagnostics ? params.context.diagnostics : []
+      })
+      : getRmtCodeActions(analysis.input, {
+        rootDir: this.rootDir,
+        graph: analysis.graph,
+        lintReport: analysis.linterReport,
+        contextDiagnostics: params.context && params.context.diagnostics ? params.context.diagnostics : []
+      });
 
     return toArray(report.actions).map(toLspCodeAction);
+  }
+
+  executeCommand(params = {}) {
+    const command = normalizeString(params.command);
+    const args = toArray(params.arguments);
+
+    if (command === RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND) {
+      return createRmtVNextPrimitiveCommandHandoff({
+        command,
+        arguments: args
+      }, {
+        rootDir: this.rootDir
+      });
+    }
+
+    return {
+      schema: 'xtend.rmt.language-server-command-result.v1',
+      workpackage: RMT_LANGUAGE_SERVER_WORKPACKAGE,
+      status: 'unsupported_command',
+      ok: false,
+      command,
+      supportedCommands: [RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND]
+    };
   }
 
   handleRequest(message = {}) {
@@ -523,6 +557,8 @@ class RmtLanguageServer {
           return createJsonRpcResponse(message.id, this.definition(message.params || {}));
         case 'textDocument/codeAction':
           return createJsonRpcResponse(message.id, this.codeAction(message.params || {}));
+        case 'workspace/executeCommand':
+          return createJsonRpcResponse(message.id, this.executeCommand(message.params || {}));
         default:
           return createJsonRpcError(message.id, -32601, `RMT Language Server method not found: ${message.method}`);
       }

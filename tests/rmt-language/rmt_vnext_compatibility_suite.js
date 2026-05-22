@@ -18,10 +18,13 @@ const {
   compileRmtVNextSource
 } = require('../../tools/rmt-language/vnext-compiler');
 const {
+  APP_PLATFORM_PRIMITIVE_DOMAINS,
   LEGACY_DOMAINS,
+  MIGRATION_LEGACY_BACKGROUNDED_CODE,
   MIGRATION_LEGACY_PARSE_FAILED_CODE,
   MIGRATION_LOSSY_DOMAIN_CODE,
   MIGRATION_OPT_IN_REQUIRED_CODE,
+  MIGRATION_PRIMITIVE_PREVIEW_AVAILABLE_CODE,
   RMT_VNEXT_COMPATIBILITY_MODULE_PATH,
   RMT_VNEXT_COMPATIBILITY_PACKAGE_SCRIPT,
   RMT_VNEXT_COMPATIBILITY_REPORT_SCHEMA,
@@ -30,8 +33,13 @@ const {
   RMT_VNEXT_COMPATIBILITY_WORKPACKAGE,
   RMT_VNEXT_LEGACY_PROJECTION_SCHEMA,
   RMT_VNEXT_MIGRATION_REPORT_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_MIGRATION_APPLY_PLAN_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_MIGRATION_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_MIGRATION_WORKPACKAGE,
   RMT_VNEXT_ROUNDTRIP_REPORT_SCHEMA,
   ROUNDTRIP_COMPATIBLE_WARNINGS,
+  createAppPlatformPrimitiveMigrationApplyPlan,
+  createAppPlatformPrimitiveMigrationPreview,
   createCompatibilityMatrix,
   createLegacyRoundtripReport,
   createMigrationReport,
@@ -47,6 +55,8 @@ const LEGACY_FALLBACK_FIXTURE = 'tests/rmt-language/fixtures/regression-legacy.r
 const BROKEN_LEGACY_FIXTURE = 'tests/rmt-language/fixtures/regression-broken-syntax.rmt';
 const FIRST_DEMO_FIXTURE = 'xtendrmt/rmt-first-demo-app.rmt';
 const VALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-streaming-progressive.rmt';
+const APP_PLATFORM_FIXTURE = 'tests/fixtures/rmt-app-platform-tooling.rmt';
+const PRIMITIVE_MIGRATION_DOC_PATH = 'docs/rmt-vnext-primitive-migration.md';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -74,6 +84,7 @@ function runMetadataChecks(context, rootDir) {
 
   context.assert(metadata && metadata.schema === RMT_VNEXT_COMPATIBILITY_SCHEMA, 'package metadata declares vNext compatibility schema');
   context.assert(metadata && metadata.migrationReportSchema === RMT_VNEXT_MIGRATION_REPORT_SCHEMA, 'package metadata declares migration report schema');
+  context.assert(metadata && metadata.primitiveMigrationApplyPlanSchema === RMT_VNEXT_PRIMITIVE_MIGRATION_APPLY_PLAN_SCHEMA, 'package metadata declares primitive migration apply-plan schema');
   context.assert(metadata && metadata.roundtripReportSchema === RMT_VNEXT_ROUNDTRIP_REPORT_SCHEMA, 'package metadata declares roundtrip report schema');
   context.assert(metadata && metadata.projectionSchema === RMT_VNEXT_LEGACY_PROJECTION_SCHEMA, 'package metadata declares legacy projection schema');
   context.assert(metadata && metadata.reportSchema === RMT_VNEXT_COMPATIBILITY_REPORT_SCHEMA, 'package metadata declares compatibility report schema');
@@ -82,6 +93,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.suite === RMT_VNEXT_COMPATIBILITY_SUITE_PATH, 'package metadata points to compatibility suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-vnext-compatibility --json', 'package metadata declares compatibility local gate');
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_COMPATIBILITY_PACKAGE_SCRIPT, 'package metadata declares compatibility package script');
+  context.assert(metadata && metadata.migrationModes.includes('apply-plan'), 'package metadata declares primitive migration apply-plan mode');
   context.assert(metadata && Array.isArray(metadata.legacyDomains) && LEGACY_DOMAINS.every((domain) => metadata.legacyDomains.includes(domain)), 'package metadata lists legacy migration domains');
   context.assert(metadata && ROUNDTRIP_COMPATIBLE_WARNINGS.every((code) => metadata.compatibleWarnings.includes(code)), 'package metadata documents compatible warning codes');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-compatibility'] === 'string' ? packageManifest.exports['./rmt-language/vnext-compatibility'] : packageManifest.exports['./rmt-language/vnext-compatibility'] && packageManifest.exports['./rmt-language/vnext-compatibility'].default) === './tools/rmt-language/vnext-compatibility.js', 'package exports vNext compatibility adapter');
@@ -140,6 +152,98 @@ function runMigrationChecks(context, rootDir) {
   context.assert(diagnosticCodes(broken).includes(MIGRATION_LEGACY_PARSE_FAILED_CODE), 'broken legacy syntax receives precise migration diagnostic');
 }
 
+function runPrimitiveMigrationChecks(context, rootDir) {
+  const input = fixtureInput(APP_PLATFORM_FIXTURE, rootDir);
+  const reportOnly = createMigrationReport(input, {
+    rootDir
+  });
+  const preview = createAppPlatformPrimitiveMigrationPreview(input, {
+    rootDir
+  });
+  const applyPlan = createAppPlatformPrimitiveMigrationApplyPlan(input, {
+    rootDir
+  });
+  const parseBlockedApplyPlan = createAppPlatformPrimitiveMigrationApplyPlan({
+    text: '{',
+    filePath: resolveRepoPath('tmp/rmt-app-platform-broken.json', rootDir)
+  }, {
+    rootDir
+  });
+  const previewReport = createMigrationReport(input, {
+    rootDir,
+    migrationMode: 'preview'
+  });
+  const applyPlanReport = createMigrationReport(input, {
+    rootDir,
+    migrationMode: 'apply-plan'
+  });
+  const primitiveMatrix = createCompatibilityMatrix([
+    input,
+    fixtureInput(VALID_VNEXT_FIXTURE, rootDir)
+  ], {
+    rootDir,
+    migrationMode: 'preview'
+  });
+  const compiledDraft = compileRmtVNextSource({
+    text: preview.authoringDraft,
+    filePath: resolveRepoPath('tmp/rmt-vnext-prim08-authoring-preview.rmt', rootDir)
+  });
+  const previewDiagnostics = diagnosticCodes(preview);
+  const reportDiagnostics = diagnosticCodes(reportOnly);
+  const previewReportDiagnostics = diagnosticCodes(previewReport);
+  const appPlatformEntry = primitiveMatrix.entries.find((entry) => entry.report.languageMode === 'legacy-app-platform-json');
+
+  context.assert(preview.schema === RMT_VNEXT_PRIMITIVE_MIGRATION_SCHEMA, 'primitive migration preview uses dedicated schema');
+  context.assert(applyPlan.schema === RMT_VNEXT_PRIMITIVE_MIGRATION_APPLY_PLAN_SCHEMA, 'primitive migration apply plan uses dedicated schema');
+  context.assert(preview.workpackage === RMT_VNEXT_PRIMITIVE_MIGRATION_WORKPACKAGE, 'primitive migration preview declares PRIM-08 ownership');
+  context.assert(preview.ok === true && preview.status === 'preview-ready', 'App-Platform primitive fixture produces a ready migration preview');
+  context.assert(preview.languageMode === 'legacy-app-platform-json', 'App-Platform primitive input is detected as legacy App-Platform JSON');
+  context.assert(preview.vNextAuthoring && preview.vNextAuthoring.role === 'default', 'primitive migration marks vNext as default authoring surface');
+  context.assert(preview.legacyAuthoring && preview.legacyAuthoring.backgrounded === true, 'primitive migration backgrounds legacy authoring');
+  context.assert(preview.legacyAuthoring && preview.legacyAuthoring.role === 'compiler-target', 'primitive migration keeps legacy as compiler target');
+  context.assert(typeof preview.authoringDraft === 'string' && preview.authoringDraft.includes('template epic18.app-platform-tooling.fixture'), 'primitive migration creates vNext template draft');
+  context.assert(preview.authoringDraft.includes('state items type collection'), 'primitive migration emits state primitive syntax');
+  context.assert(preview.authoringDraft.includes('datasource items from fixture records.generic-items'), 'primitive migration emits datasource primitive syntax');
+  context.assert(preview.authoringDraft.includes('action load-items'), 'primitive migration emits action primitive syntax');
+  context.assert(preview.authoringDraft.includes('portal app root "#app-root"'), 'primitive migration emits portal primitive syntax');
+  context.assert(preview.authoringDraft.includes('surface workspace kind window component workspace'), 'primitive migration emits surface primitive syntax');
+  context.assert(preview.authoringDraft.includes('lane visible weight 70'), 'primitive migration keeps Fabric lane authoring in vNext');
+  context.assert(preview.authoringDraft.includes('on open-detail target ref.row -> action open-detail'), 'primitive migration emits event-to-action primitive syntax');
+  context.assert(preview.authoringDraftCompileStatus === 'compiled' && compiledDraft.ok === true, 'primitive migration vNext draft compiles');
+  context.assert(preview.projection && preview.projection.schema === RMT_VNEXT_CORE_SCHEMA, 'primitive migration carries compiled vNext projection');
+  context.assert(preview.projection && preview.projection.appPlatform && preview.projection.kernelRecords, 'primitive migration produces App-Platform and Kernel records');
+  context.assert(preview.projection.appPlatform.state.length >= 1, 'primitive migration projection carries state records');
+  context.assert(preview.projection.appPlatform.dataSources.length >= 1, 'primitive migration projection carries datasource records');
+  context.assert(preview.projection.appPlatform.actions.length >= 1, 'primitive migration projection carries action records');
+  context.assert(preview.projection.appPlatform.surfaces.length >= 1, 'primitive migration projection carries surface records');
+  context.assert(preview.projection.appPlatform.events.length >= 1, 'primitive migration projection carries event records');
+  context.assert(applyPlan.ok === true && applyPlan.status === 'apply-plan-ready', 'primitive migration apply plan is ready for compilable vNext draft');
+  context.assert(applyPlan.automaticWrite === false && applyPlan.writePolicy === 'manual-apply-only', 'primitive migration apply plan never writes files automatically');
+  context.assert(applyPlan.targetPath.endsWith('.vnext.rmt'), 'primitive migration apply plan suggests vNext target path');
+  context.assert(applyPlan.authoringDraft === preview.authoringDraft, 'primitive migration apply plan reuses preview authoring draft');
+  context.assert(applyPlan.compileStatus === 'compiled', 'primitive migration apply plan reports compile status');
+  context.assert(parseBlockedApplyPlan.status === 'blocked' && parseBlockedApplyPlan.ok === false, 'primitive migration apply plan blocks non-compilable or unparsable drafts');
+  context.assert(preview.domainMapping.state === 1 && preview.domainMapping.dataSources === 1, 'primitive migration reports source domain counts');
+  context.assert(preview.domainMapping.actions === 2 && preview.domainMapping.surfaces === 1, 'primitive migration maps actions and surfaces');
+  context.assert(APP_PLATFORM_PRIMITIVE_DOMAINS.includes('surfaces') && APP_PLATFORM_PRIMITIVE_DOMAINS.includes('resources'), 'primitive migration exports App-Platform primitive domains');
+  context.assert(previewDiagnostics.includes(MIGRATION_LEGACY_BACKGROUNDED_CODE), 'primitive migration reports legacy backgrounding');
+  context.assert(preview.errorCount === 0, 'primitive migration preview has no hard errors');
+  context.assert(reportOnly.ok === true && reportOnly.status === 'report-only' && reportOnly.migrationMode === 'report-only', 'App-Platform report-only mode stays compatible');
+  context.assert(reportOnly.authoringDraft === null, 'App-Platform report-only mode does not rewrite source');
+  context.assert(reportDiagnostics.includes(MIGRATION_OPT_IN_REQUIRED_CODE), 'App-Platform report-only mode requires explicit preview opt-in');
+  context.assert(reportDiagnostics.includes(MIGRATION_PRIMITIVE_PREVIEW_AVAILABLE_CODE), 'App-Platform report-only mode advertises primitive preview availability');
+  context.assert(previewReport.schema === RMT_VNEXT_MIGRATION_REPORT_SCHEMA, 'App-Platform preview integrates with generic migration report schema');
+  context.assert(previewReport.workpackage === RMT_VNEXT_PRIMITIVE_MIGRATION_WORKPACKAGE, 'App-Platform preview report declares PRIM-08 ownership');
+  context.assert(previewReport.status === 'preview-ready', 'App-Platform preview report exposes preview-ready status');
+  context.assert(previewReport.primitiveMigration && previewReport.primitiveMigration.schema === RMT_VNEXT_PRIMITIVE_MIGRATION_SCHEMA, 'App-Platform preview report embeds primitive migration contract');
+  context.assert(previewReport.authoringDraft === preview.authoringDraft, 'App-Platform preview report reuses primitive authoring draft');
+  context.assert(applyPlanReport.status === 'apply-plan-ready', 'App-Platform apply-plan report exposes apply-plan-ready status');
+  context.assert(applyPlanReport.primitiveMigrationApplyPlan && applyPlanReport.primitiveMigrationApplyPlan.schema === RMT_VNEXT_PRIMITIVE_MIGRATION_APPLY_PLAN_SCHEMA, 'App-Platform apply-plan report embeds migration apply plan');
+  context.assert(previewReportDiagnostics.includes(MIGRATION_LEGACY_BACKGROUNDED_CODE), 'App-Platform preview report carries legacy backgrounding diagnostic');
+  context.assert(primitiveMatrix.ok === true && primitiveMatrix.entryCount === 2, 'compatibility matrix accepts App-Platform primitive preview and vNext fixture');
+  context.assert(appPlatformEntry && appPlatformEntry.report.primitiveMigration && appPlatformEntry.report.primitiveMigration.schema === RMT_VNEXT_PRIMITIVE_MIGRATION_SCHEMA, 'compatibility matrix includes App-Platform primitive migration entry');
+}
+
 function runMatrixChecks(context, rootDir) {
   const compatibleInputs = [
     VALID_LEGACY_FIXTURE,
@@ -174,6 +278,8 @@ function runAdapterChecks(context, rootDir) {
   const serializedB = serializeMigrationReport(matrix.entries[0].report);
 
   context.assert(adapter.schema === RMT_VNEXT_COMPATIBILITY_SCHEMA, 'adapter exposes compatibility schema');
+  context.assert(typeof adapter.createAppPlatformPrimitiveMigrationPreview === 'function', 'adapter exposes App-Platform primitive migration preview');
+  context.assert(typeof adapter.createAppPlatformPrimitiveMigrationApplyPlan === 'function', 'adapter exposes App-Platform primitive migration apply plan');
   context.assert(matrix.ok === true && matrix.entryCount === 2, 'adapter builds compatibility matrix with default file reader');
   context.assert(serializedA === serializedB && serializedA.includes(RMT_VNEXT_MIGRATION_REPORT_SCHEMA), 'migration reports serialize deterministically for agents');
 }
@@ -195,12 +301,15 @@ function runRmtVNextCompatibilitySuite(options = {}) {
   assertFileExists(context, LEGACY_FALLBACK_FIXTURE, rootDir, 'legacy fallback fixture exists');
   assertFileExists(context, FIRST_DEMO_FIXTURE, rootDir, 'demo app RMT fixture exists');
   assertFileExists(context, VALID_VNEXT_FIXTURE, rootDir, 'vNext fixture exists');
+  assertFileExists(context, APP_PLATFORM_FIXTURE, rootDir, 'App-Platform primitive fixture exists');
+  assertFileExists(context, PRIMITIVE_MIGRATION_DOC_PATH, rootDir, 'primitive migration document exists');
   context.assert(moduleSyntax.ok, `vNext compatibility module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `vNext compatibility suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
   runMetadataChecks(context, rootDir);
   runRoundtripChecks(context, rootDir);
   runMigrationChecks(context, rootDir);
+  runPrimitiveMigrationChecks(context, rootDir);
   runMatrixChecks(context, rootDir);
   runAdapterChecks(context, rootDir);
 

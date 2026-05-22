@@ -1,44 +1,50 @@
 # Komponenten-Entwicklung mit XTend
 
-> **Hinweis:** Siehe auch: [xrouter](./components/xrouter.md), [xlink](./components/xlink.md)
+XTend-Komponenten sind wiederverwendbare Web Components. In RMT-first Apps
+werden sie nicht zur App-Architektur selbst: RMT beschreibt Shell, State,
+Actions, Events, Surfaces und Scheduling; XTend Components materialisieren die
+sichtbare UI.
 
-## Übersicht
-
-XTend-Komponenten sind eigenständige, wiederverwendbare Web Components, die als Custom Elements implementiert werden. Sie ermöglichen eine modulare, deklarative und performante Entwicklung moderner Webanwendungen.
-
----
+Siehe auch [x-router](./components/xrouter.md), [x-link](./components/xlink.md)
+und [RMT vNext Authoring Guide](./rmt-vnext-authoring.md).
 
 ## Grundprinzipien
 
-- Jede Komponente ist ein ES6-Modul (JavaScript-Datei) und wird per Manifest dynamisch geladen.
-- Komponenten verwenden das Custom Elements API (`customElements.define`).
-- Der Manifest-Key ist der kanonische Runtime-/Catalog-Name. Fuer Custom Elements ist er zugleich der Tag-Name, z.B. `x-button`, `x-input`, `x-summary`.
-- Source- und Docs-Slugs folgen im Bestand dem Modul-Basename ohne Bindestrich, z.B. `xbutton.js` mit `docs/components/xbutton.md` fuer Manifest-Key `x-button`.
-- Komponenten sind unabhängig, können aber andere XTend-Komponenten nutzen.
+- Jede visuelle Komponente ist ein ES-Modul und wird per Manifest geladen.
+- Der Manifest-Key ist der kanonische Runtime- und Catalog-Name.
+- Fuer Custom Elements ist der Tag-Name identisch zum Manifest-Key, z. B.
+  `x-button`, `x-input`, `x-summary`.
+- Source-Dateien folgen im Bestand dem Modul-Basename ohne Bindestrich, z. B.
+  `xbutton.js` fuer `x-button`.
+- Komponenten bleiben unabhaengig, konfigurierbar und host-neutral.
+- RMT kann Komponenten referenzieren, mounten, hydrieren und mit Events
+  verbinden, importiert sie aber nicht in den Kernel.
 
-### Naming-Konvention ab ER-WP-32
+## Rolle in RMT-authorierten Apps
 
-| Ebene | Regel | Beispiel |
-|-------|-------|----------|
-| Manifest-Key | kanonischer Runtime- und Catalog-Name | `x-summary` |
-| Custom Element Tag | identisch zum Manifest-Key, wenn ein Custom Element registriert wird | `<x-summary>` |
-| Source-Datei | Modul-Basename aus dem Manifest-Pfad | `xsummary.js` |
-| Component-Doku | Source-Basename plus `.md` | `docs/components/xsummary.md` |
-| Docs-Menu-Slug | `components-` plus Source-Basename | `components-xsummary` |
+| Ebene | Aufgabe |
+| --- | --- |
+| RMT vNext | beschreibt App Shell, Surfaces, State, Actions, Events und Lanes |
+| XTend Component | rendert UI, kapselt Shadow DOM, Attribute, Properties und Events |
+| Host Adapter | verbindet RMT Records mit realen Custom Elements und Browser-DOM |
+| Fabric | fuehrt Hydration, Render, User-Blocking- und Idle-Arbeit als Fibers aus |
 
-Ausnahmen bleiben explizit dokumentiert: `xstate` ist ein Plattform-State-Modul, `x-utils` ist ein Utility-Modul ohne Custom Element und `x-theme` ist ein Core-Theme-Modul mit Runtime-Fassade unter `window.XTend.theme`. Die vollstaendige Entscheidung liegt in `development/XTend-Component-Catalog-Naming-Konvention.md`.
-
----
+Eine RMT-Surface kann zum Beispiel `component x-cards` deklarieren. Der Host
+Adapter laedt `x-cards` ueber das Manifest, mountet das Custom Element und
+verdrahtet Event-Payloads mit RMT Actions.
 
 ## Struktur einer Komponente
 
 Typischerweise besteht eine Komponente aus:
-- **Klasse**: Erbt von `HTMLElement` oder einer anderen Web Component-Basis.
-- **Template**: HTML-Struktur, meist als Template-String oder Shadow DOM.
-- **Styles**: Inline, als CSS-String oder per Shadow DOM gekapselt.
-- **Registrierung**: Über `customElements.define('xname', XName)`.
 
-### Beispiel: Minimal-Komponente
+- einer Klasse, die von `HTMLElement` oder einer lokalen Basis erbt
+- Shadow DOM oder kontrolliertem Light-DOM
+- Styles ueber CSS Custom Properties, Parts oder lokale Shadow-DOM-Regeln
+- Attributen und Properties fuer Konfiguration
+- Custom Events fuer Kommunikation
+- Registrierung ueber `customElements.define(...)`
+
+### Minimalbeispiel
 
 ```js
 class XButton extends HTMLElement {
@@ -46,72 +52,93 @@ class XButton extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
-      <button><slot></slot></button>
-      <style>button { padding: 8px; }</style>
+      <button part="button"><slot></slot></button>
+      <style>
+        :host { display: inline-flex; }
+        button { padding: 0.5rem 0.75rem; }
+      </style>
     `;
   }
 }
+
 customElements.define('x-button', XButton);
 ```
 
----
+## Naming-Regeln
+
+| Ebene | Regel | Beispiel |
+| --- | --- | --- |
+| Manifest-Key | kanonischer Runtime- und Catalog-Name | `x-summary` |
+| Custom Element Tag | identisch zum Manifest-Key | `<x-summary>` |
+| Source-Datei | Modul-Basename aus dem Manifest-Pfad | `xsummary.js` |
+| Component-Doku | Source-Basename plus `.md` | `docs/components/xsummary.md` |
+| Docs-Menu-Slug | `components-` plus Source-Basename | `components-xsummary` |
+
+Ausnahmen bleiben bewusst klein: `xstate` ist ein Plattform-State-Modul,
+`x-utils` ist ein Utility-Modul ohne Custom Element und `x-theme` stellt die
+Theme-Fassade bereit.
 
 ## Best Practices
 
-- **Kapselung:** Möglichst Shadow DOM nutzen, um Styles und Markup zu isolieren.
-- **Namenskonvention:** Manifest-Key und Custom-Element-Tag sind kanonisch; Source- und Docs-Slugs folgen dem Modul-Basename.
-- **Wiederverwendbarkeit:** Komponenten sollten unabhängig und konfigurierbar sein (Attribute, Properties, Events).
-- **Lazy Loading:** Komponenten werden nur geladen, wenn sie im DOM verwendet werden.
-- **Dokumentation:** Jede Komponente sollte eine eigene MD-Datei mit API, Attributen, Events und Beispielen erhalten.
+- Nutze Shadow DOM, Parts und CSS Custom Properties fuer Kapselung und
+  Theming.
+- Halte Attribute, Properties und Events stabil und dokumentiert.
+- Dispatch Events mit klaren `detail`-Payloads, damit RMT Actions sie sicher
+  konsumieren koennen.
+- Vermeide globale DOM-Annahmen in Komponenten; App-Struktur gehoert in RMT.
+- Nutze `x-icon` fuer lokale Icons, Icon Packs und kontrollierte URL-Quellen.
+- Plane Hydration bewusst: sichtbare UI gehoert in sichtbare Lanes, weniger
+  dringende Arbeit in idle oder lazy Pfade.
 
----
-
-## Erweiterte Features
-
-- **Attribute & Properties:** Überwache Attribute mit `static get observedAttributes()` und reagiere auf Änderungen.
-- **Events:** Verwende `this.dispatchEvent(new CustomEvent(...))` für Kommunikation.
-- **Slots:** Nutze `<slot>` für flexible Inhalte.
-- **Theming:** Nutze CSS Custom Properties für Anpassbarkeit.
-- **Ikonographie:** Nutze [`x-icon`](./components/xicon.md) als lokalen, RMT-kompatiblen Icon-Adapter fuer Core-Icons, lokale Lucide-Sets und Corporate-Design-Packs.
-
----
-
-## Beispiel: Erweiterte Komponente
+## Beispiel mit Attribut und Event
 
 ```js
-class XInput extends HTMLElement {
-  static get observedAttributes() { return ['value']; }
+class XCounterButton extends HTMLElement {
+  static get observedAttributes() {
+    return ['value'];
+  }
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
-      <input type="text" />
-      <style>input { border: 1px solid #ccc; }</style>
+      <button part="button" type="button"></button>
     `;
+    this.shadowRoot.querySelector('button').addEventListener('click', () => {
+      const value = Number(this.getAttribute('value') || 0) + 1;
+      this.setAttribute('value', String(value));
+      this.dispatchEvent(new CustomEvent('counter-change', {
+        bubbles: true,
+        detail: { value }
+      }));
+    });
   }
-  attributeChangedCallback(name, oldVal, newVal) {
-    if (name === 'value') {
-      this.shadowRoot.querySelector('input').value = newVal;
-    }
+
+  attributeChangedCallback() {
+    const button = this.shadowRoot && this.shadowRoot.querySelector('button');
+    if (button) button.textContent = `Zaehler ${this.getAttribute('value') || 0}`;
   }
 }
-customElements.define('xinput', XInput);
+
+customElements.define('x-counter-button', XCounterButton);
 ```
 
----
+In RMT kann dieses Event als `on counter-change -> action ...` an eine Action
+gebunden werden.
 
-## Testen & Debugging
+## Testen und Debugging
 
-- Komponenten können direkt im HTML getestet werden.
-- Nutze den lokalen Loader `xtend-loader.js` und den lokalen Dev-Server fuer Browser-Smokes und manuelle Tests.
+- Komponenten koennen direkt im HTML getestet werden.
+- Nutze `xtend-loader.js` und den lokalen Dev Server fuer manuelle Tests.
+- Nutze RMT-Surfaces, wenn du Component-Verhalten im App-Lifecycle pruefen
+  willst.
+- Fuer API- und Typing-Fragen siehe [Public Component Types](./public-component-types.md).
 
----
+## Weiterfuehrende Themen
 
-## Weiterführende Themen
 - [Manifest-Format](./manifest.md)
 - [XTend Loader](./xtend-loader.md)
+- [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [Component Platform](./component-platform.md)
+- [Component UX Authoring](./component-ux-authoring.md)
 - [API-Integration](./api.md)
-
----
-
-*Letzte Aktualisierung: 16. Juli 2025*

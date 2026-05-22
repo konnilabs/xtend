@@ -7579,6 +7579,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   const fullReleaseGate = (gateMatrix && gateMatrix.fullReleaseGate) || {};
   const nightlyGate = (gateMatrix && gateMatrix.nightlyGate) || {};
   const packageStructureGate = (gateMatrix && gateMatrix.packageStructureGate) || {};
+  const rmtVNextPrimitiveGate = (gateMatrix && gateMatrix.rmtVNextPrimitiveGate) || {};
   const npmPublishNext = packageManifest.xtend && packageManifest.xtend.npmPublishNext;
 
   assertFileExists(context, workflowPath, rootDir, 'CI default gates workflow exists');
@@ -7601,6 +7602,15 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, '.xtend-test-results/xtend-release-gate-report.json', 'CI workflow uploads full release JSON report');
   context.assertIncludes(workflow, 'xtend-pr-gate-report-node-26', 'CI workflow uses stable PR report artifact name');
   context.assertIncludes(workflow, 'xtend-release-gate-report-node-26', 'CI workflow uses stable release report artifact name');
+  context.assertIncludes(workflow, 'rmt-vnext-primitive-gates:', 'CI workflow declares RMT vNext primitive gate job');
+  context.assertIncludes(workflow, 'npm run test:rmt-vnext-primitives:report', 'CI workflow runs RMT vNext primitive gate report');
+  context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:chromedriver', 'CI workflow requires RMT vNext source-to-sea browser evidence');
+  context.assertIncludes(workflow, 'RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome', 'CI workflow pins RMT vNext source-to-sea browser name');
+  context.assertIncludes(workflow, 'RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"', 'CI workflow pins RMT vNext source-to-sea WebDriver port');
+  context.assertIncludes(workflow, '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'CI workflow uploads RMT vNext primitive JSON report');
+  context.assertIncludes(workflow, '.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json', 'CI workflow uploads RMT vNext source-to-sea evidence');
+  context.assertIncludes(workflow, 'xtend-rmt-vnext-primitives-gate-report-node-26', 'CI workflow uses stable RMT vNext primitive artifact name');
+  context.assertIncludes(workflow, 'xtend-rmt-vnext-source-to-sea-evidence-node-26', 'CI workflow uses stable RMT vNext source-to-sea artifact name');
   context.assertIncludes(workflow, 'package-structure:', 'CI workflow declares package structure job');
   context.assertIncludes(workflow, 'npm run pack:dry-run', 'CI workflow runs package dry run');
   context.assertIncludes(workflow, 'npm publish --dry-run --tag next --access public', 'CI workflow runs npm publish dry run');
@@ -7663,9 +7673,22 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(nightlyGate.schema === 'xtend.ci.nightly-gate.v1', 'Package metadata exposes nightly gate schema');
   context.assert(nightlyGate.cron === '17 3 * * *', 'Package metadata exposes nightly cron');
   context.assert(nightlyGate.command === 'npm run test:release:full:report', 'Package metadata exposes nightly full release command');
-<<<<<<< HEAD
-  context.assert(packageManifest.scripts['test:pr:report'] === 'node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json', 'Package exposes PR fast report gate script');
-=======
+  context.assert(rmtVNextPrimitiveGate.schema === 'xtend.ci.rmt-vnext-primitive-gate.v1', 'Package metadata exposes RMT vNext primitive gate schema');
+  context.assert(rmtVNextPrimitiveGate.command === 'npm run test:rmt-vnext-primitives:report', 'Package metadata exposes RMT vNext primitive report command');
+  context.assert(rmtVNextPrimitiveGate.reportPath === '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package metadata exposes RMT vNext primitive report path');
+  context.assert(rmtVNextPrimitiveGate.artifactName === 'xtend-rmt-vnext-primitives-gate-report-node-26', 'Package metadata exposes RMT vNext primitive artifact name');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaEvidenceCommand === 'npm run test:rmt-vnext-source-to-sea:evidence', 'Package metadata exposes RMT vNext source-to-sea evidence command');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaBrowserRequiredCommand === 'npm run test:rmt-vnext-source-to-sea:browser-required', 'Package metadata exposes RMT vNext source-to-sea browser-required command');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiBrowserRequiredCommand === 'npm run test:rmt-vnext-source-to-sea:chromedriver', 'Package metadata exposes RMT vNext source-to-sea CI browser-required command');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiBrowserDriver === 'chromedriver', 'Package metadata exposes RMT vNext source-to-sea CI browser driver');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiBrowserName === 'chrome', 'Package metadata exposes RMT vNext source-to-sea CI browser name');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiWebDriverPort === 9515, 'Package metadata exposes RMT vNext source-to-sea CI WebDriver port');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaEvidencePath === '.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json', 'Package metadata exposes RMT vNext source-to-sea evidence path');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaEvidenceArtifactName === 'xtend-rmt-vnext-source-to-sea-evidence-node-26', 'Package metadata exposes RMT vNext source-to-sea evidence artifact name');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-vnext-fabric-bridge'), 'RMT vNext primitive gate includes fabric bridge suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-vnext-source-to-sea'), 'RMT vNext primitive gate includes source-to-sea suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-vnext-compatibility'), 'RMT vNext primitive gate includes compatibility suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('type-exports-rmt'), 'RMT vNext primitive gate includes RMT TypeExports suite');
   context.assert(packageStructureGate.schema === 'xtend.ci.package-structure-gate.v1', 'Package metadata exposes package structure gate schema');
   context.assert(packageStructureGate.command === 'npm run pack:dry-run', 'Package metadata exposes package structure pack command');
   context.assert(packageStructureGate.publishDryRunCommand === 'npm publish --dry-run --tag next --access public', 'Package metadata exposes publish dry-run command');
@@ -7681,8 +7704,14 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(npmPublishNext.requiredCommands) && npmPublishNext.requiredCommands.includes('npm run release:report'), 'Package metadata requires release report before npm publish');
   context.assert(npmPublishNext.provenance === true, 'Package metadata requires npm provenance');
   context.assert(packageManifest.repository && packageManifest.repository.url === 'git+https://github.com/konnilabs/xtend.git', 'Package metadata exposes GitHub repository for provenance');
-  context.assert(packageManifest.scripts['test:pr:report'] === 'node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot --report .xtend-test-results/xtend-pr-gate-report.json', 'Package exposes PR fast report gate script');
->>>>>>> 9eb4407502d37ffded803ceec7101f6db952d09e
+  context.assert(packageManifest.scripts['test:rmt-vnext-fabric-bridge'] === 'node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge', 'Package exposes RMT vNext fabric bridge script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea'] === 'node scripts/run_xtend_tests.js rmt-vnext-source-to-sea', 'Package exposes RMT vNext source-to-sea script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:evidence'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js', 'Package exposes RMT vNext source-to-sea evidence script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:browser-required'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser', 'Package exposes RMT vNext source-to-sea browser-required script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromedriver'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver', 'Package exposes RMT vNext source-to-sea chromedriver script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-primitives'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt', 'Package exposes RMT vNext primitive aggregate gate script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package exposes RMT vNext primitive report gate script');
+  context.assert(packageManifest.scripts['test:pr:report'] === 'node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json', 'Package exposes PR fast report gate script');
   context.assert(packageManifest.scripts['test:release:full:report'] === 'node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-gate-report.json', 'Package exposes full release report gate script');
 }
 

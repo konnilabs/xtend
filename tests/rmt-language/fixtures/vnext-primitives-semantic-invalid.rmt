@@ -1,0 +1,35 @@
+// RMT-VNEXT-PRIM-03 invalid semantic graph fixture.
+// Parses as vNext, then fails primitive references, ownership and trust gates.
+
+template demo.semantic.invalid {
+  state demo.records type DemoRecord[] initial []
+
+  selector demo.visible from state demo.records {
+    output DemoRecord[]
+  }
+
+  action demo.save {
+    input id string
+  }
+
+  portal surface.root root "#root" layer surface
+
+  surface demo.card kind window component x-card {
+    repeat from selector missing.records
+    portal missing.portal
+
+    lane visible weight 20 {
+      hydrate card-view from selector missing.records
+    }
+
+    on click "[data-save]" -> action demo.save
+  }
+
+  resource orphan.objectUrl kind object-url {
+    source selector missing.records
+  }
+
+  resource bad.import kind lazy-import owner surface.demo.card {
+    import "@ccslabs/xtend/kernel/fabric"
+  }
+}

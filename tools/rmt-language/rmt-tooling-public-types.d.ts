@@ -88,9 +88,16 @@ export interface RmtDefinitionTarget {
 export interface RmtCodeAction {
   title: string;
   kind?: string;
+  diagnosticCode?: string;
+  pointer?: string;
+  safe?: boolean;
+  confidence?: string;
   diagnostics?: RmtToolingDiagnostic[];
   edit?: RmtWorkspaceEdit;
   command?: RmtCommand;
+  preview?: RmtJsonValue;
+  fixAllActionCount?: number | null;
+  diagnosticCodes?: string[];
   isPreferred?: boolean;
   data?: RmtJsonValue;
 }

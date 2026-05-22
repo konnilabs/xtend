@@ -190,6 +190,14 @@ const {
   runRmtVNextCompilerSuite
 } = require('../tests/rmt-language/rmt_vnext_compiler_suite');
 const {
+  printRmtVNextSourceToSeaReport,
+  runRmtVNextSourceToSeaSuite
+} = require('../tests/rmt-language/rmt_vnext_source_to_sea_suite');
+const {
+  printRmtVNextFabricBridgeReport,
+  runRmtVNextFabricBridgeSuite
+} = require('../tests/rmt-language/rmt_vnext_fabric_bridge_suite');
+const {
   printRmtVNextLifecycleReport,
   runRmtVNextLifecycleSuite
 } = require('../tests/rmt-language/rmt_vnext_lifecycle_suite');
@@ -1129,6 +1137,26 @@ const suites = [
       const result = runRmtVNextCompilerSuite({ rootDir });
       printRmtVNextCompilerReport(result);
       return toRunnerResult('rmt-vnext-compiler', 'Epic 15 RMT vNext Compiler to Core', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-source-to-sea',
+    label: 'RMT vNext Source-to-Sea Browser Gate',
+    description: 'Runs the RMT-VNEXT-PRIM-06 source, kernel, Fabric, UI and browser viewport correlation gate.',
+    run: async () => {
+      const result = await runRmtVNextSourceToSeaSuite({ rootDir });
+      printRmtVNextSourceToSeaReport(result);
+      return toRunnerResult('rmt-vnext-source-to-sea', 'RMT vNext Source-to-Sea Browser Gate', result);
+    }
+  },
+  {
+    id: 'rmt-vnext-fabric-bridge',
+    label: 'RMT vNext Fabric Lane/Fiber Bridge Evidence',
+    description: 'Runs the RMT-VNEXT-PRIM-05 Fabric lane, fiber, host adapter telemetry and route/component bridge gate.',
+    run: () => {
+      const result = runRmtVNextFabricBridgeSuite({ rootDir });
+      printRmtVNextFabricBridgeReport(result);
+      return toRunnerResult('rmt-vnext-fabric-bridge', 'RMT vNext Fabric Lane/Fiber Bridge Evidence', result);
     }
   },
   {
@@ -2676,6 +2704,8 @@ Examples:
   node scripts/run_xtend_tests.js rmt-parser
   node scripts/run_xtend_tests.js rmt-vnext-parser
   node scripts/run_xtend_tests.js rmt-vnext-compiler
+  node scripts/run_xtend_tests.js rmt-vnext-source-to-sea
+  node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge
   node scripts/run_xtend_tests.js rmt-vnext-lifecycle
   node scripts/run_xtend_tests.js rmt-vnext-scheduler
   node scripts/run_xtend_tests.js rmt-vnext-surfaces

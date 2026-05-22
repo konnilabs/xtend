@@ -1,89 +1,105 @@
 # XTendRMT Developer Overview
 
-- Status: aktuell nach Epic 05 Abschluss
 - Contract: `xtend.docs.xtendrmt-overview.v1`
 - Produktversion: `XTendRMT 0.2.0`
-- Kernartefakte:
-  - `xtendrmt/rmt-core.esm.js`
-  - `xtendrmt/rmt-runtime.esm.js`
-  - `xtendrmt/rmt-runtime.browser.js`
-  - `xtendrmt/rmt-core.d.ts`
-  - `xtendrmt/rmt.schema.json`
-  - `xtendrmt/rmt-manifest.json`
 
-## Zielbild
+XTendRMT ist die deklarative App-Schicht von XTend. Entwickler schreiben eine
+lesbare `.rmt` Quelle; der Compiler erzeugt daraus Core Records, Kernel-
+Artefakte, Source Maps und Adapter-Uebergaben. XTend UI bleibt das
+Web-Component-System, XTendRMT beschreibt App-Struktur und Lifecycle.
 
-XTendRMT verbindet zwei Produkte, ohne ihre Grenzen zu verwischen:
+## Produktgrenze
 
-| Produkt | Rolle |
-|---------|-------|
-| XTend UI | UI Builder und Web-Component-System |
-| XTendRMT | Scheduler, Runtime Kernel und Templating Engine |
+| Ebene | Verantwortung |
+| --- | --- |
+| RMT vNext | App Shell, Surfaces, State, Selectors, Actions, Events, Resources, Lanes |
+| RMT Kernel | Normalisierung, Scheduling, Diagnostics, Source Maps, Kernel Records |
+| Host Adapter | XTend Components, XRouter, DOM, Browser APIs, Framework-Bridges |
+| XTend UI | Web Components, Styling, A11y, Interaktion, sichtbare UI |
+| Fabric | Lanes, Fibers, Telemetry, Backpressure und Runtime-Diagnostics |
 
-XTend ist First-Class Host fuer RMT, aber keine Pflichtabhaengigkeit des RMT Kernels. RMT kann XTend Components, XRouter Routes und Scheduler Policies beschreiben und ausfuehren lassen, ohne XTend, XRouter, DOM oder `xstate` in den Kernel einzubetten.
+Der Kernel bleibt framework-agnostisch. Er importiert keine XTend Components,
+kein XRouter-Modul, keine Browser-APIs und keine Host-Runtime. Alles, was DOM,
+Routing, Component-Importe oder Browser-Zustaende braucht, gehoert in Adapter.
 
-## Aktueller Implementierungsstand
+## Warum RMT vNext?
 
-Epic 05 ist abgeschlossen. Der produktive Pfad besteht aus:
+RMT vNext ist die bevorzugte Syntax fuer neue Apps:
 
-- nativen `.rmt` Top-Level-Domains: `adapters`, `components`, `routes`, `schedules`, `templates`
+- Eine App Shell entsteht aus einer Quelle statt aus verstreutem HTML,
+  Legacy-JSON und Host-Code.
+- UI-Objekte bleiben ueber Primitive IDs, Source Maps, Kernel Records, Fabric
+  Fibers und DOM-Marker korrelierbar.
+- State, Selectors, Actions, DataSources, Events, Portals, Overlays,
+  Resources und Surfaces sind erstklassige Authoring-Primitive.
+- Editor-DX kommt direkt aus dem Language Server: Completion, Hover, Document
+  Symbols, Definition und Code Actions.
+- Legacy- und App-Platform-JSON bleiben kompatible Targets, aber nicht der
+  normale Authoring-Pfad.
+
+## Kleines mentales Modell
+
+```text
+app.rmt
+  -> vNext parser
+  -> semantic primitive graph
+  -> core document + kernel records
+  -> host adapter
+  -> XTend Components / XRouter / Fabric
+  -> sichtbare App im Browser
+```
+
+Ein Surface beschreibt einen sichtbaren Bereich. Eine Lane beschreibt, wann
+und mit welcher Prioritaet Arbeit ausgefuehrt wird. Actions und Events
+beschreiben Interaktion. Resources beschreiben Besitz und Cleanup. Adapter
+setzen diese Beschreibung in echte Komponenten und Browser-Arbeit um.
+
+## Kernartefakte
+
+- `xtendrmt/rmt-core.esm.js`
+- `xtendrmt/rmt-runtime.esm.js`
+- `xtendrmt/rmt-runtime.browser.js`
+- `xtendrmt/rmt-core.d.ts`
+- `xtendrmt/rmt.schema.json`
+- `xtendrmt/rmt-manifest.json`
+
+## Wichtige APIs und Adapter
+
 - Runtime Registry fuer Route- und Component-Indizes
 - XRouter Adapter `createRmtXRouterAdapter`
 - XTend Component Adapter `createRmtXtendComponentAdapter`
 - State-/Scheduler-/Diagnostics Bridge `createRmtStateSchedulerDiagnosticsBridge`
-- ESM- und Browser-Bundles mit Artefakt-Paritaetsgate
-- Browser-Smoke fuer RMT/XRouter/XTend/Vanilla
-
-Die wichtigsten Regressionen liegen in:
-
-- `tests/fixtures/rmt-app-dsl.native-bridge.rmt`
-- `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
-- `xtendrmt/xtendrmt-bestcase-demo.rmt`
-- `xtendrmt-bestcase.html`
-
-## Architekturgrenze
-
-RMT darf:
-
-- `.rmt` Dokumente normalisieren
-- DSL-Domains indizieren
-- Adapter Records validieren
-- Scheduler Policies beschreiben
-- Diagnostics und Reference Graphs erzeugen
-
-RMT darf nicht:
-
-- `components/xrouter.js` importieren
-- XTend Components importieren
-- `window.XTend` voraussetzen
-- `xstate` direkt schreiben
-- DOM-Mounting im Kernel ausfuehren
-- React, Vue, Vanilla oder Custom Hosts auf XTend migrieren
-
-Host-Arbeit gehoert in Adapter. Das ist der Kern der First-Class-Citizen-Strategie: XTend bekommt hochwertige Adapter, aber der Kernel bleibt framework-agnostisch.
+- RMT Language Server fuer Editor-Integrationen
+- Compiler-Ausgaben fuer Core, App-Platform und Kernel Records
 
 ## Offizielle Entwicklerdokumente
 
 | Thema | Dokument |
-|-------|----------|
+| --- | --- |
+| Erste App | [Quick Start Guide](./quick-start-guide.md) |
+| vNext App Authoring | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md) |
 | Native Authoring | [XTendRMT Native Authoring Guide](./xtendrmt-native-authoring.md) |
-| Native App-DSL Referenz | [XTendRMT App-DSL Reference](./xtendrmt-app-dsl.md) |
+| App-DSL Referenz | [XTendRMT App-DSL Reference](./xtendrmt-app-dsl.md) |
 | Runtime Bridge und Adapter | [XTendRMT Runtime Bridge](./xtendrmt-runtime-bridge.md) |
 | Migration aus alten Metadatenpfaden | [XTendRMT Native Migration Guide](./xtendrmt-migration-guide.md) |
-| Docs-App / Parsedown Scheduling | [XTendRMT Parsedown Scheduling Pilot](./xtendrmt-parsedown-scheduling.md) |
+| Editor Setup | [RMT Language Server und Editor Setup](./rmt-language-server.md) |
+| Historie | [XTend Changelog](./changelog.md) |
 
-## Empfohlener lokaler Gate
+## Lokaler Check fuer RMT-Arbeit
 
 ```bash
-node scripts/run_xtend_tests.js references --json
-node scripts/run_xtend_tests.js rmt-compatibility --json
-node scripts/run_xtend_tests.js browser --json
-node scripts/verify_xtendrmt_artifact_parity.js --json
-npm test
+xt rmt lint app.rmt
+node tools/rmt-language-server/server.js
+node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-vnext-tooling --json
 ```
 
-`references` prueft die offizielle Entwicklerdokumentation, `rmt-compatibility` prueft DSL, Adapter, Bridge und Artefakt-Paritaet, `browser` prueft den browsernahen Multi-Host-Pfad.
+Fuer Runtime- und Adapter-Paritaet bleiben zwei repo-lokale Gates wichtig:
 
-## Entwicklungsregel
+- `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` prueft, dass RMT,
+  XRouter, XTend Components und Vanilla-Host zusammen sichtbar rendern.
+- `node scripts/verify_xtendrmt_artifact_parity.js --json` prueft, dass
+  Schema, Manifest, Typen, ESM-Bundles und Browser-Bundle zusammenpassen.
 
-Neue RMT-nahe Arbeit soll zuerst klaeren, ob sie Kernel-, DSL-, Adapter-, Host- oder Dokumentationsverantwortung ist. Wenn XTend-spezifisches Verhalten benoetigt wird, entsteht ein Adapter- oder Host-Contract, kein Kernel-Sonderfall.
+Neue RMT-nahe Arbeit soll zuerst klaeren, ob sie Kernel-, Syntax-, Adapter-,
+Host- oder Dokumentationsverantwortung ist. XTend-spezifisches Verhalten wird
+ueber Adapter modelliert, nicht als Kernel-Sonderfall.

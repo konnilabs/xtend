@@ -37,6 +37,7 @@ const CORE_CONTRACT_PATH = 'development/XTendRMT-vNext-Core-Format-Contract.md';
 const WP_E15_04_PATH = 'development/WP-E15-04-Lexer-Parser-MVP-fuer-Templates-Surfaces-Lanes-und-Lifecycle-Ops-bauen.md';
 const VALID_MINIMAL_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-minimal.rmt';
 const VALID_COMPLEX_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-complex.rmt';
+const PRIMITIVE_GRAMMAR_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
 const INVALID_IMPERATIVE_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-imperative.rmt';
 const INVALID_CONDITION_CALL_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt';
 const INVALID_TOP_LEVEL_OPERATION_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-top-level-operation.rmt';
@@ -105,6 +106,7 @@ function runRmtVNextParserSuite(options = {}) {
   assertFileExists(context, WP_E15_04_PATH, rootDir, 'WP-E15-04 workpackage document exists');
   assertFileExists(context, VALID_MINIMAL_FIXTURE, rootDir, 'minimal vNext fixture exists');
   assertFileExists(context, VALID_COMPLEX_FIXTURE, rootDir, 'complex vNext fixture exists');
+  assertFileExists(context, PRIMITIVE_GRAMMAR_FIXTURE, rootDir, 'vNext primitive grammar fixture exists');
   context.assert(parserSyntax.ok, `vNext parser module syntax passes${parserSyntax.ok ? '' : ` (${parserSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `vNext parser suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
@@ -161,6 +163,31 @@ function runRmtVNextParserSuite(options = {}) {
     'complex fixture preserves event action reference'
   );
 
+  const primitiveResult = parseFixture(PRIMITIVE_GRAMMAR_FIXTURE, rootDir);
+  context.assert(primitiveResult.ok === true, 'primitive grammar fixture parses successfully');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtStateDeclaration').length === 3, 'primitive fixture has three state declarations');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtSelectorDeclaration').length === 2, 'primitive fixture has two selectors');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtDataSourceDeclaration').length === 2, 'primitive fixture has two datasources');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtActionDeclaration').length === 2, 'primitive fixture has two actions');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtPortalDeclaration').length === 2, 'primitive fixture has two portals');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtOverlayDeclaration').length === 1, 'primitive fixture has one overlay');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtResourceDeclaration').length === 2, 'primitive fixture has two resources');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtSurfaceDeclaration').length === 2, 'primitive fixture has two primitive surfaces');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtSurfaceRepeatClause').length === 1, 'primitive fixture has one keyed surface repeater clause');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtReducerStatement').length === 1, 'primitive fixture has one reducer statement');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtEffectStatement').length === 1, 'primitive fixture has one effect statement');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtActionResultHandler').length === 3, 'primitive fixture has three action result handlers');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtEventBinding').length === 2, 'primitive fixture has two event bindings');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtEventPayloadMapping').length === 3, 'primitive fixture has three event payload mappings');
+  context.assert(
+    collectNodes(primitiveResult.ast, 'RmtStateDeclaration').every((node) => node.range && node.range.start && node.range.end),
+    'primitive state declarations have source ranges'
+  );
+  context.assert(
+    collectNodes(primitiveResult.ast, 'RmtSelectorWhereClause').some((node) => node.text.includes('contains(record.name')),
+    'primitive selector preserves declarative contains operator text'
+  );
+
   const parser = createRmtVNextParser();
   const fallbackResult = parser.parseSource({
     text: readText(VALID_MINIMAL_FIXTURE, rootDir),
@@ -208,7 +235,7 @@ function runRmtVNextParserSuite(options = {}) {
     workpackage: RMT_VNEXT_PARSER_WORKPACKAGE,
     parserModule: RMT_VNEXT_PARSER_MODULE_PATH,
     suite: RMT_VNEXT_PARSER_SUITE_PATH,
-    validFixtureCount: 2,
+    validFixtureCount: 3,
     invalidFixtureCount: 3
   });
 }

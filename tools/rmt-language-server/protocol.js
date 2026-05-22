@@ -324,6 +324,9 @@ function toLspCodeAction(action = {}) {
       pointer: action.pointer || null,
       safe: action.safe !== false,
       confidence: action.confidence || null,
+      preview: action.preview || null,
+      fixAllActionCount: action.fixAllActionCount || null,
+      diagnosticCodes: Array.isArray(action.diagnosticCodes) ? action.diagnosticCodes : [],
       workpackage: action.workpackage || RMT_LANGUAGE_SERVER_WORKPACKAGE
     }
   };

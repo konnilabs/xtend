@@ -22,16 +22,27 @@ const {
   RMT_VNEXT_COMPILER_SUITE_PATH,
   RMT_VNEXT_COMPILER_WORKPACKAGE,
   RMT_VNEXT_CORE_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE,
+  RMT_APP_PLATFORM_RECORDS_SCHEMA,
+  RMT_KERNEL_BOUNDARY,
+  RMT_KERNEL_RECORDS_SCHEMA,
   compileRmtVNextSource,
   createRmtVNextCompiler,
   serializeRmtVNextCore
 } = require('../../tools/rmt-language/vnext-compiler');
+const {
+  RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES,
+  RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_SCHEMA
+} = require('../../tools/rmt-language/semantic-graph');
 
 const EPIC_15_PATH = 'development/EPIC_E15_RMT_vNext_Syntax.md';
 const CORE_CONTRACT_PATH = 'development/XTendRMT-vNext-Core-Format-Contract.md';
 const WP_E15_05_PATH = 'development/WP-E15-05-Compiler-DSL-zu-Core-mit-Source-Maps-und-Diagnostics-anbinden.md';
 const VALID_MINIMAL_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-minimal.rmt';
 const VALID_COMPLEX_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-complex.rmt';
+const VALID_PRIMITIVE_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
+const INVALID_PRIMITIVE_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 const INVALID_CONDITION_CALL_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt';
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -73,6 +84,8 @@ function runRmtVNextCompilerSuite(options = {}) {
   assertFileExists(context, RMT_VNEXT_COMPILER_MODULE_PATH, rootDir, 'vNext compiler module exists');
   assertFileExists(context, RMT_VNEXT_COMPILER_SUITE_PATH, rootDir, 'vNext compiler suite exists');
   assertFileExists(context, WP_E15_05_PATH, rootDir, 'WP-E15-05 workpackage document exists');
+  assertFileExists(context, VALID_PRIMITIVE_FIXTURE, rootDir, 'vNext primitive compiler fixture exists');
+  assertFileExists(context, INVALID_PRIMITIVE_FIXTURE, rootDir, 'vNext primitive invalid compiler fixture exists');
   context.assert(compilerSyntax.ok, `vNext compiler module syntax passes${compilerSyntax.ok ? '' : ` (${compilerSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `vNext compiler suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
@@ -142,6 +155,37 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(complexResult.coreJson === complexRepeat.coreJson, 'complex fixture compiles to byte-stable Core JSON');
   context.assert(JSON.parse(complexResult.coreJson).schema === RMT_VNEXT_CORE_SCHEMA, 'complex Core JSON is parseable');
 
+  const primitiveResult = parseFixture(VALID_PRIMITIVE_FIXTURE, rootDir);
+  const primitive = primitiveResult.coreDocument;
+  context.assert(primitiveResult.ok === true, 'primitive fixture compiles successfully');
+  context.assert(primitiveResult.primitiveLoweringSchema === RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA, 'primitive compiler result declares lowering schema');
+  context.assert(primitiveResult.primitiveLoweringWorkpackage === RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE, 'primitive compiler result belongs to PRIM-04');
+  context.assert(primitiveResult.primitiveSemanticGraph.schema === RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_SCHEMA, 'primitive compile uses PRIM-03 semantic graph');
+  context.assert(primitive.states.length === 3, 'primitive core lowers state records');
+  context.assert(primitive.selectors.length === 2, 'primitive core lowers selector records');
+  context.assert(primitive.dataSources.filter((record) => record.primitive === true).length === 2, 'primitive core lowers datasource records');
+  context.assert(primitive.actions.length === 2, 'primitive core lowers action records');
+  context.assert(primitive.effects.length === 1, 'primitive core lowers action effects');
+  context.assert(primitive.portals.length === 2, 'primitive core lowers portal records');
+  context.assert(primitive.overlays.length === 1, 'primitive core lowers overlay records');
+  context.assert(primitive.resources.length === 2, 'primitive core lowers resource records');
+  context.assert(primitive.surfaces.filter((record) => record.primitive === true).length === 2, 'primitive core lowers surface primitive records');
+  context.assert(primitive.events.filter((record) => record.primitive === true).length === 2, 'primitive core lowers direct surface events');
+  context.assert(primitive.appPlatform && primitive.appPlatform.schema === RMT_APP_PLATFORM_RECORDS_SCHEMA, 'primitive compile emits App Platform artifact');
+  context.assert(primitive.kernelRecords && primitive.kernelRecords.schema === RMT_KERNEL_RECORDS_SCHEMA, 'primitive compile emits Kernel Records artifact');
+  context.assert(primitive.kernelRecords.boundary === RMT_KERNEL_BOUNDARY, 'primitive kernel artifact declares host-runtime boundary');
+  context.assert(primitive.kernelRecords.schedules.some((record) => record.lane === 'visible'), 'primitive kernel artifact exposes lane schedules');
+  context.assert(primitive.kernelRecords.fibers.some((record) => record.op === 'hydrate' && record.source && record.source.kind === 'selector'), 'primitive kernel artifact exposes selector-backed fibers');
+  context.assert(primitive.appPlatform.surfaces.some((surface) => surface.id === 'media.player' && surface.repeat && surface.key === 'instance.surfaceId'), 'primitive App Platform artifact preserves keyed surface repeater');
+  context.assert(primitive.appPlatform.events.every((event) => event.payloadContract && event.payloadContract.required.length > 0), 'primitive App Platform events preserve payload contracts');
+  context.assert(primitive.resources.some((resource) => resource.adapter && resource.adapter.kernelVisible === false), 'primitive host imports stay outside kernel visibility');
+  context.assert(primitive.kernelRecords.resourceRecords.every((resource) => !String(JSON.stringify(resource)).includes('@ccslabs/xtend/components')), 'primitive kernel resource records do not expose XTend component imports');
+  assertSourceMapForRecord(context, primitive, 'states', 0, 'primitive state source map exists');
+  assertSourceMapForRecord(context, primitive, 'actions', 0, 'primitive action source map exists');
+  assertSourceMapForRecord(context, primitive, 'events', 0, 'primitive event source map exists');
+  context.assert(primitiveResult.primitiveArtifacts && primitiveResult.primitiveArtifacts.sourceMap.length >= 10, 'primitive lowering returns source-map handoff');
+  context.assert(primitiveResult.coreJson === parseFixture(VALID_PRIMITIVE_FIXTURE, rootDir).coreJson, 'primitive fixture compiles to byte-stable Core JSON');
+
   const compiler = createRmtVNextCompiler();
   const fallbackResult = compiler.compileSource({
     text: readText(VALID_MINIMAL_FIXTURE, rootDir),
@@ -158,6 +202,15 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(invalidResult.coreDocument === null, 'invalid source has no core document');
   context.assert(invalidResult.diagnostics.some((diagnostic) => diagnostic.severity === 'error'), 'invalid source propagates diagnostics');
 
+  const invalidPrimitiveResult = parseFixture(INVALID_PRIMITIVE_FIXTURE, rootDir);
+  context.assert(invalidPrimitiveResult.ok === false, 'invalid primitive source does not lower');
+  context.assert(invalidPrimitiveResult.status === 'semantic_error', 'invalid primitive source stops at semantic phase');
+  context.assert(invalidPrimitiveResult.coreDocument === null, 'invalid primitive source has no core document');
+  context.assert(
+    invalidPrimitiveResult.diagnostics.some((diagnostic) => diagnostic.code === RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.unknownReference),
+    'invalid primitive source propagates semantic graph diagnostics'
+  );
+
   return context.result({
     schema: RMT_VNEXT_COMPILER_REPORT_SCHEMA,
     compilerSchema: RMT_VNEXT_COMPILER_SCHEMA,
@@ -165,7 +218,7 @@ function runRmtVNextCompilerSuite(options = {}) {
     workpackage: RMT_VNEXT_COMPILER_WORKPACKAGE,
     compilerModule: RMT_VNEXT_COMPILER_MODULE_PATH,
     suite: RMT_VNEXT_COMPILER_SUITE_PATH,
-    goldenFixtureCount: 2
+    goldenFixtureCount: 3
   });
 }
 

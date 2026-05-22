@@ -1876,6 +1876,7 @@
     "rmtVNextCompatibility": {
       "schema": "xtend.rmt.vnext-compatibility-matrix.v1",
       "migrationReportSchema": "xtend.rmt.vnext-migration-report.v1",
+      "primitiveMigrationApplyPlanSchema": "xtend.rmt.vnext.primitive-migration-apply-plan.v1",
       "roundtripReportSchema": "xtend.rmt.vnext-roundtrip-report.v1",
       "projectionSchema": "xtend.rmt.vnext-legacy-core-projection.v1",
       "reportSchema": "xtend.rmt.vnext-compatibility-report.v1",
@@ -1888,7 +1889,8 @@
       "packageScript": "npm run test:rmt-vnext-compatibility",
       "migrationModes": [
         "report-only",
-        "preview"
+        "preview",
+        "apply-plan"
       ],
       "legacyDomains": [
         "adapters",
@@ -1983,7 +1985,11 @@
       "packageScript": "npm run test:rmt-vnext-release",
       "releaseGateMatrix": [
         "npm run test:rmt-vnext-parser",
+        "npm run test:rmt-semantic-graph",
         "npm run test:rmt-vnext-compiler",
+        "npm run test:rmt-vnext-source-to-sea",
+        "npm run test:rmt-vnext-source-to-sea:evidence",
+        "npm run test:rmt-vnext-source-to-sea:chromedriver",
         "npm run test:rmt-vnext-lifecycle",
         "npm run test:rmt-vnext-scheduler",
         "npm run test:rmt-vnext-surfaces",
@@ -1995,6 +2001,7 @@
         "npm run test:rmt-vnext-streaming",
         "npm run test:rmt-vnext-tooling",
         "npm run test:rmt-vnext-compatibility",
+        "npm run test:rmt-vnext-primitives:report",
         "npm run test:rmt-vnext-regression",
         "npm run test:browser",
         "npm run test:references"
@@ -2891,6 +2898,13 @@
       "vscodeSnippets": "tools/rmt-language/snippets/rmt.code-snippets",
       "vscodeBridge": "tools/rmt-editor/vscode/extension.js",
       "vscodePackage": "tools/rmt-editor/vscode/package.json",
+      "primitiveAuthoringExperienceSchema": "xtend.rmt.editor.vscode-primitive-authoring-experience.v1",
+      "primitiveAuthoringCommands": [
+        "xtendRmt.rmtVNext.showPrimitiveAuthoringApplyExperience",
+        "xtendRmt.rmtVNext.showCodeActionPreview",
+        "xtendRmt.rmtVNext.showCommandHandoff",
+        "xtendRmt.rmtVNext.applySafePrimitiveFixAll"
+      ],
       "docs": "docs/rmt-language-server.md",
       "suite": "tests/rmt-language/rmt_editor_packaging_suite.js",
       "localGate": "node scripts/run_xtend_tests.js rmt-editor-packaging --json",
@@ -3102,6 +3116,7 @@
       "npm run test:rmt-tooling",
       "npm run test:epic14-lsp-handoff",
       "npm run test:rmt-vnext-release",
+      "npm run test:rmt-vnext-primitives:report",
       "npm run test:rmt-vnext-enterprise-release",
       "npm run test:catalog-coverage",
       "npm run test:manifest-policy",
@@ -4003,6 +4018,30 @@
         "cron": "17 3 * * *",
         "command": "npm run test:release:full:report"
       },
+      "rmtVNextPrimitiveGate": {
+        "schema": "xtend.ci.rmt-vnext-primitive-gate.v1",
+        "command": "npm run test:rmt-vnext-primitives:report",
+        "reportPath": ".xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json",
+        "artifactName": "xtend-rmt-vnext-primitives-gate-report-node-26",
+        "sourceToSeaEvidenceCommand": "npm run test:rmt-vnext-source-to-sea:evidence",
+        "sourceToSeaBrowserRequiredCommand": "npm run test:rmt-vnext-source-to-sea:browser-required",
+        "sourceToSeaCiBrowserRequiredCommand": "npm run test:rmt-vnext-source-to-sea:chromedriver",
+        "sourceToSeaCiBrowserDriver": "chromedriver",
+        "sourceToSeaCiBrowserName": "chrome",
+        "sourceToSeaCiWebDriverPort": 9515,
+        "sourceToSeaEvidencePath": ".xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json",
+        "sourceToSeaEvidenceArtifactName": "xtend-rmt-vnext-source-to-sea-evidence-node-26",
+        "suites": [
+          "rmt-vnext-parser",
+          "rmt-vnext-compiler",
+          "rmt-semantic-graph",
+          "rmt-vnext-fabric-bridge",
+          "rmt-vnext-source-to-sea",
+          "rmt-vnext-tooling",
+          "rmt-vnext-compatibility",
+          "type-exports-rmt"
+        ]
+      },
       "packageStructureGate": {
         "schema": "xtend.ci.package-structure-gate.v1",
         "command": "npm run pack:dry-run",
@@ -4028,6 +4067,7 @@
       "evidenceArtifactName": "xtend-npm-publish-next-evidence-node-26",
       "requiredCommands": [
         "npm run test:release:full:report",
+        "npm run test:rmt-vnext-primitives:report",
         "npm run release:report",
         "npm run pack:dry-run",
         "npm run conditional-network:evidence",
@@ -4036,6 +4076,7 @@
       ],
       "requires": [
         "full-release-gates",
+        "rmt-vnext-primitive-gates",
         "package-structure",
         "conditional-network-evidence"
       ],
@@ -4100,6 +4141,7 @@
         "npm run test:epic13-rc1-migration-notes",
         "npm run test:epic13-rc1-gate-matrix-ci-handoff",
         "npm run test:epic13-release-report-pack-dry-run-evidence",
+        "npm run test:rmt-vnext-primitives:report",
         "npm run test:rmt-tooling",
         "npm run test:epic14-lsp-handoff",
         "npm run test:docs-rmt-pilot",
@@ -4173,6 +4215,7 @@
         "docs/release-report-pack-dry-run-evidence.md",
         "docs/conditional-network-evidence-ci.md",
         ".xtend-test-results/xtend-release-gate-report.json",
+        ".xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json",
         ".xtend-test-results/xtend-release-report.json",
         ".xtend-test-results/xtend-conditional-network-evidence-report.json",
         ".xtend-test-results/xtend-pack-dry-run.json",
@@ -8417,6 +8460,14 @@
     "test:rmt-vnext-streaming": "node scripts/run_xtend_tests.js rmt-vnext-streaming",
     "test:rmt-vnext-tooling": "node scripts/run_xtend_tests.js rmt-vnext-tooling",
     "test:rmt-vnext-compatibility": "node scripts/run_xtend_tests.js rmt-vnext-compatibility",
+    "test:rmt-vnext-fabric-bridge": "node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge",
+    "test:rmt-vnext-source-to-sea": "node scripts/run_xtend_tests.js rmt-vnext-source-to-sea",
+    "test:rmt-vnext-source-to-sea:evidence": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js",
+    "test:rmt-vnext-source-to-sea:browser-required": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser",
+    "test:rmt-vnext-source-to-sea:chromedriver": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver",
+    "test:rmt-vnext-source-to-sea:validate-artifact": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact",
+    "test:rmt-vnext-primitives": "node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt",
+    "test:rmt-vnext-primitives:report": "node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json",
     "test:rmt-vnext-regression": "node scripts/run_xtend_tests.js rmt-vnext-regression",
     "test:rmt-vnext-release": "node scripts/run_xtend_tests.js rmt-vnext-release",
     "test:rmt-vnext-remote-manifest": "node scripts/run_xtend_tests.js rmt-vnext-remote-manifest",

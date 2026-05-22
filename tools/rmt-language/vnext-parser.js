@@ -80,8 +80,17 @@ const LIFECYCLE_OPERATIONS = new Set([
   'reattach'
 ]);
 
-const SOURCE_KINDS = new Set(['endpoint', 'sse', 'worker']);
+const SOURCE_KINDS = new Set(['endpoint', 'sse', 'worker', 'selector', 'state', 'datasource', 'fixture', 'resource']);
 const COMPARISON_OPERATORS = new Set(['==', '!=', '>', '>=', '<', '<=']);
+const PRIMITIVE_DECLARATIONS = new Set([
+  'state',
+  'selector',
+  'datasource',
+  'action',
+  'portal',
+  'overlay',
+  'resource'
+]);
 
 function normalizeSourceInput(input = {}, options = {}) {
   if (typeof input === 'string') {
@@ -283,7 +292,7 @@ function tokenizeVNextSource(sourceModel) {
       continue;
     }
 
-    if ('{}().;!<>'.includes(character)) {
+    if ('{}().;!<>[]=,:[]'.includes(character)) {
       index += 1;
       tokens.push(createToken('symbol', character, start, index));
       continue;
@@ -398,6 +407,8 @@ class VNextParser {
         body.push(this.parseRemoteSurfaceDeclaration());
       } else if (this.matches('surface')) {
         body.push(this.parseSurfaceDeclaration(null));
+      } else if (this.isPrimitiveDeclarationStart()) {
+        body.push(this.parsePrimitiveDeclaration({ topLevel: true }));
       } else if (LIFECYCLE_OPERATIONS.has(this.current().value) || this.matches('stream')) {
         this.addDiagnostic(this.current(), 'Lifecycle and stream statements must be inside a lane or slot.', RMT_VNEXT_CONTEXT_ERROR_CODE);
         this.skipStatementOrBlock();
@@ -463,7 +474,10 @@ class VNextParser {
       if (this.matches('surface')) {
         return this.parseSurfaceDeclaration(name && name.value);
       }
-      this.addDiagnostic(this.current(), 'Templates may contain imports and surfaces only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      if (this.isPrimitiveDeclarationStart()) {
+        return this.parsePrimitiveDeclaration({ templateName: name && name.value });
+      }
+      this.addDiagnostic(this.current(), 'Templates may contain imports, surfaces and App Platform primitives only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
       this.skipStatementOrBlock();
       return null;
     });
@@ -479,11 +493,17 @@ class VNextParser {
   parseSurfaceDeclaration(templateName) {
     const start = this.expectValue('surface', 'Expected surface declaration.');
     const name = this.parseQualifiedIdentifier('Expected surface identifier.');
+    const metadata = this.parseSurfaceHeaderMetadata();
     const body = this.parseBlock(() => {
       if (this.matches('lane')) {
         return this.parseLaneDeclaration(templateName, name && name.value);
       }
-      this.addDiagnostic(this.current(), 'Surfaces may contain lanes only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      if (this.matches('on')) {
+        return this.parseEventBinding();
+      }
+      const item = this.parseSurfacePrimitiveItem();
+      if (item) return item;
+      this.addDiagnostic(this.current(), 'Surfaces may contain lanes, event bindings and surface primitive clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
       this.skipStatementOrBlock();
       return null;
     });
@@ -492,7 +512,644 @@ class VNextParser {
     return this.createNode('RmtSurfaceDeclaration', start, end, {
       name: name && name.value,
       nameNode: name,
+      metadata,
       body: body.items
+    });
+  }
+
+  isPrimitiveDeclarationStart() {
+    return PRIMITIVE_DECLARATIONS.has(this.current().value);
+  }
+
+  parsePrimitiveDeclaration(scope = {}) {
+    if (this.matches('state')) return this.parseStateDeclaration(scope);
+    if (this.matches('selector')) return this.parseSelectorDeclaration(scope);
+    if (this.matches('datasource')) return this.parseDataSourceDeclaration(scope);
+    if (this.matches('action')) return this.parseActionDeclaration(scope);
+    if (this.matches('portal')) return this.parsePortalDeclaration(scope);
+    if (this.matches('overlay')) return this.parseOverlayDeclaration(scope);
+    if (this.matches('resource')) return this.parseResourceDeclaration(scope);
+    this.addDiagnostic(this.current(), 'Expected App Platform primitive declaration.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+    this.skipStatementOrBlock();
+    return null;
+  }
+
+  parseStateDeclaration(scope = {}) {
+    const start = this.expectValue('state', 'Expected state declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected state identifier.');
+    const fields = [];
+    let dataType = null;
+    let initial = null;
+    let preserve = false;
+
+    while (!this.isAtEnd() && !this.matches('{') && !this.isStatementBoundary()) {
+      if (this.matches('type')) {
+        this.consume();
+        dataType = this.parseTypeReference('Expected state type.', ['initial', 'preserve']);
+      } else if (this.matches('initial')) {
+        this.consume();
+        initial = this.parsePrimitiveValue();
+      } else if (this.matches('preserve')) {
+        preserve = true;
+        this.consume();
+      } else {
+        this.addDiagnostic(this.current(), 'State declarations may contain type, initial and preserve clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+        this.consume();
+      }
+    }
+
+    if (this.matches('{')) {
+      const body = this.parseBlock(() => {
+        if (this.matches('initial')) return this.parseInitialBlock();
+        this.addDiagnostic(this.current(), 'State blocks may contain initial blocks only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+        this.skipStatementOrBlock();
+        return null;
+      });
+      fields.push(...body.items);
+      this.consumeOptionalStatementEnd();
+      const end = body.endToken || this.previous();
+      return this.createNode('RmtStateDeclaration', start, end, {
+        name: name && name.value,
+        nameNode: name,
+        dataType,
+        initial,
+        preserve,
+        body: fields,
+        scope
+      });
+    }
+
+    this.consumeStatementEnd('Expected statement end after state declaration.');
+    const end = this.previous();
+    return this.createNode('RmtStateDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      dataType,
+      initial,
+      preserve,
+      body: fields,
+      scope
+    });
+  }
+
+  parseInitialBlock() {
+    const start = this.expectValue('initial', 'Expected initial block.');
+    const body = this.parseBlock(() => {
+      const key = this.parseQualifiedIdentifierAllowReserved('Expected initial value key.');
+      const value = this.parsePrimitiveValue();
+      this.consumeStatementEnd('Expected statement end after initial value.');
+      const end = value ? getNodeEndToken(value) : this.previous();
+      return this.createNode('RmtInitialValueEntry', key && key.startToken, end, {
+        key: key && key.value,
+        keyNode: key,
+        value
+      });
+    });
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtInitialBlock', start, end, {
+      body: body.items
+    });
+  }
+
+  parseSelectorDeclaration(scope = {}) {
+    const start = this.expectValue('selector', 'Expected selector declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected selector identifier.');
+    const source = this.matches('from') ? this.parsePrimitiveSourceReference() : null;
+    const body = this.parseBlock(() => {
+      if (this.matches('where')) return this.parseRawPrimitiveClause('where', 'RmtSelectorWhereClause');
+      if (this.matches('find')) return this.parseRawPrimitiveClause('find', 'RmtSelectorFindClause');
+      if (this.matches('sort')) return this.parseSelectorSortClause();
+      if (this.matches('output')) return this.parseOutputClause();
+      this.addDiagnostic(this.current(), 'Selector blocks may contain where, find, sort and output clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.skipStatementOrBlock();
+      return null;
+    });
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtSelectorDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      source,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseDataSourceDeclaration(scope = {}) {
+    const start = this.expectValue('datasource', 'Expected datasource declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected datasource identifier.');
+    const source = this.matches('from') ? this.parsePrimitiveSourceReference() : null;
+    const body = this.parseBlock(() => {
+      if (this.matches('method')) return this.parseKeywordValueClause('method', 'RmtDataSourceMethodClause');
+      if (this.matches('contract')) return this.parseKeywordValueClause('contract', 'RmtDataSourceContractClause');
+      if (this.matches('result')) return this.parseKeywordValueClause('result', 'RmtDataSourceResultClause');
+      if (this.matches('fallback')) return this.parseFallbackClause();
+      this.addDiagnostic(this.current(), 'DataSource blocks may contain method, contract, result and fallback clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.skipStatementOrBlock();
+      return null;
+    });
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtDataSourceDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      source,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseActionDeclaration(scope = {}) {
+    const start = this.expectValue('action', 'Expected action declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected action identifier.');
+    const body = this.parseBlock(() => {
+      if (this.matches('input')) return this.parseActionInputClause();
+      if (this.matches('status')) return this.parseKeywordPathClause('status', 'RmtActionStatusClause');
+      if (this.matches('effect')) return this.parseActionEffectStatement();
+      if (this.matches('reduce')) return this.parseReduceStatement();
+      if (this.matches('emit')) return this.parseEmitStatement();
+      if (this.matches('on')) return this.parseActionResultHandler();
+      this.addDiagnostic(this.current(), 'Action blocks may contain input, status, effect, reduce, emit and result handlers only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.skipStatementOrBlock();
+      return null;
+    });
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtActionDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      body: body.items,
+      scope
+    });
+  }
+
+  parsePortalDeclaration(scope = {}) {
+    const start = this.expectValue('portal', 'Expected portal declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected portal identifier.');
+    const attributes = this.parseInlinePrimitiveAttributes(['root', 'layer', 'z']);
+    const body = this.matches('{') ? this.parseGenericPrimitiveBlock('RmtPortalPolicyClause') : { items: [], endToken: null };
+    if (!body.endToken) this.consumeStatementEnd('Expected statement end after portal declaration.');
+    else this.consumeOptionalStatementEnd();
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtPortalDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      attributes,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseOverlayDeclaration(scope = {}) {
+    const start = this.expectValue('overlay', 'Expected overlay declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected overlay identifier.');
+    const attributes = this.parseInlinePrimitiveAttributes(['kind', 'portal']);
+    const body = this.matches('{') ? this.parseGenericPrimitiveBlock('RmtOverlayPolicyClause') : { items: [], endToken: null };
+    if (!body.endToken) this.consumeStatementEnd('Expected statement end after overlay declaration.');
+    else this.consumeOptionalStatementEnd();
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtOverlayDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      attributes,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseResourceDeclaration(scope = {}) {
+    const start = this.expectValue('resource', 'Expected resource declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected resource identifier.');
+    const attributes = this.parseInlinePrimitiveAttributes(['kind', 'owner', 'source']);
+    const body = this.matches('{') ? this.parseResourceBlock() : { items: [], endToken: null };
+    if (!body.endToken) this.consumeStatementEnd('Expected statement end after resource declaration.');
+    else this.consumeOptionalStatementEnd();
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtResourceDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      attributes,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseSurfaceHeaderMetadata() {
+    const attributes = [];
+    while (!this.isAtEnd() && !this.matches('{') && !this.isStatementBoundary()) {
+      if (['kind', 'component'].includes(this.current().value)) {
+        attributes.push(this.parseInlineAttribute(this.current().value, 'RmtSurfaceHeaderClause'));
+      } else {
+        this.addDiagnostic(this.current(), 'Surface headers may contain kind and component clauses before the body.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+        this.consume();
+      }
+    }
+    return attributes;
+  }
+
+  parseSurfacePrimitiveItem() {
+    if (this.matches('source')) return this.parsePrimitiveReferenceClause('source', 'RmtSurfaceSourceClause');
+    if (this.matches('repeat')) return this.parseRepeatClause();
+    if (this.matches('key')) return this.parseKeywordPathClause('key', 'RmtSurfaceKeyClause');
+    if (this.matches('portal')) return this.parseKeywordPathClause('portal', 'RmtSurfacePortalClause');
+    if (this.matches('bounds')) return this.parseBoundsClause();
+    if (this.matches('preserve')) return this.parseRawPrimitiveClause('preserve', 'RmtSurfacePreserveClause');
+    if (this.matches('destroy')) return this.parseRawPrimitiveClause('destroy', 'RmtSurfaceDestroyClause');
+    return null;
+  }
+
+  isStatementBoundary() {
+    const token = this.current();
+    return token.type === 'newline' || token.value === ';' || token.value === '}' || token.type === 'eof';
+  }
+
+  tokenText(token) {
+    if (!token) return '';
+    if (token.raw) return token.raw;
+    if (token.type === 'string') return JSON.stringify(token.value);
+    return String(token.value);
+  }
+
+  rawTextFromTokens(tokens) {
+    if (!tokens || tokens.length === 0) return '';
+    const start = tokens[0].startOffset;
+    const end = tokens[tokens.length - 1].endOffset;
+    return this.sourceModel.text.slice(start, end).trim();
+  }
+
+  collectTokensUntilStatementEnd(options = {}) {
+    const stopValues = new Set(options.stopValues || []);
+    const tokens = [];
+    let parenDepth = 0;
+    let bracketDepth = 0;
+
+    while (!this.isAtEnd()) {
+      const token = this.current();
+      if (parenDepth === 0 && bracketDepth === 0 && (this.isStatementBoundary() || stopValues.has(token.value))) {
+        break;
+      }
+      if (token.value === '(') parenDepth += 1;
+      if (token.value === ')') parenDepth = Math.max(0, parenDepth - 1);
+      if (token.value === '[') bracketDepth += 1;
+      if (token.value === ']') bracketDepth = Math.max(0, bracketDepth - 1);
+      tokens.push(this.consume());
+    }
+
+    return tokens;
+  }
+
+  parseTypeReference(message, stopValues = []) {
+    const start = this.current();
+    const tokens = this.collectTokensUntilStatementEnd({ stopValues });
+    if (tokens.length === 0) {
+      this.addDiagnostic(start, message || 'Expected type reference.');
+      return null;
+    }
+    const end = tokens[tokens.length - 1];
+    return this.createNode('RmtTypeReference', tokens[0], end, {
+      value: this.rawTextFromTokens(tokens),
+      tokens: tokens.map((token) => this.tokenText(token))
+    });
+  }
+
+  parsePrimitiveValue() {
+    const token = this.current();
+    if (token.type === 'string' || token.type === 'integer' || token.value === 'true' || token.value === 'false' || token.value === 'null') {
+      this.consume();
+      let value = token.value;
+      if (token.value === 'true') value = true;
+      if (token.value === 'false') value = false;
+      if (token.value === 'null') value = null;
+      return this.createNode('RmtPrimitiveValue', token, token, {
+        kind: 'literal',
+        value
+      });
+    }
+
+    if (token.value === '[') {
+      const start = this.consume();
+      const items = [];
+      while (!this.isAtEnd() && !this.matches(']')) {
+        if (this.matches(',')) {
+          this.consume();
+        } else {
+          items.push(this.parsePrimitiveValue());
+        }
+      }
+      const end = this.expectValue(']', 'Expected closing bracket for array literal.') || this.previous();
+      return this.createNode('RmtPrimitiveValue', start, end, {
+        kind: 'array',
+        items
+      });
+    }
+
+    if (token.type === 'identifier') {
+      const path = this.parseQualifiedIdentifierAllowReserved('Expected value.');
+      return this.createNode('RmtPrimitiveValue', path.startToken, path.endToken, {
+        kind: 'path',
+        value: path.value,
+        path: path.parts,
+        pathNode: path
+      });
+    }
+
+    this.addDiagnostic(token, 'Expected primitive value.');
+    this.consume();
+    return this.createNode('RmtPrimitiveValue', token, token, {
+      kind: 'missing',
+      value: null
+    });
+  }
+
+  parsePrimitiveSourceReference() {
+    const start = this.expectValue('from', 'Expected from clause.');
+    const kindToken = this.current();
+    let kind = null;
+    if (kindToken.type === 'identifier') {
+      kind = kindToken.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(kindToken, 'Expected source kind.');
+      this.consume();
+    }
+
+    const valueToken = this.current();
+    let value = null;
+    let valueNode = null;
+    if (valueToken.type === 'string') {
+      value = valueToken.value;
+      valueNode = this.createNode('RmtPrimitiveValue', valueToken, valueToken, { kind: 'literal', value });
+      this.consume();
+    } else {
+      valueNode = this.parseQualifiedIdentifierAllowReserved('Expected source reference.');
+      value = valueNode && valueNode.value;
+    }
+
+    const end = valueNode && (valueNode.endToken || getNodeEndToken(valueNode)) || this.previous();
+    return this.createNode('RmtPrimitiveSourceReference', start, end, {
+      kind,
+      value,
+      valueNode
+    });
+  }
+
+  parseRawPrimitiveClause(keyword, nodeType) {
+    const start = this.expectValue(keyword, `Expected ${keyword} clause.`);
+    const tokens = this.collectTokensUntilStatementEnd();
+    this.consumeStatementEnd(`Expected statement end after ${keyword} clause.`);
+    const end = tokens.length > 0 ? tokens[tokens.length - 1] : this.previous();
+    return this.createNode(nodeType, start, end, {
+      keyword,
+      text: this.rawTextFromTokens(tokens),
+      tokens: tokens.map((token) => this.tokenText(token))
+    });
+  }
+
+  parseSelectorSortClause() {
+    const start = this.expectValue('sort', 'Expected sort clause.');
+    let by = null;
+    if (this.matches('by')) {
+      this.consume();
+      by = this.parseQualifiedIdentifierAllowReserved('Expected sort path.');
+    }
+    let direction = null;
+    if (!this.isStatementBoundary()) {
+      direction = this.current().value;
+      this.consume();
+    }
+    this.consumeStatementEnd('Expected statement end after sort clause.');
+    const end = this.previous();
+    return this.createNode('RmtSelectorSortClause', start, end, {
+      by: by && by.value,
+      byNode: by,
+      direction
+    });
+  }
+
+  parseOutputClause() {
+    const start = this.expectValue('output', 'Expected output clause.');
+    const dataType = this.parseTypeReference('Expected output type.');
+    this.consumeStatementEnd('Expected statement end after output clause.');
+    const end = dataType ? getNodeEndToken(dataType) : this.previous();
+    return this.createNode('RmtSelectorOutputClause', start, end, {
+      dataType
+    });
+  }
+
+  parseKeywordValueClause(keyword, nodeType) {
+    const start = this.expectValue(keyword, `Expected ${keyword} clause.`);
+    const value = this.parsePrimitiveValue();
+    this.consumeStatementEnd(`Expected statement end after ${keyword} clause.`);
+    const end = value ? getNodeEndToken(value) : this.previous();
+    return this.createNode(nodeType, start, end, {
+      keyword,
+      value
+    });
+  }
+
+  parseInlineAttribute(keyword, nodeType) {
+    const start = this.expectValue(keyword, `Expected ${keyword} attribute.`);
+    const value = this.parsePrimitiveValue();
+    const end = value ? getNodeEndToken(value) : this.previous();
+    return this.createNode(nodeType, start, end, {
+      keyword,
+      value
+    });
+  }
+
+  parseKeywordPathClause(keyword, nodeType) {
+    const start = this.expectValue(keyword, `Expected ${keyword} clause.`);
+    const path = this.parseQualifiedIdentifierAllowReserved(`Expected ${keyword} path.`);
+    this.consumeStatementEnd(`Expected statement end after ${keyword} clause.`);
+    const end = path && path.endToken ? path.endToken : this.previous();
+    return this.createNode(nodeType, start, end, {
+      keyword,
+      path: path && path.value,
+      pathNode: path
+    });
+  }
+
+  parseFallbackClause() {
+    const start = this.expectValue('fallback', 'Expected fallback clause.');
+    const kind = this.current().type === 'identifier' ? this.consume() : null;
+    const value = this.parseQualifiedIdentifierAllowReserved('Expected fallback reference.');
+    this.consumeStatementEnd('Expected statement end after fallback clause.');
+    const end = value && value.endToken ? value.endToken : this.previous();
+    return this.createNode('RmtDataSourceFallbackClause', start, end, {
+      kind: kind && kind.value,
+      value: value && value.value,
+      valueNode: value
+    });
+  }
+
+  parseActionInputClause() {
+    const start = this.expectValue('input', 'Expected input clause.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected input identifier.');
+    const dataType = this.parseTypeReference('Expected input type.');
+    this.consumeStatementEnd('Expected statement end after input clause.');
+    const end = dataType ? getNodeEndToken(dataType) : this.previous();
+    return this.createNode('RmtActionInputClause', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      dataType
+    });
+  }
+
+  parseActionEffectStatement() {
+    const start = this.expectValue('effect', 'Expected effect statement.');
+    const effectKind = this.current().type === 'identifier' ? this.consume() : null;
+    let source = null;
+    if (this.matches('datasource') || this.matches('resource') || this.matches('selector')) {
+      const sourceKind = this.consume();
+      const sourceRef = this.parseQualifiedIdentifierAllowReserved('Expected effect source reference.');
+      source = {
+        kind: sourceKind.value,
+        value: sourceRef && sourceRef.value,
+        valueNode: sourceRef
+      };
+    }
+    this.consumeStatementEnd('Expected statement end after effect statement.');
+    const end = this.previous();
+    return this.createNode('RmtEffectStatement', start, end, {
+      effectKind: effectKind && effectKind.value,
+      source
+    });
+  }
+
+  parseReduceStatement() {
+    const start = this.expectValue('reduce', 'Expected reduce statement.');
+    const target = this.parseQualifiedIdentifierAllowReserved('Expected reducer target.');
+    this.expectValue('=', 'Expected = in reduce statement.');
+    const expressionTokens = this.collectTokensUntilStatementEnd();
+    this.consumeStatementEnd('Expected statement end after reduce statement.');
+    const end = expressionTokens.length > 0 ? expressionTokens[expressionTokens.length - 1] : this.previous();
+    return this.createNode('RmtReducerStatement', start, end, {
+      target: target && target.value,
+      targetNode: target,
+      expression: this.rawTextFromTokens(expressionTokens),
+      expressionTokens: expressionTokens.map((token) => this.tokenText(token))
+    });
+  }
+
+  parseEmitStatement() {
+    const start = this.expectValue('emit', 'Expected emit statement.');
+    const event = this.parseQualifiedIdentifierAllowReserved('Expected emitted event identifier.');
+    const payload = [];
+    if (this.matches('with')) {
+      this.consume();
+      while (!this.isStatementBoundary()) {
+        const key = this.parseQualifiedIdentifierAllowReserved('Expected payload key.');
+        const value = this.parsePrimitiveValue();
+        payload.push({
+          key: key && key.value,
+          keyNode: key,
+          value
+        });
+      }
+    }
+    this.consumeStatementEnd('Expected statement end after emit statement.');
+    const end = this.previous();
+    return this.createNode('RmtEmitStatement', start, end, {
+      event: event && event.value,
+      eventNode: event,
+      payload
+    });
+  }
+
+  parseActionResultHandler() {
+    const start = this.expectValue('on', 'Expected action result handler.');
+    const phase = this.parseQualifiedIdentifierAllowReserved('Expected action result phase.');
+    this.expectValue('->', 'Expected -> in action result handler.');
+    const effectTokens = this.collectTokensUntilStatementEnd();
+    this.consumeStatementEnd('Expected statement end after action result handler.');
+    const end = effectTokens.length > 0 ? effectTokens[effectTokens.length - 1] : this.previous();
+    return this.createNode('RmtActionResultHandler', start, end, {
+      phase: phase && phase.value,
+      phaseNode: phase,
+      effect: {
+        kind: effectTokens[0] && effectTokens[0].value || null,
+        text: this.rawTextFromTokens(effectTokens),
+        tokens: effectTokens.map((token) => this.tokenText(token))
+      }
+    });
+  }
+
+  parseInlinePrimitiveAttributes(keywords = []) {
+    const allowed = new Set(keywords);
+    const attributes = [];
+    while (!this.isAtEnd() && !this.matches('{') && !this.isStatementBoundary()) {
+      const keyword = this.current().value;
+      if (allowed.has(keyword)) {
+        attributes.push(this.parseInlineAttribute(keyword, 'RmtPrimitiveAttribute'));
+      } else {
+        this.addDiagnostic(this.current(), `Unexpected inline primitive attribute "${keyword}".`, RMT_VNEXT_CONTEXT_ERROR_CODE);
+        this.consume();
+      }
+    }
+    return attributes;
+  }
+
+  parseGenericPrimitiveBlock(nodeType) {
+    return this.parseBlock(() => {
+      const start = this.current();
+      const tokens = this.collectTokensUntilStatementEnd();
+      this.consumeStatementEnd('Expected statement end after primitive policy clause.');
+      const end = tokens.length > 0 ? tokens[tokens.length - 1] : start;
+      return this.createNode(nodeType, start, end, {
+        text: this.rawTextFromTokens(tokens),
+        tokens: tokens.map((token) => this.tokenText(token))
+      });
+    });
+  }
+
+  parseResourceBlock() {
+    return this.parseBlock(() => {
+      if (this.matches('import')) return this.parseKeywordValueClause('import', 'RmtResourceImportClause');
+      if (this.matches('source')) return this.parsePrimitiveReferenceClause('source', 'RmtResourceSourceClause');
+      if (this.matches('dispose')) return this.parseRawPrimitiveClause('dispose', 'RmtResourceDisposeClause');
+      this.addDiagnostic(this.current(), 'Resource blocks may contain import, source and dispose clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.skipStatementOrBlock();
+      return null;
+    });
+  }
+
+  parsePrimitiveReferenceClause(keyword, nodeType) {
+    const start = this.expectValue(keyword, `Expected ${keyword} clause.`);
+    const kind = this.current().type === 'identifier' ? this.consume() : null;
+    const ref = this.parseQualifiedIdentifierAllowReserved(`Expected ${keyword} reference.`);
+    this.consumeStatementEnd(`Expected statement end after ${keyword} clause.`);
+    const end = ref && ref.endToken ? ref.endToken : this.previous();
+    return this.createNode(nodeType, start, end, {
+      keyword,
+      kind: kind && kind.value,
+      ref: ref && ref.value,
+      refNode: ref
+    });
+  }
+
+  parseRepeatClause() {
+    const start = this.expectValue('repeat', 'Expected repeat clause.');
+    const source = this.matches('from') ? this.parsePrimitiveSourceReference() : null;
+    this.consumeStatementEnd('Expected statement end after repeat clause.');
+    const end = source ? getNodeEndToken(source) : this.previous();
+    return this.createNode('RmtSurfaceRepeatClause', start, end, {
+      source
+    });
+  }
+
+  parseBoundsClause() {
+    const start = this.expectValue('bounds', 'Expected bounds clause.');
+    const fields = [];
+    while (!this.isStatementBoundary()) {
+      const key = this.parseQualifiedIdentifierAllowReserved('Expected bounds key.');
+      const value = this.parsePrimitiveValue();
+      fields.push({
+        key: key && key.value,
+        keyNode: key,
+        value
+      });
+    }
+    this.consumeStatementEnd('Expected statement end after bounds clause.');
+    const end = this.previous();
+    return this.createNode('RmtSurfaceBoundsClause', start, end, {
+      fields
     });
   }
 
@@ -1042,19 +1699,78 @@ class VNextParser {
   parseEventBinding() {
     const start = this.expectValue('on', 'Expected event binding.');
     const event = this.parseQualifiedIdentifier('Expected event identifier.');
+    let selector = null;
+    let target = null;
+    if (this.current().type === 'string') {
+      const selectorToken = this.consume();
+      selector = this.createNode('RmtEventSelector', selectorToken, selectorToken, {
+        value: selectorToken.value
+      });
+    }
+    if (this.matches('target')) {
+      this.consume();
+      target = this.parseQualifiedIdentifierAllowReserved('Expected event target.');
+    }
     this.expectValue('->', 'Expected -> in event binding.');
     this.expectValue('action', 'Expected action keyword in event binding.');
     const action = this.parseQualifiedIdentifier('Expected action identifier.');
     const condition = this.matches('when') ? this.parseConditionClause() : null;
-    this.consumeStatementEnd('Expected statement end after event binding.');
-    const end = this.previous();
+    const policy = this.matches('{') ? this.parseEventPayloadBlock() : null;
+    if (!policy) {
+      this.consumeStatementEnd('Expected statement end after event binding.');
+    } else {
+      this.consumeOptionalStatementEnd();
+    }
+    const end = policy ? getNodeEndToken(policy) : this.previous();
 
     return this.createNode('RmtEventBinding', start, end, {
       event: event && event.value,
       eventNode: event,
+      selector,
+      target: target && target.value,
+      targetNode: target,
       action: action && action.value,
       actionNode: action,
-      condition
+      condition,
+      policy
+    });
+  }
+
+  parseEventPayloadBlock() {
+    const start = this.expectValue('{', 'Expected event payload block.');
+    const body = [];
+    this.skipSeparators();
+    while (!this.isAtEnd() && !this.matches('}')) {
+      let item = null;
+      if (this.matches('payload')) {
+        item = this.parseEventPayloadMapping();
+      } else if (this.matches('preventDefault')) {
+        item = this.parseKeywordValueClause('preventDefault', 'RmtEventOptionClause');
+      } else {
+        this.addDiagnostic(this.current(), 'Event payload blocks may contain payload and preventDefault clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+        this.skipStatementOrBlock();
+      }
+      if (item) body.push(item);
+      this.skipSeparators();
+    }
+    const end = this.expectValue('}', 'Expected closing brace for event payload block.') || this.previous();
+    return this.createNode('RmtEventPayloadBlock', start, end, {
+      body
+    });
+  }
+
+  parseEventPayloadMapping() {
+    const start = this.expectValue('payload', 'Expected payload mapping.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected payload field name.');
+    this.expectValue('from', 'Expected from in payload mapping.');
+    const source = this.parseQualifiedIdentifierAllowReserved('Expected payload source path.');
+    this.consumeStatementEnd('Expected statement end after payload mapping.');
+    const end = source && source.endToken ? source.endToken : this.previous();
+    return this.createNode('RmtEventPayloadMapping', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      source: source && source.value,
+      sourceNode: source
     });
   }
 
@@ -1312,7 +2028,7 @@ function assignAstPointers(node, pointer = '') {
     node.astPointer = pointer || '/';
   }
 
-  ['body'].forEach((key) => {
+  ['body', 'attributes', 'metadata', 'payload', 'fields', 'items'].forEach((key) => {
     const value = node[key];
     if (!Array.isArray(value)) return;
     value.forEach((child, index) => {
@@ -1320,7 +2036,7 @@ function assignAstPointers(node, pointer = '') {
     });
   });
 
-  ['source', 'condition', 'policy', 'expression', 'left', 'right', 'argument'].forEach((key) => {
+  ['source', 'condition', 'policy', 'expression', 'left', 'right', 'argument', 'value', 'dataType', 'initial'].forEach((key) => {
     const value = node[key];
     if (value && typeof value === 'object' && value.type) {
       assignAstPointers(value, `${pointer}/${key}`);

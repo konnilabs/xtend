@@ -29,7 +29,11 @@ const RMT_VNEXT_RELEASE_DOCS = Object.freeze([
 
 const RMT_VNEXT_RELEASE_GATES = Object.freeze([
   'npm run test:rmt-vnext-parser',
+  'npm run test:rmt-semantic-graph',
   'npm run test:rmt-vnext-compiler',
+  'npm run test:rmt-vnext-source-to-sea',
+  'npm run test:rmt-vnext-source-to-sea:evidence',
+  'npm run test:rmt-vnext-source-to-sea:chromedriver',
   'npm run test:rmt-vnext-lifecycle',
   'npm run test:rmt-vnext-scheduler',
   'npm run test:rmt-vnext-surfaces',
@@ -41,6 +45,7 @@ const RMT_VNEXT_RELEASE_GATES = Object.freeze([
   'npm run test:rmt-vnext-streaming',
   'npm run test:rmt-vnext-tooling',
   'npm run test:rmt-vnext-compatibility',
+  'npm run test:rmt-vnext-primitives:report',
   'npm run test:rmt-vnext-regression',
   'npm run test:browser',
   'npm run test:references'

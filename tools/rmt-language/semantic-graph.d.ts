@@ -2,7 +2,9 @@ export * from './rmt-tooling-public-types';
 import type { RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
 
 export declare const buildSemanticGraph: RmtToolingFactory;
+export declare const buildRmtVNextPrimitiveSemanticGraph: RmtToolingFactory;
 export declare const createSemanticDiagnostic: RmtToolingFactory;
+export declare const createVNextPrimitiveDiagnostic: RmtToolingFactory;
 export declare const DOMAIN_NAMES: RmtToolingConstant;
 export declare const DUPLICATE_ID_CODE: RmtToolingConstant;
 export declare const DUPLICATE_ROUTE_PATH_CODE: RmtToolingConstant;
@@ -16,3 +18,7 @@ export declare const RMT_SEMANTIC_GRAPH_REPORT_SCHEMA: RmtToolingConstant;
 export declare const RMT_SEMANTIC_GRAPH_SCHEMA: RmtToolingConstant;
 export declare const RMT_SEMANTIC_GRAPH_SUITE_PATH: RmtToolingConstant;
 export declare const RMT_SEMANTIC_GRAPH_WORKPACKAGE: RmtToolingConstant;
+export declare const RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES: RmtToolingConstant;
+export declare const RMT_VNEXT_PRIMITIVE_DOMAIN_NAMES: RmtToolingConstant;
+export declare const RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_WORKPACKAGE: RmtToolingConstant;

@@ -27,6 +27,7 @@ const EPIC11_UX_COMPATIBILITY_FIXTURE_PATH = 'tests/browser/fixtures/epic11-ux-c
 const EPIC11_THEME_MATRIX_FIXTURE_PATH = 'tests/browser/fixtures/epic11-theme-matrix-smoke.html';
 const EPIC13_TRUSTED_DOM_BOUNDARY_FIXTURE_PATH = 'tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html';
 const RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-reference-smoke.html';
+const RMT_VNEXT_SOURCE_TO_SEA_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-source-to-sea-smoke.html';
 const RMT_VNEXT_ENTERPRISE_MFE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html';
 const CORE_FLOW_MANIFEST_PATH = 'tests/browser/fixtures/components/manifest.json';
 const XALERT_COMPONENT_PATH = 'components/xalert.js';
@@ -95,6 +96,11 @@ const BROWSER_FIXTURES = [
     label: 'RMT vNext reference smoke fixture',
     path: RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH,
     resultKey: '__xtendRmtVNextSmokeResult'
+  },
+  {
+    label: 'RMT vNext Source-to-Sea smoke fixture',
+    path: RMT_VNEXT_SOURCE_TO_SEA_SMOKE_FIXTURE_PATH,
+    resultKey: '__xtendRmtVNextSourceToSeaResult'
   },
   {
     label: 'RMT vNext Enterprise MFE smoke fixture',
@@ -900,6 +906,29 @@ function assertRmtVNextReferenceFixtureContract(context, rootDir) {
   });
 }
 
+function assertRmtVNextSourceToSeaFixtureContract(context, rootDir) {
+  const fixture = readText(RMT_VNEXT_SOURCE_TO_SEA_SMOKE_FIXTURE_PATH, rootDir);
+
+  context.assert(fixture.includes('xtend.rmt.vnext.source-to-sea-browser-probe.v1'), 'RMT vNext Source-to-Sea fixture exposes stable browser contract');
+  context.assert(fixture.includes('data-rmt-vnext-source-to-sea="RMT-VNEXT-PRIM-06"'), 'RMT vNext Source-to-Sea fixture exposes PRIM-06 marker');
+  context.assert(fixture.includes('__xtendRmtVNextSourceToSeaResult'), 'RMT vNext Source-to-Sea fixture exposes smoke result object');
+  context.assert(fixture.includes('data-rmt-primitive-id="demo.feedback.status"'), 'RMT vNext Source-to-Sea fixture exposes primitive id marker');
+  context.assert(fixture.includes('schedule:demo.feedback/demo.feedback.status/visible'), 'RMT vNext Source-to-Sea fixture exposes kernel schedule ref');
+  context.assert(fixture.includes('fiber:demo.feedback/demo.feedback.status/visible/0'), 'RMT vNext Source-to-Sea fixture exposes fabric fiber ref');
+  context.assert(fixture.includes('getBoundingClientRect'), 'RMT vNext Source-to-Sea fixture asserts viewport visibility');
+  context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'RMT vNext Source-to-Sea fixture has no XTend CDN dependency');
+
+  [
+    'source to sea primitive visible',
+    'source to sea schedule visible',
+    'source to sea fiber visible',
+    'source to sea event observed',
+    'source to sea state visible'
+  ].forEach((check) => {
+    context.assert(fixture.includes(`recordCheck('${check}'`), `RMT vNext Source-to-Sea fixture records ${check}`);
+  });
+}
+
 function assertRmtVNextEnterpriseMfeFixtureContract(context, rootDir) {
   const fixture = readText(RMT_VNEXT_ENTERPRISE_MFE_SMOKE_FIXTURE_PATH, rootDir);
 
@@ -944,6 +973,7 @@ async function runBrowserSmokeSuite(options = {}) {
   assertEpic11ThemeMatrixFixtureContract(context, rootDir);
   assertEpic13TrustedDomBoundaryFixtureContract(context, rootDir);
   assertRmtVNextReferenceFixtureContract(context, rootDir);
+  assertRmtVNextSourceToSeaFixtureContract(context, rootDir);
   assertRmtVNextEnterpriseMfeFixtureContract(context, rootDir);
   await assertLocalDevServerContract(context, rootDir);
 

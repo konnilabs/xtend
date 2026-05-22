@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en" data-rmt-vnext-source-to-sea="RMT-VNEXT-PRIM-06">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-rmt-vnext-source-to-sea-contract" content="xtend.rmt.vnext.source-to-sea-browser-probe.v1">
+  <title>RMT vNext Source-to-Sea Smoke</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f8fb;
+      color: #142033;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    #rmt-source-to-sea-root {
+      display: grid;
+      grid-template-columns: minmax(0, 320px);
+      gap: 16px;
+      min-height: 100vh;
+      align-content: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    [data-rmt-primitive-id] {
+      width: 100%;
+      border: 1px solid #b9c6d8;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 12px 30px rgba(20, 32, 51, 0.12);
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    [data-rmt-primitive-id="demo.feedback.status"] {
+      min-height: 96px;
+    }
+
+    [data-rmt-primitive-id="demo.feedback.toast"] {
+      min-height: 88px;
+      border-color: #9bc3b5;
+      background: #f8fffc;
+    }
+
+    [data-rmt-primitive-id="demo.feedback.detail"] {
+      min-height: 88px;
+      border-color: #d1b45f;
+      background: #fffdf5;
+    }
+
+    [data-rmt-primitive-id="demo.feedback.audit"] {
+      min-height: 88px;
+      border-color: #aeb7d8;
+      background: #fbfbff;
+    }
+
+    [data-rmt-primitive-id][hidden] {
+      display: none;
+    }
+
+    [data-rmt-text] {
+      margin: 0 0 12px;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid #2f6feb;
+      border-radius: 6px;
+      background: #2f6feb;
+      color: #ffffff;
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+      line-height: 1;
+      padding: 9px 12px;
+    }
+  </style>
+</head>
+<body>
+  <main id="rmt-source-to-sea-root" data-rmt-route="/rmt-vnext-source-to-sea">
+    <section
+      data-rmt-primitive-id="demo.feedback.status"
+      data-rmt-schedule-ref="schedule:demo.feedback/demo.feedback.status/visible"
+      data-rmt-fiber-ref="fiber:demo.feedback/demo.feedback.status/visible/0"
+      data-rmt-lane="visible"
+      data-xtend-fabric-lane="visible"
+      data-xtend-rmt-lane="visible"
+      data-xtend-fabric-fiber="fiber:demo.feedback/demo.feedback.status/visible/0"
+      data-xtend-fabric-schedule="component.visible.hydrate"
+      data-xtend-fabric-endpoint="xtendrmt.component.hydrate"
+      data-xtend-host-adapter-telemetry="xtend.component.lifecycle-telemetry.v1"
+      data-rmt-source-pointer="/surfaces/0/events/0"
+    >
+      <p data-rmt-text>Ready</p>
+      <button type="button" data-action="save" data-label="Saved">Save</button>
+    </section>
+    <section
+      data-rmt-primitive-id="demo.feedback.toast"
+      data-rmt-schedule-ref="schedule:demo.feedback/demo.feedback.toast/idle"
+      data-rmt-fiber-ref="fiber:demo.feedback/demo.feedback.toast/idle/0"
+      data-rmt-lane="idle"
+      data-xtend-fabric-lane="idle"
+      data-xtend-rmt-lane="idle"
+      data-xtend-fabric-fiber="fiber:demo.feedback/demo.feedback.toast/idle/0"
+      data-xtend-fabric-schedule="component.idle.hydrate"
+      data-xtend-fabric-endpoint="xtendrmt.component.hydrate"
+      data-xtend-host-adapter-telemetry="xtend.component.lifecycle-telemetry.v1"
+      data-rmt-source-pointer="/surfaces/1/events/0"
+    >
+      <p data-rmt-text>Queued</p>
+      <button type="button" data-action="dismiss" data-label="Dismissed">Dismiss</button>
+    </section>
+    <section
+      data-rmt-primitive-id="demo.feedback.detail"
+      data-rmt-schedule-ref="schedule:demo.feedback/demo.feedback.detail/transition"
+      data-rmt-fiber-ref="fiber:demo.feedback/demo.feedback.detail/transition/0"
+      data-rmt-lane="transition"
+      data-rmt-mounted="false"
+      data-rmt-route-target="/rmt-vnext-source-to-sea/toast"
+      data-xtend-fabric-lane="transition"
+      data-xtend-rmt-lane="transition"
+      data-xtend-fabric-fiber="fiber:demo.feedback/demo.feedback.detail/transition/0"
+      data-xtend-fabric-schedule="route.transition.render"
+      data-xtend-fabric-endpoint="xtendrmt.route.render"
+      data-xtend-host-adapter-telemetry="xtend.component.lifecycle-telemetry.v1"
+      data-rmt-source-pointer="/surfaces/2/events/0"
+      hidden
+    >
+      <p data-rmt-text>Detail queued</p>
+      <button type="button" data-action="ack-detail" data-label="Detail acknowledged">Acknowledge</button>
+    </section>
+    <section
+      data-rmt-primitive-id="demo.feedback.audit"
+      data-rmt-schedule-ref="schedule:demo.feedback/demo.feedback.audit/transition"
+      data-rmt-fiber-ref="fiber:demo.feedback/demo.feedback.audit/transition/0"
+      data-rmt-lane="transition"
+      data-rmt-mounted="false"
+      data-rmt-route-target="/rmt-vnext-source-to-sea/audit"
+      data-xtend-fabric-lane="transition"
+      data-xtend-rmt-lane="transition"
+      data-xtend-fabric-fiber="fiber:demo.feedback/demo.feedback.audit/transition/0"
+      data-xtend-fabric-schedule="route.transition.render"
+      data-xtend-fabric-endpoint="xtendrmt.route.render"
+      data-xtend-host-adapter-telemetry="xtend.component.lifecycle-telemetry.v1"
+      data-rmt-source-pointer="/surfaces/3/events/0"
+      hidden
+    >
+      <p data-rmt-text>Audit queued</p>
+      <button type="button" data-action="review-audit" data-label="Audit reviewed">Review</button>
+    </section>
+  </main>
+
+  <script type="application/json" id="rmt-source-to-sea-probe">
+    {
+      "schema": "xtend.rmt.vnext.source-to-sea-browser-probe.v1",
+      "primitiveId": "demo.feedback.status",
+      "selector": "[data-rmt-primitive-id=\"demo.feedback.status\"]",
+      "expectedText": "Saved",
+      "expectedAction": "demo.feedback.save",
+      "scheduleRef": "schedule:demo.feedback/demo.feedback.status/visible",
+      "fiberRef": "fiber:demo.feedback/demo.feedback.status/visible/0",
+      "lane": "visible",
+      "fabricScheduleRef": "component.visible.hydrate",
+      "fabricEndpoint": "xtendrmt.component.hydrate",
+      "objects": [
+        {
+          "primitiveId": "demo.feedback.status",
+          "selector": "[data-rmt-primitive-id=\"demo.feedback.status\"]",
+          "actionSelector": "[data-action=\"save\"]",
+          "expectedText": "Saved",
+          "expectedAction": "demo.feedback.save",
+          "scheduleRef": "schedule:demo.feedback/demo.feedback.status/visible",
+          "fiberRef": "fiber:demo.feedback/demo.feedback.status/visible/0",
+          "lane": "visible",
+          "fabricScheduleRef": "component.visible.hydrate",
+          "fabricEndpoint": "xtendrmt.component.hydrate",
+          "componentRef": "x-status"
+        },
+        {
+          "primitiveId": "demo.feedback.toast",
+          "selector": "[data-rmt-primitive-id=\"demo.feedback.toast\"]",
+          "actionSelector": "[data-action=\"dismiss\"]",
+          "expectedText": "Dismissed",
+          "expectedAction": "demo.feedback.dismiss",
+          "scheduleRef": "schedule:demo.feedback/demo.feedback.toast/idle",
+          "fiberRef": "fiber:demo.feedback/demo.feedback.toast/idle/0",
+          "lane": "idle",
+          "fabricScheduleRef": "component.idle.hydrate",
+          "fabricEndpoint": "xtendrmt.component.hydrate",
+          "componentRef": "x-toast"
+        },
+        {
+          "primitiveId": "demo.feedback.detail",
+          "selector": "[data-rmt-primitive-id=\"demo.feedback.detail\"]",
+          "actionSelector": "[data-action=\"ack-detail\"]",
+          "expectedText": "Detail acknowledged",
+          "expectedAction": "demo.feedback.detail.ack",
+          "scheduleRef": "schedule:demo.feedback/demo.feedback.detail/transition",
+          "fiberRef": "fiber:demo.feedback/demo.feedback.detail/transition/0",
+          "lane": "transition",
+          "fabricScheduleRef": "route.transition.render",
+          "fabricEndpoint": "xtendrmt.route.render",
+          "componentRef": "x-detail",
+          "mountMode": "route-switch"
+        },
+        {
+          "primitiveId": "demo.feedback.audit",
+          "selector": "[data-rmt-primitive-id=\"demo.feedback.audit\"]",
+          "actionSelector": "[data-action=\"review-audit\"]",
+          "expectedText": "Audit reviewed",
+          "expectedAction": "demo.feedback.audit.review",
+          "scheduleRef": "schedule:demo.feedback/demo.feedback.audit/transition",
+          "fiberRef": "fiber:demo.feedback/demo.feedback.audit/transition/0",
+          "lane": "transition",
+          "fabricScheduleRef": "route.transition.render",
+          "fabricEndpoint": "xtendrmt.route.render",
+          "componentRef": "x-audit",
+          "mountMode": "route-switch"
+        }
+      ],
+      "crossPrimitiveEvents": [
+        {
+          "sourcePrimitiveId": "demo.feedback.status",
+          "targetPrimitiveId": "demo.feedback.toast",
+          "actionId": "demo.feedback.save",
+          "eventId": "demo.feedback.toast.promoted",
+          "targetState": "state.demo.feedback.toast.text",
+          "expectedText": "Saved notification",
+          "lane": "idle"
+        },
+        {
+          "sourcePrimitiveId": "demo.feedback.detail",
+          "targetPrimitiveId": "demo.feedback.toast",
+          "actionId": "demo.feedback.detail.ack",
+          "eventId": "demo.feedback.audit.escalated",
+          "targetState": "state.demo.feedback.audit.text",
+          "expectedText": "Audit escalated",
+          "lane": "transition",
+          "stage": "route-target"
+        }
+      ],
+      "routeSwitches": [
+        {
+          "id": "route:demo.feedback/status-to-detail",
+          "sourcePrimitiveId": "demo.feedback.status",
+          "targetPrimitiveId": "demo.feedback.detail",
+          "actionId": "demo.feedback.save",
+          "from": "/rmt-vnext-source-to-sea",
+          "to": "/rmt-vnext-source-to-sea/toast",
+          "routeId": "rmt-vnext-source-to-sea-toast",
+          "scheduleRef": "ui.user-blocking.input",
+          "renderScheduleRef": "route.transition.render",
+          "lane": "transition",
+          "targetScheduleRef": "schedule:demo.feedback/demo.feedback.detail/transition",
+          "targetFiberRef": "fiber:demo.feedback/demo.feedback.detail/transition/0",
+          "targetExpectedText": "Detail mounted"
+        },
+        {
+          "id": "route:demo.feedback/status-to-audit",
+          "sourcePrimitiveId": "demo.feedback.status",
+          "targetPrimitiveId": "demo.feedback.audit",
+          "actionId": "demo.feedback.save",
+          "from": "/rmt-vnext-source-to-sea/toast",
+          "to": "/rmt-vnext-source-to-sea/audit",
+          "routeId": "rmt-vnext-source-to-sea-audit",
+          "scheduleRef": "ui.user-blocking.input",
+          "renderScheduleRef": "route.transition.render",
+          "lane": "transition",
+          "targetScheduleRef": "schedule:demo.feedback/demo.feedback.audit/transition",
+          "targetFiberRef": "fiber:demo.feedback/demo.feedback.audit/transition/0",
+          "targetExpectedText": "Audit mounted"
+        }
+      ],
+      "routeLifecycleCycles": [
+        {
+          "id": "cycle:demo.feedback/detail-remount",
+          "targetPrimitiveId": "demo.feedback.detail",
+          "from": "/rmt-vnext-source-to-sea/toast",
+          "to": "/rmt-vnext-source-to-sea",
+          "unmountScheduleRef": "ui.background.work",
+          "remountScheduleRef": "route.transition.render",
+          "resourceId": "demo.feedback.detailTimer",
+          "expectedUnmountCount": 1,
+          "expectedRemountCount": 1
+        },
+        {
+          "id": "cycle:demo.feedback/audit-remount",
+          "targetPrimitiveId": "demo.feedback.audit",
+          "from": "/rmt-vnext-source-to-sea/audit",
+          "to": "/rmt-vnext-source-to-sea",
+          "unmountScheduleRef": "ui.background.work",
+          "remountScheduleRef": "route.transition.render",
+          "resourceId": "demo.feedback.auditTimer",
+          "resources": [
+            {
+              "resourceId": "demo.feedback.auditTimer",
+              "kind": "timer"
+            },
+            {
+              "resourceId": "demo.feedback.auditSubscription",
+              "kind": "subscription"
+            }
+          ],
+          "expectedUnmountCount": 1,
+          "expectedRemountCount": 1
+        }
+      ],
+      "hostAdapterTelemetry": {
+        "schema": "xtend.component.lifecycle-telemetry.v1",
+        "source": "xtend.component-adapter",
+        "operation": "hydrate",
+        "phase": "hydrate",
+        "status": "ok",
+        "adapterId": "xtend.component",
+        "componentId": "demo.feedback.status",
+        "rmtComponentId": "demo.feedback.status",
+        "tag": "x-status",
+        "scheduleRef": "component.visible.hydrate",
+        "fabricLane": "visible",
+        "rmtLane": "visible",
+        "fiberKind": "component.hydrate",
+        "endpointNameHint": "xtendrmt.component.hydrate",
+        "correlationId": "demo.feedback.status",
+        "metadata": {
+          "source": "browser-probe",
+          "primitiveId": "demo.feedback.status"
+        }
+      },
+      "routeComponentFibers": {
+        "component": {
+          "componentRef": "x-status",
+          "routeRef": "/rmt-vnext-source-to-sea",
+          "mountScheduleRef": "component.visible.mount",
+          "hydrateScheduleRef": "component.idle.hydrate"
+        },
+        "route": {
+          "routerRef": "xtend.xrouter",
+          "routeRef": "/rmt-vnext-source-to-sea",
+          "routeId": "rmt-vnext-source-to-sea",
+          "navigateScheduleRef": "ui.user-blocking.input",
+          "renderScheduleRef": "route.transition.render"
+        }
+      }
+    }
+  </script>
+
+  <script>
+    (() => {
+      const probe = JSON.parse(document.getElementById('rmt-source-to-sea-probe').textContent);
+      const checks = [];
+      const events = [];
+      const crossPrimitiveEvents = [];
+      const routeSwitches = [];
+      const routeLifecycleCycles = [];
+      const root = document.getElementById('rmt-source-to-sea-root');
+      const recordCheck = (name, ok, details = null) => {
+        checks.push({ name, ok: Boolean(ok), details });
+      };
+      const objectRuntime = new Map();
+      const allObjectProbes = probe.objects || [{
+        primitiveId: probe.primitiveId,
+        selector: probe.selector,
+        actionSelector: '[data-action="save"]',
+        expectedText: probe.expectedText,
+        expectedAction: probe.expectedAction,
+        scheduleRef: probe.scheduleRef,
+        fiberRef: probe.fiberRef,
+        lane: probe.lane,
+        fabricScheduleRef: probe.fabricScheduleRef,
+        fabricEndpoint: probe.fabricEndpoint
+      }];
+      const objectResults = [];
+      const executeObjectProbe = (objectProbe) => {
+        const objectChecks = [];
+        const recordObjectCheck = (name, ok, details = null) => {
+          const entry = { name: `${objectProbe.primitiveId}: ${name}`, ok: Boolean(ok), details };
+          objectChecks.push(entry);
+          checks.push(entry);
+        };
+        const surface = document.querySelector(objectProbe.selector);
+        const button = surface && surface.querySelector(objectProbe.actionSelector);
+        const text = surface && surface.querySelector('[data-rmt-text]');
+        const objectEvents = [];
+        objectRuntime.set(objectProbe.primitiveId, { surface, button, text, objectProbe, objectEvents });
+
+        recordObjectCheck('primitive visible', Boolean(surface && !surface.hidden && surface.getBoundingClientRect().width > 0), objectProbe.selector);
+        recordObjectCheck('schedule visible', surface && surface.dataset.rmtScheduleRef === objectProbe.scheduleRef, surface && surface.dataset.rmtScheduleRef);
+        recordObjectCheck('fiber visible', surface && surface.dataset.rmtFiberRef === objectProbe.fiberRef, surface && surface.dataset.rmtFiberRef);
+        recordObjectCheck('fabric lane visible', surface && surface.dataset.xtendFabricLane === objectProbe.lane, surface && surface.dataset.xtendFabricLane);
+        recordObjectCheck('fabric fiber visible', surface && surface.dataset.xtendFabricFiber === objectProbe.fiberRef, surface && surface.dataset.xtendFabricFiber);
+        recordObjectCheck('fabric schedule visible', surface && surface.dataset.xtendFabricSchedule === objectProbe.fabricScheduleRef, surface && surface.dataset.xtendFabricSchedule);
+        recordObjectCheck('host adapter telemetry visible', surface && surface.dataset.xtendHostAdapterTelemetry === probe.hostAdapterTelemetry.schema, surface && surface.dataset.xtendHostAdapterTelemetry);
+
+        if (button && text) {
+          button.addEventListener('click', (event) => {
+            text.textContent = event.currentTarget.dataset.label;
+            const eventRecord = {
+              action: objectProbe.expectedAction,
+              primitiveId: objectProbe.primitiveId,
+              label: event.currentTarget.dataset.label,
+              lane: surface.dataset.rmtLane,
+              fiberRef: surface.dataset.rmtFiberRef
+            };
+            objectEvents.push(eventRecord);
+            events.push(eventRecord);
+
+            (probe.crossPrimitiveEvents || [])
+              .filter((crossEvent) => crossEvent.sourcePrimitiveId === objectProbe.primitiveId && crossEvent.actionId === objectProbe.expectedAction)
+              .forEach((crossEvent) => {
+                const targetProbe = (probe.objects || []).find((entry) => entry.primitiveId === crossEvent.targetPrimitiveId);
+                const target = objectRuntime.get(crossEvent.targetPrimitiveId);
+                const targetSurface = (target && target.surface) || (targetProbe && document.querySelector(targetProbe.selector));
+                const targetText = (target && target.text) || (targetSurface && targetSurface.querySelector('[data-rmt-text]'));
+                if (targetText) {
+                  targetText.textContent = crossEvent.expectedText;
+                }
+                crossPrimitiveEvents.push({
+                  ...crossEvent,
+                  status: targetText && targetText.textContent === crossEvent.expectedText ? 'passed' : 'failed',
+                  observedText: targetText && targetText.textContent,
+                  sourceFiberRef: surface.dataset.rmtFiberRef,
+                  sourceLane: surface.dataset.rmtLane,
+                  targetFiberRef: targetSurface && targetSurface.dataset.rmtFiberRef,
+                  targetLane: targetSurface && targetSurface.dataset.rmtLane
+                });
+              });
+          });
+          button.click();
+        }
+
+        recordObjectCheck('event observed', objectEvents.some((event) => event.action === objectProbe.expectedAction), objectEvents);
+        recordObjectCheck('state visible', text && text.textContent === objectProbe.expectedText, text && text.textContent);
+
+        return {
+          status: objectChecks.every((check) => check.ok) ? 'passed' : 'failed',
+          primitiveId: objectProbe.primitiveId,
+          scheduleRef: objectProbe.scheduleRef,
+          fiberRef: objectProbe.fiberRef,
+          lane: objectProbe.lane,
+          fabricScheduleRef: objectProbe.fabricScheduleRef,
+          fabricEndpoint: objectProbe.fabricEndpoint,
+          text: text && text.textContent,
+          events: objectEvents,
+          checks: objectChecks,
+          errors: objectChecks.filter((check) => !check.ok).map((check) => check.name)
+        };
+      };
+
+      allObjectProbes
+        .filter((objectProbe) => objectProbe.mountMode !== 'route-switch')
+        .forEach((objectProbe) => {
+          objectResults.push(executeObjectProbe(objectProbe));
+        });
+
+      (probe.routeSwitches || []).forEach((routeSwitch) => {
+        const sourceEventObserved = events.some((event) => event.primitiveId === routeSwitch.sourcePrimitiveId && event.action === routeSwitch.actionId);
+        const targetProbe = allObjectProbes.find((entry) => entry.primitiveId === routeSwitch.targetPrimitiveId);
+        const targetSurface = targetProbe && document.querySelector(targetProbe.selector);
+        const targetText = targetSurface && targetSurface.querySelector('[data-rmt-text]');
+        if (sourceEventObserved && root) {
+          root.dataset.rmtRoute = routeSwitch.to;
+        }
+        if (sourceEventObserved && targetSurface) {
+          targetSurface.hidden = false;
+          targetSurface.dataset.rmtMounted = 'true';
+          if (targetText && routeSwitch.targetExpectedText) {
+            targetText.textContent = routeSwitch.targetExpectedText;
+          }
+        }
+        const targetVisible = Boolean(targetSurface && !targetSurface.hidden && targetSurface.getBoundingClientRect().width > 0);
+        routeSwitches.push({
+          ...routeSwitch,
+          status: sourceEventObserved && root && root.dataset.rmtRoute === routeSwitch.to && targetSurface && targetSurface.dataset.rmtMounted === 'true' && targetVisible ? 'passed' : 'failed',
+          observedRoute: root && root.dataset.rmtRoute,
+          targetMounted: targetSurface && targetSurface.dataset.rmtMounted === 'true',
+          targetVisible,
+          targetText: targetText && targetText.textContent,
+          targetFiberRef: targetSurface && targetSurface.dataset.rmtFiberRef,
+          targetLane: targetSurface && targetSurface.dataset.rmtLane
+        });
+      });
+      recordCheck('route switches pass', routeSwitches.length === (probe.routeSwitches || []).length && routeSwitches.every((entry) => entry.status === 'passed'), routeSwitches);
+
+      (probe.routeLifecycleCycles || []).forEach((cycle) => {
+        const targetProbe = allObjectProbes.find((entry) => entry.primitiveId === cycle.targetPrimitiveId);
+        const targetSurface = targetProbe && document.querySelector(targetProbe.selector);
+        const cycleResources = Array.isArray(cycle.resources) && cycle.resources.length
+          ? cycle.resources
+          : [{ resourceId: cycle.resourceId, kind: cycle.resourceKind || null }];
+        const resourceIds = cycleResources.map((resource) => resource && resource.resourceId).filter(Boolean);
+        const currentUnmountCount = Number(targetSurface && targetSurface.dataset.rmtUnmountCount || 0);
+        const currentRemountCount = Number(targetSurface && targetSurface.dataset.rmtRemountCount || 0);
+        if (targetSurface) {
+          targetSurface.hidden = true;
+          targetSurface.dataset.rmtMounted = 'false';
+          targetSurface.dataset.rmtUnmountCount = String(currentUnmountCount + 1);
+          targetSurface.dataset.rmtDisposedResource = resourceIds[0] || cycle.resourceId || '';
+          targetSurface.dataset.rmtDisposedResources = JSON.stringify(resourceIds);
+        }
+        if (root) {
+          root.dataset.rmtRoute = cycle.to;
+        }
+        const unmounted = Boolean(targetSurface && targetSurface.hidden && targetSurface.dataset.rmtMounted === 'false');
+        const disposedResources = JSON.parse(targetSurface && targetSurface.dataset.rmtDisposedResources || '[]');
+        const resourceDisposed = resourceIds.length > 0 && resourceIds.every((resourceId) => disposedResources.includes(resourceId));
+        if (targetSurface) {
+          targetSurface.hidden = false;
+          targetSurface.dataset.rmtMounted = 'true';
+          targetSurface.dataset.rmtRemountCount = String(currentRemountCount + 1);
+        }
+        if (root) {
+          root.dataset.rmtRoute = cycle.from;
+        }
+        const unmountCount = Number(targetSurface && targetSurface.dataset.rmtUnmountCount || 0);
+        const remountCount = Number(targetSurface && targetSurface.dataset.rmtRemountCount || 0);
+        const countsMatch = (!cycle.expectedUnmountCount || unmountCount === cycle.expectedUnmountCount)
+          && (!cycle.expectedRemountCount || remountCount === cycle.expectedRemountCount);
+        routeLifecycleCycles.push({
+          ...cycle,
+          status: unmounted && resourceDisposed && targetSurface && targetSurface.dataset.rmtMounted === 'true' && countsMatch ? 'passed' : 'failed',
+          unmounted,
+          remounted: Boolean(targetSurface && targetSurface.dataset.rmtMounted === 'true' && !targetSurface.hidden),
+          resourceDisposed,
+          resourceIds,
+          resourceKinds: cycleResources.map((resource) => resource && resource.kind).filter(Boolean),
+          resources: cycleResources.map((resource) => ({
+            ...resource,
+            disposed: Boolean(resource && disposedResources.includes(resource.resourceId))
+          })),
+          observedRoute: root && root.dataset.rmtRoute,
+          unmountCount,
+          remountCount,
+          countsMatch,
+          targetFiberRef: targetSurface && targetSurface.dataset.rmtFiberRef,
+          targetLane: targetSurface && targetSurface.dataset.rmtLane
+        });
+      });
+      recordCheck('route lifecycle cycles pass', routeLifecycleCycles.length === (probe.routeLifecycleCycles || []).length && routeLifecycleCycles.every((entry) => entry.status === 'passed'), routeLifecycleCycles);
+
+      allObjectProbes
+        .filter((objectProbe) => objectProbe.mountMode === 'route-switch')
+        .forEach((objectProbe) => {
+          objectResults.push(executeObjectProbe(objectProbe));
+        });
+
+      window.__xtendRmtVNextSourceToSeaResult = {
+        schema: probe.schema,
+        status: checks.every((check) => check.ok) ? 'passed' : 'failed',
+        primitiveId: probe.primitiveId,
+        scheduleRef: probe.scheduleRef,
+        fiberRef: probe.fiberRef,
+        lane: probe.lane,
+        fabricScheduleRef: probe.fabricScheduleRef,
+        fabricEndpoint: probe.fabricEndpoint,
+        hostAdapterTelemetrySchema: probe.hostAdapterTelemetry.schema,
+        objectCount: objectResults.length,
+        objects: objectResults,
+        crossPrimitiveEvents,
+        routeSwitches,
+        routeLifecycleCycles,
+        events,
+        checks,
+        errors: checks.filter((check) => !check.ok).map((check) => check.name)
+      };
+    })();
+  </script>
+</body>
+</html>

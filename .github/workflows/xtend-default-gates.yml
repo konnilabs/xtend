@@ -90,6 +90,50 @@ jobs:
           path: .xtend-test-results/xtend-release-gate-report.json
           if-no-files-found: warn
 
+  rmt-vnext-primitive-gates:
+    name: RMT vNext primitive gates (Node 26.x)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js 26.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: 26.x
+
+      - name: Print runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Run RMT vNext primitive gate report
+        run: npm run test:rmt-vnext-primitives:report
+
+      - name: Capture RMT vNext source-to-sea browser evidence
+        run: npm run test:rmt-vnext-source-to-sea:chromedriver
+        env:
+          RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome
+          RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"
+
+      - name: Upload RMT vNext primitive JSON report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xtend-rmt-vnext-primitives-gate-report-node-26
+          path: .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
+          if-no-files-found: warn
+
+      - name: Upload RMT vNext source-to-sea evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xtend-rmt-vnext-source-to-sea-evidence-node-26
+          path: .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
+          if-no-files-found: error
+
   package-structure:
     name: Package structure and publish dry run (Node 26.x)
     runs-on: ubuntu-latest
@@ -184,6 +228,7 @@ jobs:
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true)
     needs:
       - full-release-gates
+      - rmt-vnext-primitive-gates
       - package-structure
       - conditional-network-evidence
     runs-on: ubuntu-latest
@@ -220,6 +265,7 @@ jobs:
           XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10: "1"
         run: |
           npm run test:release:full:report
+          npm run test:rmt-vnext-primitives:report
           npm run release:report
           npm run pack:dry-run
           npm run conditional-network:evidence
@@ -241,6 +287,7 @@ jobs:
           name: xtend-npm-publish-next-evidence-node-26
           path: |
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
             .xtend-test-results/xtend-release-report.json
             .xtend-test-results/xtend-pack-dry-run.json
             .xtend-test-results/xtend-package-export-surface-lock.json

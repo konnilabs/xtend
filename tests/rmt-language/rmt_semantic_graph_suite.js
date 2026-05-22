@@ -17,12 +17,17 @@ const {
   DUPLICATE_ROUTE_PATH_CODE,
   FABRIC_LANE_CONFLICT_CODE,
   REFERENCE_DIAGNOSTIC_CODES,
+  RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES,
+  RMT_VNEXT_PRIMITIVE_DOMAIN_NAMES,
+  RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_WORKPACKAGE,
   RMT_SEMANTIC_GRAPH_MODULE_PATH,
   RMT_SEMANTIC_GRAPH_PACKAGE_SCRIPT,
   RMT_SEMANTIC_GRAPH_REPORT_SCHEMA,
   RMT_SEMANTIC_GRAPH_SCHEMA,
   RMT_SEMANTIC_GRAPH_SUITE_PATH,
   RMT_SEMANTIC_GRAPH_WORKPACKAGE,
+  buildRmtVNextPrimitiveSemanticGraph,
   buildSemanticGraph
 } = require('../../tools/rmt-language/semantic-graph');
 
@@ -31,6 +36,8 @@ const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Serve
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const VALID_FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.rmt';
 const MISSING_REFS_FIXTURE_PATH = 'tests/fixtures/rmt-app-dsl.missing-refs.rmt';
+const VNEXT_PRIMITIVE_FIXTURE_PATH = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
+const VNEXT_PRIMITIVE_INVALID_FIXTURE_PATH = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -253,6 +260,83 @@ function runFabricLaneChecks(context, rootDir) {
   assertDiagnosticRange(context, diagnostic, 'Fabric lane conflict diagnostic has range');
 }
 
+function runVNextPrimitiveGraphChecks(context, rootDir) {
+  const graph = buildRmtVNextPrimitiveSemanticGraph({
+    text: readText(VNEXT_PRIMITIVE_FIXTURE_PATH, rootDir),
+    filePath: resolveRepoPath(VNEXT_PRIMITIVE_FIXTURE_PATH, rootDir)
+  }, {
+    rootDir
+  });
+  const expectedDomains = RMT_VNEXT_PRIMITIVE_DOMAIN_NAMES;
+
+  context.assert(graph.schema === RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_SCHEMA, 'vNext primitive graph declares schema');
+  context.assert(graph.reportSchema === RMT_SEMANTIC_GRAPH_REPORT_SCHEMA, 'vNext primitive graph reuses semantic graph report schema');
+  context.assert(graph.workpackage === RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_WORKPACKAGE, 'vNext primitive graph belongs to PRIM-03');
+  context.assert(graph.ok === true, 'vNext primitive fixture has no semantic errors');
+  context.assert(graph.status === 'indexed', 'vNext primitive graph indexes successfully');
+  expectedDomains.forEach((domain) => {
+    context.assert(graph.indexes[domain] && Array.isArray(graph.indexes[domain].records), `vNext primitive graph exposes ${domain} index`);
+  });
+
+  context.assert(graph.indexes.states.byId.has('media.records'), 'vNext primitive graph indexes state declarations');
+  context.assert(graph.indexes.selectors.byId.has('media.filtered'), 'vNext primitive graph indexes selector declarations');
+  context.assert(graph.indexes.dataSources.byId.has('media.reindex'), 'vNext primitive graph indexes datasource declarations');
+  context.assert(graph.indexes.actions.byId.has('media.select'), 'vNext primitive graph indexes action declarations');
+  context.assert(graph.indexes.surfaces.byId.has('media.player'), 'vNext primitive graph indexes surface declarations');
+  context.assert(graph.indexes.portals.byId.has('surface.root'), 'vNext primitive graph indexes portal declarations');
+  context.assert(graph.indexes.overlays.byId.has('feedback.toast'), 'vNext primitive graph indexes overlay declarations');
+  context.assert(graph.indexes.resources.byId.has('preview.objectUrl'), 'vNext primitive graph indexes resource declarations');
+  context.assert(graph.indexes.events.records.length === 2, 'vNext primitive graph indexes event bindings');
+
+  context.assert(graph.catalogHints.actionIds.includes('media.select'), 'vNext primitive graph exposes action catalog hints');
+  context.assert(graph.catalogHints.surfaceIds.includes('media.explorer'), 'vNext primitive graph exposes surface catalog hints');
+  context.assert(graph.listCompletions('selectors', { prefix: 'media.' }).some((entry) => entry.label === 'media.filtered'), 'vNext primitive graph exposes selector completions');
+  context.assert(graph.getDefinition('resources', 'preview.objectUrl').id === 'preview.objectUrl', 'vNext primitive graph exposes direct primitive definitions');
+
+  context.assert(
+    graph.references.records.some((reference) => reference.relationship === 'selector.source' && reference.targetDomain === 'states' && reference.targetId === 'media.records' && reference.resolved),
+    'vNext primitive graph resolves selector source references'
+  );
+  context.assert(
+    graph.references.records.some((reference) => reference.relationship === 'surface.portal' && reference.targetDomain === 'portals' && reference.targetId === 'surface.root' && reference.resolved),
+    'vNext primitive graph resolves surface portal references'
+  );
+  context.assert(
+    graph.references.records.some((reference) => reference.relationship === 'event.action' && reference.targetDomain === 'actions' && reference.targetId === 'media.select' && reference.resolved),
+    'vNext primitive graph resolves event action references'
+  );
+  context.assert(
+    graph.references.records.some((reference) => reference.relationship === 'resource.owner' && reference.targetDomain === 'surfaces' && reference.targetId === 'media.player' && reference.resolved),
+    'vNext primitive graph resolves resource owner references'
+  );
+  context.assert(
+    graph.listReferencesForTarget('actions', 'media.select').some((entry) => entry.relationship === 'event.action'),
+    'vNext primitive graph exposes reverse event action references'
+  );
+  context.assert(graph.references.unresolved.length === 0, 'vNext primitive fixture has no unresolved primitive references');
+  context.assert(graph.listDiagnostics({ severity: 'error' }).length === 0, 'vNext primitive fixture exposes no error diagnostics');
+}
+
+function runVNextPrimitiveDiagnosticChecks(context, rootDir) {
+  const graph = buildRmtVNextPrimitiveSemanticGraph({
+    text: readText(VNEXT_PRIMITIVE_INVALID_FIXTURE_PATH, rootDir),
+    filePath: resolveRepoPath(VNEXT_PRIMITIVE_INVALID_FIXTURE_PATH, rootDir)
+  }, {
+    rootDir
+  });
+  const diagnostics = graph.listDiagnostics();
+  const codes = diagnostics.map((diagnostic) => diagnostic.code);
+
+  context.assert(graph.ok === false, 'Invalid vNext primitive fixture fails semantic graph');
+  context.assert(graph.references.unresolved.length >= 3, 'Invalid vNext primitive fixture exposes unresolved primitive references');
+  context.assert(codes.includes(RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.unknownReference), 'Invalid vNext primitive fixture reports unknown primitive references');
+  context.assert(codes.includes(RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.ownerMissing), 'Invalid vNext primitive fixture reports missing resource owner');
+  context.assert(codes.includes(RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.unkeyedRepeat), 'Invalid vNext primitive fixture reports unkeyed surface repeater');
+  context.assert(codes.includes(RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.payloadContractMissing), 'Invalid vNext primitive fixture reports missing event payload contract');
+  context.assert(codes.includes(RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.kernelBoundary), 'Invalid vNext primitive fixture reports kernel boundary violation');
+  diagnostics.forEach((diagnostic) => assertDiagnosticRange(context, diagnostic, `${diagnostic.code} diagnostic has range`));
+}
+
 function runSyntaxFallbackChecks(context, rootDir) {
   const graph = buildSemanticGraph({
     text: '{\n  "kind": "rmt_document"\n  "version": "1.0"\n}',
@@ -284,6 +368,8 @@ function runRmtSemanticGraphSuite(options = {}) {
   assertFileExists(context, RMT_SEMANTIC_GRAPH_MODULE_PATH, rootDir, 'RMT Semantic Graph module exists');
   assertFileExists(context, RMT_SEMANTIC_GRAPH_SUITE_PATH, rootDir, 'RMT Semantic Graph suite exists');
   assertFileExists(context, RMT_SEMANTIC_GRAPH_WP_PATH, rootDir, 'WP-E14-04 workpackage document exists');
+  assertFileExists(context, VNEXT_PRIMITIVE_FIXTURE_PATH, rootDir, 'vNext primitive semantic graph fixture exists');
+  assertFileExists(context, VNEXT_PRIMITIVE_INVALID_FIXTURE_PATH, rootDir, 'vNext primitive invalid semantic graph fixture exists');
   context.assert(moduleSyntax.ok, `RMT Semantic Graph module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `RMT Semantic Graph suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
@@ -306,12 +392,16 @@ function runRmtSemanticGraphSuite(options = {}) {
   runMissingReferenceChecks(context, rootDir);
   runDuplicateChecks(context, rootDir);
   runFabricLaneChecks(context, rootDir);
+  runVNextPrimitiveGraphChecks(context, rootDir);
+  runVNextPrimitiveDiagnosticChecks(context, rootDir);
   runSyntaxFallbackChecks(context, rootDir);
 
   return context.result({
     schema: RMT_SEMANTIC_GRAPH_REPORT_SCHEMA,
     graphSchema: RMT_SEMANTIC_GRAPH_SCHEMA,
+    vNextPrimitiveGraphSchema: RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_SCHEMA,
     workpackage: RMT_SEMANTIC_GRAPH_WORKPACKAGE,
+    vNextPrimitiveWorkpackage: RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_WORKPACKAGE,
     module: RMT_SEMANTIC_GRAPH_MODULE_PATH,
     suite: RMT_SEMANTIC_GRAPH_SUITE_PATH
   });

@@ -12,7 +12,10 @@ Epic 15 ist mit dem vNext Release Handoff source-ready. Die neue Syntax ist doku
 
 ```bash
 npm run test:rmt-vnext-parser
+npm run test:rmt-semantic-graph
 npm run test:rmt-vnext-compiler
+npm run test:rmt-vnext-source-to-sea
+npm run test:rmt-vnext-source-to-sea:evidence
 npm run test:rmt-vnext-lifecycle
 npm run test:rmt-vnext-scheduler
 npm run test:rmt-vnext-surfaces
@@ -25,6 +28,7 @@ npm run test:rmt-vnext-streaming
 npm run test:rmt-vnext-tooling
 npm run test:rmt-vnext-compatibility
 npm run test:rmt-vnext-regression
+npm run test:rmt-vnext-primitives:report
 npm run test:browser
 npm run test:references
 ```

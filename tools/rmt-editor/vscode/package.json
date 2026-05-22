@@ -16,7 +16,11 @@
   ],
   "activationEvents": [
     "onLanguage:rmt",
-    "onCommand:xtendRmt.showLanguageServerCommand"
+    "onCommand:xtendRmt.showLanguageServerCommand",
+    "onCommand:xtendRmt.rmtVNext.showPrimitiveAuthoringApplyExperience",
+    "onCommand:xtendRmt.rmtVNext.showCodeActionPreview",
+    "onCommand:xtendRmt.rmtVNext.showCommandHandoff",
+    "onCommand:xtendRmt.rmtVNext.applySafePrimitiveFixAll"
   ],
   "main": "./extension.js",
   "files": [
@@ -57,6 +61,22 @@
       {
         "command": "xtendRmt.showLanguageServerCommand",
         "title": "XTendRMT: Show Language Server Command"
+      },
+      {
+        "command": "xtendRmt.rmtVNext.showPrimitiveAuthoringApplyExperience",
+        "title": "XTendRMT: Show vNext Primitive Apply Experience"
+      },
+      {
+        "command": "xtendRmt.rmtVNext.showCodeActionPreview",
+        "title": "XTendRMT: Show vNext Primitive Code Action Preview"
+      },
+      {
+        "command": "xtendRmt.rmtVNext.showCommandHandoff",
+        "title": "XTendRMT: Show vNext Primitive Command Handoff"
+      },
+      {
+        "command": "xtendRmt.rmtVNext.applySafePrimitiveFixAll",
+        "title": "XTendRMT: Apply Safe vNext Primitive Fix-All"
       }
     ],
     "configuration": {

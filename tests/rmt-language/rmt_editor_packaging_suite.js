@@ -30,7 +30,13 @@ const {
   resolveEditorSetup
 } = require('../../tools/rmt-language/snippets');
 const {
+  RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS,
+  RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA,
   RMT_VSCODE_BRIDGE_SCHEMA,
+  applyPrimitiveAuthoringWorkspaceEdit,
+  createActiveDocumentPrimitiveAuthoringExperience,
+  createPrimitiveAuthoringApplyExperience,
+  renderPrimitiveAuthoringApplyExperience,
   createServerCommand
 } = require('../../tools/rmt-editor/vscode/extension');
 
@@ -42,6 +48,7 @@ const VSCODE_PACKAGE_PATH = 'tools/rmt-editor/vscode/package.json';
 const VSCODE_LANGUAGE_CONFIGURATION_PATH = 'tools/rmt-editor/vscode/language-configuration.json';
 const VSCODE_GRAMMAR_PATH = 'tools/rmt-editor/vscode/syntaxes/rmt.tmLanguage.json';
 const VSCODE_PACKAGED_SNIPPETS_PATH = 'tools/rmt-editor/vscode/snippets/rmt.code-snippets';
+const PRIMITIVE_INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -103,14 +110,102 @@ function runVsCodeBridgeChecks(context, rootDir) {
   const packagedSnippets = readJson(VSCODE_PACKAGED_SNIPPETS_PATH, rootDir);
   const sourceSnippets = readJson(RMT_SNIPPET_VSCODE_PATH, rootDir);
   const command = createServerCommand({ extensionPath: resolveRepoPath('tools/rmt-editor/vscode', rootDir) });
+  const primitiveInvalidPath = resolveRepoPath(PRIMITIVE_INVALID_VNEXT_FIXTURE, rootDir);
+  const activePrimitiveExperience = createActiveDocumentPrimitiveAuthoringExperience({
+    extensionPath: resolveRepoPath('tools/rmt-editor/vscode', rootDir)
+  }, {
+    rootDir,
+    document: {
+      uri: `file://${primitiveInvalidPath}`,
+      fileName: primitiveInvalidPath,
+      languageId: 'rmt',
+      version: 7,
+      getText: () => readText(PRIMITIVE_INVALID_VNEXT_FIXTURE, rootDir)
+    }
+  });
+  const primitiveExperience = createPrimitiveAuthoringApplyExperience({
+    actions: [
+      {
+        title: 'State initial-Wert ergaenzen',
+        kind: 'quickfix',
+        diagnosticCode: 'rmt.vnext.primitive.initial-missing',
+        safe: true,
+        edit: { changes: { 'file:///demo.rmt': [] } },
+        preview: {
+          schema: 'xtend.rmt.vnext.primitive-code-action-preview.v1',
+          status: 'ready',
+          changedLineCount: 1,
+          after: ['  initial {}']
+        }
+      },
+      {
+        title: 'Alle sicheren vNext-Primitive Quick-Fixes anwenden (3)',
+        kind: 'source.fixAll.rmt.vnext.primitives',
+        safe: true,
+        edit: { changes: { 'file:///demo.rmt': [] } },
+        preview: {
+          schema: 'xtend.rmt.vnext.primitive-code-action-preview.v1',
+          status: 'ready',
+          changedLineCount: 3,
+          after: ['  initial {}', '  key instance.id']
+        }
+      },
+      {
+        title: 'Kernel/Fabric Import in Host-Adapter auslagern',
+        kind: 'quickfix',
+        safe: false,
+        command: {
+          command: 'xtend.rmt.vnext.extractKernelImport',
+          title: 'Kernel/Fabric Import in Host-Adapter auslagern'
+        },
+        data: {
+          preview: {
+            schema: 'xtend.rmt.vnext.primitive-code-action-preview.v1',
+            status: 'manual-command',
+            changedLineCount: 0,
+            after: []
+          }
+        }
+      }
+    ]
+  });
+  const primitiveExperienceLines = renderPrimitiveAuthoringApplyExperience(primitiveExperience);
+  const activeFixAll = activePrimitiveExperience.rawActions.find((action) => action.kind === 'source.fixAll.rmt.vnext.primitives');
+  const dryRunApply = applyPrimitiveAuthoringWorkspaceEdit(activeFixAll);
+  const blockedApply = applyPrimitiveAuthoringWorkspaceEdit({
+    title: 'Kernel/Fabric Import in Host-Adapter auslagern',
+    kind: 'quickfix',
+    safe: false,
+    edit: null,
+    command: {
+      command: 'xtend.rmt.vnext.extractKernelImport'
+    }
+  });
 
   context.assert(command.schema === RMT_VSCODE_BRIDGE_SCHEMA, 'VS Code bridge emits stable schema');
   context.assert(command.workpackage === RMT_EDITOR_PACKAGING_WORKPACKAGE, 'VS Code bridge belongs to WP-E14-12');
   context.assert(command.args[0].endsWith(RMT_LANGUAGE_SERVER_ENTRYPOINT), 'VS Code bridge resolves LSP server path');
+  context.assert(primitiveExperience.schema === RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA, 'VS Code bridge emits primitive authoring experience schema');
+  context.assert(primitiveExperience.workpackage === 'RMT-VNEXT-PRIM-07', 'VS Code primitive authoring experience belongs to PRIM-07');
+  context.assert(primitiveExperience.fixAllCount === 1, 'VS Code primitive authoring experience exposes fix-all path');
+  context.assert(primitiveExperience.safeQuickFixCount === 1, 'VS Code primitive authoring experience exposes safe quick fix path');
+  context.assert(primitiveExperience.manualHandoffCount === 1, 'VS Code primitive authoring experience exposes manual command handoff path');
+  context.assert(primitiveExperience.applyPlan.defaultMode === 'fix-all', 'VS Code primitive authoring experience prefers safe fix-all when available');
+  context.assert(primitiveExperienceLines.some((line) => line.includes('manual-command')), 'VS Code primitive authoring renderer marks manual command handoff');
+  context.assert(activePrimitiveExperience.status === 'ready', 'VS Code bridge builds active-document primitive authoring experience');
+  context.assert(activePrimitiveExperience.activeDocument && activePrimitiveExperience.activeDocument.languageId === 'rmt', 'VS Code bridge reads active .rmt document metadata');
+  context.assert(activePrimitiveExperience.lsp && activePrimitiveExperience.lsp.codeActionCount > 0, 'VS Code bridge requests real LSP code actions for active document');
+  context.assert(activePrimitiveExperience.fixAllCount >= 1, 'VS Code bridge exposes active-document safe fix-all');
+  context.assert(dryRunApply.status === 'dry-run' && dryRunApply.ok === true && dryRunApply.editCount > 0, 'VS Code bridge can dry-run safe WorkspaceEdit application');
+  context.assert(blockedApply.status === 'blocked' && blockedApply.ok === false, 'VS Code bridge blocks manual kernel-boundary WorkspaceEdit application');
   context.assert(vscodePackage.contributes.languages[0].id === 'rmt', 'VS Code package contributes rmt language id');
   context.assert(vscodePackage.contributes.languages[0].extensions.includes('.rmt'), 'VS Code package contributes .rmt extension');
   context.assert(!vscodePackage.contributes.languages[0].extensions.includes('.rmt.json'), 'VS Code package does not normalize .rmt.json authoring');
   context.assert(vscodePackage.contributes.snippets[0].path === './snippets/rmt.code-snippets', 'VS Code package references packaged snippets');
+  RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS.forEach((commandId) => {
+    context.assert(vscodePackage.activationEvents.includes(`onCommand:${commandId}`), `VS Code package activates primitive authoring command ${commandId}`);
+    context.assert(vscodePackage.contributes.commands.some((entry) => entry.command === commandId), `VS Code package contributes primitive authoring command ${commandId}`);
+  });
   context.assert(vscodePackage.files.includes('snippets/**'), 'VS Code package includes snippets in packaged files');
   context.assert(packagedSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code packaged snippets mirror RMT app snippet');
   context.assert(JSON.stringify(packagedSnippets) === JSON.stringify(sourceSnippets), 'VS Code packaged snippets stay in sync with source snippets');
@@ -134,6 +229,8 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.module === RMT_SNIPPET_MODULE_PATH, 'package metadata points to snippets module');
   context.assert(metadata && metadata.vscodeBridge === RMT_VSCODE_BRIDGE_PATH, 'package metadata points to VS Code bridge');
   context.assert(metadata && metadata.suite === RMT_EDITOR_PACKAGING_SUITE_PATH, 'package metadata points to editor packaging suite');
+  context.assert(metadata && metadata.primitiveAuthoringExperienceSchema === RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA, 'package metadata declares primitive authoring experience schema');
+  context.assert(metadata && RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS.every((commandId) => metadata.primitiveAuthoringCommands.includes(commandId)), 'package metadata declares primitive authoring VS Code commands');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-editor-packaging --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_EDITOR_PACKAGING_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/snippets'] === 'string' ? packageManifest.exports['./rmt-language/snippets'] : packageManifest.exports['./rmt-language/snippets'] && packageManifest.exports['./rmt-language/snippets'].default) === './tools/rmt-language/snippets/index.js', 'package exports RMT snippets');
@@ -146,6 +243,7 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert(architecture.includes('xtend.rmt.editor-packaging.v1'), 'Architecture documents editor packaging schema');
   context.assert(docs.includes('VS Code') && docs.includes('JetBrains') && docs.includes('Neovim') && docs.includes('Helix'), 'Docs cover VS Code, JetBrains, Neovim and Helix');
   context.assert(docs.includes('node tools/rmt-language-server/server.js'), 'Docs expose LSP start command');
+  context.assert(docs.includes('XTendRMT: Show vNext Primitive Apply Experience'), 'Docs expose vNext primitive apply experience command');
   context.assert(workpackage.includes('LSP bleibt Source of Truth'), 'Workpackage documents LSP source-of-truth rule');
 }
 

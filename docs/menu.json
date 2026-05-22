@@ -9,6 +9,15 @@
     "rank": 100
   },
   {
+    "slug": "changelog",
+    "id": "docs.changelog",
+    "label": "XTend Changelog",
+    "group": "start",
+    "parent": "readme",
+    "tier": "basic",
+    "rank": 97
+  },
+  {
     "slug": "quick-start-guide",
     "id": "docs.quick.start.guide",
     "label": "Quick Start Guide",
@@ -222,7 +231,7 @@
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "rmt-deep-dive",
-    "rank": 88
+    "rank": 93
   },
   {
     "slug": "rmt-language-server",
@@ -231,7 +240,7 @@
     "group": "rmt",
     "parent": "rmt-linter",
     "tier": "rmt-deep-dive",
-    "rank": 86
+    "rank": 92
   },
   {
     "slug": "rmt-tooling-release-gates",
@@ -780,7 +789,7 @@
     "group": "rmt",
     "parent": null,
     "tier": "basic",
-    "rank": 96
+    "rank": 97
   },
   {
     "slug": "xtendrmt-native-authoring",
@@ -805,7 +814,88 @@
     "id": "docs.rmt.vnext.authoring",
     "label": "RMT vNext Authoring",
     "group": "rmt",
-    "parent": "xtendrmt-app-dsl",
+    "parent": "xtendrmt-overview",
+    "tier": "basic",
+    "rank": 95
+  },
+  {
+    "slug": "rmt-vnext-primitives-compiler-backlog",
+    "id": "docs.rmt.vnext.primitives.compiler.backlog",
+    "label": "RMT vNext Primitive Compiler Backlog",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "rmt-deep-dive",
+    "rank": 65
+  },
+  {
+    "slug": "rmt-vnext-primitive-grammar-design",
+    "id": "docs.rmt.vnext.primitive.grammar.design",
+    "label": "RMT vNext Primitive Grammar Design",
+    "group": "rmt",
+    "parent": "rmt-vnext-primitives-compiler-backlog",
+    "tier": "rmt-deep-dive",
+    "rank": 65
+  },
+  {
+    "slug": "rmt-vnext-primitive-parser-ast",
+    "id": "docs.rmt.vnext.primitive.parser.ast",
+    "label": "RMT vNext Primitive Parser AST",
+    "group": "rmt",
+    "parent": "rmt-vnext-primitive-grammar-design",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-primitive-semantic-graph",
+    "id": "docs.rmt.vnext.primitive.semantic.graph",
+    "label": "RMT vNext Primitive Semantic Graph",
+    "group": "rmt",
+    "parent": "rmt-vnext-primitive-parser-ast",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-primitive-lowering",
+    "id": "docs.rmt.vnext.primitive.lowering",
+    "label": "RMT vNext Primitive Lowering",
+    "group": "rmt",
+    "parent": "rmt-vnext-primitive-semantic-graph",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-fabric-bridge-evidence",
+    "id": "docs.rmt.vnext.fabric.bridge.evidence",
+    "label": "RMT vNext Fabric Bridge Evidence",
+    "group": "rmt",
+    "parent": "rmt-vnext-primitive-lowering",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-source-to-sea-gate",
+    "id": "docs.rmt.vnext.source.to.sea.gate",
+    "label": "RMT vNext Source-to-Sea Gate",
+    "group": "rmt",
+    "parent": "rmt-vnext-fabric-bridge-evidence",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-primitive-authoring-tooling",
+    "id": "docs.rmt.vnext.primitive.authoring.tooling",
+    "label": "RMT vNext Primitive Authoring Tooling",
+    "group": "rmt",
+    "parent": "rmt-vnext-source-to-sea-gate",
+    "tier": "rmt-deep-dive",
+    "rank": 66
+  },
+  {
+    "slug": "rmt-vnext-primitive-migration",
+    "id": "docs.rmt.vnext.primitive.migration",
+    "label": "RMT vNext Primitive Migration",
+    "group": "rmt",
+    "parent": "rmt-vnext-primitive-authoring-tooling",
     "tier": "rmt-deep-dive",
     "rank": 66
   },

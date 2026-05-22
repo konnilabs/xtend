@@ -1,0 +1,117 @@
+// RMT-VNEXT-PRIM-01 grammar design fixture.
+// This is target syntax for PRIM-02 parser work, not a legacy JSON source.
+
+import "./shared/media-contracts.rmt"
+
+template media.manager {
+  state media.records type MediaRecord[] initial []
+
+  state media.filters type object preserve {
+    initial {
+      query ""
+      kind "all"
+      collection "all"
+    }
+  }
+
+  state media.selection type object preserve {
+    initial {
+      activeId null
+    }
+  }
+
+  selector media.filtered from state media.records {
+    where record.kind == state.media.filters.kind || state.media.filters.kind == "all"
+    where contains(record.name, state.media.filters.query)
+    sort by record.name asc
+    output MediaRecord[]
+  }
+
+  selector media.activeRecord from state media.records {
+    find record.id == state.media.selection.activeId
+    output MediaRecord
+  }
+
+  datasource media.index from endpoint "/api/media?pageSize=200" {
+    method GET
+    contract MediaIndex
+    result records
+    fallback fixture media.fixture
+  }
+
+  datasource media.reindex from endpoint "/api/index/rebuild" {
+    method POST
+    contract MediaIndex
+    result records
+  }
+
+  action media.select {
+    input mediaId string
+    reduce state.media.selection.activeId = input.mediaId
+    emit media.selected with mediaId input.mediaId
+  }
+
+  action media.reindex {
+    status state.actionStatus.reindex
+    effect fetch datasource media.reindex
+    on success -> reduce state.media.records = result.records
+    on success -> emit media.index.loaded with count result.records.length
+    on error -> overlay feedback.toast message error.message tone "danger"
+  }
+
+  portal surface.root root "#media-manager-root" layer surface
+
+  portal overlay.root root "body" layer overlay z 1000 {
+    focus policy restore
+    pointer policy passthrough
+    scroll policy lock-when-modal
+  }
+
+  overlay feedback.toast kind toast portal overlay.root {
+    escape close topmost
+    focus policy none
+  }
+
+  resource lightbox.import kind lazy-import owner overlay.feedback.toast {
+    import "@ccslabs/xtend/components/xlightbox"
+  }
+
+  resource preview.objectUrl kind object-url owner surface.media.player {
+    source selector media.activeRecord
+    dispose on surface.destroy
+  }
+
+  surface media.explorer kind window component x-surface-window {
+    source selector media.filtered
+    key record.id
+    portal surface.root
+    bounds x 304 y 92 width 640 height 620
+
+    lane visible weight 80 {
+      hydrate explorer-list from selector media.filtered
+    }
+
+    on click "[data-media-id]" -> action media.select {
+      preventDefault true
+      payload mediaId from target.dataset.mediaId
+    }
+  }
+
+  surface media.player kind window component x-surface-window {
+    repeat from selector media.filtered
+    key instance.surfaceId
+    portal surface.root
+    bounds x 920 y 96 width 760 height 500
+    preserve on minimize
+    destroy releases resource preview.objectUrl
+
+    lane visible weight 90 {
+      hydrate player-view from selector media.activeRecord
+    }
+
+    on xplayer-play target player-view -> action media.select {
+      payload mediaId from detail.mediaId
+      payload surfaceId from surface.id
+    }
+  }
+}

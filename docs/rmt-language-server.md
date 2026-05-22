@@ -109,6 +109,9 @@ Es registriert:
 - JSON-basierte TextMate-Grammatik
 - RMT Snippets
 - Command `XTendRMT: Show Language Server Command`
+- Command `XTendRMT: Show vNext Primitive Apply Experience`
+- Command `XTendRMT: Show vNext Primitive Code Action Preview`
+- Command `XTendRMT: Show vNext Primitive Command Handoff`
 
 Bis ein voll gepackter VS-Code-LanguageClient freigegeben ist, kann ein generischer LSP-Client mit folgendem Befehl genutzt werden:
 
@@ -118,6 +121,15 @@ Bis ein voll gepackter VS-Code-LanguageClient freigegeben ist, kann ein generisc
   "args": ["tools/rmt-language-server/server.js"]
 }
 ```
+
+Die vNext-Primitive-Commands lesen CodeAction-Reports oder einzelne Actions
+aus der RMT-vNext-Tooling-Schicht und zeigen die drei Apply-Pfade getrennt im
+Output Channel:
+
+- sichere einzelne Quick-Fixes;
+- `source.fixAll.rmt.vnext.primitives` fuer alle sicheren WorkspaceEdits;
+- manuelle `xtend.rmt.vnext.extractKernelImport` Handoffs fuer Kernel-/Fabric-
+  Boundary-Verletzungen ohne automatischen WorkspaceEdit.
 
 ## JetBrains
 

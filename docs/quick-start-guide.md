@@ -1,6 +1,8 @@
 # Quick Start Guide
 
-Dieser Guide bringt eine minimale XTend-App lokal zum Laufen. Ziel ist ein kleiner, nachvollziehbarer Startpunkt ohne CDN, ohne Build-Schritt und ohne Framework-Zwang.
+Dieser Guide bringt dich von einer lokalen XTend-Seite zu einer kleinen
+RMT-vNext-App-Shell. Der schnellste Einstieg bleibt HTML mit Web Components;
+der empfohlene Ausbaupfad fuer Apps ist RMT-first.
 
 ## Voraussetzungen
 
@@ -8,7 +10,7 @@ Dieser Guide bringt eine minimale XTend-App lokal zum Laufen. Ziel ist ein klein
 - ein lokaler Checkout des XTend-Repositories
 - ein Browser mit Custom-Elements- und ES-Module-Support
 
-XTend laeuft im Kern als lokales ES-Module- und Web-Component-Framework. Fuer Entwicklung und Tests wird der lokale Dev Server genutzt.
+Starte den lokalen Dev Server:
 
 ```bash
 npm run dev:local
@@ -16,7 +18,7 @@ npm run dev:local
 
 Der Server liefert die App normalerweise unter `http://127.0.0.1:4173/` aus.
 
-## Minimaler Host
+## 1. Minimalen Host starten
 
 Lege im Projekt eine HTML-Datei an, zum Beispiel `quick-start.html`:
 
@@ -48,68 +50,63 @@ Lege im Projekt eine HTML-Datei an, zum Beispiel `quick-start.html`:
 </html>
 ```
 
-Danach oeffnest du `http://127.0.0.1:4173/quick-start.html`.
+Oeffne danach `http://127.0.0.1:4173/quick-start.html`.
 
-## Was passiert hier?
+Was passiert hier?
 
-- `xtend-loader.js` ist der kanonische lokale Loader.
-- `components/manifest.json` ist die lokale Component Registry.
-- Die Loader-StyleRegistry bringt Runtime-Critical CSS fuer Tokens, Skeletons und FOUC-Schutz selbst mit.
-- `meta name="xtend-preload"` laedt die kritischen Komponenten frueh.
-- `x-theme` initialisiert Theme-Unterstuetzung.
-- `x-section` und `x-button` sind normale XTend Web Components.
+- `xtend-loader.js` ist der lokale Loader.
+- `components/manifest.json` ist die Component Registry.
+- `meta name="xtend-preload"` laedt kritische Komponenten frueh.
+- `x-theme`, `x-section` und `x-button` sind normale XTend Web Components.
+- `/xtend.css` ist optional und dient Host-Theming.
 
-Die App bleibt Vanilla HTML. XTend uebernimmt nur Loader, Komponenten, Styling- und Runtime-Kontrakte.
+## 2. App Shell in RMT vNext beschreiben
 
-`/xtend.css` ist optional. Der Dateiname bleibt der kanonische XTend-Standard fuer Host-Theming und gezielte 3rd-Party-Anpassungen, ist aber nicht noetig, damit der Loader ohne ungestyltes Pop-In bootet.
+Wenn aus der Seite eine App wird, soll die Shell in RMT liegen. RMT vNext
+beschreibt UI-Struktur, State, Actions, Events, Surfaces und Scheduling in
+einer lesbaren `.rmt` Quelle.
 
-## Optional: Routing
+Lege zum Beispiel `app.rmt` an:
 
-Wenn du eine SPA brauchst, fuegst du `x-router` und `x-link` hinzu:
+```rmt
+template quickstart.app {
+  state counter type number initial 0
 
-```html
-<meta name="xtend-preload" content="x-theme,x-link,x-router,x-section">
+  selector counterLabel from state counter {
+    output text
+  }
 
-<nav>
-  <x-link href="/home">Home</x-link>
-  <x-link href="/about">About</x-link>
-</nav>
+  action increment {
+    input amount number
+    reduce state.counter = input.amount
+    emit counter.changed with action increment
+  }
 
-<x-router mode="hash" document-title-template="{{title}} | Quick Start">
-  <x-route path="/" component="x-section" title="Home"></x-route>
-  <x-route path="/home" component="x-section" title="Home"></x-route>
-  <x-route path="/about" component="x-section" title="About"></x-route>
-</x-router>
-```
+  portal app root "#app-root" layer surface
 
-Der Router schreibt pro Route den Seitentitel. Fuer SEO-nahe Apps koennen Titel und Meta-Daten auch aus RMT Route Records kommen.
+  surface home kind page component x-section {
+    source state counter
+    portal app
+    key route.path
 
-## Optional: RMT-first denken
+    lane visible weight 80 {
+      hydrate x-section from state counter
+    }
 
-Fuer groessere Apps empfiehlt sich der RMT-first Pfad: Die Shell, Routes, Schedules und spaeter Komponentenbindungen werden deklarativ in einem `.rmt` Dokument beschrieben. XTend bleibt dann der UI-Adapter, XRouter der Routing-Adapter und XTendRMT der Scheduler.
-
-Der lokale XTend-Dev-Server liefert `.rmt` mit dem nativen MIME-Type `application/vnd.xtendrmt.rmt+json` aus. Neue Apps sollten deshalb direkt `.rmt` verwenden; JSON-Endungen sind nur noch ein Kompatibilitaetsfallback fuer Hosts ohne eigene MIME-Konfiguration.
-
-Minimaler Route Record:
-
-```json
-{
-  "id": "home",
-  "path": "/home",
-  "router": "xtend.xrouter",
-  "component": "page.home",
-  "title": "Home",
-  "documentTitle": "Home | Quick Start",
-  "template": "home.shell",
-  "schedule": "route.visible.render"
+    on click target button.primary -> action increment {
+      payload amount from 1
+    }
+  }
 }
 ```
 
-Fuer eine minimale native App-Shell kannst du in einer IDE mit RMT Snippets den Prefix `rmt-app` nutzen. Der Snippet-Katalog liegt in `tools/rmt-language/snippets/` und erzeugt direkt `.rmt` Authoring-Strukturen.
+Dieses Dokument ist kein Runtime-Import und keine Framework-Komponente. Es ist
+die App-Beschreibung: Der Compiler erzeugt daraus Core-/Kernel-Records, die
+Host-Adapter mit XTend Components, XRouter und Fabric verbinden koennen.
 
-## RMT lokal pruefen
+## 3. RMT lokal pruefen
 
-Der Standard-Gate fuer ein einzelnes Dokument ist:
+Der Standardcheck fuer ein einzelnes Dokument ist:
 
 ```bash
 xt rmt lint app.rmt
@@ -127,9 +124,11 @@ AI-Agenten koennen den Repair Report nutzen:
 xt rmt lint app.rmt --agent
 ```
 
-Der Agent Report enthaelt `repairPlan`, `fixOrder`, `confidence`, `impact`, `relatedDiagnostics` und erklaerte No-Ops fuer bewusst nicht automatisierte Reparaturen.
+Der Agent Report enthaelt `repairPlan`, `fixOrder`, `confidence`, `impact`,
+`relatedDiagnostics` und erklaerte No-Ops fuer bewusst nicht automatisierte
+Reparaturen.
 
-## Editor-Unterstuetzung
+## 4. Editor-Unterstuetzung aktivieren
 
 Der RMT Language Server startet lokal ueber:
 
@@ -137,16 +136,18 @@ Der RMT Language Server startet lokal ueber:
 node tools/rmt-language-server/server.js
 ```
 
-Er liefert Diagnostics, Completion, Hover, Document Symbols, Definition und Code Actions. VS Code, JetBrains, Neovim und Helix koennen den Server ueber stdio anbinden. Die Setup-Hinweise stehen in [RMT Language Server und Editor Setup](./rmt-language-server.md).
-
-Fuer den ersten Einstieg reicht die HTML-Variante. Sobald Routing, Scheduling, Hydration oder mehrere Frameworks zusammenspielen, ist `.rmt` mit Linter und LSP der stabilere Ausbaupfad.
+Er liefert Diagnostics, Completion, Hover, Document Symbols, Definition und
+Code Actions. VS Code, JetBrains, Neovim und Helix koennen den Server ueber
+stdio anbinden. Fuer eine minimale native App-Shell kannst du in einer IDE mit
+RMT Snippets den Prefix `rmt-app` nutzen; fuer vNext-Primitives ist
+`rmt-vnext-primitive-shell` der schnellste Start.
 
 ## Naechste Schritte
 
+- [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [XTendRMT Developer Overview](./xtendrmt-overview.md)
+- [RMT Linter und AI-Agent Repair Report](./rmt-linter.md)
+- [RMT Language Server und Editor Setup](./rmt-language-server.md)
 - [XTend Loader](./xtend-loader.md)
 - [Manifest-Format](./manifest.md)
 - [Komponenten-Entwicklung](./components.md)
-- [XTendRMT App-DSL Reference](./xtendrmt-app-dsl.md)
-- [RMT-first XTend Apps](./rmt-first-xtend-apps.md)
-- [RMT Linter und AI-Agent Repair Report](./rmt-linter.md)
-- [RMT Language Server und Editor Setup](./rmt-language-server.md)

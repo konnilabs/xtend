@@ -15,6 +15,9 @@ const {
   syntaxCheckFile
 } = require('../utils/process');
 const {
+  createRmtSourceModel
+} = require('../../tools/rmt-language/source-model');
+const {
   lintRmtSource
 } = require('../../tools/rmt-language/diagnostics');
 const {
@@ -34,14 +37,25 @@ const {
   RMT_VNEXT_TOOLING_FORMATTER_SCHEMA,
   RMT_VNEXT_TOOLING_MODULE_PATH,
   RMT_VNEXT_TOOLING_PACKAGE_SCRIPT,
+  RMT_VNEXT_PRIMITIVE_AUTHORING_WORKPACKAGE,
+  RMT_VNEXT_PRIMITIVE_CODE_ACTION_PROVIDER_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_CODE_ACTION_PREVIEW_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_CODE_ACTION_REPORT_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_COMMAND_HANDOFF_SCHEMA,
+  RMT_VNEXT_PRIMITIVE_FIX_ALL_KIND,
+  RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND,
+  RMT_CODE_ACTION_SCHEMA,
   RMT_VNEXT_TOOLING_REPORT_SCHEMA,
   RMT_VNEXT_TOOLING_SCHEMA,
   RMT_VNEXT_TOOLING_SUITE_PATH,
   RMT_VNEXT_TOOLING_WORKPACKAGE,
+  RMT_WORKSPACE_EDIT_SCHEMA,
   VNEXT_SNIPPETS,
   analyzeRmtVNextToolingSource,
+  createRmtVNextPrimitiveCommandHandoff,
   createRmtVNextToolingAdapter,
   formatRmtVNextSource,
+  getRmtVNextToolingCodeActions,
   getRmtVNextToolingCompletions,
   getRmtVNextToolingDefinition,
   getRmtVNextToolingDocumentSymbols,
@@ -54,8 +68,13 @@ const EPIC_15_PATH = 'development/EPIC_E15_RMT_vNext_Syntax.md';
 const TOOLING_CONTRACT_PATH = 'development/XTendRMT-vNext-Tooling-Adapter-Contract.md';
 const WP_E15_15_PATH = 'development/WP-E15-15-Tooling-Update-fuer-Linter-LSP-Formatter-und-Snippets-bauen.md';
 const VALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-streaming-progressive.rmt';
+const PRIMITIVE_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
+const PRIMITIVE_INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 const INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt';
 const LEGACY_FIXTURE = 'tests/rmt-language/fixtures/regression-valid.rmt';
+const PRIMITIVE_AUTHORING_DOC_PATH = 'docs/rmt-vnext-primitive-authoring-tooling.md';
+const PRIMITIVE_BACKLOG_PATH = 'docs/rmt-vnext-primitives-compiler-backlog.md';
+const PRIMITIVE_SEMANTIC_DOC_PATH = 'docs/rmt-vnext-primitive-semantic-graph.md';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -81,8 +100,83 @@ function fixtureInput(relativePath, rootDir) {
   };
 }
 
-function openVNextInServer(rootDir) {
-  const input = fixtureInput(VALID_VNEXT_FIXTURE, rootDir);
+function linesOf(input) {
+  return String(input && input.text ? input.text : input || '').split(/\r\n|\r|\n/u);
+}
+
+function findLineNumber(input, needle) {
+  const lines = linesOf(input);
+  const line = lines.findIndex((entry) => entry.includes(needle));
+
+  if (line < 0) {
+    throw new Error(`Fixture line not found: ${needle}`);
+  }
+
+  return line;
+}
+
+function positionAfter(input, needle) {
+  const line = findLineNumber(input, needle);
+  const lineText = linesOf(input)[line];
+
+  return {
+    line,
+    character: lineText.indexOf(needle) + needle.length
+  };
+}
+
+function applyWorkspaceEdit(text, action) {
+  const changes = action && action.edit && action.edit.changes
+    ? action.edit.changes
+    : {};
+  const edits = Object.values(changes).flat();
+  let nextText = text;
+
+  edits.slice().sort((left, right) => {
+    const sourceModel = createRmtSourceModel({ text: nextText });
+    return sourceModel.offsetAt(right.range.start) - sourceModel.offsetAt(left.range.start);
+  }).forEach((edit) => {
+    const sourceModel = createRmtSourceModel({ text: nextText });
+    const start = sourceModel.offsetAt(edit.range.start);
+    const end = sourceModel.offsetAt(edit.range.end);
+
+    nextText = `${nextText.slice(0, start)}${edit.newText}${nextText.slice(end)}`;
+  });
+
+  return nextText;
+}
+
+function createPrimitiveAuthoringProblemFixture() {
+  return [
+    'template demo.authoring.missing {',
+    '  state demo.blank type object preserve',
+    '',
+    '  portal surface.root root "#root" layer surface',
+    '',
+    '  resource transient.preview owner surface.demo.shell {',
+    '    source selector missing.selector',
+    '  }',
+    '',
+    '  datasource demo.sync from endpoint "/api/sync" {',
+    '    method POST',
+    '    result records',
+    '  }',
+    '',
+    '  action demo.sync {',
+    '    input id string',
+    '    effect fetch',
+    '  }',
+    '',
+    '  surface demo.shell kind window component x-shell {',
+    '    portal missing.portal',
+    '  }',
+    '}',
+    ''
+  ].join('\n');
+}
+
+function openVNextInServer(rootDir, relativePath = VALID_VNEXT_FIXTURE) {
+  const input = fixtureInput(relativePath, rootDir);
   const uri = pathToFileURL(input.filePath).href;
   const server = createRmtLanguageServer({ rootDir });
 
@@ -212,7 +306,206 @@ function runProviderChecks(context, rootDir) {
   context.assert(definition.status === 'resolved' && definition.target.domain === 'dataSources', 'vNext definition resolves operation source to data source');
 }
 
+function runPrimitiveAuthoringChecks(context, rootDir) {
+  const input = fixtureInput(PRIMITIVE_VNEXT_FIXTURE, rootDir);
+  const analysis = analyzeRmtVNextToolingSource(input, { rootDir });
+  const primitiveKeywordCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    context: 'vnext-primitive-keywords'
+  });
+  const stateCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    pointer: '/states/0'
+  });
+  const actionCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    pointer: '/actions/0'
+  });
+  const surfaceCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    pointer: '/surfaces/1'
+  });
+  const resourceCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    pointer: '/resources/0'
+  });
+  const overlayCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    pointer: '/overlays/0'
+  });
+  const cursorStateCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    position: positionAfter(input, 'state media.filters type object preserve {')
+  });
+  const cursorResourceKindCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    position: positionAfter(input, 'resource lightbox.import kind ')
+  });
+  const cursorActionPartialCompletions = getRmtVNextToolingCompletions(input, {
+    rootDir,
+    analysis,
+    position: positionAfter(input, '    red')
+  });
+  const stateHover = getRmtVNextToolingHover(input, {
+    rootDir,
+    analysis,
+    pointer: '/states/0'
+  });
+  const actionHover = getRmtVNextToolingHover(input, {
+    rootDir,
+    analysis,
+    pointer: '/actions/0'
+  });
+  const resourceHover = getRmtVNextToolingHover(input, {
+    rootDir,
+    analysis,
+    pointer: '/resources/0'
+  });
+  const symbols = getRmtVNextToolingDocumentSymbols(input, {
+    rootDir,
+    analysis
+  });
+  const symbolNamespaces = symbols.symbols.map((symbol) => symbol.name);
+
+  context.assert(RMT_VNEXT_PRIMITIVE_AUTHORING_WORKPACKAGE === 'RMT-VNEXT-PRIM-07', 'vNext tooling exports PRIM-07 authoring workpackage marker');
+  context.assert(analysis.ok === true && analysis.coreDocument.states.length === 3, 'primitive vNext fixture is indexed for authoring');
+  context.assert(analysis.sourceMapSummary.byNodeType.RmtStateDeclaration >= 3, 'primitive authoring source map exposes state declarations');
+  context.assert(analysis.sourceMapSummary.byNodeType.RmtSurfaceDeclaration >= 2, 'primitive authoring source map exposes surface declarations');
+  context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'state'), 'primitive completion exposes state keyword');
+  context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'selector'), 'primitive completion exposes selector keyword');
+  context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'resource'), 'primitive completion exposes resource keyword');
+  context.assert(stateCompletions.context === 'vnext-primitive-state-clauses' && stateCompletions.items.some((item) => item.label === 'initial'), 'state pointer infers primitive state completions');
+  context.assert(actionCompletions.items.some((item) => item.label === 'effect fetch datasource'), 'action pointer exposes effect completion');
+  context.assert(surfaceCompletions.items.some((item) => item.label === 'destroy releases resource'), 'surface pointer exposes lifecycle resource completion');
+  context.assert(resourceCompletions.items.some((item) => item.label === 'lazy-import'), 'resource pointer exposes lazy-import resource kind');
+  context.assert(overlayCompletions.items.some((item) => item.label === 'toast'), 'overlay pointer exposes toast overlay kind');
+  context.assert(cursorStateCompletions.context === 'vnext-primitive-state-clauses' && cursorStateCompletions.items.some((item) => item.label === 'initial'), 'cursor-near state line infers primitive state clauses');
+  context.assert(cursorResourceKindCompletions.context === 'vnext-primitive-resource-kinds' && cursorResourceKindCompletions.items.some((item) => item.label === 'lazy-import'), 'cursor-near resource kind infers resource kind enum');
+  context.assert(cursorActionPartialCompletions.context === 'vnext-primitive-action-clauses' && cursorActionPartialCompletions.prefix === 'red' && cursorActionPartialCompletions.items.some((item) => item.label === 'reduce'), 'cursor-near action partial word filters action clauses');
+  context.assert(stateHover.status === 'found' && stateHover.hover.markdown.includes('State: media.records'), 'primitive hover explains state declaration');
+  context.assert(actionHover.status === 'found' && actionHover.hover.markdown.includes('Action: media.select'), 'primitive hover explains action declaration');
+  context.assert(resourceHover.status === 'found' && resourceHover.hover.markdown.includes('Resource: lightbox.import'), 'primitive hover explains resource declaration');
+  ['states', 'selectors', 'actions', 'portals', 'overlays', 'resources'].forEach((domain) => {
+    context.assert(symbolNamespaces.includes(domain), `primitive document symbols expose ${domain} namespace`);
+  });
+  context.assert(symbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'media.player')), 'primitive document symbols include visible media.player surface');
+}
+
+function runPrimitiveCodeActionChecks(context, rootDir) {
+  const input = fixtureInput(PRIMITIVE_INVALID_VNEXT_FIXTURE, rootDir);
+  const analysis = analyzeRmtVNextToolingSource(input, { rootDir });
+  const authoringInput = {
+    text: createPrimitiveAuthoringProblemFixture(),
+    uri: 'file:///virtual/vnext-primitive-authoring-missing.rmt'
+  };
+  const authoringAnalysis = analyzeRmtVNextToolingSource(authoringInput, { rootDir });
+  const report = getRmtVNextToolingCodeActions(input, {
+    rootDir,
+    analysis
+  });
+  const authoringReport = getRmtVNextToolingCodeActions(authoringInput, {
+    rootDir,
+    analysis: authoringAnalysis
+  });
+  const repeatReport = getRmtVNextToolingCodeActions(input, {
+    rootDir,
+    analysis
+  });
+  const ownerAction = report.actions.find((action) => action.diagnosticCode === 'rmt.vnext.primitive.owner-missing');
+  const keyAction = report.actions.find((action) => action.diagnosticCode === 'rmt.vnext.primitive.unkeyed-repeat');
+  const payloadAction = report.actions.find((action) => action.diagnosticCode === 'rmt.vnext.primitive.payload-contract-missing');
+  const filteredReport = getRmtVNextToolingCodeActions(input, {
+    rootDir,
+    analysis,
+    diagnostics: [{
+      code: 'rmt.vnext.primitive.owner-missing',
+      data: { pointer: ownerAction && ownerAction.pointer }
+    }]
+  });
+  const ownerPatched = ownerAction ? applyWorkspaceEdit(input.text, ownerAction) : '';
+  const keyPatched = keyAction ? applyWorkspaceEdit(input.text, keyAction) : '';
+  const payloadPatched = payloadAction ? applyWorkspaceEdit(input.text, payloadAction) : '';
+  const stateInitialAction = authoringReport.actions.find((action) => action.diagnosticCode === 'rmt.vnext.primitive.initial-missing');
+  const resourceKindAction = authoringReport.actions.find((action) => action.diagnosticCode === 'rmt.vnext.primitive.resource-kind-missing');
+  const selectorAction = authoringReport.actions.find((action) => action.title.includes('Selector "missing.selector"'));
+  const portalAction = authoringReport.actions.find((action) => action.title.includes('Portal "missing.portal"'));
+  const reducerAction = authoringReport.actions.find((action) => action.diagnosticCode === 'rmt.vnext.primitive.action-reducer-missing');
+  const effectSourceAction = authoringReport.actions.find((action) => action.diagnosticCode === 'rmt.vnext.primitive.effect-source-missing');
+  const kernelBoundaryAction = report.actions.find((action) => action.diagnosticCode === 'rmt.vnext.primitive.kernel-boundary');
+  const fixAllAction = authoringReport.actions.find((action) => action.kind === RMT_VNEXT_PRIMITIVE_FIX_ALL_KIND);
+  const statePatched = stateInitialAction ? applyWorkspaceEdit(authoringInput.text, stateInitialAction) : '';
+  const kindPatched = resourceKindAction ? applyWorkspaceEdit(authoringInput.text, resourceKindAction) : '';
+  const selectorPatched = selectorAction ? applyWorkspaceEdit(authoringInput.text, selectorAction) : '';
+  const portalPatched = portalAction ? applyWorkspaceEdit(authoringInput.text, portalAction) : '';
+  const reducerPatched = reducerAction ? applyWorkspaceEdit(authoringInput.text, reducerAction) : '';
+  const effectPatched = effectSourceAction ? applyWorkspaceEdit(authoringInput.text, effectSourceAction) : '';
+  const fixAllPatched = fixAllAction ? applyWorkspaceEdit(authoringInput.text, fixAllAction) : '';
+  const editActions = report.actions.concat(authoringReport.actions).filter((action) => action.edit);
+  const quickFixActions = report.actions.concat(authoringReport.actions).filter((action) => action.kind === 'quickfix');
+  const kernelBoundaryHandoff = kernelBoundaryAction && kernelBoundaryAction.command
+    ? createRmtVNextPrimitiveCommandHandoff(kernelBoundaryAction.command, { rootDir })
+    : null;
+
+  context.assert(analysis.ok === false && analysis.compileResult.phase === 'semantic', 'invalid primitive fixture reaches semantic diagnostics for code actions');
+  context.assert(authoringAnalysis.ok === false && authoringAnalysis.compileResult.phase === 'semantic', 'authoring problem fixture reaches semantic diagnostics for code actions');
+  context.assert(report.schema === RMT_VNEXT_PRIMITIVE_CODE_ACTION_REPORT_SCHEMA, 'primitive code action report emits PRIM-07 report schema');
+  context.assert(report.providerSchema === RMT_VNEXT_PRIMITIVE_CODE_ACTION_PROVIDER_SCHEMA, 'primitive code action report emits provider schema');
+  context.assert(report.previewSchema === RMT_VNEXT_PRIMITIVE_CODE_ACTION_PREVIEW_SCHEMA, 'primitive code action report emits preview schema');
+  context.assert(report.actionSchema === RMT_CODE_ACTION_SCHEMA, 'primitive code action report emits action schema');
+  context.assert(report.editSchema === RMT_WORKSPACE_EDIT_SCHEMA, 'primitive code action report emits workspace edit schema');
+  context.assert(report.workpackage === RMT_VNEXT_PRIMITIVE_AUTHORING_WORKPACKAGE, 'primitive code action report belongs to PRIM-07');
+  context.assert(report.status === 'completed' && report.actionCount >= 3, 'primitive code action report completes with quick fixes');
+  context.assert(quickFixActions.every((action) => action.kind === 'quickfix'), 'primitive individual code actions expose quickfix kind');
+  context.assert(authoringReport.fixAllCount === 1 && fixAllAction && fixAllAction.kind === RMT_VNEXT_PRIMITIVE_FIX_ALL_KIND, 'primitive code action report exposes safe fix-all source action');
+  context.assert(authoringReport.previewCount === authoringReport.actionCount, 'primitive code action report attaches previews to every action');
+  context.assert(editActions.every((action) => action.safe === true), 'primitive edit code actions are marked safe');
+  context.assert(JSON.stringify(report.actions) === JSON.stringify(repeatReport.actions), 'primitive code actions are deterministic');
+  context.assert(ownerAction && ownerAction.edit.schema === RMT_WORKSPACE_EDIT_SCHEMA, 'owner-missing diagnostic creates workspace edit');
+  context.assert(keyAction && keyAction.edit.schema === RMT_WORKSPACE_EDIT_SCHEMA, 'unkeyed-repeat diagnostic creates workspace edit');
+  context.assert(payloadAction && payloadAction.edit.schema === RMT_WORKSPACE_EDIT_SCHEMA, 'payload-contract diagnostic creates workspace edit');
+  context.assert(ownerAction && ownerAction.preview && ownerAction.preview.schema === RMT_VNEXT_PRIMITIVE_CODE_ACTION_PREVIEW_SCHEMA, 'owner quick fix exposes preview');
+  context.assert(ownerAction && ownerAction.preview.after.some((line) => line.includes('owner surface.demo.card')), 'owner quick fix preview shows inserted owner');
+  context.assert(ownerPatched.includes('resource orphan.objectUrl kind object-url owner surface.demo.card {'), 'owner quick fix inserts nearest safe surface owner');
+  context.assert(keyPatched.includes('    key instance.id'), 'surface repeat quick fix inserts stable key clause');
+  context.assert(payloadPatched.includes('      payload id from target.dataset.id'), 'event payload quick fix inserts payload contract block');
+  context.assert(stateInitialAction && statePatched.includes('state demo.blank type object preserve {\n    initial {}\n  }'), 'state initial quick fix inserts initial block');
+  context.assert(resourceKindAction && kindPatched.includes('resource transient.preview kind object-url owner surface.demo.shell'), 'resource kind quick fix inserts safe default kind');
+  context.assert(selectorAction && selectorPatched.includes('selector missing.selector from state demo.blank'), 'unknown selector quick fix inserts selector stub');
+  context.assert(portalAction && portalPatched.includes('portal missing.portal root "#missing-portal" layer surface'), 'unknown portal quick fix inserts portal stub');
+  context.assert(reducerAction && reducerPatched.includes('    reduce state.demo.blank = input.id'), 'action reducer quick fix inserts state reducer target');
+  context.assert(effectSourceAction && effectPatched.includes('    effect fetch datasource demo.sync'), 'effect source quick fix inserts datasource source');
+  context.assert(kernelBoundaryAction && !kernelBoundaryAction.edit && kernelBoundaryAction.safe === false, 'kernel boundary diagnostic exposes manual command action');
+  context.assert(kernelBoundaryAction && kernelBoundaryAction.preview.status === 'manual-command', 'kernel boundary diagnostic exposes manual command preview');
+  context.assert(kernelBoundaryAction && kernelBoundaryAction.command.command === RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND, 'kernel boundary command uses stable command id');
+  context.assert(kernelBoundaryHandoff && kernelBoundaryHandoff.schema === RMT_VNEXT_PRIMITIVE_COMMAND_HANDOFF_SCHEMA, 'kernel boundary command creates stable handoff report');
+  context.assert(kernelBoundaryHandoff && kernelBoundaryHandoff.status === 'manual_handoff' && kernelBoundaryHandoff.edit === null, 'kernel boundary handoff remains manual without workspace edit');
+  context.assert(kernelBoundaryHandoff && kernelBoundaryHandoff.boundary === 'no-kernel-fabric-imports-in-vnext-source', 'kernel boundary handoff preserves host-neutral boundary');
+  context.assert(fixAllAction && fixAllAction.edit.metadata.actionCount >= 6, 'fix-all action records aggregated safe edit count');
+  context.assert(fixAllAction && fixAllAction.preview.changedLineCount >= 6, 'fix-all action exposes multi-edit preview');
+  context.assert(fixAllPatched.includes('state demo.blank type object preserve {\n    initial {}\n  }'), 'fix-all action applies state initial edit');
+  context.assert(fixAllPatched.includes('resource transient.preview kind object-url owner surface.demo.shell'), 'fix-all action applies resource kind edit');
+  context.assert(fixAllPatched.includes('selector missing.selector from state demo.blank'), 'fix-all action applies selector stub edit');
+  context.assert(fixAllPatched.includes('portal missing.portal root "#missing-portal" layer surface'), 'fix-all action applies portal stub edit');
+  context.assert(fixAllPatched.includes('    reduce state.demo.blank = input.id'), 'fix-all action applies reducer edit');
+  context.assert(fixAllPatched.includes('    effect fetch datasource demo.sync'), 'fix-all action applies effect source edit');
+  context.assert(filteredReport.actionCount === 1 && filteredReport.actions[0].diagnosticCode === 'rmt.vnext.primitive.owner-missing', 'primitive code actions filter by LSP diagnostic context');
+}
+
 function runLanguageServerChecks(context, rootDir) {
+  const initialized = createRmtLanguageServer({ rootDir }).handleMessage({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'initialize',
+    params: { rootPath: rootDir }
+  })[0].result;
   const opened = openVNextInServer(rootDir);
   const operationRange = opened.analysis.graph.sourceMap.find((entry) => entry.corePointer === '/operations/2').range;
   const position = {
@@ -263,6 +556,96 @@ function runLanguageServerChecks(context, rootDir) {
   context.assert(hover.contents.value.includes('Operation: hero-fragments'), 'LSP hover maps vNext operation hover');
   context.assert(symbols.some((symbol) => symbol.name === 'operations'), 'LSP document symbols map vNext operations');
   context.assert(definition && definition.range.start.line >= 0, 'LSP definition maps vNext data source location');
+
+  const primitiveOpened = openVNextInServer(rootDir, PRIMITIVE_VNEXT_FIXTURE);
+  const primitiveCompletion = primitiveOpened.server.handleMessage({
+    jsonrpc: '2.0',
+    id: 6,
+    method: 'textDocument/completion',
+    params: {
+      textDocument: { uri: primitiveOpened.uri },
+      position: { line: 6, character: 4 },
+      xtend: { context: 'vnext-primitive-keywords' }
+    }
+  })[0].result;
+  const primitiveStateCompletion = primitiveOpened.server.handleMessage({
+    jsonrpc: '2.0',
+    id: 9,
+    method: 'textDocument/completion',
+    params: {
+      textDocument: { uri: primitiveOpened.uri },
+      position: positionAfter(primitiveOpened.input, 'state media.filters type object preserve {')
+    }
+  })[0].result;
+  const primitiveResourceKindCompletion = primitiveOpened.server.handleMessage({
+    jsonrpc: '2.0',
+    id: 10,
+    method: 'textDocument/completion',
+    params: {
+      textDocument: { uri: primitiveOpened.uri },
+      position: positionAfter(primitiveOpened.input, 'resource lightbox.import kind ')
+    }
+  })[0].result;
+  const primitiveHover = primitiveOpened.server.handleMessage({
+    jsonrpc: '2.0',
+    id: 7,
+    method: 'textDocument/hover',
+    params: {
+      textDocument: { uri: primitiveOpened.uri },
+      position: { line: 47, character: 4 },
+      xtend: { pointer: '/actions/0' }
+    }
+  })[0].result;
+  const primitiveSymbols = primitiveOpened.server.handleMessage({
+    jsonrpc: '2.0',
+    id: 8,
+    method: 'textDocument/documentSymbol',
+    params: {
+      textDocument: { uri: primitiveOpened.uri }
+    }
+  })[0].result;
+  const primitiveInvalidOpened = openVNextInServer(rootDir, PRIMITIVE_INVALID_VNEXT_FIXTURE);
+  const primitiveInvalidDiagnostics = primitiveInvalidOpened.notifications[0].params.diagnostics;
+  const primitiveCodeActions = primitiveInvalidOpened.server.handleMessage({
+    jsonrpc: '2.0',
+    id: 11,
+    method: 'textDocument/codeAction',
+    params: {
+      textDocument: { uri: primitiveInvalidOpened.uri },
+      range: primitiveInvalidDiagnostics[0].range,
+      context: {
+        diagnostics: primitiveInvalidDiagnostics
+      }
+    }
+  })[0].result;
+  const primitiveKernelCommand = primitiveCodeActions.find((action) => action.command && action.command.command === RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND);
+  const primitiveKernelHandoff = primitiveInvalidOpened.server.handleMessage({
+    jsonrpc: '2.0',
+    id: 12,
+    method: 'workspace/executeCommand',
+    params: {
+      command: RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND,
+      arguments: primitiveKernelCommand && primitiveKernelCommand.command
+        ? primitiveKernelCommand.command.arguments
+        : []
+    }
+  })[0].result;
+
+  context.assert(initialized.capabilities.executeCommandProvider.commands.includes(RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND), 'LSP advertises primitive kernel boundary executeCommand');
+  context.assert(primitiveCompletion.items.some((item) => item.label === 'state'), 'LSP completion maps primitive keyword catalog');
+  context.assert(primitiveStateCompletion.items.some((item) => item.label === 'initial'), 'LSP infers primitive state clause completion from cursor position');
+  context.assert(primitiveResourceKindCompletion.items.some((item) => item.label === 'lazy-import'), 'LSP infers primitive resource kind completion from cursor position');
+  context.assert(primitiveHover.contents.value.includes('Action: media.select'), 'LSP hover maps primitive action hover');
+  context.assert(primitiveSymbols.some((symbol) => symbol.name === 'states'), 'LSP document symbols map primitive state namespace');
+  context.assert(primitiveInvalidDiagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.primitive.owner-missing'), 'LSP publishes primitive owner diagnostic');
+  context.assert(primitiveCodeActions.some((action) => action.title.includes('Resource owner')), 'LSP maps primitive owner quick fix');
+  context.assert(primitiveCodeActions.some((action) => action.title.includes('key-Klausel')), 'LSP maps primitive key quick fix');
+  context.assert(primitiveCodeActions.some((action) => action.title.includes('Payload Contract')), 'LSP maps primitive payload quick fix');
+  context.assert(primitiveCodeActions.some((action) => action.kind === RMT_VNEXT_PRIMITIVE_FIX_ALL_KIND), 'LSP maps primitive safe fix-all action');
+  context.assert(primitiveCodeActions.some((action) => action.data && action.data.preview && action.data.preview.schema === RMT_VNEXT_PRIMITIVE_CODE_ACTION_PREVIEW_SCHEMA), 'LSP carries primitive code action previews in data');
+  context.assert(primitiveKernelCommand && primitiveKernelCommand.command.command === RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND, 'LSP maps primitive kernel boundary command action');
+  context.assert(primitiveKernelHandoff.schema === RMT_VNEXT_PRIMITIVE_COMMAND_HANDOFF_SCHEMA, 'LSP executeCommand returns primitive command handoff schema');
+  context.assert(primitiveKernelHandoff.status === 'manual_handoff' && primitiveKernelHandoff.edit === null, 'LSP executeCommand keeps kernel boundary handoff manual');
 }
 
 function runFormatterSnippetAndAgentChecks(context, rootDir) {
@@ -288,12 +671,52 @@ function runFormatterSnippetAndAgentChecks(context, rootDir) {
   context.assert(adapter.schema === RMT_VNEXT_TOOLING_SCHEMA, 'tooling adapter factory exposes schema');
   context.assert(adapter.lint(input).status === 'passed', 'tooling adapter factory can lint');
   context.assert(VNEXT_SNIPPETS.length >= 3, 'vNext tooling exports snippet patterns');
+  context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-primitive-shell'), 'vNext tooling exports primitive shell snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-template'), 'snippet catalog includes vNext template snippet');
+  context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-primitive-shell'), 'snippet catalog includes vNext primitive shell snippet');
   context.assert(generatedSnippets['RMT vNext Stream'].prefix === 'rmt-vnext-stream', 'generated VS Code snippets include vNext stream prefix');
+  context.assert(generatedSnippets['RMT vNext Primitive Shell'].prefix === 'rmt-vnext-primitive-shell', 'generated VS Code snippets include vNext primitive shell prefix');
   context.assert(staticSnippets['RMT vNext Stream'].prefix === generatedSnippets['RMT vNext Stream'].prefix, 'static source snippets include vNext stream prefix');
+  context.assert(staticSnippets['RMT vNext Primitive Shell'].prefix === generatedSnippets['RMT vNext Primitive Shell'].prefix, 'static source snippets include vNext primitive shell prefix');
   context.assert(packagedSnippets['RMT vNext Stream'].prefix === generatedSnippets['RMT vNext Stream'].prefix, 'packaged VS Code snippets include vNext stream prefix');
+  context.assert(packagedSnippets['RMT vNext Primitive Shell'].prefix === generatedSnippets['RMT vNext Primitive Shell'].prefix, 'packaged VS Code snippets include vNext primitive shell prefix');
   context.assert(agentReport.fileReports[0].languageMode === 'vnext', 'agent report marks vNext language mode');
   context.assert(agentReport.fileReports[0].sourceMapSummary.totalCount > 20, 'agent report exposes vNext source map summary');
+}
+
+function runPrimitiveAuthoringDocChecks(context, rootDir) {
+  const authoringDoc = readText(PRIMITIVE_AUTHORING_DOC_PATH, rootDir);
+  const backlog = readText(PRIMITIVE_BACKLOG_PATH, rootDir);
+  const semanticDoc = readText(PRIMITIVE_SEMANTIC_DOC_PATH, rootDir);
+
+  context.assert(authoringDoc.includes('RMT-VNEXT-PRIM-07'), 'primitive authoring tooling doc records PRIM-07');
+  context.assert(authoringDoc.includes('Completions'), 'primitive authoring tooling doc covers completions');
+  context.assert(authoringDoc.includes('Cursor-nahe Completion'), 'primitive authoring tooling doc covers cursor-near completion');
+  context.assert(authoringDoc.includes('Code Actions'), 'primitive authoring tooling doc covers code actions');
+  context.assert(authoringDoc.includes('rmt.vnext.primitive.initial-missing'), 'primitive authoring tooling doc covers initial quick fix');
+  context.assert(authoringDoc.includes('rmt.vnext.primitive.resource-kind-missing'), 'primitive authoring tooling doc covers resource kind quick fix');
+  context.assert(authoringDoc.includes('rmt.vnext.primitive.action-reducer-missing'), 'primitive authoring tooling doc covers action reducer quick fix');
+  context.assert(authoringDoc.includes('rmt.vnext.primitive.effect-source-missing'), 'primitive authoring tooling doc covers effect source quick fix');
+  context.assert(authoringDoc.includes('Code-Action-Previews'), 'primitive authoring tooling doc covers code action previews');
+  context.assert(authoringDoc.includes('source.fixAll.rmt.vnext.primitives'), 'primitive authoring tooling doc covers safe fix-all action');
+  context.assert(authoringDoc.includes('Command-Handoff'), 'primitive authoring tooling doc covers command handoff');
+  context.assert(authoringDoc.includes('xtend.rmt.vnext.primitive-command-handoff.v1'), 'primitive authoring tooling doc records command handoff schema');
+  context.assert(authoringDoc.includes('VS Code Bridge Apply Experience'), 'primitive authoring tooling doc covers VS Code bridge apply experience');
+  context.assert(authoringDoc.includes('xtend.rmt.editor.vscode-primitive-authoring-experience.v1'), 'primitive authoring tooling doc records VS Code bridge apply schema');
+  context.assert(authoringDoc.includes('Hover'), 'primitive authoring tooling doc covers hover');
+  context.assert(authoringDoc.includes('Document Symbols'), 'primitive authoring tooling doc covers document symbols');
+  context.assert(backlog.includes('| `RMT-VNEXT-PRIM-07` | P1 | completed |'), 'primitive backlog marks PRIM-07 completed');
+  context.assert(backlog.includes('cursor-nahe Primitive-Completions'), 'primitive backlog tracks cursor-near completion slice');
+  context.assert(backlog.includes('erste Quick-Fix-Scheibe'), 'primitive backlog tracks quick-fix slice');
+  context.assert(backlog.includes('zweite Quick-Fix-Scheibe'), 'primitive backlog tracks second quick-fix slice');
+  context.assert(backlog.includes('Action-Authoring-Scheibe'), 'primitive backlog tracks action authoring slice');
+  context.assert(backlog.includes('Preview-/Fix-All-Scheibe'), 'primitive backlog tracks preview and fix-all slice');
+  context.assert(backlog.includes('Command-Handoff'), 'primitive backlog tracks command handoff slice');
+  context.assert(backlog.includes('VS-Code-Bridge-Apply'), 'primitive backlog tracks VS Code bridge apply experience slice');
+  context.assert(semanticDoc.includes('rmt.vnext.primitive.initial-missing'), 'primitive semantic graph doc records initial diagnostic');
+  context.assert(semanticDoc.includes('rmt.vnext.primitive.resource-kind-missing'), 'primitive semantic graph doc records resource kind diagnostic');
+  context.assert(semanticDoc.includes('rmt.vnext.primitive.action-reducer-missing'), 'primitive semantic graph doc records action reducer diagnostic');
+  context.assert(semanticDoc.includes('rmt.vnext.primitive.effect-source-missing'), 'primitive semantic graph doc records effect source diagnostic');
 }
 
 function runRmtVNextToolingSuite(options = {}) {
@@ -310,14 +733,21 @@ function runRmtVNextToolingSuite(options = {}) {
   assertFileExists(context, WP_E15_15_PATH, rootDir, 'WP-E15-15 workpackage document exists');
   assertFileExists(context, TOOLING_CONTRACT_PATH, rootDir, 'vNext tooling contract document exists');
   assertFileExists(context, VALID_VNEXT_FIXTURE, rootDir, 'vNext tooling valid fixture exists');
+  assertFileExists(context, PRIMITIVE_VNEXT_FIXTURE, rootDir, 'vNext primitive authoring fixture exists');
+  assertFileExists(context, PRIMITIVE_INVALID_VNEXT_FIXTURE, rootDir, 'vNext primitive invalid authoring fixture exists');
+  assertFileExists(context, PRIMITIVE_AUTHORING_DOC_PATH, rootDir, 'vNext primitive authoring tooling doc exists');
+  assertFileExists(context, PRIMITIVE_SEMANTIC_DOC_PATH, rootDir, 'vNext primitive semantic graph doc exists');
   context.assert(moduleSyntax.ok, `vNext tooling module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `vNext tooling suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
   runMetadataChecks(context, rootDir);
   runLinterAndCliChecks(context, rootDir);
   runProviderChecks(context, rootDir);
+  runPrimitiveAuthoringChecks(context, rootDir);
+  runPrimitiveCodeActionChecks(context, rootDir);
   runLanguageServerChecks(context, rootDir);
   runFormatterSnippetAndAgentChecks(context, rootDir);
+  runPrimitiveAuthoringDocChecks(context, rootDir);
 
   return context.result({
     schema: RMT_VNEXT_TOOLING_REPORT_SCHEMA,

@@ -1,0 +1,168 @@
+// RMT-VNEXT-PRIM-06 negative cleanup-kind fixture.
+// The audit subscription intentionally uses the wrong resource kind so
+// Source-to-Sea can prove that lifecycle cleanup kind drift is diagnosed.
+
+template demo.feedback {
+  state demo.feedback.status type object preserve {
+    initial {
+      id "feedback-status"
+      text "Ready"
+      tone "neutral"
+    }
+  }
+
+  state demo.feedback.toast type object preserve {
+    initial {
+      id "feedback-toast"
+      text "Queued"
+      tone "info"
+    }
+  }
+
+  state demo.feedback.detail type object preserve {
+    initial {
+      id "feedback-detail"
+      text "Detail queued"
+      tone "focus"
+    }
+  }
+
+  state demo.feedback.audit type object preserve {
+    initial {
+      id "feedback-audit"
+      text "Audit queued"
+      tone "review"
+    }
+  }
+
+  selector demo.feedback.status from state demo.feedback.status {
+    output FeedbackStatus
+  }
+
+  selector demo.feedback.toast from state demo.feedback.toast {
+    output FeedbackToast
+  }
+
+  selector demo.feedback.detail from state demo.feedback.detail {
+    output FeedbackDetail
+  }
+
+  selector demo.feedback.audit from state demo.feedback.audit {
+    output FeedbackAudit
+  }
+
+  action demo.feedback.save {
+    input label string
+    reduce state.demo.feedback.status.text = "Saved"
+    reduce state.demo.feedback.toast.text = "Saved notification"
+    emit demo.feedback.saved with label input.label
+    emit demo.feedback.toast.promoted with label input.label
+  }
+
+  action demo.feedback.dismiss {
+    input label string
+    reduce state.demo.feedback.toast.text = "Dismissed"
+    emit demo.feedback.dismissed with label input.label
+  }
+
+  action demo.feedback.detail.ack {
+    input label string
+    reduce state.demo.feedback.detail.text = "Detail acknowledged"
+    reduce state.demo.feedback.audit.text = "Audit escalated"
+    emit demo.feedback.detail.acknowledged with label input.label
+    emit demo.feedback.audit.escalated with label input.label
+  }
+
+  action demo.feedback.audit.review {
+    input label string
+    reduce state.demo.feedback.audit.text = "Audit reviewed"
+    emit demo.feedback.audit.reviewed with label input.label
+  }
+
+  portal surface.root root "#rmt-source-to-sea-root" layer surface
+
+  resource demo.feedback.timer kind timer owner surface.demo.feedback.status {
+    dispose on surface.destroy
+  }
+
+  resource demo.feedback.toastTimer kind timer owner surface.demo.feedback.toast {
+    dispose on surface.destroy
+  }
+
+  resource demo.feedback.detailTimer kind timer owner surface.demo.feedback.detail {
+    dispose on surface.destroy
+  }
+
+  resource demo.feedback.auditTimer kind timer owner surface.demo.feedback.audit {
+    dispose on surface.destroy
+  }
+
+  resource demo.feedback.auditSubscription kind cache owner surface.demo.feedback.audit {
+    dispose on surface.destroy
+  }
+
+  surface demo.feedback.status kind card component x-status {
+    source selector demo.feedback.status
+    key status.id
+    portal surface.root
+    bounds x 16 y 16 width 320 height 96
+    destroy releases resource demo.feedback.timer
+
+    lane visible weight 50 {
+      hydrate feedback-status from selector demo.feedback.status
+    }
+
+    on click "[data-action='save']" -> action demo.feedback.save {
+      payload label from target.dataset.label
+    }
+  }
+
+  surface demo.feedback.toast kind card component x-toast {
+    source selector demo.feedback.toast
+    key toast.id
+    portal surface.root
+    bounds x 16 y 128 width 320 height 88
+    destroy releases resource demo.feedback.toastTimer
+
+    lane idle weight 40 {
+      hydrate feedback-toast from selector demo.feedback.toast
+    }
+
+    on click "[data-action='dismiss']" -> action demo.feedback.dismiss {
+      payload label from target.dataset.label
+    }
+  }
+
+  surface demo.feedback.detail kind card component x-detail {
+    source selector demo.feedback.detail
+    key detail.id
+    portal surface.root
+    bounds x 16 y 232 width 320 height 88
+    destroy releases resource demo.feedback.detailTimer
+
+    lane transition weight 60 {
+      mount feedback-detail from selector demo.feedback.detail
+    }
+
+    on click "[data-action='ack-detail']" -> action demo.feedback.detail.ack {
+      payload label from target.dataset.label
+    }
+  }
+
+  surface demo.feedback.audit kind card component x-audit {
+    source selector demo.feedback.audit
+    key audit.id
+    portal surface.root
+    bounds x 16 y 336 width 320 height 88
+    destroy releases resource demo.feedback.auditTimer
+    destroy releases resource demo.feedback.auditSubscription
+
+    lane transition weight 60 {
+      mount feedback-audit from selector demo.feedback.audit
+    }
+
+    on click "[data-action='review-audit']" -> action demo.feedback.audit.review {
+      payload label from target.dataset.label
+    }
+  }
+}
