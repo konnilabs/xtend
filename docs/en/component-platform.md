@@ -28,6 +28,22 @@ Since `WP-E11-17`, the visible UX rules have been consolidated in
 - The builder creates contract, source, RMT, a11y, performance, and fixture
   artifacts as a dry run
 
+## RMT vNext Component Capability Registry
+
+The current RMT vNext line extends this platform with
+`xtend.rmt.component-capability-registry.v1`. The registry is the generic RMT
+interface for XTend UI: it reads `components/manifest.json`,
+`xtend.component.contract.v2`, `xtendRmtMetadata`, `observedAttributes`,
+events, slots, parts, form association, accessibility profiles, and performance
+profiles.
+
+The result is one matrix for all 42 public manifest entries and 38 renderable UI
+components. RMT can build DOM descriptors from it, bind events and state
+bridges, and lazy import components through manifest paths. The RMT kernel stays
+framework-neutral and imports no XTend classes or types.
+
+See [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md).
+
 ## P0 Component Wave
 
 WP-E10-08 defines the first P0 component wave as
@@ -210,6 +226,7 @@ class, lane, hydration policy, and critical measurement points.
 
 ```bash
 node scripts/run_xtend_tests.js component-ux-authoring-docs --json
+node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json
 node scripts/run_xtend_tests.js component-long-tail-migration --json
 node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff --json
 node scripts/run_xtend_tests.js component-shell-theme-matrix --json

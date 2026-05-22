@@ -10,6 +10,7 @@ Historical planning and release notes are bundled in the [XTend Changelog](./cha
 | --- | --- |
 | Start your first local app | [Quick Start Guide](./quick-start-guide.md) |
 | Write the full UI in RMT | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md) |
+| Connect RMT primitives with XTend UI | [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md) |
 | Understand RMT architecture | [XTendRMT Developer Overview](./xtendrmt-overview.md) |
 | Use or build components | [Component Development](./components.md) and [Component Platform](./component-platform.md) |
 | Connect loader, manifest, and runtime | [XTend Loader](./xtend-loader.md), [Manifest Format](./manifest.md), [API Integration](./api.md) |
@@ -32,6 +33,7 @@ XTend stays framework-neutral. You can start with a simple HTML page, add RMT fo
 RMT vNext is the primary syntax for new XTend apps. A single `.rmt` source can describe state, selectors, data sources, actions, events, portals, overlays, resources, surfaces, and Fabric lanes.
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md)
 - [XTendRMT Developer Overview](./xtendrmt-overview.md)
 - [Native RMT Authoring](./xtendrmt-native-authoring.md)
 - [XTendRMT App DSL Reference](./xtendrmt-app-dsl.md)
@@ -65,6 +67,13 @@ The tooling documentation contract remains `xtend.rmt.tooling-docs.v1`; the rela
 
 XTend Components are Web Components mounted, hydrated, and connected by RMT surfaces. Use them as UI building blocks while RMT describes app structure and lifecycle.
 
+The RMT vNext Component Capability Registry makes that boundary generic: all 42
+public manifest entries are covered by one matrix, and 38 renderable UI
+components expose Component Contracts, RMT metadata, slots, parts, attributes,
+events, and state bridges as shared runtime capabilities. RMT primitives extend
+the stack instead of creating a second UI layer.
+
+- [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md)
 - [Component Development](./components.md)
 - [Component Platform](./component-platform.md)
 - [TypeScript Components](./typescript-components.md)
@@ -141,8 +150,9 @@ with `node scripts/run_xtend_tests.js rmt-kernel-handoff-docs --json`.
 - [RMT vNext Enterprise MFE Handoff](./rmt-vnext-enterprise-mfe-handoff.md)
 - [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md)
 
-## If You Only Read Three Pages
+## If You Only Read Four Pages
 
 1. [Quick Start Guide](./quick-start-guide.md)
 2. [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
-3. [Component Development](./components.md)
+3. [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md)
+4. [Component Development](./components.md)

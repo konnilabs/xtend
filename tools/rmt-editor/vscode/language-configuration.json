@@ -1,6 +1,6 @@
 {
   "comments": {
-    "lineComment": ""
+    "lineComment": "//"
   },
   "brackets": [
     ["{", "}"],
@@ -19,6 +19,7 @@
     ["(", ")"],
     ["\"", "\""]
   ],
+  "wordPattern": "(-?\\d*\\.\\d\\w*)|([^`~!@#$%^&*()=+[{]}\\\\|;:'\",.<>/?\\s]+)",
   "folding": {
     "markers": {
       "start": "^\\s*//\\s*#?region\\b",

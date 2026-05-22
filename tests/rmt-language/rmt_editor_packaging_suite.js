@@ -30,12 +30,27 @@ const {
   resolveEditorSetup
 } = require('../../tools/rmt-language/snippets');
 const {
+  RMT_VSCODE_DX_COMMANDS,
+  RMT_VSCODE_DX_SCHEMA,
+  RMT_VSCODE_DX_WORKPACKAGE,
+  RMT_VSCODE_LAUNCH_SCHEMA,
   RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS,
   RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA,
+  RMT_VSCODE_TASKS_SCHEMA,
   RMT_VSCODE_BRIDGE_SCHEMA,
   applyPrimitiveAuthoringWorkspaceEdit,
   createActiveDocumentPrimitiveAuthoringExperience,
   createPrimitiveAuthoringApplyExperience,
+  createRuntimeLanguageClientServerOptions,
+  createVsCodeLanguageClientConfig,
+  createVsCodeLaunchConfigurations,
+  createVsCodeProblemMatcher,
+  createVsCodeTaskDefinitions,
+  resolveDebugConfiguration,
+  resolveLanguageServerInvocation,
+  runXtendRmtTask,
+  startLanguageClient,
+  startXtendRmtDebugSession,
   renderPrimitiveAuthoringApplyExperience,
   createServerCommand
 } = require('../../tools/rmt-editor/vscode/extension');
@@ -48,6 +63,8 @@ const VSCODE_PACKAGE_PATH = 'tools/rmt-editor/vscode/package.json';
 const VSCODE_LANGUAGE_CONFIGURATION_PATH = 'tools/rmt-editor/vscode/language-configuration.json';
 const VSCODE_GRAMMAR_PATH = 'tools/rmt-editor/vscode/syntaxes/rmt.tmLanguage.json';
 const VSCODE_PACKAGED_SNIPPETS_PATH = 'tools/rmt-editor/vscode/snippets/rmt.code-snippets';
+const VSCODE_TASKS_TEMPLATE_PATH = 'tools/rmt-editor/vscode/templates/tasks.json';
+const VSCODE_LAUNCH_TEMPLATE_PATH = 'tools/rmt-editor/vscode/templates/launch.json';
 const PRIMITIVE_INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -108,8 +125,45 @@ function runVsCodeBridgeChecks(context, rootDir) {
   const languageConfiguration = readJson(VSCODE_LANGUAGE_CONFIGURATION_PATH, rootDir);
   const grammar = readJson(VSCODE_GRAMMAR_PATH, rootDir);
   const packagedSnippets = readJson(VSCODE_PACKAGED_SNIPPETS_PATH, rootDir);
+  const tasksTemplate = readJson(VSCODE_TASKS_TEMPLATE_PATH, rootDir);
+  const launchTemplate = readJson(VSCODE_LAUNCH_TEMPLATE_PATH, rootDir);
   const sourceSnippets = readJson(RMT_SNIPPET_VSCODE_PATH, rootDir);
-  const command = createServerCommand({ extensionPath: resolveRepoPath('tools/rmt-editor/vscode', rootDir) });
+  const extensionContext = { extensionPath: resolveRepoPath('tools/rmt-editor/vscode', rootDir) };
+  const command = createServerCommand(extensionContext);
+  const languageClientConfig = createVsCodeLanguageClientConfig(extensionContext);
+  const configuredServerInvocation = resolveLanguageServerInvocation(null, extensionContext, {
+    args: ['${workspaceFolder}/tools/rmt-language-server/server.js']
+  });
+  const fakeLanguageClient = startLanguageClient(null, extensionContext, null, {
+    languageClientModule: {
+      TransportKind: {
+        stdio: 0
+      },
+      LanguageClient: class FakeLanguageClient {
+        constructor(id, name, serverOptions, clientOptions) {
+          this.id = id;
+          this.name = name;
+          this.serverOptions = serverOptions;
+          this.clientOptions = clientOptions;
+        }
+
+        start() {
+          return 'started';
+        }
+      }
+    }
+  });
+  const runtimeServerOptions = createRuntimeLanguageClientServerOptions({
+    TransportKind: {
+      stdio: 0
+    }
+  }, languageClientConfig.serverOptions);
+  const problemMatcher = createVsCodeProblemMatcher();
+  const taskDefinitions = createVsCodeTaskDefinitions();
+  const launchConfigurations = createVsCodeLaunchConfigurations();
+  const dryRunTask = runXtendRmtTask(null, extensionContext, 'lint-active');
+  const dryRunDebug = startXtendRmtDebugSession(null, extensionContext, 'Debug Active RMT Build');
+  const debugConfiguration = resolveDebugConfiguration('Debug Language Server');
   const primitiveInvalidPath = resolveRepoPath(PRIMITIVE_INVALID_VNEXT_FIXTURE, rootDir);
   const activePrimitiveExperience = createActiveDocumentPrimitiveAuthoringExperience({
     extensionPath: resolveRepoPath('tools/rmt-editor/vscode', rootDir)
@@ -185,6 +239,25 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(command.schema === RMT_VSCODE_BRIDGE_SCHEMA, 'VS Code bridge emits stable schema');
   context.assert(command.workpackage === RMT_EDITOR_PACKAGING_WORKPACKAGE, 'VS Code bridge belongs to WP-E14-12');
   context.assert(command.args[0].endsWith(RMT_LANGUAGE_SERVER_ENTRYPOINT), 'VS Code bridge resolves LSP server path');
+  context.assert(languageClientConfig.schema === RMT_VSCODE_DX_SCHEMA, 'VS Code DX emits stable LanguageClient schema');
+  context.assert(languageClientConfig.workpackage === RMT_VSCODE_DX_WORKPACKAGE, 'VS Code DX belongs to DX workpackage');
+  context.assert(languageClientConfig.serverOptions.args[0].endsWith(RMT_LANGUAGE_SERVER_ENTRYPOINT), 'VS Code LanguageClient config targets server entrypoint');
+  context.assert(languageClientConfig.clientOptions.documentSelector.some((entry) => entry.language === 'rmt'), 'VS Code LanguageClient config selects rmt documents');
+  context.assert(configuredServerInvocation.args[0].endsWith(RMT_LANGUAGE_SERVER_ENTRYPOINT), 'VS Code configured LanguageClient invocation can target workspace server entrypoint');
+  context.assert(fakeLanguageClient.status === 'started' && fakeLanguageClient.client.id === 'xtendRmtLanguageServer', 'VS Code extension can start a LanguageClient wrapper');
+  context.assert(runtimeServerOptions.transport === 0, 'VS Code LanguageClient runtime config converts stdio string to TransportKind enum');
+  context.assert(fakeLanguageClient.client.serverOptions.transport === 0, 'VS Code LanguageClient receives TransportKind.stdio instead of unsupported string transport');
+  context.assert(problemMatcher.schema === RMT_VSCODE_TASKS_SCHEMA, 'VS Code problem matcher emits stable tasks schema');
+  context.assert(problemMatcher.name === 'xtend-rmt-lint', 'VS Code problem matcher has stable public name');
+  context.assert(problemMatcher.pattern.regexp.includes('(error|warning|info)'), 'VS Code problem matcher consumes linter problem format');
+  context.assert(taskDefinitions.tasks.length >= 8, 'VS Code task definitions expose lint, build, scaffold and gate tasks');
+  context.assert(taskDefinitions.tasks.some((task) => task.args.includes('problem-matcher')), 'VS Code lint task uses problem matcher linter format');
+  context.assert(taskDefinitions.tasks.some((task) => task.id === 'rmt-build-write'), 'VS Code tasks include explicit write build task');
+  context.assert(launchConfigurations.schema === RMT_VSCODE_LAUNCH_SCHEMA, 'VS Code launch config emits stable schema');
+  context.assert(launchConfigurations.configurations.length >= 4, 'VS Code launch config exposes debug console entries');
+  context.assert(debugConfiguration && debugConfiguration.program.includes('rmt-language-server'), 'VS Code debug resolver finds language server config');
+  context.assert(dryRunTask.status === 'dry-run' && dryRunTask.taskId === 'lint-active', 'VS Code task runner supports dry-run without VS Code host');
+  context.assert(dryRunDebug.status === 'dry-run' && dryRunDebug.configuration.console === 'internalConsole', 'VS Code debug runner supports Debug Console dry-run');
   context.assert(primitiveExperience.schema === RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA, 'VS Code bridge emits primitive authoring experience schema');
   context.assert(primitiveExperience.workpackage === 'RMT-VNEXT-PRIM-07', 'VS Code primitive authoring experience belongs to PRIM-07');
   context.assert(primitiveExperience.fixAllCount === 1, 'VS Code primitive authoring experience exposes fix-all path');
@@ -206,11 +279,28 @@ function runVsCodeBridgeChecks(context, rootDir) {
     context.assert(vscodePackage.activationEvents.includes(`onCommand:${commandId}`), `VS Code package activates primitive authoring command ${commandId}`);
     context.assert(vscodePackage.contributes.commands.some((entry) => entry.command === commandId), `VS Code package contributes primitive authoring command ${commandId}`);
   });
+  RMT_VSCODE_DX_COMMANDS.forEach((commandId) => {
+    context.assert(vscodePackage.activationEvents.includes(`onCommand:${commandId}`), `VS Code package activates DX command ${commandId}`);
+    context.assert(vscodePackage.contributes.commands.some((entry) => entry.command === commandId), `VS Code package contributes DX command ${commandId}`);
+  });
+  context.assert(vscodePackage.dependencies && vscodePackage.dependencies['vscode-languageclient'], 'VS Code package depends on vscode-languageclient');
+  context.assert(vscodePackage.files.includes('templates/**'), 'VS Code package includes support-file templates');
+  context.assert(vscodePackage.contributes.taskDefinitions.some((entry) => entry.type === 'xtendRmt'), 'VS Code package contributes xtendRmt task definition');
+  context.assert(vscodePackage.contributes.problemMatchers.some((entry) => entry.name === 'xtend-rmt-lint'), 'VS Code package contributes RMT problem matcher');
+  context.assert(vscodePackage.contributes.configuration.properties['xtendRmt.xtendCli.command'].default === 'node', 'VS Code package contributes XTend CLI command setting');
+  context.assert(vscodePackage.contributes.configuration.properties['xtendRmt.tasks.defaultFailOn'].default === 'warning', 'VS Code package contributes task fail threshold setting');
   context.assert(vscodePackage.files.includes('snippets/**'), 'VS Code package includes snippets in packaged files');
   context.assert(packagedSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code packaged snippets mirror RMT app snippet');
   context.assert(JSON.stringify(packagedSnippets) === JSON.stringify(sourceSnippets), 'VS Code packaged snippets stay in sync with source snippets');
+  context.assert(tasksTemplate.tasks.some((task) => task.label === 'XTendRMT: RMT build check'), 'VS Code tasks template exposes RMT build check');
+  context.assert(tasksTemplate.tasks.some((task) => task.problemMatcher === '$xtend-rmt-lint'), 'VS Code tasks template wires RMT problem matcher');
+  context.assert(launchTemplate.configurations.some((entry) => entry.name === 'XTendRMT: Debug Active RMT Build'), 'VS Code launch template exposes active RMT build debug config');
+  context.assert(languageConfiguration.comments.lineComment === '//', 'VS Code language configuration defines RMT line comments');
   context.assert(languageConfiguration.brackets.length >= 3, 'VS Code language configuration defines JSON brackets');
   context.assert(grammar.scopeName === 'source.rmt', 'VS Code grammar uses source.rmt scope');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('template'), 'VS Code grammar highlights RMT vNext keywords');
+  context.assert(grammar.repository && grammar.repository.componentTags.patterns[0].match.includes('x-'), 'VS Code grammar highlights XTend component tags');
+  context.assert(grammar.repository && grammar.repository.lanes.patterns[0].match.includes('user-blocking'), 'VS Code grammar highlights RMT lanes');
   context.assert(grammar.patterns.some((pattern) => pattern.include === 'source.json'), 'VS Code grammar delegates to JSON grammar');
 }
 
@@ -228,9 +318,16 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.workpackage === RMT_EDITOR_PACKAGING_WORKPACKAGE, 'package metadata points to WP-E14-12');
   context.assert(metadata && metadata.module === RMT_SNIPPET_MODULE_PATH, 'package metadata points to snippets module');
   context.assert(metadata && metadata.vscodeBridge === RMT_VSCODE_BRIDGE_PATH, 'package metadata points to VS Code bridge');
+  context.assert(metadata && metadata.vscodeDxSchema === RMT_VSCODE_DX_SCHEMA, 'package metadata declares VS Code DX schema');
+  context.assert(metadata && metadata.vscodeTasksSchema === RMT_VSCODE_TASKS_SCHEMA, 'package metadata declares VS Code tasks schema');
+  context.assert(metadata && metadata.vscodeLaunchSchema === RMT_VSCODE_LAUNCH_SCHEMA, 'package metadata declares VS Code launch schema');
+  context.assert(metadata && metadata.vscodeTasksTemplate === VSCODE_TASKS_TEMPLATE_PATH, 'package metadata points to VS Code tasks template');
+  context.assert(metadata && metadata.vscodeLaunchTemplate === VSCODE_LAUNCH_TEMPLATE_PATH, 'package metadata points to VS Code launch template');
+  context.assert(metadata && metadata.vscodeProblemMatcher === '$xtend-rmt-lint', 'package metadata declares VS Code problem matcher');
   context.assert(metadata && metadata.suite === RMT_EDITOR_PACKAGING_SUITE_PATH, 'package metadata points to editor packaging suite');
   context.assert(metadata && metadata.primitiveAuthoringExperienceSchema === RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA, 'package metadata declares primitive authoring experience schema');
   context.assert(metadata && RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS.every((commandId) => metadata.primitiveAuthoringCommands.includes(commandId)), 'package metadata declares primitive authoring VS Code commands');
+  context.assert(metadata && RMT_VSCODE_DX_COMMANDS.every((commandId) => metadata.dxCommands.includes(commandId)), 'package metadata declares VS Code DX commands');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-editor-packaging --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_EDITOR_PACKAGING_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/snippets'] === 'string' ? packageManifest.exports['./rmt-language/snippets'] : packageManifest.exports['./rmt-language/snippets'] && packageManifest.exports['./rmt-language/snippets'].default) === './tools/rmt-language/snippets/index.js', 'package exports RMT snippets');
@@ -244,6 +341,9 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert(docs.includes('VS Code') && docs.includes('JetBrains') && docs.includes('Neovim') && docs.includes('Helix'), 'Docs cover VS Code, JetBrains, Neovim and Helix');
   context.assert(docs.includes('node tools/rmt-language-server/server.js'), 'Docs expose LSP start command');
   context.assert(docs.includes('XTendRMT: Show vNext Primitive Apply Experience'), 'Docs expose vNext primitive apply experience command');
+  context.assert(docs.includes('XTendRMT: Run Active RMT Lint'), 'Docs expose VS Code RMT lint task command');
+  context.assert(docs.includes('xt rmt lint app.rmt --format problem-matcher --fail-on warning'), 'Docs expose VS Code problem matcher linter format');
+  context.assert(docs.includes('tools/rmt-editor/vscode/templates/launch.json'), 'Docs expose VS Code launch template');
   context.assert(workpackage.includes('LSP bleibt Source of Truth'), 'Workpackage documents LSP source-of-truth rule');
 }
 
@@ -260,6 +360,8 @@ function runRmtEditorPackagingSuite(options = {}) {
   assertFileExists(context, RMT_SNIPPET_VSCODE_PATH, rootDir, 'VS Code snippet export exists');
   assertFileExists(context, RMT_VSCODE_BRIDGE_PATH, rootDir, 'VS Code bridge stub exists');
   assertFileExists(context, VSCODE_PACKAGE_PATH, rootDir, 'VS Code package stub exists');
+  assertFileExists(context, VSCODE_TASKS_TEMPLATE_PATH, rootDir, 'VS Code tasks template exists');
+  assertFileExists(context, VSCODE_LAUNCH_TEMPLATE_PATH, rootDir, 'VS Code launch template exists');
   assertFileExists(context, RMT_EDITOR_DOC_PATH, rootDir, 'RMT Language Server docs exist');
   assertFileExists(context, RMT_EDITOR_WP_PATH, rootDir, 'WP-E14-12 workpackage document exists');
   context.assert(snippetsSyntax.ok, `RMT snippet module syntax passes${snippetsSyntax.ok ? '' : ` (${snippetsSyntax.message})`}`);

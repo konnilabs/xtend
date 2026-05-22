@@ -1,7 +1,7 @@
 {
   "name": "xtend-rmt-language",
   "displayName": "XTendRMT Language Support",
-  "description": "Thin VS Code bridge for native .rmt authoring through the XTendRMT Language Server.",
+  "description": "VS Code DX integration for native .rmt authoring through the XTendRMT Language Server and XTend CLI.",
   "version": "0.1.0-rc.1",
   "private": false,
   "publisher": "CCS Networks",
@@ -14,9 +14,22 @@
     "Snippets",
     "Linters"
   ],
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
   "activationEvents": [
     "onLanguage:rmt",
     "onCommand:xtendRmt.showLanguageServerCommand",
+    "onCommand:xtendRmt.restartLanguageServer",
+    "onCommand:xtendRmt.runActiveLint",
+    "onCommand:xtendRmt.runWorkspaceLint",
+    "onCommand:xtendRmt.runRmtBuildCheck",
+    "onCommand:xtendRmt.runScaffoldVerify",
+    "onCommand:xtendRmt.debugLanguageServer",
+    "onCommand:xtendRmt.debugActiveLint",
+    "onCommand:xtendRmt.debugActiveBuild",
+    "onCommand:xtendRmt.openTasksTemplate",
+    "onCommand:xtendRmt.openLaunchTemplate",
     "onCommand:xtendRmt.rmtVNext.showPrimitiveAuthoringApplyExperience",
     "onCommand:xtendRmt.rmtVNext.showCodeActionPreview",
     "onCommand:xtendRmt.rmtVNext.showCommandHandoff",
@@ -28,6 +41,7 @@
     "language-configuration.json",
     "syntaxes/**",
     "snippets/**",
+    "templates/**",
     "README.md"
   ],
   "contributes": {
@@ -57,10 +71,105 @@
         "path": "./snippets/rmt.code-snippets"
       }
     ],
+    "taskDefinitions": [
+      {
+        "type": "xtendRmt",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "XTendRMT task id such as lint-active, lint-workspace, rmt-build-check or scaffold-verify."
+          },
+          "target": {
+            "type": "string",
+            "description": "Optional RMT file or workspace target."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "check",
+              "write"
+            ],
+            "description": "Build mode for RMT build tasks."
+          },
+          "failOn": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning",
+              "info",
+              "hint"
+            ],
+            "description": "RMT linter fail threshold."
+          }
+        }
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "xtend-rmt-lint",
+        "owner": "xtendRmt",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(error|warning|info)\\s+([A-Za-z0-9_.-]+)\\s+(.+):(\\d+):(\\d+)\\s+(.*)$",
+          "severity": 1,
+          "code": 2,
+          "file": 3,
+          "line": 4,
+          "column": 5,
+          "message": 6
+        }
+      }
+    ],
     "commands": [
       {
         "command": "xtendRmt.showLanguageServerCommand",
         "title": "XTendRMT: Show Language Server Command"
+      },
+      {
+        "command": "xtendRmt.restartLanguageServer",
+        "title": "XTendRMT: Start/Restart Language Server"
+      },
+      {
+        "command": "xtendRmt.runActiveLint",
+        "title": "XTendRMT: Run Active RMT Lint"
+      },
+      {
+        "command": "xtendRmt.runWorkspaceLint",
+        "title": "XTendRMT: Run Workspace RMT Lint"
+      },
+      {
+        "command": "xtendRmt.runRmtBuildCheck",
+        "title": "XTendRMT: Run RMT Build Check"
+      },
+      {
+        "command": "xtendRmt.runScaffoldVerify",
+        "title": "XTendRMT: Run Scaffold Verify"
+      },
+      {
+        "command": "xtendRmt.debugLanguageServer",
+        "title": "XTendRMT: Debug Language Server"
+      },
+      {
+        "command": "xtendRmt.debugActiveLint",
+        "title": "XTendRMT: Debug Active RMT Lint"
+      },
+      {
+        "command": "xtendRmt.debugActiveBuild",
+        "title": "XTendRMT: Debug Active RMT Build"
+      },
+      {
+        "command": "xtendRmt.openTasksTemplate",
+        "title": "XTendRMT: Open VS Code Tasks Template"
+      },
+      {
+        "command": "xtendRmt.openLaunchTemplate",
+        "title": "XTendRMT: Open VS Code Launch Template"
       },
       {
         "command": "xtendRmt.rmtVNext.showPrimitiveAuthoringApplyExperience",
@@ -96,6 +205,41 @@
             "type": "string"
           },
           "description": "Arguments used by generic LSP clients to start the XTendRMT Language Server."
+        },
+        "xtendRmt.xtendCli.command": {
+          "type": "string",
+          "default": "node",
+          "description": "Command used by VS Code tasks to start the XTend CLI."
+        },
+        "xtendRmt.xtendCli.args": {
+          "type": "array",
+          "default": [
+            "${workspaceFolder}/xtend-builder/scaffold.js"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "Base arguments used by VS Code tasks to start the XTend CLI."
+        },
+        "xtendRmt.tasks.defaultFailOn": {
+          "type": "string",
+          "default": "warning",
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "hint"
+          ],
+          "description": "Default fail threshold for XTendRMT VS Code lint tasks."
+        },
+        "xtendRmt.rmtBuild.defaultMode": {
+          "type": "string",
+          "default": "check",
+          "enum": [
+            "check",
+            "write"
+          ],
+          "description": "Default RMT build mode used by VS Code commands."
         }
       }
     }

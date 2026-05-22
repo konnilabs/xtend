@@ -104,7 +104,7 @@ Important prefixes:
 
 ## VS Code
 
-A thin bridge package lives in:
+The VS Code integration lives in:
 
 ```text
 tools/rmt-editor/vscode
@@ -114,15 +114,27 @@ It registers:
 
 - Language ID `rmt`
 - File extension `.rmt`
-- JSON-based TextMate grammar
+- RMT vNext-aware TextMate grammar with a legacy JSON fallback
 - RMT snippets
+- `vscode-languageclient` for the local RMT Language Server
+- `$xtend-rmt-lint` problem matcher
+- XTend CLI tasks and Debug Console launch configurations
 - Command `XTendRMT: Show Language Server Command`
+- Command `XTendRMT: Start/Restart Language Server`
+- Command `XTendRMT: Run Active RMT Lint`
+- Command `XTendRMT: Run Workspace RMT Lint`
+- Command `XTendRMT: Run RMT Build Check`
+- Command `XTendRMT: Run Scaffold Verify`
+- Command `XTendRMT: Debug Language Server`
+- Command `XTendRMT: Debug Active RMT Lint`
+- Command `XTendRMT: Debug Active RMT Build`
+- Command `XTendRMT: Open VS Code Tasks Template`
+- Command `XTendRMT: Open VS Code Launch Template`
 - Command `XTendRMT: Show vNext Primitive Apply Experience`
 - Command `XTendRMT: Show vNext Primitive Code Action Preview`
 - Command `XTendRMT: Show vNext Primitive Command Handoff`
 
-Until a fully packaged VS Code LanguageClient is released, a generic LSP client
-can use this command:
+The packaged LanguageClient starts the server through stdio:
 
 ```json
 {
@@ -130,6 +142,29 @@ can use this command:
   "args": ["tools/rmt-language-server/server.js"]
 }
 ```
+
+Terminal tasks use the XTend CLI as their orchestrator and do not maintain a
+second RMT semantics layer. The versioned template lives at:
+
+```text
+tools/rmt-editor/vscode/templates/tasks.json
+```
+
+The problem matcher consumes the stable linter output:
+
+```bash
+xt rmt lint app.rmt --format problem-matcher --fail-on warning
+```
+
+The Debug Console launch template lives at:
+
+```text
+tools/rmt-editor/vscode/templates/launch.json
+```
+
+It contains debug starts for the Language Server, active RMT lint, active RMT
+build and scaffold verify. This is tool debugging for authoring workflows; a
+custom debug adapter for runtime RMT UI breakpoints remains outside this slice.
 
 The vNext primitive commands read CodeAction reports or individual actions from
 the RMT vNext tooling layer and show the three apply paths separately in the

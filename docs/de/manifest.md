@@ -68,7 +68,12 @@ Das XTend Manifest beschreibt aufloesbare ES-Modul-Pfade fuer XTend-Komponenten.
 | `.rmt` | Native App-DSL mit `adapters`, `components`, `routes`, `schedules`, `templates` |
 | `xtendrmt/rmt-manifest.json` | XTendRMT Produktmanifest, Entry Points und Artefakt-Paritaet |
 
-RMT-Component-Records duerfen ein XTend Manifest fuer Manifest Lookup referenzieren, aber der RMT Kernel liest daraus keine XTend Runtime. Die Aufloesung gehoert zum `createRmtXtendComponentAdapter`.
+RMT-Component-Records duerfen ein XTend Manifest fuer Manifest Lookup
+referenzieren, aber der RMT Kernel liest daraus keine XTend Runtime. Die
+Aufloesung gehoert in Host-Adapter und die RMT vNext Component Capability
+Registry. Sie nutzt das Manifest als Import-Quelle, verbindet es mit
+Component Contracts und RMT-Metadaten und erzeugt daraus Descriptor-
+Faehigkeiten fuer den DOM Descriptor Renderer.
 
 Native RMT-Dateien sollten mit `application/vnd.xtendrmt.rmt+json` ausgeliefert werden. Der JSON-Fallback bleibt fuer Sonderhosts moeglich, ist aber kein empfohlener Authoring-Pfad.
 
@@ -98,9 +103,10 @@ Native RMT-Dateien sollten mit `application/vnd.xtendrmt.rmt+json` ausgeliefert 
 - [XTend Loader](./xtend-loader.md)
 - [Manifest Import Policy](./manifest-import-policy.md)
 - [Komponenten-Entwicklung](./components.md)
+- [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md)
 - [API-Integration](./api.md)
 - [XTendRMT App-DSL Reference](./xtendrmt-app-dsl.md)
 
 ---
 
-*Letzte Aktualisierung: 5. Mai 2026*
+*Letzte Aktualisierung: 22. Mai 2026*

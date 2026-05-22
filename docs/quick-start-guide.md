@@ -37,8 +37,6 @@ Lege im Projekt eine HTML-Datei an, zum Beispiel `quick-start.html`:
   </script>
 </head>
 <body>
-  <x-theme></x-theme>
-
   <main>
     <x-section layout="column" label="Quick Start">
       <h1>Hallo XTend</h1>
@@ -57,7 +55,8 @@ Was passiert hier?
 - `xtend-loader.js` ist der lokale Loader.
 - `components/manifest.json` ist die Component Registry.
 - `meta name="xtend-preload"` laedt kritische Komponenten frueh.
-- `x-theme`, `x-section` und `x-button` sind normale XTend Web Components.
+- `x-theme` ist ein Infrastrukturmodul; `x-section` und `x-button` sind
+  normale XTend Web Components.
 - `/xtend.css` ist optional und dient Host-Theming.
 
 ## 2. App Shell in RMT vNext beschreiben
@@ -104,7 +103,43 @@ Dieses Dokument ist kein Runtime-Import und keine Framework-Komponente. Es ist
 die App-Beschreibung: Der Compiler erzeugt daraus Core-/Kernel-Records, die
 Host-Adapter mit XTend Components, XRouter und Fabric verbinden koennen.
 
-## 3. RMT lokal pruefen
+## 3. XTend UI aus RMT materialisieren
+
+Fuer Runtime-Hosts verbindet die Component Capability Registry RMT-Descriptoren
+mit den vorhandenen XTend-Komponenten aus dem Manifest. Dadurch bleiben
+Component Contracts, Events, Slots, Parts und State-Bindings die gemeinsame
+Quelle der Wahrheit:
+
+```js
+import {
+  createRmtComponentCapabilityRegistry
+} from '@ccslabs/xtend/rmt/component-capability-registry';
+import {
+  createRmtDomDescriptorRenderer
+} from '@ccslabs/xtend/rmt/dom-descriptor-renderer';
+
+const registry = createRmtComponentCapabilityRegistry({ manifest, sourceTexts });
+const renderer = createRmtDomDescriptorRenderer({ documentTarget: document });
+
+renderer.renderKeyed(root, [
+  registry.buildComponentDescriptor({
+    tag: 'x-button',
+    key: 'primary-action',
+    attributes: { variant: 'primary' },
+    slots: { default: { text: 'Loslegen' } },
+    events: { click: 'quickstart.increment' }
+  })
+], {
+  componentRegistry: registry,
+  dispatchEvent: actions.dispatch,
+  stateBridge
+});
+```
+
+So koennen RMT-Primitives XTend UI nutzen, ohne Shadow-DOM-Patches,
+komponentenspezifische Renderer oder manuelle HTML-Sinks einzubauen.
+
+## 4. RMT lokal pruefen
 
 Der Standardcheck fuer ein einzelnes Dokument ist:
 
@@ -128,7 +163,7 @@ Der Agent Report enthaelt `repairPlan`, `fixOrder`, `confidence`, `impact`,
 `relatedDiagnostics` und erklaerte No-Ops fuer bewusst nicht automatisierte
 Reparaturen.
 
-## 4. Editor-Unterstuetzung aktivieren
+## 5. Editor-Unterstuetzung aktivieren
 
 Der RMT Language Server startet lokal ueber:
 
@@ -145,6 +180,7 @@ RMT Snippets den Prefix `rmt-app` nutzen; fuer vNext-Primitives ist
 ## Naechste Schritte
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md)
 - [XTendRMT Developer Overview](./xtendrmt-overview.md)
 - [RMT Linter und AI-Agent Repair Report](./rmt-linter.md)
 - [RMT Language Server und Editor Setup](./rmt-language-server.md)

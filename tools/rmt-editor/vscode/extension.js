@@ -3,9 +3,16 @@ const { pathToFileURL } = require('url');
 
 const RMT_VSCODE_BRIDGE_SCHEMA = 'xtend.rmt.editor.vscode-bridge.v1';
 const RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA = 'xtend.rmt.editor.vscode-primitive-authoring-experience.v1';
+const RMT_VSCODE_DX_SCHEMA = 'xtend.rmt.editor.vscode-dx.v1';
+const RMT_VSCODE_TASKS_SCHEMA = 'xtend.rmt.editor.vscode-tasks.v1';
+const RMT_VSCODE_LAUNCH_SCHEMA = 'xtend.rmt.editor.vscode-launch.v1';
 const RMT_VSCODE_BRIDGE_WORKPACKAGE = 'WP-E14-12';
 const RMT_VSCODE_PRIMITIVE_AUTHORING_WORKPACKAGE = 'RMT-VNEXT-PRIM-07';
+const RMT_VSCODE_DX_WORKPACKAGE = 'RMT-VSCODE-DX-01';
 const DEFAULT_SERVER_RELATIVE_PATH = '../../rmt-language-server/server.js';
+const DEFAULT_XTEND_CLI_RELATIVE_PATH = '../../../xtend-builder/scaffold.js';
+const TASKS_TEMPLATE_RELATIVE_PATH = 'templates/tasks.json';
+const LAUNCH_TEMPLATE_RELATIVE_PATH = 'templates/launch.json';
 const RMT_VNEXT_PRIMITIVE_FIX_ALL_KIND = 'source.fixAll.rmt.vnext.primitives';
 const RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND = 'xtend.rmt.vnext.extractKernelImport';
 const RMT_VSCODE_PRIMITIVE_SAFE_FIX_ALL_COMMAND = 'xtendRmt.rmtVNext.applySafePrimitiveFixAll';
@@ -14,6 +21,18 @@ const RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS = Object.freeze([
   'xtendRmt.rmtVNext.showCodeActionPreview',
   'xtendRmt.rmtVNext.showCommandHandoff',
   RMT_VSCODE_PRIMITIVE_SAFE_FIX_ALL_COMMAND
+]);
+const RMT_VSCODE_DX_COMMANDS = Object.freeze([
+  'xtendRmt.restartLanguageServer',
+  'xtendRmt.runActiveLint',
+  'xtendRmt.runWorkspaceLint',
+  'xtendRmt.runRmtBuildCheck',
+  'xtendRmt.runScaffoldVerify',
+  'xtendRmt.debugLanguageServer',
+  'xtendRmt.debugActiveLint',
+  'xtendRmt.debugActiveBuild',
+  'xtendRmt.openTasksTemplate',
+  'xtendRmt.openLaunchTemplate'
 ]);
 
 function toArray(value) {
@@ -34,12 +53,245 @@ function createServerCommand(context = {}, options = {}) {
     schema: RMT_VSCODE_BRIDGE_SCHEMA,
     workpackage: RMT_VSCODE_BRIDGE_WORKPACKAGE,
     command: options.command || 'node',
-    args: [resolveServerModule(context, options)],
+    args: options.args ? toArray(options.args) : [resolveServerModule(context, options)],
     transport: 'stdio-json-rpc',
     languageId: 'rmt',
     sourceOfTruth: 'tools/rmt-language-server/server.js',
     networkRequired: false,
     kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+  };
+}
+
+function createVsCodeLanguageClientConfig(context = {}, options = {}) {
+  const serverCommand = createServerCommand(context, options);
+
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    clientId: 'xtendRmtLanguageServer',
+    clientName: 'XTendRMT Language Server',
+    languageId: 'rmt',
+    serverOptions: {
+      command: serverCommand.command,
+      args: toArray(options.args || serverCommand.args),
+      transport: 'stdio'
+    },
+    clientOptions: {
+      documentSelector: [
+        { scheme: 'file', language: 'rmt' },
+        { scheme: 'untitled', language: 'rmt' }
+      ],
+      synchronize: {
+        configurationSection: 'xtendRmt'
+      }
+    },
+    sourceOfTruth: serverCommand.sourceOfTruth,
+    networkRequired: false,
+    kernelBoundary: serverCommand.kernelBoundary
+  };
+}
+
+function createRuntimeLanguageClientServerOptions(languageClientModule = {}, serverOptions = {}) {
+  const runtimeOptions = { ...serverOptions };
+
+  if (runtimeOptions.transport === 'stdio') {
+    if (
+      languageClientModule.TransportKind &&
+      Object.prototype.hasOwnProperty.call(languageClientModule.TransportKind, 'stdio')
+    ) {
+      runtimeOptions.transport = languageClientModule.TransportKind.stdio;
+    } else {
+      delete runtimeOptions.transport;
+    }
+  }
+
+  return runtimeOptions;
+}
+
+
+function normalizeProblemMatcherSeverity(severity) {
+  return severity === 'hint' ? 'info' : severity;
+}
+
+function createVsCodeProblemMatcher() {
+  return {
+    schema: RMT_VSCODE_TASKS_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    name: 'xtend-rmt-lint',
+    owner: 'xtendRmt',
+    fileLocation: ['relative', '${workspaceFolder}'],
+    pattern: {
+      regexp: '^(error|warning|info)\\s+([A-Za-z0-9_.-]+)\\s+(.+):(\\d+):(\\d+)\\s+(.*)$',
+      severity: 1,
+      code: 2,
+      file: 3,
+      line: 4,
+      column: 5,
+      message: 6
+    },
+    severityPolicy: {
+      hint: normalizeProblemMatcherSeverity('hint')
+    }
+  };
+}
+
+function taskPresentation() {
+  return {
+    reveal: 'always',
+    panel: 'shared',
+    clear: false,
+    group: 'xtend'
+  };
+}
+
+function createXtendCliArgs(commandArgs = []) {
+  return ['${workspaceFolder}/xtend-builder/scaffold.js'].concat(commandArgs);
+}
+
+function createVsCodeTaskDefinitions(options = {}) {
+  const failOn = options.failOn || 'warning';
+  const presentation = taskPresentation();
+
+  return {
+    schema: RMT_VSCODE_TASKS_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    taskType: 'xtendRmt',
+    problemMatcher: '$xtend-rmt-lint',
+    tasks: [
+      {
+        id: 'lint-active',
+        type: 'xtendRmt',
+        label: 'XTendRMT: Lint active RMT',
+        command: 'node',
+        args: createXtendCliArgs(['rmt', 'lint', '${file}', '--format', 'problem-matcher', '--fail-on', failOn]),
+        problemMatcher: ['$xtend-rmt-lint'],
+        group: 'build',
+        presentation
+      },
+      {
+        id: 'lint-workspace',
+        type: 'xtendRmt',
+        label: 'XTendRMT: Lint workspace RMT',
+        command: 'node',
+        args: createXtendCliArgs(['rmt', 'lint', '${workspaceFolder}', '--format', 'problem-matcher', '--fail-on', failOn]),
+        problemMatcher: ['$xtend-rmt-lint'],
+        group: 'build',
+        presentation
+      },
+      {
+        id: 'agent-repair-report',
+        type: 'xtendRmt',
+        label: 'XTendRMT: Agent repair report',
+        command: 'node',
+        args: createXtendCliArgs(['rmt', 'lint', '${file}', '--agent']),
+        problemMatcher: [],
+        group: 'test',
+        presentation
+      },
+      {
+        id: 'rmt-build-check',
+        type: 'xtendRmt',
+        label: 'XTendRMT: RMT build check',
+        command: 'node',
+        args: createXtendCliArgs(['rmt-build', '--source', '${file}', '--check', '--json']),
+        problemMatcher: [],
+        group: 'build',
+        presentation
+      },
+      {
+        id: 'rmt-build-write',
+        type: 'xtendRmt',
+        label: 'XTendRMT: RMT build write',
+        command: 'node',
+        args: createXtendCliArgs(['rmt-build', '--source', '${file}', '--write', '--json']),
+        problemMatcher: [],
+        group: 'build',
+        presentation
+      },
+      {
+        id: 'scaffold-verify',
+        type: 'xtendRmt',
+        label: 'XTend: Scaffold verify',
+        command: 'node',
+        args: createXtendCliArgs(['verify', '--json']),
+        problemMatcher: [],
+        group: 'test',
+        presentation
+      },
+      {
+        id: 'scaffold-dry-run',
+        type: 'xtendRmt',
+        label: 'XTend: Scaffold dry-run component',
+        command: 'node',
+        args: createXtendCliArgs(['component-files', '--tag', 'x-example', '--profile', 'display', '--feature', 'state', '--json']),
+        problemMatcher: [],
+        group: 'test',
+        presentation
+      },
+      {
+        id: 'vnext-primitive-gate',
+        type: 'xtendRmt',
+        label: 'XTendRMT: vNext primitive gate',
+        command: 'npm',
+        args: ['run', 'test:rmt-vnext-primitives:report'],
+        problemMatcher: [],
+        group: 'test',
+        presentation
+      }
+    ]
+  };
+}
+
+function createVsCodeLaunchConfigurations() {
+  return {
+    schema: RMT_VSCODE_LAUNCH_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    version: '0.2.0',
+    configurations: [
+      {
+        type: 'node',
+        request: 'launch',
+        name: 'XTendRMT: Debug Language Server',
+        program: '${workspaceFolder}/tools/rmt-language-server/server.js',
+        cwd: '${workspaceFolder}',
+        console: 'internalConsole',
+        outputCapture: 'std',
+        skipFiles: ['<node_internals>/**']
+      },
+      {
+        type: 'node',
+        request: 'launch',
+        name: 'XTendRMT: Debug Active RMT Lint',
+        program: '${workspaceFolder}/xtend-builder/scaffold.js',
+        args: ['rmt', 'lint', '${file}', '--json'],
+        cwd: '${workspaceFolder}',
+        console: 'internalConsole',
+        outputCapture: 'std',
+        skipFiles: ['<node_internals>/**']
+      },
+      {
+        type: 'node',
+        request: 'launch',
+        name: 'XTendRMT: Debug Active RMT Build',
+        program: '${workspaceFolder}/xtend-builder/scaffold.js',
+        args: ['rmt-build', '--source', '${file}', '--check', '--json'],
+        cwd: '${workspaceFolder}',
+        console: 'internalConsole',
+        outputCapture: 'std',
+        skipFiles: ['<node_internals>/**']
+      },
+      {
+        type: 'node',
+        request: 'launch',
+        name: 'XTendRMT: Debug Scaffold Verify',
+        program: '${workspaceFolder}/xtend-builder/scaffold.js',
+        args: ['verify', '--json'],
+        cwd: '${workspaceFolder}',
+        console: 'internalConsole',
+        outputCapture: 'std',
+        skipFiles: ['<node_internals>/**']
+      }
+    ]
   };
 }
 
@@ -165,6 +417,332 @@ function activeRmtTextDocument(vscodeApi, options = {}) {
 
   const activeEditor = vscodeApi && vscodeApi.window && vscodeApi.window.activeTextEditor;
   return activeEditor ? activeEditor.document : null;
+}
+
+function getWorkspaceFolder(vscodeApi, document = null) {
+  if (!vscodeApi || !vscodeApi.workspace) {
+    return null;
+  }
+
+  if (document && document.uri && typeof vscodeApi.workspace.getWorkspaceFolder === 'function') {
+    const folder = vscodeApi.workspace.getWorkspaceFolder(document.uri);
+    if (folder) return folder;
+  }
+
+  return Array.isArray(vscodeApi.workspace.workspaceFolders) && vscodeApi.workspace.workspaceFolders.length > 0
+    ? vscodeApi.workspace.workspaceFolders[0]
+    : null;
+}
+
+function normalizeWorkspaceFolderPath(folder) {
+  return folder && folder.uri && folder.uri.fsPath ? folder.uri.fsPath : process.cwd();
+}
+
+function substituteVariables(value, variables = {}) {
+  if (Array.isArray(value)) {
+    return value.map((entry) => substituteVariables(entry, variables));
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, substituteVariables(entry, variables)]));
+  }
+
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  return value
+    .replace(/\$\{workspaceFolder\}/g, variables.workspaceFolder || '')
+    .replace(/\$\{file\}/g, variables.file || '');
+}
+
+function getConfigurationValue(vscodeApi, key, fallback) {
+  const workspace = vscodeApi && vscodeApi.workspace;
+  const configuration = workspace && typeof workspace.getConfiguration === 'function'
+    ? workspace.getConfiguration('xtendRmt')
+    : null;
+
+  if (configuration && typeof configuration.get === 'function') {
+    const configured = configuration.get(key);
+    if (configured !== undefined && configured !== null) {
+      return configured;
+    }
+  }
+
+  return fallback;
+}
+
+function resolveXtendCliInvocation(vscodeApi, context = {}, options = {}) {
+  const document = activeRmtTextDocument(vscodeApi, options);
+  const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
+  const workspaceFolderPath = normalizeWorkspaceFolderPath(workspaceFolder);
+  const activeFile = normalizeDocumentFilePath(document || {}) || options.file || '';
+  const command = options.command || getConfigurationValue(vscodeApi, 'xtendCli.command', 'node');
+  const configuredArgs = options.args || getConfigurationValue(vscodeApi, 'xtendCli.args', ['${workspaceFolder}/xtend-builder/scaffold.js']);
+  const fallbackCliPath = path.resolve(context.extensionPath || __dirname, DEFAULT_XTEND_CLI_RELATIVE_PATH);
+  const variables = {
+    workspaceFolder: workspaceFolderPath,
+    file: activeFile
+  };
+  const args = substituteVariables(toArray(configuredArgs), variables);
+
+  if (args.length === 0) {
+    args.push(fallbackCliPath);
+  }
+
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    command,
+    args,
+    workspaceFolder,
+    workspaceFolderPath,
+    activeFile,
+    fallbackCliPath
+  };
+}
+
+function resolveLanguageServerInvocation(vscodeApi, context = {}, options = {}) {
+  const document = activeRmtTextDocument(vscodeApi, options);
+  const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
+  const workspaceFolderPath = normalizeWorkspaceFolderPath(workspaceFolder);
+  const fallbackServerPath = resolveServerModule(context, options);
+  const command = options.command || getConfigurationValue(vscodeApi, 'languageServer.command', 'node');
+  const configuredArgs = options.args || getConfigurationValue(vscodeApi, 'languageServer.args', ['${workspaceFolder}/tools/rmt-language-server/server.js']);
+  const args = substituteVariables(toArray(configuredArgs), {
+    workspaceFolder: workspaceFolderPath,
+    file: normalizeDocumentFilePath(document || {}) || ''
+  });
+
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    command,
+    args: args.length > 0 ? args : [fallbackServerPath],
+    workspaceFolder,
+    workspaceFolderPath,
+    fallbackServerPath
+  };
+}
+
+function resolveTaskDefinition(taskId, options = {}) {
+  const tasks = createVsCodeTaskDefinitions(options).tasks;
+  return tasks.find((task) => task.id === taskId || task.label === taskId) || null;
+}
+
+function toVsCodeTask(vscodeApi, context = {}, definition = {}, options = {}) {
+  if (!vscodeApi || !vscodeApi.Task || !vscodeApi.ShellExecution) {
+    return {
+      schema: RMT_VSCODE_TASKS_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'dry-run',
+      ok: true,
+      definition
+    };
+  }
+
+  const document = activeRmtTextDocument(vscodeApi, options);
+  const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
+  const workspaceFolderPath = normalizeWorkspaceFolderPath(workspaceFolder);
+  const activeFile = normalizeDocumentFilePath(document || {}) || options.file || '';
+  const cli = resolveXtendCliInvocation(vscodeApi, context, options);
+  const variables = {
+    workspaceFolder: workspaceFolderPath,
+    file: activeFile
+  };
+  const usesDefaultXtendCli = definition.command === 'node' && toArray(definition.args)[0] === '${workspaceFolder}/xtend-builder/scaffold.js';
+  const command = substituteVariables(usesDefaultXtendCli ? cli.command : (definition.command || cli.command), variables);
+  const rawArgs = usesDefaultXtendCli ? cli.args.concat(toArray(definition.args).slice(1)) : toArray(definition.args);
+  const args = substituteVariables(rawArgs, variables);
+  const scope = workspaceFolder || vscodeApi.TaskScope.Workspace;
+  const task = new vscodeApi.Task(
+    { type: 'xtendRmt', task: definition.id },
+    scope,
+    definition.label,
+    'XTendRMT',
+    new vscodeApi.ShellExecution(command, args, { cwd: workspaceFolderPath }),
+    toArray(definition.problemMatcher)
+  );
+
+  if (definition.group === 'build') task.group = vscodeApi.TaskGroup.Build;
+  if (definition.group === 'test') task.group = vscodeApi.TaskGroup.Test;
+  task.presentationOptions = definition.presentation || taskPresentation();
+  return task;
+}
+
+function createVsCodeTaskProvider(vscodeApi, context = {}, options = {}) {
+  return {
+    provideTasks() {
+      return createVsCodeTaskDefinitions(options).tasks.map((definition) => toVsCodeTask(vscodeApi, context, definition, options));
+    },
+    resolveTask(task) {
+      const taskId = task && task.definition ? task.definition.task : null;
+      const definition = resolveTaskDefinition(taskId, options);
+      return definition ? toVsCodeTask(vscodeApi, context, definition, options) : undefined;
+    }
+  };
+}
+
+function runXtendRmtTask(vscodeApi, context = {}, taskId, options = {}) {
+  const definition = resolveTaskDefinition(taskId, {
+    failOn: options.failOn || getConfigurationValue(vscodeApi, 'tasks.defaultFailOn', 'warning')
+  });
+
+  if (!definition) {
+    return {
+      schema: RMT_VSCODE_TASKS_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'not-found',
+      ok: false,
+      taskId
+    };
+  }
+
+  const task = toVsCodeTask(vscodeApi, context, definition, options);
+
+  if (vscodeApi && vscodeApi.tasks && typeof vscodeApi.tasks.executeTask === 'function') {
+    const execution = vscodeApi.tasks.executeTask(task);
+    return {
+      schema: RMT_VSCODE_TASKS_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'started',
+      ok: true,
+      taskId: definition.id,
+      label: definition.label,
+      execution
+    };
+  }
+
+  return {
+    schema: RMT_VSCODE_TASKS_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: 'dry-run',
+    ok: true,
+    taskId: definition.id,
+    label: definition.label,
+    task
+  };
+}
+
+function resolveDebugConfiguration(debugId) {
+  const launch = createVsCodeLaunchConfigurations();
+  return launch.configurations.find((config) => config.name === debugId || config.name.toLowerCase().includes(String(debugId).toLowerCase())) || null;
+}
+
+function startXtendRmtDebugSession(vscodeApi, context = {}, debugId, options = {}) {
+  const configuration = resolveDebugConfiguration(debugId);
+
+  if (!configuration) {
+    return {
+      schema: RMT_VSCODE_LAUNCH_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'not-found',
+      ok: false,
+      debugId
+    };
+  }
+
+  const document = activeRmtTextDocument(vscodeApi, options);
+  const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
+  const workspaceFolderPath = normalizeWorkspaceFolderPath(workspaceFolder);
+  const activeFile = normalizeDocumentFilePath(document || {}) || options.file || '';
+  const resolved = substituteVariables(configuration, {
+    workspaceFolder: workspaceFolderPath,
+    file: activeFile
+  });
+
+  if (vscodeApi && vscodeApi.debug && typeof vscodeApi.debug.startDebugging === 'function') {
+    const started = vscodeApi.debug.startDebugging(workspaceFolder, resolved);
+    return {
+      schema: RMT_VSCODE_LAUNCH_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'started',
+      ok: true,
+      debugId,
+      configuration: resolved,
+      started
+    };
+  }
+
+  return {
+    schema: RMT_VSCODE_LAUNCH_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: 'dry-run',
+    ok: true,
+    debugId,
+    configuration: resolved,
+    contextPath: context.extensionPath || __dirname
+  };
+}
+
+function openVsCodeTemplate(vscodeApi, context = {}, relativePath) {
+  const templatePath = path.resolve(context.extensionPath || __dirname, relativePath);
+
+  if (!vscodeApi || !vscodeApi.workspace || typeof vscodeApi.workspace.openTextDocument !== 'function') {
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'dry-run',
+      ok: true,
+      templatePath
+    };
+  }
+
+  return vscodeApi.workspace.openTextDocument(templatePath).then((document) => {
+    if (vscodeApi.window && typeof vscodeApi.window.showTextDocument === 'function') {
+      return vscodeApi.window.showTextDocument(document);
+    }
+    return document;
+  });
+}
+
+function startLanguageClient(vscodeApi, context = {}, output = null, options = {}) {
+  const config = createVsCodeLanguageClientConfig(context, options);
+  let languageClientModule = options.languageClientModule || null;
+
+  if (!languageClientModule) {
+    try {
+      languageClientModule = require('vscode-languageclient/node');
+    } catch (error) {
+      if (output && typeof output.appendLine === 'function') {
+        output.appendLine(`XTendRMT LanguageClient dependency missing: ${error.message}`);
+      }
+      return {
+        schema: RMT_VSCODE_DX_SCHEMA,
+        workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+        status: 'missing-dependency',
+        ok: false,
+        error: error.message,
+        config
+      };
+    }
+  }
+
+  const serverOptions = createRuntimeLanguageClientServerOptions(languageClientModule, config.serverOptions);
+  const client = new languageClientModule.LanguageClient(
+    config.clientId,
+    config.clientName,
+    serverOptions,
+    config.clientOptions
+  );
+  const started = typeof client.start === 'function' ? client.start() : null;
+
+  if (output && typeof output.appendLine === 'function') {
+    output.appendLine('XTendRMT Language Server client started.');
+  }
+
+  return {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: 'started',
+    ok: true,
+    client,
+    started,
+    config: {
+      ...config,
+      serverOptions
+    }
+  };
 }
 
 function createLanguageServer(context = {}, options = {}) {
@@ -507,13 +1085,58 @@ function executePrimitiveCommandHandoff(action = {}, context = {}, options = {})
 function activate(context) {
   const vscode = require('vscode');
   const output = vscode.window.createOutputChannel('XTendRMT');
-  const serverCommand = createServerCommand(context);
+  const serverInvocation = resolveLanguageServerInvocation(vscode, context);
+  const serverCommand = createServerCommand(context, serverInvocation);
+  let languageClientState = startLanguageClient(vscode, context, output, serverInvocation);
+  if (languageClientState.client) {
+    context.subscriptions.push(languageClientState.client);
+  }
   const disposable = vscode.commands.registerCommand('xtendRmt.showLanguageServerCommand', () => {
     output.clear();
     output.appendLine('XTendRMT Language Server');
     output.appendLine(`${serverCommand.command} ${serverCommand.args.join(' ')}`);
-    output.appendLine('Use this command with a generic LSP client until a packaged VS Code LanguageClient is added.');
+    output.appendLine(`LanguageClient: ${languageClientState.status}`);
     output.show(true);
+  });
+  const restartLanguageServerDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[0], async () => {
+    if (languageClientState.client && typeof languageClientState.client.stop === 'function') {
+      await languageClientState.client.stop();
+    }
+    languageClientState = startLanguageClient(vscode, context, output, resolveLanguageServerInvocation(vscode, context));
+    if (languageClientState.client) {
+      context.subscriptions.push(languageClientState.client);
+    }
+    return languageClientState;
+  });
+  const taskProviderDisposable = vscode.tasks && typeof vscode.tasks.registerTaskProvider === 'function'
+    ? vscode.tasks.registerTaskProvider('xtendRmt', createVsCodeTaskProvider(vscode, context))
+    : null;
+  const runActiveLintDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[1], () => {
+    return runXtendRmtTask(vscode, context, 'lint-active');
+  });
+  const runWorkspaceLintDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[2], () => {
+    return runXtendRmtTask(vscode, context, 'lint-workspace');
+  });
+  const runRmtBuildCheckDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[3], () => {
+    return runXtendRmtTask(vscode, context, 'rmt-build-check');
+  });
+  const runScaffoldVerifyDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[4], () => {
+    return runXtendRmtTask(vscode, context, 'scaffold-verify');
+  });
+  const debugLanguageServerDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[5], () => {
+    return startXtendRmtDebugSession(vscode, context, 'Debug Language Server');
+  });
+  const debugActiveLintDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[6], () => {
+    return startXtendRmtDebugSession(vscode, context, 'Debug Active RMT Lint');
+  });
+  const debugActiveBuildDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[7], () => {
+    return startXtendRmtDebugSession(vscode, context, 'Debug Active RMT Build');
+  });
+  const openTasksTemplateDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[8], () => {
+    return openVsCodeTemplate(vscode, context, TASKS_TEMPLATE_RELATIVE_PATH);
+  });
+  const openLaunchTemplateDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[9], () => {
+    return openVsCodeTemplate(vscode, context, LAUNCH_TEMPLATE_RELATIVE_PATH);
   });
   const applyExperienceDisposable = vscode.commands.registerCommand(RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS[0], async (input = {}) => {
     if (!input || Object.keys(input).length === 0) {
@@ -562,8 +1185,34 @@ function activate(context) {
     return applyPrimitiveAuthoringWorkspaceEdit(fixAllAction, { vscode });
   });
 
-  context.subscriptions.push(output, disposable, applyExperienceDisposable, previewDisposable, handoffDisposable, safeFixAllDisposable);
-  return serverCommand;
+  context.subscriptions.push(
+    output,
+    disposable,
+    restartLanguageServerDisposable,
+    runActiveLintDisposable,
+    runWorkspaceLintDisposable,
+    runRmtBuildCheckDisposable,
+    runScaffoldVerifyDisposable,
+    debugLanguageServerDisposable,
+    debugActiveLintDisposable,
+    debugActiveBuildDisposable,
+    openTasksTemplateDisposable,
+    openLaunchTemplateDisposable,
+    applyExperienceDisposable,
+    previewDisposable,
+    handoffDisposable,
+    safeFixAllDisposable
+  );
+  if (taskProviderDisposable) {
+    context.subscriptions.push(taskProviderDisposable);
+  }
+  return {
+    ...serverCommand,
+    languageClient: languageClientState.status,
+    dxSchema: RMT_VSCODE_DX_SCHEMA,
+    taskSchema: RMT_VSCODE_TASKS_SCHEMA,
+    launchSchema: RMT_VSCODE_LAUNCH_SCHEMA
+  };
 }
 
 function deactivate() {}
@@ -571,16 +1220,33 @@ function deactivate() {}
 module.exports = {
   RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS,
   RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA,
+  RMT_VSCODE_DX_COMMANDS,
+  RMT_VSCODE_DX_SCHEMA,
+  RMT_VSCODE_DX_WORKPACKAGE,
+  RMT_VSCODE_LAUNCH_SCHEMA,
+  RMT_VSCODE_TASKS_SCHEMA,
   RMT_VSCODE_BRIDGE_SCHEMA,
   RMT_VSCODE_BRIDGE_WORKPACKAGE,
   activate,
   applyPrimitiveAuthoringWorkspaceEdit,
   createActiveDocumentPrimitiveAuthoringExperience,
+  createRuntimeLanguageClientServerOptions,
+  createVsCodeLanguageClientConfig,
+  createVsCodeLaunchConfigurations,
+  createVsCodeProblemMatcher,
+  createVsCodeTaskDefinitions,
+  createVsCodeTaskProvider,
   createPrimitiveAuthoringApplyExperience,
   createServerCommand,
   deactivate,
   executePrimitiveCommandHandoff,
+  openVsCodeTemplate,
   renderPrimitiveAuthoringApplyExperience,
   requestPrimitiveCodeActionsForDocument,
-  resolveServerModule
+  resolveDebugConfiguration,
+  resolveLanguageServerInvocation,
+  resolveServerModule,
+  runXtendRmtTask,
+  startLanguageClient,
+  startXtendRmtDebugSession
 };

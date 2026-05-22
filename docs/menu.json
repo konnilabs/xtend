@@ -1183,6 +1183,19 @@
     }
   },
   {
+    "slug": "rmt-vnext-component-primitives",
+    "id": "docs.rmt.vnext.component.primitives",
+    "label": "RMT vNext Component Primitives",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "basic",
+    "rank": 96,
+    "labels": {
+      "de": "RMT vNext Component Primitives und XTend UI",
+      "en": "RMT vNext Component Primitives and XTend UI"
+    }
+  },
+  {
     "slug": "rmt-vnext-primitives-compiler-backlog",
     "id": "docs.rmt.vnext.primitives.compiler.backlog",
     "label": "RMT vNext Primitive Compiler Backlog",

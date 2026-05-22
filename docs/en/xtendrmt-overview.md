@@ -30,10 +30,16 @@ app.rmt
   -> vNext parser
   -> semantic primitive graph
   -> core document + kernel records
+  -> DOM descriptor renderer + component capability registry
   -> host adapter
   -> XTend Components / XRouter / Fabric
   -> visible app in the browser
 ```
+
+The Component Capability Registry is the shared RMT interface for XTend UI. It
+keeps the kernel framework-agnostic while allowing descriptors to resolve
+manifest-backed components, public contracts, events, slots, parts, and state
+bridges.
 
 ## Official Developer Docs
 
@@ -41,6 +47,7 @@ app.rmt
 | --- | --- |
 | First app | [Quick Start Guide](./quick-start-guide.md) |
 | vNext app authoring | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md) |
+| RMT and XTend UI | [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md) |
 | Native authoring | [XTendRMT Native Authoring Guide](./xtendrmt-native-authoring.md) |
 | App DSL reference | [XTendRMT App DSL Reference](./xtendrmt-app-dsl.md) |
 | Runtime bridge and adapters | [XTendRMT Runtime Bridge](./xtendrmt-runtime-bridge.md) |
@@ -52,4 +59,5 @@ app.rmt
 xt rmt lint app.rmt
 node tools/rmt-language-server/server.js
 node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-vnext-tooling --json
+node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json
 ```

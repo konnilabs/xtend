@@ -96,7 +96,7 @@ Wichtige Prefixes:
 
 ## VS Code
 
-Ein duennes Bridge-Package liegt in:
+Die VS-Code-Integration liegt in:
 
 ```text
 tools/rmt-editor/vscode
@@ -106,14 +106,27 @@ Es registriert:
 
 - Language ID `rmt`
 - Dateiendung `.rmt`
-- JSON-basierte TextMate-Grammatik
+- RMT-vNext-aware TextMate-Grammatik mit Legacy-JSON-Fallback
 - RMT Snippets
+- `vscode-languageclient` fuer den lokalen RMT Language Server
+- `$xtend-rmt-lint` Problem Matcher
+- XTend CLI Tasks und Debug-Console-Launch-Konfigurationen
 - Command `XTendRMT: Show Language Server Command`
+- Command `XTendRMT: Start/Restart Language Server`
+- Command `XTendRMT: Run Active RMT Lint`
+- Command `XTendRMT: Run Workspace RMT Lint`
+- Command `XTendRMT: Run RMT Build Check`
+- Command `XTendRMT: Run Scaffold Verify`
+- Command `XTendRMT: Debug Language Server`
+- Command `XTendRMT: Debug Active RMT Lint`
+- Command `XTendRMT: Debug Active RMT Build`
+- Command `XTendRMT: Open VS Code Tasks Template`
+- Command `XTendRMT: Open VS Code Launch Template`
 - Command `XTendRMT: Show vNext Primitive Apply Experience`
 - Command `XTendRMT: Show vNext Primitive Code Action Preview`
 - Command `XTendRMT: Show vNext Primitive Command Handoff`
 
-Bis ein voll gepackter VS-Code-LanguageClient freigegeben ist, kann ein generischer LSP-Client mit folgendem Befehl genutzt werden:
+Der gepackte LanguageClient startet den Server per stdio:
 
 ```json
 {
@@ -121,6 +134,30 @@ Bis ein voll gepackter VS-Code-LanguageClient freigegeben ist, kann ein generisc
   "args": ["tools/rmt-language-server/server.js"]
 }
 ```
+
+Terminal-Tasks nutzen die XTend CLI als Orchestrator und pflegen keine eigene
+RMT-Semantik. Die versionierte Vorlage liegt unter:
+
+```text
+tools/rmt-editor/vscode/templates/tasks.json
+```
+
+Der Problem Matcher konsumiert die stabile Linter-Ausgabe:
+
+```bash
+xt rmt lint app.rmt --format problem-matcher --fail-on warning
+```
+
+Die Launch-Vorlage fuer die Debug Console liegt unter:
+
+```text
+tools/rmt-editor/vscode/templates/launch.json
+```
+
+Sie enthaelt Debug-Starts fuer Language Server, aktiven RMT Lint, aktiven RMT
+Build und Scaffold Verify. Das ist Tool-Debugging fuer Authoring-Workflows; ein
+eigener Debug Adapter fuer ausgefuehrte RMT-UI-Breakpoints bleibt bewusst
+ausserhalb dieses Slices.
 
 Die vNext-Primitive-Commands lesen CodeAction-Reports oder einzelne Actions
 aus der RMT-vNext-Tooling-Schicht und zeigen die drei Apply-Pfade getrennt im

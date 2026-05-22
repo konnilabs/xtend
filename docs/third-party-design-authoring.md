@@ -255,6 +255,7 @@ Dieses Beispiel kombiniert XTend.css, XTheme, CSS Parts, Icon Pack, Header Mode,
 <html data-theme="light" data-xtend-density="compact">
   <head>
     <link rel="stylesheet" href="/xtend.css">
+    <meta name="xtend-preload" content="x-theme,x-header,x-link,x-button,x-icon">
     <style>
       @layer xtend-customer {
         :root {
@@ -334,7 +335,6 @@ Dieses Beispiel kombiniert XTend.css, XTheme, CSS Parts, Icon Pack, Header Mode,
     <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
   </head>
   <body>
-    <x-theme></x-theme>
     <x-header menu-mode="side-panel" menu-placement="end" menu-modal>
       <span slot="title">Acme Operations</span>
       <x-link slot="nav" href="/overview" aria-current="page">Overview</x-link>

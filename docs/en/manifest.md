@@ -84,8 +84,11 @@ It is not the same as a `.rmt` document.
 | `xtendrmt/rmt-manifest.json` | XTendRMT product manifest, entry points, and artifact parity |
 
 RMT component records may reference an XTend Manifest for manifest lookup, but
-the RMT kernel does not read XTend runtime code from it. Resolution belongs to
-`createRmtXtendComponentAdapter`.
+the RMT kernel does not read XTend runtime code from it. Resolution belongs in
+host adapters and the RMT vNext Component Capability Registry. The registry
+uses the manifest as the import source, combines it with Component Contracts and
+RMT metadata, and produces descriptor capabilities for the DOM Descriptor
+Renderer.
 
 Native RMT files should be served as `application/vnd.xtendrmt.rmt+json`. The
 JSON fallback remains possible for special hosts, but it is not the recommended
@@ -123,9 +126,10 @@ authoring path.
 - [XTend Loader](./xtend-loader.md)
 - [Manifest Import Policy](./manifest-import-policy.md)
 - [Component Development](./components.md)
+- [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md)
 - [API Integration](./api.md)
 - [XTendRMT App DSL Reference](./xtendrmt-app-dsl.md)
 
 ---
 
-*Last updated: May 5, 2026*
+*Last updated: May 22, 2026*

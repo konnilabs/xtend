@@ -7,7 +7,109 @@
   ],
   "patterns": [
     {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#componentTags"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#lanes"
+    },
+    {
+      "include": "#identifiers"
+    },
+    {
       "include": "source.json"
     }
-  ]
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.rmt",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.rmt",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.rmt",
+              "match": "\\\\."
+            },
+            {
+              "name": "variable.other.interpolation.rmt",
+              "match": "\\$\\{[^}]+\\}"
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.rmt",
+          "match": "\\b\\d+(?:\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "componentTags": {
+      "patterns": [
+        {
+          "name": "entity.name.tag.xtend.rmt",
+          "match": "\\bx-[a-z][a-z0-9-]*\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.rmt",
+          "match": "\\b(template|state|selector|derived|action|effect|resource|event|surface|portal|overlay|route|schedule|lane|component|slot|part|theme|on|when|emit|open|close|focus|minimize|restore|destroy|import|from|as)\\b"
+        },
+        {
+          "name": "storage.type.rmt",
+          "match": "\\b(dom_descriptor|html_fragment|json|record|array|string|number|boolean|file|body|owner|key|props|attrs|events|bindings|cleanup)\\b"
+        },
+        {
+          "name": "constant.language.boolean.rmt",
+          "match": "\\b(true|false|null)\\b"
+        }
+      ]
+    },
+    "lanes": {
+      "patterns": [
+        {
+          "name": "support.constant.lane.rmt",
+          "match": "\\b(visible|user-blocking|transition|idle|background|diagnostics)\\b"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "entity.name.function.rmt",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_-]*(?=\\s*\\()"
+        },
+        {
+          "name": "variable.other.member.rmt",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_-]*(?:\\.[A-Za-z_][A-Za-z0-9_-]*)+\\b"
+        }
+      ]
+    }
+  }
 }

@@ -33,6 +33,14 @@ Eine RMT-Surface kann zum Beispiel `component x-cards` deklarieren. Der Host
 Adapter laedt `x-cards` ueber das Manifest, mountet das Custom Element und
 verdrahtet Event-Payloads mit RMT Actions.
 
+Die RMT vNext Component Capability Registry macht diesen Adapterpfad
+generisch. Sie liest Manifest, Component Contracts, `xtendRmtMetadata`,
+`observedAttributes`, Events, Slots, Parts, Form-Assoziation sowie A11y- und
+Performance-Profile und stellt daraus Capabilities fuer alle public
+Manifest-Komponenten bereit. Neue Komponenten bleiben normale Web Components;
+fuer RMT-Kompatibilitaet brauchen sie stabile public Contracts statt Host-
+Monkeypatching.
+
 ## Struktur einer Komponente
 
 Typischerweise besteht eine Komponente aus:
@@ -139,6 +147,7 @@ gebunden werden.
 - [Manifest-Format](./manifest.md)
 - [XTend Loader](./xtend-loader.md)
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md)
 - [Component Platform](./component-platform.md)
 - [Component UX Authoring](./component-ux-authoring.md)
 - [API-Integration](./api.md)

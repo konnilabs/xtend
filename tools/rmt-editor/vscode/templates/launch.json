@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "XTendRMT: Debug Language Server",
+      "program": "${workspaceFolder}/tools/rmt-language-server/server.js",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "outputCapture": "std",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "XTendRMT: Debug Active RMT Lint",
+      "program": "${workspaceFolder}/xtend-builder/scaffold.js",
+      "args": [
+        "rmt",
+        "lint",
+        "${file}",
+        "--json"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "outputCapture": "std",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "XTendRMT: Debug Active RMT Build",
+      "program": "${workspaceFolder}/xtend-builder/scaffold.js",
+      "args": [
+        "rmt-build",
+        "--source",
+        "${file}",
+        "--check",
+        "--json"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "outputCapture": "std",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "XTendRMT: Debug Scaffold Verify",
+      "program": "${workspaceFolder}/xtend-builder/scaffold.js",
+      "args": [
+        "verify",
+        "--json"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "outputCapture": "std",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ]
+}

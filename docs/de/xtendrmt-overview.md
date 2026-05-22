@@ -44,6 +44,7 @@ app.rmt
   -> vNext parser
   -> semantic primitive graph
   -> core document + kernel records
+  -> DOM descriptor renderer + component capability registry
   -> host adapter
   -> XTend Components / XRouter / Fabric
   -> sichtbare App im Browser
@@ -66,6 +67,7 @@ setzen diese Beschreibung in echte Komponenten und Browser-Arbeit um.
 ## Wichtige APIs und Adapter
 
 - Runtime Registry fuer Route- und Component-Indizes
+- Component Capability Registry `createRmtComponentCapabilityRegistry`
 - XRouter Adapter `createRmtXRouterAdapter`
 - XTend Component Adapter `createRmtXtendComponentAdapter`
 - State-/Scheduler-/Diagnostics Bridge `createRmtStateSchedulerDiagnosticsBridge`
@@ -78,6 +80,7 @@ setzen diese Beschreibung in echte Komponenten und Browser-Arbeit um.
 | --- | --- |
 | Erste App | [Quick Start Guide](./quick-start-guide.md) |
 | vNext App Authoring | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md) |
+| RMT und XTend UI | [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md) |
 | Native Authoring | [XTendRMT Native Authoring Guide](./xtendrmt-native-authoring.md) |
 | App-DSL Referenz | [XTendRMT App-DSL Reference](./xtendrmt-app-dsl.md) |
 | Runtime Bridge und Adapter | [XTendRMT Runtime Bridge](./xtendrmt-runtime-bridge.md) |
@@ -91,6 +94,7 @@ setzen diese Beschreibung in echte Komponenten und Browser-Arbeit um.
 xt rmt lint app.rmt
 node tools/rmt-language-server/server.js
 node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-vnext-tooling --json
+node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json
 ```
 
 Fuer Runtime- und Adapter-Paritaet bleiben zwei repo-lokale Gates wichtig:

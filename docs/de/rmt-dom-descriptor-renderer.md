@@ -23,6 +23,28 @@ Platform aus. Normale App-UI wird aus strukturierten Deskriptoren gebaut:
 | Events | Events laufen ueber `addEventListener`, nicht ueber String-Attribute. |
 | Diagnostics | Runtimefehler enthalten RMT-Source-Informationen wie `documentId`, `templateId` und `pointer`. |
 
+## Component Registry Option
+
+`render(...)` und `renderKeyed(...)` akzeptieren `componentRegistry`. Wenn ein
+Descriptor `type: "component"` nutzt, normalisiert der Renderer Tag,
+Attribute, Properties, Slots, Parts und Event-Bindings ueber die RMT vNext
+Component Capability Registry:
+
+```js
+renderer.renderKeyed(root, descriptors, {
+  componentRegistry: registry,
+  dispatchEvent,
+  stateBridge
+});
+```
+
+Die Registry bindet XTend-Komponenten ueber public DOM APIs. Sie liest
+Component Contracts und RMT-Metadaten, fuehrt lazy Import ueber Manifest-Pfade
+aus und schreibt sichere Capability-Marker wie
+`data-rmt-component-capability`. Der Renderer bleibt dadurch generisch: keine
+Shadow-DOM-Patches, keine privaten Component-Maps und keine HTML-Sinks fuer
+normale RMT-App-UI.
+
 ## Trusted Boundary
 
 HTML-Fragmente sind kein normaler Template-Pfad. Sie duerfen nur als
@@ -37,5 +59,6 @@ manuellen HTML-Sinks wie `root.innerHTML`, `element.innerHTML`,
 `template.innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write` und
 `createContextualFragment`.
 
-`WP-E18-06` kann auf diesem Slice component-native Template-Primitives
-aufbauen, ohne externe HTML-Hilfsrenderer vorauszusetzen.
+`WP-E18-06` und die vNext Component Capability Registry bauen auf diesem Slice
+component-native Template-Primitives auf, ohne externe HTML-Hilfsrenderer
+vorauszusetzen.

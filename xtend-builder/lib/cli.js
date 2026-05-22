@@ -552,6 +552,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt rmt lint app.rmt',
         '  xt rmt lint app.rmt --json',
         '  xt rmt lint tests/fixtures --fail-on warning',
+        '  xt rmt lint app.rmt --format problem-matcher',
         '',
         'Commands:',
         '  lint  Run the native RMT linter.'

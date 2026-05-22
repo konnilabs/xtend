@@ -15,6 +15,23 @@ Seit `WP-E10-16` ist Epic 10 abgeschlossen. Der Release-Handoff liegt in [Epic 1
 - Fabric, Telemetry, Lanes, A11y und Performance sind Pflichtdomains im `xtend.component.contract.v2`
 - der Builder erzeugt Contract-, Source-, RMT-, A11y-, Performance- und Fixture-Artefakte als Dry-Run
 
+## RMT vNext Component Capability Registry
+
+Die aktuelle RMT-vNext-Linie ergaenzt diese Plattform um
+`xtend.rmt.component-capability-registry.v1`. Die Registry ist die generische
+RMT-Schnittstelle fuer XTend UI: Sie liest `components/manifest.json`,
+`xtend.component.contract.v2`, `xtendRmtMetadata`, `observedAttributes`,
+Events, Slots, Parts, Form-Assoziation, A11y-Profile und Performance-Profile.
+
+Das Ergebnis ist eine Matrix fuer alle 42 public Manifest-Eintraege und 38
+renderbare UI-Komponenten. RMT kann daraus DOM Descriptoren bauen, Events und
+State-Bridges binden und Komponenten lazy ueber Manifest-Pfade importieren.
+Der RMT-Kernel bleibt dabei framework-neutral und importiert keine XTend-
+Klassen oder Typen.
+
+Details stehen in
+[RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md).
+
 ## P0-Komponentenwelle
 
 WP-E10-08 legt die erste P0-Komponentenwelle als `xtend.epic10.p0-component-wave.v1` fest.
@@ -143,6 +160,7 @@ Performance ist ebenfalls Contract-Bestandteil. Jede Komponente muss Budgetklass
 
 ```bash
 node scripts/run_xtend_tests.js component-ux-authoring-docs --json
+node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json
 node scripts/run_xtend_tests.js component-long-tail-migration --json
 node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff --json
 node scripts/run_xtend_tests.js component-shell-theme-matrix --json

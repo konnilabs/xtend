@@ -22,6 +22,7 @@ const {
   RMT_LINTER_CLI_SUITE_PATH,
   RMT_LINTER_CLI_WORKPACKAGE,
   collectRmtFiles,
+  formatProblemMatcherDiagnostic,
   parseArgs,
   runRmtLinterCli
 } = require('../../tools/rmt-linter/cli');
@@ -125,6 +126,31 @@ function runTextFailureChecks(context, workspace) {
   context.assert(output.includes('rmt.template.inline-script.refused'), 'Text CLI prints inline script diagnostic');
 }
 
+function runProblemMatcherChecks(context, workspace) {
+  const stdout = createMemoryStream();
+  const stderr = createMemoryStream();
+  const exitCode = runRmtLinterCli(['lint', workspace.problemPath, '--format', 'problem-matcher'], {
+    stdout,
+    stderr,
+    rootDir: workspace.tempRoot
+  });
+  const output = stdout.toString().trim().split(/\r?\n/u).filter(Boolean);
+  const firstLine = output[0] || '';
+  const formatted = formatProblemMatcherDiagnostic({
+    severity: 'hint',
+    code: 'rmt.demo',
+    file: workspace.problemPath,
+    range: { start: { line: 0, character: 0 } },
+    message: 'Hint severity is surfaced as info.'
+  }, workspace.tempRoot);
+
+  context.assert(exitCode === 1, 'Problem matcher CLI exits 1 for blocking linter diagnostics');
+  context.assert(stderr.toString() === '', 'Problem matcher CLI keeps stderr empty for report output');
+  context.assert(/^error\s+rmt\.[A-Za-z0-9_.-]+\s+problem\.rmt:\d+:\d+\s+.+/.test(firstLine), 'Problem matcher output emits one-line VS Code diagnostics');
+  context.assert(!stdout.toString().includes('XTendRMT Linter'), 'Problem matcher output omits human report heading');
+  context.assert(formatted.startsWith('info rmt.demo problem.rmt:1:1 '), 'Problem matcher output maps hint severity to VS Code info');
+}
+
 function runDirectoryAndGlobChecks(context, workspace) {
   const directoryFiles = collectRmtFiles([workspace.tempRoot], workspace.tempRoot);
   const globFiles = collectRmtFiles(['*.rmt'], workspace.tempRoot);
@@ -174,11 +200,14 @@ function runScaffoldCliChecks(context, workspace) {
 
 function runArgParseChecks(context, workspace) {
   const parsed = parseArgs(['lint', workspace.validPath, '--json', '--fail-on=info', '--root', workspace.tempRoot]);
+  const problemMatcher = parseArgs(['lint', workspace.validPath, '--format', 'problem-matcher', '--fail-on', 'warning']);
 
   context.assert(parsed.json === true, 'RMT linter CLI parser recognizes --json');
+  context.assert(parsed.format === 'json', 'RMT linter CLI parser maps --json to json format');
   context.assert(parsed.failOn === 'info', 'RMT linter CLI parser recognizes --fail-on');
   context.assert(parsed.rootDir === workspace.tempRoot, 'RMT linter CLI parser recognizes --root');
   context.assert(parsed.targets.length === 1 && parsed.targets[0] === workspace.validPath, 'RMT linter CLI parser strips lint subcommand from targets');
+  context.assert(problemMatcher.format === 'problem-matcher' && problemMatcher.json === false, 'RMT linter CLI parser recognizes problem matcher format');
 }
 
 function runRmtLinterCliSuite(options = {}) {
@@ -224,6 +253,7 @@ function runRmtLinterCliSuite(options = {}) {
     runArgParseChecks(context, workspace);
     runDirectJsonChecks(context, workspace);
     runTextFailureChecks(context, workspace);
+    runProblemMatcherChecks(context, workspace);
     runDirectoryAndGlobChecks(context, workspace);
     runScaffoldCliChecks(context, workspace);
   } finally {

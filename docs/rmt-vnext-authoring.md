@@ -86,6 +86,26 @@ Der Host stellt Komponenten, Router, Browser-APIs und externe Daten bereit.
 Diese Grenze haelt den Kernel framework-neutral und macht die App trotzdem
 vollstaendig beschreibbar.
 
+## XTend UI-Kompatibilitaet
+
+RMT vNext Component Primitives zielen auf den bestehenden XTend-Component-
+Stack. Eine Surface wie `component x-select` wird zu einem DOM Descriptor
+abgesenkt und dann ueber die Component Capability Registry aufgeloest, nicht
+ueber einen produktspezifischen Renderer. Die Registry liest
+`components/manifest.json`, `xtendComponentContract`, `xtendRmtMetadata`,
+public Events, `observedAttributes`, Slots, Parts, Form-Assoziation,
+Accessibility-Profile und Performance-Profile.
+
+Damit erreicht RMT alle 42 public Manifest-Eintraege, waehrend 38 renderbare
+UI-Komponenten ihren normalen Web-Component-Lifecycle behalten. Infrastruktur-
+module wie `x-theme` und `xstate` bleiben Host-Services, keine normalen
+Surface-Elemente. Produktcode soll ueber public Attribute, Properties, Events,
+Parts, Slots und State-Bridges binden, statt `shadowRoot` oder private
+Component-Maps zu patchen.
+
+Details stehen in
+[RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md).
+
 ## Editor-DX
 
 Der Language Server erkennt vNext-Primitives direkt:
@@ -130,6 +150,7 @@ aktualisiert werden.
 ```bash
 node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-vnext-tooling --json
 node scripts/run_xtend_tests.js rmt-vnext-compatibility --json
+node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json
 node scripts/run_xtend_tests.js rmt-vnext-release --json
 ```
 
@@ -144,3 +165,6 @@ Migration und Referenzpfade.
 - Imports sind statisch und bleiben package-root-gebunden.
 - Legacy JSON bleibt kompatibel, aber nicht der bevorzugte Authoring-Pfad.
 - XTend-, XRouter-, DOM- und Browser-Details gehoeren in Adapter.
+- XTend-Component-Integration laeuft ueber public Contracts und die Component
+  Capability Registry, nicht ueber direkte Kernel-Imports oder
+  Shadow-DOM-Monkeypatching.

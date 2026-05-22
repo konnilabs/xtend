@@ -3,8 +3,10 @@ import type { RmtLanguageServiceReport, RmtParseResult, RmtToolingConstant, RmtT
 
 export declare const buildHelpText: RmtToolingFactory;
 export declare const collectRmtFiles: RmtToolingFunction;
+export declare const formatProblemMatcherDiagnostic: RmtToolingFunction<string>;
 export declare const lintFiles: RmtToolingFunction<RmtLanguageServiceReport>;
 export declare const parseArgs: RmtToolingFunction<RmtParseResult>;
+export declare const printProblemMatcherReport: RmtToolingFunction;
 export declare const RMT_LINTER_CLI_MODULE_PATH: RmtToolingConstant;
 export declare const RMT_LINTER_CLI_PACKAGE_SCRIPT: RmtToolingConstant;
 export declare const RMT_LINTER_CLI_REPORT_SCHEMA: RmtToolingConstant;

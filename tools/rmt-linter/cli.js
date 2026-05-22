@@ -16,6 +16,8 @@ const RMT_LINTER_CLI_MODULE_PATH = 'tools/rmt-linter/cli.js';
 const RMT_LINTER_CLI_SUITE_PATH = 'tests/rmt-language/rmt_linter_cli_suite.js';
 const RMT_LINTER_CLI_PACKAGE_SCRIPT = 'npm run test:rmt-linter-cli';
 const DEFAULT_FAIL_ON = 'error';
+const DEFAULT_FORMAT = 'text';
+const OUTPUT_FORMATS = new Set(['text', 'json', 'problem-matcher']);
 const SEVERITY_RANK = {
   error: 0,
   warning: 1,
@@ -31,11 +33,16 @@ function normalizeSeverity(value) {
   return Object.prototype.hasOwnProperty.call(SEVERITY_RANK, value) ? value : DEFAULT_FAIL_ON;
 }
 
+function normalizeOutputFormat(value) {
+  return OUTPUT_FORMATS.has(value) ? value : DEFAULT_FORMAT;
+}
+
 function parseArgs(args = [], inheritedOptions = {}) {
   const parsed = {
     help: false,
     json: !!inheritedOptions.json,
     agent: !!inheritedOptions.agent,
+    format: inheritedOptions.format || (inheritedOptions.json ? 'json' : DEFAULT_FORMAT),
     failOn: inheritedOptions.failOn || DEFAULT_FAIL_ON,
     rootDir: inheritedOptions.rootDir || process.cwd(),
     targets: []
@@ -52,12 +59,32 @@ function parseArgs(args = [], inheritedOptions = {}) {
 
     if (arg === '--json') {
       parsed.json = true;
+      parsed.format = 'json';
       continue;
     }
 
     if (arg === '--agent' || arg === '--agent-report') {
       parsed.agent = true;
       parsed.json = true;
+      parsed.format = 'json';
+      continue;
+    }
+
+    if (arg === '--problem-matcher') {
+      parsed.format = 'problem-matcher';
+      continue;
+    }
+
+    if (arg === '--format') {
+      parsed.format = normalizeOutputFormat(args[index + 1]);
+      parsed.json = parsed.format === 'json';
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith('--format=')) {
+      parsed.format = normalizeOutputFormat(arg.slice('--format='.length));
+      parsed.json = parsed.format === 'json';
       continue;
     }
 
@@ -91,6 +118,7 @@ function parseArgs(args = [], inheritedOptions = {}) {
   }
 
   parsed.failOn = normalizeSeverity(parsed.failOn);
+  parsed.format = parsed.json ? 'json' : normalizeOutputFormat(parsed.format);
   parsed.rootDir = path.resolve(parsed.rootDir || process.cwd());
   parsed.targets = positionals;
 
@@ -108,10 +136,13 @@ function buildHelpText() {
     '  xt rmt lint "docs/**/*.rmt" --json',
     '  xt rmt lint app.rmt --agent',
     '  xt rmt lint app.rmt --fail-on warning',
+    '  xt rmt lint app.rmt --format problem-matcher',
     '',
     'Options:',
     '  --json              Print machine-readable JSON report.',
     '  --agent             Print AI-agent repair report with fix order and no-op explanations.',
+    '  --format <format>   text, json or problem-matcher. Default: text.',
+    '  --problem-matcher   Alias for --format problem-matcher.',
     '  --fail-on <level>   error, warning, info or hint. Default: error.',
     '  --root <dir>        Workspace root for relative targets.',
     '  --help              Print this help text.'
@@ -386,6 +417,29 @@ function printTextReport(report, stdout, rootDir) {
   });
 }
 
+function sanitizeProblemMatcherMessage(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeProblemMatcherSeverity(severity) {
+  return severity === 'hint' ? 'info' : normalizeSeverity(severity);
+}
+
+function formatProblemMatcherDiagnostic(diagnostic, rootDir) {
+  const location = formatLocation(diagnostic, rootDir);
+  const severity = normalizeProblemMatcherSeverity(diagnostic.severity);
+  const code = diagnostic.code || 'rmt.diagnostic';
+  const message = sanitizeProblemMatcherMessage(diagnostic.message || code);
+
+  return `${severity} ${code} ${location} ${message}`;
+}
+
+function printProblemMatcherReport(report, stdout, rootDir) {
+  report.diagnostics.forEach((diagnostic) => {
+    writeLine(stdout, formatProblemMatcherDiagnostic(diagnostic, rootDir));
+  });
+}
+
 function runRmtLinterCli(args = process.argv.slice(2), io = {}) {
   const stdout = io.stdout || process.stdout;
   const stderr = io.stderr || process.stderr;
@@ -400,6 +454,8 @@ function runRmtLinterCli(args = process.argv.slice(2), io = {}) {
     const report = createEmptyFailureReport('Kein RMT Target angegeben. Nutze `xt rmt lint <file-or-dir>`.', options);
     if (options.json) {
       writeLine(stdout, JSON.stringify(report, null, 2));
+    } else if (options.format === 'problem-matcher') {
+      printProblemMatcherReport(report, stdout, options.rootDir);
     } else {
       writeLine(stderr, report.diagnostics[0].message);
     }
@@ -412,6 +468,8 @@ function runRmtLinterCli(args = process.argv.slice(2), io = {}) {
     const report = createEmptyFailureReport('Keine .rmt oder .rmt.json Dateien fuer die angegebenen Targets gefunden.', options);
     if (options.json) {
       writeLine(stdout, JSON.stringify(report, null, 2));
+    } else if (options.format === 'problem-matcher') {
+      printProblemMatcherReport(report, stdout, options.rootDir);
     } else {
       writeLine(stderr, report.diagnostics[0].message);
     }
@@ -424,6 +482,8 @@ function runRmtLinterCli(args = process.argv.slice(2), io = {}) {
 
   if (options.json || options.agent) {
     writeLine(stdout, JSON.stringify(report, null, 2));
+  } else if (options.format === 'problem-matcher') {
+    printProblemMatcherReport(report, stdout, options.rootDir);
   } else {
     printTextReport(report, stdout, options.rootDir);
   }
@@ -444,7 +504,9 @@ module.exports = {
   RMT_LINTER_CLI_WORKPACKAGE,
   buildHelpText,
   collectRmtFiles,
+  formatProblemMatcherDiagnostic,
   lintFiles,
   parseArgs,
+  printProblemMatcherReport,
   runRmtLinterCli
 };

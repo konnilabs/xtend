@@ -1,0 +1,172 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "XTendRMT: Lint active RMT",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/xtend-builder/scaffold.js",
+        "rmt",
+        "lint",
+        "${file}",
+        "--format",
+        "problem-matcher",
+        "--fail-on",
+        "warning"
+      ],
+      "problemMatcher": "$xtend-rmt-lint",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    },
+    {
+      "label": "XTendRMT: Lint workspace RMT",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/xtend-builder/scaffold.js",
+        "rmt",
+        "lint",
+        "${workspaceFolder}",
+        "--format",
+        "problem-matcher",
+        "--fail-on",
+        "warning"
+      ],
+      "problemMatcher": "$xtend-rmt-lint",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    },
+    {
+      "label": "XTendRMT: Agent repair report",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/xtend-builder/scaffold.js",
+        "rmt",
+        "lint",
+        "${file}",
+        "--agent"
+      ],
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    },
+    {
+      "label": "XTendRMT: RMT build check",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/xtend-builder/scaffold.js",
+        "rmt-build",
+        "--source",
+        "${file}",
+        "--check",
+        "--json"
+      ],
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    },
+    {
+      "label": "XTendRMT: RMT build write",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/xtend-builder/scaffold.js",
+        "rmt-build",
+        "--source",
+        "${file}",
+        "--write",
+        "--json"
+      ],
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    },
+    {
+      "label": "XTend: Scaffold verify",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/xtend-builder/scaffold.js",
+        "verify",
+        "--json"
+      ],
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    },
+    {
+      "label": "XTend: Scaffold dry-run component",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/xtend-builder/scaffold.js",
+        "component-files",
+        "--tag",
+        "x-example",
+        "--profile",
+        "display",
+        "--feature",
+        "state",
+        "--json"
+      ],
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    },
+    {
+      "label": "XTendRMT: vNext primitive gate",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "test:rmt-vnext-primitives:report"
+      ],
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    }
+  ]
+}

@@ -50,6 +50,25 @@ A vNext app should not split itself across RMT, App Platform JSON, and host code
 
 The host provides components, router, browser APIs, and external data. This boundary keeps the kernel framework-neutral while still making the app fully describable.
 
+## XTend UI Compatibility
+
+RMT vNext Component Primitives target the existing XTend component stack. A
+surface such as `component x-select` lowers to a DOM descriptor and is then
+resolved through the Component Capability Registry, not through a product-
+specific renderer. The registry reads `components/manifest.json`,
+`xtendComponentContract`, `xtendRmtMetadata`, public events,
+`observedAttributes`, slots, parts, form association, accessibility profiles,
+and performance profiles.
+
+That gives RMT access to all 42 public manifest entries while keeping 38
+renderable UI components on their normal Web Component lifecycle. Infrastructure
+modules such as `x-theme` and `xstate` remain host services, not normal surface
+elements. Product code should bind through public attributes, properties,
+events, parts, slots, and state bridges instead of patching `shadowRoot` or
+private component maps.
+
+See [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md).
+
 ## Editor DX
 
 The Language Server understands vNext primitives directly:
@@ -68,6 +87,7 @@ The `rmt-vnext-primitive-shell` snippet creates a small app shell with state, se
 ```bash
 node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-vnext-tooling --json
 node scripts/run_xtend_tests.js rmt-vnext-compatibility --json
+node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json
 node scripts/run_xtend_tests.js rmt-vnext-release --json
 ```
 
@@ -78,3 +98,5 @@ node scripts/run_xtend_tests.js rmt-vnext-release --json
 - Imports are static and stay package-root-bound.
 - Legacy JSON remains compatible, but it is not the preferred authoring path.
 - XTend, XRouter, DOM, and browser details belong in adapters.
+- XTend Component integration goes through public contracts and the Component
+  Capability Registry, not direct kernel imports or Shadow-DOM monkeypatching.

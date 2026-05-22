@@ -17,6 +17,7 @@ sich auf produktives Arbeiten.
 | --- | --- |
 | Erste lokale App starten | [Quick Start Guide](./quick-start-guide.md) |
 | UI komplett in RMT schreiben | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md) |
+| RMT-Primitives mit XTend UI verbinden | [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md) |
 | RMT Architektur verstehen | [XTendRMT Developer Overview](./xtendrmt-overview.md) |
 | Komponenten nutzen oder bauen | [Komponenten-Entwicklung](./components.md) und [Component Platform](./component-platform.md) |
 | Loader, Manifest und Runtime anbinden | [XTend Loader](./xtend-loader.md), [Manifest-Format](./manifest.md), [API-Integration](./api.md) |
@@ -44,6 +45,7 @@ Selectors, DataSources, Actions, Events, Portals, Overlays, Resources,
 Surfaces und Fabric-Lanes in einer `.rmt` Quelle beschreiben.
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md)
 - [XTendRMT Developer Overview](./xtendrmt-overview.md)
 - [Native RMT Authoring](./xtendrmt-native-authoring.md)
 - [XTendRMT App-DSL Reference](./xtendrmt-app-dsl.md)
@@ -94,6 +96,13 @@ XTend Components sind Web Components, die von RMT-Surfaces gemountet,
 hydriert und mit Events verbunden werden koennen. Nutze sie als UI-Bausteine,
 waehrend RMT die App-Struktur und den Lifecycle beschreibt.
 
+Die RMT vNext Component Capability Registry macht diese Grenze generisch: alle
+42 public Manifest-Eintraege werden als Matrix erfasst, 38 renderbare UI-
+Komponenten bekommen Component Contracts, RMT-Metadaten, Slots, Parts,
+Attribute, Events und State-Bridges als gemeinsame Runtime-Faehigkeiten. Damit
+werden RMT-Primitives stack-ergaenzend statt als zweite UI-Schicht umgesetzt.
+
+- [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md)
 - [Komponenten-Entwicklung](./components.md)
 - [Component Platform](./component-platform.md)
 - [TypeScript Components](./typescript-components.md)
@@ -242,8 +251,9 @@ auffindbar.
 - [RMT vNext Enterprise MFE Handoff](./rmt-vnext-enterprise-mfe-handoff.md)
 - [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md)
 
-## Wenn du nur drei Seiten liest
+## Wenn du nur vier Seiten liest
 
 1. [Quick Start Guide](./quick-start-guide.md)
 2. [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
-3. [Komponenten-Entwicklung](./components.md)
+3. [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md)
+4. [Komponenten-Entwicklung](./components.md)

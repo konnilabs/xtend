@@ -38,5 +38,19 @@ Navigation, Listen, Selection, Empty State, Error State und freie Custom
 Elements. Die Komponenten bleiben Entwickler-definiert; RMT kennt nur
 Descriptoren und Adapterfaehigkeiten.
 
-`WP-E18-07` kann darauf Typed State, Selectors und XState Bridge aufsetzen,
-damit diese Primitives komponentennah aktualisiert werden koennen.
+## Component Capability Registry
+
+Die vNext-Schicht fuehrt diese Primitives ueber
+`xtendrmt/rmt-component-capability-registry.js` mit dem ganzen XTend-
+Component-Stack zusammen. Die Registry normalisiert alle 42 public
+Manifest-Eintraege, klassifiziert 38 renderbare UI-Komponenten und verbindet
+Component Contracts, `xtendRmtMetadata`, `observedAttributes`, Events, Slots,
+Parts, Form-State und Lazy Import mit den generischen DOM Descriptoren.
+
+Damit bleiben `component`, `props`, `attributes`, `parts`, `slots`, `repeat`
+und `key` dieselben Primitives, aber sie bekommen eine stack-weite
+Kompatibilitaetsmatrix. Produktcode braucht keine Shadow-DOM-Patches, keine
+privaten Component-Maps und keine komponentenspezifischen Renderer.
+
+Details stehen in
+[RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md).

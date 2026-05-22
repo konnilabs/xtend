@@ -31,4 +31,18 @@ RMT can now compose XTend components natively without host apps assembling HTML 
 
 The fixture proves generic families instead of product surfaces: icons, tooltips, form controls (`x-input`, `x-select`, `x-checkbox`), navigation, lists, selection, empty state, error state and free custom elements. Components remain developer-defined; RMT only knows descriptors and adapter capabilities.
 
-`WP-E18-07` can build typed state, selectors and XState Bridge on top of this so these primitives can be updated close to components.
+## Component Capability Registry
+
+The vNext layer connects these primitives to the full XTend component stack
+through `xtendrmt/rmt-component-capability-registry.js`. The registry
+normalizes all 42 public manifest entries, classifies 38 renderable UI
+components, and connects Component Contracts, `xtendRmtMetadata`,
+`observedAttributes`, events, slots, parts, form state, and lazy import with the
+generic DOM descriptors.
+
+That keeps `component`, `props`, `attributes`, `parts`, `slots`, `repeat`, and
+`key` as the same primitives, but gives them a stack-wide compatibility matrix.
+Product code does not need Shadow-DOM patches, private component maps, or
+component-specific renderers.
+
+See [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md).

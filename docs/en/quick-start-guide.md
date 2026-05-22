@@ -35,8 +35,6 @@ Create an HTML file in the project, for example `quick-start.html`:
   </script>
 </head>
 <body>
-  <x-theme></x-theme>
-
   <main>
     <x-section layout="column" label="Quick Start">
       <h1>Hello XTend</h1>
@@ -49,6 +47,15 @@ Create an HTML file in the project, for example `quick-start.html`:
 ```
 
 Then open `http://127.0.0.1:4173/quick-start.html`.
+
+What happens here?
+
+- `xtend-loader.js` is the local loader.
+- `components/manifest.json` is the component registry.
+- `meta name="xtend-preload"` loads critical modules early.
+- `x-theme` is an infrastructure module; `x-section` and `x-button` are
+  normal XTend Web Components.
+- `/xtend.css` is optional host theming.
 
 ## 2. Describe the App Shell in RMT vNext
 
@@ -88,7 +95,42 @@ template quickstart.app {
 
 This document is the app description. The compiler turns it into Core and kernel records that host adapters can connect to XTend Components, XRouter, and Fabric.
 
-## 3. Check RMT Locally
+## 3. Materialize XTend UI from RMT
+
+Runtime hosts connect RMT descriptors with the existing XTend components from
+the manifest through the Component Capability Registry. Component Contracts,
+events, slots, parts, and state bindings stay the shared source of truth:
+
+```js
+import {
+  createRmtComponentCapabilityRegistry
+} from '@ccslabs/xtend/rmt/component-capability-registry';
+import {
+  createRmtDomDescriptorRenderer
+} from '@ccslabs/xtend/rmt/dom-descriptor-renderer';
+
+const registry = createRmtComponentCapabilityRegistry({ manifest, sourceTexts });
+const renderer = createRmtDomDescriptorRenderer({ documentTarget: document });
+
+renderer.renderKeyed(root, [
+  registry.buildComponentDescriptor({
+    tag: 'x-button',
+    key: 'primary-action',
+    attributes: { variant: 'primary' },
+    slots: { default: { text: 'Get started' } },
+    events: { click: 'quickstart.increment' }
+  })
+], {
+  componentRegistry: registry,
+  dispatchEvent: actions.dispatch,
+  stateBridge
+});
+```
+
+That lets RMT primitives use XTend UI without Shadow-DOM patches,
+component-specific renderers, or manual HTML sinks.
+
+## 4. Check RMT Locally
 
 ```bash
 xt rmt lint app.rmt
@@ -98,7 +140,7 @@ xt rmt lint app.rmt --agent
 
 The agent report contains `repairPlan`, `fixOrder`, `confidence`, `impact`, `relatedDiagnostics`, and explained no-ops for repairs that intentionally stay manual.
 
-## 4. Enable Editor Support
+## 5. Enable Editor Support
 
 ```bash
 node tools/rmt-language-server/server.js
@@ -109,6 +151,7 @@ The server provides diagnostics, completion, hover, document symbols, definition
 ## Next Steps
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md)
 - [XTendRMT Developer Overview](./xtendrmt-overview.md)
 - [RMT Linter and AI-Agent Repair Report](./rmt-linter.md)
 - [RMT Language Server and Editor Setup](./rmt-language-server.md)
