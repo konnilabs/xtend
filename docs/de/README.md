@@ -50,10 +50,15 @@ Surfaces und Fabric-Lanes in einer `.rmt` Quelle beschreiben.
 - [XTendRMT Runtime Bridge](./xtendrmt-runtime-bridge.md)
 - [Native RMT Migration Guide](./xtendrmt-migration-guide.md)
 - [RMT-first XTend Apps](./rmt-first-xtend-apps.md)
+- [RMT-first Demo-App](./rmt-first-demo-app.md)
 - [RMT Lifecycle Demo](./rmt-lifecycle-demo.md)
 - [RMT App Platform Migration Guide](./rmt-app-platform-migration-guide.md)
 - [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
 - [RMT vNext Release Handoff](./rmt-vnext-release-handoff.md)
+- [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md)
+- [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
+- [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md)
+- [RMT vNext Enterprise MFE Handoff](./rmt-vnext-enterprise-mfe-handoff.md)
 
 Die RMT-vNext-Referenzdemo liegt in `xtendrmt/rmt-vnext-reference-demo.rmt`;
 der stabile Compiler-Output liegt in
@@ -96,6 +101,8 @@ waehrend RMT die App-Struktur und den Lifecycle beschreibt.
 - [Component UX App Authoring](./component-ux-app-authoring.md)
 - [Component UX Gates](./component-ux-gates.md)
 - [Component Lab](./component-lab.md)
+- [Component Long-Tail Migration](./component-long-tail-migration.md)
+- [Existing Component Metadata](./existing-component-metadata.md)
 - [Public Component Types](./public-component-types.md)
 - [Component Catalog Coverage](./component-catalog-coverage.md)
 
@@ -128,6 +135,9 @@ XTend Components, XRouter und Browser-DOM.
 - [SurfaceManager Migration Guide](./surface-manager-migration-guide.md)
 - [SurfaceManager Component Lab](./surface-manager-component-lab.md)
 - [SurfaceManager Release Handoff](./surface-manager-release-handoff.md)
+- [SurfaceManager Overlay Bridge](./surface-manager-overlay-bridge.md)
+- [SurfaceManager Quality Gates](./surface-manager-quality-gates.md)
+- [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md)
 
 Die Docs-App selbst ist ein Beispiel fuer Shell-first-Denken:
 [XTendRMT Parsedown Scheduling Pilot](./xtendrmt-parsedown-scheduling.md)
@@ -143,6 +153,7 @@ Grenze zu verletzen:
 - [Performance fuer Komponentenautoren](./performance.md)
 - [Performance Measurements](./performance-measurements.md)
 - [Performance Regression](./performance-regression.md)
+- [Hydration Performance Closure](./hydration-performance-closure.md)
 - [Hydration Policies](./hydration-policies.md)
 - [A11y Keyboard Smokes](./a11y-keyboard-smokes.md)
 - [Screenreader Signals](./screenreader-signals.md)
@@ -160,6 +171,42 @@ Grenze zu verletzen:
 Release- und Gate-Artikel bleiben verfuegbar, stehen aber nicht mehr im
 Vordergrund des Lernpfads. Nutze sie, wenn du Release-Reife, Typing oder
 Owner-Akzeptanz pruefst.
+
+CI- und release-nahe Contract-Anker bleiben hier sichtbar:
+`xtend.epic12.docs-adoption.v1` unter
+[RC0 Adoption Guide](./rc0-adoption-guide.md) mit
+`node scripts/run_xtend_tests.js epic12-docs-adoption --json`,
+`xtend.epic13.rc1-migration-notes-semver.v1` unter
+[RC1 Migration Notes](./rc1-migration-notes.md),
+`xtend.epic13.release-report-pack-dry-run-evidence.v1` unter
+[Release Report und Pack Dry Run Evidence](./release-report-pack-dry-run-evidence.md),
+`xtend.epic13.rc1-gate-matrix-ci-handoff.v1` unter
+[RC1 Gate Matrix und CI](./rc1-gate-matrix-ci-handoff.md) und
+`xtend.epic13.conditional-network-evidence-ci.v1` unter
+[Conditional Network Evidence CI](./conditional-network-evidence-ci.md).
+Der Enterprise-Component-Flex-Handoff
+`xtend.enterprise.component-flex-release-handoff.v1` bleibt unter
+[Enterprise Component Flex Release Notes](./enterprise-component-flex-release-handoff.md)
+referenziert. Die RMT-vNext-Enterprise-Linie markiert
+`rmt-vnext-enterprise-mfe-ready` ueber
+[RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md),
+[RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md),
+[RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md)
+und [RMT vNext Enterprise MFE Handoff](./rmt-vnext-enterprise-mfe-handoff.md).
+Surface-Runtime-Reife bleibt ueber
+[SurfaceManager Overlay Bridge](./surface-manager-overlay-bridge.md),
+[SurfaceManager Quality Gates](./surface-manager-quality-gates.md),
+[SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md)
+und [Hydration Performance Closure](./hydration-performance-closure.md)
+auffindbar.
+Der RMT-Kernel-Handoff `xtend.rmt.kernel-migration-authoring-incident-handoff.v1`
+bleibt ueber
+[RMT Kernel Security Hardening Migration](./rmt-kernel-security-hardening-migration.md),
+[RMT Kernel Trusted Output Authoring](./rmt-kernel-trusted-output-authoring.md)
+und
+[RMT Kernel Panic Recovery Incident Handoff](./rmt-kernel-panic-recovery-incident-handoff.md)
+mit `node scripts/run_xtend_tests.js rmt-kernel-handoff-docs --json`
+auffindbar.
 
 - [XTend Changelog](./changelog.md)
 - [RC0 Gate Matrix](./rc0-gate-matrix.md)
@@ -186,12 +233,14 @@ Owner-Akzeptanz pruefst.
 - [Visual Owner Artifacts](./visual-owner-artifacts.md)
 - [RMT Production Readiness](./rmt-production-readiness.md)
 - [Docs RMT Production Hardening](./docs-rmt-production-hardening.md)
-- [Platform Gates](./epic10-platform-gates.md)
+- [Epic 10 Platform Gates](./epic10-platform-gates.md)
 - [Platform Release Notes](./epic10-release-handoff.md)
 - [Enterprise UX Notes](./epic11-enterprise-ux-handoff.md)
 - [Vendor Bugfixes](./epic18-vendor-bugfixes.md)
 - [RMT App Platform Release Notes](./epic18-rmt-app-platform-release-handoff.md)
 - [Enterprise Component Flex Release Notes](./enterprise-component-flex-release-handoff.md)
+- [RMT vNext Enterprise MFE Handoff](./rmt-vnext-enterprise-mfe-handoff.md)
+- [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md)
 
 ## Wenn du nur drei Seiten liest
 

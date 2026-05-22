@@ -553,6 +553,18 @@
           objectResults.push(executeObjectProbe(objectProbe));
         });
 
+      const primaryObjectResult = objectResults.find((entry) => entry.primitiveId === probe.primitiveId) || objectResults[0];
+      const primaryObjectCheckPassed = (name) => Boolean(
+        primaryObjectResult
+        && Array.isArray(primaryObjectResult.checks)
+        && primaryObjectResult.checks.some((entry) => entry.name === `${primaryObjectResult.primitiveId}: ${name}` && entry.ok)
+      );
+      recordCheck('source to sea primitive visible', primaryObjectCheckPassed('primitive visible'), primaryObjectResult);
+      recordCheck('source to sea schedule visible', primaryObjectCheckPassed('schedule visible'), primaryObjectResult);
+      recordCheck('source to sea fiber visible', primaryObjectCheckPassed('fiber visible'), primaryObjectResult);
+      recordCheck('source to sea event observed', primaryObjectCheckPassed('event observed'), primaryObjectResult && primaryObjectResult.events);
+      recordCheck('source to sea state visible', primaryObjectCheckPassed('state visible'), primaryObjectResult && primaryObjectResult.text);
+
       window.__xtendRmtVNextSourceToSeaResult = {
         schema: probe.schema,
         status: checks.every((check) => check.ok) ? 'passed' : 'failed',

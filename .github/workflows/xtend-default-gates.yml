@@ -36,10 +36,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 26.x
 
@@ -53,7 +53,7 @@ jobs:
 
       - name: Upload XTend PR JSON report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: xtend-pr-gate-report-node-26
           path: .xtend-test-results/xtend-pr-gate-report.json
@@ -67,10 +67,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 26.x
 
@@ -84,7 +84,7 @@ jobs:
 
       - name: Upload XTend full JSON report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: xtend-release-gate-report-node-26
           path: .xtend-test-results/xtend-release-gate-report.json
@@ -97,10 +97,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 26.x
 
@@ -120,7 +120,7 @@ jobs:
 
       - name: Upload RMT vNext primitive JSON report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: xtend-rmt-vnext-primitives-gate-report-node-26
           path: .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
@@ -128,7 +128,7 @@ jobs:
 
       - name: Upload RMT vNext source-to-sea evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: xtend-rmt-vnext-source-to-sea-evidence-node-26
           path: .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
@@ -143,10 +143,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 26.x
 
@@ -170,7 +170,7 @@ jobs:
 
       - name: Upload package structure evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: xtend-package-structure-node-26
           path: |
@@ -191,10 +191,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 26.x
 
@@ -214,7 +214,7 @@ jobs:
 
       - name: Upload conditional network evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: xtend-conditional-network-evidence-node-26
           path: |
@@ -240,15 +240,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 26.x for npm
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 26.x
           registry-url: https://registry.npmjs.org
           scope: '@ccslabs'
-          package-manager-cache: false
 
       - name: Print runtime versions
         run: |
@@ -282,7 +281,7 @@ jobs:
 
       - name: Upload npm publish evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: xtend-npm-publish-next-evidence-node-26
           path: |

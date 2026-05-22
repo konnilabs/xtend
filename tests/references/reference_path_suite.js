@@ -2486,13 +2486,13 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'XTend CI Gates', message: 'declares workflow name' },
       { pattern: 'pr-fast-gates', message: 'declares PR fast gate job' },
       { pattern: 'full-release-gates', message: 'declares full release gate job' },
-      { pattern: 'actions/checkout@v6', message: 'checks out repository' },
-      { pattern: 'actions/setup-node@v6', message: 'sets up Node' },
+      { pattern: 'actions/checkout@v4', message: 'checks out repository' },
+      { pattern: 'actions/setup-node@v4', message: 'sets up Node' },
       { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
       { pattern: 'npm run test:pr:report', message: 'runs PR fast report gate' },
       { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
       { pattern: "cron: '17 3 * * *'", message: 'declares nightly schedule' },
-      { pattern: 'actions/upload-artifact@v7', message: 'uploads report artifact' },
+      { pattern: 'actions/upload-artifact@v4', message: 'uploads report artifact' },
       { pattern: '.xtend-test-results/xtend-pr-gate-report.json', message: 'uploads PR JSON report path' },
       { pattern: '.xtend-test-results/xtend-release-gate-report.json', message: 'uploads release JSON report path' },
       { pattern: 'xtend-pr-gate-report-node-26', message: 'uses stable PR artifact name' },
@@ -7593,11 +7593,11 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'workflow_dispatch:', 'CI workflow supports manual dispatch');
   context.assertIncludes(workflow, 'pr-fast-gates:', 'CI workflow declares PR fast gate job');
   context.assertIncludes(workflow, 'full-release-gates:', 'CI workflow declares full release gate job');
-  context.assertIncludes(workflow, 'actions/setup-node@v6', 'CI workflow uses setup-node action');
+  context.assertIncludes(workflow, 'actions/setup-node@v4', 'CI workflow uses setup-node action');
   context.assertIncludes(workflow, 'node-version: 26.x', 'CI workflow pins Node 26.x');
   context.assertIncludes(workflow, 'npm run test:pr:report', 'CI workflow runs PR report gate');
   context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
-  context.assertIncludes(workflow, 'actions/upload-artifact@v7', 'CI workflow uploads report artifact');
+  context.assertIncludes(workflow, 'actions/upload-artifact@v4', 'CI workflow uploads report artifact');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-pr-gate-report.json', 'CI workflow uploads PR JSON report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-release-gate-report.json', 'CI workflow uploads full release JSON report');
   context.assertIncludes(workflow, 'xtend-pr-gate-report-node-26', 'CI workflow uses stable PR report artifact name');
