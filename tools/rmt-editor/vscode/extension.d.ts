@@ -29,6 +29,7 @@ export declare const runXtendCliInTerminal: RmtToolingFunction;
 export declare const runXtendRmtTask: RmtToolingFunction;
 export declare const showXtendCliCommandPalette: RmtToolingFunction;
 export declare const startLanguageClient: RmtToolingFunction;
+export declare const stopLanguageClientState: RmtToolingFunction;
 export declare const startXtendRmtDebugSession: RmtToolingFunction;
 export declare const RMT_VSCODE_DX_COMMANDS: RmtToolingConstant;
 export declare const RMT_VSCODE_DX_SCHEMA: RmtToolingConstant;

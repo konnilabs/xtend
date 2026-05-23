@@ -57,6 +57,7 @@ const {
   openXtendCliTerminal,
   showXtendCliCommandPalette,
   startLanguageClient,
+  stopLanguageClientState,
   startXtendRmtDebugSession,
   renderPrimitiveAuthoringApplyExperience,
   createServerCommand
@@ -158,9 +159,15 @@ function runVsCodeBridgeChecks(context, rootDir) {
         start() {
           return 'started';
         }
+
+        stop() {
+          this.stopped = true;
+          return 'stopped';
+        }
       }
     }
   });
+  const stoppedLanguageClient = stopLanguageClientState(fakeLanguageClient);
   const runtimeServerOptions = createRuntimeLanguageClientServerOptions({
     TransportKind: {
       stdio: 0
@@ -289,6 +296,7 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(languageClientConfig.clientOptions.documentSelector.some((entry) => entry.language === 'rmt'), 'VS Code LanguageClient config selects rmt documents');
   context.assert(configuredServerInvocation.args[0].endsWith(RMT_LANGUAGE_SERVER_ENTRYPOINT), 'VS Code configured LanguageClient invocation can target workspace server entrypoint');
   context.assert(fakeLanguageClient.status === 'started' && fakeLanguageClient.client.id === 'xtendRmtLanguageServer', 'VS Code extension can start a LanguageClient wrapper');
+  context.assert(stoppedLanguageClient.status === 'stopped' && fakeLanguageClient.client.stopped === true, 'VS Code extension stops the active LanguageClient during restart/deactivate');
   context.assert(runtimeServerOptions.transport === 0, 'VS Code LanguageClient runtime config converts stdio string to TransportKind enum');
   context.assert(fakeLanguageClient.client.serverOptions.transport === 0, 'VS Code LanguageClient receives TransportKind.stdio instead of unsupported string transport');
   context.assert(problemMatcher.schema === RMT_VSCODE_TASKS_SCHEMA, 'VS Code problem matcher emits stable tasks schema');

@@ -620,21 +620,137 @@ function createRmtLanguageServer(options = {}) {
   return new RmtLanguageServer(options);
 }
 
+function isWritableTransportOpen(stream) {
+  return !!(
+    stream &&
+    typeof stream.write === 'function' &&
+    stream.destroyed !== true &&
+    stream.writableEnded !== true &&
+    stream.writableFinished !== true &&
+    stream.closed !== true &&
+    stream.writable !== false
+  );
+}
+
+function writeProtocolOutput(stream, encoded) {
+  if (!isWritableTransportOpen(stream)) {
+    return {
+      schema: RMT_LANGUAGE_SERVER_REPORT_SCHEMA,
+      workpackage: RMT_LANGUAGE_SERVER_WORKPACKAGE,
+      ok: false,
+      status: 'transport-closed',
+      reason: 'stdio output stream is no longer writable'
+    };
+  }
+
+  try {
+    const accepted = stream.write(encoded);
+    return {
+      schema: RMT_LANGUAGE_SERVER_REPORT_SCHEMA,
+      workpackage: RMT_LANGUAGE_SERVER_WORKPACKAGE,
+      ok: true,
+      status: accepted === false ? 'backpressure' : 'written',
+      backpressure: accepted === false
+    };
+  } catch (error) {
+    return {
+      schema: RMT_LANGUAGE_SERVER_REPORT_SCHEMA,
+      workpackage: RMT_LANGUAGE_SERVER_WORKPACKAGE,
+      ok: false,
+      status: 'write-failed',
+      code: error && error.code ? error.code : null,
+      reason: error && error.message ? error.message : String(error)
+    };
+  }
+}
+
 function runStdioServer(options = {}) {
   const server = createRmtLanguageServer(options);
+  const input = options.input || process.stdin;
+  const output = options.output || process.stdout;
+  const exitProcess = typeof options.exitProcess === 'function'
+    ? options.exitProcess
+    : (options.exitProcess === false ? null : process.exit.bind(process));
+  let transportClosed = false;
 
-  process.stdin.on('data', (chunk) => {
-    const result = server.acceptProtocolData(chunk);
+  const closeTransport = (reason) => {
+    transportClosed = true;
+    server.transportClosed = true;
+    server.transportCloseReason = reason || null;
+    if (input && typeof input.pause === 'function') {
+      input.pause();
+    }
+  };
+
+  const maybeExit = (code) => {
+    if (exitProcess) {
+      exitProcess(code);
+    } else {
+      process.exitCode = code;
+    }
+  };
+
+  if (output && typeof output.on === 'function') {
+    output.on('error', (error) => {
+      closeTransport({
+        status: 'output-error',
+        code: error && error.code ? error.code : null,
+        reason: error && error.message ? error.message : String(error)
+      });
+    });
+  }
+
+  if (input && typeof input.on === 'function') {
+    input.on('end', () => {
+      closeTransport({ status: 'input-ended' });
+      maybeExit(server.shutdownRequested ? 0 : 0);
+    });
+    input.on('close', () => {
+      closeTransport({ status: 'input-closed' });
+    });
+    input.on('error', (error) => {
+      closeTransport({
+        status: 'input-error',
+        code: error && error.code ? error.code : null,
+        reason: error && error.message ? error.message : String(error)
+      });
+      maybeExit(1);
+    });
+  }
+
+  input.on('data', (chunk) => {
+    if (transportClosed) {
+      return;
+    }
+
+    let result = null;
+    try {
+      result = server.acceptProtocolData(chunk);
+    } catch (error) {
+      result = {
+        encodedOutputs: [
+          encodeProtocolMessage(createJsonRpcError(null, -32700, error && error.message ? error.message : String(error)))
+        ]
+      };
+    }
+
     result.encodedOutputs.forEach((encoded) => {
-      process.stdout.write(encoded);
+      if (transportClosed) {
+        return;
+      }
+      const writeResult = writeProtocolOutput(output, encoded);
+      if (!writeResult.ok) {
+        closeTransport(writeResult);
+      }
     });
 
     if (server.exitRequested) {
-      process.exit(server.shutdownRequested ? 0 : 1);
+      closeTransport({ status: 'lsp-exit-requested' });
+      maybeExit(server.shutdownRequested ? 0 : 1);
     }
   });
 
-  process.stdin.resume();
+  input.resume();
   return server;
 }
 
@@ -654,5 +770,7 @@ module.exports = {
   RmtLanguageServer,
   createCapabilities,
   createRmtLanguageServer,
+  isWritableTransportOpen,
+  writeProtocolOutput,
   runStdioServer
 };

@@ -40,6 +40,7 @@ const RMT_VSCODE_DX_COMMANDS = Object.freeze([
   'xtendRmt.openTasksTemplate',
   'xtendRmt.openLaunchTemplate'
 ]);
+let activeLanguageClientState = null;
 
 function toArray(value) {
   return Array.isArray(value) ? value : [];
@@ -1258,6 +1259,13 @@ function startLanguageClient(vscodeApi, context = {}, output = null, options = {
     config.clientOptions
   );
   const started = typeof client.start === 'function' ? client.start() : null;
+  if (started && typeof started.catch === 'function') {
+    started.catch((error) => {
+      if (output && typeof output.appendLine === 'function') {
+        output.appendLine(`XTendRMT Language Server client start failed: ${error && error.message ? error.message : String(error)}`);
+      }
+    });
+  }
 
   if (output && typeof output.appendLine === 'function') {
     output.appendLine('XTendRMT Language Server client started.');
@@ -1275,6 +1283,52 @@ function startLanguageClient(vscodeApi, context = {}, output = null, options = {
       serverOptions
     }
   };
+}
+
+function stopLanguageClientState(state = null, output = null) {
+  const client = state && state.client ? state.client : null;
+  if (!client) {
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'no-client',
+      ok: true
+    };
+  }
+
+  const stopped = {
+    schema: RMT_VSCODE_DX_SCHEMA,
+    workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+    status: 'stopped',
+    ok: true
+  };
+  const toFailure = (error) => {
+    const message = error && error.message ? error.message : String(error);
+    if (output && typeof output.appendLine === 'function') {
+      output.appendLine(`XTendRMT Language Server client stop failed: ${message}`);
+    }
+    return {
+      schema: RMT_VSCODE_DX_SCHEMA,
+      workpackage: RMT_VSCODE_DX_WORKPACKAGE,
+      status: 'stop-failed',
+      ok: false,
+      error: message
+    };
+  };
+
+  try {
+    let stopResult = null;
+    if (typeof client.stop === 'function') {
+      stopResult = client.stop();
+    } else if (typeof client.dispose === 'function') {
+      stopResult = client.dispose();
+    }
+    return stopResult && typeof stopResult.then === 'function'
+      ? stopResult.then(() => stopped, toFailure)
+      : stopped;
+  } catch (error) {
+    return toFailure(error);
+  }
 }
 
 function createLanguageServer(context = {}, options = {}) {
@@ -1620,6 +1674,7 @@ function activate(context) {
   const serverInvocation = resolveLanguageServerInvocation(vscode, context);
   const serverCommand = createServerCommand(context, serverInvocation);
   let languageClientState = startLanguageClient(vscode, context, output, serverInvocation);
+  activeLanguageClientState = languageClientState;
   if (languageClientState.client) {
     context.subscriptions.push(languageClientState.client);
   }
@@ -1631,10 +1686,9 @@ function activate(context) {
     output.show(true);
   });
   const restartLanguageServerDisposable = vscode.commands.registerCommand(RMT_VSCODE_DX_COMMANDS[0], async () => {
-    if (languageClientState.client && typeof languageClientState.client.stop === 'function') {
-      await languageClientState.client.stop();
-    }
+    await stopLanguageClientState(languageClientState, output);
     languageClientState = startLanguageClient(vscode, context, output, resolveLanguageServerInvocation(vscode, context));
+    activeLanguageClientState = languageClientState;
     if (languageClientState.client) {
       context.subscriptions.push(languageClientState.client);
     }
@@ -1763,7 +1817,9 @@ function activate(context) {
   };
 }
 
-function deactivate() {}
+function deactivate() {
+  return stopLanguageClientState(activeLanguageClientState);
+}
 
 module.exports = {
   RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS,
@@ -1803,5 +1859,6 @@ module.exports = {
   runXtendRmtTask,
   showXtendCliCommandPalette,
   startLanguageClient,
+  stopLanguageClientState,
   startXtendRmtDebugSession
 };

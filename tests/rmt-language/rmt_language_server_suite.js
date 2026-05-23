@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { EventEmitter } = require('events');
 const { pathToFileURL } = require('url');
 const {
   createSuiteContext,
@@ -25,7 +26,10 @@ const {
   RMT_LANGUAGE_SERVER_SUITE_PATH,
   RMT_LANGUAGE_SERVER_WORKPACKAGE,
   SERVER_NAME,
-  createRmtLanguageServer
+  createRmtLanguageServer,
+  isWritableTransportOpen,
+  runStdioServer,
+  writeProtocolOutput
 } = require('../../tools/rmt-language-server/server');
 const {
   RMT_LANGUAGE_SERVER_PROTOCOL_MODULE_PATH,
@@ -238,6 +242,95 @@ function runProtocolChecks(context, rootDir) {
   context.assert(secondResult.encodedOutputs[0].startsWith('Content-Length:'), 'Protocol handler re-encodes responses for stdio');
 }
 
+function createFakeInput() {
+  const input = new EventEmitter();
+  input.resumed = false;
+  input.paused = false;
+  input.resume = () => {
+    input.resumed = true;
+  };
+  input.pause = () => {
+    input.paused = true;
+  };
+  return input;
+}
+
+function createFakeOutput(options = {}) {
+  const output = new EventEmitter();
+  output.chunks = [];
+  output.destroyed = options.destroyed === true;
+  output.writable = options.writable !== false;
+  output.writableEnded = options.writableEnded === true;
+  output.write = (chunk) => {
+    if (output.destroyed) {
+      const error = new Error('Cannot call write after a stream was destroyed');
+      error.code = 'ERR_STREAM_DESTROYED';
+      throw error;
+    }
+    output.chunks.push(chunk);
+    return options.backpressure ? false : true;
+  };
+  return output;
+}
+
+function runStdioTransportHardeningChecks(context, rootDir) {
+  const frame = encodeProtocolMessage({
+    jsonrpc: '2.0',
+    id: 900,
+    method: 'initialize',
+    params: { rootPath: rootDir }
+  });
+  const openOutput = createFakeOutput();
+  const destroyedOutput = createFakeOutput({
+    destroyed: true,
+    writable: false
+  });
+  const writeResult = writeProtocolOutput(openOutput, frame);
+  const destroyedWrite = writeProtocolOutput(destroyedOutput, frame);
+
+  context.assert(isWritableTransportOpen(openOutput) === true, 'stdio transport detects writable output stream');
+  context.assert(writeResult.ok === true && openOutput.chunks.length === 1, 'stdio transport writes protocol frames when output is writable');
+  context.assert(isWritableTransportOpen(destroyedOutput) === false, 'stdio transport detects destroyed output stream');
+  context.assert(destroyedWrite.ok === false && destroyedWrite.status === 'transport-closed', 'stdio transport refuses writes after stream destroy without throwing');
+
+  const input = createFakeInput();
+  const server = runStdioServer({
+    rootDir,
+    input,
+    output: destroyedOutput,
+    exitProcess: false
+  });
+  let crashed = false;
+  try {
+    input.emit('data', frame);
+  } catch (_) {
+    crashed = true;
+  }
+
+  context.assert(input.resumed === true, 'stdio server resumes custom input stream');
+  context.assert(crashed === false, 'stdio server does not crash when VS Code destroys stdout during restart');
+  context.assert(server.transportClosed === true, 'stdio server marks transport closed after destroyed stdout');
+  context.assert(input.paused === true, 'stdio server pauses input after transport close');
+
+  const malformedInput = createFakeInput();
+  const malformedOutput = createFakeOutput();
+  let malformedCrashed = false;
+  runStdioServer({
+    rootDir,
+    input: malformedInput,
+    output: malformedOutput,
+    exitProcess: false
+  });
+  try {
+    malformedInput.emit('data', Buffer.from('X-Bad-LSP: true\r\n\r\n{}', 'utf8'));
+  } catch (_) {
+    malformedCrashed = true;
+  }
+
+  context.assert(malformedCrashed === false, 'stdio server catches malformed protocol frames');
+  context.assert(malformedOutput.chunks.join('').includes('"code":-32700'), 'stdio server returns JSON-RPC parse error for malformed frames');
+}
+
 function runMetadataChecks(context, rootDir) {
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtLanguageServer;
@@ -288,6 +381,7 @@ function runRmtLanguageServerSuite(options = {}) {
   runInitializeAndDocumentSyncChecks(context, rootDir);
   runProviderMappingChecks(context, rootDir);
   runProtocolChecks(context, rootDir);
+  runStdioTransportHardeningChecks(context, rootDir);
 
   return context.result({
     schema: RMT_LANGUAGE_SERVER_REPORT_SCHEMA,
