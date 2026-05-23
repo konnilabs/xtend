@@ -9,6 +9,9 @@ const {
   createSupplyChainGatePlan,
   classifyPackageSupplyChain
 } = require('../security/supply-chain-gate-policy');
+const {
+  syncXtendPackageVersions
+} = require('./sync_xtend_package_versions');
 
 const REPORT_SCHEMA = 'xtend.security.supply-chain-report.v1';
 
@@ -42,6 +45,7 @@ function runSupplyChainVerification(options = {}) {
   const packageFiles = Array.isArray(packageManifest.files) ? packageManifest.files : [];
   const workspacePaths = Array.isArray(packageManifest.workspaces) ? packageManifest.workspaces : [];
   const scopedPackageMetadata = Array.isArray(packageManifest.scopedPackages) ? packageManifest.scopedPackages : [];
+  const versionSyncReport = syncXtendPackageVersions({ rootDir, check: true });
   const checks = [];
 
   checks.push(createCheck(
@@ -68,7 +72,7 @@ function runSupplyChainVerification(options = {}) {
   SCOPED_RELEASE_PACKAGES.forEach((entry) => {
     const manifest = readJson(path.join(rootDir, entry.manifest));
     checks.push(createCheck(
-      `scoped manifest ${entry.name} is public RC1 package`,
+      `scoped manifest ${entry.name} matches root release package`,
       manifest.name === entry.name
         && manifest.version === packageManifest.version
         && manifest.private === false
@@ -79,9 +83,14 @@ function runSupplyChainVerification(options = {}) {
       manifest.publishConfig
         && manifest.publishConfig.access === 'public'
         && manifest.publishConfig.provenance === true
-        && manifest.publishConfig.tag === 'next'
+      && manifest.publishConfig.tag === 'next'
     ));
   });
+  checks.push(createCheck(
+    'package manifests and lockfile match root release version',
+    versionSyncReport.ok === true,
+    { changedFiles: versionSyncReport.changedFiles }
+  ));
   checks.push(createCheck(
     'package declares enterprise release strategy schema',
     packageManifest.xtend && packageManifest.xtend.schema === 'xtend.package-export.release-strategy.v1'

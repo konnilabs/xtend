@@ -837,7 +837,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
     path: 'package.json',
     label: 'XTend enterprise package scripts',
     contracts: [
-      { pattern: '"version": "0.1.0-rc.1"', message: 'declares RC1 package version' },
+      { pattern: '"version": "', message: 'declares package version' },
       { pattern: '"browser": "./xtend-loader.js"', message: 'declares canonical browser loader' },
       { pattern: '"exports"', message: 'declares package exports map' },
       { patterns: ['"./loader": "./xtend-loader.js"', '"./loader": {\n      "types": "./xtend-loader.d.ts",\n      "browser": "./xtend-loader.js",\n      "default": "./xtend-loader.js"\n    }'], message: 'exports canonical loader' },
@@ -906,6 +906,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: '"epic10ReleaseHandoff"', message: 'declares Epic 10 Release Handoff metadata' },
       { pattern: '"schema": "xtend.epic10.release-handoff.v1"', message: 'declares Epic 10 Release Handoff schema' },
       { pattern: '"dev:local": "node scripts/serve_xtend_dev.js --port 4173"', message: 'exposes local dev server script' },
+      { pattern: '"release:sync-versions": "node scripts/sync_xtend_package_versions.js"', message: 'exposes package version sync helper' },
       { pattern: '"test:browser:local": "node scripts/run_xtend_tests.js browser"', message: 'exposes browser local test script' },
       { pattern: '"test:fabric": "node scripts/run_xtend_tests.js fabric"', message: 'exposes Fabric runtime test script' },
       { pattern: '"test:fabric-lanes": "node scripts/run_xtend_tests.js fabric-lane-mapping"', message: 'exposes Fabric RMT lane mapping test script' },

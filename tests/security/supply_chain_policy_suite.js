@@ -31,6 +31,7 @@ function runSupplyChainPolicySuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const policySource = readText('security/supply-chain-gate-policy.js', rootDir);
   const verifySource = readText('scripts/verify_supply_chain_policy.js', rootDir);
+  const versionSyncSource = readText('scripts/sync_xtend_package_versions.js', rootDir);
   const plan = createSupplyChainGatePlan();
   const classification = classifyPackageSupplyChain(packageManifest, []);
   const report = runSupplyChainVerification({ rootDir });
@@ -42,6 +43,7 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assertIncludes(policySource, 'npm audit --audit-level=moderate', 'Policy plans npm audit CI gate');
   context.assertIncludes(policySource, 'npm sbom --sbom-format=cyclonedx --json', 'Policy plans npm SBOM CI gate');
   context.assertIncludes(verifySource, REPORT_SCHEMA, 'Verify script declares supply-chain report schema');
+  context.assertIncludes(versionSyncSource, 'xtend.release.package-version-sync-report.v1', 'Version sync helper declares stable report schema');
   context.assert(SUPPLY_CHAIN_GATE_PLAN_CONTRACT === 'xtend.security.supply-chain-gate-plan.v1', 'Exports supply-chain plan contract');
   context.assert(DEPENDENCY_AUDIT_GATE_CONTRACT === 'xtend.security.dependency-audit-gate.v1', 'Exports dependency audit contract');
   context.assert(LICENSE_POLICY_CONTRACT === 'xtend.security.license-policy.v1', 'Exports license policy contract');
@@ -78,6 +80,7 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert((typeof supplyChainPolicyExport === 'string' ? supplyChainPolicyExport : supplyChainPolicyExport.default) === './security/supply-chain-gate-policy.js', 'Package exports supply-chain policy module');
   context.assert(packageManifest.scripts['test:supply-chain'] === 'node scripts/run_xtend_tests.js supply-chain', 'Package exposes supply-chain suite script');
   context.assert(packageManifest.scripts['supply-chain:verify'] === 'node scripts/verify_supply_chain_policy.js', 'Package exposes offline supply-chain verify script');
+  context.assert(packageManifest.scripts['release:sync-versions'] === 'node scripts/sync_xtend_package_versions.js', 'Package exposes release version sync script');
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:supply-chain'), 'Release gates include supply-chain gate');
   context.assert(classification.ok === true, 'Current dependency inventory passes offline classification');
   context.assert(classification.dependencyCount === 0, 'Current package has no external dependency inventory');
