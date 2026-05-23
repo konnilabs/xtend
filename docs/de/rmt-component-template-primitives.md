@@ -43,8 +43,8 @@ Descriptoren und Adapterfaehigkeiten.
 
 Die vNext-Schicht fuehrt diese Primitives ueber
 `xtendrmt/rmt-component-capability-registry.js` mit dem ganzen XTend-
-Component-Stack zusammen. Die Registry normalisiert alle 42 public
-Manifest-Eintraege, klassifiziert 38 renderbare UI-Komponenten und verbindet
+Component-Stack zusammen. Die Registry normalisiert alle 44 public
+Manifest-Eintraege, klassifiziert 40 renderbare UI-Komponenten und verbindet
 Component Contracts, `xtendRmtMetadata`, `observedAttributes`, Events, Slots,
 Parts, Form-State und Lazy Import mit den generischen DOM Descriptoren.
 

@@ -352,7 +352,7 @@ Keine offenen Workpackages innerhalb Epic 04.
 - Betroffene Dateien:
   - `xtendrmt/xtendrmt-bestcase-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.js`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
   - `tests/rmt/rmt_compatibility_suite.js`
   - `tests/references/reference_path_suite.js`
 - Definition of Done:

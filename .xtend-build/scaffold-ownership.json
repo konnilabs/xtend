@@ -98,12 +98,12 @@
       "generator": "rmt-lifecycle-demo",
       "kind": "xtend-demo-app",
       "path": "xtendrmt/rmt-lifecycle-demo.app.js",
-      "sha256": "d45ba17f151b51aee51aa711ae70e4949d5b770d740aae70dae24b0721d03ee7",
-      "bytes": 14219,
+      "sha256": "af9b64ce253aca3607c79dfa8d3878f50467c14ea744131359928852d25713a7",
+      "bytes": 14239,
       "templateId": null,
       "templatePath": null,
       "sourceSha256": null,
-      "buildSha256": "7b936d02e417f13d8a9ed7506c993775e1b4ca53bcfe939ee2104a9fdd6caa55"
+      "buildSha256": "b7dd7292345e50d1397cb61b665bcf97301599dacfa8ff91fdc3829971d24b2b"
     },
     "xtendrmt/rmt-lifecycle-demo.core.json": {
       "schema": "xtend.scaffold.generated-ownership.v1",
@@ -111,12 +111,12 @@
       "generator": "rmt-lifecycle-demo",
       "kind": "rmt-vnext-core-json",
       "path": "xtendrmt/rmt-lifecycle-demo.core.json",
-      "sha256": "537da4d45e582d8bd970948da92eef1a99791301f0198b05fa3cd3c457b116b9",
-      "bytes": 22885,
+      "sha256": "24e6ef71f8baeaa4a483c0f51895c5599ba17ace4e657d913da36644c4fc452a",
+      "bytes": 22981,
       "templateId": null,
       "templatePath": null,
       "sourceSha256": null,
-      "buildSha256": "b44e0e8d96703e90c495b37f56d19c82a442ff0ad5e8475edb9bf3b0e991bb14"
+      "buildSha256": "5e6960ea01912551e8389e44358c08254a066e78dd65e9440b5bd63a92fe22c5"
     },
     "xtendrmt/rmt-lifecycle-demo.rmt-build.app.js": {
       "schema": "xtend.scaffold.generated-ownership.v1",
@@ -163,12 +163,12 @@
       "generator": "rmt-lifecycle-demo",
       "kind": "scaffold-build-report",
       "path": "xtendrmt/rmt-lifecycle-demo.scaffold.json",
-      "sha256": "c1c4e9cd265aee02cef7dd6a3402d99c14625e6ce871f76c2a5b10ca1c545062",
-      "bytes": 7610,
+      "sha256": "3c63a99e3c78dbee7fabe239d77d580acdc655e816ae242f65ebc27a3cd6cc19",
+      "bytes": 7659,
       "templateId": null,
       "templatePath": null,
       "sourceSha256": null,
-      "buildSha256": "942d9bf1480382837a1805463db3cda017b450bafbca63d3ccb988edb926eb5c"
+      "buildSha256": "f353b6ee8f223a6d8469a4259896d4023cefc9c88db686a7a1190c3f1b65d588"
     }
   }
 }

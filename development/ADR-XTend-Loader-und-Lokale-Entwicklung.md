@@ -128,10 +128,8 @@ Noch zu migrierende Iststellen werden in `ER-WP-03` bearbeitet. Dazu gehoeren in
 
 - `api.js`
 - `components/xplayer.js`
-- `xstatetest.html`
-- `masonry.html`
-- `hero.html`
-- `xplayerdemo.html`
+- historische Root-HTML-Demos sind dekommissioniert
+- neue HTML-Smokes liegen unter `tests/browser/fixtures/`
 
 ## Legacy-Strategie fuer `xtend-dev.js`
 

@@ -73,8 +73,8 @@ function runComponentRegressionPrioritySuite(options = {}) {
   context.assert(plan.entrySchema === COMPONENT_REGRESSION_PRIORITY_ENTRY_SCHEMA, 'Plan exposes entry schema');
   context.assert(plan.gateSchema === COMPONENT_REGRESSION_PRIORITY_GATE_SCHEMA, 'Plan exposes gate schema');
   context.assert(plan.workpackage === 'ER-WP-35', 'Plan is owned by ER-WP-35');
-  context.assert(plan.entries.length === 42, 'Plan covers all 42 Manifest components');
-  context.assert(plan.summary.componentCount === 42, 'Summary counts all Manifest components');
+  context.assert(plan.entries.length === 44, 'Plan covers all 44 Manifest components');
+  context.assert(plan.summary.componentCount === 44, 'Summary counts all Manifest components');
   context.assert(plan.summary.byTier['p0-browser-critical'] >= 17, 'Plan identifies P0 browser-critical components');
   context.assert(plan.summary.byTier['p1-visual-performance'] >= 11, 'Plan identifies P1 visual/performance components');
   context.assert(plan.summary.byTier['p2-long-tail'] >= 8, 'Plan keeps P2 long-tail components visible');

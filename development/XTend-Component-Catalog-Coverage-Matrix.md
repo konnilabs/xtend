@@ -38,13 +38,13 @@ Wichtig: Die Matrix ist kein "alles muss sofort rot sein"-Gate. Fehlende Source-
 
 | Dimension | Covered | Missing | Prozent |
 |-----------|---------|---------|---------|
-| `source` | 42 | 0 | 100 |
-| `docs` | 42 | 0 | 100 |
-| `componentSuite` | 42 | 0 | 100 |
-| `fixture` | 42 | 0 | 100 |
-| `types` | 42 | 0 | 100 |
-| `a11y` | 41 | 1 | 98 |
-| `performance` | 40 | 2 | 95 |
+| `source` | 44 | 0 | 100 |
+| `docs` | 44 | 0 | 100 |
+| `componentSuite` | 44 | 0 | 100 |
+| `fixture` | 44 | 0 | 100 |
+| `types` | 44 | 0 | 100 |
+| `a11y` | 43 | 1 | 98 |
+| `performance` | 42 | 2 | 95 |
 
 Statusverteilung:
 
@@ -53,7 +53,7 @@ Statusverteilung:
 | `documented` | 0 |
 | `contract-gated` | 1 |
 | `typed-contract-gated` | 1 |
-| `enterprise-ready` | 40 |
+| `enterprise-ready` | 42 |
 
 ## Matrix
 
@@ -88,6 +88,8 @@ Statusverteilung:
 | `x-popover` | `overlay, interactive` | `enterprise-ready` | `P0` | yes | yes | yes | yes | yes | yes | release-candidate: Coverage halten und CI-Gates produktisieren |
 | `x-drawer` | `overlay, routing` | `enterprise-ready` | `P0` | yes | yes | yes | yes | yes | yes | release-candidate: Coverage halten und CI-Gates produktisieren |
 | `x-surface-manager` | `overlay, stateful` | `enterprise-ready` | `P0` | yes | yes | yes | yes | yes | yes | release-candidate: Coverage halten und CI-Gates produktisieren |
+| `x-surface-portal` | `overlay, stateful` | `enterprise-ready` | `P0` | yes | yes | yes | yes | yes | yes | release-candidate: Coverage halten und CI-Gates produktisieren |
+| `x-surface-region` | `display, stateful` | `enterprise-ready` | `P1` | yes | yes | yes | yes | yes | yes | release-candidate: Coverage halten und CI-Gates produktisieren |
 | `x-surface-window` | `overlay, interactive` | `enterprise-ready` | `P0` | yes | yes | yes | yes | yes | yes | release-candidate: Coverage halten und CI-Gates produktisieren |
 | `x-side-panel` | `overlay, stateful, interactive` | `enterprise-ready` | `P0` | yes | yes | yes | yes | yes | yes | release-candidate: Coverage halten und CI-Gates produktisieren |
 | `x-form` | `form, stateful` | `enterprise-ready` | `P0` | yes | yes | yes | yes | yes | yes | release-candidate: Coverage halten und CI-Gates produktisieren |
@@ -128,7 +130,7 @@ Der Gate ist aktuell gruen, wenn alle Manifest-Quellen lokal aufloesbar sind und
 
 ## Regression-Priority-Ergaenzung aus ER-WP-35
 
-`catalog/component-regression-priority.js` erzeugt `xtend.catalog.component-regression-priority-plan.v1` aus dieser Matrix. Der Plan enthaelt alle 42 Komponenten, Mindest-Viewports `desktop-1280` und `mobile-390`, Theme-/Preference-Varianten `light`, `dark`, `forced-colors` und `reduced-motion`, profilabhaengige Browser-Smokes und abgeleitete Performance-Profile nach `xtend.performance.component-profile.v1`.
+`catalog/component-regression-priority.js` erzeugt `xtend.catalog.component-regression-priority-plan.v1` aus dieser Matrix. Der Plan enthaelt alle 44 Komponenten, Mindest-Viewports `desktop-1280` und `mobile-390`, Theme-/Preference-Varianten `light`, `dark`, `forced-colors` und `reduced-motion`, profilabhaengige Browser-Smokes und abgeleitete Performance-Profile nach `xtend.performance.component-profile.v1`.
 
 Der lokale Gate ist:
 
@@ -147,6 +149,6 @@ node scripts/run_xtend_tests.js regression-priority --json
 - `package.json` exportiert den Regression-Priority-Contract und bietet `npm run test:regression-priority`.
 - `development/ROADMAP-XTend-Enterprise-Reife.md`, `development/XTend-Enterprise-Reife-Implementierungsplan.md`, Docs und Referenzregister zeigen `ER-WP-31`, `ER-WP-32`, `ER-WP-33`, `ER-WP-34` und `ER-WP-35` als abgeschlossen.
 - `development/XTend-Component-Catalog-Naming-Konvention.md`, `docs/components/xsummary.md` und `docs/components/xutils.md` schliessen die frueheren Docs-/Naming-Luecken.
-- `tests/components/component_suite.js`, die SurfaceManager-Suites und die RMT Lifecycle Build Suite decken 42 Component-Level-Suites ab; `componentSuite` und `fixture` liegen bei 42/42.
-- `components/xtend-public-types.d.ts` und 42 priorisierte Komponenten-`.d.ts` Dateien typisieren Public Events, Detail Payloads, Attribute und Element-/Window-Mappings; `types` liegt bei 42/42.
-- `x-input`, `x-select`, `x-checkbox`, `x-radio`, `x-textarea`, `x-form`, `x-calendar`, `x-writer`, `x-status`, `x-progress`, `x-tooltip`, `x-popover`, `x-drawer`, `x-surface-manager`, `x-surface-window`, `x-modal`, `x-dialog`, `x-alert`, `x-toast`, `x-spinner`, `x-router`, `x-link`, `x-tabs`, `x-theme`, `x-footer`, `x-lightbox`, `x-masonry`, `x-code`, `x-header`, `x-hero`, `x-type`, `x-summary`, `x-section`, `x-cards` und `x-player` bilden nach `WP-SM-03` die aktuelle `enterprise-ready` Referenzlinie mit expliziten Performance-Profilen.
+- `tests/components/component_suite.js`, die SurfaceManager-Suites und die RMT Lifecycle Build Suite decken 44 Component-Level-Suites ab; `componentSuite` und `fixture` liegen bei 44/44.
+- `components/xtend-public-types.d.ts` und 44 priorisierte Komponenten-`.d.ts` Dateien typisieren Public Events, Detail Payloads, Attribute und Element-/Window-Mappings; `types` liegt bei 44/44.
+- `x-input`, `x-select`, `x-checkbox`, `x-radio`, `x-textarea`, `x-form`, `x-calendar`, `x-writer`, `x-status`, `x-progress`, `x-tooltip`, `x-popover`, `x-drawer`, `x-surface-manager`, `x-surface-portal`, `x-surface-region`, `x-surface-window`, `x-modal`, `x-dialog`, `x-alert`, `x-toast`, `x-spinner`, `x-router`, `x-link`, `x-tabs`, `x-theme`, `x-footer`, `x-lightbox`, `x-masonry`, `x-code`, `x-header`, `x-hero`, `x-type`, `x-summary`, `x-section`, `x-cards` und `x-player` bilden nach `WP-SM-03` die aktuelle `enterprise-ready` Referenzlinie mit expliziten Performance-Profilen.

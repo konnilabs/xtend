@@ -13,10 +13,10 @@ Dieses Paket baut den ersten RMT-first Nachweis fuer die SurfaceManager-Familie:
 ## Ergebnis
 
 - `xtendrmt/surface-workbench.rmt` beschreibt die Workbench als RMT-Dokument.
-- `xtendrmt-surface-workbench.html` stellt nur den generischen RMT-Host bereit.
+- `tests/browser/fixtures/rmt-surface-workbench-smoke.html` stellt den generischen RMT-Host als Browser-Smoke bereit.
 - `xtendrmt/surface-workbench.js` materialisiert `dom_descriptor` Templates, Component Records, Slots und Routen.
 - `tests/browser/fixtures/rmt-surface-workbench-smoke.html` bereitet den browsernahen Smoke fuer `WP-SM-07` vor.
-- `catalog/surface-manager-workbench-fixture.js` und `tests/rmt/surface_manager_workbench_fixture_suite.js` pruefen Contract, Fixture, Host, Runtime, Docs, Package und Runner.
+- `catalog/surface-manager-workbench-fixture.js` und `tests/rmt/surface_manager_workbench_fixture_suite.js` pruefen Contract, Fixture, Runtime, Docs, Package und Runner.
 
 ## Done Criteria
 

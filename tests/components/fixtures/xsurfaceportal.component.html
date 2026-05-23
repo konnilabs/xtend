@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>x-surface-portal fixture</title>
+    <script type="module" src="/components/xsurfaceportal.js"></script>
+    <script>
+      window.__xtendComponentResult = { ready: false, policy: null, events: [] };
+      window.addEventListener('surface-portal-policy', (event) => {
+        window.__xtendComponentResult.ready = true;
+        window.__xtendComponentResult.policy = event.detail;
+        window.__xtendComponentResult.events.push(event.type);
+      });
+    </script>
+  </head>
+  <body>
+    <x-surface-portal
+      id="portal-fixture-toast"
+      portal-id="portal.toast"
+      policy="toast-region"
+      layer="notifications"
+      for="workbench.manager"
+      z-index-start="3000"
+      z-step="20">
+    </x-surface-portal>
+  </body>
+</html>

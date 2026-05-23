@@ -13,7 +13,7 @@ Eine produktive Demo-App zeigt, dass XTend Apps vollstaendig aus einer `.rmt` Ap
 ## Umsetzung
 
 - `xtendrmt/rmt-first-demo-app.rmt` definiert App Shell, Routen, Templates, Schedules, Adapter und Fabric/Lane-Metadaten.
-- `xtendrmt-rmt-first-demo.html` stellt nur einen RMT Root und lokale Runtime-Artefakte bereit.
+- `tests/browser/fixtures/rmt-first-demo-app-smoke.html` stellt den RMT Root und lokale Runtime-Artefakte als Browser-Smoke bereit.
 - `xtendrmt/rmt-first-demo-app.js` rendert generisch `dom_descriptor` Templates aus RMT Records und vermeidet `innerHTML`.
 - `tests/browser/fixtures/rmt-first-demo-app-smoke.html` validiert den Shell-first Pfad browsernah.
 - `tests/rmt/rmt_first_demo_app_suite.js` prueft den kompletten Contract statisch und ueber RMT Runtime-Normalisierung.

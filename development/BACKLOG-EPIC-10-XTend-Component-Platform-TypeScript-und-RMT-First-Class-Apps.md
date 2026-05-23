@@ -419,7 +419,7 @@ Die P0-Komponentenwelle ist damit nicht mehr offen, sondern als Handoff fuer die
   - Lane/Schedule Mapping
 - Zielartefakte:
   - `xtendrmt/rmt-first-demo-app.rmt`
-  - `xtendrmt-rmt-first-demo.html`
+  - `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
   - `xtendrmt/rmt-first-demo-app.js`
   - `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
   - `tests/rmt/rmt_first_demo_app_suite.js`

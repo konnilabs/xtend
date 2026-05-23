@@ -52,7 +52,7 @@ Ziel:
 - `components/manifest.json` bleibt repo-lokal und enthaelt lokale Modulpfade
 - `api.js` entfernt CDN-Fallbacks fuer Core-Komponenten
 - Komponenten wie `xplayer.js` importieren `xstate` lokal oder ueber den Loader-/Fabric-Resolver
-- Demos wie `xstatetest.html`, `hero.html`, `masonry.html` und `xplayerdemo.html` werden migriert oder bewusst als Legacy markiert
+- Historische Root-HTML-Demos werden dekommissioniert; neue HTML-Smokes liegen unter `tests/browser/fixtures/`
 - lokaler Server wird offizieller Development- und Testpfad
 
 Vorgeschlagene Entry Points:
@@ -446,8 +446,8 @@ Exit-Kriterien:
 Diese Punkte sind aus der aktuellen Codebase ableitbar und muessen in Phase 1 oder 4 behandelt werden:
 
 - `xtend-dev.js` in `xtend-loader.js` ueberfuehren.
-- `index.html`, `hero.html`, `xplayerdemo.html` und andere Default-nahe Demos auf neuen Loader migrieren.
-- `xstatetest.html` als Legacy-CDN-Demo entfernen, migrieren oder mit Ablaufdatum markieren.
+- `index.html` als einzigen Root-HTML-Einstieg halten und Browser-Smokes unter `tests/browser/fixtures/` gatebar machen.
+- Historische Root-HTML-Demos entfernen statt weiter als Legacy-CDN-Demos zu pflegen.
 - `api.js` darf nicht mehr direkt von `https://cdn.ccs-networks.de/xtend/components/xstate.js` importieren.
 - `api.js` darf fuer `xtheme` keinen CDN-Fallback mehr nutzen.
 - `components/xplayer.js` darf `xstate` nicht mehr vom CDN importieren.

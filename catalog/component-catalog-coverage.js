@@ -45,6 +45,8 @@ const EXPECTED_PROFILES_BY_TAG = Object.freeze({
   'x-popover': ['overlay', 'interactive'],
   'x-drawer': ['overlay', 'routing'],
   'x-surface-manager': ['overlay', 'stateful'],
+  'x-surface-portal': ['overlay', 'stateful'],
+  'x-surface-region': ['display', 'stateful'],
   'x-surface-window': ['overlay', 'interactive'],
   'x-side-panel': ['overlay', 'stateful', 'interactive'],
   'x-form': ['form', 'stateful'],

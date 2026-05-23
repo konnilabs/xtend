@@ -6,7 +6,7 @@ Die RMT-first Demo-App zeigt den Zielpfad fuer Epic 10: Eine XTend App wird nich
 
 ## Startpunkt
 
-- Demo: `xtendrmt-rmt-first-demo.html`
+- Demo / Browser Smoke: `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
 - RMT Document: `xtendrmt/rmt-first-demo-app.rmt`
 - Runtime: `xtendrmt/rmt-first-demo-app.js`
 - Browser Smoke: `tests/browser/fixtures/rmt-first-demo-app-smoke.html`

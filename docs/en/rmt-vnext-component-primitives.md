@@ -30,17 +30,17 @@ The RMT kernel does not import XTend components or XTend types. The registry
 reads the manifest, Component Contracts, `xtendRmtMetadata`,
 `observedAttributes`, events, slots, parts, form association, accessibility
 profiles, and performance profiles. It normalizes those signals into one matrix
-for all 42 public entries in `components/manifest.json`.
+for all 44 public entries in `components/manifest.json`.
 
 ## Matrix
 
 | Area | Coverage |
 | --- | --- |
-| Manifest entries | 42 |
-| Renderable public UI components | 38 |
+| Manifest entries | 44 |
+| Renderable public UI components | 40 |
 | Non-visual special cases | 4 |
-| RMT metadata | 40 entries |
-| Component Contracts | 38 entries |
+| RMT metadata | 42 entries |
+| Component Contracts | 40 entries |
 | Form-associated components | 6 |
 
 The non-visual special cases are `x-theme`, `xstate`, `x-utils`, and

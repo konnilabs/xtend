@@ -641,7 +641,7 @@ Epic 10 gilt als abgeschlossen, wenn:
 - Die RMT-first Demo-App traegt den Contract `xtend.epic10.rmt-first-demo-app.v1`.
 - Der lokale Gate heisst `rmt-first-demo-app`.
 - Das vollstaendige App-Dokument liegt in `xtendrmt/rmt-first-demo-app.rmt`.
-- Die Hostseite liegt in `xtendrmt-rmt-first-demo.html` und enthaelt keine statischen `x-section` oder `x-router` Shell-Tags.
+- Die Host-/Smoke-Fixture liegt in `tests/browser/fixtures/rmt-first-demo-app-smoke.html` und enthaelt keine statischen `x-section` oder `x-router` Shell-Tags.
 - Die Demo-Runtime liegt in `xtendrmt/rmt-first-demo-app.js` und rendert `dom_descriptor` Records ohne `innerHTML`.
 - Der Browser-Smoke liegt in `tests/browser/fixtures/rmt-first-demo-app-smoke.html`.
 - Die Demo nutzt `dashboard`, `settings` und `overlays` als RMT-Routen.
@@ -711,7 +711,7 @@ Epic 10 gilt als abgeschlossen, wenn:
 - `development/XTend-RMT-First-Demo-App.md`
 - `xtendrmt/rmt-first-demo-app.rmt`
 - `xtendrmt/rmt-first-demo-app.js`
-- `xtendrmt-rmt-first-demo.html`
+- `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
 - `tests/rmt/rmt_first_demo_app_suite.js`
 - `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
 - `development/WP-E10-14-Existing-Component-Metadata-Migration-fuer-priorisierte-Komponenten.md`

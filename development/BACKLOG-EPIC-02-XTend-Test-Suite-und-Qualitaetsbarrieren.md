@@ -383,9 +383,9 @@ Epic 02 ist abgeschlossen. `WP-01` bis `WP-14` haben Strategie, Struktur, Core-H
   - `docs/*.md`
   - `docs/components/*.md`
   - `index.html`
-  - `xstatetest.html`
-  - `x-grid-test.html`
-  - `xtendrmt-bestcase.html`
+  - `index.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
+  - `tests/browser/fixtures/core-flows-smoke.html`
 - Definition of Done:
   - priorisierte Demos sind als Test- oder Smoke-Referenz dokumentiert
   - mindestens ein Doku-/Demo-Pfad wird automatisiert oder halbautomatisiert geprueft

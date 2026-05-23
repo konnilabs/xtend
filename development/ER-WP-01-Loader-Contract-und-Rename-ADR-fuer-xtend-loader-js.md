@@ -85,10 +85,7 @@ Nicht erlaubt:
 | `tests/browser/browser_smoke_suite.js` | Assertions auf neuen Loaderpfad aktualisieren |
 | `api.js` | CDN-Import/Fallback entfernen |
 | `components/xplayer.js` | CDN-Import entfernen |
-| `xstatetest.html` | migrieren oder als Legacy klassifizieren |
-| `masonry.html` | CDN-Assets migrieren oder als Legacy klassifizieren |
-| `hero.html` | CDN-Links migrieren oder als Legacy klassifizieren |
-| `xplayerdemo.html` | Loaderpfad migrieren |
+| historische Root-HTML-Demos | dekommissionieren; neue HTML-Smokes unter `tests/browser/fixtures/` fuehren |
 
 ## Definition-of-Done-Check
 

@@ -15,9 +15,9 @@ const {
 const RMT_FIRST_DEMO_SCHEMA = 'xtend.epic10.rmt-first-demo-app.v1';
 const RMT_FIRST_DEMO_SMOKE_SCHEMA = 'xtend.epic10.rmt-first-demo-app.browser-smoke.v1';
 const FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.rmt';
-const HOST_PATH = 'xtendrmt-rmt-first-demo.html';
 const RUNTIME_PATH = 'xtendrmt/rmt-first-demo-app.js';
 const BROWSER_SMOKE_PATH = 'tests/browser/fixtures/rmt-first-demo-app-smoke.html';
+const HOST_PATH = BROWSER_SMOKE_PATH;
 const CONTRACT_PATH = 'development/XTend-RMT-First-Demo-App.md';
 const WORKPACKAGE_PATH = 'development/WP-E10-13-RMT-first-Demo-App-ohne-manuelle-Shell-bauen.md';
 const DOCS_PATH = 'docs/rmt-first-demo-app.md';
@@ -231,11 +231,11 @@ function runRmtFirstDemoAppSuite(options = {}) {
   }
 
   context.assert(host.includes('data-rmt-host="rmt-first-demo"'), 'RMT-first demo host exposes generic RMT root');
-  context.assert(host.includes('data-rmt-document-src="xtendrmt/rmt-first-demo-app.rmt"'), 'RMT-first demo host points at RMT document');
-  context.assert(host.includes('type="module" src="xtend-loader.js"'), 'RMT-first demo host uses canonical XTend loader');
-  context.assert(host.includes('data-manifest="components/manifest.json"'), 'RMT-first demo host uses local manifest');
+  context.assert(host.includes('data-rmt-document-src="/xtendrmt/rmt-first-demo-app.rmt"'), 'RMT-first demo host points at RMT document');
+  context.assert(host.includes('type="module" src="/xtend-loader.js"'), 'RMT-first demo host uses canonical XTend loader');
+  context.assert(host.includes('data-manifest="/components/manifest.json"'), 'RMT-first demo host uses local manifest');
   context.assert(host.includes('window.__XTendLoaderBootPromise'), 'RMT-first demo host waits for loader boot');
-  context.assert(host.includes("import('./xtendrmt/rmt-first-demo-app.js')"), 'RMT-first demo host imports demo runtime');
+  context.assert(host.includes("import('/xtendrmt/rmt-first-demo-app.js')"), 'RMT-first demo host imports demo runtime');
   context.assert(!host.includes('<x-section'), 'RMT-first demo host has no static x-section shell');
   context.assert(!host.includes('<x-router'), 'RMT-first demo host has no static x-router shell');
   context.assert(!host.includes('https://cdn.ccs-networks.de/xtend'), 'RMT-first demo host has no CDN dependency');

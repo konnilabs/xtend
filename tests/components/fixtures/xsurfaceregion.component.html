@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>x-surface-region fixture</title>
+    <script type="module" src="/components/xsurfacemanager-controller.js"></script>
+    <script type="module" src="/components/xsurfacemanager.js"></script>
+    <script type="module" src="/components/xsurfaceregion.js"></script>
+    <script>
+      window.__xtendComponentResult = { ready: false, commands: [] };
+      window.addEventListener('surface-region-command', (event) => {
+        window.__xtendComponentResult.ready = true;
+        window.__xtendComponentResult.commands.push(event.detail.command);
+      });
+    </script>
+  </head>
+  <body>
+    <x-surface-manager id="region-fixture-manager" manager-id="workbench.manager">
+      <x-surface-region
+        id="region-fixture-card"
+        surface-id="workbench.card"
+        kind="card"
+        label="Workbench Card"
+        open
+        mode="floating"
+        placement="default"
+        initial-x="24"
+        initial-y="32"
+        initial-width="420"
+        initial-height="260">
+        <section>Managed card content</section>
+      </x-surface-region>
+    </x-surface-manager>
+  </body>
+</html>

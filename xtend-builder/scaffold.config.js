@@ -782,7 +782,7 @@ module.exports = {
     suite: "tests/rmt/surface_manager_workbench_fixture_suite.js",
     docs: "docs/surface-manager-workbench-fixture.md",
     fixture: "xtendrmt/surface-workbench.rmt",
-    host: "xtendrmt-surface-workbench.html",
+    host: "tests/browser/fixtures/rmt-surface-workbench-smoke.html",
     runtime: "xtendrmt/surface-workbench.js",
     browserSmoke: "tests/browser/fixtures/rmt-surface-workbench-smoke.html",
     status: "accepted-rmt-first-workbench-fixture",

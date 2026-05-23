@@ -31,6 +31,7 @@
       "id": "surface:xtendrmt.lifecycle.demo/source",
       "name": "source",
       "kind": "named_surface",
+      "type": "window",
       "laneRefs": [
         "lane:xtendrmt.lifecycle.demo/source/visible"
       ],
@@ -43,6 +44,7 @@
       "id": "surface:xtendrmt.lifecycle.demo/compiler",
       "name": "compiler",
       "kind": "named_surface",
+      "type": "window",
       "laneRefs": [
         "lane:xtendrmt.lifecycle.demo/compiler/critical",
         "lane:xtendrmt.lifecycle.demo/compiler/diagnostics"
@@ -56,6 +58,7 @@
       "id": "surface:xtendrmt.lifecycle.demo/scaffold",
       "name": "scaffold",
       "kind": "named_surface",
+      "type": "window",
       "laneRefs": [
         "lane:xtendrmt.lifecycle.demo/scaffold/visible"
       ],
@@ -68,6 +71,7 @@
       "id": "surface:xtendrmt.lifecycle.demo/http",
       "name": "http",
       "kind": "named_surface",
+      "type": "window",
       "laneRefs": [
         "lane:xtendrmt.lifecycle.demo/http/idle"
       ],

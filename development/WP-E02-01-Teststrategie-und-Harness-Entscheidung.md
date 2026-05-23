@@ -127,9 +127,9 @@ Ziel: reale Beispiel- und Integrationspfade als Regression-Referenz nutzen.
 Typische Pruefungen:
 
 - `index.html`
-- `xstatetest.html`
-- `x-grid-test.html`
-- `xtendrmt-bestcase.html`
+- `index.html`
+- `tests/browser/fixtures/core-flows-smoke.html`
+- `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
 - Doku-Beispiele und Komponenten-Demos
 
 Primaerer Runner:

@@ -35,7 +35,7 @@
   - `xtendrmt/rmt-core.d.ts`
   - `xtendrmt/xtendrmt-bestcase-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.js`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
 
 ## Ausgangslage
 
@@ -594,7 +594,7 @@ Damit sind Bridge-Regressionen lokal sichtbar, ohne echte Browser-Smokes in dies
 
 Der browsernahe Flow normalisiert ein natives RMT Dokument, erzeugt Runtime Registries, registriert native Routes in einem echten `<x-router>`, navigiert nach `/settings` und `/vanilla`, mountet und hydriert XTend Components ueber `createRmtXtendComponentAdapter`, zeichnet Scheduler Endpoints ueber `createRmtStateSchedulerDiagnosticsBridge` auf und belegt Framework-Agnostik ueber den nicht-XTend Adapter `vanilla.component` mit Endpoint `xtendrmt.vanilla.mount`.
 
-`xtendrmt-bestcase.html` referenziert die Fixture ueber ein Meta-Tag und markiert den Demo-Router mit `data-rmt-browser-smoke="wp-16"`. Damit ist der Bestcase-Produktpfad RMT/XRouter/XTend/Vanilla browsernah pruefbar, ohne XTend, XRouter, DOM oder `xstate` in den RMT Kernel zu ziehen. `WP-17` kann nun die Authoring-Dokumentation auf diesen getesteten Pfad setzen.
+`tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` ist der browsernahe Nachweis fuer den Bestcase-Produktpfad RMT/XRouter/XTend/Vanilla, ohne XTend, XRouter, DOM oder `xstate` in den RMT Kernel zu ziehen. `WP-17` kann nun die Authoring-Dokumentation auf diesen getesteten Pfad setzen.
 
 ### WP-17 Ergebnis
 

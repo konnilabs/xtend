@@ -60,7 +60,7 @@ specific renderer. The registry reads `components/manifest.json`,
 `observedAttributes`, slots, parts, form association, accessibility profiles,
 and performance profiles.
 
-That gives RMT access to all 42 public manifest entries while keeping 38
+That gives RMT access to all 44 public manifest entries while keeping 40
 renderable UI components on their normal Web Component lifecycle. Infrastructure
 modules such as `x-theme` and `xstate` remain host services, not normal surface
 elements. Product code should bind through public attributes, properties,

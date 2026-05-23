@@ -279,10 +279,8 @@ Empfohlene Sequenz: `ER-WP-31` hat die Component Catalog Coverage Matrix erzeugt
 - Betroffene Dateien:
   - `api.js`
   - `components/xplayer.js`
-  - `xstatetest.html`
-  - `masonry.html`
-  - `hero.html`
-  - `xplayerdemo.html`
+  - historische Root-HTML-Demos dekommissionieren
+  - neue HTML-Smokes unter `tests/browser/fixtures/` fuehren
 - Definition of Done:
   - `rg "https://cdn.ccs-networks.de/xtend" api.js components tests/browser/fixtures index.html` findet keinen Default-Core-Pfad
   - Legacy-Demos sind migriert oder explizit klassifiziert
@@ -338,7 +336,7 @@ Empfohlene Sequenz: `ER-WP-31` hat die Component Catalog Coverage Matrix erzeugt
   - kein Default-Gate assertiert auf `/xtend-dev.js`
   - Legacy-Demos sind bewusst ausserhalb des Default-Gates
 - Ergebnis:
-  - abgeschlossen: `xtendrmt-bestcase.html` nutzt nun `xtend-loader.js`, lokales Manifest, `meta[name="xtend-preload"]` und wartet auf `window.__XTendLoaderBootPromise`, bevor die XTendRMT-Demo-Runtime importiert wird.
+  - abgeschlossen: RMT-nahe Browser-Smokes liegen unter `tests/browser/fixtures/`, nutzen lokale Assets und ersetzen historische Root-Demo-Hosts.
   - Reference- und Browser-Gates pruefen Default-Demos, Docs-App und Browser-Fixtures auf lokalen Loader, keinen XTend-CDN-Pfad und keine `xtend-dev.js` Default-Abhaengigkeit.
   - `development/ER-WP-05-Demo-und-Fixture-Pfade-auf-neuen-Loader-migrieren.md` dokumentiert Default-, Spezial-Smoke- und Legacy-Klassifikation.
 

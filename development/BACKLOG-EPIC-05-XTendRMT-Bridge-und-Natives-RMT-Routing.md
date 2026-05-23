@@ -32,7 +32,7 @@
   - `xtendrmt/rmt-core.d.ts`
   - `xtendrmt/xtendrmt-bestcase-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.js`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
   - `tests/rmt/rmt_compatibility_suite.js`
   - `tests/references/reference_path_suite.js`
 
@@ -464,7 +464,7 @@ Keine offenen Workpackages innerhalb Epic 05.
 - Betroffene Dateien:
   - `xtendrmt/xtendrmt-bestcase-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.js`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
 - Definition of Done:
   - Bestcase-Demo nutzt native RMT Domains
   - produktive Adapter ersetzen Demo-Brueckenlogik
@@ -516,7 +516,7 @@ Keine offenen Workpackages innerhalb Epic 05.
 - Betroffene Dateien:
   - `tests/browser/`
   - `tests/rmt/`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
 - Definition of Done:
   - gemeinsamer RMT/XRouter/XTend-Flow ist browsernah pruefbar
   - Framework-Agnostik ist mindestens durch einen nicht-XTend Mock- oder Vanilla-Pfad belegt

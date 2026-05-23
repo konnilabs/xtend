@@ -11,9 +11,8 @@ Runtime Contract: `xtend.surface.workbench-fixture.v1`
 | Pfad | Zweck |
 |------|-------|
 | `xtendrmt/surface-workbench.rmt` | RMT-Dokument mit App Shell, Route, SurfaceManager, zwei Windows, SidePanel und Content |
-| `xtendrmt-surface-workbench.html` | Host-Datei ohne manuelle Surface-Komponenten |
+| `tests/browser/fixtures/rmt-surface-workbench-smoke.html` | Host-/Smoke-Fixture ohne manuelle Surface-Komponenten |
 | `xtendrmt/surface-workbench.js` | Workbench Renderer fuer `dom_descriptor`, Slots, Routes und Snapshot |
-| `tests/browser/fixtures/rmt-surface-workbench-smoke.html` | vorbereiteter Browser-Smoke fuer spaetere Surface-Gates |
 
 ## Modell
 

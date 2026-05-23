@@ -642,7 +642,7 @@ Naechstes Paket:
 Erledigt:
 
 - `xtendrmt/surface-workbench.rmt` beschreibt eine shell-first Workbench mit `app.router`, `workbench.manager`, zwei `x-surface-window` Records und einem `x-side-panel`.
-- `xtendrmt-surface-workbench.html` stellt nur einen generischen RMT-Host bereit und enthaelt keine manuelle Surface-Shell.
+- `tests/browser/fixtures/rmt-surface-workbench-smoke.html` stellt den generischen RMT-Host als Browser-Smoke bereit und enthaelt keine manuelle Surface-Shell.
 - `xtendrmt/surface-workbench.js` rendert `dom_descriptor` Templates, Component Records, Slots und Routen ohne `innerHTML` und stellt `collectSurfaceSnapshot(root)` bereit.
 - `tests/browser/fixtures/rmt-surface-workbench-smoke.html` bereitet den browsernahen Smoke fuer `WP-SM-07` vor.
 - `catalog/surface-manager-workbench-fixture.js`, `tests/rmt/surface_manager_workbench_fixture_suite.js`, Package- und Scaffold-Metadaten liefern den lokalen Gate `node scripts/run_xtend_tests.js surface-workbench-fixture --json`.

@@ -13,7 +13,7 @@
   - `development/WP-E05-13-Build-Pipeline-und-Artefakt-Paritaet-fuer-XTendRMT-absichern.md`
   - `xtendrmt/xtendrmt-bestcase-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.js`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
   - `tests/rmt/rmt_compatibility_suite.js`
   - `tests/references/reference_path_suite.js`
 

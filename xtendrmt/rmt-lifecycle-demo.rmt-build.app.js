@@ -48,7 +48,7 @@ const BUILD_FINGERPRINT = Object.freeze({
     {
       "id": "http",
       "label": "HTTP/Test",
-      "artifact": "xtendrmt-rmt-lifecycle-demo-rmt-build.html",
+      "artifact": "tests/browser/fixtures/rmt-lifecycle-demo-rmt-build-smoke.html",
       "status": "servable"
     }
   ]

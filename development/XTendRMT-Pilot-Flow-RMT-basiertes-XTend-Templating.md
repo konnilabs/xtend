@@ -10,7 +10,7 @@
   - `xtendrmt/rmt.schema.json`
   - `xtendrmt/xtendrmt-bestcase-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.js`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
   - `tests/rmt/rmt_compatibility_suite.js`
 
 ## Zweck

@@ -11,10 +11,9 @@ oeffnbaren XTend App:
 3. Derselbe Scaffold-Build schreibt die generierten Artefakte:
    `components/x-rmt-lifecycle-demo.js`,
    `xtendrmt/rmt-lifecycle-demo.app.js`,
-   `xtendrmt-rmt-lifecycle-demo.html` und
    `tests/browser/fixtures/rmt-lifecycle-demo-smoke.html`.
 4. Die App kann ueber den lokalen HTTP-Server geoeffnet werden:
-   `node scripts/serve_xtend_dev.js --default xtendrmt-rmt-lifecycle-demo.html`.
+   `node scripts/serve_xtend_dev.js --default tests/browser/fixtures/rmt-lifecycle-demo-smoke.html`.
 
 Der Build-Report liegt in `xtendrmt/rmt-lifecycle-demo.scaffold.json`. Er
 haelt Source, Core Output, generierte XTend App, Browser-Smoke und den lokalen

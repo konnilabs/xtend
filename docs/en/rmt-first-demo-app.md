@@ -9,7 +9,7 @@ schedules, Fabric/lane metadata, and diagnostics.
 
 ## Starting Point
 
-- Demo: `xtendrmt-rmt-first-demo.html`
+- Demo / Browser smoke: `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
 - RMT document: `xtendrmt/rmt-first-demo-app.rmt`
 - Runtime: `xtendrmt/rmt-first-demo-app.js`
 - Browser smoke: `tests/browser/fixtures/rmt-first-demo-app-smoke.html`

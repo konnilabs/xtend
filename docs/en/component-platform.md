@@ -37,7 +37,7 @@ interface for XTend UI: it reads `components/manifest.json`,
 events, slots, parts, form association, accessibility profiles, and performance
 profiles.
 
-The result is one matrix for all 42 public manifest entries and 38 renderable UI
+The result is one matrix for all 44 public manifest entries and 40 renderable UI
 components. RMT can build DOM descriptors from it, bind events and state
 bridges, and lazy import components through manifest paths. The RMT kernel stays
 framework-neutral and imports no XTend classes or types.
@@ -91,7 +91,7 @@ node scripts/run_xtend_tests.js component-lab-rmt-inspector --json
 ## RMT-First Demo App
 
 `WP-E10-13` provides the first productive RMT-first demo app without a manual
-shell through `xtendrmt-rmt-first-demo.html` and
+shell through `tests/browser/fixtures/rmt-first-demo-app-smoke.html` and
 `xtendrmt/rmt-first-demo-app.rmt`. The host page provides only a
 `data-rmt-host="rmt-first-demo"` root, the local XTend Loader, the local
 manifest, and the RMT runtime.

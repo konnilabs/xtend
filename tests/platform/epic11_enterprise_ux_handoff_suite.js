@@ -95,8 +95,8 @@ function runEpic11EnterpriseUxHandoffSuite(options = {}) {
   context.assert(report.ok === true, 'Handoff report passes');
   context.assert(report.docsCount === REQUIRED_DOCS.length, 'Handoff report counts required docs');
   context.assert(report.completedWorkpackageCount === 18, 'Handoff report counts all 18 workpackages');
-  context.assert(report.catalogSnapshot.manifestEntries === 42, 'Handoff report captures 42 manifest entries');
-  context.assert(report.catalogSnapshot.enterpriseReady === 40, 'Handoff report captures enterprise-ready count after RMT lifecycle build closure');
+  context.assert(report.catalogSnapshot.manifestEntries === 44, 'Handoff report captures 44 manifest entries');
+  context.assert(report.catalogSnapshot.enterpriseReady === 42, 'Handoff report captures enterprise-ready count after SurfaceManager primitive closure');
   context.assert(report.catalogSnapshot.componentSuiteCoveragePercent >= 85, 'Handoff keeps component suite threshold');
   context.assert(report.catalogSnapshot.fixtureCoveragePercent >= 85, 'Handoff keeps fixture threshold');
   context.assert(report.catalogSnapshot.typesCoveragePercent >= 85, 'Handoff keeps type threshold');

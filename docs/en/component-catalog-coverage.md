@@ -41,18 +41,19 @@ by step without hiding follow-up work.
 
 The snapshot after `RC1TB-WP-03` shows:
 
-- 42 manifest components
-- 42 local source files
-- 42 component docs
-- 42 component-level suites and fixtures
-- 42 public type artifacts for prioritized components
-- 41 components with a recognizable a11y surface
-- 40 components with an explicit runtime/UI performance profile
+- 44 manifest components
+- 44 local source files
+- 44 component docs
+- 44 component-level suites and fixtures
+- 44 public type artifacts for prioritized components
+- 43 components with a recognizable a11y surface
+- 42 components with an explicit runtime/UI performance profile
 
 `x-input`, `x-select`, `x-checkbox`, `x-radio`,
 `x-rmt-lifecycle-demo-build`, `x-textarea`, `x-form`, `x-calendar`,
 `x-writer`, `x-status`, `x-progress`, `x-tooltip`, `x-popover`, `x-drawer`,
-`x-surface-manager`, `x-surface-window`, `x-side-panel`, `x-modal`,
+`x-surface-manager`, `x-surface-portal`, `x-surface-region`,
+`x-surface-window`, `x-side-panel`, `x-modal`,
 `x-dialog`, `x-alert`, `x-toast`, `x-spinner`, `x-router`, `x-link`,
 `x-tabs`, `x-theme`, `x-button`, `x-icon`, `x-menu`, `x-footer`,
 `x-lightbox`, `x-masonry`, `x-code`, `x-header`, `x-hero`, `x-type`,
@@ -65,9 +66,9 @@ intentionally remain outside the visual `enterprise-ready` component class.
 
 Since `ER-WP-35`, the regression priority plan
 `xtend.catalog.component-regression-priority-plan.v1` also exists. It
-prioritizes all 42 manifest entries for `desktop-1280`, `mobile-390`, `light`,
+prioritizes all 44 manifest entries for `desktop-1280`, `mobile-390`, `light`,
 `dark`, `forced-colors`, `reduced-motion`, browser smokes, and performance
-profile derivation. The 40 visible runtime/UI components bring their
+profile derivation. The 42 visible runtime/UI components bring their
 performance profiles; `xstate` and `x-utils` are evaluated through their
 boundary contracts instead.
 

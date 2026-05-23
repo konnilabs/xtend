@@ -36,7 +36,7 @@ The fixture proves generic families instead of product surfaces: icons, tooltips
 
 The vNext layer connects these primitives to the full XTend component stack
 through `xtendrmt/rmt-component-capability-registry.js`. The registry
-normalizes all 42 public manifest entries, classifies 38 renderable UI
+normalizes all 44 public manifest entries, classifies 40 renderable UI
 components, and connects Component Contracts, `xtendRmtMetadata`,
 `observedAttributes`, events, slots, parts, form state, and lazy import with the
 generic DOM descriptors.

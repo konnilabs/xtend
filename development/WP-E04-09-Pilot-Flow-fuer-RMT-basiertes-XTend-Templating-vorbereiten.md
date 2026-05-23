@@ -13,7 +13,7 @@
   - `xtendrmt/rmt.schema.json`
   - `xtendrmt/xtendrmt-bestcase-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.js`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
   - `tests/rmt/rmt_compatibility_suite.js`
   - `tests/references/reference_path_suite.js`
 
@@ -30,7 +30,7 @@ Der Pilot bleibt framework-agnostisch und referenziell. Er fuehrt keine produkti
 - neuer Route-Record `/templating` mit Template `demo.templating.pilot`
 - neuer Template-Record `demo.templating.pilot` mit `dom_descriptor`, Slots, Event-Command und Hydration-Hints
 - neue Demo-Route `x-rmt-route-template-pilot` in `xtendrmt/xtendrmt-bestcase-demo.js`
-- neue Demo-Navigation in `xtendrmt-bestcase.html`
+- neue Demo-Navigation in der browsernahen RMT-Smoke-Fixture
 - neues Referenzdokument `development/XTendRMT-Pilot-Flow-RMT-basiertes-XTend-Templating.md`
 - erweiterte RMT-Kompatibilitaets- und Reference-Gates fuer den Pilot
 

@@ -52,7 +52,7 @@ Freigegeben fuer interne Tests sind:
 - XTendRMT Bestcase Demo: `xtendrmt/xtendrmt-bestcase-demo.rmt`
 - XTendRMT Bestcase Core Output: `xtendrmt/xtendrmt-bestcase-demo.core.json`
 - XTendRMT Bestcase Runtime: `xtendrmt/xtendrmt-bestcase-demo.js`
-- lokaler Bestcase Host: `xtendrmt-bestcase.html`
+- lokaler Bestcase Browser-Smoke: `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
 - lokale Gate-Wiederholung ueber die im Handoff dokumentierte Gate Ladder
 
 Nicht freigegeben sind:

@@ -10,10 +10,9 @@ The lifecycle demo shows the complete path from RMT authoring to an openable XTe
 3. The same scaffold build writes the generated artifacts:
    `components/x-rmt-lifecycle-demo.js`,
    `xtendrmt/rmt-lifecycle-demo.app.js`,
-   `xtendrmt-rmt-lifecycle-demo.html` and
    `tests/browser/fixtures/rmt-lifecycle-demo-smoke.html`.
 4. The app can be opened through the local HTTP server:
-   `node scripts/serve_xtend_dev.js --default xtendrmt-rmt-lifecycle-demo.html`.
+   `node scripts/serve_xtend_dev.js --default tests/browser/fixtures/rmt-lifecycle-demo-smoke.html`.
 
 The build report is stored at `xtendrmt/rmt-lifecycle-demo.scaffold.json`. It
 connects source, core output, generated XTend app, browser smoke and the local

@@ -23,7 +23,7 @@ XTend darf in Default-Core-Pfaden, Browser-Smokes und lokalen Entwicklungsflaech
 | Writer | `x-writer` laedt `components/turndown.js` lokal statt externer XTend-CDN-URL |
 | Browser-Smokes | Core- und XTendRMT-Fixtures benoetigen keine Import-Map fuer CDN-Umschreibung mehr |
 | Docs-App | `docs/index.php` nutzt lokale XTend-Assets, lokalen Loader und lokales Manifest |
-| Manuelle Demos | `xstatetest.html`, `hero.html`, `masonry.html`, `xplayerdemo.html` und `xmasonry.html` nutzen `xtend-loader.js` und lokale Assets |
+| Manuelle Demos | historische Root-HTML-Demos sind dekommissioniert; neue HTML-Smokes liegen unter `tests/browser/fixtures/` |
 | Doku | `docs/manifest.md` und `docs/xtend-loader.md` dokumentieren repo-lokale Manifest- und Loader-Pfade |
 | Gates | Core-, Browser- und Reference-Suites pruefen lokale Manifestpfade und CDN-freie Default-Core-Pfade |
 

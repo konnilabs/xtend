@@ -13,9 +13,8 @@ Die Demo-App beweist den produktiven Epic-10-Pfad: XTend liefert lokale Web Comp
 ## Artefakte
 
 - RMT App Document: `xtendrmt/rmt-first-demo-app.rmt`
-- Demo Host: `xtendrmt-rmt-first-demo.html`
+- Demo Host / Browser Smoke: `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
 - Demo Runtime: `xtendrmt/rmt-first-demo-app.js`
-- Browser Smoke: `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
 - Gate: `tests/rmt/rmt_first_demo_app_suite.js`
 - Developer Docs: `docs/rmt-first-demo-app.md`
 
@@ -34,7 +33,7 @@ Die Runtime rendert das RMT-Dokument generisch ueber `renderRmtShellFromDocument
 
 Die Demo ist nur akzeptiert, wenn:
 
-- `xtendrmt-rmt-first-demo.html` keine statischen `x-section` oder `x-router` Shell-Elemente enthaelt
+- `tests/browser/fixtures/rmt-first-demo-app-smoke.html` keine statischen `x-section` oder `x-router` Shell-Elemente enthaelt
 - `xtendrmt/rmt-first-demo-app.js` keine `innerHTML`-Materialisierung nutzt
 - `manifest.metadata.manualShellAllowed` auf `false` steht
 - `manifest.metadata.hostShellMarkup` auf `false` steht

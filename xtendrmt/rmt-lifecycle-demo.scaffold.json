@@ -7,13 +7,13 @@
   "sourceSyntax": "rmt-vnext",
   "sourceSha256": "77ca654f845c8dd26e5c6ab58471548f24299b393baa27485653706771b06f0d",
   "coreOutput": "xtendrmt/rmt-lifecycle-demo.core.json",
-  "coreSha256": "537da4d45e582d8bd970948da92eef1a99791301f0198b05fa3cd3c457b116b9",
+  "coreSha256": "24e6ef71f8baeaa4a483c0f51895c5599ba17ace4e657d913da36644c4fc452a",
   "buildCommand": "node xtend-builder/scaffold.js rmt-lifecycle-demo --write --json",
   "localGate": "node scripts/run_xtend_tests.js rmt-lifecycle-demo --json",
   "generated": {
     "component": "components/x-rmt-lifecycle-demo.js",
     "app": "xtendrmt/rmt-lifecycle-demo.app.js",
-    "host": "xtendrmt-rmt-lifecycle-demo.html",
+    "host": "tests/browser/fixtures/rmt-lifecycle-demo-smoke.html",
     "browserSmoke": "tests/browser/fixtures/rmt-lifecycle-demo-smoke.html",
     "report": "xtendrmt/rmt-lifecycle-demo.scaffold.json"
   },
@@ -156,7 +156,7 @@
     {
       "id": "http",
       "label": "HTTP/Test",
-      "artifact": "xtendrmt-rmt-lifecycle-demo.html",
+      "artifact": "tests/browser/fixtures/rmt-lifecycle-demo-smoke.html",
       "status": "servable",
       "detail": "Host und Browser-Smoke laufen ueber den lokalen XTend Dev Server."
     }
@@ -175,7 +175,7 @@
     "compiler-emits-deterministic-core-json",
     "scaffold-writes-generated-xtend-component",
     "scaffold-writes-generated-demo-app",
-    "host-loads-over-http-dev-server",
+    "browser-smoke-loads-over-http-dev-server",
     "browser-smoke-renders-generated-app"
   ],
   "boundaries": [

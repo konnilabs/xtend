@@ -65,7 +65,7 @@ Der Test-Build-Schnitt basiert auf den folgenden zuletzt gruenen oder formal def
 | `xtendrmt/xtendrmt-bestcase-demo.rmt` | XTendRMT Bestcase Authoring Source |
 | `xtendrmt/xtendrmt-bestcase-demo.core.json` | byte-stabiler Bestcase Core-Output |
 | `xtendrmt/xtendrmt-bestcase-demo.js` | Runtime-Projektion der Bestcase Demo |
-| `xtendrmt-bestcase.html` | lokaler Bestcase Host |
+| `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` | lokaler Bestcase Browser-Smoke |
 
 ## Offene Owner-Entscheidungen
 

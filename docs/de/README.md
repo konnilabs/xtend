@@ -100,7 +100,7 @@ hydriert und mit Events verbunden werden koennen. Nutze sie als UI-Bausteine,
 waehrend RMT die App-Struktur und den Lifecycle beschreibt.
 
 Die RMT vNext Component Capability Registry macht diese Grenze generisch: alle
-42 public Manifest-Eintraege werden als Matrix erfasst, 38 renderbare UI-
+44 public Manifest-Eintraege werden als Matrix erfasst, 40 renderbare UI-
 Komponenten bekommen Component Contracts, RMT-Metadaten, Slots, Parts,
 Attribute, Events und State-Bridges als gemeinsame Runtime-Faehigkeiten. Damit
 werden RMT-Primitives stack-ergaenzend statt als zweite UI-Schicht umgesetzt.

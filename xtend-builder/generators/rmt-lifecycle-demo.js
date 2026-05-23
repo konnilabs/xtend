@@ -27,8 +27,8 @@ const SOURCE_PATH = 'xtendrmt/rmt-lifecycle-demo.rmt';
 const CORE_PATH = 'xtendrmt/rmt-lifecycle-demo.core.json';
 const SCAFFOLD_REPORT_PATH = 'xtendrmt/rmt-lifecycle-demo.scaffold.json';
 const APP_PATH = 'xtendrmt/rmt-lifecycle-demo.app.js';
-const HOST_PATH = 'xtendrmt-rmt-lifecycle-demo.html';
 const BROWSER_SMOKE_PATH = 'tests/browser/fixtures/rmt-lifecycle-demo-smoke.html';
+const HOST_PATH = BROWSER_SMOKE_PATH;
 const GENERATED_COMPONENT_TAG = 'x-rmt-lifecycle-demo';
 const GENERATED_COMPONENT_PATH = 'components/x-rmt-lifecycle-demo.js';
 const BUILD_COMMAND = 'node xtend-builder/scaffold.js rmt-lifecycle-demo --write --json';
@@ -37,8 +37,7 @@ const RMT_LIFECYCLE_ALLOWED_WRITE_ROOTS = Object.freeze([
   '.xtend-build/',
   'components/',
   'xtendrmt/',
-  'tests/browser/fixtures/',
-  HOST_PATH
+  'tests/browser/fixtures/'
 ]);
 
 function toBoolean(value) {
@@ -729,7 +728,7 @@ function createBuildReport(input) {
       'compiler-emits-deterministic-core-json',
       'scaffold-writes-generated-xtend-component',
       'scaffold-writes-generated-demo-app',
-      'host-loads-over-http-dev-server',
+      'browser-smoke-loads-over-http-dev-server',
       'browser-smoke-renders-generated-app'
     ],
     boundaries: [
@@ -830,13 +829,6 @@ function createRmtLifecycleDemoBuild(input = {}, options = {}) {
       kind: 'xtend-demo-app',
       generated: true,
       content: appModule
-    },
-    {
-      id: 'host',
-      path: HOST_PATH,
-      kind: 'http-host',
-      generated: true,
-      content: renderHostHtml()
     },
     {
       id: 'browser-smoke',

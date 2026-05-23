@@ -270,7 +270,6 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   const demoCore = bestcaseDemo.core;
   const demoSource = bestcaseDemo.source;
   const demoJs = readText('xtendrmt/xtendrmt-bestcase-demo.js', rootDir);
-  const demoHtml = readText('xtendrmt-bestcase.html', rootDir);
   const coreTypes = readText('xtendrmt/rmt-core.d.ts', rootDir);
   const scaffoldBindings = schema['x-xtendrmt'] && schema['x-xtendrmt'].scaffoldCompatibilityBindings;
   const pilotModels = schema['x-xtendrmt'] && schema['x-xtendrmt'].templatePilotFlowModels;
@@ -1175,9 +1174,10 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   context.assert(demoJs.includes('registerRoutes(state.registries'), 'RMT demo JS registers native routes through the productive adapter');
   context.assert(demoJs.includes('runTemplatePilotCycle'), 'RMT demo JS exposes template pilot cycle');
   context.assert(demoJs.includes('xtend.rmt.templating.pilot'), 'RMT demo JS mirrors template pilot diagnostics into xstate');
-  context.assert(demoHtml.includes('#/templating'), 'RMT demo HTML exposes template pilot navigation');
-  context.assert(demoHtml.includes('#/primitives'), 'RMT demo HTML exposes component primitives navigation');
-  context.assert(demoHtml.includes('#/media'), 'RMT demo HTML exposes media contract navigation');
+  const routePaths = Array.isArray(demo.routes) ? demo.routes.map((route) => route.path) : [];
+  context.assert(routePaths.includes('/templating'), 'RMT demo document exposes template pilot route');
+  context.assert(routePaths.includes('/primitives'), 'RMT demo document exposes component primitives route');
+  context.assert(routePaths.includes('/media'), 'RMT demo document exposes media contract route');
 }
 
 function assertRmtDslNormalizationRuntime(context, rootDir) {
@@ -1584,7 +1584,6 @@ function assertRmtBrowserNearRuntime(context, rootDir) {
 
 function assertRmtBrowserSmokeFixtureContract(context, rootDir) {
   const fixture = readText('tests/browser/fixtures/rmt-xrouter-xtend-smoke.html', rootDir);
-  const bestcaseHtml = readText('xtendrmt-bestcase.html', rootDir);
 
   context.assert(fixture.includes(WP16_BROWSER_SMOKE_FIXTURE_SCHEMA), 'RMT browser smoke fixture exposes stable WP-16 schema id');
   context.assert(fixture.includes('RMT_BROWSER_SMOKE_DOCUMENT'), 'RMT browser smoke fixture carries a native RMT document');
@@ -1596,7 +1595,6 @@ function assertRmtBrowserSmokeFixtureContract(context, rootDir) {
   context.assert(fixture.includes("recordCheck('xtend component hydrated by adapter'"), 'RMT browser smoke fixture checks XTend hydration');
   context.assert(fixture.includes("recordCheck('scheduler route endpoint recorded'"), 'RMT browser smoke fixture checks route scheduler endpoint');
   context.assert(fixture.includes("recordCheck('vanilla host component mounted'"), 'RMT browser smoke fixture checks vanilla host mounting');
-  context.assert(bestcaseHtml.includes('tests/browser/fixtures/rmt-xrouter-xtend-smoke.html'), 'Bestcase HTML references WP-16 RMT browser smoke fixture');
 }
 
 function assertRmtXRouterAdapterRuntime(context, rootDir) {

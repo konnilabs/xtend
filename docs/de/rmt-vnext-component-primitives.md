@@ -36,11 +36,11 @@ public Eintraege aus `components/manifest.json`.
 
 | Bereich | Abdeckung |
 | --- | --- |
-| Manifest-Eintraege | 42 |
-| Renderbare public UI-Komponenten | 38 |
+| Manifest-Eintraege | 44 |
+| Renderbare public UI-Komponenten | 40 |
 | Nicht-visuelle Sonderfaelle | 4 |
-| RMT-Metadaten | 40 Eintraege |
-| Component Contracts | 38 Eintraege |
+| RMT-Metadaten | 42 Eintraege |
+| Component Contracts | 40 Eintraege |
 | Form-associated Components | 6 |
 
 Nicht-visuelle Sonderfaelle sind `x-theme`, `xstate`, `x-utils` und

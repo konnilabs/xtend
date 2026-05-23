@@ -114,7 +114,6 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   const changelog = readText('CHANGELOG.md', rootDir);
   const firstClassFixture = readJson('tests/fixtures/rmt-first-class-xtend-app.rmt', rootDir);
   const demoFixture = readJson('xtendrmt/rmt-first-demo-app.rmt', rootDir);
-  const demoHost = readText('xtendrmt-rmt-first-demo.html', rootDir);
   const demoSmoke = readText('tests/browser/fixtures/rmt-first-demo-app-smoke.html', rootDir);
   const rmtCore = readText('xtendrmt/rmt-core.esm.js', rootDir);
   const rmtRuntime = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
@@ -198,9 +197,9 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   context.assert(Array.isArray(demoFixture.routes) && demoFixture.routes.length >= 3, 'RMT-first demo fixture defines routes');
   context.assert(Array.isArray(demoFixture.templates) && demoFixture.templates.length >= 3, 'RMT-first demo fixture defines templates');
   context.assert(collectFabricLanesFromComponents(demoFixture.components).includes('diagnostics'), 'RMT-first demo fixture exposes diagnostics lane');
-  context.assertIncludes(demoHost, 'data-rmt-document-src="xtendrmt/rmt-first-demo-app.rmt"', 'RMT-first demo host points to RMT document');
-  context.assertIncludes(demoHost, 'window.XTendRmtFirstDemo.bootRmtFirstDemo()', 'RMT-first demo host boots RMT shell');
-  context.assert(!/body\s*>\s*x-section|body\s*>\s*x-router/u.test(demoHost), 'RMT-first demo host does not ship a static XTend shell');
+  context.assertIncludes(demoSmoke, 'data-rmt-document-src="/xtendrmt/rmt-first-demo-app.rmt"', 'RMT-first demo smoke points to RMT document');
+  context.assertIncludes(demoSmoke, "import('/xtendrmt/rmt-first-demo-app.js')", 'RMT-first demo smoke imports RMT shell runtime');
+  context.assert(!demoSmoke.includes('<x-section') && !demoSmoke.includes('<x-router'), 'RMT-first demo smoke does not ship a static XTend shell');
   context.assertIncludes(demoSmoke, 'rmt-first demo no static host shell', 'RMT-first demo smoke asserts no static host shell');
   context.assertIncludes(rmtCore, 'createRmtXtendComponentAdapter', 'RMT core ESM exposes XTend component adapter factory');
   context.assertIncludes(rmtRuntime, 'createRmtXtendComponentAdapter', 'RMT runtime ESM exposes XTend component adapter factory');

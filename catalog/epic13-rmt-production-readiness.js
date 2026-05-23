@@ -52,7 +52,6 @@ const REQUIRED_RMT_ARTIFACTS = Object.freeze([
   'tests/fixtures/rmt-first-class-xtend-app.rmt',
   'xtendrmt/rmt-first-demo-app.rmt',
   'xtendrmt/rmt-first-demo-app.js',
-  'xtendrmt-rmt-first-demo.html',
   'tests/browser/fixtures/rmt-first-demo-app-smoke.html',
   'xtendrmt/rmt-core.esm.js',
   'xtendrmt/rmt-runtime.esm.js',

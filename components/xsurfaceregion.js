@@ -67,6 +67,16 @@ class XSurfaceRegion extends HTMLElement {
     };
   }
 
+  static get xtendScaffoldPerformanceProfile() {
+    return {
+      schema: 'xtend.performance.component-profile.v1',
+      budgetClass: 'surface-content',
+      lane: 'surface.region.visible',
+      hydrationPolicy: 'visible',
+      measurements: ['surface-record-sync', 'bounds-application', 'command-dispatch']
+    };
+  }
+
   constructor() {
     super();
     this.surfaceManager = null;

@@ -463,7 +463,6 @@ function assertRmtXRouterXtendFixtureContract(context, rootDir) {
   const routerSource = readText('components/xrouter.js', rootDir);
   const sectionSource = readText('components/xsection.js', rootDir);
   const cardsSource = readText('components/xcards.js', rootDir);
-  const bestcaseHtml = readText('xtendrmt-bestcase.html', rootDir);
 
   context.assert(fixture.includes('/xtendrmt/rmt-runtime.browser.js'), 'XTendRMT browser fixture loads the browser runtime bundle');
   context.assert(fixture.includes('/components/xrouter.js'), 'XTendRMT browser fixture loads XRouter');
@@ -491,18 +490,11 @@ function assertRmtXRouterXtendFixtureContract(context, rootDir) {
   context.assert(routerSource.includes('xrouter-routes-registered'), 'XRouter source emits runtime route registration signal');
   context.assert(sectionSource.includes('customElements.define("x-section"'), 'x-section source registers the Custom Element');
   context.assert(cardsSource.includes('customElements.define("x-card"'), 'x-card source registers the Custom Element');
-  context.assert(bestcaseHtml.includes('type="module" src="xtend-loader.js"'), 'Bestcase demo uses the canonical XTend loader');
-  context.assert(bestcaseHtml.includes('data-manifest="components/manifest.json"'), 'Bestcase demo uses the local XTend manifest');
-  context.assert(bestcaseHtml.includes('window.__XTendLoaderBootPromise'), 'Bestcase demo waits for loader boot before demo runtime');
-  context.assert(!bestcaseHtml.includes('type="importmap"'), 'Bestcase demo no longer uses CDN import map bridging');
-  context.assert(!bestcaseHtml.includes('https://cdn.ccs-networks.de/xtend'), 'Bestcase demo has no XTend CDN dependency');
-  context.assert(bestcaseHtml.includes('data-rmt-browser-smoke="wp-16"'), 'Bestcase demo references the WP-16 browser smoke contract marker');
 }
 
 function assertRmtFirstDemoFixtureContract(context, rootDir) {
   const fixture = readText(RMT_FIRST_DEMO_SMOKE_FIXTURE_PATH, rootDir);
   const demoDocument = readJson('xtendrmt/rmt-first-demo-app.rmt', rootDir);
-  const demoHost = readText('xtendrmt-rmt-first-demo.html', rootDir);
   const demoRuntime = readText('xtendrmt/rmt-first-demo-app.js', rootDir);
 
   context.assert(fixture.includes('xtend.epic10.rmt-first-demo-app.browser-smoke.v1'), 'RMT-first demo fixture exposes stable browser contract');
@@ -524,10 +516,9 @@ function assertRmtFirstDemoFixtureContract(context, rootDir) {
   context.assert(demoDocument.routes.length === 3, 'RMT-first demo document declares three app routes');
   context.assert(demoDocument.components.some((component) => component.tag === 'x-select'), 'RMT-first demo document uses x-select');
   context.assert(demoDocument.components.some((component) => component.tag === 'x-drawer'), 'RMT-first demo document uses x-drawer');
-  context.assert(demoHost.includes('data-rmt-host="rmt-first-demo"'), 'RMT-first demo host exposes an RMT root');
-  context.assert(!demoHost.includes('<x-section'), 'RMT-first demo host contains no static shell component');
-  context.assert(!demoHost.includes('<x-router'), 'RMT-first demo host contains no static router component');
-  context.assert(!demoHost.includes('https://cdn.ccs-networks.de/xtend'), 'RMT-first demo host has no XTend CDN dependency');
+  context.assert(fixture.includes('data-rmt-host="rmt-first-demo"'), 'RMT-first demo fixture exposes an RMT root');
+  context.assert(!fixture.includes('<x-section'), 'RMT-first demo fixture contains no static shell component');
+  context.assert(!fixture.includes('<x-router'), 'RMT-first demo fixture contains no static router component');
   context.assert(demoRuntime.includes('renderRmtShellFromDocument'), 'RMT-first demo runtime exposes shell renderer');
   context.assert(demoRuntime.includes('renderDomDescriptor'), 'RMT-first demo runtime exposes descriptor renderer');
   context.assert(demoRuntime.includes('createRouteElement'), 'RMT-first demo runtime creates routes from RMT');
@@ -539,7 +530,6 @@ function assertRmtLifecycleDemoFixtureContract(context, rootDir) {
   const source = readText('xtendrmt/rmt-lifecycle-demo.rmt', rootDir);
   const core = readJson('xtendrmt/rmt-lifecycle-demo.core.json', rootDir);
   const report = readJson('xtendrmt/rmt-lifecycle-demo.scaffold.json', rootDir);
-  const host = readText('xtendrmt-rmt-lifecycle-demo.html', rootDir);
   const app = readText('xtendrmt/rmt-lifecycle-demo.app.js', rootDir);
   const generatedComponent = readText('components/x-rmt-lifecycle-demo.js', rootDir);
 
@@ -566,9 +556,8 @@ function assertRmtLifecycleDemoFixtureContract(context, rootDir) {
   context.assert(report.schema === 'xtend.rmt.lifecycle-demo.scaffold-build.v1', 'RMT lifecycle demo report uses Scaffold build schema');
   context.assert(report.generated.app === 'xtendrmt/rmt-lifecycle-demo.app.js', 'RMT lifecycle demo report points at generated app');
   context.assert(report.generated.component === 'components/x-rmt-lifecycle-demo.js', 'RMT lifecycle demo report points at generated component');
-  context.assert(host.includes('data-rmt-lifecycle-demo-root'), 'RMT lifecycle demo host exposes demo root');
-  context.assert(host.includes("import('./xtendrmt/rmt-lifecycle-demo.app.js')"), 'RMT lifecycle demo host imports generated app');
-  context.assert(!host.includes('https://cdn.ccs-networks.de/xtend'), 'RMT lifecycle demo host has no CDN dependency');
+  context.assert(fixture.includes('data-rmt-lifecycle-demo-root'), 'RMT lifecycle demo fixture exposes demo root');
+  context.assert(fixture.includes("import('/xtendrmt/rmt-lifecycle-demo.app.js')"), 'RMT lifecycle demo fixture imports generated app');
   context.assert(app.includes('@generated by XTend Scaffold RMT lifecycle build'), 'RMT lifecycle demo app is marked generated');
   context.assert(app.includes('bootRmtLifecycleDemo'), 'RMT lifecycle demo app exposes boot function');
   context.assert(generatedComponent.includes("customElements.define('x-rmt-lifecycle-demo'"), 'RMT lifecycle demo generated component registers custom element');

@@ -163,10 +163,9 @@ function runRmtLifecycleDemoSuite(options = {}) {
   context.assert(app.includes('x-rmt-lifecycle-demo::part(root)'), 'App module styles generated component host part');
 
   context.assert(host.includes('data-rmt-lifecycle-demo-root'), 'Host exposes lifecycle demo root');
-  context.assert(host.includes('type="module" src="xtend-loader.js"'), 'Host uses canonical XTend loader');
-  context.assert(host.includes('data-manifest="components/manifest.json"'), 'Host uses local manifest');
-  context.assert(host.includes("import('./xtendrmt/rmt-lifecycle-demo.app.js')"), 'Host imports generated app');
-  context.assert(host.includes(BUILD_COMMAND), 'Host records Scaffold build command');
+  context.assert(host.includes('type="module" src="/xtend-loader.js"'), 'Host uses canonical XTend loader');
+  context.assert(host.includes('data-manifest="/components/manifest.json"'), 'Host uses local manifest');
+  context.assert(host.includes("import('/xtendrmt/rmt-lifecycle-demo.app.js')"), 'Host imports generated app');
   context.assert(!host.includes('https://cdn.ccs-networks.de/xtend'), 'Host has no CDN dependency');
   context.assert(!host.includes('<x-section'), 'Host has no static XTend shell markup');
 

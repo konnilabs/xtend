@@ -120,6 +120,12 @@ const {
   runXUtilsComponentSuite
 } = require('./xutils.component_suite');
 const {
+  runXSurfacePortalComponentSuite
+} = require('./xsurfaceportal.component_suite');
+const {
+  runXSurfaceRegionComponentSuite
+} = require('./xsurfaceregion.component_suite');
+const {
   runComponentPublicTypesSuite
 } = require('./component_public_types_suite');
 
@@ -163,6 +169,8 @@ const componentSuites = [
   runXRmtLifecycleDemoBuildComponentSuite,
   runXStateComponentSuite,
   runXUtilsComponentSuite,
+  runXSurfacePortalComponentSuite,
+  runXSurfaceRegionComponentSuite,
   runComponentPublicTypesSuite
 ];
 

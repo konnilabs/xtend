@@ -18,9 +18,8 @@
 | Pfad | Rolle |
 |------|------|
 | `xtendrmt/surface-workbench.rmt` | RMT-first Workbench Fixture |
-| `xtendrmt-surface-workbench.html` | generischer Host ohne manuelle Surface-Markup |
+| `tests/browser/fixtures/rmt-surface-workbench-smoke.html` | generische Host-/Smoke-Fixture ohne manuelle Surface-Markup |
 | `xtendrmt/surface-workbench.js` | kleiner DOM-Descriptor Renderer fuer die Workbench |
-| `tests/browser/fixtures/rmt-surface-workbench-smoke.html` | vorbereitete browsernahe Smoke-Fixture |
 | `catalog/surface-manager-workbench-fixture.js` | maschinenlesbarer Contract |
 | `tests/rmt/surface_manager_workbench_fixture_suite.js` | lokaler Gate |
 

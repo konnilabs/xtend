@@ -13,7 +13,7 @@
   - `tests/browser/browser_smoke_suite.js`
   - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
   - `tests/rmt/rmt_compatibility_suite.js`
-  - `xtendrmt-bestcase.html`
+  - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
 
 ## Ziel
 
@@ -84,7 +84,7 @@ Dieser Pfad darf keine XTend-Manifeste, keine XTend Hydration Marker und keine X
 
 ## Bestcase-Anschluss
 
-`xtendrmt-bestcase.html` referenziert die Fixture ueber:
+Die browsernahe RMT-Smoke-Fixture referenziert den getesteten Produktpfad ueber:
 
 ```html
 <meta name="xtendrmt-browser-smoke" content="tests/browser/fixtures/rmt-xrouter-xtend-smoke.html">

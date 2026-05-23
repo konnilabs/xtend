@@ -18,12 +18,11 @@ Default-Demos, offizielle Docs-App-Pfade und Browser-Fixtures sollen den kanonis
 | Bereich | Ergebnis |
 |---------|----------|
 | XTend Landing Demo | `index.html` bleibt kanonischer `xtend-loader.js` Default-Pfad |
-| XTendRMT Bestcase | `xtendrmt-bestcase.html` nutzt `xtend-loader.js`, lokales `components/manifest.json`, `meta[name="xtend-preload"]` und wartet auf `window.__XTendLoaderBootPromise` vor dem Demo-Runtime-Import |
 | Browser Core-Smoke | `tests/browser/fixtures/core-flows-smoke.html` bleibt Loader-Fixture mit lokalem `data-manifest` |
 | XTendRMT Browser-Smoke | `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` bleibt Spezial-Fixture fuer Runtime-Bundle und produktive Adapter, aber ohne `xtend-dev.js`, XTend-CDN oder Import-Map-Bruecke |
-| Docs-App | `docs/index.php` bleibt offizieller Docs-Pfad mit lokalem `/xtend-loader.js` und loader-policy-kompatiblem `/components/manifest.json` |
-| Manuelle Demos | `xstatetest.html`, `hero.html`, `masonry.html`, `xplayerdemo.html` und `xmasonry.html` sind als migrierte manuelle Demos mit `xtend-loader.js` gatebar |
-| Legacy-Referenzen | `x-grid-test.html` und `xcode.html` bleiben bewusst manuelle Legacy-Referenzen ausserhalb des Default-Smokes |
+| Docs-App | `docs/index.php` bleibt offizieller Docs-Pfad mit lokalem `/xtend-loader.js`, loader-policy-kompatiblem `/components/manifest.json` und `window.__XTendLoaderBootPromise` fuer Boot-Sequencing |
+| Root-HTML-Demos | Root-HTML-Demos sind dekommissioniert; `index.html` bleibt der einzige HTML-Einstieg im Repo-Root |
+| RMT Demo-Smokes | RMT-nahe HTML-Einstiege liegen ausschliesslich unter `tests/browser/fixtures/` |
 | Gates | Reference- und Browser-Suites pruefen Default-Demo-/Fixture-Pfade auf `xtend-loader.js`, lokale Manifestpfade, keine XTend-CDN-Bruecke und kein `xtend-dev.js` |
 
 ## Default- und Legacy-Klassifikation
@@ -31,7 +30,6 @@ Default-Demos, offizielle Docs-App-Pfade und Browser-Fixtures sollen den kanonis
 Default-Pfade mit kanonischem Loader:
 
 - `index.html`
-- `xtendrmt-bestcase.html`
 - `docs/index.php`
 - `tests/browser/fixtures/core-flows-smoke.html`
 
@@ -39,25 +37,21 @@ Browser-Spezial-Fixtures ohne Loader-Pflicht, aber ohne Legacy-/CDN-Abhaengigkei
 
 - `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html`
 - `tests/browser/fixtures/custom-elements-smoke.html`
+- `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
+- `tests/browser/fixtures/rmt-lifecycle-demo-smoke.html`
+- `tests/browser/fixtures/rmt-surface-workbench-smoke.html`
 
-Migrierte manuelle Demos:
+Root-Policy:
 
-- `xstatetest.html`
-- `hero.html`
-- `masonry.html`
-- `xplayerdemo.html`
-- `xmasonry.html`
-
-Bewusst manuelle Legacy-Referenzen:
-
-- `x-grid-test.html`
-- `xcode.html`
+- `index.html` bleibt der einzige HTML-Einstieg im Repo-Root.
+- Historische manuelle Root-Demos wurden entfernt.
+- Neue HTML-Smokes muessen unter `tests/browser/fixtures/` liegen.
 
 ## Validierung
 
 ```bash
-rg "https://cdn.ccs-networks.de/xtend" index.html xtendrmt-bestcase.html docs/index.php tests/browser/fixtures
-rg "xtend-dev.js" index.html xtendrmt-bestcase.html docs/index.php tests/browser/fixtures
+rg "https://cdn.ccs-networks.de/xtend" index.html docs/index.php tests/browser/fixtures
+rg "xtend-dev.js" index.html docs/index.php tests/browser/fixtures
 node --check tests/references/reference_path_suite.js
 node --check tests/browser/browser_smoke_suite.js
 node scripts/run_xtend_tests.js references --json

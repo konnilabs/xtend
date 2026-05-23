@@ -14,7 +14,7 @@
   "generated": {
     "component": "components/x-rmt-lifecycle-demo-build.js",
     "app": "xtendrmt/rmt-lifecycle-demo.rmt-build.app.js",
-    "host": "xtendrmt-rmt-lifecycle-demo-rmt-build.html",
+    "host": "tests/browser/fixtures/rmt-lifecycle-demo-rmt-build-smoke.html",
     "browserSmoke": "tests/browser/fixtures/rmt-lifecycle-demo-rmt-build-smoke.html",
     "report": "xtendrmt/rmt-lifecycle-demo.rmt-build.scaffold.json"
   },
@@ -169,7 +169,7 @@
     {
       "id": "http",
       "label": "HTTP/Test",
-      "artifact": "xtendrmt-rmt-lifecycle-demo-rmt-build.html",
+      "artifact": "tests/browser/fixtures/rmt-lifecycle-demo-rmt-build-smoke.html",
       "status": "servable"
     }
   ],

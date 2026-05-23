@@ -96,7 +96,7 @@ ueber einen produktspezifischen Renderer. Die Registry liest
 public Events, `observedAttributes`, Slots, Parts, Form-Assoziation,
 Accessibility-Profile und Performance-Profile.
 
-Damit erreicht RMT alle 42 public Manifest-Eintraege, waehrend 38 renderbare
+Damit erreicht RMT alle 44 public Manifest-Eintraege, waehrend 40 renderbare
 UI-Komponenten ihren normalen Web-Component-Lifecycle behalten. Infrastruktur-
 module wie `x-theme` und `xstate` bleiben Host-Services, keine normalen
 Surface-Elemente. Produktcode soll ueber public Attribute, Properties, Events,

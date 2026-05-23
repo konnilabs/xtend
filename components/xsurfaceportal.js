@@ -40,6 +40,26 @@ class XSurfacePortal extends HTMLElement {
     };
   }
 
+  static get xtendScaffoldA11yProfile() {
+    return {
+      schema: 'xtend.a11y.component-profile.v1',
+      role: 'none',
+      policy: 'portal-policy-announced-by-managed-surface',
+      keyboardModel: 'delegated-to-surface-manager',
+      aria: ['aria-hidden']
+    };
+  }
+
+  static get xtendScaffoldPerformanceProfile() {
+    return {
+      schema: 'xtend.performance.component-profile.v1',
+      budgetClass: 'surface-orchestration',
+      lane: 'surface.portal.policy',
+      hydrationPolicy: 'policy-only',
+      measurements: ['policy-dispatch', 'stack-reflow']
+    };
+  }
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -56,6 +76,7 @@ class XSurfacePortal extends HTMLElement {
   connectedCallback() {
     if (!this.hasAttribute('portal-id') && this.id) this.setAttribute('portal-id', this.id);
     if (!this.hasAttribute('policy')) this.setAttribute('policy', 'stacked');
+    if (!this.hasAttribute('aria-hidden')) this.setAttribute('aria-hidden', 'true');
     this._emitPolicy();
   }
 

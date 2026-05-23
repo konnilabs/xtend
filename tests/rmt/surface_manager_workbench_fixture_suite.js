@@ -367,12 +367,12 @@ function runSurfaceManagerWorkbenchFixtureSuite(options = {}) {
 
   assertTextIncludesAll(context, host, [
     'data-rmt-host="surface-workbench"',
-    'data-rmt-document-src="xtendrmt/surface-workbench.rmt"',
-    'type="module" src="xtend-loader.js"',
-    'data-manifest="components/manifest.json"',
+    'data-rmt-document-src="/xtendrmt/surface-workbench.rmt"',
+    'type="module" src="/xtend-loader.js"',
+    'data-manifest="/components/manifest.json"',
     'window.__XTendLoaderBootPromise',
-    "import('./xtendrmt/surface-workbench.js')",
-    'bootSurfaceWorkbench'
+    "import('/xtendrmt/surface-workbench.js')",
+    'renderSurfaceWorkbenchFromDocument'
   ], 'Surface Workbench host');
   context.assert(!host.includes('<x-surface-manager'), 'Surface Workbench host has no static x-surface-manager');
   context.assert(!host.includes('<x-surface-window'), 'Surface Workbench host has no static x-surface-window');

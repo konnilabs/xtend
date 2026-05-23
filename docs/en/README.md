@@ -70,8 +70,8 @@ The tooling documentation contract remains `xtend.rmt.tooling-docs.v1`; the rela
 
 XTend Components are Web Components mounted, hydrated, and connected by RMT surfaces. Use them as UI building blocks while RMT describes app structure and lifecycle.
 
-The RMT vNext Component Capability Registry makes that boundary generic: all 42
-public manifest entries are covered by one matrix, and 38 renderable UI
+The RMT vNext Component Capability Registry makes that boundary generic: all 44
+public manifest entries are covered by one matrix, and 40 renderable UI
 components expose Component Contracts, RMT metadata, slots, parts, attributes,
 events, and state bridges as shared runtime capabilities. RMT primitives extend
 the stack instead of creating a second UI layer.

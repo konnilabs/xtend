@@ -23,7 +23,7 @@ RMT-Schnittstelle fuer XTend UI: Sie liest `components/manifest.json`,
 `xtend.component.contract.v2`, `xtendRmtMetadata`, `observedAttributes`,
 Events, Slots, Parts, Form-Assoziation, A11y-Profile und Performance-Profile.
 
-Das Ergebnis ist eine Matrix fuer alle 42 public Manifest-Eintraege und 38
+Das Ergebnis ist eine Matrix fuer alle 44 public Manifest-Eintraege und 40
 renderbare UI-Komponenten. RMT kann daraus DOM Descriptoren bauen, Events und
 State-Bridges binden und Komponenten lazy ueber Manifest-Pfade importieren.
 Der RMT-Kernel bleibt dabei framework-neutral und importiert keine XTend-
@@ -70,7 +70,7 @@ node scripts/run_xtend_tests.js component-lab-rmt-inspector --json
 
 ## RMT-first Demo-App
 
-`WP-E10-13` liefert mit `xtendrmt-rmt-first-demo.html` und `xtendrmt/rmt-first-demo-app.rmt` die erste produktive RMT-first Demo-App ohne manuelle Shell. Die Hostseite stellt nur einen `data-rmt-host="rmt-first-demo"` Root, den lokalen XTend Loader, das lokale Manifest und die RMT Runtime bereit.
+`WP-E10-13` liefert mit `tests/browser/fixtures/rmt-first-demo-app-smoke.html` und `xtendrmt/rmt-first-demo-app.rmt` die erste produktive RMT-first Demo-App ohne manuelle Shell. Die Host-/Smoke-Fixture stellt nur einen `data-rmt-host="rmt-first-demo"` Root, den lokalen XTend Loader, das lokale Manifest und die RMT Runtime bereit.
 
 Die App Shell, Navigation, Routen, Seiten-Templates, Component Records, Schedules, Fabric Lanes und Diagnostics werden aus dem RMT-Dokument gerendert. Die Demo nutzt die komplette Epic-10 P0-Welle: `x-select`, `x-checkbox`, `x-radio`, `x-textarea`, `x-status`, `x-progress`, `x-tooltip`, `x-popover` und `x-drawer`.
 

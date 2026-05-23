@@ -108,15 +108,15 @@ function runComponentCatalogCoverageSuite(options = {}) {
 
   context.assert(report.schema === COMPONENT_CATALOG_COVERAGE_SCHEMA, 'Report exposes coverage matrix schema');
   context.assert(report.entries.length === manifestTags.length, 'Report contains every component manifest entry');
-  context.assert(report.summary.manifestEntries === 42, 'Current component catalog contains 42 manifest entries');
+  context.assert(report.summary.manifestEntries === 44, 'Current component catalog contains 44 manifest entries');
   context.assert(report.entries.every((entry) => manifestTags.includes(entry.tag)), 'Every report entry maps to a manifest tag');
   context.assert(report.entries.every((entry) => entry.schema === COMPONENT_CATALOG_ENTRY_SCHEMA), 'Every report entry carries the entry schema');
   context.assert(report.entries.every((entry) => entry.coverage.source === true), 'Every manifest source resolves to a local component file');
-  context.assert(report.summary.byDimension.source.covered === 42, 'Source coverage is complete for the manifest');
-  context.assert(report.summary.byDimension.docs.covered === 42, 'Docs coverage is complete for the current manifest');
-  context.assert(report.summary.byDimension.componentSuite.covered === 42, 'Component-suite coverage is complete after RMT lifecycle build suite');
-  context.assert(report.summary.byDimension.fixture.covered === 42, 'Fixture coverage is complete after RMT lifecycle build fixture');
-  context.assert(report.summary.byDimension.types.covered === 42, 'Type coverage is complete after RMT lifecycle build type artifact');
+  context.assert(report.summary.byDimension.source.covered === 44, 'Source coverage is complete for the manifest');
+  context.assert(report.summary.byDimension.docs.covered === 44, 'Docs coverage is complete for the current manifest');
+  context.assert(report.summary.byDimension.componentSuite.covered === 44, 'Component-suite coverage is complete after SurfaceManager primitive suites');
+  context.assert(report.summary.byDimension.fixture.covered === 44, 'Fixture coverage is complete after SurfaceManager primitive fixtures');
+  context.assert(report.summary.byDimension.types.covered === 44, 'Type coverage is complete after SurfaceManager primitive type artifacts');
   context.assert(report.summary.byDimension.performance.missing === 2, 'Performance coverage gap is explicit for the remaining infrastructure/control catalog after WP-E12-07');
   context.assert(!report.summary.missingByDimension.docs, 'Docs gap is closed for every manifest component');
   context.assert(!report.summary.missingByDimension.types, 'Type gap is closed after WP-E12-09');
@@ -258,6 +258,8 @@ function runComponentCatalogCoverageSuite(options = {}) {
   context.assert(matrix.includes('| `x-popover` | `overlay, interactive` | `enterprise-ready` |'), 'Markdown matrix includes x-popover enterprise-ready row');
   context.assert(matrix.includes('| `x-drawer` | `overlay, routing` | `enterprise-ready` |'), 'Markdown matrix includes x-drawer enterprise-ready row');
   context.assert(matrix.includes('| `x-surface-manager` | `overlay, stateful` | `enterprise-ready` |'), 'Markdown matrix includes x-surface-manager enterprise-ready row');
+  context.assert(matrix.includes('| `x-surface-portal` | `overlay, stateful` | `enterprise-ready` |'), 'Markdown matrix includes x-surface-portal enterprise-ready row');
+  context.assert(matrix.includes('| `x-surface-region` | `display, stateful` | `enterprise-ready` |'), 'Markdown matrix includes x-surface-region enterprise-ready row');
   context.assert(matrix.includes('| `x-surface-window` | `overlay, interactive` | `enterprise-ready` |'), 'Markdown matrix includes x-surface-window enterprise-ready row');
   context.assert(matrix.includes('| `x-side-panel` | `overlay, stateful, interactive` | `enterprise-ready` |'), 'Markdown matrix includes x-side-panel enterprise-ready row');
   context.assert(matrix.includes('| `x-modal` | `overlay` | `enterprise-ready` |'), 'Markdown matrix includes x-modal enterprise-ready row');
@@ -272,7 +274,7 @@ function runComponentCatalogCoverageSuite(options = {}) {
   context.assert(packageManifest.xtend.componentCatalogCoverage.schema === COMPONENT_CATALOG_COVERAGE_SCHEMA, 'Package metadata exposes catalog coverage schema');
   context.assert(packageManifest.xtend.componentCatalogCoverage.localGate === 'node scripts/run_xtend_tests.js catalog-coverage --json', 'Package metadata exposes catalog coverage local gate');
   context.assert(packageManifest.xtend.componentPublicTypes.schema === 'xtend.enterprise.er-wp-34.public-component-types.v1', 'Package metadata exposes component public types schema');
-  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 42, 'Package metadata exposes typed priority component count after RMT lifecycle build coverage closure');
+  context.assert(packageManifest.xtend.componentPublicTypes.typedPriorityComponents === 44, 'Package metadata exposes typed priority component count after SurfaceManager primitive closure');
   context.assert(packageManifest.xtend.epic10FormSelectionControls.schema === 'xtend.epic10.form-selection-controls.v1', 'Package metadata exposes WP-E10-09 form selection controls schema');
   context.assert(packageManifest.xtend.epic10FormFeedbackControls.schema === 'xtend.epic10.form-feedback-controls.v1', 'Package metadata exposes WP-E10-10 form feedback controls schema');
   context.assert(packageManifest.xtend.epic10OverlayNavigationControls.schema === 'xtend.epic10.overlay-navigation-controls.v1', 'Package metadata exposes WP-E10-11 overlay navigation controls schema');
@@ -300,9 +302,9 @@ function runComponentCatalogCoverageSuite(options = {}) {
   context.assert(namingDoc.includes('components-xsummary'), 'Naming convention documents x-summary menu slug');
   context.assert(namingDoc.includes('x-utils'), 'Naming convention documents x-utils utility exception');
   context.assert(developerDocs.includes('npm run test:catalog-coverage'), 'Developer docs document package gate');
-  context.assert(developerDocs.includes('42 Komponenten-Dokumente'), 'Developer docs document closed docs coverage');
-  context.assert(developerDocs.includes('42 Component-Level-Suites'), 'Developer docs document suite coverage after RMT lifecycle build coverage closure');
-  context.assert(developerDocs.includes('42 Public-Type-Artefakte'), 'Developer docs document public type coverage after RMT lifecycle build coverage closure');
+  context.assert(developerDocs.includes('44 Komponenten-Dokumente'), 'Developer docs document closed docs coverage');
+  context.assert(developerDocs.includes('44 Component-Level-Suites'), 'Developer docs document suite coverage after SurfaceManager primitive closure');
+  context.assert(developerDocs.includes('44 Public-Type-Artefakte'), 'Developer docs document public type coverage after SurfaceManager primitive closure');
   context.assert(developerDocs.includes('ER-WP-34` | abgeschlossen'), 'Developer docs document completed public types handoff');
   context.assert(developerDocs.includes('ER-WP-35` | abgeschlossen'), 'Developer docs document completed regression priority handoff');
   context.assert(developerDocs.includes('catalog/component-regression-priority.js'), 'Developer docs link regression priority module');

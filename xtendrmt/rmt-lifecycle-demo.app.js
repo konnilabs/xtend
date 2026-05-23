@@ -17,7 +17,7 @@ const BUILD_FINGERPRINT = Object.freeze({
   "source": "xtendrmt/rmt-lifecycle-demo.rmt",
   "sourceSha256": "77ca654f845c8dd26e5c6ab58471548f24299b393baa27485653706771b06f0d",
   "core": "xtendrmt/rmt-lifecycle-demo.core.json",
-  "coreSha256": "537da4d45e582d8bd970948da92eef1a99791301f0198b05fa3cd3c457b116b9",
+  "coreSha256": "24e6ef71f8baeaa4a483c0f51895c5599ba17ace4e657d913da36644c4fc452a",
   "scaffoldReport": "xtendrmt/rmt-lifecycle-demo.scaffold.json",
   "generatedComponent": "components/x-rmt-lifecycle-demo.js",
   "generatedBy": "node xtend-builder/scaffold.js rmt-lifecycle-demo --write --json",
@@ -56,7 +56,7 @@ const BUILD_FINGERPRINT = Object.freeze({
     {
       "id": "http",
       "label": "HTTP/Test",
-      "artifact": "xtendrmt-rmt-lifecycle-demo.html",
+      "artifact": "tests/browser/fixtures/rmt-lifecycle-demo-smoke.html",
       "status": "servable",
       "detail": "Host und Browser-Smoke laufen ueber den lokalen XTend Dev Server."
     }

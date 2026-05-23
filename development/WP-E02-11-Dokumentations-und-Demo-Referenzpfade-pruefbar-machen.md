@@ -18,10 +18,10 @@
 
 - Docs-Menue prueft, dass alle Slugs auf existierende Markdown-Dateien zeigen
 - priorisierte Core- und Component-Dokumente werden auf zentrale Contracts geprueft
-- `index.html` und `xtendrmt-bestcase.html` werden als statische Demo-Referenzen geprueft
+- `index.html` und die browsernahen Fixtures werden als Demo-/Smoke-Referenzen geprueft
 - `xtendrmt/xtendrmt-bestcase-demo.rmt` wird auf Routen, XTend-Adapter, Schedules und Template-Hydration geprueft
 - bestehende Browser-Smoke-Fixtures bleiben als browsernahe Referenzen dokumentiert
-- `xstatetest.html` und `x-grid-test.html` sind als `manual-legacy` klassifiziert und werden statisch auf ihren Zweck geprueft
+- historische manuelle Root-HTML-Demos sind dekommissioniert und nicht mehr Teil der Referenzpfade
 - weitere historische Demos sind bewusst als Nicht-Default-Demos dokumentiert
 
 ## Zielartefakte
