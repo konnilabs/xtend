@@ -1,5 +1,118 @@
+import "./shared/*.rmt"
+
 template xtendrmt.bestcase.demo {
-  surface kernel {
+  state demo.runtime.metrics type object preserve {
+    initial {
+      id "bestcase-runtime"
+      status "ready"
+      activeRoute "/"
+      completedJobs 0
+    }
+  }
+
+  state demo.component.capabilities type object preserve {
+    initial {
+      id "component-capability-matrix"
+      manifestCount 42
+      publicComponents 38
+      browserSmokeFamilies 5
+    }
+  }
+
+  state demo.player.session type object preserve {
+    initial {
+      id "bestcase-player"
+      mediaId "intro"
+      title "XTendRMT Runtime Walkthrough"
+      status "paused"
+    }
+  }
+
+  selector demo.runtime.summary from state demo.runtime.metrics {
+    output BestcaseRuntimeSummary
+  }
+
+  selector demo.component.matrix from state demo.component.capabilities {
+    output ComponentCapabilityMatrix
+  }
+
+  selector demo.player.contract from state demo.player.session {
+    output RmtPlayerContract
+  }
+
+  datasource demo.component.manifest from endpoint "/components/manifest.json" {
+    method GET
+    contract ComponentManifest
+    result capabilities
+    fallback fixture xtend.component.manifest
+  }
+
+  datasource demo.runtime.evidence from endpoint "/.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json" {
+    method GET
+    contract RmtVNextPrimitiveGateReport
+    result suites
+    fallback fixture rmt.vnext.primitive.report
+  }
+
+  action demo.primitive.refresh {
+    input route string
+    reduce state.demo.runtime.metrics.activeRoute = input.route
+    reduce state.demo.runtime.metrics.status = "primitive-matrix-refreshed"
+    emit demo.primitive.refreshed with route input.route
+  }
+
+  action demo.player.play {
+    input mediaId string
+    reduce state.demo.player.session.mediaId = input.mediaId
+    reduce state.demo.player.session.status = "playing"
+    emit demo.player.requested with mediaId input.mediaId
+  }
+
+  action demo.player.pause {
+    input mediaId string
+    reduce state.demo.player.session.mediaId = input.mediaId
+    reduce state.demo.player.session.status = "paused"
+    emit demo.player.paused with mediaId input.mediaId
+  }
+
+  action xtendrmt.template-pilot.inspect {
+    input templateRef string
+    reduce state.demo.runtime.metrics.status = "template-pilot-inspected"
+    emit xtendrmt.template.pilot.inspected with templateRef input.templateRef
+  }
+
+  portal bestcase.surface.root root "#rmt-demo-router" layer surface
+
+  portal bestcase.overlay.root root "body" layer overlay z 1000 {
+    focus policy restore
+    pointer policy passthrough
+    scroll policy lock-when-modal
+  }
+
+  overlay bestcase.toast kind toast portal bestcase.overlay.root {
+    escape close topmost
+    focus policy none
+  }
+
+  resource bestcase.capabilityRegistry kind lazy-import owner surface.primitives {
+    import "./rmt-component-capability-registry.js"
+  }
+
+  resource bestcase.playerObjectUrl kind object-url owner surface.media {
+    source selector demo.player.contract
+    dispose on surface.destroy
+  }
+
+  resource bestcase.runtimeSubscription kind subscription owner surface.scheduler {
+    dispose on surface.destroy
+  }
+
+  surface kernel kind window component x-rmt-route-overview {
+    source selector demo.runtime.summary
+    key runtime.id
+    portal bestcase.surface.root
+    bounds x 24 y 24 width 1120 height 620
+
     lane visible weight 88 {
       mount x-rmt-route-overview from endpoint xtendrmt.route.render
     }
@@ -9,7 +122,13 @@ template xtendrmt.bestcase.demo {
     }
   }
 
-  surface scheduler {
+  surface scheduler kind window component x-rmt-route-scheduler {
+    source selector demo.runtime.summary
+    key runtime.id
+    portal bestcase.surface.root
+    bounds x 24 y 24 width 1120 height 620
+    destroy releases resource bestcase.runtimeSubscription
+
     lane visible weight 88 {
       mount x-rmt-route-scheduler from endpoint xtendrmt.route.render
     }
@@ -23,13 +142,23 @@ template xtendrmt.bestcase.demo {
     }
   }
 
-  surface routing {
+  surface routing kind window component x-rmt-route-routing {
+    source selector demo.runtime.summary
+    key runtime.id
+    portal bestcase.surface.root
+    bounds x 24 y 24 width 1120 height 620
+
     lane visible weight 88 {
       mount x-rmt-route-routing from endpoint xtendrmt.route.render when route.visible == true
     }
   }
 
-  surface templating {
+  surface templating kind window component x-rmt-route-template-pilot {
+    source selector demo.runtime.summary
+    key runtime.id
+    portal bestcase.surface.root
+    bounds x 24 y 24 width 1120 height 620
+
     lane visible weight 70 {
       mount x-rmt-route-template-pilot from endpoint xtendrmt.template-inspect {
         slot title {
@@ -44,14 +173,93 @@ template xtendrmt.bestcase.demo {
           hydrate feedback.status
         }
 
-        on pilot-run -> action xtendrmt.template-pilot.inspect
+        on pilot-run -> action xtendrmt.template-pilot.inspect {
+          payload templateRef from surface.id
+        }
       }
     }
   }
 
-  surface adapter {
+  surface primitives kind window component x-rmt-route-primitives {
+    source selector demo.component.matrix
+    key capabilities.id
+    portal bestcase.surface.root
+    bounds x 24 y 24 width 1120 height 620
+    destroy releases resource bestcase.capabilityRegistry
+
+    lane visible weight 92 {
+      hydrate x-rmt-route-primitives from selector demo.component.matrix
+    }
+
+    lane idle weight 36 {
+      prewarm component-capabilities from datasource demo.component.manifest
+    }
+
+    on click "[data-demo-run='primitive-matrix']" -> action demo.primitive.refresh {
+      preventDefault true
+      payload route from target.dataset.demoRoute
+    }
+  }
+
+  surface media kind window component x-rmt-route-media {
+    source selector demo.player.contract
+    key player.id
+    portal bestcase.surface.root
+    bounds x 24 y 24 width 1120 height 620
+    destroy releases resource bestcase.playerObjectUrl
+
+    lane visible weight 84 {
+      hydrate x-rmt-route-media from selector demo.player.contract
+    }
+
+    lane idle weight 24 {
+      prewarm primitive-report from datasource demo.runtime.evidence
+    }
+
+    on xplayer-play target bestcase-player -> action demo.player.play {
+      payload mediaId from detail.mediaId
+    }
+
+    on xplayer-pause target bestcase-player -> action demo.player.pause {
+      payload mediaId from detail.mediaId
+    }
+  }
+
+  surface adapter kind window component x-rmt-route-adapter {
+    source selector demo.runtime.summary
+    key runtime.id
+    portal bestcase.surface.root
+    bounds x 24 y 24 width 1120 height 620
+
     lane idle weight 42 {
       hydrate x-rmt-route-adapter from endpoint xtendrmt.component-hydrate
     }
+  }
+}
+
+remote surface bestcase.audit from remote "@xtend/audit-panel" {
+  owner team "platform-runtime"
+  version "^1.0.0"
+  origin "https://cdn.xtend.example"
+  integrity sha256 "sha256-bestcaseauditpanel000000000000000000000000000001"
+  trust boundary "xtend.security.remote-surface.v1"
+  fallback surface adapter
+
+  exposes lane critical -> shell.slot "diagnostics.audit"
+  exposes lane idle -> shell.slot "background.audit-prefetch"
+
+  emits bestcase.audit.opened.v1 {
+    owner team "platform-runtime"
+    direction outbound
+    lane critical
+    payload "xtend.schemas.bestcaseAuditOpened.v1"
+  }
+
+  consumes demo.primitive.refreshed.v1 {
+    owner team "platform-runtime"
+    direction inbound
+    from shell.session
+    lane critical
+    payload "xtend.schemas.primitiveRefreshed.v1"
   }
 }

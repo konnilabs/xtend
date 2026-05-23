@@ -351,6 +351,9 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   const demoBinding = demo.manifest && demo.manifest.metadata && demo.manifest.metadata.scaffoldCompatibility;
   const metadata = demo.manifest && demo.manifest.metadata ? demo.manifest.metadata : {};
   const pilotFlow = metadata.pilotFlow || {};
+  const componentPrimitives = metadata.componentPrimitives || {};
+  const playerContract = metadata.playerContract || {};
+  const surfaceResourceLifecycle = metadata.surfaceResourceLifecycle || {};
   const pilotAttachment = pilotFlow.componentAttachment || {};
   const adapters = Array.isArray(demo.adapters) ? demo.adapters : [];
   const components = Array.isArray(demo.components) ? demo.components : [];
@@ -359,19 +362,33 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   const nativeDemoMigration = metadata.nativeDemoMigration || {};
   const templates = Array.isArray(demo.templates) ? demo.templates : [];
   const templatingRoute = routes.find((route) => route.path === '/templating');
+  const primitivesRoute = routes.find((route) => route.path === '/primitives');
+  const mediaRoute = routes.find((route) => route.path === '/media');
   const templatingRouteComponent = components.find((component) => component.id === 'x-rmt-route-template-pilot');
+  const primitivesRouteComponent = components.find((component) => component.id === 'x-rmt-route-primitives');
+  const mediaRouteComponent = components.find((component) => component.id === 'x-rmt-route-media');
   const pilotSchedule = schedules.find((schedule) => schedule.id === 'template.visible.inspect');
+  const primitivesSchedule = schedules.find((schedule) => schedule.id === 'component.primitive.matrix');
+  const mediaSchedule = schedules.find((schedule) => schedule.id === 'media.visible.contract');
   const pilotTemplate = templates.find((template) => template.id === 'demo.templating.pilot');
+  const primitivesTemplate = templates.find((template) => template.id === 'demo.primitives');
+  const mediaTemplate = templates.find((template) => template.id === 'demo.media');
   const pilotAuthoring = pilotTemplate && pilotTemplate.metadata && pilotTemplate.metadata.authoring
     ? pilotTemplate.metadata.authoring
     : {};
   const pilotTemplateAttachment = pilotAuthoring.componentAttachment || {};
 
-  context.assert(demoSource.trimStart().startsWith('template xtendrmt.bestcase.demo'), 'RMT demo authoring source uses vNext template syntax');
+  context.assert(demoSource.includes('template xtendrmt.bestcase.demo'), 'RMT demo authoring source uses vNext template syntax');
   context.assert(!demoSource.trimStart().startsWith('{'), 'RMT demo authoring source is no longer legacy JSON');
   context.assert(demoCore.schema === 'xtend.rmt.core-format.vnext.v1', 'RMT demo has deterministic vNext Core output');
   context.assert(Array.isArray(demoCore.surfaces) && demoCore.surfaces.some((surface) => surface.name === 'templating'), 'RMT demo vNext Core exposes templating surface');
   context.assert(Array.isArray(demoCore.operations) && demoCore.operations.some((operation) => operation.target && operation.target.ref === 'x-rmt-route-template-pilot'), 'RMT demo vNext Core exposes template pilot operation');
+  context.assert(Array.isArray(demoCore.states) && demoCore.states.length >= 3, 'RMT demo vNext Core exposes primitive state records');
+  context.assert(Array.isArray(demoCore.selectors) && demoCore.selectors.some((selector) => selector.name === 'demo.component.matrix'), 'RMT demo vNext Core exposes component primitive selector');
+  context.assert(Array.isArray(demoCore.actions) && demoCore.actions.some((action) => action.name === 'demo.player.play'), 'RMT demo vNext Core exposes player action');
+  context.assert(Array.isArray(demoCore.portals) && demoCore.portals.some((portal) => portal.name === 'bestcase.overlay.root'), 'RMT demo vNext Core exposes overlay portal');
+  context.assert(Array.isArray(demoCore.resources) && demoCore.resources.some((resource) => resource.name === 'bestcase.playerObjectUrl'), 'RMT demo vNext Core exposes player object URL resource');
+  context.assert(Array.isArray(demoCore.remoteSurfaces) && demoCore.remoteSurfaces.length === 1, 'RMT demo vNext Core exposes remote surface contract');
   context.assert(Boolean(schemaBinding), 'RMT schema exposes scaffold compatibility binding metadata');
   assertIncludesAll(context, schemaBinding && schemaBinding.surfaces, REQUIRED_SURFACES, 'RMT schema scaffold compatibility surfaces');
   assertIncludesAll(context, schemaBinding && schemaBinding.requiredContracts, REQUIRED_RMT_CONTRACTS, 'RMT schema scaffold required contracts');
@@ -1115,16 +1132,28 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   context.assert(pilotAttachment.adapter === 'xtend.template', 'RMT demo pilot uses XTend template adapter data');
   context.assert(pilotAttachment.componentAdapter === 'xtend.component', 'RMT demo pilot uses XTend component adapter data');
   assertIncludesAll(context, pilotAttachment.componentRefs, ['pilot.shell', 'kernel.cards', 'feedback.status'], 'RMT demo pilot component refs');
+  context.assert(componentPrimitives.schema === 'xtend.rmt.component-capability-registry.v1', 'RMT demo exposes component capability registry metadata');
+  context.assert(componentPrimitives.coverageTarget === 'all-public-xtend-components', 'RMT demo targets all public XTend components');
+  context.assert(componentPrimitives.noShadowRootPatching === true, 'RMT demo avoids shadowRoot patching for component primitives');
+  context.assert(playerContract.schema === 'xtend.mm-rmt.player-contract.v1', 'RMT demo exposes x-player public RMT contract');
+  context.assert(Array.isArray(playerContract.events) && playerContract.events.includes('xplayer-state'), 'RMT demo player contract includes public state event');
+  context.assert(surfaceResourceLifecycle.cleanupPolicy === 'close-and-dispose-on-owner-destroy', 'RMT demo exposes owner-scoped resource cleanup policy');
   context.assert(nativeDemoMigration.usesTopLevelDomains === true, 'RMT demo declares native top-level domain migration');
   context.assert(Array.isArray(adapters) && adapters.some((adapter) => adapter.id === 'xtend.xrouter' && adapter.kind === 'router_adapter'), 'RMT demo exposes native XRouter adapter domain record');
   context.assert(Array.isArray(adapters) && adapters.some((adapter) => adapter.id === 'xtend.component' && adapter.kind === 'component_adapter'), 'RMT demo exposes native XTend component adapter domain record');
   context.assert(Array.isArray(adapters) && adapters.some((adapter) => adapter.id === 'rmt.state-scheduler-diagnostics'), 'RMT demo exposes native State/Scheduler/Diagnostics bridge adapter record');
   context.assert(Array.isArray(components) && components.some((component) => component.id === 'kernel.cards' && component.adapter === 'xtend.component'), 'RMT demo exposes native XTend component records');
   context.assert(templatingRouteComponent && templatingRouteComponent.tag === 'x-rmt-route-template-pilot', 'RMT demo exposes native route component record for templating pilot');
+  context.assert(primitivesRouteComponent && primitivesRouteComponent.tag === 'x-rmt-route-primitives', 'RMT demo exposes native route component record for component primitives');
+  context.assert(mediaRouteComponent && mediaRouteComponent.tag === 'x-rmt-route-media', 'RMT demo exposes native route component record for media contract');
   context.assert(Array.isArray(routes) && routes.every((route) => route.router === 'xtend.xrouter'), 'RMT demo routes target native XRouter adapter');
   context.assert(templatingRoute && templatingRoute.component === 'x-rmt-route-template-pilot', 'RMT demo exposes templating pilot route component');
   context.assert(templatingRoute && templatingRoute.template === 'demo.templating.pilot', 'RMT demo templating route points to pilot template');
+  context.assert(primitivesRoute && primitivesRoute.template === 'demo.primitives', 'RMT demo exposes primitives route and template');
+  context.assert(mediaRoute && mediaRoute.template === 'demo.media', 'RMT demo exposes media route and template');
   context.assert(pilotSchedule && pilotSchedule.endpointName === 'xtendrmt.template.inspect', 'RMT demo exposes template inspect scheduler endpoint');
+  context.assert(primitivesSchedule && primitivesSchedule.endpointName === 'xtendrmt.component-capability.matrix', 'RMT demo exposes component primitive scheduler endpoint');
+  context.assert(mediaSchedule && mediaSchedule.endpointName === 'xtendrmt.player.contract', 'RMT demo exposes player contract scheduler endpoint');
   context.assert(pilotTemplate && pilotTemplate.mode === 'dom_descriptor', 'RMT demo pilot template uses DOM descriptor mode');
   context.assert(pilotAuthoring.contractVersion === 'xtend.rmt.template-authoring.v1', 'RMT demo pilot template keeps authoring contract');
   context.assert(pilotAuthoring.bridgeRuntime === 'reserved-for-Epic-05', 'RMT demo pilot template keeps bridge runtime reserved');
@@ -1134,7 +1163,12 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   assertIncludesAll(context, pilotTemplate && Object.keys(pilotTemplate.slots || {}), ['title', 'summary', 'cards', 'feedback'], 'RMT demo pilot template slots');
   context.assert(pilotTemplate && pilotTemplate.events && pilotTemplate.events['pilot-run'] && pilotTemplate.events['pilot-run'].commandName === 'xtendrmt.template.pilot.inspect', 'RMT demo pilot template maps DOM event to RMT command');
   context.assert(pilotTemplate && pilotTemplate.hydration && pilotTemplate.hydration.metadata && pilotTemplate.hydration.metadata.endpointHint === 'xtendrmt.template.inspect', 'RMT demo pilot template exposes hydration endpoint hint');
+  context.assert(primitivesTemplate && primitivesTemplate.metadata && primitivesTemplate.metadata.authoring && primitivesTemplate.metadata.authoring.componentCapabilityRegistry === 'xtend.rmt.component-capability-registry.v1', 'RMT demo primitives template references component capability registry');
+  context.assert(mediaTemplate && mediaTemplate.metadata && mediaTemplate.metadata.authoring && mediaTemplate.metadata.authoring.playerContract === 'xtend.mm-rmt.player-contract.v1', 'RMT demo media template references player contract');
   context.assert(demoJs.includes('x-rmt-route-template-pilot'), 'RMT demo JS defines template pilot route component');
+  context.assert(demoJs.includes('x-rmt-route-primitives'), 'RMT demo JS defines component primitives route component');
+  context.assert(demoJs.includes('x-rmt-route-media'), 'RMT demo JS defines media route component');
+  context.assert(demoJs.includes('createRmtComponentCapabilityRegistry'), 'RMT demo JS uses component capability registry');
   context.assert(demoJs.includes('createRmtXRouterAdapter'), 'RMT demo JS uses productive XRouter adapter factory');
   context.assert(demoJs.includes('createRmtXtendComponentAdapter'), 'RMT demo JS uses productive XTend component adapter factory');
   context.assert(demoJs.includes('createRmtStateSchedulerDiagnosticsBridge'), 'RMT demo JS uses productive State/Scheduler/Diagnostics bridge factory');
@@ -1142,6 +1176,8 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   context.assert(demoJs.includes('runTemplatePilotCycle'), 'RMT demo JS exposes template pilot cycle');
   context.assert(demoJs.includes('xtend.rmt.templating.pilot'), 'RMT demo JS mirrors template pilot diagnostics into xstate');
   context.assert(demoHtml.includes('#/templating'), 'RMT demo HTML exposes template pilot navigation');
+  context.assert(demoHtml.includes('#/primitives'), 'RMT demo HTML exposes component primitives navigation');
+  context.assert(demoHtml.includes('#/media'), 'RMT demo HTML exposes media contract navigation');
 }
 
 function assertRmtDslNormalizationRuntime(context, rootDir) {

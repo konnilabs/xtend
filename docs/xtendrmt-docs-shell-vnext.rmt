@@ -1,0 +1,165 @@
+template xtend.docs.php_ssr_shell {
+  state docs.shell.request type object preserve {
+    initial {
+      id "docs-shell"
+      locale "de"
+      slug "readme"
+      status "server-prehydrated"
+    }
+  }
+
+  state docs.shell.capabilities type object preserve {
+    initial {
+      id "docs-shell-capabilities"
+      components 12
+      jsonlStreaming true
+      hydrationMode "server_prerender_hydrate"
+    }
+  }
+
+  selector docs.shell.model from state docs.shell.request {
+    output DocsShellRequest
+  }
+
+  selector docs.shell.capabilityModel from state docs.shell.capabilities {
+    output DocsShellCapabilities
+  }
+
+  datasource docs.page.payload from endpoint "index.php?xtend-docs-page={slug}&locale={locale}" {
+    method GET
+    contract DocsParsedownPagePayload
+    result html
+    fallback fixture docs.page.initial
+  }
+
+  datasource docs.shell.ssr from endpoint "index.php?xtend-docs-rmt-ssr=shell&format=jsonl" {
+    method GET
+    contract DocsShellSsrFrames
+    result frames
+    fallback fixture docs.ssr.initial
+  }
+
+  action docs.route.navigate {
+    input path string
+    reduce state.docs.shell.request.status = "route-requested"
+    emit docs.route.requested with path input.path
+  }
+
+  action docs.search.submit {
+    input query string
+    reduce state.docs.shell.request.status = "search-requested"
+    emit docs.search.requested with query input.query
+  }
+
+  portal docs.shell.root root "body" layer surface
+
+  portal docs.overlay.root root "body" layer overlay z 1000 {
+    focus policy restore
+    pointer policy passthrough
+    scroll policy lock-when-modal
+  }
+
+  resource docs.shell.prehydration kind subscription owner surface.docs.root {
+    dispose on surface.destroy
+  }
+
+  surface docs.root kind shell component x-theme {
+    source selector docs.shell.model
+    key id
+    portal docs.shell.root
+    destroy releases resource docs.shell.prehydration
+
+    lane critical weight 100 {
+      mount docs-root-shell from endpoint xtendrmt.docs.php-ssr.shell
+    }
+
+    lane idle weight 20 {
+      hydrate docs-root-hydration from datasource docs.shell.ssr
+    }
+  }
+
+  surface docs.header kind header component x-header {
+    source selector docs.shell.model
+    key id
+    portal docs.shell.root
+
+    lane critical weight 96 {
+      mount docs-header from endpoint xtendrmt.docs.php-ssr.shell
+    }
+
+    on click "[data-docs-language-select]" -> action docs.route.navigate {
+      payload path from target.value
+    }
+  }
+
+  surface docs.hero kind hero component x-hero {
+    source selector docs.shell.model
+    key id
+    portal docs.shell.root
+
+    lane visible weight 86 {
+      mount docs-hero from endpoint xtendrmt.docs.php-ssr.shell
+    }
+  }
+
+  surface docs.router kind router component x-router {
+    source selector docs.shell.model
+    key id
+    portal docs.shell.root
+
+    lane visible weight 92 {
+      mount docs-router from endpoint xtendrmt.docs.php-ssr.shell
+    }
+
+    lane idle weight 24 {
+      prewarm docs-page-payload from datasource docs.page.payload
+    }
+  }
+
+  surface docs.page kind page component xtend-doc-page {
+    source selector docs.shell.model
+    key slug
+    portal docs.shell.root
+
+    lane visible weight 90 {
+      hydrate docs-page-shell from endpoint xtendrmt.docs.parsedown.parse
+    }
+
+    lane idle weight 18 {
+      prewarm docs-related-links from worker xtendrmt.docs.related.prepare
+    }
+  }
+
+  surface docs.sidebar kind panel component x-section {
+    source selector docs.shell.capabilityModel
+    key id
+    portal docs.shell.root
+
+    lane visible weight 60 {
+      hydrate docs-sidebar from endpoint xtendrmt.docs.php-ssr.shell
+    }
+  }
+
+  surface docs.footer kind footer component x-footer {
+    source selector docs.shell.model
+    key id
+    portal docs.shell.root
+
+    lane visible weight 54 {
+      mount docs-footer from endpoint xtendrmt.docs.php-ssr.shell
+    }
+  }
+
+  surface docs.diagnostics kind status component x-status {
+    source selector docs.shell.capabilityModel
+    key id
+    portal docs.overlay.root
+
+    lane diagnostics weight 12 {
+      stream docs-ssr-diagnostics from datasource docs.shell.ssr {
+        trust boundary "xtend.security.streaming-boundary.v1"
+        sanitize html
+      }
+    }
+  }
+}

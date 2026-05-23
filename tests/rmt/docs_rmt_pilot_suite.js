@@ -191,7 +191,7 @@ function runDocsRmtPilotSuite(options = {}) {
   }
 
   context.assert(indexPhp.includes('window.xtendDocsRmtPilot'), 'Docs app exposes RMT pilot metadata');
-  context.assert(indexPhp.includes('<x-router mode="hash" reuse-component'), 'Docs app opts XRouter into route component reuse');
+  context.assert(indexPhp.includes('<x-router mode="hash" reuse-component') || (indexPhp.includes("docsDescriptorComponent('x-router'") && indexPhp.includes("'reuse-component' => true")), 'Docs app opts XRouter into route component reuse');
   context.assert(indexPhp.includes('insularHydration: true'), 'Docs app exposes insular hydration metadata');
   context.assert(indexPhp.includes('window.xtendDocsHighlightPrism'), 'Docs app exposes scoped syntax highlighting scheduler');
   context.assert(indexPhp.includes('Prism.highlightAllUnder(scope)'), 'Docs app highlights only the active content scope');
@@ -202,13 +202,13 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('window.xtendDocsPagesMeta'), 'Docs app exposes per-page RMT metadata');
   context.assert(indexPhp.includes('window.xtendDocsPageEndpoint'), 'Docs app exposes lazy Parsedown page payload endpoint');
   context.assert(indexPhp.includes("lazyParsedownRoutes: true"), 'Docs app declares lazy Parsedown route payloads');
-  context.assert(indexPhp.includes('skeleton="article"'), 'Docs app marks XRouter routes for native skeleton loading');
+  context.assert(indexPhp.includes('skeleton="article"') || indexPhp.includes("'skeleton' => 'article'"), 'Docs app marks XRouter routes for native skeleton loading');
   context.assert(indexPhp.includes('data-xtend-skeleton'), 'Docs app opts shell custom elements into framework skeleton loading');
   context.assert(indexPhp.includes('--xtend-skeleton-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));'), 'Docs route skeleton aligns to the shared viewport gutter');
   context.assert(indexPhp.includes('--xtend-skeleton-margin-inline: var(--docs-viewport-gutter);'), 'Docs route skeleton uses the same inline gutter as the rendered shell');
   context.assert(indexPhp.includes('docsMergeRmtRoutes'), 'Docs app merges generated page routes into the exposed RMT document');
   context.assert(indexPhp.includes('docsRenderXRoute'), 'Docs app renders XRouter routes from RMT page route records');
-  context.assert(indexPhp.includes('document-title='), 'Docs app forwards RMT document titles into XRouter routes');
+  context.assert(indexPhp.includes('document-title=') || indexPhp.includes("'document-title' =>"), 'Docs app forwards RMT document titles into XRouter routes');
   context.assert(indexPhp.includes('xtendrmt-parsedown-docs.rmt'), 'Docs app points to pilot RMT document');
   context.assert(indexPhp.includes('__DIR__ . \'/../xtend.css\''), 'Docs app includes XTend base CSS in the asset version hash');
   context.assert(indexPhp.includes('__DIR__ . \'/../icons/favicon.ico\''), 'Docs app includes the favicon in the asset version hash');
@@ -265,9 +265,9 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));'), 'Docs hero host accounts for its shared horizontal margin');
   context.assert(!/\.docs-page-sidebar\s*\{[^}]*position:\s*sticky/u.test(indexPhp), 'Docs app sidebar scrolls with the page instead of sticking to the viewport');
   context.assert(indexPhp.includes('x-button,x-icon'), 'Docs app preloads icon button shell components');
-  context.assert(indexPhp.includes('id="theme-toggle-icon" name="moon" pack="core"'), 'Docs theme toggle uses the bundled core icon pack');
+  context.assert(indexPhp.includes('id="theme-toggle-icon" name="moon" pack="core"') || (indexPhp.includes("'id' => 'theme-toggle-icon'") && indexPhp.includes("'name' => 'moon'") && indexPhp.includes("'pack' => 'core'")), 'Docs theme toggle uses the bundled core icon pack');
   context.assert(indexPhp.includes('docsMenuIconForSlug'), 'Docs server-rendered fallback nav assigns icons to menu links');
-  context.assert(indexPhp.includes('class="docs-nav-link-icon"'), 'Docs fallback nav renders x-icon icons for initial menu links');
+  context.assert(indexPhp.includes('class="docs-nav-link-icon"') || indexPhp.includes("'class' => 'docs-nav-link-icon'"), 'Docs fallback nav renders x-icon icons for initial menu links');
   context.assert(indexPhp.includes('.docs-menu-section x-link::part(link)'), 'Docs menu styles the x-link part inside constrained menu cards');
   context.assert(indexPhp.includes('overflow-wrap: anywhere'), 'Docs menu wraps long navigation labels instead of overflowing cards');
   context.assert(indexPhp.includes('x-link,x-input,x-form,x-header,x-hero,x-router,x-footer'), 'Docs app preloads shell components without stale x-tabs preload');

@@ -477,9 +477,9 @@ Der Contract `xtend.epic14.lsp-handoff.v1` dokumentiert die LSP Capability Matri
 | `xtendrmt-bestcase.html` | automated-static | XTendRMT Bestcase Demo mit lokaler XTend UI und XRouter |
 | `xtendrmt/rmt-vnext-reference-demo.rmt` | automated-static | RMT vNext Reference Demo Source fuer den RC1-Test-Build-Schnitt und `rmt-vnext-release` |
 | `xtendrmt/rmt-vnext-reference-demo.core.json` | automated-static | stabiler Core-Output fuer die RMT vNext Reference Demo im RC1-Test-Build-Schnitt |
-| `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static | RMT-vNext-Authoring fuer Bestcase Surfaces, Lanes, Lifecycle-Operationen, Slots, Event-Actions und `xtend.rmt.template-pilot-flow.v1`; Runtime-Projektion auf Native RMT-Domains fuer Routen, XTend-Components, Adapter, Schedules |
-| `xtendrmt/xtendrmt-bestcase-demo.core.json` | automated-static | Byte-stabiler vNext-Core-Output fuer die Bestcase Runtime-Projektion auf XRouter, XTend Components und Scheduler Policies |
-| `xtendrmt/xtendrmt-bestcase-demo.js` | automated-static | Runtime-Projektion der XTendRMT Bestcase Demo fuer den nicht publishenden RC1-Test-Build-Schnitt |
+| `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static | RMT-vNext-Authoring fuer Bestcase Surfaces, Lanes, Lifecycle-Operationen, Slots, Event-Actions, State, Selectors, Actions, DataSources, Portals, Overlays, Resources, Component Capability Registry, Player Contract und Remote Surface |
+| `xtendrmt/xtendrmt-bestcase-demo.core.json` | automated-static | Byte-stabiler vNext-Core-Output fuer die Bestcase Runtime-Projektion auf XRouter, XTend Components, Component Primitives, Player Contract und Scheduler Policies |
+| `xtendrmt/xtendrmt-bestcase-demo.js` | automated-static | Runtime-Projektion der XTendRMT Bestcase Demo inklusive Component Capability Matrix, x-player Contract und Source-to-Sea-naher Primitive-Metriken |
 | `tests/fixtures/rmt-app-dsl.native-bridge.rmt` | automated-static | Native Bridge-Fixture fuer RMT Route-/Component-/Schedule-Adapter-Regression unter `xtend.rmt.wp15.native-bridge-fixture.v1` |
 | `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` | browser-smoke | Browsernahe RMT/XRouter/XTend/Vanilla-Fixture fuer native Routes, Component-Hydration und Scheduler Endpoints unter `xtend.rmt.wp16.browser-smoke-fixture.v1` |
 | `docs/previews/<name>.preview.md` | automated-static-candidate | Zielmuster fuer scaffolded Component-Preview-Plaene |

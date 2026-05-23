@@ -44,6 +44,19 @@ class XMasonry extends HTMLElement {
     };
   }
 
+  static get xtendLayoutStabilityProfile() {
+    return {
+      schema: "xtend.layout-stability.v1",
+      componentRef: "x-masonry",
+      minBlockSize: "var(--masonry-reserved-block-size, var(--xtend-layout-reserved-block-size, 18rem))",
+      intrinsicSize: "auto var(--masonry-reserved-block-size, 18rem)",
+      slotReserve: ["default"],
+      hydrationShiftPolicy: "no-geometry-shift",
+      shellFirstCompatible: true,
+      lazyLoadingCompatible: true
+    };
+  }
+
   static get xtendLayoutDisplayMediaUxProfile() {
     return {
       schema: "xtend.component.layout-display-media-ux-profile.v1",
@@ -95,6 +108,8 @@ class XMasonry extends HTMLElement {
           font-family: var(--masonry-font-family, var(--xtend-layout-font-family, inherit));
           max-width: 100%;
           min-width: 0;
+          min-block-size: var(--masonry-reserved-block-size, var(--xtend-layout-reserved-block-size, auto));
+          contain-intrinsic-size: auto var(--masonry-reserved-block-size, var(--xtend-layout-reserved-block-size, 18rem));
         }
 
         :host([data-theme="dark"]) {

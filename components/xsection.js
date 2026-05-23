@@ -45,6 +45,19 @@ class XSection extends HTMLElement {
     };
   }
 
+  static get xtendLayoutStabilityProfile() {
+    return {
+      schema: "xtend.layout-stability.v1",
+      componentRef: "x-section",
+      minBlockSize: "var(--section-reserved-block-size, var(--xtend-layout-reserved-block-size, auto))",
+      intrinsicSize: "auto var(--section-reserved-block-size, 12rem)",
+      slotReserve: ["default"],
+      hydrationShiftPolicy: "no-geometry-shift",
+      shellFirstCompatible: true,
+      lazyLoadingCompatible: true
+    };
+  }
+
   static get xtendLayoutDisplayMediaUxProfile() {
     return {
       schema: "xtend.component.layout-display-media-ux-profile.v1",
@@ -90,6 +103,8 @@ class XSection extends HTMLElement {
           border: none;
           max-width: var(--section-content-max, var(--xtend-layout-content-max, 100%));
           min-width: 0;
+          min-block-size: var(--section-reserved-block-size, var(--xtend-layout-reserved-block-size, auto));
+          contain-intrinsic-size: auto var(--section-reserved-block-size, var(--xtend-layout-reserved-block-size, 12rem));
           overflow-wrap: anywhere;
         }
 

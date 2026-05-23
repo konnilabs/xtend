@@ -177,10 +177,10 @@ class XLink extends HTMLElement {
     };
   }
 
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = `
+  static _getShadowTemplate() {
+    if (XLink.__shadowTemplate) return XLink.__shadowTemplate;
+    const template = document.createElement('template');
+    template.innerHTML = `
       <style>
         :host {
           display: var(--xtend-link-display, inline-block);
@@ -293,6 +293,88 @@ class XLink extends HTMLElement {
       <a part="root link" role="link" tabindex="0"><slot></slot></a>
       <span class="link-status" part="announcer" role="status" aria-live="polite" aria-atomic="true"></span>
     `;
+    XLink.__shadowTemplate = template;
+    return XLink.__shadowTemplate;
+  }
+
+  static _getNavigationRegistry() {
+    if (XLink.__navigationRegistry) return XLink.__navigationRegistry;
+    const registry = {
+      links: new Set(),
+      scheduled: false,
+      attached: false,
+      body: null,
+      sync() {
+        registry.scheduled = false;
+        registry.links.forEach((link) => {
+          if (link && typeof link._updateActive === 'function' && link.isConnected) {
+            link._updateActive();
+          }
+        });
+      },
+      schedule() {
+        if (registry.scheduled) return;
+        registry.scheduled = true;
+        const run = () => registry.sync();
+        if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+          window.requestAnimationFrame(run);
+          return;
+        }
+        if (typeof queueMicrotask === 'function') {
+          queueMicrotask(run);
+          return;
+        }
+        setTimeout(run, 0);
+      },
+      onNavigation() {
+        registry.schedule();
+      }
+    };
+    XLink.__navigationRegistry = registry;
+    return registry;
+  }
+
+  static _attachNavigationListeners(registry = XLink._getNavigationRegistry()) {
+    if (registry.attached || typeof window === 'undefined') return;
+    window.addEventListener('popstate', registry.onNavigation);
+    window.addEventListener('hashchange', registry.onNavigation);
+    window.addEventListener('xrouter-after-navigate', registry.onNavigation);
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.addEventListener('x-navigate', registry.onNavigation);
+      registry.body = document.body;
+    }
+    registry.attached = true;
+  }
+
+  static _detachNavigationListeners(registry = XLink._getNavigationRegistry()) {
+    if (!registry.attached || registry.links.size > 0 || typeof window === 'undefined') return;
+    window.removeEventListener('popstate', registry.onNavigation);
+    window.removeEventListener('hashchange', registry.onNavigation);
+    window.removeEventListener('xrouter-after-navigate', registry.onNavigation);
+    if (registry.body) {
+      registry.body.removeEventListener('x-navigate', registry.onNavigation);
+      registry.body = null;
+    }
+    registry.attached = false;
+    registry.scheduled = false;
+  }
+
+  static _registerNavigationLink(link) {
+    const registry = XLink._getNavigationRegistry();
+    registry.links.add(link);
+    XLink._attachNavigationListeners(registry);
+  }
+
+  static _unregisterNavigationLink(link) {
+    const registry = XLink._getNavigationRegistry();
+    registry.links.delete(link);
+    XLink._detachNavigationListeners(registry);
+  }
+
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: 'open' });
+    shadow.appendChild(XLink._getShadowTemplate().content.cloneNode(true));
     this._anchor = this.shadowRoot.querySelector('a');
     this._status = this.shadowRoot.querySelector('.link-status');
     this._onClick = this._onClick.bind(this);
@@ -308,20 +390,14 @@ class XLink extends HTMLElement {
     this._anchor.addEventListener('click', this._onClick);
     this._anchor.addEventListener('keydown', this._onKeyDown);
     this._syncAnchorState();
-    window.addEventListener('popstate', this._updateActive);
-    window.addEventListener('hashchange', this._updateActive);
-    window.addEventListener('xrouter-after-navigate', this._onNavigationChange);
-    document.body.addEventListener('x-navigate', this._onNavigationChange);
+    XLink._registerNavigationLink(this);
     this._updateActive();
   }
 
   disconnectedCallback() {
     this._anchor.removeEventListener('click', this._onClick);
     this._anchor.removeEventListener('keydown', this._onKeyDown);
-    window.removeEventListener('popstate', this._updateActive);
-    window.removeEventListener('hashchange', this._updateActive);
-    window.removeEventListener('xrouter-after-navigate', this._onNavigationChange);
-    document.body.removeEventListener('x-navigate', this._onNavigationChange);
+    XLink._unregisterNavigationLink(this);
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -428,15 +504,22 @@ class XLink extends HTMLElement {
 
   _syncActiveState(active) {
     const href = this.getAttribute('href') || '';
+    const normalizedHref = this._normalizePath(href.replace(/^#/, ''));
+    const previousActive = this._lastActiveState;
+    if (previousActive === active && this._lastActiveHref === normalizedHref) {
+      return;
+    }
+    this._lastActiveState = active;
+    this._lastActiveHref = normalizedHref;
     const detail = {
-      href: this._normalizePath(href.replace(/^#/, '')),
+      href: normalizedHref,
       active,
       source: 'x-link',
       stateKey: `xlink-active-${this.id}`,
       scheduleRef: 'route.visible.render'
     };
     const stateApi = globalThis.xstate;
-    if (stateApi && typeof stateApi.set === 'function') {
+    if (stateApi && typeof stateApi.set === 'function' && (active || previousActive !== undefined)) {
       stateApi.set(`xlink-active-${this.id}`, detail);
     }
     if (this._status) {

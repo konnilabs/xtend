@@ -1196,6 +1196,32 @@
     }
   },
   {
+    "slug": "rmt-node-ssr-adapter",
+    "id": "docs.rmt.node.ssr.adapter",
+    "label": "RMT Node SSR Adapter",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "basic",
+    "rank": 97,
+    "labels": {
+      "de": "RMT Node SSR Adapter",
+      "en": "RMT Node SSR Adapter"
+    }
+  },
+  {
+    "slug": "rmt-php-ssr-adapter",
+    "id": "docs.rmt.php.ssr.adapter",
+    "label": "RMT PHP/Laravel SSR Adapter",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "basic",
+    "rank": 96,
+    "labels": {
+      "de": "RMT PHP/Laravel SSR Adapter",
+      "en": "RMT PHP/Laravel SSR Adapter"
+    }
+  },
+  {
     "slug": "rmt-vnext-primitives-compiler-backlog",
     "id": "docs.rmt.vnext.primitives.compiler.backlog",
     "label": "RMT vNext Primitive Compiler Backlog",

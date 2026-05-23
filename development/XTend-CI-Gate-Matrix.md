@@ -9,7 +9,7 @@
 
 ## Zweck
 
-Die CI-Gate-Matrix trennt schnelles Pull-Request-Feedback von vollstaendigen Release- und Nightly-Gates. Damit bleibt die Entwickler-Rueckmeldung kurz, ohne Browser-, Performance-, RMT- und Full-Suite-Abdeckung aus dem Produktpfad zu verlieren. Seit `ER-WP-40` ist der deterministische Docs-App RMT Parsedown Pilot Teil des PR-Fast-Gates.
+Die CI-Gate-Matrix trennt schnelles Pull-Request-Feedback von vollstaendigen Release- und Nightly-Gates. Damit bleibt die Entwickler-Rueckmeldung kurz, ohne Browser-, Performance-, RMT- und Full-Suite-Abdeckung aus dem Produktpfad zu verlieren. Seit `ER-WP-40` ist der deterministische Docs-App RMT Parsedown Pilot Teil des PR-Fast-Gates. Seit dem Docs-PHP-SSR- und CLS-Hardening pruefen PR- und RMT-vNext-Gates ausserdem die PHP-SSR-Adapterstrecke, Docs-Prehydration, SSR-Payload-Budgets, CLS-Budgets und den frameworkweiten Layout-Stability-Contract.
 
 `ER-WP-36` hat den Default-CI-Workflow angelegt. `ER-WP-37` macht daraus zwei Verantwortlichkeiten:
 
@@ -52,6 +52,11 @@ fabric-runtime-bridge
 references
 supply-chain
 manifest-import-policy
+rmt-php-ssr-adapter
+docs-php-ssr-prehydration
+docs-php-ssr-performance-budget
+docs-php-ssr-cls-budget
+xtend-layout-stability-contract
 docs-rmt-pilot
 ```
 

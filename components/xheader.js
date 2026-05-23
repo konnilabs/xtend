@@ -84,6 +84,18 @@ class XHeader extends HTMLElement {
       idleOrBackgroundAllowed: false
     };
   }
+  static get xtendLayoutStabilityProfile() {
+    return {
+      schema: "xtend.layout-stability.v1",
+      componentRef: "x-header",
+      minBlockSize: "var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, 4.75rem))",
+      intrinsicSize: "auto var(--header-reserved-block-size, 4.75rem)",
+      slotReserve: ["title", "nav", "actions"],
+      hydrationShiftPolicy: "no-geometry-shift",
+      shellFirstCompatible: true,
+      lazyLoadingCompatible: true
+    };
+  }
   static get xtendLayoutDisplayMediaUxProfile() {
     return {
       schema: "xtend.component.layout-display-media-ux-profile.v1",
@@ -366,6 +378,8 @@ class XHeader extends HTMLElement {
           display: block;
           font-family: var(--xtend-header-font-family);
           color: var(--header-fg);
+          min-block-size: var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, auto));
+          contain-intrinsic-size: auto var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, 4.75rem));
         }
         header {
           display: grid;

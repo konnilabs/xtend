@@ -11,7 +11,18 @@ const ROUTE_COMPONENTS = Object.freeze({
   scheduler: 'x-rmt-route-scheduler',
   routing: 'x-rmt-route-routing',
   templating: 'x-rmt-route-template-pilot',
+  primitives: 'x-rmt-route-primitives',
+  media: 'x-rmt-route-media',
   adapter: 'x-rmt-route-adapter'
+});
+const ROUTE_SCHEDULES = Object.freeze({
+  kernel: 'route.visible.render',
+  scheduler: 'route.visible.render',
+  routing: 'route.visible.render',
+  templating: 'route.visible.render',
+  primitives: 'component.primitive.matrix',
+  media: 'media.visible.contract',
+  adapter: 'component.idle.hydrate'
 });
 
 function clone(value) {
@@ -71,6 +82,40 @@ function createProjectedMetadata(core) {
       capabilityRefs: ['xtend.hydration'],
       kernelVisible: false
     },
+    componentPrimitives: {
+      schema: 'xtend.rmt.component-capability-registry.v1',
+      status: 'runtime-projection-active',
+      registry: './rmt-component-capability-registry.js',
+      manifest: './components/manifest.json',
+      coverageTarget: 'all-public-xtend-components',
+      publicManifestCount: 42,
+      publicUiCount: 38,
+      nonVisualCount: 4,
+      families: ['form', 'navigation', 'overlay-surface', 'media-feedback-layout', 'theme-layout'],
+      rendererMode: 'generic-dom-descriptor-with-keyed-reuse',
+      importPolicy: 'explicit-importer-only',
+      kernelBoundary: 'no-rmt-kernel-import-of-xtend-types',
+      noShadowRootPatching: true,
+      noHtmlSinkForRmtAppUi: true
+    },
+    playerContract: {
+      schema: 'xtend.mm-rmt.player-contract.v1',
+      tag: 'x-player',
+      commands: ['play-media', 'pause-media', 'set-source', 'set-state', 'apply-theme'],
+      events: ['xplayer-play', 'xplayer-pause', 'xplayer-state'],
+      stateBridge: 'xstate-host-bridge',
+      themeTokens: ['--x-player-primary', '--x-player-accent', '--x-player-background', '--x-player-radius'],
+      parts: ['root', 'media', 'title', 'overlay', 'controls', 'progress'],
+      kernelBoundary: 'no-product-shadowRoot-patching'
+    },
+    surfaceResourceLifecycle: {
+      schema: 'xtend.rmt.surface-resource-lifecycle.v1',
+      portals: ['bestcase.surface.root', 'bestcase.overlay.root'],
+      overlays: ['bestcase.toast'],
+      resources: ['bestcase.capabilityRegistry', 'bestcase.playerObjectUrl', 'bestcase.runtimeSubscription'],
+      cleanupPolicy: 'close-and-dispose-on-owner-destroy',
+      sourceToSeaCoverage: true
+    },
     scaffoldCompatibility: {
       schema: 'xtend.scaffold.rmt-compatibility-binding.v1',
       surfaces: ['typing', 'manifest-plan', 'preview-plan', 'extension-points', 'component-files'],
@@ -104,12 +149,14 @@ function createProjectedMetadata(core) {
       sourceSyntax: 'rmt-vnext',
       routesSource: 'vnext.surfaces',
       componentsSource: 'vnext.operations',
+      primitivesSource: 'vnext.states-selectors-actions-portals-resources',
       adaptersSource: 'runtimeProjection.adapters',
       schedulesSource: 'vnext.lanes',
       productiveAdapters: [
         'createRmtXRouterAdapter',
         'createRmtXtendComponentAdapter',
-        'createRmtStateSchedulerDiagnosticsBridge'
+        'createRmtStateSchedulerDiagnosticsBridge',
+        'createRmtComponentCapabilityRegistry'
       ],
       kernelVisible: false
     },
@@ -128,6 +175,8 @@ function createProjectedRoutes(core) {
     ['scheduler', '/scheduler', 'XTendRMT Scheduler', 'demo.scheduler', 'route.visible.render'],
     ['routing', '/routing', 'XTendRMT Routing DSL', 'demo.routing', 'route.visible.render'],
     ['templating', '/templating', 'RMT Template Pilot', 'demo.templating.pilot', 'route.visible.render'],
+    ['primitives', '/primitives', 'RMT Component Primitives', 'demo.primitives', 'component.primitive.matrix'],
+    ['media', '/media', 'RMT Player and Media Contract', 'demo.media', 'media.visible.contract'],
     ['adapter', '/adapter', 'XTend Product Adapter', 'demo.adapter', 'component.idle.hydrate']
   ];
   const routes = routeConfigs.map(([id, path, title, template, schedule]) => {
@@ -163,7 +212,7 @@ function createProjectedComponents(core) {
       adapter: 'xtend.component',
       kind: 'custom_element',
       tag: id,
-      schedule: routeId === 'adapter' ? 'component.idle.hydrate' : 'component.visible.mount',
+      schedule: ROUTE_SCHEDULES[routeId] || (routeId === 'adapter' ? 'component.idle.hydrate' : 'component.visible.mount'),
       metadata: {
         routeComponent: true
       }
@@ -174,7 +223,11 @@ function createProjectedComponents(core) {
     { id: 'kernel.cards', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-cards', schedule: 'component.visible.mount' },
     { id: 'code.snapshot', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-code', schedule: 'component.idle.hydrate' },
     { id: 'feedback.status', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-alert', schedule: 'component.visible.mount' },
-    { id: 'pilot.shell', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-section', schedule: 'component.visible.mount' }
+    { id: 'pilot.shell', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-section', schedule: 'component.visible.mount' },
+    { id: 'primitive.matrix', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-status', schedule: 'component.primitive.matrix' },
+    { id: 'primitive.progress', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-progress', schedule: 'component.primitive.matrix' },
+    { id: 'media.player', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-player', schedule: 'media.visible.contract' },
+    { id: 'media.toast', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-toast', schedule: 'diagnostics.snapshot' }
   ]);
 }
 
@@ -184,6 +237,8 @@ function createProjectedSchedules() {
     { id: 'route.visible.render', endpointName: 'xtendrmt.route.render', scope: 'xtendrmt.router.current', lane: 'visible', priority: 88 },
     { id: 'component.visible.mount', endpointName: 'xtendrmt.component.mount', scope: 'xtendrmt.component.visible', lane: 'visible', priority: 76 },
     { id: 'component.idle.hydrate', endpointName: 'xtendrmt.component.hydrate', scope: 'xtendrmt.component.idle', lane: 'idle', priority: 42 },
+    { id: 'component.primitive.matrix', endpointName: 'xtendrmt.component-capability.matrix', scope: 'xtendrmt.component.capabilities', lane: 'visible', priority: 92 },
+    { id: 'media.visible.contract', endpointName: 'xtendrmt.player.contract', scope: 'xtendrmt.media.player', lane: 'visible', priority: 84 },
     { id: 'diagnostics.snapshot', endpointName: 'xtendrmt.diagnostics.snapshot', scope: 'xtendrmt.diagnostics', lane: 'diagnostics', priority: 34 }
   ];
 }
@@ -242,6 +297,46 @@ function createProjectedTemplates() {
       preferInsularHydration: true,
       metadata: {
         endpointHint: 'xtendrmt.template.inspect'
+      }
+    }
+  }, {
+    id: 'demo.primitives',
+    mode: 'dom_descriptor',
+    markup: '<x-section layout="column" label="RMT Component Primitives"></x-section>',
+    metadata: {
+      route: 'primitives',
+      authoring: templateAuthoring('demo.primitives', ['primitive.matrix', 'primitive.progress'], {
+        componentCapabilityRegistry: 'xtend.rmt.component-capability-registry.v1',
+        rendererMode: 'generic-dom-descriptor-with-keyed-reuse',
+        importPolicy: 'explicit-importer-only'
+      })
+    },
+    hydration: {
+      mode: 'runtime_render',
+      ownershipMode: 'managed_subtree',
+      preferInsularHydration: true,
+      metadata: {
+        endpointHint: 'xtendrmt.component-capability.matrix'
+      }
+    }
+  }, {
+    id: 'demo.media',
+    mode: 'dom_descriptor',
+    markup: '<x-section layout="column" label="RMT Player Contract"></x-section>',
+    metadata: {
+      route: 'media',
+      authoring: templateAuthoring('demo.media', ['media.player', 'media.toast'], {
+        playerContract: 'xtend.mm-rmt.player-contract.v1',
+        componentRef: 'x-player',
+        resourceOwnership: 'object-url-disposed-on-surface-destroy'
+      })
+    },
+    hydration: {
+      mode: 'runtime_render',
+      ownershipMode: 'managed_subtree',
+      preferInsularHydration: true,
+      metadata: {
+        endpointHint: 'xtendrmt.player.contract'
       }
     }
   });

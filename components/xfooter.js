@@ -52,6 +52,19 @@ class XFooter extends HTMLElement {
     };
   }
 
+  static get xtendLayoutStabilityProfile() {
+    return {
+      schema: "xtend.layout-stability.v1",
+      componentRef: "x-footer",
+      minBlockSize: "var(--footer-reserved-block-size, calc(var(--footer-logo-size, 40px) + 2rem + 2px))",
+      intrinsicSize: "auto var(--footer-reserved-block-size, 4.75rem)",
+      slotReserve: ["title", "nav", "extra"],
+      hydrationShiftPolicy: "no-geometry-shift",
+      shellFirstCompatible: true,
+      lazyLoadingCompatible: true
+    };
+  }
+
   static get xtendLayoutDisplayMediaUxProfile() {
     return {
       schema: "xtend.component.layout-display-media-ux-profile.v1",
@@ -149,10 +162,13 @@ class XFooter extends HTMLElement {
           color: var(--footer-fg, var(--xtend-layout-text, var(--xtend-text, #172033)));
           font-family: var(--footer-font-family, var(--xtend-layout-font-family, var(--xtend-font-family-body, 'Inter', 'Segoe UI', Arial, sans-serif)));
           font-size: var(--footer-font-size, var(--xtend-layout-font-size, 1rem));
+          --footer-reserved-block-size: calc(var(--footer-logo-size, 40px) + 2rem + 2px);
           --footer-grid-min: var(--xtend-layout-grid-min, minmax(10rem, 1fr));
           --footer-content-max: var(--xtend-layout-content-max, 100%);
           max-width: 100%;
           min-width: 0;
+          min-block-size: var(--footer-reserved-block-size);
+          contain-intrinsic-size: auto var(--footer-reserved-block-size);
           box-sizing: border-box;
         }
 
@@ -177,6 +193,7 @@ class XFooter extends HTMLElement {
           overflow-wrap: anywhere;
           max-width: var(--footer-content-max);
           min-width: 0;
+          min-height: var(--footer-reserved-block-size);
           box-sizing: border-box;
           transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }

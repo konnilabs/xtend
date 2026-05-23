@@ -106,6 +106,20 @@ class XRouter extends HTMLElement {
     };
   }
 
+  static get xtendLayoutStabilityProfile() {
+    return {
+      schema: 'xtend.layout-stability.v1',
+      componentRef: 'x-router',
+      minBlockSize: 'var(--xtend-router-reserved-block-size, var(--xtend-layout-reserved-block-size, 12rem))',
+      intrinsicSize: 'auto var(--xtend-router-reserved-block-size, 12rem)',
+      slotReserve: ['outlet'],
+      hydrationShiftPolicy: 'no-geometry-shift',
+      skeletonParity: true,
+      shellFirstCompatible: true,
+      lazyLoadingCompatible: true
+    };
+  }
+
   static get xtendNavigationRoutingUxProfile() {
     return {
       schema: 'xtend.component.navigation-routing-ux-profile.v1',
@@ -465,6 +479,8 @@ class XRouter extends HTMLElement {
       <style>
         :host {
           display: block;
+          min-block-size: var(--xtend-router-reserved-block-size, var(--xtend-layout-reserved-block-size, 1px));
+          contain-intrinsic-size: auto var(--xtend-router-reserved-block-size, var(--xtend-layout-reserved-block-size, 12rem));
           --xtend-nav-surface: transparent;
           --xtend-nav-text: var(--xtend-text-primary, var(--xtend-text, CanvasText));
           --xtend-nav-border-color: transparent;
@@ -483,11 +499,12 @@ class XRouter extends HTMLElement {
           --xtend-router-text: var(--xtend-nav-text);
         }
         #outlet {
-          min-height: 1px;
+          min-height: var(--xtend-router-reserved-block-size, var(--xtend-layout-reserved-block-size, 1px));
           outline: none;
           color: var(--xtend-router-text);
           background: var(--xtend-router-surface);
           overflow-wrap: anywhere;
+          box-sizing: border-box;
         }
         #outlet[data-xtend-skeleton-active="true"] {
           display: block;
@@ -500,7 +517,7 @@ class XRouter extends HTMLElement {
           margin-inline: var(--xtend-skeleton-margin-inline, 0);
           min-width: 0;
           box-sizing: border-box;
-          min-height: var(--xtend-router-skeleton-min-height, 12rem);
+          min-height: var(--xtend-router-reserved-block-size, var(--xtend-layout-reserved-block-size, var(--xtend-router-skeleton-min-height, 12rem)));
           padding: var(--xtend-skeleton-padding, 1rem);
           border-radius: var(--xtend-skeleton-radius, 8px);
           background: var(--xtend-skeleton-surface, rgba(148, 163, 184, 0.12));
@@ -1094,6 +1111,14 @@ class XRouter extends HTMLElement {
   _showRouteSkeleton(route, context = {}) {
     if (!this._outlet || !this._routeSkeletonEnabled(route)) return null;
     const options = this._getRouteSkeletonOptions(route, context);
+    if (options.minHeight) {
+      this.style.setProperty('--xtend-router-skeleton-min-height', options.minHeight);
+      if (!this.style.getPropertyValue('--xtend-router-reserved-block-size')) {
+        this.style.setProperty('--xtend-router-reserved-block-size', options.minHeight);
+      }
+      this._outlet.style.setProperty('--xtend-router-skeleton-min-height', options.minHeight);
+      this._outlet.style.setProperty('--xtend-router-reserved-block-size', this.style.getPropertyValue('--xtend-router-reserved-block-size') || options.minHeight);
+    }
     const loader = typeof window !== 'undefined' && window.XTendLoader;
     const skeleton = loader && typeof loader.showSkeleton === 'function'
       ? loader.showSkeleton(this._outlet, options)

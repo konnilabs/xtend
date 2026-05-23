@@ -39,6 +39,8 @@
     "rmt-surface-resource-graph-runtime.js",
     "rmt-native-shell-runtime.d.ts",
     "rmt-native-shell-runtime.js",
+    "rmt-node-ssr-adapter.d.ts",
+    "rmt-node-ssr-adapter.js",
     "rmt.schema.json",
     "rmt-manifest.json",
     "package.json"
@@ -90,6 +92,10 @@
     "./native-shell-runtime": {
       "types": "./rmt-native-shell-runtime.d.ts",
       "default": "./rmt-native-shell-runtime.js"
+    },
+    "./node-ssr-adapter": {
+      "types": "./rmt-node-ssr-adapter.d.ts",
+      "default": "./rmt-node-ssr-adapter.js"
     },
     "./schema": "./rmt.schema.json",
     "./manifest": "./rmt-manifest.json",

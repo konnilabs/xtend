@@ -4,21 +4,34 @@
 - Contract: `xtend.docs.parsedown-rmt-scheduling.v1`
 - Pilot Contract: `xtend.docs.parsedown-rmt-pilot.v1`
 - Production-Hardening Contract: `xtend.epic13.docs-rmt-production-hardening.v1`
+- PHP-SSR-Prehydration Contract: `xtend.docs.php-ssr-prehydration.v1`
 - Pilot-Dokument: `docs/xtendrmt-parsedown-docs.rmt`
+- vNext-Shell-Dokument: `docs/xtendrmt-docs-shell-vnext.rmt`
 - Aktuelle Runtime: `docs/index.php` + `docs/utils/parsedown.php` + `docs/utils/pageloader.js`
 
 ## Zweck
 
 Die offizielle XTend Dokumentation ist selbst eine XTend-App. Markdown-Dateien im `docs` Ordner werden serverseitig ueber Parsedown nach HTML gewandelt und clientseitig ueber XRouter als SPA angezeigt. Der Host spiegelt nur noch die initial benoetigte HTML-Seite in `window.xtendDocsPages`; weitere Parsedown-Payloads werden pro Route ueber `window.xtendDocsPageEndpoint` nachgeladen.
 
-Der aktuelle Stand ist Shell-first: Die sichtbare Page-Shell wird nicht mehr rein imperativ im PageLoader gebaut, sondern aus `docs.app.shell` im RMT-Pilot-Dokument als `dom_descriptor` gerendert. Parsedown bleibt Host-Adapter und fuellt nur noch den Content-Slot. Damit kann die Docs-App spaeter neben Markdown auch Rich-HTML- oder XPlayer-Tutorial-Inhalte als RMT-geplante Slots nachladen; der maschinenlesbare Content-Kind dafuer ist `xplayerTutorial`. Parsedown und XTend werden dabei nicht in den RMT Kernel eingebettet.
+Der aktuelle Stand ist Shell-first mit serverseitiger Prehydration: `docs/index.php`
+laedt `xtendrmt/rmt-php-ssr-adapter.php`, kompiliert
+`docs/xtendrmt-docs-shell-vnext.rmt` ueber
+`scripts/compile_rmt_vnext_bridge.js` und rendert die Root-Shell als RMT DOM
+Descriptor. Die sichtbare Page-Shell wird weiter aus `docs.app.shell` im
+RMT-Pilot-Dokument beschrieben; Parsedown bleibt Host-Adapter und fuellt nur
+noch den Content-Slot. Damit kann die Docs-App spaeter neben Markdown auch
+Rich-HTML- oder XPlayer-Tutorial-Inhalte als RMT-geplante Slots nachladen; der
+maschinenlesbare Content-Kind dafuer ist `xplayerTutorial`. Parsedown und XTend
+werden dabei nicht in den RMT Kernel eingebettet.
 
 ## ER-WP-40 Pilot-Artefakte
 
 | Artefakt | Rolle |
 |----------|-------|
 | `docs/xtendrmt-parsedown-docs.rmt` | RMT-Pilot-Dokument fuer Shell-first-Templates, Docs-Routen, Parsedown-Templates, Schedules, Rich-Content-Slots und Host-Adapter |
+| `docs/xtendrmt-docs-shell-vnext.rmt` | vNext-Source fuer Root Shell, Header, Hero, Router, Footer, Page Shell, Sidebar, Search, Related Links und Diagnostics als RMT-Primitives |
 | `docs/index.php` | aktiver Parser-Host, setzt `Parsedown::setSafeMode(true)` und spiegelt `window.xtendDocsRmtDocument`, `window.xtendDocsRmtPilot` sowie `window.xtendDocsPagesMeta` |
+| `scripts/compile_rmt_vnext_bridge.js` | sichere Node-Bridge fuer `compileRmtVNextSource` im PHP-Host |
 | `docs/utils/pageloader.js` | rendert `docs.app.shell` und `docs.header.search` aus RMT-`dom_descriptor`-Templates, markiert Content-Slots mit `data-rmt-template`, `data-rmt-parse-schedule`, `data-rmt-trust-boundary` und `xtend.docs.parsedown-rmt-render.v1` |
 | `tests/rmt/docs_rmt_pilot_suite.js` | Gate fuer RMT-Normalisierung, Runtime-Registry, Trusted-DOM-Boundary und Docs-App-Anschluss |
 | `package.json` | Metadaten unter `xtend.docsRmtPilot` und Script `npm run test:docs-rmt-pilot` |
@@ -32,13 +45,15 @@ Ab der Skeleton-Haertung nutzt der Pilot den nativen `xtend.loader.skeleton-load
 ## Aktueller Docs-App-Fluss
 
 1. `docs/index.php` findet alle `.md` Dateien rekursiv.
-2. `docs/utils/parsedown.php` wandelt nur die initiale oder per Route angefragte Markdown-Datei in HTML.
-3. `window.xtendDocsPagesMeta` enthaelt die SEO-, Schedule- und RMT-Metadaten nach Slug; `window.xtendDocsPages` enthaelt nur vorhandene HTML-Payloads.
-4. `<x-router mode="hash" skeleton="article">` routet auf `xtend-doc-page`, lazy-laedt dessen Modul und hydriert den Route-Subtree ueber den Loader.
-5. `docs/utils/pageloader.js` liest `window.xtendDocsRmtDocument` und rendert `docs.app.shell` Shell-first.
-6. Der `data-rmt-slot="content"` Slot zeigt einen nativen SkeletonLoader, bis Parsedown-HTML nach dem ersten Paint sanitisiert und eingesetzt wurde.
-7. `docs.header.search` liefert die Header-Suche als RMT-Descriptor fuer den `search` Slot von `x-header`.
-8. `docs/menu.json` definiert die sichtbare Navigationshierarchie; `pageloader.js` gruppiert und priorisiert sie fuer die Drawer-Navigation.
+2. Der PHP-Host injiziert `compileRmtVNextSource` ueber die Node-Bridge und rendert die App Shell mit dem PHP SSR Adapter.
+3. `window.xtendDocsSsrPrehydration` enthaelt `renderman_template_chunk`, Hydration, Diagnostics und den JSONL-SSR-Endpunkt.
+4. `docs/utils/parsedown.php` wandelt nur die initiale oder per Route angefragte Markdown-Datei in HTML.
+5. `window.xtendDocsPagesMeta` enthaelt die SEO-, Schedule- und RMT-Metadaten nach Slug; `window.xtendDocsPages` enthaelt nur vorhandene HTML-Payloads.
+6. `<x-router mode="hash" skeleton="article">` routet auf `xtend-doc-page`, lazy-laedt dessen Modul und hydriert den Route-Subtree ueber den Loader.
+7. `docs/utils/pageloader.js` liest `window.xtendDocsRmtDocument`, reused vorhandene SSR-Shells ueber `data-rmt-shell-prehydrated="true"` und rendert nur bei Degradation den Client-Fallback.
+8. Der `data-rmt-slot="content"` Slot zeigt einen nativen SkeletonLoader, bis Parsedown-HTML nach dem ersten Paint sanitisiert und eingesetzt wurde.
+9. `docs.header.search` liefert die Header-Suche als RMT-Descriptor fuer den `search` Slot von `x-header`.
+10. `docs/menu.json` definiert die sichtbare Navigationshierarchie; `pageloader.js` gruppiert und priorisiert sie fuer die Drawer-Navigation.
 
 Seit dem Document-Title-Rewrite werden pro Markdown-Datei zusaetzlich RMT Route Records erzeugt und in `window.xtendDocsRmtDocument.routes` gespiegelt. `docs/index.php` extrahiert den ersten H1 als `title`, erzeugt `documentTitle`, `titleTemplate`, `metaDescription` und `metaKeywords` und rendert daraus die sichtbaren `<x-route>` Attribute `title`, `document-title`, `title-template`, `meta-description` und `meta-keywords`. XRouter fuehrt anschliessend das eigentliche Schreiben von `document.title` und der SEO-Metatags aus. Damit bleibt der Use Case RMT-deklarativ, waehrend die Browser-Seiteneffekte im XRouter Adapter liegen.
 

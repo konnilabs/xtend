@@ -6,6 +6,9 @@ import {
   createRmtXRouterAdapter,
   createRmtXtendComponentAdapter
 } from './rmt-runtime.esm.js';
+import {
+  createRmtComponentCapabilityRegistry
+} from './rmt-component-capability-registry.js';
 
 const DEMO_DOCUMENT_URL = './xtendrmt/xtendrmt-bestcase-demo.rmt';
 const DEMO_CORE_DOCUMENT_URL = './xtendrmt/xtendrmt-bestcase-demo.core.json';
@@ -14,6 +17,8 @@ const ROUTE_COMPONENTS = Object.freeze({
   scheduler: 'x-rmt-route-scheduler',
   routing: 'x-rmt-route-routing',
   templating: 'x-rmt-route-template-pilot',
+  primitives: 'x-rmt-route-primitives',
+  media: 'x-rmt-route-media',
   adapter: 'x-rmt-route-adapter'
 });
 
@@ -22,6 +27,8 @@ const XTEND_COMPONENT_MANIFEST = Object.freeze({
   'x-rmt-route-scheduler': 'xtendrmt-bestcase-demo.js#x-rmt-route-scheduler',
   'x-rmt-route-routing': 'xtendrmt-bestcase-demo.js#x-rmt-route-routing',
   'x-rmt-route-template-pilot': 'xtendrmt-bestcase-demo.js#x-rmt-route-template-pilot',
+  'x-rmt-route-primitives': 'xtendrmt-bestcase-demo.js#x-rmt-route-primitives',
+  'x-rmt-route-media': 'xtendrmt-bestcase-demo.js#x-rmt-route-media',
   'x-rmt-route-adapter': 'xtendrmt-bestcase-demo.js#x-rmt-route-adapter',
   'x-header': '../components/xheader.js',
   'x-section': '../components/xsection.js',
@@ -32,13 +39,18 @@ const XTEND_COMPONENT_MANIFEST = Object.freeze({
   'x-button': '../components/xbutton.js',
   'x-alert': '../components/xalert.js',
   'x-code': '../components/xcode.js',
+  'x-player': '../components/xplayer.js',
+  'x-popover': '../components/xpopover.js',
+  'x-progress': '../components/xprogress.js',
+  'x-status': '../components/xstatus.js',
+  'x-toast': '../components/xtoast.js',
   'x-modal': '../components/xmodal.js',
   'x-router': '../components/xrouter.js',
   'x-route': '../components/xrouter.js',
   'x-footer': '../components/xfooter.js'
 });
 
-const DEMO_ROUTE_ORDER = Object.freeze(['kernel', 'scheduler', 'routing', 'templating', 'adapter']);
+const DEMO_ROUTE_ORDER = Object.freeze(['kernel', 'scheduler', 'routing', 'templating', 'primitives', 'media', 'adapter']);
 const DEMO_ROUTE_CONFIG = Object.freeze({
   kernel: Object.freeze({
     path: '/',
@@ -78,6 +90,26 @@ const DEMO_ROUTE_CONFIG = Object.freeze({
     schedule: 'route.visible.render',
     metadata: Object.freeze({
       metaDescription: 'Pilot-Flow fuer RMT-vNext-basiertes XTend-Templating mit Component Attachment.'
+    })
+  }),
+  primitives: Object.freeze({
+    path: '/primitives',
+    title: 'RMT Component Primitives',
+    component: ROUTE_COMPONENTS.primitives,
+    template: 'demo.primitives',
+    schedule: 'component.primitive.matrix',
+    metadata: Object.freeze({
+      metaDescription: 'Component Capability Registry, Manifest-Matrix, keyed DOM Descriptor und RMT Primitive Coverage.'
+    })
+  }),
+  media: Object.freeze({
+    path: '/media',
+    title: 'RMT Player and Media Contract',
+    component: ROUTE_COMPONENTS.media,
+    template: 'demo.media',
+    schedule: 'media.visible.contract',
+    metadata: Object.freeze({
+      metaDescription: 'x-player Contract, State Bridge, Parts, Theme Tokens und Resource Ownership fuer RMT.'
     })
   }),
   adapter: Object.freeze({
@@ -126,6 +158,8 @@ const DEMO_ADAPTERS = Object.freeze([
       'slots',
       'events',
       'hydration',
+      'componentCapabilityRegistry',
+      'lazyComponentImport',
       'diagnostics',
       'scheduleRefs'
     ]),
@@ -182,7 +216,11 @@ const DEMO_STATIC_COMPONENTS = Object.freeze([
   Object.freeze({ id: 'kernel.cards', tag: 'x-cards', schedule: 'component.visible.mount' }),
   Object.freeze({ id: 'code.snapshot', tag: 'x-code', schedule: 'component.idle.hydrate' }),
   Object.freeze({ id: 'feedback.status', tag: 'x-alert', schedule: 'component.visible.mount' }),
-  Object.freeze({ id: 'pilot.shell', tag: 'x-section', schedule: 'component.visible.mount' })
+  Object.freeze({ id: 'pilot.shell', tag: 'x-section', schedule: 'component.visible.mount' }),
+  Object.freeze({ id: 'primitive.matrix', tag: 'x-status', schedule: 'component.primitive.matrix' }),
+  Object.freeze({ id: 'primitive.progress', tag: 'x-progress', schedule: 'component.primitive.matrix' }),
+  Object.freeze({ id: 'media.player', tag: 'x-player', schedule: 'media.visible.contract' }),
+  Object.freeze({ id: 'media.toast', tag: 'x-toast', schedule: 'diagnostics.snapshot' })
 ]);
 
 const DEMO_SCHEDULES = Object.freeze([
@@ -231,6 +269,28 @@ const DEMO_SCHEDULES = Object.freeze([
     budgetClass: 'background'
   }),
   Object.freeze({
+    id: 'component.primitive.matrix',
+    endpointName: 'xtendrmt.component-capability.matrix',
+    scope: 'xtendrmt.component.capabilities',
+    lane: 'visible',
+    priority: 92,
+    preferIdle: false,
+    deadlineMs: 180,
+    coalesceKey: 'component.capability.matrix',
+    budgetClass: 'interactive'
+  }),
+  Object.freeze({
+    id: 'media.visible.contract',
+    endpointName: 'xtendrmt.player.contract',
+    scope: 'xtendrmt.media.player',
+    lane: 'visible',
+    priority: 84,
+    preferIdle: false,
+    deadlineMs: 180,
+    coalesceKey: 'media.player.contract',
+    budgetClass: 'media-interactive'
+  }),
+  Object.freeze({
     id: 'diagnostics.snapshot',
     endpointName: 'xtendrmt.diagnostics.snapshot',
     scope: 'xtendrmt.diagnostics',
@@ -259,8 +319,14 @@ const state = {
     routes: [],
     schedules: [],
     pilotFlow: null,
-    nativeDemoMigration: null
+    nativeDemoMigration: null,
+    componentPrimitives: null,
+    playerContract: null,
+    surfaceResourceLifecycle: null
   },
+  componentCapabilityRegistry: null,
+  componentCapabilityMatrix: null,
+  playerSnapshot: null,
   runtime: null,
   stateBridge: null,
   adapters: {
@@ -381,6 +447,40 @@ function createDemoMetadata(vnextCore = {}) {
       },
       kernelVisible: false
     },
+    componentPrimitives: {
+      schema: 'xtend.rmt.component-capability-registry.v1',
+      status: 'runtime-projection-active',
+      registry: './rmt-component-capability-registry.js',
+      manifest: './components/manifest.json',
+      coverageTarget: 'all-public-xtend-components',
+      publicManifestCount: 42,
+      publicUiCount: 38,
+      nonVisualCount: 4,
+      families: ['form', 'navigation', 'overlay-surface', 'media-feedback-layout', 'theme-layout'],
+      rendererMode: 'generic-dom-descriptor-with-keyed-reuse',
+      importPolicy: 'explicit-importer-only',
+      kernelBoundary: 'no-rmt-kernel-import-of-xtend-types',
+      noShadowRootPatching: true,
+      noHtmlSinkForRmtAppUi: true
+    },
+    playerContract: {
+      schema: 'xtend.mm-rmt.player-contract.v1',
+      tag: 'x-player',
+      commands: ['play-media', 'pause-media', 'set-source', 'set-state', 'apply-theme'],
+      events: ['xplayer-play', 'xplayer-pause', 'xplayer-state'],
+      stateBridge: 'xstate-host-bridge',
+      themeTokens: ['--x-player-primary', '--x-player-accent', '--x-player-background', '--x-player-radius'],
+      parts: ['root', 'media', 'title', 'overlay', 'controls', 'progress'],
+      kernelBoundary: 'no-product-shadowRoot-patching'
+    },
+    surfaceResourceLifecycle: {
+      schema: 'xtend.rmt.surface-resource-lifecycle.v1',
+      portals: ['bestcase.surface.root', 'bestcase.overlay.root'],
+      overlays: ['bestcase.toast'],
+      resources: ['bestcase.capabilityRegistry', 'bestcase.playerObjectUrl', 'bestcase.runtimeSubscription'],
+      cleanupPolicy: 'close-and-dispose-on-owner-destroy',
+      sourceToSeaCoverage: true
+    },
     scaffoldCompatibility: {
       schema: 'xtend.scaffold.rmt-compatibility-binding.v1',
       status: 'demo-reference-only',
@@ -425,12 +525,14 @@ function createDemoMetadata(vnextCore = {}) {
       sourceSyntax: 'rmt-vnext',
       routesSource: 'vnext.surfaces',
       componentsSource: 'vnext.operations',
+      primitivesSource: 'vnext.states-selectors-actions-portals-resources',
       adaptersSource: 'runtimeProjection.adapters',
       schedulesSource: 'vnext.lanes',
       productiveAdapters: [
         'createRmtXRouterAdapter',
         'createRmtXtendComponentAdapter',
-        'createRmtStateSchedulerDiagnosticsBridge'
+        'createRmtStateSchedulerDiagnosticsBridge',
+        'createRmtComponentCapabilityRegistry'
       ],
       kernelVisible: false
     }
@@ -561,6 +663,50 @@ function createRuntimeTemplates() {
       }
     },
     {
+      id: 'demo.primitives',
+      mode: 'dom_descriptor',
+      markup: '<x-section layout="column" label="RMT Component Primitives"></x-section>',
+      metadata: {
+        route: 'primitives',
+        adapter: 'xtend.component',
+        authoring: createTemplateAuthoring('demo.primitives', ['primitive.matrix', 'primitive.progress'], {
+          componentCapabilityRegistry: 'xtend.rmt.component-capability-registry.v1',
+          rendererMode: 'generic-dom-descriptor-with-keyed-reuse',
+          importPolicy: 'explicit-importer-only'
+        })
+      },
+      hydration: {
+        mode: 'runtime_render',
+        ownershipMode: 'managed_subtree',
+        preferInsularHydration: true,
+        metadata: {
+          endpointHint: 'xtendrmt.component-capability.matrix'
+        }
+      }
+    },
+    {
+      id: 'demo.media',
+      mode: 'dom_descriptor',
+      markup: '<x-section layout="column" label="RMT Player Contract"></x-section>',
+      metadata: {
+        route: 'media',
+        adapter: 'xtend.component',
+        authoring: createTemplateAuthoring('demo.media', ['media.player', 'media.toast'], {
+          playerContract: 'xtend.mm-rmt.player-contract.v1',
+          componentRef: 'x-player',
+          resourceOwnership: 'object-url-disposed-on-surface-destroy'
+        })
+      },
+      hydration: {
+        mode: 'runtime_render',
+        ownershipMode: 'managed_subtree',
+        preferInsularHydration: true,
+        metadata: {
+          endpointHint: 'xtendrmt.player.contract'
+        }
+      }
+    },
+    {
       id: 'demo.adapter',
       mode: 'html_fragment',
       markup: '<x-section layout="column"><x-card><h3>XTend Product Adapter</h3><p>XTend remains a product adapter; RMT remains framework-agnostic.</p></x-card></x-section>',
@@ -643,7 +789,7 @@ function createComponentsFromVNextCore(vnextCore = {}) {
       adapter: 'xtend.component',
       kind: 'custom_element',
       tag: id,
-      schedule: routeId === 'adapter' ? 'component.idle.hydrate' : 'component.visible.mount',
+      schedule: config.schedule || (routeId === 'adapter' ? 'component.idle.hydrate' : 'component.visible.mount'),
       metadata: {
         routeComponent: true,
         template: config.template,
@@ -763,6 +909,92 @@ function getRmtFormat() {
     state.rmtFormat = createRmtFormat();
   }
   return state.rmtFormat;
+}
+
+async function loadComponentCapabilityMatrix() {
+  if (state.componentCapabilityMatrix) {
+    return state.componentCapabilityMatrix;
+  }
+
+  try {
+    const manifestResponse = await fetch('./components/manifest.json', { cache: 'no-store' });
+    if (!manifestResponse.ok) {
+      throw new Error(`component manifest failed to load: ${manifestResponse.status}`);
+    }
+    const manifest = await manifestResponse.json();
+    const entries = Object.entries(manifest);
+    const sourcePairs = await Promise.all(entries.map(async ([tag, modulePath]) => {
+      const componentPath = `./components/${String(modulePath).replace(/^\.\//u, '')}`;
+      try {
+        const response = await fetch(componentPath, { cache: 'no-store' });
+        return [tag, response.ok ? await response.text() : ''];
+      } catch (_error) {
+        return [tag, ''];
+      }
+    }));
+    const sourceTexts = Object.fromEntries(sourcePairs);
+    const registry = createRmtComponentCapabilityRegistry({
+      manifest,
+      sourceTexts,
+      customElements
+    });
+    state.componentCapabilityRegistry = registry;
+    state.componentCapabilityMatrix = registry.createMatrixReport();
+  } catch (error) {
+    state.componentCapabilityMatrix = {
+      schema: 'xtend.rmt.component-capability-registry-report.v1',
+      ok: false,
+      status: 'failed',
+      reason: error && error.message ? error.message : String(error),
+      manifestCount: 0,
+      publicComponentCount: 0,
+      diagnostics: []
+    };
+  }
+
+  return state.componentCapabilityMatrix;
+}
+
+function readComponentCapabilitySnapshot() {
+  const matrix = state.componentCapabilityMatrix || {};
+  return {
+    schema: matrix.schema || 'xtend.rmt.component-capability-registry-report.v1',
+    status: matrix.status || (matrix.ok ? 'passed' : 'pending'),
+    ok: matrix.ok === true,
+    manifestCount: matrix.manifestCount || 0,
+    publicComponentCount: matrix.publicComponentCount || 0,
+    nonVisualCount: matrix.nonVisualCount || 0,
+    withRmtMetadata: matrix.withRmtMetadata || 0,
+    withComponentContract: matrix.withComponentContract || 0,
+    browserSmokeFamilies: matrix.browserSmokeFamilies || [],
+    familyCounts: matrix.familyCounts || {},
+    sourceToSeaRisk: 'browser-smoke-representative',
+    kernelBoundary: matrix.kernelBoundary || 'no-rmt-kernel-import-of-xtend-types',
+    diagnostics: Array.isArray(matrix.diagnostics) ? matrix.diagnostics.slice(0, 5) : []
+  };
+}
+
+function readPlayerContractSnapshot() {
+  const playerClass = customElements.get('x-player');
+  const contract = playerClass && playerClass.xtendRmtPlayerContract
+    ? cloneSerializable(playerClass.xtendRmtPlayerContract, {})
+    : {
+      schema: 'xtend.mm-rmt.player-contract.v1',
+      tag: 'x-player',
+      commands: ['play-media', 'pause-media', 'set-source', 'set-state', 'apply-theme'],
+      events: ['xplayer-play', 'xplayer-pause', 'xplayer-state'],
+      stateBridge: 'xstate-host-bridge'
+    };
+  return {
+    ...contract,
+    state: state.playerSnapshot || {
+      mediaId: 'intro',
+      status: 'paused',
+      title: 'XTendRMT Runtime Walkthrough'
+    },
+    resourceOwnership: 'object-url-disposed-on-surface-destroy',
+    kernelBoundary: contract.kernelBoundary || 'no-product-shadowRoot-patching'
+  };
 }
 
 function recordAdapterResult(result, options = {}) {
@@ -896,6 +1128,8 @@ function readSchedulerSnapshot() {
 function syncState() {
   const snapshot = readSchedulerSnapshot();
   const pilotSnapshot = readPilotFlowSnapshot();
+  const componentSnapshot = readComponentCapabilitySnapshot();
+  const playerSnapshot = readPlayerContractSnapshot();
   const routeSnapshot = {
     path: state.activeRoute,
     component: state.activeComponent,
@@ -913,6 +1147,8 @@ function syncState() {
   });
   xstate.set('xtend.rmt.router.current', routeSnapshot);
   xstate.set('xtend.rmt.templating.pilot', pilotSnapshot);
+  xstate.set('xtend.rmt.component.capabilities', componentSnapshot);
+  xstate.set('xtend.rmt.player.contract', playerSnapshot);
   xstate.set('xtend.rmt.scheduler.snapshot', snapshot);
   xstate.set('xtend.rmt.scheduler.jobs', state.jobs.slice(-12));
 }
@@ -945,6 +1181,8 @@ function renderTimeline() {
 function refreshDemoUi() {
   const snapshot = readSchedulerSnapshot();
   const pilotSnapshot = readPilotFlowSnapshot();
+  const componentSnapshot = readComponentCapabilitySnapshot();
+  const playerSnapshot = readPlayerContractSnapshot();
   const pilotTemplate = findTemplate(pilotSnapshot.templateRef) || {};
   const templateCount = state.document && Array.isArray(state.document.templates)
     ? state.document.templates.length
@@ -958,6 +1196,13 @@ function refreshDemoUi() {
   setText('metric-pressure', snapshot.pressureLevel);
   setText('metric-active-route', state.activeRoute);
   setText('metric-active-schedule', state.activeSchedule);
+  setText('metric-states', state.vnextCore && Array.isArray(state.vnextCore.states) ? state.vnextCore.states.length : 0);
+  setText('metric-actions', state.vnextCore && Array.isArray(state.vnextCore.actions) ? state.vnextCore.actions.length : 0);
+  setText('metric-resources', state.vnextCore && Array.isArray(state.vnextCore.resources) ? state.vnextCore.resources.length : 0);
+  setText('metric-remote-surfaces', state.vnextCore && Array.isArray(state.vnextCore.remoteSurfaces) ? state.vnextCore.remoteSurfaces.length : 0);
+  setText('metric-public-components', componentSnapshot.publicComponentCount);
+  setText('metric-rmt-metadata', componentSnapshot.withRmtMetadata);
+  setText('metric-player-state', playerSnapshot.state && playerSnapshot.state.status ? playerSnapshot.state.status : 'paused');
 
   renderTimeline();
   setXCode('demo-runtime-snapshot', snapshot);
@@ -989,7 +1234,8 @@ function refreshDemoUi() {
     productiveAdapterFactories: [
       'createRmtXRouterAdapter',
       'createRmtXtendComponentAdapter',
-      'createRmtStateSchedulerDiagnosticsBridge'
+      'createRmtStateSchedulerDiagnosticsBridge',
+      'createRmtComponentCapabilityRegistry'
     ],
     routeMapping: state.mappings.routes
       ? {
@@ -1028,7 +1274,14 @@ function refreshDemoUi() {
         operations: state.vnextCore.operations.length,
         slots: state.vnextCore.slots.length,
         events: state.vnextCore.events.length,
-        dataSources: state.vnextCore.dataSources.length
+        dataSources: state.vnextCore.dataSources.length,
+        states: state.vnextCore.states.length,
+        selectors: state.vnextCore.selectors.length,
+        actions: state.vnextCore.actions.length,
+        portals: state.vnextCore.portals.length,
+        overlays: state.vnextCore.overlays.length,
+        resources: state.vnextCore.resources.length,
+        remoteSurfaces: state.vnextCore.remoteSurfaces.length
       }
       : null,
     runtimeProjectionDomains: ['adapters', 'components', 'routes', 'schedules'],
@@ -1056,6 +1309,27 @@ function refreshDemoUi() {
       ? pilotTemplate.metadata.authoring
       : {}
   });
+  setXCode('demo-primitive-matrix', componentSnapshot);
+  setXCode('demo-vnext-primitives', state.vnextCore
+    ? {
+      states: state.vnextCore.states.map((entry) => entry.id),
+      selectors: state.vnextCore.selectors.map((entry) => entry.id),
+      actions: state.vnextCore.actions.map((entry) => entry.id),
+      portals: state.vnextCore.portals.map((entry) => entry.id),
+      overlays: state.vnextCore.overlays.map((entry) => entry.id),
+      resources: state.vnextCore.resources.map((entry) => ({
+        id: entry.id,
+        kind: entry.kind,
+        owner: entry.owner
+      })),
+      remoteSurfaces: state.vnextCore.remoteSurfaces.map((entry) => ({
+        id: entry.id,
+        remote: entry.remote,
+        fallbackSurface: entry.fallbackSurface
+      }))
+    }
+    : {});
+  setXCode('demo-player-contract', playerSnapshot);
 
   syncState();
 }
@@ -1196,11 +1470,43 @@ function runTemplatePilotCycle() {
   });
 }
 
+function runPrimitiveMatrixCycle() {
+  return runScheduled('component.primitive.matrix', 'Refresh XTend component primitive matrix', async () => {
+    const matrix = await loadComponentCapabilityMatrix();
+    const snapshot = readComponentCapabilitySnapshot();
+    xstate.set('xtend.rmt.component.capabilities', snapshot);
+    setStatus(`RMT refreshed ${snapshot.publicComponentCount || matrix.publicComponentCount || 0} XTend component capabilities without kernel imports.`, snapshot.ok ? 'success' : 'warning');
+    return snapshot;
+  });
+}
+
+function runPlayerContractCycle(status = 'playing') {
+  return runScheduled('media.visible.contract', `Apply x-player ${status} contract`, async () => {
+    state.playerSnapshot = {
+      mediaId: 'intro',
+      status,
+      title: 'XTendRMT Runtime Walkthrough',
+      updatedAt: new Date().toISOString()
+    };
+    const player = byId('bestcase-player');
+    if (player) {
+      player.setAttribute('title', state.playerSnapshot.title);
+      player.dataset.rmtState = status;
+    }
+    const snapshot = readPlayerContractSnapshot();
+    xstate.set('xtend.rmt.player.contract', snapshot);
+    setStatus(`RMT applied x-player ${status} request through the public player contract.`, 'success');
+    return snapshot;
+  });
+}
+
 async function runFullCycle() {
   const button = byId('demo-run-all');
   if (button) button.setAttribute('loading', '');
   await navigateWithRmt(state.activeRoute || '/');
   await runTemplatePilotCycle();
+  await runPrimitiveMatrixCycle();
+  await runPlayerContractCycle('playing');
   await runHydrationCycle();
   await runDiagnosticsCycle();
   if (button) button.removeAttribute('loading');
@@ -1223,6 +1529,9 @@ function bindRouteControls(root = document) {
       if (action === 'hydrate') runHydrationCycle();
       if (action === 'diagnostics') runDiagnosticsCycle();
       if (action === 'template-pilot') runTemplatePilotCycle();
+      if (action === 'primitive-matrix') runPrimitiveMatrixCycle();
+      if (action === 'player-play') runPlayerContractCycle('playing');
+      if (action === 'player-pause') runPlayerContractCycle('paused');
       if (action === 'route') navigateWithRmt(state.activeRoute || '/');
     });
   });
@@ -1353,6 +1662,8 @@ function defineDemoRouteComponents() {
                 <x-button data-demo-route="/scheduler" variant="secondary">Scheduler</x-button>
                 <x-button data-demo-route="/routing" variant="primary">Routing DSL</x-button>
                 <x-button data-demo-route="/templating" variant="secondary">Templating Pilot</x-button>
+                <x-button data-demo-route="/primitives" variant="secondary">Primitives</x-button>
+                <x-button data-demo-route="/media" variant="secondary">Media</x-button>
                 <x-button data-demo-route="/adapter" variant="secondary">Adapter</x-button>
               </div>
             </div>
@@ -1420,6 +1731,99 @@ function defineDemoRouteComponents() {
     });
   }
 
+  if (!customElements.get(ROUTE_COMPONENTS.primitives)) {
+    customElements.define(ROUTE_COMPONENTS.primitives, class XRmtRoutePrimitives extends HTMLElement {
+      connectedCallback() {
+        this.innerHTML = `
+          <x-section layout="column" label="RMT Component Primitives">
+            <div slot="header">
+              <h2>Manifest-wide XTend component compatibility from RMT.</h2>
+              <p class="muted">This route uses the Component Capability Registry to read XTend component contracts, RMT metadata, events, slots, parts and source-to-sea risk without importing XTend types into the RMT kernel.</p>
+              <div class="demo-actions">
+                <x-button data-demo-run="primitive-matrix" data-demo-route="/primitives" variant="primary">Refresh matrix</x-button>
+                <x-button data-demo-route="/media" variant="secondary">Open player contract</x-button>
+              </div>
+            </div>
+            <x-cards columns="4" gap="1rem">
+              <x-card>
+                <h3>Public UI</h3>
+                <span id="metric-public-components" class="metric">0</span>
+                <span class="metric-label">Renderable XTend manifest components</span>
+              </x-card>
+              <x-card>
+                <h3>RMT Metadata</h3>
+                <span id="metric-rmt-metadata" class="metric">0</span>
+                <span class="metric-label">Component entries with RMT compatibility metadata</span>
+              </x-card>
+              <x-card>
+                <h3>State</h3>
+                <span id="metric-states" class="metric">0</span>
+                <span class="metric-label">vNext state declarations in this demo source</span>
+              </x-card>
+              <x-card>
+                <h3>Actions</h3>
+                <span id="metric-actions" class="metric">0</span>
+                <span class="metric-label">Declarative event/action records</span>
+              </x-card>
+            </x-cards>
+            <x-status id="primitive-status" label="Component primitive matrix" state="ready"></x-status>
+            <x-progress value="90" max="100" label="RMT primitive coverage"></x-progress>
+            <x-code id="demo-primitive-matrix" lang="json"><template>{}</template></x-code>
+            <x-code id="demo-vnext-primitives" lang="json"><template>{}</template></x-code>
+          </x-section>
+        `;
+        bindRouteControls(this);
+        refreshDemoUi();
+      }
+    });
+  }
+
+  if (!customElements.get(ROUTE_COMPONENTS.media)) {
+    customElements.define(ROUTE_COMPONENTS.media, class XRmtRouteMedia extends HTMLElement {
+      connectedCallback() {
+        this.innerHTML = `
+          <x-section layout="column" label="RMT Player Contract">
+            <div slot="header">
+              <h2>x-player is driven through a public RMT contract.</h2>
+              <p class="muted">The demo records play/pause requests, state bridge output, theme tokens, CSS parts and object-URL ownership without product code touching <code>shadowRoot</code>.</p>
+              <div class="demo-actions">
+                <x-button data-demo-run="player-play" variant="primary">Play request</x-button>
+                <x-button data-demo-run="player-pause" variant="secondary">Pause request</x-button>
+                <x-button data-demo-route="/primitives" variant="secondary">Component matrix</x-button>
+              </div>
+            </div>
+            <x-cards columns="4" gap="1rem">
+              <x-card>
+                <h3>Player State</h3>
+                <span id="metric-player-state" class="metric">paused</span>
+                <span class="metric-label">Mirrored through xstate host bridge</span>
+              </x-card>
+              <x-card>
+                <h3>Resources</h3>
+                <span id="metric-resources" class="metric">0</span>
+                <span class="metric-label">Owner-scoped resources with destroy cleanup</span>
+              </x-card>
+              <x-card>
+                <h3>Remote</h3>
+                <span id="metric-remote-surfaces" class="metric">0</span>
+                <span class="metric-label">Declarative remote surface contracts</span>
+              </x-card>
+              <x-card>
+                <h3>Boundary</h3>
+                <span class="metric">API</span>
+                <span class="metric-label">No product shadowRoot patching</span>
+              </x-card>
+            </x-cards>
+            <x-player id="bestcase-player" title="XTendRMT Runtime Walkthrough" height="260"></x-player>
+            <x-code id="demo-player-contract" lang="json"><template>{}</template></x-code>
+          </x-section>
+        `;
+        bindRouteControls(this);
+        refreshDemoUi();
+      }
+    });
+  }
+
   if (!customElements.get(ROUTE_COMPONENTS.adapter)) {
     customElements.define(ROUTE_COMPONENTS.adapter, class XRmtRouteAdapter extends HTMLElement {
       connectedCallback() {
@@ -1468,6 +1872,10 @@ async function waitForXtendElements() {
     'x-button',
     'x-alert',
     'x-code',
+    'x-player',
+    'x-progress',
+    'x-status',
+    'x-toast',
     'x-modal',
     'x-router',
     'x-route',
@@ -1643,7 +2051,10 @@ async function loadDemoDocument() {
     routes: Array.isArray(normalizedDocument.routes) ? normalizedDocument.routes : [],
     schedules: Array.isArray(normalizedDocument.schedules) ? normalizedDocument.schedules : [],
     pilotFlow: metadata.pilotFlow || null,
-    nativeDemoMigration: metadata.nativeDemoMigration || null
+    nativeDemoMigration: metadata.nativeDemoMigration || null,
+    componentPrimitives: metadata.componentPrimitives || null,
+    playerContract: metadata.playerContract || null,
+    surfaceResourceLifecycle: metadata.surfaceResourceLifecycle || null
   };
   return normalizedDocument;
 }
@@ -1653,6 +2064,7 @@ async function initDemo() {
     ensureXTendNamespace();
     defineDemoRouteComponents();
     await waitForXtendElements();
+    await loadComponentCapabilityMatrix();
 
     state.runtime = createRmtRuntime({
       windowTarget: window,
@@ -1709,7 +2121,11 @@ const demoApi = {
   runHydrationCycle,
   runDiagnosticsCycle,
   runTemplatePilotCycle,
+  runPrimitiveMatrixCycle,
+  runPlayerContractCycle,
   readPilotFlowSnapshot,
+  readComponentCapabilitySnapshot,
+  readPlayerContractSnapshot,
   snapshot: readSchedulerSnapshot
 };
 

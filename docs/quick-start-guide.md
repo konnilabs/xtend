@@ -139,7 +139,36 @@ renderer.renderKeyed(root, [
 So koennen RMT-Primitives XTend UI nutzen, ohne Shadow-DOM-Patches,
 komponentenspezifische Renderer oder manuelle HTML-Sinks einzubauen.
 
-## 4. RMT lokal pruefen
+## 4. Serverseitig vorhydrieren
+
+Node-Hosts koennen dieselbe RMT-Beschreibung fuer SSR und inkrementelles JSONL
+nutzen. Der Adapter bleibt framework-neutral und startet keinen eigenen
+HTTP-Server:
+
+```js
+import {
+  createRmtNodeSsrAdapter
+} from '@ccslabs/xtend/rmt/node-ssr-adapter';
+
+const adapter = createRmtNodeSsrAdapter({ manifest, sourceTexts });
+const result = await adapter.render({ source, filePath: 'app.rmt' });
+```
+
+PHP/Laravel-Hosts nutzen denselben clientseitigen Wire-Shape ueber das
+Single-File-Modul:
+
+```php
+require __DIR__ . '/xtendrmt/rmt-php-ssr-adapter.php';
+
+$adapter = createRmtPhpSsrAdapter(['manifest' => $manifest]);
+$result = $adapter->render(['coreDocument' => $coreDocument]);
+```
+
+Mehr dazu:
+[RMT Node SSR Adapter](./rmt-node-ssr-adapter.md) und
+[RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md).
+
+## 5. RMT lokal pruefen
 
 Der Standardcheck fuer ein einzelnes Dokument ist:
 
@@ -163,7 +192,7 @@ Der Agent Report enthaelt `repairPlan`, `fixOrder`, `confidence`, `impact`,
 `relatedDiagnostics` und erklaerte No-Ops fuer bewusst nicht automatisierte
 Reparaturen.
 
-## 5. Editor-Unterstuetzung aktivieren
+## 6. Editor-Unterstuetzung aktivieren
 
 Der RMT Language Server startet lokal ueber:
 
@@ -181,6 +210,8 @@ RMT Snippets den Prefix `rmt-app` nutzen; fuer vNext-Primitives ist
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md)
+- [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md)
+- [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md)
 - [XTendRMT Developer Overview](./xtendrmt-overview.md)
 - [RMT Linter und AI-Agent Repair Report](./rmt-linter.md)
 - [RMT Language Server und Editor Setup](./rmt-language-server.md)

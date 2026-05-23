@@ -44,6 +44,19 @@ class XCards extends HTMLElement {
     };
   }
 
+  static get xtendLayoutStabilityProfile() {
+    return {
+      schema: "xtend.layout-stability.v1",
+      componentRef: "x-cards",
+      minBlockSize: "var(--cards-reserved-block-size, var(--xtend-layout-reserved-block-size, 18rem))",
+      intrinsicSize: "auto var(--cards-reserved-block-size, 18rem)",
+      slotReserve: ["default"],
+      hydrationShiftPolicy: "no-geometry-shift",
+      shellFirstCompatible: true,
+      lazyLoadingCompatible: true
+    };
+  }
+
   static get xtendLayoutDisplayMediaUxProfile() {
     return {
       schema: "xtend.component.layout-display-media-ux-profile.v1",
@@ -82,6 +95,8 @@ class XCards extends HTMLElement {
           --card-max-width: var(--xtend-layout-content-max, 1200px);
           --xtend-layout-grid-min: minmax(min(100%, 16rem), 1fr);
           /* margin und width entfernt, damit kein Overflow entsteht */
+          min-block-size: var(--cards-reserved-block-size, var(--xtend-layout-reserved-block-size, auto));
+          contain-intrinsic-size: auto var(--cards-reserved-block-size, var(--xtend-layout-reserved-block-size, 18rem));
         }
         .grid {
           display: grid;

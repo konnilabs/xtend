@@ -32,7 +32,8 @@ const RMT_RUNTIME_PACKAGE_EXPORTS = Object.freeze([
   './rmt/action-effect-runtime',
   './rmt/event-routing-runtime',
   './rmt/surface-resource-graph-runtime',
-  './rmt/native-shell-runtime'
+  './rmt/native-shell-runtime',
+  './rmt/node-ssr-adapter'
 ]);
 
 const RMT_TOOLING_PACKAGE_EXPORTS = Object.freeze([
@@ -123,6 +124,7 @@ const RMT_REPRESENTATIVE_DECLARATION_TOKENS = Object.freeze({
   'tools/rmt-language/kernel-policy-parity.d.ts': ['RmtKernelPolicyParityController', 'RmtKernelPolicyParityReport', 'createKernelPolicyParityController'],
   'tools/rmt-language/kernel-security-regression.d.ts': ['RmtKernelSecurityRegressionReport', 'RmtKernelSecurityRegressionFixtureSet', 'createKernelSecurityRegressionFixtures'],
   'xtendrmt/rmt-component-capability-registry.d.ts': ['RmtComponentCapabilityRegistry', 'RmtComponentCapability', 'createRmtComponentCapabilityRegistry'],
+  'xtendrmt/rmt-node-ssr-adapter.d.ts': ['RmtNodeSsrAdapter', 'RmtNodeSsrRenderResult', 'RmtNodeSsrJsonlFrame', 'createRmtNodeSsrAdapter'],
   'tools/rmt-language-server/protocol.d.ts': ['RmtJsonRpcMessage', 'encodeProtocolMessage', 'parseProtocolMessages'],
   'tools/rmt-language-server/server.d.ts': ['RmtLanguageServiceProvider', 'RmtLanguageServer', 'createRmtLanguageServer'],
   'tools/rmt-linter/reporter.d.ts': ['RmtLanguageServiceReport', 'createRmtAgentRepairReport'],
@@ -190,6 +192,7 @@ function resolveDeclarationForExport(exportKey) {
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.d.ts';
   if (exportKey === './rmt/surface-resource-graph-runtime') return './xtendrmt/rmt-surface-resource-graph-runtime.d.ts';
   if (exportKey === './rmt/native-shell-runtime') return './xtendrmt/rmt-native-shell-runtime.d.ts';
+  if (exportKey === './rmt/node-ssr-adapter') return './xtendrmt/rmt-node-ssr-adapter.d.ts';
   if (exportKey === './rmt-language/snippets') return './tools/rmt-language/snippets/index.d.ts';
   if (exportKey === './rmt-language-server') return './tools/rmt-language-server/server.d.ts';
   if (exportKey === './rmt-language-server/protocol') return './tools/rmt-language-server/protocol.d.ts';
@@ -209,6 +212,7 @@ function resolveSourceForExport(exportKey) {
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.js';
   if (exportKey === './rmt/surface-resource-graph-runtime') return './xtendrmt/rmt-surface-resource-graph-runtime.js';
   if (exportKey === './rmt/native-shell-runtime') return './xtendrmt/rmt-native-shell-runtime.js';
+  if (exportKey === './rmt/node-ssr-adapter') return './xtendrmt/rmt-node-ssr-adapter.js';
   if (exportKey === './rmt-language/snippets') return './tools/rmt-language/snippets/index.js';
   if (exportKey === './rmt-language-server') return './tools/rmt-language-server/server.js';
   if (exportKey === './rmt-language-server/protocol') return './tools/rmt-language-server/protocol.js';
@@ -227,6 +231,7 @@ const RMT_DECLARATION_FILES = Object.freeze([
   'xtendrmt/rmt-event-routing-runtime.d.ts',
   'xtendrmt/rmt-surface-resource-graph-runtime.d.ts',
   'xtendrmt/rmt-native-shell-runtime.d.ts',
+  'xtendrmt/rmt-node-ssr-adapter.d.ts',
   RMT_SHARED_DECLARATION_FILE,
   ...RMT_TOOLING_PACKAGE_EXPORTS.map((exportKey) => toRepoRelative(resolveDeclarationForExport(exportKey)))
 ]);

@@ -57,6 +57,8 @@ Anwender koennen entweder das Gesamtpaket oder einzelne Laufzeit-/Tooling-Pakete
 | Release Checklist und SemVer | `development/XTend-Release-Checklist-und-SemVer-Policy.md` |
 | XTendRMT ESM Runtime | `xtendrmt/rmt-runtime.esm.js` |
 | XTendRMT Browser Runtime | `xtendrmt/rmt-runtime.browser.js` |
+| XTendRMT Node SSR Adapter | `xtendrmt/rmt-node-ssr-adapter.js` |
+| XTendRMT PHP/Laravel SSR Adapter | `xtendrmt/rmt-php-ssr-adapter.php` |
 | Scaffold CLI | `xt`, `xtend`, `xtend-scaffold`, `xtend-builder/scaffold.js` |
 | Supply-Chain Policy | `security/supply-chain-gate-policy.js` |
 
@@ -91,6 +93,8 @@ npm run test:epic13-conditional-network-evidence-ci
 npm run conditional-network:evidence
 npm run dev:local:csp
 npm run test:docs-rmt-pilot
+npm run test:rmt-node-ssr-adapter
+npm run test:rmt-php-ssr-adapter
 npm run release:check
 npm run pack:dry-run:report
 npm run pack:dry-run

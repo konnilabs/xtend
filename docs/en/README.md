@@ -11,6 +11,7 @@ Historical planning and release notes are bundled in the [XTend Changelog](./cha
 | Start your first local app | [Quick Start Guide](./quick-start-guide.md) |
 | Write the full UI in RMT | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md) |
 | Connect RMT primitives with XTend UI | [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md) |
+| Server-prerender RMT | [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md) and [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) |
 | Understand RMT architecture | [XTendRMT Developer Overview](./xtendrmt-overview.md) |
 | Use or build components | [Component Development](./components.md) and [Component Platform](./component-platform.md) |
 | Connect loader, manifest, and runtime | [XTend Loader](./xtend-loader.md), [Manifest Format](./manifest.md), [API Integration](./api.md) |
@@ -34,6 +35,8 @@ RMT vNext is the primary syntax for new XTend apps. A single `.rmt` source can d
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md)
+- [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md)
+- [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md)
 - [XTendRMT Developer Overview](./xtendrmt-overview.md)
 - [Native RMT Authoring](./xtendrmt-native-authoring.md)
 - [XTendRMT App DSL Reference](./xtendrmt-app-dsl.md)
@@ -89,6 +92,8 @@ Fabric runs runtime work in lanes and fibers. RMT describes scheduling and lifec
 
 - [XTend-Fabric Runtime](./xtend-fabric.md)
 - [XTend-Fabric RMT Lane Mapping](./xtend-fabric-rmt-lane-mapping.md)
+- [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md)
+- [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md)
 - [SurfaceManager RMT Authoring](./surface-manager-rmt-authoring.md)
 - [SurfaceManager Controller](./surface-manager-controller.md)
 - [SurfaceManager Migration Guide](./surface-manager-migration-guide.md)

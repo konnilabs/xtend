@@ -202,10 +202,10 @@ If special logic is still necessary, it belongs in an adapter or in upstream RMT
 
 `xtendrmt/xtendrmt-bestcase-demo.rmt` is the production authoring reference for RMT vNext:
 
-- the `.rmt` file uses `template`, `surface`, `lane`, lifecycle operations, slots and event actions instead of JSON
+- the `.rmt` file uses `template`, `surface`, `lane`, lifecycle operations, slots, event actions, state, selectors, actions, data sources, portals, overlays, resources and remote surfaces instead of JSON
 - `xtendrmt/xtendrmt-bestcase-demo.core.json` is the byte-stable vNext Core output
-- the browser demo projects vNext Core to `adapters`, `components`, `routes` and `schedules` at runtime
-- `createRmtXRouterAdapter`, `createRmtXtendComponentAdapter` and `createRmtStateSchedulerDiagnosticsBridge` remain the production adapter paths
+- the browser demo projects vNext Core to `adapters`, `components`, `routes`, `schedules`, the Component Capability Registry, the Player Contract and resource ownership at runtime
+- `createRmtXRouterAdapter`, `createRmtXtendComponentAdapter`, `createRmtStateSchedulerDiagnosticsBridge` and `createRmtComponentCapabilityRegistry` remain the production adapter paths
 - `nativeDemoMigration` is retained in the runtime projection as handoff metadata
 
 `tests/browser/fixtures/rmt-xrouter-xtend-smoke.html` is the browser-near regression for the migrated path. It additionally verifies `vanilla.component` so the target state remains framework-agnostic.

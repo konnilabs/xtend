@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="XTendRMT BestCase Demo: RMT als Scheduler und Kernel mit vollstaendiger XTend UI.">
   <meta name="xtendrmt-browser-smoke" content="tests/browser/fixtures/rmt-xrouter-xtend-smoke.html">
-  <meta name="xtend-preload" content="x-header,x-section,x-cards,x-tabs,x-button,x-alert,x-code,x-spinner,x-modal,x-router,x-footer">
+  <meta name="xtend-preload" content="x-header,x-section,x-cards,x-tabs,x-button,x-alert,x-code,x-spinner,x-modal,x-router,x-footer,x-status,x-progress,x-player,x-toast,x-popover">
   <title>XTendRMT BestCase Demo</title>
   <link rel="icon" href="icons/favicon.ico">
   <link rel="stylesheet" href="xtend.css">
@@ -176,6 +176,8 @@
     <a slot="nav" href="#/scheduler" is-x-link>Scheduler</a>
     <a slot="nav" href="#/routing" is-x-link>Routing DSL</a>
     <a slot="nav" href="#/templating" is-x-link>Templating Pilot</a>
+    <a slot="nav" href="#/primitives" is-x-link>Primitives</a>
+    <a slot="nav" href="#/media" is-x-link>Media</a>
     <a slot="nav" href="#/adapter" is-x-link>Adapter</a>
     <x-button slot="utility" id="demo-run-all" variant="primary" aria-label="RMT Scheduling Zyklus ausfuehren">Run cycle</x-button>
   </x-header>
@@ -203,6 +205,8 @@
     <a slot="nav" href="#/">Kernel</a>
     <a slot="nav" href="#/scheduler">Scheduler</a>
     <a slot="nav" href="#/templating">Templating Pilot</a>
+    <a slot="nav" href="#/primitives">Primitives</a>
+    <a slot="nav" href="#/media">Media</a>
     <div slot="extra">RMT bleibt framework-agnostisch; XTend ist der First-Class Product Adapter.</div>
   </x-footer>
 </body>

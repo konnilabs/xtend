@@ -1095,6 +1095,64 @@ function getDocsRmtDocument() {
     : {};
 }
 
+function getDocsSsrPrehydration() {
+  return window.xtendDocsSsrPrehydration && typeof window.xtendDocsSsrPrehydration === 'object'
+    ? window.xtendDocsSsrPrehydration
+    : null;
+}
+
+function findPrehydratedDocsShell(root, slug) {
+  if (!root || typeof root.querySelector !== 'function') return null;
+  const selectors = [
+    '[data-rmt-shell-prehydrated="true"][data-rmt-shell="docs.app.shell"]',
+    '[data-rmt-shell-prehydrated="true"].docs-app-shell',
+    '[data-rmt-hydration-mode="server_prerender_hydrate"][data-rmt-shell="docs.app.shell"]'
+  ];
+  const shell = root.querySelector(selectors.join(','));
+  if (!shell) return null;
+  if (slug) shell.setAttribute('data-docs-route-slug', slug);
+  return shell;
+}
+
+function adoptPrehydratedDocsShell(shell, rmtMeta = {}) {
+  if (!shell || typeof shell.querySelector !== 'function') return null;
+  shell.classList.add('docs-app-shell');
+  shell.setAttribute('data-rmt-ssr-reused', 'true');
+  shell.setAttribute('data-rmt-shell-prehydrated', 'true');
+  shell.setAttribute('data-rmt-hydration-mode', 'server_prerender_hydrate');
+  const layout = shell.querySelector('[data-rmt-layout="main-sidebar"], .docs-shell-layout');
+  const article = shell.querySelector('[data-rmt-slot="article"], .docs-article-surface');
+  const mdContent = shell.querySelector('[data-rmt-slot="content"], #md-content') || document.createElement('div');
+  const download = shell.querySelector('[data-rmt-action="docs.download.markdown"], #download-link') || document.createElement('x-button');
+  const sidebar = shell.querySelector('[data-rmt-slot="sidebar"], #docs-page-sidebar');
+  const relatedSlot = shell.querySelector('[data-rmt-slot="related"], #docs-related-links');
+  const demoSlot = shell.querySelector('[data-rmt-slot="component-demo"], #docs-component-demo');
+  const richSlot = shell.querySelector('[data-rmt-slot="rich-content"], #docs-rich-content');
+  const diagnosticsSlot = shell.querySelector('[data-rmt-slot="diagnostics"], #docs-rmt-diagnostics');
+  if (!layout || !article || !sidebar || !relatedSlot || !demoSlot) return null;
+  if (!mdContent.id) mdContent.id = 'md-content';
+  if (!download.id) download.id = 'download-link';
+  configureDocsIconButton(download, {
+    icon: 'download',
+    pack: 'core',
+    label: 'Download als Markdown'
+  });
+  return {
+    section: shell,
+    layout,
+    article,
+    mdContent,
+    sidebar,
+    relatedSlot,
+    demoSlot,
+    download,
+    richSlot,
+    diagnosticsSlot,
+    shellTemplate: getRmtTemplate(rmtMeta.shellTemplate || DOCS_RMT_DEFAULT_SHELL_TEMPLATE),
+    prehydrated: true
+  };
+}
+
 function indexRmtRecords(records) {
   return new Map((Array.isArray(records) ? records : [])
     .filter((record) => record && typeof record === 'object')
@@ -1247,16 +1305,21 @@ function createFallbackDocsShell() {
   section.setAttribute('aria-label', 'XTend Developer Center Content Shell');
   section.setAttribute('data-rmt-shell', DOCS_RMT_DEFAULT_SHELL_TEMPLATE);
   section.setAttribute('data-rmt-shell-mode', 'shell-first');
+  section.setAttribute('data-xtend-layout-reserve', 'shell route');
+  section.setAttribute('data-xtend-cls-anchor', 'docs.page.shell');
 
   const layout = document.createElement('div');
   layout.className = 'docs-shell-layout';
   layout.setAttribute('data-rmt-layout', 'main-sidebar');
   layout.setAttribute('data-rmt-component', 'docs.shellLayout');
+  layout.setAttribute('data-xtend-layout-reserve', 'shell route');
 
   const article = document.createElement('article');
   article.className = 'docs-article-surface';
   article.setAttribute('data-rmt-slot', 'article');
   article.setAttribute('data-rmt-component', 'docs.article');
+  article.setAttribute('data-xtend-layout-reserve', 'route content');
+  article.setAttribute('data-xtend-cls-anchor', 'docs.article');
 
   const toolbar = document.createElement('div');
   toolbar.className = 'docs-shell-toolbar';
@@ -1279,6 +1342,7 @@ function createFallbackDocsShell() {
   mdContent.setAttribute('data-rmt-extension-slot', 'docs.slot.content');
   mdContent.setAttribute('data-rmt-content-kind', 'parsedownHtml');
   mdContent.setAttribute('data-rmt-trust-boundary', DOCS_RMT_TRUST_BOUNDARY);
+  mdContent.setAttribute('data-xtend-layout-reserve', 'content');
 
   const sidebar = document.createElement('aside');
   sidebar.id = 'docs-page-sidebar';
@@ -1505,6 +1569,8 @@ function applyRmtPageMetadata(section, mdContent, richSlot, diagnosticsSlot, rmt
   section.setAttribute('data-rmt-route-title', rmtMeta.title || '');
   section.setAttribute('data-rmt-document-title', rmtMeta.documentTitle || '');
   section.setAttribute('data-rmt-title-template', rmtMeta.titleTemplate || '{{title}} | XTend Dokumentation');
+  section.setAttribute('data-xtend-layout-reserve', section.getAttribute('data-xtend-layout-reserve') || 'shell route');
+  section.setAttribute('data-xtend-cls-anchor', section.getAttribute('data-xtend-cls-anchor') || 'docs.page.shell');
 
   if (sidebar) {
     sidebar.setAttribute('data-rmt-slot', 'sidebar');
@@ -1536,6 +1602,7 @@ function applyRmtPageMetadata(section, mdContent, richSlot, diagnosticsSlot, rmt
   mdContent.setAttribute('data-rmt-markup-class', rmtMeta.markupClass || 'parsedownHtml');
   mdContent.setAttribute('data-rmt-content-kind', rmtMeta.contentKind || 'parsedownHtml');
   mdContent.setAttribute('data-rmt-trust-boundary', rmtMeta.trustBoundary || DOCS_RMT_TRUST_BOUNDARY);
+  mdContent.setAttribute('data-xtend-layout-reserve', mdContent.getAttribute('data-xtend-layout-reserve') || 'content');
 
   if (richSlot) {
     richSlot.setAttribute('data-rmt-extension-slot', 'docs.slot.rich-content');
@@ -3187,6 +3254,16 @@ class XtendDocPage extends HTMLElement {
 
   ensureRouteShell(slug, rmtMeta) {
     if (!this.__xtendDocsShell) {
+      const ssrPrehydration = getDocsSsrPrehydration();
+      const prehydratedShell = ssrPrehydration && ssrPrehydration.ok !== false
+        ? adoptPrehydratedDocsShell(findPrehydratedDocsShell(this, slug), rmtMeta)
+        : null;
+      if (prehydratedShell) {
+        this.__xtendDocsShell = prehydratedShell;
+        this.setAttribute('data-docs-shell-reused', 'ssr');
+        this.setAttribute('data-rmt-ssr-reused', 'true');
+        return this.__xtendDocsShell;
+      }
       this.__xtendDocsShell = createRmtDocsShell(slug, rmtMeta);
       this.innerHTML = '';
       this.appendChild(this.__xtendDocsShell.section);
@@ -3265,6 +3342,8 @@ class XtendDocPage extends HTMLElement {
       locale,
       shellFirst: true,
       shellReused: hadShell,
+      shellPrehydrated: Boolean(shell && shell.prehydrated),
+      phpSsrPrehydration: getDocsSsrPrehydration(),
       routeReuse: reused,
       insularHydration: true,
       productionHardeningSchema: DOCS_RMT_PRODUCTION_HARDENING_SCHEMA,

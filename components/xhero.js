@@ -42,6 +42,19 @@ class XHero extends HTMLElement {
     };
   }
 
+  static get xtendLayoutStabilityProfile() {
+    return {
+      schema: "xtend.layout-stability.v1",
+      componentRef: "x-hero",
+      minBlockSize: "var(--hero-reserved-block-size, var(--xtend-layout-reserved-block-size, clamp(12rem, 30vw, 22rem)))",
+      intrinsicSize: "auto var(--hero-reserved-block-size, 18rem)",
+      slotReserve: ["default", "title", "subtitle", "actions"],
+      hydrationShiftPolicy: "no-geometry-shift",
+      shellFirstCompatible: true,
+      lazyLoadingCompatible: true
+    };
+  }
+
   static get xtendLayoutDisplayMediaUxProfile() {
     return {
       schema: "xtend.component.layout-display-media-ux-profile.v1",
@@ -259,6 +272,8 @@ class XHero extends HTMLElement {
           font-family: var(--hero-font-family, var(--xtend-layout-font-family, inherit));
           max-width: 100%;
           min-width: 0;
+          min-block-size: var(--hero-reserved-block-size, var(--xtend-layout-reserved-block-size, auto));
+          contain-intrinsic-size: auto var(--hero-reserved-block-size, var(--xtend-layout-reserved-block-size, 18rem));
           box-sizing: border-box;
         }
         :host([data-theme-dark]) {
@@ -271,7 +286,7 @@ class XHero extends HTMLElement {
           position: relative;
           background-color: ${bg};
           ${bgImg ? `background-image: url('${bgImg}'); background-size: cover; background-position: center;` : ""}
-          min-height: ${fullHeight ? "100vh" : "auto"};
+          min-height: ${fullHeight ? "100vh" : "var(--hero-reserved-block-size, var(--xtend-layout-reserved-block-size, auto))"};
           display: flex;
           justify-content: ${justify};
           align-items: ${alignItems};

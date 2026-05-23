@@ -57,6 +57,20 @@ class XPlayer extends HTMLElement {
     };
   }
 
+  static get xtendLayoutStabilityProfile() {
+    return {
+      schema: "xtend.layout-stability.v1",
+      componentRef: "x-player",
+      minBlockSize: "var(--x-player-reserved-block-size, var(--xtend-layout-reserved-block-size, 18rem))",
+      intrinsicSize: "auto var(--x-player-reserved-block-size, 18rem)",
+      aspectRatio: "var(--x-player-aspect-ratio, 16 / 9)",
+      slotReserve: ["media", "controls", "poster"],
+      hydrationShiftPolicy: "no-geometry-shift",
+      shellFirstCompatible: true,
+      lazyLoadingCompatible: true
+    };
+  }
+
   static get xtendLayoutDisplayMediaUxProfile() {
     return {
       schema: "xtend.component.layout-display-media-ux-profile.v1",
@@ -91,9 +105,11 @@ class XPlayer extends HTMLElement {
           width: 100%;
           height: 100%;
           min-width: 0;
-          min-height: 0;
+          min-height: var(--x-player-reserved-block-size, var(--xtend-layout-reserved-block-size, 0));
           max-width: 100%;
           max-height: 100%;
+          aspect-ratio: var(--x-player-aspect-ratio, 16 / 9);
+          contain-intrinsic-size: auto var(--x-player-reserved-block-size, var(--xtend-layout-reserved-block-size, 18rem));
           overflow: hidden;
           box-sizing: border-box;
           container-type: inline-size;

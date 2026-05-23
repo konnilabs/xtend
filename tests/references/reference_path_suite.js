@@ -948,8 +948,13 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: '"test:component-long-tail-migration": "node scripts/run_xtend_tests.js component-long-tail-migration"', message: 'exposes Epic 11 Legacy Long-Tail Migration test script' },
       { pattern: '"test:epic11-enterprise-ux-handoff": "node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff"', message: 'exposes Epic 11 Enterprise UX Handoff test script' },
       { pattern: '"test:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.json"', message: 'exposes CI report gate script' },
-      { pattern: '"test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot epic18-rmt-app-platform"', message: 'exposes PR fast gate script' },
-      { pattern: '"test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json"', message: 'exposes PR fast report gate script' },
+      { pattern: '"test:rmt-php-ssr-adapter": "node scripts/run_xtend_tests.js rmt-php-ssr-adapter"', message: 'exposes RMT PHP SSR adapter test script' },
+      { pattern: '"test:docs-php-ssr-prehydration": "node scripts/run_xtend_tests.js docs-php-ssr-prehydration"', message: 'exposes Docs PHP SSR prehydration test script' },
+      { pattern: '"test:docs-php-ssr-performance-budget": "node scripts/run_xtend_tests.js docs-php-ssr-performance-budget"', message: 'exposes Docs PHP SSR performance budget test script' },
+      { pattern: '"test:docs-php-ssr-cls-budget": "node scripts/run_xtend_tests.js docs-php-ssr-cls-budget"', message: 'exposes Docs PHP SSR CLS budget test script' },
+      { pattern: '"test:xtend-layout-stability-contract": "node scripts/run_xtend_tests.js xtend-layout-stability-contract"', message: 'exposes XTend layout stability contract test script' },
+      { pattern: '"test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot epic18-rmt-app-platform"', message: 'exposes PR fast gate script' },
+      { pattern: '"test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json"', message: 'exposes PR fast report gate script' },
       { pattern: '"test:release:full": "node scripts/run_xtend_tests.js"', message: 'exposes full release gate script' },
       { pattern: '"test:release:full:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-gate-report.json"', message: 'exposes full release report gate script' },
       { pattern: '"test:manifest-policy": "node scripts/run_xtend_tests.js manifest-import-policy"', message: 'exposes Manifest Import policy test script' },
@@ -5131,20 +5136,37 @@ function assertRmtReference(context, rootDir) {
   const scaffoldCompatibility = rmt.manifest && rmt.manifest.metadata && rmt.manifest.metadata.scaffoldCompatibility;
   const pilotFlow = rmt.manifest && rmt.manifest.metadata && rmt.manifest.metadata.pilotFlow;
   const nativeDemoMigration = rmt.manifest && rmt.manifest.metadata && rmt.manifest.metadata.nativeDemoMigration;
+  const componentPrimitives = rmt.manifest && rmt.manifest.metadata && rmt.manifest.metadata.componentPrimitives;
+  const playerContract = rmt.manifest && rmt.manifest.metadata && rmt.manifest.metadata.playerContract;
+  const surfaceResourceLifecycle = rmt.manifest && rmt.manifest.metadata && rmt.manifest.metadata.surfaceResourceLifecycle;
   const templates = rmt.templates;
   const templatingRoute = Array.isArray(routes) ? routes.find((route) => route.path === '/templating') : null;
+  const primitivesRoute = Array.isArray(routes) ? routes.find((route) => route.path === '/primitives') : null;
+  const mediaRoute = Array.isArray(routes) ? routes.find((route) => route.path === '/media') : null;
   const templatingRouteComponent = Array.isArray(components) ? components.find((component) => component.id === 'x-rmt-route-template-pilot') : null;
+  const primitivesRouteComponent = Array.isArray(components) ? components.find((component) => component.id === 'x-rmt-route-primitives') : null;
+  const mediaRouteComponent = Array.isArray(components) ? components.find((component) => component.id === 'x-rmt-route-media') : null;
   const pilotSchedule = Array.isArray(schedules) ? schedules.find((schedule) => schedule.id === 'template.visible.inspect') : null;
+  const primitivesSchedule = Array.isArray(schedules) ? schedules.find((schedule) => schedule.id === 'component.primitive.matrix') : null;
+  const mediaSchedule = Array.isArray(schedules) ? schedules.find((schedule) => schedule.id === 'media.visible.contract') : null;
   const pilotTemplate = Array.isArray(templates) ? templates.find((template) => template.id === 'demo.templating.pilot') : null;
+  const primitivesTemplate = Array.isArray(templates) ? templates.find((template) => template.id === 'demo.primitives') : null;
+  const mediaTemplate = Array.isArray(templates) ? templates.find((template) => template.id === 'demo.media') : null;
   const pilotAuthoring = pilotTemplate && pilotTemplate.metadata && pilotTemplate.metadata.authoring
     ? pilotTemplate.metadata.authoring
     : {};
   const pilotAttachment = pilotFlow && pilotFlow.componentAttachment ? pilotFlow.componentAttachment : {};
 
-  context.assert(rmtSource.trimStart().startsWith('template xtendrmt.bestcase.demo'), 'XTendRMT demo authoring source uses vNext template syntax');
+  context.assert(rmtSource.includes('template xtendrmt.bestcase.demo'), 'XTendRMT demo authoring source uses vNext template syntax');
   context.assert(!rmtSource.trimStart().startsWith('{'), 'XTendRMT demo authoring source is no longer legacy JSON');
   context.assert(rmtCore.schema === 'xtend.rmt.core-format.vnext.v1', 'XTendRMT demo has deterministic vNext Core output');
   context.assert(Array.isArray(rmtCore.lanes) && rmtCore.lanes.some((lane) => lane.name === 'visible' && lane.weight === 88), 'XTendRMT demo vNext Core preserves weighted visible lane');
+  context.assert(Array.isArray(rmtCore.states) && rmtCore.states.length >= 3, 'XTendRMT demo vNext Core exposes primitive state declarations');
+  context.assert(Array.isArray(rmtCore.selectors) && rmtCore.selectors.some((selector) => selector.name === 'demo.component.matrix'), 'XTendRMT demo vNext Core exposes component primitive selector');
+  context.assert(Array.isArray(rmtCore.actions) && rmtCore.actions.some((action) => action.name === 'demo.player.play'), 'XTendRMT demo vNext Core exposes player action');
+  context.assert(Array.isArray(rmtCore.portals) && rmtCore.portals.some((portal) => portal.name === 'bestcase.overlay.root'), 'XTendRMT demo vNext Core exposes overlay portal');
+  context.assert(Array.isArray(rmtCore.resources) && rmtCore.resources.some((resource) => resource.name === 'bestcase.capabilityRegistry'), 'XTendRMT demo vNext Core exposes capability registry resource ownership');
+  context.assert(Array.isArray(rmtCore.remoteSurfaces) && rmtCore.remoteSurfaces.length === 1, 'XTendRMT demo vNext Core includes remote surface contract');
   context.assert(rmt.documentId === 'xtendrmt.bestcase.demo', 'XTendRMT demo document id is stable');
   context.assert(
     Array.isArray(scaffoldBindings) && scaffoldBindings.some((entry) => entry.id === 'xtend.scaffold.rmt-compatibility-binding.v1'),
@@ -5188,11 +5210,17 @@ function assertRmtReference(context, rootDir) {
   context.assert(Array.isArray(adapters) && adapters.some((entry) => entry.id === 'xtend.xrouter'), 'XTendRMT demo exposes native XRouter adapter domain record');
   context.assert(Array.isArray(adapters) && adapters.some((entry) => entry.id === 'xtend.component'), 'XTendRMT demo exposes native XTend component adapter domain record');
   context.assert(Array.isArray(adapters) && adapters.some((entry) => entry.id === 'rmt.state-scheduler-diagnostics'), 'XTendRMT demo exposes native State/Scheduler/Diagnostics bridge adapter record');
-  context.assert(Array.isArray(routes) && routes.length >= 5, 'XTendRMT demo exposes native route domain');
+  context.assert(Array.isArray(routes) && routes.length >= 7, 'XTendRMT demo exposes expanded native route domain');
   context.assert(Array.isArray(routes) && routes.every((entry) => entry.router === 'xtend.xrouter'), 'XTendRMT demo routes target native XRouter adapter');
   context.assert(Array.isArray(components) && components.some((entry) => entry.adapter === 'xtend.component'), 'XTendRMT demo exposes native XTend component domain');
   context.assert(templatingRouteComponent && templatingRouteComponent.tag === 'x-rmt-route-template-pilot', 'XTendRMT demo exposes native templating route component record');
+  context.assert(primitivesRoute && primitivesRoute.component === 'x-rmt-route-primitives', 'XTendRMT demo exposes Component Primitives route');
+  context.assert(mediaRoute && mediaRoute.component === 'x-rmt-route-media', 'XTendRMT demo exposes Player/Media route');
+  context.assert(primitivesRouteComponent && primitivesRouteComponent.tag === 'x-rmt-route-primitives', 'XTendRMT demo exposes native primitives route component record');
+  context.assert(mediaRouteComponent && mediaRouteComponent.tag === 'x-rmt-route-media', 'XTendRMT demo exposes native media route component record');
   context.assert(Array.isArray(schedules) && schedules.some((entry) => entry.id === 'route.visible.render'), 'XTendRMT demo exposes native route scheduling policy');
+  context.assert(primitivesSchedule && primitivesSchedule.endpointName === 'xtendrmt.component-capability.matrix', 'XTendRMT demo exposes component capability matrix scheduler endpoint');
+  context.assert(mediaSchedule && mediaSchedule.endpointName === 'xtendrmt.player.contract', 'XTendRMT demo exposes player contract scheduler endpoint');
   context.assert(templateAuthoring && templateAuthoring.contractVersion === 'xtend.rmt.template-authoring.v1', 'XTendRMT demo exposes template authoring contract metadata');
   context.assert(templateAuthoring && templateAuthoring.adapter === 'xtend.template', 'XTendRMT demo exposes XTend template adapter metadata');
   context.assert(rootLifecycle && rootLifecycle.contractVersion === 'xtend.rmt.root-handshake.v1', 'XTendRMT demo exposes root handshake contract metadata');
@@ -5215,6 +5243,12 @@ function assertRmtReference(context, rootDir) {
     'XTendRMT demo declares hydration capability ref'
   );
   context.assert(hostCapabilities && hostCapabilities.kernelVisible === false, 'XTendRMT demo keeps host capabilities out of kernel visibility');
+  context.assert(componentPrimitives && componentPrimitives.schema === 'xtend.rmt.component-capability-registry.v1', 'XTendRMT demo exposes component capability registry metadata');
+  context.assert(componentPrimitives && componentPrimitives.coverageTarget === 'all-public-xtend-components', 'XTendRMT demo targets all public XTend components for primitives coverage');
+  context.assert(componentPrimitives && componentPrimitives.noShadowRootPatching === true, 'XTendRMT demo keeps component primitive path free of shadowRoot patching');
+  context.assert(playerContract && playerContract.schema === 'xtend.mm-rmt.player-contract.v1', 'XTendRMT demo exposes public x-player RMT contract');
+  context.assert(playerContract && Array.isArray(playerContract.commands) && playerContract.commands.includes('play-media'), 'XTendRMT demo player contract includes play command');
+  context.assert(surfaceResourceLifecycle && surfaceResourceLifecycle.cleanupPolicy === 'close-and-dispose-on-owner-destroy', 'XTendRMT demo exposes surface resource lifecycle cleanup policy');
   context.assert(scaffoldCompatibility && scaffoldCompatibility.schema === 'xtend.scaffold.rmt-compatibility-binding.v1', 'XTendRMT demo exposes scaffold RMT compatibility metadata');
   context.assert(
     scaffoldCompatibility && Array.isArray(scaffoldCompatibility.requiredContracts) && scaffoldCompatibility.requiredContracts.includes('xtend.rmt.host-capabilities.v1'),
@@ -5243,6 +5277,8 @@ function assertRmtReference(context, rootDir) {
   context.assert(pilotTemplate && pilotTemplate.mode === 'dom_descriptor', 'XTendRMT demo pilot template uses DOM descriptor mode');
   context.assert(pilotAuthoring.contractVersion === 'xtend.rmt.template-authoring.v1', 'XTendRMT demo pilot template keeps authoring contract');
   context.assert(pilotAuthoring.bridgeRuntime === 'reserved-for-Epic-05', 'XTendRMT demo pilot template keeps bridge runtime reserved');
+  context.assert(primitivesTemplate && primitivesTemplate.metadata && primitivesTemplate.metadata.authoring && primitivesTemplate.metadata.authoring.componentCapabilityRegistry === 'xtend.rmt.component-capability-registry.v1', 'XTendRMT demo primitives template references component capability registry');
+  context.assert(mediaTemplate && mediaTemplate.metadata && mediaTemplate.metadata.authoring && mediaTemplate.metadata.authoring.playerContract === 'xtend.mm-rmt.player-contract.v1', 'XTendRMT demo media template references player contract');
   context.assertIncludes(registry, '| `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static |', 'XTendRMT RMT document is listed as automated static reference');
   context.assertIncludes(registry, 'XTendRMT-Pilot-Flow-RMT-basiertes-XTend-Templating.md', 'XTendRMT template pilot reference is listed');
   context.assertIncludes(registry, 'xtend.rmt.template-pilot-flow.v1', 'Reference registry documents template pilot flow schema');
@@ -5264,7 +5300,7 @@ function assertRmtReference(context, rootDir) {
   context.assertIncludes(registry, 'xtend.rmt.artifact-parity.v1', 'Reference registry documents artifact parity schema');
   context.assertIncludes(registry, 'scripts/verify_xtendrmt_artifact_parity.js', 'Reference registry documents artifact parity gate script');
   context.assertIncludes(registry, 'WP-E05-14-Bestcase-Demo-auf-native-Routes-und-Components-migrieren.md', 'XTendRMT native demo migration reference is listed');
-  context.assertIncludes(registry, 'Native RMT-Domains fuer Routen, XTend-Components, Adapter, Schedules', 'Reference registry documents native demo domains');
+  context.assertIncludes(registry, 'Component Primitives, Player Contract und Scheduler Policies', 'Reference registry documents native demo domains');
   context.assertIncludes(registry, 'RMT-vNext-Authoring fuer Bestcase Surfaces, Lanes, Lifecycle-Operationen', 'Reference registry documents vNext bestcase authoring');
   context.assertIncludes(registry, 'xtendrmt/xtendrmt-bestcase-demo.core.json', 'Reference registry documents bestcase vNext Core output');
   context.assertIncludes(registry, 'WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md', 'XTendRMT WP-15 runtime test reference is listed');
@@ -7667,6 +7703,11 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-long-tail-migration'), 'PR fast gate includes Component Long-Tail Migration suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('epic11-enterprise-ux-handoff'), 'PR fast gate includes Epic 11 Enterprise UX Handoff suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('manifest-import-policy'), 'PR fast gate includes manifest import policy suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-php-ssr-adapter'), 'PR fast gate includes RMT PHP SSR adapter suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-php-ssr-prehydration'), 'PR fast gate includes Docs PHP SSR prehydration suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-php-ssr-performance-budget'), 'PR fast gate includes Docs PHP SSR performance budget suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-php-ssr-cls-budget'), 'PR fast gate includes Docs PHP SSR CLS budget suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('xtend-layout-stability-contract'), 'PR fast gate includes XTend layout stability contract suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-rmt-pilot'), 'PR fast gate includes Docs RMT pilot suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('epic18-rmt-app-platform'), 'PR fast gate includes Epic 18 RMT App Platform suite');
   context.assert(Array.isArray(prFastGate.suites) && !prFastGate.suites.includes('performance-regression'), 'PR fast gate excludes performance regression suite');
@@ -7692,6 +7733,12 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(rmtVNextPrimitiveGate.sourceToSeaEvidenceArtifactName === 'xtend-rmt-vnext-source-to-sea-evidence-node-26', 'Package metadata exposes RMT vNext source-to-sea evidence artifact name');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-vnext-fabric-bridge'), 'RMT vNext primitive gate includes fabric bridge suite');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-vnext-source-to-sea'), 'RMT vNext primitive gate includes source-to-sea suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-node-ssr-adapter'), 'RMT vNext primitive gate includes Node SSR adapter suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-php-ssr-adapter'), 'RMT vNext primitive gate includes PHP SSR adapter suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('docs-php-ssr-prehydration'), 'RMT vNext primitive gate includes Docs PHP SSR prehydration suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('docs-php-ssr-performance-budget'), 'RMT vNext primitive gate includes Docs PHP SSR performance budget suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('docs-php-ssr-cls-budget'), 'RMT vNext primitive gate includes Docs PHP SSR CLS budget suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('xtend-layout-stability-contract'), 'RMT vNext primitive gate includes XTend layout stability contract suite');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-vnext-compatibility'), 'RMT vNext primitive gate includes compatibility suite');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('type-exports-rmt'), 'RMT vNext primitive gate includes RMT TypeExports suite');
   context.assert(packageStructureGate.schema === 'xtend.ci.package-structure-gate.v1', 'Package metadata exposes package structure gate schema');
@@ -7714,9 +7761,9 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:evidence'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js', 'Package exposes RMT vNext source-to-sea evidence script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:browser-required'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser', 'Package exposes RMT vNext source-to-sea browser-required script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromedriver'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver', 'Package exposes RMT vNext source-to-sea chromedriver script');
-  context.assert(packageManifest.scripts['test:rmt-vnext-primitives'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-component-primitives rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt', 'Package exposes RMT vNext primitive aggregate gate script');
-  context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-component-primitives rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package exposes RMT vNext primitive report gate script');
-  context.assert(packageManifest.scripts['test:pr:report'] === 'node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json', 'Package exposes PR fast report gate script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-primitives'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt', 'Package exposes RMT vNext primitive aggregate gate script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package exposes RMT vNext primitive report gate script');
+  context.assert(packageManifest.scripts['test:pr:report'] === 'node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json', 'Package exposes PR fast report gate script');
   context.assert(packageManifest.scripts['test:release:full:report'] === 'node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-gate-report.json', 'Package exposes full release report gate script');
 }
 

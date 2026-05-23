@@ -202,6 +202,26 @@ const {
   runRmtVNextComponentPrimitivesSuite
 } = require('../tests/rmt-language/rmt_vnext_component_primitives_suite');
 const {
+  printRmtNodeSsrAdapterReport,
+  runRmtNodeSsrAdapterSuite
+} = require('../tests/rmt-language/rmt_node_ssr_adapter_suite');
+const {
+  printRmtPhpSsrAdapterReport,
+  runRmtPhpSsrAdapterSuite
+} = require('../tests/rmt-language/rmt_php_ssr_adapter_suite');
+const {
+  printDocsPhpSsrPrehydrationReport,
+  runDocsPhpSsrPrehydrationSuite
+} = require('../tests/rmt/docs_php_ssr_prehydration_suite');
+const {
+  printDocsPhpSsrPerformanceBudgetReport,
+  runDocsPhpSsrPerformanceBudgetSuite
+} = require('../tests/rmt/docs_php_ssr_performance_budget_suite');
+const {
+  printDocsPhpSsrClsBudgetReport,
+  runDocsPhpSsrClsBudgetSuite
+} = require('../tests/rmt/docs_php_ssr_cls_budget_suite');
+const {
   printRmtVNextFabricBridgeReport,
   runRmtVNextFabricBridgeSuite
 } = require('../tests/rmt-language/rmt_vnext_fabric_bridge_suite');
@@ -734,6 +754,10 @@ const {
   runHydrationPolicySuite
 } = require('../tests/performance/hydration_policy_suite');
 const {
+  printXtendLayoutStabilityContractReport,
+  runXtendLayoutStabilityContractSuite
+} = require('../tests/performance/xtend_layout_stability_contract_suite');
+const {
   printFabricRmtLaneMappingReport,
   runFabricRmtLaneMappingSuite
 } = require('../tests/fabric/fabric_rmt_lane_mapping_suite');
@@ -1165,6 +1189,56 @@ const suites = [
       const result = await runRmtVNextComponentPrimitivesSuite({ rootDir });
       printRmtVNextComponentPrimitivesReport(result);
       return toRunnerResult('rmt-vnext-component-primitives', 'RMT vNext XTend Component Primitive Compatibility', result);
+    }
+  },
+  {
+    id: 'rmt-node-ssr-adapter',
+    label: 'RMT Node SSR Adapter',
+    description: 'Runs the Node.js SSR adapter render, hydration, JSONL streaming, export and security compatibility gate.',
+    run: async () => {
+      const result = await runRmtNodeSsrAdapterSuite({ rootDir });
+      printRmtNodeSsrAdapterReport(result);
+      return toRunnerResult('rmt-node-ssr-adapter', 'RMT Node SSR Adapter', result);
+    }
+  },
+  {
+    id: 'rmt-php-ssr-adapter',
+    label: 'RMT PHP/Laravel SSR Adapter',
+    description: 'Runs the PHP/Laravel SSR adapter render, hydration, JSONL streaming, Laravel helper and security compatibility gate.',
+    run: async () => {
+      const result = await runRmtPhpSsrAdapterSuite({ rootDir });
+      printRmtPhpSsrAdapterReport(result);
+      return toRunnerResult('rmt-php-ssr-adapter', 'RMT PHP/Laravel SSR Adapter', result);
+    }
+  },
+  {
+    id: 'docs-php-ssr-prehydration',
+    label: 'Docs-App PHP SSR Prehydration',
+    description: 'Runs the Docs-App PHP SSR prehydration, compiler bridge, JSONL endpoint and browser reuse gate.',
+    run: () => {
+      const result = runDocsPhpSsrPrehydrationSuite({ rootDir });
+      printDocsPhpSsrPrehydrationReport(result);
+      return toRunnerResult('docs-php-ssr-prehydration', 'Docs-App PHP SSR Prehydration', result);
+    }
+  },
+  {
+    id: 'docs-php-ssr-performance-budget',
+    label: 'Docs-App PHP SSR Performance Budget',
+    description: 'Runs the Docs-App SSR payload, prehydration, metadata and x-link scalability budgets.',
+    run: () => {
+      const result = runDocsPhpSsrPerformanceBudgetSuite({ rootDir });
+      printDocsPhpSsrPerformanceBudgetReport(result);
+      return toRunnerResult('docs-php-ssr-performance-budget', 'Docs-App PHP SSR Performance Budget', result);
+    }
+  },
+  {
+    id: 'docs-php-ssr-cls-budget',
+    label: 'Docs-App PHP SSR CLS Budget',
+    description: 'Runs the Docs-App SSR route, footer and shell layout reserve gate for CLS prevention.',
+    run: () => {
+      const result = runDocsPhpSsrClsBudgetSuite({ rootDir });
+      printDocsPhpSsrClsBudgetReport(result);
+      return toRunnerResult('docs-php-ssr-cls-budget', 'Docs-App PHP SSR CLS Budget', result);
     }
   },
   {
@@ -2238,6 +2312,16 @@ const suites = [
     }
   },
   {
+    id: 'xtend-layout-stability-contract',
+    label: 'XTend Layout Stability Contract',
+    description: 'Runs the framework CLS prevention contract for Shell-first and lazy component geometry reserves.',
+    run: () => {
+      const result = runXtendLayoutStabilityContractSuite({ rootDir });
+      printXtendLayoutStabilityContractReport(result);
+      return toRunnerResult('xtend-layout-stability-contract', 'XTend Layout Stability Contract', result);
+    }
+  },
+  {
     id: 'references',
     label: 'Documentation and demo reference paths',
     description: 'Runs documentation, demo and XTendRMT reference-path gates.',
@@ -2734,6 +2818,8 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-compiler
   node scripts/run_xtend_tests.js rmt-vnext-source-to-sea
   node scripts/run_xtend_tests.js rmt-vnext-component-primitives
+  node scripts/run_xtend_tests.js rmt-node-ssr-adapter
+  node scripts/run_xtend_tests.js rmt-php-ssr-adapter
   node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge
   node scripts/run_xtend_tests.js rmt-vnext-lifecycle
   node scripts/run_xtend_tests.js rmt-vnext-scheduler

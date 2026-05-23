@@ -130,7 +130,34 @@ renderer.renderKeyed(root, [
 That lets RMT primitives use XTend UI without Shadow-DOM patches,
 component-specific renderers, or manual HTML sinks.
 
-## 4. Check RMT Locally
+## 4. Server-Prerender with Node
+
+Node hosts can use the same RMT description for SSR and incremental JSONL. The
+adapter stays framework-neutral and does not start its own HTTP server:
+
+```js
+import {
+  createRmtNodeSsrAdapter
+} from '@ccslabs/xtend/rmt/node-ssr-adapter';
+
+const adapter = createRmtNodeSsrAdapter({ manifest, sourceTexts });
+const result = await adapter.render({ source, filePath: 'app.rmt' });
+```
+
+PHP/Laravel hosts use the same client-facing wire shape through the single-file
+module:
+
+```php
+require __DIR__ . '/xtendrmt/rmt-php-ssr-adapter.php';
+
+$adapter = createRmtPhpSsrAdapter(['manifest' => $manifest]);
+$result = $adapter->render(['coreDocument' => $coreDocument]);
+```
+
+See [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md) and
+[RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md).
+
+## 5. Check RMT Locally
 
 ```bash
 xt rmt lint app.rmt
@@ -140,7 +167,7 @@ xt rmt lint app.rmt --agent
 
 The agent report contains `repairPlan`, `fixOrder`, `confidence`, `impact`, `relatedDiagnostics`, and explained no-ops for repairs that intentionally stay manual.
 
-## 5. Enable Editor Support
+## 6. Enable Editor Support
 
 ```bash
 node tools/rmt-language-server/server.js
@@ -152,6 +179,8 @@ The server provides diagnostics, completion, hover, document symbols, definition
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md)
+- [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md)
+- [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md)
 - [XTendRMT Developer Overview](./xtendrmt-overview.md)
 - [RMT Linter and AI-Agent Repair Report](./rmt-linter.md)
 - [RMT Language Server and Editor Setup](./rmt-language-server.md)

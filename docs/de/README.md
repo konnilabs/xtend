@@ -18,6 +18,7 @@ sich auf produktives Arbeiten.
 | Erste lokale App starten | [Quick Start Guide](./quick-start-guide.md) |
 | UI komplett in RMT schreiben | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md) |
 | RMT-Primitives mit XTend UI verbinden | [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md) |
+| RMT serverseitig vorhydrieren | [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md) und [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) |
 | RMT Architektur verstehen | [XTendRMT Developer Overview](./xtendrmt-overview.md) |
 | Komponenten nutzen oder bauen | [Komponenten-Entwicklung](./components.md) und [Component Platform](./component-platform.md) |
 | Loader, Manifest und Runtime anbinden | [XTend Loader](./xtend-loader.md), [Manifest-Format](./manifest.md), [API-Integration](./api.md) |
@@ -46,6 +47,8 @@ Surfaces und Fabric-Lanes in einer `.rmt` Quelle beschreiben.
 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md)
+- [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md)
+- [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md)
 - [XTendRMT Developer Overview](./xtendrmt-overview.md)
 - [Native RMT Authoring](./xtendrmt-native-authoring.md)
 - [XTendRMT App-DSL Reference](./xtendrmt-app-dsl.md)
@@ -134,6 +137,8 @@ XTend Components, XRouter und Browser-DOM.
 
 - [XTend-Fabric Runtime](./xtend-fabric.md)
 - [XTend-Fabric RMT Lane Mapping](./xtend-fabric-rmt-lane-mapping.md)
+- [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md)
+- [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md)
 - [SurfaceManager RMT Authoring](./surface-manager-rmt-authoring.md)
 - [SurfaceManager Controller](./surface-manager-controller.md)
 - [SurfaceManager Window Runtime](./surface-manager-window-runtime.md)
