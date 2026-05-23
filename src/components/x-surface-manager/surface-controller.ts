@@ -28,7 +28,11 @@ const DEFAULT_CAPABILITIES: Readonly<Record<XtendSurfaceType, readonly string[]>
   dialog: Object.freeze(['open', 'focus', 'close', 'snapshot']),
   drawer: Object.freeze(['open', 'focus', 'close', 'resize', 'restore', 'snapshot']),
   popover: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-  tooltip: Object.freeze(['open', 'close', 'snapshot'])
+  tooltip: Object.freeze(['open', 'close', 'snapshot']),
+  region: Object.freeze(['open', 'focus', 'close', 'update', 'restore', 'snapshot']),
+  toast: Object.freeze(['open', 'close', 'dismiss', 'snapshot']),
+  lightbox: Object.freeze(['open', 'focus', 'close', 'snapshot']),
+  menu: Object.freeze(['open', 'focus', 'close', 'update', 'snapshot'])
 });
 
 function nowIso(nowProvider?: () => string | number | Date): string {
@@ -81,6 +85,7 @@ export function normalizeSurfaceRecord(input: Record<string, unknown>, managerId
     id,
     manager: String(source.manager || input.manager || managerId),
     type,
+    kind: String(source.kind || input.kind || type),
     label: String(source.label || input.label || props && props.label || id || type),
     stateKey: String(source.stateKey || input.stateKey || `xtend.surface.${id || 'unidentified'}.state`),
     status: source.defaultOpen === true || input.open === true ? 'open' : 'closed',

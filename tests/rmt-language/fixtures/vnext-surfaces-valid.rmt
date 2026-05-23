@@ -1,36 +1,36 @@
 template surfaces.page {
-  surface root {
+  surface root kind root component x-surface-region {
     lane critical weight 100 {
       mount app-shell
       hydrate app-shell
     }
   }
 
-  surface modal.settings {
+  surface modal.settings kind modal component x-modal {
     lane critical {
       mount settings-card
     }
   }
 
-  surface panel.tools {
+  surface panel.tools kind panel component x-side-panel {
     lane normal {
       hydrate tool-panel
     }
   }
 
-  surface overlay.toast {
+  surface overlay.toast kind toast component x-toast {
     lane idle {
       prewarm toast-feed
     }
   }
 
-  surface workspace.editor {
+  surface workspace.editor kind workspace component x-surface-region {
     lane transition {
       invalidate editor-frame
     }
   }
 
-  surface portal.help {
+  surface portal.help kind overlay-host component x-surface-portal {
     lane background {
       hydrate help-center
     }

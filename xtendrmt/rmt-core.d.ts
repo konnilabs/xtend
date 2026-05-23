@@ -873,6 +873,7 @@ export interface RmtSurfaceMappedSurface {
     surfaceId: string;
     schema: 'xtend.surface.record.v1' | string;
     type: RmtSurfaceType | string;
+    kind?: string;
     adapter: 'xtend.surface' | string;
     manager: string;
     component: string;
@@ -1172,6 +1173,10 @@ export type RmtSurfaceType =
     | 'drawer'
     | 'popover'
     | 'tooltip'
+    | 'region'
+    | 'toast'
+    | 'lightbox'
+    | 'menu'
     | string;
 
 export interface RmtSurfaceBounds {
@@ -1198,6 +1203,7 @@ export interface RmtSurfaceDomainRecord {
     id: string;
     schema?: 'xtend.surface.record.v1' | string;
     type: RmtSurfaceType;
+    kind?: string;
     adapter?: 'xtend.surface' | string;
     manager: string;
     component: string;

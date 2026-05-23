@@ -4169,6 +4169,14 @@
         "sourceToSeaCiBrowserDriver": "chromedriver",
         "sourceToSeaCiBrowserName": "chrome",
         "sourceToSeaCiWebDriverPort": 9515,
+        "sourceToSeaLocalBrowserDrivers": [
+          "firefox",
+          "geckodriver",
+          "chromedriver",
+          "webdriver",
+          "safari",
+          "edge"
+        ],
         "sourceToSeaEvidencePath": ".xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json",
         "sourceToSeaEvidenceArtifactName": "xtend-rmt-vnext-source-to-sea-evidence-node-26",
         "suites": [
@@ -5128,7 +5136,12 @@
         "x-surface-manager",
         "x-modal",
         "x-dialog",
-        "x-drawer"
+        "x-drawer",
+        "x-popover",
+        "x-tooltip",
+        "x-toast",
+        "x-lightbox",
+        "x-menu"
       ],
       "runtimeArtifacts": [
         "components/xsurfaceoverlay-bridge.js",
@@ -5137,12 +5150,22 @@
         "components/xsurfacemanager-controller.js",
         "components/xmodal.js",
         "components/xdialog.js",
-        "components/xdrawer.js"
+        "components/xdrawer.js",
+        "components/xpopover.js",
+        "components/xtooltip.js",
+        "components/xtoast.js",
+        "components/xlightbox.js",
+        "components/xmenu.js"
       ],
       "overlaySurfaceTypes": [
         "modal",
         "dialog",
-        "drawer"
+        "drawer",
+        "popover",
+        "tooltip",
+        "toast",
+        "lightbox",
+        "menu"
       ],
       "legacyEvents": [
         "modal-opened",
@@ -5151,15 +5174,49 @@
         "dialog-closed",
         "drawer-opened",
         "drawer-closed",
-        "drawer-route-selected"
+        "drawer-route-selected",
+        "popover-opened",
+        "popover-closed",
+        "tooltip-opened",
+        "tooltip-closed",
+        "toast-shown",
+        "toast-dismissed",
+        "lightbox-opened",
+        "lightbox-closed",
+        "menu-opened",
+        "menu-closed",
+        "menu-navigate"
       ],
       "bridgeEvents": [
-        "surface-overlay-command"
+        "surface-overlay-command",
+        "modal-opened",
+        "modal-closed",
+        "dialog-opened",
+        "dialog-closed",
+        "drawer-opened",
+        "drawer-closed",
+        "drawer-route-selected",
+        "popover-opened",
+        "popover-closed",
+        "tooltip-opened",
+        "tooltip-closed",
+        "toast-shown",
+        "toast-dismissed",
+        "lightbox-opened",
+        "lightbox-closed",
+        "menu-opened",
+        "menu-closed",
+        "menu-navigate"
       ],
       "legacyStateKeys": [
         "modal-open-<id>",
         "dialog-open-<id>",
-        "xdrawer-open-<id>"
+        "xdrawer-open-<id>",
+        "xpopover-open-<id>",
+        "xtooltip-open-<id>",
+        "xtoast-state-<id>",
+        "xlightbox-open-<id>",
+        "xmenu-state-<id>"
       ],
       "runtimeModel": "xsurfaceoverlay-bridge-adapts-existing-overlays-to-shared-surface-stack",
       "legacyApiPreserved": true,
@@ -8617,7 +8674,9 @@
     "test:rmt-vnext-source-to-sea:evidence": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js",
     "test:rmt-vnext-source-to-sea:browser-required": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser",
     "test:rmt-vnext-source-to-sea:chromedriver": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver",
+    "test:rmt-vnext-source-to-sea:firefox": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --firefox",
     "test:rmt-vnext-source-to-sea:validate-artifact": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact",
+    "test:rmt-vnext-source-to-sea:validate-artifact:firefox": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact --driver firefox",
     "test:rmt-vnext-component-primitives": "node scripts/run_xtend_tests.js rmt-vnext-component-primitives",
     "test:rmt-node-ssr-adapter": "node scripts/run_xtend_tests.js rmt-node-ssr-adapter",
     "test:rmt-php-ssr-adapter": "node scripts/run_xtend_tests.js rmt-php-ssr-adapter",

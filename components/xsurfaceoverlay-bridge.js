@@ -1,4 +1,4 @@
-const SURFACE_OVERLAY_SELECTOR = 'x-modal, x-dialog, x-drawer';
+const SURFACE_OVERLAY_SELECTOR = 'x-modal, x-dialog, x-drawer, x-popover, x-tooltip, x-toast, x-lightbox, x-menu';
 const SURFACE_OVERLAY_BRIDGE_SCHEMA = 'xtend.surface.overlay-stack-bridge.v1';
 const SURFACE_RECORD_SCHEMA = 'xtend.surface.record.v1';
 const OVERLAY_Z_INDEX_BASE = 2147483000;
@@ -33,6 +33,56 @@ const OVERLAY_PROFILES = Object.freeze({
     lifecycleEvents: Object.freeze(['drawer-opened', 'drawer-closed', 'drawer-route-selected']),
     modal: false,
     capabilities: Object.freeze(['open', 'focus', 'close', 'resize', 'restore', 'snapshot'])
+  }),
+  'x-popover': Object.freeze({
+    componentRef: 'x-popover',
+    surfaceType: 'popover',
+    family: 'popover',
+    stateKey: 'xpopover-open-<id>',
+    labelAttributes: Object.freeze(['label', 'aria-label', 'title']),
+    lifecycleEvents: Object.freeze(['popover-opened', 'popover-closed']),
+    modal: false,
+    capabilities: Object.freeze(['open', 'focus', 'close', 'snapshot'])
+  }),
+  'x-tooltip': Object.freeze({
+    componentRef: 'x-tooltip',
+    surfaceType: 'tooltip',
+    family: 'tooltip',
+    stateKey: 'xtooltip-open-<id>',
+    labelAttributes: Object.freeze(['label', 'aria-label', 'title']),
+    lifecycleEvents: Object.freeze(['tooltip-opened', 'tooltip-closed']),
+    modal: false,
+    capabilities: Object.freeze(['open', 'close', 'snapshot'])
+  }),
+  'x-toast': Object.freeze({
+    componentRef: 'x-toast',
+    surfaceType: 'toast',
+    family: 'toast',
+    stateKey: 'xtoast-state-<id>',
+    labelAttributes: Object.freeze(['label', 'aria-label', 'title', 'type']),
+    lifecycleEvents: Object.freeze(['toast-shown', 'toast-dismissed']),
+    modal: false,
+    capabilities: Object.freeze(['open', 'close', 'dismiss', 'snapshot'])
+  }),
+  'x-lightbox': Object.freeze({
+    componentRef: 'x-lightbox',
+    surfaceType: 'lightbox',
+    family: 'media-lightbox',
+    stateKey: 'xlightbox-open-<id>',
+    labelAttributes: Object.freeze(['label', 'aria-label', 'title', 'alt']),
+    lifecycleEvents: Object.freeze(['lightbox-opened', 'lightbox-closed']),
+    modal: true,
+    capabilities: Object.freeze(['open', 'focus', 'close', 'snapshot'])
+  }),
+  'x-menu': Object.freeze({
+    componentRef: 'x-menu',
+    surfaceType: 'menu',
+    family: 'menu',
+    stateKey: 'xmenu-state-<id>',
+    labelAttributes: Object.freeze(['label', 'aria-label', 'title']),
+    lifecycleEvents: Object.freeze(['menu-opened', 'menu-closed', 'menu-navigate']),
+    modal: false,
+    capabilities: Object.freeze(['open', 'focus', 'close', 'update', 'snapshot'])
   })
 });
 
@@ -43,7 +93,18 @@ const OVERLAY_LIFECYCLE_EVENTS = Object.freeze([
   'dialog-closed',
   'drawer-opened',
   'drawer-closed',
-  'drawer-route-selected'
+  'drawer-route-selected',
+  'popover-opened',
+  'popover-closed',
+  'tooltip-opened',
+  'tooltip-closed',
+  'toast-shown',
+  'toast-dismissed',
+  'lightbox-opened',
+  'lightbox-closed',
+  'menu-opened',
+  'menu-closed',
+  'menu-navigate'
 ]);
 
 function overlayTagName(element) {
@@ -108,13 +169,26 @@ function overlaySurfaceType(element) {
   return profile ? profile.surfaceType : 'dialog';
 }
 
+function overlayElementIsOpen(element, profile = overlayProfileFor(element)) {
+  if (!element) return false;
+  if (element.hasAttribute && element.hasAttribute('open')) return true;
+  const tag = overlayTagName(element);
+  if (tag === 'x-toast') return element.isConnected !== false && element._dismissed !== true;
+  if (tag === 'x-menu') return element.isConnected !== false;
+  if (profile && profile.surfaceType === 'menu') return element.isConnected !== false;
+  return false;
+}
+
 function overlayLabel(element, profile, id) {
   return readAttribute(element, profile.labelAttributes, id || profile.surfaceType);
 }
 
 function overlayPlacement(element, type) {
-  if (type !== 'drawer') return null;
-  return readAttribute(element, ['placement'], 'right');
+  if (type === 'drawer') return readAttribute(element, ['placement'], 'right');
+  if (type === 'popover') return readAttribute(element, ['placement'], 'bottom');
+  if (type === 'tooltip') return readAttribute(element, ['placement'], 'top');
+  if (type === 'menu') return readAttribute(element, ['placement'], 'bottom-start');
+  return null;
 }
 
 function overlayIsModal(element, profile, type) {
@@ -134,6 +208,7 @@ function createOverlayCompatibilityProfile(element) {
     schema: SURFACE_OVERLAY_BRIDGE_SCHEMA,
     componentRef: profile.componentRef,
     surfaceType: profile.surfaceType,
+    surfaceKind: profile.surfaceType,
     managerSlot: 'overlays',
     managerEvent: 'surface-overlay-command',
     legacyLifecycleEvents: profile.lifecycleEvents.slice(),
@@ -168,10 +243,11 @@ function toOverlaySurfaceRecord(element, managerId = 'xtend.surface.manager') {
     id,
     manager: managerId,
     type,
+    kind: type,
     label: overlayLabel(element, profile, id),
     stateKey: overlayStateKey(profile, id),
-    status: element.hasAttribute('open') ? 'open' : 'closed',
-    defaultOpen: element.hasAttribute('open'),
+    status: overlayElementIsOpen(element, profile) ? 'open' : 'closed',
+    defaultOpen: overlayElementIsOpen(element, profile),
     modal: overlayIsModal(element, profile, type),
     placement,
     mode: 'overlay',
@@ -183,25 +259,45 @@ function toOverlaySurfaceRecord(element, managerId = 'xtend.surface.manager') {
 }
 
 function callOverlayOpen(element) {
-  if (overlayTagName(element) === 'x-drawer' && typeof element.openDrawer === 'function') {
-    element.openDrawer({ source: 'surface-manager' });
-    return;
+  const tag = overlayTagName(element);
+  const methodNames = tag === 'x-drawer'
+    ? ['openDrawer', 'show', 'open']
+    : ['openModal', 'openDialog', 'openLightbox', 'show', 'open'];
+  for (const methodName of methodNames) {
+    if (typeof element[methodName] === 'function') {
+      element[methodName]({ source: 'surface-manager' });
+      return;
+    }
   }
-  if (typeof element.open === 'function') {
-    element.open({ source: 'surface-manager' });
-    return;
+  if ('open' in element) {
+    try {
+      element.open = true;
+      return;
+    } catch (_error) {
+      // Fall through to attribute bridge.
+    }
   }
   element.setAttribute('open', '');
 }
 
 function callOverlayClose(element) {
-  if (overlayTagName(element) === 'x-drawer' && typeof element.closeDrawer === 'function') {
-    element.closeDrawer({ source: 'surface-manager' });
-    return;
+  const tag = overlayTagName(element);
+  const methodNames = tag === 'x-drawer'
+    ? ['closeDrawer', 'hide', 'close']
+    : ['closeModal', 'closeDialog', 'closeLightbox', 'dismiss', 'hide', 'close'];
+  for (const methodName of methodNames) {
+    if (typeof element[methodName] === 'function') {
+      element[methodName]({ source: 'surface-manager' });
+      return;
+    }
   }
-  if (typeof element.close === 'function') {
-    element.close({ source: 'surface-manager' });
-    return;
+  if ('open' in element) {
+    try {
+      element.open = false;
+      return;
+    } catch (_error) {
+      // Fall through to attribute bridge.
+    }
   }
   element.removeAttribute('open');
 }

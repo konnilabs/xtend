@@ -6,7 +6,7 @@ Local Gate: `node scripts/run_xtend_tests.js surface-overlay-bridge --json`
 
 ## Ziel
 
-`WP-SM-06` bindet bestehende XTend Overlays optional an denselben Surface Stack wie Windows und SidePanels an. `x-modal`, `x-dialog` und `x-drawer` behalten ihre bisherigen Public APIs, Events und xstate Keys, koennen aber vom `x-surface-manager` als `xtend.surface.record.v1` registriert werden.
+`WP-SM-06` bindet bestehende XTend Overlays optional an denselben Surface Stack wie Windows und SidePanels an. `x-modal`, `x-dialog`, `x-drawer`, `x-popover`, `x-tooltip`, `x-toast`, `x-lightbox` und `x-menu` behalten ihre bisherigen Public APIs, Events und xstate Keys, koennen aber vom `x-surface-manager` als `xtend.surface.record.v1` registriert werden.
 
 Der Bridge-Ansatz ist bewusst kompatibel:
 
@@ -23,6 +23,11 @@ Der Bridge-Ansatz ist bewusst kompatibel:
 - `components/xmodal.js`
 - `components/xdialog.js`
 - `components/xdrawer.js`
+- `components/xpopover.js`
+- `components/xtooltip.js`
+- `components/xtoast.js`
+- `components/xlightbox.js`
+- `components/xmenu.js`
 - `components/xsurfacemanager-controller.js`
 
 ## Bridge-Profil
@@ -46,19 +51,25 @@ Die konkrete Typabbildung:
 | `x-modal` | `modal` | `modal-open-<id>` | `modal-opened`, `modal-closed`, `modal-action` |
 | `x-dialog` | `dialog` | `dialog-open-<id>` | `dialog-opened`, `dialog-closed` |
 | `x-drawer` | `drawer` | `xdrawer-open-<id>` | `drawer-opened`, `drawer-closed`, `drawer-route-selected` |
+| `x-popover` | `popover` | `xpopover-open-<id>` | `popover-opened`, `popover-closed` |
+| `x-tooltip` | `tooltip` | `xtooltip-open-<id>` | `tooltip-opened`, `tooltip-closed` |
+| `x-toast` | `toast` | `xtoast-state-<id>` | `toast-shown`, `toast-dismissed` |
+| `x-lightbox` | `lightbox` | `xlightbox-open-<id>` | `lightbox-opened`, `lightbox-closed` |
+| `x-menu` | `menu` | `xmenu-state-<id>` | `menu-opened`, `menu-closed`, `menu-navigate` |
 
 ## Manager-Integration
 
-`x-surface-manager` scannt neben `x-surface-window` und `x-side-panel` auch `x-modal`, `x-dialog` und `x-drawer` im `overlays` Slot oder in verschachtelten DOM-Teilbaeumen. Die Bridge erzeugt fuer jedes Overlay einen Surface Record:
+`x-surface-manager` scannt neben `x-surface-window` und `x-side-panel` auch `x-modal`, `x-dialog`, `x-drawer`, `x-popover`, `x-tooltip`, `x-toast`, `x-lightbox` und `x-menu` im `overlays` Slot oder in verschachtelten DOM-Teilbaeumen. Die Bridge erzeugt fuer jedes Overlay einen Surface Record:
 
-- `type`: `modal`, `dialog` oder `drawer`
+- `type`: `modal`, `dialog`, `drawer`, `popover`, `tooltip`, `toast`, `lightbox` oder `menu`
+- `kind`: entspricht dem Surface Type fuer RMT-Autoren
 - `status`: aus dem `open` Attribut
 - `modal`: true fuer Modal/Dialog, fuer Drawer nur bei `modal`
 - `placement`: nur fuer Drawer
 - `stateKey`: Legacy-kompatibel
 - `metadata.overlayCompatibility`: `xtend.surface.overlay-stack-bridge.v1`
 
-Der Manager verarbeitet `surface-overlay-command` mit derselben Operationstabelle wie Window- und Panel-Commands. Legacy Lifecycle Events werden nicht gestoppt; sie bleiben fuer bestehende Consumer sichtbar und werden nur zusaetzlich in Controller-Operationen uebersetzt.
+Der Manager verarbeitet `surface-overlay-command` mit derselben Operationstabelle wie Window- und Panel-Commands. `show`, `hide`, `toggle` und `dismiss` werden additiv auf `open`, `close`, `open/close` und `close` normalisiert. Legacy Lifecycle Events werden nicht gestoppt; sie bleiben fuer bestehende Consumer sichtbar und werden nur zusaetzlich in Controller-Operationen uebersetzt.
 
 ## Stack- und Z-Index-Policy
 
@@ -71,11 +82,7 @@ Die bestehenden sehr hohen Default-z-Indizes bleiben als Fallback erhalten, fall
 
 ## Grenzen
 
-`WP-SM-06` ist eine Kompatibilitaetsbruecke. Es implementiert noch nicht:
-
-- `x-popover` und `x-tooltip` im Surface Stack
-- native RMT `surfaces` Top-Level-Domain
-- browsernahe A11y-, Visual- und Performance-Smokes
+`WP-SM-06` ist eine Kompatibilitaetsbruecke. Native RMT `surfaces` Top-Level-Domain und browsernahe A11y-, Visual- und Performance-Smokes bleiben getrennte Gates.
 
 Diese Punkte gehen an `WP-SM-07` und `WP-SM-08`.
 

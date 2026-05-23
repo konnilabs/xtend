@@ -138,6 +138,7 @@
         scrollPolicy: clampString(source.scrollPolicy, 'contain'),
         zIndexStart: Number.isFinite(source.zIndexStart) ? source.zIndexStart : 1000,
         zStep: Number.isFinite(source.zStep) ? source.zStep : 10,
+        element: null,
         target: null,
         mounted: false
       };
@@ -153,6 +154,7 @@
         scrollPolicy: 'contain',
         zIndexStart: 1000,
         zStep: 10,
+        element: null,
         target: null,
         mounted: false
       });
@@ -228,12 +230,103 @@
     const persistenceAdapter = options.persistenceAdapter || null;
     const focusAdapter = options.focusAdapter || null;
     const documentTarget = options.documentTarget || options.document || (globalTarget && globalTarget.document) || null;
+    const surfaceManagerTarget = options.surfaceManager || options.managerElement || options.xSurfaceManager || null;
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     let focusSequence = 0;
     let overlaySequence = 0;
 
     function publish(code, message, details = {}, severity = 'info') {
       return diagnosticsRecorder.publish(createDiagnostic(code, message, details, severity));
+    }
+
+    function resolveSurfaceManagerTarget() {
+      if (typeof surfaceManagerTarget === 'function') return surfaceManagerTarget();
+      return surfaceManagerTarget;
+    }
+
+    function surfaceRuntimeType(kind) {
+      const normalized = clampString(kind, 'surface').toLowerCase();
+      if (['root', 'workspace', 'page', 'card', 'list', 'region', 'overlay-host', 'surface'].includes(normalized)) return 'region';
+      if (['panel', 'side-panel', 'sidepanel'].includes(normalized)) return 'side-panel';
+      if (['window', 'modal', 'dialog', 'drawer', 'popover', 'tooltip', 'toast', 'lightbox', 'menu'].includes(normalized)) return normalized;
+      return 'region';
+    }
+
+    function surfaceManagerRecordForInstance(instance) {
+      return {
+        schema: 'xtend.surface.record.v1',
+        id: instance.id,
+        type: surfaceRuntimeType(instance.kind),
+        kind: instance.kind,
+        manager: clampString(options.managerId, 'xtend.surface.manager'),
+        label: clampString(instance.label || instance.id, instance.id),
+        stateKey: `xtend.surface.${instance.id}.state`,
+        defaultOpen: instance.state === 'open',
+        open: instance.state === 'open',
+        bounds: cloneValue(instance.bounds, {}),
+        placement: instance.placement || null,
+        mode: instance.mode || (surfaceRuntimeType(instance.kind) === 'region' ? 'region' : 'floating'),
+        capabilities: ['open', 'focus', 'close', 'minimize', 'restore', 'update', 'snapshot'],
+        contentRef: instance.component,
+        metadata: {
+          source: 'rmt-surface-resource-graph-runtime',
+          surfaceId: instance.surfaceId,
+          portal: instance.portal,
+          owner: instance.owner
+        }
+      };
+    }
+
+    function surfaceManagerRecordForOverlay(overlay, definition = {}) {
+      return {
+        schema: 'xtend.surface.record.v1',
+        id: overlay.id,
+        type: surfaceRuntimeType(overlay.kind),
+        kind: overlay.kind,
+        manager: clampString(options.managerId, 'xtend.surface.manager'),
+        label: clampString(definition.label || definition.id || overlay.id, overlay.id),
+        stateKey: `xtend.surface.${overlay.id}.state`,
+        defaultOpen: true,
+        open: true,
+        placement: definition.placement || null,
+        mode: 'overlay',
+        capabilities: ['open', 'focus', 'close', 'update', 'snapshot'],
+        contentRef: definition.component || '',
+        metadata: {
+          source: 'rmt-surface-resource-graph-runtime',
+          overlayId: overlay.overlayId,
+          portal: overlay.portal,
+          ownerId: overlay.ownerId
+        }
+      };
+    }
+
+    function callSurfaceManager(methodName, args, details = {}) {
+      const manager = resolveSurfaceManagerTarget();
+      if (!manager || typeof manager[methodName] !== 'function') return null;
+      try {
+        return manager[methodName](...args);
+      } catch (error) {
+        publish('rmt.surface.manager_proxy.failed', `SurfaceManager proxy ${methodName} failed.`, {
+          ...details,
+          methodName,
+          error: error && error.message || String(error)
+        }, 'warning');
+        return null;
+      }
+    }
+
+    function proxySurfaceManager(operation, instance, payload = {}) {
+      if (!instance) return null;
+      const record = surfaceManagerRecordForInstance(instance);
+      if (operation === 'register') return callSurfaceManager('registerSurface', [record], { instanceId: instance.id, operation });
+      if (operation === 'open') return callSurfaceManager('openSurface', [instance.id, { bounds: instance.bounds, ...objectRecord(payload) }], { instanceId: instance.id, operation });
+      if (operation === 'focus') return callSurfaceManager('focusSurface', [instance.id], { instanceId: instance.id, operation });
+      if (operation === 'minimize') return callSurfaceManager('minimizeSurface', [instance.id], { instanceId: instance.id, operation });
+      if (operation === 'restore') return callSurfaceManager('restoreSurface', [instance.id], { instanceId: instance.id, operation });
+      if (operation === 'close' || operation === 'destroy') return callSurfaceManager('closeSurface', [instance.id, payload.reason || operation], { instanceId: instance.id, operation });
+      if (operation === 'update') return callSurfaceManager('updateSurface', [instance.id, payload], { instanceId: instance.id, operation });
+      return null;
     }
 
     function resolveRecords(surface, input) {
@@ -305,6 +398,7 @@
         instanceId: created.id,
         kind: created.kind
       });
+      proxySurfaceManager('register', created);
       return created;
     }
 
@@ -354,6 +448,7 @@
       if (focusAdapter && typeof focusAdapter.focus === 'function') {
         focusAdapter.focus(cloneValue(instance, instance), metadata);
       }
+      proxySurfaceManager('focus', instance, metadata);
       publish('rmt.surface.focused', `RMT Surface ${instance.id} wurde fokussiert.`, {
         instanceId: instance.id,
         focusOrder: instance.focusOrder,
@@ -374,6 +469,7 @@
           instances.set(id, next);
           if (existing && existing.state !== 'destroyed') reused.push(id);
           else created.push(id);
+          proxySurfaceManager('register', next);
           publish('rmt.surface.materialized', `RMT Surface ${id} wurde materialisiert.`, {
             surfaceId: surface.id,
             instanceId: id,
@@ -406,6 +502,7 @@
         instanceId: instance.id,
         resourcesAcquired: instance.resourcesAcquired
       });
+      proxySurfaceManager('open', instance, openOptions);
       return cloneValue(instance, instance);
     }
 
@@ -419,6 +516,7 @@
         instanceId: instance.id,
         resourcesPreserved: instance.resourcesAcquired
       });
+      proxySurfaceManager('minimize', instance, metadata);
       return cloneValue(instance, instance);
     }
 
@@ -432,6 +530,7 @@
         bounds: instance.bounds
       });
       if (metadata.focus !== false) focusSurface(instance.id, metadata);
+      proxySurfaceManager('restore', instance, metadata);
       return cloneValue(instance, instance);
     }
 
@@ -448,6 +547,7 @@
         instanceId: instance.id,
         resourcesAcquired: instance.resourcesAcquired
       });
+      proxySurfaceManager('close', instance, metadata);
       return cloneValue(instance, instance);
     }
 
@@ -466,6 +566,7 @@
         instanceId: instance.id,
         owner: instance.owner
       });
+      proxySurfaceManager('destroy', instance, metadata);
       return cloneValue(instance, instance);
     }
 
@@ -478,6 +579,7 @@
         bounds: instance.bounds,
         reason: metadata.reason || 'set-bounds'
       });
+      proxySurfaceManager('update', instance, { bounds: instance.bounds, reason: metadata.reason || 'set-bounds' });
       return cloneValue(instance, instance);
     }
 
@@ -496,6 +598,16 @@
       if (!portal) throw new Error(`RMT Portal ${portalRef} ist nicht definiert.`);
       portal.target = target || null;
       portal.mounted = true;
+      if (!portal.element && portal.target && typeof portal.target.appendChild === 'function' && documentTarget && typeof documentTarget.createElement === 'function') {
+        const portalElement = documentTarget.createElement('x-surface-portal');
+        setDomAttribute(portalElement, 'portal-id', portal.id);
+        setDomAttribute(portalElement, 'policy', portal.policy);
+        setDomAttribute(portalElement, 'layer', portal.layer);
+        setDomAttribute(portalElement, 'z-index-start', portal.zIndexStart);
+        setDomAttribute(portalElement, 'z-step', portal.zStep);
+        portal.target.appendChild(portalElement);
+        portal.element = portalElement;
+      }
       publish('rmt.portal.mounted', `RMT Portal ${portal.id} wurde gemountet.`, {
         portalId: portal.id,
         layer: portal.layer
@@ -598,6 +710,9 @@
         element: null
       };
       overlayStack.push(overlay);
+      const overlayRecord = surfaceManagerRecordForOverlay(overlay, definition);
+      callSurfaceManager('registerSurface', [overlayRecord], { overlayId: overlay.overlayId, instanceId: overlay.id, operation: 'register-overlay' });
+      callSurfaceManager('openSurface', [overlay.id, { zIndex: overlay.zIndex, portal: overlay.portal }], { overlayId: overlay.overlayId, instanceId: overlay.id, operation: 'open-overlay' });
       if (definition.resources.length > 0) {
         const overlayOwner = overlay.id;
         if (resourceManager && typeof resourceManager.acquireMany === 'function') {
@@ -651,6 +766,7 @@
         reason: metadata.reason || 'close',
         removedElement
       });
+      callSurfaceManager('closeSurface', [overlay.id, metadata.reason || 'close'], { overlayId: overlay.overlayId, instanceId: overlay.id, operation: 'close-overlay' });
       return {
         schema: 'xtend.epic18.rmt-overlay-close-report.v1',
         closed: true,

@@ -51,6 +51,14 @@ const PRIMITIVE_SOURCE_KINDS = new Set([
   'surface'
 ]);
 
+function lowerSurfaceKindToRuntimeType(kind, fallback = 'window') {
+  const candidate = String(kind || '').trim().toLowerCase();
+  if (['root', 'workspace', 'page', 'card', 'list', 'region', 'overlay-host'].includes(candidate)) return 'region';
+  if (['panel', 'side-panel', 'sidepanel'].includes(candidate)) return 'side-panel';
+  if (['window', 'modal', 'dialog', 'drawer', 'popover', 'tooltip', 'toast', 'lightbox', 'menu'].includes(candidate)) return candidate;
+  return fallback;
+}
+
 function normalizeIdSegment(value, fallback = 'unnamed') {
   const normalized = String(value || fallback)
     .trim()
@@ -726,10 +734,12 @@ class VNextCompiler {
     const boundsNode = getPrimitiveBodyNode(node, 'RmtSurfaceBoundsClause');
     const preserveNode = getPrimitiveBodyNode(node, 'RmtSurfacePreserveClause');
     const destroyNode = getPrimitiveBodyNode(node, 'RmtSurfaceDestroyClause');
+    const declaredKind = primitive ? getPrimitiveHeaderValue(node, 'kind') || 'named_surface' : name === 'root' ? 'root' : 'named_surface';
     const record = {
       id: surfaceId,
       name,
-      kind: primitive ? getPrimitiveHeaderValue(node, 'kind') || 'named_surface' : name === 'root' ? 'root' : 'named_surface',
+      kind: declaredKind,
+      type: lowerSurfaceKindToRuntimeType(declaredKind, name === 'root' ? 'region' : 'window'),
       laneRefs
     };
 

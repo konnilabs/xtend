@@ -25,8 +25,8 @@ source -> kernel -> Fabric -> UI -> Browser
 Die erste PRIM-06-Scheibe bleibt im Standardlauf deterministisch und laeuft
 ohne externen Browser-Treiber. Sie verbindet eine vNext-Fixture mit einer
 selbstpruefenden Browser-Smoke-Fixture und erzeugt daraus maschinenlesbare
-Evidence. Seit dem aktuellen Ausbau kann ein WebDriver-, ChromeDriver- oder
-Safari-Driver-Pfad dieselbe Browser-Fixture oeffnen, den gleichen Result-Key
+Evidence. Seit dem aktuellen Ausbau kann ein WebDriver-, Firefox/Geckodriver-,
+ChromeDriver- oder Safari-Driver-Pfad dieselbe Browser-Fixture oeffnen, den gleichen Result-Key
 auslesen und das echte Browser-Ergebnis gegen Compiler-, Kernel- und Fabric-
 Evidence vergleichen. Die Browser-Execution-Evidence ist jetzt auch als
 Release-Artefakt unter
@@ -391,6 +391,12 @@ Echter Browser-Lauf mit automatisch gestartetem ChromeDriver:
 
 ```bash
 npm run test:rmt-vnext-source-to-sea:chromedriver
+```
+
+Echter Browser-Lauf mit automatisch gestartetem Firefox/Geckodriver:
+
+```bash
+npm run test:rmt-vnext-source-to-sea:firefox
 ```
 
 Der GitHub-Actions-Job `rmt-vnext-primitive-gates` nutzt diesen ChromeDriver-

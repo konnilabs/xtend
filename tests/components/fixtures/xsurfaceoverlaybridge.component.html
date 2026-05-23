@@ -9,6 +9,11 @@
   <script type="module" src="/components/xmodal.js"></script>
   <script type="module" src="/components/xdialog.js"></script>
   <script type="module" src="/components/xdrawer.js"></script>
+  <script type="module" src="/components/xpopover.js"></script>
+  <script type="module" src="/components/xtooltip.js"></script>
+  <script type="module" src="/components/xtoast.js"></script>
+  <script type="module" src="/components/xlightbox.js"></script>
+  <script type="module" src="/components/xmenu.js"></script>
 </head>
 <body>
   <x-surface-manager id="overlay-manager" manager-id="overlay.manager" state-key="xtend.surface.overlay.fixture">
@@ -17,6 +22,21 @@
     <x-drawer slot="overlays" id="overlay-drawer" surface-id="overlay.drawer" label="Tools" placement="right" modal>
       <button type="button">Action</button>
     </x-drawer>
+    <x-popover slot="overlays" id="overlay-popover" surface-id="overlay.popover" label="Details" placement="bottom">
+      <button slot="trigger" type="button">Details</button>
+      <span>Popover content</span>
+    </x-popover>
+    <x-tooltip slot="overlays" id="overlay-tooltip" surface-id="overlay.tooltip" label="Hint" placement="top">
+      <button slot="trigger" type="button">Hint</button>
+      Tooltip content
+    </x-tooltip>
+    <x-toast slot="overlays" id="overlay-toast" surface-id="overlay.toast" type="info" duration="0">Saved</x-toast>
+    <x-lightbox slot="overlays" id="overlay-lightbox" surface-id="overlay.lightbox" src="/assets/demo.png" alt="Preview">
+      <button slot="trigger" type="button">Preview</button>
+    </x-lightbox>
+    <x-menu slot="overlays" id="overlay-menu" surface-id="overlay.menu" label="Menu">
+      <button type="button">Command</button>
+    </x-menu>
   </x-surface-manager>
 
   <script type="module">
@@ -24,11 +44,21 @@
     const modal = document.querySelector('x-modal');
     const dialog = document.querySelector('x-dialog');
     const drawer = document.querySelector('x-drawer');
+    const popover = document.querySelector('x-popover');
+    const tooltip = document.querySelector('x-tooltip');
+    const toast = document.querySelector('x-toast');
+    const lightbox = document.querySelector('x-lightbox');
+    const menu = document.querySelector('x-menu');
 
     await customElements.whenDefined('x-surface-manager');
     await customElements.whenDefined('x-modal');
     await customElements.whenDefined('x-dialog');
     await customElements.whenDefined('x-drawer');
+    await customElements.whenDefined('x-popover');
+    await customElements.whenDefined('x-tooltip');
+    await customElements.whenDefined('x-toast');
+    await customElements.whenDefined('x-lightbox');
+    await customElements.whenDefined('x-menu');
 
     manager.dispatchEvent(new CustomEvent('surface-overlay-command', {
       bubbles: true,
@@ -43,6 +73,18 @@
     modal.close({ source: 'fixture' });
     dialog.open();
     drawer.openDrawer({ source: 'fixture' });
+    popover.open = true;
+    tooltip.open = true;
+    lightbox.open();
+    manager.dispatchEvent(new CustomEvent('surface-overlay-command', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        surfaceId: 'overlay.toast',
+        command: 'dismiss',
+        payload: { reason: 'fixture' }
+      }
+    }));
 
     window.__xtendComponentResult = {
       schema: 'xtend.surface.overlay-stack-bridge.fixture-result.v1',
@@ -51,7 +93,12 @@
       stack: manager.snapshot().stack,
       modalOpen: modal.hasAttribute('open'),
       dialogOpen: dialog.hasAttribute('open'),
-      drawerOpen: drawer.hasAttribute('open')
+      drawerOpen: drawer.hasAttribute('open'),
+      popoverOpen: popover.hasAttribute('open'),
+      tooltipOpen: tooltip.hasAttribute('open'),
+      toastConnected: toast.isConnected,
+      lightboxOpen: lightbox.hasAttribute('open'),
+      menuManaged: menu.isConnected
     };
   </script>
 </body>

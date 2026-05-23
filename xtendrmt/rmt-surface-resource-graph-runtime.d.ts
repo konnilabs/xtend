@@ -150,6 +150,16 @@ export interface RmtEventRuntimeLike {
   detachOwner(ownerId?: string): { schema?: string; owner?: string; detachedCount: number };
 }
 
+export interface RmtSurfaceManagerLike {
+  registerSurface?(record: Record<string, unknown>): unknown;
+  openSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
+  closeSurface?(surfaceId: string, reason?: string): unknown;
+  focusSurface?(surfaceId: string): unknown;
+  updateSurface?(surfaceId: string, patch?: Record<string, unknown>): unknown;
+  minimizeSurface?(surfaceId: string): unknown;
+  restoreSurface?(surfaceId: string): unknown;
+}
+
 export interface RmtSurfaceResourceGraphRuntimeOptions {
   surfaces?: RmtSurfaceDefinition[];
   surfaceTemplates?: RmtSurfaceDefinition[];
@@ -159,6 +169,10 @@ export interface RmtSurfaceResourceGraphRuntimeOptions {
   portals?: RmtPortalDefinition[];
   resourceManager?: RmtResourceManagerLike;
   eventRuntime?: RmtEventRuntimeLike;
+  surfaceManager?: RmtSurfaceManagerLike | (() => RmtSurfaceManagerLike | null | undefined);
+  managerElement?: RmtSurfaceManagerLike;
+  xSurfaceManager?: RmtSurfaceManagerLike;
+  managerId?: string;
   persistenceAdapter?: {
     save(snapshot: RmtSurfaceResourceGraphSnapshot): unknown;
     load(): RmtSurfaceResourceGraphSnapshot | null | undefined;

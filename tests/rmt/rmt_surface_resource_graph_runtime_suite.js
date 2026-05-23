@@ -191,6 +191,90 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
   const savedSnapshots = [];
   const focusCalls = [];
   const diagnostics = [];
+  const surfaceManagerCalls = [];
+  const portalChildren = [];
+  const documentTarget = {
+    createElement(tagName) {
+      return {
+        nodeType: 1,
+        localName: String(tagName || '').toLowerCase(),
+        attributes: {},
+        children: [],
+        style: { setProperty() {} },
+        setAttribute(name, value) {
+          this.attributes[name] = String(value);
+        },
+        getAttribute(name) {
+          return Object.prototype.hasOwnProperty.call(this.attributes, name) ? this.attributes[name] : null;
+        },
+        appendChild(child) {
+          this.children.push(child);
+          if (child && typeof child === 'object') child.parentNode = this;
+          return child;
+        },
+        remove() {
+          if (this.parentNode && typeof this.parentNode.removeChild === 'function') this.parentNode.removeChild(this);
+        }
+      };
+    },
+    createTextNode(text) {
+      return { nodeType: 3, textContent: String(text || '') };
+    },
+    body: {
+      appendChild(child) {
+        portalChildren.push(child);
+        if (child && typeof child === 'object') child.parentNode = this;
+        return child;
+      },
+      removeChild(child) {
+        const index = portalChildren.indexOf(child);
+        if (index >= 0) portalChildren.splice(index, 1);
+        return child;
+      }
+    }
+  };
+  const portalTarget = {
+    appendChild(child) {
+      portalChildren.push(child);
+      if (child && typeof child === 'object') child.parentNode = this;
+      return child;
+    },
+    removeChild(child) {
+      const index = portalChildren.indexOf(child);
+      if (index >= 0) portalChildren.splice(index, 1);
+      return child;
+    }
+  };
+  const surfaceManager = {
+    registerSurface(record) {
+      surfaceManagerCalls.push({ operation: 'registerSurface', id: record && record.id, record });
+      return { ok: true };
+    },
+    openSurface(id, input) {
+      surfaceManagerCalls.push({ operation: 'openSurface', id, input });
+      return { ok: true };
+    },
+    closeSurface(id, reason) {
+      surfaceManagerCalls.push({ operation: 'closeSurface', id, reason });
+      return { ok: true };
+    },
+    focusSurface(id) {
+      surfaceManagerCalls.push({ operation: 'focusSurface', id });
+      return { ok: true };
+    },
+    updateSurface(id, patch) {
+      surfaceManagerCalls.push({ operation: 'updateSurface', id, patch });
+      return { ok: true };
+    },
+    minimizeSurface(id) {
+      surfaceManagerCalls.push({ operation: 'minimizeSurface', id });
+      return { ok: true };
+    },
+    restoreSurface(id) {
+      surfaceManagerCalls.push({ operation: 'restoreSurface', id });
+      return { ok: true };
+    }
+  };
   const resourceManager = actionRuntimeModule.createRmtResourceManager({
     resources: fixture.resources,
     resourceAdapters: resourceHarness.adapters,
@@ -202,6 +286,9 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
     overlays: fixture.overlays,
     portals: fixture.portals,
     resourceManager,
+    surfaceManager,
+    managerId: 'fixture.surface.manager',
+    documentTarget,
     eventRuntime: {
       detachOwner(ownerId) {
         detachedOwners.push(ownerId);
@@ -232,10 +319,13 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
   context.assert(runtime.listSurfaces().length === fixture.surfaces.length, 'surface graph runtime indexes all surface definitions');
   context.assert(runtime.listPortals().some((portal) => portal.id === 'portal.overlay'), 'surface graph runtime indexes overlay portal');
 
-  runtime.mountPortal('portal.overlay', { id: 'overlay-root' });
+  runtime.mountPortal('portal.overlay', portalTarget);
+  context.assert(portalChildren.some((child) => child.localName === 'x-surface-portal' && child.getAttribute('policy') === 'modal'), 'mountPortal materializes x-surface-portal policy element');
   const firstMaterialize = runtime.materialize(fixture.records);
   context.assert(firstMaterialize.createdCount === 5, 'keyed surface repeater materializes two repeated surface groups plus host');
   context.assert(firstMaterialize.reusedCount === 0, 'first materialize has no reused instances');
+  context.assert(surfaceManagerCalls.filter((call) => call.operation === 'registerSurface').length >= 5, 'materialize registers keyed instances with SurfaceManager');
+  context.assert(surfaceManagerCalls.some((call) => call.operation === 'registerSurface' && call.id === 'surface.workspace:alpha' && call.record.type === 'region'), 'SurfaceManager registration lowers workspace kind to region');
   context.assert(runtime.getSurface('surface.workspace:alpha').state === 'closed', 'materialized workspace alpha starts closed');
   context.assert(runtime.getSurface('surface.detail-panel:beta').placement === 'right', 'materialized detail panel preserves placement');
 
@@ -244,14 +334,18 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
   context.assert(resourceManager.listOwned('surface.workspace:alpha').length === 2, 'openSurface acquires owned resources');
   context.assert(resourceHarness.observerOpen.length === 1 && resourceHarness.streamOpen.length === 1, 'resource adapters open observer and stream');
   context.assert(focusCalls.includes('surface.workspace:alpha'), 'openSurface uses injected focus adapter');
+  context.assert(surfaceManagerCalls.some((call) => call.operation === 'openSurface' && call.id === 'surface.workspace:alpha'), 'openSurface proxies to SurfaceManager');
 
   const resizedAlpha = runtime.setBounds('surface.workspace:alpha', { x: 80, y: 96, width: 720, height: 460 });
   context.assert(resizedAlpha.bounds.x === 80 && resizedAlpha.bounds.width === 720, 'setBounds updates runtime bounds');
+  context.assert(surfaceManagerCalls.some((call) => call.operation === 'updateSurface' && call.id === 'surface.workspace:alpha'), 'setBounds proxies updateSurface to SurfaceManager');
   const minimizedAlpha = runtime.minimizeSurface('surface.workspace:alpha');
   context.assert(minimizedAlpha.state === 'minimized', 'minimizeSurface changes state');
+  context.assert(surfaceManagerCalls.some((call) => call.operation === 'minimizeSurface' && call.id === 'surface.workspace:alpha'), 'minimizeSurface proxies to SurfaceManager');
   context.assert(resourceManager.listOwned('surface.workspace:alpha').length === 2, 'minimize preserves owned resources');
   const restoredAlpha = runtime.restoreSurface('surface.workspace:alpha');
   context.assert(restoredAlpha.state === 'open' && restoredAlpha.bounds.width === 720, 'restoreSurface restores bounds and open state');
+  context.assert(surfaceManagerCalls.some((call) => call.operation === 'restoreSurface' && call.id === 'surface.workspace:alpha'), 'restoreSurface proxies to SurfaceManager');
 
   const nextRecords = {
     'records.generic-items': [
@@ -268,6 +362,7 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
   await runtime.openSurface('surface.workspace:beta');
   const closedBeta = runtime.closeSurface('surface.workspace:beta');
   context.assert(closedBeta.state === 'closed', 'closeSurface closes without destroying');
+  context.assert(surfaceManagerCalls.some((call) => call.operation === 'closeSurface' && call.id === 'surface.workspace:beta'), 'closeSurface proxies to SurfaceManager');
   context.assert(resourceManager.listOwned('surface.workspace:beta').length === 2, 'closeSurface preserves resources when policy says so');
   runtime.setBounds('surface.workspace:beta', { x: 12, y: 24, width: 500, height: 320 });
   const persisted = runtime.persistSnapshot();
@@ -285,6 +380,7 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
   const dialog = await runtime.openOverlay('overlay.dialog', { ownerId: 'surface.workspace:beta' });
   context.assert(tooltip.portal === 'portal.clipping-escape' && toast.portal === 'portal.toast', 'overlays route to declared portals');
   context.assert([tooltip, toast, popover, lightbox, menu, dialog].every((entry) => entry.state === 'open'), 'all overlay kinds can open');
+  context.assert(surfaceManagerCalls.some((call) => call.operation === 'registerSurface' && call.id === tooltip.id && call.record.type === 'tooltip'), 'overlay opens register SurfaceManager overlay records');
   context.assert(popover.zIndex < lightbox.zIndex && lightbox.zIndex < menu.zIndex && menu.zIndex < dialog.zIndex, 'portal overlay stack z-index is ordered');
   context.assert(resourceHarness.objectUrls.length === 1 && resourceHarness.timers.length === 1, 'overlay resources are acquired per overlay instance');
 
@@ -297,6 +393,7 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
 
   const destroyedAlpha = runtime.destroySurface('surface.workspace:alpha');
   context.assert(destroyedAlpha.state === 'destroyed', 'destroySurface marks instance destroyed');
+  context.assert(surfaceManagerCalls.some((call) => call.operation === 'closeSurface' && call.id === 'surface.workspace:alpha'), 'destroySurface proxies close to SurfaceManager');
   context.assert(resourceManager.listOwned('surface.workspace:alpha').length === 0, 'destroySurface releases owned resources');
   context.assert(resourceHarness.observerClose.length >= 1 && resourceHarness.streamClose.length >= 1, 'destroySurface closes resource adapters');
   context.assert(detachedOwners.includes('surface.workspace:alpha'), 'destroySurface detaches event owner scope');

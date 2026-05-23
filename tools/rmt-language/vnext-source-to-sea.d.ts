@@ -23,6 +23,7 @@ export declare const RMT_VNEXT_SOURCE_TO_SEA_OBJECT_MATRIX_SCHEMA: RmtToolingCon
 export declare const RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY: RmtToolingConstant;
 export declare const RMT_VNEXT_SOURCE_TO_SEA_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_SOURCE_TO_SEA_SUITE_PATH: RmtToolingConstant;
+export declare const RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS: RmtToolingConstant;
 export declare const RMT_VNEXT_SOURCE_TO_SEA_WORKPACKAGE: RmtToolingConstant;
 export declare const createRmtVNextFabricBridgeEvidence: RmtToolingFunction;
 export declare const createRmtVNextSourceToSeaEvidence: RmtToolingFunction;

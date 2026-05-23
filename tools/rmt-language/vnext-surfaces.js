@@ -19,11 +19,27 @@ const SURFACE_OPERATION_SCOPE_MISMATCH_CODE = 'rmt.vnext.surface.operation_ref.s
 const SURFACE_TEMPLATE_REF_MISSING_CODE = 'rmt.vnext.surface.template_ref.missing';
 
 const SURFACE_TYPE_PROFILES = Object.freeze({
-  root: Object.freeze({
-    type: 'root',
-    family: 'document-root',
-    hostRole: 'root-container',
-    stack: 'base',
+  region: Object.freeze({
+    type: 'region',
+    family: 'managed-region',
+    hostRole: 'region-container',
+    stack: 'workspace',
+    modal: false,
+    portal: false
+  }),
+  window: Object.freeze({
+    type: 'window',
+    family: 'window',
+    hostRole: 'window-container',
+    stack: 'workspace',
+    modal: false,
+    portal: false
+  }),
+  'side-panel': Object.freeze({
+    type: 'side-panel',
+    family: 'side-panel',
+    hostRole: 'panel-container',
+    stack: 'panel',
     modal: false,
     portal: false
   }),
@@ -35,56 +51,88 @@ const SURFACE_TYPE_PROFILES = Object.freeze({
     modal: true,
     portal: true
   }),
-  panel: Object.freeze({
-    type: 'panel',
-    family: 'side-panel',
-    hostRole: 'panel-container',
-    stack: 'panel',
-    modal: false,
-    portal: false
+  dialog: Object.freeze({
+    type: 'dialog',
+    family: 'dialog',
+    hostRole: 'overlay-container',
+    stack: 'modal',
+    modal: true,
+    portal: true
   }),
-  overlay: Object.freeze({
-    type: 'overlay',
-    family: 'floating-overlay',
+  drawer: Object.freeze({
+    type: 'drawer',
+    family: 'drawer',
+    hostRole: 'overlay-container',
+    stack: 'panel-overlay',
+    modal: false,
+    portal: true
+  }),
+  popover: Object.freeze({
+    type: 'popover',
+    family: 'popover',
     hostRole: 'overlay-container',
     stack: 'overlay',
     modal: false,
     portal: true
   }),
-  workspace: Object.freeze({
-    type: 'workspace',
-    family: 'workspace',
-    hostRole: 'workspace-container',
-    stack: 'workspace',
+  tooltip: Object.freeze({
+    type: 'tooltip',
+    family: 'tooltip',
+    hostRole: 'overlay-container',
+    stack: 'overlay',
     modal: false,
-    portal: false
+    portal: true
   }),
-  portal: Object.freeze({
-    type: 'portal',
-    family: 'portal',
-    hostRole: 'portal-container',
-    stack: 'portal',
+  toast: Object.freeze({
+    type: 'toast',
+    family: 'toast',
+    hostRole: 'toast-region',
+    stack: 'toast-region',
+    modal: false,
+    portal: true
+  }),
+  lightbox: Object.freeze({
+    type: 'lightbox',
+    family: 'media-lightbox',
+    hostRole: 'overlay-container',
+    stack: 'modal',
+    modal: true,
+    portal: true
+  }),
+  menu: Object.freeze({
+    type: 'menu',
+    family: 'menu',
+    hostRole: 'overlay-container',
+    stack: 'overlay',
     modal: false,
     portal: true
   })
 });
 
 const SURFACE_TYPE_ALIASES = Object.freeze({
-  root: 'root',
-  app: 'root',
+  root: 'region',
+  app: 'region',
+  workspace: 'region',
+  workbench: 'region',
+  page: 'region',
+  card: 'region',
+  list: 'region',
+  region: 'region',
+  'overlay-host': 'region',
+  window: 'window',
   modal: 'modal',
-  dialog: 'modal',
-  panel: 'panel',
-  'side-panel': 'panel',
-  sidepanel: 'panel',
-  drawer: 'panel',
-  overlay: 'overlay',
-  popover: 'overlay',
-  tooltip: 'overlay',
-  toast: 'overlay',
-  workspace: 'workspace',
-  workbench: 'workspace',
-  portal: 'portal'
+  dialog: 'dialog',
+  panel: 'side-panel',
+  'side-panel': 'side-panel',
+  sidepanel: 'side-panel',
+  drawer: 'drawer',
+  overlay: 'popover',
+  popover: 'popover',
+  tooltip: 'tooltip',
+  toast: 'toast',
+  lightbox: 'lightbox',
+  menu: 'menu',
+  portal: 'region'
 });
 
 function listSurfaceTypes() {
@@ -131,21 +179,29 @@ function createSurfaceDiagnostic(coreDocument, surface, code, message, severity 
 function normalizeSurfaceType(surface = {}) {
   const name = String(surface.name || '').trim();
   const lowered = name.toLowerCase();
-  const firstSegment = lowered.split(/[._:/]/).filter(Boolean)[0] || lowered;
+  const explicitKind = String(surface.kind || '').trim().toLowerCase();
+  const segments = lowered.split(/[._:/]/).filter(Boolean);
+  const firstSegment = segments[0] || lowered;
+  const secondSegment = segments[1] || '';
 
-  if (surface.kind === 'root' || lowered === 'root') {
-    return {
-      type: 'root',
-      known: true,
-      alias: lowered !== 'root',
-      rawName: name
-    };
+  if (explicitKind && explicitKind !== 'named_surface') {
+    const explicitType = SURFACE_TYPE_ALIASES[explicitKind] || null;
+    if (explicitType && SURFACE_TYPE_PROFILES[explicitType]) {
+      return {
+        type: explicitType,
+        kind: explicitKind,
+        known: true,
+        alias: explicitKind !== explicitType,
+        rawName: name
+      };
+    }
   }
 
-  const candidate = SURFACE_TYPE_ALIASES[firstSegment] || SURFACE_TYPE_ALIASES[lowered] || null;
+  const candidate = SURFACE_TYPE_ALIASES[secondSegment] || SURFACE_TYPE_ALIASES[firstSegment] || SURFACE_TYPE_ALIASES[lowered] || null;
   if (candidate && SURFACE_TYPE_PROFILES[candidate]) {
     return {
       type: candidate,
+      kind: explicitKind || firstSegment,
       known: true,
       alias: firstSegment !== candidate,
       rawName: name
@@ -154,6 +210,7 @@ function normalizeSurfaceType(surface = {}) {
 
   return {
     type: 'unknown',
+    kind: explicitKind || firstSegment || 'unknown',
     known: false,
     alias: false,
     rawName: name || 'unnamed'
@@ -256,6 +313,7 @@ function collectLaneRelations(coreDocument, surface, laneIndex, operationIndex) 
 function createSurfaceRecord(coreDocument, surface, indexes) {
   const typeResult = normalizeSurfaceType(surface);
   const profile = SURFACE_TYPE_PROFILES[typeResult.type] || null;
+  const portalHost = typeResult.kind === 'overlay-host';
   const relationResult = collectLaneRelations(coreDocument, surface, indexes.lanes, indexes.operations);
   const diagnostics = [
     ...validateTemplateRef(coreDocument, surface, indexes.templates),
@@ -278,6 +336,7 @@ function createSurfaceRecord(coreDocument, surface, indexes) {
     surfaceId: surface.id,
     name: surface.name || null,
     type: typeResult.type,
+    kind: typeResult.kind || surface.kind || typeResult.type,
     knownType: typeResult.known,
     alias: typeResult.alias,
     sourceRef: surface.sourceRef || null,
@@ -286,10 +345,10 @@ function createSurfaceRecord(coreDocument, surface, indexes) {
     hostBinding: {
       mode: 'host-neutral',
       domCoupled: false,
-      hostRole: profile ? profile.hostRole : 'unknown',
-      stack: profile ? profile.stack : 'unknown',
+      hostRole: portalHost ? 'portal-container' : (profile ? profile.hostRole : 'unknown'),
+      stack: portalHost ? 'portal' : (profile ? profile.stack : 'unknown'),
       modal: profile ? profile.modal : false,
-      portal: profile ? profile.portal : false
+      portal: portalHost || (profile ? profile.portal : false)
     },
     laneRefs: Array.isArray(surface.laneRefs) ? surface.laneRefs.slice() : [],
     laneCount: relationResult.lanes.length,

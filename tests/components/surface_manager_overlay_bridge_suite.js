@@ -106,7 +106,12 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
     'components/xsurfacemanager.js',
     'components/xmodal.js',
     'components/xdialog.js',
-    'components/xdrawer.js'
+    'components/xdrawer.js',
+    'components/xpopover.js',
+    'components/xtooltip.js',
+    'components/xtoast.js',
+    'components/xlightbox.js',
+    'components/xmenu.js'
   ].forEach((filePath) => {
     const syntax = syntaxCheckFile(filePath, { rootDir, extension: '.js' });
     context.assert(syntax.ok, `${filePath} syntax passes${syntax.ok ? '' : ` (${syntax.message})`}`);
@@ -134,7 +139,7 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
   assertIncludesAll(context, plan.legacyStateKeys, LEGACY_STATE_KEYS, 'Surface overlay bridge state keys');
 
   assertTextIncludesAll(context, bridgeRuntime, [
-    "const SURFACE_OVERLAY_SELECTOR = 'x-modal, x-dialog, x-drawer'",
+    "const SURFACE_OVERLAY_SELECTOR = 'x-modal, x-dialog, x-drawer, x-popover, x-tooltip, x-toast, x-lightbox, x-menu'",
     "const SURFACE_OVERLAY_BRIDGE_SCHEMA = 'xtend.surface.overlay-stack-bridge.v1'",
     'toOverlaySurfaceRecord(element, managerId =',
     'applyOverlaySurfaceSnapshot(element, record = {})',
@@ -146,6 +151,11 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
     'modal-opened',
     'dialog-opened',
     'drawer-opened',
+    'popover-opened',
+    'tooltip-opened',
+    'toast-shown',
+    'lightbox-opened',
+    'menu-navigate',
     'no-rmt-kernel-import-of-xtend-types'
   ], 'xsurfaceoverlay-bridge runtime');
 
@@ -157,15 +167,21 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
     'applyOverlaySurfaceSnapshot',
     'x-modal',
     'x-dialog',
-    'x-drawer'
+    'x-drawer',
+    'x-popover',
+    'x-tooltip',
+    'x-toast',
+    'x-lightbox',
+    'x-menu'
   ], 'xsurfaceoverlay-bridge types');
 
   assertTextIncludesAll(context, managerRuntime, [
     "from './xsurfaceoverlay-bridge.js'",
     'SURFACE_MANAGED_ELEMENT_SELECTOR',
-    'x-surface-window, x-side-panel',
+    'x-surface-window, x-side-panel, x-surface-region',
     'SURFACE_OVERLAY_SELECTOR',
     'surface-overlay-command',
+    'surface-region-command',
     'OVERLAY_LIFECYCLE_EVENTS',
     'findSurfaceOverlayElement(event)',
     'toOverlaySurfaceRecord(element, this._managerId())',
@@ -196,10 +212,20 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
     '<x-modal',
     '<x-dialog',
     '<x-drawer',
+    '<x-popover',
+    '<x-tooltip',
+    '<x-toast',
+    '<x-lightbox',
+    '<x-menu',
     'surface-overlay-command',
     'surface-id="overlay.modal"',
     'surface-id="overlay.dialog"',
     'surface-id="overlay.drawer"',
+    'surface-id="overlay.popover"',
+    'surface-id="overlay.tooltip"',
+    'surface-id="overlay.toast"',
+    'surface-id="overlay.lightbox"',
+    'surface-id="overlay.menu"',
     '__xtendComponentResult'
   ], 'Surface overlay bridge fixture');
   context.assert(!fixture.includes('https://cdn.ccs-networks.de'), 'Surface overlay bridge fixture has no CDN dependency');
@@ -212,6 +238,9 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
     'modal-open-<id>',
     'dialog-open-<id>',
     'xdrawer-open-<id>',
+    'xpopover-open-<id>',
+    'xtooltip-open-<id>',
+    'xtoast-state-<id>',
     KERNEL_BOUNDARY
   ], 'Surface overlay bridge contract doc');
   assertTextIncludesAll(context, workpackageDoc, [
@@ -225,6 +254,11 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
     'x-modal',
     'x-dialog',
     'x-drawer',
+    'x-popover',
+    'x-tooltip',
+    'x-toast',
+    'x-lightbox',
+    'x-menu',
     'surface-overlay-command',
     'Surface Stack',
     SURFACE_MANAGER_OVERLAY_BRIDGE_LOCAL_GATE

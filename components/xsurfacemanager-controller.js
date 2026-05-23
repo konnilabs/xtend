@@ -48,7 +48,11 @@
     'dialog',
     'drawer',
     'popover',
-    'tooltip'
+    'tooltip',
+    'region',
+    'toast',
+    'lightbox',
+    'menu'
   ]);
 
   const DEFAULT_CAPABILITIES = Object.freeze({
@@ -58,7 +62,11 @@
     dialog: Object.freeze(['open', 'focus', 'close', 'snapshot']),
     drawer: Object.freeze(['open', 'focus', 'close', 'resize', 'restore', 'snapshot']),
     popover: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-    tooltip: Object.freeze(['open', 'close', 'snapshot'])
+    tooltip: Object.freeze(['open', 'close', 'snapshot']),
+    region: Object.freeze(['open', 'focus', 'close', 'update', 'restore', 'snapshot']),
+    toast: Object.freeze(['open', 'close', 'dismiss', 'snapshot']),
+    lightbox: Object.freeze(['open', 'focus', 'close', 'snapshot']),
+    menu: Object.freeze(['open', 'focus', 'close', 'update', 'snapshot'])
   });
 
   const DEFAULT_BOUNDS = Object.freeze({
@@ -68,7 +76,11 @@
     dialog: Object.freeze({ x: 0, y: 0, width: 480, height: 320, minWidth: 280, minHeight: 160 }),
     drawer: Object.freeze({ x: 0, y: 0, width: 360, height: 720, minWidth: 240, minHeight: 180 }),
     popover: Object.freeze({ x: 0, y: 0, width: 280, height: 160, minWidth: 160, minHeight: 96 }),
-    tooltip: Object.freeze({ x: 0, y: 0, width: 220, height: 80, minWidth: 120, minHeight: 48 })
+    tooltip: Object.freeze({ x: 0, y: 0, width: 220, height: 80, minWidth: 120, minHeight: 48 }),
+    region: Object.freeze({ x: 0, y: 0, width: 640, height: 360, minWidth: 160, minHeight: 96 }),
+    toast: Object.freeze({ x: 0, y: 0, width: 360, height: 96, minWidth: 220, minHeight: 48 }),
+    lightbox: Object.freeze({ x: 0, y: 0, width: 720, height: 520, minWidth: 320, minHeight: 220 }),
+    menu: Object.freeze({ x: 0, y: 0, width: 280, height: 240, minWidth: 160, minHeight: 96 })
   });
 
   const DIAGNOSTIC_CODES = Object.freeze([
@@ -200,6 +212,7 @@
       id,
       manager: managerId,
       type,
+      kind: clampString(source.kind || record.kind, type),
       label,
       stateKey,
       status: defaultOpen ? 'open' : 'closed',
@@ -233,6 +246,7 @@
       id: record.id,
       manager: record.manager,
       type: record.type,
+      kind: record.kind || record.type,
       label: record.label,
       status: record.status,
       active: record.active,

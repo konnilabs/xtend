@@ -44,7 +44,7 @@ const REQUIRED_SURFACE_CAPABILITIES = Object.freeze([
 ]);
 
 const REQUIRED_SURFACE_KINDS = Object.freeze([
-  'window',
+  'workspace',
   'panel',
   'overlay-host'
 ]);

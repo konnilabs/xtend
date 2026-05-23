@@ -83,7 +83,11 @@ const REQUIRED_SURFACE_TYPES = Object.freeze([
   'dialog',
   'drawer',
   'popover',
-  'tooltip'
+  'tooltip',
+  'region',
+  'toast',
+  'lightbox',
+  'menu'
 ]);
 
 const REQUIRED_DIAGNOSTIC_CODES = Object.freeze([

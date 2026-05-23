@@ -111,14 +111,16 @@ function runRmtVNextSurfaceRegistrySuite(options = {}) {
   context.assert(surfaceContract.includes('schema: "xtend.rmt.vnext-surface-registry.v1"'), 'Surface contract document declares schema');
 
   const surfaceTypes = listSurfaceTypes();
-  context.assert(surfaceTypes.length === 6, 'surface registry exposes six canonical surface types');
-  assertIncludesAll(context, surfaceTypes, ['root', 'modal', 'panel', 'overlay', 'workspace', 'portal'], 'surface registry canonical types');
-  context.assert(normalizeSurfaceType({ name: 'root', kind: 'root' }).type === 'root', 'root surface type is inferred');
+  context.assert(surfaceTypes.length === 11, 'surface registry exposes eleven SurfaceManager runtime surface types');
+  assertIncludesAll(context, surfaceTypes, ['region', 'window', 'side-panel', 'modal', 'dialog', 'drawer', 'popover', 'tooltip', 'toast', 'lightbox', 'menu'], 'surface registry canonical types');
+  context.assert(normalizeSurfaceType({ name: 'root', kind: 'root' }).type === 'region', 'root kind lowers to region');
   context.assert(normalizeSurfaceType({ name: 'modal.settings', kind: 'named_surface' }).type === 'modal', 'modal surface type is inferred');
-  context.assert(normalizeSurfaceType({ name: 'panel.tools', kind: 'named_surface' }).type === 'panel', 'panel surface type is inferred');
-  context.assert(normalizeSurfaceType({ name: 'overlay.toast', kind: 'named_surface' }).type === 'overlay', 'overlay surface type is inferred');
-  context.assert(normalizeSurfaceType({ name: 'workspace.editor', kind: 'named_surface' }).type === 'workspace', 'workspace surface type is inferred');
-  context.assert(normalizeSurfaceType({ name: 'portal.help', kind: 'named_surface' }).type === 'portal', 'portal surface type is inferred');
+  context.assert(normalizeSurfaceType({ name: 'panel.tools', kind: 'named_surface' }).type === 'side-panel', 'panel surface type is inferred');
+  context.assert(normalizeSurfaceType({ name: 'overlay.toast', kind: 'named_surface' }).type === 'toast', 'overlay toast surface type is inferred');
+  context.assert(normalizeSurfaceType({ name: 'workspace.editor', kind: 'named_surface' }).type === 'region', 'workspace surface type lowers to region');
+  context.assert(normalizeSurfaceType({ name: 'portal.help', kind: 'overlay-host' }).type === 'region', 'overlay-host surface type lowers to region');
+  context.assert(normalizeSurfaceType({ name: 'demo.card', kind: 'card' }).type === 'region', 'explicit card kind lowers to region');
+  context.assert(normalizeSurfaceType({ name: 'help.menu', kind: 'menu' }).type === 'menu', 'explicit menu kind wins over name alias');
 
   const compileResult = compileFixture(VALID_SURFACES_FIXTURE, rootDir);
   context.assert(compileResult.ok === true, 'surfaces fixture compiles successfully');
@@ -134,21 +136,21 @@ function runRmtVNextSurfaceRegistrySuite(options = {}) {
   context.assert(registry.surfaceCount === 6, 'surface registry includes six surfaces');
   context.assert(registry.laneCount === 6, 'surface registry reports core lane count');
   context.assert(registry.operationCount === 7, 'surface registry reports core operation count');
-  assertIncludesAll(context, Object.keys(registry.byType), ['root', 'modal', 'panel', 'overlay', 'workspace', 'portal'], 'surface registry byType index');
+  assertIncludesAll(context, Object.keys(registry.byType), ['region', 'modal', 'side-panel', 'toast'], 'surface registry byType index');
 
-  const root = findSurface(registry, 'root');
+  const root = registry.surfaces.find((surface) => surface.kind === 'root');
   const modal = findSurface(registry, 'modal');
-  const panel = findSurface(registry, 'panel');
-  const overlay = findSurface(registry, 'overlay');
-  const workspace = findSurface(registry, 'workspace');
-  const portal = findSurface(registry, 'portal');
+  const panel = findSurface(registry, 'side-panel');
+  const toast = findSurface(registry, 'toast');
+  const workspace = registry.surfaces.find((surface) => surface.kind === 'workspace');
+  const portal = registry.surfaces.find((surface) => surface.kind === 'overlay-host');
   context.assert(root && root.schema === RMT_VNEXT_SURFACE_SCHEMA, 'root surface uses surface schema');
-  context.assert(root && root.hostBinding.domCoupled === false && root.hostBinding.hostRole === 'root-container', 'root surface stays host-neutral');
+  context.assert(root && root.type === 'region' && root.hostBinding.domCoupled === false && root.hostBinding.hostRole === 'region-container', 'root kind lowers to a host-neutral region');
   context.assert(modal && modal.hostBinding.modal === true && modal.hostBinding.portal === true, 'modal surface records modal portal metadata');
   context.assert(panel && panel.hostBinding.hostRole === 'panel-container', 'panel surface records panel host role');
-  context.assert(overlay && overlay.hostBinding.stack === 'overlay', 'overlay surface records overlay stack');
-  context.assert(workspace && workspace.hostBinding.stack === 'workspace', 'workspace surface records workspace stack');
-  context.assert(portal && portal.hostBinding.portal === true, 'portal surface records portal metadata');
+  context.assert(toast && toast.hostBinding.stack === 'toast-region', 'toast surface records toast-region stack');
+  context.assert(workspace && workspace.type === 'region' && workspace.hostBinding.stack === 'workspace', 'workspace kind records workspace stack');
+  context.assert(portal && portal.type === 'region' && portal.hostBinding.portal === true, 'overlay-host kind records portal metadata');
   context.assert(registry.surfaces.every((surface) => surface.sourceRef && surface.sourceRef.startsWith('src:')), 'surfaces keep source refs');
   context.assert(registry.surfaces.every((surface) => surface.laneRefs.length === surface.laneCount), 'surfaces preserve lane refs');
   context.assert(registry.surfaces.every((surface) => surface.operationRefs.length === surface.operationCount), 'surfaces preserve operation refs');
@@ -162,10 +164,11 @@ function runRmtVNextSurfaceRegistrySuite(options = {}) {
   const complexRegistry = createSurfaceRegistry(complexResult.coreDocument);
   context.assert(complexRegistry.ok === true, 'complex fixture surfaces normalize successfully');
   context.assert(complexRegistry.surfaces.some((surface) => surface.type === 'modal'), 'complex fixture includes modal surface');
-  context.assert(complexRegistry.surfaces.some((surface) => surface.type === 'overlay'), 'complex fixture includes overlay surface');
+  context.assert(complexRegistry.surfaces.some((surface) => surface.type === 'popover'), 'complex fixture includes overlay-compatible popover surface');
 
   const unknownCore = cloneJson(compileResult.coreDocument);
   unknownCore.surfaces[1].name = 'mystery.zone';
+  unknownCore.surfaces[1].kind = 'mystery';
   const unknownRegistry = createSurfaceRegistry(unknownCore);
   context.assert(unknownRegistry.ok === false && unknownRegistry.status === 'blocked', 'unknown surface types block registry');
   context.assert(unknownRegistry.diagnostics.some((diagnostic) => diagnostic.code === SURFACE_KIND_UNKNOWN_CODE), 'unknown surface types produce diagnostics');

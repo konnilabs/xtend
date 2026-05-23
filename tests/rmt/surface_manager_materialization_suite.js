@@ -275,10 +275,10 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
 
   const componentTags = fixture.components.map((component) => component.tag);
   context.assert(componentTags.includes('x-surface-manager'), 'Fixture keeps x-surface-manager as shell manager component');
-  ['x-surface-window', 'x-side-panel', 'x-modal', 'x-dialog', 'x-drawer'].forEach((tag) => {
+  ['x-surface-window', 'x-surface-region', 'x-side-panel', 'x-modal', 'x-dialog', 'x-drawer', 'x-popover', 'x-tooltip', 'x-toast', 'x-lightbox', 'x-menu'].forEach((tag) => {
     context.assert(!componentTags.includes(tag), `Fixture does not maintain parallel ${tag} component records`);
   });
-  context.assert(Array.isArray(fixture.surfaces) && fixture.surfaces.length === 6, 'Fixture declares six native surfaces');
+  context.assert(Array.isArray(fixture.surfaces) && fixture.surfaces.length === 12, 'Fixture declares twelve native surfaces');
   context.assert(fixture.surfaces.every((surface) => String(surface.component || '').endsWith('.content')), 'Native surfaces reference content components');
 
   const evaluatedArtifacts = [
@@ -312,13 +312,19 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     const inspector = managerElement && findSurface(managerElement, 'surface.inspector');
     const properties = managerElement && findSurface(managerElement, 'surface.properties');
     const drawer = managerElement && findSurface(managerElement, 'surface.drawer');
+    const region = managerElement && findSurface(managerElement, 'surface.summaryCard');
+    const popover = managerElement && findSurface(managerElement, 'surface.popover');
+    const tooltip = managerElement && findSurface(managerElement, 'surface.tooltip');
+    const toast = managerElement && findSurface(managerElement, 'surface.toast');
+    const lightbox = managerElement && findSurface(managerElement, 'surface.lightbox');
+    const menu = managerElement && findSurface(managerElement, 'surface.menu');
 
     context.assert(materializedResult.ok === true, 'materializeSurfaces returns ok');
     context.assert(materializedResult.metadata.schema === SURFACE_MATERIALIZATION_SCHEMA, 'materializeSurfaces returns materialization schema metadata');
-    context.assert(materializedResult.metadata.surfaceCount === 6, 'materializeSurfaces maps six surfaces');
-    context.assert(materializedResult.metadata.materializedCount === 6, 'materializeSurfaces creates six XTend UI surface elements');
+    context.assert(materializedResult.metadata.surfaceCount === 12, 'materializeSurfaces maps twelve surfaces');
+    context.assert(materializedResult.metadata.materializedCount === 12, 'materializeSurfaces creates twelve XTend UI surface elements');
     context.assert(materializedResult.metadata.managerCount === 1 && materializedResult.metadata.createdManagerCount === 1, 'materializeSurfaces creates one x-surface-manager');
-    context.assert(materializedResult.metadata.registeredCount === 6, 'materializeSurfaces registers six surfaces on the manager');
+    context.assert(materializedResult.metadata.registeredCount === 12, 'materializeSurfaces registers twelve surfaces on the manager');
     context.assert(materializedResult.metadata.createsSecondRegistry === false, 'materializeSurfaces does not create a second registry');
     context.assert(managerElement && managerElement.localName === 'x-surface-manager', 'Materialization creates x-surface-manager');
     context.assert(managerElement && managerElement.getAttribute('manager-id') === 'workbench.manager', 'Materialized manager keeps RMT manager id');
@@ -328,6 +334,12 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     context.assert(tagCounts['x-modal'] === 1, 'Materialization creates one x-modal element');
     context.assert(tagCounts['x-dialog'] === 1, 'Materialization creates one x-dialog element');
     context.assert(tagCounts['x-drawer'] === 1, 'Materialization creates one x-drawer element');
+    context.assert(tagCounts['x-surface-region'] === 1, 'Materialization creates one x-surface-region element');
+    context.assert(tagCounts['x-popover'] === 1, 'Materialization creates one x-popover element');
+    context.assert(tagCounts['x-tooltip'] === 1, 'Materialization creates one x-tooltip element');
+    context.assert(tagCounts['x-toast'] === 1, 'Materialization creates one x-toast element');
+    context.assert(tagCounts['x-lightbox'] === 1, 'Materialization creates one x-lightbox element');
+    context.assert(tagCounts['x-menu'] === 1, 'Materialization creates one x-menu element');
     context.assert(inspector && inspector.getAttribute('slot') === 'windows', 'Window surface is assigned to windows slot');
     context.assert(inspector && inspector.getAttribute('open') === '' && inspector.getAttribute('active') === '', 'Inspector carries open and active attributes');
     context.assert(inspector && inspector.getAttribute('initial-x') === '96' && inspector.getAttribute('initial-width') === '520', 'Inspector receives initial bounds');
@@ -340,8 +352,17 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     context.assert(drawer && drawer.getAttribute('slot') === 'overlays', 'Drawer is assigned to overlays slot');
     context.assert(drawer && drawer.getAttribute('placement') === 'left' && drawer.getAttribute('mode') === 'overlay', 'Drawer receives placement and mode');
     context.assert(drawer && drawer.getAttribute('modal') === '', 'Drawer receives modal accessibility attribute');
+    context.assert(region && region.getAttribute('slot') === null, 'Region surface is assigned to the default manager slot');
+    context.assert(region && region.getAttribute('data-surface-type') === 'region' && region.getAttribute('data-surface-kind') === 'card', 'Region preserves RMT kind semantics');
+    context.assert(region && region.getAttribute('open') === '', 'Region carries default open state');
+    context.assert(popover && popover.getAttribute('slot') === 'overlays' && popover.getAttribute('placement') === 'bottom', 'Popover is assigned to overlays slot');
+    context.assert(tooltip && tooltip.getAttribute('slot') === 'overlays' && tooltip.getAttribute('placement') === 'top', 'Tooltip is assigned to overlays slot');
+    context.assert(toast && toast.getAttribute('slot') === 'overlays', 'Toast is assigned to overlays slot');
+    context.assert(lightbox && lightbox.getAttribute('slot') === 'overlays', 'Lightbox is assigned to overlays slot');
+    context.assert(menu && menu.getAttribute('slot') === 'overlays' && menu.getAttribute('placement') === 'bottom-start', 'Menu is assigned to overlays slot');
     context.assert(managerElement && managerElement.registered.every((record) => record.manager === 'workbench.manager'), 'Registered records target the materialized manager');
     context.assert(managerElement && managerElement.registered[0].contentRef === 'inspector.content', 'Registered records keep component refs as content refs');
+    context.assert(managerElement && managerElement.registered.some((record) => record.type === 'region' && record.kind === 'card'), 'Registered records preserve RMT kind');
 
     const existingDocument = createFakeDocument();
     const existingManager = existingDocument.createElement('x-surface-manager');
@@ -355,7 +376,7 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     });
     const duplicateInspectors = existingManager.querySelectorAll('[surface-id="surface.inspector"]');
     context.assert(boundResult.ok === true && boundResult.metadata.boundCount === 1, 'materializeSurfaces binds an existing surface element');
-    context.assert(boundResult.metadata.materializedCount === 5, 'materializeSurfaces creates only missing surfaces when binding existing DOM');
+    context.assert(boundResult.metadata.materializedCount === 11, 'materializeSurfaces creates only missing surfaces when binding existing DOM');
     context.assert(duplicateInspectors.length === 1, 'materializeSurfaces does not duplicate existing surfaces');
   }
 

@@ -31,6 +31,8 @@
   "x-status": "./xstatus.js",
   "x-summary": "./xsummary.js",
   "x-surface-manager": "./xsurfacemanager.js",
+  "x-surface-portal": "./xsurfaceportal.js",
+  "x-surface-region": "./xsurfaceregion.js",
   "x-surface-window": "./xsurfacewindow.js",
   "x-tabs": "./xtabs.js",
   "x-textarea": "./xtextarea.js",

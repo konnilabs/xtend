@@ -30,7 +30,12 @@ const RUNTIME_ARTIFACTS = Object.freeze([
   'components/xsurfacemanager-controller.js',
   'components/xmodal.js',
   'components/xdialog.js',
-  'components/xdrawer.js'
+  'components/xdrawer.js',
+  'components/xpopover.js',
+  'components/xtooltip.js',
+  'components/xtoast.js',
+  'components/xlightbox.js',
+  'components/xmenu.js'
 ]);
 
 const REQUIRED_ARTIFACTS = Object.freeze([
@@ -57,13 +62,23 @@ const COMPONENT_TAGS = Object.freeze([
   'x-surface-manager',
   'x-modal',
   'x-dialog',
-  'x-drawer'
+  'x-drawer',
+  'x-popover',
+  'x-tooltip',
+  'x-toast',
+  'x-lightbox',
+  'x-menu'
 ]);
 
 const OVERLAY_SURFACE_TYPES = Object.freeze([
   'modal',
   'dialog',
-  'drawer'
+  'drawer',
+  'popover',
+  'tooltip',
+  'toast',
+  'lightbox',
+  'menu'
 ]);
 
 const LEGACY_EVENTS = Object.freeze([
@@ -73,7 +88,18 @@ const LEGACY_EVENTS = Object.freeze([
   'dialog-closed',
   'drawer-opened',
   'drawer-closed',
-  'drawer-route-selected'
+  'drawer-route-selected',
+  'popover-opened',
+  'popover-closed',
+  'tooltip-opened',
+  'tooltip-closed',
+  'toast-shown',
+  'toast-dismissed',
+  'lightbox-opened',
+  'lightbox-closed',
+  'menu-opened',
+  'menu-closed',
+  'menu-navigate'
 ]);
 
 const BRIDGE_EVENTS = Object.freeze([
@@ -84,7 +110,12 @@ const BRIDGE_EVENTS = Object.freeze([
 const LEGACY_STATE_KEYS = Object.freeze([
   'modal-open-<id>',
   'dialog-open-<id>',
-  'xdrawer-open-<id>'
+  'xdrawer-open-<id>',
+  'xpopover-open-<id>',
+  'xtooltip-open-<id>',
+  'xtoast-state-<id>',
+  'xlightbox-open-<id>',
+  'xmenu-state-<id>'
 ]);
 
 function includesAll(values, required) {
@@ -122,7 +153,7 @@ function createSurfaceManagerOverlayBridgePlan(options = {}) {
     legacyStateKeys: LEGACY_STATE_KEYS.slice(),
     runtimeModel: {
       bridge: 'xsurfaceoverlay-bridge-adapts-existing-overlays-to-surface-records',
-      managerIntegration: 'x-surface-manager-overlays-slot-auto-registers-x-modal-x-dialog-x-drawer',
+      managerIntegration: 'x-surface-manager-overlays-slot-auto-registers-compatible-overlay-primitives',
       commandBridge: 'surface-overlay-command-to-controller-operation',
       lifecycleBridge: 'legacy-overlay-events-to-surface-controller',
       stackPolicy: 'single-controller-stack-for-windows-panels-and-compatible-overlays',
@@ -135,6 +166,8 @@ function createSurfaceManagerOverlayBridgePlan(options = {}) {
       legacyLifecycleEventsPreserved: true,
       legacyStateKeysPreserved: true,
       modalDialogDrawerProfilesImplemented: true,
+      lightweightOverlayProfilesImplemented: true,
+      normalizedOverlayCommandsImplemented: true,
       controllerReusedFromWpSm02: true,
       createsSecondRegistry: false,
       externalNetworkAllowedInLocalGate: false,
@@ -170,6 +203,8 @@ function validateSurfaceManagerOverlayBridgePlan(plan = createSurfaceManagerOver
   if (!plan || plan.featureFlags.surfaceOverlayCommandImplemented !== true) errors.push('surface-overlay-command must be implemented');
   if (!plan || plan.featureFlags.legacyLifecycleEventsPreserved !== true) errors.push('legacy overlay events must be preserved');
   if (!plan || plan.featureFlags.legacyStateKeysPreserved !== true) errors.push('legacy overlay state keys must be preserved');
+  if (!plan || plan.featureFlags.lightweightOverlayProfilesImplemented !== true) errors.push('lightweight overlay profiles must be implemented');
+  if (!plan || plan.featureFlags.normalizedOverlayCommandsImplemented !== true) errors.push('overlay command normalization must be implemented');
   if (!plan || plan.featureFlags.controllerReusedFromWpSm02 !== true) errors.push('WP-SM-06 must reuse WP-SM-02 controller');
   if (!plan || plan.featureFlags.createsSecondRegistry !== false) errors.push('WP-SM-06 must not create a second registry');
   if (!plan || plan.featureFlags.rmtKernelImportsXtendTypes !== false) errors.push('RMT kernel boundary must stay clean');

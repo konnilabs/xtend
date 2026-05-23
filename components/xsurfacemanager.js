@@ -10,7 +10,7 @@ import {
   toOverlaySurfaceRecord
 } from './xsurfaceoverlay-bridge.js';
 
-const SURFACE_MANAGED_ELEMENT_SELECTOR = `x-surface-window, x-side-panel, ${SURFACE_OVERLAY_SELECTOR}`;
+const SURFACE_MANAGED_ELEMENT_SELECTOR = `x-surface-window, x-side-panel, x-surface-region, ${SURFACE_OVERLAY_SELECTOR}`;
 const SURFACE_MANAGER_PERSISTENCE_SCHEMA = 'xtend.surface.manager-persistence.v1';
 const SURFACE_PERSISTED_SNAPSHOT_SCHEMA = 'xtend.surface.persisted-snapshot.v1';
 const SURFACE_PERSISTENCE_DIAGNOSTIC_SCHEMA = 'xtend.surface.persistence-diagnostic.v1';
@@ -31,7 +31,7 @@ const SURFACE_LAYOUT_ENGINE_SCHEMA = 'xtend.surface.layout-engine.v1';
 const SURFACE_LAYOUT_ENGINE_REPORT_SCHEMA = 'xtend.surface.layout-engine-report.v1';
 const SURFACE_LAYOUT_ENGINE_DIAGNOSTIC_SCHEMA = 'xtend.surface.layout-engine-diagnostic.v1';
 const SURFACE_LAYOUT_ENGINES = Object.freeze(['freeform', 'docked', 'split', 'tile', 'stacked']);
-const SURFACE_LAYOUT_SURFACE_TYPES = Object.freeze(['window', 'side-panel']);
+const SURFACE_LAYOUT_SURFACE_TYPES = Object.freeze(['window', 'side-panel', 'region']);
 const SURFACE_LAYOUT_PLACEMENTS = Object.freeze(['left', 'right', 'top', 'bottom', 'inline', 'center']);
 const SURFACE_REMOTE_POLICY_SCHEMA = 'xtend.surface.remote-policy-bridge.v1';
 const SURFACE_REMOTE_POLICY_REPORT_SCHEMA = 'xtend.surface.remote-policy-report.v1';
@@ -105,7 +105,7 @@ function surfaceElementSelector(surfaceId) {
     .split(',')
     .map((selector) => `${selector.trim()}[id="${id}"]`)
     .join(', ');
-  return `x-surface-window[surface-id="${id}"], x-side-panel[surface-id="${id}"], ${overlayBySurfaceId}, ${overlayById}`;
+  return `x-surface-window[surface-id="${id}"], x-side-panel[surface-id="${id}"], x-surface-region[surface-id="${id}"], x-surface-region[id="${id}"], [data-rmt-surface="${id}"], ${overlayBySurfaceId}, ${overlayById}`;
 }
 
 function safeJsonParse(value) {
@@ -486,6 +486,7 @@ function clonePersistedSurfaceRecord(record) {
     id: record.id,
     manager: record.manager,
     type: record.type,
+    kind: record.kind || record.type,
     label: record.label,
     status: record.status,
     active: Boolean(record.active),
@@ -679,7 +680,7 @@ class XSurfaceManager extends HTMLElement {
       lane: 'visible',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['mount', 'register-surface', 'snapshot', 'surface-content-hydrate', 'surface-route-lifecycle', 'surface-stack-policy', 'surface-layout-engine', 'surface-remote-policy'],
-      cleanup: ['slotchange', 'surface-window-command', 'surface-panel-command', 'surface-overlay-command', 'route-lifecycle-listeners', 'stack-policy-listeners']
+      cleanup: ['slotchange', 'surface-window-command', 'surface-panel-command', 'surface-region-command', 'surface-overlay-command', 'route-lifecycle-listeners', 'stack-policy-listeners']
     };
   }
 
@@ -749,6 +750,7 @@ class XSurfaceManager extends HTMLElement {
     this._handleSlotChange = this._registerAssignedSurfaces.bind(this);
     this._handleSurfaceCommand = this._onSurfaceCommand.bind(this);
     this._handlePanelCommand = this._onSurfaceCommand.bind(this);
+    this._handleRegionCommand = this._onSurfaceCommand.bind(this);
     this._handleOverlayCommand = this._onSurfaceCommand.bind(this);
     this._handleOverlayLifecycle = this._onOverlayLifecycle.bind(this);
     this._handleSurfaceRouteSignal = this._onSurfaceRouteSignal.bind(this);
@@ -817,6 +819,7 @@ class XSurfaceManager extends HTMLElement {
     this._slots.forEach((slot) => slot.addEventListener('slotchange', this._handleSlotChange));
     this.addEventListener('surface-window-command', this._handleSurfaceCommand);
     this.addEventListener('surface-panel-command', this._handlePanelCommand);
+    this.addEventListener('surface-region-command', this._handleRegionCommand);
     this.addEventListener('surface-overlay-command', this._handleOverlayCommand);
     this._addSurfaceRouteListeners();
     this._addSurfaceStackPolicyListeners();
@@ -843,6 +846,7 @@ class XSurfaceManager extends HTMLElement {
     this._slots.forEach((slot) => slot.removeEventListener('slotchange', this._handleSlotChange));
     this.removeEventListener('surface-window-command', this._handleSurfaceCommand);
     this.removeEventListener('surface-panel-command', this._handlePanelCommand);
+    this.removeEventListener('surface-region-command', this._handleRegionCommand);
     this.removeEventListener('surface-overlay-command', this._handleOverlayCommand);
     this._removeSurfaceRouteListeners();
     this._removeSurfaceStackPolicyListeners();
@@ -3642,13 +3646,21 @@ class XSurfaceManager extends HTMLElement {
 
   _onSurfaceCommand(event) {
     const detail = event.detail || {};
-    const { command, payload } = detail;
+    const { payload } = detail;
+    const rawCommand = detail.command;
     const surfaceId = detail.surfaceId || detail.id;
-    if (!surfaceId || !command) return;
+    if (!surfaceId || !rawCommand) return;
     event.stopPropagation();
+    const command = {
+      show: 'open',
+      hide: 'close',
+      dismiss: 'close'
+    }[rawCommand] || rawCommand;
+    const current = this.snapshot().surfaces.find((record) => record.id === surfaceId);
     const commands = {
       open: () => this.openSurface(surfaceId, payload),
       close: () => this.closeSurface(surfaceId, payload && payload.reason),
+      toggle: () => current && current.status !== 'closed' ? this.closeSurface(surfaceId, payload && payload.reason || 'toggle') : this.openSurface(surfaceId, payload),
       focus: () => this.focusSurface(surfaceId),
       move: () => this.moveSurface(surfaceId, payload),
       resize: () => this.resizeSurface(surfaceId, payload),
@@ -3677,7 +3689,7 @@ class XSurfaceManager extends HTMLElement {
     }
 
     const detail = event.detail || {};
-    if (event.type.endsWith('-opened')) {
+    if (event.type.endsWith('-opened') || event.type === 'toast-shown') {
       this.openSurface(surfaceId, {
         source: detail.source || event.type,
         legacyEvent: event.type
@@ -3685,7 +3697,7 @@ class XSurfaceManager extends HTMLElement {
       return;
     }
 
-    if (event.type.endsWith('-closed')) {
+    if (event.type.endsWith('-closed') || event.type === 'toast-dismissed') {
       this.closeSurface(surfaceId, detail.source || event.type);
       return;
     }

@@ -39,10 +39,16 @@ const SURFACE_MATERIALIZATION_DIAGNOSTICS = Object.freeze([
 const MATERIALIZED_COMPONENT_TAGS = Object.freeze([
   'x-surface-manager',
   'x-surface-window',
+  'x-surface-region',
   'x-side-panel',
   'x-modal',
   'x-dialog',
-  'x-drawer'
+  'x-drawer',
+  'x-popover',
+  'x-tooltip',
+  'x-toast',
+  'x-lightbox',
+  'x-menu'
 ]);
 
 const RUNTIME_ARTIFACTS = Object.freeze([

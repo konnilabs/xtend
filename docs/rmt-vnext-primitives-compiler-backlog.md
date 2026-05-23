@@ -217,7 +217,7 @@ Die erste Compiler- und DX-Schiene fuer vNext-Primitives ist release-gated:
   Kernel-Schedules, ableitbare Fabric-Fiber, UI-Marker und Browser-Probe.
 - `RMT-VNEXT-PRIM-06` besitzt ausserdem einen Browser-Execution-Pfad.
   `runRmtVNextSourceToSeaBrowserExecution(...)` kann dieselbe Fixture per
-  WebDriver, ChromeDriver oder Safari-Driver oeffnen,
+  WebDriver, Firefox/Geckodriver, ChromeDriver oder Safari-Driver oeffnen,
   `window.__xtendRmtVNextSourceToSeaResult` auslesen und das echte Browser-
   Ergebnis gegen Compiler-, Kernel- und Fabric-Evidence vergleichen. Ohne
   lokale Browser-Umgebung bleibt der Standardlauf als Fixture-Contract
@@ -227,6 +227,9 @@ Die erste Compiler- und DX-Schiene fuer vNext-Primitives ist release-gated:
   erzeugt `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`;
   `npm run test:rmt-vnext-source-to-sea:browser-required` schaltet denselben
   Pfad fuer lokale/CI-Headless-Profile verpflichtend.
+- Fuer lokale Headless-Profile kann der gleiche Pfad jetzt auch automatisch
+  Firefox ueber Geckodriver starten:
+  `npm run test:rmt-vnext-source-to-sea:firefox`.
 - `RMT-VNEXT-PRIM-06` ist in GitHub Actions jetzt fuer Browser-Execution
   verpflichtend. Der Job `rmt-vnext-primitive-gates` nutzt
   `npm run test:rmt-vnext-source-to-sea:chromedriver` und uploaded danach das

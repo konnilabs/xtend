@@ -1,7 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const { pathToFileURL } = require('url');
 const {
   RMT_APP_PLATFORM_RECORDS_SCHEMA,
@@ -68,6 +68,19 @@ const RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY = '__xtendRmtVNextSourceToSeaResult';
 const RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER = 'chromedriver';
 const RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_NAME = 'chrome';
 const RMT_VNEXT_SOURCE_TO_SEA_CI_WEBDRIVER_PORT = 9515;
+const RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS = Object.freeze([
+  'webdriver',
+  'chromedriver',
+  'chrome',
+  'chromium',
+  'firefox',
+  'geckodriver',
+  'safari',
+  'safaridriver',
+  'edge',
+  'msedge',
+  'msedgedriver'
+]);
 
 function toArray(value) {
   return Array.isArray(value) ? value : [];
@@ -248,13 +261,13 @@ function findExecutableOnPath(name) {
   return null;
 }
 
-function executableCandidate(value) {
+function executableCandidate(value, executableName = 'chromedriver') {
   if (!value) {
     return [];
   }
   return [
     value,
-    path.join(value, 'chromedriver')
+    path.join(value, executableName)
   ];
 }
 
@@ -290,6 +303,97 @@ function findChromeDriver(options = {}) {
   }) || null;
 }
 
+function findGeckoDriver(options = {}) {
+  const candidates = [
+    ...executableCandidate(options.geckoDriverPath, 'geckodriver'),
+    ...executableCandidate(process.env.RMT_VNEXT_SOURCE_TO_SEA_GECKODRIVER, 'geckodriver'),
+    ...executableCandidate(process.env.GECKODRIVER, 'geckodriver'),
+    ...executableCandidate(process.env.FIREFOXWEBDRIVER, 'geckodriver'),
+    '/usr/local/bin/geckodriver',
+    '/usr/bin/geckodriver',
+    '/snap/bin/geckodriver',
+    findExecutableOnPath('geckodriver')
+  ].filter(Boolean);
+
+  return candidates.find((candidate) => {
+    try {
+      fs.accessSync(candidate, fs.constants.X_OK);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }) || null;
+}
+
+function findEdgeDriver(options = {}) {
+  const candidates = [
+    ...executableCandidate(options.edgeDriverPath, 'msedgedriver'),
+    ...executableCandidate(process.env.RMT_VNEXT_SOURCE_TO_SEA_EDGEDRIVER, 'msedgedriver'),
+    ...executableCandidate(process.env.MSEDGEDRIVER, 'msedgedriver'),
+    ...executableCandidate(process.env.EDGEWEBDRIVER, 'msedgedriver'),
+    '/usr/local/bin/msedgedriver',
+    '/usr/bin/msedgedriver',
+    findExecutableOnPath('msedgedriver')
+  ].filter(Boolean);
+
+  return candidates.find((candidate) => {
+    try {
+      fs.accessSync(candidate, fs.constants.X_OK);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }) || null;
+}
+
+function findBrowserBinary(options = {}, envNames = [], executableNames = []) {
+  const candidates = [
+    options.browserBinary,
+    ...envNames.map((name) => process.env[name]),
+    ...executableNames.map((name) => findExecutableOnPath(name))
+  ].filter(Boolean);
+  return candidates.find((candidate) => {
+    try {
+      fs.accessSync(candidate, fs.constants.X_OK);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }) || null;
+}
+
+function normalizeBrowserDriver(value) {
+  const driver = String(value || '').trim().toLowerCase();
+  if (driver === 'chrome' || driver === 'chromium') return 'chromedriver';
+  if (driver === 'safaridriver') return 'safari';
+  if (driver === 'gecko' || driver === 'geckodriver') return 'firefox';
+  if (driver === 'edge' || driver === 'msedge') return 'msedgedriver';
+  return driver;
+}
+
+function browserNameForDriver(driver, options = {}) {
+  if (options.browserName) return options.browserName;
+  if (driver === 'firefox') return 'firefox';
+  if (driver === 'safari') return 'safari';
+  if (driver === 'msedgedriver') return 'MicrosoftEdge';
+  if (driver === 'chromedriver') return process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME || 'chrome';
+  return process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME || 'chrome';
+}
+
+function supportedBrowserDriver(value) {
+  return RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes(String(value || '').trim().toLowerCase())
+    || Boolean(normalizeBrowserDriver(value) && ['webdriver', 'chromedriver', 'firefox', 'safari', 'msedgedriver'].includes(normalizeBrowserDriver(value)));
+}
+
+function detectAvailableBrowserDriver(options = {}) {
+  if (options.webDriverUrl || process.env.RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_URL) return 'webdriver';
+  if (findGeckoDriver(options)) return 'firefox';
+  if (findChromeDriver(options)) return 'chromedriver';
+  if (findEdgeDriver(options)) return 'msedgedriver';
+  if (findSafariDriver()) return 'safari';
+  return '';
+}
+
 async function waitForWebDriver(webDriver, timeoutMs = 5000) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
@@ -312,6 +416,13 @@ async function waitForWebDriver(webDriver, timeoutMs = 5000) {
 
 function childProcessHasExited(childProcess) {
   return !childProcess || childProcess.exitCode !== null || childProcess.signalCode !== null;
+}
+
+function detachChildProcess(childProcess) {
+  if (!childProcess) return;
+  if (childProcess.stdout && typeof childProcess.stdout.destroy === 'function') childProcess.stdout.destroy();
+  if (childProcess.stderr && typeof childProcess.stderr.destroy === 'function') childProcess.stderr.destroy();
+  if (typeof childProcess.unref === 'function') childProcess.unref();
 }
 
 function waitForChildProcessExit(childProcess, timeoutMs = 3000) {
@@ -350,6 +461,17 @@ function waitForChildProcessExit(childProcess, timeoutMs = 3000) {
 
 function errorMessage(error) {
   return error && error.message ? error.message : String(error);
+}
+
+function signalSnapGeckoDriver(childProcess, signal = 'TERM') {
+  const pid = Number(childProcess && childProcess.pid);
+  if (!Number.isFinite(pid) || pid <= 0 || !findExecutableOnPath('snap')) {
+    return false;
+  }
+  const result = spawnSync('snap', ['run', '--shell', 'firefox.geckodriver', '-c', `kill -${signal} ${pid}`], {
+    stdio: 'ignore'
+  });
+  return result.status === 0;
 }
 
 async function shutdownSpawnedWebDriver(childProcess, webDriver, options = {}) {
@@ -420,6 +542,22 @@ async function shutdownSpawnedWebDriver(childProcess, webDriver, options = {}) {
     };
   }
 
+  if (options.driver === 'firefox' && String(options.driverPath || '').includes('/snap/')) {
+    const snapSignaled = signalSnapGeckoDriver(childProcess, 'TERM');
+    if (!snapSignaled) {
+      errors.push('snap geckodriver signal was not accepted');
+    }
+    if (await waitForChildProcessExit(childProcess, timeoutMs)) {
+      return {
+        ok: true,
+        method: 'snap-shell-signal',
+        warnings: errors
+      };
+    }
+  }
+
+  detachChildProcess(childProcess);
+
   return {
     ok: false,
     method: 'process-signal',
@@ -428,12 +566,33 @@ async function shutdownSpawnedWebDriver(childProcess, webDriver, options = {}) {
 }
 
 function createDefaultWebDriverCapabilities(options = {}) {
-  const browserName = options.browserName || process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME || 'chrome';
+  const browserName = browserNameForDriver(options.driver || 'webdriver', options);
   const capabilities = {
     browserName
   };
   if (browserName === 'chrome' || browserName === 'chromium') {
     capabilities['goog:chromeOptions'] = {
+      args: [
+        '--headless=new',
+        '--disable-gpu',
+        '--no-sandbox',
+        '--window-size=1280,720'
+      ]
+    };
+  } else if (browserName === 'firefox') {
+    const firefoxBinary = findBrowserBinary(options, [
+      'RMT_VNEXT_SOURCE_TO_SEA_FIREFOX_BINARY',
+      'FIREFOX_BIN'
+    ]);
+    capabilities['moz:firefoxOptions'] = {
+      args: ['-headless']
+    };
+    if (firefoxBinary) {
+      capabilities['moz:firefoxOptions'].binary = firefoxBinary;
+    }
+  } else if (browserName === 'MicrosoftEdge' || browserName === 'edge' || browserName === 'msedge') {
+    capabilities.browserName = 'MicrosoftEdge';
+    capabilities['ms:edgeOptions'] = {
       args: [
         '--headless=new',
         '--disable-gpu',
@@ -480,11 +639,13 @@ async function executeWebDriverResult(webDriver, sessionId, resultKey, timeoutMs
 }
 
 async function runWebDriverBrowserProbe(options = {}) {
-  const driver = options.driver || 'webdriver';
+  const driver = normalizeBrowserDriver(options.driver || 'webdriver');
   let webDriverUrl = options.webDriverUrl || process.env.RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_URL || '';
   let spawnedDriver = null;
+  let spawnedDriverPath = '';
+  const timeoutMs = Number(options.timeoutMs || (driver === 'firefox' ? 15000 : 5000));
 
-  if (driver === 'chromedriver') {
+  if (driver === 'chromedriver' && !webDriverUrl) {
     const driverPath = findChromeDriver(options);
     if (!driverPath) {
       throw new Error('chromedriver was not found');
@@ -493,10 +654,24 @@ async function runWebDriverBrowserProbe(options = {}) {
     spawnedDriver = spawn(driverPath, [`--port=${driverPort}`], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
+    spawnedDriverPath = driverPath;
     webDriverUrl = `http://127.0.0.1:${driverPort}`;
   }
 
-  if (driver === 'safari') {
+  if (driver === 'firefox' && !webDriverUrl) {
+    const driverPath = findGeckoDriver(options);
+    if (!driverPath) {
+      throw new Error('geckodriver was not found');
+    }
+    const driverPort = Number(options.webDriverPort || process.env.RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT || 4444);
+    spawnedDriver = spawn(driverPath, ['--port', String(driverPort)], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    spawnedDriverPath = driverPath;
+    webDriverUrl = `http://127.0.0.1:${driverPort}`;
+  }
+
+  if (driver === 'safari' && !webDriverUrl) {
     const driverPath = findSafariDriver();
     if (!driverPath) {
       throw new Error('safaridriver was not found');
@@ -505,6 +680,20 @@ async function runWebDriverBrowserProbe(options = {}) {
     spawnedDriver = spawn(driverPath, ['-p', String(driverPort)], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
+    spawnedDriverPath = driverPath;
+    webDriverUrl = `http://127.0.0.1:${driverPort}`;
+  }
+
+  if (driver === 'msedgedriver' && !webDriverUrl) {
+    const driverPath = findEdgeDriver(options);
+    if (!driverPath) {
+      throw new Error('msedgedriver was not found');
+    }
+    const driverPort = Number(options.webDriverPort || process.env.RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT || 9516);
+    spawnedDriver = spawn(driverPath, [`--port=${driverPort}`], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    spawnedDriverPath = driverPath;
     webDriverUrl = `http://127.0.0.1:${driverPort}`;
   }
 
@@ -516,7 +705,7 @@ async function runWebDriverBrowserProbe(options = {}) {
   let sessionId = null;
 
   try {
-    const ready = await waitForWebDriver(webDriver, Number(options.timeoutMs || 5000));
+    const ready = await waitForWebDriver(webDriver, timeoutMs);
     if (!ready) {
       throw new Error(`WebDriver endpoint did not become ready at ${webDriverUrl}`);
     }
@@ -526,13 +715,11 @@ async function runWebDriverBrowserProbe(options = {}) {
       port: webDriver.port,
       path: `${webDriver.prefix}/session`,
       method: 'POST'
-    }, driver === 'safari'
-      ? { capabilities: { alwaysMatch: { browserName: 'safari' } } }
-      : createDefaultWebDriverCapabilities(options));
+    }, createDefaultWebDriverCapabilities({ ...options, driver, browserName: browserNameForDriver(driver, options) }));
     const sessionValue = session.body && session.body.value;
     sessionId = sessionValue && (sessionValue.sessionId || sessionValue.id);
     if (!sessionId) {
-      throw new Error('WebDriver did not create a session');
+      throw new Error(`WebDriver did not create a session: ${JSON.stringify(session.body || null)}`);
     }
 
     await requestJson({
@@ -544,7 +731,7 @@ async function runWebDriverBrowserProbe(options = {}) {
       url: createBrowserExecutionUrl(options)
     });
 
-    return await executeWebDriverResult(webDriver, sessionId, options.resultKey || RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY, Number(options.timeoutMs || 5000));
+    return await executeWebDriverResult(webDriver, sessionId, options.resultKey || RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY, timeoutMs);
   } finally {
     if (sessionId) {
       await requestJson({
@@ -555,7 +742,7 @@ async function runWebDriverBrowserProbe(options = {}) {
       }).catch(() => {});
     }
     if (spawnedDriver) {
-      const cleanup = await shutdownSpawnedWebDriver(spawnedDriver, webDriver, { driver });
+      const cleanup = await shutdownSpawnedWebDriver(spawnedDriver, webDriver, { driver, driverPath: spawnedDriverPath });
       if (!cleanup.ok) {
         throw new Error(cleanup.reason || 'WebDriver process cleanup failed');
       }
@@ -1713,6 +1900,7 @@ function createRmtVNextSourceToSeaCiArtifactValidation(report = {}, options = {}
   const expectedAuditResources = ['demo.feedback.auditTimer', 'demo.feedback.auditSubscription'];
   const expectedAuditKinds = ['timer', 'subscription'];
   const shouldValidate = browserExecution.required === true || browserExecution.status === 'passed' || options.requireBrowserExecution === true;
+  const expectedBrowserDriver = normalizeBrowserDriver(options.expectedBrowserDriver || RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER);
 
   if (!shouldValidate) {
     return {
@@ -1721,7 +1909,7 @@ function createRmtVNextSourceToSeaCiArtifactValidation(report = {}, options = {}
       ok: true,
       status: 'skipped',
       required: false,
-      reason: 'CI artifact validation waits for browser-required ChromeDriver evidence.',
+      reason: 'CI artifact validation waits for browser-required evidence.',
       checks: [
         createCheck('ci artifact validation waits for required browser execution', browserExecution.status === 'skipped' || browserExecution.required !== true, browserExecution.status)
       ]
@@ -1735,7 +1923,10 @@ function createRmtVNextSourceToSeaCiArtifactValidation(report = {}, options = {}
     createCheck('ci artifact path is stable', report.artifact && report.artifact.path === RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH, report.artifact && report.artifact.path),
     createCheck('ci artifact browser execution is required', report.artifact && report.artifact.browserExecutionRequired === true && browserExecution.required === true, report.artifact && report.artifact.browserExecutionRequired),
     createCheck('ci artifact browser execution passed', report.artifact && report.artifact.browserExecutionStatus === 'passed' && browserExecution.status === 'passed', browserExecution.status),
-    createCheck('ci artifact browser execution uses ChromeDriver', browserExecution.driver === RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER, browserExecution.driver),
+    createCheck('ci artifact browser execution uses expected driver', normalizeBrowserDriver(browserExecution.driver) === expectedBrowserDriver, {
+      actualDriver: browserExecution.driver,
+      expectedDriver: expectedBrowserDriver
+    }),
     createCheck('ci artifact object count matches Source-to-Sea contract', result.objectCount === 4, result.objectCount),
     createCheck('ci artifact cross-primitive event count matches contract', crossPrimitiveEvents.length === 2 && crossPrimitiveEvents.every((entry) => entry.status === 'passed'), crossPrimitiveEvents.length),
     createCheck('ci artifact includes cross-route event evidence', crossPrimitiveEvents.some((entry) => entry.stage === 'route-target' && entry.sourcePrimitiveId === 'demo.feedback.detail' && entry.targetPrimitiveId === 'demo.feedback.audit' && entry.sourceLane === 'transition' && entry.targetLane === 'transition'), crossPrimitiveEvents),
@@ -1805,7 +1996,8 @@ function validateRmtVNextSourceToSeaCiArtifactFile(artifactPath = RMT_VNEXT_SOUR
   }
 
   const validation = createRmtVNextSourceToSeaCiArtifactValidation(report, {
-    requireBrowserExecution: true
+    requireBrowserExecution: true,
+    expectedBrowserDriver: options.expectedBrowserDriver || RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER
   });
 
   return {
@@ -1877,7 +2069,8 @@ async function createRmtVNextSourceToSeaEvidenceReport(options = {}) {
     checks: baseChecks
   };
   const ciArtifactValidation = createRmtVNextSourceToSeaCiArtifactValidation(baseReport, {
-    requireBrowserExecution: browserExecution.required === true
+    requireBrowserExecution: browserExecution.required === true,
+    expectedBrowserDriver: browserExecution.driver || RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER
   });
   const checks = [
     ...baseChecks,
@@ -1913,15 +2106,18 @@ async function writeRmtVNextSourceToSeaEvidenceReport(options = {}) {
 
 function resolveBrowserExecutionDriver(options = {}) {
   if (options.browserDriver) {
-    return options.browserDriver;
+    return normalizeBrowserDriver(options.browserDriver);
   }
   if (options.requireBrowserExecution === true && process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER) {
-    return process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER;
+    return normalizeBrowserDriver(process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER);
   }
   if (options.requireBrowserExecution === true && process.env.XTEND_BROWSER_SMOKE_DRIVER) {
-    return process.env.XTEND_BROWSER_SMOKE_DRIVER;
+    return normalizeBrowserDriver(process.env.XTEND_BROWSER_SMOKE_DRIVER);
   }
-  return process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER || '';
+  if (options.requireBrowserExecution === true) {
+    return detectAvailableBrowserDriver(options);
+  }
+  return normalizeBrowserDriver(process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER || '');
 }
 
 async function runRmtVNextSourceToSeaBrowserExecution(evidence, options = {}) {
@@ -1942,14 +2138,14 @@ async function runRmtVNextSourceToSeaBrowserExecution(evidence, options = {}) {
       ok: options.requireBrowserExecution !== true,
       status: options.requireBrowserExecution === true ? 'failed' : 'skipped',
       mode: 'fixture-contract',
-      reason: 'set RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER=chromedriver, webdriver or safari to execute the fixture in a browser',
+      reason: 'set RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER=firefox, chromedriver, webdriver, safari or edge to execute the fixture in a browser',
       checks: [
         createCheck('browser execution fixture contract available', Boolean(evidence && evidence.browser && evidence.browser.resultKey === RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY), evidence && evidence.browser)
       ]
     };
   }
 
-  if (driver !== 'webdriver' && driver !== 'chromedriver' && driver !== 'safari') {
+  if (!supportedBrowserDriver(driver)) {
     return {
       ...base,
       ok: options.requireBrowserExecution !== true,
@@ -2017,6 +2213,7 @@ module.exports = {
   RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY,
   RMT_VNEXT_SOURCE_TO_SEA_SCHEMA,
   RMT_VNEXT_SOURCE_TO_SEA_SUITE_PATH,
+  RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS,
   RMT_VNEXT_SOURCE_TO_SEA_WORKPACKAGE,
   createRmtVNextSourceToSeaCiArtifactValidation,
   createRmtVNextSourceToSeaBrowserResultValidation,

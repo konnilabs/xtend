@@ -55,6 +55,8 @@ export type XSurfaceManagerEventName =
   | 'surface-stack-policy-focus-restored'
   | 'surface-stack-policy-error'
   | 'surface-layout-engine-applied'
+  | 'surface-region-command'
+  | 'surface-portal-policy'
   | 'remote-surface-mounted'
   | 'remote-surface-degraded'
   | 'remote-surface-refused'

@@ -199,7 +199,7 @@
       "id": "command.content",
       "kind": "custom_element",
       "adapter": "xtend.component",
-      "tag": "x-menu",
+      "tag": "x-section",
       "schedule": "surface.user-blocking.open",
       "props": {
         "label": "Command Palette"
@@ -234,6 +234,87 @@
       "attributes": {
         "layout": "column",
         "data-content-role": "drawer"
+      }
+    },
+    {
+      "id": "region.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "Summary Region"
+      },
+      "attributes": {
+        "layout": "column",
+        "data-content-role": "region"
+      }
+    },
+    {
+      "id": "popover.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "Popover"
+      },
+      "attributes": {
+        "data-content-role": "popover"
+      }
+    },
+    {
+      "id": "tooltip.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-status",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "Tooltip",
+        "status": "info"
+      },
+      "attributes": {
+        "data-content-role": "tooltip"
+      }
+    },
+    {
+      "id": "toast.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-status",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "Toast",
+        "status": "success"
+      },
+      "attributes": {
+        "data-content-role": "toast"
+      }
+    },
+    {
+      "id": "lightbox.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "Lightbox"
+      },
+      "attributes": {
+        "data-content-role": "lightbox"
+      }
+    },
+    {
+      "id": "menu.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "surface.user-blocking.open",
+      "props": {
+        "label": "Menu"
+      },
+      "attributes": {
+        "data-content-role": "menu"
       }
     }
   ],
@@ -420,6 +501,108 @@
         "label": "Navigation",
         "modal": true,
         "focusRestore": true
+      }
+    },
+    {
+      "schema": "xtend.surface.record.v1",
+      "id": "surface.summaryCard",
+      "type": "region",
+      "kind": "card",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "region.content",
+      "route": "workbench",
+      "schedule": "surface.visible.render",
+      "stateKey": "xtend.surface.summary.state",
+      "open": true,
+      "bounds": {
+        "x": 24,
+        "y": 24,
+        "width": 420,
+        "height": 180
+      },
+      "a11y": {
+        "label": "Summary Card",
+        "modal": false
+      }
+    },
+    {
+      "schema": "xtend.surface.record.v1",
+      "id": "surface.popover",
+      "type": "popover",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "popover.content",
+      "route": "workbench",
+      "schedule": "surface.visible.render",
+      "stateKey": "xtend.surface.popover.state",
+      "placement": "bottom",
+      "a11y": {
+        "label": "Inline Details",
+        "modal": false
+      }
+    },
+    {
+      "schema": "xtend.surface.record.v1",
+      "id": "surface.tooltip",
+      "type": "tooltip",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "tooltip.content",
+      "route": "workbench",
+      "schedule": "surface.visible.render",
+      "stateKey": "xtend.surface.tooltip.state",
+      "placement": "top",
+      "a11y": {
+        "label": "Hint",
+        "modal": false
+      }
+    },
+    {
+      "schema": "xtend.surface.record.v1",
+      "id": "surface.toast",
+      "type": "toast",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "toast.content",
+      "route": "workbench",
+      "schedule": "surface.visible.render",
+      "stateKey": "xtend.surface.toast.state",
+      "a11y": {
+        "label": "Saved",
+        "modal": false
+      }
+    },
+    {
+      "schema": "xtend.surface.record.v1",
+      "id": "surface.lightbox",
+      "type": "lightbox",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "lightbox.content",
+      "route": "workbench",
+      "schedule": "surface.visible.render",
+      "stateKey": "xtend.surface.lightbox.state",
+      "a11y": {
+        "label": "Preview",
+        "modal": true,
+        "focusRestore": true
+      }
+    },
+    {
+      "schema": "xtend.surface.record.v1",
+      "id": "surface.menu",
+      "type": "menu",
+      "adapter": "xtend.surface",
+      "manager": "workbench.manager",
+      "component": "menu.content",
+      "route": "workbench",
+      "schedule": "surface.user-blocking.open",
+      "stateKey": "xtend.surface.menu.state",
+      "placement": "bottom-start",
+      "a11y": {
+        "label": "Context Menu",
+        "modal": false
       }
     }
   ]

@@ -72,7 +72,7 @@
   "surfaces": [
     {
       "id": "surface.workspace",
-      "kind": "window",
+      "kind": "workspace",
       "source": "records.generic-items",
       "repeat": true,
       "key": "$record.id",

@@ -20,7 +20,7 @@
 source -> kernel -> Fabric -> UI -> Browser
 ```
 
-The first PRIM-06 slice remains deterministic in the default run and works without an external browser driver. It connects a vNext fixture with a self-checking browser-smoke fixture and produces machine-readable evidence from that. With the current expansion, a WebDriver, ChromeDriver or Safari Driver path can open the same browser fixture, read the same result key and compare the real browser result against compiler, kernel and Fabric evidence. Browser execution evidence can now also be written as a release artifact at `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`. In GitHub Actions, this path runs as required through `chromedriver`.
+The first PRIM-06 slice remains deterministic in the default run and works without an external browser driver. It connects a vNext fixture with a self-checking browser-smoke fixture and produces machine-readable evidence from that. With the current expansion, a WebDriver, Firefox/Geckodriver, ChromeDriver or Safari Driver path can open the same browser fixture, read the same result key and compare the real browser result against compiler, kernel and Fabric evidence. Browser execution evidence can now also be written as a release artifact at `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`. In GitHub Actions, this path runs as required through `chromedriver`.
 
 ## Fixture
 
@@ -345,6 +345,12 @@ Real browser run with automatically started ChromeDriver:
 
 ```bash
 npm run test:rmt-vnext-source-to-sea:chromedriver
+```
+
+Real browser run with automatically started Firefox/Geckodriver:
+
+```bash
+npm run test:rmt-vnext-source-to-sea:firefox
 ```
 
 The GitHub Actions job `rmt-vnext-primitive-gates` uses this ChromeDriver path as required gate and then uploads the same evidence artifact. The report additionally contains CI artifact validation. In local browser-skip mode it remains `skipped`; in the ChromeDriver-required path it must be `passed` and prove `objectCount: 4`, two cross-primitive events, two route switches, two route lifecycle cycles, `targetMounted`, `targetVisible`, `countsMatch` and the audit resources `demo.feedback.auditTimer` and `demo.feedback.auditSubscription`.

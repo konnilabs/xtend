@@ -46,11 +46,23 @@ function parseArgs(argv) {
     } else if (arg === '--chromedriver') {
       options.requireBrowserExecution = true;
       options.browserDriver = 'chromedriver';
+    } else if (arg === '--firefox' || arg === '--geckodriver') {
+      options.requireBrowserExecution = true;
+      options.browserDriver = 'firefox';
     } else if (arg === '--driver' && next) {
       options.browserDriver = next;
       index += 1;
     } else if (arg === '--chromedriver-path' && next) {
       options.chromeDriverPath = next;
+      index += 1;
+    } else if (arg === '--geckodriver-path' && next) {
+      options.geckoDriverPath = next;
+      index += 1;
+    } else if (arg === '--firefox-binary' && next) {
+      options.browserBinary = next;
+      index += 1;
+    } else if (arg === '--edgedriver-path' && next) {
+      options.edgeDriverPath = next;
       index += 1;
     } else if (arg === '--webdriver-url' && next) {
       options.webDriverUrl = next;
@@ -147,7 +159,7 @@ async function main() {
   if (options.validateArtifact) {
     const validation = validateRmtVNextSourceToSeaCiArtifactFile(
       options.validateArtifactPath || options.outputPath,
-      { rootDir }
+      { rootDir, expectedBrowserDriver: options.browserDriver }
     );
     const failedChecks = (validation.checks || [])
       .filter((check) => !check.ok)
@@ -175,6 +187,9 @@ async function main() {
     requireBrowserExecution: options.requireBrowserExecution,
     browserDriver: options.browserDriver,
     chromeDriverPath: options.chromeDriverPath,
+    geckoDriverPath: options.geckoDriverPath,
+    edgeDriverPath: options.edgeDriverPath,
+    browserBinary: options.browserBinary,
     webDriverUrl: options.webDriverUrl,
     webDriverPort: options.webDriverPort,
     browserName: options.browserName,

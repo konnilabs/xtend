@@ -12,7 +12,11 @@ export type XtendSurfaceType =
   | 'dialog'
   | 'drawer'
   | 'popover'
-  | 'tooltip';
+  | 'tooltip'
+  | 'region'
+  | 'toast'
+  | 'lightbox'
+  | 'menu';
 
 export type XtendSurfaceStatus = 'closed' | 'open' | 'minimized';
 export type XtendSurfacePersistenceMode = 'none' | 'memory' | 'session' | 'local';
@@ -43,6 +47,7 @@ export interface XtendSurfaceRecord {
   id: string;
   manager: string;
   type: XtendSurfaceType;
+  kind?: string | null;
   label: string;
   stateKey: string;
   status: XtendSurfaceStatus;
@@ -153,5 +158,9 @@ export const XTEND_SURFACE_TYPES: readonly XtendSurfaceType[] = Object.freeze([
   'dialog',
   'drawer',
   'popover',
-  'tooltip'
+  'tooltip',
+  'region',
+  'toast',
+  'lightbox',
+  'menu'
 ]);

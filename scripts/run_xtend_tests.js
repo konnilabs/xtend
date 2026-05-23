@@ -74,6 +74,10 @@ const {
   runSurfaceControllerSuite
 } = require('../tests/components/surface_controller_suite');
 const {
+  printSurfaceTypeCapabilityMatrixReport,
+  runSurfaceTypeCapabilityMatrixSuite
+} = require('../tests/components/surface_type_capability_matrix_suite');
+const {
   printSurfaceManagerRuntimeReport,
   runSurfaceManagerRuntimeSuite
 } = require('../tests/components/surface_manager_runtime_suite');
@@ -2489,6 +2493,16 @@ const suites = [
       const result = runSurfaceControllerSuite({ rootDir });
       printSurfaceControllerReport(result);
       return toRunnerResult('surface-controller', 'Surface Controller and state snapshot contract', result);
+    }
+  },
+  {
+    id: 'surface-type-capability-matrix',
+    label: 'Surface type capability matrix',
+    description: 'Runs the canonical SurfaceManager/RMT primitive compatibility matrix gate.',
+    run: () => {
+      const result = runSurfaceTypeCapabilityMatrixSuite({ rootDir });
+      printSurfaceTypeCapabilityMatrixReport(result);
+      return toRunnerResult('surface-type-capability-matrix', 'Surface type capability matrix', result);
     }
   },
   {

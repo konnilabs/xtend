@@ -4,7 +4,7 @@ export declare const SURFACE_SNAPSHOT_SCHEMA: 'xtend.surface.snapshot.v1';
 export declare const SURFACE_DIAGNOSTIC_SCHEMA: 'xtend.surface.diagnostic.v1';
 export declare const SURFACE_OPERATION_RESULT_SCHEMA: 'xtend.surface.operation-result.v1';
 
-export type XtendSurfaceType = 'window' | 'side-panel' | 'modal' | 'dialog' | 'drawer' | 'popover' | 'tooltip';
+export type XtendSurfaceType = 'window' | 'side-panel' | 'modal' | 'dialog' | 'drawer' | 'popover' | 'tooltip' | 'region' | 'toast' | 'lightbox' | 'menu';
 export type XtendSurfaceStatus = 'closed' | 'open' | 'minimized';
 
 export interface XtendSurfaceBounds {
@@ -21,6 +21,7 @@ export interface XtendSurfaceRecord {
   id: string;
   manager: string;
   type: XtendSurfaceType;
+  kind?: string | null;
   label: string;
   stateKey: string;
   status: XtendSurfaceStatus;

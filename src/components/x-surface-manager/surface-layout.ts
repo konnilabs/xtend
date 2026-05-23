@@ -10,7 +10,11 @@ export const XTEND_SURFACE_DEFAULT_BOUNDS: Readonly<Record<XtendSurfaceType, Xte
   dialog: Object.freeze({ x: 0, y: 0, width: 480, height: 320, minWidth: 280, minHeight: 160 }),
   drawer: Object.freeze({ x: 0, y: 0, width: 360, height: 720, minWidth: 240, minHeight: 180 }),
   popover: Object.freeze({ x: 0, y: 0, width: 280, height: 160, minWidth: 160, minHeight: 96 }),
-  tooltip: Object.freeze({ x: 0, y: 0, width: 220, height: 80, minWidth: 120, minHeight: 48 })
+  tooltip: Object.freeze({ x: 0, y: 0, width: 220, height: 80, minWidth: 120, minHeight: 48 }),
+  region: Object.freeze({ x: 0, y: 0, width: 640, height: 360, minWidth: 160, minHeight: 96 }),
+  toast: Object.freeze({ x: 0, y: 0, width: 360, height: 96, minWidth: 220, minHeight: 48 }),
+  lightbox: Object.freeze({ x: 0, y: 0, width: 720, height: 520, minWidth: 320, minHeight: 220 }),
+  menu: Object.freeze({ x: 0, y: 0, width: 280, height: 240, minWidth: 160, minHeight: 96 })
 });
 
 export function toFiniteNumber(value: unknown, fallback: number): number {
@@ -26,6 +30,10 @@ export function normalizeSurfaceType(type: unknown): XtendSurfaceType {
   if (candidate === 'drawer') return 'drawer';
   if (candidate === 'popover') return 'popover';
   if (candidate === 'tooltip') return 'tooltip';
+  if (candidate === 'region') return 'region';
+  if (candidate === 'toast') return 'toast';
+  if (candidate === 'lightbox') return 'lightbox';
+  if (candidate === 'menu') return 'menu';
   return 'window';
 }
 

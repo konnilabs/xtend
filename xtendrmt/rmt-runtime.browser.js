@@ -12830,11 +12830,25 @@
         };
     }
 
+    function resolveSurfaceRuntimeType(type, kind = '') {
+        const candidate = clampString(type, '').toLowerCase();
+        const semanticKind = clampString(kind, '').toLowerCase();
+        const semantic = semanticKind || candidate;
+        if (['root', 'workspace', 'page', 'card', 'list', 'region', 'overlay-host'].includes(semantic)) return 'region';
+        if (['panel', 'side-panel', 'sidepanel'].includes(semantic)) return 'side-panel';
+        if (['modal', 'dialog', 'drawer', 'popover', 'tooltip', 'toast', 'lightbox', 'menu'].includes(semantic)) return semantic;
+        if (['root', 'workspace', 'page', 'card', 'list', 'region', 'overlay-host'].includes(candidate)) return 'region';
+        if (['panel', 'side-panel', 'sidepanel'].includes(candidate)) return 'side-panel';
+        if (['modal', 'dialog', 'drawer', 'popover', 'tooltip', 'toast', 'lightbox', 'menu'].includes(candidate)) return candidate;
+        return candidate || 'window';
+    }
+
     function normalizeSurfaceAdapterEntry(surfaceEntry = {}, indexes = {}, options = {}) {
         const entry = toPlainObject(surfaceEntry);
         const record = toPlainObject(entry.record || entry);
         const id = clampString(entry.id || record.id, '');
-        const type = clampString(entry.type || record.type, 'window');
+        const kind = clampString(entry.kind || record.kind, '');
+        const type = resolveSurfaceRuntimeType(entry.type || record.type || kind || 'window', kind);
         const schedule = normalizeScheduleReference(entry.scheduleRef || record.schedule);
         const componentRef = clampString(entry.componentId || record.component, '');
         const managerRef = clampString(entry.managerId || record.manager, '');
@@ -12852,6 +12866,7 @@
             surfaceId: id,
             schema: clampString(record.schema, 'xtend.surface.record.v1'),
             type,
+            kind: kind || type,
             adapter: clampString(entry.adapterId || record.adapter, SURFACE_ADAPTER_ID),
             manager: managerRef,
             component: componentRef,
@@ -12940,7 +12955,7 @@
             sourceDiagnostics: Object.freeze(cloneSerializable(documentRecord.diagnostics, [])),
             surfaceCount: surfaces.length,
             scheduleRefs: uniqueValues(surfaces.map((surface) => surface.scheduleRef)),
-            modelFields: Object.freeze(['surfaceId', 'type', 'manager', 'component', 'route', 'scheduleRef', 'stateKey', 'bounds', 'placement', 'mode', 'capabilities', 'a11y', 'persistence', 'metadata', 'remoteSurface', 'remotePolicy'])
+            modelFields: Object.freeze(['surfaceId', 'type', 'kind', 'manager', 'component', 'route', 'scheduleRef', 'stateKey', 'bounds', 'placement', 'mode', 'capabilities', 'a11y', 'persistence', 'metadata', 'remoteSurface', 'remotePolicy'])
         });
     }
 
@@ -13012,6 +13027,7 @@
             schema: surface.schema,
             id: surface.id,
             type: surface.type,
+            kind: surface.kind || surface.type,
             manager: managerId,
             stateKey: surface.stateKey,
             defaultOpen: surface.defaultOpen,
@@ -13079,20 +13095,29 @@
         const metadata = toPlainObject(surface.metadata);
         const explicitTag = clampString(metadata.surfaceTag || metadata.surfaceComponentTag || metadata.xtendSurfaceTag, '');
         if (explicitTag) return explicitTag;
-        const type = clampString(surface.type, 'window').toLowerCase();
+        const kind = clampString(surface.kind || metadata.surfaceKind, '').toLowerCase();
+        const type = clampString(surface.type, kind || 'window').toLowerCase();
+        const semantic = kind || type;
+        if (['root', 'workspace', 'page', 'card', 'list', 'region', 'overlay-host'].includes(semantic) || type === 'region') return 'x-surface-region';
         if (type === 'side-panel' || type === 'sidepanel' || type === 'panel') return 'x-side-panel';
         if (type === 'modal') return 'x-modal';
         if (type === 'dialog') return 'x-dialog';
         if (type === 'drawer') return 'x-drawer';
         if (type === 'popover') return 'x-popover';
         if (type === 'tooltip') return 'x-tooltip';
+        if (type === 'toast') return 'x-toast';
+        if (type === 'lightbox') return 'x-lightbox';
+        if (type === 'menu') return 'x-menu';
         return 'x-surface-window';
     }
 
     function resolveSurfaceMaterializedSlot(surface = {}) {
-        const type = clampString(surface.type, 'window').toLowerCase();
+        const kind = clampString(surface.kind, '').toLowerCase();
+        const type = clampString(surface.type, kind || 'window').toLowerCase();
+        const semantic = kind || type;
         if (type === 'side-panel' || type === 'sidepanel' || type === 'panel') return 'panels';
-        if (type === 'modal' || type === 'dialog' || type === 'drawer' || type === 'popover' || type === 'tooltip') return 'overlays';
+        if (type === 'modal' || type === 'dialog' || type === 'drawer' || type === 'popover' || type === 'tooltip' || type === 'toast' || type === 'lightbox' || type === 'menu') return 'overlays';
+        if (['root', 'workspace', 'page', 'card', 'list', 'region', 'overlay-host'].includes(semantic) || type === 'region') return '';
         return 'windows';
     }
 
@@ -13279,7 +13304,7 @@
         setSurfaceElementAttribute(surfaceElement, 'id', surface.id);
         setSurfaceElementAttribute(surfaceElement, 'surface-id', surface.id);
         setSurfaceElementAttribute(surfaceElement, 'label', label);
-        setSurfaceElementAttribute(surfaceElement, 'slot', slotName);
+        if (slotName) setSurfaceElementAttribute(surfaceElement, 'slot', slotName);
         setSurfaceElementAttribute(surfaceElement, 'data-rmt-surface', surface.id);
         setSurfaceElementAttribute(surfaceElement, 'data-rmt-surface-adapter', SURFACE_ADAPTER_ID);
         setSurfaceElementAttribute(surfaceElement, 'data-rmt-native-surface', 'true');
@@ -13289,6 +13314,7 @@
         setSurfaceElementAttribute(surfaceElement, 'data-rmt-route', surface.route);
         setSurfaceElementAttribute(surfaceElement, 'data-rmt-schedule', surface.scheduleRef);
         setSurfaceElementAttribute(surfaceElement, 'data-surface-type', surface.type);
+        setSurfaceElementAttribute(surfaceElement, 'data-surface-kind', surface.kind);
         setSurfaceElementAttribute(surfaceElement, 'data-surface-layer', surface.layer);
         setSurfaceElementAttribute(surfaceElement, 'data-surface-state-key', surface.stateKey);
         setSurfaceElementAttribute(surfaceElement, 'data-surface-hydration-policy', resolveSurfaceHydrationPolicy(surface));

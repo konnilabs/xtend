@@ -37,6 +37,7 @@ const {
   RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY,
   RMT_VNEXT_SOURCE_TO_SEA_SCHEMA,
   RMT_VNEXT_SOURCE_TO_SEA_SUITE_PATH,
+  RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS,
   RMT_VNEXT_SOURCE_TO_SEA_WORKPACKAGE,
   createRmtVNextSourceToSeaBrowserResultValidation,
   createRmtVNextSourceToSeaCiArtifactValidation,
@@ -570,10 +571,14 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:evidence'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js', 'package exposes source-to-sea evidence artifact script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:browser-required'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser', 'package exposes source-to-sea browser-required evidence script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromedriver'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver', 'package exposes source-to-sea chromedriver evidence script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:firefox'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --firefox', 'package exposes source-to-sea Firefox evidence script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:validate-artifact'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact', 'package exposes source-to-sea CI artifact replay script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:validate-artifact:firefox'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact --driver firefox', 'package exposes source-to-sea Firefox artifact replay script');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiBrowserDriver === RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER, 'package metadata records source-to-sea CI browser driver');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiBrowserName === RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_NAME, 'package metadata records source-to-sea CI browser name');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiWebDriverPort === RMT_VNEXT_SOURCE_TO_SEA_CI_WEBDRIVER_PORT, 'package metadata records source-to-sea CI WebDriver port');
+  context.assert(Array.isArray(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaLocalBrowserDrivers) && packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaLocalBrowserDrivers.includes('firefox'), 'package metadata records local Firefox browser driver');
+  context.assert(Array.isArray(RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS) && RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes('firefox') && RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes('webdriver'), 'source-to-sea module exposes broader browser driver support');
   context.assert(workflow.includes('npm run test:rmt-vnext-source-to-sea:chromedriver'), 'CI workflow requires source-to-sea chromedriver execution');
   context.assert(workflow.includes('- name: Capture RMT vNext source-to-sea browser evidence\n        if: always()'), 'CI workflow captures source-to-sea evidence even after primitive report failures');
   context.assert(workflow.includes('xtend-rmt-vnext-source-to-sea-capture.exitcode'), 'CI workflow records source-to-sea capture exit status');
@@ -585,6 +590,8 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(workflow.includes(RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH), 'CI workflow uploads source-to-sea evidence artifact');
   context.assert(sourceToSeaModule.includes('/shutdown'), 'source-to-sea chromedriver cleanup uses WebDriver shutdown endpoint');
   context.assert(sourceToSeaModule.includes('webdriver-shutdown'), 'source-to-sea chromedriver cleanup records shutdown method');
+  context.assert(sourceToSeaModule.includes('geckodriver'), 'source-to-sea module supports Firefox geckodriver execution');
+  context.assert(sourceToSeaModule.includes('moz:firefoxOptions'), 'source-to-sea module declares Firefox WebDriver capabilities');
 
   const backlog = readText(BACKLOG_DOC_PATH, rootDir);
   const sourceToSeaDoc = readText(SOURCE_TO_SEA_DOC_PATH, rootDir);

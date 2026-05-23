@@ -393,6 +393,23 @@ Echter Browser-Lauf mit automatisch gestartetem ChromeDriver:
 npm run test:rmt-vnext-source-to-sea:chromedriver
 ```
 
+Echter Browser-Lauf mit automatisch gestartetem Firefox/Geckodriver:
+
+```bash
+npm run test:rmt-vnext-source-to-sea:firefox
+```
+
+Alternativ kann derselbe Gate gegen einen beliebigen W3C-WebDriver-Endpunkt
+laufen. `--browser-name` bzw. `RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME` waehlt
+dann z. B. `firefox`, `chrome`, `MicrosoftEdge` oder `safari`:
+
+```bash
+RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER=webdriver \
+RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME=firefox \
+RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_URL=http://127.0.0.1:4444 \
+node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser
+```
+
 Der GitHub-Actions-Job `rmt-vnext-primitive-gates` nutzt diesen ChromeDriver-
 Pfad als Required Gate und uploaded danach dasselbe Evidence-Artefakt.
 Der Report enthaelt zusaetzlich eine CI-Artefaktvalidierung. Im lokalen
@@ -408,6 +425,12 @@ denselben Contract geprueft werden:
 ```bash
 npm run test:rmt-vnext-source-to-sea:validate-artifact
 node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
+```
+
+Firefox-Artefakte koennen mit dem erwarteten Driver replayed werden:
+
+```bash
+npm run test:rmt-vnext-source-to-sea:validate-artifact:firefox
 ```
 
 Der Replay-Pfad nutzt
