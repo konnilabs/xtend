@@ -2493,13 +2493,13 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'XTend CI Gates', message: 'declares workflow name' },
       { pattern: 'pr-fast-gates', message: 'declares PR fast gate job' },
       { pattern: 'full-release-gates', message: 'declares full release gate job' },
-      { pattern: 'actions/checkout@v4', message: 'checks out repository' },
-      { pattern: 'actions/setup-node@v4', message: 'sets up Node' },
+      { pattern: 'actions/checkout@v6', message: 'checks out repository' },
+      { pattern: 'actions/setup-node@v6', message: 'sets up Node' },
       { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
       { pattern: 'npm run test:pr:report', message: 'runs PR fast report gate' },
       { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
       { pattern: "cron: '17 3 * * *'", message: 'declares nightly schedule' },
-      { pattern: 'actions/upload-artifact@v4', message: 'uploads report artifact' },
+      { pattern: 'actions/upload-artifact@v6', message: 'uploads report artifact' },
       { pattern: '.xtend-test-results/xtend-pr-gate-report.json', message: 'uploads PR JSON report path' },
       { pattern: '.xtend-test-results/xtend-release-gate-report.json', message: 'uploads release JSON report path' },
       { pattern: 'xtend-pr-gate-report-node-26', message: 'uses stable PR artifact name' },
@@ -7587,23 +7587,25 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'workflow_dispatch:', 'CI workflow supports manual dispatch');
   context.assertIncludes(workflow, 'pr-fast-gates:', 'CI workflow declares PR fast gate job');
   context.assertIncludes(workflow, 'full-release-gates:', 'CI workflow declares full release gate job');
-  context.assertIncludes(workflow, 'actions/setup-node@v4', 'CI workflow uses setup-node action');
+  context.assertIncludes(workflow, 'actions/setup-node@v6', 'CI workflow uses setup-node action');
   context.assertIncludes(workflow, 'node-version: 26.x', 'CI workflow pins Node 26.x');
   context.assertIncludes(workflow, 'npm run test:pr:report', 'CI workflow runs PR report gate');
   context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
-  context.assertIncludes(workflow, 'actions/upload-artifact@v4', 'CI workflow uploads report artifact');
+  context.assertIncludes(workflow, 'actions/upload-artifact@v6', 'CI workflow uploads report artifact');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-pr-gate-report.json', 'CI workflow uploads PR JSON report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-release-gate-report.json', 'CI workflow uploads full release JSON report');
   context.assertIncludes(workflow, 'xtend-pr-gate-report-node-26', 'CI workflow uses stable PR report artifact name');
   context.assertIncludes(workflow, 'xtend-release-gate-report-node-26', 'CI workflow uses stable release report artifact name');
   context.assertIncludes(workflow, 'rmt-vnext-primitive-gates:', 'CI workflow declares RMT vNext primitive gate job');
   context.assertIncludes(workflow, 'npm run test:rmt-vnext-primitives:report', 'CI workflow runs RMT vNext primitive gate report');
-  context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:chromedriver', 'CI workflow requires RMT vNext source-to-sea browser evidence');
-  context.assertIncludes(workflow, '- name: Capture RMT vNext source-to-sea browser evidence\n        if: always()', 'CI workflow captures RMT vNext source-to-sea evidence after primitive report failures');
+  context.assertIncludes(workflow, 'run_source_to_sea:', 'CI workflow exposes optional RMT vNext source-to-sea dispatch input');
+  context.assertIncludes(workflow, "github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true", 'CI workflow gates RMT vNext source-to-sea evidence behind manual dispatch');
+  context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:chromedriver', 'CI workflow exposes optional RMT vNext source-to-sea browser evidence');
+  context.assertIncludes(workflow, '- name: Capture RMT vNext source-to-sea browser evidence', 'CI workflow keeps optional RMT vNext source-to-sea capture step');
   context.assertIncludes(workflow, 'xtend-rmt-vnext-source-to-sea-capture.exitcode', 'CI workflow records RMT vNext source-to-sea capture exit status');
   context.assertIncludes(workflow, 'exit 0', 'CI workflow keeps RMT vNext source-to-sea capture step green until artifact validation runs');
   context.assertIncludes(workflow, 'Ensure RMT vNext source-to-sea evidence artifact', 'CI workflow creates failed fallback RMT vNext source-to-sea evidence when capture exits early');
-  context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:validate-artifact', 'CI workflow validates RMT vNext source-to-sea evidence after artifact upload');
+  context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:validate-artifact', 'CI workflow optionally validates RMT vNext source-to-sea evidence after artifact upload');
   context.assertIncludes(workflow, 'RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome', 'CI workflow pins RMT vNext source-to-sea browser name');
   context.assertIncludes(workflow, 'RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"', 'CI workflow pins RMT vNext source-to-sea WebDriver port');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'CI workflow uploads RMT vNext primitive JSON report');
@@ -7674,6 +7676,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(fullReleaseGate.reportPath === '.xtend-test-results/xtend-release-gate-report.json', 'Package metadata exposes full release report path');
   context.assert(fullReleaseGate.artifactName === 'xtend-release-gate-report-node-26', 'Package metadata exposes full release artifact name');
   context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('all'), 'Full release gate runs all suites');
+  context.assert(Array.isArray(fullReleaseGate.optionalSuites) && fullReleaseGate.optionalSuites.includes('rmt-vnext-source-to-sea'), 'Full release gate declares source-to-sea as optional');
   context.assert(nightlyGate.schema === 'xtend.ci.nightly-gate.v1', 'Package metadata exposes nightly gate schema');
   context.assert(nightlyGate.cron === '17 3 * * *', 'Package metadata exposes nightly cron');
   context.assert(nightlyGate.command === 'npm run test:release:full:report', 'Package metadata exposes nightly full release command');
@@ -7683,14 +7686,19 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(rmtVNextPrimitiveGate.artifactName === 'xtend-rmt-vnext-primitives-gate-report-node-26', 'Package metadata exposes RMT vNext primitive artifact name');
   context.assert(rmtVNextPrimitiveGate.sourceToSeaEvidenceCommand === 'npm run test:rmt-vnext-source-to-sea:evidence', 'Package metadata exposes RMT vNext source-to-sea evidence command');
   context.assert(rmtVNextPrimitiveGate.sourceToSeaBrowserRequiredCommand === 'npm run test:rmt-vnext-source-to-sea:browser-required', 'Package metadata exposes RMT vNext source-to-sea browser-required command');
-  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiBrowserRequiredCommand === 'npm run test:rmt-vnext-source-to-sea:chromedriver', 'Package metadata exposes RMT vNext source-to-sea CI browser-required command');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiMode === 'workflow_dispatch_optional', 'Package metadata marks RMT vNext source-to-sea CI browser evidence optional');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiWorkflowDispatchInput === 'run_source_to_sea', 'Package metadata exposes RMT vNext source-to-sea dispatch input');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaRequiredInDefaultCi === false, 'Package metadata excludes RMT vNext source-to-sea from default CI');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiBrowserOptionalCommand === 'npm run test:rmt-vnext-source-to-sea:chromedriver', 'Package metadata exposes RMT vNext source-to-sea optional CI browser command');
+  context.assert(rmtVNextPrimitiveGate.sourceToSeaCiArtifactValidationCommand === 'npm run test:rmt-vnext-source-to-sea:validate-artifact', 'Package metadata exposes RMT vNext source-to-sea optional CI artifact validation command');
   context.assert(rmtVNextPrimitiveGate.sourceToSeaCiBrowserDriver === 'chromedriver', 'Package metadata exposes RMT vNext source-to-sea CI browser driver');
   context.assert(rmtVNextPrimitiveGate.sourceToSeaCiBrowserName === 'chrome', 'Package metadata exposes RMT vNext source-to-sea CI browser name');
   context.assert(rmtVNextPrimitiveGate.sourceToSeaCiWebDriverPort === 9515, 'Package metadata exposes RMT vNext source-to-sea CI WebDriver port');
   context.assert(rmtVNextPrimitiveGate.sourceToSeaEvidencePath === '.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json', 'Package metadata exposes RMT vNext source-to-sea evidence path');
   context.assert(rmtVNextPrimitiveGate.sourceToSeaEvidenceArtifactName === 'xtend-rmt-vnext-source-to-sea-evidence-node-26', 'Package metadata exposes RMT vNext source-to-sea evidence artifact name');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-vnext-fabric-bridge'), 'RMT vNext primitive gate includes fabric bridge suite');
-  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-vnext-source-to-sea'), 'RMT vNext primitive gate includes source-to-sea suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && !rmtVNextPrimitiveGate.suites.includes('rmt-vnext-source-to-sea'), 'RMT vNext primitive gate excludes optional source-to-sea suite');
+  context.assert(Array.isArray(rmtVNextPrimitiveGate.optionalSuites) && rmtVNextPrimitiveGate.optionalSuites.includes('rmt-vnext-source-to-sea'), 'RMT vNext primitive gate declares source-to-sea optional suite');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-node-ssr-adapter'), 'RMT vNext primitive gate includes Node SSR adapter suite');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-php-ssr-adapter'), 'RMT vNext primitive gate includes PHP SSR adapter suite');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('docs-php-ssr-prehydration'), 'RMT vNext primitive gate includes Docs PHP SSR prehydration suite');
@@ -7719,8 +7727,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:evidence'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js', 'Package exposes RMT vNext source-to-sea evidence script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:browser-required'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser', 'Package exposes RMT vNext source-to-sea browser-required script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromedriver'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver', 'Package exposes RMT vNext source-to-sea chromedriver script');
-  context.assert(packageManifest.scripts['test:rmt-vnext-primitives'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt', 'Package exposes RMT vNext primitive aggregate gate script');
-  context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package exposes RMT vNext primitive report gate script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-primitives'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt', 'Package exposes RMT vNext primitive aggregate gate script without optional source-to-sea');
+  context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package exposes RMT vNext primitive report gate script without optional source-to-sea');
   context.assert(packageManifest.scripts['test:pr:report'] === 'node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json', 'Package exposes PR fast report gate script');
   context.assert(packageManifest.scripts['test:release:full:report'] === 'node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-gate-report.json', 'Package exposes full release report gate script');
 }

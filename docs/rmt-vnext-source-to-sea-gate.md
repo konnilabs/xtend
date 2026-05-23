@@ -31,8 +31,8 @@ auslesen und das echte Browser-Ergebnis gegen Compiler-, Kernel- und Fabric-
 Evidence vergleichen. Die Browser-Execution-Evidence ist jetzt auch als
 Release-Artefakt unter
 `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`
-schreibbar. In GitHub Actions laeuft dieser Pfad verpflichtend ueber
-`chromedriver`.
+schreibbar. In GitHub Actions ist dieser Pfad optional und laeuft nur bei
+manuellem `workflow_dispatch` mit `run_source_to_sea=true`.
 
 ## Fixture
 
@@ -410,8 +410,9 @@ RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_URL=http://127.0.0.1:4444 \
 node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser
 ```
 
-Der GitHub-Actions-Job `rmt-vnext-primitive-gates` nutzt diesen ChromeDriver-
-Pfad als Required Gate und uploaded danach dasselbe Evidence-Artefakt.
+Der GitHub-Actions-Job `rmt-vnext-primitive-gates` haelt diesen ChromeDriver-
+Pfad als optionalen Evidence-Lauf hinter `workflow_dispatch` und uploaded dann
+dasselbe Evidence-Artefakt.
 Der Report enthaelt zusaetzlich eine CI-Artefaktvalidierung. Im lokalen
 Browser-Skip-Modus bleibt sie `skipped`; im ChromeDriver-Required-Pfad muss sie
 `passed` sein und `objectCount: 4`, zwei Cross-Primitive-Events, zwei
@@ -435,8 +436,9 @@ npm run test:rmt-vnext-source-to-sea:validate-artifact:firefox
 
 Der Replay-Pfad nutzt
 `validateRmtVNextSourceToSeaCiArtifactFile(...)`, setzt Browser-Evidence als
-verpflichtend voraus und faellt fuer fehlende, nicht parsebare oder gedriftete
-Artefakte geschlossen mit `status: "failed"` aus.
+erwartete Eingabe fuer diesen optionalen Replay voraus und faellt fuer
+fehlende, nicht parsebare oder gedriftete Artefakte geschlossen mit
+`status: "failed"` aus.
 
 ChromeDriver-Auto-Cleanup nutzt fuer automatisch gestartete ChromeDriver zuerst
 den lokalen WebDriver-Endpunkt `/shutdown`. Erst wenn dieser Pfad den Prozess
@@ -451,8 +453,8 @@ scheitern kann.
 Fabric-Runtime-Fiber, Host-Adapter-Telemetrie, Route-/Component-Fiber, ein
 Telemetry-Snapshot und eine Lane-Matrix fuer nicht sichtbare Scheduling-
 Klassen sind ueber `rmt-vnext-fabric-bridge` gatebar. Der aktuelle PRIM-06-
-Ausbau schaltet den Browser-Execution-Pfad in GitHub Actions verpflichtend auf
-ChromeDriver. Das Release-Artefakt ist als
+Ausbau haelt den Browser-Execution-Pfad in GitHub Actions als optionalen,
+manuell aktivierten Evidence-Lauf vor. Das Release-Artefakt ist als
 `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json` angebunden.
 Die Browser-Result-Matrix fuehrt jetzt vier Objekte, Cross-Primitive-Events
 und zwei sequenzielle Route-Switches. Der aktuelle Runtime-Slice mountet

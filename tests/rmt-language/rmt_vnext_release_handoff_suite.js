@@ -23,6 +23,7 @@ const {
   RMT_VNEXT_RELEASE_DOCS,
   RMT_VNEXT_RELEASE_GATE_MATRIX_SCHEMA,
   RMT_VNEXT_RELEASE_GATES,
+  RMT_VNEXT_OPTIONAL_RELEASE_GATES,
   RMT_VNEXT_RELEASE_HANDOFF_DOC_PATH,
   RMT_VNEXT_RELEASE_HANDOFF_REPORT_SCHEMA,
   RMT_VNEXT_RELEASE_HANDOFF_SCHEMA,
@@ -76,6 +77,9 @@ function runPlanChecks(context, rootDir) {
   RMT_VNEXT_RELEASE_GATES.forEach((command) => {
     context.assert(plan.gateMatrix.gates.some((gate) => gate.command === command), `release handoff gate matrix includes ${command}`);
   });
+  RMT_VNEXT_OPTIONAL_RELEASE_GATES.forEach((command) => {
+    context.assert(plan.gateMatrix.optionalGates.some((gate) => gate.command === command && gate.required === false), `release handoff optional gate matrix includes ${command}`);
+  });
   context.assert(RMT_VNEXT_ACCEPTED_CONTRACTS.every((contract) => plan.acceptedContracts.includes(contract)), 'release handoff accepts all vNext contracts');
   context.assert(plan.followUpEpicCandidates.length >= 4, 'release handoff names follow-up epics');
   context.assert(plan.networkRequired === false, 'release handoff remains network-free');
@@ -111,6 +115,9 @@ function runPackageChecks(context, rootDir) {
   });
   RMT_VNEXT_RELEASE_GATES.forEach((command) => {
     context.assert(metadata.releaseGateMatrix.includes(command), `package metadata release matrix includes ${command}`);
+  });
+  RMT_VNEXT_OPTIONAL_RELEASE_GATES.forEach((command) => {
+    context.assert(metadata.optionalReleaseGateMatrix.includes(command), `package metadata optional release matrix includes ${command}`);
   });
 }
 

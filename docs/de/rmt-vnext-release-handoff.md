@@ -14,8 +14,6 @@ Epic 15 ist mit dem vNext Release Handoff source-ready. Die neue Syntax ist doku
 npm run test:rmt-vnext-parser
 npm run test:rmt-semantic-graph
 npm run test:rmt-vnext-compiler
-npm run test:rmt-vnext-source-to-sea
-npm run test:rmt-vnext-source-to-sea:evidence
 npm run test:rmt-vnext-lifecycle
 npm run test:rmt-vnext-scheduler
 npm run test:rmt-vnext-surfaces
@@ -32,6 +30,18 @@ npm run test:rmt-vnext-primitives:report
 npm run test:browser
 npm run test:references
 ```
+
+## Optionale Browser-Evidence
+
+```bash
+npm run test:rmt-vnext-source-to-sea
+npm run test:rmt-vnext-source-to-sea:evidence
+npm run test:rmt-vnext-source-to-sea:chromedriver
+npm run test:rmt-vnext-source-to-sea:validate-artifact
+```
+
+In GitHub Actions laeuft diese Evidence nur per manuellem `workflow_dispatch`
+mit `run_source_to_sea=true`.
 
 Der Self-Gate fuer diesen Abschluss ist:
 

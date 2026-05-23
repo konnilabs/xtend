@@ -75,7 +75,7 @@ npm run test:rmt-vnext-primitives:report
 
 ## Handoff
 
-`RMT-VNEXT-PRIM-05` ist abgeschlossen, sobald dieses Gate zusammen mit dem
-Source-to-Sea-Gate gruen ist. Der verbleibende Ausbau liegt danach in
-`RMT-VNEXT-PRIM-06`: Browser-Execution in einer CI-Umgebung verpflichtend
-schalten und die Browser-Execution-Evidence als Release-Artefakt schreiben.
+`RMT-VNEXT-PRIM-05` ist abgeschlossen, sobald dieses Gate gruen ist.
+`RMT-VNEXT-PRIM-06` fuehrt Source-to-Sea als optionale Browser-Evidence weiter:
+Browser-Execution kann lokal oder per manuellem CI-Dispatch laufen und die
+Browser-Execution-Evidence als Release-Artefakt schreiben.

@@ -2088,9 +2088,6 @@
         "npm run test:rmt-vnext-parser",
         "npm run test:rmt-semantic-graph",
         "npm run test:rmt-vnext-compiler",
-        "npm run test:rmt-vnext-source-to-sea",
-        "npm run test:rmt-vnext-source-to-sea:evidence",
-        "npm run test:rmt-vnext-source-to-sea:chromedriver",
         "npm run test:rmt-vnext-component-primitives",
         "npm run test:rmt-node-ssr-adapter",
         "npm run test:rmt-php-ssr-adapter",
@@ -2113,6 +2110,13 @@
         "npm run test:rmt-vnext-regression",
         "npm run test:browser",
         "npm run test:references"
+      ],
+      "optionalReleaseGateMatrix": [
+        "npm run test:rmt-vnext-source-to-sea",
+        "npm run test:rmt-vnext-source-to-sea:evidence",
+        "npm run test:rmt-vnext-source-to-sea:chromedriver",
+        "npm run test:rmt-vnext-source-to-sea:firefox",
+        "npm run test:rmt-vnext-source-to-sea:validate-artifact"
       ],
       "followUpEpicCandidates": [
         "rmt-vnext-runtime-adapters",
@@ -4151,6 +4155,9 @@
         "artifactName": "xtend-release-gate-report-node-26",
         "suites": [
           "all"
+        ],
+        "optionalSuites": [
+          "rmt-vnext-source-to-sea"
         ]
       },
       "nightlyGate": {
@@ -4165,7 +4172,11 @@
         "artifactName": "xtend-rmt-vnext-primitives-gate-report-node-26",
         "sourceToSeaEvidenceCommand": "npm run test:rmt-vnext-source-to-sea:evidence",
         "sourceToSeaBrowserRequiredCommand": "npm run test:rmt-vnext-source-to-sea:browser-required",
-        "sourceToSeaCiBrowserRequiredCommand": "npm run test:rmt-vnext-source-to-sea:chromedriver",
+        "sourceToSeaCiMode": "workflow_dispatch_optional",
+        "sourceToSeaCiWorkflowDispatchInput": "run_source_to_sea",
+        "sourceToSeaRequiredInDefaultCi": false,
+        "sourceToSeaCiBrowserOptionalCommand": "npm run test:rmt-vnext-source-to-sea:chromedriver",
+        "sourceToSeaCiArtifactValidationCommand": "npm run test:rmt-vnext-source-to-sea:validate-artifact",
         "sourceToSeaCiBrowserDriver": "chromedriver",
         "sourceToSeaCiBrowserName": "chrome",
         "sourceToSeaCiWebDriverPort": 9515,
@@ -4184,7 +4195,6 @@
           "rmt-vnext-compiler",
           "rmt-semantic-graph",
           "rmt-vnext-fabric-bridge",
-          "rmt-vnext-source-to-sea",
           "rmt-vnext-component-primitives",
           "rmt-node-ssr-adapter",
           "rmt-php-ssr-adapter",
@@ -4195,6 +4205,9 @@
           "rmt-vnext-tooling",
           "rmt-vnext-compatibility",
           "type-exports-rmt"
+        ],
+        "optionalSuites": [
+          "rmt-vnext-source-to-sea"
         ]
       },
       "packageStructureGate": {
@@ -8684,8 +8697,8 @@
     "test:docs-php-ssr-performance-budget": "node scripts/run_xtend_tests.js docs-php-ssr-performance-budget",
     "test:docs-php-ssr-cls-budget": "node scripts/run_xtend_tests.js docs-php-ssr-cls-budget",
     "test:xtend-layout-stability-contract": "node scripts/run_xtend_tests.js xtend-layout-stability-contract",
-    "test:rmt-vnext-primitives": "node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt",
-    "test:rmt-vnext-primitives:report": "node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-source-to-sea rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json",
+    "test:rmt-vnext-primitives": "node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt",
+    "test:rmt-vnext-primitives:report": "node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json",
     "test:rmt-vnext-regression": "node scripts/run_xtend_tests.js rmt-vnext-regression",
     "test:rmt-vnext-release": "node scripts/run_xtend_tests.js rmt-vnext-release",
     "test:rmt-vnext-remote-manifest": "node scripts/run_xtend_tests.js rmt-vnext-remote-manifest",

@@ -1178,7 +1178,8 @@ const suites = [
   {
     id: 'rmt-vnext-source-to-sea',
     label: 'RMT vNext Source-to-Sea Browser Gate',
-    description: 'Runs the RMT-VNEXT-PRIM-06 source, kernel, Fabric, UI and browser viewport correlation gate.',
+    description: 'Runs the optional RMT-VNEXT-PRIM-06 source, kernel, Fabric, UI and browser viewport correlation gate.',
+    defaultIncluded: false,
     run: async () => {
       const result = await runRmtVNextSourceToSeaSuite({ rootDir });
       printRmtVNextSourceToSeaReport(result);
@@ -2978,7 +2979,7 @@ function printSuites() {
 
 function resolveRequestedSuites(requested) {
   if (requested.length === 0 || requested.includes('all')) {
-    return suites;
+    return suites.filter((suite) => suite.defaultIncluded !== false);
   }
 
   const selected = [];

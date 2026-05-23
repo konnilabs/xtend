@@ -108,7 +108,7 @@ Der Kernel-Gate muss zeigen:
 
 ## Source-to-Sea-Fullstack-Gate
 
-Fuer RMT vNext ist ein verpflichtendes "source to sea"-Gate einzufuehren.
+Fuer RMT vNext ist ein optionales "source to sea"-Evidence-Gate vorzuhalten.
 
 Das Gate rekonstruiert den Lifecycle eines UI-Objektes von RMT-Source bis zur
 Browser-Evidence:
@@ -226,10 +226,11 @@ Die erste Compiler- und DX-Schiene fuer vNext-Primitives ist release-gated:
   Artefakt. `node scripts/capture_rmt_vnext_source_to_sea_evidence.js`
   erzeugt `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json`;
   `npm run test:rmt-vnext-source-to-sea:browser-required` schaltet denselben
-  Pfad fuer lokale/CI-Headless-Profile verpflichtend.
-- `RMT-VNEXT-PRIM-06` ist in GitHub Actions jetzt fuer Browser-Execution
-  verpflichtend. Der Job `rmt-vnext-primitive-gates` nutzt
-  `npm run test:rmt-vnext-source-to-sea:chromedriver` und uploaded danach das
+  Pfad fuer explizite lokale Headless-Profile verpflichtend.
+- `RMT-VNEXT-PRIM-06` ist in GitHub Actions jetzt optionale Browser-Evidence.
+  Der Job `rmt-vnext-primitive-gates` nutzt
+  `npm run test:rmt-vnext-source-to-sea:chromedriver` nur bei manuellem
+  `workflow_dispatch` mit `run_source_to_sea=true` und uploaded danach das
   gleiche Source-to-Sea-Evidence-Artefakt.
 - ChromeDriver-Auto-Cleanup ist fuer lokale Snap-/Chromium-Installationen
   robust. Der automatisch gestartete ChromeDriver wird zuerst ueber den
@@ -414,10 +415,9 @@ Die erste Compiler- und DX-Schiene fuer vNext-Primitives ist release-gated:
   Cross-Primitive-Event-Drift und Viewport-/Objektstatus-Drift muessen
   entsprechend ueber `browser execution cross-primitive events pass` und
   `browser execution object matrix passes` fehlschlagen.
-- Der Release-Handoff zieht `npm run test:rmt-semantic-graph`,
-  `npm run test:rmt-vnext-source-to-sea`,
-  `npm run test:rmt-vnext-source-to-sea:evidence` und
-  `npm run test:rmt-vnext-primitives:report` als verpflichtende Gates nach.
+- Der Release-Handoff haelt `npm run test:rmt-semantic-graph` und
+  `npm run test:rmt-vnext-primitives:report` als verpflichtende Gates; Source-
+  to-Sea und Evidence-Capture bleiben optionale Browser-Evidence.
 - Der vollstaendige Release-Report wurde lokal erneut erfolgreich gefahren.
   Lokale Browser-/Loopback-Skips bleiben akzeptierte Umgebungsresiduen; die
   Primitive-, PR-, Pack- und Release-Reports sind konsistent.
@@ -535,8 +535,9 @@ Implementierungsblock der Pakete.
   `.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json` wird ueber
   `npm run test:rmt-vnext-source-to-sea:evidence` erzeugt. In GitHub Actions
   wird der gleiche Report ueber
-  `npm run test:rmt-vnext-source-to-sea:chromedriver` mit Required-Browser-
-  Policy geschrieben und im Job `rmt-vnext-primitive-gates` als
+  `npm run test:rmt-vnext-source-to-sea:chromedriver` nur bei manuellem
+  `workflow_dispatch` mit `run_source_to_sea=true` geschrieben und im Job
+  `rmt-vnext-primitive-gates` als
   `xtend-rmt-vnext-source-to-sea-evidence-node-26` hochgeladen.
 - ChromeDriver-Auto-Cleanup:
   `runWebDriverBrowserProbe(...)` beendet automatisch gestartete ChromeDriver
@@ -690,8 +691,8 @@ Implementierungsblock der Pakete.
 Fabric-Bridge-Paket abgeschlossen: vNext-Source, Kernel-Schedule, Kernel-Fiber,
 Fabric-Mapping, Fabric-Runtime-Fiber, Telemetry-Snapshot, Route-/Component-
 Fiber und Browser-Marker sind ueber dieselbe Primitive ID korreliert. Der
-Browser-Pfad kann lokal optional laufen, ist in CI ueber ChromeDriver
-verpflichtend und deckt mehrere sichtbare UI-Objekte sowie negative
+Browser-Pfad kann lokal optional laufen, ist in CI ueber manuellen Dispatch
+optional und deckt mehrere sichtbare UI-Objekte sowie negative
 Runtime-Drifts ab.
 
 Der naechste Patch sollte:
@@ -710,12 +711,11 @@ Der naechste Patch sollte:
 - PRIM-05 nur noch erweitern, wenn neue Fabric-Lanes oder produktive Fiber-
   Instrumentations hinzukommen; die aktuelle Lane/Fiber-Bridge ist gatebar.
 - Danach mindestens `npm run test:rmt-vnext-primitives:report`,
-  `npm run test:rmt-vnext-source-to-sea:chromedriver` in einer Umgebung mit
-  ChromeDriver,
-  `npm run test:rmt-vnext-source-to-sea:validate-artifact`,
-  `node scripts/run_xtend_tests.js rmt-vnext-source-to-sea --json`,
   `node scripts/run_xtend_tests.js references --json` und vor Release erneut
-  `npm run test:release:full:report` fahren.
+  `npm run test:release:full:report` fahren. Source-to-Sea-Browser-Evidence
+  bleibt optional ueber `npm run test:rmt-vnext-source-to-sea:chromedriver`,
+  `npm run test:rmt-vnext-source-to-sea:validate-artifact` und
+  `node scripts/run_xtend_tests.js rmt-vnext-source-to-sea --json`.
 
 ## Verwandte Dokumente
 

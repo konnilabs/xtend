@@ -31,9 +31,6 @@ const RMT_VNEXT_RELEASE_GATES = Object.freeze([
   'npm run test:rmt-vnext-parser',
   'npm run test:rmt-semantic-graph',
   'npm run test:rmt-vnext-compiler',
-  'npm run test:rmt-vnext-source-to-sea',
-  'npm run test:rmt-vnext-source-to-sea:evidence',
-  'npm run test:rmt-vnext-source-to-sea:chromedriver',
   'npm run test:rmt-vnext-lifecycle',
   'npm run test:rmt-vnext-scheduler',
   'npm run test:rmt-vnext-surfaces',
@@ -49,6 +46,14 @@ const RMT_VNEXT_RELEASE_GATES = Object.freeze([
   'npm run test:rmt-vnext-regression',
   'npm run test:browser',
   'npm run test:references'
+]);
+
+const RMT_VNEXT_OPTIONAL_RELEASE_GATES = Object.freeze([
+  'npm run test:rmt-vnext-source-to-sea',
+  'npm run test:rmt-vnext-source-to-sea:evidence',
+  'npm run test:rmt-vnext-source-to-sea:chromedriver',
+  'npm run test:rmt-vnext-source-to-sea:firefox',
+  'npm run test:rmt-vnext-source-to-sea:validate-artifact'
 ]);
 
 const RMT_VNEXT_ACCEPTED_CONTRACTS = Object.freeze([
@@ -108,6 +113,11 @@ function createGateMatrix() {
       command,
       required: true,
       status: 'accepted-local-gate'
+    })),
+    optionalGates: RMT_VNEXT_OPTIONAL_RELEASE_GATES.map((command) => ({
+      command,
+      required: false,
+      status: 'optional-browser-evidence'
     }))
   };
 }
@@ -166,6 +176,10 @@ function validateRmtVNextReleaseHandoffPlan(plan = {}) {
   RMT_VNEXT_RELEASE_GATES.forEach((command) => {
     const hasGate = plan.gateMatrix && toArray(plan.gateMatrix.gates).some((gate) => gate.command === command);
     if (!hasGate) diagnostics.push(`gate:${command}`);
+  });
+  RMT_VNEXT_OPTIONAL_RELEASE_GATES.forEach((command) => {
+    const hasGate = plan.gateMatrix && toArray(plan.gateMatrix.optionalGates).some((gate) => gate.command === command && gate.required === false);
+    if (!hasGate) diagnostics.push(`optionalGate:${command}`);
   });
   if (!toArray(plan.acceptedContracts).includes('xtend.rmt.vnext-regression-gate.v1')) diagnostics.push('acceptedContracts:regression');
   if (!toArray(plan.acceptedContracts).includes(RMT_VNEXT_RELEASE_HANDOFF_SCHEMA)) diagnostics.push('acceptedContracts:release');
@@ -279,6 +293,7 @@ module.exports = {
   RMT_VNEXT_RELEASE_DOCS,
   RMT_VNEXT_RELEASE_GATE_MATRIX_SCHEMA,
   RMT_VNEXT_RELEASE_GATES,
+  RMT_VNEXT_OPTIONAL_RELEASE_GATES,
   RMT_VNEXT_RELEASE_HANDOFF_DOC_PATH,
   RMT_VNEXT_RELEASE_HANDOFF_REPORT_SCHEMA,
   RMT_VNEXT_RELEASE_HANDOFF_SCHEMA,

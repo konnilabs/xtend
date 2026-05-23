@@ -61,4 +61,4 @@ npm run test:rmt-vnext-primitives:report
 
 ## Handoff
 
-`RMT-VNEXT-PRIM-05` is complete once this gate is green together with the source-to-sea gate. The remaining expansion then sits in `RMT-VNEXT-PRIM-06`: make browser execution mandatory in a CI environment and write the browser execution evidence as a release artifact.
+`RMT-VNEXT-PRIM-05` is complete once this gate is green. `RMT-VNEXT-PRIM-06` keeps source-to-sea as optional browser evidence: browser execution can run locally or through manual CI dispatch and write the browser execution evidence as a release artifact.

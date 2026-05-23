@@ -17,6 +17,7 @@ export declare const RMT_VNEXT_RELEASE_CONTRACT_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_RELEASE_DOCS: RmtToolingConstant;
 export declare const RMT_VNEXT_RELEASE_GATE_MATRIX_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_RELEASE_GATES: RmtToolingConstant;
+export declare const RMT_VNEXT_OPTIONAL_RELEASE_GATES: RmtToolingConstant;
 export declare const RMT_VNEXT_RELEASE_HANDOFF_DOC_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_RELEASE_HANDOFF_REPORT_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_RELEASE_HANDOFF_SCHEMA: RmtToolingConstant;
