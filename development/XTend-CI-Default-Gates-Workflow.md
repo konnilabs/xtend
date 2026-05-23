@@ -13,7 +13,7 @@
 
 Dieses Dokument macht den lokalen XTend-Default-Gate-Lauf reproduzierbar in CI. Der Workflow ist bewusst minimal: Er fuehrt dieselbe Vollsuite aus, die lokal hinter `npm test` liegt, schreibt aber zusaetzlich den maschinenlesbaren JSON-Report ueber `npm run test:report`.
 
-Damit bleiben die Enterprise-Gates lokal zuerst entwickelbar und werden trotzdem fuer Pull Requests und Pushes sichtbar. Seit `ER-WP-37` ist dieser Workflow in eine Gate-Matrix aufgeteilt: Pull Requests laufen ueber `pr-fast`, Pushes, manuelle Runs und Nightly-Ausfuehrungen ueber `full-release`.
+Damit bleiben die Enterprise-Gates lokal zuerst entwickelbar und werden trotzdem fuer Pull Requests und Pushes sichtbar. Seit `ER-WP-37` ist dieser Workflow in eine Gate-Matrix aufgeteilt: Pull Requests laufen ueber `pr-fast`, Pushes, manuelle Runs und Release-Events ueber `full-release`. Nightly-Ausfuehrungen laufen getrennt in `.github/workflows/xtend-nightly-build.yml`, damit geplante Artefaktlaeufe die Pflicht-Gates nicht aufblaehen.
 
 ## Workflow Contract
 
@@ -47,9 +47,9 @@ Der Lauf umfasst damit die Default-Suites des lokalen Runners, darunter Core, Ar
 | Gate | Contract | Trigger | Command | Artifact |
 |------|----------|---------|---------|----------|
 | `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `xtend-pr-gate-report-node-26` |
-| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `release: published`, `schedule` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
-| `package-structure` | `xtend.ci.package-structure-gate.v1` | `pull_request`, `push`, `workflow_dispatch`, `release: published`, `schedule` | `npm run pack:dry-run` + `npm publish --dry-run --tag next --access public` | `xtend-package-structure-node-26` |
-| `nightly` | `xtend.ci.nightly-gate.v1` | `17 3 * * *` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
+| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `release: published` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
+| `package-structure` | `xtend.ci.package-structure-gate.v1` | `pull_request`, `push`, `workflow_dispatch`, `release: published` | `npm run pack:dry-run` + `npm publish --dry-run --tag next --access public` | `xtend-package-structure-node-26` |
+| `nightly-build` | `xtend.ci.nightly-build.v1` | `47 2 * * *` in `.github/workflows/xtend-nightly-build.yml` | `npm run test:release:full:report` + `npm run test:rmt-vnext-primitives:report` + `npm run nightly:manifest` | `xtend-nightly-build-node-26` |
 | `npm-publish-next` | `xtend.npm.publish-next.github-actions.v1` | `workflow_dispatch` mit `publish_to_npm=true` oder `release: published` | `npm publish --tag next --provenance --access public` | npm Provenance |
 
 ## Nicht im Scope
@@ -74,3 +74,4 @@ CI-Verifikation:
 - Workflow wird auf `pull_request`, `push` nach `main`, `master`, `develop` und manuell per `workflow_dispatch` ausgefuehrt.
 - Der JSON-Report wird auch bei Fehlschlag als Artifact hochgeladen.
 - Der Workflow bleibt ohne CDN- oder externe Runtime-Abhaengigkeit im XTend-Default-Pfad.
+- Der Nightly Build wird separat ueber `.github/workflows/xtend-nightly-build.yml` geplant und laedt `xtend-nightly-build-node-26` inklusive `.xtend-test-results/xtend-nightly-build-manifest.json` hoch.

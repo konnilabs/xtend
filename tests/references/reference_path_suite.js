@@ -2498,12 +2498,30 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
       { pattern: 'npm run test:pr:report', message: 'runs PR fast report gate' },
       { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
-      { pattern: "cron: '17 3 * * *'", message: 'declares nightly schedule' },
       { pattern: 'actions/upload-artifact@v6', message: 'uploads report artifact' },
       { pattern: '.xtend-test-results/xtend-pr-gate-report.json', message: 'uploads PR JSON report path' },
       { pattern: '.xtend-test-results/xtend-release-gate-report.json', message: 'uploads release JSON report path' },
       { pattern: 'xtend-pr-gate-report-node-26', message: 'uses stable PR artifact name' },
       { pattern: 'xtend-release-gate-report-node-26', message: 'uses stable release artifact name' }
+    ]
+  },
+  {
+    path: '.github/workflows/xtend-nightly-build.yml',
+    label: 'XTend GitHub Actions nightly build workflow',
+    contracts: [
+      { pattern: 'XTend Nightly Build', message: 'declares workflow name' },
+      { pattern: "cron: '47 2 * * *'", message: 'declares nightly schedule' },
+      { pattern: 'nightly-build', message: 'declares nightly artifact job' },
+      { pattern: 'actions/checkout@v6', message: 'checks out repository' },
+      { pattern: 'actions/setup-node@v6', message: 'sets up Node' },
+      { pattern: 'actions/upload-artifact@v6', message: 'uploads nightly artifacts' },
+      { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
+      { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
+      { pattern: 'npm run test:rmt-vnext-primitives:report', message: 'runs RMT primitive gate' },
+      { pattern: 'npm run nightly:manifest', message: 'writes nightly manifest' },
+      { pattern: 'xtend-nightly-build-node-26', message: 'uses stable nightly artifact name' },
+      { pattern: 'run_source_to_sea', message: 'keeps Source-to-Sea optional' },
+      { pattern: 'run_conditional_network', message: 'keeps conditional network optional' }
     ]
   },
   {
@@ -7565,23 +7583,25 @@ function assertComponentRegressionPriorityReference(context, rootDir) {
 
 function assertCiDefaultGatesReference(context, rootDir) {
   const workflowPath = '.github/workflows/xtend-default-gates.yml';
+  const nightlyWorkflowPath = '.github/workflows/xtend-nightly-build.yml';
   const packageManifest = readJson('package.json', rootDir);
   const workflow = readText(workflowPath, rootDir);
+  const nightlyWorkflow = readText(nightlyWorkflowPath, rootDir);
   const ciMetadata = packageManifest.xtend && packageManifest.xtend.ciDefaultGates;
   const gateMatrix = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
   const prFastGate = (gateMatrix && gateMatrix.prFastGate) || {};
   const fullReleaseGate = (gateMatrix && gateMatrix.fullReleaseGate) || {};
   const nightlyGate = (gateMatrix && gateMatrix.nightlyGate) || {};
+  const nightlyBuild = (gateMatrix && gateMatrix.nightlyBuild) || {};
   const packageStructureGate = (gateMatrix && gateMatrix.packageStructureGate) || {};
   const rmtVNextPrimitiveGate = (gateMatrix && gateMatrix.rmtVNextPrimitiveGate) || {};
   const npmPublishNext = packageManifest.xtend && packageManifest.xtend.npmPublishNext;
 
   assertFileExists(context, workflowPath, rootDir, 'CI default gates workflow exists');
+  assertFileExists(context, nightlyWorkflowPath, rootDir, 'CI nightly build workflow exists');
   context.assertIncludes(workflow, 'name: XTend CI Gates', 'CI workflow declares stable name');
   context.assertIncludes(workflow, 'pull_request:', 'CI workflow runs on pull requests');
   context.assertIncludes(workflow, 'push:', 'CI workflow runs full gates on push');
-  context.assertIncludes(workflow, 'schedule:', 'CI workflow supports nightly schedule');
-  context.assertIncludes(workflow, "cron: '17 3 * * *'", 'CI workflow declares stable nightly cron');
   context.assertIncludes(workflow, 'release:', 'CI workflow supports GitHub Release events');
   context.assertIncludes(workflow, '- published', 'CI workflow publishes only after GitHub Release publication');
   context.assertIncludes(workflow, 'workflow_dispatch:', 'CI workflow supports manual dispatch');
@@ -7625,6 +7645,29 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'npm run release:report', 'CI publish job writes release report evidence');
   context.assertIncludes(workflow, 'npm publish --tag next --provenance --access public', 'CI workflow publishes with npm provenance');
   context.assertIncludes(workflow, 'xtend-npm-publish-next-evidence-node-26', 'CI publish job uploads npm publish evidence');
+  context.assertIncludes(nightlyWorkflow, 'name: XTend Nightly Build', 'Nightly workflow declares stable name');
+  context.assertIncludes(nightlyWorkflow, 'schedule:', 'Nightly workflow supports scheduled builds');
+  context.assertIncludes(nightlyWorkflow, "cron: '47 2 * * *'", 'Nightly workflow declares stable cron');
+  context.assertIncludes(nightlyWorkflow, 'workflow_dispatch:', 'Nightly workflow supports manual dispatch');
+  context.assertIncludes(nightlyWorkflow, 'run_source_to_sea:', 'Nightly workflow exposes optional Source-to-Sea input');
+  context.assertIncludes(nightlyWorkflow, 'run_conditional_network:', 'Nightly workflow exposes optional conditional network input');
+  context.assertIncludes(nightlyWorkflow, 'nightly-build:', 'Nightly workflow declares artifact bundle job');
+  context.assertIncludes(nightlyWorkflow, 'actions/checkout@v6', 'Nightly workflow uses checkout action');
+  context.assertIncludes(nightlyWorkflow, 'actions/setup-node@v6', 'Nightly workflow uses setup-node action');
+  context.assertIncludes(nightlyWorkflow, 'actions/upload-artifact@v6', 'Nightly workflow uploads artifacts');
+  context.assertIncludes(nightlyWorkflow, 'node-version: 26.x', 'Nightly workflow pins Node 26.x');
+  context.assertIncludes(nightlyWorkflow, 'npm run test:release:full:report', 'Nightly workflow runs full release gate report');
+  context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-vnext-primitives:report', 'Nightly workflow runs RMT vNext primitive report');
+  context.assertIncludes(nightlyWorkflow, 'npm run release:report', 'Nightly workflow captures release report evidence');
+  context.assertIncludes(nightlyWorkflow, 'npm run pack:dry-run', 'Nightly workflow captures package dry-run evidence');
+  context.assertIncludes(nightlyWorkflow, 'npm run nightly:manifest', 'Nightly workflow writes nightly manifest');
+  context.assertIncludes(nightlyWorkflow, 'xtend-nightly-build-node-26', 'Nightly workflow uploads stable artifact bundle');
+  context.assertIncludes(nightlyWorkflow, 'optional-source-to-sea:', 'Nightly workflow isolates optional Source-to-Sea browser evidence');
+  context.assertIncludes(nightlyWorkflow, "github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true", 'Nightly Source-to-Sea job is manual only');
+  context.assertIncludes(nightlyWorkflow, 'xtend-nightly-source-to-sea-evidence-node-26', 'Nightly workflow uploads Source-to-Sea evidence separately');
+  context.assertIncludes(nightlyWorkflow, 'optional-conditional-network:', 'Nightly workflow isolates optional conditional network evidence');
+  context.assertIncludes(nightlyWorkflow, "github.event_name == 'workflow_dispatch' && inputs.run_conditional_network == true", 'Nightly conditional network job is manual only');
+  context.assertIncludes(nightlyWorkflow, 'xtend-nightly-conditional-network-evidence-node-26', 'Nightly workflow uploads conditional network evidence separately');
 
   context.assert(ciMetadata && ciMetadata.schema === 'xtend.ci.default-gates.v1', 'Package metadata exposes CI default gates schema');
   context.assert(ciMetadata.workflow === workflowPath, 'Package metadata exposes CI workflow path');
@@ -7678,8 +7721,24 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('all'), 'Full release gate runs all suites');
   context.assert(Array.isArray(fullReleaseGate.optionalSuites) && fullReleaseGate.optionalSuites.includes('rmt-vnext-source-to-sea'), 'Full release gate declares source-to-sea as optional');
   context.assert(nightlyGate.schema === 'xtend.ci.nightly-gate.v1', 'Package metadata exposes nightly gate schema');
-  context.assert(nightlyGate.cron === '17 3 * * *', 'Package metadata exposes nightly cron');
+  context.assert(nightlyGate.workflow === nightlyWorkflowPath, 'Package metadata exposes nightly workflow path');
+  context.assert(nightlyGate.cron === '47 2 * * *', 'Package metadata exposes nightly cron');
   context.assert(nightlyGate.command === 'npm run test:release:full:report', 'Package metadata exposes nightly full release command');
+  context.assert(nightlyGate.artifactName === 'xtend-nightly-build-node-26', 'Package metadata exposes nightly artifact name');
+  context.assert(nightlyGate.manifestCommand === 'npm run nightly:manifest', 'Package metadata exposes nightly manifest command');
+  context.assert(nightlyGate.manifestPath === '.xtend-test-results/xtend-nightly-build-manifest.json', 'Package metadata exposes nightly manifest path');
+  context.assert(nightlyBuild.schema === 'xtend.ci.nightly-build.v1', 'Package metadata exposes nightly build schema');
+  context.assert(nightlyBuild.workflow === nightlyWorkflowPath, 'Package metadata exposes nightly build workflow path');
+  context.assert(nightlyBuild.nodeVersion === '26.x', 'Package metadata exposes nightly Node version');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:rmt-vnext-primitives:report'), 'Package metadata includes RMT vNext primitive command in nightly build');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run release:report'), 'Package metadata includes release report command in nightly build');
+  context.assert(Array.isArray(nightlyBuild.workspaceDryRunCommands) && nightlyBuild.workspaceDryRunCommands.includes('npm pack --workspace xtendrmt --dry-run --json'), 'Package metadata includes workspace dry-run commands in nightly build');
+  context.assert(nightlyBuild.manifestCommand === 'npm run nightly:manifest', 'Package metadata exposes nightly build manifest command');
+  context.assert(nightlyBuild.manifestPath === '.xtend-test-results/xtend-nightly-build-manifest.json', 'Package metadata exposes nightly build manifest path');
+  context.assert(nightlyBuild.artifactName === 'xtend-nightly-build-node-26', 'Package metadata exposes nightly build artifact name');
+  context.assert(nightlyBuild.optionalSourceToSeaInput === 'run_source_to_sea', 'Package metadata exposes nightly optional Source-to-Sea input');
+  context.assert(nightlyBuild.optionalConditionalNetworkInput === 'run_conditional_network', 'Package metadata exposes nightly optional conditional network input');
+  context.assert(packageManifest.scripts['nightly:manifest'] === 'node scripts/create_xtend_nightly_manifest.js', 'Package exposes nightly manifest script');
   context.assert(rmtVNextPrimitiveGate.schema === 'xtend.ci.rmt-vnext-primitive-gate.v1', 'Package metadata exposes RMT vNext primitive gate schema');
   context.assert(rmtVNextPrimitiveGate.command === 'npm run test:rmt-vnext-primitives:report', 'Package metadata exposes RMT vNext primitive report command');
   context.assert(rmtVNextPrimitiveGate.reportPath === '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package metadata exposes RMT vNext primitive report path');

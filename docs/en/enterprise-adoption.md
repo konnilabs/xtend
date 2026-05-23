@@ -228,7 +228,7 @@ The CI matrix separates fast PR checks from release-near full gates:
 |------|---------|---------|
 | PR Fast | `npm run test:pr:report` | fast feedback for pull requests |
 | Full Release | `npm run test:release:full:report` | complete local runner suite with JSON report |
-| Nightly | `npm run test:release:full:report` | recurring release-near run |
+| Nightly Build | `.github/workflows/xtend-nightly-build.yml` | recurring Node 26 artifact run with release, RMT primitive and package evidence |
 
 Release candidates additionally need:
 
@@ -242,6 +242,8 @@ npm run pack:dry-run
 ```
 
 Conditional network gates:
+
+Nightly Build evidence is uploaded as `xtend-nightly-build-node-26` and includes `.xtend-test-results/xtend-nightly-build-manifest.json`. Browser-heavy Source-to-Sea evidence and audit/SBOM network evidence intentionally remain manual jobs in this workflow through `run_source_to_sea=true` and `run_conditional_network=true`.
 
 ```bash
 npm audit --audit-level=moderate

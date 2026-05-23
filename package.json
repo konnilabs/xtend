@@ -4162,8 +4162,37 @@
       },
       "nightlyGate": {
         "schema": "xtend.ci.nightly-gate.v1",
-        "cron": "17 3 * * *",
-        "command": "npm run test:release:full:report"
+        "workflow": ".github/workflows/xtend-nightly-build.yml",
+        "cron": "47 2 * * *",
+        "command": "npm run test:release:full:report",
+        "artifactName": "xtend-nightly-build-node-26",
+        "manifestCommand": "npm run nightly:manifest",
+        "manifestPath": ".xtend-test-results/xtend-nightly-build-manifest.json"
+      },
+      "nightlyBuild": {
+        "schema": "xtend.ci.nightly-build.v1",
+        "workflow": ".github/workflows/xtend-nightly-build.yml",
+        "cron": "47 2 * * *",
+        "nodeVersion": "26.x",
+        "commandSet": [
+          "npm run test:release:full:report",
+          "npm run test:rmt-vnext-primitives:report",
+          "npm run release:report",
+          "npm run pack:dry-run"
+        ],
+        "workspaceDryRunCommands": [
+          "npm pack --workspace xtendrmt --dry-run --json",
+          "npm pack --workspace fabric --dry-run --json",
+          "npm pack --workspace tools --dry-run --json",
+          "npm pack --workspace xtend-builder --dry-run --json"
+        ],
+        "manifestCommand": "npm run nightly:manifest",
+        "manifestPath": ".xtend-test-results/xtend-nightly-build-manifest.json",
+        "artifactName": "xtend-nightly-build-node-26",
+        "optionalSourceToSeaInput": "run_source_to_sea",
+        "optionalSourceToSeaArtifactName": "xtend-nightly-source-to-sea-evidence-node-26",
+        "optionalConditionalNetworkInput": "run_conditional_network",
+        "optionalConditionalNetworkArtifactName": "xtend-nightly-conditional-network-evidence-node-26"
       },
       "rmtVNextPrimitiveGate": {
         "schema": "xtend.ci.rmt-vnext-primitive-gate.v1",
@@ -8838,6 +8867,7 @@
     "security:manifest-policy": "node scripts/verify_manifest_import_policy.js",
     "release:check": "npm test",
     "release:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-report.json",
+    "nightly:manifest": "node scripts/create_xtend_nightly_manifest.js",
     "pack:dry-run": "node scripts/capture_pack_dry_run.js",
     "pack:dry-run:report": "node scripts/capture_pack_dry_run.js",
     "pack:dry-run:raw": "npm pack --dry-run",
