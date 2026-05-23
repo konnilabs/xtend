@@ -174,7 +174,7 @@ function runSurfaceManagerStackPolicySuite(options = {}) {
   ], 'x-side-panel remains stack-compatible');
 
   assertTextIncludesAll(context, overlayBridge, [
-    "const SURFACE_OVERLAY_SELECTOR = 'x-modal, x-dialog, x-drawer'",
+    "const SURFACE_OVERLAY_SELECTOR = 'x-modal, x-dialog, x-drawer, x-popover, x-tooltip, x-toast, x-lightbox, x-menu'",
     'applyOverlaySurfaceSnapshot',
     '--surface-overlay-z',
     'legacyApiPreserved: true'

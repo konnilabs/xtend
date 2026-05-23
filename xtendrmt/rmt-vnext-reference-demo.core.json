@@ -36,6 +36,7 @@
       "id": "surface:xtend.vnext.reference/root",
       "name": "root",
       "kind": "root",
+      "type": "region",
       "laneRefs": [
         "lane:xtend.vnext.reference/root/critical",
         "lane:xtend.vnext.reference/root/idle"
@@ -49,6 +50,7 @@
       "id": "surface:xtend.vnext.reference/modal.settings",
       "name": "modal.settings",
       "kind": "named_surface",
+      "type": "window",
       "laneRefs": [
         "lane:xtend.vnext.reference/modal.settings/critical"
       ],
@@ -61,6 +63,7 @@
       "id": "surface:overlay.notifications",
       "name": "overlay.notifications",
       "kind": "named_surface",
+      "type": "window",
       "laneRefs": [
         "lane:overlay.notifications/normal"
       ],

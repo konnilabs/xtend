@@ -24,9 +24,9 @@
       "degradationStatus": "full"
     },
     "expectedHashes": {
-      "baseCoreSha256": "a719f032b321263fea44fb55c612c001514b57098320987bc0a220fe8f4910bc",
-      "remoteCompilerCoreSha256": "a4ca09a898c17523d6be67e0573011f39389ec553c9f5ca949da491545af35ab",
-      "enterpriseRegistrySha256": "e4bde88621bdede352b3d205816f0a923626d95a1063809c28c11c5556d20e8e",
+      "baseCoreSha256": "606093a4899c1e71803584b25761becedd4cc246bf513460539bde98ec3bc2c9",
+      "remoteCompilerCoreSha256": "cd555dbc40633476905510931958c6bc0f78a3d634c86ccac22f6d36baa5e416",
+      "enterpriseRegistrySha256": "f148550ef0e79d5c6ac18ad8b570803c03f54e78ef0bfdcebd4222a084ae84fb",
       "crossSurfaceEventsSha256": "fd4a5ba4f0a118c94b66833b82733d3a188a13dbed281ec8e5cbe99f82d50737",
       "eventGovernanceSha256": "d082f1d4193386176ca1d3a21cb7b039ee30b5add653e69d33dcd640a5ba9c53",
       "degradationSha256": "dfc8b1a478d05e9d51cc728d015ef6498d6a42d2fb7b1959c9d5a87ea6bac9b7"

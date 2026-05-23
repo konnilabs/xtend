@@ -30,6 +30,7 @@
       "id": "surface:enterprise.shell/root",
       "name": "root",
       "kind": "root",
+      "type": "region",
       "laneRefs": [
         "lane:enterprise.shell/root/critical"
       ],
@@ -42,6 +43,7 @@
       "id": "surface:enterprise.shell/workspace.sales",
       "name": "workspace.sales",
       "kind": "named_surface",
+      "type": "window",
       "laneRefs": [
         "lane:enterprise.shell/workspace.sales/critical",
         "lane:enterprise.shell/workspace.sales/idle"
@@ -55,6 +57,7 @@
       "id": "surface:enterprise.shell/panel.checkoutfallback",
       "name": "panel.checkoutFallback",
       "kind": "named_surface",
+      "type": "window",
       "laneRefs": [
         "lane:enterprise.shell/panel.checkoutfallback/critical"
       ],

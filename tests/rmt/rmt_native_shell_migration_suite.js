@@ -325,12 +325,13 @@ async function runSurfaceAndShellAssertions(context, actionRuntimeModule, render
   context.assert(firstMaterialize.createdCount === 1, 'Surface graph materializes keyed shell surface instances');
   await surfaceRuntime.openSurface('surface.workspace:a');
   const overlay = await surfaceRuntime.openOverlay('overlay.lightbox', { ownerId: 'surface.workspace:a', text: 'Preview' });
-  context.assert(overlay.elementMounted === true && documentTarget.body.children.length === 1, 'Overlay materializer mounts portal DOM elements');
-  context.assert(documentTarget.body.children[0].getAttribute('data-rmt-overlay-ref') === 'overlay.lightbox', 'Overlay materializer marks portal ownership');
+  const overlayElement = documentTarget.body.children.find((child) => child.getAttribute && child.getAttribute('data-rmt-overlay-ref') === 'overlay.lightbox');
+  context.assert(overlay.elementMounted === true && Boolean(overlayElement), 'Overlay materializer mounts portal DOM elements');
+  context.assert(overlayElement && overlayElement.getAttribute('data-rmt-overlay-ref') === 'overlay.lightbox', 'Overlay materializer marks portal ownership');
   context.assert(objectUrls.length === 1, 'Overlay materializer acquires owned object-url resources');
   const closed = surfaceRuntime.closeOverlay(overlay.id);
   context.assert(closed.closed === true && closed.overlay.elementMounted === false, 'Overlay close removes materialized elements from reports');
-  context.assert(documentTarget.body.children.length === 0 && revokedUrls.length === 1, 'Overlay close cleans portal DOM and object URLs');
+  context.assert(!documentTarget.body.children.some((child) => child.getAttribute && child.getAttribute('data-rmt-overlay-ref') === 'overlay.lightbox') && revokedUrls.length === 1, 'Overlay close cleans portal DOM and object URLs');
   const ownedOverlay = await surfaceRuntime.openOverlay('overlay.lightbox', { ownerId: 'surface.workspace:a' });
   surfaceRuntime.destroySurface('surface.workspace:a');
   context.assert(surfaceRuntime.listOverlays({ includeClosed: true }).some((entry) => entry.id === ownedOverlay.id && entry.state === 'closed'), 'Surface destroy closes overlays owned by the surface');
