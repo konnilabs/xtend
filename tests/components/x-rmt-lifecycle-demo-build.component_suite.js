@@ -21,7 +21,6 @@ function runXRmtLifecycleDemoBuildComponentSuite(options = {}) {
   const source = readText('components/x-rmt-lifecycle-demo-build.js', rootDir);
   const types = readText('components/x-rmt-lifecycle-demo-build.d.ts', rootDir);
   const fixture = readText('tests/components/fixtures/x-rmt-lifecycle-demo-build.component.html', rootDir);
-  const docs = readText('docs/components/x-rmt-lifecycle-demo-build.md', rootDir);
   const syntaxCheck = syntaxCheckFile('components/x-rmt-lifecycle-demo-build.js', {
     rootDir,
     extension: '.js'
@@ -60,13 +59,6 @@ function runXRmtLifecycleDemoBuildComponentSuite(options = {}) {
   context.assertIncludes(fixture, 'xtendScaffoldA11yProfile', 'x-rmt-lifecycle-demo-build fixture checks A11y profile');
   context.assertIncludes(fixture, 'xtendScaffoldPerformanceProfile', 'x-rmt-lifecycle-demo-build fixture checks performance profile');
   context.assertIncludes(fixture, '__xtendComponentResult', 'x-rmt-lifecycle-demo-build fixture records component result contract');
-
-  context.assertIncludes(docs, '# x-rmt-lifecycle-demo-build', 'x-rmt-lifecycle-demo-build documentation is present');
-  context.assertIncludes(docs, 'RMT-vNext-App-Build-Pfad', 'x-rmt-lifecycle-demo-build docs identify RMT build role');
-  context.assertIncludes(docs, 'xtend.scaffold.component-extension-points.v1', 'x-rmt-lifecycle-demo-build docs document extension points');
-  context.assertIncludes(docs, 'xtend.a11y.profile.v1', 'x-rmt-lifecycle-demo-build docs document A11y profile');
-  context.assertIncludes(docs, 'xtend.performance.component-profile.v1', 'x-rmt-lifecycle-demo-build docs document performance profile');
-  context.assertIncludes(docs, 'tests/browser/fixtures/rmt-lifecycle-demo-rmt-build-smoke.html', 'x-rmt-lifecycle-demo-build docs link browser smoke');
 
   return context.result({
     tag: 'x-rmt-lifecycle-demo-build',

@@ -1,98 +1,29 @@
-# xlightbox – XTend Komponente
+# x-lightbox
 
-> **Siehe auch:** [xplayer](./xplayer.md)
+Fokussierte Medienansichten.
 
-## Übersicht
+## Wann einsetzen
 
-`<x-lightbox>` ist eine Komponente zur Anzeige von Bildern im viewportweiten Overlay. Sie unterstuetzt Trigger-Slots, API-gesteuertes Oeffnen, Escape Close, Focus Return und viewport-bounded Media-Skalierung.
+x-lightbox ist Teil der öffentlichen XTend Komponentenbibliothek. Nutze die Komponente, wenn du eine lokale, themenfähige Web-Component ohne Framework-Bindung brauchst.
 
----
-
-## Features
-- Overlay für Bilder und Medien
-- Trigger-Slot und globale Helper-API
-- Keyboard-Support mit Escape Close
-- Viewport-bounded Bildskalierung mit Body-Portal
-- Theming via CSS Custom Properties
-
----
-
-## Verwendung
+## Basisbeispiel
 
 ```html
-<x-lightbox id="logo-lightbox" src="/assets/logo.png" alt="XTend Logo">
-  <x-button slot="trigger" variant="secondary">Logo ansehen</x-button>
-</x-lightbox>
-
-<img src="/assets/preview.jpg" data-xlightbox alt="Preview" />
+<x-lightbox></x-lightbox>
 ```
 
----
+## Integration
 
-## Attribute
-| Attribut    | Typ     | Beschreibung                        |
-|-------------|---------|-------------------------------------|
-| `src`       | String  | Bildquelle fuer Trigger, API und `data-xlightbox` |
-| `open`      | Boolean | oeffnet die Lightbox kontrolliert, sofern `src` gesetzt ist |
-| `alt`       | String  | Alternativtext fuer das angezeigte Bild |
+Lade die Komponente über `xtend-loader.js` und `components/manifest.json`. Für RMT Hosts beschreibt ein Component Descriptor Attribute, Slots und Events; der Host Adapter materialisiert daraus das Custom Element.
 
----
+## Nächste Schritte
 
-## Events
-| Event         | Beschreibung                        |
-|---------------|-------------------------------------|
-| `lightbox-opened` | Wird beim Oeffnen ausgelöst, Detail: `{ src }` |
-| `lightbox-closed` | Wird beim Schliessen ausgelöst |
+- [Komponenten-Entwicklung](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
----
+## Öffentlicher Runtime-Vertrag
 
-## API
-- **Oeffnen:** `element.open(src)`
-- **Schliessen:** `element.close()`
-- **Globaler Helper:** `window.showLightbox(src)`
-- **State:** `xlightbox-open-<id>`
-
-`src` konfiguriert die Bildquelle, oeffnet die Lightbox aber nicht automatisch. Fuer direkte UI-Nutzung wird ein Element im Slot `trigger` verwendet. Beim Oeffnen portalt sich die Lightbox auf `document.body`, damit Overlay und Bild nicht von App-Shell-Containern, `main`, Cards oder transformierten Demo-Frames abgeschnitten werden.
-
----
-
-## Beispiel: Dynamisch per JS
-
-```js
-const lightbox = document.createElement('x-lightbox');
-document.body.appendChild(lightbox);
-lightbox.open('/assets/bild.jpg');
-```
-
----
-
-## Styling & Theming
-
-```css
-x-lightbox {
-  --lightbox-bg: rgba(0,0,0,0.9);
-  --lightbox-padding: clamp(0.75rem, 2vw, 2rem);
-  --lightbox-radius: 0.75rem;
-}
-```
-
----
-
-## Accessibility
-- Fokus-Management, Keyboard-Navigation und Focus Return
-- `role="dialog"`, `aria-modal="true"` und geschlossener Zustand mit `aria-hidden` und `inert`
-- Bildskalierung via `object-fit: contain` und `max-height: calc(100dvh - padding)`
-
----
-
-*Letzte Aktualisierung: 16. Juli 2025*
-
-## Layout Display Media UX Profil
-
-`x-lightbox` stellt ab `WP-E11-12` das Profil `xtend.component.layout-display-media-ux-profile.v1` bereit. Die Komponente verbindet Overlay- und Media-Reife und nutzt den State-Key `xlightbox-open-<id>`.
-
-- Profil-Getter: `xtendLayoutDisplayMediaUxProfile`
-- Schedule: `media.lazy.load`
-- Events: `lightbox-opened`, `lightbox-closed`
-- Snapshot: `snapshot()`
-- CSS Parts: `overlay`, `content`, `close`, `media`
+- UX-Profil: `xtend.component.layout-display-media-ux-profile.v1`.
+- State-Key: `xlightbox-open-<id>`.
+- Zweck: Layout-, Display- und Media-UX-Profil für RMT Hosts, Fabric-Lanes und browsernahe Tests sichtbar machen.

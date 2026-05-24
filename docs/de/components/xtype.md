@@ -1,82 +1,29 @@
-# xtype – XTend Komponente
+# x-type
 
-> **Siehe auch:** [xwriter](./xwriter.md)
+Typografie-Hilfen und Textvarianten.
 
-## Übersicht
+## Wann einsetzen
 
-`<x-type>` ist eine Komponente für animierte Texteffekte (z.B. Typing Animation). Sie eignet sich für Hero-Bereiche, Überschriften und interaktive UI-Elemente.
+x-type ist Teil der öffentlichen XTend Komponentenbibliothek. Nutze die Komponente, wenn du eine lokale, themenfähige Web-Component ohne Framework-Bindung brauchst.
 
----
-
-## Features
-- Animierte Texteffekte (Typing, Loop)
-- Anpassbare Geschwindigkeit
-- Theming via CSS Custom Properties
-
----
-
-## Verwendung
+## Basisbeispiel
 
 ```html
-<x-type text="XTend rocks!" speed="80"></x-type>
+<x-type></x-type>
 ```
 
----
+## Integration
 
-## Attribute
-| Attribut    | Typ     | Beschreibung                        |
-|-------------|---------|-------------------------------------|
-| `text`      | String  | Anzuzeigender Text                   |
-| `speed`     | Number  | Geschwindigkeit in ms pro Zeichen    |
-| `loop`      | Boolean | Endlosschleife                       |
+Lade die Komponente über `xtend-loader.js` und `components/manifest.json`. Für RMT Hosts beschreibt ein Component Descriptor Attribute, Slots und Events; der Host Adapter materialisiert daraus das Custom Element.
 
----
+## Nächste Schritte
 
-## Events
-| Event         | Beschreibung                        |
-|---------------|-------------------------------------|
-| `done`        | Wird nach Animation ausgelöst        |
+- [Komponenten-Entwicklung](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
----
+## Öffentlicher Runtime-Vertrag
 
-## API
-- **Text dynamisch setzen:** `element.setAttribute('text', 'Hallo')`
-
----
-
-## Beispiel: Dynamisch per JS
-
-```js
-const type = document.createElement('x-type');
-type.setAttribute('text', 'Hallo Welt!');
-document.body.appendChild(type);
-```
-
----
-
-## Styling & Theming
-
-```css
-x-type {
-  --type-color: #007bff;
-}
-```
-
----
-
-## Accessibility
-- Semantisches HTML
-
----
-
-*Letzte Aktualisierung: 16. Juli 2025*
-
-## Layout Display Media UX Profil
-
-`x-type` stellt ab `WP-E11-12` das Profil `xtend.component.layout-display-media-ux-profile.v1` bereit. Die Komponente nutzt eine Shadow-DOM-Shell fuer Text und Cursor, kann idle hydriert werden und schreibt ihren aktuellen Text nach `xtype-current`.
-
-- Profil-Getter: `xtendLayoutDisplayMediaUxProfile`
-- Schedule: `component.idle.hydrate`
-- Events: `typing-started`, `typing-completed`, `text-erased`
-- Snapshot: `snapshot()`
-- CSS Parts: `root`, `text`, `cursor`
+- UX-Profil: `xtend.component.layout-display-media-ux-profile.v1`.
+- State-Key: `xtype-current`.
+- Zweck: Layout-, Display- und Media-UX-Profil für RMT Hosts, Fabric-Lanes und browsernahe Tests sichtbar machen.

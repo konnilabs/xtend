@@ -25,11 +25,16 @@ const RMT_TOOLING_DOCS_PACKAGE_SCRIPT = 'npm run test:rmt-tooling-docs';
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const DOC_PATHS = Object.freeze([
-  'docs/rmt-linter.md',
-  'docs/rmt-language-server.md',
-  'docs/quick-start-guide.md',
-  'docs/xtendrmt-native-authoring.md',
-  'docs/README.md',
+  'docs/de/rmt-linter.md',
+  'docs/en/rmt-linter.md',
+  'docs/de/rmt-language-server.md',
+  'docs/en/rmt-language-server.md',
+  'docs/de/quick-start-guide.md',
+  'docs/en/quick-start-guide.md',
+  'docs/de/xtendrmt-native-authoring.md',
+  'docs/en/xtendrmt-native-authoring.md',
+  'docs/de/README.md',
+  'docs/en/README.md',
   'docs/menu.json'
 ]);
 const MENU_SLUGS = Object.freeze([
@@ -62,11 +67,11 @@ function assertIncludesAll(context, source, entries, label) {
 }
 
 function runDocsContentChecks(context, rootDir) {
-  const rmtLinter = readText('docs/rmt-linter.md', rootDir);
-  const languageServer = readText('docs/rmt-language-server.md', rootDir);
-  const quickStart = readText('docs/quick-start-guide.md', rootDir);
-  const nativeAuthoring = readText('docs/xtendrmt-native-authoring.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const rmtLinter = readText('docs/de/rmt-linter.md', rootDir);
+  const languageServer = readText('docs/de/rmt-language-server.md', rootDir);
+  const quickStart = readText('docs/de/quick-start-guide.md', rootDir);
+  const nativeAuthoring = readText('docs/de/xtendrmt-native-authoring.md', rootDir);
+  const docsReadme = readText('docs/de/README.md', rootDir);
   const combined = [rmtLinter, languageServer, quickStart, nativeAuthoring].join('\n\n');
 
   assertIncludesAll(context, rmtLinter, [
@@ -107,7 +112,8 @@ function runDocsContentChecks(context, rootDir) {
     'rmt-language-regression',
     'rmt-component',
     'rmt-template-dom',
-    'Linter, LSP, Code Actions und Agent Report'
+    'Linter, LSP, Code',
+    'Agent Report'
   ], 'Native Authoring docs');
   assertIncludesAll(context, docsReadme, [
     './rmt-linter.md',
@@ -150,8 +156,8 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.suite === RMT_TOOLING_DOCS_SUITE_PATH, 'package metadata points to RMT tooling docs suite');
   context.assert(metadata && metadata.localGate === RMT_TOOLING_DOCS_LOCAL_GATE, 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_TOOLING_DOCS_PACKAGE_SCRIPT, 'package metadata declares package script');
-  context.assert(Array.isArray(metadata && metadata.docs) && metadata.docs.includes('docs/rmt-linter.md'), 'package metadata includes rmt-linter docs');
-  context.assert(Array.isArray(metadata && metadata.docs) && metadata.docs.includes('docs/rmt-language-server.md'), 'package metadata includes rmt-language-server docs');
+  context.assert(Array.isArray(metadata && metadata.docs) && metadata.docs.includes('docs/de/rmt-linter.md'), 'package metadata includes German rmt-linter docs');
+  context.assert(Array.isArray(metadata && metadata.docs) && metadata.docs.includes('docs/en/rmt-language-server.md'), 'package metadata includes English rmt-language-server docs');
   context.assert(Array.isArray(metadata && metadata.commands) && metadata.commands.includes('xt rmt lint <target> --agent'), 'package metadata includes agent CLI command');
   context.assert(Array.isArray(metadata && metadata.handoff) && metadata.handoff.includes(RMT_TOOLING_DOCS_NEXT_WORKPACKAGE), 'package metadata hands off to WP-E14-15');
   context.assert(packageManifest.scripts['test:rmt-tooling-docs'] === 'node scripts/run_xtend_tests.js rmt-tooling-docs', 'package exposes rmt-tooling-docs script');

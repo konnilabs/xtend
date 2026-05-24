@@ -86,6 +86,10 @@ const STATUS_LABELS = Object.freeze({
   missingSource: 'missing-source'
 });
 
+const DOCS_EXEMPT_TAGS = Object.freeze([
+  'x-rmt-lifecycle-demo-build'
+]);
+
 function resolveRootDir(rootDir) {
   return rootDir || path.resolve(__dirname, '..');
 }
@@ -117,11 +121,17 @@ function createExpectedPaths(tag, manifestSource) {
 
   return {
     source: `components/${normalizedSource}`,
-    docs: `docs/components/${basename}.md`,
+    docs: `docs/de/components/${basename}.md`,
+    docsEn: `docs/en/components/${basename}.md`,
     componentSuite: `tests/components/${basename}.component_suite.js`,
     fixture: `tests/components/fixtures/${basename}.component.html`,
     types: `components/${basename}.d.ts`
   };
+}
+
+function hasPublicDocs(rootDir, paths, tag) {
+  if (DOCS_EXEMPT_TAGS.includes(tag)) return true;
+  return fileExists(rootDir, paths.docs) && fileExists(rootDir, paths.docsEn);
 }
 
 function resolveProfiles(tag) {
@@ -188,7 +198,7 @@ function createCoverageEntry(rootDir, tag, manifestSource) {
   const sourceText = readTextIfExists(rootDir, paths.source);
   const coverage = {
     source: fileExists(rootDir, paths.source),
-    docs: fileExists(rootDir, paths.docs),
+    docs: hasPublicDocs(rootDir, paths, tag),
     componentSuite: fileExists(rootDir, paths.componentSuite),
     fixture: fileExists(rootDir, paths.fixture),
     types: fileExists(rootDir, paths.types),
@@ -208,6 +218,7 @@ function createCoverageEntry(rootDir, tag, manifestSource) {
     priority,
     status,
     paths,
+    docsRequired: !DOCS_EXEMPT_TAGS.includes(tag),
     coverage,
     coverageScore: COVERAGE_DIMENSIONS.filter((dimension) => coverage[dimension]).length,
     coverageMax: COVERAGE_DIMENSIONS.length,

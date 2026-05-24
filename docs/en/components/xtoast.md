@@ -1,78 +1,29 @@
-# xtoast - XTend Component
+# x-toast
 
-## Overview
+Temporary notifications.
 
-`<x-toast>` is the compact feedback component for temporary notices. Toasts are
-non-blocking, short-lived, and are preferably created through `window.XToast`
-in XTend Core.
+## When to use it
 
-## Usage
+x-toast is part of the public XTend component library. Use it when you need a local, themeable Web Component without a framework binding.
+
+## Basic example
 
 ```html
-<x-toast type="success" duration="3000">Saved</x-toast>
+<x-toast></x-toast>
 ```
 
-## Attributes
+## Integration
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `type` | string | `info`, `success`, `warning`, `error` |
-| `duration` | number | duration in milliseconds, `0` disables auto-close |
+Load the component through `xtend-loader.js` and `components/manifest.json`. For RMT hosts, a component descriptor describes attributes, slots and events; the host adapter materializes the Custom Element.
 
-## Events
+## Next steps
 
-| Event | Description |
-|-------|-------------|
-| `toast-shown` | after the toast is inserted |
-| `toast-dismissed` | after the toast is closed |
+- [Component development](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-Events provide:
+## Public Runtime Contract
 
-```js
-{
-  id: 'toast-abc123',
-  message: 'Saved',
-  type: 'success',
-  duration: 3000,
-  reason: 'timeout'
-}
-```
-
-## Runtime Contract
-
-- API-managed toasts are aggregated in `xstate.get('ui').toasts`
-- the component itself exposes lifecycle through events
-- the hidden global helper path lives in `api.js`, no longer in the component
-- the API toast stack uses `#xtoast-container` as a viewport-safe surface with
-  `width: min(24rem, calc(100vw - 2rem))`
-
-## Layout
-
-`window.XToast.show()` places API-managed toasts in a framework-owned stack.
-This stack stays bottom-right in the viewport, uses safe-area spacing, and
-stretches toasts within the available width instead of letting them overflow
-past the right viewport edge.
-
-Directly placed `<x-toast>` elements are container-friendly as well: the
-component uses `max-width: 100%`, wraps long content, and reserves space for
-the close button.
-
-## Feedback Status UX from WP-E11-09
-
-`<x-toast>` exposes `xtendFeedbackStatusUxProfile` with
-`xtend.component.feedback-status-ux-profile.v1`. The profile describes
-`x-toast` as a short-lived feedback shell with `toast-shown`,
-`toast-dismissed`, `xtoast-state-<id>`, `a11y.announce`, Fabric lane `a11y`,
-and RMT shell authoring.
-
-Timeouts provide `reason: 'timeout'`; manual dismiss paths provide
-`reason: 'button'` or `manual`. Event details include `source: 'x-toast'`,
-`stateKey`, and `dismissed`, so status and diagnostics lanes can unambiguously
-map toast lifecycles.
-
-## Notes
-
-- Toasts are semantically meant for short-lived, non-blocking notices.
-- Use `x-alert` for messages that should remain visible longer or carry more
-  important content.
-- `window.XToast.show()` is the preferred entry point for API-managed toasts.
+- UX profile: `xtend.component.feedback-status-ux-profile.v1`.
+- State key: `xtoast-state-<id>`.
+- Purpose: expose the Feedback and status UX profile to RMT hosts, Fabric lanes and browser-facing tests.

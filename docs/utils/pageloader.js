@@ -7,6 +7,107 @@ const DOCS_RMT_PARSEDOWN_ENDPOINT = 'xtendrmt.docs.parsedown.parse';
 const DOCS_RMT_DEFAULT_SHELL_TEMPLATE = 'docs.app.shell';
 const DOCS_RMT_DEFAULT_SEARCH_TEMPLATE = 'docs.header.search';
 const DOCS_RMT_DEFAULT_DIAGNOSTICS_SCHEDULE = 'docs.diagnostics.snapshot';
+const DOCS_RMT_PLAYGROUND_SCHEMA = 'xtend.docs.rmt-playground.v1';
+const DOCS_RMT_PLAYGROUND_DEBOUNCE_MS = 300;
+const DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS = 160;
+const DOCS_RMT_PLAYGROUND_MAX_SOURCE_BYTES = 64 * 1024;
+const DOCS_RMT_PLAYGROUND_RENDERER_MODULE = '/xtendrmt/rmt-dom-descriptor-renderer.js';
+const DOCS_RMT_PLAYGROUND_HYDRATION_TAGS = Object.freeze([
+  'x-alert',
+  'x-button',
+  'x-calendar',
+  'x-cards',
+  'x-checkbox',
+  'x-code',
+  'x-dialog',
+  'x-drawer',
+  'x-footer',
+  'x-form',
+  'x-header',
+  'x-hero',
+  'x-icon',
+  'x-input',
+  'x-lightbox',
+  'x-link',
+  'x-masonry',
+  'x-menu',
+  'x-modal',
+  'x-player',
+  'x-popover',
+  'x-progress',
+  'x-radio',
+  'x-router',
+  'x-section',
+  'x-select',
+  'x-side-panel',
+  'x-spinner',
+  'x-status',
+  'x-summary',
+  'x-surface-manager',
+  'x-surface-portal',
+  'x-surface-region',
+  'x-surface-window',
+  'x-tabs',
+  'x-textarea',
+  'x-theme',
+  'x-toast',
+  'x-tooltip',
+  'x-type',
+  'x-writer'
+]);
+const DOCS_RMT_PLAYGROUND_ISLANDS = Object.freeze({
+  editor: Object.freeze({
+    id: 'docs.rmt.playground.editor',
+    surfaceId: 'docs.rmt.playground.editor',
+    role: 'source',
+    lane: 'user-blocking',
+    schedule: 'docs.rmt-playground.editor.input'
+  }),
+  preview: Object.freeze({
+    id: 'docs.rmt.playground.preview',
+    surfaceId: 'docs.rmt.playground.preview',
+    role: 'preview',
+    lane: 'visible',
+    schedule: 'docs.rmt-playground.preview.hydrate'
+  }),
+  output: Object.freeze({
+    id: 'docs.rmt.playground.output',
+    surfaceId: 'docs.rmt.playground.output',
+    role: 'core-json',
+    lane: 'idle',
+    schedule: 'docs.rmt-playground.output.hydrate'
+  }),
+  diagnostics: Object.freeze({
+    id: 'docs.rmt.playground.diagnostics',
+    surfaceId: 'docs.rmt.playground.diagnostics',
+    role: 'diagnostics',
+    lane: 'diagnostics',
+    schedule: 'docs.rmt-playground.diagnostics.hydrate'
+  })
+});
+let docsRmtPlaygroundRendererPromise = null;
+const DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE = `template learn.rmt.playground {
+  state preview.message type object preserve {
+    initial {
+      id "hello"
+      text "Hello from the playground"
+      tone "success"
+    }
+  }
+
+  selector preview.message from state preview.message {
+    output PreviewMessage
+  }
+
+  surface preview.card kind card component x-status {
+    source selector preview.message
+    key message.id
+
+    lane visible weight 80 {
+      hydrate preview-card from selector preview.message
+    }
+  }
+}`;
 const DOCS_SHELL_SHADOW_STYLE_ID = 'xtend-docs-shell-shadow-styles';
 const DOCS_RMT_EXTENSION_SLOTS = Object.freeze([
   'docs.slot.content',
@@ -263,6 +364,274 @@ const DOCS_SHELL_SCOPED_CSS = `
   .docs-demo-surface-zone x-surface-window,
   .docs-demo-surface-zone x-side-panel {
     position: absolute;
+  }
+  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-shell-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    width: calc(100% - var(--docs-viewport-gutter, 0.5rem) - var(--docs-viewport-gutter, 0.5rem));
+    max-width: calc(100% - var(--docs-viewport-gutter, 0.5rem) - var(--docs-viewport-gutter, 0.5rem));
+  }
+  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-page-sidebar,
+  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-shell-toolbar {
+    display: none;
+  }
+  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-article-surface {
+    min-block-size: max(46rem, calc(100svh - var(--docs-header-reserved-block-size, 4rem) - var(--docs-footer-reserved-block-size, 4rem) - 2.5rem));
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] #md-content {
+    min-block-size: inherit;
+  }
+  .docs-rmt-playground {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    min-width: 0;
+    max-width: 100%;
+    min-height: max(46rem, calc(100svh - var(--docs-header-reserved-block-size, 4rem) - var(--docs-footer-reserved-block-size, 4rem) - 2.5rem));
+    height: max(46rem, calc(100svh - var(--docs-header-reserved-block-size, 4rem) - var(--docs-footer-reserved-block-size, 4rem) - 2.5rem));
+    box-sizing: border-box;
+  }
+  .docs-rmt-playground-manager {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-muted);
+    overflow: hidden;
+    --surface-manager-min-height: max(46rem, calc(100svh - var(--docs-header-reserved-block-size, 4rem) - var(--docs-footer-reserved-block-size, 4rem) - 2.5rem));
+    --surface-manager-bg: var(--surface-muted);
+    --surface-manager-color: var(--text-color);
+    --surface-window-bg: var(--xtend-surface, var(--section-bg));
+    --surface-window-color: var(--text-color);
+    --surface-window-border: var(--border-color);
+    --surface-window-chrome: color-mix(in srgb, var(--xtend-surface-muted, var(--surface-muted)) 88%, var(--xtend-surface, var(--section-bg)));
+    --surface-window-button-hover: color-mix(in srgb, var(--primary-color) 18%, var(--surface-muted));
+    --surface-window-active-border: var(--focus-color);
+    --surface-window-content-padding: 0;
+    --side-panel-bg: var(--xtend-surface, var(--section-bg));
+    --side-panel-color: var(--text-color);
+    --side-panel-border: var(--border-color);
+    --side-panel-chrome: color-mix(in srgb, var(--xtend-surface-muted, var(--surface-muted)) 88%, var(--xtend-surface, var(--section-bg)));
+    --side-panel-button-hover: color-mix(in srgb, var(--primary-color) 18%, var(--surface-muted));
+    --side-panel-content-padding: 0;
+    --xtend-form-control-surface: var(--docs-code-bg);
+    --xtend-form-control-text: #f8fafc;
+    --xtend-form-label-text: var(--text-color);
+    --xtend-form-helper-text: var(--muted-text-color);
+    --xtend-form-border-color: color-mix(in srgb, var(--border-color) 72%, transparent);
+    --xtend-form-control-shadow: none;
+  }
+  .docs-rmt-playground-manager x-surface-window,
+  .docs-rmt-playground-manager x-side-panel {
+    max-width: 100%;
+    max-height: 100%;
+    contain: layout paint;
+  }
+  .docs-rmt-playground-editor,
+  .docs-rmt-playground-panel {
+    display: grid;
+    gap: 0;
+    min-width: 0;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .docs-rmt-playground-editor {
+    grid-template-rows: minmax(0, 1fr) minmax(3.35rem, auto);
+  }
+  .docs-rmt-playground-editor x-textarea {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    align-self: stretch;
+    padding: 0.85rem 0.85rem 0;
+    box-sizing: border-box;
+    --textarea-resize: none;
+    --xtend-textarea-code-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --xtend-form-control-line-height: 1.45;
+  }
+  .docs-rmt-playground-editor x-textarea::part(editor) {
+    height: 100%;
+    min-height: 0;
+  }
+  .docs-rmt-playground-editor x-textarea::part(control),
+  .docs-rmt-playground-editor x-textarea::part(highlight),
+  .docs-rmt-playground-editor x-textarea::part(highlight-code) {
+    font-family: var(--xtend-textarea-code-font-family);
+    line-height: var(--xtend-form-control-line-height);
+    tab-size: 2;
+  }
+  .docs-rmt-playground-editor x-textarea::part(control) {
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
+    resize: none;
+    overflow: auto;
+  }
+  .docs-rmt-playground-actions {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 3.35rem;
+    padding: 0.55rem 0.85rem 0.85rem;
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+    background: color-mix(in srgb, var(--xtend-surface-muted, var(--surface-muted)) 84%, transparent);
+    box-sizing: border-box;
+    flex: none;
+  }
+  .docs-rmt-playground-actions x-button {
+    width: max-content;
+    min-width: 8.5rem;
+    justify-self: start;
+  }
+  .docs-rmt-playground-status {
+    justify-self: end;
+    color: var(--muted-text-color);
+    font-size: 0.86rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    text-align: end;
+  }
+  .docs-rmt-playground-preview,
+  .docs-rmt-playground-output,
+  .docs-rmt-playground-diagnostics {
+    min-height: 8rem;
+    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: auto;
+  }
+  .docs-rmt-playground-preview {
+    display: grid;
+    gap: 0.7rem;
+    align-content: start;
+    padding: 0.85rem;
+  }
+  .docs-rmt-playground-preview-app {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    min-width: 0;
+    min-height: 100%;
+  }
+  .docs-rmt-playground-preview-app[data-bounded="true"] {
+    position: relative;
+    display: block;
+    min-height: 38rem;
+  }
+  .docs-rmt-playground-preview-surface {
+    min-width: 0;
+  }
+  .docs-rmt-playground-preview-surface > * {
+    width: 100%;
+  }
+  .docs-rmt-playground-preview-surface[data-bounded="true"] {
+    position: absolute;
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 0.4rem;
+  }
+  .docs-rmt-playground-preview-card {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: var(--xtend-surface, var(--section-bg));
+  }
+  .docs-rmt-playground-preview-card strong {
+    color: var(--text-color);
+  }
+  .docs-rmt-playground-preview-component {
+    display: grid;
+    gap: 0.55rem;
+  }
+  .docs-rmt-playground-preview-component > * {
+    width: 100%;
+  }
+  .docs-rmt-playground-output {
+    overflow: auto;
+    margin: 0;
+    padding: 0.85rem;
+    border-radius: 7px;
+    background: var(--docs-code-bg);
+    color: #f8fafc;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    white-space: pre;
+  }
+  .docs-rmt-playground-diagnostics {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+    padding: 0.85rem;
+  }
+  .docs-rmt-playground-diagnostic {
+    display: grid;
+    gap: 0.18rem;
+    padding: 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: var(--xtend-surface, var(--section-bg));
+  }
+  .docs-rmt-playground-diagnostic[data-severity="error"] {
+    border-color: color-mix(in srgb, #dc2626 56%, var(--border-color));
+  }
+  .docs-rmt-playground-diagnostic small {
+    color: var(--muted-text-color);
+  }
+  .docs-rmt-playground-article,
+  .docs-rmt-playground-related {
+    display: block;
+    height: 100%;
+    min-height: 0;
+    max-width: 100%;
+    overflow: auto;
+    padding: 0.95rem;
+    box-sizing: border-box;
+    line-height: 1.55;
+  }
+  .docs-rmt-playground-article > :first-child,
+  .docs-rmt-playground-related > :first-child {
+    margin-top: 0;
+  }
+  .docs-rmt-playground-article > :last-child,
+  .docs-rmt-playground-related > :last-child {
+    margin-bottom: 0;
+  }
+  .docs-rmt-playground-related .docs-related-list {
+    margin-top: 0.7rem;
+  }
+  .docs-rmt-playground-empty-related {
+    color: var(--muted-text-color);
+    margin: 0;
+  }
+  @media (max-width: 980px) {
+    xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-shell-layout {
+      width: 100%;
+      max-width: 100%;
+      margin-inline: 0;
+    }
+    xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-article-surface,
+    .docs-rmt-playground,
+    .docs-rmt-playground-manager {
+      border-radius: 0;
+    }
   }
   .download-link {
     float: none;
@@ -592,11 +961,55 @@ function completeDocsLocaleTransition(locale, slug, detail = {}) {
   return true;
 }
 
+function getDocsBasePath() {
+  const raw = String(window.xtendDocsBasePath || '').trim().replace(/\/+$/, '');
+  if (!raw || raw === '/') return '';
+  return raw.startsWith('/') ? raw : '/' + raw;
+}
+
+function stripDocsBasePath(value) {
+  let raw = String(value || '').trim();
+  if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
+    try {
+      raw = new URL(raw, location.origin).pathname;
+    } catch (error) {
+      raw = '';
+    }
+  }
+  raw = raw.split('?')[0].replace(/^#\/?/, '/');
+  if (!raw.startsWith('/')) raw = '/' + raw;
+  raw = raw.replace(/^\/+index\.php\/?/, '/');
+  const base = getDocsBasePath();
+  if (base && (raw === base || raw.startsWith(base + '/'))) {
+    raw = raw.slice(base.length) || '/';
+  }
+  return raw.replace(/^\/+index\.php\/?/, '/');
+}
+
+function getDocsRouteSource(rawValue) {
+  if (rawValue !== undefined && rawValue !== null && String(rawValue).trim() !== '') {
+    return rawValue;
+  }
+  return location.hash || location.pathname || '/';
+}
+
+function getDocsBrowserPath(localizedPath) {
+  const base = getDocsBasePath();
+  const path = String(localizedPath || '/').startsWith('/')
+    ? String(localizedPath || '/')
+    : '/' + String(localizedPath || '/');
+  return (base || '') + path;
+}
+
+function normalizeDocsPathForCompare(path) {
+  const normalized = String(path || '/').replace(/\/+$/, '');
+  return normalized || '/';
+}
+
 function parseDocsRoutePath(rawValue) {
   const config = getDocsI18nConfig();
-  const raw = String(rawValue || location.hash || '')
+  const raw = stripDocsBasePath(getDocsRouteSource(rawValue))
     .split('?')[0]
-    .replace(/^#\/?/, '')
     .replace(/^\/+/, '');
   if (!raw || raw === '/') {
     return { locale: getCurrentDocsLocale(), slug: 'readme', localized: true };
@@ -663,7 +1076,7 @@ function getCurrentDocsLocale() {
 }
 
 function getLocalizedDocsPath(slug, locale = getCurrentDocsLocale()) {
-  return '/' + normalizeDocsLocale(locale) + '/' + (slug || 'readme');
+  return getDocsBrowserPath('/' + normalizeDocsLocale(locale) + '/' + (slug || 'readme'));
 }
 
 function normalizeDocsRouteHref(slugOrHref, locale = getCurrentDocsLocale()) {
@@ -1038,7 +1451,7 @@ function createDocsComponentDemos() {
     attributes: { columns: '2', gap: '0.6rem' },
     children: [{ tag: 'div', children: ['Window'] }, { tag: 'div', children: ['Panel'] }, { tag: 'div', children: ['Overlay'] }]
   });
-  const lightboxLogoUrl = getDocsAssetUrl('lightboxLogo', 'index.php?xtend-docs-asset=xtend-logo.png');
+  const lightboxLogoUrl = getDocsAssetUrl('lightboxLogo', getDocsBasePath() + '/index.php?xtend-docs-asset=xtend-logo.png');
   add('components-xlightbox', 'x-lightbox', 'x-lightbox', 'Medien-Fokus ohne Shell-Kontext zu verlieren.', `<x-lightbox id="docs-demo-lightbox" src="${escapeDocsHtmlAttribute(lightboxLogoUrl)}" alt="XTend Logo"><x-button slot="trigger" variant="secondary">Logo ansehen</x-button></x-lightbox>`, {
     attributes: { id: 'docs-demo-lightbox', src: lightboxLogoUrl, alt: 'XTend Logo' },
     children: [{ tag: 'x-button', attributes: { slot: 'trigger', variant: 'secondary' }, children: ['Logo ansehen'] }]
@@ -2380,7 +2793,7 @@ async function loadMenuConfig() {
 }
 
 function getCurrentDocsSlug() {
-  const parsed = parseDocsRoutePath(location.hash);
+  const parsed = parseDocsRoutePath();
   return parsed.slug === '' || parsed.slug === '/' ? 'readme' : parsed.slug;
 }
 
@@ -2388,6 +2801,7 @@ function resolveDocsMenuGroup(entry) {
   const slug = entry && entry.slug ? String(entry.slug) : '';
   if (entry && entry.group) return String(entry.group);
   if (slug === 'readme' || slug === 'about' || slug === 'best-practices' || slug === 'enterprise-adoption') return 'start';
+  if (slug === 'learn-rmt' || slug.startsWith('learn-rmt-')) return 'learn-rmt';
   if (slug.startsWith('components')) return 'components';
   if (slug.startsWith('xtendrmt') || slug.startsWith('rmt-') || slug.includes('rmt-production') || slug.includes('parsedown')) return 'rmt';
   if (slug.includes('performance') || slug.includes('hydration') || slug.includes('a11y') || slug.includes('screenreader') || slug.includes('motion-contrast')) return 'quality';
@@ -2402,6 +2816,7 @@ function getDocsMenuGroupLabel(groupId) {
   const labels = {
     de: {
       start: 'Start',
+      'learn-rmt': 'Learn RMT',
       core: 'Core',
       platform: 'Platform',
       components: 'Komponenten',
@@ -2412,6 +2827,7 @@ function getDocsMenuGroupLabel(groupId) {
     },
     en: {
       start: 'Start',
+      'learn-rmt': 'Learn RMT',
       core: 'Core',
       platform: 'Platform',
       components: 'Components',
@@ -2427,6 +2843,7 @@ function getDocsMenuGroupLabel(groupId) {
 function getDocsMenuGroupIcon(groupId) {
   const icons = {
     start: 'home',
+    'learn-rmt': 'book-open',
     core: 'package',
     platform: 'layers',
     components: 'boxes',
@@ -2448,6 +2865,8 @@ function getDocsMenuEntryIcon(entry) {
     'quick-start-guide': 'book-open',
     about: 'info',
     'best-practices': 'success',
+    'learn-rmt': 'book-open',
+    'learn-rmt-playground': 'terminal',
     manifest: 'file',
     api: 'terminal',
     'xtend-loader': 'download',
@@ -2472,6 +2891,7 @@ function getDocsMenuEntryIcon(entry) {
   if (slug.startsWith('components-xcode')) return 'code';
   if (slug.startsWith('components-xicon') || slug.startsWith('components-xtheme')) return 'palette';
   if (slug.startsWith('components-xstate')) return 'database';
+  if (slug.startsWith('learn-rmt-')) return slug.includes('playground') ? 'terminal' : 'book-open';
   if (slug.startsWith('components-xrouter') || slug.startsWith('xtendrmt') || slug.startsWith('rmt-')) return 'route';
   if (slug.startsWith('components-')) return 'component';
   if (slug.includes('security') || slug.includes('trusted-dom') || slug.includes('supply-chain') || slug.includes('csp') || slug.includes('network')) return 'shield-check';
@@ -2501,7 +2921,7 @@ function computeDocsMenuRank(entry) {
   if (['enterprise-adoption', 'best-practices', 'component-platform', 'performance', 'trusted-dom-sanitizing'].includes(slug)) return 88;
   if (slug.startsWith('components-')) return 58;
   if (entry && entry.parent) return 66;
-  return { start: 82, core: 78, platform: 74, components: 72, rmt: 76, quality: 72, security: 72, release: 64 }[group] || 60;
+  return { start: 82, 'learn-rmt': 80, core: 78, platform: 74, components: 72, rmt: 76, quality: 72, security: 72, release: 64 }[group] || 60;
 }
 
 function getDocsMenuTier(entry) {
@@ -2541,7 +2961,7 @@ function sortDocsMenuEntries(entries = []) {
 }
 
 function groupDocsMenuEntries(entries = []) {
-  const order = ['start', 'core', 'platform', 'components', 'rmt', 'quality', 'security', 'release'];
+  const order = ['start', 'learn-rmt', 'core', 'platform', 'components', 'rmt', 'quality', 'security', 'release'];
   const groups = new Map(order.map((id) => [id, { id, label: getDocsMenuGroupLabel(id), entries: [] }]));
   const normalizedEntries = entries
     .filter((entry) => entry && entry.slug)
@@ -2710,7 +3130,8 @@ function ensureMenuBinding() {
   }
   window.__xtendDocsMenuBound = true;
   loadMenuConfig().then(renderMenu);
-  window.addEventListener('hashchange', () => syncActiveHeaderLink(getCurrentDocsSlug()));
+  window.addEventListener('popstate', () => syncActiveHeaderLink(getCurrentDocsSlug()));
+  window.addEventListener('xrouter-after-navigate', () => syncActiveHeaderLink(getCurrentDocsSlug()));
   window.addEventListener('xtend-docs-locale-changed', (event) => {
     const locale = event && event.detail && event.detail.locale ? event.detail.locale : getCurrentDocsLocale();
     const slug = getCurrentDocsSlug();
@@ -2779,7 +3200,7 @@ function updateDocsLocaleUi(locale = getCurrentDocsLocale(), options = {}) {
 function navigateDocsLocale(locale, source = 'user') {
   const normalized = normalizeDocsLocale(locale);
   const slug = getCurrentDocsSlug();
-  const currentRoute = parseDocsRoutePath(location.hash);
+  const currentRoute = parseDocsRoutePath();
   if (source === 'user') {
     window.__xtendDocsLocaleUserSelected = true;
     writeStoredDocsLocale(normalized);
@@ -2793,9 +3214,15 @@ function navigateDocsLocale(locale, source = 'user') {
   syncLegacyDocsGlobals(normalized, { slug });
   prefetchDocsLocalePage(slug, normalized).catch(() => {});
   window.__xtendDocsPendingLocaleRoute = window.__xtendDocsLocaleTransition;
-  const nextHash = '#' + getLocalizedDocsPath(slug, normalized);
-  if (location.hash !== nextHash) {
-    location.hash = nextHash;
+  const nextPath = getLocalizedDocsPath(slug, normalized);
+  if (normalizeDocsPathForCompare(location.pathname) !== normalizeDocsPathForCompare(nextPath)) {
+    const router = document.querySelector('x-router');
+    if (router && typeof router.navigate === 'function') {
+      router.navigate(nextPath, { source: 'locale-change' });
+    } else {
+      history.pushState({ source: 'locale-change', locale: normalized, slug }, '', nextPath);
+      window.dispatchEvent(new PopStateEvent('popstate', { state: history.state }));
+    }
   } else {
     const page = document.querySelector('xtend-doc-page');
     if (page && typeof page.updateRoute === 'function') {
@@ -2826,8 +3253,8 @@ function ensureDocsLanguageSelectBinding() {
     const value = event.detail && event.detail.value ? event.detail.value : select.getAttribute('value');
     navigateDocsLocale(value, 'user');
   });
-  window.addEventListener('hashchange', () => {
-    const parsed = parseDocsRoutePath(location.hash);
+  window.addEventListener('popstate', () => {
+    const parsed = parseDocsRoutePath();
     updateDocsLocaleUi(parsed.locale, {
       publish: false,
       busy: Boolean(window.__xtendDocsLocaleTransition),
@@ -3203,16 +3630,1054 @@ function renderDocsComponentDemo(demoSlot, slug) {
   }
 }
 
+function createDocsRmtPlaygroundElement(tagName, attributes = {}, text = '') {
+  const element = document.createElement(tagName);
+  Object.entries(attributes).forEach(([name, value]) => {
+    if (value === false || value === null || value === undefined) return;
+    element.setAttribute(name, value === true ? '' : String(value));
+  });
+  if (text !== '') element.textContent = String(text);
+  return element;
+}
+
+function createDocsRmtPlaygroundButton(label, iconName, attributes = {}) {
+  const button = createDocsRmtPlaygroundElement('x-button', attributes);
+  button.appendChild(createDocsRmtPlaygroundElement('x-icon', {
+    name: iconName,
+    pack: 'lucide',
+    decorative: '',
+    size: '1rem'
+  }));
+  button.appendChild(createDocsRmtPlaygroundElement('span', {}, label));
+  return button;
+}
+
+function getDocsRmtPlaygroundCopy(locale = getCurrentDocsLocale()) {
+  const copy = {
+    de: {
+      title: 'RMT Playground',
+      workbench: 'RMT Playground Arbeitsbereich',
+      info: 'Anleitung',
+      related: 'Weiterlesen',
+      editor: 'RMT-Quelle',
+      diagnostics: 'Diagnosen',
+      output: 'Core-JSON',
+      preview: 'Sichere Preview',
+      run: 'Kompilieren',
+      resetLayout: 'Layout zurücksetzen',
+      ready: 'Bereit',
+      analyzing: 'LSP prüft...',
+      compiling: 'Compiler läuft...',
+      compiled: 'Kompiliert',
+      blocked: 'Preview blockiert, bis die Quelle sicher kompiliert.',
+      noDiagnostics: 'Keine Diagnosen.',
+      noPreview: 'Keine Surface in der kompilierten Ausgabe gefunden.',
+      noRelated: 'Keine weiteren Links für diese Route.',
+      tooLarge: 'Die Quelle ist größer als 64 KB.',
+      failed: 'Kompilierung fehlgeschlagen.'
+    },
+    en: {
+      title: 'RMT Playground',
+      workbench: 'RMT Playground workspace',
+      info: 'Guide',
+      related: 'Read further',
+      editor: 'RMT source',
+      diagnostics: 'Diagnostics',
+      output: 'Core JSON',
+      preview: 'Safe preview',
+      run: 'Compile',
+      resetLayout: 'Reset layout',
+      ready: 'Ready',
+      analyzing: 'LSP checking...',
+      compiling: 'Compiler running...',
+      compiled: 'Compiled',
+      blocked: 'Preview is blocked until the source compiles safely.',
+      noDiagnostics: 'No diagnostics.',
+      noPreview: 'No surface found in the compiled output.',
+      noRelated: 'No further links for this route.',
+      tooLarge: 'Source is larger than 64 KB.',
+      failed: 'Compilation failed.'
+    }
+  };
+  return copy[normalizeDocsLocale(locale)] || copy.en;
+}
+
+function getDocsRmtPlaygroundEndpoint() {
+  const base = getDocsBasePath();
+  return `${base || ''}/index.php?xtend-rmt-playground=compile`;
+}
+
+function getDocsRmtPlaygroundDiagnosticsEndpoint() {
+  const base = getDocsBasePath();
+  return `${base || ''}/index.php?xtend-rmt-playground=diagnostics`;
+}
+
+function getDocsRmtPlaygroundSourceBytes(source) {
+  const text = String(source || '');
+  if (window.TextEncoder) return new TextEncoder().encode(text).length;
+  return unescape(encodeURIComponent(text)).length;
+}
+
+function hashDocsRmtPlaygroundSource(source) {
+  const text = String(source == null ? '' : source);
+  let hash = 2166136261;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+function docsRmtPlaygroundIsland(key) {
+  return DOCS_RMT_PLAYGROUND_ISLANDS[key] || null;
+}
+
+function docsRmtPlaygroundIslandSelector(island) {
+  return island && island.id ? `[data-rmt-hydration-island="${island.id}"]` : '';
+}
+
+function decorateDocsRmtPlaygroundIslandAttributes(attributes = {}, key, state = 'idle') {
+  const island = docsRmtPlaygroundIsland(key);
+  if (!island) return attributes;
+  return {
+    ...attributes,
+    'data-rmt-hydration-island': island.id,
+    'data-rmt-surface-role': island.role,
+    'data-rmt-hydration-state': state,
+    'data-fabric-lane': island.lane,
+    'data-rmt-hydrate-schedule': island.schedule
+  };
+}
+
+function dispatchDocsRmtPlaygroundCrossSurfaceEvent(root, name, detail = {}) {
+  const eventDetail = {
+    schema: 'xtend.docs.rmt-playground.cross-surface-event.v1',
+    name,
+    source: 'docs-rmt-playground',
+    emittedAt: new Date().toISOString(),
+    ...detail
+  };
+  const event = new CustomEvent('docs-rmt-playground-cross-surface-event', {
+    bubbles: true,
+    composed: true,
+    detail: eventDetail
+  });
+  if (root && typeof root.dispatchEvent === 'function') root.dispatchEvent(event);
+  window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-cross-surface-event', { detail: eventDetail }));
+  return eventDetail;
+}
+
+function updateDocsRmtPlaygroundIslandState(root, key, state, detail = {}) {
+  const island = docsRmtPlaygroundIsland(key);
+  if (!root || !island) return null;
+  const target = typeof root.querySelector === 'function'
+    ? root.querySelector(docsRmtPlaygroundIslandSelector(island))
+    : null;
+  const sourceHash = detail && detail.sourceHash ? String(detail.sourceHash) : '';
+  if (target) {
+    target.setAttribute('data-rmt-hydration-state', state);
+    target.setAttribute('data-rmt-hydrated-at', new Date().toISOString());
+    target.setAttribute('data-rmt-hydration-reason', detail.reason || state);
+    if (sourceHash) target.setAttribute('data-source-hash', sourceHash);
+  }
+  dispatchDocsLaneComplete({
+    lane: island.lane,
+    schedule: island.schedule,
+    operation: `rmt-playground.${key}.${state}`,
+    hydrationIsland: island.id,
+    surfaceId: island.surfaceId,
+    sourceHash,
+    reason: detail.reason || state
+  });
+  return dispatchDocsRmtPlaygroundCrossSurfaceEvent(root, 'island-state-changed', {
+    island: island.id,
+    surfaceId: island.surfaceId,
+    role: island.role,
+    lane: island.lane,
+    schedule: island.schedule,
+    state,
+    sourceHash
+  });
+}
+
+function dispatchDocsRmtPlaygroundSourceChanged(root, source = '', reason = 'editor-input') {
+  const sourceText = String(source == null ? '' : source);
+  const sourceHash = hashDocsRmtPlaygroundSource(sourceText);
+  updateDocsRmtPlaygroundIslandState(root, 'editor', 'dirty', { reason, sourceHash });
+  updateDocsRmtPlaygroundIslandState(root, 'preview', 'stale', { reason, sourceHash });
+  return dispatchDocsRmtPlaygroundCrossSurfaceEvent(root, 'source-changed', {
+    sourceHash,
+    sourceBytes: getDocsRmtPlaygroundSourceBytes(sourceText),
+    lane: DOCS_RMT_PLAYGROUND_ISLANDS.editor.lane,
+    schedule: DOCS_RMT_PLAYGROUND_ISLANDS.editor.schedule,
+    sourceIsland: DOCS_RMT_PLAYGROUND_ISLANDS.editor.id,
+    affectedIslands: [
+      DOCS_RMT_PLAYGROUND_ISLANDS.preview.id,
+      DOCS_RMT_PLAYGROUND_ISLANDS.output.id,
+      DOCS_RMT_PLAYGROUND_ISLANDS.diagnostics.id
+    ]
+  });
+}
+
+function getDocsRmtPlaygroundNativeTextarea(editor) {
+  if (!editor || !editor.shadowRoot || typeof editor.shadowRoot.querySelector !== 'function') return null;
+  return editor.shadowRoot.querySelector('textarea, [part~="control"]');
+}
+
+function getDocsRmtPlaygroundEditorValue(editor) {
+  if (!editor) return DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE;
+  const control = getDocsRmtPlaygroundNativeTextarea(editor);
+  if (control && typeof control.value === 'string') return control.value;
+  const value = typeof editor.value === 'string'
+    ? editor.value
+    : editor.getAttribute('value');
+  return value == null ? '' : String(value);
+}
+
+function setDocsRmtPlaygroundEditorValue(editor, value) {
+  if (!editor) return;
+  const next = value == null ? '' : String(value);
+  const control = getDocsRmtPlaygroundNativeTextarea(editor);
+  if (control && control.value !== next) control.value = next;
+  editor.setAttribute('value', next);
+  try {
+    editor.value = next;
+  } catch (error) {
+    editor.__xtendDocsRmtPlaygroundValue = next;
+  }
+}
+
+function setDocsRmtPlaygroundStatus(statusNode, message, state = 'idle') {
+  if (!statusNode) return;
+  statusNode.textContent = message || '';
+  statusNode.setAttribute('data-state', state);
+}
+
+function normalizeDocsRmtPlaygroundDiagnosticSeverity(value) {
+  if (value === 1 || value === '1') return 'error';
+  if (value === 2 || value === '2') return 'warning';
+  if (value === 3 || value === '3') return 'info';
+  if (value === 4 || value === '4') return 'hint';
+  const severity = String(value || 'info').toLowerCase();
+  return ['error', 'warning', 'info', 'hint'].includes(severity) ? severity : 'info';
+}
+
+function normalizeDocsRmtPlaygroundDiagnosticItem(diagnostic = {}) {
+  return {
+    ...diagnostic,
+    severity: normalizeDocsRmtPlaygroundDiagnosticSeverity(diagnostic && diagnostic.severity),
+    source: diagnostic && diagnostic.source || 'xtend-rmt-language-server',
+    code: diagnostic && diagnostic.code || 'rmt.diagnostic',
+    message: diagnostic && diagnostic.message || 'RMT diagnostic',
+    range: diagnostic && diagnostic.range || null
+  };
+}
+
+function setDocsRmtPlaygroundEditorDiagnosticState(root, diagnostics = []) {
+  const editor = root && root.querySelector ? root.querySelector('[data-rmt-playground-editor]') : null;
+  if (!editor) return;
+  const items = Array.isArray(diagnostics) ? diagnostics.map(normalizeDocsRmtPlaygroundDiagnosticItem) : [];
+  const firstError = items.find((diagnostic) => diagnostic.severity === 'error');
+  editor.toggleAttribute('invalid', Boolean(firstError));
+  if (firstError) {
+    editor.setAttribute('aria-invalid', 'true');
+    editor.setAttribute('title', firstError.message);
+  } else {
+    editor.setAttribute('aria-invalid', 'false');
+    editor.removeAttribute('title');
+  }
+}
+
+function renderDocsRmtPlaygroundDiagnostics(target, diagnostics = [], copy = getDocsRmtPlaygroundCopy()) {
+  if (!target) return;
+  const items = Array.isArray(diagnostics)
+    ? diagnostics.map(normalizeDocsRmtPlaygroundDiagnosticItem)
+    : [];
+  if (!items.length) {
+    target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.noDiagnostics));
+    return;
+  }
+  const nodes = items.map((diagnostic) => {
+    const severity = normalizeDocsRmtPlaygroundDiagnosticSeverity(diagnostic && diagnostic.severity);
+    const message = String(diagnostic && diagnostic.message || 'Diagnostic');
+    const range = diagnostic && diagnostic.range && diagnostic.range.start ? diagnostic.range.start : null;
+    const location = range
+      ? `L${Number(range.line || 0) + 1}:C${Number(range.character || 0) + 1}`
+      : '';
+    const card = createDocsRmtPlaygroundElement('article', {
+      class: 'docs-rmt-playground-diagnostic',
+      'data-severity': severity
+    });
+    card.appendChild(createDocsRmtPlaygroundElement('strong', {}, severity.toUpperCase()));
+    card.appendChild(createDocsRmtPlaygroundElement('span', {}, message));
+    card.appendChild(createDocsRmtPlaygroundElement('small', {}, [diagnostic && diagnostic.code, location].filter(Boolean).join(' · ')));
+    return card;
+  });
+  target.replaceChildren(...nodes);
+}
+
+function formatDocsRmtPlaygroundCore(payload = {}) {
+  if (payload && typeof payload.coreJson === 'string' && payload.coreJson.trim() !== '') {
+    try {
+      return JSON.stringify(JSON.parse(payload.coreJson), null, 2);
+    } catch (error) {
+      return payload.coreJson;
+    }
+  }
+  return JSON.stringify({
+    schema: payload.schema || DOCS_RMT_PLAYGROUND_SCHEMA,
+    ok: payload.ok === true,
+    status: payload.status || 'unknown',
+    diagnostics: Array.isArray(payload.diagnostics) ? payload.diagnostics : []
+  }, null, 2);
+}
+
+function setDocsRmtPlaygroundOutputPending(root, source = '', copy = getDocsRmtPlaygroundCopy()) {
+  const output = root && root.querySelector ? root.querySelector('[data-rmt-playground-output]') : null;
+  if (!output) return;
+  const sourceText = String(source == null ? '' : source);
+  const sourceHash = hashDocsRmtPlaygroundSource(sourceText);
+  output.textContent = JSON.stringify({
+    schema: DOCS_RMT_PLAYGROUND_SCHEMA,
+    ok: false,
+    status: 'pending_compile',
+    message: copy && copy.compiling ? copy.compiling : 'Compiler running...',
+    sourceBytes: getDocsRmtPlaygroundSourceBytes(sourceText),
+    sourceHash
+  }, null, 2);
+  output.setAttribute('data-output-state', 'pending');
+  output.setAttribute('data-source-hash', sourceHash);
+  updateDocsRmtPlaygroundIslandState(root, 'output', 'hydrating', { reason: 'pending-compile', sourceHash });
+}
+
+function isDocsRmtPlaygroundDescriptorPreview(preview = {}) {
+  return Boolean(
+    preview
+    && typeof preview === 'object'
+    && preview.renderMode === 'dom_descriptor'
+    && preview.descriptor
+    && typeof preview.descriptor === 'object'
+  );
+}
+
+function collectDocsRmtPlaygroundDescriptorTags(descriptor, tags = new Set()) {
+  if (!descriptor || typeof descriptor !== 'object') return tags;
+  const tag = String(descriptor.tag || '').toLowerCase();
+  if (/^[a-z][a-z0-9]*-[a-z0-9][a-z0-9-]*$/.test(tag)) tags.add(tag);
+  const children = Array.isArray(descriptor.children || descriptor.nodes)
+    ? descriptor.children || descriptor.nodes
+    : [];
+  children.forEach((child) => collectDocsRmtPlaygroundDescriptorTags(child, tags));
+  return tags;
+}
+
+function ensureDocsRmtPlaygroundRenderer() {
+  if (docsRmtPlaygroundRendererPromise) return docsRmtPlaygroundRendererPromise;
+  const moduleUrl = new URL(DOCS_RMT_PLAYGROUND_RENDERER_MODULE, window.location.origin).href;
+  docsRmtPlaygroundRendererPromise = import(moduleUrl).then((moduleApi) => {
+    const factory = moduleApi.createRmtDomDescriptorRenderer
+      || (moduleApi.default && moduleApi.default.createRmtDomDescriptorRenderer);
+    if (typeof factory !== 'function') {
+      throw new Error('RMT DOM Descriptor Renderer is not available.');
+    }
+    return factory({ documentTarget: document });
+  });
+  return docsRmtPlaygroundRendererPromise;
+}
+
+function normalizeDocsRmtPlaygroundPreviewBounds(bounds = {}) {
+  if (!bounds || typeof bounds !== 'object') return null;
+  const normalized = {
+    x: Number(bounds.x),
+    y: Number(bounds.y),
+    width: Number(bounds.width),
+    height: Number(bounds.height)
+  };
+  if (!Number.isFinite(normalized.width) || !Number.isFinite(normalized.height)) return null;
+  normalized.x = Number.isFinite(normalized.x) ? normalized.x : 0;
+  normalized.y = Number.isFinite(normalized.y) ? normalized.y : 0;
+  normalized.width = Math.max(80, normalized.width);
+  normalized.height = Math.max(60, normalized.height);
+  return normalized;
+}
+
+function createDocsRmtPlaygroundDescriptorPreviewFrame(surface = {}) {
+  const preview = surface && surface.componentPreview && typeof surface.componentPreview === 'object'
+    ? surface.componentPreview
+    : null;
+  if (!isDocsRmtPlaygroundDescriptorPreview(preview)) return null;
+  const frame = createDocsRmtPlaygroundElement('div', {
+    class: 'docs-rmt-playground-preview-component-frame',
+    'data-rmt-playground-descriptor-preview': '',
+    'data-rmt-playground-preview-tag': String(preview.tag || surface.component || '').toLowerCase()
+  });
+  const bounds = normalizeDocsRmtPlaygroundPreviewBounds(surface.bounds);
+  if (bounds) {
+    frame.setAttribute('data-bounded', 'true');
+    frame.style.left = `${bounds.x}px`;
+    frame.style.top = `${bounds.y}px`;
+    frame.style.width = `${bounds.width}px`;
+    frame.style.height = `${bounds.height}px`;
+    frame.__xtendRmtPreviewBounds = bounds;
+  }
+  frame.__xtendRmtDescriptor = preview.descriptor;
+  frame.__xtendRmtDescriptorOptions = {
+    model: preview.model && typeof preview.model === 'object' ? preview.model : {},
+    source: {
+      inputKind: 'docs-rmt-playground-preview',
+      surfaceId: surface.surfaceId || surface.id || ''
+    }
+  };
+  return frame;
+}
+
+function renderDocsRmtPlaygroundDescriptorPreviews(target) {
+  if (!target) return Promise.resolve();
+  const frames = Array.from(target.querySelectorAll('[data-rmt-playground-descriptor-preview]'));
+  if (!frames.length) return Promise.resolve();
+  const tags = new Set();
+  frames.forEach((frame) => collectDocsRmtPlaygroundDescriptorTags(frame.__xtendRmtDescriptor, tags));
+  return ensureDocsRmtPlaygroundRenderer().then((renderer) => {
+    frames.forEach((frame) => {
+      const descriptor = frame.__xtendRmtDescriptor;
+      if (!descriptor || typeof descriptor !== 'object') return;
+      try {
+        renderer.render(frame, descriptor, frame.__xtendRmtDescriptorOptions || {});
+      } catch (error) {
+        frame.replaceChildren(createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : 'Preview render failed.'));
+      }
+    });
+    return hydrateDocsRmtPlaygroundElements(target, Array.from(tags));
+  }).catch((error) => {
+    frames.forEach((frame) => {
+      frame.replaceChildren(createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : 'Preview renderer failed.'));
+    });
+  });
+}
+
+function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy()) {
+  if (!target) return;
+  if (!payload || payload.ok !== true) {
+    target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.blocked));
+    return;
+  }
+  const preview = payload.preview && typeof payload.preview === 'object' ? payload.preview : {};
+  const surfaces = Array.isArray(preview.surfaces) ? preview.surfaces : [];
+  if (!surfaces.length) {
+    target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.noPreview));
+    return;
+  }
+  const descriptorFrames = [];
+  const fallbackCards = [];
+  surfaces.slice(0, 12).forEach((surface) => {
+    const descriptorPreview = createDocsRmtPlaygroundDescriptorPreviewFrame(surface);
+    if (descriptorPreview) {
+      descriptorFrames.push(descriptorPreview);
+      return;
+    }
+    const card = createDocsRmtPlaygroundElement('article', { class: 'docs-rmt-playground-preview-card' });
+    card.appendChild(createDocsRmtPlaygroundElement('strong', {}, surface.id || surface.surfaceId || 'surface'));
+    card.appendChild(createDocsRmtPlaygroundElement('small', {}, [
+      surface.kind ? `kind: ${surface.kind}` : '',
+      surface.component ? `component: ${surface.component}` : ''
+    ].filter(Boolean).join(' · ')));
+    const lanes = Array.isArray(surface.lanes) ? surface.lanes.map((lane) => {
+      if (typeof lane === 'string') return lane;
+      return [lane && lane.name, lane && lane.weight ? `weight ${lane.weight}` : ''].filter(Boolean).join(' ');
+    }).filter(Boolean) : [];
+    card.appendChild(createDocsRmtPlaygroundElement('small', {}, lanes.length ? `lanes: ${lanes.join(', ')}` : 'lanes: none'));
+    fallbackCards.push(card);
+  });
+  const nodes = [];
+  if (descriptorFrames.length) {
+    const appRoot = createDocsRmtPlaygroundElement('div', { class: 'docs-rmt-playground-preview-app' });
+    const boundedFrames = descriptorFrames
+      .map((frame) => frame.__xtendRmtPreviewBounds)
+      .filter(Boolean);
+    if (boundedFrames.length) {
+      const maxX = Math.max(...boundedFrames.map((bounds) => bounds.x + bounds.width));
+      const maxY = Math.max(...boundedFrames.map((bounds) => bounds.y + bounds.height));
+      appRoot.setAttribute('data-bounded', 'true');
+      appRoot.style.minWidth = `${Math.ceil(maxX + 24)}px`;
+      appRoot.style.minHeight = `${Math.ceil(maxY + 24)}px`;
+    }
+    descriptorFrames.forEach((frame) => appRoot.appendChild(frame));
+    nodes.push(appRoot);
+  }
+  nodes.push(...fallbackCards);
+  target.replaceChildren(...nodes);
+  renderDocsRmtPlaygroundDescriptorPreviews(target);
+}
+
+function updateDocsRmtPlaygroundDiagnostics(root, diagnostics, copy) {
+  const target = root && root.querySelector ? root.querySelector('[data-rmt-playground-diagnostics]') : null;
+  renderDocsRmtPlaygroundDiagnostics(target, diagnostics, copy);
+  setDocsRmtPlaygroundEditorDiagnosticState(root, diagnostics);
+  const source = root && root.querySelector ? getDocsRmtPlaygroundEditorValue(root.querySelector('[data-rmt-playground-editor]')) : '';
+  updateDocsRmtPlaygroundIslandState(root, 'diagnostics', 'hydrated', {
+    reason: 'diagnostics-render',
+    sourceHash: hashDocsRmtPlaygroundSource(source)
+  });
+}
+
+function updateDocsRmtPlaygroundFromPayload(root, payload, copy) {
+  const output = root.querySelector('[data-rmt-playground-output]');
+  const preview = root.querySelector('[data-rmt-playground-preview]');
+  const diagnostics = Array.isArray(payload && payload.lspDiagnostics) && payload.lspDiagnostics.length
+    ? payload.lspDiagnostics
+    : payload && payload.diagnostics;
+  updateDocsRmtPlaygroundDiagnostics(root, diagnostics, copy);
+  if (output) {
+    const sourceHash = payload && payload.clientCompile && payload.clientCompile.sourceHash
+      ? payload.clientCompile.sourceHash
+      : '';
+    output.textContent = formatDocsRmtPlaygroundCore(payload || {});
+    output.setAttribute('data-output-state', payload && payload.ok === true ? 'compiled' : 'diagnostics');
+    if (sourceHash) output.setAttribute('data-source-hash', sourceHash);
+    else output.removeAttribute('data-source-hash');
+    updateDocsRmtPlaygroundIslandState(root, 'output', payload && payload.ok === true ? 'hydrated' : 'diagnostics', {
+      reason: 'compile-response',
+      sourceHash
+    });
+  }
+  renderDocsRmtPlaygroundPreview(preview, payload || {}, copy);
+  updateDocsRmtPlaygroundIslandState(root, 'preview', payload && payload.ok === true ? 'hydrated' : 'blocked', {
+    reason: 'compile-response',
+    sourceHash: payload && payload.clientCompile && payload.clientCompile.sourceHash
+  });
+  hydrateDocsRmtPlaygroundElements(preview);
+}
+
+function setDocsRmtPlaygroundWindowBounds(surface, bounds = {}) {
+  if (!surface) return;
+  const next = {
+    x: Math.max(0, Math.round(Number(bounds.x) || 0)),
+    y: Math.max(0, Math.round(Number(bounds.y) || 0)),
+    width: Math.max(280, Math.round(Number(bounds.width) || 640)),
+    height: Math.max(180, Math.round(Number(bounds.height) || 420))
+  };
+  surface.setAttribute('initial-x', String(next.x));
+  surface.setAttribute('initial-y', String(next.y));
+  surface.setAttribute('initial-width', String(next.width));
+  surface.setAttribute('initial-height', String(next.height));
+  surface.style.setProperty('--surface-window-x', `${next.x}px`);
+  surface.style.setProperty('--surface-window-y', `${next.y}px`);
+  surface.style.setProperty('--surface-window-width', `${next.width}px`);
+  surface.style.setProperty('--surface-window-height', `${next.height}px`);
+  surface.removeAttribute('minimized');
+  surface.removeAttribute('maximized');
+  surface.setAttribute('open', '');
+}
+
+function setDocsRmtPlaygroundPanelSize(surface, size = {}) {
+  if (!surface) return;
+  const width = Math.max(240, Math.round(Number(size.width) || 320));
+  const height = Math.max(180, Math.round(Number(size.height) || 720));
+  surface.setAttribute('initial-width', String(width));
+  surface.setAttribute('initial-height', String(height));
+  surface.style.setProperty('--side-panel-width', `${width}px`);
+  surface.style.setProperty('--side-panel-height', `${height}px`);
+  surface.toggleAttribute('collapsed', size.collapsed === true);
+  surface.setAttribute('open', '');
+}
+
+function resetDocsRmtPlaygroundLayout(root) {
+  if (!root) return;
+  const manager = root.querySelector('[data-rmt-playground-manager]');
+  const rect = manager && typeof manager.getBoundingClientRect === 'function'
+    ? manager.getBoundingClientRect()
+    : null;
+  const width = Math.max(360, Math.round(rect && rect.width || manager && manager.clientWidth || 1280));
+  const height = Math.max(520, Math.round(rect && rect.height || manager && manager.clientHeight || 760));
+  const gap = 16;
+  const compact = width < 1040;
+  const editorWidth = compact
+    ? Math.min(360, Math.max(300, Math.round(width * 0.42)))
+    : Math.min(540, Math.max(400, Math.round(width * 0.32)));
+  const relatedWidth = compact
+    ? 56
+    : Math.min(320, Math.max(260, Math.round(width * 0.2)));
+  const workspaceX = editorWidth + gap * 2;
+  const workspaceRightInset = relatedWidth + gap * 2;
+  const workspaceWidth = Math.max(320, width - workspaceX - workspaceRightInset);
+  const workspaceHeight = Math.max(360, height - gap * 2);
+  const stackedLower = workspaceWidth < 760;
+  const minimumLowerHeight = stackedLower ? 180 + gap + 180 : 180;
+  const preferredPreviewHeight = Math.round(workspaceHeight * (stackedLower ? 0.4 : 0.48));
+  const previewLimit = Math.max(220, height - gap * 4 - minimumLowerHeight);
+  const previewHeight = Math.max(220, Math.min(preferredPreviewHeight, previewLimit));
+  const lowerY = gap + previewHeight + gap;
+  const lowerHeight = Math.max(180, height - lowerY - gap);
+  const outputWidth = stackedLower ? workspaceWidth : Math.max(320, Math.round(workspaceWidth * 0.62));
+  const diagnosticsWidth = stackedLower ? workspaceWidth : Math.max(280, workspaceWidth - outputWidth - gap);
+  const outputHeight = stackedLower ? Math.max(180, Math.min(Math.round(lowerHeight * 0.52), lowerHeight - gap - 180)) : lowerHeight;
+  const diagnosticsY = stackedLower ? lowerY + outputHeight + gap : lowerY;
+  const diagnosticsHeight = stackedLower ? Math.max(180, height - diagnosticsY - gap) : lowerHeight;
+  const infoWidth = Math.min(460, Math.max(320, Math.round(workspaceWidth * 0.42)));
+  const infoHeight = Math.min(360, Math.max(240, Math.round(workspaceHeight * 0.38)));
+
+  setDocsRmtPlaygroundPanelSize(root.querySelector('[data-rmt-playground-editor-panel]'), {
+    width: editorWidth,
+    height
+  });
+  setDocsRmtPlaygroundPanelSize(root.querySelector('[data-rmt-playground-related-panel]'), {
+    width: relatedWidth,
+    height,
+    collapsed: compact
+  });
+  setDocsRmtPlaygroundWindowBounds(root.querySelector('[data-rmt-playground-preview-window]'), {
+    x: workspaceX,
+    y: gap,
+    width: workspaceWidth,
+    height: previewHeight
+  });
+  setDocsRmtPlaygroundWindowBounds(root.querySelector('[data-rmt-playground-output-window]'), {
+    x: workspaceX,
+    y: lowerY,
+    width: outputWidth,
+    height: outputHeight
+  });
+  setDocsRmtPlaygroundWindowBounds(root.querySelector('[data-rmt-playground-diagnostics-window]'), {
+    x: stackedLower ? workspaceX : workspaceX + outputWidth + gap,
+    y: diagnosticsY,
+    width: diagnosticsWidth,
+    height: diagnosticsHeight
+  });
+  setDocsRmtPlaygroundWindowBounds(root.querySelector('[data-rmt-playground-info-window]'), {
+    x: compact ? workspaceX + gap : Math.max(workspaceX + gap, width - relatedWidth - infoWidth - gap * 2),
+    y: gap * 2,
+    width: infoWidth,
+    height: infoHeight
+  });
+
+  if (manager && typeof manager.resetSurfaceLayout === 'function') {
+    manager.resetSurfaceLayout({ source: 'docs.rmt-playground.reset' });
+  }
+}
+
+async function runDocsRmtPlaygroundLanguageDiagnostics(root, locale = getCurrentDocsLocale()) {
+  if (!root) return null;
+  const copy = getDocsRmtPlaygroundCopy(locale);
+  const editor = root.querySelector('[data-rmt-playground-editor]');
+  const diagnostics = root.querySelector('[data-rmt-playground-diagnostics]');
+  const source = getDocsRmtPlaygroundEditorValue(editor);
+  const requestId = (Number(root.__xtendDocsRmtPlaygroundDiagnosticsRequestId || 0) + 1);
+  root.__xtendDocsRmtPlaygroundDiagnosticsRequestId = requestId;
+
+  if (getDocsRmtPlaygroundSourceBytes(source) > DOCS_RMT_PLAYGROUND_MAX_SOURCE_BYTES) {
+    const items = [{
+      severity: 'error',
+      code: 'docs.rmt.playground.source_too_large',
+      source: 'xtend-rmt-language-server',
+      message: copy.tooLarge
+    }];
+    updateDocsRmtPlaygroundDiagnostics(root, items, copy);
+    return {
+      schema: DOCS_RMT_PLAYGROUND_SCHEMA,
+      ok: false,
+      status: 'too_large',
+      diagnostics: items
+    };
+  }
+
+  if (diagnostics) {
+    diagnostics.setAttribute('data-diagnostics-source', 'xtend-rmt-language-server');
+    diagnostics.setAttribute('data-diagnostics-state', 'loading');
+    updateDocsRmtPlaygroundIslandState(root, 'diagnostics', 'hydrating', {
+      reason: 'lsp-diagnostics-request',
+      sourceHash: hashDocsRmtPlaygroundSource(source)
+    });
+    if (!diagnostics.querySelector('.docs-rmt-playground-diagnostic')) {
+      diagnostics.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.analyzing));
+    }
+  }
+
+  const response = await fetch(getDocsRmtPlaygroundDiagnosticsEndpoint(), {
+    method: 'POST',
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      source,
+      locale: normalizeDocsLocale(locale),
+      version: requestId
+    })
+  });
+  const payload = await response.json();
+  if (root.__xtendDocsRmtPlaygroundDiagnosticsRequestId !== requestId) return payload;
+  const items = Array.isArray(payload && payload.diagnostics) ? payload.diagnostics : [];
+  updateDocsRmtPlaygroundDiagnostics(root, items, copy);
+  if (diagnostics) {
+    diagnostics.setAttribute('data-diagnostics-state', payload.ok === false ? 'error' : 'ready');
+    diagnostics.setAttribute('data-language-mode', payload.languageMode || 'unknown');
+  }
+  window.xtendDocsRmtPlaygroundLastDiagnostics = {
+    schema: DOCS_RMT_PLAYGROUND_SCHEMA,
+    locale: normalizeDocsLocale(locale),
+    source: 'xtend-rmt-language-server',
+    ok: payload.ok === true,
+    status: payload.status || '',
+    languageMode: payload.languageMode || 'unknown',
+    diagnosticCount: items.length
+  };
+  return payload;
+}
+
+async function compileDocsRmtPlayground(root, locale = getCurrentDocsLocale()) {
+  if (!root) return null;
+  const copy = getDocsRmtPlaygroundCopy(locale);
+  const editor = root.querySelector('[data-rmt-playground-editor]');
+  const status = root.querySelector('[data-rmt-playground-status]');
+  const source = getDocsRmtPlaygroundEditorValue(editor);
+  const sourceHash = hashDocsRmtPlaygroundSource(source);
+  const requestId = (Number(root.__xtendDocsRmtPlaygroundCompileRequestId || 0) + 1);
+  root.__xtendDocsRmtPlaygroundCompileRequestId = requestId;
+  if (getDocsRmtPlaygroundSourceBytes(source) > DOCS_RMT_PLAYGROUND_MAX_SOURCE_BYTES) {
+    const payload = {
+      schema: DOCS_RMT_PLAYGROUND_SCHEMA,
+      ok: false,
+      status: 'too_large',
+      clientCompile: {
+        requestId,
+        sourceHash,
+        sourceBytes: getDocsRmtPlaygroundSourceBytes(source)
+      },
+      diagnostics: [{
+        severity: 'error',
+        code: 'docs.rmt.playground.source_too_large',
+        message: copy.tooLarge
+      }]
+    };
+    updateDocsRmtPlaygroundFromPayload(root, payload, copy);
+    setDocsRmtPlaygroundStatus(status, copy.tooLarge, 'error');
+    return payload;
+  }
+
+  setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
+  const response = await fetch(getDocsRmtPlaygroundEndpoint(), {
+    method: 'POST',
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      source,
+      locale: normalizeDocsLocale(locale),
+      clientCompile: {
+        requestId,
+        sourceHash
+      }
+    })
+  });
+  const payload = await response.json();
+  const currentSourceHash = hashDocsRmtPlaygroundSource(getDocsRmtPlaygroundEditorValue(editor));
+  if (root.__xtendDocsRmtPlaygroundCompileRequestId !== requestId || currentSourceHash !== sourceHash) {
+    return {
+      schema: DOCS_RMT_PLAYGROUND_SCHEMA,
+      ok: false,
+      status: 'stale_compile_ignored',
+      ignored: true,
+      clientCompile: {
+        requestId,
+        sourceHash,
+        currentSourceHash
+      }
+    };
+  }
+  payload.clientCompile = {
+    requestId,
+    sourceHash,
+    sourceBytes: getDocsRmtPlaygroundSourceBytes(source)
+  };
+  updateDocsRmtPlaygroundFromPayload(root, payload, copy);
+  setDocsRmtPlaygroundStatus(status, payload.ok ? copy.compiled : copy.failed, payload.ok ? 'ready' : 'error');
+  window.xtendDocsRmtPlaygroundLastCompile = {
+    schema: DOCS_RMT_PLAYGROUND_SCHEMA,
+    locale: normalizeDocsLocale(locale),
+    ok: payload.ok === true,
+    status: payload.status || '',
+    requestId,
+    sourceHash,
+    diagnosticCount: Array.isArray(payload.diagnostics) ? payload.diagnostics.length : 0
+  };
+  return payload;
+}
+
+function hydrateDocsRmtPlaygroundElements(root, extraTags = []) {
+  if (!root || !window.XTendLoader || typeof window.XTendLoader.hydrateTree !== 'function') return;
+  const tags = Array.from(new Set([
+    ...DOCS_RMT_PLAYGROUND_HYDRATION_TAGS,
+    ...(
+      Array.isArray(extraTags)
+        ? extraTags.map((tag) => String(tag || '').toLowerCase()).filter(Boolean)
+        : []
+    )
+  ]));
+  window.XTendLoader.hydrateTree(root, {
+    tags,
+    source: 'docs.rmt-playground',
+    reason: 'rmt-playground-route-render',
+    schedule: 'docs.rmt-playground.hydrate'
+  }).catch(() => {});
+}
+
+function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), relatedLinks = []) {
+  if (!container) return null;
+  const existing = container.querySelector('[data-rmt-playground-root]');
+  if (existing) existing.remove();
+  const articleFragment = document.createDocumentFragment();
+  Array.from(container.childNodes).forEach((node) => {
+    if (node.nodeType === 1 && node.matches && node.matches('[data-rmt-playground-root]')) return;
+    articleFragment.appendChild(node);
+  });
+  const copy = getDocsRmtPlaygroundCopy(locale);
+  const root = createDocsRmtPlaygroundElement('section', {
+    class: 'docs-rmt-playground',
+    'data-rmt-playground-root': '',
+    'data-schema': DOCS_RMT_PLAYGROUND_SCHEMA,
+    'aria-label': copy.workbench
+  });
+
+  const manager = createDocsRmtPlaygroundElement('x-surface-manager', {
+    class: 'docs-rmt-playground-manager',
+    'manager-id': 'docs-rmt-playground-workspace',
+    'data-rmt-playground-manager': '',
+    'data-rmt-hydration-islands': Object.values(DOCS_RMT_PLAYGROUND_ISLANDS).map((island) => island.id).join(' '),
+    'data-fabric-lanes': Object.values(DOCS_RMT_PLAYGROUND_ISLANDS).map((island) => island.lane).join(' '),
+    'data-rmt-cross-surface-events': 'source-changed island-state-changed',
+    'surface-layout-gap': '16',
+    'surface-layout-snap': '8'
+  });
+
+  const editorPanel = createDocsRmtPlaygroundElement('x-side-panel', decorateDocsRmtPlaygroundIslandAttributes({
+    slot: 'panels',
+    'surface-id': 'docs.rmt.playground.editor',
+    label: copy.editor,
+    placement: 'left',
+    mode: 'docked',
+    resizable: true,
+    open: true,
+    'data-rmt-playground-editor-panel': ''
+  }, 'editor'));
+  const editorBody = createDocsRmtPlaygroundElement('div', { class: 'docs-rmt-playground-editor' });
+  const editor = createDocsRmtPlaygroundElement('x-textarea', {
+    label: copy.editor,
+    rows: 22,
+    fill: true,
+    density: 'compact',
+    'syntax-highlight': true,
+    lang: 'rmt',
+    maxlength: DOCS_RMT_PLAYGROUND_MAX_SOURCE_BYTES,
+    'data-rmt-playground-editor': ''
+  });
+  setDocsRmtPlaygroundEditorValue(editor, DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE);
+  const actions = createDocsRmtPlaygroundElement('div', { class: 'docs-rmt-playground-actions' });
+  const runButton = createDocsRmtPlaygroundButton(copy.run, 'play', {
+    type: 'button',
+    variant: 'primary',
+    'data-rmt-playground-run': ''
+  });
+  const resetButton = createDocsRmtPlaygroundButton(copy.resetLayout, 'rotate-ccw', {
+    type: 'button',
+    variant: 'secondary',
+    'data-rmt-playground-reset': ''
+  });
+  const status = createDocsRmtPlaygroundElement('span', {
+    class: 'docs-rmt-playground-status',
+    'data-rmt-playground-status': ''
+  }, copy.ready);
+  actions.appendChild(runButton);
+  actions.appendChild(resetButton);
+  actions.appendChild(status);
+  editorBody.appendChild(editor);
+  editorBody.appendChild(actions);
+  editorPanel.appendChild(editorBody);
+
+  const previewWindow = createDocsRmtPlaygroundElement('x-surface-window', decorateDocsRmtPlaygroundIslandAttributes({
+    slot: 'windows',
+    'surface-id': 'docs.rmt.playground.preview',
+    label: copy.preview,
+    draggable: true,
+    resizable: true,
+    open: true,
+    'data-rmt-playground-preview-window': ''
+  }, 'preview'));
+  previewWindow.appendChild(createDocsRmtPlaygroundElement('div', {
+    class: 'docs-rmt-playground-preview',
+    'data-rmt-playground-preview': ''
+  }, copy.blocked));
+
+  const diagnosticsWindow = createDocsRmtPlaygroundElement('x-surface-window', decorateDocsRmtPlaygroundIslandAttributes({
+    slot: 'windows',
+    'surface-id': 'docs.rmt.playground.diagnostics',
+    label: copy.diagnostics,
+    draggable: true,
+    resizable: true,
+    open: true,
+    'data-rmt-playground-diagnostics-window': ''
+  }, 'diagnostics'));
+  diagnosticsWindow.appendChild(createDocsRmtPlaygroundElement('div', {
+    class: 'docs-rmt-playground-diagnostics',
+    'data-rmt-playground-diagnostics': ''
+  }, copy.noDiagnostics));
+
+  const outputWindow = createDocsRmtPlaygroundElement('x-surface-window', decorateDocsRmtPlaygroundIslandAttributes({
+    slot: 'windows',
+    'surface-id': 'docs.rmt.playground.output',
+    label: copy.output,
+    draggable: true,
+    resizable: true,
+    open: true,
+    'data-rmt-playground-output-window': ''
+  }, 'output'));
+  outputWindow.appendChild(createDocsRmtPlaygroundElement('pre', {
+    class: 'docs-rmt-playground-output',
+    'data-rmt-playground-output': ''
+  }, '{}'));
+
+  const infoWindow = createDocsRmtPlaygroundElement('x-surface-window', {
+    slot: 'windows',
+    'surface-id': 'docs.rmt.playground.guide',
+    label: copy.info,
+    draggable: true,
+    resizable: true,
+    open: true,
+    'data-rmt-playground-info-window': ''
+  });
+  const infoBody = createDocsRmtPlaygroundElement('div', {
+    class: 'docs-rmt-playground-article',
+    'data-rmt-playground-article': ''
+  });
+  if (articleFragment.childNodes.length) {
+    infoBody.appendChild(articleFragment);
+  } else {
+    infoBody.appendChild(createDocsRmtPlaygroundElement('p', {}, copy.title));
+  }
+  infoWindow.appendChild(infoBody);
+
+  const relatedPanel = createDocsRmtPlaygroundElement('x-side-panel', {
+    slot: 'panels',
+    'surface-id': 'docs.rmt.playground.related',
+    label: copy.related,
+    placement: 'right',
+    mode: 'docked',
+    resizable: true,
+    open: true,
+    'data-rmt-playground-related-panel': ''
+  });
+  const relatedBody = createDocsRmtPlaygroundElement('div', {
+    class: 'docs-rmt-playground-related',
+    'data-rmt-playground-related': ''
+  });
+  const relatedList = createDocsRmtPlaygroundElement('div', { class: 'docs-related-list' });
+  const links = Array.isArray(relatedLinks) && relatedLinks.length ? relatedLinks : fallbackRelatedLinksForSlug('learn-rmt-playground');
+  links.forEach((entry) => relatedList.appendChild(createRelatedLink(entry)));
+  if (links.length) {
+    relatedBody.appendChild(relatedList);
+  } else {
+    relatedBody.appendChild(createDocsRmtPlaygroundElement('p', {
+      class: 'docs-rmt-playground-empty-related'
+    }, copy.noRelated));
+  }
+  relatedPanel.appendChild(relatedBody);
+
+  manager.appendChild(editorPanel);
+  manager.appendChild(previewWindow);
+  manager.appendChild(outputWindow);
+  manager.appendChild(diagnosticsWindow);
+  manager.appendChild(infoWindow);
+  manager.appendChild(relatedPanel);
+  root.appendChild(manager);
+  container.replaceChildren(root);
+
+  let timer = 0;
+  let diagnosticsTimer = 0;
+  const scheduleDiagnostics = () => {
+    window.clearTimeout(diagnosticsTimer);
+    diagnosticsTimer = window.setTimeout(() => {
+      runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch((error) => {
+        updateDocsRmtPlaygroundDiagnostics(root, [{
+          severity: 'error',
+          code: 'docs.rmt.playground.lsp_client_error',
+          source: 'xtend-rmt-language-server',
+          message: error && error.message ? error.message : copy.failed
+        }], copy);
+      });
+    }, DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS);
+  };
+  const scheduleCompile = () => {
+    setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
+    setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      compileDocsRmtPlayground(root, locale).catch((error) => {
+        const payload = {
+          schema: DOCS_RMT_PLAYGROUND_SCHEMA,
+          ok: false,
+          status: 'client_error',
+          diagnostics: [{
+            severity: 'error',
+            code: 'docs.rmt.playground.client_error',
+            message: error && error.message ? error.message : copy.failed
+          }]
+        };
+        updateDocsRmtPlaygroundFromPayload(root, payload, copy);
+        setDocsRmtPlaygroundStatus(status, copy.failed, 'error');
+      });
+    }, DOCS_RMT_PLAYGROUND_DEBOUNCE_MS);
+  };
+  editor.addEventListener('textarea-changed', (event) => {
+    if (event && event.detail && typeof event.detail.value === 'string') {
+      setDocsRmtPlaygroundEditorValue(editor, event.detail.value);
+    }
+    dispatchDocsRmtPlaygroundSourceChanged(root, getDocsRmtPlaygroundEditorValue(editor), 'textarea-changed');
+    scheduleDiagnostics();
+    scheduleCompile();
+  });
+  editor.addEventListener('input', (event) => {
+    const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+    const control = path.find((node) => node && node.localName === 'textarea') || getDocsRmtPlaygroundNativeTextarea(editor);
+    if (control && editor.shadowRoot && editor.shadowRoot.contains(control)) return;
+    if (control && typeof control.value === 'string') {
+      setDocsRmtPlaygroundEditorValue(editor, control.value);
+    }
+    dispatchDocsRmtPlaygroundSourceChanged(root, getDocsRmtPlaygroundEditorValue(editor), 'native-input');
+    scheduleDiagnostics();
+    scheduleCompile();
+  });
+  runButton.addEventListener('click', () => {
+    window.clearTimeout(timer);
+    window.clearTimeout(diagnosticsTimer);
+    setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
+    runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => {});
+    compileDocsRmtPlayground(root, locale).catch(() => setDocsRmtPlaygroundStatus(status, copy.failed, 'error'));
+  });
+  resetButton.addEventListener('click', () => {
+    resetDocsRmtPlaygroundLayout(root);
+  });
+  hydrateDocsRmtPlaygroundElements(root);
+  resetDocsRmtPlaygroundLayout(root);
+  if (typeof window.requestAnimationFrame === 'function') {
+    window.requestAnimationFrame(() => resetDocsRmtPlaygroundLayout(root));
+  }
+  runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => {});
+  compileDocsRmtPlayground(root, locale).catch(() => setDocsRmtPlaygroundStatus(status, copy.failed, 'error'));
+  return root;
+}
+
 function resolveDocsSlugFromRouteContext(context = {}) {
   const explicit = context.slug || context.path || context.to || '';
-  const parsed = parseDocsRoutePath(explicit ? String(explicit) : location.hash);
+  const parsed = parseDocsRoutePath(explicit ? String(explicit) : undefined);
   publishDocsLocale(parsed.locale, parsed.localized ? 'route' : 'compat-route');
   let slug = parsed.slug || 'readme';
   if (slug === '' || slug === '/') slug = 'readme';
   if (!parsed.localized) {
     const localizedPath = getLocalizedDocsPath(slug, parsed.locale);
-    if (location.hash !== '#' + localizedPath) {
-      history.replaceState(null, '', '#' + localizedPath);
+    if (normalizeDocsPathForCompare(location.pathname) !== normalizeDocsPathForCompare(localizedPath)) {
+      history.replaceState(history.state || null, '', localizedPath);
     }
   }
   return slug;
@@ -3487,7 +4952,14 @@ class XtendDocPage extends HTMLElement {
       if (!this.isActiveRouteToken(token)) return;
       commitParsedownContent().then((committed) => {
         if (!committed || !this.isActiveRouteToken(token)) return;
-        measuredLane('idle', relatedSchedule, 'sidebar.related-render', () => renderDocsRelatedSidebar(shell.relatedSlot, slug, relatedLinks));
+        if (slug === 'learn-rmt-playground') {
+          if (shell.relatedSlot) {
+            shell.relatedSlot.hidden = true;
+            shell.relatedSlot.setAttribute('data-related-count', '0');
+          }
+        } else {
+          measuredLane('idle', relatedSchedule, 'sidebar.related-render', () => renderDocsRelatedSidebar(shell.relatedSlot, slug, relatedLinks));
+        }
         window.dispatchEvent(new CustomEvent('xtend-docs-content-ready', {
           detail: {
             schema: 'xtend.docs.content-ready.v1',
@@ -3510,6 +4982,9 @@ class XtendDocPage extends HTMLElement {
           reason: 'parsedown-code-fence-syntax-highlight',
           schedule: 'docs.syntax.highlight'
         });
+        if (slug === 'learn-rmt-playground') {
+          measuredLane('idle', richSchedule, 'rmt-playground.render', () => renderDocsRmtPlayground(shell.mdContent, locale, relatedLinks));
+        }
         finishTransition();
       }).catch((error) => {
         if (!this.isActiveRouteToken(token)) return;

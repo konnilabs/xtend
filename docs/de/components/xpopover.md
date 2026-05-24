@@ -1,67 +1,29 @@
-# xpopover - XTend Komponente
+# x-popover
 
-> **Siehe auch:** [xtooltip](./xtooltip.md), [xdrawer](./xdrawer.md), [xdialog](./xdialog.md), [xmodal](./xmodal.md)
+Kontextflächen an einem Anchor.
 
-## Uebersicht
+## Wann einsetzen
 
-`<x-popover>` ist ein interaktives, verankertes Overlay aus `WP-E10-11`. Es eignet sich fuer Filter, Menues, Toolbars und kontextuelle Aktionen, kann modal betrieben werden und bleibt als Custom Element ueber RMT beschreibbar.
+x-popover ist Teil der öffentlichen XTend Komponentenbibliothek. Nutze die Komponente, wenn du eine lokale, themenfähige Web-Component ohne Framework-Bindung brauchst.
 
-## Verwendung
+## Basisbeispiel
 
 ```html
-<x-popover id="filters" placement="bottom" modal label="Filter options">
-  <button slot="trigger" type="button">Open filters</button>
-  <p>Filter content can be mounted by RMT.</p>
-  <button slot="actions" type="button">Apply</button>
-</x-popover>
+<x-popover></x-popover>
 ```
 
-## Attribute
+## Integration
 
-| Attribut | Typ | Beschreibung |
-|----------|-----|--------------|
-| `open` | Boolean | oeffnet das Popover kontrolliert |
-| `placement` | String | `top`, `right`, `bottom` oder `left` |
-| `modal` | Boolean | aktiviert Focus Trap und `aria-modal` |
-| `anchor` | String | vorbereitetes Anchor-Mapping fuer RMT Authoring |
-| `label` | String | zugaenglicher Name fuer den Dialog |
+Lade die Komponente über `xtend-loader.js` und `components/manifest.json`. Für RMT Hosts beschreibt ein Component Descriptor Attribute, Slots und Events; der Host Adapter materialisiert daraus das Custom Element.
 
-## Events
+## Nächste Schritte
 
-| Event | Detail |
-|-------|--------|
-| `popover-opened` | `{ id, open, source, placement, modal }` |
-| `popover-closed` | `{ id, open, source, placement, modal }` |
+- [Komponenten-Entwicklung](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-## API
+## Öffentlicher Runtime-Vertrag
 
-- `show()`
-- `hide()`
-- `toggle()`
-
-## State, RMT und Fabric
-
-`<x-popover>` schreibt nach `xpopover-open-<id>`. RMT nutzt `xtend.rmt.component-contract.v1`, `dom_descriptor` Templates und kann Events als `dom-event-to-rmt-command` binden. Fuer interaktive UIs ist die Lane `user-blocking`; der Kernel Boundary bleibt `no-rmt-kernel-import-of-xtend-types`.
-
-## A11y und Performance
-
-Das Popover nutzt `role="dialog"`, `aria-expanded`, `aria-controls`, optional `aria-modal` und Focus Return. `Escape`, Outside Click und `focus-return` sind Pflichtsignale. Das Performance-Profil ist `xtend.performance.component-profile.v1` mit `budgetClass: 'overlay-medium'`, `lane: 'user-blocking'` und `hydrationPolicy: 'visible'`.
-
-## Overlay Interaction UX Profil
-
-Seit `WP-E11-11` deklariert `<x-popover>` das Runtime-Profil `xtend.component.overlay-interaction-ux-profile.v1` ueber `xtendOverlayInteractionUxProfile`.
-
-| Feld | Wert |
-|------|------|
-| Family | `popover` |
-| State Key | `xpopover-open-<id>` |
-| Schedule | `overlay.position.update` |
-| Commands | `show`, `hide`, `toggle`, `focus-trap`, `snapshot` |
-
-Das Profil trennt die leichte Anchor-Schicht vom modal optionalen Betrieb. Focus Trap wird nur bei `modal` aktiviert, Escape schliesst das oberste Popover und Outside Click bleibt als bewusstes Dismiss-Verhalten dokumentiert.
-
-## ECH-WP-06 Overlay-Paritaet
-
-`x-popover` expose `surface`, `backdrop`, `close` und `content` als gemeinsame Overlay-Parts. Der Backdrop wird nur bei `modal` sichtbar; der Close-Button ist tokenisiert und kann ueber `--popover-close-display` sowie `--xpopover-close-*` an Corporate-Patterns angepasst werden.
-
-Der Default bleibt nicht-modal: kein Inert und kein Scroll Lock. Mit `modal` aktiviert das Popover Backdrop, Focus Trap, Escape und Rueckfokus. Surface, Text, Border, Elevation, Radius, Backdrop und Z-Index laufen ueber `--xtend-overlay-*`, `--popover-*` oder `--xpopover-*` Tokens.
+- UX-Profil: `xtend.component.overlay-interaction-ux-profile.v1`.
+- State-Key: `xpopover-open-<id>`.
+- Zweck: Overlay- und Interaktions-UX-Profil für RMT Hosts, Fabric-Lanes und browsernahe Tests sichtbar machen.

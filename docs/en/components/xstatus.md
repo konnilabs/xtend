@@ -1,71 +1,29 @@
-# xstatus - XTend Component
+# x-status
 
-> **See also:** [xalert](./xalert.md), [xtoast](./xtoast.md), [xprogress](./xprogress.md), [xstate](./xstate.md)
+Status lines and system signals.
 
-## Overview
+## When to use it
 
-`<x-status>` is a Fabric- and RMT-capable status control from `WP-E10-10`. It
-renders scheduler, validation, and system feedback as a live region and stays
-small enough to be used in RMT shells as a feedback building block.
+x-status is part of the public XTend component library. Use it when you need a local, themeable Web Component without a framework binding.
 
-## Usage
+## Basic example
 
 ```html
-<x-status id="route-status" type="warning" state="validating" message="Validation is running" dismissible busy>
-  <span slot="label">Scheduler status</span>
-</x-status>
+<x-status></x-status>
 ```
 
-## Attributes
+## Integration
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `type` | String | `info`, `success`, `warning`, or `error` |
-| `state` | String | domain status key |
-| `message` | String | visible message |
-| `dismissible` | Boolean | shows close action |
-| `busy` | Boolean | sets `aria-busy` |
-| `polite` | Boolean | forces polite live region |
-| `label` | String | label without slot |
+Load the component through `xtend-loader.js` and `components/manifest.json`. For RMT hosts, a component descriptor describes attributes, slots and events; the host adapter materializes the Custom Element.
 
-## Events
+## Next steps
 
-| Event | Detail |
-|-------|--------|
-| `status-changed` | `{ type, status, message, busy, source: 'x-status' }` |
-| `status-dismissed` | `{ type, status, message, busy, source: 'x-status' }` |
+- [Component development](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-## API
+## Public Runtime Contract
 
-- `element.state`
-- `element.setStatus(nextState)`
-- `element.announce(message?)`
-- `element.dismiss()`
-
-## State, RMT, and Fabric
-
-`<x-status>` writes to `xstatus-state-<id>`. RMT can schedule status updates to
-`feedback.status.update` through `xtend.rmt.component-contract.v1` without
-importing XTend internally. The kernel boundary remains
-`no-rmt-kernel-import-of-xtend-types`; the UI component is the adapter outward.
-
-## A11y and Performance
-
-The control uses `role="status"` for polite messages and `role=alert` for
-critical warning/error paths. `scheduler-feedback`, `status-update`, and
-`validation-feedback` are documented as screen reader signals. The performance
-profile is `xtend.performance.component-profile.v1` with
-`budgetClass: 'feedback-small'`, `lane: 'feedback'`, and
-`hydrationPolicy: 'visible'`.
-
-## Feedback Status UX from WP-E11-09
-
-`<x-status>` exposes `xtendFeedbackStatusUxProfile` with
-`xtend.component.feedback-status-ux-profile.v1`. The profile connects
-`status-changed`, `status-dismissed`, `xstatus-state-<id>`,
-`feedback.status.update`, Fabric lane `feedback`, a11y lane `a11y`, and RMT
-shell authoring.
-
-The component is the shared inline status for forms, schedulers, route feedback,
-and diagnostics. It avoids color-only communication, remains forced-colors
-safe, and can be explicitly updated as a live region with `announce()`.
+- UX profile: `xtend.component.feedback-status-ux-profile.v1`.
+- State key: `xstatus-state-<id>`.
+- Purpose: expose the Feedback and status UX profile to RMT hosts, Fabric lanes and browser-facing tests.

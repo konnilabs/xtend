@@ -44,7 +44,7 @@ function runCoreContractSuite(options = {}) {
 
   const menuSlugs = new Set(menu.map((entry) => entry.slug));
   assert(menuSlugs.has('components-xmodal'), 'Docs-Menue enthaelt x-modal');
-  assert(menuSlugs.has('core-migration-guide'), 'Docs-Menue enthaelt den Core-Migration-Guide');
+  assert(menuSlugs.has('api'), 'Docs-Menue enthaelt die API-Referenz');
 
   assertFileIncludes('api.js', 'ensureComplianceAPI()', 'API initialisiert den Compliance-Contract');
   assertFileIncludes('api.js', "import { xstate } from './components/xstate.js';", 'API importiert xstate lokal');
@@ -72,8 +72,8 @@ function runCoreContractSuite(options = {}) {
   assertFileIncludes('components/xrouter.js', 'router-navigate', 'XRouter verarbeitet xstate-basierte Navigation');
   assertFileIncludes('components/xrouter.d.ts', 'RenderRouteResult', 'XRouter TypeScript-Definitionen sind vorhanden');
 
-  assertFileIncludes('docs/api.md', 'window.XTend.compliance', 'API-Doku beschreibt die Compliance-API');
-  assertFileIncludes('docs/core-migration-guide.md', 'Legacy zu kanonisch', 'Migration-Guide beschreibt Legacy-zu-kanonisch-Mapping');
+  assertFileIncludes('docs/de/api.md', 'window.XTend', 'Deutsche API-Doku beschreibt den XTend Host-Namespace');
+  assertFileIncludes('docs/en/api.md', 'window.XTend', 'Englische API-Doku beschreibt den XTend Host-Namespace');
 
   assertSyntaxCheck('components/xtoast.js', '.js');
   assertSyntaxCheck('components/xalert.js', '.js');

@@ -7,7 +7,17 @@ function resolveRootDir(rootDir) {
 }
 
 function resolveRepoPath(relativePath, rootDir) {
-  return path.join(resolveRootDir(rootDir), relativePath);
+  const resolvedRoot = resolveRootDir(rootDir);
+  const primaryPath = path.join(resolvedRoot, relativePath);
+  if (fs.existsSync(primaryPath)) return primaryPath;
+
+  const docsMatch = typeof relativePath === 'string' && relativePath.match(/^docs\/(.+\.md)$/);
+  if (docsMatch) {
+    const localizedPath = path.join(resolvedRoot, 'docs', 'de', docsMatch[1]);
+    if (fs.existsSync(localizedPath)) return localizedPath;
+  }
+
+  return primaryPath;
 }
 
 function readText(relativePath, rootDir) {

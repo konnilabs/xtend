@@ -106,7 +106,7 @@ function runDocsRmtPilotSuite(options = {}) {
   const xcodeSource = readText('components/xcode.js', rootDir);
   const xtendCss = readText('xtend.css', rootDir);
   const parsedownAdapter = readText('docs/utils/parsedown.php', rootDir);
-  const parsedownDocs = readText('docs/xtendrmt-parsedown-scheduling.md', rootDir);
+  const parsedownDocs = readText('docs/de/xtendrmt-parsedown-scheduling.md', rootDir);
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.docsRmtPilot;
 
@@ -191,7 +191,7 @@ function runDocsRmtPilotSuite(options = {}) {
   }
 
   context.assert(indexPhp.includes('window.xtendDocsRmtPilot'), 'Docs app exposes RMT pilot metadata');
-  context.assert(indexPhp.includes('<x-router mode="hash" reuse-component') || (indexPhp.includes("docsDescriptorComponent('x-router'") && indexPhp.includes("'reuse-component' => true")), 'Docs app opts XRouter into route component reuse');
+  context.assert(indexPhp.includes("'mode' => 'history'") && indexPhp.includes("'reuse-component' => true"), 'Docs app opts XRouter into History API route component reuse');
   context.assert(indexPhp.includes('insularHydration: true'), 'Docs app exposes insular hydration metadata');
   context.assert(indexPhp.includes('window.xtendDocsHighlightPrism'), 'Docs app exposes scoped syntax highlighting scheduler');
   context.assert(indexPhp.includes('Prism.highlightAllUnder(scope)'), 'Docs app highlights only the active content scope');

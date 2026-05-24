@@ -19,6 +19,7 @@ $docsRmtVNextDocument = 'xtendrmt-docs-shell-vnext.rmt';
 $docsRmtVNextDocumentPath = $docsRoot . '/' . $docsRmtVNextDocument;
 $rmtPhpSsrAdapterFile = $repoRoot . '/xtendrmt/rmt-php-ssr-adapter.php';
 $docsRmtCompilerBridgePath = $repoRoot . '/scripts/compile_rmt_vnext_bridge.js';
+$docsRmtLspBridgePath = $repoRoot . '/scripts/rmt_playground_lsp_bridge.js';
 $rmtPilotDocumentData = null;
 $rmtPilotDocumentJson = '{}';
 $docsSsrPrehydration = null;
@@ -113,9 +114,32 @@ function docsServeAsset($assetName, $docsRoot) {
     exit;
 }
 
-function docsAssetUrl($assetName, $version) {
-    return 'index.php?xtend-docs-asset=' . rawurlencode((string) $assetName) . '&v=' . rawurlencode((string) $version);
+function docsNormalizeBasePath($value) {
+    $path = '/' . trim(str_replace('\\', '/', (string) $value), '/');
+    return $path === '/' ? '' : $path;
 }
+
+function docsBasePathFromServer() {
+    if (PHP_SAPI === 'cli' && empty($_SERVER['REQUEST_URI'])) {
+        return '/docs';
+    }
+    $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/docs/index.php'));
+    $scriptDir = dirname($scriptName);
+    return docsNormalizeBasePath($scriptDir === '.' ? '' : $scriptDir);
+}
+
+function docsEndpointPath($queryString = '') {
+    global $docsBasePath;
+    $base = docsNormalizeBasePath($docsBasePath ?? '');
+    $query = ltrim((string) $queryString, '?');
+    return ($base === '' ? '' : $base) . '/index.php' . ($query !== '' ? '?' . $query : '');
+}
+
+function docsAssetUrl($assetName, $version) {
+    return docsEndpointPath('xtend-docs-asset=' . rawurlencode((string) $assetName) . '&v=' . rawurlencode((string) $version));
+}
+
+$docsBasePath = docsBasePathFromServer();
 
 if (isset($_GET['xtend-docs-asset'])) {
     docsServeAsset($_GET['xtend-docs-asset'], $docsRoot);
@@ -124,6 +148,14 @@ if (isset($_GET['xtend-docs-asset'])) {
 // --- CSP Nonce generieren ---
 $nonce = base64_encode(random_bytes(16));
 header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-$nonce'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none';");
+
+if (isset($_GET['xtend-rmt-playground']) && $_GET['xtend-rmt-playground'] === 'diagnostics') {
+    docsRmtPlaygroundHandleDiagnostics($repoRoot, $docsRmtLspBridgePath);
+}
+
+if (isset($_GET['xtend-rmt-playground']) && $_GET['xtend-rmt-playground'] === 'compile') {
+    docsRmtPlaygroundHandleCompile($repoRoot, $docsRmtCompilerBridgePath);
+}
 
 if (is_readable($rmtPilotDocumentPath)) {
     $rmtPilotDecoded = json_decode(file_get_contents($rmtPilotDocumentPath), true);
@@ -227,6 +259,7 @@ function docsNormalizeLocale($locale, $availableLocales, $fallbackLocale = 'de')
 function docsSplitLocalizedPath($value, $availableLocales) {
     $path = trim((string) $value);
     $path = preg_replace('/^#\\/?/', '', $path);
+    $path = preg_replace('#(^|/)index\\.php/?#', '$1', $path);
     $path = preg_replace('/^\\/+/', '', $path);
     $path = preg_replace('/\\?.*$/', '', $path);
     if ($path === '' || $path === '/') {
@@ -238,6 +271,31 @@ function docsSplitLocalizedPath($value, $availableLocales) {
         return ['locale' => $first, 'slug' => $parts[1] ?? 'readme'];
     }
     return ['locale' => null, 'slug' => $path];
+}
+
+function docsRoutePathFromRequest($basePath) {
+    $requestPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH);
+    if ($requestPath === null || $requestPath === false || $requestPath === '') {
+        return 'readme';
+    }
+    $requestPath = rawurldecode(str_replace('\\', '/', $requestPath));
+    $base = docsNormalizeBasePath($basePath);
+    if ($base !== '' && ($requestPath === $base || str_starts_with($requestPath, $base . '/'))) {
+        $requestPath = substr($requestPath, strlen($base));
+    }
+    $requestPath = preg_replace('#^/index\\.php/?#', '/', $requestPath);
+    $requestPath = trim($requestPath, '/');
+    return $requestPath === '' ? 'readme' : $requestPath;
+}
+
+function docsBuildHistoryRoutePath($slug, $locale, $basePath = '') {
+    $base = docsNormalizeBasePath($basePath);
+    return ($base === '' ? '' : $base) . '/' . docsNormalizeLocale($locale, $GLOBALS['docsAvailableLocales'], $GLOBALS['docsFallbackLocale']) . '/' . trim((string) ($slug ?: 'readme'), '/');
+}
+
+function docsBuildHistoryRootPath($basePath = '') {
+    $base = docsNormalizeBasePath($basePath);
+    return $base === '' ? '/' : $base;
 }
 
 function docsLocaleTitleSuffix($locale, $availableLocales) {
@@ -279,6 +337,8 @@ function docsMenuIconForSlug($slug) {
         'quick-start-guide' => 'book-open',
         'about' => 'info',
         'best-practices' => 'success',
+        'learn-rmt' => 'book-open',
+        'learn-rmt-playground' => 'terminal',
         'manifest' => 'file',
         'api' => 'terminal',
         'xtend-loader' => 'download',
@@ -303,6 +363,7 @@ function docsMenuIconForSlug($slug) {
     if (str_starts_with($slug, 'components-xcode')) return 'code';
     if (str_starts_with($slug, 'components-xicon') || str_starts_with($slug, 'components-xtheme')) return 'palette';
     if (str_starts_with($slug, 'components-xstate')) return 'database';
+    if (str_starts_with($slug, 'learn-rmt-')) return str_contains($slug, 'playground') ? 'terminal' : 'book-open';
     if (str_starts_with($slug, 'components-xrouter') || str_starts_with($slug, 'xtendrmt') || str_starts_with($slug, 'rmt-')) return 'route';
     if (str_starts_with($slug, 'components-')) return 'component';
     if (str_contains($slug, 'security') || str_contains($slug, 'trusted-dom') || str_contains($slug, 'supply-chain') || str_contains($slug, 'csp') || str_contains($slug, 'network')) return 'shield-check';
@@ -548,7 +609,8 @@ function docsRenderXRoute($route, $pathOverride = null) {
 }
 
 function docsJsonEncodeForHtml($value) {
-    return json_encode($value, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
+    $json = json_encode($value, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_INVALID_UTF8_SUBSTITUTE);
+    return $json === false ? 'null' : $json;
 }
 
 function docsDescriptorText($text) {
@@ -655,7 +717,7 @@ function docsFindRmtTemplate($document, $templateId) {
     return null;
 }
 
-function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta, $fileToSlug, $docsAvailableLocales, $pageLocale, $docsDefaultLocale, $docsLogoUrl, $xtendAssetVersionAttr) {
+function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta, $fileToSlug, $docsAvailableLocales, $pageLocale, $docsDefaultLocale, $docsLogoUrl, $xtendAssetVersionAttr, $docsBasePath = '') {
     global $page;
     $ssrRoot = [
         'data-rmt-ssr-root' => 'docs.app.root-shell',
@@ -666,16 +728,16 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
     ];
     $routeChildren = [];
     if (isset($allPagesMeta['readme']['route'])) {
-        $routeChildren[] = docsRouteDescriptor($allPagesMeta['readme']['route'], '/');
+        $routeChildren[] = docsRouteDescriptor($allPagesMeta['readme']['route'], docsBuildHistoryRootPath($docsBasePath));
     }
     foreach ($localizedAllPagesMeta as $locale => $localePagesMeta) {
         foreach ($localePagesMeta as $slug => $meta) {
-            $routeChildren[] = docsRouteDescriptor($meta['route'], '/' . $locale . '/' . $slug);
+            $routeChildren[] = docsRouteDescriptor($meta['route'], docsBuildHistoryRoutePath($slug, $locale, $docsBasePath));
         }
     }
     foreach ($fileToSlug as $rel => $slug) {
         if (isset($allPagesMeta[$slug]['route'])) {
-            $routeChildren[] = docsRouteDescriptor($allPagesMeta[$slug]['route'], '/' . $slug);
+            $routeChildren[] = docsRouteDescriptor($allPagesMeta[$slug]['route'], docsBuildHistoryRoutePath($slug, $docsDefaultLocale, $docsBasePath));
         }
     }
     $routeChildren[] = docsDescriptorElement('x-route', [
@@ -811,7 +873,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                 'style' => '--xtend-layout-reserved-block-size: var(--docs-route-reserved-block-size); --xtend-router-reserved-block-size: var(--docs-route-reserved-block-size);'
             ]), [
                 docsDescriptorComponent('x-router', [
-                    'mode' => 'hash',
+                    'mode' => 'history',
                     'reuse-component' => true,
                     'skeleton' => 'article',
                     'skeleton-lines' => '10',
@@ -933,8 +995,643 @@ function docsCreateRmtCompilerBridge($bridgePath, $repoRoot, $nodeBinary = 'node
     };
 }
 
+function docsCreateRmtLspBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
+    return function ($source, array $context = []) use ($bridgePath, $repoRoot, $nodeBinary) {
+        if (!is_readable($bridgePath) || !function_exists('proc_open')) {
+            return [
+                'schema' => 'xtend.docs.rmt-playground.lsp-bridge.v1',
+                'ok' => false,
+                'status' => 'bridge-unavailable',
+                'diagnostics' => [[
+                    'code' => 'xtend.docs.rmt_lsp_bridge.unavailable',
+                    'severity' => 'error',
+                    'source' => 'xtend-rmt-language-server',
+                    'message' => 'The docs PHP host could not start the Node RMT Language Server bridge.'
+                ]]
+            ];
+        }
+        $payload = json_encode([
+            'source' => (string) $source,
+            'filePath' => $context['filePath'] ?? 'docs/rmt-playground-source.rmt',
+            'version' => $context['version'] ?? 1,
+            'uri' => $context['uri'] ?? null
+        ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        $descriptorSpec = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w']
+        ];
+        $command = escapeshellcmd((string) $nodeBinary) . ' ' . escapeshellarg((string) $bridgePath);
+        $process = proc_open($command, $descriptorSpec, $pipes, (string) $repoRoot);
+        if (!is_resource($process)) {
+            return [
+                'schema' => 'xtend.docs.rmt-playground.lsp-bridge.v1',
+                'ok' => false,
+                'status' => 'bridge-start-failed',
+                'diagnostics' => [[
+                    'code' => 'xtend.docs.rmt_lsp_bridge.start_failed',
+                    'severity' => 'error',
+                    'source' => 'xtend-rmt-language-server',
+                    'message' => 'The docs PHP host failed to open the Node RMT Language Server bridge.'
+                ]]
+            ];
+        }
+        fwrite($pipes[0], $payload ?: '{}');
+        fclose($pipes[0]);
+        $stdout = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+        $exitCode = proc_close($process);
+        $decoded = json_decode((string) $stdout, true);
+        if (is_array($decoded)) {
+            $decoded['exitCode'] = $exitCode;
+            if ($stderr !== '') $decoded['stderr'] = trim($stderr);
+            return $decoded;
+        }
+        return [
+            'schema' => 'xtend.docs.rmt-playground.lsp-bridge.v1',
+            'ok' => false,
+            'status' => 'bridge-output-invalid',
+            'diagnostics' => [[
+                'code' => 'xtend.docs.rmt_lsp_bridge.output_invalid',
+                'severity' => 'error',
+                'source' => 'xtend-rmt-language-server',
+                'message' => trim($stderr) ?: 'The Node RMT Language Server bridge did not return JSON.'
+            ]]
+        ];
+    };
+}
+
+function docsRmtPlaygroundJson($payload, $statusCode = 200) {
+    http_response_code((int) $statusCode);
+    header('Content-Type: application/json; charset=UTF-8');
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: no-store');
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+function docsRmtPlaygroundRangeForOffset($source, $offset) {
+    $offset = max(0, min(strlen((string) $source), (int) $offset));
+    $prefix = substr((string) $source, 0, $offset);
+    $lines = preg_split('/\\R/', $prefix);
+    $line = max(0, count($lines) - 1);
+    $character = strlen((string) end($lines));
+    return [
+        'start' => ['line' => $line, 'character' => $character],
+        'end' => ['line' => $line, 'character' => $character + 1]
+    ];
+}
+
+function docsRmtPlaygroundDiagnostic($code, $message, $source, $offset = 0, $severity = 'error') {
+    return [
+        'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+        'source' => 'docs-rmt-playground',
+        'code' => (string) $code,
+        'severity' => (string) $severity,
+        'message' => (string) $message,
+        'range' => docsRmtPlaygroundRangeForOffset($source, $offset)
+    ];
+}
+
+function docsRmtPlaygroundNormalizeDiagnostics($diagnostics) {
+    if (!is_array($diagnostics)) return [];
+    $normalized = [];
+    foreach ($diagnostics as $diagnostic) {
+        if (!is_array($diagnostic)) continue;
+        $message = (string) ($diagnostic['message'] ?? 'Diagnostic');
+        $message = preg_replace('/\\bWP-[A-Z0-9-]+\\b/i', 'compiler source', $message);
+        $entry = [
+            'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+            'source' => (string) ($diagnostic['source'] ?? 'rmt-language'),
+            'code' => (string) ($diagnostic['code'] ?? 'rmt.diagnostic'),
+            'severity' => (string) ($diagnostic['severity'] ?? 'info'),
+            'message' => $message
+        ];
+        if (isset($diagnostic['range']) && is_array($diagnostic['range'])) {
+            $entry['range'] = $diagnostic['range'];
+        }
+        $normalized[] = $entry;
+    }
+    return $normalized;
+}
+
+function docsRmtPlaygroundPolicyDiagnostics($source) {
+    $source = (string) $source;
+    $rules = [
+        ['docs.rmt.playground.script_tag', '/<\\s*script\\b/i', 'Script tags are not allowed in playground source.'],
+        ['docs.rmt.playground.style_tag', '/<\\s*style\\b/i', 'Style tags are not allowed in playground source.'],
+        ['docs.rmt.playground.inline_handler', '/\\bon[a-z]+\\s*=/i', 'Inline event handler attributes are not allowed in playground source.'],
+        ['docs.rmt.playground.unsafe_protocol', '/\\bjavascript\\s*:|\\bdata\\s*:\\s*text\\/(?:html|javascript)/i', 'Unsafe URL protocols are not allowed in playground source.'],
+        ['docs.rmt.playground.dom_sink', '/\\b(?:innerHTML|outerHTML|insertAdjacentHTML|srcdoc)\\b/i', 'HTML injection sinks are not allowed in playground source.']
+    ];
+    $diagnostics = [];
+    foreach ($rules as $rule) {
+        if (preg_match($rule[1], $source, $match, PREG_OFFSET_CAPTURE)) {
+            $diagnostics[] = docsRmtPlaygroundDiagnostic($rule[0], $rule[2], $source, $match[0][1]);
+        }
+    }
+    return $diagnostics;
+}
+
+function docsRmtPlaygroundPreviewValue($value, $maxLength = 240) {
+    if (is_bool($value)) return $value;
+    if (is_int($value) || is_float($value)) return (string) $value;
+    $text = preg_replace('/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/', '', (string) $value);
+    return substr($text, 0, max(1, (int) $maxLength));
+}
+
+function docsRmtPlaygroundFindCoreRecord($records, $name, $prefix = '') {
+    if (!is_array($records)) return null;
+    $needle = (string) $name;
+    if ($needle === '') return null;
+    $prefixed = $prefix !== '' && !str_starts_with($needle, $prefix . ':') ? $prefix . ':' . $needle : $needle;
+    foreach ($records as $record) {
+        if (!is_array($record)) continue;
+        $recordName = (string) ($record['name'] ?? '');
+        $recordId = (string) ($record['id'] ?? '');
+        if ($recordName === $needle || $recordId === $needle || $recordId === $prefixed) return $record;
+    }
+    return null;
+}
+
+function docsRmtPlaygroundInitialDataForSurface($surface, $coreDocument) {
+    if (!is_array($surface) || !is_array($coreDocument)) return null;
+    $source = isset($surface['source']) && is_array($surface['source']) ? $surface['source'] : [];
+    $sourceKind = (string) ($source['kind'] ?? '');
+    $sourceTarget = (string) ($source['target'] ?? '');
+    if ($sourceTarget === '') return null;
+
+    $stateTarget = $sourceTarget;
+    if ($sourceKind === 'selector') {
+        $selector = docsRmtPlaygroundFindCoreRecord($coreDocument['selectors'] ?? [], $sourceTarget, 'selector');
+        if (!$selector || !isset($selector['source']) || !is_array($selector['source'])) return null;
+        $stateTarget = (string) ($selector['source']['target'] ?? '');
+    }
+
+    $state = docsRmtPlaygroundFindCoreRecord($coreDocument['states'] ?? [], $stateTarget, 'state');
+    $initial = $state && isset($state['initial']) && is_array($state['initial']) ? $state['initial'] : null;
+    return $initial;
+}
+
+function docsRmtPlaygroundSafePreviewTag($component) {
+    $tag = strtolower(trim((string) $component));
+    if ($tag === '') return '';
+    if (preg_match('/^[a-z][a-z0-9]*-[a-z0-9][a-z0-9-]*$/', $tag) !== 1) return '';
+    return $tag;
+}
+
+function docsRmtPlaygroundPreviewTextFromData($data, $fallback = '') {
+    if (!is_array($data)) return docsRmtPlaygroundPreviewValue($fallback);
+    foreach (['message', 'text', 'title', 'label', 'name', 'status', 'value', 'id'] as $key) {
+        if (!array_key_exists($key, $data)) continue;
+        $value = $data[$key];
+        if (is_array($value) || is_object($value)) continue;
+        $text = docsRmtPlaygroundPreviewValue($value);
+        if ($text !== '') return $text;
+    }
+    return docsRmtPlaygroundPreviewValue($fallback);
+}
+
+function docsRmtPlaygroundPreviewDataAttribute($data, $keys, $fallback = null, $maxLength = 240) {
+    if (is_array($data)) {
+        foreach ((array) $keys as $key) {
+            if (!array_key_exists($key, $data)) continue;
+            $value = $data[$key];
+            if (is_array($value) || is_object($value)) continue;
+            return docsRmtPlaygroundPreviewValue($value, $maxLength);
+        }
+    }
+    if ($fallback === null) return null;
+    return docsRmtPlaygroundPreviewValue($fallback, $maxLength);
+}
+
+function docsRmtPlaygroundPreviewBoolAttribute($data, $key) {
+    if (!is_array($data) || !array_key_exists($key, $data)) return null;
+    return filter_var($data[$key], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+}
+
+function docsRmtPlaygroundSafePreviewUrl($value) {
+    $url = trim((string) $value);
+    if ($url === '') return null;
+    if (preg_match('/^(#|\\/|\\.\\/|\\.\\.\\/|https?:|mailto:|tel:)/i', $url) !== 1) return null;
+    return docsRmtPlaygroundPreviewValue($url, 512);
+}
+
+function docsRmtPlaygroundPreviewAttributesForComponent($component, $data, $surface) {
+    $surfaceId = (string) ($surface['id'] ?? $surface['name'] ?? 'surface');
+    $surfaceName = (string) ($surface['name'] ?? $surfaceId);
+    $attributes = [
+        'data-rmt-playground-surface' => docsRmtPlaygroundPreviewValue($surfaceId, 160),
+        'data-rmt-surface-name' => docsRmtPlaygroundPreviewValue($surfaceName, 160),
+        'data-rmt-surface-kind' => docsRmtPlaygroundPreviewValue($surface['kind'] ?? 'surface', 80)
+    ];
+
+    $candidateMap = [
+        'label' => ['label', 'title', 'name', 'id'],
+        'title' => ['title', 'label', 'name'],
+        'name' => ['name', 'id'],
+        'value' => ['value'],
+        'state' => ['state', 'status', 'tone'],
+        'type' => ['type', 'tone'],
+        'variant' => ['variant', 'tone'],
+        'placeholder' => ['placeholder']
+    ];
+    foreach ($candidateMap as $attribute => $keys) {
+        $value = docsRmtPlaygroundPreviewDataAttribute($data, $keys);
+        if ($value !== null && $value !== '') $attributes[$attribute] = $value;
+    }
+
+    foreach (['busy', 'checked', 'disabled', 'dismissible', 'loading', 'open', 'polite', 'required', 'selected'] as $booleanKey) {
+        $value = docsRmtPlaygroundPreviewBoolAttribute($data, $booleanKey);
+        if ($value !== null) $attributes[$booleanKey] = $value;
+    }
+
+    if ($component === 'x-status') {
+        $tone = strtolower((string) docsRmtPlaygroundPreviewDataAttribute($data, ['tone', 'type', 'state'], 'info', 64));
+        if (!in_array($tone, ['info', 'success', 'warning', 'error'], true)) $tone = 'info';
+        $attributes['type'] = $tone;
+        $attributes['state'] = docsRmtPlaygroundPreviewDataAttribute($data, ['state', 'status', 'tone'], $tone, 64);
+        $message = docsRmtPlaygroundPreviewTextFromData($data, 'Status ready');
+        if ($message !== '') $attributes['message'] = $message;
+    }
+
+    if ($component === 'x-progress') {
+        $attributes['value'] = docsRmtPlaygroundPreviewDataAttribute($data, ['value', 'progress', 'percent'], '0', 32);
+        $attributes['max'] = docsRmtPlaygroundPreviewDataAttribute($data, ['max', 'total'], '100', 32);
+    }
+
+    if (in_array($component, ['x-link', 'x-button'], true)) {
+        $href = docsRmtPlaygroundSafePreviewUrl($data['href'] ?? $data['url'] ?? '');
+        if ($href !== null) $attributes['href'] = $href;
+    }
+
+    return array_filter($attributes, function ($value) {
+        return $value !== null && $value !== '';
+    });
+}
+
+function docsRmtPlaygroundComponentDescriptor($surface, $coreDocument) {
+    $component = docsRmtPlaygroundSafePreviewTag($surface['component'] ?? '');
+    if ($component === '') return null;
+    $data = docsRmtPlaygroundInitialDataForSurface($surface, $coreDocument);
+    if (!is_array($data)) $data = [];
+    $surfaceId = (string) ($surface['id'] ?? $surface['name'] ?? $component);
+    $text = docsRmtPlaygroundPreviewTextFromData($data, $surface['name'] ?? $surfaceId);
+    $descriptor = [
+        'type' => 'component',
+        'component' => $component,
+        'tag' => $component,
+        'id' => docsRmtPlaygroundPreviewValue($surfaceId, 160),
+        'key' => docsRmtPlaygroundPreviewValue($surface['key'] ?? $surfaceId, 160),
+        'attributes' => docsRmtPlaygroundPreviewAttributesForComponent($component, $data, $surface)
+    ];
+    if ($text !== '') {
+        $descriptor['children'] = [[
+            'type' => 'text',
+            'text' => $text
+        ]];
+    }
+    return $descriptor;
+}
+
+function docsRmtPlaygroundComponentPreview($surface, $coreDocument) {
+    $descriptor = docsRmtPlaygroundComponentDescriptor($surface, $coreDocument);
+    if (!$descriptor) return null;
+    return [
+        'schema' => 'xtend.docs.rmt-playground.component-preview.v1',
+        'renderMode' => 'dom_descriptor',
+        'renderer' => 'xtendrmt/rmt-dom-descriptor-renderer',
+        'tag' => $descriptor['tag'],
+        'descriptor' => $descriptor,
+        'model' => [
+            'surface' => [
+                'id' => $surface['id'] ?? '',
+                'name' => $surface['name'] ?? '',
+                'kind' => $surface['kind'] ?? '',
+                'component' => $surface['component'] ?? ''
+            ],
+            'state' => docsRmtPlaygroundInitialDataForSurface($surface, $coreDocument) ?: new stdClass()
+        ],
+        'source' => $surface['source']['ref'] ?? ''
+    ];
+}
+
+function docsRmtPlaygroundPreviewFromCore($coreDocument) {
+    if (!is_array($coreDocument)) {
+        return [
+            'schema' => 'xtend.docs.rmt-playground.preview.v1',
+            'documentId' => '',
+            'surfaces' => [],
+            'surfaceCount' => 0,
+            'stateCount' => 0,
+            'selectorCount' => 0,
+            'actionCount' => 0,
+            'resourceCount' => 0
+        ];
+    }
+    $lanesById = [];
+    foreach (($coreDocument['lanes'] ?? []) as $lane) {
+        if (!is_array($lane)) continue;
+        $id = (string) ($lane['id'] ?? '');
+        if ($id === '') continue;
+        $lanesById[$id] = array_filter([
+            'id' => $id,
+            'name' => $lane['name'] ?? null,
+            'weight' => $lane['weight'] ?? null,
+            'operationCount' => isset($lane['operations']) && is_array($lane['operations']) ? count($lane['operations']) : null
+        ], function ($value) {
+            return $value !== null && $value !== '';
+        });
+    }
+    $surfaces = [];
+    foreach (($coreDocument['surfaces'] ?? []) as $surface) {
+        if (!is_array($surface)) continue;
+        $laneRefs = array_values(array_filter($surface['laneRefs'] ?? [], 'is_string'));
+        $surfaceLanes = [];
+        foreach ($laneRefs as $laneRef) {
+            if (isset($lanesById[$laneRef])) $surfaceLanes[] = $lanesById[$laneRef];
+        }
+        $surfaces[] = array_filter([
+            'id' => $surface['name'] ?? $surface['id'] ?? '',
+            'surfaceId' => $surface['id'] ?? '',
+            'kind' => $surface['kind'] ?? '',
+            'component' => $surface['component'] ?? '',
+            'sourceKind' => $surface['source']['kind'] ?? '',
+            'sourceTarget' => $surface['source']['target'] ?? '',
+            'bounds' => isset($surface['bounds']) && is_array($surface['bounds']) ? array_filter([
+                'x' => $surface['bounds']['x'] ?? null,
+                'y' => $surface['bounds']['y'] ?? null,
+                'width' => $surface['bounds']['width'] ?? null,
+                'height' => $surface['bounds']['height'] ?? null
+            ], function ($value) {
+                return $value !== null && $value !== '';
+            }) : null,
+            'lanes' => $surfaceLanes,
+            'componentPreview' => docsRmtPlaygroundComponentPreview($surface, $coreDocument)
+        ], function ($value) {
+            return $value !== null && $value !== '' && $value !== [];
+        });
+    }
+    foreach (($coreDocument['remoteSurfaces'] ?? []) as $remoteSurface) {
+        if (!is_array($remoteSurface)) continue;
+        $exposes = [];
+        foreach (($remoteSurface['exposes'] ?? []) as $expose) {
+            if (!is_array($expose)) continue;
+            $exposes[] = array_filter([
+                'name' => $expose['lane'] ?? '',
+                'target' => isset($expose['target']) && is_array($expose['target']) ? ($expose['target']['slot'] ?? $expose['target']['ref'] ?? '') : '',
+                'weight' => null
+            ], function ($value) {
+                return $value !== null && $value !== '';
+            });
+        }
+        $surfaces[] = array_filter([
+            'id' => $remoteSurface['name'] ?? $remoteSurface['id'] ?? '',
+            'surfaceId' => $remoteSurface['id'] ?? '',
+            'kind' => $remoteSurface['kind'] ?? 'remote_surface',
+            'component' => '',
+            'sourceKind' => 'remote',
+            'sourceTarget' => $remoteSurface['remote']['id'] ?? '',
+            'lanes' => $exposes
+        ], function ($value) {
+            return $value !== null && $value !== '' && $value !== [];
+        });
+    }
+    return [
+        'schema' => 'xtend.docs.rmt-playground.preview.v1',
+        'documentId' => (string) ($coreDocument['manifest']['documentId'] ?? ''),
+        'surfaces' => array_slice($surfaces, 0, 12),
+        'surfaceCount' => count($coreDocument['surfaces'] ?? []),
+        'remoteSurfaceCount' => count($coreDocument['remoteSurfaces'] ?? []),
+        'stateCount' => count($coreDocument['states'] ?? []),
+        'selectorCount' => count($coreDocument['selectors'] ?? []),
+        'actionCount' => count($coreDocument['actions'] ?? []),
+        'resourceCount' => count($coreDocument['resources'] ?? []),
+        'importCount' => count($coreDocument['imports'] ?? [])
+    ];
+}
+
+function docsRmtPlaygroundReadJsonBody($schema, $maxBodyBytes) {
+    $contentLength = isset($_SERVER['CONTENT_LENGTH']) ? (int) $_SERVER['CONTENT_LENGTH'] : 0;
+    if ($contentLength > $maxBodyBytes) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'body_too_large',
+            'diagnostics' => [[
+                'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+                'source' => 'docs-rmt-playground',
+                'code' => 'docs.rmt.playground.body_too_large',
+                'severity' => 'error',
+                'message' => 'The playground request body is too large.'
+            ]]
+        ], 413);
+    }
+    $rawBody = file_get_contents('php://input');
+    if ($rawBody === '' && PHP_SAPI === 'cli') {
+        $cliBody = getenv('XTEND_DOCS_RMT_PLAYGROUND_BODY');
+        if ($cliBody !== false) {
+            $rawBody = (string) $cliBody;
+        }
+    }
+    if ($rawBody === '' && PHP_SAPI === 'cli') {
+        $rawBody = file_get_contents('php://stdin');
+    }
+    if (strlen((string) $rawBody) > $maxBodyBytes) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'body_too_large',
+            'diagnostics' => [[
+                'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+                'source' => 'docs-rmt-playground',
+                'code' => 'docs.rmt.playground.body_too_large',
+                'severity' => 'error',
+                'message' => 'The playground request body is too large.'
+            ]]
+        ], 413);
+    }
+    $decoded = json_decode((string) $rawBody, true);
+    if (!is_array($decoded)) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'invalid_json',
+            'diagnostics' => [[
+                'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+                'source' => 'docs-rmt-playground',
+                'code' => 'docs.rmt.playground.invalid_json',
+                'severity' => 'error',
+                'message' => 'The playground request body must be JSON.'
+            ]]
+        ], 400);
+    }
+    return $decoded;
+}
+
+function docsRmtPlaygroundHandleDiagnostics($repoRoot, $bridgePath) {
+    $schema = 'xtend.docs.rmt-playground.lsp-diagnostics-response.v1';
+    $maxSourceBytes = 64 * 1024;
+    $maxBodyBytes = 70 * 1024;
+    if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== 'POST') {
+        header('Allow: POST');
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'method_not_allowed',
+            'diagnostics' => [[
+                'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+                'source' => 'xtend-rmt-language-server',
+                'code' => 'docs.rmt.playground.method_not_allowed',
+                'severity' => 'error',
+                'message' => 'The playground diagnostics endpoint accepts POST requests only.'
+            ]]
+        ], 405);
+    }
+    $decoded = docsRmtPlaygroundReadJsonBody($schema, $maxBodyBytes);
+    $source = isset($decoded['source']) ? (string) $decoded['source'] : '';
+    if (strlen($source) > $maxSourceBytes) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'source_too_large',
+            'diagnostics' => [docsRmtPlaygroundDiagnostic('docs.rmt.playground.source_too_large', 'The playground source is larger than 64 KB.', $source)]
+        ], 413);
+    }
+    $bridge = docsCreateRmtLspBridge($bridgePath, $repoRoot);
+    $result = $bridge($source, [
+        'filePath' => 'docs/rmt-playground-source.rmt',
+        'version' => isset($decoded['version']) ? (int) $decoded['version'] : 1
+    ]);
+    $diagnostics = docsRmtPlaygroundNormalizeDiagnostics($result['diagnostics'] ?? []);
+    docsRmtPlaygroundJson([
+        'schema' => $schema,
+        'ok' => ($result['ok'] ?? false) === true,
+        'status' => (string) ($result['status'] ?? 'diagnostics'),
+        'languageMode' => (string) ($result['languageMode'] ?? 'unknown'),
+        'diagnosticsSource' => 'xtend-rmt-language-server',
+        'diagnostics' => $diagnostics,
+        'lspDiagnostics' => $result['lspDiagnostics'] ?? []
+    ], 200);
+}
+
+function docsRmtPlaygroundHandleCompile($repoRoot, $bridgePath) {
+    $schema = 'xtend.docs.rmt-playground.compile-response.v1';
+    $maxSourceBytes = 64 * 1024;
+    $maxBodyBytes = 70 * 1024;
+    if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== 'POST') {
+        header('Allow: POST');
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'method_not_allowed',
+            'diagnostics' => [[
+                'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+                'source' => 'docs-rmt-playground',
+                'code' => 'docs.rmt.playground.method_not_allowed',
+                'severity' => 'error',
+                'message' => 'The playground compile endpoint accepts POST requests only.'
+            ]]
+        ], 405);
+    }
+    $contentLength = isset($_SERVER['CONTENT_LENGTH']) ? (int) $_SERVER['CONTENT_LENGTH'] : 0;
+    if ($contentLength > $maxBodyBytes) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'body_too_large',
+            'diagnostics' => [[
+                'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+                'source' => 'docs-rmt-playground',
+                'code' => 'docs.rmt.playground.body_too_large',
+                'severity' => 'error',
+                'message' => 'The playground request body is too large.'
+            ]]
+        ], 413);
+    }
+    $rawBody = file_get_contents('php://input');
+    if ($rawBody === '' && PHP_SAPI === 'cli') {
+        $cliBody = getenv('XTEND_DOCS_RMT_PLAYGROUND_BODY');
+        if ($cliBody !== false) {
+            $rawBody = (string) $cliBody;
+        }
+    }
+    if ($rawBody === '' && PHP_SAPI === 'cli') {
+        $rawBody = file_get_contents('php://stdin');
+    }
+    if (strlen((string) $rawBody) > $maxBodyBytes) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'body_too_large',
+            'diagnostics' => [[
+                'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+                'source' => 'docs-rmt-playground',
+                'code' => 'docs.rmt.playground.body_too_large',
+                'severity' => 'error',
+                'message' => 'The playground request body is too large.'
+            ]]
+        ], 413);
+    }
+    $decoded = json_decode((string) $rawBody, true);
+    if (!is_array($decoded)) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'invalid_json',
+            'diagnostics' => [[
+                'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+                'source' => 'docs-rmt-playground',
+                'code' => 'docs.rmt.playground.invalid_json',
+                'severity' => 'error',
+                'message' => 'The playground request body must be JSON.'
+            ]]
+        ], 400);
+    }
+    $source = isset($decoded['source']) ? (string) $decoded['source'] : '';
+    if (strlen($source) > $maxSourceBytes) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'source_too_large',
+            'diagnostics' => [docsRmtPlaygroundDiagnostic('docs.rmt.playground.source_too_large', 'The playground source is larger than 64 KB.', $source)]
+        ], 413);
+    }
+    $policyDiagnostics = docsRmtPlaygroundPolicyDiagnostics($source);
+    if (!empty($policyDiagnostics)) {
+        docsRmtPlaygroundJson([
+            'schema' => $schema,
+            'ok' => false,
+            'status' => 'blocked',
+            'diagnostics' => $policyDiagnostics,
+            'coreJson' => null,
+            'preview' => docsRmtPlaygroundPreviewFromCore(null)
+        ], 200);
+    }
+    $compiler = docsCreateRmtCompilerBridge($bridgePath, $repoRoot);
+    $compiled = $compiler($source, [
+        'filePath' => 'docs/rmt-playground-source.rmt',
+        'options' => [
+            'documentId' => 'docs.rmt.playground',
+            'source' => 'docs-rmt-playground'
+        ]
+    ]);
+    $diagnostics = docsRmtPlaygroundNormalizeDiagnostics($compiled['diagnostics'] ?? $compiled['compilerDiagnostics'] ?? []);
+    $ok = isset($compiled['ok']) ? (bool) $compiled['ok'] : false;
+    docsRmtPlaygroundJson([
+        'schema' => $schema,
+        'ok' => $ok,
+        'status' => (string) ($compiled['status'] ?? ($ok ? 'compiled' : 'failed')),
+        'diagnostics' => $diagnostics,
+        'coreJson' => $ok ? (string) ($compiled['coreJson'] ?? '') : null,
+        'preview' => $ok ? docsRmtPlaygroundPreviewFromCore($compiled['coreDocument'] ?? null) : docsRmtPlaygroundPreviewFromCore(null)
+    ], 200);
+}
+
 function docsSsrEndpointUrl($page, $locale) {
-    return 'index.php?xtend-docs-rmt-ssr=shell&format=jsonl&page=' . rawurlencode((string) $page) . '&locale=' . rawurlencode((string) $locale);
+    return docsEndpointPath('xtend-docs-rmt-ssr=shell&format=jsonl&page=' . rawurlencode((string) $page) . '&locale=' . rawurlencode((string) $locale));
 }
 
 function docsCreateDocsSsrAdapter($repoRoot, $bridgePath) {
@@ -1195,7 +1892,8 @@ function docsResolveLocalizedPage($rawSlug, $rawLocale, $localizedSlugToFile, $a
 }
 
 // Routing: Slug aus URL
-$pageRequest = docsResolveLocalizedPage($_GET['page'] ?? 'readme', $_GET['locale'] ?? $docsDefaultLocale, $localizedSlugToFile, $docsAvailableLocales, $docsFallbackLocale);
+$docsRequestRoutePath = docsRoutePathFromRequest($docsBasePath);
+$pageRequest = docsResolveLocalizedPage($_GET['page'] ?? $docsRequestRoutePath, $_GET['locale'] ?? $docsDefaultLocale, $localizedSlugToFile, $docsAvailableLocales, $docsFallbackLocale);
 if ($pageRequest) {
     $page = $pageRequest['slug'];
     $pageLocale = $pageRequest['resolvedLocale'];
@@ -1340,7 +2038,7 @@ $docsRmtRoutes[] = array_replace_recursive($allPagesMeta['readme']['route'] ?? [
     ]
 ]);
 $rmtPilotDocumentData = docsMergeRmtRoutes($rmtPilotDocumentData, $docsRmtRoutes);
-$rmtPilotDocumentJson = json_encode($rmtPilotDocumentData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+$rmtPilotDocumentJson = docsJsonEncodeForHtml($rmtPilotDocumentData);
 $initialDocsSlug = isset($localizedAllPagesMeta[$pageLocale][$page]) ? $page : 'readme';
 $initialTitle = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['documentTitle'] ?? 'XTend Dokumentation';
 $initialDescription = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaDescription'] ?? 'XTend Dokumentation';
@@ -1353,7 +2051,8 @@ $docsRootShellDescriptor = docsBuildDocsRootShellDescriptor(
     $pageLocale,
     $docsDefaultLocale,
     htmlspecialchars_decode($docsLogoUrl, ENT_QUOTES),
-    $xtendAssetVersionAttr
+    $xtendAssetVersionAttr,
+    $docsBasePath
 );
 $docsSsrEndpoint = docsSsrEndpointUrl($initialDocsSlug, $pageLocale);
 $docsSsrPrehydration = docsRenderDocsSsrPrehydration(
@@ -1376,7 +2075,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         $streamLocale,
         $docsDefaultLocale,
         htmlspecialchars_decode($docsLogoUrl, ENT_QUOTES),
-        $xtendAssetVersionAttr
+        $xtendAssetVersionAttr,
+        $docsBasePath
     );
     $streamSource = is_readable($docsRmtVNextDocumentPath) ? file_get_contents($docsRmtVNextDocumentPath) : '';
     $streamAdapter = docsCreateDocsSsrAdapter($repoRoot, $docsRmtCompilerBridgePath);
@@ -2212,13 +2912,13 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         }
     </style>
     <script nonce="<?= $nonce ?>">
-    window.xtendInitialDocsSlug = <?= json_encode($initialDocsSlug, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-    window.xtendInitialDocsLocale = <?= json_encode($pageLocale, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-    window.xtendDocsLocales = <?php echo json_encode($docsAvailableLocales, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendInitialDocsSlug = <?= docsJsonEncodeForHtml($initialDocsSlug); ?>;
+    window.xtendInitialDocsLocale = <?= docsJsonEncodeForHtml($pageLocale); ?>;
+    window.xtendDocsLocales = <?php echo docsJsonEncodeForHtml($docsAvailableLocales); ?>;
     window.xtendDocsI18n = {
       schema: 'xtend.docs.i18n.v1',
-      defaultLocale: <?= json_encode($docsDefaultLocale, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>,
-      fallbackLocale: <?= json_encode($docsFallbackLocale, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>,
+      defaultLocale: <?= docsJsonEncodeForHtml($docsDefaultLocale); ?>,
+      fallbackLocale: <?= docsJsonEncodeForHtml($docsFallbackLocale); ?>,
       storageKey: 'xtend.docs.locale',
       stateKeys: {
         locale: 'xtend.docs.locale',
@@ -2233,39 +2933,64 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       },
       available: Object.keys(window.xtendDocsLocales || {})
     };
-    window.xtendDocsLocalizedPages = <?php echo json_encode($localizedAllPages, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-    window.xtendDocsLocalizedPagesMeta = <?php echo json_encode(docsCompactLocalizedMetaForBootstrap($localizedAllPagesMeta), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-    window.xtendDocsLocalizedTitles = <?php echo json_encode($localizedTitles, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendDocsLocalizedPages = <?php echo docsJsonEncodeForHtml($localizedAllPages); ?>;
+    window.xtendDocsLocalizedPagesMeta = <?php echo docsJsonEncodeForHtml(docsCompactLocalizedMetaForBootstrap($localizedAllPagesMeta)); ?>;
+    window.xtendDocsLocalizedTitles = <?php echo docsJsonEncodeForHtml($localizedTitles); ?>;
+    window.xtendDocsBasePath = <?= docsJsonEncodeForHtml($docsBasePath); ?>;
+    window.xtendDocsRoutingMode = 'history';
     (function() {
       const config = window.xtendDocsI18n || {};
       const available = config.available || ['de'];
       const fallback = config.fallbackLocale || 'de';
+      const basePath = String(window.xtendDocsBasePath || '').replace(/\/+$/, '');
       const normalizeLocale = (value) => {
         const raw = String(value || '').toLowerCase();
         if (available.includes(raw)) return raw;
         const short = raw.slice(0, 2);
         return available.includes(short) ? short : fallback;
       };
+      const normalizeRoutePath = (value) => {
+        let raw = String(value || '').split('?')[0].replace(/^#\/?/, '/');
+        if (!raw.startsWith('/')) raw = '/' + raw;
+        raw = raw.replace(/^\/+index\.php\/?/, '/');
+        if (basePath && (raw === basePath || raw.startsWith(basePath + '/'))) {
+          raw = raw.slice(basePath.length) || '/';
+        }
+        raw = raw.replace(/^\/+index\.php\/?/, '/').replace(/^\/+/, '');
+        return raw;
+      };
+      const parseRoute = (value) => {
+        const raw = normalizeRoutePath(value);
+        const parts = raw.split('/').filter(Boolean);
+        const routeLocale = available.includes(parts[0]) ? parts[0] : '';
+        return {
+          locale: routeLocale,
+          slug: routeLocale ? (parts.slice(1).join('/') || window.xtendInitialDocsSlug || 'readme') : (parts.join('/') || window.xtendInitialDocsSlug || 'readme'),
+          localized: Boolean(routeLocale)
+        };
+      };
       const stored = (() => {
         try { return localStorage.getItem(config.storageKey || 'xtend.docs.locale'); } catch (error) { return ''; }
       })();
       const browser = (navigator.languages && navigator.languages[0]) || navigator.language || '';
       const locale = normalizeLocale(stored || browser || config.defaultLocale || fallback);
-      const rawHash = location.hash.replace(/^#\/?/, '').replace(/^\/+/, '');
-      const parts = rawHash.split('/');
-      const hashLocale = available.includes(parts[0]) ? parts[0] : '';
-      const slug = hashLocale ? (parts.slice(1).join('/') || window.xtendInitialDocsSlug || 'readme') : (rawHash || window.xtendInitialDocsSlug || 'readme');
-      window.xtendDocsCurrentLocale = hashLocale || locale;
-      if (!location.hash || !hashLocale) {
-        location.hash = '#/' + window.xtendDocsCurrentLocale + '/' + slug;
+      const hashRoute = location.hash ? parseRoute(location.hash) : null;
+      const pathRoute = parseRoute(location.pathname);
+      const route = hashRoute || pathRoute;
+      window.xtendDocsCurrentLocale = route.locale || locale;
+      const slug = route.slug || window.xtendInitialDocsSlug || 'readme';
+      const canonicalPath = (basePath || '') + '/' + window.xtendDocsCurrentLocale + '/' + slug;
+      const currentPath = location.pathname.replace(/\/+$/, '') || '/';
+      if (location.hash || currentPath !== canonicalPath.replace(/\/+$/, '')) {
+        history.replaceState(history.state || null, '', canonicalPath);
       }
     })();
-    window.xtendDocsPages = <?php echo json_encode($allPages, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-    window.xtendDocsPageEndpoint = 'index.php?xtend-docs-page={slug}&locale={locale}';
+    window.xtendDocsPages = <?php echo docsJsonEncodeForHtml($allPages); ?>;
+    window.xtendDocsPageEndpoint = <?= docsJsonEncodeForHtml(docsEndpointPath('xtend-docs-page={slug}&locale={locale}')); ?>;
     window.xtendDocsRmtSsrEndpoint = <?= docsJsonEncodeForHtml($docsSsrEndpoint); ?>;
     window.xtendDocsSsrPrehydration = <?php echo docsJsonEncodeForHtml(docsCompactDocsSsrPrehydrationForBootstrap($docsSsrPrehydration)); ?>;
-    window.xtendDocsPagesMeta = <?php echo json_encode(docsCompactMetaMapForBootstrap($allPagesMeta), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-    window.xtendDocsTitles = <?php echo json_encode($titles, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+    window.xtendDocsPagesMeta = <?php echo docsJsonEncodeForHtml(docsCompactMetaMapForBootstrap($allPagesMeta)); ?>;
+    window.xtendDocsTitles = <?php echo docsJsonEncodeForHtml($titles); ?>;
     window.xtendDocsAssetUrls = {
       favicon: '<?= $docsFaviconIcoUrl ?>',
       favicon32: '<?= $docsFavicon32Url ?>',

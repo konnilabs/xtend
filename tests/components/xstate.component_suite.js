@@ -62,10 +62,9 @@ function runXStateComponentSuite(options = {}) {
   context.assertIncludes(fixture, '__xtendComponentResult', 'xstate fixture records component result contract');
 
   context.assertIncludes(docs, '# xstate', 'xstate documentation is present');
-  context.assertIncludes(docs, 'Boundary-Probe', 'xstate docs document non-visual boundary probe');
-  context.assertIncludes(docs, 'xtend.state.boundary-probe.v1', 'xstate docs document boundary schema');
-  context.assertIncludes(docs, 'xtend.rmt.state-scheduler-compatibility.v1', 'xstate docs document RMT compatibility schema');
-  context.assertIncludes(docs, 'snapshotDiagnostics()', 'xstate docs document diagnostics API');
+  context.assertIncludes(docs, 'xtend-loader.js', 'xstate docs describe loader integration');
+  context.assertIncludes(docs, 'components/manifest.json', 'xstate docs reference the component manifest');
+  context.assertIncludes(docs, 'RMT Hosts', 'xstate docs describe RMT host integration');
 
   return context.result({
     tag: 'xstate',

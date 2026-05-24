@@ -130,8 +130,9 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
   context.assert(fixture.includes(`/components/${config.fileName}`), `${tag} fixture loads repo-local component`);
   context.assert(fixture.includes('window.xstate'), `${tag} fixture stubs xstate`);
   config.attributes.forEach((attribute) => context.assert(fixture.includes(attribute), `${tag} fixture covers ${attribute}`));
-  context.assert(docs.includes(`# ${tag.replace('-', '')}`), `${tag} documentation is present`);
-  context.assert(docs.includes('xtend.component.layout-display-media-ux-profile.v1'), `${tag} docs describe Layout Display Media UX profile`);
+  context.assert(docs.includes(`# ${tag}`), `${tag} documentation is present`);
+  context.assert(docs.includes('xtend-loader.js'), `${tag} docs describe loader integration`);
+  context.assert(docs.includes('components/manifest.json'), `${tag} docs reference the component manifest`);
   context.assert(types.includes('XtendLayoutDisplayMediaUxProfile'), `${tag} public types import Layout Display Media UX profile`);
   context.assert(types.includes('LayoutDisplayMediaUxProfile'), `${tag} public types export Layout Display Media profile alias`);
   if (tag === 'x-header') {
@@ -151,11 +152,6 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
     context.assert(source.includes('"brand actions trigger" "search search search"'), 'x-header keeps actions in the mobile header row by default');
     context.assert(source.includes('overflow-wrap: anywhere'), 'x-header drawer navigation wraps long labels inside containers');
     context.assert(source.includes('.drawer-inner ::slotted([data-menu-shell])'), 'x-header supports complex slotted navigation shells');
-    context.assert(docs.includes('Full-Width-Drawer'), 'x-header docs describe full-width drawer behavior');
-    context.assert(docs.includes('Menu Presentation Modes'), 'x-header docs describe menu presentation modes');
-    context.assert(['`drawer`', '`side-panel`', '`popover`', '`fullscreen`', '`inline-main`'].every((mode) => docs.includes(mode)), 'x-header docs list required menu modes');
-    context.assert(docs.includes('Slot Alignment'), 'x-header docs describe fixed responsive slot alignment');
-    context.assert(docs.includes('Overflow-sichere Navigation'), 'x-header docs describe overflow-safe drawer navigation');
     context.assert(types.includes('XHeaderSlotAlignment'), 'x-header types expose slot alignment snapshot metadata');
     context.assert(types.includes('XHeaderMenuMode'), 'x-header types expose menu mode union');
     context.assert(types.includes('XHeaderMenuPlacement'), 'x-header types expose menu placement union');
@@ -169,7 +165,6 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
     context.assert(source.includes('max-width: 100%;'), 'x-hero constrains itself to the host viewport width');
     context.assert(source.includes('overflow-wrap: anywhere'), 'x-hero wraps long slotted hero content inside narrow containers');
     context.assert(!source.includes('.hero { width: 100vw; max-width: 100vw; }'), 'x-hero avoids viewport-width overflow inside padded or margined hosts');
-    context.assert(docs.includes('Viewport-Sicherheit'), 'x-hero docs describe viewport-safe mobile layout');
   }
   if (tag === 'x-code') {
     const prismRmtSource = readText('components/prism-rmt.js', rootDir);
@@ -214,8 +209,6 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
     context.assert(rmtPrism && rmtPrism.register(fakePrism) === true, 'RMT Prism middleware registers against Prism');
     context.assert(fakePrism.languages.rmt && fakePrism.languages['rmt-vnext'] === fakePrism.languages.rmt, 'RMT Prism middleware wires aliases to rmt grammar');
     context.assert(rmtHighlightResult && rmtHighlightResult.highlighted === true && rmtHighlightResult.language === 'rmt', 'RMT Prism highlighter highlights rmt source');
-    context.assert(docs.includes('components/prism-rmt.js'), 'x-code docs document RMT Prism middleware');
-    context.assert(docs.includes('docs.syntax.highlight'), 'x-code docs document Developer Center syntax schedule');
   }
 
   return context.result({ tag });

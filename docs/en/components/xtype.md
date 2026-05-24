@@ -1,91 +1,29 @@
-# xtype - XTend Component
+# x-type
 
-> **See also:** [xwriter](./xwriter.md)
+Typography helpers and text variants.
 
-## Overview
+## When to use it
 
-`<x-type>` is a component for animated text effects such as typing animation.
-It is suitable for hero areas, headings, and interactive UI elements.
+x-type is part of the public XTend component library. Use it when you need a local, themeable Web Component without a framework binding.
 
----
-
-## Features
-
-- Animated text effects (typing, loop)
-- Customizable speed
-- Theming through CSS custom properties
-
----
-
-## Usage
+## Basic example
 
 ```html
-<x-type text="XTend rocks!" speed="80"></x-type>
+<x-type></x-type>
 ```
 
----
+## Integration
 
-## Attributes
+Load the component through `xtend-loader.js` and `components/manifest.json`. For RMT hosts, a component descriptor describes attributes, slots and events; the host adapter materializes the Custom Element.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `text` | String | text to display |
-| `speed` | Number | speed in ms per character |
-| `loop` | Boolean | endless loop |
+## Next steps
 
----
+- [Component development](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-## Events
+## Public Runtime Contract
 
-| Event | Description |
-|-------|-------------|
-| `done` | emitted after animation |
-
----
-
-## API
-
-- **Set text dynamically:** `element.setAttribute('text', 'Hello')`
-
----
-
-## Example: Dynamic JS
-
-```js
-const type = document.createElement('x-type');
-type.setAttribute('text', 'Hello world!');
-document.body.appendChild(type);
-```
-
----
-
-## Styling and Theming
-
-```css
-x-type {
-  --type-color: #007bff;
-}
-```
-
----
-
-## Accessibility
-
-- Semantic HTML
-
----
-
-*Last updated: July 16, 2025*
-
-## Layout Display Media UX Profile
-
-Starting with `WP-E11-12`, `x-type` exposes the profile
-`xtend.component.layout-display-media-ux-profile.v1`. The component uses a
-Shadow DOM shell for text and cursor, can be hydrated on idle, and writes its
-current text to `xtype-current`.
-
-- Profile getter: `xtendLayoutDisplayMediaUxProfile`
-- Schedule: `component.idle.hydrate`
-- Events: `typing-started`, `typing-completed`, `text-erased`
-- Snapshot: `snapshot()`
-- CSS parts: `root`, `text`, `cursor`
+- UX profile: `xtend.component.layout-display-media-ux-profile.v1`.
+- State key: `xtype-current`.
+- Purpose: expose the Layout, display and media UX profile to RMT hosts, Fabric lanes and browser-facing tests.

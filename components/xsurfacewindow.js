@@ -158,7 +158,7 @@ class XSurfaceWindow extends HTMLElement {
           z-index: var(--surface-window-z);
           min-width: 0;
           min-height: 0;
-          color: var(--surface-window-color, #111827);
+          color: var(--surface-window-color, var(--xtend-text, var(--text-color, #111827)));
         }
         :host([open]) {
           display: block;
@@ -181,14 +181,14 @@ class XSurfaceWindow extends HTMLElement {
           min-height: 0;
           flex-direction: column;
           overflow: hidden;
-          border: 1px solid var(--surface-window-border, #cbd5e1);
+          border: 1px solid var(--surface-window-border, var(--xtend-border-color, var(--border-color, #cbd5e1)));
           border-radius: var(--surface-window-radius, 8px);
-          background: var(--surface-window-bg, #ffffff);
-          box-shadow: var(--surface-window-shadow, 0 20px 50px rgba(15, 23, 42, 0.22));
+          background: var(--surface-window-bg, var(--xtend-surface, var(--section-bg, #ffffff)));
+          box-shadow: var(--surface-window-shadow, var(--xtend-shadow-overlay, var(--xtend-elevation-2, 0 20px 50px rgba(15, 23, 42, 0.22))));
         }
         :host([active]) .window {
-          border-color: var(--surface-window-active-border, #2563eb);
-          box-shadow: var(--surface-window-active-shadow, 0 24px 64px rgba(37, 99, 235, 0.22));
+          border-color: var(--surface-window-active-border, var(--xtend-color-primary, var(--primary-color, #2563eb)));
+          box-shadow: var(--surface-window-active-shadow, var(--surface-window-shadow, 0 24px 64px rgba(37, 99, 235, 0.22)));
         }
         .titlebar {
           box-sizing: border-box;
@@ -197,8 +197,8 @@ class XSurfaceWindow extends HTMLElement {
           gap: 0.5rem;
           min-height: 2.5rem;
           padding: 0.375rem 0.5rem 0.375rem 0.75rem;
-          border-bottom: 1px solid var(--surface-window-border, #cbd5e1);
-          background: var(--surface-window-chrome, #f1f5f9);
+          border-bottom: 1px solid var(--surface-window-border, var(--xtend-border-color, var(--border-color, #cbd5e1)));
+          background: var(--surface-window-chrome, var(--xtend-surface-muted, var(--surface-muted, #f1f5f9)));
           cursor: default;
           user-select: none;
         }
@@ -206,7 +206,7 @@ class XSurfaceWindow extends HTMLElement {
           cursor: move;
         }
         .titlebar:focus-visible {
-          outline: 2px solid var(--surface-window-focus, #2563eb);
+          outline: 2px solid var(--surface-window-focus, var(--xtend-focus-color, var(--focus-color, #2563eb)));
           outline-offset: -2px;
         }
         .title {
@@ -239,8 +239,8 @@ class XSurfaceWindow extends HTMLElement {
         }
         button:hover,
         button:focus-visible {
-          border-color: var(--surface-window-border, #94a3b8);
-          background: var(--surface-window-button-hover, #e2e8f0);
+          border-color: var(--surface-window-border, var(--xtend-border-color, var(--border-color, #94a3b8)));
+          background: var(--surface-window-button-hover, var(--xtend-color-action-subtle, var(--surface-muted, #e2e8f0)));
           outline: none;
         }
         .content {

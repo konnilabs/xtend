@@ -1,122 +1,23 @@
 # SurfaceManager Migration Guide
 
-- Contract: `xtend.surface.release-handoff.v1`
-- Native Domain: `xtend.rmt.surfaces-domain.v1`
-- Adapter Handoff: `xtend.surface.adapter.v1`
-- Gate: `node scripts/run_xtend_tests.js surface-release-handoff --json`
+Migration von ad-hoc Panels und Modals zu verwalteten Surfaces.
 
-## Ziel
+## Worum es geht
 
-Dieser Guide beschreibt die additive Migration von Surface-Metadata in Component
-Records zu nativen RMT Surface Records. Die Migration ist bewusst ohne Big
-Bang: bestehende `components[*].metadata.surface` Records bleiben gueltig,
-waehrend neue App Shells in RMT vNext authoriert werden. `surfaces[*]` ist der
-Runtime- und Compatibility-Output, nicht die neue Handarbeit.
+SurfaceManager bündelt Fenster, Panels, Overlays und Remote-Bereiche in einer kontrollierten Runtime. Dadurch bleiben Fokus, Layering, Persistenz und Cleanup nachvollziehbar.
 
-## Migrationsschritte
+## Öffentliche Bausteine
 
-| Schritt | Ergebnis |
-|---------|----------|
-| `inventory-component-metadata-surfaces` | alle bestehenden `metadata.surface` Records und State Keys erfassen |
-| `stabilize-surface-ids-and-state-keys` | IDs, `type`, `manager` und `stateKey` einfrieren |
-| `add-native-surfaces-records` | parallele `surfaces[*]` Records mit gleicher Identitaet anlegen |
-| `keep-dual-records-during-handoff` | Component-Metadata und native Records im Gate vergleichen |
-| `switch-authoring-default-to-vnext-surfaces` | neue komplexe Shells als `surface ... component ...` in RMT vNext schreiben |
-| `close-xtend-surface-runtime-after-adapter-implementation` | historisches Adapter-Handoff aus `WP-SM-09` durch `WP-SM-19` Runtime-Gates schliessen |
+- Surface IDs und Controller Records.
+- Fenster, Panels, Portals und Overlays.
+- Fokus-, Layer- und Cleanup-Regeln.
 
-## vNext-Zielbild
+## Empfohlener Ablauf
 
-```rmt
-template workbench.surfaceMigration {
-  state workbench.properties type object initial null
+Vergib stabile Surface IDs, öffne und schließe Surfaces über den Controller und prüfe Fokus, Escape-Verhalten sowie Persistenz in Browser-Fixtures.
 
-  portal surface.root root "#workbench-root" layer surface
+## Nächste Schritte
 
-  surface surface.properties kind side-panel component x-side-panel {
-    source state workbench.properties
-    portal surface.root
-
-    lane visible weight 70 {
-      hydrate properties-panel from state workbench.properties
-    }
-  }
-}
-```
-
-## Vorher: Legacy Component Metadata
-
-```json
-{
-  "id": "workbench.properties",
-  "tag": "x-side-panel",
-  "metadata": {
-    "surface": {
-      "schema": "xtend.surface.record.v1",
-      "id": "surface.properties",
-      "type": "side-panel",
-      "manager": "workbench.manager",
-      "stateKey": "xtend.surface.properties.state"
-    }
-  }
-}
-```
-
-## Nachher: Dual Record als Runtime-Output
-
-```json
-{
-  "surfaces": [
-    {
-      "id": "surface.properties",
-      "schema": "xtend.surface.record.v1",
-      "type": "side-panel",
-      "adapter": "xtend.surface",
-      "manager": "workbench.manager",
-      "component": "workbench.properties",
-      "route": "workbench",
-      "schedule": "surface.visible.render",
-      "stateKey": "xtend.surface.properties.state"
-    }
-  ]
-}
-```
-
-Die Component-Metadata bleibt waehrend des Handoffs im Component Record und
-verweist optional mit `nativeRecord` auf den nativen Record. Neue Beispiele
-sollen das vNext-Zielbild zeigen; Dual Records dienen als Migrationsevidence.
-
-## Review-Checkliste
-
-- Jede native Surface besitzt einen stabilen `id`.
-- `component` zeigt auf genau einen Component Record.
-- `manager` zeigt auf den `x-surface-manager` Record.
-- `route` und `schedule` loesen auf native RMT Records auf.
-- `stateKey` ist identisch zwischen `components[*].metadata.surface` und `surfaces[*]`.
-- `xtend.surface` ist als `surface_adapter` deklariert und seit `WP-SM-19` ueber die Runtime-Gates produktiv beworben.
-- Die Gates `surface-native-rmt`, `surface-release-handoff` und `surface-runtime-release-handoff` sind gruen.
-
-Details zur generischen RMT-Migration stehen in [XTendRMT Native Migration Guide](./xtendrmt-migration-guide.md). Details zum Surface-Authoring stehen in [SurfaceManager Authoring Guide](./surface-manager-authoring-guide.md).
-
-## WP-SM-19 Runtime Migration Notes
-
-`WP-SM-19` akzeptiert `xtend.surface.runtime-migration-notes.v1` als finale Migrationslinie fuer die produktive Surface Runtime.
-
-Erweiterte Gate-Reihenfolge fuer Migrationen:
-
-```bash
-node scripts/run_xtend_tests.js surface-adapter-runtime --json
-node scripts/run_xtend_tests.js surface-native-materialization --json
-node scripts/run_xtend_tests.js surface-persistence --json
-node scripts/run_xtend_tests.js surface-lazy-hydration --json
-node scripts/run_xtend_tests.js surface-route-lifecycle --json
-node scripts/run_xtend_tests.js surface-stack-policy --json
-node scripts/run_xtend_tests.js surface-layout-engines --json
-node scripts/run_xtend_tests.js surface-remote-policy --json
-node scripts/run_xtend_tests.js surface-browser-lab --json
-node scripts/run_xtend_tests.js surface-runtime-release-handoff --json
-```
-
-Bestehende `components[*].metadata.surface` Records bleiben erlaubt. Der
-Zielzustand fuer neue Shells ist dennoch RMT vNext; `surfaces[*]` bleibt der
-pruefbare Output, weil Tooling, Materialisierung, Persistenz, Routing, Remote
-Policy und Browser-Lab-Stabilitaet dort gemeinsam pruefbar sind.
+- [SurfaceManager](./surface-manager-authoring-guide.md)
+- [SurfaceManager Controller](./surface-manager-controller.md)
+- [SurfaceManager Runtime](./surface-manager-runtime.md)

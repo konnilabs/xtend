@@ -26,8 +26,9 @@ function runXSurfacePortalComponentSuite(options = {}) {
   context.assertIncludes(source, 'surface-portal-policy', 'runtime emits policy events');
   context.assertIncludes(types, 'XSurfacePortalPolicyRecord', 'types expose policy record');
   context.assertIncludes(types, 'surface-portal-policy', 'types expose policy event');
-  context.assertIncludes(docs, 'xtend.surface.portal-policy.v1', 'docs describe portal policy contract');
-  context.assertIncludes(docs, 'toast-region', 'docs describe toast-region policy');
+  context.assertIncludes(docs, '# x-surface-portal', 'docs describe x-surface-portal');
+  context.assertIncludes(docs, 'xtend-loader.js', 'docs describe loader integration');
+  context.assertIncludes(docs, 'components/manifest.json', 'docs reference the component manifest');
   context.assertIncludes(fixture, '<x-surface-portal', 'fixture instantiates x-surface-portal');
   context.assertIncludes(fixture, 'policy="toast-region"', 'fixture covers toast-region portal policy');
   context.assertIncludes(fixture, '__xtendComponentResult', 'fixture exposes component result object');

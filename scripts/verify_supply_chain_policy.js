@@ -131,7 +131,7 @@ function runSupplyChainVerification(options = {}) {
   ));
   checks.push(createCheck(
     'release gates retain full test run',
-    releaseGates.includes('npm test')
+    releaseGates.includes('npm run test:release:full:report')
   ));
   checks.push(createCheck(
     'release gates retain package dry-run',

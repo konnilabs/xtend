@@ -27,8 +27,9 @@ function runXSurfaceRegionComponentSuite(options = {}) {
   context.assertIncludes(source, 'surface-region-command', 'runtime emits manager command events');
   context.assertIncludes(types, 'XSurfaceRegionCommandDetail', 'types expose command detail');
   context.assertIncludes(types, 'toSurfaceRecord(managerId', 'types expose surface record API');
-  context.assertIncludes(docs, 'xtend.surface.record.v1', 'docs describe surface record contract');
-  context.assertIncludes(docs, '`root`, `workspace`, `page`, `card`, `list`, `region`', 'docs describe generic RMT kinds');
+  context.assertIncludes(docs, '# x-surface-region', 'docs describe x-surface-region');
+  context.assertIncludes(docs, 'xtend-loader.js', 'docs describe loader integration');
+  context.assertIncludes(docs, 'components/manifest.json', 'docs reference the component manifest');
   context.assertIncludes(fixture, '<x-surface-region', 'fixture instantiates x-surface-region');
   context.assertIncludes(fixture, 'kind="card"', 'fixture covers card kind');
   context.assertIncludes(fixture, '__xtendComponentResult', 'fixture exposes component result object');

@@ -2,6 +2,10 @@
 
 const path = require('path');
 const {
+  printDocsPublicQualityReport,
+  runDocsPublicQualityCheck
+} = require('./verify_docs_public_quality');
+const {
   printCoreContractReport,
   runCoreContractSuite
 } = require('../tests/core/core_contract_suite');
@@ -614,6 +618,18 @@ const {
   runRmtToolingDocsSuite
 } = require('../tests/docs/rmt_tooling_docs_suite');
 const {
+  printRmtStackDocsReport,
+  runRmtStackDocsSuite
+} = require('../tests/docs/rmt_stack_docs_suite');
+const {
+  printRmtPlaygroundDocsReport,
+  runRmtPlaygroundDocsSuite
+} = require('../tests/docs/rmt_playground_docs_suite');
+const {
+  printRmtPlaygroundSecurityReport,
+  runRmtPlaygroundSecuritySuite
+} = require('../tests/docs/rmt_playground_security_suite');
+const {
   printEpic14RmtToolingReleaseGatesReport,
   runEpic14RmtToolingReleaseGatesSuite
 } = require('../tests/platform/epic14_rmt_tooling_release_gates_suite');
@@ -1214,6 +1230,46 @@ const suites = [
       const result = await runRmtPhpSsrAdapterSuite({ rootDir });
       printRmtPhpSsrAdapterReport(result);
       return toRunnerResult('rmt-php-ssr-adapter', 'RMT PHP/Laravel SSR Adapter', result);
+    }
+  },
+  {
+    id: 'docs-public-quality',
+    label: 'Docs Public Quality',
+    description: 'Runs the public Developer Center IA, bilingual article, link and public-language quality gate.',
+    run: () => {
+      const result = runDocsPublicQualityCheck({ rootDir });
+      printDocsPublicQualityReport(result);
+      return toRunnerResult('docs-public-quality', 'Docs Public Quality', result);
+    }
+  },
+  {
+    id: 'rmt-stack-docs',
+    label: 'RMT Stack Layer Docs',
+    description: 'Runs the RMT stack layer, topography and public interface documentation checks.',
+    run: () => {
+      const result = runRmtStackDocsSuite({ rootDir });
+      printRmtStackDocsReport(result);
+      return toRunnerResult('rmt-stack-docs', 'RMT Stack Layer Docs', result);
+    }
+  },
+  {
+    id: 'rmt-playground-docs',
+    label: 'Learn RMT Playground Docs',
+    description: 'Runs the Learn RMT IA, bilingual tutorial, playground route and compiling example checks.',
+    run: () => {
+      const result = runRmtPlaygroundDocsSuite({ rootDir });
+      printRmtPlaygroundDocsReport(result);
+      return toRunnerResult('rmt-playground-docs', 'Learn RMT Playground Docs', result);
+    }
+  },
+  {
+    id: 'rmt-playground-security',
+    label: 'RMT Playground Security',
+    description: 'Runs the playground compile endpoint, input limit, policy diagnostic and safe preview checks.',
+    run: () => {
+      const result = runRmtPlaygroundSecuritySuite({ rootDir });
+      printRmtPlaygroundSecurityReport(result);
+      return toRunnerResult('rmt-playground-security', 'RMT Playground Security', result);
     }
   },
   {
@@ -2871,6 +2927,10 @@ Examples:
   node scripts/run_xtend_tests.js rmt-editor-packaging
   node scripts/run_xtend_tests.js rmt-language-regression
   node scripts/run_xtend_tests.js rmt-tooling-docs
+  node scripts/run_xtend_tests.js docs-public-quality
+  node scripts/run_xtend_tests.js rmt-stack-docs
+  node scripts/run_xtend_tests.js rmt-playground-docs
+  node scripts/run_xtend_tests.js rmt-playground-security
   node scripts/run_xtend_tests.js epic14-rmt-tooling
   node scripts/run_xtend_tests.js epic14-lsp-handoff
   node scripts/run_xtend_tests.js rc0-gate-matrix

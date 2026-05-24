@@ -1,30 +1,23 @@
-# xsidepanel - XTend Komponente
+# x-side-panel
 
-`x-side-panel` ist die App-Shell-nahe SidePanel-Surface fuer XTend. Sie registriert sich bei einem umgebenden `x-surface-manager`, nutzt den Surface Controller aus `WP-SM-02` und spiegelt Snapshots in Placement, Mode, Pinning, Collapse-State, Groesse und z-Order.
+Andockbare Seitenflächen.
 
-## Attribute
+## Wann einsetzen
 
-- `surface-id`: stabile Surface-ID
-- `label`: Accessible Name und Panel-Titel
-- `open`, `active`, `collapsed`, `pinned`
-- `placement`: `left`, `right`, `bottom` oder `inline`
-- `mode`: `docked`, `overlay`, `pinned`, `collapsed` oder `fullscreen`
-- `responsive-mode`: Standard `fullscreen-under-720`
-- `resizable`, `route-aware`, `modal`
-- `initial-width`, `initial-height`
+x-side-panel ist Teil der öffentlichen XTend Komponentenbibliothek. Nutze die Komponente, wenn du eine lokale, themenfähige Web-Component ohne Framework-Bindung brauchst.
 
-## API
+## Basisbeispiel
 
-`toSurfaceRecord(managerId)` erzeugt ein `xtend.surface.record.v1` mit `type: "side-panel"`. `applySurfaceSnapshot(record)` aktualisiert sichtbaren Status, Bounds, Placement, Mode und A11y-State.
+```html
+<x-side-panel></x-side-panel>
+```
 
-Commands: `openPanel()`, `closePanel(reason)`, `focusPanel()`, `pinPanel()`, `collapsePanel()`, `expandPanel(mode)`, `setPanelMode(mode, placement)`, `resizePanel(bounds)` und `restorePanel()`.
+## Integration
 
-Das Element sendet `surface-panel-command` mit `open`, `close`, `focus`, `resize`, `pin`, `unpin`, `collapse`, `expand`, `dock`, `restore` oder `update`. Der Manager uebersetzt diese Commands in Controller-Operationen beziehungsweise `updateSurface`.
+Lade die Komponente über `xtend-loader.js` und `components/manifest.json`. Für RMT Hosts beschreibt ein Component Descriptor Attribute, Slots und Events; der Host Adapter materialisiert daraus das Custom Element.
 
-RMT: `xtend.rmt.component-contract.v1`, `xtend.surface.record.v1`, `surface.visible.render`, `surface.user-blocking.open`, `surface.user-blocking.close`, `surface.transition.layout`, `surface.diagnostics.snapshot`.
+## Nächste Schritte
 
-## ECH-WP-06 Overlay-Paritaet
-
-`x-side-panel` expose `surface`, `backdrop`, `close` und `content` als gemeinsame Overlay-Parts. Der bisherige `scrim` Part bleibt als Alias fuer `backdrop` erhalten. Surface, Text, Border, Elevation, Backdrop, Z-Index und Focus Ring laufen ueber `--xtend-overlay-*` und die komponentennahen `--side-panel-*` Tokens.
-
-`mode="docked"` und `mode="pinned"` bleiben nicht-modal und app-shell-nah. `mode="overlay"` oder `modal` aktivieren den Backdrop und die Overlay-Steuerung fuer SurfaceManager-Orchestrierung.
+- [Komponenten-Entwicklung](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)

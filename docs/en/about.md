@@ -1,25 +1,22 @@
-# About This Documentation Web App
+# About XTend
 
-This web application provides interactive documentation for the XTend Web
-Framework and is built entirely on modern Web Components. It offers a modular,
-fast, and developer-friendly interface for engineers and users.
+A short product overview of XTend goals, building blocks and boundaries.
 
-## Open Source Projects Used
+## What it covers
 
-### Parsedown
+This article is written for developers who want to use XTend productively without internal project knowledge.
 
-This application uses **Parsedown** by Emanuil Rusev for Markdown processing.
+## Public building blocks
 
-> (c) Emanuil Rusev  
-> http://erusev.com
+- Local development without a CDN.
+- Bilingual documentation.
+- Stable public entry points.
 
-### XRouter PHP
+## Recommended workflow
 
-Routing and server-side logic are based on a PHP implementation of XRouter,
-developed by **CCS Networks**. The project is now available under the name
-**xrouter.php**.
+Read the overview, copy the smallest suitable example and add host-specific details only afterwards.
 
----
+## Next steps
 
-Further information and credits are available in the respective component
-documentation.
+- [Quick Start](./quick-start-guide.md)
+- [Enterprise Adoption](./enterprise-adoption.md)

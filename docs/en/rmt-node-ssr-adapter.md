@@ -1,99 +1,36 @@
 # RMT Node SSR Adapter
 
-The Node SSR Adapter is the lightweight server-side API for XTendRMT. It emits
-Light DOM HTML for XTend Custom Elements, RenderMan-compatible hydration
-payloads, and optional JSONL streaming for incremental UI components.
+Server-side light DOM and hydration payloads for Node hosts.
 
-Schema: `xtend.rmt.node-ssr-adapter.v1`
+## What it covers
 
-```js
-import {
-  createRmtNodeSsrAdapter
-} from '@ccslabs/xtend/rmt/node-ssr-adapter';
-```
+RMT describes app structure, interaction and runtime intent. The kernel stays host-neutral; adapters connect records to XTend UI, XRouter, Fabric and your environment.
 
-The runtime package exposes the same API via
-`@ccslabs/xtend-rmt/node-ssr-adapter`.
+## Public building blocks
 
-For PHP/Laravel hosts, the
-[RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) provides the same
-client wire contract: HTML, hydration, RenderMan chunks, and JSONL frames stay
-compatible.
-
-## Architecture
-
-The adapter is a host layer, not a second renderer. RMT vNext describes source,
-state, selectors, actions, events, surfaces, and streams. The compiler emits
-Core and Kernel records. The Component Capability Registry describes XTend UI
-generically. The Node adapter serializes that into safe server-side startup
-output.
-
-It does not instantiate Custom Elements on the server, does not access private
-component internals, does not start an HTTP server, and does not perform
-implicit global network calls.
-
-## API
+- `.rmt` sources.
+- Core records and source maps.
+- Host adapters for DOM, router and components.
+## Example
 
 ```js
-const adapter = createRmtNodeSsrAdapter({
-  manifest,
-  sourceTexts,
-  endpointHandlers: {
-    'ssr.hero': () => ({
-      html: '<x-hero>Hero</x-hero>',
-      trustBoundary: 'xtend.security.sanitizing-boundary.v1'
-    })
-  }
-});
+import { createRmtNodeSsrAdapter } from '@ccslabs/xtend/rmt/node-ssr-adapter';
 
-const result = await adapter.render({
-  source,
-  filePath: 'app.rmt'
-});
+const adapter = createRmtNodeSsrAdapter({ manifest, sourceTexts });
+const result = await adapter.render({ source, filePath: 'app.rmt' });
 ```
 
-`render` accepts RMT source, Core Documents, Prepared Templates, and DOM
-Descriptors. In the full package, source compilation is wired through the
-existing vNext compiler. Runtime-only hosts inject `compileRmtVNextSource`; if
-that function is missing, the adapter reports `rmt.node_ssr.compiler_required`.
+## Recommended workflow
 
-## Output
+Model shell, state and interaction first. Validate the source with the linter, connect adapters afterwards and keep host-specific code outside the kernel.
 
-`xtend.rmt.node-ssr-render-result.v1` contains:
+If your backend uses PHP or Laravel, use the same core output with the
+[RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md). Both adapters share
+the JSONL frame shape for incremental SSR output.
 
-- `html`
-- `head.preloads`
-- `renderman_template_chunk`
-- `server_prerender_hydrate` hydration data
-- `xtend.rmt.vnext-streaming-contract.v1`
-- Component Capability markers
-- diagnostics
+## Next steps
 
-## JSONL Streaming
-
-`streamJsonl` yields frames with
-`xtend.rmt.node-ssr-jsonl-frame.v1`. Important frame types are `start`,
-`component`, `html`, `hydration`, `diagnostic`, `complete`, and `error`.
-
-The streaming capabilities stay compatible with RMT vNext:
-
-- `stream.ssr.incremental`
-- `stream.hydration.chunked`
-
-## Data Sources and Security
-
-Data sources are resolved only through explicit host hooks:
-`resolveDataSource`, `endpointHandlers`, `staticDataSources`, `fixtures`, or
-`fetchAdapter`. Missing resolvers report `rmt.node_ssr.datasource_missing`.
-
-HTML fragments need a trust boundary such as
-`xtend.security.sanitizing-boundary.v1` or
-`xtend.security.streaming-boundary.v1`. Unsafe URLs, event attributes, `srcdoc`,
-and blocked tags are diagnosed and cleaned.
-
-## Gate
-
-```bash
-npm run test:rmt-node-ssr-adapter
-node scripts/run_xtend_tests.js rmt-node-ssr-adapter --json
-```
+- [XTendRMT overview](./xtendrmt-overview.md)
+- [RMT Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT Linter](./rmt-linter.md)
+- [RMT Language Server](./rmt-language-server.md)

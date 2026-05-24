@@ -1,21 +1,23 @@
-# xsurfacewindow - XTend Komponente
+# x-surface-window
 
-`x-surface-window` ist die erste sichtbare WindowManager-Surface fuer XTend. Sie registriert sich bei einem umgebenden `x-surface-manager`, stellt Window-Chrome, Aktionen, Bounds und Content-Slot bereit und spiegelt Controller-Snapshots in Attribute und CSS-Variablen.
+Fensterartige App-Flächen.
 
-## Attribute
+## Wann einsetzen
 
-- `surface-id`: stabile Surface-ID
-- `label`: Accessible Name und Window-Titel
-- `open`, `active`, `minimized`, `maximized`
-- `draggable`, `resizable`, `modal`
-- `initial-x`, `initial-y`, `initial-width`, `initial-height`
+x-surface-window ist Teil der öffentlichen XTend Komponentenbibliothek. Nutze die Komponente, wenn du eine lokale, themenfähige Web-Component ohne Framework-Bindung brauchst.
 
-## API
+## Basisbeispiel
 
-`toSurfaceRecord(managerId)` erzeugt ein `xtend.surface.record.v1` fuer den Manager. `applySurfaceSnapshot(record)` aktualisiert sichtbaren Status, Bounds und z-Order.
+```html
+<x-surface-window></x-surface-window>
+```
 
-Commands: `openWindow()`, `closeWindow(reason)`, `focusWindow()`, `minimizeWindow()`, `maximizeWindow()` und `restoreWindow()`.
+## Integration
 
-Das Element sendet `surface-window-command` mit `open`, `close`, `focus`, `move`, `resize`, `minimize`, `maximize`, `restore` oder `update`. Der Manager uebersetzt diese Commands in Controller-Operationen.
+Lade die Komponente über `xtend-loader.js` und `components/manifest.json`. Für RMT Hosts beschreibt ein Component Descriptor Attribute, Slots und Events; der Host Adapter materialisiert daraus das Custom Element.
 
-RMT: `xtend.rmt.component-contract.v1`, `xtend.surface.record.v1`, `surface.user-blocking.open`, `surface.user-blocking.close`, `surface.transition.layout`, `surface.diagnostics.snapshot`.
+## Nächste Schritte
+
+- [Komponenten-Entwicklung](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)

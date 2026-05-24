@@ -1,170 +1,23 @@
-# RMT vNext Authoring Guide
+# RMT Authoring Guide
 
-- Contract: `xtend.rmt.vnext-release-handoff.v1`
-- Syntax Contract: `xtend.rmt.vnext.grammar.v1`
-- Core Output: `xtend.rmt.core-format.vnext.v1`
+Schreibe App Shells, Routen, Surfaces und Interaktionen in einer RMT Quelle.
 
-RMT vNext ist die menschenfreundliche Syntax fuer XTend Apps. Du kannst eine
-vollstaendige UI-Shell in RMT schreiben: State, Selectors, DataSources,
-Actions, Events, Portals, Overlays, Resources, Surfaces und Fabric-Lanes
-liegen in einer `.rmt` Quelle und werden deterministisch in Core- und
-Kernel-Records kompiliert.
+## Worum es geht
 
-## Grundform
+RMT beschreibt App-Struktur, Interaktion und Laufzeitabsicht. Der Kernel bleibt host-neutral; Adapter verbinden die Records mit XTend UI, XRouter, Fabric und deiner Umgebung.
 
-```rmt
-template media.manager {
-  state selectedItem type object initial null
+## Öffentliche Bausteine
 
-  selector visibleItems from datasource library {
-    output card-list
-  }
+- `.rmt` Quellen.
+- Core Records und Source Maps.
+- Host Adapter für DOM, Router und Komponenten.
 
-  datasource library from fixture records.media-items {
-    contract "media.item.v1[]"
-  }
+## Empfohlener Ablauf
 
-  action select-item {
-    input id string
-    reduce state.selectedItem = input.id
-    emit media.item.selected with action select-item
-  }
+Modelliere zuerst Shell, State und Interaktion. Prüfe die Quelle mit dem Linter, binde anschließend Adapter an und halte Host-spezifischen Code außerhalb des Kernels.
 
-  portal app root "#app-root" layer surface
+## Nächste Schritte
 
-  surface library kind workspace component x-cards {
-    repeat from selector visibleItems
-    key item.id
-    portal app
-
-    lane visible weight 80 {
-      hydrate x-cards from selector visibleItems
-    }
-
-    on card-click target item -> action select-item {
-      payload id from item.id
-    }
-  }
-}
-```
-
-Die wichtigsten Bausteine:
-
-| Syntax | Zweck |
-| --- | --- |
-| `template` | gruppiert eine App- oder Dokument-Shell |
-| `state` | beschreibt persistenten oder transienten App-Zustand |
-| `selector` | leitet UI-nahe Views aus State oder DataSources ab |
-| `datasource` | bindet Fixture-, Endpoint-, SSE- oder Worker-Quellen an |
-| `action` | beschreibt User- und Systemaktionen mit Reducern und Effects |
-| `on ... -> action ...` | routet DOM- oder Custom-Events in Actions |
-| `portal` | benennt Mount-Ziele fuer Surfaces und Overlays |
-| `surface` | beschreibt sichtbare UI-Objekte, Listen, Panels oder Pages |
-| `overlay` | beschreibt Toasts, Dialoge, Menues, Popovers und Lightboxes |
-| `resource` | beschreibt Besitz, Import, Stream, Timer und Cleanup |
-| `lane` | steuert Prioritaet, Scheduling und Backpressure |
-| `mount`, `hydrate`, `prewarm`, `dispose` | Lifecycle-Operationen |
-| `when` | deklarative Conditions ohne Funktionsaufrufe oder Eval |
-| `slot` | Composition innerhalb einer Operation |
-| `trust boundary` und `sanitize` | Security-Policy fuer unsichere Daten |
-| `stream` | inkrementelle Streaming-Operation |
-
-## App Shell nur in RMT
-
-Eine vNext-App soll nicht zwischen RMT, App-Platform-JSON und Host-Code
-zerfallen. RMT ist der Authoring-Ort fuer:
-
-- Route- und Shell-Struktur
-- sichtbare Surfaces und Overlay-Portale
-- State- und Selector-Modell
-- Actions, Effects und Event-Payloads
-- Resource Ownership und Cleanup
-- Fabric-Lanes fuer sichtbare, user-blocking, transition, idle,
-  background- und diagnostics-Arbeit
-
-Der Host stellt Komponenten, Router, Browser-APIs und externe Daten bereit.
-Diese Grenze haelt den Kernel framework-neutral und macht die App trotzdem
-vollstaendig beschreibbar.
-
-## XTend UI-Kompatibilitaet
-
-RMT vNext Component Primitives zielen auf den bestehenden XTend-Component-
-Stack. Eine Surface wie `component x-select` wird zu einem DOM Descriptor
-abgesenkt und dann ueber die Component Capability Registry aufgeloest, nicht
-ueber einen produktspezifischen Renderer. Die Registry liest
-`components/manifest.json`, `xtendComponentContract`, `xtendRmtMetadata`,
-public Events, `observedAttributes`, Slots, Parts, Form-Assoziation,
-Accessibility-Profile und Performance-Profile.
-
-Damit erreicht RMT alle 44 public Manifest-Eintraege, waehrend 40 renderbare
-UI-Komponenten ihren normalen Web-Component-Lifecycle behalten. Infrastruktur-
-module wie `x-theme` und `xstate` bleiben Host-Services, keine normalen
-Surface-Elemente. Produktcode soll ueber public Attribute, Properties, Events,
-Parts, Slots und State-Bridges binden, statt `shadowRoot` oder private
-Component-Maps zu patchen.
-
-Details stehen in
-[RMT vNext Component Primitives und XTend UI](./rmt-vnext-component-primitives.md).
-
-## Editor-DX
-
-Der Language Server erkennt vNext-Primitives direkt:
-
-- Completions fuer Primitive-Keywords und klauselnahe Vorschlaege
-- Hover mit Core Pointer und Primitive-Informationen
-- Document Symbols fuer `states`, `selectors`, `actions`, `surfaces`,
-  `portals`, `overlays` und `resources`
-- Code Actions fuer sichere Reparaturen
-- Safe Fix-All fuer `source.fixAll.rmt.vnext.primitives`
-- manuelle Uebergaben fuer Kernel-/Host-Boundaries
-
-Das Snippet `rmt-vnext-primitive-shell` erzeugt eine kleine App Shell mit
-State, Selector, Action, Portal, Surface, Lane und Event-Payload-Contract.
-
-## Migration aus Legacy-Records
-
-Legacy- und App-Platform-JSON bleiben lesbar, sind aber nicht der normale
-Authoring-Pfad. Fuer vorhandene App-Platform-Primitive-Records gibt es:
-
-- `createAppPlatformPrimitiveMigrationPreview(...)` fuer einen vNext-Draft
-- `createAppPlatformPrimitiveMigrationApplyPlan(...)` fuer einen manuellen
-  Apply-Plan ohne automatisches Schreiben
-- `report-only`, `preview-ready`, `apply-plan-ready` und `blocked` als
-  klare Statuswerte
-
-Details stehen in [RMT vNext Primitive Migration](./rmt-vnext-primitive-migration.md).
-
-## Reference Demo
-
-Die vollstaendige Referenz liegt in `xtendrmt/rmt-vnext-reference-demo.rmt`.
-Sie deckt Templates, Surfaces, gewichtete Lanes, Conditions, Slots, Events,
-Endpoint/SSE/Worker Sources, Security Policies und Streaming ab.
-
-Der stabile Compiler-Output liegt in
-`xtendrmt/rmt-vnext-reference-demo.core.json`. Wenn Syntax oder Compiler
-absichtlich geaendert werden, muessen Quelle und Core-Output gemeinsam
-aktualisiert werden.
-
-## Lokal pruefen
-
-```bash
-node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-vnext-tooling --json
-node scripts/run_xtend_tests.js rmt-vnext-compatibility --json
-node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json
-node scripts/run_xtend_tests.js rmt-vnext-release --json
-```
-
-Fuer App-Shell-Arbeit reichen normalerweise Parser, Compiler, Tooling und
-Compatibility. Release-Gates pruefen zusaetzlich Referenzdemo, Core-Output,
-Migration und Referenzpfade.
-
-## Grenzen
-
-- RMT vNext fuehrt keine Host-Runtime im Kernel aus.
-- Conditions sind deklarativ und erlauben keine Funktionsaufrufe.
-- Imports sind statisch und bleiben package-root-gebunden.
-- Legacy JSON bleibt kompatibel, aber nicht der bevorzugte Authoring-Pfad.
-- XTend-, XRouter-, DOM- und Browser-Details gehoeren in Adapter.
-- XTend-Component-Integration laeuft ueber public Contracts und die Component
-  Capability Registry, nicht ueber direkte Kernel-Imports oder
-  Shadow-DOM-Monkeypatching.
+- [XTendRMT Überblick](./xtendrmt-overview.md)
+- [RMT Linter](./rmt-linter.md)
+- [RMT Language Server](./rmt-language-server.md)

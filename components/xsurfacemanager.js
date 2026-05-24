@@ -201,6 +201,20 @@ function isSurfaceRecordOpen(record = {}) {
   return record.status !== 'closed' && record.status !== 'minimized' && record.collapsed !== true;
 }
 
+function isSurfaceRecordHidden(record = {}) {
+  return record.status === 'closed' || record.status === 'minimized' || record.minimized === true;
+}
+
+function isSurfaceRecordTrayEligible(record = {}) {
+  if (!record || !record.id) return false;
+  if (record.type === 'tooltip' || record.type === 'toast' || record.type === 'popover' || record.type === 'menu') return false;
+  return Array.isArray(record.capabilities) && (
+    record.capabilities.includes('open')
+    || record.capabilities.includes('focus')
+    || record.capabilities.includes('restore')
+  );
+}
+
 function surfaceLoaderApi() {
   const loader = globalThis.XTendLoader || {};
   const skeleton = loader.skeletonLoader || globalThis.XTendSkeletonLoader || {};
@@ -756,6 +770,8 @@ class XSurfaceManager extends HTMLElement {
     this._handleSurfaceRouteSignal = this._onSurfaceRouteSignal.bind(this);
     this._handleSurfaceStackKeyDown = this._onSurfaceStackKeyDown.bind(this);
     this._handleSurfaceStackFocusIn = this._onSurfaceStackFocusIn.bind(this);
+    this._handleSurfaceTrayClick = this._onSurfaceTrayClick.bind(this);
+    this._handleSurfaceTrayKeyDown = this._onSurfaceTrayKeyDown.bind(this);
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
@@ -763,8 +779,8 @@ class XSurfaceManager extends HTMLElement {
           display: block;
           position: relative;
           min-height: var(--surface-manager-min-height, 480px);
-          color: var(--surface-manager-color, #111827);
-          background: var(--surface-manager-bg, #f8fafc);
+          color: var(--surface-manager-color, var(--xtend-text, var(--text-color, #111827)));
+          background: var(--surface-manager-bg, var(--xtend-surface-muted, var(--surface-muted, #f8fafc)));
           overflow: hidden;
           isolation: isolate;
         }
@@ -795,10 +811,170 @@ class XSurfaceManager extends HTMLElement {
           clip-path: inset(50%);
           white-space: nowrap;
         }
+        .surface-tray {
+          position: absolute;
+          inset-inline-start: 50%;
+          inset-block-end: var(--surface-manager-tray-offset, 0.75rem);
+          z-index: var(--surface-manager-tray-z, 100000);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transform: translateX(-50%);
+          pointer-events: auto;
+        }
+        .surface-tray[hidden] {
+          display: none;
+        }
+        .surface-tray::before {
+          content: "";
+          position: absolute;
+          inset-inline-start: 50%;
+          inset-block-end: 100%;
+          inline-size: var(--surface-manager-tray-hover-bridge-width, min(24rem, calc(100vw - 2rem)));
+          block-size: var(--surface-manager-tray-hover-bridge-height, 0.75rem);
+          transform: translateX(-50%);
+          pointer-events: auto;
+        }
+        .surface-tray-button {
+          box-sizing: border-box;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          min-block-size: 2.25rem;
+          max-inline-size: min(22rem, calc(100vw - 2rem));
+          padding: 0.375rem 0.625rem;
+          border: 1px solid var(--surface-manager-tray-border, var(--xtend-border-color, var(--border-color, #94a3b8)));
+          border-radius: var(--surface-manager-tray-radius, 8px);
+          background: var(--surface-manager-tray-bg, color-mix(in srgb, var(--xtend-surface, #ffffff) 92%, transparent));
+          color: var(--surface-manager-tray-color, var(--surface-manager-color, var(--xtend-text, var(--text-color, #111827))));
+          box-shadow: var(--surface-manager-tray-shadow, 0 16px 36px rgba(15, 23, 42, 0.22));
+          font: 600 0.8125rem/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          cursor: pointer;
+          backdrop-filter: blur(12px);
+        }
+        .surface-tray-button:hover,
+        .surface-tray-button:focus-visible {
+          border-color: var(--surface-manager-tray-active-border, var(--xtend-color-primary, var(--primary-color, #2563eb)));
+          outline: none;
+        }
+        .surface-tray-icon {
+          inline-size: 0.75rem;
+          block-size: 0.75rem;
+          border: 2px solid currentColor;
+          border-block-start-width: 0.125rem;
+          border-radius: 3px;
+          box-shadow: 0.25rem 0.25rem 0 -0.125rem currentColor;
+          opacity: 0.9;
+        }
+        .surface-tray-count {
+          display: inline-grid;
+          min-inline-size: 1.375rem;
+          block-size: 1.375rem;
+          place-items: center;
+          border-radius: 999px;
+          background: var(--surface-manager-tray-count-bg, var(--xtend-color-primary, var(--primary-color, #2563eb)));
+          color: var(--surface-manager-tray-count-color, #ffffff);
+          font: 700 0.75rem/1 system-ui, sans-serif;
+        }
+        .surface-tray-popover {
+          position: absolute;
+          inset-inline-start: 50%;
+          inset-block-end: calc(100% + 0.5rem);
+          box-sizing: border-box;
+          inline-size: max-content;
+          min-inline-size: 15rem;
+          max-inline-size: min(24rem, calc(100vw - 2rem));
+          max-block-size: min(60vh, 24rem);
+          overflow: auto;
+          padding: 0.5rem;
+          border: 1px solid var(--surface-manager-tray-border, var(--xtend-border-color, var(--border-color, #94a3b8)));
+          border-radius: var(--surface-manager-tray-radius, 8px);
+          background: var(--surface-manager-tray-popover-bg, var(--xtend-surface, var(--section-bg, #ffffff)));
+          color: var(--surface-manager-tray-color, var(--surface-manager-color, var(--xtend-text, var(--text-color, #111827))));
+          box-shadow: var(--surface-manager-tray-shadow, 0 16px 36px rgba(15, 23, 42, 0.22));
+          opacity: 0;
+          pointer-events: none;
+          transform: translate(-50%, 0.25rem);
+          transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+          visibility: hidden;
+        }
+        .surface-tray:hover .surface-tray-popover,
+        .surface-tray:focus-within .surface-tray-popover {
+          opacity: 1;
+          pointer-events: auto;
+          transform: translate(-50%, 0);
+          visibility: visible;
+        }
+        .surface-tray-title {
+          padding: 0.25rem 0.375rem 0.5rem;
+          color: var(--surface-manager-tray-muted-color, var(--xtend-text-muted, var(--muted-color, #64748b)));
+          font: 600 0.75rem/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          text-transform: uppercase;
+        }
+        .surface-tray-list {
+          display: grid;
+          gap: 0.25rem;
+        }
+        .surface-tray-surface {
+          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 0.5rem;
+          inline-size: 100%;
+          padding: 0.5rem 0.625rem;
+          border: 1px solid transparent;
+          border-radius: 6px;
+          background: transparent;
+          color: inherit;
+          font: 500 0.875rem/1.25 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          text-align: start;
+          cursor: pointer;
+        }
+        .surface-tray-surface:hover,
+        .surface-tray-surface:focus-visible {
+          border-color: var(--surface-manager-tray-active-border, var(--xtend-color-primary, var(--primary-color, #2563eb)));
+          background: var(--surface-manager-tray-hover-bg, color-mix(in srgb, var(--xtend-color-primary, var(--primary-color, #2563eb)) 12%, transparent));
+          outline: none;
+        }
+        .surface-tray-surface[data-state="hidden"] {
+          font-weight: 700;
+        }
+        .surface-tray-label {
+          min-inline-size: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .surface-tray-state {
+          color: var(--surface-manager-tray-muted-color, var(--xtend-text-muted, var(--muted-color, #64748b)));
+          font-size: 0.75rem;
+          text-transform: capitalize;
+        }
         @media (forced-colors: active) {
           :host {
             background: Canvas;
             color: CanvasText;
+          }
+          .surface-tray-button,
+          .surface-tray-popover,
+          .surface-tray-surface:hover,
+          .surface-tray-surface:focus-visible {
+            background: Canvas;
+            color: CanvasText;
+            border-color: CanvasText;
+            box-shadow: none;
+          }
+          .surface-tray-count {
+            background: Highlight;
+            color: HighlightText;
+          }
+        }
+        @media (max-width: 640px) {
+          .surface-tray {
+            inset-block-end: var(--surface-manager-tray-compact-offset, 0.5rem);
+          }
+          .surface-tray-popover {
+            min-inline-size: min(18rem, calc(100vw - 1rem));
           }
         }
       </style>
@@ -807,16 +983,37 @@ class XSurfaceManager extends HTMLElement {
         <div class="panels" part="panels"><slot name="panels"></slot></div>
         <div class="overlays" part="overlays"><slot name="overlays"></slot></div>
         <slot></slot>
+        <div class="surface-tray" part="surface-tray" data-surface-tray hidden>
+          <button class="surface-tray-button" type="button" part="surface-tray-button" data-surface-tray-toggle aria-haspopup="listbox" aria-label="Surface tray">
+            <span class="surface-tray-icon" aria-hidden="true"></span>
+            <span data-surface-tray-label>Surfaces</span>
+            <span class="surface-tray-count" data-surface-tray-count>0</span>
+          </button>
+          <div class="surface-tray-popover" part="surface-tray-popover">
+            <div class="surface-tray-title" data-surface-tray-title>Surfaces</div>
+            <div class="surface-tray-list" data-surface-tray-list role="listbox"></div>
+          </div>
+        </div>
         <span class="status" role="status" aria-live="polite"></span>
       </section>
     `;
     this._slots = Array.from(this.shadowRoot.querySelectorAll('slot'));
     this._status = this.shadowRoot.querySelector('.status');
+    this._surfaceTray = this.shadowRoot.querySelector('[data-surface-tray]');
+    this._surfaceTrayButton = this.shadowRoot.querySelector('[data-surface-tray-toggle]');
+    this._surfaceTrayCount = this.shadowRoot.querySelector('[data-surface-tray-count]');
+    this._surfaceTrayLabel = this.shadowRoot.querySelector('[data-surface-tray-label]');
+    this._surfaceTrayTitle = this.shadowRoot.querySelector('[data-surface-tray-title]');
+    this._surfaceTrayList = this.shadowRoot.querySelector('[data-surface-tray-list]');
   }
 
   connectedCallback() {
     this._ensureController();
     this._slots.forEach((slot) => slot.addEventListener('slotchange', this._handleSlotChange));
+    if (this._surfaceTray) {
+      this._surfaceTray.addEventListener('click', this._handleSurfaceTrayClick);
+      this._surfaceTray.addEventListener('keydown', this._handleSurfaceTrayKeyDown);
+    }
     this.addEventListener('surface-window-command', this._handleSurfaceCommand);
     this.addEventListener('surface-panel-command', this._handlePanelCommand);
     this.addEventListener('surface-region-command', this._handleRegionCommand);
@@ -844,6 +1041,10 @@ class XSurfaceManager extends HTMLElement {
 
   disconnectedCallback() {
     this._slots.forEach((slot) => slot.removeEventListener('slotchange', this._handleSlotChange));
+    if (this._surfaceTray) {
+      this._surfaceTray.removeEventListener('click', this._handleSurfaceTrayClick);
+      this._surfaceTray.removeEventListener('keydown', this._handleSurfaceTrayKeyDown);
+    }
     this.removeEventListener('surface-window-command', this._handleSurfaceCommand);
     this.removeEventListener('surface-panel-command', this._handlePanelCommand);
     this.removeEventListener('surface-region-command', this._handleRegionCommand);
@@ -3530,6 +3731,135 @@ class XSurfaceManager extends HTMLElement {
     return result;
   }
 
+  _surfaceTrayRecords(snapshot = this.snapshot()) {
+    const surfaces = Array.isArray(snapshot && snapshot.surfaces) ? snapshot.surfaces : [];
+    return surfaces
+      .filter(isSurfaceRecordTrayEligible)
+      .sort((left, right) => {
+        const leftHidden = isSurfaceRecordHidden(left) ? 0 : 1;
+        const rightHidden = isSurfaceRecordHidden(right) ? 0 : 1;
+        if (leftHidden !== rightHidden) return leftHidden - rightHidden;
+        return (right.zIndex || 0) - (left.zIndex || 0);
+      });
+  }
+
+  _surfaceTrayStateLabel(record = {}) {
+    if (record.status === 'minimized' || record.minimized) return 'minimized';
+    if (record.status === 'closed') return 'closed';
+    if (record.collapsed) return 'collapsed';
+    if (record.active) return 'active';
+    return 'visible';
+  }
+
+  _createSurfaceTrayButton(record) {
+    const button = document.createElement('button');
+    const label = document.createElement('span');
+    const state = document.createElement('span');
+    const stateLabel = this._surfaceTrayStateLabel(record);
+    const hidden = isSurfaceRecordHidden(record);
+    const title = record.label || record.id;
+
+    button.type = 'button';
+    button.className = 'surface-tray-surface';
+    button.dataset.surfaceTraySurface = record.id;
+    button.dataset.state = hidden ? 'hidden' : 'visible';
+    button.setAttribute('role', 'option');
+    button.setAttribute('aria-selected', record.active ? 'true' : 'false');
+    button.setAttribute('aria-label', `${hidden ? 'Restore' : 'Focus'} ${title}`);
+
+    label.className = 'surface-tray-label';
+    label.textContent = title;
+    state.className = 'surface-tray-state';
+    state.textContent = stateLabel;
+
+    button.append(label, state);
+    return button;
+  }
+
+  _renderSurfaceTray(snapshot = this.snapshot()) {
+    if (!this._surfaceTray || !this._surfaceTrayList) return;
+    const records = this._surfaceTrayRecords(snapshot);
+    const hiddenRecords = records.filter(isSurfaceRecordHidden);
+    const shouldShow = hiddenRecords.length > 0 || records.length > 1;
+
+    this._surfaceTray.hidden = !shouldShow;
+    if (!shouldShow) {
+      this._surfaceTrayList.replaceChildren();
+      if (this._surfaceTrayButton) this._surfaceTrayButton.setAttribute('aria-expanded', 'false');
+      return;
+    }
+
+    const count = hiddenRecords.length > 0 ? hiddenRecords.length : records.length;
+    const title = hiddenRecords.length > 0 ? 'Hidden surfaces' : 'Surfaces';
+    if (this._surfaceTrayCount) this._surfaceTrayCount.textContent = String(count);
+    if (this._surfaceTrayLabel) this._surfaceTrayLabel.textContent = title;
+    if (this._surfaceTrayTitle) this._surfaceTrayTitle.textContent = title;
+    if (this._surfaceTrayButton) {
+      this._surfaceTrayButton.setAttribute('aria-label', `${title}: ${count}`);
+      this._surfaceTrayButton.setAttribute('aria-expanded', 'false');
+    }
+    this._surfaceTrayList.replaceChildren(...records.map((record) => this._createSurfaceTrayButton(record)));
+  }
+
+  _activateSurfaceFromTray(record) {
+    if (!record || !record.id) return null;
+    if (record.status === 'minimized' || record.minimized) {
+      return this.restoreSurface(record.id);
+    }
+    if (record.status === 'closed') {
+      return this.openSurface(record.id);
+    }
+    if (record.collapsed) {
+      return this.expandSurface(record.id, record.pinned ? 'pinned' : 'docked');
+    }
+    return this.focusSurface(record.id);
+  }
+
+  _onSurfaceTrayClick(event) {
+    const surfaceControl = event.target && event.target.closest
+      ? event.target.closest('[data-surface-tray-surface]')
+      : null;
+    if (surfaceControl) {
+      event.preventDefault();
+      const surfaceId = surfaceControl.getAttribute('data-surface-tray-surface');
+      const record = this.snapshot().surfaces.find((surface) => surface.id === surfaceId);
+      this._activateSurfaceFromTray(record);
+      return;
+    }
+
+    const toggle = event.target && event.target.closest
+      ? event.target.closest('[data-surface-tray-toggle]')
+      : null;
+    if (!toggle) return;
+    const records = this._surfaceTrayRecords(this.snapshot());
+    const hiddenRecords = records.filter(isSurfaceRecordHidden);
+    if (hiddenRecords.length === 1) {
+      event.preventDefault();
+      this._activateSurfaceFromTray(hiddenRecords[0]);
+      return;
+    }
+    const firstSurface = this._surfaceTrayList && this._surfaceTrayList.querySelector('[data-surface-tray-surface]');
+    if (firstSurface && typeof firstSurface.focus === 'function') firstSurface.focus();
+  }
+
+  _onSurfaceTrayKeyDown(event) {
+    if (event.key === 'Escape' && this._surfaceTrayButton && typeof this._surfaceTrayButton.focus === 'function') {
+      event.preventDefault();
+      this._surfaceTrayButton.focus();
+      return;
+    }
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    const controls = Array.from(this._surfaceTrayList ? this._surfaceTrayList.querySelectorAll('[data-surface-tray-surface]') : []);
+    if (controls.length === 0) return;
+    event.preventDefault();
+    const index = controls.indexOf(event.target);
+    const nextIndex = event.key === 'ArrowDown'
+      ? (index + 1 + controls.length) % controls.length
+      : (index - 1 + controls.length) % controls.length;
+    const target = controls[index === -1 ? 0 : nextIndex];
+    if (target && typeof target.focus === 'function') target.focus();
+  }
+
   _commit(method, eventName, id, payload) {
     const controller = this._ensureController();
     if (method === 'openSurface' || method === 'focusSurface') {
@@ -3640,6 +3970,7 @@ class XSurfaceManager extends HTMLElement {
     });
     if (this._lastSurfaceLayoutReport) this._applySurfaceLayoutDom(this._lastSurfaceLayoutReport);
     this._applyStackPolicy(snapshot, { source: 'applySnapshot' });
+    this._renderSurfaceTray(snapshot);
     this._status.textContent = snapshot.activeSurfaceId ? `Active surface ${snapshot.activeSurfaceId}` : 'No active surface';
     return snapshot;
   }

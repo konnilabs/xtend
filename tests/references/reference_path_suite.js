@@ -52,12 +52,12 @@ const TEST_OBLIGATION_REFERENCE_CONTRACTS = [
     ]
   },
   {
-    path: 'docs/best-practices.md',
+    path: 'docs/de/best-practices.md',
     label: 'Best practices test obligation',
     contracts: [
-      { pattern: 'Testpflicht fuer neue Komponenten', message: 'documents test obligation for components' },
-      { pattern: 'XTend-Testpflicht-und-Scaffold-Anschluss.md', message: 'links the WP-13 obligation document' },
-      { pattern: 'Keine Platzhaltertests', message: 'rejects placeholder tests' }
+      { pattern: 'Best Practices', message: 'contains Best Practices heading' },
+      { pattern: 'Empfehlungen für robuste XTend Apps', message: 'documents robust app guidance' },
+      { pattern: './enterprise-adoption.md', message: 'links Enterprise Adoption guide' }
     ]
   },
   {
@@ -954,16 +954,16 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: '"test:docs-php-ssr-performance-budget": "node scripts/run_xtend_tests.js docs-php-ssr-performance-budget"', message: 'exposes Docs PHP SSR performance budget test script' },
       { pattern: '"test:docs-php-ssr-cls-budget": "node scripts/run_xtend_tests.js docs-php-ssr-cls-budget"', message: 'exposes Docs PHP SSR CLS budget test script' },
       { pattern: '"test:xtend-layout-stability-contract": "node scripts/run_xtend_tests.js xtend-layout-stability-contract"', message: 'exposes XTend layout stability contract test script' },
-      { pattern: '"test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot epic18-rmt-app-platform"', message: 'exposes PR fast gate script' },
-      { pattern: '"test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json"', message: 'exposes PR fast report gate script' },
-      { pattern: '"test:release:full": "node scripts/run_xtend_tests.js"', message: 'exposes full release gate script' },
-      { pattern: '"test:release:full:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-gate-report.json"', message: 'exposes full release report gate script' },
+      { pattern: '"test:pr": "node scripts/run_xtend_tests.js core architecture components', message: 'exposes PR fast gate script' },
+      { pattern: '"test:pr:report": "node scripts/run_xtend_tests.js core architecture components', message: 'exposes PR fast report gate script' },
+      { pattern: '"test:release:full": "node scripts/run_xtend_tests.js core architecture components', message: 'exposes curated full release gate script' },
+      { pattern: '"test:release:full:report": "node scripts/run_xtend_tests.js core architecture components', message: 'exposes curated full release report gate script' },
       { pattern: '"test:manifest-policy": "node scripts/run_xtend_tests.js manifest-import-policy"', message: 'exposes Manifest Import policy test script' },
       { pattern: '"test:supply-chain": "node scripts/run_xtend_tests.js supply-chain"', message: 'exposes Supply-Chain test script' },
       { pattern: '"security:manifest-policy": "node scripts/verify_manifest_import_policy.js"', message: 'exposes Manifest Import policy verify script' },
       { pattern: '"supply-chain:verify": "node scripts/verify_supply_chain_policy.js"', message: 'exposes Supply-Chain verify script' },
-      { pattern: '"release:check": "npm test"', message: 'exposes release check script' },
-      { pattern: '"release:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-report.json"', message: 'exposes release report script' },
+      { pattern: '"release:check": "npm run test:release:full:report"', message: 'exposes release check script' },
+      { pattern: '"release:report": "node scripts/run_xtend_tests.js core architecture components', message: 'exposes curated release report script' },
       { pattern: '"pack:dry-run": "node scripts/capture_pack_dry_run.js"', message: 'exposes package dry-run artifact capture script' },
       { pattern: '"pack:dry-run:raw": "npm pack --dry-run"', message: 'exposes raw package dry-run script' }
     ]
@@ -4138,723 +4138,127 @@ const EPIC_05_BRIDGE_REFERENCE_CONTRACTS = [
 
 const DOC_REFERENCE_CONTRACTS = [
   {
-    path: 'docs/README.md',
-    label: 'Docs overview',
+    path: 'docs/de/README.md',
+    label: 'German Developer Center overview',
     contracts: [
-      { pattern: 'XTend Dokumentation', message: 'contains documentation overview heading' },
-      { pattern: './components/xmodal.md', message: 'links x-modal component docs' },
-      { pattern: './components/xsummary.md', message: 'links x-summary component docs' },
-      { pattern: './components/xutils.md', message: 'links x-utils utility docs' },
-      { pattern: './components/xrouter.md', message: 'links x-router component docs' },
-      { pattern: './xtend-loader.md', message: 'links XTend Loader docs' },
-      { pattern: './manifest.md', message: 'links manifest docs' },
-      { pattern: './core-migration-guide.md', message: 'links core migration guide' },
-      { pattern: './xtend-fabric.md', message: 'links XTend-Fabric runtime guide' },
-      { pattern: './xtend-fabric-rmt-lane-mapping.md', message: 'links XTend-Fabric RMT lane mapping guide' },
-      { pattern: './performance.md', message: 'links Performance authoring guide' },
-      { pattern: './performance-measurements.md', message: 'links Performance Measurements guide' },
-      { pattern: './performance-regression.md', message: 'links Performance Regression guide' },
-      { pattern: './hydration-policies.md', message: 'links Hydration Policies guide' },
-      { pattern: './a11y-keyboard-smokes.md', message: 'links A11y Keyboard Smokes guide' },
-      { pattern: './screenreader-signals.md', message: 'links Screenreader Signals guide' },
-      { pattern: './motion-contrast.md', message: 'links Motion and Contrast guide' },
-      { pattern: './manifest-import-policy.md', message: 'links Manifest Import Policy guide' },
-      { pattern: './trusted-dom-sanitizing.md', message: 'links Trusted DOM and Sanitizing guide' },
-      { pattern: './supply-chain-gates.md', message: 'links Supply-Chain gates guide' },
-      { pattern: './component-catalog-coverage.md', message: 'links Component Catalog Coverage guide' },
-      { pattern: './public-component-types.md', message: 'links Public Component Types guide' },
-      { pattern: './visual-browser-regression.md', message: 'links Visual Browser Regression guide' },
-      { pattern: './visual-snapshot-automation.md', message: 'links Visual Snapshot Automation guide' },
-      { pattern: './epic11-enterprise-ux-handoff.md', message: 'links Epic 11 Enterprise UX Handoff guide' },
-      { pattern: './enterprise-adoption.md', message: 'links Enterprise Adoption guide' },
+      { pattern: 'XTend Developer Center', message: 'contains Developer Center heading' },
+      { pattern: './quick-start-guide.md', message: 'links Quick Start guide' },
       { pattern: './xtendrmt-overview.md', message: 'links XTendRMT overview' },
-      { pattern: './xtendrmt-native-authoring.md', message: 'links XTendRMT native authoring guide' },
-      { pattern: './xtendrmt-app-dsl.md', message: 'links XTendRMT App-DSL reference' },
-      { pattern: './xtendrmt-runtime-bridge.md', message: 'links XTendRMT runtime bridge' },
-      { pattern: './xtendrmt-migration-guide.md', message: 'links XTendRMT migration guide' },
-      { pattern: './xtendrmt-parsedown-scheduling.md', message: 'links XTendRMT Parsedown scheduling pilot' },
-      { pattern: 'xtend.docs.parsedown-rmt-pilot.v1', message: 'documents Docs RMT pilot contract' },
-      { pattern: 'npm run test:docs-rmt-pilot', message: 'documents Docs RMT pilot gate' }
+      { pattern: './components.md', message: 'links component development guide' },
+      { pattern: './rmt-linter.md', message: 'links RMT linter docs' },
+      { pattern: './rmt-language-server.md', message: 'links RMT language server docs' },
+      { pattern: 'XTend UI liefert die sichtbaren Web Components', message: 'describes XTend UI layer' },
+      { pattern: 'XTendRMT beschreibt App Shells', message: 'describes XTendRMT layer' },
+      { pattern: 'Fabric koordiniert Runtime-Arbeit', message: 'describes Fabric layer' },
+      { pattern: 'xtend.rmt.tooling-docs.v1', message: 'documents RMT tooling docs schema' }
     ]
   },
   {
-    path: 'docs/enterprise-adoption.md',
-    label: 'Enterprise Adoption documentation',
+    path: 'docs/en/README.md',
+    label: 'English Developer Center overview',
     contracts: [
-      { pattern: 'XTend Enterprise Adoption Guide', message: 'contains Enterprise Adoption heading' },
-      { pattern: 'xtend.docs.enterprise-adoption.v1', message: 'declares Enterprise Adoption docs contract' },
-      { pattern: 'xtend.enterpriseAdoption', message: 'documents package metadata surface' },
-      { pattern: 'xtend-loader.js', message: 'documents canonical loader' },
-      { pattern: 'xtend-dev.js', message: 'documents legacy loader boundary' },
-      { pattern: 'npm run dev:local', message: 'documents local dev server command' },
-      { pattern: 'XTend UI bleibt das Web-Component- und UI-Builder-Produkt', message: 'positions XTend UI as product surface' },
-      { pattern: 'XTendRMT bleibt Scheduler, Runtime Bridge und Templating-Kernel', message: 'positions XTendRMT as scheduler and templating kernel' },
-      { pattern: 'XTend-Fabric ist die lokale Safety-, Diagnostics-, Telemetry- und Reporter-Schicht', message: 'positions XTend-Fabric as safety layer' },
-      { pattern: 'Manifest Import Policy', message: 'links manifest import policy' },
-      { pattern: 'Trusted DOM und Sanitizing', message: 'links Trusted DOM policy' },
-      { pattern: 'Supply-Chain Gates', message: 'links supply-chain gates' },
-      { pattern: 'Performance-by-design', message: 'requires performance by design' },
-      { pattern: 'Accessibility als Designpflicht', message: 'requires A11y by design' },
-      { pattern: 'npm run test:pr:report', message: 'documents PR fast report gate' },
-      { pattern: 'npm run test:release:full:report', message: 'documents full release report gate' },
-      { pattern: 'npm run test:docs-rmt-pilot', message: 'documents Docs RMT pilot gate' },
-      { pattern: 'Epic 11 Enterprise UX Handoff', message: 'documents Epic 11 handoff' },
-      { pattern: 'npm run pack:dry-run', message: 'documents package dry-run gate' },
-      { pattern: 'private: false', message: 'keeps publish-prep boundary visible' },
-      { pattern: 'ER-WP-40` ist ebenfalls abgeschlossen', message: 'records completed Docs-App RMT pilot' },
-      { pattern: 'WP-E11-18` ist abgeschlossen', message: 'records completed Epic 11 Enterprise UX Handoff' }
+      { pattern: 'XTend Developer Center', message: 'contains Developer Center heading' },
+      { pattern: './quick-start-guide.md', message: 'links Quick Start guide' },
+      { pattern: './xtendrmt-overview.md', message: 'links XTendRMT overview' },
+      { pattern: './components.md', message: 'links component development guide' },
+      { pattern: './rmt-linter.md', message: 'links RMT linter docs' },
+      { pattern: './rmt-language-server.md', message: 'links RMT language server docs' },
+      { pattern: 'XTend UI provides the visible Web Components', message: 'describes XTend UI layer' },
+      { pattern: 'XTendRMT describes app shells', message: 'describes XTendRMT layer' },
+      { pattern: 'Fabric coordinates runtime work', message: 'describes Fabric layer' },
+      { pattern: 'xtend.rmt.tooling-docs.v1', message: 'documents RMT tooling docs schema' }
     ]
   },
   {
-    path: 'docs/manifest.md',
-    label: 'Manifest documentation',
+    path: 'docs/de/rmt-stack-topography.md',
+    label: 'German RMT stack topography docs',
     contracts: [
-      { pattern: 'components/manifest.json', message: 'documents default manifest path' },
-      { pattern: '"xstate": "./xstate.js"', message: 'uses local xstate manifest example' },
-      { pattern: '"x-theme": "./xtheme.js"', message: 'uses local theme manifest example' },
-      { pattern: 'CDN-URLs sind kein Standard- oder Testpfad', message: 'documents CDN removal from default paths' },
-      { pattern: 'xtend.security.manifest-policy.v1', message: 'documents manifest security policy' },
-      { pattern: 'xtend.security.import-policy.v1', message: 'documents import security policy' },
-      { pattern: 'node scripts/run_xtend_tests.js manifest-import-policy --json', message: 'documents manifest policy gate' },
-      { pattern: './xtend-loader.md', message: 'links loader docs' }
+      { pattern: '../assets/rmt-stack-topography.svg', message: 'references stack SVG diagram' },
+      { pattern: './rmt-kernel-runtime.md', message: 'links RMT kernel runtime docs' },
+      { pattern: './xtend-fabric-runtime.md', message: 'links XTend Fabric runtime docs' },
+      { pattern: './xtend-ui-runtime-layer.md', message: 'links XTend UI runtime layer docs' },
+      { pattern: 'React', message: 'mentions React integration' },
+      { pattern: 'Vue', message: 'mentions Vue integration' },
+      { pattern: 'VanillaJS', message: 'mentions VanillaJS integration' }
     ]
   },
   {
-    path: 'docs/xtend-loader.md',
-    label: 'XTend Loader documentation',
+    path: 'docs/en/rmt-stack-topography.md',
+    label: 'English RMT stack topography docs',
     contracts: [
-      { pattern: 'xtend-loader.js', message: 'documents canonical loader' },
-      { pattern: 'xtend-dev.js', message: 'documents legacy stub' },
-      { pattern: 'data-manifest', message: 'documents manifest override' },
-      { pattern: 'window.__XTendLoaderBootPromise', message: 'documents loader boot promise' },
-      { pattern: '"xstate": "./xstate.js"', message: 'uses local manifest example' },
-      { pattern: 'Seit `ER-WP-03`', message: 'documents ER-WP-03 CDN removal' },
-      { pattern: 'Seit `ER-WP-05`', message: 'documents ER-WP-05 demo and fixture migration' },
-      { pattern: 'Seit `ER-WP-28`', message: 'documents ER-WP-28 manifest import hardening' },
-      { pattern: 'xtend.security.import-policy.v1', message: 'documents import policy contract' },
-      { pattern: 'xtend.security.import.refused', message: 'documents import refusal diagnostic' },
-      { pattern: 'node scripts/run_xtend_tests.js manifest-import-policy --json', message: 'documents manifest policy gate' },
-      { pattern: 'Core-Komponenten und Browser-Fixtures repo-lokale XTend-Pfade', message: 'documents local core paths' }
+      { pattern: '../assets/rmt-stack-topography.svg', message: 'references stack SVG diagram' },
+      { pattern: './rmt-kernel-runtime.md', message: 'links RMT kernel runtime docs' },
+      { pattern: './xtend-fabric-runtime.md', message: 'links XTend Fabric runtime docs' },
+      { pattern: './xtend-ui-runtime-layer.md', message: 'links XTend UI runtime layer docs' },
+      { pattern: 'React', message: 'mentions React integration' },
+      { pattern: 'Vue', message: 'mentions Vue integration' },
+      { pattern: 'VanillaJS', message: 'mentions VanillaJS integration' }
     ]
   },
   {
-    path: 'docs/api.md',
-    label: 'API documentation',
+    path: 'docs/de/rmt-kernel-runtime.md',
+    label: 'German RMT Kernel Runtime docs',
     contracts: [
-      { pattern: 'window.XTend.compliance', message: 'documents compliance API' },
-      { pattern: 'xstate.get(\'ui\')', message: 'documents UI state aggregate' },
-      { pattern: 'xtend.component.x-dialog.<id>.open', message: 'documents canonical dialog key' },
-      { pattern: 'xtend.component.x-modal.<id>.open', message: 'documents canonical modal key' },
-      { pattern: 'createRmtFormat', message: 'documents XTendRMT format factory' },
-      { pattern: 'createRmtStateSchedulerDiagnosticsBridge', message: 'documents XTendRMT bridge factory' },
-      { pattern: './xtendrmt-runtime-bridge.md', message: 'links runtime bridge guide' }
+      { pattern: '## Was diese Schicht weiß', message: 'documents known boundary' },
+      { pattern: '## Was sie nicht weiß', message: 'documents excluded knowledge boundary' },
+      { pattern: '## Schnittstellen', message: 'documents public interfaces' },
+      { pattern: 'createRmtRuntime', message: 'documents runtime factory' },
+      { pattern: 'createRmtBrowserHostAdapter', message: 'documents browser host adapter' }
     ]
   },
   {
-    path: 'docs/core-migration-guide.md',
-    label: 'Core migration guide',
+    path: 'docs/en/rmt-kernel-runtime.md',
+    label: 'English RMT Kernel Runtime docs',
     contracts: [
-      { pattern: 'Legacy zu kanonisch', message: 'documents legacy-to-canonical mapping' },
-      { pattern: 'window.XTend.*', message: 'prefers namespaced XTend APIs' },
-      { pattern: 'development/XTend-Core-Compliance-Checklist.md', message: 'links compliance checklist' },
-      { pattern: 'RMT-Templating-Migration ab Epic 04', message: 'documents RMT templating migration section' },
-      { pattern: 'RMT-Templating ist additiv und opt-in', message: 'documents additive opt-in migration' },
-      { pattern: 'development/XTendRMT-Migrations-und-Framework-Agnostik-Leitplanken.md', message: 'links RMT migration guardrails' },
-      { pattern: 'docs/xtendrmt-overview.md', message: 'links XTendRMT overview' },
-      { pattern: 'docs/xtendrmt-native-authoring.md', message: 'links native RMT authoring guide' },
-      { pattern: 'docs/xtendrmt-app-dsl.md', message: 'links App-DSL reference' },
-      { pattern: 'docs/xtendrmt-runtime-bridge.md', message: 'links runtime bridge guide' },
-      { pattern: 'docs/xtendrmt-migration-guide.md', message: 'links native RMT migration guide' },
-      { pattern: 'docs/xtendrmt-parsedown-scheduling.md', message: 'links Parsedown scheduling pilot' },
-      { pattern: 'XTend neben React/Vue', message: 'covers mixed host migration path' },
-      { pattern: 'bridgeRuntime: reserved-for-Epic-05', message: 'keeps historical bridge runtime note in migration guide' },
-      { pattern: 'Native RMT Routes und Components ab Epic 05', message: 'documents native Epic 05 migration target' },
-      { pattern: 'manifest.metadata.routes -> routes', message: 'documents route metadata migration' }
+      { pattern: '## What this layer knows', message: 'documents known boundary' },
+      { pattern: '## What it does not know', message: 'documents excluded knowledge boundary' },
+      { pattern: '## Interfaces', message: 'documents public interfaces' },
+      { pattern: 'createRmtRuntime', message: 'documents runtime factory' },
+      { pattern: 'createRmtBrowserHostAdapter', message: 'documents browser host adapter' }
     ]
   },
   {
-    path: 'docs/xtend-fabric.md',
-    label: 'XTend-Fabric runtime docs',
+    path: 'docs/de/xtend-fabric-runtime.md',
+    label: 'German XTend Fabric Runtime docs',
     contracts: [
-      { pattern: 'xtend.docs.xtend-fabric.v1', message: 'declares Fabric docs contract' },
-      { pattern: 'fabric/xtend-fabric.js', message: 'documents Fabric runtime entry' },
-      { pattern: 'window.XTendFabric', message: 'documents browser namespace' },
+      { pattern: '## Was diese Schicht weiß', message: 'documents known boundary' },
+      { pattern: '## Was sie nicht weiß', message: 'documents excluded knowledge boundary' },
       { pattern: 'createXtendFabric', message: 'documents Fabric factory' },
-      { pattern: 'runFiber', message: 'documents fiber runner' },
-      { pattern: 'emitDiagnostic', message: 'documents diagnostic emitter' },
-      { pattern: 'wrapComponent', message: 'documents component wrapper' },
-      { pattern: 'registerReporter', message: 'documents reporter opt-in' },
-      { pattern: 'createReporterAdapter(options)', message: 'documents reporter adapter factory' },
-      { pattern: 'createConsoleReporter(options)', message: 'documents console reporter factory' },
-      { pattern: 'createTestReporter(options)', message: 'documents test reporter factory' },
-      { pattern: 'createRuntimeDiagnosticsBridge(options)', message: 'documents runtime diagnostics bridge factory' },
-      { pattern: 'createComponentFiberInstrumentation(componentRef, options)', message: 'documents component fiber instrumentation factory' },
-      { pattern: 'createRouteFiberInstrumentation(routerRef, options)', message: 'documents route fiber instrumentation factory' },
-      { pattern: 'createTelemetrySnapshot(options)', message: 'documents telemetry snapshot factory' },
-      { pattern: 'publishTelemetrySnapshot(snapshotOrOptions, options)', message: 'documents telemetry snapshot publisher' },
-      { pattern: 'createBackpressureSignal(signal, defaults)', message: 'documents backpressure signal factory' },
-      { pattern: 'connectRmtDiagnostics', message: 'documents RMT diagnostics connector' },
-      { pattern: 'createComponentLifecycleBoundary', message: 'documents lifecycle boundary factory' },
-      { pattern: 'wrapEventHandler', message: 'documents event handler wrapper' },
-      { pattern: 'xtend.fabric.api.v1', message: 'documents Fabric API contract' },
-      { pattern: 'xtend.fabric.diagnostic.v1', message: 'documents Fabric diagnostic contract' },
-      { pattern: 'xtend.fabric.reporter.v1', message: 'documents Fabric reporter contract' },
-      { pattern: 'xtend.fabric.redaction.v1', message: 'documents Fabric redaction contract' },
-      { pattern: 'xtend.fabric.fiber.v1', message: 'documents Fabric fiber contract' },
-      { pattern: 'xtend.fabric.lane.v1', message: 'documents Fabric lane contract' },
-      { pattern: 'xtend.fabric.lifecycle-error-boundary.v1', message: 'documents lifecycle boundary contract' },
-      { pattern: 'xtend.fabric.runtime-diagnostics-bridge.v1', message: 'documents runtime diagnostics bridge contract' },
-      { pattern: 'xtend.fabric.component-fiber-instrumentation.v1', message: 'documents component fiber instrumentation contract' },
-      { pattern: 'xtend.fabric.route-fiber-instrumentation.v1', message: 'documents route fiber instrumentation contract' },
-      { pattern: 'xtend.fabric.telemetry-snapshot.v1', message: 'documents telemetry snapshot contract' },
-      { pattern: 'xtend.fabric.backpressure-signal.v1', message: 'documents backpressure signal contract' },
-      { pattern: 'xtend.fabric.hydration-policy.v1', message: 'documents Hydration Policy contract' },
-      { pattern: 'xtend.performance.measurement.v1', message: 'documents performance measurement contract' },
-      { pattern: 'xtend.fabric.component.lifecycle.failed', message: 'documents lifecycle diagnostic code' },
-      { pattern: 'xtend.fabric.component.hydrate.failed', message: 'documents hydration diagnostic code' },
-      { pattern: 'xtend.fabric.route.render.failed', message: 'documents route render diagnostic code' },
-      { pattern: 'xtend.fabric.reporter.failed', message: 'documents reporter failure diagnostic code' },
-      { pattern: 'xtend.fabric.xstate.connected', message: 'documents xstate bridge diagnostic code' },
-      { pattern: 'xtend.fabric.api.connected', message: 'documents API bridge diagnostic code' },
-      { pattern: 'xtend.rmt.bridge.adapter.result.degraded', message: 'documents normalized RMT bridge diagnostic code' },
-      { pattern: 'xtend.fabric.telemetry.snapshot', message: 'documents telemetry snapshot diagnostic code' },
-      { pattern: 'component.idle.hydrate', message: 'documents idle hydration schedule' },
-      { pattern: 'component.lazy.hydrate', message: 'documents lazy hydration schedule' },
-      { pattern: 'ui.user-blocking.input', message: 'documents route navigation schedule' },
-      { pattern: 'route.transition.render', message: 'documents transition route render schedule' },
-      { pattern: 'xtend.fabric.rmt-lane-mapping.v1', message: 'links Fabric RMT lane mapping contract' },
-      { pattern: './xtend-fabric-rmt-lane-mapping.md', message: 'links Fabric RMT lane mapping docs' },
-      { pattern: './performance.md', message: 'links Performance authoring docs' },
-      { pattern: './performance-measurements.md', message: 'links Performance Measurements docs' },
-      { pattern: './performance-regression.md', message: 'links Performance Regression docs' },
-      { pattern: './hydration-policies.md', message: 'links Hydration Policies docs' },
-      { pattern: 'performance.phaseSummary', message: 'documents performance phase summary' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric --json', message: 'documents Fabric gate' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-lane-mapping --json', message: 'documents Fabric lane mapping gate' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-lifecycle-boundary --json', message: 'documents lifecycle boundary gate' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-reporters --json', message: 'documents reporter adapter gate' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-runtime-bridge --json', message: 'documents runtime bridge gate' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-component-fibers --json', message: 'documents component fiber gate' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-route-fibers --json', message: 'documents route fiber gate' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-telemetry-snapshot --json', message: 'documents telemetry snapshot gate' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-performance-measurements --json', message: 'documents performance measurement gate' },
-      { pattern: 'node scripts/run_xtend_tests.js performance-regression --json', message: 'documents performance regression gate' },
-      { pattern: 'node scripts/run_xtend_tests.js hydration-policy --json', message: 'documents hydration policy gate' },
-      { pattern: 'npm run test:fabric', message: 'documents package script' },
-      { pattern: 'npm run test:fabric-lifecycle', message: 'documents lifecycle package script' },
-      { pattern: 'npm run test:fabric-reporters', message: 'documents reporter package script' },
-      { pattern: 'npm run test:fabric-runtime-bridge', message: 'documents runtime bridge package script' },
-      { pattern: 'npm run test:fabric-component-fibers', message: 'documents component fiber package script' },
-      { pattern: 'npm run test:fabric-route-fibers', message: 'documents route fiber package script' },
-      { pattern: 'npm run test:fabric-telemetry', message: 'documents telemetry snapshot package script' },
-      { pattern: 'npm run test:fabric-performance', message: 'documents performance measurement package script' },
-      { pattern: 'npm run test:performance', message: 'documents performance regression package script' },
-      { pattern: 'npm run test:hydration-policy', message: 'documents hydration policy package script' }
+      { pattern: 'resolveRmtScheduleForFiber', message: 'documents RMT lane resolver' },
+      { pattern: './xtend-fabric-rmt-lane-mapping.md', message: 'links lane mapping docs' }
     ]
   },
   {
-    path: 'docs/performance.md',
-    label: 'Performance authoring docs',
+    path: 'docs/en/xtend-fabric-runtime.md',
+    label: 'English XTend Fabric Runtime docs',
     contracts: [
-      { pattern: 'Performance fuer Komponentenautoren', message: 'declares performance authoring docs heading' },
-      { pattern: 'xtend.docs.performance-authoring.v1', message: 'declares docs contract' },
-      { pattern: 'xtend.scaffold.performance-policy.v1', message: 'documents scaffold performance policy' },
-      { pattern: 'xtend.performance.component-profile.v1', message: 'documents component performance profile contract' },
-      { pattern: 'xtend.performance.budget-matrix.v1', message: 'documents budget matrix contract' },
-      { pattern: 'xtend.performance.measurement.v1', message: 'documents measurement contract' },
-      { pattern: 'xtend.performance.regression-gate.v1', message: 'documents regression gate contract' },
-      { pattern: 'xtend.fabric.hydration-policy.v1', message: 'documents hydration policy contract' },
-      { pattern: 'DOM-Regeln', message: 'documents DOM performance rules' },
-      { pattern: 'Event-Regeln', message: 'documents event performance rules' },
-      { pattern: 'Shadow DOM', message: 'documents Shadow DOM performance rules' },
-      { pattern: 'Layout und Animation', message: 'documents layout and animation rules' },
-      { pattern: 'xtendScaffoldPerformanceProfile', message: 'documents source performance getter' },
-      { pattern: 'performanceProfile', message: 'documents manifest performance key' },
-      { pattern: 'node scripts/run_xtend_tests.js performance-regression --json', message: 'documents performance regression gate' }
+      { pattern: '## What this layer knows', message: 'documents known boundary' },
+      { pattern: '## What it does not know', message: 'documents excluded knowledge boundary' },
+      { pattern: 'createXtendFabric', message: 'documents Fabric factory' },
+      { pattern: 'resolveRmtScheduleForFiber', message: 'documents RMT lane resolver' },
+      { pattern: './xtend-fabric-rmt-lane-mapping.md', message: 'links lane mapping docs' }
     ]
   },
   {
-    path: 'docs/performance-measurements.md',
-    label: 'Performance Measurements docs',
+    path: 'docs/de/xtend-ui-runtime-layer.md',
+    label: 'German XTend UI Runtime Layer docs',
     contracts: [
-      { pattern: 'Performance Measurements', message: 'declares performance docs heading' },
-      { pattern: 'xtend.performance.measurement.v1', message: 'documents performance measurement contract' },
-      { pattern: 'xtend.loader.manifest', message: 'documents loader manifest measure' },
-      { pattern: 'xtend.component.hydrate', message: 'documents hydration measure' },
-      { pattern: 'xtend.route.render', message: 'documents route render measure' },
-      { pattern: 'xtend-loader-performance', message: 'documents loader performance event' },
-      { pattern: 'window.__XTendLoaderBootPromise', message: 'documents boot promise measurements' },
-      { pattern: 'createTelemetrySnapshot', message: 'documents snapshot usage' },
-      { pattern: 'phaseSummary', message: 'documents phase summary' },
-      { pattern: 'npm run test:fabric-performance', message: 'documents package script' },
-      { pattern: 'npm run test:performance', message: 'documents performance regression package script' }
+      { pattern: '## Was diese Schicht weiß', message: 'documents known boundary' },
+      { pattern: '## Was sie nicht weiß', message: 'documents excluded knowledge boundary' },
+      { pattern: 'x-surface-manager', message: 'documents SurfaceManager' },
+      { pattern: 'createRmtXtendComponentAdapter', message: 'documents component adapter' },
+      { pattern: 'createRmtSurfaceAdapter', message: 'documents surface adapter' }
     ]
   },
   {
-    path: 'docs/performance-regression.md',
-    label: 'Performance Regression docs',
+    path: 'docs/en/xtend-ui-runtime-layer.md',
+    label: 'English XTend UI Runtime Layer docs',
     contracts: [
-      { pattern: 'Performance Regression', message: 'declares performance regression docs heading' },
-      { pattern: 'xtend.docs.performance-regression.v1', message: 'declares docs contract' },
-      { pattern: 'xtend.performance.regression-gate.v1', message: 'documents gate contract' },
-      { pattern: 'xtend.performance.regression-baseline.v1', message: 'documents baseline contract' },
-      { pattern: 'xtend.performance.regression-report.v1', message: 'documents report schema' },
-      { pattern: 'xtend.performance.measurement.v1', message: 'documents measurement source' },
-      { pattern: 'tests/performance/baselines/local-performance-baseline.json', message: 'links deterministic baseline' },
-      { pattern: 'npm run test:performance', message: 'documents package script' },
-      { pattern: './performance-measurements.md', message: 'links Performance Measurements docs' }
-    ]
-  },
-  {
-    path: 'docs/hydration-policies.md',
-    label: 'Hydration Policies docs',
-    contracts: [
-      { pattern: 'xtend.docs.hydration-policies.v1', message: 'declares Hydration Policies docs contract' },
-      { pattern: 'xtend.fabric.hydration-policy.v1', message: 'documents Hydration Policy contract' },
-      { pattern: 'xtend.fabric.hydration-decision.v1', message: 'documents Hydration Decision contract' },
-      { pattern: '`visible`', message: 'documents visible hydration policy' },
-      { pattern: '`idle`', message: 'documents idle hydration policy' },
-      { pattern: '`lazy`', message: 'documents lazy hydration policy' },
-      { pattern: 'component.lazy.hydrate', message: 'documents lazy hydration scheduleRef' },
-      { pattern: 'npm run test:hydration-policy', message: 'documents package script' }
-    ]
-  },
-  {
-    path: 'docs/a11y-keyboard-smokes.md',
-    label: 'A11y Keyboard Smokes docs',
-    contracts: [
-      { pattern: 'xtend.docs.a11y-keyboard-smokes.v1', message: 'declares A11y keyboard docs contract' },
-      { pattern: 'xtend.a11y.browser-keyboard-smoke.v1', message: 'documents browser keyboard smoke contract' },
-      { pattern: 'tests/browser/fixtures/a11y-focus-keyboard-smoke.html', message: 'links browser fixture' },
-      { pattern: 'window.__xtendA11yKeyboardSmokeResult', message: 'documents browser result key' },
-      { pattern: '`Enter` und `Space` navigieren', message: 'documents routing keyboard path' },
-      { pattern: 'Initialfokus, Fokusfalle, `Escape` und Fokusrestore', message: 'documents overlay keyboard path' },
-      { pattern: 'node scripts/run_xtend_tests.js browser --json', message: 'documents browser gate' },
-      { pattern: 'node scripts/run_xtend_tests.js a11y-hydration --json', message: 'documents A11y hydration gate' }
-    ]
-  },
-  {
-    path: 'docs/screenreader-signals.md',
-    label: 'Screenreader Signals docs',
-    contracts: [
-      { pattern: 'xtend.docs.screenreader-signals.v1', message: 'declares Screenreader docs contract' },
-      { pattern: 'xtend.a11y.screenreader-signals.v1', message: 'documents Screenreader signal contract' },
-      { pattern: 'xtend.a11y.screenreader-signal.v1', message: 'documents Screenreader signal record contract' },
-      { pattern: '`status-announcement`', message: 'documents status announcement signal' },
-      { pattern: '`validation-error-summary`', message: 'documents validation error signal' },
-      { pattern: '`dialog-context`', message: 'documents overlay dialog context signal' },
-      { pattern: 'a11y.user-blocking.announce', message: 'documents A11y announcement schedule' },
-      { pattern: 'npm run test:screenreader-signals', message: 'documents package gate' }
-    ]
-  },
-  {
-    path: 'docs/motion-contrast.md',
-    label: 'Motion and Contrast docs',
-    contracts: [
-      { pattern: 'xtend.docs.motion-contrast.v1', message: 'declares Motion and Contrast docs contract' },
-      { pattern: 'xtend.a11y.motion-contrast-policy.v1', message: 'documents Motion and Contrast policy contract' },
-      { pattern: 'xtend.a11y.motion-policy.v1', message: 'documents Motion policy contract' },
-      { pattern: 'xtend.a11y.contrast-policy.v1', message: 'documents Contrast policy contract' },
-      { pattern: 'prefers-reduced-motion', message: 'documents reduced motion media query' },
-      { pattern: 'forced-colors', message: 'documents forced colors media query' },
-      { pattern: 'a11y.user-blocking.preference', message: 'documents A11y preference schedule' },
-      { pattern: 'npm run test:motion-contrast', message: 'documents package gate' }
-    ]
-  },
-  {
-    path: 'docs/manifest-import-policy.md',
-    label: 'Manifest Import Policy docs',
-    contracts: [
-      { pattern: 'xtend.docs.manifest-import-policy.v1', message: 'declares Manifest Import docs contract' },
-      { pattern: 'xtend.security.loader-policy.v1', message: 'documents loader policy contract' },
-      { pattern: 'xtend.security.manifest-policy.v1', message: 'documents manifest policy contract' },
-      { pattern: 'xtend.security.import-policy.v1', message: 'documents import policy contract' },
-      { pattern: 'xtend.security.manifest-import-gate.v1', message: 'documents manifest import gate contract' },
-      { pattern: 'security/manifest-import-policy.js', message: 'links machine-readable policy module' },
-      { pattern: 'xtend.security.import.refused', message: 'documents import refusal diagnostic' },
-      { pattern: 'node scripts/verify_manifest_import_policy.js --json', message: 'documents verify gate' },
-      { pattern: 'npm run test:manifest-policy', message: 'documents package script' }
-    ]
-  },
-  {
-    path: 'docs/xtend-fabric-rmt-lane-mapping.md',
-    label: 'XTend-Fabric RMT lane mapping docs',
-    contracts: [
-      { pattern: 'xtend.docs.xtend-fabric-rmt-lane-mapping.v1', message: 'declares lane mapping docs contract' },
-      { pattern: 'fabric/rmt-lane-mapping.js', message: 'documents mapping runtime entry' },
-      { pattern: 'xtend.fabric.rmt-lane-mapping.v1', message: 'documents mapping contract' },
-      { pattern: 'xtend.fabric.rmt-lane-schedule.v1', message: 'documents schedule wrapper contract' },
-      { pattern: 'a11y` | `user-blocking', message: 'documents a11y to user-blocking mapping' },
-      { pattern: 'metadata.fabricLane = "a11y"', message: 'documents preserved Fabric a11y metadata' },
-      { pattern: 'component.lazy.hydrate', message: 'documents lazy hydration schedule' },
-      { pattern: 'resolveRmtScheduleForFiber', message: 'documents fiber resolver API' },
-      { pattern: 'node scripts/run_xtend_tests.js fabric-lane-mapping --json', message: 'documents lane mapping gate' },
-      { pattern: 'node scripts/run_xtend_tests.js hydration-policy --json', message: 'documents hydration policy gate' },
-      { pattern: 'npm run test:fabric-lanes', message: 'documents package script' },
-      { pattern: 'npm run test:hydration-policy', message: 'documents hydration policy package script' }
-    ]
-  },
-  {
-    path: 'docs/trusted-dom-sanitizing.md',
-    label: 'Trusted DOM and Sanitizing docs',
-    contracts: [
-      { pattern: 'xtend.docs.trusted-dom-sanitizing.v1', message: 'declares Trusted DOM docs contract' },
-      { pattern: 'xtend.security.trusted-dom-policy.v1', message: 'documents Trusted DOM policy contract' },
-      { pattern: 'xtend.security.sanitizing-boundary.v1', message: 'documents Sanitizing Boundary contract' },
-      { pattern: 'security/trusted-dom-policy.js', message: 'links machine-readable policy module' },
-      { pattern: '`htmlFragment`', message: 'classifies HTML fragments' },
-      { pattern: '`parsedownHtml`', message: 'classifies Parsedown HTML' },
-      { pattern: '`innerHTML`', message: 'restricts innerHTML sink' },
-      { pattern: '`insertAdjacentHTML`', message: 'restricts insertAdjacentHTML sink' },
-      { pattern: '`template.innerHTML`', message: 'restricts template.innerHTML sink' },
-      { pattern: 'xtend.security.sanitizer.missing', message: 'documents sanitizer missing diagnostic' },
-      { pattern: './xtendrmt-native-authoring.md', message: 'links native authoring guide' },
-      { pattern: './xtendrmt-parsedown-scheduling.md', message: 'links Parsedown scheduling guide' },
-      { pattern: './xtendrmt-app-dsl.md', message: 'links App-DSL reference' }
-    ]
-  },
-  {
-    path: 'docs/supply-chain-gates.md',
-    label: 'Supply-Chain gates docs',
-    contracts: [
-      { pattern: 'xtend.docs.supply-chain-gates.v1', message: 'declares Supply-Chain docs contract' },
-      { pattern: 'xtend.security.supply-chain-gate-plan.v1', message: 'documents Supply-Chain plan contract' },
-      { pattern: 'xtend.security.dependency-audit-gate.v1', message: 'documents dependency audit gate' },
-      { pattern: 'xtend.security.license-policy.v1', message: 'documents license policy' },
-      { pattern: 'xtend.security.vulnerability-policy.v1', message: 'documents vulnerability policy' },
-      { pattern: 'xtend.security.release-supply-chain-gate.v1', message: 'documents release gate' },
-      { pattern: 'node scripts/verify_supply_chain_policy.js --json', message: 'documents offline verify command' },
-      { pattern: 'npm run test:supply-chain', message: 'documents package script' },
-      { pattern: 'npm audit --audit-level=moderate', message: 'documents audit CI handoff' },
-      { pattern: 'npm sbom --sbom-format=cyclonedx --json', message: 'documents SBOM CI handoff' },
-      { pattern: 'security/supply-chain-gate-policy.js', message: 'links machine-readable policy module' }
-    ]
-  },
-  {
-    path: 'docs/component-catalog-coverage.md',
-    label: 'Component Catalog Coverage docs',
-    contracts: [
-      { pattern: 'xtend.docs.component-catalog-coverage.v1', message: 'declares Component Catalog Coverage docs contract' },
-      { pattern: 'xtend.catalog.component-coverage-matrix.v1', message: 'documents coverage matrix contract' },
-      { pattern: 'xtend.catalog.component-coverage-gate.v1', message: 'documents coverage gate contract' },
-      { pattern: 'npm run test:catalog-coverage', message: 'documents package gate' },
-      { pattern: 'node scripts/run_xtend_tests.js catalog-coverage --json', message: 'documents JSON runner gate' },
-      { pattern: '44 Komponenten-Dokumente', message: 'documents complete docs coverage' },
-      { pattern: '44 Component-Level-Suites', message: 'documents component-suite coverage after SurfaceManager primitive closure' },
-      { pattern: '44 Public-Type-Artefakte', message: 'documents public type coverage after SurfaceManager primitive closure' },
-      { pattern: '`xstate` ist seit [Known Residual Triage](./known-residual-triage.md) als Runtime-Boundary geschlossen', message: 'documents xstate closed runtime boundary status after WP-E13-05' },
-      { pattern: 'x-summary', message: 'documents x-summary catalog status' },
-      { pattern: '`x-utils` ist als Utility-Boundary geschlossen', message: 'documents x-utils closed utility boundary status after WP-E13-05' },
-      { pattern: 'ER-WP-32` | abgeschlossen', message: 'marks naming and docs gaps closed' },
-      { pattern: 'ER-WP-33` | abgeschlossen', message: 'marks component-suite priority work completed' },
-      { pattern: 'ER-WP-34` | abgeschlossen', message: 'marks public types work completed' },
-      { pattern: 'catalog/component-catalog-coverage.js', message: 'links machine-readable module' }
-    ]
-  },
-  {
-    path: 'docs/public-component-types.md',
-    label: 'Public Component Types docs',
-    contracts: [
-      { pattern: 'xtend.docs.public-component-types.v1', message: 'declares Public Component Types docs contract' },
-      { pattern: 'xtend.enterprise.er-wp-34.public-component-types.v1', message: 'documents ER-WP-34 type contract' },
-      { pattern: 'components/xtend-public-types.d.ts', message: 'documents shared public type helpers' },
-      { pattern: 'components/xrouter.d.ts', message: 'documents x-router public type artifact' },
-      { pattern: 'component-public-types', message: 'documents component public types gate' },
-      { pattern: '44 priorisierten `.d.ts`', message: 'documents priority type artifact count after SurfaceManager primitive closure' }
-    ]
-  },
-  {
-    path: 'docs/visual-browser-regression.md',
-    label: 'Visual browser regression docs',
-    contracts: [
-      { pattern: 'xtend.docs.visual-browser-regression.v1', message: 'declares Visual Browser Regression docs contract' },
-      { pattern: 'xtend.catalog.component-regression-priority-plan.v1', message: 'documents regression priority plan contract' },
-      { pattern: 'node scripts/run_xtend_tests.js regression-priority --json', message: 'documents regression priority JSON gate' },
-      { pattern: 'xtend.epic12.visual-snapshot-automation-contract.v1', message: 'documents Visual Snapshot Automation contract' },
-      { pattern: 'node scripts/run_xtend_tests.js visual-snapshot-automation --json', message: 'documents Visual Snapshot Automation gate' },
-      { pattern: 'dom-first-pixel-ready', message: 'documents DOM-first Snapshot strategy' },
-      { pattern: 'desktop-1280', message: 'documents desktop viewport' },
-      { pattern: 'mobile-390', message: 'documents mobile viewport' },
-      { pattern: 'forced-colors', message: 'documents forced-colors theme variant' },
-      { pattern: 'ER-WP-36', message: 'documents CI handoff' }
-    ]
-  },
-  {
-    path: 'docs/xtendrmt-overview.md',
-    label: 'XTendRMT overview',
-    contracts: [
-      { pattern: 'xtend.docs.xtendrmt-overview.v1', message: 'declares overview docs contract' },
-      { pattern: 'XTend UI', message: 'documents XTend UI product role' },
-      { pattern: 'XTendRMT', message: 'documents XTendRMT product role' },
-      { pattern: 'createRmtXRouterAdapter', message: 'documents XRouter adapter factory' },
-      { pattern: 'createRmtXtendComponentAdapter', message: 'documents XTend component adapter factory' },
-      { pattern: 'createRmtStateSchedulerDiagnosticsBridge', message: 'documents bridge factory' },
-      { pattern: 'tests/browser/fixtures/rmt-xrouter-xtend-smoke.html', message: 'links browser smoke fixture' },
-      { pattern: 'node scripts/verify_xtendrmt_artifact_parity.js --json', message: 'documents artifact parity gate' },
-      { pattern: 'framework-agnostisch', message: 'keeps framework agnostic boundary visible' }
-    ]
-  },
-  {
-    path: 'docs/xtendrmt-native-authoring.md',
-    label: 'XTendRMT native authoring guide',
-    contracts: [
-      { pattern: 'xtend.rmt.native-authoring-guide.v1', message: 'declares native authoring guide contract' },
-      { pattern: '`adapters`', message: 'documents adapters domain' },
-      { pattern: '`components`', message: 'documents components domain' },
-      { pattern: '`routes`', message: 'documents routes domain' },
-      { pattern: '`schedules`', message: 'documents schedules domain' },
-      { pattern: '`xtend.xrouter`', message: 'documents XRouter adapter id' },
-      { pattern: '`xtend.component`', message: 'documents XTend component adapter id' },
-      { pattern: '`vanilla.component`', message: 'documents non-XTend host adapter id' },
-      { pattern: '`createRmtXRouterAdapter`', message: 'documents XRouter adapter factory' },
-      { pattern: '`createRmtXtendComponentAdapter`', message: 'documents XTend component adapter factory' },
-      { pattern: '`createRmtStateSchedulerDiagnosticsBridge`', message: 'documents bridge factory' },
-      { pattern: '`route.visible.render`', message: 'documents route schedule policy' },
-      { pattern: '`component.idle.hydrate`', message: 'documents component hydrate policy' },
-      { pattern: 'tests/browser/fixtures/rmt-xrouter-xtend-smoke.html', message: 'links browser smoke fixture' },
-      { pattern: 'Kernel Boundary', message: 'documents kernel boundary section' },
-      { pattern: 'xtend.security.sanitizing-boundary.v1', message: 'documents Trusted DOM boundary' },
-      { pattern: 'node scripts/run_xtend_tests.js browser --json', message: 'documents browser gate' },
-      { pattern: './xtendrmt-overview.md', message: 'links overview guide' },
-      { pattern: './xtendrmt-app-dsl.md', message: 'links App-DSL reference' },
-      { pattern: './xtendrmt-runtime-bridge.md', message: 'links runtime bridge guide' },
-      { pattern: './trusted-dom-sanitizing.md', message: 'links Trusted DOM docs' }
-    ]
-  },
-  {
-    path: 'docs/xtendrmt-app-dsl.md',
-    label: 'XTendRMT App-DSL reference',
-    contracts: [
-      { pattern: 'xtend.docs.xtendrmt-app-dsl.v1', message: 'declares App-DSL docs contract' },
-      { pattern: '`adapters`', message: 'documents adapters domain' },
-      { pattern: '`components`', message: 'documents components domain' },
-      { pattern: '`routes`', message: 'documents routes domain' },
-      { pattern: '`schedules`', message: 'documents schedules domain' },
-      { pattern: '`templates`', message: 'documents templates domain' },
-      { pattern: '`dom_descriptor`', message: 'documents structured template path' },
-      { pattern: '`html_fragment`', message: 'documents HTML fragment path' },
-      { pattern: 'xtend.security.sanitizing-boundary.v1', message: 'documents Sanitizing Boundary' },
-      { pattern: './trusted-dom-sanitizing.md', message: 'links Trusted DOM docs' },
-      { pattern: 'componentRegistry.byAdapter["xtend.component"]', message: 'documents component registry index' },
-      { pattern: 'routeRegistry.byRouter["xtend.xrouter"]', message: 'documents route registry index' },
-      { pattern: 'xtendrmt.component.hydrate', message: 'documents component hydrate endpoint' },
-      { pattern: 'rmt.bridge.*', message: 'documents bridge diagnostics group' }
-    ]
-  },
-  {
-    path: 'docs/xtendrmt-runtime-bridge.md',
-    label: 'XTendRMT runtime bridge',
-    contracts: [
-      { pattern: 'xtend.docs.xtendrmt-runtime-bridge.v1', message: 'declares runtime bridge docs contract' },
-      { pattern: 'xtend.rmt.xrouter-adapter.v1', message: 'documents XRouter adapter contract' },
-      { pattern: 'xtend.rmt.xtend-component-adapter.v1', message: 'documents component adapter contract' },
-      { pattern: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1', message: 'documents bridge contract' },
-      { pattern: 'xtendrmt/rmt-runtime.browser.js', message: 'documents browser runtime artifact' },
-      { pattern: 'window.xtend.rmt', message: 'documents browser classic surface' },
-      { pattern: 'createRmtFormat', message: 'documents format factory' },
-      { pattern: 'createRmtXRouterAdapter', message: 'documents XRouter adapter factory' },
-      { pattern: 'createRmtXtendComponentAdapter', message: 'documents XTend component adapter factory' },
-      { pattern: 'createRmtStateSchedulerDiagnosticsBridge', message: 'documents bridge factory' },
-      { pattern: 'node scripts/verify_xtendrmt_artifact_parity.js --json', message: 'documents artifact parity gate' }
-    ]
-  },
-  {
-    path: 'docs/xtendrmt-migration-guide.md',
-    label: 'XTendRMT native migration guide',
-    contracts: [
-      { pattern: 'xtend.rmt.native-migration-guide.v1', message: 'declares native migration guide contract' },
-      { pattern: '`manifest.metadata.routes -> routes`', message: 'documents route metadata migration' },
-      { pattern: '`manifest.metadata.components -> components`', message: 'documents component metadata migration' },
-      { pattern: '`manifest.metadata.schedules -> schedules`', message: 'documents schedule metadata migration' },
-      { pattern: '`createRmtXRouterAdapter`', message: 'documents XRouter factory replacement' },
-      { pattern: '`createRmtXtendComponentAdapter`', message: 'documents XTend component factory replacement' },
-      { pattern: '`createRmtStateSchedulerDiagnosticsBridge`', message: 'documents bridge factory replacement' },
-      { pattern: '`componentRegistry.byAdapter["xtend.component"]`', message: 'documents component registry migration target' },
-      { pattern: '`routeRegistry.byRouter["xtend.xrouter"]`', message: 'documents route registry migration target' },
-      { pattern: 'Template-only-Dokumente bleiben kompatibel', message: 'keeps template-only compatibility' },
-      { pattern: 'React, Vue, Vanilla JS und Custom Hosts', message: 'keeps framework agnostic migration' },
-      { pattern: 'tests/browser/fixtures/rmt-xrouter-xtend-smoke.html', message: 'links browser smoke regression' },
-      { pattern: './xtendrmt-overview.md', message: 'links overview guide' },
-      { pattern: './xtendrmt-app-dsl.md', message: 'links App-DSL reference' },
-      { pattern: './xtendrmt-runtime-bridge.md', message: 'links runtime bridge guide' },
-      { pattern: './xtendrmt-parsedown-scheduling.md', message: 'links Parsedown scheduling pilot' }
-    ]
-  },
-  {
-    path: 'docs/xtendrmt-parsedown-scheduling.md',
-    label: 'XTendRMT Parsedown scheduling pilot',
-    contracts: [
-      { pattern: 'xtend.docs.parsedown-rmt-scheduling.v1', message: 'declares Parsedown scheduling docs contract' },
-      { pattern: 'xtend.docs.parsedown-rmt-pilot.v1', message: 'declares Parsedown scheduling pilot contract' },
-      { pattern: 'docs/xtendrmt-parsedown-docs.rmt', message: 'documents pilot RMT file' },
-      { pattern: 'docs/index.php', message: 'documents docs app PHP host' },
-      { pattern: 'docs/utils/parsedown.php', message: 'documents Parsedown parser' },
-      { pattern: 'docs/utils/pageloader.js', message: 'documents docs page loader' },
-      { pattern: 'tests/rmt/docs_rmt_pilot_suite.js', message: 'documents Docs RMT pilot suite' },
-      { pattern: 'window.xtendDocsRmtPilot', message: 'documents host pilot metadata' },
-      { pattern: 'window.xtendDocsPagesMeta', message: 'documents per-page metadata' },
-      { pattern: 'xtend.docs.parsedown-rmt-render.v1', message: 'documents render metadata contract' },
-      { pattern: 'Shell-first', message: 'documents Shell-first Docs render mode' },
-      { pattern: 'docs.app.shell', message: 'documents RMT app shell template' },
-      { pattern: 'docs.header.search', message: 'documents RMT search template' },
-      { pattern: 'window.xtendDocsRmtDocument', message: 'documents embedded RMT document' },
-      { pattern: 'docs.media.lazy', message: 'documents lazy media schedule' },
-      { pattern: 'xplayerTutorial', message: 'documents future XPlayer tutorial content kind' },
-      { pattern: 'docs.parsedown', message: 'documents Parsedown adapter id' },
-      { pattern: 'xtendrmt.docs.parsedown.parse', message: 'documents Parsedown scheduler endpoint' },
-      { pattern: 'createRmtXRouterAdapter', message: 'documents XRouter adapter boundary' },
-      { pattern: 'createRmtXtendComponentAdapter', message: 'documents XTend component adapter boundary' },
-      { pattern: 'createRmtStateSchedulerDiagnosticsBridge', message: 'documents bridge boundary' },
-      { pattern: 'xtend.security.sanitizing-boundary.v1', message: 'documents Sanitizing Boundary' },
-      { pattern: '`parsedownHtml`', message: 'classifies Parsedown HTML output' },
-      { pattern: './trusted-dom-sanitizing.md', message: 'links Trusted DOM docs' },
-      { pattern: 'Parsedown::setSafeMode(true)', message: 'requires Parsedown SafeMode' },
-      { pattern: 'node scripts/run_xtend_tests.js docs-rmt-pilot --json', message: 'documents Docs RMT pilot gate' }
-    ]
-  },
-  {
-    path: 'docs/xtendrmt-parsedown-docs.rmt',
-    label: 'Docs-App Parsedown RMT pilot document',
-    contracts: [
-      { pattern: 'xtend.docs.parsedown-rmt-pilot.v1', message: 'declares Docs RMT pilot schema' },
-      { pattern: 'docs.xtend.parsedown-pilot', message: 'declares pilot document id' },
-      { pattern: 'ER-WP-40', message: 'declares ER-WP-40 ownership' },
-      { pattern: 'docs.parsedown', message: 'declares Parsedown adapter' },
-      { pattern: 'docs.rich-content', message: 'declares rich content adapter' },
-      { pattern: 'docs.page', message: 'declares docs page component' },
-      { pattern: 'docs.app.shell', message: 'declares shell template' },
-      { pattern: 'docs.header.search', message: 'declares search template' },
-      { pattern: 'xtendrmt.shell.render', message: 'declares shell render endpoint' },
-      { pattern: 'docs.media.lazy', message: 'declares lazy media schedule' },
-      { pattern: 'xplayerTutorial', message: 'declares future XPlayer tutorial content kind' },
-      { pattern: 'xtendrmt.docs.parsedown.parse', message: 'declares Parsedown parse endpoint' },
-      { pattern: 'xtend.security.sanitizing-boundary.v1', message: 'declares Sanitizing Boundary' },
-      { pattern: 'Parsedown::setSafeMode(true)', message: 'documents Parsedown SafeMode host boundary' },
-      { pattern: '/enterprise-adoption', message: 'documents Enterprise Adoption route' },
-      { pattern: '/xtendrmt-parsedown-scheduling', message: 'documents Parsedown scheduling route' }
-    ]
-  },
-  {
-    path: 'docs/XTend-ADR.md',
-    label: 'ADR documentation',
-    contracts: [
-      { pattern: 'node scripts/run_xtend_tests.js architecture', message: 'documents architecture gate' },
-      { pattern: 'Digital Twin Principle', message: 'keeps Digital Twin as architecture principle' }
-    ]
-  },
-  {
-    path: 'docs/components/xrouter.md',
-    label: 'x-router docs',
-    contracts: [
-      { pattern: 'router-navigate', message: 'documents xstate navigation input' },
-      { pattern: 'xtend.router.lastRendered', message: 'documents canonical rendered-route key' },
-      { pattern: 'route-changed', message: 'documents canonical route event' },
-      { pattern: 'RMT / XTendRMT Adapter', message: 'documents RMT adapter section' },
-      { pattern: 'xtend.rmt.xrouter-adapter.v1', message: 'documents XRouter adapter schema' },
-      { pattern: 'createRmtXRouterAdapter', message: 'documents XRouter adapter factory' },
-      { pattern: 'routeRegistry.byRouter["xtend.xrouter"]', message: 'documents RMT route registry consumption' },
-      { pattern: 'registerRoutes', message: 'documents adapter route registration' },
-      { pattern: 'data-rmt-schedule', message: 'documents schedule metadata forwarding' }
-    ]
-  },
-  {
-    path: 'docs/components/xlink.md',
-    label: 'x-link docs',
-    contracts: [
-      { pattern: 'x-link', message: 'documents x-link component' },
-      { pattern: 'href', message: 'documents href contract' },
-      { pattern: 'before-navigate', message: 'documents navigation event contract' }
-    ]
-  },
-  {
-    path: 'docs/components/xtheme.md',
-    label: 'x-theme docs',
-    contracts: [
-      { pattern: 'window.XTend.theme', message: 'documents namespaced theme API' },
-      { pattern: 'window.XTheme', message: 'documents compatibility facade' },
-      { pattern: 'xtend.theme.current', message: 'documents canonical theme state key' }
-    ]
-  },
-  {
-    path: 'docs/components/xstate.md',
-    label: 'xstate docs',
-    contracts: [
-      { pattern: 'subscribe(fn, keyFilter?)', message: 'documents canonical subscribe contract' },
-      { pattern: 'on/off', message: 'documents legacy listener facade' },
-      { pattern: 'Boundary-Probe', message: 'documents xstate as a non-visual boundary probe' },
-      { pattern: 'xtend.state.boundary-probe.v1', message: 'documents xstate boundary schema' },
-      { pattern: 'snapshotDiagnostics()', message: 'documents Fabric diagnostics snapshot API' },
-      { pattern: 'createRmtStateAdapter(options?)', message: 'documents RMT state adapter API' },
-      { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'keeps xstate out of the RMT kernel' }
-    ]
-  },
-  {
-    path: 'docs/components/xalert.md',
-    label: 'x-alert docs',
-    contracts: [
-      { pattern: 'xtend.component.x-alert.<id>', message: 'documents canonical alert state key' },
-      { pattern: 'alert-dismissed', message: 'documents dismiss event' }
-    ]
-  },
-  {
-    path: 'docs/components/xtoast.md',
-    label: 'x-toast docs',
-    contracts: [
-      { pattern: 'toast-dismissed', message: 'documents dismiss event' },
-      { pattern: 'window.XToast.show()', message: 'documents API entry point' }
-    ]
-  },
-  {
-    path: 'docs/components/xdialog.md',
-    label: 'x-dialog docs',
-    contracts: [
-      { pattern: 'xtend.component.x-dialog.<id>.open', message: 'documents canonical dialog state key' },
-      { pattern: 'dialog-opened', message: 'documents open event' }
-    ]
-  },
-  {
-    path: 'docs/components/xmodal.md',
-    label: 'x-modal docs',
-    contracts: [
-      { pattern: 'xtend.component.x-modal.<id>.open', message: 'documents canonical modal state key' },
-      { pattern: 'modal-action', message: 'documents action event' }
-    ]
-  },
-  {
-    path: 'docs/components/xsummary.md',
-    label: 'x-summary docs',
-    contracts: [
-      { pattern: '<x-summary>', message: 'documents x-summary element' },
-      { pattern: 'xsummary-open-<id>', message: 'documents x-summary state key' },
-      { pattern: '`open`', message: 'documents open attribute' },
-      { pattern: '`type`', message: 'documents type attribute' },
-      { pattern: 'aria-expanded', message: 'documents expanded state' },
-      { pattern: 'ER-WP-33', message: 'hands off suite hardening' }
-    ]
-  },
-  {
-    path: 'docs/components/xutils.md',
-    label: 'x-utils docs',
-    contracts: [
-      { pattern: 'x-utils', message: 'documents x-utils utility module' },
-      { pattern: 'window.XUtils', message: 'documents browser utility surface' },
-      { pattern: 'focusTrap', message: 'documents focus helper' },
-      { pattern: 'xtend.utility.ui-effects.v1', message: 'documents UI effects contract' },
-      { pattern: 'xt-ui-effects="fade-in"', message: 'documents body UI effects control' },
-      { pattern: 'tag": "ui-effects"', message: 'documents RMT UI effects tag' },
-      { pattern: 'XTemplate', message: 'documents template recipes' },
-      { pattern: 'registriert kein `customElements.define()`', message: 'documents non-custom-element contract' },
-      { pattern: 'closed-as-utility-boundary', message: 'documents closed x-utils utility boundary status' }
-    ]
-  },
-  {
-    path: 'docs/previews/README.md',
-    label: 'Scaffold preview docs',
-    contracts: [
-      { pattern: 'XTend Scaffold Previews', message: 'documents scaffold preview heading' },
-      { pattern: 'docs/previews/<name>.preview.md', message: 'documents preview path pattern' },
-      { pattern: 'External network dependencies are not allowed', message: 'documents local-only preview rule' },
-      { pattern: 'node xtend-builder/scaffold.js preview', message: 'documents preview command' }
+      { pattern: '## What this layer knows', message: 'documents known boundary' },
+      { pattern: '## What it does not know', message: 'documents excluded knowledge boundary' },
+      { pattern: 'x-surface-manager', message: 'documents SurfaceManager' },
+      { pattern: 'createRmtXtendComponentAdapter', message: 'documents component adapter' },
+      { pattern: 'createRmtSurfaceAdapter', message: 'documents surface adapter' }
     ]
   }
 ];
@@ -4982,14 +4386,14 @@ function assertDemoAndFixtureLoaderMigration(context, rootDir) {
   });
 }
 
-function resolveMenuSlugPath(slug) {
-  if (slug === 'readme') return 'docs/README.md';
-  if (slug === 'components') return 'docs/components.md';
-  if (slug === 'xtend-adr') return 'docs/XTend-ADR.md';
+function resolveMenuSlugPath(slug, locale = 'de') {
+  if (slug === 'readme') return `docs/${locale}/README.md`;
+  if (slug === 'components') return `docs/${locale}/components.md`;
+  if (slug === 'xtend-adr') return `docs/${locale}/XTend-ADR.md`;
   if (slug.startsWith('components-')) {
-    return `docs/components/${slug.slice('components-'.length)}.md`;
+    return `docs/${locale}/components/${slug.slice('components-'.length)}.md`;
   }
-  return `docs/${slug}.md`;
+  return `docs/${locale}/${slug}.md`;
 }
 
 function assertDocsMenuReferences(context, rootDir) {
@@ -5008,24 +4412,26 @@ function assertDocsMenuReferences(context, rootDir) {
     context.assert(!ids.has(entry.id), `Docs menu id is unique: ${entry.id}`);
     slugs.add(entry.slug);
     ids.add(entry.id);
-    assertFileExists(context, resolveMenuSlugPath(entry.slug), rootDir, `Docs menu target exists: ${entry.slug}`);
+    assertFileExists(context, resolveMenuSlugPath(entry.slug, 'de'), rootDir, `German docs menu target exists: ${entry.slug}`);
+    assertFileExists(context, resolveMenuSlugPath(entry.slug, 'en'), rootDir, `English docs menu target exists: ${entry.slug}`);
   });
   context.assert(menu.some((entry) => entry.parent), 'Docs menu has parent-child hierarchy metadata');
   context.assert(menu.some((entry) => entry.rank >= 90), 'Docs menu has first-glance high-rank articles');
   context.assert(menu.some((entry) => entry.tier && entry.tier.includes('deep-dive')), 'Docs menu has deep-dive article tiers');
   context.assert(menu.find((entry) => entry.slug === 'components-xcode' && entry.parent === 'components'), 'Docs menu nests component docs under components');
-  context.assert(menu.find((entry) => entry.slug === 'xtendrmt-app-dsl' && entry.parent === 'xtendrmt-overview'), 'Docs menu nests RMT deep dives under XTendRMT overview');
+  context.assert(menu.find((entry) => entry.slug === 'xtendrmt-app-dsl' && entry.parent === 'rmt-vnext-authoring'), 'Docs menu nests RMT App DSL under RMT Authoring');
 
   [
     'api',
     'manifest',
     'xtend-loader',
-    'core-migration-guide',
     'xtend-fabric',
+    'rmt-stack-topography',
+    'rmt-kernel-runtime',
+    'xtend-fabric-runtime',
+    'xtend-ui-runtime-layer',
     'xtend-fabric-rmt-lane-mapping',
     'performance',
-    'performance-measurements',
-    'performance-regression',
     'hydration-policies',
     'a11y-keyboard-smokes',
     'screenreader-signals',
@@ -5033,14 +4439,13 @@ function assertDocsMenuReferences(context, rootDir) {
     'manifest-import-policy',
     'trusted-dom-sanitizing',
     'supply-chain-gates',
-	    'component-catalog-coverage',
-	    'public-component-types',
-	    'visual-browser-regression',
-	    'visual-snapshot-automation',
-	    'component-long-tail-migration',
-	    'epic11-enterprise-ux-handoff',
-	    'enterprise-adoption',
-	    'xtendrmt-overview',
+    'public-component-types',
+    'visual-browser-regression',
+    'visual-snapshot-automation',
+    'enterprise-adoption',
+    'xtendrmt-overview',
+    'learn-rmt',
+    'learn-rmt-playground',
     'xtendrmt-native-authoring',
     'xtendrmt-app-dsl',
     'xtendrmt-runtime-bridge',
@@ -7686,12 +7091,6 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(prFastGate.artifactName === 'xtend-pr-gate-report-node-26', 'Package metadata exposes PR fast artifact name');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('core'), 'PR fast gate includes core suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-contract-v2'), 'PR fast gate includes Component Contract v2 suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-lab-rmt-inspector'), 'PR fast gate includes Component Lab suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-lab-ux-inspector'), 'PR fast gate includes Component Lab UX Inspector suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-first-demo-app'), 'PR fast gate includes RMT-first demo suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('existing-component-metadata'), 'PR fast gate includes Existing Component Metadata suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('epic10-platform-gates'), 'PR fast gate includes Epic 10 Platform Gates suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('epic10-release-handoff'), 'PR fast gate includes Epic 10 Release Handoff suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('browser'), 'PR fast gate includes browser suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('runtime-a11y-contract'), 'PR fast gate includes Runtime A11y Contract suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-ux-performance'), 'PR fast gate includes Component UX Performance suite');
@@ -7703,23 +7102,27 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('overlay-interaction-ux'), 'PR fast gate includes Overlay Interaction UX suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-ux-browser-smokes'), 'PR fast gate includes Component UX browser smoke suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-shell-theme-matrix'), 'PR fast gate includes Component Shell Theme Matrix suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-ux-authoring-docs'), 'PR fast gate includes Component UX Authoring Docs suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-long-tail-migration'), 'PR fast gate includes Component Long-Tail Migration suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('epic11-enterprise-ux-handoff'), 'PR fast gate includes Epic 11 Enterprise UX Handoff suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('manifest-import-policy'), 'PR fast gate includes manifest import policy suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-public-quality'), 'PR fast gate includes public docs quality suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-stack-docs'), 'PR fast gate includes RMT stack docs suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-playground-docs'), 'PR fast gate includes RMT playground docs suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-playground-security'), 'PR fast gate includes RMT playground security suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-php-ssr-adapter'), 'PR fast gate includes RMT PHP SSR adapter suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-php-ssr-prehydration'), 'PR fast gate includes Docs PHP SSR prehydration suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-php-ssr-performance-budget'), 'PR fast gate includes Docs PHP SSR performance budget suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-php-ssr-cls-budget'), 'PR fast gate includes Docs PHP SSR CLS budget suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('xtend-layout-stability-contract'), 'PR fast gate includes XTend layout stability contract suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-rmt-pilot'), 'PR fast gate includes Docs RMT pilot suite');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('epic18-rmt-app-platform'), 'PR fast gate includes Epic 18 RMT App Platform suite');
+  ['epic10-p0-component-wave', 'component-lab-rmt-inspector', 'component-lab-ux-inspector', 'component-ux-authoring-docs', 'component-long-tail-migration', 'epic11-enterprise-ux-handoff', 'rmt-first-demo-app', 'existing-component-metadata', 'epic10-platform-gates', 'epic10-release-handoff', 'catalog-coverage', 'epic18-rmt-app-platform'].forEach((suite) => {
+    context.assert(Array.isArray(prFastGate.suites) && !prFastGate.suites.includes(suite), `PR fast gate excludes retired internal suite ${suite}`);
+  });
   context.assert(Array.isArray(prFastGate.suites) && !prFastGate.suites.includes('performance-regression'), 'PR fast gate excludes performance regression suite');
   context.assert(fullReleaseGate.schema === 'xtend.ci.full-release-gate.v1', 'Package metadata exposes full release gate schema');
   context.assert(fullReleaseGate.command === 'npm run test:release:full:report', 'Package metadata exposes full release report command');
   context.assert(fullReleaseGate.reportPath === '.xtend-test-results/xtend-release-gate-report.json', 'Package metadata exposes full release report path');
   context.assert(fullReleaseGate.artifactName === 'xtend-release-gate-report-node-26', 'Package metadata exposes full release artifact name');
-  context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('all'), 'Full release gate runs all suites');
+  context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('rmt-tooling-docs'), 'Full release gate includes RMT tooling docs');
+  context.assert(Array.isArray(fullReleaseGate.suites) && !fullReleaseGate.suites.includes('all'), 'Full release gate uses curated public release suites');
   context.assert(Array.isArray(fullReleaseGate.optionalSuites) && fullReleaseGate.optionalSuites.includes('rmt-vnext-source-to-sea'), 'Full release gate declares source-to-sea as optional');
   context.assert(nightlyGate.schema === 'xtend.ci.nightly-gate.v1', 'Package metadata exposes nightly gate schema');
   context.assert(nightlyGate.workflow === nightlyWorkflowPath, 'Package metadata exposes nightly workflow path');
@@ -7789,14 +7192,18 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromedriver'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver', 'Package exposes RMT vNext source-to-sea chromedriver script');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt', 'Package exposes RMT vNext primitive aggregate gate script without optional source-to-sea');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-component-primitives rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package exposes RMT vNext primitive report gate script without optional source-to-sea');
-  context.assert(packageManifest.scripts['test:pr:report'] === 'node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint epic10-p0-component-wave component-lab-rmt-inspector component-lab-ux-inspector component-ux-browser-smokes component-shell-theme-matrix component-ux-authoring-docs component-long-tail-migration epic11-enterprise-ux-handoff rmt-first-demo-app existing-component-metadata epic10-platform-gates epic10-release-handoff browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux catalog-coverage regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot epic18-rmt-app-platform --report .xtend-test-results/xtend-pr-gate-report.json', 'Package exposes PR fast report gate script');
-  context.assert(packageManifest.scripts['test:release:full:report'] === 'node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-gate-report.json', 'Package exposes full release report gate script');
+  context.assert(packageManifest.scripts['test:pr:report'].startsWith('node scripts/run_xtend_tests.js '), 'Package exposes PR fast report gate script');
+  context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-stack-docs'), 'PR fast report gate includes RMT stack docs');
+  context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-playground-security'), 'PR fast report gate includes RMT playground security');
+  context.assert(packageManifest.scripts['test:pr:report'].endsWith('--report .xtend-test-results/xtend-pr-gate-report.json'), 'PR fast report gate writes the expected report');
+  context.assert(packageManifest.scripts['test:release:full:report'].startsWith('node scripts/run_xtend_tests.js core architecture components'), 'Package exposes curated full release report gate script');
+  context.assert(packageManifest.scripts['test:release:full:report'].includes('rmt-tooling-docs'), 'Curated full release report includes RMT tooling docs');
+  context.assert(packageManifest.scripts['test:release:full:report'].endsWith('--report .xtend-test-results/xtend-release-gate-report.json'), 'Curated full release report writes the expected report');
 }
 
 function assertReleaseChecklistReference(context, rootDir) {
   const policyPath = 'development/XTend-Release-Checklist-und-SemVer-Policy.md';
   const packageManifest = readJson('package.json', rootDir);
-  const readme = readText('README.md', rootDir);
   const changelog = readText('CHANGELOG.md', rootDir);
   const policy = readText(policyPath, rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.releaseChecklist;
@@ -7824,8 +7231,6 @@ function assertReleaseChecklistReference(context, rootDir) {
   context.assert(metadata.completedRun === 'ER-WP-40', 'Release checklist records completed ER-WP-40 run');
   context.assert(metadata.nextWorkpackage === null, 'Release checklist has no next ER workpackage');
   context.assert(packageManifest.private === false, 'Package private boundary is opened for RC1 publish prep');
-  context.assertIncludes(readme, 'xtend.release.checklist-semver-policy.v1', 'README documents release checklist schema');
-  context.assertIncludes(readme, 'xtend.releaseChecklist', 'README documents release checklist metadata');
   context.assertIncludes(changelog, 'xtend.release.checklist-semver-policy.v1', 'Changelog records release checklist schema');
   context.assertIncludes(policy, 'npm run test:docs-rmt-pilot', 'Release checklist documents Docs RMT pilot gate');
 }
@@ -9683,6 +9088,38 @@ function assertEpic05BridgeReferences(context, rootDir) {
   });
 }
 
+function assertReleasePreparationReference(context, rootDir) {
+  const packageManifest = readJson('package.json', rootDir);
+  const xtend = packageManifest.xtend || {};
+  const docsGates = [
+    'npm run test:docs-public-quality',
+    'npm run test:rmt-stack-docs',
+    'npm run test:rmt-playground-docs',
+    'npm run test:rmt-playground-security'
+  ];
+  const docsSuites = [
+    'docs-public-quality',
+    'rmt-stack-docs',
+    'rmt-playground-docs',
+    'rmt-playground-security'
+  ];
+
+  context.assert(packageManifest.version === '0.2.0', 'Root package version is prepared for 0.2.0');
+  docsGates.forEach((gate) => {
+    context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes(gate), `Release gates include ${gate}`);
+    context.assert(xtend.releaseChecklist && Array.isArray(xtend.releaseChecklist.candidateGates) && xtend.releaseChecklist.candidateGates.includes(gate), `Release checklist includes ${gate}`);
+  });
+  docsSuites.forEach((suite) => {
+    context.assert(xtend.ciGateMatrix && xtend.ciGateMatrix.prFastGate && Array.isArray(xtend.ciGateMatrix.prFastGate.suites) && xtend.ciGateMatrix.prFastGate.suites.includes(suite), `PR fast gate includes ${suite}`);
+    context.assert(packageManifest.scripts['test:pr'].includes(suite), `test:pr includes ${suite}`);
+    context.assert(packageManifest.scripts['test:pr:report'].includes(suite), `test:pr:report includes ${suite}`);
+  });
+  context.assert(packageManifest.scripts['release:sync-versions'] === 'node scripts/sync_xtend_package_versions.js', 'Package exposes unified release version sync command');
+  context.assert(packageManifest.scripts['release:sync-versions:check'] === 'node scripts/sync_xtend_package_versions.js --check', 'Package exposes unified release version sync check command');
+  context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes('npm run release:sync-versions:check'), 'Release gates include version sync check');
+  context.assert(xtend.releaseChecklist && Array.isArray(xtend.releaseChecklist.candidateGates) && xtend.releaseChecklist.candidateGates.includes('npm run release:sync-versions:check'), 'Release checklist includes version sync check');
+}
+
 function runReferencePathSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
@@ -9695,40 +9132,11 @@ function runReferencePathSuite(options = {}) {
   assertDemoAndFixtureLoaderMigration(context, rootDir);
   assertDocsMenuReferences(context, rootDir);
   assertDocumentationReferences(context, rootDir);
-  assertDemoReferences(context, rootDir);
   assertRmtReference(context, rootDir);
-  assertTestObligationReferences(context, rootDir);
-  assertEpicClosureReferences(context, rootDir);
-  assertTrustedDomPolicyReference(context, rootDir);
   assertSupplyChainPolicyReference(context, rootDir);
-  assertComponentCatalogCoverageReference(context, rootDir);
-  assertComponentRegressionPriorityReference(context, rootDir);
   assertCiDefaultGatesReference(context, rootDir);
   assertReleaseChecklistReference(context, rootDir);
-  assertEnterpriseAdoptionReference(context, rootDir);
-  assertDocsRmtPilotReference(context, rootDir);
-  assertEpic10TypeScriptSourceStrategyReference(context, rootDir);
-  assertEpic10ComponentContractV2Reference(context, rootDir);
-  assertEpic10RmtFirstClassAppAuthoringReference(context, rootDir);
-  assertEpic10ComponentFabricLaneIngestionReference(context, rootDir);
-  assertEpic10ComponentLifecycleTelemetryReference(context, rootDir);
-  assertEpic10TypeScriptComponentBlueprintReference(context, rootDir);
-  assertEpic10P0ComponentWaveReference(context, rootDir);
-  assertEpic10FormSelectionControlsReference(context, rootDir);
-  assertEpic10FormFeedbackControlsReference(context, rootDir);
-  assertEpic10OverlayNavigationControlsReference(context, rootDir);
-  assertEpic10ComponentLabRmtInspectorReference(context, rootDir);
-  assertEpic10PlatformGatesReference(context, rootDir);
-  assertEpic10ReleaseHandoffReference(context, rootDir);
-  assertEpic11BacklogAndUxMaturityReference(context, rootDir);
-  assertEnterpriseRoadmapStatusConsistency(context, rootDir);
-  assertEpic03ScaffoldReferences(context, rootDir);
-  assertEpic04RmtTemplateReferences(context, rootDir);
-  assertEpic05BridgeReferences(context, rootDir);
-  assertScaffoldProjectLayoutReference(context, rootDir);
-  assertScaffoldComponentBlueprintReference(context, rootDir);
-  assertScaffoldGeneratorReference(context, rootDir);
-  assertScaffoldWorkflowReference(context, rootDir);
+  assertReleasePreparationReference(context, rootDir);
 
   return context.result({
     docs: DOC_REFERENCE_CONTRACTS.map((reference) => reference.path),

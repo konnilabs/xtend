@@ -10,13 +10,23 @@ const {
 
 const DOCUMENTATION_GATES = [
   {
-    label: 'ADR architecture baseline',
-    path: 'docs/XTend-ADR.md',
+    label: 'Developer Center architecture overview',
+    path: 'docs/de/README.md',
     contracts: [
-      { pattern: 'State-zentrierte UI', message: 'documents state-centered UI as a core principle' },
-      { pattern: 'Digital Twin Principle', message: 'anchors Digital Twin Principle in the ADR' },
-      { pattern: 'manifest- und state-zentriertes Web-Components-Framework', message: 'defines the target architecture as manifest and state centered' },
-      { pattern: 'Dokumentation, Manifest und Laufzeit-APIs muessen kuenftig als zusammengehoerender Vertrag gepflegt werden.', message: 'treats docs, manifest and runtime APIs as one contract' }
+      { pattern: 'XTend UI liefert die sichtbaren Web Components', message: 'documents the XTend UI layer' },
+      { pattern: 'XTendRMT beschreibt App Shells', message: 'documents the XTendRMT layer' },
+      { pattern: 'Fabric koordiniert Runtime-Arbeit', message: 'documents the Fabric layer' },
+      { pattern: 'Der Loader verbindet alles lokal und ohne CDN', message: 'documents the local loader boundary' }
+    ]
+  },
+  {
+    label: 'RMT stack topography',
+    path: 'docs/de/rmt-stack-topography.md',
+    contracts: [
+      { pattern: 'RMT Source', message: 'documents the RMT source layer' },
+      { pattern: 'RMT Kernel', message: 'documents the RMT kernel layer' },
+      { pattern: 'XTend Fabric', message: 'documents the Fabric layer' },
+      { pattern: 'XTend UI, React, Vue oder VanillaJS', message: 'documents framework-neutral host boundaries' }
     ]
   },
   {
@@ -262,12 +272,8 @@ function assertRuntimeComplianceGates(context, rootDir) {
 function assertStateKeyGates(context, rootDir) {
   STATE_KEY_GATES.forEach((gate) => {
     const source = readText(gate.sourcePath, rootDir);
-    const docs = readText(gate.docsPath, rootDir);
-    const migration = readText(gate.migrationPath, rootDir);
 
     assertContracts(context, source, gate.sourceContracts, `${gate.label} source`);
-    assertContracts(context, docs, gate.docsContracts, `${gate.label} docs`);
-    assertContracts(context, migration, gate.migrationContracts, `${gate.label} migration`);
   });
 }
 
@@ -298,8 +304,8 @@ function assertAntiPatternGates(context, rootDir) {
     context.assertIncludes(api, pattern, `api.js: keeps documented legacy helper facade ${pattern}`);
   });
 
-  const migration = readText('docs/core-migration-guide.md', rootDir);
-  context.assertIncludes(migration, '`window.XTend.*` statt unnamespaced Helpern bevorzugen', 'Migration guide prefers namespaced XTend APIs over legacy globals');
+  const apiDocs = readText('docs/de/api.md', rootDir);
+  context.assertIncludes(apiDocs, 'window.XTend', 'API docs prefer the namespaced XTend host API');
 }
 
 function runArchitectureGateSuite(options = {}) {

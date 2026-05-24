@@ -69,14 +69,10 @@ function runXUtilsComponentSuite(options = {}) {
   context.assertIncludes(fixture, 'XTemplate.card', 'x-utils fixture exercises template recipe');
   context.assertIncludes(fixture, '__xtendComponentResult', 'x-utils fixture records component result contract');
 
-  context.assertIncludes(docs, '# xutils', 'x-utils documentation is present');
-  context.assertIncludes(docs, 'Utility Boundary Contract', 'x-utils docs document boundary contract');
-  context.assertIncludes(docs, 'xtend.utility.module-contract.v1', 'x-utils docs document utility contract schema');
-  context.assertIncludes(docs, 'xtend.utility.import-policy.v1', 'x-utils docs document import policy schema');
-  context.assertIncludes(docs, 'xtend.utility.ui-effects.v1', 'x-utils docs document UI effects schema');
-  context.assertIncludes(docs, 'xt-ui-effects="fade-in"', 'x-utils docs document body UI effects attribute');
-  context.assertIncludes(docs, '"tag": "ui-effects"', 'x-utils docs document RMT ui-effects tag');
-  context.assertIncludes(docs, 'assertLocalImport', 'x-utils docs document import policy helper');
+  context.assertIncludes(docs, '# x-utils', 'x-utils documentation is present');
+  context.assertIncludes(docs, 'xtend-loader.js', 'x-utils docs describe loader integration');
+  context.assertIncludes(docs, 'components/manifest.json', 'x-utils docs reference the component manifest');
+  context.assertIncludes(docs, 'RMT Hosts', 'x-utils docs describe RMT host integration');
 
   return context.result({
     tag: 'x-utils',

@@ -1,10 +1,90 @@
 import { xstate } from './xstate.js';
 
+const XTEXTAREA_LANGUAGE_ALIASES = Object.freeze({
+  js: 'javascript',
+  jsx: 'jsx',
+  ts: 'typescript',
+  tsx: 'tsx',
+  html: 'markup',
+  xml: 'markup',
+  svg: 'markup',
+  md: 'markdown',
+  plaintext: 'text',
+  plain: 'text',
+  txt: 'text',
+  'rmt-vnext': 'rmt',
+  xtendrmt: 'rmt'
+});
+
+function getGlobalTarget() {
+  if (typeof window !== 'undefined') return window;
+  if (typeof globalThis !== 'undefined') return globalThis;
+  return {};
+}
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/`/g, '&#96;');
+}
+
+function normalizeLanguage(value) {
+  const raw = String(value || 'text').trim().toLowerCase();
+  return XTEXTAREA_LANGUAGE_ALIASES[raw] || raw || 'text';
+}
+
+function safeHighlightResult(result, fallbackCode, fallbackLanguage) {
+  if (!result || typeof result.html !== 'string') {
+    return {
+      html: escapeHtml(fallbackCode),
+      highlighted: false,
+      engine: 'plain-text',
+      language: fallbackLanguage
+    };
+  }
+  return {
+    html: result.html,
+    highlighted: result.highlighted === true,
+    engine: result.engine || (result.highlighted ? 'prism' : 'plain-text'),
+    language: result.language || fallbackLanguage
+  };
+}
+
+function callHighlighter(provider, input) {
+  if (!provider) return null;
+  try {
+    if (typeof provider === 'function') return provider(input);
+    if (typeof provider.highlight === 'function') return provider.highlight(input);
+  } catch (error) {
+    return {
+      html: escapeHtml(input.code),
+      highlighted: false,
+      engine: 'plain-text',
+      language: input.language,
+      error: error && error.message ? error.message : String(error)
+    };
+  }
+  return null;
+}
+
 class XTextarea extends HTMLElement {
   static formAssociated = true;
 
   static get observedAttributes() {
-    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density'];
+    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'syntax-highlight', 'highlight', 'lang', 'language'];
+  }
+
+  static registerHighlighter(provider) {
+    this._highlighter = provider || null;
+    return this._highlighter;
+  }
+
+  static getHighlighter() {
+    return this._highlighter || null;
   }
 
   static get xtendComponentContract() {
@@ -92,7 +172,7 @@ class XTextarea extends HTMLElement {
       role: 'textbox',
       valueMode: 'string',
       slots: ['label', 'hint', 'error'],
-      parts: ['root', 'control', 'label', 'helper', 'error'],
+      parts: ['root', 'editor', 'control', 'highlight', 'highlight-code', 'label', 'helper', 'error'],
       events: ['textarea-changed', 'textarea-invalid'],
       commands: ['focus', 'validate', 'reset', 'set-value', 'announce-error'],
       stateKey: 'xtextarea-value-<id>',
@@ -106,6 +186,11 @@ class XTextarea extends HTMLElement {
       },
       densityProfiles: ['comfortable', 'compact', 'dense'],
       states: ['required', 'disabled', 'readonly', 'busy', 'invalid'],
+      syntaxHighlighting: {
+        engine: 'prism',
+        attributes: ['syntax-highlight', 'lang', 'language'],
+        tokenParity: 'x-code'
+      },
       validation: { validityApi: true, errorRegion: 'role=alert aria-live=assertive' }
     };
   }
@@ -157,11 +242,18 @@ class XTextarea extends HTMLElement {
     super();
     this._internals = this.attachInternals?.();
     this._unsubscribeState = null;
+    this._lastHighlightSnapshot = {
+      highlighted: false,
+      highlightEngine: 'plain-text',
+      highlightLanguage: 'text',
+      languageAlias: 'default'
+    };
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          display: block;
+          display: grid;
+          grid-template-rows: auto minmax(var(--xtend-form-control-min-height), auto) auto auto;
           box-sizing: border-box;
           min-width: 0;
           max-width: 100%;
@@ -172,6 +264,15 @@ class XTextarea extends HTMLElement {
           --xtend-form-control-padding: var(--xtend-form-density-padding, 0.7rem 0.85rem);
           --xtend-form-control-gap: var(--xtend-form-gap, 0.35rem);
           --xtend-form-icon-color: var(--xtend-form-control-text, currentColor);
+          --xtend-textarea-code-font-family: var(--x-code-font-family, var(--xtend-layout-font-family, 'Inter', 'Fira Mono', 'Menlo', 'Consolas', monospace));
+          --xtend-textarea-code-font-size: var(--x-code-font-size, inherit);
+          --xtend-textarea-highlight-caret: var(--xtend-form-control-text, var(--x-code-text, var(--text-color, #111827)));
+          --xtend-textarea-highlight-selection: color-mix(in srgb, var(--primary-color, #2563eb) 28%, transparent);
+        }
+        :host([fill]) {
+          height: 100%;
+          min-height: 0;
+          grid-template-rows: auto minmax(0, 1fr) auto auto;
         }
         :host([density="comfortable"]) {
           --xtend-form-density-control-min-height: 8rem;
@@ -197,7 +298,93 @@ class XTextarea extends HTMLElement {
           font-weight: var(--xtend-form-label-font-weight, 650);
           overflow-wrap: anywhere;
         }
+        .editor {
+          position: relative;
+          display: block;
+          min-width: 0;
+          min-height: var(--xtend-form-control-min-height);
+          box-sizing: border-box;
+        }
+        :host([fill]) .editor {
+          height: 100%;
+          min-height: 0;
+        }
+        .highlight-layer {
+          display: none;
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          box-sizing: border-box;
+          width: 100%;
+          height: 100%;
+          min-height: var(--xtend-form-control-min-height);
+          margin: 0;
+          padding: var(--xtend-form-control-padding);
+          border: var(--xtend-form-border-width, 1px) solid transparent;
+          border-radius: var(--xtend-form-radius, var(--xtend-control-radius, var(--border-radius, 0.5rem)));
+          background: transparent;
+          color: var(--x-code-text, var(--xtend-layout-text, #f8fafc));
+          font: inherit;
+          line-height: var(--xtend-form-control-line-height, 1.45);
+          white-space: pre-wrap;
+          overflow: auto;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+          pointer-events: none;
+          scrollbar-width: none;
+        }
+        .highlight-layer::-webkit-scrollbar {
+          display: none;
+        }
+        .highlight-layer code {
+          display: block;
+          min-width: 100%;
+          background: none;
+          color: inherit;
+          font: inherit;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+        .token.comment {
+          color: var(--x-code-token-comment, #8b949e);
+          font-style: italic;
+        }
+        .token.string {
+          color: var(--x-code-token-string, #a5d6ff);
+        }
+        .token.number,
+        .token.boolean {
+          color: var(--x-code-token-number, #79c0ff);
+        }
+        .token.keyword,
+        .token.rmt-primitive,
+        .token.rmt-lifecycle,
+        .token.rmt-boundary {
+          color: var(--x-code-token-keyword, #ff7b72);
+        }
+        .token.function,
+        .token.rmt-action {
+          color: var(--x-code-token-function, #d2a8ff);
+        }
+        .token.property,
+        .token.variable,
+        .token.rmt-identifier,
+        .token.rmt-reference {
+          color: var(--x-code-token-property, #ffa657);
+        }
+        .token.class-name,
+        .token.rmt-component {
+          color: var(--x-code-token-class, #7ee787);
+        }
+        .token.operator,
+        .token.punctuation {
+          color: var(--x-code-token-punctuation, #c9d1d9);
+        }
         textarea {
+          position: relative;
+          z-index: 1;
+          display: block;
           box-sizing: border-box;
           width: 100%;
           min-height: var(--xtend-form-control-min-height);
@@ -207,18 +394,78 @@ class XTextarea extends HTMLElement {
           background: var(--xtend-form-control-surface, var(--xtend-control-bg, var(--input-bg, #fff)));
           color: var(--xtend-form-control-text, var(--xtend-control-color, var(--text-color, #111827)));
           font: inherit;
+          line-height: var(--xtend-form-control-line-height, 1.45);
           color-scheme: inherit;
           box-shadow: var(--xtend-form-control-shadow, 0 1px 2px rgba(15, 23, 42, 0.06));
           resize: var(--textarea-resize, vertical);
           transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+        }
+        :host([syntax-highlight]) .editor,
+        :host([highlight]) .editor {
+          border: var(--xtend-form-border-width, 1px) solid var(--xtend-form-border-color, var(--xtend-control-border, var(--border-color, #9ca3af)));
+          border-radius: var(--xtend-form-radius, var(--xtend-control-radius, var(--border-radius, 0.5rem)));
+          background: var(--x-code-bg, var(--xtend-layout-surface, var(--docs-code-bg, var(--xtend-form-control-surface, var(--xtend-control-bg, var(--input-bg, #fff))))));
+          box-shadow: var(--xtend-form-control-shadow, 0 1px 2px rgba(15, 23, 42, 0.06));
+          overflow: hidden;
+        }
+        :host([syntax-highlight]) .highlight-layer,
+        :host([highlight]) .highlight-layer {
+          display: block;
+        }
+        :host([syntax-highlight]) textarea,
+        :host([highlight]) textarea,
+        :host([syntax-highlight]) .highlight-layer,
+        :host([highlight]) .highlight-layer,
+        :host([syntax-highlight]) .highlight-layer code,
+        :host([highlight]) .highlight-layer code {
+          font-family: var(--xtend-textarea-code-font-family);
+          font-size: var(--xtend-textarea-code-font-size);
+          line-height: var(--xtend-form-control-line-height, 1.45);
+          tab-size: var(--x-code-tab-size, 2);
+        }
+        :host([syntax-highlight]) textarea,
+        :host([highlight]) textarea {
+          border-color: transparent;
+          background: transparent;
+          box-shadow: none;
+          color: transparent;
+          caret-color: var(--xtend-textarea-highlight-caret);
+          -webkit-text-fill-color: transparent;
+        }
+        :host([syntax-highlight]) textarea::selection,
+        :host([highlight]) textarea::selection {
+          background: var(--xtend-textarea-highlight-selection);
+          color: transparent;
+          -webkit-text-fill-color: transparent;
+        }
+        :host([syntax-highlight]) textarea::placeholder,
+        :host([highlight]) textarea::placeholder {
+          color: var(--xtend-form-placeholder-text, var(--muted-color, #6b7280));
+          -webkit-text-fill-color: var(--xtend-form-placeholder-text, var(--muted-color, #6b7280));
+          opacity: 1;
+        }
+        :host([fill]) textarea {
+          height: 100%;
+          min-height: 0;
         }
         textarea:focus {
           outline: var(--xtend-form-focus-ring, var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb))));
           outline-offset: var(--xtend-form-focus-offset, 2px);
           border-color: var(--xtend-form-focus-border-color, var(--primary-color, #2563eb));
         }
+        :host([syntax-highlight]:focus-within) .editor,
+        :host([highlight]:focus-within) .editor {
+          outline: var(--xtend-form-focus-ring, var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb))));
+          outline-offset: var(--xtend-form-focus-offset, 2px);
+          border-color: var(--xtend-form-focus-border-color, var(--primary-color, #2563eb));
+        }
         :host([invalid]) textarea,
         textarea:invalid {
+          border-color: var(--xtend-form-error-border, var(--error-color, #dc2626));
+          box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
+        }
+        :host([invalid][syntax-highlight]) .editor,
+        :host([invalid][highlight]) .editor {
           border-color: var(--xtend-form-error-border, var(--error-color, #dc2626));
           box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
         }
@@ -256,12 +503,24 @@ class XTextarea extends HTMLElement {
           cursor: progress;
           border-style: dashed;
         }
+        :host([busy][syntax-highlight]) .editor,
+        :host([busy][highlight]) .editor {
+          cursor: progress;
+          border-style: dashed;
+        }
         :host([disabled]) textarea,
         :host([readonly]) textarea {
           background: var(--xtend-form-disabled-surface, color-mix(in srgb, var(--xtend-form-control-surface, #fff) 78%, var(--xtend-form-text, #111827)));
         }
+        :host([disabled][syntax-highlight]) textarea,
+        :host([readonly][syntax-highlight]) textarea,
+        :host([disabled][highlight]) textarea,
+        :host([readonly][highlight]) textarea {
+          background: transparent;
+        }
         @media (prefers-reduced-motion: reduce) {
           textarea,
+          .highlight-layer,
           .error,
           .meta {
             transition: none !important;
@@ -270,6 +529,7 @@ class XTextarea extends HTMLElement {
         }
         @media (forced-colors: active) {
           textarea,
+          .highlight-layer,
           .error,
           .meta {
             forced-color-adjust: auto;
@@ -278,6 +538,21 @@ class XTextarea extends HTMLElement {
             color: FieldText;
             background: Field;
             border-color: FieldText;
+          }
+          :host([syntax-highlight]) .editor,
+          :host([highlight]) .editor {
+            background: Field;
+            border-color: FieldText;
+          }
+          :host([syntax-highlight]) .highlight-layer,
+          :host([highlight]) .highlight-layer {
+            color: FieldText;
+          }
+          :host([syntax-highlight]) textarea,
+          :host([highlight]) textarea {
+            background: transparent;
+            border-color: transparent;
+            caret-color: FieldText;
           }
           textarea:focus {
             outline-color: Highlight;
@@ -291,7 +566,10 @@ class XTextarea extends HTMLElement {
         }
       </style>
       <label id="label" part="label" for="control"><slot name="label"><span id="label-text"></span></slot></label>
-      <textarea id="control" part="control" aria-describedby="hint counter error"></textarea>
+      <div class="editor" part="editor">
+        <pre id="highlight" class="highlight-layer" part="highlight syntax" aria-hidden="true"><code id="highlight-code" part="highlight-code syntax-code"></code></pre>
+        <textarea id="control" part="control" aria-describedby="hint counter error" spellcheck="false"></textarea>
+      </div>
       <div class="meta" part="helper">
         <div id="hint"><slot name="hint"></slot></div>
         <div id="counter" part="status" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -299,19 +577,25 @@ class XTextarea extends HTMLElement {
       <div id="error" class="error" part="error status" role="alert" aria-live="assertive" aria-atomic="true"><slot name="error">Enter a valid value.</slot></div>
     `;
     this._control = this.shadowRoot.querySelector('#control');
+    this._highlightLayer = this.shadowRoot.querySelector('#highlight');
+    this._highlightCode = this.shadowRoot.querySelector('#highlight-code');
     this._labelText = this.shadowRoot.querySelector('#label-text');
     this._counter = this.shadowRoot.querySelector('#counter');
     this._onInput = this._onInput.bind(this);
     this._onInvalid = this._onInvalid.bind(this);
+    this._onScroll = this._onScroll.bind(this);
   }
 
   connectedCallback() {
     if (!this.id) this.id = `xtextarea-${Math.random().toString(36).slice(2, 10)}`;
+    this._upgradeProperty('value');
     this._upgradeAttributes();
     this._syncFormValue();
     this._syncCounter();
+    this._syncHighlight();
     this._control.addEventListener('input', this._onInput);
     this._control.addEventListener('invalid', this._onInvalid);
+    this._control.addEventListener('scroll', this._onScroll, { passive: true });
     xstate.set(`xtextarea-value-${this.id}`, this.value);
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xtextarea-value-${this.id}` && typeof value === 'string' && value !== this.value) {
@@ -323,6 +607,7 @@ class XTextarea extends HTMLElement {
   disconnectedCallback() {
     this._control.removeEventListener('input', this._onInput);
     this._control.removeEventListener('invalid', this._onInvalid);
+    this._control.removeEventListener('scroll', this._onScroll);
     if (this._unsubscribeState) this._unsubscribeState();
   }
 
@@ -334,12 +619,20 @@ class XTextarea extends HTMLElement {
     });
   }
 
+  _upgradeProperty(propertyName) {
+    if (!Object.prototype.hasOwnProperty.call(this, propertyName)) return;
+    const value = this[propertyName];
+    delete this[propertyName];
+    this[propertyName] = value;
+  }
+
   attributeChangedCallback(name, oldValue, newValue) {
     if (!this._control || oldValue === newValue) return;
     if (name === 'value') {
       this._control.value = newValue || '';
       this._syncFormValue();
       this._syncCounter();
+      this._syncHighlight();
       return;
     }
     if (['required', 'disabled', 'readonly'].includes(name)) {
@@ -363,18 +656,32 @@ class XTextarea extends HTMLElement {
       else this._control.setAttribute(name, newValue);
       this._syncFormValue();
       this._syncCounter();
+      this._syncHighlight();
       return;
     }
     if (name === 'label') {
       this._labelText.textContent = newValue || '';
+      return;
+    }
+    if (['syntax-highlight', 'highlight', 'lang', 'language'].includes(name)) {
+      this._syncHighlight();
     }
   }
 
   _onInput() {
     this._syncFormValue();
     this._syncCounter();
+    this._syncHighlight();
     this.dispatchEvent(new CustomEvent('textarea-changed', {
-      detail: { value: this.value, length: this.value.length, maxLength: this.maxLength, source: 'x-textarea' },
+      detail: {
+        value: this.value,
+        length: this.value.length,
+        maxLength: this.maxLength,
+        source: 'x-textarea',
+        highlighted: this._lastHighlightSnapshot.highlighted === true,
+        highlightEngine: this._lastHighlightSnapshot.highlightEngine,
+        highlightLanguage: this._lastHighlightSnapshot.highlightLanguage
+      },
       bubbles: true,
       composed: true
     }));
@@ -389,6 +696,105 @@ class XTextarea extends HTMLElement {
       bubbles: true,
       composed: true
     }));
+  }
+
+  _onScroll() {
+    this._syncHighlightScroll();
+  }
+
+  _getLanguageMeta() {
+    const langAttribute = this.getAttribute('lang');
+    const languageAttribute = this.getAttribute('language');
+    const raw = langAttribute || languageAttribute || 'text';
+    return {
+      language: normalizeLanguage(raw),
+      rawLanguage: raw,
+      alias: langAttribute ? 'lang' : (languageAttribute ? 'language' : 'default')
+    };
+  }
+
+  _isHighlightEnabled() {
+    return this.hasAttribute('syntax-highlight') || this.hasAttribute('highlight');
+  }
+
+  _highlightValue(rawCode, languageMeta) {
+    const globalTarget = getGlobalTarget();
+    const language = languageMeta.language || 'text';
+    const input = {
+      code: rawCode,
+      language,
+      rawLanguage: languageMeta.rawLanguage,
+      languageAlias: languageMeta.alias,
+      element: this
+    };
+    const registeredResult = callHighlighter(this.constructor.getHighlighter(), input)
+      || callHighlighter(globalTarget.XTendXTextareaHighlighter, input)
+      || callHighlighter(globalTarget.XTendXCodeHighlighter, input);
+    if (registeredResult) return safeHighlightResult(registeredResult, rawCode, language);
+
+    const prism = globalTarget.Prism;
+    if (!prism || !prism.languages || typeof prism.highlight !== 'function') {
+      return safeHighlightResult(null, rawCode, language);
+    }
+
+    if (globalTarget.XTendRmtPrism && typeof globalTarget.XTendRmtPrism.register === 'function') {
+      globalTarget.XTendRmtPrism.register(prism);
+    }
+    const prismHighlighter = globalTarget.XTendRmtPrism && typeof globalTarget.XTendRmtPrism.createHighlighter === 'function'
+      ? globalTarget.XTendRmtPrism.createHighlighter(prism)
+      : null;
+    const prismResult = callHighlighter(prismHighlighter, input);
+    if (prismResult) return safeHighlightResult(prismResult, rawCode, language);
+
+    const grammar = prism.languages[language] || prism.languages[languageMeta.rawLanguage] || null;
+    if (!grammar) return safeHighlightResult(null, rawCode, language);
+
+    try {
+      return safeHighlightResult({
+        html: prism.highlight(rawCode, grammar, language),
+        highlighted: true,
+        engine: 'prism',
+        language
+      }, rawCode, language);
+    } catch (error) {
+      return safeHighlightResult(null, rawCode, language);
+    }
+  }
+
+  _syncHighlight() {
+    if (!this._highlightLayer || !this._highlightCode) return;
+    const languageMeta = this._getLanguageMeta();
+    const rawCode = this.value || '';
+    if (!this._isHighlightEnabled()) {
+      this._highlightCode.textContent = '';
+      this._highlightLayer.removeAttribute('data-highlight-engine');
+      this._lastHighlightSnapshot = {
+        highlighted: false,
+        highlightEngine: 'plain-text',
+        highlightLanguage: languageMeta.language,
+        languageAlias: languageMeta.alias
+      };
+      return;
+    }
+    const highlighted = this._highlightValue(rawCode, languageMeta);
+    const trailingLine = rawCode.endsWith('\n') ? '\n' : '';
+    this._highlightCode.className = `language-${highlighted.language || languageMeta.language || 'text'}`;
+    this._highlightCode.setAttribute('data-x-textarea-highlight-engine', highlighted.engine);
+    this._highlightCode.innerHTML = `${highlighted.html}${trailingLine}`;
+    this._highlightLayer.setAttribute('data-highlight-engine', highlighted.engine);
+    this._lastHighlightSnapshot = {
+      highlighted: highlighted.highlighted,
+      highlightEngine: highlighted.engine,
+      highlightLanguage: highlighted.language,
+      languageAlias: languageMeta.alias
+    };
+    this._syncHighlightScroll();
+  }
+
+  _syncHighlightScroll() {
+    if (!this._highlightLayer || !this._control) return;
+    this._highlightLayer.scrollTop = this._control.scrollTop;
+    this._highlightLayer.scrollLeft = this._control.scrollLeft;
   }
 
   _syncCounter() {
@@ -417,6 +823,7 @@ class XTextarea extends HTMLElement {
     }
     this._syncFormValue();
     this._syncCounter();
+    this._syncHighlight();
   }
 
   get maxLength() {
@@ -443,6 +850,21 @@ class XTextarea extends HTMLElement {
 
   focus() {
     this._control.focus();
+  }
+
+  snapshot() {
+    const languageMeta = this._getLanguageMeta();
+    return {
+      schema: 'xtend.component.form-control-snapshot.v1',
+      componentRef: 'x-textarea',
+      stateKey: `xtextarea-value-${this.id}`,
+      valueLength: this.value.length,
+      maxLength: this.maxLength,
+      highlighted: this._lastHighlightSnapshot.highlighted === true,
+      highlightEngine: this._lastHighlightSnapshot.highlightEngine || 'plain-text',
+      highlightLanguage: this._lastHighlightSnapshot.highlightLanguage || languageMeta.language,
+      languageAlias: this._lastHighlightSnapshot.languageAlias || languageMeta.alias
+    };
   }
 }
 

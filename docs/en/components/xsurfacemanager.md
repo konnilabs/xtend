@@ -1,42 +1,23 @@
-# xsurfacemanager - XTend Component
+# x-surface-manager
 
-`x-surface-manager` is the app-shell surface root for multi-window interfaces.
-The component instantiates `xtend.surface.controller.v1`, registers slotted
-`x-surface-window`, `x-side-panel`, and compatible overlay elements, and
-mirrors layout, focus, and lifecycle changes as `xtend.surface.snapshot.v1`.
+Coordination of managed surfaces.
 
-## Attributes
+## When to use it
 
-- `manager-id`: stable manager ID for surface records
-- `state-key`: xstate registry key, defaults to `xtend.surface.registry`
-- `layout`: layout profile for the surface zone
-- `restore-key`: future persistence key for layout restore
-- `route-aware`: marks route-bound surface management
-- `modal-policy`: policy for future modal surface stacks
+x-surface-manager is part of the public XTend component library. Use it when you need a local, themeable Web Component without a framework binding.
 
-## Slots
+## Basic example
 
-- `windows`: freely positioned windows
-- `panels`: `x-side-panel` surfaces with docked, pinned, overlay, or collapsed modes
-- `overlays`: optional overlay bridge for `x-modal`, `x-dialog`, and `x-drawer`
-- `default`: simple Light DOM fallbacks
+```html
+<x-surface-manager></x-surface-manager>
+```
 
-## API
+## Integration
 
-`registerSurface(surface)`, `openSurface(id)`, `closeSurface(id)`,
-`focusSurface(id)`, `updateSurface(id, patch)`, `moveSurface(id, bounds)`,
-`resizeSurface(id, bounds)`, `minimizeSurface(id)`, `maximizeSurface(id)`,
-`restoreSurface(id)`, `pinSurface(id)`, `collapseSurface(id)`,
-`expandSurface(id)`, `dockSurface(id)`, and `snapshot()` delegate to the
-Surface Controller.
+Load the component through `xtend-loader.js` and `components/manifest.json`. For RMT hosts, a component descriptor describes attributes, slots and events; the host adapter materializes the Custom Element.
 
-Events: `surface-manager-ready`, `surface-registered`, `surface-opened`,
-`surface-closed`, `surface-focused`, `surface-updated`,
-`surface-layout-changed`, `surface-window-command`, `surface-panel-command`,
-and `surface-overlay-command`.
+## Next steps
 
-RMT: `xtend.rmt.component-contract.v1`, `xtend.surface.manager.v1`,
-`xtend.surface.controller.v1`, `xtend.surface.overlay-stack-bridge.v1`,
-`surface.visible.render`, `surface.user-blocking.open`,
-`surface.user-blocking.close`, `surface.transition.layout`,
-`surface.diagnostics.snapshot`.
+- [Component development](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)

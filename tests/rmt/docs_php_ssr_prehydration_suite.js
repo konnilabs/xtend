@@ -1,4 +1,5 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const {
@@ -49,6 +50,28 @@ function nodeCheck(relativePath, rootDir) {
   return {
     ok: result.status === 0,
     message: (result.stderr || result.stdout || '').trim()
+  };
+}
+
+function checkInlineScriptSyntax(html, rootDir) {
+  const scripts = Array.from(String(html || '').matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/giu))
+    .map((match) => match[1]);
+  const failures = [];
+  scripts.forEach((script, index) => {
+    const tempPath = path.join(os.tmpdir(), `xtend-docs-inline-bootstrap-${index}.js`);
+    fs.writeFileSync(tempPath, script);
+    const result = spawnSync(process.execPath, ['--check', tempPath], {
+      cwd: rootDir,
+      encoding: 'utf8'
+    });
+    if (result.status !== 0) {
+      failures.push((result.stderr || result.stdout || `inline script ${index + 1} failed`).trim());
+    }
+  });
+  return {
+    ok: failures.length === 0,
+    count: scripts.length,
+    message: failures.join('\n')
   };
 }
 
@@ -110,6 +133,7 @@ function runDocsPhpSsrPrehydrationSuite(options = {}) {
     locale: 'de'
   });
   const html = htmlResult.stdout || '';
+  const inlineScriptSyntax = checkInlineScriptSyntax(html, rootDir);
   const jsonl = jsonlResult.stdout || '';
   const frames = jsonlResult.status === 0 ? parseJsonl(jsonl) : [];
   const frameTypes = frames.map((frame) => frame.type);
@@ -147,6 +171,8 @@ function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(indexPhp.includes('server_prerender_hydrate'), 'Docs host uses server prerender hydrate mode');
 
   context.assert(htmlResult.status === 0, `Docs initial HTML renders through PHP${htmlResult.status === 0 ? '' : ` (${htmlResult.stderr})`}`);
+  context.assert(inlineScriptSyntax.ok, `Docs initial inline bootstrap scripts pass node --check${inlineScriptSyntax.ok ? '' : ` (${inlineScriptSyntax.message})`}`);
+  context.assert(!html.includes('window.xtendDocsLocalizedPagesMeta = ;'), 'Docs bootstrap never emits an empty localized metadata assignment');
   context.assert(html.includes('window.xtendDocsSsrPrehydration'), 'Initial HTML exposes SSR prehydration payload');
   context.assert(html.includes(DOCS_PHP_SSR_SCHEMA), 'Initial HTML includes docs SSR prehydration schema');
   context.assert(html.includes('renderman_template_chunk'), 'Initial HTML exposes Renderman template chunk shape');
@@ -155,7 +181,7 @@ function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(html.includes('data-rmt-shell-prehydrated="true"'), 'Initial HTML marks prehydrated shell');
   context.assert(html.includes('data-rmt-hydration-mode="server_prerender_hydrate"'), 'Initial HTML marks hydration mode');
   context.assert(html.includes('data-rmt-component-capability="x-router"'), 'Initial HTML includes XRouter capability marker');
-  context.assert(html.includes('<x-route path="/de/readme"'), 'Initial HTML renders route records inside the router shell');
+  context.assert(html.includes('<x-route path="/docs/de/readme"'), 'Initial HTML renders history route records inside the router shell');
   context.assert(!html.includes('rmt.php_ssr.compiler_required'), 'Initial HTML does not report missing compiler bridge');
 
   context.assert(jsonlResult.status === 0, `Docs JSONL endpoint renders through PHP${jsonlResult.status === 0 ? '' : ` (${jsonlResult.stderr})`}`);

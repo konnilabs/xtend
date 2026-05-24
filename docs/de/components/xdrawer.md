@@ -1,84 +1,29 @@
-# xdrawer - XTend Komponente
+# x-drawer
 
-> **Siehe auch:** [xpopover](./xpopover.md), [xtooltip](./xtooltip.md), [xrouter](./xrouter.md), [xlink](./xlink.md)
+Seitliche Navigation und ergänzende Panels.
 
-## Uebersicht
+## Wann einsetzen
 
-`<x-drawer>` ist die Shell- und Navigationskomponente aus `WP-E10-11`. Sie liefert Side Panels und Navigation Drawer fuer RMT-first Apps, unterstuetzt Focus Trap, Escape Close, Outside Click und optional route-aware Verhalten.
+x-drawer ist Teil der öffentlichen XTend Komponentenbibliothek. Nutze die Komponente, wenn du eine lokale, themenfähige Web-Component ohne Framework-Bindung brauchst.
 
-## Verwendung
+## Basisbeispiel
 
 ```html
-<x-drawer id="app-nav" placement="left" modal label="App navigation" route-aware>
-  <button slot="trigger" type="button">Open navigation</button>
-  <strong slot="header">Navigation</strong>
-  <a href="#/overview">Overview</a>
-  <small slot="footer">Signed in</small>
-</x-drawer>
+<x-drawer></x-drawer>
 ```
 
-## Attribute
+## Integration
 
-| Attribut | Typ | Beschreibung |
-|----------|-----|--------------|
-| `open` | Boolean | oeffnet den Drawer kontrolliert |
-| `placement` | String | `left`, `right` oder `bottom` |
-| `modal` | Boolean | aktiviert Focus Trap und `aria-modal` |
-| `label` | String | zugaenglicher Name fuer den Drawer |
-| `route-aware` | Boolean | schliesst nach XRouter-Routenwechseln und emittiert Routensignal |
+Lade die Komponente über `xtend-loader.js` und `components/manifest.json`. Für RMT Hosts beschreibt ein Component Descriptor Attribute, Slots und Events; der Host Adapter materialisiert daraus das Custom Element.
 
-## Events
+## Nächste Schritte
 
-| Event | Detail |
-|-------|--------|
-| `drawer-opened` | `{ id, open, source, placement, modal }` |
-| `drawer-closed` | `{ id, open, source, placement, modal }` |
-| `drawer-route-selected` | `{ id, routeRef, source: 'x-router' }` |
+- [Komponenten-Entwicklung](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-## API
+## Öffentlicher Runtime-Vertrag
 
-- `openDrawer()`
-- `closeDrawer()`
-- `toggle()`
-
-## Theme und Tokens
-
-`<x-drawer>` synchronisiert `data-theme` vom `document.documentElement` und nutzt automatisch die globalen XTend-Tokens aus `x-theme`. Ohne eigene Drawer-Tokens fallen Hintergrund, Text, Border und Overlay auf `--xtend-surface`, `--xtend-text`, `--xtend-border-color` und `--xtend-overlay-bg` zurueck. Dadurch bleiben Navigation Drawer in Bright Mode und Dark Mode lesbar, auch wenn eine App Shell keine eigenen Drawer-Farben setzt.
-
-| Token | Zweck |
-|-------|-------|
-| `--drawer-bg` / `--drawer-bg-dark` | Surface-Hintergrund |
-| `--drawer-color` / `--drawer-color-dark` | Textfarbe |
-| `--drawer-border` / `--drawer-border-dark` | Rahmen und Trenner |
-| `--drawer-overlay-bg` / `--drawer-overlay-bg-dark` | Backdrop-Farbe |
-| `--drawer-focus` | Focus-Ring |
-| `--drawer-close-size` | Groesse des Close-Icon-Buttons |
-| `--drawer-close-border` / `--drawer-close-color` | Rahmen und Icon-Farbe des Close-Buttons |
-| `--drawer-close-hover-bg` / `--drawer-close-hover-bg-dark` | Hover-Flaeche des Close-Buttons |
-
-## State, RMT und Fabric
-
-`<x-drawer>` schreibt nach `xdrawer-open-<id>`. Der RMT Contract ist `xtend.rmt.component-contract.v1` und nutzt `component.lazy.hydrate`, `route.visible.render` und `overlay.drawer.transition`. Der Kernel Boundary bleibt `no-rmt-kernel-import-of-xtend-types`.
-
-## A11y und Performance
-
-Die Komponente nutzt `role="dialog"`, `aria-modal`, `aria-hidden`, `aria-expanded`, `inert`, Focus Trap und Focus Return. Beim Schliessen wird Fokus zuerst auf den Trigger oder das zuletzt aktive Element zurueckgegeben, bevor die Drawer-Surface vor Assistive Technology verborgen wird. Das Screenreader-Signal `route-change-announcement` ist fuer App-Shell-Navigation vorgesehen. Das Performance-Profil ist `xtend.performance.component-profile.v1` mit `budgetClass: 'overlay-large'`, `lane: 'visible'` und `hydrationPolicy: 'lazy'`.
-
-## Overlay Interaction UX Profil
-
-Seit `WP-E11-11` deklariert `<x-drawer>` das Runtime-Profil `xtend.component.overlay-interaction-ux-profile.v1` ueber `xtendOverlayInteractionUxProfile`.
-
-| Feld | Wert |
-|------|------|
-| Family | `drawer` |
-| State Key | `xdrawer-open-<id>` |
-| Schedule | `overlay.stack.open` |
-| Commands | `open`, `close`, `toggle`, `focus-trap`, `apply-inert`, `lock-scroll`, `snapshot` |
-
-Das Profil beschreibt Drawer als route-aware Overlay: modal optional, Focus Trap nur bei modalem Betrieb, Escape schliesst das oberste Overlay und XRouter-Routenwechsel duerfen den Drawer kontrolliert schliessen.
-
-## ECH-WP-06 Overlay-Paritaet
-
-`x-drawer` nutzt die gemeinsamen Overlay-Part-Aliase `surface`, `backdrop`, `close` und `content`. `overlay` bleibt als Legacy-Alias fuer `backdrop` erhalten. Host-Themes koennen Surface, Text, Border, Elevation, Backdrop, Z-Index und Focus Ring ueber `--xtend-overlay-*` oder die kompatiblen `--drawer-*` Tokens steuern.
-
-Modalitaet ist optional: `modal` aktiviert Focus Trap, Background-Inert und Scroll Lock; nicht-modale Drawer bleiben fuer App-Shell-Navigation offen steuerbar.
+- UX-Profil: `xtend.component.overlay-interaction-ux-profile.v1`.
+- State-Key: `xdrawer-open-<id>`.
+- Zweck: Overlay- und Interaktions-UX-Profil für RMT Hosts, Fabric-Lanes und browsernahe Tests sichtbar machen.

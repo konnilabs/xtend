@@ -1,81 +1,22 @@
 # Manifest Import Policy
 
-- Docs Contract: `xtend.docs.manifest-import-policy.v1`
-- Loader Policy: `xtend.security.loader-policy.v1`
-- Manifest Policy: `xtend.security.manifest-policy.v1`
-- Import Policy: `xtend.security.import-policy.v1`
-- Gate: `xtend.security.manifest-import-gate.v1`
+Same-origin imports, allowed module paths and blocked URL schemes.
 
-XTend loads components through the manifest. Since `ER-WP-28`, this path is
-explicitly secured: manifest URLs, manifest records, and dynamic module imports
-are validated locally before the loader uses them.
+## What it covers
 
-## Allowed
+Security in XTend starts with explicit boundaries: local modules, untrusted content, clear sanitizing paths and reproducible package checks.
 
-- relative URLs such as `./xalert.js`
-- root-relative URLs such as `/components/xrouter.js`
-- same-origin URLs
-- local loopback dev servers such as `http://localhost:4173/components/xmodal.js`
-- `.json` for manifests
-- `.js` and `.mjs` for modules
+## Public building blocks
 
-## Refused
+- Same-origin Module.
+- Sanitizing for untrusted content.
+- Reproduzierbare Paketprüfungen.
 
-- external CDN/remote modules
-- external manifest URLs
-- `javascript:`
-- `data:` for scripts
-- `blob:` modules
-- encoded path traversal such as `%2e%2e`
-- module paths without `.js` or `.mjs`
-- manifest paths without `.json`
-- invalid manifest keys
-- URL-like dependency values in manifest records
+## Recommended workflow
 
-## Diagnostics
+Allow local modules only, treat Markdown and HTML fragments as untrusted and document every host exception explicitly.
 
-The loader emits refusals as `xtend-loader-diagnostic`:
+## Next steps
 
-```js
-window.addEventListener('xtend-loader-diagnostic', (event) => {
-  console.log(event.detail.code, event.detail.metadata.diagnostics);
-});
-```
-
-Stable codes:
-
-- `xtend.security.loader.refused`
-- `xtend.security.manifest.invalid`
-- `xtend.security.import.refused`
-
-## Machine-Readable Policy
-
-```js
-const {
-  classifyPolicyUrl,
-  normalizeManifest
-} = require('./security/manifest-import-policy');
-```
-
-The policy lives at:
-
-```text
-security/manifest-import-policy.js
-```
-
-## Local Gates
-
-```bash
-node scripts/verify_manifest_import_policy.js --json
-node scripts/run_xtend_tests.js manifest-import-policy --json
-npm run test:manifest-policy
-```
-
-These checks are offline and do not contact external hosts.
-
-## Related Topics
-
-- [XTend Loader](./xtend-loader.md)
-- [Manifest Format](./manifest.md)
 - [Trusted DOM and Sanitizing](./trusted-dom-sanitizing.md)
-- [Supply-Chain Gates](./supply-chain-gates.md)
+- [Supply Chain checks](./supply-chain-gates.md)

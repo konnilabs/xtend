@@ -1,63 +1,23 @@
-# XTendRMT Developer Overview
+# XTendRMT Overview
 
-- Contract: `xtend.docs.xtendrmt-overview.v1`
-- Product version: `XTendRMT 0.2.0`
+The mental model for declarative app shells, state, actions and surfaces.
 
-XTendRMT is XTend's declarative app layer. Developers write a readable `.rmt` source; the compiler produces Core records, kernel artifacts, source maps, and adapter handoffs. XTend UI remains the Web Component system, while XTendRMT describes app structure and lifecycle.
+## What it covers
 
-## Product Boundary
+RMT describes app structure, interaction and runtime intent. The kernel stays host-neutral; adapters connect records to XTend UI, XRouter, Fabric and your environment.
 
-| Layer | Responsibility |
-| --- | --- |
-| RMT vNext | App shell, surfaces, state, selectors, actions, events, resources, lanes |
-| RMT Kernel | Normalization, scheduling, diagnostics, source maps, kernel records |
-| Host Adapter | XTend Components, XRouter, DOM, browser APIs, framework bridges |
-| XTend UI | Web Components, styling, accessibility, interaction, visible UI |
-| Fabric | Lanes, fibers, telemetry, backpressure, runtime diagnostics |
+## Public building blocks
 
-The kernel stays framework-agnostic. It imports no XTend Components, no XRouter module, no browser APIs, and no host runtime. Anything that needs DOM, routing, component imports, or browser state belongs in adapters.
+- `.rmt` sources.
+- Core records and source maps.
+- Host adapters for DOM, router and components.
 
-## Why RMT vNext?
+## Recommended workflow
 
-- An app shell comes from one source instead of scattered HTML, legacy JSON, and host code.
-- UI objects remain correlatable through primitive IDs, source maps, kernel records, Fabric fibers, and DOM markers.
-- State, selectors, actions, data sources, events, portals, overlays, resources, and surfaces are first-class authoring primitives.
-- Editor DX comes directly from the Language Server: completion, hover, document symbols, definition, and code actions.
-- Legacy and App Platform JSON remain compatible targets, but they are not the normal authoring path.
+Model shell, state and interaction first. Validate the source with the linter, connect adapters afterwards and keep host-specific code outside the kernel.
 
-```text
-app.rmt
-  -> vNext parser
-  -> semantic primitive graph
-  -> core document + kernel records
-  -> DOM descriptor renderer + component capability registry
-  -> host adapter
-  -> XTend Components / XRouter / Fabric
-  -> visible app in the browser
-```
+## Next steps
 
-The Component Capability Registry is the shared RMT interface for XTend UI. It
-keeps the kernel framework-agnostic while allowing descriptors to resolve
-manifest-backed components, public contracts, events, slots, parts, and state
-bridges.
-
-## Official Developer Docs
-
-| Topic | Document |
-| --- | --- |
-| First app | [Quick Start Guide](./quick-start-guide.md) |
-| vNext app authoring | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md) |
-| RMT and XTend UI | [RMT vNext Component Primitives and XTend UI](./rmt-vnext-component-primitives.md) |
-| Native authoring | [XTendRMT Native Authoring Guide](./xtendrmt-native-authoring.md) |
-| App DSL reference | [XTendRMT App DSL Reference](./xtendrmt-app-dsl.md) |
-| Runtime bridge and adapters | [XTendRMT Runtime Bridge](./xtendrmt-runtime-bridge.md) |
-| Editor setup | [RMT Language Server and Editor Setup](./rmt-language-server.md) |
-
-## Local Check
-
-```bash
-xt rmt lint app.rmt
-node tools/rmt-language-server/server.js
-node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-vnext-tooling --json
-node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json
-```
+- [RMT Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT Linter](./rmt-linter.md)
+- [RMT Language Server](./rmt-language-server.md)

@@ -1,5 +1,5 @@
 # XTend Docs Apache routing and hardening.
-# The Docs SPA is hash-routed; the directory root gets a canonical client route.
+# The Docs SPA is history-routed; deep links fall back to the PHP shell.
 
 Options -Indexes -MultiViews
 DirectoryIndex index.php
@@ -12,8 +12,15 @@ DirectoryIndex index.php
   RewriteCond %{REQUEST_METHOD} ^TRACE$ [NC]
   RewriteRule ^ - [F,L]
 
-  # /docs/ should open the canonical Docs start page, not a directory index.
-  RewriteRule ^$ /docs/index.php#/readme [R=302,L,NE]
+  # /docs/ and naked /docs/index.php should expose the canonical clean route.
+  RewriteRule ^$ /docs/de/readme [R=302,L,NE]
+  RewriteCond %{QUERY_STRING} ^$
+  RewriteRule ^index\.php/?$ /docs/de/readme [R=302,L,NE]
+
+  # HTML5 History API fallback for clean Docs slugs such as /docs/de/readme.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L,QSA]
 </IfModule>
 
 <IfModule mod_headers.c>

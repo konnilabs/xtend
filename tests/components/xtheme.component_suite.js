@@ -89,11 +89,10 @@ function runXThemeComponentSuite(options = {}) {
   context.assert(fixture.includes('getThemeContext'), 'x-theme fixture checks theme context propagation');
   context.assert(fixture.includes('snapshotPerformance'), 'x-theme fixture checks performance snapshot');
   context.assert(fixture.includes('__xtendComponentResult'), 'x-theme fixture exposes a component result object');
-  context.assert(docs.includes('# xtheme - XTend Core-Modul'), 'x-theme documentation is present');
-  context.assert(docs.includes('window.XTend.theme'), 'x-theme docs describe XTend theme namespace');
-  context.assert(docs.includes('registerTheme'), 'x-theme docs describe theme registration');
-  context.assert(docs.includes('Reduced Motion') && docs.includes('Forced Colors'), 'x-theme docs describe motion and forced-colors behavior');
-  context.assert(docs.includes('Performance Profile') && docs.includes('Density Boundary'), 'x-theme docs describe performance and density boundary');
+  context.assert(docs.includes('# x-theme'), 'x-theme documentation is present');
+  context.assert(docs.includes('xtend-loader.js'), 'x-theme docs describe loader integration');
+  context.assert(docs.includes('components/manifest.json'), 'x-theme docs reference the component manifest');
+  context.assert(docs.includes('RMT Hosts'), 'x-theme docs describe RMT host integration');
 
   return context.result({
     tag: 'x-theme',

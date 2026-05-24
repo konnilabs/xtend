@@ -160,12 +160,12 @@ class XSidePanel extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          --xtend-overlay-surface: var(--xtend-surface, #ffffff);
-          --xtend-overlay-text: var(--xtend-text, #111827);
-          --xtend-overlay-border-color: var(--xtend-border-color, #cbd5e1);
-          --xtend-overlay-elevation: var(--xtend-shadow-overlay, -18px 0 44px rgba(15, 23, 42, 0.16));
+          --xtend-overlay-surface: var(--xtend-surface, var(--section-bg, #ffffff));
+          --xtend-overlay-text: var(--xtend-text, var(--text-color, #111827));
+          --xtend-overlay-border-color: var(--xtend-border-color, var(--border-color, #cbd5e1));
+          --xtend-overlay-elevation: var(--xtend-shadow-overlay, var(--xtend-elevation-2, -18px 0 44px rgba(15, 23, 42, 0.16)));
           --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(15, 23, 42, 0.38));
-          --xtend-overlay-focus-ring: 2px solid var(--xtend-focus-color, var(--xtend-color-primary, #2563eb));
+          --xtend-overlay-focus-ring: 2px solid var(--xtend-focus-color, var(--xtend-color-primary, var(--primary-color, #2563eb)));
           --xtend-overlay-z: var(--surface-overlay-z, var(--side-panel-z, 1));
           --side-panel-width: 320px;
           --side-panel-height: 100%;
@@ -175,7 +175,7 @@ class XSidePanel extends HTMLElement {
           --side-panel-border: var(--xtend-overlay-border-color);
           --side-panel-shadow: var(--xtend-overlay-elevation);
           --side-panel-backdrop: var(--xtend-overlay-backdrop);
-          --side-panel-focus: var(--xtend-focus-color, var(--xtend-color-primary, #2563eb));
+          --side-panel-focus: var(--xtend-focus-color, var(--xtend-color-primary, var(--primary-color, #2563eb)));
           --surface-layout-x: 0px;
           --surface-layout-y: 0px;
           display: none;
@@ -270,8 +270,8 @@ class XSidePanel extends HTMLElement {
           gap: 0.5rem;
           min-height: 2.75rem;
           padding: 0.375rem 0.5rem 0.375rem 0.75rem;
-          border-bottom: 1px solid var(--side-panel-border, #cbd5e1);
-          background: var(--side-panel-chrome, #f8fafc);
+          border-bottom: 1px solid var(--side-panel-border, var(--xtend-border-color, var(--border-color, #cbd5e1)));
+          background: var(--side-panel-chrome, var(--xtend-surface-muted, var(--surface-muted, #f8fafc)));
         }
         header:focus-visible {
           outline: var(--xtend-overlay-focus-ring);
@@ -315,8 +315,8 @@ class XSidePanel extends HTMLElement {
         }
         button:hover,
         button:focus-visible {
-          border-color: var(--side-panel-border-strong, #94a3b8);
-          background: var(--side-panel-button-hover, #e2e8f0);
+          border-color: var(--side-panel-border-strong, var(--side-panel-border, #94a3b8));
+          background: var(--side-panel-button-hover, var(--xtend-color-action-subtle, var(--surface-muted, #e2e8f0)));
           outline: none;
         }
         .content {

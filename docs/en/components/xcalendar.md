@@ -1,95 +1,29 @@
-# xcalendar - XTend Component
+# x-calendar
 
-> **See also:** [xcards](./xcards.md), [xform](./xform.md), [xstate](./xstate.md)
+Date and calendar selection.
 
-## Overview
+## When to use it
 
-`<x-calendar>` is a modern, accessible calendar with form integration, state
-management, and theming. It is suitable for date selection and appointment
-management.
+x-calendar is part of the public XTend component library. Use it when you need a local, themeable Web Component without a framework binding.
 
----
-
-## Features
-
-- Form-associated (HTML5 Form API)
-- State integration through xstate
-- Theming through CSS custom properties
-- Responsive design
-
----
-
-## Usage
+## Basic example
 
 ```html
 <x-calendar></x-calendar>
 ```
 
----
+## Integration
 
-## Attributes
+Load the component through `xtend-loader.js` and `components/manifest.json`. For RMT hosts, a component descriptor describes attributes, slots and events; the host adapter materializes the Custom Element.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `value` | String | selected date in ISO format |
+## Next steps
 
----
+- [Component development](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-## Events
+## Public Runtime Contract
 
-| Event | Description |
-|-------|-------------|
-| `change` | emitted when a date is selected |
-| `date-select` | current XTend contract for date selection, detail: `{ value, date }` |
-
----
-
-## API
-
-- **Set/read value:** `element.value = '2025-07-16'`
-- **State integration:** automatic through xstate
-
-## Component-Level Contract from ER-WP-33
-
-`<x-calendar>` is form-associated, writes selection and view date to
-`xcalendar-state-<id>`, and renders the month view as an ARIA grid. Day cells
-use `role="gridcell"` and `aria-selected`; month navigation is exposed through
-labeled buttons.
-
-## Form Controls UX from WP-E11-08
-
-`<x-calendar>` exposes `xtendFormControlUxProfile` with
-`xtend.component.form-control-ux-profile.v1`. The profile connects date
-selection, `date-select`, `xcalendar-state-<id>`, `ui.user-blocking.input`,
-grid a11y, Fabric lane `user-blocking`, and RMT shell authoring.
-
----
-
-## Example: Dynamic JS
-
-```js
-const cal = document.createElement('x-calendar');
-cal.value = '2025-07-16';
-document.body.appendChild(cal);
-```
-
----
-
-## Styling and Theming
-
-```css
-x-calendar {
-  --border-color: #ccc;
-  --background-color: #fff;
-}
-```
-
----
-
-## Accessibility
-
-- ARIA roles, keyboard navigation
-
----
-
-*Last updated: July 16, 2025*
+- UX profile: `xtend.component.form-control-ux-profile.v1`.
+- State key: `xcalendar-state-<id>`.
+- Purpose: expose the Form control UX profile to RMT hosts, Fabric lanes and browser-facing tests.
