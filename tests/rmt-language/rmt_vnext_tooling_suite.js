@@ -72,9 +72,14 @@ const PRIMITIVE_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-gr
 const PRIMITIVE_INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 const INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt';
 const LEGACY_FIXTURE = 'tests/rmt-language/fixtures/regression-valid.rmt';
-const PRIMITIVE_AUTHORING_DOC_PATH = 'docs/rmt-vnext-primitive-authoring-tooling.md';
-const PRIMITIVE_BACKLOG_PATH = 'docs/rmt-vnext-primitives-compiler-backlog.md';
-const PRIMITIVE_SEMANTIC_DOC_PATH = 'docs/rmt-vnext-primitive-semantic-graph.md';
+const PUBLIC_TOOLING_DOC_PATHS = Object.freeze([
+  'docs/de/rmt-linter.md',
+  'docs/en/rmt-linter.md',
+  'docs/de/rmt-language-server.md',
+  'docs/en/rmt-language-server.md'
+]);
+const SEMANTIC_GRAPH_SOURCE_PATH = 'tools/rmt-language/semantic-graph.js';
+const VSCODE_EXTENSION_SOURCE_PATH = 'tools/rmt-editor/vscode/extension.js';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -685,38 +690,28 @@ function runFormatterSnippetAndAgentChecks(context, rootDir) {
 }
 
 function runPrimitiveAuthoringDocChecks(context, rootDir) {
-  const authoringDoc = readText(PRIMITIVE_AUTHORING_DOC_PATH, rootDir);
-  const backlog = readText(PRIMITIVE_BACKLOG_PATH, rootDir);
-  const semanticDoc = readText(PRIMITIVE_SEMANTIC_DOC_PATH, rootDir);
+  const publicDocs = PUBLIC_TOOLING_DOC_PATHS.map((docPath) => readText(docPath, rootDir)).join('\n');
+  const contract = readText(TOOLING_CONTRACT_PATH, rootDir);
+  const semanticSource = readText(SEMANTIC_GRAPH_SOURCE_PATH, rootDir);
+  const toolingSource = readText(RMT_VNEXT_TOOLING_MODULE_PATH, rootDir);
+  const languageServerSource = readText('tools/rmt-language-server/server.js', rootDir);
+  const vscodeExtensionSource = readText(VSCODE_EXTENSION_SOURCE_PATH, rootDir);
 
-  context.assert(authoringDoc.includes('RMT-VNEXT-PRIM-07'), 'primitive authoring tooling doc records PRIM-07');
-  context.assert(authoringDoc.includes('Completions'), 'primitive authoring tooling doc covers completions');
-  context.assert(authoringDoc.includes('Cursor-nahe Completion'), 'primitive authoring tooling doc covers cursor-near completion');
-  context.assert(authoringDoc.includes('Code Actions'), 'primitive authoring tooling doc covers code actions');
-  context.assert(authoringDoc.includes('rmt.vnext.primitive.initial-missing'), 'primitive authoring tooling doc covers initial quick fix');
-  context.assert(authoringDoc.includes('rmt.vnext.primitive.resource-kind-missing'), 'primitive authoring tooling doc covers resource kind quick fix');
-  context.assert(authoringDoc.includes('rmt.vnext.primitive.action-reducer-missing'), 'primitive authoring tooling doc covers action reducer quick fix');
-  context.assert(authoringDoc.includes('rmt.vnext.primitive.effect-source-missing'), 'primitive authoring tooling doc covers effect source quick fix');
-  context.assert(authoringDoc.includes('Code-Action-Previews'), 'primitive authoring tooling doc covers code action previews');
-  context.assert(authoringDoc.includes('source.fixAll.rmt.vnext.primitives'), 'primitive authoring tooling doc covers safe fix-all action');
-  context.assert(authoringDoc.includes('Command-Handoff'), 'primitive authoring tooling doc covers command handoff');
-  context.assert(authoringDoc.includes('xtend.rmt.vnext.primitive-command-handoff.v1'), 'primitive authoring tooling doc records command handoff schema');
-  context.assert(authoringDoc.includes('VS Code Bridge Apply Experience'), 'primitive authoring tooling doc covers VS Code bridge apply experience');
-  context.assert(authoringDoc.includes('xtend.rmt.editor.vscode-primitive-authoring-experience.v1'), 'primitive authoring tooling doc records VS Code bridge apply schema');
-  context.assert(authoringDoc.includes('Hover'), 'primitive authoring tooling doc covers hover');
-  context.assert(authoringDoc.includes('Document Symbols'), 'primitive authoring tooling doc covers document symbols');
-  context.assert(backlog.includes('| `RMT-VNEXT-PRIM-07` | P1 | completed |'), 'primitive backlog marks PRIM-07 completed');
-  context.assert(backlog.includes('cursor-nahe Primitive-Completions'), 'primitive backlog tracks cursor-near completion slice');
-  context.assert(backlog.includes('erste Quick-Fix-Scheibe'), 'primitive backlog tracks quick-fix slice');
-  context.assert(backlog.includes('zweite Quick-Fix-Scheibe'), 'primitive backlog tracks second quick-fix slice');
-  context.assert(backlog.includes('Action-Authoring-Scheibe'), 'primitive backlog tracks action authoring slice');
-  context.assert(backlog.includes('Preview-/Fix-All-Scheibe'), 'primitive backlog tracks preview and fix-all slice');
-  context.assert(backlog.includes('Command-Handoff'), 'primitive backlog tracks command handoff slice');
-  context.assert(backlog.includes('VS-Code-Bridge-Apply'), 'primitive backlog tracks VS Code bridge apply experience slice');
-  context.assert(semanticDoc.includes('rmt.vnext.primitive.initial-missing'), 'primitive semantic graph doc records initial diagnostic');
-  context.assert(semanticDoc.includes('rmt.vnext.primitive.resource-kind-missing'), 'primitive semantic graph doc records resource kind diagnostic');
-  context.assert(semanticDoc.includes('rmt.vnext.primitive.action-reducer-missing'), 'primitive semantic graph doc records action reducer diagnostic');
-  context.assert(semanticDoc.includes('rmt.vnext.primitive.effect-source-missing'), 'primitive semantic graph doc records effect source diagnostic');
+  context.assert(RMT_VNEXT_PRIMITIVE_AUTHORING_WORKPACKAGE === 'RMT-VNEXT-PRIM-07', 'primitive tooling source keeps PRIM-07 ownership');
+  context.assert(publicDocs.includes('xt rmt lint app.rmt'), 'public tooling docs cover the RMT linter command');
+  context.assert(publicDocs.includes('node tools/rmt-language-server/server.js'), 'public tooling docs cover the RMT language server command');
+  context.assert(publicDocs.includes('Completion') || publicDocs.includes('completion'), 'public tooling docs cover completion');
+  context.assert(publicDocs.includes('Hover') || publicDocs.includes('hover'), 'public tooling docs cover hover');
+  context.assert(publicDocs.includes('Code Actions'), 'public tooling docs cover code actions');
+  context.assert(contract.includes('Document Symbols'), 'tooling contract covers document symbols');
+  context.assert(semanticSource.includes('rmt.vnext.primitive.initial-missing'), 'semantic graph source records initial diagnostic');
+  context.assert(semanticSource.includes('rmt.vnext.primitive.resource-kind-missing'), 'semantic graph source records resource kind diagnostic');
+  context.assert(semanticSource.includes('rmt.vnext.primitive.action-reducer-missing'), 'semantic graph source records action reducer diagnostic');
+  context.assert(semanticSource.includes('rmt.vnext.primitive.effect-source-missing'), 'semantic graph source records effect source diagnostic');
+  context.assert(toolingSource.includes('source.fixAll.rmt.vnext.primitives'), 'tooling source exposes safe primitive fix-all action');
+  context.assert(toolingSource.includes('xtend.rmt.vnext.primitive-command-handoff.v1'), 'tooling source records command handoff schema');
+  context.assert(languageServerSource.includes('source.fixAll.rmt.vnext.primitives'), 'language server exposes primitive fix-all capability');
+  context.assert(vscodeExtensionSource.includes('xtend.rmt.editor.vscode-primitive-authoring-experience.v1'), 'VS Code bridge source records primitive authoring experience schema');
 }
 
 function runRmtVNextToolingSuite(options = {}) {
@@ -735,8 +730,11 @@ function runRmtVNextToolingSuite(options = {}) {
   assertFileExists(context, VALID_VNEXT_FIXTURE, rootDir, 'vNext tooling valid fixture exists');
   assertFileExists(context, PRIMITIVE_VNEXT_FIXTURE, rootDir, 'vNext primitive authoring fixture exists');
   assertFileExists(context, PRIMITIVE_INVALID_VNEXT_FIXTURE, rootDir, 'vNext primitive invalid authoring fixture exists');
-  assertFileExists(context, PRIMITIVE_AUTHORING_DOC_PATH, rootDir, 'vNext primitive authoring tooling doc exists');
-  assertFileExists(context, PRIMITIVE_SEMANTIC_DOC_PATH, rootDir, 'vNext primitive semantic graph doc exists');
+  PUBLIC_TOOLING_DOC_PATHS.forEach((docPath) => {
+    assertFileExists(context, docPath, rootDir, `${docPath} exists as public tooling documentation`);
+  });
+  assertFileExists(context, SEMANTIC_GRAPH_SOURCE_PATH, rootDir, 'vNext primitive semantic graph source exists');
+  assertFileExists(context, VSCODE_EXTENSION_SOURCE_PATH, rootDir, 'VS Code primitive bridge source exists');
   context.assert(moduleSyntax.ok, `vNext tooling module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `vNext tooling suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 

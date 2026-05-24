@@ -7265,7 +7265,7 @@
       "module": "catalog/type-exports-rmt.js",
       "backlog": "development/BACKLOG-XTend-TypeExports-und-Public-Declaration-Hardening.md",
       "workpackageDocument": "development/WP-TypeExports-04-XTendRMT-Runtime-Browser-und-RMT-Language-Exports-typisieren.md",
-      "docs": "docs/xtend-rmt-types.md",
+      "docs": "docs/type-exports.md",
       "suite": "tests/types/rmt_type_exports_suite.js",
       "localGate": "node scripts/run_xtend_tests.js type-exports-rmt --json",
       "packageScript": "npm run test:type-exports-rmt",

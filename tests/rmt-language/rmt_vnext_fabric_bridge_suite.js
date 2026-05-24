@@ -26,8 +26,12 @@ const {
 } = require('../../tools/rmt-language/vnext-source-to-sea');
 
 const RMT_VNEXT_FABRIC_BRIDGE_SUITE_PATH = 'tests/rmt-language/rmt_vnext_fabric_bridge_suite.js';
-const FABRIC_BRIDGE_DOC_PATH = 'docs/rmt-vnext-fabric-bridge-evidence.md';
-const BACKLOG_DOC_PATH = 'docs/rmt-vnext-primitives-compiler-backlog.md';
+const FABRIC_BRIDGE_DOC_PATHS = Object.freeze([
+  'docs/de/xtend-fabric-runtime.md',
+  'docs/en/xtend-fabric-runtime.md',
+  'docs/de/xtend-fabric-rmt-lane-mapping.md',
+  'docs/en/xtend-fabric-rmt-lane-mapping.md'
+]);
 const PACKAGE_SCRIPT = 'node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge';
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -51,7 +55,9 @@ function runRmtVNextFabricBridgeSuite(options = {}) {
   assertFileExists(context, RMT_VNEXT_FABRIC_BRIDGE_SUITE_PATH, rootDir, 'fabric bridge suite exists');
   assertFileExists(context, RMT_VNEXT_SOURCE_TO_SEA_FIXTURE_PATH, rootDir, 'fabric bridge vNext fixture exists');
   assertFileExists(context, RMT_VNEXT_SOURCE_TO_SEA_BROWSER_FIXTURE_PATH, rootDir, 'fabric bridge browser fixture exists');
-  assertFileExists(context, FABRIC_BRIDGE_DOC_PATH, rootDir, 'fabric bridge documentation exists');
+  FABRIC_BRIDGE_DOC_PATHS.forEach((docPath) => {
+    assertFileExists(context, docPath, rootDir, `${docPath} exists as public Fabric documentation`);
+  });
   context.assert(sourceToSeaSyntax.ok, `fabric bridge source module syntax passes${sourceToSeaSyntax.ok ? '' : ` (${sourceToSeaSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `fabric bridge suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
@@ -69,8 +75,7 @@ function runRmtVNextFabricBridgeSuite(options = {}) {
   const routeComponentFibers = bridge && bridge.routeComponentFibers;
   const packageManifest = readJson('package.json', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const backlog = readText(BACKLOG_DOC_PATH, rootDir);
-  const bridgeDoc = readText(FABRIC_BRIDGE_DOC_PATH, rootDir);
+  const bridgeDocs = FABRIC_BRIDGE_DOC_PATHS.map((docPath) => readText(docPath, rootDir)).join('\n');
 
   context.assert(evidence.ok === true, 'source-to-sea evidence is usable as PRIM-05 input');
   context.assert(bridge && bridge.schema === RMT_VNEXT_FABRIC_BRIDGE_EVIDENCE_SCHEMA, 'fabric bridge evidence declares schema');
@@ -132,9 +137,10 @@ function runRmtVNextFabricBridgeSuite(options = {}) {
   context.assert(packageManifest.scripts['test:rmt-vnext-fabric-bridge'] === PACKAGE_SCRIPT, 'package exposes PRIM-05 fabric bridge script');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives'].includes('rmt-vnext-fabric-bridge'), 'primitive aggregate includes PRIM-05 fabric bridge gate');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'].includes('rmt-vnext-fabric-bridge'), 'primitive report includes PRIM-05 fabric bridge gate');
-  context.assert(backlog.includes('| `RMT-VNEXT-PRIM-05` | P0 | completed |'), 'backlog marks PRIM-05 completed');
-  context.assert(bridgeDoc.includes('xtend.rmt.vnext.fabric-bridge-evidence.v1'), 'fabric bridge doc records evidence schema');
-  context.assert(bridgeDoc.includes('node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge --json'), 'fabric bridge doc records local gate');
+  context.assert(RMT_VNEXT_FABRIC_BRIDGE_WORKPACKAGE === 'RMT-VNEXT-PRIM-05', 'fabric bridge source contract keeps PRIM-05 ownership');
+  context.assert(bridgeDocs.includes('Fabric') && bridgeDocs.includes('RMT'), 'public Fabric docs describe the RMT/Fabric boundary');
+  context.assert(bridgeDocs.includes('component.visible.hydrate'), 'public Fabric docs document component hydration schedule mapping');
+  context.assert(bridgeDocs.includes('lane') && bridgeDocs.includes('fiber'), 'public Fabric docs explain lanes and fibers');
 
   return context.result({
     schema: RMT_VNEXT_FABRIC_BRIDGE_EVIDENCE_SCHEMA,

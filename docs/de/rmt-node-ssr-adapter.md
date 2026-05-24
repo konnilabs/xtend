@@ -11,6 +11,9 @@ RMT beschreibt App-Struktur, Interaktion und Laufzeitabsicht. Der Kernel bleibt 
 - `.rmt` Quellen.
 - Core Records und Source Maps.
 - Host Adapter für DOM, Router und Komponenten.
+- Adapter-Contract `xtend.rmt.node-ssr-adapter.v1`.
+- JSONL Streaming Frames mit `xtend.rmt.node-ssr-jsonl-frame.v1`.
+
 ## Beispiel
 
 ```js

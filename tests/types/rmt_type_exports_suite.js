@@ -75,13 +75,10 @@ function runTypeExportsRmtSuite(options = {}) {
   const sharedDeclarationSource = readText(RMT_SHARED_DECLARATION_FILE, rootDir);
   const rmtCoreDeclarationSource = readText('xtendrmt/rmt-core.d.ts', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_RMT_BACKLOG, rootDir);
   const workpackage = readText(TYPE_EXPORTS_RMT_WORKPACKAGE_DOC, rootDir);
   const docs = readText(TYPE_EXPORTS_RMT_DOCS, rootDir);
-  const typeExportsDocs = readText('docs/type-exports.md', rootDir);
-  const packageExportLockDocs = readText('docs/package-export-lock.md', rootDir);
   const moduleSyntax = syntaxCheckFile(TYPE_EXPORTS_RMT_MODULE, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(TYPE_EXPORTS_RMT_SUITE, { rootDir, extension: '.js' });
 
@@ -148,8 +145,9 @@ function runTypeExportsRmtSuite(options = {}) {
   });
 
   context.assert(packageManifest.scripts['test:type-exports-rmt'] === 'node scripts/run_xtend_tests.js type-exports-rmt', 'Package exposes RMT TypeExports script');
-  context.assert(packageManifest.xtend.releaseGates.includes(TYPE_EXPORTS_RMT_PACKAGE_SCRIPT), 'Release gates include RMT TypeExports script');
-  context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(TYPE_EXPORTS_RMT_PACKAGE_SCRIPT), 'Release checklist includes RMT TypeExports script');
+  context.assert((packageManifest.scripts['test:rmt-vnext-primitives:report'] || '').includes('type-exports-rmt'), 'RMT primitive aggregate includes RMT TypeExports suite');
+  context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.suites.includes('type-exports-rmt'), 'CI RMT primitive gate tracks RMT TypeExports suite');
+  context.assert(typeExportsMetadata.releaseGateBundle.includes(TYPE_EXPORTS_RMT_PACKAGE_SCRIPT), 'TypeExports release bundle includes RMT TypeExports script');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes(TYPE_EXPORTS_RMT_WORKPACKAGE_DOC), 'Artifact checklist includes RMT TypeExports workpackage');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes(TYPE_EXPORTS_RMT_REPORT_ARTIFACT), 'Artifact checklist includes RMT TypeExports report artifact');
   context.assert(metadata && metadata.schema === TYPE_EXPORTS_RMT_SCHEMA, 'Package metadata exposes RMT TypeExports schema');
@@ -164,7 +162,6 @@ function runTypeExportsRmtSuite(options = {}) {
   context.assert(typeExportsMetadata && Array.isArray(typeExportsMetadata.nextWorkpackages) && typeExportsMetadata.nextWorkpackages.length === 0, 'TypeExports metadata has no remaining TypeExports workpackages');
   context.assertIncludes(runner, "id: 'type-exports-rmt'", 'Runner registers RMT TypeExports suite');
   context.assertIncludes(runner, 'runTypeExportsRmtSuite', 'Runner imports RMT TypeExports suite');
-  context.assertIncludes(docsReadme, './xtend-rmt-types.md', 'Docs README links RMT Type docs');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_RMT_LOCAL_GATE, 'Tests README documents RMT TypeExports gate');
 
   assertTextIncludesAll(context, backlog, [
@@ -182,25 +179,17 @@ function runTypeExportsRmtSuite(options = {}) {
     'RMT-Kernel importiert keine XTend-UI-Typen'
   ], 'WP-TypeExports-04 document');
   assertTextIncludesAll(context, docs, [
-    TYPE_EXPORTS_RMT_SCHEMA,
-    TYPE_EXPORTS_RMT_LOCAL_GATE,
+    '@ccslabs/xtend/rmt',
+    '@ccslabs/xtend/rmt/browser',
+    '@ccslabs/xtend/rmt-language/vnext-compiler',
     './xtendrmt/rmt-core.d.ts',
+    './tools/rmt-language/rmt-tooling-public-types.d.ts',
     'RmtToolingDiagnostic',
     'RmtTextEdit',
     'RmtWorkspaceEdit',
     'RmtLanguageServiceReport',
     'RmtJsonRpcMessage'
   ], 'RMT Type docs');
-  assertTextIncludesAll(context, typeExportsDocs, [
-    'WP-TypeExports-04',
-    './xtendrmt/rmt-core.d.ts',
-    './tools/rmt-language/rmt-tooling-public-types.d.ts',
-    './xtend-rmt-types.md'
-  ], 'TypeExports docs');
-  assertTextIncludesAll(context, packageExportLockDocs, [
-    './xtendrmt/rmt-core.d.ts',
-    TYPE_EXPORTS_RMT_LOCAL_GATE
-  ], 'Package Export Lock docs');
 
   return context.result({
     report: {

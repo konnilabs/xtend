@@ -56,7 +56,10 @@ const BROKEN_LEGACY_FIXTURE = 'tests/rmt-language/fixtures/regression-broken-syn
 const FIRST_DEMO_FIXTURE = 'xtendrmt/rmt-first-demo-app.rmt';
 const VALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-streaming-progressive.rmt';
 const APP_PLATFORM_FIXTURE = 'tests/fixtures/rmt-app-platform-tooling.rmt';
-const PRIMITIVE_MIGRATION_DOC_PATH = 'docs/rmt-vnext-primitive-migration.md';
+const PUBLIC_MIGRATION_DOC_PATHS = Object.freeze([
+  'docs/de/xtendrmt-migration-guide.md',
+  'docs/en/xtendrmt-migration-guide.md'
+]);
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -302,7 +305,9 @@ function runRmtVNextCompatibilitySuite(options = {}) {
   assertFileExists(context, FIRST_DEMO_FIXTURE, rootDir, 'demo app RMT fixture exists');
   assertFileExists(context, VALID_VNEXT_FIXTURE, rootDir, 'vNext fixture exists');
   assertFileExists(context, APP_PLATFORM_FIXTURE, rootDir, 'App-Platform primitive fixture exists');
-  assertFileExists(context, PRIMITIVE_MIGRATION_DOC_PATH, rootDir, 'primitive migration document exists');
+  PUBLIC_MIGRATION_DOC_PATHS.forEach((docPath) => {
+    assertFileExists(context, docPath, rootDir, `${docPath} exists`);
+  });
   context.assert(moduleSyntax.ok, `vNext compatibility module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `vNext compatibility suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
