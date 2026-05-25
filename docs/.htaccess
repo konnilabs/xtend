@@ -10,17 +10,16 @@ DirectoryIndex index.php
   # TRACE is better disabled in server config via TraceEnable Off. Keep a
   # per-directory guard here so accidental enablement is still rejected.
   RewriteCond %{REQUEST_METHOD} ^TRACE$ [NC]
-  RewriteRule ^ - [F,L]
+  RewriteRule ^ - [F,END]
 
-  # /docs/ and naked /docs/index.php should expose the canonical clean route.
-  RewriteRule ^$ /docs/de/readme [R=302,L,NE]
-  RewriteCond %{QUERY_STRING} ^$
-  RewriteRule ^index\.php/?$ /docs/de/readme [R=302,L,NE]
+  # Serve real files and directories directly.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [END]
 
   # HTML5 History API fallback for clean Docs slugs such as /docs/de/readme.
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.php [L,QSA]
+  # Important: this is an internal rewrite, not an HTTP redirect.
+  RewriteRule ^ index.php [END,QSA]
 </IfModule>
 
 <IfModule mod_headers.c>

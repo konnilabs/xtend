@@ -212,6 +212,29 @@ class XSelect extends HTMLElement {
           box-shadow: var(--xtend-form-control-shadow, 0 1px 2px rgba(15, 23, 42, 0.06));
           transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
         }
+        option {
+          background: var(--xtend-form-option-surface, var(--xtend-form-control-surface, var(--xtend-control-bg, var(--input-bg, #fff))));
+          color: var(--xtend-form-option-text, var(--xtend-form-control-text, var(--xtend-control-color, var(--text-color, #111827))));
+        }
+        option:checked {
+          background: var(--xtend-form-option-selected-surface, var(--xtend-form-option-surface, var(--xtend-form-control-surface, var(--xtend-control-bg, var(--input-bg, #fff)))));
+          color: var(--xtend-form-option-selected-text, var(--xtend-form-option-text, var(--xtend-form-control-text, var(--xtend-control-color, var(--text-color, #111827)))));
+        }
+        :host-context(html[data-theme="dark"]) select,
+        :host-context([data-theme="dark"]) select {
+          background: var(--xtend-form-control-surface-dark, var(--xtend-control-bg-dark, var(--input-bg-dark, var(--xtend-form-control-surface, #1f2635))));
+          color: var(--xtend-form-control-text-dark, var(--xtend-control-color-dark, var(--input-color-dark, var(--xtend-form-control-text, #f5f7fb))));
+        }
+        :host-context(html[data-theme="dark"]) option,
+        :host-context([data-theme="dark"]) option {
+          background: var(--xtend-form-option-surface-dark, var(--xtend-form-control-surface-dark, var(--xtend-control-bg-dark, var(--input-bg-dark, #1f2635))));
+          color: var(--xtend-form-option-text-dark, var(--xtend-form-control-text-dark, var(--xtend-control-color-dark, var(--input-color-dark, #f5f7fb))));
+        }
+        :host-context(html[data-theme="dark"]) option:checked,
+        :host-context([data-theme="dark"]) option:checked {
+          background: var(--xtend-form-option-selected-surface-dark, var(--xtend-form-option-surface-dark, var(--xtend-form-control-surface-dark, var(--xtend-control-bg-dark, var(--input-bg-dark, #1f2635)))));
+          color: var(--xtend-form-option-selected-text-dark, var(--xtend-form-option-text-dark, var(--xtend-form-control-text-dark, var(--xtend-control-color-dark, var(--input-color-dark, #f5f7fb)))));
+        }
         select:focus {
           outline: var(--xtend-form-focus-ring, var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb))));
           outline-offset: var(--xtend-form-focus-offset, 2px);

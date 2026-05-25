@@ -53,6 +53,11 @@ jobs:
         continue-on-error: true
         run: npm run test:release:full:report
 
+      - name: Run docs stub inventory report
+        id: docs_stub_inventory
+        continue-on-error: true
+        run: npm run test:docs-stub-inventory:report
+
       - name: Run RMT vNext primitive gate report
         id: rmt_primitives
         continue-on-error: true
@@ -88,6 +93,7 @@ jobs:
           name: xtend-nightly-build-node-26
           path: |
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-docs-stub-inventory-report.json
             .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
             .xtend-test-results/xtend-release-report.json
             .xtend-test-results/xtend-pack-dry-run.json
@@ -106,6 +112,7 @@ jobs:
         run: |
           failed=0
           if [ "${{ steps.full_release.outcome }}" != "success" ]; then echo "full release gate failed"; failed=1; fi
+          if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory gate failed"; failed=1; fi
           if [ "${{ steps.rmt_primitives.outcome }}" != "success" ]; then echo "RMT vNext primitive gate failed"; failed=1; fi
           if [ "${{ steps.release_report.outcome }}" != "success" ]; then echo "release report failed"; failed=1; fi
           if [ "${{ steps.pack_root.outcome }}" != "success" ]; then echo "root package dry run failed"; failed=1; fi

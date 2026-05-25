@@ -3252,6 +3252,8 @@
       "npm run test:pr:report",
       "npm run test:release:full:report",
       "npm run test:docs-public-quality",
+      "npm run test:docs-stub-inventory",
+      "npm run test:docs-content-depth",
       "npm run test:rmt-stack-docs",
       "npm run test:rmt-playground-docs",
       "npm run test:rmt-playground-security",
@@ -4104,6 +4106,8 @@
           "supply-chain",
           "manifest-import-policy",
           "docs-public-quality",
+          "docs-stub-inventory",
+          "docs-content-depth",
           "rmt-stack-docs",
           "rmt-playground-docs",
           "rmt-playground-security",
@@ -4153,6 +4157,8 @@
           "supply-chain",
           "manifest-import-policy",
           "docs-public-quality",
+          "docs-stub-inventory",
+          "docs-content-depth",
           "rmt-stack-docs",
           "rmt-playground-docs",
           "rmt-playground-security",
@@ -4184,6 +4190,7 @@
         "nodeVersion": "26.x",
         "commandSet": [
           "npm run test:release:full:report",
+          "npm run test:docs-stub-inventory:report",
           "npm run test:rmt-vnext-primitives:report",
           "npm run release:report",
           "npm run pack:dry-run"
@@ -4320,6 +4327,8 @@
         "npm run test:pr:report",
         "npm run test:release:full:report",
         "npm run test:docs-public-quality",
+        "npm run test:docs-stub-inventory",
+        "npm run test:docs-content-depth",
         "npm run test:rmt-stack-docs",
         "npm run test:rmt-playground-docs",
         "npm run test:rmt-playground-security",
@@ -8629,6 +8638,31 @@
       ],
       "menu": "docs/menu.json"
     },
+    "docsContentDepth": {
+      "schema": "xtend.docs.content-depth.v1",
+      "reportSchema": "xtend.docs.content-depth-report.v1",
+      "inventorySchema": "xtend.docs.component-inventory.v1",
+      "guideInventorySchema": "xtend.docs.guide-inventory.v1",
+      "localGate": "node scripts/run_xtend_tests.js docs-content-depth --json",
+      "packageScript": "npm run test:docs-content-depth",
+      "inventoryScript": "node scripts/create_component_docs_inventory.js",
+      "guideInventoryScript": "node scripts/create_docs_stub_inventory.js --threshold 2000 --json",
+      "componentReferenceTier": "component-reference",
+      "minComponentWords": 350,
+      "minComponentCodeBlocks": 2,
+      "minGuideNonCodeChars": 2000,
+      "minGuideH2Count": 4,
+      "locales": [
+        "de",
+        "en"
+      ],
+      "canonicalDocs": [
+        "docs/de/components",
+        "docs/en/components"
+      ],
+      "stubInventoryGate": "npm run test:docs-stub-inventory",
+      "stubInventoryReport": ".xtend-test-results/xtend-docs-stub-inventory-report.json"
+    },
     "rmtStackDocs": {
       "schema": "xtend.docs.rmt-stack-docs.v1",
       "reportSchema": "xtend.docs.rmt-stack-docs-report.v1",
@@ -8668,6 +8702,23 @@
       "endpoint": "docs/index.php?xtend-rmt-playground=compile",
       "sourceLimitBytes": 65536,
       "previewReset": "replaceChildren"
+    },
+    "docsStubInventory": {
+      "schema": "xtend.docs.stub-inventory-gate.v1",
+      "inventorySchema": "xtend.docs.guide-inventory.v1",
+      "articleSchema": "xtend.docs.guide-article-metrics.v1",
+      "threshold": 2000,
+      "localGate": "node scripts/run_xtend_tests.js docs-stub-inventory --json",
+      "packageScript": "npm run test:docs-stub-inventory",
+      "reportScript": "npm run test:docs-stub-inventory:report",
+      "reportPath": ".xtend-test-results/xtend-docs-stub-inventory-report.json",
+      "inventoryScript": "node scripts/create_docs_stub_inventory.js --threshold 2000 --json",
+      "locales": [
+        "de",
+        "en"
+      ],
+      "menu": "docs/menu.json",
+      "scope": "visible non-component docs articles"
     }
   },
   "supplyChain": {
@@ -8894,16 +8945,16 @@
     "dev:local": "node scripts/serve_xtend_dev.js --port 4173",
     "dev:local:csp": "node scripts/serve_xtend_dev.js --port 4173 --prod-csp --default tests/browser/fixtures/epic13-prod-csp-smoke.html",
     "test:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.json",
-    "test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot",
-    "test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot --report .xtend-test-results/xtend-pr-gate-report.json",
-    "test:release:full": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs",
-    "test:release:full:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs --report .xtend-test-results/xtend-release-gate-report.json",
+    "test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot",
+    "test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot --report .xtend-test-results/xtend-pr-gate-report.json",
+    "test:release:full": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs",
+    "test:release:full:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs --report .xtend-test-results/xtend-release-gate-report.json",
     "release:sync-versions": "node scripts/sync_xtend_package_versions.js",
     "supply-chain:verify": "node scripts/verify_supply_chain_policy.js",
     "security:supply-chain": "node scripts/verify_supply_chain_policy.js",
     "security:manifest-policy": "node scripts/verify_manifest_import_policy.js",
     "release:check": "npm run test:release:full:report",
-    "release:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs --report .xtend-test-results/xtend-release-report.json",
+    "release:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs --report .xtend-test-results/xtend-release-report.json",
     "nightly:manifest": "node scripts/create_xtend_nightly_manifest.js",
     "pack:dry-run": "node scripts/capture_pack_dry_run.js",
     "pack:dry-run:report": "node scripts/capture_pack_dry_run.js",
@@ -8921,9 +8972,12 @@
     "test:type-exports-vendor": "node scripts/run_xtend_tests.js type-exports-vendor",
     "test:type-exports:release": "node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json",
     "test:docs-public-quality": "node scripts/verify_docs_public_quality.js",
+    "test:docs-stub-inventory": "node scripts/create_docs_stub_inventory.js --threshold 2000 --json",
+    "test:docs-content-depth": "node scripts/run_xtend_tests.js docs-content-depth",
     "test:rmt-stack-docs": "node scripts/run_xtend_tests.js rmt-stack-docs",
     "test:rmt-playground-docs": "node scripts/run_xtend_tests.js rmt-playground-docs",
     "test:rmt-playground-security": "node scripts/run_xtend_tests.js rmt-playground-security",
-    "release:sync-versions:check": "node scripts/sync_xtend_package_versions.js --check"
+    "release:sync-versions:check": "node scripts/sync_xtend_package_versions.js --check",
+    "test:docs-stub-inventory:report": "node scripts/run_xtend_tests.js docs-stub-inventory --report .xtend-test-results/xtend-docs-stub-inventory-report.json"
   }
 }

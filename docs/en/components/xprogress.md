@@ -1,29 +1,119 @@
 # x-progress
 
-Progress, busy states and status.
+x-progress is a public XTend component reference for third-party developers who need to embed the component without private project context.
+
+## What it solves
+
+x-progress reports status to users. Wire events and live-region behavior carefully so automated hosts and assistive technology receive the same signal. The component is loaded from `components/xprogress.js`, declared through `components/manifest.json` and typed through `components/xprogress.d.ts`. That makes the article a practical contract: a host can see which attributes are safe, which events can be listened to, which methods are callable and which CSS hooks are intended for customization.
+
+Use this page when you are integrating XTend into a product shell, a micro frontend, a CMS-rendered page or an RMT-authored surface. It focuses on the public surface instead of internal implementation details, so it is suitable for teams that only consume the package.
 
 ## When to use it
 
-x-progress is part of the public XTend component library. Use it when you need a local, themeable Web Component without a framework binding.
+Use `x-progress` when you need the behavior described by its `feedback, stateful` profile and want a local Web Component that follows XTend theming, accessibility and scheduling conventions. It is especially useful when the host must stay framework-neutral, keep component code local and avoid CDN dependencies.
 
-## Basic example
+Third-party teams should prefer the documented attributes, slots, events and methods before wrapping the component. Wrappers are fine for product conventions, but the wrapper should pass through the public API instead of reaching into the shadow DOM.
+
+## Avoid when
+
+Avoid `x-progress` when you need behavior that is not represented by the documented API, or when your host cannot load `xtend-loader.js` and `components/manifest.json`. Do not depend on private class names, generated internal nodes or unlisted state keys. If you need a design variant, use tokens, CSS parts or slots before forking the runtime file.
+
+## Load and register
+
+Load the XTend loader once per page. The loader reads the local manifest and resolves `x-progress` to `./xprogress.js`. Keep the manifest URL same-origin unless your security policy explicitly allows another source.
 
 ```html
-<x-progress></x-progress>
+<script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
+<x-progress id="demo-xprogress"
+  value="demo"
+  max="100"
+  label="Demo"
+  status="demo">
+  <span slot="label">Demo label</span>
+</x-progress>
 ```
 
-## Integration
+## Examples
 
-Load the component through `xtend-loader.js` and `components/manifest.json`. For RMT hosts, a component descriptor describes attributes, slots and events; the host adapter materializes the Custom Element.
+The integration example shows the host-side pattern: query the element, listen to the first public event when one exists and call a public method only after the element has been upgraded. This keeps hydration and RMT materialization predictable.
+
+```js
+const component = document.querySelector('x-progress');
+component.addEventListener('progress-changed', (event) => {
+  console.log('progress-changed', event.detail);
+});
+if ('setProgress' in component) {
+  component.setProgress();
+}
+```
+
+For production screens, keep IDs stable when state keys or diagnostics include `<id>`. Stable IDs make event logs, RMT schedules and browser tests easier to compare across deployments.
+
+## API reference
+
+Attributes:
+- `value`
+- `max`
+- `label`
+- `status`
+- `indeterminate`
+- `busy`
+
+Events:
+- `progress-changed`
+- `progress-complete`
+
+Methods:
+- `setProgress(value: number)`
+- `complete()`
+- `reset()`
+
+Slots:
+- `label`
+- `default`
+
+CSS parts:
+- `label`
+- `value`
+- `root`
+- `track`
+- `bar`
+- `content`
+
+CSS custom properties:
+- `--text-color`
+- `--progress-border`
+- `--xtend-feedback-border`
+- `--progress-track`
+- `--xtend-feedback-bg`
+- `--progress-height`
+- `--xtend-feedback-radius`
+- `--border-radius`
+- `--progress-bar`
+- `--xtend-feedback-color`
+- `--muted-color`
+
+## Integration notes
+
+- UX profile: `xtend.component.feedback-status-ux-profile.v1`.
+- State key: `xprogress-value-<id>`.
+- RMT contract: `xtend.rmt.component-contract.v1`.
+- Performance profile: `xtend.performance.component-profile.v1`.
+- RMT schedules: `component.visible.mount`, `component.idle.hydrate`, `feedback.progress.update`, `diagnostics.snapshot`.
+
+RMT Hosts should treat the component as a Custom Element boundary: pass attributes as component props, bind DOM events to commands and keep scheduling metadata outside the component. Plain HTML hosts can use the same attributes and events without an RMT compiler.
+
+Theming should flow through XTend design tokens first. CSS parts are intended for targeted skinning of exposed controls, while CSS custom properties are better for broader color, spacing, radius and motion changes. Accessibility hooks such as labels, live regions and focus handling should be preserved when composing the component.
+
+## Troubleshooting
+
+- If `x-progress` stays unupgraded, confirm that `xtend-loader.js` loaded and that `components/manifest.json` contains `x-progress`.
+- If events are missing, listen after `customElements.whenDefined('x-progress')` and check that the interaction is not disabled or blocked by validation.
+- If styling does not apply, prefer documented CSS variables and parts; shadow DOM internals are intentionally not stable.
+- If an RMT host renders stale state, check the state key and schedule records listed above before changing component code.
 
 ## Next steps
 
 - [Component development](../components.md)
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
-
-## Public Runtime Contract
-
-- UX profile: `xtend.component.feedback-status-ux-profile.v1`.
-- State key: `xprogress-value-<id>`.
-- Purpose: expose the Feedback and status UX profile to RMT hosts, Fabric lanes and browser-facing tests.

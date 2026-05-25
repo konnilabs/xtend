@@ -2146,9 +2146,17 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --border-color: rgba(15, 23, 42, 0.14);
           --xtend-surface: #ffffff;
           --xtend-surface-muted: #f7fafc;
+          --xtend-surface-control: var(--xtend-surface-muted);
           --xtend-text: #1f2937;
+          --xtend-text-primary: var(--xtend-text);
+          --xtend-text-muted: var(--muted-text-color);
           --xtend-border-color: rgba(15, 23, 42, 0.14);
+          --xtend-border-subtle: var(--xtend-border-color);
           --xtend-overlay-bg: rgba(15, 23, 42, 0.52);
+          --docs-control-surface: var(--xtend-surface-control, var(--xtend-surface-muted));
+          --docs-control-text: var(--xtend-text-primary, var(--xtend-text));
+          --docs-control-placeholder: var(--xtend-text-muted, var(--muted-text-color));
+          --docs-control-border: var(--xtend-border-subtle, var(--xtend-border-color));
           --docs-header-bg: #ffffff;
           --docs-header-menu-bg: #ffffff;
           --docs-header-fg: #1f2937;
@@ -2173,6 +2181,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --docs-hero-bg-dark: #050506;
           --docs-hero-text-light: #162033;
           --docs-hero-text-dark: #f8fafc;
+          color-scheme: light;
           max-width: 100%;
           overflow-x: hidden;
           overflow-x: clip;
@@ -2189,9 +2198,17 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --border-color: rgba(255, 255, 255, 0.13);
           --xtend-surface: #0b0b0d;
           --xtend-surface-muted: #111113;
+          --xtend-surface-control: #17171b;
           --xtend-text: #f4f4f5;
+          --xtend-text-primary: var(--xtend-text);
+          --xtend-text-muted: var(--muted-text-color);
           --xtend-border-color: rgba(255, 255, 255, 0.13);
+          --xtend-border-subtle: var(--xtend-border-color);
           --xtend-overlay-bg: rgba(0, 0, 0, 0.72);
+          --docs-control-surface: var(--xtend-surface-control, #17171b);
+          --docs-control-text: var(--xtend-text-primary, #f4f4f5);
+          --docs-control-placeholder: var(--xtend-text-muted, #a1a1aa);
+          --docs-control-border: var(--xtend-border-subtle, rgba(255, 255, 255, 0.13));
           --docs-header-bg: #050506;
           --docs-header-menu-bg: #09090b;
           --docs-header-fg: #f4f4f5;
@@ -2207,9 +2224,11 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --x-code-text: #f4f4f5;
           --x-code-border: rgba(255, 255, 255, 0.16);
           --docs-hero-bg-dark: #050506;
-          --input-bg: #0f0f12;
-          --input-bg-dark: #0f0f12;
+          --input-bg: var(--docs-control-surface);
+          --input-bg-dark: var(--docs-control-surface);
+          --input-color-dark: var(--docs-control-text);
           --input-placeholder-color-dark: #a1a1aa;
+          color-scheme: dark;
         }
         body {
           font-family: system-ui, sans-serif;
@@ -2368,6 +2387,9 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           font-size: 0.94rem;
         }
         .docs-menu-section x-link {
+          --link-active-decoration: none;
+          --link-hover-decoration: none;
+          --xtend-link-current-indicator: transparent;
           display: block;
           width: 100%;
           max-width: 100%;
@@ -2414,6 +2436,10 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         .docs-menu-section x-link[active] {
           font-weight: 700;
           box-shadow: inset 3px 0 0 var(--docs-menu-active-rail);
+        }
+        .docs-menu-section x-link[active]::part(link) {
+          box-shadow: none;
+          text-decoration: none;
         }
         .docs-menu-children {
           margin: 0.12rem 0 0;
@@ -2529,6 +2555,25 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           max-width: 100%;
           box-sizing: border-box;
           min-width: 12rem;
+          color-scheme: light;
+          --xtend-form-control-surface: var(--docs-control-surface);
+          --xtend-form-control-surface-dark: var(--docs-control-surface);
+          --xtend-form-control-text: var(--docs-control-text);
+          --xtend-form-control-text-dark: var(--docs-control-text);
+          --xtend-form-placeholder-text: var(--docs-control-placeholder);
+          --xtend-control-placeholder-color-dark: var(--docs-control-placeholder);
+          --xtend-form-border-color: var(--docs-control-border);
+          --xtend-form-focus-border-color: var(--primary-color);
+          --xtend-form-control-shadow: none;
+        }
+        [data-theme="dark"] #xtend-search-form x-input {
+          color-scheme: dark;
+        }
+        #xtend-search-form x-input::part(control) {
+          background: var(--docs-control-surface);
+          border-color: var(--docs-control-border);
+          color: var(--docs-control-text);
+          box-shadow: none;
         }
         @media (max-width: 420px) {
           #xtend-search-form x-input {
@@ -2795,9 +2840,13 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           padding: 0 0.32rem 0 0.58rem;
           border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
           border-radius: 999px;
-          background: color-mix(in srgb, var(--surface-muted) 82%, transparent);
-          color: var(--text-color);
+          background: var(--docs-control-surface);
+          color: var(--docs-control-text);
           box-sizing: border-box;
+          color-scheme: light;
+        }
+        [data-theme="dark"] .docs-language-control {
+          color-scheme: dark;
         }
         .docs-language-control:focus-within {
           outline: 2px solid color-mix(in srgb, var(--primary-color) 56%, transparent);
@@ -2841,7 +2890,31 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           display: block;
           min-width: 7.5rem;
           max-width: 8.8rem;
+          color-scheme: light;
+          --xtend-form-border-width: 0;
+          --xtend-form-control-shadow: none;
+          --xtend-form-control-surface: transparent;
+          --xtend-form-control-surface-dark: transparent;
+          --xtend-form-control-text: var(--docs-control-text);
+          --xtend-form-control-text-dark: var(--docs-control-text);
+          --xtend-form-option-surface: var(--docs-control-surface);
+          --xtend-form-option-surface-dark: var(--docs-control-surface);
+          --xtend-form-option-text: var(--docs-control-text);
+          --xtend-form-option-text-dark: var(--docs-control-text);
+          --xtend-form-icon-color: var(--docs-control-text);
+          --xtend-form-focus-border-color: transparent;
+          --xtend-form-focus-offset: 0;
+          --xtend-form-focus-ring: none;
           --xtend-form-control-min-height: 44px;
+        }
+        [data-theme="dark"] .docs-language-select {
+          color-scheme: dark;
+        }
+        .docs-language-select::part(control) {
+          border: 0;
+          background: transparent;
+          color: var(--docs-control-text);
+          box-shadow: none;
         }
         .docs-language-select::part(label),
         .docs-language-select::part(helper),
@@ -3159,9 +3232,17 @@ document.addEventListener('DOMContentLoaded', function() {
     window.XTend.theme.set('--border-color', 'rgba(15, 23, 42, 0.14)');
     window.XTend.theme.set('--xtend-surface', '#ffffff');
     window.XTend.theme.set('--xtend-surface-muted', '#f7fafc');
+    window.XTend.theme.set('--xtend-surface-control', '#f7fafc');
     window.XTend.theme.set('--xtend-text', '#1f2937');
+    window.XTend.theme.set('--xtend-text-primary', '#1f2937');
+    window.XTend.theme.set('--xtend-text-muted', '#5f6f82');
     window.XTend.theme.set('--xtend-border-color', 'rgba(15, 23, 42, 0.14)');
+    window.XTend.theme.set('--xtend-border-subtle', 'rgba(15, 23, 42, 0.14)');
     window.XTend.theme.set('--xtend-overlay-bg', 'rgba(15, 23, 42, 0.52)');
+    window.XTend.theme.set('--docs-control-surface', '#f7fafc');
+    window.XTend.theme.set('--docs-control-text', '#1f2937');
+    window.XTend.theme.set('--docs-control-placeholder', '#5f6f82');
+    window.XTend.theme.set('--docs-control-border', 'rgba(15, 23, 42, 0.14)');
     window.XTend.theme.set('--docs-header-bg', '#ffffff');
     window.XTend.theme.set('--docs-header-menu-bg', '#ffffff');
     window.XTend.theme.set('--docs-header-fg', '#1f2937');
@@ -3178,7 +3259,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.XTend.theme.set('--tab-bg', '#f5f5f5');
     window.XTend.theme.set('--tab-text', '#222');
     window.XTend.theme.set('--input-bg', '#fff');
-    window.XTend.theme.set('--input-bg-dark', '#0f0f12');
+    window.XTend.theme.set('--input-bg-dark', '#17171b');
+    window.XTend.theme.set('--input-color-dark', '#f4f4f5');
     window.XTend.theme.set('--input-placeholder-color-dark', '#b8c4d4');
     window.XTend.theme.set('--form-background', 'transparent');
     window.XTend.theme.set('--docs-hero-bg-light', 'linear-gradient(135deg, #f8fbff 0%, #e7f0f7 100%)');
@@ -3194,9 +3276,17 @@ document.addEventListener('DOMContentLoaded', function() {
       '--border-color': 'rgba(255, 255, 255, 0.13)',
       '--xtend-surface': '#0b0b0d',
       '--xtend-surface-muted': '#111113',
+      '--xtend-surface-control': '#17171b',
       '--xtend-text': '#f4f4f5',
+      '--xtend-text-primary': '#f4f4f5',
+      '--xtend-text-muted': '#a1a1aa',
       '--xtend-border-color': 'rgba(255, 255, 255, 0.13)',
+      '--xtend-border-subtle': 'rgba(255, 255, 255, 0.13)',
       '--xtend-overlay-bg': 'rgba(0, 0, 0, 0.72)',
+      '--docs-control-surface': '#17171b',
+      '--docs-control-text': '#f4f4f5',
+      '--docs-control-placeholder': '#a1a1aa',
+      '--docs-control-border': 'rgba(255, 255, 255, 0.13)',
       '--docs-header-bg': '#050506',
       '--docs-header-menu-bg': '#09090b',
       '--docs-header-fg': '#f4f4f5',
@@ -3212,8 +3302,9 @@ document.addEventListener('DOMContentLoaded', function() {
       '--active-tab-color': '#8fd3ff',
       '--tab-bg': '#111114',
       '--tab-text': '#f4f4f5',
-      '--input-bg': '#0f0f12',
+      '--input-bg': '#17171b',
       '--input-bg-dark': '#0f0f12',
+      '--input-color-dark': '#f4f4f5',
       '--input-placeholder-color-dark': '#a1a1aa',
       '--form-background': 'transparent',
       '--docs-hero-bg-dark': '#050506',

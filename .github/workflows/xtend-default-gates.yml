@@ -54,12 +54,18 @@ jobs:
       - name: Run XTend PR fast gate report
         run: npm run test:pr:report
 
+      - name: Run docs stub inventory report
+        if: always()
+        run: npm run test:docs-stub-inventory:report
+
       - name: Upload XTend PR JSON report
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: xtend-pr-gate-report-node-26
-          path: .xtend-test-results/xtend-pr-gate-report.json
+          path: |
+            .xtend-test-results/xtend-pr-gate-report.json
+            .xtend-test-results/xtend-docs-stub-inventory-report.json
           if-no-files-found: warn
 
   full-release-gates:
@@ -85,12 +91,18 @@ jobs:
       - name: Run XTend full release gate report
         run: npm run test:release:full:report
 
+      - name: Run docs stub inventory report
+        if: always()
+        run: npm run test:docs-stub-inventory:report
+
       - name: Upload XTend full JSON report
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: xtend-release-gate-report-node-26
-          path: .xtend-test-results/xtend-release-gate-report.json
+          path: |
+            .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-docs-stub-inventory-report.json
           if-no-files-found: warn
 
   rmt-vnext-primitive-gates:

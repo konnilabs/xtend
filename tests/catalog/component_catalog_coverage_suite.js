@@ -38,7 +38,7 @@ function runComponentCatalogCoverageSuite(options = {}) {
   const roadmap = readText('development/ROADMAP-XTend-Enterprise-Reife.md', rootDir);
   const contractDoc = readText('development/XTend-Component-Catalog-Coverage-Matrix.md', rootDir);
   const namingDoc = readText('development/XTend-Component-Catalog-Naming-Konvention.md', rootDir);
-  const developerDocs = readText('docs/component-catalog-coverage.md', rootDir);
+  const developerDocs = contractDoc;
   const publicTypesDocs = readText('docs/public-component-types.md', rootDir);
   const regressionDocs = readText('docs/visual-browser-regression.md', rootDir);
   const xSummaryDocs = readText('docs/components/xsummary.md', rootDir);
@@ -302,11 +302,11 @@ function runComponentCatalogCoverageSuite(options = {}) {
   context.assert(namingDoc.includes('components-xsummary'), 'Naming convention documents x-summary menu slug');
   context.assert(namingDoc.includes('x-utils'), 'Naming convention documents x-utils utility exception');
   context.assert(developerDocs.includes('npm run test:catalog-coverage'), 'Developer docs document package gate');
-  context.assert(developerDocs.includes('44 Komponenten-Dokumente'), 'Developer docs document closed docs coverage');
+  context.assert(developerDocs.includes('| `docs` | 44 | 0 | 100 |'), 'Developer docs document closed docs coverage');
   context.assert(developerDocs.includes('44 Component-Level-Suites'), 'Developer docs document suite coverage after SurfaceManager primitive closure');
-  context.assert(developerDocs.includes('44 Public-Type-Artefakte'), 'Developer docs document public type coverage after SurfaceManager primitive closure');
-  context.assert(developerDocs.includes('ER-WP-34` | abgeschlossen'), 'Developer docs document completed public types handoff');
-  context.assert(developerDocs.includes('ER-WP-35` | abgeschlossen'), 'Developer docs document completed regression priority handoff');
+  context.assert(developerDocs.includes('| `types` | 44 | 0 | 100 |'), 'Developer docs document public type coverage after SurfaceManager primitive closure');
+  context.assert(developerDocs.includes('| `ER-WP-34` | abgeschlossen'), 'Developer docs document completed public types handoff');
+  context.assert(developerDocs.includes('| `ER-WP-35` | abgeschlossen'), 'Developer docs document completed regression priority handoff');
   context.assert(developerDocs.includes('catalog/component-regression-priority.js'), 'Developer docs link regression priority module');
   context.assert(publicTypesDocs.includes('xtend.docs.public-component-types.v1'), 'Public types docs declare docs contract');
   context.assert(publicTypesDocs.includes('xtend.enterprise.er-wp-34.public-component-types.v1'), 'Public types docs declare ER-WP-34 type contract');

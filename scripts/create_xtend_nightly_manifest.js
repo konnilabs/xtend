@@ -10,6 +10,7 @@ const OUTPUT_PATH = path.join(RESULT_DIR, 'xtend-nightly-build-manifest.json');
 
 const COMMANDS = [
   'npm run test:release:full:report',
+  'npm run test:docs-stub-inventory:report',
   'npm run test:rmt-vnext-primitives:report',
   'npm run release:report',
   'npm run pack:dry-run',
@@ -21,6 +22,7 @@ const COMMANDS = [
 
 const ARTIFACT_PATHS = [
   '.xtend-test-results/xtend-release-gate-report.json',
+  '.xtend-test-results/xtend-docs-stub-inventory-report.json',
   '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
   '.xtend-test-results/xtend-release-report.json',
   '.xtend-test-results/xtend-pack-dry-run.json',
@@ -34,6 +36,7 @@ const ARTIFACT_PATHS = [
 
 const REQUIRED_ARTIFACTS = new Set([
   '.xtend-test-results/xtend-release-gate-report.json',
+  '.xtend-test-results/xtend-docs-stub-inventory-report.json',
   '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
   '.xtend-test-results/xtend-pack-dry-run.json'
 ]);

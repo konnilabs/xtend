@@ -6,6 +6,14 @@ const {
   runDocsPublicQualityCheck
 } = require('./verify_docs_public_quality');
 const {
+  printDocsContentDepthReport,
+  runDocsContentDepthCheck
+} = require('./verify_docs_content_depth');
+const {
+  DEFAULT_MIN_GUIDE_CHARS,
+  createDocsStubInventory
+} = require('./create_docs_stub_inventory');
+const {
   printCoreContractReport,
   runCoreContractSuite
 } = require('../tests/core/core_contract_suite');
@@ -820,6 +828,36 @@ function toRunnerResult(id, label, result) {
   return runnerResult;
 }
 
+function runDocsStubInventoryGate() {
+  const report = createDocsStubInventory({ rootDir, threshold: DEFAULT_MIN_GUIDE_CHARS });
+  const failures = [];
+  if (report.stubSlugCount > 0 || report.stubArticleCount > 0) {
+    failures.push({
+      message: `Docs stub inventory found ${report.stubSlugCount} stub slugs and ${report.stubArticleCount} stub articles below ${report.threshold} non-code chars.`,
+      stubSlugs: report.stubSlugs
+    });
+  }
+  return {
+    ok: failures.length === 0,
+    passes: failures.length === 0 ? [
+      `No visible non-component docs stubs below ${report.threshold} non-code chars.`
+    ] : [],
+    failures,
+    warnings: [],
+    report
+  };
+}
+
+function printDocsStubInventoryGateReport(result) {
+  const report = result.report || {};
+  console.log(`XTend docs stub inventory checked (${report.guideSlugCount || 0} guide slugs, ${report.guideArticleCount || 0} localized articles).`);
+  console.log(`Stub threshold: ${report.threshold || DEFAULT_MIN_GUIDE_CHARS} non-code chars.`);
+  console.log(`Stub slugs: ${report.stubSlugCount || 0}; stub articles: ${report.stubArticleCount || 0}.`);
+  if (Array.isArray(report.stubSlugs) && report.stubSlugs.length) {
+    console.log(`Stub slugs: ${report.stubSlugs.join(', ')}`);
+  }
+}
+
 const suites = [
   {
     id: 'core',
@@ -1240,6 +1278,26 @@ const suites = [
       const result = runDocsPublicQualityCheck({ rootDir });
       printDocsPublicQualityReport(result);
       return toRunnerResult('docs-public-quality', 'Docs Public Quality', result);
+    }
+  },
+  {
+    id: 'docs-stub-inventory',
+    label: 'Docs Stub Inventory',
+    description: 'Runs the visible guide stub inventory gate for non-component Developer Center articles.',
+    run: () => {
+      const result = runDocsStubInventoryGate();
+      printDocsStubInventoryGateReport(result);
+      return toRunnerResult('docs-stub-inventory', 'Docs Stub Inventory', result);
+    }
+  },
+  {
+    id: 'docs-content-depth',
+    label: 'Docs Content Depth',
+    description: 'Runs the component reference content-depth gate for third-party developer docs.',
+    run: () => {
+      const result = runDocsContentDepthCheck({ rootDir });
+      printDocsContentDepthReport(result);
+      return toRunnerResult('docs-content-depth', 'Docs Content Depth', result);
     }
   },
   {
