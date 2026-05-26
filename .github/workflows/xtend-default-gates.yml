@@ -51,6 +51,9 @@ jobs:
           node --version
           npm --version
 
+      - name: Install workspace dependencies
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
       - name: Run XTend PR fast gate report
         run: npm run test:pr:report
 
@@ -87,6 +90,9 @@ jobs:
         run: |
           node --version
           npm --version
+
+      - name: Install workspace dependencies
+        run: npm ci --ignore-scripts --no-audit --fund=false
 
       - name: Run XTend full release gate report
         run: npm run test:release:full:report

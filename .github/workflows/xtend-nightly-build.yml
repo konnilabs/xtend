@@ -45,6 +45,9 @@ jobs:
           node --version
           npm --version
 
+      - name: Install workspace dependencies
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
       - name: Prepare nightly result directories
         run: mkdir -p .xtend-test-results/nightly
 
