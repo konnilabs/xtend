@@ -14,6 +14,18 @@ const {
   createDocsStubInventory
 } = require('./create_docs_stub_inventory');
 const {
+  printMaracaBundleReport,
+  printMaracaPackageExportsReport,
+  printMaracaPlanReport,
+  printMaracaRmtSourceToBundleReport,
+  printMaracaSizeBudgetReport,
+  runMaracaBundleSuite,
+  runMaracaPackageExportsSuite,
+  runMaracaPlanSuite,
+  runMaracaRmtSourceToBundleSuite,
+  runMaracaSizeBudgetSuite
+} = require('../tests/maraca/maraca_suite');
+const {
   printCoreContractReport,
   runCoreContractSuite
 } = require('../tests/core/core_contract_suite');
@@ -2001,6 +2013,56 @@ const suites = [
     }
   },
   {
+    id: 'maraca-plan',
+    label: 'XTend Maraca Build Plan',
+    description: 'Runs the RMT-to-Maraca build-plan, component selection and inline-registry contract gate.',
+    run: () => {
+      const result = runMaracaPlanSuite({ rootDir });
+      printMaracaPlanReport(result);
+      return toRunnerResult('maraca-plan', 'XTend Maraca Build Plan', result);
+    }
+  },
+  {
+    id: 'maraca-bundle',
+    label: 'XTend Maraca Bundle',
+    description: 'Runs the loaderless modern-ESM bundle output and unused-component exclusion gate.',
+    run: async () => {
+      const result = await runMaracaBundleSuite({ rootDir });
+      printMaracaBundleReport(result);
+      return toRunnerResult('maraca-bundle', 'XTend Maraca Bundle', result);
+    }
+  },
+  {
+    id: 'maraca-rmt-source-to-bundle',
+    label: 'XTend Maraca RMT Source-to-Bundle CLI',
+    description: 'Runs the xt maraca and xt rmt build --bundle maraca CLI integration gate.',
+    run: async () => {
+      const result = await runMaracaRmtSourceToBundleSuite({ rootDir });
+      printMaracaRmtSourceToBundleReport(result);
+      return toRunnerResult('maraca-rmt-source-to-bundle', 'XTend Maraca RMT Source-to-Bundle CLI', result);
+    }
+  },
+  {
+    id: 'maraca-package-exports',
+    label: 'XTend Maraca Package Exports',
+    description: 'Runs the workspace, package export, scoped package and script metadata gate for xtend-maraca.',
+    run: () => {
+      const result = runMaracaPackageExportsSuite({ rootDir });
+      printMaracaPackageExportsReport(result);
+      return toRunnerResult('maraca-package-exports', 'XTend Maraca Package Exports', result);
+    }
+  },
+  {
+    id: 'maraca-size-budget',
+    label: 'XTend Maraca Size Budget',
+    description: 'Runs the Maraca ESM entry size-budget gate against the legacy loader baseline.',
+    run: async () => {
+      const result = await runMaracaSizeBudgetSuite({ rootDir });
+      printMaracaSizeBudgetReport(result);
+      return toRunnerResult('maraca-size-budget', 'XTend Maraca Size Budget', result);
+    }
+  },
+  {
     id: 'epic13-known-residual-triage',
     label: 'Epic 13 Known Residual Triage',
     description: 'Runs the WP-E13-05 RC0 known residual triage, boundary-closure and hydration watchpoint gates.',
@@ -3007,6 +3069,11 @@ Examples:
   node scripts/run_xtend_tests.js type-exports-builder
   node scripts/run_xtend_tests.js type-exports-catalog
   node scripts/run_xtend_tests.js type-exports-vendor
+  node scripts/run_xtend_tests.js maraca-plan
+  node scripts/run_xtend_tests.js maraca-bundle
+  node scripts/run_xtend_tests.js maraca-rmt-source-to-bundle
+  node scripts/run_xtend_tests.js maraca-package-exports
+  node scripts/run_xtend_tests.js maraca-size-budget
   node scripts/run_xtend_tests.js epic13-known-residual-triage
   node scripts/run_xtend_tests.js epic13-hydration-performance-closure
   node scripts/run_xtend_tests.js epic13-prod-browser-csp-smoke

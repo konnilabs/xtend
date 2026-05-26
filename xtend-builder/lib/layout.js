@@ -15,10 +15,24 @@ const SCAFFOLD_LAYOUT = [
   },
   {
     id: 'cli',
+    path: 'xtend-builder/bin/xt',
+    kind: 'entry-point',
+    owner: 'WP-E03-02',
+    purpose: 'Packaged XTend CLI binary used by xt, xtend and xtend-scaffold commands.'
+  },
+  {
+    id: 'cli-shim-module',
+    path: 'xtend-builder/bin/xt.js',
+    kind: 'entry-point',
+    owner: 'WP-E03-02',
+    purpose: 'JavaScript-suffixed CLI shim for runtimes that prefer explicit .js entry files.'
+  },
+  {
+    id: 'legacy-cli',
     path: 'xtend-builder/scaffold.js',
     kind: 'entry-point',
     owner: 'WP-E03-02',
-    purpose: 'Local Node/CommonJS CLI entry point for scaffold help, layout and future generator commands.'
+    purpose: 'Legacy Node/CommonJS scaffold entry point kept for direct node-based workflows.'
   },
   {
     id: 'cli-module',

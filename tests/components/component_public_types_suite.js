@@ -257,6 +257,14 @@ const publicTypeContracts = [
     windowApi: ['xstate: XStateApi']
   },
   {
+    tag: 'xtend-i18n',
+    path: 'components/xtend-i18n.d.ts',
+    typeNames: ['XtendI18nApi', 'XtendI18nLabelBundle', 'XtendI18nComponentLabelContract', 'XtendI18nXStateAdapterContract', 'XtendI18nRouterAdapterContract', 'XtendI18nPublicEventContract'],
+    events: ['xtend-i18n-locale-changed', 'xtend-i18n-labels-loaded', 'xtend-i18n-error'],
+    methods: ['configure(options?', 'registerLabels(locale:', 'loadLocale(locale:', 'setLocale(locale:', 'connectXState(xstate?', 'connectRouter(router?', 'snapshot(): XtendI18nSnapshot', 'snapshotDiagnostics(): XtendI18nDiagnosticsSnapshot'],
+    windowApi: ['xtendI18n: XtendI18nApi']
+  },
+  {
     tag: 'x-utils',
     path: 'components/xutils.d.ts',
     typeNames: ['XUtilsApi', 'XUtilsUtilityContract', 'XUtilsImportPolicy', 'XUtilsImportPolicyResult', 'XUtilsBoundarySnapshot', 'XUtilsUiEffectsState', 'XUtilsTemplateApi', 'XUtilsPublicEventContract'],

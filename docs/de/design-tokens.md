@@ -12,6 +12,11 @@ Die Core-Schicht hält Hosts bewusst einfach: ein Loader, ein Manifest, öffentl
 - CSS Custom Properties.
 - Density-, Motion-, Focus- und Status-Tokens.
 
+```txt
+product contract: xtend.design-tokens.product-contract.v1
+example theme: design-tokens/themes/enterprise-light.json
+```
+
 ## Empfohlener Ablauf
 
 Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.

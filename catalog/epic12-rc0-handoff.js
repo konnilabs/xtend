@@ -41,14 +41,14 @@ const COMPLETED_WORKPACKAGES = Object.freeze(Array.from(
 ));
 
 const REQUIRED_DOCS = Object.freeze([
-  'docs/component-long-tail-migration.md',
   'docs/visual-snapshot-automation.md',
   'docs/design-tokens.md',
-  'docs/rmt-dsl-authoring-polish.md',
-  'docs/rc0-gate-matrix.md',
-  'docs/rc0-adoption-guide.md',
   EPIC12_RC0_HANDOFF_DOCS,
-  'docs/enterprise-adoption.md'
+  'docs/enterprise-adoption.md',
+  'docs/package-export-lock.md',
+  'docs/rc1-readiness.md',
+  'docs/conditional-network-evidence.md',
+  'docs/release-report-pack-dry-run-evidence.md'
 ]);
 
 const REQUIRED_GATES = Object.freeze([

@@ -33,11 +33,11 @@ Er dokumentiert:
 ## Lokale Einstiege
 
 ```bash
-node xtend-builder/scaffold.js workflow --json
-node xtend-builder/scaffold.js verify --json
-node xtend-builder/scaffold.js typing --tag x-example --profile display --json
-node xtend-builder/scaffold.js preview --tag x-example --profile display --json
-node xtend-builder/scaffold.js extensions --tag x-example --profile display --json
+xt workflow --json
+xt validate --json
+xt typing --tag x-example --profile display --json
+xt preview --tag x-example --profile display --json
+xt extensions --tag x-example --profile display --json
 npm run scaffold:workflow
 npm run scaffold:verify
 npm run scaffold:dry-run

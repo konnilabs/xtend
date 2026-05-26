@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+
+const { runCliAsync } = require('../lib/cli');
+
+function runMain(args = process.argv.slice(2)) {
+  return runCliAsync(args).then((exitCode) => {
+    process.exitCode = exitCode;
+    return exitCode;
+  }).catch((error) => {
+    console.error(error && error.stack ? error.stack : String(error));
+    process.exitCode = 1;
+    return 1;
+  });
+}
+
+if (require.main === module) {
+  runMain();
+}
+
+module.exports = {
+  runMain,
+  runCliAsync
+};

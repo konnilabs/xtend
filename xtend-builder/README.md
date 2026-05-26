@@ -8,8 +8,13 @@
 xt --help
 xt validate --json
 xt component-files --tag x-example --profile display --json
+xt workflow --json
+xt typing --tag x-example --profile display --json
+xt preview --tag x-example --profile display --json
+xt extensions --tag x-example --profile display --json
 xtend validate --json
 xtend-scaffold verify --json
+npx --no-install xt validate --json
 node xtend-builder/scaffold.js --help
 node xtend-builder/scaffold.js layout
 node xtend-builder/scaffold.js layout --json
@@ -36,13 +41,14 @@ npm run scaffold:preview
 npm run scaffold:extensions
 ```
 
-`xt` ist der kurze lokale CLI-Alias fuer dieselbe Scaffold-Implementierung wie `xtend` und `xtend-scaffold`. `validate` ist ein stabiler Alias fuer `verify`, damit lokale Gates kurz als `xt validate --json` aufgerufen werden koennen.
+`xt` ist der kurze CLI-Alias fuer dieselbe Scaffold-Implementierung wie `xtend` und `xtend-scaffold`. Nach Package-Installation, `npm link`, `npm exec` oder mit `xtend-builder/bin` im lokalen `PATH` kann der Aufruf direkt als `xt validate --json` erfolgen. `validate` ist ein stabiler Alias fuer `verify`.
 
 ## Projektlayout
 
 | Bereich | Pfad | Grenze |
 |---------|------|--------|
-| CLI | `xtend-builder/scaffold.js` | lokaler Einstieg fuer Hilfe, Layout und spaetere Generatorbefehle |
+| CLI | `xtend-builder/bin/xt` | paketierter Einstieg fuer `xt`, `xtend` und `xtend-scaffold` |
+| Legacy-CLI | `xtend-builder/scaffold.js` | kompatibler Node-Einstieg fuer bestehende Skripte |
 | CLI-Modul | `xtend-builder/lib/cli.js` | Argumentauswertung und Dispatch ohne Schreiblogik |
 | Layout-Contract | `xtend-builder/lib/layout.js` | maschinenlesbare Struktur fuer Docs, Tests und CLI |
 | Blueprints | `xtend-builder/blueprints/` | Komponenten-Blueprint und Artefaktcontract |

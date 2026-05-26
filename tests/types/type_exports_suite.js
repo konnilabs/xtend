@@ -152,6 +152,8 @@ function runTypeExportsSuite(options = {}) {
     ['./legacy-loader', 'loader', 'WP-TypeExports-02', './xtend-dev.d.ts'],
     ['./api', 'core-api', 'WP-TypeExports-03', './api.d.ts'],
     ['./components/*', 'components', 'ER-WP-34', './components/*.d.ts'],
+    ['./maraca', 'maraca', 'WP-Maraca-01', './xtend-maraca/index.d.ts'],
+    ['./maraca/runtime', 'maraca', 'WP-Maraca-01', './xtend-maraca/runtime.d.ts'],
     ['./rmt', 'rmt-runtime', 'WP-TypeExports-04', './xtendrmt/rmt-core.d.ts'],
     ['./rmt/browser', 'rmt-runtime', 'WP-TypeExports-04', './xtendrmt/rmt-core.d.ts'],
     ['./rmt-language/parser', 'rmt-language', 'WP-TypeExports-04', './tools/rmt-language/parser.d.ts'],

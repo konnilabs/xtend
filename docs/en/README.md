@@ -11,6 +11,15 @@ Welcome to the XTend Developer Center. These docs explain XTend for developers w
 | Use components | [Component Development](./components.md) |
 | Add SSR | [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md), [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) |
 | Editor and linting | [RMT Linter](./rmt-linter.md), [RMT Language Server](./rmt-language-server.md) |
+| Verify release surface | [Package Export Lock](./package-export-lock.md), [Type Exports](./type-exports.md), [XTend Loader Types](./xtend-loader-types.md), [XTend API Types](./xtend-api-types.md), [XTend Policy Types](./xtend-policy-types.md), [XTend Builder Types](./xtend-builder-types.md), [XTend Catalog Types](./xtend-catalog-types.md), [XTend Vendor Types](./xtend-vendor-types.md) |
+| Verify release evidence | [Release Readiness](./rc1-readiness.md), Previous Release Bridge, [Release Acceptance](./release-owner-acceptance.md), [Conditional Network Evidence](./conditional-network-evidence.md), [Conditional Network Evidence CI](./conditional-network-evidence-ci.md), [Release Report Pack Dry Run Evidence](./release-report-pack-dry-run-evidence.md), [Readiness CI Bundle](./rc1-gate-matrix-ci-handoff.md) |
+
+```txt
+conditional network ci: xtend.epic13.conditional-network-evidence-ci.v1
+release pack evidence: xtend.epic13.release-report-pack-dry-run-evidence.v1
+previous release bridge: Epic 12 RC0 Handoff
+previous release bridge path: ./epic12-rc0-handoff.md
+```
 
 ## Product model
 

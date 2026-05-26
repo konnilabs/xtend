@@ -42,5 +42,6 @@
   "x-type": "./xtype.js",
   "x-utils": "./xutils.js",
   "x-writer": "./xwriter.js",
+  "xtend-i18n": "./xtend-i18n.js",
   "xstate": "./xstate.js"
 }

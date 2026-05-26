@@ -27,11 +27,11 @@ function createCommand(id, command, purpose, output = 'text') {
 
 function createDeveloperWorkflow(input = {}) {
   const example = normalizeExampleInput(input);
-  const planCommand = `node xtend-builder/scaffold.js component-plan --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
-  const filesCommand = `node xtend-builder/scaffold.js component-files --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
-  const typingCommand = `node xtend-builder/scaffold.js typing --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
-  const previewCommand = `node xtend-builder/scaffold.js preview --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
-  const extensionsCommand = `node xtend-builder/scaffold.js extensions --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
+  const planCommand = `xt component-plan --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
+  const filesCommand = `xt component-files --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
+  const typingCommand = `xt typing --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
+  const previewCommand = `xt preview --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
+  const extensionsCommand = `xt extensions --tag ${example.tag} --profile ${example.profile} --feature ${example.feature} --json`;
 
   return {
     schema: DEVELOPER_WORKFLOW_SCHEMA,
@@ -39,16 +39,16 @@ function createDeveloperWorkflow(input = {}) {
     mode: 'dry-run-first',
     writePolicy: config.tooling.writeStrategy,
     entryPoints: [
-      createCommand('help', 'node xtend-builder/scaffold.js --help', 'Print the local scaffold command overview.'),
-      createCommand('config', 'node xtend-builder/scaffold.js config --json', 'Inspect scaffold configuration, wiring and test obligations.', 'json'),
-      createCommand('generators', 'node xtend-builder/scaffold.js generators --json', 'Inspect available generator commands.', 'json'),
-      createCommand('templates', 'node xtend-builder/scaffold.js templates --json', 'Inspect template availability.', 'json'),
+      createCommand('help', 'xt --help', 'Print the local scaffold command overview.'),
+      createCommand('config', 'xt config --json', 'Inspect scaffold configuration, wiring and test obligations.', 'json'),
+      createCommand('generators', 'xt generators --json', 'Inspect available generator commands.', 'json'),
+      createCommand('templates', 'xt templates --json', 'Inspect template availability.', 'json'),
       createCommand('component-plan', planCommand, 'Create the dry-run artifact plan for a component.', 'json'),
       createCommand('component-files', filesCommand, 'Render dry-run file contents plus manifest, hydration and feature wiring.', 'json'),
       createCommand('typing', typingCommand, 'Inspect the component .d.ts contract and prepared XTendRMT attachment.', 'json'),
       createCommand('preview', previewCommand, 'Inspect the component preview reference plan and local gate metadata.', 'json'),
       createCommand('extensions', extensionsCommand, 'Inspect templating, rendering and root-lifecycle extension points.', 'json'),
-      createCommand('verify', 'node xtend-builder/scaffold.js verify --json', 'Inspect local verification commands and required suites.', 'json')
+      createCommand('verify', 'xt verify --json', 'Inspect local verification commands and required suites.', 'json')
     ],
     npmScripts: {
       scaffold: 'npm run scaffold -- --help',

@@ -11,6 +11,20 @@ Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwisse
 - Lokale Entwicklung ohne CDN.
 - Bilinguale Dokumentation.
 - Stabile öffentliche Einstiegspunkte.
+- Release-Nachweise über den Package Export Lock, die Akzeptanzseite, die Netzwerk-Evidenz und den Pack Dry Run.
+
+```txt
+package evidence: xtend.epic13.package-export-lock.v1
+owner evidence: xtend.epic13.release-owner-acceptance.v1
+network evidence: xtend.epic13.conditional-network-evidence.v1
+network docs: ./conditional-network-evidence.md
+network mode: network-restricted-local-default
+owner docs: ./release-owner-acceptance.md
+package docs: ./package-export-lock.md
+previous release bridge: Epic 12 RC0 Handoff
+automatic-publish-approval
+pack:dry-run:report
+```
 
 ## Empfohlener Ablauf
 

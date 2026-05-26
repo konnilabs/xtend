@@ -148,6 +148,15 @@ npm run test:rmt-vnext-source-to-sea:chromedriver
 npm run test:rmt-vnext-source-to-sea:validate-artifact
 ```
 
+Run the XTend Maraca modern ESM bundle gates:
+
+```bash
+node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget --json
+npm run test:maraca
+```
+
+These gates exercise the Rollup/Terser build path, the loaderless inline registry, viewport-driven lazy loading via `IntersectionObserver`, and the `max` profile name-cache boundary.
+
 Run the browser smoke harness:
 
 ```bash
@@ -495,7 +504,7 @@ node scripts/run_xtend_tests.js --json
 Inspect the scaffold verification plan:
 
 ```bash
-node xtend-builder/scaffold.js verify --json
+xt validate --json
 npm run scaffold:verify
 ```
 
@@ -508,21 +517,21 @@ npm run scaffold:dry-run
 Inspect the scaffold typing contract:
 
 ```bash
-node xtend-builder/scaffold.js typing --tag x-example --profile display --feature state --json
+xt typing --tag x-example --profile display --feature state --json
 npm run scaffold:typing
 ```
 
 Inspect the scaffold preview reference plan:
 
 ```bash
-node xtend-builder/scaffold.js preview --tag x-example --profile display --feature state --json
+xt preview --tag x-example --profile display --feature state --json
 npm run scaffold:preview
 ```
 
 Inspect the scaffold extension-point contract:
 
 ```bash
-node xtend-builder/scaffold.js extensions --tag x-example --profile display --feature state --json
+xt extensions --tag x-example --profile display --feature state --json
 npm run scaffold:extensions
 ```
 

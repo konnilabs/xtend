@@ -325,6 +325,188 @@
     }
   },
   {
+    "slug": "package-export-lock",
+    "id": "docs.package.export.lock",
+    "label": "Package Export Lock",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 73,
+    "labels": {
+      "de": "Package Export Lock",
+      "en": "Package Export Lock"
+    }
+  },
+  {
+    "slug": "xtend-loader-types",
+    "id": "docs.xtend.loader.types",
+    "label": "XTend Loader Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 72,
+    "labels": {
+      "de": "XTend Loader Types",
+      "en": "XTend Loader Types"
+    }
+  },
+  {
+    "slug": "xtend-api-types",
+    "id": "docs.xtend.api.types",
+    "label": "XTend API Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 71,
+    "labels": {
+      "de": "XTend API Types",
+      "en": "XTend API Types"
+    }
+  },
+  {
+    "slug": "xtend-policy-types",
+    "id": "docs.xtend.policy.types",
+    "label": "XTend Policy Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 70,
+    "labels": {
+      "de": "XTend Policy Types",
+      "en": "XTend Policy Types"
+    }
+  },
+  {
+    "slug": "xtend-builder-types",
+    "id": "docs.xtend.builder.types",
+    "label": "XTend Builder Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 69,
+    "labels": {
+      "de": "XTend Builder Types",
+      "en": "XTend Builder Types"
+    }
+  },
+  {
+    "slug": "xtend-catalog-types",
+    "id": "docs.xtend.catalog.types",
+    "label": "XTend Catalog Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 68,
+    "labels": {
+      "de": "XTend Catalog Types",
+      "en": "XTend Catalog Types"
+    }
+  },
+  {
+    "slug": "xtend-vendor-types",
+    "id": "docs.xtend.vendor.types",
+    "label": "XTend Vendor Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 67,
+    "labels": {
+      "de": "XTend Vendor Types",
+      "en": "XTend Vendor Types"
+    }
+  },
+  {
+    "slug": "rc1-readiness",
+    "id": "docs.release.readiness",
+    "label": "Release Readiness",
+    "group": "core",
+    "parent": "package-export-lock",
+    "tier": "deep-dive",
+    "rank": 66,
+    "labels": {
+      "de": "Release Readiness",
+      "en": "Release Readiness"
+    }
+  },
+  {
+    "slug": "epic12-rc0-handoff",
+    "id": "docs.epic12.rc0.handoff",
+    "label": "Epic 12 RC0 Handoff",
+    "group": "core",
+    "parent": "rc1-readiness",
+    "tier": "deep-dive",
+    "rank": 65,
+    "labels": {
+      "de": "Epic 12 RC0 Handoff",
+      "en": "Epic 12 RC0 Handoff"
+    }
+  },
+  {
+    "slug": "release-owner-acceptance",
+    "id": "docs.release.acceptance",
+    "label": "Release Acceptance",
+    "group": "core",
+    "parent": "package-export-lock",
+    "tier": "deep-dive",
+    "rank": 64,
+    "labels": {
+      "de": "Release Acceptance",
+      "en": "Release Acceptance"
+    }
+  },
+  {
+    "slug": "conditional-network-evidence",
+    "id": "docs.conditional.network.evidence",
+    "label": "Conditional Network Evidence",
+    "group": "core",
+    "parent": "package-export-lock",
+    "tier": "deep-dive",
+    "rank": 63,
+    "labels": {
+      "de": "Conditional Network Evidence",
+      "en": "Conditional Network Evidence"
+    }
+  },
+  {
+    "slug": "conditional-network-evidence-ci",
+    "id": "docs.conditional.network.evidence.ci",
+    "label": "Conditional Network Evidence CI",
+    "group": "core",
+    "parent": "conditional-network-evidence",
+    "tier": "deep-dive",
+    "rank": 62,
+    "labels": {
+      "de": "Conditional Network Evidence CI",
+      "en": "Conditional Network Evidence CI"
+    }
+  },
+  {
+    "slug": "release-report-pack-dry-run-evidence",
+    "id": "docs.release.report.pack.dry.run.evidence",
+    "label": "Release Report und Pack Dry Run Evidence",
+    "group": "core",
+    "parent": "package-export-lock",
+    "tier": "deep-dive",
+    "rank": 61,
+    "labels": {
+      "de": "Release Report und Pack Dry Run Evidence",
+      "en": "Release Report und Pack Dry Run Evidence"
+    }
+  },
+  {
+    "slug": "rc1-gate-matrix-ci-handoff",
+    "id": "docs.readiness.ci.bundle",
+    "label": "Readiness CI Bundle",
+    "group": "core",
+    "parent": "package-export-lock",
+    "tier": "deep-dive",
+    "rank": 60,
+    "labels": {
+      "de": "Readiness CI Bundle",
+      "en": "Readiness CI Bundle"
+    }
+  },
+  {
     "slug": "components",
     "id": "docs.components",
     "label": "Komponenten-Entwicklung",
@@ -335,6 +517,19 @@
     "labels": {
       "de": "Komponenten-Entwicklung",
       "en": "Component Development"
+    }
+  },
+  {
+    "slug": "components-xtend-i18n",
+    "id": "docs.components.xtend.i18n",
+    "label": "xtend-i18n",
+    "group": "components",
+    "parent": "components",
+    "tier": "component-reference",
+    "rank": 95,
+    "labels": {
+      "de": "xtend-i18n",
+      "en": "xtend-i18n"
     }
   },
   {
@@ -699,6 +894,19 @@
     "labels": {
       "de": "RMT App Platform Tooling",
       "en": "RMT App Platform Tooling"
+    }
+  },
+  {
+    "slug": "xtend-maraca",
+    "id": "docs.xtend.maraca",
+    "label": "XTend Maraca",
+    "group": "rmt",
+    "parent": "rmt-app-platform-tooling",
+    "tier": "basic",
+    "rank": 63,
+    "labels": {
+      "de": "XTend Maraca",
+      "en": "XTend Maraca"
     }
   },
   {

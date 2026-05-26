@@ -171,7 +171,7 @@ function validateEpic13ReleaseReportPackDryRunEvidencePlan(plan = createEpic13Re
   if (!plan || plan.sourceSchema !== 'xtend.epic13.rc1-gate-matrix-ci-handoff.v1') errors.push('source schema must be RC1 gate matrix CI handoff');
   if (!plan || plan.sourceValidationOk !== true || plan.sourceReportOk !== true) errors.push('RC1 gate matrix source must validate');
   if (!plan || plan.packageExport !== EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_PACKAGE_EXPORT) errors.push('package export must be registered');
-  if (!plan || plan.packageScripts.releaseReport !== 'node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-release-report.json') errors.push('release:report must write xtend-release-report.json');
+  if (!plan || !String(plan.packageScripts.releaseReport || '').includes('--report .xtend-test-results/xtend-release-report.json')) errors.push('release:report must write xtend-release-report.json');
   if (!plan || plan.packageScripts.packDryRun !== 'node scripts/capture_pack_dry_run.js') errors.push('pack:dry-run must write reproducible pack artifacts');
   if (!plan || plan.packageScripts.packDryRunReport !== 'node scripts/capture_pack_dry_run.js') errors.push('pack:dry-run:report must stay as compatibility alias');
   if (!plan || plan.packageScripts.packDryRunRaw !== 'npm pack --dry-run') errors.push('pack:dry-run:raw must expose raw npm dry-run output');

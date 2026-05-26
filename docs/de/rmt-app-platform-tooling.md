@@ -22,6 +22,7 @@ Modelliere zuerst Shell, State und Interaktion. Prüfe die Quelle mit dem Linter
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
+- [XTend Maraca](./xtend-maraca.md)
 
 ## Entwicklerkontext
 

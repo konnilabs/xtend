@@ -59,6 +59,7 @@ const EXPECTED_PROFILES_BY_TAG = Object.freeze({
   'x-router': ['routing'],
   'x-link': ['routing', 'interactive'],
   'x-utils': ['utility'],
+  'xtend-i18n': ['infrastructure'],
   'x-modal': ['overlay']
 });
 
@@ -207,7 +208,7 @@ function createCoverageEntry(rootDir, tag, manifestSource) {
   };
   const profiles = resolveProfiles(tag);
   const priority = resolvePriority(profiles);
-  const customElement = sourceText.includes('customElements.define');
+  const customElement = new RegExp(`customElements\\.define\\(\\s*['"]${tag.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}['"]`, 'u').test(sourceText);
   const status = classifyStatus(coverage);
 
   return {

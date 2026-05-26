@@ -65,6 +65,12 @@ export interface XRouterRouteChangeDetail {
   documentTitle?: string;
   meta?: XRouterDocumentMetaDetail | null;
   announcement?: string;
+  locale?: string;
+  i18n?: {
+    schema: 'xtend.i18n.xrouter-adapter.v1' | string;
+    locale: string;
+    source: 'xtend-i18n' | string;
+  };
   source: 'x-router';
   stateKey: 'xtend.router.current' | 'xtend.router.announcement';
   reused?: boolean;

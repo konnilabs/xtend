@@ -81,6 +81,12 @@ jobs:
           npm pack --workspace fabric --dry-run --json > .xtend-test-results/xtend-pack-dry-run-fabric.json
           npm pack --workspace tools --dry-run --json > .xtend-test-results/xtend-pack-dry-run-tools.json
           npm pack --workspace xtend-builder --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
+          npm pack --workspace xtend-maraca --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+
+      - name: Run XTend Maraca gate report
+        id: maraca
+        continue-on-error: true
+        run: npm run test:maraca:report
 
       - name: Create XTend nightly manifest
         if: always()
@@ -103,6 +109,10 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-fabric.json
             .xtend-test-results/xtend-pack-dry-run-tools.json
             .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
+            .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+            .xtend-test-results/xtend-maraca-gate-report.json
+            .xtend-build/maraca/source-to-sea/xtend.maraca.report.json
+            .xtend-build/maraca/source-to-sea/xtend.maraca.size.json
             .xtend-test-results/xtend-nightly-build-manifest.json
           if-no-files-found: warn
           retention-days: 14
@@ -117,6 +127,7 @@ jobs:
           if [ "${{ steps.release_report.outcome }}" != "success" ]; then echo "release report failed"; failed=1; fi
           if [ "${{ steps.pack_root.outcome }}" != "success" ]; then echo "root package dry run failed"; failed=1; fi
           if [ "${{ steps.pack_workspaces.outcome }}" != "success" ]; then echo "workspace package dry runs failed"; failed=1; fi
+          if [ "${{ steps.maraca.outcome }}" != "success" ]; then echo "Maraca gate failed"; failed=1; fi
           exit "$failed"
 
   optional-source-to-sea:

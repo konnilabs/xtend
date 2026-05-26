@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 124;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '7db9e94070275839ca10af3933a11eccc957d0b973b4cc18f43538d20556a861';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 126;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = 'e41952a514ccf3d7cd6914512f90e74fcac2b0be8a79c73fb6acb6c609dfb192';
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -103,6 +103,13 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     workpackage: 'ER-WP-34',
     exports: ['./components/*'],
     strategy: 'component-wildcard-declaration'
+  },
+  {
+    id: 'maraca',
+    priority: 'P1',
+    workpackage: 'WP-Maraca-01',
+    exports: ['./maraca', './maraca/runtime'],
+    strategy: 'maraca-package-declaration-pack'
   },
   {
     id: 'assets',

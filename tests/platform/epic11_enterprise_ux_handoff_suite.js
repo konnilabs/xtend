@@ -53,6 +53,8 @@ function runEpic11EnterpriseUxHandoffSuite(options = {}) {
   const validation = validateEpic11EnterpriseUxHandoffPlan(plan);
   const report = createEpic11EnterpriseUxHandoffReport({ rootDir, plan });
   const packageManifest = readJson('package.json', rootDir);
+  const manifest = readJson('components/manifest.json', rootDir);
+  const expectedManifestCount = Object.keys(manifest).length;
   const metadata = packageManifest.xtend && packageManifest.xtend.epic11EnterpriseUxHandoff;
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
@@ -95,7 +97,7 @@ function runEpic11EnterpriseUxHandoffSuite(options = {}) {
   context.assert(report.ok === true, 'Handoff report passes');
   context.assert(report.docsCount === REQUIRED_DOCS.length, 'Handoff report counts required docs');
   context.assert(report.completedWorkpackageCount === 18, 'Handoff report counts all 18 workpackages');
-  context.assert(report.catalogSnapshot.manifestEntries === 44, 'Handoff report captures 44 manifest entries');
+  context.assert(report.catalogSnapshot.manifestEntries === expectedManifestCount, `Handoff report captures ${expectedManifestCount} manifest entries`);
   context.assert(report.catalogSnapshot.enterpriseReady === 42, 'Handoff report captures enterprise-ready count after SurfaceManager primitive closure');
   context.assert(report.catalogSnapshot.componentSuiteCoveragePercent >= 85, 'Handoff keeps component suite threshold');
   context.assert(report.catalogSnapshot.fixtureCoveragePercent >= 85, 'Handoff keeps fixture threshold');

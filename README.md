@@ -69,6 +69,24 @@ npm run test:docs-php-ssr-prehydration
 npm run test:rmt-tooling-docs
 ```
 
+Release-surface checks are tracked through package metadata in `package.json`. After adding public package exports or component infrastructure modules, run the surface checks that match the changed entry points.
+
+```txt
+metadata: xtend.epic13PackageExportLock
+release readiness: xtend.epic13Rc1Readiness
+release acceptance: xtend.epic13ReleaseOwnerAcceptance
+network evidence: xtend.epic13ConditionalNetworkEvidence
+local gate: node scripts/run_xtend_tests.js epic13-package-export-lock --json
+package artifact: npm run pack:dry-run:report
+example exports: ./maraca, ./maraca/runtime
+conditional network ci: xtend.epic13ConditionalNetworkEvidenceCi
+conditional network script: npm run test:epic13-conditional-network-evidence-ci
+conditional network schema: xtend.epic13.conditional-network-evidence-ci.v1
+release pack evidence: xtend.epic13ReleaseReportPackDryRunEvidence
+release pack script: npm run test:epic13-release-report-pack-dry-run-evidence
+release pack schema: xtend.epic13.release-report-pack-dry-run-evidence.v1
+```
+
 ## License
 
 XTend is licensed under the Apache License 2.0. See `LICENSE` for details.

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>xtend-i18n boundary fixture</title>
+</head>
+<body>
+  <main id="xtend-i18n-boundary-fixture" data-boundary="i18n-probe">
+    <x-button id="i18n-button"></x-button>
+    <span id="data-bound-label" data-i18n-key="demo.greeting"></span>
+    <x-router id="i18n-router" mode="hash">
+      <x-route path="/fixture" component="demo-i18n-page"></x-route>
+    </x-router>
+    <pre id="i18n-results" hidden></pre>
+  </main>
+
+  <script type="module">
+    import { xstate } from '/components/xstate.js';
+    import { xtendI18n } from '/components/xtend-i18n.js';
+    import '/components/xbutton.js';
+    import '/components/xrouter.js';
+
+    class DemoI18nPage extends HTMLElement {
+      connectedCallback() {
+        this.textContent = 'demo page';
+      }
+    }
+    customElements.define('demo-i18n-page', DemoI18nPage);
+
+    window.__xtendComponentResult = [];
+    const record = (name, passed, detail = {}) => {
+      window.__xtendComponentResult.push({ name, passed: Boolean(passed), detail });
+      document.getElementById('i18n-results').textContent = JSON.stringify(window.__xtendComponentResult);
+    };
+
+    const localeEvents = [];
+    window.addEventListener('xtend-i18n-locale-changed', (event) => localeEvents.push(event.detail));
+
+    xtendI18n.configure({
+      defaultLocale: 'en',
+      fallbackLocale: 'en',
+      available: ['en', 'de'],
+      labels: {
+        en: {
+          'demo.greeting': 'Hello',
+          'x-button.fallbackLabel': 'Click',
+          'x-router.routeLoading': 'Route is loading'
+        }
+      },
+      labelLoaders: {
+        de: () => Promise.resolve({
+          default: {
+            schema: 'xtend.i18n.labels.v1',
+            locale: 'de',
+            labels: {
+              'demo.greeting': 'Hallo',
+              'x-button.fallbackLabel': 'Klicken',
+              'x-router.routeLoading': 'Route wird geladen'
+            }
+          }
+        })
+      }
+    });
+
+    const adapter = xtendI18n.connectXState(xstate);
+    const router = document.getElementById('i18n-router');
+    const routerAdapter = xtendI18n.connectRouter(router, {
+      urlMode: 'both',
+      queryParam: 'lang',
+      writeStrategy: 'preserve-current-shape'
+    });
+
+    await customElements.whenDefined('x-button');
+    xtendI18n.applyLabels(document);
+    record('initial label applied', document.getElementById('data-bound-label').textContent === 'Hello');
+    record('component contract exposed', Boolean(customElements.get('x-button').xtendI18nLabelContract));
+
+    await xtendI18n.setLocale('de', { source: 'fixture' });
+    const buttonFallback = document.getElementById('i18n-button').shadowRoot.querySelector('.fallback-label').textContent;
+    record('lazy locale loaded', xtendI18n.snapshot().loadedLocales.includes('de'));
+    record('LOCALE_CHANGED event emitted', localeEvents.some((event) => event.type === 'LOCALE_CHANGED' && event.locale === 'de'));
+    record('xstate locale mirrored', xstate.get('xtend.i18n.locale') === 'de');
+    record('xstate event mirrored', xstate.get('xtend.i18n.event').type === 'LOCALE_CHANGED');
+    record('component fallback refreshed', buttonFallback === 'Klicken');
+    record('data binding refreshed', document.getElementById('data-bound-label').textContent === 'Hallo');
+    record('query locale route written', window.location.hash.includes('lang=de'));
+
+    xstate.set('xtend.i18n.locale.request', 'en');
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    record('xstate request changes locale', xtendI18n.getLocale() === 'en');
+
+    router.navigate('/de/fixture');
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    record('prefix locale route read', xtendI18n.getLocale() === 'de');
+    record('prefix locale route matched unprefixed route', xstate.get('xtend.router.current').component === 'demo-i18n-page');
+    record('router adapter connected', routerAdapter.connected === true);
+    record('xstate adapter connected', adapter.schema === 'xtend.i18n.xstate-adapter.v1');
+
+    document.body.dataset.xtendI18nBoundaryReady = 'true';
+  </script>
+</body>
+</html>

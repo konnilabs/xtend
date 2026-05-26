@@ -19,12 +19,13 @@
   "main": "./scaffold.js",
   "types": "./scaffold.d.ts",
   "bin": {
-    "xt": "./scaffold.js",
-    "xtend": "./scaffold.js",
-    "xtend-scaffold": "./scaffold.js"
+    "xt": "./bin/xt",
+    "xtend": "./bin/xt",
+    "xtend-scaffold": "./bin/xt"
   },
   "files": [
     "a11y",
+    "bin",
     "blueprints",
     "extensions",
     "generators",

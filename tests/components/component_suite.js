@@ -117,6 +117,9 @@ const {
   runXStateComponentSuite
 } = require('./xstate.component_suite');
 const {
+  runXtendI18nComponentSuite
+} = require('./xtend-i18n.component_suite');
+const {
   runXUtilsComponentSuite
 } = require('./xutils.component_suite');
 const {
@@ -168,6 +171,7 @@ const componentSuites = [
   runXMasonryComponentSuite,
   runXRmtLifecycleDemoBuildComponentSuite,
   runXStateComponentSuite,
+  runXtendI18nComponentSuite,
   runXUtilsComponentSuite,
   runXSurfacePortalComponentSuite,
   runXSurfaceRegionComponentSuite,

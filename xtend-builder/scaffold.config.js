@@ -26,7 +26,9 @@ module.exports = {
     writeCapability: "central-writer-and-structured-patchers"
   },
   entryPoints: {
-    cli: "xtend-builder/scaffold.js",
+    cli: "xtend-builder/bin/xt",
+    legacyCli: "xtend-builder/scaffold.js",
+    cliShimModule: "xtend-builder/bin/xt.js",
     cliModule: "xtend-builder/lib/cli.js",
     layoutContract: "xtend-builder/lib/layout.js",
     binAliases: ["xt", "xtend", "xtend-scaffold"],
@@ -1372,7 +1374,7 @@ module.exports = {
     suite: "tests/platform/epic12_rc0_handoff_suite.js",
     localGate: "node scripts/run_xtend_tests.js epic12-rc0-handoff --json",
     packageScript: "npm run test:epic12-rc0-handoff",
-    requiredDocs: ["docs/component-long-tail-migration.md", "docs/visual-snapshot-automation.md", "docs/design-tokens.md", "docs/rmt-dsl-authoring-polish.md", "docs/rc0-gate-matrix.md", "docs/rc0-adoption-guide.md", "docs/epic12-rc0-handoff.md", "docs/enterprise-adoption.md"],
+    requiredDocs: ["docs/visual-snapshot-automation.md", "docs/design-tokens.md", "docs/epic12-rc0-handoff.md", "docs/enterprise-adoption.md", "docs/package-export-lock.md", "docs/rc1-readiness.md", "docs/conditional-network-evidence.md", "docs/release-report-pack-dry-run-evidence.md"],
     requiredGates: ["epic12-rc0-handoff", "epic12-docs-adoption", "rc0-gate-matrix", "component-long-tail-migration", "visual-snapshot-automation", "visual-snapshots", "design-tokens", "rmt-dsl-authoring-polish", "catalog-coverage", "performance-regression", "references", "npm test", "npm run pack:dry-run"],
     ownerReviewInputs: ["xtend-release-gate-report", "xtend-rc0-gate-matrix-report", "xtend-epic12-rc0-handoff-report", "package-dry-run-output", "conditional-network-gate-status", "known-residual-policy", "migration-notes", "publish-boundary-decision"],
     conditionalNetworkGates: ["npm audit --audit-level=moderate", "npm sbom --sbom-format=cyclonedx --json"],
@@ -1486,7 +1488,7 @@ module.exports = {
     packageDryRunArtifact: ".xtend-test-results/xtend-pack-dry-run.json",
     packageExportSurfaceArtifact: ".xtend-test-results/xtend-package-export-surface-lock.json",
     packageExportLockReportArtifact: ".xtend-test-results/xtend-package-export-lock-report.json",
-    expectedExportCount: 124,
+    expectedExportCount: 126,
     localGateRequiresNpmPackExecution: false,
     artifactRequiredForRc1: true,
     nextWorkpackage: "WP-E13-13",

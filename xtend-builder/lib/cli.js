@@ -27,6 +27,15 @@ const {
   '../../tools/rmt-linter/cli',
   '@ccslabs/xtend-compiler/rmt-linter/cli'
 );
+const {
+  buildMaracaBundle,
+  buildMaracaBundleAsync,
+  createMaracaBuildPlan
+} = requireLocalOrScoped(
+  __filename,
+  '../../xtend-maraca',
+  '@ccslabs/xtend-maraca'
+);
 
 const CLI_SCHEMA = 'xtend.scaffold.cli.v1';
 const LAYOUT_SCHEMA = 'xtend.scaffold.layout.v1';
@@ -117,12 +126,18 @@ function buildHelpText() {
     'Usage:',
     '  xt --help',
     '  xt validate --json',
+    '  xt maraca plan app.rmt --json',
+    '  xt maraca build app.rmt --out dist --profile production --lazy route --css inline --json',
+    '  xt maraca build app.rmt --vendor xtend --out products/xtend-vendor-maraca --lazy none --json',
+    '  xt rmt build app.rmt --bundle maraca --out dist --json',
     '  xt rmt lint app.rmt --json',
     '  xt rmt lint tests/fixtures',
     '  xt component-files --tag x-example --profile display --json',
+    '  xt workflow --json',
     '  xtend validate --json',
     '  xtend rmt lint app.rmt',
     '  xtend-scaffold verify --json',
+    '  npx --no-install xt validate --json',
     '  node xtend-builder/scaffold.js --help',
     '  node xtend-builder/scaffold.js layout',
     '  node xtend-builder/scaffold.js layout --json',
@@ -165,12 +180,36 @@ function buildHelpText() {
     '  workflow  Print the local dry-run developer workflow.',
     '  verify    Print the local scaffold verification plan.',
     '  validate  Alias for verify.',
+    '  maraca plan   Compile an RMT document into a loaderless modern-ESM bundle plan.',
+    '  maraca build  Build a loaderless modern-ESM app entry and Maraca reports.',
+    '  rmt build     Build an RMT document; pass --bundle maraca for the one-step Maraca path.',
     '  rmt lint  Lint native .rmt files and fallback .rmt.json files.',
     '',
     'Boundary:',
     '  WP-E03-11 standardizes extension-point contracts without productive runtime code.',
     '  Productive file writes must use the WP-E17-01 WritePlan writer and WP-E17-03 structured patchers.'
   ].join('\n');
+}
+
+function printMaracaDiagnostics(stderr, result) {
+  const diagnostics = result && result.plan && Array.isArray(result.plan.diagnostics)
+    ? result.plan.diagnostics
+    : result && Array.isArray(result.diagnostics)
+      ? result.diagnostics
+      : [];
+
+  diagnostics.forEach((diagnostic) => {
+    const severity = diagnostic.severity ? diagnostic.severity.toUpperCase() : 'INFO';
+    writeLine(stderr, `${severity} ${diagnostic.code}: ${diagnostic.message}`);
+  });
+}
+
+function normalizeRmtBuildFlags(rest) {
+  const flags = parseFlagArgs(rest);
+  if (Array.isArray(flags._) && flags._[0] && !flags.source) {
+    flags.source = flags._[0];
+  }
+  return flags;
 }
 
 function buildConfigSummary() {
@@ -211,7 +250,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
   const options = parseArgs(args);
   const command = normalizeCommand(options.command || (options.help ? 'help' : 'help'));
 
-  if (command === 'help' || (options.help && command !== 'rmt')) {
+  if (command === 'help' || (options.help && command !== 'rmt' && command !== 'maraca')) {
     writeLine(stdout, buildHelpText());
     return 0;
   }
@@ -243,6 +282,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
     writeLine(stdout, `${summary.scaffoldName}: ${summary.role}`);
     writeLine(stdout, `Runtime boundary: ${summary.runtimeBoundary}`);
     writeLine(stdout, `CLI entry point: ${summary.entryPoints && summary.entryPoints.cli}`);
+    writeLine(stdout, `Legacy CLI entry point: ${summary.entryPoints && summary.entryPoints.legacyCli}`);
     return 0;
   }
 
@@ -475,6 +515,61 @@ function runCli(args = process.argv.slice(2), io = {}) {
     return 0;
   }
 
+  if (command === 'maraca') {
+    const subcommand = options.rest[0] || 'help';
+    const flags = normalizeRmtBuildFlags(options.rest.slice(1));
+    flags.json = options.json || flags.json;
+
+    if (subcommand === 'plan') {
+      const result = createMaracaBuildPlan(flags, { rootDir: process.cwd() });
+      if (flags.json || options.json) {
+        writeLine(stdout, JSON.stringify(result, null, 2));
+      } else if (result.ok) {
+        writeLine(stdout, `XTend Maraca Plan: ${result.status}`);
+        writeLine(stdout, `Source: ${result.source}`);
+        writeLine(stdout, `Components: ${result.components.requiredTags.join(', ') || 'none'}`);
+        writeLine(stdout, `Output: ${result.outputDir}`);
+      } else {
+        printMaracaDiagnostics(stderr, result);
+      }
+      return result.ok ? 0 : 1;
+    }
+
+    if (subcommand === 'build') {
+      const result = buildMaracaBundle(flags, { rootDir: process.cwd() });
+      if (flags.json || options.json) {
+        writeLine(stdout, JSON.stringify(result, null, 2));
+      } else if (result.ok) {
+        writeLine(stdout, `XTend Maraca Build: ${result.status}`);
+        writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
+        writeLine(stdout, `Bundle bytes: ${result.bundleReport.bytes}`);
+      } else {
+        printMaracaDiagnostics(stderr, result);
+      }
+      return result.ok ? 0 : 1;
+    }
+
+    if (subcommand === 'help' || options.help) {
+      writeLine(stdout, [
+        'XTend Maraca Commands',
+        '',
+        'Usage:',
+        '  xt maraca plan app.rmt --json',
+        '  xt maraca build app.rmt --out dist --profile production --lazy route --css inline --json',
+        '  xt maraca build app.rmt --vendor xtend --out products/xtend-vendor-maraca --lazy none --json',
+        '',
+        'Commands:',
+        '  plan   Compile an RMT document into a loaderless modern-ESM bundle plan.',
+        '  build  Build a loaderless modern-ESM app entry and Maraca reports.'
+      ].join('\n'));
+      return 0;
+    }
+
+    writeLine(stderr, `Unknown XTend Maraca command: ${subcommand}`);
+    writeLine(stderr, 'Run `xt maraca --help` to see available Maraca commands.');
+    return 1;
+  }
+
   if (command === 'rmt-app-platform') {
     const result = runGenerator('rmt-app-platform', parseFlagArgs(options.rest));
     if (!result.ok) {
@@ -534,6 +629,42 @@ function runCli(args = process.argv.slice(2), io = {}) {
   if (command === 'rmt') {
     const subcommand = options.rest[0] || 'help';
 
+    if (subcommand === 'build') {
+      const flags = normalizeRmtBuildFlags(options.rest.slice(1));
+      flags.json = options.json || flags.json;
+
+      if (flags.bundle === 'maraca' || flags.maraca === true) {
+        const result = buildMaracaBundle(flags, { rootDir: process.cwd() });
+        if (flags.json || options.json) {
+          writeLine(stdout, JSON.stringify(result, null, 2));
+        } else if (result.ok) {
+          writeLine(stdout, `XTend RMT Maraca Build: ${result.status}`);
+          writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
+        } else {
+          printMaracaDiagnostics(stderr, result);
+        }
+        return result.ok ? 0 : 1;
+      }
+
+      const result = runGenerator('rmt-build', flags);
+      if (!result.ok) {
+        if (options.json) {
+          writeLine(stdout, JSON.stringify(result, null, 2));
+        } else {
+          result.errors.forEach((error) => writeLine(stderr, error));
+        }
+        return 1;
+      }
+
+      if (options.json) {
+        writeLine(stdout, JSON.stringify(result, null, 2));
+        return 0;
+      }
+
+      writeLine(stdout, `XTend RMT Build: ${result.status}`);
+      return 0;
+    }
+
     if (subcommand === 'lint') {
       const linterArgs = options.help ? options.rest.concat('--help') : options.rest;
       return runRmtLinterCli(linterArgs, {
@@ -549,12 +680,14 @@ function runCli(args = process.argv.slice(2), io = {}) {
         'XTend RMT Commands',
         '',
         'Usage:',
+        '  xt rmt build app.rmt --bundle maraca --out dist --json',
         '  xt rmt lint app.rmt',
         '  xt rmt lint app.rmt --json',
         '  xt rmt lint tests/fixtures --fail-on warning',
         '  xt rmt lint app.rmt --format problem-matcher',
         '',
         'Commands:',
+        '  build Build an RMT document; pass --bundle maraca for a loaderless ESM app bundle.',
         '  lint  Run the native RMT linter.'
       ].join('\n'));
       return 0;
@@ -570,6 +703,57 @@ function runCli(args = process.argv.slice(2), io = {}) {
   return 1;
 }
 
+async function runCliAsync(args = process.argv.slice(2), io = {}) {
+  const stdout = io.stdout || process.stdout;
+  const stderr = io.stderr || process.stderr;
+  const options = parseArgs(args);
+  const command = normalizeCommand(options.command || (options.help ? 'help' : 'help'));
+
+  if (command === 'maraca') {
+    const subcommand = options.rest[0] || 'help';
+    const flags = normalizeRmtBuildFlags(options.rest.slice(1));
+    flags.json = options.json || flags.json;
+
+    if (subcommand === 'build') {
+      const result = await buildMaracaBundleAsync(flags, { rootDir: process.cwd() });
+      if (flags.json || options.json) {
+        writeLine(stdout, JSON.stringify(result, null, 2));
+      } else if (result.ok) {
+        writeLine(stdout, `XTend Maraca Build: ${result.status}`);
+        writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
+        writeLine(stdout, `Bundle bytes: ${result.bundleReport.bytes}`);
+      } else {
+        printMaracaDiagnostics(stderr, result);
+      }
+      return result.ok ? 0 : 1;
+    }
+  }
+
+  if (command === 'rmt') {
+    const subcommand = options.rest[0] || 'help';
+
+    if (subcommand === 'build') {
+      const flags = normalizeRmtBuildFlags(options.rest.slice(1));
+      flags.json = options.json || flags.json;
+
+      if (flags.bundle === 'maraca' || flags.maraca === true) {
+        const result = await buildMaracaBundleAsync(flags, { rootDir: process.cwd() });
+        if (flags.json || options.json) {
+          writeLine(stdout, JSON.stringify(result, null, 2));
+        } else if (result.ok) {
+          writeLine(stdout, `XTend RMT Maraca Build: ${result.status}`);
+          writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
+        } else {
+          printMaracaDiagnostics(stderr, result);
+        }
+        return result.ok ? 0 : 1;
+      }
+    }
+  }
+
+  return runCli(args, io);
+}
+
 module.exports = {
   COMMAND_ALIASES,
   buildConfigSummary,
@@ -577,5 +761,6 @@ module.exports = {
   normalizeCommand,
   parseArgs,
   parseFlagArgs,
-  runCli
+  runCli,
+  runCliAsync
 };

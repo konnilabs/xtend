@@ -1,0 +1,100 @@
+// Maraca source-to-bundle fixture with manifest-backed XTend components only.
+
+template demo.maraca {
+  state demo.maraca.status type object preserve {
+    initial {
+      id "maraca-status"
+      text "Ready"
+      tone "neutral"
+    }
+  }
+
+  state demo.maraca.toast type object preserve {
+    initial {
+      id "maraca-toast"
+      text "Queued"
+      tone "info"
+    }
+  }
+
+  state demo.maraca.progress type object preserve {
+    initial {
+      id "maraca-progress"
+      text "42"
+      tone "active"
+    }
+  }
+
+  selector demo.maraca.status from state demo.maraca.status {
+    output MaracaStatus
+  }
+
+  selector demo.maraca.toast from state demo.maraca.toast {
+    output MaracaToast
+  }
+
+  selector demo.maraca.progress from state demo.maraca.progress {
+    output MaracaProgress
+  }
+
+  action demo.maraca.save {
+    input label string
+    reduce state.demo.maraca.status.text = "Saved"
+    reduce state.demo.maraca.toast.text = "Saved notification"
+    emit demo.maraca.saved with label input.label
+  }
+
+  action demo.maraca.dismiss {
+    input label string
+    reduce state.demo.maraca.toast.text = "Dismissed"
+    emit demo.maraca.dismissed with label input.label
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  resource demo.maraca.timer kind timer owner surface.demo.maraca.status {
+    dispose on surface.destroy
+  }
+
+  surface demo.maraca.status kind card component x-status {
+    source selector demo.maraca.status
+    key status.id
+    portal surface.root
+    bounds x 16 y 16 width 320 height 96
+    destroy releases resource demo.maraca.timer
+
+    lane visible weight 50 {
+      hydrate maraca-status from selector demo.maraca.status
+    }
+
+    on click "[data-action='save']" -> action demo.maraca.save {
+      payload label from target.dataset.label
+    }
+  }
+
+  surface demo.maraca.toast kind card component x-toast {
+    source selector demo.maraca.toast
+    key toast.id
+    portal surface.root
+    bounds x 16 y 128 width 320 height 88
+
+    lane idle weight 40 {
+      hydrate maraca-toast from selector demo.maraca.toast
+    }
+
+    on click "[data-action='dismiss']" -> action demo.maraca.dismiss {
+      payload label from target.dataset.label
+    }
+  }
+
+  surface demo.maraca.progress kind card component x-progress {
+    source selector demo.maraca.progress
+    key progress.id
+    portal surface.root
+    bounds x 16 y 232 width 320 height 88
+
+    lane transition weight 60 {
+      mount maraca-progress from selector demo.maraca.progress
+    }
+  }
+}

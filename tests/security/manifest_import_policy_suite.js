@@ -47,6 +47,7 @@ function runManifestImportPolicySuite(options = {}) {
   const badExtension = classifyPolicyUrl('/components/xalert.txt', { kind: 'module', baseUrl, currentUrl, source: 'extension' });
   const externalManifest = classifyPolicyUrl('https://cdn.example.com/manifest.json', { kind: 'manifest', baseUrl: currentUrl, currentUrl, source: 'manifest' });
   const badTag = classifyManifestRecord('BadTag', './xalert.js', { baseUrl, currentUrl });
+  const i18nBootstrap = classifyManifestRecord('xtend-i18n', './xtend-i18n.js', { baseUrl, currentUrl });
   const urlDependency = classifyManifestRecord('x-bad', {
     path: './xbad.js',
     dependencies: ['https://cdn.example.com/x.js']
@@ -74,6 +75,8 @@ function runManifestImportPolicySuite(options = {}) {
   context.assert(badExtension.ok === false && badExtension.diagnostics.includes('xtend.security.import.refused.extension'), 'Non-JavaScript module URL is refused');
   context.assert(externalManifest.ok === false && externalManifest.diagnostics.includes('xtend.security.loader.refused.external_manifest'), 'External manifest URL is refused');
   context.assert(badTag.ok === false && badTag.diagnostics.includes('xtend.security.manifest.invalid.tag'), 'Invalid manifest tag is refused');
+  context.assert(i18nBootstrap.ok === true, 'xtend-i18n bootstrap manifest key is allowed');
+  context.assert(policy.reservedBootstrapKeys.includes('xtend-i18n'), 'Manifest policy exposes xtend-i18n as reserved bootstrap key');
   context.assert(urlDependency.ok === false && urlDependency.diagnostics.includes('xtend.security.manifest.invalid.dependencies'), 'URL-like manifest dependency is refused');
   context.assertIncludes(loaderSource, 'xtend.security.loader-policy.v1', 'Loader source carries loader policy contract');
   context.assertIncludes(loaderSource, 'classifyLoaderUrl', 'Loader validates Manifest and module URLs before loading');

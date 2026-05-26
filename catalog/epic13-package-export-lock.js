@@ -40,6 +40,8 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './style.css',
   './manifest',
   './components/manifest.json',
+  './maraca',
+  './maraca/runtime',
   './components/*',
   './design-tokens',
   './design-tokens/xtheme-token-alias-layer',
@@ -174,6 +176,7 @@ const REQUIRED_PACK_ROOTS = Object.freeze([
   'design-tokens',
   'xtendrmt',
   'xtend-builder',
+  'xtend-maraca',
   'tools',
   'security',
   'docs'
@@ -189,6 +192,11 @@ const SURFACE_GROUPS = Object.freeze([
     id: 'components',
     requiredExports: ['./components/*'],
     requiredPackRoots: ['components']
+  },
+  {
+    id: 'maraca',
+    requiredExports: ['./maraca', './maraca/runtime'],
+    requiredPackRoots: ['xtend-maraca']
   },
   {
     id: 'fabric',

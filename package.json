@@ -21,13 +21,14 @@
     "xtendrmt",
     "fabric",
     "xtend-builder",
-    "tools"
+    "tools",
+    "xtend-maraca"
   ],
   "browser": "./xtend-loader.js",
   "bin": {
-    "xt": "xtend-builder/scaffold.js",
-    "xtend": "xtend-builder/scaffold.js",
-    "xtend-scaffold": "xtend-builder/scaffold.js"
+    "xt": "xtend-builder/bin/xt",
+    "xtend": "xtend-builder/bin/xt",
+    "xtend-scaffold": "xtend-builder/bin/xt"
   },
   "files": [
     "README.md",
@@ -48,7 +49,8 @@
     "xtend-builder",
     "tools",
     "security",
-    "docs"
+    "docs",
+    "xtend-maraca"
   ],
   "sideEffects": [
     "*.css",
@@ -92,6 +94,12 @@
       "path": "tools",
       "install": "npm install @ccslabs/xtend-compiler",
       "scope": "rmt-compiler-tooling"
+    },
+    {
+      "name": "@ccslabs/xtend-maraca",
+      "path": "xtend-maraca",
+      "install": "npm install @ccslabs/xtend-maraca",
+      "scope": "maraca-bundler"
     }
   ],
   "exports": {
@@ -118,6 +126,14 @@
     "./style.css": "./xtend.css",
     "./manifest": "./components/manifest.json",
     "./components/manifest.json": "./components/manifest.json",
+    "./maraca": {
+      "types": "./xtend-maraca/index.d.ts",
+      "default": "./xtend-maraca/index.js"
+    },
+    "./maraca/runtime": {
+      "types": "./xtend-maraca/runtime.d.ts",
+      "default": "./xtend-maraca/runtime.js"
+    },
     "./components/*": "./components/*",
     "./design-tokens": {
       "types": "./design-tokens/xtend-design-tokens.d.ts",
@@ -3251,6 +3267,23 @@
       "npm run release:sync-versions:check",
       "npm run test:pr:report",
       "npm run test:release:full:report",
+      "npm run test:type-exports",
+      "npm run test:type-exports-loader",
+      "npm run test:type-exports-api",
+      "npm run test:type-exports-rmt",
+      "npm run test:type-exports-policy",
+      "npm run test:type-exports-builder",
+      "npm run test:type-exports-catalog",
+      "npm run test:type-exports-vendor",
+      "npm run test:type-exports:release",
+      "npm run test:epic12-rc0-handoff",
+      "npm run test:epic13-rc1-readiness",
+      "npm run test:epic13-release-owner-acceptance",
+      "npm run test:epic13-conditional-network-evidence",
+      "npm run test:epic13-package-export-lock",
+      "npm run test:epic13-release-report-pack-dry-run-evidence",
+      "npm run test:epic13-conditional-network-evidence-ci",
+      "npm run pack:dry-run:report",
       "npm run test:docs-public-quality",
       "npm run test:docs-stub-inventory",
       "npm run test:docs-content-depth",
@@ -3266,7 +3299,8 @@
       "npm run test:docs-php-ssr-performance-budget",
       "npm run test:docs-php-ssr-cls-budget",
       "npm run test:xtend-layout-stability-contract",
-      "npm run pack:dry-run"
+      "npm run pack:dry-run",
+      "npm run test:maraca"
     ],
     "supplyChain": {
       "schema": "xtend.security.supply-chain-gate-plan.v1",
@@ -4044,7 +4078,7 @@
       "schema": "xtend.enterprise.er-wp-34.public-component-types.v1",
       "sharedTypes": "components/xtend-public-types.d.ts",
       "localGate": "node scripts/run_xtend_tests.js components --json",
-      "typedPriorityComponents": 44
+      "typedPriorityComponents": 45
     },
     "componentRegressionPriority": {
       "schema": "xtend.catalog.component-regression-priority-plan.v1",
@@ -4116,7 +4150,12 @@
           "docs-php-ssr-performance-budget",
           "docs-php-ssr-cls-budget",
           "xtend-layout-stability-contract",
-          "docs-rmt-pilot"
+          "docs-rmt-pilot",
+          "maraca-plan",
+          "maraca-bundle",
+          "maraca-rmt-source-to-bundle",
+          "maraca-package-exports",
+          "maraca-size-budget"
         ]
       },
       "fullReleaseGate": {
@@ -4168,6 +4207,11 @@
           "docs-php-ssr-cls-budget",
           "xtend-layout-stability-contract",
           "docs-rmt-pilot",
+          "maraca-plan",
+          "maraca-bundle",
+          "maraca-rmt-source-to-bundle",
+          "maraca-package-exports",
+          "maraca-size-budget",
           "rmt-tooling-docs"
         ],
         "optionalSuites": [
@@ -4193,13 +4237,15 @@
           "npm run test:docs-stub-inventory:report",
           "npm run test:rmt-vnext-primitives:report",
           "npm run release:report",
-          "npm run pack:dry-run"
+          "npm run pack:dry-run",
+          "npm run test:maraca:report"
         ],
         "workspaceDryRunCommands": [
           "npm pack --workspace xtendrmt --dry-run --json",
           "npm pack --workspace fabric --dry-run --json",
           "npm pack --workspace tools --dry-run --json",
-          "npm pack --workspace xtend-builder --dry-run --json"
+          "npm pack --workspace xtend-builder --dry-run --json",
+          "npm pack --workspace xtend-maraca --dry-run --json"
         ],
         "manifestCommand": "npm run nightly:manifest",
         "manifestPath": ".xtend-test-results/xtend-nightly-build-manifest.json",
@@ -4323,9 +4369,27 @@
         }
       },
       "candidateGates": [
-        "npm run release:sync-versions:check",
-        "npm run test:pr:report",
-        "npm run test:release:full:report",
+      "npm run release:sync-versions:check",
+      "npm run test:pr:report",
+      "npm run test:release:full:report",
+      "npm run test:type-exports",
+      "npm run test:type-exports-loader",
+      "npm run test:type-exports-api",
+      "npm run test:type-exports-rmt",
+      "npm run test:type-exports-policy",
+      "npm run test:type-exports-builder",
+      "npm run test:type-exports-catalog",
+      "npm run test:type-exports-vendor",
+      "npm run test:type-exports:release",
+      "npm run test:epic12-rc0-handoff",
+      "npm run test:epic13-rc1-readiness",
+      "npm run test:epic13-release-owner-acceptance",
+      "npm run test:epic13-conditional-network-evidence",
+      "npm run test:epic13-package-export-lock",
+      "npm run test:epic13-release-report-pack-dry-run-evidence",
+      "npm run test:epic13-conditional-network-evidence-ci",
+      "npm run pack:dry-run:report",
+      "npm run test:maraca",
         "npm run test:docs-public-quality",
         "npm run test:docs-stub-inventory",
         "npm run test:docs-content-depth",
@@ -4433,7 +4497,9 @@
         "npm-pack-dry-run",
         "development/WP-TypeExports-09-TypeExports-Gate-Drift-Report-und-Docs-Handoff-produktisieren.md",
         "docs/public-component-types.md",
-        "docs/typescript-components.md"
+        "docs/typescript-components.md",
+        ".xtend-test-results/xtend-maraca-gate-report.json",
+        ".xtend-build/maraca/source-to-sea/xtend.maraca.report.json"
       ],
       "publishBoundary": "private-until-release-owner-approval",
       "completedRun": "ER-WP-40",
@@ -6756,14 +6822,14 @@
       "localGate": "node scripts/run_xtend_tests.js epic12-rc0-handoff --json",
       "packageScript": "npm run test:epic12-rc0-handoff",
       "requiredDocs": [
-        "docs/component-long-tail-migration.md",
         "docs/visual-snapshot-automation.md",
         "docs/design-tokens.md",
-        "docs/rmt-dsl-authoring-polish.md",
-        "docs/rc0-gate-matrix.md",
-        "docs/rc0-adoption-guide.md",
         "docs/epic12-rc0-handoff.md",
-        "docs/enterprise-adoption.md"
+        "docs/enterprise-adoption.md",
+        "docs/package-export-lock.md",
+        "docs/rc1-readiness.md",
+        "docs/conditional-network-evidence.md",
+        "docs/release-report-pack-dry-run-evidence.md"
       ],
       "requiredGates": [
         "epic12-rc0-handoff",
@@ -6949,7 +7015,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 124,
+      "expectedExportCount": 126,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -6974,8 +7040,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 124,
-      "lockedExportFingerprint": "7db9e94070275839ca10af3933a11eccc957d0b973b4cc18f43538d20556a861",
+      "expectedExportCount": 126,
+      "lockedExportFingerprint": "e41952a514ccf3d7cd6914512f90e74fcac2b0be8a79c73fb6acb6c609dfb192",
       "p0Exports": [
         ".",
         "./loader",
@@ -6991,6 +7057,8 @@
         "./xtend-dev.d.ts",
         "./api.d.ts",
         "./components/*.d.ts",
+        "./xtend-maraca/index.d.ts",
+        "./xtend-maraca/runtime.d.ts",
         "./xtendrmt/rmt-core.d.ts",
         "./fabric/xtend-fabric.d.ts",
         "./security/trusted-dom-policy.d.ts",
@@ -8719,6 +8787,75 @@
       ],
       "menu": "docs/menu.json",
       "scope": "visible non-component docs articles"
+    },
+    "maraca": {
+      "schema": "xtend.maraca.package-metadata.v1",
+      "target": "modern-esm",
+      "workspace": "xtend-maraca",
+      "packageName": "@ccslabs/xtend-maraca",
+      "rootExport": "./maraca",
+      "runtimeExport": "./maraca/runtime",
+      "buildPlanSchema": "xtend.maraca.build-plan.v1",
+      "bundleReportSchema": "xtend.maraca.bundle-report.v1",
+      "sizeBudgetReportSchema": "xtend.maraca.size-budget-report.v1",
+      "inlineRegistrySchema": "xtend.maraca.inline-registry.v1",
+      "defaultToolchain": "rollup-terser-js-api-with-local-esm-importgraph-fallback",
+      "bundlerAdapter": "rollup",
+      "minifierAdapter": "terser",
+      "loaderMode": "inline-registry",
+      "manifestRuntimeFetch": false,
+      "modernEsmOnly": true,
+      "cli": [
+        "xt maraca plan <app.rmt> --json",
+        "xt maraca build <app.rmt> --out dist --profile production --lazy route --css inline --json",
+        "xt rmt build <app.rmt> --bundle maraca --out dist --json"
+      ],
+      "profiles": {
+        "debug": {
+          "sourcemaps": true,
+          "mangling": false,
+          "report": "full"
+        },
+        "production": {
+          "sourcemaps": false,
+          "mangling": "safe-toplevel-names-only",
+          "propertyMangling": false
+        },
+        "max": {
+          "sourcemaps": false,
+          "mangling": "aggressive-private-only",
+          "propertyMangling": "private-only-with-public-reservations"
+        }
+      },
+      "publicNameReservations": [
+        "XTendMaraca",
+        "XTendLoader",
+        "XTendRMT",
+        "XTendFabric",
+        "customElements",
+        "HTMLElement",
+        "IntersectionObserver",
+        "connectedCallback",
+        "disconnectedCallback",
+        "attributeChangedCallback",
+        "observedAttributes",
+        "CSS Parts",
+        "Design Tokens",
+        "RMT schema ids"
+      ],
+      "suiteIds": [
+        "maraca-plan",
+        "maraca-bundle",
+        "maraca-rmt-source-to-bundle",
+        "maraca-package-exports",
+        "maraca-size-budget"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget --json",
+      "packageScript": "npm run test:maraca",
+      "packageReportScript": "npm run test:maraca:report",
+      "fixture": "tests/rmt-language/fixtures/maraca-known-components.rmt",
+      "outputFixture": ".xtend-build/maraca/source-to-sea",
+      "compatibilityBoundary": "legacy-loader-and-components-manifest-flow-remains-supported"
     }
   },
   "supplyChain": {
@@ -8945,16 +9082,16 @@
     "dev:local": "node scripts/serve_xtend_dev.js --port 4173",
     "dev:local:csp": "node scripts/serve_xtend_dev.js --port 4173 --prod-csp --default tests/browser/fixtures/epic13-prod-csp-smoke.html",
     "test:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.json",
-    "test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot",
-    "test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot --report .xtend-test-results/xtend-pr-gate-report.json",
-    "test:release:full": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs",
-    "test:release:full:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs --report .xtend-test-results/xtend-release-gate-report.json",
+    "test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget",
+    "test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget --report .xtend-test-results/xtend-pr-gate-report.json",
+    "test:release:full": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget rmt-tooling-docs",
+    "test:release:full:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget rmt-tooling-docs --report .xtend-test-results/xtend-release-gate-report.json",
     "release:sync-versions": "node scripts/sync_xtend_package_versions.js",
     "supply-chain:verify": "node scripts/verify_supply_chain_policy.js",
     "security:supply-chain": "node scripts/verify_supply_chain_policy.js",
     "security:manifest-policy": "node scripts/verify_manifest_import_policy.js",
     "release:check": "npm run test:release:full:report",
-    "release:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot rmt-tooling-docs --report .xtend-test-results/xtend-release-report.json",
+    "release:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge references supply-chain manifest-import-policy docs-public-quality docs-stub-inventory docs-content-depth rmt-stack-docs rmt-playground-docs rmt-playground-security rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget rmt-tooling-docs --report .xtend-test-results/xtend-release-report.json",
     "nightly:manifest": "node scripts/create_xtend_nightly_manifest.js",
     "pack:dry-run": "node scripts/capture_pack_dry_run.js",
     "pack:dry-run:report": "node scripts/capture_pack_dry_run.js",
@@ -8978,6 +9115,14 @@
     "test:rmt-playground-docs": "node scripts/run_xtend_tests.js rmt-playground-docs",
     "test:rmt-playground-security": "node scripts/run_xtend_tests.js rmt-playground-security",
     "release:sync-versions:check": "node scripts/sync_xtend_package_versions.js --check",
-    "test:docs-stub-inventory:report": "node scripts/run_xtend_tests.js docs-stub-inventory --report .xtend-test-results/xtend-docs-stub-inventory-report.json"
+    "test:docs-stub-inventory:report": "node scripts/run_xtend_tests.js docs-stub-inventory --report .xtend-test-results/xtend-docs-stub-inventory-report.json",
+    "build:maraca": "node xtend-builder/scaffold.js maraca build tests/rmt-language/fixtures/maraca-known-components.rmt --out .xtend-build/maraca/source-to-sea --profile production --lazy component --css inline --json",
+    "test:maraca-plan": "node scripts/run_xtend_tests.js maraca-plan",
+    "test:maraca-bundle": "node scripts/run_xtend_tests.js maraca-bundle",
+    "test:maraca-rmt-source-to-bundle": "node scripts/run_xtend_tests.js maraca-rmt-source-to-bundle",
+    "test:maraca-package-exports": "node scripts/run_xtend_tests.js maraca-package-exports",
+    "test:maraca-size-budget": "node scripts/run_xtend_tests.js maraca-size-budget",
+    "test:maraca": "node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget",
+    "test:maraca:report": "node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget --report .xtend-test-results/xtend-maraca-gate-report.json"
   }
 }

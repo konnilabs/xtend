@@ -12,6 +12,11 @@ The core layer keeps hosts intentionally simple: one loader, one manifest, publi
 - CSS Custom Properties.
 - Density, motion, focus and status tokens.
 
+```txt
+product contract: xtend.design-tokens.product-contract.v1
+example theme: design-tokens/themes/enterprise-light.json
+```
+
 ## Recommended workflow
 
 Read the overview, copy the smallest suitable example and add host-specific details only afterwards.

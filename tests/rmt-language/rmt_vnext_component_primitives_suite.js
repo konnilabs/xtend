@@ -181,9 +181,9 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   const registry = registryApi.createRmtComponentCapabilityRegistry({ manifest, sourceTexts });
   const matrix = registry.createMatrixReport();
   context.assert(matrix.ok === true, 'component primitive matrix passes');
-  context.assert(matrix.manifestCount === 44, 'matrix covers all public manifest entries');
+  context.assert(matrix.manifestCount === Object.keys(manifest).length, 'matrix covers all public manifest entries');
   context.assert(matrix.publicComponentCount === 40, 'matrix classifies renderable public UI components');
-  context.assert(matrix.nonVisualCount === 4, 'matrix classifies module/demo/utility entries outside normal DOM rendering');
+  context.assert(matrix.nonVisualCount === 5, 'matrix classifies module/demo/utility entries outside normal DOM rendering');
   context.assert(matrix.withRmtMetadata === 42, 'matrix preserves existing RMT metadata coverage');
   context.assert(matrix.withComponentContract === 40, 'matrix preserves existing Component Contract coverage');
   context.assert(matrix.formAssociatedCount === 6, 'matrix detects form-associated components');

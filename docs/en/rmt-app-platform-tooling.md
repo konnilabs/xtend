@@ -22,6 +22,7 @@ Model shell, state and interaction first. Validate the source with the linter, c
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
+- [XTend Maraca](./xtend-maraca.md)
 
 ## Developer context
 

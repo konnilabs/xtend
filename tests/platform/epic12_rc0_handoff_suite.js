@@ -62,6 +62,8 @@ function runEpic12Rc0HandoffSuite(options = {}) {
   const validation = validateEpic12Rc0HandoffPlan(plan);
   const report = createEpic12Rc0HandoffReport({ rootDir, plan });
   const packageManifest = readJson('package.json', rootDir);
+  const manifest = readJson('components/manifest.json', rootDir);
+  const expectedManifestCount = Object.keys(manifest).length;
   const metadata = packageManifest.xtend && packageManifest.xtend.epic12Rc0Handoff;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
@@ -127,7 +129,7 @@ function runEpic12Rc0HandoffSuite(options = {}) {
     'xtend.epic12.rc0-gate-matrix.v1',
     'xtend.epic12.docs-adoption.v1'
   ], 'Source schemas');
-  context.assert(plan.sourceSnapshots.manifestEntries === 44, 'RC0 Handoff captures 44 manifest entries');
+  context.assert(plan.sourceSnapshots.manifestEntries === expectedManifestCount, `RC0 Handoff captures ${expectedManifestCount} manifest entries`);
   context.assert(plan.sourceSnapshots.sourceCoveragePercent === 100, 'RC0 Handoff captures source coverage');
   context.assert(plan.sourceSnapshots.docsCoveragePercent === 100, 'RC0 Handoff captures docs coverage');
   context.assert(plan.sourceSnapshots.componentSuiteCoveragePercent === 100, 'RC0 Handoff captures component suite coverage');

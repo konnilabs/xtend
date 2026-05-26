@@ -24,6 +24,29 @@ import { compileRmtVNextSource } from '@ccslabs/xtend/rmt-language/vnext-compile
 
 Die wichtigsten Deklarationsdateien sind `./xtendrmt/rmt-core.d.ts` für Kernel- und Browser-Runtime APIs sowie `./tools/rmt-language/rmt-tooling-public-types.d.ts` für Editor-, Linter- und Language-Server-Integrationen. Diese Oberfläche enthält unter anderem `RmtToolingDiagnostic`, `RmtTextEdit`, `RmtWorkspaceEdit`, `RmtLanguageServiceReport` und `RmtJsonRpcMessage`.
 
+## Gate-Vertrag
+
+```txt
+plan: xtend.type-exports.plan.v1
+drift report: xtend.type-exports.drift-report.v1
+local gate: node scripts/run_xtend_tests.js type-exports --json
+release gate: npm run test:type-exports:release
+loader types: ./xtend-loader.d.ts
+api types: ./api.d.ts
+decision: types-not-required
+```
+
+Maraca ist als Package-Export `./maraca` und `./maraca/runtime` klassifiziert und nutzt `./xtend-maraca/index.d.ts` sowie `./xtend-maraca/runtime.d.ts`.
+
+```txt
+WP-TypeExports-02: ./xtend-loader.d.ts, ./xtend-dev.d.ts, ./xtend-loader-types.md
+WP-TypeExports-03: ./api.d.ts, ./xtend-api-types.md
+WP-TypeExports-05: ./fabric/xtend-policy-public-types.d.ts, ./xtend-policy-types.md
+WP-TypeExports-06: ./xtend-builder/builder-public-types.d.ts, ./xtend-builder-types.md
+WP-TypeExports-07: ./catalog/catalog-public-types.d.ts, ./xtend-catalog-types.md
+WP-TypeExports-08: ./design-tokens/xtend-design-tokens.d.ts, ./design-tokens/xtheme-token-alias-layer.d.ts, ./components/prism.d.ts, ./xtend-vendor-types.md
+```
+
 ## Empfohlener Ablauf
 
 Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.
@@ -34,6 +57,12 @@ Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst d
 - [API](./api.md)
 - [XTend Loader](./xtend-loader.md)
 - [Design Tokens](./design-tokens.md)
+- [XTend Loader Types](./xtend-loader-types.md)
+- [XTend API Types](./xtend-api-types.md)
+- [XTend Policy Types](./xtend-policy-types.md)
+- [XTend Builder Types](./xtend-builder-types.md)
+- [XTend Catalog Types](./xtend-catalog-types.md)
+- [XTend Vendor Types](./xtend-vendor-types.md)
 
 ## Entwicklerkontext
 

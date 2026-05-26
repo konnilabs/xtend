@@ -11,6 +11,20 @@ This article is written for developers who want to use XTend productively withou
 - Local development without a CDN.
 - Bilingual documentation.
 - Stable public entry points.
+- Release evidence through Package Export Lock, the acceptance page, network evidence and pack dry run.
+
+```txt
+package evidence: xtend.epic13.package-export-lock.v1
+owner evidence: xtend.epic13.release-owner-acceptance.v1
+network evidence: xtend.epic13.conditional-network-evidence.v1
+network docs: ./conditional-network-evidence.md
+network mode: network-restricted-local-default
+owner docs: ./release-owner-acceptance.md
+package docs: ./package-export-lock.md
+previous release bridge: Epic 12 RC0 Handoff
+automatic-publish-approval
+pack:dry-run:report
+```
 
 ## Recommended workflow
 

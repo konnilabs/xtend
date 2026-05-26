@@ -21,7 +21,8 @@ const ALLOWED_IMPORT_PROTOCOLS = ['http:', 'https:', 'file:'];
 const REFUSED_IMPORT_PROTOCOLS = ['javascript:', 'data:', 'vbscript:', 'blob:'];
 const ALLOWED_MANIFEST_EXTENSIONS = ['.json'];
 const ALLOWED_MODULE_EXTENSIONS = ['.js', '.mjs'];
-const RESERVED_MANIFEST_KEYS = ['xstate'];
+const RESERVED_MANIFEST_KEYS = ['xstate', 'xtend-i18n'];
+const BOOTSTRAP_MODULE_KEYS = ['xstate', 'xtend-i18n'];
 const CUSTOM_ELEMENT_NAME_PATTERN = /^[a-z][a-z0-9]*-[a-z0-9-]*[a-z0-9]$/;
 const MODULE_CACHE_BUST_PARAM = 'xtend-cache';
 const LOADER_VERBOSE_CONTRACT = 'xtend.loader.verbose.v1';
@@ -1025,7 +1026,7 @@ function readCacheBustFromUrl(value) {
 }
 
 function appendModuleCacheBust(tag, moduleUrl, cacheBust) {
-  if (!cacheBust || tag === 'xstate') return moduleUrl;
+  if (!cacheBust || tag === 'xstate' || tag === 'xtend-i18n' || BOOTSTRAP_MODULE_KEYS.includes(tag)) return moduleUrl;
   try {
     const url = new URL(moduleUrl, document.baseURI);
     if (url.searchParams.has(MODULE_CACHE_BUST_PARAM)) return url.href;
@@ -1053,6 +1054,10 @@ async function loadCoreModules(manifest) {
   } else {
     emitLoaderDiagnostic('xtend.loader.core.xstate_missing', 'warn', 'Manifest enthaelt keinen xstate-Eintrag');
     loaderVerboseWarn('XTend Loader: Manifest enthaelt keinen xstate-Eintrag.');
+  }
+
+  if (manifest['xtend-i18n']) {
+    await tryLoad('xtend-i18n', manifest['xtend-i18n']);
   }
 
   if (manifest['x-theme']) {
@@ -1139,7 +1144,7 @@ async function tryLoad(tag, url) {
 
     loaderVerboseLog(`Lade ${tag} als ES6-Modul von ${url}`);
     await measureLoaderPhase('xtend.loader.module', () => loadScript(importPolicy.url, true), { tag, url: importPolicy.url });
-    if (isCustomElementTag(tag)) {
+    if (isCustomElementTag(tag) && !isBootstrapModuleTag(tag)) {
       await measureLoaderPhase('xtend.component.define', () => waitForCustomElementDefinition(tag), { tag, url: importPolicy.url });
     }
     loaderVerboseLog(`${tag} erfolgreich geladen`);
@@ -1372,6 +1377,10 @@ async function hydrateTree(root = document, options = {}) {
 
 function isCustomElementTag(tag) {
   return typeof tag === 'string' && tag.includes('-');
+}
+
+function isBootstrapModuleTag(tag) {
+  return BOOTSTRAP_MODULE_KEYS.includes(tag);
 }
 
 function waitForCustomElementDefinition(tag) {

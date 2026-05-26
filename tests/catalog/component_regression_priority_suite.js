@@ -32,6 +32,7 @@ function runComponentRegressionPrioritySuite(options = {}) {
     label: 'XTend visual and browser regression priority plan'
   });
   const packageManifest = readJson('package.json', rootDir);
+  const manifest = readJson('components/manifest.json', rootDir);
   const moduleSource = readText('catalog/component-regression-priority.js', rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Enterprise-Reife.md', rootDir);
   const contractDoc = readText('development/XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md', rootDir);
@@ -58,6 +59,8 @@ function runComponentRegressionPrioritySuite(options = {}) {
   const xWriter = findEntry(plan, 'x-writer');
   const xState = findEntry(plan, 'xstate');
   const xUtils = findEntry(plan, 'x-utils');
+  const xtendI18n = findEntry(plan, 'xtend-i18n');
+  const expectedManifestCount = Object.keys(manifest).length;
 
   context.assert(moduleSyntax.ok, `Component regression priority module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `Component regression priority suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
@@ -73,12 +76,12 @@ function runComponentRegressionPrioritySuite(options = {}) {
   context.assert(plan.entrySchema === COMPONENT_REGRESSION_PRIORITY_ENTRY_SCHEMA, 'Plan exposes entry schema');
   context.assert(plan.gateSchema === COMPONENT_REGRESSION_PRIORITY_GATE_SCHEMA, 'Plan exposes gate schema');
   context.assert(plan.workpackage === 'ER-WP-35', 'Plan is owned by ER-WP-35');
-  context.assert(plan.entries.length === 44, 'Plan covers all 44 Manifest components');
-  context.assert(plan.summary.componentCount === 44, 'Summary counts all Manifest components');
+  context.assert(plan.entries.length === expectedManifestCount, `Plan covers all ${expectedManifestCount} Manifest components`);
+  context.assert(plan.summary.componentCount === expectedManifestCount, 'Summary counts all Manifest components');
   context.assert(plan.summary.byTier['p0-browser-critical'] >= 17, 'Plan identifies P0 browser-critical components');
   context.assert(plan.summary.byTier['p1-visual-performance'] >= 11, 'Plan identifies P1 visual/performance components');
   context.assert(plan.summary.byTier['p2-long-tail'] >= 8, 'Plan keeps P2 long-tail components visible');
-  context.assert(plan.summary.requiresPerformanceProfile === 2, 'Plan keeps performance profile authoring visible for the remaining current catalog after WP-E12-07');
+  context.assert(plan.summary.requiresPerformanceProfile === 3, 'Plan keeps performance profile authoring visible for the remaining infrastructure catalog');
   context.assert(plan.summary.requiresA11yRemediation === 1, 'Plan keeps the remaining A11y remediation count visible after WP-E12-04');
   context.assert(plan.summary.requiresLongTailSuite === 0, 'Plan closes long-tail suite and fixture gap after WP-E12-09 x-utils boundary suite');
   context.assert(plan.viewports.includes('desktop-1280') && plan.viewports.includes('mobile-390'), 'Plan requires desktop and mobile viewports');
@@ -141,6 +144,9 @@ function runComponentRegressionPrioritySuite(options = {}) {
   context.assert(xUtils && xUtils.remediation.includes('performance-profile-authoring'), 'x-utils keeps performance authoring visible after WP-E12-09');
   context.assert(xUtils && !xUtils.remediation.includes('public-types-long-tail'), 'x-utils public types are closed after WP-E12-09');
   context.assert(xUtils && !xUtils.remediation.includes('long-tail-component-suite-and-fixture'), 'x-utils suite and fixture are closed after WP-E12-09');
+  context.assert(xtendI18n && xtendI18n.priority === 'P2', 'xtend-i18n remains an infrastructure long-tail priority');
+  context.assert(xtendI18n && xtendI18n.browserSmokes.includes('state-api-integration'), 'xtend-i18n plans infrastructure integration coverage');
+  context.assert(xtendI18n && xtendI18n.remediation.includes('performance-profile-authoring'), 'xtend-i18n keeps performance authoring visible');
 
   context.assert((packageManifest.exports['./catalog/component-regression-priority'] === './catalog/component-regression-priority.js' || (packageManifest.exports['./catalog/component-regression-priority'] && packageManifest.exports['./catalog/component-regression-priority'].default === './catalog/component-regression-priority.js')), 'Package exports regression priority module');
   context.assert(packageManifest.scripts['test:regression-priority'] === 'node scripts/run_xtend_tests.js regression-priority', 'Package exposes regression priority test script');

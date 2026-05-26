@@ -1,3 +1,5 @@
 .xtend-test-results/
+.xtend-build/
+node_modules/
 .DS_Store
 products/

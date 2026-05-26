@@ -14,7 +14,7 @@
   const THEME_LAYOUT_COMPONENTS = new Set(['x-footer', 'x-header', 'x-hero', 'x-section', 'x-tabs', 'x-theme', 'xstate']);
   const NON_VISUAL_COMPONENTS = new Set(['x-utils']);
   const DEMO_COMPONENTS = new Set(['x-rmt-lifecycle-demo-build']);
-  const INFRASTRUCTURE_COMPONENTS = new Set(['x-theme', 'xstate']);
+  const INFRASTRUCTURE_COMPONENTS = new Set(['x-theme', 'xstate', 'xtend-i18n']);
   const BROWSER_SMOKE_FAMILIES = Object.freeze(['form', 'navigation', 'overlay-surface', 'media-feedback-layout', 'theme-layout']);
 
   function clampString(value, fallback = '') {
