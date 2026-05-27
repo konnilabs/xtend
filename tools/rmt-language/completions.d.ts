@@ -25,3 +25,6 @@ export declare const SURFACE_STATES: RmtToolingConstant;
 export declare const SURFACE_TYPES: RmtToolingConstant;
 export declare const TEMPLATE_MODES: RmtToolingConstant;
 export declare const TOP_LEVEL_DOMAINS: RmtToolingConstant;
+export declare const TRANSITION_EFFECTS: RmtToolingConstant;
+export declare const VALIDATION_MODES: RmtToolingConstant;
+export declare const VALIDATION_RULES: RmtToolingConstant;
