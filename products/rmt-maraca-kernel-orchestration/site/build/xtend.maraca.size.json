@@ -1,0 +1,19 @@
+{
+  "schema": "xtend.maraca.size-budget-report.v1",
+  "ok": true,
+  "status": "debug_not_enforced",
+  "profile": "debug",
+  "baseline": {
+    "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
+    "loaderBytes": 53954,
+    "selectedComponentBytes": 100492,
+    "stackModuleBytes": 1531227,
+    "bytes": 1685673
+  },
+  "baselineBytes": 1685673,
+  "bundleBytes": 3365322,
+  "ratio": 1.9964263531539035,
+  "budgets": {
+    "modernEsmEntryMustBeSmallerThanBaseline": false
+  }
+}

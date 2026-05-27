@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>XTend Maraca Kernel Form Verification</title>
+  </head>
+  <body>
+    <div id="xtend-maraca-root" data-maraca-root></div>
+    <pre id="verification-result">pending</pre>
+    <script type="module" src="./build/xtend.maraca.mjs"></script>
+    <script type="module">
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const resultNode = document.getElementById('verification-result');
+      const root = document.getElementById('xtend-maraca-root');
+      const inspectUi = () => ({
+        xStatusDefined: Boolean(window.customElements?.get('x-status')),
+        xButtonDefined: Boolean(window.customElements?.get('x-button')),
+        xInputDefined: Boolean(window.customElements?.get('x-input')),
+        xSelectDefined: Boolean(window.customElements?.get('x-select')),
+        xTextareaDefined: Boolean(window.customElements?.get('x-textarea')),
+        statusShadow: Boolean(root.querySelector('x-status')?.shadowRoot),
+        buttonShadow: Boolean(root.querySelector('x-button')?.shadowRoot),
+        inputShadow: Boolean(root.querySelector('x-input')?.shadowRoot),
+        selectShadow: Boolean(root.querySelector('x-select')?.shadowRoot),
+        textareaShadow: Boolean(root.querySelector('x-textarea')?.shadowRoot),
+        lazyObservedCount: window.__XTendMaracaResult?.lazyObservedCount ?? null,
+        pendingComponentCount: window.__XTendMaracaResult?.pendingComponentCount ?? null,
+        visible: Array.from(root.querySelectorAll('[data-rmt-component]'))
+          .filter((element) => !element.hidden)
+          .map((element) => element.id || element.getAttribute('data-maraca-surface'))
+      });
+      const setField = (id, eventName, value) => {
+        const element = document.getElementById(id);
+        if (!element) return false;
+        element.value = value;
+        element.setAttribute('value', value);
+        element.dispatchEvent(new CustomEvent(eventName, {
+          detail: { value },
+          bubbles: true,
+          composed: true
+        }));
+        return true;
+      };
+      const clickAction = (action) => {
+        const element = root.querySelector(`[data-action="${action}"]`);
+        if (!element) return false;
+        element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        return true;
+      };
+      const snapshot = () => {
+        const kernelSnapshot = window.XTendMaraca?.kernel?.snapshot?.() || {};
+        return {
+          text: root.textContent || '',
+          ui: inspectUi(),
+          bootStatus: window.__XTendMaracaResult?.orchestration?.status || null,
+          kernelStatus: kernelSnapshot.status || null,
+          kernelPlanStatus: kernelSnapshot.planStatus || null,
+          kernelEndpointCount: window.XTendMaraca?.kernel?.listScheduledEndpoints?.()?.length || 0,
+          kernelFibers: kernelSnapshot.fibers || [],
+          state: window.XTendMaraca?.orchestration?.snapshot?.()?.state?.states || {},
+          actionHistoryCount: window.XTendMaraca?.orchestration?.snapshot?.()?.actions?.length || 0
+        };
+      };
+
+      await wait(1200);
+      const step1 = snapshot();
+      setField('customer-name', 'input-changed', 'Avery Stone');
+      setField('customer-email', 'input-changed', 'avery@example.com');
+      setField('customer-channel', 'select-changed', 'Technical support');
+      await wait(250);
+      clickAction('next-contact');
+      await wait(750);
+      const step2 = snapshot();
+      setField('request-subject', 'input-changed', 'Cannot access workspace');
+      setField('request-priority', 'select-changed', 'High');
+      setField('request-details', 'textarea-changed', 'Login succeeds, but the workspace stays unavailable after refresh.');
+      await wait(250);
+      clickAction('next-issue');
+      await wait(750);
+      const step3 = snapshot();
+      clickAction('submit-request');
+      await wait(750);
+      const submitted = snapshot();
+
+      const states = submitted.state;
+      const passed =
+        step1.ui.xInputDefined &&
+        step1.ui.xSelectDefined &&
+        step1.ui.visible.includes('customer-name') &&
+        step2.ui.visible.includes('request-details') &&
+        step2.ui.xTextareaDefined &&
+        step2.ui.textareaShadow &&
+        step3.ui.visible.includes('submit-request') &&
+        submitted.ui.visible.includes('request-done') &&
+        submitted.kernelStatus === 'booted' &&
+        submitted.kernelEndpointCount > 0 &&
+        submitted.kernelFibers.some((entry) => entry.kind === 'event' && entry.status !== 'fallback') &&
+        submitted.kernelFibers.some((entry) => entry.kind === 'action' && entry.status !== 'fallback') &&
+        submitted.kernelFibers.some((entry) => entry.kind === 'state-change' && entry.status !== 'fallback') &&
+        states['product.service.name']?.value === 'Avery Stone' &&
+        states['product.service.priority']?.value === 'High' &&
+        states['product.service.done']?.hidden === false;
+
+      resultNode.textContent = JSON.stringify({
+        passed,
+        bootStatus: submitted.bootStatus,
+        kernelStatus: submitted.kernelStatus,
+        kernelPlanStatus: submitted.kernelPlanStatus,
+        kernelEndpointCount: submitted.kernelEndpointCount,
+        kernelScheduledKinds: submitted.kernelFibers.map((entry) => ({
+          kind: entry.kind,
+          status: entry.status,
+          endpointName: entry.endpointName
+        })),
+        actionHistoryCount: submitted.actionHistoryCount,
+        visibleByStep: {
+          step1: step1.ui.visible,
+          step2: step2.ui.visible,
+          step3: step3.ui.visible,
+          submitted: submitted.ui.visible
+        },
+        lazyComponents: {
+          xInput: step1.ui.xInputDefined,
+          xSelect: step1.ui.xSelectDefined,
+          xTextarea: step2.ui.xTextareaDefined,
+          xButton: submitted.ui.xButtonDefined,
+          xStatus: submitted.ui.xStatusDefined
+        },
+        values: {
+          name: states['product.service.name']?.value,
+          email: states['product.service.email']?.value,
+          channel: states['product.service.channel']?.value,
+          subject: states['product.service.subject']?.value,
+          priority: states['product.service.priority']?.value,
+          doneVisible: states['product.service.done']?.hidden === false
+        }
+      }, null, 2);
+      document.body.setAttribute('data-verify-passed', passed ? 'true' : 'false');
+    </script>
+  </body>
+</html>

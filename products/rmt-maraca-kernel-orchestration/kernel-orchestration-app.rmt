@@ -1,0 +1,656 @@
+// Real-system Maraca kernel orchestration product smoke.
+// Customer-service form SPA materialized from RMT state, actions, events and surfaces.
+
+template product.kernel.maraca {
+  state product.service.status type object preserve {
+    initial {
+      id "service-status"
+      text "Step 1 of 3: Tell us how to reach you."
+      tone "neutral"
+    }
+  }
+
+  state product.service.name type object preserve {
+    initial {
+      id "customer-name"
+      field "name"
+      label "Full name"
+      placeholder "Avery Stone"
+      value ""
+      inputType "text"
+      required true
+      hidden false
+    }
+  }
+
+  state product.service.email type object preserve {
+    initial {
+      id "customer-email"
+      field "email"
+      label "Email address"
+      placeholder "avery@example.com"
+      value ""
+      inputType "email"
+      required true
+      hidden false
+    }
+  }
+
+  state product.service.channel type object preserve {
+    initial {
+      id "customer-channel"
+      field "channel"
+      label "Preferred support area"
+      placeholder "Choose a support area"
+      value ""
+      options ["Billing" "Technical support" "Account access" "Other"]
+      required true
+      hidden false
+    }
+  }
+
+  state product.service.nextContact type object preserve {
+    initial {
+      id "next-contact"
+      text "Continue"
+      tone "primary"
+      disabled true
+      hidden false
+    }
+  }
+
+  state product.service.subject type object preserve {
+    initial {
+      id "request-subject"
+      field "subject"
+      label "Subject"
+      placeholder "Short summary"
+      value ""
+      inputType "text"
+      required true
+      hidden true
+    }
+  }
+
+  state product.service.priority type object preserve {
+    initial {
+      id "request-priority"
+      field "priority"
+      label "Priority"
+      placeholder "Choose priority"
+      value ""
+      options ["Normal" "High" "Urgent"]
+      required true
+      hidden true
+    }
+  }
+
+  state product.service.details type object preserve {
+    initial {
+      id "request-details"
+      field "details"
+      label "What happened?"
+      placeholder "Describe the issue and what you already tried."
+      value ""
+      rows 6
+      required true
+      minLength 10
+      hidden true
+    }
+  }
+
+  state product.service.backContact type object preserve {
+    initial {
+      id "back-contact"
+      text "Back"
+      tone "secondary"
+      hidden true
+    }
+  }
+
+  state product.service.nextIssue type object preserve {
+    initial {
+      id "next-issue"
+      text "Review request"
+      tone "primary"
+      disabled true
+      hidden true
+    }
+  }
+
+  state product.service.review type object preserve {
+    initial {
+      id "request-review"
+      text "Step 3 of 3: Review the request, then submit it to the service team."
+      tone "neutral"
+      hidden true
+    }
+  }
+
+  state product.service.backIssue type object preserve {
+    initial {
+      id "back-issue"
+      text "Back"
+      tone "secondary"
+      hidden true
+    }
+  }
+
+  state product.service.submit type object preserve {
+    initial {
+      id "submit-request"
+      text "Submit request"
+      tone "primary"
+      disabled true
+      hidden true
+    }
+  }
+
+  state product.service.done type object preserve {
+    initial {
+      id "request-done"
+      text "Request submitted. The kernel scheduled the action and Maraca patched the UI without leaving the SPA."
+      tone "success"
+      hidden true
+    }
+  }
+
+  state product.service.restart type object preserve {
+    initial {
+      id "restart-request"
+      text "Start new request"
+      tone "secondary"
+      hidden true
+    }
+  }
+
+  selector product.service.status from state product.service.status {
+    output ProductServiceStatus
+  }
+
+  selector product.service.name from state product.service.name {
+    output ProductServiceField
+  }
+
+  selector product.service.email from state product.service.email {
+    output ProductServiceField
+  }
+
+  selector product.service.channel from state product.service.channel {
+    output ProductServiceSelect
+  }
+
+  selector product.service.nextContact from state product.service.nextContact {
+    output ProductServiceCommand
+  }
+
+  selector product.service.subject from state product.service.subject {
+    output ProductServiceField
+  }
+
+  selector product.service.priority from state product.service.priority {
+    output ProductServiceSelect
+  }
+
+  selector product.service.details from state product.service.details {
+    output ProductServiceField
+  }
+
+  selector product.service.backContact from state product.service.backContact {
+    output ProductServiceCommand
+  }
+
+  selector product.service.nextIssue from state product.service.nextIssue {
+    output ProductServiceCommand
+  }
+
+  selector product.service.review from state product.service.review {
+    output ProductServiceStatus
+  }
+
+  selector product.service.backIssue from state product.service.backIssue {
+    output ProductServiceCommand
+  }
+
+  selector product.service.submit from state product.service.submit {
+    output ProductServiceCommand
+  }
+
+  selector product.service.done from state product.service.done {
+    output ProductServiceStatus
+  }
+
+  selector product.service.restart from state product.service.restart {
+    output ProductServiceCommand
+  }
+
+  validation product.service.contact {
+    mode blocking
+    target action product.service.nextContact
+    field product.service.name required message "Enter your full name."
+    field product.service.email required email message "Enter a valid email address."
+    field product.service.channel required message "Choose a support area."
+  }
+
+  validation product.service.issue {
+    mode blocking
+    target action product.service.nextIssue
+    field product.service.subject required message "Enter a subject."
+    field product.service.priority required message "Choose a priority."
+    field product.service.details required minLength 10 message "Describe the issue in at least 10 characters."
+  }
+
+  validation product.service.submitReady {
+    mode blocking
+    target action product.service.submit
+    include product.service.contact
+    include product.service.issue
+  }
+
+  action product.service.updateName {
+    input value string
+    reduce state.product.service.name.value = input.value
+  }
+
+  action product.service.updateEmail {
+    input value string
+    reduce state.product.service.email.value = input.value
+  }
+
+  action product.service.updateChannel {
+    input value string
+    reduce state.product.service.channel.value = input.value
+  }
+
+  action product.service.updateSubject {
+    input value string
+    reduce state.product.service.subject.value = input.value
+  }
+
+  action product.service.updatePriority {
+    input value string
+    reduce state.product.service.priority.value = input.value
+  }
+
+  action product.service.updateDetails {
+    input value string
+    reduce state.product.service.details.value = input.value
+  }
+
+  action product.service.nextContact {
+    input label string
+    reduce state.product.service.status.text = "Step 2 of 3: Describe what you need help with."
+    reduce state.product.service.name.hidden = true
+    reduce state.product.service.email.hidden = true
+    reduce state.product.service.channel.hidden = true
+    reduce state.product.service.nextContact.hidden = true
+    reduce state.product.service.subject.hidden = false
+    reduce state.product.service.priority.hidden = false
+    reduce state.product.service.details.hidden = false
+    reduce state.product.service.backContact.hidden = false
+    reduce state.product.service.nextIssue.hidden = false
+  }
+
+  action product.service.backContact {
+    input label string
+    reduce state.product.service.status.text = "Step 1 of 3: Tell us how to reach you."
+    reduce state.product.service.name.hidden = false
+    reduce state.product.service.email.hidden = false
+    reduce state.product.service.channel.hidden = false
+    reduce state.product.service.nextContact.hidden = false
+    reduce state.product.service.subject.hidden = true
+    reduce state.product.service.priority.hidden = true
+    reduce state.product.service.details.hidden = true
+    reduce state.product.service.backContact.hidden = true
+    reduce state.product.service.nextIssue.hidden = true
+  }
+
+  action product.service.nextIssue {
+    input label string
+    reduce state.product.service.status.text = "Step 3 of 3: Review and submit."
+    reduce state.product.service.subject.hidden = true
+    reduce state.product.service.priority.hidden = true
+    reduce state.product.service.details.hidden = true
+    reduce state.product.service.backContact.hidden = true
+    reduce state.product.service.nextIssue.hidden = true
+    reduce state.product.service.backIssue.hidden = false
+    reduce state.product.service.submit.hidden = false
+  }
+
+  action product.service.backIssue {
+    input label string
+    reduce state.product.service.status.text = "Step 2 of 3: Describe what you need help with."
+    reduce state.product.service.subject.hidden = false
+    reduce state.product.service.priority.hidden = false
+    reduce state.product.service.details.hidden = false
+    reduce state.product.service.backContact.hidden = false
+    reduce state.product.service.nextIssue.hidden = false
+    reduce state.product.service.backIssue.hidden = true
+    reduce state.product.service.submit.hidden = true
+  }
+
+  action product.service.submit {
+    input label string
+    reduce state.product.service.status.text = "Submitted"
+    reduce state.product.service.status.tone = "success"
+    reduce state.product.service.backIssue.hidden = true
+    reduce state.product.service.submit.hidden = true
+    reduce state.product.service.done.hidden = false
+    reduce state.product.service.restart.hidden = false
+    emit product.service.submitted with label input.label
+  }
+
+  action product.service.restart {
+    input label string
+    reduce state.product.service.status.text = "Step 1 of 3: Tell us how to reach you."
+    reduce state.product.service.status.tone = "neutral"
+    reduce state.product.service.name.value = ""
+    reduce state.product.service.email.value = ""
+    reduce state.product.service.channel.value = ""
+    reduce state.product.service.subject.value = ""
+    reduce state.product.service.priority.value = ""
+    reduce state.product.service.details.value = ""
+    reduce state.product.service.nextContact.disabled = true
+    reduce state.product.service.nextIssue.disabled = true
+    reduce state.product.service.submit.disabled = true
+    reduce state.product.service.name.hidden = false
+    reduce state.product.service.email.hidden = false
+    reduce state.product.service.channel.hidden = false
+    reduce state.product.service.nextContact.hidden = false
+    reduce state.product.service.subject.hidden = true
+    reduce state.product.service.priority.hidden = true
+    reduce state.product.service.details.hidden = true
+    reduce state.product.service.backContact.hidden = true
+    reduce state.product.service.nextIssue.hidden = true
+    reduce state.product.service.backIssue.hidden = true
+    reduce state.product.service.submit.hidden = true
+    reduce state.product.service.done.hidden = true
+    reduce state.product.service.restart.hidden = true
+  }
+
+  transition product.service.contactToIssue {
+    trigger action product.service.nextContact
+    from surfaces [product.service.name product.service.email product.service.channel product.service.nextContact]
+    to surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
+    effect crossfade
+    durationMs 240
+    easing "ease-out"
+    lane transition
+  }
+
+  transition product.service.issueToContact {
+    trigger action product.service.backContact
+    from surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
+    to surfaces [product.service.name product.service.email product.service.channel product.service.nextContact]
+    effect slide-right
+    durationMs 220
+    easing "ease-out"
+    lane transition
+  }
+
+  transition product.service.issueToReview {
+    trigger action product.service.nextIssue
+    from surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
+    to surfaces [product.service.backIssue product.service.submit]
+    effect slide-left
+    durationMs 240
+    easing "ease-out"
+    lane transition
+  }
+
+  transition product.service.reviewToIssue {
+    trigger action product.service.backIssue
+    from surfaces [product.service.backIssue product.service.submit]
+    to surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
+    effect slide-right
+    durationMs 220
+    easing "ease-out"
+    lane transition
+  }
+
+  transition product.service.reviewToDone {
+    trigger action product.service.submit
+    from surfaces [product.service.backIssue product.service.submit]
+    to surfaces [product.service.done product.service.restart]
+    effect scale
+    durationMs 220
+    easing "ease-out"
+    lane transition
+  }
+
+  transition product.service.doneToContact {
+    trigger action product.service.restart
+    from surfaces [product.service.done product.service.restart]
+    to surfaces [product.service.name product.service.email product.service.channel product.service.nextContact]
+    effect fade
+    durationMs 180
+    easing "ease-out"
+    lane transition
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  resource product.service.session kind data owner surface.product.service.status {
+    dispose on surface.destroy
+  }
+
+  surface product.service.status kind card component x-status {
+    source selector product.service.status
+    key status.id
+    portal surface.root
+    bounds x 24 y 24 width 720 height 80
+    destroy releases resource product.service.session
+
+    lane visible weight 90 {
+      hydrate service-status from selector product.service.status
+    }
+  }
+
+  surface product.service.name kind field component x-input {
+    source selector product.service.name
+    key name.id
+    portal surface.root
+    bounds x 24 y 128 width 340 height 88
+
+    lane visible weight 80 {
+      hydrate customer-name from selector product.service.name
+    }
+
+    on input-changed "#customer-name" -> action product.service.updateName {
+      payload value from detail.value
+    }
+  }
+
+  surface product.service.email kind field component x-input {
+    source selector product.service.email
+    key email.id
+    portal surface.root
+    bounds x 380 y 128 width 364 height 88
+
+    lane visible weight 80 {
+      hydrate customer-email from selector product.service.email
+    }
+
+    on input-changed "#customer-email" -> action product.service.updateEmail {
+      payload value from detail.value
+    }
+  }
+
+  surface product.service.channel kind field component x-select {
+    source selector product.service.channel
+    key channel.id
+    portal surface.root
+    bounds x 24 y 232 width 720 height 88
+
+    lane visible weight 80 {
+      hydrate customer-channel from selector product.service.channel
+    }
+
+    on select-changed "#customer-channel" -> action product.service.updateChannel {
+      payload value from detail.value
+    }
+  }
+
+  surface product.service.nextContact kind action component x-button {
+    source selector product.service.nextContact
+    key nextContact.id
+    portal surface.root
+    bounds x 24 y 336 width 180 height 56
+
+    lane visible weight 80 {
+      mount next-contact from selector product.service.nextContact
+    }
+
+    on click "[data-action='next-contact']" -> action product.service.nextContact {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+
+  surface product.service.subject kind field component x-input {
+    source selector product.service.subject
+    key subject.id
+    portal surface.root
+    bounds x 24 y 128 width 720 height 88
+
+    lane visible weight 80 {
+      hydrate request-subject from selector product.service.subject
+    }
+
+    on input-changed "#request-subject" -> action product.service.updateSubject {
+      payload value from detail.value
+    }
+  }
+
+  surface product.service.priority kind field component x-select {
+    source selector product.service.priority
+    key priority.id
+    portal surface.root
+    bounds x 24 y 232 width 300 height 88
+
+    lane visible weight 80 {
+      hydrate request-priority from selector product.service.priority
+    }
+
+    on select-changed "#request-priority" -> action product.service.updatePriority {
+      payload value from detail.value
+    }
+  }
+
+  surface product.service.details kind field component x-textarea {
+    source selector product.service.details
+    key details.id
+    portal surface.root
+    bounds x 24 y 336 width 720 height 168
+
+    lane visible weight 80 {
+      hydrate request-details from selector product.service.details
+    }
+
+    on textarea-changed "#request-details" -> action product.service.updateDetails {
+      payload value from detail.value
+    }
+  }
+
+  surface product.service.backContact kind action component x-button {
+    source selector product.service.backContact
+    key backContact.id
+    portal surface.root
+    bounds x 24 y 520 width 120 height 56
+
+    lane visible weight 80 {
+      mount back-contact from selector product.service.backContact
+    }
+
+    on click "[data-action='back-contact']" -> action product.service.backContact {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+
+  surface product.service.nextIssue kind action component x-button {
+    source selector product.service.nextIssue
+    key nextIssue.id
+    portal surface.root
+    bounds x 160 y 520 width 200 height 56
+
+    lane visible weight 80 {
+      mount next-issue from selector product.service.nextIssue
+    }
+
+    on click "[data-action='next-issue']" -> action product.service.nextIssue {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+
+  surface product.service.review kind card component x-status {
+    source selector product.service.review
+    key review.id
+    portal surface.root
+    bounds x 24 y 128 width 720 height 112
+
+    lane visible weight 80 {
+      hydrate request-review from selector product.service.review
+    }
+  }
+
+  surface product.service.backIssue kind action component x-button {
+    source selector product.service.backIssue
+    key backIssue.id
+    portal surface.root
+    bounds x 24 y 256 width 120 height 56
+
+    lane visible weight 80 {
+      mount back-issue from selector product.service.backIssue
+    }
+
+    on click "[data-action='back-issue']" -> action product.service.backIssue {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+
+  surface product.service.submit kind action component x-button {
+    source selector product.service.submit
+    key submit.id
+    portal surface.root
+    bounds x 160 y 256 width 200 height 56
+
+    lane visible weight 90 {
+      mount submit-request from selector product.service.submit
+    }
+
+    on click "[data-action='submit-request']" -> action product.service.submit {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+
+  surface product.service.done kind card component x-status {
+    source selector product.service.done
+    key done.id
+    portal surface.root
+    bounds x 24 y 128 width 720 height 112
+
+    lane visible weight 90 {
+      hydrate request-done from selector product.service.done
+    }
+  }
+
+  surface product.service.restart kind action component x-button {
+    source selector product.service.restart
+    key restart.id
+    portal surface.root
+    bounds x 24 y 256 width 220 height 56
+
+    lane visible weight 80 {
+      mount restart-request from selector product.service.restart
+    }
+
+    on click "[data-action='restart-request']" -> action product.service.restart {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>XTend Maraca Kernel Customer Service Form</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --xtend-color-action: #155eef;
+        --xtend-text-on-action: #ffffff;
+        --xtend-surface-panel: #f8fafc;
+        --xtend-form-control-surface: #ffffff;
+        --xtend-form-control-border: #cbd5e1;
+        --xtend-form-focus-ring: 0 0 0 3px rgba(21, 94, 239, 0.16);
+        --xtend-text-primary: #0f172a;
+        --xtend-radius-control: 8px;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, sans-serif;
+        background: #eef2f7;
+        color: #0f172a;
+      }
+
+      main {
+        width: min(960px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      p {
+        margin: 0 0 24px;
+        max-width: 720px;
+      }
+
+      #xtend-maraca-root {
+        min-height: 620px;
+        padding: 16px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>XTend Maraca Kernel Customer Service Form</h1>
+      <p>RMT source materializes a multi-step customer-service SPA with app orchestration and packaged RMT kernel scheduling.</p>
+      <div id="xtend-maraca-root" data-maraca-root></div>
+    </main>
+    <script type="module" src="./build/xtend.maraca.mjs"></script>
+  </body>
+</html>

@@ -1,0 +1,559 @@
+{
+  "schema": "xtend.maraca.bundle-report.v1",
+  "ok": true,
+  "status": "built",
+  "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
+  "outputDir": "products/rmt-maraca-kernel-orchestration/site/build",
+  "profile": "debug",
+  "lazy": "component",
+  "css": "external",
+  "vendor": false,
+  "componentMode": "document",
+  "stackMode": "plan",
+  "target": "modern-esm",
+  "entry": "/home/konni/Downloads/xtend-main/products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
+  "entryRelative": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
+  "entryBytes": 1152829,
+  "bytes": 3365322,
+  "bundleFiles": [
+    {
+      "type": "chunk",
+      "fileName": "xtend.maraca.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
+      "bytes": 1152829,
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "./runtime/xtendrmt-rmt-kernel-orchestration-controller.js",
+        "./runtime/xtendrmt-rmt-runtime.esm.js",
+        "chunks/x-button-DGQY--Wj.mjs"
+      ],
+      "dynamicImports": [
+        "chunks/x-button-DGQY--Wj.mjs",
+        "chunks/x-input-3sNyfdfw.mjs",
+        "chunks/x-select-Dlun3RTR.mjs",
+        "chunks/x-status-Z74UVBki.mjs",
+        "chunks/x-textarea-DhmqDJ3f.mjs"
+      ]
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-button-DGQY--Wj.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-button-DGQY--Wj.mjs",
+      "bytes": 36774,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-input-3sNyfdfw.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-input-3sNyfdfw.mjs",
+      "bytes": 15853,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-button-DGQY--Wj.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-select-Dlun3RTR.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-select-Dlun3RTR.mjs",
+      "bytes": 18677,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-button-DGQY--Wj.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-status-Z74UVBki.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-status-Z74UVBki.mjs",
+      "bytes": 42265,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-button-DGQY--Wj.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-textarea-DhmqDJ3f.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-textarea-DhmqDJ3f.mjs",
+      "bytes": 32083,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-button-DGQY--Wj.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "chunks/x-button-DGQY--Wj.mjs.map",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-button-DGQY--Wj.mjs.map",
+      "bytes": 66881,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "chunks/x-input-3sNyfdfw.mjs.map",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-input-3sNyfdfw.mjs.map",
+      "bytes": 25669,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "chunks/x-select-Dlun3RTR.mjs.map",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-select-Dlun3RTR.mjs.map",
+      "bytes": 30583,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "chunks/x-status-Z74UVBki.mjs.map",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-status-Z74UVBki.mjs.map",
+      "bytes": 87908,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "chunks/x-textarea-DhmqDJ3f.mjs.map",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-textarea-DhmqDJ3f.mjs.map",
+      "bytes": 52616,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "xtend.maraca.mjs.map",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs.map",
+      "bytes": 521585,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "xtend.maraca.css",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.css",
+      "bytes": 2386,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "runtime/xtendrmt-rmt-kernel-orchestration-controller.js",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtendrmt-rmt-kernel-orchestration-controller.js",
+      "bytes": 13223,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "runtime/xtendrmt-rmt-runtime.esm.js",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtendrmt-rmt-runtime.esm.js",
+      "bytes": 1265990,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    }
+  ],
+  "loader": {
+    "mode": "inline-registry",
+    "usesExternalManifest": false,
+    "usesXtendLoader": false,
+    "manifestParseAtRuntime": false
+  },
+  "components": {
+    "selected": [
+      {
+        "tag": "x-button",
+        "source": "components/xbutton.js",
+        "importPath": "../../../../components/xbutton.js"
+      },
+      {
+        "tag": "x-input",
+        "source": "components/xinput.js",
+        "importPath": "../../../../components/xinput.js"
+      },
+      {
+        "tag": "x-select",
+        "source": "components/xselect.js",
+        "importPath": "../../../../components/xselect.js"
+      },
+      {
+        "tag": "x-status",
+        "source": "components/xstatus.js",
+        "importPath": "../../../../components/xstatus.js"
+      },
+      {
+        "tag": "x-textarea",
+        "source": "components/xtextarea.js",
+        "importPath": "../../../../components/xtextarea.js"
+      }
+    ],
+    "unknown": []
+  },
+  "runtimeModules": [
+    "components/xstate.js",
+    "components/xutils.js",
+    "xtendrmt/rmt-action-effect-runtime.js",
+    "xtendrmt/rmt-dom-descriptor-renderer.js",
+    "xtendrmt/rmt-event-routing-runtime.js",
+    "xtendrmt/rmt-form-validation-runtime.js",
+    "xtendrmt/rmt-kernel-orchestration-controller.js",
+    "xtendrmt/rmt-runtime.esm.js",
+    "xtendrmt/rmt-state-selector-runtime.js",
+    "xtendrmt/rmt-surface-resource-graph-runtime.js",
+    "xtendrmt/rmt-surface-transition-runtime.js"
+  ],
+  "stackModules": [
+    {
+      "id": "components/xstate.js",
+      "source": "components/xstate.js"
+    },
+    {
+      "id": "components/xutils.js",
+      "source": "components/xutils.js"
+    },
+    {
+      "id": "xtendrmt/rmt-action-effect-runtime.js",
+      "source": "xtendrmt/rmt-action-effect-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-dom-descriptor-renderer.js",
+      "source": "xtendrmt/rmt-dom-descriptor-renderer.js"
+    },
+    {
+      "id": "xtendrmt/rmt-event-routing-runtime.js",
+      "source": "xtendrmt/rmt-event-routing-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-form-validation-runtime.js",
+      "source": "xtendrmt/rmt-form-validation-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-kernel-orchestration-controller.js",
+      "source": "xtendrmt/rmt-kernel-orchestration-controller.js"
+    },
+    {
+      "id": "xtendrmt/rmt-runtime.esm.js",
+      "source": "xtendrmt/rmt-runtime.esm.js"
+    },
+    {
+      "id": "xtendrmt/rmt-state-selector-runtime.js",
+      "source": "xtendrmt/rmt-state-selector-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "source": "xtendrmt/rmt-surface-resource-graph-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-surface-transition-runtime.js",
+      "source": "xtendrmt/rmt-surface-transition-runtime.js"
+    }
+  ],
+  "orchestration": {
+    "schema": "xtend.maraca.orchestration-plan.v1",
+    "mode": "strict",
+    "enabled": true,
+    "status": "planned",
+    "planStatus": "planned",
+    "runtimeExpectedStatus": "booted",
+    "supported": true,
+    "artifactSchema": "xtend.rmt.app-orchestration.v1",
+    "runtimeModules": [
+      "xtendrmt/rmt-state-selector-runtime.js",
+      "xtendrmt/rmt-action-effect-runtime.js",
+      "xtendrmt/rmt-event-routing-runtime.js",
+      "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "xtendrmt/rmt-dom-descriptor-renderer.js"
+    ],
+    "summary": {
+      "schema": "xtend.rmt.app-orchestration.v1",
+      "runtimeOrder": [
+        "kernel",
+        "state",
+        "resource",
+        "validation",
+        "transition",
+        "action",
+        "event",
+        "surface",
+        "renderer"
+      ],
+      "stateCount": 15,
+      "selectorCount": 15,
+      "reducerCount": 72,
+      "actionCount": 12,
+      "eventCount": 12,
+      "surfaceCount": 15,
+      "portalCount": 1,
+      "overlayCount": 0,
+      "resourceCount": 1
+    },
+    "diagnostics": []
+  },
+  "kernel": {
+    "schema": "xtend.maraca.kernel-plan.v1",
+    "mode": "strict",
+    "enabled": true,
+    "status": "planned",
+    "planStatus": "planned",
+    "runtimeExpectedStatus": "booted",
+    "supported": true,
+    "artifactSchema": "xtend.rmt.kernel-orchestration.v1",
+    "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
+    "runtimeModules": [
+      "xtendrmt/rmt-kernel-orchestration-controller.js",
+      "xtendrmt/rmt-runtime.esm.js"
+    ],
+    "summary": {
+      "schema": "xtend.rmt.kernel-orchestration.v1",
+      "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
+      "boundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "scheduleCount": 72,
+      "fiberCount": 72,
+      "laneCount": 5,
+      "endpointCount": 72,
+      "runtimeModules": [
+        "xtendrmt/rmt-kernel-orchestration-controller.js",
+        "xtendrmt/rmt-runtime.esm.js"
+      ]
+    },
+    "diagnostics": []
+  },
+  "hydration": {
+    "schema": "xtend.maraca.hydration-plan.v1",
+    "mode": "strict",
+    "enabled": true,
+    "status": "planned",
+    "planStatus": "planned",
+    "runtimeExpectedStatus": "booted",
+    "supported": true,
+    "artifactSchema": "xtend.rmt.app-hydration-plan.v1",
+    "runtimeModules": [],
+    "summary": {
+      "schema": "xtend.rmt.app-hydration-plan.v1",
+      "recordCount": 15,
+      "supportedModeCount": 15,
+      "hydrationPolicyCount": 1,
+      "insularIslandCount": 0,
+      "strictViolations": 0,
+      "kernelRequired": true,
+      "runtimeExpectedStatus": "booted"
+    },
+    "diagnostics": []
+  },
+  "validation": {
+    "schema": "xtend.maraca.validation-plan.v1",
+    "mode": "strict",
+    "enabled": true,
+    "status": "planned",
+    "planStatus": "planned",
+    "runtimeExpectedStatus": "booted",
+    "supported": true,
+    "artifactSchema": "xtend.rmt.form-validation.v1",
+    "runtimeModules": [
+      "xtendrmt/rmt-form-validation-runtime.js"
+    ],
+    "summary": {
+      "schema": "xtend.rmt.form-validation.v1",
+      "groupCount": 3,
+      "fieldCount": 6,
+      "actionGateCount": 3,
+      "statePatchCount": 3,
+      "strictViolations": 0,
+      "fallbackCount": 0,
+      "runtimeExpectedStatus": "booted"
+    },
+    "diagnostics": []
+  },
+  "transitions": {
+    "schema": "xtend.maraca.transition-plan.v1",
+    "mode": "strict",
+    "enabled": true,
+    "status": "planned",
+    "planStatus": "planned",
+    "runtimeExpectedStatus": "booted",
+    "supported": true,
+    "artifactSchema": "xtend.rmt.surface-transitions.v1",
+    "runtimeModules": [
+      "xtendrmt/rmt-surface-transition-runtime.js",
+      "components/xutils.js",
+      "components/xstate.js"
+    ],
+    "summary": {
+      "schema": "xtend.rmt.surface-transitions.v1",
+      "transitionCount": 6,
+      "effectCounts": {
+        "crossfade": 1,
+        "slide-right": 2,
+        "slide-left": 1,
+        "scale": 1,
+        "fade": 1
+      },
+      "durationRange": {
+        "min": 180,
+        "max": 240
+      },
+      "xstateModule": "components/xstate.js",
+      "xutilsModule": "components/xutils.js",
+      "scheduledEndpointCount": 6,
+      "fallbackCount": 0,
+      "strictViolations": 0,
+      "runtimeExpectedStatus": "booted"
+    },
+    "diagnostics": []
+  },
+  "publicNameReservations": [
+    "XTendMaraca",
+    "XTendLoader",
+    "XTendRMT",
+    "XTendFabric",
+    "ensureMaracaComponent",
+    "bootXtendMaraca",
+    "MARACA_COMPONENTS",
+    "MARACA_SURFACES",
+    "MARACA_EVENTS",
+    "MARACA_ORCHESTRATION",
+    "MARACA_KERNEL",
+    "MARACA_HYDRATION",
+    "MARACA_VALIDATION",
+    "MARACA_TRANSITIONS",
+    "MARACA_PUBLIC_NAMES",
+    "MARACA_STACK_MODULES",
+    "XTendRmtKernelOrchestrationController",
+    "XTendRmtSurfaceTransitionRuntime",
+    "customElements",
+    "HTMLElement",
+    "ShadowRoot",
+    "CSSStyleSheet",
+    "IntersectionObserver",
+    "connectedCallback",
+    "disconnectedCallback",
+    "attributeChangedCallback",
+    "adoptedCallback",
+    "observedAttributes",
+    "data-maraca-root",
+    "data-maraca-surface",
+    "data-rmt-component",
+    "part",
+    "slot",
+    "tone",
+    "variant",
+    "disabled",
+    "open",
+    "value",
+    "change",
+    "input",
+    "click",
+    "submit",
+    "xtend.rmt.core-format.vnext.v1",
+    "xtend.maraca.build-plan.v1",
+    "xtend.maraca.bundle-report.v1",
+    "xtend.maraca.size-budget-report.v1",
+    "xtend.maraca.kernel-plan.v1",
+    "xtend.maraca.hydration-plan.v1",
+    "xtend.maraca.validation-plan.v1",
+    "xtend.maraca.transition-plan.v1",
+    "xtend.maraca.transition-plan.v1"
+  ],
+  "toolchain": {
+    "rollup": {
+      "requested": true,
+      "available": true,
+      "version": "4.60.4",
+      "mode": "rollup-js-api"
+    },
+    "terser": {
+      "requested": true,
+      "available": true,
+      "version": "5.48.0",
+      "mode": "terser-js-api"
+    },
+    "active": "rollup-terser",
+    "warnings": [
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-surface-transition-runtime.js (469:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (924:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-form-validation-runtime.js (435:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-event-routing-runtime.js (658:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-action-effect-runtime.js (485:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-dom-descriptor-renderer.js (1075:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-state-selector-runtime.js (861:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      }
+    ],
+    "nameCache": null
+  },
+  "sizeBudget": {
+    "schema": "xtend.maraca.size-budget-report.v1",
+    "ok": true,
+    "status": "debug_not_enforced",
+    "profile": "debug",
+    "baseline": {
+      "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
+      "loaderBytes": 53954,
+      "selectedComponentBytes": 100492,
+      "stackModuleBytes": 1531227,
+      "bytes": 1685673
+    },
+    "baselineBytes": 1685673,
+    "bundleBytes": 3365322,
+    "ratio": 1.9964263531539035,
+    "budgets": {
+      "modernEsmEntryMustBeSmallerThanBaseline": false
+    }
+  },
+  "forbiddenRuntimeDependencies": {
+    "componentManifestJson": false,
+    "dataManifestAttribute": false,
+    "xtendLoader": false
+  }
+}

@@ -3,3 +3,7 @@
 node_modules/
 .DS_Store
 products/
+!products/
+products/*
+!products/rmt-maraca-kernel-orchestration/
+!products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt
