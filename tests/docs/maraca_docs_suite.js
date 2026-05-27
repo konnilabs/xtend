@@ -24,6 +24,16 @@ const DOC_PATHS = Object.freeze([
   'docs/en/xtend-maraca.md',
   'docs/de/xtend-maraca-orchestration.md',
   'docs/en/xtend-maraca-orchestration.md',
+  'docs/de/README.md',
+  'docs/en/README.md',
+  'docs/de/quick-start-guide.md',
+  'docs/en/quick-start-guide.md',
+  'docs/de/learn-rmt.md',
+  'docs/en/learn-rmt.md',
+  'docs/de/learn-rmt-syntax-basics.md',
+  'docs/en/learn-rmt-syntax-basics.md',
+  'docs/de/learn-rmt-next-steps.md',
+  'docs/en/learn-rmt-next-steps.md',
   'docs/menu.json'
 ]);
 const DEEP_DIVE_PATHS = Object.freeze([
@@ -69,6 +79,16 @@ function assertIncludesAll(context, source, entries, label) {
 function runDocContentChecks(context, rootDir) {
   const deEntry = readText('docs/de/xtend-maraca.md', rootDir);
   const enEntry = readText('docs/en/xtend-maraca.md', rootDir);
+  const deReadme = readText('docs/de/README.md', rootDir);
+  const enReadme = readText('docs/en/README.md', rootDir);
+  const deQuickStart = readText('docs/de/quick-start-guide.md', rootDir);
+  const enQuickStart = readText('docs/en/quick-start-guide.md', rootDir);
+  const deLearnRmt = readText('docs/de/learn-rmt.md', rootDir);
+  const enLearnRmt = readText('docs/en/learn-rmt.md', rootDir);
+  const deSyntax = readText('docs/de/learn-rmt-syntax-basics.md', rootDir);
+  const enSyntax = readText('docs/en/learn-rmt-syntax-basics.md', rootDir);
+  const deNextSteps = readText('docs/de/learn-rmt-next-steps.md', rootDir);
+  const enNextSteps = readText('docs/en/learn-rmt-next-steps.md', rootDir);
   const deepDive = DEEP_DIVE_PATHS.map((docPath) => readText(docPath, rootDir)).join('\n\n');
 
   context.assertIncludes(deEntry, './xtend-maraca-orchestration.md', 'German Maraca entry links to orchestration deep dive');
@@ -81,15 +101,43 @@ function runDocContentChecks(context, rootDir) {
     'maraca-transitions'
   ], 'Maraca entry docs');
   assertIncludesAll(context, deepDive, REQUIRED_DEEP_DIVE_TOKENS, 'Maraca orchestration deep dive');
+  assertIncludesAll(context, deReadme.concat('\n', enReadme), [
+    './xtend-maraca.md',
+    './xtend-maraca-orchestration.md',
+    'Maraca App-Orchestrierung',
+    'Maraca app orchestration'
+  ], 'Developer Center start pages');
+  assertIncludesAll(context, deQuickStart.concat('\n', enQuickStart), [
+    './xtend-maraca.md',
+    './xtend-maraca-orchestration.md',
+    'app.rmt'
+  ], 'Quick Start Maraca handoff');
+  assertIncludesAll(context, deLearnRmt.concat('\n', enLearnRmt), [
+    './xtend-maraca.md',
+    'validation',
+    'transition'
+  ], 'Learn RMT Maraca handoff');
+  assertIncludesAll(context, deSyntax.concat('\n', enSyntax).concat('\n', deNextSteps, '\n', enNextSteps), [
+    './xtend-maraca-orchestration.md',
+    'xt maraca build',
+    'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt'
+  ], 'Learn RMT production path');
 }
 
 function runMenuChecks(context, rootDir) {
   const menu = readJson('docs/menu.json', rootDir);
   const maraca = menu.find((entry) => entry.slug === 'xtend-maraca');
   const orchestration = menu.find((entry) => entry.slug === 'xtend-maraca-orchestration');
+  const maracaIndex = menu.findIndex((entry) => entry.slug === 'xtend-maraca');
+  const learnEndIndex = menu.findIndex((entry) => entry.slug === 'learn-rmt-next-steps');
+  const rmtIndex = menu.findIndex((entry) => entry.slug === 'xtendrmt-overview');
 
+  context.assert(maraca && maraca.group === 'maraca', 'XTend Maraca menu entry has its own Maraca group');
+  context.assert(maraca && !maraca.parent, 'XTend Maraca is a top-level menu entry');
+  context.assert(maraca && maraca.rank >= 100, 'XTend Maraca has prominent menu rank');
+  context.assert(maracaIndex > learnEndIndex && maracaIndex < rmtIndex, 'XTend Maraca is ordered between Learn RMT and RMT reference docs');
   context.assert(orchestration && orchestration.id === 'docs.xtend.maraca.orchestration', 'Docs menu exposes stable orchestration id');
-  context.assert(orchestration && orchestration.group === 'rmt', 'Orchestration menu entry is in rmt group');
+  context.assert(orchestration && orchestration.group === 'maraca', 'Orchestration menu entry is in maraca group');
   context.assert(orchestration && orchestration.parent === 'xtend-maraca', 'Orchestration menu entry hangs below XTend Maraca');
   context.assert(orchestration && orchestration.tier === 'deep-dive', 'Orchestration menu entry is a deep dive');
   context.assert(orchestration && maraca && orchestration.rank < maraca.rank, 'Orchestration menu rank follows XTend Maraca');

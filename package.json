@@ -3303,6 +3303,8 @@
       "npm run test:rmt-playground-docs",
       "npm run test:rmt-playground-security",
       "npm run test:rmt-tooling-docs",
+      "npm run test:rmt-vnext-release",
+      "npm run test:rmt-vnext-enterprise-release",
       "npm run test:supply-chain",
       "npm run test:manifest-policy",
       "npm run test:rmt-php-ssr-adapter",
@@ -7061,7 +7063,7 @@
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
       "expectedExportCount": 129,
-      "lockedExportFingerprint": "bd02e607c8d5e735fec8c7ec334be65e3a4c305dd9247a0f03f149a87d181b49",
+      "lockedExportFingerprint": "c15f3af15e22b093274049b3e658677d5fcced4b6acd88c428494cbdaba347fc",
       "p0Exports": [
         ".",
         "./loader",

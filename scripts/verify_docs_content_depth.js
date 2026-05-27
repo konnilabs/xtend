@@ -7,6 +7,7 @@ const {
 } = require('./create_component_docs_inventory');
 const {
   DEFAULT_MIN_GUIDE_CHARS,
+  KNOWN_GUIDE_BOILERPLATE_PHRASES,
   createDocsStubInventory
 } = require('./create_docs_stub_inventory');
 
@@ -16,6 +17,8 @@ const MIN_COMPONENT_WORDS = 350;
 const MIN_COMPONENT_CODE_BLOCKS = 2;
 const MIN_GUIDE_NON_CODE_CHARS = DEFAULT_MIN_GUIDE_CHARS;
 const MIN_GUIDE_H2_COUNT = 4;
+const MIN_GUIDE_CONCRETE_ANCHORS = 1;
+const MAX_REPEATED_GUIDE_PARAGRAPHS = 0;
 
 const requiredSections = Object.freeze([
   { key: 'solves', de: '## Was es löst', en: '## What it solves' },
@@ -183,6 +186,12 @@ function assertGuideArticle(failures, rootDir, entry, locale) {
   if (article.linkErrors.length) {
     failures.push(`${article.path} links to missing Markdown targets: ${article.linkErrors.join(', ')}.`);
   }
+  if (article.boilerplatePhraseCount > 0) {
+    failures.push(`${article.path} contains generated guide boilerplate: ${article.boilerplatePhrases.join('; ')}.`);
+  }
+  if (article.concreteAnchorCount < MIN_GUIDE_CONCRETE_ANCHORS) {
+    failures.push(`${article.path} has ${article.concreteAnchorCount} concrete anchors; expected at least ${MIN_GUIDE_CONCRETE_ANCHORS}.`);
+  }
 
   const contentWithoutCode = stripCodeBlocks(readText(rootDir, article.path));
   if (forbiddenInternalPattern.test(contentWithoutCode)) {
@@ -196,7 +205,10 @@ function assertGuideArticle(failures, rootDir, entry, locale) {
     nonCodeChars: article.nonCodeChars,
     words: article.words,
     h2Count: article.h2Count,
-    codeBlockCount: article.codeBlockCount
+    codeBlockCount: article.codeBlockCount,
+    commandCount: article.commandCount,
+    concreteAnchorCount: article.concreteAnchorCount,
+    boilerplatePhraseCount: article.boilerplatePhraseCount
   };
 }
 
@@ -221,6 +233,12 @@ function runDocsContentDepthCheck(options = {}) {
     if (de) guideArticleReports.push(de);
     if (en) guideArticleReports.push(en);
   });
+
+  if (guideInventory.repeatedParagraphWarnings.length > MAX_REPEATED_GUIDE_PARAGRAPHS) {
+    guideInventory.repeatedParagraphWarnings.forEach((warning) => {
+      failures.push(`Guide docs repeat a long paragraph across ${warning.articleCount} articles: "${warning.paragraph}"`);
+    });
+  }
 
   const stubArticles = guideInventory.entries.flatMap((entry) => Object.values(entry.articles)
     .filter((article) => article.stub)
@@ -250,9 +268,14 @@ function runDocsContentDepthCheck(options = {}) {
       minComponentCodeBlocks: MIN_COMPONENT_CODE_BLOCKS,
       minGuideNonCodeChars: MIN_GUIDE_NON_CODE_CHARS,
       minGuideH2Count: MIN_GUIDE_H2_COUNT,
+      minGuideConcreteAnchors: MIN_GUIDE_CONCRETE_ANCHORS,
+      forbiddenGuideBoilerplatePhrases: KNOWN_GUIDE_BOILERPLATE_PHRASES,
       stubSlugs: guideInventory.stubSlugs,
       stubArticles,
       stubGroups: guideInventory.stubGroups,
+      boilerplateArticleCount: guideInventory.boilerplateArticleCount,
+      repeatedParagraphWarnings: guideInventory.repeatedParagraphWarnings,
+      shortestArticlesWithoutKnownBoilerplate: guideInventory.shortestArticlesWithoutKnownBoilerplate,
       shortestArticles: guideInventory.shortestArticles,
       componentArticles: componentArticleReports,
       guideArticles: guideArticleReports
@@ -284,6 +307,7 @@ module.exports = {
   DOCS_CONTENT_DEPTH_REPORT_SCHEMA,
   MIN_COMPONENT_CODE_BLOCKS,
   MIN_COMPONENT_WORDS,
+  MIN_GUIDE_CONCRETE_ANCHORS,
   MIN_GUIDE_H2_COUNT,
   MIN_GUIDE_NON_CODE_CHARS,
   printDocsContentDepthReport,

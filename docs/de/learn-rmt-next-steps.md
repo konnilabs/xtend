@@ -4,7 +4,7 @@ Du kennst jetzt den Kernfluss von RMT-vNext: Templates definieren Grenzen, Surfa
 
 ## Wohin Danach
 
-Nutze [RMT vNext Authoring](./rmt-vnext-authoring.md) als Referenz für vollständige Sprachdetails. Lies die [App DSL](./xtendrmt-app-dsl.md), wenn du ganze Anwendungen modellieren möchtest, und fahre dann mit [Runtime Bridge](./xtendrmt-runtime-bridge.md), [RMT Linter](./rmt-linter.md) und [Language Server](./rmt-language-server.md) fort.
+Nutze [RMT vNext Authoring](./rmt-vnext-authoring.md) als Referenz für vollständige Sprachdetails. Lies die [App DSL](./xtendrmt-app-dsl.md), wenn du ganze Anwendungen modellieren möchtest, und fahre dann mit [XTend Maraca](./xtend-maraca.md), [Runtime Bridge](./xtendrmt-runtime-bridge.md), [RMT Linter](./rmt-linter.md) und [Language Server](./rmt-language-server.md) fort.
 
 Für UI-Integration lies [SurfaceManager Authoring](./surface-manager-authoring-guide.md) und [XTend Fabric RMT Lane Mapping](./xtend-fabric-rmt-lane-mapping.md).
 
@@ -12,16 +12,23 @@ Für UI-Integration lies [SurfaceManager Authoring](./surface-manager-authoring-
 
 Öffne den [RMT Playground](./learn-rmt-playground.md), füge eine zweite Surface hinzu und gib ihr ein niedrigeres Lane-Gewicht. Vergleiche danach die kompilierte Ausgabe mit den Referenzdocs.
 
-## Entwicklerkontext
+## Produktionspfad
 
-Dieser erweiterte Abschnitt macht aus RMT Nächste Schritte einen praktischen Lernleitfaden für Drittanbieter. Lies ihn als öffentlichen Vertrag rund um das Thema: Er erklärt, warum die Seite existiert, welche Repository-Oberflächen sie stützen, wie ein Host sie integrieren sollte und wo du nachsiehst, wenn sich das Verhalten nicht wie erwartet zeigt. Die Struktur folgt etablierten Entwicklerdokumentationen: kurzer Kontext, wiederholbarer Integrationspfad, konkretes Beispiel, Referenz-Checkliste und Fehlerbehebung.
+Wenn dein Übungsdokument State, Actions, Validation oder Surface Transitions enthält, baue es als Maraca App weiter. Starte mit [XTend Maraca](./xtend-maraca.md), prüfe danach [Maraca Orchestrierung](./xtend-maraca-orchestration.md) und vergleiche dein Dokument mit `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`. Der entscheidende lokale Check ist der Strict-Build, weil er die öffentliche App-Orchestrierung und nicht nur den Parserpfad beweist.
 
-Nutze diese Seite, wenn du eine Implementierungsentscheidung treffen musst, ohne internes Projektwissen vorauszusetzen. Die Seite soll drei Fragen schnell beantworten: Was ist stabil, was muss der Host konfigurieren, und welche lokale Prüfung beweist, dass die Integration weiterhin funktioniert. Sie führt kein neues Runtime-Verhalten ein, sondern dokumentiert Verträge, die bereits in Source, Package-Metadaten, Fixtures, Tests und lokalisierter Dokumentation vorhanden sind.
+## Öffentlicher Vertrag
 
-## Source of Truth
+RMT Nächste Schritte ist der öffentliche Lernpfad-Vertrag für `docs/de/learn-rmt-next-steps.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
 
-Der Inhalt stützt sich auf diese Repository-Oberflächen:
+- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
+- Stabile Oberfläche: RMT-Quelldateien, Parser-Verhalten, Linter-Diagnosen und Playground-Ausgaben.
+- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
 
+## Schnittstellen und Anker
+
+Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
+
+Quellen:
 - `docs/de/learn-rmt-next-steps.md`
 - `docs/menu.json`
 - `package.json`
@@ -31,37 +38,36 @@ Der Inhalt stützt sich auf diese Repository-Oberflächen:
 - `tools/rmt-language/vnext-scheduler.js`
 - `tools/rmt-language/vnext-surfaces.js`
 
-Behandle diese Dateien als Autorität, wenn du ein Detail verifizieren musst. Dokumentationsbeispiele sollten kleiner als Produktionscode bleiben, aber echte Pfade, echte Befehle und Namen verwenden, die im Paket existieren. Wenn Implementierung und diese Seite voneinander abweichen, prüfe zuerst die genannten Quellen und aktualisiere den Artikel erst, wenn der öffentliche Vertrag klar ist.
+Namen:
+- `docs/de/learn-rmt-next-steps.md`
+- `docs/menu.json`
+- `docs/xtendrmt-docs-shell-vnext.rmt`
+- `tools/rmt-language/parser.js`
+- `tools/rmt-language/vnext-compiler.js`
+- `tools/rmt-language/vnext-scheduler.js`
+- `tools/rmt-language/vnext-surfaces.js`
+- `docs/dev-router.php`
+- `package.json`
+- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
 
-## Integrationspfad
+Befehle:
+- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
+- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
 
-Beginne mit dem kleinsten lokalen Host, der das Thema ausüben kann. Halte Manifest, Loader, RMT Dokument oder Qualitätsskript lokal in der Anwendung, damit Browser-Sicherheitsrichtlinie, Import-Auflösung und Scheduling-Entscheidungen während der Entwicklung sichtbar bleiben. Füge produktbezogene Wrapper erst hinzu, wenn der einfache XTend Pfad funktioniert, weil Wrapper fehlende Attribute, veraltete Routen oder falsche Scheduling-Annahmen verdecken können.
+## Minimaler Prüfpfad
 
-Für Drittanbieter ist die praktische Reihenfolge: Konzept lesen, minimales Beispiel kopieren, passende lokale Prüfung ausführen und erst danach Host-Daten oder Styling ergänzen. Verlasse dich nicht auf interne Verzeichnisnamen, erzeugte DOM-Knoten oder undokumentierte State Records. Stabile Integrationspunkte sind Package Exports, dokumentierte Dateien, Web-Component-Attribute und Events, RMT Records, öffentliche Skripte und die lokalisierten Docs-Routen.
-
-## Beispiel und Prüfung
-
-Nützliche lokale Prüfungen, bevor du eine Änderung veröffentlichst, die von dieser Seite abhängt:
+Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
 
 ```bash
 node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
 node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
 ```
 
-Das Beispiel ist bewusst klein. Es soll beweisen, dass die öffentliche Oberfläche erreichbar ist, nicht eine vollständige Anwendung modellieren. Für produktive Arbeit bleibt die Reihenfolge gleich: lokale Quelle konfigurieren, kleinste Prüfung ausführen, dann mit echten Host-Daten erweitern. Wenn der Befehl JSON erzeugt, hänge die Zusammenfassung an den Implementierungsreview, damit Reviewer dasselbe Signal sehen können, ohne das komplette lokale Setup nachzustellen.
+- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
+- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
 
-## Referenz-Checkliste
+## Spezifische Fehlerbilder
 
-- Bestimme die zuständige Oberfläche, bevor du eine Host-Integration änderst: Loader, Manifest, RMT Compiler, Fabric Scheduler, Surface Manager, Accessibility Policy oder Security Gate.
-- Halte DE- und EN-Artikel deckungsgleich. Codeblöcke bleiben zwischen den Locales identisch, damit Copy-Paste-Verhalten nicht von der Sprache abhängt.
-- Bevorzuge dokumentierte Attribute, Package Exports, Skripte und lokale Markdown-Routen gegenüber privaten Runtime-Interna.
-- Bewahre vorhandene lokale Links und halte Beispiele kurz genug, dass Nutzer sie anpassen können, ohne den Großteil des Snippets zu löschen.
-- Wenn eine Seite Validierung, Sicherheit oder Performance beschreibt, nenne den Befehl, der die Aussage lokal belegt.
-
-## Fehlerbehebung
-
-Wenn die Seite weiterhin zu abstrakt wirkt, fehlt meist ein konkretes Substantiv: Dateipfad, Befehl, Component Tag, RMT Record, Manifest-Key oder Event-Name. Ergänze dieses Substantiv, bevor du mehr Fließtext hinzufügst. Wenn eine Browser-Seite scheitert, prüfe zuerst, ob der lokale Server aus dem Repository-Root mit `docs/dev-router.php` gestartet wurde; sonst lösen Root-Assets wie `/xtend.css`, `/xtend-loader.js` und `/fabric/xtend-fabric.js` nicht auf. Wenn ein Befehl nach einer reinen Dokumentationsänderung scheitert, korrigiere bevorzugt das Beispiel oder die dokumentierte Quelle, statt das Gate abzuschwächen.
-
-## Pflegehinweise
-
-Dieser Abschnitt wird aus dem Guide-Inventar erzeugt und kann sicher aktualisiert werden. Handgeschriebener Kontext bleibt oberhalb, wenn eine Seite eine narrative Einordnung braucht; die generierte Tiefe bleibt darunter als wiederholbare Entwickler-Checkliste. Eine Seite gilt nicht mehr als Stub, wenn beide Locales über der Nicht-Code-Zeichenschwelle bleiben, mindestens vier sinnvolle H2-Abschnitte enthalten und die öffentlichen Docs-Qualitätschecks bestehen.
+- Wenn ein Beispiel nicht kompiliert, prüfe zuerst Token-Reihenfolge, Record-Namen und Linter-Ausgabe.
+- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
+- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

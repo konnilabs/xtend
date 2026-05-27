@@ -1,6 +1,6 @@
 import type { XtendCustomEventMap, XtendFormControlUxProfile, XtendPublicEventContract } from './xtend-public-types';
 
-export type XTextareaAttributeName = 'name' | 'value' | 'placeholder' | 'required' | 'disabled' | 'readonly' | 'maxlength' | 'minlength' | 'rows' | 'label' | 'busy' | 'invalid' | 'density' | 'fill' | 'syntax-highlight' | 'highlight' | 'lang' | 'language';
+export type XTextareaAttributeName = 'name' | 'value' | 'placeholder' | 'required' | 'disabled' | 'readonly' | 'maxlength' | 'minlength' | 'rows' | 'label' | 'busy' | 'invalid' | 'density' | 'fill' | 'syntax-highlight' | 'highlight' | 'line-numbering' | 'lang' | 'language';
 export type XTextareaEventName = 'textarea-changed' | 'textarea-invalid';
 export type XTextareaHighlightEngine = 'prism' | 'plain-text' | string;
 
@@ -59,10 +59,13 @@ export interface XTextareaSnapshot {
   highlightEngine: XTextareaHighlightEngine;
   highlightLanguage: string;
   languageAlias: XTextareaAttributeName | 'default';
+  lineNumbering: boolean;
+  lineCount: number;
 }
 
 export interface XTextareaElement extends HTMLElement {
   value: string;
+  lineNumbering: boolean;
   readonly maxLength: number;
   checkValidity(): boolean;
   reportValidity(): boolean;

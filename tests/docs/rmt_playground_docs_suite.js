@@ -112,9 +112,14 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   context.assert(pageLoader.includes('renderDocsRmtPlayground'), 'Page loader renders the RMT playground route');
   context.assert(pageLoader.includes('x-surface-manager'), 'Playground client uses x-surface-manager');
   context.assert(pageLoader.includes('x-textarea'), 'Playground client uses x-textarea as the first editor');
-  context.assert(pageLoader.includes("'syntax-highlight': true") && pageLoader.includes("lang: 'rmt'"), 'Playground editor enables Prism RMT syntax highlighting');
+  context.assert(pageLoader.includes('x-select') && pageLoader.includes('docs-rmt-playground-template-bar') && pageLoader.includes('select-changed'), 'Playground uses x-select in a dedicated template bar above the editor');
+  context.assert(pageLoader.includes("'syntax-highlight': true") && pageLoader.includes("'line-numbering': 'true'") && pageLoader.includes("lang: 'rmt'"), 'Playground editor enables Prism RMT syntax highlighting with line numbering');
   context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_RENDERER_MODULE') && pageLoader.includes('rmt-dom-descriptor-renderer'), 'Playground preview uses the RMT DOM descriptor renderer');
+  context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_MARACA_MODE') && pageLoader.includes('DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES'), 'Playground exposes Maraca runtime preview mode and module whitelist');
+  context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_PRESETS') && pageLoader.includes('customer-service-kernel'), 'Playground exposes Maraca-oriented presets');
   context.assert(pageLoader.includes('createDocsRmtPlaygroundDescriptorPreviewFrame'), 'Playground client renders structured descriptor previews');
+  context.assert(pageLoader.includes('bootDocsRmtPlaygroundMaracaPreview') && pageLoader.includes('window.xtendDocsRmtPlaygroundLastMaraca'), 'Playground boots Maraca preview telemetry for browser tests');
+  context.assert(pageLoader.includes('data-maraca-phase') && pageLoader.includes("phase: 'runtime'") && pageLoader.includes('maracaRunning'), 'Playground distinguishes planned Maraca build status from booted runtime status');
   context.assert(pageLoader.includes('docs-rmt-playground-preview-app') && pageLoader.includes('__xtendRmtPreviewBounds'), 'Playground preview renders compiled surfaces in an app-like bounded root');
   context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_HYDRATION_TAGS') && pageLoader.includes("'x-progress'"), 'Playground hydrates public XTend component previews');
   context.assert(pageLoader.includes('getDocsRmtPlaygroundDiagnosticsEndpoint') && pageLoader.includes('runDocsRmtPlaygroundLanguageDiagnostics'), 'Playground client runs live RMT Language Server diagnostics');
@@ -127,7 +132,7 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   context.assert(pageLoader.includes('data-rmt-playground-article'), 'Playground moves guide copy into a managed surface');
   context.assert(pageLoader.includes('data-rmt-playground-related-panel'), 'Playground keeps read-further links inside SurfaceManager');
   context.assert(pageLoader.includes('x-textarea::part(control)') && pageLoader.includes('--textarea-resize: none'), 'Playground editor scrolls instead of resizing surfaces');
-  context.assert(pageLoader.includes('grid-template-rows: minmax(0, 1fr) minmax(3.35rem, auto)') && pageLoader.includes('grid-template-columns: auto auto minmax(0, 1fr)'), 'Playground editor keeps action buttons in a stable row below the textarea');
+  context.assert(pageLoader.includes('grid-template-rows: auto minmax(0, 1fr) minmax(3.35rem, auto)') && pageLoader.includes('grid-template-columns: auto auto minmax(14rem, 1fr)'), 'Playground editor keeps template selection above the textarea and action buttons in a stable lower band');
   context.assert(pageLoader.includes('getDocsRmtPlaygroundNativeTextarea'), 'Playground reads the upgraded native textarea value');
   context.assert(pageLoader.includes('setDocsRmtPlaygroundEditorValue'), 'Playground syncs textarea value across upgrade timing');
   context.assert(pageLoader.includes('hashDocsRmtPlaygroundSource') && pageLoader.includes('sourceHash'), 'Playground tracks editor source identity for compile output updates');
@@ -138,6 +143,7 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   context.assert(pageLoader.includes('renderDocsRmtPlayground(shell.mdContent, locale, relatedLinks)'), 'Playground receives localized related links');
   context.assert(xTextarea.includes('_upgradeProperty') && xTextarea.includes(":host([fill])"), 'x-textarea supports pre-upgrade values and fill layout');
   context.assert(xTextarea.includes('syntaxHighlighting') && xTextarea.includes('tokenParity') && xTextarea.includes('x-code'), 'x-textarea exposes syntax highlighting as XCode-compatible UX metadata');
+  context.assert(xTextarea.includes("'line-numbering'") && xTextarea.includes('part="line-numbers"') && xTextarea.includes('lineNumbering: this.lineNumbering'), 'x-textarea exposes optional editor-style line numbering');
   context.assert(xTextarea.includes('XTendRmtPrism') && xTextarea.includes('Prism') && xTextarea.includes('registerHighlighter(provider)'), 'x-textarea supports Prism and registered highlighters');
   context.assert(xTextarea.includes('part="highlight syntax"') && xTextarea.includes('.token.rmt-primitive') && xTextarea.includes('--x-code-token-keyword'), 'x-textarea ships an XCode-color-compatible highlight layer');
   context.assert(xSurfaceManager.includes('var(--xtend-surface-muted') && xSurfaceManager.includes('var(--xtend-text'), 'x-surface-manager inherits XTend theme tokens');
@@ -147,9 +153,12 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   context.assert(xSurfaceWindow.includes('var(--xtend-surface') && xSurfaceWindow.includes('var(--xtend-surface-muted'), 'x-surface-window inherits XTend theme tokens');
   context.assert(xSidePanel.includes('var(--xtend-surface') && xSidePanel.includes('var(--xtend-surface-muted'), 'x-side-panel inherits XTend theme tokens');
   context.assert(pageLoader.includes('xtend-rmt-playground=compile'), 'Playground client calls the compile endpoint');
+  context.assert(pageLoader.includes('xtend-rmt-playground=preset'), 'Playground client can load whitelisted server-side presets');
   context.assert(indexPhp.includes('docsRmtPlaygroundHandleCompile'), 'Docs host exposes the playground compile handler');
+  context.assert(indexPhp.includes('docsRmtPlaygroundCompileMaracaPreview'), 'Docs host exposes the Maraca preview compile path');
   context.assert(indexPhp.includes('docsRmtPlaygroundHandleDiagnostics') && indexPhp.includes('rmt_playground_lsp_bridge.js'), 'Docs host exposes the playground LSP diagnostics handler');
   context.assert(indexPhp.includes('compile_rmt_vnext_bridge.js'), 'Docs host reuses the Node compiler bridge');
+  context.assert(indexPhp.includes('rmt_playground_maraca_preview_bridge.js'), 'Docs host reuses the Node Maraca preview bridge');
   context.assert(indexPhp.includes('docsRmtPlaygroundComponentDescriptor') && indexPhp.includes("'renderMode' => 'dom_descriptor'"), 'Docs host returns structured DOM descriptor preview data');
   context.assert(packageManifest.scripts['test:rmt-playground-docs'] === 'node scripts/run_xtend_tests.js rmt-playground-docs', 'package exposes rmt-playground-docs script');
   context.assert(packageManifest.xtend && packageManifest.xtend.rmtPlaygroundDocs && packageManifest.xtend.rmtPlaygroundDocs.schema === RMT_PLAYGROUND_DOCS_SCHEMA, 'package metadata records RMT playground docs schema');

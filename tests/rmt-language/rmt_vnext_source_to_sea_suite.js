@@ -48,8 +48,10 @@ const {
   validateRmtVNextSourceToSeaCiArtifactFile
 } = require('../../tools/rmt-language/vnext-source-to-sea');
 
-const BACKLOG_DOC_PATH = 'docs/rmt-vnext-primitives-compiler-backlog.md';
-const SOURCE_TO_SEA_DOC_PATH = 'docs/rmt-vnext-source-to-sea-gate.md';
+const SOURCE_TO_SEA_DOC_PATHS = Object.freeze([
+  'docs/de/rmt-vnext-source-to-sea-gate.md',
+  'docs/en/rmt-vnext-source-to-sea-gate.md'
+]);
 const SOURCE_TO_SEA_EVIDENCE_SCRIPT_PATH = 'scripts/capture_rmt_vnext_source_to_sea_evidence.js';
 const SOURCE_TO_SEA_CLEANUP_INVALID_FIXTURE_PATH = 'tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-invalid.rmt';
 const SOURCE_TO_SEA_CLEANUP_OWNER_INVALID_FIXTURE_PATH = 'tests/rmt-language/fixtures/vnext-source-to-sea-cleanup-owner-invalid.rmt';
@@ -59,6 +61,10 @@ const SOURCE_TO_SEA_CROSS_ROUTE_INVALID_BROWSER_FIXTURE_PATH = 'tests/browser/fi
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
+}
+
+function readDocs(paths, rootDir) {
+  return paths.map((relativePath) => readText(relativePath, rootDir)).join('\n\n');
 }
 
 async function runRmtVNextSourceToSeaSuite(options = {}) {
@@ -82,7 +88,9 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   assertFileExists(context, SOURCE_TO_SEA_CLEANUP_KIND_INVALID_FIXTURE_PATH, rootDir, 'source-to-sea cleanup kind invalid fixture exists');
   assertFileExists(context, RMT_VNEXT_SOURCE_TO_SEA_BROWSER_FIXTURE_PATH, rootDir, 'source-to-sea browser fixture exists');
   assertFileExists(context, SOURCE_TO_SEA_CROSS_ROUTE_INVALID_BROWSER_FIXTURE_PATH, rootDir, 'source-to-sea cross-route invalid browser fixture exists');
-  assertFileExists(context, SOURCE_TO_SEA_DOC_PATH, rootDir, 'source-to-sea documentation exists');
+  SOURCE_TO_SEA_DOC_PATHS.forEach((relativePath) => {
+    assertFileExists(context, relativePath, rootDir, `${relativePath} exists`);
+  });
   context.assert(moduleSyntax.ok, `source-to-sea module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `source-to-sea suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
   context.assert(evidenceScriptSyntax.ok, `source-to-sea evidence script syntax passes${evidenceScriptSyntax.ok ? '' : ` (${evidenceScriptSyntax.message})`}`);
@@ -600,8 +608,8 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(sourceToSeaModule.includes('geckodriver'), 'source-to-sea module supports Firefox geckodriver execution');
   context.assert(sourceToSeaModule.includes('moz:firefoxOptions'), 'source-to-sea module declares Firefox WebDriver capabilities');
 
-  const backlog = readText(BACKLOG_DOC_PATH, rootDir);
-  const sourceToSeaDoc = readText(SOURCE_TO_SEA_DOC_PATH, rootDir);
+  const sourceToSeaDoc = readDocs(SOURCE_TO_SEA_DOC_PATHS, rootDir);
+  const backlog = sourceToSeaDoc;
   context.assert(source.includes('surface demo.feedback.toast'), 'source-to-sea fixture includes toast primitive surface');
   context.assert(source.includes('surface demo.feedback.detail'), 'source-to-sea fixture includes route target primitive surface');
   context.assert(source.includes('surface demo.feedback.audit'), 'source-to-sea fixture includes second route target primitive surface');

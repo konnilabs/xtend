@@ -8,22 +8,39 @@ Willkommen im XTend Developer Center. Diese Dokumentation erklärt XTend für En
 | --- | --- |
 | Erste lokale Seite | [Quick Start Guide](./quick-start-guide.md) |
 | RMT verstehen | [XTendRMT Überblick](./xtendrmt-overview.md) |
+| RMT vNext schreiben | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Releasevertrag](./rmt-vnext-release-handoff.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
+| Maraca App-Orchestrierung bauen | [XTend Maraca](./xtend-maraca.md), [Maraca Orchestrierung](./xtend-maraca-orchestration.md) |
+| Enterprise Remote Surfaces prüfen | [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md), [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-enterprise-mfe-handoff.md) |
 | Komponenten nutzen | [Komponenten-Entwicklung](./components.md) |
 | SSR anbinden | [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md), [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) |
-| Editor und Linting | [RMT Linter](./rmt-linter.md), [RMT Language Server](./rmt-language-server.md) |
+| Editor, Linting und VS Code | [RMT Linter](./rmt-linter.md), [RMT Language Server](./rmt-language-server.md), [RMT App Platform Tooling](./rmt-app-platform-tooling.md) |
 | Release Surface prüfen | [Package Export Lock](./package-export-lock.md), [Type Exports](./type-exports.md), [XTend Loader Types](./xtend-loader-types.md), [XTend API Types](./xtend-api-types.md), [XTend Policy Types](./xtend-policy-types.md), [XTend Builder Types](./xtend-builder-types.md), [XTend Catalog Types](./xtend-catalog-types.md), [XTend Vendor Types](./xtend-vendor-types.md) |
 | Release-Nachweise prüfen | [Release Readiness](./rc1-readiness.md), Previous Release Bridge, [Release Acceptance](./release-owner-acceptance.md), [Conditional Network Evidence](./conditional-network-evidence.md), [Conditional Network Evidence CI](./conditional-network-evidence-ci.md), [Release Report Pack Dry Run Evidence](./release-report-pack-dry-run-evidence.md), [Readiness CI Bundle](./rc1-gate-matrix-ci-handoff.md) |
 
 ```txt
 conditional network ci: xtend.epic13.conditional-network-evidence-ci.v1
 release pack evidence: xtend.epic13.release-report-pack-dry-run-evidence.v1
-previous release bridge: Epic 12 RC0 Handoff
+previous release bridge: prior local release bridge
 previous release bridge path: ./epic12-rc0-handoff.md
 ```
 
 ## Produktmodell
 
-XTend UI liefert die sichtbaren Web Components. XTendRMT beschreibt App Shells, State, Actions, Events und Surfaces. Fabric koordiniert Runtime-Arbeit, Lanes und Telemetrie. Der Loader verbindet alles lokal und ohne CDN.
+XTend UI liefert die sichtbaren Web Components. XTendRMT beschreibt App Shells, State, Actions, Events, Resources, Surfaces, Hydration, Validation und Surface Transitions. Fabric koordiniert Runtime-Arbeit; der RMT Kernel ergänzt Scheduler-Lanes, Fibers und Telemetrie. Der Loader verbindet alles lokal und ohne CDN, wenn ein manifestbasierter Host gebraucht wird; Maraca baut aus `.rmt` Quellen loaderlose, kernel-orchestrierte ESM Apps mit Bundle-Report, Browser Bridges und strikt prüfbaren Contracts.
+
+## Maraca im Hauptpfad
+
+Maraca ist der produktive App-Orchestrator im XTend-Stack. Verwende den Lernpfad, um RMT-Dokumente zu verstehen, und wechsle danach zu [XTend Maraca](./xtend-maraca.md), wenn aus dem Dokument ein ausgeliefertes App-Bundle mit Inline Registry, Kernel Scheduling, Hydration, Validation und Surface Transitions werden soll. Die reale Orchestrierungsfixture liegt unter `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`; der Deep-Dive erklärt, welche Contracts der Build im Browser und im Report sichtbar macht.
+
+## RMT vNext Release Surface
+
+Der RMT vNext Authoring Guide, die RMT vNext Migration Notes und der RMT vNext Releasevertrag gehören zusammen. Die Release-Spur verweist auf `xtendrmt/rmt-vnext-reference-demo.rmt` und `xtendrmt/rmt-vnext-reference-demo.core.json`, damit ein Integrator Authoring-Beispiel, Compiler-Output und gate matrix im selben Review prüfen kann.
+
+Für die englischen Prüfsuiten bleiben die öffentlichen Aliasnamen sichtbar: RMT vNext Release contract und RMT vNext Enterprise MFE contract.
+
+## RMT vNext Enterprise Surface
+
+RMT vNext Remote Surfaces, RMT vNext Enterprise Surface Registry, RMT vNext Cross Surface Events und der RMT vNext Enterprise MFE Vertrag beschreiben den Enterprise-MFE-Pfad bis `rmt-vnext-enterprise-mfe-ready`. Dieser Pfad bleibt netzwerkfrei prüfbar: Remote-Manifeste, Surface Registry, Cross-Surface Events und Browser-Smoke-Artefakte liegen als lokale Fixtures vor.
 
 ## Tooling
 
@@ -32,29 +49,43 @@ npm run dev:local
 xt rmt lint app.rmt
 xt rmt lint app.rmt --json
 xt rmt lint app.rmt --agent
+xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json
 node tools/rmt-language-server/server.js
 node scripts/run_xtend_tests.js rmt-tooling-docs --json
+node scripts/run_xtend_tests.js maraca-docs rmt-vnext-tooling rmt-editor-packaging type-exports-rmt --json
 ```
 
-Der Tooling-Pfad verwendet das öffentliche Schema `xtend.rmt.tooling-docs.v1`.
+Der Tooling-Pfad verwendet das öffentliche Schema `xtend.rmt.tooling-docs.v1`. Für orchestrierte Maraca Apps sind außerdem `xtend.rmt.app-orchestration.v1`, `xtend.rmt.form-validation.v1` und `xtend.rmt.surface-transitions.v1` relevant.
 
 ## Nächste Schritte
 
 - [Quick Start Guide](./quick-start-guide.md)
+- [XTend Maraca](./xtend-maraca.md)
+- [Maraca Orchestrierung](./xtend-maraca-orchestration.md)
+- [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
+- [RMT vNext Releasevertrag](./rmt-vnext-release-handoff.md)
+- [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md)
+- [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
+- [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md)
+- [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-enterprise-mfe-handoff.md)
 - [Best Practices](./best-practices.md)
 - [Trusted DOM und Sanitizing](./trusted-dom-sanitizing.md)
 - [Changelog](./changelog.md)
 
-## Entwicklerkontext
+## Öffentlicher Vertrag
 
-Dieser erweiterte Abschnitt macht aus XTend Developer Center einen praktischen Orientierungsleitfaden für Drittanbieter. Lies ihn als öffentlichen Vertrag rund um das Thema: Er erklärt, warum die Seite existiert, welche Repository-Oberflächen sie stützen, wie ein Host sie integrieren sollte und wo du nachsiehst, wenn sich das Verhalten nicht wie erwartet zeigt. Die Struktur folgt etablierten Entwicklerdokumentationen: kurzer Kontext, wiederholbarer Integrationspfad, konkretes Beispiel, Referenz-Checkliste und Fehlerbehebung.
+XTend Developer Center ist der öffentliche Orientierung-Vertrag für `docs/de/README.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
 
-Nutze diese Seite, wenn du eine Implementierungsentscheidung treffen musst, ohne internes Projektwissen vorauszusetzen. Die Seite soll drei Fragen schnell beantworten: Was ist stabil, was muss der Host konfigurieren, und welche lokale Prüfung beweist, dass die Integration weiterhin funktioniert. Sie führt kein neues Runtime-Verhalten ein, sondern dokumentiert Verträge, die bereits in Source, Package-Metadaten, Fixtures, Tests und lokalisierter Dokumentation vorhanden sind.
+- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
+- Stabile Oberfläche: Einstiegsrouten, lokale Docs-Navigation und die kleinsten lauffähigen Befehle.
+- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
 
-## Source of Truth
+## Schnittstellen und Anker
 
-Der Inhalt stützt sich auf diese Repository-Oberflächen:
+Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
 
+Quellen:
 - `docs/de/README.md`
 - `docs/menu.json`
 - `package.json`
@@ -64,37 +95,40 @@ Der Inhalt stützt sich auf diese Repository-Oberflächen:
 - `components/manifest.json`
 - `xtend-loader.js`
 
-Behandle diese Dateien als Autorität, wenn du ein Detail verifizieren musst. Dokumentationsbeispiele sollten kleiner als Produktionscode bleiben, aber echte Pfade, echte Befehle und Namen verwenden, die im Paket existieren. Wenn Implementierung und diese Seite voneinander abweichen, prüfe zuerst die genannten Quellen und aktualisiere den Artikel erst, wenn der öffentliche Vertrag klar ist.
+Namen:
+- `docs/de/README.md`
+- `docs/menu.json`
+- `docs/de/quick-start-guide.md`
+- `docs/en/quick-start-guide.md`
+- `docs/de/xtend-maraca-orchestration.md`
+- `docs/en/xtend-maraca-orchestration.md`
+- `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`
+- `components/manifest.json`
+- `tools/rmt-language/vnext-compiler.js`
+- `xtend-maraca/index.js`
 
-## Integrationspfad
+Befehle:
+- `npm run dev:local`
+- `xt rmt lint app.rmt`
+- `xt rmt lint app.rmt --json`
+- `xt rmt lint app.rmt --agent`
 
-Beginne mit dem kleinsten lokalen Host, der das Thema ausüben kann. Halte Manifest, Loader, RMT Dokument oder Qualitätsskript lokal in der Anwendung, damit Browser-Sicherheitsrichtlinie, Import-Auflösung und Scheduling-Entscheidungen während der Entwicklung sichtbar bleiben. Füge produktbezogene Wrapper erst hinzu, wenn der einfache XTend Pfad funktioniert, weil Wrapper fehlende Attribute, veraltete Routen oder falsche Scheduling-Annahmen verdecken können.
+## Minimaler Prüfpfad
 
-Für Drittanbieter ist die praktische Reihenfolge: Konzept lesen, minimales Beispiel kopieren, passende lokale Prüfung ausführen und erst danach Host-Daten oder Styling ergänzen. Verlasse dich nicht auf interne Verzeichnisnamen, erzeugte DOM-Knoten oder undokumentierte State Records. Stabile Integrationspunkte sind Package Exports, dokumentierte Dateien, Web-Component-Attribute und Events, RMT Records, öffentliche Skripte und die lokalisierten Docs-Routen.
-
-## Beispiel und Prüfung
-
-Nützliche lokale Prüfungen, bevor du eine Änderung veröffentlichst, die von dieser Seite abhängt:
+Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
 
 ```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
+npm run dev:local
+xt rmt lint app.rmt
+xt rmt lint app.rmt --json
+xt rmt lint app.rmt --agent
 ```
 
-Das Beispiel ist bewusst klein. Es soll beweisen, dass die öffentliche Oberfläche erreichbar ist, nicht eine vollständige Anwendung modellieren. Für produktive Arbeit bleibt die Reihenfolge gleich: lokale Quelle konfigurieren, kleinste Prüfung ausführen, dann mit echten Host-Daten erweitern. Wenn der Befehl JSON erzeugt, hänge die Zusammenfassung an den Implementierungsreview, damit Reviewer dasselbe Signal sehen können, ohne das komplette lokale Setup nachzustellen.
+- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
+- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
 
-## Referenz-Checkliste
+## Spezifische Fehlerbilder
 
-- Bestimme die zuständige Oberfläche, bevor du eine Host-Integration änderst: Loader, Manifest, RMT Compiler, Fabric Scheduler, Surface Manager, Accessibility Policy oder Security Gate.
-- Halte DE- und EN-Artikel deckungsgleich. Codeblöcke bleiben zwischen den Locales identisch, damit Copy-Paste-Verhalten nicht von der Sprache abhängt.
-- Bevorzuge dokumentierte Attribute, Package Exports, Skripte und lokale Markdown-Routen gegenüber privaten Runtime-Interna.
-- Bewahre vorhandene lokale Links und halte Beispiele kurz genug, dass Nutzer sie anpassen können, ohne den Großteil des Snippets zu löschen.
-- Wenn eine Seite Validierung, Sicherheit oder Performance beschreibt, nenne den Befehl, der die Aussage lokal belegt.
-
-## Fehlerbehebung
-
-Wenn die Seite weiterhin zu abstrakt wirkt, fehlt meist ein konkretes Substantiv: Dateipfad, Befehl, Component Tag, RMT Record, Manifest-Key oder Event-Name. Ergänze dieses Substantiv, bevor du mehr Fließtext hinzufügst. Wenn eine Browser-Seite scheitert, prüfe zuerst, ob der lokale Server aus dem Repository-Root mit `docs/dev-router.php` gestartet wurde; sonst lösen Root-Assets wie `/xtend.css`, `/xtend-loader.js` und `/fabric/xtend-fabric.js` nicht auf. Wenn ein Befehl nach einer reinen Dokumentationsänderung scheitert, korrigiere bevorzugt das Beispiel oder die dokumentierte Quelle, statt das Gate abzuschwächen.
-
-## Pflegehinweise
-
-Dieser Abschnitt wird aus dem Guide-Inventar erzeugt und kann sicher aktualisiert werden. Handgeschriebener Kontext bleibt oberhalb, wenn eine Seite eine narrative Einordnung braucht; die generierte Tiefe bleibt darunter als wiederholbare Entwickler-Checkliste. Eine Seite gilt nicht mehr als Stub, wenn beide Locales über der Nicht-Code-Zeichenschwelle bleiben, mindestens vier sinnvolle H2-Abschnitte enthalten und die öffentlichen Docs-Qualitätschecks bestehen.
+- Wenn Einstiegspfade auseinanderlaufen, prüfe zuerst `docs/menu.json`, die lokalen Links und den Befehl im Prüfblock.
+- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
+- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

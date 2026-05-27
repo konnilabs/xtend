@@ -105,7 +105,7 @@ const publicTypeContracts = [
     path: 'components/xtextarea.d.ts',
     typeNames: ['XTextareaAttributeName', 'XTextareaEventName', 'XTextareaEventDetail', 'XTextareaEventMap', 'XTextareaPublicEventContract', 'XTextareaElement'],
     events: ['textarea-changed', 'textarea-invalid'],
-    attributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label'],
+    attributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'line-numbering'],
     methods: ['checkValidity(): boolean', 'reportValidity(): boolean', 'validate(): boolean', 'reset(): void', 'focus(): void'],
     elementMap: true
   },

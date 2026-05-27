@@ -7,14 +7,14 @@
 - Gate: `node scripts/run_xtend_tests.js type-exports --json`
 - Package Script: `npm run test:type-exports`
 - Report Artifact: `.xtend-test-results/xtend-type-exports-report.json`
-- Export Fingerprint: `bd02e607c8d5e735fec8c7ec334be65e3a4c305dd9247a0f03f149a87d181b49`
+- Export Fingerprint: `c15f3af15e22b093274049b3e658677d5fcced4b6acd88c428494cbdaba347fc`
 - Boundary: `types-only-no-runtime-imports`
 - Boundary: `no-rmt-kernel-import-of-xtend-types`
 - Boundary: `declarations-follow-js-runtime-surface`
 
 ## Ziel
 
-Der erste Run macht die gesamte Public Package Surface von XTend als TypeExports-Matrix pruefbar. Alle aktuellen 128 Exports aus dem Package Export Lock sind klassifiziert, P0-Exports haben einen vorgeschlagenen `types`-Pfad oder eine dokumentierte `types-not-required` Ausnahme, und neue unklassifizierte Public Exports brechen lokal den Gate.
+Der erste Run macht die gesamte Public Package Surface von XTend als TypeExports-Matrix pruefbar. Alle aktuellen 129 Exports aus dem Package Export Lock sind klassifiziert, P0-Exports haben einen vorgeschlagenen `types`-Pfad oder eine dokumentierte `types-not-required` Ausnahme, und neue unklassifizierte Public Exports brechen lokal den Gate.
 
 ## Artefakte
 

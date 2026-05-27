@@ -25,7 +25,7 @@
     },
     "expectedHashes": {
       "baseCoreSha256": "606093a4899c1e71803584b25761becedd4cc246bf513460539bde98ec3bc2c9",
-      "remoteCompilerCoreSha256": "cd555dbc40633476905510931958c6bc0f78a3d634c86ccac22f6d36baa5e416",
+      "remoteCompilerCoreSha256": "68c60ab982501d3ac499ff8f4141867addb85e85b0775105256b43733f7af860",
       "enterpriseRegistrySha256": "f148550ef0e79d5c6ac18ad8b570803c03f54e78ef0bfdcebd4222a084ae84fb",
       "crossSurfaceEventsSha256": "fd4a5ba4f0a118c94b66833b82733d3a188a13dbed281ec8e5cbe99f82d50737",
       "eventGovernanceSha256": "d082f1d4193386176ca1d3a21cb7b039ee30b5add653e69d33dcd640a5ba9c53",

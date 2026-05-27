@@ -187,7 +187,7 @@ function runDocumentationChecks(context, rootDir) {
     'RMT vNext Remote Surfaces',
     'RMT vNext Enterprise Surface Registry',
     'RMT vNext Cross Surface Events',
-    'RMT vNext Enterprise MFE Handoff',
+    'RMT vNext Enterprise MFE contract',
     RMT_VNEXT_ENTERPRISE_TARGET_READINESS
   ], 'Docs README');
   assertIncludesAll(context, remoteDocs, [

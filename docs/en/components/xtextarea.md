@@ -28,6 +28,7 @@ Load the XTend loader once per page. The loader reads the local manifest and res
   name="demo"
   value="demo"
   placeholder="demo"
+  line-numbering="false"
   required>
   <span slot="label">Demo label</span>
   <span slot="hint">Helpful context</span>
@@ -51,6 +52,8 @@ if ('checkValidity' in component) {
 
 For production screens, keep IDs stable when state keys or diagnostics include `<id>`. Stable IDs make event logs, RMT schedules and browser tests easier to compare across deployments.
 
+Editor surfaces can set `line-numbering="true"`. `x-textarea` then renders a Monaco-style line-number gutter inside its shadow DOM; `line-numbering="false"` or a missing attribute disables it. This is especially useful for RMT playgrounds and diagnostics panels because compiler errors can be read against the source lines.
+
 ## API reference
 
 Attributes:
@@ -70,6 +73,7 @@ Attributes:
 - `fill`
 - `syntax-highlight`
 - `highlight`
+- `line-numbering`
 - `lang`
 - `language`
 
@@ -97,6 +101,8 @@ CSS parts:
 - `syntax`
 - `highlight-code`
 - `syntax-code`
+- `line-numbers`
+- `line-number`
 - `control`
 - `helper`
 - `status`
@@ -119,6 +125,11 @@ CSS custom properties:
 - `--xtend-form-control-text`
 - `--xtend-textarea-code-font-family`
 - `--x-code-font-family`
+- `--xtend-textarea-line-number-width`
+- `--xtend-textarea-line-number-gap`
+- `--xtend-textarea-line-number-text`
+- `--xtend-textarea-line-number-border`
+- `--xtend-textarea-line-number-surface`
 
 ## Integration notes
 

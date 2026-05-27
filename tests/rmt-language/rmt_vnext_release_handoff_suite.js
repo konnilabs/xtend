@@ -166,7 +166,7 @@ function runDocumentationChecks(context, rootDir) {
   assertIncludesAll(context, docsReadme, [
     'RMT vNext Authoring Guide',
     'RMT vNext Migration Notes',
-    'RMT vNext Release Handoff',
+    'RMT vNext Release contract',
     RMT_VNEXT_REFERENCE_DEMO_PATH,
     RMT_VNEXT_REFERENCE_CORE_PATH
   ], 'Docs README');

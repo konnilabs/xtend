@@ -11,6 +11,7 @@ Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwisse
 - Lokale Entwicklung ohne CDN.
 - Bilinguale Dokumentation.
 - Stabile öffentliche Einstiegspunkte.
+- Maraca als späterer Bundle- und Orchestrierungspfad für echte RMT Apps.
 ## Minimales HTML
 
 ```html
@@ -23,7 +24,7 @@ Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwisse
 
 ## Empfohlener Ablauf
 
-Starte den lokalen Server mit `npm run dev:local`, öffne eine kleine HTML-Seite und verschiebe wiederkehrende App-Struktur später in RMT.
+Starte den lokalen Server mit `npm run dev:local`, öffne eine kleine HTML-Seite und verschiebe wiederkehrende App-Struktur später in RMT. Sobald State, Actions oder Surface-Wechsel Teil des Produkts werden, ist [XTend Maraca](./xtend-maraca.md) der nächste produktive Pfad: Aus `app.rmt` entsteht ein ESM-Bundle statt eine Seite, die zur Laufzeit nur über den Loader zusammengesetzt wird.
 
 ## RMT prüfen
 
@@ -45,18 +46,23 @@ und der [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) bereit.
 ## Nächste Schritte
 
 - [Über XTend](./about.md)
+- [XTend Maraca](./xtend-maraca.md)
+- [Maraca Orchestrierung](./xtend-maraca-orchestration.md)
 - [Enterprise Adoption](./enterprise-adoption.md)
 
-## Entwicklerkontext
+## Öffentlicher Vertrag
 
-Dieser erweiterte Abschnitt macht aus Quick Start Guide einen praktischen Orientierungsleitfaden für Drittanbieter. Lies ihn als öffentlichen Vertrag rund um das Thema: Er erklärt, warum die Seite existiert, welche Repository-Oberflächen sie stützen, wie ein Host sie integrieren sollte und wo du nachsiehst, wenn sich das Verhalten nicht wie erwartet zeigt. Die Struktur folgt etablierten Entwicklerdokumentationen: kurzer Kontext, wiederholbarer Integrationspfad, konkretes Beispiel, Referenz-Checkliste und Fehlerbehebung.
+Quick Start Guide ist der öffentliche Orientierung-Vertrag für `docs/de/quick-start-guide.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
 
-Nutze diese Seite, wenn du eine Implementierungsentscheidung treffen musst, ohne internes Projektwissen vorauszusetzen. Die Seite soll drei Fragen schnell beantworten: Was ist stabil, was muss der Host konfigurieren, und welche lokale Prüfung beweist, dass die Integration weiterhin funktioniert. Sie führt kein neues Runtime-Verhalten ein, sondern dokumentiert Verträge, die bereits in Source, Package-Metadaten, Fixtures, Tests und lokalisierter Dokumentation vorhanden sind.
+- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
+- Stabile Oberfläche: Einstiegsrouten, lokale Docs-Navigation und die kleinsten lauffähigen Befehle.
+- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
 
-## Source of Truth
+## Schnittstellen und Anker
 
-Der Inhalt stützt sich auf diese Repository-Oberflächen:
+Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
 
+Quellen:
 - `docs/de/quick-start-guide.md`
 - `docs/menu.json`
 - `package.json`
@@ -66,37 +72,42 @@ Der Inhalt stützt sich auf diese Repository-Oberflächen:
 - `xtend-loader.js`
 - `api.js`
 
-Behandle diese Dateien als Autorität, wenn du ein Detail verifizieren musst. Dokumentationsbeispiele sollten kleiner als Produktionscode bleiben, aber echte Pfade, echte Befehle und Namen verwenden, die im Paket existieren. Wenn Implementierung und diese Seite voneinander abweichen, prüfe zuerst die genannten Quellen und aktualisiere den Artikel erst, wenn der öffentliche Vertrag klar ist.
+Namen:
+- `docs/de/quick-start-guide.md`
+- `docs/menu.json`
+- `docs/en/quick-start-guide.md`
+- `components/manifest.json`
+- `docs/dev-router.php`
+- `docs/de/xtend-maraca.md`
+- `docs/de/xtend-maraca-orchestration.md`
+- `package.json`
+- `README.md`
+- `xtend-loader.js`
+- `api.js`
+- `npm run dev:local`
 
-## Integrationspfad
+Befehle:
+- `xt rmt lint app.rmt`
+- `xt rmt lint app.rmt --json`
+- `xt rmt lint app.rmt --agent`
+- `node tools/rmt-language-server/server.js`
 
-Beginne mit dem kleinsten lokalen Host, der das Thema ausüben kann. Halte Manifest, Loader, RMT Dokument oder Qualitätsskript lokal in der Anwendung, damit Browser-Sicherheitsrichtlinie, Import-Auflösung und Scheduling-Entscheidungen während der Entwicklung sichtbar bleiben. Füge produktbezogene Wrapper erst hinzu, wenn der einfache XTend Pfad funktioniert, weil Wrapper fehlende Attribute, veraltete Routen oder falsche Scheduling-Annahmen verdecken können.
+## Minimaler Prüfpfad
 
-Für Drittanbieter ist die praktische Reihenfolge: Konzept lesen, minimales Beispiel kopieren, passende lokale Prüfung ausführen und erst danach Host-Daten oder Styling ergänzen. Verlasse dich nicht auf interne Verzeichnisnamen, erzeugte DOM-Knoten oder undokumentierte State Records. Stabile Integrationspunkte sind Package Exports, dokumentierte Dateien, Web-Component-Attribute und Events, RMT Records, öffentliche Skripte und die lokalisierten Docs-Routen.
-
-## Beispiel und Prüfung
-
-Nützliche lokale Prüfungen, bevor du eine Änderung veröffentlichst, die von dieser Seite abhängt:
+Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
 
 ```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
+xt rmt lint app.rmt
+xt rmt lint app.rmt --json
+xt rmt lint app.rmt --agent
+node tools/rmt-language-server/server.js
 ```
 
-Das Beispiel ist bewusst klein. Es soll beweisen, dass die öffentliche Oberfläche erreichbar ist, nicht eine vollständige Anwendung modellieren. Für produktive Arbeit bleibt die Reihenfolge gleich: lokale Quelle konfigurieren, kleinste Prüfung ausführen, dann mit echten Host-Daten erweitern. Wenn der Befehl JSON erzeugt, hänge die Zusammenfassung an den Implementierungsreview, damit Reviewer dasselbe Signal sehen können, ohne das komplette lokale Setup nachzustellen.
+- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
+- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
 
-## Referenz-Checkliste
+## Spezifische Fehlerbilder
 
-- Bestimme die zuständige Oberfläche, bevor du eine Host-Integration änderst: Loader, Manifest, RMT Compiler, Fabric Scheduler, Surface Manager, Accessibility Policy oder Security Gate.
-- Halte DE- und EN-Artikel deckungsgleich. Codeblöcke bleiben zwischen den Locales identisch, damit Copy-Paste-Verhalten nicht von der Sprache abhängt.
-- Bevorzuge dokumentierte Attribute, Package Exports, Skripte und lokale Markdown-Routen gegenüber privaten Runtime-Interna.
-- Bewahre vorhandene lokale Links und halte Beispiele kurz genug, dass Nutzer sie anpassen können, ohne den Großteil des Snippets zu löschen.
-- Wenn eine Seite Validierung, Sicherheit oder Performance beschreibt, nenne den Befehl, der die Aussage lokal belegt.
-
-## Fehlerbehebung
-
-Wenn die Seite weiterhin zu abstrakt wirkt, fehlt meist ein konkretes Substantiv: Dateipfad, Befehl, Component Tag, RMT Record, Manifest-Key oder Event-Name. Ergänze dieses Substantiv, bevor du mehr Fließtext hinzufügst. Wenn eine Browser-Seite scheitert, prüfe zuerst, ob der lokale Server aus dem Repository-Root mit `docs/dev-router.php` gestartet wurde; sonst lösen Root-Assets wie `/xtend.css`, `/xtend-loader.js` und `/fabric/xtend-fabric.js` nicht auf. Wenn ein Befehl nach einer reinen Dokumentationsänderung scheitert, korrigiere bevorzugt das Beispiel oder die dokumentierte Quelle, statt das Gate abzuschwächen.
-
-## Pflegehinweise
-
-Dieser Abschnitt wird aus dem Guide-Inventar erzeugt und kann sicher aktualisiert werden. Handgeschriebener Kontext bleibt oberhalb, wenn eine Seite eine narrative Einordnung braucht; die generierte Tiefe bleibt darunter als wiederholbare Entwickler-Checkliste. Eine Seite gilt nicht mehr als Stub, wenn beide Locales über der Nicht-Code-Zeichenschwelle bleiben, mindestens vier sinnvolle H2-Abschnitte enthalten und die öffentlichen Docs-Qualitätschecks bestehen.
+- Wenn Einstiegspfade auseinanderlaufen, prüfe zuerst `docs/menu.json`, die lokalen Links und den Befehl im Prüfblock.
+- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
+- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

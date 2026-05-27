@@ -82,7 +82,7 @@
       "id": "surfaces",
       "path": "tests/rmt-language/fixtures/vnext-surfaces-valid.rmt",
       "expected": {
-        "coreSha256": "a6e2590a913f1ba4b91cb5e5f508aaf44e8bf55deaee9f07cf02b3483731cc1b",
+        "coreSha256": "f2ac3007ec05298da26eb563075baa21d9cc1684dbfa49ee7b7ccaa67f26d2b0",
         "domainCounts": {
           "imports": 0,
           "templates": 1,

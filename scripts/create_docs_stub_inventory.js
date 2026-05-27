@@ -8,6 +8,18 @@ const GUIDE_DOCS_INVENTORY_ENTRY_SCHEMA = 'xtend.docs.guide-inventory-entry.v1';
 const GUIDE_DOCS_ARTICLE_SCHEMA = 'xtend.docs.guide-article-metrics.v1';
 const DEFAULT_MIN_GUIDE_CHARS = 2000;
 const LOCALES = Object.freeze(['de', 'en']);
+const KNOWN_GUIDE_BOILERPLATE_PHRASES = Object.freeze([
+  'Wenn die Seite weiterhin zu abstrakt wirkt',
+  'Dieser Abschnitt wird aus dem Guide-Inventar erzeugt',
+  'If the page still feels too abstract',
+  'This section is generated from the guide inventory',
+  'This expanded section turns',
+  'Dieser erweiterte Abschnitt macht aus',
+  'The structure follows the same pattern used by mature developer documentation systems',
+  'Die Struktur folgt etablierten Entwicklerdokumentationen'
+]);
+const REPEATED_PARAGRAPH_MIN_CHARS = 140;
+const REPEATED_PARAGRAPH_MIN_ARTICLES = 8;
 
 function resolveRootDir(rootDir) {
   return rootDir || path.resolve(__dirname, '..');
@@ -38,12 +50,79 @@ function bodyWithoutTitle(markdown) {
   return stripCodeBlocks(markdown).replace(/^#.*$/m, '').trim();
 }
 
+function stripKnownGuideBoilerplate(markdown) {
+  let text = String(markdown || '');
+  KNOWN_GUIDE_BOILERPLATE_PHRASES.forEach((phrase) => {
+    const pattern = new RegExp(`^.*${escapeRegExp(phrase)}.*(?:\\n|$)`, 'gmi');
+    text = text.replace(pattern, '');
+  });
+  return text;
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function knownBoilerplateHits(markdown) {
+  const text = String(markdown || '');
+  return KNOWN_GUIDE_BOILERPLATE_PHRASES
+    .filter((phrase) => text.includes(phrase));
+}
+
 function codeBlockCount(markdown) {
   return (String(markdown || '').match(/```[^\n]*\n[\s\S]*?```/g) || []).length;
 }
 
 function headingCount(markdown) {
   return (String(markdown || '').match(/^##\s+/gm) || []).length;
+}
+
+function codeBlocks(markdown) {
+  const blocks = [];
+  const pattern = /```[^\n]*\n([\s\S]*?)```/g;
+  let match;
+  while ((match = pattern.exec(String(markdown || '')))) {
+    blocks.push(match[1]);
+  }
+  return blocks;
+}
+
+function commandLines(markdown) {
+  const commands = [];
+  const pattern = /^\s*(?:npm|node|npx|php|xt|curl|git|chromium|\/usr\/bin\/chromium-browser)\b[^\n]*$/gm;
+  const source = String(markdown || '');
+  let match;
+  while ((match = pattern.exec(source))) {
+    commands.push(match[0].trim());
+  }
+  return Array.from(new Set(commands));
+}
+
+function collectConcreteAnchors(markdown) {
+  const source = String(markdown || '');
+  const anchors = [];
+  const patterns = [
+    /`((?:[\w.-]+\/)+[\w./@-]+)`/g,
+    /`([A-Za-z0-9_.-]+\.(?:js|mjs|cjs|ts|d\.ts|json|rmt|php|md|html|css|yml|yaml))`/g,
+    /`((?:npm|node|npx|php|xt|curl|git|chromium)\s+[^`]+)`/g,
+    /`(x-[a-z0-9-]+|xtend-i18n|xstate)`/g,
+    /\b(x-[a-z0-9-]+|xtend-i18n|xstate)\b/g,
+    /`(xtend\.[a-z0-9.-]+\.v\d+)`/gi,
+    /\b(xtend\.[a-z0-9.-]+\.v\d+)\b/gi,
+    /`((?:create|render|compile|resolve|register|load)[A-Z][A-Za-z0-9_]*)`/g,
+    /\b((?:create|render|compile|resolve|register|load)[A-Z][A-Za-z0-9_]*)\b/g,
+    /`((?:template|state|selector|action|event|surface|resource|portal|validation|transition)\s+[A-Za-z0-9_.:-]+)`/g,
+    /\b(data-manifest|xtend-preload|manifest\.json|components\/manifest\.json)\b/g,
+    /`([a-z0-9]+(?:[-.:][a-z0-9]+){1,})`/gi
+  ];
+  patterns.forEach((pattern) => {
+    let match;
+    while ((match = pattern.exec(source))) {
+      anchors.push(match[1]);
+    }
+  });
+  commandLines(source).forEach((command) => anchors.push(command));
+  return Array.from(new Set(anchors.filter((value) => String(value).trim().length > 1)));
 }
 
 function collectMarkdownLinks(markdown) {
@@ -70,13 +149,20 @@ function toArticleMetrics(rootDir, menuEntry, locale, threshold) {
   const exists = fs.existsSync(absolutePath);
   const text = exists ? readTextIfExists(rootDir, relativePath) : '';
   const body = bodyWithoutTitle(text);
+  const bodyWithoutKnownBoilerplate = bodyWithoutTitle(stripKnownGuideBoilerplate(text));
   const links = collectMarkdownLinks(text);
   const linkErrors = links.filter((target) => {
     const resolved = path.normalize(path.join(rootDir, path.dirname(relativePath), target));
     return !resolved.startsWith(rootDir) || !fs.existsSync(resolved);
   });
   const nonCodeChars = [...body].length;
+  const nonCodeCharsWithoutKnownBoilerplate = [...bodyWithoutKnownBoilerplate].length;
   const words = body.split(/\s+/).filter(Boolean).length;
+  const commands = commandLines(text);
+  const blocks = codeBlocks(text);
+  const commandCodeBlockCount = blocks.filter((block) => commandLines(block).length > 0).length;
+  const boilerplateHits = knownBoilerplateHits(text);
+  const concreteAnchors = collectConcreteAnchors(text);
 
   return {
     schema: GUIDE_DOCS_ARTICLE_SCHEMA,
@@ -84,13 +170,59 @@ function toArticleMetrics(rootDir, menuEntry, locale, threshold) {
     path: relativePath,
     exists,
     nonCodeChars,
+    nonCodeCharsWithoutKnownBoilerplate,
     words,
     h2Count: headingCount(text),
-    codeBlockCount: codeBlockCount(text),
+    codeBlockCount: blocks.length,
+    commandCount: commands.length,
+    commandCodeBlockCount,
+    codeCommandRatio: blocks.length === 0 ? 0 : commandCodeBlockCount / blocks.length,
     linkCount: links.length,
     linkErrors,
+    concreteAnchorCount: concreteAnchors.length,
+    concreteAnchors: concreteAnchors.slice(0, 20),
+    boilerplatePhraseCount: boilerplateHits.length,
+    boilerplatePhrases: boilerplateHits,
     stub: !exists || nonCodeChars < threshold
   };
+}
+
+function normalizeParagraph(paragraph) {
+  return String(paragraph || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function collectRepeatedParagraphWarnings(allArticles, rootDir) {
+  const byParagraph = new Map();
+  allArticles
+    .filter((article) => article.exists)
+    .forEach((article) => {
+      const text = stripCodeBlocks(readTextIfExists(rootDir, article.path));
+      const seen = new Set();
+      text.split(/\n{2,}/g)
+        .filter((paragraph) => !paragraph.split(/\n/g).some((line) => /^\s*[-*]\s+/.test(line)))
+        .filter((paragraph) => commandLines(paragraph).length === 0)
+        .map(normalizeParagraph)
+        .filter((paragraph) => paragraph.length >= REPEATED_PARAGRAPH_MIN_CHARS)
+        .filter((paragraph) => !paragraph.startsWith('#') && !paragraph.startsWith('- '))
+        .forEach((paragraph) => {
+          if (seen.has(paragraph)) return;
+          seen.add(paragraph);
+          const current = byParagraph.get(paragraph) || [];
+          current.push(article.path);
+          byParagraph.set(paragraph, current);
+        });
+    });
+
+  return Array.from(byParagraph.entries())
+    .filter(([, paths]) => paths.length >= REPEATED_PARAGRAPH_MIN_ARTICLES)
+    .map(([paragraph, paths]) => ({
+      paragraph: paragraph.slice(0, 220),
+      articleCount: paths.length,
+      paths: paths.slice(0, 20)
+    }))
+    .sort((a, b) => b.articleCount - a.articleCount || a.paragraph.localeCompare(b.paragraph));
 }
 
 function createDocsStubInventory(options = {}) {
@@ -133,6 +265,7 @@ function createDocsStubInventory(options = {}) {
     parent: entry.parent,
     ...article
   })));
+  const repeatedParagraphWarnings = collectRepeatedParagraphWarnings(allArticles, rootDir);
   const stubArticles = allArticles.filter((article) => article.stub);
   const stubGroups = {};
   stubEntries.forEach((entry) => {
@@ -152,9 +285,15 @@ function createDocsStubInventory(options = {}) {
     stubArticleCount: stubArticles.length,
     stubSlugs: stubEntries.map((entry) => entry.slug),
     stubGroups,
+    boilerplateArticleCount: allArticles.filter((article) => article.boilerplatePhraseCount > 0).length,
+    repeatedParagraphWarnings,
     shortestArticles: allArticles
       .filter((article) => article.exists)
       .sort((a, b) => a.nonCodeChars - b.nonCodeChars)
+      .slice(0, 20),
+    shortestArticlesWithoutKnownBoilerplate: allArticles
+      .filter((article) => article.exists)
+      .sort((a, b) => a.nonCodeCharsWithoutKnownBoilerplate - b.nonCodeCharsWithoutKnownBoilerplate)
       .slice(0, 20),
     entries
   };
@@ -203,7 +342,10 @@ module.exports = {
   GUIDE_DOCS_INVENTORY_SCHEMA,
   LOCALES,
   collectMarkdownLinks,
+  collectConcreteAnchors,
   createDocsStubInventory,
+  KNOWN_GUIDE_BOILERPLATE_PHRASES,
   localizedPathForSlug,
+  stripKnownGuideBoilerplate,
   stripCodeBlocks
 };

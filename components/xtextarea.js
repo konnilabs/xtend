@@ -37,6 +37,12 @@ function normalizeLanguage(value) {
   return XTEXTAREA_LANGUAGE_ALIASES[raw] || raw || 'text';
 }
 
+function isBooleanAttributeEnabled(value) {
+  if (value == null) return false;
+  const normalized = String(value).trim().toLowerCase();
+  return !['false', '0', 'off', 'no'].includes(normalized);
+}
+
 function safeHighlightResult(result, fallbackCode, fallbackLanguage) {
   if (!result || typeof result.html !== 'string') {
     return {
@@ -75,7 +81,7 @@ class XTextarea extends HTMLElement {
   static formAssociated = true;
 
   static get observedAttributes() {
-    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'syntax-highlight', 'highlight', 'lang', 'language'];
+    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'syntax-highlight', 'highlight', 'line-numbering', 'lang', 'language'];
   }
 
   static registerHighlighter(provider) {
@@ -172,7 +178,7 @@ class XTextarea extends HTMLElement {
       role: 'textbox',
       valueMode: 'string',
       slots: ['label', 'hint', 'error'],
-      parts: ['root', 'editor', 'control', 'highlight', 'highlight-code', 'label', 'helper', 'error'],
+      parts: ['root', 'editor', 'control', 'highlight', 'highlight-code', 'line-numbers', 'line-number', 'label', 'helper', 'error'],
       events: ['textarea-changed', 'textarea-invalid'],
       commands: ['focus', 'validate', 'reset', 'set-value', 'announce-error'],
       stateKey: 'xtextarea-value-<id>',
@@ -189,7 +195,11 @@ class XTextarea extends HTMLElement {
       syntaxHighlighting: {
         engine: 'prism',
         attributes: ['syntax-highlight', 'lang', 'language'],
-        tokenParity: 'x-code'
+        tokenParity: 'x-code',
+        lineNumbering: {
+          attribute: 'line-numbering',
+          values: ['true', 'false']
+        }
       },
       validation: { validityApi: true, errorRegion: 'role=alert aria-live=assertive' }
     };
@@ -268,6 +278,11 @@ class XTextarea extends HTMLElement {
           --xtend-textarea-code-font-size: var(--x-code-font-size, inherit);
           --xtend-textarea-highlight-caret: var(--xtend-form-control-text, var(--x-code-text, var(--text-color, #111827)));
           --xtend-textarea-highlight-selection: color-mix(in srgb, var(--primary-color, #2563eb) 28%, transparent);
+          --xtend-textarea-line-number-width: 3.4rem;
+          --xtend-textarea-line-number-gap: 0.75rem;
+          --xtend-textarea-line-number-text: var(--xtend-form-helper-text, var(--muted-color, #6b7280));
+          --xtend-textarea-line-number-border: color-mix(in srgb, var(--xtend-form-border-color, var(--border-color, #9ca3af)) 62%, transparent);
+          --xtend-textarea-line-number-surface: color-mix(in srgb, var(--xtend-form-control-surface, var(--input-bg, #fff)) 92%, var(--xtend-form-text, #111827));
         }
         :host([fill]) {
           height: 100%;
@@ -336,6 +351,41 @@ class XTextarea extends HTMLElement {
         .highlight-layer::-webkit-scrollbar {
           display: none;
         }
+        .line-numbers {
+          display: none;
+          position: absolute;
+          inset-block: 0;
+          inset-inline-start: 0;
+          z-index: 2;
+          box-sizing: border-box;
+          width: var(--xtend-textarea-line-number-width);
+          min-height: var(--xtend-form-control-min-height);
+          padding: var(--xtend-form-control-padding);
+          padding-inline-start: 0.35rem;
+          padding-inline-end: 0.7rem;
+          border-inline-end: 1px solid var(--xtend-textarea-line-number-border);
+          background: var(--xtend-textarea-line-number-surface);
+          color: var(--xtend-textarea-line-number-text);
+          font-family: var(--xtend-textarea-code-font-family);
+          font-size: var(--xtend-textarea-code-font-size);
+          line-height: var(--xtend-form-control-line-height, 1.45);
+          text-align: end;
+          overflow: hidden;
+          pointer-events: none;
+          user-select: none;
+          scrollbar-width: none;
+        }
+        .line-numbers::-webkit-scrollbar {
+          display: none;
+        }
+        .line-number-list {
+          display: block;
+          min-width: 100%;
+        }
+        .line-number-list span {
+          display: block;
+          white-space: nowrap;
+        }
         .highlight-layer code {
           display: block;
           min-width: 100%;
@@ -401,7 +451,8 @@ class XTextarea extends HTMLElement {
           transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
         }
         :host([syntax-highlight]) .editor,
-        :host([highlight]) .editor {
+        :host([highlight]) .editor,
+        :host([line-numbering]) .editor {
           border: var(--xtend-form-border-width, 1px) solid var(--xtend-form-border-color, var(--xtend-control-border, var(--border-color, #9ca3af)));
           border-radius: var(--xtend-form-radius, var(--xtend-control-radius, var(--border-radius, 0.5rem)));
           background: var(--x-code-bg, var(--xtend-layout-surface, var(--docs-code-bg, var(--xtend-form-control-surface, var(--xtend-control-bg, var(--input-bg, #fff))))));
@@ -412,10 +463,14 @@ class XTextarea extends HTMLElement {
         :host([highlight]) .highlight-layer {
           display: block;
         }
+        :host([line-numbering]) .line-numbers {
+          display: block;
+        }
         :host([syntax-highlight]) textarea,
         :host([highlight]) textarea,
         :host([syntax-highlight]) .highlight-layer,
         :host([highlight]) .highlight-layer,
+        :host([line-numbering]) .line-numbers,
         :host([syntax-highlight]) .highlight-layer code,
         :host([highlight]) .highlight-layer code {
           font-family: var(--xtend-textarea-code-font-family);
@@ -424,13 +479,21 @@ class XTextarea extends HTMLElement {
           tab-size: var(--x-code-tab-size, 2);
         }
         :host([syntax-highlight]) textarea,
-        :host([highlight]) textarea {
+        :host([highlight]) textarea,
+        :host([line-numbering]) textarea {
           border-color: transparent;
           background: transparent;
           box-shadow: none;
+        }
+        :host([syntax-highlight]) textarea,
+        :host([highlight]) textarea {
           color: transparent;
           caret-color: var(--xtend-textarea-highlight-caret);
           -webkit-text-fill-color: transparent;
+        }
+        :host([line-numbering]) textarea,
+        :host([line-numbering]) .highlight-layer {
+          padding-inline-start: calc(var(--xtend-textarea-line-number-width) + var(--xtend-textarea-line-number-gap));
         }
         :host([syntax-highlight]) textarea::selection,
         :host([highlight]) textarea::selection {
@@ -454,7 +517,8 @@ class XTextarea extends HTMLElement {
           border-color: var(--xtend-form-focus-border-color, var(--primary-color, #2563eb));
         }
         :host([syntax-highlight]:focus-within) .editor,
-        :host([highlight]:focus-within) .editor {
+        :host([highlight]:focus-within) .editor,
+        :host([line-numbering]:focus-within) .editor {
           outline: var(--xtend-form-focus-ring, var(--xtend-control-focus, var(--focus-outline, 2px solid var(--primary-color, #2563eb))));
           outline-offset: var(--xtend-form-focus-offset, 2px);
           border-color: var(--xtend-form-focus-border-color, var(--primary-color, #2563eb));
@@ -464,7 +528,8 @@ class XTextarea extends HTMLElement {
           box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
         }
         :host([invalid][syntax-highlight]) .editor,
-        :host([invalid][highlight]) .editor {
+        :host([invalid][highlight]) .editor,
+        :host([invalid][line-numbering]) .editor {
           border-color: var(--xtend-form-error-border, var(--error-color, #dc2626));
           box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
         }
@@ -503,7 +568,8 @@ class XTextarea extends HTMLElement {
           border-style: dashed;
         }
         :host([busy][syntax-highlight]) .editor,
-        :host([busy][highlight]) .editor {
+        :host([busy][highlight]) .editor,
+        :host([busy][line-numbering]) .editor {
           cursor: progress;
           border-style: dashed;
         }
@@ -514,12 +580,15 @@ class XTextarea extends HTMLElement {
         :host([disabled][syntax-highlight]) textarea,
         :host([readonly][syntax-highlight]) textarea,
         :host([disabled][highlight]) textarea,
-        :host([readonly][highlight]) textarea {
+        :host([readonly][highlight]) textarea,
+        :host([disabled][line-numbering]) textarea,
+        :host([readonly][line-numbering]) textarea {
           background: transparent;
         }
         @media (prefers-reduced-motion: reduce) {
           textarea,
           .highlight-layer,
+          .line-numbers,
           .error,
           .meta {
             transition: none !important;
@@ -529,6 +598,7 @@ class XTextarea extends HTMLElement {
         @media (forced-colors: active) {
           textarea,
           .highlight-layer,
+          .line-numbers,
           .error,
           .meta {
             forced-color-adjust: auto;
@@ -544,7 +614,8 @@ class XTextarea extends HTMLElement {
             border-color: FieldText;
           }
           :host([syntax-highlight]) .highlight-layer,
-          :host([highlight]) .highlight-layer {
+          :host([highlight]) .highlight-layer,
+          :host([line-numbering]) .line-numbers {
             color: FieldText;
           }
           :host([syntax-highlight]) textarea,
@@ -566,6 +637,7 @@ class XTextarea extends HTMLElement {
       </style>
       <label id="label" part="label" for="control"><slot name="label"><span id="label-text"></span></slot></label>
       <div class="editor" part="editor">
+        <div id="line-numbers" class="line-numbers" part="line-numbers" aria-hidden="true"><div id="line-number-list" class="line-number-list"></div></div>
         <pre id="highlight" class="highlight-layer" part="highlight syntax" aria-hidden="true"><code id="highlight-code" part="highlight-code syntax-code"></code></pre>
         <textarea id="control" part="control" aria-describedby="hint counter error" spellcheck="false"></textarea>
       </div>
@@ -578,8 +650,11 @@ class XTextarea extends HTMLElement {
     this._control = this.shadowRoot.querySelector('#control');
     this._highlightLayer = this.shadowRoot.querySelector('#highlight');
     this._highlightCode = this.shadowRoot.querySelector('#highlight-code');
+    this._lineNumbers = this.shadowRoot.querySelector('#line-numbers');
+    this._lineNumberList = this.shadowRoot.querySelector('#line-number-list');
     this._labelText = this.shadowRoot.querySelector('#label-text');
     this._counter = this.shadowRoot.querySelector('#counter');
+    this._lastLineNumberCount = 0;
     this._onInput = this._onInput.bind(this);
     this._onInvalid = this._onInvalid.bind(this);
     this._onScroll = this._onScroll.bind(this);
@@ -588,10 +663,12 @@ class XTextarea extends HTMLElement {
   connectedCallback() {
     if (!this.id) this.id = `xtextarea-${Math.random().toString(36).slice(2, 10)}`;
     this._upgradeProperty('value');
+    this._upgradeProperty('lineNumbering');
     this._upgradeAttributes();
     this._syncFormValue();
     this._syncCounter();
     this._syncHighlight();
+    this._syncLineNumbers();
     this._control.addEventListener('input', this._onInput);
     this._control.addEventListener('invalid', this._onInvalid);
     this._control.addEventListener('scroll', this._onScroll, { passive: true });
@@ -632,6 +709,7 @@ class XTextarea extends HTMLElement {
       this._syncFormValue();
       this._syncCounter();
       this._syncHighlight();
+      this._syncLineNumbers();
       return;
     }
     if (['required', 'disabled', 'readonly'].includes(name)) {
@@ -656,6 +734,7 @@ class XTextarea extends HTMLElement {
       this._syncFormValue();
       this._syncCounter();
       this._syncHighlight();
+      this._syncLineNumbers();
       return;
     }
     if (name === 'label') {
@@ -664,6 +743,15 @@ class XTextarea extends HTMLElement {
     }
     if (['syntax-highlight', 'highlight', 'lang', 'language'].includes(name)) {
       this._syncHighlight();
+      return;
+    }
+    if (name === 'line-numbering') {
+      if (newValue != null && !isBooleanAttributeEnabled(newValue)) {
+        this.removeAttribute('line-numbering');
+        return;
+      }
+      this._syncLineNumbers();
+      this._syncHighlightScroll();
     }
   }
 
@@ -671,6 +759,7 @@ class XTextarea extends HTMLElement {
     this._syncFormValue();
     this._syncCounter();
     this._syncHighlight();
+    this._syncLineNumbers();
     this.dispatchEvent(new CustomEvent('textarea-changed', {
       detail: {
         value: this.value,
@@ -699,6 +788,10 @@ class XTextarea extends HTMLElement {
 
   _onScroll() {
     this._syncHighlightScroll();
+  }
+
+  _isLineNumberingEnabled() {
+    return isBooleanAttributeEnabled(this.getAttribute('line-numbering'));
   }
 
   _getLanguageMeta() {
@@ -794,6 +887,30 @@ class XTextarea extends HTMLElement {
     if (!this._highlightLayer || !this._control) return;
     this._highlightLayer.scrollTop = this._control.scrollTop;
     this._highlightLayer.scrollLeft = this._control.scrollLeft;
+    this._syncLineNumberScroll();
+  }
+
+  _syncLineNumbers() {
+    if (!this._lineNumberList) return;
+    const enabled = this._isLineNumberingEnabled();
+    if (!enabled) {
+      this._lastLineNumberCount = 0;
+      this._lineNumberList.replaceChildren();
+      this._lineNumbers?.removeAttribute('data-line-count');
+      return;
+    }
+    const lineCount = Math.max(1, String(this.value || '').split('\n').length);
+    if (this._lastLineNumberCount !== lineCount) {
+      this._lineNumberList.innerHTML = Array.from({ length: lineCount }, (_, index) => `<span part="line-number">${index + 1}</span>`).join('');
+      this._lastLineNumberCount = lineCount;
+      this._lineNumbers?.setAttribute('data-line-count', String(lineCount));
+    }
+    this._syncLineNumberScroll();
+  }
+
+  _syncLineNumberScroll() {
+    if (!this._lineNumbers || !this._control || !this._isLineNumberingEnabled()) return;
+    this._lineNumbers.scrollTop = this._control.scrollTop;
   }
 
   _syncCounter() {
@@ -823,6 +940,19 @@ class XTextarea extends HTMLElement {
     this._syncFormValue();
     this._syncCounter();
     this._syncHighlight();
+    this._syncLineNumbers();
+  }
+
+  get lineNumbering() {
+    return this._isLineNumberingEnabled();
+  }
+
+  set lineNumbering(value) {
+    if (value === true || isBooleanAttributeEnabled(value)) {
+      this.setAttribute('line-numbering', 'true');
+    } else {
+      this.removeAttribute('line-numbering');
+    }
   }
 
   get maxLength() {
@@ -862,7 +992,9 @@ class XTextarea extends HTMLElement {
       highlighted: this._lastHighlightSnapshot.highlighted === true,
       highlightEngine: this._lastHighlightSnapshot.highlightEngine || 'plain-text',
       highlightLanguage: this._lastHighlightSnapshot.highlightLanguage || languageMeta.language,
-      languageAlias: this._lastHighlightSnapshot.languageAlias || languageMeta.alias
+      languageAlias: this._lastHighlightSnapshot.languageAlias || languageMeta.alias,
+      lineNumbering: this.lineNumbering,
+      lineCount: Math.max(1, String(this.value || '').split('\n').length)
     };
   }
 }

@@ -179,7 +179,13 @@ function normalizeOptions(input = {}, options = {}) {
   const values = normalizeInput(input);
   const rootDir = resolveRootDir(options.rootDir || values.rootDir);
   const positionalSource = Array.isArray(values._) && values._[0] ? values._[0] : null;
-  const source = values.source || values.src || values.app || positionalSource || DEFAULT_SOURCE;
+  const hasSourceText = typeof values.sourceText === 'string' || typeof values.sourceContent === 'string';
+  const sourceText = hasSourceText
+    ? String(typeof values.sourceText === 'string' ? values.sourceText : values.sourceContent)
+    : null;
+  const source = hasSourceText
+    ? (values.virtualSourcePath || values.filePath || values.sourcePath || positionalSource || 'docs/rmt-playground-source.rmt')
+    : (values.source || values.src || values.app || positionalSource || DEFAULT_SOURCE);
   const sourcePath = path.resolve(rootDir, source);
   const outDirValue = values.out || values.outDir || values.output || DEFAULT_OUT_DIR;
   const outputDir = path.resolve(rootDir, outDirValue);
@@ -225,6 +231,7 @@ function normalizeOptions(input = {}, options = {}) {
     rootDir,
     source,
     sourcePath,
+    sourceText,
     outputDir,
     profile,
     lazy,
@@ -285,7 +292,9 @@ function loadVNextCompiler(rootDir) {
 }
 
 function compileSource(options) {
-  const sourceText = fs.readFileSync(options.sourcePath, 'utf8');
+  const sourceText = typeof options.sourceText === 'string'
+    ? options.sourceText
+    : fs.readFileSync(options.sourcePath, 'utf8');
   const compiler = loadVNextCompiler(options.rootDir);
   return {
     sourceText,
@@ -1284,7 +1293,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   const normalized = normalizeOptions(input, options);
   const diagnostics = [];
 
-  if (!fs.existsSync(normalized.sourcePath)) {
+  if (typeof normalized.sourceText !== 'string' && !fs.existsSync(normalized.sourcePath)) {
     return {
       schema: MARACA_BUILD_PLAN_SCHEMA,
       ok: false,

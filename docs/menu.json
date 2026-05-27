@@ -208,6 +208,32 @@
     }
   },
   {
+    "slug": "xtend-maraca",
+    "id": "docs.xtend.maraca",
+    "label": "XTend Maraca",
+    "group": "maraca",
+    "parent": null,
+    "tier": "basic",
+    "rank": 100,
+    "labels": {
+      "de": "XTend Maraca",
+      "en": "XTend Maraca"
+    }
+  },
+  {
+    "slug": "xtend-maraca-orchestration",
+    "id": "docs.xtend.maraca.orchestration",
+    "label": "Maraca Orchestration",
+    "group": "maraca",
+    "parent": "xtend-maraca",
+    "tier": "deep-dive",
+    "rank": 98,
+    "labels": {
+      "de": "Maraca Orchestrierung",
+      "en": "Maraca Orchestration"
+    }
+  },
+  {
     "slug": "manifest",
     "id": "docs.manifest",
     "label": "Manifest",
@@ -624,6 +650,19 @@
     }
   },
   {
+    "slug": "rmt-vnext-migration-notes",
+    "id": "docs.rmt.vnext.migration.notes",
+    "label": "RMT vNext Migration Notes",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "deep-dive",
+    "rank": 93,
+    "labels": {
+      "de": "RMT vNext Migration Notes",
+      "en": "RMT vNext Migration Notes"
+    }
+  },
+  {
     "slug": "xtendrmt-app-dsl",
     "id": "docs.xtendrmt.app.dsl",
     "label": "XTendRMT App DSL",
@@ -634,6 +673,32 @@
     "labels": {
       "de": "XTendRMT App DSL",
       "en": "XTendRMT App DSL"
+    }
+  },
+  {
+    "slug": "rmt-vnext-release-handoff",
+    "id": "docs.rmt.vnext.release.handoff",
+    "label": "RMT vNext Release Contract",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "deep-dive",
+    "rank": 91,
+    "labels": {
+      "de": "RMT vNext Releasevertrag",
+      "en": "RMT vNext Release Contract"
+    }
+  },
+  {
+    "slug": "rmt-vnext-source-to-sea-gate",
+    "id": "docs.rmt.vnext.source.to.sea.gate",
+    "label": "RMT vNext Source-to-Sea",
+    "group": "rmt",
+    "parent": "rmt-vnext-release-handoff",
+    "tier": "deep-dive",
+    "rank": 89,
+    "labels": {
+      "de": "RMT vNext Source-to-Sea",
+      "en": "RMT vNext Source-to-Sea"
     }
   },
   {
@@ -780,6 +845,32 @@
     }
   },
   {
+    "slug": "rmt-vnext-surface-registry-enterprise",
+    "id": "docs.rmt.vnext.surface.registry.enterprise",
+    "label": "RMT vNext Enterprise Surface Registry",
+    "group": "rmt",
+    "parent": "rmt-vnext-remote-surfaces",
+    "tier": "deep-dive",
+    "rank": 73,
+    "labels": {
+      "de": "RMT vNext Enterprise Surface Registry",
+      "en": "RMT vNext Enterprise Surface Registry"
+    }
+  },
+  {
+    "slug": "rmt-vnext-enterprise-mfe-handoff",
+    "id": "docs.rmt.vnext.enterprise.mfe.handoff",
+    "label": "RMT vNext Enterprise MFE Contract",
+    "group": "rmt",
+    "parent": "rmt-vnext-remote-surfaces",
+    "tier": "deep-dive",
+    "rank": 72,
+    "labels": {
+      "de": "RMT vNext Enterprise MFE Vertrag",
+      "en": "RMT vNext Enterprise MFE Contract"
+    }
+  },
+  {
     "slug": "rmt-linter",
     "id": "docs.rmt.linter",
     "label": "RMT Linter",
@@ -894,32 +985,6 @@
     "labels": {
       "de": "RMT App Platform Tooling",
       "en": "RMT App Platform Tooling"
-    }
-  },
-  {
-    "slug": "xtend-maraca",
-    "id": "docs.xtend.maraca",
-    "label": "XTend Maraca",
-    "group": "rmt",
-    "parent": "rmt-app-platform-tooling",
-    "tier": "basic",
-    "rank": 63,
-    "labels": {
-      "de": "XTend Maraca",
-      "en": "XTend Maraca"
-    }
-  },
-  {
-    "slug": "xtend-maraca-orchestration",
-    "id": "docs.xtend.maraca.orchestration",
-    "label": "Maraca Orchestration",
-    "group": "rmt",
-    "parent": "xtend-maraca",
-    "tier": "deep-dive",
-    "rank": 62.5,
-    "labels": {
-      "de": "Maraca Orchestrierung",
-      "en": "Maraca Orchestration"
     }
   },
   {

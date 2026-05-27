@@ -12,6 +12,21 @@ const DOCS_RMT_PLAYGROUND_DEBOUNCE_MS = 300;
 const DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS = 160;
 const DOCS_RMT_PLAYGROUND_MAX_SOURCE_BYTES = 64 * 1024;
 const DOCS_RMT_PLAYGROUND_RENDERER_MODULE = '/xtendrmt/rmt-dom-descriptor-renderer.js';
+const DOCS_RMT_PLAYGROUND_MARACA_SCHEMA = 'xtend.docs.rmt-playground.maraca-preview.v1';
+const DOCS_RMT_PLAYGROUND_MARACA_MODE = 'maraca-preview';
+const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
+  '/components/xstate.js',
+  '/components/xutils.js',
+  '/xtendrmt/rmt-runtime.esm.js',
+  '/xtendrmt/rmt-kernel-orchestration-controller.js',
+  '/xtendrmt/rmt-state-selector-runtime.js',
+  '/xtendrmt/rmt-action-effect-runtime.js',
+  '/xtendrmt/rmt-event-routing-runtime.js',
+  '/xtendrmt/rmt-form-validation-runtime.js',
+  '/xtendrmt/rmt-surface-transition-runtime.js',
+  '/xtendrmt/rmt-surface-resource-graph-runtime.js',
+  '/xtendrmt/rmt-dom-descriptor-renderer.js'
+]);
 const DOCS_RMT_PLAYGROUND_HYDRATION_TAGS = Object.freeze([
   'x-alert',
   'x-button',
@@ -86,6 +101,7 @@ const DOCS_RMT_PLAYGROUND_ISLANDS = Object.freeze({
   })
 });
 let docsRmtPlaygroundRendererPromise = null;
+let docsRmtPlaygroundMaracaModulesPromise = null;
 const DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE = `template learn.rmt.playground {
   state preview.message type object preserve {
     initial {
@@ -108,6 +124,180 @@ const DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE = `template learn.rmt.playground {
     }
   }
 }`;
+const DOCS_RMT_PLAYGROUND_KERNEL_FORM_SOURCE = `template learn.rmt.kernel.form {
+  state demo.name type object preserve {
+    initial {
+      id "demo-name"
+      label "Name"
+      placeholder "Avery Stone"
+      value ""
+      required true
+      hidden false
+    }
+  }
+
+  state demo.next type object preserve {
+    initial {
+      id "demo-next"
+      text "Continue"
+      tone "primary"
+      disabled true
+      hidden false
+    }
+  }
+
+  selector demo.name from state demo.name {
+    output DemoName
+  }
+
+  selector demo.next from state demo.next {
+    output DemoCommand
+  }
+
+  validation demo.ready {
+    mode blocking
+    target action demo.continue
+    field demo.name required message "Enter a name."
+  }
+
+  action demo.updateName {
+    input value string
+    reduce state.demo.name.value = input.value
+  }
+
+  action demo.continue {
+    input label string
+    reduce state.demo.next.text = "Ready"
+    reduce state.demo.next.tone = "success"
+  }
+
+  surface demo.name kind field component x-input {
+    source selector demo.name
+    key name.id
+    bounds x 16 y 16 width 320 height 88
+
+    lane visible weight 80 {
+      hydrate demo-name from selector demo.name
+    }
+
+    on input-changed "#demo-name" -> action demo.updateName {
+      payload value from detail.value
+    }
+  }
+
+  surface demo.next kind action component x-button {
+    source selector demo.next
+    key next.id
+    bounds x 16 y 120 width 180 height 56
+
+    lane visible weight 80 {
+      mount demo-next from selector demo.next
+    }
+
+    on click "[data-action='demo-next']" -> action demo.continue {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+}`;
+const DOCS_RMT_PLAYGROUND_TRANSITIONS_SOURCE = `template learn.rmt.transitions {
+  state demo.first type object preserve {
+    initial {
+      id "first-card"
+      text "First surface"
+      tone "info"
+      hidden false
+    }
+  }
+
+  state demo.second type object preserve {
+    initial {
+      id "second-card"
+      text "Second surface"
+      tone "success"
+      hidden true
+    }
+  }
+
+  state demo.swap type object preserve {
+    initial {
+      id "swap-surfaces"
+      text "Swap"
+      tone "primary"
+      hidden false
+    }
+  }
+
+  selector demo.first from state demo.first {
+    output DemoStatus
+  }
+
+  selector demo.second from state demo.second {
+    output DemoStatus
+  }
+
+  selector demo.swap from state demo.swap {
+    output DemoCommand
+  }
+
+  action demo.swap {
+    input label string
+    reduce state.demo.first.hidden = true
+    reduce state.demo.second.hidden = false
+    emit demo.swapped with label input.label
+  }
+
+  transition demo.firstToSecond {
+    trigger action demo.swap
+    from surfaces [demo.first]
+    to surfaces [demo.second]
+    effect crossfade
+    durationMs 220
+    easing "ease-out"
+    lane transition
+  }
+
+  surface demo.first kind card component x-status {
+    source selector demo.first
+    key first.id
+    bounds x 16 y 16 width 320 height 96
+
+    lane visible weight 80 {
+      hydrate first-card from selector demo.first
+    }
+  }
+
+  surface demo.second kind card component x-status {
+    source selector demo.second
+    key second.id
+    bounds x 16 y 16 width 320 height 96
+
+    lane visible weight 80 {
+      hydrate second-card from selector demo.second
+    }
+  }
+
+  surface demo.swap kind action component x-button {
+    source selector demo.swap
+    key swap.id
+    bounds x 16 y 128 width 140 height 56
+
+    lane visible weight 80 {
+      mount swap-surfaces from selector demo.swap
+    }
+
+    on click "[data-action='swap-surfaces']" -> action demo.swap {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+}`;
+const DOCS_RMT_PLAYGROUND_PRESETS = Object.freeze([
+  Object.freeze({ id: 'minimal', source: DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE, filePath: 'docs/rmt-playground-minimal.rmt' }),
+  Object.freeze({ id: 'kernel-form', source: DOCS_RMT_PLAYGROUND_KERNEL_FORM_SOURCE, filePath: 'docs/rmt-playground-kernel-form.rmt' }),
+  Object.freeze({ id: 'transitions', source: DOCS_RMT_PLAYGROUND_TRANSITIONS_SOURCE, filePath: 'docs/rmt-playground-transitions.rmt' }),
+  Object.freeze({ id: 'customer-service-kernel', endpoint: 'customer-service-kernel', filePath: 'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt' })
+]);
 const DOCS_SHELL_SHADOW_STYLE_ID = 'xtend-docs-shell-shadow-styles';
 const DOCS_RMT_EXTENSION_SLOTS = Object.freeze([
   'docs.slot.content',
@@ -446,7 +636,33 @@ const DOCS_SHELL_SCOPED_CSS = `
     overflow: hidden;
   }
   .docs-rmt-playground-editor {
-    grid-template-rows: minmax(0, 1fr) minmax(3.35rem, auto);
+    grid-template-rows: auto minmax(0, 1fr) minmax(3.35rem, auto);
+    background: var(--xtend-surface, var(--section-bg));
+  }
+  .docs-rmt-playground-template-bar {
+    display: grid;
+    grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
+    align-items: end;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.8rem 0.85rem 0.65rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+    background: color-mix(in srgb, var(--xtend-surface-muted, var(--surface-muted)) 82%, transparent);
+    box-sizing: border-box;
+  }
+  .docs-rmt-playground-template-bar x-select {
+    width: 100%;
+    min-width: 0;
+    --xtend-form-control-height: 2.45rem;
+    --xtend-form-control-padding: 0.5rem 0.7rem;
+    --xtend-form-label-font-size: 0.78rem;
+    --xtend-form-label-font-weight: 700;
+    --xtend-form-gap: 0.18rem;
+  }
+  .docs-rmt-playground-template-bar x-select::part(label) {
+    color: var(--muted-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0;
   }
   .docs-rmt-playground-editor x-textarea {
     display: block;
@@ -459,7 +675,20 @@ const DOCS_SHELL_SCOPED_CSS = `
     box-sizing: border-box;
     --textarea-resize: none;
     --xtend-textarea-code-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --xtend-textarea-line-number-width: 3.25rem;
+    --xtend-textarea-line-number-text: var(--muted-text-color);
+    --xtend-textarea-line-number-border: color-mix(in srgb, var(--border-color) 66%, transparent);
+    --xtend-textarea-line-number-surface: color-mix(in srgb, var(--x-code-bg, var(--docs-code-bg, #06080d)) 88%, var(--xtend-surface-muted, var(--surface-muted)));
     --xtend-form-control-line-height: 1.45;
+  }
+  .docs-rmt-playground-editor x-textarea::part(label) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
   }
   .docs-rmt-playground-editor x-textarea::part(editor) {
     height: 100%;
@@ -481,7 +710,7 @@ const DOCS_SHELL_SCOPED_CSS = `
   }
   .docs-rmt-playground-actions {
     display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(14rem, 1fr);
     align-items: center;
     gap: 0.55rem;
     min-height: 3.35rem;
@@ -504,6 +733,18 @@ const DOCS_SHELL_SCOPED_CSS = `
     max-width: 100%;
     overflow-wrap: anywhere;
     text-align: end;
+  }
+  @media (max-width: 42rem) {
+    .docs-rmt-playground-template-bar,
+    .docs-rmt-playground-actions {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .docs-rmt-playground-actions x-button,
+    .docs-rmt-playground-status {
+      width: 100%;
+      justify-self: stretch;
+      text-align: start;
+    }
   }
   .docs-rmt-playground-preview,
   .docs-rmt-playground-output,
@@ -533,6 +774,54 @@ const DOCS_SHELL_SCOPED_CSS = `
     position: relative;
     display: block;
     min-height: 38rem;
+  }
+  .docs-rmt-playground-maraca-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    margin-block-end: 0.55rem;
+  }
+  .docs-rmt-playground-maraca-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    max-width: 100%;
+    min-height: 1.85rem;
+    padding: 0.25rem 0.48rem;
+    border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--xtend-surface, var(--section-bg)) 88%, var(--primary-color) 12%);
+    color: var(--text-color);
+    font-size: 0.78rem;
+    line-height: 1.2;
+    box-sizing: border-box;
+  }
+  .docs-rmt-playground-maraca-badge[data-enabled="false"] {
+    color: var(--muted-text-color);
+    background: var(--xtend-surface-muted, var(--surface-muted));
+  }
+  .docs-rmt-playground-maraca-root {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    min-width: 0;
+    min-height: 100%;
+  }
+  .docs-rmt-playground-maraca-root[data-bounded="true"] {
+    position: relative;
+    display: block;
+    min-height: 42rem;
+  }
+  .docs-rmt-playground-maraca-root[data-bounded="true"] > [data-maraca-surface] {
+    position: absolute;
+    box-sizing: border-box;
+  }
+  .docs-rmt-playground-maraca-root [data-maraca-surface] {
+    max-width: 100%;
+  }
+  .docs-rmt-playground-maraca-root [data-maraca-surface][hidden] {
+    display: none;
   }
   .docs-rmt-playground-preview-surface {
     min-width: 0;
@@ -2802,6 +3091,7 @@ function resolveDocsMenuGroup(entry) {
   if (entry && entry.group) return String(entry.group);
   if (slug === 'readme' || slug === 'about' || slug === 'best-practices' || slug === 'enterprise-adoption') return 'start';
   if (slug === 'learn-rmt' || slug.startsWith('learn-rmt-')) return 'learn-rmt';
+  if (slug === 'xtend-maraca' || slug.startsWith('xtend-maraca-')) return 'maraca';
   if (slug.startsWith('components')) return 'components';
   if (slug.startsWith('xtendrmt') || slug.startsWith('rmt-') || slug.includes('rmt-production') || slug.includes('parsedown')) return 'rmt';
   if (slug.includes('performance') || slug.includes('hydration') || slug.includes('a11y') || slug.includes('screenreader') || slug.includes('motion-contrast')) return 'quality';
@@ -2817,6 +3107,7 @@ function getDocsMenuGroupLabel(groupId) {
     de: {
       start: 'Start',
       'learn-rmt': 'Learn RMT',
+      maraca: 'Maraca Apps',
       core: 'Core',
       platform: 'Platform',
       components: 'Komponenten',
@@ -2828,6 +3119,7 @@ function getDocsMenuGroupLabel(groupId) {
     en: {
       start: 'Start',
       'learn-rmt': 'Learn RMT',
+      maraca: 'Maraca Apps',
       core: 'Core',
       platform: 'Platform',
       components: 'Components',
@@ -2844,6 +3136,7 @@ function getDocsMenuGroupIcon(groupId) {
   const icons = {
     start: 'home',
     'learn-rmt': 'book-open',
+    maraca: 'rocket',
     core: 'package',
     platform: 'layers',
     components: 'boxes',
@@ -2867,6 +3160,8 @@ function getDocsMenuEntryIcon(entry) {
     'best-practices': 'success',
     'learn-rmt': 'book-open',
     'learn-rmt-playground': 'terminal',
+    'xtend-maraca': 'rocket',
+    'xtend-maraca-orchestration': 'route',
     manifest: 'file',
     api: 'terminal',
     'xtend-loader': 'download',
@@ -2892,6 +3187,7 @@ function getDocsMenuEntryIcon(entry) {
   if (slug.startsWith('components-xicon') || slug.startsWith('components-xtheme')) return 'palette';
   if (slug.startsWith('components-xstate')) return 'database';
   if (slug.startsWith('learn-rmt-')) return slug.includes('playground') ? 'terminal' : 'book-open';
+  if (slug.startsWith('xtend-maraca')) return 'rocket';
   if (slug.startsWith('components-xrouter') || slug.startsWith('xtendrmt') || slug.startsWith('rmt-')) return 'route';
   if (slug.startsWith('components-')) return 'component';
   if (slug.includes('security') || slug.includes('trusted-dom') || slug.includes('supply-chain') || slug.includes('csp') || slug.includes('network')) return 'shield-check';
@@ -2921,7 +3217,7 @@ function computeDocsMenuRank(entry) {
   if (['enterprise-adoption', 'best-practices', 'component-platform', 'performance', 'trusted-dom-sanitizing'].includes(slug)) return 88;
   if (slug.startsWith('components-')) return 58;
   if (entry && entry.parent) return 66;
-  return { start: 82, 'learn-rmt': 80, core: 78, platform: 74, components: 72, rmt: 76, quality: 72, security: 72, release: 64 }[group] || 60;
+  return { start: 82, 'learn-rmt': 80, maraca: 79, core: 78, platform: 74, components: 72, rmt: 76, quality: 72, security: 72, release: 64 }[group] || 60;
 }
 
 function getDocsMenuTier(entry) {
@@ -2961,7 +3257,7 @@ function sortDocsMenuEntries(entries = []) {
 }
 
 function groupDocsMenuEntries(entries = []) {
-  const order = ['start', 'learn-rmt', 'core', 'platform', 'components', 'rmt', 'quality', 'security', 'release'];
+  const order = ['start', 'learn-rmt', 'maraca', 'core', 'platform', 'components', 'rmt', 'quality', 'security', 'release'];
   const groups = new Map(order.map((id) => [id, { id, label: getDocsMenuGroupLabel(id), entries: [] }]));
   const normalizedEntries = entries
     .filter((entry) => entry && entry.slug)
@@ -3663,6 +3959,15 @@ function getDocsRmtPlaygroundCopy(locale = getCurrentDocsLocale()) {
       diagnostics: 'Diagnosen',
       output: 'Core-JSON',
       preview: 'Sichere Preview',
+      preset: 'Template',
+      maracaPreview: 'Maraca Runtime',
+      maracaLoading: 'Maraca startet...',
+      maracaBlocked: 'Maraca Preview blockiert.',
+      maracaPlanned: 'geplant',
+      maracaRunning: 'läuft',
+      maracaActive: 'aktiv',
+      maracaRendered: 'gerendert',
+      maracaOff: 'aus',
       run: 'Kompilieren',
       resetLayout: 'Layout zurücksetzen',
       ready: 'Bereit',
@@ -3685,6 +3990,15 @@ function getDocsRmtPlaygroundCopy(locale = getCurrentDocsLocale()) {
       diagnostics: 'Diagnostics',
       output: 'Core JSON',
       preview: 'Safe preview',
+      preset: 'Template',
+      maracaPreview: 'Maraca Runtime',
+      maracaLoading: 'Maraca booting...',
+      maracaBlocked: 'Maraca preview blocked.',
+      maracaPlanned: 'planned',
+      maracaRunning: 'running',
+      maracaActive: 'active',
+      maracaRendered: 'rendered',
+      maracaOff: 'off',
       run: 'Compile',
       resetLayout: 'Reset layout',
       ready: 'Ready',
@@ -3710,6 +4024,11 @@ function getDocsRmtPlaygroundEndpoint() {
 function getDocsRmtPlaygroundDiagnosticsEndpoint() {
   const base = getDocsBasePath();
   return `${base || ''}/index.php?xtend-rmt-playground=diagnostics`;
+}
+
+function getDocsRmtPlaygroundPresetEndpoint(name) {
+  const base = getDocsBasePath();
+  return `${base || ''}/index.php?xtend-rmt-playground=preset&name=${encodeURIComponent(String(name || ''))}`;
 }
 
 function getDocsRmtPlaygroundSourceBytes(source) {
@@ -4055,10 +4374,539 @@ function renderDocsRmtPlaygroundDescriptorPreviews(target) {
   });
 }
 
+function cloneDocsRmtPlaygroundValue(value, fallback = null) {
+  if (typeof value === 'undefined') return fallback;
+  if (value === null || typeof value !== 'object') return value;
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function readDocsRmtPlaygroundPath(source, path) {
+  if (!path) return source;
+  const parts = String(path || '').split('.').filter(Boolean);
+  let cursor = source;
+  for (const part of parts) {
+    if (cursor == null) return undefined;
+    cursor = cursor[part];
+  }
+  return cursor;
+}
+
+function writeDocsRmtPlaygroundPath(target, path, value) {
+  const parts = String(path || '').split('.').filter(Boolean);
+  if (!parts.length) return value;
+  let cursor = target;
+  parts.forEach((part, index) => {
+    if (index === parts.length - 1) {
+      cursor[part] = value;
+      return;
+    }
+    if (!cursor[part] || typeof cursor[part] !== 'object' || Array.isArray(cursor[part])) {
+      cursor[part] = {};
+    }
+    cursor = cursor[part];
+  });
+  return target;
+}
+
+function resolveDocsRmtPlaygroundReducerValue(value, context = {}) {
+  if (typeof value !== 'string') return cloneDocsRmtPlaygroundValue(value, value);
+  if (value === 'input' || value === 'payload') return cloneDocsRmtPlaygroundValue(context.payload, {});
+  if (value.startsWith('input.')) return readDocsRmtPlaygroundPath(context.payload, value.slice(6));
+  if (value.startsWith('payload.')) return readDocsRmtPlaygroundPath(context.payload, value.slice(8));
+  if (value === 'result') return cloneDocsRmtPlaygroundValue(context.result, {});
+  if (value.startsWith('result.')) return readDocsRmtPlaygroundPath(context.result, value.slice(7));
+  return value;
+}
+
+function setDocsRmtPlaygroundMaracaAttribute(element, name, value, context = {}) {
+  if (!element || !name) return;
+  if (name === 'hidden' && context.transitionRuntime && typeof context.transitionRuntime.applyVisibilityPatch === 'function') {
+    const nextHidden = value === true;
+    const previousHidden = typeof element.hasAttribute === 'function' ? element.hasAttribute('hidden') : false;
+    const transitionResult = context.transitionRuntime.applyVisibilityPatch({
+      surface: context.surface && context.surface.id || element.getAttribute('data-maraca-surface') || '',
+      element,
+      nextHidden,
+      previousHidden,
+      action: context.action || '',
+      metadata: {
+        operation: context.operation || '',
+        correlationId: context.correlationId || ''
+      }
+    });
+    if (transitionResult && typeof transitionResult.catch === 'function') transitionResult.catch(() => {});
+    return;
+  }
+  if (value === false || value === null || typeof value === 'undefined' || value === '') {
+    if (typeof element.removeAttribute === 'function') element.removeAttribute(name);
+    if (name in element && name !== 'id') {
+      try {
+        element[name] = name === 'value' ? '' : false;
+      } catch (error) {}
+    }
+    return;
+  }
+  if (name === 'id') {
+    element.id = String(value);
+    return;
+  }
+  if (typeof element.setAttribute === 'function') {
+    element.setAttribute(name, value === true ? '' : String(value));
+  }
+  if (name in element && name !== 'style') {
+    try {
+      element[name] = value === true ? true : String(value);
+    } catch (error) {}
+  }
+}
+
+function syncDocsRmtPlaygroundMaracaStateAttributes(element, state = {}, surface = {}, context = {}) {
+  if (!element || !state || typeof state !== 'object') return;
+  const component = surface.component || element.getAttribute('data-rmt-component') || element.localName || '';
+  const setIfPresent = (attribute, stateKey = attribute) => {
+    if (!Object.prototype.hasOwnProperty.call(state, stateKey)) return;
+    setDocsRmtPlaygroundMaracaAttribute(element, attribute, state[stateKey], {
+      ...context,
+      surface,
+      transitionRuntime: context.transitionRuntime
+    });
+  };
+  setIfPresent('id');
+  setIfPresent('tone');
+  setIfPresent('hidden');
+  setIfPresent('name');
+  setIfPresent('value');
+  setIfPresent('placeholder');
+  setIfPresent('label');
+  setIfPresent('required');
+  setIfPresent('disabled');
+  setIfPresent('invalid');
+  setIfPresent('rows');
+  setIfPresent('density');
+  setIfPresent('minlength', 'minLength');
+  setIfPresent('maxlength', 'maxLength');
+  setIfPresent('data-field', 'field');
+  if (Object.prototype.hasOwnProperty.call(state, 'inputType')) {
+    setDocsRmtPlaygroundMaracaAttribute(element, 'type', state.inputType, context);
+  }
+  if (component === 'x-status') {
+    setDocsRmtPlaygroundMaracaAttribute(element, 'type', state.tone || 'info', context);
+    setDocsRmtPlaygroundMaracaAttribute(element, 'state', state.tone || 'info', context);
+    setDocsRmtPlaygroundMaracaAttribute(element, 'message', state.text || '', context);
+  }
+  if (component === 'x-button') {
+    setDocsRmtPlaygroundMaracaAttribute(element, 'variant', state.tone || 'secondary', context);
+    setDocsRmtPlaygroundMaracaAttribute(element, 'label', state.text || '', context);
+    setDocsRmtPlaygroundMaracaAttribute(element, 'data-label', state.text || '', context);
+  }
+  if (Object.prototype.hasOwnProperty.call(state, 'text') && !['x-input', 'x-select', 'x-textarea'].includes(component)) {
+    element.textContent = String(state.text == null ? '' : state.text);
+  }
+}
+
+function collectDocsRmtPlaygroundMaracaTags(plan = {}) {
+  const selected = plan.components && Array.isArray(plan.components.selected) ? plan.components.selected : [];
+  const fromComponents = selected.map((entry) => String(entry.tag || '').toLowerCase()).filter(Boolean);
+  const fromSurfaces = Array.isArray(plan.surfaces)
+    ? plan.surfaces.map((surface) => String(surface.component || '').toLowerCase()).filter(Boolean)
+    : [];
+  return Array.from(new Set([...fromComponents, ...fromSurfaces]));
+}
+
+function ensureDocsRmtPlaygroundMaracaModules() {
+  if (docsRmtPlaygroundMaracaModulesPromise) return docsRmtPlaygroundMaracaModulesPromise;
+  docsRmtPlaygroundMaracaModulesPromise = Promise.all(
+    DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES.map((modulePath) => import(new URL(modulePath, window.location.origin).href))
+  ).then(() => ({
+    stateApi: window.XTendRmtStateSelectorRuntime,
+    actionApi: window.XTendRmtActionEffectRuntime,
+    eventApi: window.XTendRmtEventRoutingRuntime,
+    validationApi: window.XTendRmtFormValidationRuntime,
+    transitionApi: window.XTendRmtSurfaceTransitionRuntime,
+    rendererApi: window.XTendRmtDomDescriptorRenderer,
+    kernelApi: window.XTendRmtKernelOrchestrationController
+  }));
+  return docsRmtPlaygroundMaracaModulesPromise;
+}
+
+function createDocsRmtPlaygroundMaracaBadge(label, enabled, status = '') {
+  return createDocsRmtPlaygroundElement('span', {
+    class: 'docs-rmt-playground-maraca-badge',
+    'data-enabled': enabled ? 'true' : 'false'
+  }, `${label}: ${status || (enabled ? 'on' : 'off')}`);
+}
+
+function formatDocsRmtPlaygroundMaracaPlanStatus(status = '', enabled = true, copy = getDocsRmtPlaygroundCopy()) {
+  if (!enabled) return copy.maracaOff || 'off';
+  const normalized = String(status || '').trim().toLowerCase();
+  if (!normalized || normalized === 'enabled') return copy.maracaActive || 'active';
+  if (normalized === 'planned') return copy.maracaPlanned || 'planned';
+  if (normalized === 'booted' || normalized === 'running') return copy.maracaRunning || 'running';
+  return status;
+}
+
+function formatDocsRmtPlaygroundMaracaRuntimeStatus(feature, enabled, copy = getDocsRmtPlaygroundCopy()) {
+  if (!enabled) return copy.maracaOff || 'off';
+  if (feature === 'hydration') return copy.maracaRendered || 'rendered';
+  return copy.maracaActive || 'active';
+}
+
+function renderDocsRmtPlaygroundMaracaToolbar(maraca = {}, copy = getDocsRmtPlaygroundCopy(), options = {}) {
+  const features = maraca.features && typeof maraca.features === 'object' ? maraca.features : {};
+  const runtime = options.runtime || null;
+  const phase = options.phase || (runtime ? 'runtime' : 'plan');
+  const toolbar = createDocsRmtPlaygroundElement('div', {
+    class: 'docs-rmt-playground-maraca-toolbar',
+    'data-rmt-playground-maraca-toolbar': ''
+  });
+  const runtimeSnapshot = runtime && typeof runtime.snapshot === 'function'
+    ? runtime.snapshot()
+    : (runtime && typeof runtime === 'object' ? runtime : null);
+  const rootStatus = phase === 'runtime'
+    ? (copy.maracaRunning || 'running')
+    : formatDocsRmtPlaygroundMaracaPlanStatus(maraca.status || 'unknown', maraca.ok === true, copy);
+  toolbar.setAttribute('data-maraca-phase', phase);
+  toolbar.appendChild(createDocsRmtPlaygroundMaracaBadge(copy.maracaPreview, maraca.ok === true, rootStatus));
+  ['kernel', 'hydration', 'validation', 'transitions'].forEach((feature) => {
+    const entry = features[feature] || {};
+    const enabled = entry.enabled === true;
+    const runtimeEnabled = feature === 'kernel'
+      ? Boolean(runtimeSnapshot && runtimeSnapshot.kernel && runtimeSnapshot.kernel.enabled)
+      : feature === 'validation'
+        ? Boolean(runtimeSnapshot && runtimeSnapshot.validation)
+        : feature === 'transitions'
+          ? Boolean(runtimeSnapshot && runtimeSnapshot.transitions)
+          : enabled;
+    const status = phase === 'runtime'
+      ? formatDocsRmtPlaygroundMaracaRuntimeStatus(feature, runtimeEnabled, copy)
+      : formatDocsRmtPlaygroundMaracaPlanStatus(entry.status || 'unknown', enabled, copy);
+    toolbar.appendChild(createDocsRmtPlaygroundMaracaBadge(feature, phase === 'runtime' ? runtimeEnabled : enabled, status));
+  });
+  return toolbar;
+}
+
+function applyDocsRmtPlaygroundMaracaBounds(appRoot, surfaces = []) {
+  if (!appRoot || !Array.isArray(surfaces)) return;
+  const bounded = surfaces
+    .map((surface) => ({ surface, bounds: normalizeDocsRmtPlaygroundPreviewBounds(surface.bounds) }))
+    .filter((entry) => entry.bounds);
+  if (!bounded.length) {
+    appRoot.removeAttribute('data-bounded');
+    return;
+  }
+  const maxX = Math.max(...bounded.map((entry) => entry.bounds.x + entry.bounds.width));
+  const maxY = Math.max(...bounded.map((entry) => entry.bounds.y + entry.bounds.height));
+  appRoot.setAttribute('data-bounded', 'true');
+  appRoot.style.minWidth = `${Math.ceil(maxX + 24)}px`;
+  appRoot.style.minHeight = `${Math.ceil(maxY + 24)}px`;
+  bounded.forEach(({ surface, bounds }) => {
+    const element = Array.from(appRoot.querySelectorAll('[data-maraca-surface]')).find((entry) => (
+      entry.getAttribute('data-maraca-surface') === surface.id
+    ));
+    if (!element) return;
+    element.style.left = `${bounds.x}px`;
+    element.style.top = `${bounds.y}px`;
+    element.style.width = `${bounds.width}px`;
+    element.style.minHeight = `${bounds.height}px`;
+  });
+}
+
+function createDocsRmtPlaygroundMaracaKernel(plan = {}) {
+  const kernel = plan.kernel || {};
+  const history = [];
+  const enabled = kernel.enabled === true;
+  return Object.freeze({
+    enabled,
+    mode: kernel.mode || 'auto',
+    status: enabled ? 'booted' : (kernel.status || 'disabled'),
+    scheduleWork(kind, callback, metadata = {}) {
+      history.push({
+        schema: 'xtend.docs.rmt-playground.maraca-kernel-work.v1',
+        kind,
+        status: enabled ? 'scheduled' : 'fallback',
+        metadata: cloneDocsRmtPlaygroundValue(metadata, {}),
+        at: Date.now()
+      });
+      return typeof callback === 'function' ? callback({ scheduled: enabled, kind, metadata }) : undefined;
+    },
+    listScheduledEndpoints() {
+      const count = Number(kernel.summary && kernel.summary.endpointCount || 0);
+      return Array.from({ length: Math.min(count, 12) }, (_, index) => `preview.endpoint.${index + 1}`);
+    },
+    snapshot() {
+      return {
+        schema: 'xtend.docs.rmt-playground.maraca-kernel-snapshot.v1',
+        enabled,
+        mode: kernel.mode || 'auto',
+        status: enabled ? 'booted' : (kernel.status || 'disabled'),
+        summary: kernel.summary || {},
+        history: history.slice(-50)
+      };
+    }
+  });
+}
+
+async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy()) {
+  if (!target || !payload || payload.ok !== true || !payload.maraca || payload.maraca.ok !== true || !payload.maraca.plan) {
+    return null;
+  }
+  const maraca = payload.maraca;
+  const plan = maraca.plan;
+  const modules = await ensureDocsRmtPlaygroundMaracaModules();
+  const orchestration = plan.orchestration || {};
+  const artifact = orchestration.artifact || null;
+  if (!artifact || !modules.stateApi || !modules.rendererApi) {
+    throw new Error(copy.maracaBlocked || 'Maraca preview blocked.');
+  }
+
+  const appRoot = createDocsRmtPlaygroundElement('div', {
+    class: 'docs-rmt-playground-maraca-root',
+    'data-rmt-playground-maraca-root': '',
+    'data-maraca-root': ''
+  });
+  target.replaceChildren(renderDocsRmtPlaygroundMaracaToolbar(maraca, copy), appRoot);
+
+  const components = collectDocsRmtPlaygroundMaracaTags(plan).map((tag) => ({ id: tag, tag }));
+  const stateRuntime = modules.stateApi.createRmtStateSelectorRuntime({
+    states: artifact.state && artifact.state.states || [],
+    selectors: artifact.state && artifact.state.selectors || [],
+    reducers: artifact.state && artifact.state.reducers || [],
+    initialState: plan.state || {}
+  });
+  const renderer = modules.rendererApi.createRmtDomDescriptorRenderer({ documentTarget: document });
+  const kernelController = createDocsRmtPlaygroundMaracaKernel(plan);
+  const baseActionRuntime = modules.actionApi && modules.actionApi.createRmtActionEffectRuntime
+    ? modules.actionApi.createRmtActionEffectRuntime({
+        actions: artifact.actions && artifact.actions.actions || [],
+        dataSources: artifact.actions && artifact.actions.dataSources || [],
+        effects: artifact.actions && artifact.actions.effects || [],
+        resources: artifact.resources || [],
+        stateRuntime
+      })
+    : null;
+  const transitionRuntime = plan.transitions && plan.transitions.enabled && modules.transitionApi && modules.transitionApi.createRmtSurfaceTransitionRuntime
+    ? modules.transitionApi.createRmtSurfaceTransitionRuntime({
+        transitionPlan: plan.transitions.artifact,
+        root: appRoot,
+        kernelController,
+        xUtils: window.XUtils,
+        xstate: window.xstate,
+        windowTarget: window,
+        diagnostics: plan.transitions.diagnostics || [],
+        strict: plan.transitions.strict === true
+      })
+    : null;
+  const validationRuntime = plan.validation && plan.validation.enabled && modules.validationApi && modules.validationApi.createRmtFormValidationRuntime
+    ? modules.validationApi.createRmtFormValidationRuntime({
+        validationPlan: plan.validation.artifact,
+        stateRuntime,
+        root: appRoot,
+        windowTarget: window,
+        diagnostics: plan.validation.diagnostics || []
+      })
+    : null;
+  let eventRuntime = null;
+  let renderCount = 0;
+  let runtime = null;
+
+  function renderRuntime() {
+    renderCount += 1;
+    const context = stateRuntime.createRenderContext({ components });
+    const report = renderer.render(appRoot, artifact.render && artifact.render.root || { type: 'fragment', children: [] }, context);
+    applyDocsRmtPlaygroundMaracaBounds(appRoot, plan.surfaces || []);
+    hydrateDocsRmtPlaygroundElements(appRoot, components.map((entry) => entry.tag));
+    if (eventRuntime && typeof eventRuntime.detachAll === 'function') eventRuntime.detachAll();
+    if (eventRuntime && typeof eventRuntime.attach === 'function') eventRuntime.attach(appRoot);
+    return report;
+  }
+
+  function syncRuntime(metadata = {}) {
+    let missing = 0;
+    (plan.surfaces || []).forEach((surface) => {
+      const element = Array.from(appRoot.querySelectorAll('[data-maraca-surface]')).find((entry) => (
+        entry.getAttribute('data-maraca-surface') === surface.id
+      ));
+      if (!element) {
+        missing += 1;
+        return;
+      }
+      const state = stateRuntime.getState(surface.source) || {};
+      syncDocsRmtPlaygroundMaracaStateAttributes(element, state, surface, {
+        transitionRuntime,
+        action: metadata.action || '',
+        operation: metadata.operation || '',
+        correlationId: metadata.correlationId || ''
+      });
+    });
+    if (missing > 0) renderRuntime();
+  }
+
+  async function runAction(actionId, actionPayload = {}, metadata = {}) {
+    if (validationRuntime && typeof validationRuntime.validateAction === 'function') {
+      const validationResult = await Promise.resolve(kernelController.scheduleWork('validation', () => validationRuntime.validateAction(actionId, {
+        ...metadata,
+        report: true,
+        reveal: true
+      }), {
+        operation: typeof validationRuntime.operationForAction === 'function' ? validationRuntime.operationForAction(actionId) : `operation:xtend.rmt/validation/${actionId}`,
+        action: actionId
+      }));
+      if (validationResult && validationResult.valid === false) {
+        syncRuntime({ operation: 'validation.blocked', action: actionId });
+        window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-action', {
+          detail: { action: actionId, status: 'blocked', validation: validationResult }
+        }));
+        return { schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA, action: actionId, status: 'blocked', validation: validationResult };
+      }
+    }
+    const actionResult = await Promise.resolve(kernelController.scheduleWork('action', () => (
+      baseActionRuntime && typeof baseActionRuntime.runAction === 'function'
+        ? baseActionRuntime.runAction(actionId, actionPayload, metadata)
+        : { schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA, id: actionId, status: 'success', data: cloneDocsRmtPlaygroundValue(actionPayload, {}) }
+    ), {
+      operation: `operation:xtend.rmt/action/${actionId}`,
+      action: actionId,
+      eventId: metadata.eventId || ''
+    }));
+    const reducers = artifact.state && Array.isArray(artifact.state.reducers)
+      ? artifact.state.reducers.filter((reducer) => reducer.action === actionId && reducer.state)
+      : [];
+    reducers.forEach((reducer) => {
+      const value = resolveDocsRmtPlaygroundReducerValue(reducer.value, {
+        payload: actionPayload,
+        result: actionResult && actionResult.data || actionResult
+      });
+      if (!reducer.path) {
+        stateRuntime.setState(reducer.state, value, { operation: 'orchestration.reducer', action: actionId, reducer: reducer.id });
+        return;
+      }
+      const current = stateRuntime.getState(reducer.state) || {};
+      const next = cloneDocsRmtPlaygroundValue(current, {});
+      writeDocsRmtPlaygroundPath(next, reducer.path, value);
+      stateRuntime.setState(reducer.state, next, { operation: 'orchestration.reducer', action: actionId, reducer: reducer.id });
+    });
+    const action = (artifact.actions && artifact.actions.actions || []).find((entry) => entry.id === actionId);
+    (action && Array.isArray(action.emits) ? action.emits : []).forEach((emitted) => {
+      window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-event', {
+        detail: { schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA, action: actionId, event: emitted, payload: actionPayload }
+      }));
+    });
+    window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-action', {
+      detail: { action: actionId, status: actionResult && actionResult.status || 'success' }
+    }));
+    if (runtime && typeof runtime.snapshot === 'function') {
+      window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
+    }
+    return actionResult;
+  }
+
+  const actionRuntime = Object.freeze({
+    runAction,
+    cancelAction(actionId) {
+      return baseActionRuntime && typeof baseActionRuntime.cancelAction === 'function'
+        ? baseActionRuntime.cancelAction(actionId)
+        : { schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA, action: actionId, status: 'cancelled' };
+    },
+    listHistory() {
+      return baseActionRuntime && typeof baseActionRuntime.listHistory === 'function' ? baseActionRuntime.listHistory() : [];
+    },
+    listDiagnostics() {
+      return baseActionRuntime && typeof baseActionRuntime.listDiagnostics === 'function' ? baseActionRuntime.listDiagnostics() : [];
+    }
+  });
+
+  eventRuntime = modules.eventApi && modules.eventApi.createRmtEventRoutingRuntime
+    ? modules.eventApi.createRmtEventRoutingRuntime({
+        events: artifact.events || [],
+        actionRuntime,
+        root: appRoot
+      })
+    : null;
+
+  stateRuntime.subscribe((event) => {
+    const operation = event && event.metadata && event.metadata.operation || 'state-change';
+    syncRuntime({
+      operation,
+      action: event && event.metadata && event.metadata.action || '',
+      correlationId: event && event.metadata && event.metadata.correlationId || ''
+    });
+    if (validationRuntime && typeof validationRuntime.refresh === 'function' && operation !== 'validation.patch') {
+      validationRuntime.refresh({ reason: 'state-change', operation });
+    }
+    if (runtime && typeof runtime.snapshot === 'function') {
+      window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
+    }
+  });
+
+  renderRuntime();
+  if (validationRuntime && typeof validationRuntime.refresh === 'function') {
+    validationRuntime.refresh({ reason: 'boot' });
+  }
+  syncRuntime({ operation: 'boot' });
+
+  runtime = {
+    schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA,
+    ok: true,
+    status: 'booted',
+    plan,
+    stateRuntime,
+    actionRuntime,
+    eventRuntime,
+    validationRuntime,
+    transitionRuntime,
+    kernelController,
+    snapshot() {
+      return {
+        schema: 'xtend.docs.rmt-playground.maraca-runtime-snapshot.v1',
+        status: 'booted',
+        renderCount,
+        summary: maraca.summary || {},
+        state: stateRuntime.snapshot(),
+        actions: actionRuntime.listHistory(),
+        events: eventRuntime && typeof eventRuntime.listRoutes === 'function' ? eventRuntime.listRoutes() : [],
+        validation: validationRuntime && typeof validationRuntime.snapshot === 'function' ? validationRuntime.snapshot() : null,
+        transitions: transitionRuntime && typeof transitionRuntime.snapshot === 'function' ? transitionRuntime.snapshot() : null,
+        kernel: kernelController.snapshot()
+      };
+    }
+  };
+  window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
+  window.__XTendDocsRmtPlaygroundMaracaRuntime = runtime;
+  const toolbar = target.querySelector('[data-rmt-playground-maraca-toolbar]');
+  if (toolbar) {
+    toolbar.replaceWith(renderDocsRmtPlaygroundMaracaToolbar(maraca, copy, {
+      phase: 'runtime',
+      runtime
+    }));
+  }
+  window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-boot', { detail: window.xtendDocsRmtPlaygroundLastMaraca }));
+  return runtime;
+}
+
 function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy()) {
   if (!target) return;
   if (!payload || payload.ok !== true) {
     target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.blocked));
+    return;
+  }
+  if (payload.maraca && payload.maraca.ok === true && payload.maraca.plan) {
+    target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.maracaLoading));
+    bootDocsRmtPlaygroundMaracaPreview(target, payload, copy)
+      .then((runtime) => {
+        if (runtime && typeof runtime.snapshot === 'function') {
+          window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
+        }
+      })
+      .catch((error) => {
+        target.replaceChildren(
+          renderDocsRmtPlaygroundMaracaToolbar(payload.maraca, copy),
+          createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : copy.maracaBlocked)
+        );
+      });
     return;
   }
   const preview = payload.preview && typeof payload.preview === 'object' ? payload.preview : {};
@@ -4366,6 +5214,14 @@ async function compileDocsRmtPlayground(root, locale = getCurrentDocsLocale()) {
     body: JSON.stringify({
       source,
       locale: normalizeDocsLocale(locale),
+      playgroundMode: DOCS_RMT_PLAYGROUND_MARACA_MODE,
+      maraca: {
+        orchestration: 'auto',
+        kernel: 'auto',
+        hydration: 'auto',
+        validation: 'auto',
+        transitions: 'auto'
+      },
       clientCompile: {
         requestId,
         sourceHash
@@ -4401,7 +5257,12 @@ async function compileDocsRmtPlayground(root, locale = getCurrentDocsLocale()) {
     status: payload.status || '',
     requestId,
     sourceHash,
-    diagnosticCount: Array.isArray(payload.diagnostics) ? payload.diagnostics.length : 0
+    diagnosticCount: Array.isArray(payload.diagnostics) ? payload.diagnostics.length : 0,
+    maraca: payload.maraca ? {
+      ok: payload.maraca.ok === true,
+      status: payload.maraca.status || '',
+      summary: payload.maraca.summary || {}
+    } : null
   };
   return payload;
 }
@@ -4422,6 +5283,46 @@ function hydrateDocsRmtPlaygroundElements(root, extraTags = []) {
     reason: 'rmt-playground-route-render',
     schedule: 'docs.rmt-playground.hydrate'
   }).catch(() => {});
+}
+
+function getDocsRmtPlaygroundPresetLabel(id, locale = getCurrentDocsLocale()) {
+  const labels = {
+    de: {
+      minimal: 'Minimal RMT',
+      'kernel-form': 'Kernel Form',
+      transitions: 'Transitions',
+      'customer-service-kernel': 'Customer Service Kernel'
+    },
+    en: {
+      minimal: 'Minimal RMT',
+      'kernel-form': 'Kernel Form',
+      transitions: 'Transitions',
+      'customer-service-kernel': 'Customer Service Kernel'
+    }
+  };
+  const copy = labels[normalizeDocsLocale(locale)] || labels.en;
+  return copy[id] || id;
+}
+
+async function loadDocsRmtPlaygroundPreset(id) {
+  const preset = DOCS_RMT_PLAYGROUND_PRESETS.find((entry) => entry.id === id) || DOCS_RMT_PLAYGROUND_PRESETS[0];
+  if (preset.source) return preset;
+  const response = await fetch(getDocsRmtPlaygroundPresetEndpoint(preset.endpoint || preset.id), {
+    method: 'GET',
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json'
+    }
+  });
+  const payload = await response.json();
+  if (!payload || payload.ok !== true || typeof payload.source !== 'string') {
+    throw new Error(payload && payload.diagnostics && payload.diagnostics[0] && payload.diagnostics[0].message || 'Preset unavailable.');
+  }
+  return {
+    ...preset,
+    source: payload.source,
+    filePath: payload.sourcePath || preset.filePath
+  };
 }
 
 function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), relatedLinks = []) {
@@ -4469,11 +5370,28 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     fill: true,
     density: 'compact',
     'syntax-highlight': true,
+    'line-numbering': 'true',
     lang: 'rmt',
     maxlength: DOCS_RMT_PLAYGROUND_MAX_SOURCE_BYTES,
     'data-rmt-playground-editor': ''
   });
   setDocsRmtPlaygroundEditorValue(editor, DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE);
+  const templateBar = createDocsRmtPlaygroundElement('div', {
+    class: 'docs-rmt-playground-template-bar',
+    'data-rmt-playground-template-bar': ''
+  });
+  const presetSelect = createDocsRmtPlaygroundElement('x-select', {
+    label: copy.preset,
+    value: 'minimal',
+    density: 'compact',
+    'data-rmt-playground-preset': ''
+  });
+  DOCS_RMT_PLAYGROUND_PRESETS.forEach((preset) => {
+    presetSelect.appendChild(createDocsRmtPlaygroundElement('option', {
+      value: preset.id,
+      selected: preset.id === 'minimal'
+    }, getDocsRmtPlaygroundPresetLabel(preset.id, locale)));
+  });
   const actions = createDocsRmtPlaygroundElement('div', { class: 'docs-rmt-playground-actions' });
   const runButton = createDocsRmtPlaygroundButton(copy.run, 'play', {
     type: 'button',
@@ -4489,9 +5407,11 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     class: 'docs-rmt-playground-status',
     'data-rmt-playground-status': ''
   }, copy.ready);
+  templateBar.appendChild(presetSelect);
   actions.appendChild(runButton);
   actions.appendChild(resetButton);
   actions.appendChild(status);
+  editorBody.appendChild(templateBar);
   editorBody.appendChild(editor);
   editorBody.appendChild(actions);
   editorPanel.appendChild(editorBody);
@@ -4654,6 +5574,42 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
     runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => {});
     compileDocsRmtPlayground(root, locale).catch(() => setDocsRmtPlaygroundStatus(status, copy.failed, 'error'));
+  });
+  const applyPresetSelection = (presetId) => {
+    window.clearTimeout(timer);
+    window.clearTimeout(diagnosticsTimer);
+    setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
+    loadDocsRmtPlaygroundPreset(presetId || presetSelect.value)
+      .then((preset) => {
+        if (preset && preset.id) presetSelect.value = preset.id;
+        setDocsRmtPlaygroundEditorValue(editor, preset.source || DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE);
+        dispatchDocsRmtPlaygroundSourceChanged(root, getDocsRmtPlaygroundEditorValue(editor), `preset:${preset.id}`);
+        setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
+        return Promise.all([
+          runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => null),
+          compileDocsRmtPlayground(root, locale)
+        ]);
+      })
+      .catch((error) => {
+        const payload = {
+          schema: DOCS_RMT_PLAYGROUND_SCHEMA,
+          ok: false,
+          status: 'preset_error',
+          diagnostics: [{
+            severity: 'error',
+            code: 'docs.rmt.playground.preset_error',
+            message: error && error.message ? error.message : copy.failed
+          }]
+        };
+        updateDocsRmtPlaygroundFromPayload(root, payload, copy);
+        setDocsRmtPlaygroundStatus(status, copy.failed, 'error');
+      });
+  };
+  presetSelect.addEventListener('select-changed', (event) => {
+    applyPresetSelection(event && event.detail && event.detail.value ? event.detail.value : presetSelect.value);
+  });
+  presetSelect.addEventListener('change', () => {
+    applyPresetSelection(presetSelect.value);
   });
   resetButton.addEventListener('click', () => {
     resetDocsRmtPlaygroundLayout(root);

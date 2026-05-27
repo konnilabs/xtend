@@ -116,6 +116,8 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   const indexPhp = readText('docs/index.php', rootDir);
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
   const lspBridge = readText('scripts/rmt_playground_lsp_bridge.js', rootDir);
+  const maracaBridge = readText('scripts/rmt_playground_maraca_preview_bridge.js', rootDir);
+  const customerServiceKernelSource = readText('products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt', rootDir);
   const playgroundClient = extractPlaygroundClientBlock(pageLoader);
   const indexSyntax = spawnSync('php', ['-l', path.join(rootDir, 'docs/index.php')], {
     cwd: rootDir,
@@ -123,11 +125,13 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   });
   const loaderSyntax = syntaxCheckFile('docs/utils/pageloader.js', { rootDir, extension: '.js' });
   const lspBridgeSyntax = syntaxCheckFile('scripts/rmt_playground_lsp_bridge.js', { rootDir, extension: '.js' });
+  const maracaBridgeSyntax = syntaxCheckFile('scripts/rmt_playground_maraca_preview_bridge.js', { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile('tests/docs/rmt_playground_security_suite.js', { rootDir, extension: '.js' });
 
   context.assert(indexSyntax.status === 0, `docs/index.php PHP syntax passes${indexSyntax.status === 0 ? '' : ` (${indexSyntax.stderr || indexSyntax.stdout})`}`);
   context.assert(loaderSyntax.ok, `Docs page loader syntax passes${loaderSyntax.ok ? '' : ` (${loaderSyntax.message})`}`);
   context.assert(lspBridgeSyntax.ok, `RMT playground LSP bridge syntax passes${lspBridgeSyntax.ok ? '' : ` (${lspBridgeSyntax.message})`}`);
+  context.assert(maracaBridgeSyntax.ok, `RMT playground Maraca preview bridge syntax passes${maracaBridgeSyntax.ok ? '' : ` (${maracaBridgeSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `RMT playground security suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
   context.assert(indexPhp.includes('REQUEST_METHOD') && indexPhp.includes('POST'), 'Compile endpoint enforces POST');
   context.assert(indexPhp.includes('CONTENT_LENGTH'), 'Compile endpoint checks request body size');
@@ -135,11 +139,16 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(indexPhp.includes('X-Content-Type-Options: nosniff'), 'Compile endpoint emits nosniff JSON responses');
   context.assert(indexPhp.includes('docsRmtPlaygroundPolicyDiagnostics'), 'Compile endpoint applies playground policy diagnostics');
   context.assert(indexPhp.includes('docsRmtPlaygroundHandleDiagnostics'), 'Diagnostics endpoint exposes the RMT Language Server bridge');
+  context.assert(indexPhp.includes('docsRmtPlaygroundCompileMaracaPreview') && indexPhp.includes('rmt_playground_maraca_preview_bridge.js'), 'Compile endpoint can append the Maraca runtime preview plan');
+  context.assert(indexPhp.includes('docsRmtPlaygroundHandlePreset') && indexPhp.includes('customer-service-kernel'), 'Docs host exposes the whitelisted Customer Service Kernel preset');
   context.assert(indexPhp.includes('innerHTML|outerHTML|insertAdjacentHTML|srcdoc'), 'Compile endpoint blocks HTML injection sinks');
   context.assert(indexPhp.includes('docsRmtPlaygroundComponentPreview'), 'Compile endpoint projects structured component previews');
   context.assert(indexPhp.includes("'renderMode' => 'dom_descriptor'"), 'Compile endpoint marks component previews as DOM descriptors');
   context.assert(lspBridge.includes('createRmtLanguageServer') && lspBridge.includes('textDocument/publishDiagnostics'), 'LSP bridge reuses the existing RMT Language Server diagnostics path');
+  context.assert(maracaBridge.includes('createMaracaBuildPlan') && maracaBridge.includes('sourceText') && maracaBridge.includes('sanitizePlan'), 'Maraca bridge plans from source text and sanitizes the response');
   context.assert(playgroundClient.includes('DOCS_RMT_PLAYGROUND_RENDERER_MODULE'), 'Preview client uses the DOM descriptor renderer module');
+  context.assert(playgroundClient.includes('DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES') && playgroundClient.includes('bootDocsRmtPlaygroundMaracaPreview'), 'Preview client boots the Maraca runtime preview from whitelisted modules');
+  context.assert(playgroundClient.includes('playgroundMode: DOCS_RMT_PLAYGROUND_MARACA_MODE'), 'Compile requests opt into Maraca preview mode');
   context.assert(playgroundClient.includes('runDocsRmtPlaygroundLanguageDiagnostics'), 'Preview client calls live LSP diagnostics');
   context.assert(playgroundClient.includes('replaceChildren'), 'Preview client resets surfaces with replaceChildren');
   context.assert(!playgroundClient.includes('innerHTML'), 'Playground client does not use innerHTML');
@@ -160,6 +169,29 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(genericPayload.preview && genericPayload.preview.importCount === 1, 'Endpoint preserves compiled import records');
   context.assert(genericSurface && genericSurface.componentPreview && genericSurface.componentPreview.tag === 'x-progress', 'Endpoint returns generic x-progress descriptor preview data');
   context.assert(genericSurface && genericSurface.componentPreview && genericSurface.componentPreview.descriptor.attributes.value === '72', 'Endpoint maps generic component state into descriptor attributes');
+
+  const maracaPayload = parseEndpointJson(runPlaygroundEndpoint(rootDir, 'POST', JSON.stringify({
+    source: customerServiceKernelSource,
+    locale: 'en',
+    playgroundMode: 'maraca-preview',
+    maraca: {
+      orchestration: 'auto',
+      kernel: 'auto',
+      hydration: 'auto',
+      validation: 'auto',
+      transitions: 'auto'
+    }
+  })));
+  context.assert(maracaPayload.ok === true, 'Customer Service Kernel source compiles through the playground endpoint');
+  context.assert(maracaPayload.maraca && maracaPayload.maraca.ok === true, 'Endpoint appends a successful Maraca preview plan');
+  context.assert(maracaPayload.maraca && maracaPayload.maraca.summary && maracaPayload.maraca.summary.surfaceCount === 15, 'Maraca preview reports 15 surfaces');
+  context.assert(maracaPayload.maraca && maracaPayload.maraca.summary && maracaPayload.maraca.summary.actionCount === 12, 'Maraca preview reports 12 actions');
+  context.assert(maracaPayload.maraca && maracaPayload.maraca.summary && maracaPayload.maraca.summary.validationGroupCount === 3, 'Maraca preview reports 3 validation groups');
+  context.assert(maracaPayload.maraca && maracaPayload.maraca.summary && maracaPayload.maraca.summary.transitionCount === 6, 'Maraca preview reports 6 transitions');
+  context.assert(maracaPayload.maraca && maracaPayload.maraca.features && maracaPayload.maraca.features.kernel && maracaPayload.maraca.features.kernel.enabled === true, 'Maraca preview enables kernel orchestration');
+  context.assert(maracaPayload.maraca && maracaPayload.maraca.features && maracaPayload.maraca.features.validation && maracaPayload.maraca.features.validation.enabled === true, 'Maraca preview enables validation');
+  context.assert(maracaPayload.maraca && maracaPayload.maraca.features && maracaPayload.maraca.features.transitions && maracaPayload.maraca.features.transitions.enabled === true, 'Maraca preview enables transitions');
+  context.assert(!/\/home\/|workpackage|WP-/iu.test(JSON.stringify(maracaPayload.maraca || {})), 'Maraca preview response strips local paths and internal workpackage identifiers');
 
   const brokenSource = 'template learn.rmt.playground { surface preview.card kind card component x-status { lane visible weight 80 { hydrate preview-card from selector preview.message } }';
   const lspPayload = parseEndpointJson(runPlaygroundEndpoint(rootDir, 'POST', JSON.stringify({ source: brokenSource, locale: 'en' }), null, 'diagnostics'));

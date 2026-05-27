@@ -19,6 +19,11 @@ export type MaracaTransitionMode = 'auto' | 'strict' | 'off';
 
 export interface MaracaBuildInput {
   source?: string;
+  sourceText?: string;
+  sourceContent?: string;
+  virtualSourcePath?: string;
+  filePath?: string;
+  sourcePath?: string;
   out?: string;
   outDir?: string;
   profile?: MaracaProfile;
