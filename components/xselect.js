@@ -240,8 +240,7 @@ class XSelect extends HTMLElement {
           outline-offset: var(--xtend-form-focus-offset, 2px);
           border-color: var(--xtend-form-focus-border-color, var(--primary-color, #2563eb));
         }
-        :host([invalid]) select,
-        select:invalid {
+        :host([invalid]) select {
           border-color: var(--xtend-form-error-border, var(--error-color, #dc2626));
           box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
         }
@@ -427,10 +426,7 @@ class XSelect extends HTMLElement {
 
   _syncFormValue() {
     const hasValue = this.hasAttribute('multiple') ? this.values.length > 0 : this.value !== '';
-    if (this.hasAttribute('required') && !hasValue) {
-      this.setAttribute('invalid', '');
-      this._control.setAttribute('aria-invalid', 'true');
-    } else {
+    if (!this.hasAttribute('required') || hasValue) {
       this.removeAttribute('invalid');
       this._control.setAttribute('aria-invalid', 'false');
     }

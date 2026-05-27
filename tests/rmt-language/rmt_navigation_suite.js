@@ -73,6 +73,43 @@ function createInput(rootDir) {
   };
 }
 
+function createOrchestrationJsonInput() {
+  return {
+    text: JSON.stringify({
+      kind: 'rmt_document',
+      version: '1.0',
+      validations: [{
+        id: 'contact.validation',
+        mode: 'blocking',
+        fields: [{
+          state: 'contact.email',
+          rules: ['required', 'email'],
+          message: 'Enter a valid email address.'
+        }],
+        targets: [{
+          kind: 'action',
+          id: 'contact.next'
+        }]
+      }],
+      transitions: [{
+        id: 'contact.to.issue',
+        trigger: {
+          kind: 'action',
+          id: 'contact.next'
+        },
+        from: ['contact.email'],
+        to: ['issue.details'],
+        effect: 'crossfade',
+        durationMs: 240,
+        easing: 'ease-out',
+        lane: 'transition'
+      }]
+    }, null, 2),
+    uri: 'file:///virtual/rmt-orchestration-records.rmt',
+    version: 9
+  };
+}
+
 function findSymbol(symbols, name) {
   for (const symbol of symbols) {
     if (symbol.name === name) {
@@ -139,13 +176,16 @@ function runDocumentSymbolChecks(context, rootDir) {
   const settingsRoute = findSymbol(report.symbols, 'settings');
   const transitionSchedule = findSymbol(report.symbols, 'route.transition.render');
   const settingsTemplate = findSymbol(report.symbols, 'page.settings.template');
+  const orchestrationReport = getRmtDocumentSymbols(createOrchestrationJsonInput(), { rootDir });
+  const validationSymbol = findSymbol(orchestrationReport.symbols, 'contact.validation');
+  const transitionSymbol = findSymbol(orchestrationReport.symbols, 'contact.to.issue');
 
   context.assert(report.schema === RMT_DOCUMENT_SYMBOLS_REPORT_SCHEMA, 'Document Symbols emits report schema');
   context.assert(report.providerSchema === RMT_DOCUMENT_SYMBOLS_PROVIDER_SCHEMA, 'Document Symbols emits provider schema');
   context.assert(report.workpackage === RMT_DOCUMENT_SYMBOLS_WORKPACKAGE, 'Document Symbols belongs to WP-E14-08');
   context.assert(report.status === 'completed', 'Document Symbols completes for valid source');
   context.assert(report.symbols.every((symbol) => symbol.schema === RMT_DOCUMENT_SYMBOLS_SCHEMA), 'Top-level symbols have stable schema');
-  ['adapters', 'components', 'routes', 'schedules', 'templates'].forEach((domain) => {
+  ['adapters', 'components', 'routes', 'schedules', 'templates', 'validations', 'transitions'].forEach((domain) => {
     context.assert(domainNames.includes(domain), `Document Symbols contains ${domain} domain`);
   });
   context.assert(componentsDomain && componentsDomain.kind === 'namespace', 'Components domain is a namespace symbol');
@@ -157,6 +197,10 @@ function runDocumentSymbolChecks(context, rootDir) {
   context.assert(settingsTemplate && settingsTemplate.kind === 'template', 'Template ID is a template symbol');
   assertRange(context, pageSettings.range, 'Component symbol has range');
   assertRange(context, pageSettings.selectionRange, 'Component symbol has selection range');
+  context.assert(validationSymbol && validationSymbol.kind === 'validation', 'Validation record is a validation symbol');
+  context.assert(validationSymbol && validationSymbol.detail.includes('blocking'), 'Validation symbol detail includes mode');
+  context.assert(transitionSymbol && transitionSymbol.kind === 'transition', 'Transition record is a transition symbol');
+  context.assert(transitionSymbol && transitionSymbol.detail.includes('crossfade'), 'Transition symbol detail includes effect');
 
   const directReport = getRmtDocumentSymbols(input, { rootDir });
   context.assert(JSON.stringify(report.symbols) === JSON.stringify(directReport.symbols), 'Document Symbol provider is deterministic');
@@ -182,6 +226,7 @@ function assertHover(context, input, rootDir, pointer, kind, expectedText, messa
 
 function runHoverChecks(context, rootDir) {
   const input = createInput(rootDir);
+  const orchestrationInput = createOrchestrationJsonInput();
   const provider = createRmtHoverProvider({ rootDir });
 
   assertHover(context, input, rootDir, '/components/0/adapter', 'reference', 'XTend UI component adapter', 'Adapter reference hover');
@@ -189,6 +234,9 @@ function runHoverChecks(context, rootDir) {
   assertHover(context, input, rootDir, '/schedules/0/lane', 'lane', 'Visible rendering work', 'Schedule lane hover');
   assertHover(context, input, rootDir, '/components/0/hydration/mode', 'hydration-policy', 'Render at runtime', 'Hydration policy hover');
   assertHover(context, input, rootDir, '/templates/0/mode', 'template-mode', 'Structured DOM descriptor template', 'Template mode hover');
+  assertHover(context, orchestrationInput, rootDir, '/validations/0/mode', 'validation-mode', 'Block target actions', 'Validation mode hover');
+  assertHover(context, orchestrationInput, rootDir, '/validations/0/fields/0/rules/1', 'validation-rule', 'email address', 'Validation rule hover');
+  assertHover(context, orchestrationInput, rootDir, '/transitions/0/effect', 'transition-effect', 'Crossfade', 'Transition effect hover');
 
   const componentRef = assertHover(context, input, rootDir, '/routes/1/component', 'reference', 'page.settings', 'Route component reference hover');
   const domainHover = provider.hover(input, {

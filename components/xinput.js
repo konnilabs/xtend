@@ -237,8 +237,7 @@ class XInput extends HTMLElement {
           border-color: var(--xtend-form-focus-border-color, var(--primary-color, #0056b3));
         }
 
-        :host([invalid]) input,
-        input:invalid {
+        :host([invalid]) input {
           border-color: var(--xtend-form-error-border, var(--error-color, #dc3545));
           box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc3545)));
         }
@@ -265,8 +264,7 @@ class XInput extends HTMLElement {
           display: none;
         }
 
-        :host([invalid]) .error,
-        input:invalid ~ .error {
+        :host([invalid]) .error {
           display: block;
         }
 
@@ -306,7 +304,7 @@ class XInput extends HTMLElement {
           input:focus {
             outline-color: Highlight;
           }
-          input:invalid {
+          :host([invalid]) input {
             border-color: Mark;
           }
           .error {

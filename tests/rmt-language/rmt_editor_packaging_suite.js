@@ -91,6 +91,9 @@ function runSnippetCatalogChecks(context, rootDir) {
   const minimal = catalog.snippets.find((snippet) => snippet.id === 'rmt-minimal-app');
   const route = catalog.snippets.find((snippet) => snippet.id === 'rmt-xrouter-route');
   const schedule = catalog.snippets.find((snippet) => snippet.id === 'rmt-schedule');
+  const validation = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-validation');
+  const transition = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-transition');
+  const orchestrationApp = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app');
 
   context.assert(catalog.schema === RMT_SNIPPET_CATALOG_SCHEMA, 'Snippet catalog emits stable schema');
   context.assert(catalog.workpackage === RMT_EDITOR_PACKAGING_WORKPACKAGE, 'Snippet catalog belongs to WP-E14-12');
@@ -102,9 +105,20 @@ function runSnippetCatalogChecks(context, rootDir) {
   context.assert(minimal && joinedSnippetBody(minimal).includes('"documentTitle"'), 'Minimal app snippet includes route documentTitle');
   context.assert(route && joinedSnippetBody(route).includes('"router": "xtend.xrouter"'), 'Route snippet targets XRouter adapter');
   context.assert(schedule && joinedSnippetBody(schedule).includes('visible,user-blocking,transition,idle,background,diagnostics'), 'Schedule snippet offers Lane choices');
+  context.assert(validation && joinedSnippetBody(validation).includes('target action'), 'Validation snippet declares target action');
+  context.assert(validation && joinedSnippetBody(validation).includes('required email message'), 'Validation snippet declares field rules');
+  context.assert(transition && joinedSnippetBody(transition).includes('durationMs'), 'Transition snippet declares durationMs');
+  context.assert(transition && joinedSnippetBody(transition).includes('effect ${7|fade,crossfade'), 'Transition snippet offers effect choices');
+  context.assert(orchestrationApp && joinedSnippetBody(orchestrationApp).includes('validation ${6:app.contact}'), 'Maraca orchestration snippet includes validation block');
+  context.assert(orchestrationApp && joinedSnippetBody(orchestrationApp).includes('transition ${9:app.contactToIssue}'), 'Maraca orchestration snippet includes transition block');
   context.assert(catalog.snippets.every((snippet) => !joinedSnippetBody(snippet).includes('.rmt.json')), 'Snippets do not generate .rmt.json documents');
   context.assert(vscodeSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code snippet document exposes minimal app prefix');
+  context.assert(vscodeSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'VS Code snippet document exposes validation prefix');
+  context.assert(vscodeSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'VS Code snippet document exposes transition prefix');
+  context.assert(vscodeSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'VS Code snippet document exposes Maraca orchestration prefix');
   context.assert(staticVscodeSnippets['RMT Minimal App'].prefix === vscodeSnippets['RMT Minimal App'].prefix, 'Static VS Code snippets match generated prefix');
+  context.assert(staticVscodeSnippets['RMT vNext Validation'].prefix === vscodeSnippets['RMT vNext Validation'].prefix, 'Static VS Code snippets include generated validation prefix');
+  context.assert(staticVscodeSnippets['RMT vNext Surface Transition'].prefix === vscodeSnippets['RMT vNext Surface Transition'].prefix, 'Static VS Code snippets include generated transition prefix');
 }
 
 function runEditorPackagingChecks(context, rootDir) {
@@ -357,6 +371,9 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(vscodePackage.files.includes('XTend-Logo.png'), 'VS Code package includes XTend logo icon in packaged files');
   context.assert(vscodePackage.files.includes('snippets/**'), 'VS Code package includes snippets in packaged files');
   context.assert(packagedSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code packaged snippets mirror RMT app snippet');
+  context.assert(packagedSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'VS Code packaged snippets include validation snippet');
+  context.assert(packagedSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'VS Code packaged snippets include transition snippet');
+  context.assert(packagedSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'VS Code packaged snippets include Maraca orchestration snippet');
   context.assert(JSON.stringify(packagedSnippets) === JSON.stringify(sourceSnippets), 'VS Code packaged snippets stay in sync with source snippets');
   context.assert(tasksTemplate.tasks.some((task) => task.label === 'XTendRMT: RMT build check'), 'VS Code tasks template exposes RMT build check');
   context.assert(tasksTemplate.tasks.some((task) => task.problemMatcher === '$xtend-rmt-lint'), 'VS Code tasks template wires RMT problem matcher');
@@ -365,6 +382,10 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(languageConfiguration.brackets.length >= 3, 'VS Code language configuration defines JSON brackets');
   context.assert(grammar.scopeName === 'source.rmt', 'VS Code grammar uses source.rmt scope');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('template'), 'VS Code grammar highlights RMT vNext keywords');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('validation'), 'VS Code grammar highlights validation keyword');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('transition'), 'VS Code grammar highlights transition keyword');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('durationMs'), 'VS Code grammar highlights transition duration token');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('required'), 'VS Code grammar highlights validation rule tokens');
   context.assert(grammar.repository && grammar.repository.componentTags.patterns[0].match.includes('x-'), 'VS Code grammar highlights XTend component tags');
   context.assert(grammar.repository && grammar.repository.lanes.patterns[0].match.includes('user-blocking'), 'VS Code grammar highlights RMT lanes');
   context.assert(grammar.patterns.some((pattern) => pattern.include === 'source.json'), 'VS Code grammar delegates to JSON grammar');

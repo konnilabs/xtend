@@ -15,15 +15,23 @@ const {
 } = require('./create_docs_stub_inventory');
 const {
   printMaracaBundleReport,
+  printMaracaKernelOrchestrationReport,
+  printMaracaOrchestrationReport,
   printMaracaPackageExportsReport,
   printMaracaPlanReport,
   printMaracaRmtSourceToBundleReport,
   printMaracaSizeBudgetReport,
+  printMaracaTransitionReport,
+  printMaracaValidationReport,
   runMaracaBundleSuite,
+  runMaracaKernelOrchestrationSuite,
+  runMaracaOrchestrationSuite,
   runMaracaPackageExportsSuite,
   runMaracaPlanSuite,
   runMaracaRmtSourceToBundleSuite,
-  runMaracaSizeBudgetSuite
+  runMaracaSizeBudgetSuite,
+  runMaracaTransitionSuite,
+  runMaracaValidationSuite
 } = require('../tests/maraca/maraca_suite');
 const {
   printCoreContractReport,
@@ -637,6 +645,10 @@ const {
   printRmtToolingDocsReport,
   runRmtToolingDocsSuite
 } = require('../tests/docs/rmt_tooling_docs_suite');
+const {
+  printMaracaDocsReport,
+  runMaracaDocsSuite
+} = require('../tests/docs/maraca_docs_suite');
 const {
   printRmtStackDocsReport,
   runRmtStackDocsSuite
@@ -1823,6 +1835,16 @@ const suites = [
     }
   },
   {
+    id: 'maraca-docs',
+    label: 'Maraca Orchestration Docs',
+    description: 'Runs the Maraca orchestration, kernel, hydration, validation and transition documentation gates.',
+    run: () => {
+      const result = runMaracaDocsSuite({ rootDir });
+      printMaracaDocsReport(result);
+      return toRunnerResult('maraca-docs', 'Maraca Orchestration Docs', result);
+    }
+  },
+  {
     id: 'rmt-tooling-docs',
     label: 'Epic 14 RMT Tooling Docs',
     description: 'Runs the WP-E14-14 linter, LSP, quick-start, native-authoring, menu and package documentation gates.',
@@ -2040,6 +2062,46 @@ const suites = [
       const result = await runMaracaRmtSourceToBundleSuite({ rootDir });
       printMaracaRmtSourceToBundleReport(result);
       return toRunnerResult('maraca-rmt-source-to-bundle', 'XTend Maraca RMT Source-to-Bundle CLI', result);
+    }
+  },
+  {
+    id: 'maraca-orchestration',
+    label: 'XTend Maraca App Orchestration',
+    description: 'Runs the compiler-driven Maraca app orchestration, strict diagnostics and runtime bridge gate.',
+    run: async () => {
+      const result = await runMaracaOrchestrationSuite({ rootDir });
+      printMaracaOrchestrationReport(result);
+      return toRunnerResult('maraca-orchestration', 'XTend Maraca App Orchestration', result);
+    }
+  },
+  {
+    id: 'maraca-kernel-orchestration',
+    label: 'XTend Maraca Kernel Orchestration',
+    description: 'Runs the Maraca RMT kernel packaging, scheduler bridge and kernel runtime gate.',
+    run: async () => {
+      const result = await runMaracaKernelOrchestrationSuite({ rootDir });
+      printMaracaKernelOrchestrationReport(result);
+      return toRunnerResult('maraca-kernel-orchestration', 'XTend Maraca Kernel Orchestration', result);
+    }
+  },
+  {
+    id: 'maraca-validation',
+    label: 'XTend Maraca Form Validation',
+    description: 'Runs the compiler-driven form validation, kernel action gates and validation runtime gate.',
+    run: async () => {
+      const result = await runMaracaValidationSuite({ rootDir });
+      printMaracaValidationReport(result);
+      return toRunnerResult('maraca-validation', 'XTend Maraca Form Validation', result);
+    }
+  },
+  {
+    id: 'maraca-transitions',
+    label: 'XTend Maraca Surface Transitions',
+    description: 'Runs the compiler-driven surface transitions, x-utils policy and xstate mirror gate.',
+    run: async () => {
+      const result = await runMaracaTransitionSuite({ rootDir });
+      printMaracaTransitionReport(result);
+      return toRunnerResult('maraca-transitions', 'XTend Maraca Surface Transitions', result);
     }
   },
   {
@@ -3072,8 +3134,13 @@ Examples:
   node scripts/run_xtend_tests.js maraca-plan
   node scripts/run_xtend_tests.js maraca-bundle
   node scripts/run_xtend_tests.js maraca-rmt-source-to-bundle
+  node scripts/run_xtend_tests.js maraca-orchestration
+  node scripts/run_xtend_tests.js maraca-kernel-orchestration
+  node scripts/run_xtend_tests.js maraca-validation
+  node scripts/run_xtend_tests.js maraca-transitions
   node scripts/run_xtend_tests.js maraca-package-exports
   node scripts/run_xtend_tests.js maraca-size-budget
+  node scripts/run_xtend_tests.js maraca-docs
   node scripts/run_xtend_tests.js epic13-known-residual-triage
   node scripts/run_xtend_tests.js epic13-hydration-performance-closure
   node scripts/run_xtend_tests.js epic13-prod-browser-csp-smoke

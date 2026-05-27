@@ -36,6 +36,30 @@ The template owns one state record, exposes it through one selector and hydrates
 
 Continue with [Templates and Surfaces](./learn-rmt-templates-surfaces.md).
 
+## Validation And Transitions
+
+Form logic does not have to live as host JavaScript next to the RMT file. Use `validation` to declare field rules and action gates; use `transition` to declare the visual change between surface groups.
+
+```rmt
+validation demo.contact {
+  mode blocking
+  target action demo.nextContact
+  field demo.email required email message "Enter a valid email address."
+}
+
+transition demo.contactToIssue {
+  trigger action demo.nextContact
+  from surfaces [demo.email demo.nextContact]
+  to surfaces [demo.subject demo.nextIssue]
+  effect slide-left
+  durationMs 220
+  easing "ease-out"
+  lane transition
+}
+```
+
+`required`, `email`, `minLength`, `maxLength`, `pattern`, `message`, `target action`, `from surfaces`, `to surfaces`, `effect` and `durationMs` are part of the vNext syntax. `lane transition` lets the kernel scheduler plan the change.
+
 ## Developer context
 
 This expanded section turns RMT Syntax Basics from a short navigation note into a practical learning guide for third-party developers. Read it as the public contract around the topic: it explains why the page exists, which repository surfaces back it, how a host should integrate it and where to look when behavior does not match the expectation. The structure follows the same pattern used by mature developer documentation systems: a short concept, a repeatable integration path, a concrete example, reference checkpoints and troubleshooting.

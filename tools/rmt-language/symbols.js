@@ -16,7 +16,9 @@ const DOMAIN_DETAILS = Object.freeze({
   components: 'Component records and XTend custom element bindings',
   routes: 'Router records and route metadata',
   schedules: 'Scheduler endpoint, lane and fiber policies',
-  templates: 'Template records and DOM descriptors'
+  templates: 'Template records and DOM descriptors',
+  validations: 'Form validation groups, field rules and action gates',
+  transitions: 'Surface transition records and animation metadata'
 });
 
 const DOMAIN_CHILD_KIND = Object.freeze({
@@ -24,7 +26,9 @@ const DOMAIN_CHILD_KIND = Object.freeze({
   components: 'component',
   routes: 'route',
   schedules: 'schedule',
-  templates: 'template'
+  templates: 'template',
+  validations: 'validation',
+  transitions: 'transition'
 });
 
 function toArray(value) {
@@ -87,6 +91,23 @@ function describeRecord(domain, entry) {
 
   if (domain === 'templates') {
     return record.mode || 'template';
+  }
+
+  if (domain === 'validations') {
+    return [
+      record.mode || 'blocking',
+      Array.isArray(record.fields) ? `${record.fields.length} field(s)` : '',
+      Array.isArray(record.targets) ? `${record.targets.length} target(s)` : ''
+    ].filter(Boolean).join(' - ');
+  }
+
+  if (domain === 'transitions') {
+    const trigger = record.trigger && (record.trigger.id || record.trigger.ref || record.trigger.target);
+    return [
+      record.effect || 'transition',
+      Number.isFinite(Number(record.durationMs)) ? `${record.durationMs}ms` : '',
+      trigger ? `trigger: ${trigger}` : ''
+    ].filter(Boolean).join(' - ');
   }
 
   return domain;

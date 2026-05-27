@@ -1,0 +1,154 @@
+// Generic Maraca transition fixture: RMT declares kernel-scheduled flow transitions.
+
+template demo.transitions {
+  state demo.transitions.contact type object preserve {
+    initial {
+      id "transitions-contact"
+      text "Contact details"
+      tone "neutral"
+      hidden false
+    }
+  }
+
+  state demo.transitions.issue type object preserve {
+    initial {
+      id "transitions-issue"
+      text "Issue details"
+      tone "neutral"
+      hidden true
+    }
+  }
+
+  state demo.transitions.next type object preserve {
+    initial {
+      id "transitions-next"
+      text "Continue"
+      tone "primary"
+      hidden false
+    }
+  }
+
+  state demo.transitions.back type object preserve {
+    initial {
+      id "transitions-back"
+      text "Back"
+      tone "secondary"
+      hidden true
+    }
+  }
+
+  selector demo.transitions.contact from state demo.transitions.contact {
+    output TransitionStep
+  }
+
+  selector demo.transitions.issue from state demo.transitions.issue {
+    output TransitionStep
+  }
+
+  selector demo.transitions.next from state demo.transitions.next {
+    output TransitionCommand
+  }
+
+  selector demo.transitions.back from state demo.transitions.back {
+    output TransitionCommand
+  }
+
+  action demo.transitions.next {
+    input label string
+    reduce state.demo.transitions.contact.hidden = true
+    reduce state.demo.transitions.issue.hidden = false
+    reduce state.demo.transitions.next.hidden = true
+    reduce state.demo.transitions.back.hidden = false
+    emit demo.transitions.changed with label input.label
+  }
+
+  action demo.transitions.back {
+    input label string
+    reduce state.demo.transitions.contact.hidden = false
+    reduce state.demo.transitions.issue.hidden = true
+    reduce state.demo.transitions.next.hidden = false
+    reduce state.demo.transitions.back.hidden = true
+    emit demo.transitions.changed with label input.label
+  }
+
+  transition demo.transitions.contactToIssue {
+    trigger action demo.transitions.next
+    from surfaces [demo.transitions.contact demo.transitions.next]
+    to surfaces [demo.transitions.issue demo.transitions.back]
+    effect crossfade
+    durationMs 120
+    easing "ease-out"
+    lane transition
+  }
+
+  transition demo.transitions.issueToContact {
+    trigger action demo.transitions.back
+    from surfaces [demo.transitions.issue demo.transitions.back]
+    to surfaces [demo.transitions.contact demo.transitions.next]
+    effect slide-right
+    durationMs 120
+    easing "ease-out"
+    lane transition
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  resource demo.transitions.session kind data owner surface.demo.transitions.contact {
+    dispose on surface.destroy
+  }
+
+  surface demo.transitions.contact kind card component x-status {
+    source selector demo.transitions.contact
+    key contact.id
+    portal surface.root
+    bounds x 16 y 16 width 360 height 96
+    destroy releases resource demo.transitions.session
+
+    lane visible weight 80 {
+      hydrate transitions-contact from selector demo.transitions.contact
+    }
+  }
+
+  surface demo.transitions.issue kind card component x-status {
+    source selector demo.transitions.issue
+    key issue.id
+    portal surface.root
+    bounds x 16 y 16 width 360 height 96
+
+    lane visible weight 80 {
+      hydrate transitions-issue from selector demo.transitions.issue
+    }
+  }
+
+  surface demo.transitions.next kind action component x-button {
+    source selector demo.transitions.next
+    key next.id
+    portal surface.root
+    bounds x 16 y 128 width 160 height 56
+
+    lane visible weight 80 {
+      mount transitions-next from selector demo.transitions.next
+    }
+
+    on click "#transitions-next" -> action demo.transitions.next {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+
+  surface demo.transitions.back kind action component x-button {
+    source selector demo.transitions.back
+    key back.id
+    portal surface.root
+    bounds x 192 y 128 width 160 height 56
+
+    lane visible weight 80 {
+      mount transitions-back from selector demo.transitions.back
+    }
+
+    on click "#transitions-back" -> action demo.transitions.back {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+}

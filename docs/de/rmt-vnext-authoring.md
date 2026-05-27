@@ -22,6 +22,30 @@ Modelliere zuerst Shell, State und Interaktion. Prüfe die Quelle mit dem Linter
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
+## Orchestrierungs-Primitives
+
+RMT vNext kann inzwischen die komplette App-Orchestrierung beschreiben, die Maraca in ein loaderloses Bundle materialisiert. Neben `state`, `selector`, `action`, `resource`, `event`, `surface`, `portal` und `overlay` sind `validation` und `transition` native Authoring-Bausteine. Der Compiler senkt sie in `xtend.rmt.app-orchestration.v1`, `xtend.rmt.form-validation.v1` und `xtend.rmt.surface-transitions.v1` und erzeugt Scheduler-Ziele, Patch-Pläne, Source Maps und redigierte Diagnostics.
+
+```rmt
+validation product.service.contact {
+  mode blocking
+  target action product.service.nextContact
+  field product.service.email required email message "Enter a valid email address."
+}
+
+transition product.service.contactToIssue {
+  trigger action product.service.nextContact
+  from surfaces [product.service.email product.service.nextContact]
+  to surfaces [product.service.subject product.service.nextIssue]
+  effect crossfade
+  durationMs 240
+  easing "ease-out"
+  lane transition
+}
+```
+
+Strict Builds erwarten vollständige Payload Contracts, Resource Ownership, Hydration Policies, bekannte Component Capabilities, Messages pro Validation Field und auflösbare Transition Surfaces. Maraca baut daraus Kernel-, Hydration-, Validation- und Transition-Runtimes; Host-Code bleibt Adapterlogik.
+
 ## Entwicklerkontext
 
 Dieser erweiterte Abschnitt macht aus RMT Authoring Guide einen praktischen RMT Runtime-Leitfaden für Drittanbieter. Lies ihn als öffentlichen Vertrag rund um das Thema: Er erklärt, warum die Seite existiert, welche Repository-Oberflächen sie stützen, wie ein Host sie integrieren sollte und wo du nachsiehst, wenn sich das Verhalten nicht wie erwartet zeigt. Die Struktur folgt etablierten Entwicklerdokumentationen: kurzer Kontext, wiederholbarer Integrationspfad, konkretes Beispiel, Referenz-Checkliste und Fehlerbehebung.

@@ -1,0 +1,94 @@
+// Generic Maraca orchestration fixture for compiler-to-app source-to-sea coverage.
+
+template demo.orchestration {
+  state demo.orchestration.status type object preserve {
+    initial {
+      id "orchestration-status"
+      text "Ready"
+      tone "neutral"
+    }
+  }
+
+  state demo.orchestration.command type object preserve {
+    initial {
+      id "orchestration-command"
+      text "Save"
+      status "idle"
+      tone "primary"
+    }
+  }
+
+  selector demo.orchestration.status from state demo.orchestration.status {
+    output OrchestrationStatus
+  }
+
+  selector demo.orchestration.command from state demo.orchestration.command {
+    output OrchestrationAction
+  }
+
+  datasource demo.orchestration.save from endpoint "/api/orchestration/save" {
+    method POST
+    contract OrchestrationSaveResult
+    result record
+    fallback fixture demo.orchestration.fixture
+  }
+
+  action demo.orchestration.save {
+    input label string
+    effect fetch datasource demo.orchestration.save
+    reduce state.demo.orchestration.status.text = "Saved"
+    reduce state.demo.orchestration.status.tone = "success"
+    reduce state.demo.orchestration.command.status = "done"
+    emit demo.orchestration.saved with label input.label
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  portal overlay.root root "body" layer overlay z 1000 {
+    focus policy restore
+    pointer policy passthrough
+    scroll policy contain
+  }
+
+  overlay feedback.toast kind toast portal overlay.root {
+    escape close topmost
+    focus policy none
+  }
+
+  resource demo.orchestration.timer kind timer owner surface.demo.orchestration.status {
+    dispose on surface.destroy
+  }
+
+  surface demo.orchestration.status kind card component x-status {
+    source selector demo.orchestration.status
+    key status.id
+    portal surface.root
+    bounds x 16 y 16 width 360 height 96
+    destroy releases resource demo.orchestration.timer
+
+    lane visible weight 80 {
+      hydrate orchestration-status from selector demo.orchestration.status {
+        hydration policy visible
+        hydration mode hydrate_prerendered
+        hydration insular true
+        isolation boundary "public-contract-only"
+      }
+    }
+  }
+
+  surface demo.orchestration.command kind card component x-button {
+    source selector demo.orchestration.command
+    key command.id
+    portal surface.root
+    bounds x 16 y 128 width 220 height 56
+
+    lane visible weight 70 {
+      mount save-button from selector demo.orchestration.command
+    }
+
+    on click "[data-action='save']" -> action demo.orchestration.save {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+}

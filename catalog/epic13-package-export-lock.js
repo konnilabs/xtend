@@ -150,7 +150,10 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './rmt/state-selector-runtime',
   './rmt/action-effect-runtime',
   './rmt/event-routing-runtime',
+  './rmt/form-validation-runtime',
+  './rmt/surface-transition-runtime',
   './rmt/surface-resource-graph-runtime',
+  './rmt/kernel-orchestration-controller',
   './rmt/native-shell-runtime',
   './rmt/node-ssr-adapter',
   './builder',
@@ -205,7 +208,7 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'xtendrmt',
-    requiredExports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/surface-resource-graph-runtime', './rmt/native-shell-runtime', './rmt/node-ssr-adapter'],
+    requiredExports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/form-validation-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter'],
     requiredPackRoots: ['xtendrmt']
   },
   {

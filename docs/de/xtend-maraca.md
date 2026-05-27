@@ -26,6 +26,16 @@ xt rmt build app.rmt --bundle maraca --out dist --profile production --lazy comp
 
 Der generierte Output enthält normalerweise `xtend.maraca.mjs`, optional `xtend.maraca.css`, dynamische `chunks/*.mjs`, `xtend.maraca.report.json` und `xtend.maraca.size.json`. Der Report ist das Audit-Artefakt: Er dokumentiert ausgewählte Komponenten, Runtime-Module, Lazy Imports, verbotene Loader-Abhängigkeiten und den Status des Größenbudgets.
 
+## Orchestrierte App Bundles
+
+Für RMT Apps mit State, Actions, Validation, Hydration und Surface Transitions kann Maraca die compiler-gesteuerte Orchestrierung direkt in das Bundle schreiben. `auto` bleibt kompatibel, `strict` erzwingt vollständige Contracts und `off` hält den Legacy-Pfad offen. Der vollständige Deep-Dive liegt in [Maraca Orchestrierung](./xtend-maraca-orchestration.md).
+
+```bash
+xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json
+```
+
+Strict Builds erwarten bekannte Komponenten, typisierte Events, Resource Ownership, auflösbare Targets/Portals, Validation Messages und schedulbare Transition-/Hydration-Fibers. Der Bundle-Report enthält dafür eigene Abschnitte für `orchestration`, `kernel`, `hydration`, `validation` und `transitions`.
+
 ## Minimales RMT Beispiel
 
 Diese kleine Quelle referenziert nur drei Komponenten. Ein Maraca Build sollte deshalb diese Tags auswählen und nicht das vollständige Manifest.
@@ -128,7 +138,7 @@ Wenn der Output weiterhin `xtend-loader.js`, `data-manifest` oder `components/ma
 Nutze die Maraca Suites, wenn du CLI-Verdrahtung, Package Exports, Bundle-Erzeugung oder RMT Source-to-Bundle-Verhalten änderst.
 
 ```bash
-node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget --json
+node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-validation maraca-transitions maraca-package-exports maraca-size-budget --json
 npm run test:maraca
 npm run pack:dry-run
 ```

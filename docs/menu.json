@@ -910,6 +910,19 @@
     }
   },
   {
+    "slug": "xtend-maraca-orchestration",
+    "id": "docs.xtend.maraca.orchestration",
+    "label": "Maraca Orchestration",
+    "group": "rmt",
+    "parent": "xtend-maraca",
+    "tier": "deep-dive",
+    "rank": 62.5,
+    "labels": {
+      "de": "Maraca Orchestrierung",
+      "en": "Maraca Orchestration"
+    }
+  },
+  {
     "slug": "xtendrmt-parsedown-scheduling",
     "id": "docs.xtendrmt.parsedown.scheduling",
     "label": "Parsedown RMT Scheduling",

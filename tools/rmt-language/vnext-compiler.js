@@ -14,6 +14,10 @@ const RMT_VNEXT_COMPILER_REPORT_SCHEMA = 'xtend.rmt.vnext-compiler-report.v1';
 const RMT_VNEXT_COMPILER_WORKPACKAGE = 'WP-E15-05';
 const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.v1';
 const RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE = 'RMT-VNEXT-PRIM-04';
+const RMT_APP_ORCHESTRATION_SCHEMA = 'xtend.rmt.app-orchestration.v1';
+const RMT_APP_ORCHESTRATION_WORKPACKAGE = 'RMT-APP-ORCH-01';
+const RMT_FORM_VALIDATION_SCHEMA = 'xtend.rmt.form-validation.v1';
+const RMT_SURFACE_TRANSITION_SCHEMA = 'xtend.rmt.surface-transitions.v1';
 const RMT_VNEXT_COMPILER_MODULE_PATH = 'tools/rmt-language/vnext-compiler.js';
 const RMT_VNEXT_COMPILER_SUITE_PATH = 'tests/rmt-language/rmt_vnext_compiler_suite.js';
 const RMT_VNEXT_COMPILER_PACKAGE_SCRIPT = 'npm run test:rmt-vnext-compiler';
@@ -26,6 +30,8 @@ const PRIMITIVE_DECLARATION_TYPES = new Set([
   'RmtSelectorDeclaration',
   'RmtDataSourceDeclaration',
   'RmtActionDeclaration',
+  'RmtValidationDeclaration',
+  'RmtTransitionDeclaration',
   'RmtPortalDeclaration',
   'RmtOverlayDeclaration',
   'RmtResourceDeclaration'
@@ -115,10 +121,13 @@ function createCoreDocument(manifest = {}) {
     selectors: [],
     actions: [],
     effects: [],
+    validations: [],
+    transitions: [],
     portals: [],
     overlays: [],
     resources: [],
     securityPolicies: [],
+    hydrationPolicies: [],
     sourceMap: [],
     appPlatform: null,
     kernelRecords: null
@@ -309,6 +318,34 @@ function primitiveValueToString(value) {
   return String(coreValue).trim();
 }
 
+function primitiveValueToStringList(value) {
+  const coreValue = primitiveValueToCore(value);
+  if (Array.isArray(coreValue)) {
+    return coreValue.map((entry) => String(entry == null ? '' : entry).trim()).filter(Boolean);
+  }
+  const single = String(coreValue == null ? '' : coreValue).trim();
+  return single ? [single] : [];
+}
+
+function primitiveExpressionTextToCore(text) {
+  const expression = String(text || '').trim();
+  if (!expression) return null;
+  if ((expression.startsWith('"') && expression.endsWith('"')) || (expression.startsWith("'") && expression.endsWith("'"))) {
+    try {
+      return JSON.parse(expression.startsWith("'")
+        ? `"${expression.slice(1, -1).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+        : expression);
+    } catch (_) {
+      return expression.slice(1, -1);
+    }
+  }
+  if (expression === 'true') return true;
+  if (expression === 'false') return false;
+  if (expression === 'null') return null;
+  if (/^-?\d+(?:\.\d+)?$/u.test(expression)) return Number(expression);
+  return expression;
+}
+
 function primitiveRecordId(kind, name) {
   return `${kind}:${normalizeIdSegment(name)}`;
 }
@@ -408,6 +445,23 @@ function compileSelectorClause(node) {
   return null;
 }
 
+function compileValidationFieldRule(rule) {
+  if (!rule || !rule.kind) return null;
+  const kind = rule.kind === 'minLength' ? 'minLength'
+    : rule.kind === 'maxLength' ? 'maxLength'
+      : rule.kind;
+  return {
+    kind,
+    value: primitiveValueToCore(rule.value)
+  };
+}
+
+function validationMessageFromRules(rules) {
+  const message = toArray(rules).find((rule) => rule && rule.kind === 'message');
+  const value = message ? primitiveValueToCore(message.value) : null;
+  return value === null || value === undefined ? '' : String(value);
+}
+
 function compileEventPayloadContract(eventNode) {
   const mappings = toArray(eventNode && eventNode.policy && eventNode.policy.body)
     .filter((entry) => entry && entry.type === 'RmtEventPayloadMapping')
@@ -475,7 +529,7 @@ function hasPrimitiveDeclarations(ast) {
 }
 
 function hasPrimitiveCoreRecords(core) {
-  return ['states', 'selectors', 'actions', 'effects', 'portals', 'overlays', 'resources'].some((domain) => core[domain].length > 0)
+  return ['states', 'selectors', 'actions', 'effects', 'validations', 'transitions', 'portals', 'overlays', 'resources'].some((domain) => core[domain].length > 0)
     || core.surfaces.some((surface) => surface.primitive === true);
 }
 
@@ -540,6 +594,7 @@ function createAppPlatformRecords(core) {
         portal: record.portal && record.portal.target,
         bounds: record.bounds || null,
         resources: toArray(record.resourceRefs).map((ref) => ref.target),
+        laneRefs: toArray(record.laneRefs),
         events: record.eventRefs
       })),
     overlaysByPortal: core.overlays.reduce((byPortal, overlay) => {
@@ -557,6 +612,25 @@ function createAppPlatformRecords(core) {
       source: record.source,
       dispose: record.dispose,
       adapter: record.adapter
+    })),
+    validations: core.validations.map((record) => ({
+      id: record.name,
+      mode: record.mode,
+      targets: record.targets,
+      fields: record.fields,
+      includes: record.includes
+    })),
+    transitions: core.transitions.map((record) => ({
+      id: record.name,
+      trigger: record.trigger,
+      from: record.from,
+      to: record.to,
+      effect: record.effect,
+      durationMs: record.durationMs,
+      easing: record.easing,
+      lane: record.lane,
+      operation: `operation:xtend.rmt/surface-transition/${record.name}`,
+      endpointName: `xtend.rmt.kernel.surface-transition.${schedulerToken(record.name)}`
     })),
     events: core.events
       .filter((record) => record.primitive === true)
@@ -621,6 +695,26 @@ function createKernelRecords(core) {
       effectRefs: action.effectRefs.slice(),
       sourceRef: action.sourceRef
     })),
+    validationRecords: core.validations.map((validation) => ({
+      id: validation.id,
+      name: validation.name,
+      mode: validation.mode,
+      targetCount: validation.targets.length,
+      fieldCount: validation.fields.length,
+      includeCount: validation.includes.length,
+      sourceRef: validation.sourceRef
+    })),
+    transitionRecords: core.transitions.map((transition) => ({
+      id: transition.id,
+      name: transition.name,
+      trigger: transition.trigger,
+      fromCount: transition.from.length,
+      toCount: transition.to.length,
+      effect: transition.effect,
+      durationMs: transition.durationMs,
+      lane: transition.lane,
+      sourceRef: transition.sourceRef
+    })),
     dataSourceRecords: core.dataSources.map((dataSource) => ({
       id: dataSource.id,
       name: dataSource.name || dataSource.target,
@@ -638,7 +732,1440 @@ function createKernelRecords(core) {
       dispose: resource.dispose,
       kernelVisible: resource.kernelVisible !== false,
       sourceRef: resource.sourceRef
+    })),
+    hydrationPolicyRecords: core.hydrationPolicies.map((policy) => ({
+      id: policy.id,
+      kind: policy.kind,
+      policy: policy.policy || null,
+      mode: policy.mode || null,
+      boundary: policy.boundary || null,
+      insularHydration: policy.insularHydration === null ? null : Boolean(policy.insularHydration),
+      ownerOperation: policy.ownerOperation,
+      sourceRef: policy.sourceRef
     }))
+  };
+}
+
+function sourceMapForOrchestration(core) {
+  const supportedTypes = new Set([
+    'RmtTemplateDeclaration',
+    'RmtSurfaceDeclaration',
+    'RmtStateDeclaration',
+    'RmtSelectorDeclaration',
+    'RmtDataSourceDeclaration',
+    'RmtActionDeclaration',
+    'RmtValidationDeclaration',
+    'RmtValidationFieldClause',
+    'RmtValidationTargetClause',
+    'RmtTransitionDeclaration',
+    'RmtTransitionTriggerClause',
+    'RmtTransitionFromClause',
+    'RmtTransitionToClause',
+    'RmtEffectStatement',
+    'RmtPortalDeclaration',
+    'RmtOverlayDeclaration',
+    'RmtResourceDeclaration',
+    'RmtEventBinding',
+    'RmtHydrationPolicy',
+    'RmtIsolationPolicy'
+  ]);
+  return core.sourceMap.filter((entry) => supportedTypes.has(entry.nodeType));
+}
+
+function sourceMapForKernel(core) {
+  const supportedTypes = new Set([
+    'RmtTemplateDeclaration',
+    'RmtSurfaceDeclaration',
+    'RmtLaneDeclaration',
+    'RmtLifecycleStatement',
+    'RmtStateDeclaration',
+    'RmtSelectorDeclaration',
+    'RmtDataSourceDeclaration',
+    'RmtActionDeclaration',
+    'RmtValidationDeclaration',
+    'RmtValidationFieldClause',
+    'RmtValidationTargetClause',
+    'RmtTransitionDeclaration',
+    'RmtTransitionTriggerClause',
+    'RmtTransitionFromClause',
+    'RmtTransitionToClause',
+    'RmtResourceDeclaration',
+    'RmtEventBinding',
+    'RmtHydrationPolicy',
+    'RmtIsolationPolicy'
+  ]);
+  return core.sourceMap.filter((entry) => supportedTypes.has(entry.nodeType));
+}
+
+function cloneJson(value, fallback) {
+  if (value === undefined) return fallback;
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function schedulerToken(value, fallback = 'default') {
+  const token = String(value || fallback)
+    .trim()
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
+  return token || fallback;
+}
+
+function endpointNameForSchedule(schedule) {
+  const lane = schedulerToken(schedule && schedule.lane, 'default');
+  const surfaceScope = schedule && schedule.scope && schedule.scope.surface
+    ? schedulerToken(schedule.scope.surface.replace(/^surface:/, ''), 'document')
+    : 'document';
+  return `xtend.maraca.kernel.${lane}.${surfaceScope}`;
+}
+
+function scopeNameForSchedule(schedule) {
+  const scope = schedule && schedule.scope || {};
+  if (scope.surface) return String(scope.surface);
+  if (scope.template) return String(scope.template);
+  return 'rmt.document';
+}
+
+function createRuntimeScheduleRecord(documentId, kind, ref, lane, sourceRef = null, options = {}) {
+  const token = schedulerToken(ref, kind);
+  const operation = options.operation || `operation:xtend.rmt/${kind}/${token}`;
+  const endpointScope = options.scope || `orchestration:${documentId}`;
+  return {
+    schedule: {
+      id: `schedule:${documentId}/${kind}/${token}`,
+      lane,
+      endpointName: `xtend.rmt.kernel.${kind}.${token}`,
+      scope: endpointScope,
+      scopeRecord: {
+        orchestration: kind,
+        ref: String(ref || token),
+        template: `template:${documentId}`
+      },
+      operationRefs: [operation],
+      sourceRefs: sourceRef ? [sourceRef] : [],
+      policy: {
+        lane,
+        budgetClass: lane === 'idle' || lane === 'background' || lane === 'diagnostics' ? 'background' : 'interactive',
+        fallback: lane === 'idle' || lane === 'background' || lane === 'diagnostics' ? 'idle-timeout' : 'microtask'
+      }
+    },
+    fiber: {
+      id: `fiber:${documentId}/${kind}/${token}`,
+      kind,
+      op: kind,
+      lane,
+      operation,
+      endpointName: `xtend.rmt.kernel.${kind}.${token}`,
+      target: options.target || {
+        kind,
+        ref: String(ref || token)
+      },
+      source: options.source || {
+        kind: 'rmt-record',
+        ref: String(ref || token)
+      },
+      sourceRef
+    }
+  };
+}
+
+function lifecycleRuntimeKind(operation) {
+  if (!operation || operation.kind !== 'lifecycle') return null;
+  if (operation.op === 'hydrate') return 'hydration';
+  if (operation.op === 'mount' || operation.op === 'resume' || operation.op === 'suspend' || operation.op === 'invalidate') return 'surface-lifecycle';
+  if (operation.op === 'dispose' || operation.op === 'detach' || operation.op === 'reattach' || operation.op === 'recycle') return 'surface-lifecycle';
+  return 'surface-lifecycle';
+}
+
+function createKernelSchedulerPlan(core) {
+  const records = core && core.kernelRecords || null;
+  if (!records) return null;
+  const documentId = core && core.manifest && core.manifest.documentId || 'rmt.document';
+  const operationSourceRefs = new Map(toArray(records.lifecycleRecords).map((record) => [record.id, record.sourceRef || null]));
+  const scheduleByOperation = new Map();
+  const schedules = toArray(records.schedules).map((schedule) => {
+    const endpointName = endpointNameForSchedule(schedule);
+    toArray(schedule.operationRefs).forEach((operationRef) => {
+      if (operationRef) scheduleByOperation.set(operationRef, endpointName);
+    });
+    return {
+      id: schedule.id,
+      lane: schedule.lane || 'default',
+      endpointName,
+      scope: scopeNameForSchedule(schedule),
+      scopeRecord: schedule.scope || {},
+      operationRefs: toArray(schedule.operationRefs),
+      sourceRefs: toArray(schedule.operationRefs).map((operationRef) => operationSourceRefs.get(operationRef)).filter(Boolean),
+      policy: {
+        lane: schedule.lane || 'default',
+        budgetClass: schedule.lane === 'idle' ? 'background' : 'interactive',
+        fallback: schedule.lane === 'idle' ? 'idle-timeout' : 'animation-frame'
+      }
+    };
+  });
+  const orchestrationSchedules = [
+    {
+      id: `schedule:${documentId}/orchestration/render`,
+      lane: 'visible',
+      endpointName: 'xtend.maraca.kernel.orchestration.render',
+      scope: `orchestration:${documentId}`,
+      scopeRecord: {
+        orchestration: 'render',
+        template: `template:${documentId}`
+      },
+      operationRefs: ['operation:xtend.maraca/orchestration/render'],
+      sourceRefs: [],
+      policy: {
+        lane: 'visible',
+        budgetClass: 'interactive',
+        fallback: 'animation-frame'
+      }
+    },
+    {
+      id: `schedule:${documentId}/orchestration/action`,
+      lane: 'user-blocking',
+      endpointName: 'xtend.maraca.kernel.orchestration.action',
+      scope: `orchestration:${documentId}`,
+      scopeRecord: {
+        orchestration: 'action',
+        template: `template:${documentId}`
+      },
+      operationRefs: ['operation:xtend.maraca/orchestration/action'],
+      sourceRefs: [],
+      policy: {
+        lane: 'user-blocking',
+        budgetClass: 'interactive',
+        fallback: 'microtask'
+      }
+    },
+    {
+      id: `schedule:${documentId}/orchestration/event`,
+      lane: 'user-blocking',
+      endpointName: 'xtend.maraca.kernel.orchestration.event',
+      scope: `orchestration:${documentId}`,
+      scopeRecord: {
+        orchestration: 'event',
+        template: `template:${documentId}`
+      },
+      operationRefs: ['operation:xtend.maraca/orchestration/event'],
+      sourceRefs: [],
+      policy: {
+        lane: 'user-blocking',
+        budgetClass: 'interactive',
+        fallback: 'microtask'
+      }
+    },
+    {
+      id: `schedule:${documentId}/orchestration/state-change`,
+      lane: 'visible',
+      endpointName: 'xtend.maraca.kernel.orchestration.state-change',
+      scope: `orchestration:${documentId}`,
+      scopeRecord: {
+        orchestration: 'state-change',
+        template: `template:${documentId}`
+      },
+      operationRefs: ['operation:xtend.maraca/orchestration/state-change'],
+      sourceRefs: [],
+      policy: {
+        lane: 'visible',
+        budgetClass: 'interactive',
+        fallback: 'microtask'
+      }
+    }
+  ];
+  orchestrationSchedules.forEach((schedule) => {
+    toArray(schedule.operationRefs).forEach((operationRef) => {
+      if (operationRef) scheduleByOperation.set(operationRef, schedule.endpointName);
+    });
+  });
+  schedules.push(...orchestrationSchedules);
+
+  const runtimeRecords = [];
+  toArray(core.actions).forEach((action) => {
+    if (!action || !action.name) return;
+    runtimeRecords.push(createRuntimeScheduleRecord(documentId, 'action', action.name, 'user-blocking', action.sourceRef, {
+      operation: `operation:xtend.rmt/action/${action.name}`,
+      source: { kind: 'action', ref: action.name }
+    }));
+  });
+  toArray(core.validations).forEach((validation) => {
+    if (!validation || !validation.name) return;
+    toArray(validation.targets).forEach((target) => {
+      if (!target || target.kind !== 'action' || !target.id) return;
+      runtimeRecords.push(createRuntimeScheduleRecord(documentId, 'validation', `${validation.name}.${target.id}`, 'user-blocking', validation.sourceRef, {
+        operation: `operation:xtend.rmt/validation/${validation.name}/${target.id}`,
+        source: { kind: 'validation', ref: validation.name },
+        target: { kind: 'action', ref: target.id }
+      }));
+    });
+  });
+  toArray(core.transitions).forEach((transition) => {
+    if (!transition || !transition.name) return;
+    runtimeRecords.push(createRuntimeScheduleRecord(documentId, 'surface-transition', transition.name, transition.lane || 'transition', transition.sourceRef, {
+      operation: `operation:xtend.rmt/surface-transition/${transition.name}`,
+      source: { kind: 'transition', ref: transition.name },
+      target: { kind: 'transition', ref: transition.name }
+    }));
+  });
+  toArray(core.events).filter((event) => event && event.primitive === true).forEach((event) => {
+    const ref = event.id || event.event || 'event';
+    runtimeRecords.push(createRuntimeScheduleRecord(documentId, 'event', ref, 'user-blocking', event.sourceRef, {
+      operation: `operation:xtend.rmt/event/${ref}`,
+      source: { kind: 'event', ref }
+    }));
+  });
+  toArray(core.resources).forEach((resource) => {
+    if (!resource || !resource.name) return;
+    runtimeRecords.push(createRuntimeScheduleRecord(documentId, 'resource', resource.name, 'background', resource.sourceRef, {
+      operation: `operation:xtend.rmt/resource/${resource.name}`,
+      source: { kind: 'resource', ref: resource.name }
+    }));
+  });
+  toArray(core.operations).forEach((operation) => {
+    const kind = lifecycleRuntimeKind(operation);
+    if (!kind) return;
+    const target = operation.target && operation.target.ref || operation.id;
+    const laneId = operation.scope && operation.scope.lane;
+    const lane = toArray(core.lanes).find((entry) => entry.id === laneId);
+    runtimeRecords.push(createRuntimeScheduleRecord(documentId, kind, `${target}.${operation.op}`, lane && lane.name || (kind === 'hydration' ? 'visible' : 'transition'), operation.sourceRef, {
+      operation: operation.id,
+      scope: scopeNameForSchedule({
+        scope: operation.scope || {}
+      }),
+      source: operation.source || { kind: 'lifecycle', ref: operation.id }
+    }));
+  });
+  ['hydration', 'render-patch', 'state-patch', 'telemetry'].forEach((kind) => {
+    const lane = kind === 'telemetry' ? 'diagnostics' : 'visible';
+    runtimeRecords.push(createRuntimeScheduleRecord(documentId, kind, 'document', lane, null, {
+      operation: `operation:xtend.rmt/${kind}/document`,
+      source: { kind: 'runtime', ref: `xtend.${kind}` }
+    }));
+  });
+  runtimeRecords.forEach((record) => {
+    if (!record || !record.schedule) return;
+    schedules.push(record.schedule);
+    toArray(record.schedule.operationRefs).forEach((operationRef) => {
+      if (operationRef) scheduleByOperation.set(operationRef, record.schedule.endpointName);
+    });
+  });
+
+  const fibers = toArray(records.fibers).map((fiber) => ({
+    id: fiber.id,
+    kind: fiber.kind || 'lifecycle',
+    op: fiber.op || null,
+    lane: fiber.lane || null,
+    operation: fiber.operation || null,
+    endpointName: scheduleByOperation.get(fiber.operation) || null,
+    target: fiber.target || null,
+    source: fiber.source || null,
+    sourceRef: operationSourceRefs.get(fiber.operation) || null
+  }));
+  fibers.push(
+    {
+      id: `fiber:${documentId}/orchestration/render`,
+      kind: 'orchestration',
+      op: 'render',
+      lane: 'visible',
+      operation: 'operation:xtend.maraca/orchestration/render',
+      endpointName: 'xtend.maraca.kernel.orchestration.render',
+      target: {
+        kind: 'orchestration',
+        ref: 'render'
+      },
+      source: {
+        kind: 'runtime',
+        ref: 'xtend.maraca.renderer'
+      },
+      sourceRef: null
+    },
+    {
+      id: `fiber:${documentId}/orchestration/action`,
+      kind: 'orchestration',
+      op: 'action',
+      lane: 'user-blocking',
+      operation: 'operation:xtend.maraca/orchestration/action',
+      endpointName: 'xtend.maraca.kernel.orchestration.action',
+      target: {
+        kind: 'orchestration',
+        ref: 'action'
+      },
+      source: {
+        kind: 'runtime',
+        ref: 'xtend.maraca.action-runtime'
+      },
+      sourceRef: null
+    },
+    {
+      id: `fiber:${documentId}/orchestration/event`,
+      kind: 'orchestration',
+      op: 'event',
+      lane: 'user-blocking',
+      operation: 'operation:xtend.maraca/orchestration/event',
+      endpointName: 'xtend.maraca.kernel.orchestration.event',
+      target: {
+        kind: 'orchestration',
+        ref: 'event'
+      },
+      source: {
+        kind: 'runtime',
+        ref: 'xtend.maraca.event-runtime'
+      },
+      sourceRef: null
+    },
+    {
+      id: `fiber:${documentId}/orchestration/state-change`,
+      kind: 'orchestration',
+      op: 'state-change',
+      lane: 'visible',
+      operation: 'operation:xtend.maraca/orchestration/state-change',
+      endpointName: 'xtend.maraca.kernel.orchestration.state-change',
+      target: {
+        kind: 'orchestration',
+        ref: 'state-change'
+      },
+      source: {
+        kind: 'runtime',
+        ref: 'xtend.maraca.state-runtime'
+      },
+      sourceRef: null
+    }
+  );
+  runtimeRecords.forEach((record) => {
+    if (record && record.fiber) fibers.push(record.fiber);
+  });
+
+  return {
+    schema: 'xtend.rmt.kernel-scheduler-plan.v1',
+    schedules,
+    fibers,
+    lanePolicies: Array.from(new Set(schedules.map((schedule) => schedule.lane))).sort().map((lane) => ({
+      lane,
+      queue: lane === 'idle' || lane === 'diagnostics' ? 'idle' : 'frame',
+      fallback: lane === 'idle' || lane === 'diagnostics' ? 'timeout' : 'microtask'
+    }))
+  };
+}
+
+function createKernelOrchestrationArtifact(core) {
+  if (!core || !core.kernelRecords) return null;
+  const scheduler = createKernelSchedulerPlan(core);
+  return {
+    schema: 'xtend.rmt.kernel-orchestration.v1',
+    records: cloneJson(core.kernelRecords, {
+      schema: RMT_KERNEL_RECORDS_SCHEMA,
+      schedules: [],
+      fibers: []
+    }),
+    scheduler,
+    diagnostics: [],
+    sourceMap: sourceMapForKernel(core)
+  };
+}
+
+function normalizeSelectorForStateRuntime(selector) {
+  const from = selector && selector.from ? String(selector.from) : '';
+  return {
+    id: selector.id,
+    from: from.startsWith('state.') || from.startsWith('selector.') ? from : `state.${from}`,
+    clauses: selector.clauses,
+    output: selector.output
+  };
+}
+
+function statePathForReducer(target, states) {
+  const expression = String(target || '').trim();
+  const statePrefix = expression.startsWith('state.') ? expression.slice(6) : expression;
+  const state = states
+    .map((entry) => entry.id)
+    .filter(Boolean)
+    .sort((left, right) => right.length - left.length)
+    .find((id) => statePrefix === id || statePrefix.startsWith(`${id}.`));
+
+  if (!state) {
+    return {
+      state: null,
+      path: '',
+      target: expression
+    };
+  }
+
+  return {
+    state,
+    path: statePrefix === state ? '' : statePrefix.slice(state.length + 1),
+    target: expression
+  };
+}
+
+function createActionReducerRecords(appPlatform) {
+  const states = toArray(appPlatform && appPlatform.state);
+  return toArray(appPlatform && appPlatform.actions).flatMap((action) => toArray(action.reducers).map((reducer, index) => {
+    const target = statePathForReducer(reducer && reducer.target, states);
+    return {
+      id: `reducer:${normalizeIdSegment(action.id)}/${index}`,
+      action: action.id,
+      target: target.target,
+      state: target.state,
+      path: target.path,
+      value: reducer && Object.prototype.hasOwnProperty.call(reducer, 'value') ? reducer.value : null,
+      mode: target.path ? 'patch-path' : 'set-state'
+    };
+  }));
+}
+
+function eventActionToken(event) {
+  const selector = String(event && (event.selector || event.target) || '');
+  const match = selector.match(/\[data-action=(?:"([^"]+)"|'([^']+)'|([^\]]+))\]/u);
+  if (match) return match[1] || match[2] || match[3] || '';
+  const action = String(event && event.action || '').split('.').filter(Boolean).pop();
+  return action || '';
+}
+
+function eventPayloadExpression(source) {
+  const expression = String(source || '').trim();
+  if (!expression) return '$detail';
+  if (expression.startsWith('target.')) return `$target.${expression.slice(7)}`;
+  if (expression.startsWith('currentTarget.')) return `$currentTarget.${expression.slice(14)}`;
+  if (expression.startsWith('detail.')) return `$detail.${expression.slice(7)}`;
+  if (expression.startsWith('event.')) return `$event.${expression.slice(6)}`;
+  if (expression.startsWith('surface.')) return `$metadata.${expression}`;
+  return expression;
+}
+
+function eventPayloadBinding(event) {
+  const mappings = toArray(event && event.payloadContract && event.payloadContract.mappings);
+  if (mappings.length === 0) return '$detail';
+  return mappings.reduce((payload, mapping) => {
+    if (mapping && mapping.name) {
+      payload[mapping.name] = eventPayloadExpression(mapping.source);
+    }
+    return payload;
+  }, {});
+}
+
+function createEventBindingRecords(appPlatform) {
+  const surfaceByEvent = new Map();
+  toArray(appPlatform && appPlatform.surfaces).forEach((surface) => {
+    toArray(surface.events).forEach((eventId) => {
+      surfaceByEvent.set(eventId, surface);
+    });
+  });
+
+  return toArray(appPlatform && appPlatform.events).map((event) => {
+    const surface = surfaceByEvent.get(event.id) || null;
+    return {
+      id: event.id,
+      kind: 'dom',
+      event: event.event,
+      target: event.target || event.selector || '',
+      component: surface && surface.component || '',
+      surface: surface && surface.id || null,
+      owner: event.owner || surface && surface.id || event.id,
+      action: event.action,
+      payload: eventPayloadBinding(event),
+      payloadContract: event.payloadContract || null,
+      governance: {
+        capture: Boolean(event.options && event.options.capture),
+        passive: Boolean(event.options && event.options.passive),
+        once: Boolean(event.options && event.options.once),
+        preventDefault: Boolean(event.options && event.options.preventDefault),
+        stopPropagation: Boolean(event.options && event.options.stopPropagation),
+        retarget: event.options && event.options.retarget || 'target'
+      }
+    };
+  });
+}
+
+function createResourceRecords(appPlatform) {
+  return toArray(appPlatform && appPlatform.resources).map((resource) => ({
+    id: resource.id,
+    kind: resource.kind,
+    owner: resource.owner && (resource.owner.ref || resource.owner.id) || '',
+    source: resource.source && (resource.source.target || resource.source.ref || resource.source) || null,
+    importId: resource.adapter && resource.adapter.import || '',
+    dispose: resource.dispose || null,
+    adapter: resource.adapter || null
+  }));
+}
+
+function createDataSourceRecords(appPlatform) {
+  return toArray(appPlatform && appPlatform.dataSources).map((source) => ({
+    id: source.id,
+    kind: source.kind === 'endpoint' ? 'rest' : source.kind || 'host',
+    endpoint: source.target || '',
+    method: source.method || 'GET',
+    adapter: source.kind === 'host' ? 'host' : '',
+    contract: source.contract || null,
+    resultPath: source.result || '',
+    fallback: source.fallback || null
+  }));
+}
+
+function firstSurfaceEvent(surface, eventBindings) {
+  const eventIds = new Set(toArray(surface && surface.events));
+  return eventBindings.find((event) => eventIds.has(event.id)) || null;
+}
+
+function createRenderDescriptor(surface, eventBindings, initialStates = new Map()) {
+  const component = surface.component || 'section';
+  const event = firstSurfaceEvent(surface, eventBindings);
+  const actionToken = eventActionToken(event);
+  const literal = (value) => ({ op: 'literal', value });
+  const initialState = initialStates.get(surface.source) || {};
+  const hasStateField = (field) => Object.prototype.hasOwnProperty.call(initialState, field);
+  const bindStateField = (field) => `$model.${surface.source}.${field}`;
+  const attributes = {
+    'data-maraca-surface': literal(surface.id),
+    'data-rmt-surface': literal(surface.id),
+    'data-rmt-component': literal(component),
+    'data-maraca-kind': literal(surface.kind || 'surface'),
+    id: surface.source ? `$model.${surface.source}.id` : undefined,
+    tone: surface.source ? `$model.${surface.source}.tone` : undefined
+  };
+
+  if (component === 'x-status' && surface.source) attributes.type = `$model.${surface.source}.tone`;
+  if (component === 'x-button' && surface.source) attributes.variant = `$model.${surface.source}.tone`;
+  if (component === 'x-status' && surface.source) attributes.message = `$model.${surface.source}.text`;
+  if (component === 'x-status' && surface.source) attributes.state = `$model.${surface.source}.tone`;
+  if (component === 'x-button' && surface.source) attributes.label = `$model.${surface.source}.text`;
+
+  ['hidden', 'name', 'value', 'placeholder', 'label', 'required', 'disabled', 'invalid', 'rows', 'density'].forEach((field) => {
+    if (surface.source && hasStateField(field)) attributes[field] = bindStateField(field);
+  });
+  if (surface.source && hasStateField('minLength')) attributes.minlength = bindStateField('minLength');
+  if (surface.source && hasStateField('maxLength')) attributes.maxlength = bindStateField('maxLength');
+  if (surface.source && hasStateField('field')) attributes['data-field'] = bindStateField('field');
+  if (surface.source && hasStateField('inputType')) attributes.type = bindStateField('inputType');
+
+  if (actionToken) {
+    attributes['data-action'] = actionToken;
+    attributes['data-label'] = component === 'x-button' && surface.source && hasStateField('text')
+      ? bindStateField('text')
+      : actionToken;
+  }
+
+  const children = [];
+  if (surface.source && hasStateField('label')) {
+    children.push({
+      type: 'element',
+      tag: 'span',
+      attributes: {
+        slot: literal('label')
+      },
+      text: bindStateField('label')
+    });
+  }
+  if (component === 'x-select' && surface.source && Array.isArray(initialState.options)) {
+    children.push({
+      type: 'repeat',
+      source: `$model.${surface.source}.options`,
+      key: '$item',
+      template: {
+        type: 'element',
+        tag: 'option',
+        attributes: {
+          value: '$item'
+        },
+        text: '$item'
+      }
+    });
+  }
+
+  const descriptor = {
+    type: 'component',
+    id: `surface:${surface.id}`,
+    surface: surface.id,
+    component,
+    tag: component,
+    key: surface.key || surface.id,
+    attributes,
+    parts: ['surface', surface.kind || 'surface'],
+    styleTokens: {
+      surface: literal(surface.id),
+      portal: literal(surface.portal || 'portal.app')
+    },
+    bindings: toArray(surface.events),
+    ...(children.length > 0 ? { children } : {})
+  };
+  if (surface.source && hasStateField('text')) {
+    descriptor.text = bindStateField('text');
+  }
+  return descriptor;
+}
+
+function createCssPlan(appPlatform) {
+  return {
+    mode: 'layout-tokens',
+    tokenPrefix: '--xtend',
+    themeGeneration: false,
+    surfaces: toArray(appPlatform && appPlatform.surfaces).map((surface) => ({
+      id: surface.id,
+      component: surface.component || null,
+      portal: surface.portal || null,
+      bounds: surface.bounds || null,
+      tokens: {
+        surface: surface.id,
+        kind: surface.kind || 'surface'
+      }
+    }))
+  };
+}
+
+const SUPPORTED_ORCHESTRATION_HYDRATION_MODES = Object.freeze([
+  'runtime_render',
+  'hydrate_prerendered',
+  'server_prerender_hydrate',
+  'worker_prerender_hydrate',
+  'visible',
+  'idle',
+  'lazy',
+  'eager',
+  'open',
+  'route',
+  'managed_subtree',
+  'observe_only',
+  'manual',
+  'none',
+  'insular'
+]);
+
+function laneNameForOperation(core, operation) {
+  const laneId = operation && operation.scope && operation.scope.lane;
+  const lane = toArray(core && core.lanes).find((entry) => entry.id === laneId);
+  return lane && lane.name || null;
+}
+
+function operationPolicies(core, operationId) {
+  return toArray(core && core.hydrationPolicies).filter((policy) => policy.ownerOperation === operationId);
+}
+
+function derivedHydrationPolicy(core, operation, policies) {
+  const explicit = policies.find((policy) => policy.kind === 'hydration' && (policy.policy || policy.mode || policy.insularHydration !== null));
+  if (explicit && explicit.policy) return explicit.policy;
+  const lane = laneNameForOperation(core, operation);
+  if (lane && ['visible', 'idle', 'lazy', 'eager', 'open', 'route'].includes(lane)) return lane;
+  if (operation && operation.op === 'hydrate') return 'visible';
+  if (operation && operation.op === 'mount') return 'managed_subtree';
+  return 'manual';
+}
+
+function derivedHydrationMode(operation, policies) {
+  const explicit = policies.find((policy) => policy.kind === 'hydration' && policy.mode);
+  if (explicit && explicit.mode) return explicit.mode;
+  if (operation && operation.op === 'hydrate') return 'hydrate_prerendered';
+  if (operation && operation.op === 'mount') return 'runtime_render';
+  return 'manual';
+}
+
+function createHydrationPlan(core, appPlatform) {
+  const surfaceByCoreId = new Map(toArray(core && core.surfaces)
+    .filter((surface) => surface && surface.primitive === true)
+    .map((surface) => [surface.id, surface]));
+  const appSurfaceByCoreId = new Map(toArray(core && core.surfaces)
+    .filter((surface) => surface && surface.primitive === true)
+    .map((surface) => [surface.id, toArray(appPlatform && appPlatform.surfaces).find((entry) => entry.id === surface.name) || null]));
+  const records = [];
+  const diagnostics = [];
+  const insularIslands = [];
+
+  toArray(core && core.operations).forEach((operation) => {
+    if (!operation || operation.kind !== 'lifecycle') return;
+    const coreSurface = surfaceByCoreId.get(operation.scope && operation.scope.surface);
+    const appSurface = appSurfaceByCoreId.get(operation.scope && operation.scope.surface);
+    if (!coreSurface || !appSurface) return;
+    const policies = operationPolicies(core, operation.id);
+    const isolation = policies.find((policy) => policy.kind === 'isolation') || null;
+    const hydrationPolicy = policies.find((policy) => policy.kind === 'hydration') || null;
+    const insular = policies.some((policy) => policy.kind === 'hydration' && policy.insularHydration === true);
+    const policy = derivedHydrationPolicy(core, operation, policies);
+    const mode = derivedHydrationMode(operation, policies);
+    const record = {
+      id: `hydration:${normalizeIdSegment(appSurface.id)}/${normalizeIdSegment(operation.op)}`,
+      surface: appSurface.id,
+      component: appSurface.component || null,
+      operation: operation.id,
+      op: operation.op,
+      lane: laneNameForOperation(core, operation) || 'visible',
+      policy,
+      mode,
+      scheduleRef: `operation:${operation.id.slice('operation:'.length)}`,
+      endpointName: `xtend.rmt.kernel.${operation.op === 'hydrate' ? 'hydration' : 'surface-lifecycle'}.${schedulerToken(`${operation.target && operation.target.ref || appSurface.id}.${operation.op}`)}`,
+      target: operation.target || null,
+      source: operation.source || null,
+      explicitPolicy: Boolean(hydrationPolicy || isolation),
+      insularHydration: insular,
+      isolation: {
+        boundary: isolation && isolation.boundary || 'public-contract-only',
+        mode: isolation && isolation.mode || 'public-contract-only',
+        channels: ['attributes', 'properties', 'events', 'slots', 'css-parts', 'css-tokens'],
+        shadowRootAccess: false
+      },
+      sourceRefs: [operation.sourceRef].concat(policies.map((policyRecord) => policyRecord.sourceRef)).filter(Boolean)
+    };
+    records.push(record);
+    if (insular) {
+      insularIslands.push({
+        id: `island:${normalizeIdSegment(appSurface.id)}`,
+        surface: appSurface.id,
+        component: appSurface.component || null,
+        rootId: appSurface.key || appSurface.id,
+        hydrationRecord: record.id,
+        schedulerLane: record.lane,
+        ownershipMode: 'hydrate_existing',
+        isolation: record.isolation
+      });
+    }
+  });
+
+  toArray(appPlatform && appPlatform.surfaces).forEach((surface) => {
+    if (!records.some((record) => record.surface === surface.id)) {
+      diagnostics.push({
+        code: 'rmt.app_orchestration.hydration_policy_missing',
+        severity: 'warning',
+        message: `Surface ${surface.id} has no explicit lifecycle hydration record; runtime will use component lazy loading policy.`,
+        surface: surface.id
+      });
+    }
+  });
+
+  return {
+    schema: 'xtend.rmt.app-hydration-plan.v1',
+    supportedModes: SUPPORTED_ORCHESTRATION_HYDRATION_MODES.slice(),
+    defaultMode: 'runtime_render',
+    records,
+    insularIslands,
+    diagnostics,
+    security: {
+      componentIsolation: 'public-contract-only',
+      shadowRootAccess: false,
+      trustedDomBoundaryRequired: true
+    }
+  };
+}
+
+const VALIDATION_CAPABLE_COMPONENTS = new Set(['x-input', 'x-select', 'x-textarea', 'x-form']);
+const SUPPORTED_SURFACE_TRANSITION_EFFECTS = Object.freeze([
+  'fade',
+  'crossfade',
+  'slide-left',
+  'slide-right',
+  'slide-up',
+  'slide-down',
+  'scale',
+  'none'
+]);
+
+function createValidationSurfaceIndex(appPlatform) {
+  const selectorToState = new Map(toArray(appPlatform && appPlatform.selectors).map((selector) => [selector.id, selector.from]));
+  const byState = new Map();
+  toArray(appPlatform && appPlatform.surfaces).forEach((surface) => {
+    if (!surface || !surface.source) return;
+    const stateId = selectorToState.get(surface.source);
+    if (!stateId) return;
+    byState.set(stateId, surface);
+  });
+  return byState;
+}
+
+function createValidationPlan(core, appPlatform) {
+  const validations = toArray(appPlatform && appPlatform.validations);
+  const stateIds = new Set(toArray(appPlatform && appPlatform.state).map((state) => state.id));
+  const actionIds = new Set(toArray(appPlatform && appPlatform.actions).map((action) => action.id));
+  const validationIds = new Set(validations.map((validation) => validation.id));
+  const surfaceByState = createValidationSurfaceIndex(appPlatform);
+  const diagnostics = [];
+  const groups = validations.map((validation) => {
+    const fields = toArray(validation.fields).map((field) => {
+      const surface = surfaceByState.get(field.state) || null;
+      if (!stateIds.has(field.state)) {
+        diagnostics.push({
+          code: 'rmt.form_validation.field_state_missing',
+          severity: 'warning',
+          message: `Validation ${validation.id} references unknown state ${field.state}.`,
+          validation: validation.id,
+          field: field.state
+        });
+      }
+      if (!field.message) {
+        diagnostics.push({
+          code: 'rmt.form_validation.message_missing',
+          severity: 'warning',
+          message: `Validation field ${field.state} needs a user-safe message.`,
+          validation: validation.id,
+          field: field.state
+        });
+      }
+      if (!surface || !VALIDATION_CAPABLE_COMPONENTS.has(surface.component)) {
+        diagnostics.push({
+          code: 'rmt.form_validation.component_capability_missing',
+          severity: 'warning',
+          message: `Validation field ${field.state} has no known public validity-capable component surface.`,
+          validation: validation.id,
+          field: field.state,
+          component: surface && surface.component || null
+        });
+      }
+      return {
+        state: field.state,
+        ref: field.ref,
+        surface: surface && surface.id || null,
+        component: surface && surface.component || null,
+        rules: toArray(field.rules),
+        message: field.message || ''
+      };
+    });
+    toArray(validation.targets).forEach((target) => {
+      if (target.kind === 'action' && !actionIds.has(target.id)) {
+        diagnostics.push({
+          code: 'rmt.form_validation.target_action_missing',
+          severity: 'warning',
+          message: `Validation ${validation.id} references unknown action ${target.id}.`,
+          validation: validation.id,
+          action: target.id
+        });
+      }
+    });
+    toArray(validation.includes).forEach((include) => {
+      if (!validationIds.has(include)) {
+        diagnostics.push({
+          code: 'rmt.form_validation.include_missing',
+          severity: 'warning',
+          message: `Validation ${validation.id} includes unknown validation group ${include}.`,
+          validation: validation.id,
+          include
+        });
+      }
+    });
+    return {
+      id: validation.id,
+      name: validation.id,
+      mode: validation.mode || 'blocking',
+      fields,
+      includes: toArray(validation.includes),
+      targets: toArray(validation.targets),
+      sourceRef: toArray(core && core.validations).find((entry) => entry.name === validation.id || entry.id === primitiveRecordId('validation', validation.id))?.sourceRef || null
+    };
+  });
+
+  const statePatches = [];
+  const actionGates = [];
+  groups.forEach((group) => {
+    group.targets.forEach((target) => {
+      if (!target || target.kind !== 'action' || !target.id) return;
+      const commandState = stateIds.has(target.id) ? target.id : null;
+      if (!commandState) {
+        diagnostics.push({
+          code: 'rmt.form_validation.command_state_missing',
+          severity: 'warning',
+          message: `Validation target action ${target.id} has no matching command state for disabled-state patching.`,
+          validation: group.id,
+          action: target.id
+        });
+      } else {
+        statePatches.push({
+          id: `validation-patch:${normalizeIdSegment(group.id)}/${normalizeIdSegment(target.id)}/disabled`,
+          group: group.id,
+          targetState: commandState,
+          path: 'disabled',
+          invalidValue: true,
+          validValue: false,
+          strategy: 'attribute-sync'
+        });
+      }
+      actionGates.push({
+        id: `validation-gate:${normalizeIdSegment(group.id)}/${normalizeIdSegment(target.id)}`,
+        group: group.id,
+        action: target.id,
+        mode: group.mode || 'blocking',
+        commandState,
+        operation: `operation:xtend.rmt/validation/${group.id}/${target.id}`,
+        endpointName: `xtend.rmt.kernel.validation.${schedulerToken(`${group.id}.${target.id}`)}`
+      });
+    });
+  });
+
+  return {
+    schema: RMT_FORM_VALIDATION_SCHEMA,
+    defaultMode: 'blocking',
+    supportedRules: ['required', 'email', 'minLength', 'maxLength', 'pattern'],
+    groups,
+    fields: groups.flatMap((group) => group.fields.map((field) => ({ ...field, group: group.id }))),
+    actionGates,
+    statePatches,
+    schedulerTargets: actionGates.map((gate) => ({
+      id: `validation-scheduler:${normalizeIdSegment(gate.group)}/${normalizeIdSegment(gate.action)}`,
+      kind: 'validation',
+      operation: gate.operation,
+      endpointName: gate.endpointName,
+      group: gate.group,
+      target: {
+        kind: 'action',
+        ref: gate.action
+      }
+    })),
+    diagnostics,
+    telemetry: {
+      trace: 'dom-event -> validation-action-gate -> action',
+      customEvents: [
+        'xtend-maraca:validation-boot',
+        'xtend-maraca:validation-change',
+        'xtend-maraca:validation-blocked',
+        'xtend-maraca:validation-error'
+      ]
+    },
+    security: {
+      componentIsolation: 'public-contract-only',
+      shadowRootAccess: false,
+      htmlSinks: 'forbidden'
+    },
+    sourceMap: core.sourceMap.filter((entry) => [
+      'RmtValidationDeclaration',
+      'RmtValidationFieldClause',
+      'RmtValidationTargetClause'
+    ].includes(entry.nodeType))
+  };
+}
+
+function createSurfaceTransitionPlan(core, appPlatform) {
+  const transitions = toArray(appPlatform && appPlatform.transitions);
+  const actionIds = new Set(toArray(appPlatform && appPlatform.actions).map((action) => action.id));
+  const surfaceIds = new Set(toArray(appPlatform && appPlatform.surfaces).map((surface) => surface.id));
+  const supportedEffects = new Set(SUPPORTED_SURFACE_TRANSITION_EFFECTS);
+  const diagnostics = [];
+  const records = transitions.map((transition) => {
+    const trigger = transition.trigger || { kind: 'action', id: '' };
+    const effect = transition.effect || 'fade';
+    const durationMs = Number.isFinite(Number(transition.durationMs))
+      ? Math.max(0, Math.min(Math.round(Number(transition.durationMs)), 3000))
+      : 240;
+    if (!trigger.id || trigger.kind !== 'action' || !actionIds.has(trigger.id)) {
+      diagnostics.push({
+        code: 'rmt.surface_transition.trigger_action_missing',
+        severity: 'warning',
+        message: `Transition ${transition.id} references unknown trigger action ${trigger.id || '(missing)'}.`,
+        transition: transition.id,
+        action: trigger.id || ''
+      });
+    }
+    if (!supportedEffects.has(effect)) {
+      diagnostics.push({
+        code: 'rmt.surface_transition.effect_unknown',
+        severity: 'warning',
+        message: `Transition ${transition.id} uses unsupported effect ${effect}.`,
+        transition: transition.id,
+        effect
+      });
+    }
+    if (!Number.isFinite(Number(transition.durationMs)) || Number(transition.durationMs) < 0 || Number(transition.durationMs) > 3000) {
+      diagnostics.push({
+        code: 'rmt.surface_transition.duration_invalid',
+        severity: 'warning',
+        message: `Transition ${transition.id} has an invalid durationMs value.`,
+        transition: transition.id,
+        durationMs: transition.durationMs
+      });
+    }
+    toArray(transition.from).concat(toArray(transition.to)).forEach((surfaceId) => {
+      if (!surfaceIds.has(surfaceId)) {
+        diagnostics.push({
+          code: 'rmt.surface_transition.surface_missing',
+          severity: 'warning',
+          message: `Transition ${transition.id} references unknown surface ${surfaceId}.`,
+          transition: transition.id,
+          surface: surfaceId
+        });
+      }
+    });
+    return {
+      id: transition.id,
+      name: transition.id,
+      trigger: {
+        kind: trigger.kind || 'action',
+        id: trigger.id || '',
+        ref: trigger.ref || (trigger.id ? primitiveRecordId(trigger.kind || 'action', trigger.id) : '')
+      },
+      from: toArray(transition.from),
+      to: toArray(transition.to),
+      effect,
+      durationMs,
+      easing: transition.easing || 'ease',
+      lane: transition.lane || 'transition',
+      operation: transition.operation || `operation:xtend.rmt/surface-transition/${transition.id}`,
+      endpointName: transition.endpointName || `xtend.rmt.kernel.surface-transition.${schedulerToken(transition.id)}`,
+      sourceRef: toArray(core && core.transitions).find((entry) => entry.name === transition.id || entry.id === primitiveRecordId('transition', transition.id))?.sourceRef || null,
+      isolation: {
+        componentIsolation: 'public-contract-only',
+        shadowRootAccess: false,
+        channels: ['attributes', 'properties', 'events', 'slots', 'css-parts', 'css-tokens']
+      }
+    };
+  });
+
+  return {
+    schema: RMT_SURFACE_TRANSITION_SCHEMA,
+    supportedEffects: SUPPORTED_SURFACE_TRANSITION_EFFECTS.slice(),
+    defaultEffect: 'fade',
+    transitions: records,
+    effectCounts: records.reduce((counts, transition) => {
+      counts[transition.effect] = (counts[transition.effect] || 0) + 1;
+      return counts;
+    }, {}),
+    durationRange: {
+      min: records.length ? Math.min(...records.map((transition) => transition.durationMs)) : 0,
+      max: records.length ? Math.max(...records.map((transition) => transition.durationMs)) : 0
+    },
+    schedulerTargets: records.map((transition) => ({
+      id: `surface-transition-scheduler:${normalizeIdSegment(transition.id)}`,
+      kind: 'surface-transition',
+      operation: transition.operation,
+      endpointName: transition.endpointName,
+      transition: transition.id,
+      lane: transition.lane,
+      target: {
+        kind: 'transition',
+        ref: transition.id
+      }
+    })),
+    telemetry: {
+      trace: 'action -> reducer -> state-patch -> surface-transition -> render-patch',
+      customEvents: [
+        'xtend-maraca:surface-transition-start',
+        'xtend-maraca:surface-transition-complete',
+        'xtend-maraca:surface-transition-cancel',
+        'xtend-maraca:surface-transition-fallback',
+        'xtend-maraca:surface-transition-error'
+      ]
+    },
+    security: {
+      componentIsolation: 'public-contract-only',
+      shadowRootAccess: false,
+      htmlSinks: 'forbidden'
+    },
+    diagnostics,
+    sourceMap: core.sourceMap.filter((entry) => [
+      'RmtTransitionDeclaration',
+      'RmtTransitionTriggerClause',
+      'RmtTransitionFromClause',
+      'RmtTransitionToClause'
+    ].includes(entry.nodeType))
+  };
+}
+
+function createRuntimeGraph(core, appPlatform, eventBindings, resources, validationPlan = null, transitionPlan = null) {
+  const nodes = [];
+  const edges = [];
+  toArray(appPlatform && appPlatform.state).forEach((state) => nodes.push({ id: `state:${state.id}`, kind: 'state', ref: state.id }));
+  toArray(appPlatform && appPlatform.selectors).forEach((selector) => {
+    nodes.push({ id: `selector:${selector.id}`, kind: 'selector', ref: selector.id });
+    if (selector.from) edges.push({ from: `state:${selector.from}`, to: `selector:${selector.id}`, kind: 'state-selector' });
+  });
+  toArray(appPlatform && appPlatform.surfaces).forEach((surface) => {
+    nodes.push({ id: `surface:${surface.id}`, kind: 'surface', ref: surface.id, component: surface.component || null });
+    if (surface.source) edges.push({ from: `selector:${surface.source}`, to: `surface:${surface.id}`, kind: 'selector-surface' });
+  });
+  toArray(appPlatform && appPlatform.actions).forEach((action) => nodes.push({ id: `action:${action.id}`, kind: 'action', ref: action.id }));
+  eventBindings.forEach((event) => {
+    nodes.push({ id: `event:${event.id}`, kind: 'event', ref: event.id, target: event.target || null });
+    if (event.action) edges.push({ from: `event:${event.id}`, to: `action:${event.action}`, kind: 'event-action' });
+    if (event.surface) edges.push({ from: `surface:${event.surface}`, to: `event:${event.id}`, kind: 'surface-event' });
+  });
+  toArray(validationPlan && validationPlan.groups).forEach((group) => {
+    nodes.push({ id: `validation:${group.id}`, kind: 'validation', ref: group.id });
+    toArray(group.fields).forEach((field) => {
+      if (field.state) edges.push({ from: `state:${field.state}`, to: `validation:${group.id}`, kind: 'state-validation' });
+    });
+    toArray(group.targets).forEach((target) => {
+      if (target && target.kind === 'action' && target.id) edges.push({ from: `validation:${group.id}`, to: `action:${target.id}`, kind: 'validation-action-gate' });
+    });
+  });
+  toArray(transitionPlan && transitionPlan.transitions).forEach((transition) => {
+    nodes.push({ id: `transition:${transition.id}`, kind: 'surface-transition', ref: transition.id, effect: transition.effect });
+    if (transition.trigger && transition.trigger.kind === 'action' && transition.trigger.id) {
+      edges.push({ from: `action:${transition.trigger.id}`, to: `transition:${transition.id}`, kind: 'action-transition-trigger' });
+    }
+    toArray(transition.from).forEach((surfaceId) => {
+      edges.push({ from: `surface:${surfaceId}`, to: `transition:${transition.id}`, kind: 'transition-exit-surface' });
+    });
+    toArray(transition.to).forEach((surfaceId) => {
+      edges.push({ from: `transition:${transition.id}`, to: `surface:${surfaceId}`, kind: 'transition-enter-surface' });
+    });
+  });
+  resources.forEach((resource) => {
+    nodes.push({ id: `resource:${resource.id}`, kind: 'resource', ref: resource.id, owner: resource.owner || null });
+    if (resource.owner) edges.push({ from: resource.owner, to: `resource:${resource.id}`, kind: 'owner-resource' });
+  });
+  return {
+    schema: 'xtend.rmt.app-runtime-graph.v1',
+    nodeCount: nodes.length,
+    edgeCount: edges.length,
+    nodes,
+    edges
+  };
+}
+
+function createPatchPlan(appPlatform, reducers, renderDescriptors, validationPlan = null, transitionPlan = null) {
+  const surfaceBySource = new Map(toArray(appPlatform && appPlatform.surfaces).map((surface) => [surface.source, surface]));
+  const descriptorBySurface = new Map(toArray(renderDescriptors).map((descriptor) => [descriptor.surface, descriptor]));
+  const transitionsByAction = new Map();
+  toArray(transitionPlan && transitionPlan.transitions).forEach((transition) => {
+    const actionId = transition.trigger && transition.trigger.kind === 'action' ? transition.trigger.id : '';
+    if (!actionId) return;
+    if (!transitionsByAction.has(actionId)) transitionsByAction.set(actionId, []);
+    transitionsByAction.get(actionId).push(transition);
+  });
+  const plan = {
+    schema: 'xtend.rmt.app-patch-plan.v1',
+    defaultStrategy: 'attribute-sync',
+    strategies: ['attribute-sync', 'property-sync', 'slot-patch', 'css-token-sync', 'surface-transition', 'structured-rerender'],
+    reducers: reducers.map((reducer) => {
+      const surface = surfaceBySource.get(reducer.state) || null;
+      const descriptor = surface ? descriptorBySurface.get(surface.id) : null;
+      const transitions = toArray(transitionsByAction.get(reducer.action)).filter((transition) => {
+        const surfaceId = surface && surface.id;
+        return reducer.path === 'hidden' && surfaceId && (toArray(transition.from).includes(surfaceId) || toArray(transition.to).includes(surfaceId));
+      });
+      return {
+        reducer: reducer.id,
+        action: reducer.action,
+        state: reducer.state,
+        path: reducer.path || '',
+        surface: surface && surface.id || null,
+        component: surface && surface.component || null,
+        descriptor: descriptor && descriptor.id || null,
+        strategy: transitions.length > 0 ? 'surface-transition' : (surface ? 'attribute-sync' : 'structured-rerender'),
+        transition: transitions[0] && transitions[0].id || null,
+        isolation: 'public-contract-only'
+      };
+    })
+  };
+  plan.validation = toArray(validationPlan && validationPlan.statePatches).map((patch) => ({
+    ...patch,
+    isolation: 'public-contract-only'
+  }));
+  plan.transitions = toArray(transitionPlan && transitionPlan.transitions).map((transition) => ({
+    id: `transition-patch:${normalizeIdSegment(transition.id)}`,
+    transition: transition.id,
+    trigger: transition.trigger,
+    from: toArray(transition.from),
+    to: toArray(transition.to),
+    strategy: 'surface-transition',
+    operation: transition.operation,
+    endpointName: transition.endpointName,
+    isolation: 'public-contract-only'
+  }));
+  return plan;
+}
+
+function createHostContracts() {
+  return {
+    schema: 'xtend.rmt.app-host-contracts.v1',
+    requiredCapabilities: [
+      'scheduler.scheduleEndpoint',
+      'dom.resolveTarget',
+      'component.ensure',
+      'formValidation.evaluate',
+      'component.checkValidity',
+      'component.reportValidity',
+      'surfaceTransition.run',
+      'xstate.write',
+      'uiEffects.resolve',
+      'telemetry.publish',
+      'diagnostics.redact'
+    ],
+    adapters: {
+      browser: 'xtend.maraca.browser-host-adapter.v1',
+      server: 'xtend.rmt.server-host-adapter.v1',
+      worker: 'xtend.rmt.worker-host-adapter.v1',
+      mfe: 'xtend.rmt.mfe-host-adapter.v1'
+    },
+    security: {
+      componentIsolation: 'public-contract-only',
+      privateInternals: false,
+      shadowRootAccess: false
+    }
+  };
+}
+
+function createTelemetryPlan() {
+  return {
+    schema: 'xtend.rmt.app-telemetry-plan.v1',
+    correlation: {
+      idFormat: 'xtend-trace:<document>:<flow>:<counter>',
+      propagatesThrough: ['event', 'action', 'resource', 'reducer', 'state-patch', 'render-patch', 'hydration', 'surface-transition']
+    },
+    customEvents: [
+      'xtend-maraca:kernel-boot',
+      'xtend-maraca:kernel-schedule',
+      'xtend-maraca:kernel-fiber',
+      'xtend-maraca:kernel-error',
+      'xtend-maraca:hydration-start',
+      'xtend-maraca:hydration-complete',
+      'xtend-maraca:hydration-error',
+      'xtend-maraca:insular-hydration',
+      'xtend-maraca:render-patch',
+      'xtend-maraca:state-change',
+      'xtend-maraca:validation-boot',
+      'xtend-maraca:validation-change',
+      'xtend-maraca:validation-blocked',
+      'xtend-maraca:validation-error',
+      'xtend-maraca:surface-transition-start',
+      'xtend-maraca:surface-transition-complete',
+      'xtend-maraca:surface-transition-cancel',
+      'xtend-maraca:surface-transition-fallback',
+      'xtend-maraca:surface-transition-error',
+      'xtend-maraca:telemetry'
+    ],
+    diagnostics: {
+      redaction: 'payload-html-secret-token-password-stack',
+      rawHtml: false,
+      secrets: false
+    }
+  };
+}
+
+function createOrchestrationDiagnostics(appPlatform, eventBindings) {
+  const diagnostics = [];
+  const portalIds = new Set(toArray(appPlatform && appPlatform.portals).map((portal) => portal.id));
+  const surfaceIds = new Set(toArray(appPlatform && appPlatform.surfaces).map((surface) => surface.id));
+
+  eventBindings.forEach((event) => {
+    if (!event.payloadContract || toArray(event.payloadContract.required).length === 0) {
+      diagnostics.push({
+        code: 'rmt.app_orchestration.event_payload_contract_missing',
+        severity: 'warning',
+        message: `Event ${event.id} hat keinen vollstaendigen Payload Contract.`,
+        event: event.id
+      });
+    }
+    if (!event.target) {
+      diagnostics.push({
+        code: 'rmt.app_orchestration.event_target_missing',
+        severity: 'warning',
+        message: `Event ${event.id} hat kein materialisierbares Target.`,
+        event: event.id
+      });
+    }
+  });
+
+  toArray(appPlatform && appPlatform.resources).forEach((resource) => {
+    if (!resource.owner) {
+      diagnostics.push({
+        code: 'rmt.app_orchestration.resource_owner_missing',
+        severity: 'warning',
+        message: `Resource ${resource.id} hat keinen Owner.`,
+        resource: resource.id
+      });
+    }
+  });
+
+  toArray(appPlatform && appPlatform.surfaces).forEach((surface) => {
+    if (surface.portal && !portalIds.has(surface.portal)) {
+      diagnostics.push({
+        code: 'rmt.app_orchestration.portal_unresolved',
+        severity: 'warning',
+        message: `Surface ${surface.id} referenziert ein unbekanntes Portal ${surface.portal}.`,
+        surface: surface.id,
+        portal: surface.portal
+      });
+    }
+    toArray(surface.resources).forEach((resourceId) => {
+      const owner = toArray(appPlatform.resources).find((resource) => resource.id === resourceId);
+      const ownerRef = owner && owner.owner && (owner.owner.id || owner.owner.ref);
+      if (ownerRef && owner.owner.kind === 'surface' && !surfaceIds.has(owner.owner.id)) {
+        diagnostics.push({
+          code: 'rmt.app_orchestration.resource_owner_unresolved',
+          severity: 'warning',
+          message: `Resource ${resourceId} referenziert eine unbekannte Surface ${ownerRef}.`,
+          resource: resourceId
+        });
+      }
+    });
+  });
+
+  return diagnostics;
+}
+
+function createRmtAppOrchestrationArtifacts(core) {
+  if (!core || !core.appPlatform) return null;
+
+  const appPlatform = core.appPlatform;
+  const eventBindings = createEventBindingRecords(appPlatform);
+  const reducers = createActionReducerRecords(appPlatform);
+  const resources = createResourceRecords(appPlatform);
+  const dataSources = createDataSourceRecords(appPlatform);
+  const initialStates = new Map(toArray(appPlatform.state).map((state) => [state.id, state.initial || {}]));
+  const renderDescriptors = toArray(appPlatform.surfaces).map((surface) => createRenderDescriptor(surface, eventBindings, initialStates));
+  const hydration = createHydrationPlan(core, appPlatform);
+  const validation = createValidationPlan(core, appPlatform);
+  const transitions = createSurfaceTransitionPlan(core, appPlatform);
+  const runtimeGraph = createRuntimeGraph(core, appPlatform, eventBindings, resources, validation, transitions);
+  const patchPlan = createPatchPlan(appPlatform, reducers, renderDescriptors, validation, transitions);
+  const telemetry = createTelemetryPlan();
+
+  return {
+    schema: RMT_APP_ORCHESTRATION_SCHEMA,
+    workpackage: RMT_APP_ORCHESTRATION_WORKPACKAGE,
+    sourceSyntax: 'rmt-vnext',
+    runtimeOrder: ['kernel', 'state', 'resource', 'validation', 'transition', 'action', 'event', 'surface', 'renderer'],
+    kernel: createKernelOrchestrationArtifact(core),
+    state: {
+      states: toArray(appPlatform.state),
+      selectors: toArray(appPlatform.selectors).map(normalizeSelectorForStateRuntime),
+      reducers
+    },
+    actions: {
+      actions: toArray(appPlatform.actions).map((action) => ({
+        id: action.id,
+        inputs: action.inputs,
+        statusState: action.status && action.status.path || '',
+        reducers: action.reducers,
+        emits: action.emits,
+        effects: toArray(action.effects)
+      })),
+      dataSources,
+      effects: toArray(core.effects).map((effect) => ({
+        id: effect.id,
+        kind: effect.kind || 'side-effect',
+        action: effect.action || null,
+        source: effect.source || null
+      })),
+      resources
+    },
+    resources,
+    events: eventBindings,
+    surfaces: toArray(appPlatform.surfaces),
+    portals: toArray(appPlatform.portals),
+    overlays: toArray(appPlatform.overlays),
+    render: {
+      mode: 'dom-descriptor',
+      descriptors: renderDescriptors,
+      root: {
+        type: 'fragment',
+        children: renderDescriptors
+      }
+    },
+    hydration,
+    validation,
+    transitions,
+    runtimeGraph,
+    hostContracts: createHostContracts(),
+    patchPlan,
+    css: createCssPlan(appPlatform),
+    security: {
+      htmlSinks: 'forbidden',
+      trustedDomBoundaryRequired: true,
+      componentIsolation: 'public-contract-only',
+      isolationChannels: ['attributes', 'properties', 'events', 'slots', 'css-parts', 'css-tokens'],
+      shadowRootAccess: false
+    },
+    observability: telemetry,
+    telemetry,
+    diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings).concat(hydration.diagnostics).concat(validation.diagnostics).concat(transitions.diagnostics),
+    sourceMap: sourceMapForOrchestration(core)
   };
 }
 
@@ -866,6 +2393,8 @@ class VNextCompiler {
     if (node.type === 'RmtSelectorDeclaration') return this.compilePrimitiveSelector(node, templateContext);
     if (node.type === 'RmtDataSourceDeclaration') return this.compilePrimitiveDataSource(node, templateContext);
     if (node.type === 'RmtActionDeclaration') return this.compilePrimitiveAction(node, templateContext);
+    if (node.type === 'RmtValidationDeclaration') return this.compilePrimitiveValidation(node, templateContext);
+    if (node.type === 'RmtTransitionDeclaration') return this.compilePrimitiveTransition(node, templateContext);
     if (node.type === 'RmtPortalDeclaration') return this.compilePrimitivePortal(node, templateContext);
     if (node.type === 'RmtOverlayDeclaration') return this.compilePrimitiveOverlay(node, templateContext);
     if (node.type === 'RmtResourceDeclaration') return this.compilePrimitiveResource(node, templateContext);
@@ -962,7 +2491,9 @@ class VNextCompiler {
       } else if (child.type === 'RmtReducerStatement') {
         record.reducers.push({
           target: child.target,
-          value: child.value ? primitiveValueToCore(child.value) : child.text || null
+          value: child.value
+            ? primitiveValueToCore(child.value)
+            : primitiveExpressionTextToCore(child.expression || child.text || '')
         });
       } else if (child.type === 'RmtEmitStatement') {
         record.emits.push({
@@ -984,6 +2515,80 @@ class VNextCompiler {
     });
 
     return addRecord(this.core, 'actions', record, node, 'RmtActionDeclaration');
+  }
+
+  compilePrimitiveValidation(node, templateContext) {
+    const modeNode = getPrimitiveBodyNode(node, 'RmtValidationModeClause');
+    const record = {
+      id: primitiveRecordId('validation', node.name),
+      name: node.name,
+      primitive: true,
+      mode: modeNode && modeNode.mode || 'blocking',
+      targets: getPrimitiveBodyNodes(node, 'RmtValidationTargetClause').map((target) => ({
+        kind: target.kind || 'action',
+        id: target.target || '',
+        ref: target.kind === 'action' || !target.kind ? primitiveRecordId('action', target.target) : primitiveRecordId(target.kind, target.target)
+      })).filter((target) => target.id),
+      fields: getPrimitiveBodyNodes(node, 'RmtValidationFieldClause').map((field) => {
+        const rules = toArray(field.rules).map(compileValidationFieldRule).filter((rule) => rule && rule.kind && rule.kind !== 'message');
+        return {
+          state: field.field,
+          ref: primitiveRecordId('state', field.field),
+          rules,
+          message: validationMessageFromRules(field.rules)
+        };
+      }).filter((field) => field.state),
+      includes: getPrimitiveBodyNodes(node, 'RmtValidationIncludeClause').map((include) => include.ref).filter(Boolean)
+    };
+
+    if (templateContext) record.scope = this.primitiveScope(templateContext);
+    const validationRecord = addRecord(this.core, 'validations', record, node, 'RmtValidationDeclaration');
+    const validationIndex = this.core.validations.indexOf(validationRecord);
+    toArray(node.body).forEach((child, index) => {
+      if (!child || !child.type) return;
+      const childSourceRef = makeSourceRef(`${validationRecord.id}/${index}`);
+      addSourceMap(this.core, child, child.type, `/validations/${validationIndex}/body/${index}`, childSourceRef);
+    });
+    return validationRecord;
+  }
+
+  compilePrimitiveTransition(node, templateContext) {
+    const triggerNode = getPrimitiveBodyNode(node, 'RmtTransitionTriggerClause');
+    const fromNode = getPrimitiveBodyNode(node, 'RmtTransitionFromClause');
+    const toNode = getPrimitiveBodyNode(node, 'RmtTransitionToClause');
+    const effectNode = getPrimitiveBodyNode(node, 'RmtTransitionEffectClause');
+    const durationNode = getPrimitiveBodyNode(node, 'RmtTransitionDurationClause');
+    const easingNode = getPrimitiveBodyNode(node, 'RmtTransitionEasingClause');
+    const laneNode = getPrimitiveBodyNode(node, 'RmtTransitionLaneClause');
+    const triggerKind = triggerNode && triggerNode.kind || 'action';
+    const triggerId = triggerNode && triggerNode.target || '';
+    const duration = durationNode ? Number(primitiveValueToCore(durationNode.value)) : 240;
+    const record = {
+      id: primitiveRecordId('transition', node.name),
+      name: node.name,
+      primitive: true,
+      trigger: {
+        kind: triggerKind,
+        id: triggerId,
+        ref: triggerId ? primitiveRecordId(triggerKind, triggerId) : ''
+      },
+      from: fromNode ? primitiveValueToStringList(fromNode.value) : [],
+      to: toNode ? primitiveValueToStringList(toNode.value) : [],
+      effect: effectNode && effectNode.effect || 'fade',
+      durationMs: Number.isFinite(duration) ? duration : 240,
+      easing: easingNode ? primitiveValueToString(easingNode.value) || 'ease' : 'ease',
+      lane: laneNode && laneNode.lane || 'transition'
+    };
+
+    if (templateContext) record.scope = this.primitiveScope(templateContext);
+    const transitionRecord = addRecord(this.core, 'transitions', record, node, 'RmtTransitionDeclaration');
+    const transitionIndex = this.core.transitions.indexOf(transitionRecord);
+    toArray(node.body).forEach((child, index) => {
+      if (!child || !child.type) return;
+      const childSourceRef = makeSourceRef(`${transitionRecord.id}/${index}`);
+      addSourceMap(this.core, child, child.type, `/transitions/${transitionIndex}/body/${index}`, childSourceRef);
+    });
+    return transitionRecord;
   }
 
   compilePrimitiveEffect(node, actionRecord, index) {
@@ -1324,6 +2929,8 @@ class VNextCompiler {
         refs.push(this.compileSlot(item, ownerOperation, context).id);
       } else if (item.type === 'RmtEventBinding') {
         refs.push(this.compileEvent(item, ownerOperation, context.operationPath).id);
+      } else if (item.type === 'RmtHydrationPolicy' || item.type === 'RmtIsolationPolicy') {
+        refs.push(this.compileHydrationPolicy(item, ownerOperation, context.operationPath, index).id);
       } else if (item.type === 'RmtTrustBoundaryPolicy' || item.type === 'RmtSanitizePolicy') {
         refs.push(this.compileSecurityPolicy(item, ownerOperation, context.operationPath, index).id);
       }
@@ -1395,6 +3002,27 @@ class VNextCompiler {
       ownerOperation
     }, node, 'RmtSanitizePolicy');
   }
+
+  compileHydrationPolicy(node, ownerOperation, ownerPath, policyIndex) {
+    if (node.type === 'RmtIsolationPolicy') {
+      return addRecord(this.core, 'hydrationPolicies', {
+        id: `hydration:${ownerPath}/isolation/${policyIndex}`,
+        kind: 'isolation',
+        boundary: node.boundary || null,
+        mode: node.mode || null,
+        ownerOperation
+      }, node, 'RmtIsolationPolicy');
+    }
+
+    return addRecord(this.core, 'hydrationPolicies', {
+      id: `hydration:${ownerPath}/policy/${policyIndex}`,
+      kind: 'hydration',
+      policy: node.policy || null,
+      mode: node.mode || null,
+      insularHydration: node.insularHydration === null ? null : Boolean(node.insularHydration),
+      ownerOperation
+    }, node, 'RmtHydrationPolicy');
+  }
 }
 
 function compileRmtVNextAst(ast, options = {}) {
@@ -1411,7 +3039,7 @@ function coreDocumentForSerialization(coreDocument) {
     delete serializable.remoteSurfaces;
   }
 
-  ['states', 'selectors', 'actions', 'effects', 'portals', 'overlays', 'resources'].forEach((domain) => {
+  ['states', 'selectors', 'actions', 'effects', 'validations', 'transitions', 'portals', 'overlays', 'resources', 'hydrationPolicies'].forEach((domain) => {
     if (Array.isArray(serializable[domain]) && serializable[domain].length === 0) {
       delete serializable[domain];
     }
@@ -1443,6 +3071,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
       phase: parserResult.phase || 'syntax',
       status: parserResult.status || 'syntax_error',
       parserResult,
+      orchestrationArtifacts: null,
       coreDocument: null,
       coreJson: null,
       diagnostics: parserResult.diagnostics,
@@ -1470,6 +3099,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
       status: 'semantic_error',
       parserResult,
       primitiveSemanticGraph,
+      orchestrationArtifacts: null,
       coreDocument: null,
       coreJson: null,
       diagnostics: primitiveSemanticGraph.diagnostics,
@@ -1493,6 +3123,13 @@ function compileRmtVNextSource(input = {}, options = {}) {
       'RmtSelectorDeclaration',
       'RmtDataSourceDeclaration',
       'RmtActionDeclaration',
+      'RmtValidationDeclaration',
+      'RmtValidationFieldClause',
+      'RmtValidationTargetClause',
+      'RmtTransitionDeclaration',
+      'RmtTransitionTriggerClause',
+      'RmtTransitionFromClause',
+      'RmtTransitionToClause',
       'RmtEffectStatement',
       'RmtPortalDeclaration',
       'RmtOverlayDeclaration',
@@ -1500,6 +3137,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
       'RmtEventBinding'
     ].includes(entry.nodeType))
   } : null;
+  const orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument);
 
   return {
     schema: RMT_VNEXT_COMPILER_SCHEMA,
@@ -1512,6 +3150,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
     parserResult,
     primitiveSemanticGraph,
     primitiveArtifacts,
+    orchestrationArtifacts,
     coreDocument,
     coreJson,
     diagnostics,
@@ -1531,6 +3170,9 @@ function createRmtVNextCompiler(defaultOptions = {}) {
     schema: RMT_VNEXT_COMPILER_SCHEMA,
     coreSchema: RMT_VNEXT_CORE_SCHEMA,
     primitiveLoweringSchema: RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
+    appOrchestrationSchema: RMT_APP_ORCHESTRATION_SCHEMA,
+    formValidationSchema: RMT_FORM_VALIDATION_SCHEMA,
+    surfaceTransitionSchema: RMT_SURFACE_TRANSITION_SCHEMA,
     parserSchema: RMT_VNEXT_PARSER_SCHEMA,
     workpackage: RMT_VNEXT_COMPILER_WORKPACKAGE,
     compileSource,
@@ -1548,6 +3190,10 @@ module.exports = {
   RMT_VNEXT_COMPILER_SCHEMA,
   RMT_VNEXT_COMPILER_SUITE_PATH,
   RMT_VNEXT_COMPILER_WORKPACKAGE,
+  RMT_APP_ORCHESTRATION_SCHEMA,
+  RMT_APP_ORCHESTRATION_WORKPACKAGE,
+  RMT_FORM_VALIDATION_SCHEMA,
+  RMT_SURFACE_TRANSITION_SCHEMA,
   RMT_VNEXT_CORE_SCHEMA,
   RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
   RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE,

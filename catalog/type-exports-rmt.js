@@ -31,7 +31,10 @@ const RMT_RUNTIME_PACKAGE_EXPORTS = Object.freeze([
   './rmt/state-selector-runtime',
   './rmt/action-effect-runtime',
   './rmt/event-routing-runtime',
+  './rmt/form-validation-runtime',
+  './rmt/surface-transition-runtime',
   './rmt/surface-resource-graph-runtime',
+  './rmt/kernel-orchestration-controller',
   './rmt/native-shell-runtime',
   './rmt/node-ssr-adapter'
 ]);
@@ -124,6 +127,9 @@ const RMT_REPRESENTATIVE_DECLARATION_TOKENS = Object.freeze({
   'tools/rmt-language/kernel-policy-parity.d.ts': ['RmtKernelPolicyParityController', 'RmtKernelPolicyParityReport', 'createKernelPolicyParityController'],
   'tools/rmt-language/kernel-security-regression.d.ts': ['RmtKernelSecurityRegressionReport', 'RmtKernelSecurityRegressionFixtureSet', 'createKernelSecurityRegressionFixtures'],
   'xtendrmt/rmt-component-capability-registry.d.ts': ['RmtComponentCapabilityRegistry', 'RmtComponentCapability', 'createRmtComponentCapabilityRegistry'],
+  'xtendrmt/rmt-kernel-orchestration-controller.d.ts': ['RmtKernelOrchestrationController', 'RmtKernelOrchestrationControllerOptions', 'createRmtKernelOrchestrationController'],
+  'xtendrmt/rmt-form-validation-runtime.d.ts': ['RmtFormValidationRuntime', 'RmtFormValidationRuntimeOptions', 'createRmtFormValidationRuntime'],
+  'xtendrmt/rmt-surface-transition-runtime.d.ts': ['RmtSurfaceTransitionRuntime', 'RmtSurfaceTransitionRuntimeOptions', 'createRmtSurfaceTransitionRuntime'],
   'xtendrmt/rmt-node-ssr-adapter.d.ts': ['RmtNodeSsrAdapter', 'RmtNodeSsrRenderResult', 'RmtNodeSsrJsonlFrame', 'createRmtNodeSsrAdapter'],
   'tools/rmt-language-server/protocol.d.ts': ['RmtJsonRpcMessage', 'encodeProtocolMessage', 'parseProtocolMessages'],
   'tools/rmt-language-server/server.d.ts': ['RmtLanguageServiceProvider', 'RmtLanguageServer', 'createRmtLanguageServer'],
@@ -190,7 +196,10 @@ function resolveDeclarationForExport(exportKey) {
   if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.d.ts';
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.d.ts';
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.d.ts';
+  if (exportKey === './rmt/form-validation-runtime') return './xtendrmt/rmt-form-validation-runtime.d.ts';
+  if (exportKey === './rmt/surface-transition-runtime') return './xtendrmt/rmt-surface-transition-runtime.d.ts';
   if (exportKey === './rmt/surface-resource-graph-runtime') return './xtendrmt/rmt-surface-resource-graph-runtime.d.ts';
+  if (exportKey === './rmt/kernel-orchestration-controller') return './xtendrmt/rmt-kernel-orchestration-controller.d.ts';
   if (exportKey === './rmt/native-shell-runtime') return './xtendrmt/rmt-native-shell-runtime.d.ts';
   if (exportKey === './rmt/node-ssr-adapter') return './xtendrmt/rmt-node-ssr-adapter.d.ts';
   if (exportKey === './rmt-language/snippets') return './tools/rmt-language/snippets/index.d.ts';
@@ -210,7 +219,10 @@ function resolveSourceForExport(exportKey) {
   if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.js';
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.js';
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.js';
+  if (exportKey === './rmt/form-validation-runtime') return './xtendrmt/rmt-form-validation-runtime.js';
+  if (exportKey === './rmt/surface-transition-runtime') return './xtendrmt/rmt-surface-transition-runtime.js';
   if (exportKey === './rmt/surface-resource-graph-runtime') return './xtendrmt/rmt-surface-resource-graph-runtime.js';
+  if (exportKey === './rmt/kernel-orchestration-controller') return './xtendrmt/rmt-kernel-orchestration-controller.js';
   if (exportKey === './rmt/native-shell-runtime') return './xtendrmt/rmt-native-shell-runtime.js';
   if (exportKey === './rmt/node-ssr-adapter') return './xtendrmt/rmt-node-ssr-adapter.js';
   if (exportKey === './rmt-language/snippets') return './tools/rmt-language/snippets/index.js';
@@ -229,7 +241,10 @@ const RMT_DECLARATION_FILES = Object.freeze([
   'xtendrmt/rmt-state-selector-runtime.d.ts',
   'xtendrmt/rmt-action-effect-runtime.d.ts',
   'xtendrmt/rmt-event-routing-runtime.d.ts',
+  'xtendrmt/rmt-form-validation-runtime.d.ts',
+  'xtendrmt/rmt-surface-transition-runtime.d.ts',
   'xtendrmt/rmt-surface-resource-graph-runtime.d.ts',
+  'xtendrmt/rmt-kernel-orchestration-controller.d.ts',
   'xtendrmt/rmt-native-shell-runtime.d.ts',
   'xtendrmt/rmt-node-ssr-adapter.d.ts',
   RMT_SHARED_DECLARATION_FILE,

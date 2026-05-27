@@ -35,8 +35,14 @@
     "rmt-action-effect-runtime.js",
     "rmt-event-routing-runtime.d.ts",
     "rmt-event-routing-runtime.js",
+    "rmt-form-validation-runtime.d.ts",
+    "rmt-form-validation-runtime.js",
+    "rmt-surface-transition-runtime.d.ts",
+    "rmt-surface-transition-runtime.js",
     "rmt-surface-resource-graph-runtime.d.ts",
     "rmt-surface-resource-graph-runtime.js",
+    "rmt-kernel-orchestration-controller.d.ts",
+    "rmt-kernel-orchestration-controller.js",
     "rmt-native-shell-runtime.d.ts",
     "rmt-native-shell-runtime.js",
     "rmt-node-ssr-adapter.d.ts",
@@ -85,9 +91,21 @@
       "types": "./rmt-event-routing-runtime.d.ts",
       "default": "./rmt-event-routing-runtime.js"
     },
+    "./form-validation-runtime": {
+      "types": "./rmt-form-validation-runtime.d.ts",
+      "default": "./rmt-form-validation-runtime.js"
+    },
+    "./surface-transition-runtime": {
+      "types": "./rmt-surface-transition-runtime.d.ts",
+      "default": "./rmt-surface-transition-runtime.js"
+    },
     "./surface-resource-graph-runtime": {
       "types": "./rmt-surface-resource-graph-runtime.d.ts",
       "default": "./rmt-surface-resource-graph-runtime.js"
+    },
+    "./kernel-orchestration-controller": {
+      "types": "./rmt-kernel-orchestration-controller.d.ts",
+      "default": "./rmt-kernel-orchestration-controller.js"
     },
     "./native-shell-runtime": {
       "types": "./rmt-native-shell-runtime.d.ts",

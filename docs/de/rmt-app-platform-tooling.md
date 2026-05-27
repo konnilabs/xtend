@@ -24,6 +24,23 @@ Modelliere zuerst Shell, State und Interaktion. Prüfe die Quelle mit dem Linter
 - [RMT Language Server](./rmt-language-server.md)
 - [XTend Maraca](./xtend-maraca.md)
 
+## Tooling für Orchestrierung
+
+Die App-Platform-Tooling-Schicht kennt `validation` und `transition` als eigene Records. Completion, Hover, Document Symbols und Snippets erklären Field Rules, Transition Effects, `durationMs`, `target action`, `from surfaces`, `to surfaces` und `lane transition`. Dadurch sieht der Editor dieselben Verträge wie Compiler und Maraca.
+
+Neue Snippets:
+
+- `rmt-vnext-validation`
+- `rmt-vnext-transition`
+- `rmt-vnext-maraca-orchestration-app`
+
+Lokale Gates für Änderungen an dieser Schicht:
+
+```bash
+node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json
+node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs --json
+```
+
 ## Entwicklerkontext
 
 Dieser erweiterte Abschnitt macht aus RMT App Platform Tooling einen praktischen RMT Runtime-Leitfaden für Drittanbieter. Lies ihn als öffentlichen Vertrag rund um das Thema: Er erklärt, warum die Seite existiert, welche Repository-Oberflächen sie stützen, wie ein Host sie integrieren sollte und wo du nachsiehst, wenn sich das Verhalten nicht wie erwartet zeigt. Die Struktur folgt etablierten Entwicklerdokumentationen: kurzer Kontext, wiederholbarer Integrationspfad, konkretes Beispiel, Referenz-Checkliste und Fehlerbehebung.

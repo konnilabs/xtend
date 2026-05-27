@@ -13,7 +13,10 @@ const {
   SURFACE_STATES,
   SURFACE_TYPES,
   TEMPLATE_MODES,
+  TRANSITION_EFFECTS,
   TOP_LEVEL_DOMAINS,
+  VALIDATION_MODES,
+  VALIDATION_RULES,
   loadComponentManifest
 } = require('./completions');
 const {
@@ -266,6 +269,21 @@ function inferStaticHover(graph, pointer, options = {}) {
   if (field === 'mode' && pointer.includes('/hydration/')) {
     const entry = lookupEntry(HYDRATION_POLICIES, stringValue);
     return entry ? createStaticHover(graph, pointer, 'hydration-policy', stringValue, entry, 'rmt-hydration-policy-catalog') : null;
+  }
+
+  if (field === 'mode' && pointer.startsWith('/validations/')) {
+    const entry = lookupEntry(VALIDATION_MODES, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'validation-mode', stringValue, entry, 'rmt-validation-mode-catalog') : null;
+  }
+
+  if (pointer.startsWith('/validations/') && segments.includes('rules')) {
+    const entry = lookupEntry(VALIDATION_RULES, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'validation-rule', stringValue, entry, 'rmt-validation-rule-catalog') : null;
+  }
+
+  if (field === 'effect' && pointer.startsWith('/transitions/')) {
+    const entry = lookupEntry(TRANSITION_EFFECTS, stringValue);
+    return entry ? createStaticHover(graph, pointer, 'transition-effect', stringValue, entry, 'rmt-transition-effect-catalog') : null;
   }
 
   if (field === 'mode' && pointer.startsWith('/templates/')) {

@@ -14,7 +14,7 @@ const RMT_SEMANTIC_GRAPH_MODULE_PATH = 'tools/rmt-language/semantic-graph.js';
 const RMT_SEMANTIC_GRAPH_SUITE_PATH = 'tests/rmt-language/rmt_semantic_graph_suite.js';
 const RMT_SEMANTIC_GRAPH_PACKAGE_SCRIPT = 'npm run test:rmt-semantic-graph';
 
-const DOMAIN_NAMES = ['adapters', 'components', 'routes', 'schedules', 'surfaces', 'templates'];
+const DOMAIN_NAMES = ['adapters', 'components', 'routes', 'schedules', 'surfaces', 'templates', 'validations', 'transitions'];
 const RMT_VNEXT_PRIMITIVE_DOMAIN_NAMES = [
   'states',
   'selectors',
@@ -24,6 +24,8 @@ const RMT_VNEXT_PRIMITIVE_DOMAIN_NAMES = [
   'portals',
   'overlays',
   'resources',
+  'validations',
+  'transitions',
   'events'
 ];
 const REFERENCE_DIAGNOSTIC_CODES = {
@@ -45,7 +47,8 @@ const RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES = {
   actionReducerMissing: 'rmt.vnext.primitive.action-reducer-missing',
   effectSourceMissing: 'rmt.vnext.primitive.effect-source-missing',
   unsafeHtml: 'rmt.vnext.primitive.unsafe-html',
-  kernelBoundary: 'rmt.vnext.primitive.kernel-boundary'
+  kernelBoundary: 'rmt.vnext.primitive.kernel-boundary',
+  validationMessageMissing: 'rmt.vnext.primitive.validation-message-missing'
 };
 const DUPLICATE_ID_CODE = 'rmt.id.duplicate';
 const DUPLICATE_ROUTE_PATH_CODE = 'rmt.ref.route.duplicate-path';
@@ -63,6 +66,8 @@ const RMT_VNEXT_PRIMITIVE_TYPE_TO_DOMAIN = {
   RmtSelectorDeclaration: 'selectors',
   RmtDataSourceDeclaration: 'dataSources',
   RmtActionDeclaration: 'actions',
+  RmtValidationDeclaration: 'validations',
+  RmtTransitionDeclaration: 'transitions',
   RmtSurfaceDeclaration: 'surfaces',
   RmtPortalDeclaration: 'portals',
   RmtOverlayDeclaration: 'overlays',
@@ -75,6 +80,8 @@ const RMT_VNEXT_PRIMITIVE_SOURCE_DOMAIN_BY_KIND = {
   overlay: 'overlays',
   portal: 'portals',
   resource: 'resources',
+  validation: 'validations',
+  transition: 'transitions',
   selector: 'selectors',
   state: 'states',
   surface: 'surfaces'
@@ -99,7 +106,8 @@ const RMT_VNEXT_AST_CHILD_KEYS = [
   'argument',
   'value',
   'dataType',
-  'initial'
+  'initial',
+  'rules'
 ];
 
 function toArray(value) {
@@ -822,6 +830,15 @@ function primitiveValueToString(value) {
   return '';
 }
 
+function primitiveValueToList(value) {
+  if (!value) return [];
+  if (value.kind === 'array') {
+    return toArray(value.items).map((entry) => primitiveValueToString(entry)).filter(Boolean);
+  }
+  const single = primitiveValueToString(value);
+  return single ? [single] : [];
+}
+
 function getPrimitiveAttribute(node, keyword) {
   return toArray(node && node.attributes).find((attribute) => attribute && attribute.keyword === keyword) || null;
 }
@@ -1148,6 +1165,10 @@ function actionNeedsReducerTarget(action) {
 function listVNextEventPayloadMappings(eventBinding) {
   return toArray(eventBinding && eventBinding.policy && eventBinding.policy.body)
     .filter((entry) => entry && entry.type === 'RmtEventPayloadMapping');
+}
+
+function validationFieldHasMessage(fieldClause) {
+  return toArray(fieldClause && fieldClause.rules).some((rule) => rule && rule.kind === 'message' && primitiveValueToString(rule.value));
 }
 
 function addVNextSourceReference(graphState, input = {}) {
@@ -1481,6 +1502,72 @@ function collectVNextPrimitiveReferences(graphState, ast) {
       }
     }
 
+    if (node.type === 'RmtValidationTargetClause') {
+      addVNextPrimitiveReference(graphState, {
+        sourceDomain: 'validations',
+        sourceId: sourceInfo.sourceId,
+        sourcePointer: (node.targetNode && node.targetNode.astPointer) || node.astPointer || null,
+        field: 'target',
+        relationship: 'validation.target',
+        targetDomain: RMT_VNEXT_PRIMITIVE_SOURCE_DOMAIN_BY_KIND[node.kind] || 'actions',
+        targetId: normalizeString(node.target),
+        severity: 'warning',
+        node: node.targetNode || node
+      });
+    }
+
+    if (node.type === 'RmtValidationFieldClause') {
+      addVNextPrimitiveReference(graphState, {
+        sourceDomain: 'validations',
+        sourceId: sourceInfo.sourceId,
+        sourcePointer: (node.fieldNode && node.fieldNode.astPointer) || node.astPointer || null,
+        field: 'field',
+        relationship: 'validation.field.state',
+        targetDomain: 'states',
+        targetId: normalizeString(node.field),
+        severity: 'warning',
+        node: node.fieldNode || node
+      });
+      if (!validationFieldHasMessage(node)) {
+        graphState.diagnostics.push(createVNextPrimitiveDiagnostic(graphState.sourceModel, {
+          code: RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.validationMessageMissing,
+          severity: 'warning',
+          message: `Validation Field "${node.field}" besitzt keine message.`,
+          node
+        }));
+      }
+    }
+
+    if (node.type === 'RmtTransitionTriggerClause') {
+      addVNextPrimitiveReference(graphState, {
+        sourceDomain: 'transitions',
+        sourceId: sourceInfo.sourceId,
+        sourcePointer: (node.targetNode && node.targetNode.astPointer) || node.astPointer || null,
+        field: 'trigger',
+        relationship: 'transition.trigger',
+        targetDomain: RMT_VNEXT_PRIMITIVE_SOURCE_DOMAIN_BY_KIND[node.kind] || 'actions',
+        targetId: normalizeString(node.target),
+        severity: 'warning',
+        node: node.targetNode || node
+      });
+    }
+
+    if (node.type === 'RmtTransitionFromClause' || node.type === 'RmtTransitionToClause') {
+      primitiveValueToList(node.value).forEach((surfaceId) => {
+        addVNextPrimitiveReference(graphState, {
+          sourceDomain: 'transitions',
+          sourceId: sourceInfo.sourceId,
+          sourcePointer: node.astPointer || null,
+          field: node.type === 'RmtTransitionFromClause' ? 'from' : 'to',
+          relationship: node.type === 'RmtTransitionFromClause' ? 'transition.from.surface' : 'transition.to.surface',
+          targetDomain: 'surfaces',
+          targetId: normalizeString(surfaceId),
+          severity: 'warning',
+          node
+        });
+      });
+    }
+
     addVNextUnsafeHtmlDiagnostics(graphState, node);
   });
 }
@@ -1495,6 +1582,7 @@ function createVNextPrimitiveCatalogHints(indexes) {
     portalIds: indexes.portals.ids.slice().sort(),
     overlayIds: indexes.overlays.ids.slice().sort(),
     resourceIds: indexes.resources.ids.slice().sort(),
+    transitionIds: indexes.transitions.ids.slice().sort(),
     eventIds: indexes.events.ids.slice().sort()
   };
 }

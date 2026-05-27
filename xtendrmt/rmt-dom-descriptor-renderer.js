@@ -195,10 +195,18 @@
     }
     if (resolvedValue === false || resolvedValue === null || typeof resolvedValue === 'undefined') {
       if (typeof element.removeAttribute === 'function') element.removeAttribute(normalizedName);
+      if (normalizedName === 'hidden' && element.style && element.getAttribute && element.getAttribute('data-rmt-hidden-display') === 'true') {
+        element.style.display = '';
+        if (typeof element.removeAttribute === 'function') element.removeAttribute('data-rmt-hidden-display');
+      }
       return;
     }
     if (typeof element.setAttribute === 'function') {
       element.setAttribute(normalizedName, resolvedValue === true ? '' : String(resolvedValue));
+      if (normalizedName === 'hidden' && element.style) {
+        element.style.display = 'none';
+        element.setAttribute('data-rmt-hidden-display', 'true');
+      }
     }
   }
 
@@ -288,7 +296,7 @@
         throw createRendererError('rmt.dom.style-token.unsafe-name', `Unsicherer Style-Token ${name}`, descriptor, context);
       }
       const resolvedValue = resolveValue(value, context, context.item);
-      setAttributeSafe(element, `data-style-token-${tokenName}`, resolvedValue, descriptor, context);
+      setAttributeSafe(element, `data-style-token-${tokenName}`, { op: 'literal', value: resolvedValue }, descriptor, context);
       if (element.style && typeof element.style.setProperty === 'function') {
         element.style.setProperty(`--xtend-${tokenName}`, String(resolvedValue == null ? '' : resolvedValue));
       }
@@ -363,8 +371,14 @@
   }
 
   function readPath(model, path) {
-    const parts = normalizePathSegments(path);
-    let cursor = model;
+    const expression = clampString(path, '');
+    const record = objectRecord(model);
+    if (Object.prototype.hasOwnProperty.call(record, expression)) return record[expression];
+    const ownerKey = Object.keys(record)
+      .filter((key) => expression.startsWith(`${key}.`))
+      .sort((left, right) => right.length - left.length)[0];
+    const parts = normalizePathSegments(ownerKey ? expression.slice(ownerKey.length + 1) : expression);
+    let cursor = ownerKey ? record[ownerKey] : model;
     for (const part of parts) {
       if (cursor == null) return undefined;
       if (part === 'length' && (Array.isArray(cursor) || typeof cursor === 'string')) return cursor.length;
@@ -483,6 +497,11 @@
     let result;
 
     switch (op) {
+      case 'literal':
+      case 'const':
+      case 'static':
+        result = Object.prototype.hasOwnProperty.call(record, 'value') ? record.value : record.source;
+        break;
       case '':
       case 'path':
         result = record.path ? resolvePathExpression(record.path, context, item) : source;

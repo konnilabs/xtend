@@ -1,0 +1,147 @@
+// Generic Maraca validation fixture: RMT declares fields, action gates and button disabled patches.
+
+template demo.validation {
+  state demo.validation.status type object preserve {
+    initial {
+      id "validation-status"
+      text "Enter contact data."
+      tone "neutral"
+    }
+  }
+
+  state demo.validation.name type object preserve {
+    initial {
+      id "validation-name"
+      field "name"
+      label "Full name"
+      value ""
+      placeholder "Avery Stone"
+      inputType "text"
+      required true
+    }
+  }
+
+  state demo.validation.email type object preserve {
+    initial {
+      id "validation-email"
+      field "email"
+      label "Email"
+      value ""
+      placeholder "avery@example.com"
+      inputType "email"
+      required true
+    }
+  }
+
+  state demo.validation.next type object preserve {
+    initial {
+      id "validation-next"
+      text "Continue"
+      tone "primary"
+      disabled true
+    }
+  }
+
+  selector demo.validation.status from state demo.validation.status {
+    output ValidationStatus
+  }
+
+  selector demo.validation.name from state demo.validation.name {
+    output ValidationField
+  }
+
+  selector demo.validation.email from state demo.validation.email {
+    output ValidationField
+  }
+
+  selector demo.validation.next from state demo.validation.next {
+    output ValidationCommand
+  }
+
+  validation demo.validation.contact {
+    mode blocking
+    target action demo.validation.next
+    field demo.validation.name required message "Enter your full name."
+    field demo.validation.email required email message "Enter a valid email address."
+  }
+
+  action demo.validation.updateName {
+    input value string
+    reduce state.demo.validation.name.value = input.value
+  }
+
+  action demo.validation.updateEmail {
+    input value string
+    reduce state.demo.validation.email.value = input.value
+  }
+
+  action demo.validation.next {
+    input label string
+    reduce state.demo.validation.status.text = "Validation passed."
+    reduce state.demo.validation.status.tone = "success"
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  resource demo.validation.session kind data owner surface.demo.validation.status {
+    dispose on surface.destroy
+  }
+
+  surface demo.validation.status kind card component x-status {
+    source selector demo.validation.status
+    key status.id
+    portal surface.root
+    bounds x 16 y 16 width 520 height 72
+    destroy releases resource demo.validation.session
+
+    lane visible weight 90 {
+      hydrate validation-status from selector demo.validation.status
+    }
+  }
+
+  surface demo.validation.name kind field component x-input {
+    source selector demo.validation.name
+    key name.id
+    portal surface.root
+    bounds x 16 y 104 width 240 height 88
+
+    lane visible weight 80 {
+      hydrate validation-name from selector demo.validation.name
+    }
+
+    on input-changed "#validation-name" -> action demo.validation.updateName {
+      payload value from detail.value
+    }
+  }
+
+  surface demo.validation.email kind field component x-input {
+    source selector demo.validation.email
+    key email.id
+    portal surface.root
+    bounds x 272 y 104 width 264 height 88
+
+    lane visible weight 80 {
+      hydrate validation-email from selector demo.validation.email
+    }
+
+    on input-changed "#validation-email" -> action demo.validation.updateEmail {
+      payload value from detail.value
+    }
+  }
+
+  surface demo.validation.next kind action component x-button {
+    source selector demo.validation.next
+    key next.id
+    portal surface.root
+    bounds x 16 y 208 width 160 height 56
+
+    lane visible weight 80 {
+      mount validation-next from selector demo.validation.next
+    }
+
+    on click "#validation-next" -> action demo.validation.next {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+}

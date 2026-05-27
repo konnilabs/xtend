@@ -24,6 +24,23 @@ Model shell, state and interaction first. Validate the source with the linter, c
 - [RMT Language Server](./rmt-language-server.md)
 - [XTend Maraca](./xtend-maraca.md)
 
+## Tooling For Orchestration
+
+The app-platform tooling layer treats `validation` and `transition` as first-class records. Completion, hover, document symbols and snippets explain field rules, transition effects, `durationMs`, `target action`, `from surfaces`, `to surfaces` and `lane transition`. That gives the editor the same contracts that the compiler and Maraca consume.
+
+New snippets:
+
+- `rmt-vnext-validation`
+- `rmt-vnext-transition`
+- `rmt-vnext-maraca-orchestration-app`
+
+Local gates for changes in this layer:
+
+```bash
+node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json
+node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs --json
+```
+
 ## Developer context
 
 This expanded section turns RMT App Platform Tooling from a short navigation note into a practical RMT runtime guide for third-party developers. Read it as the public contract around the topic: it explains why the page exists, which repository surfaces back it, how a host should integrate it and where to look when behavior does not match the expectation. The structure follows the same pattern used by mature developer documentation systems: a short concept, a repeatable integration path, a concrete example, reference checkpoints and troubleshooting.

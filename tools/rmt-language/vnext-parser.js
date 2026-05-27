@@ -42,6 +42,11 @@ const RESERVED_WORDS = new Set([
   'action',
   'trust',
   'boundary',
+  'hydration',
+  'policy',
+  'mode',
+  'insular',
+  'isolation',
   'sanitize',
   'true',
   'false',
@@ -87,6 +92,8 @@ const PRIMITIVE_DECLARATIONS = new Set([
   'selector',
   'datasource',
   'action',
+  'validation',
+  'transition',
   'portal',
   'overlay',
   'resource'
@@ -526,6 +533,8 @@ class VNextParser {
     if (this.matches('selector')) return this.parseSelectorDeclaration(scope);
     if (this.matches('datasource')) return this.parseDataSourceDeclaration(scope);
     if (this.matches('action')) return this.parseActionDeclaration(scope);
+    if (this.matches('validation')) return this.parseValidationDeclaration(scope);
+    if (this.matches('transition')) return this.parseTransitionDeclaration(scope);
     if (this.matches('portal')) return this.parsePortalDeclaration(scope);
     if (this.matches('overlay')) return this.parseOverlayDeclaration(scope);
     if (this.matches('resource')) return this.parseResourceDeclaration(scope);
@@ -677,6 +686,203 @@ class VNextParser {
       nameNode: name,
       body: body.items,
       scope
+    });
+  }
+
+  parseValidationDeclaration(scope = {}) {
+    const start = this.expectValue('validation', 'Expected validation declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected validation identifier.');
+    const body = this.parseBlock(() => {
+      if (this.matches('mode')) return this.parseValidationModeClause();
+      if (this.matches('target')) return this.parseValidationTargetClause();
+      if (this.matches('field')) return this.parseValidationFieldClause();
+      if (this.matches('include')) return this.parseValidationIncludeClause();
+      this.addDiagnostic(this.current(), 'Validation blocks may contain mode, target, field and include clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.skipStatementOrBlock();
+      return null;
+    });
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtValidationDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseValidationModeClause() {
+    const start = this.expectValue('mode', 'Expected validation mode clause.');
+    const mode = this.parseQualifiedIdentifierAllowReserved('Expected validation mode.');
+    this.consumeStatementEnd('Expected statement end after validation mode.');
+    const end = mode && mode.endToken ? mode.endToken : this.previous();
+    return this.createNode('RmtValidationModeClause', start, end, {
+      mode: mode && mode.value,
+      modeNode: mode
+    });
+  }
+
+  parseValidationTargetClause() {
+    const start = this.expectValue('target', 'Expected validation target clause.');
+    const kindToken = this.current();
+    let kind = null;
+    if (kindToken.type === 'identifier') {
+      kind = kindToken.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(kindToken, 'Expected validation target kind.');
+      this.consume();
+    }
+    const target = this.parseQualifiedIdentifierAllowReserved('Expected validation target reference.');
+    this.consumeStatementEnd('Expected statement end after validation target.');
+    const end = target && target.endToken ? target.endToken : this.previous();
+    return this.createNode('RmtValidationTargetClause', start, end, {
+      kind,
+      target: target && target.value,
+      targetNode: target
+    });
+  }
+
+  parseValidationFieldClause() {
+    const start = this.expectValue('field', 'Expected validation field clause.');
+    const field = this.parseQualifiedIdentifierAllowReserved('Expected validation field state.');
+    const rules = [];
+    while (!this.isAtEnd() && !this.isStatementBoundary()) {
+      const token = this.current();
+      if (this.matches('required') || this.matches('email')) {
+        rules.push(this.createNode('RmtValidationRule', token, token, {
+          kind: this.consume().value,
+          value: this.createNode('RmtPrimitiveValue', token, token, { kind: 'literal', value: true })
+        }));
+        continue;
+      }
+      if (this.matches('minLength') || this.matches('maxLength') || this.matches('pattern') || this.matches('message')) {
+        const ruleStart = this.consume();
+        const value = this.parsePrimitiveValue();
+        const end = value ? getNodeEndToken(value) : ruleStart;
+        rules.push(this.createNode('RmtValidationRule', ruleStart, end, {
+          kind: ruleStart.value,
+          value
+        }));
+        continue;
+      }
+      this.addDiagnostic(token, 'Validation field rules support required, email, minLength, maxLength, pattern and message only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.consume();
+    }
+    this.consumeStatementEnd('Expected statement end after validation field.');
+    const end = rules.length > 0 ? getNodeEndToken(rules[rules.length - 1]) : (field && field.endToken || this.previous());
+    return this.createNode('RmtValidationFieldClause', start, end, {
+      field: field && field.value,
+      fieldNode: field,
+      rules
+    });
+  }
+
+  parseValidationIncludeClause() {
+    const start = this.expectValue('include', 'Expected validation include clause.');
+    const ref = this.parseQualifiedIdentifierAllowReserved('Expected validation include reference.');
+    this.consumeStatementEnd('Expected statement end after validation include.');
+    const end = ref && ref.endToken ? ref.endToken : this.previous();
+    return this.createNode('RmtValidationIncludeClause', start, end, {
+      ref: ref && ref.value,
+      refNode: ref
+    });
+  }
+
+  parseTransitionDeclaration(scope = {}) {
+    const start = this.expectValue('transition', 'Expected transition declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected transition identifier.');
+    const body = this.parseBlock(() => {
+      if (this.matches('trigger')) return this.parseTransitionTriggerClause();
+      if (this.matches('from')) return this.parseTransitionSurfaceListClause('from', 'RmtTransitionFromClause');
+      if (this.matches('to')) return this.parseTransitionSurfaceListClause('to', 'RmtTransitionToClause');
+      if (this.matches('effect')) return this.parseTransitionEffectClause();
+      if (this.matches('durationMs')) return this.parseTransitionDurationClause();
+      if (this.matches('easing')) return this.parseTransitionEasingClause();
+      if (this.matches('lane')) return this.parseTransitionLaneClause();
+      this.addDiagnostic(this.current(), 'Transition blocks may contain trigger, from, to, effect, durationMs, easing and lane clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.skipStatementOrBlock();
+      return null;
+    });
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtTransitionDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseTransitionTriggerClause() {
+    const start = this.expectValue('trigger', 'Expected transition trigger clause.');
+    const kindToken = this.current();
+    let kind = null;
+    if (kindToken.type === 'identifier') {
+      kind = kindToken.value;
+      this.consume();
+    } else {
+      this.addDiagnostic(kindToken, 'Expected transition trigger kind.');
+      this.consume();
+    }
+    const target = this.parseQualifiedIdentifierAllowReserved('Expected transition trigger reference.');
+    this.consumeStatementEnd('Expected statement end after transition trigger.');
+    const end = target && target.endToken ? target.endToken : this.previous();
+    return this.createNode('RmtTransitionTriggerClause', start, end, {
+      kind: kind || 'action',
+      target: target && target.value,
+      targetNode: target
+    });
+  }
+
+  parseTransitionSurfaceListClause(keyword, nodeType) {
+    const start = this.expectValue(keyword, `Expected transition ${keyword} clause.`);
+    if (this.matches('surfaces')) this.consume();
+    const value = this.parsePrimitiveValue();
+    this.consumeStatementEnd(`Expected statement end after transition ${keyword} clause.`);
+    const end = value ? getNodeEndToken(value) : this.previous();
+    return this.createNode(nodeType, start, end, {
+      value
+    });
+  }
+
+  parseTransitionEffectClause() {
+    const start = this.expectValue('effect', 'Expected transition effect clause.');
+    const effect = this.parseQualifiedIdentifierAllowReserved('Expected transition effect.');
+    this.consumeStatementEnd('Expected statement end after transition effect.');
+    const end = effect && effect.endToken ? effect.endToken : this.previous();
+    return this.createNode('RmtTransitionEffectClause', start, end, {
+      effect: effect && effect.value,
+      effectNode: effect
+    });
+  }
+
+  parseTransitionDurationClause() {
+    const start = this.expectValue('durationMs', 'Expected transition durationMs clause.');
+    const value = this.parsePrimitiveValue();
+    this.consumeStatementEnd('Expected statement end after transition durationMs.');
+    const end = value ? getNodeEndToken(value) : this.previous();
+    return this.createNode('RmtTransitionDurationClause', start, end, {
+      value
+    });
+  }
+
+  parseTransitionEasingClause() {
+    const start = this.expectValue('easing', 'Expected transition easing clause.');
+    const value = this.parsePrimitiveValue();
+    this.consumeStatementEnd('Expected statement end after transition easing.');
+    const end = value ? getNodeEndToken(value) : this.previous();
+    return this.createNode('RmtTransitionEasingClause', start, end, {
+      value
+    });
+  }
+
+  parseTransitionLaneClause() {
+    const start = this.expectValue('lane', 'Expected transition lane clause.');
+    const lane = this.parseQualifiedIdentifierAllowReserved('Expected transition lane.');
+    this.consumeStatementEnd('Expected statement end after transition lane.');
+    const end = lane && lane.endToken ? lane.endToken : this.previous();
+    return this.createNode('RmtTransitionLaneClause', start, end, {
+      lane: lane && lane.value,
+      laneNode: lane
     });
   }
 
@@ -1656,10 +1862,14 @@ class VNextParser {
         item = this.parseEventBinding();
       } else if (this.matches('trust')) {
         item = this.parseTrustPolicy();
+      } else if (this.matches('hydration')) {
+        item = this.parseHydrationPolicy();
+      } else if (this.matches('isolation')) {
+        item = this.parseIsolationPolicy();
       } else if (this.matches('sanitize')) {
         item = this.parseSanitizePolicy();
       } else {
-        this.addDiagnostic(this.current(), 'Policy blocks may contain slots, event bindings and security policies only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+        this.addDiagnostic(this.current(), 'Policy blocks may contain slots, event bindings, hydration policies, isolation policies and security policies only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
         this.skipStatementOrBlock();
       }
       if (item) body.push(item);
@@ -1792,6 +2002,76 @@ class VNextParser {
     return this.createNode('RmtTrustBoundaryPolicy', start, end, {
       boundary: value
     });
+  }
+
+  parseHydrationPolicy() {
+    const start = this.expectValue('hydration', 'Expected hydration policy.');
+    const clause = this.current();
+    const record = {
+      policy: null,
+      mode: null,
+      insularHydration: null
+    };
+
+    if (this.matches('policy')) {
+      this.consume();
+      const value = this.parseQualifiedIdentifierAllowReserved('Expected hydration policy identifier.');
+      record.policy = value && value.value;
+    } else if (this.matches('mode')) {
+      this.consume();
+      const value = this.parseQualifiedIdentifierAllowReserved('Expected hydration mode identifier.');
+      record.mode = value && value.value;
+    } else if (this.matches('insular')) {
+      this.consume();
+      if (this.matches('true') || this.matches('false')) {
+        record.insularHydration = this.current().value === 'true';
+        this.consume();
+      } else {
+        const value = this.parseQualifiedIdentifierAllowReserved('Expected boolean or identifier after hydration insular.');
+        record.insularHydration = value && value.value !== 'false';
+      }
+    } else {
+      this.addDiagnostic(clause, 'Hydration policy must use policy, mode or insular.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.consume();
+    }
+
+    this.consumeStatementEnd('Expected statement end after hydration policy.');
+    const end = this.previous();
+
+    return this.createNode('RmtHydrationPolicy', start, end, record);
+  }
+
+  parseIsolationPolicy() {
+    const start = this.expectValue('isolation', 'Expected isolation policy.');
+    const clause = this.current();
+    const record = {
+      boundary: null,
+      mode: null
+    };
+
+    if (this.matches('boundary')) {
+      this.consume();
+      const boundary = this.current();
+      if (boundary.type === 'string') {
+        record.boundary = boundary.value;
+        this.consume();
+      } else {
+        const value = this.parseQualifiedIdentifierAllowReserved('Expected isolation boundary.');
+        record.boundary = value && value.value;
+      }
+    } else if (this.matches('mode')) {
+      this.consume();
+      const value = this.parseQualifiedIdentifierAllowReserved('Expected isolation mode identifier.');
+      record.mode = value && value.value;
+    } else {
+      this.addDiagnostic(clause, 'Isolation policy must use boundary or mode.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.consume();
+    }
+
+    this.consumeStatementEnd('Expected statement end after isolation policy.');
+    const end = this.previous();
+
+    return this.createNode('RmtIsolationPolicy', start, end, record);
   }
 
   parseSanitizePolicy() {
@@ -2028,7 +2308,7 @@ function assignAstPointers(node, pointer = '') {
     node.astPointer = pointer || '/';
   }
 
-  ['body', 'attributes', 'metadata', 'payload', 'fields', 'items'].forEach((key) => {
+  ['body', 'attributes', 'metadata', 'payload', 'fields', 'items', 'rules'].forEach((key) => {
     const value = node[key];
     if (!Array.isArray(value)) return;
     value.forEach((child, index) => {

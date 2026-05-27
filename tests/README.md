@@ -151,7 +151,7 @@ npm run test:rmt-vnext-source-to-sea:validate-artifact
 Run the XTend Maraca modern ESM bundle gates:
 
 ```bash
-node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget --json
+node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-package-exports maraca-size-budget --json
 npm run test:maraca
 ```
 

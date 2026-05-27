@@ -1,0 +1,34 @@
+// Incomplete orchestration fixture: compiles, but strict Maraca must reject it.
+
+template demo.orchestration.incomplete {
+  state demo.incomplete.status type object preserve {
+    initial {
+      id "incomplete-status"
+      text "Ready"
+      tone "neutral"
+    }
+  }
+
+  selector demo.incomplete.status from state demo.incomplete.status {
+    output IncompleteStatus
+  }
+
+  action demo.incomplete.ping {
+    reduce state.demo.incomplete.status.text = "Pinged"
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  surface demo.incomplete.status kind card component x-status {
+    source selector demo.incomplete.status
+    key status.id
+    portal surface.root
+    bounds x 16 y 16 width 280 height 88
+
+    lane visible weight 50 {
+      hydrate incomplete-status from selector demo.incomplete.status
+    }
+
+    on click "[data-action='ping']" -> action demo.incomplete.ping
+  }
+}

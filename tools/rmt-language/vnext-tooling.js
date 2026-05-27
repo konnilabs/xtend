@@ -56,6 +56,8 @@ const VNEXT_COMPLETION_KEYWORDS = Object.freeze([
   ['slot', 'Composition Slot deklarieren.'],
   ['on', 'Event Binding deklarieren.'],
   ['action', 'Action Referenz fuer Event Binding.'],
+  ['validation', 'Form Validation Gruppe mit Field Rules und Action Gate deklarieren.'],
+  ['transition', 'Surface Transition zwischen Surface-Gruppen deklarieren.'],
   ['trust boundary', 'Security Trust Boundary setzen.'],
   ['sanitize', 'Sanitize Policy setzen.']
 ]);
@@ -69,6 +71,8 @@ const VNEXT_PRIMITIVE_KEYWORDS = Object.freeze([
   ['overlay', 'Overlay Primitive wie Toast, Tooltip, Popover, Lightbox, Menu oder Dialog deklarieren.'],
   ['resource', 'Lifecycle-owned Resource wie Object URL, Stream, Observer, Timer oder Lazy Import deklarieren.'],
   ['surface', 'Sichtbare oder wiederholbare App-Platform Surface deklarieren.'],
+  ['validation', 'Blocking Form Validation mit Field Rules und Action Gate deklarieren.'],
+  ['transition', 'Surface Transition mit Trigger, Effekt, Dauer und Lane deklarieren.'],
   ['payload', 'Event-Payload Contract aus DOM-, Detail- oder Surface-Kontext mappen.'],
   ['destroy releases', 'Surface-Lifecycle an Resource-Teardown binden.']
 ]);
@@ -112,6 +116,29 @@ const VNEXT_PRIMITIVE_SURFACE_CLAUSES = Object.freeze([
   ['payload', 'Event-Payload Contract mappen.']
 ]);
 
+const VNEXT_PRIMITIVE_VALIDATION_CLAUSES = Object.freeze([
+  ['mode blocking', 'Validation-Gruppe blockiert Ziel-Actions, solange Felder ungueltig sind.'],
+  ['target action', 'Ziel-Action fuer ein Validation Gate deklarieren.'],
+  ['field', 'State-gebundenes Formularfeld mit Regeln deklarieren.'],
+  ['required', 'Feld muss einen Wert besitzen.'],
+  ['email', 'Feldwert muss eine E-Mail-Adresse sein.'],
+  ['minLength', 'Minimale Zeichenanzahl fuer das Feld deklarieren.'],
+  ['maxLength', 'Maximale Zeichenanzahl fuer das Feld deklarieren.'],
+  ['pattern', 'Pattern-Regel fuer das Feld deklarieren.'],
+  ['message', 'Benutzerlesbare Validation-Meldung deklarieren.'],
+  ['include', 'Eine andere Validation-Gruppe einbeziehen.']
+]);
+
+const VNEXT_PRIMITIVE_TRANSITION_CLAUSES = Object.freeze([
+  ['trigger action', 'Action als Ausloeser der Surface Transition deklarieren.'],
+  ['from surfaces', 'Ausgehende Surface-Gruppe deklarieren.'],
+  ['to surfaces', 'Eingehende Surface-Gruppe deklarieren.'],
+  ['effect', 'Transition-Effekt aus dem XTend Katalog waehlen.'],
+  ['durationMs', 'Animationsdauer in Millisekunden deklarieren.'],
+  ['easing', 'CSS-Easing fuer die Transition deklarieren.'],
+  ['lane transition', 'Transition auf die Scheduler-Lane transition legen.']
+]);
+
 const VNEXT_PRIMITIVE_RESOURCE_KINDS = Object.freeze([
   ['object-url', 'Object URL Resource mit Revoke-Cleanup.'],
   ['stream', 'Stream Resource mit owner-scoped Close.'],
@@ -135,6 +162,29 @@ const VNEXT_SOURCE_KINDS = Object.freeze([
   ['worker', 'Worker-basierte Data Source.']
 ]);
 
+const VNEXT_VALIDATION_MODES = Object.freeze([
+  ['blocking', 'Ungueltige Gruppen blockieren die zugeordneten Actions.']
+]);
+
+const VNEXT_VALIDATION_RULES = Object.freeze([
+  ['required', 'Feld muss einen Wert besitzen.'],
+  ['email', 'Feldwert muss eine E-Mail-Adresse sein.'],
+  ['minLength', 'Minimale Zeichenanzahl.'],
+  ['maxLength', 'Maximale Zeichenanzahl.'],
+  ['pattern', 'RegExp-kompatibler Pattern-Vertrag.']
+]);
+
+const VNEXT_TRANSITION_EFFECTS = Object.freeze([
+  ['fade', 'Ein-/Ausblenden.'],
+  ['crossfade', 'Ausgehende und eingehende Surface-Gruppen ueberblenden.'],
+  ['slide-left', 'Nach links gerichteter Surface-Wechsel.'],
+  ['slide-right', 'Nach rechts gerichteter Surface-Wechsel.'],
+  ['slide-up', 'Nach oben gerichteter Surface-Wechsel.'],
+  ['slide-down', 'Nach unten gerichteter Surface-Wechsel.'],
+  ['scale', 'Skalierter Surface-Wechsel.'],
+  ['none', 'Sofortiger Wechsel ohne Motion.']
+]);
+
 const VNEXT_LANES = Object.freeze([
   ['critical', 'kritische Rendering-Arbeit'],
   ['visible', 'sichtbare Rendering-Arbeit'],
@@ -153,6 +203,107 @@ const VNEXT_TRUST_BOUNDARIES = Object.freeze([
 ]);
 
 const VNEXT_SNIPPETS = Object.freeze([
+  {
+    id: 'rmt-vnext-validation',
+    label: 'RMT vNext Validation',
+    prefix: 'rmt-vnext-validation',
+    description: 'Blocking Validation-Gruppe mit Field Rules und Action Gate.',
+    body: [
+      'validation ${1:app.contact} {',
+      '  mode blocking',
+      '  target action ${2:app.next}',
+      '  field ${3:app.email} required email message "${4:Enter a valid email address.}"',
+      '}'
+    ]
+  },
+  {
+    id: 'rmt-vnext-transition',
+    label: 'RMT vNext Surface Transition',
+    prefix: 'rmt-vnext-transition',
+    description: 'Surface Transition mit Trigger, Surface-Gruppen, Effekt und Dauer.',
+    body: [
+      'transition ${1:app.contactToIssue} {',
+      '  trigger action ${2:app.nextContact}',
+      '  from surfaces [${3:app.contact} ${4:app.nextContact}]',
+      '  to surfaces [${5:app.issue} ${6:app.backContact}]',
+      '  effect ${7|fade,crossfade,slide-left,slide-right,slide-up,slide-down,scale,none|}',
+      '  durationMs ${8:240}',
+      '  easing "${9:ease-out}"',
+      '  lane transition',
+      '}'
+    ]
+  },
+  {
+    id: 'rmt-vnext-maraca-orchestration-app',
+    label: 'RMT vNext Maraca Orchestration App',
+    prefix: 'rmt-vnext-maraca-orchestration-app',
+    description: 'Kompakte Maraca App mit State, Action, Validation, Transition und XTend Surfaces.',
+    body: [
+      'template ${1:app.service} {',
+      '  state ${2:app.step} type object preserve {',
+      '    initial {',
+      '      id "step"',
+      '      value "contact"',
+      '    }',
+      '  }',
+      '',
+      '  state ${3:app.email} type object preserve {',
+      '    initial {',
+      '      id "email"',
+      '      value ""',
+      '    }',
+      '  }',
+      '',
+      '  selector ${2:app.step} from state ${2:app.step} {',
+      '    output StepView',
+      '  }',
+      '',
+      '  action ${4:app.nextContact} {',
+      '    reduce state.${2:app.step}.value = "issue"',
+      '    emit ${5:app.stepChanged} with step "issue"',
+      '  }',
+      '',
+      '  validation ${6:app.contact} {',
+      '    mode blocking',
+      '    target action ${4:app.nextContact}',
+      '    field ${3:app.email} required email message "Enter a valid email address."',
+      '  }',
+      '',
+      '  portal surface.root root "#xtend-maraca-root" layer surface',
+      '',
+      '  surface ${7:app.contact.surface} kind form component x-input {',
+      '    source selector ${2:app.step}',
+      '    portal surface.root',
+      '    key "contact"',
+      '    lane visible weight 80 {',
+      '      hydrate contact-email from selector ${2:app.step}',
+      '    }',
+      '  }',
+      '',
+      '  surface ${8:app.next.surface} kind action component x-button {',
+      '    source selector ${2:app.step}',
+      '    portal surface.root',
+      '    key "next"',
+      '    lane visible weight 80 {',
+      '      mount contact-next from selector ${2:app.step}',
+      '    }',
+      '    on click "#contact-next" -> action ${4:app.nextContact} {',
+      '      payload label "Next"',
+      '    }',
+      '  }',
+      '',
+      '  transition ${9:app.contactToIssue} {',
+      '    trigger action ${4:app.nextContact}',
+      '    from surfaces [${7:app.contact.surface} ${8:app.next.surface}]',
+      '    to surfaces [${10:app.issue.surface}]',
+      '    effect crossfade',
+      '    durationMs 240',
+      '    easing "ease-out"',
+      '    lane transition',
+      '  }',
+      '}'
+    ]
+  },
   {
     id: 'rmt-vnext-template',
     label: 'RMT vNext Template',
@@ -246,6 +397,8 @@ const DOMAIN_CONFIG = Object.freeze({
   dataSources: { kind: 'data-source', label: 'Data Source', childKind: 'interface' },
   actions: { kind: 'action', label: 'Action', childKind: 'function' },
   effects: { kind: 'effect', label: 'Effect', childKind: 'function' },
+  validations: { kind: 'validation', label: 'Validation', childKind: 'validation' },
+  transitions: { kind: 'transition', label: 'Transition', childKind: 'transition' },
   portals: { kind: 'portal', label: 'Portal', childKind: 'namespace' },
   overlays: { kind: 'overlay', label: 'Overlay', childKind: 'namespace' },
   resources: { kind: 'resource', label: 'Resource', childKind: 'object' },
@@ -281,8 +434,8 @@ function isLikelyRmtVNextSource(input = {}, options = {}) {
     return false;
   }
 
-  return /^(?:import|template|surface|remote\s+surface)\b/u.test(trimmed)
-    || /(?:^|\n)\s*(?:remote\s+surface|template|state|selector|datasource|action|portal|overlay|resource|surface|lane|mount|hydrate|update|unmount|stream|slot|on\s+\S+\s+->\s+action|trust\s+boundary|sanitize)\b/u.test(text);
+  return /^(?:import|template|surface|remote\s+surface|validation|transition)\b/u.test(trimmed)
+    || /(?:^|\n)\s*(?:remote\s+surface|template|state|selector|datasource|action|portal|overlay|resource|surface|validation|transition|lane|mount|hydrate|update|unmount|stream|slot|on\s+\S+\s+->\s+action|trust\s+boundary|sanitize)\b/u.test(text);
 }
 
 function sourceRefToRange(sourceMap, sourceRef) {
@@ -361,6 +514,22 @@ function describeRecord(domain, record = {}) {
   if (domain === 'resources') {
     const owner = record.owner ? `${record.owner.kind || 'owner'}:${record.owner.id || record.owner.ref || 'unknown'}` : '';
     return [record.kind || 'resource', owner].filter(Boolean).join(' - ');
+  }
+
+  if (domain === 'validations') {
+    return [
+      record.mode || 'blocking',
+      `${toArray(record.fields).length} field(s)`,
+      `${toArray(record.targets).length} target(s)`
+    ].join(' - ');
+  }
+
+  if (domain === 'transitions') {
+    return [
+      record.effect || 'transition',
+      Number.isFinite(Number(record.durationMs)) ? `${record.durationMs}ms` : '',
+      record.trigger && record.trigger.id ? `trigger: ${record.trigger.id}` : ''
+    ].filter(Boolean).join(' - ');
   }
 
   if (domain === 'surfaces' && record.primitive) {
@@ -585,6 +754,8 @@ function inferCompletionContext(pointer, explicitContext) {
   if (/^\/selectors(?:\/|$)/u.test(pointer)) return 'vnext-primitive-selector-clauses';
   if (/^\/actions(?:\/|$)/u.test(pointer)) return 'vnext-primitive-action-clauses';
   if (/^\/surfaces(?:\/|$)/u.test(pointer)) return 'vnext-primitive-surface-clauses';
+  if (/^\/validations(?:\/|$)/u.test(pointer)) return 'vnext-primitive-validation-clauses';
+  if (/^\/transitions(?:\/|$)/u.test(pointer)) return 'vnext-primitive-transition-clauses';
   if (/^\/resources(?:\/|$)/u.test(pointer)) return 'vnext-primitive-resource-kinds';
   if (/^\/overlays(?:\/|$)/u.test(pointer)) return 'vnext-primitive-overlay-kinds';
   if (/^\/lanes(?:\/|$)/u.test(pointer)) return 'vnext-lanes';
@@ -639,6 +810,22 @@ function inferPrimitiveCompletionContextFromLine(linePrefix) {
     return 'vnext-primitive-overlay-kinds';
   }
 
+  if (/^validation\b/u.test(trimmed) || /^(?:mode|target|field|include)\b/u.test(trimmed)) {
+    return /\bmode\s+[A-Za-z0-9_.-]*$/u.test(trimmed)
+      ? 'vnext-validation-modes'
+      : 'vnext-primitive-validation-clauses';
+  }
+
+  if (/^(?:field\b.*\s|required|email|minLength|maxLength|pattern|message)\b/u.test(trimmed)) {
+    return 'vnext-validation-rules';
+  }
+
+  if (/^transition\b/u.test(trimmed) || /^(?:trigger|from|to|effect|durationMs|easing)\b/u.test(trimmed)) {
+    return /\beffect\s+[A-Za-z0-9_.-]*$/u.test(trimmed)
+      ? 'vnext-transition-effects'
+      : 'vnext-primitive-transition-clauses';
+  }
+
   if (/^state\b/u.test(trimmed)) {
     return 'vnext-primitive-state-clauses';
   }
@@ -667,7 +854,7 @@ function inferPrimitiveCompletionContextFromLine(linePrefix) {
     return 'vnext-primitive-surface-clauses';
   }
 
-  if (/^(?:sta|sel|dat|act|por|ove|res|sur|pay|des)[A-Za-z0-9_.-]*$/u.test(trimmed)) {
+  if (/^(?:sta|sel|dat|act|por|ove|res|sur|val|tra|pay|des)[A-Za-z0-9_.-]*$/u.test(trimmed)) {
     return 'vnext-primitive-keywords';
   }
 
@@ -728,6 +915,16 @@ function getRmtVNextToolingCompletions(input = {}, options = {}) {
     items = staticCompletionItems(VNEXT_PRIMITIVE_ACTION_CLAUSES, { kind: 'keyword', detail: 'vNext Action Clause' });
   } else if (context === 'vnext-primitive-surface-clauses') {
     items = staticCompletionItems(VNEXT_PRIMITIVE_SURFACE_CLAUSES, { kind: 'keyword', detail: 'vNext Surface Clause' });
+  } else if (context === 'vnext-primitive-validation-clauses') {
+    items = staticCompletionItems(VNEXT_PRIMITIVE_VALIDATION_CLAUSES, { kind: 'keyword', detail: 'vNext Validation Clause' });
+  } else if (context === 'vnext-primitive-transition-clauses') {
+    items = staticCompletionItems(VNEXT_PRIMITIVE_TRANSITION_CLAUSES, { kind: 'keyword', detail: 'vNext Surface Transition Clause' });
+  } else if (context === 'vnext-validation-modes') {
+    items = staticCompletionItems(VNEXT_VALIDATION_MODES, { kind: 'enum', detail: 'vNext Validation Mode' });
+  } else if (context === 'vnext-validation-rules') {
+    items = staticCompletionItems(VNEXT_VALIDATION_RULES, { kind: 'enum', detail: 'vNext Validation Rule' });
+  } else if (context === 'vnext-transition-effects') {
+    items = staticCompletionItems(VNEXT_TRANSITION_EFFECTS, { kind: 'enum', detail: 'vNext Surface Transition Effect' });
   } else if (context === 'vnext-primitive-resource-kinds') {
     items = staticCompletionItems(VNEXT_PRIMITIVE_RESOURCE_KINDS, { kind: 'enum', detail: 'vNext Resource Kind' });
   } else if (context === 'vnext-primitive-overlay-kinds') {
@@ -1952,9 +2149,14 @@ module.exports = {
   VNEXT_PRIMITIVE_SELECTOR_CLAUSES,
   VNEXT_PRIMITIVE_STATE_CLAUSES,
   VNEXT_PRIMITIVE_SURFACE_CLAUSES,
+  VNEXT_PRIMITIVE_TRANSITION_CLAUSES,
+  VNEXT_PRIMITIVE_VALIDATION_CLAUSES,
   VNEXT_SNIPPETS,
   VNEXT_SOURCE_KINDS,
+  VNEXT_TRANSITION_EFFECTS,
   VNEXT_TRUST_BOUNDARIES,
+  VNEXT_VALIDATION_MODES,
+  VNEXT_VALIDATION_RULES,
   analyzeRmtVNextToolingSource,
   createRmtVNextToolingAdapter,
   createRmtVNextPrimitiveCommandHandoff,

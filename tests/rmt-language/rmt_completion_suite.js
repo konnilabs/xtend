@@ -65,6 +65,11 @@ function runStaticCompletionChecks(context, rootDir) {
   const templateModes = getRmtCompletions(input, { rootDir, pointer: '/templates/0/mode' });
   const hydrationPolicies = getRmtCompletions(input, { rootDir, pointer: '/components/0/hydration/mode' });
   const lanes = getRmtCompletions(input, { rootDir, pointer: '/schedules/0/lane' });
+  const validationFields = getRmtCompletions(input, { rootDir, pointer: '/validations/0' });
+  const validationModes = getRmtCompletions(input, { rootDir, pointer: '/validations/0/mode' });
+  const validationRules = getRmtCompletions(input, { rootDir, pointer: '/validations/0/fields/0/rules/0' });
+  const transitionFields = getRmtCompletions(input, { rootDir, pointer: '/transitions/0' });
+  const transitionEffects = getRmtCompletions(input, { rootDir, pointer: '/transitions/0/effect' });
 
   context.assert(topLevel.schema === RMT_COMPLETION_REPORT_SCHEMA, 'Completion emits report schema');
   context.assert(topLevel.providerSchema === RMT_COMPLETION_PROVIDER_SCHEMA, 'Completion emits provider schema');
@@ -77,6 +82,8 @@ function runStaticCompletionChecks(context, rootDir) {
   assertHasLabel(context, topLevel, 'routes', 'Top-level completion contains routes');
   assertHasLabel(context, topLevel, 'schedules', 'Top-level completion contains schedules');
   assertHasLabel(context, topLevel, 'templates', 'Top-level completion contains templates');
+  assertHasLabel(context, topLevel, 'validations', 'Top-level completion contains validations');
+  assertHasLabel(context, topLevel, 'transitions', 'Top-level completion contains transitions');
 
   context.assert(routeFields.context === 'route-fields', 'Pointer infers route field context');
   assertHasLabel(context, routeFields, 'documentTitle', 'Route field completion contains documentTitle');
@@ -96,6 +103,23 @@ function runStaticCompletionChecks(context, rootDir) {
   assertHasLabel(context, lanes, 'visible', 'Lane completion contains visible');
   assertHasLabel(context, lanes, 'user-blocking', 'Lane completion contains user-blocking');
   assertHasLabel(context, lanes, 'diagnostics', 'Lane completion contains diagnostics');
+
+  context.assert(validationFields.context === 'validation-fields', 'Validation pointer infers validation field context');
+  assertHasLabel(context, validationFields, 'mode', 'Validation field completion contains mode');
+  assertHasLabel(context, validationFields, 'targets', 'Validation field completion contains targets');
+  assertHasLabel(context, validationFields, 'fields', 'Validation field completion contains fields');
+  context.assert(validationModes.context === 'validation-modes', 'Validation mode pointer infers validation modes');
+  assertHasLabel(context, validationModes, 'blocking', 'Validation mode completion contains blocking');
+  context.assert(validationRules.context === 'validation-rules', 'Validation rules pointer infers validation rules');
+  assertHasLabel(context, validationRules, 'required', 'Validation rules completion contains required');
+  assertHasLabel(context, validationRules, 'email', 'Validation rules completion contains email');
+  context.assert(transitionFields.context === 'transition-fields', 'Transition pointer infers transition field context');
+  assertHasLabel(context, transitionFields, 'trigger', 'Transition field completion contains trigger');
+  assertHasLabel(context, transitionFields, 'durationMs', 'Transition field completion contains durationMs');
+  assertHasLabel(context, transitionFields, 'effect', 'Transition field completion contains effect');
+  context.assert(transitionEffects.context === 'transition-effects', 'Transition effect pointer infers transition effects');
+  assertHasLabel(context, transitionEffects, 'crossfade', 'Transition effects completion contains crossfade');
+  assertHasLabel(context, transitionEffects, 'slide-left', 'Transition effects completion contains slide-left');
 }
 
 function runGraphReferenceCompletionChecks(context, rootDir) {
@@ -136,6 +160,10 @@ function runContextInferenceChecks(context) {
   context.assert(inferCompletionContext({ pointer: '/components/0/tag' }) === 'component-tags', 'Component tag pointer infers tags');
   context.assert(inferCompletionContext({ pointer: '/schedules/0/lane' }) === 'schedule-lanes', 'Schedule lane pointer infers lanes');
   context.assert(inferCompletionContext({ domain: 'components' }) === 'component-fields', 'Domain components infers component fields');
+  context.assert(inferCompletionContext({ pointer: '/validations/0/mode' }) === 'validation-modes', 'Validation mode pointer infers validation modes');
+  context.assert(inferCompletionContext({ pointer: '/validations/0/fields/0/rules/0' }) === 'validation-rules', 'Validation rule pointer infers validation rules');
+  context.assert(inferCompletionContext({ pointer: '/transitions/0/effect' }) === 'transition-effects', 'Transition effect pointer infers transition effects');
+  context.assert(inferCompletionContext({ domain: 'transitions' }) === 'transition-fields', 'Domain transitions infers transition fields');
 }
 
 function runDeterministicAndFailureChecks(context, rootDir) {

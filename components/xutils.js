@@ -9,11 +9,13 @@ const XUTILS_IMPORT_POLICY_SCHEMA = 'xtend.utility.import-policy.v1';
 const XUTILS_IMPORT_POLICY_RESULT_SCHEMA = 'xtend.utility.import-policy-result.v1';
 const XUTILS_BOUNDARY_PROBE_SCHEMA = 'xtend.utility.boundary-probe.v1';
 const XUTILS_UI_EFFECTS_SCHEMA = 'xtend.utility.ui-effects.v1';
+const XUTILS_UI_TRANSITION_SCHEMA = 'xtend.utility.ui-transition.v1';
+const XUTILS_UI_TRANSITION_RESULT_SCHEMA = 'xtend.utility.ui-transition-result.v1';
 const XUTILS_UI_EFFECTS_EVENT = 'xutils:ui-effects-change';
 const XUTILS_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
 const XUTILS_FORBIDDEN_IMPORT_PROTOCOLS = Object.freeze(['http:', 'https:', 'data:', 'javascript:']);
 const XUTILS_FORBIDDEN_IMPORT_HOSTS = Object.freeze(['cdn.ccs-networks.de']);
-const XUTILS_SUPPORTED_UI_EFFECTS = Object.freeze(['fade-in']);
+const XUTILS_SUPPORTED_UI_EFFECTS = Object.freeze(['fade-in', 'fade', 'crossfade', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'scale', 'none']);
 const XUTILS_UI_EFFECTS_BODY_ATTR = 'xt-ui-effects';
 const XUTILS_UI_EFFECTS_DATA_ATTR = 'data-xt-ui-effects';
 const XUTILS_UI_EFFECTS_READY_ATTR = 'data-xt-ui-effects-ready';
@@ -85,6 +87,13 @@ function uniqueSupportedUiEffects(tokens) {
   const disabled = tokens.some((token) => token === 'none');
   if (disabled) return [];
   return Array.from(new Set(tokens.filter((token) => XUTILS_SUPPORTED_UI_EFFECTS.includes(token))));
+}
+
+function normalizeUiTransitionEffect(value) {
+  const effect = normalizeUiEffectToken(value || 'fade');
+  if (effect === 'fade-in') return 'fade';
+  if (XUTILS_SUPPORTED_UI_EFFECTS.includes(effect)) return effect;
+  return 'fade';
 }
 
 function normalizeUiEffectDuration(value) {
@@ -170,6 +179,97 @@ function dispatchUiEffectsEvent(phase, detail) {
   }));
 }
 
+function prefersReducedMotion() {
+  try {
+    return typeof window !== 'undefined'
+      && typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (_) {
+    return false;
+  }
+}
+
+function transitionKeyframes(effect, phase) {
+  const enter = phase !== 'exit';
+  if (effect === 'none') return null;
+  if (effect === 'scale') {
+    return enter
+      ? [{ opacity: 0, transform: 'scale(0.98)' }, { opacity: 1, transform: 'scale(1)' }]
+      : [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.98)' }];
+  }
+  if (effect && effect.startsWith('slide-')) {
+    const distance = '16px';
+    const axis = effect === 'slide-up' || effect === 'slide-down' ? 'Y' : 'X';
+    const sign = effect === 'slide-left' || effect === 'slide-up' ? '-' : '';
+    const offset = `translate${axis}(${sign}${distance})`;
+    return enter
+      ? [{ opacity: 0, transform: offset }, { opacity: 1, transform: 'translate(0, 0)' }]
+      : [{ opacity: 1, transform: 'translate(0, 0)' }, { opacity: 0, transform: offset }];
+  }
+  return enter
+    ? [{ opacity: 0 }, { opacity: 1 }]
+    : [{ opacity: 1 }, { opacity: 0 }];
+}
+
+function runTransitionWithTimeout(target, keyframes, options) {
+  if (!target || !keyframes) {
+    return Promise.resolve({
+      schema: XUTILS_UI_TRANSITION_RESULT_SCHEMA,
+      status: 'instant'
+    });
+  }
+  if (typeof target.animate === 'function') {
+    const animation = target.animate(keyframes, options);
+    return new Promise((resolve) => {
+      let settled = false;
+      const settle = (status, timedOut = false) => {
+        if (settled) return;
+        settled = true;
+        resolve({
+          schema: XUTILS_UI_TRANSITION_RESULT_SCHEMA,
+          status,
+          engine: 'web-animations',
+          timedOut
+        });
+      };
+      animation.onfinish = () => settle('complete');
+      animation.oncancel = () => settle('cancelled');
+      setTimeout(() => settle('complete', true), Math.max(0, Number(options.duration) || 0) + 80);
+    });
+  }
+  const previousTransition = target.style && target.style.transition || '';
+  const previousOpacity = target.style && target.style.opacity || '';
+  const previousTransform = target.style && target.style.transform || '';
+  const first = keyframes[0] || {};
+  const last = keyframes[keyframes.length - 1] || {};
+  if (target.style) {
+    target.style.transition = `opacity ${options.duration}ms ${options.easing}, transform ${options.duration}ms ${options.easing}`;
+    if (first.opacity !== undefined) target.style.opacity = String(first.opacity);
+    if (first.transform !== undefined) target.style.transform = String(first.transform);
+  }
+  const frame = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (callback) => setTimeout(callback, 0);
+  return new Promise((resolve) => {
+    frame(() => {
+      if (target.style) {
+        if (last.opacity !== undefined) target.style.opacity = String(last.opacity);
+        if (last.transform !== undefined) target.style.transform = String(last.transform);
+      }
+      setTimeout(() => {
+        if (target.style) {
+          target.style.transition = previousTransition;
+          target.style.opacity = previousOpacity;
+          target.style.transform = previousTransform;
+        }
+        resolve({
+          schema: XUTILS_UI_TRANSITION_RESULT_SCHEMA,
+          status: 'complete',
+          engine: 'css-timeout'
+        });
+      }, options.duration);
+    });
+  });
+}
+
 export const XUtils = {
   xtendUtilityContract: {
     schema: XUTILS_UTILITY_CONTRACT_SCHEMA,
@@ -203,6 +303,8 @@ export const XUtils = {
         'fadeIn',
         'fadeOut',
         'resolveUiEffects',
+        'resolveUiTransition',
+        'runUiTransition',
         'prepareUiEffects',
         'releaseUiEffects',
         'setAria',
@@ -378,6 +480,67 @@ export const XUtils = {
     dispatchUiEffectsEvent('release', released);
     return released;
   },
+  resolveUiTransition(input = {}) {
+    const options = resolveUiEffectsInput(input);
+    const resolvedEffects = this.resolveUiEffects({
+      ...options,
+      effects: options.effect || options.effects || 'fade'
+    });
+    const effect = normalizeUiTransitionEffect(options.effect || resolvedEffects.effects[0] || 'fade');
+    const reducedMotion = prefersReducedMotion();
+    const disabled = resolvedEffects.disabled || reducedMotion || effect === 'none';
+    const durationMs = disabled ? 0 : normalizeUiEffectDuration(
+      options.durationMs ||
+      options.duration ||
+      resolvedEffects.durationMs
+    );
+    return {
+      schema: XUTILS_UI_TRANSITION_SCHEMA,
+      componentRef: 'x-utils',
+      target: options.target || options.element || resolvedEffects.target,
+      effect,
+      phase: options.phase === 'exit' ? 'exit' : 'enter',
+      durationMs,
+      easing: String(options.easing || 'ease'),
+      active: !disabled && durationMs > 0,
+      disabled,
+      disabledBy: resolvedEffects.disabled ? 'xt-ui-effects' : (reducedMotion ? 'prefers-reduced-motion' : (effect === 'none' ? 'effect-none' : 'none')),
+      policy: resolvedEffects,
+      kernelBoundary: XUTILS_KERNEL_BOUNDARY
+    };
+  },
+  async runUiTransition(input = {}) {
+    const transition = input && input.schema === XUTILS_UI_TRANSITION_SCHEMA
+      ? input
+      : this.resolveUiTransition(input);
+    const target = transition.target;
+    if (!target || !transition.active) {
+      const result = {
+        schema: XUTILS_UI_TRANSITION_RESULT_SCHEMA,
+        status: 'fallback',
+        instant: true,
+        disabledBy: transition.disabledBy || 'no-target',
+        transition
+      };
+      dispatchUiEffectsEvent('transition-fallback', result);
+      return result;
+    }
+    const keyframes = transitionKeyframes(transition.effect, transition.phase);
+    const result = await runTransitionWithTimeout(target, keyframes, {
+      duration: transition.durationMs,
+      easing: transition.easing,
+      fill: 'both'
+    });
+    const completed = {
+      ...result,
+      transition,
+      effect: transition.effect,
+      phase: transition.phase,
+      durationMs: transition.durationMs
+    };
+    dispatchUiEffectsEvent('transition-complete', completed);
+    return completed;
+  },
   // Accessibility-Helpers
   setAria(el, attrs = {}) {
     Object.entries(attrs).forEach(([k, v]) => el.setAttribute(`aria-${k}`, v));
@@ -492,5 +655,7 @@ export {
   XUTILS_IMPORT_POLICY_RESULT_SCHEMA,
   XUTILS_IMPORT_POLICY_SCHEMA,
   XUTILS_UI_EFFECTS_SCHEMA,
+  XUTILS_UI_TRANSITION_RESULT_SCHEMA,
+  XUTILS_UI_TRANSITION_SCHEMA,
   XUTILS_UTILITY_CONTRACT_SCHEMA
 };

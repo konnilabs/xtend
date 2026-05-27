@@ -224,11 +224,18 @@
 
   function resolveRecordPath(records, expression) {
     if (Object.prototype.hasOwnProperty.call(records, expression)) return records[expression];
+    const normalizedExpression = ['state.', 'selector.', 'derive.'].reduce((current, prefix) => (
+      current.startsWith(prefix) ? current.slice(prefix.length) : current
+    ), expression);
+    if (Object.prototype.hasOwnProperty.call(records, normalizedExpression)) return records[normalizedExpression];
     const ownerKey = Object.keys(records)
-      .filter((key) => expression.startsWith(`${key}.`))
+      .filter((key) => expression.startsWith(`${key}.`) || normalizedExpression.startsWith(`${key}.`))
       .sort((left, right) => right.length - left.length)[0];
-    if (ownerKey) return readPath(records[ownerKey], expression.slice(ownerKey.length + 1));
-    return readPath(records, expression);
+    if (ownerKey) {
+      const ownerExpression = normalizedExpression.startsWith(`${ownerKey}.`) ? normalizedExpression : expression;
+      return readPath(records[ownerKey], ownerExpression.slice(ownerKey.length + 1));
+    }
+    return readPath(records, normalizedExpression);
   }
 
   function resolveReference(expression, context, item) {

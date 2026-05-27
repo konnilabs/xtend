@@ -19,6 +19,22 @@ node tools/rmt-language-server/server.js
 
 The server supports VS Code, JetBrains, Neovim and Helix through stdio. Snippets such as `rmt-app`, `rmt-component`, `rmt-route` and `rmt-template-dom` speed up new files. The relevant schemas are `xtend.rmt.language-server.v1`, `xtend.rmt.editor-packaging.v1` and `xtend.rmt.snippet-catalog.v1`.
 
+VS Code also contributes `XTendRMT: Show vNext Primitive Apply Experience` and `XTendRMT: Run Active RMT Lint`. Problem-matcher workflows use `xt rmt lint app.rmt --format problem-matcher --fail-on warning`; debug configurations are available as a template at `tools/rmt-editor/vscode/templates/launch.json`.
+
+## Orchestration DX
+
+The language server adds completion, hover and document symbols for `validation` and `transition`. That works for native `.rmt` files and for JSON/Core-like documents with `validations` and `transitions`. Effects such as `fade`, `crossfade`, `slide-left`, `slide-right`, `slide-up`, `slide-down`, `scale` and `none`, plus validation rules such as `required`, `email`, `minLength`, `maxLength` and `pattern`, are explained in the editor.
+
+New snippets:
+
+- `rmt-vnext-validation`
+- `rmt-vnext-transition`
+- `rmt-vnext-maraca-orchestration-app`
+
+```bash
+node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json
+```
+
 ## Recommended workflow
 
 Model shell, state and interaction first. Validate the source with the linter, connect adapters afterwards and keep host-specific code outside the kernel.

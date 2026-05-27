@@ -459,8 +459,7 @@ class XTextarea extends HTMLElement {
           outline-offset: var(--xtend-form-focus-offset, 2px);
           border-color: var(--xtend-form-focus-border-color, var(--primary-color, #2563eb));
         }
-        :host([invalid]) textarea,
-        textarea:invalid {
+        :host([invalid]) textarea {
           border-color: var(--xtend-form-error-border, var(--error-color, #dc2626));
           box-shadow: var(--xtend-form-error-shadow, inset 0 0 0 1px var(--xtend-form-error-border, var(--error-color, #dc2626)));
         }

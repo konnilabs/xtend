@@ -26,6 +26,16 @@ xt rmt build app.rmt --bundle maraca --out dist --profile production --lazy comp
 
 The generated output normally contains `xtend.maraca.mjs`, optional `xtend.maraca.css`, dynamic `chunks/*.mjs`, `xtend.maraca.report.json` and `xtend.maraca.size.json`. The report is the audit artifact: it records selected components, runtime modules, lazy imports, forbidden loader dependencies and size-budget status.
 
+## Orchestrated App Bundles
+
+For RMT apps with state, actions, validation, hydration and surface transitions, Maraca can write compiler-driven orchestration directly into the bundle. `auto` remains compatible, `strict` enforces complete contracts and `off` keeps the legacy path available. The full deep dive is [Maraca Orchestration](./xtend-maraca-orchestration.md).
+
+```bash
+xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json
+```
+
+Strict builds expect known components, typed events, resource ownership, resolvable targets/portals, validation messages and schedulable transition/hydration fibers. The bundle report contains dedicated sections for `orchestration`, `kernel`, `hydration`, `validation` and `transitions`.
+
 ## Minimal RMT example
 
 This small source references only three components. A Maraca build should therefore select those tags instead of the full manifest.
@@ -128,7 +138,7 @@ If the output still references `xtend-loader.js`, `data-manifest` or `components
 Use the Maraca suites when changing CLI wiring, package exports, bundle generation or RMT source-to-bundle behavior.
 
 ```bash
-node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-package-exports maraca-size-budget --json
+node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-validation maraca-transitions maraca-package-exports maraca-size-budget --json
 npm run test:maraca
 npm run pack:dry-run
 ```

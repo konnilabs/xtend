@@ -22,6 +22,30 @@ Model shell, state and interaction first. Validate the source with the linter, c
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
+## Orchestration Primitives
+
+RMT vNext can now describe the full app orchestration that Maraca materializes into a loaderless bundle. In addition to `state`, `selector`, `action`, `resource`, `event`, `surface`, `portal` and `overlay`, `validation` and `transition` are native authoring blocks. The compiler lowers them into `xtend.rmt.app-orchestration.v1`, `xtend.rmt.form-validation.v1` and `xtend.rmt.surface-transitions.v1`, then emits scheduler targets, patch plans, source maps and redacted diagnostics.
+
+```rmt
+validation product.service.contact {
+  mode blocking
+  target action product.service.nextContact
+  field product.service.email required email message "Enter a valid email address."
+}
+
+transition product.service.contactToIssue {
+  trigger action product.service.nextContact
+  from surfaces [product.service.email product.service.nextContact]
+  to surfaces [product.service.subject product.service.nextIssue]
+  effect crossfade
+  durationMs 240
+  easing "ease-out"
+  lane transition
+}
+```
+
+Strict builds expect complete payload contracts, resource ownership, hydration policies, known component capabilities, messages for every validation field and resolvable transition surfaces. Maraca turns this into kernel, hydration, validation and transition runtimes; host code stays adapter logic.
+
 ## Developer context
 
 This expanded section turns RMT Authoring Guide from a short navigation note into a practical RMT runtime guide for third-party developers. Read it as the public contract around the topic: it explains why the page exists, which repository surfaces back it, how a host should integrate it and where to look when behavior does not match the expectation. The structure follows the same pattern used by mature developer documentation systems: a short concept, a repeatable integration path, a concrete example, reference checkpoints and troubleshooting.

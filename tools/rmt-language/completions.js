@@ -25,6 +25,8 @@ const TOP_LEVEL_DOMAINS = Object.freeze([
   ['effects', 'array', 'Feedback, navigation, focus and lazy import effects.'],
   ['resources', 'array', 'Owned object URL, stream, observer, timer and import resources.'],
   ['events', 'array', 'Declarative event bindings with payload contracts.'],
+  ['validations', 'array', 'Form validation groups with field rules and action gates.'],
+  ['transitions', 'array', 'Surface transition records with trigger, effect and lane metadata.'],
   ['portals', 'array', 'Generic overlay portal layer definitions.'],
   ['overlays', 'array', 'Tooltip, toast, popover, lightbox, menu and dialog overlay definitions.'],
   ['records', 'object', 'Named fixture or SSR record collections.'],
@@ -47,6 +49,11 @@ const DOMAIN_FIELD_COMPLETIONS = Object.freeze({
   effects: ['id', 'kind', 'target', 'message', 'path', 'severity', 'resource', 'resources', 'metadata'],
   resources: ['id', 'kind', 'owner', 'source', 'importId', 'delayMs', 'metadata'],
   events: ['id', 'kind', 'event', 'target', 'component', 'owner', 'action', 'payload', 'payloadContract', 'governance', 'metadata'],
+  validations: ['id', 'mode', 'targets', 'fields', 'includes', 'schedulerTargets', 'metadata'],
+  validationFields: ['state', 'rules', 'message', 'component', 'target'],
+  validationTargets: ['kind', 'id', 'gate', 'message'],
+  transitions: ['id', 'trigger', 'from', 'to', 'effect', 'durationMs', 'easing', 'lane', 'operation', 'endpointName', 'metadata'],
+  transitionTriggers: ['kind', 'id'],
   portals: ['id', 'root', 'layer', 'policy', 'focusPolicy', 'pointerPolicy', 'scrollPolicy', 'zIndexStart', 'zStep', 'metadata'],
   overlays: ['id', 'kind', 'portal', 'layer', 'surface', 'resources', 'dismissible', 'singleton', 'focusPolicy', 'escapePolicy', 'pointerPolicy', 'scrollPolicy', 'metadata'],
   surfaces: ['id', 'schema', 'kind', 'type', 'source', 'repeat', 'key', 'owner', 'portal', 'adapter', 'manager', 'component', 'template', 'route', 'schedule', 'resources', 'bounds', 'placement', 'mode', 'initialState', 'persistent', 'closeReleasesResources', 'destroyOnClose', 'metadata'],
@@ -82,6 +89,29 @@ const HYDRATION_POLICIES = Object.freeze([
   ['managed_subtree', 'Adapter owns a managed subtree.'],
   ['manual', 'Manual hydration policy.'],
   ['none', 'No hydration.']
+]);
+
+const VALIDATION_MODES = Object.freeze([
+  ['blocking', 'Block target actions until the validation group is valid.']
+]);
+
+const VALIDATION_RULES = Object.freeze([
+  ['required', 'Field must contain a value.'],
+  ['email', 'Field value must be an email address.'],
+  ['minLength', 'Field value must contain at least the configured number of characters.'],
+  ['maxLength', 'Field value must stay below the configured number of characters.'],
+  ['pattern', 'Field value must match the configured pattern.']
+]);
+
+const TRANSITION_EFFECTS = Object.freeze([
+  ['fade', 'Fade the exiting and entering surfaces.'],
+  ['crossfade', 'Crossfade from the outgoing surface group to the incoming surface group.'],
+  ['slide-left', 'Slide the new surface group in from the right.'],
+  ['slide-right', 'Slide the new surface group in from the left.'],
+  ['slide-up', 'Slide the new surface group upward into place.'],
+  ['slide-down', 'Slide the new surface group downward into place.'],
+  ['scale', 'Scale the surface group during enter and exit.'],
+  ['none', 'Use an instant transition without motion.']
 ]);
 
 const TEMPLATE_MODES = Object.freeze([
@@ -358,6 +388,18 @@ function inferCompletionContext(input = {}) {
     return 'event-kinds';
   }
 
+  if ((field === 'mode' || /\/mode$/.test(pointer)) && (pointer.includes('/validations/') || domain === 'validations')) {
+    return 'validation-modes';
+  }
+
+  if ((field === 'rules' || /\/rules(?:\/\d+)?$/.test(pointer)) && (pointer.includes('/validations/') || domain === 'validations')) {
+    return 'validation-rules';
+  }
+
+  if ((field === 'effect' || /\/effect$/.test(pointer)) && (pointer.includes('/transitions/') || domain === 'transitions')) {
+    return 'transition-effects';
+  }
+
   if (field === 'portal' || /\/portal$/.test(pointer)) {
     return 'portal-ids';
   }
@@ -418,6 +460,26 @@ function inferCompletionContext(input = {}) {
     return 'event-fields';
   }
 
+  if (/^\/validations\/\d+$/.test(pointer) || domain === 'validations') {
+    return 'validation-fields';
+  }
+
+  if (/^\/validations\/\d+\/fields\/\d+$/.test(pointer) || domain === 'validationFields') {
+    return 'validation-field-fields';
+  }
+
+  if (/^\/validations\/\d+\/targets\/\d+$/.test(pointer) || domain === 'validationTargets') {
+    return 'validation-target-fields';
+  }
+
+  if (/^\/transitions\/\d+$/.test(pointer) || domain === 'transitions') {
+    return 'transition-fields';
+  }
+
+  if (/^\/transitions\/\d+\/trigger$/.test(pointer) || domain === 'transitionTriggers') {
+    return 'transition-trigger-fields';
+  }
+
   if (/^\/actions\/\d+$/.test(pointer) || domain === 'actions') {
     return 'action-fields';
   }
@@ -475,6 +537,16 @@ function buildContextItems(graph, context, options = {}) {
       return domainFieldItems('resources', 'resources[*]');
     case 'event-fields':
       return domainFieldItems('events', 'events[*]');
+    case 'validation-fields':
+      return domainFieldItems('validations', 'validations[*]');
+    case 'validation-field-fields':
+      return domainFieldItems('validationFields', 'validations[*].fields[*]');
+    case 'validation-target-fields':
+      return domainFieldItems('validationTargets', 'validations[*].targets[*]');
+    case 'transition-fields':
+      return domainFieldItems('transitions', 'transitions[*]');
+    case 'transition-trigger-fields':
+      return domainFieldItems('transitionTriggers', 'transitions[*].trigger');
     case 'action-fields':
       return domainFieldItems('actions', 'actions[*]');
     case 'data-source-fields':
@@ -549,6 +621,24 @@ function buildContextItems(graph, context, options = {}) {
         kind: 'enum',
         detail: 'RMT Event Kind',
         source: 'rmt-app-platform-event-catalog'
+      });
+    case 'validation-modes':
+      return createStaticItems(VALIDATION_MODES, {
+        kind: 'enum',
+        detail: 'RMT Validation Mode',
+        source: 'rmt-validation-mode-catalog'
+      });
+    case 'validation-rules':
+      return createStaticItems(VALIDATION_RULES, {
+        kind: 'enum',
+        detail: 'RMT Validation Rule',
+        source: 'rmt-validation-rule-catalog'
+      });
+    case 'transition-effects':
+      return createStaticItems(TRANSITION_EFFECTS, {
+        kind: 'enum',
+        detail: 'RMT Surface Transition Effect',
+        source: 'rmt-transition-effect-catalog'
       });
     case 'surface-states':
       return createStaticItems(SURFACE_STATES, {
@@ -649,6 +739,9 @@ module.exports = {
   SURFACE_TYPES,
   TEMPLATE_MODES,
   TOP_LEVEL_DOMAINS,
+  TRANSITION_EFFECTS,
+  VALIDATION_MODES,
+  VALIDATION_RULES,
   createCompletionItem,
   createRmtCompletionProvider,
   getRmtCompletions,

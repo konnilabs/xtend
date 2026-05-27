@@ -79,11 +79,15 @@
       "patterns": [
         {
           "name": "keyword.control.rmt",
-          "match": "\\b(template|state|selector|derived|action|effect|resource|event|surface|portal|overlay|route|schedule|lane|component|slot|part|theme|on|when|emit|open|close|focus|minimize|restore|destroy|import|from|as)\\b"
+          "match": "\\b(template|state|selector|derived|action|effect|resource|event|surface|validation|transition|trigger|target|field|include|portal|overlay|route|schedule|lane|component|slot|part|theme|on|when|emit|open|close|focus|minimize|restore|destroy|import|from|to|as)\\b"
         },
         {
           "name": "storage.type.rmt",
-          "match": "\\b(dom_descriptor|html_fragment|json|record|array|string|number|boolean|file|body|owner|key|props|attrs|events|bindings|cleanup)\\b"
+          "match": "\\b(dom_descriptor|html_fragment|json|record|array|string|number|boolean|file|body|owner|key|props|attrs|events|bindings|cleanup|mode|required|email|minLength|maxLength|pattern|message|effect|durationMs|easing|surfaces|blocking)\\b"
+        },
+        {
+          "name": "support.constant.transition.rmt",
+          "match": "\\b(fade|crossfade|slide-left|slide-right|slide-up|slide-down|scale|none)\\b"
         },
         {
           "name": "constant.language.boolean.rmt",

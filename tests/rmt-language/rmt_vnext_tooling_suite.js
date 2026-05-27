@@ -69,6 +69,8 @@ const TOOLING_CONTRACT_PATH = 'development/XTendRMT-vNext-Tooling-Adapter-Contra
 const WP_E15_15_PATH = 'development/WP-E15-15-Tooling-Update-fuer-Linter-LSP-Formatter-und-Snippets-bauen.md';
 const VALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-streaming-progressive.rmt';
 const PRIMITIVE_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
+const VALIDATION_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/maraca-validation-app.rmt';
+const TRANSITION_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/maraca-transitions-app.rmt';
 const PRIMITIVE_INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 const INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt';
 const LEGACY_FIXTURE = 'tests/rmt-language/fixtures/regression-valid.rmt';
@@ -313,11 +315,35 @@ function runProviderChecks(context, rootDir) {
 
 function runPrimitiveAuthoringChecks(context, rootDir) {
   const input = fixtureInput(PRIMITIVE_VNEXT_FIXTURE, rootDir);
+  const validationInput = fixtureInput(VALIDATION_VNEXT_FIXTURE, rootDir);
+  const transitionInput = fixtureInput(TRANSITION_VNEXT_FIXTURE, rootDir);
   const analysis = analyzeRmtVNextToolingSource(input, { rootDir });
+  const validationAnalysis = analyzeRmtVNextToolingSource(validationInput, { rootDir });
+  const transitionAnalysis = analyzeRmtVNextToolingSource(transitionInput, { rootDir });
   const primitiveKeywordCompletions = getRmtVNextToolingCompletions(input, {
     rootDir,
     analysis,
     context: 'vnext-primitive-keywords'
+  });
+  const validationCompletions = getRmtVNextToolingCompletions(validationInput, {
+    rootDir,
+    analysis: validationAnalysis,
+    pointer: '/validations/0'
+  });
+  const validationRuleCompletions = getRmtVNextToolingCompletions(validationInput, {
+    rootDir,
+    analysis: validationAnalysis,
+    context: 'vnext-validation-rules'
+  });
+  const transitionCompletions = getRmtVNextToolingCompletions(transitionInput, {
+    rootDir,
+    analysis: transitionAnalysis,
+    pointer: '/transitions/0'
+  });
+  const transitionEffectCompletions = getRmtVNextToolingCompletions(transitionInput, {
+    rootDir,
+    analysis: transitionAnalysis,
+    context: 'vnext-transition-effects'
   });
   const stateCompletions = getRmtVNextToolingCompletions(input, {
     rootDir,
@@ -378,15 +404,35 @@ function runPrimitiveAuthoringChecks(context, rootDir) {
     rootDir,
     analysis
   });
+  const validationSymbols = getRmtVNextToolingDocumentSymbols(validationInput, {
+    rootDir,
+    analysis: validationAnalysis
+  });
+  const transitionSymbols = getRmtVNextToolingDocumentSymbols(transitionInput, {
+    rootDir,
+    analysis: transitionAnalysis
+  });
   const symbolNamespaces = symbols.symbols.map((symbol) => symbol.name);
+  const validationNamespaces = validationSymbols.symbols.map((symbol) => symbol.name);
+  const transitionNamespaces = transitionSymbols.symbols.map((symbol) => symbol.name);
 
   context.assert(RMT_VNEXT_PRIMITIVE_AUTHORING_WORKPACKAGE === 'RMT-VNEXT-PRIM-07', 'vNext tooling exports PRIM-07 authoring workpackage marker');
   context.assert(analysis.ok === true && analysis.coreDocument.states.length === 3, 'primitive vNext fixture is indexed for authoring');
+  context.assert(validationAnalysis.ok === true && validationAnalysis.coreDocument.validations.length >= 1, 'validation vNext fixture indexes validation records');
+  context.assert(transitionAnalysis.ok === true && transitionAnalysis.coreDocument.transitions.length >= 1, 'transition vNext fixture indexes transition records');
+  context.assert(isLikelyRmtVNextSource(validationInput) === true, 'vNext detector recognizes validation primitive source');
+  context.assert(isLikelyRmtVNextSource(transitionInput) === true, 'vNext detector recognizes transition primitive source');
   context.assert(analysis.sourceMapSummary.byNodeType.RmtStateDeclaration >= 3, 'primitive authoring source map exposes state declarations');
   context.assert(analysis.sourceMapSummary.byNodeType.RmtSurfaceDeclaration >= 2, 'primitive authoring source map exposes surface declarations');
   context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'state'), 'primitive completion exposes state keyword');
   context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'selector'), 'primitive completion exposes selector keyword');
   context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'resource'), 'primitive completion exposes resource keyword');
+  context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'validation'), 'primitive completion exposes validation keyword');
+  context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'transition'), 'primitive completion exposes transition keyword');
+  context.assert(validationCompletions.context === 'vnext-primitive-validation-clauses' && validationCompletions.items.some((item) => item.label === 'target action'), 'validation pointer exposes action gate completion');
+  context.assert(validationRuleCompletions.items.some((item) => item.label === 'email'), 'validation rules expose email completion');
+  context.assert(transitionCompletions.context === 'vnext-primitive-transition-clauses' && transitionCompletions.items.some((item) => item.label === 'durationMs'), 'transition pointer exposes durationMs completion');
+  context.assert(transitionEffectCompletions.items.some((item) => item.label === 'crossfade'), 'transition effect completion exposes crossfade');
   context.assert(stateCompletions.context === 'vnext-primitive-state-clauses' && stateCompletions.items.some((item) => item.label === 'initial'), 'state pointer infers primitive state completions');
   context.assert(actionCompletions.items.some((item) => item.label === 'effect fetch datasource'), 'action pointer exposes effect completion');
   context.assert(surfaceCompletions.items.some((item) => item.label === 'destroy releases resource'), 'surface pointer exposes lifecycle resource completion');
@@ -401,6 +447,10 @@ function runPrimitiveAuthoringChecks(context, rootDir) {
   ['states', 'selectors', 'actions', 'portals', 'overlays', 'resources'].forEach((domain) => {
     context.assert(symbolNamespaces.includes(domain), `primitive document symbols expose ${domain} namespace`);
   });
+  context.assert(validationNamespaces.includes('validations'), 'validation document symbols expose validations namespace');
+  context.assert(validationSymbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'demo.validation.contact')), 'validation document symbols include validation group');
+  context.assert(transitionNamespaces.includes('transitions'), 'transition document symbols expose transitions namespace');
+  context.assert(transitionSymbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'demo.transitions.contactToIssue')), 'transition document symbols include transition record');
   context.assert(symbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'media.player')), 'primitive document symbols include visible media.player surface');
 }
 
@@ -677,14 +727,29 @@ function runFormatterSnippetAndAgentChecks(context, rootDir) {
   context.assert(adapter.lint(input).status === 'passed', 'tooling adapter factory can lint');
   context.assert(VNEXT_SNIPPETS.length >= 3, 'vNext tooling exports snippet patterns');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-primitive-shell'), 'vNext tooling exports primitive shell snippet');
+  context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-validation'), 'vNext tooling exports validation snippet');
+  context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-transition'), 'vNext tooling exports transition snippet');
+  context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app'), 'vNext tooling exports Maraca orchestration app snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-template'), 'snippet catalog includes vNext template snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-primitive-shell'), 'snippet catalog includes vNext primitive shell snippet');
+  context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-validation'), 'snippet catalog includes vNext validation snippet');
+  context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-transition'), 'snippet catalog includes vNext transition snippet');
+  context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app'), 'snippet catalog includes Maraca orchestration app snippet');
   context.assert(generatedSnippets['RMT vNext Stream'].prefix === 'rmt-vnext-stream', 'generated VS Code snippets include vNext stream prefix');
   context.assert(generatedSnippets['RMT vNext Primitive Shell'].prefix === 'rmt-vnext-primitive-shell', 'generated VS Code snippets include vNext primitive shell prefix');
+  context.assert(generatedSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'generated VS Code snippets include vNext validation prefix');
+  context.assert(generatedSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'generated VS Code snippets include vNext transition prefix');
+  context.assert(generatedSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'generated VS Code snippets include Maraca orchestration app prefix');
   context.assert(staticSnippets['RMT vNext Stream'].prefix === generatedSnippets['RMT vNext Stream'].prefix, 'static source snippets include vNext stream prefix');
   context.assert(staticSnippets['RMT vNext Primitive Shell'].prefix === generatedSnippets['RMT vNext Primitive Shell'].prefix, 'static source snippets include vNext primitive shell prefix');
+  context.assert(staticSnippets['RMT vNext Validation'].prefix === generatedSnippets['RMT vNext Validation'].prefix, 'static source snippets include vNext validation prefix');
+  context.assert(staticSnippets['RMT vNext Surface Transition'].prefix === generatedSnippets['RMT vNext Surface Transition'].prefix, 'static source snippets include vNext transition prefix');
+  context.assert(staticSnippets['RMT vNext Maraca Orchestration App'].prefix === generatedSnippets['RMT vNext Maraca Orchestration App'].prefix, 'static source snippets include Maraca orchestration app prefix');
   context.assert(packagedSnippets['RMT vNext Stream'].prefix === generatedSnippets['RMT vNext Stream'].prefix, 'packaged VS Code snippets include vNext stream prefix');
   context.assert(packagedSnippets['RMT vNext Primitive Shell'].prefix === generatedSnippets['RMT vNext Primitive Shell'].prefix, 'packaged VS Code snippets include vNext primitive shell prefix');
+  context.assert(packagedSnippets['RMT vNext Validation'].prefix === generatedSnippets['RMT vNext Validation'].prefix, 'packaged VS Code snippets include vNext validation prefix');
+  context.assert(packagedSnippets['RMT vNext Surface Transition'].prefix === generatedSnippets['RMT vNext Surface Transition'].prefix, 'packaged VS Code snippets include vNext transition prefix');
+  context.assert(packagedSnippets['RMT vNext Maraca Orchestration App'].prefix === generatedSnippets['RMT vNext Maraca Orchestration App'].prefix, 'packaged VS Code snippets include Maraca orchestration app prefix');
   context.assert(agentReport.fileReports[0].languageMode === 'vnext', 'agent report marks vNext language mode');
   context.assert(agentReport.fileReports[0].sourceMapSummary.totalCount > 20, 'agent report exposes vNext source map summary');
 }
@@ -729,6 +794,8 @@ function runRmtVNextToolingSuite(options = {}) {
   assertFileExists(context, TOOLING_CONTRACT_PATH, rootDir, 'vNext tooling contract document exists');
   assertFileExists(context, VALID_VNEXT_FIXTURE, rootDir, 'vNext tooling valid fixture exists');
   assertFileExists(context, PRIMITIVE_VNEXT_FIXTURE, rootDir, 'vNext primitive authoring fixture exists');
+  assertFileExists(context, VALIDATION_VNEXT_FIXTURE, rootDir, 'vNext validation fixture exists');
+  assertFileExists(context, TRANSITION_VNEXT_FIXTURE, rootDir, 'vNext transition fixture exists');
   assertFileExists(context, PRIMITIVE_INVALID_VNEXT_FIXTURE, rootDir, 'vNext primitive invalid authoring fixture exists');
   PUBLIC_TOOLING_DOC_PATHS.forEach((docPath) => {
     assertFileExists(context, docPath, rootDir, `${docPath} exists as public tooling documentation`);
