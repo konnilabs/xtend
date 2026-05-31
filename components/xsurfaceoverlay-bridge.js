@@ -303,7 +303,7 @@ function callOverlayClose(element) {
 }
 
 function applyOverlaySurfaceSnapshot(element, record = {}) {
-  const shouldOpen = record.status !== 'closed';
+  const shouldOpen = record.status !== 'closed' && record.status !== 'minimized' && record.minimized !== true;
   const zIndex = overlayZIndex(record);
 
   element.style.setProperty('--surface-overlay-backdrop-z', String(Math.max(1, zIndex - 1)));

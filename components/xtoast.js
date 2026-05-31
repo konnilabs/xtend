@@ -9,7 +9,7 @@ const toastState = {
 
 class XToast extends HTMLElement {
   static get observedAttributes() {
-    return ['type', 'duration'];
+    return ['type', 'tone', 'duration', 'open', 'hidden'];
   }
 
   static get xtendComponentContract() {
@@ -170,6 +170,10 @@ class XToast extends HTMLElement {
     }
 
     this._dismissed = false;
+    if (this._isRmtOwned() && this._getType() !== 'info') {
+      this.removeAttribute('hidden');
+      if (!this.hasAttribute('open')) this.setAttribute('open', '');
+    }
     this._render();
     this._scheduleDismiss();
     this._syncState(false, 'connected');
@@ -183,6 +187,14 @@ class XToast extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue || !this.isConnected) return;
 
+    const shouldReopenRmtToast = this._isRmtOwned() && ['type', 'tone', 'duration', 'hidden'].includes(name) && this._getType() !== 'info';
+    if (shouldReopenRmtToast && !this.hasAttribute('open')) {
+      this.setAttribute('open', '');
+    }
+    if (this.hasAttribute('open') || shouldReopenRmtToast) {
+      this._dismissed = false;
+      this.removeAttribute('hidden');
+    }
     this._render();
     if (name === 'duration') {
       this._scheduleDismiss();
@@ -196,17 +208,27 @@ class XToast extends HTMLElement {
     clearTimeout(this._timeout);
     this._syncState(true, reason);
     this._emitToastEvent('toast-dismissed', reason);
+    if (this._isRmtOwned()) {
+      this.removeAttribute('open');
+      this.setAttribute('hidden', '');
+      return;
+    }
     this.remove();
   }
 
+  _isRmtOwned() {
+    return this.hasAttribute('data-maraca-surface') || this.hasAttribute('data-rmt-component');
+  }
+
   _getType() {
-    const type = this.getAttribute('type') || 'info';
+    const type = this.getAttribute('type') || this.getAttribute('tone') || 'info';
     return ['info', 'success', 'warning', 'error'].includes(type) ? type : 'info';
   }
 
   _getDuration() {
-    const duration = Number.parseInt(this.getAttribute('duration') || '3000', 10);
-    return Number.isFinite(duration) && duration >= 0 ? duration : 3000;
+    const duration = Number.parseInt(this.getAttribute('duration') || '', 10);
+    const fallback = this._isRmtOwned() && this._getType() !== 'info' ? 15000 : 3000;
+    return Number.isFinite(duration) && duration >= 0 ? duration : fallback;
   }
 
   _getDetail(reason) {

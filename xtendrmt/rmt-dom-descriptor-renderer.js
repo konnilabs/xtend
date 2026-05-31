@@ -909,6 +909,10 @@
       : descriptor;
     applyAttributes(element, next.attributes || {}, next, context);
     applyProperties(element, next.properties || next.props || {}, next, context);
+    applyClassPrimitive(element, next, context);
+    applyPartPrimitive(element, next, context);
+    applyStyleTokens(element, next, context);
+    applyRefPrimitive(element, next, context);
     if (Object.prototype.hasOwnProperty.call(next, 'text')) {
       replaceChildren(element, [createText(context.documentTarget, resolveValue(next.text, context, context.item))]);
     } else if (next.children) {
@@ -1044,6 +1048,9 @@
       },
       renderKeyed(root, descriptors, options = {}) {
         return runWithDiagnostics(() => renderKeyed(root, descriptors, createRenderContext(documentTarget, options, diagnosticsRecorder)));
+      },
+      patchElement(element, descriptor, options = {}) {
+        return runWithDiagnostics(() => patchExistingElement(element, descriptor, createRenderContext(documentTarget, options, diagnosticsRecorder)));
       },
       resolveValue(value, options = {}) {
         return runWithDiagnostics(() => {

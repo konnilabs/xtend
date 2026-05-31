@@ -14314,7 +14314,10 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 adapterId,
                 operation: 'scheduleEndpoint',
                 phase: 'schedule',
-                handle: endpointRecord,
+                handle: {
+                    ...endpointRecord,
+                    targetResult
+                },
                 diagnostics: [diagnostic],
                 metadata: {
                     endpointName: schedule.endpointName,

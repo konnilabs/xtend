@@ -15,6 +15,7 @@ const {
 } = require('./create_docs_stub_inventory');
 const {
   printMaracaBundleReport,
+  printMaracaKernelIntegrityReport,
   printMaracaKernelOrchestrationReport,
   printMaracaOrchestrationReport,
   printMaracaPackageExportsReport,
@@ -24,6 +25,7 @@ const {
   printMaracaTransitionReport,
   printMaracaValidationReport,
   runMaracaBundleSuite,
+  runMaracaKernelIntegritySuite,
   runMaracaKernelOrchestrationSuite,
   runMaracaOrchestrationSuite,
   runMaracaPackageExportsSuite,
@@ -2085,6 +2087,16 @@ const suites = [
     }
   },
   {
+    id: 'maraca-kernel-integrity',
+    label: 'XTend Maraca Kernel Integrity',
+    description: 'Builds a strict Maraca kernel bundle and verifies repeated media-effect orchestration in a browser smoke.',
+    run: async () => {
+      const result = await runMaracaKernelIntegritySuite({ rootDir });
+      printMaracaKernelIntegrityReport(result);
+      return toRunnerResult('maraca-kernel-integrity', 'XTend Maraca Kernel Integrity', result);
+    }
+  },
+  {
     id: 'maraca-validation',
     label: 'XTend Maraca Form Validation',
     description: 'Runs the compiler-driven form validation, kernel action gates and validation runtime gate.',
@@ -3136,6 +3148,7 @@ Examples:
   node scripts/run_xtend_tests.js maraca-rmt-source-to-bundle
   node scripts/run_xtend_tests.js maraca-orchestration
   node scripts/run_xtend_tests.js maraca-kernel-orchestration
+  node scripts/run_xtend_tests.js maraca-kernel-integrity
   node scripts/run_xtend_tests.js maraca-validation
   node scripts/run_xtend_tests.js maraca-transitions
   node scripts/run_xtend_tests.js maraca-package-exports

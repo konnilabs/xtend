@@ -56,6 +56,7 @@ Attribute:
 - `label`
 - `open`
 - `active`
+- `minimized`
 - `collapsed`
 - `pinned`
 - `mode`
@@ -76,6 +77,7 @@ Methoden:
 - `openPanel()`
 - `closePanel(reason?: string)`
 - `focusPanel()`
+- `minimizePanel()`
 - `pinPanel()`
 - `collapsePanel()`
 - `expandPanel(mode?: XSidePanelMode)`

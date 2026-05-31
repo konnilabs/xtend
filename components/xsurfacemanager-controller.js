@@ -57,7 +57,7 @@
 
   const DEFAULT_CAPABILITIES = Object.freeze({
     window: Object.freeze(['open', 'focus', 'close', 'move', 'resize', 'minimize', 'maximize', 'restore', 'snapshot']),
-    'side-panel': Object.freeze(['open', 'focus', 'close', 'dock', 'collapse', 'resize', 'restore', 'snapshot']),
+    'side-panel': Object.freeze(['open', 'focus', 'close', 'dock', 'collapse', 'resize', 'minimize', 'restore', 'snapshot']),
     modal: Object.freeze(['open', 'focus', 'close', 'snapshot']),
     dialog: Object.freeze(['open', 'focus', 'close', 'snapshot']),
     drawer: Object.freeze(['open', 'focus', 'close', 'resize', 'restore', 'snapshot']),
@@ -356,10 +356,14 @@
       }
     }
 
+    function isVisibleRecord(record) {
+      return record && record.status === 'open';
+    }
+
     function buildSnapshot() {
       const surfaces = Array.from(registry.values()).map(createSnapshotRecord);
       const stack = surfaces
-        .filter((record) => record.status !== 'closed')
+        .filter(isVisibleRecord)
         .sort((left, right) => left.zIndex - right.zIndex)
         .map((record) => record.id);
 
@@ -370,7 +374,7 @@
         activeSurfaceId,
         version: snapshotVersion,
         surfaceCount: surfaces.length,
-        openSurfaceCount: surfaces.filter((record) => record.status !== 'closed').length,
+        openSurfaceCount: surfaces.filter(isVisibleRecord).length,
         surfaces,
         stack,
         diagnostics: diagnostics.slice(-maxDiagnostics),
@@ -492,6 +496,13 @@
         record.minimized = false;
       }
       return commit(record, operation, 'activate', 'xtend.surface.focused', `Surface ${record.id} focused.`);
+    }
+
+    function activateRecord(record) {
+      deactivateActive(record.id);
+      record.active = true;
+      record.zIndex = ++zIndexCursor;
+      activeSurfaceId = record.id;
     }
 
     function registerSurface(recordInput) {
@@ -637,7 +648,7 @@
       record.minimized = false;
       record.maximized = true;
       record.bounds = normalizeSurfaceBounds({ ...record.bounds, x: 0, y: 0 }, record.type);
-      focusRecord(record, 'maximize');
+      activateRecord(record);
       return commit(record, 'maximize', 'maximize', 'xtend.surface.maximized', `Surface ${record.id} maximized.`);
     }
 
@@ -651,8 +662,25 @@
       record.status = 'open';
       record.minimized = false;
       record.maximized = false;
-      focusRecord(record, 'restore');
+      activateRecord(record);
       return commit(record, 'restore', 'restore', 'xtend.surface.restored', `Surface ${record.id} restored.`);
+    }
+
+    function materializeSurface(id, input = {}) {
+      const { record, failure } = getRecord(id, 'materialize');
+      if (failure) return failure;
+      if (record.status === 'closed') return openSurface(id, input);
+      if (record.status === 'minimized' || record.minimized) return restoreSurface(id);
+      return focusSurface(id);
+    }
+
+    function toggleSurface(id, input = {}) {
+      const { record, failure } = getRecord(id, 'toggle');
+      if (failure) return failure;
+      if (record.status === 'closed' || record.status === 'minimized' || record.minimized) {
+        return materializeSurface(id, input);
+      }
+      return minimizeSurface(id);
     }
 
     function snapshot() {
@@ -666,6 +694,10 @@
         ...buildSnapshot(),
         diagnostic: event
       };
+    }
+
+    function readSnapshot() {
+      return buildSnapshot();
     }
 
     function dispose() {
@@ -699,7 +731,10 @@
       minimizeSurface,
       maximizeSurface,
       restoreSurface,
+      materializeSurface,
+      toggleSurface,
       snapshot,
+      readSnapshot,
       dispose
     };
   }

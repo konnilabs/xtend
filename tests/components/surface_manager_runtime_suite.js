@@ -162,6 +162,8 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'focusSurface(id)',
     'moveSurface(id, bounds)',
     'resizeSurface(id, bounds)',
+    'materializeSurface(id, input)',
+    'toggleSurface(id, input)',
     'slot name="windows"',
     'slot name="panels"',
     'slot name="overlays"',
@@ -197,6 +199,8 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'interface XSurfaceManagerElement',
     'registerSurface',
     'openSurface',
+    'materializeSurface',
+    'toggleSurface',
     'layoutSnapshot',
     'surfaceController'
   ], 'x-surface-manager types');

@@ -74,6 +74,7 @@ Attribute:
 Events:
 - `surface-manager-ready`
 - `surface-registered`
+- `surface-materialized`
 - `surface-opened`
 - `surface-closed`
 - `surface-focused`
@@ -116,6 +117,9 @@ Methoden:
 - `minimizeSurface(id: string)`
 - `maximizeSurface(id: string)`
 - `restoreSurface(id: string)`
+- `materializeSurface(id: string, input?: Record<string, unknown>)`
+- `toggleSurface(id: string, input?: Record<string, unknown>)`
+- `readSnapshot()`
 - `pinSurface(id: string, pinned?: boolean)`
 - `collapseSurface(id: string)`
 - `expandSurface(id: string, mode?: string)`

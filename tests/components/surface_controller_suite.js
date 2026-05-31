@@ -138,6 +138,10 @@ function exerciseRuntime(context, rootDir) {
   const propertiesOpen = controller.openSurface('workbench.properties');
   const propertiesResize = controller.resizeSurface('workbench.properties', { width: 360 });
   const editorMinimize = controller.minimizeSurface('workbench.editor');
+  const editorMaterialize = controller.materializeSurface('workbench.editor');
+  const editorToggle = controller.toggleSurface('workbench.editor');
+  const minimizedSnapshot = controller.snapshot();
+  const editorToggleRestore = controller.toggleSurface('workbench.editor');
   const inspectorClose = controller.closeSurface('workbench.inspector', 'test-close');
   const missing = controller.openSurface('workbench.missing');
   const snapshot = controller.snapshot();
@@ -153,6 +157,9 @@ function exerciseRuntime(context, rootDir) {
     propertiesOpen,
     propertiesResize,
     editorMinimize,
+    editorMaterialize,
+    editorToggle,
+    editorToggleRestore,
     inspectorClose
   ].forEach((result) => {
     context.assert(result.ok === true, `${result.operation}: operation succeeds`);
@@ -162,11 +169,13 @@ function exerciseRuntime(context, rootDir) {
 
   context.assert(missing.ok === false && missing.code === 'xtend.surface.not-found', 'Missing surface emits deterministic not-found result');
   context.assert(snapshot.schema === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA, 'Snapshot schema is stable');
+  context.assert(minimizedSnapshot.openSurfaceCount === 2, 'Snapshot excludes minimized surfaces from open count');
+  context.assert(!minimizedSnapshot.stack.includes('workbench.editor'), 'Snapshot stack excludes minimized editor before restore');
   context.assert(snapshot.surfaceCount === 3, 'Snapshot keeps all registered surfaces');
-  context.assert(snapshot.openSurfaceCount === 2, 'Snapshot counts open/minimized but not closed surfaces');
-  context.assert(snapshot.activeSurfaceId === 'workbench.properties', 'Controller mirrors active side-panel after opening properties');
+  context.assert(snapshot.openSurfaceCount === 2, 'Snapshot counts materialized open surfaces only');
+  context.assert(snapshot.activeSurfaceId === 'workbench.editor', 'Controller restores the toggled editor as active');
   context.assert(snapshot.stack.includes('workbench.properties'), 'Snapshot stack includes open side-panel');
-  context.assert(snapshot.stack.includes('workbench.editor'), 'Snapshot stack keeps minimized window as managed surface');
+  context.assert(snapshot.stack.includes('workbench.editor'), 'Snapshot stack includes restored editor window');
   context.assert(!snapshot.stack.includes('workbench.inspector'), 'Snapshot stack excludes closed inspector window');
 
   const inspectorState = state.get('xtend.surface.workbench.inspector.state');
@@ -178,7 +187,7 @@ function exerciseRuntime(context, rootDir) {
   const diagnostics = state.get('xtend.surface.diagnostics');
 
   context.assert(Array.isArray(registry) && registry.length === 3, 'xstate registry mirror contains three surface states');
-  context.assert(active === 'workbench.properties', 'xstate active mirror contains active surface id');
+  context.assert(active === 'workbench.editor', 'xstate active mirror contains active surface id');
   context.assert(inspectorState && inspectorState.status === 'closed', 'xstate surface state mirror closes inspector');
   context.assert(inspectorState && !Object.prototype.hasOwnProperty.call(inspectorState, 'metadata'), 'xstate surface state mirror omits raw metadata payload');
   context.assert(inspectorBounds && inspectorBounds.x === 128 && inspectorBounds.y === 96, 'xstate bounds mirror stores moved window position');
@@ -277,7 +286,9 @@ function runSurfaceControllerSuite(options = {}) {
     'interface XtendSurfaceDiagnostic',
     'registerSurface',
     'maximizeSurface',
-    'restoreSurface'
+    'restoreSurface',
+    'materializeSurface',
+    'toggleSurface'
   ], 'Runtime types');
   assertTextIncludesAll(context, sourceTexts, [
     'export interface XtendSurfaceController',

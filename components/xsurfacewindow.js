@@ -395,14 +395,16 @@ class XSurfaceWindow extends HTMLElement {
     this.style.setProperty('--surface-window-width', `${record.bounds.width}px`);
     this.style.setProperty('--surface-window-height', `${record.bounds.height}px`);
     this.style.setProperty('--surface-window-z', String(record.zIndex || 1));
-    this.toggleAttribute('open', record.status !== 'closed');
+    const minimized = record.status === 'minimized' || record.minimized === true;
+    this.toggleAttribute('open', record.status !== 'closed' && !minimized);
     this.toggleAttribute('active', Boolean(record.active));
-    this.toggleAttribute('minimized', Boolean(record.minimized));
+    this.toggleAttribute('minimized', minimized);
     this.toggleAttribute('maximized', Boolean(record.maximized));
     const windowSurface = this.shadowRoot.querySelector('.window');
-    windowSurface.setAttribute('aria-hidden', record.status === 'closed' ? 'true' : 'false');
+    windowSurface.setAttribute('aria-hidden', record.status === 'closed' || minimized ? 'true' : 'false');
     windowSurface.setAttribute('aria-modal', record.modal ? 'true' : 'false');
     this._applyingSnapshot = false;
+    this._publishSurfaceLifecycle(record, minimized);
   }
 
   openWindow() {
@@ -449,6 +451,7 @@ class XSurfaceWindow extends HTMLElement {
   }
 
   _applyInitialBounds() {
+    if (this.hasAttribute('maximized')) return;
     const bounds = this._readBounds();
     this.style.setProperty('--surface-window-x', `${bounds.x}px`);
     this.style.setProperty('--surface-window-y', `${bounds.y}px`);
@@ -458,6 +461,35 @@ class XSurfaceWindow extends HTMLElement {
 
   _renderLabel() {
     if (this._title) this._title.textContent = this.getAttribute('label') || this.surfaceId;
+  }
+
+  _publishSurfaceLifecycle(record = {}, minimized = false) {
+    const detail = {
+      schema: 'xtend.surface.lifecycle-change.v1',
+      surfaceId: this.surfaceId,
+      status: record.status || (this.hasAttribute('open') ? 'open' : 'closed'),
+      open: record.status !== 'closed' && !minimized,
+      minimized,
+      maximized: record.maximized === true,
+      active: record.active === true,
+      source: 'x-surface-window'
+    };
+    this.dispatchEvent(new CustomEvent('surface-lifecycle-change', {
+      bubbles: true,
+      composed: true,
+      detail
+    }));
+    this.querySelectorAll('*').forEach((element) => {
+      if (typeof element.surfaceLifecycleChanged === 'function') {
+        element.surfaceLifecycleChanged(detail);
+      } else if (typeof element.dispatchEvent === 'function') {
+        element.dispatchEvent(new CustomEvent('surface-lifecycle-change', {
+          bubbles: false,
+          composed: true,
+          detail
+        }));
+      }
+    });
   }
 
   _handleActionClick(event) {

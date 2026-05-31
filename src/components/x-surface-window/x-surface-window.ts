@@ -20,6 +20,17 @@ export interface XSurfaceWindowPublicApi {
   restoreWindow(): void;
 }
 
+export interface XSurfaceWindowLifecycleDetail {
+  schema: 'xtend.surface.lifecycle-change.v1';
+  surfaceId: string;
+  status: string;
+  open: boolean;
+  minimized: boolean;
+  maximized: boolean;
+  active: boolean;
+  source: typeof XSURFACE_WINDOW_TAG;
+}
+
 export interface XSurfaceWindowInitialBounds extends Partial<XtendSurfaceBounds> {
   x: number;
   y: number;
@@ -37,5 +48,6 @@ export const xSurfaceWindowContract = Object.freeze({
   attributes: ['surface-id', 'label', 'open', 'active', 'minimized', 'maximized', 'resizable', 'draggable', 'modal', 'initial-x', 'initial-y', 'initial-width', 'initial-height'],
   commands: ['open', 'close', 'focus', 'move', 'resize', 'minimize', 'maximize', 'restore', 'update'],
   event: 'surface-window-command',
+  lifecycleEvent: 'surface-lifecycle-change',
   kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
 });

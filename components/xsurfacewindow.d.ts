@@ -25,6 +25,17 @@ export interface XSurfaceWindowCommandDetail {
   payload: Record<string, unknown>;
 }
 
+export interface XSurfaceWindowLifecycleDetail {
+  schema: 'xtend.surface.lifecycle-change.v1';
+  surfaceId: string;
+  status: string;
+  open: boolean;
+  minimized: boolean;
+  maximized: boolean;
+  active: boolean;
+  source: 'x-surface-window';
+}
+
 export interface XSurfaceWindowElement extends HTMLElement {
   surfaceManager: HTMLElement | null;
   readonly surfaceId: string;
@@ -39,6 +50,7 @@ export interface XSurfaceWindowElement extends HTMLElement {
   maximizeWindow(): void;
   restoreWindow(): void;
   addEventListener(type: 'surface-window-command', listener: (event: CustomEvent<XSurfaceWindowCommandDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'surface-lifecycle-change', listener: (event: CustomEvent<XSurfaceWindowLifecycleDetail>) => void, options?: boolean | AddEventListenerOptions): void;
 }
 
 declare global {

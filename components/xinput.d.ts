@@ -1,10 +1,12 @@
 import type { XtendCustomEventMap, XtendFormControlUxProfile, XtendPublicEventContract } from './xtend-public-types';
 
-export type XInputAttributeName = 'type' | 'name' | 'value' | 'placeholder' | 'required' | 'disabled';
+export type XInputAttributeName = 'type' | 'name' | 'value' | 'placeholder' | 'required' | 'disabled' | 'accept' | 'multiple';
 export type XInputEventName = 'input-changed' | 'validation-failed';
 
 export interface XInputEventDetail {
   value: string;
+  files?: FileList | null;
+  fileCount?: number;
   source?: 'x-input';
   message?: string;
 }
@@ -20,6 +22,7 @@ export type XInputPublicEventContract = XtendPublicEventContract<XInputEventName
 
 export interface XInputElement extends HTMLElement {
   value: string;
+  readonly files: FileList | null;
   checkValidity(): boolean;
   reportValidity(): boolean;
   validate(): boolean;

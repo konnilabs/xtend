@@ -324,6 +324,8 @@
       if (operation === 'focus') return callSurfaceManager('focusSurface', [instance.id], { instanceId: instance.id, operation });
       if (operation === 'minimize') return callSurfaceManager('minimizeSurface', [instance.id], { instanceId: instance.id, operation });
       if (operation === 'restore') return callSurfaceManager('restoreSurface', [instance.id], { instanceId: instance.id, operation });
+      if (operation === 'materialize') return callSurfaceManager('materializeSurface', [instance.id, payload], { instanceId: instance.id, operation });
+      if (operation === 'toggle') return callSurfaceManager('toggleSurface', [instance.id, payload], { instanceId: instance.id, operation });
       if (operation === 'close' || operation === 'destroy') return callSurfaceManager('closeSurface', [instance.id, payload.reason || operation], { instanceId: instance.id, operation });
       if (operation === 'update') return callSurfaceManager('updateSurface', [instance.id, payload], { instanceId: instance.id, operation });
       return null;

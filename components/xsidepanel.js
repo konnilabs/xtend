@@ -7,6 +7,7 @@ class XSidePanel extends HTMLElement {
       'label',
       'open',
       'active',
+      'minimized',
       'collapsed',
       'pinned',
       'mode',
@@ -190,6 +191,9 @@ class XSidePanel extends HTMLElement {
         }
         :host([open]) {
           display: block;
+        }
+        :host([minimized]) {
+          display: none;
         }
         :host([placement="left"]) {
           inset-inline-start: 0;
@@ -458,7 +462,7 @@ class XSidePanel extends HTMLElement {
     if (oldValue === newValue) return;
     if (name === 'label' || name === 'surface-id') this._renderLabel();
     if (name.startsWith('initial-')) this._applyInitialSize();
-    if (['collapsed', 'pinned', 'mode', 'placement', 'modal', 'open'].includes(name)) this._syncA11y();
+    if (['collapsed', 'pinned', 'mode', 'placement', 'modal', 'open', 'minimized'].includes(name)) this._syncA11y();
     if (this._applyingSnapshot || !this.isConnected) return;
     if (name === 'open') {
       this.hasAttribute('open') ? this.openPanel() : this.closePanel('attribute');
@@ -511,8 +515,10 @@ class XSidePanel extends HTMLElement {
     this.style.setProperty('--side-panel-z', String(record.zIndex || 1));
     this.style.setProperty('--surface-layout-x', `${record.bounds.x || 0}px`);
     this.style.setProperty('--surface-layout-y', `${record.bounds.y || 0}px`);
-    this.toggleAttribute('open', record.status !== 'closed');
+    const minimized = record.status === 'minimized' || record.minimized === true;
+    this.toggleAttribute('open', record.status !== 'closed' && !minimized);
     this.toggleAttribute('active', Boolean(record.active));
+    this.toggleAttribute('minimized', minimized);
     this.toggleAttribute('collapsed', Boolean(record.collapsed) || record.mode === 'collapsed');
     this.toggleAttribute('pinned', Boolean(record.pinned) || record.mode === 'pinned');
     this.toggleAttribute('modal', Boolean(record.modal));
@@ -536,6 +542,10 @@ class XSidePanel extends HTMLElement {
 
   focusPanel() {
     return this._command('focus');
+  }
+
+  minimizePanel() {
+    return this._command('minimize');
   }
 
   pinPanel() {
@@ -573,7 +583,7 @@ class XSidePanel extends HTMLElement {
   }
 
   _capabilities() {
-    const capabilities = ['open', 'focus', 'close', 'dock', 'collapse', 'restore', 'snapshot'];
+    const capabilities = ['open', 'focus', 'close', 'dock', 'collapse', 'minimize', 'restore', 'snapshot'];
     if (this.hasAttribute('resizable')) capabilities.push('resize');
     return capabilities;
   }

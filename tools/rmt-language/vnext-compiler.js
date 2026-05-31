@@ -1230,6 +1230,7 @@ function eventPayloadExpression(source) {
   if (!expression) return '$detail';
   if (expression.startsWith('target.')) return `$target.${expression.slice(7)}`;
   if (expression.startsWith('currentTarget.')) return `$currentTarget.${expression.slice(14)}`;
+  if (expression.startsWith('source.')) return `$source.${expression.slice(7)}`;
   if (expression.startsWith('detail.')) return `$detail.${expression.slice(7)}`;
   if (expression.startsWith('event.')) return `$event.${expression.slice(6)}`;
   if (expression.startsWith('surface.')) return `$metadata.${expression}`;
@@ -1318,6 +1319,82 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   const initialState = initialStates.get(surface.source) || {};
   const hasStateField = (field) => Object.prototype.hasOwnProperty.call(initialState, field);
   const bindStateField = (field) => `$model.${surface.source}.${field}`;
+  const statePath = (field) => `$model.${surface.source}.${field}`;
+  const itemPath = (field) => `$item.${field}`;
+  const itemText = (...fields) => fields
+    .filter(Boolean)
+    .reduceRight((fallback, field) => ({
+      op: 'fallback',
+      source: itemPath(field),
+      fallback
+    }), '');
+  const createTextSpan = (className, field, fallbackFields = []) => ({
+    type: 'element',
+    tag: 'span',
+    class: className,
+    text: fallbackFields.length > 0 ? itemText(field, ...fallbackFields) : itemPath(field)
+  });
+  const createRepeatedItemTemplate = () => ({
+    type: 'element',
+    tag: 'button',
+    attributes: {
+      type: literal('button'),
+      'data-action': itemText('action'),
+      'data-record-id': itemText('id'),
+      'data-id': itemText('id'),
+      'data-kind': itemText('kind'),
+      'aria-selected': itemPath('selected')
+    },
+    class: ['xtend-maraca-item', {
+      'is-selected': '$item.selected',
+      'is-active': '$item.active',
+      'is-muted': '$item.muted'
+    }],
+    children: [
+      {
+        type: 'component',
+        tag: 'x-icon',
+        component: 'x-icon',
+        class: 'xtend-maraca-item-icon',
+        attributes: {
+          name: itemText('icon', 'kind'),
+          decorative: literal(true),
+          size: literal('1rem')
+        }
+      },
+      createTextSpan('xtend-maraca-item-title', 'title', ['name', 'label']),
+      createTextSpan('xtend-maraca-item-subtitle', 'subtitle', ['description', 'kind'])
+    ]
+  });
+  const createRepeatedActionTemplate = () => ({
+    type: 'element',
+    tag: 'button',
+    attributes: {
+      type: literal('button'),
+      'data-action': itemText('action', 'id'),
+      'data-id': itemText('id'),
+      'data-record-id': itemText('recordId')
+    },
+    class: ['xtend-maraca-action', {
+      'is-primary': '$item.primary',
+      'is-danger': '$item.danger',
+      'is-disabled': '$item.disabled'
+    }],
+    children: [
+      {
+        type: 'component',
+        tag: 'x-icon',
+        component: 'x-icon',
+        class: 'xtend-maraca-action-icon',
+        attributes: {
+          name: itemText('icon', 'action', 'id'),
+          decorative: literal(true),
+          size: literal('1rem')
+        }
+      },
+      createTextSpan('xtend-maraca-action-label', 'label', ['title', 'id'])
+    ]
+  });
   const attributes = {
     'data-maraca-surface': literal(surface.id),
     'data-rmt-surface': literal(surface.id),
@@ -1333,13 +1410,90 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   if (component === 'x-status' && surface.source) attributes.state = `$model.${surface.source}.tone`;
   if (component === 'x-button' && surface.source) attributes.label = `$model.${surface.source}.text`;
 
-  ['hidden', 'name', 'value', 'placeholder', 'label', 'required', 'disabled', 'invalid', 'rows', 'density'].forEach((field) => {
+  [
+    'hidden',
+    'name',
+    'value',
+    'placeholder',
+    'label',
+    'required',
+    'disabled',
+    'invalid',
+    'rows',
+    'density',
+    'src',
+    'poster',
+    'title',
+    'subtitle',
+    'kind',
+    'count',
+    'selected',
+    'controls',
+    'open',
+    'accept',
+    'multiple',
+    'active',
+    'minimized',
+    'maximized',
+    'resizable',
+    'draggable',
+    'modal',
+    'pinned',
+    'collapsed',
+    'placement',
+    'mode',
+    'layout'
+  ].forEach((field) => {
     if (surface.source && hasStateField(field)) attributes[field] = bindStateField(field);
   });
+  const mappedStateAttributes = {
+    surfaceId: 'surface-id',
+    managerId: 'manager-id',
+    stateKey: 'state-key',
+    restoreKey: 'restore-key',
+    persistenceMode: 'persistence-mode',
+    restorePolicy: 'restore-policy',
+    surfaceLoadingPolicy: 'surface-loading-policy',
+    surfaceSkeleton: 'surface-skeleton',
+    surfaceHydrationTimeout: 'surface-hydration-timeout',
+    routeLifecyclePolicy: 'route-lifecycle-policy',
+    modalPolicy: 'modal-policy',
+    layoutEngine: 'layout-engine',
+    surfaceLayoutGap: 'surface-layout-gap',
+    surfaceLayoutSnap: 'surface-layout-snap',
+    initialX: 'initial-x',
+    initialY: 'initial-y',
+    initialWidth: 'initial-width',
+    initialHeight: 'initial-height',
+    responsiveMode: 'responsive-mode'
+  };
+  Object.entries(mappedStateAttributes).forEach(([field, attribute]) => {
+    if (surface.source && hasStateField(field)) attributes[attribute] = bindStateField(field);
+  });
+  if ((component === 'x-surface-window' || component === 'x-side-panel' || component === 'x-surface-region') && !attributes['surface-id']) {
+    attributes['surface-id'] = literal(surface.id);
+  }
+  if (component === 'x-surface-window' || component === 'x-side-panel' || component === 'x-surface-region') {
+    attributes['data-surface-id'] = literal(surface.id);
+  }
+  if (component === 'x-surface-window' && surface.bounds) {
+    if (!attributes['initial-x'] && Number.isFinite(surface.bounds.x)) attributes['initial-x'] = literal(surface.bounds.x);
+    if (!attributes['initial-y'] && Number.isFinite(surface.bounds.y)) attributes['initial-y'] = literal(surface.bounds.y);
+    if (!attributes['initial-width'] && Number.isFinite(surface.bounds.width)) attributes['initial-width'] = literal(surface.bounds.width);
+    if (!attributes['initial-height'] && Number.isFinite(surface.bounds.height)) attributes['initial-height'] = literal(surface.bounds.height);
+    if (!attributes.draggable) attributes.draggable = literal(true);
+    if (!attributes.resizable) attributes.resizable = literal(true);
+  }
+  if (component === 'x-side-panel') {
+    if (!attributes.placement) attributes.placement = literal(surface.placement || 'right');
+    if (!attributes.mode) attributes.mode = literal(surface.mode || 'docked');
+    if (!attributes.resizable) attributes.resizable = literal(true);
+  }
   if (surface.source && hasStateField('minLength')) attributes.minlength = bindStateField('minLength');
   if (surface.source && hasStateField('maxLength')) attributes.maxlength = bindStateField('maxLength');
   if (surface.source && hasStateField('field')) attributes['data-field'] = bindStateField('field');
   if (surface.source && hasStateField('inputType')) attributes.type = bindStateField('inputType');
+  if (surface.source && hasStateField('mediaType')) attributes.type = bindStateField('mediaType');
 
   if (actionToken) {
     attributes['data-action'] = actionToken;
@@ -1374,6 +1528,97 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
       }
     });
   }
+  if (surface.source && Array.isArray(initialState.stats)) {
+    children.push({
+      type: 'element',
+      tag: 'div',
+      class: 'xtend-maraca-stats',
+      children: [{
+        type: 'repeat',
+        source: statePath('stats'),
+        key: itemText('id', 'label', 'name'),
+        template: {
+          type: 'element',
+          tag: 'span',
+          class: 'xtend-maraca-stat',
+          attributes: {
+            'data-id': itemText('id', 'label', 'name')
+          },
+          children: [
+            createTextSpan('xtend-maraca-stat-value', 'value', ['count']),
+            createTextSpan('xtend-maraca-stat-label', 'label', ['name'])
+          ]
+        }
+      }]
+    });
+  }
+  if (surface.source && Array.isArray(initialState.items)) {
+    children.push({
+      type: 'repeat',
+      source: statePath('items'),
+      key: itemText('id', 'title', 'label'),
+      template: createRepeatedItemTemplate()
+    });
+  }
+  if (surface.source && Array.isArray(initialState.metadata)) {
+    children.push({
+      type: 'element',
+      tag: 'dl',
+      class: 'xtend-maraca-metadata',
+      children: [{
+        type: 'repeat',
+        source: statePath('metadata'),
+        key: itemText('id', 'name', 'label'),
+        template: {
+          type: 'fragment',
+          children: [
+            {
+              type: 'element',
+              tag: 'dt',
+              class: 'xtend-maraca-metadata-label',
+              text: itemText('label', 'name', 'id')
+            },
+            {
+              type: 'element',
+              tag: 'dd',
+              class: 'xtend-maraca-metadata-value',
+              text: itemText('value', 'text')
+            }
+          ]
+        }
+      }]
+    });
+  }
+  if (surface.source && Array.isArray(initialState.actions)) {
+    children.push({
+      type: 'element',
+      tag: 'div',
+      class: 'xtend-maraca-actions',
+      children: [{
+        type: 'repeat',
+        source: statePath('actions'),
+        key: itemText('id', 'action', 'label'),
+        template: createRepeatedActionTemplate()
+      }]
+    });
+  }
+  if (component === 'x-surface-window' && surface.kind === 'player' && surface.source && hasStateField('src')) {
+    children.unshift({
+      type: 'component',
+      tag: 'x-player',
+      component: 'x-player',
+      class: 'xtend-maraca-managed-player',
+      attributes: {
+        src: statePath('src'),
+        poster: statePath('poster'),
+        title: statePath('title'),
+        subtitle: statePath('subtitle'),
+        kind: statePath('kind'),
+        type: statePath('mediaType'),
+        controls: statePath('controls')
+      }
+    });
+  }
 
   const descriptor = {
     type: 'component',
@@ -1391,7 +1636,7 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     bindings: toArray(surface.events),
     ...(children.length > 0 ? { children } : {})
   };
-  if (surface.source && hasStateField('text')) {
+  if (children.length === 0 && surface.source && hasStateField('text')) {
     descriptor.text = bindStateField('text');
   }
   return descriptor;
@@ -1640,6 +1885,9 @@ function createValidationPlan(core, appPlatform) {
         });
       }
     });
+    const sourceRecord = toArray(core && core.validations).find((entry) => (
+      entry.name === validation.id || entry.id === primitiveRecordId('validation', validation.id)
+    ));
     return {
       id: validation.id,
       name: validation.id,
@@ -1647,7 +1895,7 @@ function createValidationPlan(core, appPlatform) {
       fields,
       includes: toArray(validation.includes),
       targets: toArray(validation.targets),
-      sourceRef: toArray(core && core.validations).find((entry) => entry.name === validation.id || entry.id === primitiveRecordId('validation', validation.id))?.sourceRef || null
+      sourceRef: sourceRecord && sourceRecord.sourceRef ? sourceRecord.sourceRef : null
     };
   });
 
@@ -1780,6 +2028,9 @@ function createSurfaceTransitionPlan(core, appPlatform) {
         });
       }
     });
+    const sourceRecord = toArray(core && core.transitions).find((entry) => (
+      entry.name === transition.id || entry.id === primitiveRecordId('transition', transition.id)
+    ));
     return {
       id: transition.id,
       name: transition.id,
@@ -1796,7 +2047,7 @@ function createSurfaceTransitionPlan(core, appPlatform) {
       lane: transition.lane || 'transition',
       operation: transition.operation || `operation:xtend.rmt/surface-transition/${transition.id}`,
       endpointName: transition.endpointName || `xtend.rmt.kernel.surface-transition.${schedulerToken(transition.id)}`,
-      sourceRef: toArray(core && core.transitions).find((entry) => entry.name === transition.id || entry.id === primitiveRecordId('transition', transition.id))?.sourceRef || null,
+      sourceRef: sourceRecord && sourceRecord.sourceRef ? sourceRecord.sourceRef : null,
       isolation: {
         componentIsolation: 'public-contract-only',
         shadowRootAccess: false,
@@ -1960,6 +2211,88 @@ function createPatchPlan(appPlatform, reducers, renderDescriptors, validationPla
   return plan;
 }
 
+function surfaceManagerIdFromPortalRoot(root) {
+  const text = String(root || '');
+  const dataSurfaceMatch = text.match(/data-maraca-surface\s*=\s*(?:"([^"]+)"|'([^']+)')/u);
+  if (dataSurfaceMatch) return dataSurfaceMatch[1] || dataSurfaceMatch[2] || '';
+  return '';
+}
+
+function managerSlotForSurface(surface) {
+  const component = String(surface && surface.component || '').toLowerCase();
+  const kind = String(surface && surface.kind || '').toLowerCase();
+  if (component === 'x-side-panel' || kind === 'side-panel' || kind === 'panel') return 'panels';
+  if (kind === 'overlay' || kind === 'lightbox' || kind === 'toast' || kind === 'popover') return 'overlays';
+  return 'windows';
+}
+
+function withManagerSlot(descriptor, surface) {
+  return {
+    ...descriptor,
+    attributes: {
+      ...(descriptor.attributes || {}),
+      slot: { op: 'literal', value: managerSlotForSurface(surface) }
+    }
+  };
+}
+
+function createRenderRoot(appPlatform, renderDescriptors) {
+  const surfaces = toArray(appPlatform && appPlatform.surfaces);
+  const surfaceById = new Map(surfaces.map((surface) => [surface.id, surface]));
+  const managerSurfaces = surfaces.filter((surface) => surface && surface.component === 'x-surface-manager');
+  if (managerSurfaces.length === 0) {
+    return {
+      type: 'fragment',
+      children: renderDescriptors
+    };
+  }
+
+  const managerIds = new Set(managerSurfaces.map((surface) => surface.id));
+  const managerByPortal = new Map();
+  toArray(appPlatform && appPlatform.portals).forEach((portal) => {
+    const managerId = surfaceManagerIdFromPortalRoot(portal && portal.root);
+    if (managerId && managerIds.has(managerId)) managerByPortal.set(portal.id, managerId);
+  });
+
+  if (managerByPortal.size === 0) {
+    return {
+      type: 'fragment',
+      children: renderDescriptors
+    };
+  }
+
+  const descriptorBySurface = new Map(renderDescriptors.map((descriptor) => [descriptor.surface, descriptor]));
+  const managedChildren = new Map();
+  const managedSurfaceIds = new Set();
+  renderDescriptors.forEach((descriptor) => {
+    const surface = surfaceById.get(descriptor.surface);
+    const managerId = surface && managerByPortal.get(surface.portal);
+    if (!surface || !managerId || managerId === surface.id) return;
+    const list = managedChildren.get(managerId) || [];
+    list.push(withManagerSlot(descriptor, surface));
+    managedChildren.set(managerId, list);
+    managedSurfaceIds.add(surface.id);
+  });
+
+  return {
+    type: 'fragment',
+    children: renderDescriptors
+      .filter((descriptor) => !managedSurfaceIds.has(descriptor.surface))
+      .map((descriptor) => {
+        const children = managedChildren.get(descriptor.surface);
+        if (!children || children.length === 0) return descriptor;
+        return {
+          ...descriptor,
+          children: [
+            ...toArray(descriptor.children),
+            ...children
+          ]
+        };
+      })
+      .filter((descriptor) => descriptorBySurface.has(descriptor.surface))
+  };
+}
+
 function createHostContracts() {
   return {
     schema: 'xtend.rmt.app-host-contracts.v1',
@@ -2097,8 +2430,28 @@ function createRmtAppOrchestrationArtifacts(core) {
   const reducers = createActionReducerRecords(appPlatform);
   const resources = createResourceRecords(appPlatform);
   const dataSources = createDataSourceRecords(appPlatform);
+  const effectsByAction = new Map();
+  toArray(core.effects).forEach((effect) => {
+    [effect && effect.actionRef, effect && effect.action].filter(Boolean).forEach((key) => {
+      const list = effectsByAction.get(key) || [];
+      list.push(effect);
+      effectsByAction.set(key, list);
+    });
+  });
+  const dataSourceForAction = (action) => {
+    const actionEffects = (effectsByAction.get(action.id) || []).concat(effectsByAction.get(action.name) || []);
+    const fetchEffect = actionEffects.find((effect) => {
+      return effect
+        && (effect.kind === 'fetch' || effect.kind === 'datasource')
+        && effect.source
+        && effect.source.kind === 'dataSource'
+        && effect.source.ref;
+    });
+    return fetchEffect && fetchEffect.source && (fetchEffect.source.target || String(fetchEffect.source.ref || '').replace(/^dataSource:/u, '')) || '';
+  };
   const initialStates = new Map(toArray(appPlatform.state).map((state) => [state.id, state.initial || {}]));
   const renderDescriptors = toArray(appPlatform.surfaces).map((surface) => createRenderDescriptor(surface, eventBindings, initialStates));
+  const renderRoot = createRenderRoot(appPlatform, renderDescriptors);
   const hydration = createHydrationPlan(core, appPlatform);
   const validation = createValidationPlan(core, appPlatform);
   const transitions = createSurfaceTransitionPlan(core, appPlatform);
@@ -2122,6 +2475,7 @@ function createRmtAppOrchestrationArtifacts(core) {
         id: action.id,
         inputs: action.inputs,
         statusState: action.status && action.status.path || '',
+        datasource: dataSourceForAction(action),
         reducers: action.reducers,
         emits: action.emits,
         effects: toArray(action.effects)
@@ -2143,10 +2497,7 @@ function createRmtAppOrchestrationArtifacts(core) {
     render: {
       mode: 'dom-descriptor',
       descriptors: renderDescriptors,
-      root: {
-        type: 'fragment',
-        children: renderDescriptors
-      }
+      root: renderRoot
     },
     hydration,
     validation,
@@ -2596,7 +2947,7 @@ class VNextCompiler {
     return addRecord(this.core, 'effects', {
       id: `effect:${normalizeIdSegment(actionRecord.name)}/${index}`,
       primitive: true,
-      kind: node.kind || 'fetch',
+      kind: node.effectKind || node.kind || 'fetch',
       action: actionRecord.name,
       actionRef: actionRecord.id,
       source

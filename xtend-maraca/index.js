@@ -24,6 +24,7 @@ const VALID_KERNEL_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_HYDRATION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_VALIDATION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_TRANSITION_MODES = new Set(['auto', 'strict', 'off']);
+const VALID_SIZE_BUDGET_MODES = new Set(['strict', 'warn', 'off']);
 const COMPONENT_UNKNOWN_CODE = 'xtend.maraca.component_unknown';
 const COMPONENT_DYNAMIC_CODE = 'xtend.maraca.dynamic_component_requires_opt_in';
 const COMPILER_ERROR_CODE = 'xtend.maraca.rmt_compile_failed';
@@ -35,6 +36,37 @@ const VALIDATION_MISSING_CODE = 'xtend.maraca.validation_missing';
 const VALIDATION_STRICT_CODE = 'xtend.maraca.validation_strict_contract';
 const TRANSITION_MISSING_CODE = 'xtend.maraca.transitions_missing';
 const TRANSITION_STRICT_CODE = 'xtend.maraca.transitions_strict_contract';
+const NATIVE_MARACA_COMPONENT_TAGS = Object.freeze(new Set([
+  'a',
+  'article',
+  'aside',
+  'audio',
+  'button',
+  'canvas',
+  'div',
+  'figure',
+  'figcaption',
+  'footer',
+  'form',
+  'header',
+  'img',
+  'input',
+  'label',
+  'li',
+  'main',
+  'nav',
+  'ol',
+  'option',
+  'p',
+  'picture',
+  'section',
+  'select',
+  'span',
+  'strong',
+  'textarea',
+  'ul',
+  'video'
+]));
 const VALIDATION_RUNTIME_MODULES = Object.freeze([
   'xtendrmt/rmt-form-validation-runtime.js'
 ]);
@@ -221,6 +253,10 @@ function normalizeOptions(input = {}, options = {}) {
   const transitions = VALID_TRANSITION_MODES.has(requestedTransitions)
     ? requestedTransitions
     : 'auto';
+  const requestedSizeBudget = values.sizeBudget || values.sizeBudgetMode || values['size-budget'] || values['size-budget-mode'];
+  const sizeBudget = VALID_SIZE_BUDGET_MODES.has(requestedSizeBudget)
+    ? requestedSizeBudget
+    : 'strict';
   const allowDynamicComponents = toBoolean(
     values.allowDynamicComponents !== undefined
       ? values.allowDynamicComponents
@@ -244,6 +280,7 @@ function normalizeOptions(input = {}, options = {}) {
     hydration,
     validation,
     transitions,
+    sizeBudget,
     json: toBoolean(values.json),
     allowDynamicComponents
   };
@@ -284,9 +321,14 @@ function getMaracaToolchainAvailability(rootDir = process.cwd()) {
 }
 
 function loadVNextCompiler(rootDir) {
-  const localPath = path.join(rootDir, 'tools', 'rmt-language', 'vnext-compiler.js');
-  if (fs.existsSync(localPath)) {
-    return require(localPath);
+  const localPaths = [
+    path.join(rootDir, 'tools', 'rmt-language', 'vnext-compiler.js'),
+    path.join(__dirname, '..', 'tools', 'rmt-language', 'vnext-compiler.js')
+  ];
+  for (const localPath of localPaths) {
+    if (fs.existsSync(localPath)) {
+      return require(localPath);
+    }
   }
   return require('@ccslabs/xtend-compiler/rmt-language/vnext-compiler');
 }
@@ -306,7 +348,13 @@ function compileSource(options) {
 }
 
 function loadComponentManifest(rootDir) {
-  const manifestPath = path.join(rootDir, 'components', 'manifest.json');
+  const manifestPath = [
+    path.join(rootDir, 'components', 'manifest.json'),
+    path.join(__dirname, '..', 'components', 'manifest.json')
+  ].find((candidate) => fs.existsSync(candidate));
+  if (!manifestPath) {
+    throw new Error('Maraca component manifest not found in app root or vendored XTend package.');
+  }
   const manifest = readJson(manifestPath);
   const entries = Object.keys(manifest).sort().map((tag) => {
     const module = manifest[tag];
@@ -385,14 +433,32 @@ function collectInitialState(coreDocument) {
   return map;
 }
 
-function collectEvents(coreDocument) {
-  const events = Array.isArray(coreDocument && coreDocument.events) ? coreDocument.events : [];
+function collectEvents(coreDocument, orchestrationPlan = null) {
+  const artifactEvents = orchestrationPlan
+    && orchestrationPlan.artifact
+    && Array.isArray(orchestrationPlan.artifact.events)
+    ? orchestrationPlan.artifact.events
+    : [];
+  const events = artifactEvents.length > 0
+    ? artifactEvents
+    : Array.isArray(coreDocument && coreDocument.events)
+      ? coreDocument.events
+      : [];
   return events.map((event) => ({
     id: event.id || null,
-    type: event.type || event.name || null,
+    event: event.event || event.type || event.name || null,
+    type: event.event || event.type || event.name || null,
+    kind: event.kind || 'dom',
     action: event.action || null,
-    surface: event.scope && event.scope.surface || null,
-    selector: event.selector || null
+    surface: event.surface || event.scope && event.scope.surface || null,
+    selector: event.selector || event.target || null,
+    target: event.target || event.selector || null,
+    component: event.component || null,
+    owner: event.owner || event.ownerOperation || null,
+    payload: Object.prototype.hasOwnProperty.call(event, 'payload') ? event.payload : '$detail',
+    payloadContract: event.payloadContract || null,
+    governance: event.governance || null,
+    options: event.options || null
   }));
 }
 
@@ -412,6 +478,12 @@ function collectRequiredTags(surfaces) {
     if (surface.component && typeof surface.component === 'string') {
       tags.add(surface.component);
     }
+    if (surface.component === 'x-surface-window' || surface.component === 'x-side-panel' || surface.component === 'x-surface-manager') {
+      tags.add('x-icon');
+    }
+    if (surface.component === 'x-surface-window' && surface.kind === 'player') {
+      tags.add('x-player');
+    }
   });
   return Array.from(tags).sort();
 }
@@ -425,6 +497,10 @@ function collectRequestedTags(surfaces, componentManifest, options) {
 
 function isPotentialDynamicTag(tag) {
   return typeof tag === 'string' && (tag.includes('{') || tag.includes('*') || tag.includes('$'));
+}
+
+function isNativeMaracaComponentTag(tag) {
+  return typeof tag === 'string' && NATIVE_MARACA_COMPONENT_TAGS.has(tag.trim().toLowerCase());
 }
 
 function createComponentRecords(requiredTags, componentManifest, options) {
@@ -441,6 +517,20 @@ function createComponentRecords(requiredTags, componentManifest, options) {
         absolutePath: known.absolutePath,
         source: known.source,
         known: true
+      });
+      return;
+    }
+
+    if (isNativeMaracaComponentTag(tag)) {
+      selected.push({
+        tag,
+        module: null,
+        absolutePath: null,
+        source: 'browser-native-element',
+        known: true,
+        native: true,
+        lazy: false,
+        sideEffectBoundary: 'browser-native-element'
       });
       return;
     }
@@ -496,11 +586,19 @@ function resolveStackModuleRecords(runtimeModules, options, orchestrationPlan = 
     moduleIds = moduleIds.concat(TRANSITION_RUNTIME_MODULES);
   }
 
-  return Array.from(new Set(moduleIds)).sort().map((moduleId) => ({
-    id: moduleId,
-    source: moduleId,
-    absolutePath: path.resolve(options.rootDir, moduleId)
-  })).filter((entry) => fs.existsSync(entry.absolutePath));
+  const packageRoot = path.dirname(path.dirname(__filename));
+  return Array.from(new Set(moduleIds)).sort().map((moduleId) => {
+    const candidates = [
+      path.resolve(options.rootDir, moduleId),
+      path.resolve(packageRoot, moduleId)
+    ];
+    const absolutePath = candidates.find((candidate) => fs.existsSync(candidate));
+    return absolutePath ? {
+      id: moduleId,
+      source: moduleId,
+      absolutePath
+    } : null;
+  }).filter(Boolean);
 }
 
 function createBaseOrchestrationPlan(mode, status, message) {
@@ -1312,6 +1410,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       hydrationMode: normalized.hydration,
       validationMode: normalized.validation,
       transitionsMode: normalized.transitions,
+      sizeBudgetMode: normalized.sizeBudget,
       outputDir: normalized.outputDir,
       diagnostics: [{
         code: 'xtend.maraca.source_missing',
@@ -1356,6 +1455,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       hydrationMode: normalized.hydration,
       validationMode: normalized.validation,
       transitionsMode: normalized.transitions,
+      sizeBudgetMode: normalized.sizeBudget,
       outputDir: normalized.outputDir,
       diagnostics: [{
         code: COMPILER_ERROR_CODE,
@@ -1412,8 +1512,8 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   const stackModules = resolveStackModuleRecords(runtimeModules, normalized, orchestration, kernel, validation, transitions);
   const selectedWithPolicy = componentRecords.selected.map((entry) => ({
     ...entry,
-    lazy: normalized.lazy !== 'none',
-    sideEffectBoundary: 'selected-component-module'
+    lazy: entry.native ? false : normalized.lazy !== 'none',
+    sideEffectBoundary: entry.sideEffectBoundary || 'selected-component-module'
   }));
 
   return {
@@ -1435,6 +1535,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     hydrationMode: normalized.hydration,
     validationMode: normalized.validation,
     transitionsMode: normalized.transitions,
+    sizeBudgetMode: normalized.sizeBudget,
     outputDir: normalized.outputDir,
     diagnostics,
     toolchain: getMaracaToolchainAvailability(normalized.rootDir),
@@ -1457,7 +1558,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       allowDynamicComponents: normalized.allowDynamicComponents
     },
     surfaces,
-    events: collectEvents(coreDocument),
+    events: collectEvents(coreDocument, orchestration),
     lanes: collectLanes(coreDocument),
     state: collectInitialState(coreDocument),
     runtimeModules,
@@ -1537,7 +1638,8 @@ function createBundleSource(plan) {
   }));
   const componentEntries = plan.components.selected.map((entry) => ({
     tag: entry.tag,
-    module: ensureRelativeImport(outDir, entry.absolutePath)
+    module: entry.native ? null : ensureRelativeImport(outDir, entry.absolutePath),
+    native: Boolean(entry.native)
   }));
   const surfaces = plan.surfaces.map((surface) => ({
     id: surface.id,
@@ -1676,12 +1778,15 @@ function createBundleSource(plan) {
 
   if (plan.lazy === 'none') {
     componentEntries.forEach((entry) => {
+      if (entry.native) return;
       header.unshift(`import "${entry.module}";`);
     });
-    header.push('const MARACA_IMPORTERS = Object.freeze(Object.fromEntries(MARACA_COMPONENTS.map((entry) => [entry.tag, () => Promise.resolve(entry.module)])));');
+    header.push('const MARACA_IMPORTERS = Object.freeze(Object.fromEntries(MARACA_COMPONENTS.map((entry) => [entry.tag, entry.native ? () => Promise.resolve(entry.tag) : () => Promise.resolve(entry.module)])));');
   } else {
     const importers = componentEntries
-      .map((entry) => `  ${JSON.stringify(entry.tag)}: () => import(${JSON.stringify(entry.module)})`)
+      .map((entry) => entry.native
+        ? `  ${JSON.stringify(entry.tag)}: () => Promise.resolve(${JSON.stringify(entry.tag)})`
+        : `  ${JSON.stringify(entry.tag)}: () => import(${JSON.stringify(entry.module)})`)
       .join(',\n');
     header.push(`const MARACA_IMPORTERS = Object.freeze({\n${importers}\n});`);
   }
@@ -1820,6 +1925,55 @@ function syncMaracaStateAttributes(element, state = {}, component = "", context 
   if (Object.prototype.hasOwnProperty.call(state, "inputType")) {
     setMaracaAttribute(element, "type", state.inputType);
   }
+  if (Object.prototype.hasOwnProperty.call(state, "mediaType")) {
+    setMaracaAttribute(element, "type", state.mediaType);
+  }
+  [
+    "src",
+    "poster",
+    "title",
+    "subtitle",
+    "kind",
+    "count",
+    "selected",
+    "controls",
+    "open",
+    "accept",
+    "multiple",
+    "active",
+    "minimized",
+    "maximized",
+    "resizable",
+    "draggable",
+    "modal",
+    "pinned",
+    "collapsed",
+    "placement",
+    "mode"
+  ].forEach((attribute) => setIfPresent(attribute));
+  [
+    ["surface-id", "surfaceId"],
+    ["manager-id", "managerId"],
+    ["state-key", "stateKey"],
+    ["data-record-id", "recordId"],
+    ["data-media-id", "mediaId"],
+    ["restore-key", "restoreKey"],
+    ["persistence-mode", "persistenceMode"],
+    ["restore-policy", "restorePolicy"],
+    ["surface-loading-policy", "surfaceLoadingPolicy"],
+    ["surface-skeleton", "surfaceSkeleton"],
+    ["surface-hydration-timeout", "surfaceHydrationTimeout"],
+    ["route-lifecycle-policy", "routeLifecyclePolicy"],
+    ["modal-policy", "modalPolicy"],
+    ["layout-engine", "layoutEngine"],
+    ["surface-layout-gap", "surfaceLayoutGap"],
+    ["surface-layout-snap", "surfaceLayoutSnap"],
+    ["initial-x", "initialX"],
+    ["initial-y", "initialY"],
+    ["initial-width", "initialWidth"],
+    ["initial-height", "initialHeight"],
+    ["responsive-mode", "responsiveMode"]
+  ].forEach(([attribute, stateKey]) => setIfPresent(attribute, stateKey));
   if (component === "x-status") {
     setIfPresent("type", "tone");
     setIfPresent("state", "tone");
@@ -1830,6 +1984,130 @@ function syncMaracaStateAttributes(element, state = {}, component = "", context 
     setIfPresent("label", "text");
     setIfPresent("data-label", "text");
   }
+}
+
+function collectSurfaceDescriptors(node, target = new Map()) {
+  if (!node || typeof node !== "object") return target;
+  if (Array.isArray(node)) {
+    node.forEach((entry) => collectSurfaceDescriptors(entry, target));
+    return target;
+  }
+  if (typeof node.surface === "string" && node.surface) {
+    target.set(node.surface, node);
+  }
+  [
+    "children",
+    "nodes",
+    "then",
+    "else",
+    "fallback",
+    "template",
+    "node",
+    "descriptor"
+  ].forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(node, key)) {
+      collectSurfaceDescriptors(node[key], target);
+    }
+  });
+  Object.values(node.slots || {}).forEach((slot) => collectSurfaceDescriptors(slot, target));
+  return target;
+}
+
+function surfaceDescriptorNeedsStructuredPatch(descriptor) {
+  if (!descriptor || typeof descriptor !== "object") return false;
+  return Boolean(
+    descriptor.children
+    || descriptor.nodes
+    || Object.prototype.hasOwnProperty.call(descriptor, "text")
+    || descriptor.slots
+  );
+}
+
+function descriptorHasNestedSurface(descriptor, ownSurfaceId = "") {
+  if (!descriptor || typeof descriptor !== "object") return false;
+  const stack = [];
+  [
+    "children",
+    "nodes",
+    "then",
+    "else",
+    "fallback",
+    "template",
+    "node",
+    "descriptor"
+  ].forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(descriptor, key)) stack.push(descriptor[key]);
+  });
+  Object.values(descriptor.slots || {}).forEach((slot) => stack.push(slot));
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (!node || typeof node !== "object") continue;
+    if (Array.isArray(node)) {
+      stack.push(...node);
+      continue;
+    }
+    if (typeof node.surface === "string" && node.surface && node.surface !== ownSurfaceId) return true;
+    [
+      "children",
+      "nodes",
+      "then",
+      "else",
+      "fallback",
+      "template",
+      "node",
+      "descriptor"
+    ].forEach((key) => {
+      if (Object.prototype.hasOwnProperty.call(node, key)) stack.push(node[key]);
+    });
+    Object.values(node.slots || {}).forEach((slot) => stack.push(slot));
+  }
+  return false;
+}
+
+function collectDescriptorComponentTags(node, target = new Set()) {
+  if (!node || typeof node !== "object") return target;
+  if (Array.isArray(node)) {
+    node.forEach((entry) => collectDescriptorComponentTags(entry, target));
+    return target;
+  }
+  const tag = String(node.tag || node.component || "").trim().toLowerCase();
+  if (tag) target.add(tag);
+  [
+    "children",
+    "nodes",
+    "then",
+    "else",
+    "fallback",
+    "template",
+    "node",
+    "descriptor"
+  ].forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(node, key)) {
+      collectDescriptorComponentTags(node[key], target);
+    }
+  });
+  Object.values(node.slots || {}).forEach((slot) => collectDescriptorComponentTags(slot, target));
+  return target;
+}
+
+function shouldPatchSurfaceDescriptorStructure(descriptor, element, metadata = {}) {
+  if (!surfaceDescriptorNeedsStructuredPatch(descriptor)) return false;
+  const tag = String(
+    descriptor && (descriptor.tag || descriptor.component)
+    || element && (element.localName || element.tagName)
+    || ""
+  ).toLowerCase();
+  const surfaceId = descriptor && descriptor.surface || "";
+  if (tag === "x-surface-manager" || descriptorHasNestedSurface(descriptor, surfaceId)) return false;
+  if (metadata.operation === "surface-xstate-projection" && surfaceId !== "media.manager.dock") return false;
+  return true;
+}
+
+function createMaracaRenderContext(stateRuntime) {
+  const componentEntries = MARACA_COMPONENTS.map((entry) => ({ id: entry.tag, tag: entry.tag }));
+  return stateRuntime && typeof stateRuntime.createRenderContext === "function"
+    ? stateRuntime.createRenderContext({ components: componentEntries })
+    : { model: MARACA_STATE, components: componentEntries };
 }
 
 function resolveLazyStrategy(options) {
@@ -2311,9 +2589,323 @@ function resolveMaracaReducerValue(value, context) {
   if (value === "input" || value === "payload") return context.payload;
   if (value.startsWith("input.")) return readMaracaPath(context.payload, value.slice(6));
   if (value.startsWith("payload.")) return readMaracaPath(context.payload, value.slice(8));
-  if (value === "result") return context.result;
-  if (value.startsWith("result.")) return readMaracaPath(context.result, value.slice(7));
+  if (value === "result") {
+    return context.result && Object.prototype.hasOwnProperty.call(context.result, "data")
+      ? context.result.data
+      : context.result;
+  }
+  if (value.startsWith("result.")) {
+    const resultPath = value.slice(7);
+    const directValue = readMaracaPath(context.result, resultPath);
+    if (typeof directValue !== "undefined") return directValue;
+    return readMaracaPath(context.result && context.result.data, resultPath);
+  }
   return value;
+}
+
+async function runDeferredMaracaEffects(actionResult, context = {}) {
+  const effectAdapter = context.effectAdapter || null;
+  const effects = Array.isArray(actionResult && actionResult.effects) ? actionResult.effects : [];
+  const deferred = effects.filter((entry) => entry && entry.value && entry.value.deferred === true);
+  const results = [];
+  for (const entry of deferred) {
+    const effect = entry.value.effect || { id: entry.id, kind: entry.kind };
+    const effectContext = {
+      ...(entry.value.context || {}),
+      payload: context.payload || entry.value.context && entry.value.context.payload || {},
+      result: actionResult && Object.prototype.hasOwnProperty.call(actionResult, "data") ? actionResult.data : actionResult,
+      actionResult,
+      stateRuntime: context.stateRuntime || null,
+      surfaceRuntime: context.surfaceRuntime || null,
+      ownerId: entry.value.context && entry.value.context.ownerId || null,
+      phase: "after-render"
+    };
+    const adapterResult = effectAdapter && typeof effectAdapter.invoke === "function"
+      ? await effectAdapter.invoke(effect, effectContext)
+      : undefined;
+    const result = typeof adapterResult === "undefined"
+      ? await runDefaultMaracaEffect(effect, effectContext, context)
+      : adapterResult;
+    entry.value.result = cloneMaracaValue(result, result);
+    entry.value.deferred = false;
+    results.push({ id: entry.id, kind: entry.kind, result });
+  }
+  return results;
+}
+
+function maracaCssString(value) {
+  const raw = String(value || "");
+  if (typeof CSS !== "undefined" && CSS && typeof CSS.escape === "function") return CSS.escape(raw);
+  return raw.replace(/["\\\\]/gu, "\\\\$&");
+}
+
+function waitForMaracaEffectTurn() {
+  if (typeof requestAnimationFrame === "function") {
+    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+  }
+  if (typeof setTimeout === "function") {
+    return new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  return Promise.resolve();
+}
+
+function nearestMaracaSurfaceManager(element, root = null) {
+  let current = element || null;
+  while (current) {
+    if (current.localName === "x-surface-manager") return current;
+    if (typeof current.closest === "function") {
+      const manager = current.closest("x-surface-manager");
+      if (manager) return manager;
+    }
+    const owner = typeof current.getRootNode === "function" ? current.getRootNode() : null;
+    current = owner && owner.host || current.parentElement || null;
+  }
+  const documentRoot = typeof document !== "undefined" ? document : null;
+  return root && typeof root.querySelector === "function" && root.querySelector("x-surface-manager")
+    || documentRoot && documentRoot.querySelector("x-surface-manager")
+    || null;
+}
+
+function snapshotMaracaSurfaceRecord(manager, surfaceId) {
+  if (!manager || !surfaceId) return null;
+  try {
+    const snapshot = typeof manager.readSnapshot === "function"
+      ? manager.readSnapshot()
+      : typeof manager.snapshot === "function"
+        ? manager.snapshot()
+        : null;
+    const surfaces = Array.isArray(snapshot && snapshot.surfaces) ? snapshot.surfaces : [];
+    return surfaces.find((record) => record && record.id === surfaceId) || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+async function materializeMaracaEffectSurface(surfaceId, surface = null, context = {}) {
+  if (!surfaceId) return { materialized: false, reason: "missing-surface" };
+  const root = context.root || null;
+  const targetSurface = surface || resolveMaracaSurfaceElement(root, surfaceId);
+  const manager = nearestMaracaSurfaceManager(targetSurface, root);
+  if (!manager) return { materialized: false, reason: "no-surface-manager", surfaceId };
+  const before = snapshotMaracaSurfaceRecord(manager, surfaceId);
+  const needsMaterialization = !before
+    || before.status === "closed"
+    || before.status === "minimized"
+    || before.minimized === true
+    || before.active !== true;
+  if (!needsMaterialization) return { materialized: false, reason: "already-active", surfaceId };
+  const payload = {
+    reason: "maraca-effect",
+    source: "xtend.maraca.default-media-effect"
+  };
+  if (typeof manager.materializeSurface === "function") {
+    manager.materializeSurface(surfaceId, payload);
+  } else if (before && before.status === "closed" && typeof manager.openSurface === "function") {
+    manager.openSurface(surfaceId, payload);
+  } else if (typeof manager.restoreSurface === "function") {
+    manager.restoreSurface(surfaceId);
+  } else if (typeof manager.openSurface === "function") {
+    manager.openSurface(surfaceId, payload);
+  } else if (typeof manager.focusSurface === "function") {
+    manager.focusSurface(surfaceId);
+  } else {
+    return { materialized: false, reason: "unsupported-surface-manager", surfaceId };
+  }
+  await waitForMaracaEffectTurn();
+  const after = snapshotMaracaSurfaceRecord(manager, surfaceId);
+  return {
+    schema: "xtend.maraca.effect-surface-materialization.v1",
+    materialized: true,
+    surfaceId,
+    beforeStatus: before && before.status || null,
+    afterStatus: after && after.status || null
+  };
+}
+
+async function runDefaultMaracaEffect(effect = {}, effectContext = {}, context = {}) {
+  if (effect.kind === "remote-play") return runDefaultRemotePlayEffect(effect, effectContext, context);
+  if (effect.kind === "lightbox" || effect.kind === "open-lightbox" || effect.kind === "lightbox-open") {
+    return runDefaultLightboxEffect(effect, effectContext, context);
+  }
+  return undefined;
+}
+
+async function runDefaultRemotePlayEffect(effect = {}, effectContext = {}, context = {}) {
+  const stateRuntime = effectContext.stateRuntime || context.stateRuntime || null;
+  const surfaceRuntime = effectContext.surfaceRuntime || context.surfaceRuntime || null;
+  const root = context.root || null;
+  const selectorId = effect.source && effect.source.target || effect.target || "";
+  const playerState = stateRuntime && typeof stateRuntime.getState === "function"
+    ? stateRuntime.getState(selectorId)
+    : null;
+  const detail = playerState && typeof playerState === "object"
+    ? playerState
+    : effectContext.result && effectContext.result.player || {};
+  if (!detail || detail.hidden === true || detail.open === false || !detail.src) return null;
+  if (typeof ensureMaracaComponent === "function") await ensureMaracaComponent("x-player");
+  await Promise.resolve();
+  const surfaceId = detail.surfaceId || selectorId;
+  const escapedSurfaceId = maracaCssString(surfaceId);
+  const surfaceSelector = '[data-maraca-surface="' + escapedSurfaceId + '"]';
+  const playerSelector = 'x-player[data-maraca-surface="' + escapedSurfaceId + '"]';
+  let surface = root && typeof root.querySelector === "function"
+    ? root.querySelector(surfaceSelector)
+    : null;
+  const documentRoot = typeof document !== "undefined" ? document : null;
+  const materialization = await materializeMaracaEffectSurface(surfaceId, surface, context);
+  if (!surface) surface = resolveMaracaSurfaceElement(root, surfaceId);
+  await waitForMaracaEffectTurn();
+  const player = surface && surface.localName === "x-player"
+    ? surface
+    : surface && typeof surface.querySelector === "function" && surface.querySelector("x-player")
+      || documentRoot && documentRoot.querySelector(playerSelector);
+  if (!player) return null;
+  const kind = String(detail.kind || "").trim().toLowerCase();
+  const rawMediaType = String(detail.mediaType || detail.type || "").trim();
+  const rawMediaTypeKey = rawMediaType.toLowerCase();
+  const invalidMediaType = rawMediaTypeKey === "n/a"
+    || rawMediaTypeKey === "unknown"
+    || rawMediaTypeKey === "null"
+    || rawMediaTypeKey === "undefined";
+  const normalizedType = rawMediaType && !invalidMediaType
+    ? rawMediaType
+    : kind === "audio"
+      ? "audio"
+      : kind === "video"
+        ? "video"
+        : "video";
+  const payload = {
+    schema: "xtend.maraca.remote-play.v1",
+    src: detail.src,
+    source: detail.src,
+    type: normalizedType,
+    mediaType: detail.mediaType || "",
+    poster: detail.poster || "",
+    title: detail.title || detail.label || "Media",
+    label: detail.title || detail.label || "Media",
+    kind: detail.kind || "video",
+    requestedBy: "maraca-effect"
+  };
+  const remotePlayEvent = new CustomEvent("xplayer-remote-play", {
+    detail: payload,
+    bubbles: true,
+    composed: true,
+    cancelable: true
+  });
+  const eventAccepted = player.dispatchEvent(remotePlayEvent);
+  if (!eventAccepted || remotePlayEvent.defaultPrevented) return payload;
+  if (typeof player.applyRmtPlayerCommand === "function") {
+    const result = await player.applyRmtPlayerCommand("remote-play", payload);
+    return { payload, result, materialization };
+  }
+  if (typeof player.remotePlay === "function") {
+    const result = await player.remotePlay(payload);
+    return { payload, result, materialization };
+  }
+  return { payload, materialization };
+}
+
+function resolveMaracaSurfaceElement(root, surfaceId) {
+  const escapedSurfaceId = maracaCssString(surfaceId);
+  const surfaceSelector = '[data-maraca-surface="' + escapedSurfaceId + '"]';
+  const documentRoot = typeof document !== "undefined" ? document : null;
+  return root && typeof root.querySelector === "function" && root.querySelector(surfaceSelector)
+    || documentRoot && documentRoot.querySelector(surfaceSelector)
+    || null;
+}
+
+function syncClosedMaracaLightboxElement(lightbox) {
+  if (!lightbox) return;
+  if (typeof lightbox.removeAttribute === "function") {
+    lightbox.removeAttribute("open");
+    lightbox.removeAttribute("src");
+    lightbox.setAttribute("hidden", "");
+    lightbox.setAttribute("data-rmt-hidden-display", "true");
+  }
+  try {
+    lightbox.hidden = true;
+  } catch (_) {}
+  if (lightbox.style) {
+    lightbox.style.display = "none";
+    lightbox.style.visibility = "hidden";
+    lightbox.style.pointerEvents = "none";
+  }
+}
+
+async function runDefaultLightboxEffect(effect = {}, effectContext = {}, context = {}) {
+  const stateRuntime = effectContext.stateRuntime || context.stateRuntime || null;
+  const surfaceRuntime = effectContext.surfaceRuntime || context.surfaceRuntime || null;
+  const root = context.root || null;
+  const selectorId = effect.source && effect.source.target || effect.target || "";
+  const lightboxState = stateRuntime && typeof stateRuntime.getState === "function"
+    ? stateRuntime.getState(selectorId)
+    : null;
+  const detail = lightboxState && typeof lightboxState === "object"
+    ? lightboxState
+    : effectContext.result && effectContext.result.lightbox || {};
+  const surfaceId = detail && detail.surfaceId || selectorId;
+  if (!surfaceId) return null;
+  if (typeof ensureMaracaComponent === "function") await ensureMaracaComponent("x-lightbox");
+  await Promise.resolve();
+
+  let surface = resolveMaracaSurfaceElement(root, surfaceId);
+  const materialization = await materializeMaracaEffectSurface(surfaceId, surface, context);
+  if (!surface) surface = resolveMaracaSurfaceElement(root, surfaceId);
+  const documentRoot = typeof document !== "undefined" ? document : null;
+  const lightbox = surface && surface.localName === "x-lightbox"
+    ? surface
+    : surface && typeof surface.querySelector === "function" && surface.querySelector("x-lightbox")
+      || documentRoot && documentRoot.querySelector('x-lightbox[data-maraca-surface="' + maracaCssString(surfaceId) + '"]');
+  if (!lightbox) return null;
+
+  const shouldOpen = Boolean(detail && detail.hidden !== true && detail.open !== false && detail.src);
+  if (!shouldOpen) {
+    if (surfaceRuntime && typeof surfaceRuntime.listOverlays === "function" && typeof surfaceRuntime.closeOverlay === "function") {
+      try {
+        surfaceRuntime.listOverlays()
+          .filter((overlay) => overlay && (overlay.kind === "lightbox" || overlay.overlayId === "media.manager.lightboxOverlay" || overlay.surface === surfaceId))
+          .forEach((overlay) => surfaceRuntime.closeOverlay(overlay.id, { reason: "maraca-lightbox-close" }));
+      } catch (_) {}
+    }
+    if (typeof lightbox.close === "function") {
+      lightbox.close({ source: "maraca-effect", immediate: true, silent: true });
+    }
+    syncClosedMaracaLightboxElement(lightbox);
+    await waitForMaracaEffectTurn();
+    syncClosedMaracaLightboxElement(lightbox);
+    return {
+      schema: "xtend.maraca.lightbox-effect.v1",
+      open: false,
+      surfaceId,
+      materialization
+    };
+  }
+
+  if (typeof lightbox.removeAttribute === "function") {
+    lightbox.removeAttribute("hidden");
+    lightbox.removeAttribute("data-rmt-hidden-display");
+  }
+  if (lightbox.style) {
+    lightbox.style.display = "";
+    lightbox.style.visibility = "";
+    lightbox.style.pointerEvents = "";
+  }
+  if (typeof lightbox.setAttribute === "function") {
+    lightbox.setAttribute("src", detail.src);
+    if (detail.alt || detail.title || detail.label) lightbox.setAttribute("alt", detail.alt || detail.title || detail.label);
+  }
+  if (typeof lightbox.open === "function") {
+    lightbox.open(detail.src, { source: "maraca-effect", silent: true });
+  } else if (typeof lightbox.setAttribute === "function") {
+    lightbox.setAttribute("open", "");
+  }
+  return {
+    schema: "xtend.maraca.lightbox-effect.v1",
+    open: true,
+    surfaceId,
+    src: detail.src,
+    materialization
+  };
 }
 
 function createSurfaceEntriesFromRoot(root) {
@@ -2333,7 +2925,7 @@ function createSurfaceEntriesFromRoot(root) {
   });
 }
 
-function createOrchestrationController(root, options = {}, kernelController = null) {
+function createOrchestrationController(root, options = {}, kernelController = null, hydrationController = null) {
   const diagnostics = (MARACA_ORCHESTRATION.diagnostics || []).map(sanitizeMaracaDiagnostic);
   const artifact = MARACA_ORCHESTRATION.artifact || null;
   let stateRuntime = null;
@@ -2347,6 +2939,9 @@ function createOrchestrationController(root, options = {}, kernelController = nu
   let renderReport = null;
   let surfaceReport = null;
   let unsubState = null;
+  let surfaceDescriptorById = null;
+  let surfaceIdsByStateId = null;
+  const surfaceHydrationInflight = new Map();
 
   function publishDiagnostic(diagnostic) {
     const safeDiagnostic = sanitizeMaracaDiagnostic(diagnostic);
@@ -2356,6 +2951,121 @@ function createOrchestrationController(root, options = {}, kernelController = nu
 
   function listDiagnostics() {
     return diagnostics.map((entry) => sanitizeMaracaDiagnostic(entry));
+  }
+
+  function getSurfaceDescriptor(surfaceId) {
+    if (!surfaceDescriptorById) {
+      surfaceDescriptorById = collectSurfaceDescriptors(artifact && artifact.render && artifact.render.root);
+    }
+    return surfaceDescriptorById.get(surfaceId) || null;
+  }
+
+  function getSurfaceIdsByStateId() {
+    if (!surfaceIdsByStateId) {
+      surfaceIdsByStateId = new Map();
+      (artifact && artifact.surfaces || []).forEach((surface) => {
+        if (!surface || !surface.source || !surface.id) return;
+        const ids = surfaceIdsByStateId.get(surface.source) || [];
+        ids.push(surface.id);
+        surfaceIdsByStateId.set(surface.source, ids);
+      });
+    }
+    return surfaceIdsByStateId;
+  }
+
+  function surfacePatchScope(metadata = {}) {
+    const explicit = Array.isArray(metadata.surfaceIds) ? metadata.surfaceIds.filter(Boolean) : null;
+    if (explicit && explicit.length > 0) return new Set(explicit);
+    const changedStates = Array.isArray(metadata.changedStates) ? metadata.changedStates.filter(Boolean) : null;
+    if (!changedStates) return null;
+    const byState = getSurfaceIdsByStateId();
+    const ids = new Set();
+    changedStates.forEach((stateId) => {
+      (byState.get(stateId) || []).forEach((surfaceId) => ids.add(surfaceId));
+    });
+    return ids;
+  }
+
+  function patchPlanChangedKeys(value) {
+    if (Array.isArray(value)) return value.filter(Boolean);
+    if (value && typeof value === "object") return Object.keys(value).filter(Boolean);
+    return [];
+  }
+
+  function surfaceStateRequestsHydration(state = {}) {
+    if (!state || typeof state !== "object") return true;
+    if (state.hidden === true) return false;
+    if (state.open === false) return false;
+    return true;
+  }
+
+  function componentTagsForSurface(surface, descriptor) {
+    const tags = collectDescriptorComponentTags(descriptor);
+    if (surface && surface.component) tags.add(String(surface.component).trim().toLowerCase());
+    return Array.from(tags).filter((tag) => MARACA_COMPONENTS.some((entry) => entry.tag === tag));
+  }
+
+  function hydrateSurfaceComponent(tag, surfaceId, metadata = {}) {
+    const key = surfaceId + ":" + tag;
+    if (surfaceHydrationInflight.has(key)) return surfaceHydrationInflight.get(key);
+    const controller = hydrationController || currentMaracaHydration || null;
+    const loader = controller && controller.enabled && typeof controller.hydrateComponent === "function"
+      ? controller.hydrateComponent(tag, {
+          surface: surfaceId,
+          correlationId: metadata.correlationId || ""
+        })
+      : ensureMaracaComponent(tag);
+    const promise = Promise.resolve(loader)
+      .then((result) => {
+        dispatchMaracaEvent("xtend-maraca:component-load", {
+          tag,
+          surface: surfaceId,
+          strategy: "surface-state",
+          action: metadata.action || "",
+          operation: metadata.operation || "",
+          result
+        });
+        return result;
+      })
+      .catch((error) => {
+        const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.surface_hydration_error", error));
+        dispatchMaracaEvent("xtend-maraca:component-error", {
+          tag,
+          surface: surfaceId,
+          strategy: "surface-state",
+          action: metadata.action || "",
+          operation: metadata.operation || "",
+          diagnostic
+        });
+        if (MARACA_HYDRATION.strict) throw error;
+        return null;
+      })
+      .finally(() => {
+        surfaceHydrationInflight.delete(key);
+      });
+    surfaceHydrationInflight.set(key, promise);
+    return promise;
+  }
+
+  async function hydrateSurfaceComponents(metadata = {}) {
+    if (!artifact) return [];
+    const scopedSurfaceIds = surfacePatchScope(metadata);
+    const surfaces = scopedSurfaceIds
+      ? (artifact.surfaces || []).filter((surface) => surface && scopedSurfaceIds.has(surface.id))
+      : (artifact.surfaces || []);
+    const hydration = [];
+    surfaces.forEach((surface) => {
+      if (!surface || !surface.source || !surface.id) return;
+      const state = stateRuntime && typeof stateRuntime.getState === "function"
+        ? stateRuntime.getState(surface.source) || {}
+        : {};
+      if (!surfaceStateRequestsHydration(state)) return;
+      const descriptor = getSurfaceDescriptor(surface.id);
+      componentTagsForSurface(surface, descriptor).forEach((tag) => {
+        hydration.push(hydrateSurfaceComponent(tag, surface.id, metadata));
+      });
+    });
+    return Promise.all(hydration);
   }
 
   function runtimeSnapshot() {
@@ -2377,7 +3087,12 @@ function createOrchestrationController(root, options = {}, kernelController = nu
   function syncSurfaceAttributes(metadata = {}) {
     if (!stateRuntime || !artifact) return false;
     let missing = 0;
-    (artifact.surfaces || []).forEach((surface) => {
+    const scopedSurfaceIds = surfacePatchScope(metadata);
+    const surfaces = scopedSurfaceIds
+      ? (artifact.surfaces || []).filter((surface) => surface && scopedSurfaceIds.has(surface.id))
+      : (artifact.surfaces || []);
+    if (scopedSurfaceIds && surfaces.length === 0) return true;
+    surfaces.forEach((surface) => {
       if (!surface || !surface.source) return;
       const element = root && typeof root.querySelectorAll === "function"
         ? Array.from(root.querySelectorAll("[data-maraca-surface]")).find((entry) => entry.getAttribute("data-maraca-surface") === surface.id)
@@ -2395,6 +3110,16 @@ function createOrchestrationController(root, options = {}, kernelController = nu
         operation: metadata.operation || "",
         correlationId: metadata.correlationId || ""
       });
+      const descriptor = getSurfaceDescriptor(surface.id);
+      if (renderer && typeof renderer.patchElement === "function" && shouldPatchSurfaceDescriptorStructure(descriptor, element, metadata)) {
+        try {
+          renderer.patchElement(element, descriptor, createMaracaRenderContext(stateRuntime));
+        } catch (error) {
+          const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.structured_surface_patch_error", error));
+          dispatchMaracaEvent("xtend-maraca:render-patch", diagnostic);
+          if (MARACA_ORCHESTRATION.strict) throw error;
+        }
+      }
       if (Object.prototype.hasOwnProperty.call(state, "text")) {
         element.textContent = String(state.text == null ? "" : state.text);
       }
@@ -2424,10 +3149,8 @@ function createOrchestrationController(root, options = {}, kernelController = nu
       return { schema: "xtend.maraca.orchestration-render.v1", fallback: "attribute-sync" };
     }
     const renderContext = stateRuntime && typeof stateRuntime.createRenderContext === "function"
-      ? stateRuntime.createRenderContext({
-          components: MARACA_COMPONENTS.map((entry) => ({ id: entry.tag, tag: entry.tag }))
-        })
-      : { model: MARACA_STATE, components: MARACA_COMPONENTS.map((entry) => ({ id: entry.tag, tag: entry.tag })) };
+      ? createMaracaRenderContext(stateRuntime)
+      : createMaracaRenderContext(null);
     renderReport = renderer.render(root, artifact.render && artifact.render.root || { type: "fragment", children: [] }, renderContext);
     attachEvents();
     return renderReport;
@@ -2472,7 +3195,8 @@ function createOrchestrationController(root, options = {}, kernelController = nu
       states: artifact.state && artifact.state.states || [],
       selectors: artifact.state && artifact.state.selectors || [],
       reducers: artifact.state && artifact.state.reducers || [],
-      initialState: options.initialState || {}
+      initialState: options.initialState || {},
+      xstate: options.xstate || (typeof globalThis !== "undefined" ? globalThis.xstate : null)
     });
     const resourceManager = actionApi.createRmtResourceManager({
       resources: artifact.resources || [],
@@ -2489,7 +3213,8 @@ function createOrchestrationController(root, options = {}, kernelController = nu
       feedbackAdapter: options.feedbackAdapter || null,
       navigationAdapter: options.navigationAdapter || null,
       focusAdapter: options.focusAdapter || null,
-      effectAdapter: options.effectAdapter || null
+      effectAdapter: options.effectAdapter || null,
+      deferCustomEffects: true
     });
     if (MARACA_VALIDATION.enabled) {
       const validationApi = getMaracaRuntimeApi("XTendRmtFormValidationRuntime");
@@ -2573,6 +3298,28 @@ function createOrchestrationController(root, options = {}, kernelController = nu
           writeMaracaPath(next, reducer.path, value);
           stateRuntime.setState(reducer.state, next, { operation: "orchestration.reducer", action: actionId, reducer: reducer.id });
         });
+        const changedStates = Array.from(new Set(reducers.map((reducer) => reducer.state).filter(Boolean)));
+        const synced = syncSurfaceAttributes({
+          operation: "orchestration.action-sync",
+          action: actionId,
+          correlationId: metadata && metadata.correlationId || "",
+          changedStates
+        });
+        if (!synced) await Promise.resolve(render());
+        await hydrateSurfaceComponents({
+          operation: "orchestration.action-hydration",
+          action: actionId,
+          correlationId: metadata && metadata.correlationId || "",
+          changedStates
+        });
+        await runDeferredMaracaEffects(result, {
+          payload,
+          metadata,
+          stateRuntime,
+          surfaceRuntime,
+          effectAdapter: options.effectAdapter || null,
+          root
+        });
         dispatchMaracaEvent("xtend-maraca:action", {
           schema: "xtend.maraca.action.v1",
           action: actionId,
@@ -2646,19 +3393,33 @@ function createOrchestrationController(root, options = {}, kernelController = nu
     unsubState = stateRuntime.subscribe((event) => {
       const applyStateChange = () => {
         const operation = event && event.metadata && event.metadata.operation || "state-change";
+        const patchPlan = event && event.patchPlan || null;
+        const changedStates = patchPlan && patchPlan.changedStates
+          ? patchPlanChangedKeys(patchPlan.changedStates)
+          : null;
         const synced = syncSurfaceAttributes({
           operation,
           action: event && event.metadata && event.metadata.action || "",
-          correlationId: event && event.metadata && event.metadata.correlationId || ""
+          correlationId: event && event.metadata && event.metadata.correlationId || "",
+          changedStates
         });
         if (!synced) render();
+        hydrateSurfaceComponents({
+          operation: "orchestration.state-hydration",
+          action: event && event.metadata && event.metadata.action || "",
+          correlationId: event && event.metadata && event.metadata.correlationId || "",
+          changedStates
+        }).catch((error) => {
+          const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.state_hydration_error", error));
+          dispatchMaracaEvent("xtend-maraca:hydration-error", diagnostic);
+        });
         dispatchMaracaEvent("xtend-maraca:state-change", {
           schema: "xtend.maraca.state-change.v1",
           operation,
           patchPlan: event && event.patchPlan ? {
-            changedStates: Object.keys(event.patchPlan.changedStates || {}),
-            changedSelectors: Object.keys(event.patchPlan.changedSelectors || {}),
-            changedDerived: Object.keys(event.patchPlan.changedDerived || {})
+            changedStates: patchPlanChangedKeys(event.patchPlan.changedStates),
+            changedSelectors: patchPlanChangedKeys(event.patchPlan.changedSelectors),
+            changedDerived: patchPlanChangedKeys(event.patchPlan.changedDerived)
           } : null
         });
         if (validationRuntime && typeof validationRuntime.refresh === "function" && operation !== "validation.patch") {
@@ -2944,8 +3705,8 @@ async function bootXtendMaraca(options = {}) {
   });
   root.appendChild(fragment);
   currentMaracaKernel = createKernelController(root, options);
-  currentMaracaOrchestration = createOrchestrationController(root, options, currentMaracaKernel);
   currentMaracaHydration = createHydrationController(root, options, currentMaracaKernel);
+  currentMaracaOrchestration = createOrchestrationController(root, options, currentMaracaKernel, currentMaracaHydration);
   currentMaracaValidation = currentMaracaOrchestration && currentMaracaOrchestration.validationRuntime || null;
   currentMaracaTransitions = currentMaracaOrchestration && currentMaracaOrchestration.transitionRuntime || null;
   currentMaracaTelemetry = createTelemetryBridge(currentMaracaKernel, currentMaracaOrchestration, currentMaracaHydration, currentMaracaValidation, currentMaracaTransitions);
@@ -3053,13 +3814,39 @@ const XTendMaraca = Object.freeze({
   boot: bootXtendMaraca
 });
 
+function shouldAutoBootXtendMaraca() {
+  return window.__XTendMaracaDisableAutoBoot !== true
+    && window.XTendMaracaAutoBoot !== false;
+}
+
+function resolveAutoBootOptions() {
+  const options = window.__XTendMaracaAutoBootOptions;
+  if (typeof options === "function") return options();
+  return options && typeof options === "object" ? options : {};
+}
+
+function scheduleXtendMaracaAutoBoot() {
+  const boot = () => {
+    if (!shouldAutoBootXtendMaraca()) return;
+    Promise.resolve(resolveAutoBootOptions())
+      .then((options) => bootXtendMaraca(options))
+      .catch((error) => {
+        window.__XTendMaracaAutoBootError = error;
+        dispatchMaracaEvent("xtend-maraca:boot-error", {
+          message: error && error.message ? error.message : String(error)
+        });
+      });
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot, { once: true });
+  } else {
+    boot();
+  }
+}
+
 if (typeof window !== "undefined") {
   window.XTendMaraca = XTendMaraca;
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => bootXtendMaraca(), { once: true });
-  } else {
-    bootXtendMaraca();
-  }
+  scheduleXtendMaracaAutoBoot();
 }
 
 export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, ensureMaracaComponent, bootXtendMaraca };
@@ -3101,10 +3888,12 @@ function createRollupVirtualEntryPlugin(plan, source) {
 
 function createRollupManualChunks(plan) {
   if (plan.lazy === 'none') return undefined;
-  const componentChunks = new Map(plan.components.selected.map((entry) => [
-    path.resolve(entry.absolutePath),
-    entry.tag.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'component'
-  ]));
+  const componentChunks = new Map(plan.components.selected
+    .filter((entry) => !entry.native && entry.absolutePath)
+    .map((entry) => [
+      path.resolve(entry.absolutePath),
+      entry.tag.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'component'
+    ]));
 
   return (id) => componentChunks.get(path.resolve(id)) || null;
 }
@@ -3306,8 +4095,13 @@ async function createRollupBundleFiles(plan, rawSource) {
 
 function copyKernelRuntimeAsset(plan) {
   if (!plan || !plan.kernel || !plan.kernel.enabled) return null;
-  const sourcePath = path.resolve(plan.rootDir || path.dirname(path.dirname(__filename)), 'xtendrmt/rmt-runtime.esm.js');
-  if (!fs.existsSync(sourcePath)) return null;
+  const packageRoot = path.dirname(path.dirname(__filename));
+  const candidates = [
+    path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-runtime.esm.js'),
+    path.resolve(packageRoot, 'xtendrmt/rmt-runtime.esm.js')
+  ];
+  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!sourcePath) return null;
   const targetPath = path.join(plan.outputDir, KERNEL_RUNTIME_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
   fs.copyFileSync(sourcePath, targetPath);
@@ -3325,8 +4119,13 @@ function copyKernelRuntimeAsset(plan) {
 
 function copyKernelControllerRuntimeAsset(plan) {
   if (!plan || !plan.kernel || !plan.kernel.enabled) return null;
-  const sourcePath = path.resolve(plan.rootDir || path.dirname(path.dirname(__filename)), 'xtendrmt/rmt-kernel-orchestration-controller.js');
-  if (!fs.existsSync(sourcePath)) return null;
+  const packageRoot = path.dirname(path.dirname(__filename));
+  const candidates = [
+    path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js'),
+    path.resolve(packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js')
+  ];
+  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!sourcePath) return null;
   const targetPath = path.join(plan.outputDir, KERNEL_CONTROLLER_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
   fs.copyFileSync(sourcePath, targetPath);
@@ -3383,7 +4182,8 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       selected: plan.components.selected.map((entry) => ({
         tag: entry.tag,
         source: entry.source,
-        importPath: ensureRelativeImport(plan.outputDir, entry.absolutePath)
+        importPath: entry.native ? null : ensureRelativeImport(plan.outputDir, entry.absolutePath),
+        native: Boolean(entry.native)
       })),
       unknown: []
     },
@@ -3501,14 +4301,18 @@ function createMaracaSizeBudgetReport(input) {
   const baselineBytes = loaderBytes + selectedBytes + stackBytes;
   const bundleBytes = Number(input.entryBytes || 0);
   const ratio = baselineBytes > 0 ? bundleBytes / baselineBytes : 1;
-  const enforced = plan.profile !== 'debug';
+  const budgetMode = plan.sizeBudgetMode || 'strict';
+  const enforced = plan.profile !== 'debug' && budgetMode === 'strict';
   const ok = enforced ? baselineBytes > 0 && bundleBytes < baselineBytes : true;
 
   return {
     schema: MARACA_SIZE_BUDGET_REPORT_SCHEMA,
     ok,
-    status: enforced ? (ok ? 'within_budget' : 'over_budget') : 'debug_not_enforced',
+    status: enforced
+      ? (ok ? 'within_budget' : 'over_budget')
+      : (budgetMode === 'off' ? 'disabled' : plan.profile === 'debug' ? 'debug_not_enforced' : 'warning_not_enforced'),
     profile: plan.profile,
+    mode: budgetMode,
     baseline: {
       mode: stackBytes > 0
         ? 'legacy-loader-plus-selected-component-modules-plus-stack-modules'
@@ -3522,7 +4326,8 @@ function createMaracaSizeBudgetReport(input) {
     bundleBytes,
     ratio,
     budgets: {
-      modernEsmEntryMustBeSmallerThanBaseline: enforced
+      modernEsmEntryMustBeSmallerThanBaseline: enforced,
+      enforcement: budgetMode
     }
   };
 }

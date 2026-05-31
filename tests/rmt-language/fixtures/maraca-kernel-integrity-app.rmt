@@ -1,0 +1,228 @@
+// Maraca kernel integrity fixture for repeated media-effect orchestration.
+
+template demo.kernel.integrity {
+  state demo.kernel.shell type object preserve {
+    initial {
+      id "demo-kernel-shell"
+      label "Kernel Shell"
+      title "Kernel Shell"
+      tone "neutral"
+      layout "workspace"
+      managerId "demo.kernel.surface-manager"
+      stateKey "xtend.demo.kernel.surface.registry"
+      restorePolicy "manual"
+      surfaceLoadingPolicy "visible"
+      routeLifecyclePolicy "manual"
+      modalPolicy "topmost"
+      layoutEngine "freeform"
+      open true
+    }
+  }
+
+  state demo.kernel.status type object preserve {
+    initial {
+      id "demo-kernel-status"
+      text "Ready"
+      tone "neutral"
+    }
+  }
+
+  state demo.kernel.player type object preserve {
+    initial {
+      id "demo-kernel-player"
+      label "Player"
+      title "No media"
+      subtitle "Waiting for media"
+      kind "video"
+      src ""
+      poster ""
+      mediaType "video"
+      controls true
+      hidden true
+      open false
+      surfaceId "demo.kernel.player"
+      active false
+      minimized false
+      maximized false
+      draggable true
+      resizable true
+      modal false
+      initialX 80
+      initialY 80
+      initialWidth 640
+      initialHeight 380
+      tone "neutral"
+      actions []
+    }
+  }
+
+  state demo.kernel.lightbox type object preserve {
+    initial {
+      id "demo-kernel-lightbox"
+      title "Lightbox"
+      src ""
+      hidden true
+      open false
+      tone "neutral"
+    }
+  }
+
+  selector demo.kernel.shell from state demo.kernel.shell {
+    output KernelIntegrityShell
+  }
+
+  selector demo.kernel.status from state demo.kernel.status {
+    output KernelIntegrityStatus
+  }
+
+  selector demo.kernel.player from state demo.kernel.player {
+    output KernelIntegrityPlayer
+  }
+
+  selector demo.kernel.lightbox from state demo.kernel.lightbox {
+    output KernelIntegrityLightbox
+  }
+
+  datasource demo.kernel.host from host "kernel-integrity" {
+    method POST
+    contract KernelIntegrityPatch
+    result state
+  }
+
+  action demo.kernel.play {
+    input mediaId string
+    effect fetch datasource demo.kernel.host
+    effect remote-play selector demo.kernel.player
+    reduce state.demo.kernel.status = result.status
+    reduce state.demo.kernel.player = result.player
+    reduce state.demo.kernel.lightbox = result.lightbox
+    emit demo.kernel.played with mediaId input.mediaId
+  }
+
+  action demo.kernel.closePlayer {
+    effect fetch datasource demo.kernel.host
+    reduce state.demo.kernel.status = result.status
+    reduce state.demo.kernel.player = result.player
+    reduce state.demo.kernel.lightbox = result.lightbox
+    emit demo.kernel.playerClosed with reason "suite"
+  }
+
+  action demo.kernel.lightbox {
+    input mediaId string
+    effect fetch datasource demo.kernel.host
+    effect lightbox selector demo.kernel.lightbox
+    reduce state.demo.kernel.status = result.status
+    reduce state.demo.kernel.player = result.player
+    reduce state.demo.kernel.lightbox = result.lightbox
+    emit demo.kernel.lightboxOpened with mediaId input.mediaId
+  }
+
+  action demo.kernel.dismiss {
+    effect fetch datasource demo.kernel.host
+    effect lightbox selector demo.kernel.lightbox
+    reduce state.demo.kernel.status = result.status
+    reduce state.demo.kernel.player = result.player
+    reduce state.demo.kernel.lightbox = result.lightbox
+    emit demo.kernel.dismissed with reason "suite"
+  }
+
+  transition demo.kernel.playerOpen {
+    trigger action demo.kernel.play
+    from surfaces [demo.kernel.lightbox]
+    to surfaces [demo.kernel.player]
+    effect crossfade
+    durationMs 80
+    easing "ease-out"
+    lane transition
+  }
+
+  transition demo.kernel.lightboxOpen {
+    trigger action demo.kernel.lightbox
+    from surfaces [demo.kernel.player]
+    to surfaces [demo.kernel.lightbox]
+    effect crossfade
+    durationMs 80
+    easing "ease-out"
+    lane transition
+  }
+
+  portal demo.kernel.root root "#xtend-maraca-root" layer surface
+
+  portal demo.kernel.workspace root "[data-maraca-surface='demo.kernel.shell']" layer surface
+
+  portal demo.kernel.overlayRoot root "body" layer overlay z 1200 {
+    focus policy restore
+    pointer policy passthrough
+    scroll policy contain
+  }
+
+  overlay demo.kernel.lightboxOverlay kind lightbox portal demo.kernel.overlayRoot {
+    escape close topmost
+    focus policy restore
+  }
+
+  surface demo.kernel.shell kind workspace component x-surface-manager {
+    source selector demo.kernel.shell
+    key shell.id
+    portal demo.kernel.root
+    bounds x 0 y 0 width 980 height 620
+
+    lane visible weight 100 {
+      hydrate demo-kernel-shell from selector demo.kernel.shell {
+        hydration policy eager
+        hydration mode hydrate_prerendered
+        hydration insular true
+        isolation boundary "public-contract-only"
+      }
+    }
+  }
+
+  surface demo.kernel.status kind card component x-status {
+    source selector demo.kernel.status
+    key status.id
+    portal demo.kernel.root
+    bounds x 16 y 16 width 300 height 72
+
+    lane visible weight 90 {
+      hydrate demo-kernel-status from selector demo.kernel.status
+    }
+  }
+
+  surface demo.kernel.player kind player component x-surface-window {
+    source selector demo.kernel.player
+    key player.id
+    portal demo.kernel.workspace
+    bounds x 80 y 80 width 640 height 380
+
+    lane visible weight 88 {
+      hydrate demo-kernel-player from selector demo.kernel.player {
+        hydration policy visible
+        hydration mode hydrate_prerendered
+        hydration insular true
+        isolation boundary "public-contract-only"
+      }
+    }
+
+    on surface-window-command "[data-maraca-surface='demo.kernel.player']" -> action demo.kernel.closePlayer {
+      preventDefault true
+      payload command from detail.command
+      payload surfaceId from detail.surfaceId
+    }
+  }
+
+  surface demo.kernel.lightbox kind lightbox component x-lightbox {
+    source selector demo.kernel.lightbox
+    key lightbox.id
+    portal demo.kernel.overlayRoot
+    bounds x 120 y 80 width 760 height 460
+
+    lane transition weight 80 {
+      mount demo-kernel-lightbox from selector demo.kernel.lightbox
+    }
+
+    on lightbox-closed "[data-maraca-surface='demo.kernel.lightbox']" -> action demo.kernel.dismiss {
+      preventDefault true
+      payload reason from event.type
+    }
+  }
+}

@@ -89,6 +89,8 @@ const REQUIRED_MANAGER_METHODS = Object.freeze([
   'minimizeSurface',
   'maximizeSurface',
   'restoreSurface',
+  'materializeSurface',
+  'toggleSurface',
   'snapshot'
 ]);
 

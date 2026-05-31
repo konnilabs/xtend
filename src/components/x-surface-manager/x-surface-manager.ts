@@ -21,11 +21,14 @@ export interface XSurfaceManagerPublicApi {
   minimizeSurface(id: string): XtendSurfaceOperationResult;
   maximizeSurface(id: string): XtendSurfaceOperationResult;
   restoreSurface(id: string): XtendSurfaceOperationResult;
+  materializeSurface(id: string, input?: Record<string, unknown>): XtendSurfaceOperationResult;
+  toggleSurface(id: string, input?: Record<string, unknown>): XtendSurfaceOperationResult;
   pinSurface(id: string, pinned?: boolean): XtendSurfaceOperationResult;
   collapseSurface(id: string): XtendSurfaceOperationResult;
   expandSurface(id: string, mode?: string): XtendSurfaceOperationResult;
   dockSurface(id: string, placement?: string, mode?: string): XtendSurfaceOperationResult;
   snapshot(): XtendSurfaceSnapshot;
+  readSnapshot(): XtendSurfaceSnapshot;
 }
 
 export const xSurfaceManagerContract = Object.freeze({
@@ -38,7 +41,7 @@ export const xSurfaceManagerContract = Object.freeze({
   runtime: 'components/xsurfacemanager.js',
   declaration: 'components/xsurfacemanager.d.ts',
   slots: ['default', 'windows', 'panels', 'overlays'],
-  events: ['surface-manager-ready', 'surface-registered', 'surface-opened', 'surface-closed', 'surface-focused', 'surface-updated', 'surface-layout-changed', 'surface-panel-command', 'surface-overlay-command'],
+  events: ['surface-manager-ready', 'surface-registered', 'surface-opened', 'surface-closed', 'surface-focused', 'surface-materialized', 'surface-updated', 'surface-layout-changed', 'surface-panel-command', 'surface-overlay-command'],
   surfaceComponents: ['x-surface-window', 'x-side-panel', 'x-modal', 'x-dialog', 'x-drawer'],
   kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
 });

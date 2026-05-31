@@ -291,6 +291,50 @@ function runRendererBehaviorAssertions(context, fixture, rendererModule) {
   ], harness.renderOptions);
   context.assert(secondPass[1] === firstA, 'keyed diff reuses existing node by data-rmt-key');
   context.assert(secondPass[1].getAttribute('title') === 'Alpha changed', 'keyed diff patches safe attributes on reused node');
+
+  const dockDescriptor = {
+    type: 'component',
+    tag: 'x-section',
+    component: 'x-section',
+    attributes: {
+      'data-maraca-surface': { op: 'literal', value: 'surface.dock' },
+      'data-rmt-component': { op: 'literal', value: 'x-section' }
+    },
+    children: [{
+      type: 'repeat',
+      source: '$model.dock.items',
+      key: '$item.id',
+      template: {
+        type: 'element',
+        tag: 'button',
+        attributes: {
+          type: { op: 'literal', value: 'button' },
+          'data-action': '$item.action',
+          'data-id': '$item.id'
+        },
+        children: [
+          { type: 'element', tag: 'span', class: 'title', text: '$item.title' },
+          { type: 'element', tag: 'span', class: 'subtitle', text: '$item.subtitle' }
+        ]
+      }
+    }]
+  };
+  const dock = harness.renderer.renderNode(dockDescriptor, {
+    model: {
+      dock: {
+        items: [{ id: 'surface.player', action: 'toggle-surface', title: 'Player', subtitle: 'open' }]
+      }
+    }
+  });
+  const patchedDock = harness.renderer.patchElement(dock, dockDescriptor, {
+    model: {
+      dock: {
+        items: [{ id: 'surface.player', action: 'toggle-surface', title: 'Player', subtitle: 'minimized' }]
+      }
+    }
+  });
+  context.assert(patchedDock === dock, 'structured patch keeps the surface host element stable');
+  context.assert(textContent(dock).includes('minimized') && !textContent(dock).includes('open'), 'structured patch refreshes repeated surface dock content');
 }
 
 function runSecurityAssertions(context, fixture, rendererModule) {

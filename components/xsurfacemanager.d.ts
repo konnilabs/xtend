@@ -35,6 +35,7 @@ export type XSurfaceManagerEventName =
   | 'surface-opened'
   | 'surface-closed'
   | 'surface-focused'
+  | 'surface-materialized'
   | 'surface-updated'
   | 'surface-layout-changed'
   | 'surface-snapshot-persisted'
@@ -418,12 +419,15 @@ export interface XSurfaceManagerElement extends HTMLElement {
   minimizeSurface(id: string): XtendSurfaceOperationResult;
   maximizeSurface(id: string): XtendSurfaceOperationResult;
   restoreSurface(id: string): XtendSurfaceOperationResult;
+  materializeSurface(id: string, input?: Record<string, unknown>): XtendSurfaceOperationResult;
+  toggleSurface(id: string, input?: Record<string, unknown>): XtendSurfaceOperationResult;
   pinSurface(id: string, pinned?: boolean): XtendSurfaceOperationResult;
   collapseSurface(id: string): XtendSurfaceOperationResult;
   expandSurface(id: string, mode?: string): XtendSurfaceOperationResult;
   dockSurface(id: string, placement?: string, mode?: string): XtendSurfaceOperationResult;
   undockSurface(id: string, bounds?: Record<string, unknown>): XtendSurfaceOperationResult;
   snapshot(): XtendSurfaceSnapshot;
+  readSnapshot(): XtendSurfaceSnapshot;
   snapshotSurfaceLoading(): XSurfaceManagerLoadingSnapshot;
   hydrateSurfaceContent(surfaceRef: string | HTMLElement | Record<string, unknown>, options?: Record<string, unknown>): Promise<XSurfaceManagerLoadingResult>;
   snapshotRouteLifecycle(): XSurfaceManagerRouteLifecycleSnapshot;

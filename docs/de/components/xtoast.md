@@ -51,7 +51,10 @@ Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Di
 
 Attribute:
 - `type`
+- `tone`
 - `duration`
+- `open`
+- `hidden`
 
 Events:
 - `toast-shown`

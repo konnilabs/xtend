@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const {
   createSuiteContext,
   printSuiteReport
@@ -28,20 +29,26 @@ const {
 const {
   runCliAsync
 } = require('../../xtend-builder/lib/cli');
+const {
+  listenXtendDevServer
+} = require('../../scripts/serve_xtend_dev');
 
 const MARACA_MODULE_PATH = 'xtend-maraca/index.js';
 const MARACA_RUNTIME_PATH = 'xtend-maraca/runtime.js';
 const MARACA_PACKAGE_PATH = 'xtend-maraca/package.json';
 const MARACA_FIXTURE = 'tests/rmt-language/fixtures/maraca-known-components.rmt';
+const MARACA_NATIVE_FIXTURE = 'tests/rmt-language/fixtures/maraca-native-html-component.rmt';
 const MARACA_UNKNOWN_FIXTURE = 'tests/rmt-language/fixtures/vnext-source-to-sea.rmt';
 const MARACA_ORCHESTRATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-orchestration-app.rmt';
 const MARACA_ORCHESTRATION_INCOMPLETE_FIXTURE = 'tests/rmt-language/fixtures/maraca-orchestration-incomplete.rmt';
+const MARACA_KERNEL_INTEGRITY_FIXTURE = 'tests/rmt-language/fixtures/maraca-kernel-integrity-app.rmt';
 const MARACA_VALIDATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-validation-app.rmt';
 const MARACA_TRANSITIONS_FIXTURE = 'tests/rmt-language/fixtures/maraca-transitions-app.rmt';
 const MARACA_OUT_DIR = '.xtend-build/maraca/source-to-sea';
 const MARACA_RMT_OUT_DIR = '.xtend-build/maraca/rmt-command';
 const MARACA_ORCHESTRATION_OUT_DIR = '.xtend-build/maraca/orchestration';
 const MARACA_KERNEL_ORCHESTRATION_OUT_DIR = '.xtend-build/maraca/kernel-orchestration';
+const MARACA_KERNEL_INTEGRITY_OUT_DIR = '.xtend-build/maraca/kernel-integrity';
 const MARACA_VALIDATION_OUT_DIR = '.xtend-build/maraca/validation';
 const MARACA_TRANSITIONS_OUT_DIR = '.xtend-build/maraca/transitions';
 const MARACA_SUITES = [
@@ -50,6 +57,7 @@ const MARACA_SUITES = [
   'maraca-rmt-source-to-bundle',
   'maraca-orchestration',
   'maraca-kernel-orchestration',
+  'maraca-kernel-integrity',
   'maraca-validation',
   'maraca-transitions',
   'maraca-package-exports',
@@ -155,6 +163,38 @@ function buildKernelOrchestrationFixtureAsync(rootDir, overrides = {}) {
   }, { rootDir });
 }
 
+function planKernelIntegrityFixture(rootDir, overrides = {}) {
+  return createMaracaBuildPlan({
+    source: MARACA_KERNEL_INTEGRITY_FIXTURE,
+    out: MARACA_KERNEL_INTEGRITY_OUT_DIR,
+    profile: 'debug',
+    lazy: 'component',
+    css: 'external',
+    orchestration: 'strict',
+    kernel: 'strict',
+    hydration: 'strict',
+    validation: 'off',
+    transitions: 'strict',
+    ...overrides
+  }, { rootDir });
+}
+
+function buildKernelIntegrityFixtureAsync(rootDir, overrides = {}) {
+  return buildMaracaBundleAsync({
+    source: MARACA_KERNEL_INTEGRITY_FIXTURE,
+    out: MARACA_KERNEL_INTEGRITY_OUT_DIR,
+    profile: 'debug',
+    lazy: 'component',
+    css: 'external',
+    orchestration: 'strict',
+    kernel: 'strict',
+    hydration: 'strict',
+    validation: 'off',
+    transitions: 'strict',
+    ...overrides
+  }, { rootDir });
+}
+
 function planValidationFixture(rootDir, overrides = {}) {
   return createMaracaBuildPlan({
     source: MARACA_VALIDATION_FIXTURE,
@@ -237,12 +277,25 @@ function runMaracaPlanSuite(options = {}) {
     out: MARACA_OUT_DIR,
     allowDynamicComponents: true
   }, { rootDir });
+  const nativePlan = createMaracaBuildPlan({
+    source: MARACA_NATIVE_FIXTURE,
+    out: MARACA_OUT_DIR,
+    profile: 'production',
+    lazy: 'component',
+    css: 'external',
+    orchestration: 'strict',
+    kernel: 'off',
+    hydration: 'off',
+    validation: 'off',
+    transitions: 'off'
+  }, { rootDir });
   const orchestrationOffPlan = planFixture(rootDir, { orchestration: 'off' });
   const kernelOffPlan = planFixture(rootDir, { kernel: 'off' });
 
   assertFileExists(context, MARACA_MODULE_PATH, rootDir, 'Maraca module exists');
   assertFileExists(context, MARACA_RUNTIME_PATH, rootDir, 'Maraca runtime helper exists');
   assertFileExists(context, MARACA_FIXTURE, rootDir, 'Maraca known-component fixture exists');
+  assertFileExists(context, MARACA_NATIVE_FIXTURE, rootDir, 'Maraca native HTML component fixture exists');
   assertFileExists(context, MARACA_ORCHESTRATION_FIXTURE, rootDir, 'Maraca orchestration fixture exists');
   context.assert(syntaxCheckFile(MARACA_MODULE_PATH, { rootDir, extension: '.js' }).ok, 'Maraca module syntax passes');
   context.assert(syntaxCheckFile(MARACA_RUNTIME_PATH, { rootDir, extension: '.js' }).ok, 'Maraca runtime helper syntax passes');
@@ -286,6 +339,10 @@ function runMaracaPlanSuite(options = {}) {
   context.assert(unknownPlan.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.maraca.component_unknown' && diagnostic.severity === 'error'), 'unknown plan emits blocking diagnostics');
   context.assert(allowedUnknownPlan.ok === true, 'unknown component plan can be explicitly allowed');
   context.assert(allowedUnknownPlan.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'allowed dynamic component diagnostics are non-blocking');
+  context.assert(nativePlan.ok === true, `native HTML component plan passes strict orchestration${nativePlan.ok ? '' : ` (${nativePlan.diagnostics.map((d) => d.message).join(', ')})`}`);
+  context.assert(nativePlan.components.selected.some((entry) => entry.tag === 'img' && entry.native === true && entry.source === 'browser-native-element'), 'native img is selected as a browser-native component');
+  context.assert(nativePlan.components.unknown.includes('img') === false, 'native img is not reported as an unknown dynamic component');
+  context.assert(nativePlan.orchestration && nativePlan.orchestration.enabled === true, 'strict orchestration accepts native browser components');
 
   return context.result({
     schema: MARACA_BUILD_PLAN_SCHEMA,
@@ -468,6 +525,10 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(plan.orchestration.summary.stateCount >= 2, 'strict plan summarizes state graph');
   context.assert(plan.orchestration.summary.actionCount === 1, 'strict plan summarizes action graph');
   context.assert(plan.orchestration.summary.eventCount === 1, 'strict plan summarizes event graph');
+  const saveEvent = (plan.events || []).find((event) => event && event.action === 'demo.orchestration.save');
+  context.assert(saveEvent && saveEvent.event === 'click' && saveEvent.type === 'click', 'strict plan preserves RMT DOM event type for runtime listener binding');
+  context.assert(saveEvent && saveEvent.payload && saveEvent.payload.label === '$target.dataset.label', 'strict plan preserves RMT event payload mappings for runtime routing');
+  context.assert(saveEvent && saveEvent.governance && saveEvent.governance.preventDefault === true, 'strict plan preserves RMT event governance for runtime routing');
   context.assert(plan.orchestration.summary.surfaceCount === 2, 'strict plan summarizes surface graph');
   context.assert(plan.kernel && plan.kernel.enabled === true, 'strict orchestration plan enables kernel integration by default');
   context.assert(plan.kernel.summary.recordsSchema === 'xtend.rmt.vnext.kernel-records.v1', 'strict orchestration plan records kernel records schema');
@@ -510,6 +571,13 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('window.__XTendMaracaKernel'), 'bundle exposes kernel bridge handle');
   context.assert(entrySource.includes('window.__XTendMaracaHydration'), 'bundle exposes hydration bridge handle');
   context.assert(entrySource.includes('snapshot: runtimeSnapshot'), 'bundle exposes orchestration snapshot API');
+  context.assert(entrySource.includes('shouldPatchSurfaceDescriptorStructure'), 'bundle guards structured surface patches through the framework SSOT');
+  context.assert(entrySource.includes('descriptorHasNestedSurface'), 'bundle does not structured-patch x-surface-manager child surface graphs');
+  context.assert(entrySource.includes('changedStates'), 'bundle scopes Maraca surface patching to changed state IDs');
+  context.assert(entrySource.includes('patchPlanChangedKeys'), 'bundle normalizes array and object patch-plan changed keys');
+  context.assert(entrySource.includes('hydrateSurfaceComponents'), 'bundle hydrates visible surface component islands after action/state patches');
+  context.assert(entrySource.includes('surface-state'), 'bundle records state-driven surface hydration strategy');
+  context.assert(!entrySource.includes('Object.keys(patchPlan.changedStates)'), 'bundle preserves patch-plan changed state IDs instead of array indexes');
   context.assert(entrySource.includes('xtend-maraca:kernel-boot'), 'bundle dispatches kernel boot event');
   context.assert(entrySource.includes('xtend-maraca:kernel-schedule'), 'bundle dispatches kernel schedule event');
   context.assert(entrySource.includes('xtend-maraca:orchestration-boot'), 'bundle dispatches orchestration boot event');
@@ -658,6 +726,437 @@ function printMaracaKernelOrchestrationReport(result) {
   printSuiteReport(result, {
     successTitle: 'XTend Maraca Kernel-Orchestrierung erfolgreich.',
     failureTitle: 'XTend Maraca Kernel-Orchestrierung fehlgeschlagen:'
+  });
+}
+
+function findChromiumExecutable() {
+  const candidates = [
+    process.env.XTEND_CHROMIUM,
+    process.env.CHROME_BIN,
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    '/usr/bin/google-chrome',
+    'chromium-browser',
+    'chromium',
+    'google-chrome'
+  ].filter(Boolean);
+  return candidates.find((candidate) => {
+    const resolvedCandidate = (() => {
+      if (path.isAbsolute(candidate) || candidate.includes('/')) return candidate;
+      const which = spawnSync('which', [candidate], { encoding: 'utf8', timeout: 2000 });
+      return which.status === 0 ? String(which.stdout || '').trim().split(/\r?\n/u)[0] || candidate : candidate;
+    })();
+    if (process.env.XTEND_ALLOW_SNAP_CHROMIUM !== '1') {
+      try {
+        const source = fs.existsSync(resolvedCandidate) ? fs.readFileSync(resolvedCandidate, 'utf8') : '';
+        if (source.includes('/snap/bin/chromium')) return false;
+        if (fs.realpathSync(resolvedCandidate).includes('/snap/')) return false;
+      } catch (_) {}
+    }
+    const probe = spawnSync(candidate, ['--version'], { encoding: 'utf8', timeout: 5000 });
+    return probe.status === 0;
+  }) || null;
+}
+
+function htmlDecode(value) {
+  return String(value || '')
+    .replace(/&quot;/gu, '"')
+    .replace(/&#39;/gu, "'")
+    .replace(/&lt;/gu, '<')
+    .replace(/&gt;/gu, '>')
+    .replace(/&amp;/gu, '&');
+}
+
+function writeKernelIntegritySmokeFixture(rootDir) {
+  const fixturePath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/kernel-integrity-smoke.html`, rootDir);
+  fs.writeFileSync(fixturePath, `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Maraca Kernel Integrity Smoke</title>
+</head>
+<body>
+  <div id="xtend-maraca-root" data-maraca-root></div>
+  <pre id="result">{"ok":false,"status":"pending"}</pre>
+  <script>
+    window.__XTendMaracaDisableAutoBoot = true;
+  </script>
+  <script type="module">
+    const result = document.getElementById('result');
+    const playCalls = [];
+    const fullscreenEvents = [];
+    let fullscreenElement = null;
+    const media = {
+      'video-one': { mediaId: 'video-one', kind: 'video', mediaType: 'video/mp4', src: '/tests/fixtures/kernel-video-one.mp4', title: 'Video One' },
+      'audio-one': { mediaId: 'audio-one', kind: 'audio', mediaType: 'audio/mpeg', src: '/tests/fixtures/kernel-audio-one.mp3', title: 'Audio One' },
+      'video-two': { mediaId: 'video-two', kind: 'video', mediaType: 'video/mp4', src: '/tests/fixtures/kernel-video-two.mp4', title: 'Video Two' },
+      'image-one': { mediaId: 'image-one', kind: 'image', mediaType: 'image/jpeg', src: '/tests/fixtures/kernel-image-one.jpg', title: 'Image One' }
+    };
+    const basePlayer = {
+      id: 'demo-kernel-player',
+      label: 'Player',
+      title: 'No media',
+      subtitle: 'Waiting for media',
+      kind: 'video',
+      src: '',
+      poster: '',
+      mediaType: 'video',
+      controls: true,
+      hidden: true,
+      open: false,
+      surfaceId: 'demo.kernel.player',
+      active: false,
+      minimized: false,
+      maximized: false,
+      draggable: true,
+      resizable: true,
+      modal: false,
+      initialX: 80,
+      initialY: 80,
+      initialWidth: 640,
+      initialHeight: 380,
+      tone: 'neutral',
+      actions: []
+    };
+    const closedLightbox = { id: 'demo-kernel-lightbox', title: 'Lightbox', src: '', hidden: true, open: false, tone: 'neutral' };
+    const closedPlayer = () => ({ ...basePlayer });
+    const playerState = (record) => ({
+      ...basePlayer,
+      title: record.title,
+      subtitle: record.src,
+      mediaId: record.mediaId,
+      kind: record.kind,
+      src: record.src,
+      mediaType: record.mediaType,
+      hidden: false,
+      open: true,
+      active: true
+    });
+    const lightboxState = (record) => ({
+      id: 'demo-kernel-lightbox',
+      title: record.title,
+      src: record.src,
+      hidden: false,
+      open: true,
+      tone: 'neutral',
+      surfaceId: 'demo.kernel.lightbox'
+    });
+    const statusState = (text, tone = 'neutral') => ({ id: 'demo-kernel-status', text, tone });
+    function patchFor(actionId, payload = {}) {
+      const action = String(actionId || '');
+      if (action.endsWith('.play')) {
+        const record = media[payload.mediaId] || media['video-one'];
+        return { status: statusState('Playing ' + record.title, 'success'), player: playerState(record), lightbox: { ...closedLightbox } };
+      }
+      if (action.endsWith('.lightbox')) {
+        const record = media[payload.mediaId] || media['image-one'];
+        return { status: statusState('Lightbox ' + record.title, 'info'), player: closedPlayer(), lightbox: lightboxState(record) };
+      }
+      if (action.endsWith('.dismiss')) {
+        return { status: statusState('Dismissed', 'neutral'), player: closedPlayer(), lightbox: { ...closedLightbox } };
+      }
+      return { status: statusState('Player closed', 'neutral'), player: closedPlayer(), lightbox: { ...closedLightbox } };
+    }
+    function write(value) {
+      result.textContent = JSON.stringify(value, null, 2);
+      document.documentElement.setAttribute('data-kernel-integrity-ok', value.ok ? 'true' : 'false');
+    }
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+    async function waitFor(label, predicate, timeout = 5000) {
+      const started = Date.now();
+      let last = '';
+      while (Date.now() - started < timeout) {
+        try {
+          const value = predicate();
+          if (value) return value;
+        } catch (error) {
+          last = error && error.message ? error.message : String(error);
+        }
+        await wait(50);
+      }
+      throw new Error(label + ' did not settle' + (last ? ': ' + last : ''));
+    }
+    function surface(id) {
+      return document.querySelector('[data-maraca-surface="' + id + '"]');
+    }
+    function player() {
+      const host = surface('demo.kernel.player');
+      return host && host.querySelector('x-player') || document.querySelector('x-player');
+    }
+    function manager() {
+      return document.querySelector('x-surface-manager');
+    }
+    function managerRecord(id) {
+      const target = manager();
+      const snapshot = target && (typeof target.readSnapshot === 'function' ? target.readSnapshot() : target.snapshot && target.snapshot());
+      return snapshot && Array.isArray(snapshot.surfaces) ? snapshot.surfaces.find((entry) => entry.id === id) : null;
+    }
+    async function run(action, payload = {}) {
+      const output = await window.__XTendMaracaOrchestration.actionRuntime.runAction(action, payload, {
+        eventId: 'integrity:' + action,
+        eventName: 'integrity'
+      });
+      if (!output || output.status !== 'success') {
+        throw new Error('Action ' + action + ' did not return an action success result.');
+      }
+      return output;
+    }
+
+    if (window.HTMLMediaElement) {
+      HTMLMediaElement.prototype.play = function play() {
+        playCalls.push({ src: this.currentSrc || this.src || '', localName: this.localName });
+        this.dispatchEvent(new Event('play'));
+        this.dispatchEvent(new Event('playing'));
+        return Promise.resolve();
+      };
+      HTMLMediaElement.prototype.pause = function pause() {
+        this.dispatchEvent(new Event('pause'));
+      };
+    }
+    if (window.Element) {
+      Object.defineProperty(document, 'fullscreenElement', { configurable: true, get: () => fullscreenElement });
+      document.exitFullscreen = () => {
+        fullscreenElement = null;
+        document.dispatchEvent(new Event('fullscreenchange'));
+        return Promise.resolve();
+      };
+      Element.prototype.requestFullscreen = function requestFullscreen() {
+        fullscreenElement = this;
+        fullscreenEvents.push(this.localName || this.tagName || 'element');
+        document.dispatchEvent(new Event('fullscreenchange'));
+        return Promise.resolve();
+      };
+      Element.prototype.webkitRequestFullscreen = Element.prototype.requestFullscreen;
+      document.webkitExitFullscreen = document.exitFullscreen;
+      Object.defineProperty(document, 'webkitFullscreenElement', { configurable: true, get: () => fullscreenElement });
+    }
+
+    try {
+      const maraca = await import('./xtend.maraca.mjs');
+      const boot = await maraca.bootXtendMaraca({
+        root: document.getElementById('xtend-maraca-root'),
+        lazyStrategy: 'eager',
+        dataSourceAdapters: {
+          host: {
+            async invoke({ payload, context }) {
+              const actionId = context && context.action && context.action.id || '';
+              return { schema: 'xtend.maraca.kernel-integrity-state.v1', state: patchFor(actionId, payload || {}) };
+            }
+          }
+        }
+      });
+      if (!boot.ok || !window.__XTendMaracaKernel || !window.__XTendMaracaOrchestration) {
+        throw new Error('Maraca kernel boot did not expose runtime handles.');
+      }
+      await customElements.whenDefined('x-surface-manager');
+      await customElements.whenDefined('x-surface-window');
+      await customElements.whenDefined('x-player');
+      await customElements.whenDefined('x-lightbox');
+
+      const first = await run('demo.kernel.play', { mediaId: 'video-one' });
+      await waitFor('first player src', () => player() && player().getAttribute('src') === media['video-one'].src);
+      await waitFor('first player materialized', () => {
+        const record = managerRecord('demo.kernel.player');
+        return record && record.status === 'open' && record.active === true;
+      });
+
+      await run('demo.kernel.closePlayer');
+      await waitFor('player closed', () => {
+        const record = managerRecord('demo.kernel.player');
+        return record && (record.status === 'closed' || record.status === 'minimized' || surface('demo.kernel.player').hasAttribute('hidden'));
+      });
+
+      await run('demo.kernel.lightbox', { mediaId: 'image-one' });
+      const lightbox = await waitFor('lightbox opened', () => {
+        const target = surface('demo.kernel.lightbox');
+        return target && target.hasAttribute('open') && target.getAttribute('src') === media['image-one'].src && target;
+      });
+      if (typeof lightbox.close === 'function') lightbox.close({ source: 'kernel-integrity' });
+      await run('demo.kernel.dismiss');
+      await waitFor('lightbox dismissed', () => {
+        const target = surface('demo.kernel.lightbox');
+        return target && !target.hasAttribute('open') && target.hasAttribute('hidden');
+      });
+
+      const second = await run('demo.kernel.play', { mediaId: 'audio-one' });
+      await waitFor('audio player src', () => player() && player().getAttribute('src') === media['audio-one'].src);
+      await waitFor('audio materialized', () => {
+        const record = managerRecord('demo.kernel.player');
+        return record && record.status === 'open' && record.active === true;
+      });
+
+      const fullscreen = player().shadowRoot && player().shadowRoot.querySelector('#fullscreen');
+      if (!fullscreen) throw new Error('XPlayer fullscreen control was not rendered.');
+      fullscreen.click();
+      await waitFor('fullscreen toggled', () => fullscreenEvents.length > 0 && document.fullscreenElement);
+
+      await run('demo.kernel.closePlayer');
+      const third = await run('demo.kernel.play', { mediaId: 'video-two' });
+      await waitFor('third player src', () => player() && player().getAttribute('src') === media['video-two'].src);
+
+      const kernelSnapshot = window.__XTendMaracaKernel.snapshot();
+      const hydrationSnapshot = window.__XTendMaracaHydration.snapshot();
+      const checks = {
+        firstActionResult: first.schema === 'xtend.epic18.rmt-action-result.v1',
+        secondActionResult: second.schema === 'xtend.epic18.rmt-action-result.v1',
+        thirdActionResult: third.schema === 'xtend.epic18.rmt-action-result.v1',
+        remotePlayCount: playCalls.length >= 3,
+        playerReopenedAfterClose: player().getAttribute('src') === media['video-two'].src,
+        lightboxCycle: surface('demo.kernel.lightbox').hasAttribute('hidden') && !surface('demo.kernel.lightbox').hasAttribute('open'),
+        fullscreenEvent: fullscreenEvents.length > 0,
+        kernelScheduled: kernelSnapshot.enabled === true && kernelSnapshot.scheduledEndpoints.length > 0,
+        kernelFibers: kernelSnapshot.fibers.some((entry) => entry.kind === 'action') && kernelSnapshot.fibers.some((entry) => entry.kind === 'hydration'),
+        hydrationRecords: hydrationSnapshot.records.some((entry) => entry.component === 'x-player') && hydrationSnapshot.records.some((entry) => entry.component === 'x-lightbox')
+      };
+      write({
+        ok: Object.values(checks).every(Boolean),
+        schema: 'xtend.maraca.kernel-integrity.browser-smoke.v1',
+        checks,
+        playCalls,
+        fullscreenEvents,
+        kernel: kernelSnapshot,
+        hydration: hydrationSnapshot
+      });
+    } catch (error) {
+      write({
+        ok: false,
+        schema: 'xtend.maraca.kernel-integrity.browser-smoke.v1',
+        error: error && error.stack ? error.stack : String(error)
+      });
+    }
+  </script>
+</body>
+</html>
+`, 'utf8');
+  return fixturePath;
+}
+
+async function runKernelIntegrityBrowserSmoke(context, rootDir) {
+  const chromium = findChromiumExecutable();
+  if (!chromium) {
+    context.skip('kernel integrity browser smoke skipped because Chromium is not available');
+    return null;
+  }
+  const fixturePath = writeKernelIntegritySmokeFixture(rootDir);
+  const relativeFixturePath = path.relative(rootDir, fixturePath).replace(/\\/gu, '/');
+  let serverHandle = null;
+  try {
+    serverHandle = await listenXtendDevServer({
+      rootDir,
+      defaultPath: relativeFixturePath,
+      port: 0
+    });
+    const targetUrl = `${serverHandle.origin}/${relativeFixturePath}`;
+    const browser = spawnSync('timeout', [
+      '--kill-after=5s',
+      '35s',
+      chromium,
+      '--headless=new',
+      '--no-sandbox',
+      '--disable-gpu',
+      '--autoplay-policy=no-user-gesture-required',
+      '--run-all-compositor-stages-before-draw',
+      '--dump-dom',
+      targetUrl
+    ], {
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024
+    });
+    if (browser.error) {
+      const reason = browser.error.message || String(browser.error);
+      context.fail(`kernel integrity Chromium smoke ${reason}`);
+      return null;
+    }
+    if (browser.status === 124 || browser.status === 137) {
+      context.fail('kernel integrity Chromium smoke timed out');
+      return null;
+    }
+    if (browser.status !== 0) {
+      context.fail(`kernel integrity Chromium smoke exited ${browser.status}: ${(browser.stderr || '').trim()}`);
+      return null;
+    }
+    const match = /<pre id="result"[^>]*>([\s\S]*?)<\/pre>/u.exec(browser.stdout || '');
+    if (!match) {
+      context.fail('kernel integrity browser smoke did not expose a result payload');
+      return null;
+    }
+    const payload = JSON.parse(htmlDecode(match[1]));
+    context.assert(payload.ok === true, `kernel integrity browser smoke passes${payload.ok ? '' : ` (${payload.error || JSON.stringify(payload.checks || {})})`}`);
+    if (payload.checks) {
+      Object.entries(payload.checks).forEach(([key, value]) => {
+        context.assert(value === true, `kernel integrity browser check ${key} passes`);
+      });
+    }
+    return payload;
+  } catch (error) {
+    const code = error && error.code ? error.code : '';
+    const message = error && error.message ? error.message : String(error);
+    if ((code === 'EPERM' || code === 'EACCES') && /listen/u.test(message)) {
+      context.skip(`kernel integrity browser smoke skipped because loopback listen is denied (${message})`);
+      return null;
+    }
+    context.fail(`kernel integrity browser smoke failed (${message})`);
+    return null;
+  } finally {
+    if (serverHandle && serverHandle.server) {
+      await new Promise((resolve) => serverHandle.server.close(resolve));
+    }
+  }
+}
+
+async function runMaracaKernelIntegritySuite(options = {}) {
+  const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
+  const context = createSuiteContext({
+    id: 'maraca-kernel-integrity',
+    label: 'XTend Maraca Kernel Integrity'
+  });
+  const strictPlan = planKernelIntegrityFixture(rootDir);
+  const result = await buildKernelIntegrityFixtureAsync(rootDir);
+  const entryPath = result.bundleReport && result.bundleReport.entry;
+  const reportPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/xtend.maraca.report.json`, rootDir);
+  const controllerPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/runtime/xtendrmt-rmt-kernel-orchestration-controller.js`, rootDir);
+  const entrySource = entryPath && fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
+  const report = fs.existsSync(reportPath) ? readJson(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/xtend.maraca.report.json`, rootDir) : null;
+
+  context.assert(strictPlan.ok === true, `kernel integrity plan passes${strictPlan.ok ? '' : ` (${strictPlan.diagnostics.map((d) => d.message).join(', ')})`}`);
+  context.assert(strictPlan.kernel && strictPlan.kernel.enabled === true, 'kernel integrity plan enables strict kernel');
+  context.assert(strictPlan.hydration && strictPlan.hydration.enabled === true, 'kernel integrity plan enables strict hydration');
+  context.assert(strictPlan.transitions && strictPlan.transitions.enabled === true, 'kernel integrity plan enables strict transitions');
+  context.assert(strictPlan.kernel.summary.fiberCount >= 12, 'kernel integrity plan emits action, event, render and hydration fibers');
+  const selectedComponents = strictPlan.components && Array.isArray(strictPlan.components.selected)
+    ? strictPlan.components.selected
+    : [];
+  context.assert(selectedComponents.some((entry) => entry.source === 'components/xplayer.js'), 'kernel integrity component graph includes x-player');
+  context.assert(selectedComponents.some((entry) => entry.source === 'components/xlightbox.js'), 'kernel integrity component graph includes x-lightbox');
+  context.assert(result.ok === true, `kernel integrity bundle passes${result.ok ? '' : ` (${result.status})`}`);
+  context.assert(report && report.kernel && report.kernel.enabled === true, 'kernel integrity bundle report records enabled kernel');
+  context.assert(report && report.hydration && report.hydration.enabled === true, 'kernel integrity bundle report records enabled hydration');
+  context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-rmt-kernel-orchestration-controller.js'), 'kernel integrity bundle packages the reusable controller');
+  context.assert(fs.existsSync(controllerPath), 'kernel integrity controller runtime asset exists');
+  context.assert(entrySource.includes('effect-surface-materialization'), 'bundle includes generic media-effect surface materialization');
+  context.assert(entrySource.includes('remote-play') && entrySource.includes('lightbox'), 'bundle includes remote-play and lightbox default effects');
+  context.assert(entrySource.includes('window.__XTendMaracaKernel'), 'bundle exposes the kernel handle');
+  context.assert(!/\.innerHTML\s*=/u.test(entrySource), 'kernel integrity entry has no innerHTML assignment sink');
+  context.assert(!/\.outerHTML\s*=/u.test(entrySource), 'kernel integrity entry has no outerHTML assignment sink');
+  context.assert(!/\.insertAdjacentHTML\s*\(/u.test(entrySource), 'kernel integrity entry has no insertAdjacentHTML sink');
+  context.assert(!/document\.write\s*\(/u.test(entrySource), 'kernel integrity entry has no document.write sink');
+
+  const browserSmoke = await runKernelIntegrityBrowserSmoke(context, rootDir);
+
+  return context.result({
+    schema: 'xtend.maraca.kernel-integrity.v1',
+    kernel: strictPlan.kernel.summary,
+    entry: entryPath,
+    browserSmoke
+  });
+}
+
+function printMaracaKernelIntegrityReport(result) {
+  printSuiteReport(result, {
+    successTitle: 'XTend Maraca Kernel Integrity erfolgreich.',
+    failureTitle: 'XTend Maraca Kernel Integrity fehlgeschlagen:'
   });
 }
 
@@ -1138,6 +1637,7 @@ function printMaracaSizeBudgetReport(result) {
 module.exports = {
   MARACA_SUITES,
   printMaracaBundleReport,
+  printMaracaKernelIntegrityReport,
   printMaracaKernelOrchestrationReport,
   printMaracaOrchestrationReport,
   printMaracaPackageExportsReport,
@@ -1147,6 +1647,7 @@ module.exports = {
   printMaracaTransitionReport,
   printMaracaValidationReport,
   runMaracaBundleSuite,
+  runMaracaKernelIntegritySuite,
   runMaracaKernelOrchestrationSuite,
   runMaracaOrchestrationSuite,
   runMaracaPackageExportsSuite,

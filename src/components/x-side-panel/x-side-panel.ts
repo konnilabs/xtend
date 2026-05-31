@@ -18,6 +18,7 @@ export interface XSidePanelPublicApi {
   openPanel(): void;
   closePanel(reason?: string): void;
   focusPanel(): void;
+  minimizePanel(): void;
   pinPanel(): void;
   collapsePanel(): void;
   expandPanel(mode?: XSidePanelMode): void;
@@ -43,6 +44,7 @@ export const xSidePanelContract = Object.freeze({
     'label',
     'open',
     'active',
+    'minimized',
     'collapsed',
     'pinned',
     'mode',
@@ -56,7 +58,7 @@ export const xSidePanelContract = Object.freeze({
   ],
   placements: ['left', 'right', 'bottom', 'inline'],
   modes: ['docked', 'overlay', 'pinned', 'collapsed', 'fullscreen'],
-  commands: ['open', 'close', 'focus', 'resize', 'pin', 'unpin', 'collapse', 'expand', 'dock', 'restore', 'update'],
+  commands: ['open', 'close', 'focus', 'resize', 'minimize', 'pin', 'unpin', 'collapse', 'expand', 'dock', 'restore', 'update'],
   event: 'surface-panel-command',
   responsiveMode: 'fullscreen-under-720',
   kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'

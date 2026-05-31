@@ -169,11 +169,13 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'openPanel()',
     'closePanel(reason)',
     'focusPanel()',
+    'minimizePanel()',
     'pinPanel()',
     'collapsePanel()',
     'expandPanel(mode = \'docked\')',
     'setPanelMode(mode, placement = this._placement())',
     'resizePanel(bounds)',
+    'minimized',
     'placement="bottom"',
     'mode="overlay"',
     'mode="pinned"',
@@ -190,6 +192,7 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'XSidePanelMode',
     'toSurfaceRecord',
     'applySurfaceSnapshot',
+    'minimizePanel',
     'surface-panel-command'
   ], 'x-side-panel types');
   assertTextIncludesAll(context, sourceText, [
@@ -197,6 +200,7 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'xSidePanelContract',
     'x-side-panel',
     'xtend.surface.record.v1',
+    'minimizePanel',
     'surface-panel-command',
     'fullscreen-under-720'
   ], 'SurfaceManager side-panel TypeScript source');

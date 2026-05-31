@@ -23,7 +23,7 @@ import {
 
 const DEFAULT_CAPABILITIES: Readonly<Record<XtendSurfaceType, readonly string[]>> = Object.freeze({
   window: Object.freeze(['open', 'focus', 'close', 'move', 'resize', 'minimize', 'maximize', 'restore', 'snapshot']),
-  'side-panel': Object.freeze(['open', 'focus', 'close', 'dock', 'collapse', 'resize', 'restore', 'snapshot']),
+  'side-panel': Object.freeze(['open', 'focus', 'close', 'dock', 'collapse', 'resize', 'minimize', 'restore', 'snapshot']),
   modal: Object.freeze(['open', 'focus', 'close', 'snapshot']),
   dialog: Object.freeze(['open', 'focus', 'close', 'snapshot']),
   drawer: Object.freeze(['open', 'focus', 'close', 'resize', 'restore', 'snapshot']),
@@ -188,21 +188,25 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
     return result(operation, record, true, event);
   }
 
-  function focusRecord(record: XtendSurfaceRecord, operation = 'focus'): void {
+  function activateRecord(record: XtendSurfaceRecord): void {
     if (activeSurfaceId && registry.has(activeSurfaceId)) {
       registry.get(activeSurfaceId)!.active = false;
     }
     record.active = true;
-    record.status = 'open';
-    record.minimized = false;
     record.zIndex = ++zIndexCursor;
     activeSurfaceId = record.id;
+  }
+
+  function focusRecord(record: XtendSurfaceRecord, operation = 'focus'): void {
+    activateRecord(record);
+    record.status = 'open';
+    record.minimized = false;
     emit('xtend.surface.focused', record, operation, `Surface ${record.id} focused.`);
   }
 
   function buildSnapshot(): XtendSurfaceSnapshot {
     const surfaces = Array.from(registry.values()).map((record) => ({ ...record, bounds: { ...record.bounds }, lifecycle: { ...record.lifecycle } }));
-    const stack = surfaces.filter((record) => record.status !== 'closed').sort((left, right) => left.zIndex - right.zIndex).map((record) => record.id);
+    const stack = surfaces.filter((record) => record.status === 'open').sort((left, right) => left.zIndex - right.zIndex).map((record) => record.id);
     return {
       schema: SURFACE_SNAPSHOT_SCHEMA,
       managerId,
@@ -210,7 +214,7 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       activeSurfaceId,
       version: snapshotVersion,
       surfaceCount: surfaces.length,
-      openSurfaceCount: surfaces.filter((record) => record.status !== 'closed').length,
+      openSurfaceCount: surfaces.filter((record) => record.status === 'open').length,
       surfaces,
       stack,
       diagnostics: diagnostics.slice(-maxDiagnostics),
@@ -286,7 +290,9 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       if (!record) return result('maximize', null, false, emit('xtend.surface.not-found', null, 'maximize', `Surface ${id} is not registered.`));
       record.previousBounds = { ...record.bounds };
       record.maximized = true;
-      focusRecord(record, 'maximize');
+      record.status = 'open';
+      record.minimized = false;
+      activateRecord(record);
       return commit(record, 'maximize', 'maximize', 'xtend.surface.maximized', `Surface ${record.id} maximized.`);
     },
     restoreSurface(id) {
@@ -294,15 +300,32 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       if (!record) return result('restore', null, false, emit('xtend.surface.not-found', null, 'restore', `Surface ${id} is not registered.`));
       if (record.previousBounds) record.bounds = normalizeSurfaceBounds(record.previousBounds, record.type);
       record.previousBounds = null;
+      record.status = 'open';
       record.minimized = false;
       record.maximized = false;
-      focusRecord(record, 'restore');
+      activateRecord(record);
       return commit(record, 'restore', 'restore', 'xtend.surface.restored', `Surface ${record.id} restored.`);
+    },
+    materializeSurface(id, input) {
+      const record = registry.get(id);
+      if (!record) return result('materialize', null, false, emit('xtend.surface.not-found', null, 'materialize', `Surface ${id} is not registered.`));
+      if (record.status === 'closed') return this.openSurface(id, input);
+      if (record.status === 'minimized' || record.minimized) return this.restoreSurface(id);
+      return this.focusSurface(id);
+    },
+    toggleSurface(id, input) {
+      const record = registry.get(id);
+      if (!record) return result('toggle', null, false, emit('xtend.surface.not-found', null, 'toggle', `Surface ${id} is not registered.`));
+      if (record.status === 'closed' || record.status === 'minimized' || record.minimized) return this.materializeSurface(id, input);
+      return this.minimizeSurface(id);
     },
     snapshot() {
       snapshotVersion += 1;
       emit('xtend.surface.snapshot', null, 'snapshot', 'Surface snapshot captured.');
       mirror();
+      return buildSnapshot();
+    },
+    readSnapshot() {
       return buildSnapshot();
     },
     dispose() {

@@ -98,6 +98,7 @@ export interface RmtDomDescriptorRenderer {
   };
   renderNode(descriptor: unknown, options?: RmtDomDescriptorRenderOptions): Node | Node[];
   renderKeyed(root: Element, descriptors: unknown[], options?: RmtDomDescriptorRenderOptions): Node[];
+  patchElement(element: Element, descriptor: unknown, options?: RmtDomDescriptorRenderOptions): Element;
   resolveValue(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): unknown;
   createNoManualHtmlGate(options?: unknown): RmtNoManualHtmlGate;
   listDiagnostics(): RmtDomDescriptorDiagnostic[];

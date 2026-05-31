@@ -288,8 +288,10 @@
           const player = document.getElementById('epic18-player');
           const playEvents = [];
           const pauseEvents = [];
+          const remotePlayEvents = [];
           player.addEventListener('xplayer-play', (event) => playEvents.push(event.detail));
           player.addEventListener('xplayer-pause', (event) => pauseEvents.push(event.detail));
+          player.addEventListener('xplayer-remote-play', (event) => remotePlayEvents.push(event.detail));
           await waitFor(() => player.shadowRoot && player.shadowRoot.querySelector('audio, video'));
           const media = player.shadowRoot.querySelector('audio, video');
           media.dispatchEvent(new Event('play'));
@@ -300,7 +302,165 @@
             pauseEvents
           });
 
+          const remoteAudioSrc = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=';
+          const remotePlayEvent = new CustomEvent('xplayer-remote-play', {
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+            detail: {
+              schema: 'xtend.maraca.remote-play.v1',
+              src: remoteAudioSrc,
+              type: 'n/a',
+              kind: 'audio',
+              title: 'Remote audio smoke'
+            }
+          });
+          const remoteEventAccepted = player.dispatchEvent(remotePlayEvent);
+          await waitFor(() => player.getAttribute('src') === remoteAudioSrc && player.shadowRoot.querySelector('audio, video'));
+          const remoteMedia = player.shadowRoot.querySelector('audio, video');
+          recordCheck('epic18 xplayer remote-play is event-driven', remotePlayEvents.length === 1 && remoteEventAccepted === false && remotePlayEvent.defaultPrevented && player.getAttribute('src') === remoteAudioSrc, {
+            remotePlayEvents,
+            remoteEventAccepted,
+            defaultPrevented: remotePlayEvent.defaultPrevented
+          });
+          recordCheck('epic18 xplayer remote-play normalizes audio media type', remoteMedia && remoteMedia.localName === 'audio', {
+            mediaElement: remoteMedia && remoteMedia.localName,
+            type: player.getAttribute('type')
+          });
+
+          let fakePaused = false;
+          let clickPauseCalls = 0;
+          let keyPlayCalls = 0;
+          Object.defineProperty(remoteMedia, 'paused', {
+            configurable: true,
+            get() {
+              return fakePaused;
+            }
+          });
+          remoteMedia.play = () => {
+            keyPlayCalls += 1;
+            fakePaused = false;
+            remoteMedia.dispatchEvent(new Event('play'));
+            return Promise.resolve();
+          };
+          remoteMedia.pause = () => {
+            clickPauseCalls += 1;
+            fakePaused = true;
+            remoteMedia.dispatchEvent(new Event('pause'));
+          };
+          const playerRoot = player.shadowRoot.querySelector('.player');
+          fakePaused = false;
+          playerRoot.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+          await nextFrame();
+          fakePaused = true;
+          playerRoot.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true, composed: true }));
+          await nextFrame();
+          recordCheck('epic18 xplayer keeps click and keyboard controls bound after remote-play', clickPauseCalls >= 1 && keyPlayCalls >= 1, {
+            clickPauseCalls,
+            keyPlayCalls
+          });
+
+          const secondRemoteSrc = 'data:audio/wav;base64,UklGRiIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=';
+          const pauseEventsBeforeSecondRemote = pauseEvents.length;
+          const secondRemotePlayEvent = new CustomEvent('xplayer-remote-play', {
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+            detail: {
+              schema: 'xtend.maraca.remote-play.v1',
+              src: secondRemoteSrc,
+              type: 'audio',
+              kind: 'audio',
+              title: 'Second remote audio smoke'
+            }
+          });
+          player.dispatchEvent(secondRemotePlayEvent);
+          await waitFor(() => player.getAttribute('src') === secondRemoteSrc && player.shadowRoot.querySelector('audio, video') !== remoteMedia);
+          const secondRemoteMedia = player.shadowRoot.querySelector('audio, video');
+          recordCheck('epic18 xplayer ignores stale pause during remote source swap', pauseEvents.length === pauseEventsBeforeSecondRemote, {
+            pauseEventsBeforeSecondRemote,
+            pauseEventsAfterSecondRemote: pauseEvents.length
+          });
+
+          let secondFakePaused = true;
+          let secondPlayCalls = 0;
+          let secondPauseCalls = 0;
+          Object.defineProperty(secondRemoteMedia, 'paused', {
+            configurable: true,
+            get() {
+              return secondFakePaused;
+            }
+          });
+          secondRemoteMedia.play = () => {
+            secondPlayCalls += 1;
+            secondFakePaused = false;
+            secondRemoteMedia.dispatchEvent(new Event('play'));
+            return Promise.resolve();
+          };
+          secondRemoteMedia.pause = () => {
+            secondPauseCalls += 1;
+            secondFakePaused = true;
+            secondRemoteMedia.dispatchEvent(new Event('pause'));
+          };
+          const playButton = player.shadowRoot.querySelector('#play');
+          playButton.dispatchEvent((typeof PointerEvent === 'function'
+            ? new PointerEvent('pointerdown', { bubbles: true, cancelable: true, composed: true })
+            : new MouseEvent('pointerdown', { bubbles: true, cancelable: true, composed: true })));
+          playButton.dispatchEvent((typeof PointerEvent === 'function'
+            ? new PointerEvent('pointerup', { bubbles: true, cancelable: true, composed: true })
+            : new MouseEvent('pointerup', { bubbles: true, cancelable: true, composed: true })));
+          playButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+          await nextFrame();
+          recordCheck('epic18 xplayer control handlers are single-bound after source swaps', secondPlayCalls === 1 && secondPauseCalls === 0, {
+            secondPlayCalls,
+            secondPauseCalls
+          });
+
+          let fullscreenCalls = 0;
+          const playerSurfaceRoot = player.shadowRoot.querySelector('.player');
+          player.requestFullscreen = () => {
+            fullscreenCalls += 1;
+            return Promise.resolve();
+          };
+          playerSurfaceRoot.requestFullscreen = player.requestFullscreen;
+          const fullscreenButton = player.shadowRoot.querySelector('#fullscreen');
+          fullscreenButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+          await nextFrame();
+          recordCheck('epic18 xplayer fullscreen control handles user click', fullscreenCalls === 1, {
+            fullscreenCalls
+          });
+
           const surfaceWindow = document.getElementById('epic18-window');
+          secondFakePaused = false;
+          surfaceWindow.applySurfaceSnapshot({
+            schema: 'xtend.surface.record.v1',
+            id: 'epic18.window',
+            status: 'closed',
+            active: false,
+            minimized: false,
+            maximized: false,
+            modal: false,
+            zIndex: 1,
+            bounds: { x: 24, y: 20, width: 520, height: 360 }
+          });
+          await nextFrame();
+          recordCheck('epic18 xplayer pauses when its surface lifecycle closes', secondFakePaused === true && secondPauseCalls >= 1, {
+            secondFakePaused,
+            secondPauseCalls
+          });
+          surfaceWindow.applySurfaceSnapshot({
+            schema: 'xtend.surface.record.v1',
+            id: 'epic18.window',
+            status: 'open',
+            active: true,
+            minimized: false,
+            maximized: false,
+            modal: false,
+            zIndex: 2,
+            bounds: { x: 24, y: 20, width: 520, height: 360 }
+          });
+          await nextFrame();
+
           const surfaceContent = surfaceWindow.shadowRoot.querySelector('.content');
           const surfaceContentStyle = getComputedStyle(surfaceContent);
           const playerBox = player.getBoundingClientRect();

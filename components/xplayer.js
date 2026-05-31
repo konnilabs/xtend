@@ -27,8 +27,8 @@ class XPlayer extends HTMLElement {
     return {
       schema: "xtend.mm-rmt.player-contract.v1",
       tag: "x-player",
-      commands: ["play-media", "pause-media", "set-source", "set-state", "apply-theme"],
-      events: ["xplayer-play", "xplayer-pause", "xplayer-state", "xplayer-fullscreen", "xplayer-pip", "xplayer-caption", "xplayer-mute"],
+      commands: ["remote-play", "play-media", "pause-media", "set-source", "set-state", "apply-theme"],
+      events: ["xplayer-remote-play", "xplayer-play", "xplayer-pause", "xplayer-state", "xplayer-fullscreen", "xplayer-pip", "xplayer-caption", "xplayer-mute"],
       stateKey: "xplayer-state-<id>",
       stateBridge: "xstate-host-bridge",
       themeTokens: ["--x-player-primary", "--x-player-accent", "--x-player-background", "--x-player-radius"],
@@ -82,8 +82,8 @@ class XPlayer extends HTMLElement {
       lazyPolicy: "lazy-media-load",
       overflowPolicy: "controls-contained",
       aspectRatio: "16:9-default-or-author-width-height",
-      events: ["xplayer-play", "xplayer-pause", "xplayer-fullscreen", "xplayer-pip"],
-      commands: ["preload-media", "play-media", "pause-media", "snapshot"],
+      events: ["xplayer-remote-play", "xplayer-play", "xplayer-pause", "xplayer-fullscreen", "xplayer-pip"],
+      commands: ["remote-play", "preload-media", "play-media", "pause-media", "snapshot"],
       stateKey: "xplayer-state-<id>",
       schedule: "media.lazy.load",
       fabric: { lane: "media", a11yLane: "a11y", diagnosticsLane: "diagnostics", api: "@xtend-fabric" },
@@ -98,6 +98,18 @@ class XPlayer extends HTMLElement {
     this._dialogOpen = false; // <--- NEU: Globales Dialog-Flag für Endlosschutz
     this._resizeObserver = null;
     this._resizeFrame = null;
+    this._onRemotePlayEvent = this._handleRemotePlayEvent.bind(this);
+    this._suppressAttributeMediaLoad = false;
+    this._controlsMedia = null;
+    this._controlsVisibilityMedia = null;
+    this._bigControlsMedia = null;
+    this._keyboardControlsBound = false;
+    this._controlsAbortController = null;
+    this._mediaLoadToken = 0;
+    this._surfaceLifecycleHandler = this._handleSurfaceLifecycleEvent.bind(this);
+    this._fullscreenChangeHandler = this._handleDocumentFullscreenChange.bind(this);
+    this._fullscreenRequestInFlight = null;
+    this._cursorAbortController = null;
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -760,6 +772,9 @@ class XPlayer extends HTMLElement {
   }
 
   connectedCallback() {
+    this.addEventListener("xplayer-remote-play", this._onRemotePlayEvent);
+    this.addEventListener("remote-play", this._onRemotePlayEvent);
+    this.addEventListener("surface-lifecycle-change", this._surfaceLifecycleHandler);
     this._loadMedia();
     this._initControls();
     this._toggleControlsVisibility();
@@ -820,56 +835,14 @@ class XPlayer extends HTMLElement {
           this._media.muted = value.muted;
         }
         if (typeof value.fullscreen === "boolean") {
-          const isFullscreen = this.classList.contains("fullscreen");
-          if (value.fullscreen && !isFullscreen) {
-            this.shadowRoot.querySelector(".player").requestFullscreen();
-          } else if (!value.fullscreen && isFullscreen) {
-            document.exitFullscreen();
-          }
+          this._setFullscreenFromState(value.fullscreen);
         }
       }
     });
 
     // Fullscreen-Handling optimieren
-    document.addEventListener("fullscreenchange", () => {
-      const player = this.shadowRoot.querySelector(".player");
-      const isFullscreen = !!document.fullscreenElement;
-
-      // 1. Dimensionen setzen
-      this._updateDimensions();
-
-      // 2. Spinner/Overlay nur anzeigen, wenn Video wirklich lädt oder pausiert ist
-      if (this._media && !this._media.paused && !this._media.seeking && !this._media.ended) {
-        this._hideOverlay();
-        const spinner = this.shadowRoot.querySelector("#spinner-overlay");
-        if (spinner) spinner.classList.remove("visible");
-      }
-
-      // 2b. Big Controls im Fullscreen bei laufender Wiedergabe ausblenden
-      if (this._media && !this._media.paused) {
-        player.classList.remove("big-controls-visible");
-      }
-
-      // 3. Endlosschleife verhindern: State nur setzen, wenn sich wirklich etwas ändert
-      if (!this._internalFullscreenChange) {
-        const prevState = xstate.get(`xplayer-state-${this.id}`);
-        if (prevState && prevState.fullscreen !== isFullscreen) {
-          this._internalStateUpdate = true;
-          xstate.set(`xplayer-state-${this.id}`, {
-            ...prevState,
-            fullscreen: isFullscreen
-          });
-          this._internalStateUpdate = false;
-        }
-      }
-
-      // 4. CSS-Klasse setzen/entfernen
-      if (isFullscreen) {
-        this.classList.add("fullscreen");
-      } else {
-        this.classList.remove("fullscreen");
-      }
-    });
+    document.addEventListener("fullscreenchange", this._fullscreenChangeHandler);
+    document.addEventListener("webkitfullscreenchange", this._fullscreenChangeHandler);
 
     // Kontextmenü-Logik
     const player = this.shadowRoot.querySelector(".player");
@@ -1016,7 +989,21 @@ class XPlayer extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.pauseMedia();
+    this.removeEventListener("xplayer-remote-play", this._onRemotePlayEvent);
+    this.removeEventListener("remote-play", this._onRemotePlayEvent);
+    this.removeEventListener("surface-lifecycle-change", this._surfaceLifecycleHandler);
     if (this._unsubscribeState) this._unsubscribeState();
+    if (this._controlsAbortController) {
+      this._controlsAbortController.abort();
+      this._controlsAbortController = null;
+    }
+    if (this._cursorAbortController) {
+      this._cursorAbortController.abort();
+      this._cursorAbortController = null;
+    }
+    document.removeEventListener("fullscreenchange", this._fullscreenChangeHandler);
+    document.removeEventListener("webkitfullscreenchange", this._fullscreenChangeHandler);
     if (this._removeTitleInterval) {
       clearInterval(this._removeTitleInterval);
       this._removeTitleInterval = null;
@@ -1075,15 +1062,110 @@ class XPlayer extends HTMLElement {
     return nextState;
   }
 
-  playMedia() {
+  _normalizeMediaType(input = {}) {
+    const data = typeof input === "object" && input !== null ? input : { type: input };
+    const values = [data.mediaType, data.type, data.kind];
+    for (const value of values) {
+      const normalized = String(value || "").trim().toLowerCase();
+      if (!normalized
+        || normalized === "n/a"
+        || normalized === "unknown"
+        || normalized === "null"
+        || normalized === "undefined") continue;
+      if (normalized === "audio" || normalized.startsWith("audio/")) return normalized;
+      if (normalized === "video" || normalized.startsWith("video/")) return normalized;
+    }
+    return "";
+  }
+
+  _mediaElementKind(value = this.getAttribute("type")) {
+    return this._normalizeMediaType({ type: value }).startsWith("audio") ? "audio" : "video";
+  }
+
+  _handleRemotePlayEvent(event) {
+    if (event && typeof event.preventDefault === "function" && event.cancelable) event.preventDefault();
+    const payload = event && event.detail && typeof event.detail === "object" ? event.detail : {};
+    this.remotePlay(payload).catch((error) => {
+      this.dispatchEvent(new CustomEvent("xplayer-state", {
+        detail: {
+          ...this.setMediaState({ playing: false }),
+          remotePlayError: error && error.message ? error.message : String(error || "remote-play failed")
+        }
+      }));
+    });
+  }
+
+  _setRemoteMediaAttributes({ src = "", type = "", poster = "", title = "" } = {}) {
+    this._suppressAttributeMediaLoad = true;
+    try {
+      if (type) this.setAttribute("type", type);
+      if (poster) this.setAttribute("poster", poster);
+      else this.removeAttribute("poster");
+      if (title) this.setAttribute("title", title);
+      if (src) this.setAttribute("src", src);
+    } finally {
+      this._suppressAttributeMediaLoad = false;
+    }
+    this._loadMedia();
+    this._updateOverlay();
+  }
+
+  _focusPlaybackRegion() {
+    const player = this.shadowRoot && this.shadowRoot.querySelector(".player");
+    if (player && typeof player.focus === "function") {
+      try {
+        player.focus({ preventScroll: true });
+      } catch (_error) {
+        player.focus();
+      }
+    }
+  }
+
+  _handleSurfaceLifecycleEvent(event) {
+    this.surfaceLifecycleChanged(event && event.detail || {});
+  }
+
+  surfaceLifecycleChanged(detail = {}) {
+    const status = String(detail.status || "").toLowerCase();
+    const hidden = detail.open === false || detail.minimized === true || status === "closed" || status === "minimized";
+    if (hidden) this.pauseMedia();
+    return {
+      schema: "xtend.xplayer.surface-lifecycle-report.v1",
+      paused: hidden,
+      status: status || (detail.open === false ? "closed" : "open")
+    };
+  }
+
+  async remotePlay(payload = {}) {
+    const data = payload && typeof payload === "object" ? payload : {};
+    const src = data.src || data.source || this.getAttribute("src") || "";
+    const type = this._normalizeMediaType(data) || this._normalizeMediaType({ type: this.getAttribute("type") });
+    const poster = data.poster || "";
+    const title = data.title || data.label || "";
+    this._setRemoteMediaAttributes({ src, type, poster, title });
+    this.setMediaState({ src, type, playing: false });
+    this._focusPlaybackRegion();
+    return this.playMedia({ src, type, poster, title });
+  }
+
+  playMedia(payload = {}) {
+    const data = payload && typeof payload === "object" ? payload : {};
+    const src = data.src || data.source || "";
+    const type = this._normalizeMediaType(data);
+    if (type && type !== this.getAttribute("type")) this.setAttribute("type", type);
+    if (src && src !== this.getAttribute("src")) this.setAttribute("src", src);
     if (!this._media || typeof this._media.play !== "function") {
       return Promise.resolve(this.setMediaState({ playing: false }));
     }
-    const playRequest = this._media.play();
+    const media = this._media;
+    const loadToken = this._mediaLoadToken;
+    const isCurrentMedia = () => this._media === media && this._mediaLoadToken === loadToken && media.isConnected;
+    const playRequest = media.play();
     this.setMediaState({ playing: true });
     return playRequest && typeof playRequest.then === "function"
       ? playRequest.then(() => this.snapshot()).catch((error) => {
-        this.setMediaState({ playing: this._media ? !this._media.paused : false });
+        if (!isCurrentMedia() || error && error.name === "AbortError") return this.snapshot();
+        this.setMediaState({ playing: media ? !media.paused : false });
         throw error;
       })
       : Promise.resolve(this.snapshot());
@@ -1113,7 +1195,8 @@ class XPlayer extends HTMLElement {
     const data = typeof command === "object" && command && !Array.isArray(command)
       ? { ...command, ...payload }
       : payload;
-    if (kind === "play-media" || kind === "play") return this.playMedia(data);
+    if (kind === "remote-play") return this.remotePlay(data);
+    if (kind === "play-media" || kind === "play") return (data.src || data.source) ? this.remotePlay(data) : this.playMedia(data);
     if (kind === "pause-media" || kind === "pause") return this.pauseMedia(data);
     if (kind === "set-source") {
       const src = data.src || data.source || "";
@@ -1128,6 +1211,7 @@ class XPlayer extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    if (this._suppressAttributeMediaLoad) return;
     if (["src", "poster", "type", "media-chooser", "downloadable", "title"].includes(name)) {
       this._loadMedia();
       if (name === "title") {
@@ -1156,6 +1240,7 @@ class XPlayer extends HTMLElement {
     const forward = this.shadowRoot.querySelector("#forward");
     const player = this.shadowRoot.querySelector(".player");
     const media = this._media;
+    if (!media) return;
 
     // Replay SVG
     const svgReplay = () => `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V2L7 6.5L12 11V8C15.31 8 18 10.69 18 14C18 17.31 15.31 20 12 20C8.69 20 6 17.31 6 14H4C4 18.42 7.58 22 12 22C16.42 22 20 18.42 20 14C20 9.58 16.42 6 12 6V5Z" fill="currentColor"/></svg>`;
@@ -1164,34 +1249,62 @@ class XPlayer extends HTMLElement {
       if (media.ended) {
         bigPlay.innerHTML = svgReplay();
         bigPlay.setAttribute('aria-label', 'Neustart');
-        bigPlay.onclick = () => {
-          media.currentTime = 0;
-          media.play();
-        };
       } else {
         bigPlay.innerHTML = media.paused ? svgIcon('play') : svgIcon('pause');
         bigPlay.setAttribute('aria-label', media.paused ? 'Abspielen' : 'Pause');
-        bigPlay.onclick = () => {
-          if (media.paused) {
-            media.play();
-          } else {
-            media.pause();
-          }
-        };
       }
     }
 
     updateBigPlay();
-    media.addEventListener('ended', updateBigPlay);
-    media.addEventListener('play', updateBigPlay);
-    media.addEventListener('pause', updateBigPlay);
-
-    backward.onclick = () => {
+    if (this._bigControlsMedia === media) return;
+    if (this._bigControlsAbortController) {
+      this._bigControlsAbortController.abort();
+      this._bigControlsAbortController = null;
+    }
+    const bigControlsAbortController = typeof AbortController !== "undefined" ? new AbortController() : null;
+    this._bigControlsAbortController = bigControlsAbortController;
+    const addBigControlListener = (target, type, handler, options) => {
+      if (!target || typeof target.addEventListener !== "function") return;
+      const listenerOptions = bigControlsAbortController
+        ? { ...(options && typeof options === "object" ? options : {}), signal: bigControlsAbortController.signal }
+        : options;
+      target.addEventListener(type, handler, listenerOptions);
+    };
+    const stopBigControlEvent = (event) => {
+      if (event && typeof event.preventDefault === "function") event.preventDefault();
+      if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+    };
+    const toggleBigPlayback = (event) => {
+      stopBigControlEvent(event);
+      const currentMedia = this._media;
+      if (!currentMedia) return;
+      if (currentMedia.ended) currentMedia.currentTime = 0;
+      if (currentMedia.paused) {
+        currentMedia.play();
+      } else {
+        currentMedia.pause();
+      }
+      updateBigPlay();
+    };
+    this._bigControlsMedia = media;
+    if (bigPlay) bigPlay.onclick = null;
+    if (backward) backward.onclick = null;
+    if (forward) forward.onclick = null;
+    addBigControlListener(bigPlay, 'click', toggleBigPlayback);
+    addBigControlListener(bigPlay, 'pointerdown', (event) => event.stopPropagation());
+    addBigControlListener(media, 'ended', updateBigPlay);
+    addBigControlListener(media, 'play', updateBigPlay);
+    addBigControlListener(media, 'pause', updateBigPlay);
+    addBigControlListener(backward, 'click', (event) => {
+      stopBigControlEvent(event);
       media.currentTime = Math.max(media.currentTime - 10, 0);
-    };
-    forward.onclick = () => {
+    });
+    addBigControlListener(backward, 'pointerdown', (event) => event.stopPropagation());
+    addBigControlListener(forward, 'click', (event) => {
+      stopBigControlEvent(event);
       media.currentTime = Math.min(media.currentTime + 10, media.duration);
-    };
+    });
+    addBigControlListener(forward, 'pointerdown', (event) => event.stopPropagation());
   }
 
   _updateOverlay() {
@@ -1209,10 +1322,16 @@ class XPlayer extends HTMLElement {
 
   _loadMedia() {
     const container = this.shadowRoot.querySelector("#media-container");
+    const loadToken = (this._mediaLoadToken || 0) + 1;
+    this._mediaLoadToken = loadToken;
+    if (this._media && typeof this._media.pause === "function" && !this._media.paused) {
+      this._media.pause();
+    }
     container.innerHTML = "";
 
-    const type = this.getAttribute("type") === "audio" ? "audio" : "video";
+    const type = this._mediaElementKind();
     const media = document.createElement(type);
+    const isCurrentMedia = () => this._media === media && this._mediaLoadToken === loadToken && media.isConnected;
     media.controls = false;
     media.src = this.getAttribute("src") || "";
     media.removeAttribute("title"); // Tooltip entfernen (direkt nach Erzeugung)
@@ -1229,6 +1348,7 @@ class XPlayer extends HTMLElement {
     let hasPlayed = false; // <-- Add this flag
 
     const showSpinner = () => {
+      if (!isCurrentMedia()) return;
       const spinnerOverlay = this.shadowRoot.querySelector("#spinner-overlay");
       const overlay = this.shadowRoot.querySelector("#overlay");
       const title = this.shadowRoot.querySelector("#video-title");
@@ -1239,6 +1359,7 @@ class XPlayer extends HTMLElement {
     };
 
     const hideSpinner = () => {
+      if (!isCurrentMedia()) return;
       const spinnerOverlay = this.shadowRoot.querySelector("#spinner-overlay");
       if (spinnerOverlay) spinnerOverlay.classList.remove("visible");
       xstate.set(`xplayer-spinner-${this.id}`, false);
@@ -1248,6 +1369,7 @@ class XPlayer extends HTMLElement {
     media.addEventListener("playing", hideSpinner);
     media.addEventListener("canplay", hideSpinner);
     media.addEventListener("loadedmetadata", () => {
+      if (!isCurrentMedia()) return;
       media.removeAttribute("title");
       media.title = "";
     });
@@ -1277,6 +1399,7 @@ class XPlayer extends HTMLElement {
     }
 
     media.addEventListener("play", () => {
+      if (!isCurrentMedia()) return;
       hasPlayed = true; // <-- Mark as played
       this.updatePlayPauseIcon();
       this._hideOverlay();
@@ -1301,6 +1424,7 @@ class XPlayer extends HTMLElement {
     });
 
     media.addEventListener("pause", () => {
+      if (!isCurrentMedia()) return;
       if (hasPlayed) this._showOverlay();
       if (hasPlayed) {
         this.dispatchEvent(new CustomEvent("xplayer-pause", {
@@ -1325,6 +1449,7 @@ class XPlayer extends HTMLElement {
     });
 
     media.addEventListener("seeked", () => {
+      if (!isCurrentMedia()) return;
       this._internalStateUpdate = true;
       const prev = xstate.get(`xplayer-state-${this.id}`) || {};
       if (Math.abs((prev.currentTime || 0) - media.currentTime) > 0.5) {
@@ -1337,6 +1462,7 @@ class XPlayer extends HTMLElement {
     });
 
     media.addEventListener("volumechange", () => {
+      if (!isCurrentMedia()) return;
       this._internalStateUpdate = true;
       const prev = xstate.get(`xplayer-state-${this.id}`) || {};
       if (prev.volume !== media.volume || prev.muted !== media.muted) {
@@ -1351,8 +1477,13 @@ class XPlayer extends HTMLElement {
 
     container.appendChild(media);
     this._media = media;
+    this._controlsMedia = null;
+    this._controlsVisibilityMedia = null;
+    this._bigControlsMedia = null;
     this._initControls();
     this._toggleControlsVisibility();
+    this._setupKeyboardControls();
+    this._setupBigControls();
     this._setupChooser();
     this._setupDownload();
     // Klick auf den Videobereich toggelt Play/Pause (außer auf Controls)
@@ -1365,6 +1496,7 @@ class XPlayer extends HTMLElement {
     }
     this._playerClickHandler = (e) => {
       if (e.defaultPrevented) return;
+      if (!this._media) return;
       // 1. Kontextmenü offen? Dann nie toggeln!
       if (contextMenu && contextMenu.classList.contains("visible")) {
         if (contextMenu.contains(e.target)) return;
@@ -1433,6 +1565,7 @@ class XPlayer extends HTMLElement {
     const play = this.shadowRoot.querySelector("#play");
     const bigPlay = this.shadowRoot.querySelector("#big-play");
     const media = this._media;
+    if (!media) return;
     // Replay SVG
     const svgReplay = () => `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V2L7 6.5L12 11V8C15.31 8 18 10.69 18 14C18 17.31 15.31 20 12 20C8.69 20 6 17.31 6 14H4C4 18.42 7.58 22 12 22C16.42 22 20 18.42 20 14C20 9.58 16.42 6 12 6V5Z" fill="currentColor"/></svg>`;
 
@@ -1441,52 +1574,178 @@ class XPlayer extends HTMLElement {
       if (bigPlay) {
         bigPlay.innerHTML = svgReplay();
         bigPlay.setAttribute('aria-label', 'Neustart');
-        bigPlay.onclick = () => {
-          media.currentTime = 0;
-          media.play();
-        };
       }
       // Replay für kleinen Button
       if (play) {
         play.innerHTML = svgReplay();
         play.setAttribute('aria-label', 'Neustart');
-        play.onclick = () => {
-          media.currentTime = 0;
-          media.play();
-        };
       }
     } else {
       // BigButton normal
       if (bigPlay) {
         bigPlay.innerHTML = media.paused ? svgIcon('play') : svgIcon('pause');
         bigPlay.setAttribute('aria-label', media.paused ? 'Abspielen' : 'Pause');
-        bigPlay.onclick = () => {
-          if (media.paused) {
-            media.play();
-          } else {
-            media.pause();
-          }
-        };
       }
       // Kleiner Button normal
       if (play) {
         play.innerHTML = media.paused ? svgIcon('play') : svgIcon('pause');
         play.setAttribute('aria-label', media.paused ? 'Abspielen' : 'Pause');
-        play.onclick = (e) => {
-          e.preventDefault();
-          if (media.paused) {
-            media.play();
-          } else {
-            media.pause();
-          }
-          this.updatePlayPauseIcon();
-        };
       }
+    }
+  }
+
+  _fullscreenInnerElement() {
+    return this.shadowRoot ? this.shadowRoot.querySelector(".player") : null;
+  }
+
+  _fullscreenElement() {
+    return this.shadowRoot && this.shadowRoot.fullscreenElement
+      || document.fullscreenElement
+      || document.webkitFullscreenElement
+      || null;
+  }
+
+  _isFullscreenActive() {
+    const fullscreenElement = this._fullscreenElement();
+    const inner = this._fullscreenInnerElement();
+    return Boolean(
+      fullscreenElement &&
+      (fullscreenElement === this
+        || fullscreenElement === inner
+        || this.contains(fullscreenElement)
+        || (inner && inner.contains(fullscreenElement)))
+    );
+  }
+
+  _requestFullscreenFor(element) {
+    if (!element) return Promise.resolve(false);
+    const request = element.requestFullscreen || element.webkitRequestFullscreen;
+    if (typeof request !== "function") return Promise.resolve(false);
+    try {
+      return Promise.resolve(request.call(element)).then(() => true);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  _exitFullscreenDocument() {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if (typeof exit !== "function") return Promise.resolve(false);
+    try {
+      return Promise.resolve(exit.call(document)).then(() => true);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  _publishFullscreenState(isFullscreen) {
+    const prevState = xstate.get(`xplayer-state-${this.id}`);
+    if (!prevState || prevState.fullscreen === isFullscreen) return;
+    this._internalStateUpdate = true;
+    xstate.set(`xplayer-state-${this.id}`, {
+      ...prevState,
+      fullscreen: isFullscreen
+    });
+    this._internalStateUpdate = false;
+  }
+
+  _setFullscreenVisualState(isFullscreen) {
+    const player = this._fullscreenInnerElement();
+    this.classList.toggle("fullscreen", isFullscreen);
+    this._updateDimensions();
+
+    if (this._media && !this._media.paused && !this._media.seeking && !this._media.ended) {
+      this._hideOverlay();
+      const spinner = this.shadowRoot.querySelector("#spinner-overlay");
+      if (spinner) spinner.classList.remove("visible");
+    }
+    if (this._media && !this._media.paused && player) {
+      player.classList.remove("big-controls-visible");
+    }
+  }
+
+  _handleDocumentFullscreenChange() {
+    const isFullscreen = this._isFullscreenActive();
+    this._setFullscreenVisualState(isFullscreen);
+    this._publishFullscreenState(isFullscreen);
+    this.dispatchEvent(new CustomEvent("xplayer-fullscreen", {
+      detail: { fullscreen: isFullscreen },
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  async _setFullscreenFromState(shouldFullscreen) {
+    if (shouldFullscreen === this._isFullscreenActive()) return;
+    await this.toggleFullscreen();
+  }
+
+  async toggleFullscreen(event) {
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+    if (this._fullscreenRequestInFlight) return this._fullscreenRequestInFlight;
+
+    this._fullscreenRequestInFlight = (async () => {
+      const shouldExit = this._isFullscreenActive();
+      try {
+        if (shouldExit) {
+          await this._exitFullscreenDocument();
+        } else {
+          try {
+            const requestedHost = await this._requestFullscreenFor(this);
+            if (!requestedHost) {
+              const inner = this._fullscreenInnerElement();
+              if (inner && inner !== this) await this._requestFullscreenFor(inner);
+            }
+          } catch (hostError) {
+            const inner = this._fullscreenInnerElement();
+            if (!inner || inner === this) throw hostError;
+            await this._requestFullscreenFor(inner);
+          }
+        }
+      } catch (error) {
+        console.warn("Failed to toggle full-screen mode:", error && error.message ? error.message : error);
+      }
+
+      const isFullscreen = this._isFullscreenActive();
+      this._setFullscreenVisualState(isFullscreen);
+      this._publishFullscreenState(isFullscreen);
+      this.dispatchEvent(new CustomEvent("xplayer-fullscreen", {
+        detail: { fullscreen: isFullscreen },
+        bubbles: true,
+        composed: true
+      }));
+      return isFullscreen;
+    })();
+
+    try {
+      return await this._fullscreenRequestInFlight;
+    } finally {
+      this._fullscreenRequestInFlight = null;
     }
   }
 
   _initControls() {
     const media = this._media;
+    if (!media) return;
+    if (this._controlsMedia === media) {
+      this.updatePlayPauseIcon();
+      return;
+    }
+    if (this._controlsAbortController) {
+      this._controlsAbortController.abort();
+      this._controlsAbortController = null;
+    }
+    const controlsAbortController = typeof AbortController !== "undefined" ? new AbortController() : null;
+    this._controlsAbortController = controlsAbortController;
+    const addControlListener = (target, type, handler, options) => {
+      if (!target || typeof target.addEventListener !== "function") return;
+      const listenerOptions = controlsAbortController
+        ? { ...(options && typeof options === "object" ? options : {}), signal: controlsAbortController.signal }
+        : options;
+      target.addEventListener(type, handler, listenerOptions);
+    };
+    this._controlsMedia = media;
     const play = this.shadowRoot.querySelector("#play");
     const mute = this.shadowRoot.querySelector("#mute");
     const volume = this.shadowRoot.querySelector("#volume");
@@ -1521,10 +1780,10 @@ class XPlayer extends HTMLElement {
       }
     };
 
-    media.addEventListener("timeupdate", updateTime);
-    media.addEventListener("loadedmetadata", updateTime);
-    media.addEventListener("progress", updateBufferBar);
-    media.addEventListener("loadedmetadata", updateBufferBar);
+    addControlListener(media, "timeupdate", updateTime);
+    addControlListener(media, "loadedmetadata", updateTime);
+    addControlListener(media, "progress", updateBufferBar);
+    addControlListener(media, "loadedmetadata", updateBufferBar);
 
     // Seek functionality
     seekbar.onclick = (e) => {
@@ -1533,7 +1792,7 @@ class XPlayer extends HTMLElement {
       media.currentTime = seekTime;
     };
     // Touch support for seekbar
-    seekbar.addEventListener('touchstart', (e) => {
+    addControlListener(seekbar, 'touchstart', (e) => {
       if (e.touches.length === 1) {
         const touch = e.touches[0];
         const rect = seekbar.getBoundingClientRect();
@@ -1554,7 +1813,7 @@ class XPlayer extends HTMLElement {
       document.addEventListener("mouseleave", onMouseUp);
     };
     // Touch support for scrub knob
-    knob.addEventListener('touchstart', (e) => {
+    addControlListener(knob, 'touchstart', (e) => {
       if (e.touches.length === 1) {
         isTouchDragging = true;
         knob.classList.add("dragging");
@@ -1602,31 +1861,35 @@ class XPlayer extends HTMLElement {
       document.removeEventListener("touchcancel", onTouchEnd);
     }
 
-    // Fullscreen button: add touch support
-    fullscreen.onclick = () => {
-      const player = this.shadowRoot.querySelector(".player");
-      if (!document.fullscreenElement) {
-        player.requestFullscreen().then(() => {
-          this.classList.add("fullscreen");
-          this._updateDimensions();
-        }).catch((err) => {
-          console.error("Failed to enter full-screen mode:", err);
-        });
-      } else {
-        document.exitFullscreen().then(() => {
-          this.classList.remove("fullscreen");
-          this._updateDimensions();
-        }).catch((err) => {
-          console.error("Failed to exit full-screen mode:", err);
-        });
-      }
-      this.dispatchEvent(new CustomEvent("xplayer-fullscreen", { detail: { fullscreen: !!document.fullscreenElement } }));
+    const stopControlEvent = (event) => {
+      if (event && typeof event.preventDefault === "function") event.preventDefault();
+      if (event && typeof event.stopPropagation === "function") event.stopPropagation();
     };
-    fullscreen.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      fullscreen.onclick();
-    });
-    pip.onclick = async () => {
+    const togglePlayback = (event) => {
+      stopControlEvent(event);
+      const currentMedia = this._media;
+      if (!currentMedia) return;
+      if (currentMedia.ended) currentMedia.currentTime = 0;
+      if (currentMedia.paused) {
+        currentMedia.play();
+      } else {
+        currentMedia.pause();
+      }
+      this.updatePlayPauseIcon();
+    };
+    const toggleMute = (event) => {
+      stopControlEvent(event);
+      const currentMedia = this._media;
+      if (!currentMedia) return;
+      currentMedia.muted = !currentMedia.muted;
+      mute.innerHTML = currentMedia.muted ? svgIcon('mute') : svgIcon('volume');
+      this.dispatchEvent(new CustomEvent("xplayer-mute", { detail: { muted: currentMedia.muted } }));
+    };
+    const toggleFullscreen = (event) => {
+      this.toggleFullscreen(event);
+    };
+    const togglePip = async (event) => {
+      stopControlEvent(event);
       try {
         if (document.pictureInPictureElement) {
           await document.exitPictureInPicture();
@@ -1638,7 +1901,8 @@ class XPlayer extends HTMLElement {
       }
       this.dispatchEvent(new CustomEvent("xplayer-pip", { detail: {} }));
     };
-    subtitles.onclick = () => {
+    const requestCaption = (event) => {
+      stopControlEvent(event);
       // ...existing code for subtitles toggle...
       this.dispatchEvent(new CustomEvent("xplayer-caption", { detail: {} }));
     };
@@ -1683,11 +1947,11 @@ class XPlayer extends HTMLElement {
           }, 800);
         }
       };
-      volumeContainer.addEventListener('mouseenter', show);
-      volumeContainer.addEventListener('mouseleave', hide);
+      addControlListener(volumeContainer, 'mouseenter', show);
+      addControlListener(volumeContainer, 'mouseleave', hide);
       if (volumeSlider) {
-        volumeSlider.addEventListener('mouseenter', show);
-        volumeSlider.addEventListener('mouseleave', hide);
+        addControlListener(volumeSlider, 'mouseenter', show);
+        addControlListener(volumeSlider, 'mouseleave', hide);
         // Nach Interaktion auf dem Slider: GUI und Slider nach kurzer Zeit ausblenden
         const volumeInput = volumeSlider.querySelector('input[type="range"]');
         if (volumeInput) {
@@ -1697,37 +1961,33 @@ class XPlayer extends HTMLElement {
               // Slider immer ausblenden, unabhängig vom Status der Steuerleiste
             }, 800);
           };
-          volumeInput.addEventListener('mouseup', interactionEnd);
-          volumeInput.addEventListener('touchend', interactionEnd);
-          volumeInput.addEventListener('change', interactionEnd);
+          addControlListener(volumeInput, 'mouseup', interactionEnd);
+          addControlListener(volumeInput, 'touchend', interactionEnd);
+          addControlListener(volumeInput, 'change', interactionEnd);
         }
       }
-      volumeContainer.addEventListener('focusin', show);
-      volumeContainer.addEventListener('focusout', hide);
+      addControlListener(volumeContainer, 'focusin', show);
+      addControlListener(volumeContainer, 'focusout', hide);
     }
     if (controls) controls.classList.add('visible');
 
     // ARIA- und Event-Verbesserungen für Controls
-    play.onclick = null;
-    play.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      if (this._media.paused) {
-        this._media.play();
-      } else {
-        this._media.pause();
-      }
-      this.updatePlayPauseIcon();
-    });
-    mute.onclick = null;
-    mute.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      this._media.muted = !this._media.muted;
-      mute.innerHTML = this._media.muted ? svgIcon('mute') : svgIcon('volume');
-      this.dispatchEvent(new CustomEvent("xplayer-mute", { detail: { muted: this._media.muted } }));
-    });
+    if (play) play.onclick = null;
+    if (mute) mute.onclick = null;
+    if (fullscreen) fullscreen.onclick = null;
+    if (pip) pip.onclick = null;
+    if (subtitles) subtitles.onclick = null;
+    addControlListener(play, 'click', togglePlayback);
+    addControlListener(play, 'pointerdown', (event) => event.stopPropagation());
+    addControlListener(mute, 'click', toggleMute);
+    addControlListener(mute, 'pointerdown', (event) => event.stopPropagation());
+    addControlListener(fullscreen, 'click', toggleFullscreen);
+    addControlListener(fullscreen, 'touchstart', toggleFullscreen);
+    addControlListener(pip, 'click', togglePip);
+    addControlListener(subtitles, 'click', requestCaption);
     if (volume) {
       // Lautstärke-Slider steuert die Media-Lautstärke
-      volume.addEventListener('input', (e) => {
+      addControlListener(volume, 'input', (e) => {
         if (this._media) {
           this._media.volume = parseFloat(volume.value);
           if (this._media.volume === 0) {
@@ -1740,20 +2000,23 @@ class XPlayer extends HTMLElement {
         }
       });
       // Synchronisiere Slider, wenn Lautstärke extern geändert wird
-      this._media.addEventListener('volumechange', () => {
+      addControlListener(this._media, 'volumechange', () => {
         volume.value = this._media.volume;
         mute.innerHTML = this._media.muted ? svgIcon('mute') : svgIcon('volume');
       });
     }
     // NEU: Immer synchronisieren, auch bei Tastatursteuerung etc.
-    this._media.addEventListener('play', () => this.updatePlayPauseIcon());
-    this._media.addEventListener('pause', () => this.updatePlayPauseIcon());
-    this._media.addEventListener('ended', () => this.updatePlayPauseIcon());
+    addControlListener(this._media, 'play', () => this.updatePlayPauseIcon());
+    addControlListener(this._media, 'pause', () => this.updatePlayPauseIcon());
+    addControlListener(this._media, 'ended', () => this.updatePlayPauseIcon());
   }
 
   _toggleControlsVisibility() {
     const controls = this.shadowRoot.querySelector(".controls");
     const volumeContainer = this.shadowRoot.querySelector('.volume-container');
+    if (!this._media || !controls) return;
+    if (this._controlsVisibilityMedia === this._media) return;
+    this._controlsVisibilityMedia = this._media;
     let timeout;
 
     const showControls = () => {
@@ -1832,10 +2095,13 @@ class XPlayer extends HTMLElement {
 
   _setupKeyboardControls() {
     const player = this.shadowRoot.querySelector(".player");
-    const media = this._media;
-    const volumeSlider = this.shadowRoot.querySelector("#volume");
+    if (!player || this._keyboardControlsBound) return;
+    this._keyboardControlsBound = true;
 
     player.addEventListener("keydown", (e) => {
+      const media = this._media;
+      const volumeSlider = this.shadowRoot.querySelector("#volume");
+      if (!media) return;
       switch (e.key) {
         case " ":
           e.preventDefault(); // Prevent scrolling
@@ -1854,12 +2120,12 @@ class XPlayer extends HTMLElement {
         case "ArrowUp":
           e.preventDefault(); // Prevent scrolling
           media.volume = Math.min(media.volume + 0.1, 1);
-          volumeSlider.value = media.volume;
+          if (volumeSlider) volumeSlider.value = media.volume;
           break;
         case "ArrowDown":
           e.preventDefault(); // Prevent scrolling
           media.volume = Math.max(media.volume - 0.1, 0);
-          volumeSlider.value = media.volume;
+          if (volumeSlider) volumeSlider.value = media.volume;
           break;
       }
     });
@@ -1867,6 +2133,11 @@ class XPlayer extends HTMLElement {
 
   _setupCursorHiding() {
     const player = this.shadowRoot.querySelector(".player");
+    if (!player) return;
+    if (this._cursorAbortController) this._cursorAbortController.abort();
+    const cursorAbortController = typeof AbortController !== "undefined" ? new AbortController() : null;
+    this._cursorAbortController = cursorAbortController;
+    const listenerOptions = cursorAbortController ? { signal: cursorAbortController.signal } : undefined;
     let cursorTimeout;
 
     const hideCursor = () => {
@@ -1880,17 +2151,23 @@ class XPlayer extends HTMLElement {
     };
 
     player.addEventListener("mousemove", () => {
-      if (document.fullscreenElement) {
+      if (this._isFullscreenActive()) {
         showCursor();
       }
-    });
+    }, listenerOptions);
 
     document.addEventListener("fullscreenchange", () => {
-      if (!document.fullscreenElement) {
+      if (!this._isFullscreenActive()) {
         player.classList.remove("hide-cursor"); // Ensure cursor is visible when exiting full-screen
         clearTimeout(cursorTimeout);
       }
-    });
+    }, listenerOptions);
+    document.addEventListener("webkitfullscreenchange", () => {
+      if (!this._isFullscreenActive()) {
+        player.classList.remove("hide-cursor");
+        clearTimeout(cursorTimeout);
+      }
+    }, listenerOptions);
   }
 
   _format(seconds) {

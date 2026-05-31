@@ -62,6 +62,8 @@ const REQUIRED_METHODS = Object.freeze([
   'minimizeSurface',
   'maximizeSurface',
   'restoreSurface',
+  'materializeSurface',
+  'toggleSurface',
   'snapshot',
   'dispose'
 ]);

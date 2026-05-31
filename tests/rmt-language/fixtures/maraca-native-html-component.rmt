@@ -1,0 +1,29 @@
+// Maraca fixture proving that safe browser-native elements can be strict orchestration islands.
+
+template demo.maraca.native {
+  state demo.maraca.native.image type object preserve {
+    initial {
+      id "native-image"
+      src "/tests/components/fixtures/demo-poster.svg"
+      alt "Native image preview"
+      open true
+    }
+  }
+
+  selector demo.maraca.native.image from state demo.maraca.native.image {
+    output NativeImagePreview
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  surface demo.maraca.native.image kind image component img {
+    source selector demo.maraca.native.image
+    key image.id
+    portal surface.root
+    bounds x 0 y 0 width 640 height 360
+
+    lane visible weight 20 {
+      hydrate native-image from selector demo.maraca.native.image
+    }
+  }
+}

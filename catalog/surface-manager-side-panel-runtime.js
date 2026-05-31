@@ -86,6 +86,8 @@ const REQUIRED_MANAGER_METHODS = Object.freeze([
   'expandSurface',
   'dockSurface',
   'restoreSurface',
+  'materializeSurface',
+  'toggleSurface',
   'snapshot'
 ]);
 
@@ -95,6 +97,7 @@ const REQUIRED_PANEL_METHODS = Object.freeze([
   'openPanel',
   'closePanel',
   'focusPanel',
+  'minimizePanel',
   'pinPanel',
   'collapsePanel',
   'expandPanel',

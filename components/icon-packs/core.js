@@ -125,6 +125,38 @@ const icons = Object.freeze({
     aliases: ['routing'],
     nodes: [circle(6, 6, 2), circle(18, 18, 2), path('M8 6h4a4 4 0 0 1 0 8h-1a4 4 0 0 0 0 8h1')]
   },
+  play: {
+    aliases: ['player', 'open-player'],
+    nodes: [path('M8 5v14l11-7Z')]
+  },
+  grid: {
+    aliases: ['library-grid', 'explorer'],
+    nodes: [rect(3, 3, 7, 7, { rx: 1.4 }), rect(14, 3, 7, 7, { rx: 1.4 }), rect(3, 14, 7, 7, { rx: 1.4 }), rect(14, 14, 7, 7, { rx: 1.4 })]
+  },
+  refresh: {
+    aliases: ['scan', 'reindex', 'reload'],
+    nodes: [path('M20 11a8 8 0 0 0-14.9-4'), path('M5 3v4h4'), path('M4 13a8 8 0 0 0 14.9 4'), path('M19 21v-4h-4')]
+  },
+  trash: {
+    aliases: ['delete', 'delete-media', 'remove-item'],
+    nodes: [path('M4 7h16'), path('M10 11v6'), path('M14 11v6'), path('M6 7l1 14h10l1-14'), path('M9 7V4h6v3')]
+  },
+  video: {
+    aliases: ['movie', 'media-video'],
+    nodes: [rect(3, 6, 12, 12, { rx: 2 }), path('M15 10l6-4v12l-6-4Z')]
+  },
+  audio: {
+    aliases: ['music', 'media-audio'],
+    nodes: [path('M9 18V5l12-2v13'), circle(6, 18, 3), circle(18, 16, 3)]
+  },
+  image: {
+    aliases: ['photo', 'picture', 'media-image'],
+    nodes: [rect(3, 5, 18, 14, { rx: 2 }), circle(8, 10, 1.5), path('M21 16l-5-5L5 19')]
+  },
+  collection: {
+    aliases: ['archive', 'folder-stack'],
+    nodes: [path('M3 7h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z'), path('M3 11h18')]
+  },
   shield: {
     aliases: ['security'],
     nodes: [path('M12 3 20 6v6c0 4.5-3.1 7.3-8 9-4.9-1.7-8-4.5-8-9V6Z'), path('m8.8 12 2.1 2.1 4.5-4.8')]

@@ -19,6 +19,18 @@
   function cloneValue(value, fallback = null) {
     if (typeof value === 'undefined') return fallback;
     if (value === null || typeof value !== 'object') return value;
+    if (typeof File !== 'undefined' && value instanceof File) return value;
+    if (typeof Blob !== 'undefined' && value instanceof Blob) return value;
+    if (typeof FileList !== 'undefined' && value instanceof FileList) return Array.from(value);
+    if (Array.isArray(value)) return value.map((entry) => cloneValue(entry, entry));
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype === Object.prototype || prototype === null) {
+      const result = {};
+      Object.entries(value).forEach(([key, entry]) => {
+        result[key] = cloneValue(entry, entry);
+      });
+      return result;
+    }
     try {
       return JSON.parse(JSON.stringify(value));
     } catch (_) {
@@ -73,14 +85,54 @@
     if (!target || !selector) return false;
     if (typeof target.matches === 'function') return target.matches(selector);
     if (selector.startsWith('[data-') && selector.endsWith(']')) {
-      const match = selector.match(/^\[([^=\]]+)(?:="([^"]*)")?\]$/u);
+      const match = selector.match(/^\[([^=\]]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\]]*)))?\]$/u);
       if (!match) return false;
       const value = getAttributeValue(target, match[1]);
-      return typeof match[2] === 'undefined' ? value != null : String(value) === match[2];
+      const expected = match[2] || match[3] || match[4];
+      return typeof expected === 'undefined' ? value != null : String(value) === expected;
     }
     if (selector.startsWith('#')) return target.id === selector.slice(1);
     if (selector.startsWith('.')) return String(target.className || '').split(/\s+/u).includes(selector.slice(1));
     return String(target.tagName || target.localName || '').toLowerCase() === selector.toLowerCase();
+  }
+
+  function selectorDataMaracaSurface(selector) {
+    const match = String(selector || '').match(/\[data-maraca-surface=(?:"([^"]+)"|'([^']+)'|([^\]]+))\]/u);
+    return match ? clampString(match[1] || match[2] || match[3], '') : '';
+  }
+
+  function bindingSurfaceId(binding) {
+    const candidates = [
+      binding && binding.closest,
+      binding && binding.target,
+      binding && binding.selector,
+      binding && binding.surface,
+      binding && binding.surfaceId
+    ];
+    for (const candidate of candidates) {
+      const surfaceFromSelector = selectorDataMaracaSurface(candidate);
+      if (surfaceFromSelector) return surfaceFromSelector;
+      const value = clampString(candidate, '');
+      if (!value) continue;
+      if (value.startsWith('surface:')) {
+        return value.replace(/^surface:[^/]+\//u, '').replace(/^surface:/u, '');
+      }
+    }
+    return '';
+  }
+
+  function eventSurfaceId(event) {
+    const detail = objectRecord(event && event.detail);
+    return clampString(
+      detail.surfaceId || detail.surface || readPath(detail, 'payload.surfaceId') || readPath(detail, 'payload.surface'),
+      ''
+    );
+  }
+
+  function eventMatchesBindingSurface(binding, event) {
+    const expectedSurfaceId = bindingSurfaceId(binding);
+    const actualSurfaceId = eventSurfaceId(event);
+    return Boolean(expectedSurfaceId && actualSurfaceId && expectedSurfaceId === actualSurfaceId);
   }
 
   function closestTarget(event, selector, fallback) {
@@ -117,6 +169,14 @@
   }
 
   function resolveEventSource(binding, event) {
+    if (binding && binding.closest) {
+      const closest = closestTarget(event, binding.closest, null);
+      if (closest) return closest;
+      if (eventMatchesBindingSurface(binding, event)) {
+        return event && event.target || event && event.currentTarget || null;
+      }
+      return null;
+    }
     const governance = objectRecord(binding.governance);
     if (governance.retarget === 'current-target') return event && event.currentTarget || null;
     if (governance.retarget === 'composed-path' && event && typeof event.composedPath === 'function') {
@@ -207,7 +267,7 @@
           retarget: clampString(source.retarget || source.governance && source.governance.retarget, 'target')
         },
         payloadAdapter: source.payloadAdapter || source.adapter || source.payloadKind || null,
-        closest: source.closest || source.closestSelector || source.delegate || null,
+        closest: source.closest || source.closestSelector || source.delegate || (typeof source.target === 'string' ? source.target : null),
         guard: source.guard || source.confirm || null,
         postAction: toArray(source.postAction || source.after || source.afterAction),
         condition: source.condition || source.when || null,
@@ -396,11 +456,29 @@
     return operations;
   }
 
+  function surfaceDelegationTarget(binding, root) {
+    if (!bindingSurfaceId(binding)) return null;
+    return root && root.ownerDocument && typeof root.ownerDocument.addEventListener === 'function'
+      ? root.ownerDocument
+      : null;
+  }
+
+  function isSurfaceCommandEvent(binding) {
+    return Boolean(bindingSurfaceId(binding) && /^surface-[a-z-]+-command$/u.test(clampString(binding && binding.event, '')));
+  }
+
+  function isSurfaceDelegatedEvent(binding) {
+    return Boolean(bindingSurfaceId(binding) && binding && binding.closest);
+  }
+
   function defaultResolveTarget(binding, root, options = {}) {
     const target = binding.target;
     if (target && typeof target === 'object' && typeof target.addEventListener === 'function') return target;
     const targets = objectRecord(options.targets);
     if (typeof target === 'string' && targets[target]) return targets[target];
+    if (binding.closest && root && typeof root.addEventListener === 'function') {
+      return surfaceDelegationTarget(binding, root) || root;
+    }
     if (typeof options.targetResolver === 'function') {
       const resolved = options.targetResolver(binding, root);
       if (resolved) return resolved;
@@ -416,7 +494,7 @@
   function listenerOptions(binding) {
     const governance = objectRecord(binding.governance);
     return {
-      capture: Boolean(governance.capture),
+      capture: Boolean(governance.capture || isSurfaceCommandEvent(binding) || isSurfaceDelegatedEvent(binding)),
       passive: Boolean(governance.passive),
       once: Boolean(governance.once)
     };
@@ -457,6 +535,16 @@
       };
       if (!binding.enabled) {
         const skipped = createRouteResult(binding, 'skipped', null, { reason: 'disabled' });
+        routeHistory.push(skipped);
+        return skipped;
+      }
+      if (binding.closest && !eventContext.source) {
+        if (eventMatchesBindingSurface(binding, event)) {
+          eventContext.source = event && event.target || event && event.currentTarget || rootTarget;
+        }
+      }
+      if (binding.closest && !eventContext.source) {
+        const skipped = createRouteResult(binding, 'skipped', null, { reason: 'delegated-target' });
         routeHistory.push(skipped);
         return skipped;
       }

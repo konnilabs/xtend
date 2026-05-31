@@ -107,7 +107,10 @@ export interface XtendSurfaceController {
   minimizeSurface(id: string): XtendSurfaceOperationResult;
   maximizeSurface(id: string): XtendSurfaceOperationResult;
   restoreSurface(id: string): XtendSurfaceOperationResult;
+  materializeSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds> }): XtendSurfaceOperationResult;
+  toggleSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds> }): XtendSurfaceOperationResult;
   snapshot(): XtendSurfaceSnapshot;
+  readSnapshot(): XtendSurfaceSnapshot;
   dispose(): XtendSurfaceOperationResult;
 }
 

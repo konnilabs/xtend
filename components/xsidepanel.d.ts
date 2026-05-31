@@ -7,6 +7,7 @@ export type XSidePanelAttributeName =
   | 'label'
   | 'open'
   | 'active'
+  | 'minimized'
   | 'collapsed'
   | 'pinned'
   | 'mode'
@@ -20,7 +21,7 @@ export type XSidePanelAttributeName =
 
 export type XSidePanelPlacement = 'left' | 'right' | 'bottom' | 'inline';
 export type XSidePanelMode = 'docked' | 'overlay' | 'pinned' | 'collapsed' | 'fullscreen' | 'floating';
-export type XSidePanelCommand = 'open' | 'close' | 'focus' | 'resize' | 'pin' | 'unpin' | 'collapse' | 'expand' | 'dock' | 'restore' | 'update';
+export type XSidePanelCommand = 'open' | 'close' | 'focus' | 'resize' | 'minimize' | 'pin' | 'unpin' | 'collapse' | 'expand' | 'dock' | 'restore' | 'update';
 
 export interface XSidePanelCommandDetail {
   surfaceId: string;
@@ -38,6 +39,7 @@ export interface XSidePanelElement extends HTMLElement {
   openPanel(): void;
   closePanel(reason?: string): void;
   focusPanel(): void;
+  minimizePanel(): void;
   pinPanel(): void;
   collapsePanel(): void;
   expandPanel(mode?: XSidePanelMode): void;

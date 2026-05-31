@@ -19,6 +19,18 @@
   function cloneValue(value, fallback = null) {
     if (typeof value === 'undefined') return fallback;
     if (value === null || typeof value !== 'object') return value;
+    if (typeof File !== 'undefined' && value instanceof File) return value;
+    if (typeof Blob !== 'undefined' && value instanceof Blob) return value;
+    if (typeof FileList !== 'undefined' && value instanceof FileList) return Array.from(value);
+    if (Array.isArray(value)) return value.map((entry) => cloneValue(entry, entry));
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype === Object.prototype || prototype === null) {
+      const result = {};
+      Object.entries(value).forEach(([key, entry]) => {
+        result[key] = cloneValue(entry, entry);
+      });
+      return result;
+    }
     try {
       return JSON.parse(JSON.stringify(value));
     } catch (_) {
@@ -304,6 +316,7 @@
     const navigationAdapter = options.navigationAdapter || null;
     const focusAdapter = options.focusAdapter || null;
     const effectAdapter = options.effectAdapter || null;
+    const deferCustomEffects = options.deferCustomEffects === true;
     const actionStatus = {};
     const actionHistory = [];
     const activeRuns = new Map();
@@ -334,7 +347,18 @@
           kind: effect.kind,
           payload: cloneValue(context.result, context.result)
         };
-        if (effectAdapter && typeof effectAdapter.invoke === 'function') effectAdapter.invoke(effect, context);
+        if (deferCustomEffects) {
+          value.deferred = true;
+          value.effect = cloneValue(effect, effect);
+          value.context = {
+            action: context.action ? cloneValue(context.action, context.action) : null,
+            payload: cloneValue(context.payload, context.payload || {}),
+            result: cloneValue(context.result, context.result),
+            ownerId: context.ownerId || null
+          };
+        } else if (effectAdapter && typeof effectAdapter.invoke === 'function') {
+          value.result = await effectAdapter.invoke(effect, context);
+        }
       }
       return {
         id: effect.id,

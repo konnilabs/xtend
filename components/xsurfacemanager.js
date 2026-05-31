@@ -1892,7 +1892,9 @@ class XSurfaceManager extends HTMLElement {
       this._registeredElements.set(record.id, element);
       element.surfaceManager = this;
       this._prepareSurfaceLoading(element, record, { reason: 'registerSurface' });
-      if (element.hasAttribute('open')) {
+      const replaced = Boolean(result && result.diagnostic && result.diagnostic.detail && result.diagnostic.detail.replaced);
+      const defaultOpen = element.hasAttribute('open') && !element.hasAttribute('minimized') && !replaced;
+      if (defaultOpen) {
         this.openSurface(record.id);
       } else {
         snapshot = this._applySnapshot();
@@ -1940,6 +1942,14 @@ class XSurfaceManager extends HTMLElement {
 
   restoreSurface(id) {
     return this._commit('restoreSurface', 'surface-layout-changed', id);
+  }
+
+  materializeSurface(id, input) {
+    return this._commit('materializeSurface', 'surface-materialized', id, input);
+  }
+
+  toggleSurface(id, input) {
+    return this._commit('toggleSurface', 'surface-layout-changed', id, input);
   }
 
   pinSurface(id, pinned = true) {
@@ -2440,6 +2450,10 @@ class XSurfaceManager extends HTMLElement {
 
   snapshot() {
     return this._ensureController().snapshot();
+  }
+
+  readSnapshot() {
+    return this._ensureController().readSnapshot();
   }
 
   snapshotSurfaceLoading() {
@@ -3804,10 +3818,10 @@ class XSurfaceManager extends HTMLElement {
   _activateSurfaceFromTray(record) {
     if (!record || !record.id) return null;
     if (record.status === 'minimized' || record.minimized) {
-      return this.restoreSurface(record.id);
+      return this.materializeSurface(record.id);
     }
     if (record.status === 'closed') {
-      return this.openSurface(record.id);
+      return this.materializeSurface(record.id);
     }
     if (record.collapsed) {
       return this.expandSurface(record.id, record.pinned ? 'pinned' : 'docked');
@@ -3862,7 +3876,7 @@ class XSurfaceManager extends HTMLElement {
 
   _commit(method, eventName, id, payload) {
     const controller = this._ensureController();
-    if (method === 'openSurface' || method === 'focusSurface') {
+    if (method === 'openSurface' || method === 'focusSurface' || method === 'materializeSurface') {
       this._captureStackFocusRestoreTarget(id);
     }
     const result = controller[method](id, payload);
@@ -3983,15 +3997,15 @@ class XSurfaceManager extends HTMLElement {
     if (!surfaceId || !rawCommand) return;
     event.stopPropagation();
     const command = {
-      show: 'open',
+      show: 'materialize',
       hide: 'close',
       dismiss: 'close'
     }[rawCommand] || rawCommand;
-    const current = this.snapshot().surfaces.find((record) => record.id === surfaceId);
     const commands = {
       open: () => this.openSurface(surfaceId, payload),
+      materialize: () => this.materializeSurface(surfaceId, payload),
       close: () => this.closeSurface(surfaceId, payload && payload.reason),
-      toggle: () => current && current.status !== 'closed' ? this.closeSurface(surfaceId, payload && payload.reason || 'toggle') : this.openSurface(surfaceId, payload),
+      toggle: () => this.toggleSurface(surfaceId, payload),
       focus: () => this.focusSurface(surfaceId),
       move: () => this.moveSurface(surfaceId, payload),
       resize: () => this.resizeSurface(surfaceId, payload),

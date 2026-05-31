@@ -115,6 +115,7 @@ export interface RmtActionEffectRuntimeOptions {
   navigationAdapter?: { navigate(path: unknown, context?: unknown): unknown };
   focusAdapter?: { focus(target: unknown, context?: unknown): unknown };
   effectAdapter?: { invoke(effect: unknown, context?: unknown): unknown };
+  deferCustomEffects?: boolean;
   objectUrlFactory?: { create(value: unknown): string; revoke(value: string): unknown };
   importAdapter?: { load(id: string, context?: unknown): Promise<unknown> | unknown };
   timerAdapter?: { set(delayMs: number, context?: unknown): unknown; clear(handle: unknown): unknown };

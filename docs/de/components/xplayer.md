@@ -63,6 +63,7 @@ Attribute:
 - `width`
 
 Events:
+- `xplayer-remote-play`
 - `xplayer-play`
 - `xplayer-pause`
 - `xplayer-state`
@@ -73,6 +74,8 @@ Events:
 
 Methoden:
 - `snapshot()`
+- `remotePlay(payload?: Record<string, unknown>)`
+- `surfaceLifecycleChanged(detail?: Record<string, unknown>)`
 - `getRmtPlayerContract()`
 - `applyRmtPlayerCommand(command: XPlayerRmtCommandName | XPlayerRmtCommand, payload?: Record<string, unknown>)`
 - `playMedia()`

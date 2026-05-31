@@ -51,7 +51,10 @@ For production screens, keep IDs stable when state keys or diagnostics include `
 
 Attributes:
 - `type`
+- `tone`
 - `duration`
+- `open`
+- `hidden`
 
 Events:
 - `toast-shown`

@@ -117,8 +117,11 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
   const lspBridge = readText('scripts/rmt_playground_lsp_bridge.js', rootDir);
   const maracaBridge = readText('scripts/rmt_playground_maraca_preview_bridge.js', rootDir);
+  const vnextCompiler = readText('tools/rmt-language/vnext-compiler.js', rootDir);
+  const vnextTooling = readText('tools/rmt-language/vnext-tooling.js', rootDir);
   const customerServiceKernelSource = readText('products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt', rootDir);
   const playgroundClient = extractPlaygroundClientBlock(pageLoader);
+  const legacyNodeSyntaxPattern = /\?\.[A-Za-z_$[(]|\?\?/u;
   const indexSyntax = spawnSync('php', ['-l', path.join(rootDir, 'docs/index.php')], {
     cwd: rootDir,
     encoding: 'utf8'
@@ -145,6 +148,7 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(indexPhp.includes('docsRmtPlaygroundComponentPreview'), 'Compile endpoint projects structured component previews');
   context.assert(indexPhp.includes("'renderMode' => 'dom_descriptor'"), 'Compile endpoint marks component previews as DOM descriptors');
   context.assert(lspBridge.includes('createRmtLanguageServer') && lspBridge.includes('textDocument/publishDiagnostics'), 'LSP bridge reuses the existing RMT Language Server diagnostics path');
+  context.assert(!legacyNodeSyntaxPattern.test(vnextCompiler) && !legacyNodeSyntaxPattern.test(vnextTooling), 'RMT Playground LSP server path avoids optional chaining and nullish coalescing for older Node runtimes');
   context.assert(maracaBridge.includes('createMaracaBuildPlan') && maracaBridge.includes('sourceText') && maracaBridge.includes('sanitizePlan'), 'Maraca bridge plans from source text and sanitizes the response');
   context.assert(playgroundClient.includes('DOCS_RMT_PLAYGROUND_RENDERER_MODULE'), 'Preview client uses the DOM descriptor renderer module');
   context.assert(playgroundClient.includes('DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES') && playgroundClient.includes('bootDocsRmtPlaygroundMaracaPreview'), 'Preview client boots the Maraca runtime preview from whitelisted modules');

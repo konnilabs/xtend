@@ -158,6 +158,8 @@ export interface RmtSurfaceManagerLike {
   updateSurface?(surfaceId: string, patch?: Record<string, unknown>): unknown;
   minimizeSurface?(surfaceId: string): unknown;
   restoreSurface?(surfaceId: string): unknown;
+  materializeSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
+  toggleSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
 }
 
 export interface RmtSurfaceResourceGraphRuntimeOptions {

@@ -68,6 +68,7 @@ Attribute:
 
 Events:
 - `surface-window-command`
+- `surface-lifecycle-change`
 
 Methoden:
 - `toSurfaceRecord(managerId: string)`

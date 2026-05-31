@@ -58,6 +58,8 @@ Attribute:
 - `name`
 - `value`
 - `placeholder`
+- `accept`
+- `multiple`
 - `required`
 - `disabled`
 - `busy`

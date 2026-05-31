@@ -328,7 +328,7 @@ class XInput extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["type", "name", "value", "placeholder", "required", "disabled", "busy", "invalid", "density"];
+    return ["type", "name", "value", "placeholder", "required", "disabled", "busy", "invalid", "density", "accept", "multiple"];
   }
 
   connectedCallback() {
@@ -340,16 +340,32 @@ class XInput extends HTMLElement {
     // Initialen State setzen
     xstate.set(`xinput-value-${this.id}`, this.value);
 
-    this._input.addEventListener("input", () => {
+    const emitInputChanged = () => {
       this._internals?.setFormValue(this.value);
       if (this._input.checkValidity()) this.removeAttribute("invalid");
       this.dispatchEvent(new CustomEvent("input-changed", {
-        detail: { value: this.value, source: "x-input" },
+        detail: {
+          value: this.value,
+          files: this.files,
+          fileCount: this.files ? this.files.length : 0,
+          source: "x-input"
+        },
         bubbles: true,
         composed: true
       }));
       // State aktualisieren
       xstate.set(`xinput-value-${this.id}`, this.value);
+    };
+
+    this._input.addEventListener("input", emitInputChanged);
+
+    this._input.addEventListener("change", (event) => {
+      event.stopPropagation();
+      emitInputChanged();
+      this.dispatchEvent(new Event("change", {
+        bubbles: true,
+        composed: true
+      }));
     });
 
     this._input.addEventListener("blur", () => {
@@ -398,13 +414,19 @@ class XInput extends HTMLElement {
       this._input.setAttribute("aria-busy", String(this.hasAttribute("busy")));
     } else if (name === "invalid") {
       this._input.setAttribute("aria-invalid", String(this.hasAttribute("invalid")));
-    } else if (["type", "name", "placeholder"].includes(name)) {
+    } else if (name === "multiple") {
+      this._input.multiple = this.hasAttribute("multiple");
+    } else if (["type", "name", "placeholder", "accept"].includes(name)) {
       this._input.setAttribute(name, newValue);
     }
   }
 
   get value() {
     return this._input.value;
+  }
+
+  get files() {
+    return this._input && this._input.files ? this._input.files : null;
   }
 
   set value(val) {
