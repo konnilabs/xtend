@@ -48,7 +48,7 @@ Der Lauf umfasst damit die Default-Suites des lokalen Runners, darunter Core, Ar
 |------|----------|---------|---------|----------|
 | `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `xtend-pr-gate-report-node-26` |
 | `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `release: published` | `npm run test:release:full:report` | `xtend-release-gate-report-node-26` |
-| `package-structure` | `xtend.ci.package-structure-gate.v1` | `pull_request`, `push`, `workflow_dispatch`, `release: published` | `npm run pack:dry-run` + `npm publish --dry-run --tag next --access public` | `xtend-package-structure-node-26` |
+| `package-structure` | `xtend.ci.package-structure-gate.v1` | `pull_request`, `push`, `workflow_dispatch`, `release: published` | `npm run pack:dry-run` + Workspace-`npm pack --dry-run --json` | `xtend-package-structure-node-26` |
 | `nightly-build` | `xtend.ci.nightly-build.v1` | `47 2 * * *` in `.github/workflows/xtend-nightly-build.yml` | `npm run test:release:full:report` + `npm run test:rmt-vnext-primitives:report` + `npm run nightly:manifest` | `xtend-nightly-build-node-26` |
 | `npm-publish-next` | `xtend.npm.publish-next.github-actions.v1` | `workflow_dispatch` mit `publish_to_npm=true` oder `release: published` | `npm publish --tag next --provenance --access public` | npm Provenance |
 

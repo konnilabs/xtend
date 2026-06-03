@@ -7053,7 +7053,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'xtend-rmt-vnext-source-to-sea-evidence-node-26', 'CI workflow uses stable RMT vNext source-to-sea artifact name');
   context.assertIncludes(workflow, 'package-structure:', 'CI workflow declares package structure job');
   context.assertIncludes(workflow, 'npm run pack:dry-run', 'CI workflow runs package dry run');
-  context.assertIncludes(workflow, 'npm publish --dry-run --tag next --access public', 'CI workflow runs npm publish dry run');
+  context.assertIncludes(workflow, 'npm publish --dry-run --tag next --access public', 'CI publish job runs npm publish dry run');
   context.assertIncludes(workflow, 'xtend-package-structure-node-26', 'CI workflow uploads package structure artifact');
   context.assertIncludes(workflow, 'npm-publish-next:', 'CI workflow declares manual npm publish job');
   context.assertIncludes(workflow, "github.event_name == 'release'", 'CI publish job runs for published GitHub Releases');
@@ -7185,7 +7185,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('type-exports-rmt'), 'RMT vNext primitive gate includes RMT TypeExports suite');
   context.assert(packageStructureGate.schema === 'xtend.ci.package-structure-gate.v1', 'Package metadata exposes package structure gate schema');
   context.assert(packageStructureGate.command === 'npm run pack:dry-run', 'Package metadata exposes package structure pack command');
-  context.assert(packageStructureGate.publishDryRunCommand === 'npm publish --dry-run --tag next --access public', 'Package metadata exposes publish dry-run command');
+  context.assert(packageStructureGate.publishDryRunDelegatedTo === 'npm-publish-next', 'Package metadata delegates publish dry-run to npm publish job');
   context.assert(packageStructureGate.artifactName === 'xtend-package-structure-node-26', 'Package metadata exposes package structure artifact name');
   context.assert(npmPublishNext && npmPublishNext.schema === 'xtend.npm.publish-next.github-actions.v1', 'Package metadata exposes npm publish-next schema');
   context.assert(npmPublishNext.workflow === workflowPath, 'Package metadata exposes npm publish workflow path');

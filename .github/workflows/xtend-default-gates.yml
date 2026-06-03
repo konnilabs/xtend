@@ -175,7 +175,7 @@ jobs:
         run: npm run test:rmt-vnext-source-to-sea:validate-artifact
 
   package-structure:
-    name: Package structure and publish dry run (Node 26.x)
+    name: Package structure dry runs (Node 26.x)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -199,7 +199,6 @@ jobs:
         run: |
           mkdir -p .xtend-test-results
           npm run pack:dry-run
-          npm publish --dry-run --tag next --access public
 
       - name: Validate workspace package dry runs
         run: |

@@ -4327,7 +4327,7 @@
       "packageStructureGate": {
         "schema": "xtend.ci.package-structure-gate.v1",
         "command": "npm run pack:dry-run",
-        "publishDryRunCommand": "npm publish --dry-run --tag next --access public",
+        "publishDryRunDelegatedTo": "npm-publish-next",
         "artifactName": "xtend-package-structure-node-26"
       }
     },

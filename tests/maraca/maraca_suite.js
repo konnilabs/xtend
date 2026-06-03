@@ -51,6 +51,8 @@ const MARACA_KERNEL_ORCHESTRATION_OUT_DIR = '.xtend-build/maraca/kernel-orchestr
 const MARACA_KERNEL_INTEGRITY_OUT_DIR = '.xtend-build/maraca/kernel-integrity';
 const MARACA_VALIDATION_OUT_DIR = '.xtend-build/maraca/validation';
 const MARACA_TRANSITIONS_OUT_DIR = '.xtend-build/maraca/transitions';
+const MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS = 90;
+const MARACA_KERNEL_INTEGRITY_BROWSER_KILL_AFTER_SECONDS = 10;
 const MARACA_SUITES = [
   'maraca-plan',
   'maraca-bundle',
@@ -1050,11 +1052,12 @@ async function runKernelIntegrityBrowserSmoke(context, rootDir) {
     });
     const targetUrl = `${serverHandle.origin}/${relativeFixturePath}`;
     const browser = spawnSync('timeout', [
-      '--kill-after=5s',
-      '35s',
+      `--kill-after=${MARACA_KERNEL_INTEGRITY_BROWSER_KILL_AFTER_SECONDS}s`,
+      `${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`,
       chromium,
       '--headless=new',
       '--no-sandbox',
+      '--disable-dev-shm-usage',
       '--disable-gpu',
       '--autoplay-policy=no-user-gesture-required',
       '--run-all-compositor-stages-before-draw',
@@ -1070,7 +1073,7 @@ async function runKernelIntegrityBrowserSmoke(context, rootDir) {
       return null;
     }
     if (browser.status === 124 || browser.status === 137) {
-      context.fail('kernel integrity Chromium smoke timed out');
+      context.fail(`kernel integrity Chromium smoke timed out after ${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`);
       return null;
     }
     if (browser.status !== 0) {
