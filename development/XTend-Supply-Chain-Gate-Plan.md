@@ -32,6 +32,7 @@ XTend bleibt bis zur Release-Reife ein privates Paket. Trotzdem muss der Publish
 - `private: false` ist fuer RC1-Publish-Prep gesetzt; Release-Checklist, CI und Supply-Chain-Gates bleiben pruefpflichtig.
 - `Apache-2.0` ist als Projektlizenz fuer den kompletten XTend-Stack akzeptiert; ein oeffentlicher Release braucht weiterhin den separaten Owner-Publish-Entscheid.
 - `publishConfig.provenance = true` bleibt Pflicht fuer spaetere npm-Releases.
+- Native-First `NFM-WP-04` trennt ab 3. Juni 2026 Core-Runtime-, Tooling-, Editor-, Vendor- und Legacy-Flaechen. Der Root-/Core-Runtime-Default bleibt dependency-frei; produktnahe Tooling-Dependencies wie Maraca werden separat klassifiziert.
 
 ## Gate Matrix
 
@@ -78,7 +79,7 @@ Ab ER-WP-30 gilt:
 - neue Runtime-Dependencies brauchen Begruendung in Changelog oder Workpackage
 - optionale und peer Dependencies muessen in Docs erklaert werden
 
-Der aktuelle Stand hat keine externen Dependencies. Damit ist das lokale Dependency-Inventar leer und offline gatebar.
+Der lokale Root-Gate-Stand hat keine externen Core-Runtime-Dependencies. Damit bleibt das Root-Dependency-Inventar leer und offline gatebar. Workspace-Tooling-Dependencies wie `xtend-maraca` mit `rollup` und `terser` sowie Editor-Dependencies wie `vscode-languageclient` werden seit `NFM-WP-04` separat in `development/XTend-Native-First-Dependency-Diet-Policy-Contract.md` und `development/XTend-Native-First-Dependency-Exit-Plan-Matrix.md` klassifiziert.
 
 ## License Policy
 

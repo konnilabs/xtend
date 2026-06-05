@@ -25,10 +25,10 @@ Das Paket ueberfuehrt den offenen Component Long Tail in einen belastbaren Migra
 
 ## Entscheidungen
 
-- Der Long Tail umfasste zum Paketabschluss `x-tabs`, `x-theme`, `x-button`, `x-menu`, `xstate` und `x-utils`; nach `WP-E12-09` besitzt `xstate` Suite, Fixture und Public Types und bleibt nur als A11y-/Performance-Boundary-Probe offen. `x-utils` besitzt Utility Contract, Import Policy, Fixture und Public Types und bleibt nur als Performance-Boundary-Entscheidung offen.
+- Der Long Tail umfasste zum Paketabschluss `x-tabs`, `x-theme`, `x-button`, `x-menu`, `xstate` und `x-utils`; nach `WP-E12-09` besitzt `xstate` Suite, Fixture und Public Types und bleibt als A11y-/Performance-Boundary-Probe offen. `x-utils` besitzt Utility Contract, Import Policy, Fixture und Public Types und bleibt als Performance-Boundary-Entscheidung offen. Seit WP-RMO-02 ist `xtend-i18n` ebenfalls als Infrastruktur-Boundary mit offener Performance-Entscheidung sichtbar.
 - `x-tabs` war P0 in Wave 1 und ist seit `WP-E12-02`/`WP-E12-03` geschlossen.
 - `x-theme`, `x-button` und `x-menu` waren Wave 2 und sind seit `WP-E12-04` bis `WP-E12-07` geschlossen.
-- `xstate` und `x-utils` werden als Adapter-/Utility-Grenzen behandelt und erhalten Integration-Probes statt erzwungener Visual-Shells.
+- `xstate`, `x-utils` und `xtend-i18n` werden als Adapter-/Utility-/Infrastruktur-Grenzen behandelt und erhalten Integration-Probes statt erzwungener Visual-Shells.
 - Die Strategie bleibt `incremental-no-big-bang`.
 - Die RMT-Grenze bleibt `no-rmt-kernel-import-of-xtend-types`.
 

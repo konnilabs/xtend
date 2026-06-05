@@ -1,4 +1,4 @@
-// XTendRMT 0.2.0 type definitions
+// XTendRMT 0.3.0 type definitions
 export type RmtOwnershipMode =
     | 'observe_only'
     | 'hydrate_existing'

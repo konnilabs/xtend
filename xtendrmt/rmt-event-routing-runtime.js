@@ -267,7 +267,7 @@
           retarget: clampString(source.retarget || source.governance && source.governance.retarget, 'target')
         },
         payloadAdapter: source.payloadAdapter || source.adapter || source.payloadKind || null,
-        closest: source.closest || source.closestSelector || source.delegate || (typeof source.target === 'string' ? source.target : null),
+        closest: source.closest || source.closestSelector || source.delegate || null,
         guard: source.guard || source.confirm || null,
         postAction: toArray(source.postAction || source.after || source.afterAction),
         condition: source.condition || source.when || null,

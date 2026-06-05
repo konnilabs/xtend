@@ -65,6 +65,11 @@ const REQUIRED_RESOURCE_KINDS = Object.freeze([
   'lazy-import'
 ]);
 
+const REQUIRED_RUNTIME_FACTORIES = Object.freeze([
+  'createRmtActionEffectRuntime',
+  'createRmtResourceManager'
+]);
+
 const REQUIRED_BOUNDARIES = Object.freeze([
   'no-rmt-kernel-import-of-xtend-types',
   'no-product-local-action-framework',
@@ -115,6 +120,7 @@ function createRmtActionEffectRuntimePlan(options = {}) {
     dataSourceKinds: REQUIRED_DATASOURCE_KINDS.slice(),
     effectKinds: REQUIRED_EFFECT_KINDS.slice(),
     resourceKinds: REQUIRED_RESOURCE_KINDS.slice(),
+    runtimeFactories: REQUIRED_RUNTIME_FACTORIES.slice(),
     boundaries: REQUIRED_BOUNDARIES.slice(),
     artifactPaths: REQUIRED_ARTIFACTS.slice(),
     requiredDocs: REQUIRED_DOCS.slice(),
@@ -159,6 +165,9 @@ function validateRmtActionEffectRuntimePlan(plan = createRmtActionEffectRuntimeP
   });
   REQUIRED_RESOURCE_KINDS.forEach((kind) => {
     if (!plan || !plan.resourceKinds.includes(kind)) errors.push(`resource kind missing: ${kind}`);
+  });
+  REQUIRED_RUNTIME_FACTORIES.forEach((factory) => {
+    if (!plan || !plan.runtimeFactories.includes(factory)) errors.push(`runtime factory missing: ${factory}`);
   });
   REQUIRED_BOUNDARIES.forEach((boundary) => {
     if (!plan || !plan.boundaries.includes(boundary)) errors.push(`boundary missing: ${boundary}`);
@@ -207,6 +216,7 @@ function createRmtActionEffectRuntimeReport(options = {}) {
     dataSourceKindCount: plan.dataSourceKinds.length,
     effectKindCount: plan.effectKinds.length,
     resourceKindCount: plan.resourceKinds.length,
+    runtimeFactoryCount: plan.runtimeFactories.length,
     boundaryCount: plan.boundaries.length,
     productActionFrameworkAllowed: plan.model.productActionFrameworkAllowed,
     resourcesReleaseByOwner: plan.model.resourcesReleaseByOwner,

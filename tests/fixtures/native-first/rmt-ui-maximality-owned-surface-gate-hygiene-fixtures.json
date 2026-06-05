@@ -1,0 +1,81 @@
+{
+  "schema": "xtend.rmt-ui-maximality-owned-component-surface-hardening.gate-hygiene-fixtures.v1",
+  "fixtureSchema": "xtend.rmt-ui-maximality-owned-component-surface-hardening.gate-hygiene-fixture.v1",
+  "reportSchema": "xtend.rmt-ui-maximality-owned-component-surface-hardening.gate-hygiene-report.v1",
+  "workpackage": "WP-RMO-02",
+  "status": "accepted-with-owner-handoff",
+  "localGate": "node scripts/run_xtend_tests.js rmt-ui-maximality-owned-surface-gate-hygiene --json",
+  "packageScript": "npm run test:rmt-ui-maximality-owned-surface-gate-hygiene",
+  "closedResiduals": [
+    "component-long-tail-migration-docs-file",
+    "type-exports-docs-links"
+  ],
+  "ownerHandoffs": [
+    {
+      "residual": "docs-public-quality-legacy-failures",
+      "owner": "docs-authoring-owner",
+      "status": "owner-handoff",
+      "failureCount": 19,
+      "blockedClaims": [
+        "public-docs-complete",
+        "localized-docs-clean",
+        "docs-public-quality-green"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "component-long-tail-migration",
+      "status": "passed",
+      "command": "node scripts/run_xtend_tests.js component-long-tail-migration --json",
+      "passCount": 96,
+      "residual": "component-long-tail-migration-docs-file",
+      "targetComponents": ["xstate", "x-utils", "xtend-i18n"]
+    },
+    {
+      "id": "type-exports-vendor",
+      "status": "passed",
+      "command": "node scripts/run_xtend_tests.js type-exports-vendor --json",
+      "passCount": 113,
+      "residual": "type-exports-docs-links"
+    },
+    {
+      "id": "type-exports-loader",
+      "status": "passed",
+      "command": "node scripts/run_xtend_tests.js type-exports-loader --json",
+      "passCount": 107,
+      "residual": "type-exports-docs-links"
+    },
+    {
+      "id": "references",
+      "status": "passed",
+      "command": "node scripts/run_xtend_tests.js references --json",
+      "passCount": 2208,
+      "residual": "reference-paths"
+    },
+    {
+      "id": "docs-public-quality",
+      "status": "owner-handoff",
+      "command": "node scripts/run_xtend_tests.js docs-public-quality --json",
+      "failureCount": 19,
+      "residual": "docs-public-quality-legacy-failures",
+      "owner": "docs-authoring-owner"
+    }
+  ],
+  "fixedArtifacts": [
+    "docs/README.md",
+    "docs/component-long-tail-migration.md",
+    "docs/component-ux-gates.md",
+    "docs/component-catalog-coverage.md",
+    "docs/de/component-long-tail-migration.md",
+    "docs/en/component-long-tail-migration.md",
+    "docs/menu.json",
+    "catalog/component-long-tail-migration.js",
+    "tests/catalog/component_long_tail_migration_suite.js",
+    "package.json",
+    "xtend-builder/scaffold.config.js"
+  ],
+  "nextWorkpackages": ["WP-RMO-03", "WP-RMO-04"],
+  "noRuntimeDependency": true,
+  "rmtKernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+}

@@ -1,0 +1,133 @@
+{
+  "schema": "xtend.rmt-ui-maximality-owned-migration-deprecation-docs-handoff-fixtures.v1",
+  "contract": "xtend.rmt-ui-maximality-owned-migration-deprecation-docs-handoff.v1",
+  "matrix": "xtend.rmt-ui-maximality-owned-migration-deprecation-docs-handoff-matrix.v1",
+  "reportSchema": "xtend.rmt-ui-maximality-owned-migration-deprecation-docs-handoff-report.v1",
+  "workpackage": "WP-RMO-08",
+  "localGate": "node scripts/run_xtend_tests.js rmt-owned-migration-deprecation-docs-handoff --json",
+  "packageScript": "npm run test:rmt-owned-migration-deprecation-docs-handoff",
+  "sourceGates": [
+    "rmt-owned-migration-deprecation-docs-handoff",
+    "native-first-migration-deprecation",
+    "type-exports-loader",
+    "rmt-native-shell-migration",
+    "component-long-tail-migration",
+    "type-exports-vendor",
+    "docs-public-quality",
+    "rmt-owned-contract-budget-runtime-parity",
+    "references"
+  ],
+  "sourceResiduals": [
+    "legacy-loader-warning-window",
+    "owned-docs-highlighter-review"
+  ],
+  "statusSummary": {
+    "deprecation-handoff-accepted": 1,
+    "highlighter-decision-accepted": 1,
+    "vendor-containment-accepted": 1,
+    "docs-handoff-accepted": 1,
+    "release-residuals-ownerable": 1
+  },
+  "runtimeBoundary": {
+    "silentRemovalAllowed": false,
+    "newVendorHighlighterDefaultAllowed": false,
+    "broadVendorExportAllowed": false,
+    "newRawHtmlConversionWithoutTrustBoundaryAllowed": false,
+    "noRuntimeDependency": true,
+    "externalNetworkAllowedInLocalGate": false
+  },
+  "publicDocs": [
+    "docs/de/native-first-migration-guide.md",
+    "docs/en/native-first-migration-guide.md"
+  ],
+  "semverRules": {
+    "legacyLoaderRemoval": "major-removal-only-after-two-minor-warnings",
+    "prismFacade": "minor-warning-before-public-surface-change",
+    "turndownRawHtml": "blocked-for-new-raw-html-conversion-without-trust-boundary",
+    "ownedHighlighter": "new-owned-implementation-requires-docs-public-quality-and-type-exports-vendor"
+  },
+  "blockedClaims": [
+    "silent-loader-removal",
+    "loader-deprecation-without-warning-window",
+    "new-vendor-highlighter-default",
+    "broad-vendor-export",
+    "new-raw-html-conversion-without-trust-boundary",
+    "public-deprecation-without-migration-guide",
+    "public-docs-new-vendor-default",
+    "hidden-release-residual",
+    "accepted-without-owner"
+  ],
+  "entries": [
+    {
+      "entryId": "RMO-MIG-01",
+      "residual": "legacy-loader-warning-window",
+      "decision": "compatibility-warning-window-accepted",
+      "status": "deprecation-handoff-accepted",
+      "owner": "migration-owner",
+      "warningWindow": "two-minor-warnings-before-major-removal",
+      "alternative": "native-shell-migration",
+      "requiredGates": ["native-first-migration-deprecation", "type-exports-loader", "rmt-native-shell-migration", "component-long-tail-migration", "references"],
+      "blockedClaims": ["silent-loader-removal", "loader-deprecation-without-warning-window"],
+      "docs": ["docs/de/native-first-migration-guide.md", "docs/en/native-first-migration-guide.md"],
+      "semverPolicy": "major-removal-only-after-two-minor-warnings",
+      "nextHandoff": ["WP-RMO-09"]
+    },
+    {
+      "entryId": "RMO-MIG-02",
+      "residual": "owned-docs-highlighter-review",
+      "decision": "owned-docs-highlighter-roadmap-accepted",
+      "status": "highlighter-decision-accepted",
+      "owner": "docs-authoring-owner",
+      "warningWindow": "minor-warning-before-public-surface-change",
+      "alternative": "owned-docs-highlighter-or-rmt-aware-semantic-tokens",
+      "requiredGates": ["native-first-migration-deprecation", "type-exports-vendor", "docs-public-quality", "references"],
+      "blockedClaims": ["new-vendor-highlighter-default", "broad-vendor-export"],
+      "docs": ["docs/de/native-first-migration-guide.md", "docs/en/native-first-migration-guide.md"],
+      "semverPolicy": "minor-warning-before-public-surface-change",
+      "nextHandoff": ["WP-RMO-09"]
+    },
+    {
+      "entryId": "RMO-MIG-03",
+      "residual": "PrismJS-and-TurndownService",
+      "decision": "vendor-facade-containment-accepted",
+      "status": "vendor-containment-accepted",
+      "owner": "docs-authoring-owner",
+      "securityOwner": "security-owner",
+      "warningWindow": "trust-boundary-before-new-use",
+      "alternative": "structured-writer-markdown-ast-or-sanitizing-boundary",
+      "requiredGates": ["native-first-migration-deprecation", "type-exports-vendor", "epic13-trusted-dom-boundary", "docs-public-quality", "references"],
+      "blockedClaims": ["broad-vendor-export", "new-raw-html-conversion-without-trust-boundary"],
+      "docs": ["docs/de/native-first-migration-guide.md", "docs/en/native-first-migration-guide.md"],
+      "semverPolicy": "no-broad-vendor-export",
+      "nextHandoff": ["WP-RMO-09"]
+    },
+    {
+      "entryId": "RMO-MIG-04",
+      "residual": "Public Docs",
+      "decision": "public-docs-handoff-accepted",
+      "status": "docs-handoff-accepted",
+      "owner": "docs-authoring-owner",
+      "warningWindow": "migration-guide-before-public-deprecation",
+      "alternative": "public-docs-name-owned-alternatives-and-gates",
+      "requiredGates": ["native-first-migration-deprecation", "native-first-docs-authoring", "docs-public-quality", "references"],
+      "blockedClaims": ["public-deprecation-without-migration-guide", "public-docs-new-vendor-default"],
+      "docs": ["docs/de/native-first-migration-guide.md", "docs/en/native-first-migration-guide.md"],
+      "semverPolicy": "migration-guide-before-public-deprecation",
+      "nextHandoff": ["WP-RMO-09"]
+    },
+    {
+      "entryId": "RMO-MIG-05",
+      "residual": "Release Residuals",
+      "decision": "release-residual-ownerable",
+      "status": "release-residuals-ownerable",
+      "owner": "release-owner",
+      "warningWindow": "release-owner-decision-required",
+      "alternative": "accepted-with-residuals-or-next-epic-boundary",
+      "requiredGates": ["rmt-owned-contract-budget-runtime-parity", "native-first-migration-deprecation", "references"],
+      "blockedClaims": ["hidden-release-residual", "accepted-without-owner"],
+      "docs": ["development/BACKLOG-XTend-RMT-UI-Maximality-und-Owned-Component-Surface-Hardening.md"],
+      "semverPolicy": "release-owner-decision-required",
+      "nextHandoff": ["WP-RMO-09"]
+    }
+  ]
+}

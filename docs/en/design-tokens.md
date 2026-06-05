@@ -14,7 +14,10 @@ Design Tokens documents the core path through local modules, public TypeScript s
 
 ```txt
 product contract: xtend.design-tokens.product-contract.v1
+local gate: node scripts/run_xtend_tests.js design-tokens --json
 example theme: design-tokens/themes/enterprise-light.json
+theme token anchors: --xtend-surface, --xtend-focus-outline
+density anchors: compact, comfortable, dense
 ```
 
 ## Recommended workflow

@@ -608,6 +608,106 @@ const {
   runOverlayInteractionUxSuite
 } = require('../tests/components/overlay_interaction_ux_suite');
 const {
+  printNativeFirstOverlayFocusReport,
+  runNativeFirstOverlayFocusSuite
+} = require('../tests/native-first/native_first_overlay_focus_suite');
+const {
+  printNativeFirstFormNavigationMediaReport,
+  runNativeFirstFormNavigationMediaSuite
+} = require('../tests/native-first/native_first_form_navigation_media_suite');
+const {
+  printNativeFirstFrameworkLeverageReport,
+  runNativeFirstFrameworkLeverageSuite
+} = require('../tests/native-first/native_first_framework_leverage_suite');
+const {
+  printNativeFirstMarketPatternParityReport,
+  runNativeFirstMarketPatternParitySuite
+} = require('../tests/native-first/native_first_market_pattern_parity_suite');
+const {
+  printNativeFirstContractRegistryReport,
+  runNativeFirstContractRegistrySuite
+} = require('../tests/native-first/native_first_contract_registry_suite');
+const {
+  printNativeFirstContractRuntimeParityReport,
+  runNativeFirstContractRuntimeParitySuite
+} = require('../tests/native-first/native_first_contract_runtime_parity_suite');
+const {
+  printNativeFirstAuditEvidencePackReport,
+  runNativeFirstAuditEvidencePackSuite
+} = require('../tests/native-first/native_first_audit_evidence_pack_suite');
+const {
+  printNativeFirstRmtUiPrimitiveGapReport,
+  runNativeFirstRmtUiPrimitiveGapSuite
+} = require('../tests/native-first/native_first_rmt_ui_primitive_gap_suite');
+const {
+  printNativeFirstRmtSyntaxGrowthReport,
+  runNativeFirstRmtSyntaxGrowthSuite
+} = require('../tests/native-first/native_first_rmt_syntax_growth_suite');
+const {
+  printNativeFirstRmtActionEffectDataResourceReport,
+  runNativeFirstRmtActionEffectDataResourceSuite
+} = require('../tests/native-first/native_first_rmt_action_effect_data_resource_suite');
+const {
+  printNativeFirstRmtCompleteUiRecipeReport,
+  runNativeFirstRmtCompleteUiRecipeSuite
+} = require('../tests/native-first/native_first_rmt_complete_ui_recipe_suite');
+const {
+  printNativeFirstRmtRendererDomDescriptorProofReport,
+  runNativeFirstRmtRendererDomDescriptorProofSuite
+} = require('../tests/native-first/native_first_rmt_renderer_dom_descriptor_proofs_suite');
+const {
+  printNativeFirstBudgetGateReport,
+  runNativeFirstBudgetGateSuite
+} = require('../tests/native-first/native_first_budget_gate_suite');
+const {
+  printNativeFirstDocsAuthoringReport,
+  runNativeFirstDocsAuthoringSuite
+} = require('../tests/native-first/native_first_docs_authoring_suite');
+const {
+  printNativeFirstMigrationDeprecationReport,
+  runNativeFirstMigrationDeprecationSuite
+} = require('../tests/native-first/native_first_migration_deprecation_suite');
+const {
+  printNativeFirstMissionHandoffReport,
+  runNativeFirstMissionHandoffSuite
+} = require('../tests/native-first/native_first_mission_handoff_suite');
+const {
+  printRmtUiMaximalityOwnedSurfaceBaselineReport,
+  runRmtUiMaximalityOwnedSurfaceBaselineSuite
+} = require('../tests/native-first/rmt_ui_maximality_owned_surface_baseline_suite');
+const {
+  printRmtUiMaximalityOwnedSurfaceGateHygieneReport,
+  runRmtUiMaximalityOwnedSurfaceGateHygieneSuite
+} = require('../tests/native-first/rmt_ui_maximality_owned_surface_gate_hygiene_suite');
+const {
+  printRmtOwnedDataDisplayPrimitivesReport,
+  runRmtOwnedDataDisplayPrimitivesSuite
+} = require('../tests/native-first/rmt_owned_data_display_primitives_suite');
+const {
+  printRmtOwnedCommandSearchPrimitivesReport,
+  runRmtOwnedCommandSearchPrimitivesSuite
+} = require('../tests/native-first/rmt_owned_command_search_primitives_suite');
+const {
+  printRmtOwnedRecipeExtensionReport,
+  runRmtOwnedRecipeExtensionSuite
+} = require('../tests/native-first/rmt_owned_recipe_extension_suite');
+const {
+  printRmtOwnedSurfaceBrowserLabReport,
+  runRmtOwnedSurfaceBrowserLabSuite
+} = require('../tests/native-first/rmt_owned_surface_browser_lab_suite');
+const {
+  printRmtOwnedContractBudgetRuntimeParityReport,
+  runRmtOwnedContractBudgetRuntimeParitySuite
+} = require('../tests/native-first/rmt_owned_contract_budget_runtime_parity_suite');
+const {
+  printRmtOwnedMigrationDeprecationDocsHandoffReport,
+  runRmtOwnedMigrationDeprecationDocsHandoffSuite
+} = require('../tests/native-first/rmt_owned_migration_deprecation_docs_handoff_suite');
+const {
+  printRmtOwnedReleaseHandoffReport,
+  runRmtOwnedReleaseHandoffSuite
+} = require('../tests/native-first/rmt_owned_release_handoff_suite');
+const {
   printLayoutDisplayMediaUxReport,
   runLayoutDisplayMediaUxSuite
 } = require('../tests/components/layout_display_media_ux_suite');
@@ -2424,6 +2524,256 @@ const suites = [
       const result = runOverlayInteractionUxSuite({ rootDir });
       printOverlayInteractionUxReport(result);
       return toRunnerResult('overlay-interaction-ux', 'XTend Overlay and Interaction UX maturity', result);
+    }
+  },
+  {
+    id: 'native-first-overlay-focus',
+    label: 'Native-First Overlay Focus Hardening',
+    description: 'Runs the NFM-WP-07 owned overlay, focus, inert, keyboard and Surface stack hardening gates.',
+    run: () => {
+      const result = runNativeFirstOverlayFocusSuite({ rootDir });
+      printNativeFirstOverlayFocusReport(result);
+      return toRunnerResult('native-first-overlay-focus', 'Native-First Overlay Focus Hardening', result);
+    }
+  },
+  {
+    id: 'native-first-form-navigation-media',
+    label: 'Native-First Form Navigation Media Hardening',
+    description: 'Runs the NFM-WP-08 owned form, list-like, navigation and media primitive hardening gates.',
+    run: () => {
+      const result = runNativeFirstFormNavigationMediaSuite({ rootDir });
+      printNativeFirstFormNavigationMediaReport(result);
+      return toRunnerResult('native-first-form-navigation-media', 'Native-First Form Navigation Media Hardening', result);
+    }
+  },
+  {
+    id: 'native-first-framework-leverage',
+    label: 'Native-First Framework Leverage Layer',
+    description: 'Runs the NFM-WP-09 Theme, State, Events, Slots and Scheduler framework leverage gates.',
+    run: () => {
+      const result = runNativeFirstFrameworkLeverageSuite({ rootDir });
+      printNativeFirstFrameworkLeverageReport(result);
+      return toRunnerResult('native-first-framework-leverage', 'Native-First Framework Leverage Layer', result);
+    }
+  },
+  {
+    id: 'native-first-market-pattern-parity',
+    label: 'Native-First Market Pattern Parity',
+    description: 'Runs the NFM-WP-10 market pattern parity matrix and negative claim gates.',
+    run: () => {
+      const result = runNativeFirstMarketPatternParitySuite({ rootDir });
+      printNativeFirstMarketPatternParityReport(result);
+      return toRunnerResult('native-first-market-pattern-parity', 'Native-First Market Pattern Parity', result);
+    }
+  },
+  {
+    id: 'contract-registry',
+    label: 'Native-First Contract Registry',
+    description: 'Runs the NFM-WP-11 contract registry, discoverability and drift-field gates.',
+    run: () => {
+      const result = runNativeFirstContractRegistrySuite({ rootDir });
+      printNativeFirstContractRegistryReport(result);
+      return toRunnerResult('contract-registry', 'Native-First Contract Registry', result);
+    }
+  },
+  {
+    id: 'contract-runtime-parity',
+    label: 'Native-First Contract-to-Runtime Parity',
+    description: 'Runs the NFM-WP-12 contract-to-runtime parity, residual and drift gates.',
+    run: () => {
+      const result = runNativeFirstContractRuntimeParitySuite({ rootDir });
+      printNativeFirstContractRuntimeParityReport(result);
+      return toRunnerResult('contract-runtime-parity', 'Native-First Contract-to-Runtime Parity', result);
+    }
+  },
+  {
+    id: 'native-first-evidence-pack',
+    label: 'Native-First Audit Evidence Pack',
+    description: 'Runs the NFM-WP-13 contract, security, dependency, conditional network and redaction evidence pack gates.',
+    run: () => {
+      const result = runNativeFirstAuditEvidencePackSuite({ rootDir });
+      printNativeFirstAuditEvidencePackReport(result);
+      return toRunnerResult('native-first-evidence-pack', 'Native-First Audit Evidence Pack', result);
+    }
+  },
+  {
+    id: 'rmt-ui-primitive-gap',
+    label: 'Native-First RMT UI Primitive Gap Analysis',
+    description: 'Runs the NFM-WP-14 RMT UI primitive gap, blocked claim and handoff gates.',
+    run: () => {
+      const result = runNativeFirstRmtUiPrimitiveGapSuite({ rootDir });
+      printNativeFirstRmtUiPrimitiveGapReport(result);
+      return toRunnerResult('rmt-ui-primitive-gap', 'Native-First RMT UI Primitive Gap Analysis', result);
+    }
+  },
+  {
+    id: 'rmt-syntax-growth',
+    label: 'Native-First RMT Syntax Growth',
+    description: 'Runs the NFM-WP-15 RMT syntax growth decision, migration fixture and handoff gates.',
+    run: () => {
+      const result = runNativeFirstRmtSyntaxGrowthSuite({ rootDir });
+      printNativeFirstRmtSyntaxGrowthReport(result);
+      return toRunnerResult('rmt-syntax-growth', 'Native-First RMT Syntax Growth', result);
+    }
+  },
+  {
+    id: 'rmt-action-effect-data-resource-primitives',
+    label: 'Native-First RMT Action Effect Data Resource Primitives',
+    description: 'Runs the NFM-WP-16 RMT action, effect, data and resource primitive gates.',
+    run: () => {
+      const result = runNativeFirstRmtActionEffectDataResourceSuite({ rootDir });
+      printNativeFirstRmtActionEffectDataResourceReport(result);
+      return toRunnerResult('rmt-action-effect-data-resource-primitives', 'Native-First RMT Action Effect Data Resource Primitives', result);
+    }
+  },
+  {
+    id: 'rmt-complete-ui-recipes',
+    label: 'Native-First RMT Complete UI Recipes',
+    description: 'Runs the NFM-WP-17 complete UI recipe fixture, smoke plan and visual evidence gates.',
+    run: () => {
+      const result = runNativeFirstRmtCompleteUiRecipeSuite({ rootDir });
+      printNativeFirstRmtCompleteUiRecipeReport(result);
+      return toRunnerResult('rmt-complete-ui-recipes', 'Native-First RMT Complete UI Recipes', result);
+    }
+  },
+  {
+    id: 'rmt-renderer-dom-descriptor-proofs',
+    label: 'Native-First RMT Renderer DOM Descriptor Proofs',
+    description: 'Runs the NFM-WP-18 DOM descriptor renderer, Trusted-DOM, sink refusal and browser-lab handoff gates.',
+    run: () => {
+      const result = runNativeFirstRmtRendererDomDescriptorProofSuite({ rootDir });
+      printNativeFirstRmtRendererDomDescriptorProofReport(result);
+      return toRunnerResult('rmt-renderer-dom-descriptor-proofs', 'Native-First RMT Renderer DOM Descriptor Proofs', result);
+    }
+  },
+  {
+    id: 'native-first-budget-gates',
+    label: 'Native-First Performance Complexity Bundle Budget Gates',
+    description: 'Runs the NFM-WP-19 performance, complexity, bundle, browser-smoke and visual-evidence budget gates.',
+    run: () => {
+      const result = runNativeFirstBudgetGateSuite({ rootDir });
+      printNativeFirstBudgetGateReport(result);
+      return toRunnerResult('native-first-budget-gates', 'Native-First Performance Complexity Bundle Budget Gates', result);
+    }
+  },
+  {
+    id: 'native-first-docs-authoring',
+    label: 'Native-First Docs Authoring Guides',
+    description: 'Runs the NFM-WP-20 public Native-First authoring, RMT recipe and release-review docs gates.',
+    run: () => {
+      const result = runNativeFirstDocsAuthoringSuite({ rootDir });
+      printNativeFirstDocsAuthoringReport(result);
+      return toRunnerResult('native-first-docs-authoring', 'Native-First Docs Authoring Guides', result);
+    }
+  },
+  {
+    id: 'native-first-migration-deprecation',
+    label: 'Native-First Migration Deprecation Plan',
+    description: 'Runs the NFM-WP-21 vendor, legacy and non-native migration and deprecation plan gates.',
+    run: () => {
+      const result = runNativeFirstMigrationDeprecationSuite({ rootDir });
+      printNativeFirstMigrationDeprecationReport(result);
+      return toRunnerResult('native-first-migration-deprecation', 'Native-First Migration Deprecation Plan', result);
+    }
+  },
+  {
+    id: 'native-first-mission-handoff',
+    label: 'Native-First Mission Handoff',
+    description: 'Runs the NFM-WP-22 mission handoff, residual and next epic boundary gates.',
+    run: () => {
+      const result = runNativeFirstMissionHandoffSuite({ rootDir });
+      printNativeFirstMissionHandoffReport(result);
+      return toRunnerResult('native-first-mission-handoff', 'Native-First Mission Handoff', result);
+    }
+  },
+  {
+    id: 'rmt-ui-maximality-owned-surface-baseline',
+    label: 'RMT UI Maximality Owned Surface Baseline',
+    description: 'Runs the WP-RMO-01 source-of-truth, residual baseline and next-workpackage gates.',
+    run: () => {
+      const result = runRmtUiMaximalityOwnedSurfaceBaselineSuite({ rootDir });
+      printRmtUiMaximalityOwnedSurfaceBaselineReport(result);
+      return toRunnerResult('rmt-ui-maximality-owned-surface-baseline', 'RMT UI Maximality Owned Surface Baseline', result);
+    }
+  },
+  {
+    id: 'rmt-ui-maximality-owned-surface-gate-hygiene',
+    label: 'RMT UI Maximality Owned Surface Gate Hygiene',
+    description: 'Runs the WP-RMO-02 Docs, TypeExports and Component Long-Tail residual closure gates.',
+    run: () => {
+      const result = runRmtUiMaximalityOwnedSurfaceGateHygieneSuite({ rootDir });
+      printRmtUiMaximalityOwnedSurfaceGateHygieneReport(result);
+      return toRunnerResult('rmt-ui-maximality-owned-surface-gate-hygiene', 'RMT UI Maximality Owned Surface Gate Hygiene', result);
+    }
+  },
+  {
+    id: 'rmt-owned-data-display-primitives',
+    label: 'RMT Owned Data Display Primitives',
+    description: 'Runs the WP-RMO-03 owned Data Display primitive package gates.',
+    run: () => {
+      const result = runRmtOwnedDataDisplayPrimitivesSuite({ rootDir });
+      printRmtOwnedDataDisplayPrimitivesReport(result);
+      return toRunnerResult('rmt-owned-data-display-primitives', 'RMT Owned Data Display Primitives', result);
+    }
+  },
+  {
+    id: 'rmt-owned-command-search-primitives',
+    label: 'RMT Owned Command Search Primitives',
+    description: 'Runs the WP-RMO-04 owned Command/Search primitive package gates.',
+    run: () => {
+      const result = runRmtOwnedCommandSearchPrimitivesSuite({ rootDir });
+      printRmtOwnedCommandSearchPrimitivesReport(result);
+      return toRunnerResult('rmt-owned-command-search-primitives', 'RMT Owned Command Search Primitives', result);
+    }
+  },
+  {
+    id: 'rmt-owned-recipe-extension',
+    label: 'RMT Owned Recipe Extension',
+    description: 'Runs the WP-RMO-05 Data Display and Command/Search recipe extension gates.',
+    run: () => {
+      const result = runRmtOwnedRecipeExtensionSuite({ rootDir });
+      printRmtOwnedRecipeExtensionReport(result);
+      return toRunnerResult('rmt-owned-recipe-extension', 'RMT Owned Recipe Extension', result);
+    }
+  },
+  {
+    id: 'rmt-owned-surface-browser-lab',
+    label: 'RMT Owned Surface Browser Lab Visual Evidence',
+    description: 'Runs the WP-RMO-06 Surface Browser Lab and Visual Evidence gates.',
+    run: () => {
+      const result = runRmtOwnedSurfaceBrowserLabSuite({ rootDir });
+      printRmtOwnedSurfaceBrowserLabReport(result);
+      return toRunnerResult('rmt-owned-surface-browser-lab', 'RMT Owned Surface Browser Lab Visual Evidence', result);
+    }
+  },
+  {
+    id: 'rmt-owned-contract-budget-runtime-parity',
+    label: 'RMT Owned Contract Budget Runtime Parity',
+    description: 'Runs the WP-RMO-07 Contract Registry, Runtime Parity, Audit Evidence and Budget bridge gates.',
+    run: () => {
+      const result = runRmtOwnedContractBudgetRuntimeParitySuite({ rootDir });
+      printRmtOwnedContractBudgetRuntimeParityReport(result);
+      return toRunnerResult('rmt-owned-contract-budget-runtime-parity', 'RMT Owned Contract Budget Runtime Parity', result);
+    }
+  },
+  {
+    id: 'rmt-owned-migration-deprecation-docs-handoff',
+    label: 'RMT Owned Migration Deprecation Docs Handoff',
+    description: 'Runs the WP-RMO-08 legacy loader, docs highlighter and public migration handoff gates.',
+    run: () => {
+      const result = runRmtOwnedMigrationDeprecationDocsHandoffSuite({ rootDir });
+      printRmtOwnedMigrationDeprecationDocsHandoffReport(result);
+      return toRunnerResult('rmt-owned-migration-deprecation-docs-handoff', 'RMT Owned Migration Deprecation Docs Handoff', result);
+    }
+  },
+  {
+    id: 'rmt-owned-release-handoff',
+    label: 'RMT Owned Release Handoff',
+    description: 'Runs the WP-RMO-09 release handoff, residual and next epic boundary gates.',
+    run: () => {
+      const result = runRmtOwnedReleaseHandoffSuite({ rootDir });
+      printRmtOwnedReleaseHandoffReport(result);
+      return toRunnerResult('rmt-owned-release-handoff', 'RMT Owned Release Handoff', result);
     }
   },
   {

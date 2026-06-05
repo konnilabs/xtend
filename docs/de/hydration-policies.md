@@ -57,6 +57,7 @@ Namen:
 
 Befehle:
 - `node scripts/verify_docs_public_quality.js`
+- `npm run test:hydration-policy`
 - `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
 
 ## Minimaler Prüfpfad
@@ -65,6 +66,7 @@ Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öff
 
 ```bash
 node scripts/verify_docs_public_quality.js
+npm run test:hydration-policy
 node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
 ```
 

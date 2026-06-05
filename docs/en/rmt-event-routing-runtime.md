@@ -1,80 +1,142 @@
 # RMT Event Routing Runtime
 
-Declarative event routes connect UI events to actions.
+Declarative event routes connect UI events, RMT-source events and route lifecycle signals to actions. They are the bridge between Native-First component records and the action/effect runtime.
 
-## What it covers
+## Public Building Blocks
 
-RMT Event Routing Runtime describes the public RMT surface for this page: which records are involved, which adapters exercise them and which scheduler signals a host should verify.
+- `events` name a source, event type and action target.
+- Payload contracts define which values the action may read from the event.
+- Event governance keeps `preventDefault`, propagation, capture, passive, once and retargeting declarative.
+- `sourceMap` entries connect event and action records to diagnostics.
+- Scheduler lanes keep feedback, resource and visible work accountable.
 
-## Public building blocks
+The same event model handles browser component events, route enter events, collection selection and command/search selection.
 
-- `.rmt` sources.
-- Core records and source maps.
-- Host adapters for DOM, router and components.
+Compatibility anchors for older runtime checks:
 
-## Recommended workflow
-
-Start RMT Event Routing Runtime with the smallest record example, validate it with the linter and only then attach adapters for host data, routing or components.
-
-## Next steps
-
-- [XTendRMT overview](./xtendrmt-overview.md)
-- [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT Linter](./rmt-linter.md)
-- [RMT Language Server](./rmt-language-server.md)
-
-## Public contract
-
-RMT Event Routing Runtime is the public RMT runtime contract for `docs/en/rmt-event-routing-runtime.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: RMT records, compiler output, runtime adapters, events, actions and scheduler lanes.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/rmt-event-routing-runtime.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Names:
-- `docs/en/rmt-event-routing-runtime.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-
-Commands:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+```txt
+runtime contract: xtend.epic18.rmt-event-routing-runtime.v1
+next workpackage: WP-E18-10
 ```
 
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
+## Payload Contracts
 
-## Specific failure modes
+Every action event needs a payload contract when it forwards host data to an action. The contract describes required fields, simple types and the payload source, such as `event.target.value`, `detail`, `dataset`, `$event.key`, `$event.sort`, `$event.value`, `$event.index` or `$event.commandId`.
 
-- If runtime behavior differs, separate compiler record, host adapter and scheduler signal before changing the docs.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+Keep payloads small. Actions should receive the key, query, sort descriptor or command ID they need, not the full browser event object.
+
+## Collection Events
+
+Collection events come from `collectionViews`. They route selection and sorting into state-update actions.
+
+```json
+{
+  "events": [
+    {
+      "id": "event.collection.select",
+      "source": "collection.orders",
+      "type": "select",
+      "action": "action.orders.select"
+    },
+    {
+      "id": "event.collection.sort",
+      "source": "collection.orders",
+      "type": "sort",
+      "action": "action.orders.sort"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action.orders.select",
+      "kind": "state-update",
+      "target": "state.orders.selection",
+      "payload": "$event.key"
+    }
+  ]
+}
+```
+
+This keeps data display declarative: the component host can render cards or rows, but selection state and sorting state stay visible in RMT.
+
+## Command/Search Events
+
+Command/search events come from a trigger component, a popover surface or a `searchSources` record. Query, active index and selection are separate routes.
+
+```json
+{
+  "events": [
+    {
+      "id": "event.command.query",
+      "source": "component.command.search",
+      "type": "input",
+      "action": "action.command.query"
+    },
+    {
+      "id": "event.command.execute",
+      "source": "search.commands",
+      "type": "select",
+      "action": "action.command.execute"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action.command.execute",
+      "kind": "effect",
+      "effect": "effect.command.route",
+      "payload": "$event.commandId",
+      "policy": "registered-command-required"
+    }
+  ]
+}
+```
+
+The execute route must not jump directly to a host callback. It reaches a policy-bound effect, and the effect applies the registered-command allow-list.
+
+## Event Governance
+
+Event governance keeps browser events declarative. Use record policies for:
+
+- `preventDefault`
+- `stopPropagation`
+- `stopImmediatePropagation`
+- `capture`
+- `passive`
+- `once`
+- `retarget`
+
+A host can apply these policies without adding a product event framework or global event bus.
+
+## Authoring Workflow
+
+1. Name the event source: component, route, collection, surface or search source.
+2. Name the event type with the smallest useful payload.
+3. Route to an action, not to host code.
+4. Put host work behind an effect with policy and adapter refs.
+5. Add source-map entries for event and action records used by diagnostics.
+
+## Public Contract
+
+RMT Event Routing Runtime is the public runtime contract for `docs/en/rmt-event-routing-runtime.md`. A host should be able to verify event routes, payloads and governance without private project knowledge.
+
+Sources:
+
+- `tests/fixtures/rmt-owned-data-display-primitives.rmt`
+- `tests/fixtures/rmt-owned-command-search-primitives.rmt`
+- `tests/fixtures/rmt-owned-recipe-extension.rmt`
+- `xtendrmt/rmt-event-routing-runtime.js`
+
+Checks:
+
+```bash
+node scripts/run_xtend_tests.js rmt-event-routing-runtime --json
+node scripts/run_xtend_tests.js rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension --json
+node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server references --json
+```
+
+Expected signal: event routes remain declarative, payload-limited, source-map-capable and policy-bound before reaching host effects.
+
+Read next:
+
+- [RMT Action Effect Runtime](./rmt-action-effect-runtime.md)
+- [RMT Component Primitives and XTend UI](./rmt-vnext-component-primitives.md)
+- [Native-First RMT Recipes](./native-first-rmt-recipes.md)

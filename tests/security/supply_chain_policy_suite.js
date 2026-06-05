@@ -49,7 +49,8 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(LICENSE_POLICY_CONTRACT === 'xtend.security.license-policy.v1', 'Exports license policy contract');
   context.assert(VULNERABILITY_POLICY_CONTRACT === 'xtend.security.vulnerability-policy.v1', 'Exports vulnerability policy contract');
   context.assert(RELEASE_SUPPLY_CHAIN_GATE_CONTRACT === 'xtend.security.release-supply-chain-gate.v1', 'Exports release supply-chain gate contract');
-  context.assert(Array.isArray(SCOPED_RELEASE_PACKAGES) && SCOPED_RELEASE_PACKAGES.length === 5, 'Exports scoped release package matrix');
+  context.assert(Array.isArray(SCOPED_RELEASE_PACKAGES) && SCOPED_RELEASE_PACKAGES.length === 6, 'Exports scoped release package matrix');
+  context.assert(SCOPED_RELEASE_PACKAGES.some((entry) => entry.name === '@ccslabs/xtend-maraca' && entry.path === 'xtend-maraca'), 'Scoped release package matrix includes Maraca');
   context.assert(plan.localGate === 'node scripts/verify_supply_chain_policy.js --json', 'Plan exposes offline local verify command');
   context.assert(plan.packageScript === 'npm run test:supply-chain', 'Plan exposes package test script');
   context.assert(plan.scopedReleasePackages.length === SCOPED_RELEASE_PACKAGES.length, 'Plan exposes scoped release packages');
@@ -66,6 +67,7 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(Array.isArray(packageManifest.workspaces) && packageManifest.workspaces.includes('fabric'), 'Root package includes Fabric workspace');
   context.assert(Array.isArray(packageManifest.workspaces) && packageManifest.workspaces.includes('xtend-builder'), 'Root package includes CLI workspace');
   context.assert(Array.isArray(packageManifest.workspaces) && packageManifest.workspaces.includes('tools'), 'Root package includes compiler workspace');
+  context.assert(Array.isArray(packageManifest.workspaces) && packageManifest.workspaces.includes('xtend-maraca'), 'Root package includes Maraca workspace');
   SCOPED_RELEASE_PACKAGES.forEach((entry) => {
     const manifest = readJson(entry.manifest, rootDir);
     context.assert(manifest.name === entry.name, `${entry.name} scoped manifest declares package name`);

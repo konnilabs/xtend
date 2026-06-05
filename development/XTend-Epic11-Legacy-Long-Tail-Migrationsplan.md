@@ -38,14 +38,15 @@ Der Gate validiert den maschinenlesbaren Plan, die nach `WP-E12-09` zwei offenen
 
 ## Scope
 
-Der Long Tail nach `WP-E12-09` besteht aus zwei offenen Boundary-Profilentscheidungen. `x-tabs` ist als P0-Performance-Restpunkt geschlossen, `x-theme` ist als Theme-/Density-/Propagation-Provider `enterprise-ready`, `x-button` ist als interaktiver Grundbaustein mit Performance-/Interaction-Budget `enterprise-ready`, `x-menu` ist als Navigation-/Interaction-Baustein mit Performance-, Keyboard- und Router-Kompatibilitaet `enterprise-ready`, `xstate` besitzt Suite, Fixture, Public Types, Lifecycle Events, Fabric Diagnostics und RMT State Adapter, und `x-utils` besitzt Utility Contract, Import Policy, Fixture und Public Types:
+Der Long Tail nach `WP-E12-09` besteht aus drei offenen Boundary-Profilentscheidungen. `x-tabs` ist als P0-Performance-Restpunkt geschlossen, `x-theme` ist als Theme-/Density-/Propagation-Provider `enterprise-ready`, `x-button` ist als interaktiver Grundbaustein mit Performance-/Interaction-Budget `enterprise-ready`, `x-menu` ist als Navigation-/Interaction-Baustein mit Performance-, Keyboard- und Router-Kompatibilitaet `enterprise-ready`, `xstate` besitzt Suite, Fixture, Public Types, Lifecycle Events, Fabric Diagnostics und RMT State Adapter, `x-utils` besitzt Utility Contract, Import Policy, Fixture und Public Types, und `xtend-i18n` besitzt lokalisierte Docs, Component-Suite, Fixture und Public Types:
 
 | Tag | Aktueller Status | Prioritaet | Ziel |
 |-----|------------------|------------|------|
 | `xstate` | `contract-gated` | `P1` | `ux-baseline-probe` |
 | `x-utils` | `typed-contract-gated` | `P2` | `ux-baseline-probe` |
+| `xtend-i18n` | `typed-contract-gated` | `P2` | `ux-baseline-probe` |
 
-`xstate` und `x-utils` sind bewusst keine klassischen Visual-Shell-Komponenten. Sie erhalten deshalb Integration-Probes und Adapter-Boundary-Regeln statt erzwungener Component-Shell-Rewrites.
+`xstate`, `x-utils` und `xtend-i18n` sind bewusst keine klassischen Visual-Shell-Komponenten. Sie erhalten deshalb Integration-Probes und Adapter-Boundary-Regeln statt erzwungener Component-Shell-Rewrites.
 
 ## Migrationswellen
 
@@ -53,7 +54,7 @@ Der Long Tail nach `WP-E12-09` besteht aus zwei offenen Boundary-Profilentscheid
 |------|-------------|------|
 | `wave-1-p0-routing-interaction` | geschlossen: `x-tabs` | P0-Performance-Profil, Browser-Smoke und Theme-Matrix abgeschlossen |
 | `wave-2-p1-theme-and-interaction` | geschlossen: `x-theme`, `x-button`, `x-menu` | Theme-, Button- und Menu-Haertung sind abgeschlossen |
-| `wave-3-infrastructure-and-utility-probes` | `xstate`, `x-utils` | Infrastruktur- und Utility-Grenzen mit Suites, Types und Integration-Probes absichern; offene Profilentscheidungen sichtbar halten |
+| `wave-3-infrastructure-and-utility-probes` | `xstate`, `x-utils`, `xtend-i18n` | Infrastruktur- und Utility-Grenzen mit Suites, Types und Integration-Probes absichern; offene Profilentscheidungen sichtbar halten |
 
 ## Migrationsmatrix
 
@@ -61,6 +62,7 @@ Der Long Tail nach `WP-E12-09` besteht aus zwei offenen Boundary-Profilentscheid
 |-----|------|---------|--------|---------|---------|
 | `xstate` | `wave-3-infrastructure-and-utility-probes` | `contract-gated` | `ux-baseline-probe` | `a11y, performance` | `runtime-a11y-profile, performance-profile, non-custom-element-integration-probe` |
 | `x-utils` | `wave-3-infrastructure-and-utility-probes` | `typed-contract-gated` | `ux-baseline-probe` | `performance` | `performance-profile, non-custom-element-integration-probe` |
+| `xtend-i18n` | `wave-3-infrastructure-and-utility-probes` | `typed-contract-gated` | `ux-baseline-probe` | `performance` | `performance-profile, non-custom-element-integration-probe` |
 
 ## Abnahmeregeln
 
@@ -71,7 +73,8 @@ Der Long Tail nach `WP-E12-09` besteht aus zwei offenen Boundary-Profilentscheid
 - `x-menu` besitzt seit `WP-E12-07` Performance Profile, Keyboard Navigation, Router-Kompatibilitaet, Fabric Measurements und RMT-Metadaten und ist nicht mehr Teil des offenen Long-Tail-Plans.
 - `xstate` besitzt seit `WP-E12-08` Public Types, Component-Level-Suite, Fixture, Lifecycle Events, Fabric Diagnostics und RMT State Adapter; offen bleiben A11y-/Performance-Boundary-Entscheidungen.
 - `x-utils` besitzt seit `WP-E12-09` Public Types, Component-Level-Suite, Fixture, Utility Contract und Import Policy; offen bleibt die Performance-Boundary-Entscheidung.
-- `xstate` und `x-utils` bleiben host-neutrale Hilfs-/Infrastrukturgrenzen; ihre Abnahme erfolgt ueber Integration-Probes, Public Types, Component-Level-Suites und Performance-/A11y-Metadaten.
+- `xtend-i18n` besitzt seit WP-RMO-02 lokalisierte Docs, Component-Level-Suite, Fixture und Public Types; offen bleibt die Performance-Boundary-Entscheidung.
+- `xstate`, `x-utils` und `xtend-i18n` bleiben host-neutrale Hilfs-/Infrastrukturgrenzen; ihre Abnahme erfolgt ueber Integration-Probes, Public Types, Component-Level-Suites und Performance-/A11y-Metadaten.
 - RMT bekommt keine harte XTend-Kernelkopplung. Alle RMT-Bezuege bleiben Adapterdaten.
 
 ## Handoff

@@ -1,0 +1,291 @@
+{
+  "schema": "xtend.native-first.rmt-action-effect-data-resource-fixtures.v1",
+  "fixtureSchema": "xtend.native-first.rmt-action-effect-data-resource-fixture.v1",
+  "contract": "xtend.native-first.rmt-action-effect-data-resource-primitives.v1",
+  "workpackage": "NFM-WP-16",
+  "localGate": "node scripts/run_xtend_tests.js rmt-action-effect-data-resource-primitives --json",
+  "fixtures": [
+    {
+      "fixtureId": "NFM-RAE-FIX-01",
+      "primitiveId": "NFM-RAE-01",
+      "sourceGap": "NFM-RUG-03",
+      "scenario": "form-binding-validation-result-record",
+      "authoring": "on form.submit -> action saveProfile payload profileForm result state.validationResult",
+      "coreRecords": [
+        "events[]",
+        "actions[]",
+        "dataSources[]",
+        "state[]",
+        "sourceMap[]"
+      ],
+      "runtimeSurface": [
+        "rmt-event-routing-runtime",
+        "rmt-action-effect-runtime",
+        "rmt-state-selector-runtime"
+      ],
+      "policies": [
+        "validation-result-shape-required",
+        "no-free-function-handler"
+      ],
+      "diagnostics": [
+        "rmt.action.form.validation_result_missing",
+        "rmt.action.form.payload_shape_missing",
+        "rmt.action.form.free_handler_forbidden"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "expectedOutcome": "accepted-action-binding-fixture"
+    },
+    {
+      "fixtureId": "NFM-RAE-FIX-02",
+      "primitiveId": "NFM-RAE-02",
+      "sourceGap": "NFM-RUG-05",
+      "scenario": "command-action-binding-record",
+      "authoring": "on command.open-details -> action openDetail status state.actionStatus effects feedback.navigation",
+      "coreRecords": [
+        "events[]",
+        "actions[]",
+        "effects[]",
+        "state[]",
+        "sourceMap[]"
+      ],
+      "runtimeSurface": [
+        "rmt-event-routing-runtime",
+        "rmt-action-effect-runtime"
+      ],
+      "policies": [
+        "action-ref-required",
+        "effect-policy-required",
+        "command-ui-owned-primitive-not-claimed"
+      ],
+      "diagnostics": [
+        "rmt.action.command.action_ref_missing",
+        "rmt.action.command.effect_policy_missing",
+        "rmt.action.command.owned_ui_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "expectedOutcome": "accepted-action-binding-fixture"
+    },
+    {
+      "fixtureId": "NFM-RAE-FIX-03",
+      "primitiveId": "NFM-RAE-03",
+      "sourceGap": "NFM-RUG-06",
+      "scenario": "resource-query-lifecycle-record",
+      "authoring": "resource-query orders from datasource.orders owner action.loadOrders cancel releases resources",
+      "coreRecords": [
+        "dataSources[]",
+        "resources[]",
+        "actions[]",
+        "operations[]",
+        "sourceMap[]"
+      ],
+      "runtimeSurface": [
+        "rmt-action-effect-runtime",
+        "rmt-surface-resource-graph-runtime"
+      ],
+      "policies": [
+        "resource-owner-required",
+        "cancel-releases-resources",
+        "adapter-injected"
+      ],
+      "diagnostics": [
+        "rmt.resource.lifecycle.owner_missing",
+        "rmt.resource.lifecycle.release_missing",
+        "rmt.resource.datasource.adapter_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "expectedOutcome": "accepted-resource-lifecycle-fixture"
+    },
+    {
+      "fixtureId": "NFM-RAE-FIX-04",
+      "primitiveId": "NFM-RAE-04",
+      "sourceGap": "NFM-RUG-06",
+      "scenario": "effect-policy-and-scheduler-lane-record",
+      "authoring": "effect feedback.saved policy feedbackPolicy lane interaction invokes adapter feedback",
+      "coreRecords": [
+        "effects[]",
+        "actions[]",
+        "lanes[]",
+        "securityPolicies[]",
+        "sourceMap[]"
+      ],
+      "runtimeSurface": [
+        "rmt-action-effect-runtime",
+        "rmt-vnext-security"
+      ],
+      "policies": [
+        "effect-policy-required",
+        "side-effect-adapter-injected",
+        "scheduler-lane-visible"
+      ],
+      "diagnostics": [
+        "rmt.effect.policy.missing",
+        "rmt.effect.side_effect.adapter_missing",
+        "rmt.effect.lane_ref_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "expectedOutcome": "accepted-effect-policy-fixture"
+    },
+    {
+      "fixtureId": "NFM-RAE-FIX-05",
+      "primitiveId": "NFM-RAE-05",
+      "sourceGap": "NFM-RUG-06",
+      "scenario": "datasource-adapter-policy-record",
+      "authoring": "datasource orders kind rest adapter ordersApi resultShape orderList policy injectedAdapterOnly",
+      "coreRecords": [
+        "dataSources[]",
+        "actions[]",
+        "securityPolicies[]",
+        "sourceMap[]"
+      ],
+      "runtimeSurface": [
+        "rmt-vnext-events",
+        "rmt-action-effect-runtime"
+      ],
+      "policies": [
+        "adapter-ref-required",
+        "payload-result-shape-required",
+        "no-kernel-network-default"
+      ],
+      "diagnostics": [
+        "rmt.datasource.adapter_ref_missing",
+        "rmt.datasource.result_shape_missing",
+        "rmt.datasource.kernel_network_forbidden"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "expectedOutcome": "accepted-datasource-policy-fixture"
+    },
+    {
+      "fixtureId": "NFM-RAE-FIX-06",
+      "primitiveId": "NFM-RAE-06",
+      "sourceGap": "NFM-RUG-12",
+      "scenario": "command-search-resource-binding-record",
+      "authoring": "command-source globalCommands uses search-resource commandIndex action runCommand result state.commandResult",
+      "coreRecords": [
+        "components[]",
+        "events[]",
+        "actions[]",
+        "resources[]",
+        "state[]",
+        "sourceMap[]"
+      ],
+      "runtimeSurface": [
+        "rmt-event-routing-runtime",
+        "rmt-action-effect-runtime"
+      ],
+      "policies": [
+        "owned-command-search-ui-required",
+        "resource-binding-allowed",
+        "autocomplete-ui-not-claimed"
+      ],
+      "diagnostics": [
+        "rmt.command_search.owned_ui_missing",
+        "rmt.command_search.resource_ref_missing",
+        "rmt.command_search.action_result_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "expectedOutcome": "blocked-until-owned-command-search-package"
+    },
+    {
+      "fixtureId": "NFM-RAE-FIX-07",
+      "primitiveId": "NFM-RAE-07",
+      "sourceGap": "NFM-RUG-06",
+      "scenario": "owned-resource-cleanup-contract",
+      "authoring": "resources previewUrl stream observer timer lazyImport owner action.preview release on cancel",
+      "coreRecords": [
+        "resources[]",
+        "effects[]",
+        "actions[]",
+        "sourceMap[]"
+      ],
+      "runtimeSurface": [
+        "createRmtResourceManager",
+        "rmt-action-effect-runtime"
+      ],
+      "policies": [
+        "owner-scope-required",
+        "release-on-cancel-or-owner-dispose",
+        "diagnostics-on-leak"
+      ],
+      "diagnostics": [
+        "rmt.resource.owner_scope_missing",
+        "rmt.resource.release_on_cancel_missing",
+        "rmt.resource.leak_detected"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "expectedOutcome": "accepted-resource-cleanup-fixture"
+    },
+    {
+      "fixtureId": "NFM-RAE-FIX-08",
+      "primitiveId": "NFM-RAE-08",
+      "sourceGap": "cross-cutting-security-boundary",
+      "scenario": "reject-free-runtime-execution",
+      "authoring": "reject free-runtime-execution inline-handler unsafe-markup unscoped-side-effect",
+      "coreRecords": [
+        "none"
+      ],
+      "runtimeSurface": [
+        "none"
+      ],
+      "policies": [
+        "free-runtime-execution-forbidden",
+        "unsafe-html-sink-forbidden",
+        "unscoped-side-effect-forbidden"
+      ],
+      "diagnostics": [
+        "rmt.action.free_runtime_execution_forbidden",
+        "rmt.action.inline_javascript_forbidden",
+        "rmt.action.inline_html_forbidden"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "expectedOutcome": "rejected-by-contract"
+    }
+  ]
+}

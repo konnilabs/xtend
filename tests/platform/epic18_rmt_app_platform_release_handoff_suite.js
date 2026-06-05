@@ -186,11 +186,11 @@ function runEpic18RmtAppPlatformReleaseHandoffSuite(options = {}) {
   context.assert(prFastGate.command === GITHUB_ACTIONS.prFastCommand, 'CI metadata keeps PR fast command');
   context.assert(prFastGate.reportPath === GITHUB_ACTIONS.prFastReport, 'CI metadata keeps PR fast report path');
   context.assert(prFastGate.artifactName === GITHUB_ACTIONS.prFastArtifact, 'CI metadata keeps PR fast artifact');
-  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('epic18-rmt-app-platform'), 'PR fast gate includes Epic 18 handoff suite');
-  context.assert(packageManifest.scripts['test:pr'].includes('epic18-rmt-app-platform'), 'Package PR fast script includes Epic 18');
-  context.assert(packageManifest.scripts['test:pr:report'].includes('epic18-rmt-app-platform'), 'Package PR fast report script includes Epic 18');
+  context.assert(Array.isArray(prFastGate.suites) && !prFastGate.suites.includes('epic18-rmt-app-platform'), 'PR fast gate keeps Epic 18 handoff suite retired from public fast lane');
+  context.assert(!packageManifest.scripts['test:pr'].includes('epic18-rmt-app-platform'), 'Package PR fast script keeps Epic 18 out of public fast lane');
+  context.assert(!packageManifest.scripts['test:pr:report'].includes('epic18-rmt-app-platform'), 'Package PR fast report script keeps Epic 18 out of public fast lane');
   context.assert(fullReleaseGate.command === GITHUB_ACTIONS.fullReleaseCommand, 'CI metadata keeps full release command');
-  context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('all'), 'Full release gate still runs all suites');
+  context.assert(Array.isArray(fullReleaseGate.suites) && !fullReleaseGate.suites.includes('all'), 'Full release gate uses curated public release suites');
   assertTextIncludesAll(context, workflow, [
     'name: XTend CI Gates',
     'pull_request:',

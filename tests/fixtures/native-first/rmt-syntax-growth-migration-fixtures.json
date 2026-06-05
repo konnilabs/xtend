@@ -1,0 +1,223 @@
+{
+  "schema": "xtend.native-first.rmt-syntax-growth-migration-fixtures.v1",
+  "fixtureSchema": "xtend.native-first.rmt-syntax-growth-migration-fixture.v1",
+  "contract": "xtend.native-first.rmt-syntax-growth.v1",
+  "workpackage": "NFM-WP-15",
+  "localGate": "node scripts/run_xtend_tests.js rmt-syntax-growth --json",
+  "fixtures": [
+    {
+      "fixtureId": "NFM-RSG-FIX-01",
+      "decisionId": "NFM-RSG-01",
+      "sourceGap": "NFM-RUG-01",
+      "migrationType": "core-record-only",
+      "before": "manual host router shell with hand-written navigation state adapter",
+      "afterSyntax": "route shell app.home uses surface root with navigation-state currentRoute",
+      "coreRecords": [
+        "routes[]",
+        "surfaces[]",
+        "events[]",
+        "sourceMap[]"
+      ],
+      "diagnostics": [
+        "rmt.syntax.route.shell.surface_missing",
+        "rmt.syntax.route.navigation_adapter_residual"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "migrationStatus": "accepted-core-record-fixture"
+    },
+    {
+      "fixtureId": "NFM-RSG-FIX-02",
+      "decisionId": "NFM-RSG-02",
+      "sourceGap": "NFM-RUG-02",
+      "migrationType": "positive-syntax-growth",
+      "before": "manual layout shell with repeated region and slot wiring",
+      "afterSyntax": "layout app.shell { region sidebar slot nav; region main slot content }",
+      "coreRecords": [
+        "templates[]",
+        "slots[]",
+        "components[]",
+        "sourceMap[]"
+      ],
+      "diagnostics": [
+        "rmt.syntax.layout.region.unresolved",
+        "rmt.syntax.layout.slot.duplicate",
+        "rmt.syntax.layout.core_record_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "migrationStatus": "accepted-positive-fixture"
+    },
+    {
+      "fixtureId": "NFM-RSG-FIX-03",
+      "decisionId": "NFM-RSG-03",
+      "sourceGap": "NFM-RUG-07",
+      "migrationType": "positive-syntax-growth",
+      "before": "manual overlay host with portal target and surface policy split across host code",
+      "afterSyntax": "surface overlay.command { portal app.root region floating slot command-panel trust policy overlayTrustedDom }",
+      "coreRecords": [
+        "surfaces[]",
+        "slots[]",
+        "securityPolicies[]",
+        "sourceMap[]"
+      ],
+      "diagnostics": [
+        "rmt.syntax.surface.kind.unknown",
+        "rmt.syntax.portal.target_missing",
+        "rmt.syntax.surface.trust_policy_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "migrationStatus": "accepted-positive-fixture"
+    },
+    {
+      "fixtureId": "NFM-RSG-FIX-04",
+      "decisionId": "NFM-RSG-04",
+      "sourceGap": "NFM-RUG-11",
+      "migrationType": "negative-owned-primitive",
+      "before": "third-party grid with imperative row renderer",
+      "afterSyntax": "collection-view orders source ordersResource item-template orderRow empty-state noOrders",
+      "coreRecords": [
+        "components[]",
+        "templates[]",
+        "dataSources[]",
+        "sourceMap[]"
+      ],
+      "diagnostics": [
+        "rmt.syntax.collection.owned_primitive_missing",
+        "rmt.syntax.collection.datasource_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "migrationStatus": "blocked-until-owned-data-display-package"
+    },
+    {
+      "fixtureId": "NFM-RSG-FIX-05",
+      "decisionId": "NFM-RSG-05",
+      "sourceGap": "NFM-RUG-12",
+      "migrationType": "negative-owned-primitive",
+      "before": "host command palette with custom search adapter",
+      "afterSyntax": "command-source globalCommands search-source commandIndex emits action runCommand",
+      "coreRecords": [
+        "components[]",
+        "events[]",
+        "actions[]",
+        "state[]",
+        "resources[]",
+        "sourceMap[]"
+      ],
+      "diagnostics": [
+        "rmt.syntax.command.owned_primitive_missing",
+        "rmt.syntax.command.action_ref_missing",
+        "rmt.syntax.command.resource_ref_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "migrationStatus": "blocked-until-owned-command-search-package"
+    },
+    {
+      "fixtureId": "NFM-RSG-FIX-06",
+      "decisionId": "NFM-RSG-06",
+      "sourceGap": "NFM-RUG-06",
+      "migrationType": "wp16-resource-action-handoff",
+      "before": "manual resource lifecycle handler with host action bridge",
+      "afterSyntax": "bind submit on form.save to action saveOrder using resource orders",
+      "coreRecords": [
+        "events[]",
+        "operations[]",
+        "dataSources[]",
+        "resources[]",
+        "sourceMap[]"
+      ],
+      "diagnostics": [
+        "rmt.syntax.binding.free_function_call",
+        "rmt.syntax.resource.lifecycle_missing",
+        "rmt.syntax.action.effect_policy_missing"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "migrationStatus": "deferred-to-nfm-wp-16"
+    },
+    {
+      "fixtureId": "NFM-RSG-FIX-07",
+      "decisionId": "NFM-RSG-07",
+      "sourceGap": "NFM-RUG-02",
+      "migrationType": "positive-syntax-growth",
+      "before": "component template with repeated slot ownership metadata",
+      "afterSyntax": "component-compose dashboard.part cards props density=compact slot body",
+      "coreRecords": [
+        "components[]",
+        "templates[]",
+        "slots[]",
+        "sourceMap[]"
+      ],
+      "diagnostics": [
+        "rmt.syntax.component.part_missing",
+        "rmt.syntax.component.slot_contract_mismatch",
+        "rmt.syntax.component.prop_type_unresolved"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "migrationStatus": "accepted-positive-fixture"
+    },
+    {
+      "fixtureId": "NFM-RSG-FIX-08",
+      "decisionId": "NFM-RSG-08",
+      "sourceGap": "cross-cutting-security-boundary",
+      "migrationType": "negative-rejection",
+      "before": "inline host script or unsafe markup embedded in authoring text",
+      "afterSyntax": "reject imperative-control-flow inline-javascript inline-html",
+      "coreRecords": [
+        "none"
+      ],
+      "diagnostics": [
+        "rmt.syntax.imperative_control_flow_forbidden",
+        "rmt.syntax.inline_html_forbidden",
+        "rmt.syntax.inline_javascript_forbidden"
+      ],
+      "forbiddenTokens": [
+        "innerHTML",
+        "eval(",
+        "function ",
+        "for(",
+        "while("
+      ],
+      "migrationStatus": "rejected-by-contract"
+    }
+  ]
+}

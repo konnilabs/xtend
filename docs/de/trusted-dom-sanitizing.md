@@ -20,6 +20,7 @@ Erlaube nur lokale Module, behandle Markdown und HTML-Fragmente als unsicher und
 
 - [Manifest Import Policy](./manifest-import-policy.md)
 - [Supply Chain Checks](./supply-chain-gates.md)
+- [Trusted DOM Boundary Browser Proof](./trusted-dom-boundary-browser-proof.md)
 
 ## Öffentlicher Vertrag
 
@@ -58,6 +59,12 @@ Namen:
 Befehle:
 - `node scripts/verify_docs_public_quality.js`
 - `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
+- `node scripts/run_xtend_tests.js epic13-trusted-dom-boundary --json`
+
+Trusted-DOM-Browserproof:
+- Sanitizer: `xtend.security.trusted-dom-sanitizer.v1`
+- Browser Proof: `./trusted-dom-boundary-browser-proof.md`
+- Boundary Gate: `node scripts/run_xtend_tests.js epic13-trusted-dom-boundary --json`
 
 ## Minimaler Prüfpfad
 

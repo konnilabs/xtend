@@ -12,6 +12,13 @@ RMT State Selector Runtime beschreibt die öffentliche RMT-Oberfläche dieser Se
 - Core Records und Source Maps.
 - Host Adapter für DOM, Router und Komponenten.
 
+```txt
+runtime contract: xtend.epic18.rmt-state-selector-runtime.v1
+xstateBridge: injected-host-adapter
+preservePatchPlan: selection updates keep the existing DOM patch plan
+next workpackage: WP-E18-08
+```
+
 ## Empfohlener Ablauf
 
 Beginne bei RMT State Selector Runtime mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.

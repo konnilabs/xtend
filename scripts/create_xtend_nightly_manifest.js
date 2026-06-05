@@ -12,18 +12,22 @@ const COMMANDS = [
   'npm run test:release:full:report',
   'npm run test:docs-stub-inventory:report',
   'npm run test:rmt-vnext-primitives:report',
+  'npm run test:native-first-rmt-owned-release:report',
   'npm run release:report',
   'npm run pack:dry-run',
   'npm pack --workspace xtendrmt --dry-run --json',
   'npm pack --workspace fabric --dry-run --json',
   'npm pack --workspace tools --dry-run --json',
-  'npm pack --workspace xtend-builder --dry-run --json'
+  'npm pack --workspace xtend-builder --dry-run --json',
+  'npm pack --workspace xtend-maraca --dry-run --json',
+  'npm run test:maraca:report'
 ];
 
 const ARTIFACT_PATHS = [
   '.xtend-test-results/xtend-release-gate-report.json',
   '.xtend-test-results/xtend-docs-stub-inventory-report.json',
   '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
+  '.xtend-test-results/xtend-native-first-rmt-owned-release-report.json',
   '.xtend-test-results/xtend-release-report.json',
   '.xtend-test-results/xtend-pack-dry-run.json',
   '.xtend-test-results/xtend-package-export-surface-lock.json',
@@ -31,13 +35,18 @@ const ARTIFACT_PATHS = [
   '.xtend-test-results/xtend-pack-dry-run-xtendrmt.json',
   '.xtend-test-results/xtend-pack-dry-run-fabric.json',
   '.xtend-test-results/xtend-pack-dry-run-tools.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtend-builder.json'
+  '.xtend-test-results/xtend-pack-dry-run-xtend-builder.json',
+  '.xtend-test-results/xtend-pack-dry-run-xtend-maraca.json',
+  '.xtend-test-results/xtend-maraca-gate-report.json',
+  '.xtend-build/maraca/source-to-sea/xtend.maraca.report.json',
+  '.xtend-build/maraca/source-to-sea/xtend.maraca.size.json'
 ];
 
 const REQUIRED_ARTIFACTS = new Set([
   '.xtend-test-results/xtend-release-gate-report.json',
   '.xtend-test-results/xtend-docs-stub-inventory-report.json',
   '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
+  '.xtend-test-results/xtend-native-first-rmt-owned-release-report.json',
   '.xtend-test-results/xtend-pack-dry-run.json'
 ]);
 

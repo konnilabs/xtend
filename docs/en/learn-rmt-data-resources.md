@@ -47,6 +47,17 @@ template learn.rmt.dataflow {
 
 Resources are more than runtime notes for Maraca. `owner surface.inbox.card` and `destroy releases resource app.refreshTimer` are used in the orchestration plan so the kernel runtime and surface lifecycle share the same ownership rule. If the build cannot resolve a resource owner, treat that as a real app problem, not as missing prose in the docs.
 
+## Collection And Search Resources
+
+The owned RMT surface uses the same data and resource model for data display and command/search:
+
+- `resource.orders` feeds `selector.visibleOrders`, which feeds `collection.orders`.
+- `resource.commands` feeds `selector.visibleCommands`, which feeds `search.commands`.
+- Dashboard resources stay owner-scoped to their surface.
+- Popover resources can use `release: "on-surface-close"` so query data is cleaned up when the overlay closes.
+
+Use [Native-First RMT Recipes](./native-first-rmt-recipes.md) for the full collection and command/search records, and [RMT Surface Resource Graph Runtime](./rmt-surface-resource-graph-runtime.md) for cleanup rules.
+
 ## Next Step
 
 Control render priority with [Scheduling and Lanes](./learn-rmt-scheduling-lanes.md).
@@ -88,6 +99,7 @@ Names:
 Commands:
 - `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
 - `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
+- `node scripts/run_xtend_tests.js rmt-owned-data-display-primitives rmt-owned-command-search-primitives --json`
 
 ## Minimal verification path
 

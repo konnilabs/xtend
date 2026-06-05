@@ -9,9 +9,11 @@ Willkommen im XTend Developer Center. Diese Dokumentation erklärt XTend für En
 | Erste lokale Seite | [Quick Start Guide](./quick-start-guide.md) |
 | RMT verstehen | [XTendRMT Überblick](./xtendrmt-overview.md) |
 | RMT vNext schreiben | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Releasevertrag](./rmt-vnext-release-handoff.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
+| Native-First XTend schreiben | [Native-First Authoring Guide](./native-first-authoring-guide.md), [Native-First RMT Recipes](./native-first-rmt-recipes.md), [Native-First Migration Guide](./native-first-migration-guide.md), [Native-First Release Review](./native-first-release-review.md) |
 | Maraca App-Orchestrierung bauen | [XTend Maraca](./xtend-maraca.md), [Maraca Orchestrierung](./xtend-maraca-orchestration.md) |
 | Enterprise Remote Surfaces prüfen | [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md), [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-enterprise-mfe-handoff.md) |
 | Komponenten nutzen | [Komponenten-Entwicklung](./components.md) |
+| Design Tokens prüfen | [Design Tokens](./design-tokens.md) |
 | SSR anbinden | [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md), [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) |
 | Editor, Linting und VS Code | [RMT Linter](./rmt-linter.md), [RMT Language Server](./rmt-language-server.md), [RMT App Platform Tooling](./rmt-app-platform-tooling.md) |
 | Release Surface prüfen | [Package Export Lock](./package-export-lock.md), [Type Exports](./type-exports.md), [XTend Loader Types](./xtend-loader-types.md), [XTend API Types](./xtend-api-types.md), [XTend Policy Types](./xtend-policy-types.md), [XTend Builder Types](./xtend-builder-types.md), [XTend Catalog Types](./xtend-catalog-types.md), [XTend Vendor Types](./xtend-vendor-types.md) |
@@ -22,6 +24,7 @@ conditional network ci: xtend.epic13.conditional-network-evidence-ci.v1
 release pack evidence: xtend.epic13.release-report-pack-dry-run-evidence.v1
 previous release bridge: prior local release bridge
 previous release bridge path: ./epic12-rc0-handoff.md
+rc1 gate matrix: xtend.epic13.rc1-gate-matrix-ci-handoff.v1
 ```
 
 ## Produktmodell
@@ -65,12 +68,17 @@ Der Tooling-Pfad verwendet das öffentliche Schema `xtend.rmt.tooling-docs.v1`. 
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
 - [RMT vNext Releasevertrag](./rmt-vnext-release-handoff.md)
+- [Native-First Authoring Guide](./native-first-authoring-guide.md)
+- [Native-First RMT Recipes](./native-first-rmt-recipes.md)
+- [Native-First Migration Guide](./native-first-migration-guide.md)
+- [Native-First Release Review](./native-first-release-review.md)
 - [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md)
 - [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
 - [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md)
 - [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-enterprise-mfe-handoff.md)
 - [Best Practices](./best-practices.md)
 - [Trusted DOM und Sanitizing](./trusted-dom-sanitizing.md)
+- [Trusted DOM Boundary Browser Proof](./trusted-dom-boundary-browser-proof.md)
 - [Changelog](./changelog.md)
 
 ## Öffentlicher Vertrag
@@ -132,3 +140,9 @@ xt rmt lint app.rmt --agent
 - Wenn Einstiegspfade auseinanderlaufen, prüfe zuerst `docs/menu.json`, die lokalen Links und den Befehl im Prüfblock.
 - Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
 - Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+
+## SurfaceManager Evidence
+
+- SurfaceManager Overlay Bridge: `docs/de/surface-manager-overlay-bridge.md`
+- SurfaceManager Quality Gates: `docs/de/surface-manager-quality-gates.md`
+- SurfaceManager Stack Policy: `docs/de/surface-manager-stack-policy.md`

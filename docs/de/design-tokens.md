@@ -14,7 +14,10 @@ Design Tokens beschreibt den Core-Pfad über lokale Module, öffentliche TypeScr
 
 ```txt
 product contract: xtend.design-tokens.product-contract.v1
+local gate: node scripts/run_xtend_tests.js design-tokens --json
 example theme: design-tokens/themes/enterprise-light.json
+theme token anchors: --xtend-surface, --xtend-focus-outline
+density anchors: compact, comfortable, dense
 ```
 
 ## Empfohlener Ablauf

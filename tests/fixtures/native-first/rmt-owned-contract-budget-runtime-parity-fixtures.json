@@ -1,0 +1,335 @@
+{
+  "schema": "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity-fixtures.v1",
+  "contract": "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity.v1",
+  "matrix": "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity-matrix.v1",
+  "reportSchema": "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity-report.v1",
+  "workpackage": "WP-RMO-07",
+  "localGate": "node scripts/run_xtend_tests.js rmt-owned-contract-budget-runtime-parity --json",
+  "packageScript": "npm run test:rmt-owned-contract-budget-runtime-parity",
+  "sourceGates": [
+    "rmt-owned-contract-budget-runtime-parity",
+    "contract-registry",
+    "contract-runtime-parity",
+    "native-first-evidence-pack",
+    "native-first-budget-gates",
+    "rmt-owned-data-display-primitives",
+    "rmt-owned-command-search-primitives",
+    "rmt-owned-recipe-extension",
+    "rmt-owned-surface-browser-lab",
+    "references"
+  ],
+  "sourceContracts": [
+    "xtend.rmt-ui-maximality-owned-data-display-primitives.v1",
+    "xtend.rmt-ui-maximality-owned-command-search-primitives.v1",
+    "xtend.rmt-ui-maximality-owned-recipe-extension.v1",
+    "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence.v1",
+    "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity.v1"
+  ],
+  "statusSummary": {
+    "registry-update-accepted": 1,
+    "runtime-parity-update-accepted": 1,
+    "audit-evidence-update-accepted": 1,
+    "budget-update-accepted": 1,
+    "ownerable-residuals-accepted": 1
+  },
+  "runtimeBoundary": {
+    "createsSecondRegistry": false,
+    "createsRuntimeRegistry": false,
+    "rmtKernelImportsXtendTypes": false,
+    "externalNetworkAllowedInLocalGate": false,
+    "browserRequiredInLocalGate": false,
+    "noRuntimeDependency": true,
+    "externalUiFrameworkDependencyAllowed": false
+  },
+  "registryEntries": [
+    {
+      "contractId": "xtend.rmt-ui-maximality-owned-data-display-primitives.v1",
+      "owner": "component-platform-owner",
+      "workpackage": "WP-RMO-03",
+      "status": "accepted",
+      "localGate": "rmt-owned-data-display-primitives",
+      "docsPath": "development/XTend-RMT-Owned-Data-Display-Primitives-Contract.md",
+      "reportSchema": "xtend.rmt-ui-maximality-owned-data-display-primitives-report.v1",
+      "domain": "component",
+      "evidenceRole": "source-contract"
+    },
+    {
+      "contractId": "xtend.rmt-ui-maximality-owned-command-search-primitives.v1",
+      "owner": "component-platform-owner",
+      "workpackage": "WP-RMO-04",
+      "status": "accepted",
+      "localGate": "rmt-owned-command-search-primitives",
+      "docsPath": "development/XTend-RMT-Owned-Command-Search-Primitives-Contract.md",
+      "reportSchema": "xtend.rmt-ui-maximality-owned-command-search-primitives-report.v1",
+      "domain": "component",
+      "evidenceRole": "source-contract"
+    },
+    {
+      "contractId": "xtend.rmt-ui-maximality-owned-recipe-extension.v1",
+      "owner": "rmt-ui-authoring-owner",
+      "workpackage": "WP-RMO-05",
+      "status": "accepted",
+      "localGate": "rmt-owned-recipe-extension",
+      "docsPath": "development/XTend-RMT-Owned-Recipe-Extension-Contract.md",
+      "reportSchema": "xtend.rmt-ui-maximality-owned-recipe-extension-report.v1",
+      "domain": "rmt",
+      "evidenceRole": "runtime-contract"
+    },
+    {
+      "contractId": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence.v1",
+      "owner": "browser-lab-owner",
+      "workpackage": "WP-RMO-06",
+      "status": "accepted",
+      "localGate": "rmt-owned-surface-browser-lab",
+      "docsPath": "development/XTend-RMT-Owned-Surface-Browser-Lab-Visual-Evidence-Contract.md",
+      "reportSchema": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence-report.v1",
+      "domain": "release-evidence",
+      "evidenceRole": "visual-evidence"
+    },
+    {
+      "contractId": "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity.v1",
+      "owner": "contract-parity-owner",
+      "workpackage": "WP-RMO-07",
+      "status": "accepted",
+      "localGate": "rmt-owned-contract-budget-runtime-parity",
+      "docsPath": "development/XTend-RMT-Owned-Contract-Budget-Runtime-Parity-Contract.md",
+      "reportSchema": "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity-report.v1",
+      "domain": "native-first",
+      "evidenceRole": "gate-plan"
+    }
+  ],
+  "runtimeParityEntries": [
+    {
+      "parityId": "RMO-CRP-01",
+      "contractId": "xtend.rmt-ui-maximality-owned-data-display-primitives.v1",
+      "runtimeArtifacts": [
+        "tests/fixtures/rmt-owned-data-display-primitives.rmt",
+        "tests/fixtures/native-first/rmt-owned-data-display-primitives-fixtures.json",
+        "development/XTend-RMT-Owned-Data-Display-Primitives-Matrix.md"
+      ],
+      "testGate": "rmt-owned-data-display-primitives",
+      "parityStatus": "parity-covered-with-ownerable-residual",
+      "residual": "physical x-table x-tree x-virtual-list components require future runtime component evidence",
+      "nextHandoff": "WP-RMO-09"
+    },
+    {
+      "parityId": "RMO-CRP-02",
+      "contractId": "xtend.rmt-ui-maximality-owned-command-search-primitives.v1",
+      "runtimeArtifacts": [
+        "tests/fixtures/rmt-owned-command-search-primitives.rmt",
+        "tests/fixtures/native-first/rmt-owned-command-search-primitives-fixtures.json",
+        "xtendrmt/rmt-event-routing-runtime.js"
+      ],
+      "testGate": "rmt-owned-command-search-primitives",
+      "parityStatus": "parity-covered-with-ownerable-residual",
+      "residual": "physical x-command-palette x-autocomplete x-combobox components require future browser evidence",
+      "nextHandoff": "WP-RMO-09"
+    },
+    {
+      "parityId": "RMO-CRP-03",
+      "contractId": "xtend.rmt-ui-maximality-owned-recipe-extension.v1",
+      "runtimeArtifacts": [
+        "tests/fixtures/rmt-owned-recipe-extension.rmt",
+        "tests/fixtures/native-first/rmt-owned-recipe-extension-fixtures.json",
+        "development/XTend-RMT-Owned-Recipe-Extension-Matrix.md"
+      ],
+      "testGate": "rmt-owned-recipe-extension",
+      "parityStatus": "parity-covered",
+      "residual": "none",
+      "nextHandoff": "WP-RMO-08"
+    },
+    {
+      "parityId": "RMO-CRP-04",
+      "contractId": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence.v1",
+      "runtimeArtifacts": [
+        "tests/browser/fixtures/rmt-owned-surface-browser-lab.html",
+        "tests/browser/visual-baselines/rmt-owned-surface-browser-lab.dom-baseline.json",
+        "tests/fixtures/native-first/rmt-owned-surface-browser-lab-fixtures.json"
+      ],
+      "testGate": "rmt-owned-surface-browser-lab",
+      "parityStatus": "parity-covered-with-conditional-pixel-artifact",
+      "residual": "real browser pixel artifacts remain owner controlled",
+      "nextHandoff": "WP-RMO-09"
+    }
+  ],
+  "auditEvidenceEntries": [
+    {
+      "evidenceId": "RMO-AEP-01",
+      "evidenceType": "contract-registry-update",
+      "sourceContract": "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity.v1",
+      "owner": "contract-parity-owner",
+      "localGate": "rmt-owned-contract-budget-runtime-parity",
+      "reportSchema": "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity-report.v1",
+      "artifacts": [
+        "development/XTend-RMT-Owned-Contract-Budget-Runtime-Parity-Contract.md",
+        "development/XTend-RMT-Owned-Contract-Budget-Runtime-Parity-Matrix.md",
+        "package.json"
+      ],
+      "status": "local-passed",
+      "redactionClass": "public-contract",
+      "releaseOwnerUse": "reference-new-rmo-contract-ids",
+      "residual": "none",
+      "nextHandoff": "WP-RMO-08"
+    },
+    {
+      "evidenceId": "RMO-AEP-02",
+      "evidenceType": "runtime-parity-update",
+      "sourceContract": "xtend.rmt-ui-maximality-owned-recipe-extension.v1",
+      "owner": "rmt-ui-authoring-owner",
+      "localGate": "rmt-owned-recipe-extension",
+      "reportSchema": "xtend.rmt-ui-maximality-owned-recipe-extension-report.v1",
+      "artifacts": [
+        "tests/fixtures/rmt-owned-recipe-extension.rmt",
+        "tests/fixtures/native-first/rmt-owned-recipe-extension-fixtures.json"
+      ],
+      "status": "local-passed",
+      "redactionClass": "public-contract",
+      "releaseOwnerUse": "prove-owned-rmo-recipes",
+      "residual": "none",
+      "nextHandoff": "WP-RMO-09"
+    },
+    {
+      "evidenceId": "RMO-AEP-03",
+      "evidenceType": "budget-evidence-update",
+      "sourceContract": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence.v1",
+      "owner": "browser-lab-owner",
+      "localGate": "rmt-owned-surface-browser-lab",
+      "reportSchema": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence-report.v1",
+      "artifacts": [
+        "tests/fixtures/native-first/rmt-owned-surface-browser-lab-fixtures.json",
+        "tests/browser/visual-baselines/rmt-owned-surface-browser-lab.dom-baseline.json"
+      ],
+      "status": "local-passed-with-conditional-pixel-residual",
+      "redactionClass": "public-contract",
+      "releaseOwnerUse": "reference-rmo-browser-lab-budget-evidence",
+      "residual": "conditional-pixel-artifact",
+      "nextHandoff": "WP-RMO-09"
+    }
+  ],
+  "budgetEntries": [
+    {
+      "budgetId": "RMO-BGT-01",
+      "budgetClass": "owned-collection-render",
+      "metric": "collectionRenderMs",
+      "threshold": 16,
+      "requiredGates": ["rmt-owned-data-display-primitives", "rmt-owned-surface-browser-lab", "native-first-budget-gates"],
+      "evidenceArtifacts": ["tests/fixtures/native-first/rmt-owned-surface-browser-lab-fixtures.json"],
+      "enforcementMode": "hard-local-gate",
+      "owner": "performance-owner"
+    },
+    {
+      "budgetId": "RMO-BGT-02",
+      "budgetClass": "owned-command-search-query",
+      "metric": "commandQueryMs",
+      "threshold": 50,
+      "requiredGates": ["rmt-owned-command-search-primitives", "rmt-owned-surface-browser-lab", "native-first-budget-gates"],
+      "evidenceArtifacts": ["tests/browser/fixtures/rmt-owned-surface-browser-lab.html"],
+      "enforcementMode": "hard-local-gate",
+      "owner": "rmt-event-action-owner"
+    },
+    {
+      "budgetId": "RMO-BGT-03",
+      "budgetClass": "owned-route-feedback",
+      "metric": "routeFeedbackMs",
+      "threshold": 120,
+      "requiredGates": ["rmt-owned-recipe-extension", "rmt-owned-surface-browser-lab", "native-first-budget-gates"],
+      "evidenceArtifacts": ["tests/browser/visual-baselines/rmt-owned-surface-browser-lab.dom-baseline.json"],
+      "enforcementMode": "hard-local-gate",
+      "owner": "rmt-ui-authoring-owner"
+    },
+    {
+      "budgetId": "RMO-BGT-04",
+      "budgetClass": "owned-visual-layout-shift",
+      "metric": "maxCumulativeLayoutShift",
+      "threshold": 0.01,
+      "requiredGates": ["rmt-owned-surface-browser-lab", "surface-browser-lab", "native-first-budget-gates"],
+      "evidenceArtifacts": ["tests/browser/visual-baselines/rmt-owned-surface-browser-lab.dom-baseline.json"],
+      "enforcementMode": "conditional-browser-gate",
+      "owner": "browser-lab-owner"
+    },
+    {
+      "budgetId": "RMO-BGT-05",
+      "budgetClass": "owned-runtime-dependency-delta",
+      "metric": "runtimeDependenciesAddedMax",
+      "threshold": 0,
+      "requiredGates": ["contract-registry", "native-first-evidence-pack", "native-first-budget-gates"],
+      "evidenceArtifacts": ["package.json"],
+      "enforcementMode": "hard-local-gate",
+      "owner": "supply-chain-owner"
+    }
+  ],
+  "ownerableResiduals": [
+    {
+      "residual": "x-table-runtime-component-evidence",
+      "owner": "component-platform-owner",
+      "status": "ownerable-residual",
+      "blockedClaim": "full-datagrid-parity",
+      "nextHandoff": "WP-RMO-09"
+    },
+    {
+      "residual": "x-virtual-list-browser-performance-evidence",
+      "owner": "performance-owner",
+      "status": "ownerable-residual",
+      "blockedClaim": "virtualization-default-without-browser-evidence",
+      "nextHandoff": "WP-RMO-09"
+    },
+    {
+      "residual": "x-command-palette-runtime-component-evidence",
+      "owner": "component-platform-owner",
+      "status": "ownerable-residual",
+      "blockedClaim": "command-palette-full-parity",
+      "nextHandoff": "WP-RMO-09"
+    },
+    {
+      "residual": "x-autocomplete-ime-browser-evidence",
+      "owner": "component-platform-owner",
+      "status": "ownerable-residual",
+      "blockedClaim": "rich-combobox-autocomplete-parity",
+      "nextHandoff": "WP-RMO-09"
+    },
+    {
+      "residual": "x-combobox-aria-browser-evidence",
+      "owner": "component-platform-owner",
+      "status": "ownerable-residual",
+      "blockedClaim": "rich-combobox-autocomplete-parity",
+      "nextHandoff": "WP-RMO-09"
+    }
+  ],
+  "entries": [
+    {
+      "entryId": "RMO-PAR-01",
+      "updateClass": "contract-registry-update",
+      "status": "registry-update-accepted",
+      "boundary": "registry-is-index-not-runtime-manager",
+      "nextHandoff": ["WP-RMO-08"]
+    },
+    {
+      "entryId": "RMO-PAR-02",
+      "updateClass": "runtime-parity-map",
+      "status": "runtime-parity-update-accepted",
+      "boundary": "rmt-kernel-remains-host-neutral",
+      "nextHandoff": ["WP-RMO-08"]
+    },
+    {
+      "entryId": "RMO-PAR-03",
+      "updateClass": "audit-evidence-update",
+      "status": "audit-evidence-update-accepted",
+      "boundary": "redacted-public-contract-evidence",
+      "nextHandoff": ["WP-RMO-09"]
+    },
+    {
+      "entryId": "RMO-PAR-04",
+      "updateClass": "budget-gate-update",
+      "status": "budget-update-accepted",
+      "boundary": "no-production-budget-claim-without-gate",
+      "nextHandoff": ["WP-RMO-09"]
+    },
+    {
+      "entryId": "RMO-PAR-05",
+      "updateClass": "ownerable-residuals",
+      "status": "ownerable-residuals-accepted",
+      "boundary": "no-full-parity-claim-without-runtime-component-evidence",
+      "nextHandoff": ["WP-RMO-08", "WP-RMO-09"]
+    }
+  ]
+}

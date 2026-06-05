@@ -57,6 +57,7 @@ Names:
 
 Commands:
 - `node scripts/verify_docs_public_quality.js`
+- `npm run test:hydration-policy`
 - `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
 
 ## Minimal verification path
@@ -65,6 +66,7 @@ Run this check when the article, an example or the named public surface changes:
 
 ```bash
 node scripts/verify_docs_public_quality.js
+npm run test:hydration-policy
 node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
 ```
 

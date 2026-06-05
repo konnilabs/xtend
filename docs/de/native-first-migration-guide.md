@@ -1,0 +1,115 @@
+# Native-First Migration Guide
+
+Dieser Guide beschreibt, wie XTend bestehende vendor-backed, legacy oder non-native Pfade kontrolliert reduziert. Ziel ist nicht schnelle Entfernung, sondern eine nachvollziehbare Migration mit Alternative, lokaler Prüfung, SemVer-Regel und Freigabeentscheidung.
+
+## Grundregel
+
+Eine alte Oberfläche darf erst abgewertet oder entfernt werden, wenn diese vier Dinge sichtbar sind:
+
+- eine Native-First-Alternative
+- ein Migration Guide
+- eine lokale Prüfung
+- eine Freigabeentscheidung mit SemVer-Regel
+
+Relevante Contracts:
+
+- `xtend.native-first.vendor-legacy-replacement.v1`
+- `xtend.native-first.migration-deprecation-plan.v1`
+- `xtend.native-first.performance-complexity-bundle-budget-gates.v1`
+- `xtend.native-first.docs-authoring-guides.v1`
+
+## Migrationsklassen
+
+| Klasse | Entscheidung | Alternative |
+| --- | --- | --- |
+| Manuelle HTML-Pfade | neue normale App-UI blockieren | DOM Descriptor Renderer, Trusted DOM, strukturierte DOM APIs |
+| Vendored Utilities | Fassade einfrieren, keine breite öffentliche Oberfläche | owned Docs-Highlighter, structured writer, Sanitizing Boundary |
+| Build Tooling | enthalten, aber nicht in Runtime ziehen | lokale Fallbacks, Budget- und Supply-Chain-Nachweise |
+| Editor Tooling | im Editor-Scope halten | eigener RMT Language Server über stdio |
+| Legacy Loader | Kompatibilität halten, Warnfenster planen | `xtend-loader.js`, RMT Native Shell, App Platform Authoring |
+| Kontrollierte Backports | als Guardrail geschlossen halten | Regression-Smokes und owned Component Contracts |
+| Owned Adapter | als positives Muster behalten | lokale Packs, keine CDN- oder Vendor-Runtime |
+
+## Manuelle HTML-Pfade
+
+Normale App-UI soll nicht über freie HTML-String-Sinks entstehen. Betroffen sind Muster wie `innerHTML`, `template.innerHTML` und `insertAdjacentHTML`, wenn sie sichtbare Produkt-UI ohne Trusted-DOM-Grenze erzeugen.
+
+Migration:
+
+1. Beschreibe Struktur als RMT Recipe oder DOM Descriptor Record.
+2. Trenne Text, Attribute, Properties, URLs und Events.
+3. Nutze Trusted DOM nur für bewusst geprüfte HTML-Fragmente.
+4. Führe Budget- und Renderer-Nachweise vor einem produktiven Claim.
+
+Lokale Prüfungen:
+
+```bash
+node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer --json
+node scripts/run_xtend_tests.js rmt-renderer-dom-descriptor-proofs --json
+node scripts/run_xtend_tests.js epic13-trusted-dom-boundary --json
+node scripts/run_xtend_tests.js native-first-migration-deprecation --json
+```
+
+## Prism und Turndown
+
+`components/prism.js` und `components/turndown.js` bleiben schmal gefasste lokale Utilities. Sie dürfen nicht zu breiten öffentlichen Vendor-Oberflächen wachsen. Neue produktive Nutzungen brauchen eine owned Alternative oder eine klare Trust Boundary.
+
+Migration:
+
+- Prism: bevorzugt owned Docs-Highlighter oder RMT-aware Semantic Tokens.
+- Turndown: bevorzugt structured writer, Markdown AST oder Sanitizing Boundary.
+- Beide Pfade bleiben ohne neue Runtime-Abhängigkeit.
+
+Lokale Prüfungen:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-vendor --json
+node scripts/run_xtend_tests.js supply-chain --json
+node scripts/run_xtend_tests.js native-first-migration-deprecation --json
+```
+
+## Tooling-Abhängigkeiten
+
+`rollup`, `terser` und `vscode-languageclient` sind kein Frontend-Default. Sie bleiben Build- oder Editor-Tooling und dürfen nicht in die Core Runtime wandern.
+
+Migration:
+
+- Maraca behält lokale Fallbacks für Importgraph und Minifizierung.
+- Editor-Integration bleibt an den RMT Language Server über stdio gebunden.
+- Bundle-, Size- und Supply-Chain-Nachweise bleiben Pflicht.
+
+## Legacy Loader
+
+`xtend-dev.js` und `./legacy-loader` bleiben Kompatibilitätsoberflächen. Neue Integrationen sollen `xtend-loader.js`, RMT Native Shell oder App Platform Authoring nutzen. Eine spätere Entfernung braucht ein Major-Fenster und mindestens zwei vorherige Minor-Warnungen.
+
+Lokale Prüfungen:
+
+```bash
+node scripts/run_xtend_tests.js type-exports-loader --json
+node scripts/run_xtend_tests.js rmt-native-shell-migration --json
+node scripts/run_xtend_tests.js component-long-tail-migration --json
+node scripts/run_xtend_tests.js references --json
+```
+
+## Guardrails
+
+Kontrollierte Vendor-Backports und owned Adapter sind keine offenen Deprecations. Sie bleiben als Guardrail sichtbar:
+
+- keine neue Vendor-Kopie
+- keine CDN-Runtime
+- keine breitere fremde API als öffentlicher XTend-Vertrag
+- Regression-Smokes und Component Contracts bleiben aktiv
+
+## Minimaler Prüfpfad
+
+```bash
+node scripts/run_xtend_tests.js native-first-migration-deprecation --json
+node scripts/run_xtend_tests.js native-first-budget-gates --json
+node scripts/run_xtend_tests.js contract-registry --json
+```
+
+Weiterlesen:
+
+- [Native-First Authoring Guide](./native-first-authoring-guide.md)
+- [Native-First RMT Recipes](./native-first-rmt-recipes.md)
+- [Native-First Release Review](./native-first-release-review.md)

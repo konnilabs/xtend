@@ -1,80 +1,129 @@
 # RMT Action Effect Runtime
 
-Actions, Effects, Data Sources und Ressourcen sicher ausführen.
-
-## Worum es geht
-
-RMT Action Effect Runtime beschreibt die öffentliche RMT-Oberfläche dieser Seite: welche Records betroffen sind, welche Adapter sie ausüben und welche Scheduler-Signale ein Host prüfen sollte.
+RMT Actions und Effects verbinden deklarative UI Records mit State Changes, Resource Queries und Host Effects. Die Runtime-Oberfläche ist bewusst schmal: Actions benennen, was passieren darf, Effects benennen, welcher Adapter es ausführen darf, und Policies blockieren freie Ausführung.
 
 ## Öffentliche Bausteine
 
-- `.rmt` Quellen.
-- Core Records und Source Maps.
-- Host Adapter für DOM, Router und Komponenten.
+| Record | Rolle |
+| --- | --- |
+| `dataSources` | deklarieren Fixture-, injected, REST-, SSR- oder Host-Daten mit Owner und Adapter Policy |
+| `resources` | binden Data Sources an Lifecycle, Cache, Loading, Error und Release State |
+| `actions` | aktualisieren State, starten eine Resource Query oder rufen einen Effect über eine benannte Policy auf |
+| `effects` | beschreiben Host-Operationen mit Adapter Refs, Allow-Lists und Result State |
+| `events` | routen Browser- oder RMT-Source-Events zu Actions |
+| `schedules` | ordnen sichtbare, Resource-, Accessibility- oder Diagnostics-Arbeit Budgets zu |
 
-## Empfohlener Ablauf
+Derselbe Vertrag wird von Data-Display- und Command/Search-Recipes genutzt. Ein Dashboard kann eine Resource aktualisieren; eine Command Palette kann einen registrierten Command ausführen; beides kommt ohne imperative Host-Verkabelung in der RMT-Quelle aus.
 
-Beginne bei RMT Action Effect Runtime mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.
+Compatibility Anchors für ältere Runtime-Checks:
 
-## Nächste Schritte
+```txt
+runtime contract: xtend.epic18.rmt-action-effect-runtime.v1
+DataSources: fixture, rest, ssr, host
+Resource Ownership: resources release by action owner or scope
+next workpackage: WP-E18-09
+```
 
-- [XTendRMT Überblick](./xtendrmt-overview.md)
-- [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT Linter](./rmt-linter.md)
-- [RMT Language Server](./rmt-language-server.md)
+## State- und Resource-Actions
+
+State Updates sollten Target und typisierte Payload-Quelle benennen. Resource Queries sollten die Resource benennen und eine Owner Policy verlangen.
+
+```json
+{
+  "actions": [
+    {
+      "id": "action.orders.refresh",
+      "kind": "resource-query",
+      "resource": "resource.orders",
+      "policy": "resource-owner-required"
+    },
+    {
+      "id": "action.orders.select",
+      "kind": "state-update",
+      "target": "state.orders.selection",
+      "payload": "$event.key"
+    }
+  ]
+}
+```
+
+Resources tragen eigene Loading- und Error-States. Templates können daher Loading-, Empty- und Error-Flächen rendern, ohne hostseitige Conditionals einzuführen.
+
+## Effect Policy
+
+Effects sind Host-Grenzen. Ein Command Effect muss Host Adapter, erforderliche Policy, erlaubte Command-IDs und Ziel-State für das Ergebnis benennen.
+
+```json
+{
+  "actions": [
+    {
+      "id": "action.command.execute",
+      "kind": "effect",
+      "effect": "effect.command.route",
+      "payload": "$event.commandId",
+      "policy": "registered-command-required"
+    }
+  ],
+  "effects": [
+    {
+      "id": "effect.command.route",
+      "kind": "host-command",
+      "adapterRef": "adapter.commandRouter",
+      "policy": "effect-policy-required",
+      "allowedCommands": ["cmd-open-audit", "cmd-run-gate"],
+      "resultState": "state.command.result"
+    }
+  ]
+}
+```
+
+Die Runtime muss nicht registrierte Command-Ausführung und Command-Ausführung ohne Action Ref ablehnen. Das ist Teil des öffentlichen Sicherheitsvertrags, keine optionale Host-Präferenz.
+
+## Command/Search-Sicherheit
+
+Command/Search Recipes ergänzen vier Regeln:
+
+- `commandSources` setzen `actionRefRequired: true`, wenn sie registrierte Commands offenlegen.
+- Search Selection läuft über eine Action wie `action.command.execute`, nicht direkt zu einem Host Callback.
+- Host Command Effects halten eine Allow-List in `allowedCommands`.
+- Focus-Recovery-Effects wie `effect.command.focusRestore` benennen Target und Policy.
+
+Diese Regeln halten die Command-Oberfläche auditierbar, auch wenn die UI Popover, Shortcut und async Search Resource nutzt.
+
+## Data-Display-Sicherheit
+
+Data-Display Recipes nutzen Actions für Selection und Sorting:
+
+- `event.collection.select` aktualisiert `state.orders.selection`.
+- `event.collection.sort` aktualisiert `state.orders.sort`.
+- Resource Query Work bleibt auf der `resource` Scheduler Lane.
+- Render Work bleibt auf der `visible` Scheduler Lane.
+
+Claims für große Datenmengen sollten zusätzlich Frame-Budgets wie `maxItemsPerFrame` auf `collectionViews` offenlegen.
 
 ## Öffentlicher Vertrag
 
-RMT Action Effect Runtime ist der öffentliche RMT Runtime-Vertrag für `docs/de/rmt-action-effect-runtime.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: RMT Records, Compiler-Ausgaben, Runtime-Adapter, Events, Actions und Scheduler-Lanes.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
+RMT Action Effect Runtime ist der öffentliche Runtime-Vertrag für `docs/de/rmt-action-effect-runtime.md`. Stabiles Verhalten bedeutet, dass Records, Policies und negative Claims über lokale Fixtures prüfbar sind.
 
 Quellen:
-- `docs/de/rmt-action-effect-runtime.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
 
-Namen:
-- `docs/de/rmt-action-effect-runtime.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
+- `tests/fixtures/rmt-owned-data-display-primitives.rmt`
+- `tests/fixtures/rmt-owned-command-search-primitives.rmt`
+- `tests/fixtures/rmt-owned-recipe-extension.rmt`
+- `tests/fixtures/native-first/rmt-owned-contract-budget-runtime-parity-fixtures.json`
 
-Befehle:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
+Nachweise:
 
 ```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+node scripts/run_xtend_tests.js rmt-action-effect-runtime --json
+node scripts/run_xtend_tests.js rmt-owned-command-search-primitives rmt-owned-recipe-extension --json
+node scripts/run_xtend_tests.js rmt-owned-contract-budget-runtime-parity references --json
 ```
 
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
+Erwartetes Signal: Actions und Effects bleiben policy-gebunden, source-map-fähig und frei von unregistrierter Host-Ausführung.
 
-## Spezifische Fehlerbilder
+Weiterlesen:
 
-- Wenn Runtime-Verhalten anders wirkt, trenne Compiler-Record, Host-Adapter und Scheduler-Signal, bevor du die Doku änderst.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+- [RMT Event Routing Runtime](./rmt-event-routing-runtime.md)
+- [RMT Surface Resource Graph Runtime](./rmt-surface-resource-graph-runtime.md)
+- [Native-First RMT Recipes](./native-first-rmt-recipes.md)

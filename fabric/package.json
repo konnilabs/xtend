@@ -1,6 +1,6 @@
 {
   "name": "@ccslabs/xtend-fabric",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": false,
   "description": "XTend Fabric runtime for safety, telemetry, diagnostics and lane mapping.",
   "license": "Apache-2.0",
@@ -50,7 +50,7 @@
   "publishConfig": {
     "access": "public",
     "provenance": true,
-    "tag": "next"
+    "tag": "latest"
   },
   "engines": {
     "node": ">=18"

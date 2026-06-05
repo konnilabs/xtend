@@ -1,0 +1,52 @@
+{
+  "schema": "xtend.rmt-ui-maximality-owned-surface-browser-lab.visual-baseline.v1",
+  "workpackage": "WP-RMO-06",
+  "fixture": "tests/browser/fixtures/rmt-owned-surface-browser-lab.html",
+  "binaryBaselines": false,
+  "pixelReady": true,
+  "snapshotCount": 5,
+  "states": ["collection-ready", "collection-empty", "command-open", "command-results", "route-feedback"],
+  "budgets": {
+    "maxCumulativeLayoutShift": 0.01,
+    "maxMutationCount": 20,
+    "unstyledContentPopInCount": 0,
+    "textFlashAllowed": false
+  },
+  "records": [
+    {
+      "id": "rmo-dashboard-collection-ready",
+      "selector": "[data-rmo-visual-state=\"collection-ready\"]",
+      "root": "section.rmo-dashboard",
+      "children": ["header.rmo-dashboard__header", "div.rmo-dashboard__collection", "article[data-record-id=\"ord-100\"]"],
+      "assertions": ["collection view is rendered", "selection state is visible", "no table or datagrid claim"]
+    },
+    {
+      "id": "rmo-dashboard-empty-state",
+      "selector": "[data-rmo-visual-state=\"collection-empty\"]",
+      "root": "section.rmo-dashboard",
+      "children": ["x-alert[data-empty-state=\"orders\"]", "div.rmo-dashboard__collection"],
+      "assertions": ["empty state is stable", "no manual HTML row renderer", "no virtual list claim"]
+    },
+    {
+      "id": "rmo-command-open",
+      "selector": "[data-rmo-visual-state=\"command-open\"]",
+      "root": "section.rmo-command",
+      "children": ["button[data-command-trigger=\"global\"]", "div[role=\"dialog\"]", "input[type=\"search\"]"],
+      "assertions": ["popover state is visible", "focus target exists", "escape policy is declared"]
+    },
+    {
+      "id": "rmo-command-results",
+      "selector": "[data-rmo-visual-state=\"command-results\"]",
+      "root": "section.rmo-command",
+      "children": ["ul[role=\"listbox\"]", "li[data-command-id=\"cmd-open-audit\"]", "li[data-command-id=\"cmd-run-gate\"]"],
+      "assertions": ["registered command results visible", "action refs declared", "unregistered commands blocked"]
+    },
+    {
+      "id": "rmo-crud-route-feedback",
+      "selector": "[data-rmo-visual-state=\"route-feedback\"]",
+      "root": "section.rmo-route",
+      "children": ["form[data-rmo-crud-form]", "output[data-route-feedback]", "x-status"],
+      "assertions": ["route adapter residual visible", "async resource feedback visible", "action policy visible"]
+    }
+  ]
+}

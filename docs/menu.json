@@ -26,6 +26,58 @@
     }
   },
   {
+    "slug": "native-first-authoring-guide",
+    "id": "docs.native.first.authoring.guide",
+    "label": "Native-First Authoring Guide",
+    "group": "start",
+    "parent": "readme",
+    "tier": "basic",
+    "rank": 96,
+    "labels": {
+      "de": "Native-First Authoring Guide",
+      "en": "Native-First Authoring Guide"
+    }
+  },
+  {
+    "slug": "native-first-rmt-recipes",
+    "id": "docs.native.first.rmt.recipes",
+    "label": "Native-First RMT Recipes",
+    "group": "start",
+    "parent": "native-first-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 94,
+    "labels": {
+      "de": "Native-First RMT Recipes",
+      "en": "Native-First RMT Recipes"
+    }
+  },
+  {
+    "slug": "native-first-release-review",
+    "id": "docs.native.first.release.review",
+    "label": "Native-First Release Review",
+    "group": "start",
+    "parent": "native-first-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 92,
+    "labels": {
+      "de": "Native-First Release Review",
+      "en": "Native-First Release Review"
+    }
+  },
+  {
+    "slug": "native-first-migration-guide",
+    "id": "docs.native.first.migration.guide",
+    "label": "Native-First Migration Guide",
+    "group": "start",
+    "parent": "native-first-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 91,
+    "labels": {
+      "de": "Native-First Migration Guide",
+      "en": "Native-First Migration Guide"
+    }
+  },
+  {
     "slug": "about",
     "id": "docs.about",
     "label": "Über XTend",
@@ -522,14 +574,14 @@
   {
     "slug": "rc1-gate-matrix-ci-handoff",
     "id": "docs.readiness.ci.bundle",
-    "label": "Readiness CI Bundle",
+    "label": "RC1 Gate Matrix und CI-Handoff",
     "group": "core",
     "parent": "package-export-lock",
     "tier": "deep-dive",
     "rank": 60,
     "labels": {
-      "de": "Readiness CI Bundle",
-      "en": "Readiness CI Bundle"
+      "de": "RC1 Gate Matrix und CI-Handoff",
+      "en": "RC1 Gate Matrix and CI Handoff"
     }
   },
   {
@@ -543,6 +595,19 @@
     "labels": {
       "de": "Komponenten-Entwicklung",
       "en": "Component Development"
+    }
+  },
+  {
+    "slug": "component-long-tail-migration",
+    "id": "docs.component.long.tail.migration",
+    "label": "Component Long-Tail Migration",
+    "group": "components",
+    "parent": "components",
+    "tier": "deep-dive",
+    "rank": 95,
+    "labels": {
+      "de": "Component Long-Tail Migration",
+      "en": "Component Long-Tail Migration"
     }
   },
   {
@@ -975,6 +1040,32 @@
     }
   },
   {
+    "slug": "epic18-vendor-bugfixes",
+    "id": "docs.epic18.vendor.bugfixes",
+    "label": "Epic18 Vendor Bugfixes",
+    "group": "rmt",
+    "parent": "xtendrmt-migration-guide",
+    "tier": "deep-dive",
+    "rank": 65,
+    "labels": {
+      "de": "Epic18 Vendor Bugfixes",
+      "en": "Epic18 Vendor Bugfixes"
+    }
+  },
+  {
+    "slug": "epic18-rmt-app-platform-release-handoff",
+    "id": "docs.epic18.rmt.app.platform.release.handoff",
+    "label": "Epic18 RMT App Platform Release Handoff",
+    "group": "rmt",
+    "parent": "rmt-app-platform-migration-guide",
+    "tier": "deep-dive",
+    "rank": 64,
+    "labels": {
+      "de": "Epic18 RMT App Platform Release Handoff",
+      "en": "Epic18 RMT App Platform Release Handoff"
+    }
+  },
+  {
     "slug": "rmt-app-platform-tooling",
     "id": "docs.rmt.app.platform.tooling",
     "label": "RMT App Platform Tooling",
@@ -985,6 +1076,19 @@
     "labels": {
       "de": "RMT App Platform Tooling",
       "en": "RMT App Platform Tooling"
+    }
+  },
+  {
+    "slug": "rmt-app-platform-fixture",
+    "id": "docs.rmt.app.platform.fixture",
+    "label": "RMT App Platform Fixture",
+    "group": "rmt",
+    "parent": "xtendrmt-app-dsl",
+    "tier": "deep-dive",
+    "rank": 63,
+    "labels": {
+      "de": "RMT App Platform Fixture",
+      "en": "RMT App Platform Fixture"
     }
   },
   {
@@ -1040,6 +1144,32 @@
     }
   },
   {
+    "slug": "surface-manager-window-runtime",
+    "id": "docs.surface.manager.window.runtime",
+    "label": "SurfaceManager Window Runtime",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 83,
+    "labels": {
+      "de": "SurfaceManager Window Runtime",
+      "en": "SurfaceManager Window Runtime"
+    }
+  },
+  {
+    "slug": "surface-manager-side-panel-runtime",
+    "id": "docs.surface.manager.side.panel.runtime",
+    "label": "SurfaceManager Side Panel Runtime",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 81,
+    "labels": {
+      "de": "SurfaceManager Side Panel Runtime",
+      "en": "SurfaceManager Side Panel Runtime"
+    }
+  },
+  {
     "slug": "surface-manager-remote-surfaces",
     "id": "docs.surface.manager.remote.surfaces",
     "label": "SurfaceManager Remote Surfaces",
@@ -1063,6 +1193,58 @@
     "labels": {
       "de": "SurfaceManager Migration Guide",
       "en": "SurfaceManager Migration Guide"
+    }
+  },
+  {
+    "slug": "surface-manager-workbench-fixture",
+    "id": "docs.surface.manager.workbench.fixture",
+    "label": "SurfaceManager Workbench Fixture",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 79,
+    "labels": {
+      "de": "SurfaceManager Workbench Fixture",
+      "en": "SurfaceManager Workbench Fixture"
+    }
+  },
+  {
+    "slug": "surface-manager-overlay-bridge",
+    "id": "docs.surface.manager.overlay.bridge",
+    "label": "SurfaceManager Overlay Bridge",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 78,
+    "labels": {
+      "de": "SurfaceManager Overlay Bridge",
+      "en": "SurfaceManager Overlay Bridge"
+    }
+  },
+  {
+    "slug": "surface-manager-stack-policy",
+    "id": "docs.surface.manager.stack.policy",
+    "label": "SurfaceManager Stack Policy",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 76,
+    "labels": {
+      "de": "SurfaceManager Stack Policy",
+      "en": "SurfaceManager Stack Policy"
+    }
+  },
+  {
+    "slug": "surface-manager-quality-gates",
+    "id": "docs.surface.manager.quality.gates",
+    "label": "SurfaceManager Quality Gates",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 74,
+    "labels": {
+      "de": "SurfaceManager Quality Gates",
+      "en": "SurfaceManager Quality Gates"
     }
   },
   {
@@ -1180,6 +1362,19 @@
     "labels": {
       "de": "Manifest Import Policy",
       "en": "Manifest Import Policy"
+    }
+  },
+  {
+    "slug": "trusted-dom-boundary-browser-proof",
+    "id": "docs.trusted.dom.boundary.browser.proof",
+    "label": "Trusted DOM Boundary Browser Proof",
+    "group": "security",
+    "parent": "trusted-dom-sanitizing",
+    "tier": "deep-dive",
+    "rank": 89,
+    "labels": {
+      "de": "Trusted DOM Boundary Browser Proof",
+      "en": "Trusted DOM Boundary Browser Proof"
     }
   },
   {

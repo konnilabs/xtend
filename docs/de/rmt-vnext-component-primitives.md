@@ -1,80 +1,141 @@
 # RMT Component Primitives und XTend UI
 
-Wie RMT Komponenten beschreibt und XTend UI diese Beschreibung rendert.
+RMT Component Primitives beschreiben XTend-eigene UI-Flächen, ohne den RMT-Kernel an XTend-Component-Klassen zu koppeln. Der Record sagt dem Host, welcher Component Adapter, welche Parts, Slots, Templates und Scheduler-Signale nötig sind; die konkrete DOM-Implementierung bleibt hinter der Adaptergrenze.
 
-## Worum es geht
+## Öffentliche Oberfläche
 
-RMT Component Primitives und XTend UI beschreibt die öffentliche RMT-Oberfläche dieser Seite: welche Records betroffen sind, welche Adapter sie ausüben und welche Scheduler-Signale ein Host prüfen sollte.
+Die aktuelle öffentliche Oberfläche umfasst drei component-orientierte Record-Familien:
 
-## Öffentliche Bausteine
+| Familie | Records | Zweck |
+| --- | --- | --- |
+| Display Foundation | `components`, `templates`, `slots`, `sourceMap` | XTend-eigene Section-, Card-, Summary-, Status-, Progress- und Alert-Flächen über DOM Descriptors rendern |
+| Data Display | `dataSources`, `resources`, `selectors`, `collectionViews` | datengetriebene Collections mit Key, Selection, Sorting und State Templates rendern |
+| Command/Search | `surfaces`, `commandSources`, `searchSources`, `actions`, `effects` | Command Popovers und query-gebundene Ergebnislisten mit registrierten Actions rendern |
 
-- `.rmt` Quellen.
-- Core Records und Source Maps.
-- Host Adapter für DOM, Router und Komponenten.
+Der RMT-Kernel bleibt neutral: Er speichert IDs, Tags, Adapter-Namen, Attribute, Props und Source-Map-Einträge, importiert aber keine XTend-Component-Typen oder browserspezifischen Host-Typen.
 
-## Empfohlener Ablauf
+## Component Records
 
-Beginne bei RMT Component Primitives und XTend UI mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.
+Ein Component Record ist ein öffentlicher Adaptervertrag, kein Versprechen über generiertes DOM. Der Host kann `x-section`, `x-cards`, `x-summary`, `x-status`, `x-progress`, `x-alert`, `x-button`, `x-popover`, `x-input`, `x-menu` und `x-icon` rendern, während RMT nur die adapterseitige Form beschreibt.
 
-## Nächste Schritte
+```json
+{
+  "components": [
+    {
+      "id": "component.collection.cards",
+      "tag": "x-cards",
+      "adapter": "xtend.component",
+      "parts": ["root", "grid", "item"]
+    }
+  ],
+  "templates": [
+    {
+      "id": "template.order-card",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.collection.cards",
+        "props": {
+          "title": "$record.title",
+          "status": "$record.status",
+          "selected": "$selection.current"
+        }
+      }
+    }
+  ]
+}
+```
 
-- [XTendRMT Überblick](./xtendrmt-overview.md)
-- [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT Linter](./rmt-linter.md)
-- [RMT Language Server](./rmt-language-server.md)
+Template-Ausgabe muss DOM-Descriptor-Ausgabe bleiben. String-basierte HTML Row Renderer und manuelle Command Renderer sind blockiert.
+
+## Collection Views
+
+Nutze `collectionViews`, wenn Component Primitives über Records iterieren müssen. Die Collection View bindet einen Selector an Item Template, Empty-/Loading-/Error-Templates, Selection und Sorting State. Außerdem legt sie budgetrelevante Werte wie `maxItemsPerFrame` offen.
+
+```json
+{
+  "resources": [
+    {
+      "id": "resource.orders",
+      "dataSource": "datasource.orders",
+      "lifecycle": "query",
+      "cachePolicy": "owner-scoped"
+    }
+  ],
+  "collectionViews": [
+    {
+      "id": "collection.orders",
+      "source": "selector.visibleOrders",
+      "key": "$record.id",
+      "itemTemplate": "template.order-card",
+      "selection": "state.orders.selection",
+      "sorting": "state.orders.sort"
+    }
+  ]
+}
+```
+
+Das ist eine eigene Data-Display-Oberfläche, keine vollständige Datagrid-Kompatibilitätsschicht. `x-table`, `x-tree` und `x-virtual-list` sind für spätere Runtime-Nachweise reserviert; Autoren sollten virtualisierte oder hierarchische Claims explizit begrenzen, bis Nachweise vorliegen.
+
+## Command- und Search-Primitives
+
+Command/Search-Primitives nutzen eine Surface plus registrierte Command- und Search-Records. Die Component-Schicht kann Trigger, Popover, Search Input und Result Menu rendern; die Command-Verträge bleiben RMT Records.
+
+```json
+{
+  "surfaces": [
+    {
+      "id": "surface.command-search",
+      "kind": "popover",
+      "focusPolicy": "restore-on-close",
+      "escape": "event.command.close"
+    }
+  ],
+  "commandSources": [
+    {
+      "id": "command.global",
+      "surface": "surface.command-search",
+      "shortcut": "Mod+K",
+      "actionRefRequired": true
+    }
+  ]
+}
+```
+
+`x-command-palette`, `x-autocomplete` und `x-combobox` bleiben begrenzte physische Component-Claims. Öffentliche RMT Records beschreiben bereits Command Source, Search Source, Fokus und Action-/Effect-Policy; vollständige Rich-Widget-Parität wartet auf Runtime- und Browser-Nachweise.
+
+## Authoring-Ablauf
+
+1. Beginne mit einem Component Record und einem DOM Descriptor Template.
+2. Ergänze Data Source, Resource und Selector, bevor du `collectionViews` hinzufügst.
+3. Ergänze eine Popover Surface, bevor du `commandSources` oder `searchSources` hinzufügst.
+4. Route Events über Actions und Effects; binde keine freie Host-Command-Ausführung an.
+5. Ergänze Source-Map-Einträge für Records, die in Diagnostics nachvollziehbar sein müssen.
 
 ## Öffentlicher Vertrag
 
-RMT Component Primitives und XTend UI ist der öffentliche RMT Runtime-Vertrag für `docs/de/rmt-vnext-component-primitives.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: RMT Records, Compiler-Ausgaben, Runtime-Adapter, Events, Actions und Scheduler-Lanes.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
+RMT Component Primitives und XTend UI ist der öffentliche Runtime-Vertrag für `docs/de/rmt-vnext-component-primitives.md`. Ein externer Host soll die genannten Records und Prüfungen ohne internes Projektwissen nachvollziehen können.
 
 Quellen:
-- `docs/de/rmt-vnext-component-primitives.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
 
-Namen:
-- `docs/de/rmt-vnext-component-primitives.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
+- `tests/fixtures/rmt-owned-data-display-primitives.rmt`
+- `tests/fixtures/rmt-owned-command-search-primitives.rmt`
+- `tests/fixtures/rmt-owned-recipe-extension.rmt`
+- `tests/fixtures/native-first/rmt-owned-data-display-primitives-fixtures.json`
+- `tests/fixtures/native-first/rmt-owned-command-search-primitives-fixtures.json`
+- `tests/fixtures/native-first/rmt-owned-release-handoff-fixtures.json`
 
-Befehle:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
+Nachweise:
 
 ```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+node scripts/run_xtend_tests.js rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension --json
+node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-linter-cli rmt-language-server --json
 ```
 
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
+Erwartetes Signal: Component Primitives bleiben adaptergebunden, source-map-fähig, dependency-arm und frei von manuellen HTML Sinks.
 
-## Spezifische Fehlerbilder
+Weiterlesen:
 
-- Wenn Runtime-Verhalten anders wirkt, trenne Compiler-Record, Host-Adapter und Scheduler-Signal, bevor du die Doku änderst.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+- [Native-First RMT Recipes](./native-first-rmt-recipes.md)
+- [RMT Event Routing Runtime](./rmt-event-routing-runtime.md)
+- [RMT DOM Descriptor Renderer](./rmt-dom-descriptor-renderer.md)

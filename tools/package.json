@@ -1,6 +1,6 @@
 {
   "name": "@ccslabs/xtend-compiler",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": false,
   "description": "XTendRMT compiler, parser, linter and language tooling.",
   "license": "Apache-2.0",
@@ -73,7 +73,7 @@
   "publishConfig": {
     "access": "public",
     "provenance": true,
-    "tag": "next"
+    "tag": "latest"
   },
   "engines": {
     "node": ">=18"

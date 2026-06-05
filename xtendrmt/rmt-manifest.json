@@ -1,7 +1,7 @@
 {
   "productName": "XTendRMT",
-  "version": "0.2.0",
-  "apiVersion": "0.2.0",
+  "version": "0.3.0",
+  "apiVersion": "0.3.0",
   "releaseStage": "pre-release",
   "classicGlobalName": "xtend.rmt",
   "runtimeContract": {

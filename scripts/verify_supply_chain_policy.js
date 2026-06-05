@@ -83,7 +83,7 @@ function runSupplyChainVerification(options = {}) {
       manifest.publishConfig
         && manifest.publishConfig.access === 'public'
         && manifest.publishConfig.provenance === true
-      && manifest.publishConfig.tag === 'next'
+      && manifest.publishConfig.tag === 'latest'
     ));
   });
   checks.push(createCheck(

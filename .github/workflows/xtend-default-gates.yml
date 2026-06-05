@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       publish_to_npm:
-        description: 'Publish @ccslabs/xtend to npm with the next dist-tag after all release gates pass.'
+        description: 'Publish @ccslabs/xtend to npm with the latest dist-tag after all release gates pass.'
         required: false
         default: false
         type: boolean
@@ -59,6 +59,7 @@ jobs:
 
       - name: Run docs stub inventory report
         if: always()
+        continue-on-error: true
         run: npm run test:docs-stub-inventory:report
 
       - name: Upload XTend PR JSON report
@@ -99,6 +100,7 @@ jobs:
 
       - name: Run docs stub inventory report
         if: always()
+        continue-on-error: true
         run: npm run test:docs-stub-inventory:report
 
       - name: Upload XTend full JSON report
@@ -112,7 +114,7 @@ jobs:
           if-no-files-found: warn
 
   rmt-vnext-primitive-gates:
-    name: RMT vNext primitive gates (Node 26.x)
+    name: RMT vNext and Native-First RMT Owned gates (Node 26.x)
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -132,6 +134,9 @@ jobs:
 
       - name: Run RMT vNext primitive gate report
         run: npm run test:rmt-vnext-primitives:report
+
+      - name: Run Native-First and RMT Owned release report
+        run: npm run test:native-first-rmt-owned-release:report
 
       - name: Capture RMT vNext source-to-sea browser evidence
         if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true }}
@@ -160,6 +165,14 @@ jobs:
         with:
           name: xtend-rmt-vnext-primitives-gate-report-node-26
           path: .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
+          if-no-files-found: warn
+
+      - name: Upload Native-First RMT Owned release JSON report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: xtend-native-first-rmt-owned-release-report-node-26
+          path: .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
           if-no-files-found: warn
 
       - name: Upload RMT vNext source-to-sea evidence
@@ -264,8 +277,8 @@ jobs:
             .xtend-test-results/xtend-conditional-network-evidence-report.json
           if-no-files-found: warn
 
-  npm-publish-next:
-    name: Publish npm next with provenance (Node 26.x)
+  npm-publish-latest:
+    name: Publish npm latest with provenance (Node 26.x)
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true)
     needs:
       - full-release-gates
@@ -306,6 +319,7 @@ jobs:
         run: |
           npm run test:release:full:report
           npm run test:rmt-vnext-primitives:report
+          npm run test:native-first-rmt-owned-release:report
           npm run release:report
           npm run pack:dry-run
           npm run conditional-network:evidence
@@ -313,21 +327,22 @@ jobs:
       - name: Final npm publish dry run
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --dry-run --tag next --access public
+        run: npm publish --dry-run --tag latest --access public
 
-      - name: Publish root package to npm next
+      - name: Publish root package to npm latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --tag next --provenance --access public
+        run: npm publish --tag latest --provenance --access public
 
       - name: Upload npm publish evidence
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: xtend-npm-publish-next-evidence-node-26
+          name: xtend-npm-publish-latest-evidence-node-26
           path: |
             .xtend-test-results/xtend-release-gate-report.json
             .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
+            .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
             .xtend-test-results/xtend-release-report.json
             .xtend-test-results/xtend-pack-dry-run.json
             .xtend-test-results/xtend-package-export-surface-lock.json

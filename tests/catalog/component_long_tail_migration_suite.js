@@ -34,7 +34,7 @@ const COMPONENT_LONG_TAIL_MIGRATION_WP_PATH = 'development/WP-E11-17-Legacy-Long
 const COMPONENT_LONG_TAIL_MIGRATION_DOC_PATH = 'docs/component-long-tail-migration.md';
 const COMPONENT_LONG_TAIL_MIGRATION_MODULE_PATH = 'catalog/component-long-tail-migration.js';
 const COMPONENT_LONG_TAIL_MIGRATION_SUITE_PATH = 'tests/catalog/component_long_tail_migration_suite.js';
-const EXPECTED_TAGS = Object.freeze(['xstate', 'x-utils']);
+const EXPECTED_TAGS = Object.freeze(['xstate', 'x-utils', 'xtend-i18n']);
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -111,17 +111,17 @@ function runComponentLongTailMigrationSuite(options = {}) {
   context.assert(plan.workpackage === COMPONENT_LONG_TAIL_MIGRATION_WORKPACKAGE, 'Plan belongs to WP-E11-17');
   context.assert(plan.strategy === 'incremental-no-big-bang', 'Plan avoids a big-bang migration');
   context.assert(plan.kernelBoundary === KERNEL_BOUNDARY, 'Plan keeps RMT kernel boundary visible');
-  context.assert(plan.entries.length === EXPECTED_TAGS.length, 'Plan contains the two current non-enterprise-ready Manifest entries after WP-E12-09');
+  context.assert(plan.entries.length === EXPECTED_TAGS.length, 'Plan contains the three current non-enterprise-ready Manifest entries after WP-E12-09');
   context.assert(EXPECTED_TAGS.every((tag) => Boolean(findEntry(plan, tag))), 'Plan contains every expected long-tail tag');
   context.assert(!findEntry(plan, 'x-tabs'), 'Plan excludes x-tabs after WP-E12-02 performance closure');
   context.assert(!findEntry(plan, 'x-theme'), 'Plan excludes x-theme after WP-E12-05 performance closure');
   context.assert(!findEntry(plan, 'x-button'), 'Plan excludes x-button after WP-E12-06 performance closure');
   context.assert(!findEntry(plan, 'x-menu'), 'Plan excludes x-menu after WP-E12-07 performance closure');
   context.assert(!findEntry(plan, 'x-alert'), 'Plan excludes already enterprise-ready x-alert');
-  context.assert(plan.summary.componentCount === 2, 'Summary counts two long-tail components after WP-E12-09');
+  context.assert(plan.summary.componentCount === 3, 'Summary counts three long-tail components after WP-E12-09');
   context.assert(plan.summary.customElementCount === 0, 'Summary counts no visual custom elements after WP-E12-09');
-  context.assert(plan.summary.boundaryProbeCount === 2, 'Summary counts two adapter or helper boundary probes after WP-E12-09');
-  context.assert(plan.summary.missingByDimension.performance.length === 2, 'Performance gap remains visible for remaining long-tail entries');
+  context.assert(plan.summary.boundaryProbeCount === 3, 'Summary counts three adapter or helper boundary probes after WP-E12-09');
+  context.assert(plan.summary.missingByDimension.performance.length === 3, 'Performance gap remains visible for remaining long-tail entries');
   context.assert(plan.summary.missingByDimension.a11y.includes('xstate'), 'A11y gap includes xstate');
   context.assert(!plan.summary.missingByDimension.a11y.includes('x-theme'), 'A11y gap no longer includes x-theme after WP-E12-04');
   context.assert(!plan.summary.missingByDimension.componentSuite, 'Component suite gap is closed after WP-E12-09');
@@ -139,6 +139,12 @@ function runComponentLongTailMigrationSuite(options = {}) {
     targetMaturity: 'ux-baseline-probe',
     requiredActions: ['non-custom-element-integration-probe', 'performance-profile']
   });
+  assertEntry(context, plan, 'xtend-i18n', {
+    wave: 'wave-3-infrastructure-and-utility-probes',
+    migrationKind: 'adapter-boundary-probe',
+    targetMaturity: 'ux-baseline-probe',
+    requiredActions: ['non-custom-element-integration-probe', 'performance-profile']
+  });
 
   context.assert(validation.ok === true, 'Long-tail migration plan validates');
   context.assert(gate.ok === true, 'Long-tail migration gate passes');
@@ -151,6 +157,7 @@ function runComponentLongTailMigrationSuite(options = {}) {
   context.assertIncludes(contractDoc, 'incremental-no-big-bang', 'Contract doc documents migration strategy');
   context.assertIncludes(contractDoc, '`x-tabs`', 'Contract doc prioritizes x-tabs');
   context.assertIncludes(contractDoc, '`x-utils`', 'Contract doc includes x-utils boundary probe');
+  context.assertIncludes(contractDoc, '`xtend-i18n`', 'Contract doc includes xtend-i18n boundary probe');
   context.assertIncludes(workpackage, 'Status: `completed`', 'Workpackage is completed');
   context.assertIncludes(workpackage, COMPONENT_LONG_TAIL_MIGRATION_LOCAL_GATE, 'Workpackage documents local gate');
   context.assertIncludes(workpackage, COMPONENT_LONG_TAIL_MIGRATION_NEXT_WORKPACKAGE, 'Workpackage hands off to WP-E11-18');
@@ -178,7 +185,7 @@ function runComponentLongTailMigrationSuite(options = {}) {
   context.assert(metadata && metadata.gateSchema === COMPONENT_LONG_TAIL_MIGRATION_GATE_SCHEMA, 'Package metadata exposes Long-Tail Migration gate schema');
   context.assert(metadata && metadata.workpackage === COMPONENT_LONG_TAIL_MIGRATION_WORKPACKAGE, 'Package metadata exposes WP-E11-17');
   context.assert(metadata && metadata.localGate === COMPONENT_LONG_TAIL_MIGRATION_LOCAL_GATE, 'Package metadata exposes local gate');
-  context.assert(Array.isArray(metadata && metadata.targetComponents) && metadata.targetComponents.length === EXPECTED_TAGS.length, 'Package metadata exposes two target components after WP-E12-07');
+  context.assert(Array.isArray(metadata && metadata.targetComponents) && metadata.targetComponents.length === EXPECTED_TAGS.length, 'Package metadata exposes three target components after WP-E12-09');
   context.assert(Array.isArray(metadata && metadata.handoff) && metadata.handoff.includes(COMPONENT_LONG_TAIL_MIGRATION_NEXT_WORKPACKAGE), 'Package metadata hands off to WP-E11-18');
   context.assertIncludes(scaffoldConfig, 'componentLongTailMigration', 'Scaffold config exposes Component Long-Tail Migration metadata');
   context.assertIncludes(scaffoldConfig, COMPONENT_LONG_TAIL_MIGRATION_SCHEMA, 'Scaffold config declares Long-Tail Migration schema');

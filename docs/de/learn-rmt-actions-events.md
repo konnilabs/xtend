@@ -37,6 +37,19 @@ template learn.rmt.interactions {
 
 Maraca verbindet Actions mit Validation, Scheduler-Zielen und Telemetrie. Ein `emit` Record wird im Strict-Pfad nur dann nützlich, wenn Payload-Namen stabil bleiben und die Surface-Bindung auf eine vorhandene Action zeigt. Für Formularflüsse prüft [Maraca Orchestrierung](./xtend-maraca-orchestration.md), ob `target action` aus einer `validation` Gruppe tatsächlich zu dieser Action passt.
 
+## Collection- und Command-Events
+
+Die eigene RMT-Oberfläche erweitert dieselbe Regel auf Data Display und Command/Search:
+
+- `event.collection.select` sendet `$event.key` an `action.orders.select`.
+- `event.collection.sort` sendet `$event.sort` an `action.orders.sort`.
+- `event.command.query` sendet `$event.value` an `action.command.query`.
+- `event.command.execute` sendet `$event.commandId` an eine policy-gebundene Effect Action.
+
+Command-Ausführung muss registriert und action-referenziert bleiben. Eine Search-Result-Selection sollte über `action.command.execute` laufen, und diese Action sollte `policy: "registered-command-required"` nutzen, bevor sie den Host Effect erreicht.
+
+Siehe [RMT Event Routing Runtime](./rmt-event-routing-runtime.md) und [RMT Action Effect Runtime](./rmt-action-effect-runtime.md) für den vollständigen Vertrag.
+
 ## Nächster Schritt
 
 Ergänze externe Daten und Lifecycle-Cleanup mit [Daten und Ressourcen](./learn-rmt-data-resources.md).
@@ -78,6 +91,7 @@ Namen:
 Befehle:
 - `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
 - `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
+- `node scripts/run_xtend_tests.js rmt-event-routing-runtime rmt-action-effect-runtime --json`
 
 ## Minimaler Prüfpfad
 

@@ -1,0 +1,311 @@
+{
+  "kind": "rmt_document",
+  "schema": "xtend.rmt-ui-maximality-owned-recipe-extension.rmt-fixture.v1",
+  "manifest": {
+    "id": "rmo.owned-recipe-extension.fixture",
+    "metadata": {
+      "contractVersion": "xtend.rmt-ui-maximality-owned-recipe-extension.v1",
+      "workpackage": "WP-RMO-05",
+      "renderMode": "component_native_dom_descriptor",
+      "manualHtmlRendererAllowed": false,
+      "htmlStringRendererRequired": false,
+      "externalUiFrameworkDependencyAllowed": false,
+      "freeRuntimeExecutionAllowed": false,
+      "runtimeImplementationIncluded": false,
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types",
+      "extendsRecipes": ["NFM-RCR-06", "NFM-RCR-07"],
+      "sourcePackages": ["WP-RMO-03", "WP-RMO-04"]
+    }
+  },
+  "routes": [
+    {
+      "id": "route.dashboard",
+      "path": "/dashboard",
+      "surface": "surface.dashboard",
+      "adapterResidual": "router-adapter-required"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface.dashboard",
+      "kind": "region",
+      "template": "template.dashboard.shell",
+      "owner": "rmt-ui-authoring-owner"
+    },
+    {
+      "id": "surface.command-search",
+      "kind": "popover",
+      "template": "template.command.shell",
+      "focusPolicy": "restore-on-close",
+      "escape": "event.command.close",
+      "stackPolicy": "topmost"
+    }
+  ],
+  "dataSources": [
+    {
+      "id": "datasource.orders",
+      "owner": "component-data-display-owner",
+      "adapter": "static-fixture",
+      "policy": "resource-owner-required",
+      "records": [
+        { "id": "ord-100", "title": "Native First Audit", "status": "ready", "value": 42 },
+        { "id": "ord-200", "title": "Contract Review", "status": "blocked", "value": 7 }
+      ]
+    },
+    {
+      "id": "datasource.commands",
+      "owner": "component-command-search-owner",
+      "adapter": "injected-search-adapter",
+      "policy": "adapter-ref-required",
+      "records": [
+        { "id": "cmd-open-audit", "label": "Open audit evidence", "action": "action.command.openAudit", "keywords": ["audit", "evidence"] },
+        { "id": "cmd-run-gate", "label": "Run recipe extension gate", "action": "action.command.runGate", "keywords": ["gate", "recipe"] }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "id": "resource.orders",
+      "dataSource": "datasource.orders",
+      "lifecycle": "query",
+      "cachePolicy": "owner-scoped",
+      "loadingState": "state.orders.loading",
+      "errorState": "state.orders.error"
+    },
+    {
+      "id": "resource.commands",
+      "dataSource": "datasource.commands",
+      "lifecycle": "query",
+      "cachePolicy": "owner-scoped",
+      "loadingState": "state.command.loading",
+      "errorState": "state.command.error",
+      "release": "on-surface-close"
+    }
+  ],
+  "state": [
+    { "id": "state.orders.loading", "type": "boolean", "initial": false },
+    { "id": "state.orders.error", "type": "string", "initial": "" },
+    { "id": "state.orders.selection", "type": "single-selection", "key": "$record.id", "initial": "ord-100" },
+    { "id": "state.orders.sort", "type": "sort-descriptor", "field": "title", "direction": "ascending" },
+    { "id": "state.command.open", "type": "boolean", "initial": false },
+    { "id": "state.command.query", "type": "string", "initial": "" },
+    { "id": "state.command.activeIndex", "type": "integer", "initial": 0 },
+    { "id": "state.command.selection", "type": "single-selection", "key": "$record.id", "initial": "" },
+    { "id": "state.command.loading", "type": "boolean", "initial": false },
+    { "id": "state.command.error", "type": "string", "initial": "" },
+    { "id": "state.command.result", "type": "string", "initial": "" }
+  ],
+  "selectors": [
+    {
+      "id": "selector.visibleOrders",
+      "source": "resource.orders",
+      "sort": "state.orders.sort",
+      "resultState": "state.orders.visible"
+    },
+    {
+      "id": "selector.visibleCommands",
+      "source": "resource.commands",
+      "query": "state.command.query",
+      "resultState": "state.command.visible"
+    }
+  ],
+  "components": [
+    { "id": "component.dashboard.section", "tag": "x-section", "adapter": "xtend.component", "parts": ["root", "header", "content"] },
+    { "id": "component.dashboard.cards", "tag": "x-cards", "adapter": "xtend.component", "parts": ["root", "grid", "item"] },
+    { "id": "component.dashboard.summary", "tag": "x-summary", "adapter": "xtend.component", "parts": ["root", "value", "label"] },
+    { "id": "component.dashboard.status", "tag": "x-status", "adapter": "xtend.component", "parts": ["root", "icon", "label"] },
+    { "id": "component.dashboard.loading", "tag": "x-progress", "adapter": "xtend.component", "parts": ["root", "bar", "label"] },
+    { "id": "component.dashboard.empty", "tag": "x-alert", "adapter": "xtend.component", "attributes": { "type": "info", "title": "No records" }, "parts": ["root", "title", "content"] },
+    { "id": "component.command.trigger", "tag": "x-button", "adapter": "xtend.component", "attributes": { "aria-haspopup": "dialog", "aria-controls": "surface.command-search" }, "parts": ["root", "icon", "label"] },
+    { "id": "component.command.popover", "tag": "x-popover", "adapter": "xtend.component", "parts": ["root", "content"] },
+    { "id": "component.command.search", "tag": "x-input", "adapter": "xtend.component", "attributes": { "type": "search", "role": "searchbox" }, "parts": ["root", "input", "label"] },
+    { "id": "component.command.results", "tag": "x-menu", "adapter": "xtend.component", "attributes": { "role": "listbox" }, "parts": ["root", "item"] },
+    { "id": "component.command.icon", "tag": "x-icon", "adapter": "xtend.component", "attributes": { "name": "search", "label": "Search" }, "parts": ["root"] }
+  ],
+  "templates": [
+    {
+      "id": "template.dashboard.shell",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.dashboard.section",
+        "slots": {
+          "header": "template.dashboard.summary",
+          "content": "collection.orders"
+        }
+      }
+    },
+    {
+      "id": "template.dashboard.summary",
+      "renderMode": "dom_descriptor",
+      "root": { "type": "component", "component": "component.dashboard.summary", "props": { "value": "$selector.visibleOrders.count", "label": "Orders" } }
+    },
+    {
+      "id": "template.order-card",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.dashboard.cards",
+        "props": { "title": "$record.title", "status": "$record.status", "selected": "$selection.current" }
+      }
+    },
+    {
+      "id": "template.collection.empty",
+      "renderMode": "dom_descriptor",
+      "root": { "type": "component", "component": "component.dashboard.empty" }
+    },
+    {
+      "id": "template.command.shell",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.command.popover",
+        "slots": {
+          "trigger": "template.command.trigger",
+          "content": "template.command.content"
+        }
+      }
+    },
+    {
+      "id": "template.command.trigger",
+      "renderMode": "dom_descriptor",
+      "root": { "type": "component", "component": "component.command.trigger", "props": { "label": "Command" } }
+    },
+    {
+      "id": "template.command.content",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "fragment",
+        "children": [
+          { "type": "component", "component": "component.command.search", "props": { "value": "$state.command.query" } },
+          { "type": "searchSource", "source": "search.commands" }
+        ]
+      }
+    },
+    {
+      "id": "template.command.result",
+      "renderMode": "dom_descriptor",
+      "root": { "type": "component", "component": "component.command.results", "props": { "label": "$record.label", "active": "$selection.current" } }
+    }
+  ],
+  "collectionViews": [
+    {
+      "id": "collection.orders",
+      "source": "selector.visibleOrders",
+      "layoutMode": "list-grid",
+      "key": "$record.id",
+      "itemTemplate": "template.order-card",
+      "emptyTemplate": "template.collection.empty",
+      "selection": "state.orders.selection",
+      "sorting": "state.orders.sort",
+      "maxItemsPerFrame": 50,
+      "virtualization": "deferred-to-WP-RMO-06"
+    }
+  ],
+  "commandSources": [
+    {
+      "id": "command.global",
+      "surface": "surface.command-search",
+      "trigger": "event.command.open",
+      "shortcut": "Mod+K",
+      "registeredCommands": [
+        { "id": "command.openAudit", "label": "Open audit evidence", "action": "action.command.openAudit" },
+        { "id": "command.runGate", "label": "Run recipe extension gate", "action": "action.command.runGate" }
+      ],
+      "resultState": "state.command.result",
+      "actionRefRequired": true
+    }
+  ],
+  "searchSources": [
+    {
+      "id": "search.commands",
+      "queryState": "state.command.query",
+      "resource": "resource.commands",
+      "selector": "selector.visibleCommands",
+      "minQueryLength": 1,
+      "debounceMs": 120,
+      "resultTemplate": "template.command.result",
+      "activeIndexState": "state.command.activeIndex",
+      "selectionState": "state.command.selection"
+    }
+  ],
+  "events": [
+    { "id": "event.route.dashboard", "source": "route.dashboard", "type": "enter", "action": "action.orders.refresh" },
+    { "id": "event.collection.select", "source": "collection.orders", "type": "select", "action": "action.orders.select" },
+    { "id": "event.command.open", "source": "component.command.trigger", "type": "click", "action": "action.command.open" },
+    { "id": "event.command.close", "source": "surface.command-search", "type": "escape", "action": "action.command.close" },
+    { "id": "event.command.query", "source": "component.command.search", "type": "input", "action": "action.command.query" },
+    { "id": "event.command.execute", "source": "search.commands", "type": "select", "action": "action.command.execute" }
+  ],
+  "actions": [
+    { "id": "action.orders.refresh", "kind": "resource-query", "resource": "resource.orders", "policy": "resource-owner-required" },
+    { "id": "action.orders.select", "kind": "state-update", "target": "state.orders.selection", "payload": "$event.key" },
+    { "id": "action.command.open", "kind": "state-update", "target": "state.command.open", "payload": true },
+    { "id": "action.command.close", "kind": "state-update", "target": "state.command.open", "payload": false },
+    { "id": "action.command.query", "kind": "state-update", "target": "state.command.query", "payload": "$event.value" },
+    { "id": "action.command.execute", "kind": "effect", "effect": "effect.command.route", "payload": "$event.commandId", "policy": "registered-command-required" },
+    { "id": "action.command.openAudit", "kind": "effect", "effect": "effect.command.route", "payload": "cmd-open-audit", "policy": "action-ref-required" },
+    { "id": "action.command.runGate", "kind": "effect", "effect": "effect.command.route", "payload": "cmd-run-gate", "policy": "action-ref-required" }
+  ],
+  "effects": [
+    {
+      "id": "effect.command.route",
+      "kind": "host-command",
+      "adapterRef": "adapter.commandRouter",
+      "policy": "effect-policy-required",
+      "allowedCommands": ["cmd-open-audit", "cmd-run-gate"],
+      "resultState": "state.command.result"
+    }
+  ],
+  "schedules": [
+    { "id": "schedule.dashboard.render", "lane": "visible", "budgetMs": 16 },
+    { "id": "schedule.resource.query", "lane": "resource", "budgetMs": 50 },
+    { "id": "schedule.command.feedback", "lane": "a11y", "budgetMs": 8 }
+  ],
+  "recipes": [
+    { "id": "RMO-RCR-10", "extends": ["NFM-RCR-02", "NFM-RCR-06"], "outcome": "accepted-with-scoped-owned-data-display-package" },
+    { "id": "RMO-RCR-11", "extends": ["NFM-RCR-07"], "outcome": "accepted-with-scoped-owned-command-search-package" },
+    { "id": "RMO-RCR-12", "extends": ["NFM-RCR-03", "NFM-RCR-05"], "outcome": "accepted-with-route-adapter-and-scoped-owned-packages" }
+  ],
+  "migrationSteps": [
+    { "from": "NFM-RCR-06", "fromOutcome": "blocked-until-owned-data-display-package", "to": "RMO-RCR-10", "toOutcome": "accepted-with-scoped-owned-data-display-package" },
+    { "from": "NFM-RCR-07", "fromOutcome": "blocked-until-owned-command-search-package", "to": "RMO-RCR-11", "toOutcome": "accepted-with-scoped-owned-command-search-package" }
+  ],
+  "negativeFixtures": [
+    { "id": "negative.manualHtmlRowRenderer", "claim": "manual-html-row-renderer", "diagnostic": "rmt.recipe.manual_html_sink_forbidden" },
+    { "id": "negative.manualHtmlCommandRenderer", "claim": "manual-html-command-renderer", "diagnostic": "rmt.recipe.manual_html_sink_forbidden" },
+    { "id": "negative.unregisteredCommand", "claim": "unregistered-command-execution", "diagnostic": "rmt.recipe.command.unregistered_forbidden" },
+    { "id": "negative.freeCommandExecution", "claim": "free-command-execution-without-action-ref", "diagnostic": "rmt.recipe.command.action_ref_missing" }
+  ],
+  "diagnostics": [
+    "rmt.recipe.collection.source_missing",
+    "rmt.recipe.collection.template_missing",
+    "rmt.recipe.command.action_ref_missing",
+    "rmt.recipe.search.resource_missing",
+    "rmt.recipe.manual_html_sink_forbidden",
+    "rmt.recipe.command.unregistered_forbidden",
+    "rmt.recipe.action.resource_policy_missing",
+    "rmt.recipe.route.adapter_residual"
+  ],
+  "sourceMap": [
+    { "source": "/collectionViews/0", "target": "collection.orders" },
+    { "source": "/commandSources/0", "target": "command.global" },
+    { "source": "/searchSources/0", "target": "search.commands" },
+    { "source": "/events/0", "target": "event.route.dashboard" },
+    { "source": "/actions/0", "target": "action.orders.refresh" },
+    { "source": "/migrationSteps/0", "target": "RMO-RCR-10" },
+    { "source": "/negativeFixtures/2", "target": "negative.unregisteredCommand" }
+  ],
+  "negativeClaims": [
+    "full-datagrid-parity",
+    "framework-table-api-copy",
+    "virtualization-default-without-browser-evidence",
+    "command-palette-full-parity",
+    "framework-command-api-copy",
+    "rich-combobox-autocomplete-parity",
+    "manual-html-row-renderer",
+    "manual-html-command-renderer",
+    "unregistered-command-execution",
+    "free-command-execution-without-action-ref"
+  ]
+}

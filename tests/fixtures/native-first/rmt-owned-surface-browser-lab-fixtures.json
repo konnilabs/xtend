@@ -1,0 +1,116 @@
+{
+  "schema": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence-fixtures.v1",
+  "contract": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence.v1",
+  "matrix": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence-matrix.v1",
+  "browserFixtureSchema": "xtend.rmt-ui-maximality-owned-surface-browser-lab.fixture.v1",
+  "visualBaselineSchema": "xtend.rmt-ui-maximality-owned-surface-browser-lab.visual-baseline.v1",
+  "performanceReportSchema": "xtend.rmt-ui-maximality-owned-surface-browser-lab.performance-report.v1",
+  "reportSchema": "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence-report.v1",
+  "workpackage": "WP-RMO-06",
+  "localGate": "node scripts/run_xtend_tests.js rmt-owned-surface-browser-lab --json",
+  "packageScript": "npm run test:rmt-owned-surface-browser-lab",
+  "browserFixture": "tests/browser/fixtures/rmt-owned-surface-browser-lab.html",
+  "visualBaseline": "tests/browser/visual-baselines/rmt-owned-surface-browser-lab.dom-baseline.json",
+  "sourceRecipes": ["RMO-RCR-10", "RMO-RCR-11", "RMO-RCR-12", "RMO-RCR-14"],
+  "sourcePackages": ["WP-RMO-03", "WP-RMO-04", "WP-RMO-05"],
+  "sourceGates": [
+    "rmt-owned-surface-browser-lab",
+    "rmt-owned-recipe-extension",
+    "rmt-owned-data-display-primitives",
+    "rmt-owned-command-search-primitives",
+    "surface-browser-lab",
+    "native-first-budget-gates",
+    "rmt-renderer-dom-descriptor-proofs",
+    "native-first-overlay-focus",
+    "references"
+  ],
+  "statusSummary": {
+    "browser-lab-fixture-accepted": 1,
+    "visual-dom-baseline-accepted": 1,
+    "performance-budget-accepted": 1,
+    "conditional-pixel-artifact": 1,
+    "negative-claim-blocked": 1
+  },
+  "runtimeBoundary": {
+    "browserRequiredInLocalGate": false,
+    "externalNetworkAllowedInLocalGate": false,
+    "createsSecondRegistry": false,
+    "rmtKernelImportsXtendTypes": false,
+    "manualHtmlRendererAllowed": false,
+    "freeRuntimeExecutionAllowed": false,
+    "noRuntimeDependency": true
+  },
+  "browserPrimitives": ["PerformanceObserver", "MutationObserver", "requestAnimationFrame", "DocumentFragment", "replaceChildren"],
+  "performanceBudgets": {
+    "openMs": 16,
+    "focusMs": 16,
+    "queryMs": 50,
+    "resourceMs": 50,
+    "routeMs": 120,
+    "maxCumulativeLayoutShift": 0.01,
+    "maxMutationCount": 20,
+    "unstyledContentPopInCount": 0
+  },
+  "conditionalPixelArtifacts": {
+    "pathTemplate": ".xtend-test-results/visual-snapshots/rmo/{flow}/{viewport}.png",
+    "screenshotRequiredInLocalGate": false,
+    "pixelDiffRequiredInLocalGate": false,
+    "binaryBaselineCommitted": false,
+    "owner": "browser-lab-owner"
+  },
+  "entries": [
+    {
+      "evidenceId": "RMO-BL-01",
+      "evidenceClass": "browser-fixture",
+      "status": "browser-lab-fixture-accepted",
+      "sourceRecipes": ["RMO-RCR-10", "RMO-RCR-11", "RMO-RCR-12"],
+      "artifacts": ["tests/browser/fixtures/rmt-owned-surface-browser-lab.html"],
+      "browserStates": ["collection-ready", "collection-empty", "selection-change", "command-open", "search-results", "command-result", "route-feedback"],
+      "browserPrimitives": ["requestAnimationFrame", "DocumentFragment", "replaceChildren"],
+      "requiredAssertions": ["rmo dashboard collection ready", "rmo command search opens", "rmo crud navigation route feedback", "rmo no external network dependency"],
+      "claimBoundary": "allowed-with-browser-lab-fixture",
+      "nextHandoff": ["WP-RMO-07"]
+    },
+    {
+      "evidenceId": "RMO-BL-02",
+      "evidenceClass": "visual-baseline",
+      "status": "visual-dom-baseline-accepted",
+      "sourceRecipes": ["RMO-RCR-10", "RMO-RCR-11"],
+      "artifacts": ["tests/browser/visual-baselines/rmt-owned-surface-browser-lab.dom-baseline.json"],
+      "visualSnapshotIds": ["rmo-dashboard-collection-ready", "rmo-dashboard-empty-state", "rmo-command-open", "rmo-command-results", "rmo-crud-route-feedback"],
+      "claimBoundary": "allowed-with-artifact-reference",
+      "nextHandoff": ["WP-RMO-07"]
+    },
+    {
+      "evidenceId": "RMO-BL-03",
+      "evidenceClass": "performance-budget",
+      "status": "performance-budget-accepted",
+      "sourceRecipes": ["RMO-RCR-10", "RMO-RCR-11", "RMO-RCR-12"],
+      "artifacts": ["tests/fixtures/native-first/rmt-owned-surface-browser-lab-fixtures.json"],
+      "browserPrimitives": ["PerformanceObserver", "MutationObserver", "requestAnimationFrame"],
+      "budgetMetrics": ["openMs", "focusMs", "queryMs", "resourceMs", "routeMs", "maxCumulativeLayoutShift", "maxMutationCount"],
+      "claimBoundary": "allowed-with-budget-evidence",
+      "nextHandoff": ["WP-RMO-07"]
+    },
+    {
+      "evidenceId": "RMO-BL-04",
+      "evidenceClass": "conditional-artifact",
+      "status": "conditional-pixel-artifact",
+      "sourceRecipes": ["RMO-RCR-10", "RMO-RCR-11"],
+      "artifacts": [".xtend-test-results/visual-snapshots/rmo/{flow}/{viewport}.png"],
+      "browserPrimitives": ["browser-driver-or-ci-artifact"],
+      "claimBoundary": "conditional-browser-artifact",
+      "nextHandoff": ["WP-RMO-09"]
+    },
+    {
+      "evidenceId": "RMO-BL-05",
+      "evidenceClass": "claim-boundary",
+      "status": "negative-claim-blocked",
+      "sourceRecipes": ["RMO-RCR-14"],
+      "artifacts": ["tests/fixtures/native-first/rmt-owned-surface-browser-lab-fixtures.json"],
+      "blockedClaims": ["visual-claim-without-artifact", "pixel-baseline-claim-without-artifact", "real-browser-visual-claim-without-artifact"],
+      "claimBoundary": "blocked-negative-claim",
+      "nextHandoff": ["WP-RMO-07"]
+    }
+  ]
+}

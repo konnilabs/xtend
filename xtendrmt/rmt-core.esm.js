@@ -1,5 +1,5 @@
 /*!
- * XTendRMT 0.2.0
+ * XTendRMT 0.3.0
  * build target: rmt-core.esm
  * format: esm
  * generated at: 2026-05-03T18:31:08.225Z
@@ -22416,7 +22416,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
 /* modules/renderman-public-api.js */
 (function registerRenderManPublicApiModule(global) {
     const appModules = global.AppModules || (global.AppModules = {});
-    const PUBLIC_API_VERSION = '0.2.0';
+    const PUBLIC_API_VERSION = '0.3.0';
     const PRODUCT_NAME = 'XTendRMT';
     const PRODUCT_GLOBAL_NAME = 'xtend.rmt';
     const TYPES_ARTIFACT_PATH = 'dist/xtendrmt/rmt-core.d.ts';
@@ -25812,7 +25812,7 @@ const createRmtWorkerPrerenderRuntime = (...args) => AppModules.createRmtWorkerP
 const createRmtServerPrerenderRuntime = (...args) => AppModules.createRmtServerPrerenderRuntime(...args);
 const version = typeof AppModules.getRmtApiVersion === 'function'
     ? AppModules.getRmtApiVersion()
-    : "0.2.0";
+    : "0.3.0";
 const XtendRmtProduct = createRmtProductSurface();
 
 export { version, getRmtApiVersion, createRmtProductManifest, createRmtCore, createRmtDomCompat, createRmtPublicApi, createRmtTemplateApi, createRmtFormat, createRmtTemplateRegistry, createRmtTemplateLoader, createRmtTemplateCompiler, createRmtTemplateArtifacts, createRmtTemplateRuntimeRenderer, createRmtTemplateExecutionPath, createRmtTemplateWorkerAdapter, createRmtTemplateServerAdapter, createRmtXRouterAdapter, createRmtXtendComponentAdapter, createRmtSurfaceAdapter, createRmtStateSchedulerDiagnosticsBridge, createRmtPrewarmWorkerSourceBuilder, createRmtPrewarmWorkerRuntime, createRmtPerformanceRuntime, createRmtRuntime, createRmtDetachedRuntime, createRmtWorkerRuntime, createRmtServerRuntime, createRmtProductSurface, installRmtProductSurface, createRmtKernelPolicyParity, createRmtBrowserHostAdapter, createRmtBrowserRuntime, createRmtWorkerPrerenderRuntime, createRmtServerPrerenderRuntime };

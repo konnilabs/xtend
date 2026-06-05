@@ -1,0 +1,328 @@
+{
+  "schema": "xtend.rmt-ui-maximality-owned-release-handoff-fixtures.v1",
+  "fixtureSchema": "xtend.rmt-ui-maximality-owned-release-handoff-fixture.v1",
+  "contract": "xtend.rmt-ui-maximality-owned-release-handoff.v1",
+  "matrix": "xtend.rmt-ui-maximality-owned-release-handoff-decision-matrix.v1",
+  "decisionSchema": "xtend.rmt-ui-maximality-owned-release-handoff-decision.v1",
+  "reportSchema": "xtend.rmt-ui-maximality-owned-release-handoff-report.v1",
+  "workpackage": "WP-RMO-09",
+  "localGate": "node scripts/run_xtend_tests.js rmt-owned-release-handoff --json",
+  "packageScript": "npm run test:rmt-owned-release-handoff",
+  "releaseDecision": "accepted-with-residuals",
+  "nextEpicBoundary": "rmt-owned-runtime-components-and-docs-quality-hardening",
+  "sourceGates": [
+    "rmt-owned-release-handoff",
+    "rmt-ui-maximality-owned-surface-baseline",
+    "rmt-ui-maximality-owned-surface-gate-hygiene",
+    "rmt-owned-data-display-primitives",
+    "rmt-owned-command-search-primitives",
+    "rmt-owned-recipe-extension",
+    "rmt-owned-surface-browser-lab",
+    "rmt-owned-contract-budget-runtime-parity",
+    "rmt-owned-migration-deprecation-docs-handoff",
+    "native-first-mission-handoff",
+    "contract-registry",
+    "contract-runtime-parity",
+    "native-first-evidence-pack",
+    "native-first-budget-gates",
+    "native-first-docs-authoring",
+    "native-first-migration-deprecation",
+    "docs-public-quality",
+    "type-exports-vendor",
+    "type-exports-loader",
+    "component-long-tail-migration",
+    "references"
+  ],
+  "blockedClaims": [
+    "new-runtime-dependency-without-adoption-gate",
+    "external-ui-framework-default",
+    "rmt-kernel-host-type-import",
+    "full-datagrid-parity",
+    "framework-table-api-copy",
+    "virtualization-default-without-browser-evidence",
+    "command-palette-full-parity",
+    "framework-command-api-copy",
+    "rich-combobox-autocomplete-parity",
+    "unregistered-command-execution",
+    "free-command-execution-without-action-ref",
+    "manual-html-row-renderer",
+    "manual-html-command-renderer",
+    "visual-claim-without-artifact",
+    "pixel-baseline-claim-without-artifact",
+    "real-browser-visual-claim-without-artifact",
+    "silent-loader-removal",
+    "loader-deprecation-without-warning-window",
+    "new-vendor-highlighter-default",
+    "broad-vendor-export",
+    "new-raw-html-conversion-without-trust-boundary",
+    "public-deprecation-without-migration-guide",
+    "public-docs-new-vendor-default",
+    "hidden-release-residual",
+    "accepted-without-owner"
+  ],
+  "residuals": [
+    "x-table-runtime-component-evidence",
+    "x-tree-runtime-component-evidence",
+    "x-virtual-list-browser-performance-evidence",
+    "x-command-palette-runtime-component-evidence",
+    "x-autocomplete-ime-browser-evidence",
+    "x-combobox-aria-browser-evidence",
+    "real-browser-pixel-artifacts-owner-run",
+    "conditional-browser-artifact",
+    "surface-browser-lab-cadence",
+    "docs-public-quality-legacy-failures",
+    "legacy-loader-warning-window",
+    "owned-docs-highlighter-review",
+    "runtime-component-evidence-next-epic",
+    "docs-quality-owner-review",
+    "release-owner-residual-review"
+  ],
+  "fixtures": [
+    {
+      "handoffId": "RMO-HO-01",
+      "releaseArea": "release-boundary-and-dependency-diet",
+      "sourceWorkpackages": ["WP-RMO-01", "WP-RMO-07", "WP-RMO-09"],
+      "sourceContracts": [
+        "xtend.rmt-ui-maximality-owned-component-surface-hardening.source-of-truth.v1",
+        "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity.v1",
+        "xtend.native-first.performance-complexity-bundle-budget-gates.v1"
+      ],
+      "status": "accepted",
+      "releaseDecision": "accepted",
+      "nextEpicBoundary": "native-first-governance-cadence",
+      "residuals": ["none"],
+      "blockedClaims": [
+        "new-runtime-dependency-without-adoption-gate",
+        "external-ui-framework-default",
+        "rmt-kernel-host-type-import"
+      ],
+      "requiredGates": [
+        "rmt-ui-maximality-owned-surface-baseline",
+        "rmt-owned-contract-budget-runtime-parity",
+        "native-first-budget-gates",
+        "references"
+      ],
+      "evidenceArtifacts": [
+        "development/XTend-RMT-UI-Maximality-Owned-Component-Surface-Hardening-Source-of-Truth-Contract.md",
+        "development/XTend-RMT-Owned-Contract-Budget-Runtime-Parity-Contract.md",
+        "tests/fixtures/native-first/rmt-owned-contract-budget-runtime-parity-fixtures.json"
+      ],
+      "owner": "release-owner",
+      "nextHandoff": ["native-first-governance-cadence"]
+    },
+    {
+      "handoffId": "RMO-HO-02",
+      "releaseArea": "owned-data-display-surface",
+      "sourceWorkpackages": ["WP-RMO-03", "WP-RMO-05", "WP-RMO-07"],
+      "sourceContracts": [
+        "xtend.rmt-ui-maximality-owned-data-display-primitives.v1",
+        "xtend.rmt-ui-maximality-owned-recipe-extension.v1",
+        "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity.v1"
+      ],
+      "status": "accepted-with-residuals",
+      "releaseDecision": "accepted-with-residuals",
+      "nextEpicBoundary": "rmt-owned-runtime-components-and-docs-quality-hardening",
+      "residuals": [
+        "x-table-runtime-component-evidence",
+        "x-tree-runtime-component-evidence",
+        "x-virtual-list-browser-performance-evidence"
+      ],
+      "blockedClaims": [
+        "full-datagrid-parity",
+        "framework-table-api-copy",
+        "virtualization-default-without-browser-evidence"
+      ],
+      "requiredGates": [
+        "rmt-owned-data-display-primitives",
+        "rmt-owned-recipe-extension",
+        "rmt-owned-contract-budget-runtime-parity",
+        "references"
+      ],
+      "evidenceArtifacts": [
+        "development/XTend-RMT-Owned-Data-Display-Primitives-Contract.md",
+        "development/XTend-RMT-Owned-Data-Display-Primitives-Matrix.md",
+        "tests/fixtures/native-first/rmt-owned-data-display-primitives-fixtures.json"
+      ],
+      "owner": "component-platform-owner",
+      "nextHandoff": ["runtime-component-evidence-epic"]
+    },
+    {
+      "handoffId": "RMO-HO-03",
+      "releaseArea": "owned-command-search-surface",
+      "sourceWorkpackages": ["WP-RMO-04", "WP-RMO-05", "WP-RMO-07"],
+      "sourceContracts": [
+        "xtend.rmt-ui-maximality-owned-command-search-primitives.v1",
+        "xtend.rmt-ui-maximality-owned-recipe-extension.v1",
+        "xtend.rmt-ui-maximality-owned-contract-budget-runtime-parity.v1"
+      ],
+      "status": "accepted-with-residuals",
+      "releaseDecision": "accepted-with-residuals",
+      "nextEpicBoundary": "rmt-owned-runtime-components-and-docs-quality-hardening",
+      "residuals": [
+        "x-command-palette-runtime-component-evidence",
+        "x-autocomplete-ime-browser-evidence",
+        "x-combobox-aria-browser-evidence"
+      ],
+      "blockedClaims": [
+        "command-palette-full-parity",
+        "framework-command-api-copy",
+        "rich-combobox-autocomplete-parity",
+        "unregistered-command-execution",
+        "free-command-execution-without-action-ref"
+      ],
+      "requiredGates": [
+        "rmt-owned-command-search-primitives",
+        "rmt-owned-recipe-extension",
+        "rmt-owned-contract-budget-runtime-parity",
+        "native-first-overlay-focus",
+        "references"
+      ],
+      "evidenceArtifacts": [
+        "development/XTend-RMT-Owned-Command-Search-Primitives-Contract.md",
+        "development/XTend-RMT-Owned-Command-Search-Primitives-Matrix.md",
+        "tests/fixtures/native-first/rmt-owned-command-search-primitives-fixtures.json"
+      ],
+      "owner": "component-platform-owner",
+      "nextHandoff": ["runtime-component-evidence-epic"]
+    },
+    {
+      "handoffId": "RMO-HO-04",
+      "releaseArea": "rmt-recipes-browser-lab-and-visual-evidence",
+      "sourceWorkpackages": ["WP-RMO-05", "WP-RMO-06", "WP-RMO-07"],
+      "sourceContracts": [
+        "xtend.rmt-ui-maximality-owned-recipe-extension.v1",
+        "xtend.rmt-ui-maximality-owned-surface-browser-lab-visual-evidence.v1",
+        "xtend.native-first.performance-complexity-bundle-budget-gates.v1"
+      ],
+      "status": "accepted-with-residuals",
+      "releaseDecision": "accepted-with-residuals",
+      "nextEpicBoundary": "browser-lab-owner-run-cadence",
+      "residuals": [
+        "real-browser-pixel-artifacts-owner-run",
+        "conditional-browser-artifact",
+        "surface-browser-lab-cadence"
+      ],
+      "blockedClaims": [
+        "manual-html-row-renderer",
+        "manual-html-command-renderer",
+        "visual-claim-without-artifact",
+        "pixel-baseline-claim-without-artifact",
+        "real-browser-visual-claim-without-artifact"
+      ],
+      "requiredGates": [
+        "rmt-owned-recipe-extension",
+        "rmt-owned-surface-browser-lab",
+        "native-first-budget-gates",
+        "rmt-renderer-dom-descriptor-proofs",
+        "references"
+      ],
+      "evidenceArtifacts": [
+        "development/XTend-RMT-Owned-Recipe-Extension-Contract.md",
+        "development/XTend-RMT-Owned-Surface-Browser-Lab-Visual-Evidence-Contract.md",
+        "tests/browser/visual-baselines/rmt-owned-surface-browser-lab.dom-baseline.json"
+      ],
+      "owner": "browser-lab-owner",
+      "nextHandoff": ["browser-lab-owner-review"]
+    },
+    {
+      "handoffId": "RMO-HO-05",
+      "releaseArea": "migration-docs-and-vendor-containment",
+      "sourceWorkpackages": ["WP-RMO-02", "WP-RMO-08"],
+      "sourceContracts": [
+        "xtend.rmt-ui-maximality-owned-surface-gate-hygiene.v1",
+        "xtend.rmt-ui-maximality-owned-migration-deprecation-docs-handoff.v1",
+        "xtend.native-first.migration-deprecation-plan.v1"
+      ],
+      "status": "accepted-with-residuals",
+      "releaseDecision": "accepted-with-residuals",
+      "nextEpicBoundary": "docs-quality-owner-review",
+      "residuals": [
+        "docs-public-quality-legacy-failures",
+        "legacy-loader-warning-window",
+        "owned-docs-highlighter-review"
+      ],
+      "blockedClaims": [
+        "silent-loader-removal",
+        "loader-deprecation-without-warning-window",
+        "new-vendor-highlighter-default",
+        "broad-vendor-export",
+        "new-raw-html-conversion-without-trust-boundary",
+        "public-deprecation-without-migration-guide",
+        "public-docs-new-vendor-default"
+      ],
+      "requiredGates": [
+        "rmt-ui-maximality-owned-surface-gate-hygiene",
+        "rmt-owned-migration-deprecation-docs-handoff",
+        "native-first-migration-deprecation",
+        "docs-public-quality",
+        "type-exports-vendor",
+        "type-exports-loader",
+        "component-long-tail-migration",
+        "references"
+      ],
+      "evidenceArtifacts": [
+        "development/XTend-RMT-UI-Maximality-Owned-Component-Surface-Hardening-Gate-Hygiene-Report.md",
+        "development/XTend-RMT-Owned-Migration-Deprecation-Docs-Handoff-Contract.md",
+        "tests/fixtures/native-first/rmt-owned-migration-deprecation-docs-handoff-fixtures.json"
+      ],
+      "owner": "docs-authoring-owner",
+      "nextHandoff": ["docs-quality-owner-review"]
+    },
+    {
+      "handoffId": "RMO-HO-06",
+      "releaseArea": "release-next-epic-boundary",
+      "sourceWorkpackages": ["WP-RMO-07", "WP-RMO-08", "WP-RMO-09"],
+      "sourceContracts": [
+        "xtend.rmt-ui-maximality-owned-release-handoff.v1",
+        "xtend.native-first.mission-handoff.v1",
+        "xtend.native-first.contract-registry.v1",
+        "xtend.native-first.audit-evidence-pack.v1"
+      ],
+      "status": "needs-next-epic",
+      "releaseDecision": "accepted-with-residuals",
+      "nextEpicBoundary": "rmt-owned-runtime-components-and-docs-quality-hardening",
+      "residuals": [
+        "runtime-component-evidence-next-epic",
+        "docs-quality-owner-review",
+        "release-owner-residual-review"
+      ],
+      "blockedClaims": [
+        "hidden-release-residual",
+        "accepted-without-owner",
+        "new-runtime-dependency-without-adoption-gate",
+        "external-ui-framework-default"
+      ],
+      "requiredGates": [
+        "rmt-owned-release-handoff",
+        "native-first-mission-handoff",
+        "contract-registry",
+        "contract-runtime-parity",
+        "native-first-evidence-pack",
+        "references"
+      ],
+      "evidenceArtifacts": [
+        "development/XTend-RMT-Owned-Release-Handoff-Contract.md",
+        "development/XTend-RMT-Owned-Release-Handoff-Decision-Matrix.md",
+        "tests/fixtures/native-first/rmt-owned-release-handoff-fixtures.json",
+        "development/BACKLOG-XTend-RMT-UI-Maximality-und-Owned-Component-Surface-Hardening.md"
+      ],
+      "owner": "release-owner",
+      "nextHandoff": ["next-epic-intake"]
+    }
+  ],
+  "statusSummary": {
+    "accepted": 1,
+    "accepted-with-residuals": 4,
+    "needs-next-epic": 1
+  },
+  "releaseDecisionSummary": {
+    "accepted": 1,
+    "accepted-with-residuals": 5
+  },
+  "noRuntimeDependency": true,
+  "externalUiFrameworkDependencyAllowed": false,
+  "unsafeHtmlSinkAllowed": false,
+  "createsSecondRegistry": false,
+  "rmtKernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+}
+

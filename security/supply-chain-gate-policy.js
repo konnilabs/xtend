@@ -48,6 +48,12 @@ const SCOPED_RELEASE_PACKAGES = Object.freeze([
     path: 'tools',
     manifest: 'tools/package.json',
     scope: 'rmt-compiler-tooling'
+  },
+  {
+    name: '@ccslabs/xtend-maraca',
+    path: 'xtend-maraca',
+    manifest: 'xtend-maraca/package.json',
+    scope: 'maraca-bundler'
   }
 ]);
 

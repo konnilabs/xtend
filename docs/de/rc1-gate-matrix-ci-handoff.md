@@ -19,6 +19,9 @@ release evidence docs: release-report-pack-dry-run-evidence
 network ci schema: xtend.epic13.conditional-network-evidence-ci.v1
 network ci report: .xtend-test-results/xtend-epic13-conditional-network-evidence-ci-report.json
 readiness bundle: rc1-gate-matrix-ci-handoff
+owner-handoff: release-owner-review
+local gate: npm run test:epic13-rc1-gate-matrix-ci-handoff
+next workpackage: WP-E13-14
 ```
 
 ## Artefaktpfad

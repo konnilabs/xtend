@@ -1,5 +1,5 @@
 /*!
- * XTendRMT 0.2.0
+ * XTendRMT 0.3.0
  * build target: rmt-runtime.browser
  * format: browser_classic
  * generated at: 2026-05-03T18:31:08.223Z
@@ -22836,7 +22836,7 @@
 /* modules/renderman-public-api.js */
 (function registerRenderManPublicApiModule(global) {
     const appModules = global.AppModules || (global.AppModules = {});
-    const PUBLIC_API_VERSION = '0.2.0';
+    const PUBLIC_API_VERSION = '0.3.0';
     const PRODUCT_NAME = 'XTendRMT';
     const PRODUCT_GLOBAL_NAME = 'xtend.rmt';
     const TYPES_ARTIFACT_PATH = 'dist/xtendrmt/rmt-core.d.ts';
