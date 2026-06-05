@@ -41,6 +41,9 @@
     "onCommand:xtendRmt.rmtVNext.applySafePrimitiveFixAll"
   ],
   "main": "./extension.js",
+  "scripts": {
+    "package": "node build-vsix.js --out xtend-rmt-language-0.1.0-rc.1.vsix"
+  },
   "files": [
     "extension.js",
     "language-configuration.json",

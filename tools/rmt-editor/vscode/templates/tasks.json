@@ -167,6 +167,40 @@
         "clear": false,
         "group": "xtend"
       }
+    },
+    {
+      "label": "XTendRMT: Native-First RMT Owned release gate",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "test:native-first-rmt-owned-release:report"
+      ],
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
+    },
+    {
+      "label": "XTendRMT: Maraca gate",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "test:maraca:report"
+      ],
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false,
+        "group": "xtend"
+      }
     }
   ]
 }

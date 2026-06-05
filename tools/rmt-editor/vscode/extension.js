@@ -315,6 +315,26 @@ function createVsCodeTaskDefinitions(options = {}) {
         problemMatcher: [],
         group: 'test',
         presentation
+      },
+      {
+        id: 'native-first-rmt-owned-release-gate',
+        type: 'xtendRmt',
+        label: 'XTendRMT: Native-First RMT Owned release gate',
+        command: 'npm',
+        args: ['run', 'test:native-first-rmt-owned-release:report'],
+        problemMatcher: [],
+        group: 'test',
+        presentation
+      },
+      {
+        id: 'maraca-gate',
+        type: 'xtendRmt',
+        label: 'XTendRMT: Maraca gate',
+        command: 'npm',
+        args: ['run', 'test:maraca:report'],
+        problemMatcher: [],
+        group: 'test',
+        presentation
       }
     ]
   };

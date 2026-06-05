@@ -29,11 +29,17 @@ const TOP_LEVEL_DOMAINS = Object.freeze([
   ['transitions', 'array', 'Surface transition records with trigger, effect and lane metadata.'],
   ['portals', 'array', 'Generic overlay portal layer definitions.'],
   ['overlays', 'array', 'Tooltip, toast, popover, lightbox, menu and dialog overlay definitions.'],
+  ['collectionViews', 'array', 'Owned data-display collection views with item, loading, empty and selection state templates.'],
+  ['commandSources', 'array', 'Owned command palette sources that route registered commands through action refs.'],
+  ['searchSources', 'array', 'Owned search sources with query state, resource-backed results and active descendant metadata.'],
+  ['slots', 'array', 'Named composition slots for app-shell and surface recipes.'],
+  ['securityPolicies', 'array', 'Trust-boundary, sanitizing and owner-scoped security policy records.'],
   ['records', 'object', 'Named fixture or SSR record collections.'],
   ['surfaces', 'array', 'Generic keyed Surface Graph records.'],
   ['templates', 'array', 'Template records and DOM descriptors.'],
   ['diagnostics', 'object', 'Optional diagnostics and gate metadata.'],
-  ['extensionSlots', 'object', 'Optional host extension slots.']
+  ['extensionSlots', 'object', 'Optional host extension slots.'],
+  ['sourceMap', 'array', 'Source-to-runtime pointers for contracts, generated artifacts and authoring evidence.']
 ]);
 
 const DOMAIN_FIELD_COMPLETIONS = Object.freeze({
@@ -42,12 +48,12 @@ const DOMAIN_FIELD_COMPLETIONS = Object.freeze({
   components: ['id', 'kind', 'adapter', 'tag', 'schedule', 'props', 'attributes', 'slots', 'events', 'hydration', 'metadata'],
   routes: ['id', 'path', 'router', 'component', 'template', 'shell', 'schedule', 'documentTitle', 'metaDescription', 'metadata'],
   schedules: ['id', 'endpointName', 'lane', 'fiber', 'priority', 'budgetMs', 'deadlineMs', 'preferIdle', 'coalesceKey'],
-  state: ['id', 'type', 'schema', 'initial', 'preserve', 'metadata'],
-  selectors: ['id', 'from', 'compute', 'output', 'structural', 'metadata'],
-  dataSources: ['id', 'kind', 'endpoint', 'adapter', 'records', 'payload', 'resultPath', 'contract', 'metadata'],
-  actions: ['id', 'datasource', 'resultState', 'loadingState', 'statusState', 'resourceOwner', 'effects', 'resources', 'cancelable', 'metadata'],
-  effects: ['id', 'kind', 'target', 'message', 'path', 'severity', 'resource', 'resources', 'metadata'],
-  resources: ['id', 'kind', 'owner', 'source', 'importId', 'delayMs', 'metadata'],
+  state: ['id', 'type', 'schema', 'initial', 'preserve', 'key', 'field', 'direction', 'metadata'],
+  selectors: ['id', 'from', 'source', 'compute', 'output', 'structural', 'filter', 'sort', 'query', 'resultState', 'metadata'],
+  dataSources: ['id', 'kind', 'owner', 'endpoint', 'adapter', 'policy', 'records', 'payload', 'resultPath', 'contract', 'metadata'],
+  actions: ['id', 'kind', 'datasource', 'target', 'payload', 'policy', 'effect', 'resource', 'resultState', 'loadingState', 'statusState', 'resourceOwner', 'effects', 'resources', 'cancelable', 'metadata'],
+  effects: ['id', 'kind', 'target', 'message', 'path', 'severity', 'resource', 'resources', 'adapterRef', 'policy', 'allowedCommands', 'resultState', 'metadata'],
+  resources: ['id', 'kind', 'owner', 'source', 'dataSource', 'lifecycle', 'cachePolicy', 'loadingState', 'errorState', 'release', 'importId', 'delayMs', 'metadata'],
   events: ['id', 'kind', 'event', 'target', 'component', 'owner', 'action', 'payload', 'payloadContract', 'governance', 'metadata'],
   validations: ['id', 'mode', 'targets', 'fields', 'includes', 'schedulerTargets', 'metadata'],
   validationFields: ['state', 'rules', 'message', 'component', 'target'],
@@ -56,8 +62,15 @@ const DOMAIN_FIELD_COMPLETIONS = Object.freeze({
   transitionTriggers: ['kind', 'id'],
   portals: ['id', 'root', 'layer', 'policy', 'focusPolicy', 'pointerPolicy', 'scrollPolicy', 'zIndexStart', 'zStep', 'metadata'],
   overlays: ['id', 'kind', 'portal', 'layer', 'surface', 'resources', 'dismissible', 'singleton', 'focusPolicy', 'escapePolicy', 'pointerPolicy', 'scrollPolicy', 'metadata'],
-  surfaces: ['id', 'schema', 'kind', 'type', 'source', 'repeat', 'key', 'owner', 'portal', 'adapter', 'manager', 'component', 'template', 'route', 'schedule', 'resources', 'bounds', 'placement', 'mode', 'initialState', 'persistent', 'closeReleasesResources', 'destroyOnClose', 'metadata'],
-  templates: ['id', 'mode', 'nodes', 'slots', 'hydration', 'metadata', 'security'],
+  collectionViews: ['id', 'source', 'layoutMode', 'key', 'itemTemplate', 'emptyTemplate', 'loadingTemplate', 'errorTemplate', 'selection', 'sorting', 'maxItemsPerFrame', 'virtualization', 'a11y', 'metadata'],
+  commandSources: ['id', 'surface', 'trigger', 'shortcut', 'registeredCommands', 'resultState', 'actionRefRequired', 'metadata'],
+  registeredCommands: ['id', 'label', 'action', 'disabledState', 'keywords'],
+  searchSources: ['id', 'queryState', 'resource', 'selector', 'minQueryLength', 'debounceMs', 'resultTemplate', 'emptyTemplate', 'loadingTemplate', 'activeIndexState', 'selectionState', 'a11y', 'metadata'],
+  slots: ['id', 'name', 'surface', 'component', 'template', 'schedule', 'metadata'],
+  securityPolicies: ['id', 'kind', 'boundary', 'format', 'sink', 'ownerOperation', 'policy', 'metadata'],
+  sourceMap: ['source', 'target', 'domain', 'workpackage', 'evidence'],
+  surfaces: ['id', 'schema', 'kind', 'type', 'source', 'repeat', 'key', 'owner', 'portal', 'adapter', 'manager', 'component', 'template', 'route', 'schedule', 'resources', 'bounds', 'placement', 'mode', 'initialState', 'persistent', 'closeReleasesResources', 'destroyOnClose', 'focusPolicy', 'escape', 'stackPolicy', 'metadata'],
+  templates: ['id', 'mode', 'renderMode', 'nodes', 'root', 'slots', 'hydration', 'metadata', 'security'],
   routeMetadata: ['title', 'documentTitle', 'titleTemplate', 'metaDescription', 'contentKind', 'announcement', 'a11y'],
   hydrationMetadata: ['endpointHint', 'scheduleRef', 'policy', 'deferUntil']
 });
@@ -75,6 +88,8 @@ const SCHEDULE_LANES = Object.freeze([
   ['visible', 'Visible rendering work.'],
   ['user-blocking', 'User blocking interaction work.'],
   ['transition', 'Route or UI transition work.'],
+  ['resource', 'Resource or search work.'],
+  ['a11y', 'Assistive technology feedback work.'],
   ['background', 'Background work.'],
   ['idle', 'Idle hydration or deferred work.'],
   ['diagnostics', 'Diagnostics and telemetry work.']
@@ -352,7 +367,7 @@ function inferCompletionContext(input = {}) {
     return 'route-ids';
   }
 
-  if (field === 'template' || field === 'shell' || /\/(template|shell)$/.test(pointer)) {
+  if (field === 'template' || field === 'shell' || field === 'itemTemplate' || field === 'emptyTemplate' || field === 'loadingTemplate' || field === 'errorTemplate' || field === 'resultTemplate' || /\/(template|shell|itemTemplate|emptyTemplate|loadingTemplate|errorTemplate|resultTemplate)$/.test(pointer)) {
     return 'template-ids';
   }
 
@@ -402,6 +417,22 @@ function inferCompletionContext(input = {}) {
 
   if (field === 'portal' || /\/portal$/.test(pointer)) {
     return 'portal-ids';
+  }
+
+  if (field === 'resource' || /\/resource$/.test(pointer)) {
+    return 'resource-ids';
+  }
+
+  if (field === 'selector' || /\/selector$/.test(pointer)) {
+    return 'selector-ids';
+  }
+
+  if (field === 'surface' || /\/surface$/.test(pointer)) {
+    return 'surface-ids';
+  }
+
+  if (field === 'action' || /\/action$/.test(pointer)) {
+    return 'action-ids';
   }
 
   if (field === 'resources' || /\/resources(?:\/\d+)?$/.test(pointer)) {
@@ -480,6 +511,34 @@ function inferCompletionContext(input = {}) {
     return 'transition-trigger-fields';
   }
 
+  if (/^\/collectionViews\/\d+$/.test(pointer) || domain === 'collectionViews') {
+    return 'collection-view-fields';
+  }
+
+  if (/^\/commandSources\/\d+$/.test(pointer) || domain === 'commandSources') {
+    return 'command-source-fields';
+  }
+
+  if (/^\/commandSources\/\d+\/registeredCommands\/\d+$/.test(pointer) || domain === 'registeredCommands') {
+    return 'registered-command-fields';
+  }
+
+  if (/^\/searchSources\/\d+$/.test(pointer) || domain === 'searchSources') {
+    return 'search-source-fields';
+  }
+
+  if (/^\/slots\/\d+$/.test(pointer) || domain === 'slots') {
+    return 'slot-fields';
+  }
+
+  if (/^\/securityPolicies\/\d+$/.test(pointer) || domain === 'securityPolicies') {
+    return 'security-policy-fields';
+  }
+
+  if (/^\/sourceMap\/\d+$/.test(pointer) || domain === 'sourceMap') {
+    return 'source-map-fields';
+  }
+
   if (/^\/actions\/\d+$/.test(pointer) || domain === 'actions') {
     return 'action-fields';
   }
@@ -547,6 +606,20 @@ function buildContextItems(graph, context, options = {}) {
       return domainFieldItems('transitions', 'transitions[*]');
     case 'transition-trigger-fields':
       return domainFieldItems('transitionTriggers', 'transitions[*].trigger');
+    case 'collection-view-fields':
+      return domainFieldItems('collectionViews', 'collectionViews[*]');
+    case 'command-source-fields':
+      return domainFieldItems('commandSources', 'commandSources[*]');
+    case 'registered-command-fields':
+      return domainFieldItems('registeredCommands', 'commandSources[*].registeredCommands[*]');
+    case 'search-source-fields':
+      return domainFieldItems('searchSources', 'searchSources[*]');
+    case 'slot-fields':
+      return domainFieldItems('slots', 'slots[*]');
+    case 'security-policy-fields':
+      return domainFieldItems('securityPolicies', 'securityPolicies[*]');
+    case 'source-map-fields':
+      return domainFieldItems('sourceMap', 'sourceMap[*]');
     case 'action-fields':
       return domainFieldItems('actions', 'actions[*]');
     case 'data-source-fields':
@@ -572,6 +645,12 @@ function buildContextItems(graph, context, options = {}) {
       return referenceItems(graph, 'schedules', options);
     case 'route-ids':
       return referenceItems(graph, 'routes', options);
+    case 'surface-ids':
+      return referenceItems(graph, 'surfaces', options);
+    case 'selector-ids':
+      return referenceItems(graph, 'selectors', options);
+    case 'action-ids':
+      return referenceItems(graph, 'actions', options);
     case 'route-paths':
       return referenceItems(graph, 'routePaths', options);
     case 'schedule-endpoints':

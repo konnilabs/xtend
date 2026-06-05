@@ -14,7 +14,31 @@ const RMT_SEMANTIC_GRAPH_MODULE_PATH = 'tools/rmt-language/semantic-graph.js';
 const RMT_SEMANTIC_GRAPH_SUITE_PATH = 'tests/rmt-language/rmt_semantic_graph_suite.js';
 const RMT_SEMANTIC_GRAPH_PACKAGE_SCRIPT = 'npm run test:rmt-semantic-graph';
 
-const DOMAIN_NAMES = ['adapters', 'components', 'routes', 'schedules', 'surfaces', 'templates', 'validations', 'transitions'];
+const DOMAIN_NAMES = [
+  'adapters',
+  'components',
+  'routes',
+  'schedules',
+  'surfaces',
+  'templates',
+  'state',
+  'states',
+  'selectors',
+  'dataSources',
+  'actions',
+  'effects',
+  'resources',
+  'events',
+  'validations',
+  'transitions',
+  'portals',
+  'overlays',
+  'collectionViews',
+  'commandSources',
+  'searchSources',
+  'slots',
+  'securityPolicies'
+];
 const RMT_VNEXT_PRIMITIVE_DOMAIN_NAMES = [
   'states',
   'selectors',
@@ -34,6 +58,16 @@ const REFERENCE_DIAGNOSTIC_CODES = {
   templates: 'rmt.ref.template.unresolved',
   schedules: 'rmt.ref.schedule.unresolved',
   surfaces: 'rmt.ref.surface.unresolved',
+  state: 'rmt.ref.state.unresolved',
+  states: 'rmt.ref.state.unresolved',
+  selectors: 'rmt.ref.selector.unresolved',
+  resources: 'rmt.app.resource.unresolved',
+  actions: 'rmt.ref.action.unresolved',
+  events: 'rmt.ref.event.unresolved',
+  collectionViews: 'rmt.ref.collection-view.unresolved',
+  commandSources: 'rmt.ref.command-source.unresolved',
+  searchSources: 'rmt.ref.search-source.unresolved',
+  portals: 'rmt.app.portal.unresolved',
   scheduleEndpoints: 'rmt.schedule.endpoint.missing'
 };
 const RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES = {

@@ -206,6 +206,32 @@ function runFallbackPolicyChecks(context, rootDir) {
   context.assert(fallbackDiagnostic.repair && fallbackDiagnostic.repair.kind === 'rename-file-extension', 'Fallback diagnostic offers rename-file-extension repair');
 }
 
+function runNativeFirstDomainChecks(context, rootDir) {
+  const report = lintRmtSource({
+    text: JSON.stringify({
+      kind: 'rmt_document',
+      version: '1.0',
+      schema: 'xtend.native-first.editor-coverage-fixture.v1',
+      manifest: { documentId: 'editor.native-first.coverage' },
+      dataSources: [],
+      resources: [],
+      state: [],
+      selectors: [],
+      templates: [],
+      collectionViews: [],
+      commandSources: [],
+      searchSources: [],
+      securityPolicies: [],
+      sourceMap: []
+    }, null, 2),
+    uri: 'file:///virtual/native-first-editor-coverage.rmt'
+  }, {
+    rootDir
+  });
+
+  context.assert(!report.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.domain.unknown'), 'Native-First RMO domains are accepted by linter domain policy');
+}
+
 function runCustomRuleChecks(context, rootDir) {
   const linter = createRmtLinter({
     rules: [
@@ -284,6 +310,7 @@ function runRmtLinterRulesSuite(options = {}) {
   runValidFixtureChecks(context, rootDir);
   runProblemFixtureChecks(context, rootDir);
   runFallbackPolicyChecks(context, rootDir);
+  runNativeFirstDomainChecks(context, rootDir);
   runCustomRuleChecks(context, rootDir);
 
   return context.result({

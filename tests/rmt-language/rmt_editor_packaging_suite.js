@@ -74,6 +74,7 @@ const VSCODE_GRAMMAR_PATH = 'tools/rmt-editor/vscode/syntaxes/rmt.tmLanguage.jso
 const VSCODE_PACKAGED_SNIPPETS_PATH = 'tools/rmt-editor/vscode/snippets/rmt.code-snippets';
 const VSCODE_TASKS_TEMPLATE_PATH = 'tools/rmt-editor/vscode/templates/tasks.json';
 const VSCODE_LAUNCH_TEMPLATE_PATH = 'tools/rmt-editor/vscode/templates/launch.json';
+const VSCODE_LOCAL_VSIX_BUILDER_PATH = 'tools/rmt-editor/vscode/build-vsix.js';
 const PRIMITIVE_INVALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -94,6 +95,8 @@ function runSnippetCatalogChecks(context, rootDir) {
   const validation = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-validation');
   const transition = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-transition');
   const orchestrationApp = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app');
+  const ownedCollectionView = catalog.snippets.find((snippet) => snippet.id === 'rmt-owned-collection-view');
+  const ownedCommandSearch = catalog.snippets.find((snippet) => snippet.id === 'rmt-owned-command-search');
 
   context.assert(catalog.schema === RMT_SNIPPET_CATALOG_SCHEMA, 'Snippet catalog emits stable schema');
   context.assert(catalog.workpackage === RMT_EDITOR_PACKAGING_WORKPACKAGE, 'Snippet catalog belongs to WP-E14-12');
@@ -111,14 +114,22 @@ function runSnippetCatalogChecks(context, rootDir) {
   context.assert(transition && joinedSnippetBody(transition).includes('effect ${7|fade,crossfade'), 'Transition snippet offers effect choices');
   context.assert(orchestrationApp && joinedSnippetBody(orchestrationApp).includes('validation ${6:app.contact}'), 'Maraca orchestration snippet includes validation block');
   context.assert(orchestrationApp && joinedSnippetBody(orchestrationApp).includes('transition ${9:app.contactToIssue}'), 'Maraca orchestration snippet includes transition block');
+  context.assert(ownedCollectionView && joinedSnippetBody(ownedCollectionView).includes('"collectionViews"'), 'Owned collection snippet includes collectionViews domain');
+  context.assert(ownedCollectionView && joinedSnippetBody(ownedCollectionView).includes('"maxItemsPerFrame"'), 'Owned collection snippet includes maxItemsPerFrame budget');
+  context.assert(ownedCommandSearch && joinedSnippetBody(ownedCommandSearch).includes('"commandSources"'), 'Owned command/search snippet includes commandSources domain');
+  context.assert(ownedCommandSearch && joinedSnippetBody(ownedCommandSearch).includes('"searchSources"'), 'Owned command/search snippet includes searchSources domain');
   context.assert(catalog.snippets.every((snippet) => !joinedSnippetBody(snippet).includes('.rmt.json')), 'Snippets do not generate .rmt.json documents');
   context.assert(vscodeSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code snippet document exposes minimal app prefix');
   context.assert(vscodeSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'VS Code snippet document exposes validation prefix');
   context.assert(vscodeSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'VS Code snippet document exposes transition prefix');
   context.assert(vscodeSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'VS Code snippet document exposes Maraca orchestration prefix');
+  context.assert(vscodeSnippets['RMT Owned Collection View'].prefix === 'rmt-owned-collection-view', 'VS Code snippet document exposes owned collection prefix');
+  context.assert(vscodeSnippets['RMT Owned Command Search'].prefix === 'rmt-owned-command-search', 'VS Code snippet document exposes owned command/search prefix');
   context.assert(staticVscodeSnippets['RMT Minimal App'].prefix === vscodeSnippets['RMT Minimal App'].prefix, 'Static VS Code snippets match generated prefix');
   context.assert(staticVscodeSnippets['RMT vNext Validation'].prefix === vscodeSnippets['RMT vNext Validation'].prefix, 'Static VS Code snippets include generated validation prefix');
   context.assert(staticVscodeSnippets['RMT vNext Surface Transition'].prefix === vscodeSnippets['RMT vNext Surface Transition'].prefix, 'Static VS Code snippets include generated transition prefix');
+  context.assert(staticVscodeSnippets['RMT Owned Collection View'].prefix === vscodeSnippets['RMT Owned Collection View'].prefix, 'Static VS Code snippets include generated owned collection prefix');
+  context.assert(staticVscodeSnippets['RMT Owned Command Search'].prefix === vscodeSnippets['RMT Owned Command Search'].prefix, 'Static VS Code snippets include generated owned command/search prefix');
 }
 
 function runEditorPackagingChecks(context, rootDir) {
@@ -319,6 +330,8 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(taskDefinitions.tasks.length >= 8, 'VS Code task definitions expose lint, build, scaffold and gate tasks');
   context.assert(taskDefinitions.tasks.some((task) => task.args.includes('problem-matcher')), 'VS Code lint task uses problem matcher linter format');
   context.assert(taskDefinitions.tasks.some((task) => task.id === 'rmt-build-write'), 'VS Code tasks include explicit write build task');
+  context.assert(taskDefinitions.tasks.some((task) => task.id === 'native-first-rmt-owned-release-gate' && task.args.includes('test:native-first-rmt-owned-release:report')), 'VS Code tasks expose Native-First RMT Owned release gate');
+  context.assert(taskDefinitions.tasks.some((task) => task.id === 'maraca-gate' && task.args.includes('test:maraca:report')), 'VS Code tasks expose Maraca gate');
   context.assert(workflowDefinitions.some((workflow) => workflow.id === 'open-terminal'), 'VS Code CLI workflows expose open terminal action');
   context.assert(workflowDefinitions.some((workflow) => workflow.id === 'agent-repair-report'), 'VS Code CLI workflows expose agent repair report action');
   context.assert(cliCandidates.candidates.some((candidate) => candidate.id === 'workspace-scaffold' && candidate.exists), 'VS Code CLI resolver detects workspace scaffold.js');
@@ -361,6 +374,7 @@ function runVsCodeBridgeChecks(context, rootDir) {
     context.assert(vscodePackage.contributes.commands.some((entry) => entry.command === commandId), `VS Code package contributes DX command ${commandId}`);
   });
   context.assert(vscodePackage.dependencies && vscodePackage.dependencies['vscode-languageclient'], 'VS Code package depends on vscode-languageclient');
+  context.assert(vscodePackage.scripts && vscodePackage.scripts.package === 'node build-vsix.js --out xtend-rmt-language-0.1.0-rc.1.vsix', 'VS Code package exposes local VSIX build script');
   context.assert(vscodePackage.files.includes('templates/**'), 'VS Code package includes support-file templates');
   context.assert(vscodePackage.contributes.taskDefinitions.some((entry) => entry.type === 'xtendRmt'), 'VS Code package contributes xtendRmt task definition');
   context.assert(vscodePackage.contributes.problemMatchers.some((entry) => entry.name === 'xtend-rmt-lint'), 'VS Code package contributes RMT problem matcher');
@@ -374,9 +388,13 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(packagedSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'VS Code packaged snippets include validation snippet');
   context.assert(packagedSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'VS Code packaged snippets include transition snippet');
   context.assert(packagedSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'VS Code packaged snippets include Maraca orchestration snippet');
+  context.assert(packagedSnippets['RMT Owned Collection View'].prefix === 'rmt-owned-collection-view', 'VS Code packaged snippets include owned collection snippet');
+  context.assert(packagedSnippets['RMT Owned Command Search'].prefix === 'rmt-owned-command-search', 'VS Code packaged snippets include owned command/search snippet');
   context.assert(JSON.stringify(packagedSnippets) === JSON.stringify(sourceSnippets), 'VS Code packaged snippets stay in sync with source snippets');
   context.assert(tasksTemplate.tasks.some((task) => task.label === 'XTendRMT: RMT build check'), 'VS Code tasks template exposes RMT build check');
   context.assert(tasksTemplate.tasks.some((task) => task.problemMatcher === '$xtend-rmt-lint'), 'VS Code tasks template wires RMT problem matcher');
+  context.assert(tasksTemplate.tasks.some((task) => task.label === 'XTendRMT: Native-First RMT Owned release gate'), 'VS Code tasks template exposes Native-First RMT Owned release gate');
+  context.assert(tasksTemplate.tasks.some((task) => task.label === 'XTendRMT: Maraca gate'), 'VS Code tasks template exposes Maraca gate');
   context.assert(launchTemplate.configurations.some((entry) => entry.name === 'XTendRMT: Debug Active RMT Build'), 'VS Code launch template exposes active RMT build debug config');
   context.assert(languageConfiguration.comments.lineComment === '//', 'VS Code language configuration defines RMT line comments');
   context.assert(languageConfiguration.brackets.length >= 3, 'VS Code language configuration defines JSON brackets');
@@ -384,10 +402,16 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('template'), 'VS Code grammar highlights RMT vNext keywords');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('validation'), 'VS Code grammar highlights validation keyword');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('transition'), 'VS Code grammar highlights transition keyword');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('datasource'), 'VS Code grammar highlights datasource keyword');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('reattach'), 'VS Code grammar highlights current lifecycle keywords');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('durationMs'), 'VS Code grammar highlights transition duration token');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('required'), 'VS Code grammar highlights validation rule tokens');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('collectionViews'), 'VS Code grammar highlights owned collection domain token');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('commandSources'), 'VS Code grammar highlights command source domain token');
   context.assert(grammar.repository && grammar.repository.componentTags.patterns[0].match.includes('x-'), 'VS Code grammar highlights XTend component tags');
   context.assert(grammar.repository && grammar.repository.lanes.patterns[0].match.includes('user-blocking'), 'VS Code grammar highlights RMT lanes');
+  context.assert(grammar.repository && grammar.repository.lanes.patterns[0].match.includes('resource'), 'VS Code grammar highlights resource lane');
+  context.assert(grammar.repository && grammar.repository.comments.patterns.some((pattern) => pattern.name === 'comment.block.rmt'), 'VS Code grammar highlights block comments');
   context.assert(grammar.patterns.some((pattern) => pattern.include === 'source.json'), 'VS Code grammar delegates to JSON grammar');
 }
 
@@ -405,6 +429,8 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.workpackage === RMT_EDITOR_PACKAGING_WORKPACKAGE, 'package metadata points to WP-E14-12');
   context.assert(metadata && metadata.module === RMT_SNIPPET_MODULE_PATH, 'package metadata points to snippets module');
   context.assert(metadata && metadata.vscodeBridge === RMT_VSCODE_BRIDGE_PATH, 'package metadata points to VS Code bridge');
+  context.assert(metadata && metadata.vscodeLocalVsixBuilder === VSCODE_LOCAL_VSIX_BUILDER_PATH, 'package metadata points to local VSIX builder');
+  context.assert(metadata && metadata.vscodeLocalVsixBuildCommand === 'npm run build:rmt-editor:vscode', 'package metadata declares local VSIX build command');
   context.assert(metadata && metadata.vscodeDxSchema === RMT_VSCODE_DX_SCHEMA, 'package metadata declares VS Code DX schema');
   context.assert(metadata && metadata.vscodeTasksSchema === RMT_VSCODE_TASKS_SCHEMA, 'package metadata declares VS Code tasks schema');
   context.assert(metadata && metadata.vscodeLaunchSchema === RMT_VSCODE_LAUNCH_SCHEMA, 'package metadata declares VS Code launch schema');
@@ -420,6 +446,7 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert((typeof packageManifest.exports['./rmt-language/snippets'] === 'string' ? packageManifest.exports['./rmt-language/snippets'] : packageManifest.exports['./rmt-language/snippets'] && packageManifest.exports['./rmt-language/snippets'].default) === './tools/rmt-language/snippets/index.js', 'package exports RMT snippets');
   context.assert((typeof packageManifest.exports['./rmt-editor/vscode'] === 'string' ? packageManifest.exports['./rmt-editor/vscode'] : packageManifest.exports['./rmt-editor/vscode'] && packageManifest.exports['./rmt-editor/vscode'].default) === './tools/rmt-editor/vscode/extension.js', 'package exports VS Code bridge stub');
   context.assert(packageManifest.scripts['test:rmt-editor-packaging'] === 'node scripts/run_xtend_tests.js rmt-editor-packaging', 'package exposes rmt-editor-packaging script');
+  context.assert(packageManifest.scripts['build:rmt-editor:vscode'] === 'node tools/rmt-editor/vscode/build-vsix.js --out xtend-rmt-language-0.1.0-rc.1.vsix', 'package exposes local VS Code VSIX build script');
   context.assert(runner.includes("id: 'rmt-editor-packaging'"), 'test runner exposes rmt-editor-packaging suite');
   context.assert(epic.includes('| `WP-E14-12` | P2 | completed | WS7 |'), 'Epic marks WP-E14-12 completed');
   context.assert(epic.includes('WP-E14-13` ist `ready`'), 'Epic hands off WP-E14-13 as ready');
@@ -442,6 +469,7 @@ function runRmtEditorPackagingSuite(options = {}) {
   });
   const snippetsSyntax = syntaxCheckFile(RMT_SNIPPET_MODULE_PATH, { rootDir, extension: '.js' });
   const vscodeBridgeSyntax = syntaxCheckFile(RMT_VSCODE_BRIDGE_PATH, { rootDir, extension: '.js' });
+  const vscodeBuilderSyntax = syntaxCheckFile(VSCODE_LOCAL_VSIX_BUILDER_PATH, { rootDir, extension: '.js' });
 
   assertFileExists(context, RMT_SNIPPET_MODULE_PATH, rootDir, 'RMT snippet module exists');
   assertFileExists(context, RMT_SNIPPET_VSCODE_PATH, rootDir, 'VS Code snippet export exists');
@@ -450,10 +478,12 @@ function runRmtEditorPackagingSuite(options = {}) {
   assertFileExists(context, VSCODE_ICON_PATH, rootDir, 'VS Code package icon exists');
   assertFileExists(context, VSCODE_TASKS_TEMPLATE_PATH, rootDir, 'VS Code tasks template exists');
   assertFileExists(context, VSCODE_LAUNCH_TEMPLATE_PATH, rootDir, 'VS Code launch template exists');
+  assertFileExists(context, VSCODE_LOCAL_VSIX_BUILDER_PATH, rootDir, 'VS Code local VSIX builder exists');
   assertFileExists(context, RMT_EDITOR_DOC_PATH, rootDir, 'RMT Language Server docs exist');
   assertFileExists(context, RMT_EDITOR_WP_PATH, rootDir, 'WP-E14-12 workpackage document exists');
   context.assert(snippetsSyntax.ok, `RMT snippet module syntax passes${snippetsSyntax.ok ? '' : ` (${snippetsSyntax.message})`}`);
   context.assert(vscodeBridgeSyntax.ok, `VS Code bridge syntax passes${vscodeBridgeSyntax.ok ? '' : ` (${vscodeBridgeSyntax.message})`}`);
+  context.assert(vscodeBuilderSyntax.ok, `VS Code local VSIX builder syntax passes${vscodeBuilderSyntax.ok ? '' : ` (${vscodeBuilderSyntax.message})`}`);
 
   runSnippetCatalogChecks(context, rootDir);
   runEditorPackagingChecks(context, rootDir);

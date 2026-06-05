@@ -7220,11 +7220,15 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(packageManifest.scripts['test:pr:report'].startsWith('node scripts/run_xtend_tests.js '), 'Package exposes PR fast report gate script');
   context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-stack-docs'), 'PR fast report gate includes RMT stack docs');
   context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-playground-security'), 'PR fast report gate includes RMT playground security');
+  context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-linter-rules'), 'PR fast report gate includes RMT linter rules');
+  context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-completions'), 'PR fast report gate includes RMT completions');
+  context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-editor-packaging'), 'PR fast report gate includes RMT editor packaging');
   context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-owned-release-handoff'), 'PR fast report gate includes RMT Owned release handoff');
   context.assert(!packageManifest.scripts['test:pr:report'].includes('docs-public-quality'), 'PR fast report gate excludes legacy docs-public-quality');
   context.assert(packageManifest.scripts['test:native-first-rmt-owned-release:report'].endsWith('--report .xtend-test-results/xtend-native-first-rmt-owned-release-report.json'), 'Package exposes Native-First RMT Owned release report gate script');
   context.assert(packageManifest.scripts['test:pr:report'].endsWith('--report .xtend-test-results/xtend-pr-gate-report.json'), 'PR fast report gate writes the expected report');
   context.assert(packageManifest.scripts['test:release:full:report'].startsWith('node scripts/run_xtend_tests.js core architecture components'), 'Package exposes curated full release report gate script');
+  context.assert(packageManifest.scripts['test:release:full:report'].includes('rmt-editor-packaging'), 'Curated full release report includes RMT editor packaging');
   context.assert(packageManifest.scripts['test:release:full:report'].includes('rmt-tooling-docs'), 'Curated full release report includes RMT tooling docs');
   context.assert(packageManifest.scripts['test:release:full:report'].endsWith('--report .xtend-test-results/xtend-release-gate-report.json'), 'Curated full release report writes the expected report');
 }

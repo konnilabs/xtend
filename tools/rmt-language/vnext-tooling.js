@@ -158,6 +158,11 @@ const VNEXT_PRIMITIVE_OVERLAY_KINDS = Object.freeze([
 
 const VNEXT_SOURCE_KINDS = Object.freeze([
   ['endpoint', 'Endpoint-basierte Data Source.'],
+  ['selector', 'Selector-Output als Quelle binden.'],
+  ['state', 'State Record als Quelle binden.'],
+  ['datasource', 'DataSource Primitive als Quelle binden.'],
+  ['fixture', 'Fixture Record als Quelle binden.'],
+  ['resource', 'Owned Resource als Quelle binden.'],
   ['sse', 'Server-Sent-Events Stream.'],
   ['worker', 'Worker-basierte Data Source.']
 ]);
@@ -190,6 +195,8 @@ const VNEXT_LANES = Object.freeze([
   ['visible', 'sichtbare Rendering-Arbeit'],
   ['user-blocking', 'User-blocking Interaktion'],
   ['transition', 'Route- oder UI-Transition'],
+  ['resource', 'Resource- oder Sucharbeit'],
+  ['a11y', 'Assistive-Technology-Feedback'],
   ['idle', 'Idle Hydration oder deferred Work'],
   ['background', 'Hintergrundarbeit'],
   ['diagnostics', 'Diagnostics und Telemetry']
@@ -402,7 +409,11 @@ const DOMAIN_CONFIG = Object.freeze({
   portals: { kind: 'portal', label: 'Portal', childKind: 'namespace' },
   overlays: { kind: 'overlay', label: 'Overlay', childKind: 'namespace' },
   resources: { kind: 'resource', label: 'Resource', childKind: 'object' },
-  securityPolicies: { kind: 'security-policy', label: 'Security Policy', childKind: 'key' }
+  collectionViews: { kind: 'collection-view', label: 'Collection View', childKind: 'array' },
+  commandSources: { kind: 'command-source', label: 'Command Source', childKind: 'function' },
+  searchSources: { kind: 'search-source', label: 'Search Source', childKind: 'function' },
+  securityPolicies: { kind: 'security-policy', label: 'Security Policy', childKind: 'key' },
+  sourceMap: { kind: 'source-map', label: 'Source Map', childKind: 'key' }
 });
 
 const VNEXT_DOMAINS = Object.freeze(Object.keys(DOMAIN_CONFIG));
@@ -514,6 +525,18 @@ function describeRecord(domain, record = {}) {
   if (domain === 'resources') {
     const owner = record.owner ? `${record.owner.kind || 'owner'}:${record.owner.id || record.owner.ref || 'unknown'}` : '';
     return [record.kind || 'resource', owner].filter(Boolean).join(' - ');
+  }
+
+  if (domain === 'collectionViews') {
+    return [record.source || 'collection', record.itemTemplate ? `item: ${record.itemTemplate}` : ''].filter(Boolean).join(' - ');
+  }
+
+  if (domain === 'commandSources') {
+    return [record.shortcut || 'command-source', record.surface ? `surface: ${record.surface}` : ''].filter(Boolean).join(' - ');
+  }
+
+  if (domain === 'searchSources') {
+    return [record.queryState || 'search-source', record.resource ? `resource: ${record.resource}` : ''].filter(Boolean).join(' - ');
   }
 
   if (domain === 'validations') {

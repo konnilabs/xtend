@@ -37,6 +37,11 @@
         {
           "name": "comment.line.double-slash.rmt",
           "match": "//.*$"
+        },
+        {
+          "name": "comment.block.rmt",
+          "begin": "/\\*",
+          "end": "\\*/"
         }
       ]
     },
@@ -79,11 +84,11 @@
       "patterns": [
         {
           "name": "keyword.control.rmt",
-          "match": "\\b(template|state|selector|derived|action|effect|resource|event|surface|validation|transition|trigger|target|field|include|portal|overlay|route|schedule|lane|component|slot|part|theme|on|when|emit|open|close|focus|minimize|restore|destroy|import|from|to|as)\\b"
+          "match": "\\b(import|template|remote|surface|lane|slot|on|when|from|to|as|state|selector|datasource|dataSource|action|effect|resource|event|validation|transition|portal|overlay|stream|mount|hydrate|suspend|resume|invalidate|dispose|prewarm|recycle|detach|reattach|trigger|target|field|include|route|schedule|component|part|theme|emit|open|close|focus|minimize|restore|destroy|exposes|emits|consumes)\\b"
         },
         {
           "name": "storage.type.rmt",
-          "match": "\\b(dom_descriptor|html_fragment|json|record|array|string|number|boolean|file|body|owner|key|props|attrs|events|bindings|cleanup|mode|required|email|minLength|maxLength|pattern|message|effect|durationMs|easing|surfaces|blocking)\\b"
+          "match": "\\b(dom_descriptor|html_fragment|json|record|array|string|number|boolean|integer|object|file|body|owner|key|props|attrs|events|bindings|cleanup|mode|type|source|repeat|bounds|preserve|releases|required|email|minLength|maxLength|pattern|message|method|contract|result|fallback|status|input|output|reduce|payload|preventDefault|where|find|sort|by|effect|durationMs|easing|surfaces|blocking|root|layer|z|kind|origin|version|integrity|direction|policy|adapterRef|queryState|resultState|actionRefRequired|registeredCommands|collectionViews|commandSources|searchSources|securityPolicies|sourceMap)\\b"
         },
         {
           "name": "support.constant.transition.rmt",
@@ -99,7 +104,7 @@
       "patterns": [
         {
           "name": "support.constant.lane.rmt",
-          "match": "\\b(visible|user-blocking|transition|idle|background|diagnostics)\\b"
+          "match": "\\b(critical|visible|user-blocking|transition|resource|a11y|idle|background|diagnostics)\\b"
         }
       ]
     },

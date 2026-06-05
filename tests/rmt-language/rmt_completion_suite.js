@@ -70,6 +70,11 @@ function runStaticCompletionChecks(context, rootDir) {
   const validationRules = getRmtCompletions(input, { rootDir, pointer: '/validations/0/fields/0/rules/0' });
   const transitionFields = getRmtCompletions(input, { rootDir, pointer: '/transitions/0' });
   const transitionEffects = getRmtCompletions(input, { rootDir, pointer: '/transitions/0/effect' });
+  const collectionViewFields = getRmtCompletions(input, { rootDir, pointer: '/collectionViews/0' });
+  const commandSourceFields = getRmtCompletions(input, { rootDir, pointer: '/commandSources/0' });
+  const registeredCommandFields = getRmtCompletions(input, { rootDir, pointer: '/commandSources/0/registeredCommands/0' });
+  const searchSourceFields = getRmtCompletions(input, { rootDir, pointer: '/searchSources/0' });
+  const securityPolicyFields = getRmtCompletions(input, { rootDir, pointer: '/securityPolicies/0' });
 
   context.assert(topLevel.schema === RMT_COMPLETION_REPORT_SCHEMA, 'Completion emits report schema');
   context.assert(topLevel.providerSchema === RMT_COMPLETION_PROVIDER_SCHEMA, 'Completion emits provider schema');
@@ -84,6 +89,11 @@ function runStaticCompletionChecks(context, rootDir) {
   assertHasLabel(context, topLevel, 'templates', 'Top-level completion contains templates');
   assertHasLabel(context, topLevel, 'validations', 'Top-level completion contains validations');
   assertHasLabel(context, topLevel, 'transitions', 'Top-level completion contains transitions');
+  assertHasLabel(context, topLevel, 'collectionViews', 'Top-level completion contains collectionViews');
+  assertHasLabel(context, topLevel, 'commandSources', 'Top-level completion contains commandSources');
+  assertHasLabel(context, topLevel, 'searchSources', 'Top-level completion contains searchSources');
+  assertHasLabel(context, topLevel, 'securityPolicies', 'Top-level completion contains securityPolicies');
+  assertHasLabel(context, topLevel, 'sourceMap', 'Top-level completion contains sourceMap');
 
   context.assert(routeFields.context === 'route-fields', 'Pointer infers route field context');
   assertHasLabel(context, routeFields, 'documentTitle', 'Route field completion contains documentTitle');
@@ -102,6 +112,8 @@ function runStaticCompletionChecks(context, rootDir) {
 
   assertHasLabel(context, lanes, 'visible', 'Lane completion contains visible');
   assertHasLabel(context, lanes, 'user-blocking', 'Lane completion contains user-blocking');
+  assertHasLabel(context, lanes, 'resource', 'Lane completion contains resource');
+  assertHasLabel(context, lanes, 'a11y', 'Lane completion contains a11y');
   assertHasLabel(context, lanes, 'diagnostics', 'Lane completion contains diagnostics');
 
   context.assert(validationFields.context === 'validation-fields', 'Validation pointer infers validation field context');
@@ -120,6 +132,19 @@ function runStaticCompletionChecks(context, rootDir) {
   context.assert(transitionEffects.context === 'transition-effects', 'Transition effect pointer infers transition effects');
   assertHasLabel(context, transitionEffects, 'crossfade', 'Transition effects completion contains crossfade');
   assertHasLabel(context, transitionEffects, 'slide-left', 'Transition effects completion contains slide-left');
+  context.assert(collectionViewFields.context === 'collection-view-fields', 'Collection view pointer infers collection view fields');
+  assertHasLabel(context, collectionViewFields, 'itemTemplate', 'Collection view fields contain itemTemplate');
+  assertHasLabel(context, collectionViewFields, 'maxItemsPerFrame', 'Collection view fields contain maxItemsPerFrame');
+  context.assert(commandSourceFields.context === 'command-source-fields', 'Command source pointer infers command source fields');
+  assertHasLabel(context, commandSourceFields, 'registeredCommands', 'Command source fields contain registeredCommands');
+  assertHasLabel(context, commandSourceFields, 'actionRefRequired', 'Command source fields contain actionRefRequired');
+  context.assert(registeredCommandFields.context === 'registered-command-fields', 'Registered command pointer infers registered command fields');
+  assertHasLabel(context, registeredCommandFields, 'disabledState', 'Registered command fields contain disabledState');
+  context.assert(searchSourceFields.context === 'search-source-fields', 'Search source pointer infers search source fields');
+  assertHasLabel(context, searchSourceFields, 'queryState', 'Search source fields contain queryState');
+  assertHasLabel(context, searchSourceFields, 'selectionState', 'Search source fields contain selectionState');
+  context.assert(securityPolicyFields.context === 'security-policy-fields', 'Security policy pointer infers security policy fields');
+  assertHasLabel(context, securityPolicyFields, 'ownerOperation', 'Security policy fields contain ownerOperation');
 }
 
 function runGraphReferenceCompletionChecks(context, rootDir) {
@@ -164,6 +189,12 @@ function runContextInferenceChecks(context) {
   context.assert(inferCompletionContext({ pointer: '/validations/0/fields/0/rules/0' }) === 'validation-rules', 'Validation rule pointer infers validation rules');
   context.assert(inferCompletionContext({ pointer: '/transitions/0/effect' }) === 'transition-effects', 'Transition effect pointer infers transition effects');
   context.assert(inferCompletionContext({ domain: 'transitions' }) === 'transition-fields', 'Domain transitions infers transition fields');
+  context.assert(inferCompletionContext({ domain: 'collectionViews' }) === 'collection-view-fields', 'Domain collectionViews infers collection view fields');
+  context.assert(inferCompletionContext({ domain: 'commandSources' }) === 'command-source-fields', 'Domain commandSources infers command source fields');
+  context.assert(inferCompletionContext({ domain: 'searchSources' }) === 'search-source-fields', 'Domain searchSources infers search source fields');
+  context.assert(inferCompletionContext({ pointer: '/searchSources/0/resource' }) === 'resource-ids', 'Search source resource pointer infers resource IDs');
+  context.assert(inferCompletionContext({ pointer: '/searchSources/0/selector' }) === 'selector-ids', 'Search source selector pointer infers selector IDs');
+  context.assert(inferCompletionContext({ pointer: '/commandSources/0/registeredCommands/0/action' }) === 'action-ids', 'Registered command action pointer infers action IDs');
 }
 
 function runDeterministicAndFailureChecks(context, rootDir) {
