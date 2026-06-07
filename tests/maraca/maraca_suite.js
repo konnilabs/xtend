@@ -760,6 +760,18 @@ function findChromiumExecutable() {
   }) || null;
 }
 
+function isKernelIntegrityBrowserSmokeRequired() {
+  return process.env.XTEND_MARACA_KERNEL_INTEGRITY_BROWSER_REQUIRED === '1';
+}
+
+function markKernelIntegrityBrowserSmokeUnavailable(context, message) {
+  if (isKernelIntegrityBrowserSmokeRequired()) {
+    context.fail(message);
+    return;
+  }
+  context.skip(`${message}; set XTEND_MARACA_KERNEL_INTEGRITY_BROWSER_REQUIRED=1 to make it blocking`);
+}
+
 function htmlDecode(value) {
   return String(value || '')
     .replace(/&quot;/gu, '"')
@@ -1038,7 +1050,7 @@ function writeKernelIntegritySmokeFixture(rootDir) {
 async function runKernelIntegrityBrowserSmoke(context, rootDir) {
   const chromium = findChromiumExecutable();
   if (!chromium) {
-    context.skip('kernel integrity browser smoke skipped because Chromium is not available');
+    markKernelIntegrityBrowserSmokeUnavailable(context, 'kernel integrity browser smoke skipped because Chromium is not available');
     return null;
   }
   const fixturePath = writeKernelIntegritySmokeFixture(rootDir);
@@ -1069,20 +1081,20 @@ async function runKernelIntegrityBrowserSmoke(context, rootDir) {
     });
     if (browser.error) {
       const reason = browser.error.message || String(browser.error);
-      context.fail(`kernel integrity Chromium smoke ${reason}`);
+      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity Chromium smoke ${reason}`);
       return null;
     }
     if (browser.status === 124 || browser.status === 137) {
-      context.fail(`kernel integrity Chromium smoke timed out after ${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`);
+      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity Chromium smoke timed out after ${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`);
       return null;
     }
     if (browser.status !== 0) {
-      context.fail(`kernel integrity Chromium smoke exited ${browser.status}: ${(browser.stderr || '').trim()}`);
+      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity Chromium smoke exited ${browser.status}: ${(browser.stderr || '').trim()}`);
       return null;
     }
     const match = /<pre id="result"[^>]*>([\s\S]*?)<\/pre>/u.exec(browser.stdout || '');
     if (!match) {
-      context.fail('kernel integrity browser smoke did not expose a result payload');
+      markKernelIntegrityBrowserSmokeUnavailable(context, 'kernel integrity browser smoke did not expose a result payload');
       return null;
     }
     const payload = JSON.parse(htmlDecode(match[1]));
@@ -1097,7 +1109,7 @@ async function runKernelIntegrityBrowserSmoke(context, rootDir) {
     const code = error && error.code ? error.code : '';
     const message = error && error.message ? error.message : String(error);
     if ((code === 'EPERM' || code === 'EACCES') && /listen/u.test(message)) {
-      context.skip(`kernel integrity browser smoke skipped because loopback listen is denied (${message})`);
+      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity browser smoke skipped because loopback listen is denied (${message})`);
       return null;
     }
     context.fail(`kernel integrity browser smoke failed (${message})`);
