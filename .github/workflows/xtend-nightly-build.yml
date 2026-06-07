@@ -51,6 +51,11 @@ jobs:
       - name: Prepare nightly result directories
         run: mkdir -p .xtend-test-results/nightly
 
+      - name: Prepare Native-First release evidence artifacts
+        id: native_first_evidence_prepare
+        continue-on-error: true
+        run: npm run native-first:evidence:prepare
+
       - name: Run XTend full release gate report
         id: full_release
         continue-on-error: true
@@ -130,6 +135,7 @@ jobs:
         if: always()
         run: |
           failed=0
+          if [ "${{ steps.native_first_evidence_prepare.outcome }}" != "success" ]; then echo "Native-First evidence preparation failed"; failed=1; fi
           if [ "${{ steps.full_release.outcome }}" != "success" ]; then echo "full release gate failed"; failed=1; fi
           if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory owner handoff remains open"; fi
           if [ "${{ steps.rmt_primitives.outcome }}" != "success" ]; then echo "RMT vNext primitive gate failed"; failed=1; fi

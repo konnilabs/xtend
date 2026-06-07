@@ -4944,6 +4944,8 @@
       "sourceParityMatrix": "development/XTend-Native-First-Contract-Runtime-Parity-Matrix.md",
       "localGate": "node scripts/run_xtend_tests.js native-first-evidence-pack --json",
       "packageScript": "npm run test:native-first-evidence-pack",
+      "evidencePreparationCommand": "npm run native-first:evidence:prepare",
+      "evidencePreparationScript": "scripts/prepare_native_first_evidence_artifacts.js",
       "requiredFields": [
         "evidenceId",
         "evidenceType",
@@ -15527,6 +15529,7 @@
     "pack:dry-run:report": "node scripts/capture_pack_dry_run.js",
     "pack:dry-run:raw": "npm pack --dry-run",
     "conditional-network:evidence": "node scripts/capture_conditional_network_evidence.js",
+    "native-first:evidence:prepare": "node scripts/prepare_native_first_evidence_artifacts.js",
     "test:epic13-rmt-production-readiness": "node scripts/run_xtend_tests.js epic13-rmt-production-readiness",
     "test:epic13-docs-rmt-production-hardening": "node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening",
     "test:epic13-trusted-dom-boundary": "node scripts/run_xtend_tests.js epic13-trusted-dom-boundary",

@@ -20,6 +20,8 @@ const REDACTION_POLICY = 'xtend.native-first.diagnostic-redaction-policy.v1';
 const REPORT_SCHEMA = 'xtend.native-first.audit-evidence-pack-report.v1';
 const LOCAL_GATE = 'node scripts/run_xtend_tests.js native-first-evidence-pack --json';
 const PACKAGE_SCRIPT = 'npm run test:native-first-evidence-pack';
+const EVIDENCE_PREPARATION_COMMAND = 'npm run native-first:evidence:prepare';
+const EVIDENCE_PREPARATION_SCRIPT = 'scripts/prepare_native_first_evidence_artifacts.js';
 const KERNEL_BOUNDARY = 'rmt-kernel-remains-host-neutral';
 
 const REQUIRED_FIELDS = Object.freeze([
@@ -510,6 +512,8 @@ function runNativeFirstAuditEvidencePackSuite(options = {}) {
   context.assertIncludes(mission, '`NFM-WP-13` | completed', 'Mission handoff marks WP-13 completed');
 
   context.assert(packageScripts['test:native-first-evidence-pack'] === 'node scripts/run_xtend_tests.js native-first-evidence-pack', 'Package exposes audit evidence pack test script');
+  context.assert(packageScripts['native-first:evidence:prepare'] === `node ${EVIDENCE_PREPARATION_SCRIPT}`, 'Package exposes Native-First evidence preparation script');
+  assertPathExists(context, rootDir, EVIDENCE_PREPARATION_SCRIPT, 'Native-First evidence preparation script');
   context.assertIncludes(runner, "require('../tests/native-first/native_first_audit_evidence_pack_suite')", 'Runner imports audit evidence pack suite');
   context.assertIncludes(runner, "id: 'native-first-evidence-pack'", 'Runner registers audit evidence pack suite');
 
@@ -522,6 +526,8 @@ function runNativeFirstAuditEvidencePackSuite(options = {}) {
   context.assert(metadata && metadata.evidencePack === 'development/XTend-Native-First-Audit-Evidence-Pack.md', 'Package metadata exposes pack path');
   context.assert(metadata && metadata.localGate === LOCAL_GATE, 'Package metadata exposes local gate');
   context.assert(metadata && metadata.packageScript === PACKAGE_SCRIPT, 'Package metadata exposes package script');
+  context.assert(metadata && metadata.evidencePreparationCommand === EVIDENCE_PREPARATION_COMMAND, 'Package metadata exposes evidence preparation command');
+  context.assert(metadata && metadata.evidencePreparationScript === EVIDENCE_PREPARATION_SCRIPT, 'Package metadata exposes evidence preparation script');
   context.assert(metadata && metadata.noRuntimeDependency === true, 'Package metadata keeps no runtime dependency boundary');
   context.assert(metadata && metadata.externalNetworkAllowedInLocalGate === false, 'Package metadata blocks local network execution');
   context.assert(metadata && metadata.rmtKernelBoundary === 'no-rmt-kernel-import-of-xtend-types', 'Package metadata preserves RMT kernel boundary');

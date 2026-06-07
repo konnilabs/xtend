@@ -95,6 +95,9 @@ jobs:
       - name: Install workspace dependencies
         run: npm ci --ignore-scripts --no-audit --fund=false
 
+      - name: Prepare Native-First release evidence artifacts
+        run: npm run native-first:evidence:prepare
+
       - name: Run XTend full release gate report
         run: npm run test:release:full:report
 
@@ -134,6 +137,9 @@ jobs:
 
       - name: Run RMT vNext primitive gate report
         run: npm run test:rmt-vnext-primitives:report
+
+      - name: Prepare Native-First release evidence artifacts
+        run: npm run native-first:evidence:prepare
 
       - name: Run Native-First and RMT Owned release report
         run: npm run test:native-first-rmt-owned-release:report
@@ -317,6 +323,7 @@ jobs:
           XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"
           XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10: "1"
         run: |
+          npm run native-first:evidence:prepare
           npm run test:release:full:report
           npm run test:rmt-vnext-primitives:report
           npm run test:native-first-rmt-owned-release:report
