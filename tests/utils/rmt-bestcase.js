@@ -13,7 +13,13 @@ const ROUTE_COMPONENTS = Object.freeze({
   templating: 'x-rmt-route-template-pilot',
   primitives: 'x-rmt-route-primitives',
   media: 'x-rmt-route-media',
-  adapter: 'x-rmt-route-adapter'
+  adapter: 'x-rmt-route-adapter',
+  streaming: 'x-rmt-route-streaming',
+  sourceToSea: 'x-rmt-route-source-to-sea',
+  enterprise: 'x-rmt-route-enterprise',
+  governance: 'x-rmt-route-governance',
+  nativeFirst: 'x-rmt-route-native-first',
+  enterpriseFallback: 'x-rmt-route-enterprise-fallback'
 });
 const ROUTE_SCHEDULES = Object.freeze({
   kernel: 'route.visible.render',
@@ -22,7 +28,12 @@ const ROUTE_SCHEDULES = Object.freeze({
   templating: 'route.visible.render',
   primitives: 'component.primitive.matrix',
   media: 'media.visible.contract',
-  adapter: 'component.idle.hydrate'
+  adapter: 'component.idle.hydrate',
+  streaming: 'streaming.visible.render',
+  sourceToSea: 'source-to-sea.visible.render',
+  enterprise: 'enterprise.visible.contract',
+  governance: 'event-governance.visible.render',
+  nativeFirst: 'native-first.visible.render'
 });
 
 function clone(value) {
@@ -108,11 +119,92 @@ function createProjectedMetadata(core) {
       parts: ['root', 'media', 'title', 'overlay', 'controls', 'progress'],
       kernelBoundary: 'no-product-shadowRoot-patching'
     },
+    flagship: {
+      schema: 'xtend.rmt.bestcase-flagship.v1',
+      status: 'cutting-edge-gateable',
+      sourceSyntax: 'rmt-vnext',
+      localGate: 'node scripts/run_xtend_tests.js rmt-bestcase-flagship --json',
+      browserSmokeSchema: 'xtend.rmt.bestcase-flagship-browser-smoke.v1',
+      families: [
+        'vnext-streaming',
+        'source-to-sea-fabric-evidence',
+        'enterprise-remote-surfaces',
+        'degradation-fallback',
+        'cross-surface-event-governance',
+        'native-first-owned-rmt'
+      ],
+      offlineOnly: true,
+      remoteExecution: false,
+      networkRequests: 0
+    },
+    streaming: {
+      schema: 'xtend.rmt.vnext-streaming-bestcase.v1',
+      routeRef: 'streaming',
+      trustBoundary: 'xtend.security.streaming-boundary.v1',
+      transport: 'sse',
+      sanitize: 'html',
+      streamRef: 'activity-feed'
+    },
+    sourceToSeaEvidence: {
+      schema: 'xtend.rmt.vnext.source-to-sea-browser-probe.v1',
+      routeRef: 'sourceToSea',
+      primitiveId: 'bestcase.evidence.summary',
+      scheduleRef: 'schedule:xtendrmt.bestcase.demo/sourceToSea/visible',
+      fiberRef: 'fiber:xtendrmt.bestcase.demo/sourceToSea/visible/0',
+      fabricLane: 'visible',
+      fabricEndpoint: 'xtendrmt.source-to-sea.render',
+      sourcePointer: '/surfaces/sourceToSea/lane/visible',
+      browserProbe: 'tests/browser/fixtures/rmt-bestcase-flagship-smoke.html'
+    },
+    enterpriseRemoteSurface: {
+      schema: 'xtend.rmt.vnext-enterprise-browser-smoke.v1',
+      routeRef: 'enterprise',
+      remoteSurface: 'bestcase.audit',
+      remoteId: '@xtend/audit-panel',
+      versionRange: '^2.0.0',
+      fallbackSurface: 'enterpriseFallback',
+      degradationStatus: 'full',
+      remoteExecution: false,
+      networkRequests: 0,
+      trustBoundary: 'xtend.security.remote-surface.v1'
+    },
+    eventGovernance: {
+      schema: 'xtend.rmt.vnext-event-governance-policy.v1',
+      routeRef: 'governance',
+      deliveryPolicy: 'typed-contract-only',
+      owner: 'platform-runtime',
+      sensitivity: 'internal',
+      events: [
+        'bestcase.audit.opened.v1',
+        'demo.enterprise.audit.requested.v1',
+        'demo.governance.published.v1'
+      ]
+    },
+    nativeFirstOwnedRmt: {
+      schema: 'xtend.native-first.rmt-owned-flagship.v1',
+      routeRef: 'nativeFirst',
+      coverage: [
+        'dom-descriptor-proof',
+        'action-effect-data-resource-primitives',
+        'owned-recipes',
+        'runtime-parity'
+      ],
+      releaseGate: 'npm run test:native-first-rmt-owned-release:report',
+      noHtmlSinkForRmtAppUi: true,
+      runtimeParity: true
+    },
     surfaceResourceLifecycle: {
       schema: 'xtend.rmt.surface-resource-lifecycle.v1',
       portals: ['bestcase.surface.root', 'bestcase.overlay.root'],
       overlays: ['bestcase.toast'],
-      resources: ['bestcase.capabilityRegistry', 'bestcase.playerObjectUrl', 'bestcase.runtimeSubscription'],
+      resources: [
+        'bestcase.capabilityRegistry',
+        'bestcase.playerObjectUrl',
+        'bestcase.runtimeSubscription',
+        'bestcase.streamSubscription',
+        'bestcase.enterpriseRemoteManifest',
+        'bestcase.nativeFirstRecipeRegistry'
+      ],
       cleanupPolicy: 'close-and-dispose-on-owner-destroy',
       sourceToSeaCoverage: true
     },
@@ -152,6 +244,7 @@ function createProjectedMetadata(core) {
       primitivesSource: 'vnext.states-selectors-actions-portals-resources',
       adaptersSource: 'runtimeProjection.adapters',
       schedulesSource: 'vnext.lanes',
+      flagshipRoutes: ['streaming', 'sourceToSea', 'enterprise', 'governance', 'nativeFirst'],
       productiveAdapters: [
         'createRmtXRouterAdapter',
         'createRmtXtendComponentAdapter',
@@ -177,7 +270,12 @@ function createProjectedRoutes(core) {
     ['templating', '/templating', 'RMT Template Pilot', 'demo.templating.pilot', 'route.visible.render'],
     ['primitives', '/primitives', 'RMT Component Primitives', 'demo.primitives', 'component.primitive.matrix'],
     ['media', '/media', 'RMT Player and Media Contract', 'demo.media', 'media.visible.contract'],
-    ['adapter', '/adapter', 'XTend Product Adapter', 'demo.adapter', 'component.idle.hydrate']
+    ['adapter', '/adapter', 'XTend Product Adapter', 'demo.adapter', 'component.idle.hydrate'],
+    ['streaming', '/streaming', 'RMT vNext Streaming', 'demo.streaming', 'streaming.visible.render'],
+    ['sourceToSea', '/source-to-sea', 'Source-to-Sea Evidence', 'demo.sourceToSea', 'source-to-sea.visible.render'],
+    ['enterprise', '/enterprise', 'Enterprise Remote Surface', 'demo.enterprise', 'enterprise.visible.contract'],
+    ['governance', '/governance', 'Cross-Surface Event Governance', 'demo.governance', 'event-governance.visible.render'],
+    ['nativeFirst', '/native-first', 'Native-First Owned RMT', 'demo.nativeFirst', 'native-first.visible.render']
   ];
   const routes = routeConfigs.map(([id, path, title, template, schedule]) => {
     const operation = firstOperationForSurface(core, id);
@@ -227,7 +325,13 @@ function createProjectedComponents(core) {
     { id: 'primitive.matrix', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-status', schedule: 'component.primitive.matrix' },
     { id: 'primitive.progress', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-progress', schedule: 'component.primitive.matrix' },
     { id: 'media.player', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-player', schedule: 'media.visible.contract' },
-    { id: 'media.toast', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-toast', schedule: 'diagnostics.snapshot' }
+    { id: 'media.toast', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-toast', schedule: 'diagnostics.snapshot' },
+    { id: 'streaming.feed', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-status', schedule: 'streaming.visible.render' },
+    { id: 'sourceToSea.evidence', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-code', schedule: 'source-to-sea.visible.render' },
+    { id: 'enterprise.remoteContract', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-status', schedule: 'enterprise.visible.contract' },
+    { id: 'enterprise.fallback', adapter: 'xtend.component', kind: 'custom_element', tag: ROUTE_COMPONENTS.enterpriseFallback, schedule: 'enterprise.fallback.visible' },
+    { id: 'governance.events', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-code', schedule: 'event-governance.visible.render' },
+    { id: 'nativeFirst.recipes', adapter: 'xtend.component', kind: 'custom_element', tag: 'x-status', schedule: 'native-first.visible.render' }
   ]);
 }
 
@@ -239,7 +343,15 @@ function createProjectedSchedules() {
     { id: 'component.idle.hydrate', endpointName: 'xtendrmt.component.hydrate', scope: 'xtendrmt.component.idle', lane: 'idle', priority: 42 },
     { id: 'component.primitive.matrix', endpointName: 'xtendrmt.component-capability.matrix', scope: 'xtendrmt.component.capabilities', lane: 'visible', priority: 92 },
     { id: 'media.visible.contract', endpointName: 'xtendrmt.player.contract', scope: 'xtendrmt.media.player', lane: 'visible', priority: 84 },
-    { id: 'diagnostics.snapshot', endpointName: 'xtendrmt.diagnostics.snapshot', scope: 'xtendrmt.diagnostics', lane: 'diagnostics', priority: 34 }
+    { id: 'diagnostics.snapshot', endpointName: 'xtendrmt.diagnostics.snapshot', scope: 'xtendrmt.diagnostics', lane: 'diagnostics', priority: 34 },
+    { id: 'streaming.visible.render', endpointName: 'xtendrmt.route.render', scope: 'xtendrmt.streaming', lane: 'visible', priority: 86 },
+    { id: 'streaming.event.stream', endpointName: 'feed.activity', scope: 'xtendrmt.streaming.feed', lane: 'idle', priority: 32 },
+    { id: 'source-to-sea.visible.render', endpointName: 'xtendrmt.source-to-sea.render', scope: 'xtendrmt.source-to-sea.evidence', lane: 'visible', priority: 90 },
+    { id: 'source-to-sea.diagnostics', endpointName: 'xtendrmt.source-to-sea.diagnostics', scope: 'xtendrmt.source-to-sea.diagnostics', lane: 'diagnostics', priority: 44 },
+    { id: 'enterprise.visible.contract', endpointName: 'xtendrmt.enterprise.contract', scope: 'xtendrmt.enterprise.remote-surface', lane: 'visible', priority: 89 },
+    { id: 'enterprise.fallback.visible', endpointName: 'xtendrmt.enterprise.fallback', scope: 'xtendrmt.enterprise.fallback', lane: 'visible', priority: 76 },
+    { id: 'event-governance.visible.render', endpointName: 'xtendrmt.event-governance.render', scope: 'xtendrmt.event-governance', lane: 'visible', priority: 82 },
+    { id: 'native-first.visible.render', endpointName: 'xtendrmt.native-first.render', scope: 'xtendrmt.native-first.owned-rmt', lane: 'visible', priority: 85 }
   ];
 }
 
@@ -337,6 +449,107 @@ function createProjectedTemplates() {
       preferInsularHydration: true,
       metadata: {
         endpointHint: 'xtendrmt.player.contract'
+      }
+    }
+  }, {
+    id: 'demo.streaming',
+    mode: 'dom_descriptor',
+    markup: '<x-section layout="column" label="RMT vNext Streaming"></x-section>',
+    metadata: {
+      route: 'streaming',
+      authoring: templateAuthoring('demo.streaming', ['streaming.feed'], {
+        streamingContract: 'xtend.rmt.vnext-streaming-bestcase.v1',
+        trustBoundary: 'xtend.security.streaming-boundary.v1',
+        sanitize: 'html'
+      })
+    },
+    hydration: {
+      mode: 'runtime_render',
+      ownershipMode: 'managed_subtree',
+      preferInsularHydration: true,
+      metadata: {
+        endpointHint: 'xtendrmt.route.render'
+      }
+    }
+  }, {
+    id: 'demo.sourceToSea',
+    mode: 'dom_descriptor',
+    markup: '<x-section layout="column" label="Source-to-Sea Evidence"></x-section>',
+    metadata: {
+      route: 'sourceToSea',
+      authoring: templateAuthoring('demo.sourceToSea', ['sourceToSea.evidence'], {
+        sourceToSeaContract: 'xtend.rmt.vnext.source-to-sea-browser-probe.v1',
+        primitiveId: 'bestcase.evidence.summary',
+        scheduleRef: 'schedule:xtendrmt.bestcase.demo/sourceToSea/visible',
+        fiberRef: 'fiber:xtendrmt.bestcase.demo/sourceToSea/visible/0'
+      })
+    },
+    hydration: {
+      mode: 'runtime_render',
+      ownershipMode: 'managed_subtree',
+      preferInsularHydration: true,
+      metadata: {
+        endpointHint: 'xtendrmt.source-to-sea.render'
+      }
+    }
+  }, {
+    id: 'demo.enterprise',
+    mode: 'dom_descriptor',
+    markup: '<x-section layout="column" label="Enterprise Remote Surface"></x-section>',
+    metadata: {
+      route: 'enterprise',
+      authoring: templateAuthoring('demo.enterprise', ['enterprise.remoteContract', 'enterprise.fallback'], {
+        enterpriseRemoteSurface: 'xtend.rmt.vnext-enterprise-browser-smoke.v1',
+        remoteSurface: 'bestcase.audit',
+        fallbackSurface: 'enterpriseFallback',
+        remoteExecution: false
+      })
+    },
+    hydration: {
+      mode: 'runtime_render',
+      ownershipMode: 'managed_subtree',
+      preferInsularHydration: true,
+      metadata: {
+        endpointHint: 'xtendrmt.enterprise.contract'
+      }
+    }
+  }, {
+    id: 'demo.governance',
+    mode: 'dom_descriptor',
+    markup: '<x-section layout="column" label="Cross-Surface Event Governance"></x-section>',
+    metadata: {
+      route: 'governance',
+      authoring: templateAuthoring('demo.governance', ['governance.events'], {
+        eventGovernancePolicy: 'xtend.rmt.vnext-event-governance-policy.v1',
+        deliveryPolicy: 'typed-contract-only',
+        sensitivity: 'internal'
+      })
+    },
+    hydration: {
+      mode: 'runtime_render',
+      ownershipMode: 'managed_subtree',
+      preferInsularHydration: true,
+      metadata: {
+        endpointHint: 'xtendrmt.event-governance.render'
+      }
+    }
+  }, {
+    id: 'demo.nativeFirst',
+    mode: 'dom_descriptor',
+    markup: '<x-section layout="column" label="Native-First Owned RMT"></x-section>',
+    metadata: {
+      route: 'nativeFirst',
+      authoring: templateAuthoring('demo.nativeFirst', ['nativeFirst.recipes'], {
+        nativeFirstContract: 'xtend.native-first.rmt-owned-flagship.v1',
+        coverage: ['dom-descriptor-proof', 'action-effect-data-resource-primitives', 'owned-recipes', 'runtime-parity']
+      })
+    },
+    hydration: {
+      mode: 'runtime_render',
+      ownershipMode: 'managed_subtree',
+      preferInsularHydration: true,
+      metadata: {
+        endpointHint: 'xtendrmt.native-first.render'
       }
     }
   });

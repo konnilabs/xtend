@@ -353,6 +353,12 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   const componentPrimitives = metadata.componentPrimitives || {};
   const playerContract = metadata.playerContract || {};
   const surfaceResourceLifecycle = metadata.surfaceResourceLifecycle || {};
+  const flagship = metadata.flagship || {};
+  const streaming = metadata.streaming || {};
+  const sourceToSeaEvidence = metadata.sourceToSeaEvidence || {};
+  const enterpriseRemoteSurface = metadata.enterpriseRemoteSurface || {};
+  const eventGovernance = metadata.eventGovernance || {};
+  const nativeFirstOwnedRmt = metadata.nativeFirstOwnedRmt || {};
   const pilotAttachment = pilotFlow.componentAttachment || {};
   const adapters = Array.isArray(demo.adapters) ? demo.adapters : [];
   const components = Array.isArray(demo.components) ? demo.components : [];
@@ -363,15 +369,35 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   const templatingRoute = routes.find((route) => route.path === '/templating');
   const primitivesRoute = routes.find((route) => route.path === '/primitives');
   const mediaRoute = routes.find((route) => route.path === '/media');
+  const streamingRoute = routes.find((route) => route.path === '/streaming');
+  const sourceToSeaRoute = routes.find((route) => route.path === '/source-to-sea');
+  const enterpriseRoute = routes.find((route) => route.path === '/enterprise');
+  const governanceRoute = routes.find((route) => route.path === '/governance');
+  const nativeFirstRoute = routes.find((route) => route.path === '/native-first');
   const templatingRouteComponent = components.find((component) => component.id === 'x-rmt-route-template-pilot');
   const primitivesRouteComponent = components.find((component) => component.id === 'x-rmt-route-primitives');
   const mediaRouteComponent = components.find((component) => component.id === 'x-rmt-route-media');
+  const streamingRouteComponent = components.find((component) => component.id === 'x-rmt-route-streaming');
+  const sourceToSeaRouteComponent = components.find((component) => component.id === 'x-rmt-route-source-to-sea');
+  const enterpriseRouteComponent = components.find((component) => component.id === 'x-rmt-route-enterprise');
+  const governanceRouteComponent = components.find((component) => component.id === 'x-rmt-route-governance');
+  const nativeFirstRouteComponent = components.find((component) => component.id === 'x-rmt-route-native-first');
   const pilotSchedule = schedules.find((schedule) => schedule.id === 'template.visible.inspect');
   const primitivesSchedule = schedules.find((schedule) => schedule.id === 'component.primitive.matrix');
   const mediaSchedule = schedules.find((schedule) => schedule.id === 'media.visible.contract');
+  const streamingSchedule = schedules.find((schedule) => schedule.id === 'streaming.visible.render');
+  const sourceToSeaSchedule = schedules.find((schedule) => schedule.id === 'source-to-sea.visible.render');
+  const enterpriseSchedule = schedules.find((schedule) => schedule.id === 'enterprise.visible.contract');
+  const governanceSchedule = schedules.find((schedule) => schedule.id === 'event-governance.visible.render');
+  const nativeFirstSchedule = schedules.find((schedule) => schedule.id === 'native-first.visible.render');
   const pilotTemplate = templates.find((template) => template.id === 'demo.templating.pilot');
   const primitivesTemplate = templates.find((template) => template.id === 'demo.primitives');
   const mediaTemplate = templates.find((template) => template.id === 'demo.media');
+  const streamingTemplate = templates.find((template) => template.id === 'demo.streaming');
+  const sourceToSeaTemplate = templates.find((template) => template.id === 'demo.sourceToSea');
+  const enterpriseTemplate = templates.find((template) => template.id === 'demo.enterprise');
+  const governanceTemplate = templates.find((template) => template.id === 'demo.governance');
+  const nativeFirstTemplate = templates.find((template) => template.id === 'demo.nativeFirst');
   const pilotAuthoring = pilotTemplate && pilotTemplate.metadata && pilotTemplate.metadata.authoring
     ? pilotTemplate.metadata.authoring
     : {};
@@ -388,6 +414,12 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   context.assert(Array.isArray(demoCore.portals) && demoCore.portals.some((portal) => portal.name === 'bestcase.overlay.root'), 'RMT demo vNext Core exposes overlay portal');
   context.assert(Array.isArray(demoCore.resources) && demoCore.resources.some((resource) => resource.name === 'bestcase.playerObjectUrl'), 'RMT demo vNext Core exposes player object URL resource');
   context.assert(Array.isArray(demoCore.remoteSurfaces) && demoCore.remoteSurfaces.length === 1, 'RMT demo vNext Core exposes remote surface contract');
+  context.assert(Array.isArray(demoCore.surfaces) && demoCore.surfaces.some((surface) => surface.name === 'streaming'), 'RMT demo vNext Core exposes streaming surface');
+  context.assert(Array.isArray(demoCore.operations) && demoCore.operations.some((operation) => operation.kind === 'stream' && operation.source && operation.source.kind === 'sse'), 'RMT demo vNext Core exposes SSE stream operation');
+  context.assert(Array.isArray(demoCore.securityPolicies) && JSON.stringify(demoCore.securityPolicies).includes('xtend.security.streaming-boundary.v1'), 'RMT demo vNext Core exposes streaming trust boundary');
+  context.assert(Array.isArray(demoCore.surfaces) && demoCore.surfaces.some((surface) => surface.name === 'sourceToSea'), 'RMT demo vNext Core exposes Source-to-Sea surface');
+  context.assert(Array.isArray(demoCore.surfaces) && demoCore.surfaces.some((surface) => surface.name === 'enterpriseFallback'), 'RMT demo vNext Core exposes enterprise degradation fallback surface');
+  context.assert(Array.isArray(demoCore.surfaces) && demoCore.surfaces.some((surface) => surface.name === 'nativeFirst'), 'RMT demo vNext Core exposes Native-First surface');
   context.assert(Boolean(schemaBinding), 'RMT schema exposes scaffold compatibility binding metadata');
   assertIncludesAll(context, schemaBinding && schemaBinding.surfaces, REQUIRED_SURFACES, 'RMT schema scaffold compatibility surfaces');
   assertIncludesAll(context, schemaBinding && schemaBinding.requiredContracts, REQUIRED_RMT_CONTRACTS, 'RMT schema scaffold required contracts');
@@ -1137,6 +1169,21 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   context.assert(playerContract.schema === 'xtend.mm-rmt.player-contract.v1', 'RMT demo exposes x-player public RMT contract');
   context.assert(Array.isArray(playerContract.events) && playerContract.events.includes('xplayer-state'), 'RMT demo player contract includes public state event');
   context.assert(surfaceResourceLifecycle.cleanupPolicy === 'close-and-dispose-on-owner-destroy', 'RMT demo exposes owner-scoped resource cleanup policy');
+  assertIncludesAll(context, surfaceResourceLifecycle.resources, ['bestcase.streamSubscription', 'bestcase.enterpriseRemoteManifest', 'bestcase.nativeFirstRecipeRegistry'], 'RMT demo flagship resources');
+  context.assert(flagship.schema === 'xtend.rmt.bestcase-flagship.v1', 'RMT demo exposes Bestcase Flagship metadata');
+  assertIncludesAll(
+    context,
+    flagship.families,
+    ['vnext-streaming', 'source-to-sea-fabric-evidence', 'enterprise-remote-surfaces', 'degradation-fallback', 'cross-surface-event-governance', 'native-first-owned-rmt'],
+    'RMT demo Bestcase Flagship families'
+  );
+  context.assert(flagship.remoteExecution === false && flagship.networkRequests === 0, 'RMT demo flagship stays offline and contract-only');
+  context.assert(streaming.trustBoundary === 'xtend.security.streaming-boundary.v1' && streaming.sanitize === 'html', 'RMT demo exposes streaming boundary and sanitizing metadata');
+  context.assert(sourceToSeaEvidence.primitiveId === 'bestcase.evidence.summary', 'RMT demo exposes Source-to-Sea primitive evidence metadata');
+  context.assert(sourceToSeaEvidence.fiberRef === 'fiber:xtendrmt.bestcase.demo/sourceToSea/visible/0', 'RMT demo exposes Source-to-Sea Fabric fiber metadata');
+  context.assert(enterpriseRemoteSurface.remoteSurface === 'bestcase.audit' && enterpriseRemoteSurface.fallbackSurface === 'enterpriseFallback', 'RMT demo exposes enterprise remote surface fallback metadata');
+  context.assert(eventGovernance.deliveryPolicy === 'typed-contract-only', 'RMT demo exposes typed cross-surface event governance metadata');
+  context.assert(nativeFirstOwnedRmt.runtimeParity === true, 'RMT demo exposes Native-First Owned RMT runtime parity metadata');
   context.assert(nativeDemoMigration.usesTopLevelDomains === true, 'RMT demo declares native top-level domain migration');
   context.assert(Array.isArray(adapters) && adapters.some((adapter) => adapter.id === 'xtend.xrouter' && adapter.kind === 'router_adapter'), 'RMT demo exposes native XRouter adapter domain record');
   context.assert(Array.isArray(adapters) && adapters.some((adapter) => adapter.id === 'xtend.component' && adapter.kind === 'component_adapter'), 'RMT demo exposes native XTend component adapter domain record');
@@ -1145,14 +1192,29 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   context.assert(templatingRouteComponent && templatingRouteComponent.tag === 'x-rmt-route-template-pilot', 'RMT demo exposes native route component record for templating pilot');
   context.assert(primitivesRouteComponent && primitivesRouteComponent.tag === 'x-rmt-route-primitives', 'RMT demo exposes native route component record for component primitives');
   context.assert(mediaRouteComponent && mediaRouteComponent.tag === 'x-rmt-route-media', 'RMT demo exposes native route component record for media contract');
+  context.assert(streamingRouteComponent && streamingRouteComponent.tag === 'x-rmt-route-streaming', 'RMT demo exposes native route component record for streaming');
+  context.assert(sourceToSeaRouteComponent && sourceToSeaRouteComponent.tag === 'x-rmt-route-source-to-sea', 'RMT demo exposes native route component record for Source-to-Sea');
+  context.assert(enterpriseRouteComponent && enterpriseRouteComponent.tag === 'x-rmt-route-enterprise', 'RMT demo exposes native route component record for enterprise remote surface');
+  context.assert(governanceRouteComponent && governanceRouteComponent.tag === 'x-rmt-route-governance', 'RMT demo exposes native route component record for event governance');
+  context.assert(nativeFirstRouteComponent && nativeFirstRouteComponent.tag === 'x-rmt-route-native-first', 'RMT demo exposes native route component record for Native-First');
   context.assert(Array.isArray(routes) && routes.every((route) => route.router === 'xtend.xrouter'), 'RMT demo routes target native XRouter adapter');
   context.assert(templatingRoute && templatingRoute.component === 'x-rmt-route-template-pilot', 'RMT demo exposes templating pilot route component');
   context.assert(templatingRoute && templatingRoute.template === 'demo.templating.pilot', 'RMT demo templating route points to pilot template');
   context.assert(primitivesRoute && primitivesRoute.template === 'demo.primitives', 'RMT demo exposes primitives route and template');
   context.assert(mediaRoute && mediaRoute.template === 'demo.media', 'RMT demo exposes media route and template');
+  context.assert(streamingRoute && streamingRoute.template === 'demo.streaming', 'RMT demo exposes streaming route and template');
+  context.assert(sourceToSeaRoute && sourceToSeaRoute.template === 'demo.sourceToSea', 'RMT demo exposes Source-to-Sea route and template');
+  context.assert(enterpriseRoute && enterpriseRoute.template === 'demo.enterprise', 'RMT demo exposes enterprise route and template');
+  context.assert(governanceRoute && governanceRoute.template === 'demo.governance', 'RMT demo exposes governance route and template');
+  context.assert(nativeFirstRoute && nativeFirstRoute.template === 'demo.nativeFirst', 'RMT demo exposes Native-First route and template');
   context.assert(pilotSchedule && pilotSchedule.endpointName === 'xtendrmt.template.inspect', 'RMT demo exposes template inspect scheduler endpoint');
   context.assert(primitivesSchedule && primitivesSchedule.endpointName === 'xtendrmt.component-capability.matrix', 'RMT demo exposes component primitive scheduler endpoint');
   context.assert(mediaSchedule && mediaSchedule.endpointName === 'xtendrmt.player.contract', 'RMT demo exposes player contract scheduler endpoint');
+  context.assert(streamingSchedule && streamingSchedule.endpointName === 'xtendrmt.route.render', 'RMT demo exposes streaming scheduler endpoint');
+  context.assert(sourceToSeaSchedule && sourceToSeaSchedule.endpointName === 'xtendrmt.source-to-sea.render', 'RMT demo exposes Source-to-Sea scheduler endpoint');
+  context.assert(enterpriseSchedule && enterpriseSchedule.endpointName === 'xtendrmt.enterprise.contract', 'RMT demo exposes enterprise scheduler endpoint');
+  context.assert(governanceSchedule && governanceSchedule.endpointName === 'xtendrmt.event-governance.render', 'RMT demo exposes governance scheduler endpoint');
+  context.assert(nativeFirstSchedule && nativeFirstSchedule.endpointName === 'xtendrmt.native-first.render', 'RMT demo exposes Native-First scheduler endpoint');
   context.assert(pilotTemplate && pilotTemplate.mode === 'dom_descriptor', 'RMT demo pilot template uses DOM descriptor mode');
   context.assert(pilotAuthoring.contractVersion === 'xtend.rmt.template-authoring.v1', 'RMT demo pilot template keeps authoring contract');
   context.assert(pilotAuthoring.bridgeRuntime === 'reserved-for-Epic-05', 'RMT demo pilot template keeps bridge runtime reserved');
@@ -1164,9 +1226,17 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   context.assert(pilotTemplate && pilotTemplate.hydration && pilotTemplate.hydration.metadata && pilotTemplate.hydration.metadata.endpointHint === 'xtendrmt.template.inspect', 'RMT demo pilot template exposes hydration endpoint hint');
   context.assert(primitivesTemplate && primitivesTemplate.metadata && primitivesTemplate.metadata.authoring && primitivesTemplate.metadata.authoring.componentCapabilityRegistry === 'xtend.rmt.component-capability-registry.v1', 'RMT demo primitives template references component capability registry');
   context.assert(mediaTemplate && mediaTemplate.metadata && mediaTemplate.metadata.authoring && mediaTemplate.metadata.authoring.playerContract === 'xtend.mm-rmt.player-contract.v1', 'RMT demo media template references player contract');
+  context.assert(streamingTemplate && streamingTemplate.metadata && streamingTemplate.metadata.authoring && streamingTemplate.metadata.authoring.streamingContract === 'xtend.rmt.vnext-streaming-bestcase.v1', 'RMT demo streaming template references streaming contract');
+  context.assert(sourceToSeaTemplate && sourceToSeaTemplate.metadata && sourceToSeaTemplate.metadata.authoring && sourceToSeaTemplate.metadata.authoring.sourceToSeaContract === 'xtend.rmt.vnext.source-to-sea-browser-probe.v1', 'RMT demo Source-to-Sea template references browser probe contract');
+  context.assert(enterpriseTemplate && enterpriseTemplate.metadata && enterpriseTemplate.metadata.authoring && enterpriseTemplate.metadata.authoring.remoteExecution === false, 'RMT demo enterprise template keeps remote execution disabled');
+  context.assert(governanceTemplate && governanceTemplate.metadata && governanceTemplate.metadata.authoring && governanceTemplate.metadata.authoring.eventGovernancePolicy === 'xtend.rmt.vnext-event-governance-policy.v1', 'RMT demo governance template references event governance policy');
+  context.assert(nativeFirstTemplate && nativeFirstTemplate.metadata && nativeFirstTemplate.metadata.authoring && nativeFirstTemplate.metadata.authoring.nativeFirstContract === 'xtend.native-first.rmt-owned-flagship.v1', 'RMT demo Native-First template references owned RMT contract');
   context.assert(demoJs.includes('x-rmt-route-template-pilot'), 'RMT demo JS defines template pilot route component');
   context.assert(demoJs.includes('x-rmt-route-primitives'), 'RMT demo JS defines component primitives route component');
   context.assert(demoJs.includes('x-rmt-route-media'), 'RMT demo JS defines media route component');
+  context.assert(demoJs.includes('x-rmt-route-source-to-sea'), 'RMT demo JS defines Source-to-Sea route component');
+  context.assert(demoJs.includes('data-remote-execution=\"false\"'), 'RMT demo JS keeps remote surface rendering contract-only');
+  context.assert(demoJs.includes('xtend.native-first.rmt-owned-flagship.v1'), 'RMT demo JS exposes Native-First Owned RMT contract');
   context.assert(demoJs.includes('createRmtComponentCapabilityRegistry'), 'RMT demo JS uses component capability registry');
   context.assert(demoJs.includes('createRmtXRouterAdapter'), 'RMT demo JS uses productive XRouter adapter factory');
   context.assert(demoJs.includes('createRmtXtendComponentAdapter'), 'RMT demo JS uses productive XTend component adapter factory');
@@ -1178,6 +1248,11 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   context.assert(routePaths.includes('/templating'), 'RMT demo document exposes template pilot route');
   context.assert(routePaths.includes('/primitives'), 'RMT demo document exposes component primitives route');
   context.assert(routePaths.includes('/media'), 'RMT demo document exposes media contract route');
+  context.assert(routePaths.includes('/streaming'), 'RMT demo document exposes streaming route');
+  context.assert(routePaths.includes('/source-to-sea'), 'RMT demo document exposes Source-to-Sea route');
+  context.assert(routePaths.includes('/enterprise'), 'RMT demo document exposes enterprise remote route');
+  context.assert(routePaths.includes('/governance'), 'RMT demo document exposes event governance route');
+  context.assert(routePaths.includes('/native-first'), 'RMT demo document exposes Native-First route');
 }
 
 function assertRmtDslNormalizationRuntime(context, rootDir) {

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en" data-rmt-bestcase-flagship="xtendrmt-bestcase-flagship">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-rmt-bestcase-flagship-contract" content="xtend.rmt.bestcase-flagship-browser-smoke.v1">
+  <title>RMT Bestcase Flagship Smoke</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f9fc;
+      color: #162235;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    main {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    section,
+    aside {
+      min-height: 120px;
+      border: 1px solid #b7c5d8;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 16px;
+      box-shadow: 0 12px 28px rgba(22, 34, 53, 0.1);
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0 0 10px;
+    }
+
+    code {
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <main id="rmt-bestcase-flagship-root" data-rmt-route="/bestcase-flagship">
+    <section
+      data-rmt-flagship-family="streaming"
+      data-rmt-stream="activity-feed"
+      data-rmt-stream-source="sse:feed.activity"
+      data-rmt-trust-boundary="xtend.security.streaming-boundary.v1"
+      data-rmt-sanitize="html"
+    >
+      <h1>Bestcase Flagship</h1>
+      <p>Streaming is sanitized at <code>xtend.security.streaming-boundary.v1</code>.</p>
+    </section>
+
+    <section
+      data-rmt-flagship-family="source-to-sea"
+      data-rmt-primitive-id="bestcase.evidence.summary"
+      data-rmt-schedule-ref="schedule:xtendrmt.bestcase.demo/sourceToSea/visible"
+      data-rmt-fiber-ref="fiber:xtendrmt.bestcase.demo/sourceToSea/visible/0"
+      data-rmt-lane="visible"
+      data-xtend-fabric-lane="visible"
+      data-xtend-fabric-fiber="fiber:xtendrmt.bestcase.demo/sourceToSea/visible/0"
+      data-xtend-fabric-schedule="source-to-sea.visible.render"
+      data-xtend-fabric-endpoint="xtendrmt.source-to-sea.render"
+      data-rmt-source-pointer="/surfaces/sourceToSea/lane/visible"
+    >
+      <h2>Source-to-Sea</h2>
+      <p>Primitive, schedule, fiber and source pointer are visible.</p>
+    </section>
+
+    <section
+      data-rmt-flagship-family="enterprise"
+      data-remote-surface="bestcase.audit"
+      data-remote-id="@xtend/audit-panel"
+      data-remote-version="^2.0.0"
+      data-remote-execution="false"
+      data-local-fallback="enterpriseFallback"
+      data-degradation-status="full"
+      data-shell-target="shell.slot:enterprise.audit"
+    >
+      <h2>Enterprise Remote</h2>
+      <p>Remote contract is represented without executing remote code.</p>
+    </section>
+
+    <aside
+      data-rmt-flagship-family="degradation"
+      data-local-fallback="enterpriseFallback"
+      data-fallback-resolved="true"
+    >
+      <h2>Fallback</h2>
+      <p>Degradation resolves locally.</p>
+    </aside>
+
+    <section
+      data-rmt-flagship-family="governance"
+      data-event="demo.enterprise.audit.requested.v1"
+      data-event-owner="platform-runtime"
+      data-event-direction="inbound"
+      data-event-payload="xtend.schemas.enterpriseAuditRequested.v1"
+      data-event-delivery="typed-contract-only"
+    >
+      <h2>Event Governance</h2>
+      <p>Cross-surface events carry owner and payload contracts.</p>
+    </section>
+
+    <section
+      data-rmt-flagship-family="native-first"
+      data-native-first-owned-rmt="true"
+      data-dom-descriptor-proof="true"
+      data-action-effect-data-resource="true"
+      data-owned-recipes="true"
+      data-runtime-parity="true"
+    >
+      <h2>Native-First Owned RMT</h2>
+      <p>Owned recipes and runtime parity are first-class evidence.</p>
+    </section>
+  </main>
+
+  <script type="application/json" id="rmt-bestcase-flagship-probe">
+    {
+      "schema": "xtend.rmt.bestcase-flagship-browser-smoke.v1",
+      "coreSchema": "xtend.rmt.core-format.vnext.v1",
+      "documentId": "xtendrmt.bestcase.demo",
+      "networkRequests": 0,
+      "remoteExecution": false,
+      "families": [
+        "vnext-streaming",
+        "source-to-sea-fabric-evidence",
+        "enterprise-remote-surfaces",
+        "degradation-fallback",
+        "cross-surface-event-governance",
+        "native-first-owned-rmt"
+      ],
+      "sourceToSea": {
+        "primitiveId": "bestcase.evidence.summary",
+        "scheduleRef": "schedule:xtendrmt.bestcase.demo/sourceToSea/visible",
+        "fiberRef": "fiber:xtendrmt.bestcase.demo/sourceToSea/visible/0",
+        "lane": "visible",
+        "fabricEndpoint": "xtendrmt.source-to-sea.render"
+      },
+      "remoteSurface": {
+        "name": "bestcase.audit",
+        "remoteId": "@xtend/audit-panel",
+        "fallback": "enterpriseFallback",
+        "remoteExecution": false
+      },
+      "events": [
+        {
+          "event": "demo.enterprise.audit.requested.v1",
+          "owner": "platform-runtime",
+          "direction": "inbound",
+          "payload": "xtend.schemas.enterpriseAuditRequested.v1",
+          "delivery": "typed-contract-only"
+        }
+      ],
+      "nativeFirst": {
+        "domDescriptorProof": true,
+        "actionEffectDataResource": true,
+        "ownedRecipes": true,
+        "runtimeParity": true
+      }
+    }
+  </script>
+
+  <script>
+    (() => {
+      const checks = [];
+      const recordCheck = (name, ok, details = null) => {
+        checks.push({ name, ok: Boolean(ok), details });
+      };
+      const probe = JSON.parse(document.getElementById('rmt-bestcase-flagship-probe').textContent);
+      const sourceToSea = document.querySelector('[data-rmt-primitive-id="bestcase.evidence.summary"]');
+      const remote = document.querySelector('[data-remote-surface="bestcase.audit"]');
+      const nativeFirst = document.querySelector('[data-native-first-owned-rmt="true"]');
+      const sourceBox = sourceToSea ? sourceToSea.getBoundingClientRect() : null;
+
+      recordCheck('bestcase flagship schema stable', probe.schema === 'xtend.rmt.bestcase-flagship-browser-smoke.v1', probe);
+      recordCheck('bestcase streaming boundary sanitized', Boolean(document.querySelector('[data-rmt-trust-boundary="xtend.security.streaming-boundary.v1"][data-rmt-sanitize="html"]')), probe.families);
+      recordCheck('bestcase source to sea primitive visible', Boolean(sourceToSea && sourceBox && sourceBox.width > 0 && sourceBox.height > 0), probe.sourceToSea);
+      recordCheck('bestcase source to sea schedule visible', Boolean(sourceToSea && sourceToSea.dataset.rmtScheduleRef === probe.sourceToSea.scheduleRef), probe.sourceToSea);
+      recordCheck('bestcase source to sea fiber visible', Boolean(sourceToSea && sourceToSea.dataset.rmtFiberRef === probe.sourceToSea.fiberRef), probe.sourceToSea);
+      recordCheck('bestcase enterprise remote contract present', Boolean(remote && remote.dataset.remoteExecution === 'false'), probe.remoteSurface);
+      recordCheck('bestcase enterprise degradation fallback resolved', Boolean(document.querySelector('[data-local-fallback="enterpriseFallback"][data-fallback-resolved="true"]')), probe.remoteSurface);
+      recordCheck('bestcase cross surface event typed', probe.events.some((event) => event.event === 'demo.enterprise.audit.requested.v1' && event.payload === 'xtend.schemas.enterpriseAuditRequested.v1'), probe.events);
+      recordCheck('bestcase native first owned rmt covered', Boolean(nativeFirst && nativeFirst.dataset.domDescriptorProof === 'true' && nativeFirst.dataset.runtimeParity === 'true'), probe.nativeFirst);
+      recordCheck('bestcase browser smoke offline', probe.networkRequests === 0 && probe.remoteExecution === false, {
+        networkRequests: probe.networkRequests,
+        remoteExecution: probe.remoteExecution
+      });
+
+      window.__xtendRmtBestcaseFlagshipSmokeResult = {
+        schema: 'xtend.rmt.bestcase-flagship-browser-smoke.v1',
+        status: checks.every((check) => check.ok) ? 'passed' : 'failed',
+        documentId: probe.documentId,
+        checks,
+        errors: checks.filter((check) => !check.ok).map((check) => check.name)
+      };
+    })();
+  </script>
+</body>
+</html>

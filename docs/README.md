@@ -32,3 +32,26 @@ Dieser Index sammelt stabile Dokumentationspfade, die lokale Gates als Release- 
 - [Native-First Migration Guide (EN)](./en/native-first-migration-guide.md)
 - [Native-First Release Review (DE)](./de/native-first-release-review.md)
 - [Native-First Release Review (EN)](./en/native-first-release-review.md)
+
+## RMT vNext
+
+- [RMT vNext Authoring Guide (DE)](./de/rmt-vnext-authoring.md)
+- [RMT vNext Authoring Guide (EN)](./en/rmt-vnext-authoring.md)
+- [RMT vNext Migration Notes (DE)](./de/rmt-vnext-migration-notes.md)
+- [RMT vNext Migration Notes (EN)](./en/rmt-vnext-migration-notes.md)
+- [RMT vNext Release contract (DE)](./de/rmt-vnext-release-handoff.md)
+- [RMT vNext Release contract (EN)](./en/rmt-vnext-release-handoff.md)
+- Reference source: `xtendrmt/rmt-vnext-reference-demo.rmt`
+- Reference Core output: `xtendrmt/rmt-vnext-reference-demo.core.json`
+
+## RMT vNext Enterprise
+
+- [RMT vNext Remote Surfaces (DE)](./de/rmt-vnext-remote-surfaces.md)
+- [RMT vNext Remote Surfaces (EN)](./en/rmt-vnext-remote-surfaces.md)
+- [RMT vNext Enterprise Surface Registry (DE)](./de/rmt-vnext-surface-registry-enterprise.md)
+- [RMT vNext Enterprise Surface Registry (EN)](./en/rmt-vnext-surface-registry-enterprise.md)
+- [RMT vNext Cross Surface Events (DE)](./de/rmt-vnext-cross-surface-events.md)
+- [RMT vNext Cross Surface Events (EN)](./en/rmt-vnext-cross-surface-events.md)
+- [RMT vNext Enterprise MFE contract (DE)](./de/rmt-vnext-enterprise-mfe-handoff.md)
+- [RMT vNext Enterprise MFE contract (EN)](./en/rmt-vnext-enterprise-mfe-handoff.md)
+- Target readiness: `rmt-vnext-enterprise-mfe-ready`

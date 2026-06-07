@@ -56,6 +56,10 @@ const {
   runRmtCompatibilitySuite
 } = require('../tests/rmt/rmt_compatibility_suite');
 const {
+  printRmtBestcaseFlagshipReport,
+  runRmtBestcaseFlagshipSuite
+} = require('../tests/rmt/rmt_bestcase_flagship_suite');
+const {
   printRmtFirstClassAppAuthoringReport,
   runRmtFirstClassAppAuthoringSuite
 } = require('../tests/rmt/rmt_first_class_app_authoring_suite');
@@ -2964,6 +2968,16 @@ const suites = [
       const result = runRmtCompatibilitySuite({ rootDir });
       printRmtCompatibilityReport(result);
       return toRunnerResult('rmt-compatibility', 'XTendRMT compatibility gates', result);
+    }
+  },
+  {
+    id: 'rmt-bestcase-flagship',
+    label: 'XTendRMT Bestcase Flagship Demo',
+    description: 'Runs the integrated Bestcase demo gate for vNext Streaming, Source-to-Sea, Enterprise Remote Surface, Event Governance and Native-First Owned RMT evidence.',
+    run: () => {
+      const result = runRmtBestcaseFlagshipSuite({ rootDir });
+      printRmtBestcaseFlagshipReport(result);
+      return toRunnerResult('rmt-bestcase-flagship', 'XTendRMT Bestcase Flagship Demo', result);
     }
   },
   {

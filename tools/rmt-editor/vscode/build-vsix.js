@@ -6,6 +6,7 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const EXTENSION_DIR = __dirname;
+const REPO_ROOT = path.resolve(EXTENSION_DIR, '../../..');
 const BUILD_ROOT = path.join(EXTENSION_DIR, '.xtend-test-results', 'vscode-vsix-build');
 const STAGE_DIR = path.join(BUILD_ROOT, 'stage');
 const EXTENSION_STAGE_DIR = path.join(STAGE_DIR, 'extension');
@@ -24,6 +25,11 @@ const DIRECTORIES_TO_STAGE = [
   'syntaxes',
   'snippets',
   'templates'
+];
+
+const REPO_DIRECTORIES_TO_STAGE = [
+  'tools/rmt-language-server',
+  'tools/rmt-language'
 ];
 
 function xmlEscape(value) {
@@ -47,6 +53,15 @@ function copyFile(relativePath) {
 
 function copyDir(relativePath) {
   const source = path.join(EXTENSION_DIR, relativePath);
+  const target = path.join(EXTENSION_STAGE_DIR, relativePath);
+  if (!fs.existsSync(source)) {
+    return;
+  }
+  fs.cpSync(source, target, { recursive: true });
+}
+
+function copyRepoDir(relativePath) {
+  const source = path.join(REPO_ROOT, relativePath);
   const target = path.join(EXTENSION_STAGE_DIR, relativePath);
   if (!fs.existsSync(source)) {
     return;
@@ -130,6 +145,7 @@ function stageExtension() {
 
   FILES_TO_STAGE.forEach(copyFile);
   DIRECTORIES_TO_STAGE.forEach(copyDir);
+  REPO_DIRECTORIES_TO_STAGE.forEach(copyRepoDir);
 
   const pkg = readPackage();
   fs.writeFileSync(path.join(STAGE_DIR, 'extension.vsixmanifest'), manifestXml(pkg));

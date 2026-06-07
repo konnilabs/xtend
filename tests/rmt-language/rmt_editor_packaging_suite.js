@@ -49,6 +49,7 @@ const {
   createVsCodeLaunchConfigurations,
   createVsCodeProblemMatcher,
   createVsCodeTaskDefinitions,
+  resolveServerModule,
   resolveDebugConfiguration,
   resolveLanguageServerInvocation,
   resolveXtendCliInvocation,
@@ -161,12 +162,22 @@ function runVsCodeBridgeChecks(context, rootDir) {
   const packagedSnippets = readJson(VSCODE_PACKAGED_SNIPPETS_PATH, rootDir);
   const tasksTemplate = readJson(VSCODE_TASKS_TEMPLATE_PATH, rootDir);
   const launchTemplate = readJson(VSCODE_LAUNCH_TEMPLATE_PATH, rootDir);
+  const vscodeBuildScript = readText(VSCODE_LOCAL_VSIX_BUILDER_PATH, rootDir);
   const sourceSnippets = readJson(RMT_SNIPPET_VSCODE_PATH, rootDir);
   const extensionContext = { extensionPath: resolveRepoPath('tools/rmt-editor/vscode', rootDir) };
   const command = createServerCommand(extensionContext);
   const languageClientConfig = createVsCodeLanguageClientConfig(extensionContext);
   const configuredServerInvocation = resolveLanguageServerInvocation(null, extensionContext, {
     args: ['${workspaceFolder}/tools/rmt-language-server/server.js']
+  });
+  const packagedExtensionPath = path.join(rootDir, '.xtend-test-results', 'fake-packaged-rmt-extension');
+  const packagedServerPath = path.join(packagedExtensionPath, 'tools', 'rmt-language-server', 'server.js');
+  const packagedServerModule = resolveServerModule({ extensionPath: packagedExtensionPath }, {
+    fileExists: (filePath) => filePath === packagedServerPath
+  });
+  const packagedFallbackInvocation = resolveLanguageServerInvocation(null, { extensionPath: packagedExtensionPath }, {
+    workspaceFolderPath: '/workspace/without-rmt-language-server',
+    fileExists: (filePath) => filePath === packagedServerPath
   });
   const fakeLanguageClient = startLanguageClient(null, extensionContext, null, {
     languageClientModule: {
@@ -320,6 +331,9 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(languageClientConfig.serverOptions.args[0].endsWith(RMT_LANGUAGE_SERVER_ENTRYPOINT), 'VS Code LanguageClient config targets server entrypoint');
   context.assert(languageClientConfig.clientOptions.documentSelector.some((entry) => entry.language === 'rmt'), 'VS Code LanguageClient config selects rmt documents');
   context.assert(configuredServerInvocation.args[0].endsWith(RMT_LANGUAGE_SERVER_ENTRYPOINT), 'VS Code configured LanguageClient invocation can target workspace server entrypoint');
+  context.assert(packagedServerModule === packagedServerPath, 'VS Code resolver can select the packaged language server module');
+  context.assert(packagedFallbackInvocation.args[0] === packagedServerPath, 'VS Code LanguageClient falls back to packaged server when workspace server is missing');
+  context.assert(packagedFallbackInvocation.serverSource === 'extension-fallback', 'VS Code LanguageClient marks packaged server fallback source');
   context.assert(fakeLanguageClient.status === 'started' && fakeLanguageClient.client.id === 'xtendRmtLanguageServer', 'VS Code extension can start a LanguageClient wrapper');
   context.assert(stoppedLanguageClient.status === 'stopped' && fakeLanguageClient.client.stopped === true, 'VS Code extension stops the active LanguageClient during restart/deactivate');
   context.assert(runtimeServerOptions.transport === 0, 'VS Code LanguageClient runtime config converts stdio string to TransportKind enum');
@@ -376,6 +390,8 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(vscodePackage.dependencies && vscodePackage.dependencies['vscode-languageclient'], 'VS Code package depends on vscode-languageclient');
   context.assert(vscodePackage.scripts && vscodePackage.scripts.package === 'node build-vsix.js --out xtend-rmt-language-0.1.0-rc.1.vsix', 'VS Code package exposes local VSIX build script');
   context.assert(vscodePackage.files.includes('templates/**'), 'VS Code package includes support-file templates');
+  context.assert(vscodePackage.files.includes('tools/rmt-language-server/**'), 'VS Code package includes the RMT Language Server');
+  context.assert(vscodePackage.files.includes('tools/rmt-language/**'), 'VS Code package includes RMT Language Tooling dependencies');
   context.assert(vscodePackage.contributes.taskDefinitions.some((entry) => entry.type === 'xtendRmt'), 'VS Code package contributes xtendRmt task definition');
   context.assert(vscodePackage.contributes.problemMatchers.some((entry) => entry.name === 'xtend-rmt-lint'), 'VS Code package contributes RMT problem matcher');
   context.assert(vscodePackage.contributes.configuration.properties['xtendRmt.xtendCli.command'].default === 'node', 'VS Code package contributes XTend CLI command setting');
@@ -391,6 +407,8 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(packagedSnippets['RMT Owned Collection View'].prefix === 'rmt-owned-collection-view', 'VS Code packaged snippets include owned collection snippet');
   context.assert(packagedSnippets['RMT Owned Command Search'].prefix === 'rmt-owned-command-search', 'VS Code packaged snippets include owned command/search snippet');
   context.assert(JSON.stringify(packagedSnippets) === JSON.stringify(sourceSnippets), 'VS Code packaged snippets stay in sync with source snippets');
+  context.assert(vscodeBuildScript.includes("'tools/rmt-language-server'"), 'VS Code local VSIX builder stages the language server directory');
+  context.assert(vscodeBuildScript.includes("'tools/rmt-language'"), 'VS Code local VSIX builder stages the language tooling directory');
   context.assert(tasksTemplate.tasks.some((task) => task.label === 'XTendRMT: RMT build check'), 'VS Code tasks template exposes RMT build check');
   context.assert(tasksTemplate.tasks.some((task) => task.problemMatcher === '$xtend-rmt-lint'), 'VS Code tasks template wires RMT problem matcher');
   context.assert(tasksTemplate.tasks.some((task) => task.label === 'XTendRMT: Native-First RMT Owned release gate'), 'VS Code tasks template exposes Native-First RMT Owned release gate');

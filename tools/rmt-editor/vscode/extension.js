@@ -10,7 +10,10 @@ const RMT_VSCODE_LAUNCH_SCHEMA = 'xtend.rmt.editor.vscode-launch.v1';
 const RMT_VSCODE_BRIDGE_WORKPACKAGE = 'WP-E14-12';
 const RMT_VSCODE_PRIMITIVE_AUTHORING_WORKPACKAGE = 'RMT-VNEXT-PRIM-07';
 const RMT_VSCODE_DX_WORKPACKAGE = 'RMT-VSCODE-DX-01';
-const DEFAULT_SERVER_RELATIVE_PATH = '../../rmt-language-server/server.js';
+const DEFAULT_WORKSPACE_SERVER_RELATIVE_PATH = 'tools/rmt-language-server/server.js';
+const DEFAULT_LANGUAGE_SERVER_ARGS = Object.freeze([`\${workspaceFolder}/${DEFAULT_WORKSPACE_SERVER_RELATIVE_PATH}`]);
+const PACKAGED_SERVER_RELATIVE_PATH = 'tools/rmt-language-server/server.js';
+const DEVELOPMENT_SERVER_RELATIVE_PATH = '../../rmt-language-server/server.js';
 const DEFAULT_XTEND_CLI_RELATIVE_PATH = '../../../xtend-builder/scaffold.js';
 const DEFAULT_XTEND_CLI_ARGS = Object.freeze(['${workspaceFolder}/xtend-builder/scaffold.js']);
 const TASKS_TEMPLATE_RELATIVE_PATH = 'templates/tasks.json';
@@ -52,7 +55,10 @@ function resolveServerModule(context = {}, options = {}) {
   }
 
   const extensionPath = context.extensionPath || __dirname;
-  return path.resolve(extensionPath, DEFAULT_SERVER_RELATIVE_PATH);
+  const packagedServerPath = path.resolve(extensionPath, PACKAGED_SERVER_RELATIVE_PATH);
+  const developmentServerPath = path.resolve(extensionPath, DEVELOPMENT_SERVER_RELATIVE_PATH);
+  const resolved = [packagedServerPath, developmentServerPath].find((candidate) => pathExists(candidate, options));
+  return resolved || developmentServerPath;
 }
 
 function createServerCommand(context = {}, options = {}) {
@@ -608,6 +614,29 @@ function getConfigurationValue(vscodeApi, key, fallback) {
   return fallback;
 }
 
+function isDefaultLanguageServerArgs(args = []) {
+  const normalized = toArray(args);
+  return normalized.length === DEFAULT_LANGUAGE_SERVER_ARGS.length &&
+    normalized.every((entry, index) => entry === DEFAULT_LANGUAGE_SERVER_ARGS[index]);
+}
+
+function shouldUseFallbackLanguageServer(command, args = [], configuredArgs = [], options = {}) {
+  if (command !== 'node') {
+    return false;
+  }
+
+  if (args.length === 0) {
+    return true;
+  }
+
+  if (!isDefaultLanguageServerArgs(configuredArgs)) {
+    return false;
+  }
+
+  const serverPath = args[0];
+  return isAbsoluteOrRelativePath(serverPath) && !pathExists(serverPath, options);
+}
+
 function getWorkspaceContext(vscodeApi, options = {}) {
   const document = activeRmtTextDocument(vscodeApi, options);
   const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
@@ -786,20 +815,24 @@ function resolveXtendCliInvocation(vscodeApi, context = {}, options = {}) {
 function resolveLanguageServerInvocation(vscodeApi, context = {}, options = {}) {
   const document = activeRmtTextDocument(vscodeApi, options);
   const workspaceFolder = getWorkspaceFolder(vscodeApi, document);
-  const workspaceFolderPath = normalizeWorkspaceFolderPath(workspaceFolder);
+  const workspaceFolderPath = path.resolve(options.workspaceFolderPath || normalizeWorkspaceFolderPath(workspaceFolder));
   const fallbackServerPath = resolveServerModule(context, options);
   const command = options.command || getConfigurationValue(vscodeApi, 'languageServer.command', 'node');
-  const configuredArgs = options.args || getConfigurationValue(vscodeApi, 'languageServer.args', ['${workspaceFolder}/tools/rmt-language-server/server.js']);
+  const configuredArgs = options.args || getConfigurationValue(vscodeApi, 'languageServer.args', DEFAULT_LANGUAGE_SERVER_ARGS.slice());
   const args = substituteVariables(toArray(configuredArgs), {
     workspaceFolder: workspaceFolderPath,
     file: normalizeDocumentFilePath(document || {}) || ''
   });
+  const resolvedArgs = shouldUseFallbackLanguageServer(command, args, configuredArgs, options)
+    ? [fallbackServerPath]
+    : (args.length > 0 ? args : [fallbackServerPath]);
 
   return {
     schema: RMT_VSCODE_DX_SCHEMA,
     workpackage: RMT_VSCODE_DX_WORKPACKAGE,
     command,
-    args: args.length > 0 ? args : [fallbackServerPath],
+    args: resolvedArgs,
+    serverSource: resolvedArgs[0] === fallbackServerPath ? 'extension-fallback' : 'workspace-or-configured',
     workspaceFolder,
     workspaceFolderPath,
     fallbackServerPath

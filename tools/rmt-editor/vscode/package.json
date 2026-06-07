@@ -50,6 +50,8 @@
     "syntaxes/**",
     "snippets/**",
     "templates/**",
+    "tools/rmt-language-server/**",
+    "tools/rmt-language/**",
     "XTend-Logo.png",
     "README.md"
   ],

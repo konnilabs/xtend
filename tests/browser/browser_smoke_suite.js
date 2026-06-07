@@ -29,6 +29,7 @@ const EPIC13_TRUSTED_DOM_BOUNDARY_FIXTURE_PATH = 'tests/browser/fixtures/epic13-
 const RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-reference-smoke.html';
 const RMT_VNEXT_SOURCE_TO_SEA_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-source-to-sea-smoke.html';
 const RMT_VNEXT_ENTERPRISE_MFE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html';
+const RMT_BESTCASE_FLAGSHIP_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-bestcase-flagship-smoke.html';
 const CORE_FLOW_MANIFEST_PATH = 'tests/browser/fixtures/components/manifest.json';
 const XALERT_COMPONENT_PATH = 'components/xalert.js';
 const BROWSER_FIXTURES = [
@@ -106,6 +107,11 @@ const BROWSER_FIXTURES = [
     label: 'RMT vNext Enterprise MFE smoke fixture',
     path: RMT_VNEXT_ENTERPRISE_MFE_SMOKE_FIXTURE_PATH,
     resultKey: '__xtendRmtVNextEnterpriseSmokeResult'
+  },
+  {
+    label: 'RMT Bestcase Flagship smoke fixture',
+    path: RMT_BESTCASE_FLAGSHIP_SMOKE_FIXTURE_PATH,
+    resultKey: '__xtendRmtBestcaseFlagshipSmokeResult'
   }
 ];
 const CORE_FLOW_MANIFEST_CONTRACT = {
@@ -949,6 +955,41 @@ function assertRmtVNextEnterpriseMfeFixtureContract(context, rootDir) {
   });
 }
 
+function assertRmtBestcaseFlagshipFixtureContract(context, rootDir) {
+  const fixture = readText(RMT_BESTCASE_FLAGSHIP_SMOKE_FIXTURE_PATH, rootDir);
+
+  context.assert(fixture.includes('xtend.rmt.bestcase-flagship-browser-smoke.v1'), 'RMT Bestcase Flagship fixture exposes stable browser contract');
+  context.assert(fixture.includes('data-rmt-bestcase-flagship="xtendrmt-bestcase-flagship"'), 'RMT Bestcase Flagship fixture exposes stable marker');
+  context.assert(fixture.includes('__xtendRmtBestcaseFlagshipSmokeResult'), 'RMT Bestcase Flagship fixture exposes smoke result object');
+  context.assert(fixture.includes('data-rmt-trust-boundary="xtend.security.streaming-boundary.v1"'), 'RMT Bestcase Flagship fixture marks streaming trust boundary');
+  context.assert(fixture.includes('data-rmt-primitive-id="bestcase.evidence.summary"'), 'RMT Bestcase Flagship fixture exposes Source-to-Sea primitive marker');
+  context.assert(fixture.includes('schedule:xtendrmt.bestcase.demo/sourceToSea/visible'), 'RMT Bestcase Flagship fixture exposes Source-to-Sea schedule ref');
+  context.assert(fixture.includes('fiber:xtendrmt.bestcase.demo/sourceToSea/visible/0'), 'RMT Bestcase Flagship fixture exposes Fabric fiber ref');
+  context.assert(fixture.includes('getBoundingClientRect'), 'RMT Bestcase Flagship fixture asserts viewport visibility');
+  context.assert(fixture.includes('data-remote-surface="bestcase.audit"'), 'RMT Bestcase Flagship fixture exposes enterprise remote contract');
+  context.assert(fixture.includes('data-remote-execution="false"'), 'RMT Bestcase Flagship fixture disables remote execution');
+  context.assert(fixture.includes('"networkRequests": 0'), 'RMT Bestcase Flagship fixture records zero network requests');
+  context.assert(fixture.includes('data-native-first-owned-rmt="true"'), 'RMT Bestcase Flagship fixture exposes Native-First Owned RMT marker');
+  context.assert(!/fetch\s*\(/u.test(fixture), 'RMT Bestcase Flagship fixture performs no fetch');
+  context.assert(!/import\s*\(/u.test(fixture), 'RMT Bestcase Flagship fixture performs no dynamic import');
+  context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'RMT Bestcase Flagship fixture has no XTend CDN dependency');
+
+  [
+    'bestcase flagship schema stable',
+    'bestcase streaming boundary sanitized',
+    'bestcase source to sea primitive visible',
+    'bestcase source to sea schedule visible',
+    'bestcase source to sea fiber visible',
+    'bestcase enterprise remote contract present',
+    'bestcase enterprise degradation fallback resolved',
+    'bestcase cross surface event typed',
+    'bestcase native first owned rmt covered',
+    'bestcase browser smoke offline'
+  ].forEach((check) => {
+    context.assert(fixture.includes(`recordCheck('${check}'`), `RMT Bestcase Flagship fixture records ${check}`);
+  });
+}
+
 async function runBrowserSmokeSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir);
   const context = createSuiteContext({
@@ -971,6 +1012,7 @@ async function runBrowserSmokeSuite(options = {}) {
   assertRmtVNextReferenceFixtureContract(context, rootDir);
   assertRmtVNextSourceToSeaFixtureContract(context, rootDir);
   assertRmtVNextEnterpriseMfeFixtureContract(context, rootDir);
+  assertRmtBestcaseFlagshipFixtureContract(context, rootDir);
   await assertLocalDevServerContract(context, rootDir);
 
   const driver = options.driver || process.env.XTEND_BROWSER_SMOKE_DRIVER || '';
