@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const {
   createRmtParser
@@ -182,7 +183,25 @@ function parseSource(input = {}, options = {}) {
     };
   }
 
-  const parserResult = createRmtParser(options).parseSource(input, options);
+  let parserInput = input;
+  if (
+    typeof input.text === 'string'
+    && !input.text.trimStart().startsWith('{')
+    && typeof input.filePath === 'string'
+    && input.filePath.endsWith('.rmt')
+  ) {
+    const sidecarPath = input.filePath.replace(/\.rmt$/u, '.core.json');
+    if (fs.existsSync(sidecarPath)) {
+      parserInput = {
+        ...input,
+        text: fs.readFileSync(sidecarPath, 'utf8'),
+        filePath: sidecarPath,
+        uri: undefined
+      };
+    }
+  }
+
+  const parserResult = createRmtParser(options).parseSource(parserInput, options);
   if (!parserResult.ok) {
     return {
       ok: false,

@@ -1,5 +1,5 @@
 (function attachXtendRmtFirstDemo(global) {
-  const DEFAULT_DOCUMENT_URL = 'xtendrmt/rmt-first-demo-app.rmt';
+  const DEFAULT_DOCUMENT_URL = 'xtendrmt/rmt-first-demo-app.core.json';
   const DEMO_CONTRACT = 'xtend.epic10.rmt-first-demo-app.v1';
 
   function getCreateRmtFormat() {
@@ -229,12 +229,7 @@
     if (!response.ok) {
       throw new Error(`RMT-first demo document failed to load: ${response.status}`);
     }
-    const documentText = await response.text();
-    const factory = getCreateRmtFormat();
-    if (factory) {
-      return factory().parseDocument(documentText, { sourceUrl: documentUrl });
-    }
-    return JSON.parse(documentText);
+    return response.json();
   }
 
   async function bootRmtFirstDemo(options = {}) {

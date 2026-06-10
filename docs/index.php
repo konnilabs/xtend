@@ -14,7 +14,8 @@ $componentsDir = $docsRoot . '/components';
 $utilsDir = $docsRoot . '/utils';
 $parsedownFile = $utilsDir . '/parsedown.php';
 $rmtPilotDocument = 'xtendrmt-parsedown-docs.rmt';
-$rmtPilotDocumentPath = $docsRoot . '/' . $rmtPilotDocument;
+$rmtPilotRuntimeDocument = 'xtendrmt-parsedown-docs.core.json';
+$rmtPilotDocumentPath = $docsRoot . '/' . $rmtPilotRuntimeDocument;
 $docsRmtVNextDocument = 'xtendrmt-docs-shell-vnext.rmt';
 $docsRmtVNextDocumentPath = $docsRoot . '/' . $docsRmtVNextDocument;
 $rmtPhpSsrAdapterFile = $repoRoot . '/xtendrmt/rmt-php-ssr-adapter.php';
@@ -222,6 +223,7 @@ $xtendAssetVersion = xtendAssetVersion([
     __DIR__ . '/../docs/utils/pageloader.js',
     __DIR__ . '/../docs/utils/fabric-runtime.js',
     __DIR__ . '/../docs/xtendrmt-parsedown-docs.rmt',
+    __DIR__ . '/../docs/xtendrmt-parsedown-docs.core.json',
     __DIR__ . '/../docs/xtendrmt-docs-shell-vnext.rmt',
     __DIR__ . '/../scripts/compile_rmt_vnext_bridge.js',
     __DIR__ . '/../scripts/rmt_playground_maraca_preview_bridge.js',
@@ -3306,6 +3308,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       schema: 'xtend.docs.parsedown-rmt-pilot.v1',
       workpackage: 'ER-WP-40',
       document: './<?= htmlspecialchars($rmtPilotDocument, ENT_QUOTES, 'UTF-8') ?>',
+      runtimeDocument: './<?= htmlspecialchars($rmtPilotRuntimeDocument, ENT_QUOTES, 'UTF-8') ?>',
+      sourceSyntax: 'rmt-vnext',
       renderMode: 'shell-first',
       phpSsrPrehydration: window.xtendDocsSsrPrehydration,
       rmtVNextDocument: './<?= htmlspecialchars($docsRmtVNextDocument, ENT_QUOTES, 'UTF-8') ?>',
@@ -3362,6 +3366,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       workpackage: 'WP-E13-10',
       status: 'accepted-docs-rmt-production-hardening',
       document: './<?= htmlspecialchars($rmtPilotDocument, ENT_QUOTES, 'UTF-8') ?>',
+      runtimeDocument: './<?= htmlspecialchars($rmtPilotRuntimeDocument, ENT_QUOTES, 'UTF-8') ?>',
       renderSchema: 'xtend.epic13.docs-rmt-production-hardening.v1',
       shellTemplate: 'docs.app.shell',
       searchTemplate: 'docs.header.search',

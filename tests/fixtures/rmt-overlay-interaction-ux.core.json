@@ -1,0 +1,480 @@
+{
+  "manifest": {
+    "schema": "xtend.rmt.document.v1",
+    "name": "rmt-overlay-interaction-ux",
+    "metadata": {
+      "contractVersion": "xtend.component.overlay-interaction-ux.v1",
+      "workpackage": "WP-E11-11",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types",
+      "renderMode": "shell-first",
+      "description": "Shell-first RMT fixture for XTend overlay and interaction UX maturity."
+    },
+    "sourceSyntax": "rmt-vnext",
+    "authoringSource": "tests/fixtures/rmt-overlay-interaction-ux.rmt"
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "custom-element-host-adapter",
+      "kernelVisible": false,
+      "capabilities": [
+        "manifest",
+        "customElements",
+        "xstate",
+        "events",
+        "commands",
+        "fabric",
+        "a11y"
+      ]
+    },
+    {
+      "id": "rmt.overlay-stack",
+      "kind": "host-overlay-stack-adapter",
+      "kernelVisible": false,
+      "capabilities": [
+        "topmostEscapeOnly",
+        "focusTrap",
+        "inert",
+        "scrollLock",
+        "portalContainer"
+      ]
+    },
+    {
+      "id": "rmt.state-scheduler-diagnostics",
+      "kind": "diagnostics-adapter",
+      "kernelVisible": false,
+      "capabilities": [
+        "snapshot",
+        "telemetry",
+        "stateMirror"
+      ]
+    }
+  ],
+  "schedules": [
+    {
+      "id": "component.visible.mount",
+      "lane": "visible",
+      "priority": "visible",
+      "phase": "mount"
+    },
+    {
+      "id": "component.idle.hydrate",
+      "lane": "idle",
+      "priority": "idle",
+      "phase": "hydrate"
+    },
+    {
+      "id": "component.lazy.hydrate",
+      "lane": "visible",
+      "priority": "lazy",
+      "phase": "hydrate"
+    },
+    {
+      "id": "overlay.stack.open",
+      "lane": "user-blocking",
+      "priority": "high",
+      "phase": "interaction",
+      "telemetry": {
+        "fiberKind": "overlay.stack.open"
+      }
+    },
+    {
+      "id": "overlay.stack.close",
+      "lane": "user-blocking",
+      "priority": "high",
+      "phase": "interaction",
+      "telemetry": {
+        "fiberKind": "overlay.stack.close"
+      }
+    },
+    {
+      "id": "overlay.focus.trap",
+      "lane": "a11y",
+      "priority": "high",
+      "phase": "interaction",
+      "telemetry": {
+        "fiberKind": "overlay.focus.trap"
+      }
+    },
+    {
+      "id": "overlay.inert.apply",
+      "lane": "a11y",
+      "priority": "high",
+      "phase": "mutation",
+      "telemetry": {
+        "fiberKind": "overlay.inert.apply"
+      }
+    },
+    {
+      "id": "overlay.scroll.lock",
+      "lane": "user-blocking",
+      "priority": "high",
+      "phase": "mutation",
+      "telemetry": {
+        "fiberKind": "overlay.scroll.lock"
+      }
+    },
+    {
+      "id": "overlay.position.update",
+      "lane": "visible",
+      "priority": "normal",
+      "phase": "layout",
+      "telemetry": {
+        "fiberKind": "overlay.position.update"
+      }
+    },
+    {
+      "id": "a11y.announce",
+      "lane": "a11y",
+      "priority": "high",
+      "phase": "announce"
+    },
+    {
+      "id": "diagnostics.snapshot",
+      "lane": "diagnostics",
+      "priority": "background",
+      "phase": "diagnostics"
+    }
+  ],
+  "components": [
+    {
+      "id": "overlay.modal",
+      "tag": "x-modal",
+      "adapter": "xtend.component",
+      "template": "tpl.modal",
+      "schedule": "component.visible.mount",
+      "state": {
+        "key": "modal-open-docs-confirm",
+        "initial": false
+      },
+      "a11y": {
+        "role": "dialog",
+        "ariaModal": true,
+        "focusTrap": "required",
+        "inert": "background"
+      },
+      "overlay": {
+        "family": "modal-dialog",
+        "stack": "topmost",
+        "scrollLock": "balanced",
+        "portal": "host-local-fixed-layer"
+      },
+      "fabric": {
+        "lane": "user-blocking",
+        "a11yLane": "a11y",
+        "diagnosticsLane": "diagnostics"
+      },
+      "commands": {
+        "open": {
+          "schedule": "overlay.stack.open"
+        },
+        "close": {
+          "schedule": "overlay.stack.close"
+        },
+        "focus-trap": {
+          "schedule": "overlay.focus.trap"
+        },
+        "apply-inert": {
+          "schedule": "overlay.inert.apply"
+        },
+        "lock-scroll": {
+          "schedule": "overlay.scroll.lock"
+        },
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      }
+    },
+    {
+      "id": "overlay.dialog",
+      "tag": "x-dialog",
+      "adapter": "xtend.component",
+      "template": "tpl.dialog",
+      "schedule": "component.visible.mount",
+      "state": {
+        "key": "dialog-open-docs-settings",
+        "initial": false
+      },
+      "a11y": {
+        "role": "dialog",
+        "ariaModal": true,
+        "focusTrap": "required",
+        "inert": "background"
+      },
+      "overlay": {
+        "family": "dialog",
+        "stack": "topmost",
+        "scrollLock": "balanced",
+        "portal": "host-local-fixed-layer"
+      },
+      "fabric": {
+        "lane": "user-blocking",
+        "a11yLane": "a11y",
+        "diagnosticsLane": "diagnostics"
+      },
+      "commands": {
+        "open": {
+          "schedule": "overlay.stack.open"
+        },
+        "close": {
+          "schedule": "overlay.stack.close"
+        },
+        "focus-trap": {
+          "schedule": "overlay.focus.trap"
+        },
+        "apply-inert": {
+          "schedule": "overlay.inert.apply"
+        },
+        "lock-scroll": {
+          "schedule": "overlay.scroll.lock"
+        },
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      }
+    },
+    {
+      "id": "overlay.popover",
+      "tag": "x-popover",
+      "adapter": "xtend.component",
+      "template": "tpl.popover",
+      "schedule": "component.idle.hydrate",
+      "state": {
+        "key": "xpopover-open-docs-help",
+        "initial": false
+      },
+      "a11y": {
+        "role": "dialog",
+        "ariaModal": false,
+        "focusTrap": "conditional-when-modal"
+      },
+      "overlay": {
+        "family": "popover",
+        "stack": "lightweight",
+        "position": "anchor",
+        "portal": "anchor-local-layer"
+      },
+      "fabric": {
+        "lane": "user-blocking",
+        "a11yLane": "a11y",
+        "diagnosticsLane": "diagnostics"
+      },
+      "commands": {
+        "show": {
+          "schedule": "overlay.stack.open"
+        },
+        "hide": {
+          "schedule": "overlay.stack.close"
+        },
+        "toggle": {
+          "schedule": "overlay.position.update"
+        },
+        "focus-trap": {
+          "schedule": "overlay.focus.trap"
+        },
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      }
+    },
+    {
+      "id": "overlay.tooltip",
+      "tag": "x-tooltip",
+      "adapter": "xtend.component",
+      "template": "tpl.tooltip",
+      "schedule": "component.idle.hydrate",
+      "state": {
+        "key": "xtooltip-open-docs-tip",
+        "initial": false
+      },
+      "a11y": {
+        "role": "tooltip",
+        "ariaDescribedby": true,
+        "focusTrap": "not-applicable"
+      },
+      "overlay": {
+        "family": "tooltip",
+        "stack": "descriptive",
+        "position": "anchor",
+        "portal": "anchor-local-layer"
+      },
+      "fabric": {
+        "lane": "visible",
+        "a11yLane": "a11y",
+        "diagnosticsLane": "diagnostics"
+      },
+      "commands": {
+        "show": {
+          "schedule": "overlay.position.update"
+        },
+        "hide": {
+          "schedule": "overlay.stack.close"
+        },
+        "toggle": {
+          "schedule": "overlay.position.update"
+        },
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      }
+    },
+    {
+      "id": "overlay.drawer",
+      "tag": "x-drawer",
+      "adapter": "xtend.component",
+      "template": "tpl.drawer",
+      "schedule": "component.lazy.hydrate",
+      "state": {
+        "key": "xdrawer-open-docs-nav",
+        "initial": false
+      },
+      "a11y": {
+        "role": "dialog",
+        "ariaModal": "conditional",
+        "focusTrap": "conditional-when-modal",
+        "inert": "when-modal"
+      },
+      "overlay": {
+        "family": "drawer",
+        "stack": "route-aware",
+        "scrollLock": "balanced-when-modal",
+        "portal": "host-local-fixed-layer"
+      },
+      "fabric": {
+        "lane": "visible",
+        "a11yLane": "a11y",
+        "diagnosticsLane": "diagnostics"
+      },
+      "commands": {
+        "open": {
+          "schedule": "overlay.stack.open"
+        },
+        "close": {
+          "schedule": "overlay.stack.close"
+        },
+        "toggle": {
+          "schedule": "overlay.stack.open"
+        },
+        "focus-trap": {
+          "schedule": "overlay.focus.trap"
+        },
+        "apply-inert": {
+          "schedule": "overlay.inert.apply"
+        },
+        "lock-scroll": {
+          "schedule": "overlay.scroll.lock"
+        },
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "tpl.modal",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "component": "overlay.modal",
+          "attributes": {
+            "id": "docs-confirm",
+            "title": "Bestatigung",
+            "overlay": ""
+          },
+          "slots": {
+            "default": "Aktion pruefen",
+            "actions": "Abbrechen / Speichern"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tpl.dialog",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "component": "overlay.dialog",
+          "attributes": {
+            "id": "docs-settings",
+            "title": "Einstellungen",
+            "overlay": ""
+          },
+          "slots": {
+            "default": "Dialoginhalt",
+            "actions": "Schliessen"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tpl.popover",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "component": "overlay.popover",
+          "attributes": {
+            "id": "docs-help",
+            "label": "Hilfe",
+            "placement": "bottom"
+          },
+          "slots": {
+            "trigger": "Hilfe",
+            "default": "Kontextinformation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tpl.tooltip",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "component": "overlay.tooltip",
+          "attributes": {
+            "id": "docs-tip",
+            "label": "Mehr Information",
+            "placement": "top"
+          },
+          "slots": {
+            "default": "Tooltip"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tpl.drawer",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "component": "overlay.drawer",
+          "attributes": {
+            "id": "docs-nav",
+            "label": "Navigation",
+            "placement": "left",
+            "modal": "",
+            "route-aware": ""
+          },
+          "slots": {
+            "trigger": "Menue",
+            "default": "Navigationseintraege"
+          }
+        }
+      ]
+    }
+  ],
+  "diagnostics": {
+    "snapshots": [
+      {
+        "schedule": "diagnostics.snapshot",
+        "targets": [
+          "overlay.modal",
+          "overlay.dialog",
+          "overlay.popover",
+          "overlay.tooltip",
+          "overlay.drawer"
+        ]
+      }
+    ]
+  }
+}

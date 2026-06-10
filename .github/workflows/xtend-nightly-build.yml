@@ -61,6 +61,11 @@ jobs:
         continue-on-error: true
         run: npm run test:release:full:report
 
+      - name: Run RMT Reference docs report
+        id: rmt_reference_docs
+        continue-on-error: true
+        run: npm run test:rmt-reference-docs:report
+
       - name: Run docs stub inventory report
         id: docs_stub_inventory
         continue-on-error: true
@@ -112,6 +117,7 @@ jobs:
           name: xtend-nightly-build-node-26
           path: |
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-docs-stub-inventory-report.json
             .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
             .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
@@ -137,6 +143,7 @@ jobs:
           failed=0
           if [ "${{ steps.native_first_evidence_prepare.outcome }}" != "success" ]; then echo "Native-First evidence preparation failed"; failed=1; fi
           if [ "${{ steps.full_release.outcome }}" != "success" ]; then echo "full release gate failed"; failed=1; fi
+          if [ "${{ steps.rmt_reference_docs.outcome }}" != "success" ]; then echo "RMT Reference docs gate failed"; failed=1; fi
           if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory owner handoff remains open"; fi
           if [ "${{ steps.rmt_primitives.outcome }}" != "success" ]; then echo "RMT vNext primitive gate failed"; failed=1; fi
           if [ "${{ steps.native_first_rmt_owned.outcome }}" != "success" ]; then echo "Native-First RMT Owned release gate failed"; failed=1; fi

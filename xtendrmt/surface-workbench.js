@@ -1,5 +1,5 @@
 (function attachXtendSurfaceWorkbench(global) {
-  const DEFAULT_DOCUMENT_URL = 'xtendrmt/surface-workbench.rmt';
+  const DEFAULT_DOCUMENT_URL = 'xtendrmt/surface-workbench.core.json';
   const WORKBENCH_CONTRACT = 'xtend.surface.workbench-fixture.v1';
   const SURFACE_COMMAND_EVENTS = ['surface-window-command', 'surface-panel-command'];
 
@@ -278,12 +278,7 @@
     if (!response.ok) {
       throw new Error(`Surface Workbench document failed to load: ${response.status}`);
     }
-    const documentText = await response.text();
-    const factory = getCreateRmtFormat();
-    if (factory) {
-      return factory().parseDocument(documentText, { sourceUrl: documentUrl });
-    }
-    return JSON.parse(documentText);
+    return response.json();
   }
 
   async function bootSurfaceWorkbench(options = {}) {

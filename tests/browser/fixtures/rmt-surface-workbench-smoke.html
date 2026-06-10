@@ -20,7 +20,8 @@
   <div
     id="surface-workbench-smoke-root"
     data-rmt-host="surface-workbench"
-    data-rmt-document-src="/xtendrmt/surface-workbench.rmt"></div>
+    data-rmt-document-src="/xtendrmt/surface-workbench.core.json"
+    data-rmt-source-src="/xtendrmt/surface-workbench.rmt"></div>
   <script>
     window.__xtendSurfaceWorkbenchSmokeResult = {
       status: 'pending',
@@ -45,14 +46,13 @@
         const module = await import('/xtendrmt/surface-workbench.js');
         const api = module.default || window.XTendSurfaceWorkbench;
         const root = document.querySelector('[data-rmt-host="surface-workbench"]');
-        const documentResponse = await fetch('/xtendrmt/surface-workbench.rmt');
-        const documentText = await documentResponse.text();
-        const rmtDocument = window.AppModules && typeof window.AppModules.createRmtFormat === 'function'
-          ? window.AppModules.createRmtFormat().parseDocument(documentText, {
-              sourceUrl: '/xtendrmt/surface-workbench.rmt'
-            })
-          : JSON.parse(documentText);
+        const sourceResponse = await fetch(root.getAttribute('data-rmt-source-src'));
+        const sourceText = await sourceResponse.text();
+        const documentResponse = await fetch(root.getAttribute('data-rmt-document-src'));
+        const rmtDocument = await documentResponse.json();
+        recordCheck('surface workbench source is vnext authoring', sourceText.trim().startsWith('template ') && !sourceText.trim().startsWith('{'));
         recordCheck('surface workbench document loaded', rmtDocument.manifest.metadata.contractVersion === 'xtend.surface.workbench-fixture.v1');
+        recordCheck('surface workbench runtime core declares vnext source', rmtDocument.manifest.sourceSyntax === 'rmt-vnext');
         const renderResult = api.renderSurfaceWorkbenchFromDocument(rmtDocument, { root });
         await Promise.resolve();
         const snapshot = api.collectSurfaceSnapshot(root);
@@ -66,6 +66,7 @@
         window.__xtendSurfaceWorkbenchSmokeResult.routes = renderResult.routes.length;
         window.__xtendSurfaceWorkbenchSmokeResult.surfaces = snapshot.surfaces.length;
         window.__xtendSurfaceWorkbenchSmokeResult.schedules = rmtDocument.schedules.length;
+        window.__xtendSurfaceWorkbenchSmokeResult.sourceSyntax = rmtDocument.manifest.sourceSyntax;
       } catch (error) {
         window.__xtendSurfaceWorkbenchSmokeResult.status = 'failed';
         window.__xtendSurfaceWorkbenchSmokeResult.errors.push(error.message);

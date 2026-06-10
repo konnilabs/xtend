@@ -19,6 +19,7 @@ Start RMT Authoring Guide with the smallest record example, validate it with the
 ## Next steps
 
 - [XTendRMT overview](./xtendrmt-overview.md)
+- [RMT Reference](./rmt-reference.md)
 - [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
 - [RMT vNext Release contract](./rmt-vnext-release-handoff.md)
 - [RMT Linter](./rmt-linter.md)
@@ -100,7 +101,7 @@ Names:
 - `xtend.rmt.app-orchestration.v1`
 
 Commands:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
+- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json`
 - `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
 
 ## Minimal verification path
@@ -108,7 +109,7 @@ Commands:
 Run this check when the article, an example or the named public surface changes:
 
 ```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
+node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json
 node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
 ```
 

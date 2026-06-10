@@ -19,6 +19,8 @@ Epic 18 trennt RMT App Platform Authoring, generische Component Interaction, Sta
 | `WP-E18-03` | P0 | completed | Bugfix Contract und Browser Smokes |
 | `WP-E18-04` | P0 | completed | RMT App Platform Authoring Model |
 | `WP-E18-05` | P0 | completed | DOM Descriptor Renderer ohne manuelle HTML-Sinks |
+
+Gate chain: `rmt-app-platform-authoring` bleibt der Startpunkt fuer das Epic18 App-Platform Authoring Model.
 | `WP-E18-06` | P0 | completed | Component Template Primitives |
 | `WP-E18-07` | P0 | completed | Typed State Selector Runtime und injected `xstate` Host Adapter |
 | `WP-E18-08` | P1 | completed | Actions, Effects, DataSources und Resource Runtime |

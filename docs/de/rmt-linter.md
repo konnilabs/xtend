@@ -31,6 +31,7 @@ Beginne bei RMT Linter mit dem kleinsten Record-Beispiel, prüfe es mit dem Lint
 
 - [XTendRMT Überblick](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT Reference](./rmt-reference.md)
 - [RMT Language Server](./rmt-language-server.md)
 
 ## Öffentlicher Vertrag

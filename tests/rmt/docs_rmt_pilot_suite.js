@@ -13,7 +13,11 @@ const {
 const DOCS_RMT_PILOT_SCHEMA = 'xtend.docs.parsedown-rmt-pilot.v1';
 const DOCS_RMT_PAGE_SCHEMA = 'xtend.docs.parsedown-rmt-page.v1';
 const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
+const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const PILOT_DOCUMENT_PATH = 'docs/xtendrmt-parsedown-docs.rmt';
+const PILOT_CORE_PATH = 'docs/xtendrmt-parsedown-docs.core.json';
+const PILOT_VNEXT_CORE_PATH = 'docs/xtendrmt-parsedown-docs.vnext.core.json';
+const PILOT_SCAFFOLD_PATH = 'docs/xtendrmt-parsedown-docs.scaffold.json';
 const PARSEDOWN_ADAPTER_ID = 'docs.parsedown';
 const PARSEDOWN_ENDPOINT = 'xtendrmt.docs.parsedown.parse';
 const TRUST_BOUNDARY = 'xtend.security.sanitizing-boundary.v1';
@@ -97,7 +101,11 @@ function runDocsRmtPilotSuite(options = {}) {
     label: 'Docs-App RMT Parsedown scheduling pilot'
   });
 
+  const source = readText(PILOT_DOCUMENT_PATH, rootDir);
   const pilot = readJson(PILOT_DOCUMENT_PATH, rootDir);
+  const runtimeCore = readJson(PILOT_CORE_PATH, rootDir);
+  const vnextCore = readJson(PILOT_VNEXT_CORE_PATH, rootDir);
+  const scaffold = readJson(PILOT_SCAFFOLD_PATH, rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
   const fabricRuntime = readText('docs/utils/fabric-runtime.js', rootDir);
@@ -110,6 +118,18 @@ function runDocsRmtPilotSuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.docsRmtPilot;
 
+  context.assert(source.includes('template docs.xtend.parsedownPilot'), 'Docs RMT pilot source uses vNext template authoring');
+  context.assert(!source.trimStart().startsWith('{'), 'Docs RMT pilot source is not legacy JSON authoring');
+  context.assert(runtimeCore.manifest.sourceSyntax === 'rmt-vnext', 'Docs RMT pilot runtime core records vNext source syntax');
+  context.assert(runtimeCore.manifest.authoringSource === PILOT_DOCUMENT_PATH, 'Docs RMT pilot runtime core points to authoring source');
+  context.assert(vnextCore.schema === RMT_VNEXT_CORE_SCHEMA, 'Docs RMT pilot vNext core uses vNext core schema');
+  context.assert(vnextCore.manifest.sourceSyntax === 'rmt-vnext', 'Docs RMT pilot vNext core records source syntax');
+  context.assert(scaffold.source === PILOT_DOCUMENT_PATH, 'Docs RMT pilot scaffold links source');
+  context.assert(scaffold.runtimeCore === PILOT_CORE_PATH, 'Docs RMT pilot scaffold links runtime core');
+  context.assert(scaffold.vnextCore === PILOT_VNEXT_CORE_PATH, 'Docs RMT pilot scaffold links vNext core');
+  context.assert(scaffold.sourceSyntax === 'rmt-vnext', 'Docs RMT pilot scaffold records source syntax');
+  context.assert(scaffold.compilerStatus === 'compiled', 'Docs RMT pilot scaffold records compiled vNext core');
+  context.assert(pilot.manifest.documentId === runtimeCore.manifest.documentId, 'Docs RMT pilot readJson fallback returns runtime core parity');
   context.assert(pilot.kind === 'rmt_document', 'Docs RMT pilot is an RMT document');
   context.assert(pilot.manifest && pilot.manifest.metadata && pilot.manifest.metadata.contractVersion === DOCS_RMT_PILOT_SCHEMA, 'Docs RMT pilot declares stable pilot contract');
   context.assert(pilot.manifest.metadata.workpackage === 'ER-WP-40', 'Docs RMT pilot is owned by ER-WP-40');
@@ -210,6 +230,8 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('docsRenderXRoute'), 'Docs app renders XRouter routes from RMT page route records');
   context.assert(indexPhp.includes('document-title=') || indexPhp.includes("'document-title' =>"), 'Docs app forwards RMT document titles into XRouter routes');
   context.assert(indexPhp.includes('xtendrmt-parsedown-docs.rmt'), 'Docs app points to pilot RMT document');
+  context.assert(indexPhp.includes('xtendrmt-parsedown-docs.core.json'), 'Docs app loads pilot runtime core document');
+  context.assert(indexPhp.includes("sourceSyntax: 'rmt-vnext'"), 'Docs app exposes vNext source syntax metadata');
   context.assert(indexPhp.includes('__DIR__ . \'/../xtend.css\''), 'Docs app includes XTend base CSS in the asset version hash');
   context.assert(indexPhp.includes('__DIR__ . \'/../icons/favicon.ico\''), 'Docs app includes the favicon in the asset version hash');
   context.assert(indexPhp.includes('function docsServeAsset'), 'Docs app serves parent-level brand assets through a local whitelist endpoint');

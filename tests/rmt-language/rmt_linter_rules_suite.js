@@ -29,7 +29,7 @@ const {
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const RMT_LINTER_WP_PATH = 'development/WP-E14-05-Linter-Rule-Engine-und-Basisregeln-erstellen.md';
-const VALID_FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.rmt';
+const VALID_FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.core.json';
 const RULE_MODULE_PATHS = [
   'tools/rmt-language/rules/index.js',
   'tools/rmt-language/rules/document-policy.js',
@@ -109,7 +109,7 @@ function runValidFixtureChecks(context, rootDir) {
   const text = readText(VALID_FIXTURE_PATH, rootDir);
   const report = lintRmtSource({
     text,
-    filePath: resolveRepoPath(VALID_FIXTURE_PATH, rootDir),
+    uri: 'file:///virtual/rmt-first-demo-app.rmt',
     version: 5
   }, {
     rootDir
@@ -129,7 +129,7 @@ function runValidFixtureChecks(context, rootDir) {
 
   const overrideReport = lintRmtSource({
     text,
-    filePath: resolveRepoPath(VALID_FIXTURE_PATH, rootDir)
+    uri: 'file:///virtual/rmt-first-demo-app.rmt'
   }, {
     rootDir,
     severityPolicy: {
@@ -253,7 +253,7 @@ function runCustomRuleChecks(context, rootDir) {
   });
   const report = linter.lint({
     text: readText(VALID_FIXTURE_PATH, rootDir),
-    filePath: resolveRepoPath(VALID_FIXTURE_PATH, rootDir)
+    uri: 'file:///virtual/rmt-first-demo-app.rmt'
   }, {
     rootDir
   });

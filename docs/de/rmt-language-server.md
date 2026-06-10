@@ -25,6 +25,8 @@ VS Code bringt außerdem die Befehle `XTendRMT: Show vNext Primitive Apply Exper
 
 Der Language Server ergänzt Completion, Hover und Document Symbols für `validation` und `transition`. Das gilt für native `.rmt` Dateien und für JSON/Core-nahe Dokumente mit `validations` und `transitions`. Effekte wie `fade`, `crossfade`, `slide-left`, `slide-right`, `slide-up`, `slide-down`, `scale` und `none` sowie Validation-Regeln wie `required`, `email`, `minLength`, `maxLength` und `pattern` werden im Editor erklärt.
 
+Die vollständigen Keyword- und Operator-Kontexte stehen in der [RMT Reference](./rmt-reference.md).
+
 Neue Snippets:
 
 - `rmt-vnext-validation`
@@ -43,6 +45,7 @@ Beginne bei RMT Language Server mit dem kleinsten Record-Beispiel, prüfe es mit
 
 - [XTendRMT Überblick](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT Reference](./rmt-reference.md)
 - [RMT Linter](./rmt-linter.md)
 
 ## Öffentlicher Vertrag
@@ -82,7 +85,7 @@ Namen:
 Befehle:
 - `node tools/rmt-language-server/server.js`
 - `node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
+- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json`
 - `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
 
 ## Minimaler Prüfpfad
@@ -92,7 +95,7 @@ Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öff
 ```bash
 node tools/rmt-language-server/server.js
 node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
+node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json
 node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
 ```
 

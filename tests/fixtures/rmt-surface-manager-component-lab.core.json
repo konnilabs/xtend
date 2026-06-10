@@ -1,0 +1,608 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "fixture.xtend.surface-component-lab",
+    "namespace": "fixture.xtend.surfaceLab",
+    "metadata": {
+      "contractVersion": "xtend.surface.release-handoff.v1",
+      "componentLabFixture": "xtend.surface.component-lab-fixture.v1",
+      "workpackage": "WP-SM-09",
+      "status": "surface-manager-component-lab-release-fixture",
+      "renderMode": "shell-first",
+      "nativeDomain": "surfaces",
+      "surfaceAdapter": "xtend.surface",
+      "authoringModes": [
+        "component-metadata-mvp",
+        "dual-record-handoff",
+        "native-surfaces-preferred"
+      ],
+      "componentLabPanels": [
+        "surface-preview",
+        "native-rmt-inspector",
+        "migration-diff",
+        "quality-gates",
+        "source-links"
+      ],
+      "migrationSource": "components[*].metadata.surface",
+      "preferredAuthoringPath": "surfaces[*]",
+      "releaseGate": "node scripts/run_xtend_tests.js surface-release-handoff --json",
+      "kernelBoundary": "RMT owns surface records, component refs, routes, schedules, templates and release metadata only. XTend surface execution, xstate access, Fabric execution and DOM materialization stay in host adapters."
+    },
+    "sourceSyntax": "rmt-vnext",
+    "authoringSource": "tests/fixtures/rmt-surface-manager-component-lab.rmt"
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "components",
+        "customElements",
+        "props",
+        "attributes",
+        "slots",
+        "events",
+        "hydration",
+        "fabricContext",
+        "diagnostics"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "router_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "routes",
+        "navigation",
+        "params",
+        "query",
+        "diagnostics"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "rmt.state-scheduler-diagnostics",
+      "kind": "scheduler_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "stateBridge",
+        "schedulerEndpoints",
+        "diagnostics",
+        "adapterResults",
+        "lifecycleEvents"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "xtend.surface",
+      "kind": "surface_adapter",
+      "runtimeSurface": [
+        "esm",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "surfaces",
+        "multiWindow",
+        "sidePanels",
+        "overlaySurfaces",
+        "stateBridge",
+        "diagnostics"
+      ],
+      "requiredCapabilities": [
+        "components",
+        "routes",
+        "schedules"
+      ],
+      "lifecycleContract": "xtend.surface.adapter.v1",
+      "kernelVisible": false,
+      "metadata": {
+        "workpackage": "WP-SM-09",
+        "runtimeImplemented": false,
+        "releaseBoundary": "adapter-handoff-only"
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "surface.lab.shell",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "app.shell.render",
+      "props": {
+        "label": "SurfaceManager Lab"
+      },
+      "attributes": {
+        "layout": "column",
+        "data-surface-lab": "true"
+      },
+      "slots": {
+        "default": {
+          "component": "surface.lab.manager"
+        }
+      }
+    },
+    {
+      "id": "surface.lab.router",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-router",
+      "schedule": "route.visible.render",
+      "attributes": {
+        "mode": "hash",
+        "data-route-bound-surfaces": "true"
+      }
+    },
+    {
+      "id": "surface.lab.manager",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-surface-manager",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "SurfaceManager Release Lab"
+      },
+      "attributes": {
+        "restore-key": "fixture.surface.lab",
+        "route-aware": "true",
+        "modal-policy": "topmost"
+      },
+      "slots": {
+        "windows": {
+          "components": [
+            "surface.lab.preview.window",
+            "surface.lab.rmt.window"
+          ]
+        },
+        "panels": {
+          "components": [
+            "surface.lab.migration.panel",
+            "surface.lab.quality.panel"
+          ]
+        },
+        "overlays": {
+          "component": "surface.lab.command.dialog"
+        }
+      },
+      "metadata": {
+        "surfaceManager": {
+          "schema": "xtend.surface.manager.v1",
+          "stateKey": "xtend.surface.registry",
+          "snapshotKey": "xtend.surface.snapshot",
+          "nativeDomain": "surfaces",
+          "stackPolicy": "single-active-surface"
+        }
+      }
+    },
+    {
+      "id": "surface.lab.preview.window",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-surface-window",
+      "schedule": "surface.user-blocking.open",
+      "props": {
+        "label": "Surface Preview"
+      },
+      "attributes": {
+        "surface-id": "surface.lab.preview",
+        "open": "true",
+        "active": "true",
+        "initial-x": "72",
+        "initial-y": "72",
+        "initial-width": "520",
+        "initial-height": "360"
+      },
+      "slots": {
+        "default": {
+          "component": "surface.lab.preview.content"
+        }
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.lab.preview",
+          "type": "window",
+          "manager": "surface.lab.manager",
+          "stateKey": "xtend.surface.lab.preview.state",
+          "nativeRecord": "surfaces[0]"
+        }
+      }
+    },
+    {
+      "id": "surface.lab.rmt.window",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-surface-window",
+      "schedule": "surface.user-blocking.open",
+      "props": {
+        "label": "Native RMT Inspector"
+      },
+      "attributes": {
+        "surface-id": "surface.lab.rmtInspector",
+        "open": "true",
+        "initial-x": "632",
+        "initial-y": "96",
+        "initial-width": "560",
+        "initial-height": "420"
+      },
+      "slots": {
+        "default": {
+          "component": "surface.lab.rmt.content"
+        }
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.lab.rmtInspector",
+          "type": "window",
+          "manager": "surface.lab.manager",
+          "stateKey": "xtend.surface.lab.rmtInspector.state",
+          "nativeRecord": "surfaces[1]"
+        }
+      }
+    },
+    {
+      "id": "surface.lab.migration.panel",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-side-panel",
+      "schedule": "surface.visible.render",
+      "props": {
+        "label": "Migration Diff"
+      },
+      "attributes": {
+        "surface-id": "surface.lab.migrationPanel",
+        "placement": "right",
+        "mode": "docked",
+        "open": "true",
+        "pinned": "true"
+      },
+      "slots": {
+        "default": {
+          "component": "surface.lab.migration.content"
+        }
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.lab.migrationPanel",
+          "type": "side-panel",
+          "manager": "surface.lab.manager",
+          "stateKey": "xtend.surface.lab.migrationPanel.state",
+          "nativeRecord": "surfaces[2]"
+        }
+      }
+    },
+    {
+      "id": "surface.lab.quality.panel",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-side-panel",
+      "schedule": "surface.diagnostics.snapshot",
+      "props": {
+        "label": "Quality Gates"
+      },
+      "attributes": {
+        "surface-id": "surface.lab.qualityPanel",
+        "placement": "bottom",
+        "mode": "overlay",
+        "open": "false"
+      },
+      "slots": {
+        "default": {
+          "component": "surface.lab.quality.content"
+        }
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.lab.qualityPanel",
+          "type": "side-panel",
+          "manager": "surface.lab.manager",
+          "stateKey": "xtend.surface.lab.qualityPanel.state",
+          "nativeRecord": "surfaces[3]"
+        }
+      }
+    },
+    {
+      "id": "surface.lab.command.dialog",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-dialog",
+      "schedule": "a11y.user-blocking.announce",
+      "props": {
+        "label": "Surface Commands"
+      },
+      "attributes": {
+        "surface-id": "surface.lab.commandDialog",
+        "modal": "true"
+      },
+      "metadata": {
+        "surface": {
+          "schema": "xtend.surface.record.v1",
+          "id": "surface.lab.commandDialog",
+          "type": "dialog",
+          "manager": "surface.lab.manager",
+          "stateKey": "xtend.surface.lab.commandDialog.state",
+          "nativeRecord": "surfaces[4]"
+        }
+      }
+    },
+    {
+      "id": "surface.lab.preview.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-code",
+      "schedule": "component.visible.mount",
+      "props": {
+        "language": "json"
+      }
+    },
+    {
+      "id": "surface.lab.rmt.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-code",
+      "schedule": "component.visible.mount",
+      "props": {
+        "language": "json"
+      },
+      "metadata": {
+        "inspectorDomains": [
+          "manifest",
+          "adapters",
+          "components",
+          "routes",
+          "schedules",
+          "surfaces",
+          "templates"
+        ]
+      }
+    },
+    {
+      "id": "surface.lab.migration.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-status",
+      "schedule": "component.visible.mount",
+      "props": {
+        "type": "info",
+        "message": "components[*].metadata.surface and native surfaces[*] are compared by stable id."
+      }
+    },
+    {
+      "id": "surface.lab.quality.content",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-progress",
+      "schedule": "component.idle.hydrate",
+      "props": {
+        "label": "Surface Gate Coverage",
+        "value": 9,
+        "max": 9
+      }
+    }
+  ],
+  "routes": [
+    {
+      "id": "surface.lab.overview",
+      "path": "/",
+      "router": "xtend.xrouter",
+      "component": "surface.lab.manager",
+      "template": "surface.lab.shell.template",
+      "schedule": "route.visible.render",
+      "metadata": {
+        "routeBoundSurfaces": [
+          "surface.lab.preview",
+          "surface.lab.rmtInspector",
+          "surface.lab.migrationPanel",
+          "surface.lab.qualityPanel",
+          "surface.lab.commandDialog"
+        ]
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "id": "app.shell.render",
+      "lane": "visible",
+      "endpointName": "xtend.surface-lab.shell.render",
+      "priority": "high"
+    },
+    {
+      "id": "route.visible.render",
+      "lane": "visible",
+      "endpointName": "xtend.surface-lab.route.render",
+      "priority": "high"
+    },
+    {
+      "id": "surface.visible.render",
+      "lane": "visible",
+      "endpointName": "xtend.surface.render",
+      "priority": "normal"
+    },
+    {
+      "id": "surface.user-blocking.open",
+      "lane": "user-blocking",
+      "endpointName": "xtend.surface.open",
+      "priority": "high"
+    },
+    {
+      "id": "surface.transition.layout",
+      "lane": "transition",
+      "endpointName": "xtend.surface.layout",
+      "priority": "normal"
+    },
+    {
+      "id": "surface.background.persist",
+      "lane": "idle",
+      "endpointName": "xtend.surface.persist",
+      "priority": "low"
+    },
+    {
+      "id": "surface.diagnostics.snapshot",
+      "lane": "diagnostics",
+      "endpointName": "xtend.surface.snapshot",
+      "priority": "normal"
+    },
+    {
+      "id": "component.visible.mount",
+      "lane": "visible",
+      "endpointName": "xtend.component.mount",
+      "priority": "normal"
+    },
+    {
+      "id": "component.idle.hydrate",
+      "lane": "idle",
+      "endpointName": "xtend.component.hydrate",
+      "priority": "low",
+      "preferIdle": true
+    },
+    {
+      "id": "a11y.user-blocking.announce",
+      "lane": "user-blocking",
+      "endpointName": "xtend.a11y.announce",
+      "priority": "high"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface.lab.preview",
+      "schema": "xtend.surface.record.v1",
+      "type": "window",
+      "adapter": "xtend.surface",
+      "manager": "surface.lab.manager",
+      "component": "surface.lab.preview.window",
+      "route": "surface.lab.overview",
+      "schedule": "surface.user-blocking.open",
+      "stateKey": "xtend.surface.lab.preview.state",
+      "defaultOpen": true,
+      "active": true,
+      "bounds": {
+        "x": 72,
+        "y": 72,
+        "width": 520,
+        "height": 360
+      },
+      "metadata": {
+        "componentLabPanel": "surface-preview",
+        "migrationSource": "components[*].metadata.surface"
+      }
+    },
+    {
+      "id": "surface.lab.rmtInspector",
+      "schema": "xtend.surface.record.v1",
+      "type": "window",
+      "adapter": "xtend.surface",
+      "manager": "surface.lab.manager",
+      "component": "surface.lab.rmt.window",
+      "route": "surface.lab.overview",
+      "schedule": "surface.user-blocking.open",
+      "stateKey": "xtend.surface.lab.rmtInspector.state",
+      "defaultOpen": true,
+      "bounds": {
+        "x": 632,
+        "y": 96,
+        "width": 560,
+        "height": 420
+      },
+      "metadata": {
+        "componentLabPanel": "native-rmt-inspector",
+        "migrationSource": "components[*].metadata.surface"
+      }
+    },
+    {
+      "id": "surface.lab.migrationPanel",
+      "schema": "xtend.surface.record.v1",
+      "type": "side-panel",
+      "adapter": "xtend.surface",
+      "manager": "surface.lab.manager",
+      "component": "surface.lab.migration.panel",
+      "route": "surface.lab.overview",
+      "schedule": "surface.visible.render",
+      "stateKey": "xtend.surface.lab.migrationPanel.state",
+      "placement": "right",
+      "mode": "docked",
+      "defaultOpen": true,
+      "metadata": {
+        "componentLabPanel": "migration-diff",
+        "migrationSource": "components[*].metadata.surface"
+      }
+    },
+    {
+      "id": "surface.lab.qualityPanel",
+      "schema": "xtend.surface.record.v1",
+      "type": "side-panel",
+      "adapter": "xtend.surface",
+      "manager": "surface.lab.manager",
+      "component": "surface.lab.quality.panel",
+      "route": "surface.lab.overview",
+      "schedule": "surface.diagnostics.snapshot",
+      "stateKey": "xtend.surface.lab.qualityPanel.state",
+      "placement": "bottom",
+      "mode": "overlay",
+      "metadata": {
+        "componentLabPanel": "quality-gates",
+        "migrationSource": "components[*].metadata.surface"
+      }
+    },
+    {
+      "id": "surface.lab.commandDialog",
+      "schema": "xtend.surface.record.v1",
+      "type": "dialog",
+      "adapter": "xtend.surface",
+      "manager": "surface.lab.manager",
+      "component": "surface.lab.command.dialog",
+      "route": "surface.lab.overview",
+      "schedule": "a11y.user-blocking.announce",
+      "stateKey": "xtend.surface.lab.commandDialog.state",
+      "layer": "modal",
+      "a11y": {
+        "role": "dialog",
+        "label": "Surface Commands",
+        "modal": true,
+        "focusRestore": true
+      },
+      "metadata": {
+        "componentLabPanel": "source-links",
+        "migrationSource": "components[*].metadata.surface"
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "surface.lab.shell.template",
+      "mode": "dom_descriptor",
+      "metadata": {
+        "trustedDomBoundary": "dom_descriptor-only",
+        "surfaces": "native-records"
+      },
+      "nodes": [
+        {
+          "tag": "x-section",
+          "attributes": {
+            "layout": "column",
+            "data-surface-lab": "true"
+          },
+          "children": [
+            {
+              "component": "surface.lab.manager"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

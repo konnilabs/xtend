@@ -20,6 +20,7 @@ Beginne bei RMT App Platform Tooling mit dem kleinsten Record-Beispiel, prüfe e
 
 - [XTendRMT Überblick](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT Reference](./rmt-reference.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 - [XTend Maraca](./xtend-maraca.md)
@@ -27,6 +28,8 @@ Beginne bei RMT App Platform Tooling mit dem kleinsten Record-Beispiel, prüfe e
 ## Tooling für Orchestrierung
 
 Die App-Platform-Tooling-Schicht kennt `validation` und `transition` als eigene Records. Completion, Hover, Document Symbols und Snippets erklären Field Rules, Transition Effects, `durationMs`, `target action`, `from surfaces`, `to surfaces` und `lane transition`. Dadurch sieht der Editor dieselben Verträge wie Compiler und Maraca.
+
+Für die präzisen Keyword-Kontexte verweist diese Seite auf die [RMT Reference](./rmt-reference.md).
 
 Neue Snippets:
 
@@ -38,7 +41,7 @@ Lokale Gates für Änderungen an dieser Schicht:
 
 ```bash
 node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json
-node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs --json
+node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs rmt-reference-docs --json
 ```
 
 ## Öffentlicher Vertrag
@@ -77,8 +80,8 @@ Namen:
 
 Befehle:
 - `node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json`
-- `node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs --json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
+- `node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs rmt-reference-docs --json`
+- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json`
 - `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
 
 ## Minimaler Prüfpfad
@@ -87,8 +90,8 @@ Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öff
 
 ```bash
 node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json
-node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs --json
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
+node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs rmt-reference-docs --json
+node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json
 node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
 ```
 

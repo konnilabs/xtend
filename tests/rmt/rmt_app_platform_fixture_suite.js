@@ -237,6 +237,11 @@ function createTempRoot(rootDir) {
     readText(RMT_APP_PLATFORM_FIXTURE, rootDir),
     'utf8'
   );
+  fs.writeFileSync(
+    path.join(sourceDir, 'app.core.json'),
+    readText(RMT_APP_PLATFORM_FIXTURE.replace(/\.rmt$/u, '.core.json'), rootDir),
+    'utf8'
+  );
   return tempRoot;
 }
 

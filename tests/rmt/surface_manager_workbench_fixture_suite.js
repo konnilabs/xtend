@@ -55,6 +55,11 @@ const {
   validateSurfaceManagerWorkbenchFixturePlan
 } = require('../../catalog/surface-manager-workbench-fixture');
 
+const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
+const SURFACE_MANAGER_WORKBENCH_CORE = 'xtendrmt/surface-workbench.core.json';
+const SURFACE_MANAGER_WORKBENCH_VNEXT_CORE = 'xtendrmt/surface-workbench.vnext.core.json';
+const SURFACE_MANAGER_WORKBENCH_SCAFFOLD = 'xtendrmt/surface-workbench.scaffold.json';
+
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
 }
@@ -234,7 +239,11 @@ function runSurfaceManagerWorkbenchFixtureSuite(options = {}) {
   const plan = createSurfaceManagerWorkbenchFixturePlan({ rootDir });
   const validation = validateSurfaceManagerWorkbenchFixturePlan(plan);
   const report = createSurfaceManagerWorkbenchFixtureReport({ rootDir, plan });
+  const source = readText(SURFACE_MANAGER_WORKBENCH_FIXTURE, rootDir);
   const fixture = readJson(SURFACE_MANAGER_WORKBENCH_FIXTURE, rootDir);
+  const runtimeCore = readJson(SURFACE_MANAGER_WORKBENCH_CORE, rootDir);
+  const vnextCore = readJson(SURFACE_MANAGER_WORKBENCH_VNEXT_CORE, rootDir);
+  const scaffold = readJson(SURFACE_MANAGER_WORKBENCH_SCAFFOLD, rootDir);
   const host = readText(SURFACE_MANAGER_WORKBENCH_HOST, rootDir);
   const runtime = readText(SURFACE_MANAGER_WORKBENCH_RUNTIME, rootDir);
   const browserSmoke = readText(SURFACE_MANAGER_WORKBENCH_BROWSER_SMOKE, rootDir);
@@ -253,6 +262,9 @@ function runSurfaceManagerWorkbenchFixtureSuite(options = {}) {
   REQUIRED_ARTIFACTS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as Surface Workbench artifact`);
   });
+  assertFileExists(context, SURFACE_MANAGER_WORKBENCH_CORE, rootDir, 'Surface Workbench runtime core exists');
+  assertFileExists(context, SURFACE_MANAGER_WORKBENCH_VNEXT_CORE, rootDir, 'Surface Workbench vNext core exists');
+  assertFileExists(context, SURFACE_MANAGER_WORKBENCH_SCAFFOLD, rootDir, 'Surface Workbench scaffold report exists');
   REQUIRED_DOCS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as Surface Workbench doc`);
   });
@@ -294,6 +306,18 @@ function runSurfaceManagerWorkbenchFixtureSuite(options = {}) {
   context.assert(plan.featureFlags.browserRequiredInLocalGate === false, 'Surface Workbench local gate is browser-free');
   context.assert(plan.featureFlags.externalNetworkAllowedInLocalGate === false, 'Surface Workbench local gate is network-free');
 
+  context.assert(source.includes('template demo.xtend.surfaceWorkbench'), 'Surface Workbench source uses vNext template authoring');
+  context.assert(!source.trimStart().startsWith('{'), 'Surface Workbench source is not legacy JSON authoring');
+  context.assert(runtimeCore.manifest.sourceSyntax === 'rmt-vnext', 'Surface Workbench runtime core records vNext source syntax');
+  context.assert(runtimeCore.manifest.authoringSource === SURFACE_MANAGER_WORKBENCH_FIXTURE, 'Surface Workbench runtime core points to authoring source');
+  context.assert(vnextCore.schema === RMT_VNEXT_CORE_SCHEMA, 'Surface Workbench vNext core uses vNext core schema');
+  context.assert(vnextCore.manifest.sourceSyntax === 'rmt-vnext', 'Surface Workbench vNext core records source syntax');
+  context.assert(scaffold.source === SURFACE_MANAGER_WORKBENCH_FIXTURE, 'Surface Workbench scaffold links source');
+  context.assert(scaffold.runtimeCore === SURFACE_MANAGER_WORKBENCH_CORE, 'Surface Workbench scaffold links runtime core');
+  context.assert(scaffold.vnextCore === SURFACE_MANAGER_WORKBENCH_VNEXT_CORE, 'Surface Workbench scaffold links vNext core');
+  context.assert(scaffold.sourceSyntax === 'rmt-vnext', 'Surface Workbench scaffold records source syntax');
+  context.assert(scaffold.compilerStatus === 'compiled', 'Surface Workbench scaffold records compiled vNext core');
+  context.assert(fixture.manifest.documentId === runtimeCore.manifest.documentId, 'Surface Workbench readJson fallback returns runtime core parity');
   context.assert(fixture.kind === 'rmt_document', 'Surface Workbench fixture is an RMT document');
   context.assert(fixture.manifest.documentId === 'demo.xtend.surface-workbench', 'Surface Workbench fixture has stable document id');
   context.assert(fixture.manifest.metadata.contractVersion === SURFACE_MANAGER_WORKBENCH_SCHEMA, 'Surface Workbench fixture declares WP-SM-05 schema');
@@ -367,7 +391,8 @@ function runSurfaceManagerWorkbenchFixtureSuite(options = {}) {
 
   assertTextIncludesAll(context, host, [
     'data-rmt-host="surface-workbench"',
-    'data-rmt-document-src="/xtendrmt/surface-workbench.rmt"',
+    'data-rmt-document-src="/xtendrmt/surface-workbench.core.json"',
+    'data-rmt-source-src="/xtendrmt/surface-workbench.rmt"',
     'type="module" src="/xtend-loader.js"',
     'data-manifest="/components/manifest.json"',
     'window.__XTendLoaderBootPromise',
@@ -389,17 +414,23 @@ function runSurfaceManagerWorkbenchFixtureSuite(options = {}) {
     'xtend.surface.snapshot.v1',
     'surface-window-command',
     'surface-panel-command',
+    'surface-workbench.core.json',
+    'response.json()',
     'root.replaceChildren(shellFragment)',
     'data-rmt-rendered-shell'
   ], 'Surface Workbench runtime');
+  context.assert(!runtime.includes('parseDocument'), 'Surface Workbench runtime does not parse vNext authoring with legacy format');
   context.assert(!runtime.includes('innerHTML'), 'Surface Workbench runtime avoids string HTML rendering');
 
   assertTextIncludesAll(context, browserSmoke, [
     'xtend.surface.workbench-fixture.browser-smoke.v1',
     '/xtend-loader.js',
     '/xtendrmt/surface-workbench.js',
+    '/xtendrmt/surface-workbench.core.json',
     '/xtendrmt/surface-workbench.rmt',
     '__xtendSurfaceWorkbenchSmokeResult',
+    "recordCheck('surface workbench source is vnext authoring'",
+    "recordCheck('surface workbench runtime core declares vnext source'",
     "recordCheck('surface workbench document loaded'",
     "recordCheck('surface workbench route-bound manager rendered'",
     "recordCheck('surface workbench two windows rendered'",

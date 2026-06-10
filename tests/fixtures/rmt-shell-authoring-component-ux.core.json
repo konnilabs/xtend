@@ -1,0 +1,511 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "fixture.xtend.component-ux-shell-authoring",
+    "namespace": "fixture.xtend.epic11.shell",
+    "metadata": {
+      "contractVersion": "xtend.rmt.shell-authoring.v1",
+      "workpackage": "WP-E11-07",
+      "status": "rmt-shell-authoring-component-ux-fixture",
+      "renderMode": "shell-first",
+      "componentContract": "xtend.component.contract.v2",
+      "shellContract": "xtend.component.shell.v1",
+      "stylingContract": "xtend.component.styling.v1",
+      "runtimeA11yContract": "xtend.component.runtime-a11y.v1",
+      "uxPerformanceContract": "xtend.component.ux-performance.v1",
+      "componentNetworkContract": "xtend.component.network.v1",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "sourceSyntax": "rmt-vnext",
+    "authoringSource": "tests/fixtures/rmt-shell-authoring-component-ux.rmt"
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter",
+      "kernelVisible": false,
+      "providedCapabilities": [
+        "shell",
+        "style",
+        "a11y",
+        "commands",
+        "events",
+        "variants",
+        "density",
+        "hydration",
+        "scheduleRefs",
+        "fabric"
+      ]
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "router_adapter",
+      "kernelVisible": false,
+      "providedCapabilities": [
+        "routes",
+        "navigation",
+        "activeState",
+        "focusRestore",
+        "announcements"
+      ]
+    },
+    {
+      "id": "rmt.state-scheduler-diagnostics",
+      "kind": "scheduler_adapter",
+      "kernelVisible": false,
+      "providedCapabilities": [
+        "schedules",
+        "lanes",
+        "diagnostics",
+        "performanceBudgets",
+        "telemetry"
+      ]
+    }
+  ],
+  "schedules": [
+    {
+      "id": "component.shell.render",
+      "lane": "visible",
+      "endpointName": "xtendrmt.shell.render",
+      "metadata": {
+        "fabricFiber": "component.render"
+      }
+    },
+    {
+      "id": "component.visible.mount",
+      "lane": "visible",
+      "endpointName": "xtendrmt.component.mount",
+      "metadata": {
+        "fabricFiber": "component.mount"
+      }
+    },
+    {
+      "id": "ui.user-blocking.input",
+      "lane": "user-blocking",
+      "endpointName": "xtendrmt.ui.user-blocking",
+      "metadata": {
+        "fabricFiber": "component.event"
+      }
+    },
+    {
+      "id": "route.transition.render",
+      "lane": "transition",
+      "endpointName": "xtendrmt.route.render",
+      "metadata": {
+        "fabricFiber": "route.render"
+      }
+    },
+    {
+      "id": "a11y.announce",
+      "lane": "a11y",
+      "endpointName": "xtendrmt.a11y.announce",
+      "metadata": {
+        "fabricFiber": "component.announce"
+      }
+    },
+    {
+      "id": "diagnostics.snapshot",
+      "lane": "diagnostics",
+      "endpointName": "xtendrmt.diagnostics.snapshot",
+      "metadata": {
+        "fabricFiber": "diagnostics.snapshot"
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "app.shell",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "template": "app.shell.template",
+      "schedule": "component.shell.render",
+      "shell": {
+        "domMode": "shadow",
+        "state": "ready",
+        "slots": {
+          "header": {
+            "template": "app.header.template"
+          },
+          "default": {
+            "template": "app.content.template"
+          },
+          "feedback": {
+            "component": "feedback.toast"
+          }
+        },
+        "parts": [
+          "root",
+          "content",
+          "header",
+          "feedback"
+        ],
+        "focus": "host"
+      },
+      "style": {
+        "variant": "primary",
+        "size": "md",
+        "density": "comfortable",
+        "theme": "dark",
+        "tokens": {
+          "--xtend-section-radius": "var(--xtend-radius-md, 6px)"
+        }
+      },
+      "a11y": {
+        "role": "region",
+        "label": "XTend Enterprise Shell",
+        "announcements": "polite"
+      },
+      "events": {
+        "xtend:network-diagnostic": {
+          "command": "diagnostics.snapshot"
+        }
+      },
+      "commands": {
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      },
+      "hydration": {
+        "policy": "visible",
+        "ownershipMode": "managed_subtree"
+      },
+      "fabric": {
+        "lane": "visible",
+        "fiber": "component.render",
+        "telemetry": true
+      }
+    },
+    {
+      "id": "nav.link",
+      "adapter": "xtend.component",
+      "tag": "x-link",
+      "template": "nav.link.template",
+      "schedule": "route.transition.render",
+      "shell": {
+        "domMode": "light",
+        "state": "ready",
+        "slots": {
+          "default": {
+            "text": "Settings"
+          }
+        },
+        "parts": [
+          "root",
+          "control",
+          "label"
+        ],
+        "focus": "host"
+      },
+      "style": {
+        "variant": "default",
+        "size": "md",
+        "density": "compact",
+        "theme": "inherit"
+      },
+      "a11y": {
+        "role": "link",
+        "label": "Open settings",
+        "announcements": "route"
+      },
+      "events": {
+        "xtend:route-change": {
+          "command": "route.navigate"
+        }
+      },
+      "commands": {
+        "navigate": {
+          "schedule": "route.transition.render"
+        }
+      },
+      "hydration": {
+        "policy": "visible",
+        "ownershipMode": "adapter_owned_dom"
+      },
+      "fabric": {
+        "lane": "transition",
+        "fiber": "route.render",
+        "telemetry": true
+      }
+    },
+    {
+      "id": "settings.email",
+      "adapter": "xtend.component",
+      "tag": "x-input",
+      "template": "settings.email.template",
+      "schedule": "ui.user-blocking.input",
+      "shell": {
+        "domMode": "shadow",
+        "state": "ready",
+        "slots": {
+          "label": {
+            "text": "Email"
+          },
+          "helper": {
+            "text": "Used for enterprise notifications"
+          },
+          "error": {
+            "component": "feedback.toast"
+          }
+        },
+        "parts": [
+          "root",
+          "control",
+          "label",
+          "helper",
+          "error"
+        ],
+        "focus": "host"
+      },
+      "style": {
+        "variant": "default",
+        "size": "md",
+        "density": "compact",
+        "theme": "inherit"
+      },
+      "a11y": {
+        "role": "textbox",
+        "label": "Email",
+        "description": "Used for enterprise notifications"
+      },
+      "events": {
+        "xtend:value-change": {
+          "command": "settings.email.update"
+        },
+        "xtend:validation-change": {
+          "command": "settings.email.validate"
+        }
+      },
+      "commands": {
+        "validate": {
+          "schedule": "ui.user-blocking.input"
+        },
+        "reset": {
+          "schedule": "ui.user-blocking.input"
+        }
+      },
+      "hydration": {
+        "policy": "visible",
+        "ownershipMode": "managed_subtree"
+      },
+      "fabric": {
+        "lane": "user-blocking",
+        "fiber": "component.event",
+        "telemetry": true
+      }
+    },
+    {
+      "id": "feedback.toast",
+      "adapter": "xtend.component",
+      "tag": "x-toast",
+      "template": "feedback.toast.template",
+      "schedule": "a11y.announce",
+      "shell": {
+        "domMode": "light",
+        "state": "ready",
+        "slots": {
+          "default": {
+            "text": "Saved"
+          }
+        },
+        "parts": [
+          "root",
+          "content",
+          "icon"
+        ],
+        "focus": "none"
+      },
+      "style": {
+        "variant": "success",
+        "size": "md",
+        "density": "compact",
+        "theme": "inherit"
+      },
+      "a11y": {
+        "role": "status",
+        "live": "polite",
+        "label": "Status"
+      },
+      "events": {
+        "xtend:feedback-request": {
+          "command": "feedback.announce"
+        }
+      },
+      "commands": {
+        "announce": {
+          "schedule": "a11y.announce"
+        }
+      },
+      "hydration": {
+        "policy": "idle",
+        "ownershipMode": "adapter_owned_dom"
+      },
+      "fabric": {
+        "lane": "a11y",
+        "fiber": "component.announce",
+        "telemetry": true
+      }
+    },
+    {
+      "id": "dialog.confirm",
+      "adapter": "xtend.component",
+      "tag": "x-dialog",
+      "template": "dialog.confirm.template",
+      "schedule": "component.visible.mount",
+      "shell": {
+        "domMode": "shadow",
+        "state": "ready",
+        "slots": {
+          "default": {
+            "text": "Confirm action"
+          },
+          "actions": {
+            "template": "dialog.actions.template"
+          }
+        },
+        "parts": [
+          "root",
+          "content",
+          "actions"
+        ],
+        "focus": "trap"
+      },
+      "style": {
+        "variant": "neutral",
+        "size": "md",
+        "density": "comfortable",
+        "theme": "inherit"
+      },
+      "a11y": {
+        "role": "dialog",
+        "label": "Confirm action",
+        "announcements": "assertive"
+      },
+      "events": {
+        "xtend:overlay-open": {
+          "command": "dialog.open"
+        },
+        "xtend:overlay-close": {
+          "command": "dialog.close"
+        }
+      },
+      "commands": {
+        "open": {
+          "schedule": "component.visible.mount"
+        },
+        "close": {
+          "schedule": "ui.user-blocking.input"
+        },
+        "focus": {
+          "schedule": "ui.user-blocking.input"
+        }
+      },
+      "hydration": {
+        "policy": "visible-or-idle",
+        "ownershipMode": "managed_subtree"
+      },
+      "fabric": {
+        "lane": "user-blocking",
+        "fiber": "component.mount",
+        "telemetry": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "app.shell.template",
+      "mode": "dom_descriptor",
+      "metadata": {
+        "renderMode": "shell-first"
+      },
+      "nodes": [
+        {
+          "tag": "x-section",
+          "component": "app.shell",
+          "slots": {
+            "header": "app.header.template",
+            "default": "app.content.template",
+            "feedback": "feedback.toast.template"
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.header.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "tag": "x-link",
+          "component": "nav.link"
+        }
+      ]
+    },
+    {
+      "id": "app.content.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "tag": "x-input",
+          "component": "settings.email"
+        },
+        {
+          "tag": "x-dialog",
+          "component": "dialog.confirm"
+        }
+      ]
+    },
+    {
+      "id": "nav.link.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "tag": "x-link",
+          "text": "Settings"
+        }
+      ]
+    },
+    {
+      "id": "settings.email.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "tag": "x-input",
+          "attributes": {
+            "name": "email",
+            "type": "email"
+          }
+        }
+      ]
+    },
+    {
+      "id": "feedback.toast.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "tag": "x-toast",
+          "text": "Saved"
+        }
+      ]
+    },
+    {
+      "id": "dialog.confirm.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "tag": "x-dialog",
+          "text": "Confirm action"
+        }
+      ]
+    },
+    {
+      "id": "dialog.actions.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "tag": "x-button",
+          "text": "OK"
+        }
+      ]
+    }
+  ]
+}

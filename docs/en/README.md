@@ -8,7 +8,7 @@ Welcome to the XTend Developer Center. These docs explain XTend for developers w
 | --- | --- |
 | First local page | [Quick Start Guide](./quick-start-guide.md) |
 | Understand RMT | [XTendRMT Overview](./xtendrmt-overview.md) |
-| Author RMT vNext | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Release contract](./rmt-vnext-release-handoff.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
+| Author RMT vNext | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT Reference](./rmt-reference.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Release contract](./rmt-vnext-release-handoff.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
 | Author Native-First XTend | [Native-First Authoring Guide](./native-first-authoring-guide.md), [Native-First RMT Recipes](./native-first-rmt-recipes.md), [Native-First Migration Guide](./native-first-migration-guide.md), [Native-First Release Review](./native-first-release-review.md) |
 | Build Maraca app orchestration | [XTend Maraca](./xtend-maraca.md), [Maraca Orchestration](./xtend-maraca-orchestration.md) |
 | Verify enterprise remote surfaces | [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md), [RMT vNext Enterprise MFE contract](./rmt-vnext-enterprise-mfe-handoff.md) |
@@ -63,6 +63,7 @@ The tooling path uses the public schema `xtend.rmt.tooling-docs.v1`. For orchest
 - [XTend Maraca](./xtend-maraca.md)
 - [Maraca Orchestration](./xtend-maraca-orchestration.md)
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT Reference](./rmt-reference.md)
 - [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
 - [RMT vNext Release contract](./rmt-vnext-release-handoff.md)
 - [Native-First Authoring Guide](./native-first-authoring-guide.md)

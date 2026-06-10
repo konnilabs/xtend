@@ -25,7 +25,19 @@ function readText(relativePath, rootDir) {
 }
 
 function readJson(relativePath, rootDir) {
-  return JSON.parse(readText(relativePath, rootDir));
+  const absolutePath = resolveRepoPath(relativePath, rootDir);
+  const text = fs.readFileSync(absolutePath, 'utf8');
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    if (typeof relativePath === 'string' && relativePath.endsWith('.rmt')) {
+      const sidecarPath = absolutePath.replace(/\.rmt$/u, '.core.json');
+      if (fs.existsSync(sidecarPath)) {
+        return JSON.parse(fs.readFileSync(sidecarPath, 'utf8'));
+      }
+    }
+    throw error;
+  }
 }
 
 function createTempCopyPath(relativePath, extension = '.tmp') {

@@ -1,0 +1,1633 @@
+{
+  "schema": "xtend.rmt.core-format.vnext.v1",
+  "kind": "rmt_document",
+  "version": "2.0-vnext",
+  "manifest": {
+    "documentId": "demo.xtend.surfaceWorkbench",
+    "namespace": "demo",
+    "sourceSyntax": "rmt-vnext",
+    "contracts": [
+      "xtend.rmt.vnext.grammar.v1",
+      "xtend.rmt.core-format.vnext.v1"
+    ]
+  },
+  "imports": [],
+  "templates": [
+    {
+      "id": "template:demo.xtend.surfaceworkbench",
+      "name": "demo.xtend.surfaceWorkbench",
+      "mode": "orchestration",
+      "surfaceRefs": [
+        "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+        "surface:demo.xtend.surfaceworkbench/workbenchinspector",
+        "surface:demo.xtend.surfaceworkbench/workbencheditor",
+        "surface:demo.xtend.surfaceworkbench/workbenchproperties"
+      ],
+      "sourceRef": "src:template:demo.xtend.surfaceworkbench"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+      "name": "workbenchManager",
+      "kind": "workspace",
+      "type": "region",
+      "laneRefs": [
+        "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible"
+      ],
+      "scope": {
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "primitive": true,
+      "eventRefs": [],
+      "component": "x-surface-manager",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "workbenchRoot",
+        "ref": "portal:workbenchroot"
+      },
+      "bounds": null,
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:demo.xtend.surfaceworkbench/workbenchmanager"
+    },
+    {
+      "id": "surface:demo.xtend.surfaceworkbench/workbenchinspector",
+      "name": "workbenchInspector",
+      "kind": "window",
+      "type": "window",
+      "laneRefs": [
+        "lane:demo.xtend.surfaceworkbench/workbenchinspector/userblocking"
+      ],
+      "scope": {
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "primitive": true,
+      "eventRefs": [
+        "event:demo.xtend.surfaceworkbench/workbenchinspector/click/0"
+      ],
+      "component": "x-surface-window",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "workbenchRoot",
+        "ref": "portal:workbenchroot"
+      },
+      "bounds": {
+        "x": 72,
+        "y": 72,
+        "width": 500,
+        "height": 340
+      },
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:demo.xtend.surfaceworkbench/workbenchinspector"
+    },
+    {
+      "id": "surface:demo.xtend.surfaceworkbench/workbencheditor",
+      "name": "workbenchEditor",
+      "kind": "window",
+      "type": "window",
+      "laneRefs": [
+        "lane:demo.xtend.surfaceworkbench/workbencheditor/userblocking"
+      ],
+      "scope": {
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "primitive": true,
+      "eventRefs": [
+        "event:demo.xtend.surfaceworkbench/workbencheditor/click/1"
+      ],
+      "component": "x-surface-window",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "workbenchRoot",
+        "ref": "portal:workbenchroot"
+      },
+      "bounds": {
+        "x": 610,
+        "y": 96,
+        "width": 560,
+        "height": 390
+      },
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:demo.xtend.surfaceworkbench/workbencheditor"
+    },
+    {
+      "id": "surface:demo.xtend.surfaceworkbench/workbenchproperties",
+      "name": "workbenchProperties",
+      "kind": "side-panel",
+      "type": "side-panel",
+      "laneRefs": [
+        "lane:demo.xtend.surfaceworkbench/workbenchproperties/visible"
+      ],
+      "scope": {
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "primitive": true,
+      "eventRefs": [
+        "event:demo.xtend.surfaceworkbench/workbenchproperties/click/2"
+      ],
+      "component": "x-side-panel",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "workbenchRoot",
+        "ref": "portal:workbenchroot"
+      },
+      "bounds": null,
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:demo.xtend.surfaceworkbench/workbenchproperties"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "operationRefs": [
+        "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0"
+      ],
+      "weight": 82,
+      "sourceRef": "src:lane:demo.xtend.surfaceworkbench/workbenchmanager/visible"
+    },
+    {
+      "id": "lane:demo.xtend.surfaceworkbench/workbenchinspector/userblocking",
+      "name": "userBlocking",
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchinspector",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "operationRefs": [
+        "operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0"
+      ],
+      "weight": 90,
+      "sourceRef": "src:lane:demo.xtend.surfaceworkbench/workbenchinspector/userblocking"
+    },
+    {
+      "id": "lane:demo.xtend.surfaceworkbench/workbencheditor/userblocking",
+      "name": "userBlocking",
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbencheditor",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "operationRefs": [
+        "operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0"
+      ],
+      "weight": 88,
+      "sourceRef": "src:lane:demo.xtend.surfaceworkbench/workbencheditor/userblocking"
+    },
+    {
+      "id": "lane:demo.xtend.surfaceworkbench/workbenchproperties/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchproperties",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "operationRefs": [
+        "operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0"
+      ],
+      "weight": 78,
+      "sourceRef": "src:lane:demo.xtend.surfaceworkbench/workbenchproperties/visible"
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "workbenchManager"
+      },
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "source": {
+        "ref": "dataSource:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+        "kind": "endpoint",
+        "id": "workbench.render"
+      },
+      "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+      "policyRefs": [
+        "slot:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows",
+        "slot:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels"
+      ]
+    },
+    {
+      "id": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "workbenchInspector"
+      },
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/0"
+    },
+    {
+      "id": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/1",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "workbenchEditor"
+      },
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/1"
+    },
+    {
+      "id": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "workbenchProperties"
+      },
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels/0"
+    },
+    {
+      "id": "operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "inspectorContent"
+      },
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchinspector",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchinspector/userblocking",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "source": {
+        "ref": "dataSource:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+        "kind": "endpoint",
+        "id": "workbench.open"
+      },
+      "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0"
+    },
+    {
+      "id": "operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "editorContent"
+      },
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbencheditor",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbencheditor/userblocking",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "source": {
+        "ref": "dataSource:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+        "kind": "endpoint",
+        "id": "workbench.open"
+      },
+      "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0"
+    },
+    {
+      "id": "operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "propertiesContent"
+      },
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchproperties",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchproperties/visible",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "source": {
+        "ref": "dataSource:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+        "kind": "endpoint",
+        "id": "workbench.properties"
+      },
+      "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0"
+    }
+  ],
+  "slots": [
+    {
+      "id": "slot:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows",
+      "name": "windows",
+      "ownerOperation": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+      "operationRefs": [
+        "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/0",
+        "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/1"
+      ],
+      "sourceRef": "src:slot:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows"
+    },
+    {
+      "id": "slot:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels",
+      "name": "panels",
+      "ownerOperation": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+      "operationRefs": [
+        "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels/0"
+      ],
+      "sourceRef": "src:slot:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels"
+    }
+  ],
+  "events": [
+    {
+      "id": "event:demo.xtend.surfaceworkbench/workbenchinspector/click/0",
+      "primitive": true,
+      "event": "click",
+      "selector": null,
+      "target": null,
+      "action": "inspectorCommand",
+      "actionRef": "action:inspectorcommand",
+      "ownerOperation": null,
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchinspector",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "condition": null,
+      "payloadContract": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "mappings": [
+          {
+            "name": "id",
+            "source": "surface.id"
+          }
+        ]
+      },
+      "options": {},
+      "sourceRef": "src:event:demo.xtend.surfaceworkbench/workbenchinspector/click/0"
+    },
+    {
+      "id": "event:demo.xtend.surfaceworkbench/workbencheditor/click/1",
+      "primitive": true,
+      "event": "click",
+      "selector": null,
+      "target": null,
+      "action": "editorCommand",
+      "actionRef": "action:editorcommand",
+      "ownerOperation": null,
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbencheditor",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "condition": null,
+      "payloadContract": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "mappings": [
+          {
+            "name": "id",
+            "source": "surface.id"
+          }
+        ]
+      },
+      "options": {},
+      "sourceRef": "src:event:demo.xtend.surfaceworkbench/workbencheditor/click/1"
+    },
+    {
+      "id": "event:demo.xtend.surfaceworkbench/workbenchproperties/click/2",
+      "primitive": true,
+      "event": "click",
+      "selector": null,
+      "target": null,
+      "action": "propertiesCommand",
+      "actionRef": "action:propertiescommand",
+      "ownerOperation": null,
+      "scope": {
+        "surface": "surface:demo.xtend.surfaceworkbench/workbenchproperties",
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "condition": null,
+      "payloadContract": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "mappings": [
+          {
+            "name": "id",
+            "source": "surface.id"
+          }
+        ]
+      },
+      "options": {},
+      "sourceRef": "src:event:demo.xtend.surfaceworkbench/workbenchproperties/click/2"
+    }
+  ],
+  "dataSources": [
+    {
+      "id": "dataSource:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+      "kind": "endpoint",
+      "target": "workbench.render",
+      "ownerOperation": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+      "sourceRef": "src:dataSource:demo.xtend.surfaceworkbench/workbenchmanager/visible/0"
+    },
+    {
+      "id": "dataSource:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+      "kind": "endpoint",
+      "target": "workbench.open",
+      "ownerOperation": "operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+      "sourceRef": "src:dataSource:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0"
+    },
+    {
+      "id": "dataSource:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+      "kind": "endpoint",
+      "target": "workbench.open",
+      "ownerOperation": "operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+      "sourceRef": "src:dataSource:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0"
+    },
+    {
+      "id": "dataSource:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+      "kind": "endpoint",
+      "target": "workbench.properties",
+      "ownerOperation": "operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+      "sourceRef": "src:dataSource:demo.xtend.surfaceworkbench/workbenchproperties/visible/0"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action:inspectorcommand",
+      "name": "inspectorCommand",
+      "primitive": true,
+      "inputs": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "status": null,
+      "reducers": [],
+      "emits": [
+        {
+          "event": "inspectorCommanded",
+          "payload": [
+            {
+              "value": "input.id"
+            }
+          ]
+        }
+      ],
+      "handlers": [],
+      "effectRefs": [],
+      "scope": {
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "sourceRef": "src:action:inspectorcommand"
+    },
+    {
+      "id": "action:editorcommand",
+      "name": "editorCommand",
+      "primitive": true,
+      "inputs": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "status": null,
+      "reducers": [],
+      "emits": [
+        {
+          "event": "editorCommanded",
+          "payload": [
+            {
+              "value": "input.id"
+            }
+          ]
+        }
+      ],
+      "handlers": [],
+      "effectRefs": [],
+      "scope": {
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "sourceRef": "src:action:editorcommand"
+    },
+    {
+      "id": "action:propertiescommand",
+      "name": "propertiesCommand",
+      "primitive": true,
+      "inputs": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "status": null,
+      "reducers": [],
+      "emits": [
+        {
+          "event": "propertiesCommanded",
+          "payload": [
+            {
+              "value": "input.id"
+            }
+          ]
+        }
+      ],
+      "handlers": [],
+      "effectRefs": [],
+      "scope": {
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "sourceRef": "src:action:propertiescommand"
+    }
+  ],
+  "portals": [
+    {
+      "id": "portal:workbenchroot",
+      "name": "workbenchRoot",
+      "primitive": true,
+      "root": "#surface-workbench-smoke-root",
+      "layer": "surface",
+      "z": null,
+      "policies": [],
+      "scope": {
+        "template": "template:demo.xtend.surfaceworkbench"
+      },
+      "sourceRef": "src:portal:workbenchroot"
+    }
+  ],
+  "securityPolicies": [],
+  "sourceMap": [
+    {
+      "id": "src:template:demo.xtend.surfaceworkbench",
+      "nodeType": "RmtTemplateDeclaration",
+      "corePointer": "/templates/0",
+      "astPointer": "/body/0",
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 0
+        },
+        "end": {
+          "line": 65,
+          "character": 1
+        },
+        "startOffset": 94,
+        "endOffset": 1792
+      }
+    },
+    {
+      "id": "src:action:inspectorcommand",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/0",
+      "astPointer": "/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 2
+        },
+        "end": {
+          "line": 5,
+          "character": 3
+        },
+        "startOffset": 135,
+        "endOffset": 229
+      }
+    },
+    {
+      "id": "src:action:editorcommand",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/1",
+      "astPointer": "/body/0/body/1",
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 2
+        },
+        "end": {
+          "line": 10,
+          "character": 3
+        },
+        "startOffset": 233,
+        "endOffset": 321
+      }
+    },
+    {
+      "id": "src:action:propertiescommand",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/2",
+      "astPointer": "/body/0/body/2",
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 2
+        },
+        "end": {
+          "line": 15,
+          "character": 3
+        },
+        "startOffset": 325,
+        "endOffset": 421
+      }
+    },
+    {
+      "id": "src:portal:workbenchroot",
+      "nodeType": "RmtPortalDeclaration",
+      "corePointer": "/portals/0",
+      "astPointer": "/body/0/body/3",
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 2
+        },
+        "end": {
+          "line": 19,
+          "character": 0
+        },
+        "startOffset": 425,
+        "endOffset": 498
+      }
+    },
+    {
+      "id": "src:surface:demo.xtend.surfaceworkbench/workbenchmanager",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/0",
+      "astPointer": "/body/0/body/4",
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 2
+        },
+        "end": {
+          "line": 32,
+          "character": 3
+        },
+        "startOffset": 500,
+        "endOffset": 871
+      }
+    },
+    {
+      "id": "src:lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/0",
+      "astPointer": "/body/0/body/4/body/1",
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 4
+        },
+        "end": {
+          "line": 31,
+          "character": 5
+        },
+        "startOffset": 599,
+        "endOffset": 867
+      }
+    },
+    {
+      "id": "src:dataSource:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/0",
+      "astPointer": "/body/0/body/4/body/1/body/0/source",
+      "range": {
+        "start": {
+          "line": 22,
+          "character": 29
+        },
+        "end": {
+          "line": 22,
+          "character": 59
+        },
+        "startOffset": 653,
+        "endOffset": 683
+      }
+    },
+    {
+      "id": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/0",
+      "astPointer": "/body/0/body/4/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 22,
+          "character": 6
+        },
+        "end": {
+          "line": 30,
+          "character": 7
+        },
+        "startOffset": 630,
+        "endOffset": 861
+      }
+    },
+    {
+      "id": "src:slot:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows",
+      "nodeType": "RmtSlotDeclaration",
+      "corePointer": "/slots/0",
+      "astPointer": "/body/0/body/4/body/1/body/0/policy/body/0",
+      "range": {
+        "start": {
+          "line": 23,
+          "character": 8
+        },
+        "end": {
+          "line": 26,
+          "character": 9
+        },
+        "startOffset": 694,
+        "endOffset": 785
+      }
+    },
+    {
+      "id": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/1",
+      "astPointer": "/body/0/body/4/body/1/body/0/policy/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 24,
+          "character": 10
+        },
+        "end": {
+          "line": 25,
+          "character": 0
+        },
+        "startOffset": 719,
+        "endOffset": 744
+      }
+    },
+    {
+      "id": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/1",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/2",
+      "astPointer": "/body/0/body/4/body/1/body/0/policy/body/0/body/1",
+      "range": {
+        "start": {
+          "line": 25,
+          "character": 10
+        },
+        "end": {
+          "line": 26,
+          "character": 0
+        },
+        "startOffset": 754,
+        "endOffset": 776
+      }
+    },
+    {
+      "id": "src:slot:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels",
+      "nodeType": "RmtSlotDeclaration",
+      "corePointer": "/slots/1",
+      "astPointer": "/body/0/body/4/body/1/body/0/policy/body/1",
+      "range": {
+        "start": {
+          "line": 27,
+          "character": 8
+        },
+        "end": {
+          "line": 29,
+          "character": 9
+        },
+        "startOffset": 794,
+        "endOffset": 853
+      }
+    },
+    {
+      "id": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/3",
+      "astPointer": "/body/0/body/4/body/1/body/0/policy/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 10
+        },
+        "end": {
+          "line": 29,
+          "character": 0
+        },
+        "startOffset": 818,
+        "endOffset": 844
+      }
+    },
+    {
+      "id": "src:surface:demo.xtend.surfaceworkbench/workbenchinspector",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/1",
+      "astPointer": "/body/0/body/5",
+      "range": {
+        "start": {
+          "line": 34,
+          "character": 2
+        },
+        "end": {
+          "line": 43,
+          "character": 3
+        },
+        "startOffset": 875,
+        "endOffset": 1192
+      }
+    },
+    {
+      "id": "src:lane:demo.xtend.surfaceworkbench/workbenchinspector/userblocking",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/1",
+      "astPointer": "/body/0/body/5/body/2",
+      "range": {
+        "start": {
+          "line": 37,
+          "character": 4
+        },
+        "end": {
+          "line": 39,
+          "character": 5
+        },
+        "startOffset": 1014,
+        "endOffset": 1107
+      }
+    },
+    {
+      "id": "src:dataSource:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/1",
+      "astPointer": "/body/0/body/5/body/2/body/0/source",
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 29
+        },
+        "end": {
+          "line": 38,
+          "character": 57
+        },
+        "startOffset": 1073,
+        "endOffset": 1101
+      }
+    },
+    {
+      "id": "src:operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/4",
+      "astPointer": "/body/0/body/5/body/2/body/0",
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 6
+        },
+        "end": {
+          "line": 39,
+          "character": 0
+        },
+        "startOffset": 1050,
+        "endOffset": 1102
+      }
+    },
+    {
+      "id": "src:event:demo.xtend.surfaceworkbench/workbenchinspector/click/0",
+      "nodeType": "RmtEventBinding",
+      "corePointer": "/events/0",
+      "astPointer": "/body/0/body/5/body/3",
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 4
+        },
+        "end": {
+          "line": 42,
+          "character": 5
+        },
+        "startOffset": 1112,
+        "endOffset": 1188
+      }
+    },
+    {
+      "id": "src:surface:demo.xtend.surfaceworkbench/workbencheditor",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/2",
+      "astPointer": "/body/0/body/6",
+      "range": {
+        "start": {
+          "line": 45,
+          "character": 2
+        },
+        "end": {
+          "line": 54,
+          "character": 3
+        },
+        "startOffset": 1196,
+        "endOffset": 1505
+      }
+    },
+    {
+      "id": "src:lane:demo.xtend.surfaceworkbench/workbencheditor/userblocking",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/2",
+      "astPointer": "/body/0/body/6/body/2",
+      "range": {
+        "start": {
+          "line": 48,
+          "character": 4
+        },
+        "end": {
+          "line": 50,
+          "character": 5
+        },
+        "startOffset": 1333,
+        "endOffset": 1423
+      }
+    },
+    {
+      "id": "src:dataSource:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/2",
+      "astPointer": "/body/0/body/6/body/2/body/0/source",
+      "range": {
+        "start": {
+          "line": 49,
+          "character": 26
+        },
+        "end": {
+          "line": 49,
+          "character": 54
+        },
+        "startOffset": 1389,
+        "endOffset": 1417
+      }
+    },
+    {
+      "id": "src:operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/5",
+      "astPointer": "/body/0/body/6/body/2/body/0",
+      "range": {
+        "start": {
+          "line": 49,
+          "character": 6
+        },
+        "end": {
+          "line": 50,
+          "character": 0
+        },
+        "startOffset": 1369,
+        "endOffset": 1418
+      }
+    },
+    {
+      "id": "src:event:demo.xtend.surfaceworkbench/workbencheditor/click/1",
+      "nodeType": "RmtEventBinding",
+      "corePointer": "/events/1",
+      "astPointer": "/body/0/body/6/body/3",
+      "range": {
+        "start": {
+          "line": 51,
+          "character": 4
+        },
+        "end": {
+          "line": 53,
+          "character": 5
+        },
+        "startOffset": 1428,
+        "endOffset": 1501
+      }
+    },
+    {
+      "id": "src:surface:demo.xtend.surfaceworkbench/workbenchproperties",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/3",
+      "astPointer": "/body/0/body/7",
+      "range": {
+        "start": {
+          "line": 56,
+          "character": 2
+        },
+        "end": {
+          "line": 64,
+          "character": 3
+        },
+        "startOffset": 1509,
+        "endOffset": 1790
+      }
+    },
+    {
+      "id": "src:lane:demo.xtend.surfaceworkbench/workbenchproperties/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/3",
+      "astPointer": "/body/0/body/7/body/1",
+      "range": {
+        "start": {
+          "line": 58,
+          "character": 4
+        },
+        "end": {
+          "line": 60,
+          "character": 5
+        },
+        "startOffset": 1607,
+        "endOffset": 1704
+      }
+    },
+    {
+      "id": "src:dataSource:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/3",
+      "astPointer": "/body/0/body/7/body/1/body/0/source",
+      "range": {
+        "start": {
+          "line": 59,
+          "character": 32
+        },
+        "end": {
+          "line": 59,
+          "character": 66
+        },
+        "startOffset": 1664,
+        "endOffset": 1698
+      }
+    },
+    {
+      "id": "src:operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/6",
+      "astPointer": "/body/0/body/7/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 59,
+          "character": 6
+        },
+        "end": {
+          "line": 60,
+          "character": 0
+        },
+        "startOffset": 1638,
+        "endOffset": 1699
+      }
+    },
+    {
+      "id": "src:event:demo.xtend.surfaceworkbench/workbenchproperties/click/2",
+      "nodeType": "RmtEventBinding",
+      "corePointer": "/events/2",
+      "astPointer": "/body/0/body/7/body/2",
+      "range": {
+        "start": {
+          "line": 61,
+          "character": 4
+        },
+        "end": {
+          "line": 63,
+          "character": 5
+        },
+        "startOffset": 1709,
+        "endOffset": 1786
+      }
+    }
+  ],
+  "appPlatform": {
+    "schema": "xtend.rmt.vnext.app-platform-records.v1",
+    "workpackage": "RMT-VNEXT-PRIM-04",
+    "sourceSyntax": "rmt-vnext",
+    "state": [],
+    "selectors": [],
+    "dataSources": [],
+    "actions": [
+      {
+        "id": "inspectorCommand",
+        "inputs": [
+          {
+            "name": "id",
+            "type": "string"
+          }
+        ],
+        "status": null,
+        "reducers": [],
+        "emits": [
+          {
+            "event": "inspectorCommanded",
+            "payload": [
+              {
+                "value": "input.id"
+              }
+            ]
+          }
+        ],
+        "effects": []
+      },
+      {
+        "id": "editorCommand",
+        "inputs": [
+          {
+            "name": "id",
+            "type": "string"
+          }
+        ],
+        "status": null,
+        "reducers": [],
+        "emits": [
+          {
+            "event": "editorCommanded",
+            "payload": [
+              {
+                "value": "input.id"
+              }
+            ]
+          }
+        ],
+        "effects": []
+      },
+      {
+        "id": "propertiesCommand",
+        "inputs": [
+          {
+            "name": "id",
+            "type": "string"
+          }
+        ],
+        "status": null,
+        "reducers": [],
+        "emits": [
+          {
+            "event": "propertiesCommanded",
+            "payload": [
+              {
+                "value": "input.id"
+              }
+            ]
+          }
+        ],
+        "effects": []
+      }
+    ],
+    "portals": [
+      {
+        "id": "workbenchRoot",
+        "root": "#surface-workbench-smoke-root",
+        "layer": "surface",
+        "z": null,
+        "policies": []
+      }
+    ],
+    "overlays": [],
+    "surfaces": [
+      {
+        "id": "workbenchManager",
+        "kind": "workspace",
+        "component": "x-surface-manager",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "workbenchRoot",
+        "bounds": null,
+        "resources": [],
+        "laneRefs": [
+          "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible"
+        ],
+        "events": []
+      },
+      {
+        "id": "workbenchInspector",
+        "kind": "window",
+        "component": "x-surface-window",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "workbenchRoot",
+        "bounds": {
+          "x": 72,
+          "y": 72,
+          "width": 500,
+          "height": 340
+        },
+        "resources": [],
+        "laneRefs": [
+          "lane:demo.xtend.surfaceworkbench/workbenchinspector/userblocking"
+        ],
+        "events": [
+          "event:demo.xtend.surfaceworkbench/workbenchinspector/click/0"
+        ]
+      },
+      {
+        "id": "workbenchEditor",
+        "kind": "window",
+        "component": "x-surface-window",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "workbenchRoot",
+        "bounds": {
+          "x": 610,
+          "y": 96,
+          "width": 560,
+          "height": 390
+        },
+        "resources": [],
+        "laneRefs": [
+          "lane:demo.xtend.surfaceworkbench/workbencheditor/userblocking"
+        ],
+        "events": [
+          "event:demo.xtend.surfaceworkbench/workbencheditor/click/1"
+        ]
+      },
+      {
+        "id": "workbenchProperties",
+        "kind": "side-panel",
+        "component": "x-side-panel",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "workbenchRoot",
+        "bounds": null,
+        "resources": [],
+        "laneRefs": [
+          "lane:demo.xtend.surfaceworkbench/workbenchproperties/visible"
+        ],
+        "events": [
+          "event:demo.xtend.surfaceworkbench/workbenchproperties/click/2"
+        ]
+      }
+    ],
+    "overlaysByPortal": {},
+    "resources": [],
+    "validations": [],
+    "transitions": [],
+    "events": [
+      {
+        "id": "event:demo.xtend.surfaceworkbench/workbenchinspector/click/0",
+        "event": "click",
+        "selector": null,
+        "target": null,
+        "owner": "surface:demo.xtend.surfaceworkbench/workbenchinspector",
+        "action": "inspectorCommand",
+        "payloadContract": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "mappings": [
+            {
+              "name": "id",
+              "source": "surface.id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      {
+        "id": "event:demo.xtend.surfaceworkbench/workbencheditor/click/1",
+        "event": "click",
+        "selector": null,
+        "target": null,
+        "owner": "surface:demo.xtend.surfaceworkbench/workbencheditor",
+        "action": "editorCommand",
+        "payloadContract": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "mappings": [
+            {
+              "name": "id",
+              "source": "surface.id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      {
+        "id": "event:demo.xtend.surfaceworkbench/workbenchproperties/click/2",
+        "event": "click",
+        "selector": null,
+        "target": null,
+        "owner": "surface:demo.xtend.surfaceworkbench/workbenchproperties",
+        "action": "propertiesCommand",
+        "payloadContract": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "mappings": [
+            {
+              "name": "id",
+              "source": "surface.id"
+            }
+          ]
+        },
+        "options": {}
+      }
+    ]
+  },
+  "kernelRecords": {
+    "schema": "xtend.rmt.vnext.kernel-records.v1",
+    "workpackage": "RMT-VNEXT-PRIM-04",
+    "boundary": "no-rmt-kernel-import-of-host-runtime-types",
+    "schedules": [
+      {
+        "id": "schedule:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "lane": "visible",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "operationRefs": [
+          "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0"
+        ]
+      },
+      {
+        "id": "schedule:demo.xtend.surfaceworkbench/workbenchinspector/userblocking",
+        "lane": "userBlocking",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchinspector",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "operationRefs": [
+          "operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0"
+        ]
+      },
+      {
+        "id": "schedule:demo.xtend.surfaceworkbench/workbencheditor/userblocking",
+        "lane": "userBlocking",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbencheditor",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "operationRefs": [
+          "operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0"
+        ]
+      },
+      {
+        "id": "schedule:demo.xtend.surfaceworkbench/workbenchproperties/visible",
+        "lane": "visible",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchproperties",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "operationRefs": [
+          "operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0"
+        ]
+      }
+    ],
+    "fibers": [
+      {
+        "id": "fiber:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "operation": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "workbenchManager"
+        },
+        "source": {
+          "ref": "dataSource:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+          "kind": "endpoint",
+          "id": "workbench.render"
+        }
+      },
+      {
+        "id": "fiber:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/0",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "operation": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "workbenchInspector"
+        },
+        "source": null
+      },
+      {
+        "id": "fiber:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/1",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "operation": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/1",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "workbenchEditor"
+        },
+        "source": null
+      },
+      {
+        "id": "fiber:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels/0",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+        "operation": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "workbenchProperties"
+        },
+        "source": null
+      },
+      {
+        "id": "fiber:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchinspector/userblocking",
+        "operation": "operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "inspectorContent"
+        },
+        "source": {
+          "ref": "dataSource:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+          "kind": "endpoint",
+          "id": "workbench.open"
+        }
+      },
+      {
+        "id": "fiber:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbencheditor/userblocking",
+        "operation": "operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "editorContent"
+        },
+        "source": {
+          "ref": "dataSource:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+          "kind": "endpoint",
+          "id": "workbench.open"
+        }
+      },
+      {
+        "id": "fiber:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+        "lane": "lane:demo.xtend.surfaceworkbench/workbenchproperties/visible",
+        "operation": "operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+        "kind": "lifecycle",
+        "op": "hydrate",
+        "target": {
+          "kind": "ref",
+          "ref": "propertiesContent"
+        },
+        "source": {
+          "ref": "dataSource:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+          "kind": "endpoint",
+          "id": "workbench.properties"
+        }
+      }
+    ],
+    "lifecycleRecords": [
+      {
+        "id": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+          "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0"
+      },
+      {
+        "id": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+          "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/0"
+      },
+      {
+        "id": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/1",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+          "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/windows/1"
+      },
+      {
+        "id": "operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchmanager",
+          "lane": "lane:demo.xtend.surfaceworkbench/workbenchmanager/visible",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchmanager/visible/0/panels/0"
+      },
+      {
+        "id": "operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchinspector",
+          "lane": "lane:demo.xtend.surfaceworkbench/workbenchinspector/userblocking",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0"
+      },
+      {
+        "id": "operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbencheditor",
+          "lane": "lane:demo.xtend.surfaceworkbench/workbencheditor/userblocking",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0"
+      },
+      {
+        "id": "operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+        "kind": "lifecycle",
+        "op": "hydrate",
+        "scope": {
+          "surface": "surface:demo.xtend.surfaceworkbench/workbenchproperties",
+          "lane": "lane:demo.xtend.surfaceworkbench/workbenchproperties/visible",
+          "template": "template:demo.xtend.surfaceworkbench"
+        },
+        "sourceRef": "src:operation:demo.xtend.surfaceworkbench/workbenchproperties/visible/0"
+      }
+    ],
+    "stateRecords": [],
+    "selectorRecords": [],
+    "actionRecords": [
+      {
+        "id": "action:inspectorcommand",
+        "name": "inspectorCommand",
+        "inputCount": 1,
+        "effectRefs": [],
+        "sourceRef": "src:action:inspectorcommand"
+      },
+      {
+        "id": "action:editorcommand",
+        "name": "editorCommand",
+        "inputCount": 1,
+        "effectRefs": [],
+        "sourceRef": "src:action:editorcommand"
+      },
+      {
+        "id": "action:propertiescommand",
+        "name": "propertiesCommand",
+        "inputCount": 1,
+        "effectRefs": [],
+        "sourceRef": "src:action:propertiescommand"
+      }
+    ],
+    "validationRecords": [],
+    "transitionRecords": [],
+    "dataSourceRecords": [
+      {
+        "id": "dataSource:demo.xtend.surfaceworkbench/workbenchmanager/visible/0",
+        "name": "workbench.render",
+        "kind": "endpoint",
+        "target": "workbench.render",
+        "contract": null,
+        "sourceRef": "src:dataSource:demo.xtend.surfaceworkbench/workbenchmanager/visible/0"
+      },
+      {
+        "id": "dataSource:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0",
+        "name": "workbench.open",
+        "kind": "endpoint",
+        "target": "workbench.open",
+        "contract": null,
+        "sourceRef": "src:dataSource:demo.xtend.surfaceworkbench/workbenchinspector/userblocking/0"
+      },
+      {
+        "id": "dataSource:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0",
+        "name": "workbench.open",
+        "kind": "endpoint",
+        "target": "workbench.open",
+        "contract": null,
+        "sourceRef": "src:dataSource:demo.xtend.surfaceworkbench/workbencheditor/userblocking/0"
+      },
+      {
+        "id": "dataSource:demo.xtend.surfaceworkbench/workbenchproperties/visible/0",
+        "name": "workbench.properties",
+        "kind": "endpoint",
+        "target": "workbench.properties",
+        "contract": null,
+        "sourceRef": "src:dataSource:demo.xtend.surfaceworkbench/workbenchproperties/visible/0"
+      }
+    ],
+    "resourceRecords": [],
+    "hydrationPolicyRecords": []
+  }
+}

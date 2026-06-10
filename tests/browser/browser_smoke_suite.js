@@ -500,7 +500,9 @@ function assertRmtXRouterXtendFixtureContract(context, rootDir) {
 
 function assertRmtFirstDemoFixtureContract(context, rootDir) {
   const fixture = readText(RMT_FIRST_DEMO_SMOKE_FIXTURE_PATH, rootDir);
+  const demoSource = readText('xtendrmt/rmt-first-demo-app.rmt', rootDir);
   const demoDocument = readJson('xtendrmt/rmt-first-demo-app.rmt', rootDir);
+  const demoCore = readJson('xtendrmt/rmt-first-demo-app.core.json', rootDir);
   const demoRuntime = readText('xtendrmt/rmt-first-demo-app.js', rootDir);
 
   context.assert(fixture.includes('xtend.epic10.rmt-first-demo-app.browser-smoke.v1'), 'RMT-first demo fixture exposes stable browser contract');
@@ -509,14 +511,19 @@ function assertRmtFirstDemoFixtureContract(context, rootDir) {
   context.assert(fixture.includes('data-manifest="/components/manifest.json"'), 'RMT-first demo fixture configures the loader manifest locally');
   context.assert(fixture.includes('/xtendrmt/rmt-runtime.browser.js'), 'RMT-first demo fixture loads the RMT browser runtime');
   context.assert(fixture.includes('/xtendrmt/rmt-first-demo-app.js'), 'RMT-first demo fixture imports the demo renderer');
-  context.assert(fixture.includes('/xtendrmt/rmt-first-demo-app.rmt'), 'RMT-first demo fixture loads the RMT app document');
+  context.assert(fixture.includes('/xtendrmt/rmt-first-demo-app.core.json'), 'RMT-first demo fixture loads the runtime core document');
+  context.assert(fixture.includes('/xtendrmt/rmt-first-demo-app.rmt'), 'RMT-first demo fixture checks the vNext authoring source');
   context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'RMT-first demo fixture has no XTend CDN dependency');
   context.assert(fixture.includes('__xtendRmtFirstDemoSmokeResult'), 'RMT-first demo fixture exposes a smoke result object');
+  context.assert(fixture.includes("recordCheck('rmt-first demo source is vnext authoring'"), 'RMT-first demo fixture verifies vNext authoring source');
+  context.assert(fixture.includes("recordCheck('rmt-first demo runtime core declares vnext source'"), 'RMT-first demo fixture verifies runtime core source syntax');
   context.assert(fixture.includes("recordCheck('rmt-first demo document loaded'"), 'RMT-first demo fixture verifies document loading');
   context.assert(fixture.includes("recordCheck('rmt-first demo shell rendered from rmt'"), 'RMT-first demo fixture verifies shell rendering from RMT');
   context.assert(fixture.includes("recordCheck('rmt-first demo routes derived from rmt'"), 'RMT-first demo fixture verifies route derivation');
   context.assert(fixture.includes("recordCheck('rmt-first demo telemetry schedule visible'"), 'RMT-first demo fixture verifies telemetry schedule visibility');
   context.assert(demoDocument.manifest.metadata.contractVersion === 'xtend.epic10.rmt-first-demo-app.v1', 'RMT-first demo document declares contract version');
+  context.assert(demoSource.includes('template demo.xtend.rmtFirstApp'), 'RMT-first demo authoring source is vNext');
+  context.assert(demoCore.manifest.sourceSyntax === 'rmt-vnext', 'RMT-first demo core records vNext source syntax');
   context.assert(demoDocument.manifest.metadata.manualShellAllowed === false, 'RMT-first demo document forbids manual shell');
   context.assert(demoDocument.manifest.metadata.hostShellMarkup === false, 'RMT-first demo document forbids host shell markup');
   context.assert(demoDocument.routes.length === 3, 'RMT-first demo document declares three app routes');
@@ -528,6 +535,8 @@ function assertRmtFirstDemoFixtureContract(context, rootDir) {
   context.assert(demoRuntime.includes('renderRmtShellFromDocument'), 'RMT-first demo runtime exposes shell renderer');
   context.assert(demoRuntime.includes('renderDomDescriptor'), 'RMT-first demo runtime exposes descriptor renderer');
   context.assert(demoRuntime.includes('createRouteElement'), 'RMT-first demo runtime creates routes from RMT');
+  context.assert(demoRuntime.includes('rmt-first-demo-app.core.json'), 'RMT-first demo runtime defaults to runtime core document');
+  context.assert(!demoRuntime.includes('parseDocument'), 'RMT-first demo runtime does not parse vNext authoring with legacy format');
   context.assert(!demoRuntime.includes('innerHTML'), 'RMT-first demo runtime avoids string HTML rendering');
 }
 

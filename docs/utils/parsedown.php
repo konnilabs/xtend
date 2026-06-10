@@ -172,6 +172,10 @@ class Parsedown
         $escaped = $this->safeMode ? $this->escapeHtml($text) : $text;
         $tokens = [];
 
+        if ($this->safeMode) {
+            $escaped = $this->restoreSafeInlineAnchors($escaped);
+        }
+
         $escaped = preg_replace_callback('/`([^`]+)`/', function ($matches) use (&$tokens) {
             $token = "\x1A" . count($tokens) . "\x1A";
             $tokens[$token] = '<code>' . $this->escapeHtml($matches[1]) . '</code>';
@@ -277,6 +281,13 @@ class Parsedown
             return '#';
         }
         return $url;
+    }
+
+    private function restoreSafeInlineAnchors(string $html): string
+    {
+        return preg_replace_callback('/&lt;a\s+id=&quot;([A-Za-z0-9_.:-]+)&quot;&gt;&lt;\/a&gt;/i', function ($matches) {
+            return '<a id="' . $this->escapeAttribute($matches[1]) . '"></a>';
+        }, $html);
     }
 
     private function slug(string $text): string

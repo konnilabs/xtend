@@ -1,6 +1,6 @@
 # RMT App Platform Authoring
 
-RMT App Platform Authoring beschreibt die generischen Records fuer App Shell, Templates, Komponenten, Events, Actions, DataSources, Resources und Surfaces.
+RMT App Platform Authoring beschreibt die generischen Records fuer App Shell, route, surface, template, state, datasource, Komponenten, Events, Actions, Resources und Surfaces.
 
 - Contract: `xtend.epic18.rmt-app-platform-authoring.v1`
 - Local Gate: `node scripts/run_xtend_tests.js rmt-app-platform-authoring --json`
@@ -13,7 +13,8 @@ RMT App Platform Authoring beschreibt die generischen Records fuer App Shell, Te
 - Host Adapter sind injizierte Grenzen und keine Kernel-Typen.
 - Event- und Action-Payloads brauchen deklarative Contracts.
 - Resource Lifecycle braucht Owner, Cleanup und Diagnostics.
+- Trusted HTML bleibt auf `trusted-html-explicit-boundary-only` begrenzt.
 
 ## Handoff
 
-Diese Doku ist Teil des Epic18 Release Handoffs und wird durch `epic18-rmt-app-platform` als required doc referenziert.
+Diese Doku ist Teil des Epic18 Release Handoffs, uebergibt an `WP-E18-05` und wird durch `epic18-rmt-app-platform` als required doc referenziert.

@@ -4,7 +4,7 @@ You now know the core RMT-vNext flow: templates define boundaries, surfaces defi
 
 ## Where To Go Next
 
-Use [RMT vNext Authoring](./rmt-vnext-authoring.md) as the reference for complete language details. Read the [App DSL](./xtendrmt-app-dsl.md) when you want to model full applications, then continue with [XTend Maraca](./xtend-maraca.md), the [Runtime Bridge](./xtendrmt-runtime-bridge.md), [RMT Linter](./rmt-linter.md) and [Language Server](./rmt-language-server.md).
+Use [RMT vNext Authoring](./rmt-vnext-authoring.md) as the guided entry point and [RMT Reference](./rmt-reference.md) for the complete operator syntax. Read the [App DSL](./xtendrmt-app-dsl.md) when you want to model full applications, then continue with [XTend Maraca](./xtend-maraca.md), the [Runtime Bridge](./xtendrmt-runtime-bridge.md), [RMT Linter](./rmt-linter.md) and [Language Server](./rmt-language-server.md).
 
 For UI integration, read [SurfaceManager Authoring](./surface-manager-authoring-guide.md) and [XTend Fabric RMT Lane Mapping](./xtend-fabric-rmt-lane-mapping.md).
 
@@ -48,7 +48,7 @@ Names:
 - `tools/rmt-language/vnext-surfaces.js`
 - `docs/dev-router.php`
 - `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
+- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json`
 
 Commands:
 - `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
@@ -59,7 +59,7 @@ Commands:
 Run this check when the article, an example or the named public surface changes:
 
 ```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
+node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json
 node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
 ```
 

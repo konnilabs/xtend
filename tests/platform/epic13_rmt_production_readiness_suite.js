@@ -113,7 +113,9 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   const readme = readText('README.md', rootDir);
   const changelog = readText('CHANGELOG.md', rootDir);
   const firstClassFixture = readJson('tests/fixtures/rmt-first-class-xtend-app.rmt', rootDir);
+  const demoSource = readText('xtendrmt/rmt-first-demo-app.rmt', rootDir);
   const demoFixture = readJson('xtendrmt/rmt-first-demo-app.rmt', rootDir);
+  const demoCore = readJson('xtendrmt/rmt-first-demo-app.core.json', rootDir);
   const demoSmoke = readText('tests/browser/fixtures/rmt-first-demo-app-smoke.html', rootDir);
   const rmtCore = readText('xtendrmt/rmt-core.esm.js', rootDir);
   const rmtRuntime = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
@@ -190,6 +192,8 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
 
   context.assert(demoFixture.manifest.metadata.contractVersion === 'xtend.epic10.rmt-first-demo-app.v1', 'RMT-first demo fixture declares demo schema');
   context.assert(demoFixture.manifest.metadata.renderMode === 'shell-first', 'RMT-first demo fixture is shell-first');
+  context.assert(demoSource.includes('template demo.xtend.rmtFirstApp'), 'RMT-first demo source is vNext authoring');
+  context.assert(demoCore.manifest.sourceSyntax === 'rmt-vnext', 'RMT-first demo core records vNext source syntax');
   context.assert(demoFixture.manifest.metadata.manualShellAllowed === false, 'RMT-first demo fixture forbids manual shell');
   context.assert(hasAdapter(demoFixture, 'xtend.component'), 'RMT-first demo fixture has XTend component adapter');
   context.assert(hasAdapter(demoFixture, 'xtend.xrouter'), 'RMT-first demo fixture has XRouter adapter');
@@ -197,7 +201,8 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   context.assert(Array.isArray(demoFixture.routes) && demoFixture.routes.length >= 3, 'RMT-first demo fixture defines routes');
   context.assert(Array.isArray(demoFixture.templates) && demoFixture.templates.length >= 3, 'RMT-first demo fixture defines templates');
   context.assert(collectFabricLanesFromComponents(demoFixture.components).includes('diagnostics'), 'RMT-first demo fixture exposes diagnostics lane');
-  context.assertIncludes(demoSmoke, 'data-rmt-document-src="/xtendrmt/rmt-first-demo-app.rmt"', 'RMT-first demo smoke points to RMT document');
+  context.assertIncludes(demoSmoke, 'data-rmt-document-src="/xtendrmt/rmt-first-demo-app.core.json"', 'RMT-first demo smoke points to runtime core document');
+  context.assertIncludes(demoSmoke, 'data-rmt-source-src="/xtendrmt/rmt-first-demo-app.rmt"', 'RMT-first demo smoke points to vNext authoring source');
   context.assertIncludes(demoSmoke, "import('/xtendrmt/rmt-first-demo-app.js')", 'RMT-first demo smoke imports RMT shell runtime');
   context.assert(!demoSmoke.includes('<x-section') && !demoSmoke.includes('<x-router'), 'RMT-first demo smoke does not ship a static XTend shell');
   context.assertIncludes(demoSmoke, 'rmt-first demo no static host shell', 'RMT-first demo smoke asserts no static host shell');

@@ -1,0 +1,49 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "fixture.app-dsl.missing-refs",
+    "namespace": "fixture",
+    "sourceSyntax": "rmt-vnext",
+    "authoringSource": "tests/fixtures/rmt-app-dsl.missing-refs.rmt"
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter"
+    }
+  ],
+  "components": [
+    {
+      "id": "pages.broken",
+      "kind": "custom_element",
+      "adapter": "missing.component.adapter",
+      "tag": "x-section",
+      "schedule": "missing.component.schedule"
+    }
+  ],
+  "routes": [
+    {
+      "id": "broken",
+      "path": "/broken",
+      "router": "missing.router",
+      "component": "missing.component",
+      "template": "missing.template",
+      "schedule": "missing.route.schedule"
+    }
+  ],
+  "schedules": [],
+  "templates": [
+    {
+      "id": "broken.shell",
+      "mode": "html_fragment",
+      "markup": "<main></main>",
+      "hydration": {
+        "mode": "runtime_render",
+        "metadata": {
+          "endpointHint": "missing.template.schedule"
+        }
+      }
+    }
+  ]
+}

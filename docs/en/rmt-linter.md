@@ -31,6 +31,7 @@ Start RMT Linter with the smallest record example, validate it with the linter a
 
 - [XTendRMT overview](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT Reference](./rmt-reference.md)
 - [RMT Language Server](./rmt-language-server.md)
 
 ## Public contract

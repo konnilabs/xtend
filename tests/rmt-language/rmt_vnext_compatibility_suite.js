@@ -53,9 +53,10 @@ const WP_E15_16_PATH = 'development/WP-E15-16-Compatibility-Migration-und-Legacy
 const VALID_LEGACY_FIXTURE = 'tests/rmt-language/fixtures/regression-valid.rmt';
 const LEGACY_FALLBACK_FIXTURE = 'tests/rmt-language/fixtures/regression-legacy.rmt.json';
 const BROKEN_LEGACY_FIXTURE = 'tests/rmt-language/fixtures/regression-broken-syntax.rmt';
-const FIRST_DEMO_FIXTURE = 'xtendrmt/rmt-first-demo-app.rmt';
+const LARGE_LEGACY_FIXTURE = 'tests/rmt-language/fixtures/regression-large.rmt';
 const VALID_VNEXT_FIXTURE = 'tests/rmt-language/fixtures/vnext-streaming-progressive.rmt';
 const APP_PLATFORM_FIXTURE = 'tests/fixtures/rmt-app-platform-tooling.rmt';
+const APP_PLATFORM_LEGACY_CORE_FIXTURE = 'tests/fixtures/rmt-app-platform-tooling.core.json';
 const PUBLIC_MIGRATION_DOC_PATHS = Object.freeze([
   'docs/de/xtendrmt-migration-guide.md',
   'docs/en/xtendrmt-migration-guide.md'
@@ -71,6 +72,56 @@ function fixtureInput(relativePath, rootDir) {
     filePath: resolveRepoPath(relativePath, rootDir),
     version: 15
   };
+}
+
+function normalizeRepoRelativePath(filePath, rootDir) {
+  return path.relative(rootDir, filePath).split(path.sep).join('/');
+}
+
+function collectRmtAuthoringFiles(rootDir) {
+  const ignoredDirs = new Set([
+    '.git',
+    '.next',
+    'coverage',
+    'dist',
+    'node_modules'
+  ]);
+  const files = [];
+
+  function visit(directory) {
+    fs.readdirSync(directory, { withFileTypes: true }).forEach((entry) => {
+      const absolutePath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        if (!ignoredDirs.has(entry.name)) {
+          visit(absolutePath);
+        }
+        return;
+      }
+
+      if (entry.isFile() && (entry.name.endsWith('.rmt') || entry.name.endsWith('.rmt.json'))) {
+        files.push(normalizeRepoRelativePath(absolutePath, rootDir));
+      }
+    });
+  }
+
+  visit(rootDir);
+  return files.sort();
+}
+
+function isAllowedLegacyRmtFixture(relativePath) {
+  return relativePath.endsWith('.legacy.rmt')
+    || relativePath.startsWith('tests/rmt-language/fixtures/regression-')
+    || relativePath === 'tests/rmt-language/fixtures/regression-legacy.rmt.json'
+    || relativePath.startsWith('tests/rmt-language/fixtures/vnext-remote-compatibility-');
+}
+
+function legacyJsonAuthoringViolations(rootDir) {
+  return collectRmtAuthoringFiles(rootDir).filter((relativePath) => {
+    if (isAllowedLegacyRmtFixture(relativePath)) {
+      return false;
+    }
+    return readText(relativePath, rootDir).trimStart().startsWith('{');
+  });
 }
 
 function diagnosticCodes(report) {
@@ -109,10 +160,22 @@ function runMetadataChecks(context, rootDir) {
   context.assert(workpackage.includes('Status: `completed`'), 'WP-E15-16 document is completed');
 }
 
+function runLegacyAllowlistChecks(context, rootDir) {
+  const violations = legacyJsonAuthoringViolations(rootDir);
+
+  context.assert(
+    violations.length === 0,
+    `non-allowlisted .rmt/.rmt.json files must not use legacy JSON authoring${violations.length ? `: ${violations.join(', ')}` : ''}`
+  );
+  context.assert(isAllowedLegacyRmtFixture(VALID_LEGACY_FIXTURE), 'legacy regression-valid fixture is explicitly allowlisted');
+  context.assert(isAllowedLegacyRmtFixture(LEGACY_FALLBACK_FIXTURE), 'legacy .rmt.json fallback fixture is explicitly allowlisted');
+  context.assert(isAllowedLegacyRmtFixture(BROKEN_LEGACY_FIXTURE), 'broken legacy regression fixture is explicitly allowlisted');
+}
+
 function runRoundtripChecks(context, rootDir) {
   const validRoundtrip = createLegacyRoundtripReport(fixtureInput(VALID_LEGACY_FIXTURE, rootDir));
   const fallbackRoundtrip = createLegacyRoundtripReport(fixtureInput(LEGACY_FALLBACK_FIXTURE, rootDir));
-  const demoRoundtrip = createLegacyRoundtripReport(fixtureInput(FIRST_DEMO_FIXTURE, rootDir));
+  const largeRoundtrip = createLegacyRoundtripReport(fixtureInput(LARGE_LEGACY_FIXTURE, rootDir));
 
   context.assert(validRoundtrip.schema === RMT_VNEXT_ROUNDTRIP_REPORT_SCHEMA, 'legacy roundtrip report uses schema');
   context.assert(validRoundtrip.ok === true && validRoundtrip.status === 'ready', 'legacy fixture roundtrips as normalized JSON');
@@ -120,7 +183,7 @@ function runRoundtripChecks(context, rootDir) {
   context.assert(validRoundtrip.serialized.includes('"kind": "rmt_document"'), 'legacy roundtrip serializes normalized document');
   context.assert(fallbackRoundtrip.ok === true && fallbackRoundtrip.status === 'ready', 'fallback .rmt.json fixture remains roundtrippable');
   context.assert(diagnosticCodes(fallbackRoundtrip).includes('rmt.document.extension.fallback-used'), 'fallback fixture keeps extension fallback warning');
-  context.assert(demoRoundtrip.ok === true && demoRoundtrip.serializedLength > 1000, 'demo app fixture remains parseable and roundtrippable');
+  context.assert(largeRoundtrip.ok === true && largeRoundtrip.serializedLength > 1000, 'large legacy regression fixture remains parseable and roundtrippable');
 }
 
 function runMigrationChecks(context, rootDir) {
@@ -156,7 +219,7 @@ function runMigrationChecks(context, rootDir) {
 }
 
 function runPrimitiveMigrationChecks(context, rootDir) {
-  const input = fixtureInput(APP_PLATFORM_FIXTURE, rootDir);
+  const input = fixtureInput(APP_PLATFORM_LEGACY_CORE_FIXTURE, rootDir);
   const reportOnly = createMigrationReport(input, {
     rootDir
   });
@@ -251,7 +314,7 @@ function runMatrixChecks(context, rootDir) {
   const compatibleInputs = [
     VALID_LEGACY_FIXTURE,
     LEGACY_FALLBACK_FIXTURE,
-    FIRST_DEMO_FIXTURE,
+    LARGE_LEGACY_FIXTURE,
     VALID_VNEXT_FIXTURE
   ].map((relativePath) => fixtureInput(relativePath, rootDir));
   const matrix = createCompatibilityMatrix(compatibleInputs, {
@@ -264,7 +327,7 @@ function runMatrixChecks(context, rootDir) {
 
   context.assert(matrix.schema === RMT_VNEXT_COMPATIBILITY_SCHEMA, 'compatibility matrix uses schema');
   context.assert(matrix.reportSchema === RMT_VNEXT_COMPATIBILITY_REPORT_SCHEMA, 'compatibility matrix declares report schema');
-  context.assert(matrix.ok === true && matrix.status === 'ready', 'docs, demo, test and vNext fixtures are compatible');
+  context.assert(matrix.ok === true && matrix.status === 'ready', 'legacy regression, fallback and vNext fixtures are compatible');
   context.assert(matrix.entryCount === 4 && matrix.compatibleCount === 4 && matrix.blockedCount === 0, 'compatibility matrix counts compatible fixtures');
   context.assert(blockedMatrix.ok === false && blockedMatrix.blockedCount === 1, 'compatibility matrix isolates incompatible fixtures');
 }
@@ -302,9 +365,10 @@ function runRmtVNextCompatibilitySuite(options = {}) {
   assertFileExists(context, WP_E15_16_PATH, rootDir, 'WP-E15-16 workpackage document exists');
   assertFileExists(context, VALID_LEGACY_FIXTURE, rootDir, 'legacy regression fixture exists');
   assertFileExists(context, LEGACY_FALLBACK_FIXTURE, rootDir, 'legacy fallback fixture exists');
-  assertFileExists(context, FIRST_DEMO_FIXTURE, rootDir, 'demo app RMT fixture exists');
+  assertFileExists(context, LARGE_LEGACY_FIXTURE, rootDir, 'large legacy regression fixture exists');
   assertFileExists(context, VALID_VNEXT_FIXTURE, rootDir, 'vNext fixture exists');
   assertFileExists(context, APP_PLATFORM_FIXTURE, rootDir, 'App-Platform primitive fixture exists');
+  assertFileExists(context, APP_PLATFORM_LEGACY_CORE_FIXTURE, rootDir, 'App-Platform legacy core parity fixture exists');
   PUBLIC_MIGRATION_DOC_PATHS.forEach((docPath) => {
     assertFileExists(context, docPath, rootDir, `${docPath} exists`);
   });
@@ -312,6 +376,7 @@ function runRmtVNextCompatibilitySuite(options = {}) {
   context.assert(suiteSyntax.ok, `vNext compatibility suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
   runMetadataChecks(context, rootDir);
+  runLegacyAllowlistChecks(context, rootDir);
   runRoundtripChecks(context, rootDir);
   runMigrationChecks(context, rootDir);
   runPrimitiveMigrationChecks(context, rootDir);

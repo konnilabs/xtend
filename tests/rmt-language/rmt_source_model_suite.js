@@ -30,9 +30,9 @@ const RMT_SOURCE_MODEL_WP_PATH = 'development/WP-E14-02-Native-rmt-Source-Model-
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const RMT_FIXTURES = [
-  'docs/xtendrmt-parsedown-docs.rmt',
-  'xtendrmt/rmt-first-demo-app.rmt',
-  'tests/fixtures/rmt-first-class-xtend-app.rmt'
+  'tests/rmt-language/fixtures/regression-valid.rmt',
+  'tests/rmt-language/fixtures/regression-large.rmt',
+  'tests/rmt-language/fixtures/regression-duplicates.rmt'
 ];
 
 function assertFileExists(context, relativePath, rootDir, message) {

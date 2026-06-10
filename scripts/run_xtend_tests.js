@@ -764,6 +764,10 @@ const {
   runRmtPlaygroundDocsSuite
 } = require('../tests/docs/rmt_playground_docs_suite');
 const {
+  printRmtReferenceDocsReport,
+  runRmtReferenceDocsSuite
+} = require('../tests/docs/rmt_reference_docs_suite');
+const {
   printRmtPlaygroundSecurityReport,
   runRmtPlaygroundSecuritySuite
 } = require('../tests/docs/rmt_playground_security_suite');
@@ -1448,6 +1452,16 @@ const suites = [
       const result = runRmtPlaygroundDocsSuite({ rootDir });
       printRmtPlaygroundDocsReport(result);
       return toRunnerResult('rmt-playground-docs', 'Learn RMT Playground Docs', result);
+    }
+  },
+  {
+    id: 'rmt-reference-docs',
+    label: 'RMT Reference Docs',
+    description: 'Runs the bilingual RMT syntax reference, operator coverage and compiling example checks.',
+    run: () => {
+      const result = runRmtReferenceDocsSuite({ rootDir });
+      printRmtReferenceDocsReport(result);
+      return toRunnerResult('rmt-reference-docs', 'RMT Reference Docs', result);
     }
   },
   {
@@ -3488,6 +3502,7 @@ Examples:
   node scripts/run_xtend_tests.js docs-public-quality
   node scripts/run_xtend_tests.js rmt-stack-docs
   node scripts/run_xtend_tests.js rmt-playground-docs
+  node scripts/run_xtend_tests.js rmt-reference-docs
   node scripts/run_xtend_tests.js rmt-playground-security
   node scripts/run_xtend_tests.js epic14-rmt-tooling
   node scripts/run_xtend_tests.js epic14-lsp-handoff

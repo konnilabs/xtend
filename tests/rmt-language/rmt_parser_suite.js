@@ -41,9 +41,9 @@ const RMT_PARSER_WP_PATH = 'development/WP-E14-03-Parser-und-Format-Adapter-an-c
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const VALID_FIXTURES = [
-  'docs/xtendrmt-parsedown-docs.rmt',
-  'xtendrmt/rmt-first-demo-app.rmt',
-  'tests/fixtures/rmt-first-class-xtend-app.rmt'
+  'tests/rmt-language/fixtures/regression-valid.rmt',
+  'tests/rmt-language/fixtures/regression-large.rmt',
+  'tests/rmt-language/fixtures/regression-duplicates.rmt'
 ];
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -136,7 +136,7 @@ function runRmtParserSuite(options = {}) {
   });
 
   const parser = createRmtParser();
-  const fallbackText = readText('tests/fixtures/rmt-first-class-xtend-app.rmt', rootDir);
+  const fallbackText = readText('tests/rmt-language/fixtures/regression-valid.rmt', rootDir);
   const fallbackResult = parser.parseSource({
     text: fallbackText,
     filePath: resolveRepoPath('tests/fixtures/legacy-example.rmt.json', rootDir)

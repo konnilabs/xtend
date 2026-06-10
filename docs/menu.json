@@ -260,6 +260,149 @@
     }
   },
   {
+    "slug": "rmt-reference",
+    "id": "docs.rmt.reference",
+    "label": "RMT Reference",
+    "group": "rmt-reference",
+    "parent": null,
+    "tier": "basic",
+    "rank": 100,
+    "labels": {
+      "de": "RMT Reference",
+      "en": "RMT Reference"
+    }
+  },
+  {
+    "slug": "rmt-reference-document-template-import",
+    "id": "docs.rmt.reference.document.template.import",
+    "label": "Document, Template and Import",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "basic",
+    "rank": 98,
+    "labels": {
+      "de": "Document, Template und Import",
+      "en": "Document, Template and Import"
+    }
+  },
+  {
+    "slug": "rmt-reference-primitives",
+    "id": "docs.rmt.reference.primitives",
+    "label": "Primitives",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "basic",
+    "rank": 96,
+    "labels": {
+      "de": "Primitives",
+      "en": "Primitives"
+    }
+  },
+  {
+    "slug": "rmt-reference-state-selectors-data",
+    "id": "docs.rmt.reference.state.selectors.data",
+    "label": "State, Selectors and Data",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "basic",
+    "rank": 94,
+    "labels": {
+      "de": "State, Selectors und Data",
+      "en": "State, Selectors and Data"
+    }
+  },
+  {
+    "slug": "rmt-reference-actions-events",
+    "id": "docs.rmt.reference.actions.events",
+    "label": "Actions and Events",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "basic",
+    "rank": 92,
+    "labels": {
+      "de": "Actions und Events",
+      "en": "Actions and Events"
+    }
+  },
+  {
+    "slug": "rmt-reference-surfaces-lanes-lifecycle",
+    "id": "docs.rmt.reference.surfaces.lanes.lifecycle",
+    "label": "Surfaces, Lanes and Lifecycle",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "deep-dive",
+    "rank": 90,
+    "labels": {
+      "de": "Surfaces, Lanes und Lifecycle",
+      "en": "Surfaces, Lanes and Lifecycle"
+    }
+  },
+  {
+    "slug": "rmt-reference-validation-transitions",
+    "id": "docs.rmt.reference.validation.transitions",
+    "label": "Validation and Transitions",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "deep-dive",
+    "rank": 88,
+    "labels": {
+      "de": "Validation und Transitions",
+      "en": "Validation and Transitions"
+    }
+  },
+  {
+    "slug": "rmt-reference-security-policies",
+    "id": "docs.rmt.reference.security.policies",
+    "label": "Security and Policies",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "deep-dive",
+    "rank": 86,
+    "labels": {
+      "de": "Security und Policies",
+      "en": "Security and Policies"
+    }
+  },
+  {
+    "slug": "rmt-reference-remote-surfaces",
+    "id": "docs.rmt.reference.remote.surfaces",
+    "label": "Remote Surfaces",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "deep-dive",
+    "rank": 84,
+    "labels": {
+      "de": "Remote Surfaces",
+      "en": "Remote Surfaces"
+    }
+  },
+  {
+    "slug": "rmt-reference-conditions-expressions",
+    "id": "docs.rmt.reference.conditions.expressions",
+    "label": "Conditions and Expressions",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "deep-dive",
+    "rank": 82,
+    "labels": {
+      "de": "Conditions und Expressions",
+      "en": "Conditions and Expressions"
+    }
+  },
+  {
+    "slug": "rmt-reference-enums-catalogs",
+    "id": "docs.rmt.reference.enums.catalogs",
+    "label": "Enums and Catalogs",
+    "group": "rmt-reference",
+    "parent": "rmt-reference",
+    "tier": "deep-dive",
+    "rank": 80,
+    "labels": {
+      "de": "Enums und Catalogs",
+      "en": "Enums and Catalogs"
+    }
+  },
+  {
     "slug": "xtend-maraca",
     "id": "docs.xtend.maraca",
     "label": "XTend Maraca",

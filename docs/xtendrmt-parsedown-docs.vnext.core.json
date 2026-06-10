@@ -1,0 +1,1037 @@
+{
+  "schema": "xtend.rmt.core-format.vnext.v1",
+  "kind": "rmt_document",
+  "version": "2.0-vnext",
+  "manifest": {
+    "documentId": "docs.xtend.parsedownPilot",
+    "namespace": "docs",
+    "sourceSyntax": "rmt-vnext",
+    "contracts": [
+      "xtend.rmt.vnext.grammar.v1",
+      "xtend.rmt.core-format.vnext.v1"
+    ]
+  },
+  "imports": [],
+  "templates": [
+    {
+      "id": "template:docs.xtend.parsedownpilot",
+      "name": "docs.xtend.parsedownPilot",
+      "mode": "orchestration",
+      "surfaceRefs": [
+        "surface:docs.xtend.parsedownpilot/docsreadme",
+        "surface:docs.xtend.parsedownpilot/docssearch",
+        "surface:docs.xtend.parsedownpilot/docsmedia"
+      ],
+      "sourceRef": "src:template:docs.xtend.parsedownpilot"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface:docs.xtend.parsedownpilot/docsreadme",
+      "name": "docsReadme",
+      "kind": "page",
+      "type": "region",
+      "laneRefs": [
+        "lane:docs.xtend.parsedownpilot/docsreadme/visible"
+      ],
+      "scope": {
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "primitive": true,
+      "eventRefs": [
+        "event:docs.xtend.parsedownpilot/docsreadme/route-change/0"
+      ],
+      "component": "x-router",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "docsRoot",
+        "ref": "portal:docsroot"
+      },
+      "bounds": null,
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:docs.xtend.parsedownpilot/docsreadme"
+    },
+    {
+      "id": "surface:docs.xtend.parsedownpilot/docssearch",
+      "name": "docsSearch",
+      "kind": "region",
+      "type": "region",
+      "laneRefs": [
+        "lane:docs.xtend.parsedownpilot/docssearch/idle"
+      ],
+      "scope": {
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "primitive": true,
+      "eventRefs": [],
+      "component": "x-input",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "docsRoot",
+        "ref": "portal:docsroot"
+      },
+      "bounds": null,
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:docs.xtend.parsedownpilot/docssearch"
+    },
+    {
+      "id": "surface:docs.xtend.parsedownpilot/docsmedia",
+      "name": "docsMedia",
+      "kind": "region",
+      "type": "region",
+      "laneRefs": [
+        "lane:docs.xtend.parsedownpilot/docsmedia/idle"
+      ],
+      "scope": {
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "primitive": true,
+      "eventRefs": [],
+      "component": "x-player",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "docsRoot",
+        "ref": "portal:docsroot"
+      },
+      "bounds": null,
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:docs.xtend.parsedownpilot/docsmedia"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "lane:docs.xtend.parsedownpilot/docsreadme/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:docs.xtend.parsedownpilot/docsreadme",
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "operationRefs": [
+        "operation:docs.xtend.parsedownpilot/docsreadme/visible/0"
+      ],
+      "weight": 80,
+      "sourceRef": "src:lane:docs.xtend.parsedownpilot/docsreadme/visible"
+    },
+    {
+      "id": "lane:docs.xtend.parsedownpilot/docssearch/idle",
+      "name": "idle",
+      "scope": {
+        "surface": "surface:docs.xtend.parsedownpilot/docssearch",
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "operationRefs": [
+        "operation:docs.xtend.parsedownpilot/docssearch/idle/0"
+      ],
+      "weight": 40,
+      "sourceRef": "src:lane:docs.xtend.parsedownpilot/docssearch/idle"
+    },
+    {
+      "id": "lane:docs.xtend.parsedownpilot/docsmedia/idle",
+      "name": "idle",
+      "scope": {
+        "surface": "surface:docs.xtend.parsedownpilot/docsmedia",
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "operationRefs": [
+        "operation:docs.xtend.parsedownpilot/docsmedia/idle/0"
+      ],
+      "weight": 32,
+      "sourceRef": "src:lane:docs.xtend.parsedownpilot/docsmedia/idle"
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation:docs.xtend.parsedownpilot/docsreadme/visible/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "docsPage"
+      },
+      "scope": {
+        "surface": "surface:docs.xtend.parsedownpilot/docsreadme",
+        "lane": "lane:docs.xtend.parsedownpilot/docsreadme/visible",
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "source": {
+        "ref": "dataSource:docs.xtend.parsedownpilot/docsreadme/visible/0",
+        "kind": "endpoint",
+        "id": "docs.route.render"
+      },
+      "sourceRef": "src:operation:docs.xtend.parsedownpilot/docsreadme/visible/0",
+      "policyRefs": [
+        "slot:docs.xtend.parsedownpilot/docsreadme/visible/0/content"
+      ]
+    },
+    {
+      "id": "operation:docs.xtend.parsedownpilot/docsreadme/visible/0/content/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "docsMarkdown"
+      },
+      "scope": {
+        "surface": "surface:docs.xtend.parsedownpilot/docsreadme",
+        "lane": "lane:docs.xtend.parsedownpilot/docsreadme/visible",
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "source": {
+        "ref": "dataSource:docsreadme",
+        "kind": "dataSource",
+        "id": "docsReadme"
+      },
+      "sourceRef": "src:operation:docs.xtend.parsedownpilot/docsreadme/visible/0/content/0"
+    },
+    {
+      "id": "operation:docs.xtend.parsedownpilot/docssearch/idle/0",
+      "kind": "lifecycle",
+      "op": "prewarm",
+      "target": {
+        "kind": "ref",
+        "ref": "docsSearchIndex"
+      },
+      "scope": {
+        "surface": "surface:docs.xtend.parsedownpilot/docssearch",
+        "lane": "lane:docs.xtend.parsedownpilot/docssearch/idle",
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "source": {
+        "ref": "dataSource:docs.xtend.parsedownpilot/docssearch/idle/0",
+        "kind": "worker",
+        "id": "docs.search.prepare"
+      },
+      "sourceRef": "src:operation:docs.xtend.parsedownpilot/docssearch/idle/0"
+    },
+    {
+      "id": "operation:docs.xtend.parsedownpilot/docsmedia/idle/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "docsMediaPlaceholder"
+      },
+      "scope": {
+        "surface": "surface:docs.xtend.parsedownpilot/docsmedia",
+        "lane": "lane:docs.xtend.parsedownpilot/docsmedia/idle",
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "source": {
+        "ref": "dataSource:docs.xtend.parsedownpilot/docsmedia/idle/0",
+        "kind": "endpoint",
+        "id": "docs.media.lazy"
+      },
+      "sourceRef": "src:operation:docs.xtend.parsedownpilot/docsmedia/idle/0"
+    }
+  ],
+  "slots": [
+    {
+      "id": "slot:docs.xtend.parsedownpilot/docsreadme/visible/0/content",
+      "name": "content",
+      "ownerOperation": "operation:docs.xtend.parsedownpilot/docsreadme/visible/0",
+      "operationRefs": [
+        "operation:docs.xtend.parsedownpilot/docsreadme/visible/0/content/0"
+      ],
+      "sourceRef": "src:slot:docs.xtend.parsedownpilot/docsreadme/visible/0/content"
+    }
+  ],
+  "events": [
+    {
+      "id": "event:docs.xtend.parsedownpilot/docsreadme/route-change/0",
+      "primitive": true,
+      "event": "route-change",
+      "selector": null,
+      "target": null,
+      "action": "routeLoaded",
+      "actionRef": "action:routeloaded",
+      "ownerOperation": null,
+      "scope": {
+        "surface": "surface:docs.xtend.parsedownpilot/docsreadme",
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "condition": null,
+      "payloadContract": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "mappings": [
+          {
+            "name": "id",
+            "source": "surface.id"
+          }
+        ]
+      },
+      "options": {},
+      "sourceRef": "src:event:docs.xtend.parsedownpilot/docsreadme/route-change/0"
+    }
+  ],
+  "dataSources": [
+    {
+      "id": "dataSource:docsreadme",
+      "name": "docsReadme",
+      "primitive": true,
+      "kind": "endpoint",
+      "target": "/docs/de/README.md",
+      "method": "GET",
+      "contract": "xtend.docs.parsedown-rmt-page.v1",
+      "result": null,
+      "fallback": null,
+      "ownerOperation": null,
+      "scope": {
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "sourceRef": "src:dataSource:docsreadme"
+    },
+    {
+      "id": "dataSource:docs.xtend.parsedownpilot/docsreadme/visible/0",
+      "kind": "endpoint",
+      "target": "docs.route.render",
+      "ownerOperation": "operation:docs.xtend.parsedownpilot/docsreadme/visible/0",
+      "sourceRef": "src:dataSource:docs.xtend.parsedownpilot/docsreadme/visible/0"
+    },
+    {
+      "id": "dataSource:docs.xtend.parsedownpilot/docssearch/idle/0",
+      "kind": "worker",
+      "target": "docs.search.prepare",
+      "ownerOperation": "operation:docs.xtend.parsedownpilot/docssearch/idle/0",
+      "sourceRef": "src:dataSource:docs.xtend.parsedownpilot/docssearch/idle/0"
+    },
+    {
+      "id": "dataSource:docs.xtend.parsedownpilot/docsmedia/idle/0",
+      "kind": "endpoint",
+      "target": "docs.media.lazy",
+      "ownerOperation": "operation:docs.xtend.parsedownpilot/docsmedia/idle/0",
+      "sourceRef": "src:dataSource:docs.xtend.parsedownpilot/docsmedia/idle/0"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action:routeloaded",
+      "name": "routeLoaded",
+      "primitive": true,
+      "inputs": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "status": null,
+      "reducers": [],
+      "emits": [
+        {
+          "event": "docsRouteLoaded",
+          "payload": [
+            {
+              "value": "input.id"
+            }
+          ]
+        }
+      ],
+      "handlers": [],
+      "effectRefs": [],
+      "scope": {
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "sourceRef": "src:action:routeloaded"
+    }
+  ],
+  "portals": [
+    {
+      "id": "portal:docsroot",
+      "name": "docsRoot",
+      "primitive": true,
+      "root": "main",
+      "layer": "surface",
+      "z": null,
+      "policies": [],
+      "scope": {
+        "template": "template:docs.xtend.parsedownpilot"
+      },
+      "sourceRef": "src:portal:docsroot"
+    }
+  ],
+  "securityPolicies": [],
+  "sourceMap": [
+    {
+      "id": "src:template:docs.xtend.parsedownpilot",
+      "nodeType": "RmtTemplateDeclaration",
+      "corePointer": "/templates/0",
+      "astPointer": "/body/0",
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 0
+        },
+        "end": {
+          "line": 41,
+          "character": 1
+        },
+        "startOffset": 96,
+        "endOffset": 1093
+      }
+    },
+    {
+      "id": "src:dataSource:docsreadme",
+      "nodeType": "RmtDataSourceDeclaration",
+      "corePointer": "/dataSources/0",
+      "astPointer": "/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 2
+        },
+        "end": {
+          "line": 5,
+          "character": 3
+        },
+        "startOffset": 135,
+        "endOffset": 260
+      }
+    },
+    {
+      "id": "src:action:routeloaded",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/0",
+      "astPointer": "/body/0/body/1",
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 2
+        },
+        "end": {
+          "line": 10,
+          "character": 3
+        },
+        "startOffset": 264,
+        "endOffset": 350
+      }
+    },
+    {
+      "id": "src:portal:docsroot",
+      "nodeType": "RmtPortalDeclaration",
+      "corePointer": "/portals/0",
+      "astPointer": "/body/0/body/2",
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 2
+        },
+        "end": {
+          "line": 14,
+          "character": 0
+        },
+        "startOffset": 354,
+        "endOffset": 397
+      }
+    },
+    {
+      "id": "src:surface:docs.xtend.parsedownpilot/docsreadme",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/0",
+      "astPointer": "/body/0/body/3",
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 2
+        },
+        "end": {
+          "line": 26,
+          "character": 3
+        },
+        "startOffset": 399,
+        "endOffset": 744
+      }
+    },
+    {
+      "id": "src:lane:docs.xtend.parsedownpilot/docsreadme/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/0",
+      "astPointer": "/body/0/body/3/body/1",
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 4
+        },
+        "end": {
+          "line": 22,
+          "character": 5
+        },
+        "startOffset": 473,
+        "endOffset": 657
+      }
+    },
+    {
+      "id": "src:dataSource:docs.xtend.parsedownpilot/docsreadme/visible/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/1",
+      "astPointer": "/body/0/body/3/body/1/body/0/source",
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 21
+        },
+        "end": {
+          "line": 17,
+          "character": 52
+        },
+        "startOffset": 519,
+        "endOffset": 550
+      }
+    },
+    {
+      "id": "src:operation:docs.xtend.parsedownpilot/docsreadme/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/0",
+      "astPointer": "/body/0/body/3/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 6
+        },
+        "end": {
+          "line": 21,
+          "character": 7
+        },
+        "startOffset": 504,
+        "endOffset": 651
+      }
+    },
+    {
+      "id": "src:slot:docs.xtend.parsedownpilot/docsreadme/visible/0/content",
+      "nodeType": "RmtSlotDeclaration",
+      "corePointer": "/slots/0",
+      "astPointer": "/body/0/body/3/body/1/body/0/policy/body/0",
+      "range": {
+        "start": {
+          "line": 18,
+          "character": 8
+        },
+        "end": {
+          "line": 20,
+          "character": 9
+        },
+        "startOffset": 561,
+        "endOffset": 643
+      }
+    },
+    {
+      "id": "src:operation:docs.xtend.parsedownpilot/docsreadme/visible/0/content/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/1",
+      "astPointer": "/body/0/body/3/body/1/body/0/policy/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 10
+        },
+        "end": {
+          "line": 20,
+          "character": 0
+        },
+        "startOffset": 586,
+        "endOffset": 634
+      }
+    },
+    {
+      "id": "src:event:docs.xtend.parsedownpilot/docsreadme/route-change/0",
+      "nodeType": "RmtEventBinding",
+      "corePointer": "/events/0",
+      "astPointer": "/body/0/body/3/body/2",
+      "range": {
+        "start": {
+          "line": 23,
+          "character": 4
+        },
+        "end": {
+          "line": 25,
+          "character": 5
+        },
+        "startOffset": 662,
+        "endOffset": 740
+      }
+    },
+    {
+      "id": "src:surface:docs.xtend.parsedownpilot/docssearch",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/1",
+      "astPointer": "/body/0/body/4",
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 2
+        },
+        "end": {
+          "line": 33,
+          "character": 3
+        },
+        "startOffset": 748,
+        "endOffset": 916
+      }
+    },
+    {
+      "id": "src:lane:docs.xtend.parsedownpilot/docssearch/idle",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/1",
+      "astPointer": "/body/0/body/4/body/1",
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 4
+        },
+        "end": {
+          "line": 32,
+          "character": 5
+        },
+        "startOffset": 823,
+        "endOffset": 912
+      }
+    },
+    {
+      "id": "src:dataSource:docs.xtend.parsedownpilot/docssearch/idle/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/2",
+      "astPointer": "/body/0/body/4/body/1/body/0/source",
+      "range": {
+        "start": {
+          "line": 31,
+          "character": 30
+        },
+        "end": {
+          "line": 31,
+          "character": 61
+        },
+        "startOffset": 875,
+        "endOffset": 906
+      }
+    },
+    {
+      "id": "src:operation:docs.xtend.parsedownpilot/docssearch/idle/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/2",
+      "astPointer": "/body/0/body/4/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 31,
+          "character": 6
+        },
+        "end": {
+          "line": 32,
+          "character": 0
+        },
+        "startOffset": 851,
+        "endOffset": 907
+      }
+    },
+    {
+      "id": "src:surface:docs.xtend.parsedownpilot/docsmedia",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/2",
+      "astPointer": "/body/0/body/5",
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 2
+        },
+        "end": {
+          "line": 40,
+          "character": 3
+        },
+        "startOffset": 920,
+        "endOffset": 1091
+      }
+    },
+    {
+      "id": "src:lane:docs.xtend.parsedownpilot/docsmedia/idle",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/2",
+      "astPointer": "/body/0/body/5/body/1",
+      "range": {
+        "start": {
+          "line": 37,
+          "character": 4
+        },
+        "end": {
+          "line": 39,
+          "character": 5
+        },
+        "startOffset": 995,
+        "endOffset": 1087
+      }
+    },
+    {
+      "id": "src:dataSource:docs.xtend.parsedownpilot/docsmedia/idle/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/3",
+      "astPointer": "/body/0/body/5/body/1/body/0/source",
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 35
+        },
+        "end": {
+          "line": 38,
+          "character": 64
+        },
+        "startOffset": 1052,
+        "endOffset": 1081
+      }
+    },
+    {
+      "id": "src:operation:docs.xtend.parsedownpilot/docsmedia/idle/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/3",
+      "astPointer": "/body/0/body/5/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 6
+        },
+        "end": {
+          "line": 39,
+          "character": 0
+        },
+        "startOffset": 1023,
+        "endOffset": 1082
+      }
+    }
+  ],
+  "appPlatform": {
+    "schema": "xtend.rmt.vnext.app-platform-records.v1",
+    "workpackage": "RMT-VNEXT-PRIM-04",
+    "sourceSyntax": "rmt-vnext",
+    "state": [],
+    "selectors": [],
+    "dataSources": [
+      {
+        "id": "docsReadme",
+        "kind": "endpoint",
+        "target": "/docs/de/README.md",
+        "method": "GET",
+        "contract": "xtend.docs.parsedown-rmt-page.v1",
+        "result": null,
+        "fallback": null
+      }
+    ],
+    "actions": [
+      {
+        "id": "routeLoaded",
+        "inputs": [
+          {
+            "name": "id",
+            "type": "string"
+          }
+        ],
+        "status": null,
+        "reducers": [],
+        "emits": [
+          {
+            "event": "docsRouteLoaded",
+            "payload": [
+              {
+                "value": "input.id"
+              }
+            ]
+          }
+        ],
+        "effects": []
+      }
+    ],
+    "portals": [
+      {
+        "id": "docsRoot",
+        "root": "main",
+        "layer": "surface",
+        "z": null,
+        "policies": []
+      }
+    ],
+    "overlays": [],
+    "surfaces": [
+      {
+        "id": "docsReadme",
+        "kind": "page",
+        "component": "x-router",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "docsRoot",
+        "bounds": null,
+        "resources": [],
+        "laneRefs": [
+          "lane:docs.xtend.parsedownpilot/docsreadme/visible"
+        ],
+        "events": [
+          "event:docs.xtend.parsedownpilot/docsreadme/route-change/0"
+        ]
+      },
+      {
+        "id": "docsSearch",
+        "kind": "region",
+        "component": "x-input",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "docsRoot",
+        "bounds": null,
+        "resources": [],
+        "laneRefs": [
+          "lane:docs.xtend.parsedownpilot/docssearch/idle"
+        ],
+        "events": []
+      },
+      {
+        "id": "docsMedia",
+        "kind": "region",
+        "component": "x-player",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "docsRoot",
+        "bounds": null,
+        "resources": [],
+        "laneRefs": [
+          "lane:docs.xtend.parsedownpilot/docsmedia/idle"
+        ],
+        "events": []
+      }
+    ],
+    "overlaysByPortal": {},
+    "resources": [],
+    "validations": [],
+    "transitions": [],
+    "events": [
+      {
+        "id": "event:docs.xtend.parsedownpilot/docsreadme/route-change/0",
+        "event": "route-change",
+        "selector": null,
+        "target": null,
+        "owner": "surface:docs.xtend.parsedownpilot/docsreadme",
+        "action": "routeLoaded",
+        "payloadContract": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "mappings": [
+            {
+              "name": "id",
+              "source": "surface.id"
+            }
+          ]
+        },
+        "options": {}
+      }
+    ]
+  },
+  "kernelRecords": {
+    "schema": "xtend.rmt.vnext.kernel-records.v1",
+    "workpackage": "RMT-VNEXT-PRIM-04",
+    "boundary": "no-rmt-kernel-import-of-host-runtime-types",
+    "schedules": [
+      {
+        "id": "schedule:docs.xtend.parsedownpilot/docsreadme/visible",
+        "lane": "visible",
+        "scope": {
+          "surface": "surface:docs.xtend.parsedownpilot/docsreadme",
+          "template": "template:docs.xtend.parsedownpilot"
+        },
+        "operationRefs": [
+          "operation:docs.xtend.parsedownpilot/docsreadme/visible/0"
+        ]
+      },
+      {
+        "id": "schedule:docs.xtend.parsedownpilot/docssearch/idle",
+        "lane": "idle",
+        "scope": {
+          "surface": "surface:docs.xtend.parsedownpilot/docssearch",
+          "template": "template:docs.xtend.parsedownpilot"
+        },
+        "operationRefs": [
+          "operation:docs.xtend.parsedownpilot/docssearch/idle/0"
+        ]
+      },
+      {
+        "id": "schedule:docs.xtend.parsedownpilot/docsmedia/idle",
+        "lane": "idle",
+        "scope": {
+          "surface": "surface:docs.xtend.parsedownpilot/docsmedia",
+          "template": "template:docs.xtend.parsedownpilot"
+        },
+        "operationRefs": [
+          "operation:docs.xtend.parsedownpilot/docsmedia/idle/0"
+        ]
+      }
+    ],
+    "fibers": [
+      {
+        "id": "fiber:docs.xtend.parsedownpilot/docsreadme/visible/0",
+        "lane": "lane:docs.xtend.parsedownpilot/docsreadme/visible",
+        "operation": "operation:docs.xtend.parsedownpilot/docsreadme/visible/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "docsPage"
+        },
+        "source": {
+          "ref": "dataSource:docs.xtend.parsedownpilot/docsreadme/visible/0",
+          "kind": "endpoint",
+          "id": "docs.route.render"
+        }
+      },
+      {
+        "id": "fiber:docs.xtend.parsedownpilot/docsreadme/visible/0/content/0",
+        "lane": "lane:docs.xtend.parsedownpilot/docsreadme/visible",
+        "operation": "operation:docs.xtend.parsedownpilot/docsreadme/visible/0/content/0",
+        "kind": "lifecycle",
+        "op": "hydrate",
+        "target": {
+          "kind": "ref",
+          "ref": "docsMarkdown"
+        },
+        "source": {
+          "ref": "dataSource:docsreadme",
+          "kind": "dataSource",
+          "id": "docsReadme"
+        }
+      },
+      {
+        "id": "fiber:docs.xtend.parsedownpilot/docssearch/idle/0",
+        "lane": "lane:docs.xtend.parsedownpilot/docssearch/idle",
+        "operation": "operation:docs.xtend.parsedownpilot/docssearch/idle/0",
+        "kind": "lifecycle",
+        "op": "prewarm",
+        "target": {
+          "kind": "ref",
+          "ref": "docsSearchIndex"
+        },
+        "source": {
+          "ref": "dataSource:docs.xtend.parsedownpilot/docssearch/idle/0",
+          "kind": "worker",
+          "id": "docs.search.prepare"
+        }
+      },
+      {
+        "id": "fiber:docs.xtend.parsedownpilot/docsmedia/idle/0",
+        "lane": "lane:docs.xtend.parsedownpilot/docsmedia/idle",
+        "operation": "operation:docs.xtend.parsedownpilot/docsmedia/idle/0",
+        "kind": "lifecycle",
+        "op": "hydrate",
+        "target": {
+          "kind": "ref",
+          "ref": "docsMediaPlaceholder"
+        },
+        "source": {
+          "ref": "dataSource:docs.xtend.parsedownpilot/docsmedia/idle/0",
+          "kind": "endpoint",
+          "id": "docs.media.lazy"
+        }
+      }
+    ],
+    "lifecycleRecords": [
+      {
+        "id": "operation:docs.xtend.parsedownpilot/docsreadme/visible/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:docs.xtend.parsedownpilot/docsreadme",
+          "lane": "lane:docs.xtend.parsedownpilot/docsreadme/visible",
+          "template": "template:docs.xtend.parsedownpilot"
+        },
+        "sourceRef": "src:operation:docs.xtend.parsedownpilot/docsreadme/visible/0"
+      },
+      {
+        "id": "operation:docs.xtend.parsedownpilot/docsreadme/visible/0/content/0",
+        "kind": "lifecycle",
+        "op": "hydrate",
+        "scope": {
+          "surface": "surface:docs.xtend.parsedownpilot/docsreadme",
+          "lane": "lane:docs.xtend.parsedownpilot/docsreadme/visible",
+          "template": "template:docs.xtend.parsedownpilot"
+        },
+        "sourceRef": "src:operation:docs.xtend.parsedownpilot/docsreadme/visible/0/content/0"
+      },
+      {
+        "id": "operation:docs.xtend.parsedownpilot/docssearch/idle/0",
+        "kind": "lifecycle",
+        "op": "prewarm",
+        "scope": {
+          "surface": "surface:docs.xtend.parsedownpilot/docssearch",
+          "lane": "lane:docs.xtend.parsedownpilot/docssearch/idle",
+          "template": "template:docs.xtend.parsedownpilot"
+        },
+        "sourceRef": "src:operation:docs.xtend.parsedownpilot/docssearch/idle/0"
+      },
+      {
+        "id": "operation:docs.xtend.parsedownpilot/docsmedia/idle/0",
+        "kind": "lifecycle",
+        "op": "hydrate",
+        "scope": {
+          "surface": "surface:docs.xtend.parsedownpilot/docsmedia",
+          "lane": "lane:docs.xtend.parsedownpilot/docsmedia/idle",
+          "template": "template:docs.xtend.parsedownpilot"
+        },
+        "sourceRef": "src:operation:docs.xtend.parsedownpilot/docsmedia/idle/0"
+      }
+    ],
+    "stateRecords": [],
+    "selectorRecords": [],
+    "actionRecords": [
+      {
+        "id": "action:routeloaded",
+        "name": "routeLoaded",
+        "inputCount": 1,
+        "effectRefs": [],
+        "sourceRef": "src:action:routeloaded"
+      }
+    ],
+    "validationRecords": [],
+    "transitionRecords": [],
+    "dataSourceRecords": [
+      {
+        "id": "dataSource:docsreadme",
+        "name": "docsReadme",
+        "kind": "endpoint",
+        "target": "/docs/de/README.md",
+        "contract": "xtend.docs.parsedown-rmt-page.v1",
+        "sourceRef": "src:dataSource:docsreadme"
+      },
+      {
+        "id": "dataSource:docs.xtend.parsedownpilot/docsreadme/visible/0",
+        "name": "docs.route.render",
+        "kind": "endpoint",
+        "target": "docs.route.render",
+        "contract": null,
+        "sourceRef": "src:dataSource:docs.xtend.parsedownpilot/docsreadme/visible/0"
+      },
+      {
+        "id": "dataSource:docs.xtend.parsedownpilot/docssearch/idle/0",
+        "name": "docs.search.prepare",
+        "kind": "worker",
+        "target": "docs.search.prepare",
+        "contract": null,
+        "sourceRef": "src:dataSource:docs.xtend.parsedownpilot/docssearch/idle/0"
+      },
+      {
+        "id": "dataSource:docs.xtend.parsedownpilot/docsmedia/idle/0",
+        "name": "docs.media.lazy",
+        "kind": "endpoint",
+        "target": "docs.media.lazy",
+        "contract": null,
+        "sourceRef": "src:dataSource:docs.xtend.parsedownpilot/docsmedia/idle/0"
+      }
+    ],
+    "resourceRecords": [],
+    "hydrationPolicyRecords": []
+  }
+}

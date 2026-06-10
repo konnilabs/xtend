@@ -1,0 +1,373 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0.0",
+  "manifest": {
+    "id": "xtend-component-lab-ux-inspector",
+    "name": "XTend Component Lab UX Inspector",
+    "metadata": {
+      "contractVersion": "xtend.epic11.component-lab-ux-inspector.v1",
+      "workpackage": "WP-E11-13",
+      "status": "accepted-inspector",
+      "renderMode": "shell-first",
+      "localOnly": true,
+      "externalNetworkAllowed": false,
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types",
+      "targetCount": 31,
+      "familyCount": 5,
+      "description": "RMT beschreibt die Lab-Shell und Inspector-Domains; XTend-Komponenten laufen ausschliesslich ueber Adapter ausserhalb des RMT-Kernels."
+    },
+    "sourceSyntax": "rmt-vnext",
+    "authoringSource": "tests/fixtures/rmt-component-lab-ux-inspector.rmt"
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "component-host",
+      "boundary": "adapter-executes-web-component"
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "router-host",
+      "mode": "hash"
+    },
+    {
+      "id": "rmt.state-scheduler-diagnostics",
+      "kind": "state-scheduler-diagnostics"
+    },
+    {
+      "id": "xtend.fabric-telemetry",
+      "kind": "fabric-telemetry"
+    },
+    {
+      "id": "xtend.component-lab-ux-inspector",
+      "kind": "inspector-panel-adapter"
+    }
+  ],
+  "components": [
+    {
+      "id": "lab.ux.shell",
+      "adapter": "xtend.component",
+      "tag": "x-section",
+      "schedule": "lab.ux.shell.render",
+      "props": {
+        "layout": "column",
+        "label": "XTend Component Lab UX Inspector"
+      }
+    },
+    {
+      "id": "lab.ux.router",
+      "adapter": "xtend.xrouter",
+      "tag": "x-router",
+      "schedule": "lab.ux.route.render",
+      "props": {
+        "mode": "hash"
+      }
+    },
+    {
+      "id": "lab.ux.family.matrix",
+      "adapter": "xtend.component-lab-ux-inspector",
+      "tag": "x-cards",
+      "schedule": "inspector.ux.aggregate"
+    },
+    {
+      "id": "lab.ux.preview.host",
+      "adapter": "xtend.component",
+      "tag": "x-cards",
+      "schedule": "component.visible.mount"
+    },
+    {
+      "id": "lab.ux.panel.component.preview",
+      "adapter": "xtend.component-lab-ux-inspector",
+      "tag": "x-section",
+      "schedule": "component.visible.mount"
+    },
+    {
+      "id": "lab.ux.panel.rmt.inspector",
+      "adapter": "rmt.state-scheduler-diagnostics",
+      "tag": "x-code",
+      "schedule": "inspector.rmt.parse"
+    },
+    {
+      "id": "lab.ux.panel.state",
+      "adapter": "rmt.state-scheduler-diagnostics",
+      "tag": "x-summary",
+      "schedule": "inspector.state.snapshot"
+    },
+    {
+      "id": "lab.ux.panel.styling",
+      "adapter": "xtend.component-lab-ux-inspector",
+      "tag": "x-code",
+      "schedule": "inspector.styling.tokens"
+    },
+    {
+      "id": "lab.ux.panel.a11y",
+      "adapter": "xtend.component-lab-ux-inspector",
+      "tag": "x-alert",
+      "schedule": "inspector.a11y.hints"
+    },
+    {
+      "id": "lab.ux.panel.performance",
+      "adapter": "xtend.component-lab-ux-inspector",
+      "tag": "x-progress",
+      "schedule": "inspector.performance.hints"
+    },
+    {
+      "id": "lab.ux.panel.component.network",
+      "adapter": "xtend.component-lab-ux-inspector",
+      "tag": "x-cards",
+      "schedule": "inspector.network.map"
+    },
+    {
+      "id": "lab.ux.panel.telemetry",
+      "adapter": "xtend.fabric-telemetry",
+      "tag": "x-status",
+      "schedule": "inspector.telemetry.snapshot"
+    },
+    {
+      "id": "lab.ux.panel.source.links",
+      "adapter": "xtend.component-lab-ux-inspector",
+      "tag": "x-summary",
+      "schedule": "inspector.source.links"
+    },
+    {
+      "id": "lab.ux.panel.diagnostics",
+      "adapter": "rmt.state-scheduler-diagnostics",
+      "tag": "x-code",
+      "schedule": "diagnostics.snapshot"
+    }
+  ],
+  "routes": [
+    {
+      "id": "lab.ux.overview",
+      "path": "/",
+      "router": "xtend.xrouter",
+      "component": "lab.ux.family.matrix",
+      "template": "lab.ux.overview.template",
+      "shell": "lab.ux.shell.template",
+      "schedule": "lab.ux.route.render"
+    },
+    {
+      "id": "lab.ux.family",
+      "path": "/families/:family",
+      "router": "xtend.xrouter",
+      "component": "lab.ux.family.matrix",
+      "template": "lab.ux.family.template",
+      "shell": "lab.ux.shell.template",
+      "schedule": "inspector.ux.aggregate"
+    },
+    {
+      "id": "lab.ux.component.preview",
+      "path": "/components/:tag",
+      "router": "xtend.xrouter",
+      "component": "lab.ux.preview.host",
+      "template": "lab.ux.preview.template",
+      "shell": "lab.ux.shell.template",
+      "schedule": "component.visible.mount"
+    },
+    {
+      "id": "lab.ux.rmt",
+      "path": "/rmt",
+      "router": "xtend.xrouter",
+      "component": "lab.ux.panel.rmt.inspector",
+      "template": "lab.ux.rmt.template",
+      "shell": "lab.ux.shell.template",
+      "schedule": "inspector.rmt.parse"
+    },
+    {
+      "id": "lab.ux.telemetry",
+      "path": "/telemetry",
+      "router": "xtend.xrouter",
+      "component": "lab.ux.panel.telemetry",
+      "template": "lab.ux.telemetry.template",
+      "shell": "lab.ux.shell.template",
+      "schedule": "inspector.telemetry.snapshot"
+    },
+    {
+      "id": "lab.ux.network",
+      "path": "/network",
+      "router": "xtend.xrouter",
+      "component": "lab.ux.panel.component.network",
+      "template": "lab.ux.network.template",
+      "shell": "lab.ux.shell.template",
+      "schedule": "inspector.network.map"
+    }
+  ],
+  "schedules": [
+    {
+      "id": "lab.ux.shell.render",
+      "lane": "visible",
+      "fiber": "shell.render",
+      "policy": "shell-first"
+    },
+    {
+      "id": "lab.ux.route.render",
+      "lane": "transition",
+      "fiber": "route.render",
+      "policy": "hash-route-visible"
+    },
+    {
+      "id": "component.visible.mount",
+      "lane": "visible",
+      "fiber": "component.mount"
+    },
+    {
+      "id": "component.idle.hydrate",
+      "lane": "idle",
+      "fiber": "component.hydrate"
+    },
+    {
+      "id": "component.lazy.hydrate",
+      "lane": "lazy",
+      "fiber": "component.hydrate"
+    },
+    {
+      "id": "inspector.ux.aggregate",
+      "lane": "diagnostics",
+      "fiber": "inspector.aggregate"
+    },
+    {
+      "id": "inspector.rmt.parse",
+      "lane": "diagnostics",
+      "fiber": "inspector.rmt"
+    },
+    {
+      "id": "inspector.state.snapshot",
+      "lane": "diagnostics",
+      "fiber": "inspector.state"
+    },
+    {
+      "id": "inspector.styling.tokens",
+      "lane": "diagnostics",
+      "fiber": "inspector.style"
+    },
+    {
+      "id": "inspector.a11y.hints",
+      "lane": "a11y",
+      "fiber": "inspector.a11y"
+    },
+    {
+      "id": "inspector.performance.hints",
+      "lane": "background",
+      "fiber": "inspector.performance"
+    },
+    {
+      "id": "inspector.network.map",
+      "lane": "diagnostics",
+      "fiber": "inspector.network"
+    },
+    {
+      "id": "inspector.telemetry.snapshot",
+      "lane": "telemetry",
+      "fiber": "inspector.telemetry"
+    },
+    {
+      "id": "inspector.source.links",
+      "lane": "diagnostics",
+      "fiber": "inspector.sources"
+    },
+    {
+      "id": "diagnostics.snapshot",
+      "lane": "diagnostics",
+      "fiber": "diagnostics.snapshot"
+    }
+  ],
+  "templates": [
+    {
+      "id": "lab.ux.shell.template",
+      "kind": "shell",
+      "component": "lab.ux.shell",
+      "slots": [
+        "header",
+        "nav",
+        "main",
+        "aside",
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "lab.ux.header",
+      "kind": "fragment",
+      "markup": "<x-header><strong>XTend Component Lab</strong></x-header>"
+    },
+    {
+      "id": "lab.ux.overview.template",
+      "kind": "route-template",
+      "panels": [
+        "ux-family-matrix",
+        "component-preview",
+        "rmt-inspector",
+        "telemetry"
+      ]
+    },
+    {
+      "id": "lab.ux.family.template",
+      "kind": "route-template",
+      "panels": [
+        "ux-family-matrix",
+        "state",
+        "styling",
+        "a11y",
+        "performance"
+      ]
+    },
+    {
+      "id": "lab.ux.preview.template",
+      "kind": "route-template",
+      "panels": [
+        "component-preview",
+        "state",
+        "styling",
+        "component-network",
+        "source-links"
+      ]
+    },
+    {
+      "id": "lab.ux.rmt.template",
+      "kind": "route-template",
+      "panels": [
+        "rmt-inspector",
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "lab.ux.telemetry.template",
+      "kind": "route-template",
+      "panels": [
+        "telemetry",
+        "performance"
+      ]
+    },
+    {
+      "id": "lab.ux.network.template",
+      "kind": "route-template",
+      "panels": [
+        "component-network",
+        "state",
+        "rmt-inspector"
+      ]
+    }
+  ],
+  "diagnostics": {
+    "schema": "xtend.epic11.component-lab-ux-inspector-diagnostics.v1",
+    "redaction": "xtend.fabric.diagnostic-redaction.v1",
+    "familySchemas": [
+      "xtend.component.form-controls-ux.v1",
+      "xtend.component.feedback-status-ux.v1",
+      "xtend.component.navigation-routing-ux.v1",
+      "xtend.component.overlay-interaction-ux.v1",
+      "xtend.component.layout-display-media-ux.v1"
+    ],
+    "inspectorDomains": [
+      "shell",
+      "style",
+      "a11y",
+      "performance",
+      "state",
+      "componentNetwork",
+      "rmtAuthoring",
+      "fabricTelemetry",
+      "diagnostics",
+      "sourceLinks"
+    ]
+  }
+}

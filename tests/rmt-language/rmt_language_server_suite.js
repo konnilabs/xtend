@@ -41,7 +41,7 @@ const {
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const RMT_LANGUAGE_SERVER_WP_PATH = 'development/WP-E14-09-LSP-Server-MVP-ueber-stdio-bereitstellen.md';
-const VALID_FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.rmt';
+const VALID_FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.core.json';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);

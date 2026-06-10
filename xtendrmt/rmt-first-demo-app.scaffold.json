@@ -1,0 +1,12 @@
+{
+  "schema": "xtend.rmt.vnext-fixture-migration-report.v1",
+  "source": "xtendrmt/rmt-first-demo-app.rmt",
+  "runtimeCore": "xtendrmt/rmt-first-demo-app.core.json",
+  "vnextCore": "xtendrmt/rmt-first-demo-app.vnext.core.json",
+  "sourceSyntax": "rmt-vnext",
+  "sourceSha256": "8cc5ba1a0ad483e86231291a34e1829e873a5076c895a15ae7a38c72c1c47679",
+  "runtimeCoreSha256": "dd660973929ee708f2543b369116f45f31b243e377da708069d98b25f425d46f",
+  "vnextCoreSha256": "f24562340185125c2b76eeafd00049822fe132d59c73bf8ece10957ebd2afd27",
+  "compilerStatus": "compiled",
+  "compilerSchema": "xtend.rmt.vnext-compiler.v1"
+}

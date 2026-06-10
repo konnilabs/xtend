@@ -1,0 +1,958 @@
+{
+  "kind": "rmt_document",
+  "version": "1.0",
+  "manifest": {
+    "documentId": "docs.xtend.parsedown-pilot",
+    "namespace": "docs",
+    "metadata": {
+      "contractVersion": "xtend.docs.parsedown-rmt-pilot.v1",
+      "workpackage": "ER-WP-40",
+      "status": "docs-app-rmt-shell-first-pilot",
+      "renderMode": "shell-first",
+      "insularHydration": true,
+      "shellTemplate": "docs.app.shell",
+      "searchTemplate": "docs.header.search",
+      "activeHost": "docs/index.php",
+      "pageLoader": "docs/utils/pageloader.js",
+      "fabricRuntime": {
+        "schema": "xtend.docs.fabric-runtime.v1",
+        "runtime": "docs/utils/fabric-runtime.js",
+        "api": "xtend.fabric.api.v1",
+        "bridge": "xtend.fabric.runtime-diagnostics-bridge.v1",
+        "telemetrySnapshot": "xtend.fabric.telemetry-snapshot.v1",
+        "rmtTelemetryBridge": "xtend.rmt.state-scheduler-diagnostics-bridge.v1",
+        "backpressureSignal": "xtend.fabric.backpressure-signal.v1",
+        "rmtBridgeModule": "/xtendrmt/rmt-runtime.esm.js",
+        "componentFibers": "xtend.fabric.component-fiber-instrumentation.v1",
+        "routeFibers": "xtend.fabric.route-fiber-instrumentation.v1",
+        "diagnosticsSchedule": "docs.diagnostics.snapshot",
+        "snapshotStateKey": "xtend.docs.fabric.snapshot",
+        "kernelBoundary": "Fabric stays in the Docs host adapter and consumes RMT records, loader diagnostics and route signals without importing the RMT kernel."
+      },
+      "parserHost": "docs.parsedown",
+      "kernelBoundary": "Parsedown, PHP execution and HTML sanitizing stay in the Docs host adapter; RMT only sees shell records, templates, schedules and diagnostics.",
+      "productionHardening": {
+        "schema": "xtend.epic13.docs-rmt-production-hardening.v1",
+        "workpackage": "WP-E13-10",
+        "status": "accepted-docs-rmt-production-hardening",
+        "renderMode": "shell-first",
+        "parsedownOrchestrated": true,
+        "parsedownEmbeddedInRmtKernel": false,
+        "extensionSlotsStable": true,
+        "diagnosticsSchedule": "docs.diagnostics.snapshot",
+        "trustedDomProofSchema": "xtend.epic13.trusted-dom-boundary.v1",
+        "trustedDomSanitizer": "xtend.security.trusted-dom-sanitizer.v1",
+        "blockedVectors": [
+          "script",
+          "inline-event-handler",
+          "javascript-url",
+          "srcdoc"
+        ],
+        "localGate": "node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json",
+        "nextWorkpackage": "WP-E13-13",
+        "nextDecision": "rc1-gate-matrix-ci-handoff"
+      },
+      "futureContentKinds": [
+        "richHtml",
+        "xplayerTutorial"
+      ]
+    },
+    "sourceSyntax": "rmt-vnext",
+    "authoringSource": "docs/xtendrmt-parsedown-docs.rmt"
+  },
+  "adapters": [
+    {
+      "id": "docs.parsedown",
+      "kind": "template_adapter",
+      "runtimeSurface": [
+        "server",
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "markdown",
+        "htmlFragments",
+        "slugIndex",
+        "scheduleRefs",
+        "diagnostics"
+      ],
+      "kernelVisible": false,
+      "metadata": {
+        "parser": "docs/utils/parsedown.php",
+        "safeMode": "Parsedown::setSafeMode(true)",
+        "markupClass": "parsedownHtml",
+        "trustBoundary": "xtend.security.sanitizing-boundary.v1"
+      }
+    },
+    {
+      "id": "docs.rich-content",
+      "kind": "template_adapter",
+      "runtimeSurface": [
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "domDescriptor",
+        "richHtml",
+        "lazyMedia",
+        "xplayerTutorial",
+        "scheduleRefs"
+      ],
+      "kernelVisible": false,
+      "metadata": {
+        "status": "future-ready",
+        "boundary": "Rich HTML and XPlayer tutorial payloads are loaded by the Docs host adapter and scheduled through RMT records."
+      }
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "router_adapter",
+      "runtimeSurface": [
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "routes",
+        "navigation",
+        "params",
+        "query",
+        "scheduleRefs",
+        "diagnostics"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "xtend.component",
+      "kind": "component_adapter",
+      "runtimeSurface": [
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "components",
+        "customElements",
+        "hydration",
+        "events",
+        "scheduleRefs",
+        "diagnostics"
+      ],
+      "kernelVisible": false
+    },
+    {
+      "id": "rmt.state-scheduler-diagnostics",
+      "kind": "scheduler_adapter",
+      "runtimeSurface": [
+        "browser_classic"
+      ],
+      "providedCapabilities": [
+        "stateBridge",
+        "schedulerEndpoints",
+        "diagnostics",
+        "adapterResults"
+      ],
+      "kernelVisible": false
+    }
+  ],
+  "components": [
+    {
+      "id": "docs.page",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "xtend-doc-page",
+      "schedule": "docs.page.hydrate",
+      "hydration": {
+        "mode": "hydrate_prerendered",
+        "ownershipMode": "managed_subtree"
+      }
+    },
+    {
+      "id": "docs.shell",
+      "kind": "template_component",
+      "adapter": "docs.rich-content",
+      "tag": "section",
+      "schedule": "docs.shell.render",
+      "hydration": {
+        "mode": "runtime_render",
+        "ownershipMode": "managed_subtree"
+      },
+      "metadata": {
+        "template": "docs.app.shell",
+        "renderMode": "shell-first"
+      }
+    },
+    {
+      "id": "docs.downloadAction",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-button",
+      "schedule": "docs.actions.idle",
+      "metadata": {
+        "action": "docs.download.markdown"
+      }
+    },
+    {
+      "id": "docs.search",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-form",
+      "schedule": "docs.search.index",
+      "hydration": {
+        "mode": "runtime_render",
+        "ownershipMode": "managed_subtree"
+      },
+      "metadata": {
+        "template": "docs.header.search",
+        "slot": "search"
+      }
+    },
+    {
+      "id": "docs.searchInput",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-input",
+      "schedule": "docs.search.index"
+    },
+    {
+      "id": "docs.sidebar",
+      "kind": "template_component",
+      "adapter": "docs.rich-content",
+      "tag": "aside",
+      "schedule": "docs.shell.render",
+      "hydration": {
+        "mode": "runtime_render",
+        "ownershipMode": "managed_subtree"
+      },
+      "metadata": {
+        "template": "docs.app.shell",
+        "slot": "sidebar",
+        "layout": "main-sidebar"
+      }
+    },
+    {
+      "id": "docs.relatedLinks",
+      "kind": "custom_element_collection",
+      "adapter": "xtend.component",
+      "tag": "x-link",
+      "schedule": "docs.related.prepare",
+      "metadata": {
+        "slot": "related",
+        "iconography": "x-icon",
+        "source": "parsedown-read-further-and-route-graph"
+      }
+    },
+    {
+      "id": "docs.componentDemo",
+      "kind": "template_component",
+      "adapter": "xtend.component",
+      "tag": "x-code",
+      "schedule": "docs.demo.prepare",
+      "hydration": {
+        "mode": "runtime_render",
+        "ownershipMode": "managed_subtree"
+      },
+      "metadata": {
+        "slot": "component-demo",
+        "preview": "interactive",
+        "codeKinds": [
+          "html",
+          "rmt"
+        ]
+      }
+    },
+    {
+      "id": "docs.media.player",
+      "kind": "custom_element",
+      "adapter": "xtend.component",
+      "tag": "x-player",
+      "schedule": "docs.media.lazy",
+      "hydration": {
+        "mode": "runtime_render",
+        "ownershipMode": "managed_subtree"
+      },
+      "metadata": {
+        "status": "future-ready",
+        "contentKind": "xplayerTutorial"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "id": "docs.readme",
+      "path": "/readme",
+      "router": "xtend.xrouter",
+      "component": "docs.page",
+      "title": "XTend Developer Documentation",
+      "documentTitle": "XTend Developer Documentation | XTend Dokumentation",
+      "titleTemplate": "{{title}} | XTend Dokumentation",
+      "metaDescription": "Developer Documentation fuer XTend UI, XTendRMT, Komponenten und Enterprise Readiness.",
+      "metaKeywords": [
+        "xtend",
+        "docs",
+        "rmt",
+        "web components"
+      ],
+      "template": "docs.readme.markdown",
+      "shell": "docs.app.shell",
+      "schedule": "docs.route.render",
+      "metadata": {
+        "source": "docs/README.md",
+        "shellTemplate": "docs.app.shell",
+        "searchTemplate": "docs.header.search",
+        "contentKind": "parsedownHtml"
+      }
+    },
+    {
+      "id": "docs.enterprise-adoption",
+      "path": "/enterprise-adoption",
+      "router": "xtend.xrouter",
+      "component": "docs.page",
+      "title": "XTend Enterprise Adoption",
+      "documentTitle": "XTend Enterprise Adoption | XTend Dokumentation",
+      "titleTemplate": "{{title}} | XTend Dokumentation",
+      "metaDescription": "Enterprise Adoption Guide fuer den produktiven Einsatz von XTend UI und XTendRMT.",
+      "metaKeywords": [
+        "xtend",
+        "enterprise",
+        "adoption",
+        "rmt"
+      ],
+      "template": "docs.enterprise-adoption.markdown",
+      "shell": "docs.app.shell",
+      "schedule": "docs.route.render",
+      "metadata": {
+        "source": "docs/enterprise-adoption.md",
+        "shellTemplate": "docs.app.shell",
+        "searchTemplate": "docs.header.search",
+        "contentKind": "parsedownHtml"
+      }
+    },
+    {
+      "id": "docs.xtendrmt-parsedown-scheduling",
+      "path": "/xtendrmt-parsedown-scheduling",
+      "router": "xtend.xrouter",
+      "component": "docs.page",
+      "title": "XTendRMT Parsedown Scheduling",
+      "documentTitle": "XTendRMT Parsedown Scheduling | XTend Dokumentation",
+      "titleTemplate": "{{title}} | XTend Dokumentation",
+      "metaDescription": "Shell-first Docs-App Pilot mit Parsedown als von RMT orchestrierter Content-Komponente.",
+      "metaKeywords": [
+        "xtendrmt",
+        "parsedown",
+        "scheduler",
+        "docs"
+      ],
+      "template": "docs.xtendrmt-parsedown-scheduling.markdown",
+      "shell": "docs.app.shell",
+      "schedule": "docs.route.render",
+      "metadata": {
+        "source": "docs/xtendrmt-parsedown-scheduling.md",
+        "shellTemplate": "docs.app.shell",
+        "searchTemplate": "docs.header.search",
+        "contentKind": "parsedownHtml"
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "id": "docs.shell.render",
+      "endpointName": "xtendrmt.shell.render",
+      "scope": "docs.shell",
+      "lane": "visible",
+      "priority": 90,
+      "deadlineMs": 80,
+      "preferIdle": false,
+      "coalesceKey": "docs.shell.render",
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "docs.markdown.parse",
+      "endpointName": "xtendrmt.docs.parsedown.parse",
+      "scope": "docs.markdown",
+      "lane": "background",
+      "priority": 35,
+      "deadlineMs": 650,
+      "preferIdle": true,
+      "coalesceKey": "docs.markdown.parse",
+      "budgetClass": "background"
+    },
+    {
+      "id": "docs.route.render",
+      "endpointName": "xtendrmt.route.render",
+      "scope": "docs.route.render",
+      "lane": "visible",
+      "priority": 80,
+      "deadlineMs": 120,
+      "preferIdle": false,
+      "coalesceKey": "docs.route.render",
+      "budgetClass": "interactive"
+    },
+    {
+      "id": "docs.page.hydrate",
+      "endpointName": "xtendrmt.component.hydrate",
+      "scope": "docs.page.hydrate",
+      "lane": "idle",
+      "priority": 45,
+      "deadlineMs": 420,
+      "preferIdle": true,
+      "coalesceKey": "docs.page.hydrate",
+      "budgetClass": "background"
+    },
+    {
+      "id": "docs.syntax.highlight",
+      "endpointName": "xtendrmt.docs.syntax.highlight",
+      "scope": "docs.syntax",
+      "lane": "idle",
+      "priority": 28,
+      "deadlineMs": 280,
+      "preferIdle": true,
+      "coalesceKey": "docs.syntax.highlight",
+      "budgetClass": "best_effort"
+    },
+    {
+      "id": "docs.actions.idle",
+      "endpointName": "xtendrmt.docs.actions.bind",
+      "scope": "docs.actions",
+      "lane": "idle",
+      "priority": 40,
+      "deadlineMs": 300,
+      "preferIdle": true,
+      "coalesceKey": "docs.actions",
+      "budgetClass": "background"
+    },
+    {
+      "id": "docs.search.index",
+      "endpointName": "xtendrmt.docs.search.index",
+      "scope": "docs.search",
+      "lane": "background",
+      "priority": 35,
+      "deadlineMs": 300,
+      "preferIdle": true,
+      "coalesceKey": "docs.search.index",
+      "budgetClass": "background"
+    },
+    {
+      "id": "docs.related.prepare",
+      "endpointName": "xtendrmt.docs.related.prepare",
+      "scope": "docs.related",
+      "lane": "idle",
+      "priority": 32,
+      "deadlineMs": 240,
+      "preferIdle": true,
+      "coalesceKey": "docs.related.prepare",
+      "budgetClass": "best_effort"
+    },
+    {
+      "id": "docs.demo.prepare",
+      "endpointName": "xtendrmt.docs.demo.prepare",
+      "scope": "docs.component-demo",
+      "lane": "idle",
+      "priority": 34,
+      "deadlineMs": 360,
+      "preferIdle": true,
+      "coalesceKey": "docs.demo.prepare",
+      "budgetClass": "best_effort"
+    },
+    {
+      "id": "docs.rich-content.prepare",
+      "endpointName": "xtendrmt.docs.rich-content.prepare",
+      "scope": "docs.rich-content",
+      "lane": "idle",
+      "priority": 30,
+      "deadlineMs": 450,
+      "preferIdle": true,
+      "coalesceKey": "docs.rich-content",
+      "budgetClass": "best_effort"
+    },
+    {
+      "id": "docs.media.lazy",
+      "endpointName": "xtendrmt.docs.media.lazy",
+      "scope": "docs.media",
+      "lane": "idle",
+      "priority": 25,
+      "deadlineMs": 800,
+      "preferIdle": true,
+      "coalesceKey": "docs.media.lazy",
+      "budgetClass": "best_effort"
+    },
+    {
+      "id": "docs.diagnostics.snapshot",
+      "endpointName": "xtendrmt.diagnostics.snapshot",
+      "scope": "docs.diagnostics",
+      "lane": "diagnostics",
+      "priority": 30,
+      "deadlineMs": 260,
+      "preferIdle": true,
+      "coalesceKey": "docs.diagnostics",
+      "budgetClass": "diagnostics"
+    }
+  ],
+  "templates": [
+    {
+      "id": "docs.app.shell",
+      "mode": "dom_descriptor",
+      "adapter": "docs.rich-content",
+      "schedule": "docs.shell.render",
+      "nodes": [
+        {
+          "tag": "section",
+          "attributes": {
+            "class": "docs-app-shell",
+            "aria-label": "XTend Developer Center Content Shell",
+            "data-rmt-shell": "docs.app.shell",
+            "data-rmt-shell-mode": "shell-first",
+            "data-rmt-shell-schedule": "docs.shell.render"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attributes": {
+                "class": "docs-shell-layout",
+                "data-rmt-layout": "main-sidebar",
+                "data-rmt-component": "docs.shellLayout"
+              },
+              "children": [
+                {
+                  "tag": "article",
+                  "attributes": {
+                    "class": "docs-article-surface",
+                    "data-rmt-slot": "article",
+                    "data-rmt-component": "docs.article"
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "attributes": {
+                        "class": "docs-shell-toolbar",
+                        "data-rmt-slot": "actions"
+                      },
+                      "children": [
+                        {
+                          "tag": "x-button",
+                          "attributes": {
+                            "id": "download-link",
+                            "class": "download-link docs-icon-button",
+                            "type": "button",
+                            "variant": "secondary",
+                            "aria-label": "Download als Markdown",
+                            "title": "Download als Markdown",
+                            "data-rmt-component": "docs.downloadAction",
+                            "data-rmt-action": "docs.download.markdown",
+                            "data-rmt-action-schedule": "docs.actions.idle"
+                          },
+                          "children": [
+                            {
+                              "tag": "x-icon",
+                              "attributes": {
+                                "name": "download",
+                                "pack": "core",
+                                "decorative": true,
+                                "size": "1.1rem"
+                              }
+                            },
+                            {
+                              "tag": "span",
+                              "attributes": {
+                                "class": "docs-visually-hidden"
+                              },
+                              "text": "Download als Markdown"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": {
+                        "id": "md-content",
+                        "data-rmt-slot": "content",
+                        "data-rmt-extension-slot": "docs.slot.content",
+                        "data-rmt-content-kind": "parsedownHtml",
+                        "data-rmt-trust-boundary": "xtend.security.sanitizing-boundary.v1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "tag": "aside",
+                  "attributes": {
+                    "id": "docs-page-sidebar",
+                    "class": "docs-page-sidebar",
+                    "data-rmt-slot": "sidebar",
+                    "data-rmt-extension-slot": "docs.slot.sidebar",
+                    "data-rmt-component": "docs.sidebar",
+                    "aria-label": "Seitliche Dokumentationswerkzeuge"
+                  },
+                  "children": [
+                    {
+                      "tag": "section",
+                      "attributes": {
+                        "id": "docs-related-links",
+                        "class": "docs-sidebar-section docs-related-section",
+                        "data-rmt-slot": "related",
+                        "data-rmt-component": "docs.relatedLinks",
+                        "data-rmt-schedule": "docs.related.prepare"
+                      },
+                      "children": [
+                        {
+                          "tag": "h2",
+                          "attributes": {
+                            "class": "docs-sidebar-heading"
+                          },
+                          "children": [
+                            {
+                              "tag": "x-icon",
+                              "attributes": {
+                                "name": "link",
+                                "pack": "lucide",
+                                "decorative": true,
+                                "size": "1rem"
+                              }
+                            },
+                            {
+                              "tag": "span",
+                              "text": "Read Further"
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "div",
+                          "attributes": {
+                            "class": "docs-related-list",
+                            "data-rmt-slot": "related-links"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "section",
+                      "attributes": {
+                        "id": "docs-component-demo",
+                        "class": "docs-sidebar-section docs-component-demo",
+                        "data-rmt-slot": "component-demo",
+                        "data-rmt-component": "docs.componentDemo",
+                        "data-rmt-schedule": "docs.demo.prepare",
+                        "hidden": true
+                      },
+                      "children": [
+                        {
+                          "tag": "h2",
+                          "attributes": {
+                            "class": "docs-sidebar-heading"
+                          },
+                          "children": [
+                            {
+                              "tag": "x-icon",
+                              "attributes": {
+                                "name": "play",
+                                "pack": "lucide",
+                                "decorative": true,
+                                "size": "1rem"
+                              }
+                            },
+                            {
+                              "tag": "span",
+                              "attributes": {
+                                "data-demo-title": true
+                              },
+                              "text": "Hands-on Demo"
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "p",
+                          "attributes": {
+                            "class": "docs-sidebar-copy",
+                            "data-demo-description": true
+                          },
+                          "text": "Direkt testen, danach HTML und RMT uebernehmen."
+                        },
+                        {
+                          "tag": "div",
+                          "attributes": {
+                            "class": "docs-demo-preview",
+                            "data-demo-preview": true
+                          }
+                        },
+                        {
+                          "tag": "div",
+                          "attributes": {
+                            "class": "docs-demo-code-grid",
+                            "data-demo-code": true
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "aside",
+                      "attributes": {
+                        "id": "docs-rich-content",
+                        "data-rmt-slot": "rich-content",
+                        "data-rmt-extension-slot": "docs.slot.rich-content",
+                        "data-rmt-content-kinds": "richHtml,xplayerTutorial",
+                        "data-rmt-schedule": "docs.rich-content.prepare",
+                        "data-rmt-media-schedule": "docs.media.lazy",
+                        "data-rmt-trust-boundary": "xtend.security.sanitizing-boundary.v1",
+                        "data-rmt-production-hardening": "xtend.epic13.docs-rmt-production-hardening.v1",
+                        "hidden": true
+                      }
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": {
+                        "id": "docs-rmt-diagnostics",
+                        "data-rmt-slot": "diagnostics",
+                        "data-rmt-extension-slot": "docs.slot.diagnostics",
+                        "data-rmt-schedule": "docs.diagnostics.snapshot",
+                        "data-rmt-content-kind": "diagnostics",
+                        "data-rmt-production-hardening": "xtend.epic13.docs-rmt-production-hardening.v1",
+                        "hidden": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "hydration": {
+        "mode": "runtime_render",
+        "metadata": {
+          "endpointHint": "xtendrmt.shell.render",
+          "scheduleRef": "docs.shell.render",
+          "renderMode": "shell-first"
+        }
+      },
+      "metadata": {
+        "descriptorContract": "xtend.docs.rmt-shell-template.v1",
+        "contentSlot": "content",
+        "actionSlot": "actions",
+        "sidebarSlot": "sidebar",
+        "relatedSlot": "related",
+        "componentDemoSlot": "component-demo",
+        "futureSlots": [
+          "sidebar",
+          "related",
+          "component-demo",
+          "rich-content",
+          "diagnostics"
+        ]
+      }
+    },
+    {
+      "id": "docs.header.search",
+      "mode": "dom_descriptor",
+      "adapter": "docs.rich-content",
+      "schedule": "docs.search.index",
+      "nodes": [
+        {
+          "tag": "x-form",
+          "attributes": {
+            "id": "xtend-search-form",
+            "slot": "search",
+            "data-rmt-template": "docs.header.search",
+            "data-rmt-component": "docs.search",
+            "data-rmt-schedule": "docs.search.index"
+          },
+          "children": [
+            {
+              "tag": "label",
+              "attributes": {
+                "for": "search-input"
+              },
+              "text": "Suche:"
+            },
+            {
+              "tag": "x-input",
+              "attributes": {
+                "id": "search-input",
+                "name": "search",
+                "placeholder": "Suche...",
+                "data-rmt-component": "docs.searchInput"
+              }
+            },
+            {
+              "tag": "div",
+              "attributes": {
+                "id": "search-results",
+                "data-rmt-slot": "results",
+                "role": "status",
+                "aria-live": "polite"
+              }
+            }
+          ]
+        }
+      ],
+      "hydration": {
+        "mode": "runtime_render",
+        "metadata": {
+          "endpointHint": "xtendrmt.docs.search.index",
+          "scheduleRef": "docs.search.index"
+        }
+      },
+      "metadata": {
+        "descriptorContract": "xtend.docs.rmt-search-template.v1"
+      }
+    },
+    {
+      "id": "docs.media.tutorial-placeholder",
+      "mode": "dom_descriptor",
+      "adapter": "docs.rich-content",
+      "schedule": "docs.media.lazy",
+      "nodes": [
+        {
+          "tag": "x-player",
+          "attributes": {
+            "data-rmt-component": "docs.media.player",
+            "data-rmt-content-kind": "xplayerTutorial",
+            "data-rmt-lazy": "true",
+            "data-rmt-schedule": "docs.media.lazy"
+          }
+        }
+      ],
+      "hydration": {
+        "mode": "runtime_render",
+        "metadata": {
+          "endpointHint": "xtendrmt.docs.media.lazy",
+          "scheduleRef": "docs.media.lazy"
+        }
+      },
+      "metadata": {
+        "status": "future-ready",
+        "descriptorContract": "xtend.docs.rmt-media-template.v1"
+      }
+    },
+    {
+      "id": "docs.readme.markdown",
+      "mode": "html_fragment",
+      "source": "docs/README.md",
+      "adapter": "docs.parsedown",
+      "schedule": "docs.markdown.parse",
+      "security": {
+        "markupClass": "parsedownHtml",
+        "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+        "sink": "trustedDomBoundary"
+      },
+      "hydration": {
+        "mode": "hydrate_prerendered",
+        "metadata": {
+          "endpointHint": "xtendrmt.docs.parsedown.parse",
+          "scheduleRef": "docs.markdown.parse"
+        }
+      }
+    },
+    {
+      "id": "docs.enterprise-adoption.markdown",
+      "mode": "html_fragment",
+      "source": "docs/enterprise-adoption.md",
+      "adapter": "docs.parsedown",
+      "schedule": "docs.markdown.parse",
+      "security": {
+        "markupClass": "parsedownHtml",
+        "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+        "sink": "trustedDomBoundary"
+      },
+      "hydration": {
+        "mode": "hydrate_prerendered",
+        "metadata": {
+          "endpointHint": "xtendrmt.docs.parsedown.parse",
+          "scheduleRef": "docs.markdown.parse"
+        }
+      }
+    },
+    {
+      "id": "docs.xtendrmt-parsedown-scheduling.markdown",
+      "mode": "html_fragment",
+      "source": "docs/xtendrmt-parsedown-scheduling.md",
+      "adapter": "docs.parsedown",
+      "schedule": "docs.markdown.parse",
+      "security": {
+        "markupClass": "parsedownHtml",
+        "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+        "sink": "trustedDomBoundary"
+      },
+      "hydration": {
+        "mode": "hydrate_prerendered",
+        "metadata": {
+          "endpointHint": "xtendrmt.docs.parsedown.parse",
+          "scheduleRef": "docs.markdown.parse"
+        }
+      }
+    }
+  ],
+  "extensionSlots": [
+    {
+      "id": "docs.slot.content",
+      "slot": "content",
+      "contentKind": "parsedownHtml",
+      "component": "docs.page",
+      "adapter": "docs.parsedown",
+      "schedule": "docs.markdown.parse",
+      "endpointName": "xtendrmt.docs.parsedown.parse",
+      "required": true,
+      "trustBoundary": "xtend.security.sanitizing-boundary.v1"
+    },
+    {
+      "id": "docs.slot.sidebar",
+      "slot": "sidebar",
+      "contentKind": "appShellTools",
+      "component": "docs.sidebar",
+      "adapter": "docs.rich-content",
+      "schedule": "docs.shell.render",
+      "endpointName": "xtendrmt.shell.render",
+      "required": true,
+      "trustBoundary": "component-managed"
+    },
+    {
+      "id": "docs.slot.related",
+      "slot": "related",
+      "contentKind": "routeLinks",
+      "component": "docs.relatedLinks",
+      "adapter": "docs.rich-content",
+      "schedule": "docs.related.prepare",
+      "endpointName": "xtendrmt.docs.related.prepare",
+      "required": false,
+      "trustBoundary": "component-managed"
+    },
+    {
+      "id": "docs.slot.component-demo",
+      "slot": "component-demo",
+      "contentKind": "interactiveComponentDemo",
+      "component": "docs.componentDemo",
+      "adapter": "xtend.component",
+      "schedule": "docs.demo.prepare",
+      "endpointName": "xtendrmt.docs.demo.prepare",
+      "required": false,
+      "trustBoundary": "component-managed"
+    },
+    {
+      "id": "docs.slot.rich-content",
+      "slot": "rich-content",
+      "contentKind": "richHtml",
+      "component": "docs.shell",
+      "adapter": "docs.rich-content",
+      "schedule": "docs.rich-content.prepare",
+      "endpointName": "xtendrmt.docs.rich-content.prepare",
+      "required": false,
+      "trustBoundary": "xtend.security.sanitizing-boundary.v1"
+    },
+    {
+      "id": "docs.slot.media",
+      "slot": "rich-content",
+      "contentKind": "xplayerTutorial",
+      "component": "docs.media.player",
+      "adapter": "docs.rich-content",
+      "schedule": "docs.media.lazy",
+      "endpointName": "xtendrmt.docs.media.lazy",
+      "required": false,
+      "trustBoundary": "component-managed"
+    },
+    {
+      "id": "docs.slot.diagnostics",
+      "slot": "diagnostics",
+      "contentKind": "diagnostics",
+      "component": "docs.shell",
+      "adapter": "rmt.state-scheduler-diagnostics",
+      "schedule": "docs.diagnostics.snapshot",
+      "endpointName": "xtendrmt.diagnostics.snapshot",
+      "required": true,
+      "trustBoundary": "structured-diagnostics"
+    }
+  ]
+}

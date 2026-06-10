@@ -241,6 +241,7 @@ function runSurfaceManagerBrowserLabSuite(options = {}) {
     '__xtendSurfaceWorkbenchSmokeResult',
     'xtend.surface.workbench-fixture.browser-smoke.v1',
     'data-rmt-host="surface-workbench"',
+    '/xtendrmt/surface-workbench.core.json',
     '/xtendrmt/surface-workbench.rmt'
   ], 'RMT workbench Browser Lab reference');
 

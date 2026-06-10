@@ -1,0 +1,318 @@
+{
+  "kind": "rmt_document",
+  "id": "fixture.navigation-routing-ux",
+  "manifest": {
+    "id": "navigation-routing-shell",
+    "version": "0.1.0",
+    "metadata": {
+      "contractVersion": "xtend.component.navigation-routing-ux.v1",
+      "workpackage": "WP-E11-10",
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+    },
+    "sourceSyntax": "rmt-vnext",
+    "authoringSource": "tests/fixtures/rmt-navigation-routing-ux.rmt"
+  },
+  "adapters": [
+    {
+      "id": "xtend.component",
+      "kind": "host_component_adapter",
+      "kernelVisible": false,
+      "providedCapabilities": [
+        "shell",
+        "style",
+        "a11y",
+        "events",
+        "commands",
+        "fabric"
+      ]
+    },
+    {
+      "id": "xtend.xrouter",
+      "kind": "routing_adapter",
+      "kernelVisible": false,
+      "providedCapabilities": [
+        "routes",
+        "navigate",
+        "route-context",
+        "active-state",
+        "focus-restore"
+      ]
+    },
+    {
+      "id": "rmt.state-scheduler-diagnostics",
+      "kind": "diagnostics_adapter",
+      "kernelVisible": false,
+      "providedCapabilities": [
+        "state",
+        "scheduler",
+        "diagnostics"
+      ]
+    }
+  ],
+  "schedules": [
+    {
+      "id": "component.visible.mount",
+      "lane": "visible",
+      "policy": "mount-when-visible"
+    },
+    {
+      "id": "route.visible.render",
+      "lane": "visible",
+      "policy": "render-route-when-visible"
+    },
+    {
+      "id": "route.transition.render",
+      "lane": "transition",
+      "policy": "render-route-transition"
+    },
+    {
+      "id": "route.focus.restore",
+      "lane": "a11y",
+      "policy": "focus-route-outlet-after-render"
+    },
+    {
+      "id": "a11y.announce",
+      "lane": "a11y",
+      "policy": "screenreader-route-announcement"
+    },
+    {
+      "id": "ui.user-blocking.navigation",
+      "lane": "user-blocking",
+      "policy": "link-activation"
+    },
+    {
+      "id": "diagnostics.snapshot",
+      "lane": "diagnostics",
+      "policy": "snapshot-after-navigation"
+    }
+  ],
+  "routes": [
+    {
+      "id": "route.home",
+      "router": "docs.router",
+      "path": "/",
+      "component": "docs-home",
+      "template": "route.home.template",
+      "schedule": "route.visible.render",
+      "metadata": {
+        "title": "Home",
+        "announcement": "Route Home geladen"
+      }
+    },
+    {
+      "id": "route.guides",
+      "router": "docs.router",
+      "path": "/guides",
+      "component": "docs-guides",
+      "template": "route.guides.template",
+      "schedule": "route.transition.render",
+      "metadata": {
+        "title": "Guides",
+        "announcement": "Route Guides geladen"
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "docs.router",
+      "adapter": "xtend.xrouter",
+      "tag": "x-router",
+      "template": "navigation.router.template",
+      "schedule": "route.visible.render",
+      "props": {
+        "mode": "hash",
+        "reuse-component": true
+      },
+      "routes": [
+        "route.home",
+        "route.guides"
+      ],
+      "events": {
+        "xrouter-before-navigate": {
+          "command": "navigation.router.snapshot"
+        },
+        "route-changed": {
+          "command": "navigation.router.announce"
+        },
+        "route-announced": {
+          "command": "navigation.router.diagnostics"
+        },
+        "xrouter-route-reused": {
+          "command": "navigation.router.reuse-route-component"
+        },
+        "xrouter-routes-registered": {
+          "command": "navigation.router.register-routes"
+        }
+      },
+      "commands": {
+        "navigate": {
+          "schedule": "ui.user-blocking.navigation"
+        },
+        "register-routes": {
+          "schedule": "route.visible.render"
+        },
+        "focus-route": {
+          "schedule": "route.focus.restore"
+        },
+        "announce-route": {
+          "schedule": "a11y.announce"
+        },
+        "reuse-route-component": {
+          "schedule": "route.transition.render"
+        },
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      },
+      "a11y": {
+        "role": "main",
+        "focusRestore": true,
+        "announcement": {
+          "role": "status",
+          "live": "polite",
+          "atomic": true
+        }
+      },
+      "fabric": {
+        "lane": "transition",
+        "a11yLane": "a11y",
+        "fiber": "navigation.router.render"
+      }
+    },
+    {
+      "id": "docs.nav.home",
+      "adapter": "xtend.component",
+      "tag": "x-link",
+      "template": "navigation.link.home.template",
+      "schedule": "ui.user-blocking.navigation",
+      "props": {
+        "href": "/"
+      },
+      "events": {
+        "before-navigate": {
+          "command": "navigation.link.before"
+        },
+        "after-navigate": {
+          "command": "navigation.link.after"
+        },
+        "x-navigate": {
+          "command": "navigation.router.navigate"
+        }
+      },
+      "commands": {
+        "navigate": {
+          "schedule": "ui.user-blocking.navigation"
+        },
+        "update-active": {
+          "schedule": "route.visible.render"
+        },
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      },
+      "a11y": {
+        "role": "link",
+        "activeState": "aria-current=page",
+        "keyboard": [
+          "Enter",
+          "Space"
+        ]
+      },
+      "fabric": {
+        "lane": "user-blocking",
+        "a11yLane": "a11y",
+        "fiber": "navigation.link.activate"
+      }
+    },
+    {
+      "id": "docs.nav.guides",
+      "adapter": "xtend.component",
+      "tag": "x-link",
+      "template": "navigation.link.guides.template",
+      "schedule": "ui.user-blocking.navigation",
+      "props": {
+        "href": "/guides"
+      },
+      "events": {
+        "before-navigate": {
+          "command": "navigation.link.before"
+        },
+        "after-navigate": {
+          "command": "navigation.link.after"
+        },
+        "x-navigate": {
+          "command": "navigation.router.navigate"
+        }
+      },
+      "commands": {
+        "navigate": {
+          "schedule": "ui.user-blocking.navigation"
+        },
+        "update-active": {
+          "schedule": "route.visible.render"
+        },
+        "snapshot": {
+          "schedule": "diagnostics.snapshot"
+        }
+      },
+      "a11y": {
+        "role": "link",
+        "activeState": "aria-current=page",
+        "keyboard": [
+          "Enter",
+          "Space"
+        ]
+      },
+      "fabric": {
+        "lane": "user-blocking",
+        "a11yLane": "a11y",
+        "fiber": "navigation.link.activate"
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "navigation.router.template",
+      "nodes": [
+        {
+          "component": "docs.nav.home"
+        },
+        {
+          "component": "docs.nav.guides"
+        }
+      ]
+    },
+    {
+      "id": "navigation.link.home.template",
+      "nodes": [
+        {
+          "text": "Home"
+        }
+      ]
+    },
+    {
+      "id": "navigation.link.guides.template",
+      "nodes": [
+        {
+          "text": "Guides"
+        }
+      ]
+    },
+    {
+      "id": "route.home.template",
+      "nodes": [
+        {
+          "tag": "docs-home"
+        }
+      ]
+    },
+    {
+      "id": "route.guides.template",
+      "nodes": [
+        {
+          "tag": "docs-guides"
+        }
+      ]
+    }
+  ]
+}

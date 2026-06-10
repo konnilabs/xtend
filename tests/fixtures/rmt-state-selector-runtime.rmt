@@ -1,316 +1,37 @@
-{
-  "kind": "rmt_document",
-  "schema": "xtend.epic18.rmt-state-selector-runtime-fixture.v1",
-  "manifest": {
-    "id": "epic18.typed-state-selector.fixture",
-    "metadata": {
-      "contractVersion": "xtend.epic18.rmt-state-selector-runtime.v1",
-      "componentPrimitiveContract": "xtend.epic18.rmt-component-template-primitives.v1",
-      "workpackage": "WP-E18-07",
-      "renderMode": "component_native_dom_descriptor",
-      "manualHtmlRendererAllowed": false,
-      "htmlStringRendererRequired": false,
-      "productSurfaceClone": false,
-      "xstateBridgeMode": "injected-host-adapter",
-      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
+// Migrated from legacy JSON RMT. Runtime parity target: tests/fixtures/rmt-state-selector-runtime.core.json
+template epic18.typed.stateRecord.selectorRecord.fixtureRecord {
+  state stateRecord_items type collection initial []
+
+  state stateRecord_selection type object preserve {
+    initial {
+      activeId "alpha"
     }
-  },
-  "state": [
-    {
-      "id": "state.items",
-      "type": "collection",
-      "schema": "domain.record.generic-item.v1",
-      "initial": [
-        { "id": "alpha", "title": "Alpha", "kind": "task", "ref": "row.alpha" },
-        { "id": "beta", "title": "Beta", "kind": "note", "ref": "row.beta" },
-        { "id": "gamma", "title": "Gamma", "kind": "task", "ref": "row.gamma" }
-      ]
-    },
-    {
-      "id": "state.selection",
-      "type": "object",
-      "schema": "domain.selection.generic-item.v1",
-      "initial": { "activeId": "alpha", "ids": ["alpha"] },
-      "preserve": "attribute-sync"
-    },
-    {
-      "id": "state.filters",
-      "type": "object",
-      "schema": "domain.filter.generic-item.v1",
-      "initial": { "query": "", "kind": "all" }
-    },
-    {
-      "id": "state.ui",
-      "type": "object",
-      "schema": "domain.ui.generic-shell.v1",
-      "initial": { "panelOpen": true },
-      "preserve": "component-state"
-    },
-    {
-      "id": "state.loading",
-      "type": "boolean",
-      "initial": false,
-      "preserve": "attribute-sync"
-    },
-    {
-      "id": "state.status",
-      "type": "string",
-      "initial": "idle",
-      "preserve": "attribute-sync"
-    },
-    {
-      "id": "state.total",
-      "type": "number",
-      "initial": 3,
-      "preserve": "attribute-sync"
-    },
-    {
-      "id": "state.optional-detail",
-      "type": "nullable",
-      "initial": null,
-      "preserve": "component-state"
+  }
+
+  state stateRecord_filters type object preserve {
+    initial {
+      query ""
+      kindRecord "all"
     }
-  ],
-  "selectors": [
-    {
-      "id": "selector.filtered-items",
-      "from": "state.items",
-      "where": [
-        {
-          "path": "title",
-          "op": "contains",
-          "value": "$state.filters.query",
-          "ignoreCase": true,
-          "empty": "pass"
-        }
-      ],
-      "output": "domain.record.generic-item.v1[]",
-      "structural": true
-    },
-    {
-      "id": "selector.has-items",
-      "from": "selector.filtered-items",
-      "compute": "not-empty",
-      "output": "boolean",
-      "structural": true
-    },
-    {
-      "id": "selector.active-id",
-      "from": "state.selection",
-      "path": "activeId",
-      "output": "string",
-      "structural": false
-    },
-    {
-      "id": "selector.selected-item",
-      "from": "selector.filtered-items",
-      "find": [
-        {
-          "path": "id",
-          "op": "equals",
-          "value": "$state.selection.activeId"
-        }
-      ],
-      "output": "domain.record.generic-item.v1",
-      "structural": false
-    },
-    {
-      "id": "selector.loading",
-      "from": "state.loading",
-      "compute": "boolean",
-      "output": "boolean",
-      "structural": false
+  }
+
+  state stateRecord_ui type object preserve {
+    initial {
+      panelOpen true
     }
-  ],
-  "derive": [
-    {
-      "id": "derive.selection-count",
-      "from": "state.selection",
-      "path": "ids",
-      "compute": "count",
-      "output": "number",
-      "structural": false
-    },
-    {
-      "id": "derive.detail-label",
-      "from": "selector.selected-item",
-      "path": "title",
-      "output": "string",
-      "structural": false
+  }
+
+  state stateRecord_loading type boolean initial false
+
+  state stateRecord_status type string initial "idle"
+
+  state stateRecord_total type number initial 3
+
+  state stateRecord_optional_detail type nullable initial null
+
+  surface component_shell kind window component x-section {
+    lane visible weight 70 {
+      hydrate component_shellView from state stateRecord_items
     }
-  ],
-  "reducers": [
-    {
-      "id": "reducer.select-item",
-      "command": "command.select-item",
-      "state": "state.selection",
-      "patch": {
-        "activeId": "$payload.id",
-        "ids": "$payload.ids"
-      }
-    },
-    {
-      "id": "reducer.set-filter",
-      "command": "command.set-filter",
-      "state": "state.filters",
-      "patch": {
-        "query": "$payload.query"
-      }
-    },
-    {
-      "id": "reducer.toggle-panel",
-      "command": "command.toggle-panel",
-      "state": "state.ui",
-      "toggle": "panelOpen"
-    }
-  ],
-  "bindings": [
-    {
-      "id": "bind.row-selection-state",
-      "kind": "collection-attribute-sync",
-      "source": "selector.filtered-items",
-      "key": "id",
-      "target": { "attribute": "data-rmt-key" },
-      "attributes": {
-        "aria-selected": {
-          "left": "$item.id",
-          "op": "equals",
-          "right": "$state.selection.activeId"
-        }
-      },
-      "classes": {
-        "is-selected": {
-          "left": "$item.id",
-          "op": "equals",
-          "right": "$state.selection.activeId"
-        }
-      }
-    }
-  ],
-  "components": [
-    {
-      "id": "component.shell",
-      "tag": "x-section",
-      "parts": ["root", "content"],
-      "attributes": { "label": "Generic Typed State Shell" }
-    },
-    {
-      "id": "component.item-row",
-      "tag": "x-card",
-      "parts": ["row"],
-      "attributes": { "role": "option" }
-    },
-    {
-      "id": "component.detail-panel",
-      "tag": "x-side-panel",
-      "parts": ["detail"],
-      "attributes": { "placement": "right" }
-    },
-    {
-      "id": "component.empty-state",
-      "tag": "x-alert",
-      "parts": ["empty"],
-      "attributes": { "type": "info", "title": "No records" }
-    }
-  ],
-  "templates": [
-    {
-      "id": "template.shell",
-      "renderMode": "dom_descriptor",
-      "root": {
-        "type": "component",
-        "component": "component.shell",
-        "id": "node.shell",
-        "children": [
-          { "type": "template", "template": "template.collection" },
-          { "type": "template", "template": "template.detail" }
-        ]
-      }
-    },
-    {
-      "id": "template.collection",
-      "renderMode": "dom_descriptor",
-      "root": {
-        "type": "when",
-        "test": "$selector.has-items",
-        "then": {
-          "type": "element",
-          "tag": "section",
-          "id": "node.collection",
-          "attributes": { "role": "listbox" },
-          "children": [
-            {
-              "type": "repeat",
-              "source": "$selector.filtered-items",
-              "key": "$item.id",
-              "item": "template.item-row"
-            }
-          ]
-        },
-        "else": {
-          "type": "empty",
-          "fallback": { "type": "template", "template": "template.empty" }
-        }
-      }
-    },
-    {
-      "id": "template.item-row",
-      "renderMode": "dom_descriptor",
-      "root": {
-        "type": "component",
-        "component": "component.item-row",
-        "id": "node.row",
-        "key": "$item.id",
-        "ref": "$item.ref",
-        "class": ["rmt-row"],
-        "attributes": {
-          "title": "$item.title",
-          "data-kind": "$item.kind",
-          "aria-selected": "false"
-        },
-        "props": {
-          "value": "$item.id"
-        },
-        "children": [
-          { "type": "text", "text": "$item.title" }
-        ]
-      }
-    },
-    {
-      "id": "template.detail",
-      "renderMode": "dom_descriptor",
-      "root": {
-        "type": "component",
-        "component": "component.detail-panel",
-        "id": "node.detail",
-        "ref": "detail.panel",
-        "attributes": {
-          "label": "$derive.detail-label",
-          "data-active-id": "$selector.active-id"
-        },
-        "children": [
-          { "type": "text", "text": "$derive.detail-label" }
-        ]
-      }
-    },
-    {
-      "id": "template.empty",
-      "renderMode": "dom_descriptor",
-      "root": {
-        "type": "component",
-        "component": "component.empty-state",
-        "id": "node.empty",
-        "children": [
-          { "type": "text", "text": "No records match this typed state view." }
-        ]
-      }
-    }
-  ],
-  "acceptance": {
-    "selectionUpdatesPreserveDom": true,
-    "filterUpdatesMayRerenderStructure": true,
-    "xstateBridgeInjected": true,
-    "normalUiContainsHtmlStrings": false,
-    "productSurfaceClone": false
   }
 }

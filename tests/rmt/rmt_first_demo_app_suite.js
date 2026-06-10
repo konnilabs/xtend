@@ -14,7 +14,11 @@ const {
 
 const RMT_FIRST_DEMO_SCHEMA = 'xtend.epic10.rmt-first-demo-app.v1';
 const RMT_FIRST_DEMO_SMOKE_SCHEMA = 'xtend.epic10.rmt-first-demo-app.browser-smoke.v1';
+const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.rmt';
+const CORE_PATH = 'xtendrmt/rmt-first-demo-app.core.json';
+const VNEXT_CORE_PATH = 'xtendrmt/rmt-first-demo-app.vnext.core.json';
+const SCAFFOLD_PATH = 'xtendrmt/rmt-first-demo-app.scaffold.json';
 const RUNTIME_PATH = 'xtendrmt/rmt-first-demo-app.js';
 const BROWSER_SMOKE_PATH = 'tests/browser/fixtures/rmt-first-demo-app-smoke.html';
 const HOST_PATH = BROWSER_SMOKE_PATH;
@@ -124,7 +128,11 @@ function runRmtFirstDemoAppSuite(options = {}) {
     id: 'rmt-first-demo-app',
     label: 'Epic 10 RMT-first Demo App'
   });
+  const source = readText(FIXTURE_PATH, rootDir);
   const fixture = readJson(FIXTURE_PATH, rootDir);
+  const runtimeCore = readJson(CORE_PATH, rootDir);
+  const vnextCore = readJson(VNEXT_CORE_PATH, rootDir);
+  const scaffold = readJson(SCAFFOLD_PATH, rootDir);
   const host = readText(HOST_PATH, rootDir);
   const runtime = readText(RUNTIME_PATH, rootDir);
   const browserSmoke = readText(BROWSER_SMOKE_PATH, rootDir);
@@ -143,6 +151,9 @@ function runRmtFirstDemoAppSuite(options = {}) {
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
 
   assertFileExists(context, FIXTURE_PATH, rootDir, 'RMT-first demo fixture exists');
+  assertFileExists(context, CORE_PATH, rootDir, 'RMT-first demo runtime core exists');
+  assertFileExists(context, VNEXT_CORE_PATH, rootDir, 'RMT-first demo vNext core exists');
+  assertFileExists(context, SCAFFOLD_PATH, rootDir, 'RMT-first demo scaffold report exists');
   assertFileExists(context, HOST_PATH, rootDir, 'RMT-first demo host exists');
   assertFileExists(context, RUNTIME_PATH, rootDir, 'RMT-first demo runtime exists');
   assertFileExists(context, BROWSER_SMOKE_PATH, rootDir, 'RMT-first demo browser smoke exists');
@@ -150,6 +161,18 @@ function runRmtFirstDemoAppSuite(options = {}) {
   assertFileExists(context, WORKPACKAGE_PATH, rootDir, 'WP-E10-13 workpackage document exists');
   assertFileExists(context, DOCS_PATH, rootDir, 'RMT-first demo developer docs exist');
 
+  context.assert(source.includes('template demo.xtend.rmtFirstApp'), 'RMT-first demo source uses vNext template authoring');
+  context.assert(!source.trimStart().startsWith('{'), 'RMT-first demo source is not legacy JSON authoring');
+  context.assert(runtimeCore.manifest.sourceSyntax === 'rmt-vnext', 'RMT-first demo runtime core records vNext source syntax');
+  context.assert(runtimeCore.manifest.authoringSource === FIXTURE_PATH, 'RMT-first demo runtime core points to authoring source');
+  context.assert(vnextCore.schema === RMT_VNEXT_CORE_SCHEMA, 'RMT-first demo vNext core uses vNext core schema');
+  context.assert(vnextCore.manifest.sourceSyntax === 'rmt-vnext', 'RMT-first demo vNext core records source syntax');
+  context.assert(scaffold.source === FIXTURE_PATH, 'RMT-first demo scaffold links source');
+  context.assert(scaffold.runtimeCore === CORE_PATH, 'RMT-first demo scaffold links runtime core');
+  context.assert(scaffold.vnextCore === VNEXT_CORE_PATH, 'RMT-first demo scaffold links vNext core');
+  context.assert(scaffold.sourceSyntax === 'rmt-vnext', 'RMT-first demo scaffold records source syntax');
+  context.assert(scaffold.compilerStatus === 'compiled', 'RMT-first demo scaffold records compiled vNext core');
+  context.assert(fixture.manifest.documentId === runtimeCore.manifest.documentId, 'RMT-first demo readJson fallback returns runtime core parity');
   context.assert(fixture.kind === 'rmt_document', 'RMT-first demo fixture is an RMT document');
   context.assert(fixture.manifest.metadata.contractVersion === RMT_FIRST_DEMO_SCHEMA, 'RMT-first demo declares contract schema');
   context.assert(fixture.manifest.metadata.workpackage === 'WP-E10-13', 'RMT-first demo belongs to WP-E10-13');
@@ -231,7 +254,8 @@ function runRmtFirstDemoAppSuite(options = {}) {
   }
 
   context.assert(host.includes('data-rmt-host="rmt-first-demo"'), 'RMT-first demo host exposes generic RMT root');
-  context.assert(host.includes('data-rmt-document-src="/xtendrmt/rmt-first-demo-app.rmt"'), 'RMT-first demo host points at RMT document');
+  context.assert(host.includes('data-rmt-document-src="/xtendrmt/rmt-first-demo-app.core.json"'), 'RMT-first demo host points at runtime core document');
+  context.assert(host.includes('data-rmt-source-src="/xtendrmt/rmt-first-demo-app.rmt"'), 'RMT-first demo host points at vNext authoring source');
   context.assert(host.includes('type="module" src="/xtend-loader.js"'), 'RMT-first demo host uses canonical XTend loader');
   context.assert(host.includes('data-manifest="/components/manifest.json"'), 'RMT-first demo host uses local manifest');
   context.assert(host.includes('window.__XTendLoaderBootPromise'), 'RMT-first demo host waits for loader boot');
@@ -244,7 +268,10 @@ function runRmtFirstDemoAppSuite(options = {}) {
   context.assert(runtime.includes('renderDomDescriptor'), 'RMT-first demo runtime exposes descriptor renderer');
   context.assert(runtime.includes('createRouteElement'), 'RMT-first demo runtime derives route elements');
   context.assert(runtime.includes('fetch(documentUrl'), 'RMT-first demo runtime fetches RMT document');
-  context.assert(runtime.includes('createRmtFormat'), 'RMT-first demo runtime uses RMT format when available');
+  context.assert(runtime.includes('response.json()'), 'RMT-first demo runtime loads committed Core JSON');
+  context.assert(runtime.includes('rmt-first-demo-app.core.json'), 'RMT-first demo runtime defaults to runtime core document');
+  context.assert(runtime.includes('createRmtFormat'), 'RMT-first demo runtime uses RMT format registries when available');
+  context.assert(!runtime.includes('parseDocument'), 'RMT-first demo runtime does not parse vNext authoring with legacy format');
   context.assert(runtime.includes('root.replaceChildren(shellFragment)'), 'RMT-first demo runtime replaces host root with RMT shell');
   context.assert(runtime.includes('data-rmt-rendered-shell'), 'RMT-first demo runtime marks rendered shell');
   context.assert(!runtime.includes('innerHTML'), 'RMT-first demo runtime avoids string HTML rendering');
@@ -253,7 +280,11 @@ function runRmtFirstDemoAppSuite(options = {}) {
   context.assert(browserSmoke.includes(RMT_FIRST_DEMO_SMOKE_SCHEMA), 'RMT-first demo browser smoke declares schema');
   context.assert(browserSmoke.includes('/xtend-loader.js'), 'RMT-first demo browser smoke uses local loader');
   context.assert(browserSmoke.includes('/xtendrmt/rmt-first-demo-app.js'), 'RMT-first demo browser smoke imports demo runtime');
-  context.assert(browserSmoke.includes('/xtendrmt/rmt-first-demo-app.rmt'), 'RMT-first demo browser smoke loads RMT document');
+  context.assert(browserSmoke.includes('/xtendrmt/rmt-first-demo-app.core.json'), 'RMT-first demo browser smoke loads runtime core document');
+  context.assert(browserSmoke.includes('/xtendrmt/rmt-first-demo-app.rmt'), 'RMT-first demo browser smoke checks vNext authoring source');
+  context.assert(browserSmoke.includes("recordCheck('rmt-first demo source is vnext authoring'"), 'RMT-first demo browser smoke checks vNext source');
+  context.assert(browserSmoke.includes("recordCheck('rmt-first demo runtime core declares vnext source'"), 'RMT-first demo browser smoke checks source syntax metadata');
+  context.assert(browserSmoke.includes('sourceSyntax = rmtDocument.manifest.sourceSyntax'), 'RMT-first demo browser smoke exposes source syntax');
   context.assert(browserSmoke.includes('__xtendRmtFirstDemoSmokeResult'), 'RMT-first demo browser smoke exposes result object');
   context.assert(browserSmoke.includes("recordCheck('rmt-first demo document loaded'"), 'RMT-first demo browser smoke checks document load');
   context.assert(browserSmoke.includes("recordCheck('rmt-first demo shell rendered from rmt'"), 'RMT-first demo browser smoke checks RMT shell render');

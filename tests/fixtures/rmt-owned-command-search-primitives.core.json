@@ -1,0 +1,487 @@
+{
+  "kind": "rmt_document",
+  "schema": "xtend.rmt-ui-maximality-owned-command-search-primitives.rmt-fixture.v1",
+  "manifest": {
+    "id": "rmo.owned-command-search.fixture",
+    "metadata": {
+      "contractVersion": "xtend.rmt-ui-maximality-owned-command-search-primitives.v1",
+      "workpackage": "WP-RMO-04",
+      "renderMode": "component_native_dom_descriptor",
+      "manualHtmlRendererAllowed": false,
+      "htmlStringRendererRequired": false,
+      "externalUiFrameworkDependencyAllowed": false,
+      "kernelBoundary": "no-rmt-kernel-import-of-xtend-types",
+      "commandPolicy": "action-ref-required"
+    },
+    "sourceSyntax": "rmt-vnext",
+    "authoringSource": "tests/fixtures/rmt-owned-command-search-primitives.rmt"
+  },
+  "dataSources": [
+    {
+      "id": "datasource.commands",
+      "owner": "component-command-search-owner",
+      "adapter": "injected-search-adapter",
+      "policy": "adapter-ref-required",
+      "records": [
+        {
+          "id": "cmd-open-audit",
+          "label": "Open audit evidence",
+          "kind": "navigation",
+          "action": "action.command.openAudit",
+          "keywords": [
+            "audit",
+            "evidence",
+            "contract"
+          ]
+        },
+        {
+          "id": "cmd-run-gate",
+          "label": "Run command/search gate",
+          "kind": "test",
+          "action": "action.command.runGate",
+          "keywords": [
+            "gate",
+            "test",
+            "command"
+          ]
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "id": "resource.commands",
+      "dataSource": "datasource.commands",
+      "lifecycle": "query",
+      "cachePolicy": "owner-scoped",
+      "loadingState": "state.command.loading",
+      "errorState": "state.command.error",
+      "release": "on-surface-close"
+    }
+  ],
+  "state": [
+    {
+      "id": "state.command.open",
+      "type": "boolean",
+      "initial": false
+    },
+    {
+      "id": "state.command.query",
+      "type": "string",
+      "initial": ""
+    },
+    {
+      "id": "state.command.activeIndex",
+      "type": "integer",
+      "initial": 0
+    },
+    {
+      "id": "state.command.selection",
+      "type": "single-selection",
+      "key": "$record.id",
+      "initial": ""
+    },
+    {
+      "id": "state.command.loading",
+      "type": "boolean",
+      "initial": false
+    },
+    {
+      "id": "state.command.error",
+      "type": "string",
+      "initial": ""
+    },
+    {
+      "id": "state.command.result",
+      "type": "string",
+      "initial": ""
+    }
+  ],
+  "selectors": [
+    {
+      "id": "selector.visibleCommands",
+      "source": "resource.commands",
+      "query": "state.command.query",
+      "resultState": "state.command.visible"
+    }
+  ],
+  "components": [
+    {
+      "id": "component.command.trigger",
+      "tag": "x-button",
+      "adapter": "xtend.component",
+      "attributes": {
+        "aria-haspopup": "dialog",
+        "aria-controls": "surface.command-search"
+      },
+      "parts": [
+        "root",
+        "icon",
+        "label"
+      ]
+    },
+    {
+      "id": "component.command.popover",
+      "tag": "x-popover",
+      "adapter": "xtend.component",
+      "parts": [
+        "root",
+        "content"
+      ]
+    },
+    {
+      "id": "component.command.search",
+      "tag": "x-input",
+      "adapter": "xtend.component",
+      "attributes": {
+        "type": "search",
+        "role": "searchbox",
+        "aria-controls": "command-results"
+      },
+      "parts": [
+        "root",
+        "input",
+        "label"
+      ]
+    },
+    {
+      "id": "component.command.results",
+      "tag": "x-menu",
+      "adapter": "xtend.component",
+      "attributes": {
+        "id": "command-results",
+        "role": "listbox"
+      },
+      "parts": [
+        "root",
+        "item"
+      ]
+    },
+    {
+      "id": "component.command.status",
+      "tag": "x-status",
+      "adapter": "xtend.component",
+      "parts": [
+        "root",
+        "icon",
+        "label"
+      ]
+    },
+    {
+      "id": "component.command.loading",
+      "tag": "x-progress",
+      "adapter": "xtend.component",
+      "parts": [
+        "root",
+        "bar",
+        "label"
+      ]
+    },
+    {
+      "id": "component.command.empty",
+      "tag": "x-alert",
+      "adapter": "xtend.component",
+      "attributes": {
+        "type": "info",
+        "title": "No commands"
+      },
+      "parts": [
+        "root",
+        "title",
+        "content"
+      ]
+    },
+    {
+      "id": "component.command.icon",
+      "tag": "x-icon",
+      "adapter": "xtend.component",
+      "attributes": {
+        "name": "search",
+        "label": "Search"
+      },
+      "parts": [
+        "root"
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "template.command.shell",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.command.popover",
+        "slots": {
+          "trigger": "template.command.trigger",
+          "content": "template.command.content"
+        }
+      }
+    },
+    {
+      "id": "template.command.trigger",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.command.trigger",
+        "props": {
+          "label": "Command"
+        }
+      }
+    },
+    {
+      "id": "template.command.content",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "fragment",
+        "children": [
+          {
+            "type": "component",
+            "component": "component.command.search",
+            "props": {
+              "value": "$state.command.query"
+            }
+          },
+          {
+            "type": "searchSource",
+            "source": "search.commands"
+          },
+          {
+            "type": "component",
+            "component": "component.command.status",
+            "props": {
+              "label": "$state.command.result"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "template.command.result",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.command.results",
+        "props": {
+          "label": "$record.label",
+          "active": "$selection.current",
+          "disabled": "$record.disabled"
+        }
+      }
+    },
+    {
+      "id": "template.command.loading",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.command.loading",
+        "props": {
+          "label": "Searching commands"
+        }
+      }
+    },
+    {
+      "id": "template.command.empty",
+      "renderMode": "dom_descriptor",
+      "root": {
+        "type": "component",
+        "component": "component.command.empty"
+      }
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface.command-search",
+      "kind": "popover",
+      "owner": "component-command-search-owner",
+      "template": "template.command.shell",
+      "focusPolicy": "restore-on-close",
+      "escape": "event.command.close",
+      "stackPolicy": "topmost"
+    }
+  ],
+  "commandSources": [
+    {
+      "id": "command.global",
+      "surface": "surface.command-search",
+      "trigger": "event.command.open",
+      "shortcut": "Mod+K",
+      "registeredCommands": [
+        {
+          "id": "command.openAudit",
+          "label": "Open audit evidence",
+          "action": "action.command.openAudit",
+          "disabledState": "state.command.loading"
+        },
+        {
+          "id": "command.runGate",
+          "label": "Run command/search gate",
+          "action": "action.command.runGate",
+          "disabledState": "state.command.loading"
+        }
+      ],
+      "resultState": "state.command.result",
+      "actionRefRequired": true
+    }
+  ],
+  "searchSources": [
+    {
+      "id": "search.commands",
+      "queryState": "state.command.query",
+      "resource": "resource.commands",
+      "selector": "selector.visibleCommands",
+      "minQueryLength": 1,
+      "debounceMs": 120,
+      "resultTemplate": "template.command.result",
+      "emptyTemplate": "template.command.empty",
+      "loadingTemplate": "template.command.loading",
+      "activeIndexState": "state.command.activeIndex",
+      "selectionState": "state.command.selection",
+      "a11y": {
+        "role": "listbox",
+        "inputRole": "searchbox",
+        "activeDescendantState": "state.command.activeIndex",
+        "resultAnnouncement": "polite"
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "event.command.open",
+      "source": "component.command.trigger",
+      "type": "click",
+      "action": "action.command.open"
+    },
+    {
+      "id": "event.command.close",
+      "source": "surface.command-search",
+      "type": "escape",
+      "action": "action.command.close"
+    },
+    {
+      "id": "event.command.query",
+      "source": "component.command.search",
+      "type": "input",
+      "action": "action.command.query"
+    },
+    {
+      "id": "event.command.active",
+      "source": "search.commands",
+      "type": "active-change",
+      "action": "action.command.active"
+    },
+    {
+      "id": "event.command.execute",
+      "source": "search.commands",
+      "type": "select",
+      "action": "action.command.execute"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action.command.open",
+      "kind": "state-update",
+      "target": "state.command.open",
+      "payload": true
+    },
+    {
+      "id": "action.command.close",
+      "kind": "state-update",
+      "target": "state.command.open",
+      "payload": false
+    },
+    {
+      "id": "action.command.query",
+      "kind": "state-update",
+      "target": "state.command.query",
+      "payload": "$event.value"
+    },
+    {
+      "id": "action.command.active",
+      "kind": "state-update",
+      "target": "state.command.activeIndex",
+      "payload": "$event.index"
+    },
+    {
+      "id": "action.command.execute",
+      "kind": "effect",
+      "effect": "effect.command.route",
+      "payload": "$event.commandId",
+      "policy": "registered-command-required"
+    },
+    {
+      "id": "action.command.openAudit",
+      "kind": "effect",
+      "effect": "effect.command.route",
+      "payload": "cmd-open-audit",
+      "policy": "action-ref-required"
+    },
+    {
+      "id": "action.command.runGate",
+      "kind": "effect",
+      "effect": "effect.command.route",
+      "payload": "cmd-run-gate",
+      "policy": "action-ref-required"
+    }
+  ],
+  "effects": [
+    {
+      "id": "effect.command.route",
+      "kind": "host-command",
+      "adapterRef": "adapter.commandRouter",
+      "policy": "effect-policy-required",
+      "allowedCommands": [
+        "cmd-open-audit",
+        "cmd-run-gate"
+      ],
+      "resultState": "state.command.result"
+    },
+    {
+      "id": "effect.command.focusRestore",
+      "kind": "focus",
+      "target": "component.command.trigger",
+      "policy": "restore-on-close"
+    }
+  ],
+  "schedules": [
+    {
+      "id": "schedule.command.render",
+      "lane": "visible",
+      "budgetMs": 16
+    },
+    {
+      "id": "schedule.command.search",
+      "lane": "resource",
+      "budgetMs": 50
+    },
+    {
+      "id": "schedule.command.feedback",
+      "lane": "a11y",
+      "budgetMs": 8
+    }
+  ],
+  "sourceMap": [
+    {
+      "source": "/commandSources/0",
+      "target": "command.global"
+    },
+    {
+      "source": "/searchSources/0",
+      "target": "search.commands"
+    },
+    {
+      "source": "/events/4",
+      "target": "event.command.execute"
+    },
+    {
+      "source": "/actions/4",
+      "target": "action.command.execute"
+    }
+  ],
+  "negativeClaims": [
+    "command-palette-full-parity",
+    "framework-command-api-copy",
+    "rich-combobox-autocomplete-parity",
+    "unregistered-command-execution",
+    "free-command-execution-without-action-ref"
+  ]
+}

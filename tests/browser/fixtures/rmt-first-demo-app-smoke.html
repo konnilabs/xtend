@@ -16,7 +16,8 @@
   <div
     id="rmt-first-demo-smoke-root"
     data-rmt-host="rmt-first-demo"
-    data-rmt-document-src="/xtendrmt/rmt-first-demo-app.rmt"></div>
+    data-rmt-document-src="/xtendrmt/rmt-first-demo-app.core.json"
+    data-rmt-source-src="/xtendrmt/rmt-first-demo-app.rmt"></div>
   <script>
     window.__xtendRmtFirstDemoSmokeResult = {
       status: 'pending',
@@ -40,14 +41,13 @@
         await (window.__XTendLoaderBootPromise || Promise.resolve()).catch(() => {});
         const module = await import('/xtendrmt/rmt-first-demo-app.js');
         const root = document.querySelector('[data-rmt-host="rmt-first-demo"]');
-        const documentResponse = await fetch('/xtendrmt/rmt-first-demo-app.rmt');
-        const documentText = await documentResponse.text();
-        const rmtDocument = window.AppModules && typeof window.AppModules.createRmtFormat === 'function'
-          ? window.AppModules.createRmtFormat().parseDocument(documentText, {
-              sourceUrl: '/xtendrmt/rmt-first-demo-app.rmt'
-            })
-          : JSON.parse(documentText);
+        const sourceResponse = await fetch(root.getAttribute('data-rmt-source-src'));
+        const sourceText = await sourceResponse.text();
+        const documentResponse = await fetch(root.getAttribute('data-rmt-document-src'));
+        const rmtDocument = await documentResponse.json();
+        recordCheck('rmt-first demo source is vnext authoring', sourceText.trim().startsWith('template ') && !sourceText.trim().startsWith('{'));
         recordCheck('rmt-first demo document loaded', rmtDocument.manifest.metadata.contractVersion === 'xtend.epic10.rmt-first-demo-app.v1');
+        recordCheck('rmt-first demo runtime core declares vnext source', rmtDocument.manifest.sourceSyntax === 'rmt-vnext');
         const renderResult = module.default && module.default.renderRmtShellFromDocument
           ? module.default.renderRmtShellFromDocument(rmtDocument, { root })
           : window.XTendRmtFirstDemo.renderRmtShellFromDocument(rmtDocument, { root });
@@ -58,6 +58,7 @@
         window.__xtendRmtFirstDemoSmokeResult.status = window.__xtendRmtFirstDemoSmokeResult.errors.length ? 'failed' : 'passed';
         window.__xtendRmtFirstDemoSmokeResult.routes = renderResult.routes.length;
         window.__xtendRmtFirstDemoSmokeResult.schedules = rmtDocument.schedules.length;
+        window.__xtendRmtFirstDemoSmokeResult.sourceSyntax = rmtDocument.manifest.sourceSyntax;
       } catch (error) {
         window.__xtendRmtFirstDemoSmokeResult.status = 'failed';
         window.__xtendRmtFirstDemoSmokeResult.errors.push(error.message);
