@@ -1,4 +1,5 @@
 import { xstate } from './xstate.js';
+import { createXtendRmtCommandDetail } from './rmt-command.js';
 import './xicon.js';
 
 class XStatus extends HTMLElement {
@@ -92,7 +93,7 @@ class XStatus extends HTMLElement {
       liveRegion: 'polite-or-assertive',
       timeoutMode: 'none',
       dismissMode: 'dismissible-attribute',
-      events: ['status-changed', 'status-dismissed'],
+      events: ['xtend-command', 'status-changed', 'status-dismissed'],
       commands: ['announce', 'dismiss', 'update-status', 'snapshot'],
       stateKey: 'xstatus-state-<id>',
       schedule: 'feedback.status.update',
@@ -313,6 +314,12 @@ class XStatus extends HTMLElement {
       bubbles: true,
       composed: true
     }));
+    this.dispatchEvent(new CustomEvent('xtend-command', {
+      detail: createXtendRmtCommandDetail(this, 'status-changed', this.state, { fallbackId: 'x-status', defaultLane: 'visible' }),
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
     if (this.id && !this._syncingFromXstate) xstate.set(`xstatus-state-${this.id}`, this.state);
   }
 
@@ -322,6 +329,12 @@ class XStatus extends HTMLElement {
       detail: this.state,
       bubbles: true,
       composed: true
+    }));
+    this.dispatchEvent(new CustomEvent('xtend-command', {
+      detail: createXtendRmtCommandDetail(this, 'status-dismissed', this.state, { fallbackId: 'x-status', defaultLane: 'visible' }),
+      bubbles: true,
+      composed: true,
+      cancelable: true
     }));
   }
 

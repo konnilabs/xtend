@@ -210,8 +210,8 @@ function runEpic18VendorBugfixSmokeSuite(options = {}) {
     'overflow-y: auto;',
     'overflow-x: hidden;',
     '_collapseIconName(collapsed, placement)',
-    "if (placement === 'right' || placement === 'inline') return collapsed ? 'chevron-left' : 'chevron-right';",
-    "if (placement === 'bottom') return collapsed ? 'chevron-up' : 'chevron-down';"
+    "if (placement === 'right' || placement === 'inline') return collapsed ? 'chevron-right' : 'chevron-left';",
+    "if (placement === 'bottom') return collapsed ? 'chevron-down' : 'chevron-up';"
   ], 'x-side-panel placement icon regression contract');
 
   assertTextIncludesAll(context, controllerSource, [

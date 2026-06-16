@@ -1,5 +1,33 @@
 import { xstate } from './xstate.js';
 
+const X_PROGRESS_RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
+
+function createRmtCommandDetail(host, eventName, payload = {}, options = {}) {
+  const command = host.getAttribute('command')
+    || host.dataset.command
+    || host.dataset.action
+    || host.id
+    || eventName;
+  const sourceId = host.id || 'x-progress';
+  return {
+    schema: X_PROGRESS_RMT_COMMAND_SCHEMA,
+    id: `rmt.command:${sourceId}:${eventName}:${Date.now()}`,
+    source: {
+      kind: 'component',
+      id: sourceId,
+      event: eventName,
+      surfaceId: host.dataset.surfaceId || host.getAttribute('surface-id') || ''
+    },
+    command,
+    payload,
+    target: options.target || null,
+    correlationId: `rmt.correlation:${sourceId}:${Date.now()}`,
+    runId: '',
+    lane: options.lane || 'visible',
+    timestamp: new Date().toISOString()
+  };
+}
+
 class XProgress extends HTMLElement {
   static get observedAttributes() {
     return ['value', 'max', 'label', 'status', 'indeterminate', 'busy'];
@@ -91,7 +119,7 @@ class XProgress extends HTMLElement {
       liveRegion: 'polite',
       timeoutMode: 'none',
       dismissMode: 'none',
-      events: ['progress-changed', 'progress-complete'],
+      events: ['xtend-command', 'progress-changed', 'progress-complete'],
       commands: ['set-progress', 'complete', 'snapshot'],
       stateKey: 'xprogress-value-<id>',
       schedule: 'feedback.progress.update',
@@ -315,12 +343,24 @@ class XProgress extends HTMLElement {
       bubbles: true,
       composed: true
     }));
+    this.dispatchEvent(new CustomEvent('xtend-command', {
+      detail: createRmtCommandDetail(this, 'progress-changed', { value: this.value, max: this.max, percent: this.percent, source: 'x-progress' }),
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
     xstate.set(`xprogress-value-${this.id}`, this.value);
     if (this.value >= this.max && !this.indeterminate) {
       this.dispatchEvent(new CustomEvent('progress-complete', {
         detail: { value: this.value, max: this.max, percent: 100, source: 'x-progress' },
         bubbles: true,
         composed: true
+      }));
+      this.dispatchEvent(new CustomEvent('xtend-command', {
+        detail: createRmtCommandDetail(this, 'progress-complete', { value: this.value, max: this.max, percent: 100, source: 'x-progress' }),
+        bubbles: true,
+        composed: true,
+        cancelable: true
       }));
     }
   }

@@ -63,6 +63,10 @@ Attribute:
 - `placement`
 - `responsive-mode`
 - `resizable`
+- `collapsible`
+- `collapsable` (Legacy-Alias fuer `collapsible`)
+- `closable`
+- `pinnable`
 - `route-aware`
 - `modal`
 - `initial-width`
@@ -131,6 +135,10 @@ CSS Custom Properties:
 - RMT schedules: `surface.visible.render`, `surface.user-blocking.open`, `surface.user-blocking.close`, `surface.transition.layout`, `surface.diagnostics.snapshot`.
 
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
+
+Verwende `collapsible`, `closable="false"` und `pinnable="false"`, um die Panel-Chrome fuer fokussierte Produktshells zu begrenzen. Diese Flags wirken auf die sichtbaren Header-Controls und auf die erzeugten Surface-Record-Capabilities; ein nicht schliessbares Panel bewirbt also keine `close`-Aktion.
+
+Surface-Modi bleiben Teil des Runtime-Vertrags: `docked`, `overlay`, `pinned`, `collapsed`, `fullscreen` und die responsive Vorgabe `fullscreen-under-720`.
 
 Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezieltes Skinning freigegebener Controls gedacht, während CSS Custom Properties breitere Anpassungen an Farbe, Abstand, Radius und Bewegung abdecken. Accessibility-Hooks wie Labels, Live-Regionen und Fokusverhalten sollten beim Komponieren erhalten bleiben.
 

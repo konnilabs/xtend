@@ -1,6 +1,6 @@
 import { xstate } from '../../../components/xstate.js';
 
-export type XTextareaEventName = 'textarea-changed' | 'textarea-invalid';
+export type XTextareaEventName = 'textarea-changed' | 'textarea-invalid' | 'textarea-submit';
 
 export interface XTextareaChangedDetail {
   value: string;
@@ -12,6 +12,13 @@ export interface XTextareaChangedDetail {
 export interface XTextareaInvalidDetail {
   value: string;
   message: string;
+  source: 'x-textarea';
+}
+
+export interface XTextareaSubmitDetail {
+  value: string;
+  length: number;
+  maxLength: number;
   source: 'x-textarea';
 }
 
@@ -44,7 +51,7 @@ export class XTextarea extends HTMLElement {
     lane: 'user-blocking',
     hydrationPolicy: 'visible'
   } as const;
-  static readonly observedAttributes = ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label'];
+  static readonly observedAttributes = ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'submit-on-enter'];
   private readonly control: HTMLTextAreaElement;
   private readonly internalsRef?: ElementInternals;
 
@@ -54,6 +61,7 @@ export class XTextarea extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot!.innerHTML = '<textarea id="control" aria-describedby="hint counter error"></textarea><div id="counter" role="status" aria-live="polite"></div><div id="error" role="alert" aria-live="assertive"><slot name="error"></slot></div>';
     this.control = this.shadowRoot!.querySelector('#control') as HTMLTextAreaElement;
+    this.control.addEventListener('keydown', (event) => this.onKeydown(event));
   }
 
   connectedCallback(): void {
@@ -92,5 +100,32 @@ export class XTextarea extends HTMLElement {
 
   focus(): void {
     this.control.focus();
+  }
+
+  private submitOnEnterEnabled(): boolean {
+    const value = this.getAttribute('submit-on-enter');
+    return value != null && !['false', '0', 'off', 'no'].includes(String(value).trim().toLowerCase());
+  }
+
+  private onKeydown(event: KeyboardEvent): void {
+    if (!this.submitOnEnterEnabled()) return;
+    if (event.key !== 'Enter' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey || event.isComposing) return;
+    if (this.hasAttribute('disabled') || this.hasAttribute('readonly')) return;
+    event.preventDefault();
+    const submitEvent = new CustomEvent<XTextareaSubmitDetail>('textarea-submit', {
+      detail: {
+        value: this.value,
+        length: this.value.length,
+        maxLength: this.maxLength,
+        source: 'x-textarea'
+      },
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+    const shouldSubmit = this.dispatchEvent(submitEvent);
+    if (!shouldSubmit) return;
+    const form = this.internalsRef?.form || this.closest('form');
+    if (form && typeof form.requestSubmit === 'function') form.requestSubmit();
   }
 }

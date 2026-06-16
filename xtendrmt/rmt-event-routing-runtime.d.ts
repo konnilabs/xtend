@@ -1,5 +1,6 @@
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-event-routing-diagnostic.v1';
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA: 'xtend.epic18.rmt-event-routing-runtime.v1';
+export const RMT_COMMAND_SCHEMA: 'xtend.rmt.command.v1';
 
 export type RmtEventRoutingKind = 'dom' | 'custom' | 'keyboard' | 'form' | 'surface' | 'drop' | string;
 export type RmtEventActionMode = 'run-action' | 'cancel-action' | string;
@@ -97,6 +98,14 @@ export interface RmtEventRouteResult {
   reason?: string;
   contractErrors?: string[];
   actionResult?: unknown;
+  commandEnvelope?: {
+    schema: typeof RMT_COMMAND_SCHEMA;
+    id: string;
+    command: string;
+    payload: unknown;
+    correlationId: string;
+    lane: string;
+  };
   governance?: Record<string, unknown>;
 }
 
@@ -131,6 +140,7 @@ export interface RmtEventRoutingRuntimeOptions {
   eventBindings?: RmtEventBindingDefinition[];
   actionRuntime?: {
     runAction?(actionId: string, payload?: unknown, metadata?: Record<string, unknown>): Promise<unknown> | unknown;
+    dispatchCommand?(command: Record<string, unknown>, metadata?: Record<string, unknown>): Promise<unknown> | unknown;
     cancelAction?(actionId: string): unknown;
   };
   root?: unknown;

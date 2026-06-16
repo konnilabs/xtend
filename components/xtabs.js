@@ -1,4 +1,5 @@
 import { xstate } from './xstate.js';
+import { createXtendRmtCommandDetail } from './rmt-command.js';
 
 // <x-tab> – Without Shadow DOM
 class XTab extends HTMLElement {
@@ -12,7 +13,7 @@ customElements.define("x-tab", XTab);
 // <x-tabs> – Fully Updated
 class XTabs extends HTMLElement {
   static get observedAttributes() {
-    return ["selected", "text-color"];
+    return ["selected", "text-color", "orientation"];
   }
 
   static get xtendComponentContract() {
@@ -66,7 +67,9 @@ class XTabs extends HTMLElement {
         host: "x-tabs",
         child: "x-tab",
         selectedAttribute: "selected",
+        orientationAttribute: "orientation",
         labelAttribute: "name",
+        labelAttributeAliases: ["label"],
         event: "tab-selected"
       },
       kernelBoundary: "no-rmt-kernel-import-of-xtend-types"
@@ -130,8 +133,9 @@ class XTabs extends HTMLElement {
       activeState: "aria-selected-and-selected-index",
       focusRestore: "roving-tabindex-preserves-selected-tab",
       routeAnnouncement: "delegated-to-router-or-tab-selected-event",
-      keyboardNavigation: "arrow-home-end-enter-space",
-      events: ["tab-selected"],
+      keyboardNavigation: "arrow-left-right-up-down-home-end-enter-space",
+      orientationModes: ["horizontal", "vertical"],
+      events: ["xtend-command", "tab-selected"],
       commands: ["select-tab", "focus-next", "focus-previous", "snapshot"],
       stateKey: "xtabs-selected",
       schedule: "ui.user-blocking.tabs",
@@ -176,6 +180,8 @@ class XTabs extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._selected = 0;
     this._tabs = [];
+    this._hasRenderedTabs = false;
+    this._emptyTabsWarningEmitted = false;
     this._performanceSnapshots = [];
     this._instanceId = XTabs._nextInstanceId = (XTabs._nextInstanceId || 0) + 1;
 
@@ -239,6 +245,36 @@ class XTabs extends HTMLElement {
           padding: 0.3em 0.7em 0 0.7em;
           backdrop-filter: blur(var(--glass-blur));
         }
+        .tab-panels {
+          display: block;
+          min-width: 0;
+          min-height: 0;
+        }
+        :host([orientation="vertical"]) {
+          display: grid;
+          grid-template-columns: minmax(9rem, var(--xtend-tabs-vertical-nav-width, 30%)) minmax(0, 1fr);
+          gap: var(--xtend-tabs-gap);
+          align-items: stretch;
+        }
+        :host([orientation="vertical"]) .tabs {
+          flex-direction: column;
+          flex-wrap: nowrap;
+          align-items: stretch;
+          align-self: stretch;
+          overflow-x: hidden;
+          overflow-y: auto;
+          border-bottom: 0;
+          border-right: 2px solid var(--xtend-tabs-current-indicator);
+          border-radius: var(--border-radius) 0 0 var(--border-radius);
+          padding: 0.5em 0 0.5em 0.5em;
+        }
+        :host([orientation="vertical"]) .tab-panels {
+          align-self: stretch;
+          block-size: 100%;
+          min-width: 0;
+          min-height: 0;
+          overflow: hidden;
+        }
         .tabs button {
           background: var(--tab-bg);
           border: var(--tab-border);
@@ -263,12 +299,25 @@ class XTabs extends HTMLElement {
           outline: none;
           position: relative;
         }
+        :host([orientation="vertical"]) .tabs button {
+          width: 100%;
+          max-width: none;
+          border: var(--tab-border);
+          border-right: none;
+          border-radius: var(--tab-radius) 0 0 var(--tab-radius);
+          text-align: left;
+        }
         .tabs button[aria-selected="true"] {
           color: var(--primary);
           background: var(--tab-active-bg);
           border-bottom: 2.5px solid var(--primary);
           box-shadow: inset 0 -3px 0 var(--xtend-tabs-current-indicator), var(--tab-shadow);
           z-index: 2;
+        }
+        :host([orientation="vertical"]) .tabs button[aria-selected="true"] {
+          border-bottom: var(--tab-border);
+          border-right: 2.5px solid var(--primary);
+          box-shadow: inset -3px 0 0 var(--xtend-tabs-current-indicator), var(--tab-shadow);
         }
         .tabs button:focus {
           outline: var(--focus-outline);
@@ -302,6 +351,15 @@ class XTabs extends HTMLElement {
           padding: 1.2em 1.5em;
           animation: fadeInTab 0.25s cubic-bezier(.4,1.4,.6,1);
           overflow-wrap: anywhere;
+        }
+        :host([orientation="vertical"]) ::slotted(x-tab) {
+          box-sizing: border-box;
+          block-size: 100%;
+          max-block-size: 100%;
+          border-radius: 0 var(--border-radius) var(--border-radius) 0;
+          min-width: 0;
+          min-height: 0;
+          overflow: auto;
         }
         ::slotted(x-tab.active) {
           display: block;
@@ -350,12 +408,13 @@ class XTabs extends HTMLElement {
         }
       </style>
       <div class="tabs" role="tablist"></div>
-      <slot></slot>
+      <slot class="tab-panels"></slot>
     `;
   }
 
   connectedCallback() {
     const start = this._now();
+    this._syncOrientation();
     this._renderTabs();
     this._updateVisibility();
     // Textfarbe aus Attribut oder CSS-Variable setzen
@@ -392,10 +451,14 @@ class XTabs extends HTMLElement {
       }
       const focusedIndex = this._tabs.indexOf(e.target);
       const currentIndex = focusedIndex >= 0 ? focusedIndex : this._selected;
-      if (e.key === "ArrowRight") {
+      const orientation = this._getOrientation();
+      const nextKeys = orientation === "vertical" ? ["ArrowDown", "ArrowRight"] : ["ArrowRight"];
+      const previousKeys = orientation === "vertical" ? ["ArrowUp", "ArrowLeft"] : ["ArrowLeft"];
+      let handled = true;
+      if (nextKeys.includes(e.key)) {
         e.preventDefault();
         this._activateTabFromKeyboard(this._resolveNextEnabledTabIndex(currentIndex, 1));
-      } else if (e.key === "ArrowLeft") {
+      } else if (previousKeys.includes(e.key)) {
         e.preventDefault();
         this._activateTabFromKeyboard(this._resolveNextEnabledTabIndex(currentIndex, -1));
       } else if (e.key === "Home") {
@@ -407,8 +470,10 @@ class XTabs extends HTMLElement {
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         this._activateTabFromKeyboard(currentIndex);
+      } else {
+        handled = false;
       }
-      if (["ArrowRight", "ArrowLeft", "Home", "End", "Enter", " "].includes(e.key)) {
+      if (handled) {
         this._recordPerformanceSnapshot("keyboard", keyStart, "keyboardAction");
       }
     };
@@ -427,11 +492,25 @@ class XTabs extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === "selected" && newValue !== oldValue) {
       this._selected = parseInt(newValue);
-      this._updateSelection();
-      xstate.set('xtabs-selected', this._selected); // State aktualisieren
+      if (this._canUpdateSelection()) {
+        this._updateSelection();
+        xstate.set('xtabs-selected', this._selected); // State aktualisieren
+      }
     } else if (name === "text-color" && newValue !== oldValue) {
       this._applyTextColor();
+    } else if (name === "orientation" && newValue !== oldValue) {
+      this._syncOrientation();
     }
+  }
+
+  _getOrientation() {
+    return this.getAttribute("orientation") === "vertical" ? "vertical" : "horizontal";
+  }
+
+  _syncOrientation() {
+    const header = this.shadowRoot.querySelector(".tabs");
+    if (!header) return;
+    header.setAttribute("aria-orientation", this._getOrientation());
   }
 
   _renderTabs() {
@@ -447,7 +526,7 @@ class XTabs extends HTMLElement {
       tabEl.setAttribute("aria-labelledby", buttonId);
       const btn = document.createElement("button");
       btn.id = buttonId;
-      btn.textContent = tabEl.getAttribute("name") || `Tab ${i + 1}`;
+      btn.textContent = tabEl.getAttribute("name") || tabEl.getAttribute("label") || `Tab ${i + 1}`;
       btn.setAttribute("role", "tab");
       btn.setAttribute("aria-selected", "false");
       btn.setAttribute("aria-controls", panelId);
@@ -461,7 +540,9 @@ class XTabs extends HTMLElement {
       return btn;
     });
 
-    if (this._tabs.length === 0) {
+    this._hasRenderedTabs = true;
+    if (this._tabs.length === 0 && !this._emptyTabsWarningEmitted) {
+      this._emptyTabsWarningEmitted = true;
       console.warn("No tabs found in <x-tabs>.");
     }
 
@@ -471,7 +552,10 @@ class XTabs extends HTMLElement {
 
   _updateSelection() {
     if (!this._tabs || !Array.isArray(this._tabs) || this._tabs.length === 0) {
-      console.warn("Tabs are not initialized or empty.");
+      if (this.isConnected && this._hasRenderedTabs && !this._emptyTabsWarningEmitted) {
+        this._emptyTabsWarningEmitted = true;
+        console.warn("Tabs are not initialized or empty.");
+      }
       return;
     }
 
@@ -485,6 +569,10 @@ class XTabs extends HTMLElement {
       btn.setAttribute("tabindex", !this._isTabButtonDisabled(btn) && i === this._selected ? "0" : "-1");
     });
     this._updateVisibility();
+  }
+
+  _canUpdateSelection() {
+    return this._hasRenderedTabs && Array.isArray(this._tabs) && this._tabs.length > 0;
   }
 
   _updateVisibility() {
@@ -523,6 +611,12 @@ class XTabs extends HTMLElement {
       detail: { index: i },
       bubbles: true,
       composed: true
+    }));
+    this.dispatchEvent(new CustomEvent("xtend-command", {
+      detail: createXtendRmtCommandDetail(this, "tab-selected", { index: i, source: "x-tabs" }, { fallbackId: "x-tabs" }),
+      bubbles: true,
+      composed: true,
+      cancelable: true
     }));
     xstate.set('xtabs-selected', i); // State aktualisieren
     this._recordPerformanceSnapshot("tab-switch", start, "tabSwitch");

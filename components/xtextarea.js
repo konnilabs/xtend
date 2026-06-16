@@ -1,4 +1,5 @@
 import { xstate } from './xstate.js';
+import { createXtendRmtCommandDetail } from './rmt-command.js';
 
 const XTEXTAREA_LANGUAGE_ALIASES = Object.freeze({
   js: 'javascript',
@@ -15,6 +16,19 @@ const XTEXTAREA_LANGUAGE_ALIASES = Object.freeze({
   'rmt-vnext': 'rmt',
   xtendrmt: 'rmt'
 });
+function createTextareaPayload(host, extra = {}) {
+  const value = host.value;
+  const trimmedLength = value.trim().length;
+  return {
+    value,
+    length: value.length,
+    trimmedLength,
+    empty: trimmedLength === 0,
+    maxLength: host.maxLength,
+    source: 'x-textarea',
+    ...extra
+  };
+}
 
 function getGlobalTarget() {
   if (typeof window !== 'undefined') return window;
@@ -81,7 +95,7 @@ class XTextarea extends HTMLElement {
   static formAssociated = true;
 
   static get observedAttributes() {
-    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'syntax-highlight', 'highlight', 'line-numbering', 'lang', 'language'];
+    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'submit-on-enter', 'syntax-highlight', 'highlight', 'line-numbering', 'lang', 'language'];
   }
 
   static registerHighlighter(provider) {
@@ -179,7 +193,7 @@ class XTextarea extends HTMLElement {
       valueMode: 'string',
       slots: ['label', 'hint', 'error'],
       parts: ['root', 'editor', 'control', 'highlight', 'highlight-code', 'line-numbers', 'line-number', 'label', 'helper', 'error'],
-      events: ['textarea-changed', 'textarea-invalid'],
+      events: ['xtend-command', 'textarea-changed', 'textarea-invalid', 'textarea-submit'],
       commands: ['focus', 'validate', 'reset', 'set-value', 'announce-error'],
       stateKey: 'xtextarea-value-<id>',
       schedule: 'ui.user-blocking.input',
@@ -657,6 +671,7 @@ class XTextarea extends HTMLElement {
     this._lastLineNumberCount = 0;
     this._onInput = this._onInput.bind(this);
     this._onInvalid = this._onInvalid.bind(this);
+    this._onKeydown = this._onKeydown.bind(this);
     this._onScroll = this._onScroll.bind(this);
   }
 
@@ -671,6 +686,7 @@ class XTextarea extends HTMLElement {
     this._syncLineNumbers();
     this._control.addEventListener('input', this._onInput);
     this._control.addEventListener('invalid', this._onInvalid);
+    this._control.addEventListener('keydown', this._onKeydown);
     this._control.addEventListener('scroll', this._onScroll, { passive: true });
     xstate.set(`xtextarea-value-${this.id}`, this.value);
     this._unsubscribeState = xstate.subscribe((key, value) => {
@@ -683,6 +699,7 @@ class XTextarea extends HTMLElement {
   disconnectedCallback() {
     this._control.removeEventListener('input', this._onInput);
     this._control.removeEventListener('invalid', this._onInvalid);
+    this._control.removeEventListener('keydown', this._onKeydown);
     this._control.removeEventListener('scroll', this._onScroll);
     if (this._unsubscribeState) this._unsubscribeState();
   }
@@ -761,17 +778,23 @@ class XTextarea extends HTMLElement {
     this._syncHighlight();
     this._syncLineNumbers();
     this.dispatchEvent(new CustomEvent('textarea-changed', {
-      detail: {
-        value: this.value,
-        length: this.value.length,
-        maxLength: this.maxLength,
-        source: 'x-textarea',
+      detail: createTextareaPayload(this, {
         highlighted: this._lastHighlightSnapshot.highlighted === true,
         highlightEngine: this._lastHighlightSnapshot.highlightEngine,
         highlightLanguage: this._lastHighlightSnapshot.highlightLanguage
-      },
+      }),
       bubbles: true,
       composed: true
+    }));
+    this.dispatchEvent(new CustomEvent('xtend-command', {
+      detail: createXtendRmtCommandDetail(this, 'textarea-changed', createTextareaPayload(this, {
+        highlighted: this._lastHighlightSnapshot.highlighted === true,
+        highlightEngine: this._lastHighlightSnapshot.highlightEngine,
+        highlightLanguage: this._lastHighlightSnapshot.highlightLanguage
+      }), { fallbackId: 'x-textarea' }),
+      bubbles: true,
+      composed: true,
+      cancelable: true
     }));
     xstate.set(`xtextarea-value-${this.id}`, this.value);
   }
@@ -786,8 +809,42 @@ class XTextarea extends HTMLElement {
     }));
   }
 
+  _onKeydown(event) {
+    if (!this._isSubmitOnEnterEnabled()) return;
+    if (event.key !== 'Enter' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey || event.isComposing) return;
+    if (this.hasAttribute('disabled') || this.hasAttribute('readonly')) return;
+    event.preventDefault();
+    const submitEvent = new CustomEvent('textarea-submit', {
+      detail: createTextareaPayload(this),
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+    const shouldSubmit = this.dispatchEvent(submitEvent);
+    if (!shouldSubmit) return;
+    this.dispatchEvent(new CustomEvent('xtend-command', {
+      detail: createXtendRmtCommandDetail(this, 'textarea-submit', createTextareaPayload(this), {
+        fallbackId: 'x-textarea',
+        command: () => this.getAttribute('submit-command') || this.dataset.submitCommand || ''
+      }),
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+    const form = this._internals?.form || this.closest('form');
+    if (form && typeof form.requestSubmit === 'function') {
+      form.requestSubmit();
+    } else if (form) {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    }
+  }
+
   _onScroll() {
     this._syncHighlightScroll();
+  }
+
+  _isSubmitOnEnterEnabled() {
+    return isBooleanAttributeEnabled(this.getAttribute('submit-on-enter'));
   }
 
   _isLineNumberingEnabled() {

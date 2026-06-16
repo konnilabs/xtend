@@ -1,0 +1,77 @@
+// RMT-owned chat/app runtime starter.
+// Product code supplies host adapters only; UI wiring stays in RMT/Maraca.
+
+template app.chat {
+  state app.chat.prompt type object preserve {
+    initial {
+      id "prompt-input"
+      value ""
+      disabled false
+    }
+  }
+
+  state app.chat.transcript type object preserve {
+    initial {
+      id "chat-transcript"
+      messages []
+      emptyText "Start a conversation."
+    }
+  }
+
+  state app.chat.generation type object preserve {
+    initial {
+      id "generation-state"
+      busy false
+      activeRunId ""
+      status "Waiting"
+    }
+  }
+
+  selector app.chat.prompt from state app.chat.prompt {
+    output AppChatPrompt
+  }
+
+  selector app.chat.transcript from state app.chat.transcript {
+    output AppChatTranscript
+  }
+
+  action app.chat.submit {
+    input value string
+    reduce recipe busy-generation target app.chat.generation
+    effect stream datasource app.chat.generate
+  }
+
+  action app.chat.cancel {
+    input runId string
+    reduce recipe idle-generation target app.chat.generation
+    effect cancel datasource app.chat.generate
+  }
+
+  datasource app.chat.generate from host app.chat.generate {
+    mode stream
+    contract xtend.rmt.stream-patch.v1
+  }
+
+  portal surface.root root "#app-root" layer surface
+
+  surface app.chat.transcript kind content component section {
+    source selector app.chat.transcript
+    key transcript.id
+    portal surface.root
+
+    view repeat messages key id {
+      element article class "app-chat-message"
+      slot body rich-text from item.segments
+    }
+  }
+
+  surface app.chat.prompt kind field component x-textarea {
+    source selector app.chat.prompt
+    key prompt.id
+    portal surface.root
+
+    on xtend-command "#prompt-input" -> action app.chat.submit {
+      payload value from detail.payload.value
+    }
+  }
+}

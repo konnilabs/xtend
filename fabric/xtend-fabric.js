@@ -32,6 +32,7 @@
     runtimeDiagnosticsBridge: 'xtend.fabric.runtime-diagnostics-bridge.v1',
     telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
     backpressureSignal: 'xtend.fabric.backpressure-signal.v1',
+    appRuntimeFiberInstrumentation: 'xtend.fabric.app-runtime-fiber-instrumentation.v1',
     performanceMeasurement: 'xtend.performance.measurement.v1',
     componentLifecycleTelemetry: 'xtend.component.lifecycle-telemetry.v1'
   });
@@ -46,6 +47,13 @@
     'component.update': 'visible',
     'component.disconnect': 'background',
     'event.handler': 'user-blocking',
+    'rmt.command': 'user-blocking',
+    'rmt.action': 'user-blocking',
+    'rmt.service.invoke': 'user-blocking',
+    'rmt.service.subscribe': 'background',
+    'rmt.stream.patch': 'visible',
+    'rmt.stream.delta': 'visible',
+    'rmt.reducer': 'user-blocking',
     'route.navigate': 'user-blocking',
     'route.render': 'transition',
     'theme.apply': 'visible',

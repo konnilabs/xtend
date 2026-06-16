@@ -175,6 +175,12 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'expandPanel(mode = \'docked\')',
     'setPanelMode(mode, placement = this._placement())',
     'resizePanel(bounds)',
+    'collapsible',
+    'closable',
+    'pinnable',
+    'disabledCapabilities',
+    '_disabledCapabilities()',
+    '_applyLocalCommand(command, payload = {})',
     'minimized',
     'placement="bottom"',
     'mode="overlay"',
@@ -190,6 +196,9 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'interface XSidePanelElement',
     'XSidePanelPlacement',
     'XSidePanelMode',
+    'collapsible',
+    'closable',
+    'pinnable',
     'toSurfaceRecord',
     'applySurfaceSnapshot',
     'minimizePanel',
@@ -201,6 +210,9 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'x-side-panel',
     'xtend.surface.record.v1',
     'minimizePanel',
+    'collapsible',
+    'closable',
+    'pinnable',
     'surface-panel-command',
     'fullscreen-under-720'
   ], 'SurfaceManager side-panel TypeScript source');
@@ -212,29 +224,36 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'surface-id="workbench.properties"',
     'placement="right"',
     'mode="pinned"',
+    'collapsible',
+    'closable="false"',
+    'pinnable="false"',
     'initial-width="320"',
     '__xtendComponentResult'
   ], 'x-side-panel fixture');
   context.assert(!panelFixture.includes('https://cdn.ccs-networks.de'), 'x-side-panel fixture has no CDN dependency');
 
   assertTextIncludesAll(context, panelDocs, [
-    '# xsidepanel - XTend Komponente',
-    'xtend.surface.record.v1',
+    '# x-side-panel',
     'surface-panel-command',
     'docked',
     'overlay',
     'pinned',
     'collapsed',
     'fullscreen-under-720',
+    'collapsible',
+    'closable',
+    'pinnable',
     'applySurfaceSnapshot'
   ], 'x-side-panel component docs');
   assertTextIncludesAll(context, docs, [
     SURFACE_MANAGER_SIDE_PANEL_SCHEMA,
     'x-side-panel',
-    'surface-panel-command',
-    'Docked',
-    'Pinned',
-    'Overlay',
+    'collapsible',
+    'closable',
+    'pinnable',
+    'docked',
+    'pinned',
+    'overlay',
     'WP-SM-05'
   ], 'SurfaceManager side-panel docs');
   assertTextIncludesAll(context, contractDoc, [

@@ -26,11 +26,14 @@ Lade den XTend Loader einmal pro Seite. Der Loader liest das lokale Manifest und
 <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
 <x-tabs id="demo-xtabs"
   selected="0"
+  orientation="horizontal"
   text-color="demo">
   <x-tab>Overview</x-tab>
   <x-tab>Details</x-tab>
 </x-tabs>
 ```
+
+Nutze `orientation="vertical"`, wenn ein Settings-Panel oder eine dichte Shell von einer linken Tab-Schiene profitiert. Vertikale Tabs setzen `aria-orientation="vertical"` auf der Tablist und behalten dasselbe `tab-selected` Event.
 
 ## Beispiele
 
@@ -53,6 +56,7 @@ Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Di
 Attribute:
 - `selected`
 - `text-color`
+- `orientation`
 
 Events:
 - `tab-selected`
@@ -92,7 +96,7 @@ CSS Custom Properties:
 - RMT contract: `xtend.rmt.component-contract.v1`.
 - Performance profile: `xtend.performance.component-profile.v1`.
 - RMT schedules: `component.visible.mount`, `component.visible.hydrate`, `ui.user-blocking.tabs`, `route.transition.tab`, `diagnostics.snapshot`.
-- Keyboard-Navigation: `Home`, `End`, `aria-controls`, `bubbles: true`, `composed: true`, `snapshotPerformance()`.
+- Keyboard-Navigation: `ArrowRight`, `ArrowLeft`, `ArrowUp`, `ArrowDown`, `Home`, `End`, `aria-controls`, `bubbles: true`, `composed: true`, `snapshotPerformance()`.
 
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
 

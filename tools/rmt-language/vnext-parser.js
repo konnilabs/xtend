@@ -674,9 +674,10 @@ class VNextParser {
       if (this.matches('status')) return this.parseKeywordPathClause('status', 'RmtActionStatusClause');
       if (this.matches('effect')) return this.parseActionEffectStatement();
       if (this.matches('reduce')) return this.parseReduceStatement();
+      if (this.matches('recipe')) return this.parseReducerRecipeStatement();
       if (this.matches('emit')) return this.parseEmitStatement();
       if (this.matches('on')) return this.parseActionResultHandler();
-      this.addDiagnostic(this.current(), 'Action blocks may contain input, status, effect, reduce, emit and result handlers only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.addDiagnostic(this.current(), 'Action blocks may contain input, status, effect, reduce, recipe, emit and result handlers only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
       this.skipStatementOrBlock();
       return null;
     });
@@ -1032,17 +1033,69 @@ class VNextParser {
     if (token.value === '[') {
       const start = this.consume();
       const items = [];
+      this.skipSeparators();
       while (!this.isAtEnd() && !this.matches(']')) {
         if (this.matches(',')) {
           this.consume();
+          this.skipSeparators();
         } else {
           items.push(this.parsePrimitiveValue());
+          this.skipSeparators();
+          if (this.matches(',')) {
+            this.consume();
+            this.skipSeparators();
+          }
         }
       }
       const end = this.expectValue(']', 'Expected closing bracket for array literal.') || this.previous();
       return this.createNode('RmtPrimitiveValue', start, end, {
         kind: 'array',
         items
+      });
+    }
+
+    if (token.value === '{') {
+      const start = this.consume();
+      const fields = [];
+      this.skipSeparators();
+      while (!this.isAtEnd() && !this.matches('}')) {
+        if (this.matches(',')) {
+          this.consume();
+          this.skipSeparators();
+          continue;
+        }
+
+        const keyToken = this.current();
+        let key = null;
+        let keyNode = null;
+        if (keyToken.type === 'string') {
+          this.consume();
+          key = keyToken.value;
+          keyNode = this.createNode('RmtObjectValueKey', keyToken, keyToken, {
+            value: key
+          });
+        } else {
+          keyNode = this.parseQualifiedIdentifierAllowReserved('Expected object value key.');
+          key = keyNode && keyNode.value;
+        }
+
+        const value = this.parsePrimitiveValue();
+        const end = value ? getNodeEndToken(value) : this.previous();
+        fields.push(this.createNode('RmtObjectValueField', keyNode && keyNode.startToken || keyToken, end, {
+          key,
+          keyNode,
+          value
+        }));
+        this.skipSeparators();
+        if (this.matches(',')) {
+          this.consume();
+          this.skipSeparators();
+        }
+      }
+      const end = this.expectValue('}', 'Expected closing brace for object literal.') || this.previous();
+      return this.createNode('RmtPrimitiveValue', start, end, {
+        kind: 'object',
+        fields
       });
     }
 
@@ -1231,6 +1284,33 @@ class VNextParser {
       targetNode: target,
       expression: this.rawTextFromTokens(expressionTokens),
       expressionTokens: expressionTokens.map((token) => this.tokenText(token))
+    });
+  }
+
+  parseReducerRecipeStatement() {
+    const start = this.expectValue('recipe', 'Expected recipe statement.');
+    const recipeValue = this.parsePrimitiveValue();
+    if (!this.matches('target')) {
+      this.addDiagnostic(this.current(), 'Expected target in reducer recipe statement.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+    } else {
+      this.consume();
+    }
+    const target = this.parseQualifiedIdentifierAllowReserved('Expected reducer recipe target.');
+    let valueExpression = '';
+    let valueTokens = [];
+    if (this.matches('value')) {
+      this.consume();
+      valueTokens = this.collectTokensUntilStatementEnd();
+      valueExpression = this.rawTextFromTokens(valueTokens);
+    }
+    this.consumeStatementEnd('Expected statement end after reducer recipe statement.');
+    const end = valueTokens.length > 0 ? valueTokens[valueTokens.length - 1] : this.previous();
+    return this.createNode('RmtReducerRecipeStatement', start, end, {
+      recipe: recipeValue,
+      target: target && target.value,
+      targetNode: target,
+      valueExpression,
+      valueTokens: valueTokens.map((token) => this.tokenText(token))
     });
   }
 

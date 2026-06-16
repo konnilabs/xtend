@@ -1,7 +1,7 @@
 import type { XtendCustomEventMap, XtendFormControlUxProfile, XtendPublicEventContract } from './xtend-public-types';
 
-export type XTextareaAttributeName = 'name' | 'value' | 'placeholder' | 'required' | 'disabled' | 'readonly' | 'maxlength' | 'minlength' | 'rows' | 'label' | 'busy' | 'invalid' | 'density' | 'fill' | 'syntax-highlight' | 'highlight' | 'line-numbering' | 'lang' | 'language';
-export type XTextareaEventName = 'textarea-changed' | 'textarea-invalid';
+export type XTextareaAttributeName = 'name' | 'value' | 'placeholder' | 'required' | 'disabled' | 'readonly' | 'maxlength' | 'minlength' | 'rows' | 'label' | 'busy' | 'invalid' | 'density' | 'fill' | 'submit-on-enter' | 'syntax-highlight' | 'highlight' | 'line-numbering' | 'lang' | 'language';
+export type XTextareaEventName = 'textarea-changed' | 'textarea-invalid' | 'textarea-submit';
 export type XTextareaHighlightEngine = 'prism' | 'plain-text' | string;
 
 export interface XTextareaHighlightInput {
@@ -39,12 +39,20 @@ export interface XTextareaInvalidEventDetail {
   source: 'x-textarea';
 }
 
+export interface XTextareaSubmitEventDetail {
+  value: string;
+  length: number;
+  maxLength: number;
+  source: 'x-textarea';
+}
+
 export interface XTextareaEventDetailMap {
   'textarea-changed': XTextareaChangedEventDetail;
   'textarea-invalid': XTextareaInvalidEventDetail;
+  'textarea-submit': XTextareaSubmitEventDetail;
 }
 
-export type XTextareaEventDetail = XTextareaChangedEventDetail | XTextareaInvalidEventDetail;
+export type XTextareaEventDetail = XTextareaChangedEventDetail | XTextareaInvalidEventDetail | XTextareaSubmitEventDetail;
 export type XTextareaEventMap = XtendCustomEventMap<XTextareaEventDetailMap>;
 export type XTextareaFormControlUxProfile = XtendFormControlUxProfile<'x-textarea'>;
 export type XTextareaPublicEventContract = XtendPublicEventContract<XTextareaEventName, XTextareaEventDetail>;

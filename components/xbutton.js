@@ -1,4 +1,6 @@
 import { xstate } from './xstate.js';
+import { createXtendButtonPayloadBase, createXtendRmtCommandDetail } from './rmt-command.js';
+import './xicon.js';
 
 const X_BUTTON_PERFORMANCE_PROFILE_SCHEMA = 'xtend.performance.component-profile.v1';
 const X_BUTTON_PERFORMANCE_SNAPSHOT_SCHEMA = 'xtend.component.performance-snapshot.v1';
@@ -7,7 +9,7 @@ const X_BUTTON_STATE_SCHEMA = 'xtend.component.x-button.state.v1';
 
 class XButton extends HTMLElement {
   static get observedAttributes() {
-    return ["disabled", "label", "variant", "size", "icon", "loading", "overlay", "aria-label", "aria-busy"];
+    return ["disabled", "label", "data-label", "text", "variant", "size", "icon", "icon-name", "icon-pack", "loading", "overlay", "aria-label", "aria-busy"];
   }
 
   static get xtendComponentContract() {
@@ -62,8 +64,8 @@ class XButton extends HTMLElement {
       shellAuthoring: {
         schema: 'xtend.rmt.shell-authoring.component.v1',
         host: 'x-button',
-        attributes: ['variant', 'size', 'disabled', 'loading', 'aria-label'],
-        events: ['click', 'button-interaction', 'loading-start', 'loading-end']
+        attributes: ['variant', 'size', 'disabled', 'loading', 'aria-label', 'icon-name', 'icon-pack'],
+        events: ['xtend-command', 'click', 'button-interaction', 'loading-start', 'loading-end']
       },
       kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
     };
@@ -354,7 +356,7 @@ class XButton extends HTMLElement {
 
   attributeChangedCallback(name, _, newValue) {
     const start = this._now();
-    if (["disabled", "label", "variant", "size", "icon", "loading", "aria-label", "aria-busy"].includes(name)) {
+    if (["disabled", "label", "data-label", "text", "variant", "size", "icon", "icon-name", "icon-pack", "loading", "aria-label", "aria-busy"].includes(name)) {
       this._renderButton();
       this._performanceCounters.renders += 1;
       this._recordPerformanceMeasurement(
@@ -381,9 +383,13 @@ class XButton extends HTMLElement {
     // Size
     const size = this.getAttribute("size");
     if (size) this._btn.classList.add(size);
-    // Icon (SVG inline)
+    // Icon (SVG inline, URL image, or XTend icon pack entry)
+    const iconName = this.getAttribute("icon-name");
+    const iconPack = this.getAttribute("icon-pack") || "core";
     const icon = this.getAttribute("icon");
-    if (icon && icon.startsWith('<svg')) {
+    if (iconName) {
+      this._renderPackIcon(iconName, iconPack);
+    } else if (icon && icon.startsWith('<svg')) {
       this._icon.innerHTML = icon;
       this._icon.style.display = "inline-flex";
     } else if (icon) {
@@ -415,6 +421,30 @@ class XButton extends HTMLElement {
     }
   }
 
+  _renderPackIcon(iconName, iconPack) {
+    const render = () => {
+      if (this.getAttribute("icon-name") !== iconName) return;
+      this._icon.innerHTML = "";
+      const icon = document.createElement("x-icon");
+      icon.setAttribute("name", iconName);
+      icon.setAttribute("pack", iconPack || "core");
+      icon.setAttribute("decorative", "true");
+      icon.setAttribute("size", "1.15em");
+      this._icon.append(icon);
+      this._icon.style.display = "inline-flex";
+    };
+    if (customElements.get("x-icon")) {
+      render();
+      return;
+    }
+    import("./xicon.js")
+      .then(render)
+      .catch(() => {
+        this._icon.textContent = "";
+        this._icon.style.display = "none";
+      });
+  }
+
   _upgradeAttributes() {
     if (this.hasAttribute("disabled")) {
       this._btn.disabled = true;
@@ -423,7 +453,13 @@ class XButton extends HTMLElement {
   }
 
   _getFallbackLabel() {
-    return this.getAttribute("label") || this.getAttribute("aria-label") || "Click";
+    return this.getAttribute("label")
+      || this.getAttribute("data-label")
+      || this.dataset.label
+      || this.getAttribute("text")
+      || this.textContent.trim()
+      || this.getAttribute("aria-label")
+      || "Click";
   }
 
   _syncLabelFallback() {
@@ -467,6 +503,7 @@ class XButton extends HTMLElement {
       bubbles: true,
       composed: true
     }));
+    this._dispatchRmtCommand('click', this._createInteractionDetail('click', measurement), { target: event && event.target || null });
   }
 
   _handleButtonFocus(event) {
@@ -492,6 +529,20 @@ class XButton extends HTMLElement {
       bubbles: true,
       composed: true
     }));
+    this._dispatchRmtCommand('keyboard', this._createInteractionDetail('keyboard', measurement, { key: event.key }), { target: event && event.target || null });
+  }
+
+  _dispatchRmtCommand(eventName, payload = {}, options = {}) {
+    this.dispatchEvent(new CustomEvent('xtend-command', {
+      detail: createXtendRmtCommandDetail(this, eventName, payload, {
+        ...options,
+        fallbackId: 'x-button',
+        payloadBase: createXtendButtonPayloadBase
+      }),
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
   }
 
   _isBusy() {
@@ -509,7 +560,7 @@ class XButton extends HTMLElement {
       disabled: this.hasAttribute("disabled"),
       loading: this.hasAttribute("loading"),
       busy: this._isBusy(),
-      label: this.getAttribute("label") || this.textContent.trim() || this.getAttribute("aria-label") || "Click",
+      label: this.getAttribute("label") || this.getAttribute("data-label") || this.dataset.label || this.getAttribute("text") || this.textContent.trim() || this.getAttribute("aria-label") || "Click",
       variant: this.getAttribute("variant") || "primary",
       size: this.getAttribute("size") || "normal"
     };

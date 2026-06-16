@@ -1,6 +1,7 @@
 (function attachRmtEventRoutingRuntime(globalTarget) {
   const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v1';
   const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-event-routing-diagnostic.v1';
+  const RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.event_routing';
 
   function clampString(value, fallback = '') {
@@ -238,6 +239,41 @@
       message,
       severity,
       details: cloneValue(details, {})
+    };
+  }
+
+  function nowIso() {
+    return new Date().toISOString();
+  }
+
+  function randomId(prefix) {
+    return `${prefix}:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  function isRmtCommandEnvelope(value) {
+    return !!value && typeof value === 'object' && value.schema === RMT_COMMAND_SCHEMA && !!value.command;
+  }
+
+  function createCommandEnvelope(binding, payload, event = {}, metadata = {}) {
+    const detail = objectRecord(event && event.detail);
+    const nestedCommand = isRmtCommandEnvelope(detail.command) ? detail.command : null;
+    const commandDetail = isRmtCommandEnvelope(detail) ? detail : nestedCommand;
+    return {
+      schema: RMT_COMMAND_SCHEMA,
+      id: clampString(metadata.commandId || commandDetail && commandDetail.id, randomId('rmt.command')),
+      source: {
+        kind: clampString(readPath(commandDetail, 'source.kind'), 'component'),
+        id: clampString(binding.component || readPath(commandDetail, 'source.id') || readPath(detail, 'source.id') || detail.componentId || event && event.target && event.target.id, ''),
+        event: clampString(binding.event || readPath(commandDetail, 'source.event') || event && event.type, ''),
+        surfaceId: clampString(binding.surfaceId || readPath(commandDetail, 'source.surfaceId') || readPath(detail, 'source.surfaceId') || detail.surfaceId || eventSurfaceId(event), '')
+      },
+      command: clampString(binding.action || commandDetail && commandDetail.command || detail.command || detail.action, ''),
+      payload: cloneValue(payload, {}),
+      target: binding.target || commandDetail && commandDetail.target || null,
+      correlationId: clampString(metadata.correlationId || commandDetail && commandDetail.correlationId || detail.correlationId, randomId('rmt.correlation')),
+      runId: clampString(metadata.runId || commandDetail && commandDetail.runId, ''),
+      lane: clampString(metadata.lane || commandDetail && commandDetail.lane || detail.lane, 'user-blocking'),
+      timestamp: metadata.timestamp || commandDetail && commandDetail.timestamp || nowIso()
     };
   }
 
@@ -561,7 +597,20 @@
       }
 
       const governanceResult = applyGovernance(binding, event);
-      const payload = createPayload(binding, event, metadata);
+      const detail = objectRecord(event && event.detail);
+      const commandFromEvent = isRmtCommandEnvelope(detail) ? detail : (isRmtCommandEnvelope(detail.command) ? detail.command : null);
+      const payload = commandFromEvent && binding.payload === '$detail'
+        ? cloneValue(commandFromEvent.payload, {})
+        : createPayload(binding, event, metadata);
+      const commandEnvelope = createCommandEnvelope(binding, payload, event, metadata);
+      if (binding.event === 'click') {
+        diagnosticsRecorder.publish(createDiagnostic('rmt.event.legacy_dom_event', `RMT Event ${binding.id} uses legacy DOM event click; prefer xtend-command.`, {
+          bindingId: binding.id,
+          event: binding.event,
+          action: binding.action,
+          commandSchema: RMT_COMMAND_SCHEMA
+        }, 'warning'));
+      }
       if (!shouldConfirm(binding, payload, event, metadata, options)) {
         const blocked = createRouteResult(binding, 'blocked', payload, {
           reason: 'confirm-declined',
@@ -613,6 +662,14 @@
       if (binding.actionMode === 'cancel-action') {
         if (typeof actionRuntime.cancelAction !== 'function') throw new Error('RMT Action Runtime unterstuetzt cancelAction nicht.');
         actionResult = actionRuntime.cancelAction(binding.action);
+      } else if (typeof actionRuntime.dispatchCommand === 'function') {
+        actionResult = await actionRuntime.dispatchCommand(commandEnvelope, {
+          eventId: binding.id,
+          eventName: binding.event,
+          component: binding.component,
+          ownerId: binding.owner,
+          ...objectRecord(metadata)
+        });
       } else {
         if (typeof actionRuntime.runAction !== 'function') throw new Error('RMT Action Runtime unterstuetzt runAction nicht.');
         actionResult = await actionRuntime.runAction(binding.action, payload, {
@@ -620,6 +677,9 @@
           eventName: binding.event,
           component: binding.component,
           ownerId: binding.owner,
+          commandEnvelope,
+          correlationId: commandEnvelope.correlationId,
+          lane: commandEnvelope.lane,
           ...objectRecord(metadata)
         });
       }
@@ -628,6 +688,7 @@
       const postAction = applyPostAction(binding, event, null, metadata, options);
       const result = createRouteResult(binding, status, payload, {
         actionResult: cloneValue(actionResult, actionResult),
+        commandEnvelope: cloneValue(commandEnvelope, commandEnvelope),
         governance: governanceResult,
         postAction
       });
@@ -734,6 +795,7 @@
   const api = {
     RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA,
     RMT_EVENT_ROUTING_RUNTIME_SCHEMA,
+    RMT_COMMAND_SCHEMA,
     createRmtEventRoutingRuntime
   };
 
@@ -749,6 +811,7 @@ const __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__ = globalThis.XTendRmtEventRoutingR
 
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA;
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_RUNTIME_SCHEMA;
+export const RMT_COMMAND_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_COMMAND_SCHEMA;
 export const createRmtEventRoutingRuntime = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.createRmtEventRoutingRuntime;
 
 export default __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__;

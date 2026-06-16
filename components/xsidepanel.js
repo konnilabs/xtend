@@ -14,6 +14,10 @@ class XSidePanel extends HTMLElement {
       'placement',
       'responsive-mode',
       'resizable',
+      'collapsible',
+      'collapsable',
+      'closable',
+      'pinnable',
       'route-aware',
       'modal',
       'initial-width',
@@ -298,6 +302,10 @@ class XSidePanel extends HTMLElement {
           align-items: center;
           gap: 0.25rem;
         }
+        .actions[hidden],
+        button[hidden] {
+          display: none;
+        }
         :host([collapsed]) .actions button[data-action="pin"],
         :host([collapsed]) .actions button[data-action="close"] {
           display: none;
@@ -423,9 +431,11 @@ class XSidePanel extends HTMLElement {
     this._header = this.shadowRoot.querySelector('header');
     this._title = this.shadowRoot.querySelector('#title');
     this._resizeHandle = this.shadowRoot.querySelector('.resize');
-    this._collapseButton = this.shadowRoot.querySelector('[data-action="collapse"]');
-    this._collapseIcon = this.shadowRoot.querySelector('[data-action="collapse"] x-icon');
-    this._pinButton = this.shadowRoot.querySelector('[data-action="pin"]');
+    this._actions = this.shadowRoot.querySelector('.actions');
+    this._collapseButton = this.shadowRoot.querySelector('button[data-action="collapse"]');
+    this._collapseIcon = this.shadowRoot.querySelector('button[data-action="collapse"] x-icon');
+    this._pinButton = this.shadowRoot.querySelector('button[data-action="pin"]');
+    this._closeButton = this.shadowRoot.querySelector('button[data-action="close"]');
   }
 
   connectedCallback() {
@@ -462,7 +472,7 @@ class XSidePanel extends HTMLElement {
     if (oldValue === newValue) return;
     if (name === 'label' || name === 'surface-id') this._renderLabel();
     if (name.startsWith('initial-')) this._applyInitialSize();
-    if (['collapsed', 'pinned', 'mode', 'placement', 'modal', 'open', 'minimized'].includes(name)) this._syncA11y();
+    if (['collapsed', 'pinned', 'mode', 'placement', 'modal', 'open', 'minimized', 'collapsible', 'collapsable', 'closable', 'pinnable'].includes(name)) this._syncA11y();
     if (this._applyingSnapshot || !this.isConnected) return;
     if (name === 'open') {
       this.hasAttribute('open') ? this.openPanel() : this.closePanel('attribute');
@@ -497,13 +507,19 @@ class XSidePanel extends HTMLElement {
       mode,
       initialBounds: this._readBounds(),
       capabilities: this._capabilities(),
+      disabledCapabilities: this._disabledCapabilities(),
       defaultOpen: this.hasAttribute('open'),
       pinned: this.hasAttribute('pinned') || mode === 'pinned',
       collapsed: this.hasAttribute('collapsed') || mode === 'collapsed',
       modal: this.hasAttribute('modal') || mode === 'overlay',
       metadata: {
         source: 'x-side-panel',
-        responsiveMode: this.getAttribute('responsive-mode') || 'fullscreen-under-720'
+        responsiveMode: this.getAttribute('responsive-mode') || 'fullscreen-under-720',
+        controls: {
+          collapsible: this._collapsible(),
+          closable: this._closable(),
+          pinnable: this._pinnable()
+        }
       }
     };
   }
@@ -583,9 +599,41 @@ class XSidePanel extends HTMLElement {
   }
 
   _capabilities() {
-    const capabilities = ['open', 'focus', 'close', 'dock', 'collapse', 'minimize', 'restore', 'snapshot'];
+    const capabilities = ['open', 'focus', 'dock', 'minimize', 'restore', 'snapshot'];
+    if (this._closable()) capabilities.push('close');
+    if (this._collapsible()) capabilities.push('collapse', 'expand');
+    if (this._pinnable()) capabilities.push('pin', 'unpin');
     if (this.hasAttribute('resizable')) capabilities.push('resize');
     return capabilities;
+  }
+
+  _disabledCapabilities() {
+    const disabled = [];
+    if (!this._closable()) disabled.push('close');
+    if (!this._collapsible()) disabled.push('collapse', 'expand');
+    if (!this._pinnable()) disabled.push('pin', 'unpin');
+    if (!this.hasAttribute('resizable')) disabled.push('resize');
+    return disabled;
+  }
+
+  _booleanOption(name, fallback = true) {
+    if (!this.hasAttribute(name)) return fallback;
+    const value = String(this.getAttribute(name) || '').trim().toLowerCase();
+    return !['false', '0', 'no', 'off'].includes(value);
+  }
+
+  _collapsible() {
+    if (this.hasAttribute('collapsible')) return this._booleanOption('collapsible', true);
+    if (this.hasAttribute('collapsable')) return this._booleanOption('collapsable', true);
+    return true;
+  }
+
+  _closable() {
+    return this._booleanOption('closable', true);
+  }
+
+  _pinnable() {
+    return this._booleanOption('pinnable', true);
   }
 
   _readBounds() {
@@ -630,18 +678,43 @@ class XSidePanel extends HTMLElement {
     if (this._collapseButton) this._collapseButton.setAttribute('aria-label', collapsed ? 'Expand panel' : 'Collapse panel');
     if (this._collapseIcon) this._collapseIcon.setAttribute('name', this._collapseIconName(collapsed, placement));
     if (this._pinButton) this._pinButton.setAttribute('aria-pressed', this.hasAttribute('pinned') ? 'true' : 'false');
+    this._syncControls();
+  }
+
+  _syncControls() {
+    if (this._collapseButton) {
+      const hidden = !this._collapsible();
+      this._collapseButton.toggleAttribute('hidden', hidden);
+      this._collapseButton.hidden = hidden;
+    }
+    if (this._pinButton) {
+      const hidden = !this._pinnable();
+      this._pinButton.toggleAttribute('hidden', hidden);
+      this._pinButton.hidden = hidden;
+    }
+    if (this._closeButton) {
+      const hidden = !this._closable();
+      this._closeButton.toggleAttribute('hidden', hidden);
+      this._closeButton.hidden = hidden;
+    }
+    if (this._actions) {
+      const hidden = !this._collapsible() && !this._pinnable() && !this._closable();
+      this._actions.toggleAttribute('hidden', hidden);
+      this._actions.hidden = hidden;
+    }
   }
 
   _collapseIconName(collapsed, placement) {
-    if (placement === 'right' || placement === 'inline') return collapsed ? 'chevron-left' : 'chevron-right';
-    if (placement === 'bottom') return collapsed ? 'chevron-up' : 'chevron-down';
-    return collapsed ? 'chevron-right' : 'chevron-left';
+    if (placement === 'right' || placement === 'inline') return collapsed ? 'chevron-right' : 'chevron-left';
+    if (placement === 'bottom') return collapsed ? 'chevron-down' : 'chevron-up';
+    return collapsed ? 'chevron-left' : 'chevron-right';
   }
 
   _handleActionClick(event) {
     const control = event.target && event.target.closest && event.target.closest('button[data-action]');
     const action = control && control.getAttribute('data-action');
     if (!action) return;
+    if (control.hidden || control.hasAttribute('hidden')) return;
     event.preventDefault();
     if (action === 'close') this.closePanel('button');
     if (action === 'collapse') this.collapsePanel();
@@ -725,6 +798,14 @@ class XSidePanel extends HTMLElement {
   }
 
   _command(command, payload = {}) {
+    if (!this._commandAllowed(command)) {
+      return {
+        surfaceId: this.surfaceId,
+        command,
+        payload,
+        refused: true
+      };
+    }
     const detail = {
       surfaceId: this.surfaceId,
       command,
@@ -735,7 +816,74 @@ class XSidePanel extends HTMLElement {
       composed: true,
       detail
     }));
+    if (!this._hasSurfaceManager()) this._applyLocalCommand(command, payload);
     return detail;
+  }
+
+  _commandAllowed(command) {
+    if (command === 'close') return this._closable();
+    if (command === 'pin' || command === 'unpin') return this._pinnable();
+    if (command === 'collapse') return this._collapsible();
+    if (command === 'expand') return this._collapsible() || this.hasAttribute('collapsed');
+    if (command === 'resize') return this.hasAttribute('resizable');
+    return true;
+  }
+
+  _hasSurfaceManager() {
+    return Boolean(this.surfaceManager && typeof this.surfaceManager.registerSurface === 'function');
+  }
+
+  _applyLocalCommand(command, payload = {}) {
+    this._applyingSnapshot = true;
+    if (command === 'open') {
+      this.toggleAttribute('open', true);
+      this.toggleAttribute('minimized', false);
+    }
+    if (command === 'close') {
+      this.toggleAttribute('open', false);
+      this.toggleAttribute('active', false);
+      this.toggleAttribute('minimized', false);
+    }
+    if (command === 'focus') {
+      this.toggleAttribute('active', true);
+      this.toggleAttribute('open', true);
+      this.toggleAttribute('minimized', false);
+    }
+    if (command === 'minimize') {
+      this.toggleAttribute('minimized', true);
+      this.toggleAttribute('active', false);
+    }
+    if (command === 'restore') {
+      this.toggleAttribute('open', true);
+      this.toggleAttribute('minimized', false);
+    }
+    if (command === 'collapse') {
+      this.toggleAttribute('collapsed', true);
+      this.setAttribute('mode', 'collapsed');
+    }
+    if (command === 'expand') {
+      this.toggleAttribute('collapsed', false);
+      this.setAttribute('mode', payload.mode || (this.hasAttribute('pinned') ? 'pinned' : 'docked'));
+    }
+    if (command === 'pin') {
+      this.toggleAttribute('pinned', true);
+      this.setAttribute('mode', 'pinned');
+    }
+    if (command === 'unpin') {
+      this.toggleAttribute('pinned', false);
+      this.setAttribute('mode', 'docked');
+    }
+    if (command === 'dock') {
+      if (payload.placement) this.setAttribute('placement', payload.placement);
+      this.setAttribute('mode', payload.mode || 'docked');
+      this.toggleAttribute('collapsed', false);
+    }
+    if (command === 'resize') {
+      if (Number.isFinite(Number(payload.width))) this.style.setProperty('--side-panel-width', `${Number(payload.width)}px`);
+      if (Number.isFinite(Number(payload.height))) this.style.setProperty('--side-panel-height', `${Number(payload.height)}px`);
+    }
+    this._syncA11y();
+    this._applyingSnapshot = false;
   }
 }
 

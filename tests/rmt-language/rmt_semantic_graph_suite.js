@@ -35,7 +35,7 @@ const RMT_SEMANTIC_GRAPH_WP_PATH = 'development/WP-E14-04-Semantic-Graph-fuer-RM
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const VALID_FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.core.json';
-const MISSING_REFS_FIXTURE_PATH = 'tests/fixtures/rmt-app-dsl.missing-refs.rmt';
+const MISSING_REFS_FIXTURE_PATH = 'tests/fixtures/rmt-app-dsl.missing-refs.core.json';
 const VNEXT_PRIMITIVE_FIXTURE_PATH = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
 const VNEXT_PRIMITIVE_INVALID_FIXTURE_PATH = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 

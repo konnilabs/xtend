@@ -1,4 +1,19 @@
 import { xstate } from './xstate.js';
+import { createXtendRmtCommandDetail } from './rmt-command.js';
+
+function createInputPayload(host) {
+  const value = host.value;
+  const trimmedLength = String(value || '').trim().length;
+  return {
+    value,
+    length: String(value || '').length,
+    trimmedLength,
+    empty: trimmedLength === 0,
+    files: host.files,
+    fileCount: host.files ? host.files.length : 0,
+    source: "x-input"
+  };
+}
 
 // <x-input>
 class XInput extends HTMLElement {
@@ -86,7 +101,7 @@ class XInput extends HTMLElement {
       valueMode: "string",
       slots: ["label", "hint", "error"],
       parts: ["root", "control", "label", "helper", "error", "status"],
-      events: ["input-changed", "validation-failed"],
+      events: ["xtend-command", "input-changed", "validation-failed"],
       commands: ["focus", "validate", "reset", "set-value", "announce-error"],
       stateKey: "xinput-value-<id>",
       schedule: "ui.user-blocking.input",
@@ -344,14 +359,15 @@ class XInput extends HTMLElement {
       this._internals?.setFormValue(this.value);
       if (this._input.checkValidity()) this.removeAttribute("invalid");
       this.dispatchEvent(new CustomEvent("input-changed", {
-        detail: {
-          value: this.value,
-          files: this.files,
-          fileCount: this.files ? this.files.length : 0,
-          source: "x-input"
-        },
+        detail: createInputPayload(this),
         bubbles: true,
         composed: true
+      }));
+      this.dispatchEvent(new CustomEvent("xtend-command", {
+        detail: createXtendRmtCommandDetail(this, "input-changed", createInputPayload(this), { fallbackId: "x-input" }),
+        bubbles: true,
+        composed: true,
+        cancelable: true
       }));
       // State aktualisieren
       xstate.set(`xinput-value-${this.id}`, this.value);

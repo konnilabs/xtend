@@ -92,6 +92,10 @@ const {
   runRmtEventRoutingRuntimeSuite
 } = require('../tests/rmt/rmt_event_routing_runtime_suite');
 const {
+  printRmtAppRuntimeReport,
+  runRmtAppRuntimeSuite
+} = require('../tests/rmt/rmt_app_runtime_suite');
+const {
   printRmtSurfaceResourceGraphRuntimeReport,
   runRmtSurfaceResourceGraphRuntimeSuite
 } = require('../tests/rmt/rmt_surface_resource_graph_runtime_suite');
@@ -3072,6 +3076,16 @@ const suites = [
       const result = await runRmtEventRoutingRuntimeSuite({ rootDir });
       printRmtEventRoutingRuntimeReport(result);
       return toRunnerResult('rmt-event-routing-runtime', 'Epic 18 RMT event routing runtime', result);
+    }
+  },
+  {
+    id: 'rmt-app-runtime',
+    label: 'RMT full app runtime',
+    description: 'Runs the deterministic RMT command, host service, stream patch, descriptor and app-runtime source-to-sea gate.',
+    run: async () => {
+      const result = await runRmtAppRuntimeSuite({ rootDir });
+      printRmtAppRuntimeReport(result);
+      return toRunnerResult('rmt-app-runtime', 'RMT full app runtime', result);
     }
   },
   {

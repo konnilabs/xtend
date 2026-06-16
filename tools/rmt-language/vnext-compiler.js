@@ -1205,14 +1205,16 @@ function createActionReducerRecords(appPlatform) {
   const states = toArray(appPlatform && appPlatform.state);
   return toArray(appPlatform && appPlatform.actions).flatMap((action) => toArray(action.reducers).map((reducer, index) => {
     const target = statePathForReducer(reducer && reducer.target, states);
+    const isRecipe = reducer && reducer.recipe;
     return {
       id: `reducer:${normalizeIdSegment(action.id)}/${index}`,
       action: action.id,
       target: target.target,
       state: target.state,
       path: target.path,
+      recipe: isRecipe ? reducer.recipe : null,
       value: reducer && Object.prototype.hasOwnProperty.call(reducer, 'value') ? reducer.value : null,
-      mode: target.path ? 'patch-path' : 'set-state'
+      mode: isRecipe ? 'recipe' : target.path ? 'patch-path' : 'set-state'
     };
   }));
 }
@@ -1258,11 +1260,13 @@ function createEventBindingRecords(appPlatform) {
 
   return toArray(appPlatform && appPlatform.events).map((event) => {
     const surface = surfaceByEvent.get(event.id) || null;
+    const shouldDelegateCommand = event.event === 'xtend-command' && (event.target || event.selector);
     return {
       id: event.id,
       kind: 'dom',
       event: event.event,
       target: event.target || event.selector || '',
+      closest: shouldDelegateCommand ? event.target || event.selector || null : null,
       component: surface && surface.component || '',
       surface: surface && surface.id || null,
       owner: event.owner || surface && surface.id || event.id,
@@ -1309,6 +1313,155 @@ function createDataSourceRecords(appPlatform) {
 function firstSurfaceEvent(surface, eventBindings) {
   const eventIds = new Set(toArray(surface && surface.events));
   return eventBindings.find((event) => eventIds.has(event.id)) || null;
+}
+
+function cloneDescriptorValue(value) {
+  if (Array.isArray(value)) return value.map((entry) => cloneDescriptorValue(entry));
+  if (value && typeof value === 'object') {
+    return Object.entries(value).reduce((record, [key, entry]) => {
+      record[key] = cloneDescriptorValue(entry);
+      return record;
+    }, {});
+  }
+  return value;
+}
+
+function objectValue(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function hasOwn(record, field) {
+  return Object.prototype.hasOwnProperty.call(record || {}, field);
+}
+
+function mergeDescriptorClasses(baseClass, extraClass) {
+  if (typeof extraClass === 'undefined') return baseClass;
+  if (typeof baseClass === 'undefined') return cloneDescriptorValue(extraClass);
+  const classArray = (value) => Array.isArray(value)
+    ? value
+    : (typeof value === 'undefined' || value === null || value === '' ? [] : [value]);
+  return [
+    ...classArray(baseClass),
+    ...classArray(extraClass)
+  ];
+}
+
+function createChoiceMenuDescriptorChildren(template) {
+  const modelSource = String(template.modelSource || template.source || '$model.choiceMenu').trim() || '$model.choiceMenu';
+  const statePath = (field) => template[`${field}Source`] || `${modelSource}.${field}`;
+  const selectPayloadField = String(template.selectPayloadField || template.payloadField || 'value').trim() || 'value';
+  return [
+    {
+      type: 'element',
+      tag: 'button',
+      class: template.buttonClass || template.triggerClass || 'xtend-rmt-choice-menu-button',
+      attributes: {
+        id: template.buttonId || template.triggerId || 'choice-menu-button',
+        type: 'button',
+        'aria-haspopup': template.ariaHasPopup || 'menu',
+        'aria-expanded': statePath('open'),
+        'aria-pressed': { op: 'not-equals', left: statePath('activeToolAttr'), right: '' },
+        'data-active-tool': statePath('activeToolAttr'),
+        disabled: statePath('disabled')
+      },
+      command: {
+        command: template.toggleCommand || template.command || 'rmt.choiceMenu.toggle',
+        payload: template.togglePayload || { label: template.label || 'Choice menu' }
+      },
+      text: statePath('activeToolLabel')
+    },
+    {
+      type: 'element',
+      tag: 'div',
+      class: template.optionsClass || template.menuClass || 'xtend-rmt-choice-menu-options',
+      attributes: {
+        id: template.optionsId || template.menuId || 'choice-menu-options',
+        role: template.optionsRole || 'menu',
+        hidden: { op: 'not', source: statePath('open') }
+      },
+      children: [
+        {
+          type: 'repeat',
+          source: template.itemsSource || statePath('items'),
+          key: template.itemKey || 'value',
+          template: {
+            type: 'element',
+            tag: 'button',
+            class: template.itemClass || 'xtend-rmt-choice-menu-item',
+            attributes: {
+              type: 'button',
+              role: template.itemRole || 'menuitemradio',
+              'data-tool-name': '$item.value',
+              'aria-checked': { op: 'equals', left: statePath('activeTool'), right: '$item.value' }
+            },
+            command: {
+              command: template.selectCommand || 'rmt.choiceMenu.select',
+              payload: { [selectPayloadField]: '$item.value' }
+            },
+            text: '$item.label'
+          }
+        }
+      ]
+    }
+  ];
+}
+
+function applyViewTemplateToDescriptor(descriptor, viewTemplate) {
+  const template = objectValue(viewTemplate);
+  if (!Object.keys(template).length) return descriptor;
+  const attributes = objectValue(template.attributes || template.attrs);
+  const properties = objectValue(template.properties || template.props);
+  const styleTokens = objectValue(template.styleTokens || template.styleToken || template['style-token']);
+  const next = {
+    ...descriptor,
+    attributes: {
+      ...(descriptor.attributes || {}),
+      ...cloneDescriptorValue(attributes)
+    }
+  };
+
+  if (Object.keys(properties).length > 0) {
+    next.properties = {
+      ...(descriptor.properties || descriptor.props || {}),
+      ...cloneDescriptorValue(properties)
+    };
+  }
+  if (Object.keys(styleTokens).length > 0) {
+    next.styleTokens = {
+      ...(descriptor.styleTokens || {}),
+      ...cloneDescriptorValue(styleTokens)
+    };
+  }
+  if (hasOwn(template, 'class') || hasOwn(template, 'className') || hasOwn(template, 'classes')) {
+    next.class = mergeDescriptorClasses(descriptor.class || descriptor.className || descriptor.classes, template.class || template.className || template.classes);
+  }
+  if (hasOwn(template, 'part') || hasOwn(template, 'parts')) {
+    const partArray = (value) => Array.isArray(value)
+      ? value
+      : (typeof value === 'undefined' || value === null || value === '' ? [] : [value]);
+    next.parts = [
+      ...partArray(descriptor.parts),
+      ...partArray(cloneDescriptorValue(template.part || template.parts))
+    ];
+  }
+  if (template.type === 'choice-menu' || template.kind === 'choice-menu') {
+    next.primitive = 'choice-menu';
+    next.children = createChoiceMenuDescriptorChildren(template);
+    delete next.text;
+    return next;
+  }
+  if (hasOwn(template, 'text')) {
+    next.text = cloneDescriptorValue(template.text);
+  }
+  if (hasOwn(template, 'children') || hasOwn(template, 'nodes') || hasOwn(template, 'content')) {
+    next.children = toArray(cloneDescriptorValue(template.children || template.nodes || template.content));
+    delete next.text;
+  }
+  if (hasOwn(template, 'child') || hasOwn(template, 'root')) {
+    next.children = toArray(cloneDescriptorValue(template.child || template.root));
+    delete next.text;
+  }
+  return next;
 }
 
 function createRenderDescriptor(surface, eventBindings, initialStates = new Map()) {
@@ -1395,6 +1548,32 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
       createTextSpan('xtend-maraca-action-label', 'label', ['title', 'id'])
     ]
   });
+  const createRepeatedRecordTemplate = (collectionName = 'records') => ({
+    type: 'element',
+    tag: collectionName === 'messages' ? 'article' : 'div',
+    attributes: {
+      'data-id': itemText('id', 'title', 'label'),
+      'data-role': itemText('role', 'kind')
+    },
+    class: ['xtend-maraca-record', `xtend-maraca-${collectionName}-record`, {
+      'is-selected': '$item.selected',
+      'is-active': '$item.active',
+      'is-streaming': '$item.streaming',
+      'is-error': '$item.error'
+    }],
+    children: [
+      createTextSpan('xtend-maraca-record-title', 'title', ['label', 'name', 'role']),
+      {
+        type: 'when',
+        when: '$item.segments',
+        then: {
+          type: 'rich-text',
+          source: '$item.segments'
+        },
+        else: createTextSpan('xtend-maraca-record-text', 'text', ['body', 'content', 'snippet'])
+      }
+    ]
+  });
   const attributes = {
     'data-maraca-surface': literal(surface.id),
     'data-rmt-surface': literal(surface.id),
@@ -1421,6 +1600,8 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     'invalid',
     'rows',
     'density',
+    'width',
+    'height',
     'src',
     'poster',
     'title',
@@ -1440,9 +1621,14 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     'modal',
     'pinned',
     'collapsed',
+    'collapsible',
+    'collapsable',
+    'closable',
+    'pinnable',
     'placement',
     'mode',
-    'layout'
+    'layout',
+    'command'
   ].forEach((field) => {
     if (surface.source && hasStateField(field)) attributes[field] = bindStateField(field);
   });
@@ -1461,11 +1647,17 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     layoutEngine: 'layout-engine',
     surfaceLayoutGap: 'surface-layout-gap',
     surfaceLayoutSnap: 'surface-layout-snap',
+    ariaLabel: 'aria-label',
+    ariaBusy: 'aria-busy',
+    iconName: 'icon-name',
+    iconPack: 'icon-pack',
     initialX: 'initial-x',
     initialY: 'initial-y',
     initialWidth: 'initial-width',
     initialHeight: 'initial-height',
-    responsiveMode: 'responsive-mode'
+    responsiveMode: 'responsive-mode',
+    submitCommand: 'submit-command',
+    submitOnEnter: 'submit-on-enter'
   };
   Object.entries(mappedStateAttributes).forEach(([field, attribute]) => {
     if (surface.source && hasStateField(field)) attributes[attribute] = bindStateField(field);
@@ -1500,6 +1692,9 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     attributes['data-label'] = component === 'x-button' && surface.source && hasStateField('text')
       ? bindStateField('text')
       : actionToken;
+    if (!attributes.command && event && event.event === 'xtend-command') {
+      attributes.command = actionToken;
+    }
   }
 
   const children = [];
@@ -1602,6 +1797,21 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
       }]
     });
   }
+  ['messages', 'conversations', 'sources', 'entries', 'rows'].forEach((field) => {
+    if (!surface.source || !Array.isArray(initialState[field])) return;
+    children.push({
+      type: 'repeat',
+      source: statePath(field),
+      key: itemText('id', 'title', 'label'),
+      template: createRepeatedRecordTemplate(field)
+    });
+  });
+  if (surface.source && Array.isArray(initialState.segments)) {
+    children.push({
+      type: 'rich-text',
+      source: statePath('segments')
+    });
+  }
   if (component === 'x-surface-window' && surface.kind === 'player' && surface.source && hasStateField('src')) {
     children.unshift({
       type: 'component',
@@ -1639,7 +1849,7 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   if (children.length === 0 && surface.source && hasStateField('text')) {
     descriptor.text = bindStateField('text');
   }
-  return descriptor;
+  return applyViewTemplateToDescriptor(descriptor, initialState.viewTemplate || initialState.view || initialState.template);
 }
 
 function createCssPlan(appPlatform) {
@@ -2845,6 +3055,14 @@ class VNextCompiler {
           value: child.value
             ? primitiveValueToCore(child.value)
             : primitiveExpressionTextToCore(child.expression || child.text || '')
+        });
+      } else if (child.type === 'RmtReducerRecipeStatement') {
+        record.reducers.push({
+          recipe: child.recipe ? primitiveValueToCore(child.recipe) : '',
+          target: child.target,
+          value: child.valueExpression
+            ? primitiveExpressionTextToCore(child.valueExpression)
+            : null
         });
       } else if (child.type === 'RmtEmitStatement') {
         record.emits.push({

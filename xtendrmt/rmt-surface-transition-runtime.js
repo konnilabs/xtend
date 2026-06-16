@@ -129,6 +129,34 @@
     return Boolean(element.hidden);
   }
 
+  function setTransitioning(element, transitioning) {
+    if (!element || typeof element.setAttribute !== 'function' || typeof element.removeAttribute !== 'function') return;
+    if (transitioning) {
+      element.setAttribute('data-xt-surface-transitioning', 'true');
+      return;
+    }
+    element.removeAttribute('data-xt-surface-transitioning');
+  }
+
+  function resetTransitionStyles(element) {
+    if (!element) return;
+    if (typeof element.getAnimations === 'function') {
+      try {
+        element.getAnimations().forEach((animation) => {
+          if (animation && typeof animation.cancel === 'function') animation.cancel();
+        });
+      } catch (_) {
+        // Best-effort cleanup: animation handles may be unavailable in test doubles.
+      }
+    }
+    if (element.style) {
+      element.style.transition = '';
+      element.style.opacity = '';
+      element.style.transform = '';
+    }
+    setTransitioning(element, false);
+  }
+
   function createRmtSurfaceTransitionRuntime(options = {}) {
     const transitionPlan = normalizePlan(options.transitionPlan || options.plan);
     const root = options.root || null;
@@ -270,6 +298,7 @@
 
       if (!transition || !element || nextHidden === previousHidden) {
         setHidden(element, nextHidden);
+        if (!nextHidden) resetTransitionStyles(element);
         return {
           schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,
           status: transition ? 'unchanged' : 'unmatched',
@@ -332,6 +361,7 @@
         setHidden(element, false);
       }
       writeXState(transition, 'running', { phase, surface: surfaceId });
+      setTransitioning(element, true);
       const startDetail = {
         schema: 'xtend.rmt.surface-transition-start.v1',
         transition: transition.id,
@@ -347,6 +377,7 @@
       try {
         const effectResult = await runEffect(element, transition, phase, input.metadata || {});
         if (activeRecord.cancelled || active.get(surfaceId) !== activeRecord) {
+          resetTransitionStyles(element);
           completeExitGate({
             schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,
             status: 'cancelled',
@@ -370,6 +401,7 @@
           effect: transition.effect
         };
         if (nextHidden) setHidden(element, true);
+        resetTransitionStyles(element);
         active.delete(surfaceId);
         completeExitGate(result);
         writeXState(transition, result.status, result);
@@ -378,6 +410,7 @@
         return result;
       } catch (error) {
         active.delete(surfaceId);
+        resetTransitionStyles(element);
         setHidden(element, nextHidden);
         completeExitGate({
           schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,

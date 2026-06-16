@@ -91,6 +91,20 @@ const TEMPLATE_REGISTRY = [
     path: 'xtend-builder/templates/component/fixture-data.template.ts',
     status: 'implemented-WP-E10-07',
     purpose: 'Typed fixture-data template for Component Lab, tests and RMT previews.'
+  },
+  {
+    id: 'app.rmt-owned-chat-shell',
+    artifact: 'rmt-owned-chat-shell',
+    path: 'xtend-builder/templates/app/rmt-owned-chat-shell.template.rmt',
+    status: 'implemented-runtime-ownership',
+    purpose: 'RMT-owned chat/app runtime shell with command, stream, dialog, transcript and datasource declarations.'
+  },
+  {
+    id: 'app.rmt-owned-business-adapter',
+    artifact: 'rmt-owned-business-adapter',
+    path: 'xtend-builder/templates/app/rmt-owned-business-adapter.template.mjs',
+    status: 'implemented-runtime-ownership',
+    purpose: 'Business adapter stub for RMT-owned apps; intentionally contains no product UI DOM wiring.'
   }
 ];
 

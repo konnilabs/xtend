@@ -54,6 +54,8 @@ Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Di
 
 Editor-Oberflächen können `line-numbering="true"` setzen. Dann rendert `x-textarea` eine Monaco-ähnliche Zeilennummernspalte im Shadow DOM; `line-numbering="false"` oder ein fehlendes Attribut deaktiviert sie. Das ist vor allem für RMT-Playgrounds und Diagnosepanels nützlich, weil Compilerfehler mit Zeilennummern direkt neben der Quelle lesbar werden.
 
+Prompt-Oberflächen können `submit-on-enter` setzen. In diesem Modus löst Enter `textarea-submit` aus und reicht die Eingabe an das nächste Formular weiter, sofern das Event nicht abgebrochen wird. Shift+Enter behält das native Textarea-Verhalten und erzeugt eine neue Zeile.
+
 ## API-Referenz
 
 Attribute:
@@ -71,6 +73,7 @@ Attribute:
 - `invalid`
 - `density`
 - `fill`
+- `submit-on-enter`
 - `syntax-highlight`
 - `highlight`
 - `line-numbering`
@@ -80,6 +83,7 @@ Attribute:
 Events:
 - `textarea-changed`
 - `textarea-invalid`
+- `textarea-submit`
 
 Methoden:
 - `checkValidity()`

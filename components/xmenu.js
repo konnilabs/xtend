@@ -1,4 +1,5 @@
 import { xstate } from './xstate.js';
+import { createXtendRmtCommandDetail } from './rmt-command.js';
 
 const X_MENU_PERFORMANCE_PROFILE_SCHEMA = 'xtend.performance.component-profile.v1';
 const X_MENU_PERFORMANCE_SNAPSHOT_SCHEMA = 'xtend.component.performance-snapshot.v1';
@@ -63,7 +64,7 @@ class XMenu extends HTMLElement {
         host: 'x-menu',
         accepts: ['a', 'button', 'x-link', '[role=menuitem]'],
         stateKey: 'xmenu-active',
-        events: ['menu-item-clicked', 'menu-navigate', 'menu-keyboard-navigation'],
+        events: ['xtend-command', 'menu-item-clicked', 'menu-navigate', 'menu-keyboard-navigation'],
         routeBinding: 'href-to-xrouter-navigation'
       },
       kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
@@ -161,7 +162,7 @@ class XMenu extends HTMLElement {
       focusRestore: 'roving-tabindex-preserves-focused-item',
       routeAnnouncement: 'delegated-to-x-router',
       keyboardNavigation: 'arrow-home-end-enter-space',
-      events: ['menu-item-clicked', 'menu-navigate', 'menu-keyboard-navigation'],
+      events: ['xtend-command', 'menu-item-clicked', 'menu-navigate', 'menu-keyboard-navigation'],
       commands: ['activate-item', 'focus-next', 'focus-previous', 'sync-route', 'snapshot'],
       stateKey: 'xmenu-active',
       schedule: 'ui.user-blocking.navigation',
@@ -671,13 +672,20 @@ class XMenu extends HTMLElement {
     );
     this._setActiveItem(index, source, { focus: source === 'keyboard' });
 
+    const itemDetail = this._createMenuItemDetail(item, index, href, source, measurement);
     const clicked = this.dispatchEvent(new CustomEvent('menu-item-clicked', {
-      detail: this._createMenuItemDetail(item, index, href, source, measurement),
+      detail: itemDetail,
       cancelable: true,
       bubbles: true,
       composed: true
     }));
     if (!clicked) return;
+    this.dispatchEvent(new CustomEvent('xtend-command', {
+      detail: createXtendRmtCommandDetail(this, 'menu-item-clicked', itemDetail, { fallbackId: 'x-menu', target: item }),
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
 
     if (isRoutable) {
       this._performanceCounters.routeActivations += 1;

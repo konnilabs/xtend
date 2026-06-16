@@ -104,6 +104,7 @@
       statusState: clampString(action && action.statusState, ''),
       resourceOwner: clampString(action && action.resourceOwner, action && action.id),
       effects: toArray(action && (action.effects || action.effect)).map((effect) => typeof effect === 'string' ? effect : clampString(effect && effect.id)).filter(Boolean),
+      reducers: toArray(action && action.reducers).map((reducer) => typeof reducer === 'string' ? { command: reducer } : objectRecord(reducer)),
       resources: toArray(action && action.resources).map((resource) => typeof resource === 'string' ? resource : clampString(resource && resource.id)).filter(Boolean),
       cancelable: action && action.cancelable !== false
     })).filter((action) => action.id);
@@ -133,6 +134,9 @@
       path: effect && Object.prototype.hasOwnProperty.call(effect, 'path') ? effect.path : '',
       severity: clampString(effect && effect.severity, 'info'),
       resource: clampString(effect && effect.resource, ''),
+      service: clampString(effect && (effect.service || effect.serviceId), ''),
+      mode: clampString(effect && effect.mode, ''),
+      payload: effect && Object.prototype.hasOwnProperty.call(effect, 'payload') ? effect.payload : '$result',
       resources: toArray(effect && effect.resources).map((entry) => typeof entry === 'string' ? entry : clampString(entry && entry.id)).filter(Boolean)
     })).filter((effect) => effect.id);
   }
@@ -274,6 +278,13 @@
       const response = await adapter.invoke({ source, payload, context });
       return source.resultPath ? readPath(response, source.resultPath) : response;
     }
+    if (source.kind === 'host-service' || source.kind === 'service') {
+      const registry = options.hostServiceRegistry || context.hostServiceRegistry || null;
+      const serviceId = source.adapter || source.service || source.id;
+      if (!registry || typeof registry.invoke !== 'function') throw new Error(`RMT Host Service Adapter fuer ${source.id} fehlt.`);
+      const response = await registry.invoke(serviceId, payload, { ...context, dataSource: source });
+      return source.resultPath ? readPath(response, source.resultPath) : response;
+    }
     if (source.kind === 'rest') {
       const adapter = adapters[source.adapter] || adapters.rest || null;
       if (!adapter || typeof adapter.fetch !== 'function') throw new Error(`RMT REST DataSource Adapter fuer ${source.id} fehlt.`);
@@ -302,6 +313,29 @@
     return null;
   }
 
+  function dispatchReducer(stateRuntime, reducer, payload, metadata = {}) {
+    if (!stateRuntime || !reducer) return null;
+    if (typeof reducer === 'string' && typeof stateRuntime.dispatch === 'function') {
+      return stateRuntime.dispatch(reducer, payload, metadata);
+    }
+    const record = objectRecord(reducer);
+    const command = clampString(record.command || record.id, '');
+    if (command && typeof stateRuntime.dispatch === 'function') {
+      return stateRuntime.dispatch(command, payload, metadata);
+    }
+    if (record.state && Object.prototype.hasOwnProperty.call(record, 'set')) {
+      return writeState(stateRuntime, record.state, resolveValue(record.set, { payload, result: payload, stateRuntime }), metadata);
+    }
+    if (record.state && record.patch) {
+      const patch = {};
+      Object.entries(objectRecord(record.patch)).forEach(([key, value]) => {
+        patch[key] = resolveValue(value, { payload, result: payload, stateRuntime });
+      });
+      return patchState(stateRuntime, record.state, patch, metadata);
+    }
+    return null;
+  }
+
   function createRmtActionEffectRuntime(options = {}) {
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     const actions = normalizeActions(options.actions);
@@ -316,6 +350,7 @@
     const navigationAdapter = options.navigationAdapter || null;
     const focusAdapter = options.focusAdapter || null;
     const effectAdapter = options.effectAdapter || null;
+    const hostServiceRegistry = options.hostServiceRegistry || null;
     const deferCustomEffects = options.deferCustomEffects === true;
     const actionStatus = {};
     const actionHistory = [];
@@ -341,6 +376,24 @@
         if (focusAdapter && typeof focusAdapter.focus === 'function') focusAdapter.focus(value, context);
       } else if (effect.kind === 'lazy-import') {
         value = await resourceManager.acquireMany(effect.resources.length ? effect.resources : [effect.resource], context.ownerId, context);
+      } else if (effect.kind === 'host-service' || effect.kind === 'service') {
+        const registry = context.hostServiceRegistry || hostServiceRegistry;
+        const serviceId = effect.service || effect.target || effect.id;
+        if (!registry || typeof registry.invoke !== 'function') throw new Error(`RMT Host Service Effect Adapter fuer ${effect.id} fehlt.`);
+        value = await registry.invoke(serviceId, resolveValue(effect.payload, context), {
+          ...context,
+          effect,
+          correlationId: context.correlationId || context.commandEnvelope && context.commandEnvelope.correlationId
+        });
+      } else if (effect.kind === 'stream-service') {
+        const registry = context.hostServiceRegistry || hostServiceRegistry;
+        const serviceId = effect.service || effect.target || effect.id;
+        if (!registry || typeof registry.stream !== 'function') throw new Error(`RMT Host Stream Service Adapter fuer ${effect.id} fehlt.`);
+        value = await registry.stream(serviceId, resolveValue(effect.payload, context), context.streamHandlers || {}, {
+          ...context,
+          effect,
+          correlationId: context.correlationId || context.commandEnvelope && context.commandEnvelope.correlationId
+        });
       } else {
         value = {
           id: effect.id,
@@ -385,7 +438,7 @@
           return cancelResult(action, runId, ownerId, payload, metadata);
         }
         const data = source
-          ? await runDataSource(source, payload, { dataSourceAdapters: options.dataSourceAdapters, context: { action, payload, stateRuntime } })
+          ? await runDataSource(source, payload, { dataSourceAdapters: options.dataSourceAdapters, hostServiceRegistry, context: { action, payload, stateRuntime, hostServiceRegistry, commandEnvelope: metadata.commandEnvelope || null, correlationId: metadata.correlationId || null } })
           : cloneValue(payload, payload);
         if (token.cancelled) {
           return cancelResult(action, runId, ownerId, payload, metadata);
@@ -394,8 +447,26 @@
         if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.success', action: action.id });
         patchState(stateRuntime, action.statusState, { status: 'success', action: action.id }, { operation: 'action.success', action: action.id });
         const effectResults = [];
+        const reducerResults = [];
+        for (const reducer of action.reducers) {
+          reducerResults.push(dispatchReducer(stateRuntime, reducer, data, {
+            operation: 'action.reducer',
+            action: action.id,
+            commandEnvelope: metadata.commandEnvelope || null,
+            correlationId: metadata.correlationId || null
+          }));
+        }
         for (const effectId of action.effects) {
-          effectResults.push(await runEffect(effectId, { action, payload, result: data, stateRuntime, ownerId }));
+          effectResults.push(await runEffect(effectId, {
+            action,
+            payload,
+            result: data,
+            stateRuntime,
+            ownerId,
+            hostServiceRegistry,
+            commandEnvelope: metadata.commandEnvelope || null,
+            correlationId: metadata.correlationId || null
+          }));
         }
         actionStatus[action.id] = 'success';
         diagnosticsRecorder.publish(createDiagnostic('rmt.action.success', `RMT Action ${action.id} war erfolgreich.`, { action: action.id }, 'info'));
@@ -406,6 +477,9 @@
           status: 'success',
           data: cloneValue(data, data),
           effects: effectResults,
+          reducers: reducerResults.map((entry) => cloneValue(entry, entry)),
+          commandEnvelope: metadata.commandEnvelope ? cloneValue(metadata.commandEnvelope, metadata.commandEnvelope) : null,
+          correlationId: metadata.correlationId || metadata.commandEnvelope && metadata.commandEnvelope.correlationId || null,
           diagnostics: diagnosticsRecorder.diagnostics.slice()
         };
         actionHistory.push(result);

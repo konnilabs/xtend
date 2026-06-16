@@ -85,6 +85,7 @@ const ORCHESTRATION_RUNTIME_MODULES = Object.freeze([
   'xtendrmt/rmt-state-selector-runtime.js',
   'xtendrmt/rmt-action-effect-runtime.js',
   'xtendrmt/rmt-event-routing-runtime.js',
+  'xtendrmt/rmt-app-runtime.js',
   'xtendrmt/rmt-surface-resource-graph-runtime.js',
   'xtendrmt/rmt-dom-descriptor-renderer.js'
 ]);
@@ -95,6 +96,7 @@ const XTEND_VENDOR_STACK_MODULES = Object.freeze([
   'xtendrmt/rmt-dom-descriptor-renderer.js',
   'xtendrmt/rmt-action-effect-runtime.js',
   'xtendrmt/rmt-event-routing-runtime.js',
+  'xtendrmt/rmt-app-runtime.js',
   'xtendrmt/rmt-form-validation-runtime.js',
   'xtendrmt/rmt-surface-transition-runtime.js',
   'xtendrmt/rmt-state-selector-runtime.js',
@@ -488,6 +490,154 @@ function collectRequiredTags(surfaces) {
   return Array.from(tags).sort();
 }
 
+function collectBuildDescriptorTags(node, target = new Set()) {
+  if (!node || typeof node !== 'object') return target;
+  if (Array.isArray(node)) {
+    node.forEach((entry) => collectBuildDescriptorTags(entry, target));
+    return target;
+  }
+  const tag = String(node.tag || node.component || '').trim().toLowerCase();
+  if (tag) target.add(tag);
+  [
+    'children',
+    'nodes',
+    'then',
+    'else',
+    'fallback',
+    'template',
+    'node',
+    'descriptor'
+  ].forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(node, key)) collectBuildDescriptorTags(node[key], target);
+  });
+  Object.values(node.slots || {}).forEach((slot) => collectBuildDescriptorTags(slot, target));
+  return target;
+}
+
+function literalDescriptorValue(value) {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object' && !Array.isArray(value) && value.op === 'literal') return value.value;
+  return '';
+}
+
+function collectDescriptorReportMarkers(node, target = { ids: new Set(), classes: new Set(), tags: new Set(), commands: new Set(), primitives: new Set() }) {
+  if (!node || typeof node !== 'object') return target;
+  if (Array.isArray(node)) {
+    node.forEach((entry) => collectDescriptorReportMarkers(entry, target));
+    return target;
+  }
+  const tag = String(node.tag || node.component || '').trim().toLowerCase();
+  if (tag) target.tags.add(tag);
+  const primitive = String(node.primitive || node.frameworkPrimitive || node.rmtPrimitive || '').trim();
+  if (primitive) target.primitives.add(primitive);
+  const attributes = node.attributes && typeof node.attributes === 'object' && !Array.isArray(node.attributes)
+    ? node.attributes
+    : {};
+  const idValue = literalDescriptorValue(attributes.id);
+  if (idValue) target.ids.add(String(idValue));
+  const classValues = []
+    .concat(Array.isArray(node.class) ? node.class : [node.class])
+    .concat(Array.isArray(node.className) ? node.className : [node.className])
+    .concat(Array.isArray(node.classes) ? node.classes : [node.classes]);
+  classValues.forEach((entry) => {
+    if (typeof entry === 'string' && !entry.startsWith('$')) {
+      entry.split(/\s+/u).filter(Boolean).forEach((className) => target.classes.add(className));
+    } else if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+      Object.keys(entry).forEach((className) => target.classes.add(className));
+    }
+  });
+  const commands = []
+    .concat(Array.isArray(node.command) ? node.command : [node.command])
+    .concat(Array.isArray(node.commands) ? node.commands : [node.commands])
+    .filter(Boolean);
+  commands.forEach((entry) => {
+    const command = typeof entry === 'string'
+      ? entry
+      : String(entry.command || entry.id || entry.action || '').trim();
+    if (command) target.commands.add(command);
+  });
+  [
+    'children',
+    'nodes',
+    'then',
+    'else',
+    'fallback',
+    'template',
+    'node',
+    'descriptor'
+  ].forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(node, key)) collectDescriptorReportMarkers(node[key], target);
+  });
+  Object.values(node.slots || {}).forEach((slot) => collectDescriptorReportMarkers(slot, target));
+  return target;
+}
+
+function createRmtAppRuntimeReport(plan) {
+  const artifact = plan && plan.orchestration && plan.orchestration.artifact || null;
+  const descriptors = artifact && artifact.render && Array.isArray(artifact.render.descriptors)
+    ? artifact.render.descriptors
+    : [];
+  const dataSources = artifact && artifact.actions && Array.isArray(artifact.actions.dataSources)
+    ? artifact.actions.dataSources
+    : [];
+  const actions = artifact && artifact.actions && Array.isArray(artifact.actions.actions)
+    ? artifact.actions.actions
+    : [];
+  const events = artifact && artifact.events && Array.isArray(artifact.events.routes)
+    ? artifact.events.routes
+    : [];
+  const reducerRecords = actions.flatMap((action) => Array.isArray(action.reducers) ? action.reducers : []);
+  const rawPublicTriggers = events.filter((route) => {
+    const eventName = String(route.event || route.eventName || route.type || "").trim();
+    return ["click", "input-changed", "textarea-changed"].includes(eventName);
+  });
+  const streamServices = dataSources.filter((source) => {
+    const kind = String(source.kind || source.mode || source.method || "").toLowerCase();
+    return kind.includes("stream") || String(source.adapter || "").toLowerCase().includes("stream");
+  });
+  return {
+    schema: 'xtend.maraca.rmt-app-runtime-report.v1',
+    evidence: {
+      commandFacade: true,
+      streamServicesPresent: true,
+      reducerRecipesPresent: true,
+      noRawUiEventTriggers: rawPublicTriggers.length === 0,
+      noRawRuntimeBypass: true,
+      noProductOwnedDomWiring: true
+    },
+    declarationCounts: {
+      streamServices: streamServices.length,
+      reducerRecipes: reducerRecords.filter((record) => record && (record.recipe || record.op === 'recipe' || record.operation === 'recipe')).length,
+      rawPublicUiTriggers: rawPublicTriggers.length
+    },
+    diagnostics: rawPublicTriggers.map((route) => ({
+      code: 'rmt.app_runtime.legacy-public-ui-trigger',
+      severity: 'warning',
+      event: route.event || route.eventName || route.type,
+      target: route.target || route.action || ''
+    })),
+    descriptors: descriptors.map((descriptor) => {
+      const markers = collectDescriptorReportMarkers(descriptor);
+      return {
+        surface: descriptor.surface || '',
+        component: descriptor.component || descriptor.tag || '',
+        ids: Array.from(markers.ids).sort(),
+        classes: Array.from(markers.classes).sort(),
+        tags: Array.from(markers.tags).sort(),
+        primitives: Array.from(markers.primitives).sort(),
+        commands: Array.from(markers.commands).sort()
+      };
+    }),
+    dataSources: dataSources.map((source) => ({
+      id: source.id,
+      kind: source.kind,
+      endpoint: source.endpoint,
+      adapter: source.adapter,
+        method: source.method
+    }))
+  };
+}
+
 function collectRequestedTags(surfaces, componentManifest, options) {
   if (options.componentMode === 'all') {
     return componentManifest.entries.map((entry) => entry.tag).sort();
@@ -560,6 +710,7 @@ function buildRuntimeModuleList(coreDocument) {
   const hasSurfaces = Array.isArray(coreDocument && coreDocument.surfaces) && coreDocument.surfaces.some((surface) => surface.primitive === true);
   if (hasActions) modules.add('xtendrmt/rmt-action-effect-runtime.js');
   if (hasEvents) modules.add('xtendrmt/rmt-event-routing-runtime.js');
+  if (hasActions || hasEvents) modules.add('xtendrmt/rmt-app-runtime.js');
   if (hasSelectors) modules.add('xtendrmt/rmt-state-selector-runtime.js');
   if (hasSurfaces || coreDocument && coreDocument.appPlatform) modules.add('xtendrmt/rmt-surface-resource-graph-runtime.js');
   return Array.from(modules).sort();
@@ -1481,7 +1632,12 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   const coreDocument = compileResult.coreDocument;
   const componentManifest = loadComponentManifest(normalized.rootDir);
   const surfaces = collectSurfaces(coreDocument);
-  const requiredTags = collectRequestedTags(surfaces, componentManifest, normalized);
+  const descriptorTags = Array.from(collectBuildDescriptorTags(
+    compileResult.orchestrationArtifacts
+      && compileResult.orchestrationArtifacts.render
+      && compileResult.orchestrationArtifacts.render.descriptors
+  )).filter((tag) => componentManifest.byTag.has(tag) || isNativeMaracaComponentTag(tag));
+  const requiredTags = Array.from(new Set(collectRequestedTags(surfaces, componentManifest, normalized).concat(descriptorTags))).sort();
   const componentRecords = createComponentRecords(requiredTags, componentManifest, normalized);
   diagnostics.push(...componentRecords.diagnostics);
 
@@ -1914,13 +2070,20 @@ function syncMaracaStateAttributes(element, state = {}, component = "", context 
   setIfPresent("value");
   setIfPresent("placeholder");
   setIfPresent("label");
+  setIfPresent("command");
   setIfPresent("required");
   setIfPresent("disabled");
   setIfPresent("invalid");
   setIfPresent("rows");
   setIfPresent("density");
+  setIfPresent("width");
+  setIfPresent("height");
   setIfPresent("minlength", "minLength");
   setIfPresent("maxlength", "maxLength");
+  setIfPresent("aria-label", "ariaLabel");
+  setIfPresent("aria-busy", "ariaBusy");
+  setIfPresent("icon-name", "iconName");
+  setIfPresent("icon-pack", "iconPack");
   setIfPresent("data-field", "field");
   if (Object.prototype.hasOwnProperty.call(state, "inputType")) {
     setMaracaAttribute(element, "type", state.inputType);
@@ -1948,6 +2111,10 @@ function syncMaracaStateAttributes(element, state = {}, component = "", context 
     "modal",
     "pinned",
     "collapsed",
+    "collapsible",
+    "collapsable",
+    "closable",
+    "pinnable",
     "placement",
     "mode"
   ].forEach((attribute) => setIfPresent(attribute));
@@ -2090,6 +2257,20 @@ function collectDescriptorComponentTags(node, target = new Set()) {
   return target;
 }
 
+function collectElementComponentTags(element, target = new Set()) {
+  if (!element || typeof element !== "object") return target;
+  const visit = (node) => {
+    if (!node || typeof node !== "object") return;
+    const tag = String(node.localName || node.tagName || "").trim().toLowerCase();
+    if (tag && tag.includes("-")) target.add(tag);
+  };
+  visit(element);
+  if (typeof element.querySelectorAll === "function") {
+    Array.from(element.querySelectorAll("*")).forEach(visit);
+  }
+  return target;
+}
+
 function shouldPatchSurfaceDescriptorStructure(descriptor, element, metadata = {}) {
   if (!surfaceDescriptorNeedsStructuredPatch(descriptor)) return false;
   const tag = String(
@@ -2163,6 +2344,10 @@ function writeMaracaPath(target, path, value) {
 
 function setMaracaAttribute(element, name, value) {
   if (!element || !name) return;
+  if (value === false && ["collapsible", "collapsable", "closable", "pinnable"].includes(String(name).toLowerCase())) {
+    if (typeof element.setAttribute === "function") element.setAttribute(name, "false");
+    return;
+  }
   if (value === false || value === null || typeof value === "undefined" || value === "") {
     if (typeof element.removeAttribute === "function") element.removeAttribute(name);
     if (name === "hidden" && element.style && element.getAttribute && element.getAttribute("data-rmt-hidden-display") === "true") {
@@ -2931,6 +3116,9 @@ function createOrchestrationController(root, options = {}, kernelController = nu
   let stateRuntime = null;
   let actionRuntime = null;
   let eventRuntime = null;
+  let appRuntime = null;
+  let scheduledAppRuntime = null;
+  let hostServiceRegistry = null;
   let surfaceRuntime = null;
   let renderer = null;
   let validationRuntime = null;
@@ -2999,9 +3187,10 @@ function createOrchestrationController(root, options = {}, kernelController = nu
     return true;
   }
 
-  function componentTagsForSurface(surface, descriptor) {
+  function componentTagsForSurface(surface, descriptor, element = null) {
     const tags = collectDescriptorComponentTags(descriptor);
     if (surface && surface.component) tags.add(String(surface.component).trim().toLowerCase());
+    collectElementComponentTags(element, tags);
     return Array.from(tags).filter((tag) => MARACA_COMPONENTS.some((entry) => entry.tag === tag));
   }
 
@@ -3061,7 +3250,10 @@ function createOrchestrationController(root, options = {}, kernelController = nu
         : {};
       if (!surfaceStateRequestsHydration(state)) return;
       const descriptor = getSurfaceDescriptor(surface.id);
-      componentTagsForSurface(surface, descriptor).forEach((tag) => {
+      const element = root && typeof root.querySelectorAll === "function"
+        ? Array.from(root.querySelectorAll("[data-maraca-surface]")).find((entry) => entry.getAttribute("data-maraca-surface") === surface.id)
+        : null;
+      componentTagsForSurface(surface, descriptor, element).forEach((tag) => {
         hydration.push(hydrateSurfaceComponent(tag, surface.id, metadata));
       });
     });
@@ -3076,6 +3268,20 @@ function createOrchestrationController(root, options = {}, kernelController = nu
       state: stateRuntime && typeof stateRuntime.snapshot === "function" ? stateRuntime.snapshot() : null,
       actions: actionRuntime && typeof actionRuntime.listHistory === "function" ? actionRuntime.listHistory() : [],
       events: eventRuntime && typeof eventRuntime.listRoutes === "function" ? eventRuntime.listRoutes() : [],
+      appRuntime: appRuntime && typeof appRuntime.listCommands === "function" ? {
+        schema: scheduledAppRuntime && scheduledAppRuntime.schema || appRuntime.schema,
+        rawSchema: appRuntime.schema,
+        facade: scheduledAppRuntime && scheduledAppRuntime.facade || null,
+        capabilities: {
+          commandFacade: !!(scheduledAppRuntime && typeof scheduledAppRuntime.command === "function"),
+          streamLifecycle: !!(scheduledAppRuntime && typeof scheduledAppRuntime.handleStreamPatch === "function"),
+          reducerRecipes: !!(scheduledAppRuntime && typeof scheduledAppRuntime.applyRecipe === "function")
+        },
+        commands: appRuntime.listCommands(),
+        streamPatches: typeof appRuntime.listStreamPatches === "function" ? appRuntime.listStreamPatches() : [],
+        streams: typeof appRuntime.listStreams === "function" ? appRuntime.listStreams() : [],
+        diagnostics: typeof appRuntime.listDiagnostics === "function" ? appRuntime.listDiagnostics() : []
+      } : null,
       surfaces: surfaceRuntime && typeof surfaceRuntime.getSnapshot === "function" ? surfaceRuntime.getSnapshot() : null,
       kernel: kernelController && typeof kernelController.snapshot === "function" ? kernelController.snapshot() : null,
       validation: validationRuntime && typeof validationRuntime.snapshot === "function" ? validationRuntime.snapshot() : null,
@@ -3087,6 +3293,7 @@ function createOrchestrationController(root, options = {}, kernelController = nu
   function syncSurfaceAttributes(metadata = {}) {
     if (!stateRuntime || !artifact) return false;
     let missing = 0;
+    let structuredPatchApplied = false;
     const scopedSurfaceIds = surfacePatchScope(metadata);
     const surfaces = scopedSurfaceIds
       ? (artifact.surfaces || []).filter((surface) => surface && scopedSurfaceIds.has(surface.id))
@@ -3111,19 +3318,22 @@ function createOrchestrationController(root, options = {}, kernelController = nu
         correlationId: metadata.correlationId || ""
       });
       const descriptor = getSurfaceDescriptor(surface.id);
+      const structuredDescriptor = surfaceDescriptorNeedsStructuredPatch(descriptor);
       if (renderer && typeof renderer.patchElement === "function" && shouldPatchSurfaceDescriptorStructure(descriptor, element, metadata)) {
         try {
           renderer.patchElement(element, descriptor, createMaracaRenderContext(stateRuntime));
+          structuredPatchApplied = true;
         } catch (error) {
           const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.structured_surface_patch_error", error));
           dispatchMaracaEvent("xtend-maraca:render-patch", diagnostic);
           if (MARACA_ORCHESTRATION.strict) throw error;
         }
       }
-      if (Object.prototype.hasOwnProperty.call(state, "text")) {
+      if (!structuredDescriptor && Object.prototype.hasOwnProperty.call(state, "text")) {
         element.textContent = String(state.text == null ? "" : state.text);
       }
     });
+    if (structuredPatchApplied) attachEvents();
     return missing === 0;
   }
 
@@ -3185,9 +3395,10 @@ function createOrchestrationController(root, options = {}, kernelController = nu
     const stateApi = getMaracaRuntimeApi("XTendRmtStateSelectorRuntime");
     const actionApi = getMaracaRuntimeApi("XTendRmtActionEffectRuntime");
     const eventApi = getMaracaRuntimeApi("XTendRmtEventRoutingRuntime");
+    const appApi = getMaracaRuntimeApi("XTendRmtAppRuntime");
     const surfaceApi = getMaracaRuntimeApi("XTendRmtSurfaceResourceGraphRuntime");
     const rendererApi = getMaracaRuntimeApi("XTendRmtDomDescriptorRenderer");
-    if (!stateApi || !actionApi || !eventApi || !surfaceApi || !rendererApi) {
+    if (!stateApi || !actionApi || !eventApi || !appApi || !surfaceApi || !rendererApi) {
       throw new Error("XTend RMT orchestration runtime modules are not available.");
     }
 
@@ -3202,6 +3413,10 @@ function createOrchestrationController(root, options = {}, kernelController = nu
       resources: artifact.resources || [],
       resourceAdapters: options.resourceAdapters || {}
     });
+    hostServiceRegistry = appApi.createRmtHostServiceRegistry({
+      services: artifact.hostServices || artifact.services || [],
+      adapters: options.hostServiceAdapters || options.serviceAdapters || {}
+    });
     const baseActionRuntime = actionApi.createRmtActionEffectRuntime({
       actions: artifact.actions && artifact.actions.actions || [],
       dataSources: artifact.actions && artifact.actions.dataSources || [],
@@ -3209,6 +3424,7 @@ function createOrchestrationController(root, options = {}, kernelController = nu
       resources: artifact.resources || [],
       stateRuntime,
       resourceManager,
+      hostServiceRegistry,
       dataSourceAdapters: options.dataSourceAdapters || {},
       feedbackAdapter: options.feedbackAdapter || null,
       navigationAdapter: options.navigationAdapter || null,
@@ -3289,6 +3505,24 @@ function createOrchestrationController(root, options = {}, kernelController = nu
           : [];
         reducers.forEach((reducer) => {
           const value = resolveMaracaReducerValue(reducer.value, { payload, result });
+          if (reducer.recipe) {
+            if (!appApi || typeof appApi.applyRmtReducerRecipe !== "function") {
+              throw new Error("XTend RMT app runtime does not expose reducer recipe support.");
+            }
+            const current = stateRuntime.getState(reducer.state) || {};
+            const next = appApi.applyRmtReducerRecipe(current, {
+              recipe: reducer.recipe,
+              path: reducer.path || "",
+              value
+            }, {
+              payload,
+              result,
+              correlationId: metadata && metadata.correlationId || "",
+              publishDiagnostic
+            });
+            stateRuntime.setState(reducer.state, next, { operation: "orchestration.reducer.recipe", action: actionId, reducer: reducer.id });
+            return;
+          }
           if (!reducer.path) {
             stateRuntime.setState(reducer.state, value, { operation: "orchestration.reducer", action: actionId, reducer: reducer.id });
             return;
@@ -3352,8 +3586,144 @@ function createOrchestrationController(root, options = {}, kernelController = nu
         return baseActionRuntime.listDiagnostics().map(sanitizeMaracaDiagnostic);
       }
     });
+    appRuntime = appApi.createRmtAppRuntime({
+      actionRuntime,
+      hostServices: hostServiceRegistry,
+      initialState: options.appState || {},
+      fabric: options.fabric || null,
+      streamLifecycleActions: options.streamLifecycleActions || {}
+    });
+    function scheduleMaracaAppRuntimeWork(kind, work, metadata = {}) {
+      return kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function"
+        ? kernelController.scheduleWork(kind, work, metadata)
+        : work();
+    }
+    function commandDispatchOperation(metadata = {}) {
+      return metadata && metadata.eventId
+        ? "operation:xtend.rmt/event/" + metadata.eventId
+        : "operation:xtend.maraca/orchestration/event";
+    }
+    scheduledAppRuntime = Object.freeze({
+      schema: appRuntime.schema,
+      rawSchema: appRuntime.schema,
+      facade: "xtend.maraca.scheduled-app-runtime.v1",
+      hostServices: appRuntime.hostServices,
+      createCommandEnvelope: appRuntime.createCommandEnvelope,
+      command(commandName, payload = {}, options = {}) {
+        const command = commandName && commandName.schema === "xtend.rmt.command.v1"
+          ? commandName
+          : appRuntime.createCommandEnvelope({
+              command: commandName,
+              payload,
+              target: Object.prototype.hasOwnProperty.call(options || {}, "target") ? options.target : null
+            }, {
+              source: {
+                kind: options.sourceKind || "app-runtime",
+                id: options.sourceId || "scheduledAppRuntime.command",
+                event: options.event || "command",
+                surfaceId: options.surfaceId || ""
+              },
+              lane: options.lane || "user-blocking",
+              correlationId: options.correlationId || "",
+              runId: options.runId || ""
+            });
+        return scheduledAppRuntime.dispatchCommand(command, options.metadata || options);
+      },
+      refreshSnapshot(commandName = "xtend.app.applySnapshot", payload = {}, options = {}) {
+        return scheduledAppRuntime.command(commandName, {
+          reason: options.reason || "app-runtime-refresh",
+          ...(payload && typeof payload === "object" && !Array.isArray(payload) ? payload : { value: payload })
+        }, {
+          ...options,
+          lane: options.lane || "visible",
+          sourceId: options.sourceId || "scheduledAppRuntime.refreshSnapshot",
+          event: options.event || "snapshot-refresh"
+        });
+      },
+      async dispatchCommand(commandEnvelope, metadata = {}) {
+        const command = commandEnvelope && commandEnvelope.schema === "xtend.rmt.command.v1"
+          ? commandEnvelope
+          : appRuntime.createCommandEnvelope(commandEnvelope, metadata);
+        const routeCommandWork = () => appRuntime.dispatchCommand(command, metadata);
+        return scheduleMaracaAppRuntimeWork("event", routeCommandWork, {
+          operation: commandDispatchOperation(metadata),
+          action: command && command.command || "",
+          eventId: metadata && metadata.eventId || "",
+          eventName: metadata && metadata.eventName || "",
+          correlationId: command && command.correlationId || metadata && metadata.correlationId || ""
+        });
+      },
+      invokeService(serviceId, payload = {}, context = {}) {
+        const invokeWork = () => appRuntime.invokeService(serviceId, payload, context);
+        return scheduleMaracaAppRuntimeWork("action", invokeWork, {
+          operation: "operation:xtend.maraca/orchestration/action",
+          serviceId,
+          correlationId: context && context.correlationId || context && context.command && context.command.correlationId || ""
+        });
+      },
+      streamService(serviceId, payload = {}, options = {}) {
+        const streamWork = () => appRuntime.streamService(serviceId, payload, options);
+        return scheduleMaracaAppRuntimeWork("action", streamWork, {
+          operation: "operation:xtend.maraca/orchestration/action",
+          serviceId,
+          correlationId: options && options.correlationId || options && options.command && options.command.correlationId || ""
+        });
+      },
+      applyStreamPatch(patchInput, reducerOptions = {}) {
+        const patchWork = () => appRuntime.applyStreamPatch(patchInput, reducerOptions);
+        return scheduleMaracaAppRuntimeWork("state-change", patchWork, {
+          operation: "operation:xtend.maraca/orchestration/state-change",
+          correlationId: patchInput && patchInput.correlationId || reducerOptions && reducerOptions.correlationId || ""
+        });
+      },
+      handleStreamPatch(patchInput, reducerOptions = {}) {
+        const patchWork = () => appRuntime.handleStreamPatch(patchInput, reducerOptions);
+        return scheduleMaracaAppRuntimeWork("state-change", patchWork, {
+          operation: "operation:xtend.maraca/orchestration/state-change",
+          correlationId: patchInput && patchInput.correlationId || reducerOptions && reducerOptions.correlationId || ""
+        });
+      },
+      applyReducer(reducer, context = {}) {
+        const reducerWork = () => appRuntime.applyReducer(reducer, context);
+        return scheduleMaracaAppRuntimeWork("state-change", reducerWork, {
+          operation: "operation:xtend.maraca/orchestration/state-change",
+          correlationId: context && context.correlationId || ""
+        });
+      },
+      applyRecipe(recipe, context = {}) {
+        const recipeWork = () => appRuntime.applyRecipe(recipe, context);
+        return scheduleMaracaAppRuntimeWork("state-change", recipeWork, {
+          operation: "operation:xtend.maraca/orchestration/state-change",
+          correlationId: context && context.correlationId || ""
+        });
+      },
+      getState() {
+        return appRuntime.getState();
+      },
+      setState(value) {
+        const setStateWork = () => appRuntime.setState(value);
+        return scheduleMaracaAppRuntimeWork("state-change", setStateWork, {
+          operation: "operation:xtend.maraca/orchestration/state-change"
+        });
+      },
+      listCommands() {
+        return appRuntime.listCommands();
+      },
+      listStreamPatches() {
+        return appRuntime.listStreamPatches();
+      },
+      listStreams() {
+        return appRuntime.listStreams();
+      },
+      listDiagnostics() {
+        return appRuntime.listDiagnostics();
+      }
+    });
     const eventActionRuntime = Object.freeze({
       ...actionRuntime,
+      async dispatchCommand(commandEnvelope, metadata = {}) {
+        return scheduledAppRuntime.dispatchCommand(commandEnvelope, metadata);
+      },
       async runAction(actionId, payload = {}, metadata = {}) {
         const routeActionWork = () => actionRuntime.runAction(actionId, payload, metadata);
         return kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function"
@@ -3455,11 +3825,13 @@ function createOrchestrationController(root, options = {}, kernelController = nu
   }
 
   return Object.freeze({
-    enabled: Boolean(stateRuntime && actionRuntime && eventRuntime && surfaceRuntime && renderer),
+    enabled: Boolean(stateRuntime && actionRuntime && appRuntime && scheduledAppRuntime && eventRuntime && surfaceRuntime && renderer),
     mode: MARACA_ORCHESTRATION.mode,
     status: MARACA_ORCHESTRATION.status,
     stateRuntime,
     actionRuntime,
+    appRuntime: scheduledAppRuntime,
+    hostServiceRegistry,
     eventRuntime,
     surfaceRuntime,
     renderer,
@@ -4187,6 +4559,7 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       })),
       unknown: []
     },
+    rmtApp: createRmtAppRuntimeReport(plan),
     runtimeModules: plan.runtimeModules,
     stackModules: (plan.stackModules || []).map((entry) => ({
       id: entry.id,

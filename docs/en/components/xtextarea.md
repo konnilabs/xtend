@@ -54,6 +54,8 @@ For production screens, keep IDs stable when state keys or diagnostics include `
 
 Editor surfaces can set `line-numbering="true"`. `x-textarea` then renders a Monaco-style line-number gutter inside its shadow DOM; `line-numbering="false"` or a missing attribute disables it. This is especially useful for RMT playgrounds and diagnostics panels because compiler errors can be read against the source lines.
 
+Prompt-style surfaces can set `submit-on-enter`. In that mode Enter emits `textarea-submit` and asks the nearest form to submit when the event is not canceled. Shift+Enter keeps the native textarea newline behavior.
+
 ## API reference
 
 Attributes:
@@ -71,6 +73,7 @@ Attributes:
 - `invalid`
 - `density`
 - `fill`
+- `submit-on-enter`
 - `syntax-highlight`
 - `highlight`
 - `line-numbering`
@@ -80,6 +83,7 @@ Attributes:
 Events:
 - `textarea-changed`
 - `textarea-invalid`
+- `textarea-submit`
 
 Methods:
 - `checkValidity()`

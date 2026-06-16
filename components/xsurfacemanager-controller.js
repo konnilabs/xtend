@@ -174,9 +174,11 @@
     return isObject(record) ? record : {};
   }
 
-  function normalizeCapabilities(type, capabilities) {
+  function normalizeCapabilities(type, capabilities, disabledCapabilities) {
     const defaults = DEFAULT_CAPABILITIES[type] || DEFAULT_CAPABILITIES.window;
-    return unique([...defaults, ...(Array.isArray(capabilities) ? capabilities : [])]);
+    const disabled = new Set(Array.isArray(disabledCapabilities) ? disabledCapabilities.map(String) : []);
+    return unique([...defaults, ...(Array.isArray(capabilities) ? capabilities : [])])
+      .filter((capability) => !disabled.has(capability));
   }
 
   function normalizePersistence(persistence) {
@@ -227,7 +229,11 @@
       zIndex: toNumber(source.zIndex || record.zIndex, 0),
       bounds,
       previousBounds: null,
-      capabilities: normalizeCapabilities(type, source.capabilities || record.capabilities),
+      capabilities: normalizeCapabilities(
+        type,
+        source.capabilities || record.capabilities,
+        source.disabledCapabilities || record.disabledCapabilities
+      ),
       persistence: normalizePersistence(source.persistence || record.persistence),
       contentRef: clampString(source.content || source.component || record.component || record.contentRef, null),
       metadataKeys: Object.keys(isObject(record.metadata) ? record.metadata : {}).sort(),
@@ -591,7 +597,9 @@
       const { record, failure } = getRecord(id, 'update');
       if (failure) return failure;
       if (typeof patch.label === 'string') record.label = patch.label;
-      if (Array.isArray(patch.capabilities)) record.capabilities = normalizeCapabilities(record.type, patch.capabilities);
+      if (Array.isArray(patch.capabilities) || Array.isArray(patch.disabledCapabilities)) {
+        record.capabilities = normalizeCapabilities(record.type, patch.capabilities || record.capabilities, patch.disabledCapabilities);
+      }
       if (isObject(patch.bounds)) record.bounds = normalizeSurfaceBounds({ ...record.bounds, ...patch.bounds }, record.type);
       if (typeof patch.placement === 'string') record.placement = patch.placement;
       if (typeof patch.mode === 'string') record.mode = patch.mode;

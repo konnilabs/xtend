@@ -302,6 +302,58 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
   context.assert(restCalls.length === 1, 'blocked payload does not invoke REST action again');
   context.assert(runtime.listDiagnostics().some((entry) => entry.code === 'rmt.event.payload_contract.invalid'), 'runtime records payload contract diagnostic');
 
+  const commandDispatches = [];
+  const commandRuntime = eventRuntimeModule.createRmtEventRoutingRuntime({
+    events: [{
+      id: 'event.prompt-command',
+      event: 'xtend-command',
+      target: '#prompt-input',
+      component: 'x-textarea',
+      action: 'app.route-prompt-command',
+      payload: {
+        command: '$detail.command',
+        value: '$detail.payload.value',
+        empty: '$detail.payload.empty'
+      },
+      payloadContract: {
+        type: 'object',
+        required: ['command', 'value', 'empty'],
+        properties: {
+          command: 'string',
+          value: 'string',
+          empty: 'boolean'
+        }
+      }
+    }],
+    actionRuntime: {
+      dispatchCommand(commandEnvelope) {
+        commandDispatches.push(commandEnvelope);
+        return { status: 'success' };
+      }
+    },
+    targets: {
+      '#prompt-input': targets['ref.search-input']
+    }
+  });
+  const promptCommand = {
+    schema: 'xtend.rmt.command.v1',
+    id: 'test.prompt-command',
+    source: { kind: 'test', id: 'prompt-input', event: 'xtend-command' },
+    command: 'xtend.llm.updatePrompt',
+    payload: { value: 'Hello', empty: false },
+    correlationId: 'test.correlation',
+    lane: 'test',
+    timestamp: new Date(0).toISOString()
+  };
+  const promptRoute = await commandRuntime.routeEvent('event.prompt-command', createFakeEvent('xtend-command', {
+    target: targets['ref.search-input'],
+    detail: promptCommand
+  }));
+  context.assert(promptRoute.status === 'success', 'xtend-command explicit payload mapping routes successfully');
+  context.assert(promptRoute.payload.command === 'xtend.llm.updatePrompt', 'xtend-command mapping can read envelope command');
+  context.assert(promptRoute.payload.value === 'Hello' && promptRoute.payload.empty === false, 'xtend-command mapping can read envelope payload fields');
+  context.assert(commandDispatches.length === 1 && commandDispatches[0].payload.command === 'xtend.llm.updatePrompt', 'mapped command payload is forwarded through dispatchCommand');
+
   const saveEvent = createFakeEvent('submit', {
     target: targets['ref.save-form'],
     currentTarget: targets['ref.save-form'],

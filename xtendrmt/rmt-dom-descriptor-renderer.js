@@ -7,6 +7,7 @@
   const URL_ATTRIBUTE_NAMES = new Set(['href', 'src', 'action', 'formaction', 'poster']);
   const BLOCKED_ATTRIBUTE_NAMES = new Set(['srcdoc']);
   const BLOCKED_PROPERTY_NAMES = new Set(['innerHTML', 'outerHTML', 'insertAdjacentHTML']);
+  const EXPLICIT_FALSE_ATTRIBUTE_NAMES = new Set(['collapsible', 'collapsable', 'closable', 'pinnable']);
   const MANUAL_HTML_PATTERNS = Object.freeze([
     { id: 'root.innerHTML', pattern: /\broot\s*\.\s*innerHTML\s*=/u },
     { id: 'element.innerHTML', pattern: /\belement\s*\.\s*innerHTML\s*=/u },
@@ -37,6 +38,10 @@
       || typeof value.appendChild === 'function'
       || typeof value.replaceChildren === 'function'
     );
+  }
+
+  function isAriaAttribute(name) {
+    return clampString(name).toLowerCase().startsWith('aria-');
   }
 
   function resolveDocumentTarget(deps = {}) {
@@ -163,6 +168,46 @@
     });
   }
 
+  function childContainerFor(element) {
+    return element && elementTagName(element) === 'template' && element.content
+      ? element.content
+      : element;
+  }
+
+  function elementTagName(element) {
+    return clampString(
+      element && (element.localName || element.tagName || element.nodeName),
+      ''
+    ).toLowerCase();
+  }
+
+  function descriptorTagName(descriptor, context) {
+    if (!descriptor || typeof descriptor !== 'object' || Array.isArray(descriptor)) return '';
+    const nodeType = clampString(
+      descriptor.type || (descriptor.component ? 'component' : descriptor.tag ? 'element' : descriptor.template ? 'template' : 'fragment'),
+      'fragment'
+    );
+    if (nodeType === 'component') return clampString(resolveComponent(descriptor, context).tag, '').toLowerCase();
+    if (nodeType === 'element') return clampString(descriptor.tag, 'div').toLowerCase();
+    if (nodeType === 'text') return '#text';
+    return '';
+  }
+
+  function canPatchExistingChild(existing, descriptor, context) {
+    const nextTag = descriptorTagName(descriptor, context);
+    if (!nextTag) return false;
+    if (nextTag === '#text') return existing && existing.nodeType === 3;
+    return existing && existing.nodeType === 1 && elementTagName(existing) === nextTag;
+  }
+
+  function patchExistingChild(existing, descriptor, context) {
+    if (descriptorTagName(descriptor, context) === '#text') {
+      existing.textContent = String(resolveValue(descriptor.text, context, context.item) == null ? '' : resolveValue(descriptor.text, context, context.item));
+      return existing;
+    }
+    return patchExistingElement(existing, descriptor, context);
+  }
+
   function replaceChildren(parent, nodes) {
     const normalizedNodes = toArray(nodes).filter(Boolean);
     if (typeof parent.replaceChildren === 'function') {
@@ -192,6 +237,14 @@
     const resolvedValue = resolveValue(value, context, context.item);
     if (URL_ATTRIBUTE_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(resolvedValue)) {
       throw createRendererError('rmt.dom.attribute.url-unsafe', `Unsichere URL fuer Attribut ${normalizedName}`, descriptor, context);
+    }
+    if (typeof resolvedValue === 'boolean' && isAriaAttribute(normalizedName)) {
+      if (typeof element.setAttribute === 'function') element.setAttribute(normalizedName, String(resolvedValue));
+      return;
+    }
+    if (resolvedValue === false && EXPLICIT_FALSE_ATTRIBUTE_NAMES.has(normalizedName.toLowerCase())) {
+      if (typeof element.setAttribute === 'function') element.setAttribute(normalizedName, 'false');
+      return;
     }
     if (resolvedValue === false || resolvedValue === null || typeof resolvedValue === 'undefined') {
       if (typeof element.removeAttribute === 'function') element.removeAttribute(normalizedName);
@@ -378,6 +431,7 @@
       .filter((key) => expression.startsWith(`${key}.`))
       .sort((left, right) => right.length - left.length)[0];
     const parts = normalizePathSegments(ownerKey ? expression.slice(ownerKey.length + 1) : expression);
+    if (!ownerKey && parts.length === 0) return undefined;
     let cursor = ownerKey ? record[ownerKey] : model;
     for (const part of parts) {
       if (cursor == null) return undefined;
@@ -461,6 +515,12 @@
     if (!expression) return undefined;
     if (expression === '$item') return item;
     if (expression.startsWith('$item.')) return readPath(item, expression.slice(6));
+    if (expression === '$event') return context.event;
+    if (expression.startsWith('$event.')) return readPath(context.event, expression.slice(7));
+    if (expression === '$target') return context.target;
+    if (expression.startsWith('$target.')) return readPath(context.target, expression.slice(8));
+    if (expression === '$currentTarget') return context.currentTarget;
+    if (expression.startsWith('$currentTarget.')) return readPath(context.currentTarget, expression.slice(15));
     if (expression.startsWith('$selector.')) {
       const selectorKey = `selector.${expression.slice(10)}`;
       if (context.selectorValues && Object.prototype.hasOwnProperty.call(context.selectorValues, selectorKey)) return context.selectorValues[selectorKey];
@@ -536,6 +596,39 @@
       case 'includes':
         result = compareValues(source, resolveValue(record.search || record.item || record.right, context, item), 'contains', record);
         break;
+      case 'equals':
+      case 'eq':
+        result = compareValues(
+          Object.prototype.hasOwnProperty.call(record, 'left') ? resolveValue(record.left, context, item) : source,
+          Object.prototype.hasOwnProperty.call(record, 'right') ? resolveValue(record.right, context, item) : resolveValue(record.value, context, item),
+          'equals',
+          record
+        );
+        break;
+      case 'not-equals':
+      case 'neq':
+        result = compareValues(
+          Object.prototype.hasOwnProperty.call(record, 'left') ? resolveValue(record.left, context, item) : source,
+          Object.prototype.hasOwnProperty.call(record, 'right') ? resolveValue(record.right, context, item) : resolveValue(record.value, context, item),
+          'not-equals',
+          record
+        );
+        break;
+      case 'truthy':
+        result = !!source;
+        break;
+      case 'falsy':
+        result = !source;
+        break;
+      case 'not':
+        result = !source;
+        break;
+      case 'if':
+      case 'ternary':
+        result = resolveValue(record.test || record.when || record.condition, context, item)
+          ? resolveValue(record.then, context, item)
+          : resolveValue(record.else || record.fallback, context, item);
+        break;
       case 'map':
         result = Array.isArray(source)
           ? source.map((entry) => record.path ? readPath(entry, record.path) : resolveValue(record.expression || '$item', { ...context, item: entry }, entry))
@@ -581,6 +674,148 @@
     }
 
     return applyFallback(result, record.fallback, context, item);
+  }
+
+  function isExpressionRecord(record) {
+    if (!record || typeof record !== 'object' || Array.isArray(record)) return false;
+    return [
+      'op',
+      'operator',
+      'format'
+    ].some((key) => Object.prototype.hasOwnProperty.call(record, key));
+  }
+
+  function resolvePayloadValue(value, context, item) {
+    if (Array.isArray(value)) return value.map((entry) => resolvePayloadValue(entry, context, item));
+    if (value && typeof value === 'object' && !isNodeLike(value)) {
+      if (isExpressionRecord(value)) return evaluateExpression(value, context, item);
+      return Object.fromEntries(
+        Object.entries(value).map(([key, entry]) => [key, resolvePayloadValue(entry, context, item)])
+      );
+    }
+    return resolveValue(value, context, item);
+  }
+
+  function nowIso() {
+    return new Date().toISOString();
+  }
+
+  function randomId(prefix) {
+    return `${prefix}:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  function normalizeCommandSpec(spec, descriptor) {
+    if (typeof spec === 'string') {
+      return {
+        command: spec,
+        event: 'click',
+        payload: descriptor.payload
+      };
+    }
+    const record = objectRecord(spec);
+    return {
+      command: clampString(record.command || record.id || record.action || record.name, ''),
+      event: clampString(record.event || record.trigger, 'click'),
+      payload: Object.prototype.hasOwnProperty.call(record, 'payload') ? record.payload : descriptor.payload,
+      preventDefault: Object.prototype.hasOwnProperty.call(record, 'preventDefault') ? Boolean(record.preventDefault) : true,
+      stopPropagation: Boolean(record.stopPropagation),
+      lane: record.lane,
+      target: record.target,
+      source: record.source
+    };
+  }
+
+  function defaultCommandPayload(event) {
+    const target = event && event.target || {};
+    return {
+      value: target.value,
+      checked: target.checked,
+      id: target.id || '',
+      label: target.dataset && target.dataset.label || '',
+      action: target.dataset && target.dataset.action || '',
+      dataset: target.dataset ? { ...target.dataset } : {}
+    };
+  }
+
+  function createCommandEventDetail(spec, descriptor, context, event, element) {
+    const commandContext = {
+      ...context,
+      event,
+      target: event && event.target || element,
+      currentTarget: event && event.currentTarget || element
+    };
+    const payload = typeof spec.payload === 'undefined'
+      ? defaultCommandPayload(event)
+      : resolvePayloadValue(spec.payload, commandContext, commandContext.item);
+    const sourceRecord = objectRecord(resolveValue(spec.source, commandContext, commandContext.item));
+    const source = {
+      kind: sourceRecord.kind || 'descriptor',
+      id: sourceRecord.id || descriptor.id || descriptor.component || descriptor.tag || '',
+      event: event && event.type || spec.event,
+      surfaceId: sourceRecord.surfaceId || descriptor.surface || ''
+    };
+    return {
+      schema: 'xtend.rmt.command.v1',
+      id: randomId('rmt.command'),
+      source,
+      command: spec.command,
+      payload,
+      target: resolveValue(spec.target, commandContext, commandContext.item) || descriptor.surface || null,
+      correlationId: randomId('rmt.correlation'),
+      lane: resolveValue(spec.lane, commandContext, commandContext.item) || 'user',
+      timestamp: nowIso()
+    };
+  }
+
+  function applyImmediateCommandState(element) {
+    if (!element || typeof element.getAttribute !== 'function' || typeof element.setAttribute !== 'function') return;
+    const role = element.getAttribute('role');
+    if (role !== 'menuitemradio') return;
+    const parent = element.parentElement || element.parentNode || null;
+    if (parent && typeof parent.querySelectorAll === 'function') {
+      Array.from(parent.querySelectorAll('[role="menuitemradio"]')).forEach((entry) => {
+        if (entry && typeof entry.setAttribute === 'function') entry.setAttribute('aria-checked', 'false');
+      });
+    }
+    element.setAttribute('aria-checked', 'true');
+  }
+
+  function applyCommand(element, descriptor, context) {
+    const commandSpecs = toArray(descriptor.commands || descriptor.command)
+      .map((spec) => normalizeCommandSpec(spec, descriptor))
+      .filter((spec) => spec.command && spec.event);
+    element.__rmtCommandSpecs = commandSpecs;
+    element.__rmtCommandDescriptor = descriptor;
+    element.__rmtCommandContext = context;
+    if (!commandSpecs.length || typeof element.addEventListener !== 'function') return;
+    if (!element.__rmtCommandListeners) element.__rmtCommandListeners = new Set();
+    [...new Set(commandSpecs.map((spec) => spec.event))].forEach((eventName) => {
+      if (element.__rmtCommandListeners.has(eventName)) return;
+      element.__rmtCommandListeners.add(eventName);
+      element.addEventListener(eventName, (event) => {
+        const activeSpecs = toArray(element.__rmtCommandSpecs).filter((spec) => spec.event === eventName);
+        activeSpecs.forEach((spec) => {
+          if (spec.preventDefault && typeof event.preventDefault === 'function') event.preventDefault();
+          if (spec.stopPropagation && typeof event.stopPropagation === 'function') event.stopPropagation();
+          applyImmediateCommandState(element);
+          const detail = createCommandEventDetail(
+            spec,
+            element.__rmtCommandDescriptor || descriptor,
+            element.__rmtCommandContext || context,
+            event,
+            element
+          );
+          if (typeof element.dispatchEvent === 'function' && typeof CustomEvent !== 'undefined') {
+            element.dispatchEvent(new CustomEvent('xtend-command', {
+              detail,
+              bubbles: true,
+              composed: true,
+              cancelable: true
+            }));
+          }
+        });
+      });
+    });
   }
 
   function resolveValue(value, context, item) {
@@ -707,8 +942,28 @@
   }
 
   function materializeChildren(element, children, context, item) {
+    const target = childContainerFor(element);
+    const descriptors = toArray(children);
+    const existingChildren = getChildren(target);
+    if (
+      descriptors.length > 0
+      && existingChildren.length === descriptors.length
+      && descriptors.every((child, index) => canPatchExistingChild(existingChildren[index], child, { ...context, item }))
+    ) {
+      descriptors.forEach((child, index) => {
+        patchExistingChild(existingChildren[index], child, {
+          ...context,
+          source: {
+            ...(context.source || {}),
+            pointer: `${(context.source && context.source.pointer) || ''}/children/${index}`
+          },
+          item
+        });
+      });
+      return;
+    }
     const rendered = [];
-    toArray(children).forEach((child, index) => {
+    descriptors.forEach((child, index) => {
       const childNodes = renderNode(child, {
         ...context,
         source: {
@@ -719,7 +974,7 @@
       });
       rendered.push(...toArray(childNodes));
     });
-    replaceChildren(element, rendered);
+    replaceChildren(target, rendered);
   }
 
   function renderElement(descriptor, context) {
@@ -737,8 +992,9 @@
     applyStyleTokens(element, descriptor, context);
     applyRefPrimitive(element, descriptor, context);
     applyEvents(element, descriptor.events || {}, descriptor, context);
+    applyCommand(element, descriptor, context);
     if (Object.prototype.hasOwnProperty.call(descriptor, 'text')) {
-      appendNodes(element, [createText(context.documentTarget, resolveValue(descriptor.text, context, context.item))]);
+      appendNodes(childContainerFor(element), [createText(context.documentTarget, resolveValue(descriptor.text, context, context.item))]);
     }
     if (descriptor.children) {
       materializeChildren(element, descriptor.children, context, context.item);
@@ -786,6 +1042,7 @@
     const key = descriptor.test || descriptor.when;
     const explicitValue = resolveValue(key, context, context.item);
     if (typeof explicitValue === 'boolean') return explicitValue;
+    if (typeof key === 'string' && key.startsWith('$') && explicitValue === key) return false;
     if (typeof key === 'string' && context.selectors && context.selectors.has(key)) {
       return !!context.selectorValues[key];
     }
@@ -818,6 +1075,254 @@
         }
         fragment.appendChild(node);
       });
+    });
+    return fragment;
+  }
+
+  function renderRichTextChildren(segments, context) {
+    const fragment = createFragment(context.documentTarget);
+    toArray(segments).forEach((segment, index) => {
+      appendNodes(fragment, [renderRichTextSegment(segment, {
+        ...context,
+        source: {
+          ...(context.source || {}),
+          pointer: `${(context.source && context.source.pointer) || ''}/rich/${index}`
+        }
+      })]);
+    });
+    return fragment;
+  }
+
+  function segmentChildren(record) {
+    if (Object.prototype.hasOwnProperty.call(record, 'children')) return record.children;
+    if (Object.prototype.hasOwnProperty.call(record, 'segments')) return record.segments;
+    if (Object.prototype.hasOwnProperty.call(record, 'content')) return record.content;
+    return null;
+  }
+
+  function renderRichTextContainer(record, context, tag, fallbackText = '') {
+    const descriptor = {
+      type: 'element',
+      tag,
+      class: record.class || record.className || record.classes || '',
+      attributes: {
+        'data-rmt-rich-segment': record.kind || record.type || tag,
+        ...(record.attributes || record.attrs || {})
+      }
+    };
+    const children = segmentChildren(record);
+    if (children) {
+      descriptor.children = [{
+        type: 'rich-text',
+        segments: toArray(children)
+      }];
+    } else {
+      descriptor.text = Object.prototype.hasOwnProperty.call(record, 'text')
+        ? record.text
+        : fallbackText;
+    }
+    return renderElement(descriptor, context);
+  }
+
+  function renderRichTextSegment(segment, context) {
+    const record = objectRecord(segment);
+    const kind = clampString(record.kind || record.type, 'text');
+    if (kind === 'code') {
+      return renderComponent({
+        type: 'component',
+        tag: 'x-code',
+        component: 'x-code',
+        class: record.class || record.className || '',
+        attributes: {
+          id: record.id || undefined,
+          lang: record.lang || record.language || 'text',
+          'fallback-class': record.fallbackClass || record['fallback-class'] || undefined,
+          'data-xtend-llm-code-block': record.codeBlock || record['code-block'] || undefined,
+          'data-insular-hydration': record.insularHydration || undefined,
+          'data-streaming': record.streaming || undefined,
+          'data-rmt-rich-segment': 'code'
+        },
+        children: [
+          {
+            type: 'element',
+            tag: 'template',
+            attributes: {
+              'data-x-code-mode': 'text'
+            },
+            text: record.text || record.code || ''
+          },
+          {
+            type: 'element',
+            tag: 'pre',
+            class: record.fallbackClass || record['fallback-class'] || 'xtend-rmt-code-fallback',
+            children: [{
+              type: 'element',
+              tag: 'code',
+              text: record.text || record.code || ''
+            }]
+          }
+        ]
+      }, context);
+    }
+    if (kind === 'citation') {
+      return renderElement({
+        type: 'element',
+        tag: 'a',
+        class: ['xtend-rmt-citation', record.class || record.className],
+        attributes: {
+          href: record.href || record.url || '#',
+          rel: record.rel || 'noreferrer',
+          target: record.target || '_blank',
+          'data-rmt-rich-segment': 'citation'
+        },
+        text: record.label || record.title || record.text || 'source'
+      }, context);
+    }
+    if (kind === 'paragraph' || kind === 'p') return renderRichTextContainer(record, context, 'p');
+    if (kind === 'heading' || kind === 'h') {
+      const depth = Math.min(6, Math.max(1, Number(record.depth || record.level || 3)));
+      return renderRichTextContainer(record, context, `h${depth}`);
+    }
+    if (kind === 'quote' || kind === 'blockquote') return renderRichTextContainer(record, context, 'blockquote');
+    if (kind === 'inline-code' || kind === 'code-inline') return renderRichTextContainer(record, context, 'code');
+    if (kind === 'strong' || kind === 'bold') return renderRichTextContainer(record, context, 'strong');
+    if (kind === 'em' || kind === 'emphasis' || kind === 'italic') return renderRichTextContainer(record, context, 'em');
+    if (kind === 'delete' || kind === 'del' || kind === 'strike') return renderRichTextContainer(record, context, 'del');
+    if (kind === 'link') {
+      return renderElement({
+        type: 'element',
+        tag: 'a',
+        class: record.class || record.className || '',
+        attributes: {
+          href: record.href || record.url || '#',
+          rel: record.rel || 'noreferrer',
+          target: record.target || '_blank',
+          'data-rmt-rich-segment': 'link'
+        },
+        children: segmentChildren(record) ? [{ type: 'rich-text', segments: toArray(segmentChildren(record)) }] : undefined,
+        text: segmentChildren(record) ? undefined : record.label || record.title || record.text || record.href || ''
+      }, context);
+    }
+    if (kind === 'list' || kind === 'ul' || kind === 'ol') {
+      const tag = record.ordered || kind === 'ol' ? 'ol' : 'ul';
+      return renderElement({
+        type: 'element',
+        tag,
+        class: record.class || record.className || '',
+        attributes: {
+          'data-rmt-rich-segment': 'list'
+        },
+        children: toArray(record.items).map((item) => ({
+          type: 'element',
+          tag: 'li',
+          children: [{
+            type: 'rich-text',
+            segments: Array.isArray(item) ? item : toArray(item && item.children || item && item.segments || item)
+          }]
+        }))
+      }, context);
+    }
+    if (kind === 'sources' || kind === 'source-panel') {
+      return renderElement({
+        type: 'element',
+        tag: 'details',
+        class: record.class || record.className || 'xtend-rmt-sources',
+        attributes: {
+          open: record.open || undefined,
+          'data-rmt-rich-segment': 'sources'
+        },
+        children: [
+          {
+            type: 'element',
+            tag: 'summary',
+            class: record.summaryClass || 'xtend-rmt-sources-summary',
+            text: record.summary || record.label || 'Sources'
+          },
+          {
+            type: 'element',
+            tag: 'div',
+            class: record.listClass || 'xtend-rmt-sources-list',
+            children: toArray(record.sources || record.items).map((source) => ({
+              type: 'element',
+              tag: 'a',
+              class: source.class || record.itemClass || 'xtend-rmt-source',
+              attributes: {
+                id: source.id || undefined,
+                href: source.href || source.url || '#',
+                target: source.target || '_blank',
+                rel: source.rel || 'noreferrer',
+                'data-source-index': source.index || source.id || ''
+              },
+              children: [
+                {
+                  type: 'element',
+                  tag: 'span',
+                  class: source.markerClass || record.markerClass || 'xtend-rmt-source-marker',
+                  text: source.marker || source.label || `[${source.index || ''}]`
+                },
+                {
+                  type: 'element',
+                  tag: 'span',
+                  class: source.copyClass || record.copyClass || 'xtend-rmt-source-copy',
+                  children: [
+                    {
+                      type: 'element',
+                      tag: 'span',
+                      class: source.titleClass || record.titleClass || 'xtend-rmt-source-title',
+                      text: source.title || source.url || source.href || 'source'
+                    },
+                    {
+                      type: 'element',
+                      tag: 'span',
+                      class: source.metaClass || record.metaClass || 'xtend-rmt-source-meta',
+                      text: source.meta || ''
+                    },
+                    {
+                      type: 'element',
+                      tag: 'span',
+                      class: source.snippetClass || record.snippetClass || 'xtend-rmt-source-snippet',
+                      attributes: {
+                        hidden: { op: 'not', source: source.snippet || '' }
+                      },
+                      text: source.snippet || ''
+                    }
+                  ]
+                }
+              ]
+            }))
+          }
+        ]
+      }, context);
+    }
+    if (kind === 'fragment') {
+      return renderRichTextChildren(segmentChildren(record), context);
+    }
+    return renderElement({
+      type: 'element',
+      tag: 'span',
+      class: record.class || record.className || '',
+      attributes: {
+        'data-rmt-rich-segment': kind
+      },
+      children: segmentChildren(record) ? [{ type: 'rich-text', segments: toArray(segmentChildren(record)) }] : undefined,
+      text: segmentChildren(record) ? undefined : record.text || ''
+    }, context);
+  }
+
+  function renderRichText(descriptor, context) {
+    const fragment = createFragment(context.documentTarget);
+    const resolvedSegments = descriptor.segments || resolveValue(descriptor.source, context, context.item);
+    const segments = typeof descriptor.source === 'string' && descriptor.source.startsWith('$') && resolvedSegments === descriptor.source
+      ? []
+      : toArray(resolvedSegments);
+    segments.forEach((segment, index) => {
+      appendNodes(fragment, [renderRichTextSegment(segment, {
+        ...context,
+        source: {
+          ...(context.source || {}),
+          pointer: `${(context.source && context.source.pointer) || ''}/segments/${index}`
+        }
+      })]);
     });
     return fragment;
   }
@@ -860,6 +1365,9 @@
           : renderNode(descriptor.else || descriptor.fallback, context);
       case 'repeat':
         return renderRepeat(descriptor, context);
+      case 'rich-text':
+      case 'richText':
+        return renderRichText(descriptor, context);
       case 'empty':
         return descriptor.template
           ? renderTemplate(descriptor.template, context, context.item)
@@ -913,8 +1421,9 @@
     applyPartPrimitive(element, next, context);
     applyStyleTokens(element, next, context);
     applyRefPrimitive(element, next, context);
+    applyCommand(element, next, context);
     if (Object.prototype.hasOwnProperty.call(next, 'text')) {
-      replaceChildren(element, [createText(context.documentTarget, resolveValue(next.text, context, context.item))]);
+      replaceChildren(childContainerFor(element), [createText(context.documentTarget, resolveValue(next.text, context, context.item))]);
     } else if (next.children) {
       materializeChildren(element, next.children, context, context.item);
     }

@@ -18,12 +18,34 @@ template demo.orchestration {
     }
   }
 
+  state demo.orchestration.panel type object preserve {
+    initial {
+      id "orchestration-panel"
+      surfaceId "orchestration-panel"
+      label "History"
+      open true
+      active true
+      mode "docked"
+      placement "inline"
+      resizable true
+      collapsible true
+      closable false
+      pinnable false
+      initialWidth 280
+      initialHeight 640
+    }
+  }
+
   selector demo.orchestration.status from state demo.orchestration.status {
     output OrchestrationStatus
   }
 
   selector demo.orchestration.command from state demo.orchestration.command {
     output OrchestrationAction
+  }
+
+  selector demo.orchestration.panel from state demo.orchestration.panel {
+    output OrchestrationPanel
   }
 
   datasource demo.orchestration.save from endpoint "/api/orchestration/save" {
@@ -89,6 +111,17 @@ template demo.orchestration {
     on click "[data-action='save']" -> action demo.orchestration.save {
       preventDefault true
       payload label from target.dataset.label
+    }
+  }
+
+  surface demo.orchestration.panel kind navigation component x-side-panel {
+    source selector demo.orchestration.panel
+    key panel.id
+    portal surface.root
+    bounds x 400 y 16 width 280 height 640
+
+    lane visible weight 70 {
+      hydrate orchestration-panel from selector demo.orchestration.panel
     }
   }
 }

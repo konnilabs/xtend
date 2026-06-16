@@ -49,6 +49,10 @@ function unique(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
 }
 
+function stringList(value: unknown): string[] {
+  return Array.isArray(value) ? value.map(String).filter(Boolean) : [];
+}
+
 function stateKey(pattern: string, surfaceId: string): string {
   return pattern.replace('<surfaceId>', surfaceId);
 }
@@ -78,7 +82,8 @@ export function normalizeSurfaceRecord(input: Record<string, unknown>, managerId
     input.initialBounds as Partial<XtendSurfaceBounds> ||
     input.bounds as Partial<XtendSurfaceBounds> ||
     {};
-  const capabilities = Array.isArray(source.capabilities) ? source.capabilities as string[] : [];
+  const capabilities = stringList(source.capabilities || input.capabilities);
+  const disabledCapabilities = new Set(stringList(source.disabledCapabilities || input.disabledCapabilities));
 
   return {
     schema: SURFACE_RECORD_SCHEMA,
@@ -100,7 +105,8 @@ export function normalizeSurfaceRecord(input: Record<string, unknown>, managerId
     zIndex: toFiniteNumber(source.zIndex || input.zIndex, 0),
     bounds: normalizeSurfaceBounds(initialBounds, type),
     previousBounds: null,
-    capabilities: unique([...(DEFAULT_CAPABILITIES[type] || DEFAULT_CAPABILITIES.window), ...capabilities]),
+    capabilities: unique([...(DEFAULT_CAPABILITIES[type] || DEFAULT_CAPABILITIES.window), ...capabilities])
+      .filter((capability) => !disabledCapabilities.has(capability)),
     persistence: {
       mode: 'none',
       key: null
@@ -256,6 +262,12 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       const record = registry.get(id);
       if (!record) return result('update', null, false, emit('xtend.surface.not-found', null, 'update', `Surface ${id} is not registered.`));
       if (typeof patch.label === 'string') record.label = patch.label;
+      if (Array.isArray(patch.capabilities) || Array.isArray(patch.disabledCapabilities)) {
+        const nextCapabilities = stringList(patch.capabilities || record.capabilities);
+        const disabledCapabilities = new Set(stringList(patch.disabledCapabilities));
+        record.capabilities = unique([...(DEFAULT_CAPABILITIES[record.type] || DEFAULT_CAPABILITIES.window), ...nextCapabilities])
+          .filter((capability) => !disabledCapabilities.has(capability));
+      }
       if (patch.bounds) record.bounds = mergeSurfaceBounds(record.bounds, patch.bounds as Partial<XtendSurfaceBounds>, record.type);
       if (typeof patch.placement === 'string') record.placement = patch.placement;
       if (typeof patch.mode === 'string') record.mode = patch.mode;

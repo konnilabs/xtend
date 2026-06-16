@@ -531,7 +531,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(saveEvent && saveEvent.event === 'click' && saveEvent.type === 'click', 'strict plan preserves RMT DOM event type for runtime listener binding');
   context.assert(saveEvent && saveEvent.payload && saveEvent.payload.label === '$target.dataset.label', 'strict plan preserves RMT event payload mappings for runtime routing');
   context.assert(saveEvent && saveEvent.governance && saveEvent.governance.preventDefault === true, 'strict plan preserves RMT event governance for runtime routing');
-  context.assert(plan.orchestration.summary.surfaceCount === 2, 'strict plan summarizes surface graph');
+  context.assert(plan.orchestration.summary.surfaceCount === 3, 'strict plan summarizes surface graph');
   context.assert(plan.kernel && plan.kernel.enabled === true, 'strict orchestration plan enables kernel integration by default');
   context.assert(plan.kernel.summary.recordsSchema === 'xtend.rmt.vnext.kernel-records.v1', 'strict orchestration plan records kernel records schema');
   context.assert(plan.kernel.summary.scheduleCount >= 10, 'strict orchestration plan summarizes detailed kernel schedules including hydration/action/event endpoints');
@@ -565,10 +565,22 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('XTendRmtEventRoutingRuntime'), 'bundle wires event runtime');
   context.assert(entrySource.includes('XTendRmtSurfaceResourceGraphRuntime'), 'bundle wires surface runtime');
   context.assert(entrySource.includes('XTendRmtDomDescriptorRenderer'), 'bundle wires DOM descriptor renderer');
+  context.assert(entrySource.includes('scheduledAppRuntime = Object.freeze'), 'bundle wraps the public app runtime in a Maraca-scheduled facade');
+  context.assert(entrySource.includes('facade: "xtend.maraca.scheduled-app-runtime.v1"'), 'bundle exposes the scheduled app runtime facade contract');
+  context.assert(entrySource.includes('command(commandName, payload = {}, options = {})'), 'bundle exposes scheduled appRuntime.command facade');
+  context.assert(entrySource.includes('handleStreamPatch(patchInput, reducerOptions = {})'), 'bundle exposes scheduled stream lifecycle facade');
+  context.assert(entrySource.includes('streamService(serviceId, payload = {}, options = {})'), 'bundle exposes scheduled host stream service facade');
+  context.assert(entrySource.includes('applyRecipe(recipe, context = {})'), 'bundle exposes scheduled reducer recipe facade');
+  context.assert(entrySource.includes('"operation:xtend.maraca/orchestration/event"'), 'bundle schedules direct app-runtime commands on the generic orchestration event fiber');
+  context.assert(entrySource.includes('appRuntime: scheduledAppRuntime'), 'bundle exposes the scheduled app runtime instead of the raw core runtime');
+  context.assert(!entrySource.includes('rawAppRuntime'), 'bundle does not expose a raw app-runtime bypass handle');
   context.assert(entrySource.includes('querySelectorAll("[data-rmt-component], [data-maraca-surface]")'), 'bundle lazy loader observes orchestrated component tags after descriptor render');
   context.assert(entrySource.includes('entry.element.getAttribute("data-rmt-component")'), 'bundle lazy loader resolves component tags from rendered RMT component attributes');
   context.assert(entrySource.includes('"type": "$model.demo.orchestration.status.tone"'), 'bundle maps RMT tone state onto x-status public type attribute');
   context.assert(entrySource.includes('"variant": "$model.demo.orchestration.command.tone"'), 'bundle maps RMT tone state onto x-button public variant attribute');
+  context.assert(entrySource.includes('"collapsible": "$model.demo.orchestration.panel.collapsible"'), 'bundle maps RMT side panel collapsible capability onto x-side-panel public attribute');
+  context.assert(entrySource.includes('"closable": "$model.demo.orchestration.panel.closable"'), 'bundle maps RMT side panel close capability onto x-side-panel public attribute');
+  context.assert(entrySource.includes('"pinnable": "$model.demo.orchestration.panel.pinnable"'), 'bundle maps RMT side panel pin capability onto x-side-panel public attribute');
   context.assert(entrySource.includes('window.__XTendMaracaOrchestration'), 'bundle exposes orchestration bridge handle');
   context.assert(entrySource.includes('window.__XTendMaracaKernel'), 'bundle exposes kernel bridge handle');
   context.assert(entrySource.includes('window.__XTendMaracaHydration'), 'bundle exposes hydration bridge handle');
@@ -917,6 +929,25 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       }
       return output;
     }
+    async function dispatchCommand(action, payload = {}) {
+      const command = window.__XTendMaracaOrchestration.appRuntime.createCommandEnvelope({
+        source: {
+          kind: 'component',
+          id: 'kernel-integrity-command',
+          event: 'xtend-command',
+          surfaceId: 'demo.kernel.shell'
+        },
+        command: action,
+        payload
+      });
+      const output = await window.__XTendMaracaOrchestration.appRuntime.dispatchCommand(command, {
+        eventName: 'xtend-command'
+      });
+      if (!output || output.schema !== 'xtend.rmt.command-dispatch-result.v1' || !output.result || output.result.status !== 'success') {
+        throw new Error('Command ' + action + ' did not return a command dispatch success result.');
+      }
+      return output;
+    }
 
     if (window.HTMLMediaElement) {
       HTMLMediaElement.prototype.play = function play() {
@@ -969,7 +1000,8 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       await customElements.whenDefined('x-player');
       await customElements.whenDefined('x-lightbox');
 
-      const first = await run('demo.kernel.play', { mediaId: 'video-one' });
+      const firstDispatch = await dispatchCommand('demo.kernel.play', { mediaId: 'video-one' });
+      const first = firstDispatch.result;
       await waitFor('first player src', () => player() && player().getAttribute('src') === media['video-one'].src);
       await waitFor('first player materialized', () => {
         const record = managerRecord('demo.kernel.player');
@@ -1011,8 +1043,10 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       await waitFor('third player src', () => player() && player().getAttribute('src') === media['video-two'].src);
 
       const kernelSnapshot = window.__XTendMaracaKernel.snapshot();
+      const orchestrationSnapshot = window.__XTendMaracaOrchestration.snapshot();
       const hydrationSnapshot = window.__XTendMaracaHydration.snapshot();
       const checks = {
+        firstCommandResult: firstDispatch.schema === 'xtend.rmt.command-dispatch-result.v1',
         firstActionResult: first.schema === 'xtend.epic18.rmt-action-result.v1',
         secondActionResult: second.schema === 'xtend.epic18.rmt-action-result.v1',
         thirdActionResult: third.schema === 'xtend.epic18.rmt-action-result.v1',
@@ -1022,6 +1056,10 @@ function writeKernelIntegritySmokeFixture(rootDir) {
         fullscreenEvent: fullscreenEvents.length > 0,
         kernelScheduled: kernelSnapshot.enabled === true && kernelSnapshot.scheduledEndpoints.length > 0,
         kernelFibers: kernelSnapshot.fibers.some((entry) => entry.kind === 'action') && kernelSnapshot.fibers.some((entry) => entry.kind === 'hydration'),
+        commandEventFiber: kernelSnapshot.fibers.some((entry) => entry.kind === 'event' && String(entry.fiber || '').includes('/orchestration/event')),
+        commandActionFiber: kernelSnapshot.fibers.some((entry) => entry.kind === 'action' && String(entry.fiber || '').includes('/action/demo.kernel.play')),
+        scheduledAppRuntimeFacade: orchestrationSnapshot.appRuntime && orchestrationSnapshot.appRuntime.facade === 'xtend.maraca.scheduled-app-runtime.v1',
+        appRuntimeCommandRecorded: orchestrationSnapshot.appRuntime && orchestrationSnapshot.appRuntime.commands.some((entry) => entry.command && entry.command.command === 'demo.kernel.play'),
         hydrationRecords: hydrationSnapshot.records.some((entry) => entry.component === 'x-player') && hydrationSnapshot.records.some((entry) => entry.component === 'x-lightbox')
       };
       write({
@@ -1031,6 +1069,7 @@ function writeKernelIntegritySmokeFixture(rootDir) {
         playCalls,
         fullscreenEvents,
         kernel: kernelSnapshot,
+        orchestration: orchestrationSnapshot,
         hydration: hydrationSnapshot
       });
     } catch (error) {
@@ -1431,6 +1470,9 @@ async function runMaracaTransitionSuite(options = {}) {
     },
     windowTarget: null
   });
+  fakeElement.style.opacity = '0';
+  fakeElement.style.transform = 'translateX(-16px)';
+  fakeElement.style.transition = 'opacity 160ms ease, transform 160ms ease';
   const exitResult = await transitionRuntime.applyVisibilityPatch({
     surface: 'demo.transitions.contact',
     element: fakeElement,
@@ -1440,6 +1482,10 @@ async function runMaracaTransitionSuite(options = {}) {
   });
   context.assert(exitResult && exitResult.status === 'complete', 'Node transition smoke completes an exit transition');
   context.assert(fakeElement.hasAttribute('hidden'), 'Node transition smoke delays and then applies hidden state');
+  context.assert(fakeElement.style.opacity === '' && fakeElement.style.transform === '', 'Node transition smoke clears transient exit animation styles');
+  fakeElement.style.opacity = '0';
+  fakeElement.style.transform = 'translateX(-16px)';
+  fakeElement.style.transition = 'opacity 160ms ease, transform 160ms ease';
   const enterResult = await transitionRuntime.applyVisibilityPatch({
     surface: 'demo.transitions.contact',
     element: fakeElement,
@@ -1449,6 +1495,7 @@ async function runMaracaTransitionSuite(options = {}) {
   });
   context.assert(enterResult && enterResult.status === 'complete', 'Node transition smoke completes an enter transition');
   context.assert(!fakeElement.hasAttribute('hidden'), 'Node transition smoke removes hidden state before enter transition');
+  context.assert(fakeElement.style.opacity === '' && fakeElement.style.transform === '' && fakeElement.style.transition === '', 'Node transition smoke clears stale enter animation styles');
   context.assert(Object.keys(xstateValues).some((key) => key.includes('xtend.surface.transition.demo.transitions')), 'Node transition smoke mirrors transition state into xstate');
   context.assert(transitionRuntime.snapshot().transitionCount === 2, 'Transition runtime snapshot exposes transition count');
 

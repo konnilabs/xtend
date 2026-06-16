@@ -1,8 +1,8 @@
 export const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-action-effect-diagnostic.v1';
 export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA: 'xtend.epic18.rmt-action-effect-runtime.v1';
 
-export type RmtDataSourceKind = 'fixture' | 'rest' | 'ssr' | 'host' | string;
-export type RmtEffectKind = 'toast' | 'feedback' | 'navigation' | 'focus' | 'lazy-import' | 'side-effect' | string;
+export type RmtDataSourceKind = 'fixture' | 'rest' | 'ssr' | 'host' | 'host-service' | 'service' | string;
+export type RmtEffectKind = 'toast' | 'feedback' | 'navigation' | 'focus' | 'lazy-import' | 'host-service' | 'service' | 'stream-service' | 'side-effect' | string;
 export type RmtResourceKind = 'object-url' | 'stream' | 'observer' | 'timer' | 'lazy-import' | string;
 
 export interface RmtActionDefinition {
@@ -15,6 +15,7 @@ export interface RmtActionDefinition {
   statusState?: string;
   resourceOwner?: string;
   effects?: string[] | Array<{ id: string }>;
+  reducers?: string[] | Array<Record<string, unknown>>;
   resources?: string[] | Array<{ id: string }>;
   cancelable?: boolean;
 }
@@ -42,6 +43,10 @@ export interface RmtEffectDefinition {
   path?: unknown;
   severity?: string;
   resource?: string;
+  service?: string;
+  serviceId?: string;
+  mode?: string;
+  payload?: unknown;
   resources?: string[];
 }
 
@@ -110,6 +115,10 @@ export interface RmtActionEffectRuntimeOptions {
   stateRuntime?: unknown;
   resourceManager?: RmtResourceManager;
   dataSourceAdapters?: Record<string, unknown>;
+  hostServiceRegistry?: {
+    invoke(serviceId: string, payload?: unknown, context?: Record<string, unknown>): Promise<unknown> | unknown;
+    stream?(serviceId: string, payload?: unknown, handlers?: Record<string, Function>, context?: Record<string, unknown>): Promise<unknown> | unknown;
+  };
   resourceAdapters?: Record<string, unknown>;
   feedbackAdapter?: { publish(payload: unknown, context?: unknown): unknown };
   navigationAdapter?: { navigate(path: unknown, context?: unknown): unknown };

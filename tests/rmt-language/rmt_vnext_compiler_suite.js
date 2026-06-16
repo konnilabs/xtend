@@ -229,9 +229,13 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(maracaOrchestration.telemetry && maracaOrchestration.telemetry.customEvents.includes('xtend-maraca:hydration-start'), 'Maraca orchestration artifact emits telemetry plan');
   const statusDescriptor = maracaOrchestration.render.descriptors.find((descriptor) => descriptor.component === 'x-status');
   const buttonDescriptor = maracaOrchestration.render.descriptors.find((descriptor) => descriptor.component === 'x-button');
+  const panelDescriptor = maracaOrchestration.render.descriptors.find((descriptor) => descriptor.component === 'x-side-panel');
   context.assert(statusDescriptor && statusDescriptor.attributes['data-maraca-surface'].op === 'literal', 'Maraca render descriptors keep surface IDs as literals');
   context.assert(statusDescriptor && statusDescriptor.attributes.type === '$model.demo.orchestration.status.tone', 'Maraca status descriptor maps tone to x-status type');
   context.assert(buttonDescriptor && buttonDescriptor.attributes.variant === '$model.demo.orchestration.command.tone', 'Maraca button descriptor maps tone to x-button variant');
+  context.assert(panelDescriptor && panelDescriptor.attributes.collapsible === '$model.demo.orchestration.panel.collapsible', 'Maraca side panel descriptor maps collapsible capability');
+  context.assert(panelDescriptor && panelDescriptor.attributes.closable === '$model.demo.orchestration.panel.closable', 'Maraca side panel descriptor maps closable capability');
+  context.assert(panelDescriptor && panelDescriptor.attributes.pinnable === '$model.demo.orchestration.panel.pinnable', 'Maraca side panel descriptor maps pinnable capability');
   context.assert(maracaOrchestration.css.mode === 'layout-tokens' && maracaOrchestration.css.themeGeneration === false, 'Maraca orchestration artifact emits layout/token CSS plan only');
   context.assert(maracaOrchestration.security.htmlSinks === 'forbidden' && maracaOrchestration.security.shadowRootAccess === false, 'Maraca orchestration artifact declares safety boundaries');
   context.assert(maracaOrchestration.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'Maraca orchestration artifact has no blocking diagnostics');

@@ -1,8 +1,9 @@
 import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-public-types';
 
-export type XTabsAttributeName = 'selected' | 'text-color';
+export type XTabsAttributeName = 'selected' | 'text-color' | 'orientation';
 export type XTabsEventName = 'tab-selected';
 export type XTabsPerformanceBudgetKey = 'loadDefine' | 'mount' | 'hydrate' | 'renderUpdate' | 'eventAction' | 'tabSwitch' | 'keyboardAction';
+export type XTabsOrientation = 'horizontal' | 'vertical';
 
 export interface XTabsSelectedEventDetail {
   index: number;
@@ -54,9 +55,11 @@ export type XTabsPublicEventContract = XtendPublicEventContract<XTabsEventName, 
 
 export interface XTabElement extends HTMLElement {
   name?: string;
+  label?: string;
 }
 
 export interface XTabsElement extends HTMLElement {
+  orientation?: XTabsOrientation;
   selectTab(index: number): void;
   getPerformanceBudget(): Record<XTabsPerformanceBudgetKey, number>;
   snapshotPerformance(): XTabsPerformanceSnapshot;

@@ -18,6 +18,8 @@
     }
   }
 
+  const { createXtendRmtCommandDetail } = await import('./rmt-command.js');
+
   function getDialogOpenKeys(id) {
     return [
       `xtend.component.x-dialog.${id}.open`,
@@ -211,7 +213,7 @@
         outsideClick: 'overlay-close',
         scrollLock: 'balanced-document-lock',
         portalStrategy: 'host-local-fixed-layer',
-        events: ['dialog-opened', 'dialog-closed'],
+        events: ['xtend-command', 'dialog-opened', 'dialog-closed'],
         commands: ['open', 'close', 'focus-trap', 'release-focus', 'apply-inert', 'release-inert', 'lock-scroll', 'unlock-scroll', 'snapshot'],
         stateKey: 'dialog-open-<id>',
         schedule: 'overlay.stack.open',
@@ -437,14 +439,21 @@
     }
 
     _emitLifecycleEvent(name, source) {
+      const detail = {
+        id: this.id,
+        open: this._open,
+        source
+      };
       this.dispatchEvent(new CustomEvent(name, {
-        detail: {
-          id: this.id,
-          open: this._open,
-          source
-        },
+        detail,
         bubbles: true,
         composed: true
+      }));
+      this.dispatchEvent(new CustomEvent('xtend-command', {
+        detail: createXtendRmtCommandDetail(this, name, detail, { fallbackId: 'x-dialog' }),
+        bubbles: true,
+        composed: true,
+        cancelable: true
       }));
     }
 
@@ -527,7 +536,7 @@
             display: flex;
             justify-content: flex-end;
             gap: 0.7em;
-            margin-top: 1.5em;
+            margin-top: var(--dialog-actions-margin-top, 1.5em);
           }
           .xdialog-actions button {
             background: var(--xdialog-primary);
@@ -691,6 +700,17 @@
               button.classList.add('primary');
             }
             button.addEventListener('click', () => {
+              this.dispatchEvent(new CustomEvent('xtend-command', {
+                detail: createXtendRmtCommandDetail(this, 'dialog-action', {
+                  id: this.id,
+                  action: action.action || action.id || action.label || 'dialog-action',
+                  label: action.label || action.action || 'OK',
+                  source: 'x-dialog'
+                }, { fallbackId: 'x-dialog', target: button }),
+                bubbles: true,
+                composed: true,
+                cancelable: true
+              }));
               if (typeof action.callback === 'function') {
                 action.callback(this, action);
               }

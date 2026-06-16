@@ -266,6 +266,8 @@ class XSpinner extends HTMLElement {
     // State-Änderungen abonnieren
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xspinner-paused-${this.id}` && typeof value === "boolean") {
+        const paused = this.hasAttribute("paused");
+        if (value === paused) return;
         if (value) this.setAttribute("paused", "");
         else this.removeAttribute("paused");
       }
@@ -292,6 +294,7 @@ class XSpinner extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) return;
     if (name === "paused") {
       this._spinner.style.animationPlayState = newValue !== null ? "paused" : "running";
       if (this.id) {

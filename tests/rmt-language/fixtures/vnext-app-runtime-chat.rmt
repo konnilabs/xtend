@@ -1,0 +1,172 @@
+// RMT app-runtime source-to-sea fixture.
+// Product code supplies only host service adapters; RMT owns command, state, render and surfaces.
+
+template app.runtime.chat {
+  state app.runtime.chat.shell type object preserve {
+    initial {
+      id "chat-shell"
+      text "Ready"
+      tone "neutral"
+      transcriptKind "messages"
+      conversationKind "conversations"
+      sourceKind "sources"
+      richTextKind "segments"
+    }
+  }
+
+  state app.runtime.chat.prompt type object preserve {
+    initial {
+      id "chat-prompt"
+      field "prompt"
+      label "Message"
+      value ""
+      rows 4
+      disabled false
+    }
+  }
+
+  state app.runtime.chat.send type object preserve {
+    initial {
+      id "chat-send"
+      text "Send"
+      tone "primary"
+      disabled false
+    }
+  }
+
+  state app.runtime.chat.progress type object preserve {
+    initial {
+      id "chat-progress"
+      label "Generation"
+      status "Waiting"
+      value 0
+      max 100
+      indeterminate true
+      busy false
+      hidden false
+    }
+  }
+
+  state app.runtime.chat.settings type object preserve {
+    initial {
+      id "chat-settings"
+      title "Settings"
+      overlay true
+      width "min(92vw, 720px)"
+      height "auto"
+      hidden false
+    }
+  }
+
+  selector app.runtime.chat.shell from state app.runtime.chat.shell {
+    output AppRuntimeChatShell
+  }
+
+  selector app.runtime.chat.prompt from state app.runtime.chat.prompt {
+    output AppRuntimeChatPrompt
+  }
+
+  selector app.runtime.chat.send from state app.runtime.chat.send {
+    output AppRuntimeChatCommand
+  }
+
+  selector app.runtime.chat.progress from state app.runtime.chat.progress {
+    output AppRuntimeChatProgress
+  }
+
+  selector app.runtime.chat.settings from state app.runtime.chat.settings {
+    output AppRuntimeChatDialog
+  }
+
+  action app.runtime.chat.send {
+    input value string
+    reduce state.app.runtime.chat.shell.text = "Streaming"
+    reduce state.app.runtime.chat.shell.tone = "info"
+    reduce state.app.runtime.chat.progress.busy = true
+    emit app.runtime.chat.promptSubmitted with value input.value
+  }
+
+  action app.runtime.chat.complete {
+    input value string
+    reduce state.app.runtime.chat.shell.text = "Ready"
+    reduce state.app.runtime.chat.shell.tone = "success"
+    reduce state.app.runtime.chat.progress.busy = false
+    emit app.runtime.chat.completed with value input.value
+  }
+
+  portal surface.root root "#rmt-app-runtime-chat-root" layer surface
+
+  surface app.runtime.chat.conversationList kind navigation component nav {
+    source selector app.runtime.chat.shell
+    key shell.id
+    portal surface.root
+    bounds x 20 y 20 width 280 height 520
+
+    lane visible weight 80 {
+      hydrate conversation-list from selector app.runtime.chat.shell
+    }
+  }
+
+  surface app.runtime.chat.transcript kind content component section {
+    source selector app.runtime.chat.shell
+    key shell.id
+    portal surface.root
+    bounds x 320 y 20 width 720 height 520
+
+    lane visible weight 90 {
+      hydrate transcript from selector app.runtime.chat.shell
+    }
+  }
+
+  surface app.runtime.chat.prompt kind field component x-textarea {
+    source selector app.runtime.chat.prompt
+    key prompt.id
+    portal surface.root
+    bounds x 320 y 560 width 520 height 120
+
+    lane visible weight 90 {
+      hydrate chat-prompt from selector app.runtime.chat.prompt
+    }
+
+    on xtend-command "#chat-prompt" -> action app.runtime.chat.send {
+      payload value from detail.payload.value
+    }
+  }
+
+  surface app.runtime.chat.send kind action component x-button {
+    source selector app.runtime.chat.send
+    key send.id
+    portal surface.root
+    bounds x 860 y 560 width 180 height 52
+
+    lane visible weight 90 {
+      mount chat-send from selector app.runtime.chat.send
+    }
+
+    on xtend-command "#chat-send" -> action app.runtime.chat.send {
+      payload value from detail.payload.value
+    }
+  }
+
+  surface app.runtime.chat.progress kind feedback component x-progress {
+    source selector app.runtime.chat.progress
+    key progress.id
+    portal surface.root
+    bounds x 320 y 700 width 520 height 48
+
+    lane visible weight 80 {
+      hydrate chat-progress from selector app.runtime.chat.progress
+    }
+  }
+
+  surface app.runtime.chat.settings kind modal component x-dialog {
+    source selector app.runtime.chat.settings
+    key settings.id
+    portal surface.root
+    bounds x 0 y 0 width 720 height 420
+
+    lane visible weight 95 {
+      hydrate settings-dialog from selector app.runtime.chat.settings
+    }
+  }
+}

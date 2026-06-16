@@ -38,6 +38,7 @@ Dieser Index sammelt stabile Dokumentationspfade, die lokale Gates als Release- 
 - [RMT-first Demo-App](./rmt-first-demo-app.md)
 - [SurfaceManager Workbench Fixture](./surface-manager-workbench-fixture.md)
 - [SurfaceManager RMT Authoring](./surface-manager-rmt-authoring.md)
+- [SurfaceManager SidePanel Runtime](./en/surface-manager-side-panel-runtime.md)
 - [RMT vNext Authoring Guide (DE)](./de/rmt-vnext-authoring.md)
 - [RMT vNext Authoring Guide (EN)](./en/rmt-vnext-authoring.md)
 - [RMT vNext Migration Notes (DE)](./de/rmt-vnext-migration-notes.md)

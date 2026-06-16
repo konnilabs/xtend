@@ -278,7 +278,7 @@ const priorityComponentConfigs = {
     fixturePath: 'tests/components/fixtures/xtextarea.component.html',
     docPath: 'docs/components/xtextarea.md',
     profiles: ['form', 'stateful'],
-    observedAttributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label'],
+    observedAttributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'submit-on-enter'],
     sourceContracts: [
       { pattern: 'static formAssociated = true', message: 'x-textarea is form-associated' },
       { pattern: 'attachInternals', message: 'x-textarea uses ElementInternals where available' },
@@ -290,6 +290,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtextarea-value-', message: 'x-textarea syncs xstate value key' },
       { pattern: 'textarea-changed', message: 'x-textarea emits textarea-changed' },
       { pattern: 'textarea-invalid', message: 'x-textarea emits textarea-invalid' },
+      { pattern: 'textarea-submit', message: 'x-textarea emits textarea-submit' },
       { pattern: 'role="status"', message: 'x-textarea exposes character counter live region' },
       { pattern: 'role="alert"', message: 'x-textarea exposes validation alert region' },
       { pattern: 'aria-describedby', message: 'x-textarea wires descriptive regions' },
@@ -309,6 +310,7 @@ const priorityComponentConfigs = {
     docContracts: [
       { pattern: '`textarea-changed`', message: 'x-textarea docs describe textarea-changed event' },
       { pattern: '`textarea-invalid`', message: 'x-textarea docs describe textarea-invalid event' },
+      { pattern: '`textarea-submit`', message: 'x-textarea docs describe textarea-submit event' },
       { pattern: '`xtextarea-value-<id>`', message: 'x-textarea docs describe state key' },
       { pattern: 'xtend.rmt.component-contract.v1', message: 'x-textarea docs describe RMT contract' },
       { pattern: 'xtend.performance.component-profile.v1', message: 'x-textarea docs describe performance profile' },
@@ -635,10 +637,14 @@ const priorityComponentConfigs = {
       { pattern: 'btn.setAttribute("role", "tab")', message: 'x-tabs exposes tab roles' },
       { pattern: 'aria-selected', message: 'x-tabs mirrors selected state to aria-selected' },
       { pattern: 'aria-controls', message: 'x-tabs wires tabs to tab panels' },
+      { pattern: 'aria-orientation', message: 'x-tabs exposes tablist orientation' },
       { pattern: 'role", "tabpanel"', message: 'x-tabs exposes tabpanel roles' },
       { pattern: 'tabindex', message: 'x-tabs implements roving tabindex' },
+      { pattern: 'orientationAttribute', message: 'x-tabs exposes orientation for RMT shell authoring' },
       { pattern: 'ArrowRight', message: 'x-tabs supports next-tab keyboard navigation' },
       { pattern: 'ArrowLeft', message: 'x-tabs supports previous-tab keyboard navigation' },
+      { pattern: 'ArrowDown', message: 'x-tabs supports vertical next-tab keyboard navigation' },
+      { pattern: 'ArrowUp', message: 'x-tabs supports vertical previous-tab keyboard navigation' },
       { pattern: 'Home', message: 'x-tabs supports first-tab keyboard navigation' },
       { pattern: 'End', message: 'x-tabs supports last-tab keyboard navigation' },
       { pattern: 'selectTab(i)', message: 'x-tabs exposes selectTab API' }
@@ -647,6 +653,7 @@ const priorityComponentConfigs = {
       { pattern: 'id="component-tabs"', message: 'x-tabs fixture uses a stable id' },
       { pattern: 'selected="1"', message: 'x-tabs fixture covers selected attribute' },
       { pattern: 'text-color="#0f172a"', message: 'x-tabs fixture covers text-color attribute' },
+      { pattern: 'orientation="vertical"', message: 'x-tabs fixture covers vertical orientation' },
       { pattern: 'data-rmt-schedule="ui.user-blocking.tabs"', message: 'x-tabs fixture covers RMT tab schedule metadata' },
       { pattern: 'data-xtend-lane="user-blocking"', message: 'x-tabs fixture covers Fabric lane metadata' },
       { pattern: '<x-tab name="Overview"', message: 'x-tabs fixture covers named child tabs' },
@@ -654,6 +661,7 @@ const priorityComponentConfigs = {
     ],
     docContracts: [
       { pattern: '`selected`', message: 'x-tabs docs describe selected attribute' },
+      { pattern: '`orientation`', message: 'x-tabs docs describe orientation attribute' },
       { pattern: '`tab-selected`', message: 'x-tabs docs describe tab-selected event' },
       { pattern: '`bubbles: true`', message: 'x-tabs docs describe bubbling event behavior' },
       { pattern: '`composed: true`', message: 'x-tabs docs describe composed event behavior' },
@@ -662,6 +670,7 @@ const priorityComponentConfigs = {
       { pattern: '`aria-controls`', message: 'x-tabs docs describe ARIA panel wiring' },
       { pattern: '`Home`', message: 'x-tabs docs describe Home keyboard navigation' },
       { pattern: '`End`', message: 'x-tabs docs describe End keyboard navigation' },
+      { pattern: '`ArrowUp`', message: 'x-tabs docs describe vertical keyboard navigation' },
       { pattern: 'Performance-Profil', message: 'x-tabs docs describe performance profile' },
       { pattern: '`snapshotPerformance()`', message: 'x-tabs docs describe performance snapshot API' }
     ]
@@ -932,6 +941,8 @@ const priorityComponentConfigs = {
       { pattern: 'spinner-started', message: 'x-spinner emits spinner-started' },
       { pattern: 'spinner-stopped', message: 'x-spinner emits spinner-stopped' },
       { pattern: 'newValue !== null ? "paused" : "resumed"', message: 'x-spinner emits pause/resume events' },
+      { pattern: 'if (value === paused) return;', message: 'x-spinner avoids recursive paused state mirroring' },
+      { pattern: 'if (oldValue === newValue) return;', message: 'x-spinner ignores idempotent attribute changes' },
       { pattern: 'role", "status"', message: 'x-spinner exposes status role' },
       { pattern: 'aria-live', message: 'x-spinner exposes live region semantics' },
       { pattern: 'aria-busy', message: 'x-spinner exposes busy semantics' },

@@ -83,9 +83,11 @@ function createFakeText(text) {
 function createFakeElement(tagName = 'div') {
   const listeners = new Map();
   const attributes = {};
+  const normalizedTagName = String(tagName || 'div');
   const element = {
     nodeType: 1,
-    tagName: String(tagName || 'div').toUpperCase(),
+    tagName: normalizedTagName.toUpperCase(),
+    localName: normalizedTagName.toLowerCase(),
     attributes,
     childNodes: [],
     children: [],
@@ -141,6 +143,7 @@ function createFakeElement(tagName = 'div') {
     },
     _listeners: listeners
   };
+  if (element.localName === 'template') element.content = createFakeFragment();
   return element;
 }
 
@@ -279,6 +282,122 @@ function runRendererBehaviorAssertions(context, fixture, rendererModule) {
   context.assert(harness.events.length === 1 && harness.events[0].id === 'event.item-selected', 'renderer wires events without inline handlers');
   context.assert(harness.renderer.listDiagnostics().length === 0, 'happy-path renderer has no diagnostics');
 
+  const sidePanel = harness.renderer.renderNode({
+    type: 'element',
+    tag: 'x-side-panel',
+    attributes: {
+      collapsible: false,
+      closable: false,
+      pinnable: false,
+      disabled: false
+    }
+  }, harness.renderOptions);
+  context.assert(sidePanel.getAttribute('collapsible') === 'false', 'renderer preserves explicit false side panel collapse capability');
+  context.assert(sidePanel.getAttribute('closable') === 'false', 'renderer preserves explicit false side panel close capability');
+  context.assert(sidePanel.getAttribute('pinnable') === 'false', 'renderer preserves explicit false side panel pin capability');
+  context.assert(sidePanel.getAttribute('disabled') === null, 'renderer still removes native false boolean attributes');
+
+  const ariaButton = harness.renderer.renderNode({
+    type: 'element',
+    tag: 'button',
+    attributes: {
+      'aria-expanded': true,
+      'aria-pressed': false,
+      hidden: false,
+      disabled: false
+    },
+    text: 'Toggle'
+  }, harness.renderOptions);
+  context.assert(ariaButton.getAttribute('aria-expanded') === 'true', 'renderer stringifies true ARIA booleans');
+  context.assert(ariaButton.getAttribute('aria-pressed') === 'false', 'renderer stringifies false ARIA booleans');
+  context.assert(ariaButton.getAttribute('hidden') === null, 'renderer removes false hidden attribute');
+  harness.renderer.patchElement(ariaButton, {
+    type: 'element',
+    tag: 'button',
+    attributes: {
+      'aria-expanded': false,
+      'aria-pressed': true,
+      hidden: true,
+      disabled: true
+    },
+    text: 'Toggle'
+  }, harness.renderOptions);
+  context.assert(ariaButton.getAttribute('aria-expanded') === 'false', 'structured patch preserves false ARIA state');
+  context.assert(ariaButton.getAttribute('aria-pressed') === 'true', 'structured patch preserves true ARIA state');
+  context.assert(ariaButton.getAttribute('hidden') === '', 'renderer keeps native true hidden as presence attribute');
+  context.assert(ariaButton.getAttribute('disabled') === '', 'renderer keeps native true disabled as presence attribute');
+
+  const punctuationButton = harness.renderer.renderNode({
+    type: 'element',
+    tag: 'button',
+    text: '...'
+  }, harness.renderOptions);
+  context.assert(textContent(punctuationButton) === '...', 'punctuation-only text stays literal instead of resolving as a model path');
+
+  const previousCustomEvent = globalThis.CustomEvent;
+  globalThis.CustomEvent = class CustomEvent {
+    constructor(type, init = {}) {
+      this.type = type;
+      this.detail = init.detail;
+      this.bubbles = Boolean(init.bubbles);
+      this.composed = Boolean(init.composed);
+      this.cancelable = Boolean(init.cancelable);
+    }
+  };
+  try {
+    const commandButton = harness.renderer.renderNode({
+      type: 'element',
+      tag: 'button',
+      command: {
+        command: 'test.command',
+        payload: {
+          label: 'Tool',
+          nested: { id: '$model.command.id' },
+          active: { op: 'equals', left: '$model.command.id', right: 'tool' }
+        }
+      },
+      text: 'Run'
+    }, {
+      ...harness.renderOptions,
+      model: {
+        command: { id: 'tool' }
+      }
+    });
+    let commandDetail = null;
+    commandButton.addEventListener('xtend-command', (event) => {
+      commandDetail = event.detail;
+    });
+    commandButton.dispatchEvent({
+      type: 'click',
+      target: commandButton,
+      currentTarget: commandButton,
+      preventDefault() {},
+      stopPropagation() {}
+    });
+    context.assert(commandDetail && commandDetail.command === 'test.command', 'descriptor command emits xtend-command envelope');
+    context.assert(commandDetail.payload && commandDetail.payload.label === 'Tool', 'descriptor command preserves structured payload literals');
+  context.assert(commandDetail.payload && commandDetail.payload.nested.id === 'tool', 'descriptor command resolves nested payload paths');
+  context.assert(commandDetail.payload && commandDetail.payload.active === true, 'descriptor command resolves nested payload expressions');
+  } finally {
+    if (typeof previousCustomEvent === 'undefined') delete globalThis.CustomEvent;
+    else globalThis.CustomEvent = previousCustomEvent;
+  }
+
+  const codeTemplate = harness.renderer.renderNode({
+    type: 'element',
+    tag: 'template',
+    attributes: { 'data-x-code-mode': 'text' },
+    text: "console.log('first');"
+  }, harness.renderOptions);
+  context.assert(codeTemplate.content && codeTemplate.content.childNodes[0].textContent === "console.log('first');", 'template text renders into template.content');
+  harness.renderer.patchElement(codeTemplate, {
+    type: 'element',
+    tag: 'template',
+    attributes: { 'data-x-code-mode': 'text' },
+    text: "console.log('second');"
+  }, harness.renderOptions);
+  context.assert(codeTemplate.content.childNodes.length === 1 && codeTemplate.content.childNodes[0].textContent === "console.log('second');", 'template text patches inside template.content');
+
   const listRoot = harness.documentTarget.createElement('section');
   const firstPass = harness.renderer.renderKeyed(listRoot, [
     { type: 'element', tag: 'article', key: 'a', attributes: { title: 'Alpha' }, children: [{ type: 'text', text: 'Alpha' }] },
@@ -335,6 +454,61 @@ function runRendererBehaviorAssertions(context, fixture, rendererModule) {
   });
   context.assert(patchedDock === dock, 'structured patch keeps the surface host element stable');
   context.assert(textContent(dock).includes('minimized') && !textContent(dock).includes('open'), 'structured patch refreshes repeated surface dock content');
+
+  const settingsDialogDescriptor = {
+    type: 'component',
+    tag: 'x-dialog',
+    component: 'x-dialog',
+    attributes: {
+      id: 'settings-dialog',
+      'data-maraca-surface': { op: 'literal', value: 'surface.settings' }
+    },
+    children: [
+      {
+        type: 'component',
+        tag: 'x-tabs',
+        component: 'x-tabs',
+        attributes: {
+          id: 'settings-tabs',
+          selected: '$model.settings.selected',
+          orientation: 'vertical'
+        },
+        children: [
+          {
+            type: 'element',
+            tag: 'x-tab',
+            attributes: { label: 'Appearance' },
+            children: [{ type: 'element', tag: 'p', text: 'Appearance panel' }]
+          },
+          {
+            type: 'element',
+            tag: 'x-tab',
+            attributes: { label: 'Runtime' },
+            children: [{ type: 'element', tag: 'p', text: 'Runtime panel' }]
+          }
+        ]
+      },
+      {
+        type: 'element',
+        tag: 'div',
+        class: 'settings-footer',
+        children: [{ type: 'element', tag: 'button', attributes: { id: 'settings-save' }, text: 'Save' }]
+      }
+    ]
+  };
+  const settingsDialog = harness.renderer.renderNode(settingsDialogDescriptor, {
+    model: { settings: { selected: 0 } }
+  });
+  const settingsTabs = findNode(settingsDialog, (node) => node.tagName === 'X-TABS');
+  const settingsSave = findNode(settingsDialog, (node) => node.getAttribute && node.getAttribute('id') === 'settings-save');
+  harness.renderer.patchElement(settingsDialog, settingsDialogDescriptor, {
+    model: { settings: { selected: 1 } }
+  });
+  const patchedSettingsTabs = findNode(settingsDialog, (node) => node.tagName === 'X-TABS');
+  const patchedSettingsSave = findNode(settingsDialog, (node) => node.getAttribute && node.getAttribute('id') === 'settings-save');
+  context.assert(patchedSettingsTabs === settingsTabs, 'structured patch reuses stable nested custom component children');
+  context.assert(patchedSettingsSave === settingsSave, 'structured patch reuses stable nested native children');
+  context.assert(patchedSettingsTabs.getAttribute('selected') === '1', 'structured patch updates nested x-tabs attributes in place');
 }
 
 function runSecurityAssertions(context, fixture, rendererModule) {

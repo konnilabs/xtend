@@ -1554,6 +1554,38 @@ class XSurfaceManager extends HTMLElement {
     return this.snapshot().surfaces.find((record) => record.id === surfaceId) || null;
   }
 
+  _surfaceCapabilityFailure(surfaceId, capability, operation) {
+    const snapshot = this.readSnapshot();
+    const record = snapshot.surfaces.find((surface) => surface.id === surfaceId);
+    if (!record || !Array.isArray(record.capabilities) || record.capabilities.includes(capability)) return null;
+    return {
+      schema: 'xtend.surface.operation-result.v1',
+      ok: false,
+      managerId: this._managerId(),
+      surfaceId,
+      operation,
+      code: 'xtend.surface.capability-refused',
+      phase: record.lifecycle && record.lifecycle.phase || null,
+      snapshotVersion: snapshot.version,
+      diagnostic: {
+        schema: 'xtend.surface.diagnostic.v1',
+        code: 'xtend.surface.capability-refused',
+        severity: 'warning',
+        managerId: this._managerId(),
+        surfaceId,
+        operation,
+        lane: 'user-blocking',
+        message: `Surface ${surfaceId} does not support ${capability}.`,
+        timestamp: new Date().toISOString(),
+        detail: {
+          capability,
+          status: record.status || null,
+          type: record.type || null
+        }
+      }
+    };
+  }
+
   _resolveSurfaceLoadingPolicy(element, record = {}) {
     const policy = element && (
       element.getAttribute('data-surface-hydration-policy')
@@ -1953,18 +1985,28 @@ class XSurfaceManager extends HTMLElement {
   }
 
   pinSurface(id, pinned = true) {
+    const capabilityFailure = this._surfaceCapabilityFailure(id, pinned ? 'pin' : 'unpin', pinned ? 'pin' : 'unpin');
+    if (capabilityFailure) return capabilityFailure;
     return this.updateSurface(id, { pinned: Boolean(pinned), mode: pinned ? 'pinned' : 'docked' });
   }
 
   collapseSurface(id) {
+    const capabilityFailure = this._surfaceCapabilityFailure(id, 'collapse', 'collapse');
+    if (capabilityFailure) return capabilityFailure;
     return this.updateSurface(id, { collapsed: true, mode: 'collapsed' });
   }
 
   expandSurface(id, mode = 'docked') {
+    const capabilityFailure = this._surfaceCapabilityFailure(id, 'expand', 'expand');
+    if (capabilityFailure) return capabilityFailure;
     return this.updateSurface(id, { collapsed: false, mode });
   }
 
   dockSurface(id, placement = 'right', mode = 'docked') {
+    if (mode === 'pinned') {
+      const capabilityFailure = this._surfaceCapabilityFailure(id, 'pin', 'dock');
+      if (capabilityFailure) return capabilityFailure;
+    }
     const result = this.updateSurface(id, { placement, mode, collapsed: false, pinned: mode === 'pinned' });
     if (result && result.ok !== false) {
       this.applyLayoutEngine(this._layoutEngine() === 'freeform' ? 'docked' : this._layoutEngine(), { source: 'dockSurface', surfaceId: id });

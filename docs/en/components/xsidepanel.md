@@ -63,6 +63,10 @@ Attributes:
 - `placement`
 - `responsive-mode`
 - `resizable`
+- `collapsible`
+- `collapsable` (legacy alias for `collapsible`)
+- `closable`
+- `pinnable`
 - `route-aware`
 - `modal`
 - `initial-width`
@@ -131,6 +135,8 @@ CSS custom properties:
 - RMT schedules: `surface.visible.render`, `surface.user-blocking.open`, `surface.user-blocking.close`, `surface.transition.layout`, `surface.diagnostics.snapshot`.
 
 RMT Hosts should treat the component as a Custom Element boundary: pass attributes as component props, bind DOM events to commands and keep scheduling metadata outside the component. Plain HTML hosts can use the same attributes and events without an RMT compiler.
+
+Use `collapsible`, `closable="false"` and `pinnable="false"` to tailor the panel chrome for focused product shells. These flags affect both the visible header controls and the generated Surface record capabilities, so a non-closable panel does not advertise `close` as a supported action.
 
 Theming should flow through XTend design tokens first. CSS parts are intended for targeted skinning of exposed controls, while CSS custom properties are better for broader color, spacing, radius and motion changes. Accessibility hooks such as labels, live regions and focus handling should be preserved when composing the component.
 

@@ -16,6 +16,8 @@ node scripts/run_xtend_tests.js surface-side-panel --json
 
 Der Contract `xtend.surface.side-panel-runtime.v1` sorgt dafuer, dass diese Modi nicht als beliebige CSS-Varianten auseinanderlaufen. Der Host gibt einen Panel-Record an die Runtime, und die Runtime spiegelt Zustand, Ereignisse und Sichtbarkeit zurueck. RMT kann ein Panel deklarieren, aber es importiert keine Panel-Klasse und keine XTend-spezifischen Typen. Dadurch bleibt die DSL beschreibend und der Host traegt die Verantwortung fuer DOM, Fokus und Accessibility.
 
+Die Panel-Chrome ist ueber `collapsible`, `closable` und `pinnable` konfigurierbar. Die Komponente spiegelt diese Flags in die sichtbaren Header-Controls und in die erzeugten Surface-Record-Capabilities, sodass eine Produktshell nur Collapse/Expand anbieten und Close- oder Pin-Aktionen an der SurfaceManager-Grenze ablehnen kann.
+
 ## Authoring Regeln
 
 Ein Side Panel braucht einen Zweck. Gute Beispiele sind Filter, Inspector, Detailvorschau, Eigenschaften, Log oder sekundaere Navigation. Schlechte Beispiele sind unspezifische Container, die nur Layout-Luecken fuellen. Der Panel-Record sollte Titel, Modus, initiale Sichtbarkeit, bevorzugte Breite und erlaubte Aktionen beschreiben. Aktionen wie `open`, `close`, `pin`, `collapse` und `resize` werden als Ereignisse behandelt und muessen den Runtime-Zustand aktualisieren.
@@ -27,3 +29,5 @@ Bei `overlay` und `fullscreen` muss das Panel mit der Stack Policy zusammenspiel
 Der Gate `surface-side-panel` prueft die Modi als Runtime-Vertrag. Reviewende achten auf Statusuebergaenge, Event-Namen, Fokuspfade und Snapshot-Kompatibilitaet. Ein Fehler ist kritisch, wenn ein Panel sichtbar anders reagiert als sein Record, wenn ein Modus nur per CSS existiert oder wenn eine Aktion nicht in den Manager-Zustand zurueckgeschrieben wird. Ein akzeptierter Fix macht diese Kette expliziter.
 
 Neue Panel-Faehigkeiten brauchen eigene Evidence. Ein neues Mode-Label ohne Fixture ist kein Release-Signal. Eine Aenderung an Layout oder Animation muss weiterhin Reduced-Motion, Keyboard-Navigation und klare Host-Grenzen respektieren. So bleibt `x-side-panel` eine owned Surface-Komponente und kein versteckter Framework-Drawer.
+
+Handoff: `WP-SM-05`.

@@ -2,7 +2,7 @@ import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-publ
 
 export type XButtonVariant = 'primary' | 'secondary' | 'danger' | string;
 export type XButtonSize = 'small' | 'large' | string;
-export type XButtonAttributeName = 'disabled' | 'label' | 'variant' | 'size' | 'icon' | 'loading' | 'overlay' | 'aria-label' | 'aria-busy';
+export type XButtonAttributeName = 'disabled' | 'label' | 'data-label' | 'text' | 'variant' | 'size' | 'icon' | 'icon-name' | 'icon-pack' | 'loading' | 'overlay' | 'aria-label' | 'aria-busy';
 export type XButtonEventName = 'loading-start' | 'loading-end' | 'click' | 'focus' | 'blur' | 'button-interaction' | 'button-performance-measured';
 
 export interface XButtonPerformanceProfile {
