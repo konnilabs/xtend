@@ -121,15 +121,11 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                     ]],
                 ],
                 'chunks' => [$chunk],
-                'response' => [
-                    'kind' => RMT_PHP_SSR_RESPONSE_KIND,
-                    'version' => '1.0',
-                    'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                'response' => $this->createPrerenderResponseEnvelope([
+                    'requestId' => $requestId,
                     'rootId' => $rootId,
-                    'chunks' => [$chunk],
-                    'hydration' => $hydration,
-                    'diagnostics' => $diagnostics,
-                ],
+                    'renderedAt' => $chunk['renderedAt'] ?? gmdate('c'),
+                ], $chunk, $hydration, $diagnostics, $ok),
                 'hydration' => $hydration,
                 'streamingContract' => $streamingContract,
                 'componentCapabilities' => array_values($componentCapabilities),
@@ -700,6 +696,59 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                     'phases' => ['server_prerender', 'html_delivery', 'client_hydrate'],
                 ],
                 'renderedAt' => $state['renderedAt'],
+            ];
+        }
+
+        private function createPrerenderResponseEnvelope(array $state, array $chunk, array $hydration, array $diagnostics, bool $ok): array
+        {
+            $parsedAt = isset($state['renderedAt']) ? strtotime((string) $state['renderedAt']) : false;
+            $timestamp = $parsedAt === false ? (int) floor(microtime(true) * 1000) : $parsedAt * 1000;
+            $metadata = [
+                'adapterKind' => 'php-ssr',
+                'adapterSchema' => RMT_PHP_SSR_ADAPTER_SCHEMA,
+                'hydrationSchema' => RMT_PHP_SSR_HYDRATION_SCHEMA,
+                'requestId' => $state['requestId'],
+                'sourceKind' => $hydration['sourceKind'] ?? null,
+                'sourceRef' => $hydration['sourceRef'] ?? null,
+            ];
+            $request = [
+                'kind' => 'renderman_template_prerender_request',
+                'version' => '1.0',
+                'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                'transport' => 'server',
+                'rootId' => $state['rootId'],
+                'template' => $chunk['template'] ?? null,
+                'target' => $chunk['target'] ?? null,
+                'metadata' => $metadata,
+                'requestedAt' => $timestamp,
+            ];
+            return [
+                'kind' => RMT_PHP_SSR_RESPONSE_KIND,
+                'version' => '1.0',
+                'ok' => $ok,
+                'status' => $ok ? 'rendered' : 'blocked',
+                'transport' => 'server',
+                'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                'adapterKind' => 'php-ssr',
+                'supportStatus' => $ok ? 'supported' : 'blocked',
+                'rootId' => $state['rootId'],
+                'template' => $chunk['template'] ?? null,
+                'target' => $chunk['target'] ?? null,
+                'plan' => $chunk['plan'] ?? null,
+                'request' => $request,
+                'metadata' => $metadata,
+                'chunk' => $chunk,
+                'chunks' => [$chunk],
+                'hydration' => $hydration,
+                'diagnostics' => $diagnostics,
+                'superseded' => false,
+                'error' => $ok ? null : [
+                    'code' => 'rmt.php_ssr.prerender_blocked',
+                    'message' => 'PHP SSR prerender response was blocked by diagnostics.',
+                    'diagnostics' => $diagnostics,
+                ],
+                'requestedAt' => $timestamp,
+                'respondedAt' => $timestamp,
             ];
         }
 

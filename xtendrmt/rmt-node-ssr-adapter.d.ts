@@ -64,6 +64,31 @@ export interface RmtNodeSsrTemplateChunk {
   renderedAt: string;
 }
 
+export interface RmtNodeSsrPrerenderResponseEnvelope {
+  kind: typeof RMT_NODE_SSR_RESPONSE_KIND;
+  version: string;
+  ok: boolean;
+  status: 'rendered' | 'blocked' | string;
+  transport: 'server' | string;
+  executionMode: typeof RMT_NODE_SSR_EXECUTION_MODE;
+  adapterKind: 'node-ssr' | string;
+  supportStatus: 'supported' | 'blocked' | string;
+  rootId: string;
+  template: Record<string, unknown>;
+  target: Record<string, unknown>;
+  plan: Record<string, unknown>;
+  request: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  chunk: RmtNodeSsrTemplateChunk;
+  chunks: RmtNodeSsrTemplateChunk[];
+  hydration: RmtNodeSsrHydrationPayload;
+  diagnostics: RmtNodeSsrDiagnostic[];
+  superseded: boolean;
+  error: Record<string, unknown> | null;
+  requestedAt: number;
+  respondedAt: number;
+}
+
 export interface RmtNodeSsrRenderResult {
   schema: typeof RMT_NODE_SSR_RENDER_RESULT_SCHEMA;
   adapterSchema: typeof RMT_NODE_SSR_ADAPTER_SCHEMA;
@@ -76,15 +101,7 @@ export interface RmtNodeSsrRenderResult {
     hints: Array<Record<string, unknown>>;
   };
   chunks: RmtNodeSsrTemplateChunk[];
-  response: {
-    kind: typeof RMT_NODE_SSR_RESPONSE_KIND;
-    version: string;
-    executionMode: typeof RMT_NODE_SSR_EXECUTION_MODE;
-    rootId: string;
-    chunks: RmtNodeSsrTemplateChunk[];
-    hydration: RmtNodeSsrHydrationPayload;
-    diagnostics: RmtNodeSsrDiagnostic[];
-  };
+  response: RmtNodeSsrPrerenderResponseEnvelope;
   hydration: RmtNodeSsrHydrationPayload;
   streamingContract: Record<string, unknown> | null;
   componentCapabilities: RmtNodeSsrComponentCapabilityHint[];

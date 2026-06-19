@@ -325,6 +325,11 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   context.assert(descriptorRender.html.includes('data-rmt-prop-items='), 'descriptor render preserves non-primitive properties as data attributes');
   context.assert(descriptorRender.chunks[0].kind === 'renderman_template_chunk', 'descriptor render emits renderman template chunk');
   context.assert(descriptorRender.response.kind === 'renderman_template_prerender_response', 'descriptor render emits prerender response shape');
+  context.assert(descriptorRender.response.ok === true, 'descriptor prerender response reports successful envelope status');
+  context.assert(descriptorRender.response.transport === 'server', 'descriptor prerender response records server transport');
+  context.assert(descriptorRender.response.chunk && descriptorRender.response.chunk.kind === 'renderman_template_chunk', 'descriptor prerender response exposes hydrateResponse-compatible chunk');
+  context.assert(descriptorRender.response.metadata && descriptorRender.response.metadata.adapterKind === 'php-ssr', 'descriptor prerender response records PHP SSR adapter kind');
+  context.assert(descriptorRender.response.request && descriptorRender.response.request.executionMode === 'server_prerender_hydrate', 'descriptor prerender response carries server prerender request snapshot');
   context.assert(descriptorRender.hydration.schema === RMT_PHP_SSR_HYDRATION_SCHEMA, 'descriptor render emits Node-compatible hydration payload');
   context.assert(JSON.stringify(descriptorRender.hydration).includes('server_prerender_hydrate'), 'descriptor render records server prerender hydrate mode');
 

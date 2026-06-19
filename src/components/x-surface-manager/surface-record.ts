@@ -18,7 +18,7 @@ export type XtendSurfaceType =
   | 'lightbox'
   | 'menu';
 
-export type XtendSurfaceStatus = 'closed' | 'open' | 'minimized';
+export type XtendSurfaceStatus = 'closed' | 'open' | 'minimized' | 'destroying' | 'destroyed';
 export type XtendSurfacePersistenceMode = 'none' | 'memory' | 'session' | 'local';
 
 export interface XtendSurfaceBounds {
@@ -59,9 +59,16 @@ export interface XtendSurfaceRecord {
   modal: boolean;
   placement: string | null;
   mode: string;
+  ownershipMode: string | null;
   zIndex: number;
   bounds: XtendSurfaceBounds;
   previousBounds: XtendSurfaceBounds | null;
+  generation?: number;
+  destroyedAt?: string | null;
+  destroyReason?: string | null;
+  releasedResources?: string[];
+  lastBounds?: XtendSurfaceBounds | null;
+  tombstone?: Record<string, unknown> | null;
   capabilities: string[];
   persistence: XtendSurfacePersistence;
   contentRef: string | null;
@@ -90,6 +97,7 @@ export interface XtendSurfaceSnapshot {
   version: number;
   surfaceCount: number;
   openSurfaceCount: number;
+  destroyedSurfaceCount?: number;
   surfaces: XtendSurfaceRecord[];
   stack: string[];
   diagnostics: XtendSurfaceDiagnostic[];
@@ -105,6 +113,10 @@ export interface XtendSurfaceOperationResult {
   code: string | null;
   phase: string | null;
   snapshotVersion: number;
+  status?: string;
+  generation?: number | null;
+  tombstone?: Record<string, unknown> | null;
+  diagnostics?: XtendSurfaceDiagnostic[];
   diagnostic: XtendSurfaceDiagnostic | null;
 }
 
@@ -128,8 +140,9 @@ export interface XtendSurfaceController {
   managerId: string;
   stateKey: string;
   registerSurface(record: Partial<XtendSurfaceRecord> | Record<string, unknown>): XtendSurfaceOperationResult;
-  openSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds> }): XtendSurfaceOperationResult;
+  openSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds>; recreate?: boolean }): XtendSurfaceOperationResult;
   closeSurface(id: string, reason?: string): XtendSurfaceOperationResult;
+  destroySurface(id: string, options?: Record<string, unknown>): XtendSurfaceOperationResult;
   focusSurface(id: string): XtendSurfaceOperationResult;
   updateSurface(id: string, patch: Record<string, unknown>): XtendSurfaceOperationResult;
   moveSurface(id: string, bounds: Partial<XtendSurfaceBounds>): XtendSurfaceOperationResult;
@@ -137,10 +150,10 @@ export interface XtendSurfaceController {
   minimizeSurface(id: string): XtendSurfaceOperationResult;
   maximizeSurface(id: string): XtendSurfaceOperationResult;
   restoreSurface(id: string): XtendSurfaceOperationResult;
-  materializeSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds> }): XtendSurfaceOperationResult;
-  toggleSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds> }): XtendSurfaceOperationResult;
-  snapshot(): XtendSurfaceSnapshot;
-  readSnapshot(): XtendSurfaceSnapshot;
+  materializeSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds>; recreate?: boolean }): XtendSurfaceOperationResult;
+  toggleSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds>; recreate?: boolean }): XtendSurfaceOperationResult;
+  snapshot(options?: Record<string, unknown>): XtendSurfaceSnapshot;
+  readSnapshot(options?: Record<string, unknown>): XtendSurfaceSnapshot;
   dispose(): XtendSurfaceOperationResult;
 }
 

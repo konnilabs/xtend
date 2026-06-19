@@ -39,6 +39,111 @@ function createFakePerformance() {
   };
 }
 
+function createFakeKernelPerformanceRuntime() {
+  const runReport = {
+    kind: 'renderman_performance_run_report',
+    runId: 'fabric-kernel-performance',
+    summary: {
+      sampleCount: 1,
+      violationCount: 1
+    },
+    snapshot: {
+      budgets: []
+    },
+    renderPackages: [],
+    roots: []
+  };
+  return {
+    getSnapshot(reason) {
+      return {
+        runtimeKind: 'fabric-kernel-performance',
+        reason,
+        pressureLevel: 'high',
+        budgetViolations: [{
+          budgetId: 'command_turnaround',
+          violations: ['duration_ms']
+        }],
+        backpressureProfile: {
+          kind: 'renderman_backpressure_profile',
+          pressureLevel: 'high',
+          preferIdle: true
+        }
+      };
+    },
+    evaluateBudgets(reason) {
+      return {
+        runtimeKind: 'fabric-kernel-performance',
+        reason,
+        pressureLevel: 'high',
+        totals: {
+          sampleCount: 1,
+          violationCount: 1
+        },
+        budgets: [{
+          budgetId: 'command_turnaround',
+          status: 'budget_miss'
+        }],
+        violations: [{
+          budgetId: 'command_turnaround',
+          endpointName: 'fabric.telemetry.snapshot',
+          measurementPhase: 'cold',
+          durationMs: 64,
+          waitMs: 1,
+          totalMs: 65,
+          violations: ['duration_ms']
+        }]
+      };
+    },
+    getBackpressureProfile(reason) {
+      return {
+        kind: 'renderman_backpressure_profile',
+        reason,
+        pressureLevel: 'high',
+        preferIdle: true,
+        yieldActions: ['defer_lazy_hydration']
+      };
+    },
+    exportRunReport() {
+      return runReport;
+    },
+    createRunBaseline() {
+      return {
+        kind: 'renderman_performance_baseline',
+        baselineId: 'fabric-kernel-performance-baseline',
+        summary: {
+          avgSampleCount: 1,
+          avgViolationCount: 1
+        }
+      };
+    },
+    compareRunReportToBaseline() {
+      return {
+        kind: 'renderman_performance_baseline_comparison',
+        summary: {
+          violationCountDelta: 0
+        }
+      };
+    },
+    createCiSummary() {
+      return {
+        kind: 'renderman_performance_ci_summary',
+        text: '# XTend Fabric Kernel Performance Summary\n\n- Violations: 1'
+      };
+    },
+    createFileArtifact() {
+      return {
+        kind: 'renderman_performance_file_artifact',
+        artifactId: 'fabric-kernel-performance-artifact',
+        artifactType: 'run_report',
+        fileName: 'xtend.fabric.kernel-performance.json',
+        contentType: 'application/json',
+        payload: runReport,
+        text: JSON.stringify(runReport)
+      };
+    }
+  };
+}
+
 function runFabricTelemetrySnapshotSuite(options = {}) {
   const rootDir = options.rootDir || path.resolve(__dirname, '..', '..');
   const context = createSuiteContext({
@@ -58,6 +163,10 @@ function runFabricTelemetrySnapshotSuite(options = {}) {
   context.assertIncludes(source, 'createBackpressureSignal', 'Fabric runtime exposes backpressure signal factory');
   context.assertIncludes(source, 'recordSnapshotWithRmtBridge', 'Fabric runtime can forward snapshots into an RMT telemetry bridge');
   context.assertIncludes(source, 'xtend.fabric.rmt.telemetry.failed', 'Fabric runtime declares RMT telemetry forwarding diagnostic');
+  context.assertIncludes(source, 'kernelPerformanceRuntime', 'Fabric runtime accepts injected Kernel Performance Runtime');
+  context.assertIncludes(source, 'getBackpressureProfile', 'Fabric runtime reads Kernel backpressure profiles');
+  context.assertIncludes(source, 'createCiSummary', 'Fabric runtime reads Kernel CI summaries');
+  context.assertIncludes(source, 'createFileArtifact', 'Fabric runtime reads Kernel file artifacts');
   context.assertIncludes(source, 'BACKPRESSURE_SCORE_THRESHOLDS', 'Fabric runtime declares backpressure score thresholds');
   context.assertIncludes(source, 'xtend.fabric.telemetry.snapshot', 'Fabric runtime declares telemetry snapshot diagnostic');
   assert(!source.includes("require('../../xtendrmt") && !source.includes('rmt-runtime.esm'), 'Telemetry snapshots do not import the RMT runtime');
@@ -155,6 +264,7 @@ function runFabricTelemetrySnapshotSuite(options = {}) {
     id: 'telemetry.snapshot.test',
     correlationId: 'route.settings',
     performance: createFakePerformance(),
+    kernelPerformanceRuntime: createFakeKernelPerformanceRuntime(),
     runtimeBridge,
     rmtBridge,
     scheduleRef: 'diagnostics.snapshot',
@@ -188,6 +298,13 @@ function runFabricTelemetrySnapshotSuite(options = {}) {
   assert(snapshot.performance.entries.some((entry) => entry.name === 'xtend.route.render'), 'Telemetry snapshot includes route render performance entry');
   assert(snapshot.performance.phaseSummary.route.measurementCount >= 1, 'Telemetry snapshot summarizes route performance phase');
   assert(snapshot.performance.phaseSummary.hydrate.measurementCount >= 1, 'Telemetry snapshot summarizes hydration performance phase');
+  assert(snapshot.performance.kernelRuntime && snapshot.performance.kernelRuntime.supported === true, 'Telemetry snapshot includes Kernel Performance Runtime support');
+  assert(snapshot.performance.kernelSnapshot && snapshot.performance.kernelSnapshot.runtimeKind === 'fabric-kernel-performance', 'Telemetry snapshot includes Kernel Performance Snapshot');
+  assert(snapshot.performance.budgetSnapshot && snapshot.performance.budgetSnapshot.violations[0].budgetId === 'command_turnaround', 'Telemetry snapshot includes Kernel budget snapshot');
+  assert(snapshot.performance.backpressureProfile && snapshot.performance.backpressureProfile.kind === 'renderman_backpressure_profile', 'Telemetry snapshot includes Kernel backpressure profile');
+  assert(snapshot.performance.ciSummary && snapshot.performance.ciSummary.kind === 'renderman_performance_ci_summary', 'Telemetry snapshot includes Kernel CI summary');
+  assert(snapshot.performance.fileArtifact && snapshot.performance.fileArtifact.artifactType === 'run_report', 'Telemetry snapshot includes Kernel performance file artifact');
+  assert(snapshot.performance.baselineComparison && snapshot.performance.baselineComparison.kind === 'renderman_performance_baseline_comparison', 'Telemetry snapshot includes Kernel baseline comparison');
   assert(snapshot.runtime && snapshot.runtime.schema === CONTRACTS.runtimeDiagnosticsBridge, 'Telemetry snapshot includes runtime bridge snapshot');
   assert(rmtTelemetryRecords.length === 1, 'Telemetry snapshot forwards into an injected RMT telemetry bridge');
   assert(rmtTelemetryRecords[0].snapshot.id === 'telemetry.snapshot.test', 'RMT telemetry bridge receives the Fabric snapshot');

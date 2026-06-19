@@ -45,6 +45,8 @@
     "rmt-surface-resource-graph-runtime.js",
     "rmt-kernel-orchestration-controller.d.ts",
     "rmt-kernel-orchestration-controller.js",
+    "rmt-kernel-feature-adoption-registry.d.ts",
+    "rmt-kernel-feature-adoption-registry.js",
     "rmt-native-shell-runtime.d.ts",
     "rmt-native-shell-runtime.js",
     "rmt-node-ssr-adapter.d.ts",
@@ -112,6 +114,10 @@
     "./kernel-orchestration-controller": {
       "types": "./rmt-kernel-orchestration-controller.d.ts",
       "default": "./rmt-kernel-orchestration-controller.js"
+    },
+    "./kernel-feature-adoption-registry": {
+      "types": "./rmt-kernel-feature-adoption-registry.d.ts",
+      "default": "./rmt-kernel-feature-adoption-registry.js"
     },
     "./native-shell-runtime": {
       "types": "./rmt-native-shell-runtime.d.ts",

@@ -100,6 +100,14 @@ const {
   runRmtSurfaceResourceGraphRuntimeSuite
 } = require('../tests/rmt/rmt_surface_resource_graph_runtime_suite');
 const {
+  printRmtDetachedRuntimeHarnessReport,
+  runRmtDetachedRuntimeHarnessSuite
+} = require('../tests/rmt/rmt_detached_runtime_harness_suite');
+const {
+  printRmtDomCompatParityReport,
+  runRmtDomCompatParitySuite
+} = require('../tests/rmt/rmt_dom_compat_parity_suite');
+const {
   printRmtAppPlatformToolingReport,
   runRmtAppPlatformToolingSuite
 } = require('../tests/rmt-language/rmt_app_platform_tooling_suite');
@@ -439,6 +447,10 @@ const {
   printRmtAgentRepairReport,
   runRmtAgentRepairReportSuite
 } = require('../tests/rmt-language/rmt_agent_repair_report_suite');
+const {
+  printRmtAiDeveloperKitReport,
+  runRmtAiDeveloperKitSuite
+} = require('../tests/rmt-language/rmt_ai_developer_kit_suite');
 const {
   printRmtEditorPackagingReport,
   runRmtEditorPackagingSuite
@@ -1939,6 +1951,16 @@ const suites = [
     }
   },
   {
+    id: 'rmt-ai-developer-kit',
+    label: 'RMT AI Developer Kit',
+    description: 'Runs the agent ingest kit artifact, JSONL, prompt profile, recipe, CLI and Maraca gates.',
+    run: () => {
+      const result = runRmtAiDeveloperKitSuite({ rootDir });
+      printRmtAiDeveloperKitReport(result);
+      return toRunnerResult('rmt-ai-developer-kit', 'RMT AI Developer Kit', result);
+    }
+  },
+  {
     id: 'rmt-editor-packaging',
     label: 'Epic 14 RMT Editor Packaging',
     description: 'Runs the WP-E14-12 snippets, editor packaging, VS Code bridge and LSP setup docs gates.',
@@ -1986,6 +2008,16 @@ const suites = [
       const result = runEpic14RmtToolingReleaseGatesSuite({ rootDir });
       printEpic14RmtToolingReleaseGatesReport(result);
       return toRunnerResult('epic14-rmt-tooling', 'Epic 14 RMT Tooling Release Gates', result);
+    }
+  },
+  {
+    id: 'epic14-rmt-tooling-release-gates',
+    label: 'Epic 14 RMT Tooling Release Gates',
+    description: 'Alias for epic14-rmt-tooling, kept for RKFA production bundle closure gates.',
+    run: () => {
+      const result = runEpic14RmtToolingReleaseGatesSuite({ rootDir });
+      printEpic14RmtToolingReleaseGatesReport(result);
+      return toRunnerResult('epic14-rmt-tooling-release-gates', 'Epic 14 RMT Tooling Release Gates', result);
     }
   },
   {
@@ -2179,6 +2211,16 @@ const suites = [
     }
   },
   {
+    id: 'maraca-bundle-report',
+    label: 'XTend Maraca Bundle Report',
+    description: 'Runs the Maraca bundle output and lifecycle/kernel feature report gate.',
+    run: async () => {
+      const result = await runMaracaBundleSuite({ rootDir });
+      printMaracaBundleReport(result);
+      return toRunnerResult('maraca-bundle-report', 'XTend Maraca Bundle Report', result);
+    }
+  },
+  {
     id: 'maraca-rmt-source-to-bundle',
     label: 'XTend Maraca RMT Source-to-Bundle CLI',
     description: 'Runs the xt maraca and xt rmt build --bundle maraca CLI integration gate.',
@@ -2206,6 +2248,16 @@ const suites = [
       const result = await runMaracaKernelOrchestrationSuite({ rootDir });
       printMaracaKernelOrchestrationReport(result);
       return toRunnerResult('maraca-kernel-orchestration', 'XTend Maraca Kernel Orchestration', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-orchestration',
+    label: 'XTend RMT Kernel Orchestration',
+    description: 'Alias for the Maraca RMT kernel packaging, scheduler bridge and kernel runtime gate.',
+    run: async () => {
+      const result = await runMaracaKernelOrchestrationSuite({ rootDir });
+      printMaracaKernelOrchestrationReport(result);
+      return toRunnerResult('rmt-kernel-orchestration', 'XTend RMT Kernel Orchestration', result);
     }
   },
   {
@@ -3099,6 +3151,26 @@ const suites = [
     }
   },
   {
+    id: 'rmt-detached-runtime-harness',
+    label: 'RMT Detached Runtime gate harness',
+    description: 'Runs the RKFA-04 detached runtime lifecycle, telemetry and resource-release harness.',
+    run: async () => {
+      const result = await runRmtDetachedRuntimeHarnessSuite({ rootDir });
+      printRmtDetachedRuntimeHarnessReport(result);
+      return toRunnerResult('rmt-detached-runtime-harness', 'RMT Detached Runtime gate harness', result);
+    }
+  },
+  {
+    id: 'rmt-dom-compat-parity',
+    label: 'RMT DomCompat and SurfaceManager ownership parity',
+    description: 'Runs the RKFA-05 DomCompat ownership, unmount and SurfaceManager destroy parity gate.',
+    run: async () => {
+      const result = await runRmtDomCompatParitySuite({ rootDir });
+      printRmtDomCompatParityReport(result);
+      return toRunnerResult('rmt-dom-compat-parity', 'RMT DomCompat and SurfaceManager ownership parity', result);
+    }
+  },
+  {
     id: 'rmt-app-platform-tooling',
     label: 'Epic 18 RMT App Platform tooling',
     description: 'Runs the WP-E18-11 scaffold, linter, LSP diagnostics and source-map build gates.',
@@ -3519,6 +3591,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-reference-docs
   node scripts/run_xtend_tests.js rmt-playground-security
   node scripts/run_xtend_tests.js epic14-rmt-tooling
+  node scripts/run_xtend_tests.js epic14-rmt-tooling-release-gates
   node scripts/run_xtend_tests.js epic14-lsp-handoff
   node scripts/run_xtend_tests.js rc0-gate-matrix
   node scripts/run_xtend_tests.js epic12-docs-adoption
@@ -3538,6 +3611,7 @@ Examples:
   node scripts/run_xtend_tests.js type-exports-vendor
   node scripts/run_xtend_tests.js maraca-plan
   node scripts/run_xtend_tests.js maraca-bundle
+  node scripts/run_xtend_tests.js maraca-bundle-report
   node scripts/run_xtend_tests.js maraca-rmt-source-to-bundle
   node scripts/run_xtend_tests.js maraca-orchestration
   node scripts/run_xtend_tests.js maraca-kernel-orchestration
@@ -3595,6 +3669,8 @@ Examples:
   node scripts/run_xtend_tests.js rmt-action-effect-runtime
   node scripts/run_xtend_tests.js rmt-event-routing-runtime
   node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime
+  node scripts/run_xtend_tests.js rmt-detached-runtime-harness
+  node scripts/run_xtend_tests.js rmt-dom-compat-parity
   node scripts/run_xtend_tests.js rmt-app-platform-tooling
   node scripts/run_xtend_tests.js rmt-app-platform-fixture
   node scripts/run_xtend_tests.js rmt-native-shell-migration

@@ -31,6 +31,11 @@ const {
   EPIC14_RMT_TOOLING_WORKPACKAGE,
   EPIC14_RMT_TOOLING_WORKPACKAGE_DOC,
   KERNEL_BOUNDARY,
+  RMT_KERNEL_POLICY_PARITY_LOCAL_GATE,
+  RMT_KERNEL_POLICY_PARITY_PACKAGE_SCRIPT,
+  RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA,
+  RMT_KERNEL_POLICY_PARITY_REQUIRED_FACTORIES,
+  RMT_KERNEL_POLICY_PARITY_SCHEMA,
   RMT_TOOLING_EXPORTS,
   RMT_TOOLING_OPTIONAL_PR_SUITE_IDS,
   RMT_TOOLING_SUITE_IDS,
@@ -74,6 +79,8 @@ function runPlanChecks(context, plan, report) {
   context.assert(validation.ok === true, 'Gate plan validates');
   context.assert(report.ok === true, 'Gate report passes');
   context.assert(report.localGate === EPIC14_RMT_TOOLING_LOCAL_GATE, 'Gate report exposes local gate');
+  context.assert(report.policyParity && report.policyParity.reportSchema === RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA, 'Gate report exposes Policy Parity report schema');
+  context.assert(report.policyParity && report.policyParity.requiredFactories.includes('commitTrustedHtml'), 'Gate report exposes Policy Parity required factories');
   context.assert(plan.localGate === EPIC14_RMT_TOOLING_LOCAL_GATE, 'Gate plan exposes local gate');
   context.assert(plan.packageScript === EPIC14_RMT_TOOLING_PACKAGE_SCRIPT, 'Gate plan exposes package script');
   context.assert(plan.bundleScript === EPIC14_RMT_TOOLING_BUNDLE_SCRIPT, 'Gate plan exposes bundled RMT tooling script');
@@ -81,7 +88,11 @@ function runPlanChecks(context, plan, report) {
   context.assert(plan.optionalPrCommand === EPIC14_RMT_TOOLING_PR_SCRIPT, 'Gate plan exposes optional PR command');
   context.assert(plan.optionalPrReportCommand === EPIC14_RMT_TOOLING_PR_REPORT_SCRIPT, 'Gate plan exposes optional PR report command');
   context.assert(plan.ciHandoff.defaultReleaseGate === 'npm test', 'Gate plan keeps full release default as npm test');
-  context.assert(plan.summary.gateCount === 3, 'Gate plan exposes three handoff records');
+  context.assert(plan.summary.gateCount === 4, 'Gate plan exposes four handoff records including Policy Parity');
+  context.assert(plan.policyParity && plan.policyParity.schema === RMT_KERNEL_POLICY_PARITY_SCHEMA, 'Gate plan exposes Policy Parity schema');
+  context.assert(plan.policyParity && plan.policyParity.reportSchema === RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA, 'Gate plan exposes Policy Parity report schema');
+  context.assert(plan.policyParity && plan.policyParity.ok === true && plan.policyParity.driftCount === 0, 'Gate plan requires zero Policy Parity drift');
+  assertArrayIncludesAll(context, plan.policyParity && plan.policyParity.requiredFactories, RMT_KERNEL_POLICY_PARITY_REQUIRED_FACTORIES, 'Gate plan Policy Parity factories');
 
   assertArrayIncludesAll(context, plan.primarySuiteIds, RMT_TOOLING_SUITE_IDS, 'Release RMT tooling suites');
   assertArrayIncludesAll(context, plan.optionalPrSuiteIds, RMT_TOOLING_OPTIONAL_PR_SUITE_IDS, 'Optional PR RMT tooling suites');
@@ -91,6 +102,8 @@ function runPlanChecks(context, plan, report) {
     'test:rmt-language-server',
     'test:rmt-tooling',
     'test:rmt-tooling:report',
+    'test:rmt-ai-developer-kit',
+    'test:rmt-kernel-policy-parity',
     'test:pr:rmt',
     'test:pr:rmt:report',
     'test:epic14-rmt-tooling'
@@ -116,7 +129,9 @@ function runPackageChecks(context, rootDir, plan) {
   context.assert(packageManifest.scripts['test:rmt-linter'] === 'node scripts/run_xtend_tests.js rmt-linter-cli', 'Package exposes test:rmt-linter shortcut');
   context.assert(packageManifest.scripts['test:rmt-language-server'] === 'node scripts/run_xtend_tests.js rmt-language-server', 'Package exposes test:rmt-language-server script');
   context.assert(packageManifest.scripts['test:rmt-tooling'] && packageManifest.scripts['test:rmt-tooling'].includes('rmt-source-model'), 'Package exposes bundled RMT tooling script');
+  context.assert(packageManifest.scripts['test:rmt-ai-developer-kit'] === 'node scripts/run_xtend_tests.js rmt-ai-developer-kit', 'Package exposes RMT AI Developer Kit script');
   context.assert(packageManifest.scripts['test:rmt-tooling'].includes('rmt-tooling-docs'), 'Bundled RMT tooling script includes docs gate');
+  context.assert(packageManifest.scripts['test:rmt-kernel-policy-parity'] === 'node scripts/run_xtend_tests.js rmt-kernel-policy-parity', 'Package exposes Kernel Policy Parity script');
   context.assert(packageManifest.scripts['test:rmt-tooling:report'] && packageManifest.scripts['test:rmt-tooling:report'].includes('.xtend-test-results/xtend-rmt-tooling-gate-report.json'), 'Package exposes RMT tooling report script');
   context.assert(packageManifest.scripts['test:pr:rmt'] && packageManifest.scripts['test:pr:rmt'].includes('rmt-linter-cli'), 'Package exposes optional PR RMT script');
   context.assert(packageManifest.scripts['test:pr:rmt:report'] && packageManifest.scripts['test:pr:rmt:report'].includes('.xtend-test-results/xtend-rmt-pr-gate-report.json'), 'Package exposes optional PR RMT report script');
@@ -132,6 +147,9 @@ function runPackageChecks(context, rootDir, plan) {
   context.assert(metadata && metadata.suite === EPIC14_RMT_TOOLING_SUITE, 'Package metadata points to suite');
   context.assert(metadata && metadata.localGate === EPIC14_RMT_TOOLING_LOCAL_GATE, 'Package metadata exposes local gate');
   context.assert(metadata && metadata.packageScript === EPIC14_RMT_TOOLING_PACKAGE_SCRIPT, 'Package metadata exposes package script');
+  context.assert(metadata && metadata.policyParity && metadata.policyParity.schema === RMT_KERNEL_POLICY_PARITY_SCHEMA, 'Package metadata exposes Policy Parity schema');
+  context.assert(metadata && metadata.policyParity && metadata.policyParity.localGate === RMT_KERNEL_POLICY_PARITY_LOCAL_GATE, 'Package metadata exposes Policy Parity local gate');
+  assertArrayIncludesAll(context, metadata && metadata.policyParity && metadata.policyParity.requiredFactories, RMT_KERNEL_POLICY_PARITY_REQUIRED_FACTORIES, 'Package metadata Policy Parity factories');
   assertArrayIncludesAll(context, metadata && metadata.primarySuiteIds, plan.primarySuiteIds, 'Package metadata primary suites');
   assertArrayIncludesAll(context, metadata && metadata.optionalPrSuiteIds, plan.optionalPrSuiteIds, 'Package metadata optional PR suites');
   assertArrayIncludesAll(context, metadata && metadata.exportSurface, plan.exportSurface, 'Package metadata export surface');
@@ -156,6 +174,8 @@ function runDocumentationChecks(context, rootDir) {
   context.assertIncludes(scaffold, 'epic14RmtTooling', 'Scaffold config exposes Epic 14 RMT tooling metadata');
   context.assertIncludes(scaffold, EPIC14_RMT_TOOLING_SCHEMA, 'Scaffold config declares Epic 14 RMT tooling schema');
   context.assertIncludes(scaffold, EPIC14_RMT_TOOLING_BUNDLE_SCRIPT, 'Scaffold config declares bundled RMT tooling script');
+  context.assertIncludes(scaffold, RMT_KERNEL_POLICY_PARITY_SCHEMA, 'Scaffold config declares Policy Parity schema');
+  context.assertIncludes(scaffold, RMT_KERNEL_POLICY_PARITY_PACKAGE_SCRIPT, 'Scaffold config declares Policy Parity package script');
   context.assertIncludes(epic, '| `WP-E14-15` | P2 | completed | WS10 |', 'Epic marks WP-E14-15 completed');
   context.assertIncludes(epic, '| `WP-E14-16` | P2 | completed | WS11 |', 'Epic records WP-E14-16 completion after handoff');
   context.assertIncludes(architecture, 'Implementierungsstand nach `WP-E14-15`', 'Architecture documents WP-E14-15 status');
@@ -179,7 +199,10 @@ function runDocumentationChecks(context, rootDir) {
     EPIC14_RMT_TOOLING_BUNDLE_REPORT_SCRIPT,
     EPIC14_RMT_TOOLING_PR_SCRIPT,
     EPIC14_RMT_TOOLING_PR_REPORT_SCRIPT,
-    EPIC14_RMT_TOOLING_LOCAL_GATE
+    EPIC14_RMT_TOOLING_LOCAL_GATE,
+    'xtend.maraca.production-bundle-closure.v1',
+    'productionClosure',
+    'kernelFeatureAdoptionClosure'
   ], 'Release gate docs');
   context.assertIncludes(docsReadme, './rmt-tooling-release-gates.md', 'Docs README links RMT tooling release gates');
   context.assertIncludes(docsMenu, 'rmt-tooling-release-gates', 'Docs menu links RMT tooling release gates');

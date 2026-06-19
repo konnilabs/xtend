@@ -613,6 +613,57 @@ function createChunk(renderState, html, descriptor, hydration) {
   };
 }
 
+function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnostics, ok) {
+  const renderedAt = Date.parse(renderState.renderedAt) || Date.now();
+  const metadata = {
+    adapterKind: 'node-ssr',
+    adapterSchema: RMT_NODE_SSR_ADAPTER_SCHEMA,
+    hydrationSchema: RMT_NODE_SSR_HYDRATION_SCHEMA,
+    requestId: renderState.requestId,
+    sourceKind: hydration && hydration.sourceKind || null,
+    sourceRef: hydration && hydration.sourceRef || null
+  };
+  const request = {
+    kind: 'renderman_template_prerender_request',
+    version: '1.0',
+    executionMode: RMT_NODE_SSR_EXECUTION_MODE,
+    transport: 'server',
+    rootId: renderState.rootId,
+    template: cloneJson(chunk.template),
+    target: cloneJson(chunk.target),
+    metadata: cloneJson(metadata),
+    requestedAt: renderedAt
+  };
+  return {
+    kind: RMT_NODE_SSR_RESPONSE_KIND,
+    version: '1.0',
+    ok,
+    status: ok ? 'rendered' : 'blocked',
+    transport: 'server',
+    executionMode: RMT_NODE_SSR_EXECUTION_MODE,
+    adapterKind: 'node-ssr',
+    supportStatus: ok ? 'supported' : 'blocked',
+    rootId: renderState.rootId,
+    template: cloneJson(chunk.template),
+    target: cloneJson(chunk.target),
+    plan: cloneJson(chunk.plan),
+    request,
+    metadata,
+    chunk,
+    chunks: [chunk],
+    hydration,
+    diagnostics: diagnostics.slice(),
+    superseded: false,
+    error: ok ? null : {
+      code: 'rmt.node_ssr.prerender_blocked',
+      message: 'Node SSR prerender response was blocked by diagnostics.',
+      diagnostics: diagnostics.slice()
+    },
+    requestedAt: renderedAt,
+    respondedAt: renderedAt
+  };
+}
+
 function normalizeDataSources(coreDocument, options = {}) {
   const records = [
     ...asArray(coreDocument && coreDocument.dataSources),
@@ -767,11 +818,12 @@ export function createRmtNodeSsrAdapter(options = {}) {
       model: mergedOptions.model || {}
     };
     const chunk = createChunk(renderState, html, normalized.descriptor, hydration);
+    const ok = !hasBlockingDiagnostics(diagnostics.diagnostics);
     const result = {
       schema: RMT_NODE_SSR_RENDER_RESULT_SCHEMA,
       adapterSchema: RMT_NODE_SSR_ADAPTER_SCHEMA,
-      ok: !hasBlockingDiagnostics(diagnostics.diagnostics),
-      status: hasBlockingDiagnostics(diagnostics.diagnostics) ? 'blocked' : 'rendered',
+      ok,
+      status: ok ? 'rendered' : 'blocked',
       requestId,
       html,
       head: {
@@ -784,15 +836,7 @@ export function createRmtNodeSsrAdapter(options = {}) {
         ]
       },
       chunks: [chunk],
-      response: {
-        kind: RMT_NODE_SSR_RESPONSE_KIND,
-        version: '1.0',
-        executionMode: RMT_NODE_SSR_EXECUTION_MODE,
-        rootId,
-        chunks: [chunk],
-        hydration,
-        diagnostics: diagnostics.diagnostics.slice()
-      },
+      response: createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnostics.diagnostics, ok),
       hydration,
       streamingContract,
       componentCapabilities: [...componentCapabilities.values()],

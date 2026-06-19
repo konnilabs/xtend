@@ -23,6 +23,9 @@ export interface XSurfaceManagerPublicApi {
   restoreSurface(id: string): XtendSurfaceOperationResult;
   materializeSurface(id: string, input?: Record<string, unknown>): XtendSurfaceOperationResult;
   toggleSurface(id: string, input?: Record<string, unknown>): XtendSurfaceOperationResult;
+  destroySurface(id: string, options?: Record<string, unknown>): XtendSurfaceOperationResult;
+  registerSurfacePrewarmHandle(surfaceId: string, handle: unknown, options?: Record<string, unknown>): Record<string, unknown>;
+  registerSurfaceChunkHandle(surfaceId: string, handle: unknown, options?: Record<string, unknown>): Record<string, unknown>;
   pinSurface(id: string, pinned?: boolean): XtendSurfaceOperationResult;
   collapseSurface(id: string): XtendSurfaceOperationResult;
   expandSurface(id: string, mode?: string): XtendSurfaceOperationResult;
@@ -41,7 +44,7 @@ export const xSurfaceManagerContract = Object.freeze({
   runtime: 'components/xsurfacemanager.js',
   declaration: 'components/xsurfacemanager.d.ts',
   slots: ['default', 'windows', 'panels', 'overlays'],
-  events: ['surface-manager-ready', 'surface-registered', 'surface-opened', 'surface-closed', 'surface-focused', 'surface-materialized', 'surface-updated', 'surface-layout-changed', 'surface-panel-command', 'surface-overlay-command'],
+  events: ['surface-manager-ready', 'surface-registered', 'surface-opened', 'surface-closed', 'surface-focused', 'surface-materialized', 'surface-updated', 'surface-destroyed', 'surface-destroy-error', 'surface-layout-changed', 'surface-panel-command', 'surface-overlay-command'],
   surfaceComponents: ['x-surface-window', 'x-side-panel', 'x-modal', 'x-dialog', 'x-drawer'],
   kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
 });

@@ -60,6 +60,9 @@ jobs:
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
+      - name: Run RKFA production closure report
+        run: npm run test:rkfa-production-closure:report
+
       - name: Run docs stub inventory report
         if: always()
         continue-on-error: true
@@ -73,6 +76,7 @@ jobs:
           path: |
             .xtend-test-results/xtend-pr-gate-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
+            .xtend-test-results/xtend-rkfa-production-closure-report.json
             .xtend-test-results/xtend-docs-stub-inventory-report.json
           if-no-files-found: warn
 
@@ -108,6 +112,9 @@ jobs:
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
+      - name: Run RKFA production closure report
+        run: npm run test:rkfa-production-closure:report
+
       - name: Run docs stub inventory report
         if: always()
         continue-on-error: true
@@ -121,6 +128,7 @@ jobs:
           path: |
             .xtend-test-results/xtend-release-gate-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
+            .xtend-test-results/xtend-rkfa-production-closure-report.json
             .xtend-test-results/xtend-docs-stub-inventory-report.json
           if-no-files-found: warn
 
@@ -335,6 +343,7 @@ jobs:
           npm run test:release:full:report
           npm run test:rmt-vnext-primitives:report
           npm run test:native-first-rmt-owned-release:report
+          npm run test:rkfa-production-closure:report
           npm run release:report
           npm run pack:dry-run
           npm run conditional-network:evidence
@@ -358,6 +367,7 @@ jobs:
             .xtend-test-results/xtend-release-gate-report.json
             .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
             .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
+            .xtend-test-results/xtend-rkfa-production-closure-report.json
             .xtend-test-results/xtend-release-report.json
             .xtend-test-results/xtend-pack-dry-run.json
             .xtend-test-results/xtend-package-export-surface-lock.json

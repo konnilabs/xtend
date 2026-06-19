@@ -20,10 +20,12 @@ const SURFACE_MANAGER_LAZY_LOADING_DOCS = 'docs/surface-manager-lazy-hydration.m
 const SURFACE_MANAGER_LAZY_LOADING_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-lazy-hydration --json';
 const SURFACE_MANAGER_LAZY_LOADING_PACKAGE_SCRIPT = 'npm run test:surface-lazy-hydration';
 
-const SURFACE_LOADING_POLICIES = Object.freeze(['eager', 'visible', 'open', 'idle', 'route']);
+const SURFACE_LOADING_POLICIES = Object.freeze(['eager', 'visible', 'open', 'idle', 'route', 'warm', 'prewarm']);
 const MANAGER_METHODS = Object.freeze([
   'snapshotSurfaceLoading',
-  'hydrateSurfaceContent'
+  'hydrateSurfaceContent',
+  'registerSurfacePrewarmHandle',
+  'registerSurfaceChunkHandle'
 ]);
 const SURFACE_LOADING_EVENTS = Object.freeze([
   'surface-content-loading',

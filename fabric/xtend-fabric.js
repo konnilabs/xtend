@@ -15,7 +15,10 @@
       createConsoleReporter: api.createConsoleReporter,
       createTestReporter: api.createTestReporter,
       normalizeComponentLifecycleTelemetry: api.normalizeComponentLifecycleTelemetry,
-      summarizeComponentLifecycleTelemetry: api.summarizeComponentLifecycleTelemetry
+      summarizeComponentLifecycleTelemetry: api.summarizeComponentLifecycleTelemetry,
+      normalizeKernelPanicRecoveryRecord: api.normalizeKernelPanicRecoveryRecord,
+      summarizeKernelPanicRecovery: api.summarizeKernelPanicRecovery,
+      summarizeStreamPressure: api.summarizeStreamPressure
     });
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function createXtendFabricModule(globalTarget) {
@@ -31,7 +34,11 @@
     routeFiberInstrumentation: 'xtend.fabric.route-fiber-instrumentation.v1',
     runtimeDiagnosticsBridge: 'xtend.fabric.runtime-diagnostics-bridge.v1',
     telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
+    kernelPanicRecovery: 'xtend.fabric.kernel-panic-recovery.v1',
+    prewarmWorkerTopology: 'xtend.rmt.prewarm-worker-topology.v1',
     backpressureSignal: 'xtend.fabric.backpressure-signal.v1',
+    streamPressure: 'xtend.rmt.app-runtime-stream-pressure.v1',
+    yieldAction: 'xtend.rmt.app-runtime-yield-action.v1',
     appRuntimeFiberInstrumentation: 'xtend.fabric.app-runtime-fiber-instrumentation.v1',
     performanceMeasurement: 'xtend.performance.measurement.v1',
     componentLifecycleTelemetry: 'xtend.component.lifecycle-telemetry.v1'
@@ -46,6 +53,11 @@
     'component.render': 'visible',
     'component.update': 'visible',
     'component.disconnect': 'background',
+    'component.unmount': 'background',
+    'component.dispose': 'background',
+    'surface.destroy': 'background',
+    'surface.cleanup': 'background',
+    'resource.release': 'background',
     'event.handler': 'user-blocking',
     'rmt.command': 'user-blocking',
     'rmt.action': 'user-blocking',
@@ -61,7 +73,11 @@
     'api.call': 'user-blocking',
     'a11y.announce': 'a11y',
     'diagnostics.snapshot': 'diagnostics',
-    'rmt.adapter-result': 'diagnostics'
+    'rmt.adapter-result': 'diagnostics',
+    'kernel.trust': 'diagnostics',
+    'kernel.panic': 'diagnostics',
+    'kernel.recovery': 'diagnostics',
+    'kernel.safe_snapshot': 'diagnostics'
   });
 
   const CANONICAL_LANES = Object.freeze({
@@ -144,6 +160,7 @@
     'update',
     'event',
     'unmount',
+    'dispose',
     'error'
   ]);
 
@@ -211,6 +228,30 @@
       diagnosticMessage: 'XTend component hydration failed',
       coalesceSuffix: 'hydrate'
     }),
+    unmount: Object.freeze({
+      operation: 'unmount',
+      kind: 'component.unmount',
+      phase: 'unmount',
+      source: 'component',
+      lane: 'background',
+      scheduleRef: 'ui.background.work',
+      endpointNameHint: 'xtendrmt.ui.background',
+      diagnosticCode: 'xtend.fabric.component.unmount.failed',
+      diagnosticMessage: 'XTend component unmount failed',
+      coalesceSuffix: 'unmount'
+    }),
+    dispose: Object.freeze({
+      operation: 'dispose',
+      kind: 'component.dispose',
+      phase: 'dispose',
+      source: 'component',
+      lane: 'background',
+      scheduleRef: 'ui.background.work',
+      endpointNameHint: 'xtendrmt.ui.background',
+      diagnosticCode: 'xtend.fabric.component.dispose.failed',
+      diagnosticMessage: 'XTend component dispose failed',
+      coalesceSuffix: 'dispose'
+    }),
     preload: Object.freeze({
       operation: 'preload',
       kind: 'loader.module',
@@ -276,6 +317,11 @@
     'xtend.component.hydrate': 'hydrate',
     'xtend.component.render': 'render',
     'xtend.component.update': 'update',
+    'xtend.component.unmount': 'unmount',
+    'xtend.component.dispose': 'dispose',
+    'xtend.surface.destroy': 'destroy',
+    'xtend.surface.cleanup': 'cleanup',
+    'xtend.resource.release': 'release',
     'xtend.event.handler': 'event',
     'xtend.route.navigate': 'route',
     'xtend.route.render': 'route',
@@ -290,6 +336,11 @@
     'component.hydrate': 'xtend.component.hydrate',
     'component.render': 'xtend.component.render',
     'component.update': 'xtend.component.update',
+    'component.unmount': 'xtend.component.unmount',
+    'component.dispose': 'xtend.component.dispose',
+    'surface.destroy': 'xtend.surface.destroy',
+    'surface.cleanup': 'xtend.surface.cleanup',
+    'resource.release': 'xtend.resource.release',
     'event.handler': 'xtend.event.handler',
     'route.navigate': 'xtend.route.navigate',
     'route.render': 'xtend.route.render',
@@ -304,6 +355,11 @@
     'xtend.component.hydrate': 32,
     'xtend.component.render': 24,
     'xtend.component.update': 24,
+    'xtend.component.unmount': 40,
+    'xtend.component.dispose': 80,
+    'xtend.surface.destroy': 120,
+    'xtend.surface.cleanup': 160,
+    'xtend.resource.release': 160,
     'xtend.event.handler': 16,
     'xtend.route.navigate': 80,
     'xtend.route.render': 48,
@@ -712,6 +768,238 @@
     return Object.freeze(summary);
   }
 
+  function normalizeKernelPanicRecoveryKind(kind, fallback = 'panicEvent') {
+    const requested = clampString(kind, fallback);
+    const aliases = {
+      trust: 'trustVerdict',
+      trust_verdict: 'trustVerdict',
+      trustVerdict: 'trustVerdict',
+      panic: 'panicEvent',
+      panic_event: 'panicEvent',
+      panicEvent: 'panicEvent',
+      recovery: 'recoveryOutcome',
+      recovery_outcome: 'recoveryOutcome',
+      recoveryOutcome: 'recoveryOutcome',
+      snapshot: 'safeSnapshot',
+      safe_snapshot: 'safeSnapshot',
+      safeSnapshot: 'safeSnapshot'
+    };
+    return aliases[requested] || requested;
+  }
+
+  function kernelPanicRecoveryStatusForRecord(record, kind) {
+    if (record.status) return String(record.status);
+    if (record.state) return String(record.state);
+    if (kind === 'trustVerdict') return record.commitAllowed === false ? 'blocked' : 'recorded';
+    if (kind === 'safeSnapshot') return 'captured';
+    return 'recorded';
+  }
+
+  function kernelPanicRecoveryFiberKind(kind) {
+    if (kind === 'trustVerdict') return 'kernel.trust';
+    if (kind === 'recoveryOutcome') return 'kernel.recovery';
+    if (kind === 'safeSnapshot') return 'kernel.safe_snapshot';
+    return 'kernel.panic';
+  }
+
+  function normalizeKernelPanicRecoveryRecord(recordInput = {}, defaultsInput = {}) {
+    const input = asObject(recordInput);
+    const defaults = asObject(defaultsInput);
+    const record = asObject(input.record || input.payload || input);
+    const kind = normalizeKernelPanicRecoveryKind(input.kind || defaults.kind || record.kind || record.type);
+    const status = kernelPanicRecoveryStatusForRecord(record, kind);
+    return Object.freeze({
+      schema: CONTRACTS.kernelPanicRecovery,
+      id: clampString(input.id, defaults.id || `${defaults.idPrefix || 'xtend.fabric.kernelPanicRecovery'}.${defaults.index != null ? defaults.index + 1 : 'record'}`),
+      timestamp: input.timestamp || record.timestamp || record.at || record.completedAt || record.capturedAt || defaults.timestamp || nowIso(defaults.clock),
+      source: clampString(input.source, defaults.source || 'rmt-kernel'),
+      kind,
+      lane: 'diagnostics',
+      fiberKind: kernelPanicRecoveryFiberKind(kind),
+      status,
+      severity: clampString(input.severity || record.severity, status === 'failed' || status === 'active' || status === 'blocked' ? 'error' : 'info'),
+      code: normalizeDiagnosticCode(input.code || record.diagnosticCode || record.reasonCode || `rmt.kernel.${kind}`),
+      message: clampString(input.message || record.message, `RMT kernel ${kind} record observed.`),
+      scope: clampString(input.scope || record.scope, ''),
+      quarantineScope: clampString(input.quarantineScope || record.quarantineScope || record.scope, ''),
+      panicId: input.panicId || record.panicId || null,
+      correlationId: input.correlationId || record.correlationId || defaults.correlationId,
+      record: redactValue(record),
+      metadata: redactValue({
+        ...(asObject(defaults.metadata)),
+        ...(asObject(input.metadata)),
+        panicRecoverySchema: CONTRACTS.kernelPanicRecovery
+      })
+    });
+  }
+
+  function summarizeKernelPanicRecovery(records = []) {
+    const normalizedRecords = (Array.isArray(records) ? records : []).map((record, index) => (
+      normalizeKernelPanicRecoveryRecord(record, { index })
+    ));
+    const summary = {
+      schema: CONTRACTS.kernelPanicRecovery,
+      recordCount: normalizedRecords.length,
+      trustVerdictCount: 0,
+      blockedTrustVerdictCount: 0,
+      panicEventCount: 0,
+      recoveryOutcomeCount: 0,
+      recoveredCount: 0,
+      failedRecoveryCount: 0,
+      safeSnapshotCount: 0,
+      quarantineScopeCount: 0,
+      quarantineScopes: [],
+      lastRecord: normalizedRecords.length > 0 ? normalizedRecords[normalizedRecords.length - 1] : null,
+      records: normalizedRecords.slice(-50)
+    };
+
+    normalizedRecords.forEach((record) => {
+      if (record.kind === 'trustVerdict') {
+        summary.trustVerdictCount += 1;
+        if (record.status === 'blocked' || record.record && record.record.commitAllowed === false) summary.blockedTrustVerdictCount += 1;
+      } else if (record.kind === 'panicEvent') {
+        summary.panicEventCount += 1;
+      } else if (record.kind === 'recoveryOutcome') {
+        summary.recoveryOutcomeCount += 1;
+        if (record.status === 'recovered') summary.recoveredCount += 1;
+        if (record.status === 'failed') summary.failedRecoveryCount += 1;
+      } else if (record.kind === 'safeSnapshot') {
+        summary.safeSnapshotCount += 1;
+      }
+      const scope = record.quarantineScope || record.scope;
+      if (scope && !summary.quarantineScopes.includes(scope)) summary.quarantineScopes.push(scope);
+    });
+    summary.quarantineScopeCount = summary.quarantineScopes.length;
+    return Object.freeze(summary);
+  }
+
+  function normalizeStreamPressureRecord(recordInput = {}, defaultsInput = {}) {
+    const record = asObject(recordInput);
+    const defaults = asObject(defaultsInput);
+    const score = Number.isFinite(Number(record.score)) ? Number(record.score) : 0;
+    const level = backpressureLevelForScore(score, record.level || defaults.level);
+    return Object.freeze({
+      schema: CONTRACTS.streamPressure,
+      id: clampString(record.id, defaults.id || `${defaults.idPrefix || 'xtend.rmt.streamPressure'}.${defaults.index != null ? defaults.index + 1 : 'record'}`),
+      timestamp: record.timestamp || defaults.timestamp || nowIso(defaults.clock),
+      source: clampString(record.source, defaults.source || 'rmt-app-runtime'),
+      phase: clampString(record.phase, record.terminal === true ? 'stream-terminal' : 'stream'),
+      streamId: clampString(record.streamId, ''),
+      target: clampString(record.target, ''),
+      correlationId: record.correlationId || defaults.correlationId,
+      patchId: clampString(record.patchId, ''),
+      patchType: clampString(record.patchType, ''),
+      terminal: record.terminal === true,
+      level,
+      score: Math.max(score, severityScoreForBackpressureLevel(level)),
+      action: record.action || BACKPRESSURE_ACTION_BY_LEVEL[level],
+      lane: inferLane('rmt.stream.patch', record.lane || defaults.lane || 'idle'),
+      schedulerLane: clampString(record.schedulerLane, 'idle_maintenance'),
+      scheduleRef: clampString(record.scheduleRef, 'rmt.stream.patch'),
+      patchCount: Number.isFinite(Number(record.patchCount)) ? Number(record.patchCount) : 0,
+      deltaCount: Number.isFinite(Number(record.deltaCount)) ? Number(record.deltaCount) : 0,
+      finalState: record.finalState || null,
+      cancellationReason: clampString(record.cancellationReason, ''),
+      metadata: redactValue({
+        ...(asObject(defaults.metadata)),
+        ...(asObject(record.metadata))
+      })
+    });
+  }
+
+  function normalizeStreamPressureCollection(records = [], defaults = {}) {
+    return (Array.isArray(records) ? records : [])
+      .map((record, index) => normalizeStreamPressureRecord(record, { ...defaults, index }));
+  }
+
+  function normalizeYieldAction(recordInput = {}, defaultsInput = {}) {
+    const record = asObject(recordInput);
+    const defaults = asObject(defaultsInput);
+    return Object.freeze({
+      schema: CONTRACTS.yieldAction,
+      id: clampString(record.id, defaults.id || `${defaults.idPrefix || 'xtend.rmt.yieldAction'}.${defaults.index != null ? defaults.index + 1 : 'record'}`),
+      timestamp: record.timestamp || defaults.timestamp || nowIso(defaults.clock),
+      source: clampString(record.source, defaults.source || 'rmt-app-runtime'),
+      reason: clampString(record.reason, 'stream-pressure'),
+      action: clampString(record.action, 'defer-background-work'),
+      lane: clampString(record.lane, 'idle_maintenance'),
+      targetLane: clampString(record.targetLane, 'visible'),
+      pressureLevel: clampString(record.pressureLevel, ''),
+      schedulerPressureLevel: clampString(record.schedulerPressureLevel, ''),
+      streamId: clampString(record.streamId, ''),
+      patchType: clampString(record.patchType, ''),
+      terminal: record.terminal === true,
+      scheduleRef: clampString(record.scheduleRef, ''),
+      correlationId: record.correlationId || defaults.correlationId,
+      metadata: redactValue({
+        ...(asObject(defaults.metadata)),
+        ...(asObject(record.metadata))
+      })
+    });
+  }
+
+  function summarizeStreamPressure(records = [], yieldActionRecords = []) {
+    const normalizedRecords = normalizeStreamPressureCollection(records);
+    const normalizedYieldActions = (Array.isArray(yieldActionRecords) ? yieldActionRecords : [])
+      .map((record, index) => normalizeYieldAction(record, { index }));
+    const summary = {
+      schema: CONTRACTS.streamPressure,
+      recordCount: normalizedRecords.length,
+      terminalCount: 0,
+      deltaCount: 0,
+      yieldActionCount: normalizedYieldActions.length,
+      highestLevel: 'none',
+      score: 0,
+      actionCounts: {},
+      byLevel: {
+        none: 0,
+        low: 0,
+        medium: 0,
+        high: 0,
+        critical: 0
+      },
+      byPatchType: {},
+      streams: {},
+      records: normalizedRecords.slice(-50),
+      yieldActions: normalizedYieldActions.slice(-50)
+    };
+
+    normalizedRecords.forEach((record) => {
+      summary.score += Number(record.score) || 0;
+      summary.highestLevel = severityScoreForBackpressureLevel(record.level) > severityScoreForBackpressureLevel(summary.highestLevel)
+        ? record.level
+        : summary.highestLevel;
+      summary.byLevel[record.level] = (summary.byLevel[record.level] || 0) + 1;
+      summary.byPatchType[record.patchType] = (summary.byPatchType[record.patchType] || 0) + 1;
+      summary.actionCounts[record.action] = (summary.actionCounts[record.action] || 0) + 1;
+      if (record.terminal) summary.terminalCount += 1;
+      if (record.patchType === 'delta') summary.deltaCount += 1;
+      const streamKey = record.streamId || record.correlationId || 'unknown-stream';
+      if (!summary.streams[streamKey]) {
+        summary.streams[streamKey] = {
+          schema: CONTRACTS.streamPressure,
+          streamId: streamKey,
+          recordCount: 0,
+          terminalCount: 0,
+          highestLevel: 'none',
+          score: 0,
+          lastPatchType: ''
+        };
+      }
+      const stream = summary.streams[streamKey];
+      stream.recordCount += 1;
+      stream.score += Number(record.score) || 0;
+      stream.lastPatchType = record.patchType;
+      stream.highestLevel = severityScoreForBackpressureLevel(record.level) > severityScoreForBackpressureLevel(stream.highestLevel)
+        ? record.level
+        : stream.highestLevel;
+      if (record.terminal) stream.terminalCount += 1;
+    });
+
+    summary.score = Number(summary.score.toFixed(2));
+    return Object.freeze(summary);
+  }
+
   function createNoopReporter() {
     return Object.freeze({
       id: 'noop',
@@ -909,6 +1197,34 @@
     return DEFAULT_LANE_BY_KIND[kind] || 'visible';
   }
 
+  function backpressureLevelForScore(score, explicitLevel) {
+    const requestedLevel = clampString(explicitLevel, '');
+    if (Object.prototype.hasOwnProperty.call(BACKPRESSURE_SCORE_THRESHOLDS, requestedLevel)) {
+      return requestedLevel;
+    }
+    const numericScore = Number.isFinite(Number(score)) ? Number(score) : 0;
+    if (numericScore >= BACKPRESSURE_SCORE_THRESHOLDS.critical) return 'critical';
+    if (numericScore >= BACKPRESSURE_SCORE_THRESHOLDS.high) return 'high';
+    if (numericScore >= BACKPRESSURE_SCORE_THRESHOLDS.medium) return 'medium';
+    if (numericScore >= BACKPRESSURE_SCORE_THRESHOLDS.low) return 'low';
+    return 'none';
+  }
+
+  function severityScoreForBackpressureLevel(level) {
+    switch (level) {
+      case 'critical':
+        return 12;
+      case 'high':
+        return 7;
+      case 'medium':
+        return 3;
+      case 'low':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
   function resolveComponentFiberOperationProfile(operation) {
     const operationName = clampString(operation, 'mount');
     if (COMPONENT_FIBER_OPERATION_PROFILES[operationName]) {
@@ -1016,6 +1332,7 @@
     const diagnostics = [];
     const fibers = [];
     const componentTelemetry = [];
+    const kernelPanicRecoveryRecords = [];
     const reporters = [createNoopReporter()];
     let telemetrySnapshotCounter = 0;
 
@@ -1268,6 +1585,59 @@
       return record;
     }
 
+    function recordKernelPanicRecovery(recordInput = {}, defaultsInput = {}) {
+      const input = asObject(recordInput);
+      const record = normalizeKernelPanicRecoveryRecord(input, {
+        idPrefix: `${config.idPrefix}.kernelPanicRecovery`,
+        id: input.id || `${config.idPrefix}.kernelPanicRecovery.${++telemetrySnapshotCounter}`,
+        clock: config.clock,
+        ...asObject(defaultsInput)
+      });
+      kernelPanicRecoveryRecords.push(record);
+      trimStore(kernelPanicRecoveryRecords);
+
+      const diagnostic = emitDiagnostic({
+        level: record.severity,
+        severity: record.severity,
+        code: record.code,
+        message: record.message,
+        source: record.source,
+        phase: 'panic-recovery',
+        lane: 'diagnostics',
+        correlationId: record.correlationId,
+        metadata: {
+          kernelPanicRecovery: record,
+          kind: record.kind,
+          status: record.status,
+          scope: record.scope,
+          quarantineScope: record.quarantineScope,
+          panicId: record.panicId
+        }
+      });
+      const fiber = normalizeFiber({
+        kind: record.fiberKind,
+        lane: 'diagnostics',
+        phase: 'panic-recovery',
+        status: record.status === 'failed' || record.status === 'blocked' || record.status === 'active' ? 'failed' : 'completed',
+        source: record.source,
+        scope: record.scope || record.kind,
+        correlationId: record.correlationId,
+        diagnosticCode: record.code,
+        diagnosticMessage: record.message,
+        diagnostics: [diagnostic],
+        metadata: {
+          kernelPanicRecovery: record
+        }
+      }, {
+        idPrefix: config.idPrefix,
+        source: 'rmt-kernel',
+        lane: 'diagnostics'
+      }, config.clock);
+      fibers.push(fiber);
+      trimStore(fibers);
+      return record;
+    }
+
     function numericDuration(value) {
       const number = Number(value);
       return Number.isFinite(number) ? number : 0;
@@ -1285,8 +1655,12 @@
         fiberCount: 0,
         completedCount: 0,
         failedCount: 0,
+        lifecycleCount: 0,
+        cleanupCount: 0,
+        tombstoneCount: 0,
         budgetMissCount: 0,
         durationMs: 0,
+        cleanupDurationMs: 0,
         maxDurationMs: 0,
         averageDurationMs: 0,
         scheduleRefs: []
@@ -1302,8 +1676,12 @@
         fiberCount: 0,
         completedCount: 0,
         failedCount: 0,
+        lifecycleCount: 0,
+        cleanupCount: 0,
+        tombstoneCount: 0,
         budgetMissCount: 0,
         durationMs: 0,
+        cleanupDurationMs: 0,
         maxDurationMs: 0,
         averageDurationMs: 0
       };
@@ -1317,12 +1695,24 @@
           ? Number(fiber.deadlineMs)
           : (CANONICAL_LANES[laneId] || CANONICAL_LANES.visible).deadlineMs;
         const budgetMiss = durationMs > deadlineMs;
+        const kind = clampString(fiber.kind, '');
+        const isLifecycle = kind.startsWith('component.') || kind.startsWith('surface.') || kind.startsWith('resource.');
+        const isCleanup = ['component.unmount', 'component.dispose', 'surface.destroy', 'surface.cleanup', 'resource.release'].includes(kind);
+        const tombstoneCount = Number.isFinite(Number(fiber.tombstoneCount))
+          ? Math.max(0, Number(fiber.tombstoneCount))
+          : (kind === 'surface.destroy' && fiber.tombstone ? 1 : 0);
 
         lane.fiberCount += 1;
         lane.durationMs += durationMs;
         lane.maxDurationMs = Math.max(lane.maxDurationMs, durationMs);
         if (fiber.status === 'failed') lane.failedCount += 1;
         if (fiber.status === 'completed') lane.completedCount += 1;
+        if (isLifecycle) lane.lifecycleCount += 1;
+        if (isCleanup) {
+          lane.cleanupCount += 1;
+          lane.cleanupDurationMs += durationMs;
+        }
+        lane.tombstoneCount += tombstoneCount;
         if (budgetMiss) lane.budgetMissCount += 1;
         if (fiber.scheduleRef && !lane.scheduleRefs.includes(fiber.scheduleRef)) {
           lane.scheduleRefs.push(fiber.scheduleRef);
@@ -1333,6 +1723,12 @@
         totals.maxDurationMs = Math.max(totals.maxDurationMs, durationMs);
         if (fiber.status === 'failed') totals.failedCount += 1;
         if (fiber.status === 'completed') totals.completedCount += 1;
+        if (isLifecycle) totals.lifecycleCount += 1;
+        if (isCleanup) {
+          totals.cleanupCount += 1;
+          totals.cleanupDurationMs += durationMs;
+        }
+        totals.tombstoneCount += tombstoneCount;
         if (budgetMiss) totals.budgetMissCount += 1;
       });
 
@@ -1488,6 +1884,31 @@
         }
       });
 
+      const streamPressureRecords = normalizeStreamPressureCollection(options.streamPressureRecords || options.streamPressure, {
+        idPrefix: `${config.idPrefix}.streamPressure`,
+        clock: config.clock,
+        correlationId: options.correlationId
+      });
+      streamPressureRecords.forEach((record) => {
+        if (record.terminal !== true && severityScoreForBackpressureLevel(record.level) < severityScoreForBackpressureLevel('high')) return;
+        signals.push(createBackpressureSignal({
+          source: record.source || 'rmt-app-runtime',
+          reason: record.terminal ? 'stream-terminal' : 'stream-pressure',
+          lane: record.lane || 'idle',
+          score: record.score,
+          level: record.level,
+          action: record.action,
+          scheduleRef: record.scheduleRef,
+          correlationId: record.correlationId,
+          metadata: {
+            streamId: record.streamId,
+            patchType: record.patchType,
+            terminal: record.terminal,
+            schedulerLane: record.schedulerLane
+          }
+        }));
+      });
+
       if (Array.isArray(options.backpressureSignals)) {
         options.backpressureSignals.forEach((signal) => {
           signals.push(createBackpressureSignal(signal, { source: 'snapshot-options' }));
@@ -1549,6 +1970,175 @@
       };
     }
 
+    function summarizeKernelPerformanceFileArtifact(fileArtifact) {
+      if (!fileArtifact || typeof fileArtifact !== 'object') return null;
+      return {
+        kind: fileArtifact.kind || 'renderman_performance_file_artifact',
+        artifactId: fileArtifact.artifactId || '',
+        artifactType: fileArtifact.artifactType || '',
+        fileName: fileArtifact.fileName || '',
+        contentType: fileArtifact.contentType || 'application/json',
+        bytes: typeof fileArtifact.text === 'string' ? fileArtifact.text.length : 0,
+        payloadKind: fileArtifact.payload && fileArtifact.payload.kind || ''
+      };
+    }
+
+    function readKernelPerformanceRuntimeSnapshot(snapshotOptions = {}) {
+      const options = asObject(snapshotOptions);
+      const runtime = options.kernelPerformanceRuntime
+        || options.rmtPerformanceRuntime
+        || (options.performanceRuntime && typeof options.performanceRuntime.getSnapshot === 'function' ? options.performanceRuntime : null)
+        || null;
+      if (!runtime || typeof runtime.getSnapshot !== 'function') {
+        return {
+          supported: false,
+          snapshot: null,
+          budgetSnapshot: null,
+          backpressureProfile: null,
+          ciSummary: null,
+          fileArtifact: null,
+          baselineComparison: null,
+          diagnostics: []
+        };
+      }
+
+      const diagnostics = [];
+      function guarded(label, fallback, callback) {
+        try {
+          return callback();
+        } catch (error) {
+          diagnostics.push({
+            code: `xtend.fabric.kernel_performance.${label}_failed`,
+            message: error && error.message ? error.message : String(error)
+          });
+          return fallback;
+        }
+      }
+
+      const snapshot = guarded('snapshot', null, () => runtime.getSnapshot('fabric.telemetry.snapshot'));
+      const budgetSnapshot = typeof runtime.evaluateBudgets === 'function'
+        ? guarded('budgets', null, () => runtime.evaluateBudgets('fabric.telemetry.snapshot'))
+        : null;
+      const backpressureProfile = typeof runtime.getBackpressureProfile === 'function'
+        ? guarded('backpressure', snapshot && snapshot.backpressureProfile || null, () => runtime.getBackpressureProfile('fabric.telemetry.snapshot'))
+        : (snapshot && snapshot.backpressureProfile || null);
+      const runReport = typeof runtime.exportRunReport === 'function'
+        ? guarded('run_report', null, () => runtime.exportRunReport('fabric.telemetry.snapshot', {
+            runId: `${config.idPrefix}.kernel-performance`,
+            label: 'XTend Fabric Kernel Performance'
+          }))
+        : null;
+      const baseline = runReport && typeof runtime.createRunBaseline === 'function'
+        ? guarded('baseline', null, () => runtime.createRunBaseline([runReport], {
+            baselineId: `${config.idPrefix}.kernel-performance.baseline`,
+            label: 'XTend Fabric Kernel Performance Baseline'
+          }))
+        : null;
+      const baselineComparison = runReport && baseline && typeof runtime.compareRunReportToBaseline === 'function'
+        ? guarded('baseline_comparison', null, () => runtime.compareRunReportToBaseline(runReport, baseline, {
+            label: 'XTend Fabric Kernel Performance Baseline Comparison'
+          }))
+        : null;
+      const ciSummary = runReport && typeof runtime.createCiSummary === 'function'
+        ? guarded('ci_summary', null, () => runtime.createCiSummary(runReport, {
+            summaryId: `${config.idPrefix}.kernel-performance.summary`,
+            title: 'XTend Fabric Kernel Performance Summary'
+          }))
+        : null;
+      const fileArtifact = runReport && typeof runtime.createFileArtifact === 'function'
+        ? guarded('file_artifact', null, () => summarizeKernelPerformanceFileArtifact(runtime.createFileArtifact(runReport, {
+            artifactId: `${config.idPrefix}.kernel-performance.artifact`,
+            artifactType: 'run_report',
+            fileName: 'xtend.fabric.kernel-performance.json'
+          })))
+        : null;
+
+      return {
+        supported: true,
+        snapshot,
+        budgetSnapshot,
+        backpressureProfile,
+        ciSummary,
+        fileArtifact,
+        baselineComparison,
+        diagnostics,
+        budgetViolationCount: budgetSnapshot && Array.isArray(budgetSnapshot.violations) ? budgetSnapshot.violations.length : 0,
+        pressureLevel: backpressureProfile && backpressureProfile.pressureLevel || snapshot && snapshot.pressureLevel || 'normal'
+      };
+    }
+
+    function readPrewarmWorkerTopologySnapshot(snapshotOptions = {}) {
+      const options = asObject(snapshotOptions);
+      const explicitTopology = options.prewarmWorkerTopology || options.prewarmWorker;
+      if (explicitTopology && typeof explicitTopology === 'object' && explicitTopology.schema === CONTRACTS.prewarmWorkerTopology) {
+        return redactValue(explicitTopology);
+      }
+
+      const runtime = options.prewarmWorkerRuntime
+        || options.rmtPrewarmWorkerRuntime
+        || options.kernelRuntime
+        || options.rmtRuntime
+        || (options.runtime && typeof options.runtime.getPrewarmWorkerTopology === 'function' ? options.runtime : null)
+        || null;
+      if (runtime && typeof runtime.getPrewarmWorkerTopology === 'function') {
+        try {
+          const topology = runtime.getPrewarmWorkerTopology();
+          if (topology && typeof topology === 'object') return redactValue(topology);
+        } catch (error) {
+          return {
+            schema: CONTRACTS.prewarmWorkerTopology,
+            kind: 'renderman-prewarm',
+            enabled: options.enablePrewarmWorker === true,
+            status: 'degraded',
+            health: 'degraded',
+            reason: 'topology_read_failed',
+            workerName: options.prewarmWorkerName || 'XTendRMTPrewarmWorker',
+            workerType: options.prewarmWorkerType || 'classic',
+            pendingJobs: 0,
+            submittedJobs: 0,
+            templatesSynced: 0,
+            available: false,
+            missingApis: [],
+            lastHealthAt: 0,
+            lastError: {
+              name: error && error.name || 'Error',
+              message: error && error.message || String(error)
+            },
+            responsibilities: ['template_prerender_compute', 'chunk_serialization'],
+            supportedSignals: ['start', 'continue', 'rebatch'],
+            excludedResponsibilities: ['dom_mutation', 'event_binding', 'state_ownership'],
+            diagnostics: [{
+              code: 'xtend.fabric.prewarm_worker.topology_failed',
+              severity: 'warning',
+              message: 'XTend-Fabric could not read RMT Prewarm Worker topology.'
+            }]
+          };
+        }
+      }
+
+      return {
+        schema: CONTRACTS.prewarmWorkerTopology,
+        kind: 'renderman-prewarm',
+        enabled: options.enablePrewarmWorker === true,
+        status: options.enablePrewarmWorker === true ? 'degraded' : 'disabled',
+        health: options.enablePrewarmWorker === true ? 'degraded' : 'disabled',
+        reason: options.enablePrewarmWorker === true ? 'runtime_unavailable' : 'disabled',
+        workerName: options.prewarmWorkerName || 'XTendRMTPrewarmWorker',
+        workerType: options.prewarmWorkerType || 'classic',
+        pendingJobs: 0,
+        submittedJobs: 0,
+        templatesSynced: 0,
+        available: false,
+        missingApis: [],
+        lastHealthAt: 0,
+        lastError: null,
+        responsibilities: ['template_prerender_compute', 'chunk_serialization'],
+        supportedSignals: ['start', 'continue', 'rebatch'],
+        excludedResponsibilities: ['dom_mutation', 'event_binding', 'state_ownership'],
+        diagnostics: []
+      };
+    }
+
     function readPerformanceRuntimeSnapshot(snapshotOptions = {}) {
       const options = asObject(snapshotOptions);
       const target = options.performance
@@ -1556,6 +2146,7 @@
         || (config.window && config.window.performance)
         || (globalTarget && globalTarget.performance)
         || null;
+      const kernelRuntime = readKernelPerformanceRuntimeSnapshot(options);
       const entryLimit = Number.isInteger(options.performanceEntryLimit) ? options.performanceEntryLimit : 20;
       const prefix = Object.prototype.hasOwnProperty.call(options, 'performancePrefix')
         ? options.performancePrefix
@@ -1598,7 +2189,14 @@
         measurements,
         phaseSummary,
         totalDurationMs: Number(totalDurationMs.toFixed(2)),
-        maxDurationMs: Number(maxDurationMs.toFixed(2))
+        maxDurationMs: Number(maxDurationMs.toFixed(2)),
+        kernelRuntime,
+        kernelSnapshot: kernelRuntime.snapshot,
+        budgetSnapshot: kernelRuntime.budgetSnapshot,
+        backpressureProfile: kernelRuntime.backpressureProfile,
+        ciSummary: kernelRuntime.ciSummary,
+        fileArtifact: kernelRuntime.fileArtifact,
+        baselineComparison: kernelRuntime.baselineComparison
       };
     }
 
@@ -1649,6 +2247,15 @@
       const options = asObject(snapshotOptions);
       const snapshotFibers = Array.isArray(options.fibers) ? options.fibers.slice() : fibers.slice();
       const snapshotDiagnostics = Array.isArray(options.diagnostics) ? options.diagnostics.slice() : diagnostics.slice();
+      const appRuntime = options.appRuntime || options.rmtAppRuntime || null;
+      let appRuntimePerformance = null;
+      if (appRuntime && typeof appRuntime.getPerformanceTelemetrySnapshot === 'function') {
+        try {
+          appRuntimePerformance = appRuntime.getPerformanceTelemetrySnapshot();
+        } catch (_) {
+          appRuntimePerformance = null;
+        }
+      }
       const componentTelemetryInput = Array.isArray(options.componentTelemetry)
         ? options.componentTelemetry
         : (Array.isArray(options.componentLifecycle)
@@ -1662,10 +2269,28 @@
           correlationId: options.correlationId
         }
       );
+      const kernelPanicRecoveryInput = Array.isArray(options.kernelPanicRecovery)
+        ? options.kernelPanicRecovery
+        : (Array.isArray(options.kernelPanicRecoveryRecords) ? options.kernelPanicRecoveryRecords : kernelPanicRecoveryRecords.slice());
+      const kernelPanicRecoverySummary = summarizeKernelPanicRecovery(kernelPanicRecoveryInput);
+      const streamPressureRecords = Array.isArray(options.streamPressureRecords)
+        ? options.streamPressureRecords
+        : (Array.isArray(options.streamPressure)
+          ? options.streamPressure
+          : (appRuntime && typeof appRuntime.listStreamPressureRecords === 'function'
+            ? appRuntime.listStreamPressureRecords()
+            : (appRuntimePerformance && Array.isArray(appRuntimePerformance.streamPressureRecords) ? appRuntimePerformance.streamPressureRecords : [])));
+      const yieldActionRecords = Array.isArray(options.yieldActions)
+        ? options.yieldActions
+        : (appRuntime && typeof appRuntime.listYieldActions === 'function'
+          ? appRuntime.listYieldActions()
+          : (appRuntimePerformance && Array.isArray(appRuntimePerformance.yieldActions) ? appRuntimePerformance.yieldActions : []));
+      const streamPressureSummary = summarizeStreamPressure(streamPressureRecords, yieldActionRecords);
       const fiberSummary = summarizeFibersForTelemetry(snapshotFibers);
       const signals = collectBackpressureSignals(snapshotFibers, snapshotDiagnostics, {
         ...options,
-        componentTelemetry: componentTelemetryRecords
+        componentTelemetry: componentTelemetryRecords,
+        streamPressureRecords
       });
       const runtimeBridge = options.runtimeBridge || options.bridge || null;
       const runtimeSnapshot = runtimeBridge && typeof runtimeBridge.getSnapshot === 'function'
@@ -1684,8 +2309,11 @@
         totals: fiberSummary.totals,
         lanes: fiberSummary.lanes,
         componentTelemetry: summarizeComponentLifecycleTelemetry(componentTelemetryRecords),
+        panicRecovery: kernelPanicRecoverySummary,
+        streamPressure: streamPressureSummary,
         backpressure: createBackpressureSummary(signals, fiberSummary.lanes),
         performance: readPerformanceRuntimeSnapshot(options),
+        prewarmWorker: readPrewarmWorkerTopologySnapshot(options),
         runtime: runtimeSnapshot || null,
         metadata: redactValue(options.metadata || {})
       });
@@ -2602,6 +3230,10 @@
       createRuntimeDiagnosticsBridge,
       createBackpressureSignal,
       recordComponentTelemetry,
+      recordKernelPanicRecovery,
+      normalizeKernelPanicRecoveryRecord,
+      summarizeKernelPanicRecovery,
+      summarizeStreamPressure,
       normalizeComponentLifecycleTelemetry,
       summarizeComponentLifecycleTelemetry,
       createTelemetrySnapshot,
@@ -2622,6 +3254,12 @@
       getComponentTelemetry() {
         return componentTelemetry.slice();
       },
+      getKernelPanicRecoveryRecords() {
+        return kernelPanicRecoveryRecords.slice();
+      },
+      getPanicRecoverySnapshot() {
+        return summarizeKernelPanicRecovery(kernelPanicRecoveryRecords);
+      },
       getReporters() {
         return reporters.slice();
       },
@@ -2634,11 +3272,15 @@
       clearComponentTelemetry() {
         componentTelemetry.splice(0, componentTelemetry.length);
       },
+      clearKernelPanicRecoveryRecords() {
+        kernelPanicRecoveryRecords.splice(0, kernelPanicRecoveryRecords.length);
+      },
       dispose() {
         reporters.splice(1).forEach((reporter) => reporter.dispose());
         diagnostics.splice(0, diagnostics.length);
         fibers.splice(0, fibers.length);
         componentTelemetry.splice(0, componentTelemetry.length);
+        kernelPanicRecoveryRecords.splice(0, kernelPanicRecoveryRecords.length);
       }
     };
 
@@ -2667,6 +3309,7 @@
     createTestReporter,
     normalizeComponentLifecycleTelemetry,
     summarizeComponentLifecycleTelemetry,
+    summarizeStreamPressure,
     normalizeDiagnostic,
     normalizeDiagnosticCode,
     normalizeError,

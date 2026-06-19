@@ -36,6 +36,13 @@ const {
   '../../xtend-maraca',
   '@ccslabs/xtend-maraca'
 );
+const {
+  exportRmtAiDeveloperKit
+} = requireLocalOrScoped(
+  __filename,
+  '../../tools/rmt-language/rmt-ai-developer-kit',
+  '@ccslabs/xtend-compiler/rmt-language/rmt-ai-developer-kit'
+);
 
 const CLI_SCHEMA = 'xtend.scaffold.cli.v1';
 const LAYOUT_SCHEMA = 'xtend.scaffold.layout.v1';
@@ -131,6 +138,8 @@ function buildHelpText() {
     '  xt maraca build app.rmt --vendor xtend --out products/xtend-vendor-maraca --lazy none --json',
     '  xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --json',
     '  xt rmt lint app.rmt --json',
+    '  xt rmt ai-kit export --profile compact --format md --json',
+    '  xt rmt ai-kit export --profile full --format jsonl --out docs/ai/rmt-ai-developer-kit --json',
     '  xt rmt lint tests/fixtures',
     '  xt component-files --tag x-example --profile display --json',
     '  xt workflow --json',
@@ -184,6 +193,7 @@ function buildHelpText() {
     '  maraca build  Build a loaderless modern-ESM app entry and Maraca reports.',
     '  rmt build     Build an RMT document; pass --bundle maraca for the one-step Maraca path.',
     '  rmt lint  Lint native .rmt files and fallback .rmt.json files.',
+    '  rmt ai-kit export  Export the RMT AI Developer Kit for agent ingest.',
     '',
     'Boundary:',
     '  WP-E03-11 standardizes extension-point contracts without productive runtime code.',
@@ -675,6 +685,46 @@ function runCli(args = process.argv.slice(2), io = {}) {
       });
     }
 
+    if (subcommand === 'ai-kit') {
+      const aiKitSubcommand = options.rest[1] || 'help';
+      if (aiKitSubcommand === 'export') {
+        const flags = parseFlagArgs(options.rest.slice(2));
+        flags.json = options.json || flags.json;
+        const result = exportRmtAiDeveloperKit({
+          rootDir: process.cwd(),
+          profile: flags.profile || 'full',
+          format: flags.format || 'all',
+          out: flags.out || flags.outputDir
+        });
+
+        if (flags.json || options.json) {
+          writeLine(stdout, JSON.stringify(result, null, 2));
+        } else {
+          writeLine(stdout, `XTend RMT AI Developer Kit: ${result.status}`);
+          result.outputs.forEach((output) => writeLine(stdout, `${output.id.padEnd(12)} ${output.path}`));
+        }
+        return result.ok ? 0 : 1;
+      }
+
+      if (aiKitSubcommand === 'help' || options.help) {
+        writeLine(stdout, [
+          'XTend RMT AI Kit Commands',
+          '',
+          'Usage:',
+          '  xt rmt ai-kit export --profile compact --format md --json',
+          '  xt rmt ai-kit export --profile full --format jsonl --out docs/ai/rmt-ai-developer-kit --json',
+          '',
+          'Commands:',
+          '  export  Export the multi-format RMT AI Developer Kit.'
+        ].join('\n'));
+        return 0;
+      }
+
+      writeLine(stderr, `Unknown XTend RMT AI Kit command: ${aiKitSubcommand}`);
+      writeLine(stderr, 'Run `xt rmt ai-kit --help` to see available AI Kit commands.');
+      return 1;
+    }
+
     if (subcommand === 'help' || options.help) {
       writeLine(stdout, [
         'XTend RMT Commands',
@@ -683,12 +733,15 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --json',
         '  xt rmt lint app.rmt',
         '  xt rmt lint app.rmt --json',
+        '  xt rmt ai-kit export --profile compact --format md --json',
+        '  xt rmt ai-kit export --profile full --format jsonl --out docs/ai/rmt-ai-developer-kit --json',
         '  xt rmt lint tests/fixtures --fail-on warning',
         '  xt rmt lint app.rmt --format problem-matcher',
         '',
         'Commands:',
         '  build Build an RMT document; pass --bundle maraca for a loaderless ESM app bundle.',
-        '  lint  Run the native RMT linter.'
+        '  lint  Run the native RMT linter.',
+        '  ai-kit export  Export the RMT AI Developer Kit for agent ingest.'
       ].join('\n'));
       return 0;
     }

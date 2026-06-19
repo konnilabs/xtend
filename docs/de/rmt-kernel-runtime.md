@@ -49,6 +49,8 @@ Fabric liest Schedule Records und Lane-Absicht. UI Adapter übersetzen Surface- 
 
 ## Nächste Schritte
 
+- [RMT Kernel Topography Map](./rmt-kernel-topography-map.md)
+- [RMT Kernel Feature Adoption Evaluation](./rmt-kernel-feature-adoption-evaluation.md)
 - [RMT Stack-Topographie](./rmt-stack-topography.md)
 - [XTend Fabric Runtime](./xtend-fabric-runtime.md)
 - [XTendRMT Runtime Bridge](./xtendrmt-runtime-bridge.md)

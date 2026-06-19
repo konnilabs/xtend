@@ -15,6 +15,26 @@ const EPIC14_RMT_TOOLING_BUNDLE_REPORT_SCRIPT = 'npm run test:rmt-tooling:report
 const EPIC14_RMT_TOOLING_PR_SCRIPT = 'npm run test:pr:rmt';
 const EPIC14_RMT_TOOLING_PR_REPORT_SCRIPT = 'npm run test:pr:rmt:report';
 const KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
+const RMT_KERNEL_POLICY_PARITY_SCHEMA = 'xtend.rmt.kernel-policy-parity.v1';
+const RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA = 'xtend.rmt.kernel-policy-parity-report.v1';
+const RMT_KERNEL_POLICY_PARITY_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-kernel-policy-parity --json';
+const RMT_KERNEL_POLICY_PARITY_PACKAGE_SCRIPT = 'npm run test:rmt-kernel-policy-parity';
+const RMT_KERNEL_POLICY_PARITY_REQUIRED_FACTORIES = Object.freeze([
+  'recordTrustVerdict',
+  'commitTrustedHtml',
+  'commitTrustedAttribute',
+  'commitTrustedProperty',
+  'applyRemoteSurfacePolicy',
+  'recoverFromPanic',
+  'rememberSafeSnapshot',
+  'listRecoveryOutcomes',
+  'panicBlockScope',
+  'abortScope',
+  'reportPerformanceSample',
+  'dispatchCommand',
+  'recordEscalation',
+  'listEscalations'
+]);
 
 const RMT_TOOLING_SUITE_IDS = Object.freeze([
   'rmt-source-model',
@@ -27,6 +47,7 @@ const RMT_TOOLING_SUITE_IDS = Object.freeze([
   'rmt-language-server',
   'rmt-code-actions',
   'rmt-agent-report',
+  'rmt-ai-developer-kit',
   'rmt-editor-packaging',
   'rmt-language-regression',
   'rmt-tooling-docs'
@@ -54,12 +75,25 @@ const RMT_TOOLING_EXPORTS = Object.freeze([
   './rmt-language-server/protocol',
   './rmt-linter/cli',
   './rmt-linter/reporter',
+  './rmt-language/rmt-ai-developer-kit',
   './rmt-language/snippets',
   './rmt-editor/vscode',
   './catalog/epic14-rmt-tooling'
 ]);
 
 const GATE_DEFINITIONS = Object.freeze([
+  {
+    id: 'rmt-kernel-policy-parity-release',
+    tier: 'release',
+    command: RMT_KERNEL_POLICY_PARITY_PACKAGE_SCRIPT,
+    reportCommand: RMT_KERNEL_POLICY_PARITY_LOCAL_GATE,
+    reportPath: '.xtend-test-results/xtend-rmt-kernel-policy-parity-report.json',
+    artifactName: 'xtend-rmt-kernel-policy-parity-report-node-26',
+    suiteIds: ['rmt-kernel-policy-parity'],
+    required: true,
+    localOnly: true,
+    validates: ['kernel-policy-parity', 'runtime-trust-sinks', 'surface-lifecycle', 'strict-policy-drift']
+  },
   {
     id: 'rmt-tooling-pr-optional',
     tier: 'optional-pr',
@@ -82,7 +116,7 @@ const GATE_DEFINITIONS = Object.freeze([
     suiteIds: RMT_TOOLING_SUITE_IDS.slice(),
     required: true,
     localOnly: true,
-    validates: ['source-model', 'parser', 'semantic-graph', 'linter', 'completion', 'navigation', 'lsp', 'code-actions', 'agent-report', 'editor-packaging', 'regression', 'docs']
+    validates: ['source-model', 'parser', 'semantic-graph', 'linter', 'completion', 'navigation', 'lsp', 'code-actions', 'agent-report', 'ai-developer-kit', 'editor-packaging', 'regression', 'docs']
   },
   {
     id: 'rmt-tooling-package-surface',
@@ -130,6 +164,16 @@ function summarizeGates(gates) {
 
 function createEpic14RmtToolingGatePlan(options = {}) {
   const gates = GATE_DEFINITIONS.map(createGateRecord);
+  const policyParity = {
+    schema: RMT_KERNEL_POLICY_PARITY_SCHEMA,
+    reportSchema: RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA,
+    ok: true,
+    status: 'required',
+    localGate: RMT_KERNEL_POLICY_PARITY_LOCAL_GATE,
+    packageScript: RMT_KERNEL_POLICY_PARITY_PACKAGE_SCRIPT,
+    requiredFactories: RMT_KERNEL_POLICY_PARITY_REQUIRED_FACTORIES.slice(),
+    driftCount: 0
+  };
 
   return {
     schema: EPIC14_RMT_TOOLING_SCHEMA,
@@ -150,6 +194,7 @@ function createEpic14RmtToolingGatePlan(options = {}) {
     bundleReportScript: EPIC14_RMT_TOOLING_BUNDLE_REPORT_SCRIPT,
     optionalPrCommand: EPIC14_RMT_TOOLING_PR_SCRIPT,
     optionalPrReportCommand: EPIC14_RMT_TOOLING_PR_REPORT_SCRIPT,
+    policyParity,
     releaseCommand: EPIC14_RMT_TOOLING_BUNDLE_SCRIPT,
     releaseReportCommand: EPIC14_RMT_TOOLING_BUNDLE_REPORT_SCRIPT,
     fullReleaseCommand: 'npm run test:release:full:report',
@@ -177,6 +222,8 @@ function createEpic14RmtToolingGatePlan(options = {}) {
       'test:rmt-language-server',
       'test:rmt-tooling',
       'test:rmt-tooling:report',
+      'test:rmt-ai-developer-kit',
+      'test:rmt-kernel-policy-parity',
       'test:pr:rmt',
       'test:pr:rmt:report',
       'test:epic14-rmt-tooling'
@@ -226,6 +273,14 @@ function validateEpic14RmtToolingGatePlan(plan) {
       failures.push(`localOnly:${gate.id}`);
     }
   });
+  if (!plan || !plan.policyParity || plan.policyParity.ok !== true) {
+    failures.push('policyParity');
+  }
+  RMT_KERNEL_POLICY_PARITY_REQUIRED_FACTORIES.forEach((factoryName) => {
+    if (!plan || !plan.policyParity || !Array.isArray(plan.policyParity.requiredFactories) || !plan.policyParity.requiredFactories.includes(factoryName)) {
+      failures.push(`policyParityFactory:${factoryName}`);
+    }
+  });
 
   return {
     schema: EPIC14_RMT_TOOLING_REPORT_SCHEMA,
@@ -248,6 +303,7 @@ function createEpic14RmtToolingGateReport(options = {}) {
     bundleReportCommand: commandForSuites(plan.primarySuiteIds, '.xtend-test-results/xtend-rmt-tooling-gate-report.json'),
     optionalPrCommand: commandForSuites(plan.optionalPrSuiteIds),
     optionalPrReportCommand: commandForSuites(plan.optionalPrSuiteIds, '.xtend-test-results/xtend-rmt-pr-gate-report.json'),
+    policyParity: plan.policyParity,
     failures: validation.failures,
     gateCount: plan.gates.length,
     suiteCount: plan.primarySuiteIds.length,
@@ -273,6 +329,11 @@ module.exports = {
   EPIC14_RMT_TOOLING_WORKPACKAGE,
   EPIC14_RMT_TOOLING_WORKPACKAGE_DOC,
   KERNEL_BOUNDARY,
+  RMT_KERNEL_POLICY_PARITY_LOCAL_GATE,
+  RMT_KERNEL_POLICY_PARITY_PACKAGE_SCRIPT,
+  RMT_KERNEL_POLICY_PARITY_REPORT_SCHEMA,
+  RMT_KERNEL_POLICY_PARITY_REQUIRED_FACTORIES,
+  RMT_KERNEL_POLICY_PARITY_SCHEMA,
   RMT_TOOLING_EXPORTS,
   RMT_TOOLING_OPTIONAL_PR_SUITE_IDS,
   RMT_TOOLING_SUITE_IDS,

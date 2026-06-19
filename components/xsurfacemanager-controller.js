@@ -56,17 +56,17 @@
   ]);
 
   const DEFAULT_CAPABILITIES = Object.freeze({
-    window: Object.freeze(['open', 'focus', 'close', 'move', 'resize', 'minimize', 'maximize', 'restore', 'snapshot']),
-    'side-panel': Object.freeze(['open', 'focus', 'close', 'dock', 'collapse', 'resize', 'minimize', 'restore', 'snapshot']),
-    modal: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-    dialog: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-    drawer: Object.freeze(['open', 'focus', 'close', 'resize', 'restore', 'snapshot']),
-    popover: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-    tooltip: Object.freeze(['open', 'close', 'snapshot']),
-    region: Object.freeze(['open', 'focus', 'close', 'update', 'restore', 'snapshot']),
-    toast: Object.freeze(['open', 'close', 'dismiss', 'snapshot']),
-    lightbox: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-    menu: Object.freeze(['open', 'focus', 'close', 'update', 'snapshot'])
+    window: Object.freeze(['open', 'focus', 'close', 'destroy', 'move', 'resize', 'minimize', 'maximize', 'restore', 'snapshot']),
+    'side-panel': Object.freeze(['open', 'focus', 'close', 'destroy', 'dock', 'collapse', 'resize', 'minimize', 'restore', 'snapshot']),
+    modal: Object.freeze(['open', 'focus', 'close', 'destroy', 'snapshot']),
+    dialog: Object.freeze(['open', 'focus', 'close', 'destroy', 'snapshot']),
+    drawer: Object.freeze(['open', 'focus', 'close', 'destroy', 'resize', 'restore', 'snapshot']),
+    popover: Object.freeze(['open', 'focus', 'close', 'destroy', 'snapshot']),
+    tooltip: Object.freeze(['open', 'close', 'destroy', 'snapshot']),
+    region: Object.freeze(['open', 'focus', 'close', 'destroy', 'update', 'restore', 'snapshot']),
+    toast: Object.freeze(['open', 'close', 'destroy', 'dismiss', 'snapshot']),
+    lightbox: Object.freeze(['open', 'focus', 'close', 'destroy', 'snapshot']),
+    menu: Object.freeze(['open', 'focus', 'close', 'destroy', 'update', 'snapshot'])
   });
 
   const DEFAULT_BOUNDS = Object.freeze({
@@ -95,6 +95,8 @@
     'xtend.surface.minimized',
     'xtend.surface.maximized',
     'xtend.surface.restored',
+    'xtend.surface.destroyed',
+    'xtend.surface.already-destroyed',
     'xtend.surface.snapshot',
     'xtend.surface.disposed',
     'xtend.surface.invalid-record',
@@ -141,6 +143,7 @@
       return 'transition';
     }
     if (operation === 'snapshot' || operation === 'dispose') return 'diagnostics';
+    if (operation === 'destroySurface' || operation === 'cleanup' || operation === 'release') return 'background';
     if (operation === 'register') return 'visible';
     return 'user-blocking';
   }
@@ -226,9 +229,16 @@
       modal: source.modal === true || record.modal === true || type === 'modal' || type === 'dialog',
       placement: clampString(source.placement || record.placement, type === 'side-panel' ? 'right' : null),
       mode: clampString(source.mode || record.mode, type === 'side-panel' ? 'docked' : 'floating'),
+      ownershipMode: clampString(source.ownershipMode || record.ownershipMode || record.metadata && record.metadata.rmtOwnershipMode, null),
       zIndex: toNumber(source.zIndex || record.zIndex, 0),
       bounds,
       previousBounds: null,
+      generation: Math.max(1, toNumber(source.generation || record.generation, 1)),
+      destroyedAt: null,
+      destroyReason: null,
+      releasedResources: [],
+      lastBounds: null,
+      tombstone: null,
       capabilities: normalizeCapabilities(
         type,
         source.capabilities || record.capabilities,
@@ -263,12 +273,17 @@
       modal: record.modal,
       placement: record.placement,
       mode: record.mode,
+      ownershipMode: record.ownershipMode || null,
       zIndex: record.zIndex,
       capabilities: record.capabilities.slice(),
       persistence: { ...record.persistence },
       contentRef: record.contentRef,
       stateKey: record.stateKey,
-      metadataKeys: record.metadataKeys.slice()
+      metadataKeys: record.metadataKeys.slice(),
+      generation: record.generation || 1,
+      destroyedAt: record.destroyedAt || null,
+      destroyReason: record.destroyReason || null,
+      tombstone: record.tombstone ? { ...record.tombstone } : null
     };
   }
 
@@ -277,17 +292,24 @@
       ...createStatePayload(record),
       bounds: { ...record.bounds },
       previousBounds: record.previousBounds ? { ...record.previousBounds } : null,
+      releasedResources: Array.isArray(record.releasedResources) ? record.releasedResources.slice() : [],
+      lastBounds: record.lastBounds ? { ...record.lastBounds } : null,
       lifecycle: { ...record.lifecycle }
     };
   }
 
   function createOperationResult(managerId, operation, record, ok, diagnostic, snapshotVersion) {
+    const tombstone = record && record.tombstone ? { ...record.tombstone } : null;
     return {
       schema: SURFACE_OPERATION_RESULT_SCHEMA,
       ok,
       managerId,
       surfaceId: record && record.id || null,
       operation,
+      status: ok ? 'ok' : 'failed',
+      generation: record && record.generation || null,
+      tombstone,
+      diagnostics: diagnostic ? [diagnostic] : [],
       code: diagnostic && diagnostic.code || null,
       phase: record && record.lifecycle && record.lifecycle.phase || null,
       snapshotVersion,
@@ -304,6 +326,7 @@
     const registry = new Map();
     const diagnostics = [];
     const maxDiagnostics = Math.max(1, toNumber(options.maxDiagnostics, 50));
+    const maxTombstones = Math.max(1, toNumber(options.maxTombstones, 50));
     let activeSurfaceId = null;
     let zIndexCursor = Math.max(1, toNumber(options.baseZIndex, 1000));
     let snapshotVersion = 0;
@@ -366,8 +389,14 @@
       return record && record.status === 'open';
     }
 
-    function buildSnapshot() {
-      const surfaces = Array.from(registry.values()).map(createSnapshotRecord);
+    function isDestroyedRecord(record) {
+      return record && record.status === 'destroyed';
+    }
+
+    function buildSnapshot(optionsForSnapshot = {}) {
+      const includeDestroyed = optionsForSnapshot.includeDestroyed === true;
+      const allSurfaces = Array.from(registry.values()).map(createSnapshotRecord);
+      const surfaces = includeDestroyed ? allSurfaces : allSurfaces.filter((record) => record.status !== 'destroyed');
       const stack = surfaces
         .filter(isVisibleRecord)
         .sort((left, right) => left.zIndex - right.zIndex)
@@ -381,6 +410,7 @@
         version: snapshotVersion,
         surfaceCount: surfaces.length,
         openSurfaceCount: surfaces.filter(isVisibleRecord).length,
+        destroyedSurfaceCount: allSurfaces.filter(isDestroyedRecord).length,
         surfaces,
         stack,
         diagnostics: diagnostics.slice(-maxDiagnostics),
@@ -388,11 +418,22 @@
       };
     }
 
+    function trimTombstones() {
+      const tombstones = Array.from(registry.values())
+        .filter(isDestroyedRecord)
+        .sort((left, right) => String(left.destroyedAt || '').localeCompare(String(right.destroyedAt || '')));
+      while (tombstones.length > maxTombstones) {
+        const next = tombstones.shift();
+        if (next) registry.delete(next.id);
+      }
+    }
+
     function mirror() {
       const surfaces = Array.from(registry.values());
-      mirrorState(STATE_KEYS.registry, surfaces.map(createStatePayload));
+      const liveSurfaces = surfaces.filter((record) => record.status !== 'destroyed');
+      mirrorState(STATE_KEYS.registry, liveSurfaces.map(createStatePayload));
       mirrorState(STATE_KEYS.active, activeSurfaceId);
-      surfaces.forEach((record) => {
+      liveSurfaces.forEach((record) => {
         mirrorState(surfaceKey(STATE_KEYS.state, record.id), createStatePayload(record));
         mirrorState(surfaceKey(STATE_KEYS.bounds, record.id), { ...record.bounds });
         mirrorState(surfaceKey(STATE_KEYS.lifecycle, record.id), { ...record.lifecycle });
@@ -437,6 +478,7 @@
           timestamp: nowIso(nowProvider)
         };
       }
+      if (operation === 'destroySurface') trimTombstones();
       const event = diagnostic(code, record, operation, 'info', message, detail);
       mirror();
       return createOperationResult(managerId, operation, record, true, event, snapshotVersion);
@@ -466,6 +508,16 @@
           failure: fail(operation, id, 'xtend.surface.not-found', `Surface ${id} is not registered.`, { requestedId: id })
         };
       }
+      if (record.status === 'destroyed' && operation !== 'destroySurface') {
+        return {
+          record,
+          failure: fail(operation, id, 'xtend.surface.already-destroyed', `Surface ${id} is destroyed.`, {
+            requestedId: id,
+            destroyedAt: record.destroyedAt || null,
+            generation: record.generation || 1
+          })
+        };
+      }
       return { record, failure: null };
     }
 
@@ -484,7 +536,7 @@
 
     function activateTopmostOpen(exceptId) {
       const candidates = Array.from(registry.values())
-        .filter((record) => record.id !== exceptId && record.status !== 'closed' && record.status !== 'minimized')
+        .filter((record) => record.id !== exceptId && record.status !== 'closed' && record.status !== 'minimized' && record.status !== 'destroyed')
         .sort((left, right) => right.zIndex - left.zIndex);
       const next = candidates[0] || null;
       activeSurfaceId = next ? next.id : null;
@@ -527,32 +579,48 @@
 
       const previous = registry.get(record.id);
       if (previous) {
-        record.bounds = normalizeSurfaceBounds(previous.bounds, record.type);
-        record.previousBounds = previous.previousBounds
-          ? normalizeSurfaceBounds(previous.previousBounds, record.type)
-          : null;
-        record.zIndex = previous.zIndex;
-        record.active = previous.active;
-        record.status = previous.status;
-        record.minimized = previous.minimized;
-        record.maximized = previous.maximized;
-        record.pinned = previous.pinned;
-        record.collapsed = previous.collapsed;
-        record.placement = previous.placement;
-        record.mode = previous.mode;
+        record.generation = (previous.generation || 1) + (previous.status === 'destroyed' ? 1 : 0);
+        if (previous.status !== 'destroyed') {
+          record.bounds = normalizeSurfaceBounds(previous.bounds, record.type);
+          record.previousBounds = previous.previousBounds
+            ? normalizeSurfaceBounds(previous.previousBounds, record.type)
+            : null;
+          record.zIndex = previous.zIndex;
+          record.active = previous.active;
+          record.status = previous.status;
+          record.minimized = previous.minimized;
+          record.maximized = previous.maximized;
+          record.pinned = previous.pinned;
+          record.collapsed = previous.collapsed;
+          record.placement = previous.placement;
+          record.mode = previous.mode;
+        }
       }
       registry.set(record.id, record);
       if (record.status === 'open') {
         record.zIndex = ++zIndexCursor;
       }
       return commit(record, 'register', 'create', 'xtend.surface.registered', `Surface ${record.id} registered.`, {
-        replaced: Boolean(previous)
+        replaced: Boolean(previous),
+        recreated: Boolean(previous && previous.status === 'destroyed'),
+        generation: record.generation || 1
       });
     }
 
     function openSurface(id, input = {}) {
-      const { record, failure } = getRecord(id, 'open');
-      if (failure) return failure;
+      let record = registry.get(id);
+      if (record && record.status === 'destroyed' && input && input.recreate === true) {
+        record.status = 'closed';
+        record.destroyedAt = null;
+        record.destroyReason = null;
+        record.releasedResources = [];
+        record.lastBounds = null;
+        record.tombstone = null;
+        record.generation = (record.generation || 1) + 1;
+      }
+      const lookup = getRecord(id, 'open');
+      if (lookup.failure) return lookup.failure;
+      record = lookup.record;
       const capabilityFailure = hasCapability(record, 'open', 'open');
       if (capabilityFailure) return capabilityFailure;
       if (isObject(input.bounds)) {
@@ -582,6 +650,53 @@
       }
       return commit(record, 'close', 'close', 'xtend.surface.closed', `Surface ${record.id} closed.`, {
         reason: reason || null
+      });
+    }
+
+    function destroySurface(id, optionsForDestroy = {}) {
+      const { record, failure } = getRecord(id, 'destroySurface');
+      if (failure) return failure;
+      if (record.status === 'destroyed') {
+        return commit(record, 'destroySurface', 'destroy', 'xtend.surface.already-destroyed', `Surface ${record.id} is already destroyed.`, {
+          reason: optionsForDestroy.reason || record.destroyReason || null,
+          alreadyDestroyed: true,
+          generation: record.generation || 1
+        });
+      }
+      const capabilityFailure = hasCapability(record, 'destroy', 'destroySurface');
+      if (capabilityFailure) return capabilityFailure;
+      const destroyedAt = nowIso(nowProvider);
+      const releasedResources = unique([
+        ...(Array.isArray(optionsForDestroy.releasedResources) ? optionsForDestroy.releasedResources : []),
+        ...(Array.isArray(optionsForDestroy.resourceIds) ? optionsForDestroy.resourceIds : [])
+      ].map(String));
+      record.status = 'destroying';
+      record.active = false;
+      record.minimized = false;
+      record.maximized = false;
+      record.lastBounds = { ...record.bounds };
+      record.destroyedAt = destroyedAt;
+      record.destroyReason = clampString(optionsForDestroy.reason, 'destroy');
+      record.releasedResources = releasedResources;
+      record.status = 'destroyed';
+      record.tombstone = {
+        schema: 'xtend.surface.tombstone.v1',
+        surfaceId: record.id,
+        managerId,
+        generation: record.generation || 1,
+        destroyedAt,
+        reason: record.destroyReason,
+        releasedResources,
+        lastBounds: { ...record.lastBounds }
+      };
+      if (activeSurfaceId === id) {
+        activeSurfaceId = null;
+        activateTopmostOpen(id);
+      }
+      return commit(record, 'destroySurface', 'destroy', 'xtend.surface.destroyed', `Surface ${record.id} destroyed.`, {
+        reason: record.destroyReason,
+        generation: record.generation || 1,
+        releasedResources
       });
     }
 
@@ -691,7 +806,7 @@
       return minimizeSurface(id);
     }
 
-    function snapshot() {
+    function snapshot(optionsForSnapshot = {}) {
       snapshotVersion += 1;
       const event = diagnostic('xtend.surface.snapshot', null, 'snapshot', 'info', 'Surface snapshot captured.', {
         surfaceCount: registry.size,
@@ -699,13 +814,13 @@
       });
       mirror();
       return {
-        ...buildSnapshot(),
+        ...buildSnapshot(optionsForSnapshot),
         diagnostic: event
       };
     }
 
-    function readSnapshot() {
-      return buildSnapshot();
+    function readSnapshot(optionsForSnapshot = {}) {
+      return buildSnapshot(optionsForSnapshot);
     }
 
     function dispose() {
@@ -732,6 +847,7 @@
       registerSurface,
       openSurface,
       closeSurface,
+      destroySurface,
       focusSurface,
       updateSurface,
       moveSurface,

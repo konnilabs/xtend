@@ -10,6 +10,7 @@ const OUTPUT_PATH = path.join(RESULT_DIR, 'xtend-nightly-build-manifest.json');
 
 const COMMANDS = [
   'npm run test:release:full:report',
+  'npm run test:rkfa-production-closure:report',
   'npm run test:docs-stub-inventory:report',
   'npm run test:rmt-vnext-primitives:report',
   'npm run test:native-first-rmt-owned-release:report',
@@ -25,6 +26,7 @@ const COMMANDS = [
 
 const ARTIFACT_PATHS = [
   '.xtend-test-results/xtend-release-gate-report.json',
+  '.xtend-test-results/xtend-rkfa-production-closure-report.json',
   '.xtend-test-results/xtend-docs-stub-inventory-report.json',
   '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
   '.xtend-test-results/xtend-native-first-rmt-owned-release-report.json',
@@ -44,6 +46,7 @@ const ARTIFACT_PATHS = [
 
 const REQUIRED_ARTIFACTS = new Set([
   '.xtend-test-results/xtend-release-gate-report.json',
+  '.xtend-test-results/xtend-rkfa-production-closure-report.json',
   '.xtend-test-results/xtend-docs-stub-inventory-report.json',
   '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
   '.xtend-test-results/xtend-native-first-rmt-owned-release-report.json',

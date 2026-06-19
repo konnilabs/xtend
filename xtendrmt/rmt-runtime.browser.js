@@ -10276,6 +10276,7 @@
         'rmt.surface.remote_policy.degraded',
         'rmt.surface.remote_policy.kernel_runtime_refused',
         'rmt.surface.remote_event_governance.blocked',
+        'rmt.surface.dom_compat_ownership_unsupported',
         'rmt.surface.operation.skipped',
         'rmt.surface.diagnostic'
     ]);
@@ -10283,6 +10284,7 @@
         'registerSurface',
         'openSurface',
         'closeSurface',
+        'destroySurface',
         'focusSurface',
         'moveSurface',
         'resizeSurface',
@@ -10323,6 +10325,7 @@
         'update',
         'event',
         'unmount',
+        'dispose',
         'error'
     ]);
     const STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA = 'xtend.rmt.state-scheduler-diagnostics-bridge.v1';
@@ -12128,6 +12131,7 @@
             renderComponent: 'render',
             updateComponent: 'update',
             unmountComponent: 'unmount',
+            disposeComponent: 'dispose',
             registerComponent: 'mount',
             eventHandler: 'event',
             emitDiagnostic: 'error'
@@ -12858,6 +12862,16 @@
         const routeRecord = routeRef ? indexes.routesById && indexes.routesById[routeRef] : null;
         const scheduleRecord = findSurfaceScheduleRecord(indexes.schedules, schedule);
         const metadata = cloneSerializable(record.metadata, {});
+        const hydration = toPlainObject(record.hydration);
+        const requestedOwnershipMode = clampString(
+            entry.ownershipMode
+            || record.ownershipMode
+            || record.ownership
+            || hydration.ownershipMode
+            || hydration.ownership,
+            ''
+        );
+        const ownershipMode = normalizeOwnershipMode(requestedOwnershipMode, '');
         const remoteSurface = record.remoteSurface || metadata.remoteSurface || null;
         const remotePolicy = record.remotePolicy || metadata.remotePolicy || null;
 
@@ -12880,6 +12894,8 @@
             placement: clampString(record.placement, ''),
             mode: clampString(record.mode, ''),
             layer: clampString(record.layer, ''),
+            ownershipMode,
+            requestedOwnershipMode,
             capabilities: Object.freeze(Array.isArray(record.capabilities) ? record.capabilities.slice() : []),
             a11y: cloneSerializable(record.a11y, {}),
             persistence: cloneSerializable(record.persistence, {}),
@@ -12944,6 +12960,22 @@
                     { surfaceId: surface.id, index }
                 ));
             }
+            const domCompat = options.domCompat || null;
+            const requestedOwnershipMode = surface.requestedOwnershipMode || surface.ownershipMode || '';
+            if (
+                requestedOwnershipMode
+                && domCompat
+                && typeof domCompat.supportsOwnershipMode === 'function'
+                && domCompat.supportsOwnershipMode(requestedOwnershipMode) !== true
+            ) {
+                diagnostics.push(createSurfaceAdapterDiagnostic(
+                    'rmt.surface.dom_compat_ownership_unsupported',
+                    `Surface "${surface.id || index}" requests unsupported DomCompat ownership mode "${requestedOwnershipMode}".`,
+                    'mapSurfaces',
+                    'prepare',
+                    { surfaceId: surface.id, index, ownershipMode: requestedOwnershipMode }
+                ));
+            }
         });
 
         return Object.freeze({
@@ -12955,7 +12987,7 @@
             sourceDiagnostics: Object.freeze(cloneSerializable(documentRecord.diagnostics, [])),
             surfaceCount: surfaces.length,
             scheduleRefs: uniqueValues(surfaces.map((surface) => surface.scheduleRef)),
-            modelFields: Object.freeze(['surfaceId', 'type', 'kind', 'manager', 'component', 'route', 'scheduleRef', 'stateKey', 'bounds', 'placement', 'mode', 'capabilities', 'a11y', 'persistence', 'metadata', 'remoteSurface', 'remotePolicy'])
+            modelFields: Object.freeze(['surfaceId', 'type', 'kind', 'manager', 'component', 'route', 'scheduleRef', 'stateKey', 'bounds', 'placement', 'mode', 'ownershipMode', 'capabilities', 'a11y', 'persistence', 'metadata', 'remoteSurface', 'remotePolicy'])
         });
     }
 
@@ -13037,6 +13069,7 @@
             placement: surface.placement,
             mode: surface.mode,
             layer: surface.layer,
+            ownershipMode: surface.ownershipMode || null,
             capabilities: Array.isArray(surface.capabilities) ? surface.capabilities.slice() : [],
             a11y: cloneSerializable(surface.a11y, {}),
             persistence: cloneSerializable(surface.persistence, {}),
@@ -13048,6 +13081,7 @@
                 rmtSurfaceAdapter: SURFACE_ADAPTER_SCHEMA,
                 rmtComponent: surface.component,
                 rmtManager: surface.manager,
+                rmtOwnershipMode: surface.ownershipMode || null,
                 remoteSurface: surface.remoteSurface ? cloneSerializable(surface.remoteSurface, {}) : undefined,
                 remotePolicy: surface.remotePolicy ? cloneSerializable(surface.remotePolicy, {}) : undefined,
                 rmtKernelRemoteExecution: false
@@ -13272,7 +13306,7 @@
         ];
         return candidates
             .map((value) => clampString(value, '').toLowerCase())
-            .find((policy) => ['eager', 'visible', 'open', 'idle', 'route'].includes(policy)) || (surface.route ? 'route' : null);
+            .find((policy) => ['eager', 'visible', 'open', 'idle', 'route', 'warm', 'prewarm'].includes(policy)) || (surface.route ? 'route' : null);
     }
 
     function resolveSurfaceRouteLifecyclePolicy(surface = {}) {
@@ -13320,6 +13354,8 @@
         setSurfaceElementAttribute(surfaceElement, 'data-surface-hydration-policy', resolveSurfaceHydrationPolicy(surface));
         setSurfaceElementAttribute(surfaceElement, 'data-surface-route', surface.route);
         setSurfaceElementAttribute(surfaceElement, 'data-surface-route-policy', resolveSurfaceRouteLifecyclePolicy(surface));
+        setSurfaceElementAttribute(surfaceElement, 'data-rmt-ownership-mode', surface.ownershipMode);
+        setSurfaceElementAttribute(surfaceElement, 'data-surface-ownership-mode', surface.ownershipMode);
         if (surface.remoteSurface) {
             const remoteSurface = toPlainObject(surface.remoteSurface);
             const remote = toPlainObject(remoteSurface.remote);
@@ -13632,7 +13668,9 @@
             const managerElement = resolveSurfaceManagerTarget(surface, deps, options);
             const args = operationName === 'closeSurface'
                 ? [surface.id, payload && payload.reason]
-                : [surface.id, payload];
+                : (operationName === 'destroySurface'
+                    ? [surface.id, payload]
+                    : [surface.id, payload]);
             const result = callSurfaceManager(managerElement, managerMethodName, args, surface, diagnostics);
             return createSurfaceAdapterResult({
                 ok: !!result && result.ok !== false,
@@ -13737,7 +13775,7 @@
             const diagnostics = [];
             const managerElement = resolveSurfaceManagerTarget(surface, deps, options);
             const snapshot = managerElement && typeof managerElement.snapshot === 'function'
-                ? managerElement.snapshot()
+                ? managerElement.snapshot({ includeDestroyed: options.includeDestroyed === true })
                 : null;
             if (!snapshot) {
                 diagnostics.push(createSurfaceAdapterDiagnostic(
@@ -13938,6 +13976,7 @@
             applyRemoteSurfacePolicy,
             openSurface: (surfaceRef, input = {}, options = {}) => runSurfaceOperation('openSurface', 'openSurface', surfaceRef, input, options),
             closeSurface: (surfaceRef, reason, options = {}) => runSurfaceOperation('closeSurface', 'closeSurface', surfaceRef, { reason }, options),
+            destroySurface: (surfaceRef, input = {}, options = {}) => runSurfaceOperation('destroySurface', 'destroySurface', surfaceRef, input, options),
             focusSurface: (surfaceRef, input = {}, options = {}) => runSurfaceOperation('focusSurface', 'focusSurface', surfaceRef, input, options),
             moveSurface: (surfaceRef, bounds = {}, options = {}) => runSurfaceOperation('moveSurface', 'moveSurface', surfaceRef, bounds, options),
             resizeSurface: (surfaceRef, bounds = {}, options = {}) => runSurfaceOperation('resizeSurface', 'resizeSurface', surfaceRef, bounds, options),
@@ -14121,6 +14160,11 @@
         const stateValues = {};
         const diagnostics = [];
         const scheduledEndpoints = [];
+        const telemetrySnapshots = [];
+        const backpressureSignals = [];
+        const maxTelemetryRecords = Number.isFinite(Number(deps.maxTelemetryRecords)) && Number(deps.maxTelemetryRecords) > 0
+            ? Math.max(Math.floor(Number(deps.maxTelemetryRecords)), 8)
+            : 80;
 
         function getXState(options = {}) {
             return options.xstate || deps.xstate || null;
@@ -14152,6 +14196,90 @@
             return Object.prototype.hasOwnProperty.call(stateValues, safeKey)
                 ? stateValues[safeKey]
                 : fallbackValue;
+        }
+
+        function pushTelemetryRecord(buffer, record) {
+            buffer.push(cloneBridgeTelemetry(record, {}));
+            if (buffer.length > maxTelemetryRecords) {
+                buffer.splice(0, buffer.length - maxTelemetryRecords);
+            }
+            return buffer[buffer.length - 1] || null;
+        }
+
+        function mapBridgeBackpressureLane(lane) {
+            const safeLane = clampString(lane, 'diagnostics');
+            if (safeLane === 'user-blocking' || safeLane === 'critical' || safeLane === 'critical_input') return 'critical_input';
+            if (safeLane === 'visible' || safeLane === 'visible_commit') return 'visible_commit';
+            if (safeLane === 'transition' || safeLane === 'hydration' || safeLane === 'hydration_followup') return 'hydration_followup';
+            if (safeLane === 'background' || safeLane === 'background_prepare') return 'background_prepare';
+            return 'idle_maintenance';
+        }
+
+        function createBridgeBackpressurePerformanceSample(signal = {}, options = {}) {
+            const level = clampString(signal.level, 'none');
+            const score = Number.isFinite(Number(signal.score)) ? Math.max(Number(signal.score), 0) : 0;
+            const critical = level === 'critical';
+            const high = level === 'high';
+            return Object.freeze({
+                source: 'rmt.bridge.fabric-backpressure',
+                sampleType: 'fabric_backpressure',
+                lane: mapBridgeBackpressureLane(signal.lane || options.lane),
+                durationMs: critical ? Math.max(score * 4, 64) : (high ? Math.max(score * 2, 16) : Math.max(score, 0)),
+                waitMs: critical ? Math.max(score * 6, 96) : (high ? Math.max(score * 4, 40) : 0),
+                droppedFrameCount: critical ? Math.max(Math.ceil(score / 2), 1) : 0,
+                longTask: critical,
+                backpressureLevel: level,
+                backpressureAction: signal.action,
+                reason: signal.reason,
+                routeRef: signal.routeRef || options.routeRef,
+                componentRef: signal.componentRef || options.componentRef,
+                scheduleRef: signal.scheduleRef || options.scheduleRef,
+                correlationId: signal.correlationId || options.correlationId,
+                metadata: cloneBridgeTelemetry({
+                    source: signal.source,
+                    signalCount: signal.signalCount,
+                    snapshotId: options.snapshotId,
+                    action: signal.action
+                }, {})
+            });
+        }
+
+        function recordSchedulerPressureSample(signal = {}, options = {}) {
+            const target = resolveBridgeSchedulerTarget(deps, options);
+            const sample = createBridgeBackpressurePerformanceSample(signal, options);
+            let targetResult = null;
+            let scheduled = false;
+            try {
+                if (target && typeof target.reportPerformanceSample === 'function') {
+                    targetResult = target.reportPerformanceSample(sample);
+                    scheduled = true;
+                } else if (typeof deps.reportPerformanceSample === 'function') {
+                    targetResult = deps.reportPerformanceSample(sample);
+                    scheduled = true;
+                }
+            } catch (error) {
+                emitDiagnostic({
+                    code: 'rmt.bridge.backpressure.signal.recorded',
+                    message: 'RMT bridge could not forward Fabric backpressure to scheduler diagnostics.',
+                    operation: 'recordBackpressureSignal',
+                    phase: 'diagnose',
+                    level: 'warn',
+                    metadata: {
+                        errorName: clampString(error && error.name, 'Error'),
+                        backpressureLevel: signal.level,
+                        backpressureScore: signal.score
+                    }
+                }, {}, options);
+            }
+            const pressureLevel = targetResult && targetResult.pressureLevel
+                ? targetResult.pressureLevel
+                : (targetResult && typeof targetResult.getPressureLevel === 'function' ? targetResult.getPressureLevel() : undefined);
+            return Object.freeze({
+                scheduled,
+                sample,
+                targetResult: cloneBridgeTelemetry(targetResult, null),
+                pressureLevel
+            });
         }
 
         function emitDiagnostic(event = {}, payload = {}, options = {}) {
@@ -14411,10 +14539,25 @@
                 correlationId: options.correlationId,
                 metadata: options.metadata
             });
+            const pressureSample = recordSchedulerPressureSample(safeSignal, options);
+            pushTelemetryRecord(backpressureSignals, {
+                ...safeSignal,
+                schedulerPressureLevel: pressureSample.pressureLevel,
+                schedulerPressureSampled: pressureSample.scheduled
+            });
             writeState('rmt.backpressure.lastSignal', safeSignal, options);
             writeState('rmt.backpressure.profile', safeSignal, options);
             writeState('rmt.backpressure.level', safeSignal.level, options);
             writeState('rmt.backpressure.action', safeSignal.action, options);
+            writeState('rmt.backpressure.lastYieldHint', {
+                action: safeSignal.action,
+                level: safeSignal.level,
+                lane: safeSignal.lane,
+                schedulerLane: pressureSample.sample.lane,
+                schedulerPressureLevel: pressureSample.pressureLevel || safeSignal.level,
+                scheduleRef: safeSignal.scheduleRef,
+                correlationId: safeSignal.correlationId
+            }, options);
             if (safeSignal.routeRef) {
                 writeState(`rmt.route.${safeSignal.routeRef}.backpressure`, safeSignal, options);
             }
@@ -14437,7 +14580,9 @@
                     backpressureAction: safeSignal.action,
                     routeRef: safeSignal.routeRef,
                     scheduleRef: safeSignal.scheduleRef,
-                    correlationId: safeSignal.correlationId
+                    correlationId: safeSignal.correlationId,
+                    schedulerPressureSampled: pressureSample.scheduled,
+                    schedulerPressureLevel: pressureSample.pressureLevel
                 }
             }, {}, options);
 
@@ -14453,6 +14598,8 @@
                     backpressureLevel: safeSignal.level,
                     backpressureScore: safeSignal.score,
                     backpressureAction: safeSignal.action,
+                    schedulerPressureSampled: pressureSample.scheduled,
+                    schedulerPressureLevel: pressureSample.pressureLevel,
                     routeRef: safeSignal.routeRef,
                     scheduleRef: safeSignal.scheduleRef
                 }
@@ -14473,6 +14620,13 @@
             );
             const correlationId = options.correlationId || safeSnapshot.correlationId || backpressure.correlationId || routeRef || '';
 
+            pushTelemetryRecord(telemetrySnapshots, {
+                ...safeSnapshot,
+                recordedAt: Date.now(),
+                routeRef,
+                scheduleRef,
+                correlationId
+            });
             writeState('rmt.telemetry.lastSnapshot', safeSnapshot, options);
             if (snapshotId) writeState('rmt.telemetry.lastSnapshotId', snapshotId, options);
             if (routeRef) writeState(`rmt.route.${routeRef}.telemetrySnapshot`, safeSnapshot, options);
@@ -14484,6 +14638,7 @@
                     routeRef,
                     scheduleRef,
                     correlationId,
+                    snapshotId,
                     metadata: {
                         snapshotId,
                         snapshotSource: safeSnapshot.source
@@ -14560,12 +14715,44 @@
             });
         }
 
+        function listTelemetrySnapshots(options = {}) {
+            const limit = Number.isFinite(Number(options.limit)) && Number(options.limit) > 0
+                ? Math.floor(Number(options.limit))
+                : telemetrySnapshots.length;
+            return telemetrySnapshots.slice(Math.max(telemetrySnapshots.length - limit, 0)).map((entry) => cloneBridgeTelemetry(entry, {}));
+        }
+
+        function listBackpressureSignals(options = {}) {
+            const limit = Number.isFinite(Number(options.limit)) && Number(options.limit) > 0
+                ? Math.floor(Number(options.limit))
+                : backpressureSignals.length;
+            return backpressureSignals.slice(Math.max(backpressureSignals.length - limit, 0)).map((entry) => cloneBridgeTelemetry(entry, {}));
+        }
+
+        function getTelemetryDebugSnapshot(options = {}) {
+            const telemetryRecords = listTelemetrySnapshots(options);
+            const pressureRecords = listBackpressureSignals(options);
+            return Object.freeze({
+                schema: 'xtend.rmt.telemetry-debug-snapshot.v1',
+                adapterId,
+                telemetrySnapshotCount: telemetrySnapshots.length,
+                backpressureSignalCount: backpressureSignals.length,
+                telemetrySnapshots: telemetryRecords,
+                backpressureSignals: pressureRecords,
+                lastTelemetrySnapshot: cloneBridgeTelemetry(readState('rmt.telemetry.lastSnapshot', null, options), null),
+                lastBackpressureSignal: cloneBridgeTelemetry(readState('rmt.backpressure.lastSignal', null, options), null),
+                lastYieldHint: cloneBridgeTelemetry(readState('rmt.backpressure.lastYieldHint', null, options), null),
+                scheduledEndpoints: scheduledEndpoints.slice(),
+                diagnostics: diagnostics.slice()
+            });
+        }
+
         return Object.freeze({
             id: adapterId,
             schema: STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA,
             kind: 'host_adapter',
             version: DOCUMENT_VERSION,
-            runtimeSurface: Object.freeze(['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal']),
+            runtimeSurface: Object.freeze(['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal', 'listTelemetrySnapshots', 'listBackpressureSignals', 'getTelemetryDebugSnapshot']),
             capabilities: Object.freeze({
                 providedCapabilities: Object.freeze(['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents', 'telemetrySnapshots', 'backpressureSignals']),
                 requiredCapabilities: Object.freeze([]),
@@ -14575,7 +14762,7 @@
                 id: adapterId,
                 kind: 'host_adapter',
                 version: DOCUMENT_VERSION,
-                runtimeSurface: Object.freeze(['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal']),
+                runtimeSurface: Object.freeze(['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal', 'listTelemetrySnapshots', 'listBackpressureSignals', 'getTelemetryDebugSnapshot']),
                 capabilities: Object.freeze({
                     providedCapabilities: Object.freeze(['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents', 'telemetrySnapshots', 'backpressureSignals'])
                 }),
@@ -14597,6 +14784,9 @@
             recordAdapterResult,
             recordTelemetrySnapshot,
             recordBackpressureSignal,
+            listTelemetrySnapshots,
+            listBackpressureSignals,
+            getTelemetryDebugSnapshot,
             resolveSchedulePolicy: (scheduleRef, options = {}) => normalizeBridgeSchedulePolicy(scheduleRef, deps, options),
             listScheduledEndpoints: () => scheduledEndpoints.slice(),
             listDiagnostics: () => diagnostics.slice(),
@@ -16889,6 +17079,73 @@
 
         function listRecoveryOutcomes() {
             return runtimeRecoveryOutcomes.map((outcome) => cloneSerializable(outcome, {}));
+        }
+
+        function listPanicRecoveryRecords() {
+            return [
+                ...listTrustVerdicts().map((record) => ({
+                    schema: 'xtend.rmt.kernel-panic-recovery-record.v1',
+                    kind: 'trustVerdict',
+                    lane: 'diagnostics',
+                    status: record.commitAllowed === false ? 'blocked' : 'recorded',
+                    scope: record.scope || null,
+                    correlationId: record.correlationId || null,
+                    record
+                })),
+                ...listPanicEvents().map((record) => ({
+                    schema: 'xtend.rmt.kernel-panic-recovery-record.v1',
+                    kind: 'panicEvent',
+                    lane: 'diagnostics',
+                    status: record.state || 'recorded',
+                    scope: record.scope || null,
+                    correlationId: record.correlationId || null,
+                    record
+                })),
+                ...listSafeSnapshots().map((record) => ({
+                    schema: 'xtend.rmt.kernel-panic-recovery-record.v1',
+                    kind: 'safeSnapshot',
+                    lane: 'diagnostics',
+                    status: 'captured',
+                    scope: record.scope || null,
+                    correlationId: record.correlationId || null,
+                    record
+                })),
+                ...listRecoveryOutcomes().map((record) => ({
+                    schema: 'xtend.rmt.kernel-panic-recovery-record.v1',
+                    kind: 'recoveryOutcome',
+                    lane: 'diagnostics',
+                    status: record.status || 'recorded',
+                    scope: record.scope || null,
+                    correlationId: record.correlationId || null,
+                    record
+                }))
+            ];
+        }
+
+        function getPanicRecoverySnapshot() {
+            const panicSnapshot = getPanicSnapshot();
+            const trustVerdicts = listTrustVerdicts();
+            const panicEvents = listPanicEvents();
+            const safeSnapshots = listSafeSnapshots();
+            const recoveryOutcomes = listRecoveryOutcomes();
+            const quarantinedScopes = listQuarantinedScopes();
+            return {
+                schema: 'xtend.rmt.kernel-panic-recovery-snapshot.v1',
+                lane: 'diagnostics',
+                trustVerdictCount: trustVerdicts.length,
+                blockedTrustVerdictCount: trustVerdicts.filter((record) => record && record.commitAllowed === false).length,
+                panicEventCount: panicEvents.length,
+                recoveryOutcomeCount: recoveryOutcomes.length,
+                safeSnapshotCount: safeSnapshots.length,
+                quarantineScopeCount: quarantinedScopes.length,
+                panicState: panicSnapshot && panicSnapshot.state || 'none',
+                recoveryStatus: recoveryOutcomes.length > 0 ? recoveryOutcomes[recoveryOutcomes.length - 1].status : 'none',
+                quarantineScopes: quarantinedScopes,
+                lastTrustVerdict: trustVerdicts.length > 0 ? trustVerdicts[trustVerdicts.length - 1] : null,
+                lastPanicEvent: panicEvents.length > 0 ? panicEvents[panicEvents.length - 1] : null,
+                lastRecoveryOutcome: recoveryOutcomes.length > 0 ? recoveryOutcomes[recoveryOutcomes.length - 1] : null,
+                panicSnapshot
+            };
         }
 
         function createRuntimeTrustCorrelationId(context = {}) {
@@ -19607,13 +19864,15 @@
                 rememberSafeSnapshot,
                 getLastSafeSnapshot,
                 listSafeSnapshots,
-                restoreLastSafeSnapshot,
-                renderSafeFallback,
-                recoverFromPanic,
-                listRecoveryOutcomes,
-                listQuarantinedScopes,
-                isScopeQuarantined,
-                rebindChunk,
+            restoreLastSafeSnapshot,
+            renderSafeFallback,
+            recoverFromPanic,
+            listRecoveryOutcomes,
+            listPanicRecoveryRecords,
+            getPanicRecoverySnapshot,
+            listQuarantinedScopes,
+            isScopeQuarantined,
+            rebindChunk,
                 updateModel
             });
         }
@@ -19642,6 +19901,8 @@
             renderSafeFallback,
             recoverFromPanic,
             listRecoveryOutcomes,
+            listPanicRecoveryRecords,
+            getPanicRecoverySnapshot,
             listQuarantinedScopes,
             isScopeQuarantined,
             normalizeBinding,
@@ -20890,6 +21151,73 @@
             return runtimeRecoveryOutcomes.map((outcome) => cloneSerializable(outcome, {}));
         }
 
+        function listPanicRecoveryRecords() {
+            return [
+                ...listTrustVerdicts().map((record) => ({
+                    schema: 'xtend.rmt.kernel-panic-recovery-record.v1',
+                    kind: 'trustVerdict',
+                    lane: 'diagnostics',
+                    status: record.commitAllowed === false ? 'blocked' : 'recorded',
+                    scope: record.scope || null,
+                    correlationId: record.correlationId || null,
+                    record
+                })),
+                ...listPanicEvents().map((record) => ({
+                    schema: 'xtend.rmt.kernel-panic-recovery-record.v1',
+                    kind: 'panicEvent',
+                    lane: 'diagnostics',
+                    status: record.state || 'recorded',
+                    scope: record.scope || null,
+                    correlationId: record.correlationId || null,
+                    record
+                })),
+                ...listSafeSnapshots().map((record) => ({
+                    schema: 'xtend.rmt.kernel-panic-recovery-record.v1',
+                    kind: 'safeSnapshot',
+                    lane: 'diagnostics',
+                    status: 'captured',
+                    scope: record.scope || null,
+                    correlationId: record.correlationId || null,
+                    record
+                })),
+                ...listRecoveryOutcomes().map((record) => ({
+                    schema: 'xtend.rmt.kernel-panic-recovery-record.v1',
+                    kind: 'recoveryOutcome',
+                    lane: 'diagnostics',
+                    status: record.status || 'recorded',
+                    scope: record.scope || null,
+                    correlationId: record.correlationId || null,
+                    record
+                }))
+            ];
+        }
+
+        function getPanicRecoverySnapshot() {
+            const panicSnapshot = getPanicSnapshot();
+            const trustVerdicts = listTrustVerdicts();
+            const panicEvents = listPanicEvents();
+            const safeSnapshots = listSafeSnapshots();
+            const recoveryOutcomes = listRecoveryOutcomes();
+            const quarantinedScopes = listQuarantinedScopes();
+            return {
+                schema: 'xtend.rmt.kernel-panic-recovery-snapshot.v1',
+                lane: 'diagnostics',
+                trustVerdictCount: trustVerdicts.length,
+                blockedTrustVerdictCount: trustVerdicts.filter((record) => record && record.commitAllowed === false).length,
+                panicEventCount: panicEvents.length,
+                recoveryOutcomeCount: recoveryOutcomes.length,
+                safeSnapshotCount: safeSnapshots.length,
+                quarantineScopeCount: quarantinedScopes.length,
+                panicState: panicSnapshot && panicSnapshot.state || 'none',
+                recoveryStatus: recoveryOutcomes.length > 0 ? recoveryOutcomes[recoveryOutcomes.length - 1].status : 'none',
+                quarantineScopes: quarantinedScopes,
+                lastTrustVerdict: trustVerdicts.length > 0 ? trustVerdicts[trustVerdicts.length - 1] : null,
+                lastPanicEvent: panicEvents.length > 0 ? panicEvents[panicEvents.length - 1] : null,
+                lastRecoveryOutcome: recoveryOutcomes.length > 0 ? recoveryOutcomes[recoveryOutcomes.length - 1] : null,
+                panicSnapshot
+            };
+        }
+
         function createRuntimeTrustCorrelationId(context = {}) {
             return [
                 RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA,
@@ -21744,6 +22072,8 @@
             renderSafeFallback,
             recoverFromPanic,
             listRecoveryOutcomes,
+            listPanicRecoveryRecords,
+            getPanicRecoverySnapshot,
             listQuarantinedScopes,
             isScopeQuarantined,
             hydrateTemplate,
@@ -21844,6 +22174,7 @@
             ? deps.dispatchPrerenderEnvelope
             : null;
         const latestPendingBySupersessionKey = new Map();
+        const latestHydrationGenerationByKey = new Map();
         let pendingRequestSequence = 0;
 
         function normalizeExecutionMode(value) {
@@ -21896,6 +22227,159 @@
                 || (source.meta && source.meta.supersessionKey),
                 ''
             );
+        }
+
+        function normalizeHydrationGeneration(value, fallbackValue = '') {
+            if (value === undefined || value === null) return fallbackValue;
+            const normalized = String(value).trim();
+            return normalized || fallbackValue;
+        }
+
+        function readMetadataGeneration(metadata = {}) {
+            if (!metadata || typeof metadata !== 'object') return '';
+            return normalizeHydrationGeneration(
+                metadata.hydrationGeneration
+                || metadata.generation
+                || metadata.workerGeneration
+                || metadata.prerenderGeneration,
+                ''
+            );
+        }
+
+        function readResponseHydrationGeneration(responseEnvelope = {}, requestInput = {}, options = {}) {
+            const requestSource = parseMaybeJson(requestInput) || {};
+            const chunk = responseEnvelope && responseEnvelope.chunk ? responseEnvelope.chunk : null;
+            return normalizeHydrationGeneration(
+                options.generation
+                || options.hydrationGeneration
+                || readMetadataGeneration(responseEnvelope && responseEnvelope.metadata)
+                || readMetadataGeneration(responseEnvelope && responseEnvelope.worker)
+                || readMetadataGeneration(responseEnvelope && responseEnvelope.request && responseEnvelope.request.metadata)
+                || readMetadataGeneration(chunk && chunk.hydration && chunk.hydration.metadata)
+                || readMetadataGeneration(requestSource && requestSource.metadata),
+                ''
+            );
+        }
+
+        function normalizeHydrationKey(responseEnvelope = {}, requestInput = {}, options = {}) {
+            const requestSource = parseMaybeJson(requestInput) || {};
+            const chunk = responseEnvelope && responseEnvelope.chunk ? responseEnvelope.chunk : null;
+            return clampString(
+                options.hydrationKey
+                || options.supersessionKey
+                || (responseEnvelope && responseEnvelope.metadata && responseEnvelope.metadata.supersessionKey)
+                || (responseEnvelope && responseEnvelope.request && responseEnvelope.request.metadata && responseEnvelope.request.metadata.supersessionKey)
+                || (requestSource && requestSource.metadata && requestSource.metadata.supersessionKey)
+                || (chunk && chunk.rootId ? `root:${chunk.rootId}` : '')
+                || (responseEnvelope && responseEnvelope.rootId ? `root:${responseEnvelope.rootId}` : ''),
+                ''
+            );
+        }
+
+        function countBlockedHostServiceRequests(source) {
+            if (!source || typeof source !== 'object') return 0;
+            let count = 0;
+            [
+                'hostServices',
+                'hostServiceRequests',
+                'serviceRequests',
+                'services',
+                'effects',
+                'commands'
+            ].forEach((key) => {
+                if (!Object.prototype.hasOwnProperty.call(source, key)) return;
+                const value = source[key];
+                count += Array.isArray(value) ? value.length : 1;
+            });
+            return count;
+        }
+
+        function inspectWorkerHostServicePayload(responseEnvelope = {}) {
+            const chunk = responseEnvelope && responseEnvelope.chunk ? responseEnvelope.chunk : null;
+            const blocked = countBlockedHostServiceRequests(responseEnvelope)
+                + countBlockedHostServiceRequests(responseEnvelope && responseEnvelope.metadata)
+                + countBlockedHostServiceRequests(responseEnvelope && responseEnvelope.worker)
+                + countBlockedHostServiceRequests(chunk)
+                + countBlockedHostServiceRequests(chunk && chunk.hydration && chunk.hydration.metadata);
+            const diagnostics = blocked > 0 ? [{
+                level: 'info',
+                code: 'xtend.rmt.worker_prerender.host_services_blocked',
+                message: 'Worker prerender responses may not execute host services during hydrateResponse().',
+                metadata: {
+                    blocked
+                }
+            }] : [];
+            return {
+                blocked,
+                diagnostics
+            };
+        }
+
+        function createSupersededHydrationResult(responseEnvelope, generationInfo, hostServiceInspection) {
+            const diagnostics = [{
+                level: 'info',
+                code: 'xtend.rmt.worker_prerender.generation_superseded',
+                message: 'Worker prerender hydration response was discarded because its generation is no longer current.',
+                metadata: {
+                    hydrationKey: generationInfo.hydrationKey,
+                    expectedGeneration: generationInfo.expectedGeneration,
+                    actualGeneration: generationInfo.actualGeneration
+                }
+            }].concat(hostServiceInspection.diagnostics);
+            return Object.freeze({
+                ok: false,
+                status: 'superseded',
+                transport: safeTransportKind,
+                request: responseEnvelope.request || null,
+                response: responseEnvelope,
+                executionResult: null,
+                chunk: responseEnvelope.chunk || null,
+                islandHandle: null,
+                bindingSession: null,
+                applied: false,
+                hydrated: false,
+                superseded: true,
+                deferred: false,
+                hydrationGeneration: generationInfo.actualGeneration || null,
+                expectedGeneration: generationInfo.expectedGeneration || null,
+                hydrationKey: generationInfo.hydrationKey || null,
+                trustedDomCommit: {
+                    required: true,
+                    status: 'skipped',
+                    mainThread: true,
+                    reason: 'generation_superseded'
+                },
+                blockedHostServiceRequests: hostServiceInspection.blocked,
+                hostServicesExecuted: 0,
+                diagnostics,
+                error: {
+                    name: 'SupersededError',
+                    message: 'Worker prerender hydration response generation was superseded.',
+                    code: 'superseded'
+                }
+            });
+        }
+
+        function evaluateHydrationGeneration(responseEnvelope = {}, requestInput = {}, options = {}) {
+            const hydrationKey = normalizeHydrationKey(responseEnvelope, requestInput, options);
+            const actualGeneration = readResponseHydrationGeneration(responseEnvelope, requestInput, options);
+            const expectedGeneration = normalizeHydrationGeneration(
+                options.currentGeneration
+                || options.expectedGeneration
+                || (hydrationKey ? latestHydrationGenerationByKey.get(hydrationKey) : ''),
+                ''
+            );
+            const hasExpectedGeneration = expectedGeneration !== '';
+            const matches = !hasExpectedGeneration || (actualGeneration !== '' && actualGeneration === expectedGeneration);
+            if (matches && hydrationKey && actualGeneration) {
+                latestHydrationGenerationByKey.set(hydrationKey, actualGeneration);
+            }
+            return {
+                hydrationKey,
+                actualGeneration,
+                expectedGeneration,
+                matches
+            };
         }
 
         function createRequestSnapshot(envelope) {
@@ -21969,7 +22453,9 @@
                 : (source.request && source.request.kind === PRERENDER_REQUEST_KIND
                     ? createPrerenderEnvelope(source.request, options)
                     : null);
-            const chunkSource = source && source.chunk ? source.chunk : source;
+            const chunkSource = source && source.chunk
+                ? source.chunk
+                : (source && Array.isArray(source.chunks) && source.chunks[0] ? source.chunks[0] : source);
             const chunk = executionPath.normalizeChunk(chunkSource, options);
 
             return Object.freeze({
@@ -22055,14 +22541,22 @@
                 ? createPrerenderEnvelope(requestInput, options)
                 : createPrerenderEnvelope(requestInput, options);
             const supersessionKey = normalizeSupersessionKey(requestInput, options);
+            const hydrationGeneration = normalizeHydrationGeneration(
+                options.generation
+                || options.hydrationGeneration
+                || readMetadataGeneration(requestEnvelope.metadata),
+                supersessionKey ? String(pendingRequestSequence + 1) : ''
+            );
             const requestRecord = supersessionKey
                 ? {
                     id: ++pendingRequestSequence,
-                    supersessionKey
+                    supersessionKey,
+                    hydrationGeneration
                 }
                 : null;
             if (requestRecord) {
                 latestPendingBySupersessionKey.set(supersessionKey, requestRecord);
+                latestHydrationGenerationByKey.set(supersessionKey, hydrationGeneration || String(requestRecord.id));
             }
             const effectiveDispatcher = typeof options.dispatchPrerenderEnvelope === 'function'
                 ? options.dispatchPrerenderEnvelope
@@ -22177,6 +22671,7 @@
             if (responseEnvelope.ok !== true || !responseEnvelope.chunk) {
                 return Object.freeze({
                     ok: false,
+                    status: responseEnvelope.superseded === true ? 'superseded' : 'error',
                     transport: safeTransportKind,
                     request: responseEnvelope.request || null,
                     response: responseEnvelope,
@@ -22188,12 +22683,30 @@
                     hydrated: false,
                     superseded: responseEnvelope.superseded === true,
                     deferred: false,
+                    hydrationGeneration: null,
+                    expectedGeneration: null,
+                    hydrationKey: null,
+                    trustedDomCommit: {
+                        required: true,
+                        status: 'skipped',
+                        mainThread: true,
+                        reason: 'invalid_response'
+                    },
+                    blockedHostServiceRequests: 0,
+                    hostServicesExecuted: 0,
+                    diagnostics: [],
                     error: cloneSerializable(responseEnvelope.error, null)
                 });
+            }
+            const hostServiceInspection = inspectWorkerHostServicePayload(responseEnvelope);
+            const generationInfo = evaluateHydrationGeneration(responseEnvelope, requestInput, options);
+            if (!generationInfo.matches) {
+                return createSupersededHydrationResult(responseEnvelope, generationInfo, hostServiceInspection);
             }
             if (options.autoHydrate === false) {
                 return Object.freeze({
                     ok: true,
+                    status: 'deferred',
                     transport: safeTransportKind,
                     request: responseEnvelope.request || null,
                     response: responseEnvelope,
@@ -22204,7 +22717,19 @@
                     applied: false,
                     hydrated: false,
                     superseded: false,
-                    deferred: false,
+                    deferred: true,
+                    hydrationGeneration: generationInfo.actualGeneration || null,
+                    expectedGeneration: generationInfo.expectedGeneration || null,
+                    hydrationKey: generationInfo.hydrationKey || null,
+                    trustedDomCommit: {
+                        required: true,
+                        status: 'deferred',
+                        mainThread: true,
+                        reason: 'auto_hydrate_disabled'
+                    },
+                    blockedHostServiceRequests: hostServiceInspection.blocked,
+                    hostServicesExecuted: 0,
+                    diagnostics: hostServiceInspection.diagnostics,
                     error: null
                 });
             }
@@ -22215,6 +22740,7 @@
             );
             return Object.freeze({
                 ok: true,
+                status: 'hydrated',
                 transport: safeTransportKind,
                 request: responseEnvelope.request || null,
                 response: responseEnvelope,
@@ -22226,6 +22752,17 @@
                 hydrated: true,
                 superseded: false,
                 deferred: false,
+                hydrationGeneration: generationInfo.actualGeneration || null,
+                expectedGeneration: generationInfo.expectedGeneration || null,
+                hydrationKey: generationInfo.hydrationKey || null,
+                trustedDomCommit: {
+                    required: true,
+                    status: executionResult && executionResult.applied ? 'committed' : 'bindings-only',
+                    mainThread: true
+                },
+                blockedHostServiceRequests: hostServiceInspection.blocked,
+                hostServicesExecuted: 0,
+                diagnostics: hostServiceInspection.diagnostics,
                 error: null
             });
         }
@@ -22249,8 +22786,16 @@
                 'prerender_only'
             ],
             getTransportKind: () => safeTransportKind,
+            getLatestHydrationGeneration: (hydrationKey) => latestHydrationGenerationByKey.get(clampString(hydrationKey, '')) || null,
             handlePrerenderEnvelope,
             hydrateResponse,
+            rememberHydrationGeneration: (hydrationKey, generation) => {
+                const safeKey = clampString(hydrationKey, '');
+                const safeGeneration = normalizeHydrationGeneration(generation, '');
+                if (!safeKey || !safeGeneration) return false;
+                latestHydrationGenerationByKey.set(safeKey, safeGeneration);
+                return true;
+            },
             normalizeExecutionMode,
             normalizePrerenderResponse,
             requestPrerender
@@ -22666,7 +23211,12 @@
             taskResolvers.clear();
         }
 
-        function terminateWorker() {
+        function terminateWorker(reason = 'terminated') {
+            if (taskResolvers.size > 0) {
+                const error = new Error(`RenderManPrewarmWorker wurde beendet: ${normalizeTextValue(reason, 'terminated')}.`);
+                lastError = serializeError(error);
+                rejectPendingTasks(error);
+            }
             if (worker && typeof worker.terminate === 'function') {
                 worker.terminate();
             }
@@ -22790,16 +23340,24 @@
         }
 
         function getTopologySnapshot() {
+            const missingApis = getMissingApis();
+            const health = missingApis.length > 0
+                ? 'degraded'
+                : (lastError ? 'degraded' : (worker ? 'ready' : 'available'));
             return {
+                schema: 'xtend.rmt.prewarm-worker-topology.v1',
                 kind: 'renderman-prewarm',
+                enabled: true,
+                status: health,
+                health,
                 workerName,
                 workerType,
                 instantiated: !!worker,
                 pendingJobs: taskResolvers.size,
                 submittedJobs,
                 templatesSynced: syncedTemplateCount,
-                available: getMissingApis().length === 0,
-                missingApis: getMissingApis(),
+                available: missingApis.length === 0,
+                missingApis,
                 lastHealthAt,
                 lastError: cloneSerializable(lastError, null),
                 responsibilities: [
@@ -23686,6 +24244,38 @@
                 return path && typeof path.getSupportedExecutionModes === 'function'
                     ? path.getSupportedExecutionModes()
                     : [];
+            },
+            listTrustVerdicts: () => {
+                const path = getExecutionPath();
+                return path && typeof path.listTrustVerdicts === 'function' ? path.listTrustVerdicts() : [];
+            },
+            getPanicSnapshot: () => {
+                const path = getExecutionPath();
+                return path && typeof path.getPanicSnapshot === 'function' ? path.getPanicSnapshot() : null;
+            },
+            listPanicEvents: () => {
+                const path = getExecutionPath();
+                return path && typeof path.listPanicEvents === 'function' ? path.listPanicEvents() : [];
+            },
+            listSafeSnapshots: () => {
+                const path = getExecutionPath();
+                return path && typeof path.listSafeSnapshots === 'function' ? path.listSafeSnapshots() : [];
+            },
+            listRecoveryOutcomes: () => {
+                const path = getExecutionPath();
+                return path && typeof path.listRecoveryOutcomes === 'function' ? path.listRecoveryOutcomes() : [];
+            },
+            listQuarantinedScopes: () => {
+                const path = getExecutionPath();
+                return path && typeof path.listQuarantinedScopes === 'function' ? path.listQuarantinedScopes() : [];
+            },
+            listPanicRecoveryRecords: () => {
+                const path = getExecutionPath();
+                return path && typeof path.listPanicRecoveryRecords === 'function' ? path.listPanicRecoveryRecords() : [];
+            },
+            getPanicRecoverySnapshot: () => {
+                const path = getExecutionPath();
+                return path && typeof path.getPanicRecoverySnapshot === 'function' ? path.getPanicRecoverySnapshot() : null;
             },
             listTemplates: () => registry.listTemplates(),
             prepareDocument: (documentInput, options = {}) => {
@@ -24691,20 +25281,86 @@
             throw new Error('RMT BrowserRuntime benoetigt eine gueltige TemplateApi.');
         }
 
+        const enablePrewarmWorker = deps.enablePrewarmWorker === true;
+        let prewarmWorkerBootError = null;
+
+        function resolvePrewarmWorkerMissingApis() {
+            const missingApis = [];
+            if (!windowTarget || !windowTarget.Blob) missingApis.push('Blob');
+            if (!windowTarget || !windowTarget.Worker) missingApis.push('Worker');
+            if (!windowTarget || !windowTarget.URL || typeof windowTarget.URL.createObjectURL !== 'function') missingApis.push('URL.createObjectURL');
+            return missingApis;
+        }
+
+        function createPrewarmWorkerTopologyFallback(reason = 'disabled', error = null) {
+            const missingApis = resolvePrewarmWorkerMissingApis();
+            const health = reason === 'disabled'
+                ? 'disabled'
+                : (missingApis.length > 0 || error ? 'degraded' : 'available');
+            return {
+                schema: 'xtend.rmt.prewarm-worker-topology.v1',
+                kind: 'renderman-prewarm',
+                enabled: enablePrewarmWorker,
+                status: health,
+                health,
+                reason,
+                workerName: deps.prewarmWorkerName || 'XTendRMTPrewarmWorker',
+                workerType: deps.prewarmWorkerType || 'classic',
+                instantiated: false,
+                pendingJobs: 0,
+                submittedJobs: 0,
+                templatesSynced: 0,
+                available: enablePrewarmWorker && missingApis.length === 0 && !error && typeof createRmtPrewarmWorkerRuntimeFactory === 'function',
+                missingApis,
+                lastHealthAt: 0,
+                lastError: error ? {
+                    name: error && error.name || 'Error',
+                    message: error && error.message || String(error),
+                    stack: error && typeof error.stack === 'string' ? error.stack : ''
+                } : null,
+                responsibilities: [
+                    'template_prerender_compute',
+                    'chunk_serialization'
+                ],
+                supportedSignals: [
+                    'start',
+                    'continue',
+                    'rebatch'
+                ],
+                excludedResponsibilities: [
+                    'dom_mutation',
+                    'event_binding',
+                    'state_ownership'
+                ],
+                diagnostics: enablePrewarmWorker && typeof createRmtPrewarmWorkerRuntimeFactory !== 'function'
+                    ? [{
+                        schema: 'xtend.rmt.prewarm-worker-diagnostic.v1',
+                        code: 'xtend.rmt.prewarm_worker.factory_missing',
+                        severity: 'warning',
+                        message: 'RMT Prewarm Worker wurde angefordert, aber keine Runtime-Factory ist verfuegbar.'
+                    }]
+                    : []
+            };
+        }
+
         const prewarmWorkerRuntime = deps.prewarmWorkerRuntime
             || deps.renderManPrewarmWorkerRuntime
-            || (
-                deps.enablePrewarmWorker === false || typeof createRmtPrewarmWorkerRuntimeFactory !== 'function'
-                    ? null
-                    : createRmtPrewarmWorkerRuntimeFactory({
+            || (() => {
+                if (!enablePrewarmWorker || typeof createRmtPrewarmWorkerRuntimeFactory !== 'function') return null;
+                try {
+                    return createRmtPrewarmWorkerRuntimeFactory({
                         ...deps,
                         windowTarget,
                         documentTarget,
                         templateApi,
                         workerName: deps.prewarmWorkerName || 'XTendRMTPrewarmWorker',
                         workerType: deps.prewarmWorkerType || 'classic'
-                    })
-            );
+                    });
+                } catch (error) {
+                    prewarmWorkerBootError = error;
+                    return null;
+                }
+            })();
 
         const performanceHistoryStorage = deps.performanceHistoryStorage
             || deps.historyStorage
@@ -24848,7 +25504,17 @@
             getPrewarmWorkerTopology: () => (
                 prewarmWorkerRuntime && typeof prewarmWorkerRuntime.getTopologySnapshot === 'function'
                     ? prewarmWorkerRuntime.getTopologySnapshot()
-                    : null
+                    : createPrewarmWorkerTopologyFallback(
+                        enablePrewarmWorker
+                            ? (prewarmWorkerBootError ? 'boot_failed' : (typeof createRmtPrewarmWorkerRuntimeFactory === 'function' ? 'degraded' : 'factory_missing'))
+                            : 'disabled',
+                        prewarmWorkerBootError
+                    )
+            ),
+            terminatePrewarmWorker: (reason = 'runtime_terminate') => (
+                prewarmWorkerRuntime && typeof prewarmWorkerRuntime.terminateWorker === 'function'
+                    ? prewarmWorkerRuntime.terminateWorker(reason)
+                    : false
             ),
             getPerformanceSnapshot: (reason = 'read') => (
                 performanceRuntime && typeof performanceRuntime.getSnapshot === 'function'
@@ -25042,6 +25708,27 @@
             listSupportedExecutionModes: () => (typeof templateApi.listSupportedExecutionModes === 'function' ? templateApi.listSupportedExecutionModes() : []),
             listSupportedHydrationModes: () => (typeof templateApi.listSupportedHydrationModes === 'function' ? templateApi.listSupportedHydrationModes() : []),
             listSupportedSlotKinds: () => (typeof templateApi.listSupportedSlotKinds === 'function' ? templateApi.listSupportedSlotKinds() : []),
+            listTrustVerdicts: () => (typeof templateApi.listTrustVerdicts === 'function' ? templateApi.listTrustVerdicts() : []),
+            getPanicSnapshot: () => (typeof templateApi.getPanicSnapshot === 'function' ? templateApi.getPanicSnapshot() : null),
+            listPanicEvents: () => (typeof templateApi.listPanicEvents === 'function' ? templateApi.listPanicEvents() : []),
+            listSafeSnapshots: () => (typeof templateApi.listSafeSnapshots === 'function' ? templateApi.listSafeSnapshots() : []),
+            listRecoveryOutcomes: () => (typeof templateApi.listRecoveryOutcomes === 'function' ? templateApi.listRecoveryOutcomes() : []),
+            listQuarantinedScopes: () => (typeof templateApi.listQuarantinedScopes === 'function' ? templateApi.listQuarantinedScopes() : []),
+            listPanicRecoveryRecords: () => (typeof templateApi.listPanicRecoveryRecords === 'function' ? templateApi.listPanicRecoveryRecords() : []),
+            getPanicRecoverySnapshot: () => (typeof templateApi.getPanicRecoverySnapshot === 'function' ? templateApi.getPanicRecoverySnapshot() : {
+                schema: 'xtend.rmt.kernel-panic-recovery-snapshot.v1',
+                lane: 'diagnostics',
+                trustVerdictCount: 0,
+                blockedTrustVerdictCount: 0,
+                panicEventCount: 0,
+                recoveryOutcomeCount: 0,
+                safeSnapshotCount: 0,
+                quarantineScopeCount: 0,
+                panicState: 'none',
+                recoveryStatus: 'none',
+                quarantineScopes: [],
+                panicSnapshot: null
+            }),
             listTemplates: () => (typeof templateApi.listTemplates === 'function' ? templateApi.listTemplates() : []),
             prepareDocument: (documentInput, options = {}) => templateApi.prepareDocument(documentInput, options),
             prepareTemplate: (templateRef, options = {}) => templateApi.prepareTemplate(templateRef, {
@@ -25119,7 +25806,38 @@
                     ? performanceRuntime.scheduleEndpoint(endpointName, scope, callback, options)
                     : callback({ token: 0, scope: String(scope || 'default').trim() || 'default', endpointPlan: null })
             ),
-            unmount: (islandRef, options = {}) => publicApi.unmountIsland(islandRef, options),
+            unmount: (islandRef, options = {}) => {
+                const shouldTerminatePrewarmWorker = options && (options.hard === true || options.appUnmount === true || options.disposeRoot === true);
+                try {
+                    return publicApi.unmountIsland(islandRef, options);
+                } finally {
+                    if (shouldTerminatePrewarmWorker && prewarmWorkerRuntime && typeof prewarmWorkerRuntime.terminateWorker === 'function') {
+                        prewarmWorkerRuntime.terminateWorker('hard_unmount');
+                    }
+                }
+            },
+            disposeRoot: (rootId, options = {}) => {
+                if (prewarmWorkerRuntime && typeof prewarmWorkerRuntime.terminateWorker === 'function') {
+                    prewarmWorkerRuntime.terminateWorker('root_dispose');
+                }
+                return renderManCore && typeof renderManCore.disposeRoot === 'function'
+                    ? renderManCore.disposeRoot(rootId, options)
+                    : false;
+            },
+            dispose: (options = {}) => {
+                const prewarmWorkerTerminated = prewarmWorkerRuntime && typeof prewarmWorkerRuntime.terminateWorker === 'function'
+                    ? prewarmWorkerRuntime.terminateWorker('runtime_dispose')
+                    : false;
+                const coreDisposed = renderManCore && typeof renderManCore.dispose === 'function'
+                    ? renderManCore.dispose(options)
+                    : false;
+                return {
+                    schema: 'xtend.rmt.browser-runtime-dispose.v1',
+                    ok: true,
+                    prewarmWorkerTerminated,
+                    coreDisposed
+                };
+            },
             withDefaults
         });
 
@@ -25437,6 +26155,20 @@
             return getWorkerTransport().hydrateResponse(responseInput, requestInput, options);
         }
 
+        function getLatestHydrationGeneration(hydrationKey) {
+            const transport = getWorkerTransport();
+            return transport && typeof transport.getLatestHydrationGeneration === 'function'
+                ? transport.getLatestHydrationGeneration(hydrationKey)
+                : null;
+        }
+
+        function rememberHydrationGeneration(hydrationKey, generation) {
+            const transport = getWorkerTransport();
+            return transport && typeof transport.rememberHydrationGeneration === 'function'
+                ? transport.rememberHydrationGeneration(hydrationKey, generation)
+                : false;
+        }
+
         function execute(targetOrRequest, templateRef, model, options) {
             const invocation = buildTemplateInvocation(targetOrRequest, templateRef, model, options, runtimeDefaults);
             return getWorkerTransport().execute(invocation.request, invocation.executionOptions);
@@ -25489,7 +26221,9 @@
                     ? deps.dispatchPrerenderEnvelope
                     : null
             ),
+            getLatestHydrationGeneration,
             hydrateResponse,
+            rememberHydrationGeneration,
             prerender: requestPrerender,
             prerenderTemplate: requestPrerender,
             render: execute,

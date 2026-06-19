@@ -1574,8 +1574,13 @@ function assertRmtNativeBridgeAdapterRegression(context, rootDir) {
 function assertRmtRuntimeEsmBundleSurface(context, rootDir) {
   const appModules = createRmtRuntimeAppModulesFromBundle(context, rootDir);
   if (!appModules) return;
+  const runtimeSource = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
+  const browserSource = readText('xtendrmt/rmt-runtime.browser.js', rootDir);
+  const coreTypes = readText('xtendrmt/rmt-core.d.ts', rootDir);
   const requiredFactories = [
     'createRmtFormat',
+    'createRmtTemplateRegistry',
+    'createRmtTemplateServerAdapter',
     'createRmtXRouterAdapter',
     'createRmtXtendComponentAdapter',
     'createRmtStateSchedulerDiagnosticsBridge'
@@ -1583,7 +1588,31 @@ function assertRmtRuntimeEsmBundleSurface(context, rootDir) {
   requiredFactories.forEach((factoryName) => {
     context.assert(typeof appModules[factoryName] === 'function', `RMT runtime ESM bundle exposes ${factoryName}`);
   });
+  context.assert(runtimeSource.includes('listPanicRecoveryRecords'), 'RMT runtime ESM bundle declares Panic/Recovery record dev API');
+  context.assert(runtimeSource.includes('getPanicRecoverySnapshot'), 'RMT runtime ESM bundle declares Panic/Recovery snapshot dev API');
+  context.assert(browserSource.includes('listPanicRecoveryRecords'), 'RMT browser runtime bundle declares Panic/Recovery record dev API');
+  context.assert(coreTypes.includes('RmtKernelRuntimePanicRecoverySnapshot'), 'RMT types expose Panic/Recovery snapshot contract');
   if (requiredFactories.some((factoryName) => typeof appModules[factoryName] !== 'function')) return;
+
+  const runtime = appModules.createRmtRuntime({
+    documentTarget: {
+      createElement(tagName) {
+        return {
+          tagName: String(tagName || '').toUpperCase(),
+          children: [],
+          setAttribute() {},
+          appendChild(child) {
+            this.children.push(child);
+            return child;
+          }
+        };
+      }
+    }
+  });
+  context.assert(typeof runtime.listPanicRecoveryRecords === 'function', 'RMT runtime ESM instance exposes Panic/Recovery record dev API');
+  context.assert(typeof runtime.getPanicRecoverySnapshot === 'function', 'RMT runtime ESM instance exposes Panic/Recovery snapshot dev API');
+  const panicRecoverySnapshot = runtime.getPanicRecoverySnapshot();
+  context.assert(panicRecoverySnapshot && panicRecoverySnapshot.schema === 'xtend.rmt.kernel-panic-recovery-snapshot.v1', 'RMT runtime ESM instance returns Panic/Recovery snapshot schema');
 
   const format = appModules.createRmtFormat();
   const fixture = readJson('tests/fixtures/rmt-app-dsl.native-bridge.rmt', rootDir);
@@ -1596,6 +1625,49 @@ function assertRmtRuntimeEsmBundleSurface(context, rootDir) {
   context.assert(registry.status === 'ready' && registry.routes.length === 2, 'RMT runtime ESM bundle creates native bridge registries');
   context.assert(mapping.status === 'mapped' && mapping.routes.length === 2, 'RMT runtime ESM bundle maps native bridge routes');
   context.assert(result.ok === true && fakeRouterTarget.calls.some((call) => call.operation === 'registerRoutes'), 'RMT runtime ESM bundle runs XRouter adapter against fake target');
+
+  const serverAdapter = appModules.createRmtTemplateServerAdapter({
+    registry: appModules.createRmtTemplateRegistry()
+  });
+  const hydrationResult = serverAdapter.hydrateResponse({
+    kind: 'renderman_template_prerender_response',
+    version: '1.0',
+    ok: true,
+    transport: 'server',
+    executionMode: 'server_prerender_hydrate',
+    rootId: 'server-root',
+    metadata: {
+      adapterKind: 'node-ssr'
+    },
+    chunks: [{
+      kind: 'renderman_template_chunk',
+      version: '1.0',
+      executionMode: 'server_prerender_hydrate',
+      transport: 'server',
+      rootId: 'server-root',
+      template: {
+        id: 'server-template',
+        qualifiedId: 'rmt:server-template'
+      },
+      target: {
+        elementId: 'server-root',
+        ownershipMode: 'hydrate_existing'
+      },
+      markup: {
+        html: '<x-status>Ready</x-status>'
+      },
+      hydration: {
+        ownershipMode: 'hydrate_existing'
+      },
+      modelSnapshot: {},
+      plan: {
+        executionMode: 'server_prerender_hydrate',
+        rootId: 'server-root'
+      }
+    }]
+  }, {}, { autoHydrate: false });
+  context.assert(hydrationResult.ok === true && hydrationResult.status === 'deferred', 'RMT runtime ESM bundle accepts server prerender response chunks for controlled hydrateResponse');
+  context.assert(hydrationResult.chunk && hydrationResult.chunk.executionMode === 'server_prerender_hydrate', 'RMT runtime ESM bundle preserves server prerender hydrate chunk mode');
 }
 
 function assertRmtBrowserNearRuntime(context, rootDir) {
@@ -1933,10 +2005,20 @@ function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
     }
   };
   const schedulerCalls = [];
+  const schedulerPressureSamples = [];
   const scheduler = {
     scheduleEndpoint(endpointName, scope, callback, options) {
       schedulerCalls.push({ endpointName, scope, callback, options });
       return { endpointName, scope, source: options && options.source };
+    },
+    reportPerformanceSample(sample) {
+      schedulerPressureSamples.push(sample);
+      return {
+        pressureLevel: sample && sample.longTask === true ? 'critical' : 'constrained',
+        performance: {
+          sampleCount: schedulerPressureSamples.length
+        }
+      };
     }
   };
   const publishedDiagnostics = [];
@@ -2024,7 +2106,7 @@ function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
   context.assert(bridge.schema === STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA, 'RMT bridge exposes stable schema');
   context.assert(bridge.id === 'rmt.state-scheduler-diagnostics', 'RMT bridge exposes stable adapter id');
   context.assert(bridge.kind === 'host_adapter', 'RMT bridge is represented as host adapter boundary');
-  assertIncludesAll(context, bridge.runtimeSurface, ['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal'], 'RMT bridge runtime surface');
+  assertIncludesAll(context, bridge.runtimeSurface, ['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal', 'listTelemetrySnapshots', 'listBackpressureSignals', 'getTelemetryDebugSnapshot'], 'RMT bridge runtime surface');
   assertIncludesAll(context, bridge.capabilities && bridge.capabilities.providedCapabilities, ['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents', 'telemetrySnapshots', 'backpressureSignals'], 'RMT bridge capabilities');
   context.assert(stateBridgeResult.ok === true && stateBridgeResult.operation === 'createStateBridge', 'RMT bridge creates a state bridge');
   context.assert(xstateValues['rmt.bridge.ready'] && xstateValues['rmt.bridge.ready'].schema === STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA, 'RMT bridge mirrors readiness into xstate');
@@ -2044,6 +2126,15 @@ function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
   context.assert(xstateValues['rmt.telemetry.lastSnapshot'].metadata.token === '[redacted]', 'RMT bridge redacts mirrored telemetry snapshot metadata');
   context.assert(xstateValues['rmt.backpressure.lastSignal'] && xstateValues['rmt.backpressure.lastSignal'].level === 'high', 'RMT bridge mirrors Fabric backpressure level');
   context.assert(xstateValues['rmt.backpressure.lastSignal'].metadata.authorization === '[redacted]', 'RMT bridge redacts mirrored backpressure metadata');
+  context.assert(xstateValues['rmt.backpressure.lastYieldHint'] && xstateValues['rmt.backpressure.lastYieldHint'].action === 'defer-background-work', 'RMT bridge exposes last yield hint for dev/debug');
+  context.assert(schedulerPressureSamples.some((sample) => sample.source === 'rmt.bridge.fabric-backpressure' && sample.lane === 'idle_maintenance'), 'RMT bridge forwards Fabric backpressure as scheduler pressure sample');
+  context.assert(telemetryResult.metadata.schedulerPressureSampled === undefined || telemetryResult.handle.backpressureResult.metadata.schedulerPressureSampled === true, 'RMT bridge reports scheduler pressure sampling through telemetry backpressure result');
+  context.assert(bridge.listTelemetrySnapshots().some((record) => record.id === 'fabric.snapshot.route.home'), 'RMT bridge dev API lists telemetry snapshots');
+  context.assert(bridge.listBackpressureSignals().some((record) => record.level === 'high' && record.schedulerPressureSampled === true), 'RMT bridge dev API lists backpressure signals with scheduler coupling');
+  const telemetryDebugSnapshot = bridge.getTelemetryDebugSnapshot();
+  context.assert(telemetryDebugSnapshot.schema === 'xtend.rmt.telemetry-debug-snapshot.v1', 'RMT bridge exposes telemetry debug snapshot schema');
+  context.assert(telemetryDebugSnapshot.telemetrySnapshotCount >= 1 && telemetryDebugSnapshot.backpressureSignalCount >= 1, 'RMT bridge telemetry debug snapshot counts records');
+  context.assert(telemetryDebugSnapshot.lastYieldHint && telemetryDebugSnapshot.lastYieldHint.schedulerPressureLevel === 'constrained', 'RMT bridge telemetry debug snapshot exposes scheduler yield hint');
   context.assert(schedulerCalls.some((call) => call.endpointName === 'xtendrmt.diagnostics.snapshot'), 'RMT bridge schedules diagnostics snapshot endpoint for Fabric telemetry');
   context.assert(publishedDiagnostics.some((entry) => entry.code === 'rmt.bridge.backpressure.high'), 'RMT bridge publishes high backpressure diagnostic');
   context.assert(publishedDiagnostics.some((entry) => entry.code === 'rmt.bridge.telemetry.snapshot.recorded'), 'RMT bridge publishes telemetry snapshot diagnostic');

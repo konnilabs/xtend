@@ -61,9 +61,12 @@ async function runFabricLifecycleBoundarySuite(options = {}) {
   context.assertIncludes(source, 'createComponentLifecycleBoundary', 'Fabric runtime exposes component lifecycle boundary factory');
   context.assertIncludes(source, 'wrapEventHandler', 'Fabric runtime exposes event handler wrapping');
   context.assertIncludes(source, 'xtend.fabric.component.lifecycle.failed', 'Fabric runtime emits stable lifecycle failure diagnostic code');
+  context.assertIncludes(source, 'kernelPanicRecovery', 'Fabric runtime declares kernel Panic/Recovery telemetry contract');
+  context.assertIncludes(source, 'recordKernelPanicRecovery', 'Fabric runtime exposes kernel Panic/Recovery recorder');
   context.assertIncludes(fixtureSource, BROKEN_LIFECYCLE_FIXTURE_CONTRACT, 'Broken lifecycle fixture declares stable contract');
 
   assert(CONTRACTS.lifecycleBoundary === 'xtend.fabric.lifecycle-error-boundary.v1', 'Fabric module exports lifecycle boundary contract');
+  assert(CONTRACTS.kernelPanicRecovery === 'xtend.fabric.kernel-panic-recovery.v1', 'Fabric module exports kernel Panic/Recovery contract');
 
   const reporterEvents = [];
   const fabric = createXtendFabric({
@@ -149,6 +152,80 @@ async function runFabricLifecycleBoundarySuite(options = {}) {
   assert(fabric.getFibers().some((fiber) => fiber.kind === 'component.disconnect' && fiber.status === 'failed'), 'Lifecycle boundary records failed disconnect fiber');
   assert(fabric.getFibers().some((fiber) => fiber.kind === 'event.handler' && fiber.status === 'failed'), 'Lifecycle boundary records failed event handler fiber');
   assert(reporterEvents.some((event) => event.code === 'xtend.fabric.component.lifecycle.failed'), 'Lifecycle diagnostics are sent to opt-in reporters');
+
+  const trustRecord = fabric.recordKernelPanicRecovery({
+    kind: 'trustVerdict',
+    record: {
+      schema: 'xtend.rmt.kernel-trust-verdict.v1',
+      verdict: 'blocked',
+      commitAllowed: false,
+      scope: 'surface.chat',
+      sink: 'innerHTML',
+      reasonCode: 'rmt.kernel.trust.sink_refused',
+      correlationId: 'panic.chat'
+    }
+  });
+  const panicRecord = fabric.recordKernelPanicRecovery({
+    kind: 'panicEvent',
+    record: {
+      schema: 'xtend.rmt.kernel-panic-event.v1',
+      id: 'panic.chat.1',
+      state: 'active',
+      scope: 'surface.chat',
+      reason: 'unsafe-dom-commit',
+      correlationId: 'panic.chat'
+    }
+  });
+  const safeSnapshotRecord = fabric.recordKernelPanicRecovery({
+    kind: 'safeSnapshot',
+    record: {
+      schema: 'xtend.rmt.kernel-safe-snapshot.v1',
+      scope: 'surface.chat',
+      capturedAt: '2026-05-06T10:00:00.000Z',
+      correlationId: 'panic.chat'
+    }
+  });
+  const recoveryRecord = fabric.recordKernelPanicRecovery({
+    kind: 'recoveryOutcome',
+    record: {
+      schema: 'xtend.rmt.kernel-recovery-outcome.v1',
+      status: 'recovered',
+      scope: 'surface.chat',
+      quarantineScope: 'surface.chat',
+      quarantined: true,
+      correlationId: 'panic.chat'
+    }
+  });
+
+  assert(trustRecord.schema === CONTRACTS.kernelPanicRecovery, 'Fabric normalizes Trust Verdict into Panic/Recovery contract');
+  assert(trustRecord.kind === 'trustVerdict' && trustRecord.lane === 'diagnostics', 'Trust Verdict is routed to diagnostics lane');
+  assert(panicRecord.kind === 'panicEvent' && panicRecord.status === 'active', 'Panic Event preserves panic state');
+  assert(safeSnapshotRecord.kind === 'safeSnapshot' && safeSnapshotRecord.status === 'captured', 'Safe Snapshot preserves captured status');
+  assert(recoveryRecord.kind === 'recoveryOutcome' && recoveryRecord.quarantineScope === 'surface.chat', 'Recovery Outcome preserves quarantine scope');
+
+  const panicDiagnostics = fabric.getDiagnostics().filter((event) => (
+    event.metadata && event.metadata.kernelPanicRecovery
+  ));
+  assert(panicDiagnostics.length >= 4, 'Kernel Panic/Recovery records are emitted as diagnostics');
+  assert(panicDiagnostics.every((event) => event.lane === 'diagnostics'), 'Kernel Panic/Recovery diagnostics stay on diagnostics lane');
+  assert(reporterEvents.some((event) => event.metadata && event.metadata.kernelPanicRecovery), 'Kernel Panic/Recovery diagnostics are sent to opt-in reporters');
+
+  const panicSnapshot = fabric.createTelemetrySnapshot({
+    id: 'panic.chat.snapshot',
+    correlationId: 'panic.chat'
+  });
+  assert(panicSnapshot.panicRecovery.schema === CONTRACTS.kernelPanicRecovery, 'Fabric telemetry snapshot exposes Panic/Recovery schema');
+  assert(panicSnapshot.panicRecovery.trustVerdictCount >= 1, 'Fabric telemetry snapshot counts Trust Verdicts');
+  assert(panicSnapshot.panicRecovery.blockedTrustVerdictCount >= 1, 'Fabric telemetry snapshot counts blocked Trust Verdicts');
+  assert(panicSnapshot.panicRecovery.panicEventCount >= 1, 'Fabric telemetry snapshot counts Panic Events');
+  assert(panicSnapshot.panicRecovery.safeSnapshotCount >= 1, 'Fabric telemetry snapshot counts Safe Snapshots');
+  assert(panicSnapshot.panicRecovery.recoveryOutcomeCount >= 1, 'Fabric telemetry snapshot counts Recovery Outcomes');
+  assert(panicSnapshot.panicRecovery.quarantineScopes.includes('surface.chat'), 'Fabric telemetry snapshot exposes Quarantine Scope');
+  assert(fabric.getPanicRecoverySnapshot().quarantineScopes.includes('surface.chat'), 'Fabric dev API exposes Panic/Recovery snapshot');
+  assert(fabric.getKernelPanicRecoveryRecords().length >= 4, 'Fabric dev API lists Panic/Recovery records');
+  assert(fabric.getFibers().some((fiber) => fiber.kind === 'kernel.trust' && fiber.lane === 'diagnostics'), 'Fabric records Trust Verdict diagnostics fiber');
+  assert(fabric.getFibers().some((fiber) => fiber.kind === 'kernel.panic' && fiber.lane === 'diagnostics'), 'Fabric records Panic diagnostics fiber');
+  assert(fabric.getFibers().some((fiber) => fiber.kind === 'kernel.recovery' && fiber.lane === 'diagnostics'), 'Fabric records Recovery diagnostics fiber');
 
   return context.result();
 }

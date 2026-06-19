@@ -18,7 +18,7 @@ const SURFACE_PERSISTENCE_VERSION = 1;
 const SURFACE_LOADING_POLICY_SCHEMA = 'xtend.surface.loading-policy.v1';
 const SURFACE_LOADING_REPORT_SCHEMA = 'xtend.surface.loading-report.v1';
 const SURFACE_LOADING_DIAGNOSTIC_SCHEMA = 'xtend.surface.loading-diagnostic.v1';
-const SURFACE_LOADING_POLICIES = Object.freeze(['eager', 'visible', 'open', 'idle', 'route']);
+const SURFACE_LOADING_POLICIES = Object.freeze(['eager', 'visible', 'open', 'idle', 'route', 'warm', 'prewarm']);
 const SURFACE_ROUTE_LIFECYCLE_SCHEMA = 'xtend.surface.route-lifecycle.v1';
 const SURFACE_ROUTE_LIFECYCLE_REPORT_SCHEMA = 'xtend.surface.route-lifecycle-report.v1';
 const SURFACE_ROUTE_LIFECYCLE_DIAGNOSTIC_SCHEMA = 'xtend.surface.route-lifecycle-diagnostic.v1';
@@ -634,6 +634,8 @@ class XSurfaceManager extends HTMLElement {
         'surface.open.hydrate',
         'surface.idle.hydrate',
         'surface.route.hydrate',
+        'surface.prewarm',
+        'surface.warm-reentry',
         'surface.route.lifecycle',
         'surface.route.restore',
         'surface.route.cleanup',
@@ -745,8 +747,11 @@ class XSurfaceManager extends HTMLElement {
     this._snapshotPersistenceSuspended = false;
     this._surfaceLoadingStates = new Map();
     this._surfaceLoadingPromises = new Map();
+    this._surfaceDestroyedIds = new Set();
     this._surfaceRouteHydrationPending = new Set();
     this._surfaceIdleHandles = new Map();
+    this._surfacePrewarmHandles = new Map();
+    this._surfaceChunkHandles = new Map();
     this._surfaceRouteLifecycleStates = new Map();
     this._currentSurfaceRoute = null;
     this._lastSurfaceRouteSignalKey = '';
@@ -1054,6 +1059,14 @@ class XSurfaceManager extends HTMLElement {
     this._releaseSurfaceStackPolicy({ reason: 'disconnected' });
     this._surfaceIdleHandles.forEach((handle) => clearSurfaceIdle(handle));
     this._surfaceIdleHandles.clear();
+    this._surfacePrewarmHandles.forEach((handles, surfaceId) => {
+      this._invalidateSurfaceHandleSet(surfaceId, handles, 'prewarm', 'disconnect');
+    });
+    this._surfacePrewarmHandles.clear();
+    this._surfaceChunkHandles.forEach((handles, surfaceId) => {
+      this._invalidateSurfaceHandleSet(surfaceId, handles, 'chunk', 'disconnect');
+    });
+    this._surfaceChunkHandles.clear();
     OVERLAY_LIFECYCLE_EVENTS.forEach((eventName) => {
       this.removeEventListener(eventName, this._handleOverlayLifecycle);
     });
@@ -1064,6 +1077,7 @@ class XSurfaceManager extends HTMLElement {
     if (name === 'manager-id' || name === 'state-key') {
       this._controller = null;
       this._registeredElements.clear();
+      this._surfaceDestroyedIds.clear();
       this._ensureController();
       this._registerAssignedSurfaces();
       this.restorePersistedSnapshot({ source: 'manager-attribute-change' });
@@ -1840,8 +1854,145 @@ class XSurfaceManager extends HTMLElement {
     return element.hasAttribute('open') || element.getAttribute('data-xtend-surface-content-ready') === 'false';
   }
 
+  _cancelSurfaceHydration(surfaceId, reason = 'destroy') {
+    if (!surfaceId) return false;
+    const idleHandle = this._surfaceIdleHandles.get(surfaceId);
+    if (idleHandle) {
+      clearSurfaceIdle(idleHandle);
+      this._surfaceIdleHandles.delete(surfaceId);
+    }
+    this._surfaceRouteHydrationPending.delete(surfaceId);
+    const state = this._surfaceLoadingStates.get(surfaceId);
+    if (state) {
+      state.status = 'destroyed';
+      state.pendingRoute = false;
+      state.skeleton = false;
+      state.destroyReason = reason;
+    }
+    return Boolean(idleHandle || state);
+  }
+
+  _registerSurfaceWarmReentryHandle(map, surfaceId, handle, kind = 'prewarm', options = {}) {
+    const id = String(surfaceId || '').trim();
+    if (!id || !handle) return { ok: false, surfaceId: id, kind, registered: false };
+    const handles = map.get(id) || [];
+    const entry = {
+      schema: 'xtend.surface.warm-reentry-handle.v1',
+      kind,
+      handle,
+      source: options.source || 'x-surface-manager',
+      registeredAt: Date.now()
+    };
+    handles.push(entry);
+    map.set(id, handles);
+    return { ok: true, surfaceId: id, kind, registered: true, handleCount: handles.length };
+  }
+
+  registerSurfacePrewarmHandle(surfaceId, handle, options = {}) {
+    return this._registerSurfaceWarmReentryHandle(this._surfacePrewarmHandles, surfaceId, handle, 'prewarm', options);
+  }
+
+  registerSurfaceChunkHandle(surfaceId, handle, options = {}) {
+    return this._registerSurfaceWarmReentryHandle(this._surfaceChunkHandles, surfaceId, handle, 'chunk', options);
+  }
+
+  _invalidateSurfaceHandleSet(surfaceId, entries = [], kind = 'prewarm', reason = 'destroy') {
+    let invalidated = 0;
+    const errors = [];
+    (Array.isArray(entries) ? entries : []).forEach((entry) => {
+      const handle = entry && entry.handle || entry;
+      if (!handle) return;
+      try {
+        if (typeof handle.abort === 'function') handle.abort(reason);
+        else if (typeof handle.cancel === 'function') handle.cancel(reason);
+        else if (typeof handle.dispose === 'function') handle.dispose({ reason, surfaceId, kind });
+        else if (typeof handle.close === 'function') handle.close({ reason, surfaceId, kind });
+        else if (typeof handle.invalidate === 'function') handle.invalidate({ reason, surfaceId, kind });
+        invalidated += 1;
+      } catch (error) {
+        errors.push(error && error.message || String(error));
+      }
+    });
+    return { kind, invalidated, errors };
+  }
+
+  _invalidateSurfaceWarmReentry(surfaceId, reason = 'destroy') {
+    const prewarmHandles = this._surfacePrewarmHandles.get(surfaceId) || [];
+    const chunkHandles = this._surfaceChunkHandles.get(surfaceId) || [];
+    const prewarm = this._invalidateSurfaceHandleSet(surfaceId, prewarmHandles, 'prewarm', reason);
+    const chunks = this._invalidateSurfaceHandleSet(surfaceId, chunkHandles, 'chunk', reason);
+    this._surfacePrewarmHandles.delete(surfaceId);
+    this._surfaceChunkHandles.delete(surfaceId);
+    return {
+      schema: 'xtend.surface.warm-reentry-invalidation.v1',
+      surfaceId,
+      reason,
+      prewarmHandleCount: prewarmHandles.length,
+      chunkHandleCount: chunkHandles.length,
+      invalidatedPrewarmCount: prewarm.invalidated,
+      invalidatedChunkCount: chunks.invalidated,
+      errors: prewarm.errors.concat(chunks.errors)
+    };
+  }
+
+  _invokeSurfaceDestroyHooks(element, surfaceId, options = {}) {
+    if (!element) return [];
+    const invoked = [];
+    ['destroy', 'dispose', 'unmount'].forEach((methodName) => {
+      if (typeof element[methodName] !== 'function') return;
+      try {
+        element[methodName]({
+          source: 'x-surface-manager',
+          surfaceId,
+          reason: options.reason || 'destroy'
+        });
+        invoked.push(methodName);
+      } catch (error) {
+        this._dispatchManagerEvent('surface-destroy-error', {
+          surfaceId,
+          methodName,
+          error: error && error.message || String(error)
+        });
+      }
+    });
+    return invoked;
+  }
+
+  _cleanupDestroyedSurfaceState(surfaceId, options = {}) {
+    if (!surfaceId) return { removedElement: false, invokedHooks: [], cancelledHydration: false };
+    const element = this._registeredElements.get(surfaceId) || this.querySelector(surfaceElementSelector(surfaceId));
+    const cancelledHydration = this._cancelSurfaceHydration(surfaceId, options.reason || 'destroy');
+    const warmReentryInvalidation = this._invalidateSurfaceWarmReentry(surfaceId, options.reason || 'destroy');
+    if (element) {
+      this._hideSurfaceSkeleton(element, { reason: options.reason || 'destroy' });
+      element.removeAttribute('aria-busy');
+      element.setAttribute('data-xtend-surface-destroyed', 'true');
+    }
+    const invokedHooks = this._invokeSurfaceDestroyHooks(element, surfaceId, options);
+    this._registeredElements.delete(surfaceId);
+    this._surfaceLoadingStates.delete(surfaceId);
+    this._surfaceLoadingPromises.delete(surfaceId);
+    this._surfaceRouteHydrationPending.delete(surfaceId);
+    this._surfaceRouteLifecycleStates.delete(surfaceId);
+    this._surfaceLayoutStates.delete(surfaceId);
+    this._surfaceRemotePolicyStates.delete(surfaceId);
+    this._surfaceFocusRestoreTargets.delete(surfaceId);
+    this._surfaceStackPolicyStates.delete(surfaceId);
+    const ownedElement = element && (
+      options.removeElement === true
+      || element.getAttribute('data-rmt-materialized-surface') === 'true'
+      || element.getAttribute('data-rmt-native-surface') === 'true'
+    );
+    if (ownedElement && element.parentNode && typeof element.parentNode.removeChild === 'function') {
+      element.parentNode.removeChild(element);
+      return { removedElement: true, invokedHooks, cancelledHydration, warmReentryInvalidation };
+    }
+    return { removedElement: false, invokedHooks, cancelledHydration, warmReentryInvalidation };
+  }
+
   _prepareSurfaceLoading(element, record = {}, options = {}) {
     if (!element || !record || !record.id || !this._surfaceSkeletonEnabled(element)) return null;
+    if (record.status === 'destroyed' || this._surfaceDestroyedIds.has(record.id)) return null;
     const policy = this._resolveSurfaceLoadingPolicy(element, record);
     const state = this._ensureSurfaceLoadingState(record.id, element, record, policy);
     if (!state || state.hydrated === true || this._surfaceLoadingPromises.has(record.id)) return state;
@@ -1852,6 +2003,7 @@ class XSurfaceManager extends HTMLElement {
 
   _scheduleSurfaceHydration(element, record = {}, policy = 'open', options = {}) {
     if (!record.id || !element) return null;
+    if (record.status === 'destroyed' || this._surfaceDestroyedIds.has(record.id)) return null;
     const state = this._ensureSurfaceLoadingState(record.id, element, record, policy);
     if (!state || state.hydrated === true || this._surfaceLoadingPromises.has(record.id)) return state;
 
@@ -1864,12 +2016,14 @@ class XSurfaceManager extends HTMLElement {
       return state;
     }
 
-    if (policy === 'idle') {
+    if (policy === 'idle' || policy === 'warm' || policy === 'prewarm') {
       if (!this._surfaceIdleHandles.has(record.id)) {
         state.status = 'scheduled';
+        state.warmReentry = policy === 'warm' || policy === 'prewarm';
+        state.prewarm = policy === 'prewarm';
         const handle = scheduleSurfaceIdle(() => {
           this._surfaceIdleHandles.delete(record.id);
-          hydrate('surface.idle.hydrate');
+          hydrate(policy === 'idle' ? 'surface.idle.hydrate' : `surface.${policy}.hydrate`);
         });
         this._surfaceIdleHandles.set(record.id, handle);
       }
@@ -1918,6 +2072,7 @@ class XSurfaceManager extends HTMLElement {
       return this.registerRemoteSurface(record, { source: 'registerSurface' });
     }
     const result = controller.registerSurface(record);
+    if (result && result.ok !== false && record && record.id) this._surfaceDestroyedIds.delete(record.id);
 
     let snapshot = null;
     if (element) {
@@ -1946,6 +2101,33 @@ class XSurfaceManager extends HTMLElement {
 
   closeSurface(id, reason) {
     return this._commit('closeSurface', 'surface-closed', id, reason);
+  }
+
+  destroySurface(id, options = {}) {
+    const surfaceId = String(id || '').trim();
+    const controller = this._ensureController();
+    const destroyOptions = options && typeof options === 'object'
+      ? options
+      : { reason: options || 'destroy' };
+    const cancelledHydration = this._cancelSurfaceHydration(surfaceId, destroyOptions.reason || 'destroy');
+    const result = typeof controller.destroySurface === 'function'
+      ? controller.destroySurface(surfaceId, destroyOptions)
+      : controller.closeSurface(surfaceId, destroyOptions.reason || 'destroy');
+    const cleanup = result && result.ok !== false
+      ? this._cleanupDestroyedSurfaceState(surfaceId, destroyOptions)
+      : { removedElement: false, invokedHooks: [], cancelledHydration };
+    if (result && result.ok !== false) this._surfaceDestroyedIds.add(surfaceId);
+    const snapshot = this._applySnapshot();
+    const diagnosticSnapshot = this.snapshot({ includeDestroyed: true });
+    const tombstone = diagnosticSnapshot.surfaces.find((record) => record.id === surfaceId && record.status === 'destroyed') || null;
+    this.persistSnapshot(snapshot, { reason: 'destroySurface' });
+    this._dispatchManagerEvent('surface-destroyed', {
+      result,
+      snapshot,
+      tombstone,
+      cleanup
+    });
+    return result;
   }
 
   focusSurface(id) {
@@ -2490,12 +2672,12 @@ class XSurfaceManager extends HTMLElement {
     };
   }
 
-  snapshot() {
-    return this._ensureController().snapshot();
+  snapshot(options = {}) {
+    return this._ensureController().snapshot(options);
   }
 
-  readSnapshot() {
-    return this._ensureController().readSnapshot();
+  readSnapshot(options = {}) {
+    return this._ensureController().readSnapshot(options);
   }
 
   snapshotSurfaceLoading() {
@@ -3472,6 +3654,11 @@ class XSurfaceManager extends HTMLElement {
       this._dispatchSurfaceLoadingEvent('surface-content-hydration-skipped', result);
       return Promise.resolve(result);
     }
+    if (this._surfaceDestroyedIds.has(surfaceId) || record && record.status === 'destroyed') {
+      const result = { ok: false, hydrated: false, skipped: true, destroyed: true, surfaceId, policy: options.policy || 'destroyed' };
+      this._dispatchSurfaceLoadingEvent('surface-content-hydration-skipped', result);
+      return Promise.resolve(result);
+    }
 
     const policy = normalizeSurfaceLoadingPolicy(options.policy, this._resolveSurfaceLoadingPolicy(element, record || {}));
     const state = this._ensureSurfaceLoadingState(surfaceId, element, record || {}, policy);
@@ -3494,6 +3681,17 @@ class XSurfaceManager extends HTMLElement {
   _runSurfaceHydration(element, record = {}, policy = 'open', options = {}) {
     const loader = surfaceLoaderApi();
     const surfaceId = record.id || element.getAttribute('surface-id') || element.id;
+    if (this._surfaceDestroyedIds.has(surfaceId) || record.status === 'destroyed') {
+      return Promise.resolve({
+        ok: false,
+        hydrated: false,
+        skipped: true,
+        destroyed: true,
+        surfaceId,
+        policy,
+        schedule: `surface.${policy}.hydrate`
+      });
+    }
     const state = this._ensureSurfaceLoadingState(surfaceId, element, record, policy);
     const startedAt = surfaceLoadingNow();
     const schedule = `surface.${policy}.hydrate`;
@@ -3760,6 +3958,7 @@ class XSurfaceManager extends HTMLElement {
     this._registeredElements.clear();
     this._surfaceLoadingStates.clear();
     this._surfaceLoadingPromises.clear();
+    this._surfaceDestroyedIds.clear();
     this._surfaceRouteHydrationPending.clear();
     this._surfaceRouteLifecycleStates.clear();
     this._surfaceLayoutStates.clear();
@@ -3922,6 +4121,9 @@ class XSurfaceManager extends HTMLElement {
       this._captureStackFocusRestoreTarget(id);
     }
     const result = controller[method](id, payload);
+    if (result && result.ok !== false && (method === 'openSurface' || method === 'materializeSurface' || method === 'registerSurface')) {
+      this._surfaceDestroyedIds.delete(id);
+    }
     const snapshot = this._applySnapshot();
     this.persistSnapshot(snapshot, { reason: method });
     this._dispatchManagerEvent(eventName, { result, snapshot });
@@ -3944,6 +4146,10 @@ class XSurfaceManager extends HTMLElement {
     this._restoringSnapshot = true;
     try {
       surfaces.forEach((record) => {
+        if (record.status === 'destroyed') {
+          skippedCount += 1;
+          return;
+        }
         const patchResult = controller.updateSurface(record.id, {
           label: record.label,
           capabilities: record.capabilities,
@@ -4047,6 +4253,7 @@ class XSurfaceManager extends HTMLElement {
       open: () => this.openSurface(surfaceId, payload),
       materialize: () => this.materializeSurface(surfaceId, payload),
       close: () => this.closeSurface(surfaceId, payload && payload.reason),
+      destroy: () => this.destroySurface(surfaceId, payload || { reason: 'surface-command' }),
       toggle: () => this.toggleSurface(surfaceId, payload),
       focus: () => this.focusSurface(surfaceId),
       move: () => this.moveSurface(surfaceId, payload),

@@ -40,6 +40,24 @@
     "policyParity": true,
     "securityRegression": true
   },
+  "kernelFeatureAdoption": {
+    "schema": "xtend.rmt-kernel-feature-adoption.v1",
+    "reportSchema": "xtend.rmt-kernel-feature-adoption-report.v1",
+    "sourceOfTruth": "development/BACKLOG-RMT-Kernel-Feature-Adoption.md",
+    "capabilityKeys": [
+      "productSurface",
+      "templateArtifacts",
+      "performanceAdvancedReports",
+      "detachedRuntime",
+      "domCompat",
+      "warmReentry",
+      "prewarmWorker",
+      "workerPrerender",
+      "serverPrerender",
+      "panicRecovery",
+      "policyParity"
+    ]
+  },
   "ownershipModes": [
     "observe_only",
     "hydrate_existing",

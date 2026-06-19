@@ -199,6 +199,33 @@ function exerciseRuntime(context, rootDir) {
   context.assert(fabricEvents.every((event) => event.schema === SURFACE_CONTROLLER_DIAGNOSTIC_SCHEMA), 'Fabric diagnostic bridge receives Surface diagnostic schema only');
   context.assert(snapshot.surfaces.every((surface) => !Object.prototype.hasOwnProperty.call(surface, 'metadata')), 'Snapshot omits raw metadata payloads');
 
+  const propertiesDestroy = controller.destroySurface('workbench.properties', {
+    reason: 'test-destroy',
+    releasedResources: ['rmt://resource/workbench.properties']
+  });
+  const activeAfterDestroySnapshot = controller.snapshot();
+  const diagnosticAfterDestroySnapshot = controller.snapshot({ includeDestroyed: true });
+  const destroyedOpen = controller.openSurface('workbench.properties');
+  const propertiesRecreate = controller.openSurface('workbench.properties', { recreate: true });
+  const recreatedSnapshot = controller.snapshot({ includeDestroyed: true });
+
+  context.assert(propertiesDestroy.ok === true, 'destroySurface succeeds for registered surface');
+  context.assert(propertiesDestroy.operation === 'destroySurface', 'destroySurface result uses destroySurface operation');
+  context.assert(propertiesDestroy.status === 'ok', 'destroySurface result marks successful operation status');
+  context.assert(propertiesDestroy.diagnostic && propertiesDestroy.diagnostic.detail && propertiesDestroy.diagnostic.detail.status === 'destroyed', 'destroySurface diagnostic marks terminal surface status');
+  context.assert(propertiesDestroy.tombstone && propertiesDestroy.tombstone.schema === 'xtend.surface.tombstone.v1', 'destroySurface returns tombstone contract');
+  context.assert(Array.isArray(propertiesDestroy.tombstone.releasedResources) && propertiesDestroy.tombstone.releasedResources.includes('rmt://resource/workbench.properties'), 'destroySurface tombstone records released resources');
+  context.assert(activeAfterDestroySnapshot.surfaceCount === 2, 'Default snapshot excludes destroyed surface tombstones');
+  context.assert(activeAfterDestroySnapshot.destroyedSurfaceCount === 1, 'Default snapshot reports destroyed surface count');
+  context.assert(!activeAfterDestroySnapshot.surfaces.some((surface) => surface.id === 'workbench.properties'), 'Default snapshot omits destroyed surface record');
+  context.assert(diagnosticAfterDestroySnapshot.surfaceCount === 3, 'Diagnostic snapshot includes destroyed tombstones when requested');
+  context.assert(diagnosticAfterDestroySnapshot.surfaces.some((surface) => surface.id === 'workbench.properties' && surface.status === 'destroyed' && surface.tombstone), 'Diagnostic snapshot exposes destroyed tombstone');
+  context.assert(destroyedOpen.ok === false && destroyedOpen.code === 'xtend.surface.already-destroyed', 'openSurface refuses destroyed surface without recreate');
+  context.assert(propertiesRecreate.ok === true && propertiesRecreate.generation > propertiesDestroy.generation, 'openSurface recreate creates a new surface generation');
+  context.assert(recreatedSnapshot.surfaces.some((surface) => surface.id === 'workbench.properties' && surface.status === 'open' && !surface.tombstone), 'Recreated surface is active without tombstone');
+  context.assert(Array.isArray(state.get('xtend.surface.diagnostics')) && state.get('xtend.surface.diagnostics').some((event) => event.code === 'xtend.surface.destroyed'), 'xstate diagnostics mirror stores destroy diagnostics');
+  context.assert(fabricEvents.some((event) => event.code === 'xtend.surface.destroyed'), 'Fabric diagnostic bridge receives destroy diagnostics');
+
   const disposeResult = controller.dispose();
   context.assert(disposeResult.ok === true, 'Controller dispose succeeds');
   context.assert(state.get('xtend.surface.snapshot').surfaceCount === 0, 'Dispose mirrors empty snapshot');
@@ -276,6 +303,10 @@ function runSurfaceControllerSuite(options = {}) {
     'xtend.surface.registry',
     'xtend.surface.snapshot',
     'xtend.surface.diagnostics',
+    'destroySurface',
+    'xtend.surface.tombstone.v1',
+    'includeDestroyed',
+    'destroyedSurfaceCount',
     'emitDiagnostic',
     'runFiber',
     'metadataKeys'
@@ -288,12 +319,17 @@ function runSurfaceControllerSuite(options = {}) {
     'maximizeSurface',
     'restoreSurface',
     'materializeSurface',
-    'toggleSurface'
+    'toggleSurface',
+    'destroySurface',
+    'tombstone',
+    'destroyedSurfaceCount'
   ], 'Runtime types');
   assertTextIncludesAll(context, sourceTexts, [
     'export interface XtendSurfaceController',
     'export function createSurfaceController',
     'export function normalizeSurfaceBounds',
+    'destroySurface',
+    'tombstone',
     'XTEND_SURFACE_STATE_KEYS',
     'xtend.surface.<surfaceId>.lifecycle',
     'xtend.surface.snapshot'
@@ -347,6 +383,8 @@ function runSurfaceControllerSuite(options = {}) {
     SURFACE_CONTROLLER_SCHEMA,
     SURFACE_CONTROLLER_RUNTIME,
     'registerSurface',
+    'destroySurface',
+    'xtend.surface.tombstone.v1',
     'xtend.surface.snapshot',
     'WP-SM-03'
   ], 'Surface Controller public docs');

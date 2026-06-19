@@ -876,6 +876,7 @@ function createRuntimeScheduleRecord(documentId, kind, ref, lane, sourceRef = nu
 function lifecycleRuntimeKind(operation) {
   if (!operation || operation.kind !== 'lifecycle') return null;
   if (operation.op === 'hydrate') return 'hydration';
+  if (operation.op === 'prewarm') return 'surface.prewarm';
   if (operation.op === 'mount' || operation.op === 'resume' || operation.op === 'suspend' || operation.op === 'invalidate') return 'surface-lifecycle';
   if (operation.op === 'dispose' || operation.op === 'detach' || operation.op === 'reattach' || operation.op === 'recycle') return 'surface-lifecycle';
   return 'surface-lifecycle';
@@ -1031,7 +1032,7 @@ function createKernelSchedulerPlan(core) {
     const target = operation.target && operation.target.ref || operation.id;
     const laneId = operation.scope && operation.scope.lane;
     const lane = toArray(core.lanes).find((entry) => entry.id === laneId);
-    runtimeRecords.push(createRuntimeScheduleRecord(documentId, kind, `${target}.${operation.op}`, lane && lane.name || (kind === 'hydration' ? 'visible' : 'transition'), operation.sourceRef, {
+    runtimeRecords.push(createRuntimeScheduleRecord(documentId, kind, `${target}.${operation.op}`, lane && lane.name || (operation.op === 'prewarm' ? 'background' : (kind === 'hydration' ? 'visible' : 'transition')), operation.sourceRef, {
       operation: operation.id,
       scope: scopeNameForSchedule({
         scope: operation.scope || {}
@@ -1875,6 +1876,8 @@ const SUPPORTED_ORCHESTRATION_HYDRATION_MODES = Object.freeze([
   'hydrate_prerendered',
   'server_prerender_hydrate',
   'worker_prerender_hydrate',
+  'warm',
+  'prewarm',
   'visible',
   'idle',
   'lazy',
@@ -1903,6 +1906,7 @@ function derivedHydrationPolicy(core, operation, policies) {
   if (explicit && explicit.policy) return explicit.policy;
   const lane = laneNameForOperation(core, operation);
   if (lane && ['visible', 'idle', 'lazy', 'eager', 'open', 'route'].includes(lane)) return lane;
+  if (operation && operation.op === 'prewarm') return 'prewarm';
   if (operation && operation.op === 'hydrate') return 'visible';
   if (operation && operation.op === 'mount') return 'managed_subtree';
   return 'manual';
@@ -1911,9 +1915,45 @@ function derivedHydrationPolicy(core, operation, policies) {
 function derivedHydrationMode(operation, policies) {
   const explicit = policies.find((policy) => policy.kind === 'hydration' && policy.mode);
   if (explicit && explicit.mode) return explicit.mode;
+  if (operation && operation.op === 'prewarm') return 'prewarm';
   if (operation && operation.op === 'hydrate') return 'hydrate_prerendered';
   if (operation && operation.op === 'mount') return 'runtime_render';
   return 'manual';
+}
+
+function isWorkerPrerenderHydrationMode(modeOrPolicy) {
+  return String(modeOrPolicy || '').trim() === 'worker_prerender_hydrate';
+}
+
+function createWorkerPrerenderCapability(records) {
+  const workerRecords = toArray(records).filter((record) => record && record.workerPrerender && record.workerPrerender.requested === true);
+  return {
+    schema: 'xtend.rmt.app-hydration-capability.v1',
+    id: 'workerPrerender',
+    mode: 'worker_prerender_hydrate',
+    supported: true,
+    degraded: false,
+    status: workerRecords.length > 0 ? 'supported' : 'available',
+    requested: workerRecords.length > 0,
+    recordCount: workerRecords.length,
+    runtimeHooks: [
+      'createRmtWorkerPrerenderRuntime',
+      'hydrateResponse',
+      'commitTrustedHtml'
+    ],
+    fabric: {
+      lane: 'background',
+      fiberKind: 'component.worker_prerender_hydrate',
+      scheduleRef: 'component.worker_prerender_hydrate',
+      endpointName: 'xtendrmt.component.worker_prerender_hydrate'
+    },
+    validation: {
+      generationRequired: true,
+      staleResponses: 'discard',
+      hostServices: 'blocked-in-worker-path',
+      trustedDomCommit: 'main-thread'
+    }
+  };
 }
 
 function createHydrationPlan(core, appPlatform) {
@@ -1936,23 +1976,49 @@ function createHydrationPlan(core, appPlatform) {
     const isolation = policies.find((policy) => policy.kind === 'isolation') || null;
     const hydrationPolicy = policies.find((policy) => policy.kind === 'hydration') || null;
     const insular = policies.some((policy) => policy.kind === 'hydration' && policy.insularHydration === true);
-    const policy = derivedHydrationPolicy(core, operation, policies);
     const mode = derivedHydrationMode(operation, policies);
+    const workerPrerenderRequested = isWorkerPrerenderHydrationMode(mode)
+      || policies.some((policyRecord) => policyRecord.kind === 'hydration' && isWorkerPrerenderHydrationMode(policyRecord.policy));
+    const policy = workerPrerenderRequested
+      ? 'worker_prerender_hydrate'
+      : derivedHydrationPolicy(core, operation, policies);
+    const fabricSchedule = workerPrerenderRequested
+      ? {
+          lane: 'background',
+          fiberKind: 'component.worker_prerender_hydrate',
+          scheduleRef: 'component.worker_prerender_hydrate',
+          endpointName: 'xtendrmt.component.worker_prerender_hydrate'
+        }
+      : null;
     const record = {
       id: `hydration:${normalizeIdSegment(appSurface.id)}/${normalizeIdSegment(operation.op)}`,
       surface: appSurface.id,
       component: appSurface.component || null,
       operation: operation.id,
       op: operation.op,
-      lane: laneNameForOperation(core, operation) || 'visible',
+      lane: fabricSchedule ? fabricSchedule.lane : (laneNameForOperation(core, operation) || (operation.op === 'prewarm' ? 'background' : 'visible')),
       policy,
       mode,
       scheduleRef: `operation:${operation.id.slice('operation:'.length)}`,
-      endpointName: `xtend.rmt.kernel.${operation.op === 'hydrate' ? 'hydration' : 'surface-lifecycle'}.${schedulerToken(`${operation.target && operation.target.ref || appSurface.id}.${operation.op}`)}`,
+      fabricSchedule,
+      endpointName: `xtend.rmt.kernel.${lifecycleRuntimeKind(operation) || 'surface-lifecycle'}.${schedulerToken(`${operation.target && operation.target.ref || appSurface.id}.${operation.op}`)}`,
       target: operation.target || null,
       source: operation.source || null,
       explicitPolicy: Boolean(hydrationPolicy || isolation),
       insularHydration: insular,
+      workerPrerender: {
+        schema: 'xtend.rmt.app-hydration-worker-prerender.v1',
+        requested: workerPrerenderRequested,
+        supported: true,
+        degraded: false,
+        status: workerPrerenderRequested ? 'supported' : 'not_requested',
+        mode: 'worker_prerender_hydrate',
+        runtimeHook: 'hydrateResponse',
+        trustedDomCommit: 'main-thread',
+        staleResponses: 'discard-by-generation',
+        hostServices: 'blocked-in-worker-path',
+        fabric: fabricSchedule
+      },
       isolation: {
         boundary: isolation && isolation.boundary || 'public-contract-only',
         mode: isolation && isolation.mode || 'public-contract-only',
@@ -1992,6 +2058,10 @@ function createHydrationPlan(core, appPlatform) {
     supportedModes: SUPPORTED_ORCHESTRATION_HYDRATION_MODES.slice(),
     defaultMode: 'runtime_render',
     records,
+    capabilities: [
+      createWorkerPrerenderCapability(records)
+    ],
+    workerPrerender: createWorkerPrerenderCapability(records),
     insularIslands,
     diagnostics,
     security: {

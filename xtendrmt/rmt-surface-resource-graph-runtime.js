@@ -266,7 +266,7 @@
         bounds: cloneValue(instance.bounds, {}),
         placement: instance.placement || null,
         mode: instance.mode || (surfaceRuntimeType(instance.kind) === 'region' ? 'region' : 'floating'),
-        capabilities: ['open', 'focus', 'close', 'minimize', 'restore', 'update', 'snapshot'],
+        capabilities: ['open', 'focus', 'close', 'destroy', 'minimize', 'restore', 'update', 'snapshot'],
         contentRef: instance.component,
         metadata: {
           source: 'rmt-surface-resource-graph-runtime',
@@ -290,7 +290,7 @@
         open: true,
         placement: definition.placement || null,
         mode: 'overlay',
-        capabilities: ['open', 'focus', 'close', 'update', 'snapshot'],
+        capabilities: ['open', 'focus', 'close', 'destroy', 'update', 'snapshot'],
         contentRef: definition.component || '',
         metadata: {
           source: 'rmt-surface-resource-graph-runtime',
@@ -326,7 +326,17 @@
       if (operation === 'restore') return callSurfaceManager('restoreSurface', [instance.id], { instanceId: instance.id, operation });
       if (operation === 'materialize') return callSurfaceManager('materializeSurface', [instance.id, payload], { instanceId: instance.id, operation });
       if (operation === 'toggle') return callSurfaceManager('toggleSurface', [instance.id, payload], { instanceId: instance.id, operation });
-      if (operation === 'close' || operation === 'destroy') return callSurfaceManager('closeSurface', [instance.id, payload.reason || operation], { instanceId: instance.id, operation });
+      if (operation === 'close') return callSurfaceManager('closeSurface', [instance.id, payload.reason || operation], { instanceId: instance.id, operation });
+      if (operation === 'destroy') {
+        const destroyResult = callSurfaceManager('destroySurface', [instance.id, payload], { instanceId: instance.id, operation });
+        if (destroyResult) return destroyResult;
+        publish('rmt.surface.manager_proxy.degraded', 'SurfaceManager target does not support destroySurface(); falling back to closeSurface().', {
+          instanceId: instance.id,
+          operation,
+          reason: payload.reason || 'destroy'
+        }, 'warning');
+        return callSurfaceManager('closeSurface', [instance.id, payload.reason || operation], { instanceId: instance.id, operation: 'destroy-fallback-close' });
+      }
       if (operation === 'update') return callSurfaceManager('updateSurface', [instance.id, payload], { instanceId: instance.id, operation });
       return null;
     }
@@ -492,7 +502,17 @@
 
     async function openSurface(surfaceRef, openOptions = {}) {
       const instance = ensureSurface(surfaceRef, openOptions);
-      if (instance.state === 'destroyed') instance.state = 'closed';
+      if (instance.state === 'destroyed' && openOptions.recreate !== true) {
+        throw new Error(`RMT Surface ${surfaceRef} ist bereits zerstoert.`);
+      }
+      if (instance.state === 'destroyed' && openOptions.recreate === true) {
+        instance.state = 'closed';
+        instance.destroyedAt = null;
+        instance.metadata = {
+          ...objectRecord(instance.metadata),
+          generation: Number(objectRecord(instance.metadata).generation || 1) + 1
+        };
+      }
       await acquireResources(instance, openOptions);
       instance.state = 'open';
       instance.closedAt = null;
@@ -558,7 +578,7 @@
       overlayStack
         .filter((overlay) => overlay.state === 'open' && overlay.ownerId === instance.id)
         .forEach((overlay) => closeOverlay(overlay.id, { reason: 'surface-destroy' }));
-      releaseResources(instance, metadata.reason || 'destroy');
+      const releaseReport = releaseResources(instance, metadata.reason || 'destroy');
       if (eventRuntime && typeof eventRuntime.detachOwner === 'function') {
         eventRuntime.detachOwner(instance.owner);
       }
@@ -566,9 +586,14 @@
       instance.destroyedAt = metadata.at || 'static-local';
       publish('rmt.surface.destroyed', `RMT Surface ${instance.id} wurde zerstoert.`, {
         instanceId: instance.id,
-        owner: instance.owner
+        owner: instance.owner,
+        releasedCount: releaseReport && releaseReport.releasedCount || 0
       });
-      proxySurfaceManager('destroy', instance, metadata);
+      proxySurfaceManager('destroy', instance, {
+        ...metadata,
+        releasedResources: instance.resources.slice(),
+        releasedCount: releaseReport && releaseReport.releasedCount || 0
+      });
       return cloneValue(instance, instance);
     }
 

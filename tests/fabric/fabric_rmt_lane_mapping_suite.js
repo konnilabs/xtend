@@ -52,6 +52,9 @@ function runFabricRmtLaneMappingSuite(options = {}) {
   context.assertIncludes(source, 'xtend.rmt.schedules-domain.v1', 'Mapping module references RMT schedule-domain contract');
   context.assertIncludes(source, 'a11y.user-blocking.announce', 'Mapping module defines a11y schedule record');
   context.assertIncludes(source, 'route.transition.render', 'Mapping module defines transition route schedule');
+  context.assertIncludes(source, 'template.prewarm', 'Mapping module defines template prewarm schedule');
+  context.assertIncludes(source, 'surface.prewarm', 'Mapping module defines surface prewarm schedule');
+  context.assertIncludes(source, 'route.prewarm', 'Mapping module defines route prewarm schedule');
   assert(!source.includes('rmt-runtime'), 'Mapping module does not import the RMT runtime');
   assert(!source.includes("require('../xtendrmt") && !source.includes("require('../../xtendrmt"), 'Mapping module has no XTendRMT kernel require');
 
@@ -74,6 +77,11 @@ function runFabricRmtLaneMappingSuite(options = {}) {
   schedules.forEach((schedule) => assertScheduleShape(context, schedule));
   assert(schedules.some((schedule) => schedule.id === 'component.visible.mount' && schedule.endpointName === 'xtendrmt.component.mount'), 'Schedule set includes component mount endpoint');
   assert(schedules.some((schedule) => schedule.id === 'component.idle.hydrate' && schedule.preferIdle === true), 'Schedule set includes idle hydration endpoint');
+  assert(schedules.some((schedule) => schedule.id === 'component.prewarm.prepare' && schedule.endpointName === 'xtendrmt.component.prewarm'), 'Schedule set includes component prewarm endpoint');
+  assert(schedules.some((schedule) => schedule.id === 'template.prewarm' && schedule.lane === 'background'), 'Schedule set includes template prewarm endpoint');
+  assert(schedules.some((schedule) => schedule.id === 'template.prerender' && schedule.lane === 'background'), 'Schedule set includes template prerender endpoint');
+  assert(schedules.some((schedule) => schedule.id === 'surface.prewarm' && schedule.lane === 'background'), 'Schedule set includes surface prewarm endpoint');
+  assert(schedules.some((schedule) => schedule.id === 'route.prewarm' && schedule.lane === 'background'), 'Schedule set includes route prewarm endpoint');
   assert(schedules.some((schedule) => schedule.id === 'route.transition.render' && schedule.lane === 'transition'), 'Schedule set includes transition route endpoint');
   assert(schedules.some((schedule) => schedule.id === 'diagnostics.snapshot' && schedule.lane === 'diagnostics'), 'Schedule set includes diagnostics endpoint');
 
@@ -107,6 +115,21 @@ function runFabricRmtLaneMappingSuite(options = {}) {
   });
   assert(routeResolution.scheduleRef === 'route.transition.render', 'Route render fiber resolves to transition route schedule');
   assert(routeResolution.endpointName === 'xtendrmt.route.render', 'Route render fiber resolves route endpoint');
+
+  const surfacePrewarmResolution = resolveRmtScheduleForFiber({
+    kind: 'surface.prewarm',
+    scope: 'surface.workspace'
+  });
+  assert(surfacePrewarmResolution.scheduleRef === 'surface.prewarm', 'Surface prewarm fiber resolves to surface.prewarm schedule');
+  assert(surfacePrewarmResolution.endpointName === 'xtendrmt.surface.prewarm', 'Surface prewarm fiber resolves surface prewarm endpoint');
+  assert(surfacePrewarmResolution.rmtLane === 'background', 'Surface prewarm fiber runs on background RMT lane');
+
+  const templatePrerenderResolution = resolveRmtScheduleForFiber({
+    kind: 'template.prerender',
+    scope: 'template.workspace'
+  });
+  assert(templatePrerenderResolution.scheduleRef === 'template.prerender', 'Template prerender fiber resolves to template.prerender schedule');
+  assert(templatePrerenderResolution.rmtLane === 'background', 'Template prerender fiber runs on background RMT lane');
 
   const a11yResolution = resolveRmtScheduleForFiber({
     kind: 'a11y.announce',

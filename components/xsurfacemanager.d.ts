@@ -6,7 +6,7 @@ import type {
 
 export type XSurfaceManagerPersistenceMode = 'none' | 'memory' | 'session' | 'local';
 export type XSurfaceManagerRestorePolicy = 'auto' | 'manual' | 'reset';
-export type XSurfaceManagerLoadingPolicy = 'eager' | 'visible' | 'open' | 'idle' | 'route';
+export type XSurfaceManagerLoadingPolicy = 'eager' | 'visible' | 'open' | 'idle' | 'route' | 'warm' | 'prewarm';
 export type XSurfaceManagerRouteLifecyclePolicy = 'global' | 'open-close' | 'open-collapse' | 'open-minimize' | 'open-keep' | 'hydrate-only' | 'manual';
 export type XSurfaceManagerModalPolicy = 'topmost' | 'none' | 'all-modal' | 'surface-modal';
 export type XSurfaceManagerLayoutEngine = 'freeform' | 'docked' | 'split' | 'tile' | 'stacked';
@@ -34,6 +34,8 @@ export type XSurfaceManagerEventName =
   | 'surface-registered'
   | 'surface-opened'
   | 'surface-closed'
+  | 'surface-destroyed'
+  | 'surface-destroy-error'
   | 'surface-focused'
   | 'surface-materialized'
   | 'surface-updated'
@@ -412,6 +414,9 @@ export interface XSurfaceManagerElement extends HTMLElement {
   registerSurface(surface: HTMLElement | Record<string, unknown>): XtendSurfaceOperationResult;
   openSurface(id: string, input?: Record<string, unknown>): XtendSurfaceOperationResult;
   closeSurface(id: string, reason?: string): XtendSurfaceOperationResult;
+  destroySurface(id: string, options?: Record<string, unknown>): XtendSurfaceOperationResult;
+  registerSurfacePrewarmHandle(surfaceId: string, handle: unknown, options?: Record<string, unknown>): Record<string, unknown>;
+  registerSurfaceChunkHandle(surfaceId: string, handle: unknown, options?: Record<string, unknown>): Record<string, unknown>;
   focusSurface(id: string): XtendSurfaceOperationResult;
   updateSurface(id: string, patch?: Record<string, unknown>): XtendSurfaceOperationResult;
   moveSurface(id: string, bounds: Record<string, unknown>): XtendSurfaceOperationResult;
@@ -426,8 +431,8 @@ export interface XSurfaceManagerElement extends HTMLElement {
   expandSurface(id: string, mode?: string): XtendSurfaceOperationResult;
   dockSurface(id: string, placement?: string, mode?: string): XtendSurfaceOperationResult;
   undockSurface(id: string, bounds?: Record<string, unknown>): XtendSurfaceOperationResult;
-  snapshot(): XtendSurfaceSnapshot;
-  readSnapshot(): XtendSurfaceSnapshot;
+  snapshot(options?: Record<string, unknown>): XtendSurfaceSnapshot;
+  readSnapshot(options?: Record<string, unknown>): XtendSurfaceSnapshot;
   snapshotSurfaceLoading(): XSurfaceManagerLoadingSnapshot;
   hydrateSurfaceContent(surfaceRef: string | HTMLElement | Record<string, unknown>, options?: Record<string, unknown>): Promise<XSurfaceManagerLoadingResult>;
   snapshotRouteLifecycle(): XSurfaceManagerRouteLifecycleSnapshot;

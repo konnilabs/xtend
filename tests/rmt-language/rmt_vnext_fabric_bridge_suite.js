@@ -24,6 +24,9 @@ const {
   RMT_VNEXT_SOURCE_TO_SEA_MODULE_PATH,
   createRmtVNextSourceToSeaEvidence
 } = require('../../tools/rmt-language/vnext-source-to-sea');
+const {
+  compileRmtVNextSource
+} = require('../../tools/rmt-language/vnext-compiler');
 
 const RMT_VNEXT_FABRIC_BRIDGE_SUITE_PATH = 'tests/rmt-language/rmt_vnext_fabric_bridge_suite.js';
 const FABRIC_BRIDGE_DOC_PATHS = Object.freeze([
@@ -76,6 +79,34 @@ function runRmtVNextFabricBridgeSuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const bridgeDocs = FABRIC_BRIDGE_DOC_PATHS.map((docPath) => readText(docPath, rootDir)).join('\n');
+  const workerPrerenderCompile = compileRmtVNextSource({
+    text: [
+      'template rkfa.prerender.demo {',
+      '  state rkfa.prerender.card type object preserve {',
+      '    initial {',
+      '      id "worker-card"',
+      '      text "Worker"',
+      '    }',
+      '  }',
+      '',
+      '  selector rkfa.prerender.card from state rkfa.prerender.card {',
+      '    output WorkerCard',
+      '  }',
+      '',
+      '  surface rkfa.prerender.card kind card component x-worker-card {',
+      '    lane idle weight 30 {',
+      '      hydrate worker-card from selector rkfa.prerender.card {',
+      '        hydration mode worker_prerender_hydrate',
+      '      }',
+      '    }',
+      '  }',
+      '}'
+    ].join('\n'),
+    filePath: resolveRepoPath('tests/rmt-language/fixtures/rkfa-worker-prerender-inline.rmt', rootDir)
+  });
+  const workerHydration = workerPrerenderCompile.orchestrationArtifacts && workerPrerenderCompile.orchestrationArtifacts.hydration;
+  const workerCapability = workerHydration && workerHydration.workerPrerender;
+  const workerRecord = workerHydration && workerHydration.records && workerHydration.records.find((record) => record.mode === 'worker_prerender_hydrate');
 
   context.assert(evidence.ok === true, 'source-to-sea evidence is usable as PRIM-05 input');
   context.assert(bridge && bridge.schema === RMT_VNEXT_FABRIC_BRIDGE_EVIDENCE_SCHEMA, 'fabric bridge evidence declares schema');
@@ -132,6 +163,13 @@ function runRmtVNextFabricBridgeSuite(options = {}) {
   context.assert(bridge && bridge.browser.hostAdapterTelemetryVisible === true, 'browser exposes host adapter telemetry marker');
   context.assert(evidence.checks.some((check) => check.name === 'kernel does not expose host imports' && check.ok === true), 'kernel boundary keeps host imports out');
   context.assert(bridge && bridge.correlation.map((entry) => entry.layer).join('>') === 'source>kernel.schedule>kernel.fiber>fabric.mapping>fabric.fiber>host.adapter>component.fibers>route.fibers>fabric.telemetry>browser', 'fabric bridge correlation is complete');
+
+  context.assert(workerPrerenderCompile.ok === true, 'worker prerender hydration fixture compiles');
+  context.assert(workerHydration && workerHydration.supportedModes.includes('worker_prerender_hydrate'), 'hydration artifact supports worker_prerender_hydrate');
+  context.assert(workerCapability && workerCapability.id === 'workerPrerender', 'hydration artifact exposes workerPrerender capability');
+  context.assert(workerCapability && workerCapability.status === 'supported', 'workerPrerender capability is supported when requested');
+  context.assert(workerRecord && workerRecord.workerPrerender && workerRecord.workerPrerender.status === 'supported', 'worker hydration record carries workerPrerender support');
+  context.assert(workerRecord && workerRecord.fabricSchedule && workerRecord.fabricSchedule.scheduleRef === 'component.worker_prerender_hydrate', 'worker hydration record links Fabric worker schedule');
 
   context.assert(runner.includes("id: 'rmt-vnext-fabric-bridge'"), 'test runner exposes PRIM-05 fabric bridge suite');
   context.assert(packageManifest.scripts['test:rmt-vnext-fabric-bridge'] === PACKAGE_SCRIPT, 'package exposes PRIM-05 fabric bridge script');

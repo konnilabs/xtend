@@ -1284,6 +1284,14 @@ module.exports = {
     optionalPrCommand: "npm run test:pr:rmt",
     optionalPrReportCommand: "npm run test:pr:rmt:report",
     releaseReportCommand: "npm run test:rmt-tooling:report",
+    policyParity: {
+      schema: "xtend.rmt.kernel-policy-parity.v1",
+      reportSchema: "xtend.rmt.kernel-policy-parity-report.v1",
+      localGate: "node scripts/run_xtend_tests.js rmt-kernel-policy-parity --json",
+      packageScript: "npm run test:rmt-kernel-policy-parity",
+      driftCount: 0,
+      requiredFactories: ["recordTrustVerdict", "commitTrustedHtml", "commitTrustedAttribute", "commitTrustedProperty", "applyRemoteSurfacePolicy", "recoverFromPanic", "rememberSafeSnapshot", "listRecoveryOutcomes", "panicBlockScope", "abortScope", "reportPerformanceSample", "dispatchCommand", "recordEscalation", "listEscalations"]
+    },
     primarySuiteIds: ["rmt-source-model", "rmt-parser", "rmt-semantic-graph", "rmt-linter-rules", "rmt-linter-cli", "rmt-completions", "rmt-navigation", "rmt-language-server", "rmt-code-actions", "rmt-agent-report", "rmt-editor-packaging", "rmt-language-regression", "rmt-tooling-docs"],
     optionalPrSuiteIds: ["rmt-linter-cli", "rmt-language-server", "rmt-language-regression", "rmt-tooling-docs"],
     packageExports: ["./rmt-language/source-model", "./rmt-language/parser", "./rmt-language/format-adapter", "./rmt-language/semantic-graph", "./rmt-language/diagnostics", "./rmt-language/completions", "./rmt-language/hover", "./rmt-language/symbols", "./rmt-language/definitions", "./rmt-language/code-actions", "./rmt-language-server", "./rmt-language-server/protocol", "./rmt-linter/cli", "./rmt-linter/reporter", "./rmt-language/snippets", "./rmt-editor/vscode", "./catalog/epic14-rmt-tooling"],
@@ -1488,7 +1496,7 @@ module.exports = {
     packageDryRunArtifact: ".xtend-test-results/xtend-pack-dry-run.json",
     packageExportSurfaceArtifact: ".xtend-test-results/xtend-package-export-surface-lock.json",
     packageExportLockReportArtifact: ".xtend-test-results/xtend-package-export-lock-report.json",
-    expectedExportCount: 129,
+    expectedExportCount: 130,
     localGateRequiresNpmPackExecution: false,
     artifactRequiredForRc1: true,
     nextWorkpackage: "WP-E13-13",

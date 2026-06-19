@@ -143,6 +143,19 @@
     }
   },
   {
+    "slug": "rmt-tooling-release-gates",
+    "id": "docs.rmt.tooling.release.gates",
+    "label": "RMT Tooling Release Gates",
+    "group": "learn-rmt",
+    "parent": "learn-rmt",
+    "tier": "deep-dive",
+    "rank": 99,
+    "labels": {
+      "de": "RMT Tooling Release Gates",
+      "en": "RMT Tooling Release Gates"
+    }
+  },
+  {
     "slug": "learn-rmt-syntax-basics",
     "id": "docs.learn.rmt.syntax.basics",
     "label": "Syntax Basics",
@@ -829,6 +842,32 @@
     "labels": {
       "de": "XTend UI Runtime-Schicht",
       "en": "XTend UI Runtime Layer"
+    }
+  },
+  {
+    "slug": "rmt-kernel-topography-map",
+    "id": "docs.rmt.kernel.topography.map",
+    "label": "RMT Kernel Topography Map",
+    "group": "rmt",
+    "parent": "rmt-kernel-runtime",
+    "tier": "deep-dive",
+    "rank": 92,
+    "labels": {
+      "de": "RMT Kernel Topography Map",
+      "en": "RMT Kernel Topography Map"
+    }
+  },
+  {
+    "slug": "rmt-kernel-feature-adoption-evaluation",
+    "id": "docs.rmt.kernel.feature.adoption.evaluation",
+    "label": "RMT Kernel Feature Adoption Evaluation",
+    "group": "rmt",
+    "parent": "rmt-kernel-runtime",
+    "tier": "deep-dive",
+    "rank": 91,
+    "labels": {
+      "de": "RMT Kernel Feature Adoption Evaluation",
+      "en": "RMT Kernel Feature Adoption Evaluation"
     }
   },
   {

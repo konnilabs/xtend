@@ -159,11 +159,16 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'registerSurface(surface)',
     'openSurface(id, input)',
     'closeSurface(id, reason)',
+    'destroySurface(id, options = {})',
     'focusSurface(id)',
     'moveSurface(id, bounds)',
     'resizeSurface(id, bounds)',
     'materializeSurface(id, input)',
     'toggleSurface(id, input)',
+    "_cancelSurfaceHydration(surfaceId, reason = 'destroy')",
+    '_cleanupDestroyedSurfaceState(surfaceId, options = {})',
+    'surface-destroyed',
+    'surface-destroy-error',
     'slot name="windows"',
     'slot name="panels"',
     'slot name="overlays"',
@@ -199,6 +204,9 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'interface XSurfaceManagerElement',
     'registerSurface',
     'openSurface',
+    'destroySurface',
+    'surface-destroyed',
+    'surface-destroy-error',
     'materializeSurface',
     'toggleSurface',
     'layoutSnapshot',
@@ -215,7 +223,9 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'xSurfaceWindowContract',
     'xtend.surface.manager.v1',
     'xtend.surface.record.v1',
-    'xtend.surface.controller.v1'
+    'xtend.surface.controller.v1',
+    'destroySurface',
+    'surface-destroyed'
   ], 'SurfaceManager TypeScript source');
 
   assertTextIncludesAll(context, managerFixture, [
@@ -238,13 +248,16 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
   });
 
   assertTextIncludesAll(context, managerDocs, [
-    '# xsurfacemanager - XTend Komponente',
+    '# x-surface-manager',
     'xtend.surface.manager.v1',
     'xtend.surface.controller.v1',
-    'surface-layout-changed'
+    'surface-layout-changed',
+    'destroySurface',
+    'surface-destroyed',
+    'xtend.surface.tombstone.v1'
   ], 'x-surface-manager component docs');
   assertTextIncludesAll(context, windowDocs, [
-    '# xsurfacewindow - XTend Komponente',
+    '# x-surface-window',
     'xtend.surface.record.v1',
     'surface-window-command',
     'applySurfaceSnapshot'
@@ -254,6 +267,9 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'x-surface-manager',
     'x-surface-window',
     'surface-window-command',
+    'destroySurface',
+    'surface-destroyed',
+    'xtend.surface.tombstone.v1',
     'WP-SM-04'
   ], 'SurfaceManager runtime docs');
   assertTextIncludesAll(context, contractDoc, [

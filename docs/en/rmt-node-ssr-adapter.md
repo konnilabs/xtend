@@ -14,6 +14,14 @@ RMT Node SSR Adapter describes the public RMT surface for this page: which recor
 - Adapter contract `xtend.rmt.node-ssr-adapter.v1`.
 - JSONL streaming frames with `xtend.rmt.node-ssr-jsonl-frame.v1`.
 
+## Hydration Response Envelope
+
+`render().response` uses `renderman_template_prerender_response` with
+`executionMode: "server_prerender_hydrate"`. The response carries `chunk`,
+`chunks`, `request`, `metadata.adapterKind: "node-ssr"` and `hydrate_existing`
+target metadata so the client runtime can process it through `hydrateResponse`
+or degrade in a controlled way when diagnostics block the render.
+
 ## Example
 
 ```js

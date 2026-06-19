@@ -56,6 +56,10 @@
       "types": "./rmt-language/app-platform-tooling.d.ts",
       "default": "./rmt-language/app-platform-tooling.js"
     },
+    "./rmt-language/rmt-ai-developer-kit": {
+      "types": "./rmt-language/rmt-ai-developer-kit.d.ts",
+      "default": "./rmt-language/rmt-ai-developer-kit.js"
+    },
     "./rmt-linter/cli": {
       "types": "./rmt-linter/cli.d.ts",
       "default": "./rmt-linter/cli.js"

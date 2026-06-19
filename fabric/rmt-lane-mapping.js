@@ -135,9 +135,20 @@
     'component.render': 'visible',
     'component.update': 'visible',
     'component.disconnect': 'background',
+    'component.unmount': 'background',
+    'component.dispose': 'background',
+    'component.prewarm': 'background',
+    'component.worker_prerender_hydrate': 'background',
+    'template.prewarm': 'background',
+    'template.prerender': 'background',
+    'surface.destroy': 'background',
+    'surface.cleanup': 'background',
+    'surface.prewarm': 'background',
+    'resource.release': 'background',
     'event.handler': 'user-blocking',
     'route.navigate': 'user-blocking',
     'route.render': 'transition',
+    'route.prewarm': 'background',
     'theme.apply': 'visible',
     'state.sync': 'user-blocking',
     'api.call': 'user-blocking',
@@ -168,12 +179,46 @@
     'component.disconnect': Object.freeze({
       background: 'ui.background.work'
     }),
+    'component.unmount': Object.freeze({
+      background: 'ui.background.work'
+    }),
+    'component.dispose': Object.freeze({
+      background: 'ui.background.work'
+    }),
+    'component.prewarm': Object.freeze({
+      background: 'component.prewarm.prepare',
+      idle: 'component.warm.reentry'
+    }),
+    'component.worker_prerender_hydrate': Object.freeze({
+      background: 'component.worker_prerender_hydrate'
+    }),
+    'template.prewarm': Object.freeze({
+      background: 'template.prewarm'
+    }),
+    'template.prerender': Object.freeze({
+      background: 'template.prerender'
+    }),
+    'surface.destroy': Object.freeze({
+      background: 'ui.background.work'
+    }),
+    'surface.cleanup': Object.freeze({
+      background: 'ui.background.work'
+    }),
+    'surface.prewarm': Object.freeze({
+      background: 'surface.prewarm'
+    }),
+    'resource.release': Object.freeze({
+      background: 'ui.background.work'
+    }),
     'route.navigate': Object.freeze({
       'user-blocking': 'ui.user-blocking.input'
     }),
     'route.render': Object.freeze({
       visible: 'route.visible.render',
       transition: 'route.transition.render'
+    }),
+    'route.prewarm': Object.freeze({
+      background: 'route.prewarm'
     }),
     'event.handler': Object.freeze({
       'user-blocking': 'ui.user-blocking.input'
@@ -253,6 +298,48 @@
       endpointName: 'xtendrmt.component.hydrate',
       scope: 'xtend.fabric.component.lazy.hydrate',
       coalesceKey: 'xtend.fabric.component.lazy.hydrate'
+    }),
+    'component.warm.reentry': Object.freeze({
+      fabricLane: 'idle',
+      endpointName: 'xtendrmt.component.prewarm',
+      scope: 'xtend.fabric.component.warm-reentry',
+      coalesceKey: 'xtend.fabric.component.warm-reentry'
+    }),
+    'component.prewarm.prepare': Object.freeze({
+      fabricLane: 'background',
+      endpointName: 'xtendrmt.component.prewarm',
+      scope: 'xtend.fabric.component.prewarm',
+      coalesceKey: 'xtend.fabric.component.prewarm'
+    }),
+    'component.worker_prerender_hydrate': Object.freeze({
+      fabricLane: 'background',
+      endpointName: 'xtendrmt.component.worker_prerender_hydrate',
+      scope: 'xtend.fabric.component.worker-prerender-hydrate',
+      coalesceKey: 'xtend.fabric.component.worker-prerender-hydrate'
+    }),
+    'template.prewarm': Object.freeze({
+      fabricLane: 'background',
+      endpointName: 'xtendrmt.template.prewarm',
+      scope: 'xtend.fabric.template.prewarm',
+      coalesceKey: 'xtend.fabric.template.prewarm'
+    }),
+    'template.prerender': Object.freeze({
+      fabricLane: 'background',
+      endpointName: 'xtendrmt.template.prerender',
+      scope: 'xtend.fabric.template.prerender',
+      coalesceKey: 'xtend.fabric.template.prerender'
+    }),
+    'surface.prewarm': Object.freeze({
+      fabricLane: 'background',
+      endpointName: 'xtendrmt.surface.prewarm',
+      scope: 'xtend.fabric.surface.prewarm',
+      coalesceKey: 'xtend.fabric.surface.prewarm'
+    }),
+    'route.prewarm': Object.freeze({
+      fabricLane: 'background',
+      endpointName: 'xtendrmt.route.prewarm',
+      scope: 'xtend.fabric.route.prewarm',
+      coalesceKey: 'xtend.fabric.route.prewarm'
     }),
     'ui.background.work': Object.freeze({
       fabricLane: 'background',
@@ -384,6 +471,13 @@
         'route.transition.render',
         'component.idle.hydrate',
         'component.lazy.hydrate',
+        'component.warm.reentry',
+        'component.prewarm.prepare',
+        'component.worker_prerender_hydrate',
+        'template.prewarm',
+        'template.prerender',
+        'surface.prewarm',
+        'route.prewarm',
         'ui.background.work',
         'diagnostics.snapshot'
       ]
@@ -396,6 +490,13 @@
         'route.transition.render',
         'component.idle.hydrate',
         'component.lazy.hydrate',
+        'component.warm.reentry',
+        'component.prewarm.prepare',
+        'component.worker_prerender_hydrate',
+        'template.prewarm',
+        'template.prerender',
+        'surface.prewarm',
+        'route.prewarm',
         'ui.background.work',
         'diagnostics.snapshot'
       ];

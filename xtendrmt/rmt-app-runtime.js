@@ -4,10 +4,19 @@
   const RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
   const RMT_HOST_SERVICE_SCHEMA = 'xtend.rmt.host-service.v1';
   const RMT_STREAM_PATCH_SCHEMA = 'xtend.rmt.stream-patch.v1';
+  const RMT_STREAM_PRESSURE_SCHEMA = 'xtend.rmt.app-runtime-stream-pressure.v1';
+  const RMT_YIELD_ACTION_SCHEMA = 'xtend.rmt.app-runtime-yield-action.v1';
   const RMT_VIEW_TEMPLATE_SCHEMA = 'xtend.rmt.view-template.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_runtime';
   const STREAM_PATCH_TYPES = new Set(['start', 'delta', 'tool-call', 'tool-result', 'complete', 'error', 'cancel']);
   const TERMINAL_STREAM_PATCH_TYPES = new Set(['complete', 'error', 'cancel']);
+  const STREAM_PRESSURE_LEVELS = Object.freeze({
+    none: 0,
+    low: 1,
+    medium: 2,
+    high: 3,
+    critical: 4
+  });
   const UI_WIRING_PATTERNS = Object.freeze([
     { id: 'document.querySelector', pattern: /\bdocument\s*\.\s*querySelector(?:All)?\s*\(/u },
     { id: 'document.getElementById', pattern: /\bdocument\s*\.\s*getElementById\s*\(/u },
@@ -732,10 +741,38 @@
     return task(fiberInput);
   }
 
+  function streamPressureValue(level) {
+    return STREAM_PRESSURE_LEVELS[clampString(level, 'none')] || 0;
+  }
+
+  function streamPressureLevelForScore(score, explicitLevel) {
+    const requested = clampString(explicitLevel, '');
+    if (Object.prototype.hasOwnProperty.call(STREAM_PRESSURE_LEVELS, requested)) return requested;
+    const numericScore = Number.isFinite(Number(score)) ? Number(score) : 0;
+    if (numericScore >= 12) return 'critical';
+    if (numericScore >= 8) return 'high';
+    if (numericScore >= 4) return 'medium';
+    if (numericScore >= 1) return 'low';
+    return 'none';
+  }
+
+  function streamPressureActionFor(level, patchType) {
+    if (patchType === 'complete') return 'release-stream-resources';
+    if (patchType === 'cancel' || patchType === 'error' || level === 'critical') return 'protect-visible-work';
+    if (level === 'high') return 'defer-lazy-hydration';
+    if (level === 'medium') return 'rebalance-idle-work';
+    if (level === 'low') return 'observe-stream-pressure';
+    return 'continue';
+  }
+
   function createRmtAppRuntime(options = {}) {
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     const actionRuntime = options.actionRuntime || null;
     const fabric = options.fabric || null;
+    const kernelRuntime = options.kernelRuntime || options.rmtRuntime || options.runtime || null;
+    const scheduler = options.scheduler || options.kernelScheduler || options.rmtScheduler || kernelRuntime && kernelRuntime.scheduler || null;
+    const performanceRuntime = options.performanceRuntime || options.kernelPerformanceRuntime || options.rmtPerformanceRuntime || kernelRuntime && kernelRuntime.performanceRuntime || null;
+    const orchestrationController = options.kernelOrchestrationController || options.orchestrationController || null;
     const hostServices = options.hostServices && typeof options.hostServices.invoke === 'function'
       ? options.hostServices
       : createRmtHostServiceRegistry({
@@ -746,8 +783,16 @@
     const commandHistory = [];
     const streamHistory = [];
     const streamRecords = new Map();
+    const streamPressureRecords = [];
+    const yieldActions = [];
+    const schedulerPressureSamples = [];
     const streamLifecycleActions = objectRecord(options.streamLifecycleActions || options.lifecycleActions);
+    const telemetryLimit = Number.isInteger(options.telemetryLimit) && options.telemetryLimit > 0 ? options.telemetryLimit : 200;
     let appState = cloneValue(options.initialState, {});
+
+    function trimTelemetryStore(store) {
+      while (store.length > telemetryLimit) store.shift();
+    }
 
     function streamRecordKey(patch) {
       return clampString(patch.streamId || patch.correlationId || patch.target || patch.id, '');
@@ -811,6 +856,143 @@
         }
       }
       return { record: cloneValue(record, record), accepted: true };
+    }
+
+    function createStreamPressureRecord(patch, streamTelemetry = {}, reducerOptions = {}) {
+      const record = objectRecord(streamTelemetry.record);
+      const patchCount = Number.isFinite(Number(record.patchCount)) ? Number(record.patchCount) : 0;
+      const deltaCount = Number.isFinite(Number(record.deltaCount)) ? Number(record.deltaCount) : 0;
+      let score = Math.min(12, Math.max(0, patchCount + deltaCount));
+      if (patch.type === 'delta') score = Math.min(12, Math.max(score, deltaCount + 2));
+      if (patch.type === 'tool-call' || patch.type === 'tool-result') score = Math.max(score, 4);
+      if (patch.type === 'complete') score = Math.max(score, 3);
+      if (patch.type === 'cancel') score = Math.max(score, 8);
+      if (patch.type === 'error') score = Math.max(score, 12);
+      const explicitLevel = reducerOptions.streamPressureLevel || reducerOptions.backpressureLevel || options.streamPressureLevel;
+      const level = patch.type === 'error'
+        ? 'critical'
+        : (patch.type === 'cancel' ? 'high' : streamPressureLevelForScore(score, explicitLevel));
+      const terminal = TERMINAL_STREAM_PATCH_TYPES.has(patch.type);
+      return Object.freeze({
+        schema: RMT_STREAM_PRESSURE_SCHEMA,
+        id: `${patch.streamId || patch.correlationId || patch.id || 'stream'}.pressure.${streamPressureRecords.length + 1}`,
+        timestamp: patch.timestamp || nowIso(options.clock),
+        source: 'rmt-app-runtime',
+        phase: terminal ? 'stream-terminal' : 'stream',
+        streamId: patch.streamId || '',
+        target: patch.target || '',
+        correlationId: patch.correlationId || '',
+        patchId: patch.id || '',
+        patchType: patch.type,
+        terminal,
+        level,
+        score,
+        action: streamPressureActionFor(level, patch.type),
+        lane: terminal ? 'background' : 'idle',
+        schedulerLane: 'idle_maintenance',
+        scheduleRef: terminal ? 'rmt.stream.terminal' : 'rmt.stream.patch',
+        patchCount,
+        deltaCount,
+        finalState: record.finalState || null,
+        cancellationReason: record.cancellationReason || ''
+      });
+    }
+
+    function reportStreamPressureSample(pressureRecord) {
+      const record = objectRecord(pressureRecord);
+      const sample = {
+        schema: 'xtend.rmt.app-runtime-stream-pressure-sample.v1',
+        source: 'rmt.app_runtime.stream-pressure',
+        phase: record.terminal ? 'stream-terminal' : 'stream-pressure',
+        lane: 'idle_maintenance',
+        scheduleRef: record.scheduleRef,
+        durationMs: Math.max(1, Number(record.score || 0) * (record.level === 'critical' ? 10 : 6)),
+        longTask: record.level === 'critical',
+        pressureLevel: record.level,
+        streamId: record.streamId,
+        patchType: record.patchType,
+        terminal: record.terminal === true,
+        correlationId: record.correlationId,
+        metadata: {
+          streamPressure: record,
+          action: record.action
+        }
+      };
+      let result = null;
+      let sampled = false;
+      try {
+        if (scheduler && typeof scheduler.reportPerformanceSample === 'function') {
+          result = scheduler.reportPerformanceSample(sample);
+          sampled = true;
+        } else if (performanceRuntime && typeof performanceRuntime.reportPerformanceSample === 'function') {
+          result = performanceRuntime.reportPerformanceSample(sample);
+          sampled = true;
+        } else if (kernelRuntime && typeof kernelRuntime.reportPerformanceSample === 'function') {
+          result = kernelRuntime.reportPerformanceSample(sample);
+          sampled = true;
+        } else if (orchestrationController && typeof orchestrationController.recordAppRuntimeBackpressure === 'function') {
+          result = orchestrationController.recordAppRuntimeBackpressure(record);
+          sampled = true;
+        }
+      } catch (error) {
+        result = {
+          ok: false,
+          error: error && error.message ? error.message : String(error)
+        };
+      }
+      const entry = Object.freeze({
+        ...sample,
+        schedulerPressureSampled: sampled,
+        schedulerResult: cloneValue(result, result)
+      });
+      schedulerPressureSamples.push(entry);
+      trimTelemetryStore(schedulerPressureSamples);
+      return entry;
+    }
+
+    function createYieldAction(pressureRecord, schedulerSample = null) {
+      const record = objectRecord(pressureRecord);
+      if (streamPressureValue(record.level) < STREAM_PRESSURE_LEVELS.high && record.terminal !== true) return null;
+      const schedulerResult = objectRecord(schedulerSample && schedulerSample.schedulerResult);
+      return Object.freeze({
+        schema: RMT_YIELD_ACTION_SCHEMA,
+        id: `${record.id || record.streamId || 'stream'}.yield.${yieldActions.length + 1}`,
+        timestamp: record.timestamp || nowIso(options.clock),
+        source: 'rmt-app-runtime',
+        reason: record.terminal ? `stream-${record.patchType}` : `stream-pressure-${record.level}`,
+        action: record.action,
+        lane: 'idle_maintenance',
+        targetLane: 'visible',
+        pressureLevel: record.level,
+        schedulerPressureLevel: schedulerResult.pressureLevel || '',
+        streamId: record.streamId,
+        patchType: record.patchType,
+        terminal: record.terminal === true,
+        scheduleRef: record.scheduleRef,
+        correlationId: record.correlationId,
+        metadata: {
+          streamPressureId: record.id,
+          schedulerPressureSampled: schedulerSample && schedulerSample.schedulerPressureSampled === true
+        }
+      });
+    }
+
+    function recordStreamPressure(patch, streamTelemetry = {}, reducerOptions = {}) {
+      const pressureRecord = createStreamPressureRecord(patch, streamTelemetry, reducerOptions);
+      streamPressureRecords.push(pressureRecord);
+      trimTelemetryStore(streamPressureRecords);
+      const schedulerSample = reportStreamPressureSample(pressureRecord);
+      const yieldAction = createYieldAction(pressureRecord, schedulerSample);
+      if (yieldAction) {
+        yieldActions.push(yieldAction);
+        trimTelemetryStore(yieldActions);
+      }
+      diagnosticsRecorder.publish(createDiagnostic('rmt.stream.pressure', 'RMT stream pressure recorded.', {
+        streamPressure: pressureRecord,
+        yieldAction,
+        schedulerPressureSample: schedulerSample
+      }, streamPressureValue(pressureRecord.level) >= STREAM_PRESSURE_LEVELS.high ? 'warning' : 'info'));
+      return { pressureRecord, schedulerSample, yieldAction };
     }
 
     async function dispatchCommand(commandInput, metadata = {}) {
@@ -906,16 +1088,27 @@
       if (!telemetry.accepted) return cloneValue(appState, appState);
       appState = applyRmtStreamPatch(appState, patch, reducerOptions);
       streamHistory.push(patch);
-      const signal = fabric && typeof fabric.createBackpressureSignal === 'function' && patch.type === 'delta'
+      const streamPressure = recordStreamPressure(patch, telemetry, reducerOptions);
+      const pressureRecord = streamPressure.pressureRecord;
+      const signal = fabric && typeof fabric.createBackpressureSignal === 'function' && (patch.type === 'delta' || pressureRecord.terminal)
         ? fabric.createBackpressureSignal({
           source: 'rmt-app-runtime',
-          reason: 'stream-delta',
+          reason: pressureRecord.terminal ? 'stream-terminal' : 'stream-delta',
           lane: 'visible',
-          score: Math.min(streamHistory.length, 12),
+          level: pressureRecord.level,
+          score: pressureRecord.score,
+          action: pressureRecord.action,
           correlationId: patch.correlationId,
-          scheduleRef: 'rmt.stream.patch'
+          scheduleRef: pressureRecord.scheduleRef,
+          metadata: {
+            streamPressure: pressureRecord,
+            yieldAction: streamPressure.yieldAction
+          }
         })
         : null;
+      if (signal && fabric && typeof fabric.recordBackpressureSignal === 'function') {
+        fabric.recordBackpressureSignal(signal);
+      }
       if (fabric && typeof fabric.emitDiagnostic === 'function') {
         fabric.emitDiagnostic({
           code: 'rmt.stream.patch',
@@ -932,9 +1125,22 @@
             patchCount: telemetry.record && telemetry.record.patchCount || 0,
             finalState: telemetry.record && telemetry.record.finalState || null,
             cancellationReason: telemetry.record && telemetry.record.cancellationReason || '',
+            streamPressure: pressureRecord,
+            yieldAction: streamPressure.yieldAction,
+            schedulerPressureSample: streamPressure.schedulerSample,
             backpressureSignal: signal
           }
         });
+      }
+      if (signal) {
+        diagnosticsRecorder.publish(createDiagnostic('rmt.stream.backpressure', 'RMT stream patch emitted a backpressure signal.', {
+          patchType: patch.type,
+          streamId: patch.streamId,
+          correlationId: patch.correlationId,
+          streamPressure: pressureRecord,
+          yieldAction: streamPressure.yieldAction,
+          backpressureSignal: signal
+        }, 'info'));
       }
       return cloneValue(appState, appState);
     }
@@ -1023,6 +1229,65 @@
       return applyReducer(record, context);
     }
 
+    function getPerformanceTelemetrySnapshot() {
+      const diagnostics = diagnosticsRecorder.diagnostics.slice();
+      const backpressureSignals = diagnostics.flatMap((diagnostic) => {
+        const metadata = objectRecord(diagnostic && diagnostic.metadata);
+        const details = objectRecord(diagnostic && diagnostic.details);
+        const signal = diagnostic && diagnostic.backpressureSignal
+          || metadata.backpressureSignal
+          || details.backpressureSignal;
+        return signal ? [cloneValue(signal, signal)] : [];
+      });
+      return {
+        schema: 'xtend.rmt.app-runtime-performance-telemetry.v1',
+        commandCount: commandHistory.length,
+        streamPatchCount: streamHistory.length,
+        streamCount: streamRecords.size,
+        diagnosticCount: diagnostics.length,
+        backpressureSignalCount: backpressureSignals.length,
+        backpressureSignals,
+        streamPressureRecordCount: streamPressureRecords.length,
+        streamPressureRecords: streamPressureRecords.map((entry) => cloneValue(entry, entry)),
+        highestStreamPressureLevel: streamPressureRecords.reduce((level, record) => (
+          streamPressureValue(record.level) > streamPressureValue(level) ? record.level : level
+        ), 'none'),
+        yieldActionCount: yieldActions.length,
+        yieldActions: yieldActions.map((entry) => cloneValue(entry, entry)),
+        schedulerSampleCount: schedulerPressureSamples.length,
+        schedulerPressureSamples: schedulerPressureSamples.map((entry) => cloneValue(entry, entry)),
+        streams: Array.from(streamRecords.values()).map((entry) => cloneValue(entry, entry))
+      };
+    }
+
+    function listPanicRecoveryRecords() {
+      const records = [];
+      if (kernelRuntime && typeof kernelRuntime.listPanicRecoveryRecords === 'function') {
+        records.push(...kernelRuntime.listPanicRecoveryRecords());
+      }
+      if (fabric && typeof fabric.getKernelPanicRecoveryRecords === 'function') {
+        records.push(...fabric.getKernelPanicRecoveryRecords());
+      }
+      return records.map((record) => cloneValue(record, record));
+    }
+
+    function getPanicRecoverySnapshot() {
+      const kernelSnapshot = kernelRuntime && typeof kernelRuntime.getPanicRecoverySnapshot === 'function'
+        ? kernelRuntime.getPanicRecoverySnapshot()
+        : null;
+      const fabricSnapshot = fabric && typeof fabric.getPanicRecoverySnapshot === 'function'
+        ? fabric.getPanicRecoverySnapshot()
+        : null;
+      const records = listPanicRecoveryRecords();
+      return {
+        schema: 'xtend.rmt.app-runtime-panic-recovery-snapshot.v1',
+        recordCount: records.length,
+        kernel: cloneValue(kernelSnapshot, kernelSnapshot),
+        fabric: cloneValue(fabricSnapshot, fabricSnapshot),
+        records
+      };
+    }
+
     return Object.freeze({
       schema: RMT_APP_RUNTIME_SCHEMA,
       command,
@@ -1052,9 +1317,21 @@
       listStreams() {
         return Array.from(streamRecords.values()).map((entry) => cloneValue(entry, entry));
       },
+      listStreamPressureRecords() {
+        return streamPressureRecords.map((entry) => cloneValue(entry, entry));
+      },
+      listYieldActions() {
+        return yieldActions.map((entry) => cloneValue(entry, entry));
+      },
+      listSchedulerPressureSamples() {
+        return schedulerPressureSamples.map((entry) => cloneValue(entry, entry));
+      },
       listDiagnostics() {
         return diagnosticsRecorder.diagnostics.slice();
-      }
+      },
+      getPerformanceTelemetrySnapshot,
+      listPanicRecoveryRecords,
+      getPanicRecoverySnapshot
     });
   }
 
@@ -1064,6 +1341,8 @@
     RMT_COMMAND_SCHEMA,
     RMT_HOST_SERVICE_SCHEMA,
     RMT_STREAM_PATCH_SCHEMA,
+    RMT_STREAM_PRESSURE_SCHEMA,
+    RMT_YIELD_ACTION_SCHEMA,
     RMT_VIEW_TEMPLATE_SCHEMA,
     createRmtCommandEnvelope,
     isRmtCommandEnvelope,
@@ -1093,6 +1372,8 @@ export const RMT_APP_RUNTIME_DIAGNOSTIC_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.R
 export const RMT_COMMAND_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_COMMAND_SCHEMA;
 export const RMT_HOST_SERVICE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_HOST_SERVICE_SCHEMA;
 export const RMT_STREAM_PATCH_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_STREAM_PATCH_SCHEMA;
+export const RMT_STREAM_PRESSURE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_STREAM_PRESSURE_SCHEMA;
+export const RMT_YIELD_ACTION_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_YIELD_ACTION_SCHEMA;
 export const RMT_VIEW_TEMPLATE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_VIEW_TEMPLATE_SCHEMA;
 export const createRmtCommandEnvelope = __XTEND_RMT_APP_RUNTIME_API__.createRmtCommandEnvelope;
 export const isRmtCommandEnvelope = __XTEND_RMT_APP_RUNTIME_API__.isRmtCommandEnvelope;

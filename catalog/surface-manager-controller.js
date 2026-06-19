@@ -64,6 +64,7 @@ const REQUIRED_METHODS = Object.freeze([
   'restoreSurface',
   'materializeSurface',
   'toggleSurface',
+  'destroySurface',
   'snapshot',
   'dispose'
 ]);
@@ -104,6 +105,8 @@ const REQUIRED_DIAGNOSTIC_CODES = Object.freeze([
   'xtend.surface.minimized',
   'xtend.surface.maximized',
   'xtend.surface.restored',
+  'xtend.surface.destroyed',
+  'xtend.surface.already-destroyed',
   'xtend.surface.snapshot',
   'xtend.surface.disposed',
   'xtend.surface.invalid-record',
@@ -117,6 +120,7 @@ const REQUIRED_LANES = Object.freeze([
   'user-blocking',
   'visible',
   'transition',
+  'background',
   'diagnostics'
 ]);
 
@@ -183,6 +187,7 @@ function createSurfaceControllerPlan(options = {}) {
         'version',
         'surfaceCount',
         'openSurfaceCount',
+        'destroyedSurfaceCount',
         'surfaces',
         'stack',
         'diagnostics',

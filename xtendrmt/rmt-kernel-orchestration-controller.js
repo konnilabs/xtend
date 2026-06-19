@@ -12,6 +12,18 @@
   const RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA = 'xtend.rmt.kernel-orchestration-controller.v1';
   const RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA = 'xtend.rmt.kernel-orchestration-diagnostic.v1';
 
+  function loadKernelFeatureAdoptionRegistry() {
+    if (globalTarget && globalTarget.XTendRmtKernelFeatureAdoptionRegistry) {
+      return globalTarget.XTendRmtKernelFeatureAdoptionRegistry;
+    }
+    if (typeof require === 'function') {
+      try {
+        return require('./rmt-kernel-feature-adoption-registry.js');
+      } catch (_) {}
+    }
+    return null;
+  }
+
   function toArray(value) {
     return Array.isArray(value) ? value : (value == null ? [] : [value]);
   }
@@ -29,6 +41,19 @@
     } catch (_) {
       return fallback;
     }
+  }
+
+  function normalizeKernelBootMode(value) {
+    return value === 'productSurface' ? 'productSurface' : 'direct';
+  }
+
+  function createFallbackOptionalCompat() {
+    return {
+      browserHostAdapter: null,
+      dashboardAdapter: null,
+      dashboardCompatBootstrap: null,
+      dashboardCommandCatalog: null
+    };
   }
 
   function sanitizeDiagnostic(value) {
@@ -84,9 +109,15 @@
     let core = null;
     let performanceRuntime = null;
     let schedulerBridge = null;
+    let productSurface = options.productSurface || null;
     let hostAdapter = options.hostAdapter || null;
+    let bridgedPanicRecoveryRecordCount = 0;
+    const bootMode = normalizeKernelBootMode(options.kernelBootMode || plan.bootMode || plan.productSurface && plan.productSurface.bootMode);
     let runtimeStatus = plan.enabled && artifact ? 'pending' : clampString(plan.status, 'disabled');
     const fiberHistory = [];
+    const appRuntimeBackpressureRecords = [];
+    const appRuntimeYieldActions = [];
+    const appRuntimeSchedulerSamples = [];
     let fallbackCount = 0;
 
     function publishDiagnostic(diagnostic) {
@@ -104,6 +135,403 @@
       return schedulerBridge && typeof schedulerBridge.listScheduledEndpoints === 'function'
         ? schedulerBridge.listScheduledEndpoints()
         : [];
+    }
+
+    function createProductSurfaceSnapshot() {
+      const planned = plan.productSurface && typeof plan.productSurface === 'object'
+        ? cloneSafe(plan.productSurface, {})
+        : null;
+      if (!productSurface || typeof productSurface !== 'object') {
+        return planned || {
+          schema: 'xtend.maraca.kernel-product-surface-bootstrap.v1',
+          bootMode,
+          supported: false,
+          status: bootMode === 'productSurface' ? 'blocked' : 'unavailable',
+          entryPoints: [],
+          entryPointCount: 0,
+          entryPointNames: [],
+          optionalCompat: createFallbackOptionalCompat(),
+          runtimeFactories: {},
+          diagnostics: bootMode === 'productSurface' ? [{
+            code: 'xtend.rmt.kernel_orchestration.product_surface_missing',
+            severity: 'error',
+            message: 'Product Surface boot was requested, but createRmtProductSurface is not available.'
+          }] : []
+        };
+      }
+      const entryPoints = typeof productSurface.listEntryPoints === 'function'
+        ? productSurface.listEntryPoints()
+        : [];
+      return {
+        schema: 'xtend.maraca.kernel-product-surface-bootstrap.v1',
+        bootMode,
+        supported: true,
+        status: bootMode === 'productSurface' ? 'active' : 'available',
+        entryPoints,
+        entryPointCount: entryPoints.length,
+        entryPointNames: entryPoints.map((entry) => entry && entry.name).filter(Boolean),
+        optionalCompat: typeof productSurface.listOptionalCompat === 'function'
+          ? productSurface.listOptionalCompat()
+          : createFallbackOptionalCompat(),
+        runtimeFactories: {
+          createRuntime: typeof productSurface.createRuntime === 'function',
+          createCore: typeof productSurface.createCore === 'function',
+          createPerformanceRuntime: typeof productSurface.createPerformanceRuntime === 'function',
+          createTemplateArtifacts: typeof productSurface.createTemplateArtifacts === 'function',
+          createWorkerRuntime: typeof productSurface.createWorkerRuntime === 'function',
+          createServerRuntime: typeof productSurface.createServerRuntime === 'function',
+          createDetachedDomRuntime: typeof productSurface.createDetachedDomRuntime === 'function'
+        },
+        diagnostics: []
+      };
+    }
+
+    function createFeatureAdoptionSnapshot() {
+      const prewarmWorkerEnabled = isPrewarmWorkerEnabled();
+      if (options.featureAdoptionRegistry && typeof options.featureAdoptionRegistry.snapshot === 'function') {
+        return cloneSafe(options.featureAdoptionRegistry.snapshot(), {});
+      }
+      const registryModule = loadKernelFeatureAdoptionRegistry();
+      if (registryModule && typeof registryModule.createRmtKernelFeatureAdoptionRegistry === 'function') {
+        const registry = registryModule.createRmtKernelFeatureAdoptionRegistry({
+          manifest: options.manifest || null,
+          kernelApi,
+          runtimeModules: plan.runtimeModules || [],
+          planFeatureAdoption: plan.featureAdoption || null,
+          activeCapabilities: {
+            productSurface: bootMode === 'productSurface' && Boolean(productSurface),
+            performanceAdvancedReports: Boolean(performanceRuntime),
+            prewarmWorker: prewarmWorkerEnabled,
+            warmReentry: prewarmWorkerEnabled,
+            panicRecovery: Boolean(runtime || core)
+          }
+        });
+        return registry.snapshot();
+      }
+      if (plan.featureAdoption && typeof plan.featureAdoption === 'object') {
+        return cloneSafe(plan.featureAdoption, {});
+      }
+      return {
+        schema: 'xtend.rmt-kernel-feature-adoption-report.v1',
+        contract: 'xtend.rmt-kernel-feature-adoption.v1',
+        status: 'unavailable',
+        ok: false,
+        capabilityKeys: [],
+        capabilities: [],
+        diagnostics: [{
+          schema: 'xtend.rmt-kernel-feature-adoption-diagnostic.v1',
+          code: 'xtend.rmt.kernel_feature_adoption.registry_missing',
+          severity: 'warning',
+          message: 'RMT kernel feature adoption registry is not available.'
+        }]
+      };
+    }
+
+    function isPrewarmWorkerEnabled() {
+      return options.enablePrewarmWorker === true
+        || plan.enablePrewarmWorker === true
+        || Boolean(plan.prewarmWorker && plan.prewarmWorker.enabled === true);
+    }
+
+    function createPrewarmWorkerFallbackSnapshot(reason = 'disabled') {
+      const planned = plan.prewarmWorker && typeof plan.prewarmWorker === 'object'
+        ? cloneSafe(plan.prewarmWorker, {})
+        : {};
+      const enabled = isPrewarmWorkerEnabled();
+      return {
+        ...planned,
+        schema: 'xtend.rmt.prewarm-worker-topology.v1',
+        kind: 'renderman-prewarm',
+        enabled,
+        status: enabled ? 'degraded' : 'disabled',
+        health: enabled ? 'degraded' : 'disabled',
+        reason,
+        workerName: options.prewarmWorkerName || planned.workerName || 'XTendRMTPrewarmWorker',
+        workerType: options.prewarmWorkerType || planned.workerType || 'classic',
+        instantiated: false,
+        pendingJobs: 0,
+        submittedJobs: 0,
+        templatesSynced: 0,
+        available: false,
+        missingApis: [],
+        lastHealthAt: 0,
+        lastError: null,
+        responsibilities: ['template_prerender_compute', 'chunk_serialization'],
+        supportedSignals: ['start', 'continue', 'rebatch'],
+        excludedResponsibilities: ['dom_mutation', 'event_binding', 'state_ownership'],
+        diagnostics: enabled && !runtime ? [{
+          schema: RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA,
+          code: 'xtend.rmt.kernel_orchestration.prewarm_worker_runtime_missing',
+          severity: 'warning',
+          message: 'Prewarm Worker is enabled, but the kernel runtime has not exposed topology yet.'
+        }] : []
+      };
+    }
+
+    function createPrewarmWorkerSnapshot() {
+      if (runtime && typeof runtime.getPrewarmWorkerTopology === 'function') {
+        const topology = runtime.getPrewarmWorkerTopology();
+        if (topology && typeof topology === 'object') {
+          return {
+            ...cloneSafe(plan.prewarmWorker, {}),
+            ...cloneSafe(topology, {}),
+            runtimeExpectedStatus: isPrewarmWorkerEnabled() ? 'booted' : 'disabled'
+          };
+        }
+      }
+      return createPrewarmWorkerFallbackSnapshot(runtimeStatus === 'pending' ? 'pending' : 'runtime_unavailable');
+    }
+
+    function resolvePanicRecoverySource() {
+      if (runtime && typeof runtime.getPanicRecoverySnapshot === 'function') return runtime;
+      if (core && typeof core.getPanicRecoverySnapshot === 'function') return core;
+      if (runtime && typeof runtime.getTemplateApi === 'function') {
+        const templateApi = runtime.getTemplateApi();
+        if (templateApi && typeof templateApi.getPanicRecoverySnapshot === 'function') return templateApi;
+      }
+      return null;
+    }
+
+    function listPanicRecoveryRecords() {
+      const source = resolvePanicRecoverySource();
+      if (source && typeof source.listPanicRecoveryRecords === 'function') {
+        return source.listPanicRecoveryRecords().map((record) => cloneSafe(record, {}));
+      }
+      return [];
+    }
+
+    function createPanicRecoverySnapshot() {
+      const source = resolvePanicRecoverySource();
+      const sourceSnapshot = source && typeof source.getPanicRecoverySnapshot === 'function'
+        ? source.getPanicRecoverySnapshot()
+        : null;
+      const records = listPanicRecoveryRecords();
+      const trustVerdicts = source && typeof source.listTrustVerdicts === 'function' ? source.listTrustVerdicts() : [];
+      const panicEvents = source && typeof source.listPanicEvents === 'function' ? source.listPanicEvents() : [];
+      const safeSnapshots = source && typeof source.listSafeSnapshots === 'function' ? source.listSafeSnapshots() : [];
+      const recoveryOutcomes = source && typeof source.listRecoveryOutcomes === 'function' ? source.listRecoveryOutcomes() : [];
+      const quarantineScopes = source && typeof source.listQuarantinedScopes === 'function' ? source.listQuarantinedScopes() : [];
+      return {
+        schema: 'xtend.rmt.kernel-orchestration-panic-recovery.v1',
+        supported: Boolean(source),
+        status: source ? 'available' : 'unavailable',
+        lane: 'diagnostics',
+        trustVerdictCount: trustVerdicts.length,
+        blockedTrustVerdictCount: trustVerdicts.filter((record) => record && record.commitAllowed === false).length,
+        panicEventCount: panicEvents.length,
+        safeSnapshotCount: safeSnapshots.length,
+        recoveryOutcomeCount: recoveryOutcomes.length,
+        quarantineScopeCount: quarantineScopes.length,
+        quarantineScopes: cloneSafe(quarantineScopes, []),
+        records,
+        snapshot: cloneSafe(sourceSnapshot, null),
+        fabricMirroredRecordCount: bridgedPanicRecoveryRecordCount
+      };
+    }
+
+    function bridgePanicRecoveryRecordsToFabric() {
+      const fabric = options.fabric || options.fabricRuntime || null;
+      if (!fabric || typeof fabric.recordKernelPanicRecovery !== 'function') return 0;
+      const records = listPanicRecoveryRecords().slice(bridgedPanicRecoveryRecordCount);
+      records.forEach((record) => {
+        fabric.recordKernelPanicRecovery(record, {
+          source: 'rmt-kernel-orchestration-controller',
+          metadata: {
+            controllerSchema: RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA
+          }
+        });
+      });
+      bridgedPanicRecoveryRecordCount += records.length;
+      return records.length;
+    }
+
+    function summarizePerformanceFileArtifact(fileArtifact) {
+      if (!fileArtifact || typeof fileArtifact !== 'object') return null;
+      return {
+        kind: fileArtifact.kind || 'renderman_performance_file_artifact',
+        artifactId: fileArtifact.artifactId || '',
+        artifactType: fileArtifact.artifactType || '',
+        fileName: fileArtifact.fileName || '',
+        contentType: fileArtifact.contentType || 'application/json',
+        bytes: typeof fileArtifact.text === 'string' ? fileArtifact.text.length : 0,
+        payloadKind: fileArtifact.payload && fileArtifact.payload.kind || ''
+      };
+    }
+
+    function createPerformanceSnapshot() {
+      if (!performanceRuntime || typeof performanceRuntime !== 'object') {
+        return plan.performance && typeof plan.performance === 'object'
+          ? cloneSafe(plan.performance, {})
+          : {
+              schema: 'xtend.rmt.kernel-performance-snapshot.v1',
+              supported: false,
+              status: 'unavailable',
+              runtimeExpectedStatus: plan.enabled ? 'booted' : 'disabled',
+              budgetSnapshot: null,
+              backpressureProfile: null,
+              ciSummary: null,
+              fileArtifact: null,
+              baselineComparison: null,
+              diagnostics: []
+            };
+      }
+      const diagnostics = [];
+      function guarded(label, fallback, callback) {
+        try {
+          return callback();
+        } catch (error) {
+          diagnostics.push(createDiagnostic(
+            `xtend.rmt.kernel_orchestration.performance_${label}_failed`,
+            'warning',
+            error && error.message ? error.message : String(error)
+          ));
+          return fallback;
+        }
+      }
+      const runtimeSnapshot = typeof performanceRuntime.getSnapshot === 'function'
+        ? guarded('snapshot', null, () => performanceRuntime.getSnapshot('kernel-orchestration-snapshot'))
+        : null;
+      const budgetSnapshot = typeof performanceRuntime.evaluateBudgets === 'function'
+        ? guarded('budgets', null, () => performanceRuntime.evaluateBudgets('kernel-orchestration-snapshot'))
+        : null;
+      const backpressureProfile = typeof performanceRuntime.getBackpressureProfile === 'function'
+        ? guarded('backpressure', runtimeSnapshot && runtimeSnapshot.backpressureProfile || null, () => performanceRuntime.getBackpressureProfile('kernel-orchestration-snapshot'))
+        : (runtimeSnapshot && runtimeSnapshot.backpressureProfile || null);
+      const runReport = typeof performanceRuntime.exportRunReport === 'function'
+        ? guarded('run_report', null, () => performanceRuntime.exportRunReport('kernel-orchestration-snapshot', {
+            runId: 'kernel-orchestration',
+            label: 'XTend Kernel Orchestration Runtime'
+          }))
+        : null;
+      const baseline = runReport && typeof performanceRuntime.createRunBaseline === 'function'
+        ? guarded('baseline', null, () => performanceRuntime.createRunBaseline([runReport], {
+            baselineId: 'kernel-orchestration-baseline',
+            label: 'XTend Kernel Orchestration Baseline'
+          }))
+        : null;
+      const baselineComparison = runReport && baseline && typeof performanceRuntime.compareRunReportToBaseline === 'function'
+        ? guarded('baseline_comparison', null, () => performanceRuntime.compareRunReportToBaseline(runReport, baseline, {
+            label: 'XTend Kernel Orchestration Baseline Comparison'
+          }))
+        : null;
+      const ciSummary = runReport && typeof performanceRuntime.createCiSummary === 'function'
+        ? guarded('ci_summary', null, () => performanceRuntime.createCiSummary(runReport, {
+            summaryId: 'kernel-orchestration-summary',
+            title: 'XTend Kernel Orchestration Performance Summary'
+          }))
+        : null;
+      const fileArtifact = runReport && typeof performanceRuntime.createFileArtifact === 'function'
+        ? guarded('file_artifact', null, () => summarizePerformanceFileArtifact(performanceRuntime.createFileArtifact(runReport, {
+            artifactId: 'kernel-orchestration-performance',
+            artifactType: 'run_report',
+            fileName: 'xtend.kernel-orchestration.performance.json'
+          })))
+        : null;
+      return {
+        schema: 'xtend.rmt.kernel-performance-snapshot.v1',
+        supported: true,
+        status: 'available',
+        runtimeExpectedStatus: plan.enabled ? 'booted' : 'disabled',
+        runtimeKind: runtimeSnapshot && runtimeSnapshot.runtimeKind || '',
+        pressureLevel: backpressureProfile && backpressureProfile.pressureLevel || runtimeSnapshot && runtimeSnapshot.pressureLevel || 'normal',
+        runtimeSnapshot,
+        budgetSnapshot,
+        backpressureProfile,
+        ciSummary,
+        fileArtifact,
+        baselineComparison,
+        diagnostics
+      };
+    }
+
+    function trimControllerTelemetry(store) {
+      const limit = Number.isInteger(options.telemetryLimit) && options.telemetryLimit > 0 ? options.telemetryLimit : 200;
+      while (store.length > limit) store.shift();
+    }
+
+    function recordAppRuntimeBackpressure(recordInput = {}, metadataInput = {}) {
+      const record = cloneSafe(recordInput, {});
+      const metadata = cloneSafe(metadataInput, {});
+      const streamPressure = record.streamPressure && typeof record.streamPressure === 'object' ? record.streamPressure : record;
+      const normalized = {
+        schema: 'xtend.rmt.kernel-orchestration-app-runtime-backpressure.v1',
+        id: record.id || `app-runtime-backpressure.${appRuntimeBackpressureRecords.length + 1}`,
+        timestamp: record.timestamp || new Date().toISOString(),
+        source: record.source || 'rmt-app-runtime',
+        streamId: streamPressure.streamId || '',
+        patchType: streamPressure.patchType || '',
+        terminal: streamPressure.terminal === true,
+        pressureLevel: streamPressure.level || streamPressure.pressureLevel || 'none',
+        score: Number.isFinite(Number(streamPressure.score)) ? Number(streamPressure.score) : 0,
+        action: streamPressure.action || '',
+        lane: streamPressure.lane || 'idle',
+        schedulerLane: streamPressure.schedulerLane || 'idle_maintenance',
+        scheduleRef: streamPressure.scheduleRef || 'rmt.stream.patch',
+        correlationId: streamPressure.correlationId || record.correlationId || null,
+        streamPressure,
+        metadata
+      };
+      appRuntimeBackpressureRecords.push(normalized);
+      trimControllerTelemetry(appRuntimeBackpressureRecords);
+
+      const yieldAction = record.yieldAction || metadata.yieldAction || null;
+      if (yieldAction) {
+        appRuntimeYieldActions.push(cloneSafe(yieldAction, yieldAction));
+        trimControllerTelemetry(appRuntimeYieldActions);
+      }
+
+      const performanceSample = record.performanceSample || {
+        schema: 'xtend.rmt.app-runtime-stream-pressure-sample.v1',
+        source: 'rmt.app_runtime.stream-pressure',
+        phase: normalized.terminal ? 'stream-terminal' : 'stream-pressure',
+        lane: 'idle_maintenance',
+        scheduleRef: normalized.scheduleRef,
+        durationMs: Math.max(1, normalized.score * (normalized.pressureLevel === 'critical' ? 10 : 6)),
+        longTask: normalized.pressureLevel === 'critical',
+        pressureLevel: normalized.pressureLevel,
+        streamId: normalized.streamId,
+        patchType: normalized.patchType,
+        terminal: normalized.terminal,
+        correlationId: normalized.correlationId
+      };
+      let schedulerResult = null;
+      if (performanceRuntime && typeof performanceRuntime.reportPerformanceSample === 'function') {
+        try {
+          schedulerResult = performanceRuntime.reportPerformanceSample(performanceSample);
+        } catch (error) {
+          schedulerResult = {
+            ok: false,
+            error: error && error.message ? error.message : String(error)
+          };
+        }
+      }
+      appRuntimeSchedulerSamples.push({
+        ...performanceSample,
+        schedulerPressureSampled: Boolean(schedulerResult),
+        schedulerResult: cloneSafe(schedulerResult, schedulerResult)
+      });
+      trimControllerTelemetry(appRuntimeSchedulerSamples);
+      return {
+        ...normalized,
+        schedulerResult: cloneSafe(schedulerResult, schedulerResult)
+      };
+    }
+
+    function createAppRuntimeBackpressureSnapshot() {
+      const highest = appRuntimeBackpressureRecords.reduce((current, record) => {
+        const levelScore = { none: 0, low: 1, medium: 2, high: 3, critical: 4 };
+        return (levelScore[record.pressureLevel] || 0) > (levelScore[current] || 0) ? record.pressureLevel : current;
+      }, 'none');
+      return {
+        schema: 'xtend.rmt.kernel-orchestration-app-runtime-backpressure-snapshot.v1',
+        recordCount: appRuntimeBackpressureRecords.length,
+        yieldActionCount: appRuntimeYieldActions.length,
+        schedulerSampleCount: appRuntimeSchedulerSamples.length,
+        highestPressureLevel: highest,
+        records: appRuntimeBackpressureRecords.slice(-50),
+        yieldActions: appRuntimeYieldActions.slice(-50),
+        schedulerSamples: appRuntimeSchedulerSamples.slice(-50)
+      };
     }
 
     function resolveFiber(kind, metadata = {}) {
@@ -127,6 +555,19 @@
       if (metadata.hydrationId) {
         const hydration = fibers.find((fiber) => fiber.kind === 'hydration' && fiber.target && String(fiber.target.ref || '').includes(metadata.hydrationId));
         if (hydration) return hydration;
+      }
+      if (requested === 'destroy' || requested === 'dispose' || metadata.lifecycleOperation === 'destroy' || metadata.lifecycleOperation === 'dispose') {
+        const lifecycle = fibers.find((fiber) => (
+          fiber.kind === 'lifecycle'
+          && (
+            fiber.op === 'dispose'
+            || fiber.op === 'destroy'
+            || String(fiber.operation || '').includes('/dispose')
+            || String(fiber.operation || '').includes('/destroy')
+          )
+          && (!metadata.targetRef || fiber.target && String(fiber.target.ref || '').includes(metadata.targetRef))
+        ));
+        if (lifecycle) return lifecycle;
       }
       return fibers.find((fiber) => fiber.op === requested || fiber.kind === requested)
         || (requested === 'render' ? fibers.find((fiber) => fiber.op === 'hydrate' || fiber.op === 'mount') : null)
@@ -247,34 +688,80 @@
         if (!kernelApi || typeof kernelApi.createRmtPerformanceRuntime !== 'function' || typeof kernelApi.createRmtStateSchedulerDiagnosticsBridge !== 'function') {
           throw new Error('XTend RMT kernel runtime module is not available.');
         }
-        performanceRuntime = kernelApi.createRmtPerformanceRuntime({
+        if (bootMode === 'productSurface') {
+          if (!productSurface) {
+            if (!kernelApi || typeof kernelApi.createRmtProductSurface !== 'function') {
+              throw new Error('XTend RMT Product Surface is not available for productSurface kernel boot.');
+            }
+            productSurface = kernelApi.createRmtProductSurface(options.productSurfaceOptions || {});
+          }
+          if (!productSurface || typeof productSurface.createPerformanceRuntime !== 'function' || typeof productSurface.createCore !== 'function' || typeof productSurface.createRuntime !== 'function') {
+            throw new Error('XTend RMT Product Surface does not expose runtime/core/performance factories.');
+          }
+          performanceRuntime = productSurface.createPerformanceRuntime({
+            windowTarget: options.windowTarget,
+            documentTarget: options.documentTarget,
+            hostAdapter,
+            runtimeKind: options.runtimeKind || 'kernel-orchestration',
+            schedules
+          });
+          schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
+            performanceRuntime,
+            schedules
+          });
+          core = productSurface.createCore({
+            windowTarget: options.windowTarget,
+            documentTarget: options.documentTarget,
+            hostAdapter,
+            kernelRecords: artifact.records,
+            scheduler
+          });
+          runtime = productSurface.createRuntime({
+            windowTarget: options.windowTarget,
+            documentTarget: options.documentTarget,
+            hostAdapter,
+            core,
+            renderManCore: core,
+            performanceRuntime,
+            kernelRecords: artifact.records,
+            scheduler,
+            enablePrewarmWorker: isPrewarmWorkerEnabled(),
+            prewarmWorkerName: options.prewarmWorkerName || plan.prewarmWorker && plan.prewarmWorker.workerName,
+            prewarmWorkerType: options.prewarmWorkerType || plan.prewarmWorker && plan.prewarmWorker.workerType
+          });
+        } else {
+          performanceRuntime = kernelApi.createRmtPerformanceRuntime({
           windowTarget: options.windowTarget,
           documentTarget: options.documentTarget,
           hostAdapter,
           runtimeKind: options.runtimeKind || 'kernel-orchestration',
           schedules
-        });
-        schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
-          performanceRuntime,
-          schedules
-        });
-        core = typeof kernelApi.createRmtCore === 'function' ? kernelApi.createRmtCore({
-          windowTarget: options.windowTarget,
-          documentTarget: options.documentTarget,
-          hostAdapter,
-          kernelRecords: artifact.records,
-          scheduler
-        }) : null;
-        runtime = typeof kernelApi.createRmtRuntime === 'function' ? kernelApi.createRmtRuntime({
-          windowTarget: options.windowTarget,
-          documentTarget: options.documentTarget,
-          hostAdapter,
-          core,
-          renderManCore: core,
-          performanceRuntime,
-          kernelRecords: artifact.records,
-          scheduler
-        }) : null;
+          });
+          schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
+            performanceRuntime,
+            schedules
+          });
+          core = typeof kernelApi.createRmtCore === 'function' ? kernelApi.createRmtCore({
+            windowTarget: options.windowTarget,
+            documentTarget: options.documentTarget,
+            hostAdapter,
+            kernelRecords: artifact.records,
+            scheduler
+          }) : null;
+          runtime = typeof kernelApi.createRmtRuntime === 'function' ? kernelApi.createRmtRuntime({
+            windowTarget: options.windowTarget,
+            documentTarget: options.documentTarget,
+            hostAdapter,
+            core,
+            renderManCore: core,
+            performanceRuntime,
+            kernelRecords: artifact.records,
+            scheduler,
+            enablePrewarmWorker: isPrewarmWorkerEnabled(),
+            prewarmWorkerName: options.prewarmWorkerName || plan.prewarmWorker && plan.prewarmWorker.workerName,
+            prewarmWorkerType: options.prewarmWorkerType || plan.prewarmWorker && plan.prewarmWorker.workerType
+          }) : null;
+        }
         activateSchedules();
         runtimeStatus = 'booted';
         dispatchEvent('xtend-maraca:kernel-boot', {
@@ -294,14 +781,22 @@
     }
 
     function snapshot() {
+      bridgePanicRecoveryRecordsToFabric();
       return {
         schema: 'xtend.rmt.kernel-orchestration-snapshot.v1',
         controllerSchema: RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA,
         mode: plan.mode || 'auto',
+        bootMode,
         status: runtimeStatus,
         planStatus: plan.status || null,
         enabled: Boolean(runtime || core || schedulerBridge),
         summary: cloneSafe(plan.summary, {}),
+        featureAdoption: createFeatureAdoptionSnapshot(),
+        productSurface: createProductSurfaceSnapshot(),
+        performance: createPerformanceSnapshot(),
+        appRuntimeBackpressure: createAppRuntimeBackpressureSnapshot(),
+        prewarmWorker: createPrewarmWorkerSnapshot(),
+        panicRecovery: createPanicRecoverySnapshot(),
         scheduledEndpoints: listScheduledEndpoints(),
         fibers: fiberHistory.slice(),
         fallbackCount,
@@ -333,8 +828,11 @@
       },
       boot,
       scheduleWork,
+      recordAppRuntimeBackpressure,
       listScheduledEndpoints,
       listDiagnostics,
+      listPanicRecoveryRecords,
+      getPanicRecoverySnapshot: createPanicRecoverySnapshot,
       snapshot
     };
 

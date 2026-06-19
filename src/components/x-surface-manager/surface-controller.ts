@@ -22,17 +22,17 @@ import {
 } from './surface-layout';
 
 const DEFAULT_CAPABILITIES: Readonly<Record<XtendSurfaceType, readonly string[]>> = Object.freeze({
-  window: Object.freeze(['open', 'focus', 'close', 'move', 'resize', 'minimize', 'maximize', 'restore', 'snapshot']),
-  'side-panel': Object.freeze(['open', 'focus', 'close', 'dock', 'collapse', 'resize', 'minimize', 'restore', 'snapshot']),
-  modal: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-  dialog: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-  drawer: Object.freeze(['open', 'focus', 'close', 'resize', 'restore', 'snapshot']),
-  popover: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-  tooltip: Object.freeze(['open', 'close', 'snapshot']),
-  region: Object.freeze(['open', 'focus', 'close', 'update', 'restore', 'snapshot']),
-  toast: Object.freeze(['open', 'close', 'dismiss', 'snapshot']),
-  lightbox: Object.freeze(['open', 'focus', 'close', 'snapshot']),
-  menu: Object.freeze(['open', 'focus', 'close', 'update', 'snapshot'])
+  window: Object.freeze(['open', 'focus', 'close', 'destroy', 'move', 'resize', 'minimize', 'maximize', 'restore', 'snapshot']),
+  'side-panel': Object.freeze(['open', 'focus', 'close', 'destroy', 'dock', 'collapse', 'resize', 'minimize', 'restore', 'snapshot']),
+  modal: Object.freeze(['open', 'focus', 'close', 'destroy', 'snapshot']),
+  dialog: Object.freeze(['open', 'focus', 'close', 'destroy', 'snapshot']),
+  drawer: Object.freeze(['open', 'focus', 'close', 'destroy', 'resize', 'restore', 'snapshot']),
+  popover: Object.freeze(['open', 'focus', 'close', 'destroy', 'snapshot']),
+  tooltip: Object.freeze(['open', 'close', 'destroy', 'snapshot']),
+  region: Object.freeze(['open', 'focus', 'close', 'destroy', 'update', 'restore', 'snapshot']),
+  toast: Object.freeze(['open', 'close', 'destroy', 'dismiss', 'snapshot']),
+  lightbox: Object.freeze(['open', 'focus', 'close', 'destroy', 'snapshot']),
+  menu: Object.freeze(['open', 'focus', 'close', 'destroy', 'update', 'snapshot'])
 });
 
 function nowIso(nowProvider?: () => string | number | Date): string {
@@ -60,6 +60,7 @@ function stateKey(pattern: string, surfaceId: string): string {
 function operationLane(operation: string): string {
   if (['move', 'resize', 'update', 'restore', 'maximize'].includes(operation)) return 'transition';
   if (['snapshot', 'dispose'].includes(operation)) return 'diagnostics';
+  if (['destroySurface', 'cleanup', 'release'].includes(operation)) return 'background';
   if (operation === 'register') return 'visible';
   return 'user-blocking';
 }
@@ -102,9 +103,16 @@ export function normalizeSurfaceRecord(input: Record<string, unknown>, managerId
     modal: source.modal === true || input.modal === true || type === 'modal' || type === 'dialog',
     placement: String(source.placement || input.placement || (type === 'side-panel' ? 'right' : '')) || null,
     mode: String(source.mode || input.mode || (type === 'side-panel' ? 'docked' : 'floating')),
+    ownershipMode: String(source.ownershipMode || input.ownershipMode || metadata && metadata.rmtOwnershipMode || '') || null,
     zIndex: toFiniteNumber(source.zIndex || input.zIndex, 0),
     bounds: normalizeSurfaceBounds(initialBounds, type),
     previousBounds: null,
+    generation: Math.max(1, toFiniteNumber(source.generation || input.generation, 1)),
+    destroyedAt: null,
+    destroyReason: null,
+    releasedResources: [],
+    lastBounds: null,
+    tombstone: null,
     capabilities: unique([...(DEFAULT_CAPABILITIES[type] || DEFAULT_CAPABILITIES.window), ...capabilities])
       .filter((capability) => !disabledCapabilities.has(capability)),
     persistence: {
@@ -172,6 +180,10 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       managerId,
       surfaceId: record ? record.id : null,
       operation,
+      status: ok ? 'ok' : 'failed',
+      generation: record ? record.generation || 1 : null,
+      tombstone: record && record.tombstone ? { ...record.tombstone } : null,
+      diagnostics: diagnostic ? [diagnostic] : [],
       code: diagnostic ? diagnostic.code : null,
       phase: record ? record.lifecycle.phase : null,
       snapshotVersion,
@@ -210,8 +222,10 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
     emit('xtend.surface.focused', record, operation, `Surface ${record.id} focused.`);
   }
 
-  function buildSnapshot(): XtendSurfaceSnapshot {
-    const surfaces = Array.from(registry.values()).map((record) => ({ ...record, bounds: { ...record.bounds }, lifecycle: { ...record.lifecycle } }));
+  function buildSnapshot(optionsForSnapshot: Record<string, unknown> = {}): XtendSurfaceSnapshot {
+    const includeDestroyed = optionsForSnapshot.includeDestroyed === true;
+    const allSurfaces = Array.from(registry.values()).map((record) => ({ ...record, bounds: { ...record.bounds }, lifecycle: { ...record.lifecycle } }));
+    const surfaces = includeDestroyed ? allSurfaces : allSurfaces.filter((record) => record.status !== 'destroyed');
     const stack = surfaces.filter((record) => record.status === 'open').sort((left, right) => left.zIndex - right.zIndex).map((record) => record.id);
     return {
       schema: SURFACE_SNAPSHOT_SCHEMA,
@@ -221,6 +235,7 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       version: snapshotVersion,
       surfaceCount: surfaces.length,
       openSurfaceCount: surfaces.filter((record) => record.status === 'open').length,
+      destroyedSurfaceCount: allSurfaces.filter((record) => record.status === 'destroyed').length,
       surfaces,
       stack,
       diagnostics: diagnostics.slice(-maxDiagnostics),
@@ -234,12 +249,27 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
     stateKey: stateKeyRoot,
     registerSurface(input) {
       const record = normalizeSurfaceRecord(input, managerId);
+      const previous = registry.get(record.id);
+      if (previous && previous.status === 'destroyed') record.generation = (previous.generation || 1) + 1;
       registry.set(record.id, record);
       return commit(record, 'register', 'create', 'xtend.surface.registered', `Surface ${record.id} registered.`);
     },
     openSurface(id, input) {
       const record = registry.get(id);
       if (!record) return result('open', null, false, emit('xtend.surface.not-found', null, 'open', `Surface ${id} is not registered.`));
+      if (record.status === 'destroyed') {
+        if (input && (input as Record<string, unknown>).recreate === true) {
+          record.status = 'closed';
+          record.destroyedAt = null;
+          record.destroyReason = null;
+          record.releasedResources = [];
+          record.lastBounds = null;
+          record.tombstone = null;
+          record.generation = (record.generation || 1) + 1;
+        } else {
+          return result('open', record, false, emit('xtend.surface.already-destroyed', record, 'open', `Surface ${id} is destroyed.`));
+        }
+      }
       if (input?.bounds) record.bounds = mergeSurfaceBounds(record.bounds, input.bounds, record.type);
       focusRecord(record, 'open');
       return commit(record, 'open', 'open', 'xtend.surface.opened', `Surface ${record.id} opened.`);
@@ -251,6 +281,37 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       record.active = false;
       if (activeSurfaceId === id) activeSurfaceId = null;
       return commit(record, 'close', 'close', 'xtend.surface.closed', reason || `Surface ${record.id} closed.`);
+    },
+    destroySurface(id, destroyOptions = {}) {
+      const record = registry.get(id);
+      if (!record) return result('destroySurface', null, false, emit('xtend.surface.not-found', null, 'destroySurface', `Surface ${id} is not registered.`));
+      if (record.status === 'destroyed') {
+        return commit(record, 'destroySurface', 'destroy', 'xtend.surface.already-destroyed', `Surface ${record.id} is already destroyed.`);
+      }
+      const destroyedAt = nowIso(options.now);
+      const releasedResources = Array.isArray(destroyOptions.releasedResources)
+        ? destroyOptions.releasedResources.map(String)
+        : [];
+      record.status = 'destroyed';
+      record.active = false;
+      record.minimized = false;
+      record.maximized = false;
+      record.lastBounds = { ...record.bounds };
+      record.destroyedAt = destroyedAt;
+      record.destroyReason = String(destroyOptions.reason || 'destroy');
+      record.releasedResources = releasedResources;
+      record.tombstone = {
+        schema: 'xtend.surface.tombstone.v1',
+        surfaceId: record.id,
+        managerId,
+        generation: record.generation || 1,
+        destroyedAt,
+        reason: record.destroyReason,
+        releasedResources,
+        lastBounds: { ...record.lastBounds }
+      };
+      if (activeSurfaceId === id) activeSurfaceId = null;
+      return commit(record, 'destroySurface', 'destroy', 'xtend.surface.destroyed', `Surface ${record.id} destroyed.`);
     },
     focusSurface(id) {
       const record = registry.get(id);

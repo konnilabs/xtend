@@ -29,6 +29,8 @@ Parameters are static values, identifiers, paths, strings, numbers, booleans, ar
 - [Conditions and Expressions](./rmt-reference-conditions-expressions.md)
 - [Enums and Catalogs](./rmt-reference-enums-catalogs.md)
 
+Use this page as the index, then follow the domain pages when you need exact operator shape, diagnostics or a compilable example. The reference is intentionally stricter than the learning path: if a pattern is not described here, treat it as unavailable until a contract, compiler fixture and runtime gate are added.
+
 ## Examples
 
 ```rmt

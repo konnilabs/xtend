@@ -59,6 +59,7 @@ function runRmtStackDocsSuite(options = {}) {
   const runtimeSource = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
   const fabricSource = readText('fabric/xtend-fabric.js', rootDir);
   const laneMappingSource = readText('fabric/rmt-lane-mapping.js', rootDir);
+  const maracaDocs = LOCALES.map((locale) => readText(`docs/${locale}/xtend-maraca.md`, rootDir)).join('\n\n');
   const suiteSyntax = syntaxCheckFile(RMT_STACK_DOCS_SUITE_PATH, { rootDir, extension: '.js' });
   const menuSlugs = menu.map((entry) => entry.slug);
   const overviewIndex = menuSlugs.indexOf('xtendrmt-overview');
@@ -135,6 +136,13 @@ function runRmtStackDocsSuite(options = {}) {
     'createRmtXtendComponentAdapter',
     'createRmtSurfaceAdapter'
   ], 'XTend UI layer docs');
+  assertIncludesAll(context, maracaDocs, [
+    'productionClosure',
+    'kernelFeatureAdoptionClosure',
+    'runtimeExpectedStatus',
+    'Source-Fingerprint',
+    'Bundle-Fingerprints'
+  ], 'Maraca production closure docs');
 
   ['createRmtRuntime', 'createRmtCore', 'createRmtProductSurface', 'createRmtBrowserRuntime', 'createRmtServerRuntime', 'createRmtWorkerRuntime', 'createRmtBrowserHostAdapter'].forEach((exportName) => {
     context.assert(runtimeSource.includes(exportName), `RMT runtime exposes ${exportName}`);

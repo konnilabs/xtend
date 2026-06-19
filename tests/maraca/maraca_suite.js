@@ -21,9 +21,16 @@ const {
   MARACA_HYDRATION_PLAN_SCHEMA,
   MARACA_VALIDATION_PLAN_SCHEMA,
   MARACA_TRANSITION_PLAN_SCHEMA,
+  MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA,
+  MARACA_PERFORMANCE_REPORT_SCHEMA,
   MARACA_ORCHESTRATION_PLAN_SCHEMA,
   MARACA_SIZE_BUDGET_REPORT_SCHEMA,
+  MARACA_WARM_REENTRY_REPORT_SCHEMA,
+  MARACA_PREWARM_WORKER_RUNTIME_SCHEMA,
+  MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA,
   buildMaracaBundleAsync,
+  createMaracaPerformanceReport,
+  createMaracaTemplateArtifactsReport,
   createMaracaBuildPlan
 } = require('../../xtend-maraca');
 const {
@@ -32,6 +39,15 @@ const {
 const {
   listenXtendDevServer
 } = require('../../scripts/serve_xtend_dev');
+const {
+  RMT_KERNEL_FEATURE_ADOPTION_SCHEMA,
+  RMT_KERNEL_FEATURE_ADOPTION_REPORT_SCHEMA,
+  RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS,
+  createRmtKernelFeatureAdoptionRegistry
+} = require('../../xtendrmt/rmt-kernel-feature-adoption-registry');
+const {
+  createRmtKernelOrchestrationController
+} = require('../../xtendrmt/rmt-kernel-orchestration-controller');
 
 const MARACA_MODULE_PATH = 'xtend-maraca/index.js';
 const MARACA_RUNTIME_PATH = 'xtend-maraca/runtime.js';
@@ -39,6 +55,7 @@ const MARACA_PACKAGE_PATH = 'xtend-maraca/package.json';
 const MARACA_FIXTURE = 'tests/rmt-language/fixtures/maraca-known-components.rmt';
 const MARACA_NATIVE_FIXTURE = 'tests/rmt-language/fixtures/maraca-native-html-component.rmt';
 const MARACA_UNKNOWN_FIXTURE = 'tests/rmt-language/fixtures/vnext-source-to-sea.rmt';
+const MARACA_WARM_REENTRY_FIXTURE = 'tests/rmt-language/fixtures/vnext-lifecycle-valid.rmt';
 const MARACA_ORCHESTRATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-orchestration-app.rmt';
 const MARACA_ORCHESTRATION_INCOMPLETE_FIXTURE = 'tests/rmt-language/fixtures/maraca-orchestration-incomplete.rmt';
 const MARACA_KERNEL_INTEGRITY_FIXTURE = 'tests/rmt-language/fixtures/maraca-kernel-integrity-app.rmt';
@@ -56,6 +73,7 @@ const MARACA_KERNEL_INTEGRITY_BROWSER_KILL_AFTER_SECONDS = 10;
 const MARACA_SUITES = [
   'maraca-plan',
   'maraca-bundle',
+  'maraca-bundle-report',
   'maraca-rmt-source-to-bundle',
   'maraca-orchestration',
   'maraca-kernel-orchestration',
@@ -68,6 +86,129 @@ const MARACA_SUITES = [
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
+}
+
+function capabilityKeySignature(value) {
+  return Array.isArray(value) ? value.join('|') : '';
+}
+
+function assertKernelFeatureAdoptionReport(context, report, label) {
+  context.assert(report && report.schema === RMT_KERNEL_FEATURE_ADOPTION_REPORT_SCHEMA, `${label} uses kernel feature adoption report schema`);
+  context.assert(report && report.contract === RMT_KERNEL_FEATURE_ADOPTION_SCHEMA, `${label} references kernel feature adoption contract`);
+  context.assert(
+    capabilityKeySignature(report && report.capabilityKeys) === capabilityKeySignature(RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS),
+    `${label} exposes the shared kernel feature capability keys`
+  );
+  context.assert(
+    report && Array.isArray(report.capabilities) && report.capabilities.length === RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS.length,
+    `${label} exposes every kernel feature capability`
+  );
+  context.assert(
+    report && report.capabilities.every((capability) => (
+      typeof capability.supported === 'boolean'
+      && typeof capability.runtimeRequired === 'boolean'
+      && typeof capability.diagnosticsRequired === 'boolean'
+      && typeof capability.strictFallbackAllowed === 'boolean'
+      && Object.prototype.hasOwnProperty.call(capability, 'prodDefault')
+    )),
+    `${label} normalizes capability status fields`
+  );
+}
+
+function assertKernelProductSurfaceReport(context, report, label, expectedBootMode = null) {
+  context.assert(report && report.schema === 'xtend.maraca.kernel-product-surface-bootstrap.v1', `${label} uses product-surface bootstrap schema`);
+  if (expectedBootMode) {
+    context.assert(report && report.bootMode === expectedBootMode, `${label} records ${expectedBootMode} boot mode`);
+  }
+  context.assert(report && report.supported === true, `${label} reports Product Surface support`);
+  context.assert(report && Array.isArray(report.entryPoints) && report.entryPoints.length > 0, `${label} exposes Product Surface entry points`);
+  context.assert(report && report.entryPointNames.includes('createRmtRuntime'), `${label} exposes createRmtRuntime entry point`);
+  context.assert(report && report.entryPointNames.includes('createRmtCore'), `${label} exposes createRmtCore entry point`);
+  context.assert(report && report.runtimeFactories && report.runtimeFactories.createRuntime === true, `${label} exposes runtime factory evidence`);
+  context.assert(report && report.runtimeFactories && report.runtimeFactories.createCore === true, `${label} exposes core factory evidence`);
+  context.assert(report && report.runtimeFactories && report.runtimeFactories.createPerformanceRuntime === true, `${label} exposes performance runtime factory evidence`);
+  context.assert(report && report.optionalCompat && Object.prototype.hasOwnProperty.call(report.optionalCompat, 'browserHostAdapter'), `${label} exposes optional compat snapshot`);
+}
+
+function assertTemplateArtifactsReport(context, report, label, expectedDocumentId = 'demo.maraca') {
+  context.assert(report && report.schema === MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA, `${label} uses template artifacts report schema`);
+  context.assert(report && report.supported === true, `${label} reports kernel Template Artifacts support`);
+  context.assert(report && report.status === 'prepared' || report && report.status === 'bundle_embedded', `${label} is prepared`);
+  context.assert(report && report.trusted === true, `${label} marks bundled artifacts as trusted`);
+  context.assert(report && Array.isArray(report.documentIds) && report.documentIds.includes(expectedDocumentId), `${label} exposes compiler document id`);
+  context.assert(report && Array.isArray(report.templateIds) && report.templateIds.includes(`template:${expectedDocumentId}`), `${label} exposes compiler template id`);
+  context.assert(report && typeof report.sourceFingerprint === 'string' && report.sourceFingerprint.startsWith('sha256:'), `${label} exposes source fingerprint`);
+  context.assert(report && typeof report.artifactBundleFingerprint === 'string' && report.artifactBundleFingerprint.startsWith('fnv1a:'), `${label} exposes artifact bundle fingerprint`);
+  context.assert(report && Array.isArray(report.runtimeProfileHints) && report.runtimeProfileHints.includes('browser'), `${label} exposes browser runtime profile hint`);
+  context.assert(report && report.runtimeProfileHints.includes('worker_prerender'), `${label} exposes worker prerender runtime profile hint`);
+  context.assert(report && report.artifactBundle && report.artifactBundle.kind === 'renderman_template_artifact_bundle', `${label} embeds a kernel-compatible artifact bundle`);
+  context.assert(
+    report && report.sourceToSea && report.sourceToSea.documentIdsMatchCompiler === true,
+    `${label} keeps compiler and artifact document ids aligned`
+  );
+}
+
+function assertMaracaPerformanceReport(context, report, label, options = {}) {
+  const expectedBudgets = ['visible_commit', 'command_turnaround', 'hydration_followup', 'retained_warm_reuse'];
+  context.assert(report && report.schema === MARACA_PERFORMANCE_REPORT_SCHEMA, `${label} uses performance report schema`);
+  context.assert(report && report.supported === true, `${label} uses the RMT Performance Runtime factory`);
+  context.assert(report && report.factory && report.factory.source === 'rmt-runtime', `${label} records the RMT runtime as performance source`);
+  context.assert(
+    report && expectedBudgets.every((budgetId) => Array.isArray(report.budgetClasses) && report.budgetClasses.includes(budgetId)),
+    `${label} exposes canonical XTend performance budget classes`
+  );
+  context.assert(
+    report && report.budgetSnapshot && Array.isArray(report.budgetSnapshot.budgets)
+      && expectedBudgets.every((budgetId) => report.budgetSnapshot.budgets.some((budget) => budget.budgetId === budgetId)),
+    `${label} evaluates every canonical performance budget`
+  );
+  context.assert(
+    report && Array.isArray(report.budgetProfiles)
+      && expectedBudgets.every((budgetId) => report.budgetProfiles.some((profile) => profile.budgetId === budgetId)),
+    `${label} exposes Kernel budget profiles`
+  );
+  context.assert(
+    report && Array.isArray(report.budgetMissDiagnostics)
+      && report.budgetMissDiagnostics.some((diagnostic) => diagnostic.budgetId === 'command_turnaround' && diagnostic.severity === 'warning' && Array.isArray(diagnostic.violations)),
+    `${label} records budget misses as structured diagnostics`
+  );
+  context.assert(report && report.backpressureProfile && report.backpressureProfile.kind === 'renderman_backpressure_profile', `${label} includes Kernel backpressure profile`);
+  context.assert(report && report.ciSummary && report.ciSummary.kind === 'renderman_performance_ci_summary', `${label} includes Kernel CI summary`);
+  context.assert(report && report.ciSummary && typeof report.ciSummary.text === 'string' && report.ciSummary.text.includes('XTend Maraca Performance Summary'), `${label} CI summary is release-readable`);
+  context.assert(report && report.fileArtifact && report.fileArtifact.kind === 'renderman_performance_file_artifact', `${label} summarizes Kernel file artifact`);
+  context.assert(report && report.fileArtifact && report.fileArtifact.artifactType === 'run_report', `${label} file artifact is a run report`);
+  context.assert(report && report.baselineComparison && report.baselineComparison.kind === 'renderman_performance_baseline_comparison', `${label} includes baseline comparison`);
+  context.assert(report && report.summary && report.summary.violationCount >= 1, `${label} summarizes performance violations`);
+  if (options.runtimeExpectedStatus) {
+    context.assert(report && report.runtimeExpectedStatus === options.runtimeExpectedStatus, `${label} records ${options.runtimeExpectedStatus} expected runtime status`);
+    context.assert(report && report.summary && report.summary.runtimeExpectedStatus === options.runtimeExpectedStatus, `${label} summary mirrors ${options.runtimeExpectedStatus} expected runtime status`);
+  }
+  if (options.bundleFingerprint) {
+    context.assert(report && typeof report.bundleFingerprint === 'string' && report.bundleFingerprint.startsWith('sha256:'), `${label} includes bundle fingerprint`);
+  }
+}
+
+function assertProductionClosureReport(context, report, label, expectedProfile = 'production') {
+  const expectedEnforced = expectedProfile === 'production' || expectedProfile === 'max';
+  context.assert(report && report.schema === MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA, `${label} uses production bundle closure schema`);
+  context.assert(report && report.ok === true, `${label} marks production closure ready`);
+  context.assert(report && report.profile === expectedProfile, `${label} records ${expectedProfile} profile`);
+  context.assert(report && report.enforced === expectedEnforced, `${label} records expected enforcement mode`);
+  context.assert(report && Array.isArray(report.capabilities) && report.capabilities.length >= 8, `${label} exposes capability matrix`);
+  ['kernel', 'lifecycle', 'telemetry', 'performance', 'policyParity', 'prewarmWorker', 'warmReentry', 'prerender'].forEach((key) => {
+    const capability = report && report.capabilities.find((entry) => entry.key === key);
+    context.assert(Boolean(capability), `${label} includes ${key} capability`);
+    context.assert(typeof capability.supported === 'boolean' && typeof capability.active === 'boolean', `${label} ${key} exposes supported/active`);
+    context.assert(typeof capability.degraded === 'boolean' && typeof capability.blocked === 'boolean', `${label} ${key} exposes degraded/blocked`);
+    context.assert(Array.isArray(capability.diagnostics), `${label} ${key} exposes diagnostics`);
+    context.assert(typeof capability.runtimeExpectedStatus === 'string' && capability.runtimeExpectedStatus.length > 0, `${label} ${key} exposes runtime expected status`);
+  });
+  context.assert(report && report.releaseConstraint && report.releaseConstraint.blocked === false, `${label} release constraint passes`);
+  context.assert(report && report.bundleBudget && report.bundleBudget.ok === true, `${label} links bundle budget pass`);
+  context.assert(report && report.bundleBudget && report.bundleBudget.runtimeExpectedStatus === 'booted', `${label} links budget to runtime expected status`);
+  context.assert(report && report.sourceToSea && typeof report.sourceToSea.sourceFingerprint === 'string' && report.sourceToSea.sourceFingerprint.startsWith('sha256:'), `${label} exposes source fingerprint`);
+  context.assert(report && report.sourceToSea && Array.isArray(report.sourceToSea.links) && report.sourceToSea.links.length === report.capabilityCount, `${label} exposes Source-to-Sea capability links`);
+  context.assert(report && report.sourceToSea && Array.isArray(report.sourceToSea.tests) && report.sourceToSea.tests.some((entry) => entry.includes('maraca-bundle-report')), `${label} links release tests`);
 }
 
 function createCliIo() {
@@ -267,6 +408,15 @@ function runMaracaPlanSuite(options = {}) {
   });
   const plan = planFixture(rootDir);
   const maxPlan = planFixture(rootDir, { profile: 'max' });
+  const changedSourceText = readText(MARACA_FIXTURE, rootDir).replace('text "Ready"', 'text "Ready RKFA-02"');
+  const changedTemplatePlan = createMaracaBuildPlan({
+    sourceText: changedSourceText,
+    virtualSourcePath: MARACA_FIXTURE,
+    out: '.xtend-build/maraca/template-artifacts-changed',
+    profile: 'production',
+    lazy: 'component',
+    css: 'inline'
+  }, { rootDir });
   const unknownPlan = createMaracaBuildPlan({
     source: MARACA_UNKNOWN_FIXTURE,
     out: MARACA_OUT_DIR,
@@ -293,6 +443,14 @@ function runMaracaPlanSuite(options = {}) {
   }, { rootDir });
   const orchestrationOffPlan = planFixture(rootDir, { orchestration: 'off' });
   const kernelOffPlan = planFixture(rootDir, { kernel: 'off' });
+  const warmReentryPlan = createMaracaBuildPlan({
+    source: MARACA_WARM_REENTRY_FIXTURE,
+    out: '.xtend-build/maraca/warm-reentry',
+    profile: 'debug',
+    lazy: 'component',
+    css: 'inline',
+    allowDynamicComponents: true
+  }, { rootDir });
 
   assertFileExists(context, MARACA_MODULE_PATH, rootDir, 'Maraca module exists');
   assertFileExists(context, MARACA_RUNTIME_PATH, rootDir, 'Maraca runtime helper exists');
@@ -320,6 +478,50 @@ function runMaracaPlanSuite(options = {}) {
   context.assert(plan.kernel && plan.kernel.enabled === true, 'auto kernel integration is enabled for complete primitive Maraca fixture');
   context.assert(plan.kernel.summary.scheduleCount >= 1, 'auto kernel integration summarizes schedule count');
   context.assert(plan.kernel.summary.fiberCount >= 1, 'auto kernel integration summarizes fiber count');
+  context.assert(plan.warmReentry && plan.warmReentry.schema === MARACA_WARM_REENTRY_REPORT_SCHEMA, 'plan records Warm Reentry report schema');
+  context.assert(plan.warmReentry && plan.warmReentry.supported === true, 'plan exposes Warm Reentry as optional supported capability');
+  context.assert(plan.warmReentry && plan.warmReentry.backpressurePolicy.critical === 'pause-prewarm', 'plan records critical backpressure prewarm policy');
+  context.assert(plan.warmReentry && plan.warmReentry.destroyInvalidation.destroySurfaceInvalidatesPrewarm === true, 'plan records prewarm invalidation on destroySurface');
+  context.assert(warmReentryPlan.ok === true, `Warm Reentry fixture plan passes${warmReentryPlan.ok ? '' : ` (${warmReentryPlan.diagnostics.map((d) => d.message).join(', ')})`}`);
+  context.assert(warmReentryPlan.warmReentry && warmReentryPlan.warmReentry.enabled === true, 'prewarm lifecycle operation activates Warm Reentry report');
+  context.assert(warmReentryPlan.warmReentry && warmReentryPlan.warmReentry.operationCount >= 1, 'Warm Reentry report counts prewarm operations');
+  context.assert(warmReentryPlan.warmReentry && warmReentryPlan.warmReentry.supportedFiberKinds.includes('surface.prewarm'), 'Warm Reentry report declares surface.prewarm fiber support');
+  assertTemplateArtifactsReport(context, plan.templateArtifacts, 'plan templateArtifacts');
+  assertMaracaPerformanceReport(context, plan.performance, 'plan performance');
+  context.assert(
+    plan.kernel.featureAdoption.capabilities.find((capability) => capability.key === 'templateArtifacts').active === true,
+    'kernel feature adoption marks Template Artifacts active when trusted artifacts are prepared'
+  );
+  context.assert(
+    plan.kernel.featureAdoption.capabilities.find((capability) => capability.key === 'performanceAdvancedReports').active === true,
+    'kernel feature adoption marks Performance Advanced Reports active when budget evidence is prepared'
+  );
+  context.assert(changedTemplatePlan.ok === true, 'changed source template-artifact plan still passes');
+  assertTemplateArtifactsReport(context, changedTemplatePlan.templateArtifacts, 'changed source plan templateArtifacts');
+  context.assert(
+    changedTemplatePlan.templateArtifacts.sourceFingerprint !== plan.templateArtifacts.sourceFingerprint,
+    'template artifact source fingerprint changes when source changes'
+  );
+  context.assert(
+    changedTemplatePlan.templateArtifacts.artifactBundleFingerprint !== plan.templateArtifacts.artifactBundleFingerprint,
+    'template artifact bundle fingerprint changes when template source changes'
+  );
+  context.assert(
+    createMaracaTemplateArtifactsReport({
+      rootDir,
+      sourceText: readText(MARACA_FIXTURE, rootDir),
+      coreDocument: plan.templateArtifacts.artifactBundle.documents[0],
+      status: 'manual-smoke'
+    }).schema === MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA,
+    'template artifact report factory is exported for debug gates'
+  );
+  context.assert(
+    createMaracaPerformanceReport({
+      rootDir,
+      runtimeExpectedStatus: 'report-only'
+    }).schema === MARACA_PERFORMANCE_REPORT_SCHEMA,
+    'performance report factory is exported for debug gates'
+  );
   context.assert(plan.validation && plan.validation.schema === MARACA_VALIDATION_PLAN_SCHEMA, 'plan records validation plan schema');
   context.assert(plan.validation && plan.validation.mode === 'auto', 'plan defaults validation mode to auto');
   context.assert(plan.validation && plan.validation.enabled === false, 'auto validation stays disabled when no validation artifact exists');
@@ -392,6 +594,74 @@ async function runMaracaBundleSuite(options = {}) {
   context.assert(report && report.orchestration && report.orchestration.artifactSchema === 'xtend.rmt.app-orchestration.v1', 'bundle report mirrors orchestration artifact schema');
   context.assert(report && report.kernel && report.kernel.enabled === true, 'bundle report records enabled auto kernel integration');
   context.assert(report && report.kernel && report.kernel.recordsSchema === 'xtend.rmt.vnext.kernel-records.v1', 'bundle report mirrors kernel records schema');
+  assertKernelFeatureAdoptionReport(context, report && report.kernelFeatureAdoption, 'bundle report kernelFeatureAdoption');
+  assertKernelFeatureAdoptionReport(context, report && report.kernel && report.kernel.featureAdoption, 'bundle report kernel.featureAdoption');
+  assertProductionClosureReport(context, report && report.productionClosure, 'bundle report productionClosure');
+  assertProductionClosureReport(context, report && report.kernelFeatureAdoptionClosure, 'bundle report kernelFeatureAdoptionClosure');
+  assertKernelProductSurfaceReport(context, report && report.kernel && report.kernel.productSurface, 'bundle report kernel.productSurface', 'direct');
+  context.assert(report && report.panicRecovery && report.panicRecovery.schema === 'xtend.maraca.kernel-panic-recovery-report.v1', 'bundle report exposes Panic/Recovery report');
+  context.assert(report && report.panicRecovery && report.panicRecovery.lane === 'diagnostics', 'bundle report routes Panic/Recovery through diagnostics lane');
+  context.assert(report && report.panicRecovery && report.panicRecovery.devApis.includes('getPanicRecoverySnapshot'), 'bundle report documents Panic/Recovery snapshot dev API');
+  context.assert(report && report.trustedDom && report.trustedDom.schema === 'xtend.maraca.kernel-trusted-dom-report.v1', 'bundle report exposes Trusted DOM report');
+  context.assert(report && report.trustedDom && report.trustedDom.verdictSchema === 'xtend.rmt.kernel-trust-verdict.v1', 'bundle report preserves Trust Verdict schema');
+  context.assert(report && report.policyParity && report.policyParity.schema === 'xtend.rmt.kernel-policy-parity-report.v1', 'bundle report exposes Policy Parity report');
+  context.assert(report && report.policyParity && report.policyParity.ok === true, 'bundle report marks Policy Parity ready');
+  context.assert(report && report.policyParity && report.policyParity.driftCount === 0, 'bundle report exposes zero Policy Parity drift');
+  context.assert(report && report.policyParity && Array.isArray(report.policyParity.requiredFactories) && report.policyParity.requiredFactories.includes('commitTrustedHtml'), 'bundle report lists Policy Parity required factories');
+  context.assert(report && report.kernel && report.kernel.security && report.kernel.security.schema === 'xtend.maraca.kernel-security-report.v1', 'bundle report exposes kernel.security report');
+  context.assert(report && report.kernel && report.kernel.security && report.kernel.security.panicRecovery && report.kernel.security.panicRecovery.strictDiagnostics.recoveryOutcome === true, 'bundle report kernel.security separates Recovery Outcome diagnostics');
+  context.assert(report && report.kernel && report.kernel.security && report.kernel.security.trustedDom && report.kernel.security.trustedDom.strictDiagnostics.trustVerdict === true, 'bundle report kernel.security separates Trust Verdict diagnostics');
+  context.assert(report && report.kernel && report.kernel.security && report.kernel.security.policyParity && report.kernel.security.policyParity.requiredFactories.includes('commitTrustedHtml'), 'bundle report kernel.security includes Policy Parity required factories');
+  assertTemplateArtifactsReport(context, report && report.templateArtifacts, 'bundle report templateArtifacts');
+  assertMaracaPerformanceReport(context, report && report.performance, 'bundle report performance', {
+    runtimeExpectedStatus: 'booted',
+    bundleFingerprint: true
+  });
+  context.assert(
+    report && report.hydration && report.hydration.serverPrerender && report.hydration.serverPrerender.schema === 'xtend.maraca.server-prerender-interop.v1',
+    'bundle report exposes server prerender interop report'
+  );
+  context.assert(
+    report && report.hydration && report.hydration.serverPrerender && report.hydration.serverPrerender.hydrateResponseCompatible === true,
+    'bundle report marks server prerender responses as hydrateResponse compatible'
+  );
+  context.assert(
+    report && report.hydration && report.hydration.serverPrerender && report.hydration.serverPrerender.adapterKinds.some((adapter) => adapter.kind === 'node-ssr' && adapter.supportStatus === 'supported' && adapter.hydrateResponseCompatible === true),
+    'bundle report names Node SSR adapter as compatible server prerender provider'
+  );
+  context.assert(
+    report && report.hydration && report.hydration.serverPrerender && report.hydration.serverPrerender.adapterKinds.some((adapter) => adapter.kind === 'php-ssr' && adapter.supportStatus === 'supported' && adapter.hydrateResponseCompatible === true),
+    'bundle report names PHP SSR adapter as compatible server prerender provider'
+  );
+  context.assert(
+    report && report.hydration && report.hydration.summary && report.hydration.summary.hydrateResponseCompatible === true,
+    'bundle hydration summary mirrors hydrateResponse compatibility'
+  );
+  context.assert(
+    report && report.templateArtifacts && typeof report.templateArtifacts.bundleFingerprint === 'string' && report.templateArtifacts.bundleFingerprint.startsWith('sha256:'),
+    'bundle report templateArtifacts exposes final Maraca bundle fingerprint'
+  );
+  context.assert(
+    report && report.templateArtifacts && report.templateArtifacts.registration && report.templateArtifacts.registration.status === 'bundle_embedded',
+    'bundle report marks trusted template artifact bundle as embedded for runtime registration'
+  );
+  context.assert(
+    report.kernelFeatureAdoption.capabilities.find((capability) => capability.key === 'templateArtifacts').active === true,
+    'bundle report feature adoption marks Template Artifacts active'
+  );
+  context.assert(
+    report.kernelFeatureAdoption.capabilities.find((capability) => capability.key === 'performanceAdvancedReports').active === true,
+    'bundle report feature adoption marks Performance Advanced Reports active'
+  );
+  context.assert(
+    report && report.kernel && report.kernel.performanceSummary && report.kernel.performanceSummary.runtimeExpectedStatus === 'booted',
+    'bundle report kernel section mirrors performance runtime expected status'
+  );
+  context.assert(
+    capabilityKeySignature(report && report.kernelFeatureAdoption && report.kernelFeatureAdoption.capabilityKeys)
+      === capabilityKeySignature(report && report.kernel && report.kernel.featureAdoption && report.kernel.featureAdoption.capabilityKeys),
+    'bundle report and kernel section use the same feature adoption capability keys'
+  );
   context.assert(report && report.toolchain && report.toolchain.active === 'rollup-terser', 'bundle uses the Rollup/Terser toolchain');
   context.assert(report && report.toolchain && report.toolchain.rollup && report.toolchain.rollup.available === true, 'Rollup is available in Maraca report');
   context.assert(report && report.toolchain && report.toolchain.terser && report.toolchain.terser.available === true, 'Terser is available in Maraca report');
@@ -407,6 +677,10 @@ async function runMaracaBundleSuite(options = {}) {
   context.assert(!bundleFiles.some((file) => file.fileName.includes('x-button')), 'bundle excludes unused x-button lazy chunk');
   context.assert(entrySource.includes('window.XTendMaraca'), 'entry exposes the documented XTendMaraca bridge');
   context.assert(entrySource.includes('MARACA_ORCHESTRATION'), 'entry includes orchestration bootstrap metadata');
+  context.assert(entrySource.includes('MARACA_TEMPLATE_ARTIFACTS'), 'entry includes template artifact bootstrap metadata');
+  context.assert(entrySource.includes('productionClosure'), 'entry includes production closure bootstrap metadata');
+  context.assert(entrySource.includes('xtend-maraca:template-artifacts'), 'entry emits guarded template artifact runtime registration telemetry');
+  context.assert(entrySource.includes('__XTendMaracaTemplateArtifactsRegistration'), 'entry exposes template artifact runtime registration debug bridge');
   context.assert(entrySource.includes('import('), 'default lazy build uses native ESM import chunks');
   context.assert(entrySource.includes('IntersectionObserver'), 'boot path supports viewport-driven lazy component loading');
   context.assert(!entrySource.includes('Promise.all(MARACA_COMPONENTS.map'), 'boot path avoids unconditional eager Promise.all component loading');
@@ -539,6 +813,9 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(plan.hydration && plan.hydration.enabled === true, 'strict orchestration plan enables hydration orchestration by default');
   context.assert(plan.hydration && plan.hydration.schema === MARACA_HYDRATION_PLAN_SCHEMA, 'strict orchestration plan records hydration plan schema');
   context.assert(plan.hydration.summary.recordCount >= 2, 'strict orchestration plan summarizes hydration records');
+  context.assert(plan.warmReentry && plan.warmReentry.schema === MARACA_WARM_REENTRY_REPORT_SCHEMA, 'strict orchestration plan records Warm Reentry report schema');
+  context.assert(plan.warmReentry && plan.warmReentry.backpressurePolicy.critical === 'pause-prewarm', 'strict orchestration plan records critical prewarm backpressure behavior');
+  context.assert(plan.warmReentry && plan.warmReentry.destroyInvalidation.destroySurfaceInvalidatesChunks === true, 'strict orchestration plan records chunk invalidation on destroySurface');
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-action-effect-runtime.js'), 'strict orchestration requires action runtime module');
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-runtime.esm.js'), 'strict orchestration requires kernel runtime module');
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-dom-descriptor-renderer.js'), 'strict orchestration requires DOM descriptor renderer module');
@@ -551,6 +828,8 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(report && report.orchestration && report.orchestration.enabled === true, 'bundle report includes orchestration telemetry');
   context.assert(report && report.kernel && report.kernel.enabled === true, 'bundle report includes kernel telemetry');
   context.assert(report && report.hydration && report.hydration.enabled === true, 'bundle report includes hydration telemetry');
+  context.assert(report && report.warmReentry && report.warmReentry.schema === MARACA_WARM_REENTRY_REPORT_SCHEMA, 'bundle report includes Warm Reentry telemetry');
+  context.assert(report && report.warmReentry && report.warmReentry.destroyInvalidation.destroySurfaceInvalidatesPrewarm === true, 'bundle report includes Warm Reentry destroy invalidation contract');
   context.assert(report && report.kernel && report.kernel.summary.scheduleCount >= 10, 'bundle report summarizes detailed kernel schedules including hydration endpoints');
   context.assert(report && report.orchestration && report.orchestration.summary.reducerCount >= 3, 'bundle report summarizes reducer patch plan');
   context.assert(report && report.orchestration && report.orchestration.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'bundle report diagnostics are non-blocking for complete fixture');
@@ -558,6 +837,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('createKernelController'), 'bundle initializes kernel controller');
   context.assert(entrySource.includes('createHydrationController'), 'bundle initializes hydration controller');
   context.assert(entrySource.includes('MARACA_HYDRATION'), 'bundle embeds hydration plan');
+  context.assert(entrySource.includes('MARACA_WARM_REENTRY'), 'bundle embeds Warm Reentry report');
   context.assert(entrySource.includes('XTendMaracaKernelRuntimeModule'), 'bundle imports the RMT kernel runtime module');
   context.assert(entrySource.includes('xtendrmt-rmt-kernel-orchestration-controller.js'), 'bundle imports reusable kernel orchestration controller asset');
   context.assert(entrySource.includes('XTendRmtStateSelectorRuntime'), 'bundle wires state runtime');
@@ -629,6 +909,14 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     label: 'XTend Maraca Kernel Orchestration'
   });
   const strictPlan = planKernelOrchestrationFixture(rootDir);
+  const productSurfacePlan = planKernelOrchestrationFixture(rootDir, {
+    kernelBootMode: 'productSurface',
+    out: '.xtend-build/maraca/kernel-orchestration-product-surface'
+  });
+  const prewarmWorkerPlan = planKernelOrchestrationFixture(rootDir, {
+    enablePrewarmWorker: true,
+    out: '.xtend-build/maraca/kernel-orchestration-prewarm-worker'
+  });
   const kernelOffPlan = planKernelOrchestrationFixture(rootDir, { kernel: 'off' });
   const strictWithoutOrchestration = createMaracaBuildPlan({
     source: MARACA_ORCHESTRATION_FIXTURE,
@@ -636,6 +924,18 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     orchestration: 'off',
     kernel: 'strict'
   }, { rootDir });
+  const strictPolicyDriftPlan = planKernelOrchestrationFixture(rootDir, {
+    out: '.xtend-build/maraca/kernel-policy-parity-drift',
+    policyParityReports: [{
+      schema: 'xtend.rmt.vnext-security-policy-contract.v1',
+      diagnostics: [{
+        code: 'rmt.vnext.security.sanitize.missing',
+        severity: 'error',
+        message: 'Unsafe output needs sanitize policy.'
+      }]
+    }],
+    policyParityRuntimeHooks: ['recordTrustVerdict']
+  });
   const result = await buildKernelOrchestrationFixtureAsync(rootDir);
   const entryPath = result.bundleReport && result.bundleReport.entry;
   const reportPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/xtend.maraca.report.json`, rootDir);
@@ -658,7 +958,34 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   context.assert(strictPlan.ok === true, `strict kernel plan passes${strictPlan.ok ? '' : ` (${strictPlan.diagnostics.map((d) => d.message).join(', ')})`}`);
   context.assert(strictPlan.kernel && strictPlan.kernel.schema === MARACA_KERNEL_PLAN_SCHEMA, 'strict kernel plan uses kernel plan schema');
   context.assert(strictPlan.kernel && strictPlan.kernel.mode === 'strict', 'strict kernel plan records strict mode');
+  context.assert(strictPlan.kernel && strictPlan.kernel.bootMode === 'direct', 'strict kernel plan keeps direct boot as default');
   context.assert(strictPlan.kernel && strictPlan.kernel.enabled === true, 'strict kernel plan enables kernel integration');
+  context.assert(strictPlan.kernel.policyParity && strictPlan.kernel.policyParity.ok === true, 'strict kernel plan enables Policy Parity');
+  context.assert(strictPlan.kernel.policyParity && strictPlan.kernel.policyParity.driftCount === 0, 'strict kernel plan has no Policy Parity drift');
+  context.assert(strictPlan.kernel.policyParity && strictPlan.kernel.policyParity.requiredFactories.includes('commitTrustedHtml'), 'strict kernel plan records Policy Parity required factories');
+  context.assert(
+    strictPlan.kernel.featureAdoption.capabilities.find((capability) => capability.key === 'policyParity').active === true,
+    'strict kernel plan marks Policy Parity feature adoption active'
+  );
+  context.assert(strictPlan.kernel.prewarmWorker && strictPlan.kernel.prewarmWorker.enabled === false, 'strict kernel plan keeps Prewarm Worker opt-in disabled by default');
+  context.assert(prewarmWorkerPlan.ok === true, 'prewarm worker opt-in kernel plan passes');
+  context.assert(prewarmWorkerPlan.enablePrewarmWorker === true, 'prewarm worker opt-in is reflected in the build plan');
+  context.assert(prewarmWorkerPlan.kernel.prewarmWorker && prewarmWorkerPlan.kernel.prewarmWorker.schema === MARACA_PREWARM_WORKER_RUNTIME_SCHEMA, 'prewarm worker plan records runtime schema');
+  context.assert(prewarmWorkerPlan.kernel.prewarmWorker && prewarmWorkerPlan.kernel.prewarmWorker.enabled === true, 'prewarm worker plan enables opt-in runtime capability');
+  context.assert(prewarmWorkerPlan.kernel.prewarmWorker && prewarmWorkerPlan.kernel.prewarmWorker.ownership.dom === false, 'prewarm worker plan keeps DOM ownership out of the worker');
+  context.assert(
+    prewarmWorkerPlan.kernel.featureAdoption.capabilities.find((capability) => capability.key === 'prewarmWorker').active === true,
+    'prewarm worker opt-in marks feature adoption active'
+  );
+  context.assert(productSurfacePlan.ok === true, 'product-surface kernel plan passes');
+  context.assert(productSurfacePlan.kernel && productSurfacePlan.kernel.bootMode === 'productSurface', 'product-surface kernel plan records productSurface boot mode');
+  assertKernelProductSurfaceReport(context, productSurfacePlan.kernel && productSurfacePlan.kernel.productSurface, 'product-surface kernel plan productSurface', 'productSurface');
+  context.assert(
+    productSurfacePlan.kernel.summary.scheduleCount === strictPlan.kernel.summary.scheduleCount
+      && productSurfacePlan.kernel.summary.fiberCount === strictPlan.kernel.summary.fiberCount
+      && productSurfacePlan.kernel.summary.endpointCount === strictPlan.kernel.summary.endpointCount,
+    'product-surface kernel plan preserves direct boot scheduler summary'
+  );
   context.assert(strictPlan.kernel.summary.scheduleCount >= 10, 'strict kernel plan summarizes detailed schedules including hydration endpoints');
   context.assert(strictPlan.kernel.summary.fiberCount >= 10, 'strict kernel plan summarizes detailed fibers including hydration endpoints');
   context.assert(strictPlan.kernel.summary.endpointCount >= 10, 'strict kernel plan summarizes detailed scheduler endpoints');
@@ -666,10 +993,49 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   context.assert(kernelOffPlan.ok === true && kernelOffPlan.kernel.enabled === false, 'kernel off keeps orchestration without kernel available');
   context.assert(strictWithoutOrchestration.ok === false, 'strict kernel blocks when orchestration is disabled');
   context.assert(strictWithoutOrchestration.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.maraca.kernel_missing'), 'strict kernel without orchestration reports missing kernel integration precondition');
+  context.assert(strictPolicyDriftPlan.ok === false, 'strict kernel blocks Policy Parity drift');
+  context.assert(strictPolicyDriftPlan.kernel.policyParity && strictPolicyDriftPlan.kernel.policyParity.ok === false, 'strict Policy Parity report exposes failed status');
+  context.assert(strictPolicyDriftPlan.kernel.policyParity && strictPolicyDriftPlan.kernel.policyParity.driftCount >= 1, 'strict Policy Parity report exposes drift count');
+  context.assert(strictPolicyDriftPlan.kernel.policyParity && strictPolicyDriftPlan.kernel.policyParity.missingFactories.includes('commitTrustedHtml'), 'strict Policy Parity report exposes missing trust sink factory');
+  context.assert(strictPolicyDriftPlan.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.maraca.policy_parity.drift'), 'strict Policy Parity drift emits Maraca diagnostic');
 
   context.assert(result.ok === true, `strict kernel bundle passes${result.ok ? '' : ` (${result.status})`}`);
   context.assert(report && report.kernel && report.kernel.enabled === true, 'kernel bundle report records enabled kernel integration');
   context.assert(report && report.kernel && report.kernel.recordsSchema === 'xtend.rmt.vnext.kernel-records.v1', 'kernel bundle report records kernel records schema');
+  context.assert(report && report.kernel && report.kernel.prewarmWorker && report.kernel.prewarmWorker.schema === MARACA_PREWARM_WORKER_RUNTIME_SCHEMA, 'kernel bundle report records Prewarm Worker capability');
+  context.assert(report && report.kernel && report.kernel.prewarmWorker && report.kernel.prewarmWorker.enabled === false, 'kernel bundle report keeps Prewarm Worker disabled by default');
+  context.assert(report && report.kernel && report.kernel.policyParity && report.kernel.policyParity.ok === true, 'kernel bundle report records ready Policy Parity');
+  context.assert(report && report.kernel && report.kernel.policyParity && report.kernel.policyParity.requiredFactories.includes('commitTrustedHtml'), 'kernel bundle report records Policy Parity required factories');
+  context.assert(report && report.kernel && report.kernel.security && report.kernel.security.panicRecovery && report.kernel.security.panicRecovery.status === 'available', 'kernel bundle report marks Panic/Recovery available');
+  context.assert(report && report.kernel && report.kernel.security && report.kernel.security.policyParity && report.kernel.security.policyParity.driftCount === 0, 'kernel bundle report kernel.security records zero Policy Parity drift');
+  context.assert(report && report.kernel && report.kernel.security && report.kernel.security.trustedDom && report.kernel.security.trustedDom.status === 'guarded', 'kernel bundle report marks Trusted DOM guarded');
+  assertKernelFeatureAdoptionReport(context, strictPlan.kernel.featureAdoption, 'strict kernel plan featureAdoption');
+  assertKernelFeatureAdoptionReport(context, report && report.kernelFeatureAdoption, 'kernel bundle report featureAdoption');
+  assertKernelFeatureAdoptionReport(context, report && report.kernel && report.kernel.featureAdoption, 'kernel bundle kernel.featureAdoption');
+  assertProductionClosureReport(context, report && report.productionClosure, 'kernel bundle report productionClosure', report && report.profile || 'production');
+  assertProductionClosureReport(context, report && report.kernelFeatureAdoptionClosure, 'kernel bundle report kernelFeatureAdoptionClosure', report && report.profile || 'production');
+  assertKernelProductSurfaceReport(context, strictPlan.kernel.productSurface, 'strict kernel plan productSurface', 'direct');
+  assertKernelProductSurfaceReport(context, report && report.kernel && report.kernel.productSurface, 'kernel bundle kernel.productSurface', 'direct');
+  context.assert(
+    capabilityKeySignature(strictPlan.kernel.featureAdoption.capabilityKeys)
+      === capabilityKeySignature(report && report.kernelFeatureAdoption && report.kernelFeatureAdoption.capabilityKeys),
+    'kernel plan and bundle report share feature adoption capability keys'
+  );
+  const rmtManifest = readJson('xtendrmt/rmt-manifest.json', rootDir);
+  context.assert(
+    rmtManifest.kernelFeatureAdoption
+      && capabilityKeySignature(rmtManifest.kernelFeatureAdoption.capabilityKeys) === capabilityKeySignature(RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS),
+    'RMT manifest records the same kernel feature adoption capability keys'
+  );
+  const degradedRegistry = createRmtKernelFeatureAdoptionRegistry({
+    availableFactories: ['createRmtPerformanceRuntime'],
+    activeCapabilities: { performanceAdvancedReports: true }
+  }).snapshot();
+  context.assert(degradedRegistry.status === 'blocked', 'registry blocks security capabilities when required factories are missing');
+  context.assert(
+    degradedRegistry.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.rmt.kernel_feature_adoption.unsupported' && diagnostic.capabilityKey === 'policyParity'),
+    'registry emits unsupported capability diagnostics instead of silent no-op status'
+  );
   context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-rmt-runtime.esm.js'), 'kernel runtime is packaged as a runtime asset');
   context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-rmt-kernel-orchestration-controller.js'), 'kernel orchestration controller is packaged as a runtime asset');
   context.assert(fs.existsSync(kernelRuntimePath), 'kernel runtime asset exists in the build package');
@@ -712,12 +1078,80 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   context.assert(kernelPerformance && typeof kernelPerformance.scheduleEndpoint === 'function', 'packaged kernel runtime creates a performance scheduler in the node smoke');
   context.assert(scheduleSmoke && scheduleSmoke.status === 'ok', 'packaged kernel scheduler bridge executes a scheduled endpoint in the node smoke');
   context.assert(schedulerBridge.listScheduledEndpoints().length >= 1, 'packaged kernel scheduler bridge records scheduled endpoints in the node smoke');
+  const prewarmRuntimeSmoke = kernelRuntimeModule.createRmtRuntime({
+    hostAdapter: kernelHostAdapter,
+    documentTarget: null,
+    windowTarget: globalThis,
+    enablePrewarmWorker: true
+  });
+  const prewarmRuntimeTopology = prewarmRuntimeSmoke.getPrewarmWorkerTopology();
+  context.assert(prewarmRuntimeTopology && prewarmRuntimeTopology.schema === 'xtend.rmt.prewarm-worker-topology.v1', 'packaged kernel runtime exposes Prewarm Worker topology');
+  context.assert(prewarmRuntimeTopology.enabled === true, 'packaged kernel runtime honors Prewarm Worker opt-in');
+  context.assert(Array.isArray(prewarmRuntimeTopology.missingApis), 'packaged kernel runtime lists Prewarm Worker missing APIs');
+  context.assert(prewarmRuntimeTopology.excludedResponsibilities.includes('dom_mutation'), 'packaged kernel runtime keeps Prewarm Worker DOM-free');
+  const prewarmRuntimeDispose = prewarmRuntimeSmoke.dispose();
+  context.assert(prewarmRuntimeDispose && prewarmRuntimeDispose.prewarmWorkerTerminated === true, 'packaged kernel runtime dispose terminates Prewarm Worker path');
+  const sourceController = createRmtKernelOrchestrationController({
+    kernelApi: kernelRuntimeModule,
+    artifact: strictPlan.kernel.artifact,
+    plan: strictPlan.kernel,
+    hostAdapter: kernelHostAdapter,
+    windowTarget: globalThis,
+    documentTarget: null
+  });
+  const sourceControllerSnapshot = sourceController.boot();
+  assertKernelFeatureAdoptionReport(context, sourceControllerSnapshot && sourceControllerSnapshot.featureAdoption, 'kernel orchestration controller snapshot featureAdoption');
+  context.assert(sourceControllerSnapshot.prewarmWorker && sourceControllerSnapshot.prewarmWorker.schema === 'xtend.rmt.prewarm-worker-topology.v1', 'kernel orchestration controller exposes Prewarm Worker topology schema');
+  context.assert(sourceControllerSnapshot.prewarmWorker && sourceControllerSnapshot.prewarmWorker.enabled === false, 'kernel orchestration controller leaves Prewarm Worker disabled by default');
+  context.assert(
+    capabilityKeySignature(sourceControllerSnapshot && sourceControllerSnapshot.featureAdoption && sourceControllerSnapshot.featureAdoption.capabilityKeys)
+      === capabilityKeySignature(report && report.kernelFeatureAdoption && report.kernelFeatureAdoption.capabilityKeys),
+    'kernel orchestration snapshot and bundle report share feature adoption capability keys'
+  );
+  const productSurfaceController = createRmtKernelOrchestrationController({
+    kernelApi: kernelRuntimeModule,
+    artifact: productSurfacePlan.kernel.artifact,
+    plan: productSurfacePlan.kernel,
+    hostAdapter: kernelHostAdapter,
+    windowTarget: globalThis,
+      documentTarget: null
+  });
+  const productSurfaceSnapshot = productSurfaceController.boot();
+  context.assert(productSurfaceSnapshot.bootMode === 'productSurface', 'product-surface controller snapshot records productSurface boot mode');
+  context.assert(productSurfaceSnapshot.status === 'booted', 'product-surface controller boots successfully');
+  assertKernelProductSurfaceReport(context, productSurfaceSnapshot.productSurface, 'product-surface controller snapshot productSurface', 'productSurface');
+  context.assert(
+    productSurfaceSnapshot.scheduledEndpoints.length === sourceControllerSnapshot.scheduledEndpoints.length,
+    'product-surface boot preserves direct boot scheduled endpoint count'
+  );
+  context.assert(
+    productSurfaceSnapshot.featureAdoption.capabilities.find((capability) => capability.key === 'productSurface').active === true,
+    'product-surface boot marks Product Surface capability active'
+  );
+  const prewarmWorkerController = createRmtKernelOrchestrationController({
+    kernelApi: kernelRuntimeModule,
+    artifact: prewarmWorkerPlan.kernel.artifact,
+    plan: prewarmWorkerPlan.kernel,
+    hostAdapter: kernelHostAdapter,
+    windowTarget: globalThis,
+    documentTarget: null,
+    enablePrewarmWorker: true
+  });
+  const prewarmWorkerSnapshot = prewarmWorkerController.boot();
+  context.assert(prewarmWorkerSnapshot.prewarmWorker && prewarmWorkerSnapshot.prewarmWorker.enabled === true, 'prewarm worker controller honors opt-in flag');
+  context.assert(prewarmWorkerSnapshot.prewarmWorker && Array.isArray(prewarmWorkerSnapshot.prewarmWorker.missingApis), 'prewarm worker topology lists missing host APIs');
+  context.assert(prewarmWorkerSnapshot.prewarmWorker && prewarmWorkerSnapshot.prewarmWorker.excludedResponsibilities.includes('dom_mutation'), 'prewarm worker topology excludes DOM ownership');
+  context.assert(
+    prewarmWorkerSnapshot.featureAdoption.capabilities.find((capability) => capability.key === 'prewarmWorker').active === true,
+    'prewarm worker controller marks feature adoption active'
+  );
   context.assert(entrySource.includes('XTendMaracaKernelRuntimeModule') && entrySource.includes('./runtime/xtendrmt-rmt-runtime.esm.js'), 'entry imports the packaged kernel runtime asset');
   context.assert(entrySource.includes('./runtime/xtendrmt-rmt-kernel-orchestration-controller.js'), 'entry imports the reusable kernel orchestration controller asset');
   context.assert(entrySource.includes('createRmtRuntime'), 'entry creates an RMT runtime instance');
   context.assert(entrySource.includes('createRmtCore'), 'entry creates an RMT core instance');
   context.assert(entrySource.includes('createRmtPerformanceRuntime'), 'entry creates a performance runtime instance');
   context.assert(entrySource.includes('createRmtStateSchedulerDiagnosticsBridge'), 'entry creates a scheduler diagnostics bridge');
+  context.assert(entrySource.includes('enablePrewarmWorker'), 'entry passes Prewarm Worker opt-in to the kernel runtime');
   context.assert(entrySource.includes('window.__XTendMaracaKernel'), 'entry exposes kernel bridge handle');
   context.assert(entrySource.includes('listScheduledEndpoints'), 'entry exposes scheduled endpoint inspection');
   context.assert(entrySource.includes('xtend-maraca:kernel-fiber'), 'entry dispatches kernel fiber telemetry');
@@ -1616,8 +2050,12 @@ function runMaracaPackageExportsSuite(options = {}) {
   context.assert(metadata && metadata.sizeBudgetReportSchema === MARACA_SIZE_BUDGET_REPORT_SCHEMA, 'package metadata declares size-budget schema');
   context.assert(metadata && metadata.kernelPlanSchema === MARACA_KERNEL_PLAN_SCHEMA, 'package metadata declares kernel-plan schema');
   context.assert(metadata && metadata.hydrationPlanSchema === MARACA_HYDRATION_PLAN_SCHEMA, 'package metadata declares hydration-plan schema');
+  context.assert(metadata && metadata.warmReentryReportSchema === MARACA_WARM_REENTRY_REPORT_SCHEMA, 'package metadata declares Warm Reentry report schema');
+  context.assert(metadata && metadata.prewarmWorkerRuntimeSchema === MARACA_PREWARM_WORKER_RUNTIME_SCHEMA, 'package metadata declares Prewarm Worker runtime schema');
   context.assert(metadata && metadata.validationPlanSchema === MARACA_VALIDATION_PLAN_SCHEMA, 'package metadata declares validation-plan schema');
   context.assert(metadata && metadata.transitionPlanSchema === MARACA_TRANSITION_PLAN_SCHEMA, 'package metadata declares transition-plan schema');
+  context.assert(metadata && metadata.templateArtifactsReportSchema === MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA, 'package metadata declares template-artifacts report schema');
+  context.assert(metadata && metadata.performanceReportSchema === MARACA_PERFORMANCE_REPORT_SCHEMA, 'package metadata declares performance report schema');
   context.assert(packageManifest.scripts['build:maraca'].includes('maraca build'), 'package exposes build:maraca script');
   context.assert(packageManifest.scripts['test:maraca'].includes(MARACA_SUITES.join(' ')), 'package exposes combined Maraca test script');
   MARACA_SUITES.forEach((suiteId) => {

@@ -18,6 +18,8 @@ Dieser Index sammelt stabile Dokumentationspfade, die lokale Gates als Release- 
 
 - [XTend Loader Types](./xtend-loader-types.md)
 - [XTend Vendor Types](./xtend-vendor-types.md)
+- [TypeExports](./type-exports.md)
+- [Package Export Lock](./package-export-lock.md)
 
 ## Native-First
 
@@ -36,6 +38,9 @@ Dieser Index sammelt stabile Dokumentationspfade, die lokale Gates als Release- 
 ## RMT vNext
 
 - [RMT-first Demo-App](./rmt-first-demo-app.md)
+- [SurfaceManager Controller](./surface-manager-controller.md)
+- [SurfaceManager Window Runtime](./surface-manager-window-runtime.md)
+- [SurfaceManager Runtime Release Handoff](./surface-manager-runtime-release-handoff.md)
 - [SurfaceManager Workbench Fixture](./surface-manager-workbench-fixture.md)
 - [SurfaceManager RMT Authoring](./surface-manager-rmt-authoring.md)
 - [SurfaceManager SidePanel Runtime](./en/surface-manager-side-panel-runtime.md)
@@ -45,6 +50,7 @@ Dieser Index sammelt stabile Dokumentationspfade, die lokale Gates als Release- 
 - [RMT vNext Migration Notes (EN)](./en/rmt-vnext-migration-notes.md)
 - [RMT vNext Release contract (DE)](./de/rmt-vnext-release-handoff.md)
 - [RMT vNext Release contract (EN)](./en/rmt-vnext-release-handoff.md)
+- [RMT Tooling Release Gates](./rmt-tooling-release-gates.md)
 - Reference source: `xtendrmt/rmt-vnext-reference-demo.rmt`
 - Reference Core output: `xtendrmt/rmt-vnext-reference-demo.core.json`
 

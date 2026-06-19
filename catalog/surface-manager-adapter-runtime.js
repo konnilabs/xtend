@@ -41,6 +41,7 @@ const SURFACE_ADAPTER_DIAGNOSTICS = Object.freeze([
   'rmt.surface.missing_component',
   'rmt.surface.target.missing',
   'rmt.surface.target.unsupported',
+  'rmt.surface.dom_compat_ownership_unsupported',
   'rmt.surface.operation.skipped',
   'rmt.surface.diagnostic'
 ]);

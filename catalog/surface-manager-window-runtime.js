@@ -91,6 +91,7 @@ const REQUIRED_MANAGER_METHODS = Object.freeze([
   'restoreSurface',
   'materializeSurface',
   'toggleSurface',
+  'destroySurface',
   'snapshot'
 ]);
 
@@ -112,6 +113,8 @@ const REQUIRED_EVENTS = Object.freeze([
   'surface-closed',
   'surface-focused',
   'surface-updated',
+  'surface-destroyed',
+  'surface-destroy-error',
   'surface-layout-changed',
   'surface-window-command'
 ]);
@@ -166,6 +169,7 @@ function createSurfaceManagerWindowRuntimePlan(options = {}) {
       registration: 'slotchange-and-window-connected-registration',
       commandBridge: 'surface-window-command-to-controller-operation',
       snapshotBridge: 'controller-snapshot-to-window-attributes-css-vars',
+      lifecycleBridge: 'destroySurface-terminal-cleanup-and-tombstone',
       manifestPolicy: 'manifest-loadable-components'
     },
     featureFlags: {

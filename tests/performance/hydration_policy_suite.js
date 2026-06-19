@@ -52,8 +52,14 @@ async function runHydrationPolicySuite(options = {}) {
   context.assertIncludes(policySource, 'xtend.fabric.hydration-policy.v1', 'Policy module declares hydration policy contract');
   context.assertIncludes(policySource, 'xtend.fabric.hydration-decision.v1', 'Policy module declares hydration decision contract');
   context.assertIncludes(policySource, 'component.lazy.hydrate', 'Policy module defines lazy hydration schedule');
+  context.assertIncludes(policySource, 'component.prewarm.prepare', 'Policy module defines prewarm hydration schedule');
+  context.assertIncludes(policySource, 'component.worker_prerender_hydrate', 'Policy module defines worker prerender hydration schedule');
+  context.assertIncludes(policySource, 'stream_pressure_deferred', 'Policy module handles stream-pressure deferral');
+  context.assertIncludes(policySource, 'lazy_stream_pressure_throttled', 'Policy module handles lazy throttling under stream pressure');
   context.assertIncludes(policySource, 'createHydrationPolicyController', 'Policy module exposes controller helper');
   context.assertIncludes(mappingSource, 'component.lazy.hydrate', 'RMT lane mapping exposes lazy hydration schedule');
+  context.assertIncludes(mappingSource, 'component.prewarm.prepare', 'RMT lane mapping exposes prewarm hydration schedule');
+  context.assertIncludes(mappingSource, 'component.worker_prerender_hydrate', 'RMT lane mapping exposes worker prerender hydration schedule');
   context.assert(!policySource.includes('rmt-runtime'), 'Hydration policy module does not import the RMT runtime');
 
   assert(CONTRACTS.hydrationPolicy === 'xtend.fabric.hydration-policy.v1', 'Exports hydration policy contract');
@@ -61,6 +67,9 @@ async function runHydrationPolicySuite(options = {}) {
   assert(HYDRATION_POLICIES.visible.scheduleRef === 'component.visible.hydrate', 'Visible policy keeps visible hydration schedule');
   assert(HYDRATION_POLICIES.idle.scheduleRef === 'component.idle.hydrate', 'Idle policy keeps idle hydration schedule');
   assert(HYDRATION_POLICIES.lazy.scheduleRef === 'component.lazy.hydrate', 'Lazy policy keeps lazy hydration schedule');
+  assert(HYDRATION_POLICIES.warm.scheduleRef === 'component.warm.reentry', 'Warm reentry policy keeps warm schedule');
+  assert(HYDRATION_POLICIES.prewarm.scheduleRef === 'component.prewarm.prepare', 'Prewarm policy keeps prewarm schedule');
+  assert(HYDRATION_POLICIES.worker_prerender_hydrate.scheduleRef === 'component.worker_prerender_hydrate', 'Worker prerender policy keeps worker schedule');
 
   const visibleDecision = resolveHydrationPolicy({
     componentRef: 'x-alert',
@@ -105,6 +114,55 @@ async function runHydrationPolicySuite(options = {}) {
   assert(deferredDecision.policy === 'lazy', 'High backpressure defers neutral hydration to lazy policy');
   assert(deferredDecision.diagnostics.some((entry) => entry.code === 'xtend.fabric.hydration_policy.backpressure_deferred'), 'Backpressure deferral emits diagnostic');
 
+  const streamDeferredDecision = resolveHydrationPolicy({
+    componentRef: 'x-stream-feed',
+    streamPressureLevel: 'high'
+  });
+  assert(streamDeferredDecision.policy === 'lazy', 'High stream pressure defers neutral hydration to lazy policy');
+  assert(streamDeferredDecision.status === 'throttled' && streamDeferredDecision.throttled === true, 'High stream pressure throttles lazy hydration behind visible work');
+  assert(streamDeferredDecision.streamPressureLevel === 'high', 'Stream pressure level is exposed on hydration decision');
+  assert(streamDeferredDecision.diagnostics.some((entry) => entry.code === 'xtend.fabric.hydration_policy.stream_pressure_deferred'), 'Stream pressure deferral emits diagnostic');
+  assert(streamDeferredDecision.diagnostics.some((entry) => entry.code === 'xtend.fabric.hydration_policy.lazy_stream_pressure_throttled'), 'Lazy stream pressure throttling emits diagnostic');
+
+  const warmDecision = resolveHydrationPolicy({
+    componentRef: 'x-returning-card',
+    warmReentry: true,
+    backpressureLevel: 'high'
+  });
+  assert(warmDecision.policy === 'warm', 'Warm reentry request resolves warm policy');
+  assert(warmDecision.status === 'reduced', 'High backpressure reduces warm reentry work');
+  assert(warmDecision.lane === 'idle', 'Warm reentry remains opportunistic on idle lane');
+  assert(warmDecision.scheduleRef === 'component.warm.reentry', 'Warm reentry delegates to warm schedule');
+
+  const pausedPrewarm = resolveHydrationPolicy({
+    componentRef: 'x-below-fold',
+    prewarm: true,
+    backpressureLevel: 'critical'
+  });
+  assert(pausedPrewarm.policy === 'prewarm', 'Prewarm request resolves prewarm policy');
+  assert(pausedPrewarm.status === 'paused' && pausedPrewarm.paused === true, 'Critical backpressure pauses prewarm work');
+  assert(pausedPrewarm.scheduleRef === 'diagnostics.snapshot', 'Paused prewarm records diagnostics instead of scheduling prewarm endpoint');
+  assert(pausedPrewarm.diagnostics.some((entry) => entry.code === 'xtend.fabric.hydration_policy.prewarm_paused'), 'Paused prewarm emits diagnostic');
+
+  const streamPausedPrewarm = resolveHydrationPolicy({
+    componentRef: 'x-stream-prewarm',
+    prewarm: true,
+    streamPressureLevel: 'critical'
+  });
+  assert(streamPausedPrewarm.policy === 'prewarm', 'Prewarm request still resolves prewarm policy under stream pressure');
+  assert(streamPausedPrewarm.status === 'paused' && streamPausedPrewarm.blockedByBackpressure === true, 'Critical stream pressure pauses prewarm work');
+  assert(streamPausedPrewarm.scheduleRef === 'diagnostics.snapshot', 'Critical stream pressure records diagnostics instead of prewarm scheduling');
+
+  const pausedWorkerPrerender = resolveHydrationPolicy({
+    componentRef: 'x-worker-card',
+    mode: 'worker_prerender_hydrate',
+    backpressureLevel: 'critical'
+  });
+  assert(pausedWorkerPrerender.policy === 'worker_prerender_hydrate', 'Worker prerender request resolves worker policy');
+  assert(pausedWorkerPrerender.status === 'paused' && pausedWorkerPrerender.paused === true, 'Critical backpressure pauses worker prerender hydration');
+  assert(pausedWorkerPrerender.scheduleRef === 'diagnostics.snapshot', 'Paused worker prerender records diagnostics instead of scheduling worker endpoint');
+  assert(pausedWorkerPrerender.diagnostics.some((entry) => entry.code === 'xtend.fabric.hydration_policy.worker_prerender_paused'), 'Paused worker prerender emits diagnostic');
+
   const lazyFiber = createHydrationFiberInput('x-gallery', {
     lazy: true,
     metadata: {
@@ -121,10 +179,32 @@ async function runHydrationPolicySuite(options = {}) {
   assert(lazySchedule.endpointName === 'xtendrmt.component.hydrate', 'RMT resolver preserves hydration endpoint');
   assert(lazySchedule.rmtLane === 'idle', 'RMT resolver maps lazy hydration to idle lane');
 
+  const prewarmFiber = createHydrationFiberInput('x-below-fold', {
+    prewarm: true
+  });
+  assert(prewarmFiber.kind === 'component.prewarm', 'Prewarm hydration policy emits component.prewarm fiber');
+  assert(prewarmFiber.lane === 'background', 'Prewarm hydration policy uses background lane');
+  assert(prewarmFiber.scheduleRef === 'component.prewarm.prepare', 'Prewarm hydration policy carries prewarm scheduleRef');
+
+  const workerPrerenderFiber = createHydrationFiberInput('x-worker-card', {
+    mode: 'worker_prerender_hydrate'
+  });
+  assert(workerPrerenderFiber.kind === 'component.worker_prerender_hydrate', 'Worker prerender hydration policy emits worker Fiber kind');
+  assert(workerPrerenderFiber.lane === 'background', 'Worker prerender hydration policy uses background lane');
+  assert(workerPrerenderFiber.scheduleRef === 'component.worker_prerender_hydrate', 'Worker prerender hydration policy carries worker scheduleRef');
+  assert(workerPrerenderFiber.metadata.workerPrerender === true, 'Worker prerender Fiber carries worker metadata');
+
+  const workerPrerenderSchedule = resolveRmtScheduleForFiber(workerPrerenderFiber);
+  assert(workerPrerenderSchedule.scheduleRef === 'component.worker_prerender_hydrate', 'RMT resolver honors worker prerender scheduleRef');
+  assert(workerPrerenderSchedule.endpointName === 'xtendrmt.component.worker_prerender_hydrate', 'RMT resolver preserves worker prerender endpoint');
+  assert(workerPrerenderSchedule.rmtLane === 'background', 'RMT resolver maps worker prerender to background lane');
+
   const hydrationSchedules = createHydrationScheduleRecords();
-  assert(hydrationSchedules.length === 3, 'Hydration policy exposes visible, idle and lazy schedule records');
-  assert(hydrationSchedules.every((schedule) => schedule.endpointName === 'xtendrmt.component.hydrate'), 'Hydration schedules delegate to XTendRMT hydration endpoint');
+  assert(hydrationSchedules.length === 6, 'Hydration policy exposes visible, idle, lazy, warm, prewarm and worker prerender schedule records');
+  assert(hydrationSchedules.every((schedule) => schedule.endpointName === 'xtendrmt.component.hydrate' || schedule.endpointName === 'xtendrmt.component.prewarm' || schedule.endpointName === 'xtendrmt.component.worker_prerender_hydrate'), 'Hydration schedules delegate to XTendRMT hydration/prewarm/worker endpoints');
   assert(hydrationSchedules.find((schedule) => schedule.id === 'component.lazy.hydrate').preferIdle === true, 'Lazy schedule prefers idle work');
+  assert(hydrationSchedules.find((schedule) => schedule.id === 'component.prewarm.prepare').lane === 'background', 'Prewarm schedule stays on background lane');
+  assert(hydrationSchedules.find((schedule) => schedule.id === 'component.worker_prerender_hydrate').lane === 'background', 'Worker prerender schedule stays on background lane');
 
   const fabric = createXtendFabric({
     idPrefix: 'hydration.policy.fabric',

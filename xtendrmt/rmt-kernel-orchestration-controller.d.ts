@@ -12,6 +12,19 @@ export interface RmtKernelOrchestrationControllerOptions {
   windowTarget?: unknown;
   documentTarget?: unknown;
   runtimeKind?: string;
+  kernelBootMode?: 'direct' | 'productSurface';
+  enablePrewarmWorker?: boolean;
+  prewarmWorkerName?: string;
+  prewarmWorkerType?: 'classic' | 'module' | string;
+  telemetryLimit?: number;
+  productSurface?: Record<string, unknown> | null;
+  productSurfaceOptions?: Record<string, unknown>;
+  fabric?: Record<string, unknown> | null;
+  fabricRuntime?: Record<string, unknown> | null;
+  manifest?: Record<string, unknown> | null;
+  featureAdoptionRegistry?: {
+    snapshot(): Record<string, unknown>;
+  } | null;
   dispatchEvent?: (name: string, detail: unknown) => void;
   publishDiagnostic?: (diagnostic: unknown) => void;
 }
@@ -28,8 +41,11 @@ export interface RmtKernelOrchestrationController {
   readonly hostAdapter: unknown;
   boot(): unknown;
   scheduleWork(kind: string, callback: (context: unknown) => unknown, metadata?: Record<string, unknown>): unknown;
+  recordAppRuntimeBackpressure(record?: Record<string, unknown>, metadata?: Record<string, unknown>): Record<string, unknown>;
   listScheduledEndpoints(): unknown[];
   listDiagnostics(): unknown[];
+  listPanicRecoveryRecords(): unknown[];
+  getPanicRecoverySnapshot(): Record<string, unknown>;
   snapshot(): Record<string, unknown>;
 }
 

@@ -245,6 +245,7 @@ export type RmtHostAdapterOperation =
     | 'registerSurface'
     | 'openSurface'
     | 'closeSurface'
+    | 'destroySurface'
     | 'focusSurface'
     | 'moveSurface'
     | 'resizeSurface'
@@ -257,6 +258,9 @@ export type RmtHostAdapterOperation =
     | 'recordAdapterResult'
     | 'recordTelemetrySnapshot'
     | 'recordBackpressureSignal'
+    | 'listTelemetrySnapshots'
+    | 'listBackpressureSignals'
+    | 'getTelemetryDebugSnapshot'
     | 'emitDiagnostic'
     | 'disposeAdapter'
     | string;
@@ -348,6 +352,7 @@ export interface RmtHostAdapterRuntimeBridge {
     registerSurface?(surface: RmtSurfaceDomainRecord | Record<string, unknown>, options?: RmtHostAdapterOperationOptions): RmtHostAdapterOperationResult;
     openSurface?(surfaceRef: string | RmtSurfaceDomainRecord | Record<string, unknown>, options?: RmtHostAdapterOperationOptions): RmtHostAdapterOperationResult;
     closeSurface?(surfaceRef: string | RmtSurfaceDomainRecord | Record<string, unknown>, options?: RmtHostAdapterOperationOptions): RmtHostAdapterOperationResult;
+    destroySurface?(surfaceRef: string | RmtSurfaceDomainRecord | Record<string, unknown>, options?: RmtHostAdapterOperationOptions): RmtHostAdapterOperationResult;
     focusSurface?(surfaceRef: string | RmtSurfaceDomainRecord | Record<string, unknown>, options?: RmtHostAdapterOperationOptions): RmtHostAdapterOperationResult;
     snapshotSurfaces?(options?: RmtHostAdapterOperationOptions): RmtHostAdapterOperationResult;
     recordAdapterResult?(result: RmtHostAdapterOperationResult | Record<string, unknown>, options?: RmtHostAdapterOperationOptions): RmtHostAdapterOperationResult;
@@ -743,6 +748,7 @@ export type RmtXtendComponentLifecycleOperation =
     | 'update'
     | 'event'
     | 'unmount'
+    | 'dispose'
     | 'error'
     | string;
 
@@ -864,6 +870,7 @@ export type RmtSurfaceAdapterDiagnosticCode =
     | 'rmt.surface.remote_policy.degraded'
     | 'rmt.surface.remote_policy.kernel_runtime_refused'
     | 'rmt.surface.remote_event_governance.blocked'
+    | 'rmt.surface.dom_compat_ownership_unsupported'
     | 'rmt.surface.operation.skipped'
     | 'rmt.surface.diagnostic'
     | string;
@@ -887,6 +894,8 @@ export interface RmtSurfaceMappedSurface {
     placement: string;
     mode: string;
     layer: string;
+    ownershipMode: RmtOwnershipMode | string;
+    requestedOwnershipMode?: string;
     capabilities: string[];
     a11y: Record<string, unknown>;
     persistence: Record<string, unknown>;
@@ -953,6 +962,7 @@ export interface RmtSurfaceAdapter {
     applyRemoteSurfacePolicy(remoteSurfaceInput?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     openSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, input?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     closeSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, reason?: string, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    destroySurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, input?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     focusSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, input?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     moveSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, bounds?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     resizeSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, bounds?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
@@ -1041,6 +1051,9 @@ export interface RmtStateSchedulerDiagnosticsBridge {
     recordAdapterResult(result: RmtHostAdapterOperationResult | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     recordTelemetrySnapshot(snapshot: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult<Record<string, unknown>>;
     recordBackpressureSignal(signal: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult<Record<string, unknown>>;
+    listTelemetrySnapshots(options?: { limit?: number } & Record<string, unknown>): Record<string, unknown>[];
+    listBackpressureSignals(options?: { limit?: number } & Record<string, unknown>): Record<string, unknown>[];
+    getTelemetryDebugSnapshot(options?: { limit?: number } & Record<string, unknown>): Record<string, unknown>;
     resolveSchedulePolicy(scheduleRef: string | RmtScheduleDomainRecord | Record<string, unknown>, options?: Record<string, unknown>): RmtBridgeSchedulePolicy;
     listScheduledEndpoints(): RmtBridgeScheduledEndpoint[];
     listDiagnostics(): RmtHostAdapterDiagnosticEvent[];
@@ -3291,6 +3304,38 @@ export interface RmtKernelRuntimeRecoveryOutcome {
     metadata: Record<string, unknown>;
 }
 
+export interface RmtKernelRuntimePanicRecoveryRecord {
+    schema: 'xtend.rmt.kernel-panic-recovery-record.v1' | string;
+    kind: 'trustVerdict' | 'panicEvent' | 'safeSnapshot' | 'recoveryOutcome' | string;
+    lane: 'diagnostics' | string;
+    status: string;
+    scope: string | null;
+    correlationId: string | null;
+    record: RmtKernelRuntimeTrustVerdict
+        | RmtKernelRuntimePanicEvent
+        | RmtKernelRuntimeRecoverySafeSnapshot
+        | RmtKernelRuntimeRecoveryOutcome
+        | Record<string, unknown>;
+}
+
+export interface RmtKernelRuntimePanicRecoverySnapshot {
+    schema: 'xtend.rmt.kernel-panic-recovery-snapshot.v1' | string;
+    lane: 'diagnostics' | string;
+    trustVerdictCount: number;
+    blockedTrustVerdictCount: number;
+    panicEventCount: number;
+    recoveryOutcomeCount: number;
+    safeSnapshotCount: number;
+    quarantineScopeCount: number;
+    panicState: string;
+    recoveryStatus: string;
+    quarantineScopes: string[];
+    lastTrustVerdict: RmtKernelRuntimeTrustVerdict | null;
+    lastPanicEvent: RmtKernelRuntimePanicEvent | null;
+    lastRecoveryOutcome: RmtKernelRuntimeRecoveryOutcome | null;
+    panicSnapshot: RmtKernelRuntimePanicSnapshot | Record<string, unknown> | null;
+}
+
 export interface RmtTemplateBindingSession {
     appliedAt: number;
     destroy(): boolean;
@@ -3336,6 +3381,8 @@ export interface RmtTemplateBindingSession {
     renderSafeFallback(input?: Record<string, unknown>): boolean;
     recoverFromPanic(input?: Record<string, unknown>): RmtKernelRuntimeRecoveryOutcome;
     listRecoveryOutcomes(): RmtKernelRuntimeRecoveryOutcome[];
+    listPanicRecoveryRecords(): RmtKernelRuntimePanicRecoveryRecord[];
+    getPanicRecoverySnapshot(): RmtKernelRuntimePanicRecoverySnapshot;
     listQuarantinedScopes(): string[];
     isScopeQuarantined(input?: Record<string, unknown>): boolean;
     rebindChunk(nextChunkInput?: RmtTemplateChunk | Record<string, unknown> | null): boolean;
@@ -3365,6 +3412,7 @@ export interface RmtTemplateExecutionResult {
 
 export interface RmtTemplateTransportExecutionResult {
     ok: boolean;
+    status?: 'hydrated' | 'deferred' | 'superseded' | 'error' | string;
     transport: string;
     request: RmtTemplatePrerenderRequestSnapshot | null;
     response: RmtTemplatePrerenderResponseEnvelope;
@@ -3376,6 +3424,18 @@ export interface RmtTemplateTransportExecutionResult {
     hydrated: boolean;
     superseded: boolean;
     deferred: boolean;
+    hydrationGeneration?: string | null;
+    expectedGeneration?: string | null;
+    hydrationKey?: string | null;
+    trustedDomCommit?: {
+        required: boolean;
+        status: 'committed' | 'bindings-only' | 'deferred' | 'skipped' | string;
+        mainThread: boolean;
+        reason?: string;
+    };
+    blockedHostServiceRequests?: number;
+    hostServicesExecuted?: number;
+    diagnostics?: Array<Record<string, unknown>>;
     error: {
         name: string;
         message: string;
@@ -3413,6 +3473,8 @@ export interface RmtTemplateRuntimeRenderer {
     renderSafeFallback(input?: Record<string, unknown>): boolean;
     recoverFromPanic(input?: Record<string, unknown>): RmtKernelRuntimeRecoveryOutcome;
     listRecoveryOutcomes(): RmtKernelRuntimeRecoveryOutcome[];
+    listPanicRecoveryRecords(): RmtKernelRuntimePanicRecoveryRecord[];
+    getPanicRecoverySnapshot(): RmtKernelRuntimePanicRecoverySnapshot;
     listQuarantinedScopes(): string[];
     isScopeQuarantined(input?: Record<string, unknown>): boolean;
     normalizeBinding(bindingInput?: Record<string, unknown>): RmtTemplateRuntimeBinding | null;
@@ -3470,6 +3532,8 @@ export interface RmtTemplateExecutionPath {
     renderSafeFallback(input?: Record<string, unknown>): boolean;
     recoverFromPanic(input?: Record<string, unknown>): RmtKernelRuntimeRecoveryOutcome;
     listRecoveryOutcomes(): RmtKernelRuntimeRecoveryOutcome[];
+    listPanicRecoveryRecords(): RmtKernelRuntimePanicRecoveryRecord[];
+    getPanicRecoverySnapshot(): RmtKernelRuntimePanicRecoverySnapshot;
     listQuarantinedScopes(): string[];
     isScopeQuarantined(input?: Record<string, unknown>): boolean;
     hydrateTemplate(requestInput: RmtTemplateExecutionRequest, options?: Record<string, unknown>): RmtTemplateExecutionResult;
@@ -3498,6 +3562,7 @@ export interface RmtTemplateTransportAdapter {
     ): Promise<RmtTemplateTransportExecutionResult>;
     getSupportedExecutionModes(): RmtTemplateExecutionMode[];
     getTransportKind(): string;
+    getLatestHydrationGeneration(hydrationKey: string): string | null;
     handlePrerenderEnvelope(
         envelopeInput: RmtTemplateExecutionRequest | RmtTemplatePrerenderEnvelope | Record<string, unknown> | string,
         options?: Record<string, unknown>
@@ -3507,6 +3572,7 @@ export interface RmtTemplateTransportAdapter {
         requestInput?: RmtTemplateExecutionRequest | RmtTemplatePrerenderEnvelope | Record<string, unknown>,
         options?: Record<string, unknown>
     ): RmtTemplateTransportExecutionResult;
+    rememberHydrationGeneration(hydrationKey: string, generation: string | number): boolean;
     normalizeExecutionMode(value: string): RmtTemplateExecutionMode;
     normalizePrerenderResponse(
         responseInput?: RmtTemplatePrerenderResponseEnvelope | RmtTemplateChunk | Record<string, unknown> | string,
@@ -3541,6 +3607,14 @@ export interface RmtTemplateApi {
     listSupportedHydrationModes(): RmtTemplateHydrationMode[];
     listSupportedSlotKinds(): RmtTemplateSlotKind[];
     listSupportedExecutionModes(): RmtTemplateExecutionMode[];
+    listTrustVerdicts(): RmtKernelRuntimeTrustVerdict[];
+    getPanicSnapshot(): RmtKernelRuntimePanicSnapshot | null;
+    listPanicEvents(): RmtKernelRuntimePanicEvent[];
+    listSafeSnapshots(): RmtKernelRuntimeRecoverySafeSnapshot[];
+    listRecoveryOutcomes(): RmtKernelRuntimeRecoveryOutcome[];
+    listQuarantinedScopes(): string[];
+    listPanicRecoveryRecords(): RmtKernelRuntimePanicRecoveryRecord[];
+    getPanicRecoverySnapshot(): RmtKernelRuntimePanicRecoverySnapshot | null;
     listSupportedFileExtensions(): string[];
     getPreferredFileExtension(): string;
     getJsonFallbackFileExtensions(): string[];
@@ -3600,7 +3674,8 @@ export interface RmtBrowserRuntime {
     getManifest(): RmtProductManifest | null;
     getPerformanceRuntime(): RmtPerformanceRuntime | null;
     getPrewarmWorkerRuntime(): RmtPrewarmWorkerRuntime | null;
-    getPrewarmWorkerTopology(): Record<string, unknown> | null;
+    getPrewarmWorkerTopology(): RmtPrewarmWorkerTopology;
+    terminatePrewarmWorker(reason?: string): boolean;
     getPerformanceSnapshot(reason?: string): RmtPerformanceSnapshot | null;
     getBrowserSignalSnapshot(reason?: string): RmtBrowserSignalSnapshot | null;
     getBackpressureProfile(reason?: string): RmtBackpressureProfile | null;
@@ -3664,6 +3739,14 @@ export interface RmtBrowserRuntime {
     listSupportedExecutionModes(): RmtTemplateExecutionMode[];
     listSupportedHydrationModes(): RmtTemplateHydrationMode[];
     listSupportedSlotKinds(): RmtTemplateSlotKind[];
+    listTrustVerdicts(): RmtKernelRuntimeTrustVerdict[];
+    getPanicSnapshot(): RmtKernelRuntimePanicSnapshot | null;
+    listPanicEvents(): RmtKernelRuntimePanicEvent[];
+    listSafeSnapshots(): RmtKernelRuntimeRecoverySafeSnapshot[];
+    listRecoveryOutcomes(): RmtKernelRuntimeRecoveryOutcome[];
+    listQuarantinedScopes(): string[];
+    listPanicRecoveryRecords(): RmtKernelRuntimePanicRecoveryRecord[];
+    getPanicRecoverySnapshot(): RmtKernelRuntimePanicRecoverySnapshot;
     listTemplates(): RmtRegisteredTemplate[];
     loadDocument(source: string | Record<string, unknown>, options?: Record<string, unknown>): Promise<RmtTemplateDocumentRegistration>;
     loadRmtDocument(source: string | Record<string, unknown>, options?: Record<string, unknown>): Promise<RmtTemplateDocumentRegistration>;
@@ -3714,7 +3797,9 @@ export interface RmtBrowserRuntime {
     resolveTemplate(templateRef: string | Record<string, unknown>, options?: Record<string, unknown>): RmtRegisteredTemplate | null;
     runEndpoint<T = unknown>(endpointName: string, callback: (plan: RmtPerformanceEndpointProfile | null) => T | Promise<T>, options?: Record<string, unknown>): T | Promise<T>;
     scheduleEndpoint(endpointName: string, scope: string, callback: (jobContext: Record<string, unknown>) => unknown, options?: Record<string, unknown>): unknown;
-    unmount(islandRef: string | RmtIslandHandle, options?: RmtUnmountIslandOptions): boolean;
+    unmount(islandRef: string | RmtIslandHandle, options?: RmtUnmountIslandOptions & { hard?: boolean; appUnmount?: boolean; disposeRoot?: boolean }): boolean;
+    disposeRoot(rootId: string, options?: Record<string, unknown>): boolean;
+    dispose(options?: Record<string, unknown>): { schema: 'xtend.rmt.browser-runtime-dispose.v1'; ok: boolean; prewarmWorkerTerminated: boolean; coreDisposed: boolean };
     withDefaults(nextDefaults?: Partial<RmtBrowserRuntimeDefaults> & Record<string, unknown>): RmtBrowserRuntime;
 }
 
@@ -3756,11 +3841,13 @@ export interface RmtWorkerPrerenderRuntime extends Omit<
     getWorkerAdapter(): RmtTemplateTransportAdapter;
     getWorkerTransport(): RmtTemplateTransportAdapter;
     getWorkerTransportDispatcher(): ((envelope: RmtTemplatePrerenderEnvelope, options?: Record<string, unknown>) => Promise<RmtTemplatePrerenderResponseEnvelope> | RmtTemplatePrerenderResponseEnvelope) | null;
+    getLatestHydrationGeneration(hydrationKey: string): string | null;
     hydrateResponse(
         responseInput?: RmtTemplatePrerenderResponseEnvelope | RmtTemplateChunk | Record<string, unknown> | string,
         requestInput?: RmtTemplateExecutionRequest | RmtTemplatePrerenderEnvelope | Record<string, unknown>,
         options?: Record<string, unknown>
     ): RmtTemplateTransportExecutionResult;
+    rememberHydrationGeneration(hydrationKey: string, generation: string | number): boolean;
     prerender(
         templateOrRequest: RmtTemplateExecutionRequest | string | Record<string, unknown>,
         model?: Record<string, unknown>,
@@ -3792,7 +3879,12 @@ export interface RmtWorkerPrerenderRuntime extends Omit<
 }
 
 export interface RmtPrewarmWorkerTopology {
+    schema: 'xtend.rmt.prewarm-worker-topology.v1';
     kind: 'renderman-prewarm' | string;
+    enabled: boolean;
+    status: 'disabled' | 'available' | 'ready' | 'degraded' | string;
+    health: 'disabled' | 'available' | 'ready' | 'degraded' | string;
+    reason?: string;
     workerName: string;
     workerType: 'classic' | 'module' | string;
     instantiated: boolean;
@@ -3806,6 +3898,7 @@ export interface RmtPrewarmWorkerTopology {
     responsibilities: string[];
     supportedSignals: string[];
     excludedResponsibilities: string[];
+    diagnostics?: Array<Record<string, unknown>>;
 }
 
 export interface RmtPrewarmWorkerRuntime {
@@ -3817,7 +3910,7 @@ export interface RmtPrewarmWorkerRuntime {
     getWorker(): Worker | unknown;
     healthCheck(): Promise<Record<string, unknown>>;
     syncTemplates(options?: Record<string, unknown>): Promise<Record<string, unknown>>;
-    terminateWorker(): boolean;
+    terminateWorker(reason?: string): boolean;
 }
 
 export interface RmtPrewarmWorkerSourceBuilder {

@@ -125,6 +125,8 @@ Nutze `lazyStrategy: "eager"`, wenn der Host alle ausgewählten Komponenten sofo
 
 Lies `xtend.maraca.report.json` nach jedem Production Build. Die wichtigsten Felder sind `components.selected`, `runtimeModules`, `bundleFiles`, `loader`, `forbiddenRuntimeDependencies` und `toolchain`. Ein gesunder App Build sollte `loader.usesExternalManifest: false`, `loader.usesXtendLoader: false` und keine verbotene Runtime-Abhängigkeit auf `components/manifest.json` zeigen.
 
+Für kernel-orchestrierte Production Bundles solltest du zusätzlich `productionClosure` und `kernelFeatureAdoptionClosure` prüfen. Diese Abschnitte beantworten jede Runtime Capability mit `supported`, `active`, `degraded`, `blocked`, `runtimeExpectedStatus` und Diagnostics. Dieselbe Matrix verbindet Lifecycle, Telemetry, Performance, Policy Parity, Warm Reentry, Prewarm Worker und Prerender Status mit RMT Source-Fingerprint, Bundle-Fingerprints und Release-Tests.
+
 `xtend.maraca.size.json` vergleicht das moderne Bundle mit einer Baseline aus Legacy Loader plus ausgewählten Component Modulen. Das ist kein generischer Web Performance Score, sondern eine lokale Leitplanke, die beweist, dass Maraca für das gewählte Dokument weiterhin einen kleineren modernen ESM Graphen erzeugt.
 
 ## Fehlerbehebung

@@ -14,6 +14,15 @@ RMT Node SSR Adapter beschreibt die öffentliche RMT-Oberfläche dieser Seite: w
 - Adapter-Contract `xtend.rmt.node-ssr-adapter.v1`.
 - JSONL Streaming Frames mit `xtend.rmt.node-ssr-jsonl-frame.v1`.
 
+## Hydration Response Envelope
+
+`render().response` verwendet `renderman_template_prerender_response` mit
+`executionMode: "server_prerender_hydrate"`. Die Antwort enthält `chunk`,
+`chunks`, `request`, `metadata.adapterKind: "node-ssr"` und
+`hydrate_existing` Ziel-Metadaten, sodass die Client Runtime sie direkt über
+`hydrateResponse` verarbeiten oder bei Diagnosefehlern kontrolliert degradieren
+kann.
+
 ## Beispiel
 
 ```js

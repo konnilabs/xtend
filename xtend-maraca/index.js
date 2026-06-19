@@ -1,16 +1,23 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const vm = require('vm');
 
 const MARACA_PACKAGE_SCHEMA = 'xtend.maraca.package-metadata.v1';
 const MARACA_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v1';
 const MARACA_BUNDLE_REPORT_SCHEMA = 'xtend.maraca.bundle-report.v1';
 const MARACA_SIZE_BUDGET_REPORT_SCHEMA = 'xtend.maraca.size-budget-report.v1';
+const MARACA_PERFORMANCE_REPORT_SCHEMA = 'xtend.maraca.performance-report.v1';
 const MARACA_ORCHESTRATION_PLAN_SCHEMA = 'xtend.maraca.orchestration-plan.v1';
 const MARACA_KERNEL_PLAN_SCHEMA = 'xtend.maraca.kernel-plan.v1';
 const MARACA_HYDRATION_PLAN_SCHEMA = 'xtend.maraca.hydration-plan.v1';
+const MARACA_WARM_REENTRY_REPORT_SCHEMA = 'xtend.maraca.warm-reentry-report.v1';
+const MARACA_PREWARM_WORKER_RUNTIME_SCHEMA = 'xtend.maraca.prewarm-worker-runtime.v1';
+const MARACA_LIFECYCLE_REPORT_SCHEMA = 'xtend.maraca.lifecycle-report.v1';
+const MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA = 'xtend.maraca.template-artifacts-report.v1';
 const MARACA_VALIDATION_PLAN_SCHEMA = 'xtend.maraca.validation-plan.v1';
 const MARACA_TRANSITION_PLAN_SCHEMA = 'xtend.maraca.transition-plan.v1';
+const MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA = 'xtend.maraca.production-bundle-closure.v1';
 
 const DEFAULT_SOURCE = 'tests/rmt-language/fixtures/maraca-known-components.rmt';
 const DEFAULT_OUT_DIR = '.xtend-build/maraca/app';
@@ -21,10 +28,26 @@ const VALID_COMPONENT_MODES = new Set(['document', 'all']);
 const VALID_STACK_MODES = new Set(['plan', 'runtime', 'full', 'none']);
 const VALID_ORCHESTRATION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_KERNEL_MODES = new Set(['auto', 'strict', 'off']);
+const VALID_KERNEL_BOOT_MODES = new Set(['direct', 'productSurface']);
 const VALID_HYDRATION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_VALIDATION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_TRANSITION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_SIZE_BUDGET_MODES = new Set(['strict', 'warn', 'off']);
+const TEMPLATE_ARTIFACT_DOCUMENT_KIND = 'renderman_template_artifact_document';
+const TEMPLATE_ARTIFACT_BUNDLE_KIND = 'renderman_template_artifact_bundle';
+const TEMPLATE_ARTIFACT_VERSION = '1.0';
+const DEFAULT_TEMPLATE_RUNTIME_PROFILE_HINTS = Object.freeze([
+  'browser',
+  'detached_dom',
+  'worker_prerender',
+  'server_prerender'
+]);
+const MARACA_PERFORMANCE_BUDGET_CLASSES = Object.freeze([
+  'visible_commit',
+  'command_turnaround',
+  'hydration_followup',
+  'retained_warm_reuse'
+]);
 const COMPONENT_UNKNOWN_CODE = 'xtend.maraca.component_unknown';
 const COMPONENT_DYNAMIC_CODE = 'xtend.maraca.dynamic_component_requires_opt_in';
 const COMPILER_ERROR_CODE = 'xtend.maraca.rmt_compile_failed';
@@ -79,6 +102,11 @@ const KERNEL_RUNTIME_MODULES = Object.freeze([
   'xtendrmt/rmt-kernel-orchestration-controller.js',
   'xtendrmt/rmt-runtime.esm.js'
 ]);
+const KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE = 'xtendrmt/rmt-kernel-feature-adoption-registry.js';
+const KERNEL_POLICY_PARITY_MODULE = 'tools/rmt-language/kernel-policy-parity.js';
+const KERNEL_POLICY_PARITY_SCHEMA = 'xtend.rmt.kernel-policy-parity.v1';
+const KERNEL_POLICY_PARITY_REPORT_SCHEMA = 'xtend.rmt.kernel-policy-parity-report.v1';
+const KERNEL_POLICY_PARITY_DRIFT_SCHEMA = 'xtend.rmt.kernel-policy-parity-drift.v1';
 const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-rmt-runtime.esm.js';
 const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-rmt-kernel-orchestration-controller.js';
 const ORCHESTRATION_RUNTIME_MODULES = Object.freeze([
@@ -120,6 +148,7 @@ const PUBLIC_NAME_RESERVATIONS = Object.freeze([
   'MARACA_ORCHESTRATION',
   'MARACA_KERNEL',
   'MARACA_HYDRATION',
+  'MARACA_WARM_REENTRY',
   'MARACA_VALIDATION',
   'MARACA_TRANSITIONS',
   'MARACA_PUBLIC_NAMES',
@@ -154,10 +183,15 @@ const PUBLIC_NAME_RESERVATIONS = Object.freeze([
   MARACA_BUILD_PLAN_SCHEMA,
   MARACA_BUNDLE_REPORT_SCHEMA,
   MARACA_SIZE_BUDGET_REPORT_SCHEMA,
+  MARACA_PERFORMANCE_REPORT_SCHEMA,
   MARACA_KERNEL_PLAN_SCHEMA,
   MARACA_HYDRATION_PLAN_SCHEMA,
+  MARACA_WARM_REENTRY_REPORT_SCHEMA,
+  MARACA_PREWARM_WORKER_RUNTIME_SCHEMA,
+  MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA,
   MARACA_VALIDATION_PLAN_SCHEMA,
   MARACA_TRANSITION_PLAN_SCHEMA,
+  MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA,
   MARACA_TRANSITION_PLAN_SCHEMA
 ]);
 
@@ -187,8 +221,914 @@ function hashText(text) {
   return crypto.createHash('sha256').update(String(text)).digest('hex');
 }
 
+function stableStringify(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map((entry) => stableStringify(entry)).join(',')}]`;
+  }
+  if (!value || typeof value !== 'object') {
+    return JSON.stringify(value);
+  }
+  return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(',')}}`;
+}
+
+function hashArtifactValue(value) {
+  const source = stableStringify(value);
+  let hash = 2166136261;
+  for (let index = 0; index < source.length; index += 1) {
+    hash ^= source.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `fnv1a:${(hash >>> 0).toString(16).padStart(8, '0')}`;
+}
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+let rmtKernelFeatureAdoptionRegistryModule = null;
+let rmtKernelPolicyParityModule = null;
+let rmtKernelPolicyParityModuleError = null;
+let rmtManifestCache = null;
+let rmtPerformanceRuntimeFactory = null;
+let rmtPerformanceRuntimeFactoryError = null;
+
+function loadRmtManifest(rootDir) {
+  if (rmtManifestCache) return rmtManifestCache;
+  const packageRoot = path.dirname(path.dirname(__filename));
+  const candidates = [
+    path.resolve(rootDir || process.cwd(), 'xtendrmt/rmt-manifest.json'),
+    path.resolve(packageRoot, 'xtendrmt/rmt-manifest.json')
+  ];
+  const manifestPath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!manifestPath) return null;
+  try {
+    rmtManifestCache = readJson(manifestPath);
+    return rmtManifestCache;
+  } catch (_) {
+    return null;
+  }
+}
+
+function loadRmtPerformanceRuntimeFactory(rootDir) {
+  if (rmtPerformanceRuntimeFactory || rmtPerformanceRuntimeFactoryError) return rmtPerformanceRuntimeFactory;
+  const packageRoot = path.dirname(path.dirname(__filename));
+  const candidates = [
+    path.resolve(rootDir || process.cwd(), 'xtendrmt/rmt-runtime.browser.js'),
+    path.resolve(packageRoot, 'xtendrmt/rmt-runtime.browser.js')
+  ];
+  const runtimePath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!runtimePath) {
+    rmtPerformanceRuntimeFactoryError = new Error('XTendRMT browser runtime bundle was not found.');
+    return null;
+  }
+  try {
+    const runtimeSource = fs.readFileSync(runtimePath, 'utf8');
+    const sandbox = {
+      console,
+      setTimeout,
+      clearTimeout,
+      performance: {
+        now: () => 0,
+        getEntries: () => [],
+        getEntriesByType: () => []
+      }
+    };
+    sandbox.globalThis = sandbox;
+    vm.runInNewContext(runtimeSource, sandbox, {
+      filename: runtimePath,
+      timeout: 1000
+    });
+    rmtPerformanceRuntimeFactory = sandbox.AppModules && sandbox.AppModules.createRmtPerformanceRuntime || null;
+  } catch (error) {
+    rmtPerformanceRuntimeFactoryError = error;
+    rmtPerformanceRuntimeFactory = null;
+  }
+  return rmtPerformanceRuntimeFactory;
+}
+
+function loadRmtKernelFeatureAdoptionRegistry(rootDir) {
+  if (rmtKernelFeatureAdoptionRegistryModule) return rmtKernelFeatureAdoptionRegistryModule;
+  const packageRoot = path.dirname(path.dirname(__filename));
+  const candidates = [
+    path.resolve(rootDir || process.cwd(), KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE),
+    path.resolve(packageRoot, KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE)
+  ];
+  const registryPath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!registryPath) return null;
+  try {
+    rmtKernelFeatureAdoptionRegistryModule = require(registryPath);
+    return rmtKernelFeatureAdoptionRegistryModule;
+  } catch (_) {
+    return null;
+  }
+}
+
+function loadRmtKernelPolicyParityModule(rootDir) {
+  if (rmtKernelPolicyParityModule || rmtKernelPolicyParityModuleError) return rmtKernelPolicyParityModule;
+  const packageRoot = path.dirname(path.dirname(__filename));
+  const candidates = [
+    path.resolve(rootDir || process.cwd(), KERNEL_POLICY_PARITY_MODULE),
+    path.resolve(packageRoot, KERNEL_POLICY_PARITY_MODULE)
+  ];
+  const modulePath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!modulePath) {
+    rmtKernelPolicyParityModuleError = new Error('RMT kernel policy parity module was not found.');
+    return null;
+  }
+  try {
+    rmtKernelPolicyParityModule = require(modulePath);
+    return rmtKernelPolicyParityModule;
+  } catch (error) {
+    rmtKernelPolicyParityModuleError = error;
+    rmtKernelPolicyParityModule = null;
+    return null;
+  }
+}
+
+function createFallbackKernelFeatureAdoptionReport() {
+  return {
+    schema: 'xtend.rmt-kernel-feature-adoption-report.v1',
+    contract: 'xtend.rmt-kernel-feature-adoption.v1',
+    status: 'unavailable',
+    ok: false,
+    capabilityKeys: [],
+    capabilityCount: 0,
+    supportedCount: 0,
+    activeCount: 0,
+    degradedCount: 0,
+    blockedCount: 0,
+    capabilities: [],
+    diagnostics: [{
+      schema: 'xtend.rmt-kernel-feature-adoption-diagnostic.v1',
+      code: 'xtend.rmt.kernel_feature_adoption.registry_missing',
+      severity: 'warning',
+      message: 'RMT kernel feature adoption registry is not available.'
+    }]
+  };
+}
+
+function createMaracaKernelFeatureAdoptionReport(options = {}) {
+  const rootDir = options.rootDir || process.cwd();
+  const registryModule = loadRmtKernelFeatureAdoptionRegistry(rootDir);
+  if (!registryModule || typeof registryModule.createRmtKernelFeatureAdoptionRegistry !== 'function') {
+    return createFallbackKernelFeatureAdoptionReport();
+  }
+  const enabled = Boolean(options.enabled);
+  const activeInput = options.activeCapabilities || {};
+  const activeCapabilities = {
+    ...activeInput,
+    performanceAdvancedReports: Object.prototype.hasOwnProperty.call(activeInput, 'performanceAdvancedReports')
+      ? Boolean(activeInput.performanceAdvancedReports)
+      : enabled,
+    prewarmWorker: Object.prototype.hasOwnProperty.call(activeInput, 'prewarmWorker')
+      ? Boolean(activeInput.prewarmWorker)
+      : false,
+    warmReentry: Object.prototype.hasOwnProperty.call(activeInput, 'warmReentry')
+      ? Boolean(activeInput.warmReentry)
+      : false,
+    panicRecovery: Object.prototype.hasOwnProperty.call(activeInput, 'panicRecovery')
+      ? Boolean(activeInput.panicRecovery)
+      : enabled,
+    policyParity: Object.prototype.hasOwnProperty.call(activeInput, 'policyParity')
+      ? Boolean(activeInput.policyParity)
+      : enabled
+  };
+  const registry = registryModule.createRmtKernelFeatureAdoptionRegistry({
+    manifest: options.manifest || loadRmtManifest(rootDir),
+    kernelApi: options.kernelApi || null,
+    runtimeModules: options.runtimeModules || [],
+    planFeatureAdoption: options.planFeatureAdoption || null,
+    activeCapabilities
+  });
+  return registry.snapshot();
+}
+
+function createFallbackOptionalCompat() {
+  return {
+    browserHostAdapter: null,
+    dashboardAdapter: null,
+    dashboardCompatBootstrap: null,
+    dashboardCommandCatalog: null
+  };
+}
+
+function createMaracaKernelProductSurfaceReport(options = {}) {
+  const bootMode = VALID_KERNEL_BOOT_MODES.has(options.bootMode) ? options.bootMode : 'direct';
+  const diagnostics = [];
+  const manifest = options.manifest || loadRmtManifest(options.rootDir);
+  const productSurface = options.productSurface || null;
+  let entryPoints = [];
+  let optionalCompat = createFallbackOptionalCompat();
+  let runtimeFactories = {};
+  let supported = false;
+
+  if (productSurface && typeof productSurface === 'object') {
+    supported = true;
+    if (typeof productSurface.listEntryPoints === 'function') {
+      entryPoints = productSurface.listEntryPoints();
+    }
+    if (typeof productSurface.listOptionalCompat === 'function') {
+      optionalCompat = productSurface.listOptionalCompat();
+    }
+    runtimeFactories = {
+      createRuntime: typeof productSurface.createRuntime === 'function',
+      createCore: typeof productSurface.createCore === 'function',
+      createPerformanceRuntime: typeof productSurface.createPerformanceRuntime === 'function',
+      createTemplateArtifacts: typeof productSurface.createTemplateArtifacts === 'function',
+      createWorkerRuntime: typeof productSurface.createWorkerRuntime === 'function',
+      createServerRuntime: typeof productSurface.createServerRuntime === 'function',
+      createDetachedDomRuntime: typeof productSurface.createDetachedDomRuntime === 'function'
+    };
+  } else {
+    const factories = manifest && manifest.entryPoints && manifest.entryPoints.appModulesFactories || {};
+    const classicSurface = manifest && manifest.entryPoints && manifest.entryPoints.classicSurface || {};
+    entryPoints = Object.values(factories)
+      .filter(Boolean)
+      .map((name) => ({ kind: 'appmodules_factory', name: String(name) }));
+    if (classicSurface.globalName) {
+      entryPoints.push({ kind: 'classic_global', name: String(classicSurface.globalName) });
+    }
+    supported = Boolean(factories.productSurface || classicSurface.createSurfaceFactory || factories.core);
+    runtimeFactories = {
+      createRuntime: Boolean(factories.browserRuntime),
+      createCore: Boolean(factories.core),
+      createPerformanceRuntime: Boolean(factories.performanceRuntime),
+      createTemplateArtifacts: Boolean(factories.templateArtifacts),
+      createWorkerRuntime: Boolean(factories.workerPrerenderRuntime),
+      createServerRuntime: Boolean(factories.serverPrerenderRuntime),
+      createDetachedDomRuntime: Boolean(factories.detachedDomRuntime)
+    };
+  }
+
+  if (bootMode === 'productSurface' && !supported) {
+    diagnostics.push({
+      code: 'xtend.maraca.kernel_product_surface_missing',
+      severity: 'error',
+      message: 'Product Surface boot was requested, but createRmtProductSurface is not available.'
+    });
+  }
+
+  const entryPointNames = entryPoints.map((entry) => entry && entry.name).filter(Boolean);
+  return {
+    schema: 'xtend.maraca.kernel-product-surface-bootstrap.v1',
+    bootMode,
+    supported,
+    status: diagnostics.some((diagnostic) => diagnostic.severity === 'error') ? 'blocked' : (bootMode === 'productSurface' ? 'selected' : 'available'),
+    entryPoints,
+    entryPointCount: entryPoints.length,
+    entryPointNames,
+    optionalCompat,
+    runtimeFactories,
+    diagnostics
+  };
+}
+
+function createMaracaPrewarmWorkerRuntimeReport(kernelPlan = null, options = {}) {
+  const enabled = options.enablePrewarmWorker === true;
+  const kernelEnabled = Boolean(kernelPlan && kernelPlan.enabled);
+  const runtimeModules = Array.isArray(kernelPlan && kernelPlan.runtimeModules)
+    ? kernelPlan.runtimeModules
+    : KERNEL_RUNTIME_MODULES.slice();
+  const hasKernelRuntime = runtimeModules.includes('xtendrmt/rmt-runtime.esm.js')
+    || runtimeModules.includes('xtendrmt/rmt-core.esm.js');
+  const supported = hasKernelRuntime;
+  const diagnostics = [];
+
+  if (enabled && !kernelEnabled) {
+    diagnostics.push(kernelDiagnostic(
+      'xtend.maraca.prewarm_worker.kernel_disabled',
+      options.kernel === 'strict' ? 'error' : 'warning',
+      'Prewarm Worker requires enabled RMT kernel orchestration.',
+      { requiredBy: 'enablePrewarmWorker' }
+    ));
+  }
+  if (enabled && !hasKernelRuntime) {
+    diagnostics.push(kernelDiagnostic(
+      'xtend.maraca.prewarm_worker.runtime_missing',
+      options.kernel === 'strict' ? 'error' : 'warning',
+      'Prewarm Worker requires the RMT runtime module in the bundle graph.',
+      { requiredModule: 'xtendrmt/rmt-runtime.esm.js' }
+    ));
+  }
+
+  const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === 'error');
+  return {
+    schema: MARACA_PREWARM_WORKER_RUNTIME_SCHEMA,
+    enabled,
+    supported,
+    optional: true,
+    status: !enabled ? 'disabled' : (hasErrors ? 'blocked' : (kernelEnabled && hasKernelRuntime ? 'planned' : 'degraded')),
+    runtimeExpectedStatus: enabled && kernelEnabled && hasKernelRuntime ? 'booted' : 'disabled',
+    workerName: options.prewarmWorkerName || 'XTendRMTPrewarmWorker',
+    workerType: options.prewarmWorkerType || 'classic',
+    topologySchema: 'xtend.rmt.prewarm-worker-topology.v1',
+    requiredHostApis: ['Worker', 'Blob', 'URL.createObjectURL'],
+    topologyFields: ['health', 'pendingJobs', 'submittedJobs', 'templatesSynced', 'missingApis', 'lastError'],
+    ownership: {
+      dom: false,
+      events: false,
+      state: false
+    },
+    fallbackPolicy: {
+      missingApis: 'degrade-to-main-thread-prewarm',
+      bootFailure: 'report-diagnostic-and-disable-worker',
+      visibleWorkPriority: 'preserve-visible-and-user-blocking-work'
+    },
+    diagnostics,
+    summary: {
+      enabled,
+      supported,
+      kernelEnabled,
+      hasKernelRuntime,
+      requiresHostApis: enabled
+    }
+  };
+}
+
+function cloneJson(value, fallbackValue = null) {
+  if (value === undefined) return fallbackValue;
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch (_) {
+    return fallbackValue;
+  }
+}
+
+function templateDocumentId(coreDocument) {
+  return coreDocument && coreDocument.manifest && coreDocument.manifest.documentId
+    ? String(coreDocument.manifest.documentId)
+    : 'xtend.maraca.document';
+}
+
+function templateNamespace(coreDocument) {
+  return coreDocument && coreDocument.manifest && coreDocument.manifest.namespace
+    ? String(coreDocument.manifest.namespace)
+    : templateDocumentId(coreDocument).split('.')[0] || 'xtend';
+}
+
+function createMaracaTemplateSourceDocument(coreDocument, sourceText, options = {}) {
+  const documentId = templateDocumentId(coreDocument);
+  const namespace = templateNamespace(coreDocument);
+  const templates = Array.isArray(coreDocument && coreDocument.templates)
+    ? coreDocument.templates
+    : [];
+  return {
+    kind: 'rmt_document',
+    version: '1.0',
+    manifest: {
+      documentId,
+      namespace,
+      sourceUrl: options.sourcePath ? repoRelative(options.sourcePath, options.rootDir || process.cwd()) : '',
+      contentType: 'text/x-rmt',
+      metadata: {
+        maraca: true,
+        sourceHash: hashText(sourceText || ''),
+        sourceFingerprint: `sha256:${hashText(sourceText || '')}`,
+        compilerSchema: options.compileResult && options.compileResult.schema || null
+      },
+      reactivityHints: {}
+    },
+    templates: templates.map((template, index) => {
+      const templateId = String(template && template.id || template && template.name || `template:${index}`);
+      const templateName = String(template && template.name || templateId.replace(/^template:/, ''));
+      return {
+        id: templateId,
+        qualifiedId: templateId,
+        namespace,
+        documentId,
+        mode: String(template && template.mode || 'orchestration'),
+        markup: '',
+        bindings: [],
+        slots: [],
+        metadata: {
+          name: templateName,
+          surfaceRefs: Array.isArray(template && template.surfaceRefs) ? template.surfaceRefs.slice() : [],
+          sourceRef: template && template.sourceRef || null
+        },
+        reactivityHints: {},
+        sourceUrl: options.sourcePath ? repoRelative(options.sourcePath, options.rootDir || process.cwd()) : '',
+        loaderHint: 'xtend-maraca'
+      };
+    })
+  };
+}
+
+function createMaracaPreparedTemplate(templateRecord) {
+  const sourceFingerprint = hashArtifactValue({
+    id: templateRecord.id,
+    qualifiedId: templateRecord.qualifiedId || templateRecord.id,
+    namespace: templateRecord.namespace,
+    documentId: templateRecord.documentId,
+    mode: templateRecord.mode,
+    markup: templateRecord.markup || '',
+    bindings: templateRecord.bindings || [],
+    slots: templateRecord.slots || [],
+    metadata: templateRecord.metadata || {},
+    reactivityHints: templateRecord.reactivityHints || {}
+  });
+  const structureSignature = hashArtifactValue({
+    templateMode: templateRecord.mode || 'orchestration',
+    bindings: templateRecord.bindings || [],
+    slots: templateRecord.slots || []
+  });
+  return {
+    kind: 'renderman_prepared_template',
+    version: TEMPLATE_ARTIFACT_VERSION,
+    preparedAt: 0,
+    id: templateRecord.id,
+    qualifiedId: templateRecord.qualifiedId || templateRecord.id,
+    namespace: templateRecord.namespace,
+    documentId: templateRecord.documentId,
+    sourceUrl: templateRecord.sourceUrl || '',
+    loaderHint: templateRecord.loaderHint || 'xtend-maraca',
+    mode: templateRecord.mode || 'orchestration',
+    markup: templateRecord.markup || '',
+    props: [],
+    bindings: cloneJson(templateRecord.bindings, []),
+    slots: cloneJson(templateRecord.slots, []),
+    hydration: {},
+    errorBoundary: {},
+    metadata: cloneJson(templateRecord.metadata, {}),
+    reactivityHints: cloneJson(templateRecord.reactivityHints, {}),
+    dependencyRefs: [],
+    structureSignature,
+    fingerprint: hashArtifactValue({
+      sourceFingerprint,
+      structureSignature,
+      dependencies: []
+    }),
+    sourceFingerprint
+  };
+}
+
+function createMaracaTemplateDocumentArtifact(sourceDocument, runtimeProfileHints) {
+  const manifest = sourceDocument.manifest || {};
+  const preparedTemplates = (Array.isArray(sourceDocument.templates) ? sourceDocument.templates : [])
+    .map(createMaracaPreparedTemplate);
+  const documentSourceFingerprint = hashArtifactValue({
+    manifest,
+    templates: preparedTemplates.map((entry) => ({
+      qualifiedId: entry.qualifiedId,
+      fingerprint: entry.fingerprint
+    }))
+  });
+  const fingerprint = hashArtifactValue({
+    documentSourceFingerprint,
+    templates: preparedTemplates.map((entry) => entry.fingerprint)
+  });
+  const documentId = String(manifest.documentId || 'xtend.maraca.document');
+  return {
+    kind: TEMPLATE_ARTIFACT_DOCUMENT_KIND,
+    version: TEMPLATE_ARTIFACT_VERSION,
+    artifactId: `artifact:${documentId}:${fingerprint.replace(/[^a-zA-Z0-9:_-]/g, '').slice(-12) || 'document'}`,
+    documentId,
+    namespace: String(manifest.namespace || ''),
+    sourceUrl: String(manifest.sourceUrl || ''),
+    contentType: String(manifest.contentType || 'text/x-rmt'),
+    templateCount: preparedTemplates.length,
+    templateIds: preparedTemplates.map((entry) => entry.qualifiedId),
+    metadata: cloneJson(manifest.metadata, {}),
+    reactivityHints: cloneJson(manifest.reactivityHints, {}),
+    fingerprint,
+    sourceFingerprint: documentSourceFingerprint,
+    templates: preparedTemplates,
+    runtimeProfileHints: runtimeProfileHints.slice(),
+    createdAt: 0
+  };
+}
+
+function createMaracaTemplateArtifactBundle(documentArtifacts, options = {}) {
+  const runtimeProfileHints = Array.isArray(options.runtimeProfileHints)
+    ? options.runtimeProfileHints.slice()
+    : DEFAULT_TEMPLATE_RUNTIME_PROFILE_HINTS.slice();
+  const documentIds = documentArtifacts.map((documentArtifact) => documentArtifact.documentId).filter(Boolean);
+  const templateIds = documentArtifacts.flatMap((documentArtifact) => documentArtifact.templateIds || []);
+  const manifest = {
+    artifactVersion: TEMPLATE_ARTIFACT_VERSION,
+    bundleId: options.bundleId || `xtend.maraca.templates.${documentIds.join('.') || 'document'}`,
+    createdAt: 0,
+    releaseStage: options.releaseStage || 'build-plan',
+    runtimeProfileHints,
+    metadata: cloneJson(options.metadata, {}),
+    documentCount: documentArtifacts.length,
+    templateCount: templateIds.length,
+    fingerprint: ''
+  };
+  manifest.fingerprint = hashArtifactValue({
+    manifest: {
+      ...manifest,
+      fingerprint: ''
+    },
+    documents: documentArtifacts.map((documentArtifact) => ({
+      artifactId: documentArtifact.artifactId,
+      documentId: documentArtifact.documentId,
+      fingerprint: documentArtifact.fingerprint
+    }))
+  });
+  return {
+    kind: TEMPLATE_ARTIFACT_BUNDLE_KIND,
+    version: TEMPLATE_ARTIFACT_VERSION,
+    manifest,
+    documents: documentArtifacts.map((entry) => cloneJson(entry, null)),
+    templateIds
+  };
+}
+
+function createMaracaTemplateArtifactsReport(input = {}) {
+  const manifest = input.manifest || loadRmtManifest(input.rootDir);
+  const factories = manifest && manifest.entryPoints && manifest.entryPoints.appModulesFactories || {};
+  const diagnostics = [];
+  const runtimeProfileHints = DEFAULT_TEMPLATE_RUNTIME_PROFILE_HINTS.slice();
+  const coreDocument = input.coreDocument || input.compileResult && input.compileResult.coreDocument || null;
+  const sourceText = typeof input.sourceText === 'string' ? input.sourceText : '';
+  const supported = Boolean(factories.templateArtifacts);
+
+  if (!supported) {
+    diagnostics.push({
+      code: 'xtend.maraca.template_artifacts_factory_missing',
+      severity: 'warning',
+      message: 'RMT Template Artifacts factory is not available in the kernel manifest.'
+    });
+  }
+
+  if (!coreDocument) {
+    return {
+      schema: MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA,
+      ok: false,
+      status: input.status || 'unavailable',
+      supported,
+      trusted: false,
+      factory: {
+        name: factories.templateArtifacts || 'createRmtTemplateArtifacts',
+        supported,
+        source: supported ? 'rmt-manifest' : 'missing'
+      },
+      documentIds: [],
+      templateIds: [],
+      sourceFingerprint: sourceText ? `sha256:${hashText(sourceText)}` : '',
+      artifactBundleFingerprint: '',
+      bundleFingerprint: null,
+      runtimeProfileHints,
+      artifactBundle: null,
+      registration: {
+        eligible: false,
+        enabled: false,
+        status: 'unavailable',
+        reason: input.status || 'no_core_document'
+      },
+      sourceToSea: {
+        compilerDocumentId: null,
+        artifactDocumentIds: [],
+        documentIdsMatchCompiler: false
+      },
+      diagnostics
+    };
+  }
+
+  const sourceDocument = createMaracaTemplateSourceDocument(coreDocument, sourceText, input);
+  const documentArtifact = createMaracaTemplateDocumentArtifact(sourceDocument, runtimeProfileHints);
+  const artifactBundle = createMaracaTemplateArtifactBundle([documentArtifact], {
+    runtimeProfileHints,
+    bundleId: `xtend.maraca.templates.${documentArtifact.documentId}`,
+    releaseStage: input.profile === 'debug' ? 'debug' : 'build-plan',
+    metadata: {
+      source: input.sourcePath ? repoRelative(input.sourcePath, input.rootDir || process.cwd()) : '',
+      sourceHash: hashText(sourceText),
+      compilerSchema: input.compileResult && input.compileResult.schema || null
+    }
+  });
+  const documentIds = [documentArtifact.documentId];
+  const compilerDocumentId = templateDocumentId(coreDocument);
+  const trusted = supported && documentArtifact.templateCount > 0;
+  return {
+    schema: MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA,
+    ok: supported,
+    status: documentArtifact.templateCount > 0 ? (supported ? 'prepared' : 'degraded') : 'empty',
+    supported,
+    trusted,
+    factory: {
+      name: factories.templateArtifacts || 'createRmtTemplateArtifacts',
+      supported,
+      source: supported ? 'rmt-manifest' : 'missing'
+    },
+    documentIds,
+    templateIds: documentArtifact.templateIds.slice(),
+    documentCount: documentIds.length,
+    templateCount: documentArtifact.templateCount,
+    sourceFingerprint: `sha256:${hashText(sourceText)}`,
+    artifactBundleFingerprint: artifactBundle.manifest.fingerprint,
+    bundleFingerprint: null,
+    runtimeProfileHints,
+    documents: [documentArtifact],
+    artifactBundle,
+    registration: {
+      eligible: trusted,
+      enabled: trusted,
+      status: trusted ? 'ready' : 'deferred',
+      reason: trusted ? 'trusted_bundle' : 'no_trusted_template_artifacts'
+    },
+    sourceToSea: {
+      compilerDocumentId,
+      artifactDocumentIds: documentIds,
+      documentIdsMatchCompiler: documentIds.includes(compilerDocumentId),
+      compilerTemplateIds: (Array.isArray(coreDocument.templates) ? coreDocument.templates : [])
+        .map((template) => String(template && template.id || ''))
+        .filter(Boolean),
+      artifactTemplateIds: documentArtifact.templateIds.slice()
+    },
+    diagnostics
+  };
+}
+
+function finalizeMaracaTemplateArtifactsReport(planReport, bundleFiles = [], repoRoot = process.cwd()) {
+  if (!planReport || typeof planReport !== 'object') return null;
+  const bundleFileFingerprints = (Array.isArray(bundleFiles) ? bundleFiles : []).map((file) => ({
+    fileName: file.fileName,
+    path: repoRelative(file.path, repoRoot),
+    bytes: Number(file.bytes || 0),
+    isEntry: Boolean(file.isEntry)
+  }));
+  const bundleFingerprint = bundleFileFingerprints.length > 0
+    ? `sha256:${hashText(stableStringify(bundleFileFingerprints))}`
+    : null;
+  return {
+    ...planReport,
+    bundleFingerprint,
+    registration: {
+      ...(planReport.registration || {}),
+      enabled: Boolean(planReport.registration && planReport.registration.eligible && planReport.artifactBundle),
+      status: planReport.registration && planReport.registration.eligible ? 'bundle_embedded' : (planReport.registration && planReport.registration.status || 'deferred')
+    },
+    sourceToSea: {
+      ...(planReport.sourceToSea || {}),
+      bundleFileCount: bundleFileFingerprints.length,
+      bundleFingerprint
+    }
+  };
+}
+
+function createMaracaPerformanceHistoryEntry(runtime, budgetId, index, options = {}) {
+  const durationMs = budgetId === 'command_turnaround' ? 64 : (budgetId === 'retained_warm_reuse' ? 4 : 8 + index);
+  const waitMs = budgetId === 'hydration_followup' ? 2 : 1;
+  const measurementPhase = budgetId === 'retained_warm_reuse'
+    ? 'retained'
+    : (budgetId === 'hydration_followup' ? 'warm' : 'cold');
+  const evaluation = runtime.evaluateBudget(budgetId, {
+    durationMs,
+    waitMs,
+    totalMs: durationMs + waitMs,
+    longTaskMs: durationMs,
+    status: 'ok'
+  }, {
+    budgetId,
+    budgetClass: budgetId,
+    endpointGroup: budgetId,
+    rootId: options.documentId || 'xtend.maraca',
+    renderPackageId: options.renderPackageId || 'xtend-maraca',
+    metadata: {
+      source: 'xtend-maraca',
+      workpackage: 'RKFA-03'
+    }
+  });
+  return {
+    at: index + 1,
+    endpointName: budgetId,
+    endpointGroup: budgetId,
+    budgetId: evaluation.budgetId || budgetId,
+    budgetClass: budgetId,
+    budgetStatus: evaluation.status || 'within_budget',
+    budgetViolations: Array.isArray(evaluation.violations) ? evaluation.violations.slice() : [],
+    budgetThresholds: cloneJson(evaluation.thresholds, {}),
+    durationMs: evaluation.durationMs || durationMs,
+    waitMs: evaluation.waitMs || waitMs,
+    totalMs: evaluation.totalMs || durationMs + waitMs,
+    measurementPhase,
+    renderPackageId: options.renderPackageId || 'xtend-maraca',
+    rootId: options.documentId || 'xtend.maraca',
+    status: 'ok',
+    scheduled: true,
+    async: false,
+    metadata: {
+      source: 'xtend-maraca',
+      workpackage: 'RKFA-03'
+    }
+  };
+}
+
+function summarizePerformanceFileArtifact(fileArtifact) {
+  if (!fileArtifact || typeof fileArtifact !== 'object') return null;
+  return {
+    kind: fileArtifact.kind || 'renderman_performance_file_artifact',
+    artifactId: fileArtifact.artifactId || '',
+    artifactType: fileArtifact.artifactType || '',
+    fileName: fileArtifact.fileName || '',
+    contentType: fileArtifact.contentType || 'application/json',
+    bytes: typeof fileArtifact.text === 'string' ? Buffer.byteLength(fileArtifact.text) : 0,
+    payloadKind: fileArtifact.payload && fileArtifact.payload.kind || ''
+  };
+}
+
+function createMaracaPerformanceReport(input = {}) {
+  const diagnostics = [];
+  const rootDir = input.rootDir || process.cwd();
+  const manifest = input.manifest || loadRmtManifest(rootDir);
+  const factories = manifest && manifest.entryPoints && manifest.entryPoints.appModulesFactories || {};
+  const factory = loadRmtPerformanceRuntimeFactory(rootDir);
+  const supported = typeof factory === 'function';
+  const documentId = input.coreDocument && input.coreDocument.manifest && input.coreDocument.manifest.documentId
+    ? String(input.coreDocument.manifest.documentId)
+    : 'xtend.maraca';
+  const factoryName = factories.performanceRuntime || 'createRmtPerformanceRuntime';
+
+  if (!supported) {
+    diagnostics.push({
+      code: 'xtend.maraca.performance_runtime_unavailable',
+      severity: 'warning',
+      message: rmtPerformanceRuntimeFactoryError && rmtPerformanceRuntimeFactoryError.message
+        ? rmtPerformanceRuntimeFactoryError.message
+        : 'RMT Performance Runtime factory is not available.'
+    });
+    return {
+      schema: MARACA_PERFORMANCE_REPORT_SCHEMA,
+      ok: false,
+      status: input.status || 'unavailable',
+      supported: false,
+      runtimeExpectedStatus: 'unavailable',
+      factory: {
+        name: factoryName,
+        supported: false,
+        source: 'missing'
+      },
+      budgetClasses: MARACA_PERFORMANCE_BUDGET_CLASSES.slice(),
+      budgetSnapshot: null,
+      budgetMissDiagnostics: [],
+      backpressureProfile: null,
+      runReport: null,
+      ciSummary: null,
+      fileArtifact: null,
+      baselineComparison: null,
+      diagnostics
+    };
+  }
+
+  let runtime = null;
+  try {
+    runtime = factory({
+      collectBrowserSignals: false,
+      now: () => 0,
+      runtimeKind: 'maraca-build-performance'
+    });
+  } catch (error) {
+    diagnostics.push({
+      code: 'xtend.maraca.performance_runtime_create_failed',
+      severity: 'warning',
+      message: error && error.message ? error.message : String(error)
+    });
+  }
+
+  if (!runtime || typeof runtime.evaluateBudgets !== 'function') {
+    return {
+      schema: MARACA_PERFORMANCE_REPORT_SCHEMA,
+      ok: false,
+      status: 'degraded',
+      supported: false,
+      runtimeExpectedStatus: 'unavailable',
+      factory: {
+        name: factoryName,
+        supported: false,
+        source: 'rmt-runtime'
+      },
+      budgetClasses: MARACA_PERFORMANCE_BUDGET_CLASSES.slice(),
+      budgetSnapshot: null,
+      budgetMissDiagnostics: [],
+      backpressureProfile: null,
+      runReport: null,
+      ciSummary: null,
+      fileArtifact: null,
+      baselineComparison: null,
+      diagnostics
+    };
+  }
+
+  const history = MARACA_PERFORMANCE_BUDGET_CLASSES.map((budgetId, index) => (
+    createMaracaPerformanceHistoryEntry(runtime, budgetId, index, {
+      documentId,
+      renderPackageId: 'xtend-maraca'
+    })
+  ));
+  const budgetSnapshot = runtime.evaluateBudgets('maraca-build-plan', { history });
+  const runReport = typeof runtime.exportRunReport === 'function'
+    ? runtime.exportRunReport('maraca-build-plan', {
+        runId: `maraca:${documentId}`,
+        label: 'XTend Maraca Build Plan',
+        history,
+        metadata: {
+          source: input.sourcePath ? repoRelative(input.sourcePath, rootDir) : '',
+          documentId,
+          workpackage: 'RKFA-03'
+        }
+      })
+    : null;
+  const baseline = runReport && typeof runtime.createRunBaseline === 'function'
+    ? runtime.createRunBaseline([runReport], {
+        baselineId: `baseline:${documentId}`,
+        label: 'XTend Maraca deterministic baseline'
+      })
+    : null;
+  const baselineComparison = runReport && baseline && typeof runtime.compareRunReportToBaseline === 'function'
+    ? runtime.compareRunReportToBaseline(runReport, baseline, {
+        label: 'XTend Maraca deterministic baseline comparison'
+      })
+    : null;
+  const ciSummary = runReport && typeof runtime.createCiSummary === 'function'
+    ? runtime.createCiSummary(runReport, {
+        summaryId: `summary:${documentId}`,
+        title: 'XTend Maraca Performance Summary',
+        metadata: {
+          workpackage: 'RKFA-03'
+        }
+      })
+    : null;
+  const rawFileArtifact = runReport && typeof runtime.createFileArtifact === 'function'
+    ? runtime.createFileArtifact(runReport, {
+        artifactId: `artifact:${documentId}:performance`,
+        artifactType: 'run_report',
+        fileName: 'xtend.maraca.performance.json',
+        label: 'XTend Maraca Performance Run Report'
+      })
+    : null;
+  const backpressureProfile = typeof runtime.getBackpressureProfile === 'function'
+    ? runtime.getBackpressureProfile('maraca-build-plan')
+    : null;
+  const budgetMissDiagnostics = (budgetSnapshot && Array.isArray(budgetSnapshot.violations) ? budgetSnapshot.violations : [])
+    .map((violation) => ({
+      code: 'xtend.maraca.performance_budget_miss',
+      severity: 'warning',
+      message: `Maraca performance budget ${violation.budgetId} exceeded for ${violation.endpointName}.`,
+      budgetId: violation.budgetId,
+      endpointName: violation.endpointName,
+      measurementPhase: violation.measurementPhase,
+      durationMs: violation.durationMs,
+      waitMs: violation.waitMs,
+      totalMs: violation.totalMs,
+      violations: Array.isArray(violation.violations) ? violation.violations.slice() : []
+    }));
+
+  return {
+    schema: MARACA_PERFORMANCE_REPORT_SCHEMA,
+    ok: true,
+    status: budgetMissDiagnostics.length > 0 ? 'budget_misses' : 'within_budget',
+    supported: true,
+    runtimeExpectedStatus: input.runtimeExpectedStatus || 'report-only',
+    factory: {
+      name: factoryName,
+      supported: true,
+      source: 'rmt-runtime'
+    },
+    budgetClasses: MARACA_PERFORMANCE_BUDGET_CLASSES.slice(),
+    budgetProfiles: typeof runtime.listBudgetProfiles === 'function'
+      ? runtime.listBudgetProfiles().filter((profile) => MARACA_PERFORMANCE_BUDGET_CLASSES.includes(profile.budgetId))
+      : [],
+    budgetSnapshot,
+    budgetMissDiagnostics,
+    backpressureProfile,
+    runReport,
+    ciSummary,
+    fileArtifact: summarizePerformanceFileArtifact(rawFileArtifact),
+    baselineComparison,
+    summary: {
+      pressureLevel: budgetSnapshot && budgetSnapshot.pressureLevel || backpressureProfile && backpressureProfile.pressureLevel || 'normal',
+      sampleCount: runReport && runReport.summary && runReport.summary.sampleCount || history.length,
+      budgetCount: budgetSnapshot && Array.isArray(budgetSnapshot.budgets) ? budgetSnapshot.budgets.length : 0,
+      violationCount: budgetMissDiagnostics.length,
+      ciSummaryAvailable: Boolean(ciSummary && ciSummary.text),
+      fileArtifactAvailable: Boolean(rawFileArtifact && rawFileArtifact.text),
+      baselineComparisonAvailable: Boolean(baselineComparison)
+    },
+    diagnostics: diagnostics.concat(budgetMissDiagnostics)
+  };
+}
+
+function finalizeMaracaPerformanceReport(planReport, bundleFiles = [], repoRoot = process.cwd(), options = {}) {
+  if (!planReport || typeof planReport !== 'object') return null;
+  const bundleFingerprint = Array.isArray(bundleFiles) && bundleFiles.length > 0
+    ? `sha256:${hashText(stableStringify(bundleFiles.map((file) => ({
+        fileName: file.fileName,
+        path: repoRelative(file.path, repoRoot),
+        bytes: Number(file.bytes || 0),
+        isEntry: Boolean(file.isEntry)
+      }))))}`
+    : null;
+  return {
+    ...planReport,
+    runtimeExpectedStatus: options.runtimeExpectedStatus || planReport.runtimeExpectedStatus || 'report-only',
+    bundleFingerprint,
+    summary: {
+      ...(planReport.summary || {}),
+      runtimeExpectedStatus: options.runtimeExpectedStatus || planReport.runtimeExpectedStatus || 'report-only',
+      bundleFingerprint
+    }
+  };
 }
 
 function toBoolean(value) {
@@ -243,6 +1183,10 @@ function normalizeOptions(input = {}, options = {}) {
   const kernel = VALID_KERNEL_MODES.has(requestedKernel)
     ? requestedKernel
     : 'auto';
+  const requestedKernelBootMode = values.kernelBootMode || values['kernel-boot-mode'] || values.kernelBoot || values['kernel-boot'];
+  const kernelBootMode = VALID_KERNEL_BOOT_MODES.has(requestedKernelBootMode)
+    ? requestedKernelBootMode
+    : 'direct';
   const requestedHydration = values.hydration || values.hydrationMode || values['hydration-mode'] || values['app-hydration'];
   const hydration = VALID_HYDRATION_MODES.has(requestedHydration)
     ? requestedHydration
@@ -264,6 +1208,13 @@ function normalizeOptions(input = {}, options = {}) {
       ? values.allowDynamicComponents
       : values['allow-dynamic-components']
   );
+  const enablePrewarmWorker = toBoolean(
+    values.enablePrewarmWorker !== undefined
+      ? values.enablePrewarmWorker
+      : (values['enable-prewarm-worker'] !== undefined
+        ? values['enable-prewarm-worker']
+        : values.prewarmWorker)
+  );
 
   return {
     rootDir,
@@ -279,12 +1230,18 @@ function normalizeOptions(input = {}, options = {}) {
     stackMode,
     orchestration,
     kernel,
+    kernelBootMode,
     hydration,
     validation,
     transitions,
     sizeBudget,
+    enablePrewarmWorker,
     json: toBoolean(values.json),
-    allowDynamicComponents
+    allowDynamicComponents,
+    policyParityReports: Array.isArray(values.policyParityReports) ? values.policyParityReports : [],
+    policyParityContracts: Array.isArray(values.policyParityContracts) ? values.policyParityContracts : [],
+    policyParityRuntimeHooks: Array.isArray(values.policyParityRuntimeHooks) ? values.policyParityRuntimeHooks : null,
+    policyParityRequiredFactories: Array.isArray(values.policyParityRequiredFactories) ? values.policyParityRequiredFactories : null
   };
 }
 
@@ -792,22 +1749,365 @@ function orchestrationDiagnostic(code, severity, message, details = {}) {
   };
 }
 
-function createBaseKernelPlan(mode, status, message) {
+function createMaracaPanicRecoveryReport(options = {}) {
+  const enabled = options.enabled !== false;
+  const runtimeModules = Array.isArray(options.runtimeModules) ? options.runtimeModules : KERNEL_RUNTIME_MODULES.slice();
+  const supportsRuntime = runtimeModules.includes('xtendrmt/rmt-runtime.esm.js')
+    || runtimeModules.includes('xtendrmt/rmt-core.esm.js')
+    || runtimeModules.includes('xtendrmt/rmt-runtime.browser.js');
+  return {
+    schema: 'xtend.maraca.kernel-panic-recovery-report.v1',
+    supported: supportsRuntime,
+    enabled: enabled && supportsRuntime,
+    status: enabled && supportsRuntime ? 'available' : 'unavailable',
+    lane: 'diagnostics',
+    runtimeExpectedStatus: enabled && supportsRuntime ? 'booted' : 'disabled',
+    devApis: [
+      'listTrustVerdicts',
+      'getPanicSnapshot',
+      'listPanicEvents',
+      'listSafeSnapshots',
+      'listRecoveryOutcomes',
+      'listPanicRecoveryRecords',
+      'getPanicRecoverySnapshot'
+    ],
+    strictDiagnostics: {
+      trustVerdict: true,
+      panicEvent: true,
+      recoveryOutcome: true,
+      quarantineScope: true,
+      safeSnapshot: true
+    },
+    counters: {
+      trustVerdictCount: 0,
+      blockedTrustVerdictCount: 0,
+      panicEventCount: 0,
+      recoveryOutcomeCount: 0,
+      safeSnapshotCount: 0,
+      quarantineScopeCount: 0
+    },
+    diagnostics: supportsRuntime ? [] : [{
+      code: 'xtend.maraca.kernel_panic_recovery.runtime_missing',
+      severity: 'warning',
+      message: 'Kernel Panic/Recovery reporting needs the RMT runtime module in the bundle.'
+    }]
+  };
+}
+
+function createMaracaTrustedDomReport(options = {}) {
+  const panicRecovery = options.panicRecovery || createMaracaPanicRecoveryReport(options);
+  return {
+    schema: 'xtend.maraca.kernel-trusted-dom-report.v1',
+    supported: true,
+    status: panicRecovery.enabled ? 'guarded' : 'planned',
+    trustBoundary: 'xtend.security.sanitizing-boundary.v1',
+    sanitizerSchema: 'xtend.security.trusted-dom-sanitizer.v1',
+    sinkAdapterSchema: 'xtend.rmt.runtime-trust-sink-adapter.v1',
+    verdictSchema: 'xtend.rmt.kernel-trust-verdict.v1',
+    panicCandidateSupported: true,
+    strictDiagnostics: {
+      trustVerdict: true,
+      unsafeHtmlBlocked: true,
+      panicCandidate: true
+    },
+    diagnostics: []
+  };
+}
+
+function createFallbackMaracaPolicyParityReport(options = {}) {
+  const strict = Boolean(options.strict);
+  const diagnostics = [{
+    code: 'xtend.maraca.policy_parity.module_missing',
+    severity: strict ? 'error' : 'warning',
+    message: 'Kernel Policy Parity reporting needs tools/rmt-language/kernel-policy-parity.js.'
+  }];
+  return {
+    schema: KERNEL_POLICY_PARITY_REPORT_SCHEMA,
+    paritySchema: KERNEL_POLICY_PARITY_SCHEMA,
+    driftSchema: KERNEL_POLICY_PARITY_DRIFT_SCHEMA,
+    status: 'unavailable',
+    ok: false,
+    compileTimeBlockCount: 0,
+    appliedPolicyCount: 0,
+    driftCount: 0,
+    sourcePolicySchemas: [],
+    runtimeScopes: [],
+    runtimeCapabilities: {
+      hooks: [],
+      missingDefaultHooks: []
+    },
+    compileTimeBlocks: [],
+    appliedPolicies: [],
+    drift: [],
+    requiredFactories: [],
+    missingFactories: [],
+    unsafeTrustSinkCount: 0,
+    bundleCapabilities: {
+      runtimeModules: Array.isArray(options.runtimeModules) ? options.runtimeModules.slice() : [],
+      runtimeTrustSinks: {},
+      surfaceLifecycle: {},
+      panicRecovery: null,
+      trustedDom: null
+    },
+    releaseConstraint: {
+      schema: 'xtend.maraca.policy-parity-release-constraint.v1',
+      strict,
+      enforced: strict,
+      blocked: strict,
+      reason: 'policy-parity-module-missing'
+    },
+    diagnostics
+  };
+}
+
+function collectMaracaPolicyParityCompileReports(compileResult = null, coreDocument = null, options = {}) {
+  const explicit = []
+    .concat(Array.isArray(options.policyParityReports) ? options.policyParityReports : [])
+    .concat(Array.isArray(options.policyParityContracts) ? options.policyParityContracts : []);
+  if (explicit.length > 0) return explicit;
+
+  const diagnostics = Array.isArray(compileResult && compileResult.diagnostics)
+    ? compileResult.diagnostics
+    : [];
+  const reports = [];
+  const families = [
+    {
+      schema: 'xtend.rmt.vnext-security-policy-contract.v1',
+      test: (code) => String(code || '').startsWith('rmt.vnext.security.')
+    },
+    {
+      schema: 'xtend.rmt.vnext-remote-security-policy.v1',
+      reportSchema: 'xtend.rmt.vnext-remote-security-report.v1',
+      test: (code) => String(code || '').startsWith('rmt.vnext.remote_security.')
+    },
+    {
+      schema: 'xtend.rmt.vnext-degradation-policy.v1',
+      reportSchema: 'xtend.rmt.vnext-degradation-report.v1',
+      test: (code) => String(code || '').startsWith('rmt.vnext.degradation.')
+    },
+    {
+      schema: 'xtend.rmt.vnext-streaming.v1',
+      test: (code) => String(code || '').startsWith('rmt.vnext.streaming.')
+    },
+    {
+      schema: 'xtend.rmt.vnext-event-governance-policy.v1',
+      reportSchema: 'xtend.rmt.vnext-event-governance-report.v1',
+      test: (code) => String(code || '').startsWith('rmt.vnext.event_governance.')
+    }
+  ];
+
+  families.forEach((family) => {
+    const familyDiagnostics = diagnostics.filter((diagnostic) => family.test(diagnostic && diagnostic.code));
+    if (familyDiagnostics.length > 0) {
+      reports.push({
+        schema: family.reportSchema || family.schema,
+        policySchema: family.schema,
+        diagnostics: familyDiagnostics
+      });
+    }
+  });
+
+  const securityPolicies = Array.isArray(coreDocument && coreDocument.securityPolicies)
+    ? coreDocument.securityPolicies
+    : [];
+  if (securityPolicies.length > 0 && !reports.some((report) => report.policySchema === 'xtend.rmt.vnext-security-policy-contract.v1' || report.schema === 'xtend.rmt.vnext-security-policy-contract.v1')) {
+    reports.push({
+      schema: 'xtend.rmt.vnext-security-policy-contract.v1',
+      status: 'ready',
+      policies: securityPolicies.map((policy) => ({
+        id: policy && (policy.id || policy.name) || null,
+        status: policy && policy.status || 'ready',
+        diagnostics: Array.isArray(policy && policy.diagnostics) ? policy.diagnostics : []
+      }))
+    });
+  }
+
+  return reports;
+}
+
+function resolveMaracaPolicyParityRuntimeHooks(policyModule, runtimeModules = [], options = {}) {
+  if (Array.isArray(options.policyParityRuntimeHooks)) return options.policyParityRuntimeHooks.slice();
+  if (Array.isArray(options.runtimeHooks)) return options.runtimeHooks.slice();
+  const required = Array.isArray(policyModule && policyModule.KERNEL_POLICY_PARITY_RUNTIME_HOOKS)
+    ? policyModule.KERNEL_POLICY_PARITY_RUNTIME_HOOKS
+    : [];
+  const hasKernelRuntime = runtimeModules.some((moduleId) => (
+    moduleId === 'xtendrmt/rmt-runtime.esm.js'
+    || moduleId === 'xtendrmt/rmt-runtime.browser.js'
+    || moduleId === 'xtendrmt/rmt-core.esm.js'
+  ));
+  return hasKernelRuntime ? required.slice() : [];
+}
+
+function createMaracaPolicyParityReport(options = {}) {
+  const rootDir = options.rootDir || process.cwd();
+  const strict = Boolean(options.strict);
+  const runtimeModules = Array.isArray(options.runtimeModules) ? options.runtimeModules.slice() : [];
+  if (options.enabled === false) {
+    return {
+      ...createFallbackMaracaPolicyParityReport({ ...options, runtimeModules, strict }),
+      status: 'disabled',
+      diagnostics: [],
+      releaseConstraint: {
+        schema: 'xtend.maraca.policy-parity-release-constraint.v1',
+        strict,
+        enforced: false,
+        blocked: false,
+        reason: 'policy-parity-disabled'
+      }
+    };
+  }
+  const policyModule = loadRmtKernelPolicyParityModule(rootDir);
+  if (!policyModule || typeof policyModule.createKernelPolicyParityRuntimeReport !== 'function') {
+    return createFallbackMaracaPolicyParityReport({ ...options, runtimeModules, strict });
+  }
+
+  const requiredFactories = Array.isArray(options.policyParityRequiredFactories)
+    ? options.policyParityRequiredFactories.slice()
+    : (Array.isArray(policyModule.KERNEL_POLICY_PARITY_RUNTIME_HOOKS)
+      ? policyModule.KERNEL_POLICY_PARITY_RUNTIME_HOOKS.slice()
+      : []);
+  const runtimeHooks = resolveMaracaPolicyParityRuntimeHooks(policyModule, runtimeModules, options);
+  const baseReport = policyModule.createKernelPolicyParityRuntimeReport({
+    reports: collectMaracaPolicyParityCompileReports(options.compileResult, options.coreDocument, options),
+    runtimeHooks
+  });
+  const missingFactories = requiredFactories.filter((factoryName) => !runtimeHooks.includes(factoryName));
+  const trustSinkFactories = ['recordTrustVerdict', 'commitTrustedHtml', 'commitTrustedAttribute', 'commitTrustedProperty'];
+  const missingTrustSinks = trustSinkFactories.filter((factoryName) => missingFactories.includes(factoryName));
+  const drift = Array.isArray(baseReport.drift) ? baseReport.drift : [];
+  const unsafeTrustSinkDriftCount = drift.filter((entry) => (
+    String(entry && entry.sourceSchema || '').includes('security-policy')
+    || (Array.isArray(entry && entry.missingRuntimeHooks) && entry.missingRuntimeHooks.some((hook) => trustSinkFactories.includes(hook)))
+  )).length;
+  const unsafeTrustSinkCount = missingTrustSinks.length + unsafeTrustSinkDriftCount;
+  const diagnostics = Array.isArray(baseReport.drift) && baseReport.drift.length > 0 ? [{
+    code: 'xtend.maraca.policy_parity.drift',
+    severity: strict ? 'error' : 'warning',
+    message: 'Kernel Policy Parity detected compile/runtime drift.',
+    driftCount: baseReport.drift.length
+  }] : [];
+  if (missingFactories.length > 0) {
+    diagnostics.push({
+      code: 'xtend.maraca.policy_parity.factory_missing',
+      severity: strict ? 'error' : 'warning',
+      message: 'Kernel Policy Parity required runtime factories are missing.',
+      requiredFactories,
+      missingFactories
+    });
+  }
+  if (unsafeTrustSinkCount > 0) {
+    diagnostics.push({
+      code: 'xtend.maraca.policy_parity.unsafe_trust_sink',
+      severity: strict ? 'error' : 'warning',
+      message: 'Kernel Policy Parity found unsafe or unverified trust sink coverage.',
+      missingTrustSinks,
+      unsafeTrustSinkCount
+    });
+  }
+  const ok = baseReport.ok === true && missingFactories.length === 0 && unsafeTrustSinkCount === 0;
+  const blocked = strict && !ok;
+  return {
+    ...baseReport,
+    status: ok ? 'ready' : 'drift',
+    ok,
+    requiredFactories,
+    missingFactories,
+    unsafeTrustSinkCount,
+    bundleCapabilities: {
+      runtimeModules,
+      runtimeTrustSinks: {
+        required: trustSinkFactories,
+        available: trustSinkFactories.filter((factoryName) => runtimeHooks.includes(factoryName)),
+        missing: missingTrustSinks
+      },
+      surfaceLifecycle: {
+        destroySurface: true,
+        safeSnapshot: Boolean(options.panicRecovery && options.panicRecovery.enabled),
+        quarantineScope: Boolean(options.panicRecovery && options.panicRecovery.strictDiagnostics && options.panicRecovery.strictDiagnostics.quarantineScope)
+      },
+      panicRecovery: options.panicRecovery || null,
+      trustedDom: options.trustedDom || null
+    },
+    releaseConstraint: {
+      schema: 'xtend.maraca.policy-parity-release-constraint.v1',
+      strict,
+      enforced: strict || options.profile === 'production' || options.profile === 'max',
+      blocked,
+      reason: blocked ? 'policy-parity-drift' : 'policy-parity-ready'
+    },
+    diagnostics
+  };
+}
+
+function createBaseKernelPlan(mode, status, message, options = {}) {
   const diagnostics = message ? [{
     code: status === 'disabled' ? 'xtend.maraca.kernel_disabled' : KERNEL_MISSING_CODE,
     severity: mode === 'strict' && status !== 'disabled' ? 'error' : 'info',
     message
   }] : [];
+  const productSurface = createMaracaKernelProductSurfaceReport({
+    rootDir: options.rootDir,
+    bootMode: options.kernelBootMode
+  });
+  const prewarmWorker = createMaracaPrewarmWorkerRuntimeReport({
+    enabled: false,
+    runtimeModules: KERNEL_RUNTIME_MODULES.slice()
+  }, options);
+  const featureAdoption = createMaracaKernelFeatureAdoptionReport({
+    rootDir: options.rootDir,
+    enabled: false,
+    runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
+    activeCapabilities: {
+      productSurface: productSurface.bootMode === 'productSurface',
+      templateArtifacts: Boolean(options.templateArtifacts && options.templateArtifacts.supported && options.templateArtifacts.trusted),
+      performanceAdvancedReports: Boolean(options.performance && options.performance.supported),
+      prewarmWorker: prewarmWorker.enabled,
+      warmReentry: prewarmWorker.enabled,
+      panicRecovery: false,
+      policyParity: false
+    }
+  });
+  const panicRecovery = createMaracaPanicRecoveryReport({
+    enabled: false,
+    runtimeModules: KERNEL_RUNTIME_MODULES.slice()
+  });
+  const trustedDom = createMaracaTrustedDomReport({ panicRecovery });
+  const policyParity = createMaracaPolicyParityReport({
+    ...options,
+    enabled: false,
+    strict: mode === 'strict',
+    runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
+    panicRecovery,
+    trustedDom
+  });
+  const security = {
+    schema: 'xtend.maraca.kernel-security-report.v1',
+    supported: false,
+    status,
+    panicRecovery,
+    trustedDom,
+    policyParity,
+    diagnostics
+  };
 
   return {
     schema: MARACA_KERNEL_PLAN_SCHEMA,
     mode,
+    bootMode: productSurface.bootMode,
     strict: mode === 'strict',
     enabled: false,
     status,
     supported: false,
     artifact: null,
     runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
+    featureAdoption,
+    productSurface,
+    prewarmWorker,
+    panicRecovery,
+    trustedDom,
+    policyParity,
+    security,
     diagnostics,
     summary: {
       schema: null,
@@ -815,7 +2115,12 @@ function createBaseKernelPlan(mode, status, message) {
       scheduleCount: 0,
       fiberCount: 0,
       laneCount: 0,
-      endpointCount: 0
+      endpointCount: 0,
+      featureAdoptionStatus: featureAdoption.status,
+      productSurfaceStatus: productSurface.status,
+      prewarmWorkerStatus: prewarmWorker.status,
+      panicRecoveryStatus: panicRecovery.status,
+      trustedDomStatus: trustedDom.status
     }
   };
 }
@@ -863,6 +2168,62 @@ function hydrationDiagnostic(code, severity, message, details = {}) {
     code,
     severity,
     message
+  };
+}
+
+function createMaracaServerPrerenderReport(artifact, supportedModes, records) {
+  const hasServerMode = supportedModes.has('server_prerender_hydrate');
+  const serverRecords = records.filter((record) => record && (
+    record.mode === 'server_prerender_hydrate'
+    || record.policy === 'server_prerender_hydrate'
+    || record.executionMode === 'server_prerender_hydrate'
+  ));
+  const supportStatus = hasServerMode ? (serverRecords.length > 0 ? 'supported' : 'available') : 'degraded';
+  const hydrateResponseCompatible = hasServerMode;
+  const adapterKinds = [
+    {
+      kind: 'kernel-server-runtime',
+      adapterSchema: 'xtend.rmt.template-server-adapter.v1',
+      supportStatus,
+      hydrateResponseCompatible
+    },
+    {
+      kind: 'node-ssr',
+      adapterSchema: 'xtend.rmt.node-ssr-adapter.v1',
+      supportStatus: 'supported',
+      hydrateResponseCompatible: true
+    },
+    {
+      kind: 'php-ssr',
+      adapterSchema: 'xtend.rmt.php-ssr-adapter.v1',
+      supportStatus: 'supported',
+      hydrateResponseCompatible: true
+    }
+  ];
+
+  return {
+    schema: 'xtend.maraca.server-prerender-interop.v1',
+    id: 'serverPrerender',
+    mode: 'server_prerender_hydrate',
+    supported: hasServerMode,
+    degraded: !hasServerMode,
+    status: supportStatus,
+    requested: serverRecords.length > 0,
+    recordCount: serverRecords.length,
+    hydrateResponseCompatible,
+    adapterKinds,
+    evidence: {
+      artifactSchema: artifact && artifact.schema || null,
+      sourceToSeaFlow: 'server_prerender_hydrate',
+      responseEnvelopeKind: 'renderman_template_prerender_response',
+      chunkKind: 'renderman_template_chunk'
+    },
+    diagnostics: hasServerMode ? [] : [hydrationDiagnostic(
+      'xtend.maraca.server_prerender_mode_missing',
+      'warning',
+      'Hydration artifact does not advertise server_prerender_hydrate support.',
+      { mode: 'server_prerender_hydrate' }
+    )]
   };
 }
 
@@ -949,14 +2310,15 @@ function createMaracaKernelPlan(compileResult, orchestrationPlan, options) {
   const strict = mode === 'strict';
 
   if (mode === 'off') {
-    return createBaseKernelPlan(mode, 'disabled', 'Maraca RMT kernel integration is disabled for this build.');
+    return createBaseKernelPlan(mode, 'disabled', 'Maraca RMT kernel integration is disabled for this build.', options);
   }
 
   if (!orchestrationPlan || !orchestrationPlan.enabled) {
     return createBaseKernelPlan(
       mode,
       strict ? 'blocked' : 'fallback',
-      'Maraca RMT kernel integration needs enabled app orchestration.'
+      'Maraca RMT kernel integration needs enabled app orchestration.',
+      options
     );
   }
 
@@ -969,7 +2331,8 @@ function createMaracaKernelPlan(compileResult, orchestrationPlan, options) {
     return createBaseKernelPlan(
       mode,
       strict ? 'blocked' : 'fallback',
-      'RMT source did not emit kernel records for Maraca orchestration.'
+      'RMT source did not emit kernel records for Maraca orchestration.',
+      options
     );
   }
 
@@ -1027,15 +2390,72 @@ function createMaracaKernelPlan(compileResult, orchestrationPlan, options) {
   });
 
   const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === 'error');
+  const productSurface = createMaracaKernelProductSurfaceReport({
+    rootDir: options.rootDir,
+    bootMode: options.kernelBootMode
+  });
+  const prewarmWorker = createMaracaPrewarmWorkerRuntimeReport({
+    enabled: !hasErrors,
+    runtimeModules: KERNEL_RUNTIME_MODULES.slice()
+  }, options);
+  diagnostics.push(...prewarmWorker.diagnostics);
+  const hasPrewarmErrors = diagnostics.some((diagnostic) => diagnostic.severity === 'error');
+  const panicRecovery = createMaracaPanicRecoveryReport({
+    enabled: !hasPrewarmErrors,
+    runtimeModules: KERNEL_RUNTIME_MODULES.slice()
+  });
+  const trustedDom = createMaracaTrustedDomReport({ panicRecovery });
+  const policyParity = createMaracaPolicyParityReport({
+    ...options,
+    strict,
+    compileResult,
+    coreDocument: compileResult && compileResult.coreDocument || null,
+    runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
+    panicRecovery,
+    trustedDom
+  });
+  diagnostics.push(...policyParity.diagnostics);
+  const hasKernelErrors = diagnostics.some((diagnostic) => diagnostic.severity === 'error');
+  const featureAdoption = createMaracaKernelFeatureAdoptionReport({
+    rootDir: options.rootDir,
+    enabled: !hasKernelErrors,
+    runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
+    activeCapabilities: {
+      productSurface: productSurface.bootMode === 'productSurface',
+      templateArtifacts: Boolean(options.templateArtifacts && options.templateArtifacts.supported && options.templateArtifacts.trusted),
+      performanceAdvancedReports: Boolean(options.performance && options.performance.supported),
+      prewarmWorker: prewarmWorker.enabled && prewarmWorker.status !== 'blocked',
+      warmReentry: prewarmWorker.enabled && prewarmWorker.status !== 'blocked',
+      panicRecovery: true,
+      policyParity: policyParity.ok === true
+    }
+  });
+  const security = {
+    schema: 'xtend.maraca.kernel-security-report.v1',
+    supported: true,
+    status: policyParity.ok && panicRecovery.enabled && trustedDom.supported ? 'available' : (strict ? 'blocked' : 'degraded'),
+    panicRecovery,
+    trustedDom,
+    policyParity,
+    diagnostics: policyParity.diagnostics
+  };
   return {
     schema: MARACA_KERNEL_PLAN_SCHEMA,
     mode,
+    bootMode: productSurface.bootMode,
     strict,
-    enabled: !hasErrors,
-    status: hasErrors ? (strict ? 'blocked' : 'fallback') : 'planned',
+    enabled: !hasKernelErrors,
+    status: hasKernelErrors ? (strict ? 'blocked' : 'fallback') : 'planned',
     supported: true,
     artifact,
     runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
+    featureAdoption,
+    productSurface,
+    prewarmWorker,
+    panicRecovery,
+    trustedDom,
+    policyParity,
+    security,
     diagnostics,
     summary: {
       schema: artifact.schema || null,
@@ -1045,7 +2465,16 @@ function createMaracaKernelPlan(compileResult, orchestrationPlan, options) {
       fiberCount: fibers.length,
       laneCount: Array.isArray(scheduler && scheduler.lanePolicies) ? scheduler.lanePolicies.length : 0,
       endpointCount: scheduleEndpoints.size,
-      runtimeModules: KERNEL_RUNTIME_MODULES.slice()
+      runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
+      featureAdoptionStatus: featureAdoption.status,
+      productSurfaceStatus: productSurface.status,
+      prewarmWorkerStatus: prewarmWorker.status,
+      panicRecoveryStatus: panicRecovery.status,
+      trustedDomStatus: trustedDom.status,
+      policyParityStatus: policyParity.status,
+      policyParityOk: policyParity.ok,
+      policyParityDriftCount: policyParity.driftCount,
+      policyParityMissingFactoryCount: policyParity.missingFactories.length
     }
   };
 }
@@ -1080,6 +2509,22 @@ function createMaracaHydrationPlan(compileResult, orchestrationPlan, kernelPlan,
   const diagnostics = [];
   const records = Array.isArray(artifact.records) ? artifact.records : [];
   const supportedModes = new Set(Array.isArray(artifact.supportedModes) ? artifact.supportedModes : []);
+  const capabilities = Array.isArray(artifact.capabilities) ? artifact.capabilities : [];
+  const workerPrerender = artifact.workerPrerender
+    || capabilities.find((capability) => capability && capability.id === 'workerPrerender')
+    || {
+      schema: 'xtend.rmt.app-hydration-capability.v1',
+      id: 'workerPrerender',
+      mode: 'worker_prerender_hydrate',
+      supported: supportedModes.has('worker_prerender_hydrate'),
+      degraded: !supportedModes.has('worker_prerender_hydrate'),
+      status: supportedModes.has('worker_prerender_hydrate') ? 'available' : 'degraded',
+      requested: false,
+      recordCount: 0
+    };
+  const serverPrerender = artifact.serverPrerender
+    || capabilities.find((capability) => capability && capability.id === 'serverPrerender')
+    || createMaracaServerPrerenderReport(artifact, supportedModes, records);
 
   records.forEach((record) => {
     if (!record.surface || !record.component || !record.policy || !record.mode) {
@@ -1143,16 +2588,99 @@ function createMaracaHydrationPlan(compileResult, orchestrationPlan, kernelPlan,
     supported: true,
     artifact,
     runtimeModules: [],
+    workerPrerender,
+    serverPrerender,
     diagnostics,
     summary: {
       schema: artifact.schema || null,
       recordCount: records.length,
       supportedModeCount: supportedModes.size,
+      supportedModes: Array.from(supportedModes),
       hydrationPolicyCount: new Set(records.map((record) => record.policy).filter(Boolean)).size,
       insularIslandCount: Array.isArray(artifact.insularIslands) ? artifact.insularIslands.length : 0,
+      workerPrerender,
+      serverPrerender,
+      hydrateResponseCompatible: Boolean(serverPrerender && serverPrerender.hydrateResponseCompatible),
       strictViolations,
       kernelRequired: mode === 'strict',
       runtimeExpectedStatus: 'booted'
+    }
+  };
+}
+
+function createMaracaWarmReentryReport(compileResult, coreDocument, hydrationPlan, kernelPlan, options = {}) {
+  const operations = Array.isArray(coreDocument && coreDocument.operations) ? coreDocument.operations : [];
+  const hydrationRecords = hydrationPlan && hydrationPlan.artifact && Array.isArray(hydrationPlan.artifact.records)
+    ? hydrationPlan.artifact.records
+    : [];
+  const fibers = kernelPlan && kernelPlan.artifact && kernelPlan.artifact.scheduler && Array.isArray(kernelPlan.artifact.scheduler.fibers)
+    ? kernelPlan.artifact.scheduler.fibers
+    : [];
+  const schedules = kernelPlan && kernelPlan.artifact && kernelPlan.artifact.scheduler && Array.isArray(kernelPlan.artifact.scheduler.schedules)
+    ? kernelPlan.artifact.scheduler.schedules
+    : [];
+  const prewarmOperations = operations.filter((operation) => operation && operation.kind === 'lifecycle' && operation.op === 'prewarm');
+  const warmHydrationRecords = hydrationRecords.filter((record) => {
+    const policy = String(record && record.policy || '').toLowerCase();
+    const mode = String(record && record.mode || '').toLowerCase();
+    const op = String(record && record.op || '').toLowerCase();
+    return policy === 'warm' || policy === 'prewarm' || mode === 'warm' || mode === 'prewarm' || op === 'prewarm';
+  });
+  const prewarmFiberKinds = ['template.prewarm', 'template.prerender', 'surface.prewarm', 'route.prewarm'];
+  const fiberKindCounts = prewarmFiberKinds.reduce((counts, kind) => {
+    counts[kind] = fibers.filter((fiber) => fiber && fiber.kind === kind).length;
+    return counts;
+  }, {});
+  const inferredFiberKinds = prewarmFiberKinds.filter((kind) => fiberKindCounts[kind] > 0);
+  const prewarmScheduleCount = schedules.filter((schedule) => {
+    const id = String(schedule && schedule.id || '');
+    const endpoint = String(schedule && schedule.endpointName || '');
+    return id.includes('prewarm') || id.includes('prerender') || endpoint.includes('prewarm') || endpoint.includes('prerender');
+  }).length;
+  const sourceToSea = prewarmOperations.map((operation) => ({
+    operation: operation.id || '',
+    op: operation.op || '',
+    target: operation.target && operation.target.ref || '',
+    sourceRef: operation.sourceRef || null,
+    schedulerEndpoint: fibers.find((fiber) => fiber && fiber.operation === operation.id) && fibers.find((fiber) => fiber && fiber.operation === operation.id).endpointName || null
+  }));
+  const active = prewarmOperations.length > 0 || warmHydrationRecords.length > 0 || inferredFiberKinds.length > 0 || prewarmScheduleCount > 0;
+
+  return {
+    schema: MARACA_WARM_REENTRY_REPORT_SCHEMA,
+    ok: true,
+    status: active ? 'planned' : 'available',
+    enabled: active,
+    supported: true,
+    optional: true,
+    runtimeExpectedStatus: active ? 'opportunistic' : 'idle',
+    operationCount: prewarmOperations.length,
+    hydrationRecordCount: warmHydrationRecords.length,
+    scheduleCount: prewarmScheduleCount,
+    fiberKindCounts,
+    supportedFiberKinds: prewarmFiberKinds,
+    observedFiberKinds: inferredFiberKinds,
+    backpressurePolicy: {
+      high: 'reduce-prewarm',
+      critical: 'pause-prewarm',
+      visibleWorkPriority: 'preserve-visible-and-user-blocking-work'
+    },
+    destroyInvalidation: {
+      destroySurfaceInvalidatesPrewarm: true,
+      destroySurfaceInvalidatesChunks: true,
+      surfaceManagerMethods: ['registerSurfacePrewarmHandle', 'registerSurfaceChunkHandle'],
+      cleanupSchema: 'xtend.surface.warm-reentry-invalidation.v1'
+    },
+    sourceToSea,
+    diagnostics: [],
+    summary: {
+      active,
+      operationCount: prewarmOperations.length,
+      hydrationRecordCount: warmHydrationRecords.length,
+      scheduleCount: prewarmScheduleCount,
+      observedFiberKindCount: inferredFiberKinds.length,
+      backpressureCriticalAction: 'pause-prewarm',
+      destroyInvalidation: true
     }
   };
 }
@@ -1413,6 +2941,92 @@ function createMaracaTransitionPlan(compileResult, orchestrationPlan, kernelPlan
   };
 }
 
+function resourceDisposesOnSurfaceDestroy(resource = {}) {
+  const dispose = resource && resource.dispose;
+  if (typeof dispose === 'string') return dispose === 'on surface.destroy';
+  if (dispose && typeof dispose === 'object') {
+    return dispose.text === 'on surface.destroy'
+      || dispose.event === 'surface.destroy'
+      || dispose.on === 'surface.destroy';
+  }
+  return false;
+}
+
+function createMaracaLifecycleReport(orchestrationPlan, kernelPlan, runtimeModules = [], options = {}) {
+  const artifact = orchestrationPlan && orchestrationPlan.artifact || null;
+  const surfaces = Array.isArray(artifact && artifact.surfaces) ? artifact.surfaces : [];
+  const resources = Array.isArray(artifact && artifact.resources) ? artifact.resources : [];
+  const diagnostics = [];
+  const strict = Boolean(
+    options && (options.orchestration === 'strict' || options.kernel === 'strict')
+    || orchestrationPlan && orchestrationPlan.strict
+    || kernelPlan && kernelPlan.strict
+  );
+  const surfaceDestroyReleaseRefs = surfaces.flatMap((surface) => (
+    Array.isArray(surface && surface.resources) && surface.resources.length > 0
+      ? surface.resources.map((resourceId) => ({ surfaceId: surface.id, resourceId }))
+      : []
+  ));
+  const destroyOnCloseSurfaces = surfaces.filter((surface) => surface && (surface.destroyOnClose === true || surface.closeReleasesResources === true));
+  const disposeOnDestroyResources = resources.filter(resourceDisposesOnSurfaceDestroy);
+  const requiresDestroyChain = surfaceDestroyReleaseRefs.length > 0
+    || destroyOnCloseSurfaces.length > 0
+    || disposeOnDestroyResources.length > 0;
+  const runtimeModuleSet = new Set(runtimeModules);
+  const hasSurfaceRuntime = runtimeModuleSet.has('xtendrmt/rmt-surface-resource-graph-runtime.js');
+  const hasKernelRuntime = Boolean(kernelPlan && kernelPlan.enabled && runtimeModuleSet.has('xtendrmt/rmt-runtime.esm.js'));
+  const hasSurfaceAdapterDestroy = runtimeModuleSet.has('xtendrmt/rmt-runtime.esm.js')
+    || runtimeModuleSet.has('xtendrmt/rmt-core.esm.js');
+  const supportedOperations = [
+    'closeSurface',
+    'destroySurface',
+    'snapshotSurfaces(includeDestroyed)',
+    'surface.destroy',
+    'resource.release',
+    'disposeRoot'
+  ];
+
+  if (requiresDestroyChain && !hasSurfaceRuntime) {
+    diagnostics.push(orchestrationDiagnostic(
+      'xtend.maraca.lifecycle_surface_runtime_missing',
+      strict ? 'error' : 'warning',
+      'Maraca lifecycle destroy/release contracts require the surface resource graph runtime.',
+      { requiredBy: 'surface.destroy' }
+    ));
+  }
+  if (requiresDestroyChain && !hasSurfaceAdapterDestroy) {
+    diagnostics.push(orchestrationDiagnostic(
+      'xtend.maraca.lifecycle_destroy_adapter_missing',
+      strict ? 'error' : 'warning',
+      'Maraca lifecycle destroy/release contracts require an RMT surface adapter with destroySurface().',
+      { requiredBy: 'destroySurface' }
+    ));
+  }
+
+  const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === 'error');
+  return {
+    schema: MARACA_LIFECYCLE_REPORT_SCHEMA,
+    ok: !hasErrors,
+    status: hasErrors ? 'blocked' : (requiresDestroyChain ? 'enforced' : 'ready'),
+    strict,
+    runtimeExpectedStatus: requiresDestroyChain ? 'booted' : 'optional',
+    supportedOperations,
+    requiresDestroyChain,
+    surfaceDestroyReleaseCount: surfaceDestroyReleaseRefs.length,
+    disposeOnSurfaceDestroyResourceCount: disposeOnDestroyResources.length,
+    destroyOnCloseSurfaceCount: destroyOnCloseSurfaces.length,
+    sourceToSea: {
+      surfaceCount: surfaces.length,
+      resourceCount: resources.length,
+      kernelScheduled: Boolean(kernelPlan && kernelPlan.enabled),
+      hasKernelRuntime,
+      hasSurfaceRuntime,
+      hasSurfaceAdapterDestroy
+    },
+    diagnostics
+  };
+}
+
 function isMaterializableTarget(target) {
   const value = String(target || '').trim();
   if (!value) return false;
@@ -1543,6 +3157,14 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   const diagnostics = [];
 
   if (typeof normalized.sourceText !== 'string' && !fs.existsSync(normalized.sourcePath)) {
+    const templateArtifacts = createMaracaTemplateArtifactsReport({
+      rootDir: normalized.rootDir,
+      status: 'source_missing'
+    });
+    const performance = createMaracaPerformanceReport({
+      rootDir: normalized.rootDir,
+      status: 'source_missing'
+    });
     return {
       schema: MARACA_BUILD_PLAN_SCHEMA,
       ok: false,
@@ -1558,10 +3180,12 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       stackMode: normalized.stackMode,
       orchestrationMode: normalized.orchestration,
       kernelMode: normalized.kernel,
+      kernelBootMode: normalized.kernelBootMode,
       hydrationMode: normalized.hydration,
       validationMode: normalized.validation,
       transitionsMode: normalized.transitions,
       sizeBudgetMode: normalized.sizeBudget,
+      enablePrewarmWorker: normalized.enablePrewarmWorker,
       outputDir: normalized.outputDir,
       diagnostics: [{
         code: 'xtend.maraca.source_missing',
@@ -1576,10 +3200,18 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       runtimeModules: [],
       stackModules: [],
       orchestration: createBaseOrchestrationPlan(normalized.orchestration, 'unavailable', 'RMT source file is missing.'),
-      kernel: createBaseKernelPlan(normalized.kernel, 'unavailable', 'RMT source file is missing.'),
+      templateArtifacts,
+      performance,
+      kernel: createBaseKernelPlan(normalized.kernel, 'unavailable', 'RMT source file is missing.', {
+        ...normalized,
+        templateArtifacts,
+        performance
+      }),
       hydration: createBaseHydrationPlan(normalized.hydration, 'unavailable', 'RMT source file is missing.'),
+      warmReentry: createMaracaWarmReentryReport(null, null, null, null, normalized),
       validation: createBaseValidationPlan(normalized.validation, 'unavailable', 'RMT source file is missing.'),
       transitions: createBaseTransitionPlan(normalized.transitions, 'unavailable', 'RMT source file is missing.'),
+      lifecycle: createMaracaLifecycleReport(null, null, [], normalized),
       publicNameReservations: Array.from(PUBLIC_NAME_RESERVATIONS)
     };
   }
@@ -1587,6 +3219,18 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   const { sourceText, compileResult } = compileSource(normalized);
   if (!compileResult.ok || !compileResult.coreDocument) {
     const compilerDiagnostics = Array.isArray(compileResult.diagnostics) ? compileResult.diagnostics : [];
+    const templateArtifacts = createMaracaTemplateArtifactsReport({
+      ...normalized,
+      sourceText,
+      compileResult,
+      status: 'compile_failed'
+    });
+    const performance = createMaracaPerformanceReport({
+      ...normalized,
+      sourceText,
+      compileResult,
+      status: 'compile_failed'
+    });
     return {
       schema: MARACA_BUILD_PLAN_SCHEMA,
       ok: false,
@@ -1603,10 +3247,12 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       stackMode: normalized.stackMode,
       orchestrationMode: normalized.orchestration,
       kernelMode: normalized.kernel,
+      kernelBootMode: normalized.kernelBootMode,
       hydrationMode: normalized.hydration,
       validationMode: normalized.validation,
       transitionsMode: normalized.transitions,
       sizeBudgetMode: normalized.sizeBudget,
+      enablePrewarmWorker: normalized.enablePrewarmWorker,
       outputDir: normalized.outputDir,
       diagnostics: [{
         code: COMPILER_ERROR_CODE,
@@ -1621,15 +3267,35 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       runtimeModules: [],
       stackModules: [],
       orchestration: createBaseOrchestrationPlan(normalized.orchestration, 'unavailable', 'RMT source did not compile.'),
-      kernel: createBaseKernelPlan(normalized.kernel, 'unavailable', 'RMT source did not compile.'),
+      templateArtifacts,
+      performance,
+      kernel: createBaseKernelPlan(normalized.kernel, 'unavailable', 'RMT source did not compile.', {
+        ...normalized,
+        templateArtifacts,
+        performance
+      }),
       hydration: createBaseHydrationPlan(normalized.hydration, 'unavailable', 'RMT source did not compile.'),
+      warmReentry: createMaracaWarmReentryReport(compileResult, null, null, null, normalized),
       validation: createBaseValidationPlan(normalized.validation, 'unavailable', 'RMT source did not compile.'),
       transitions: createBaseTransitionPlan(normalized.transitions, 'unavailable', 'RMT source did not compile.'),
+      lifecycle: createMaracaLifecycleReport(null, null, [], normalized),
       publicNameReservations: Array.from(PUBLIC_NAME_RESERVATIONS)
     };
   }
 
   const coreDocument = compileResult.coreDocument;
+  const templateArtifacts = createMaracaTemplateArtifactsReport({
+    ...normalized,
+    sourceText,
+    compileResult,
+    coreDocument
+  });
+  const performance = createMaracaPerformanceReport({
+    ...normalized,
+    sourceText,
+    compileResult,
+    coreDocument
+  });
   const componentManifest = loadComponentManifest(normalized.rootDir);
   const surfaces = collectSurfaces(coreDocument);
   const descriptorTags = Array.from(collectBuildDescriptorTags(
@@ -1646,11 +3312,16 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   if (orchestration.enabled) {
     runtimeModules = Array.from(new Set(runtimeModules.concat(ORCHESTRATION_RUNTIME_MODULES))).sort();
   }
-  const kernel = createMaracaKernelPlan(compileResult, orchestration, normalized);
+  const kernel = createMaracaKernelPlan(compileResult, orchestration, {
+    ...normalized,
+    templateArtifacts,
+    performance
+  });
   if (kernel.enabled) {
     runtimeModules = Array.from(new Set(runtimeModules.concat(KERNEL_RUNTIME_MODULES))).sort();
   }
   const hydration = createMaracaHydrationPlan(compileResult, orchestration, kernel, normalized);
+  const warmReentry = createMaracaWarmReentryReport(compileResult, coreDocument, hydration, kernel, normalized);
   const validation = createMaracaValidationPlan(compileResult, orchestration, kernel, normalized);
   if (validation.enabled) {
     runtimeModules = Array.from(new Set(runtimeModules.concat(VALIDATION_RUNTIME_MODULES))).sort();
@@ -1659,11 +3330,13 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   if (transitions.enabled) {
     runtimeModules = Array.from(new Set(runtimeModules.concat(TRANSITION_RUNTIME_MODULES))).sort();
   }
+  const lifecycle = createMaracaLifecycleReport(orchestration, kernel, runtimeModules, normalized);
   diagnostics.push(...orchestration.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...kernel.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...hydration.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...validation.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...transitions.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
+  diagnostics.push(...lifecycle.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   const ok = diagnostics.every((diagnostic) => diagnostic.severity !== 'error');
   const stackModules = resolveStackModuleRecords(runtimeModules, normalized, orchestration, kernel, validation, transitions);
   const selectedWithPolicy = componentRecords.selected.map((entry) => ({
@@ -1688,10 +3361,12 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     stackMode: normalized.stackMode,
     orchestrationMode: normalized.orchestration,
     kernelMode: normalized.kernel,
+    kernelBootMode: normalized.kernelBootMode,
     hydrationMode: normalized.hydration,
     validationMode: normalized.validation,
     transitionsMode: normalized.transitions,
     sizeBudgetMode: normalized.sizeBudget,
+    enablePrewarmWorker: normalized.enablePrewarmWorker,
     outputDir: normalized.outputDir,
     diagnostics,
     toolchain: getMaracaToolchainAvailability(normalized.rootDir),
@@ -1720,10 +3395,14 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     runtimeModules,
     stackModules,
     orchestration,
+    templateArtifacts,
+    performance,
     kernel,
     hydration,
+    warmReentry,
     validation,
     transitions,
+    lifecycle,
     stack: {
       mode: normalized.stackMode,
       included: stackModules.map((entry) => entry.source),
@@ -1829,23 +3508,71 @@ function createBundleSource(plan) {
   const kernelBundle = plan.kernel && plan.kernel.enabled ? {
     enabled: true,
     mode: plan.kernel.mode,
+    bootMode: plan.kernel.bootMode || 'direct',
     strict: plan.kernel.strict,
     status: plan.kernel.status,
     schema: plan.kernel.artifact && plan.kernel.artifact.schema,
     artifact: plan.kernel.artifact,
     diagnostics: plan.kernel.diagnostics,
     summary: plan.kernel.summary,
-    runtimeModules: plan.kernel.runtimeModules
+    runtimeModules: plan.kernel.runtimeModules,
+    featureAdoption: plan.kernel.featureAdoption,
+    productSurface: plan.kernel.productSurface,
+    prewarmWorker: plan.kernel.prewarmWorker,
+    panicRecovery: plan.kernel.panicRecovery,
+    trustedDom: plan.kernel.trustedDom,
+    policyParity: plan.kernel.policyParity,
+    security: plan.kernel.security,
+    performance: plan.performance || null
   } : {
     enabled: false,
     mode: plan.kernel && plan.kernel.mode || 'auto',
+    bootMode: plan.kernel && plan.kernel.bootMode || 'direct',
     strict: false,
     status: plan.kernel && plan.kernel.status || 'disabled',
     schema: null,
     artifact: null,
     diagnostics: plan.kernel && plan.kernel.diagnostics || [],
     summary: plan.kernel && plan.kernel.summary || {},
-    runtimeModules: plan.kernel && plan.kernel.runtimeModules || []
+    runtimeModules: plan.kernel && plan.kernel.runtimeModules || [],
+    featureAdoption: plan.kernel && plan.kernel.featureAdoption || createMaracaKernelFeatureAdoptionReport({
+      rootDir: plan.rootDir,
+      enabled: false,
+      runtimeModules: plan.kernel && plan.kernel.runtimeModules || []
+    }),
+    productSurface: plan.kernel && plan.kernel.productSurface || createMaracaKernelProductSurfaceReport({
+      rootDir: plan.rootDir,
+      bootMode: plan.kernel && plan.kernel.bootMode || 'direct'
+    }),
+    prewarmWorker: plan.kernel && plan.kernel.prewarmWorker || createMaracaPrewarmWorkerRuntimeReport(plan.kernel, plan),
+    panicRecovery: plan.kernel && plan.kernel.panicRecovery || createMaracaPanicRecoveryReport({
+      rootDir: plan.rootDir,
+      enabled: false,
+      runtimeModules: plan.kernel && plan.kernel.runtimeModules || []
+    }),
+    trustedDom: plan.kernel && plan.kernel.trustedDom || createMaracaTrustedDomReport({
+      panicRecovery: plan.kernel && plan.kernel.panicRecovery || createMaracaPanicRecoveryReport({
+        rootDir: plan.rootDir,
+        enabled: false,
+        runtimeModules: plan.kernel && plan.kernel.runtimeModules || []
+      })
+    }),
+    policyParity: plan.kernel && plan.kernel.policyParity || createMaracaPolicyParityReport({
+      rootDir: plan.rootDir,
+      enabled: false,
+      strict: false,
+      runtimeModules: plan.kernel && plan.kernel.runtimeModules || []
+    }),
+    security: plan.kernel && plan.kernel.security || {
+      schema: 'xtend.maraca.kernel-security-report.v1',
+      supported: false,
+      status: 'disabled',
+      panicRecovery: plan.kernel && plan.kernel.panicRecovery || null,
+      trustedDom: plan.kernel && plan.kernel.trustedDom || null,
+      policyParity: plan.kernel && plan.kernel.policyParity || null,
+      diagnostics: []
+    },
+    performance: plan.performance || null
   };
   const hydrationBundle = plan.hydration && plan.hydration.enabled ? {
     enabled: true,
@@ -1855,6 +3582,8 @@ function createBundleSource(plan) {
     schema: plan.hydration.artifact && plan.hydration.artifact.schema,
     artifact: plan.hydration.artifact,
     diagnostics: plan.hydration.diagnostics,
+    workerPrerender: plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender || null,
+    serverPrerender: plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender || null,
     summary: plan.hydration.summary
   } : {
     enabled: false,
@@ -1864,7 +3593,20 @@ function createBundleSource(plan) {
     schema: null,
     artifact: null,
     diagnostics: plan.hydration && plan.hydration.diagnostics || [],
+    workerPrerender: plan.hydration && (plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender) || null,
+    serverPrerender: plan.hydration && (plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender) || null,
     summary: plan.hydration && plan.hydration.summary || {}
+  };
+  const warmReentryBundle = plan.warmReentry || {
+    schema: MARACA_WARM_REENTRY_REPORT_SCHEMA,
+    ok: true,
+    status: 'available',
+    enabled: false,
+    supported: true,
+    optional: true,
+    runtimeExpectedStatus: 'idle',
+    diagnostics: [],
+    summary: {}
   };
   const validationBundle = plan.validation && plan.validation.enabled ? {
     enabled: true,
@@ -1904,6 +3646,20 @@ function createBundleSource(plan) {
     diagnostics: plan.transitions && plan.transitions.diagnostics || [],
     summary: plan.transitions && plan.transitions.summary || {}
   };
+  const lifecycleBundle = plan.lifecycle || {
+    schema: MARACA_LIFECYCLE_REPORT_SCHEMA,
+    ok: true,
+    status: 'ready',
+    strict: false,
+    runtimeExpectedStatus: 'optional',
+    supportedOperations: [],
+    requiresDestroyChain: false,
+    diagnostics: []
+  };
+  const productionClosureBundle = createMaracaProductionBundleClosure(plan, null, {
+    bundleFiles: [],
+    repoRoot: plan.rootDir || path.dirname(path.dirname(__filename))
+  });
   const css = createCssText(plan);
   const header = [
     `const MARACA_COMPONENTS = Object.freeze(${jsValue(componentEntries)});`,
@@ -1913,8 +3669,12 @@ function createBundleSource(plan) {
     `const MARACA_ORCHESTRATION = Object.freeze(${jsValue(orchestrationBundle)});`,
     `const MARACA_KERNEL = Object.freeze(${jsValue(kernelBundle)});`,
     `const MARACA_HYDRATION = Object.freeze(${jsValue(hydrationBundle)});`,
+    `const MARACA_WARM_REENTRY = Object.freeze(${jsValue(warmReentryBundle)});`,
     `const MARACA_VALIDATION = Object.freeze(${jsValue(validationBundle)});`,
     `const MARACA_TRANSITIONS = Object.freeze(${jsValue(transitionBundle)});`,
+    `const MARACA_LIFECYCLE = Object.freeze(${jsValue(lifecycleBundle)});`,
+    `const MARACA_PRODUCTION_CLOSURE = Object.freeze(${jsValue(productionClosureBundle)});`,
+    `const MARACA_TEMPLATE_ARTIFACTS = Object.freeze(${jsValue(plan.templateArtifacts || null)});`,
     `const MARACA_PUBLIC_NAMES = Object.freeze(${jsValue(plan.publicNameReservations)});`,
     `const MARACA_STACK_MODULES = Object.freeze(${jsValue(stackEntries)});`,
     `const MARACA_LAZY_MODE = ${JSON.stringify(plan.lazy)};`
@@ -2482,6 +4242,9 @@ function createKernelController(root, options = {}) {
       windowTarget: typeof window !== "undefined" ? window : undefined,
       documentTarget: typeof document !== "undefined" ? document : undefined,
       runtimeKind: "maraca-kernel",
+      enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
+      prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
+      prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic",
       diagnostics,
       dispatchEvent: dispatchMaracaEvent
     });
@@ -2489,6 +4252,7 @@ function createKernelController(root, options = {}) {
     return Object.freeze({
       enabled: externalController.enabled,
       mode: MARACA_KERNEL.mode,
+      bootMode: MARACA_KERNEL.bootMode || "direct",
       get status() {
         return externalController.status;
       },
@@ -2527,6 +4291,7 @@ function createKernelController(root, options = {}) {
   let performanceRuntime = null;
   let schedulerBridge = null;
   let hostAdapter = null;
+  let productSurface = null;
   let runtimeStatus = MARACA_KERNEL.enabled && artifact ? "pending" : MARACA_KERNEL.status;
   const fiberHistory = [];
   let fallbackCount = 0;
@@ -2547,14 +4312,44 @@ function createKernelController(root, options = {}) {
       : [];
   }
 
+  function readPrewarmWorkerSnapshot() {
+    if (runtime && typeof runtime.getPrewarmWorkerTopology === "function") {
+      const topology = runtime.getPrewarmWorkerTopology();
+      if (topology && typeof topology === "object") {
+        return {
+          ...(MARACA_KERNEL.prewarmWorker || {}),
+          ...topology,
+          runtimeExpectedStatus: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled ? "booted" : "disabled"
+        };
+      }
+    }
+    return MARACA_KERNEL.prewarmWorker || {
+      schema: "xtend.maraca.prewarm-worker-runtime.v1",
+      enabled: false,
+      status: "disabled",
+      runtimeExpectedStatus: "disabled"
+    };
+  }
+
   function snapshot() {
     return {
       schema: "xtend.maraca.kernel-snapshot.v1",
       mode: MARACA_KERNEL.mode,
+      bootMode: MARACA_KERNEL.bootMode || "direct",
       status: runtimeStatus,
       planStatus: MARACA_KERNEL.status,
       enabled: Boolean(runtime || core || schedulerBridge),
       summary: MARACA_KERNEL.summary || {},
+      featureAdoption: MARACA_KERNEL.featureAdoption || null,
+      productSurface: productSurface && typeof productSurface.listEntryPoints === "function" ? {
+        ...(MARACA_KERNEL.productSurface || {}),
+        status: MARACA_KERNEL.bootMode === "productSurface" ? "active" : "available",
+        entryPoints: productSurface.listEntryPoints(),
+        entryPointCount: productSurface.listEntryPoints().length,
+        entryPointNames: productSurface.listEntryPoints().map((entry) => entry && entry.name).filter(Boolean),
+        optionalCompat: typeof productSurface.listOptionalCompat === "function" ? productSurface.listOptionalCompat() : (MARACA_KERNEL.productSurface && MARACA_KERNEL.productSurface.optionalCompat || {})
+      } : (MARACA_KERNEL.productSurface || null),
+      prewarmWorker: readPrewarmWorkerSnapshot(),
       scheduledEndpoints: listScheduledEndpoints(),
       fibers: fiberHistory.slice(),
       fallbackCount,
@@ -2584,6 +4379,19 @@ function createKernelController(root, options = {}) {
     if (metadata.hydrationId) {
       const hydration = fibers.find((fiber) => fiber.kind === "hydration" && fiber.target && String(fiber.target.ref || "").includes(metadata.hydrationId));
       if (hydration) return hydration;
+    }
+    if (requested === "destroy" || requested === "dispose" || metadata.lifecycleOperation === "destroy" || metadata.lifecycleOperation === "dispose") {
+      const lifecycle = fibers.find((fiber) => (
+        fiber.kind === "lifecycle"
+        && (
+          fiber.op === "dispose"
+          || fiber.op === "destroy"
+          || String(fiber.operation || "").includes("/dispose")
+          || String(fiber.operation || "").includes("/destroy")
+        )
+        && (!metadata.targetRef || fiber.target && String(fiber.target.ref || "").includes(metadata.targetRef))
+      ));
+      if (lifecycle) return lifecycle;
     }
     return fibers.find((fiber) => fiber.op === requested || fiber.kind === requested)
       || (requested === "render" ? fibers.find((fiber) => fiber.op === "hydrate" || fiber.op === "mount") : null)
@@ -2708,39 +4516,79 @@ function createKernelController(root, options = {}) {
       throw new Error("XTend RMT kernel runtime module is not available.");
     }
     hostAdapter = options.kernelHostAdapter || options.schedulerAdapter || createMaracaKernelHostAdapter(options);
-    performanceRuntime = kernelApi.createRmtPerformanceRuntime({
-      windowTarget: typeof window !== "undefined" ? window : undefined,
-      documentTarget: typeof document !== "undefined" ? document : undefined,
-      hostAdapter,
-      runtimeKind: "maraca-kernel",
-      schedules
-    });
+    if (MARACA_KERNEL.bootMode === "productSurface") {
+      if (typeof kernelApi.createRmtProductSurface !== "function") {
+        throw new Error("XTend RMT Product Surface is not available.");
+      }
+      productSurface = kernelApi.createRmtProductSurface();
+      performanceRuntime = productSurface.createPerformanceRuntime({
+        windowTarget: typeof window !== "undefined" ? window : undefined,
+        documentTarget: typeof document !== "undefined" ? document : undefined,
+        hostAdapter,
+        runtimeKind: "maraca-kernel",
+        schedules
+      });
+    } else {
+      performanceRuntime = kernelApi.createRmtPerformanceRuntime({
+        windowTarget: typeof window !== "undefined" ? window : undefined,
+        documentTarget: typeof document !== "undefined" ? document : undefined,
+        hostAdapter,
+        runtimeKind: "maraca-kernel",
+        schedules
+      });
+    }
     schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
       performanceRuntime,
       schedules
     });
-    core = typeof kernelApi.createRmtCore === "function" ? kernelApi.createRmtCore({
-      windowTarget: typeof window !== "undefined" ? window : undefined,
-      documentTarget: typeof document !== "undefined" ? document : undefined,
-      hostAdapter,
-      kernelRecords: artifact.records,
-      scheduler
-    }) : null;
-    runtime = typeof kernelApi.createRmtRuntime === "function" ? kernelApi.createRmtRuntime({
-      windowTarget: typeof window !== "undefined" ? window : undefined,
-      documentTarget: typeof document !== "undefined" ? document : undefined,
-      hostAdapter,
-      core,
-      renderManCore: core,
-      performanceRuntime,
-      kernelRecords: artifact.records,
-      scheduler
-    }) : null;
+    core = MARACA_KERNEL.bootMode === "productSurface"
+      ? productSurface.createCore({
+          windowTarget: typeof window !== "undefined" ? window : undefined,
+          documentTarget: typeof document !== "undefined" ? document : undefined,
+          hostAdapter,
+          kernelRecords: artifact.records,
+          scheduler
+        })
+      : typeof kernelApi.createRmtCore === "function" ? kernelApi.createRmtCore({
+          windowTarget: typeof window !== "undefined" ? window : undefined,
+          documentTarget: typeof document !== "undefined" ? document : undefined,
+          hostAdapter,
+          kernelRecords: artifact.records,
+          scheduler
+        }) : null;
+    runtime = MARACA_KERNEL.bootMode === "productSurface"
+      ? productSurface.createRuntime({
+          windowTarget: typeof window !== "undefined" ? window : undefined,
+          documentTarget: typeof document !== "undefined" ? document : undefined,
+          hostAdapter,
+          core,
+          renderManCore: core,
+          performanceRuntime,
+          kernelRecords: artifact.records,
+          scheduler,
+          enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
+          prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
+          prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic"
+        })
+      : typeof kernelApi.createRmtRuntime === "function" ? kernelApi.createRmtRuntime({
+          windowTarget: typeof window !== "undefined" ? window : undefined,
+          documentTarget: typeof document !== "undefined" ? document : undefined,
+          hostAdapter,
+          core,
+          renderManCore: core,
+          performanceRuntime,
+          kernelRecords: artifact.records,
+          scheduler,
+          enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
+          prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
+          prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic"
+        }) : null;
     activateSchedules();
     runtimeStatus = "booted";
     dispatchMaracaEvent("xtend-maraca:kernel-boot", {
       schema: "xtend.maraca.kernel-boot.v1",
       mode: MARACA_KERNEL.mode,
+      bootMode: MARACA_KERNEL.bootMode || "direct",
       status: runtimeStatus,
       summary: MARACA_KERNEL.summary,
       scheduledEndpointCount: listScheduledEndpoints().length
@@ -3876,6 +5724,8 @@ function createTelemetryBridge(kernelController = null, orchestrationController 
         hydration: hydrationController && typeof hydrationController.snapshot === "function" ? hydrationController.snapshot() : null,
         validation: validationController && typeof validationController.snapshot === "function" ? validationController.snapshot() : null,
         transitions: transitionController && typeof transitionController.snapshot === "function" ? transitionController.snapshot() : null,
+        lifecycle: MARACA_LIFECYCLE,
+        warmReentry: MARACA_WARM_REENTRY,
         history: history.slice(-50)
       };
     }
@@ -4056,12 +5906,73 @@ function entrySurfaceForElement(surfaceEntries, element) {
   return entry && entry.surface || null;
 }
 
+function registerMaracaTemplateArtifacts(options = {}) {
+  const report = MARACA_TEMPLATE_ARTIFACTS;
+  const bundle = report && report.artifactBundle;
+  const base = {
+    schema: "xtend.maraca.template-artifacts-registration.v1",
+    ok: false,
+    status: "skipped",
+    documentIds: report && Array.isArray(report.documentIds) ? report.documentIds.slice() : [],
+    templateIds: report && Array.isArray(report.templateIds) ? report.templateIds.slice() : [],
+    artifactBundleFingerprint: report && report.artifactBundleFingerprint || ""
+  };
+  if (!report || !bundle || !report.registration || report.registration.eligible !== true || report.trusted !== true) {
+    return {
+      ...base,
+      status: "not_eligible",
+      reason: report && report.registration && report.registration.reason || "no_trusted_artifact_bundle"
+    };
+  }
+  if (!XTendMaracaKernelRuntimeModule || typeof XTendMaracaKernelRuntimeModule.createRmtTemplateArtifacts !== "function") {
+    return {
+      ...base,
+      status: "runtime_factory_unavailable",
+      reason: "createRmtTemplateArtifacts is not bundled"
+    };
+  }
+  try {
+    const artifactApi = XTendMaracaKernelRuntimeModule.createRmtTemplateArtifacts({
+      now: () => 0,
+      ...(options.templateArtifactsOptions || {})
+    });
+    if (!artifactApi || typeof artifactApi.registerArtifactBundle !== "function") {
+      return {
+        ...base,
+        status: "runtime_register_unavailable",
+        reason: "registerArtifactBundle is not available"
+      };
+    }
+    const registered = artifactApi.registerArtifactBundle(bundle, {
+      replace: true,
+      trusted: true
+    });
+    const result = {
+      ...base,
+      ok: Boolean(registered && registered.ok),
+      status: registered && registered.ok ? "registered" : "failed",
+      documentCount: registered && registered.documentCount || 0,
+      templateCount: registered && registered.templateCount || 0,
+      documentIds: registered && Array.isArray(registered.documentIds) ? registered.documentIds.slice() : base.documentIds
+    };
+    dispatchMaracaEvent("xtend-maraca:template-artifacts", result);
+    return result;
+  } catch (error) {
+    return {
+      ...base,
+      status: "failed",
+      reason: error && error.message ? error.message : String(error)
+    };
+  }
+}
+
 let currentMaracaKernel = null;
 let currentMaracaOrchestration = null;
 let currentMaracaHydration = null;
 let currentMaracaValidation = null;
 let currentMaracaTransitions = null;
 let currentMaracaTelemetry = null;
+let currentMaracaTemplateArtifactsRegistration = null;
 
 async function bootXtendMaraca(options = {}) {
   if (typeof document === "undefined") {
@@ -4082,6 +5993,7 @@ async function bootXtendMaraca(options = {}) {
   currentMaracaValidation = currentMaracaOrchestration && currentMaracaOrchestration.validationRuntime || null;
   currentMaracaTransitions = currentMaracaOrchestration && currentMaracaOrchestration.transitionRuntime || null;
   currentMaracaTelemetry = createTelemetryBridge(currentMaracaKernel, currentMaracaOrchestration, currentMaracaHydration, currentMaracaValidation, currentMaracaTransitions);
+  currentMaracaTemplateArtifactsRegistration = registerMaracaTemplateArtifacts(options);
   const activeSurfaceEntries = currentMaracaOrchestration && currentMaracaOrchestration.enabled
     ? createSurfaceEntriesFromRoot(root)
     : surfaceEntries;
@@ -4116,6 +6028,7 @@ async function bootXtendMaraca(options = {}) {
       mode: MARACA_KERNEL.mode,
       status: currentMaracaKernel && currentMaracaKernel.status || MARACA_KERNEL.status,
       scheduledEndpointCount: currentMaracaKernel ? currentMaracaKernel.listScheduledEndpoints().length : 0,
+      prewarmWorker: currentMaracaKernel && typeof currentMaracaKernel.snapshot === "function" ? currentMaracaKernel.snapshot().prewarmWorker : MARACA_KERNEL.prewarmWorker,
       diagnosticCount: currentMaracaKernel ? currentMaracaKernel.listDiagnostics().length : 0
     },
     hydration: {
@@ -4137,6 +6050,15 @@ async function bootXtendMaraca(options = {}) {
       activeCount: currentMaracaTransitions && typeof currentMaracaTransitions.listActiveTransitions === "function" ? currentMaracaTransitions.listActiveTransitions().length : 0,
       diagnosticCount: currentMaracaTransitions && typeof currentMaracaTransitions.listDiagnostics === "function" ? currentMaracaTransitions.listDiagnostics().length : 0
     },
+    templateArtifacts: {
+      enabled: Boolean(MARACA_TEMPLATE_ARTIFACTS && MARACA_TEMPLATE_ARTIFACTS.trusted),
+      status: MARACA_TEMPLATE_ARTIFACTS && MARACA_TEMPLATE_ARTIFACTS.status || "unavailable",
+      documentIds: MARACA_TEMPLATE_ARTIFACTS && Array.isArray(MARACA_TEMPLATE_ARTIFACTS.documentIds) ? MARACA_TEMPLATE_ARTIFACTS.documentIds.slice() : [],
+      templateIds: MARACA_TEMPLATE_ARTIFACTS && Array.isArray(MARACA_TEMPLATE_ARTIFACTS.templateIds) ? MARACA_TEMPLATE_ARTIFACTS.templateIds.slice() : [],
+      artifactBundleFingerprint: MARACA_TEMPLATE_ARTIFACTS && MARACA_TEMPLATE_ARTIFACTS.artifactBundleFingerprint || "",
+      registration: currentMaracaTemplateArtifactsRegistration
+    },
+    productionClosure: MARACA_PRODUCTION_CLOSURE,
     lazyObservedCount: lazyController ? lazyController.observedCount : 0,
     publicNameReservations: MARACA_PUBLIC_NAMES
   };
@@ -4148,6 +6070,7 @@ async function bootXtendMaraca(options = {}) {
   window.__XTendMaracaValidation = currentMaracaValidation;
   window.__XTendMaracaTransitions = currentMaracaTransitions;
   window.__XTendMaracaTelemetry = currentMaracaTelemetry;
+  window.__XTendMaracaTemplateArtifactsRegistration = currentMaracaTemplateArtifactsRegistration;
   if (currentMaracaTelemetry) currentMaracaTelemetry.publish("boot", result);
   dispatchMaracaEvent("xtend-maraca:boot", result);
   return result;
@@ -4161,8 +6084,11 @@ const XTendMaraca = Object.freeze({
   orchestrationPlan: MARACA_ORCHESTRATION,
   kernelPlan: MARACA_KERNEL,
   hydrationPlan: MARACA_HYDRATION,
+  warmReentry: MARACA_WARM_REENTRY,
   validationPlan: MARACA_VALIDATION,
   transitionPlan: MARACA_TRANSITIONS,
+  productionClosure: MARACA_PRODUCTION_CLOSURE,
+  templateArtifacts: MARACA_TEMPLATE_ARTIFACTS,
   get kernel() {
     return currentMaracaKernel;
   },
@@ -4180,6 +6106,9 @@ const XTendMaraca = Object.freeze({
   },
   get telemetry() {
     return currentMaracaTelemetry;
+  },
+  get templateArtifactsRegistration() {
+    return currentMaracaTemplateArtifactsRegistration;
   },
   stackModules: MARACA_STACK_MODULES,
   ensureComponent: ensureMaracaComponent,
@@ -4221,7 +6150,7 @@ if (typeof window !== "undefined") {
   scheduleXtendMaracaAutoBoot();
 }
 
-export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, ensureMaracaComponent, bootXtendMaraca };
+export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_WARM_REENTRY, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, ensureMaracaComponent, bootXtendMaraca };
 export default XTendMaraca;
 `;
 }
@@ -4513,6 +6442,346 @@ function copyKernelControllerRuntimeAsset(plan) {
   };
 }
 
+function sourceFingerprintForPlan(plan, repoRoot) {
+  const sourcePath = plan && (plan.sourcePath || plan.source);
+  if (!sourcePath) return '';
+  const absolutePath = path.isAbsolute(sourcePath) ? sourcePath : path.resolve(repoRoot, sourcePath);
+  try {
+    if (fs.existsSync(absolutePath)) return `sha256:${hashText(fs.readFileSync(absolutePath, 'utf8'))}`;
+  } catch (_) {}
+  return '';
+}
+
+function closureRuntimeExpectedStatus(section, fallback = 'optional') {
+  if (!section || typeof section !== 'object') return fallback;
+  if (section.runtimeExpectedStatus) return section.runtimeExpectedStatus;
+  if (section.summary && section.summary.runtimeExpectedStatus) return section.summary.runtimeExpectedStatus;
+  if (section.enabled === true) return 'booted';
+  if (section.active === true) return 'booted';
+  return fallback;
+}
+
+function closureStatusFor(section, fallback = 'unavailable') {
+  if (!section || typeof section !== 'object') return fallback;
+  return section.status || section.planStatus || (section.ok === false ? 'blocked' : (section.enabled === true ? 'planned' : fallback));
+}
+
+function closureDiagnosticsFor(section) {
+  return Array.isArray(section && section.diagnostics) ? section.diagnostics : [];
+}
+
+function createProductionCapability(input = {}) {
+  const status = input.status || 'unavailable';
+  const diagnostics = closureDiagnosticsFor(input);
+  const supported = Boolean(input.supported);
+  const active = Boolean(input.active);
+  const runtimeExpectedStatus = input.runtimeExpectedStatus || (active ? 'booted' : 'optional');
+  const degraded = Boolean(input.degraded) || status === 'degraded' || status === 'fallback';
+  const blocked = Boolean(input.blocked) || status === 'blocked' || input.ok === false;
+  return {
+    schema: 'xtend.maraca.production-bundle-capability.v1',
+    key: input.key || 'unknown',
+    label: input.label || input.key || 'unknown',
+    supported,
+    active,
+    optional: input.optional === true,
+    requiredInProd: input.requiredInProd === true,
+    status,
+    runtimeExpectedStatus,
+    degraded,
+    blocked,
+    diagnostics,
+    sourceToSea: input.sourceToSea || {},
+    evidence: input.evidence || {}
+  };
+}
+
+function createMaracaProductionBundleClosure(plan, sizeBudgetReport = null, options = {}) {
+  const repoRoot = plan.rootDir || path.dirname(path.dirname(__filename));
+  const profile = plan.profile || 'production';
+  const prodEnforced = profile === 'production' || profile === 'max';
+  const bundleFiles = Array.isArray(options.bundleFiles) ? options.bundleFiles : [];
+  const kernel = plan.kernel || null;
+  const orchestration = plan.orchestration || null;
+  const hydration = plan.hydration || null;
+  const lifecycle = plan.lifecycle || null;
+  const warmReentry = plan.warmReentry || null;
+  const performance = plan.performance || null;
+  const templateArtifacts = plan.templateArtifacts || null;
+  const prewarmWorker = kernel && kernel.prewarmWorker || null;
+  const policyParity = kernel && kernel.policyParity || null;
+  const workerPrerender = hydration && (hydration.workerPrerender || hydration.summary && hydration.summary.workerPrerender) || null;
+  const serverPrerender = hydration && (hydration.serverPrerender || hydration.summary && hydration.summary.serverPrerender) || null;
+  const runtimeModules = Array.isArray(plan.runtimeModules) ? plan.runtimeModules : [];
+  const stackModules = Array.isArray(plan.stackModules) ? plan.stackModules.map((entry) => entry.source).filter(Boolean) : [];
+  const sourceFingerprint = sourceFingerprintForPlan(plan, repoRoot);
+  const bundleFingerprint = performance && performance.bundleFingerprint
+    || templateArtifacts && templateArtifacts.bundleFingerprint
+    || null;
+  const sourceRef = repoRelative(plan.sourcePath || plan.source || '', repoRoot);
+  const diagnostics = [];
+
+  const capabilities = [
+    createProductionCapability({
+      key: 'orchestration',
+      label: 'App Orchestration',
+      supported: Boolean(orchestration),
+      active: Boolean(orchestration && orchestration.enabled),
+      requiredInProd: Boolean(orchestration && orchestration.enabled),
+      status: closureStatusFor(orchestration, 'disabled'),
+      runtimeExpectedStatus: closureRuntimeExpectedStatus(orchestration, 'disabled'),
+      diagnostics: closureDiagnosticsFor(orchestration),
+      sourceToSea: {
+        source: sourceRef,
+        artifactSchema: orchestration && orchestration.artifact && orchestration.artifact.schema || null,
+        runtimeModules: orchestration && orchestration.runtimeModules || []
+      }
+    }),
+    createProductionCapability({
+      key: 'kernel',
+      label: 'RMT Kernel',
+      supported: Boolean(kernel && kernel.supported),
+      active: Boolean(kernel && kernel.enabled),
+      requiredInProd: Boolean(kernel && kernel.enabled),
+      status: closureStatusFor(kernel, 'disabled'),
+      runtimeExpectedStatus: closureRuntimeExpectedStatus(kernel, 'disabled'),
+      diagnostics: closureDiagnosticsFor(kernel),
+      sourceToSea: {
+        source: sourceRef,
+        artifactSchema: kernel && kernel.artifact && kernel.artifact.schema || null,
+        recordsSchema: kernel && kernel.artifact && kernel.artifact.records && kernel.artifact.records.schema || null,
+        runtimeModules: kernel && kernel.runtimeModules || []
+      }
+    }),
+    createProductionCapability({
+      key: 'lifecycle',
+      label: 'Lifecycle Engine',
+      supported: Boolean(lifecycle),
+      active: Boolean(lifecycle && lifecycle.requiresDestroyChain),
+      requiredInProd: Boolean(lifecycle && lifecycle.requiresDestroyChain),
+      status: closureStatusFor(lifecycle, 'ready'),
+      runtimeExpectedStatus: closureRuntimeExpectedStatus(lifecycle, 'optional'),
+      ok: lifecycle ? lifecycle.ok : true,
+      diagnostics: closureDiagnosticsFor(lifecycle),
+      sourceToSea: lifecycle && lifecycle.sourceToSea || {}
+    }),
+    createProductionCapability({
+      key: 'telemetry',
+      label: 'Telemetry',
+      supported: runtimeModules.includes('fabric/xtend-fabric.js') || stackModules.includes('fabric/xtend-fabric.js') || runtimeModules.includes('xtendrmt/rmt-app-runtime.js'),
+      active: Boolean(orchestration && orchestration.enabled || kernel && kernel.enabled),
+      requiredInProd: Boolean(orchestration && orchestration.enabled || kernel && kernel.enabled),
+      status: orchestration && orchestration.enabled || kernel && kernel.enabled ? 'available' : 'idle',
+      runtimeExpectedStatus: orchestration && orchestration.enabled || kernel && kernel.enabled ? 'booted' : 'idle',
+      diagnostics: [],
+      evidence: {
+        devApis: ['createTelemetrySnapshot', 'getPerformanceTelemetrySnapshot', 'listStreamPressureRecords', 'listYieldActions'],
+        runtimeModules: runtimeModules.filter((entry) => entry.includes('rmt-app-runtime') || entry.includes('xtend-fabric'))
+      }
+    }),
+    createProductionCapability({
+      key: 'performance',
+      label: 'Performance',
+      supported: Boolean(performance && performance.supported),
+      active: Boolean(performance && performance.runtimeExpectedStatus === 'booted'),
+      requiredInProd: Boolean(kernel && kernel.enabled),
+      status: closureStatusFor(performance, 'unavailable'),
+      runtimeExpectedStatus: closureRuntimeExpectedStatus(performance, kernel && kernel.enabled ? 'booted' : 'report-only'),
+      ok: performance ? performance.ok : false,
+      diagnostics: closureDiagnosticsFor(performance),
+      evidence: {
+        budgetClasses: performance && performance.budgetClasses || [],
+        bundleFingerprint: performance && performance.bundleFingerprint || null
+      }
+    }),
+    createProductionCapability({
+      key: 'policyParity',
+      label: 'Kernel Policy Parity',
+      supported: Boolean(policyParity),
+      active: Boolean(kernel && kernel.enabled),
+      requiredInProd: Boolean(kernel && kernel.enabled),
+      status: closureStatusFor(policyParity, 'unavailable'),
+      runtimeExpectedStatus: kernel && kernel.enabled ? 'booted' : 'disabled',
+      ok: policyParity ? policyParity.ok : !kernel || !kernel.enabled,
+      diagnostics: closureDiagnosticsFor(policyParity),
+      evidence: {
+        driftCount: policyParity && policyParity.driftCount || 0,
+        missingFactories: policyParity && policyParity.missingFactories || []
+      }
+    }),
+    createProductionCapability({
+      key: 'prewarmWorker',
+      label: 'Prewarm Worker',
+      supported: Boolean(prewarmWorker && prewarmWorker.supported),
+      active: Boolean(prewarmWorker && prewarmWorker.enabled),
+      optional: true,
+      requiredInProd: Boolean(prewarmWorker && prewarmWorker.enabled),
+      status: closureStatusFor(prewarmWorker, 'disabled'),
+      runtimeExpectedStatus: closureRuntimeExpectedStatus(prewarmWorker, 'disabled'),
+      diagnostics: closureDiagnosticsFor(prewarmWorker),
+      sourceToSea: {
+        topologySchema: prewarmWorker && prewarmWorker.topologySchema || null,
+        ownership: prewarmWorker && prewarmWorker.ownership || {}
+      }
+    }),
+    createProductionCapability({
+      key: 'warmReentry',
+      label: 'Warm Reentry',
+      supported: Boolean(warmReentry && warmReentry.supported !== false),
+      active: Boolean(warmReentry && warmReentry.enabled),
+      optional: true,
+      requiredInProd: Boolean(warmReentry && warmReentry.enabled),
+      status: closureStatusFor(warmReentry, 'available'),
+      runtimeExpectedStatus: closureRuntimeExpectedStatus(warmReentry, 'idle'),
+      ok: warmReentry ? warmReentry.ok : true,
+      diagnostics: closureDiagnosticsFor(warmReentry),
+      sourceToSea: {
+        supportedFiberKinds: warmReentry && warmReentry.supportedFiberKinds || [],
+        observedFiberKinds: warmReentry && warmReentry.observedFiberKinds || [],
+        sourceToSea: warmReentry && warmReentry.sourceToSea || []
+      }
+    }),
+    createProductionCapability({
+      key: 'prerender',
+      label: 'Prerender Interop',
+      supported: Boolean(workerPrerender || serverPrerender),
+      active: Boolean(workerPrerender && workerPrerender.requested || serverPrerender && serverPrerender.requested),
+      optional: true,
+      requiredInProd: Boolean(workerPrerender && workerPrerender.requested || serverPrerender && serverPrerender.requested),
+      status: serverPrerender && serverPrerender.status || workerPrerender && workerPrerender.status || 'available',
+      runtimeExpectedStatus: hydration && hydration.enabled ? 'booted' : 'idle',
+      diagnostics: []
+    }),
+    createProductionCapability({
+      key: 'templateArtifacts',
+      label: 'Template Artifacts',
+      supported: Boolean(templateArtifacts && templateArtifacts.supported),
+      active: Boolean(templateArtifacts && templateArtifacts.trusted),
+      requiredInProd: Boolean(templateArtifacts && templateArtifacts.trusted),
+      status: closureStatusFor(templateArtifacts, 'unavailable'),
+      runtimeExpectedStatus: templateArtifacts && templateArtifacts.trusted ? 'booted' : 'report-only',
+      ok: templateArtifacts ? templateArtifacts.ok : false,
+      diagnostics: closureDiagnosticsFor(templateArtifacts),
+      evidence: {
+        sourceFingerprint: templateArtifacts && templateArtifacts.sourceFingerprint || null,
+        artifactBundleFingerprint: templateArtifacts && templateArtifacts.artifactBundleFingerprint || null,
+        bundleFingerprint: templateArtifacts && templateArtifacts.bundleFingerprint || null
+      }
+    })
+  ];
+
+  const blockingCapabilities = capabilities.filter((capability) => (
+    capability.requiredInProd
+    && (
+      capability.blocked
+      || capability.status === 'fallback'
+      || capability.status === 'unavailable'
+      || (capability.runtimeExpectedStatus === 'booted' && capability.supported === false)
+    )
+  ));
+  blockingCapabilities.forEach((capability) => {
+    diagnostics.push({
+      code: 'xtend.maraca.production_closure.capability_blocked',
+      severity: prodEnforced ? 'error' : 'warning',
+      message: `Production bundle capability ${capability.key} is required but not ready.`,
+      capabilityKey: capability.key,
+      status: capability.status,
+      runtimeExpectedStatus: capability.runtimeExpectedStatus
+    });
+  });
+  if (sizeBudgetReport && sizeBudgetReport.ok === false) {
+    diagnostics.push({
+      code: 'xtend.maraca.production_closure.size_budget_failed',
+      severity: prodEnforced ? 'error' : 'warning',
+      message: 'Production bundle closure requires the size budget gate to pass.',
+      status: sizeBudgetReport.status,
+      bundleBytes: sizeBudgetReport.bundleBytes,
+      baselineBytes: sizeBudgetReport.baselineBytes
+    });
+  }
+
+  const activeCount = capabilities.filter((capability) => capability.active).length;
+  const degradedCount = capabilities.filter((capability) => capability.degraded).length;
+  const blockedCount = capabilities.filter((capability) => capability.blocked).length;
+  const strictFallbackCount = capabilities.filter((capability) => capability.status === 'fallback').length;
+  const errorCount = diagnostics.filter((diagnostic) => diagnostic.severity === 'error').length;
+  const ok = errorCount === 0 && (!sizeBudgetReport || sizeBudgetReport.ok !== false);
+
+  return {
+    schema: MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA,
+    ok,
+    status: ok ? (degradedCount > 0 ? 'degraded' : 'ready') : 'blocked',
+    profile,
+    enforced: prodEnforced,
+    runtimeExpectedStatus: kernel && kernel.enabled ? 'booted' : 'report-only',
+    capabilityCount: capabilities.length,
+    activeCount,
+    degradedCount,
+    blockedCount,
+    strictFallbackCount,
+    capabilities,
+    capabilityKeys: capabilities.map((capability) => capability.key),
+    bundleBudget: sizeBudgetReport ? {
+      schema: sizeBudgetReport.schema,
+      ok: sizeBudgetReport.ok,
+      status: sizeBudgetReport.status,
+      mode: sizeBudgetReport.mode,
+      profile: sizeBudgetReport.profile,
+      baselineBytes: sizeBudgetReport.baselineBytes,
+      bundleBytes: sizeBudgetReport.bundleBytes,
+      runtimeExpectedStatus: kernel && kernel.enabled ? 'booted' : 'report-only'
+    } : {
+      ok: true,
+      status: 'pending',
+      runtimeExpectedStatus: kernel && kernel.enabled ? 'booted' : 'report-only'
+    },
+    releaseConstraint: {
+      schema: 'xtend.maraca.production-bundle-release-constraint.v1',
+      enforced: prodEnforced,
+      blocked: !ok,
+      reason: ok ? 'production-bundle-ready' : 'production-bundle-closure-blocked',
+      sizeBudgetPass: !sizeBudgetReport || sizeBudgetReport.ok !== false,
+      strictFallbackCount,
+      blockedCapabilityKeys: blockingCapabilities.map((capability) => capability.key)
+    },
+    sourceToSea: {
+      source: sourceRef,
+      sourceFingerprint,
+      artifactFingerprints: {
+        templateSource: templateArtifacts && templateArtifacts.sourceFingerprint || null,
+        templateBundle: templateArtifacts && templateArtifacts.artifactBundleFingerprint || null,
+        bundle: bundleFingerprint
+      },
+      bundle: {
+        fileCount: bundleFiles.length,
+        entry: options.entryFile && options.entryFile.fileName || null,
+        bytes: bundleFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0)
+      },
+      runtimeFeatureStatus: capabilities.map((capability) => ({
+        key: capability.key,
+        supported: capability.supported,
+        active: capability.active,
+        status: capability.status,
+        runtimeExpectedStatus: capability.runtimeExpectedStatus
+      })),
+      tests: [
+        'node scripts/run_xtend_tests.js maraca-bundle-report rmt-stack-docs epic14-rmt-tooling-release-gates --json',
+        'node scripts/run_xtend_tests.js maraca-bundle maraca-kernel-orchestration --json'
+      ],
+      links: capabilities.map((capability) => ({
+        capability: capability.key,
+        source: sourceRef,
+        sourceFingerprint,
+        runtimeStatus: capability.status,
+        runtimeExpectedStatus: capability.runtimeExpectedStatus,
+        bundleFingerprint,
+        tests: ['maraca-bundle-report', 'rmt-stack-docs', 'epic14-rmt-tooling-release-gates']
+      }))
+    },
+    diagnostics
+  };
+}
+
 function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
   const repoRoot = plan.rootDir || path.dirname(path.dirname(__filename));
   const entryFile = bundleFiles.find((file) => file.isEntry) || {
@@ -4521,11 +6790,84 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
     bytes: fs.existsSync(plan.outputs.entry) ? fs.statSync(plan.outputs.entry).size : 0
   };
   const totalBytes = bundleFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0) || entryFile.bytes;
+  const kernelFeatureAdoption = plan.kernel && plan.kernel.featureAdoption
+    ? plan.kernel.featureAdoption
+    : createMaracaKernelFeatureAdoptionReport({
+        rootDir: repoRoot,
+        enabled: Boolean(plan.kernel && plan.kernel.enabled),
+        runtimeModules: plan.runtimeModules || []
+      });
+  const kernelProductSurface = plan.kernel && plan.kernel.productSurface
+    ? plan.kernel.productSurface
+    : createMaracaKernelProductSurfaceReport({
+        rootDir: repoRoot,
+        bootMode: plan.kernel && plan.kernel.bootMode || 'direct'
+      });
+  const kernelPrewarmWorker = plan.kernel && plan.kernel.prewarmWorker
+    ? plan.kernel.prewarmWorker
+    : createMaracaPrewarmWorkerRuntimeReport(plan.kernel, plan);
+  const kernelPanicRecovery = plan.kernel && plan.kernel.panicRecovery
+    ? plan.kernel.panicRecovery
+    : createMaracaPanicRecoveryReport({
+        rootDir: repoRoot,
+        enabled: Boolean(plan.kernel && plan.kernel.enabled),
+        runtimeModules: plan.kernel && plan.kernel.runtimeModules || plan.runtimeModules || []
+      });
+  const kernelTrustedDom = plan.kernel && plan.kernel.trustedDom
+    ? plan.kernel.trustedDom
+    : createMaracaTrustedDomReport({
+        panicRecovery: kernelPanicRecovery
+      });
+  const kernelPolicyParity = plan.kernel && plan.kernel.policyParity
+    ? plan.kernel.policyParity
+    : createMaracaPolicyParityReport({
+        rootDir: repoRoot,
+        enabled: Boolean(plan.kernel && plan.kernel.enabled),
+        strict: Boolean(plan.kernel && plan.kernel.strict),
+        runtimeModules: plan.kernel && plan.kernel.runtimeModules || plan.runtimeModules || [],
+        panicRecovery: kernelPanicRecovery,
+        trustedDom: kernelTrustedDom
+      });
+  const kernelSecurity = plan.kernel && plan.kernel.security
+    ? plan.kernel.security
+    : {
+        schema: 'xtend.maraca.kernel-security-report.v1',
+        supported: Boolean(plan.kernel && plan.kernel.enabled),
+        status: kernelPolicyParity.ok && kernelPanicRecovery.enabled && kernelTrustedDom.supported ? 'available' : 'degraded',
+        panicRecovery: kernelPanicRecovery,
+        trustedDom: kernelTrustedDom,
+        policyParity: kernelPolicyParity,
+        diagnostics: []
+      };
+  const templateArtifacts = finalizeMaracaTemplateArtifactsReport(
+    plan.templateArtifacts || createMaracaTemplateArtifactsReport({
+      rootDir: repoRoot,
+      status: 'unavailable'
+    }),
+    bundleFiles,
+    repoRoot
+  );
+  const performance = finalizeMaracaPerformanceReport(
+    plan.performance || createMaracaPerformanceReport({
+      rootDir: repoRoot,
+      status: 'unavailable'
+    }),
+    bundleFiles,
+    repoRoot,
+    {
+      runtimeExpectedStatus: plan.kernel && plan.kernel.enabled ? 'booted' : 'report-only'
+    }
+  );
+  const productionClosure = createMaracaProductionBundleClosure(plan, sizeBudgetReport, {
+    bundleFiles,
+    entryFile,
+    repoRoot
+  });
 
   return {
     schema: MARACA_BUNDLE_REPORT_SCHEMA,
-    ok: true,
-    status: 'built',
+    ok: productionClosure.ok && (!sizeBudgetReport || sizeBudgetReport.ok !== false),
+    status: productionClosure.ok && (!sizeBudgetReport || sizeBudgetReport.ok !== false) ? 'built' : 'blocked',
     source: plan.source,
     outputDir: repoRelative(plan.outputDir, repoRoot),
     profile: plan.profile,
@@ -4560,6 +6902,14 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       unknown: []
     },
     rmtApp: createRmtAppRuntimeReport(plan),
+    kernelFeatureAdoption,
+    kernelFeatureAdoptionClosure: productionClosure,
+    productionClosure,
+    templateArtifacts,
+    performance,
+    panicRecovery: kernelPanicRecovery,
+    trustedDom: kernelTrustedDom,
+    policyParity: kernelPolicyParity,
     runtimeModules: plan.runtimeModules,
     stackModules: (plan.stackModules || []).map((entry) => ({
       id: entry.id,
@@ -4581,6 +6931,7 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
     kernel: plan.kernel ? {
       schema: plan.kernel.schema,
       mode: plan.kernel.mode,
+      bootMode: plan.kernel.bootMode || 'direct',
       enabled: plan.kernel.enabled,
       status: plan.kernel.status,
       planStatus: plan.kernel.status,
@@ -4589,6 +6940,14 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       artifactSchema: plan.kernel.artifact && plan.kernel.artifact.schema || null,
       recordsSchema: plan.kernel.artifact && plan.kernel.artifact.records && plan.kernel.artifact.records.schema || null,
       runtimeModules: plan.kernel.runtimeModules,
+      featureAdoption: kernelFeatureAdoption,
+      productSurface: kernelProductSurface,
+      prewarmWorker: kernelPrewarmWorker,
+      panicRecovery: kernelPanicRecovery,
+      trustedDom: kernelTrustedDom,
+      policyParity: kernelPolicyParity,
+      security: kernelSecurity,
+      performanceSummary: performance && performance.summary || null,
       summary: plan.kernel.summary,
       diagnostics: plan.kernel.diagnostics
     } : null,
@@ -4602,8 +6961,24 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       supported: plan.hydration.supported,
       artifactSchema: plan.hydration.artifact && plan.hydration.artifact.schema || null,
       runtimeModules: plan.hydration.runtimeModules,
+      workerPrerender: plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender || null,
+      serverPrerender: plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender || null,
       summary: plan.hydration.summary,
       diagnostics: plan.hydration.diagnostics
+    } : null,
+    warmReentry: plan.warmReentry ? {
+      schema: plan.warmReentry.schema,
+      ok: plan.warmReentry.ok,
+      enabled: plan.warmReentry.enabled,
+      status: plan.warmReentry.status,
+      runtimeExpectedStatus: plan.warmReentry.runtimeExpectedStatus,
+      optional: plan.warmReentry.optional,
+      supportedFiberKinds: plan.warmReentry.supportedFiberKinds,
+      observedFiberKinds: plan.warmReentry.observedFiberKinds,
+      backpressurePolicy: plan.warmReentry.backpressurePolicy,
+      destroyInvalidation: plan.warmReentry.destroyInvalidation,
+      summary: plan.warmReentry.summary,
+      diagnostics: plan.warmReentry.diagnostics
     } : null,
     validation: plan.validation ? {
       schema: plan.validation.schema,
@@ -4630,6 +7005,20 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       runtimeModules: plan.transitions.runtimeModules,
       summary: plan.transitions.summary,
       diagnostics: plan.transitions.diagnostics
+    } : null,
+    lifecycle: plan.lifecycle ? {
+      schema: plan.lifecycle.schema,
+      ok: plan.lifecycle.ok,
+      status: plan.lifecycle.status,
+      strict: plan.lifecycle.strict,
+      runtimeExpectedStatus: plan.lifecycle.runtimeExpectedStatus,
+      supportedOperations: plan.lifecycle.supportedOperations,
+      requiresDestroyChain: plan.lifecycle.requiresDestroyChain,
+      surfaceDestroyReleaseCount: plan.lifecycle.surfaceDestroyReleaseCount,
+      disposeOnSurfaceDestroyResourceCount: plan.lifecycle.disposeOnSurfaceDestroyResourceCount,
+      destroyOnCloseSurfaceCount: plan.lifecycle.destroyOnCloseSurfaceCount,
+      sourceToSea: plan.lifecycle.sourceToSea,
+      diagnostics: plan.lifecycle.diagnostics
     } : null,
     publicNameReservations: plan.publicNameReservations,
     toolchain: {
@@ -4671,7 +7060,21 @@ function createMaracaSizeBudgetReport(input) {
   try {
     loaderBytes = fs.statSync(path.join(path.dirname(path.dirname(__filename)), 'xtend-loader.js')).size;
   } catch (_) {}
-  const baselineBytes = loaderBytes + selectedBytes + stackBytes;
+  let contractPayloadBytes = 0;
+  try {
+    contractPayloadBytes = Buffer.byteLength(JSON.stringify({
+      orchestration: plan.orchestration && plan.orchestration.artifact || null,
+      kernel: plan.kernel && plan.kernel.artifact || null,
+      hydration: plan.hydration && plan.hydration.artifact || null,
+      validation: plan.validation && plan.validation.artifact || null,
+      transitions: plan.transitions && plan.transitions.artifact || null,
+      templateArtifacts: plan.templateArtifacts && plan.templateArtifacts.summary || null,
+      performance: plan.performance && plan.performance.summary || null
+    }));
+  } catch (_) {
+    contractPayloadBytes = 0;
+  }
+  const baselineBytes = loaderBytes + selectedBytes + stackBytes + contractPayloadBytes;
   const bundleBytes = Number(input.entryBytes || 0);
   const ratio = baselineBytes > 0 ? bundleBytes / baselineBytes : 1;
   const budgetMode = plan.sizeBudgetMode || 'strict';
@@ -4693,6 +7096,7 @@ function createMaracaSizeBudgetReport(input) {
       loaderBytes,
       selectedComponentBytes: selectedBytes,
       stackModuleBytes: stackBytes,
+      contractPayloadBytes,
       bytes: baselineBytes
     },
     baselineBytes,
@@ -4861,17 +7265,29 @@ module.exports = {
   MARACA_BUILD_PLAN_SCHEMA,
   MARACA_BUNDLE_REPORT_SCHEMA,
   MARACA_SIZE_BUDGET_REPORT_SCHEMA,
+  MARACA_PERFORMANCE_REPORT_SCHEMA,
   MARACA_ORCHESTRATION_PLAN_SCHEMA,
   MARACA_KERNEL_PLAN_SCHEMA,
   MARACA_HYDRATION_PLAN_SCHEMA,
+  MARACA_WARM_REENTRY_REPORT_SCHEMA,
+  MARACA_PREWARM_WORKER_RUNTIME_SCHEMA,
+  MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA,
   MARACA_VALIDATION_PLAN_SCHEMA,
   MARACA_TRANSITION_PLAN_SCHEMA,
+  MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA,
   COMPONENT_UNKNOWN_CODE,
   COMPONENT_DYNAMIC_CODE,
   DEFAULT_SOURCE,
   createMaracaBuildPlan,
   buildMaracaBundle,
   buildMaracaBundleAsync,
+  createMaracaKernelFeatureAdoptionReport,
+  createMaracaPanicRecoveryReport,
+  createMaracaTrustedDomReport,
+  createMaracaPolicyParityReport,
+  createMaracaTemplateArtifactsReport,
+  createMaracaPerformanceReport,
+  createMaracaProductionBundleClosure,
   createMaracaSizeBudgetReport,
   getMaracaToolchainAvailability
 };

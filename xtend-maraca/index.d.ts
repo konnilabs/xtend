@@ -2,18 +2,24 @@ export const MARACA_PACKAGE_SCHEMA: 'xtend.maraca.package-metadata.v1';
 export const MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v1';
 export const MARACA_BUNDLE_REPORT_SCHEMA: 'xtend.maraca.bundle-report.v1';
 export const MARACA_SIZE_BUDGET_REPORT_SCHEMA: 'xtend.maraca.size-budget-report.v1';
+export const MARACA_PERFORMANCE_REPORT_SCHEMA: 'xtend.maraca.performance-report.v1';
 export const MARACA_ORCHESTRATION_PLAN_SCHEMA: 'xtend.maraca.orchestration-plan.v1';
 export const MARACA_KERNEL_PLAN_SCHEMA: 'xtend.maraca.kernel-plan.v1';
 export const MARACA_HYDRATION_PLAN_SCHEMA: 'xtend.maraca.hydration-plan.v1';
+export const MARACA_WARM_REENTRY_REPORT_SCHEMA: 'xtend.maraca.warm-reentry-report.v1';
+export const MARACA_PREWARM_WORKER_RUNTIME_SCHEMA: 'xtend.maraca.prewarm-worker-runtime.v1';
 export const MARACA_VALIDATION_PLAN_SCHEMA: 'xtend.maraca.validation-plan.v1';
 export const MARACA_TRANSITION_PLAN_SCHEMA: 'xtend.maraca.transition-plan.v1';
+export const MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA: 'xtend.maraca.template-artifacts-report.v1';
+export const MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA: 'xtend.maraca.production-bundle-closure.v1';
 
 export type MaracaProfile = 'debug' | 'production' | 'max';
 export type MaracaLazyMode = 'route' | 'component' | 'none';
 export type MaracaCssMode = 'inline' | 'external';
 export type MaracaOrchestrationMode = 'auto' | 'strict' | 'off';
 export type MaracaKernelMode = 'auto' | 'strict' | 'off';
-export type MaracaHydrationMode = 'auto' | 'strict' | 'off';
+export type MaracaKernelBootMode = 'direct' | 'productSurface';
+export type MaracaHydrationMode = 'auto' | 'strict' | 'off' | 'warm' | 'prewarm';
 export type MaracaValidationMode = 'auto' | 'strict' | 'off';
 export type MaracaTransitionMode = 'auto' | 'strict' | 'off';
 
@@ -42,6 +48,10 @@ export interface MaracaBuildInput {
   kernel?: MaracaKernelMode;
   kernelMode?: MaracaKernelMode;
   'kernel-mode'?: MaracaKernelMode;
+  kernelBootMode?: MaracaKernelBootMode;
+  kernelBoot?: MaracaKernelBootMode;
+  'kernel-boot-mode'?: MaracaKernelBootMode;
+  'kernel-boot'?: MaracaKernelBootMode;
   hydration?: MaracaHydrationMode;
   hydrationMode?: MaracaHydrationMode;
   'hydration-mode'?: MaracaHydrationMode;
@@ -56,6 +66,13 @@ export interface MaracaBuildInput {
   json?: boolean;
   allowDynamicComponents?: boolean;
   'allow-dynamic-components'?: boolean | string;
+  enablePrewarmWorker?: boolean | string;
+  'enable-prewarm-worker'?: boolean | string;
+  prewarmWorker?: boolean | string;
+  policyParityReports?: Array<Record<string, unknown>>;
+  policyParityContracts?: Array<Record<string, unknown>>;
+  policyParityRuntimeHooks?: string[];
+  policyParityRequiredFactories?: string[];
   _?: string[];
 }
 
@@ -72,6 +89,317 @@ export interface MaracaDiagnostic {
   event?: string;
   resource?: string;
   target?: string;
+  [key: string]: unknown;
+}
+
+export interface MaracaKernelFeatureAdoptionReport {
+  schema: 'xtend.rmt-kernel-feature-adoption-report.v1';
+  contract: 'xtend.rmt-kernel-feature-adoption.v1';
+  ok: boolean;
+  status: string;
+  capabilityKeys: string[];
+  capabilityCount: number;
+  supportedCount: number;
+  activeCount: number;
+  degradedCount: number;
+  blockedCount: number;
+  capabilities: Array<{
+    key: string;
+    supported: boolean;
+    active: boolean;
+    status: string;
+    runtimeRequired: boolean;
+    prodDefault: string;
+    diagnosticsRequired: boolean;
+    strictFallbackAllowed: boolean;
+    requiredFactories: string[];
+    missingFactories: string[];
+    diagnostics: MaracaDiagnostic[];
+    [key: string]: unknown;
+  }>;
+  diagnostics: MaracaDiagnostic[];
+}
+
+export interface MaracaKernelProductSurfaceReport {
+  schema: 'xtend.maraca.kernel-product-surface-bootstrap.v1';
+  bootMode: MaracaKernelBootMode;
+  supported: boolean;
+  status: string;
+  entryPoints: Array<{ kind: string; name: string; [key: string]: unknown }>;
+  entryPointCount: number;
+  entryPointNames: string[];
+  optionalCompat: Record<string, unknown>;
+  runtimeFactories: Record<string, boolean>;
+  diagnostics: MaracaDiagnostic[];
+}
+
+export interface MaracaPrewarmWorkerRuntimeReport {
+  schema: typeof MARACA_PREWARM_WORKER_RUNTIME_SCHEMA;
+  enabled: boolean;
+  supported: boolean;
+  optional: boolean;
+  status: string;
+  runtimeExpectedStatus: string;
+  workerName: string;
+  workerType: string;
+  topologySchema: 'xtend.rmt.prewarm-worker-topology.v1';
+  requiredHostApis: string[];
+  topologyFields: string[];
+  ownership: Record<string, boolean>;
+  fallbackPolicy: Record<string, unknown>;
+  diagnostics: MaracaDiagnostic[];
+  summary: Record<string, unknown>;
+}
+
+export interface MaracaPanicRecoveryReport {
+  schema: 'xtend.maraca.kernel-panic-recovery-report.v1';
+  supported: boolean;
+  enabled: boolean;
+  status: string;
+  lane: 'diagnostics' | string;
+  runtimeExpectedStatus: string;
+  devApis: string[];
+  strictDiagnostics: {
+    trustVerdict: boolean;
+    panicEvent: boolean;
+    recoveryOutcome: boolean;
+    quarantineScope: boolean;
+    safeSnapshot: boolean;
+    [key: string]: unknown;
+  };
+  counters: {
+    trustVerdictCount: number;
+    blockedTrustVerdictCount: number;
+    panicEventCount: number;
+    recoveryOutcomeCount: number;
+    safeSnapshotCount: number;
+    quarantineScopeCount: number;
+    [key: string]: unknown;
+  };
+  diagnostics: MaracaDiagnostic[];
+}
+
+export interface MaracaTrustedDomReport {
+  schema: 'xtend.maraca.kernel-trusted-dom-report.v1';
+  supported: boolean;
+  status: string;
+  trustBoundary: string;
+  sanitizerSchema: string;
+  sinkAdapterSchema: string;
+  verdictSchema: string;
+  panicCandidateSupported: boolean;
+  strictDiagnostics: {
+    trustVerdict: boolean;
+    unsafeHtmlBlocked: boolean;
+    panicCandidate: boolean;
+    [key: string]: unknown;
+  };
+  diagnostics: MaracaDiagnostic[];
+}
+
+export interface MaracaKernelSecurityReport {
+  schema: 'xtend.maraca.kernel-security-report.v1';
+  supported: boolean;
+  status: string;
+  panicRecovery: MaracaPanicRecoveryReport | null;
+  trustedDom: MaracaTrustedDomReport | null;
+  policyParity: MaracaPolicyParityReport | null;
+  diagnostics: MaracaDiagnostic[];
+}
+
+export interface MaracaPolicyParityReport {
+  schema: 'xtend.rmt.kernel-policy-parity-report.v1';
+  paritySchema: 'xtend.rmt.kernel-policy-parity.v1' | string;
+  driftSchema?: 'xtend.rmt.kernel-policy-parity-drift.v1' | string;
+  status: string;
+  ok: boolean;
+  compileTimeBlockCount: number;
+  appliedPolicyCount: number;
+  driftCount: number;
+  sourcePolicySchemas: string[];
+  runtimeScopes: string[];
+  runtimeCapabilities: {
+    hooks: string[];
+    missingDefaultHooks?: string[];
+    [key: string]: unknown;
+  };
+  compileTimeBlocks: Array<Record<string, unknown>>;
+  appliedPolicies: Array<Record<string, unknown>>;
+  drift: Array<Record<string, unknown>>;
+  requiredFactories: string[];
+  missingFactories: string[];
+  unsafeTrustSinkCount: number;
+  bundleCapabilities: {
+    runtimeModules: string[];
+    runtimeTrustSinks: Record<string, unknown>;
+    surfaceLifecycle: Record<string, unknown>;
+    panicRecovery: MaracaPanicRecoveryReport | null;
+    trustedDom: MaracaTrustedDomReport | null;
+    [key: string]: unknown;
+  };
+  releaseConstraint: {
+    schema: 'xtend.maraca.policy-parity-release-constraint.v1';
+    strict: boolean;
+    enforced: boolean;
+    blocked: boolean;
+    reason: string;
+    [key: string]: unknown;
+  };
+  diagnostics: MaracaDiagnostic[];
+}
+
+export interface MaracaWorkerPrerenderReport {
+  schema: 'xtend.rmt.app-hydration-capability.v1' | string;
+  id: 'workerPrerender' | string;
+  mode: 'worker_prerender_hydrate' | string;
+  supported: boolean;
+  degraded: boolean;
+  status: 'available' | 'supported' | 'degraded' | string;
+  requested: boolean;
+  recordCount: number;
+  runtimeHooks?: string[];
+  fabric?: Record<string, unknown>;
+  validation?: Record<string, unknown>;
+}
+
+export interface MaracaServerPrerenderReport {
+  schema: 'xtend.maraca.server-prerender-interop.v1' | string;
+  id: 'serverPrerender' | string;
+  mode: 'server_prerender_hydrate' | string;
+  supported: boolean;
+  degraded: boolean;
+  status: 'available' | 'supported' | 'degraded' | string;
+  requested: boolean;
+  recordCount: number;
+  hydrateResponseCompatible: boolean;
+  adapterKinds: Array<{
+    kind: 'kernel-server-runtime' | 'node-ssr' | 'php-ssr' | string;
+    adapterSchema: string;
+    supportStatus: string;
+    hydrateResponseCompatible: boolean;
+    [key: string]: unknown;
+  }>;
+  evidence?: Record<string, unknown>;
+  diagnostics?: MaracaDiagnostic[];
+}
+
+export interface MaracaTemplateArtifactsReport {
+  schema: typeof MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA;
+  ok: boolean;
+  status: string;
+  supported: boolean;
+  trusted: boolean;
+  factory: {
+    name: string;
+    supported: boolean;
+    source: string;
+  };
+  documentIds: string[];
+  templateIds: string[];
+  documentCount?: number;
+  templateCount?: number;
+  sourceFingerprint: string;
+  artifactBundleFingerprint: string;
+  bundleFingerprint?: string | null;
+  runtimeProfileHints: string[];
+  documents?: Array<Record<string, unknown>>;
+  artifactBundle?: Record<string, unknown> | null;
+  registration: {
+    eligible: boolean;
+    enabled: boolean;
+    status: string;
+    reason?: string;
+  };
+  sourceToSea: {
+    compilerDocumentId?: string | null;
+    artifactDocumentIds: string[];
+    documentIdsMatchCompiler: boolean;
+    compilerTemplateIds?: string[];
+    artifactTemplateIds?: string[];
+    bundleFileCount?: number;
+    bundleFingerprint?: string | null;
+  };
+  diagnostics: MaracaDiagnostic[];
+}
+
+export interface MaracaPerformanceReport {
+  schema: typeof MARACA_PERFORMANCE_REPORT_SCHEMA;
+  ok: boolean;
+  status: string;
+  supported: boolean;
+  runtimeExpectedStatus: string;
+  factory: {
+    name: string;
+    supported: boolean;
+    source: string;
+  };
+  budgetClasses: string[];
+  budgetProfiles?: Array<Record<string, unknown>>;
+  budgetSnapshot: Record<string, unknown> | null;
+  budgetMissDiagnostics: MaracaDiagnostic[];
+  backpressureProfile: Record<string, unknown> | null;
+  runReport: Record<string, unknown> | null;
+  ciSummary: Record<string, unknown> | null;
+  fileArtifact: Record<string, unknown> | null;
+  baselineComparison: Record<string, unknown> | null;
+  bundleFingerprint?: string | null;
+  summary?: Record<string, unknown>;
+  diagnostics: MaracaDiagnostic[];
+}
+
+export interface MaracaProductionBundleCapability {
+  schema: 'xtend.maraca.production-bundle-capability.v1';
+  key: string;
+  label: string;
+  supported: boolean;
+  active: boolean;
+  optional: boolean;
+  requiredInProd: boolean;
+  status: string;
+  runtimeExpectedStatus: string;
+  degraded: boolean;
+  blocked: boolean;
+  diagnostics: MaracaDiagnostic[];
+  sourceToSea: Record<string, unknown>;
+  evidence: Record<string, unknown>;
+}
+
+export interface MaracaProductionBundleClosureReport {
+  schema: typeof MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA;
+  ok: boolean;
+  status: string;
+  profile: MaracaProfile;
+  enforced: boolean;
+  runtimeExpectedStatus: string;
+  capabilityCount: number;
+  activeCount: number;
+  degradedCount: number;
+  blockedCount: number;
+  strictFallbackCount: number;
+  capabilities: MaracaProductionBundleCapability[];
+  capabilityKeys: string[];
+  bundleBudget: Record<string, unknown>;
+  releaseConstraint: {
+    schema: 'xtend.maraca.production-bundle-release-constraint.v1';
+    enforced: boolean;
+    blocked: boolean;
+    reason: string;
+    sizeBudgetPass: boolean;
+    strictFallbackCount: number;
+    blockedCapabilityKeys: string[];
+    [key: string]: unknown;
+  };
+  sourceToSea: {
+    source: string;
+    sourceFingerprint: string;
+    artifactFingerprints: Record<string, unknown>;
+    bundle: Record<string, unknown>;
+    runtimeFeatureStatus: Array<Record<string, unknown>>;
+    tests: string[];
+    links: Array<Record<string, unknown>>;
+    [key: string]: unknown;
+  };
+  diagnostics: MaracaDiagnostic[];
 }
 
 export interface MaracaComponentRecord {
@@ -97,6 +425,7 @@ export interface MaracaBuildPlan {
   stackMode?: 'plan' | 'runtime' | 'full' | 'none';
   orchestrationMode?: MaracaOrchestrationMode;
   kernelMode?: MaracaKernelMode;
+  kernelBootMode?: MaracaKernelBootMode;
   hydrationMode?: MaracaHydrationMode;
   validationMode?: MaracaValidationMode;
   transitionsMode?: MaracaTransitionMode;
@@ -122,18 +451,30 @@ export interface MaracaBuildPlan {
     supported: boolean;
     artifact?: unknown;
     runtimeModules: string[];
+    workerPrerender?: MaracaWorkerPrerenderReport | null;
+    serverPrerender?: MaracaServerPrerenderReport | null;
     diagnostics: MaracaDiagnostic[];
     summary: Record<string, unknown>;
   };
+  templateArtifacts?: MaracaTemplateArtifactsReport;
+  performance?: MaracaPerformanceReport;
   kernel?: {
     schema: typeof MARACA_KERNEL_PLAN_SCHEMA;
     mode: MaracaKernelMode;
+    bootMode?: MaracaKernelBootMode;
     strict: boolean;
     enabled: boolean;
     status: string;
     supported: boolean;
     artifact?: unknown;
     runtimeModules: string[];
+    featureAdoption?: MaracaKernelFeatureAdoptionReport;
+    productSurface?: MaracaKernelProductSurfaceReport;
+    prewarmWorker?: MaracaPrewarmWorkerRuntimeReport;
+    panicRecovery?: MaracaPanicRecoveryReport;
+    trustedDom?: MaracaTrustedDomReport;
+    policyParity?: MaracaPolicyParityReport;
+    security?: MaracaKernelSecurityReport;
     diagnostics: MaracaDiagnostic[];
     summary: Record<string, unknown>;
   };
@@ -146,6 +487,23 @@ export interface MaracaBuildPlan {
     supported: boolean;
     artifact?: unknown;
     runtimeModules: string[];
+    workerPrerender?: MaracaWorkerPrerenderReport | null;
+    serverPrerender?: MaracaServerPrerenderReport | null;
+    diagnostics: MaracaDiagnostic[];
+    summary: Record<string, unknown>;
+  };
+  warmReentry?: {
+    schema: typeof MARACA_WARM_REENTRY_REPORT_SCHEMA;
+    ok: boolean;
+    enabled: boolean;
+    status: string;
+    supported: boolean;
+    optional: boolean;
+    runtimeExpectedStatus: string;
+    supportedFiberKinds: string[];
+    observedFiberKinds: string[];
+    backpressurePolicy: Record<string, unknown>;
+    destroyInvalidation: Record<string, unknown>;
     diagnostics: MaracaDiagnostic[];
     summary: Record<string, unknown>;
   };
@@ -188,6 +546,14 @@ export interface MaracaBundleReport {
   vendor?: boolean;
   componentMode?: string;
   stackMode?: string;
+  kernelFeatureAdoption?: MaracaKernelFeatureAdoptionReport;
+  kernelFeatureAdoptionClosure?: MaracaProductionBundleClosureReport;
+  productionClosure?: MaracaProductionBundleClosureReport;
+  templateArtifacts?: MaracaTemplateArtifactsReport;
+  performance?: MaracaPerformanceReport;
+  panicRecovery?: MaracaPanicRecoveryReport;
+  trustedDom?: MaracaTrustedDomReport;
+  policyParity?: MaracaPolicyParityReport;
   orchestration?: {
     schema: typeof MARACA_ORCHESTRATION_PLAN_SCHEMA;
     mode: MaracaOrchestrationMode;
@@ -196,18 +562,28 @@ export interface MaracaBundleReport {
     supported: boolean;
     artifactSchema?: string | null;
     runtimeModules: string[];
+    workerPrerender?: MaracaWorkerPrerenderReport | null;
+    serverPrerender?: MaracaServerPrerenderReport | null;
     summary: Record<string, unknown>;
     diagnostics: MaracaDiagnostic[];
   };
   kernel?: {
     schema: typeof MARACA_KERNEL_PLAN_SCHEMA;
     mode: MaracaKernelMode;
+    bootMode?: MaracaKernelBootMode;
     enabled: boolean;
     status: string;
     supported: boolean;
     artifactSchema?: string | null;
     recordsSchema?: string | null;
     runtimeModules: string[];
+    featureAdoption?: MaracaKernelFeatureAdoptionReport;
+    productSurface?: MaracaKernelProductSurfaceReport;
+    prewarmWorker?: MaracaPrewarmWorkerRuntimeReport;
+    panicRecovery?: MaracaPanicRecoveryReport;
+    trustedDom?: MaracaTrustedDomReport;
+    policyParity?: MaracaPolicyParityReport;
+    security?: MaracaKernelSecurityReport;
     summary: Record<string, unknown>;
     diagnostics: MaracaDiagnostic[];
   };
@@ -219,6 +595,22 @@ export interface MaracaBundleReport {
     supported: boolean;
     artifactSchema?: string | null;
     runtimeModules: string[];
+    workerPrerender?: MaracaWorkerPrerenderReport | null;
+    serverPrerender?: MaracaServerPrerenderReport | null;
+    summary: Record<string, unknown>;
+    diagnostics: MaracaDiagnostic[];
+  };
+  warmReentry?: {
+    schema: typeof MARACA_WARM_REENTRY_REPORT_SCHEMA;
+    ok: boolean;
+    enabled: boolean;
+    status: string;
+    runtimeExpectedStatus: string;
+    optional: boolean;
+    supportedFiberKinds: string[];
+    observedFiberKinds: string[];
+    backpressurePolicy: Record<string, unknown>;
+    destroyInvalidation: Record<string, unknown>;
     summary: Record<string, unknown>;
     diagnostics: MaracaDiagnostic[];
   };
@@ -284,6 +676,65 @@ export function buildMaracaBundleAsync(input?: string | MaracaBuildInput, option
   bundleReport: MaracaBundleReport | null;
   sizeBudgetReport: MaracaSizeBudgetReport | null;
 }>;
+export function createMaracaKernelFeatureAdoptionReport(input?: {
+  rootDir?: string;
+  enabled?: boolean;
+  runtimeModules?: string[];
+  planFeatureAdoption?: MaracaKernelFeatureAdoptionReport | null;
+  kernelApi?: Record<string, unknown> | null;
+  activeCapabilities?: Record<string, boolean>;
+}): MaracaKernelFeatureAdoptionReport;
+export function createMaracaPanicRecoveryReport(input?: {
+  rootDir?: string;
+  enabled?: boolean;
+  runtimeModules?: string[];
+}): MaracaPanicRecoveryReport;
+export function createMaracaTrustedDomReport(input?: {
+  panicRecovery?: MaracaPanicRecoveryReport | null;
+  rootDir?: string;
+  enabled?: boolean;
+  runtimeModules?: string[];
+}): MaracaTrustedDomReport;
+export function createMaracaPolicyParityReport(input?: {
+  rootDir?: string;
+  strict?: boolean;
+  enabled?: boolean;
+  runtimeModules?: string[];
+  panicRecovery?: MaracaPanicRecoveryReport | null;
+  trustedDom?: MaracaTrustedDomReport | null;
+  compileResult?: Record<string, unknown> | null;
+  coreDocument?: Record<string, unknown> | null;
+  policyParityReports?: Array<Record<string, unknown>>;
+  policyParityContracts?: Array<Record<string, unknown>>;
+  policyParityRuntimeHooks?: string[] | null;
+  policyParityRequiredFactories?: string[] | null;
+}): MaracaPolicyParityReport;
+export function createMaracaTemplateArtifactsReport(input?: {
+  rootDir?: string;
+  sourcePath?: string;
+  sourceText?: string;
+  profile?: MaracaProfile;
+  compileResult?: Record<string, unknown> | null;
+  coreDocument?: Record<string, unknown> | null;
+  status?: string;
+  manifest?: Record<string, unknown> | null;
+}): MaracaTemplateArtifactsReport;
+export function createMaracaPerformanceReport(input?: {
+  rootDir?: string;
+  sourcePath?: string;
+  sourceText?: string;
+  profile?: MaracaProfile;
+  compileResult?: Record<string, unknown> | null;
+  coreDocument?: Record<string, unknown> | null;
+  status?: string;
+  runtimeExpectedStatus?: string;
+  manifest?: Record<string, unknown> | null;
+}): MaracaPerformanceReport;
+export function createMaracaProductionBundleClosure(
+  plan: MaracaBuildPlan,
+  sizeBudgetReport?: MaracaSizeBudgetReport | null,
+  options?: Record<string, unknown>
+): MaracaProductionBundleClosureReport;
 export function createMaracaSizeBudgetReport(input: {
   plan: MaracaBuildPlan;
   entryPath: string;

@@ -137,6 +137,10 @@ function runSurfaceManagerLazyHydrationSuite(options = {}) {
     'surface-hydration-timeout',
     'snapshotSurfaceLoading()',
     'hydrateSurfaceContent(surfaceRef, options = {})',
+    'registerSurfacePrewarmHandle',
+    'registerSurfaceChunkHandle',
+    '_invalidateSurfaceWarmReentry',
+    'xtend.surface.warm-reentry-invalidation.v1',
     '_showSurfaceSkeleton',
     '_runSurfaceHydration',
     'surfaceLoaderApi',
@@ -162,6 +166,8 @@ function runSurfaceManagerLazyHydrationSuite(options = {}) {
     'surface-hydration-timeout',
     'snapshotSurfaceLoading',
     'hydrateSurfaceContent',
+    'registerSurfacePrewarmHandle',
+    'registerSurfaceChunkHandle',
     'surface-content-hydrated'
   ], 'x-surface-manager lazy hydration public types');
 
@@ -169,7 +175,7 @@ function runSurfaceManagerLazyHydrationSuite(options = {}) {
     assertTextIncludesAll(context, artifact, [
       'resolveSurfaceHydrationPolicy',
       'data-surface-hydration-policy',
-      "['eager', 'visible', 'open', 'idle', 'route']"
+      "'prewarm'"
     ], `RMT materialization artifact ${index + 1}`);
   });
 

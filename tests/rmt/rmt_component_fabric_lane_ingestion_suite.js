@@ -163,6 +163,174 @@ function assertRuntimeArtifact(context, rootDir, artifactPath) {
   context.assert(hydrateResult.metadata.fabric.fiberKind === 'component.hydrate', `${artifactPath}: hydration result carries hydrate Fiber kind`);
 }
 
+function createWorkerPrerenderChunk(generation) {
+  return {
+    kind: 'renderman_template_chunk',
+    version: '1.0',
+    executionMode: 'worker_prerender_hydrate',
+    transport: 'worker',
+    rootId: 'worker-root',
+    template: {
+      id: 'worker-card',
+      qualifiedId: 'rkfa.worker.card',
+      namespace: 'rkfa.worker',
+      documentId: 'rkfa.worker',
+      mode: 'html',
+      props: []
+    },
+    target: {
+      elementId: 'worker-card',
+      selector: '#worker-card',
+      ownershipMode: 'hydrate_existing',
+      namespace: 'rkfa.worker'
+    },
+    markup: {
+      html: '<article id="worker-card">Worker</article>',
+      textContent: 'Worker',
+      descriptor: null
+    },
+    hydration: {
+      bindings: [],
+      slots: [],
+      props: [],
+      templateHydration: { mode: 'worker_prerender_hydrate' },
+      errorBoundary: {},
+      reactivityHints: {},
+      ownershipMode: 'hydrate_existing',
+      resourceId: 'template.chunk:rkfa.worker.card',
+      metadata: {
+        hydrationGeneration: generation
+      }
+    },
+    modelSnapshot: {},
+    plan: {
+      executionMode: 'worker_prerender_hydrate',
+      phases: []
+    },
+    renderedAt: 1
+  };
+}
+
+function createWorkerExecutionPath(hydrationStats) {
+  return {
+    normalizeExecutionMode(value, fallbackValue) {
+      return value || fallbackValue || 'worker_prerender_hydrate';
+    },
+    createPrerenderEnvelope(requestInput = {}) {
+      return {
+        kind: 'renderman_template_prerender_request',
+        version: '1.0',
+        executionMode: requestInput.executionMode || 'worker_prerender_hydrate',
+        prerenderTransport: 'worker',
+        rootId: requestInput.rootId || 'worker-root',
+        template: requestInput.template || {
+          id: 'worker-card',
+          qualifiedId: 'rkfa.worker.card',
+          namespace: 'rkfa.worker',
+          documentId: 'rkfa.worker'
+        },
+        target: requestInput.target || {},
+        model: requestInput.model || {},
+        metadata: requestInput.metadata || {},
+        plan: {},
+        requestedAt: 1
+      };
+    },
+    normalizeChunk(chunkInput) {
+      return chunkInput && chunkInput.kind === 'renderman_template_chunk'
+        ? chunkInput
+        : createWorkerPrerenderChunk('fallback');
+    },
+    hydrateTemplate(requestInput = {}) {
+      hydrationStats.count += 1;
+      return {
+        executionMode: 'hydrate_prerendered',
+        plan: requestInput.chunk && requestInput.chunk.plan || {},
+        chunk: requestInput.chunk,
+        islandHandle: null,
+        bindingSession: null,
+        applied: true,
+        deferred: false
+      };
+    },
+    prerenderTemplate() {
+      return createWorkerPrerenderChunk('generated');
+    }
+  };
+}
+
+function assertWorkerPrerenderInterop(context, rootDir, artifactPath) {
+  const modules = createRuntimeModules(context, rootDir, artifactPath);
+  if (!modules) return;
+  const hydrationStats = { count: 0 };
+  const workerAdapter = modules.createRmtTemplateWorkerAdapter({
+    executionPath: createWorkerExecutionPath(hydrationStats)
+  });
+  context.assert(typeof workerAdapter.hydrateResponse === 'function', `${artifactPath}: worker adapter exposes hydrateResponse`);
+  context.assert(typeof workerAdapter.rememberHydrationGeneration === 'function', `${artifactPath}: worker adapter exposes generation dev API`);
+
+  const staleResponse = {
+    kind: 'renderman_template_prerender_response',
+    version: '1.0',
+    ok: true,
+    transport: 'worker',
+    executionMode: 'worker_prerender_hydrate',
+    rootId: 'worker-root',
+    template: null,
+    plan: null,
+    request: null,
+    metadata: {
+      supersessionKey: 'worker-card',
+      hydrationGeneration: '1',
+      hostServiceRequests: [{ service: 'secrets.read' }]
+    },
+    worker: {
+      serviceRequests: [{ service: 'unsafe.host' }]
+    },
+    chunk: createWorkerPrerenderChunk('1'),
+    superseded: false,
+    error: null,
+    requestedAt: 1,
+    respondedAt: 2
+  };
+  const staleHydration = workerAdapter.hydrateResponse(staleResponse, {}, {
+    hydrationKey: 'worker-card',
+    currentGeneration: '2'
+  });
+  context.assert(staleHydration.ok === false && staleHydration.superseded === true, `${artifactPath}: stale worker response is discarded by generation`);
+  context.assert(staleHydration.status === 'superseded', `${artifactPath}: stale worker response reports superseded status`);
+  context.assert(hydrationStats.count === 0, `${artifactPath}: stale worker response does not run hydrateTemplate`);
+  context.assert(staleHydration.blockedHostServiceRequests === 2, `${artifactPath}: stale worker response blocks host service payloads`);
+  context.assert(staleHydration.hostServicesExecuted === 0, `${artifactPath}: worker path does not execute host services`);
+
+  const freshResponse = {
+    ...staleResponse,
+    metadata: {
+      supersessionKey: 'worker-card',
+      hydrationGeneration: '2',
+      hostServiceRequests: [{ service: 'secrets.read' }]
+    },
+    worker: null,
+    chunk: createWorkerPrerenderChunk('2')
+  };
+  const freshHydration = workerAdapter.hydrateResponse(freshResponse, {}, {
+    hydrationKey: 'worker-card',
+    currentGeneration: '2'
+  });
+  context.assert(freshHydration.ok === true && freshHydration.hydrated === true, `${artifactPath}: matching worker response hydrates`);
+  context.assert(freshHydration.trustedDomCommit && freshHydration.trustedDomCommit.mainThread === true, `${artifactPath}: matching worker response records main-thread trusted DOM commit`);
+  context.assert(freshHydration.blockedHostServiceRequests === 1, `${artifactPath}: matching worker response still blocks host service payloads`);
+  context.assert(freshHydration.hostServicesExecuted === 0, `${artifactPath}: matching worker response does not execute host services`);
+  context.assert(hydrationStats.count === 1, `${artifactPath}: matching worker response reaches hydrateTemplate once`);
+
+  context.assert(workerAdapter.rememberHydrationGeneration('worker-card', '3') === true, `${artifactPath}: worker adapter remembers latest hydration generation`);
+  context.assert(workerAdapter.getLatestHydrationGeneration('worker-card') === '3', `${artifactPath}: worker adapter exposes latest hydration generation`);
+  const rememberedStaleHydration = workerAdapter.hydrateResponse(freshResponse, {}, {
+    hydrationKey: 'worker-card'
+  });
+  context.assert(rememberedStaleHydration.superseded === true, `${artifactPath}: remembered generation supersedes older worker response`);
+}
+
 function runRmtComponentFabricLaneIngestionSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir);
   const context = createSuiteContext({
@@ -186,7 +354,10 @@ function runRmtComponentFabricLaneIngestionSuite(options = {}) {
   context.assertIncludes(workpackage, 'Status: `completed`', 'WP-E10-05 is completed');
   context.assertIncludes(runtimeSource, 'resolveFabricContext', 'ESM runtime exposes resolveFabricContext');
   context.assertIncludes(browserSource, 'resolveFabricContext', 'Browser runtime exposes resolveFabricContext');
+  context.assertIncludes(runtimeSource, 'generation_superseded', 'ESM runtime exposes worker prerender generation supersession');
+  context.assertIncludes(browserSource, 'generation_superseded', 'Browser runtime exposes worker prerender generation supersession');
   context.assertIncludes(typesSource, 'RmtXtendComponentFabricContext', 'Types expose Fabric context contract');
+  context.assertIncludes(typesSource, 'getLatestHydrationGeneration', 'Types expose worker prerender generation dev API');
   context.assertIncludes(schemaSource, FABRIC_LANE_INGESTION_SCHEMA, 'RMT schema exposes Fabric lane ingestion metadata');
   context.assert(metadata && metadata.schema === FABRIC_LANE_INGESTION_SCHEMA, 'Package metadata exposes Fabric/Lane ingestion schema');
   context.assert(metadata.localGate === 'node scripts/run_xtend_tests.js rmt-component-fabric-ingestion --json', 'Package metadata exposes local gate');
@@ -194,6 +365,8 @@ function runRmtComponentFabricLaneIngestionSuite(options = {}) {
 
   assertRuntimeArtifact(context, rootDir, 'xtendrmt/rmt-runtime.esm.js');
   assertRuntimeArtifact(context, rootDir, 'xtendrmt/rmt-runtime.browser.js');
+  assertWorkerPrerenderInterop(context, rootDir, 'xtendrmt/rmt-runtime.esm.js');
+  assertWorkerPrerenderInterop(context, rootDir, 'xtendrmt/rmt-runtime.browser.js');
 
   return context.result({
     report: {

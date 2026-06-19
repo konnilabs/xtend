@@ -14,6 +14,15 @@ RMT PHP/Laravel SSR Adapter beschreibt die öffentliche RMT-Oberfläche dieser S
 - Adapter-Schema `xtend.rmt.php-ssr-adapter.v1`.
 - JSONL Streaming über `xtend.rmt.node-ssr-jsonl-frame.v1`, damit PHP Hosts dieselbe inkrementelle Frame-Form wie der Node SSR Adapter verwenden.
 
+## Hydration Response Envelope
+
+`render().response` verwendet `renderman_template_prerender_response` mit
+`executionMode: "server_prerender_hydrate"`. Die Antwort enthält `chunk`,
+`chunks`, `request`, `metadata.adapterKind: "php-ssr"` und
+`hydrate_existing` Ziel-Metadaten, sodass die Client Runtime sie direkt über
+`hydrateResponse` verarbeiten oder bei Diagnosefehlern kontrolliert degradieren
+kann.
+
 ## Beispiel
 
 ```php

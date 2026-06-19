@@ -98,6 +98,8 @@ npm run pack:dry-run
 
 The public docs quality audit is still tracked as an owner handoff through `rmt-ui-maximality-owned-surface-gate-hygiene` until the remaining legacy findings are closed.
 
+Release metadata is anchored in `package.json#xtend`, including `xtend.epic13PackageExportLock` for the published package surface and TypeExports drift gates.
+
 ## Publishing
 
 GitHub Releases can publish `@ccslabs/xtend` to npm with provenance. The publish workflow re-runs release evidence, package dry runs, conditional network evidence and the Native-First/RMT-Owned aggregate before `npm publish --tag latest --provenance --access public`.

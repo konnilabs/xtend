@@ -125,6 +125,8 @@ Use `lazyStrategy: "eager"` when the host wants every selected component loaded 
 
 Read `xtend.maraca.report.json` after every production build. The key fields are `components.selected`, `runtimeModules`, `bundleFiles`, `loader`, `forbiddenRuntimeDependencies` and `toolchain`. A healthy app build should show `loader.usesExternalManifest: false`, `loader.usesXtendLoader: false` and no forbidden runtime dependency on `components/manifest.json`.
 
+For kernel-orchestrated production bundles, also read `productionClosure` and `kernelFeatureAdoptionClosure`. They answer each runtime capability with `supported`, `active`, `degraded`, `blocked`, `runtimeExpectedStatus` and diagnostics. The same section links lifecycle, telemetry, performance, policy parity, warm reentry, prewarm worker and prerender status back to the RMT source fingerprint, bundle fingerprints and release tests.
+
 `xtend.maraca.size.json` compares the modern bundle with a baseline made from the legacy loader plus selected component modules. This is not a generic web performance score; it is a local guardrail that proves Maraca still produces a smaller modern ESM graph for the chosen document.
 
 ## Troubleshooting
