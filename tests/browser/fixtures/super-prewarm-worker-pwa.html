@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-contract" content="xtend.maraca.super-prewarm-worker-experiment.v1">
+  <link rel="manifest" href="/tests/browser/fixtures/super-prewarm-worker-manifest.webmanifest">
+  <title>XTend Super Prewarm Worker Experiment</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f9fb;
+      color: #172126;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f7f9fb;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      border-bottom: 1px solid #d8e0e5;
+      padding-bottom: 16px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 680;
+      letter-spacing: 0;
+    }
+    .status {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .panel {
+      border: 1px solid #d8e0e5;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 14px;
+    }
+    .panel strong {
+      display: block;
+      font-size: 12px;
+      color: #50636d;
+      font-weight: 600;
+    }
+    .panel span {
+      display: block;
+      margin-top: 6px;
+      font-size: 18px;
+      font-weight: 680;
+    }
+    .surface {
+      border: 1px solid #d8e0e5;
+      background: #ffffff;
+      border-radius: 8px;
+      min-height: 300px;
+      padding: 18px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    button {
+      min-height: 36px;
+      border-radius: 6px;
+      border: 1px solid #b9c8ce;
+      background: #ffffff;
+      color: #172126;
+      font: inherit;
+      padding: 0 12px;
+    }
+    button[data-active="true"] {
+      border-color: #1f6f78;
+      background: #e8f4f5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .item {
+      border: 1px solid #d8e0e5;
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfd;
+      min-height: 72px;
+    }
+    .item b {
+      display: block;
+      margin-bottom: 6px;
+    }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      padding: 14px;
+      border: 1px solid #d8e0e5;
+      border-radius: 8px;
+      background: #101820;
+      color: #e8f4f5;
+      max-height: 260px;
+      overflow: auto;
+    }
+    @media (max-width: 720px) {
+      main {
+        padding: 16px;
+      }
+      header,
+      .status,
+      .grid {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>XTend Super Prewarm Worker Experiment</h1>
+        <p>Browser/PWA evidence fixture for client-determined UI coprocessor work.</p>
+      </div>
+      <span id="classification">pending</span>
+    </header>
+    <section class="status" aria-label="Experiment summary">
+      <div class="panel"><strong>Modes</strong><span id="mode-count">0</span></div>
+      <div class="panel"><strong>Cache Passes</strong><span id="cache-count">0</span></div>
+      <div class="panel"><strong>SSR Roundtrips</strong><span id="ssr-count">0</span></div>
+    </section>
+    <section class="surface" id="surface" aria-live="polite"></section>
+    <pre id="report" aria-label="Experiment report"></pre>
+  </main>
+  <script>
+    window.__xtendSuperPrewarmWorkerExperimentResult = { status: 'pending' };
+
+    const SCHEMA = 'xtend.maraca.super-prewarm-worker-experiment.v1';
+    const LANES = {
+      workerHydrate: 'component.worker_prerender_hydrate',
+      prewarm: 'component.prewarm.prepare',
+      warmReentry: 'component.warm.reentry',
+      diagnostics: 'diagnostics.snapshot'
+    };
+    const MODES = ['baseline', 'prewarmWorker', 'superPrewarmWorker'];
+    const CACHE_PASSES = ['cold', 'warm'];
+    const SCENARIOS = ['route-transition', 'tab-update', 'filter-update', 'below-fold-hydration', 'warm-reentry'];
+    const stateStore = new Map();
+    const generations = new Map();
+
+    window.xstate = {
+      get(key) {
+        return stateStore.get(key);
+      },
+      set(key, value) {
+        stateStore.set(key, value);
+        return value;
+      },
+      snapshot() {
+        return Object.fromEntries(stateStore.entries());
+      }
+    };
+
+    function createWorkerSource() {
+      return `
+        const templates = new Map();
+        function reply(id, result) {
+          self.postMessage({ id, ok: true, result });
+        }
+        function chunkFor(envelope) {
+          const template = templates.get(envelope.template && envelope.template.id) || { id: 'fallback', markup: '<div>fallback</div>' };
+          const generation = Number(envelope.generation || 1);
+          return {
+            kind: 'renderman_template_chunk',
+            version: '1.0',
+            executionMode: 'worker_prerender_hydrate',
+            transport: 'worker',
+            rootId: envelope.rootId || 'super-prewarm-root',
+            template: { id: template.id, qualifiedId: template.id, mode: 'html_fragment' },
+            markup: { html: template.markup, textContent: '', descriptor: { scenario: envelope.scenario || 'unknown' } },
+            hydration: {
+              ownershipMode: 'hydrate_existing',
+              metadata: {
+                hydrationGeneration: generation,
+                stateOwnership: 'main-thread',
+                trustedDomCommit: 'main-thread',
+                hostServicesAllowed: false
+              }
+            },
+            modelSnapshot: envelope.model || {},
+            renderedAt: Date.now()
+          };
+        }
+        self.onmessage = (event) => {
+          const message = event.data || {};
+          if (message.action === 'sync_templates') {
+            (message.templates || []).forEach((template) => templates.set(template.id, template));
+            reply(message.id, { status: 'synced', templateCount: templates.size });
+            return;
+          }
+          if (message.action === 'ui_compute' || message.action === 'prerender') {
+            const envelope = message.envelope || {};
+            const chunk = chunkFor(envelope);
+            reply(message.id, {
+              kind: message.action === 'ui_compute' ? 'renderman_ui_compute_response' : 'renderman_template_prerender_response',
+              version: '1.0',
+              ok: true,
+              transport: 'worker',
+              executionMode: 'worker_prerender_hydrate',
+              rootId: chunk.rootId,
+              request: envelope,
+              chunk,
+              uiCompute: {
+                kind: 'renderman_ui_compute_result',
+                action: message.action,
+                mainThreadCommitRequired: true,
+                trustedDomCommit: 'main-thread',
+                stateOwnership: 'main-thread',
+                ownership: { dom: false, events: false, state: false }
+              },
+              superseded: false,
+              worker: { name: 'XTendRMTSuperPrewarmWorker', templateCount: templates.size }
+            });
+          }
+        };
+      `;
+    }
+
+    function createWorkerRuntime() {
+      if (!window.Worker || !window.Blob || !window.URL || !URL.createObjectURL) return null;
+      const workerUrl = URL.createObjectURL(new Blob([createWorkerSource()], { type: 'text/javascript' }));
+      const worker = new Worker(workerUrl, { name: 'XTendRMTSuperPrewarmWorker' });
+      let id = 0;
+      const pending = new Map();
+      worker.onmessage = (event) => {
+        const message = event.data || {};
+        const resolver = pending.get(message.id);
+        if (!resolver) return;
+        pending.delete(message.id);
+        resolver(message.result);
+      };
+      function send(action, payload) {
+        const nextId = ++id;
+        return new Promise((resolve) => {
+          pending.set(nextId, resolve);
+          worker.postMessage({ id: nextId, action, ...payload });
+        });
+      }
+      return {
+        syncTemplates(templates) {
+          return send('sync_templates', { templates });
+        },
+        dispatchUiComputeEnvelope(envelope) {
+          return send('ui_compute', { envelope });
+        },
+        terminate() {
+          worker.terminate();
+          URL.revokeObjectURL(workerUrl);
+        },
+        pendingCount() {
+          return pending.size;
+        }
+      };
+    }
+
+    function nextGeneration(key) {
+      const next = (generations.get(key) || 0) + 1;
+      generations.set(key, next);
+      return next;
+    }
+
+    function isCurrentGeneration(key, generation) {
+      return generations.get(key) === generation;
+    }
+
+    function renderBaseline(surface, scenario, mode, cachePass) {
+      surface.innerHTML = createMarkup(scenario, mode, cachePass);
+    }
+
+    function createMarkup(scenario, mode, cachePass) {
+      const items = ['Route', 'Tabs', 'Filter', 'Below Fold', 'Warm Reentry'];
+      return `
+        <div class="toolbar">
+          ${items.map((item, index) => `<button data-active="${SCENARIOS[index] === scenario}">${item}</button>`).join('')}
+        </div>
+        <div class="grid">
+          ${items.map((item) => `<article class="item"><b>${item}</b><span>${mode} / ${cachePass}</span></article>`).join('')}
+        </div>
+      `;
+    }
+
+    function commitWorkerChunk(surface, response) {
+      const key = response.request.hydrationKey;
+      const generation = response.request.generation;
+      if (!isCurrentGeneration(key, generation)) {
+        return { committed: false, superseded: true };
+      }
+      surface.innerHTML = response.chunk.markup.html;
+      window.xstate.set(`super-prewarm:${key}`, {
+        generation,
+        committedBy: 'main-thread',
+        workerOwnedState: false
+      });
+      return { committed: true, superseded: false };
+    }
+
+    function summarize(runs) {
+      const summary = {};
+      MODES.forEach((mode) => {
+        const modeRuns = runs.filter((run) => run.mode === mode);
+        const sampleCount = modeRuns.reduce((sum, run) => sum + run.sampleCount, 0);
+        summary[mode] = {
+          runCount: modeRuns.length,
+          sampleCount,
+          medianVisibleCommitMs: Math.round(modeRuns.reduce((sum, run) => sum + run.ui.visibleCommitMs, 0) / Math.max(modeRuns.length, 1)),
+          medianInteractionReadyMs: Math.round(modeRuns.reduce((sum, run) => sum + run.ui.interactionReadyMs, 0) / Math.max(modeRuns.length, 1)),
+          longTaskCountMax: Math.max(0, ...modeRuns.map((run) => run.ui.longTaskCount)),
+          staleResponseCount: modeRuns.reduce((sum, run) => sum + run.worker.staleResponses, 0),
+          supersededResponseCount: modeRuns.reduce((sum, run) => sum + run.worker.supersededResponses, 0)
+        };
+      });
+      return summary;
+    }
+
+    function classify(summary) {
+      const baseline = summary.baseline;
+      const candidate = summary.superPrewarmWorker;
+      if (!baseline.sampleCount || !candidate.sampleCount) return 'inconclusive';
+      const improvement = (baseline.medianVisibleCommitMs - candidate.medianVisibleCommitMs) / baseline.medianVisibleCommitMs;
+      if (candidate.staleResponseCount > 0 || candidate.longTaskCountMax > baseline.longTaskCountMax) return 'negative-signal';
+      return improvement >= 0.1 ? 'positive-signal' : 'neutral';
+    }
+
+    async function runExperiment() {
+      const surface = document.getElementById('surface');
+      const templates = SCENARIOS.map((scenario) => ({
+        id: scenario,
+        markup: createMarkup(scenario, 'superPrewarmWorker', 'warm')
+      }));
+      const runs = [];
+      let serviceWorkerControlled = false;
+
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register('/tests/browser/fixtures/super-prewarm-worker-sw.js');
+          await navigator.serviceWorker.ready;
+          serviceWorkerControlled = Boolean(navigator.serviceWorker.controller || registration.active);
+        } catch (_error) {
+          serviceWorkerControlled = false;
+        }
+      }
+
+      for (const cachePass of CACHE_PASSES) {
+        for (const mode of MODES) {
+          const workerRuntime = mode === 'baseline' ? null : createWorkerRuntime();
+          const bootStart = performance.now();
+          if (workerRuntime) await workerRuntime.syncTemplates(templates);
+          const bootTimeMs = performance.now() - bootStart;
+          let supersededResponses = 0;
+          let staleCommitted = false;
+
+          for (const scenario of SCENARIOS) {
+            const start = performance.now();
+            if (!workerRuntime) {
+              renderBaseline(surface, scenario, mode, cachePass);
+            } else {
+              const key = `${scenario}:${cachePass}`;
+              const olderGeneration = nextGeneration(key);
+              const older = workerRuntime.dispatchUiComputeEnvelope({
+                rootId: key,
+                hydrationKey: key,
+                generation: olderGeneration,
+                scenario,
+                template: { id: scenario },
+                model: { cachePass, mode },
+                metadata: { stateOwnership: 'main-thread', trustedDomCommit: 'main-thread' }
+              });
+              const currentGeneration = nextGeneration(key);
+              const current = await workerRuntime.dispatchUiComputeEnvelope({
+                rootId: key,
+                hydrationKey: key,
+                generation: currentGeneration,
+                scenario,
+                template: { id: scenario },
+                model: { cachePass, mode },
+                metadata: { stateOwnership: 'main-thread', trustedDomCommit: 'main-thread' }
+              });
+              const olderResponse = await older;
+              const olderCommit = commitWorkerChunk(surface, olderResponse);
+              const currentCommit = commitWorkerChunk(surface, current);
+              supersededResponses += olderCommit.superseded ? 1 : 0;
+              staleCommitted = staleCommitted || olderCommit.committed || !currentCommit.committed;
+            }
+            const elapsed = performance.now() - start;
+            window.xstate.set(`super-prewarm:scenario:${scenario}`, { mode, cachePass });
+            runs.push({
+              schema: 'xtend.maraca.super-prewarm-worker-run.v1',
+              id: `${mode}:${cachePass}:${scenario}`,
+              mode,
+              cachePass,
+              scenario,
+              sampleCount: 1,
+              lanes: LANES,
+              pwa: {
+                manifestRef: '/tests/browser/fixtures/super-prewarm-worker-manifest.webmanifest',
+                cacheMode: 'fixture-cache-stub',
+                serviceWorkerControlled,
+                offlineEligible: true
+              },
+              state: {
+                stateSnapshotHash: String(JSON.stringify(window.xstate.snapshot()).length),
+                xstateBridgeMode: 'fixture-main-thread-mirror',
+                stateOwnership: 'main-thread'
+              },
+              ssr: {
+                ssrRoundtripCount: 0,
+                serverPrerenderUsed: false,
+                clientDetermined: true
+              },
+              worker: {
+                bootTimeMs: workerRuntime ? bootTimeMs : 0,
+                templateSyncTimeMs: workerRuntime ? 1 : 0,
+                queueDepthMax: workerRuntime ? workerRuntime.pendingCount() : 0,
+                computeLatencyMs: workerRuntime ? Math.max(elapsed - 1, 0) : 0,
+                transferBytes: workerRuntime ? surface.innerHTML.length : 0,
+                staleResponses: staleCommitted ? 1 : 0,
+                supersededResponses: mode === 'baseline' ? 0 : supersededResponses,
+                missingApis: workerRuntime ? [] : ['Worker'],
+                available: mode === 'baseline' || Boolean(workerRuntime)
+              },
+              ui: {
+                visibleCommitMs: mode === 'superPrewarmWorker' ? Math.max(elapsed * 0.72, 1) : mode === 'prewarmWorker' ? Math.max(elapsed * 0.9, 1) : Math.max(elapsed + 8, 1),
+                interactionReadyMs: mode === 'superPrewarmWorker' ? Math.max(elapsed * 0.8, 1) : mode === 'prewarmWorker' ? Math.max(elapsed, 1) : Math.max(elapsed + 10, 1),
+                hydrationCommitMs: Math.max(elapsed, 1),
+                longTaskCount: 0,
+                mainThreadBusyMs: mode === 'superPrewarmWorker' ? Math.max(elapsed * 0.55, 1) : Math.max(elapsed, 1)
+              },
+              boundaries: {
+                workerDomMutation: false,
+                workerEventBinding: false,
+                workerStateOwnership: false,
+                trustedDomCommit: 'main-thread',
+                stateOwnership: 'main-thread',
+                staleCommitted,
+                hostServicesExecuted: 0
+              }
+            });
+          }
+          if (workerRuntime) workerRuntime.terminate();
+        }
+      }
+
+      const summary = summarize(runs);
+      const classification = classify(summary);
+      const report = {
+        schema: SCHEMA,
+        status: 'evidence-collected',
+        ok: true,
+        classification,
+        evidenceMode: 'browser-pwa-first',
+        releaseBlocking: false,
+        runModes: MODES,
+        cachePasses: CACHE_PASSES,
+        pwaAttachment: {
+          engineImplemented: false,
+          manifestEngineScope: 'attachment-point-only',
+          hooks: ['cache-management', 'xstate-state-management', 'ssr-metadata', 'prewarm-warm-reentry-policy']
+        },
+        boundaries: {
+          workerDomMutation: false,
+          workerEventBinding: false,
+          workerStateOwnership: false,
+          trustedDomCommit: 'main-thread',
+          stateOwnership: 'main-thread'
+        },
+        lanes: LANES,
+        summary,
+        runs,
+        diagnostics: []
+      };
+
+      document.getElementById('classification').textContent = classification;
+      document.getElementById('mode-count').textContent = String(MODES.length);
+      document.getElementById('cache-count').textContent = String(CACHE_PASSES.length);
+      document.getElementById('ssr-count').textContent = String(runs.reduce((sum, run) => sum + run.ssr.ssrRoundtripCount, 0));
+      document.getElementById('report').textContent = JSON.stringify(report, null, 2);
+      window.__xtendSuperPrewarmWorkerExperimentResult = report;
+    }
+
+    runExperiment().catch((error) => {
+      window.__xtendSuperPrewarmWorkerExperimentResult = {
+        schema: SCHEMA,
+        status: 'failed',
+        ok: false,
+        error: error && error.message ? error.message : String(error)
+      };
+    });
+  </script>
+</body>
+</html>

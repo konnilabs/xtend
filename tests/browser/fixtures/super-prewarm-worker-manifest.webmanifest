@@ -1,0 +1,11 @@
+{
+  "name": "XTend Super Prewarm Worker Experiment",
+  "short_name": "Super Prewarm",
+  "start_url": "/tests/browser/fixtures/super-prewarm-worker-pwa.html",
+  "scope": "/tests/browser/fixtures/",
+  "display": "standalone",
+  "background_color": "#f7f9fb",
+  "theme_color": "#1f6f78",
+  "description": "Fixture manifest for the XTend Super Prewarm Worker experiment.",
+  "icons": []
+}

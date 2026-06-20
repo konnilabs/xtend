@@ -1,0 +1,151 @@
+{
+  "schema": "xtend.xtensions.adoption-handoff.fixture.v1",
+  "expectedStatus": "ready",
+  "expectedBlockedStatus": "blocked",
+  "docs": [
+    {
+      "kind": "authoring-guide",
+      "path": "docs/de/xtensions-authoring-guide.md",
+      "title": "XTensions Authoring Guide",
+      "audience": "xtension-authors",
+      "status": "ready"
+    },
+    {
+      "kind": "migration-coexistence-guide",
+      "path": "docs/de/xtensions-migration-coexistence-guide.md",
+      "title": "XTensions Migration and Coexistence Guide",
+      "audience": "enterprise-adopters",
+      "status": "ready"
+    },
+    {
+      "kind": "security-checklist",
+      "path": "docs/de/xtensions-security-checklist.md",
+      "title": "XTensions Security Checklist",
+      "audience": "security-reviewers",
+      "status": "ready"
+    },
+    {
+      "kind": "enterprise-adoption-handoff",
+      "path": "docs/de/xtensions-enterprise-adoption-handoff.md",
+      "title": "XTensions Enterprise Adoption Handoff",
+      "audience": "release-owners",
+      "status": "ready"
+    }
+  ],
+  "boundaries": [
+    "opt-in-coexistence-not-forced-migration",
+    "native-first-authoring-remains-default",
+    "rmt-kernel-stays-framework-agnostic",
+    "hostcontroller-is-the-framework-boundary",
+    "fabric-signals-route-cross-surface-events",
+    "project-local-manifests-are-primary-distribution",
+    "framework-runtimes-remain-external-peer-or-optional",
+    "no-vendored-third-party-frameworks-in-repo-or-package",
+    "security-gate-before-runtime-loading",
+    "degraded-xtension-does-not-block-shell"
+  ],
+  "startPackages": [
+    {
+      "id": "external-peer-harness-template",
+      "title": "External Peer Harness Template",
+      "priority": "P1",
+      "owner": "xtend-platform",
+      "status": "planned",
+      "dependsOn": [
+        "XTN-12",
+        "XTN-13"
+      ],
+      "outcomes": [
+        "Provide a template for opt-in React, Vue, Three and Leaflet smokes outside the XTend package.",
+        "Keep framework installs outside root and workspace dependencies."
+      ],
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "runtimeExecutionRequired": false
+    },
+    {
+      "id": "enterprise-policy-pilot",
+      "title": "Enterprise Policy Pilot",
+      "priority": "P1",
+      "owner": "security-platform",
+      "status": "planned",
+      "dependsOn": [
+        "XTN-11",
+        "XTN-14"
+      ],
+      "outcomes": [
+        "Pilot owner, version, contract, integrity and security review workflow.",
+        "Capture release approval evidence without importing framework code."
+      ],
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "runtimeExecutionRequired": false
+    },
+    {
+      "id": "registry-metadata-publisher",
+      "title": "Registry Metadata Publisher",
+      "priority": "P2",
+      "owner": "release-platform",
+      "status": "planned",
+      "dependsOn": [
+        "XTN-13"
+      ],
+      "outcomes": [
+        "Publish project-local manifest and marketplace metadata only.",
+        "Preserve host-local runtime registry as runtime source of truth."
+      ],
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "runtimeExecutionRequired": false
+    },
+    {
+      "id": "browser-smoke-harness",
+      "title": "Browser Smoke Harness",
+      "priority": "P2",
+      "owner": "qa-platform",
+      "status": "planned",
+      "dependsOn": [
+        "XTN-12"
+      ],
+      "outcomes": [
+        "Extend frameworkless smoke records for degraded surfaces, canvas and WebGL.",
+        "Keep real framework browser runs in external peer harnesses."
+      ],
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "runtimeExecutionRequired": false
+    },
+    {
+      "id": "remote-artifact-policy",
+      "title": "Remote Artifact Policy",
+      "priority": "P2",
+      "owner": "rmt-platform",
+      "status": "planned",
+      "dependsOn": [
+        "XTN-11",
+        "XTN-13",
+        "E16"
+      ],
+      "outcomes": [
+        "Define remote artifact eligibility, integrity and fallback requirements.",
+        "Block remote runtime loading until policy and compatibility evidence exist."
+      ],
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "runtimeExecutionRequired": false
+    }
+  ],
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "runtimeExecutionRequired": false,
+    "frameworkCodeRequired": false
+  },
+  "expectedDiagnostics": [
+    "xtensions.adoption.doc_missing",
+    "xtensions.adoption.topic_missing",
+    "xtensions.adoption.boundary_missing",
+    "xtensions.adoption.start_package_missing",
+    "xtensions.adoption.framework_dependency"
+  ]
+}

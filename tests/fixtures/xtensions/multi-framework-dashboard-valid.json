@@ -1,0 +1,653 @@
+{
+  "schema": "xtend.xtensions.multi-framework-dashboard.fixture.v1",
+  "expectedDashboardId": "xtension.dashboard.multi-framework",
+  "expectedStatus": "degraded",
+  "expectedSurfaceRoles": [
+    "native-shell",
+    "react-panel",
+    "vue-panel",
+    "chart",
+    "map",
+    "three-scene"
+  ],
+  "expectedFrameworks": [
+    "native",
+    "react",
+    "vue",
+    "chart.js",
+    "leaflet",
+    "three"
+  ],
+  "dashboard": {
+    "id": "xtension.dashboard.multi-framework",
+    "localNetworkRequired": false,
+    "host": {
+      "hostId": "xtend-dashboard.host",
+      "surfaceRegistryRef": "surface-registry://host-local/xtension-dashboard",
+      "capabilities": [
+        "host.lifecycle.mount",
+        "host.lifecycle.update",
+        "host.lifecycle.suspend",
+        "host.lifecycle.resume",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import",
+        "fallback.native-placeholder",
+        "diagnostics.emit",
+        "scheduler.hints",
+        "fabric.lane.default",
+        "fabric.lane.interactive",
+        "fabric.lane.animation",
+        "imperative.host-bridge",
+        "render.loop.host-fiber"
+      ],
+      "providedFrameworks": [
+        {
+          "name": "react",
+          "version": "18.3.1",
+          "source": "external-peer-harness",
+          "available": true
+        },
+        {
+          "name": "vue",
+          "version": "3.5.0",
+          "source": "external-peer-harness",
+          "available": false
+        },
+        {
+          "name": "chart.js",
+          "version": "4.4.0",
+          "source": "external-peer-harness",
+          "available": true
+        },
+        {
+          "name": "leaflet",
+          "version": "1.9.4",
+          "source": "external-peer-harness",
+          "available": true
+        },
+        {
+          "name": "three",
+          "version": "0.170.0",
+          "source": "external-peer-harness",
+          "available": true
+        }
+      ],
+      "policy": {
+        "scope": "host-local",
+        "allowGlobalRegistry": false,
+        "dynamicImportRequiresIntegrity": true,
+        "capabilityNegotiationRequired": true,
+        "fallbackRequired": true,
+        "missingRuntimeStrategy": "degrade-with-fallback",
+        "packageFrameworkDependenciesAllowed": false,
+        "vendoredFrameworksAllowed": false
+      }
+    },
+    "securityPolicy": {
+      "schema": "xtend.xtensions.security-policy.v1",
+      "strict": true,
+      "remoteArtifactsAllowed": false,
+      "allowCdnForLocalFixtures": false
+    },
+    "surfaces": [
+      {
+        "surfaceId": "surface.dashboard.shell",
+        "role": "native-shell",
+        "framework": "native",
+        "nativeSurface": true,
+        "expectedRuntimeStatus": "loaded"
+      },
+      {
+        "surfaceId": "surface.dashboard.react",
+        "role": "react-panel",
+        "framework": "react",
+        "expectedRuntimeStatus": "loaded",
+        "manifest": {
+          "id": "xtension.dashboard.react.panel",
+          "name": "Dashboard React Panel",
+          "framework": "react",
+          "version": "1.0.0",
+          "owner": "xtend-dashboard",
+          "entry": {
+            "module": "external-peer://react/dashboard-panel-host",
+            "exportName": "createDashboardReactPanel",
+            "format": "esm",
+            "dynamicImport": true
+          },
+          "integrity": {
+            "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "source": "maraca-artifact"
+          },
+          "csp": {
+            "scriptSrc": ["'self'"],
+            "connectSrc": ["'self'"],
+            "workerSrc": ["'self'"],
+            "styleSrc": ["'self'"],
+            "imgSrc": ["'self'", "data:"]
+          },
+          "security": {
+            "owner": "xtend-dashboard",
+            "localFixtureNoNetwork": true
+          },
+          "lazy": {
+            "mode": "visible",
+            "optIn": true,
+            "policy": "dashboard-visible-panel",
+            "prefetch": false,
+            "preload": false
+          },
+          "contract": {
+            "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+            "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+            "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+            "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+            "accepts": ["dashboard.selection.react.props"],
+            "emits": ["dashboard.react.panel.ready"],
+            "capabilities": [
+              "host.lifecycle.mount",
+              "host.lifecycle.update",
+              "signal.downstream",
+              "event.upstream",
+              "loading.dynamic-import",
+              "fallback.native-placeholder",
+              "scheduler.hints"
+            ]
+          },
+          "capabilities": [
+            "host.lifecycle.mount",
+            "host.lifecycle.update",
+            "signal.downstream",
+            "event.upstream",
+            "loading.dynamic-import",
+            "fallback.native-placeholder",
+            "scheduler.hints"
+          ],
+          "dependencies": [
+            {
+              "name": "react",
+              "versionRange": "^18.0.0",
+              "classification": "external-peer",
+              "bundled": false,
+              "packageIncluded": false
+            }
+          ],
+          "fallback": {
+            "mode": "native-placeholder",
+            "component": "xtend-native.dashboard-react-placeholder",
+            "message": "React dashboard panel unavailable",
+            "degradedStatus": "xtension-dashboard-react-unavailable"
+          },
+          "policy": {
+            "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+            "status": "approved"
+          }
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.vue",
+        "role": "vue-panel",
+        "framework": "vue",
+        "expectedRuntimeStatus": "degraded",
+        "manifest": {
+          "id": "xtension.dashboard.vue.panel",
+          "name": "Dashboard Vue Inspector",
+          "framework": "vue",
+          "version": "1.0.0",
+          "owner": "xtend-dashboard",
+          "entry": {
+            "module": "external-peer://vue/dashboard-inspector-host",
+            "exportName": "createDashboardVueInspector",
+            "format": "esm",
+            "dynamicImport": true
+          },
+          "integrity": {
+            "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "source": "maraca-artifact"
+          },
+          "csp": {
+            "scriptSrc": ["'self'"],
+            "connectSrc": ["'self'"],
+            "workerSrc": ["'self'"],
+            "styleSrc": ["'self'"],
+            "imgSrc": ["'self'", "data:"]
+          },
+          "security": {
+            "owner": "xtend-dashboard",
+            "localFixtureNoNetwork": true
+          },
+          "lazy": {
+            "mode": "visible",
+            "optIn": true,
+            "policy": "dashboard-visible-panel",
+            "prefetch": false,
+            "preload": false
+          },
+          "contract": {
+            "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+            "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+            "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+            "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+            "accepts": ["dashboard.selection.vue.state"],
+            "emits": ["dashboard.vue.panel.ready"],
+            "capabilities": [
+              "host.lifecycle.mount",
+              "host.lifecycle.update",
+              "signal.downstream",
+              "event.upstream",
+              "loading.dynamic-import",
+              "fallback.native-placeholder"
+            ]
+          },
+          "capabilities": [
+            "host.lifecycle.mount",
+            "host.lifecycle.update",
+            "signal.downstream",
+            "event.upstream",
+            "loading.dynamic-import",
+            "fallback.native-placeholder"
+          ],
+          "dependencies": [
+            {
+              "name": "vue",
+              "versionRange": "^3.0.0",
+              "classification": "external-peer",
+              "bundled": false,
+              "packageIncluded": false
+            }
+          ],
+          "fallback": {
+            "mode": "native-placeholder",
+            "component": "xtend-native.dashboard-vue-placeholder",
+            "message": "Vue dashboard inspector unavailable",
+            "degradedStatus": "xtension-dashboard-vue-unavailable"
+          },
+          "policy": {
+            "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+            "status": "approved"
+          }
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.chart",
+        "role": "chart",
+        "framework": "chart.js",
+        "expectedRuntimeStatus": "loaded",
+        "manifest": {
+          "id": "xtension.dashboard.chart",
+          "name": "Dashboard Chart Surface",
+          "framework": "chart.js",
+          "version": "1.0.0",
+          "owner": "xtend-dashboard",
+          "entry": {
+            "module": "external-peer://chart.js/dashboard-chart-host",
+            "exportName": "createDashboardChartHost",
+            "format": "esm",
+            "dynamicImport": true
+          },
+          "integrity": {
+            "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+            "source": "maraca-artifact"
+          },
+          "csp": {
+            "scriptSrc": ["'self'"],
+            "connectSrc": ["'self'"],
+            "workerSrc": ["'self'"],
+            "styleSrc": ["'self'"],
+            "imgSrc": ["'self'", "data:"]
+          },
+          "security": {
+            "owner": "xtend-dashboard",
+            "localFixtureNoNetwork": true
+          },
+          "lazy": {
+            "mode": "visible",
+            "optIn": true,
+            "policy": "dashboard-visible-chart",
+            "prefetch": false,
+            "preload": false
+          },
+          "contract": {
+            "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+            "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+            "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+            "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+            "accepts": ["dashboard.selection.chart.update"],
+            "emits": ["dashboard.chart.ready"],
+            "capabilities": [
+              "host.lifecycle.mount",
+              "host.lifecycle.update",
+              "signal.downstream",
+              "event.upstream",
+              "loading.dynamic-import",
+              "fallback.native-placeholder",
+              "imperative.host-bridge"
+            ]
+          },
+          "capabilities": [
+            "host.lifecycle.mount",
+            "host.lifecycle.update",
+            "signal.downstream",
+            "event.upstream",
+            "loading.dynamic-import",
+            "fallback.native-placeholder",
+            "imperative.host-bridge"
+          ],
+          "dependencies": [
+            {
+              "name": "chart.js",
+              "versionRange": "^4.0.0",
+              "classification": "external-peer",
+              "bundled": false,
+              "packageIncluded": false
+            }
+          ],
+          "fallback": {
+            "mode": "native-placeholder",
+            "component": "xtend-native.dashboard-chart-placeholder",
+            "message": "Dashboard chart unavailable",
+            "degradedStatus": "xtension-dashboard-chart-unavailable"
+          },
+          "policy": {
+            "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+            "status": "approved"
+          }
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.map",
+        "role": "map",
+        "framework": "leaflet",
+        "expectedRuntimeStatus": "loaded",
+        "manifest": {
+          "id": "xtension.dashboard.map",
+          "name": "Dashboard Map Surface",
+          "framework": "leaflet",
+          "version": "1.0.0",
+          "owner": "xtend-dashboard",
+          "entry": {
+            "module": "external-peer://leaflet/dashboard-map-host",
+            "exportName": "createDashboardMapHost",
+            "format": "esm",
+            "dynamicImport": true
+          },
+          "integrity": {
+            "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+            "source": "maraca-artifact"
+          },
+          "csp": {
+            "scriptSrc": ["'self'"],
+            "connectSrc": ["'self'"],
+            "workerSrc": ["'self'"],
+            "styleSrc": ["'self'"],
+            "imgSrc": ["'self'", "data:"]
+          },
+          "security": {
+            "owner": "xtend-dashboard",
+            "localFixtureNoNetwork": true
+          },
+          "lazy": {
+            "mode": "visible",
+            "optIn": true,
+            "policy": "dashboard-visible-map",
+            "prefetch": false,
+            "preload": false
+          },
+          "contract": {
+            "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+            "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+            "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+            "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+            "accepts": ["dashboard.map.viewport"],
+            "emits": ["map.selection.changed"],
+            "capabilities": [
+              "host.lifecycle.mount",
+              "event.upstream",
+              "loading.dynamic-import",
+              "fallback.native-placeholder",
+              "imperative.host-bridge"
+            ]
+          },
+          "capabilities": [
+            "host.lifecycle.mount",
+            "event.upstream",
+            "loading.dynamic-import",
+            "fallback.native-placeholder",
+            "imperative.host-bridge"
+          ],
+          "dependencies": [
+            {
+              "name": "leaflet",
+              "versionRange": "^1.9.0",
+              "classification": "external-peer",
+              "bundled": false,
+              "packageIncluded": false
+            }
+          ],
+          "fallback": {
+            "mode": "native-placeholder",
+            "component": "xtend-native.dashboard-map-placeholder",
+            "message": "Dashboard map unavailable",
+            "degradedStatus": "xtension-dashboard-map-unavailable"
+          },
+          "policy": {
+            "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+            "status": "approved"
+          }
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.scene",
+        "role": "three-scene",
+        "framework": "three",
+        "expectedRuntimeStatus": "loaded",
+        "manifest": {
+          "id": "xtension.dashboard.scene",
+          "name": "Dashboard Three Scene",
+          "framework": "three",
+          "version": "1.0.0",
+          "owner": "xtend-dashboard",
+          "entry": {
+            "module": "external-peer://three/dashboard-scene-host",
+            "exportName": "createDashboardSceneHost",
+            "format": "esm",
+            "dynamicImport": true
+          },
+          "integrity": {
+            "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+            "source": "maraca-artifact"
+          },
+          "csp": {
+            "scriptSrc": ["'self'", "'wasm-unsafe-eval'"],
+            "connectSrc": ["'self'"],
+            "workerSrc": ["'self'"],
+            "styleSrc": ["'self'"],
+            "imgSrc": ["'self'", "data:", "blob:"]
+          },
+          "security": {
+            "owner": "xtend-dashboard",
+            "requiresWasm": true,
+            "requiresWorker": true,
+            "localFixtureNoNetwork": true
+          },
+          "lazy": {
+            "mode": "visible",
+            "optIn": true,
+            "policy": "dashboard-visible-scene",
+            "prefetch": false,
+            "preload": false
+          },
+          "contract": {
+            "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+            "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+            "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+            "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+            "accepts": ["dashboard.selection.scene.highlight"],
+            "emits": ["dashboard.scene.ready"],
+            "capabilities": [
+              "host.lifecycle.mount",
+              "host.lifecycle.suspend",
+              "host.lifecycle.resume",
+              "signal.downstream",
+              "event.upstream",
+              "loading.dynamic-import",
+              "fallback.native-placeholder",
+              "render.loop.host-fiber",
+              "fabric.lane.animation",
+              "diagnostics.emit"
+            ]
+          },
+          "capabilities": [
+            "host.lifecycle.mount",
+            "host.lifecycle.suspend",
+            "host.lifecycle.resume",
+            "signal.downstream",
+            "event.upstream",
+            "loading.dynamic-import",
+            "fallback.native-placeholder",
+            "render.loop.host-fiber",
+            "fabric.lane.animation",
+            "diagnostics.emit"
+          ],
+          "dependencies": [
+            {
+              "name": "three",
+              "versionRange": "^0.170.0",
+              "classification": "external-peer",
+              "bundled": false,
+              "packageIncluded": false
+            }
+          ],
+          "fallback": {
+            "mode": "native-placeholder",
+            "component": "xtend-native.dashboard-scene-placeholder",
+            "message": "Dashboard 3D scene unavailable",
+            "degradedStatus": "xtension-dashboard-scene-unavailable"
+          },
+          "policy": {
+            "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+            "status": "approved"
+          }
+        }
+      }
+    ],
+    "eventFlows": [
+      {
+        "flowId": "map-selection-updates-panels",
+        "sourceRole": "map",
+        "event": "map.selection.changed",
+        "lane": "interactive",
+        "owner": "xtend-dashboard",
+        "payloadSchema": "xtensions.dashboard.selection.v1",
+        "selection": {
+          "regionId": "region-north",
+          "label": "North Region",
+          "metric": "revenue",
+          "value": 42000
+        },
+        "targets": ["chart", "react-panel", "vue-panel"]
+      }
+    ],
+    "browserSmokes": [
+      {
+        "surfaceId": "surface.dashboard.react",
+        "xtensionId": "xtension.dashboard.react.panel",
+        "framework": "react",
+        "kind": "mount",
+        "evidence": {
+          "hostContainer": "mounted"
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.map",
+        "xtensionId": "xtension.dashboard.map",
+        "framework": "leaflet",
+        "kind": "interaction",
+        "interactionCount": 1,
+        "evidence": {
+          "event": "layer.click",
+          "selection": "region-north"
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.chart",
+        "xtensionId": "xtension.dashboard.chart",
+        "framework": "chart.js",
+        "kind": "lazy-load",
+        "lazyLoaded": true,
+        "evidence": {
+          "policy": "dashboard-visible-chart"
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.chart",
+        "xtensionId": "xtension.dashboard.chart",
+        "framework": "chart.js",
+        "kind": "canvas-pixel",
+        "nonBlankPixels": 256,
+        "cleanupVerified": true,
+        "evidence": {
+          "canvasProbe": "frameworkless",
+          "histogramBuckets": ["axis", "bar", "selection-highlight"]
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.scene",
+        "xtensionId": "xtension.dashboard.scene",
+        "framework": "three",
+        "kind": "webgl-pixel",
+        "nonBlankPixels": 192,
+        "interactionCount": 1,
+        "cleanupVerified": true,
+        "evidence": {
+          "canvasProbe": "frameworkless",
+          "firstViewport": "nonblank",
+          "interaction": "selection-highlight",
+          "cleanup": "webgl-resources-released"
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.vue",
+        "xtensionId": "xtension.dashboard.vue.panel",
+        "framework": "vue",
+        "kind": "suspend",
+        "suspended": true,
+        "evidence": {
+          "runtimeStatus": "degraded",
+          "fallback": "native-placeholder"
+        }
+      },
+      {
+        "surfaceId": "surface.dashboard.scene",
+        "xtensionId": "xtension.dashboard.scene",
+        "framework": "three",
+        "kind": "teardown",
+        "cleanupVerified": true,
+        "evidence": {
+          "resources": "released"
+        }
+      }
+    ],
+    "frameProbes": [
+      {
+        "sequence": 1,
+        "renderCostMs": 10,
+        "frameBudgetMs": 16.67,
+        "nonBlankPixels": 192
+      }
+    ]
+  },
+  "expectedEventFlow": {
+    "sourceRole": "map",
+    "targetRoles": ["chart", "react-panel", "vue-panel"],
+    "degradedRole": "vue-panel"
+  },
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "runtimeExecutionRequired": false,
+    "frameworkCodeRequired": false,
+    "localNetworkRequired": false
+  }
+}

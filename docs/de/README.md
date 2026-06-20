@@ -10,7 +10,7 @@ Willkommen im XTend Developer Center. Diese Dokumentation erklärt XTend für En
 | RMT verstehen | [XTendRMT Überblick](./xtendrmt-overview.md) |
 | RMT vNext schreiben | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT Reference](./rmt-reference.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Releasevertrag](./rmt-vnext-release-handoff.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
 | Native-First XTend schreiben | [Native-First Authoring Guide](./native-first-authoring-guide.md), [Native-First RMT Recipes](./native-first-rmt-recipes.md), [Native-First Migration Guide](./native-first-migration-guide.md), [Native-First Release Review](./native-first-release-review.md) |
-| Maraca App-Orchestrierung bauen | [XTend Maraca](./xtend-maraca.md), [Maraca Orchestrierung](./xtend-maraca-orchestration.md) |
+| Maraca App-Orchestrierung und PWA-Output bauen | [XTend Maraca](./xtend-maraca.md), [Maraca Orchestrierung](./xtend-maraca-orchestration.md) |
 | Enterprise Remote Surfaces prüfen | [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md), [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-enterprise-mfe-handoff.md) |
 | Komponenten nutzen | [Komponenten-Entwicklung](./components.md) |
 | Design Tokens prüfen | [Design Tokens](./design-tokens.md) |
@@ -29,11 +29,11 @@ rc1 gate matrix: xtend.epic13.rc1-gate-matrix-ci-handoff.v1
 
 ## Produktmodell
 
-XTend UI liefert die sichtbaren Web Components. XTendRMT beschreibt App Shells, State, Actions, Events, Resources, Surfaces, Hydration, Validation und Surface Transitions. Fabric koordiniert Runtime-Arbeit; der RMT Kernel ergänzt Scheduler-Lanes, Fibers und Telemetrie. Der Loader verbindet alles lokal und ohne CDN, wenn ein manifestbasierter Host gebraucht wird; Maraca baut aus `.rmt` Quellen loaderlose, kernel-orchestrierte ESM Apps mit Bundle-Report, Browser Bridges und strikt prüfbaren Contracts.
+XTend UI liefert die sichtbaren Web Components. XTendRMT beschreibt App Shells, State, Actions, Events, Resources, Surfaces, Hydration, Validation und Surface Transitions. Fabric koordiniert Runtime-Arbeit; der RMT Kernel ergänzt Scheduler-Lanes, Fibers und Telemetrie. Der Loader verbindet alles lokal und ohne CDN, wenn ein manifestbasierter Host gebraucht wird; Maraca baut aus `.rmt` Quellen loaderlose, kernel-orchestrierte ESM Apps mit Bundle-Report, Browser Bridges, mobilem Web App Manifest, optionalem PWA Service Worker und strikt prüfbaren Contracts.
 
 ## Maraca im Hauptpfad
 
-Maraca ist der produktive App-Orchestrator im XTend-Stack. Verwende den Lernpfad, um RMT-Dokumente zu verstehen, und wechsle danach zu [XTend Maraca](./xtend-maraca.md), wenn aus dem Dokument ein ausgeliefertes App-Bundle mit Inline Registry, Kernel Scheduling, Hydration, Validation und Surface Transitions werden soll. Die reale Orchestrierungsfixture liegt unter `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`; der Deep-Dive erklärt, welche Contracts der Build im Browser und im Report sichtbar macht.
+Maraca ist der produktive App-Orchestrator im XTend-Stack. Verwende den Lernpfad, um RMT-Dokumente zu verstehen, und wechsle danach zu [XTend Maraca](./xtend-maraca.md), wenn aus dem Dokument ein ausgeliefertes App-Bundle mit Inline Registry, Kernel Scheduling, Hydration, Validation, Surface Transitions, mobilem Manifest oder generiertem App-Shell-Service-Worker werden soll. Die reale Orchestrierungsfixture liegt unter `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`; der Deep-Dive erklärt, welche Contracts der Build im Browser und im Report sichtbar macht.
 
 ## RMT vNext Release Surface
 
@@ -53,6 +53,8 @@ xt rmt lint app.rmt
 xt rmt lint app.rmt --json
 xt rmt lint app.rmt --agent
 xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json
+xt maraca build app.rmt --out dist --web-app-manifest --json
+xt maraca build app.rmt --out dist --pwa --json
 node tools/rmt-language-server/server.js
 node scripts/run_xtend_tests.js rmt-tooling-docs --json
 node scripts/run_xtend_tests.js maraca-docs rmt-vnext-tooling rmt-editor-packaging type-exports-rmt --json

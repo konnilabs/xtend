@@ -22,6 +22,7 @@ const RMT_NODE_SSR_ADAPTER_TYPES = 'xtendrmt/rmt-node-ssr-adapter.d.ts';
 const RMT_NODE_SSR_ADAPTER_SCHEMA = 'xtend.rmt.node-ssr-adapter.v1';
 const RMT_NODE_SSR_RENDER_RESULT_SCHEMA = 'xtend.rmt.node-ssr-render-result.v1';
 const RMT_NODE_SSR_JSONL_FRAME_SCHEMA = 'xtend.rmt.node-ssr-jsonl-frame.v1';
+const RMT_SSR_CSP_POLICY_SCHEMA = 'xtend.rmt.ssr-csp-policy.v1';
 const RMT_NODE_SSR_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-node-ssr-adapter --json';
 const RMT_NODE_SSR_PACKAGE_SCRIPT = 'npm run test:rmt-node-ssr-adapter';
 const RMT_NODE_SSR_ROOT_EXPORT = './rmt/node-ssr-adapter';
@@ -74,6 +75,7 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(adapterApi.RMT_NODE_SSR_ADAPTER_SCHEMA === RMT_NODE_SSR_ADAPTER_SCHEMA, 'adapter exposes stable schema');
   context.assert(adapterApi.RMT_NODE_SSR_RENDER_RESULT_SCHEMA === RMT_NODE_SSR_RENDER_RESULT_SCHEMA, 'adapter exposes render result schema');
   context.assert(adapterApi.RMT_NODE_SSR_JSONL_FRAME_SCHEMA === RMT_NODE_SSR_JSONL_FRAME_SCHEMA, 'adapter exposes JSONL frame schema');
+  context.assert(adapterApi.RMT_SSR_CSP_POLICY_SCHEMA === RMT_SSR_CSP_POLICY_SCHEMA, 'adapter exposes automatic SSR CSP policy schema');
   context.assert(typeof adapterApi.createRmtNodeSsrAdapter === 'function', 'adapter exposes createRmtNodeSsrAdapter');
   context.assert(!adapterSource.includes('shadowRoot'), 'adapter does not patch component internals');
   context.assert(!adapterSource.includes('innerHTML'), 'adapter runtime does not use manual HTML sinks');
@@ -82,6 +84,8 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(adapterTypes.includes('RmtNodeSsrAdapter'), 'declarations expose RmtNodeSsrAdapter');
   context.assert(adapterTypes.includes('RmtNodeSsrRenderResult'), 'declarations expose RmtNodeSsrRenderResult');
   context.assert(adapterTypes.includes('RmtNodeSsrJsonlFrame'), 'declarations expose RmtNodeSsrJsonlFrame');
+  context.assert(adapterTypes.includes('RmtSsrCspPolicy'), 'declarations expose RmtSsrCspPolicy');
+  context.assert(adapterTypes.includes('toHttpResponse'), 'declarations expose Node HTTP response helper');
 
   const adapter = adapterApi.createRmtNodeSsrAdapter({ manifest, sourceTexts });
   const descriptorRender = await adapter.render({
@@ -121,7 +125,19 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(descriptorRender.response.chunk && descriptorRender.response.chunk.kind === 'renderman_template_chunk', 'descriptor prerender response exposes hydrateResponse-compatible chunk');
   context.assert(descriptorRender.response.metadata && descriptorRender.response.metadata.adapterKind === 'node-ssr', 'descriptor prerender response records Node SSR adapter kind');
   context.assert(descriptorRender.response.request && descriptorRender.response.request.executionMode === 'server_prerender_hydrate', 'descriptor prerender response carries server prerender request snapshot');
+  context.assert(descriptorRender.cspPolicy && descriptorRender.cspPolicy.schema === RMT_SSR_CSP_POLICY_SCHEMA, 'descriptor render creates automatic SSR CSP policy');
+  context.assert(descriptorRender.cspPolicy.automatic === true && descriptorRender.cspPolicy.mode === 'framework-default', 'descriptor render uses framework-default CSP without host input');
+  context.assert(descriptorRender.headers['Content-Security-Policy'].includes("object-src 'none'"), 'descriptor render emits CSP object-src header');
+  context.assert(descriptorRender.headers['Content-Security-Policy'].includes("base-uri 'self'"), 'descriptor render emits CSP base-uri header');
+  context.assert(descriptorRender.head.csp.header === descriptorRender.headers['Content-Security-Policy'], 'descriptor render mirrors CSP in head metadata');
+  context.assert(descriptorRender.response.headers['Content-Security-Policy'] === descriptorRender.headers['Content-Security-Policy'], 'prerender response envelope carries CSP header');
+  context.assert(descriptorRender.hydration.cspPolicy.header === descriptorRender.headers['Content-Security-Policy'], 'hydration payload carries CSP policy metadata');
   context.assert(JSON.stringify(descriptorRender.hydration).includes('xtend.rmt.node-ssr-hydration-payload.v1'), 'descriptor render emits hydration payload');
+  const httpResponse = await adapter.toHttpResponse({
+    descriptor: { type: 'text', text: 'HTTP response' }
+  }, { requestId: 'node-ssr-http-response' });
+  context.assert(httpResponse.headers['Content-Security-Policy'].includes("script-src 'self'"), 'Node HTTP response helper emits automatic CSP header');
+  context.assert(httpResponse.headers['X-XTend-RMT-SSR-Adapter'] === RMT_NODE_SSR_ADAPTER_SCHEMA, 'Node HTTP response helper emits adapter header');
 
   const source = readText('tests/rmt-language/fixtures/vnext-source-to-sea.rmt', rootDir);
   const sourceRender = await adapter.render({
@@ -171,6 +187,8 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(frameTypes.includes('hydration'), 'JSONL stream emits hydration frame');
   context.assert(frameTypes[frameTypes.length - 1] === 'complete', 'JSONL stream completes deterministically');
   context.assert(streamingFrames.every((frame, index) => frame.sequence === index), 'JSONL stream sequence is deterministic');
+  context.assert(streamingFrames[0].payload.cspPolicy && streamingFrames[0].payload.cspPolicy.schema === RMT_SSR_CSP_POLICY_SCHEMA, 'JSONL stream start frame carries CSP policy');
+  context.assert(streamingFrames[0].payload.headers['Content-Security-Policy'].includes("object-src 'none'"), 'JSONL stream start frame carries CSP header');
   context.assert(streamingFrames.some((frame) => frame.variant === 'ssr' && frame.capability === 'stream.ssr.incremental'), 'JSONL stream exposes SSR incremental capability');
   context.assert(streamingFrames.some((frame) => frame.variant === 'hydration' && frame.capability === 'stream.hydration.chunked'), 'JSONL stream exposes chunked hydration capability');
 
@@ -184,11 +202,12 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
     descriptor: {
       type: 'html',
       trustBoundary: 'xtend.security.sanitizing-boundary.v1',
-      html: '<img src="javascript:alert(1)" onerror="bad"><script>alert(1)</script><x-status>Safe</x-status>'
+      html: '<img src="javascript:alert(1)" onerror="bad"><script>alert(1)</script><style>body{background:url(javascript:alert(1))}</style><svg onload="bad()"></svg><template><img src=x onerror="bad()"></template><x-status>Safe</x-status>'
     }
   }, { requestId: 'node-ssr-unsafe' });
   context.assert(!unsafeRender.html.includes('javascript:'), 'sanitizer removes unsafe URL protocols');
   context.assert(!unsafeRender.html.toLowerCase().includes('<script'), 'sanitizer removes blocked markup tags');
+  context.assert(!/<\s*(style|svg|template)\b/iu.test(unsafeRender.html), 'sanitizer removes active style/svg/template markup');
   context.assert(!unsafeRender.html.includes('onerror'), 'sanitizer removes event attributes');
   context.assert(unsafeRender.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.node_ssr.html_sanitized'), 'sanitizer reports fallback cleanup diagnostic');
 
@@ -219,6 +238,7 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
     const doc = readText(docPath, rootDir);
     context.assert(doc.includes(RMT_NODE_SSR_ADAPTER_SCHEMA), `${docPath} documents adapter schema`);
     context.assert(doc.includes('JSONL'), `${docPath} documents JSONL streaming`);
+    context.assert(doc.includes('Content-Security-Policy'), `${docPath} documents automatic CSP`);
     context.assert(doc.includes('createRmtNodeSsrAdapter'), `${docPath} documents public API`);
   });
   context.assert(readText('docs/quick-start-guide.md', rootDir).includes('rmt-node-ssr-adapter'), 'root quick start links Node SSR adapter');

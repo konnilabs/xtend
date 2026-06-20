@@ -97,15 +97,28 @@ function runDocContentChecks(context, rootDir) {
   context.assertIncludes(enEntry, 'Orchestrated App Bundles', 'English Maraca entry introduces orchestrated app bundles');
   assertIncludesAll(context, deEntry.concat('\n', enEntry), [
     'xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json',
+    'xt maraca build app.rmt --out dist --web-app-manifest --json',
+    'xt maraca build app.rmt --out dist --pwa --json',
+    'xtend.maraca.web-app-manifest-plan.v1',
+    'xtend.maraca.web-app-manifest-report.v1',
+    'xtend.maraca.pwa-service-worker-plan.v1',
+    'xtend.maraca.pwa-service-worker-report.v1',
+    'XTEND SERVICE WORKER BUSINESS LOGIC HOOK',
+    'XTendMaraca.webAppManifest',
+    'XTendMaraca.pwa',
     'maraca-validation',
-    'maraca-transitions'
+    'maraca-transitions',
+    'maraca-web-app-manifest',
+    'maraca-pwa-service-worker'
   ], 'Maraca entry docs');
   assertIncludesAll(context, deepDive, REQUIRED_DEEP_DIVE_TOKENS, 'Maraca orchestration deep dive');
   assertIncludesAll(context, deReadme.concat('\n', enReadme), [
     './xtend-maraca.md',
     './xtend-maraca-orchestration.md',
     'Maraca App-Orchestrierung',
-    'Maraca app orchestration'
+    'Maraca app orchestration',
+    'xt maraca build app.rmt --out dist --web-app-manifest --json',
+    'xt maraca build app.rmt --out dist --pwa --json'
   ], 'Developer Center start pages');
   assertIncludesAll(context, deQuickStart.concat('\n', enQuickStart), [
     './xtend-maraca.md',

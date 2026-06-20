@@ -1,4 +1,5 @@
 const fs = require('fs');
+const http = require('http');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const {
@@ -28,8 +29,14 @@ const {
   MARACA_WARM_REENTRY_REPORT_SCHEMA,
   MARACA_PREWARM_WORKER_RUNTIME_SCHEMA,
   MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA,
+  MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA,
+  MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA,
+  MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA,
+  MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA,
   buildMaracaBundleAsync,
   createMaracaPerformanceReport,
+  createMaracaWebAppManifestPlan,
+  createMaracaPwaServiceWorkerPlan,
   createMaracaTemplateArtifactsReport,
   createMaracaBuildPlan
 } = require('../../xtend-maraca');
@@ -81,7 +88,9 @@ const MARACA_SUITES = [
   'maraca-validation',
   'maraca-transitions',
   'maraca-package-exports',
-  'maraca-size-budget'
+  'maraca-size-budget',
+  'maraca-web-app-manifest',
+  'maraca-pwa-service-worker'
 ];
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -254,6 +263,25 @@ function buildFixtureAsync(rootDir, overrides = {}) {
     css: 'inline',
     ...overrides
   }, { rootDir });
+}
+
+function requestText(url) {
+  return new Promise((resolve, reject) => {
+    const request = http.get(url, (response) => {
+      const chunks = [];
+      response.setEncoding('utf8');
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => resolve({
+        statusCode: response.statusCode,
+        headers: response.headers,
+        body: chunks.join('')
+      }));
+    });
+    request.on('error', reject);
+    request.setTimeout(5000, () => {
+      request.destroy(new Error(`Timed out requesting ${url}`));
+    });
+  });
 }
 
 function planOrchestrationFixture(rootDir, overrides = {}) {
@@ -2020,6 +2048,294 @@ function printMaracaTransitionReport(result) {
   });
 }
 
+async function runMaracaWebAppManifestSuite(options = {}) {
+  const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
+  const context = createSuiteContext({
+    id: 'maraca-web-app-manifest',
+    label: 'XTend Maraca Web App Manifest Assistant'
+  });
+  const out = '.xtend-build/maraca/web-app-manifest';
+  const manifestInput = {
+    out,
+    profile: 'debug',
+    lazy: 'component',
+    css: 'external',
+    webAppManifest: {
+      enabled: true,
+      name: 'XTend Manifest Fixture',
+      shortName: 'Manifest',
+      themeColor: '#1f6f78'
+    }
+  };
+  const plan = planFixture(rootDir, manifestInput);
+  const aliasPlan = planFixture(rootDir, {
+    out: '.xtend-build/maraca/web-app-manifest-alias',
+    'web-app-manifest': true
+  });
+  const manifestAliasPlan = planFixture(rootDir, {
+    out: '.xtend-build/maraca/web-app-manifest-short-alias',
+    manifest: true
+  });
+  const pwaPlan = planFixture(rootDir, {
+    out: '.xtend-build/maraca/web-app-manifest-pwa',
+    pwa: true
+  });
+  const directPlan = createMaracaWebAppManifestPlan({
+    rootDir,
+    outputDir: resolveRepoPath('.xtend-build/maraca/web-app-manifest-direct', rootDir),
+    webAppManifest: true
+  });
+  const result = await buildFixtureAsync(rootDir, manifestInput);
+  const bundleReport = result.bundleReport || {};
+  const report = bundleReport.webAppManifest || {};
+  const manifestPath = resolveRepoPath(`${out}/xtend.webmanifest`, rootDir);
+  const reportPath = resolveRepoPath(`${out}/xtend.webmanifest.report.json`, rootDir);
+  const iconDir = resolveRepoPath(`${out}/icons`, rootDir);
+  const iconFiles = [
+    'icons/android-chrome-192x192.png',
+    'icons/android-chrome-512x512.png',
+    'icons/apple-touch-icon.png',
+    'icons/favicon-32x32.png',
+    'icons/favicon-16x16.png',
+    'icons/favicon.ico',
+    'icons/logo.svg',
+    'icons/XTend-Logo.png'
+  ];
+  const manifest = fs.existsSync(manifestPath) ? readJson(`${out}/xtend.webmanifest`, rootDir) : null;
+  const writtenReport = fs.existsSync(reportPath) ? readJson(`${out}/xtend.webmanifest.report.json`, rootDir) : null;
+  const manifestIcons = Array.isArray(manifest && manifest.icons) ? manifest.icons : [];
+
+  context.assert(MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA === 'xtend.maraca.web-app-manifest-plan.v1', 'Web App Manifest plan schema is stable');
+  context.assert(MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA === 'xtend.maraca.web-app-manifest-report.v1', 'Web App Manifest report schema is stable');
+  context.assert(plan.webAppManifest && plan.webAppManifest.schema === MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA, 'Maraca plan includes Web App Manifest plan');
+  context.assert(plan.webAppManifest && plan.webAppManifest.enabled === true, 'Web App Manifest opt-in enables the assistant');
+  context.assert(aliasPlan.webAppManifest && aliasPlan.webAppManifest.enabled === true, 'web-app-manifest alias enables Web App Manifest plan');
+  context.assert(manifestAliasPlan.webAppManifest && manifestAliasPlan.webAppManifest.enabled === true, 'manifest alias enables Web App Manifest plan');
+  context.assert(pwaPlan.webAppManifest && pwaPlan.webAppManifest.enabled === true, 'pwa true auto-enables Web App Manifest plan');
+  context.assert(pwaPlan.pwa && pwaPlan.pwa.webAppManifest && pwaPlan.pwa.manifestRef === pwaPlan.webAppManifest.manifestRef, 'PWA Service Worker consumes the shared Manifest plan');
+  context.assert(directPlan && directPlan.schema === MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA && directPlan.enabled === true, 'public Web App Manifest plan factory works');
+
+  context.assert(result.ok === true, 'Web App Manifest-enabled Maraca bundle builds');
+  context.assert(fs.existsSync(manifestPath), 'Web App Manifest build writes xtend.webmanifest');
+  context.assert(fs.existsSync(reportPath), 'Web App Manifest build writes xtend.webmanifest.report.json');
+  context.assert(fs.existsSync(iconDir), 'Web App Manifest build creates icons directory');
+  iconFiles.forEach((fileName) => {
+    context.assert(fs.existsSync(resolveRepoPath(`${out}/${fileName}`, rootDir)), `Web App Manifest build copies ${fileName}`);
+  });
+  context.assert(manifest && manifest.name === 'XTend Manifest Fixture', 'Generated Web App Manifest keeps configured app name');
+  context.assert(manifest && manifest.short_name === 'Manifest', 'Generated Web App Manifest keeps configured short name');
+  context.assert(manifest && manifest.start_url === './' && manifest.scope === './', 'Generated Web App Manifest uses mobile-safe start URL and scope');
+  context.assert(manifest && manifest.display === 'standalone', 'Generated Web App Manifest declares standalone display');
+  context.assert(manifest && manifest.background_color === '#ffffff', 'Generated Web App Manifest uses default background color');
+  context.assert(manifest && manifest.theme_color === '#1f6f78', 'Generated Web App Manifest uses configured/default theme color');
+  context.assert(manifestIcons.length === 2, 'Generated Web App Manifest declares only mobile manifest icons');
+  context.assert(manifestIcons.some((icon) => icon.src === 'icons/android-chrome-192x192.png' && icon.sizes === '192x192' && icon.type === 'image/png' && icon.purpose === 'any'), 'Generated Web App Manifest declares 192px mobile icon');
+  context.assert(manifestIcons.some((icon) => icon.src === 'icons/android-chrome-512x512.png' && icon.sizes === '512x512' && icon.type === 'image/png' && icon.purpose === 'any'), 'Generated Web App Manifest declares 512px mobile icon');
+  context.assert(report && report.schema === MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA, 'Bundle report embeds Web App Manifest report');
+  context.assert(writtenReport && writtenReport.schema === MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA, 'Web App Manifest evidence report uses stable schema');
+  context.assert(writtenReport && writtenReport.enabled === true && writtenReport.generated === true, 'Web App Manifest evidence report marks generated assistant');
+  context.assert(writtenReport && writtenReport.brandingMode === 'default-xtend-assets', 'Web App Manifest report marks default XTend branding assets');
+  context.assert(writtenReport && writtenReport.manifestRef === './xtend.webmanifest', 'Web App Manifest report records manifest ref');
+  context.assert(writtenReport && writtenReport.iconDirectory === 'icons', 'Web App Manifest report records icon directory');
+  context.assert(writtenReport && writtenReport.replacementPaths.includes('icons/XTend-Logo.png') && writtenReport.replacementPaths.includes('icons/logo.svg'), 'Web App Manifest report names developer replacement paths');
+  context.assert(writtenReport && writtenReport.htmlLinkHints.some((hint) => hint.rel === 'apple-touch-icon' && hint.href === 'icons/apple-touch-icon.png'), 'Web App Manifest report exposes Apple touch icon link hint');
+  context.assert(writtenReport && writtenReport.htmlLinkHints.some((hint) => hint.href === 'icons/favicon-32x32.png'), 'Web App Manifest report exposes favicon link hints');
+  context.assert(Array.isArray(bundleReport.bundleFiles) && bundleReport.bundleFiles.some((file) => file.fileName === 'icons/android-chrome-192x192.png'), 'Bundle file report includes copied manifest icon assets');
+
+  const pwaResult = await buildFixtureAsync(rootDir, {
+    out: '.xtend-build/maraca/web-app-manifest-pwa-build',
+    profile: 'debug',
+    lazy: 'component',
+    css: 'external',
+    pwa: true
+  });
+  const pwaPrecache = pwaResult.bundleReport && pwaResult.bundleReport.pwa && pwaResult.bundleReport.pwa.precacheUrls || [];
+  context.assert(pwaPrecache.includes('./xtend.webmanifest'), 'PWA Service Worker precache includes shared Web App Manifest');
+  context.assert(pwaPrecache.includes('./icons/android-chrome-192x192.png'), 'PWA Service Worker precache includes 192px manifest icon');
+  context.assert(pwaPrecache.includes('./icons/android-chrome-512x512.png'), 'PWA Service Worker precache includes 512px manifest icon');
+
+  let serverHandle = null;
+  try {
+    serverHandle = await listenXtendDevServer({
+      rootDir,
+      defaultPath: `${out}/xtend.webmanifest`,
+      port: 0
+    });
+    const manifestResponse = await requestText(`${serverHandle.origin}/${out}/xtend.webmanifest`);
+    const pngResponse = await requestText(`${serverHandle.origin}/${out}/icons/android-chrome-192x192.png`);
+    const icoResponse = await requestText(`${serverHandle.origin}/${out}/icons/favicon.ico`);
+    const svgResponse = await requestText(`${serverHandle.origin}/${out}/icons/logo.svg`);
+    context.assert(manifestResponse.statusCode === 200, 'Local server serves generated Web App Manifest');
+    context.assert(String(manifestResponse.headers['content-type']).includes('application/manifest+json'), 'Local server serves webmanifest with PWA MIME type');
+    context.assert(pngResponse.statusCode === 200 && String(pngResponse.headers['content-type']).includes('image/png'), 'Local server serves copied PNG icons with image/png MIME type');
+    context.assert(icoResponse.statusCode === 200 && String(icoResponse.headers['content-type']).includes('image/x-icon'), 'Local server serves copied favicon with icon MIME type');
+    context.assert(svgResponse.statusCode === 200 && String(svgResponse.headers['content-type']).includes('image/svg+xml'), 'Local server serves copied SVG logo with SVG MIME type');
+  } catch (error) {
+    const message = error && error.message ? error.message : String(error);
+    if (/EACCES|EPERM|listen|denied/iu.test(message)) {
+      context.skip(`Web App Manifest local server fixture skipped because loopback listen is denied (${message})`);
+    } else {
+      context.fail(`Web App Manifest local server fixture failed (${message})`);
+    }
+  } finally {
+    if (serverHandle && serverHandle.server) {
+      await new Promise((resolve) => serverHandle.server.close(resolve));
+    }
+  }
+
+  return context.result({
+    schema: MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA,
+    webAppManifest: writtenReport
+  });
+}
+
+function printMaracaWebAppManifestReport(result) {
+  printSuiteReport(result, {
+    successTitle: 'XTend Maraca Web App Manifest Assistant erfolgreich.',
+    failureTitle: 'XTend Maraca Web App Manifest Assistant fehlgeschlagen:'
+  });
+}
+
+async function runMaracaPwaServiceWorkerSuite(options = {}) {
+  const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
+  const context = createSuiteContext({
+    id: 'maraca-pwa-service-worker',
+    label: 'XTend Maraca PWA Service Worker Assistant'
+  });
+  const out = '.xtend-build/maraca/pwa-service-worker';
+  const pwaInput = {
+    out,
+    profile: 'debug',
+    lazy: 'component',
+    css: 'external',
+    pwa: {
+      enabled: true,
+      name: 'XTend Maraca PWA Fixture',
+      shortName: 'Maraca PWA',
+      serviceWorker: {
+        businessLogicImport: './sw-business-logic.js'
+      }
+    },
+    enableUiCoprocessor: true
+  };
+  const plan = planFixture(rootDir, pwaInput);
+  const aliasPlan = planFixture(rootDir, {
+    out: '.xtend-build/maraca/pwa-service-worker-alias',
+    'enable-service-worker': true
+  });
+  const directPlan = createMaracaPwaServiceWorkerPlan({
+    rootDir,
+    outputDir: resolveRepoPath('.xtend-build/maraca/pwa-direct', rootDir),
+    pwa: true
+  });
+  const result = await buildFixtureAsync(rootDir, pwaInput);
+  const bundleReport = result.bundleReport || {};
+  const pwaReport = bundleReport.pwa || {};
+  const manifestPath = resolveRepoPath(`${out}/xtend.webmanifest`, rootDir);
+  const serviceWorkerPath = resolveRepoPath(`${out}/xtend.service-worker.js`, rootDir);
+  const offlinePath = resolveRepoPath(`${out}/xtend.offline.html`, rootDir);
+  const reportPath = resolveRepoPath(`${out}/xtend.pwa.report.json`, rootDir);
+  const entryPath = resolveRepoPath(`${out}/xtend.maraca.mjs`, rootDir);
+  const cssPath = resolveRepoPath(`${out}/xtend.maraca.css`, rootDir);
+  const serviceWorker = fs.existsSync(serviceWorkerPath) ? fs.readFileSync(serviceWorkerPath, 'utf8') : '';
+  const entry = fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
+  const manifest = fs.existsSync(manifestPath) ? readJson(`${out}/xtend.webmanifest`, rootDir) : null;
+  const writtenPwaReport = fs.existsSync(reportPath) ? readJson(`${out}/xtend.pwa.report.json`, rootDir) : null;
+  const swSyntax = fs.existsSync(serviceWorkerPath)
+    ? syntaxCheckFile(`${out}/xtend.service-worker.js`, { rootDir, extension: '.js' })
+    : { ok: false, message: 'missing service worker' };
+
+  context.assert(MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA === 'xtend.maraca.pwa-service-worker-plan.v1', 'PWA Service Worker plan schema is stable');
+  context.assert(MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA === 'xtend.maraca.pwa-service-worker-report.v1', 'PWA Service Worker report schema is stable');
+  context.assert(plan.pwa && plan.pwa.schema === MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA, 'Maraca plan includes PWA Service Worker plan');
+  context.assert(plan.webAppManifest && plan.webAppManifest.schema === MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA && plan.webAppManifest.enabled === true, 'PWA Service Worker opt-in enables shared Web App Manifest plan');
+  context.assert(plan.pwa && plan.pwa.webAppManifest && plan.pwa.manifestRef === plan.webAppManifest.manifestRef, 'PWA Service Worker references shared Web App Manifest plan');
+  context.assert(plan.pwa && plan.pwa.enabled === true, 'PWA Service Worker opt-in enables the assistant');
+  context.assert(plan.pwa && plan.pwa.strategy === 'app-shell', 'PWA Service Worker uses app-shell strategy');
+  context.assert(plan.pwa && plan.pwa.cacheMode === 'generated-app-shell', 'PWA Service Worker uses generated app-shell cache mode');
+  context.assert(plan.pwa && plan.pwa.updateMode === 'prompt', 'PWA Service Worker defaults update mode to prompt');
+  context.assert(plan.pwa && plan.pwa.businessLogicHook === 'import-script', 'PWA Service Worker exposes import-script business logic hook');
+  context.assert(aliasPlan.pwa && aliasPlan.pwa.enabled === true, 'enable-service-worker alias enables PWA plan');
+  context.assert(directPlan && directPlan.schema === MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA && directPlan.enabled === true, 'public PWA plan factory works');
+  context.assert(plan.uiCoprocessor && plan.uiCoprocessor.pwaAttachment && plan.uiCoprocessor.pwaAttachment.engineImplemented === true, 'UI Coprocessor PWA attachment reflects generated PWA engine');
+  context.assert(plan.uiCoprocessor.pwaAttachment.cacheVersion === plan.pwa.cacheVersion, 'UI Coprocessor PWA attachment carries cache version');
+
+  context.assert(result.ok === true, 'PWA-enabled Maraca bundle builds');
+  context.assert(fs.existsSync(manifestPath), 'PWA build writes xtend.webmanifest');
+  context.assert(fs.existsSync(serviceWorkerPath), 'PWA build writes xtend.service-worker.js');
+  context.assert(fs.existsSync(offlinePath), 'PWA build writes xtend.offline.html');
+  context.assert(fs.existsSync(reportPath), 'PWA build writes xtend.pwa.report.json');
+  context.assert(swSyntax.ok, `Generated Service Worker syntax passes${swSyntax.ok ? '' : ` (${swSyntax.message})`}`);
+  context.assert(manifest && manifest.display === 'standalone', 'Generated manifest declares standalone display');
+  context.assert(manifest && manifest.name === 'XTend Maraca PWA Fixture', 'Generated manifest keeps configured app name');
+  context.assert(pwaReport && pwaReport.schema === MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA, 'Bundle report embeds PWA Service Worker report');
+  context.assert(writtenPwaReport && writtenPwaReport.schema === MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA, 'PWA evidence report uses stable schema');
+  context.assert(writtenPwaReport && writtenPwaReport.enabled === true && writtenPwaReport.generated === true, 'PWA evidence report marks generated assistant');
+  context.assert(writtenPwaReport && writtenPwaReport.businessLogicHook === 'import-script', 'PWA evidence records business logic hook');
+  context.assert(writtenPwaReport && writtenPwaReport.businessLogicImport === './sw-business-logic.js', 'PWA evidence records business logic import');
+  context.assert(writtenPwaReport && writtenPwaReport.webAppManifest && writtenPwaReport.webAppManifest.schema === MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA, 'PWA evidence embeds shared Web App Manifest plan');
+  context.assert(writtenPwaReport && writtenPwaReport.precacheUrls.includes('./xtend.webmanifest'), 'PWA precache includes generated manifest');
+  context.assert(writtenPwaReport && writtenPwaReport.precacheUrls.includes('./icons/android-chrome-192x192.png'), 'PWA precache includes generated 192px manifest icon');
+  context.assert(writtenPwaReport && writtenPwaReport.precacheUrls.includes('./icons/android-chrome-512x512.png'), 'PWA precache includes generated 512px manifest icon');
+  context.assert(writtenPwaReport && writtenPwaReport.precacheUrls.includes('./xtend.offline.html'), 'PWA precache includes offline fallback');
+  context.assert(writtenPwaReport && writtenPwaReport.precacheUrls.some((entry) => entry.endsWith('.mjs')), 'PWA precache includes Maraca entry/chunks');
+  context.assert(fs.existsSync(cssPath) && writtenPwaReport.precacheUrls.some((entry) => entry.endsWith('.css')), 'PWA precache includes external CSS asset');
+  context.assert(Array.isArray(bundleReport.bundleFiles) && bundleReport.bundleFiles.some((file) => file.fileName === 'xtend.service-worker.js'), 'Bundle file report includes generated Service Worker asset');
+  context.assert(serviceWorker.includes('XTEND SERVICE WORKER BUSINESS LOGIC HOOK'), 'Generated Service Worker includes business logic hook comment');
+  context.assert(serviceWorker.includes("importScripts(XTEND_BUSINESS_LOGIC_IMPORT)"), 'Generated Service Worker imports optional business logic script');
+  context.assert(serviceWorker.includes("self.addEventListener('install'"), 'Generated Service Worker includes install flow');
+  context.assert(serviceWorker.includes("self.addEventListener('activate'"), 'Generated Service Worker includes activate cleanup flow');
+  context.assert(serviceWorker.includes("self.addEventListener('fetch'"), 'Generated Service Worker includes fetch flow');
+  context.assert(serviceWorker.includes("request.method !== 'GET'"), 'Generated Service Worker avoids non-GET caching');
+  context.assert(serviceWorker.includes("request.headers.get('authorization')") && serviceWorker.includes("request.headers.get('cookie')"), 'Generated Service Worker avoids auth/cookie-sensitive caching');
+  context.assert(serviceWorker.includes('sameOrigin(request.url)'), 'Generated Service Worker stays same-origin by default');
+  context.assert(serviceWorker.includes('replacesUiCoprocessor: false') && serviceWorker.includes('replacesSsr: false'), 'Generated Service Worker does not replace SSR or UI Coprocessor');
+  context.assert(writtenPwaReport && writtenPwaReport.runtimeCaching.blockedByDefault.includes('api-responses-without-explicit-app-policy'), 'PWA report blocks API caching without explicit policy');
+  context.assert(writtenPwaReport && writtenPwaReport.runtimeCaching.blockedByDefault.includes('offline-mutations'), 'PWA report keeps offline mutations out of v1');
+  context.assert(entry.includes('const MARACA_PWA = Object.freeze'), 'Generated Maraca entry embeds PWA plan');
+  context.assert(entry.includes('const MARACA_WEB_APP_MANIFEST = Object.freeze'), 'Generated Maraca entry embeds Web App Manifest plan');
+  context.assert(entry.includes('registerMaracaPwaServiceWorker'), 'Generated Maraca entry registers Service Worker at boot');
+  context.assert(entry.includes('__XTendMaracaPwaRegistration'), 'Generated Maraca entry exposes PWA registration snapshot');
+
+  let serverHandle = null;
+  try {
+    serverHandle = await listenXtendDevServer({
+      rootDir,
+      defaultPath: `${out}/xtend.webmanifest`,
+      port: 0
+    });
+    const manifestResponse = await requestText(`${serverHandle.origin}/${out}/xtend.webmanifest`);
+    const swResponse = await requestText(`${serverHandle.origin}/${out}/xtend.service-worker.js`);
+    context.assert(manifestResponse.statusCode === 200, 'Local server serves generated PWA manifest');
+    context.assert(String(manifestResponse.headers['content-type']).includes('application/manifest+json'), 'Local server serves manifest with PWA MIME type');
+    context.assert(swResponse.statusCode === 200, 'Local server serves generated Service Worker');
+    context.assert(String(swResponse.headers['content-type']).includes('text/javascript'), 'Local server serves Service Worker with JavaScript MIME type');
+  } catch (error) {
+    const message = error && error.message ? error.message : String(error);
+    if (/EACCES|EPERM|listen|denied/iu.test(message)) {
+      context.skip(`PWA local server fixture skipped because loopback listen is denied (${message})`);
+    } else {
+      context.fail(`PWA local server fixture failed (${message})`);
+    }
+  } finally {
+    if (serverHandle && serverHandle.server) {
+      await new Promise((resolve) => serverHandle.server.close(resolve));
+    }
+  }
+
+  return context.result({
+    schema: MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA,
+    pwa: writtenPwaReport
+  });
+}
+
+function printMaracaPwaServiceWorkerReport(result) {
+  printSuiteReport(result, {
+    successTitle: 'XTend Maraca PWA Service Worker Assistant erfolgreich.',
+    failureTitle: 'XTend Maraca PWA Service Worker Assistant fehlgeschlagen:'
+  });
+}
+
 function runMaracaPackageExportsSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
@@ -2052,6 +2368,10 @@ function runMaracaPackageExportsSuite(options = {}) {
   context.assert(metadata && metadata.hydrationPlanSchema === MARACA_HYDRATION_PLAN_SCHEMA, 'package metadata declares hydration-plan schema');
   context.assert(metadata && metadata.warmReentryReportSchema === MARACA_WARM_REENTRY_REPORT_SCHEMA, 'package metadata declares Warm Reentry report schema');
   context.assert(metadata && metadata.prewarmWorkerRuntimeSchema === MARACA_PREWARM_WORKER_RUNTIME_SCHEMA, 'package metadata declares Prewarm Worker runtime schema');
+  context.assert(metadata && metadata.webAppManifestPlanSchema === MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA, 'package metadata declares Web App Manifest plan schema');
+  context.assert(metadata && metadata.webAppManifestReportSchema === MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA, 'package metadata declares Web App Manifest report schema');
+  context.assert(metadata && metadata.pwaServiceWorkerPlanSchema === MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA, 'package metadata declares PWA Service Worker plan schema');
+  context.assert(metadata && metadata.pwaServiceWorkerReportSchema === MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA, 'package metadata declares PWA Service Worker report schema');
   context.assert(metadata && metadata.validationPlanSchema === MARACA_VALIDATION_PLAN_SCHEMA, 'package metadata declares validation-plan schema');
   context.assert(metadata && metadata.transitionPlanSchema === MARACA_TRANSITION_PLAN_SCHEMA, 'package metadata declares transition-plan schema');
   context.assert(metadata && metadata.templateArtifactsReportSchema === MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA, 'package metadata declares template-artifacts report schema');
@@ -2062,6 +2382,7 @@ function runMaracaPackageExportsSuite(options = {}) {
     context.assert(runner.includes(`id: '${suiteId}'`), `test runner registers ${suiteId}`);
   });
   context.assert(cli.includes('xt maraca plan app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json'), 'CLI help documents Maraca kernel hydration validation transition orchestration plan command');
+  context.assert(cli.includes('xt maraca build app.rmt --out dist --web-app-manifest --json') && cli.includes('xt maraca build app.rmt --out dist --manifest --json'), 'CLI help documents Web App Manifest aliases');
   context.assert(cli.includes('xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict'), 'CLI help documents one-step RMT Maraca kernel hydration validation transition orchestration build');
 
   return context.result({
@@ -2142,18 +2463,22 @@ module.exports = {
   printMaracaOrchestrationReport,
   printMaracaPackageExportsReport,
   printMaracaPlanReport,
+  printMaracaPwaServiceWorkerReport,
   printMaracaRmtSourceToBundleReport,
   printMaracaSizeBudgetReport,
   printMaracaTransitionReport,
   printMaracaValidationReport,
+  printMaracaWebAppManifestReport,
   runMaracaBundleSuite,
   runMaracaKernelIntegritySuite,
   runMaracaKernelOrchestrationSuite,
   runMaracaOrchestrationSuite,
   runMaracaPackageExportsSuite,
   runMaracaPlanSuite,
+  runMaracaPwaServiceWorkerSuite,
   runMaracaRmtSourceToBundleSuite,
   runMaracaSizeBudgetSuite,
   runMaracaTransitionSuite,
-  runMaracaValidationSuite
+  runMaracaValidationSuite,
+  runMaracaWebAppManifestSuite
 };

@@ -1,0 +1,32 @@
+{
+  "name": "@ccslabs/xtend-llm-product",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local XTend RMT, Maraca and Electron WebGPU LLM product smoke.",
+  "main": "src/main/electron-main.mjs",
+  "scripts": {
+    "rmt:plan": "node scripts/rmt-plan.mjs",
+    "rmt:plan:debug": "node scripts/rmt-plan.mjs --profile debug",
+    "rmt:plan:production": "node scripts/rmt-plan.mjs --profile production",
+    "rmt:build": "node scripts/rmt-build.mjs",
+    "rmt:build:debug": "node scripts/rmt-build.mjs --profile debug",
+    "rmt:build:production": "node scripts/rmt-build.mjs --profile production",
+    "model:install": "node scripts/model-install.mjs",
+    "model:install:qwen3-8b": "node scripts/model-install.mjs -- --target",
+    "dev": "npm run rmt:build && env -u ELECTRON_RUN_AS_NODE electron . -- --dev",
+    "start": "npm run rmt:build && env -u ELECTRON_RUN_AS_NODE electron .",
+    "build:app": "node scripts/build-app.mjs",
+    "build": "npm run build:app",
+    "test": "node tests/product.test.mjs",
+    "test:layout": "env -u ELECTRON_RUN_AS_NODE electron . -- --layout-smoke",
+    "test:llm": "env -u ELECTRON_RUN_AS_NODE electron tests/llm-terminal-runner.mjs -- --model=onnx-community/Qwen3-0.6B-ONNX",
+    "test:llm:qwen3-8b": "env -u ELECTRON_RUN_AS_NODE electron tests/llm-terminal-runner.mjs -- --target",
+    "test:llm:fake": "env -u ELECTRON_RUN_AS_NODE electron tests/llm-terminal-runner.mjs -- --fake",
+    "test:real-model": "npm run test:llm:qwen3-8b"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
+    "electron": "^42.4.0"
+  }
+}

@@ -1,0 +1,336 @@
+{
+  "schema": "xtend.xtensions.imperative-host-pocs.fixture.v1",
+  "workpackage": "XTN-08",
+  "expectedChartId": "xtension.chart.sales",
+  "expectedLeafletId": "xtension.leaflet.map",
+  "expectedFrameworks": [
+    "chart.js",
+    "leaflet"
+  ],
+  "expectedChartUpdateModes": [
+    "active",
+    "none"
+  ],
+  "expectedLeafletEvents": [
+    "pan",
+    "zoom",
+    "layer.click",
+    "marker.drag",
+    "popup.open"
+  ],
+  "contract": {
+    "chartId": "xtension.chart.sales",
+    "leafletId": "xtension.leaflet.map"
+  },
+  "host": {
+    "hostId": "xtensions-imperative-poc-host",
+    "capabilities": [
+      "host.lifecycle.mount",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "chart.update.policy",
+      "leaflet.event-normalization",
+      "event.rate-limit",
+      "imperative.resize",
+      "imperative.visibility"
+    ],
+    "providedFrameworks": [
+      {
+        "name": "chart.js",
+        "version": "4.4.0",
+        "source": "external-peer-harness",
+        "available": true
+      },
+      {
+        "name": "leaflet",
+        "version": "1.9.4",
+        "source": "external-peer-harness",
+        "available": true
+      }
+    ],
+    "policy": {
+      "dynamicImportAllowed": true,
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "imperativeApiBoundary": "hostcontroller-only"
+    }
+  },
+  "chart": {
+    "adapter": {
+      "xtensionId": "xtension.chart.sales",
+      "version": "0.1.0-poc",
+      "entry": {
+        "module": "external-peer://chart.js/host-controller-poc",
+        "exportName": "createChartHostController",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "integrity": {
+        "sha256": "sha256:chart-host-controller-poc-external-peer-placeholder",
+        "source": "declared"
+      },
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "x-placeholder",
+        "message": "Chart.js XTension PoC unavailable.",
+        "degradedStatus": "xtension-chart-poc-unavailable"
+      },
+      "dependencies": [
+        {
+          "name": "chart.js",
+          "versionRange": "^4.0.0",
+          "classification": "external-peer",
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ]
+    }
+  },
+  "leaflet": {
+    "adapter": {
+      "xtensionId": "xtension.leaflet.map",
+      "version": "0.1.0-poc",
+      "entry": {
+        "module": "external-peer://leaflet/host-controller-poc",
+        "exportName": "createLeafletHostController",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "integrity": {
+        "sha256": "sha256:leaflet-host-controller-poc-external-peer-placeholder",
+        "source": "declared"
+      },
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "x-placeholder",
+        "message": "Leaflet XTension PoC unavailable.",
+        "degradedStatus": "xtension-leaflet-poc-unavailable"
+      },
+      "dependencies": [
+        {
+          "name": "leaflet",
+          "versionRange": "^1.9.0",
+          "classification": "external-peer",
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ]
+    }
+  },
+  "requests": [
+    {
+      "xtensionId": "xtension.chart.sales",
+      "surfaceId": "surface.chart.sales"
+    },
+    {
+      "xtensionId": "xtension.leaflet.map",
+      "surfaceId": "surface.leaflet.map"
+    }
+  ],
+  "operations": [
+    {
+      "target": "chart",
+      "kind": "mount",
+      "container": {
+        "id": "chart-container"
+      },
+      "data": {
+        "labels": [
+          "Q1",
+          "Q2"
+        ],
+        "datasets": [
+          {
+            "id": "sales",
+            "points": [
+              12,
+              18
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "target": "chart",
+      "kind": "update",
+      "mode": "active",
+      "payload": {
+        "selection": {
+          "seriesId": "sales",
+          "points": [
+            {
+              "x": "Q1",
+              "y": 12
+            }
+          ]
+        }
+      }
+    },
+    {
+      "target": "chart",
+      "kind": "update",
+      "mode": "none",
+      "payload": {
+        "data": {
+          "labels": [
+            "Q1",
+            "Q2",
+            "Q3"
+          ],
+          "values": [
+            12,
+            18,
+            21
+          ]
+        }
+      }
+    },
+    {
+      "target": "chart",
+      "kind": "resize",
+      "width": 640,
+      "height": 320
+    },
+    {
+      "target": "chart",
+      "kind": "visibility",
+      "visibility": "hidden"
+    },
+    {
+      "target": "leaflet",
+      "kind": "mount",
+      "container": {
+        "id": "map-container"
+      },
+      "viewport": {
+        "center": [
+          52.52,
+          13.405
+        ],
+        "zoom": 12
+      }
+    },
+    {
+      "target": "leaflet",
+      "kind": "emit",
+      "event": {
+        "type": "pan",
+        "payload": {
+          "viewport": {
+            "center": [
+              52.51,
+              13.4
+            ],
+            "zoom": 12
+          }
+        }
+      }
+    },
+    {
+      "target": "leaflet",
+      "kind": "emit",
+      "event": {
+        "type": "zoom",
+        "payload": {
+          "viewport": {
+            "center": [
+              52.51,
+              13.4
+            ],
+            "zoom": 13
+          }
+        }
+      }
+    },
+    {
+      "target": "leaflet",
+      "kind": "emit",
+      "event": {
+        "type": "layer.click",
+        "payload": {
+          "layer": {
+            "id": "district-a",
+            "kind": "polygon"
+          },
+          "selection": {
+            "id": "district-a"
+          }
+        }
+      }
+    },
+    {
+      "target": "leaflet",
+      "kind": "emit",
+      "event": {
+        "type": "marker.drag",
+        "payload": {
+          "marker": {
+            "id": "marker-1",
+            "lat": 52.5,
+            "lng": 13.4
+          }
+        }
+      }
+    },
+    {
+      "target": "leaflet",
+      "kind": "emit",
+      "event": {
+        "type": "popup.open",
+        "payload": {
+          "popup": {
+            "id": "popup-1",
+            "anchor": "marker-1"
+          }
+        }
+      }
+    },
+    {
+      "target": "leaflet",
+      "kind": "emit",
+      "event": {
+        "type": "pan",
+        "eventCount": 25,
+        "maxEventsPerWindow": 20,
+        "payload": {
+          "viewport": {
+            "center": [
+              52.5,
+              13.39
+            ],
+            "zoom": 13
+          }
+        }
+      }
+    },
+    {
+      "target": "leaflet",
+      "kind": "resize",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "target": "leaflet",
+      "kind": "visibility",
+      "visibility": "visible"
+    },
+    {
+      "target": "chart",
+      "kind": "unmount",
+      "reason": "fixture-complete"
+    },
+    {
+      "target": "leaflet",
+      "kind": "unmount",
+      "reason": "fixture-complete"
+    }
+  ],
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "runtimeExecutionRequired": false,
+    "peerHarness": "external-opt-in"
+  }
+}

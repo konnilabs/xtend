@@ -2,6 +2,27 @@
 
 This directory contains local, deterministic security-policy gates.
 
+## XSS Pentest
+
+`xss_pentest_suite.js` verifies the local XTend XSS pentest gate:
+
+- `xtend.security.xss-payload-catalog.v1`
+- `xtend.security.xss-pentest-plan.v1`
+- `xtend.security.xss-pentest-report.v1`
+- `xtend.security.xss-pentest-browser-smoke.v1`
+
+Run it locally:
+
+```bash
+node scripts/run_xtend_tests.js xss-pentest
+node scripts/run_xtend_tests.js xss-pentest --json
+npm run test:xss-pentest
+```
+
+The suite is local-only. It uses a static sink scan, Fake-DOM RMT artifact probes,
+a self-checking browser fixture, and XTend LLM renderer/server probes without
+calling external targets.
+
 ## Supply Chain
 
 `supply_chain_policy_suite.js` verifies the ER-WP-30 Supply-Chain Gate Plan:

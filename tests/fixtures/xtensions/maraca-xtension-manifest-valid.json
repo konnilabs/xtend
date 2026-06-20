@@ -1,0 +1,174 @@
+{
+  "schema": "xtend.maraca.xtension-manifest.fixture.v1",
+  "fixtureId": "xtensions.maraca.manifest.valid",
+  "workpackage": "XTN-03",
+  "outDir": ".xtend-build/maraca/xtensions",
+  "xtensions": [
+    {
+      "id": "xtension.react.todo",
+      "name": "React-like Todo XTension",
+      "framework": "react",
+      "version": "0.0.0-contract",
+      "entry": {
+        "module": "external-peer://react/todo-host-controller",
+        "exportName": "createHostController",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "lazy": {
+        "mode": "route",
+        "optIn": true,
+        "policy": "manifest-policy",
+        "prefetch": false,
+        "preload": false
+      },
+      "contract": {
+        "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+        "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+        "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+        "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+        "accepts": [
+          "props.update",
+          "state.patch",
+          "command.dispatch"
+        ],
+        "emits": [
+          "xtension.react.todo.submitted.v1",
+          "xtension.react.todo.changed.v1"
+        ],
+        "capabilities": [
+          "host.lifecycle.mount",
+          "host.lifecycle.unmount",
+          "signal.downstream",
+          "event.upstream"
+        ]
+      },
+      "capabilities": [
+        "host.lifecycle.mount",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream"
+      ],
+      "integrity": {
+        "sha256": "sha256:4f9df4d3d32a0f6eb25f5ff630dc1f3a3a4a336fa7852b2ef9ae98060d617ef0",
+        "source": "declared"
+      },
+      "csp": {
+        "scriptSrc": [
+          "'self'"
+        ],
+        "connectSrc": [
+          "'self'"
+        ],
+        "workerSrc": [
+          "'self'"
+        ],
+        "styleSrc": [
+          "'self'"
+        ],
+        "imgSrc": [
+          "'self'",
+          "data:"
+        ]
+      },
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "x-surface-placeholder",
+        "message": "Todo XTension unavailable",
+        "degradedStatus": "xtension-unavailable"
+      },
+      "dependencies": [
+        {
+          "name": "react",
+          "versionRange": "^18 || ^19",
+          "classification": "external-peer",
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ]
+    },
+    {
+      "id": "xtension.three.asset-preview",
+      "name": "Three-like Asset Preview XTension",
+      "framework": "three",
+      "version": "0.0.0-contract",
+      "entry": {
+        "module": "external-peer://three/asset-preview-host-controller",
+        "exportName": "createHostController",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "lazy": {
+        "mode": "visible",
+        "optIn": true,
+        "policy": "manifest-policy",
+        "prefetch": false,
+        "preload": false
+      },
+      "contract": {
+        "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+        "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+        "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+        "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+        "accepts": [
+          "scene.patch",
+          "camera.update",
+          "render.tick"
+        ],
+        "emits": [
+          "xtension.three.frame.budget.exceeded.v1",
+          "xtension.three.object.selected.v1"
+        ],
+        "capabilities": [
+          "host.lifecycle.mount",
+          "host.lifecycle.unmount",
+          "render-loop.fiber-controlled",
+          "event.upstream"
+        ]
+      },
+      "capabilities": [
+        "host.lifecycle.mount",
+        "host.lifecycle.unmount",
+        "render-loop.fiber-controlled",
+        "event.upstream"
+      ],
+      "integrity": {
+        "sha256": "sha256:eb31f9a394d870eaf574a437a9d6a293ac7db708fd78641f2a02ba8ec1437b84",
+        "source": "declared"
+      },
+      "csp": {
+        "scriptSrc": [
+          "'self'"
+        ],
+        "connectSrc": [
+          "'self'"
+        ],
+        "workerSrc": [
+          "'self'"
+        ],
+        "styleSrc": [
+          "'self'"
+        ],
+        "imgSrc": [
+          "'self'",
+          "blob:"
+        ]
+      },
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "x-surface-placeholder",
+        "message": "Asset preview XTension unavailable",
+        "degradedStatus": "xtension-unavailable"
+      },
+      "dependencies": [
+        {
+          "name": "three",
+          "versionRange": "^0.160",
+          "classification": "external-peer",
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ]
+    }
+  ]
+}

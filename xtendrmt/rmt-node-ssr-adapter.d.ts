@@ -10,6 +10,8 @@ export const RMT_NODE_SSR_RESPONSE_KIND: 'renderman_template_prerender_response'
 export const RMT_NODE_SSR_EXECUTION_MODE: 'server_prerender_hydrate';
 export const RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA: 'xtend.rmt.vnext-streaming-contract.v1';
 export const RMT_NODE_SSR_KERNEL_BOUNDARY: 'no-rmt-kernel-import-of-xtend-types';
+export const RMT_SSR_CSP_POLICY_SCHEMA: 'xtend.rmt.ssr-csp-policy.v1';
+export const RMT_SSR_CSP_HEADER: 'Content-Security-Policy';
 
 export type RmtNodeSsrSeverity = 'info' | 'warning' | 'error' | 'fatal';
 
@@ -42,7 +44,17 @@ export interface RmtNodeSsrHydrationPayload {
   componentCapabilities: RmtNodeSsrComponentCapabilityHint[];
   coreDocumentSchema?: string | null;
   streamingContractSchema?: string | null;
+  cspPolicy?: RmtSsrCspPolicy;
   [key: string]: unknown;
+}
+
+export interface RmtSsrCspPolicy {
+  schema: typeof RMT_SSR_CSP_POLICY_SCHEMA;
+  mode: 'framework-default' | 'host-supplied' | string;
+  header: string;
+  directives: Record<string, string[]>;
+  managedBy: string;
+  automatic: boolean;
 }
 
 export interface RmtNodeSsrTemplateChunk {
@@ -79,6 +91,7 @@ export interface RmtNodeSsrPrerenderResponseEnvelope {
   plan: Record<string, unknown>;
   request: Record<string, unknown>;
   metadata: Record<string, unknown>;
+  headers: Record<string, string>;
   chunk: RmtNodeSsrTemplateChunk;
   chunks: RmtNodeSsrTemplateChunk[];
   hydration: RmtNodeSsrHydrationPayload;
@@ -98,8 +111,12 @@ export interface RmtNodeSsrRenderResult {
   html: string;
   head: {
     preloads: Array<Record<string, unknown>>;
+    csp: RmtSsrCspPolicy;
+    securityHeaders: Record<string, string>;
     hints: Array<Record<string, unknown>>;
   };
+  headers: Record<string, string>;
+  cspPolicy: RmtSsrCspPolicy;
   chunks: RmtNodeSsrTemplateChunk[];
   response: RmtNodeSsrPrerenderResponseEnvelope;
   hydration: RmtNodeSsrHydrationPayload;
@@ -172,6 +189,12 @@ export interface RmtNodeSsrOptions {
   sanitizeHtmlOutput?: (html: string, context: Record<string, unknown>) => string;
   trustBoundary?: string | string[];
   defaultTrustBoundary?: string | string[];
+  contentSecurityPolicy?: string | { directives?: Record<string, string | string[]>; [key: string]: unknown };
+  cspPolicy?: string | { directives?: Record<string, string | string[]>; [key: string]: unknown };
+  csp?: string | { directives?: Record<string, string | string[]>; [key: string]: unknown };
+  cspDirectives?: Record<string, string | string[]>;
+  headers?: Record<string, string>;
+  status?: number;
   signal?: AbortSignal;
   publishDiagnostic?: (diagnostic: RmtNodeSsrDiagnostic) => void;
   [key: string]: unknown;
@@ -183,6 +206,13 @@ export interface RmtNodeSsrDescriptorRenderResult {
   diagnostics: RmtNodeSsrDiagnostic[];
 }
 
+export interface RmtNodeSsrHttpResponse {
+  status: number;
+  headers: Record<string, string>;
+  body: string;
+  result: RmtNodeSsrRenderResult;
+}
+
 export interface RmtNodeSsrAdapter {
   schema: typeof RMT_NODE_SSR_ADAPTER_SCHEMA;
   kernelBoundary: typeof RMT_NODE_SSR_KERNEL_BOUNDARY;
@@ -191,6 +221,8 @@ export interface RmtNodeSsrAdapter {
   streamJsonl(input: string | RmtNodeSsrRenderInput | unknown, options?: RmtNodeSsrOptions): AsyncIterable<string>;
   toReadableStream(input: string | RmtNodeSsrRenderInput | unknown, options?: RmtNodeSsrOptions): ReadableStream<string>;
   toNodeReadable(input: string | RmtNodeSsrRenderInput | unknown, options?: RmtNodeSsrOptions): Readable;
+  toHttpResponse(input: string | RmtNodeSsrRenderInput | unknown, options?: RmtNodeSsrOptions): Promise<RmtNodeSsrHttpResponse>;
+  sendNodeResponse(nodeResponse: unknown, input: string | RmtNodeSsrRenderInput | unknown, options?: RmtNodeSsrOptions): Promise<RmtNodeSsrHttpResponse>;
   renderDescriptorToHtml(descriptor: unknown, options?: RmtNodeSsrOptions): RmtNodeSsrDescriptorRenderResult;
   listDiagnostics(): unknown[];
 }
@@ -208,6 +240,8 @@ declare const api: {
   RMT_NODE_SSR_EXECUTION_MODE: typeof RMT_NODE_SSR_EXECUTION_MODE;
   RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA: typeof RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA;
   RMT_NODE_SSR_KERNEL_BOUNDARY: typeof RMT_NODE_SSR_KERNEL_BOUNDARY;
+  RMT_SSR_CSP_POLICY_SCHEMA: typeof RMT_SSR_CSP_POLICY_SCHEMA;
+  RMT_SSR_CSP_HEADER: typeof RMT_SSR_CSP_HEADER;
   createRmtNodeSsrAdapter: typeof createRmtNodeSsrAdapter;
 };
 

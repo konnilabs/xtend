@@ -85,6 +85,16 @@
       strictFallbackAllowed: true
     },
     {
+      key: 'uiCoprocessor',
+      label: 'UI Coprocessor',
+      category: 'prewarm',
+      requiredFactories: ['createRmtPrewarmWorkerRuntime'],
+      runtimeRequired: true,
+      prodDefault: 'off',
+      diagnosticsRequired: true,
+      strictFallbackAllowed: true
+    },
+    {
       key: 'workerPrerender',
       label: 'Worker Prerender',
       category: 'prerender',

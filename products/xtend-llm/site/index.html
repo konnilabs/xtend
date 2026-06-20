@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://huggingface.co https://cdn-lfs.huggingface.co https://cdn-lfs-us-1.hf.co; worker-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self';">
+    <title>XTend Local LLM</title>
+    <link rel="stylesheet" href="../src/styles/xtend-llm.css">
+    <link rel="stylesheet" href="./build/xtend.maraca.css">
+  </head>
+  <body>
+    <main id="xtend-llm-host" data-xtend-llm-host data-rmt-node-ssr="true" data-rmt-hydration-mode="server_prerender_hydrate">
+      <div id="xtend-maraca-root" data-maraca-root data-rmt-ssr-root="xtend-llm-shell" data-rmt-hydration-mode="server_prerender_hydrate" data-rmt-worker-prewarm-targets="settings-dialog,delete-conversation-dialog,code-bridge,retry-generation,generation-spinner,runtime-error,runtime-diagnostics">
+        <section class="xtend-llm-ssr-shell" data-maraca-ssr-shell="xtend-llm" data-rmt-hydration-mode="server_prerender_hydrate" data-rmt-prerender-transport="node-ssr" data-rmt-worker-prewarm-targets="settings-dialog,delete-conversation-dialog,code-bridge,retry-generation,generation-spinner,runtime-error,runtime-diagnostics">
+          <section id="ssr-conversation-panel" class="xtend-llm-ssr-tile xtend-llm-ssr-conversation-panel" role="navigation" aria-label="Conversations" data-rmt-ssr-surface="conversation-panel" data-rmt-hydration-mode="server_prerender_hydrate"><span class="xtend-llm-ssr-label">Conversations</span></section>
+          <section id="ssr-model-status" class="xtend-llm-ssr-tile xtend-llm-ssr-model-status" role="region" aria-label="Model ready" data-rmt-ssr-surface="model-status" data-rmt-hydration-mode="server_prerender_hydrate"><span class="xtend-llm-ssr-label">Model ready</span></section>
+          <section id="ssr-active-conversation" class="xtend-llm-ssr-tile xtend-llm-ssr-active-conversation" role="region" aria-label="Current conversation" data-rmt-ssr-surface="active-conversation" data-rmt-hydration-mode="server_prerender_hydrate"><span class="xtend-llm-ssr-label">Current conversation</span></section>
+          <section id="ssr-chat-transcript" class="xtend-llm-ssr-tile xtend-llm-ssr-chat-transcript" role="region" aria-label="Transcript" data-rmt-ssr-surface="chat-transcript" data-rmt-hydration-mode="server_prerender_hydrate"><span class="xtend-llm-ssr-label">Transcript</span></section>
+          <section id="ssr-prompt-input" class="xtend-llm-ssr-tile xtend-llm-ssr-prompt-input" role="region" aria-label="Prompt" data-rmt-ssr-surface="prompt-input" data-rmt-hydration-mode="server_prerender_hydrate"><span class="xtend-llm-ssr-label">Prompt</span></section>
+          <section id="ssr-tool-menu" class="xtend-llm-ssr-tile xtend-llm-ssr-tool-menu" role="region" aria-label="Tools" data-rmt-ssr-surface="tool-menu" data-rmt-hydration-mode="server_prerender_hydrate"><span class="xtend-llm-ssr-label">Tools</span></section>
+        </section>
+      </div>
+    </main>
+    <template id="xtend-llm-ssr-hydration" data-rmt-ssr-hydration>{"schema":"xtend-llm.ssr-shell.v1","ok":true,"status":"static","executionMode":"server_prerender_hydrate","transport":"node-ssr","shellSurfaces":["conversation-panel","conversation-search","conversation-list","model-status","active-conversation","chat-transcript","prompt-input","tool-menu"],"workerPrewarmTargets":["settings-dialog","delete-conversation-dialog","code-bridge","retry-generation","generation-spinner","runtime-error","runtime-diagnostics"],"diagnosticCount":0}</template>
+    <script type="module" src="./build/xtend.maraca.mjs"></script>
+    <script type="module" src="../src/renderer/app-controller.mjs"></script>
+  </body>
+</html>

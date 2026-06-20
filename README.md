@@ -65,7 +65,7 @@ xt rmt build app.rmt --bundle maraca --hydration auto --transitions auto --out d
 
 ## Native-First Mission
 
-XTend prefers browser-native primitives, owned framework components and explicit contracts. The current 0.3.0 gate surface focuses on:
+XTend prefers browser-native primitives, owned framework components and explicit contracts. The current 0.3.1 gate surface focuses on:
 
 - native dialog, popover, focus, form, navigation and media behavior before framework abstraction
 - owned component primitives for collection views, data display, command sources and search sources

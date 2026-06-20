@@ -21,6 +21,7 @@ const RMT_PHP_SSR_ADAPTER_SCHEMA = 'xtend.rmt.php-ssr-adapter.v1';
 const RMT_PHP_SSR_RENDER_RESULT_SCHEMA = 'xtend.rmt.node-ssr-render-result.v1';
 const RMT_PHP_SSR_JSONL_FRAME_SCHEMA = 'xtend.rmt.node-ssr-jsonl-frame.v1';
 const RMT_PHP_SSR_HYDRATION_SCHEMA = 'xtend.rmt.node-ssr-hydration-payload.v1';
+const RMT_SSR_CSP_POLICY_SCHEMA = 'xtend.rmt.ssr-csp-policy.v1';
 const RMT_PHP_SSR_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-php-ssr-adapter --json';
 const RMT_PHP_SSR_PACKAGE_SCRIPT = 'npm run test:rmt-php-ssr-adapter';
 
@@ -74,6 +75,16 @@ function xtend_rmt_fixture_response_content($response): ?string {
         return (string) $response['body'];
     }
     return null;
+}
+
+function xtend_rmt_fixture_response_headers($response): array {
+    if (is_object($response) && property_exists($response, 'headers') && is_array($response->headers)) {
+        return $response->headers;
+    }
+    if (is_array($response) && array_key_exists('headers', $response) && is_array($response['headers'])) {
+        return $response['headers'];
+    }
+    return [];
 }
 
 $adapter = createRmtPhpSsrAdapter([
@@ -151,7 +162,7 @@ $unsafeRender = $runtimeOnlyAdapter->render([
     'descriptor' => [
         'type' => 'html',
         'trustBoundary' => 'xtend.security.sanitizing-boundary.v1',
-        'html' => '<img src="javascript:alert(1)" onerror="bad"><script>alert(1)</script><x-status>Safe</x-status>',
+        'html' => '<img src="javascript:alert(1)" onerror="bad"><script>alert(1)</script><style>body{background:url(javascript:alert(1))}</style><svg onload="bad()"></svg><template><img src=x onerror="bad()"></template><x-status>Safe</x-status>',
     ],
 ], ['requestId' => 'php-ssr-unsafe']);
 $missingTrust = $runtimeOnlyAdapter->render([
@@ -222,15 +233,18 @@ echo json_encode([
     'fallbackResponse' => [
         'isArray' => is_array($fallbackResponse),
         'status' => is_array($fallbackResponse) ? ($fallbackResponse['status'] ?? null) : null,
+        'headers' => xtend_rmt_fixture_response_headers($fallbackResponse),
         'content' => xtend_rmt_fixture_response_content($fallbackResponse),
     ],
     'laravelResponse' => [
         'class' => is_object($laravelResponse) ? get_class($laravelResponse) : gettype($laravelResponse),
         'status' => is_object($laravelResponse) && property_exists($laravelResponse, 'status') ? $laravelResponse->status : null,
+        'headers' => xtend_rmt_fixture_response_headers($laravelResponse),
         'content' => xtend_rmt_fixture_response_content($laravelResponse),
     ],
     'streamedResponse' => [
         'class' => is_object($streamedResponse) ? get_class($streamedResponse) : gettype($streamedResponse),
+        'headers' => xtend_rmt_fixture_response_headers($streamedResponse),
         'content' => $streamedOutput,
     ],
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -291,6 +305,8 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   context.assert(adapterSource.includes(RMT_PHP_SSR_ADAPTER_SCHEMA), 'adapter source records stable PHP schema');
   context.assert(adapterSource.includes(RMT_PHP_SSR_RENDER_RESULT_SCHEMA), 'adapter reuses Node render result schema');
   context.assert(adapterSource.includes(RMT_PHP_SSR_JSONL_FRAME_SCHEMA), 'adapter reuses Node JSONL frame schema');
+  context.assert(adapterSource.includes(RMT_SSR_CSP_POLICY_SCHEMA), 'adapter source records automatic SSR CSP policy schema');
+  context.assert(adapterSource.includes('RMT_SSR_CSP_HEADER'), 'adapter source declares CSP header constant');
   context.assert(adapterSource.includes('function createRmtPhpSsrAdapter'), 'adapter exposes createRmtPhpSsrAdapter factory');
   context.assert(adapterSource.includes('final class RmtPhpSsrAdapter'), 'adapter exposes RmtPhpSsrAdapter class');
   context.assert(!adapterSource.includes('shadowRoot'), 'adapter does not patch component shadow roots');
@@ -330,6 +346,13 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   context.assert(descriptorRender.response.chunk && descriptorRender.response.chunk.kind === 'renderman_template_chunk', 'descriptor prerender response exposes hydrateResponse-compatible chunk');
   context.assert(descriptorRender.response.metadata && descriptorRender.response.metadata.adapterKind === 'php-ssr', 'descriptor prerender response records PHP SSR adapter kind');
   context.assert(descriptorRender.response.request && descriptorRender.response.request.executionMode === 'server_prerender_hydrate', 'descriptor prerender response carries server prerender request snapshot');
+  context.assert(descriptorRender.cspPolicy && descriptorRender.cspPolicy.schema === RMT_SSR_CSP_POLICY_SCHEMA, 'descriptor render creates automatic SSR CSP policy');
+  context.assert(descriptorRender.cspPolicy.automatic === true && descriptorRender.cspPolicy.mode === 'framework-default', 'descriptor render uses framework-default CSP without host input');
+  context.assert(descriptorRender.headers['Content-Security-Policy'].includes("object-src 'none'"), 'descriptor render emits CSP object-src header');
+  context.assert(descriptorRender.headers['Content-Security-Policy'].includes("base-uri 'self'"), 'descriptor render emits CSP base-uri header');
+  context.assert(descriptorRender.head.csp.header === descriptorRender.headers['Content-Security-Policy'], 'descriptor render mirrors CSP in head metadata');
+  context.assert(descriptorRender.response.headers['Content-Security-Policy'] === descriptorRender.headers['Content-Security-Policy'], 'prerender response envelope carries CSP header');
+  context.assert(descriptorRender.hydration.cspPolicy.header === descriptorRender.headers['Content-Security-Policy'], 'hydration payload carries CSP policy metadata');
   context.assert(descriptorRender.hydration.schema === RMT_PHP_SSR_HYDRATION_SCHEMA, 'descriptor render emits Node-compatible hydration payload');
   context.assert(JSON.stringify(descriptorRender.hydration).includes('server_prerender_hydrate'), 'descriptor render records server prerender hydrate mode');
 
@@ -358,6 +381,8 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   const frameTypes = streamFrames.map((frame) => frame.type);
   context.assert(streamFrames.every((frame) => frame.schema === RMT_PHP_SSR_JSONL_FRAME_SCHEMA), 'JSONL stream uses stable Node-compatible frame schema');
   context.assert(frameTypes[0] === 'start', 'JSONL stream starts with start frame');
+  context.assert(streamFrames[0].payload.cspPolicy && streamFrames[0].payload.cspPolicy.schema === RMT_SSR_CSP_POLICY_SCHEMA, 'JSONL stream start frame carries CSP policy');
+  context.assert(streamFrames[0].payload.headers['Content-Security-Policy'].includes("object-src 'none'"), 'JSONL stream start frame carries CSP header');
   context.assert(frameTypes.includes('component'), 'JSONL stream emits component frames');
   context.assert(frameTypes.includes('html'), 'JSONL stream emits HTML frames');
   context.assert(frameTypes.includes('hydration'), 'JSONL stream emits hydration frame');
@@ -376,6 +401,7 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   context.assert(!unsafeRender.html.includes('javascript:'), 'sanitizer removes unsafe URL protocols');
   context.assert(!unsafeRender.html.toLowerCase().includes('<script'), 'sanitizer removes blocked markup tags');
   context.assert(!unsafeRender.html.includes('alert(1)'), 'sanitizer removes blocked script contents');
+  context.assert(!/<\s*(style|svg|template)\b/iu.test(unsafeRender.html), 'sanitizer removes active style/svg/template markup');
   context.assert(!unsafeRender.html.includes('onerror'), 'sanitizer removes event attributes');
   context.assert(unsafeRender.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.php_ssr.html_sanitized'), 'sanitizer reports fallback cleanup diagnostic');
 
@@ -388,11 +414,14 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   context.assert(blockedAttribute.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.php_ssr.url_blocked'), 'unsafe javascript URL is diagnosed');
 
   context.assert(fixture.fallbackResponse.isArray === true, 'response helper degrades to array without Laravel/Symfony classes');
+  context.assert(fixture.fallbackResponse.headers['Content-Security-Policy'].includes("script-src 'self'"), 'fallback response helper emits automatic CSP header');
   context.assert(fixture.fallbackResponse.content.includes('<x-select'), 'fallback response carries rendered HTML');
   context.assert(fixture.laravelResponse.class === 'Illuminate\\Http\\Response', 'Laravel response helper uses Illuminate response when available');
   context.assert(fixture.laravelResponse.status === 202, 'Laravel response helper preserves status');
+  context.assert(fixture.laravelResponse.headers['Content-Security-Policy'].includes("object-src 'none'"), 'Laravel response helper emits automatic CSP header');
   context.assert(fixture.laravelResponse.content.includes('<x-select'), 'Laravel response helper carries rendered HTML');
   context.assert(fixture.streamedResponse.class === 'Symfony\\Component\\HttpFoundation\\StreamedResponse', 'Laravel streamed helper uses Symfony streamed response when available');
+  context.assert(fixture.streamedResponse.headers['Content-Security-Policy'].includes("object-src 'none'"), 'Laravel streamed helper emits automatic CSP header');
   context.assert(parseJsonl(fixture.streamedResponse.content)[0].type === 'start', 'Laravel streamed helper emits JSONL content');
 
   context.assert(packageManifest.scripts['test:rmt-php-ssr-adapter'] === 'node scripts/run_xtend_tests.js rmt-php-ssr-adapter', 'package exposes PHP SSR adapter test script');
@@ -410,6 +439,7 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
     const doc = readText(docPath, rootDir);
     context.assert(doc.includes(RMT_PHP_SSR_ADAPTER_SCHEMA), `${docPath} documents adapter schema`);
     context.assert(doc.includes('JSONL'), `${docPath} documents JSONL streaming`);
+    context.assert(doc.includes('Content-Security-Policy'), `${docPath} documents automatic CSP`);
     context.assert(doc.includes('Laravel'), `${docPath} documents Laravel helpers`);
     context.assert(doc.includes('createRmtPhpSsrAdapter'), `${docPath} documents public factory`);
   });

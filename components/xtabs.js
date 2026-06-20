@@ -441,7 +441,12 @@ class XTabs extends HTMLElement {
     this._observer = new MutationObserver(() => {
       this._renderTabs();
     });
-    this._observer.observe(this, { childList: true });
+    this._observer.observe(this, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["disabled", "aria-disabled", "label", "name"]
+    });
 
     // Add keyboard navigation
     this._keyboardHandler = (e) => {

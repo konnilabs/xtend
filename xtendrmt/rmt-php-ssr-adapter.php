@@ -12,6 +12,8 @@ if (!defined('RMT_PHP_SSR_ADAPTER_SCHEMA')) {
     define('RMT_PHP_SSR_EXECUTION_MODE', 'server_prerender_hydrate');
     define('RMT_PHP_SSR_STREAMING_CONTRACT_SCHEMA', 'xtend.rmt.vnext-streaming-contract.v1');
     define('RMT_PHP_SSR_KERNEL_BOUNDARY', 'no-rmt-kernel-import-of-xtend-types');
+    define('RMT_SSR_CSP_POLICY_SCHEMA', 'xtend.rmt.ssr-csp-policy.v1');
+    define('RMT_SSR_CSP_HEADER', 'Content-Security-Policy');
 }
 
 if (!class_exists('RmtPhpSsrAdapter', false)) {
@@ -44,6 +46,27 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             'object' => true,
             'embed' => true,
             'base' => true,
+            'link' => true,
+            'meta' => true,
+            'form' => true,
+            'style' => true,
+            'svg' => true,
+            'math' => true,
+            'template' => true,
+        ];
+
+        private array $defaultCspDirectives = [
+            'default-src' => ["'self'"],
+            'script-src' => ["'self'"],
+            'style-src' => ["'self'", "'unsafe-inline'"],
+            'img-src' => ["'self'", 'data:', 'blob:'],
+            'font-src' => ["'self'", 'data:'],
+            'connect-src' => ["'self'"],
+            'worker-src' => ["'self'"],
+            'object-src' => ["'none'"],
+            'base-uri' => ["'self'"],
+            'frame-ancestors' => ["'self'"],
+            'form-action' => ["'self'"],
         ];
 
         private array $urlAttributes = [
@@ -73,6 +96,8 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
         {
             $mergedOptions = array_replace($this->options, $options);
             $diagnostics = [];
+            $cspPolicy = $this->createSsrCspPolicy($mergedOptions);
+            $headers = $this->createSecurityHeaders($cspPolicy, $mergedOptions['headers'] ?? []);
             $normalized = $this->normalizeRenderInput($input, $mergedOptions, $diagnostics);
             $requestId = $this->safeIdentifier($mergedOptions['requestId'] ?? $mergedOptions['operationId'] ?? ('rmt-php-ssr-' . time()));
             $rootId = $this->safeIdentifier($mergedOptions['rootId'] ?? 'rmt-php-ssr-root');
@@ -95,6 +120,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'componentCapabilities' => array_values($componentCapabilities),
                 'coreDocumentSchema' => $normalized['coreDocument']['schema'] ?? null,
                 'streamingContractSchema' => $streamingContract['schema'] ?? null,
+                'cspPolicy' => $cspPolicy,
             ];
             $chunk = $this->createChunk([
                 'requestId' => $requestId,
@@ -115,17 +141,21 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'html' => $html,
                 'head' => [
                     'preloads' => $this->collectPreloads($html),
+                    'csp' => $cspPolicy,
+                    'securityHeaders' => $headers,
                     'hints' => [[
                         'rel' => 'xtend-rmt-hydration',
                         'schema' => RMT_PHP_SSR_HYDRATION_SCHEMA,
                     ]],
                 ],
+                'headers' => $headers,
+                'cspPolicy' => $cspPolicy,
                 'chunks' => [$chunk],
                 'response' => $this->createPrerenderResponseEnvelope([
                     'requestId' => $requestId,
                     'rootId' => $rootId,
                     'renderedAt' => $chunk['renderedAt'] ?? gmdate('c'),
-                ], $chunk, $hydration, $diagnostics, $ok),
+                ], $chunk, $hydration, $diagnostics, $ok, $cspPolicy, $headers),
                 'hydration' => $hydration,
                 'streamingContract' => $streamingContract,
                 'componentCapabilities' => array_values($componentCapabilities),
@@ -147,6 +177,8 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'payload' => [
                     'adapterSchema' => RMT_PHP_SSR_ADAPTER_SCHEMA,
                     'streamingContractSchema' => $renderResult['streamingContract']['schema'] ?? RMT_PHP_SSR_STREAMING_CONTRACT_SCHEMA,
+                    'cspPolicy' => $renderResult['cspPolicy'] ?? null,
+                    'headers' => $renderResult['headers'] ?? [],
                 ],
             ]);
             foreach ($renderResult['diagnostics'] as $diagnostic) {
@@ -254,10 +286,11 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
         public function toLaravelResponse($input, array $options = [])
         {
             $result = $this->isRenderResult($input) ? $input : $this->render($input, $options);
-            $headers = array_replace([
+            $cspPolicy = is_array($result['cspPolicy'] ?? null) ? $result['cspPolicy'] : $this->createSsrCspPolicy($options);
+            $headers = $this->createSecurityHeaders($cspPolicy, array_replace([
                 'Content-Type' => 'text/html; charset=UTF-8',
                 'X-XTend-RMT-SSR-Adapter' => RMT_PHP_SSR_ADAPTER_SCHEMA,
-            ], $options['headers'] ?? []);
+            ], is_array($result['headers'] ?? null) ? $result['headers'] : [], $options['headers'] ?? []));
             if (class_exists('\\Illuminate\\Http\\Response')) {
                 return new \Illuminate\Http\Response($result['html'], $options['status'] ?? 200, $headers);
             }
@@ -273,10 +306,11 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
 
         public function toLaravelStreamedResponse($input, array $options = [])
         {
-            $headers = array_replace([
+            $cspPolicy = $this->createSsrCspPolicy($options);
+            $headers = $this->createSecurityHeaders($cspPolicy, array_replace([
                 'Content-Type' => 'application/x-ndjson; charset=UTF-8',
                 'X-XTend-RMT-SSR-Adapter' => RMT_PHP_SSR_ADAPTER_SCHEMA,
-            ], $options['headers'] ?? []);
+            ], $options['headers'] ?? []));
             $streamFactory = function () use ($input, $options): void {
                 foreach ($this->streamJsonl($input, $options) as $line) {
                     echo $line;
@@ -512,8 +546,9 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 return (string) $options['sanitizeHtmlOutput']($html, ['context' => $context, 'diagnostics' => $diagnostics]);
             }
             $before = $html;
-            $html = preg_replace('/<(script|iframe|frame|frameset|object|embed|base)\\b[^>]*>.*?<\\/\\1>/is', '', $html) ?? '';
-            $html = preg_replace('/<\\/?(script|iframe|frame|frameset|object|embed|base)\\b[^>]*>/i', '', $html) ?? '';
+            $blockedTags = implode('|', array_map('preg_quote', array_keys($this->blockedTags)));
+            $html = preg_replace('/<(' . $blockedTags . ')\\b[^>]*>.*?<\\/\\1>/is', '', $html) ?? '';
+            $html = preg_replace('/<\\/?(' . $blockedTags . ')\\b[^>]*>/i', '', $html) ?? '';
             $html = preg_replace('/\\s+on[a-z0-9_-]+\\s*=\\s*("[^"]*"|\\\'[^\\\']*\\\'|[^\\s>]+)/i', '', $html) ?? '';
             $html = preg_replace('/\\s+srcdoc\\s*=\\s*("[^"]*"|\\\'[^\\\']*\\\'|[^\\s>]+)/i', '', $html) ?? '';
             $html = preg_replace_callback('/\\s+(href|src|action|formaction|poster|xlink:href)\\s*=\\s*("[^"]*"|\\\'[^\\\']*\\\'|[^\\s>]+)/i', function (array $matches): string {
@@ -699,7 +734,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             ];
         }
 
-        private function createPrerenderResponseEnvelope(array $state, array $chunk, array $hydration, array $diagnostics, bool $ok): array
+        private function createPrerenderResponseEnvelope(array $state, array $chunk, array $hydration, array $diagnostics, bool $ok, array $cspPolicy, array $headers): array
         {
             $parsedAt = isset($state['renderedAt']) ? strtotime((string) $state['renderedAt']) : false;
             $timestamp = $parsedAt === false ? (int) floor(microtime(true) * 1000) : $parsedAt * 1000;
@@ -710,6 +745,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'requestId' => $state['requestId'],
                 'sourceKind' => $hydration['sourceKind'] ?? null,
                 'sourceRef' => $hydration['sourceRef'] ?? null,
+                'cspPolicy' => $cspPolicy,
             ];
             $request = [
                 'kind' => 'renderman_template_prerender_request',
@@ -737,6 +773,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'plan' => $chunk['plan'] ?? null,
                 'request' => $request,
                 'metadata' => $metadata,
+                'headers' => $headers,
                 'chunk' => $chunk,
                 'chunks' => [$chunk],
                 'hydration' => $hydration,
@@ -909,6 +946,106 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             if (str_starts_with($compact, 'http://') || str_starts_with($compact, 'https://') || str_starts_with($compact, 'mailto:') || str_starts_with($compact, 'tel:') || str_starts_with($compact, 'blob:')) return true;
             if (str_starts_with($compact, 'data:image/')) return true;
             return !preg_match('/^[a-z][a-z0-9+.-]*:/', $compact);
+        }
+
+        private function normalizeCspDirectiveValues($value): array
+        {
+            if ($value === null || $value === false) return [];
+            if (is_array($value)) {
+                $values = [];
+                foreach ($value as $entry) {
+                    $values = array_merge($values, $this->normalizeCspDirectiveValues($entry));
+                }
+                return array_values(array_filter($values, fn ($entry) => $entry !== ''));
+            }
+            return array_values(array_filter(preg_split('/\\s+/', trim((string) $value)) ?: [], fn ($entry) => $entry !== ''));
+        }
+
+        private function mergeCspDirectives(array ...$records): array
+        {
+            $directives = [];
+            foreach ($records as $record) {
+                foreach ($record as $name => $value) {
+                    $directiveName = strtolower(trim((string) $name));
+                    if ($directiveName === '') continue;
+                    $values = $this->normalizeCspDirectiveValues($value);
+                    if (!$values) {
+                        $directives[$directiveName] = [];
+                        continue;
+                    }
+                    $directives[$directiveName] = array_values(array_unique(array_merge($directives[$directiveName] ?? [], $values)));
+                }
+            }
+            return $directives;
+        }
+
+        private function serializeCspDirectives(array $directives): string
+        {
+            $parts = [];
+            foreach ($directives as $name => $values) {
+                $directiveName = strtolower(trim((string) $name));
+                if ($directiveName === '') continue;
+                $normalizedValues = $this->normalizeCspDirectiveValues($values);
+                $parts[] = $normalizedValues ? $directiveName . ' ' . implode(' ', $normalizedValues) : $directiveName;
+            }
+            return implode('; ', $parts);
+        }
+
+        private function createSsrCspPolicy(array $options): array
+        {
+            $headerPolicy = null;
+            if (is_array($options['headers'] ?? null)) {
+                foreach ($options['headers'] as $name => $value) {
+                    if (strtolower((string) $name) === strtolower(RMT_SSR_CSP_HEADER)) {
+                        $headerPolicy = $value;
+                        break;
+                    }
+                }
+            }
+            $explicitPolicy = $options['contentSecurityPolicy'] ?? ($options['cspPolicy'] ?? ($options['csp'] ?? $headerPolicy));
+            if (is_string($explicitPolicy) && trim($explicitPolicy) !== '') {
+                return [
+                    'schema' => RMT_SSR_CSP_POLICY_SCHEMA,
+                    'mode' => 'host-supplied',
+                    'header' => trim($explicitPolicy),
+                    'directives' => [],
+                    'managedBy' => RMT_PHP_SSR_ADAPTER_SCHEMA,
+                    'automatic' => true,
+                ];
+            }
+            $explicitDirectives = [];
+            if (is_array($explicitPolicy)) {
+                $explicitDirectives = is_array($explicitPolicy['directives'] ?? null) ? $explicitPolicy['directives'] : $explicitPolicy;
+            }
+            $directives = $this->mergeCspDirectives(
+                $this->defaultCspDirectives,
+                $explicitDirectives,
+                is_array($options['cspDirectives'] ?? null) ? $options['cspDirectives'] : []
+            );
+            return [
+                'schema' => RMT_SSR_CSP_POLICY_SCHEMA,
+                'mode' => 'framework-default',
+                'header' => $this->serializeCspDirectives($directives),
+                'directives' => $directives,
+                'managedBy' => RMT_PHP_SSR_ADAPTER_SCHEMA,
+                'automatic' => true,
+            ];
+        }
+
+        private function hasHeader(array $headers, string $headerName): bool
+        {
+            foreach (array_keys($headers) as $name) {
+                if (strtolower((string) $name) === strtolower($headerName)) return true;
+            }
+            return false;
+        }
+
+        private function createSecurityHeaders(array $cspPolicy, array $headers = []): array
+        {
+            if (!$this->hasHeader($headers, RMT_SSR_CSP_HEADER)) {
+                $headers[RMT_SSR_CSP_HEADER] = (string) ($cspPolicy['header'] ?? '');
+            }
+            return $headers;
         }
 
         private function collectPreloads(string $html): array

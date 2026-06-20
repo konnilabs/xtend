@@ -1,0 +1,39 @@
+{
+  "schema": "xtend.xtensions.static-introspection.fixture.v1",
+  "fixtureId": "xtensions.static-introspection.valid",
+  "workpackage": "XTN-04",
+  "contract": "xtend.xtensions.static-introspection.v1",
+  "staticContractSchema": "xtend.xtensions.static-contract.v1",
+  "sourceModule": "tests/fixtures/xtensions/static-introspection-module.mjs",
+  "driftModule": "tests/fixtures/xtensions/static-introspection-drift-module.mjs",
+  "noExportModule": "tests/fixtures/xtensions/static-introspection-no-export.mjs",
+  "maracaManifestFixture": "tests/fixtures/xtensions/maraca-xtension-manifest-valid.json",
+  "expectedExport": "XTENSION_CONTRACT",
+  "expectedXtensionId": "xtension.react.todo",
+  "expectedFramework": "react",
+  "expectedAccepts": [
+    "props.update",
+    "state.patch",
+    "command.dispatch"
+  ],
+  "expectedEmits": [
+    "xtension.react.todo.submitted.v1",
+    "xtension.react.todo.changed.v1"
+  ],
+  "expectedCapabilities": [
+    "host.lifecycle.mount",
+    "host.lifecycle.unmount",
+    "signal.downstream",
+    "event.upstream"
+  ],
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "runtimeExecutionRequired": false,
+    "allowedSources": [
+      "module-static-export",
+      "maraca-manifest",
+      "maraca-artifact"
+    ]
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "schema": "xtend.xtensions.three-render-loop-poc.fixture.v1",
+  "workpackage": "XTN-09",
+  "expectedXtensionId": "xtension.three.scene",
+  "expectedFramework": "three",
+  "expectedFrameStatuses": [
+    "rendered",
+    "dropped-over-budget",
+    "skipped-hidden"
+  ],
+  "contract": {
+    "xtensionId": "xtension.three.scene",
+    "version": "0.1.0-poc"
+  },
+  "host": {
+    "hostId": "xtensions-three-render-loop-poc-host",
+    "capabilities": [
+      "host.lifecycle.mount",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "three.render-loop.fiber",
+      "fabric.lane-scheduling",
+      "frame.budget",
+      "visibility.pause",
+      "low-power.degradation",
+      "webgl.context-loss",
+      "webgl.cleanup",
+      "browser-smoke.nonblank"
+    ],
+    "providedFrameworks": [
+      {
+        "name": "three",
+        "version": "0.160.0",
+        "source": "external-peer-harness",
+        "available": true
+      }
+    ],
+    "policy": {
+      "dynamicImportAllowed": true,
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "freeRunningLoopAllowed": false,
+      "renderLoopAuthority": "host-fiber"
+    }
+  },
+  "adapter": {
+    "xtensionId": "xtension.three.scene",
+    "version": "0.1.0-poc",
+    "entry": {
+      "module": "external-peer://three/render-loop-poc",
+      "exportName": "createThreeRenderLoopHostController",
+      "format": "esm",
+      "dynamicImport": true
+    },
+    "integrity": {
+      "sha256": "sha256:three-render-loop-poc-external-peer-placeholder",
+      "source": "declared"
+    },
+    "fallback": {
+      "mode": "native-placeholder",
+      "component": "x-placeholder",
+      "message": "Three.js XTension PoC unavailable.",
+      "degradedStatus": "xtension-three-poc-unavailable"
+    },
+    "dependencies": [
+      {
+        "name": "three",
+        "versionRange": "^0.160.0",
+        "classification": "external-peer",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ]
+  },
+  "requests": [
+    {
+      "xtensionId": "xtension.three.scene",
+      "surfaceId": "surface.three.scene"
+    }
+  ],
+  "frameBudgetMs": 16.67,
+  "lowPowerFrameBudgetMs": 33.33,
+  "operations": [
+    {
+      "kind": "mount",
+      "container": {
+        "id": "three-container"
+      },
+      "scene": {
+        "nodes": [
+          {
+            "id": "cube",
+            "kind": "mesh",
+            "material": "diagnostic-blue"
+          }
+        ],
+        "camera": {
+          "kind": "perspective",
+          "position": [
+            0,
+            0,
+            5
+          ]
+        }
+      }
+    },
+    {
+      "kind": "register-loop",
+      "fiberId": "xtension.three.scene:fiber:render",
+      "endpointName": "three.renderFrame",
+      "lane": "fabric.render",
+      "hostRegistered": true,
+      "frameBudgetMs": 16.67,
+      "lowPowerFrameBudgetMs": 33.33,
+      "backpressureStrategy": "drop-and-diagnose"
+    },
+    {
+      "kind": "tick",
+      "renderCostMs": 8,
+      "nonBlankPixels": 144
+    },
+    {
+      "kind": "tick",
+      "renderCostMs": 21,
+      "nonBlankPixels": 144
+    },
+    {
+      "kind": "visibility",
+      "visibility": "hidden"
+    },
+    {
+      "kind": "tick",
+      "renderCostMs": 0
+    },
+    {
+      "kind": "resume",
+      "reason": "visible-again"
+    },
+    {
+      "kind": "low-power",
+      "enabled": true
+    },
+    {
+      "kind": "tick",
+      "renderCostMs": 28,
+      "nonBlankPixels": 128
+    },
+    {
+      "kind": "context-loss",
+      "reason": "webglcontextlost"
+    },
+    {
+      "kind": "context-restore",
+      "reason": "webglcontextrestored"
+    },
+    {
+      "kind": "interact",
+      "event": {
+        "name": "pointer.select",
+        "payload": {
+          "objectId": "cube",
+          "screen": {
+            "x": 24,
+            "y": 48
+          }
+        }
+      }
+    },
+    {
+      "kind": "tick",
+      "renderCostMs": 12,
+      "nonBlankPixels": 192
+    },
+    {
+      "kind": "unmount",
+      "reason": "fixture-complete"
+    },
+    {
+      "kind": "browser-smoke",
+      "nonBlankPixels": 192,
+      "interactionCount": 1,
+      "cleanupVerified": true,
+      "evidence": {
+        "canvasProbe": "frameworkless",
+        "firstViewport": "nonblank",
+        "interaction": "pointer.select",
+        "cleanup": "webgl-resources-released"
+      }
+    }
+  ],
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "runtimeExecutionRequired": false,
+    "peerHarness": "external-opt-in",
+    "freeRunningLoopAllowed": false
+  }
+}

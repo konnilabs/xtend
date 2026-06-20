@@ -22,6 +22,14 @@ RMT Node SSR Adapter describes the public RMT surface for this page: which recor
 target metadata so the client runtime can process it through `hydrateResponse`
 or degrade in a controlled way when diagnostics block the render.
 
+## Automatic CSP
+
+The adapter creates a framework-managed `xtend.rmt.ssr-csp-policy.v1` policy for
+every render. `render().headers`, `render().response.headers`, hydration
+metadata, JSONL start frames and `toHttpResponse()` include
+`Content-Security-Policy` automatically, so hosts do not need separate CSP
+plumbing for the default SSR path.
+
 ## Example
 
 ```js

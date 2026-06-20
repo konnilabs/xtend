@@ -1,0 +1,14 @@
+{
+  "schema": "xtend.maraca.xtension-manifest.fixture.v1",
+  "fixtureId": "xtensions.maraca.manifest.missing",
+  "workpackage": "XTN-03",
+  "outDir": ".xtend-build/maraca/xtensions",
+  "xtensions": [
+    {
+      "id": "xtension.vue.missing",
+      "framework": "vue",
+      "manifest": null
+    }
+  ],
+  "expectedDiagnostic": "xtensions.maraca.manifest_missing"
+}

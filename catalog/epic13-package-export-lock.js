@@ -100,6 +100,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './rmt-language/kernel-policy-parity',
   './rmt-language/kernel-security-regression',
   './rmt-language/vnext-streaming',
+  './rmt-language/super-prewarm-worker-experiment',
   './rmt-language/vnext-tooling',
   './rmt-language/vnext-compatibility',
   './rmt-language/vnext-regression',
@@ -157,11 +158,26 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './rmt/kernel-orchestration-controller',
   './rmt/native-shell-runtime',
   './rmt/node-ssr-adapter',
+  './xtensions/host-controller-contract',
+  './xtensions/signal-bridge-contract',
+  './xtensions/maraca-manifest-contract',
+  './xtensions/static-introspection-contract',
+  './xtensions/runtime-capability-registry',
+  './xtensions/react-host-controller-poc',
+  './xtensions/vue-host-controller-poc',
+  './xtensions/imperative-host-pocs',
+  './xtensions/three-render-loop-poc',
+  './xtensions/diagnostic-trail',
+  './xtensions/security-integrity-gate',
+  './xtensions/multi-framework-dashboard-fixture',
+  './xtensions/registry-package-strategy',
+  './xtensions/adoption-handoff',
   './builder',
   './builder/*',
   './security/manifest-import-policy',
   './security/trusted-dom-policy',
   './security/supply-chain-gate-policy',
+  './security/xss-pentest-policy',
   './package.json'
 ]);
 
@@ -240,7 +256,7 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'security',
-    requiredExports: ['./security/manifest-import-policy', './security/trusted-dom-policy', './security/supply-chain-gate-policy'],
+    requiredExports: ['./security/manifest-import-policy', './security/trusted-dom-policy', './security/supply-chain-gate-policy', './security/xss-pentest-policy'],
     requiredPackRoots: ['security']
   },
   {
@@ -294,6 +310,7 @@ const SURFACE_GROUPS = Object.freeze([
       './rmt-language/kernel-policy-parity',
       './rmt-language/kernel-security-regression',
       './rmt-language/vnext-streaming',
+      './rmt-language/super-prewarm-worker-experiment',
       './rmt-language/vnext-tooling',
       './rmt-language/vnext-compatibility',
       './rmt-language/vnext-regression',
@@ -325,6 +342,26 @@ const SURFACE_GROUPS = Object.freeze([
       './rmt-linter/reporter',
       './rmt-language/snippets',
       './rmt-editor/vscode'
+    ],
+    requiredPackRoots: ['tools']
+  },
+  {
+    id: 'xtensions',
+    requiredExports: [
+      './xtensions/host-controller-contract',
+      './xtensions/signal-bridge-contract',
+      './xtensions/maraca-manifest-contract',
+      './xtensions/static-introspection-contract',
+      './xtensions/runtime-capability-registry',
+      './xtensions/react-host-controller-poc',
+      './xtensions/vue-host-controller-poc',
+      './xtensions/imperative-host-pocs',
+      './xtensions/three-render-loop-poc',
+      './xtensions/diagnostic-trail',
+      './xtensions/security-integrity-gate',
+      './xtensions/multi-framework-dashboard-fixture',
+      './xtensions/registry-package-strategy',
+      './xtensions/adoption-handoff'
     ],
     requiredPackRoots: ['tools']
   }

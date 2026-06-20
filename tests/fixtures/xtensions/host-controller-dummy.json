@@ -1,0 +1,61 @@
+{
+  "schema": "xtend.xtensions.host-controller.fixture.v1",
+  "fixtureId": "xtensions.host-controller.dummy",
+  "workpackage": "XTN-01",
+  "contract": "xtend.xtensions.host-controller.v1",
+  "status": "frameworkless-contract-stub",
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "networkRequired": false,
+    "allowedTestModes": [
+      "frameworkless-contract-stub",
+      "external-opt-in-peer-harness"
+    ]
+  },
+  "dummyHost": {
+    "id": "xtension.stub.react-like",
+    "framework": "frameworkless-stub",
+    "version": "0.0.0-test",
+    "methods": [
+      "mount",
+      "update",
+      "suspend",
+      "resume",
+      "reportError",
+      "unmount"
+    ],
+    "containerOwnership": {
+      "mode": "host-owned-container",
+      "shadowDom": "policy-driven",
+      "focusBoundary": "host-owned",
+      "styleBoundary": "host-owned",
+      "domMutationBoundary": "adapter-owned-inside-host-container"
+    },
+    "cleanupResources": [
+      "framework-root",
+      "event-listeners",
+      "timers",
+      "observers",
+      "animation-frames",
+      "workers"
+    ],
+    "expectedLifecycleEvents": [
+      "surface:ready",
+      "surface:updated",
+      "surface:suspended",
+      "surface:resumed",
+      "surface:error",
+      "surface:destroyed"
+    ]
+  },
+  "blockedDependencies": [
+    "react",
+    "react-dom",
+    "vue",
+    "three",
+    "leaflet",
+    "chart.js",
+    "@react-three/fiber"
+  ]
+}

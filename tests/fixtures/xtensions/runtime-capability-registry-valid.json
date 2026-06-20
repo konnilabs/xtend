@@ -1,0 +1,226 @@
+{
+  "schema": "xtend.xtensions.runtime-capability-registry.fixture.v1",
+  "workpackage": "XTN-05",
+  "expectedHostId": "xtend-app-shell.host",
+  "expectedStatuses": ["loaded", "degraded", "skipped"],
+  "host": {
+    "hostId": "xtend-app-shell.host",
+    "surfaceRegistryRef": "surface-registry://host-local/xtend-app-shell",
+    "capabilities": [
+      "host.lifecycle.mount",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "fallback.native-placeholder"
+    ],
+    "providedFrameworks": [
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "source": "external-peer-harness",
+        "available": true
+      },
+      {
+        "name": "vue",
+        "version": "3.5.0",
+        "source": "external-peer-harness",
+        "available": false
+      }
+    ],
+    "policy": {
+      "scope": "host-local",
+      "allowGlobalRegistry": false,
+      "dynamicImportRequiresIntegrity": true,
+      "capabilityNegotiationRequired": true,
+      "fallbackRequired": true,
+      "missingRuntimeStrategy": "degrade-with-fallback",
+      "packageFrameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false
+    }
+  },
+  "adapters": [
+    {
+      "id": "xtension.react.todo",
+      "framework": "react",
+      "version": "1.0.0",
+      "entry": {
+        "module": "external-peer://react/todo-host-controller",
+        "exportName": "createHostController",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "integrity": {
+        "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "source": "declared"
+      },
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "x-placeholder",
+        "message": "React todo XTension unavailable.",
+        "degradedStatus": "xtension-react-todo-unavailable"
+      },
+      "dependencies": [
+        {
+          "name": "react",
+          "versionRange": "^18.0.0",
+          "classification": "external-peer",
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ],
+      "requiredHostCapabilities": [
+        "host.lifecycle.mount",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import"
+      ],
+      "contract": {
+        "schema": "xtend.xtensions.static-contract.v1",
+        "id": "xtension.react.todo",
+        "name": "React Todo XTension",
+        "framework": "react",
+        "version": "1.0.0",
+        "accepts": ["props.update", "state.patch", "command.dispatch"],
+        "emits": ["xtension.react.todo.submitted.v1", "xtension.react.todo.changed.v1"],
+        "capabilities": [
+          "host.lifecycle.mount",
+          "host.lifecycle.unmount",
+          "signal.downstream",
+          "event.upstream",
+          "loading.dynamic-import"
+        ]
+      }
+    },
+    {
+      "id": "xtension.vue.panel",
+      "framework": "vue",
+      "version": "1.0.0",
+      "entry": {
+        "module": "external-peer://vue/panel-host-controller",
+        "exportName": "createHostController",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "integrity": {
+        "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "source": "declared"
+      },
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "x-placeholder",
+        "message": "Vue panel XTension unavailable.",
+        "degradedStatus": "xtension-vue-panel-unavailable"
+      },
+      "dependencies": [
+        {
+          "name": "vue",
+          "versionRange": "^3.0.0",
+          "classification": "external-peer",
+          "available": false,
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ],
+      "requiredHostCapabilities": [
+        "host.lifecycle.mount",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import"
+      ],
+      "contract": {
+        "schema": "xtend.xtensions.static-contract.v1",
+        "id": "xtension.vue.panel",
+        "name": "Vue Panel XTension",
+        "framework": "vue",
+        "version": "1.0.0",
+        "accepts": ["props.update", "state.patch"],
+        "emits": ["xtension.vue.panel.changed.v1"],
+        "capabilities": [
+          "host.lifecycle.mount",
+          "host.lifecycle.unmount",
+          "signal.downstream",
+          "event.upstream",
+          "loading.dynamic-import"
+        ]
+      }
+    },
+    {
+      "id": "xtension.chart.preview",
+      "framework": "chart.js",
+      "version": "1.0.0",
+      "status": "disabled",
+      "entry": {
+        "module": "external-peer://chart.js/preview-host-controller",
+        "exportName": "createHostController",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "integrity": {
+        "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "source": "declared"
+      },
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "x-placeholder",
+        "message": "Chart XTension disabled for this host.",
+        "degradedStatus": "xtension-chart-preview-disabled"
+      },
+      "dependencies": [
+        {
+          "name": "chart.js",
+          "versionRange": "^4.0.0",
+          "classification": "external-peer",
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ],
+      "requiredHostCapabilities": [
+        "host.lifecycle.mount",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import"
+      ],
+      "contract": {
+        "schema": "xtend.xtensions.static-contract.v1",
+        "id": "xtension.chart.preview",
+        "name": "Chart Preview XTension",
+        "framework": "chart.js",
+        "version": "1.0.0",
+        "accepts": ["props.update"],
+        "emits": ["xtension.chart.preview.selected.v1"],
+        "capabilities": [
+          "host.lifecycle.mount",
+          "host.lifecycle.unmount",
+          "signal.downstream",
+          "event.upstream",
+          "loading.dynamic-import"
+        ]
+      }
+    }
+  ],
+  "requests": [
+    {
+      "xtensionId": "xtension.react.todo",
+      "surfaceId": "surface.react.todo"
+    },
+    {
+      "xtensionId": "xtension.vue.panel",
+      "surfaceId": "surface.vue.panel"
+    },
+    {
+      "xtensionId": "xtension.chart.preview",
+      "surfaceId": "surface.chart.preview",
+      "enabled": false
+    }
+  ],
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "rootPackageDependenciesAllowed": false,
+    "runtimeExecutionRequired": false
+  }
+}

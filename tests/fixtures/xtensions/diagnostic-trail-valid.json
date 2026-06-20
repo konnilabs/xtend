@@ -1,0 +1,328 @@
+{
+  "schema": "xtend.xtensions.diagnostic-trail.fixture.v1",
+  "workpackage": "XTN-10",
+  "expectedActions": [
+    "mount",
+    "update",
+    "signal.receive",
+    "event.emit",
+    "suspend",
+    "resume",
+    "error",
+    "unmount"
+  ],
+  "expectedCorrelation": {
+    "xtensionId": "xtension.react.panel",
+    "framework": "react",
+    "manifestId": "maraca.xtension.react.panel",
+    "artifactId": "maraca.artifact.react.panel.client",
+    "artifactFingerprint": "sha256:react-panel-artifact-fixture",
+    "buildFingerprint": "sha256:react-panel-build-fixture",
+    "runtimeHostId": "xtensions-runtime-host",
+    "hostId": "xtensions-runtime-host",
+    "surfaceId": "surface.react.panel",
+    "lane": "fabric.visible",
+    "routeId": "route.dashboard",
+    "traceId": "trace.xtensions.diagnostic.fixture",
+    "correlationId": "corr.xtensions.diagnostic.fixture"
+  },
+  "redactionPolicy": {
+    "schema": "xtend.xtensions.diagnostic-redaction-policy.v1",
+    "mode": "schema-policy",
+    "defaultAction": "shape",
+    "sensitiveAction": "hash",
+    "redactUnknownPayloads": true,
+    "passthroughSchemas": [
+      "xtensions.lifecycle.summary.v1",
+      "xtensions.diagnostic.summary.v1"
+    ],
+    "schemaRules": [
+      {
+        "payloadSchema": "xtensions.user.profile.v1",
+        "action": "allowlist",
+        "allow": [
+          "id",
+          "role"
+        ]
+      },
+      {
+        "payloadSchema": "xtensions.map.viewport-event.v1",
+        "action": "shape"
+      },
+      {
+        "payloadSchema": "xtensions.chart.selection-event.v1",
+        "action": "shape"
+      },
+      {
+        "payloadSchema": "xtensions.error.v1",
+        "action": "hash"
+      }
+    ],
+    "fieldRules": [
+      {
+        "match": "password",
+        "action": "drop"
+      },
+      {
+        "match": "token",
+        "action": "hash"
+      },
+      {
+        "match": "authorization",
+        "action": "hash"
+      },
+      {
+        "match": "email",
+        "action": "hash"
+      },
+      {
+        "match": "secret",
+        "action": "drop"
+      }
+    ]
+  },
+  "records": [
+    {
+      "sequence": 1,
+      "action": "mount",
+      "status": "ok",
+      "payloadSchema": "xtensions.lifecycle.summary.v1",
+      "eventId": "event.surface.ready",
+      "signalId": "signal.surface.mount",
+      "correlation": {
+        "xtensionId": "xtension.react.panel",
+        "framework": "react",
+        "manifestId": "maraca.xtension.react.panel",
+        "artifactId": "maraca.artifact.react.panel.client",
+        "artifactFingerprint": "sha256:react-panel-artifact-fixture",
+        "buildFingerprint": "sha256:react-panel-build-fixture",
+        "runtimeHostId": "xtensions-runtime-host",
+        "hostId": "xtensions-runtime-host",
+        "surfaceId": "surface.react.panel",
+        "lane": "fabric.visible",
+        "routeId": "route.dashboard",
+        "traceId": "trace.xtensions.diagnostic.fixture",
+        "correlationId": "corr.xtensions.diagnostic.fixture"
+      },
+      "payload": {
+        "phase": "ready",
+        "container": "host-owned",
+        "cleanupRegistered": true
+      }
+    },
+    {
+      "sequence": 2,
+      "action": "update",
+      "status": "ok",
+      "payloadSchema": "xtensions.user.profile.v1",
+      "eventId": "event.panel.updated",
+      "signalId": "signal.props.update",
+      "correlation": {
+        "xtensionId": "xtension.react.panel",
+        "framework": "react",
+        "manifestId": "maraca.xtension.react.panel",
+        "artifactId": "maraca.artifact.react.panel.client",
+        "artifactFingerprint": "sha256:react-panel-artifact-fixture",
+        "buildFingerprint": "sha256:react-panel-build-fixture",
+        "runtimeHostId": "xtensions-runtime-host",
+        "hostId": "xtensions-runtime-host",
+        "surfaceId": "surface.react.panel",
+        "lane": "fabric.visible",
+        "routeId": "route.dashboard",
+        "traceId": "trace.xtensions.diagnostic.fixture",
+        "correlationId": "corr.xtensions.diagnostic.fixture"
+      },
+      "payload": {
+        "id": "user-42",
+        "role": "operator",
+        "email": "operator@example.invalid",
+        "token": "secret-token",
+        "preferences": {
+          "theme": "dark"
+        }
+      }
+    },
+    {
+      "sequence": 3,
+      "action": "signal.receive",
+      "status": "observed",
+      "payloadSchema": "xtensions.map.viewport-event.v1",
+      "eventId": "event.map.viewport",
+      "signalId": "signal.map.viewport",
+      "correlation": {
+        "xtensionId": "xtension.leaflet.map",
+        "framework": "leaflet",
+        "manifestId": "maraca.xtension.leaflet.map",
+        "artifactId": "maraca.artifact.leaflet.map.client",
+        "artifactFingerprint": "sha256:leaflet-map-artifact-fixture",
+        "buildFingerprint": "sha256:leaflet-map-build-fixture",
+        "runtimeHostId": "xtensions-runtime-host",
+        "hostId": "xtensions-runtime-host",
+        "surfaceId": "surface.leaflet.map",
+        "lane": "fabric.visible",
+        "routeId": "route.dashboard",
+        "traceId": "trace.xtensions.diagnostic.fixture",
+        "correlationId": "corr.xtensions.diagnostic.fixture"
+      },
+      "payload": {
+        "center": [
+          52.52,
+          13.405
+        ],
+        "zoom": 12,
+        "bounds": {
+          "north": 52.6,
+          "south": 52.4,
+          "east": 13.5,
+          "west": 13.3
+        }
+      }
+    },
+    {
+      "sequence": 4,
+      "action": "event.emit",
+      "status": "observed",
+      "payloadSchema": "xtensions.chart.selection-event.v1",
+      "eventId": "event.chart.selection",
+      "signalId": "signal.chart.selection",
+      "correlation": {
+        "xtensionId": "xtension.chart.sales",
+        "framework": "chart.js",
+        "manifestId": "maraca.xtension.chart.sales",
+        "artifactId": "maraca.artifact.chart.sales.client",
+        "artifactFingerprint": "sha256:chart-sales-artifact-fixture",
+        "buildFingerprint": "sha256:chart-sales-build-fixture",
+        "runtimeHostId": "xtensions-runtime-host",
+        "hostId": "xtensions-runtime-host",
+        "surfaceId": "surface.chart.sales",
+        "lane": "fabric.visible",
+        "routeId": "route.dashboard",
+        "traceId": "trace.xtensions.diagnostic.fixture",
+        "correlationId": "corr.xtensions.diagnostic.fixture"
+      },
+      "payload": {
+        "seriesId": "sales",
+        "point": {
+          "x": "Q1",
+          "y": 12
+        },
+        "source": "pointer"
+      }
+    },
+    {
+      "sequence": 5,
+      "action": "suspend",
+      "status": "ok",
+      "payloadSchema": "xtensions.diagnostic.summary.v1",
+      "eventId": "event.surface.suspended",
+      "signalId": "signal.surface.suspend",
+      "correlation": {
+        "xtensionId": "xtension.three.scene",
+        "framework": "three",
+        "manifestId": "maraca.xtension.three.scene",
+        "artifactId": "maraca.artifact.three.scene.client",
+        "artifactFingerprint": "sha256:three-scene-artifact-fixture",
+        "buildFingerprint": "sha256:three-scene-build-fixture",
+        "runtimeHostId": "xtensions-runtime-host",
+        "hostId": "xtensions-runtime-host",
+        "surfaceId": "surface.three.scene",
+        "lane": "fabric.render",
+        "routeId": "route.dashboard",
+        "traceId": "trace.xtensions.diagnostic.fixture",
+        "correlationId": "corr.xtensions.diagnostic.fixture"
+      },
+      "payload": {
+        "reason": "visibility-hidden",
+        "frameLoop": "paused"
+      }
+    },
+    {
+      "sequence": 6,
+      "action": "resume",
+      "status": "ok",
+      "payloadSchema": "xtensions.diagnostic.summary.v1",
+      "eventId": "event.surface.resumed",
+      "signalId": "signal.surface.resume",
+      "correlation": {
+        "xtensionId": "xtension.three.scene",
+        "framework": "three",
+        "manifestId": "maraca.xtension.three.scene",
+        "artifactId": "maraca.artifact.three.scene.client",
+        "artifactFingerprint": "sha256:three-scene-artifact-fixture",
+        "buildFingerprint": "sha256:three-scene-build-fixture",
+        "runtimeHostId": "xtensions-runtime-host",
+        "hostId": "xtensions-runtime-host",
+        "surfaceId": "surface.three.scene",
+        "lane": "fabric.render",
+        "routeId": "route.dashboard",
+        "traceId": "trace.xtensions.diagnostic.fixture",
+        "correlationId": "corr.xtensions.diagnostic.fixture"
+      },
+      "payload": {
+        "reason": "visible-again",
+        "frameLoop": "running"
+      }
+    },
+    {
+      "sequence": 7,
+      "action": "error",
+      "status": "degraded",
+      "payloadSchema": "xtensions.error.v1",
+      "eventId": "event.surface.error",
+      "signalId": "signal.surface.error",
+      "correlation": {
+        "xtensionId": "xtension.vue.panel",
+        "framework": "vue",
+        "manifestId": "maraca.xtension.vue.panel",
+        "artifactId": "maraca.artifact.vue.panel.client",
+        "artifactFingerprint": "sha256:vue-panel-artifact-fixture",
+        "buildFingerprint": "sha256:vue-panel-build-fixture",
+        "runtimeHostId": "xtensions-runtime-host",
+        "hostId": "xtensions-runtime-host",
+        "surfaceId": "surface.vue.panel",
+        "lane": "fabric.diagnostics",
+        "routeId": "route.dashboard",
+        "traceId": "trace.xtensions.diagnostic.fixture",
+        "correlationId": "corr.xtensions.diagnostic.fixture"
+      },
+      "payload": {
+        "message": "Adapter boundary error",
+        "stack": "Error: Adapter boundary error\n    at fixture",
+        "authorization": "Bearer secret",
+        "metadata": {
+          "component": "profile-card"
+        }
+      }
+    },
+    {
+      "sequence": 8,
+      "action": "unmount",
+      "status": "ok",
+      "payloadSchema": "xtensions.lifecycle.summary.v1",
+      "eventId": "event.surface.destroyed",
+      "signalId": "signal.surface.unmount",
+      "correlation": {
+        "xtensionId": "xtension.react.panel",
+        "framework": "react",
+        "manifestId": "maraca.xtension.react.panel",
+        "artifactId": "maraca.artifact.react.panel.client",
+        "artifactFingerprint": "sha256:react-panel-artifact-fixture",
+        "buildFingerprint": "sha256:react-panel-build-fixture",
+        "runtimeHostId": "xtensions-runtime-host",
+        "hostId": "xtensions-runtime-host",
+        "surfaceId": "surface.react.panel",
+        "lane": "fabric.visible",
+        "routeId": "route.dashboard",
+        "traceId": "trace.xtensions.diagnostic.fixture",
+        "correlationId": "corr.xtensions.diagnostic.fixture"
+      },
+      "payload": {
+        "phase": "destroyed",
+        "cleanupResources": [
+          "framework-root",
+          "event-listeners"
+        ]
+      }
+    }
+  ]
+}

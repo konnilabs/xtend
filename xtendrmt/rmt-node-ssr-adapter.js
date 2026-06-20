@@ -12,6 +12,8 @@ export const RMT_NODE_SSR_RESPONSE_KIND = 'renderman_template_prerender_response
 export const RMT_NODE_SSR_EXECUTION_MODE = 'server_prerender_hydrate';
 export const RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA = 'xtend.rmt.vnext-streaming-contract.v1';
 export const RMT_NODE_SSR_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
+export const RMT_SSR_CSP_POLICY_SCHEMA = 'xtend.rmt.ssr-csp-policy.v1';
+export const RMT_SSR_CSP_HEADER = 'Content-Security-Policy';
 
 const BLOCKING_SEVERITIES = new Set(['error', 'fatal']);
 const TRUST_BOUNDARY_TOKENS = new Set([
@@ -40,7 +42,21 @@ const VOID_TAGS = new Set([
   'track',
   'wbr'
 ]);
-const BLOCKED_MARKUP_TAGS = new Set(['script', 'iframe', 'frame', 'frameset', 'object', 'embed', 'base']);
+const BLOCKED_MARKUP_TAGS = new Set(['script', 'iframe', 'frame', 'frameset', 'object', 'embed', 'base', 'link', 'meta', 'form', 'style', 'svg', 'math', 'template']);
+const BLOCKED_MARKUP_TAG_PATTERN = [...BLOCKED_MARKUP_TAGS].join('|');
+const DEFAULT_SSR_CSP_DIRECTIVES = Object.freeze({
+  'default-src': ["'self'"],
+  'script-src': ["'self'"],
+  'style-src': ["'self'", "'unsafe-inline'"],
+  'img-src': ["'self'", 'data:', 'blob:'],
+  'font-src': ["'self'", 'data:'],
+  'connect-src': ["'self'"],
+  'worker-src': ["'self'"],
+  'object-src': ["'none'"],
+  'base-uri': ["'self'"],
+  'frame-ancestors': ["'self'"],
+  'form-action': ["'self'"]
+});
 
 function asArray(value) {
   if (Array.isArray(value)) return value;
@@ -116,6 +132,79 @@ function isSafeUrl(value) {
   return true;
 }
 
+function normalizeCspDirectiveValues(value) {
+  if (value === false || value == null) return [];
+  if (Array.isArray(value)) return value.flatMap((entry) => normalizeCspDirectiveValues(entry));
+  return stableString(value, '').split(/\s+/u).map((entry) => entry.trim()).filter(Boolean);
+}
+
+function mergeCspDirectives(...records) {
+  const directives = {};
+  records.forEach((record) => {
+    Object.entries(objectRecord(record)).forEach(([name, value]) => {
+      const directiveName = normalizeAttributeName(name);
+      if (!directiveName) return;
+      const values = normalizeCspDirectiveValues(value);
+      if (values.length === 0) {
+        directives[directiveName] = [];
+        return;
+      }
+      directives[directiveName] = [...new Set([...(directives[directiveName] || []), ...values])];
+    });
+  });
+  return directives;
+}
+
+function serializeCspDirectives(directives) {
+  return Object.entries(objectRecord(directives))
+    .filter(([name]) => normalizeAttributeName(name))
+    .map(([name, values]) => {
+      const normalizedValues = normalizeCspDirectiveValues(values);
+      return normalizedValues.length ? `${normalizeAttributeName(name)} ${normalizedValues.join(' ')}` : normalizeAttributeName(name);
+    })
+    .join('; ');
+}
+
+function createSsrCspPolicy(options = {}) {
+  const headerPolicy = Object.entries(objectRecord(options.headers)).find(([name]) => normalizeAttributeName(name) === normalizeAttributeName(RMT_SSR_CSP_HEADER));
+  const explicitPolicy = options.contentSecurityPolicy || options.cspPolicy || options.csp || (headerPolicy && headerPolicy[1]);
+  if (typeof explicitPolicy === 'string' && explicitPolicy.trim()) {
+    return {
+      schema: RMT_SSR_CSP_POLICY_SCHEMA,
+      mode: 'host-supplied',
+      header: explicitPolicy.trim(),
+      directives: {},
+      managedBy: RMT_NODE_SSR_ADAPTER_SCHEMA,
+      automatic: true
+    };
+  }
+  const explicitDirectives = explicitPolicy && typeof explicitPolicy === 'object'
+    ? explicitPolicy.directives || explicitPolicy
+    : {};
+  const directives = mergeCspDirectives(DEFAULT_SSR_CSP_DIRECTIVES, explicitDirectives, options.cspDirectives);
+  return {
+    schema: RMT_SSR_CSP_POLICY_SCHEMA,
+    mode: 'framework-default',
+    header: serializeCspDirectives(directives),
+    directives,
+    managedBy: RMT_NODE_SSR_ADAPTER_SCHEMA,
+    automatic: true
+  };
+}
+
+function hasHeader(headers, headerName) {
+  const normalizedHeaderName = normalizeAttributeName(headerName);
+  return Object.keys(objectRecord(headers)).some((name) => normalizeAttributeName(name) === normalizedHeaderName);
+}
+
+function createSsrSecurityHeaders(cspPolicy, headers = {}) {
+  const mergedHeaders = { ...objectRecord(headers) };
+  if (!hasHeader(mergedHeaders, RMT_SSR_CSP_HEADER)) {
+    mergedHeaders[RMT_SSR_CSP_HEADER] = cspPolicy.header;
+  }
+  return mergedHeaders;
+}
+
 function createDiagnostic(code, message, severity = 'error', details = {}) {
   let safeDetails = {};
   if (details && typeof details === 'object') {
@@ -186,7 +275,8 @@ function hasTrustBoundary(record, options = {}) {
 function fallbackSanitizeHtml(html, diagnostics, context) {
   let sanitized = stableString(html, '');
   const before = sanitized;
-  sanitized = sanitized.replace(/<\/?(script|iframe|frame|frameset|object|embed|base)\b[^>]*>/giu, '');
+  sanitized = sanitized.replace(new RegExp(`<(${BLOCKED_MARKUP_TAG_PATTERN})\\b[^>]*>[\\s\\S]*?<\\/\\1>`, 'giu'), '');
+  sanitized = sanitized.replace(new RegExp(`<\\/?(${BLOCKED_MARKUP_TAG_PATTERN})\\b[^>]*>`, 'giu'), '');
   sanitized = sanitized.replace(/\s+on[a-z0-9_-]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/giu, '');
   sanitized = sanitized.replace(/\s+srcdoc\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/giu, '');
   sanitized = sanitized.replace(/\s+(href|src|action|formaction|poster|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/giu, (match, name, rawValue) => {
@@ -613,7 +703,7 @@ function createChunk(renderState, html, descriptor, hydration) {
   };
 }
 
-function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnostics, ok) {
+function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnostics, ok, cspPolicy, headers) {
   const renderedAt = Date.parse(renderState.renderedAt) || Date.now();
   const metadata = {
     adapterKind: 'node-ssr',
@@ -621,7 +711,8 @@ function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnost
     hydrationSchema: RMT_NODE_SSR_HYDRATION_SCHEMA,
     requestId: renderState.requestId,
     sourceKind: hydration && hydration.sourceKind || null,
-    sourceRef: hydration && hydration.sourceRef || null
+    sourceRef: hydration && hydration.sourceRef || null,
+    cspPolicy: cloneJson(cspPolicy)
   };
   const request = {
     kind: 'renderman_template_prerender_request',
@@ -649,6 +740,7 @@ function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnost
     plan: cloneJson(chunk.plan),
     request,
     metadata,
+    headers: cloneJson(headers),
     chunk,
     chunks: [chunk],
     hydration,
@@ -784,6 +876,8 @@ export function createRmtNodeSsrAdapter(options = {}) {
   async function render(input, renderOptions = {}) {
     const mergedOptions = { ...adapterOptions, ...renderOptions };
     const diagnostics = createDiagnosticsCollector(mergedOptions);
+    const cspPolicy = createSsrCspPolicy(mergedOptions);
+    const headers = createSsrSecurityHeaders(cspPolicy, mergedOptions.headers);
     const requestId = safeIdentifier(mergedOptions.requestId || mergedOptions.operationId || `rmt-node-ssr-${Date.now()}`);
     const normalized = await normalizeRenderInput(input, adapterOptions, renderOptions, diagnostics);
     const rootId = safeIdentifier(mergedOptions.rootId || 'rmt-node-ssr-root');
@@ -807,7 +901,8 @@ export function createRmtNodeSsrAdapter(options = {}) {
       sourceRef: normalized.sourceRef,
       componentCapabilities: [...componentCapabilities.values()],
       coreDocumentSchema: normalized.coreDocument && normalized.coreDocument.schema || null,
-      streamingContractSchema: streamingContract && streamingContract.schema || null
+      streamingContractSchema: streamingContract && streamingContract.schema || null,
+      cspPolicy
     };
     const renderState = {
       requestId,
@@ -828,6 +923,8 @@ export function createRmtNodeSsrAdapter(options = {}) {
       html,
       head: {
         preloads: collectPreloads(html),
+        csp: cspPolicy,
+        securityHeaders: headers,
         hints: [
           {
             rel: 'xtend-rmt-hydration',
@@ -835,8 +932,10 @@ export function createRmtNodeSsrAdapter(options = {}) {
           }
         ]
       },
+      headers,
+      cspPolicy,
       chunks: [chunk],
-      response: createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnostics.diagnostics, ok),
+      response: createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnostics.diagnostics, ok, cspPolicy, headers),
       hydration,
       streamingContract,
       componentCapabilities: [...componentCapabilities.values()],
@@ -858,7 +957,9 @@ export function createRmtNodeSsrAdapter(options = {}) {
     yield toJsonlLine(frame('start', {
       payload: {
         adapterSchema: RMT_NODE_SSR_ADAPTER_SCHEMA,
-        streamingContractSchema: renderResult.streamingContract && renderResult.streamingContract.schema || RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA
+        streamingContractSchema: renderResult.streamingContract && renderResult.streamingContract.schema || RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA,
+        cspPolicy: renderResult.cspPolicy,
+        headers: renderResult.headers
       }
     }));
     for (const diagnostic of renderResult.diagnostics) {
@@ -979,6 +1080,33 @@ export function createRmtNodeSsrAdapter(options = {}) {
     return Readable.from(streamJsonl(input, streamOptions));
   }
 
+  async function toHttpResponse(input, responseOptions = {}) {
+    const result = await render(input, responseOptions);
+    return {
+      status: responseOptions.status || (result.ok ? 200 : 500),
+      headers: createSsrSecurityHeaders(result.cspPolicy, {
+        'Content-Type': 'text/html; charset=UTF-8',
+        'X-XTend-RMT-SSR-Adapter': RMT_NODE_SSR_ADAPTER_SCHEMA,
+        ...objectRecord(result.headers),
+        ...objectRecord(responseOptions.headers)
+      }),
+      body: result.html,
+      result
+    };
+  }
+
+  async function sendNodeResponse(nodeResponse, input, responseOptions = {}) {
+    const response = await toHttpResponse(input, responseOptions);
+    if (nodeResponse && typeof nodeResponse === 'object') {
+      nodeResponse.statusCode = response.status;
+      Object.entries(response.headers).forEach(([name, value]) => {
+        if (typeof nodeResponse.setHeader === 'function') nodeResponse.setHeader(name, value);
+      });
+      if (typeof nodeResponse.end === 'function') nodeResponse.end(response.body);
+    }
+    return response;
+  }
+
   function toReadableStream(input, streamOptions = {}) {
     const iterable = streamJsonl(input, streamOptions);
     if (typeof ReadableStream === 'function') {
@@ -1008,6 +1136,8 @@ export function createRmtNodeSsrAdapter(options = {}) {
     streamJsonl,
     toReadableStream,
     toNodeReadable,
+    toHttpResponse,
+    sendNodeResponse,
     renderDescriptorToHtml(descriptor, renderOptions = {}) {
       const diagnostics = createDiagnosticsCollector({ ...adapterOptions, ...renderOptions });
       const componentCapabilities = new Map();
@@ -1046,5 +1176,7 @@ export default {
   RMT_NODE_SSR_EXECUTION_MODE,
   RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA,
   RMT_NODE_SSR_KERNEL_BOUNDARY,
+  RMT_SSR_CSP_POLICY_SCHEMA,
+  RMT_SSR_CSP_HEADER,
   createRmtNodeSsrAdapter
 };

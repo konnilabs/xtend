@@ -22833,6 +22833,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             return `
                 const WORKER_NAME = ${JSON.stringify(workerName)};
                 const PRERENDER_RESPONSE_KIND = 'renderman_template_prerender_response';
+                const UI_COMPUTE_RESPONSE_KIND = 'renderman_ui_compute_response';
                 const CHUNK_KIND = 'renderman_template_chunk';
                 const CHUNK_VERSION = '1.0';
                 const templatesByQualifiedId = new Map();
@@ -23000,7 +23001,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     const chunk = options.chunk || null;
                     const signals = normalizeSignals(envelope);
                     return {
-                        kind: PRERENDER_RESPONSE_KIND,
+                        kind: options.responseKind || PRERENDER_RESPONSE_KIND,
                         version: '1.0',
                         ok: options.ok !== false,
                         transport: 'worker',
@@ -23011,6 +23012,18 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         request: cloneSerializable(envelope, null),
                         metadata: cloneSerializable(envelope && envelope.metadata, {}),
                         chunk,
+                        uiCompute: {
+                            kind: 'renderman_ui_compute_result',
+                            action: clampString(envelope && envelope.action, options.responseKind === UI_COMPUTE_RESPONSE_KIND ? 'ui_compute' : 'prerender'),
+                            mainThreadCommitRequired: true,
+                            trustedDomCommit: 'main-thread',
+                            stateOwnership: 'main-thread',
+                            ownership: {
+                                dom: false,
+                                events: false,
+                                state: false
+                            }
+                        },
                         superseded: false,
                         error: options.error || null,
                         requestedAt: Number(envelope && envelope.requestedAt) || 0,
@@ -23052,7 +23065,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                             });
                             return;
                         }
-                        if (action === 'prerender') {
+                        if (action === 'prerender' || action === 'ui_compute') {
                             const startedAt = Date.now();
                             const envelope = message.envelope && typeof message.envelope === 'object'
                                 ? message.envelope
@@ -23060,6 +23073,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                             const chunk = createChunk(envelope);
                             postResult(id, createResponse(envelope, {
                                 chunk,
+                                responseKind: action === 'ui_compute' ? UI_COMPUTE_RESPONSE_KIND : PRERENDER_RESPONSE_KIND,
                                 startedAt,
                                 completedAt: Date.now()
                             }));
@@ -23115,6 +23129,37 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         };
     }
 
+    function normalizeNumber(value, fallback = 0) {
+        const numeric = Number(value);
+        return Number.isFinite(numeric) ? numeric : fallback;
+    }
+
+    function normalizeInteger(value, fallback = 0) {
+        return Math.max(Math.trunc(normalizeNumber(value, fallback)), 0);
+    }
+
+    function normalizeUiCoprocessorOptions(input = {}, enabled = false) {
+        const source = input && typeof input === 'object' ? input : {};
+        const requested = enabled || source.enabled === true;
+        const mode = normalizeTextValue(source.mode, 'opportunistic');
+        const lifecycle = normalizeTextValue(source.lifecycle, 'runtime');
+        return Object.freeze({
+            enabled: requested,
+            mode: mode === 'alwaysOn' ? 'alwaysOn' : 'opportunistic',
+            maxQueueDepth: normalizeInteger(source.maxQueueDepth, 8) || 8,
+            stalePolicy: 'discard',
+            lifecycle: lifecycle === 'app' ? 'app' : 'runtime'
+        });
+    }
+
+    function measureTransferBytes(value) {
+        try {
+            return JSON.stringify(value == null ? null : value).length;
+        } catch (_error) {
+            return 0;
+        }
+    }
+
     appModules.createRmtPrewarmWorkerRuntime = function createRmtPrewarmWorkerRuntime(deps = {}) {
         const windowTarget = deps.windowTarget || global;
         const templateApi = deps.templateApi && typeof deps.templateApi === 'object'
@@ -23143,15 +23188,22 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             : (() => Date.now());
         const workerName = normalizeTextValue(deps.workerName, 'XTendRMTPrewarmWorker');
         const workerType = normalizeWorkerType(deps.workerType, 'classic');
+        const uiCoprocessor = normalizeUiCoprocessorOptions(deps.uiCoprocessor, deps.enableUiCoprocessor === true);
 
         let worker = null;
         let workerUrl = '';
         let taskCounter = 0;
         let submittedJobs = 0;
+        let queueDepthMax = 0;
+        let transferBytes = 0;
+        let staleResponseCount = 0;
+        let supersededResponseCount = 0;
+        let uiComputeSequence = 0;
         let syncedTemplateSignature = '';
         let syncedTemplateCount = 0;
         let lastHealthAt = 0;
         let lastError = null;
+        const latestUiComputeGenerationByKey = new Map();
         const taskResolvers = new Map();
 
         function getMissingApis() {
@@ -23245,6 +23297,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 const resolver = taskResolvers.get(message.id);
                 if (!resolver) return;
                 taskResolvers.delete(message.id);
+                transferBytes += measureTransferBytes(message.result !== undefined ? message.result : message);
                 if (message.ok === false) {
                     const error = new Error(message.error && message.error.message ? message.error.message : 'RenderManPrewarmWorker-Task ist fehlgeschlagen.');
                     error.workerError = message.error || serializeError(error);
@@ -23267,11 +23320,17 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             const currentWorker = getWorker();
             const id = ++taskCounter;
             submittedJobs += 1;
+            transferBytes += measureTransferBytes({
+                id,
+                action,
+                ...payload
+            });
             return new Promise((resolve, reject) => {
                 taskResolvers.set(id, {
                     resolve,
                     reject
                 });
+                queueDepthMax = Math.max(queueDepthMax, taskResolvers.size);
                 try {
                     currentWorker.postMessage({
                         id,
@@ -23337,6 +23396,116 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             return result;
         }
 
+        function normalizeUiComputeEnvelope(envelope = {}, options = {}) {
+            const source = cloneSerializable(envelope, {});
+            const metadata = source.metadata && typeof source.metadata === 'object'
+                ? source.metadata
+                : {};
+            const hydrationKey = normalizeTextValue(
+                options.hydrationKey
+                || options.supersessionKey
+                || source.hydrationKey
+                || source.supersessionKey
+                || metadata.hydrationKey
+                || metadata.supersessionKey
+                || source.rootId,
+                ''
+            );
+            const generation = normalizeTextValue(
+                options.generation
+                || options.hydrationGeneration
+                || options.currentGeneration
+                || source.generation
+                || source.hydrationGeneration
+                || metadata.generation
+                || metadata.hydrationGeneration
+                || (hydrationKey ? String(++uiComputeSequence) : ''),
+                ''
+            );
+            const nextMetadata = {
+                ...metadata,
+                mainThreadCommitRequired: true,
+                trustedDomCommit: 'main-thread',
+                stateOwnership: 'main-thread',
+                clientDetermined: metadata.clientDetermined !== false,
+                ssrRoundtripCount: 0
+            };
+            if (hydrationKey) nextMetadata.hydrationKey = hydrationKey;
+            if (generation) nextMetadata.generation = generation;
+            if (generation) nextMetadata.hydrationGeneration = generation;
+            return {
+                hydrationKey,
+                generation,
+                envelope: {
+                    ...source,
+                    action: 'ui_compute',
+                    metadata: nextMetadata
+                }
+            };
+        }
+
+        function normalizeUiComputeResponse(result, requestInfo, superseded = false) {
+            const response = cloneSerializable(result, {});
+            const metadata = response.metadata && typeof response.metadata === 'object'
+                ? response.metadata
+                : {};
+            if (superseded) {
+                response.ok = false;
+                response.status = 'superseded';
+                response.superseded = true;
+            }
+            response.metadata = {
+                ...metadata,
+                mainThreadCommitRequired: true,
+                trustedDomCommit: 'main-thread',
+                stateOwnership: 'main-thread',
+                clientDetermined: metadata.clientDetermined !== false,
+                ssrRoundtripCount: 0,
+                hydrationKey: requestInfo.hydrationKey || metadata.hydrationKey || '',
+                generation: requestInfo.generation || metadata.generation || '',
+                hydrationGeneration: requestInfo.generation || metadata.hydrationGeneration || metadata.generation || ''
+            };
+            response.uiCompute = {
+                ...(response.uiCompute && typeof response.uiCompute === 'object' ? response.uiCompute : {}),
+                mainThreadCommitRequired: true,
+                trustedDomCommit: 'main-thread',
+                stateOwnership: 'main-thread',
+                clientDetermined: true,
+                ownership: {
+                    dom: false,
+                    events: false,
+                    state: false
+                }
+            };
+            return response;
+        }
+
+        async function dispatchUiComputeEnvelope(envelope, options = {}) {
+            const requestInfo = normalizeUiComputeEnvelope(envelope, options);
+            if (requestInfo.hydrationKey && requestInfo.generation) {
+                latestUiComputeGenerationByKey.set(requestInfo.hydrationKey, requestInfo.generation);
+            }
+            await syncTemplates({
+                force: options.forceTemplateSync === true
+            });
+            const result = await postWorkerMessage('ui_compute', {
+                envelope: requestInfo.envelope
+            });
+            lastHealthAt = now();
+            const latestGeneration = requestInfo.hydrationKey
+                ? latestUiComputeGenerationByKey.get(requestInfo.hydrationKey)
+                : requestInfo.generation;
+            const superseded = Boolean(
+                requestInfo.hydrationKey
+                && requestInfo.generation
+                && latestGeneration
+                && latestGeneration !== requestInfo.generation
+            );
+            if (superseded) supersededResponseCount += 1;
+            if (result && result.stale === true) staleResponseCount += 1;
+            return normalizeUiComputeResponse(result, requestInfo, superseded);
+        }
+
         async function healthCheck() {
             const result = await postWorkerMessage('health');
             lastHealthAt = now();
@@ -23366,23 +23535,49 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 lastError: cloneSerializable(lastError, null),
                 responsibilities: [
                     'template_prerender_compute',
-                    'chunk_serialization'
+                    'chunk_serialization',
+                    'ui_compute',
+                    'layout_precompute',
+                    'analytics_precompute'
                 ],
                 supportedSignals: [
                     'start',
                     'continue',
-                    'rebatch'
+                    'rebatch',
+                    'compute',
+                    'ui_compute',
+                    'prerender',
+                    'invalidate'
                 ],
                 excludedResponsibilities: [
                     'dom_mutation',
                     'event_binding',
                     'state_ownership'
-                ]
+                ],
+                coprocessor: {
+                    enabled: uiCoprocessor.enabled,
+                    mode: uiCoprocessor.mode,
+                    lifecycle: uiCoprocessor.lifecycle,
+                    queueDepthMax,
+                    maxQueueDepth: uiCoprocessor.maxQueueDepth,
+                    stalePolicy: uiCoprocessor.stalePolicy,
+                    status: !uiCoprocessor.enabled ? 'disabled' : health,
+                    pendingJobs: taskResolvers.size,
+                    submittedJobs,
+                    transferBytes,
+                    staleResponses: staleResponseCount,
+                    supersededResponses: supersededResponseCount,
+                    stateOwnership: 'main-thread',
+                    trustedDomCommit: 'main-thread',
+                    clientDetermined: true,
+                    ssrRoundtripCount: 0
+                }
             };
         }
 
         return Object.freeze({
             dispatchPrerenderEnvelope,
+            dispatchUiComputeEnvelope,
             getTopologySnapshot,
             getWorker,
             healthCheck,
@@ -25285,7 +25480,23 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             throw new Error('RMT BrowserRuntime benoetigt eine gueltige TemplateApi.');
         }
 
-        const enablePrewarmWorker = deps.enablePrewarmWorker === true;
+        const uiCoprocessor = (() => {
+            const source = deps.uiCoprocessor && typeof deps.uiCoprocessor === 'object' ? deps.uiCoprocessor : {};
+            const mode = clampString(source.mode, 'opportunistic');
+            const lifecycle = clampString(source.lifecycle, 'runtime');
+            const maxQueueDepth = Math.max(Math.trunc(Number(source.maxQueueDepth) || 8), 1);
+            return Object.freeze({
+                enabled: deps.enableUiCoprocessor === true || source.enabled === true,
+                mode: mode === 'alwaysOn' ? 'alwaysOn' : 'opportunistic',
+                maxQueueDepth,
+                stalePolicy: 'discard',
+                lifecycle: lifecycle === 'app' ? 'app' : 'runtime'
+            });
+        })();
+        const enablePrewarmWorker = deps.enablePrewarmWorker === true || uiCoprocessor.enabled;
+        const prewarmWorkerEnabledBy = deps.enablePrewarmWorker === true
+            ? 'prewarmWorker'
+            : (uiCoprocessor.enabled ? 'uiCoprocessor' : 'none');
         let prewarmWorkerBootError = null;
 
         function resolvePrewarmWorkerMissingApis() {
@@ -25305,6 +25516,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 schema: 'xtend.rmt.prewarm-worker-topology.v1',
                 kind: 'renderman-prewarm',
                 enabled: enablePrewarmWorker,
+                enabledBy: prewarmWorkerEnabledBy,
                 status: health,
                 health,
                 reason,
@@ -25324,18 +25536,43 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 } : null,
                 responsibilities: [
                     'template_prerender_compute',
-                    'chunk_serialization'
+                    'chunk_serialization',
+                    'ui_compute',
+                    'layout_precompute',
+                    'analytics_precompute'
                 ],
                 supportedSignals: [
                     'start',
                     'continue',
-                    'rebatch'
+                    'rebatch',
+                    'compute',
+                    'ui_compute',
+                    'prerender',
+                    'invalidate'
                 ],
                 excludedResponsibilities: [
                     'dom_mutation',
                     'event_binding',
                     'state_ownership'
                 ],
+                coprocessor: {
+                    enabled: uiCoprocessor.enabled,
+                    mode: uiCoprocessor.mode,
+                    lifecycle: uiCoprocessor.lifecycle,
+                    queueDepthMax: 0,
+                    maxQueueDepth: uiCoprocessor.maxQueueDepth,
+                    stalePolicy: uiCoprocessor.stalePolicy,
+                    status: !uiCoprocessor.enabled ? 'disabled' : health,
+                    pendingJobs: 0,
+                    submittedJobs: 0,
+                    transferBytes: 0,
+                    staleResponses: 0,
+                    supersededResponses: 0,
+                    stateOwnership: 'main-thread',
+                    trustedDomCommit: 'main-thread',
+                    clientDetermined: true,
+                    ssrRoundtripCount: 0
+                },
                 diagnostics: enablePrewarmWorker && typeof createRmtPrewarmWorkerRuntimeFactory !== 'function'
                     ? [{
                         schema: 'xtend.rmt.prewarm-worker-diagnostic.v1',
@@ -25358,7 +25595,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         documentTarget,
                         templateApi,
                         workerName: deps.prewarmWorkerName || 'XTendRMTPrewarmWorker',
-                        workerType: deps.prewarmWorkerType || 'classic'
+                        workerType: deps.prewarmWorkerType || 'classic',
+                        enableUiCoprocessor: uiCoprocessor.enabled,
+                        uiCoprocessor
                     });
                 } catch (error) {
                     prewarmWorkerBootError = error;
@@ -25447,6 +25686,60 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             return serverAdapter;
         }
 
+        function getPrewarmWorkerTopologySnapshot() {
+            return prewarmWorkerRuntime && typeof prewarmWorkerRuntime.getTopologySnapshot === 'function'
+                ? {
+                    ...prewarmWorkerRuntime.getTopologySnapshot(),
+                    enabledBy: prewarmWorkerEnabledBy
+                }
+                : createPrewarmWorkerTopologyFallback(
+                    enablePrewarmWorker
+                        ? (prewarmWorkerBootError ? 'boot_failed' : (typeof createRmtPrewarmWorkerRuntimeFactory === 'function' ? 'degraded' : 'factory_missing'))
+                        : 'disabled',
+                    prewarmWorkerBootError
+                );
+        }
+
+        function getUiCoprocessorSnapshot() {
+            const topology = getPrewarmWorkerTopologySnapshot();
+            return topology && topology.coprocessor ? topology.coprocessor : createPrewarmWorkerTopologyFallback('disabled').coprocessor;
+        }
+
+        async function requestUiCompute(envelope = {}, options = {}) {
+            if (!uiCoprocessor.enabled) {
+                return {
+                    ok: false,
+                    status: 'disabled',
+                    transport: 'main-thread',
+                    reason: 'ui_coprocessor_disabled',
+                    metadata: {
+                        mainThreadCommitRequired: true,
+                        trustedDomCommit: 'main-thread',
+                        stateOwnership: 'main-thread',
+                        clientDetermined: true,
+                        ssrRoundtripCount: 0
+                    }
+                };
+            }
+            if (!prewarmWorkerRuntime || typeof prewarmWorkerRuntime.dispatchUiComputeEnvelope !== 'function') {
+                return {
+                    ok: false,
+                    status: 'degraded',
+                    transport: 'main-thread',
+                    reason: 'ui_coprocessor_worker_unavailable',
+                    topology: getPrewarmWorkerTopologySnapshot(),
+                    metadata: {
+                        mainThreadCommitRequired: true,
+                        trustedDomCommit: 'main-thread',
+                        stateOwnership: 'main-thread',
+                        clientDetermined: true,
+                        ssrRoundtripCount: 0
+                    }
+                };
+            }
+            return prewarmWorkerRuntime.dispatchUiComputeEnvelope(envelope, options);
+        }
+
         function withDefaults(nextDefaults = {}) {
             return appModules.createRmtBrowserRuntime({
                 ...deps,
@@ -25459,6 +25752,8 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 prewarmWorkerRuntime,
                 templateApi,
                 performanceHistoryStorage,
+                enableUiCoprocessor: uiCoprocessor.enabled,
+                uiCoprocessor,
                 defaults: {
                     ...runtimeDefaults,
                     ...(isObjectLike(nextDefaults) ? nextDefaults : {}),
@@ -25505,17 +25800,16 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             getRuntimeRenderer: () => (typeof templateApi.getRuntimeRenderer === 'function' ? templateApi.getRuntimeRenderer() : null),
             getPerformanceRuntime: () => performanceRuntime,
             getPrewarmWorkerRuntime: () => prewarmWorkerRuntime,
-            getPrewarmWorkerTopology: () => (
-                prewarmWorkerRuntime && typeof prewarmWorkerRuntime.getTopologySnapshot === 'function'
-                    ? prewarmWorkerRuntime.getTopologySnapshot()
-                    : createPrewarmWorkerTopologyFallback(
-                        enablePrewarmWorker
-                            ? (prewarmWorkerBootError ? 'boot_failed' : (typeof createRmtPrewarmWorkerRuntimeFactory === 'function' ? 'degraded' : 'factory_missing'))
-                            : 'disabled',
-                        prewarmWorkerBootError
-                    )
-            ),
+            getPrewarmWorkerTopology: getPrewarmWorkerTopologySnapshot,
+            getUiCoprocessorSnapshot,
+            requestUiCompute,
+            dispatchUiComputeEnvelope: requestUiCompute,
             terminatePrewarmWorker: (reason = 'runtime_terminate') => (
+                prewarmWorkerRuntime && typeof prewarmWorkerRuntime.terminateWorker === 'function'
+                    ? prewarmWorkerRuntime.terminateWorker(reason)
+                    : false
+            ),
+            terminateUiCoprocessor: (reason = 'ui_coprocessor_terminate') => (
                 prewarmWorkerRuntime && typeof prewarmWorkerRuntime.terminateWorker === 'function'
                     ? prewarmWorkerRuntime.terminateWorker(reason)
                     : false

@@ -23,6 +23,14 @@ RMT Node SSR Adapter beschreibt die öffentliche RMT-Oberfläche dieser Seite: w
 `hydrateResponse` verarbeiten oder bei Diagnosefehlern kontrolliert degradieren
 kann.
 
+## Automatische CSP
+
+Der Adapter erzeugt für jeden Render automatisch eine Framework-Policy
+`xtend.rmt.ssr-csp-policy.v1`. `render().headers`,
+`render().response.headers`, Hydration-Metadaten, JSONL-Startframes und
+`toHttpResponse()` enthalten `Content-Security-Policy` ohne zusätzliche
+Host-Verkabelung.
+
 ## Beispiel
 
 ```js

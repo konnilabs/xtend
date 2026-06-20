@@ -1,6 +1,6 @@
 {
   "name": "@ccslabs/xtend-cli",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": false,
   "description": "XTend scaffold, builder and component authoring CLI.",
   "license": "Apache-2.0",
@@ -69,8 +69,8 @@
     "./package.json": "./package.json"
   },
   "peerDependencies": {
-    "@ccslabs/xtend": "0.3.0",
-    "@ccslabs/xtend-compiler": "0.3.0"
+    "@ccslabs/xtend": "0.3.1",
+    "@ccslabs/xtend-compiler": "0.3.1"
   },
   "peerDependenciesMeta": {
     "@ccslabs/xtend": {

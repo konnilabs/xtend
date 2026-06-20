@@ -138,7 +138,7 @@ const PARSEDOWN_DOCS_POLICY = {
 const TRUSTED_DOM_SANITIZER_POLICY = {
   schema: TRUSTED_DOM_SANITIZER_CONTRACT,
   boundary: SANITIZING_BOUNDARY_CONTRACT,
-  removesElements: ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'base', 'form'],
+  removesElements: ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'base', 'form', 'style', 'svg', 'math', 'template'],
   removesAttributes: ['/^on/i', 'srcdoc'],
   validatesUrlAttributes: ['href', 'src', 'action', 'poster'],
   disallowedProtocols: URL_ATTRIBUTE_POLICY.disallowedProtocols,

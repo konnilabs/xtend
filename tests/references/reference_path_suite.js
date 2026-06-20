@@ -9209,7 +9209,7 @@ function assertReleasePreparationReference(context, rootDir) {
     'rmt-playground-security'
   ];
 
-  context.assert(packageManifest.version === '0.3.0', 'Root package version is prepared for 0.3.0');
+  context.assert(packageManifest.version === '0.3.1', 'Root package version is prepared for 0.3.1');
   docsGates.forEach((gate) => {
     context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes(gate), `Release gates include ${gate}`);
     context.assert(xtend.releaseChecklist && Array.isArray(xtend.releaseChecklist.candidateGates) && xtend.releaseChecklist.candidateGates.includes(gate), `Release checklist includes ${gate}`);

@@ -23,6 +23,14 @@ RMT PHP/Laravel SSR Adapter beschreibt die öffentliche RMT-Oberfläche dieser S
 `hydrateResponse` verarbeiten oder bei Diagnosefehlern kontrolliert degradieren
 kann.
 
+## Automatische CSP
+
+Der Adapter erzeugt für jeden Render automatisch eine Framework-Policy
+`xtend.rmt.ssr-csp-policy.v1`. `render().headers`,
+`render().response.headers`, Hydration-Metadaten, JSONL-Startframes,
+`toLaravelResponse()` und `toLaravelStreamedResponse()` enthalten
+`Content-Security-Policy` ohne zusätzliche Host-Verkabelung.
+
 ## Beispiel
 
 ```php

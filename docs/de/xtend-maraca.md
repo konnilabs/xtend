@@ -24,7 +24,7 @@ xt maraca build app.rmt --out dist --profile production --lazy component --css e
 xt rmt build app.rmt --bundle maraca --out dist --profile production --lazy component --css external --json
 ```
 
-Der generierte Output enthält normalerweise `xtend.maraca.mjs`, optional `xtend.maraca.css`, dynamische `chunks/*.mjs`, `xtend.maraca.report.json` und `xtend.maraca.size.json`. Der Report ist das Audit-Artefakt: Er dokumentiert ausgewählte Komponenten, Runtime-Module, Lazy Imports, verbotene Loader-Abhängigkeiten und den Status des Größenbudgets.
+Der generierte Output enthält normalerweise `xtend.maraca.mjs`, optional `xtend.maraca.css`, dynamische `chunks/*.mjs`, `xtend.maraca.report.json` und `xtend.maraca.size.json`. Wenn der Mobile-Manifest- oder PWA-Assistant aktiviert ist, kann dasselbe Ausgabeverzeichnis zusätzlich `xtend.webmanifest`, `icons/`, `xtend.webmanifest.report.json`, `xtend.service-worker.js`, `xtend.offline.html` und `xtend.pwa.report.json` enthalten. Der Report ist das Audit-Artefakt: Er dokumentiert ausgewählte Komponenten, Runtime-Module, Lazy Imports, verbotene Loader-Abhängigkeiten, PWA-Anschlussdaten und den Status des Größenbudgets.
 
 ## Orchestrierte App Bundles
 
@@ -35,6 +35,34 @@ xt maraca build app.rmt --orchestration strict --kernel strict --hydration stric
 ```
 
 Strict Builds erwarten bekannte Komponenten, typisierte Events, Resource Ownership, auflösbare Targets/Portals, Validation Messages und schedulbare Transition-/Hydration-Fibers. Der Bundle-Report enthält dafür eigene Abschnitte für `orchestration`, `kernel`, `hydration`, `validation` und `transitions`.
+
+## Mobile Web App Manifest
+
+Der Web App Manifest Assistant ist opt-in und unabhängig vom Service-Worker-Pfad nutzbar. Er schreibt `xtend.webmanifest`, legt ein `icons/` Verzeichnis im Maraca-Output an und kopiert die XTend Standard-Logo-Assets aus dem Repo-Root. V1 skaliert keine Bilder und erfindet kein echtes Branding. Der Assistant kopiert vorhandene Dateien, damit App-Entwickler sie im Output durch produktspezifische Icons ersetzen können.
+
+```bash
+xt maraca build app.rmt --out dist --web-app-manifest --json
+xt maraca build app.rmt --out dist --manifest --json
+```
+
+Das generierte Manifest verwendet als Defaults `name: "XTend Maraca App"`, `short_name: "XTend"`, `start_url: "./"`, `scope: "./"`, `display: "standalone"`, `background_color: "#ffffff"` und `theme_color: "#1f6f78"`. Manifest-Icons verweisen nur auf die mobilen App Icons: `icons/android-chrome-192x192.png` und `icons/android-chrome-512x512.png`, jeweils mit `purpose: "any"`. Apple Touch Icons und Favicons werden kopiert und in `xtend.webmanifest.report.json` als `htmlLinkHints` aufgeführt; sie werden nicht fälschlich als Web-App-Manifest-Icons deklariert.
+
+Die stabilen Report-Schemas sind `xtend.maraca.web-app-manifest-plan.v1` und `xtend.maraca.web-app-manifest-report.v1`. Der Bundle-Report stellt dieselbe Evidence unter `webAppManifest` bereit, und der generierte Browser-Entry exponiert sie als `XTendMaraca.webAppManifest`.
+
+## PWA Service Worker Assistant
+
+Der PWA Service Worker Assistant ist ebenfalls opt-in. Er ist Low-Code, nicht NoCode: Maraca generiert sichere Framework-Flächen für App-Shell-Caching, versioniertes Cache-Cleanup, Registrierungsdaten und Offline-Fallback; app-spezifische Netzwerk- oder Business-Logik bleibt über einen expliziten Import-Hook angebunden.
+
+```bash
+xt maraca build app.rmt --out dist --pwa --json
+xt maraca build app.rmt --out dist --enable-service-worker --json
+```
+
+`pwa: true` aktiviert automatisch den Web App Manifest Assistant. Der Service-Worker-Plan konsumiert diesen Manifest-Plan für `manifestRef`, Icon-Dateien und Precache-URLs, statt Manifest-Erzeugung selbst zu besitzen. Generierte Artefakte sind `xtend.service-worker.js`, bei aktiviertem Offline-Fallback `xtend.offline.html` und `xtend.pwa.report.json`.
+
+Der generierte Service Worker cached standardmäßig nur sichere same-origin `GET` App-Shell- und Asset-Requests. Die Runtime-Cache-Policy erlaubt statische Assets mit `cache-first`, Navigation-Fallback mit `network-first` und optionale Images/Fonts mit `stale-while-revalidate`. Geblockt bleiben non-GET Requests, Auth-/Cookie-sensitive Requests, personalisierte SSR-Fragmente, API Responses ohne explizite App-Policy, Background Sync, Push und Offline-Mutationslogik. Für lokale Business-Regeln konfigurierst du einen Service-Worker-Business-Logic-Import; die generierte Datei enthält den Kommentarblock `XTEND SERVICE WORKER BUSINESS LOGIC HOOK` und importiert dieses Skript, ohne dass Entwickler die generierte Datei direkt bearbeiten müssen.
+
+Die stabilen Report-Schemas sind `xtend.maraca.pwa-service-worker-plan.v1` und `xtend.maraca.pwa-service-worker-report.v1`. Der Bundle-Report stellt die Evidence unter `pwa` bereit; die Browser Bridge exponiert Plan und Registrierungssnapshot über `XTendMaraca.pwa`, `window.__XTendMaracaPwaRegistration` und den Telemetrie-Snapshot. RMT Kernel und UI Coprocessor konsumieren nur PWA-Statusdaten wie `serviceWorkerControlled`, `cacheMode`, `offlineEligible`, `manifestRef` und `cacheVersion`; Service Worker übernehmen keine UI-Compute-, SSR- oder DOM-Verantwortung.
 
 ## Minimales RMT Beispiel
 
@@ -121,9 +149,11 @@ Nutze `lazyStrategy: "eager"`, wenn der Host alle ausgewählten Komponenten sofo
 
 `--lazy component` erzeugt nach Möglichkeit einen Lazy Entry pro ausgewählter Komponente. `--lazy none` zieht ausgewählte Komponenten in den Entry und ist einfacher für Single-File Deployments. `--css external` schreibt `xtend.maraca.css`; `--css inline` injiziert das kleine generierte Layout CSS aus dem Entry. Für Vendor Builds wählt `--vendor xtend` bewusst das vollständige Component Set und Stack Module; für App Builds lässt du das Vendor Flag weg, damit das RMT Dokument den Graphen kontrolliert.
 
+Nutze `--web-app-manifest` oder `--manifest`, wenn die App auf mobilen Geräten installierbar sein soll, ohne bereits einen Service Worker zu aktivieren. Nutze `--pwa` oder `--enable-service-worker`, wenn Maraca zusätzlich Service-Worker-Registrierung, Cache-Policy und Offline-Fallback erzeugen soll. `--pwa` schließt den Manifest Assistant automatisch ein.
+
 ## Reports und Größenbudgets
 
-Lies `xtend.maraca.report.json` nach jedem Production Build. Die wichtigsten Felder sind `components.selected`, `runtimeModules`, `bundleFiles`, `loader`, `forbiddenRuntimeDependencies` und `toolchain`. Ein gesunder App Build sollte `loader.usesExternalManifest: false`, `loader.usesXtendLoader: false` und keine verbotene Runtime-Abhängigkeit auf `components/manifest.json` zeigen.
+Lies `xtend.maraca.report.json` nach jedem Production Build. Die wichtigsten Felder sind `components.selected`, `runtimeModules`, `bundleFiles`, `loader`, `forbiddenRuntimeDependencies`, `webAppManifest`, `pwa` und `toolchain`. Ein gesunder App Build sollte `loader.usesExternalManifest: false`, `loader.usesXtendLoader: false` und keine verbotene Runtime-Abhängigkeit auf `components/manifest.json` zeigen.
 
 Für kernel-orchestrierte Production Bundles solltest du zusätzlich `productionClosure` und `kernelFeatureAdoptionClosure` prüfen. Diese Abschnitte beantworten jede Runtime Capability mit `supported`, `active`, `degraded`, `blocked`, `runtimeExpectedStatus` und Diagnostics. Dieselbe Matrix verbindet Lifecycle, Telemetry, Performance, Policy Parity, Warm Reentry, Prewarm Worker und Prerender Status mit RMT Source-Fingerprint, Bundle-Fingerprints und Release-Tests.
 
@@ -135,12 +165,16 @@ Wenn ein Build mit einer Unknown-Component-Diagnose scheitert, prüfe den exakte
 
 Wenn der Output weiterhin `xtend-loader.js`, `data-manifest` oder `components/manifest.json` referenziert, behandle den Report als Blocker. Maraca App Bundles sollten eine Inline Registry verwenden. Wenn du zur Laufzeit ein Manifest brauchst, wähle bewusst den Loader-Pfad, statt Maraca in diese Richtung umzubauen.
 
+Wenn kein mobiler Install Prompt erscheint, prüfe, ob `xtend.webmanifest` als `application/manifest+json` ausgeliefert wird und ob `icons/android-chrome-192x192.png` sowie `icons/android-chrome-512x512.png` im Output-`icons/` Verzeichnis existieren. Wenn Offline-Verhalten fehlt, prüfe, ob die Seite über einen Origin läuft, der Service Worker erlaubt, ob `xtend.service-worker.js` als JavaScript ausgeliefert wird und ob `xtend.pwa.report.json` die erwarteten Precache-URLs enthält.
+
 ## Lokale Prüfungen
 
 Nutze die Maraca Suites, wenn du CLI-Verdrahtung, Package Exports, Bundle-Erzeugung oder RMT Source-to-Bundle-Verhalten änderst.
 
 ```bash
-node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-validation maraca-transitions maraca-package-exports maraca-size-budget --json
+node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker --json
+npm run test:maraca-web-app-manifest
+npm run test:maraca-pwa-service-worker
 npm run test:maraca
 npm run pack:dry-run
 ```

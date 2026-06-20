@@ -27,6 +27,7 @@ const MIME_TYPES = {
   '.css': 'text/css; charset=utf-8',
   '.rmt': 'application/vnd.xtendrmt.rmt+json; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.wasm': 'application/wasm',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',

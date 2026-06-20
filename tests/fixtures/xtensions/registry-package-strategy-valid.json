@@ -1,0 +1,478 @@
+{
+  "schema": "xtend.xtensions.registry-package-strategy.fixture.v1",
+  "expectedRegistryId": "xtensions.project-local.registry",
+  "expectedStatus": "ready",
+  "expectedBlockedStatus": "blocked",
+  "strategy": {
+    "schema": "xtend.xtensions.registry-package-strategy.v1",
+    "primaryDistribution": "project-local-manifest",
+    "packageNamePattern": "@xtend/xtension-*",
+    "packageNamespace": "@xtend",
+    "npmSubpackages": "reserved-deferred",
+    "marketplaceEntries": "metadata-only",
+    "adapterPackaging": "external-opt-in-peer-harness",
+    "registryScope": "project-local",
+    "registrySourceOfTruth": "maraca-manifest",
+    "runtimeSourceOfTruth": "host-local-runtime-capability-registry",
+    "allowGlobalRegistry": false,
+    "allowRemoteArtifacts": false,
+    "allowNpmSubpackagesByDefault": false,
+    "requireSecurityReview": true,
+    "requireCompatibilityMatrix": true,
+    "requireDeprecationPolicy": true,
+    "packageFrameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false
+  },
+  "entries": [
+    {
+      "xtensionId": "xtension.dashboard.react.panel",
+      "packageName": "@xtend/xtension-dashboard-react-panel",
+      "distribution": "project-local-manifest",
+      "framework": "react",
+      "version": "1.0.0",
+      "owner": "xtend-dashboard",
+      "sourceOfTruth": "maraca-manifest",
+      "runtimeRegistryRef": "host-local-runtime-capability-registry",
+      "marketplace": {
+        "listing": "metadata-only",
+        "discoverable": true
+      },
+      "compatibility": {
+        "status": "supported",
+        "xtendVersionRange": "^0.3.1",
+        "maracaManifestSchema": "xtend.maraca.xtension-manifest.v1",
+        "runtimeRegistrySchema": "xtend.xtensions.runtime-capability-registry.v1",
+        "securityGateSchema": "xtend.xtensions.security-integrity-gate.v1"
+      },
+      "deprecation": {
+        "status": "active",
+        "policy": "semver-major-only"
+      },
+      "release": {
+        "owner": "xtend-dashboard",
+        "securityReviewed": true,
+        "compatibilityReviewed": true,
+        "deprecationReviewed": true,
+        "provenanceRequired": true,
+        "publishApproved": false,
+        "releaseChannel": "project-local",
+        "packagePublishingAllowed": false
+      },
+      "manifest": {
+        "id": "xtension.dashboard.react.panel",
+        "name": "Dashboard React Panel",
+        "framework": "react",
+        "version": "1.0.0",
+        "owner": "xtend-dashboard",
+        "entry": {
+          "module": "external-peer://react/dashboard-panel-host",
+          "exportName": "createDashboardReactPanel",
+          "format": "esm",
+          "dynamicImport": true
+        },
+        "integrity": {
+          "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source": "maraca-artifact"
+        },
+        "csp": {
+          "scriptSrc": ["'self'"],
+          "connectSrc": ["'self'"],
+          "workerSrc": ["'self'"],
+          "styleSrc": ["'self'"],
+          "imgSrc": ["'self'", "data:"]
+        },
+        "security": {
+          "owner": "xtend-dashboard",
+          "localFixtureNoNetwork": true
+        },
+        "lazy": {
+          "mode": "visible",
+          "optIn": true,
+          "policy": "dashboard-visible-panel",
+          "prefetch": false,
+          "preload": false
+        },
+        "contract": {
+          "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+          "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+          "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+          "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+          "accepts": ["dashboard.selection.react.props"],
+          "emits": ["dashboard.react.panel.ready"],
+          "capabilities": [
+            "host.lifecycle.mount",
+            "host.lifecycle.update",
+            "signal.downstream",
+            "event.upstream",
+            "loading.dynamic-import",
+            "fallback.native-placeholder",
+            "scheduler.hints"
+          ]
+        },
+        "capabilities": [
+          "host.lifecycle.mount",
+          "host.lifecycle.update",
+          "signal.downstream",
+          "event.upstream",
+          "loading.dynamic-import",
+          "fallback.native-placeholder",
+          "scheduler.hints"
+        ],
+        "dependencies": [
+          {
+            "name": "react",
+            "versionRange": "^18.0.0",
+            "classification": "external-peer",
+            "bundled": false,
+            "packageIncluded": false
+          }
+        ],
+        "fallback": {
+          "mode": "native-placeholder",
+          "component": "xtend-native.dashboard-react-placeholder",
+          "message": "React dashboard panel unavailable",
+          "degradedStatus": "xtension-dashboard-react-unavailable"
+        },
+        "policy": {
+          "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+          "status": "approved"
+        }
+      }
+    },
+    {
+      "xtensionId": "xtension.dashboard.vue.panel",
+      "packageName": "@xtend/xtension-dashboard-vue-panel",
+      "distribution": "project-local-manifest",
+      "framework": "vue",
+      "version": "1.0.0",
+      "owner": "xtend-dashboard",
+      "sourceOfTruth": "maraca-manifest",
+      "runtimeRegistryRef": "host-local-runtime-capability-registry",
+      "compatibility": {
+        "status": "deprecated",
+        "xtendVersionRange": "^0.3.1",
+        "maracaManifestSchema": "xtend.maraca.xtension-manifest.v1",
+        "runtimeRegistrySchema": "xtend.xtensions.runtime-capability-registry.v1",
+        "securityGateSchema": "xtend.xtensions.security-integrity-gate.v1"
+      },
+      "deprecation": {
+        "status": "deprecated",
+        "replacement": "@xtend/xtension-dashboard-native-inspector",
+        "sunsetVersion": "2.0.0",
+        "migrationGuide": "development/XTensions-Multi-Framework-Dashboard-Fixture-and-Browser-Smokes-Contract.md",
+        "policy": "semver-major-only"
+      },
+      "release": {
+        "owner": "xtend-dashboard",
+        "securityReviewed": true,
+        "compatibilityReviewed": true,
+        "deprecationReviewed": true,
+        "provenanceRequired": true,
+        "publishApproved": false,
+        "releaseChannel": "project-local",
+        "packagePublishingAllowed": false
+      },
+      "manifest": {
+        "id": "xtension.dashboard.vue.panel",
+        "name": "Dashboard Vue Inspector",
+        "framework": "vue",
+        "version": "1.0.0",
+        "owner": "xtend-dashboard",
+        "entry": {
+          "module": "external-peer://vue/dashboard-inspector-host",
+          "exportName": "createDashboardVueInspector",
+          "format": "esm",
+          "dynamicImport": true
+        },
+        "integrity": {
+          "sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source": "maraca-artifact"
+        },
+        "csp": {
+          "scriptSrc": ["'self'"],
+          "connectSrc": ["'self'"],
+          "workerSrc": ["'self'"],
+          "styleSrc": ["'self'"],
+          "imgSrc": ["'self'", "data:"]
+        },
+        "security": {
+          "owner": "xtend-dashboard",
+          "localFixtureNoNetwork": true
+        },
+        "lazy": {
+          "mode": "visible",
+          "optIn": true,
+          "policy": "dashboard-visible-panel",
+          "prefetch": false,
+          "preload": false
+        },
+        "contract": {
+          "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+          "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+          "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+          "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+          "accepts": ["dashboard.selection.vue.state"],
+          "emits": ["dashboard.vue.panel.ready"],
+          "capabilities": [
+            "host.lifecycle.mount",
+            "host.lifecycle.update",
+            "signal.downstream",
+            "event.upstream",
+            "loading.dynamic-import",
+            "fallback.native-placeholder"
+          ]
+        },
+        "capabilities": [
+          "host.lifecycle.mount",
+          "host.lifecycle.update",
+          "signal.downstream",
+          "event.upstream",
+          "loading.dynamic-import",
+          "fallback.native-placeholder"
+        ],
+        "dependencies": [
+          {
+            "name": "vue",
+            "versionRange": "^3.0.0",
+            "classification": "external-peer",
+            "bundled": false,
+            "packageIncluded": false
+          }
+        ],
+        "fallback": {
+          "mode": "native-placeholder",
+          "component": "xtend-native.dashboard-vue-placeholder",
+          "message": "Vue dashboard inspector unavailable",
+          "degradedStatus": "xtension-dashboard-vue-unavailable"
+        },
+        "policy": {
+          "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+          "status": "approved"
+        }
+      }
+    },
+    {
+      "xtensionId": "xtension.dashboard.chart",
+      "packageName": "@xtend/xtension-dashboard-chart",
+      "distribution": "marketplace-entry",
+      "framework": "chart.js",
+      "version": "1.0.0",
+      "owner": "xtend-dashboard",
+      "sourceOfTruth": "maraca-manifest",
+      "runtimeRegistryRef": "host-local-runtime-capability-registry",
+      "marketplace": {
+        "listing": "metadata-only",
+        "discoverable": true
+      },
+      "compatibility": {
+        "status": "supported",
+        "xtendVersionRange": "^0.3.1",
+        "maracaManifestSchema": "xtend.maraca.xtension-manifest.v1",
+        "runtimeRegistrySchema": "xtend.xtensions.runtime-capability-registry.v1",
+        "securityGateSchema": "xtend.xtensions.security-integrity-gate.v1"
+      },
+      "deprecation": {
+        "status": "active",
+        "policy": "semver-major-only"
+      },
+      "release": {
+        "owner": "xtend-dashboard",
+        "securityReviewed": true,
+        "compatibilityReviewed": true,
+        "deprecationReviewed": true,
+        "provenanceRequired": true,
+        "publishApproved": false,
+        "releaseChannel": "project-local",
+        "packagePublishingAllowed": false
+      },
+      "manifest": {
+        "id": "xtension.dashboard.chart",
+        "name": "Dashboard Chart Surface",
+        "framework": "chart.js",
+        "version": "1.0.0",
+        "owner": "xtend-dashboard",
+        "entry": {
+          "module": "external-peer://chart.js/dashboard-chart-host",
+          "exportName": "createDashboardChartHost",
+          "format": "esm",
+          "dynamicImport": true
+        },
+        "integrity": {
+          "sha256": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "source": "maraca-artifact"
+        },
+        "csp": {
+          "scriptSrc": ["'self'"],
+          "connectSrc": ["'self'"],
+          "workerSrc": ["'self'"],
+          "styleSrc": ["'self'"],
+          "imgSrc": ["'self'", "data:"]
+        },
+        "security": {
+          "owner": "xtend-dashboard",
+          "localFixtureNoNetwork": true
+        },
+        "lazy": {
+          "mode": "visible",
+          "optIn": true,
+          "policy": "dashboard-visible-chart",
+          "prefetch": false,
+          "preload": false
+        },
+        "contract": {
+          "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+          "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+          "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+          "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+          "accepts": ["dashboard.selection.chart.update"],
+          "emits": ["dashboard.chart.ready"],
+          "capabilities": [
+            "host.lifecycle.mount",
+            "host.lifecycle.update",
+            "signal.downstream",
+            "event.upstream",
+            "loading.dynamic-import",
+            "fallback.native-placeholder",
+            "imperative.host-bridge"
+          ]
+        },
+        "capabilities": [
+          "host.lifecycle.mount",
+          "host.lifecycle.update",
+          "signal.downstream",
+          "event.upstream",
+          "loading.dynamic-import",
+          "fallback.native-placeholder",
+          "imperative.host-bridge"
+        ],
+        "dependencies": [
+          {
+            "name": "chart.js",
+            "versionRange": "^4.0.0",
+            "classification": "external-peer",
+            "bundled": false,
+            "packageIncluded": false
+          }
+        ],
+        "fallback": {
+          "mode": "native-placeholder",
+          "component": "xtend-native.dashboard-chart-placeholder",
+          "message": "Dashboard chart unavailable",
+          "degradedStatus": "xtension-dashboard-chart-unavailable"
+        },
+        "policy": {
+          "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+          "status": "approved"
+        }
+      }
+    }
+  ],
+  "blockedEntries": [
+    {
+      "xtensionId": "xtension.bad.remote",
+      "packageName": "xtension-bad-remote",
+      "distribution": "remote-artifact",
+      "framework": "react",
+      "version": "1.0.0",
+      "sourceOfTruth": "runtime-adapter",
+      "runtimeRegistryRef": "global-runtime-registry",
+      "globalRegistry": true,
+      "packageIncluded": true,
+      "frameworkRuntimeIncluded": true,
+      "frameworkDependenciesAllowed": true,
+      "compatibility": {
+        "status": "blocked"
+      },
+      "deprecation": {
+        "status": "deprecated"
+      },
+      "release": {
+        "owner": "",
+        "securityReviewed": false,
+        "compatibilityReviewed": false,
+        "deprecationReviewed": false,
+        "provenanceRequired": false,
+        "packagePublishingAllowed": true
+      },
+      "dependencies": [
+        {
+          "name": "react",
+          "versionRange": "^18.0.0",
+          "classification": "core",
+          "bundled": true,
+          "packageIncluded": true
+        }
+      ],
+      "manifest": {
+        "id": "xtension.bad.remote",
+        "name": "Bad Remote XTension",
+        "framework": "react",
+        "entry": {
+          "module": "external-peer://react/bad-remote",
+          "format": "esm",
+          "dynamicImport": true
+        },
+        "integrity": {},
+        "csp": {
+          "scriptSrc": ["'self'"],
+          "connectSrc": ["'self'"],
+          "workerSrc": ["'self'"],
+          "imgSrc": ["'self'"]
+        },
+        "dependencies": [
+          {
+            "name": "react",
+            "classification": "core",
+            "bundled": true,
+            "packageIncluded": true
+          }
+        ],
+        "fallback": {}
+      }
+    },
+    {
+      "xtensionId": "xtension.bad.npm",
+      "packageName": "@xtend/xtension-bad-npm",
+      "distribution": "npm-subpackage",
+      "framework": "vue",
+      "version": "1.0.0",
+      "owner": "xtend-dashboard",
+      "sourceOfTruth": "maraca-manifest",
+      "runtimeRegistryRef": "host-local-runtime-capability-registry",
+      "compatibility": {
+        "status": "supported"
+      },
+      "deprecation": {
+        "status": "active"
+      },
+      "release": {
+        "owner": "xtend-dashboard",
+        "securityReviewed": true,
+        "compatibilityReviewed": true,
+        "deprecationReviewed": true,
+        "provenanceRequired": true,
+        "packagePublishingAllowed": false
+      }
+    }
+  ],
+  "expectedDiagnostics": [
+    "xtensions.registry.package_name_invalid",
+    "xtensions.registry.owner_missing",
+    "xtensions.registry.security_review_missing",
+    "xtensions.registry.compatibility_unsupported",
+    "xtensions.registry.deprecation_policy_missing",
+    "xtensions.registry.release_policy_invalid",
+    "xtensions.registry.runtime_source_of_truth",
+    "xtensions.registry.global_registry_forbidden",
+    "xtensions.registry.remote_distribution_blocked",
+    "xtensions.registry.npm_subpackage_deferred",
+    "xtensions.registry.packaged_framework"
+  ],
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "runtimeExecutionRequired": false,
+    "frameworkCodeRequired": false,
+    "localNetworkRequired": false
+  }
+}

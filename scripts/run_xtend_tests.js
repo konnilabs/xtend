@@ -20,20 +20,24 @@ const {
   printMaracaOrchestrationReport,
   printMaracaPackageExportsReport,
   printMaracaPlanReport,
+  printMaracaPwaServiceWorkerReport,
   printMaracaRmtSourceToBundleReport,
   printMaracaSizeBudgetReport,
   printMaracaTransitionReport,
   printMaracaValidationReport,
+  printMaracaWebAppManifestReport,
   runMaracaBundleSuite,
   runMaracaKernelIntegritySuite,
   runMaracaKernelOrchestrationSuite,
   runMaracaOrchestrationSuite,
   runMaracaPackageExportsSuite,
   runMaracaPlanSuite,
+  runMaracaPwaServiceWorkerSuite,
   runMaracaRmtSourceToBundleSuite,
   runMaracaSizeBudgetSuite,
   runMaracaTransitionSuite,
-  runMaracaValidationSuite
+  runMaracaValidationSuite,
+  runMaracaWebAppManifestSuite
 } = require('../tests/maraca/maraca_suite');
 const {
   printCoreContractReport,
@@ -47,6 +51,14 @@ const {
   printBrowserSmokeReport,
   runBrowserSmokeSuite
 } = require('../tests/browser/browser_smoke_suite');
+const {
+  printSuperPrewarmWorkerExperimentReport,
+  runSuperPrewarmWorkerExperimentSuite
+} = require('../tests/rmt/super_prewarm_worker_experiment_suite');
+const {
+  printUiCoprocessorReport,
+  runUiCoprocessorSuite
+} = require('../tests/rmt/ui_coprocessor_suite');
 const {
   printReferencePathReport,
   runReferencePathSuite
@@ -283,6 +295,62 @@ const {
   printRmtVNextLifecycleReport,
   runRmtVNextLifecycleSuite
 } = require('../tests/rmt-language/rmt_vnext_lifecycle_suite');
+const {
+  printXTensionsHostControllerReport,
+  runXTensionsHostControllerSuite
+} = require('../tests/xtensions/xtensions_host_controller_suite');
+const {
+  printXTensionsSignalBridgeReport,
+  runXTensionsSignalBridgeSuite
+} = require('../tests/xtensions/xtensions_signal_bridge_suite');
+const {
+  printMaracaXTensionsReport,
+  runMaracaXTensionsSuite
+} = require('../tests/xtensions/maraca_xtensions_suite');
+const {
+  printXTensionsStaticIntrospectionReport,
+  runXTensionsStaticIntrospectionSuite
+} = require('../tests/xtensions/xtensions_static_introspection_suite');
+const {
+  printXTensionsRuntimeCapabilityRegistryReport,
+  runXTensionsRuntimeCapabilityRegistrySuite
+} = require('../tests/xtensions/xtensions_runtime_capability_registry_suite');
+const {
+  printXTensionsReactHostControllerPocReport,
+  runXTensionsReactHostControllerPocSuite
+} = require('../tests/xtensions/xtensions_react_host_controller_poc_suite');
+const {
+  printXTensionsVueHostControllerPocReport,
+  runXTensionsVueHostControllerPocSuite
+} = require('../tests/xtensions/xtensions_vue_host_controller_poc_suite');
+const {
+  printXTensionsImperativeHostPocsReport,
+  runXTensionsImperativeHostPocsSuite
+} = require('../tests/xtensions/xtensions_imperative_host_pocs_suite');
+const {
+  printXTensionsThreeRenderLoopPocReport,
+  runXTensionsThreeRenderLoopPocSuite
+} = require('../tests/xtensions/xtensions_three_render_loop_poc_suite');
+const {
+  printXTensionsDiagnosticTrailReport,
+  runXTensionsDiagnosticTrailSuite
+} = require('../tests/xtensions/xtensions_diagnostic_trail_suite');
+const {
+  printXTensionsSecurityIntegrityGateReport,
+  runXTensionsSecurityIntegrityGateSuite
+} = require('../tests/xtensions/xtensions_security_integrity_gate_suite');
+const {
+  printXTensionsMultiFrameworkDashboardReport,
+  runXTensionsMultiFrameworkDashboardSuite
+} = require('../tests/xtensions/xtensions_multi_framework_dashboard_suite');
+const {
+  printXTensionsRegistryPackageStrategyReport,
+  runXTensionsRegistryPackageStrategySuite
+} = require('../tests/xtensions/xtensions_registry_package_strategy_suite');
+const {
+  printXTensionsAdoptionHandoffReport,
+  runXTensionsAdoptionHandoffSuite
+} = require('../tests/xtensions/xtensions_adoption_handoff_suite');
 const {
   printRmtVNextSchedulerReport,
   runRmtVNextSchedulerSuite
@@ -948,6 +1016,10 @@ const {
   runManifestImportPolicySuite
 } = require('../tests/security/manifest_import_policy_suite');
 const {
+  printXssPentestReport,
+  runXssPentestSuite
+} = require('../tests/security/xss_pentest_suite');
+const {
   createRunSummary,
   printTextSummary,
   writeJsonReport
@@ -1538,6 +1610,146 @@ const suites = [
       const result = runRmtVNextLifecycleSuite({ rootDir });
       printRmtVNextLifecycleReport(result);
       return toRunnerResult('rmt-vnext-lifecycle', 'Epic 15 RMT vNext Lifecycle Operation Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-host-controller',
+    label: 'XTensions HostController Lifecycle Contract',
+    description: 'Runs the XTN-01 HostController lifecycle, dependency boundary and frameworkless dummy host gate.',
+    run: () => {
+      const result = runXTensionsHostControllerSuite({ rootDir });
+      printXTensionsHostControllerReport(result);
+      return toRunnerResult('xtensions-host-controller', 'XTensions HostController Lifecycle Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-signal-bridge',
+    label: 'XTensions Signal Bridge and Event Governance Contract',
+    description: 'Runs the XTN-02 KernelSignal, SurfaceEvent, governance matrix and dependency boundary gate.',
+    run: () => {
+      const result = runXTensionsSignalBridgeSuite({ rootDir });
+      printXTensionsSignalBridgeReport(result);
+      return toRunnerResult('xtensions-signal-bridge', 'XTensions Signal Bridge and Event Governance Contract', result);
+    }
+  },
+  {
+    id: 'maraca-xtensions',
+    label: 'XTensions Maraca Manifest and Build Provenance Contract',
+    description: 'Runs the XTN-03 Maraca XTension manifest, artifact fingerprint, provenance and policy gate.',
+    run: () => {
+      const result = runMaracaXTensionsSuite({ rootDir });
+      printMaracaXTensionsReport(result);
+      return toRunnerResult('maraca-xtensions', 'XTensions Maraca Manifest and Build Provenance Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-static-introspection',
+    label: 'XTensions Static Contract Introspection Contract',
+    description: 'Runs the XTN-04 static XTENSION_CONTRACT, LSP, DevTools, AI-agent and drift gate.',
+    run: () => {
+      const result = runXTensionsStaticIntrospectionSuite({ rootDir });
+      printXTensionsStaticIntrospectionReport(result);
+      return toRunnerResult('xtensions-static-introspection', 'XTensions Static Contract Introspection Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-runtime-capability-registry',
+    label: 'XTensions Runtime Capability Registry and Loading Policy Contract',
+    description: 'Runs the XTN-05 host-local runtime capability registry, adapter loading policy and degradation gate.',
+    run: () => {
+      const result = runXTensionsRuntimeCapabilityRegistrySuite({ rootDir });
+      printXTensionsRuntimeCapabilityRegistryReport(result);
+      return toRunnerResult('xtensions-runtime-capability-registry', 'XTensions Runtime Capability Registry and Loading Policy Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-react-host-controller-poc',
+    label: 'XTensions React HostController PoC and Scheduling Hints Contract',
+    description: 'Runs the XTN-06 frameworkless React HostController PoC, scheduling hint and boundary gate.',
+    run: () => {
+      const result = runXTensionsReactHostControllerPocSuite({ rootDir });
+      printXTensionsReactHostControllerPocReport(result);
+      return toRunnerResult('xtensions-react-host-controller-poc', 'XTensions React HostController PoC and Scheduling Hints Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-vue-host-controller-poc',
+    label: 'XTensions Vue HostController PoC and Explicit Update Adapter Contract',
+    description: 'Runs the XTN-07 frameworkless Vue HostController PoC, explicit update adapter and event normalization gate.',
+    run: () => {
+      const result = runXTensionsVueHostControllerPocSuite({ rootDir });
+      printXTensionsVueHostControllerPocReport(result);
+      return toRunnerResult('xtensions-vue-host-controller-poc', 'XTensions Vue HostController PoC and Explicit Update Adapter Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-imperative-host-pocs',
+    label: 'XTensions Chart.js and Leaflet Imperative Host PoCs Contract',
+    description: 'Runs the XTN-08 frameworkless Chart.js/Leaflet imperative host, update policy, event normalization and cleanup gate.',
+    run: () => {
+      const result = runXTensionsImperativeHostPocsSuite({ rootDir });
+      printXTensionsImperativeHostPocsReport(result);
+      return toRunnerResult('xtensions-imperative-host-pocs', 'XTensions Chart.js and Leaflet Imperative Host PoCs Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-three-render-loop-poc',
+    label: 'XTensions Three.js Fiber Render Loop PoC Contract',
+    description: 'Runs the XTN-09 frameworkless Three.js render-loop fiber, frame budget, context loss, smoke evidence and cleanup gate.',
+    run: () => {
+      const result = runXTensionsThreeRenderLoopPocSuite({ rootDir });
+      printXTensionsThreeRenderLoopPocReport(result);
+      return toRunnerResult('xtensions-three-render-loop-poc', 'XTensions Three.js Fiber Render Loop PoC Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-diagnostic-trail',
+    label: 'XTensions Diagnostic Trail Contract',
+    description: 'Runs the XTN-10 diagnostic trail, correlation, redaction and CI/DevTools report gate.',
+    run: () => {
+      const result = runXTensionsDiagnosticTrailSuite({ rootDir });
+      printXTensionsDiagnosticTrailReport(result);
+      return toRunnerResult('xtensions-diagnostic-trail', 'XTensions Diagnostic Trail Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-security-integrity-gate',
+    label: 'XTensions Security, CSP, Supply Chain and Integrity Gate Contract',
+    description: 'Runs the XTN-11 strict security, CSP, integrity, dependency classification and fallback gate.',
+    run: () => {
+      const result = runXTensionsSecurityIntegrityGateSuite({ rootDir });
+      printXTensionsSecurityIntegrityGateReport(result);
+      return toRunnerResult('xtensions-security-integrity-gate', 'XTensions Security, CSP, Supply Chain and Integrity Gate Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-multi-framework-dashboard',
+    label: 'XTensions Multi-Framework Dashboard Fixture and Browser Smokes Contract',
+    description: 'Runs the XTN-12 frameworkless dashboard fixture, cross-surface flow, browser smoke and degraded-shell gate.',
+    run: () => {
+      const result = runXTensionsMultiFrameworkDashboardSuite({ rootDir });
+      printXTensionsMultiFrameworkDashboardReport(result);
+      return toRunnerResult('xtensions-multi-framework-dashboard', 'XTensions Multi-Framework Dashboard Fixture and Browser Smokes Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-registry-package-strategy',
+    label: 'XTensions Registry and Package Strategy Contract',
+    description: 'Runs the XTN-13 registry index, package strategy, compatibility, deprecation and source-of-truth gate.',
+    run: () => {
+      const result = runXTensionsRegistryPackageStrategySuite({ rootDir });
+      printXTensionsRegistryPackageStrategyReport(result);
+      return toRunnerResult('xtensions-registry-package-strategy', 'XTensions Registry and Package Strategy Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-adoption-handoff',
+    label: 'XTensions Docs, Migration and Enterprise Adoption Handoff Contract',
+    description: 'Runs the XTN-14 docs, migration, security checklist, start package and enterprise adoption handoff gate.',
+    run: () => {
+      const result = runXTensionsAdoptionHandoffSuite({ rootDir });
+      printXTensionsAdoptionHandoffReport(result);
+      return toRunnerResult('xtensions-adoption-handoff', 'XTensions Docs, Migration and Enterprise Adoption Handoff Contract', result);
     }
   },
   {
@@ -2218,6 +2430,26 @@ const suites = [
       const result = await runMaracaBundleSuite({ rootDir });
       printMaracaBundleReport(result);
       return toRunnerResult('maraca-bundle-report', 'XTend Maraca Bundle Report', result);
+    }
+  },
+  {
+    id: 'maraca-web-app-manifest',
+    label: 'XTend Maraca Web App Manifest Assistant',
+    description: 'Runs the Maraca generated Web App Manifest, icon copy and manifest report gate.',
+    run: async () => {
+      const result = await runMaracaWebAppManifestSuite({ rootDir });
+      printMaracaWebAppManifestReport(result);
+      return toRunnerResult('maraca-web-app-manifest', 'XTend Maraca Web App Manifest Assistant', result);
+    }
+  },
+  {
+    id: 'maraca-pwa-service-worker',
+    label: 'XTend Maraca PWA Service Worker Assistant',
+    description: 'Runs the Maraca generated PWA manifest, Service Worker, cache policy and report gate.',
+    run: async () => {
+      const result = await runMaracaPwaServiceWorkerSuite({ rootDir });
+      printMaracaPwaServiceWorkerReport(result);
+      return toRunnerResult('maraca-pwa-service-worker', 'XTend Maraca PWA Service Worker Assistant', result);
     }
   },
   {
@@ -2991,6 +3223,26 @@ const suites = [
     }
   },
   {
+    id: 'super-prewarm-worker-experiment',
+    label: 'XTend Super Prewarm Worker Experiment',
+    description: 'Runs the browser/PWA-first Super Prewarm Worker evidence contract without making performance deltas release-blocking.',
+    run: async () => {
+      const result = await runSuperPrewarmWorkerExperimentSuite({ rootDir });
+      printSuperPrewarmWorkerExperimentReport(result);
+      return toRunnerResult('super-prewarm-worker-experiment', 'XTend Super Prewarm Worker Experiment', result);
+    }
+  },
+  {
+    id: 'ui-coprocessor',
+    label: 'XTend RMT UI Coprocessor',
+    description: 'Runs the opt-in UI Coprocessor contracts for RMT, Maraca, Fabric metadata and Prewarm Worker reuse.',
+    run: () => {
+      const result = runUiCoprocessorSuite({ rootDir });
+      printUiCoprocessorReport(result);
+      return toRunnerResult('ui-coprocessor', 'XTend RMT UI Coprocessor', result);
+    }
+  },
+  {
     id: 'xtend-layout-stability-contract',
     label: 'XTend Layout Stability Contract',
     description: 'Runs the framework CLS prevention contract for Shell-first and lazy component geometry reserves.',
@@ -3028,6 +3280,16 @@ const suites = [
       const result = runManifestImportPolicySuite({ rootDir });
       printManifestImportPolicyReport(result);
       return toRunnerResult('manifest-import-policy', 'XTend manifest and dynamic import policy gates', result);
+    }
+  },
+  {
+    id: 'xss-pentest',
+    label: 'XTend XSS pentest suite',
+    description: 'Runs local XSS payload catalog, sink scan, RMT artifact probes, browser fixture and XTend LLM probes.',
+    run: async () => {
+      const result = await runXssPentestSuite({ rootDir });
+      printXssPentestReport(result);
+      return toRunnerResult('xss-pentest', 'XTend XSS pentest suite', result);
     }
   },
   {
@@ -3551,6 +3813,20 @@ Examples:
   node scripts/run_xtend_tests.js rmt-php-ssr-adapter
   node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge
   node scripts/run_xtend_tests.js rmt-vnext-lifecycle
+  node scripts/run_xtend_tests.js xtensions-host-controller
+  node scripts/run_xtend_tests.js xtensions-signal-bridge
+  node scripts/run_xtend_tests.js maraca-xtensions
+  node scripts/run_xtend_tests.js xtensions-static-introspection
+  node scripts/run_xtend_tests.js xtensions-runtime-capability-registry
+  node scripts/run_xtend_tests.js xtensions-react-host-controller-poc
+  node scripts/run_xtend_tests.js xtensions-vue-host-controller-poc
+  node scripts/run_xtend_tests.js xtensions-imperative-host-pocs
+  node scripts/run_xtend_tests.js xtensions-three-render-loop-poc
+  node scripts/run_xtend_tests.js xtensions-diagnostic-trail
+  node scripts/run_xtend_tests.js xtensions-security-integrity-gate
+  node scripts/run_xtend_tests.js xtensions-multi-framework-dashboard
+  node scripts/run_xtend_tests.js xtensions-registry-package-strategy
+  node scripts/run_xtend_tests.js xtensions-adoption-handoff
   node scripts/run_xtend_tests.js rmt-vnext-scheduler
   node scripts/run_xtend_tests.js rmt-vnext-surfaces
   node scripts/run_xtend_tests.js rmt-vnext-conditions
@@ -3612,6 +3888,8 @@ Examples:
   node scripts/run_xtend_tests.js maraca-plan
   node scripts/run_xtend_tests.js maraca-bundle
   node scripts/run_xtend_tests.js maraca-bundle-report
+  node scripts/run_xtend_tests.js maraca-web-app-manifest
+  node scripts/run_xtend_tests.js maraca-pwa-service-worker
   node scripts/run_xtend_tests.js maraca-rmt-source-to-bundle
   node scripts/run_xtend_tests.js maraca-orchestration
   node scripts/run_xtend_tests.js maraca-kernel-orchestration
@@ -3659,6 +3937,7 @@ Examples:
   node scripts/run_xtend_tests.js references
   node scripts/run_xtend_tests.js supply-chain
 	  node scripts/run_xtend_tests.js manifest-import-policy
+  node scripts/run_xtend_tests.js xss-pentest
   node scripts/run_xtend_tests.js rmt-compatibility
   node scripts/run_xtend_tests.js rmt-first-class-app
   node scripts/run_xtend_tests.js rmt-surface-authoring

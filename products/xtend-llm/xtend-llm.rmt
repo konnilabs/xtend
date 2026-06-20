@@ -1,0 +1,1672 @@
+// XTend local LLM product shell.
+// RMT owns the UI shell, command routing, state transitions, view templates and host-service effects.
+
+template xtend.llm {
+  state xtend.llm.modelStatus type object preserve {
+    initial {
+      id "model-status"
+      text "Qwen3 WebGPU runtime is idle."
+      tone "neutral"
+      label "Model"
+    }
+  }
+
+  state xtend.llm.conversationPanel type object preserve {
+    initial {
+      id "conversation-panel"
+      surfaceId "conversation-panel"
+      label "Chats"
+      open true
+      active true
+      mode "docked"
+      placement "inline"
+      resizable true
+      collapsible true
+      closable "false"
+      pinnable "false"
+      initialWidth 288
+      initialHeight 720
+    }
+  }
+
+  state xtend.llm.conversationSearch type object preserve {
+    initial {
+      id "conversation-search"
+      field "conversationSearch"
+      label "Search chats"
+      placeholder "Search chats"
+      value ""
+      inputType "search"
+      command "xtend.llm.updateConversationSearch"
+      required false
+      hidden false
+    }
+  }
+
+  state xtend.llm.newConversation type object preserve {
+    initial {
+      id "new-conversation"
+      text "New chat"
+      tone "secondary"
+      command "xtend.llm.newConversation"
+      disabled false
+      hidden false
+    }
+  }
+
+  state xtend.llm.settingsButton type object preserve {
+    initial {
+      id "settings-button"
+      text "Settings"
+      tone "secondary"
+      iconName "settings"
+      iconPack "core"
+      ariaLabel "Open settings"
+      command "xtend.llm.openSettings"
+      disabled false
+      hidden false
+    }
+  }
+
+  state xtend.llm.conversationList type object preserve {
+    initial {
+      id "conversation-list"
+      label "Conversation history"
+      empty true
+      emptyText "No conversations yet."
+      conversations []
+      hidden false
+      viewTemplate {
+        class "xtend-llm-conversation-list"
+        children [
+          {
+            type "when"
+            when "$model.xtend.llm.conversationList.empty"
+            then {
+              type "element"
+              tag "p"
+              class "xtend-llm-empty"
+              text "$model.xtend.llm.conversationList.emptyText"
+            }
+            else {
+              type "repeat"
+              source "$model.xtend.llm.conversationList.conversations"
+              key "$item.id"
+              template {
+                type "element"
+                tag "div"
+                class "xtend-llm-conversation-row"
+                attributes {
+                  "data-conversation-id" "$item.id"
+                  "data-menu-open" "$item.menuOpen"
+                }
+                children [
+                  {
+                    type "element"
+                    tag "button"
+                    class "xtend-llm-conversation-button"
+                    attributes {
+                      type "button"
+                      "aria-current" "$item.active"
+                      "data-conversation-id" "$item.id"
+                    }
+                    command {
+                      command "xtend.llm.selectConversation"
+                      payload { conversationId "$item.id" }
+                    }
+                    text "$item.title"
+                  }
+                  {
+                    type "element"
+                    tag "button"
+                    class "xtend-llm-conversation-more"
+                    attributes {
+                      type "button"
+                      "aria-label" "$item.menuLabel"
+                      "aria-expanded" "$item.menuOpen"
+                      "data-conversation-id" "$item.id"
+                    }
+                    command {
+                      command "xtend.llm.openConversationMenu"
+                      payload { conversationId "$item.id" }
+                    }
+                    text "..."
+                  }
+                  {
+                    type "element"
+                    tag "div"
+                    class "xtend-llm-conversation-menu"
+                    attributes {
+                      role "menu"
+                      hidden { op "not" source "$item.menuOpen" }
+                    }
+                    children [
+                      {
+                        type "element"
+                        tag "button"
+                        class "xtend-llm-conversation-menu-item"
+                        attributes {
+                          type "button"
+                          role "menuitem"
+                          "data-conversation-id" "$item.id"
+                        }
+                        command {
+                          command "xtend.llm.requestDeleteConversation"
+                          payload { conversationId "$item.id" }
+                        }
+                        text "Delete chat"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+
+  state xtend.llm.activeConversation type object preserve {
+    initial {
+      id "active-conversation"
+      text "Local XTend LLM"
+      tone "neutral"
+      label "Active chat"
+    }
+  }
+
+  state xtend.llm.transcript type object preserve {
+    initial {
+      id "chat-transcript"
+      label "Conversation transcript"
+      empty true
+      emptyText "Start a local WebGPU conversation."
+      messages []
+      hidden false
+      viewTemplate {
+        class "xtend-llm-transcript"
+        attributes { "aria-live" "polite" }
+        children [
+          {
+            type "when"
+            when "$model.xtend.llm.transcript.empty"
+            then {
+              type "element"
+              tag "p"
+              class "xtend-llm-empty"
+              text "$model.xtend.llm.transcript.emptyText"
+            }
+            else {
+              type "repeat"
+              source "$model.xtend.llm.transcript.messages"
+              key "$item.id"
+              template {
+                type "element"
+                tag "article"
+                class [
+                  "xtend-llm-message"
+                  "$item.roleClass"
+                  { "xtend-llm-message-streaming" "$item.streaming" }
+                ]
+                attributes {
+                  "data-message-id" "$item.id"
+                  "data-role" "$item.role"
+                }
+                children [
+                  {
+                    type "element"
+                    tag "div"
+                    class "xtend-llm-message-role"
+                    text "$item.roleLabel"
+                  }
+                  {
+                    type "element"
+                    tag "div"
+                    class "xtend-llm-message-body"
+                    children [
+                      {
+                        type "rich-text"
+                        source "$item.segments"
+                      }
+                    ]
+                  }
+                  {
+                    type "when"
+                    when "$item.hasActions"
+                    then {
+                      type "element"
+                      tag "div"
+                      class "xtend-llm-message-actions"
+                      attributes {
+                        id "$item.actionRowId"
+                        "aria-label" "Message actions"
+                      }
+                      children [
+                        {
+                          type "element"
+                          tag "button"
+                          class "xtend-llm-message-action xtend-llm-message-action-copy"
+                          attributes {
+                            type "button"
+                            title "$item.copyAction.label"
+                            "aria-label" "$item.copyAction.label"
+                            "aria-disabled" "$item.copyAction.disabled"
+                            disabled "$item.copyAction.disabled"
+                            "data-action" "$item.copyAction.action"
+                            "data-message-id" "$item.copyAction.messageId"
+                          }
+                          command {
+                            command "xtend.llm.copyAssistantMessage"
+                            payload {
+                              action "$item.copyAction.action"
+                              conversationId "$item.copyAction.conversationId"
+                              messageId "$item.copyAction.messageId"
+                            }
+                          }
+                          children [
+                            {
+                              type "element"
+                              tag "x-icon"
+                              attributes {
+                                name "$item.copyAction.icon"
+                                pack "$item.copyAction.iconPack"
+                                decorative true
+                                size "1rem"
+                              }
+                            }
+                          ]
+                        }
+                        {
+                          type "element"
+                          tag "button"
+                          class [
+                            "xtend-llm-message-action"
+                            "xtend-llm-message-action-regenerate"
+                            { "xtend-llm-message-action-busy" "$item.regenerateAction.busy" }
+                          ]
+                          attributes {
+                            type "button"
+                            title "$item.regenerateAction.label"
+                            "aria-label" "$item.regenerateAction.label"
+                            "aria-busy" "$item.regenerateAction.busy"
+                            "aria-disabled" "$item.regenerateAction.disabled"
+                            disabled "$item.regenerateAction.disabled"
+                            "data-action" "$item.regenerateAction.action"
+                            "data-message-id" "$item.regenerateAction.messageId"
+                          }
+                          command {
+                            command "xtend.llm.regenerateAssistantMessage"
+                            payload {
+                              action "$item.regenerateAction.action"
+                              conversationId "$item.regenerateAction.conversationId"
+                              messageId "$item.regenerateAction.messageId"
+                            }
+                          }
+                          children [
+                            {
+                              type "element"
+                              tag "x-icon"
+                              attributes {
+                                name "$item.regenerateAction.icon"
+                                pack "$item.regenerateAction.iconPack"
+                                decorative true
+                                size "1rem"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+
+  state xtend.llm.prompt type object preserve {
+    initial {
+      id "prompt-input"
+      field "prompt"
+      label "Message"
+      placeholder "Ask Qwen3 something..."
+      value ""
+      rows 4
+      command "xtend.llm.updatePrompt"
+      submitCommand "xtend.llm.send"
+      submitOnEnter true
+      required false
+      disabled false
+      hidden false
+    }
+  }
+
+  state xtend.llm.toolMenu type object preserve {
+    initial {
+      id "tool-menu"
+      label "Tool"
+      text "Tool"
+      open false
+      activeTool "auto"
+      activeToolLabel "Use tool"
+      activeToolAttr ""
+      disabled false
+      hidden false
+      items [
+        {
+          value "auto"
+          label "Auto"
+          triggerLabel "Use tool"
+          activeAttr ""
+        }
+        {
+          value "web_search"
+          label "Web search"
+          triggerLabel "Web search"
+          activeAttr "web_search"
+        }
+        {
+          value "rmt_knowledge"
+          label "RMT knowledge"
+          triggerLabel "RMT knowledge"
+          activeAttr "rmt_knowledge"
+        }
+      ]
+      viewTemplate {
+        type "choice-menu"
+        source "$model.xtend.llm.toolMenu"
+        buttonId "tool-menu-button"
+        buttonClass "xtend-llm-tool-menu-button"
+        optionsId "tool-menu-options"
+        optionsClass "xtend-llm-tool-menu-options"
+        itemClass "xtend-llm-tool-menu-item"
+        toggleCommand "xtend.llm.toggleToolMenu"
+        selectCommand "xtend.llm.selectTool"
+        selectPayloadField "toolName"
+        label "Tool"
+      }
+    }
+  }
+
+  state xtend.llm.send type object preserve {
+    initial {
+      id "send-message"
+      text "Send"
+      tone "primary"
+      command "xtend.llm.send"
+      disabled true
+      hidden false
+    }
+  }
+
+  state xtend.llm.cancel type object preserve {
+    initial {
+      id "cancel-generation"
+      text "Cancel"
+      tone "secondary"
+      command "xtend.llm.cancelGeneration"
+      disabled false
+      hidden true
+    }
+  }
+
+  state xtend.llm.retry type object preserve {
+    initial {
+      id "retry-generation"
+      text "Retry"
+      tone "secondary"
+      command "xtend.llm.retryGeneration"
+      disabled false
+      hidden true
+    }
+  }
+
+  state xtend.llm.progress type object preserve {
+    initial {
+      id "generation-progress"
+      label "Generation"
+      status "Waiting"
+      value 0
+      max 100
+      indeterminate true
+      busy false
+      hidden true
+    }
+  }
+
+  state xtend.llm.spinner type object preserve {
+    initial {
+      id "generation-spinner"
+      size "small"
+      type "ring"
+      paused true
+      ariaLabel "Generation idle"
+      ariaBusy false
+      hidden true
+    }
+  }
+
+  state xtend.llm.error type object preserve {
+    initial {
+      id "runtime-error"
+      text "No runtime error."
+      tone "error"
+      label "Runtime"
+      hidden true
+    }
+  }
+
+  state xtend.llm.deleteConversationDialog type object preserve {
+    initial {
+      id "delete-conversation-dialog"
+      title "Delete chat?"
+      overlay true
+      open false
+      width "min(92vw, 420px)"
+      height "auto"
+      message "Delete this chat?"
+      hidden false
+      viewTemplate {
+        children [
+          {
+            type "element"
+            tag "p"
+            class "xtend-llm-dialog-copy"
+            attributes { id "delete-conversation-message" }
+            text "$model.xtend.llm.deleteConversationDialog.message"
+          }
+          {
+            type "element"
+            tag "div"
+            class "xtend-llm-settings-footer"
+            children [
+              {
+                type "element"
+                tag "button"
+                class "xtend-llm-dialog-button"
+                attributes {
+                  id "delete-conversation-cancel"
+                  type "button"
+                }
+                command { command "xtend.llm.closeDeleteConversation" payload { label "Cancel" } }
+                text "Cancel"
+              }
+              {
+                type "element"
+                tag "button"
+                class "xtend-llm-dialog-button xtend-llm-dialog-danger"
+                attributes {
+                  id "delete-conversation-confirm"
+                  type "button"
+                }
+                command { command "xtend.llm.confirmDeleteConversation" payload { label "Delete chat" } }
+                text "Delete"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+
+  state xtend.llm.settingsDialog type object preserve {
+    initial {
+      id "settings-dialog"
+      title "Settings"
+      overlay true
+      open false
+      width "min(90vw, 960px)"
+      height "auto"
+      selected 0
+      themeMode "automatic"
+      draftThemeMode "automatic"
+      customInstructions ""
+      dirty false
+      resetConfirm false
+      hidden false
+      viewTemplate {
+        children [
+          {
+            type "component"
+            tag "x-tabs"
+            component "x-tabs"
+            class "xtend-llm-settings-tabs"
+            attributes {
+              id "settings-tabs"
+              label "Settings"
+              selected "$model.xtend.llm.settingsDialog.selected"
+              orientation "vertical"
+            }
+            command {
+              command "xtend.llm.selectSettingsTab"
+              event "tab-selected"
+              payload { selected "$detail.index" }
+            }
+            children [
+              {
+                type "element"
+                tag "x-tab"
+                attributes { label "Appearance" }
+                children [
+                  {
+                    type "element"
+                    tag "section"
+                    class "xtend-llm-settings-section"
+                    children [
+                      {
+                        type "element"
+                        tag "p"
+                        class "xtend-llm-settings-copy"
+                        text "Choose how the local chat shell should be displayed."
+                      }
+                      {
+                        type "element"
+                        tag "div"
+                        class "xtend-llm-theme-options"
+                        children [
+                          {
+                            type "element"
+                            tag "button"
+                            class "xtend-llm-theme-option"
+                            attributes {
+                              type "button"
+                              "data-theme-mode" "light"
+                              "aria-pressed" { op "equals" left "$model.xtend.llm.settingsDialog.draftThemeMode" right "light" }
+                            }
+                            command { command "xtend.llm.updateSettingsTheme" payload { mode "light" } }
+                            text "Light"
+                          }
+                          {
+                            type "element"
+                            tag "button"
+                            class "xtend-llm-theme-option"
+                            attributes {
+                              type "button"
+                              "data-theme-mode" "dark"
+                              "aria-pressed" { op "equals" left "$model.xtend.llm.settingsDialog.draftThemeMode" right "dark" }
+                            }
+                            command { command "xtend.llm.updateSettingsTheme" payload { mode "dark" } }
+                            text "Dark"
+                          }
+                          {
+                            type "element"
+                            tag "button"
+                            class "xtend-llm-theme-option"
+                            attributes {
+                              type "button"
+                              "data-theme-mode" "automatic"
+                              "aria-pressed" { op "equals" left "$model.xtend.llm.settingsDialog.draftThemeMode" right "automatic" }
+                            }
+                            command { command "xtend.llm.updateSettingsTheme" payload { mode "automatic" } }
+                            text "Automatic"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+              {
+                type "element"
+                tag "x-tab"
+                attributes {
+                  label "$model.xtend.llm.settingsDialog.instructionsTabLabel"
+                  disabled "$model.xtend.llm.settingsDialog.instructionsBusy"
+                  "aria-disabled" "$model.xtend.llm.settingsDialog.instructionsBusy"
+                }
+                children [
+                  {
+                    type "element"
+                    tag "section"
+                    class "xtend-llm-settings-section"
+                    children [
+                      {
+                        type "element"
+                        tag "p"
+                        class "xtend-llm-settings-copy"
+                        text "Custom instructions are sent with each local model request."
+                      }
+                      {
+                        type "element"
+                        tag "textarea"
+                        class "xtend-llm-instructions-input"
+                        attributes {
+                          id "settings-custom-instructions"
+                          rows "7"
+                        }
+                        properties {
+                          value "$model.xtend.llm.settingsDialog.customInstructions"
+                        }
+                        command {
+                          command "xtend.llm.updateSettingsInstructions"
+                          event "input"
+                          payload { value "$target.value" }
+                        }
+                      }
+                      {
+                        type "element"
+                        tag "button"
+                        class "xtend-llm-settings-action"
+                        attributes {
+                          id "settings-reset"
+                          type "button"
+                        }
+                        command { command "xtend.llm.beginSettingsReset" payload { label "Reset" } }
+                        text "Reset"
+                      }
+                      {
+                        type "element"
+                        tag "div"
+                        class "xtend-llm-reset-confirmation"
+                        attributes {
+                          id "settings-reset-confirmation"
+                          hidden { op "not" source "$model.xtend.llm.settingsDialog.resetConfirm" }
+                        }
+                        children [
+                          {
+                            type "element"
+                            tag "p"
+                            class "xtend-llm-settings-copy"
+                            text "Reset settings to defaults?"
+                          }
+                          {
+                            type "element"
+                            tag "button"
+                            class "xtend-llm-settings-action"
+                            attributes { id "settings-reset-cancel" type "button" }
+                            command { command "xtend.llm.cancelSettingsReset" payload { label "Keep" } }
+                            text "Keep"
+                          }
+                          {
+                            type "element"
+                            tag "button"
+                            class "xtend-llm-settings-action"
+                            attributes { id "settings-reset-confirm" type "button" }
+                            command { command "xtend.llm.confirmSettingsReset" payload { label "Reset settings" } }
+                            text "Reset settings"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+              {
+                type "element"
+                tag "x-tab"
+                attributes { label "Runtime" }
+                children [
+                  {
+                    type "element"
+                    tag "section"
+                    class "xtend-llm-settings-section"
+                    children [
+                      {
+                        type "element"
+                        tag "p"
+                        class "xtend-llm-settings-copy"
+                        text "Qwen3 runs locally through the XTend WebGPU worker bridge."
+                      }
+                      {
+                        type "element"
+                        tag "div"
+                        class "xtend-llm-runtime-diagnostics"
+                        attributes {
+                          id "runtime-diagnostics-panel"
+                          "data-backpressure" "$model.xtend.llm.runtimeDiagnostics.backpressureLevel"
+                        }
+                        children [
+                          {
+                            type "element"
+                            tag "div"
+                            class "xtend-llm-runtime-diagnostics-header"
+                            children [
+                              {
+                                type "element"
+                                tag "strong"
+                                class "xtend-llm-runtime-diagnostics-title"
+                                text "$model.xtend.llm.runtimeDiagnostics.status"
+                              }
+                              {
+                                type "element"
+                                tag "button"
+                                class "xtend-llm-settings-action xtend-llm-runtime-refresh"
+                                attributes {
+                                  id "runtime-diagnostics-refresh"
+                                  type "button"
+                                }
+                                command { command "xtend.llm.readRuntimeDiagnostics" payload { label "Refresh runtime" } }
+                                text "Refresh"
+                              }
+                            ]
+                          }
+                          {
+                            type "element"
+                            tag "dl"
+                            class "xtend-llm-runtime-diagnostics-list"
+                            children [
+                              {
+                                type "element"
+                                tag "div"
+                                class "xtend-llm-runtime-diagnostics-row"
+                                children [
+                                  { type "element" tag "dt" text "Capabilities" }
+                                  { type "element" tag "dd" text "$model.xtend.llm.runtimeDiagnostics.capabilitySummary" }
+                                ]
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                class "xtend-llm-runtime-diagnostics-row"
+                                children [
+                                  { type "element" tag "dt" text "Bundle" }
+                                  { type "element" tag "dd" text "$model.xtend.llm.runtimeDiagnostics.closureSummary" }
+                                ]
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                class "xtend-llm-runtime-diagnostics-row"
+                                children [
+                                  { type "element" tag "dt" text "Worker" }
+                                  { type "element" tag "dd" text "$model.xtend.llm.runtimeDiagnostics.workerSummary" }
+                                ]
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                class "xtend-llm-runtime-diagnostics-row"
+                                children [
+                                  { type "element" tag "dt" text "Backpressure" }
+                                  { type "element" tag "dd" text "$model.xtend.llm.runtimeDiagnostics.streamSummary" }
+                                ]
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                class "xtend-llm-runtime-diagnostics-row"
+                                children [
+                                  { type "element" tag "dt" text "Recovery" }
+                                  { type "element" tag "dd" text "$model.xtend.llm.runtimeDiagnostics.panicSummary" }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          {
+            type "element"
+            tag "div"
+            class "xtend-llm-settings-footer"
+            children [
+              {
+                type "element"
+                tag "button"
+                class "xtend-llm-dialog-button"
+                attributes {
+                  id "settings-cancel"
+                  type "button"
+                }
+                command { command "xtend.llm.closeSettings" payload { label "Cancel" } }
+                text "Cancel"
+              }
+              {
+                type "element"
+                tag "button"
+                class "xtend-llm-dialog-button"
+                attributes {
+                  id "settings-save"
+                  type "button"
+                  disabled { op "not" source "$model.xtend.llm.settingsDialog.dirty" }
+                }
+                command { command "xtend.llm.saveSettings" payload { label "Save" } }
+                text "Save"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+
+  state xtend.llm.runtimeDiagnostics type object preserve {
+    initial {
+      id "runtime-diagnostics"
+      label "Runtime diagnostics"
+      status "Runtime telemetry pending"
+      ok true
+      backpressureLevel "normal"
+      prewarmWorkerStatus "unknown"
+      strictFallbackCount 0
+      capabilitySummary "RKFA capabilities pending."
+      closureSummary "Production closure pending."
+      workerSummary "Worker telemetry pending."
+      streamSummary "No stream pressure records."
+      panicSummary "No panic or recovery records."
+      hidden true
+    }
+  }
+
+  state xtend.llm.codeBridge type object preserve {
+    initial {
+      id "code-bridge"
+      label "Code block hydration bridge"
+      lang "text"
+      hidden false
+    }
+  }
+
+  selector xtend.llm.modelStatus from state xtend.llm.modelStatus { output XtendLlmStatus }
+  selector xtend.llm.conversationPanel from state xtend.llm.conversationPanel { output XtendLlmPanel }
+  selector xtend.llm.conversationSearch from state xtend.llm.conversationSearch { output XtendLlmSearch }
+  selector xtend.llm.newConversation from state xtend.llm.newConversation { output XtendLlmCommand }
+  selector xtend.llm.settingsButton from state xtend.llm.settingsButton { output XtendLlmCommand }
+  selector xtend.llm.conversationList from state xtend.llm.conversationList { output XtendLlmList }
+  selector xtend.llm.activeConversation from state xtend.llm.activeConversation { output XtendLlmStatus }
+  selector xtend.llm.transcript from state xtend.llm.transcript { output XtendLlmTranscript }
+  selector xtend.llm.prompt from state xtend.llm.prompt { output XtendLlmPrompt }
+  selector xtend.llm.toolMenu from state xtend.llm.toolMenu { output XtendLlmMenu }
+  selector xtend.llm.send from state xtend.llm.send { output XtendLlmCommand }
+  selector xtend.llm.cancel from state xtend.llm.cancel { output XtendLlmCommand }
+  selector xtend.llm.retry from state xtend.llm.retry { output XtendLlmCommand }
+  selector xtend.llm.progress from state xtend.llm.progress { output XtendLlmProgress }
+  selector xtend.llm.spinner from state xtend.llm.spinner { output XtendLlmSpinner }
+  selector xtend.llm.error from state xtend.llm.error { output XtendLlmStatus }
+  selector xtend.llm.deleteConversationDialog from state xtend.llm.deleteConversationDialog { output XtendLlmDialog }
+  selector xtend.llm.settingsDialog from state xtend.llm.settingsDialog { output XtendLlmDialog }
+  selector xtend.llm.runtimeDiagnostics from state xtend.llm.runtimeDiagnostics { output XtendLlmRuntimeDiagnostics }
+  selector xtend.llm.codeBridge from state xtend.llm.codeBridge { output XtendLlmCodeBridge }
+
+  datasource xtend.llm.bootstrap from host xtend.llm.bootstrap { method "invoke" }
+  datasource xtend.llm.updatePrompt from host xtend.llm.updatePrompt { method "invoke" }
+  datasource xtend.llm.updateConversationSearch from host xtend.llm.updateConversationSearch { method "invoke" }
+  datasource xtend.llm.send from host xtend.llm.send { method "invoke" }
+  datasource xtend.llm.cancelGeneration from host xtend.llm.cancelGeneration { method "invoke" }
+  datasource xtend.llm.retryGeneration from host xtend.llm.retryGeneration { method "invoke" }
+  datasource xtend.llm.copyAssistantMessage from host xtend.llm.copyAssistantMessage { method "invoke" }
+  datasource xtend.llm.regenerateAssistantMessage from host xtend.llm.regenerateAssistantMessage { method "invoke" }
+  datasource xtend.llm.applySnapshot from host xtend.llm.applySnapshot { method "invoke" }
+  datasource xtend.llm.newConversation from host xtend.llm.newConversation { method "invoke" }
+  datasource xtend.llm.selectConversation from host xtend.llm.selectConversation { method "invoke" }
+  datasource xtend.llm.openConversationMenu from host xtend.llm.openConversationMenu { method "invoke" }
+  datasource xtend.llm.requestDeleteConversation from host xtend.llm.requestDeleteConversation { method "invoke" }
+  datasource xtend.llm.closeDeleteConversation from host xtend.llm.closeDeleteConversation { method "invoke" }
+  datasource xtend.llm.confirmDeleteConversation from host xtend.llm.confirmDeleteConversation { method "invoke" }
+  datasource xtend.llm.openSettings from host xtend.llm.openSettings { method "invoke" }
+  datasource xtend.llm.closeSettings from host xtend.llm.closeSettings { method "invoke" }
+  datasource xtend.llm.selectSettingsTab from host xtend.llm.selectSettingsTab { method "invoke" }
+  datasource xtend.llm.updateSettingsTheme from host xtend.llm.updateSettingsTheme { method "invoke" }
+  datasource xtend.llm.updateSettingsInstructions from host xtend.llm.updateSettingsInstructions { method "invoke" }
+  datasource xtend.llm.saveSettings from host xtend.llm.saveSettings { method "invoke" }
+  datasource xtend.llm.beginSettingsReset from host xtend.llm.beginSettingsReset { method "invoke" }
+  datasource xtend.llm.cancelSettingsReset from host xtend.llm.cancelSettingsReset { method "invoke" }
+  datasource xtend.llm.confirmSettingsReset from host xtend.llm.confirmSettingsReset { method "invoke" }
+  datasource xtend.llm.routePromptCommand from host xtend.llm.routePromptCommand { method "invoke" }
+  datasource xtend.llm.readRuntimeDiagnostics from host xtend.llm.readRuntimeDiagnostics { method "invoke" }
+
+  validation xtend.llm.conversationSearchReady {
+    mode blocking
+    target action xtend.llm.newConversation
+    field xtend.llm.conversationSearch maxLength 256 message "Search is too long."
+  }
+
+  action xtend.llm.bootstrap {
+    input label string
+    effect fetch datasource xtend.llm.bootstrap
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+    reduce state.xtend.llm.conversationSearch = result.conversationSearch
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.toolMenu.disabled = result.prompt.disabled
+    reduce state.xtend.llm.send = result.send
+    reduce state.xtend.llm.cancel = result.cancel
+    reduce state.xtend.llm.retry = result.retry
+    reduce state.xtend.llm.progress = result.progress
+    reduce state.xtend.llm.spinner = result.spinner
+    reduce state.xtend.llm.error = result.error
+    reduce state.xtend.llm.deleteConversationDialog = result.deleteConversationDialog
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+    reduce state.xtend.llm.runtimeDiagnostics = result.runtimeDiagnostics
+  }
+
+  action xtend.llm.applySnapshot {
+    input label string
+    effect fetch datasource xtend.llm.applySnapshot
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+    reduce state.xtend.llm.conversationSearch = result.conversationSearch
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.toolMenu.disabled = result.prompt.disabled
+    reduce state.xtend.llm.send = result.send
+    reduce state.xtend.llm.cancel = result.cancel
+    reduce state.xtend.llm.retry = result.retry
+    reduce state.xtend.llm.progress = result.progress
+    reduce state.xtend.llm.spinner = result.spinner
+    reduce state.xtend.llm.error = result.error
+    reduce state.xtend.llm.deleteConversationDialog = result.deleteConversationDialog
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+    reduce state.xtend.llm.runtimeDiagnostics = result.runtimeDiagnostics
+  }
+
+  action xtend.llm.updatePrompt {
+    input value string
+    input empty boolean
+    effect fetch datasource xtend.llm.updatePrompt
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.toolMenu.disabled = result.prompt.disabled
+    reduce state.xtend.llm.send = result.send
+  }
+
+  action xtend.llm.routePromptCommand {
+    input command string
+    input value string
+    input empty boolean
+    effect fetch datasource xtend.llm.routePromptCommand
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.toolMenu.disabled = result.prompt.disabled
+    reduce state.xtend.llm.send = result.send
+    reduce state.xtend.llm.cancel = result.cancel
+    reduce state.xtend.llm.retry = result.retry
+    reduce state.xtend.llm.progress = result.progress
+    reduce state.xtend.llm.spinner = result.spinner
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.updateConversationSearch {
+    input value string
+    effect fetch datasource xtend.llm.updateConversationSearch
+    reduce state.xtend.llm.conversationSearch = result.conversationSearch
+    reduce state.xtend.llm.conversationList = result.conversationList
+  }
+
+  action xtend.llm.send {
+    input label string
+    effect fetch datasource xtend.llm.send
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.toolMenu.disabled = result.prompt.disabled
+    recipe "select-choice-menu" target state.xtend.llm.toolMenu value "auto"
+    reduce state.xtend.llm.send = result.send
+    reduce state.xtend.llm.cancel = result.cancel
+    reduce state.xtend.llm.retry = result.retry
+    reduce state.xtend.llm.progress = result.progress
+    reduce state.xtend.llm.spinner = result.spinner
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.cancelGeneration {
+    input label string
+    effect fetch datasource xtend.llm.cancelGeneration
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.toolMenu.disabled = result.prompt.disabled
+    reduce state.xtend.llm.send = result.send
+    reduce state.xtend.llm.cancel = result.cancel
+    reduce state.xtend.llm.retry = result.retry
+    reduce state.xtend.llm.progress = result.progress
+    reduce state.xtend.llm.spinner = result.spinner
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.retryGeneration {
+    input label string
+    effect fetch datasource xtend.llm.retryGeneration
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.toolMenu.disabled = result.prompt.disabled
+    recipe "select-choice-menu" target state.xtend.llm.toolMenu value "auto"
+    reduce state.xtend.llm.send = result.send
+    reduce state.xtend.llm.cancel = result.cancel
+    reduce state.xtend.llm.retry = result.retry
+    reduce state.xtend.llm.progress = result.progress
+    reduce state.xtend.llm.spinner = result.spinner
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.copyAssistantMessage {
+    input action string
+    input conversationId string
+    input messageId string
+    effect fetch datasource xtend.llm.copyAssistantMessage
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.regenerateAssistantMessage {
+    input action string
+    input conversationId string
+    input messageId string
+    effect fetch datasource xtend.llm.regenerateAssistantMessage
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.toolMenu.disabled = result.prompt.disabled
+    recipe "select-choice-menu" target state.xtend.llm.toolMenu value "auto"
+    reduce state.xtend.llm.send = result.send
+    reduce state.xtend.llm.cancel = result.cancel
+    reduce state.xtend.llm.retry = result.retry
+    reduce state.xtend.llm.progress = result.progress
+    reduce state.xtend.llm.spinner = result.spinner
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.newConversation {
+    input label string
+    effect fetch datasource xtend.llm.newConversation
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.prompt = result.prompt
+    reduce state.xtend.llm.send = result.send
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.selectConversation {
+    input conversationId string
+    effect fetch datasource xtend.llm.selectConversation
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.openConversationMenu {
+    input conversationId string
+    effect fetch datasource xtend.llm.openConversationMenu
+    reduce state.xtend.llm.conversationList = result.conversationList
+  }
+
+  action xtend.llm.requestDeleteConversation {
+    input conversationId string
+    effect fetch datasource xtend.llm.requestDeleteConversation
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.deleteConversationDialog = result.deleteConversationDialog
+  }
+
+  action xtend.llm.closeDeleteConversation {
+    input label string
+    effect fetch datasource xtend.llm.closeDeleteConversation
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.deleteConversationDialog = result.deleteConversationDialog
+  }
+
+  action xtend.llm.confirmDeleteConversation {
+    input label string
+    effect fetch datasource xtend.llm.confirmDeleteConversation
+    reduce state.xtend.llm.conversationList = result.conversationList
+    reduce state.xtend.llm.activeConversation = result.activeConversation
+    reduce state.xtend.llm.transcript = result.transcript
+    reduce state.xtend.llm.deleteConversationDialog = result.deleteConversationDialog
+    reduce state.xtend.llm.error = result.error
+  }
+
+  action xtend.llm.toggleToolMenu {
+    input label string
+    recipe "toggle-choice-menu" target state.xtend.llm.toolMenu
+  }
+
+  action xtend.llm.selectTool {
+    input toolName string
+    recipe "select-choice-menu" target state.xtend.llm.toolMenu value input.toolName
+  }
+
+  action xtend.llm.openSettings {
+    input label string
+    effect fetch datasource xtend.llm.openSettings
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+    reduce state.xtend.llm.runtimeDiagnostics = result.runtimeDiagnostics
+  }
+
+  action xtend.llm.closeSettings {
+    input label string
+    effect fetch datasource xtend.llm.closeSettings
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+  }
+
+  action xtend.llm.selectSettingsTab {
+    input selected string
+    effect fetch datasource xtend.llm.selectSettingsTab
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+  }
+
+  action xtend.llm.updateSettingsTheme {
+    input mode string
+    effect fetch datasource xtend.llm.updateSettingsTheme
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+  }
+
+  action xtend.llm.updateSettingsInstructions {
+    input value string
+    effect fetch datasource xtend.llm.updateSettingsInstructions
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+  }
+
+  action xtend.llm.saveSettings {
+    input label string
+    effect fetch datasource xtend.llm.saveSettings
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+    reduce state.xtend.llm.modelStatus = result.modelStatus
+  }
+
+  action xtend.llm.beginSettingsReset {
+    input label string
+    effect fetch datasource xtend.llm.beginSettingsReset
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+  }
+
+  action xtend.llm.cancelSettingsReset {
+    input label string
+    effect fetch datasource xtend.llm.cancelSettingsReset
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+  }
+
+  action xtend.llm.confirmSettingsReset {
+    input label string
+    effect fetch datasource xtend.llm.confirmSettingsReset
+    reduce state.xtend.llm.settingsDialog = result.settingsDialog
+    reduce state.xtend.llm.runtimeDiagnostics = result.runtimeDiagnostics
+  }
+
+  action xtend.llm.readRuntimeDiagnostics {
+    input label string
+    effect fetch datasource xtend.llm.readRuntimeDiagnostics
+    reduce state.xtend.llm.runtimeDiagnostics = result.runtimeDiagnostics
+  }
+
+  transition xtend.llm.idleToGenerating {
+    trigger action xtend.llm.send
+    from surfaces [xtend.llm.send]
+    to surfaces [xtend.llm.cancel xtend.llm.spinner]
+    effect crossfade
+    durationMs 180
+    easing "ease-out"
+    lane transition
+  }
+
+  transition xtend.llm.generatingToIdle {
+    trigger action xtend.llm.cancelGeneration
+    from surfaces [xtend.llm.cancel xtend.llm.spinner]
+    to surfaces [xtend.llm.send]
+    effect fade
+    durationMs 160
+    easing "ease-out"
+    lane transition
+  }
+
+  transition xtend.llm.snapshotToIdle {
+    trigger action xtend.llm.applySnapshot
+    from surfaces [xtend.llm.cancel xtend.llm.spinner xtend.llm.retry]
+    to surfaces [xtend.llm.send xtend.llm.modelStatus xtend.llm.activeConversation]
+    effect fade
+    durationMs 140
+    easing "ease-out"
+    lane transition
+  }
+
+  transition xtend.llm.retryToGenerating {
+    trigger action xtend.llm.retryGeneration
+    from surfaces [xtend.llm.retry xtend.llm.error]
+    to surfaces [xtend.llm.cancel xtend.llm.spinner xtend.llm.modelStatus]
+    effect crossfade
+    durationMs 180
+    easing "ease-out"
+    lane transition
+  }
+
+  transition xtend.llm.newConversationReset {
+    trigger action xtend.llm.newConversation
+    from surfaces [xtend.llm.activeConversation xtend.llm.transcript xtend.llm.prompt]
+    to surfaces [xtend.llm.activeConversation xtend.llm.transcript xtend.llm.prompt]
+    effect slide-left
+    durationMs 180
+    easing "ease-out"
+    lane transition
+  }
+
+  transition xtend.llm.selectConversationRefresh {
+    trigger action xtend.llm.selectConversation
+    from surfaces [xtend.llm.activeConversation xtend.llm.transcript]
+    to surfaces [xtend.llm.activeConversation xtend.llm.transcript]
+    effect slide-left
+    durationMs 160
+    easing "ease-out"
+    lane transition
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  resource xtend.llm.session kind data owner surface.xtend.llm.modelStatus {
+    dispose on surface.destroy
+  }
+
+  surface xtend.llm.conversationPanel kind navigation component x-side-panel {
+    source selector xtend.llm.conversationPanel
+    key conversationPanel.id
+    portal surface.root
+    bounds x 0 y 0 width 288 height 720
+
+    lane visible weight 90 {
+      hydrate conversation-panel from selector xtend.llm.conversationPanel {
+        hydration mode server_prerender_hydrate
+      }
+    }
+  }
+
+  surface xtend.llm.conversationSearch kind field component x-input {
+    source selector xtend.llm.conversationSearch
+    key conversationSearch.id
+    portal surface.root
+    bounds x 20 y 152 width 248 height 76
+
+    lane visible weight 80 {
+      hydrate conversation-search from selector xtend.llm.conversationSearch {
+        hydration mode server_prerender_hydrate
+      }
+    }
+
+    on xtend-command "#conversation-search" -> action xtend.llm.updateConversationSearch {
+      payload value from detail.payload.value
+    }
+  }
+
+  surface xtend.llm.newConversation kind action component x-button {
+    source selector xtend.llm.newConversation
+    key newConversation.id
+    portal surface.root
+    bounds x 20 y 88 width 152 height 52
+
+    lane visible weight 80 {
+      mount new-conversation from selector xtend.llm.newConversation
+    }
+
+    on xtend-command "#new-conversation" -> action xtend.llm.newConversation {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+  }
+
+  surface xtend.llm.settingsButton kind action component x-button {
+    source selector xtend.llm.settingsButton
+    key settingsButton.id
+    portal surface.root
+    bounds x 216 y 88 width 52 height 52
+
+    lane visible weight 80 {
+      mount settings-button from selector xtend.llm.settingsButton
+    }
+
+    on xtend-command "#settings-button" -> action xtend.llm.openSettings {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+  }
+
+  surface xtend.llm.conversationList kind navigation component nav {
+    source selector xtend.llm.conversationList
+    key conversationList.id
+    portal surface.root
+    bounds x 20 y 244 width 248 height 432
+
+    lane visible weight 60 {
+      hydrate conversation-list from selector xtend.llm.conversationList {
+        hydration mode server_prerender_hydrate
+      }
+    }
+
+    on xtend-command ".xtend-llm-conversation-button" -> action xtend.llm.selectConversation {
+      preventDefault true
+      payload conversationId from detail.payload.conversationId
+    }
+
+    on xtend-command ".xtend-llm-conversation-more" -> action xtend.llm.openConversationMenu {
+      preventDefault true
+      payload conversationId from detail.payload.conversationId
+    }
+
+    on xtend-command ".xtend-llm-conversation-menu-item" -> action xtend.llm.requestDeleteConversation {
+      preventDefault true
+      payload conversationId from detail.payload.conversationId
+    }
+  }
+
+  surface xtend.llm.modelStatus kind card component x-status {
+    source selector xtend.llm.modelStatus
+    key modelStatus.id
+    portal surface.root
+    bounds x 320 y 24 width 360 height 72
+    destroy releases resource xtend.llm.session
+
+    lane visible weight 90 {
+      hydrate model-status from selector xtend.llm.modelStatus {
+        hydration mode server_prerender_hydrate
+      }
+    }
+  }
+
+  surface xtend.llm.activeConversation kind card component x-status {
+    source selector xtend.llm.activeConversation
+    key activeConversation.id
+    portal surface.root
+    bounds x 696 y 24 width 400 height 72
+
+    lane visible weight 80 {
+      hydrate active-conversation from selector xtend.llm.activeConversation {
+        hydration mode server_prerender_hydrate
+      }
+    }
+  }
+
+  surface xtend.llm.transcript kind content component section {
+    source selector xtend.llm.transcript
+    key transcript.id
+    portal surface.root
+    bounds x 320 y 120 width 776 height 456
+
+    lane visible weight 70 {
+      hydrate chat-transcript from selector xtend.llm.transcript {
+        hydration mode server_prerender_hydrate
+      }
+    }
+
+    on xtend-command ".xtend-llm-message-action-copy" -> action xtend.llm.copyAssistantMessage {
+      preventDefault true
+      payload action from detail.payload.action
+      payload conversationId from detail.payload.conversationId
+      payload messageId from detail.payload.messageId
+    }
+
+    on xtend-command ".xtend-llm-message-action-regenerate" -> action xtend.llm.regenerateAssistantMessage {
+      preventDefault true
+      payload action from detail.payload.action
+      payload conversationId from detail.payload.conversationId
+      payload messageId from detail.payload.messageId
+    }
+  }
+
+  surface xtend.llm.prompt kind field component x-textarea {
+    source selector xtend.llm.prompt
+    key prompt.id
+    portal surface.root
+    bounds x 320 y 600 width 888 height 164
+
+    lane visible weight 90 {
+      hydrate prompt-input from selector xtend.llm.prompt {
+        hydration mode server_prerender_hydrate
+      }
+    }
+
+    on xtend-command "#prompt-input" -> action xtend.llm.routePromptCommand {
+      payload command from detail.command
+      payload value from detail.payload.value
+      payload empty from detail.payload.empty
+    }
+  }
+
+  surface xtend.llm.toolMenu kind action component div {
+    source selector xtend.llm.toolMenu
+    key toolMenu.id
+    portal surface.root
+    bounds x 340 y 700 width 210 height 44
+
+    lane visible weight 85 {
+      hydrate tool-menu from selector xtend.llm.toolMenu {
+        hydration mode server_prerender_hydrate
+      }
+    }
+
+    on xtend-command "#tool-menu-button" -> action xtend.llm.toggleToolMenu {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on xtend-command ".xtend-llm-tool-menu-item" -> action xtend.llm.selectTool {
+      preventDefault true
+      payload toolName from detail.payload.toolName
+    }
+  }
+
+  surface xtend.llm.send kind action component x-button {
+    source selector xtend.llm.send
+    key send.id
+    portal surface.root
+    bounds x 1104 y 700 width 84 height 44
+
+    lane visible weight 90 {
+      mount send-message from selector xtend.llm.send
+    }
+
+    on xtend-command "#send-message" -> action xtend.llm.send {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+  }
+
+  surface xtend.llm.cancel kind action component x-button {
+    source selector xtend.llm.cancel
+    key cancel.id
+    portal surface.root
+    bounds x 1104 y 700 width 84 height 44
+
+    lane visible weight 90 {
+      mount cancel-generation from selector xtend.llm.cancel
+    }
+
+    on xtend-command "#cancel-generation" -> action xtend.llm.cancelGeneration {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+  }
+
+  surface xtend.llm.retry kind action component x-button {
+    source selector xtend.llm.retry
+    key retry.id
+    portal surface.root
+    bounds x 1104 y 700 width 84 height 44
+
+    lane visible weight 70 {
+      mount retry-generation from selector xtend.llm.retry
+    }
+
+    lane idle weight 12 {
+      hydrate retry-generation from selector xtend.llm.retry {
+        hydration mode worker_prerender_hydrate
+      }
+      prewarm retry-generation
+    }
+
+    on xtend-command "#retry-generation" -> action xtend.llm.retryGeneration {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+  }
+
+  surface xtend.llm.spinner kind feedback component x-spinner {
+    source selector xtend.llm.spinner
+    key spinner.id
+    portal surface.root
+    bounds x 1084 y 728 width 52 height 52
+
+    lane visible weight 70 {
+      hydrate generation-spinner from selector xtend.llm.spinner {
+        hydration mode worker_prerender_hydrate
+      }
+    }
+
+    lane idle weight 12 {
+      prewarm generation-spinner
+    }
+  }
+
+  surface xtend.llm.error kind feedback component x-status {
+    source selector xtend.llm.error
+    key error.id
+    portal surface.root
+    bounds x 320 y 784 width 888 height 72
+
+    lane visible weight 70 {
+      hydrate runtime-error from selector xtend.llm.error {
+        hydration mode worker_prerender_hydrate
+      }
+    }
+
+    lane idle weight 10 {
+      prewarm runtime-error
+    }
+  }
+
+  surface xtend.llm.deleteConversationDialog kind modal component x-dialog {
+    source selector xtend.llm.deleteConversationDialog
+    key deleteConversationDialog.id
+    portal surface.root
+    bounds x 0 y 0 width 420 height 240
+
+    lane visible weight 95 {
+      hydrate delete-conversation-dialog from selector xtend.llm.deleteConversationDialog {
+        hydration mode worker_prerender_hydrate
+      }
+    }
+
+    lane idle weight 18 {
+      prewarm delete-conversation-dialog
+    }
+
+    on xtend-command "#delete-conversation-cancel" -> action xtend.llm.closeDeleteConversation {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on xtend-command "#delete-conversation-confirm" -> action xtend.llm.confirmDeleteConversation {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on dialog-closed "#delete-conversation-dialog" -> action xtend.llm.closeDeleteConversation {
+      payload label from detail.source
+    }
+  }
+
+  surface xtend.llm.settingsDialog kind modal component x-dialog {
+    source selector xtend.llm.settingsDialog
+    key settingsDialog.id
+    portal surface.root
+    bounds x 0 y 0 width 960 height 600
+
+    lane visible weight 95 {
+      hydrate settings-dialog from selector xtend.llm.settingsDialog {
+        hydration mode worker_prerender_hydrate
+      }
+    }
+
+    lane idle weight 20 {
+      prewarm settings-dialog
+    }
+
+    on xtend-command "#settings-cancel" -> action xtend.llm.closeSettings {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on xtend-command "#settings-save" -> action xtend.llm.saveSettings {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on tab-selected "#settings-tabs" -> action xtend.llm.selectSettingsTab {
+      payload selected from detail.index
+    }
+
+    on xtend-command ".xtend-llm-theme-option" -> action xtend.llm.updateSettingsTheme {
+      preventDefault true
+      payload mode from detail.payload.mode
+    }
+
+    on xtend-command "#settings-custom-instructions" -> action xtend.llm.updateSettingsInstructions {
+      payload value from detail.payload.value
+    }
+
+    on xtend-command "#settings-reset" -> action xtend.llm.beginSettingsReset {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on xtend-command "#settings-reset-cancel" -> action xtend.llm.cancelSettingsReset {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on xtend-command "#settings-reset-confirm" -> action xtend.llm.confirmSettingsReset {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on xtend-command "#runtime-diagnostics-refresh" -> action xtend.llm.readRuntimeDiagnostics {
+      preventDefault true
+      payload label from detail.payload.label
+    }
+
+    on dialog-closed "#settings-dialog" -> action xtend.llm.closeSettings {
+      payload label from detail.source
+    }
+  }
+
+  surface xtend.llm.runtimeDiagnostics kind diagnostics component section {
+    source selector xtend.llm.runtimeDiagnostics
+    key runtimeDiagnostics.id
+    portal surface.root
+    bounds x 0 y 0 width 1 height 1
+
+    lane idle weight 8 {
+      hydrate runtime-diagnostics from selector xtend.llm.runtimeDiagnostics {
+        hydration mode worker_prerender_hydrate
+      }
+      prewarm runtime-diagnostics
+    }
+  }
+
+  surface xtend.llm.codeBridge kind content component x-code {
+    source selector xtend.llm.codeBridge
+    key codeBridge.id
+    portal surface.root
+    bounds x 0 y 0 width 1 height 1
+
+    lane visible weight 5 {
+      hydrate code-bridge from selector xtend.llm.codeBridge {
+        hydration mode worker_prerender_hydrate
+      }
+    }
+
+    lane idle weight 4 {
+      prewarm code-bridge
+    }
+  }
+}

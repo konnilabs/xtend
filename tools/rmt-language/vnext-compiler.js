@@ -1925,6 +1925,61 @@ function isWorkerPrerenderHydrationMode(modeOrPolicy) {
   return String(modeOrPolicy || '').trim() === 'worker_prerender_hydrate';
 }
 
+function isUiCoprocessorHydrationSignal(modeOrPolicy, operation) {
+  const signal = String(modeOrPolicy || '').trim();
+  return signal === 'worker_prerender_hydrate'
+    || signal === 'prewarm'
+    || signal === 'warm'
+    || signal === 'idle'
+    || Boolean(operation && operation.op === 'prewarm');
+}
+
+function isClientDeterminedCoprocessorSource(operation) {
+  const sourceKind = String(operation && operation.source && operation.source.kind || '').trim().toLowerCase();
+  const sourceRef = String(operation && operation.sourceRef || operation && operation.source && operation.source.ref || '').trim().toLowerCase();
+  if (!sourceKind && !sourceRef) return true;
+  if (['server', 'http', 'endpoint', 'ssr', 'host-effect', 'effect', 'action'].includes(sourceKind)) return false;
+  if (/^(server|ssr|http|https|endpoint|host-effect|effect|action)[.:/]/u.test(sourceRef)) return false;
+  return true;
+}
+
+function createUiCoprocessorFabricSchedule(operation, mode, policy, workerPrerenderRequested) {
+  const metadata = {
+    uiCoprocessor: true,
+    hydrationKey: `operation:${operation.id}`,
+    generation: `operation:${operation.id}:client`,
+    clientDetermined: true
+  };
+  if (workerPrerenderRequested) {
+    return {
+      lane: 'background',
+      fiberKind: 'component.worker_prerender_hydrate',
+      scheduleRef: 'component.worker_prerender_hydrate',
+      endpointName: 'xtendrmt.component.worker_prerender_hydrate',
+      metadata
+    };
+  }
+  if ((operation && operation.op === 'prewarm') || mode === 'prewarm' || policy === 'prewarm') {
+    return {
+      lane: 'background',
+      fiberKind: 'component.prewarm',
+      scheduleRef: 'component.prewarm.prepare',
+      endpointName: 'xtendrmt.component.prewarm',
+      metadata
+    };
+  }
+  if (mode === 'warm' || policy === 'warm' || mode === 'idle' || policy === 'idle') {
+    return {
+      lane: 'idle',
+      fiberKind: 'component.prewarm',
+      scheduleRef: 'component.warm.reentry',
+      endpointName: 'xtendrmt.component.prewarm',
+      metadata
+    };
+  }
+  return null;
+}
+
 function createWorkerPrerenderCapability(records) {
   const workerRecords = toArray(records).filter((record) => record && record.workerPrerender && record.workerPrerender.requested === true);
   return {
@@ -1956,6 +2011,37 @@ function createWorkerPrerenderCapability(records) {
   };
 }
 
+function createUiCoprocessorCapability(records) {
+  const eligibleRecords = toArray(records).filter((record) => record && record.uiCoprocessorEligible === true);
+  return {
+    schema: 'xtend.rmt.app-hydration-capability.v1',
+    id: 'uiCoprocessor',
+    mode: 'ui_compute',
+    supported: true,
+    degraded: false,
+    status: eligibleRecords.length > 0 ? 'available' : 'not_requested',
+    requested: eligibleRecords.length > 0,
+    recordCount: eligibleRecords.length,
+    runtimeHooks: [
+      'requestUiCompute',
+      'dispatchUiComputeEnvelope',
+      'hydrateResponse'
+    ],
+    fabric: {
+      lanes: ['background', 'idle'],
+      scheduleRefs: ['component.worker_prerender_hydrate', 'component.prewarm.prepare', 'component.warm.reentry', 'diagnostics.snapshot']
+    },
+    validation: {
+      generationRequired: true,
+      staleResponses: 'discard',
+      hostServices: 'blocked-in-worker-path',
+      trustedDomCommit: 'main-thread',
+      stateOwnership: 'main-thread',
+      ssrRoundtripCount: 0
+    }
+  };
+}
+
 function createHydrationPlan(core, appPlatform) {
   const surfaceByCoreId = new Map(toArray(core && core.surfaces)
     .filter((surface) => surface && surface.primitive === true)
@@ -1982,13 +2068,17 @@ function createHydrationPlan(core, appPlatform) {
     const policy = workerPrerenderRequested
       ? 'worker_prerender_hydrate'
       : derivedHydrationPolicy(core, operation, policies);
-    const fabricSchedule = workerPrerenderRequested
-      ? {
-          lane: 'background',
-          fiberKind: 'component.worker_prerender_hydrate',
-          scheduleRef: 'component.worker_prerender_hydrate',
-          endpointName: 'xtendrmt.component.worker_prerender_hydrate'
-        }
+    const clientDetermined = isClientDeterminedCoprocessorSource(operation);
+    const uiCoprocessorEligible = clientDetermined && (
+      isUiCoprocessorHydrationSignal(mode, operation)
+      || isUiCoprocessorHydrationSignal(policy, operation)
+      || policies.some((policyRecord) => policyRecord.kind === 'hydration' && (
+        isUiCoprocessorHydrationSignal(policyRecord.policy, operation)
+        || isUiCoprocessorHydrationSignal(policyRecord.mode, operation)
+      ))
+    );
+    const fabricSchedule = uiCoprocessorEligible
+      ? createUiCoprocessorFabricSchedule(operation, mode, policy, workerPrerenderRequested)
       : null;
     const record = {
       id: `hydration:${normalizeIdSegment(appSurface.id)}/${normalizeIdSegment(operation.op)}`,
@@ -2004,6 +2094,8 @@ function createHydrationPlan(core, appPlatform) {
       endpointName: `xtend.rmt.kernel.${lifecycleRuntimeKind(operation) || 'surface-lifecycle'}.${schedulerToken(`${operation.target && operation.target.ref || appSurface.id}.${operation.op}`)}`,
       target: operation.target || null,
       source: operation.source || null,
+      clientDetermined,
+      uiCoprocessorEligible,
       explicitPolicy: Boolean(hydrationPolicy || isolation),
       insularHydration: insular,
       workerPrerender: {
@@ -2018,6 +2110,26 @@ function createHydrationPlan(core, appPlatform) {
         staleResponses: 'discard-by-generation',
         hostServices: 'blocked-in-worker-path',
         fabric: fabricSchedule
+      },
+      uiCoprocessor: {
+        schema: 'xtend.rmt.app-hydration-ui-coprocessor.v1',
+        eligible: uiCoprocessorEligible,
+        supported: true,
+        status: uiCoprocessorEligible ? 'eligible' : 'not_eligible',
+        mode: 'ui_compute',
+        runtimeHook: 'requestUiCompute',
+        trustedDomCommit: 'main-thread',
+        stateOwnership: 'main-thread',
+        staleResponses: 'discard-by-generation',
+        ssrRoundtripCount: 0,
+        clientDetermined,
+        fabric: fabricSchedule,
+        pwaAttachment: {
+          manifestRef: null,
+          cacheMode: 'attachment-point-only',
+          serviceWorkerControlled: false,
+          offlineEligible: false
+        }
       },
       isolation: {
         boundary: isolation && isolation.boundary || 'public-contract-only',
@@ -2059,9 +2171,11 @@ function createHydrationPlan(core, appPlatform) {
     defaultMode: 'runtime_render',
     records,
     capabilities: [
-      createWorkerPrerenderCapability(records)
+      createWorkerPrerenderCapability(records),
+      createUiCoprocessorCapability(records)
     ],
     workerPrerender: createWorkerPrerenderCapability(records),
+    uiCoprocessor: createUiCoprocessorCapability(records),
     insularIslands,
     diagnostics,
     security: {

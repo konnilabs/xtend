@@ -202,6 +202,7 @@
             productSurface: bootMode === 'productSurface' && Boolean(productSurface),
             performanceAdvancedReports: Boolean(performanceRuntime),
             prewarmWorker: prewarmWorkerEnabled,
+            uiCoprocessor: isUiCoprocessorEnabled(),
             warmReentry: prewarmWorkerEnabled,
             panicRecovery: Boolean(runtime || core)
           }
@@ -230,7 +231,30 @@
     function isPrewarmWorkerEnabled() {
       return options.enablePrewarmWorker === true
         || plan.enablePrewarmWorker === true
+        || isUiCoprocessorEnabled()
         || Boolean(plan.prewarmWorker && plan.prewarmWorker.enabled === true);
+    }
+
+    function isUiCoprocessorEnabled() {
+      return options.enableUiCoprocessor === true
+        || plan.enableUiCoprocessor === true
+        || Boolean(plan.uiCoprocessor && plan.uiCoprocessor.enabled === true)
+        || Boolean(plan.prewarmWorker && plan.prewarmWorker.coprocessor && plan.prewarmWorker.coprocessor.enabled === true);
+    }
+
+    function normalizeUiCoprocessorPlan() {
+      const source = plan.uiCoprocessor && typeof plan.uiCoprocessor === 'object'
+        ? plan.uiCoprocessor
+        : (plan.prewarmWorker && plan.prewarmWorker.coprocessor && typeof plan.prewarmWorker.coprocessor === 'object' ? plan.prewarmWorker.coprocessor : {});
+      const mode = clampString(options.uiCoprocessorMode || source.mode, 'opportunistic');
+      const lifecycle = clampString(options.uiCoprocessorLifecycle || source.lifecycle, 'runtime');
+      return {
+        enabled: isUiCoprocessorEnabled(),
+        mode: mode === 'alwaysOn' ? 'alwaysOn' : 'opportunistic',
+        lifecycle: lifecycle === 'app' ? 'app' : 'runtime',
+        maxQueueDepth: Math.max(Math.trunc(Number(options.uiCoprocessorMaxQueueDepth || source.maxQueueDepth) || 8), 1),
+        stalePolicy: 'discard'
+      };
     }
 
     function createPrewarmWorkerFallbackSnapshot(reason = 'disabled') {
@@ -238,11 +262,13 @@
         ? cloneSafe(plan.prewarmWorker, {})
         : {};
       const enabled = isPrewarmWorkerEnabled();
+      const coprocessor = normalizeUiCoprocessorPlan();
       return {
         ...planned,
         schema: 'xtend.rmt.prewarm-worker-topology.v1',
         kind: 'renderman-prewarm',
         enabled,
+        enabledBy: options.enablePrewarmWorker === true || plan.enablePrewarmWorker === true || planned.enabled === true ? 'prewarmWorker' : (coprocessor.enabled ? 'uiCoprocessor' : 'none'),
         status: enabled ? 'degraded' : 'disabled',
         health: enabled ? 'degraded' : 'disabled',
         reason,
@@ -256,9 +282,23 @@
         missingApis: [],
         lastHealthAt: 0,
         lastError: null,
-        responsibilities: ['template_prerender_compute', 'chunk_serialization'],
-        supportedSignals: ['start', 'continue', 'rebatch'],
+        responsibilities: ['template_prerender_compute', 'chunk_serialization', 'ui_compute', 'layout_precompute', 'analytics_precompute'],
+        supportedSignals: ['start', 'continue', 'rebatch', 'compute', 'ui_compute', 'prerender', 'invalidate'],
         excludedResponsibilities: ['dom_mutation', 'event_binding', 'state_ownership'],
+        coprocessor: {
+          ...coprocessor,
+          queueDepthMax: 0,
+          status: coprocessor.enabled ? (enabled ? 'degraded' : 'disabled') : 'disabled',
+          pendingJobs: 0,
+          submittedJobs: 0,
+          transferBytes: 0,
+          staleResponses: 0,
+          supersededResponses: 0,
+          stateOwnership: 'main-thread',
+          trustedDomCommit: 'main-thread',
+          clientDetermined: true,
+          ssrRoundtripCount: 0
+        },
         diagnostics: enabled && !runtime ? [{
           schema: RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA,
           code: 'xtend.rmt.kernel_orchestration.prewarm_worker_runtime_missing',
@@ -726,6 +766,8 @@
             kernelRecords: artifact.records,
             scheduler,
             enablePrewarmWorker: isPrewarmWorkerEnabled(),
+            enableUiCoprocessor: isUiCoprocessorEnabled(),
+            uiCoprocessor: normalizeUiCoprocessorPlan(),
             prewarmWorkerName: options.prewarmWorkerName || plan.prewarmWorker && plan.prewarmWorker.workerName,
             prewarmWorkerType: options.prewarmWorkerType || plan.prewarmWorker && plan.prewarmWorker.workerType
           });
@@ -758,6 +800,8 @@
             kernelRecords: artifact.records,
             scheduler,
             enablePrewarmWorker: isPrewarmWorkerEnabled(),
+            enableUiCoprocessor: isUiCoprocessorEnabled(),
+            uiCoprocessor: normalizeUiCoprocessorPlan(),
             prewarmWorkerName: options.prewarmWorkerName || plan.prewarmWorker && plan.prewarmWorker.workerName,
             prewarmWorkerType: options.prewarmWorkerType || plan.prewarmWorker && plan.prewarmWorker.workerType
           }) : null;

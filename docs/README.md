@@ -17,6 +17,10 @@ Dieser Index sammelt stabile Dokumentationspfade, die lokale Gates als Release- 
 ## TypeExports
 
 - [XTend Loader Types](./xtend-loader-types.md)
+- [XTend API Types](./xtend-api-types.md)
+- [XTend Policy Types](./xtend-policy-types.md)
+- [XTend Builder Types](./xtend-builder-types.md)
+- [XTend Catalog Types](./xtend-catalog-types.md)
 - [XTend Vendor Types](./xtend-vendor-types.md)
 - [TypeExports](./type-exports.md)
 - [Package Export Lock](./package-export-lock.md)

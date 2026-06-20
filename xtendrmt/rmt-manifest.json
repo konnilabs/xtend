@@ -1,7 +1,7 @@
 {
   "productName": "XTendRMT",
-  "version": "0.3.0",
-  "apiVersion": "0.3.0",
+  "version": "0.3.1",
+  "apiVersion": "0.3.1",
   "releaseStage": "pre-release",
   "classicGlobalName": "xtend.rmt",
   "runtimeContract": {
@@ -52,6 +52,7 @@
       "domCompat",
       "warmReentry",
       "prewarmWorker",
+      "uiCoprocessor",
       "workerPrerender",
       "serverPrerender",
       "panicRecovery",

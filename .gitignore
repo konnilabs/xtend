@@ -7,9 +7,12 @@ products/
 products/*
 !products/rmt-maraca-kernel-orchestration/
 !products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt
-products/xtend-llm/
+!products/xtend-llm/
+!products/xtend-llm/**
 products/xtend-llm/node_modules/
 products/xtend-llm/.xtend-llm-results/
 products/xtend-llm/.cache/
 products/xtend-llm/dist/
+products/xtend-llm/site/build/
+products/xtend-llm/**/.DS_Store
 .DS_Store

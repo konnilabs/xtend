@@ -1,0 +1,226 @@
+{
+  "schema": "xtend.xtensions.security-integrity-gate.fixture.v1",
+  "expectedStatus": "ready",
+  "expectedBlockedStatus": "blocked",
+  "policy": {
+    "schema": "xtend.xtensions.security-policy.v1",
+    "strict": true,
+    "remoteArtifactsAllowed": false,
+    "allowCdnForLocalFixtures": false
+  },
+  "xtensions": [
+    {
+      "id": "xtension.react.todo",
+      "name": "React Todo Host",
+      "framework": "react",
+      "version": "1.0.0",
+      "owner": {
+        "team": "xtend-platform"
+      },
+      "entry": {
+        "module": "external-peer://react/todo-host-controller",
+        "exportName": "createReactTodoHost",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "integrity": {
+        "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "source": "maraca-artifact"
+      },
+      "csp": {
+        "scriptSrc": ["'self'"],
+        "connectSrc": ["'self'"],
+        "workerSrc": ["'self'"],
+        "styleSrc": ["'self'"],
+        "imgSrc": ["'self'", "data:"]
+      },
+      "security": {
+        "owner": "xtend-platform",
+        "localFixtureNoNetwork": true
+      },
+      "lazy": {
+        "mode": "route",
+        "optIn": true,
+        "policy": "route-visible-policy",
+        "prefetch": false,
+        "preload": false
+      },
+      "contract": {
+        "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+        "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+        "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+        "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+        "accepts": ["props.replace"],
+        "emits": ["todo.selected"],
+        "capabilities": [
+          "host.lifecycle.mount",
+          "signal.downstream",
+          "event.upstream",
+          "loading.dynamic-import",
+          "fallback.native-placeholder"
+        ]
+      },
+      "capabilities": [
+        "host.lifecycle.mount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import",
+        "fallback.native-placeholder"
+      ],
+      "dependencies": [
+        {
+          "name": "react",
+          "versionRange": "^18.0.0",
+          "classification": "peer",
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ],
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "xtend-native.todo-placeholder",
+        "message": "Todo surface unavailable",
+        "degradedStatus": "xtension-unavailable"
+      },
+      "policy": {
+        "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+        "status": "approved"
+      }
+    },
+    {
+      "id": "xtension.three.scene",
+      "name": "Three Scene Host",
+      "framework": "three",
+      "version": "1.0.0",
+      "owner": "xtend-visualization",
+      "entry": {
+        "module": "external-peer://three/scene-host-controller",
+        "exportName": "createThreeSceneHost",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "integrity": {
+        "sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "source": "maraca-artifact"
+      },
+      "csp": {
+        "scriptSrc": ["'self'", "'wasm-unsafe-eval'"],
+        "connectSrc": ["'self'"],
+        "workerSrc": ["'self'"],
+        "styleSrc": ["'self'"],
+        "imgSrc": ["'self'", "blob:"]
+      },
+      "security": {
+        "owner": "xtend-visualization",
+        "requiresWasm": true,
+        "requiresWorker": true,
+        "localFixtureNoNetwork": true
+      },
+      "lazy": {
+        "mode": "visible",
+        "optIn": true,
+        "policy": "visible-canvas-policy",
+        "prefetch": false,
+        "preload": false
+      },
+      "contract": {
+        "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+        "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+        "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+        "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+        "accepts": ["scene.update"],
+        "emits": ["scene.ready"],
+        "capabilities": [
+          "host.lifecycle.mount",
+          "render.loop.host-fiber",
+          "fabric.lane.animation",
+          "diagnostics.emit",
+          "fallback.native-placeholder"
+        ]
+      },
+      "capabilities": [
+        "host.lifecycle.mount",
+        "render.loop.host-fiber",
+        "fabric.lane.animation",
+        "diagnostics.emit",
+        "fallback.native-placeholder"
+      ],
+      "dependencies": [
+        {
+          "name": "three",
+          "versionRange": "^0.170.0",
+          "classification": "peer",
+          "bundled": false,
+          "packageIncluded": false
+        }
+      ],
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "xtend-native.scene-placeholder",
+        "message": "Scene surface unavailable",
+        "degradedStatus": "xtension-unavailable"
+      },
+      "policy": {
+        "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+        "status": "approved"
+      }
+    }
+  ],
+  "blockedXtensions": [
+    {
+      "id": "xtension.remote.cdn",
+      "name": "Remote CDN Host",
+      "framework": "react",
+      "entry": {
+        "module": "https://cdn.jsdelivr.net/npm/react/index.js",
+        "exportName": "createRemoteHost",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "integrity": {},
+      "csp": {
+        "scriptSrc": ["https://cdn.jsdelivr.net", "*", "'unsafe-eval'"],
+        "connectSrc": ["https:"],
+        "styleSrc": ["'unsafe-inline'"],
+        "imgSrc": ["*"]
+      },
+      "security": {
+        "remoteCapable": true,
+        "localFixtureNoNetwork": true
+      },
+      "capabilities": [
+        "loading.dynamic-import",
+        "network.unrestricted",
+        "dom.global"
+      ],
+      "dependencies": [
+        {
+          "name": "react",
+          "versionRange": "^18.0.0",
+          "classification": "root-runtime",
+          "bundled": true,
+          "packageIncluded": true
+        }
+      ],
+      "fallback": {},
+      "policy": {
+        "allowRemoteWithoutReview": true
+      }
+    }
+  ],
+  "expectedDiagnostics": [
+    "xtensions.security.owner_missing",
+    "xtensions.security.version_missing",
+    "xtensions.security.contract_missing",
+    "xtensions.security.integrity_missing",
+    "xtensions.security.csp_directive_missing",
+    "xtensions.security.csp_unsafe_source",
+    "xtensions.security.remote_artifact_blocked",
+    "xtensions.security.cdn_source_forbidden",
+    "xtensions.security.capability_not_allowed",
+    "xtensions.security.dependency_classification_invalid",
+    "xtensions.security.packaged_framework_dependency",
+    "xtensions.security.fallback_missing",
+    "xtensions.security.policy_drift"
+  ]
+}

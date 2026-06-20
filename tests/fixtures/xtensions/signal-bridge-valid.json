@@ -1,0 +1,202 @@
+{
+  "schema": "xtend.xtensions.signal-bridge.fixture.v1",
+  "fixtureId": "xtensions.signal-bridge.valid",
+  "workpackage": "XTN-02",
+  "contract": "xtend.xtensions.signal-bridge.v1",
+  "hostControllerContract": "xtend.xtensions.host-controller.v1",
+  "status": "frameworkless-contract-stub",
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "networkRequired": false,
+    "allowedTestModes": [
+      "frameworkless-contract-stub",
+      "external-opt-in-peer-harness"
+    ]
+  },
+  "bridges": [
+    {
+      "id": "bridge.react.dashboard.todo",
+      "framework": "react",
+      "hostId": "xtension.stub.react-like",
+      "surfaceId": "surface.dashboard.todo",
+      "xtensionId": "xtension.react.todo",
+      "owner": {
+        "kind": "team",
+        "id": "dashboard-platform"
+      }
+    },
+    {
+      "id": "bridge.three.asset-preview",
+      "framework": "three",
+      "hostId": "xtension.stub.three-like",
+      "surfaceId": "surface.asset.preview",
+      "xtensionId": "xtension.three.asset-preview",
+      "owner": {
+        "kind": "team",
+        "id": "media-platform"
+      }
+    }
+  ],
+  "kernelSignals": [
+    {
+      "signalId": "signal.react.todo.props.v1",
+      "type": "props.update",
+      "target": {
+        "hostId": "xtension.stub.react-like",
+        "surfaceId": "surface.dashboard.todo",
+        "xtensionId": "xtension.react.todo",
+        "containerId": "xtension-host-container"
+      },
+      "lane": "transition",
+      "priorityHint": "transition",
+      "schemaRef": "xtend.schemas.xtension.react.props.v1",
+      "payload": {
+        "items": [
+          {
+            "id": "todo-1",
+            "title": "Contract fixture"
+          }
+        ]
+      },
+      "policy": {
+        "deliveryMode": "queued",
+        "ttlMs": 30000,
+        "correlationId": "required",
+        "idempotencyKey": "required",
+        "coalesceKey": "surface.dashboard.todo",
+        "coalescePolicy": "target",
+        "backpressure": "coalesce-by-target",
+        "deadLetter": "required",
+        "rateLimit": {
+          "windowMs": 1000,
+          "maxEvents": 60,
+          "overflow": "dead-letter"
+        }
+      }
+    },
+    {
+      "signalId": "signal.three.scene.patch.v1",
+      "type": "scene.patch",
+      "target": {
+        "hostId": "xtension.stub.three-like",
+        "surfaceId": "surface.asset.preview",
+        "xtensionId": "xtension.three.asset-preview",
+        "containerId": "xtension-host-container"
+      },
+      "lane": "background",
+      "priorityHint": "background",
+      "schemaRef": "xtend.schemas.xtension.three.scene.v1",
+      "payload": {
+        "camera": "orbit",
+        "visibility": "visible"
+      },
+      "policy": {
+        "deliveryMode": "drop-if-stale",
+        "ttlMs": 160,
+        "correlationId": "required",
+        "idempotencyKey": "required",
+        "coalesceKey": "surface.asset.preview",
+        "coalescePolicy": "target",
+        "backpressure": "sample",
+        "deadLetter": "required",
+        "rateLimit": {
+          "windowMs": 1000,
+          "maxEvents": 30,
+          "overflow": "dead-letter"
+        }
+      }
+    }
+  ],
+  "surfaceEvents": [
+    {
+      "eventId": "event.react.todo.submitted.v1",
+      "event": "xtension.react.todo.submitted.v1",
+      "direction": "upstream",
+      "owner": {
+        "kind": "team",
+        "id": "dashboard-platform"
+      },
+      "source": {
+        "hostId": "xtension.stub.react-like",
+        "surfaceId": "surface.dashboard.todo",
+        "xtensionId": "xtension.react.todo",
+        "framework": "react"
+      },
+      "lane": "user-blocking",
+      "payloadSchema": "xtend.schemas.xtension.intent.v1",
+      "payload": {
+        "intent": "submit",
+        "itemId": "todo-1"
+      },
+      "trustBoundary": "same-origin-adapter",
+      "policy": {
+        "deliveryMode": "queued",
+        "ttlMs": 30000,
+        "correlationId": "required",
+        "idempotencyKey": "required",
+        "coalesceKey": "xtension.react.todo.submitted.v1",
+        "coalescePolicy": "event",
+        "backpressure": "dead-letter",
+        "deadLetter": "required",
+        "rateLimit": {
+          "windowMs": 1000,
+          "maxEvents": 120,
+          "overflow": "dead-letter"
+        }
+      }
+    },
+    {
+      "eventId": "event.three.frame.budget.v1",
+      "event": "xtension.three.frame.budget.exceeded.v1",
+      "direction": "upstream",
+      "owner": {
+        "kind": "team",
+        "id": "media-platform"
+      },
+      "source": {
+        "hostId": "xtension.stub.three-like",
+        "surfaceId": "surface.asset.preview",
+        "xtensionId": "xtension.three.asset-preview",
+        "framework": "three"
+      },
+      "lane": "diagnostics",
+      "payloadSchema": "xtend.schemas.xtension.three.frame.v1",
+      "payload": {
+        "frameBudgetMs": 16,
+        "actualMs": 24
+      },
+      "trustBoundary": "same-origin-adapter",
+      "policy": {
+        "deliveryMode": "drop-if-stale",
+        "ttlMs": 1000,
+        "correlationId": "required",
+        "idempotencyKey": "required",
+        "coalesceKey": "xtension.three.frame.budget.exceeded.v1",
+        "coalescePolicy": "event",
+        "backpressure": "sample",
+        "deadLetter": "required",
+        "rateLimit": {
+          "windowMs": 1000,
+          "maxEvents": 30,
+          "overflow": "dead-letter"
+        }
+      }
+    }
+  ],
+  "expectedGovernedFrameworks": [
+    "react",
+    "vue",
+    "leaflet",
+    "chart.js",
+    "three"
+  ],
+  "expectedControls": [
+    "owner",
+    "payloadSchema",
+    "lane",
+    "correlationId",
+    "idempotencyKey",
+    "deadLetter"
+  ]
+}

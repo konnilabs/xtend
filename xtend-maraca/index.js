@@ -13,6 +13,12 @@ const MARACA_KERNEL_PLAN_SCHEMA = 'xtend.maraca.kernel-plan.v1';
 const MARACA_HYDRATION_PLAN_SCHEMA = 'xtend.maraca.hydration-plan.v1';
 const MARACA_WARM_REENTRY_REPORT_SCHEMA = 'xtend.maraca.warm-reentry-report.v1';
 const MARACA_PREWARM_WORKER_RUNTIME_SCHEMA = 'xtend.maraca.prewarm-worker-runtime.v1';
+const MARACA_SUPER_PREWARM_WORKER_EXPERIMENT_SCHEMA = 'xtend.maraca.super-prewarm-worker-experiment.v1';
+const MARACA_UI_COPROCESSOR_PLAN_SCHEMA = 'xtend.maraca.ui-coprocessor-plan.v1';
+const MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA = 'xtend.maraca.web-app-manifest-plan.v1';
+const MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA = 'xtend.maraca.web-app-manifest-report.v1';
+const MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA = 'xtend.maraca.pwa-service-worker-plan.v1';
+const MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA = 'xtend.maraca.pwa-service-worker-report.v1';
 const MARACA_LIFECYCLE_REPORT_SCHEMA = 'xtend.maraca.lifecycle-report.v1';
 const MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA = 'xtend.maraca.template-artifacts-report.v1';
 const MARACA_VALIDATION_PLAN_SCHEMA = 'xtend.maraca.validation-plan.v1';
@@ -29,7 +35,7 @@ const VALID_STACK_MODES = new Set(['plan', 'runtime', 'full', 'none']);
 const VALID_ORCHESTRATION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_KERNEL_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_KERNEL_BOOT_MODES = new Set(['direct', 'productSurface']);
-const VALID_HYDRATION_MODES = new Set(['auto', 'strict', 'off']);
+const VALID_HYDRATION_MODES = new Set(['auto', 'strict', 'off', 'warm', 'prewarm']);
 const VALID_VALIDATION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_TRANSITION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_SIZE_BUDGET_MODES = new Set(['strict', 'warn', 'off']);
@@ -149,6 +155,9 @@ const PUBLIC_NAME_RESERVATIONS = Object.freeze([
   'MARACA_KERNEL',
   'MARACA_HYDRATION',
   'MARACA_WARM_REENTRY',
+  'MARACA_UI_COPROCESSOR',
+  'MARACA_WEB_APP_MANIFEST',
+  'MARACA_PWA',
   'MARACA_VALIDATION',
   'MARACA_TRANSITIONS',
   'MARACA_PUBLIC_NAMES',
@@ -188,6 +197,12 @@ const PUBLIC_NAME_RESERVATIONS = Object.freeze([
   MARACA_HYDRATION_PLAN_SCHEMA,
   MARACA_WARM_REENTRY_REPORT_SCHEMA,
   MARACA_PREWARM_WORKER_RUNTIME_SCHEMA,
+  MARACA_SUPER_PREWARM_WORKER_EXPERIMENT_SCHEMA,
+  MARACA_UI_COPROCESSOR_PLAN_SCHEMA,
+  MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA,
+  MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA,
+  MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA,
+  MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA,
   MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA,
   MARACA_VALIDATION_PLAN_SCHEMA,
   MARACA_TRANSITION_PLAN_SCHEMA,
@@ -383,6 +398,9 @@ function createMaracaKernelFeatureAdoptionReport(options = {}) {
     prewarmWorker: Object.prototype.hasOwnProperty.call(activeInput, 'prewarmWorker')
       ? Boolean(activeInput.prewarmWorker)
       : false,
+    uiCoprocessor: Object.prototype.hasOwnProperty.call(activeInput, 'uiCoprocessor')
+      ? Boolean(activeInput.uiCoprocessor)
+      : false,
     warmReentry: Object.prototype.hasOwnProperty.call(activeInput, 'warmReentry')
       ? Boolean(activeInput.warmReentry)
       : false,
@@ -483,8 +501,270 @@ function createMaracaKernelProductSurfaceReport(options = {}) {
   };
 }
 
+function normalizeMaracaUiCoprocessorOptions(options = {}) {
+  const source = options.uiCoprocessor && typeof options.uiCoprocessor === 'object' ? options.uiCoprocessor : {};
+  const mode = source.mode || options.uiCoprocessorMode || 'opportunistic';
+  const lifecycle = source.lifecycle || options.uiCoprocessorLifecycle || 'runtime';
+  return {
+    enabled: options.enableUiCoprocessor === true || source.enabled === true,
+    mode: mode === 'alwaysOn' ? 'alwaysOn' : 'opportunistic',
+    maxQueueDepth: Math.max(Math.trunc(Number(source.maxQueueDepth || options.uiCoprocessorMaxQueueDepth) || 8), 1),
+    stalePolicy: 'discard',
+    lifecycle: lifecycle === 'app' ? 'app' : 'runtime'
+  };
+}
+
+function normalizeMaracaWebAppManifestOptions(options = {}) {
+  const source = options.webAppManifest && typeof options.webAppManifest === 'object' ? options.webAppManifest : {};
+  const pwaSource = options.pwa && typeof options.pwa === 'object' ? options.pwa : {};
+  const pwaManifest = pwaSource.manifest && typeof pwaSource.manifest === 'object' ? pwaSource.manifest : {};
+  const rootManifest = options.manifest && typeof options.manifest === 'object' ? options.manifest : {};
+  const manifestSource = source.manifest && typeof source.manifest === 'object'
+    ? source.manifest
+    : (Object.keys(source).length > 0 ? source : rootManifest);
+  const enabled = options.enableWebAppManifest === true
+    || options.webAppManifest === true
+    || source.enabled === true
+    || Object.keys(rootManifest).length > 0
+    || options.pwa === true
+    || pwaSource.enabled === true
+    || (pwaSource.serviceWorker && pwaSource.serviceWorker.enabled === true);
+  const merged = {
+    ...pwaManifest,
+    ...manifestSource
+  };
+  return {
+    enabled,
+    fileName: source.fileName || merged.fileName || pwaSource.manifestFileName || 'xtend.webmanifest',
+    reportFileName: source.reportFileName || 'xtend.webmanifest.report.json',
+    iconDirectory: source.iconDirectory || 'icons',
+    name: merged.name || pwaSource.name || 'XTend Maraca App',
+    shortName: merged.short_name || merged.shortName || pwaSource.shortName || 'XTend',
+    startUrl: merged.start_url || merged.startUrl || pwaSource.startUrl || './',
+    scope: merged.scope || pwaSource.scope || './',
+    display: merged.display || 'standalone',
+    backgroundColor: merged.background_color || merged.backgroundColor || '#ffffff',
+    themeColor: merged.theme_color || merged.themeColor || '#1f6f78',
+    description: merged.description || 'Generated XTend Maraca PWA manifest.',
+    icons: Array.isArray(merged.icons) ? merged.icons : []
+  };
+}
+
+function createDefaultWebAppManifestAssets(iconDirectory = 'icons') {
+  const iconDir = String(iconDirectory || 'icons').replace(/^\/+|\/+$/g, '') || 'icons';
+  return [
+    {
+      role: 'manifest-icon',
+      source: 'icons/android-chrome-192x192.png',
+      output: `${iconDir}/android-chrome-192x192.png`,
+      sizes: '192x192',
+      type: 'image/png',
+      purpose: 'any',
+      manifestIcon: true
+    },
+    {
+      role: 'manifest-icon',
+      source: 'icons/android-chrome-512x512.png',
+      output: `${iconDir}/android-chrome-512x512.png`,
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'any',
+      manifestIcon: true
+    },
+    {
+      role: 'apple-touch-icon',
+      source: 'icons/apple-touch-icon.png',
+      output: `${iconDir}/apple-touch-icon.png`,
+      sizes: '180x180',
+      type: 'image/png',
+      htmlLink: { rel: 'apple-touch-icon', sizes: '180x180' }
+    },
+    {
+      role: 'favicon',
+      source: 'icons/favicon-32x32.png',
+      output: `${iconDir}/favicon-32x32.png`,
+      sizes: '32x32',
+      type: 'image/png',
+      htmlLink: { rel: 'icon', sizes: '32x32', type: 'image/png' }
+    },
+    {
+      role: 'favicon',
+      source: 'icons/favicon-16x16.png',
+      output: `${iconDir}/favicon-16x16.png`,
+      sizes: '16x16',
+      type: 'image/png',
+      htmlLink: { rel: 'icon', sizes: '16x16', type: 'image/png' }
+    },
+    {
+      role: 'favicon',
+      source: 'icons/favicon.ico',
+      output: `${iconDir}/favicon.ico`,
+      sizes: '16x16 32x32',
+      type: 'image/x-icon',
+      htmlLink: { rel: 'icon', type: 'image/x-icon' }
+    },
+    {
+      role: 'branding-source',
+      source: 'logo.svg',
+      output: `${iconDir}/logo.svg`,
+      type: 'image/svg+xml'
+    },
+    {
+      role: 'branding-source',
+      source: 'XTend-Logo.png',
+      output: `${iconDir}/XTend-Logo.png`,
+      sizes: '1024x1024',
+      type: 'image/png'
+    }
+  ];
+}
+
+function createMaracaWebAppManifestPlan(options = {}) {
+  const config = normalizeMaracaWebAppManifestOptions(options);
+  const outputDir = options.outputDir || process.cwd();
+  const rootDir = options.rootDir || process.cwd();
+  const assets = createDefaultWebAppManifestAssets(config.iconDirectory).map((asset) => {
+    const sourcePath = path.join(rootDir, asset.source);
+    const outputPath = path.join(outputDir, asset.output);
+    return {
+      ...asset,
+      sourcePath,
+      outputPath,
+      sourceExists: fs.existsSync(sourcePath),
+      fileName: asset.output,
+      replacementPath: asset.output
+    };
+  });
+  const manifestIcons = assets
+    .filter((asset) => asset.manifestIcon === true)
+    .map((asset) => ({
+      src: asset.output,
+      sizes: asset.sizes,
+      type: asset.type,
+      purpose: asset.purpose || 'any'
+    }));
+  const htmlLinkHints = assets
+    .filter((asset) => asset.htmlLink)
+    .map((asset) => ({
+      ...asset.htmlLink,
+      href: asset.output
+    }));
+  const diagnostics = assets
+    .filter((asset) => !asset.sourceExists)
+    .map((asset) => ({
+      code: 'xtend.maraca.web_app_manifest.asset_missing',
+      severity: 'warning',
+      message: `Web App Manifest default asset is missing: ${asset.source}`,
+      source: asset.source
+    }));
+  const manifestRef = `./${config.fileName}`;
+  const outputs = {
+    manifest: path.join(outputDir, config.fileName),
+    iconDirectory: path.join(outputDir, config.iconDirectory),
+    report: path.join(outputDir, config.reportFileName)
+  };
+  return {
+    schema: MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA,
+    enabled: config.enabled,
+    supported: true,
+    optional: true,
+    status: config.enabled ? 'planned' : 'disabled',
+    runtimeExpectedStatus: config.enabled ? 'available' : 'disabled',
+    manifestRef,
+    iconDirectory: config.iconDirectory,
+    brandingMode: 'default-xtend-assets',
+    manifest: {
+      fileName: config.fileName,
+      ref: manifestRef,
+      name: config.name,
+      short_name: config.shortName,
+      start_url: config.startUrl,
+      scope: config.scope,
+      display: config.display,
+      background_color: config.backgroundColor,
+      theme_color: config.themeColor,
+      description: config.description,
+      icons: config.icons.length > 0 ? config.icons : manifestIcons
+    },
+    assets,
+    manifestIcons,
+    htmlLinkHints,
+    replacementPaths: assets.map((asset) => asset.replacementPath),
+    files: {
+      manifest: repoRelative(outputs.manifest, rootDir),
+      iconDirectory: repoRelative(outputs.iconDirectory, rootDir),
+      report: repoRelative(outputs.report, rootDir)
+    },
+    outputs,
+    diagnostics,
+    summary: {
+      enabled: config.enabled,
+      assetCount: assets.length,
+      manifestIconCount: manifestIcons.length,
+      htmlLinkHintCount: htmlLinkHints.length,
+      brandingMode: 'default-xtend-assets'
+    }
+  };
+}
+
+function normalizeMaracaPwaOptions(options = {}) {
+  const source = options.pwa && typeof options.pwa === 'object' ? options.pwa : {};
+  const serviceWorker = source.serviceWorker && typeof source.serviceWorker === 'object' ? source.serviceWorker : {};
+  const manifest = source.manifest && typeof source.manifest === 'object' ? source.manifest : {};
+  const enabled = options.enableServiceWorker === true
+    || options.enablePwa === true
+    || options.pwa === true
+    || source.enabled === true
+    || serviceWorker.enabled === true;
+  const strategy = source.strategy || serviceWorker.strategy || options.pwaStrategy || 'app-shell';
+  const updateMode = source.updateMode || serviceWorker.updateMode || options.pwaUpdateMode || 'prompt';
+  const businessLogicImport = serviceWorker.businessLogicImport || source.businessLogicImport || '';
+  const scope = manifest.scope || source.scope || './';
+  const startUrl = manifest.start_url || manifest.startUrl || source.startUrl || './';
+  const manifestFileName = source.manifestFileName || manifest.fileName || 'xtend.webmanifest';
+  const serviceWorkerFileName = serviceWorker.fileName || source.serviceWorkerFileName || 'xtend.service-worker.js';
+  const offlineFallbackFileName = source.offlineFallbackFileName || serviceWorker.offlineFallbackFileName || 'xtend.offline.html';
+  const offlineFallback = source.offlineFallback === false || serviceWorker.offlineFallback === false ? false : true;
+  return {
+    enabled,
+    strategy: strategy === 'app-shell' ? 'app-shell' : 'app-shell',
+    cacheMode: source.cacheMode || serviceWorker.cacheMode || 'generated-app-shell',
+    updateMode: updateMode === 'auto' || updateMode === 'manual' ? updateMode : 'prompt',
+    businessLogicHook: 'import-script',
+    businessLogicImport: businessLogicImport ? String(businessLogicImport) : '',
+    manifest: {
+      name: manifest.name || source.name || 'XTend Maraca App',
+      shortName: manifest.short_name || manifest.shortName || source.shortName || 'XTend',
+      startUrl,
+      scope,
+      display: manifest.display || 'standalone',
+      backgroundColor: manifest.background_color || manifest.backgroundColor || '#ffffff',
+      themeColor: manifest.theme_color || manifest.themeColor || '#1f6f78',
+      description: manifest.description || 'Generated XTend Maraca PWA manifest.',
+      icons: Array.isArray(manifest.icons) ? manifest.icons : []
+    },
+    serviceWorker: {
+      enabled,
+      fileName: serviceWorkerFileName,
+      registrationUrl: serviceWorker.registrationUrl || `./${serviceWorkerFileName}`,
+      scope,
+      type: serviceWorker.type || 'classic'
+    },
+    files: {
+      manifest: manifestFileName,
+      serviceWorker: serviceWorkerFileName,
+      offlineFallback: offlineFallback ? offlineFallbackFileName : null,
+      report: 'xtend.pwa.report.json'
+    },
+    offlineEligible: Boolean(enabled && offlineFallback),
+    diagnostics: []
+  };
+}
+
 function createMaracaPrewarmWorkerRuntimeReport(kernelPlan = null, options = {}) {
-  const enabled = options.enablePrewarmWorker === true;
+  const coprocessor = normalizeMaracaUiCoprocessorOptions(options);
+  const enabled = options.enablePrewarmWorker === true || coprocessor.enabled;
+  const enabledBy = options.enablePrewarmWorker === true ? 'prewarmWorker' : (coprocessor.enabled ? 'uiCoprocessor' : 'none');
   const kernelEnabled = Boolean(kernelPlan && kernelPlan.enabled);
   const runtimeModules = Array.isArray(kernelPlan && kernelPlan.runtimeModules)
     ? kernelPlan.runtimeModules
@@ -515,6 +795,7 @@ function createMaracaPrewarmWorkerRuntimeReport(kernelPlan = null, options = {})
   return {
     schema: MARACA_PREWARM_WORKER_RUNTIME_SCHEMA,
     enabled,
+    enabledBy,
     supported,
     optional: true,
     status: !enabled ? 'disabled' : (hasErrors ? 'blocked' : (kernelEnabled && hasKernelRuntime ? 'planned' : 'degraded')),
@@ -523,7 +804,9 @@ function createMaracaPrewarmWorkerRuntimeReport(kernelPlan = null, options = {})
     workerType: options.prewarmWorkerType || 'classic',
     topologySchema: 'xtend.rmt.prewarm-worker-topology.v1',
     requiredHostApis: ['Worker', 'Blob', 'URL.createObjectURL'],
-    topologyFields: ['health', 'pendingJobs', 'submittedJobs', 'templatesSynced', 'missingApis', 'lastError'],
+    topologyFields: ['health', 'pendingJobs', 'submittedJobs', 'templatesSynced', 'missingApis', 'lastError', 'coprocessor'],
+    responsibilities: ['template_prerender_compute', 'chunk_serialization', 'ui_compute', 'layout_precompute', 'analytics_precompute'],
+    supportedSignals: ['start', 'continue', 'rebatch', 'compute', 'ui_compute', 'prerender', 'invalidate'],
     ownership: {
       dom: false,
       events: false,
@@ -534,13 +817,246 @@ function createMaracaPrewarmWorkerRuntimeReport(kernelPlan = null, options = {})
       bootFailure: 'report-diagnostic-and-disable-worker',
       visibleWorkPriority: 'preserve-visible-and-user-blocking-work'
     },
+    coprocessor: {
+      ...coprocessor,
+      queueDepthMax: 0,
+      status: coprocessor.enabled ? (enabled ? 'planned' : 'disabled') : 'disabled',
+      pendingJobs: 0,
+      submittedJobs: 0,
+      transferBytes: 0,
+      staleResponses: 0,
+      supersededResponses: 0,
+      stateOwnership: 'main-thread',
+      trustedDomCommit: 'main-thread',
+      clientDetermined: true,
+      ssrRoundtripCount: 0
+    },
     diagnostics,
     summary: {
       enabled,
+      enabledBy,
       supported,
       kernelEnabled,
       hasKernelRuntime,
-      requiresHostApis: enabled
+      requiresHostApis: enabled,
+      uiCoprocessorEnabled: coprocessor.enabled
+    }
+  };
+}
+
+function createMaracaUiCoprocessorPlan(compileResult, kernelPlan, hydrationPlan, warmReentryReport, options = {}) {
+  const config = normalizeMaracaUiCoprocessorOptions(options);
+  const pwaPlan = options.pwaPlan && typeof options.pwaPlan === 'object' ? options.pwaPlan : null;
+  const hydrationArtifact = hydrationPlan && hydrationPlan.artifact || compileResult && compileResult.orchestrationArtifacts && compileResult.orchestrationArtifacts.hydration || null;
+  const records = Array.isArray(hydrationArtifact && hydrationArtifact.records) ? hydrationArtifact.records : [];
+  const eligibleRecords = records.filter((record) => record && record.uiCoprocessorEligible === true);
+  const activeRecords = config.enabled ? eligibleRecords : [];
+  const diagnostics = [];
+  const kernelEnabled = Boolean(kernelPlan && kernelPlan.enabled);
+
+  if (config.enabled && !kernelEnabled) {
+    diagnostics.push(kernelDiagnostic(
+      'xtend.maraca.ui_coprocessor.kernel_disabled',
+      options.kernel === 'strict' ? 'error' : 'warning',
+      'UI Coprocessor requires enabled RMT kernel orchestration.',
+      { requiredBy: 'enableUiCoprocessor' }
+    ));
+  }
+
+  if (config.enabled && eligibleRecords.length === 0) {
+    diagnostics.push(kernelDiagnostic(
+      'xtend.maraca.ui_coprocessor.no_eligible_records',
+      'warning',
+      'UI Coprocessor is enabled, but no client-determined prewarm or worker hydration records are eligible.',
+      { eligibleRecordCount: 0 }
+    ));
+  }
+
+  const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === 'error');
+  return {
+    schema: MARACA_UI_COPROCESSOR_PLAN_SCHEMA,
+    enabled: config.enabled,
+    supported: true,
+    optional: true,
+    status: !config.enabled ? 'disabled' : (hasErrors ? 'blocked' : (kernelEnabled ? 'planned' : 'degraded')),
+    runtimeExpectedStatus: config.enabled && kernelEnabled && !hasErrors ? 'booted' : 'disabled',
+    mode: config.mode,
+    lifecycle: config.lifecycle,
+    maxQueueDepth: config.maxQueueDepth,
+    stalePolicy: config.stalePolicy,
+    evidenceMode: 'non-blocking',
+    eligibility: {
+      recordCount: records.length,
+      eligibleRecordCount: eligibleRecords.length,
+      activeRecordCount: activeRecords.length,
+      activeRecordIds: activeRecords.map((record) => record.id).filter(Boolean)
+    },
+    ownership: {
+      dom: false,
+      events: false,
+      state: false,
+      stateOwnership: 'main-thread',
+      trustedDomCommit: 'main-thread',
+      hostServices: 'blocked-in-worker-path',
+      ssrRoundtripCount: 0
+    },
+    lanes: {
+      workerHydrate: 'component.worker_prerender_hydrate',
+      prewarm: 'component.prewarm.prepare',
+      warmReentry: 'component.warm.reentry',
+      diagnostics: 'diagnostics.snapshot'
+    },
+    pwaAttachment: {
+      engineImplemented: Boolean(pwaPlan && pwaPlan.enabled),
+      manifestRef: pwaPlan && pwaPlan.manifestRef || options.manifestRef || null,
+      cacheMode: pwaPlan && pwaPlan.cacheMode || options.cacheMode || 'attachment-point-only',
+      serviceWorkerControlled: options.serviceWorkerControlled === true,
+      offlineEligible: pwaPlan && pwaPlan.offlineEligible === true || options.offlineEligible === true,
+      cacheVersion: pwaPlan && pwaPlan.cacheVersion || '',
+      hooks: ['cache-management', 'xstate-state-management', 'ssr-metadata', 'prewarm-warm-reentry-policy']
+    },
+    state: {
+      stateSnapshotHash: options.stateSnapshotHash || '',
+      xstateBridgeMode: options.xstateBridgeMode || 'main-thread-snapshot',
+      stateOwnership: 'main-thread'
+    },
+    ssr: {
+      ssrRoundtripCount: 0,
+      serverPrerenderUsed: false,
+      clientDetermined: true
+    },
+    warmReentry: {
+      enabled: Boolean(warmReentryReport && warmReentryReport.enabled),
+      runtimeExpectedStatus: warmReentryReport && warmReentryReport.runtimeExpectedStatus || 'idle'
+    },
+    diagnostics,
+    summary: {
+      enabled: config.enabled,
+      status: !config.enabled ? 'disabled' : (hasErrors ? 'blocked' : (kernelEnabled ? 'planned' : 'degraded')),
+      eligibleRecordCount: eligibleRecords.length,
+      activeRecordCount: activeRecords.length,
+      releaseBlocking: false
+    }
+  };
+}
+
+function createMaracaPwaServiceWorkerPlan(options = {}) {
+  const config = normalizeMaracaPwaOptions(options);
+  const webAppManifest = options.webAppManifestPlan && typeof options.webAppManifestPlan === 'object'
+    ? options.webAppManifestPlan
+    : createMaracaWebAppManifestPlan(options);
+  const outputDir = options.outputDir || process.cwd();
+  const rootDir = options.rootDir || process.cwd();
+  const outputs = {
+    manifest: webAppManifest.outputs && webAppManifest.outputs.manifest || path.join(outputDir, config.files.manifest),
+    serviceWorker: path.join(outputDir, config.files.serviceWorker),
+    offlineFallback: config.files.offlineFallback ? path.join(outputDir, config.files.offlineFallback) : null,
+    report: path.join(outputDir, config.files.report)
+  };
+  const manifestRef = webAppManifest.manifestRef || `./${config.files.manifest}`;
+  const serviceWorkerRef = `./${config.files.serviceWorker}`;
+  const cacheVersion = `xtend-maraca-pwa-${hashText(stableStringify({
+    source: options.source || '',
+    strategy: config.strategy,
+    cacheMode: config.cacheMode,
+    manifest: webAppManifest.manifest || config.manifest,
+    serviceWorker: config.serviceWorker.fileName
+  })).slice(0, 12)}`;
+  const diagnostics = [];
+  if (config.enabled && config.businessLogicImport && !String(config.businessLogicImport).startsWith('/')) {
+    diagnostics.push({
+      code: 'xtend.maraca.pwa.business_logic_import_relative',
+      severity: 'info',
+      message: 'PWA Service Worker business logic import is relative to the generated Service Worker file.',
+      importPath: config.businessLogicImport
+    });
+  }
+  return {
+    schema: MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA,
+    enabled: config.enabled,
+    supported: true,
+    optional: true,
+    status: config.enabled ? 'planned' : 'disabled',
+    runtimeExpectedStatus: config.enabled ? 'registered' : 'disabled',
+    strategy: config.strategy,
+    cacheMode: config.cacheMode,
+    updateMode: config.updateMode,
+    businessLogicHook: config.businessLogicHook,
+    businessLogicImport: config.businessLogicImport,
+    cacheVersion,
+    manifestRef,
+    serviceWorkerRef,
+    offlineEligible: config.offlineEligible,
+    manifest: {
+      fileName: webAppManifest.manifest && webAppManifest.manifest.fileName || config.files.manifest,
+      ref: manifestRef,
+      name: webAppManifest.manifest && webAppManifest.manifest.name || config.manifest.name,
+      short_name: webAppManifest.manifest && webAppManifest.manifest.short_name || config.manifest.shortName,
+      start_url: webAppManifest.manifest && webAppManifest.manifest.start_url || config.manifest.startUrl,
+      scope: webAppManifest.manifest && webAppManifest.manifest.scope || config.manifest.scope,
+      display: webAppManifest.manifest && webAppManifest.manifest.display || config.manifest.display,
+      background_color: webAppManifest.manifest && webAppManifest.manifest.background_color || config.manifest.backgroundColor,
+      theme_color: webAppManifest.manifest && webAppManifest.manifest.theme_color || config.manifest.themeColor,
+      description: webAppManifest.manifest && webAppManifest.manifest.description || config.manifest.description,
+      icons: webAppManifest.manifest && Array.isArray(webAppManifest.manifest.icons) ? webAppManifest.manifest.icons : config.manifest.icons
+    },
+    webAppManifest,
+    serviceWorker: {
+      enabled: config.serviceWorker.enabled,
+      fileName: config.files.serviceWorker,
+      ref: serviceWorkerRef,
+      registrationUrl: config.serviceWorker.registrationUrl,
+      scope: config.serviceWorker.scope,
+      type: config.serviceWorker.type,
+      businessLogicHook: config.businessLogicHook,
+      businessLogicImport: config.businessLogicImport
+    },
+    files: {
+      manifest: repoRelative(outputs.manifest, rootDir),
+      serviceWorker: repoRelative(outputs.serviceWorker, rootDir),
+      offlineFallback: outputs.offlineFallback ? repoRelative(outputs.offlineFallback, rootDir) : null,
+      report: repoRelative(outputs.report, rootDir)
+    },
+    outputs,
+    precache: {
+      mode: 'bundle-graph-derived',
+      urls: [],
+      includeRuntimeAssets: true,
+      includeChunks: true,
+      includeCss: true,
+      includeManifest: true,
+      includeIcons: true,
+      includeOfflineFallback: config.offlineEligible
+    },
+    runtimeCaching: {
+      allowed: [
+        { kind: 'static-assets', strategy: 'cache-first', sameOriginOnly: true, methods: ['GET'] },
+        { kind: 'navigation', strategy: 'network-first', fallback: config.files.offlineFallback || null, methods: ['GET'] },
+        { kind: 'images-fonts', strategy: 'stale-while-revalidate', sameOriginOnly: true, explicitOptIn: true, methods: ['GET'] }
+      ],
+      blockedByDefault: [
+        'non-get-requests',
+        'auth-or-cookie-sensitive-requests',
+        'ssr-personalized-html-fragments',
+        'api-responses-without-explicit-app-policy',
+        'background-sync',
+        'push-notifications',
+        'offline-mutations'
+      ]
+    },
+    boundaries: {
+      replacesSsr: false,
+      replacesUiCoprocessor: false,
+      uiCompute: false,
+      networkAndCacheOnly: true
+    },
+    diagnostics,
+    summary: {
+      enabled: config.enabled,
+      serviceWorkerEnabled: config.serviceWorker.enabled,
+      offlineEligible: config.offlineEligible,
+      businessLogicHook: config.businessLogicHook,
+      releaseBlocking: false
     }
   };
 }
@@ -1215,6 +1731,43 @@ function normalizeOptions(input = {}, options = {}) {
         ? values['enable-prewarm-worker']
         : values.prewarmWorker)
   );
+  const enableUiCoprocessor = toBoolean(
+    values.enableUiCoprocessor !== undefined
+      ? values.enableUiCoprocessor
+      : (values['enable-ui-coprocessor'] !== undefined
+        ? values['enable-ui-coprocessor']
+        : values.uiCoprocessor)
+  );
+  const uiCoprocessor = values.uiCoprocessor && typeof values.uiCoprocessor === 'object'
+    ? values.uiCoprocessor
+    : {};
+  const enableServiceWorker = toBoolean(
+    values.enableServiceWorker !== undefined
+      ? values.enableServiceWorker
+      : (values['enable-service-worker'] !== undefined
+        ? values['enable-service-worker']
+        : false)
+  );
+  const enablePwa = toBoolean(values.enablePwa !== undefined ? values.enablePwa : values['enable-pwa']);
+  const pwa = values.pwa && typeof values.pwa === 'object'
+    ? values.pwa
+    : (toBoolean(values.pwa) || enableServiceWorker || enablePwa);
+  const enableWebAppManifest = toBoolean(
+    values.enableWebAppManifest !== undefined
+      ? values.enableWebAppManifest
+      : (values['enable-web-app-manifest'] !== undefined
+        ? values['enable-web-app-manifest']
+        : (values['web-app-manifest'] !== undefined
+          ? values['web-app-manifest']
+          : values.manifest))
+  );
+  const webAppManifest = values.webAppManifest && typeof values.webAppManifest === 'object'
+    ? values.webAppManifest
+    : (values['web-app-manifest'] && typeof values['web-app-manifest'] === 'object'
+      ? values['web-app-manifest']
+      : (values.manifest && typeof values.manifest === 'object'
+        ? values.manifest
+        : (toBoolean(values.webAppManifest) || enableWebAppManifest)));
 
   return {
     rootDir,
@@ -1236,6 +1789,13 @@ function normalizeOptions(input = {}, options = {}) {
     transitions,
     sizeBudget,
     enablePrewarmWorker,
+    enableUiCoprocessor,
+    uiCoprocessor,
+    enableServiceWorker,
+    enablePwa,
+    pwa,
+    enableWebAppManifest,
+    webAppManifest,
     json: toBoolean(values.json),
     allowDynamicComponents,
     policyParityReports: Array.isArray(values.policyParityReports) ? values.policyParityReports : [],
@@ -2063,6 +2623,7 @@ function createBaseKernelPlan(mode, status, message, options = {}) {
       templateArtifacts: Boolean(options.templateArtifacts && options.templateArtifacts.supported && options.templateArtifacts.trusted),
       performanceAdvancedReports: Boolean(options.performance && options.performance.supported),
       prewarmWorker: prewarmWorker.enabled,
+      uiCoprocessor: Boolean(prewarmWorker.coprocessor && prewarmWorker.coprocessor.enabled),
       warmReentry: prewarmWorker.enabled,
       panicRecovery: false,
       policyParity: false
@@ -2425,6 +2986,7 @@ function createMaracaKernelPlan(compileResult, orchestrationPlan, options) {
       templateArtifacts: Boolean(options.templateArtifacts && options.templateArtifacts.supported && options.templateArtifacts.trusted),
       performanceAdvancedReports: Boolean(options.performance && options.performance.supported),
       prewarmWorker: prewarmWorker.enabled && prewarmWorker.status !== 'blocked',
+      uiCoprocessor: Boolean(prewarmWorker.coprocessor && prewarmWorker.coprocessor.enabled) && prewarmWorker.status !== 'blocked',
       warmReentry: prewarmWorker.enabled && prewarmWorker.status !== 'blocked',
       panicRecovery: true,
       policyParity: policyParity.ok === true
@@ -2522,6 +3084,18 @@ function createMaracaHydrationPlan(compileResult, orchestrationPlan, kernelPlan,
       requested: false,
       recordCount: 0
     };
+  const uiCoprocessor = artifact.uiCoprocessor
+    || capabilities.find((capability) => capability && capability.id === 'uiCoprocessor')
+    || {
+      schema: 'xtend.rmt.app-hydration-capability.v1',
+      id: 'uiCoprocessor',
+      mode: 'ui_compute',
+      supported: true,
+      degraded: false,
+      status: 'available',
+      requested: false,
+      recordCount: 0
+    };
   const serverPrerender = artifact.serverPrerender
     || capabilities.find((capability) => capability && capability.id === 'serverPrerender')
     || createMaracaServerPrerenderReport(artifact, supportedModes, records);
@@ -2589,6 +3163,7 @@ function createMaracaHydrationPlan(compileResult, orchestrationPlan, kernelPlan,
     artifact,
     runtimeModules: [],
     workerPrerender,
+    uiCoprocessor,
     serverPrerender,
     diagnostics,
     summary: {
@@ -2599,6 +3174,7 @@ function createMaracaHydrationPlan(compileResult, orchestrationPlan, kernelPlan,
       hydrationPolicyCount: new Set(records.map((record) => record.policy).filter(Boolean)).size,
       insularIslandCount: Array.isArray(artifact.insularIslands) ? artifact.insularIslands.length : 0,
       workerPrerender,
+      uiCoprocessor,
       serverPrerender,
       hydrateResponseCompatible: Boolean(serverPrerender && serverPrerender.hydrateResponseCompatible),
       strictViolations,
@@ -3165,6 +3741,11 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       rootDir: normalized.rootDir,
       status: 'source_missing'
     });
+    const webAppManifest = createMaracaWebAppManifestPlan(normalized);
+    const pwa = createMaracaPwaServiceWorkerPlan({
+      ...normalized,
+      webAppManifestPlan: webAppManifest
+    });
     return {
       schema: MARACA_BUILD_PLAN_SCHEMA,
       ok: false,
@@ -3186,6 +3767,9 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       transitionsMode: normalized.transitions,
       sizeBudgetMode: normalized.sizeBudget,
       enablePrewarmWorker: normalized.enablePrewarmWorker,
+      enableUiCoprocessor: normalized.enableUiCoprocessor,
+      webAppManifest,
+      pwa,
       outputDir: normalized.outputDir,
       diagnostics: [{
         code: 'xtend.maraca.source_missing',
@@ -3209,6 +3793,10 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       }),
       hydration: createBaseHydrationPlan(normalized.hydration, 'unavailable', 'RMT source file is missing.'),
       warmReentry: createMaracaWarmReentryReport(null, null, null, null, normalized),
+      uiCoprocessor: createMaracaUiCoprocessorPlan(null, null, createBaseHydrationPlan(normalized.hydration, 'unavailable', 'RMT source file is missing.'), createMaracaWarmReentryReport(null, null, null, null, normalized), {
+        ...normalized,
+        pwaPlan: pwa
+      }),
       validation: createBaseValidationPlan(normalized.validation, 'unavailable', 'RMT source file is missing.'),
       transitions: createBaseTransitionPlan(normalized.transitions, 'unavailable', 'RMT source file is missing.'),
       lifecycle: createMaracaLifecycleReport(null, null, [], normalized),
@@ -3230,6 +3818,11 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       sourceText,
       compileResult,
       status: 'compile_failed'
+    });
+    const webAppManifest = createMaracaWebAppManifestPlan(normalized);
+    const pwa = createMaracaPwaServiceWorkerPlan({
+      ...normalized,
+      webAppManifestPlan: webAppManifest
     });
     return {
       schema: MARACA_BUILD_PLAN_SCHEMA,
@@ -3253,6 +3846,9 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       transitionsMode: normalized.transitions,
       sizeBudgetMode: normalized.sizeBudget,
       enablePrewarmWorker: normalized.enablePrewarmWorker,
+      enableUiCoprocessor: normalized.enableUiCoprocessor,
+      webAppManifest,
+      pwa,
       outputDir: normalized.outputDir,
       diagnostics: [{
         code: COMPILER_ERROR_CODE,
@@ -3276,6 +3872,10 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       }),
       hydration: createBaseHydrationPlan(normalized.hydration, 'unavailable', 'RMT source did not compile.'),
       warmReentry: createMaracaWarmReentryReport(compileResult, null, null, null, normalized),
+      uiCoprocessor: createMaracaUiCoprocessorPlan(compileResult, null, createBaseHydrationPlan(normalized.hydration, 'unavailable', 'RMT source did not compile.'), createMaracaWarmReentryReport(compileResult, null, null, null, normalized), {
+        ...normalized,
+        pwaPlan: pwa
+      }),
       validation: createBaseValidationPlan(normalized.validation, 'unavailable', 'RMT source did not compile.'),
       transitions: createBaseTransitionPlan(normalized.transitions, 'unavailable', 'RMT source did not compile.'),
       lifecycle: createMaracaLifecycleReport(null, null, [], normalized),
@@ -3322,6 +3922,15 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   }
   const hydration = createMaracaHydrationPlan(compileResult, orchestration, kernel, normalized);
   const warmReentry = createMaracaWarmReentryReport(compileResult, coreDocument, hydration, kernel, normalized);
+  const webAppManifest = createMaracaWebAppManifestPlan(normalized);
+  const pwa = createMaracaPwaServiceWorkerPlan({
+    ...normalized,
+    webAppManifestPlan: webAppManifest
+  });
+  const uiCoprocessor = createMaracaUiCoprocessorPlan(compileResult, kernel, hydration, warmReentry, {
+    ...normalized,
+    pwaPlan: pwa
+  });
   const validation = createMaracaValidationPlan(compileResult, orchestration, kernel, normalized);
   if (validation.enabled) {
     runtimeModules = Array.from(new Set(runtimeModules.concat(VALIDATION_RUNTIME_MODULES))).sort();
@@ -3334,6 +3943,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   diagnostics.push(...orchestration.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...kernel.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...hydration.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
+  diagnostics.push(...uiCoprocessor.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...validation.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...transitions.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...lifecycle.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
@@ -3367,6 +3977,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     transitionsMode: normalized.transitions,
     sizeBudgetMode: normalized.sizeBudget,
     enablePrewarmWorker: normalized.enablePrewarmWorker,
+    enableUiCoprocessor: normalized.enableUiCoprocessor,
     outputDir: normalized.outputDir,
     diagnostics,
     toolchain: getMaracaToolchainAvailability(normalized.rootDir),
@@ -3397,9 +4008,15 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     orchestration,
     templateArtifacts,
     performance,
+    kernelFeatureAdoption: kernel.featureAdoption,
+    policyParity: kernel.policyParity,
+    panicRecovery: kernel.panicRecovery,
     kernel,
     hydration,
     warmReentry,
+    uiCoprocessor,
+    webAppManifest,
+    pwa,
     validation,
     transitions,
     lifecycle,
@@ -3416,7 +4033,14 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       entry: path.join(normalized.outputDir, 'xtend.maraca.mjs'),
       css: normalized.css === 'external' ? path.join(normalized.outputDir, 'xtend.maraca.css') : null,
       bundleReport: path.join(normalized.outputDir, 'xtend.maraca.report.json'),
-      sizeBudgetReport: path.join(normalized.outputDir, 'xtend.maraca.size.json')
+      sizeBudgetReport: path.join(normalized.outputDir, 'xtend.maraca.size.json'),
+      webAppManifestReport: webAppManifest.outputs.report,
+      webAppManifest: webAppManifest.outputs.manifest,
+      webAppManifestIconDirectory: webAppManifest.outputs.iconDirectory,
+      pwaReport: pwa.outputs.report,
+      pwaManifest: pwa.outputs.manifest,
+      serviceWorker: pwa.outputs.serviceWorker,
+      offlineFallback: pwa.outputs.offlineFallback
     },
     publicNameReservations: Array.from(PUBLIC_NAME_RESERVATIONS),
     propertyMangling: {
@@ -3583,6 +4207,7 @@ function createBundleSource(plan) {
     artifact: plan.hydration.artifact,
     diagnostics: plan.hydration.diagnostics,
     workerPrerender: plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender || null,
+    uiCoprocessor: plan.hydration.uiCoprocessor || plan.hydration.summary && plan.hydration.summary.uiCoprocessor || null,
     serverPrerender: plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender || null,
     summary: plan.hydration.summary
   } : {
@@ -3594,6 +4219,7 @@ function createBundleSource(plan) {
     artifact: null,
     diagnostics: plan.hydration && plan.hydration.diagnostics || [],
     workerPrerender: plan.hydration && (plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender) || null,
+    uiCoprocessor: plan.hydration && (plan.hydration.uiCoprocessor || plan.hydration.summary && plan.hydration.summary.uiCoprocessor) || null,
     serverPrerender: plan.hydration && (plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender) || null,
     summary: plan.hydration && plan.hydration.summary || {}
   };
@@ -3608,6 +4234,7 @@ function createBundleSource(plan) {
     diagnostics: [],
     summary: {}
   };
+  const uiCoprocessorBundle = plan.uiCoprocessor || createMaracaUiCoprocessorPlan(null, kernelBundle, hydrationBundle, warmReentryBundle, plan);
   const validationBundle = plan.validation && plan.validation.enabled ? {
     enabled: true,
     mode: plan.validation.mode,
@@ -3656,6 +4283,11 @@ function createBundleSource(plan) {
     requiresDestroyChain: false,
     diagnostics: []
   };
+  const webAppManifestBundle = plan.webAppManifest || createMaracaWebAppManifestPlan(plan);
+  const pwaBundle = plan.pwa || createMaracaPwaServiceWorkerPlan({
+    ...plan,
+    webAppManifestPlan: webAppManifestBundle
+  });
   const productionClosureBundle = createMaracaProductionBundleClosure(plan, null, {
     bundleFiles: [],
     repoRoot: plan.rootDir || path.dirname(path.dirname(__filename))
@@ -3670,6 +4302,9 @@ function createBundleSource(plan) {
     `const MARACA_KERNEL = Object.freeze(${jsValue(kernelBundle)});`,
     `const MARACA_HYDRATION = Object.freeze(${jsValue(hydrationBundle)});`,
     `const MARACA_WARM_REENTRY = Object.freeze(${jsValue(warmReentryBundle)});`,
+    `const MARACA_UI_COPROCESSOR = Object.freeze(${jsValue(uiCoprocessorBundle)});`,
+    `const MARACA_WEB_APP_MANIFEST = Object.freeze(${jsValue(webAppManifestBundle)});`,
+    `const MARACA_PWA = Object.freeze(${jsValue(pwaBundle)});`,
     `const MARACA_VALIDATION = Object.freeze(${jsValue(validationBundle)});`,
     `const MARACA_TRANSITIONS = Object.freeze(${jsValue(transitionBundle)});`,
     `const MARACA_LIFECYCLE = Object.freeze(${jsValue(lifecycleBundle)});`,
@@ -4059,6 +4694,65 @@ function resolveLazyStrategy(options) {
   return "eager";
 }
 
+function readServerPrerenderShellPayload() {
+  if (typeof document === "undefined") return null;
+  const payloadElement = document.getElementById("xtend-llm-ssr-hydration") || document.querySelector("[data-rmt-ssr-hydration]");
+  if (!payloadElement || typeof payloadElement.textContent !== "string") return null;
+  try {
+    return JSON.parse(payloadElement.textContent);
+  } catch (error) {
+    return {
+      schema: "xtend.maraca.server-prerender-shell.v1",
+      ok: false,
+      status: "parse_failed",
+      message: error && error.message ? error.message : String(error)
+    };
+  }
+}
+
+function adoptServerPrerenderShell(root) {
+  if (!root || typeof root.querySelector !== "function") {
+    return {
+      schema: "xtend.maraca.server-prerender-shell.v1",
+      active: false,
+      status: "absent"
+    };
+  }
+  const shell = root.querySelector("[data-maraca-ssr-shell]");
+  const payload = readServerPrerenderShellPayload();
+  if (!shell) {
+    return {
+      schema: "xtend.maraca.server-prerender-shell.v1",
+      active: false,
+      status: payload ? "payload_only" : "absent",
+      payload
+    };
+  }
+  const surfaceCount = typeof shell.querySelectorAll === "function"
+    ? shell.querySelectorAll("[data-rmt-ssr-surface]").length
+    : 0;
+  const targets = String(shell.getAttribute("data-rmt-worker-prewarm-targets") || root.getAttribute("data-rmt-worker-prewarm-targets") || "")
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  if (typeof shell.remove === "function") shell.remove();
+  else if (shell.parentNode && typeof shell.parentNode.removeChild === "function") shell.parentNode.removeChild(shell);
+  if (typeof root.setAttribute === "function") {
+    root.setAttribute("data-rmt-ssr-adopted", "true");
+    root.setAttribute("data-rmt-hydration-mode", "server_prerender_hydrate");
+  }
+  return {
+    schema: "xtend.maraca.server-prerender-shell.v1",
+    active: true,
+    status: "adopted",
+    transport: "node-ssr",
+    executionMode: "server_prerender_hydrate",
+    surfaceCount,
+    workerPrewarmTargets: targets,
+    payload
+  };
+}
+
 function dispatchMaracaEvent(name, detail) {
   if (typeof window === "undefined" || typeof CustomEvent !== "function") return;
   window.dispatchEvent(new CustomEvent(name, { detail }));
@@ -4243,6 +4937,8 @@ function createKernelController(root, options = {}) {
       documentTarget: typeof document !== "undefined" ? document : undefined,
       runtimeKind: "maraca-kernel",
       enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
+      enableUiCoprocessor: Boolean(MARACA_UI_COPROCESSOR && MARACA_UI_COPROCESSOR.enabled),
+      uiCoprocessor: MARACA_UI_COPROCESSOR,
       prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
       prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic",
       diagnostics,
@@ -4331,6 +5027,25 @@ function createKernelController(root, options = {}) {
     };
   }
 
+  function readUiCoprocessorSnapshot() {
+    if (runtime && typeof runtime.getUiCoprocessorSnapshot === "function") {
+      const snapshot = runtime.getUiCoprocessorSnapshot();
+      if (snapshot && typeof snapshot === "object") {
+        return {
+          ...(MARACA_UI_COPROCESSOR || {}),
+          ...snapshot,
+          runtimeExpectedStatus: MARACA_UI_COPROCESSOR && MARACA_UI_COPROCESSOR.enabled ? "booted" : "disabled"
+        };
+      }
+    }
+    return MARACA_UI_COPROCESSOR || {
+      schema: "xtend.maraca.ui-coprocessor-plan.v1",
+      enabled: false,
+      status: "disabled",
+      runtimeExpectedStatus: "disabled"
+    };
+  }
+
   function snapshot() {
     return {
       schema: "xtend.maraca.kernel-snapshot.v1",
@@ -4350,6 +5065,7 @@ function createKernelController(root, options = {}) {
         optionalCompat: typeof productSurface.listOptionalCompat === "function" ? productSurface.listOptionalCompat() : (MARACA_KERNEL.productSurface && MARACA_KERNEL.productSurface.optionalCompat || {})
       } : (MARACA_KERNEL.productSurface || null),
       prewarmWorker: readPrewarmWorkerSnapshot(),
+      uiCoprocessor: readUiCoprocessorSnapshot(),
       scheduledEndpoints: listScheduledEndpoints(),
       fibers: fiberHistory.slice(),
       fallbackCount,
@@ -4567,6 +5283,8 @@ function createKernelController(root, options = {}) {
           kernelRecords: artifact.records,
           scheduler,
           enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
+          enableUiCoprocessor: Boolean(MARACA_UI_COPROCESSOR && MARACA_UI_COPROCESSOR.enabled),
+          uiCoprocessor: MARACA_UI_COPROCESSOR,
           prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
           prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic"
         })
@@ -4580,6 +5298,8 @@ function createKernelController(root, options = {}) {
           kernelRecords: artifact.records,
           scheduler,
           enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
+          enableUiCoprocessor: Boolean(MARACA_UI_COPROCESSOR && MARACA_UI_COPROCESSOR.enabled),
+          uiCoprocessor: MARACA_UI_COPROCESSOR,
           prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
           prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic"
         }) : null;
@@ -5726,6 +6446,12 @@ function createTelemetryBridge(kernelController = null, orchestrationController 
         transitions: transitionController && typeof transitionController.snapshot === "function" ? transitionController.snapshot() : null,
         lifecycle: MARACA_LIFECYCLE,
         warmReentry: MARACA_WARM_REENTRY,
+        uiCoprocessor: MARACA_UI_COPROCESSOR,
+        webAppManifest: MARACA_WEB_APP_MANIFEST,
+        pwa: {
+          plan: MARACA_PWA,
+          registration: currentMaracaPwaRegistration
+        },
         history: history.slice(-50)
       };
     }
@@ -5966,6 +6692,55 @@ function registerMaracaTemplateArtifacts(options = {}) {
   }
 }
 
+async function registerMaracaPwaServiceWorker(options = {}) {
+  const base = {
+    schema: "xtend.maraca.pwa-service-worker-registration.v1",
+    ok: false,
+    status: "disabled",
+    enabled: Boolean(MARACA_PWA && MARACA_PWA.enabled),
+    serviceWorkerControlled: false,
+    manifestRef: MARACA_PWA && MARACA_PWA.manifestRef || null,
+    cacheMode: MARACA_PWA && MARACA_PWA.cacheMode || "disabled",
+    cacheVersion: MARACA_PWA && MARACA_PWA.cacheVersion || "",
+    offlineEligible: Boolean(MARACA_PWA && MARACA_PWA.offlineEligible)
+  };
+  if (!MARACA_PWA || !MARACA_PWA.enabled || !MARACA_PWA.serviceWorker || MARACA_PWA.serviceWorker.enabled !== true) {
+    return base;
+  }
+  if (typeof navigator === "undefined" || !navigator.serviceWorker || typeof navigator.serviceWorker.register !== "function") {
+    return {
+      ...base,
+      status: "unsupported",
+      reason: "navigator.serviceWorker is unavailable"
+    };
+  }
+  const registrationUrl = options.serviceWorkerUrl || MARACA_PWA.serviceWorker.registrationUrl || MARACA_PWA.serviceWorker.ref || "./xtend.service-worker.js";
+  const scope = options.serviceWorkerScope || MARACA_PWA.serviceWorker.scope || "./";
+  try {
+    const registration = await navigator.serviceWorker.register(registrationUrl, { scope });
+    const controlled = Boolean(navigator.serviceWorker.controller || registration.active);
+    const result = {
+      ...base,
+      ok: true,
+      status: controlled ? "controlled" : "registered",
+      registrationUrl,
+      scope,
+      serviceWorkerControlled: controlled,
+      updateMode: MARACA_PWA.updateMode || "prompt"
+    };
+    dispatchMaracaEvent("xtend-maraca:pwa-service-worker", result);
+    return result;
+  } catch (error) {
+    return {
+      ...base,
+      status: "registration_failed",
+      registrationUrl,
+      scope,
+      reason: error && error.message ? error.message : String(error)
+    };
+  }
+}
+
 let currentMaracaKernel = null;
 let currentMaracaOrchestration = null;
 let currentMaracaHydration = null;
@@ -5973,6 +6748,7 @@ let currentMaracaValidation = null;
 let currentMaracaTransitions = null;
 let currentMaracaTelemetry = null;
 let currentMaracaTemplateArtifactsRegistration = null;
+let currentMaracaPwaRegistration = null;
 
 async function bootXtendMaraca(options = {}) {
   if (typeof document === "undefined") {
@@ -5980,6 +6756,7 @@ async function bootXtendMaraca(options = {}) {
   }
   const root = options.root || document.querySelector("[data-maraca-root]") || document.getElementById("xtend-maraca-root") || document.body;
   attachMaracaCss(root);
+  const serverPrerenderShell = adoptServerPrerenderShell(root);
   const fragment = document.createDocumentFragment();
   const surfaceEntries = MARACA_SURFACES.map((surface) => {
     const element = createSurfaceElement(surface);
@@ -5994,6 +6771,7 @@ async function bootXtendMaraca(options = {}) {
   currentMaracaTransitions = currentMaracaOrchestration && currentMaracaOrchestration.transitionRuntime || null;
   currentMaracaTelemetry = createTelemetryBridge(currentMaracaKernel, currentMaracaOrchestration, currentMaracaHydration, currentMaracaValidation, currentMaracaTransitions);
   currentMaracaTemplateArtifactsRegistration = registerMaracaTemplateArtifacts(options);
+  currentMaracaPwaRegistration = await registerMaracaPwaServiceWorker(options);
   const activeSurfaceEntries = currentMaracaOrchestration && currentMaracaOrchestration.enabled
     ? createSurfaceEntriesFromRoot(root)
     : surfaceEntries;
@@ -6029,6 +6807,7 @@ async function bootXtendMaraca(options = {}) {
       status: currentMaracaKernel && currentMaracaKernel.status || MARACA_KERNEL.status,
       scheduledEndpointCount: currentMaracaKernel ? currentMaracaKernel.listScheduledEndpoints().length : 0,
       prewarmWorker: currentMaracaKernel && typeof currentMaracaKernel.snapshot === "function" ? currentMaracaKernel.snapshot().prewarmWorker : MARACA_KERNEL.prewarmWorker,
+      uiCoprocessor: currentMaracaKernel && typeof currentMaracaKernel.snapshot === "function" ? currentMaracaKernel.snapshot().uiCoprocessor : MARACA_UI_COPROCESSOR,
       diagnosticCount: currentMaracaKernel ? currentMaracaKernel.listDiagnostics().length : 0
     },
     hydration: {
@@ -6058,6 +6837,13 @@ async function bootXtendMaraca(options = {}) {
       artifactBundleFingerprint: MARACA_TEMPLATE_ARTIFACTS && MARACA_TEMPLATE_ARTIFACTS.artifactBundleFingerprint || "",
       registration: currentMaracaTemplateArtifactsRegistration
     },
+    serverPrerenderShell,
+    uiCoprocessor: MARACA_UI_COPROCESSOR,
+    webAppManifest: MARACA_WEB_APP_MANIFEST,
+    pwa: {
+      plan: MARACA_PWA,
+      registration: currentMaracaPwaRegistration
+    },
     productionClosure: MARACA_PRODUCTION_CLOSURE,
     lazyObservedCount: lazyController ? lazyController.observedCount : 0,
     publicNameReservations: MARACA_PUBLIC_NAMES
@@ -6071,6 +6857,7 @@ async function bootXtendMaraca(options = {}) {
   window.__XTendMaracaTransitions = currentMaracaTransitions;
   window.__XTendMaracaTelemetry = currentMaracaTelemetry;
   window.__XTendMaracaTemplateArtifactsRegistration = currentMaracaTemplateArtifactsRegistration;
+  window.__XTendMaracaPwaRegistration = currentMaracaPwaRegistration;
   if (currentMaracaTelemetry) currentMaracaTelemetry.publish("boot", result);
   dispatchMaracaEvent("xtend-maraca:boot", result);
   return result;
@@ -6085,6 +6872,9 @@ const XTendMaraca = Object.freeze({
   kernelPlan: MARACA_KERNEL,
   hydrationPlan: MARACA_HYDRATION,
   warmReentry: MARACA_WARM_REENTRY,
+  uiCoprocessor: MARACA_UI_COPROCESSOR,
+  webAppManifest: MARACA_WEB_APP_MANIFEST,
+  pwa: MARACA_PWA,
   validationPlan: MARACA_VALIDATION,
   transitionPlan: MARACA_TRANSITIONS,
   productionClosure: MARACA_PRODUCTION_CLOSURE,
@@ -6109,6 +6899,9 @@ const XTendMaraca = Object.freeze({
   },
   get templateArtifactsRegistration() {
     return currentMaracaTemplateArtifactsRegistration;
+  },
+  get pwaRegistration() {
+    return currentMaracaPwaRegistration;
   },
   stackModules: MARACA_STACK_MODULES,
   ensureComponent: ensureMaracaComponent,
@@ -6150,7 +6943,7 @@ if (typeof window !== "undefined") {
   scheduleXtendMaracaAutoBoot();
 }
 
-export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_WARM_REENTRY, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, ensureMaracaComponent, bootXtendMaraca };
+export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_WARM_REENTRY, MARACA_UI_COPROCESSOR, MARACA_WEB_APP_MANIFEST, MARACA_PWA, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, ensureMaracaComponent, bootXtendMaraca };
 export default XTendMaraca;
 `;
 }
@@ -6509,6 +7302,7 @@ function createMaracaProductionBundleClosure(plan, sizeBudgetReport = null, opti
   const performance = plan.performance || null;
   const templateArtifacts = plan.templateArtifacts || null;
   const prewarmWorker = kernel && kernel.prewarmWorker || null;
+  const uiCoprocessor = plan.uiCoprocessor || null;
   const policyParity = kernel && kernel.policyParity || null;
   const workerPrerender = hydration && (hydration.workerPrerender || hydration.summary && hydration.summary.workerPrerender) || null;
   const serverPrerender = hydration && (hydration.serverPrerender || hydration.summary && hydration.summary.serverPrerender) || null;
@@ -6622,6 +7416,26 @@ function createMaracaProductionBundleClosure(plan, sizeBudgetReport = null, opti
       sourceToSea: {
         topologySchema: prewarmWorker && prewarmWorker.topologySchema || null,
         ownership: prewarmWorker && prewarmWorker.ownership || {}
+      }
+    }),
+    createProductionCapability({
+      key: 'uiCoprocessor',
+      label: 'UI Coprocessor',
+      supported: Boolean(uiCoprocessor && uiCoprocessor.supported),
+      active: Boolean(uiCoprocessor && uiCoprocessor.enabled),
+      optional: true,
+      requiredInProd: false,
+      status: closureStatusFor(uiCoprocessor, 'disabled'),
+      runtimeExpectedStatus: closureRuntimeExpectedStatus(uiCoprocessor, 'disabled'),
+      diagnostics: closureDiagnosticsFor(uiCoprocessor),
+      sourceToSea: {
+        eligibleRecordCount: uiCoprocessor && uiCoprocessor.eligibility && uiCoprocessor.eligibility.eligibleRecordCount || 0,
+        lanes: uiCoprocessor && uiCoprocessor.lanes || {},
+        ownership: uiCoprocessor && uiCoprocessor.ownership || {}
+      },
+      evidence: {
+        releaseBlocking: false,
+        pwaAttachment: uiCoprocessor && uiCoprocessor.pwaAttachment || null
       }
     }),
     createProductionCapability({
@@ -6782,6 +7596,337 @@ function createMaracaProductionBundleClosure(plan, sizeBudgetReport = null, opti
   };
 }
 
+function createMaracaPwaUrl(fileName) {
+  const normalized = toPosix(fileName || '').replace(/^\/+/, '');
+  return normalized ? `./${normalized}` : './';
+}
+
+function deriveMaracaPwaPrecacheUrls(plan, bundleFiles = []) {
+  const pwa = plan && plan.pwa;
+  if (!pwa || !pwa.enabled) return [];
+  const urls = [];
+  bundleFiles.forEach((file) => {
+    if (!file || !file.fileName) return;
+    urls.push(createMaracaPwaUrl(file.fileName));
+  });
+  urls.push(createMaracaPwaUrl(pwa.manifest && pwa.manifest.fileName || 'xtend.webmanifest'));
+  if (pwa.files && pwa.files.offlineFallback) {
+    urls.push(createMaracaPwaUrl(path.basename(pwa.files.offlineFallback)));
+  }
+  return Array.from(new Set(urls)).sort();
+}
+
+function createMaracaWebManifest(plan) {
+  const manifest = plan && plan.webAppManifest && plan.webAppManifest.manifest
+    || plan && plan.pwa && plan.pwa.manifest
+    || {};
+  return {
+    name: manifest.name || 'XTend Maraca App',
+    short_name: manifest.short_name || 'XTend',
+    start_url: manifest.start_url || './',
+    scope: manifest.scope || './',
+    display: manifest.display || 'standalone',
+    background_color: manifest.background_color || '#ffffff',
+    theme_color: manifest.theme_color || '#1f6f78',
+    description: manifest.description || 'Generated XTend Maraca PWA manifest.',
+    icons: Array.isArray(manifest.icons) ? manifest.icons : []
+  };
+}
+
+function createMaracaWebAppManifestReport(plan, copiedAssets = []) {
+  const webAppManifest = plan && plan.webAppManifest || createMaracaWebAppManifestPlan(plan || {});
+  const copiedByFileName = new Set(copiedAssets.map((asset) => asset.fileName));
+  const assets = Array.isArray(webAppManifest.assets) ? webAppManifest.assets.map((asset) => ({
+    role: asset.role,
+    source: asset.source,
+    fileName: asset.fileName,
+    sizes: asset.sizes || null,
+    type: asset.type || null,
+    manifestIcon: asset.manifestIcon === true,
+    sourceExists: asset.sourceExists === true,
+    copied: copiedByFileName.has(asset.fileName),
+    replacementPath: asset.replacementPath || asset.fileName
+  })) : [];
+  return {
+    schema: MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA,
+    ok: true,
+    status: webAppManifest.enabled ? 'generated' : 'disabled',
+    enabled: Boolean(webAppManifest.enabled),
+    generated: Boolean(webAppManifest.enabled),
+    manifestRef: webAppManifest.manifestRef || './xtend.webmanifest',
+    iconDirectory: webAppManifest.iconDirectory || 'icons',
+    brandingMode: webAppManifest.brandingMode || 'default-xtend-assets',
+    manifest: createMaracaWebManifest({ webAppManifest }),
+    manifestIcons: Array.isArray(webAppManifest.manifestIcons) ? webAppManifest.manifestIcons : [],
+    htmlLinkHints: Array.isArray(webAppManifest.htmlLinkHints) ? webAppManifest.htmlLinkHints : [],
+    assets,
+    copiedAssets,
+    replacementPaths: Array.isArray(webAppManifest.replacementPaths) ? webAppManifest.replacementPaths : [],
+    files: webAppManifest.files || {},
+    diagnostics: webAppManifest.diagnostics || [],
+    summary: {
+      releaseBlocking: false,
+      generatedManifest: Boolean(webAppManifest.enabled),
+      copiedAssetCount: copiedAssets.length,
+      manifestIconCount: Array.isArray(webAppManifest.manifestIcons) ? webAppManifest.manifestIcons.length : 0,
+      htmlLinkHintCount: Array.isArray(webAppManifest.htmlLinkHints) ? webAppManifest.htmlLinkHints.length : 0,
+      brandingMode: webAppManifest.brandingMode || 'default-xtend-assets'
+    }
+  };
+}
+
+function createMaracaOfflineFallback(plan) {
+  const appName = plan && plan.pwa && plan.pwa.manifest && plan.pwa.manifest.name || 'XTend Maraca App';
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${appName} Offline</title>
+  <style>body{margin:0;font-family:system-ui,sans-serif;background:#f7f9fb;color:#172026;display:grid;min-height:100vh;place-items:center}main{max-width:34rem;padding:2rem}h1{font-size:1.5rem;margin:0 0 .75rem}p{line-height:1.5}</style>
+</head>
+<body>
+  <main>
+    <h1>${appName}</h1>
+    <p>This generated XTend offline fallback is shown when the app shell cannot be reached from the network or cache.</p>
+  </main>
+</body>
+</html>`;
+}
+
+function createMaracaServiceWorkerSource(plan, precacheUrls = []) {
+  const pwa = plan && plan.pwa || createMaracaPwaServiceWorkerPlan(plan || {});
+  const businessLogicImport = pwa.businessLogicImport || '';
+  const offlineFallback = pwa.files && pwa.files.offlineFallback ? createMaracaPwaUrl(path.basename(pwa.files.offlineFallback)) : '';
+  return `'use strict';
+
+const XTEND_PWA_SCHEMA = ${JSON.stringify(MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA)};
+const XTEND_CACHE_VERSION = ${JSON.stringify(pwa.cacheVersion || 'xtend-maraca-pwa')};
+const XTEND_PRECACHE = 'xtend-precache-' + XTEND_CACHE_VERSION;
+const XTEND_RUNTIME = 'xtend-runtime-' + XTEND_CACHE_VERSION;
+const XTEND_OFFLINE_FALLBACK = ${JSON.stringify(offlineFallback)};
+const XTEND_PRECACHE_URLS = ${JSON.stringify(precacheUrls, null, 2)};
+const XTEND_STATIC_EXTENSIONS = /\\.(?:mjs|js|css|json|webmanifest|png|jpg|jpeg|gif|svg|webp|avif|ico|woff2?|ttf)$/i;
+
+/*
+ * XTEND SERVICE WORKER BUSINESS LOGIC HOOK
+ * Generated network/cache safety lives above and below this hook.
+ * Put app-specific cache rules, API policy, auth handling, Background Sync,
+ * Push, or offline mutation logic in an imported local script instead of
+ * editing this generated file.
+ */
+const XTEND_BUSINESS_LOGIC_IMPORT = ${JSON.stringify(businessLogicImport)};
+if (XTEND_BUSINESS_LOGIC_IMPORT) {
+  try {
+    importScripts(XTEND_BUSINESS_LOGIC_IMPORT);
+  } catch (error) {
+    console.warn('[XTend Maraca PWA] business logic import failed', error);
+  }
+}
+
+function hasSensitiveRequestHeaders(request) {
+  return Boolean(
+    request.headers
+    && (request.headers.get('authorization') || request.headers.get('cookie'))
+  );
+}
+
+function sameOrigin(requestUrl) {
+  const url = new URL(requestUrl);
+  return url.origin === self.location.origin;
+}
+
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response && response.ok) {
+    const cache = await caches.open(XTEND_RUNTIME);
+    await cache.put(request, response.clone());
+  }
+  return response;
+}
+
+async function networkFirstNavigation(request) {
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      const cache = await caches.open(XTEND_RUNTIME);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    if (XTEND_OFFLINE_FALLBACK) {
+      const fallback = await caches.match(XTEND_OFFLINE_FALLBACK);
+      if (fallback) return fallback;
+    }
+    throw error;
+  }
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(XTEND_PRECACHE)
+      .then((cache) => cache.addAll(XTEND_PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys
+        .filter((key) => key.startsWith('xtend-precache-') || key.startsWith('xtend-runtime-'))
+        .filter((key) => key !== XTEND_PRECACHE && key !== XTEND_RUNTIME)
+        .map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (!request || request.method !== 'GET') return;
+  if (!sameOrigin(request.url)) return;
+  if (hasSensitiveRequestHeaders(request)) return;
+  const url = new URL(request.url);
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirstNavigation(request));
+    return;
+  }
+  if (XTEND_PRECACHE_URLS.includes(url.pathname) || XTEND_PRECACHE_URLS.includes('./' + url.pathname.replace(/^\\//, '')) || XTEND_STATIC_EXTENSIONS.test(url.pathname)) {
+    event.respondWith(cacheFirst(request));
+  }
+});
+
+self.__XTEND_MARACA_PWA_SERVICE_WORKER = Object.freeze({
+  schema: XTEND_PWA_SCHEMA,
+  cacheVersion: XTEND_CACHE_VERSION,
+  cacheMode: ${JSON.stringify(pwa.cacheMode || 'generated-app-shell')},
+  offlineEligible: ${JSON.stringify(Boolean(pwa.offlineEligible))},
+  businessLogicHook: 'import-script',
+  replacesUiCoprocessor: false,
+  replacesSsr: false
+});
+`;
+}
+
+function createMaracaPwaReport(plan, bundleFiles = [], precacheUrls = []) {
+  const pwa = plan && plan.pwa || createMaracaPwaServiceWorkerPlan(plan || {});
+  const webAppManifest = plan && plan.webAppManifest || pwa.webAppManifest || null;
+  return {
+    schema: MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA,
+    ok: true,
+    status: pwa.enabled ? 'generated' : 'disabled',
+    enabled: Boolean(pwa.enabled),
+    generated: Boolean(pwa.enabled),
+    strategy: pwa.strategy,
+    cacheMode: pwa.cacheMode,
+    updateMode: pwa.updateMode,
+    cacheVersion: pwa.cacheVersion,
+    manifestRef: pwa.manifestRef,
+    serviceWorkerRef: pwa.serviceWorkerRef,
+    serviceWorkerControlled: false,
+    offlineEligible: Boolean(pwa.offlineEligible),
+    businessLogicHook: pwa.businessLogicHook,
+    businessLogicImport: pwa.businessLogicImport || '',
+    files: pwa.files,
+    webAppManifest,
+    precacheUrls,
+    precacheCount: precacheUrls.length,
+    bundleFileCount: Array.isArray(bundleFiles) ? bundleFiles.length : 0,
+    runtimeCaching: pwa.runtimeCaching,
+    boundaries: pwa.boundaries,
+    diagnostics: pwa.diagnostics || [],
+    summary: {
+      releaseBlocking: false,
+      generatedServiceWorker: Boolean(pwa.enabled),
+      generatedManifest: Boolean(webAppManifest && webAppManifest.enabled),
+      generatedOfflineFallback: Boolean(pwa.enabled && pwa.files && pwa.files.offlineFallback),
+      businessLogicHook: pwa.businessLogicHook
+    }
+  };
+}
+
+function createMaracaPwaAssetRecord(filePath, fileName, type = 'asset') {
+  return {
+    type,
+    fileName,
+    path: filePath,
+    bytes: fs.statSync(filePath).size,
+    isEntry: false,
+    isDynamicEntry: false,
+    imports: [],
+    dynamicImports: []
+  };
+}
+
+function writeMaracaWebAppManifestArtifacts(plan, bundleFiles = []) {
+  const webAppManifest = plan && plan.webAppManifest;
+  if (!webAppManifest || !webAppManifest.enabled) {
+    return {
+      report: createMaracaWebAppManifestReport(plan, []),
+      files: []
+    };
+  }
+  fs.mkdirSync(path.dirname(webAppManifest.outputs.manifest), { recursive: true });
+  fs.mkdirSync(webAppManifest.outputs.iconDirectory, { recursive: true });
+  const copiedAssets = [];
+  (webAppManifest.assets || []).forEach((asset) => {
+    if (!asset || asset.sourceExists !== true) return;
+    fs.mkdirSync(path.dirname(asset.outputPath), { recursive: true });
+    const sourcePath = path.resolve(asset.sourcePath);
+    const outputPath = path.resolve(asset.outputPath);
+    if (sourcePath !== outputPath) {
+      fs.copyFileSync(sourcePath, outputPath);
+    }
+    copiedAssets.push({
+      role: asset.role,
+      source: asset.source,
+      fileName: asset.fileName,
+      path: asset.outputPath,
+      bytes: fs.statSync(asset.outputPath).size,
+      type: asset.type || null,
+      sizes: asset.sizes || null,
+      replacementPath: asset.replacementPath || asset.fileName
+    });
+  });
+  fs.writeFileSync(webAppManifest.outputs.manifest, `${stableJson(createMaracaWebManifest(plan))}\n`);
+  const report = createMaracaWebAppManifestReport(plan, copiedAssets);
+  writeJson(webAppManifest.outputs.report, report);
+  const files = [
+    createMaracaPwaAssetRecord(webAppManifest.outputs.manifest, path.basename(webAppManifest.outputs.manifest), 'asset')
+  ].concat(copiedAssets.map((asset) => createMaracaPwaAssetRecord(asset.path, asset.fileName, 'asset')));
+  files.push(createMaracaPwaAssetRecord(webAppManifest.outputs.report, path.basename(webAppManifest.outputs.report), 'asset'));
+  return { report, files };
+}
+
+function writeMaracaPwaArtifacts(plan, bundleFiles = []) {
+  const pwa = plan && plan.pwa;
+  if (!pwa || !pwa.enabled) {
+    return {
+      report: createMaracaPwaReport(plan, bundleFiles, []),
+      files: []
+    };
+  }
+  const precacheUrls = deriveMaracaPwaPrecacheUrls(plan, bundleFiles);
+  if (pwa.outputs.offlineFallback) {
+    fs.writeFileSync(pwa.outputs.offlineFallback, `${createMaracaOfflineFallback(plan)}\n`);
+  }
+  fs.writeFileSync(pwa.outputs.serviceWorker, createMaracaServiceWorkerSource(plan, precacheUrls));
+  const report = createMaracaPwaReport(plan, bundleFiles, precacheUrls);
+  writeJson(pwa.outputs.report, report);
+  const files = [
+    createMaracaPwaAssetRecord(pwa.outputs.serviceWorker, path.basename(pwa.outputs.serviceWorker))
+  ];
+  if (pwa.outputs.offlineFallback) {
+    files.push(createMaracaPwaAssetRecord(pwa.outputs.offlineFallback, path.basename(pwa.outputs.offlineFallback)));
+  }
+  files.push(createMaracaPwaAssetRecord(pwa.outputs.report, path.basename(pwa.outputs.report)));
+  return { report, files };
+}
+
 function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
   const repoRoot = plan.rootDir || path.dirname(path.dirname(__filename));
   const entryFile = bundleFiles.find((file) => file.isEntry) || {
@@ -6863,6 +8008,8 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
     entryFile,
     repoRoot
   });
+  const webAppManifestReport = options.webAppManifestReport || createMaracaWebAppManifestReport(plan, []);
+  const pwaReport = options.pwaReport || createMaracaPwaReport(plan, bundleFiles, deriveMaracaPwaPrecacheUrls(plan, bundleFiles));
 
   return {
     schema: MARACA_BUNDLE_REPORT_SCHEMA,
@@ -6962,6 +8109,7 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       artifactSchema: plan.hydration.artifact && plan.hydration.artifact.schema || null,
       runtimeModules: plan.hydration.runtimeModules,
       workerPrerender: plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender || null,
+      uiCoprocessor: plan.hydration.uiCoprocessor || plan.hydration.summary && plan.hydration.summary.uiCoprocessor || null,
       serverPrerender: plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender || null,
       summary: plan.hydration.summary,
       diagnostics: plan.hydration.diagnostics
@@ -6980,6 +8128,9 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       summary: plan.warmReentry.summary,
       diagnostics: plan.warmReentry.diagnostics
     } : null,
+    uiCoprocessor: plan.uiCoprocessor || null,
+    webAppManifest: webAppManifestReport,
+    pwa: pwaReport,
     validation: plan.validation ? {
       schema: plan.validation.schema,
       mode: plan.validation.mode,
@@ -7140,7 +8291,7 @@ function buildMaracaBundle(input = {}, options = {}) {
     entryPath,
     entryBytes
   });
-  const bundleFiles = [{
+  let bundleFiles = [{
     type: 'chunk',
     fileName: path.basename(entryPath),
     path: entryPath,
@@ -7150,8 +8301,14 @@ function buildMaracaBundle(input = {}, options = {}) {
     imports: [],
     dynamicImports: []
   }].concat(kernelControllerRuntimeAsset ? [kernelControllerRuntimeAsset] : []).concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : []);
+  const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, bundleFiles);
+  bundleFiles = bundleFiles.concat(webAppManifestArtifacts.files);
+  const pwaArtifacts = writeMaracaPwaArtifacts(plan, bundleFiles);
+  bundleFiles = bundleFiles.concat(pwaArtifacts.files);
   const bundleReport = createBundleReport(plan, bundleFiles, sizeBudgetReport, {
-    activeToolchain: 'local-esm-importgraph-fallback'
+    activeToolchain: 'local-esm-importgraph-fallback',
+    webAppManifestReport: webAppManifestArtifacts.report,
+    pwaReport: pwaArtifacts.report
   });
 
   writeJson(plan.outputs.bundleReport, bundleReport);
@@ -7230,6 +8387,10 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   if (kernelRuntimeAsset) {
     rollupResult.files.push(kernelRuntimeAsset);
   }
+  const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, rollupResult.files);
+  rollupResult.files.push(...webAppManifestArtifacts.files);
+  const pwaArtifacts = writeMaracaPwaArtifacts(plan, rollupResult.files);
+  rollupResult.files.push(...pwaArtifacts.files);
 
   const entryFile = rollupResult.files.find((file) => file.isEntry) || {
     path: plan.outputs.entry,
@@ -7244,7 +8405,9 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   const bundleReport = createBundleReport(plan, rollupResult.files, sizeBudgetReport, {
     activeToolchain: 'rollup-terser',
     warnings: rollupResult.warnings,
-    nameCache: rollupResult.nameCache
+    nameCache: rollupResult.nameCache,
+    webAppManifestReport: webAppManifestArtifacts.report,
+    pwaReport: pwaArtifacts.report
   });
 
   writeJson(plan.outputs.bundleReport, bundleReport);
@@ -7271,6 +8434,12 @@ module.exports = {
   MARACA_HYDRATION_PLAN_SCHEMA,
   MARACA_WARM_REENTRY_REPORT_SCHEMA,
   MARACA_PREWARM_WORKER_RUNTIME_SCHEMA,
+  MARACA_SUPER_PREWARM_WORKER_EXPERIMENT_SCHEMA,
+  MARACA_UI_COPROCESSOR_PLAN_SCHEMA,
+  MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA,
+  MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA,
+  MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA,
+  MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA,
   MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA,
   MARACA_VALIDATION_PLAN_SCHEMA,
   MARACA_TRANSITION_PLAN_SCHEMA,
@@ -7287,6 +8456,10 @@ module.exports = {
   createMaracaPolicyParityReport,
   createMaracaTemplateArtifactsReport,
   createMaracaPerformanceReport,
+  createMaracaWebAppManifestPlan,
+  createMaracaWebAppManifestReport,
+  createMaracaPwaServiceWorkerPlan,
+  createMaracaPwaReport,
   createMaracaProductionBundleClosure,
   createMaracaSizeBudgetReport,
   getMaracaToolchainAvailability

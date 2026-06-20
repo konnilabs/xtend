@@ -3675,7 +3675,17 @@ export interface RmtBrowserRuntime {
     getPerformanceRuntime(): RmtPerformanceRuntime | null;
     getPrewarmWorkerRuntime(): RmtPrewarmWorkerRuntime | null;
     getPrewarmWorkerTopology(): RmtPrewarmWorkerTopology;
+    getUiCoprocessorSnapshot(): RmtUiCoprocessorSnapshot;
+    requestUiCompute(
+        envelope?: RmtTemplatePrerenderEnvelope | Record<string, unknown>,
+        options?: Record<string, unknown>
+    ): Promise<RmtTemplatePrerenderResponseEnvelope | Record<string, unknown>>;
+    dispatchUiComputeEnvelope(
+        envelope?: RmtTemplatePrerenderEnvelope | Record<string, unknown>,
+        options?: Record<string, unknown>
+    ): Promise<RmtTemplatePrerenderResponseEnvelope | Record<string, unknown>>;
     terminatePrewarmWorker(reason?: string): boolean;
+    terminateUiCoprocessor(reason?: string): boolean;
     getPerformanceSnapshot(reason?: string): RmtPerformanceSnapshot | null;
     getBrowserSignalSnapshot(reason?: string): RmtBrowserSignalSnapshot | null;
     getBackpressureProfile(reason?: string): RmtBackpressureProfile | null;
@@ -3898,12 +3908,45 @@ export interface RmtPrewarmWorkerTopology {
     responsibilities: string[];
     supportedSignals: string[];
     excludedResponsibilities: string[];
+    enabledBy?: 'none' | 'prewarmWorker' | 'uiCoprocessor' | string;
+    coprocessor: RmtUiCoprocessorSnapshot;
     diagnostics?: Array<Record<string, unknown>>;
+}
+
+export interface RmtUiCoprocessorOptions {
+    enabled?: boolean;
+    mode?: 'opportunistic' | 'alwaysOn' | string;
+    maxQueueDepth?: number;
+    stalePolicy?: 'discard' | string;
+    lifecycle?: 'runtime' | 'app' | string;
+}
+
+export interface RmtUiCoprocessorSnapshot {
+    enabled: boolean;
+    mode: 'opportunistic' | 'alwaysOn' | string;
+    lifecycle: 'runtime' | 'app' | string;
+    queueDepthMax: number;
+    maxQueueDepth: number;
+    stalePolicy: 'discard' | string;
+    status: string;
+    pendingJobs: number;
+    submittedJobs: number;
+    transferBytes: number;
+    staleResponses: number;
+    supersededResponses: number;
+    stateOwnership: 'main-thread' | string;
+    trustedDomCommit: 'main-thread' | string;
+    clientDetermined: boolean;
+    ssrRoundtripCount: number;
 }
 
 export interface RmtPrewarmWorkerRuntime {
     dispatchPrerenderEnvelope(
         envelope: RmtTemplatePrerenderEnvelope,
+        options?: Record<string, unknown>
+    ): Promise<RmtTemplatePrerenderResponseEnvelope | Record<string, unknown>>;
+    dispatchUiComputeEnvelope(
+        envelope: RmtTemplatePrerenderEnvelope | Record<string, unknown>,
         options?: Record<string, unknown>
     ): Promise<RmtTemplatePrerenderResponseEnvelope | Record<string, unknown>>;
     getTopologySnapshot(): RmtPrewarmWorkerTopology;
@@ -4105,6 +4148,8 @@ export interface RmtBrowserRuntimeOptions extends RmtTemplateApiOptions {
     defaultNamespace?: string;
     metadata?: Record<string, unknown>;
     enablePrewarmWorker?: boolean;
+    enableUiCoprocessor?: boolean;
+    uiCoprocessor?: RmtUiCoprocessorOptions;
     prewarmWorkerName?: string;
     prewarmWorkerType?: 'classic' | 'module' | string;
 }
@@ -4118,6 +4163,8 @@ export interface RmtPrewarmWorkerRuntimeOptions extends RmtTemplateApiOptions {
     urlApi?: unknown;
     workerName?: string;
     workerType?: 'classic' | 'module' | string;
+    enableUiCoprocessor?: boolean;
+    uiCoprocessor?: RmtUiCoprocessorOptions;
     now?: () => number;
 }
 

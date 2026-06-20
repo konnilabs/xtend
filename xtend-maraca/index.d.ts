@@ -8,6 +8,12 @@ export const MARACA_KERNEL_PLAN_SCHEMA: 'xtend.maraca.kernel-plan.v1';
 export const MARACA_HYDRATION_PLAN_SCHEMA: 'xtend.maraca.hydration-plan.v1';
 export const MARACA_WARM_REENTRY_REPORT_SCHEMA: 'xtend.maraca.warm-reentry-report.v1';
 export const MARACA_PREWARM_WORKER_RUNTIME_SCHEMA: 'xtend.maraca.prewarm-worker-runtime.v1';
+export const MARACA_SUPER_PREWARM_WORKER_EXPERIMENT_SCHEMA: 'xtend.maraca.super-prewarm-worker-experiment.v1';
+export const MARACA_UI_COPROCESSOR_PLAN_SCHEMA: 'xtend.maraca.ui-coprocessor-plan.v1';
+export const MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA: 'xtend.maraca.web-app-manifest-plan.v1';
+export const MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA: 'xtend.maraca.web-app-manifest-report.v1';
+export const MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA: 'xtend.maraca.pwa-service-worker-plan.v1';
+export const MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA: 'xtend.maraca.pwa-service-worker-report.v1';
 export const MARACA_VALIDATION_PLAN_SCHEMA: 'xtend.maraca.validation-plan.v1';
 export const MARACA_TRANSITION_PLAN_SCHEMA: 'xtend.maraca.transition-plan.v1';
 export const MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA: 'xtend.maraca.template-artifacts-report.v1';
@@ -69,6 +75,19 @@ export interface MaracaBuildInput {
   enablePrewarmWorker?: boolean | string;
   'enable-prewarm-worker'?: boolean | string;
   prewarmWorker?: boolean | string;
+  enableUiCoprocessor?: boolean | string;
+  'enable-ui-coprocessor'?: boolean | string;
+  uiCoprocessor?: boolean | string | MaracaUiCoprocessorConfig;
+  webAppManifest?: boolean | string | MaracaWebAppManifestConfig;
+  'web-app-manifest'?: boolean | string | MaracaWebAppManifestConfig;
+  enableWebAppManifest?: boolean | string;
+  'enable-web-app-manifest'?: boolean | string;
+  manifest?: boolean | string | MaracaWebAppManifestConfig | Record<string, unknown>;
+  pwa?: boolean | string | MaracaPwaConfig;
+  enablePwa?: boolean | string;
+  'enable-pwa'?: boolean | string;
+  enableServiceWorker?: boolean | string;
+  'enable-service-worker'?: boolean | string;
   policyParityReports?: Array<Record<string, unknown>>;
   policyParityContracts?: Array<Record<string, unknown>>;
   policyParityRuntimeHooks?: string[];
@@ -136,6 +155,7 @@ export interface MaracaKernelProductSurfaceReport {
 export interface MaracaPrewarmWorkerRuntimeReport {
   schema: typeof MARACA_PREWARM_WORKER_RUNTIME_SCHEMA;
   enabled: boolean;
+  enabledBy?: 'none' | 'prewarmWorker' | 'uiCoprocessor' | string;
   supported: boolean;
   optional: boolean;
   status: string;
@@ -147,6 +167,207 @@ export interface MaracaPrewarmWorkerRuntimeReport {
   topologyFields: string[];
   ownership: Record<string, boolean>;
   fallbackPolicy: Record<string, unknown>;
+  coprocessor?: MaracaUiCoprocessorSnapshot;
+  diagnostics: MaracaDiagnostic[];
+  summary: Record<string, unknown>;
+}
+
+export interface MaracaUiCoprocessorConfig {
+  enabled?: boolean;
+  mode?: 'opportunistic' | 'alwaysOn' | string;
+  maxQueueDepth?: number;
+  stalePolicy?: 'discard' | string;
+  lifecycle?: 'runtime' | 'app' | string;
+}
+
+export interface MaracaUiCoprocessorSnapshot extends MaracaUiCoprocessorConfig {
+  enabled: boolean;
+  mode: 'opportunistic' | 'alwaysOn' | string;
+  maxQueueDepth: number;
+  stalePolicy: 'discard' | string;
+  lifecycle: 'runtime' | 'app' | string;
+  queueDepthMax?: number;
+  status?: string;
+  pendingJobs?: number;
+  submittedJobs?: number;
+  transferBytes?: number;
+  staleResponses?: number;
+  supersededResponses?: number;
+  stateOwnership?: 'main-thread' | string;
+  trustedDomCommit?: 'main-thread' | string;
+  clientDetermined?: boolean;
+  ssrRoundtripCount?: number;
+}
+
+export interface MaracaUiCoprocessorPlan {
+  schema: typeof MARACA_UI_COPROCESSOR_PLAN_SCHEMA;
+  enabled: boolean;
+  supported: boolean;
+  optional: boolean;
+  status: string;
+  runtimeExpectedStatus: string;
+  mode: 'opportunistic' | 'alwaysOn' | string;
+  lifecycle: 'runtime' | 'app' | string;
+  maxQueueDepth: number;
+  stalePolicy: 'discard' | string;
+  evidenceMode: 'non-blocking' | string;
+  eligibility: {
+    recordCount: number;
+    eligibleRecordCount: number;
+    activeRecordCount: number;
+    activeRecordIds: string[];
+  };
+  ownership: Record<string, unknown>;
+  lanes: Record<string, string>;
+  pwaAttachment: Record<string, unknown>;
+  state: Record<string, unknown>;
+  ssr: Record<string, unknown>;
+  diagnostics: MaracaDiagnostic[];
+  summary: Record<string, unknown>;
+}
+
+export interface MaracaWebAppManifestConfig {
+  enabled?: boolean;
+  fileName?: string;
+  reportFileName?: string;
+  iconDirectory?: string;
+  name?: string;
+  shortName?: string;
+  short_name?: string;
+  startUrl?: string;
+  start_url?: string;
+  scope?: string;
+  display?: string;
+  backgroundColor?: string;
+  background_color?: string;
+  themeColor?: string;
+  theme_color?: string;
+  description?: string;
+  icons?: Array<Record<string, unknown>>;
+  manifest?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface MaracaWebAppManifestPlan {
+  schema: typeof MARACA_WEB_APP_MANIFEST_PLAN_SCHEMA;
+  enabled: boolean;
+  supported: boolean;
+  optional: boolean;
+  status: string;
+  runtimeExpectedStatus: string;
+  manifestRef: string;
+  iconDirectory: string;
+  brandingMode: string;
+  manifest: Record<string, unknown>;
+  assets: Array<Record<string, unknown>>;
+  manifestIcons: Array<Record<string, unknown>>;
+  htmlLinkHints: Array<Record<string, unknown>>;
+  replacementPaths: string[];
+  files: Record<string, string | null>;
+  outputs: Record<string, string | null>;
+  diagnostics: MaracaDiagnostic[];
+  summary: Record<string, unknown>;
+}
+
+export interface MaracaWebAppManifestReport {
+  schema: typeof MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA;
+  ok: boolean;
+  status: string;
+  enabled: boolean;
+  generated: boolean;
+  manifestRef: string;
+  iconDirectory: string;
+  brandingMode: string;
+  manifest: Record<string, unknown>;
+  manifestIcons: Array<Record<string, unknown>>;
+  htmlLinkHints: Array<Record<string, unknown>>;
+  assets: Array<Record<string, unknown>>;
+  copiedAssets: Array<Record<string, unknown>>;
+  replacementPaths: string[];
+  files: Record<string, string | null>;
+  diagnostics: MaracaDiagnostic[];
+  summary: Record<string, unknown>;
+}
+
+export interface MaracaPwaConfig {
+  enabled?: boolean;
+  strategy?: 'app-shell' | string;
+  cacheMode?: 'generated-app-shell' | string;
+  updateMode?: 'prompt' | 'auto' | 'manual' | string;
+  businessLogicImport?: string;
+  serviceWorkerFileName?: string;
+  manifestFileName?: string;
+  offlineFallback?: boolean;
+  offlineFallbackFileName?: string;
+  scope?: string;
+  startUrl?: string;
+  name?: string;
+  shortName?: string;
+  manifest?: Record<string, unknown> | MaracaWebAppManifestConfig;
+  serviceWorker?: {
+    enabled?: boolean;
+    fileName?: string;
+    registrationUrl?: string;
+    scope?: string;
+    type?: 'classic' | 'module' | string;
+    businessLogicImport?: string;
+    offlineFallback?: boolean;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+export interface MaracaPwaServiceWorkerPlan {
+  schema: typeof MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA;
+  enabled: boolean;
+  supported: boolean;
+  optional: boolean;
+  status: string;
+  runtimeExpectedStatus: string;
+  strategy: string;
+  cacheMode: string;
+  updateMode: string;
+  businessLogicHook: 'import-script' | string;
+  businessLogicImport: string;
+  cacheVersion: string;
+  manifestRef: string;
+  serviceWorkerRef: string;
+  offlineEligible: boolean;
+  manifest: Record<string, unknown>;
+  webAppManifest?: MaracaWebAppManifestPlan;
+  serviceWorker: Record<string, unknown>;
+  files: Record<string, string | null>;
+  outputs: Record<string, string | null>;
+  precache: Record<string, unknown>;
+  runtimeCaching: Record<string, unknown>;
+  boundaries: Record<string, unknown>;
+  diagnostics: MaracaDiagnostic[];
+  summary: Record<string, unknown>;
+}
+
+export interface MaracaPwaServiceWorkerReport {
+  schema: typeof MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA;
+  ok: boolean;
+  status: string;
+  enabled: boolean;
+  generated: boolean;
+  strategy: string;
+  cacheMode: string;
+  updateMode: string;
+  cacheVersion: string;
+  manifestRef: string;
+  serviceWorkerRef: string;
+  serviceWorkerControlled: boolean;
+  offlineEligible: boolean;
+  businessLogicHook: string;
+  businessLogicImport: string;
+  files: Record<string, string | null>;
+  webAppManifest?: MaracaWebAppManifestPlan | MaracaWebAppManifestReport | null;
+  precacheUrls: string[];
+  precacheCount: number;
+  bundleFileCount: number;
+  runtimeCaching: Record<string, unknown>;
+  boundaries: Record<string, unknown>;
   diagnostics: MaracaDiagnostic[];
   summary: Record<string, unknown>;
 }
@@ -427,6 +648,7 @@ export interface MaracaBuildPlan {
   kernelMode?: MaracaKernelMode;
   kernelBootMode?: MaracaKernelBootMode;
   hydrationMode?: MaracaHydrationMode;
+  enableUiCoprocessor?: boolean;
   validationMode?: MaracaValidationMode;
   transitionsMode?: MaracaTransitionMode;
   outputDir: string;
@@ -452,6 +674,7 @@ export interface MaracaBuildPlan {
     artifact?: unknown;
     runtimeModules: string[];
     workerPrerender?: MaracaWorkerPrerenderReport | null;
+    uiCoprocessor?: MaracaWorkerPrerenderReport | null;
     serverPrerender?: MaracaServerPrerenderReport | null;
     diagnostics: MaracaDiagnostic[];
     summary: Record<string, unknown>;
@@ -488,6 +711,7 @@ export interface MaracaBuildPlan {
     artifact?: unknown;
     runtimeModules: string[];
     workerPrerender?: MaracaWorkerPrerenderReport | null;
+    uiCoprocessor?: MaracaWorkerPrerenderReport | null;
     serverPrerender?: MaracaServerPrerenderReport | null;
     diagnostics: MaracaDiagnostic[];
     summary: Record<string, unknown>;
@@ -507,6 +731,9 @@ export interface MaracaBuildPlan {
     diagnostics: MaracaDiagnostic[];
     summary: Record<string, unknown>;
   };
+  uiCoprocessor?: MaracaUiCoprocessorPlan;
+  webAppManifest?: MaracaWebAppManifestPlan;
+  pwa?: MaracaPwaServiceWorkerPlan;
   validation?: {
     schema: typeof MARACA_VALIDATION_PLAN_SCHEMA;
     mode: MaracaValidationMode;
@@ -563,6 +790,7 @@ export interface MaracaBundleReport {
     artifactSchema?: string | null;
     runtimeModules: string[];
     workerPrerender?: MaracaWorkerPrerenderReport | null;
+    uiCoprocessor?: MaracaWorkerPrerenderReport | null;
     serverPrerender?: MaracaServerPrerenderReport | null;
     summary: Record<string, unknown>;
     diagnostics: MaracaDiagnostic[];
@@ -596,6 +824,7 @@ export interface MaracaBundleReport {
     artifactSchema?: string | null;
     runtimeModules: string[];
     workerPrerender?: MaracaWorkerPrerenderReport | null;
+    uiCoprocessor?: MaracaWorkerPrerenderReport | null;
     serverPrerender?: MaracaServerPrerenderReport | null;
     summary: Record<string, unknown>;
     diagnostics: MaracaDiagnostic[];
@@ -614,6 +843,9 @@ export interface MaracaBundleReport {
     summary: Record<string, unknown>;
     diagnostics: MaracaDiagnostic[];
   };
+  uiCoprocessor?: MaracaUiCoprocessorPlan;
+  webAppManifest?: MaracaWebAppManifestReport;
+  pwa?: MaracaPwaServiceWorkerReport;
   validation?: {
     schema: typeof MARACA_VALIDATION_PLAN_SCHEMA;
     mode: MaracaValidationMode;
@@ -730,6 +962,17 @@ export function createMaracaPerformanceReport(input?: {
   runtimeExpectedStatus?: string;
   manifest?: Record<string, unknown> | null;
 }): MaracaPerformanceReport;
+export function createMaracaWebAppManifestPlan(input?: Record<string, unknown>): MaracaWebAppManifestPlan;
+export function createMaracaWebAppManifestReport(
+  plan: MaracaBuildPlan,
+  copiedAssets?: Array<Record<string, unknown>>
+): MaracaWebAppManifestReport;
+export function createMaracaPwaServiceWorkerPlan(input?: Record<string, unknown>): MaracaPwaServiceWorkerPlan;
+export function createMaracaPwaReport(
+  plan: MaracaBuildPlan,
+  bundleFiles?: Array<Record<string, unknown>>,
+  precacheUrls?: string[]
+): MaracaPwaServiceWorkerReport;
 export function createMaracaProductionBundleClosure(
   plan: MaracaBuildPlan,
   sizeBudgetReport?: MaracaSizeBudgetReport | null,

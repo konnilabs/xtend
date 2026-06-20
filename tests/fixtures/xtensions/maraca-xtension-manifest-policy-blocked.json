@@ -1,0 +1,81 @@
+{
+  "schema": "xtend.maraca.xtension-manifest.fixture.v1",
+  "fixtureId": "xtensions.maraca.manifest.policy-blocked",
+  "workpackage": "XTN-03",
+  "outDir": ".xtend-build/maraca/xtensions",
+  "xtensions": [
+    {
+      "id": "xtension.leaflet.map",
+      "name": "Leaflet-like Map XTension",
+      "framework": "leaflet",
+      "version": "0.0.0-contract",
+      "entry": {
+        "module": "external-peer://leaflet/map-host-controller",
+        "exportName": "createHostController",
+        "format": "esm",
+        "dynamicImport": true
+      },
+      "lazy": {
+        "mode": "route",
+        "optIn": false,
+        "policy": "",
+        "prefetch": true,
+        "preload": false
+      },
+      "contract": {
+        "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+        "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+        "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+        "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+        "accepts": [
+          "viewport.update",
+          "layer.patch"
+        ],
+        "emits": [
+          "xtension.leaflet.viewport.changed.v1"
+        ],
+        "capabilities": [
+          "host.lifecycle.mount",
+          "event.upstream"
+        ]
+      },
+      "integrity": {
+        "sha256": "",
+        "source": "missing"
+      },
+      "csp": {
+        "scriptSrc": [],
+        "connectSrc": [],
+        "workerSrc": [
+          "'self'"
+        ]
+      },
+      "fallback": {
+        "mode": "native-placeholder",
+        "component": "x-surface-placeholder",
+        "message": ""
+      },
+      "dependencies": [
+        {
+          "name": "leaflet",
+          "versionRange": "^1.9",
+          "classification": "vendored",
+          "bundled": true,
+          "packageIncluded": true
+        }
+      ],
+      "policy": {
+        "status": "blocked",
+        "reason": "vendored framework dependency attempted"
+      }
+    }
+  ],
+  "expectedDiagnostics": [
+    "xtensions.maraca.lazy_policy_missing",
+    "xtensions.maraca.integrity_missing",
+    "xtensions.maraca.csp_missing",
+    "xtensions.maraca.fallback_missing",
+    "xtensions.maraca.policy_blocked",
+    "xtensions.maraca.vendored_framework"
+  ]
+}

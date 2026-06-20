@@ -1,0 +1,153 @@
+{
+  "schema": "xtend.xtensions.react-host-controller-poc.fixture.v1",
+  "workpackage": "XTN-06",
+  "expectedXtensionId": "xtension.react.todo",
+  "expectedFramework": "react",
+  "expectedHints": ["sync-render-hint", "startTransition-hint", "idle-defer-hint", "suspense-placeholder-hint"],
+  "contract": {
+    "xtensionId": "xtension.react.todo",
+    "name": "React Todo XTension PoC",
+    "version": "0.1.0-poc"
+  },
+  "host": {
+    "hostId": "react-poc-host",
+    "surfaceRegistryRef": "surface-registry://host-local/react-poc",
+    "capabilities": [
+      "host.lifecycle.mount",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "fallback.native-placeholder",
+      "react.scheduling.hints"
+    ],
+    "providedFrameworks": [
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "source": "external-peer-harness",
+        "available": true
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.1",
+        "source": "external-peer-harness",
+        "available": true
+      }
+    ],
+    "policy": {
+      "scope": "host-local",
+      "allowGlobalRegistry": false,
+      "dynamicImportRequiresIntegrity": true,
+      "capabilityNegotiationRequired": true,
+      "fallbackRequired": true,
+      "missingRuntimeStrategy": "degrade-with-fallback",
+      "packageFrameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false
+    }
+  },
+  "adapter": {
+    "xtensionId": "xtension.react.todo",
+    "version": "0.1.0-poc",
+    "entry": {
+      "module": "external-peer://react/host-controller-poc",
+      "exportName": "createReactHostController",
+      "format": "esm",
+      "dynamicImport": true
+    },
+    "integrity": {
+      "sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "source": "declared"
+    },
+    "fallback": {
+      "mode": "native-placeholder",
+      "component": "x-placeholder",
+      "message": "React HostController PoC unavailable.",
+      "degradedStatus": "xtension-react-poc-unavailable"
+    },
+    "dependencies": [
+      {
+        "name": "react",
+        "versionRange": "^18.0.0",
+        "classification": "external-peer",
+        "bundled": false,
+        "packageIncluded": false
+      },
+      {
+        "name": "react-dom",
+        "versionRange": "^18.0.0",
+        "classification": "external-peer",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ]
+  },
+  "requests": [
+    {
+      "xtensionId": "xtension.react.todo",
+      "surfaceId": "surface.react.todo"
+    }
+  ],
+  "operations": [
+    {
+      "kind": "mount",
+      "container": {
+        "id": "react-poc-container"
+      },
+      "props": {
+        "items": ["alpha"],
+        "filter": "all"
+      },
+      "lane": "fabric.default",
+      "priorityHint": "transition",
+      "budgetMs": 16
+    },
+    {
+      "kind": "update",
+      "signal": {
+        "lane": "fabric.input",
+        "priorityHint": "user-blocking",
+        "budgetMs": 8,
+        "payload": {
+          "items": ["alpha", "beta"],
+          "filter": "active"
+        }
+      }
+    },
+    {
+      "kind": "update",
+      "signal": {
+        "lane": "fabric.background",
+        "priorityHint": "low",
+        "budgetMs": 4,
+        "payload": {
+          "items": ["alpha", "beta", "gamma"],
+          "filter": "all"
+        }
+      }
+    },
+    {
+      "kind": "update",
+      "signal": {
+        "lane": "fabric.default",
+        "priorityHint": "transition",
+        "budgetMs": 12,
+        "payload": {
+          "suspensePending": true,
+          "fallbackLabel": "Loading"
+        }
+      }
+    },
+    {
+      "kind": "unmount",
+      "reason": "fixture-complete"
+    }
+  ],
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "rootPackageDependenciesAllowed": false,
+    "runtimeExecutionRequired": false,
+    "peerHarness": "external-opt-in"
+  }
+}

@@ -107,6 +107,13 @@ npm run test:hydration-policy
 node scripts/run_xtend_tests.js hydration-policy --json
 ```
 
+Run the Super Prewarm Worker browser/PWA evidence experiment:
+
+```bash
+node scripts/run_xtend_tests.js super-prewarm-worker-experiment
+npm run test:super-prewarm-worker-experiment
+```
+
 Run the documentation and demo reference gates:
 
 ```bash

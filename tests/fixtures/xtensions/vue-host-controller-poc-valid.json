@@ -1,0 +1,141 @@
+{
+  "schema": "xtend.xtensions.vue-host-controller-poc.fixture.v1",
+  "workpackage": "XTN-07",
+  "expectedXtensionId": "xtension.vue.panel",
+  "expectedFramework": "vue",
+  "expectedUpdateAdapters": ["applyPropsUpdate", "applyStatePatch", "dispatchCommand"],
+  "contract": {
+    "xtensionId": "xtension.vue.panel",
+    "name": "Vue Panel XTension PoC",
+    "version": "0.1.0-poc"
+  },
+  "host": {
+    "hostId": "vue-poc-host",
+    "surfaceRegistryRef": "surface-registry://host-local/vue-poc",
+    "capabilities": [
+      "host.lifecycle.mount",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "fallback.native-placeholder",
+      "vue.explicit-update-adapter"
+    ],
+    "providedFrameworks": [
+      {
+        "name": "vue",
+        "version": "3.5.0",
+        "source": "external-peer-harness",
+        "available": true
+      }
+    ],
+    "policy": {
+      "scope": "host-local",
+      "allowGlobalRegistry": false,
+      "dynamicImportRequiresIntegrity": true,
+      "capabilityNegotiationRequired": true,
+      "fallbackRequired": true,
+      "missingRuntimeStrategy": "degrade-with-fallback",
+      "packageFrameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false
+    }
+  },
+  "adapter": {
+    "xtensionId": "xtension.vue.panel",
+    "version": "0.1.0-poc",
+    "entry": {
+      "module": "external-peer://vue/host-controller-poc",
+      "exportName": "createVueHostController",
+      "format": "esm",
+      "dynamicImport": true
+    },
+    "integrity": {
+      "sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "source": "declared"
+    },
+    "fallback": {
+      "mode": "native-placeholder",
+      "component": "x-placeholder",
+      "message": "Vue HostController PoC unavailable.",
+      "degradedStatus": "xtension-vue-poc-unavailable"
+    },
+    "dependencies": [
+      {
+        "name": "vue",
+        "versionRange": "^3.0.0",
+        "classification": "external-peer",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ]
+  },
+  "requests": [
+    {
+      "xtensionId": "xtension.vue.panel",
+      "surfaceId": "surface.vue.panel"
+    }
+  ],
+  "operations": [
+    {
+      "kind": "mount",
+      "container": {
+        "id": "vue-poc-container"
+      },
+      "props": {
+        "title": "Inbox",
+        "items": ["alpha"]
+      }
+    },
+    {
+      "kind": "update",
+      "signal": {
+        "updateAdapter": "applyPropsUpdate",
+        "payload": {
+          "title": "Inbox",
+          "items": ["alpha", "beta"]
+        }
+      }
+    },
+    {
+      "kind": "update",
+      "signal": {
+        "updateAdapter": "applyStatePatch",
+        "payload": {
+          "selectedId": "beta",
+          "open": true
+        }
+      }
+    },
+    {
+      "kind": "update",
+      "signal": {
+        "updateAdapter": "dispatchCommand",
+        "payload": {
+          "command": "focus-item",
+          "id": "beta"
+        }
+      }
+    },
+    {
+      "kind": "emit",
+      "event": {
+        "name": "xtension.vue.panel.changed.v1",
+        "lane": "fabric.default",
+        "payload": {
+          "selectedId": "beta"
+        }
+      }
+    },
+    {
+      "kind": "unmount",
+      "reason": "fixture-complete"
+    }
+  ],
+  "dependencyPolicy": {
+    "frameworkDependenciesAllowed": false,
+    "vendoredFrameworksAllowed": false,
+    "rootPackageDependenciesAllowed": false,
+    "runtimeExecutionRequired": false,
+    "peerHarness": "external-opt-in"
+  }
+}
