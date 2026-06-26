@@ -1,0 +1,35 @@
+{
+  "name": "@ccslabs/xtend-xsurface-shard",
+  "version": "0.3.1",
+  "private": false,
+  "description": "XTend XSurface shard package for surface controller and region primitives.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konnilabs/xtend.git",
+    "directory": "xsurface-shard"
+  },
+  "keywords": [
+    "ccslabs",
+    "xtend",
+    "xsurface",
+    "surface",
+    "web-components"
+  ],
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md",
+    "package.json"
+  ],
+  "sideEffects": false
+}

@@ -105,6 +105,7 @@ jobs:
           npm pack --workspace tools --dry-run --json > .xtend-test-results/xtend-pack-dry-run-tools.json
           npm pack --workspace xtend-builder --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
           npm pack --workspace xtend-maraca --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+          npm pack --workspace xsurface-shard --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
 
       - name: Run XTend Maraca gate report
         id: maraca
@@ -136,6 +137,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-tools.json
             .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
             .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+            .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
             .xtend-test-results/xtend-maraca-gate-report.json
             .xtend-build/maraca/source-to-sea/xtend.maraca.report.json
             .xtend-build/maraca/source-to-sea/xtend.maraca.size.json

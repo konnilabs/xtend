@@ -24,7 +24,8 @@
     "fabric",
     "xtend-builder",
     "tools",
-    "xtend-maraca"
+    "xtend-maraca",
+    "xsurface-shard"
   ],
   "browser": "./xtend-loader.js",
   "bin": {
@@ -52,7 +53,8 @@
     "tools",
     "security",
     "docs",
-    "xtend-maraca"
+    "xtend-maraca",
+    "xsurface-shard"
   ],
   "sideEffects": [
     "*.css",
@@ -65,7 +67,8 @@
     "catalog/*.js",
     "design-tokens/*.js",
     "xtendrmt/*.js",
-    "xtend-maraca/*.js"
+    "xtend-maraca/*.js",
+    "xsurface-shard/*.js"
   ],
   "scopedPackages": [
     {
@@ -103,6 +106,12 @@
       "path": "xtend-maraca",
       "install": "npm install @ccslabs/xtend-maraca",
       "scope": "maraca-bundler"
+    },
+    {
+      "name": "@ccslabs/xtend-xsurface-shard",
+      "path": "xsurface-shard",
+      "install": "npm install @ccslabs/xtend-xsurface-shard",
+      "scope": "xsurface-shard"
     }
   ],
   "exports": {
