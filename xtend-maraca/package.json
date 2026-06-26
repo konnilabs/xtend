@@ -2,7 +2,7 @@
   "name": "@ccslabs/xtend-maraca",
   "version": "0.3.1",
   "private": false,
-  "description": "XTend Maraca modern ESM build and bundle planner for RMT-first applications.",
+  "description": "XTend Maraca ESM build and bundle planner for RMT-first 0.4.0 apps, XScaler and XSurface Shard.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

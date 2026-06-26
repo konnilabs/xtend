@@ -2,7 +2,7 @@
   "name": "@ccslabs/xtend-rmt",
   "version": "0.3.1",
   "private": false,
-  "description": "XTendRMT scheduler runtime and browser bridge.",
+  "description": "XTendRMT scheduler runtime and browser bridge for 0.4.0 orchestration with XSurface Shard surface flows.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

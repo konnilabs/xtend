@@ -2,7 +2,7 @@
   "name": "@ccslabs/xtend-cli",
   "version": "0.3.1",
   "private": false,
-  "description": "XTend scaffold, builder and component authoring CLI.",
+  "description": "XTend scaffold, builder and component authoring CLI for 0.4.0 apps with XScaler and XSurface Shard workflows.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
