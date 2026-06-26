@@ -390,6 +390,19 @@
     }
   },
   {
+    "slug": "xscaler-protocol",
+    "id": "docs.xscaler.protocol",
+    "label": "XScaler Protocol",
+    "group": "rmt",
+    "parent": "rmt-reference-remote-surfaces",
+    "tier": "deep-dive",
+    "rank": 87,
+    "labels": {
+      "de": "XScaler-Protokoll",
+      "en": "XScaler Protocol"
+    }
+  },
+  {
     "slug": "rmt-reference-conditions-expressions",
     "id": "docs.rmt.reference.conditions.expressions",
     "label": "Conditions and Expressions",

@@ -69,3 +69,7 @@ Fehlende Owner-, Version-, Origin-, Integrity-, Trust-, Fallback- oder Payload-F
 ## Related operators
 
 `surface`, `lane`, `trust boundary`, `fallback`, `emits`, `consumes`.
+
+## XScaler-Preflight
+
+Remote-Surface-Hosts können Scale-out-Bereitschaft mit dem [XScaler-Protokoll](./xscaler-protocol.md) prüfen, bevor Remote-Code geladen wird. Die Preflight-Response ergänzt Owner, Integrity, Fallback und Lane-Fakten um SSR- und XTension-Deployment-Kompatibilität.

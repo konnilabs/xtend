@@ -1,0 +1,16 @@
+{
+  "schema": "xtend.xscaler.preflight-request.v1",
+  "protocol": "xscaler",
+  "requestId": "xscaler-preflight-001",
+  "surface": "checkout.cart",
+  "host": {
+    "runtime": "xtend-rmt",
+    "ssr": true,
+    "xtensions": ["react-host-controller"]
+  },
+  "capabilities": ["remote-surface-plan", "ssr-compatible", "xtension-deployment"],
+  "constraints": {
+    "maxHydrationMs": 120,
+    "allowNetworkDuringSsr": false
+  }
+}

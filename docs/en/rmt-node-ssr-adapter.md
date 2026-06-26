@@ -113,3 +113,7 @@ node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
 - If SSR or prehydration differs, compare server output, browser bridge and the local adapter test.
 - If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
 - If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+
+## XScaler compatibility
+
+SSR hosts that render remote surface placeholders should evaluate the [XScaler Protocol](./xscaler-protocol.md) first. A compatible plan keeps network access out of server rendering and hydrates only after the accepted preflight response.

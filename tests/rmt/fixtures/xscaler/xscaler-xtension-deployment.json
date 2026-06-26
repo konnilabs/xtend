@@ -1,0 +1,10 @@
+{
+  "schema": "xtend.xscaler.xtension-deployment.v1",
+  "protocol": "xscaler",
+  "deploymentId": "checkout-cart-react-host",
+  "xtension": "react-host-controller",
+  "surface": "checkout.cart",
+  "remoteSurfacePlan": "xscaler-remote-surface-plan.json",
+  "rollout": { "strategy": "gated", "percent": 10 },
+  "ssr": { "hydrateAfterPreflight": true, "requiresDom": false }
+}

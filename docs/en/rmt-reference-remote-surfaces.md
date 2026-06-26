@@ -69,3 +69,7 @@ Missing owner, version, origin, integrity, trust, fallback or payload facts bloc
 ## Related operators
 
 `surface`, `lane`, `trust boundary`, `fallback`, `emits`, `consumes`.
+
+## XScaler preflight
+
+Remote surface hosts can validate scale-out readiness with [XScaler Protocol](./xscaler-protocol.md) before loading remote code. The preflight response complements owner, integrity, fallback and lane facts with SSR and XTension deployment compatibility.
