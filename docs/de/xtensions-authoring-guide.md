@@ -31,3 +31,7 @@ Fuer XTend selbst gilt no framework dependency. Framework-Runtimes werden nicht 
 ## Fallback
 
 Jede XTension muss einen Fallback definieren. Ein fehlender Peer, eine blockierte Policy oder ein Runtime-Fehler darf die Shell nicht blockieren. Die Surface wird degraded, diagnostiziert und bleibt ueber Fabric beobachtbar.
+
+## XScaler-Deployment
+
+XTensions, die Remote-Surfaces oder Framework-Inseln skalieren, können das [XScaler-Protokoll](./xscaler-protocol.md) als Deployment-Gate verwenden. Der Deployment-Record benennt XTension, Surface, Rollout-Strategie und SSR-Hydration, bevor der Host die Insel aktiviert.

@@ -60,6 +60,9 @@ jobs:
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
+      - name: Run XScaler protocol gate report
+        run: npm run test:xscaler-protocol:report
+
       - name: Run RKFA production closure report
         run: npm run test:rkfa-production-closure:report
 
@@ -76,6 +79,7 @@ jobs:
           path: |
             .xtend-test-results/xtend-pr-gate-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
+            .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-rkfa-production-closure-report.json
             .xtend-test-results/xtend-docs-stub-inventory-report.json
           if-no-files-found: warn
@@ -112,6 +116,9 @@ jobs:
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
+      - name: Run XScaler protocol gate report
+        run: npm run test:xscaler-protocol:report
+
       - name: Run RKFA production closure report
         run: npm run test:rkfa-production-closure:report
 
@@ -128,6 +135,7 @@ jobs:
           path: |
             .xtend-test-results/xtend-release-gate-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
+            .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-rkfa-production-closure-report.json
             .xtend-test-results/xtend-docs-stub-inventory-report.json
           if-no-files-found: warn

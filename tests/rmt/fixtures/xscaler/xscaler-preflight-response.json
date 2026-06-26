@@ -1,0 +1,13 @@
+{
+  "schema": "xtend.xscaler.preflight-response.v1",
+  "protocol": "xscaler",
+  "requestId": "xscaler-preflight-001",
+  "accepted": true,
+  "surface": "checkout.cart",
+  "compatibility": {
+    "ssr": "compatible",
+    "remoteSurfacePlan": "required",
+    "xtensionDeployment": "allowed"
+  },
+  "requiredAnchors": ["#schemas", "#ssr-kompatibilitaet", "#xtensions-deployment"]
+}

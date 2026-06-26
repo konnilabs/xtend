@@ -444,6 +444,10 @@ const {
   runRmtVNextRemoteManifestSuite
 } = require('../tests/rmt-language/rmt_vnext_remote_manifest_suite');
 const {
+  printXScalerProtocolReport,
+  runXScalerProtocolSuite
+} = require('../tests/rmt/xscaler_protocol_suite');
+const {
   printRmtVNextEnterpriseRegistryReport,
   runRmtVNextEnterpriseRegistrySuite
 } = require('../tests/rmt-language/rmt_vnext_enterprise_registry_suite');
@@ -1970,6 +1974,16 @@ const suites = [
       const result = runRmtVNextReleaseHandoffSuite({ rootDir });
       printRmtVNextReleaseHandoffReport(result);
       return toRunnerResult('rmt-vnext-release', 'Epic 15 RMT vNext Release Handoff', result);
+    }
+  },
+  {
+    id: 'xscaler-protocol',
+    label: 'XScaler Protocol Gate',
+    description: 'Runs XScaler schema, fixture, docs-anchor, SSR compatibility and XTensions deployment gates.',
+    run: () => {
+      const result = runXScalerProtocolSuite({ rootDir });
+      printXScalerProtocolReport(result);
+      return toRunnerResult('xscaler-protocol', 'XScaler Protocol Gate', result);
     }
   },
   {
@@ -3839,6 +3853,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-compatibility
   node scripts/run_xtend_tests.js rmt-vnext-regression
   node scripts/run_xtend_tests.js rmt-vnext-release
+  node scripts/run_xtend_tests.js xscaler-protocol
   node scripts/run_xtend_tests.js rmt-vnext-remote-manifest
   node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry
   node scripts/run_xtend_tests.js rmt-vnext-degradation

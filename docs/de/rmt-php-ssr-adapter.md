@@ -115,3 +115,7 @@ node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
 - Wenn SSR oder Prehydration abweicht, vergleiche Server-Output, Browser-Bridge und den lokalen Adapter-Test.
 - Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
 - Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+
+## XScaler-Kompatibilität
+
+SSR-Hosts, die Remote-Surface-Platzhalter rendern, sollten zuerst das [XScaler-Protokoll](./xscaler-protocol.md) auswerten. Ein kompatibler Plan hält Netzwerkzugriffe aus dem Server-Rendering heraus und hydriert erst nach akzeptierter Preflight-Response.
