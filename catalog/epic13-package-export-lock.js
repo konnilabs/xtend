@@ -32,6 +32,16 @@ const PACKAGE_EXPORT_SURFACE_ARTIFACT = '.xtend-test-results/xtend-package-expor
 const PACKAGE_EXPORT_LOCK_REPORT_ARTIFACT = '.xtend-test-results/xtend-package-export-lock-report.json';
 const PUBLISH_BOUNDARY = 'private-until-release-owner-acceptance';
 
+const EXPECTED_SCOPED_PACKAGES = Object.freeze([
+  '@ccslabs/xtend',
+  '@ccslabs/xtend-rmt',
+  '@ccslabs/xtend-fabric',
+  '@ccslabs/xtend-cli',
+  '@ccslabs/xtend-compiler',
+  '@ccslabs/xtend-maraca',
+  '@ccslabs/xtend-xsurface-shard'
+]);
+
 const EXPECTED_EXPORT_KEYS = Object.freeze([
   '.',
   './loader',
@@ -512,6 +522,9 @@ function createEpic13PackageExportLockPlan(options = {}) {
   const sourceValidation = options.sourceValidation || validateEpic13ConditionalNetworkEvidencePlan(sourcePlan);
   const sourceReport = options.sourceReport || createEpic13ConditionalNetworkEvidenceReport({ ...options, plan: sourcePlan });
   const surfaceSnapshot = options.surfaceSnapshot || createPackageExportSurfaceSnapshot(packageManifest);
+  const scopedPackages = Array.isArray(packageManifest.scopedPackages) ? packageManifest.scopedPackages : [];
+  const scopedPackageNames = scopedPackages.map((entry) => entry && entry.name).filter(Boolean);
+  const missingScopedPackages = EXPECTED_SCOPED_PACKAGES.filter((name) => !scopedPackageNames.includes(name));
   const packDryRunArtifact = options.packDryRunArtifact
     ? createPackDryRunArtifactSummary(options.packDryRunArtifact)
     : null;
@@ -542,6 +555,10 @@ function createEpic13PackageExportLockPlan(options = {}) {
     targetReadiness: EPIC13_PACKAGE_EXPORT_LOCK_TARGET,
     packageName: packageManifest.name,
     packageVersion: packageManifest.version,
+    scopedPackages: clone(scopedPackages),
+    scopedPackageNames,
+    expectedScopedPackages: EXPECTED_SCOPED_PACKAGES.slice(),
+    missingScopedPackages,
     packagePrivate: packageManifest.private === false,
     packageDryRunCommand: PACKAGE_DRY_RUN_COMMAND,
     packageDryRunJsonCommand: PACKAGE_DRY_RUN_JSON_COMMAND,
@@ -589,6 +606,8 @@ function validateEpic13PackageExportLockPlan(plan = createEpic13PackageExportLoc
   if (!surface || surface.missingRequiredPackRoots.length > 0) errors.push(`missing package file roots: ${surface ? surface.missingRequiredPackRoots.join(', ') : '<surface missing>'}`);
   if (!surface || surface.uncoveredExportTargets.length > 0) errors.push(`exports outside package files: ${surface ? surface.uncoveredExportTargets.join(', ') : '<surface missing>'}`);
   if (!surface || surface.externalExportTargets.length > 0) errors.push(`external export targets are forbidden: ${surface ? surface.externalExportTargets.join(', ') : '<surface missing>'}`);
+  if (!plan || !Array.isArray(plan.scopedPackageNames)) errors.push('root scopedPackages metadata must be present');
+  if (!plan || plan.missingScopedPackages.length > 0) errors.push(`missing scoped package metadata: ${plan ? plan.missingScopedPackages.join(', ') : '<plan missing>'}`);
   groups.forEach((group) => {
     if (!group.ok) errors.push(`surface group ${group.id} is incomplete`);
   });
@@ -624,6 +643,9 @@ function createEpic13PackageExportLockReport(options = {}) {
     surfaceGroupCount: plan.surfaceSnapshot.surfaceGroups.length,
     missingExpectedExports: plan.surfaceSnapshot.missingExpectedExports,
     unexpectedExports: plan.surfaceSnapshot.unexpectedExports,
+    expectedScopedPackages: plan.expectedScopedPackages,
+    scopedPackageNames: plan.scopedPackageNames,
+    missingScopedPackages: plan.missingScopedPackages,
     publishAllowed: plan.publishAllowed,
     nextWorkpackage: plan.nextWorkpackage
   };
@@ -647,6 +669,7 @@ module.exports = {
   EPIC13_PACKAGE_EXPORT_LOCK_WORKPACKAGE_DOC,
   EPIC13_PACKAGE_EXPORT_SURFACE_SCHEMA,
   EXPECTED_EXPORT_KEYS,
+  EXPECTED_SCOPED_PACKAGES,
   PACKAGE_DRY_RUN_ARTIFACT,
   PACKAGE_DRY_RUN_COMMAND,
   PACKAGE_DRY_RUN_JSON_COMMAND,

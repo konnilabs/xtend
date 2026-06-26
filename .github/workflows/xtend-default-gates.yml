@@ -250,6 +250,7 @@ jobs:
           npm pack --workspace tools --dry-run --json > .xtend-test-results/xtend-pack-dry-run-tools.json
           npm pack --workspace xtend-builder --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
           npm pack --workspace xtend-maraca --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+          npm pack --workspace xsurface-shard --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
 
       - name: Upload package structure evidence
         if: always()
@@ -265,6 +266,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-tools.json
             .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
             .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+            .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
           if-no-files-found: warn
 
   conditional-network-evidence:

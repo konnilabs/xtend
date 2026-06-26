@@ -31,6 +31,7 @@ const {
   EPIC13_PACKAGE_EXPORT_LOCK_WORKPACKAGE_DOC,
   EPIC13_PACKAGE_EXPORT_SURFACE_SCHEMA,
   EXPECTED_EXPORT_KEYS,
+  EXPECTED_SCOPED_PACKAGES,
   PACKAGE_DRY_RUN_ARTIFACT,
   PACKAGE_DRY_RUN_COMMAND,
   PACKAGE_DRY_RUN_JSON_COMMAND,
@@ -168,10 +169,13 @@ function runEpic13PackageExportLockSuite(options = {}) {
   context.assert(report.exportCount === EXPECTED_EXPORT_KEYS.length, 'Package export lock report counts locked exports');
   context.assert(report.missingExpectedExports.length === 0, 'Package export lock has no missing expected exports');
   context.assert(report.unexpectedExports.length === 0, 'Package export lock has no unexpected exports');
+  context.assert(report.missingScopedPackages.length === 0, 'Package export lock report validates all root scoped package entries');
+  assertIncludesAll(context, report.scopedPackageNames, EXPECTED_SCOPED_PACKAGES, 'Package export lock report scoped package names');
   context.assert(artifactSummary.schema === EPIC13_PACKAGE_DRY_RUN_ARTIFACT_SCHEMA, 'Pack dry-run artifact summary exposes schema');
   context.assert(artifactSummary.missingRequiredRoots.length === 0, 'Synthetic pack dry-run artifact covers all required roots');
   context.assert(artifactValidation.ok === true, 'Package export lock validates with a pack dry-run artifact');
   assertIncludesAll(context, plan.expectedExportKeys, EXPECTED_EXPORT_KEYS, 'Expected export keys');
+  assertIncludesAll(context, plan.expectedScopedPackages, EXPECTED_SCOPED_PACKAGES, 'Expected scoped packages');
   assertIncludesAll(context, plan.requiredPackRoots, REQUIRED_PACK_ROOTS, 'Required pack roots');
   context.assert(plan.surfaceSnapshot.schema === EPIC13_PACKAGE_EXPORT_SURFACE_SCHEMA, 'Surface snapshot exposes schema');
   context.assert(plan.surfaceSnapshot.exportCount === EXPECTED_EXPORT_KEYS.length, 'Surface snapshot locks export count');
@@ -189,6 +193,7 @@ function runEpic13PackageExportLockSuite(options = {}) {
   context.assert((packageManifest.exports['./catalog/epic13-hydration-performance-closure'] === './catalog/epic13-hydration-performance-closure.js' || (packageManifest.exports['./catalog/epic13-hydration-performance-closure'] && packageManifest.exports['./catalog/epic13-hydration-performance-closure'].default === './catalog/epic13-hydration-performance-closure.js')), 'Package exports hydration performance closure module');
   context.assert((packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'] === './catalog/epic13-prod-browser-csp-smoke.js' || (packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'] && packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'].default === './catalog/epic13-prod-browser-csp-smoke.js')), 'Package exports PROD Browser CSP smoke module');
   context.assert((packageManifest.exports['./catalog/epic13-visual-owner-artifact'] === './catalog/epic13-visual-owner-artifact.js' || (packageManifest.exports['./catalog/epic13-visual-owner-artifact'] && packageManifest.exports['./catalog/epic13-visual-owner-artifact'].default === './catalog/epic13-visual-owner-artifact.js')), 'Package exports visual owner artifact module');
+  context.assert(packageManifest.scopedPackages.some((entry) => entry.name === '@ccslabs/xtend-xsurface-shard' && entry.path === 'xsurface-shard'), 'Root scopedPackages includes @ccslabs/xtend-xsurface-shard');
   context.assert(packageManifest.scripts['test:epic13-package-export-lock'] === 'node scripts/run_xtend_tests.js epic13-package-export-lock', 'Package exposes package export lock script');
   context.assert(packageManifest.scripts['pack:dry-run:report'] === 'node scripts/capture_pack_dry_run.js', 'Package exposes pack dry-run report script');
   context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_PACKAGE_EXPORT_LOCK_PACKAGE_SCRIPT), 'Package release gates include package export lock script');
