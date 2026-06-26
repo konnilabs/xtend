@@ -46,6 +46,12 @@ Der Bootpfad erzeugt Browser-/Host-Adapter, Kernel Runtime, Core, Performance Ru
 
 DOM wird ausschließlich über DOM Descriptor Renderer oder strukturierte `createElement`-Fallbacks materialisiert. Es gibt kein `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write` und keinen Zugriff auf private ShadowRoot-Interna. Components werden nur über öffentliche Attribute, Properties, Events, Slots, CSS Parts und Design Tokens verbunden.
 
+## Verantwortlichkeiten der Runtime-Schicht
+
+Die Maraca Runtime ist die clientseitige Ausführungsschicht der Architektur. Sie erhält nur Streams und Pläne, die bereits XScaler Preflight und, falls vorhanden, die XScaler-ATC-Übergabe passiert haben. Ihre Aufgaben sind Stream-Annahme, Normalisierung in Runtime Records, Ausführung deklarierter Actions über die öffentliche Action-/Effect-Pipeline, Event-Routing, State-Updates und Surface-Materialisierung über sichere Renderer.
+
+Maraca trifft nicht die statische Annahme-/Ablehnungsentscheidung, besitzt keine serverseitige Remote-Surface-Orchestrierung und stellt keine generischen Server-Endpunkte bereit. Wenn eine Remote Surface von einem XSurface Shard Server gestützt wird, konsumiert Maraca den übergebenen Client-Stream und Lifecycle-Signale. Wenn der Server nur generische Endpunkte anbietet, behandelt Maraca sie als Fallback-Daten-/Action-Endpunkte ohne Remote-Surface-Orchestrierungssemantik. Scheduling, Lanes, Diagnostics und Policy-Auswertung werden an RMT-Kernel-/Fabric-Signale delegiert; private Remote-Ausführung bleibt außerhalb des Kernels.
+
 ## Reports und Bridges
 
 `xtend.maraca.report.json` enthält Abschnitte für `orchestration`, `kernel`, `hydration`, `validation` und `transitions`. Wichtige Felder sind `planStatus`, `runtimeExpectedStatus`, `fallbackCount`, `scheduledEndpointCount`, `strictViolations`, `hydrationPolicyCount`, `insularIslandCount`, `effectCounts`, `durationRange`, `runtimeModules` und redigierte `diagnostics`.

@@ -40,6 +40,17 @@ remote surface checkout.cart from remote {
 
 Der wichtigste Boundary-Satz lautet `no-remote-runtime-execution-in-rmt-kernel`. Der Kernel sieht Records, Policies, Schedules und Diagnostics; das Laden, Cachen oder Ausfuehren produktiver Remote-Bundles bleibt Host-Adapter-Logik.
 
+## Architekturschichten
+
+Remote-Surface-Architektur verwendet explizite Schichten, damit Hosts den passenden Orchestrierungspfad wählen können:
+
+1. **XScaler Preflight** ist das statische Gate. Es akzeptiert oder verwirft den Surface-Plan anhand von Manifest-, Policy-, Integrity-, Fallback- und Host-Capability-Fakten, bevor Remote-Code läuft.
+2. **XScaler ATC** startet erst nach akzeptierter Preflight-Response. ATC besitzt die Flight-Session, Client/Server-Kommunikation, die Übergabe in die Host-Runtime und Lifecycle-Orchestrierung wie Attach, Detach, Cancel, Fallback und Diagnostics.
+3. **Maraca Runtime** läuft im Client. Sie nimmt den übergebenen Stream an, verarbeitet Runtime Records, führt deklarierte Actions aus, routet Events und materialisiert Surfaces über sichere DOM-Descriptor- oder Component-Renderer.
+4. **XSurface Shard Server Layer** ist die serverseitige Remote-Surface-Orchestrierungsschicht. Sie kann Remote Surfaces nach Shards partitionieren, serverseitigen Lifecycle-State koordinieren, Stream-Fragmente veröffentlichen und ATC-kompatible Übergabesignale bereitstellen.
+5. **Generische Server-Endpunkte** sind der Fallback-Pfad, wenn kein XSurface Shard Server und keine Remote Surface Orchestration verfügbar sind. Sie stellen normale Daten-, Action- oder SSR-Endpunkte bereit; der Client konsumiert sie als generische Ressourcen statt als orchestrierte Remote Surfaces.
+6. **RMT Kernel/Fabric** wertet Policies aus, erzeugt Schedules, weist Lanes zu und emittiert Diagnostics. Es beobachtet Records und Orchestrierungssignale, aber die Invariante bleibt `no-remote-runtime-execution-in-rmt-kernel`: Private Remote-Ausführung gehört zu Host-Adaptern, Shard Servern oder generischen Endpunkten, niemals in den Kernel.
+
 ## Enterprise Fixture
 
 Die pruefbare Enterprise-Strecke liegt in `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`. Dieses Fixture kombiniert lokale Surfaces, eine Remote Surface, Degradation, Remote Security und Cross-Surface Events. Der Core-Output `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json` ist das Golden-Artefakt für Reviews; der Browser-Smoke `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html` bleibt offline und darf weder `fetch(` noch dynamische Imports brauchen.
