@@ -46,6 +46,12 @@ The boot path creates the browser/host adapter, kernel runtime, core, performanc
 
 DOM is materialized only through the DOM descriptor renderer or structured `createElement` fallbacks. There is no `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write` or access to private ShadowRoot internals. Components are connected only through public attributes, properties, events, slots, CSS parts and design tokens.
 
+## Runtime layer responsibilities
+
+Maraca Runtime is the client-side execution layer in the architecture. It receives only streams and plans that have already passed XScaler Preflight and, when present, XScaler ATC handoff. Its responsibilities are to accept the stream, normalize it into runtime records, run declared actions through the public action/effect pipeline, route events, update state and materialize surfaces through safe renderers.
+
+Maraca does not make the static accept/reject decision, does not own server-side remote-surface orchestration and does not provide generic server endpoints. If a remote surface is backed by an XSurface Shard Server, Maraca consumes the handed-off client stream and lifecycle signals. If the server only exposes generic endpoints, Maraca treats them as fallback data/action endpoints without remote surface orchestration semantics. Scheduling, lanes, diagnostics and policy evaluation are delegated to RMT Kernel/Fabric signals, while private remote execution remains outside the kernel.
+
 ## Reports And Bridges
 
 `xtend.maraca.report.json` contains sections for `orchestration`, `kernel`, `hydration`, `validation` and `transitions`. Important fields include `planStatus`, `runtimeExpectedStatus`, `fallbackCount`, `scheduledEndpointCount`, `strictViolations`, `hydrationPolicyCount`, `insularIslandCount`, `effectCounts`, `durationRange`, `runtimeModules` and redacted `diagnostics`.

@@ -2,6 +2,15 @@
 
 XScaler is the public preflight protocol that lets XTend hosts decide whether a remote surface, SSR adapter and XTension deployment can be scaled into a runtime slot before any remote code executes.
 
+## Layer boundary
+
+XScaler is split into two layers with different responsibilities:
+
+1. **XScaler Preflight** makes a static accept/reject decision before any remote bundle, SSR adapter extension or XTension code executes. It compares host capabilities, manifest facts, integrity metadata, fallback availability, lane placement and policy requirements, then returns the accepted plan or the rejection reason. Preflight is deliberately side-effect free: it does not open a flight session, stream UI, execute actions or materialize a surface.
+2. **XScaler ATC (Air Traffic Control)** owns the runtime flight session after Preflight accepts the plan. ATC coordinates client/server communication, session identifiers, handoff from the accepted plan to the runtime host, lifecycle transitions, cancellation, fallback activation and diagnostics. ATC may orchestrate when a remote surface is asked to board or leave a slot, but it still does not turn the RMT kernel into a private remote-code executor.
+
+Downstream layers keep the same boundary. Maraca Runtime processes accepted streams on the client, executes declared actions and materializes surfaces. XSurface Shard Server layers may orchestrate server-side remote surfaces. Generic server endpoints remain the fallback path when no remote surface orchestration is available. RMT Kernel/Fabric keeps scheduling, lanes, diagnostics and policy evaluation, but never performs private remote execution.
+
 ## Schemas
 
 XScaler fixtures use four stable schema names:
