@@ -2,7 +2,7 @@
   "name": "@ccslabs/xtend",
   "version": "0.3.1",
   "private": false,
-  "description": "Native-first Web Component, XTendRMT, Fabric and Maraca app orchestration toolkit.",
+  "description": "Native-first XTend orchestration toolkit for Web Components, XTendRMT, Fabric, Maraca, XScaler and XSurface Shard.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

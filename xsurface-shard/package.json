@@ -2,7 +2,7 @@
   "name": "@ccslabs/xtend-xsurface-shard",
   "version": "0.3.1",
   "private": false,
-  "description": "XTend XSurface shard package for surface controller and region primitives.",
+  "description": "XSurface Shard surface-sharding package with region and controller primitives for XTend 0.4.0 surfaces.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
