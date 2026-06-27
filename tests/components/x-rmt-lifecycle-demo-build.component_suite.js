@@ -43,6 +43,8 @@ function runXRmtLifecycleDemoBuildComponentSuite(options = {}) {
   context.assertIncludes(source, 'data-xtend-hydrated', 'x-rmt-lifecycle-demo-build marks hydration state');
   context.assertIncludes(source, 'role="${role}"', 'x-rmt-lifecycle-demo-build renders semantic region role');
   context.assertIncludes(source, 'aria-label="${this._escapeAttribute(accessibleName)}"', 'x-rmt-lifecycle-demo-build reflects accessible name');
+  context.assertIncludes(source, 'data-variant="${variant}"', 'x-rmt-lifecycle-demo-build reflects variant');
+  context.assertIncludes(source, "const variant = this._escapeAttribute(this.getAttribute('variant') || 'default');", 'x-rmt-lifecycle-demo-build escapes variant before rendering');
 
   context.assertIncludes(types, 'XRmtLifecycleDemoBuildElement', 'x-rmt-lifecycle-demo-build public types declare element interface');
   context.assertIncludes(types, 'XRmtLifecycleDemoBuildEventDetailMap', 'x-rmt-lifecycle-demo-build public types declare detail map');
