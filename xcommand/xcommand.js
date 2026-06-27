@@ -83,7 +83,7 @@
       actionRefs: toSet(options.allowedActionRefs || options.actions || options.actionRefs),
       eventRefs: toSet(options.allowedEventRefs || options.events || options.eventRefs),
       effectRefs: toSet(options.allowedEffectRefs || options.effects || options.effectRefs),
-      authorize: typeof options.authorizeReference === 'function' ? options.authorizeReference : null
+      authorize: typeof options.authorizeReference === 'function' ? options.authorizeReference : typeof options.authorize === 'function' ? options.authorize : null
     };
   }
 
