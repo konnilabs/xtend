@@ -4,6 +4,7 @@
   const TRUSTED_DOM_BOUNDARY = 'xtend.rmt.trusted-dom-boundary.explicit';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.dom_descriptor';
   const SAFE_TAG_NAME = /^[a-z][a-z0-9.-]*$/u;
+  const BLOCKED_TAG_NAMES = new Set(['script', 'object', 'embed', 'iframe', 'frame', 'frameset', 'meta', 'link', 'base', 'applet', 'param']);
   const URL_ATTRIBUTE_NAMES = new Set(['href', 'src', 'action', 'formaction', 'poster']);
   const BLOCKED_ATTRIBUTE_NAMES = new Set(['srcdoc']);
   const BLOCKED_PROPERTY_NAMES = new Set(['innerHTML', 'outerHTML', 'insertAdjacentHTML']);
@@ -979,7 +980,7 @@
 
   function renderElement(descriptor, context) {
     const tag = clampString(descriptor.tag, 'div');
-    if (!SAFE_TAG_NAME.test(tag)) {
+    if (!SAFE_TAG_NAME.test(tag) || BLOCKED_TAG_NAMES.has(tag.toLowerCase())) {
       throw createRendererError('rmt.dom.tag.unsafe', `Unsicherer oder ungueltiger Tag ${tag}`, descriptor, context);
     }
     const element = context.documentTarget.createElement(tag);

@@ -321,6 +321,22 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   context.assert(betaBefore.getAttribute('aria-selected') === 'true', 'selection update marks beta selected');
   context.assert(betaBefore.getAttribute('class').includes('is-selected'), 'selection update maps beta selected class');
   context.assert(alphaBefore.getAttribute('aria-selected') === 'false', 'selection update marks alpha unselected');
+  const unsafeBinding = stateRuntimeModule.applyRmtStateBindings(root, [{
+    id: 'binding.unsafe-sinks',
+    source: '$selectors.selector.filtered-items',
+    key: 'id',
+    attributes: {
+      onclick: 'alert(1)',
+      href: 'javascript:alert(2)'
+    },
+    properties: {
+      innerHTML: '<img src=x onerror=alert(3)>'
+    }
+  }], runtime);
+  context.assert(betaBefore.getAttribute('onclick') === null, 'state bindings reject event-handler attributes');
+  context.assert(betaBefore.getAttribute('href') === null, 'state bindings reject unsafe javascript URLs');
+  context.assert(typeof betaBefore.innerHTML === 'undefined', 'state bindings reject HTML sink properties');
+  context.assert(unsafeBinding.operations.every((operation) => operation.skipped === true), 'state bindings report unsafe sinks as skipped operations');
 
   const filterEvent = runtime.dispatch('command.set-filter', {
     query: 'ga'
