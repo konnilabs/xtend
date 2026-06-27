@@ -317,7 +317,20 @@ async function runSurfaceAndShellAssertions(context, actionRuntimeModule, render
       { id: 'surface.workspace', source: 'records.items', repeat: true, key: '$record.id', owner: '$instance.id', component: 'x-workspace', template: { type: 'element', tag: 'x-workspace', children: [{ type: 'text', text: '$item.title' }] } }
     ],
     overlays: [
-      { id: 'overlay.lightbox', kind: 'lightbox', portal: 'portal.overlay', component: 'x-lightbox', resources: ['resource.preview-url'], attributes: { 'data-test-lightbox': 'true' } }
+      { id: 'overlay.lightbox', kind: 'lightbox', portal: 'portal.overlay', component: 'x-lightbox', resources: ['resource.preview-url'], attributes: { 'data-test-lightbox': 'true' } },
+      {
+        id: 'overlay.hostile',
+        kind: 'popover',
+        portal: 'portal.overlay',
+        component: 'img',
+        attributes: {
+          src: 'javascript:alert(1)',
+          onerror: 'alert(1)',
+          srcdoc: '<script>alert(1)</script>',
+          style: 'background-image:url(javascript:alert(1))',
+          'data-safe-overlay': 'kept'
+        }
+      }
     ]
   });
   surfaceRuntime.mountPortal('portal.overlay', documentTarget.body);
@@ -329,6 +342,15 @@ async function runSurfaceAndShellAssertions(context, actionRuntimeModule, render
   context.assert(overlay.elementMounted === true && Boolean(overlayElement), 'Overlay materializer mounts portal DOM elements');
   context.assert(overlayElement && overlayElement.getAttribute('data-rmt-overlay-ref') === 'overlay.lightbox', 'Overlay materializer marks portal ownership');
   context.assert(objectUrls.length === 1, 'Overlay materializer acquires owned object-url resources');
+  const hostileOverlay = await surfaceRuntime.openOverlay('overlay.hostile');
+  const hostileElement = documentTarget.body.children.find((child) => child.getAttribute && child.getAttribute('data-rmt-overlay-ref') === 'overlay.hostile');
+  context.assert(hostileOverlay.elementMounted === true && hostileElement && hostileElement.tagName === 'DIV', 'Overlay materializer falls back from unsafe executable element tags');
+  context.assert(hostileElement && hostileElement.getAttribute('data-safe-overlay') === 'kept', 'Overlay materializer preserves safe overlay attributes');
+  context.assert(hostileElement && hostileElement.getAttribute('onerror') === null && hostileElement.getAttribute('srcdoc') === null && hostileElement.getAttribute('style') === null && hostileElement.getAttribute('src') === null, 'Overlay materializer strips event, srcdoc, style, and unsafe URL attributes');
+  const overlayDiagnostics = surfaceRuntime.listDiagnostics();
+  context.assert(overlayDiagnostics.some((diagnostic) => diagnostic.code === 'rmt.overlay.tag.unsafe'), 'Overlay materializer diagnoses unsafe tags');
+  context.assert(overlayDiagnostics.filter((diagnostic) => diagnostic.code === 'rmt.overlay.attribute.unsafe').length >= 4, 'Overlay materializer diagnoses unsafe attributes');
+  surfaceRuntime.closeOverlay(hostileOverlay.id);
   const closed = surfaceRuntime.closeOverlay(overlay.id);
   context.assert(closed.closed === true && closed.overlay.elementMounted === false, 'Overlay close removes materialized elements from reports');
   context.assert(!documentTarget.body.children.some((child) => child.getAttribute && child.getAttribute('data-rmt-overlay-ref') === 'overlay.lightbox') && revokedUrls.length === 1, 'Overlay close cleans portal DOM and object URLs');
