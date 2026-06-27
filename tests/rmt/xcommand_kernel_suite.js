@@ -93,6 +93,22 @@ function validateRmtParser(context, rootDir) {
   context.assert(blocked.status === 'ignored', 'kernel refuses to dispatch unallowlisted action references when a host policy is configured');
   context.assert(gatedKernel.getDiagnostics().some((diagnostic) => diagnostic.code === 'xcommand.registration.action.unauthorized'), 'kernel reports unauthorized registration references');
   context.assert(blockedInvocations.length === 0, 'kernel does not execute unauthorized registrations');
+
+  const callbackInvocations = [];
+  const authorizeCalls = [];
+  const callbackGatedKernel = xcommand.createXCommandKernel({
+    authorizeReference: (kind, ref, record) => {
+      authorizeCalls.push({ kind, ref, id: record.id });
+      return ref === 'action.saveDocument';
+    },
+    actionExecutor: () => callbackInvocations.push('blocked')
+  });
+  callbackGatedKernel.register({ id: 'admin.callback-delete', keys: 'Ctrl+Shift+D', action: 'action.admin.deleteAllData' });
+  const callbackBlocked = callbackGatedKernel.dispatch({ token: 'Ctrl+Shift+d', timestamp: 600 });
+  context.assert(authorizeCalls.some((call) => call.kind === 'action' && call.ref === 'action.admin.deleteAllData' && call.id === 'admin.callback-delete'), 'kernel invokes host authorizeReference callbacks for registrations');
+  context.assert(callbackGatedKernel.getDiagnostics().some((diagnostic) => diagnostic.code === 'xcommand.registration.action.unauthorized'), 'kernel reports callback-denied registration references');
+  context.assert(callbackBlocked.status === 'ignored', 'kernel refuses to dispatch callback-denied action references');
+  context.assert(callbackInvocations.length === 0, 'kernel does not execute callback-denied registrations');
 }
 
 
