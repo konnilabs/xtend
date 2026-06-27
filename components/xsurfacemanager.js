@@ -2068,7 +2068,7 @@ class XSurfaceManager extends HTMLElement {
     } else if (element && typeof element.toSurfaceRecord === 'function') {
       record = element.toSurfaceRecord(this._managerId());
     }
-    if (!element && isSurfaceRemoteInput(record)) {
+    if (isSurfaceRemoteInput(record)) {
       return this.registerRemoteSurface(record, { source: 'registerSurface' });
     }
     const result = controller.registerSurface(record);
