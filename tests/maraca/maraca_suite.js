@@ -1590,20 +1590,20 @@ async function runKernelIntegrityBrowserSmoke(context, rootDir) {
     });
     if (browser.error) {
       const reason = browser.error.message || String(browser.error);
-      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity Chromium smoke ${reason}`);
+      context.fail(`kernel integrity Chromium smoke ${reason}`);
       return null;
     }
     if (browser.status === 124 || browser.status === 137) {
-      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity Chromium smoke timed out after ${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`);
+      context.fail(`kernel integrity Chromium smoke timed out after ${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`);
       return null;
     }
     if (browser.status !== 0) {
-      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity Chromium smoke exited ${browser.status}: ${(browser.stderr || '').trim()}`);
+      context.fail(`kernel integrity Chromium smoke exited ${browser.status}: ${(browser.stderr || '').trim()}`);
       return null;
     }
     const match = /<pre id="result"[^>]*>([\s\S]*?)<\/pre>/u.exec(browser.stdout || '');
     if (!match) {
-      markKernelIntegrityBrowserSmokeUnavailable(context, 'kernel integrity browser smoke did not expose a result payload');
+      context.fail('kernel integrity browser smoke did not expose a result payload');
       return null;
     }
     const payload = JSON.parse(htmlDecode(match[1]));
