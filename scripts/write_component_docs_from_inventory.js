@@ -435,6 +435,16 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 `;
 }
 
+function resolveContainedDocsPath(rootDir, locale, relativePath) {
+  const componentsDir = path.resolve(rootDir, 'docs', locale, 'components');
+  const absolutePath = path.resolve(rootDir, relativePath);
+  const relativeToComponents = path.relative(componentsDir, absolutePath);
+  if (relativeToComponents.startsWith('..') || path.isAbsolute(relativeToComponents)) {
+    throw new Error(`Refusing to write component docs outside docs/${locale}/components: ${relativePath}`);
+  }
+  return absolutePath;
+}
+
 function writeDocs(options = {}) {
   const rootDir = options.rootDir || path.resolve(__dirname, '..');
   const inventory = createComponentDocsInventory({ rootDir });
@@ -446,7 +456,7 @@ function writeDocs(options = {}) {
     };
     Object.entries(localized).forEach(([locale, content]) => {
       const relativePath = entry.docs[locale];
-      const absolutePath = path.join(rootDir, relativePath);
+      const absolutePath = resolveContainedDocsPath(rootDir, locale, relativePath);
       fs.writeFileSync(absolutePath, content, 'utf8');
       written.push(relativePath);
     });
