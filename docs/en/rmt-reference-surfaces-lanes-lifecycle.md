@@ -28,10 +28,11 @@ Surfaces describe UI areas. Lanes schedule work. Lifecycle operations describe w
 | <a id="reattach"></a>`reattach` | `reattach panel` | Lane, slot | target | Attaches a detached unit again. | Only valid in lane or slot. | `detach` |
 | <a id="stream"></a>`stream` | `stream feed from sse app.feed` | Lane, slot | target, source | Describes incremental rendering data. | `stream` requires a data source. | `sse`, `sanitize` |
 | <a id="slot"></a>`slot` | `slot header { hydrate title from selector app.title }` | Policy block | slot name | Groups operations in a composition slot. | Slots allow only lifecycle or `stream`. | `mount`, `hydrate` |
+| <a id="resumability"></a>`resumability` | `resumability mode server_prerender_resume` | Policy block | `mode`, `snapshot`, `event replay` or `integrity` | Declares full SSR resumability as a resume handoff. | Clauses must be static and use a known resumability axis. | `hydration mode`, `resume` |
 
 ## Allowed contexts
 
-`lane` belongs directly in `surface`. Lifecycle operations and `stream` belong in `lane` or `slot`. `slot`, `on`, `trust`, `hydration`, `isolation` and `sanitize` belong in lifecycle policy blocks.
+`lane` belongs directly in `surface`. Lifecycle operations and `stream` belong in `lane` or `slot`. `slot`, `on`, `trust`, `hydration`, `resumability`, `isolation` and `sanitize` belong in lifecycle policy blocks.
 
 ## Parameters
 
@@ -76,7 +77,13 @@ template reference.lifecycle {
           preventDefault true
         }
       }
-      hydrate shell.card from selector app.cardView
+      hydrate shell.card from selector app.cardView {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
       suspend shell.card
       resume shell.card
       invalidate shell.card

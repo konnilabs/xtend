@@ -28,10 +28,11 @@ Surfaces beschreiben UI-Flächen. Lanes planen Arbeit. Lifecycle-Operationen bes
 | <a id="reattach"></a>`reattach` | `reattach panel` | Lane, Slot | Target | Bindet eine getrennte Einheit wieder ein. | Nur in Lane oder Slot erlaubt. | `detach` |
 | <a id="stream"></a>`stream` | `stream feed from sse app.feed` | Lane, Slot | Target, Source | Beschreibt inkrementelle Rendering-Daten. | `stream` verlangt eine Datenquelle. | `sse`, `sanitize` |
 | <a id="slot"></a>`slot` | `slot header { hydrate title from selector app.title }` | Policy-Block | Slotname | Gruppiert Operationen in einem Composition-Slot. | Slots erlauben nur Lifecycle oder `stream`. | `mount`, `hydrate` |
+| <a id="resumability"></a>`resumability` | `resumability mode server_prerender_resume` | Policy-Block | `mode`, `snapshot`, `event replay` oder `integrity` | Deklariert vollständige SSR-Resumability als Resume-Handoff. | Clauses müssen statisch sein und eine bekannte Resumability-Achse nutzen. | `hydration mode`, `resume` |
 
 ## Allowed contexts
 
-`lane` steht direkt in `surface`. Lifecycle-Operationen und `stream` stehen in `lane` oder `slot`. `slot`, `on`, `trust`, `hydration`, `isolation` und `sanitize` stehen in Policy-Blöcken von Lifecycle-Operationen.
+`lane` steht direkt in `surface`. Lifecycle-Operationen und `stream` stehen in `lane` oder `slot`. `slot`, `on`, `trust`, `hydration`, `resumability`, `isolation` und `sanitize` stehen in Policy-Blöcken von Lifecycle-Operationen.
 
 ## Parameters
 
@@ -76,7 +77,13 @@ template reference.lifecycle {
           preventDefault true
         }
       }
-      hydrate shell.card from selector app.cardView
+      hydrate shell.card from selector app.cardView {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
       suspend shell.card
       resume shell.card
       invalidate shell.card

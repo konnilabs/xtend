@@ -48,6 +48,7 @@ const VNEXT_COMPLETION_KEYWORDS = Object.freeze([
   ['lane', 'Scheduler Lane innerhalb einer Surface deklarieren.'],
   ['mount', 'Lifecycle Operation mount.'],
   ['hydrate', 'Lifecycle Operation hydrate.'],
+  ['resumability mode server_prerender_resume', 'SSR-Resumability-Handoff mit Resume-Payload deklarieren.'],
   ['update', 'Lifecycle Operation update.'],
   ['unmount', 'Lifecycle Operation unmount.'],
   ['stream', 'Incremental Rendering Stream deklarieren.'],
@@ -59,7 +60,8 @@ const VNEXT_COMPLETION_KEYWORDS = Object.freeze([
   ['validation', 'Form Validation Gruppe mit Field Rules und Action Gate deklarieren.'],
   ['transition', 'Surface Transition zwischen Surface-Gruppen deklarieren.'],
   ['trust boundary', 'Security Trust Boundary setzen.'],
-  ['sanitize', 'Sanitize Policy setzen.']
+  ['sanitize', 'Sanitize Policy setzen.'],
+  ['resumability', 'Serverseitigen Resume-Handoff als Policy deklarieren.']
 ]);
 
 const VNEXT_PRIMITIVE_KEYWORDS = Object.freeze([
@@ -113,6 +115,9 @@ const VNEXT_PRIMITIVE_SURFACE_CLAUSES = Object.freeze([
   ['destroy releases resource', 'Surface-Destroy an Resource-Release koppeln.'],
   ['lane visible', 'Sichtbare Fabric-Lane fuer Lifecycle-Operation deklarieren.'],
   ['on click', 'DOM-Event-Binding auf Action deklarieren.'],
+  ['resumability mode server_prerender_resume', 'Vollstaendige Resumability fuer diese Operation aktivieren.'],
+  ['resumability snapshot surface_state', 'Resume-Snapshot-Grenze fuer SSR deklarieren.'],
+  ['resumability event replay intent_queue', 'Event-Replay-Modus fuer Resume deklarieren.'],
   ['payload', 'Event-Payload Contract mappen.']
 ]);
 
@@ -210,6 +215,21 @@ const VNEXT_TRUST_BOUNDARIES = Object.freeze([
 ]);
 
 const VNEXT_SNIPPETS = Object.freeze([
+  {
+    id: 'rmt-vnext-resumability',
+    label: 'RMT vNext Resumability Policy',
+    prefix: 'rmt-vnext-resumability',
+    description: 'SSR-Resumability mit Resume-Snapshot, Event-Replay und Integrity-Handoff deklarieren.',
+    body: [
+      'hydrate ${1:app-shell} from selector ${2:app.view} {',
+      '  hydration mode server_prerender_resume',
+      '  resumability mode server_prerender_resume',
+      '  resumability snapshot ${3:surface_state}',
+      '  resumability event replay ${4:intent_queue}',
+      '  resumability integrity ${5:signed_manifest}',
+      '}'
+    ]
+  },
   {
     id: 'rmt-vnext-validation',
     label: 'RMT vNext Validation',
@@ -446,7 +466,7 @@ function isLikelyRmtVNextSource(input = {}, options = {}) {
   }
 
   return /^(?:import|template|surface|remote\s+surface|validation|transition)\b/u.test(trimmed)
-    || /(?:^|\n)\s*(?:remote\s+surface|template|state|selector|datasource|action|portal|overlay|resource|surface|validation|transition|lane|mount|hydrate|update|unmount|stream|slot|on\s+\S+\s+->\s+action|trust\s+boundary|sanitize)\b/u.test(text);
+    || /(?:^|\n)\s*(?:remote\s+surface|template|state|selector|datasource|action|portal|overlay|resource|surface|validation|transition|lane|mount|hydrate|resume|resumability|update|unmount|stream|slot|on\s+\S+\s+->\s+action|trust\s+boundary|sanitize)\b/u.test(text);
 }
 
 function sourceRefToRange(sourceMap, sourceRef) {
@@ -873,7 +893,7 @@ function inferPrimitiveCompletionContextFromLine(linePrefix) {
     return 'vnext-primitive-surface-clauses';
   }
 
-  if (/^(?:source|repeat|key|portal|bounds|preserve|destroy|lane|payload)\b/u.test(trimmed)) {
+  if (/^(?:source|repeat|key|portal|bounds|preserve|destroy|lane|payload|resumability)\b/u.test(trimmed)) {
     return 'vnext-primitive-surface-clauses';
   }
 

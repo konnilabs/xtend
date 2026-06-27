@@ -33,6 +33,24 @@ const RMT_SNIPPETS = Object.freeze([
       '}'
     ])
   },
+
+  {
+    id: 'rmt-vnext-resumability',
+    name: 'RMT vNext Resumability Policy',
+    prefix: 'rmt-vnext-resumability',
+    description: 'SSR-Resumability mit Resume-Snapshot, Event-Replay und Integrity-Handoff deklarieren.',
+    scope: 'rmt',
+    tags: ['vnext', 'resumability', 'ssr'],
+    body: body([
+      'hydrate ${1:app-shell} from selector ${2:app.view} {',
+      '  hydration mode server_prerender_resume',
+      '  resumability mode server_prerender_resume',
+      '  resumability snapshot ${3:surface_state}',
+      '  resumability event replay ${4:intent_queue}',
+      '  resumability integrity ${5:signed_manifest}',
+      '}'
+    ])
+  },
   {
     id: 'rmt-vnext-stream',
     name: 'RMT vNext Stream',

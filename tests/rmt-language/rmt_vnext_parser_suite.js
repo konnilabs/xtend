@@ -37,6 +37,7 @@ const CORE_CONTRACT_PATH = 'development/XTendRMT-vNext-Core-Format-Contract.md';
 const WP_E15_04_PATH = 'development/WP-E15-04-Lexer-Parser-MVP-fuer-Templates-Surfaces-Lanes-und-Lifecycle-Ops-bauen.md';
 const VALID_MINIMAL_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-minimal.rmt';
 const VALID_COMPLEX_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-complex.rmt';
+const VALID_RESUMABILITY_FIXTURE = 'tests/rmt-language/fixtures/vnext-resumability-valid.rmt';
 const PRIMITIVE_GRAMMAR_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
 const INVALID_IMPERATIVE_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-imperative.rmt';
 const INVALID_CONDITION_CALL_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt';
@@ -162,6 +163,12 @@ function runRmtVNextParserSuite(options = {}) {
     collectNodes(complexResult.ast, 'RmtEventBinding')[0].action === 'settings.save',
     'complex fixture preserves event action reference'
   );
+
+  const resumabilityResult = parseFixture(VALID_RESUMABILITY_FIXTURE, rootDir);
+  context.assert(resumabilityResult.ok === true, 'resumability fixture parses successfully');
+  context.assert(collectNodes(resumabilityResult.ast, 'RmtResumabilityPolicy').length === 5, 'resumability fixture has five resumability policy clauses');
+  context.assert(collectNodes(resumabilityResult.ast, 'RmtHydrationPolicy').some((node) => node.mode === 'server_prerender_resume'), 'resumability fixture parses server resume hydration mode');
+  context.assert(collectNodes(resumabilityResult.ast, 'RmtLifecycleStatement').some((node) => node.op === 'resume'), 'resumability fixture keeps resume lifecycle operation');
 
   const primitiveResult = parseFixture(PRIMITIVE_GRAMMAR_FIXTURE, rootDir);
   context.assert(primitiveResult.ok === true, 'primitive grammar fixture parses successfully');

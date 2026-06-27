@@ -109,6 +109,7 @@ function runStaticCompletionChecks(context, rootDir) {
   assertHasLabel(context, hydrationPolicies, 'runtime_render', 'Hydration completion contains runtime_render');
   assertHasLabel(context, hydrationPolicies, 'worker_prerender_hydrate', 'Hydration completion contains worker_prerender_hydrate');
   assertHasLabel(context, hydrationPolicies, 'server_prerender_hydrate', 'Hydration completion contains server_prerender_hydrate');
+  assertHasLabel(context, hydrationPolicies, 'server_prerender_resume', 'Hydration completion contains server_prerender_resume');
 
   assertHasLabel(context, lanes, 'visible', 'Lane completion contains visible');
   assertHasLabel(context, lanes, 'user-blocking', 'Lane completion contains user-blocking');

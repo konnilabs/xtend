@@ -95,7 +95,7 @@ Diese Woerter sind ausserhalb von Strings und escaped Identifiers reserviert:
 
 ```text
 template surface lane weight
-mount hydrate suspend resume invalidate dispose prewarm recycle detach reattach
+mount hydrate suspend resume invalidate dispose prewarm recycle detach reattach resumability
 stream from endpoint sse worker
 when slot import on action
 trust boundary sanitize
@@ -213,6 +213,7 @@ Lifecycle Statements deklarieren Absichten fuer ein Ziel.
 ```text
 LifecycleStmt := LifecycleOp Target SourceClause? ConditionClause? PolicyBlock? StatementEnd?
 LifecycleOp   := "mount" | "hydrate" | "suspend" | "resume" | "invalidate" | "dispose" | "prewarm" | "recycle" | "detach" | "reattach"
+ResumabilityPolicy := "resumability" ("mode" Identifier | "snapshot" Identifier | "event" "replay" Identifier | "integrity" Identifier)
 Target        := QualifiedIdentifier | EscapedIdentifier
 ```
 

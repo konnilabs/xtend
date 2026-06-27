@@ -1,0 +1,27 @@
+template app.resumable {
+  state app.status type object preserve {
+    initial {
+      text "Ready"
+    }
+  }
+
+  selector app.statusView from state app.status {
+    output AppStatusView
+  }
+
+  surface app.shell kind page component x-section {
+    source selector app.statusView
+    lane visible weight 80 {
+      hydrate app-shell from selector app.statusView {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume app-shell {
+        resumability mode server_prerender_resume
+      }
+    }
+  }
+}
