@@ -939,70 +939,110 @@ function docsFallbackSerializeDescriptor($descriptor) {
     return '<' . $tag . $attrs . '>' . $children . '</' . $tag . '>';
 }
 
+function docsRmtCompilerBridgeError($status, $code, $message) {
+    return [
+        'schema' => 'xtend.docs.rmt-compiler-bridge.v1',
+        'ok' => false,
+        'status' => $status,
+        'coreDocument' => null,
+        'diagnostics' => [[
+            'code' => $code,
+            'severity' => 'error',
+            'message' => $message
+        ]]
+    ];
+}
+
 function docsCreateRmtCompilerBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
     return function ($source, array $context = []) use ($bridgePath, $repoRoot, $nodeBinary) {
         if (!is_readable($bridgePath) || !function_exists('proc_open')) {
-            return [
-                'schema' => 'xtend.docs.rmt-compiler-bridge.v1',
-                'ok' => false,
-                'status' => 'bridge-unavailable',
-                'coreDocument' => null,
-                'diagnostics' => [[
-                    'code' => 'xtend.docs.rmt_compiler_bridge.unavailable',
-                    'severity' => 'error',
-                    'message' => 'The docs PHP host could not start the Node vNext compiler bridge.'
-                ]]
-            ];
+            return docsRmtCompilerBridgeError(
+                'bridge-unavailable',
+                'xtend.docs.rmt_compiler_bridge.unavailable',
+                'The docs PHP host could not start the Node vNext compiler bridge.'
+            );
         }
         $payload = json_encode([
             'source' => (string) $source,
             'filePath' => $context['filePath'] ?? 'docs/xtendrmt-docs-shell-vnext.rmt',
             'options' => $context['options'] ?? []
         ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-        $descriptorSpec = [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w']
-        ];
+        $cacheDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'xtend-docs-rmt-compiler-cache';
+        $cacheKey = hash('sha256', (string) $bridgePath . '|' . (string) $payload);
+        $cachePath = $cacheDir . DIRECTORY_SEPARATOR . $cacheKey . '.json';
+        $lockPath = $cacheDir . DIRECTORY_SEPARATOR . $cacheKey . '.lock';
+        if (is_readable($cachePath)) {
+            $cached = json_decode((string) file_get_contents($cachePath), true);
+            if (is_array($cached)) return $cached;
+        }
+        if (!is_dir($cacheDir) && !@mkdir($cacheDir, 0700, true) && !is_dir($cacheDir)) {
+            return docsRmtCompilerBridgeError('bridge-cache-unavailable', 'xtend.docs.rmt_compiler_bridge.cache_unavailable', 'The docs PHP host could not create the RMT compiler cache.');
+        }
+        $lock = @fopen($lockPath, 'c');
+        if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
+            if ($lock) fclose($lock);
+            return docsRmtCompilerBridgeError('bridge-compile-busy', 'xtend.docs.rmt_compiler_bridge.busy', 'The docs RMT compiler bridge is already compiling this source.');
+        }
+        if (is_readable($cachePath)) {
+            $cached = json_decode((string) file_get_contents($cachePath), true);
+            if (is_array($cached)) {
+                flock($lock, LOCK_UN);
+                fclose($lock);
+                return $cached;
+            }
+        }
+        $descriptorSpec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
         $command = escapeshellcmd((string) $nodeBinary) . ' ' . escapeshellarg((string) $bridgePath);
         $process = proc_open($command, $descriptorSpec, $pipes, (string) $repoRoot);
         if (!is_resource($process)) {
-            return [
-                'schema' => 'xtend.docs.rmt-compiler-bridge.v1',
-                'ok' => false,
-                'status' => 'bridge-start-failed',
-                'coreDocument' => null,
-                'diagnostics' => [[
-                    'code' => 'xtend.docs.rmt_compiler_bridge.start_failed',
-                    'severity' => 'error',
-                    'message' => 'The docs PHP host failed to open the Node vNext compiler bridge.'
-                ]]
-            ];
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            return docsRmtCompilerBridgeError('bridge-start-failed', 'xtend.docs.rmt_compiler_bridge.start_failed', 'The docs PHP host failed to open the Node vNext compiler bridge.');
         }
         fwrite($pipes[0], $payload ?: '{}');
         fclose($pipes[0]);
-        $stdout = stream_get_contents($pipes[1]);
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+        $stdout = '';
+        $stderr = '';
+        $deadline = microtime(true) + 5.0;
+        $timedOut = false;
+        do {
+            $stdout .= (string) stream_get_contents($pipes[1]);
+            $stderr .= (string) stream_get_contents($pipes[2]);
+            $status = proc_get_status($process);
+            if (($status['running'] ?? false) !== true) break;
+            if (microtime(true) >= $deadline) {
+                $timedOut = true;
+                proc_terminate($process);
+                break;
+            }
+            usleep(10000);
+        } while (true);
+        $stdout .= (string) stream_get_contents($pipes[1]);
+        $stderr .= (string) stream_get_contents($pipes[2]);
         fclose($pipes[1]);
-        $stderr = stream_get_contents($pipes[2]);
         fclose($pipes[2]);
         $exitCode = proc_close($process);
+        if ($timedOut) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            return docsRmtCompilerBridgeError('bridge-timeout', 'xtend.docs.rmt_compiler_bridge.timeout', 'The Node vNext compiler bridge exceeded the docs compile timeout.');
+        }
         $decoded = json_decode((string) $stdout, true);
         if (is_array($decoded)) {
             $decoded['exitCode'] = $exitCode;
             if ($stderr !== '') $decoded['stderr'] = trim($stderr);
+            if (($decoded['ok'] ?? false) === true) {
+                @file_put_contents($cachePath, json_encode($decoded, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES), LOCK_EX);
+            }
+            flock($lock, LOCK_UN);
+            fclose($lock);
             return $decoded;
         }
-        return [
-            'schema' => 'xtend.docs.rmt-compiler-bridge.v1',
-            'ok' => false,
-            'status' => 'bridge-output-invalid',
-            'coreDocument' => null,
-            'diagnostics' => [[
-                'code' => 'xtend.docs.rmt_compiler_bridge.output_invalid',
-                'severity' => 'error',
-                'message' => trim($stderr) ?: 'The Node vNext compiler bridge did not return JSON.'
-            ]]
-        ];
+        flock($lock, LOCK_UN);
+        fclose($lock);
+        return docsRmtCompilerBridgeError('bridge-output-invalid', 'xtend.docs.rmt_compiler_bridge.output_invalid', trim($stderr) ?: 'The Node vNext compiler bridge did not return JSON.');
     };
 }
 
