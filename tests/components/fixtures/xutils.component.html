@@ -66,6 +66,23 @@
     const preparedEffects = XUtils.prepareUiEffects(resolvedEffects);
     const releasedEffects = XUtils.releaseUiEffects(preparedEffects);
 
+    const hostFadeBody = document.createElement('div');
+    hostFadeBody.setAttribute('xt-ui-effects', 'fade-in');
+    const hostFadeTarget = document.createElement('div');
+    const hostileRmtEffectsDocument = {
+      kind: 'rmt_document',
+      components: [
+        { uiEffects: 'none' },
+        { tag: 'ui-effects', props: { effect: 'none' } }
+      ]
+    };
+    const hostFadeResolvedEffects = XUtils.resolveUiEffects({
+      target: hostFadeTarget,
+      body: hostFadeBody,
+      rmtDocument: hostileRmtEffectsDocument
+    });
+    const hostFadeReleasedEffects = XUtils.releaseUiEffects(XUtils.prepareUiEffects(hostFadeResolvedEffects));
+
     record('utility contract exposed', XUtils.xtendUtilityContract.schema === 'xtend.utility.module-contract.v1');
     record('import policy exposed', XUtils.xtendImportPolicy.schema === 'xtend.utility.import-policy.v1');
     record('local import allowed', localImport.allowed === true);
@@ -80,6 +97,8 @@
     record('ui effects prepare hides target', preparedEffects.prepared === true && effectTarget.style.visibility === 'hidden' && effectTarget.style.opacity === '0');
     record('ui effects release reveals target', releasedEffects.released === true && effectTarget.getAttribute('data-xt-ui-effects-ready') === 'true' && effectTarget.style.visibility === 'visible');
     record('ui effects event dispatched', window.__xtendXUtilsEvents.some((entry) => entry.schema === 'xtend.utility.ui-effects.v1' && entry.phase === 'release'));
+    record('ui effects host fade survives rmt none', hostFadeResolvedEffects.active === true && hostFadeResolvedEffects.disabled === false && hostFadeResolvedEffects.effects.includes('fade-in'));
+    record('ui effects host fade releases after rmt none', hostFadeReleasedEffects.released === true && hostFadeTarget.getAttribute('data-xt-ui-effects-ready') === 'true' && hostFadeTarget.style.visibility === 'visible');
 
     document.body.dataset.xutilsBoundaryReady = 'true';
   </script>
