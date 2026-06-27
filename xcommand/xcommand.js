@@ -76,7 +76,37 @@
     });
   }
 
-  function normalizeRegistration(record = {}) {
+  function normalizeReferencePolicy(options = {}, defaultAllow = true) {
+    const toSet = (value) => Array.isArray(value) ? new Set(value.map(String)) : value instanceof Set ? new Set([...value].map(String)) : null;
+    return {
+      defaultAllow: Object.prototype.hasOwnProperty.call(options, 'defaultAllow') ? options.defaultAllow : defaultAllow,
+      actionRefs: toSet(options.allowedActionRefs || options.actions || options.actionRefs),
+      eventRefs: toSet(options.allowedEventRefs || options.events || options.eventRefs),
+      effectRefs: toSet(options.allowedEffectRefs || options.effects || options.effectRefs),
+      authorize: typeof options.authorizeReference === 'function' ? options.authorizeReference : null
+    };
+  }
+
+  function isReferenceAllowed(kind, ref, record, policy) {
+    if (!ref) return true;
+    if (!policy) return true;
+    if (policy.authorize) return policy.authorize(kind, ref, record) === true;
+    const allowed = kind === 'action' ? policy.actionRefs : kind === 'event' ? policy.eventRefs : policy.effectRefs;
+    if (allowed) return allowed.has(String(ref));
+    return policy.defaultAllow === true;
+  }
+
+  function validateReferencePolicy(record, policy) {
+    const diagnostics = [];
+    [['action', record.actionRef], ['event', record.eventRef], ['effect', record.effectRef]].forEach(([kind, ref]) => {
+      if (!isReferenceAllowed(kind, ref, record, policy)) {
+        diagnostics.push(createDiagnostic(`xcommand.registration.${kind}.unauthorized`, `XCommand ${record.id || '<unknown>'} uses an unauthorized ${kind} reference.`, { id: record.id, kind, ref, severity: 'error' }));
+      }
+    });
+    return diagnostics;
+  }
+
+  function normalizeRegistration(record = {}, options = {}) {
     const id = String(record.id || '').trim();
     const sequence = parseKeySequence(record.sequence || record.keys || record.keySequence);
     const lane = String(record.lane || 'interaction');
@@ -90,7 +120,7 @@
     if (!VALID_LANES.has(lane)) diagnostics.push(createDiagnostic('xcommand.registration.lane.invalid', `XCommand ${id || '<unknown>'} uses an invalid lane.`, { lane }));
 
     const keymap = record.keymap && typeof record.keymap === 'object' ? record.keymap : {};
-    return {
+    const normalized = {
       record: Object.freeze({
         schema: XCOMMAND_KERNEL_CONTRACT,
         id,
@@ -112,6 +142,8 @@
       }),
       diagnostics
     };
+    diagnostics.push(...validateReferencePolicy(normalized.record, normalizeReferencePolicy(options, true)));
+    return normalized;
   }
 
   function normalizeKeyboardEvent(event = {}, options = {}) {
@@ -141,6 +173,7 @@
     const xstate = options.xstate || null;
     const fabric = options.fabric || null;
     const actionExecutor = typeof options.actionExecutor === 'function' ? options.actionExecutor : null;
+    const referencePolicy = normalizeReferencePolicy(options, true);
     let buffer = [];
     let lastStrokeAt = 0;
 
@@ -160,7 +193,7 @@
     }
 
     function register(input) {
-      const normalized = normalizeRegistration(input);
+      const normalized = normalizeRegistration(input, referencePolicy);
       diagnostics.push(...normalized.diagnostics);
       if (normalized.diagnostics.length) return function noopUnregister() {};
       const conflict = registrations.get(normalized.record.sequenceKey);
@@ -269,7 +302,8 @@
     return Object.freeze({ schema: XKEYMAP_SURFACE_CONTRACT, locale, platform, groups: [...groups.entries()].map(([id, commands]) => ({ id, commands })) });
   }
 
-  function parseRmtXCommands(sourceText = '') {
+  function parseRmtXCommands(sourceText = '', options = {}) {
+    const referencePolicy = normalizeReferencePolicy(options, false);
     const records = [];
     const diagnostics = [];
     const blockPattern = /xcommand\s+"([^"]+)"\s*\{([\s\S]*?)\}/g;
@@ -293,7 +327,7 @@
         lane: /lane\s*:\s*([\w-]+)/.exec(body)?.[1],
         scope: stringField('scope'),
         keymap: keymapMatch ? { group: keymapMatch[1], order: keymapMatch[2] ? Number(keymapMatch[2]) : undefined, visible: keymapMatch[3] ? keymapMatch[3] !== 'false' : true } : undefined
-      });
+      }, referencePolicy);
       diagnostics.push(...normalized.diagnostics);
       if (!normalized.diagnostics.length) records.push(normalized.record);
     }

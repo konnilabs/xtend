@@ -58,9 +58,20 @@
     }
   }
 
+  const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+  function pathParts(path) {
+    return String(path || '').split('.').filter(Boolean);
+  }
+
+  function hasUnsafePathSegment(parts) {
+    return parts.some((part) => UNSAFE_PATH_SEGMENTS.has(part));
+  }
+
   function readPath(source, path) {
     if (!path) return source;
-    const parts = String(path).split('.').filter(Boolean);
+    const parts = pathParts(path);
+    if (hasUnsafePathSegment(parts)) return undefined;
     let cursor = source;
     for (const part of parts) {
       if (cursor == null) return undefined;
@@ -70,7 +81,8 @@
   }
 
   function writePath(target, path, value) {
-    const parts = String(path || '').split('.').filter(Boolean);
+    const parts = pathParts(path);
+    if (hasUnsafePathSegment(parts)) return target;
     if (!parts.length) return target;
     let cursor = target;
     parts.slice(0, -1).forEach((part) => {
@@ -82,7 +94,8 @@
   }
 
   function removePath(target, path) {
-    const parts = String(path || '').split('.').filter(Boolean);
+    const parts = pathParts(path);
+    if (hasUnsafePathSegment(parts)) return target;
     if (!parts.length) return target;
     let cursor = target;
     for (const part of parts.slice(0, -1)) {

@@ -56,6 +56,7 @@ const MARACA_PERFORMANCE_BUDGET_CLASSES = Object.freeze([
 ]);
 const COMPONENT_UNKNOWN_CODE = 'xtend.maraca.component_unknown';
 const COMPONENT_DYNAMIC_CODE = 'xtend.maraca.dynamic_component_requires_opt_in';
+const COMPONENT_UNSAFE_DYNAMIC_CODE = 'xtend.maraca.dynamic_component_unsafe_tag';
 const COMPILER_ERROR_CODE = 'xtend.maraca.rmt_compile_failed';
 const ORCHESTRATION_MISSING_CODE = 'xtend.maraca.orchestration_missing';
 const ORCHESTRATION_STRICT_CODE = 'xtend.maraca.orchestration_strict_contract';
@@ -95,6 +96,26 @@ const NATIVE_MARACA_COMPONENT_TAGS = Object.freeze(new Set([
   'textarea',
   'ul',
   'video'
+]));
+const SAFE_DYNAMIC_COMPONENT_TAG_PATTERN = /^[a-z][.0-9_a-z]*-[\-.0-9_a-z]*$/;
+const UNSAFE_DYNAMIC_COMPONENT_TAGS = Object.freeze(new Set([
+  'applet',
+  'base',
+  'body',
+  'embed',
+  'frame',
+  'frameset',
+  'head',
+  'html',
+  'iframe',
+  'link',
+  'meta',
+  'noscript',
+  'object',
+  'script',
+  'style',
+  'template',
+  'title'
 ]));
 const VALIDATION_RUNTIME_MODULES = Object.freeze([
   'xtendrmt/rmt-form-validation-runtime.js'
@@ -2170,6 +2191,14 @@ function isNativeMaracaComponentTag(tag) {
   return typeof tag === 'string' && NATIVE_MARACA_COMPONENT_TAGS.has(tag.trim().toLowerCase());
 }
 
+function isSafeDynamicComponentTag(tag) {
+  if (typeof tag !== 'string') return false;
+  const normalized = tag.trim().toLowerCase();
+  return normalized === tag
+    && SAFE_DYNAMIC_COMPONENT_TAG_PATTERN.test(normalized)
+    && !UNSAFE_DYNAMIC_COMPONENT_TAGS.has(normalized);
+}
+
 function createComponentRecords(requiredTags, componentManifest, options) {
   const selected = [];
   const unknown = [];
@@ -2202,14 +2231,20 @@ function createComponentRecords(requiredTags, componentManifest, options) {
       return;
     }
 
+    const safeDynamicTag = isSafeDynamicComponentTag(tag);
+    const allowDynamicTag = options.allowDynamicComponents && safeDynamicTag;
     unknown.push(tag);
     diagnostics.push({
-      code: isPotentialDynamicTag(tag) ? COMPONENT_DYNAMIC_CODE : COMPONENT_UNKNOWN_CODE,
-      severity: options.allowDynamicComponents ? 'warning' : 'error',
+      code: options.allowDynamicComponents && !safeDynamicTag
+        ? COMPONENT_UNSAFE_DYNAMIC_CODE
+        : (isPotentialDynamicTag(tag) ? COMPONENT_DYNAMIC_CODE : COMPONENT_UNKNOWN_CODE),
+      severity: allowDynamicTag ? 'warning' : 'error',
       tag,
-      message: options.allowDynamicComponents
+      message: allowDynamicTag
         ? `Component tag "${tag}" is not in the static XTend component registry and will need a host adapter.`
-        : `Component tag "${tag}" is not in components/manifest.json. Pass --allow-dynamic-components only when the host supplies it.`
+        : (options.allowDynamicComponents
+          ? `Dynamic component tag "${tag}" is not a safe custom-element name. Use a hyphenated custom-element tag supplied by the host.`
+          : `Component tag "${tag}" is not in components/manifest.json. Pass --allow-dynamic-components only when the host supplies it.`)
     });
   });
 

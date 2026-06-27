@@ -71,12 +71,30 @@ function validateRmtParser(context, rootDir) {
       scope: "app-shell"
       keymap: group("navigation") order(20)
     }
-  `);
+  `, { allowedActionRefs: ['action.saveDocument'], allowedEventRefs: ['event.openQuickFile'] });
   context.assert(parsed.schema === RMT_XCOMMAND_SCHEMA, 'RMT xcommand parser returns schema');
   context.assert(parsed.records.length === 2, 'RMT xcommand parser extracts two command records');
   context.assert(parsed.records[1].sequence.join(' ') === 'g f', 'RMT xcommand parser preserves key chord sequence');
   context.assert(parsed.records[0].actionRef === 'action.saveDocument', 'RMT xcommand parser maps action reference');
+
+  const rejected = xcommand.parseRmtXCommands(`
+    xcommand "admin.delete" {
+      keys: "Ctrl+D"
+      action: action.admin.deleteAllData
+    }
+  `);
+  context.assert(rejected.records.length === 0, 'RMT xcommand parser rejects references without a host allowlist');
+  context.assert(rejected.diagnostics.some((diagnostic) => diagnostic.code === 'xcommand.registration.action.unauthorized'), 'RMT xcommand parser reports unauthorized action reference');
+
+  const blockedInvocations = [];
+  const gatedKernel = xcommand.createXCommandKernel({ allowedActionRefs: ['action.saveDocument'], actionExecutor: () => blockedInvocations.push('blocked') });
+  gatedKernel.register({ id: 'admin.delete', keys: 'Ctrl+D', action: 'action.admin.deleteAllData' });
+  const blocked = gatedKernel.dispatch({ token: 'Ctrl+d', timestamp: 500 });
+  context.assert(blocked.status === 'ignored', 'kernel refuses to dispatch unallowlisted action references when a host policy is configured');
+  context.assert(gatedKernel.getDiagnostics().some((diagnostic) => diagnostic.code === 'xcommand.registration.action.unauthorized'), 'kernel reports unauthorized registration references');
+  context.assert(blockedInvocations.length === 0, 'kernel does not execute unauthorized registrations');
 }
+
 
 function validateAppShellFixture(context, rootDir) {
   const fixture = readText(APP_SHELL_FIXTURE_PATH, rootDir);

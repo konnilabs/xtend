@@ -232,6 +232,8 @@
     const documentTarget = options.documentTarget || options.document || (globalTarget && globalTarget.document) || null;
     const surfaceManagerTarget = options.surfaceManager || options.managerElement || options.xSurfaceManager || null;
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
+    const managedSurfaceManagerIds = new Set();
+    const surfaceManagerBridgeId = clampString(options.surfaceManagerBridgeId || options.runtimeId, 'rmt-surface-resource-graph-runtime');
     let focusSequence = 0;
     let overlaySequence = 0;
 
@@ -270,6 +272,7 @@
         contentRef: instance.component,
         metadata: {
           source: 'rmt-surface-resource-graph-runtime',
+          bridgeId: surfaceManagerBridgeId,
           surfaceId: instance.surfaceId,
           portal: instance.portal,
           owner: instance.owner
@@ -294,6 +297,7 @@
         contentRef: definition.component || '',
         metadata: {
           source: 'rmt-surface-resource-graph-runtime',
+          bridgeId: surfaceManagerBridgeId,
           overlayId: overlay.overlayId,
           portal: overlay.portal,
           ownerId: overlay.ownerId
@@ -301,11 +305,76 @@
       };
     }
 
+    function readSurfaceManagerSnapshot(manager) {
+      if (!manager) return null;
+      try {
+        if (typeof manager.readSnapshot === 'function') return manager.readSnapshot({ includeDestroyed: true });
+        if (typeof manager.snapshot === 'function') return manager.snapshot({ includeDestroyed: true });
+      } catch (error) {
+        publish('rmt.surface.manager_proxy.snapshot_failed', 'SurfaceManager snapshot could not be read for RMT bridge policy.', {
+          error: error && error.message || String(error)
+        }, 'warning');
+      }
+      return null;
+    }
+
+    function findSurfaceManagerRecord(manager, surfaceId) {
+      const snapshot = readSurfaceManagerSnapshot(manager);
+      const surfaces = snapshot && Array.isArray(snapshot.surfaces) ? snapshot.surfaces : [];
+      return surfaces.find((record) => record && record.id === surfaceId) || null;
+    }
+
+    function isRmtBridgeRecord(record) {
+      const metadata = objectRecord(record && record.metadata);
+      return metadata.source === 'rmt-surface-resource-graph-runtime' && metadata.bridgeId === surfaceManagerBridgeId;
+    }
+
+    function authorizeSurfaceManagerCall(manager, methodName, args, details = {}) {
+      const operation = clampString(details.operation, methodName);
+      const record = methodName === 'registerSurface' ? objectRecord(args[0]) : {};
+      const surfaceId = clampString(record.id || args[0]);
+      if (!surfaceId) return true;
+
+      if (methodName === 'registerSurface') {
+        const existingRecord = findSurfaceManagerRecord(manager, surfaceId);
+        if (existingRecord && !managedSurfaceManagerIds.has(surfaceId) && !isRmtBridgeRecord(existingRecord)) {
+          publish('rmt.surface.manager_proxy.denied', 'RMT SurfaceManager proxy refused to replace a host-owned surface.', {
+            ...details,
+            methodName,
+            surfaceId,
+            bridgeId: surfaceManagerBridgeId
+          }, 'warning');
+          return false;
+        }
+        return true;
+      }
+
+      if (!managedSurfaceManagerIds.has(surfaceId)) {
+        publish('rmt.surface.manager_proxy.denied', 'RMT SurfaceManager proxy refused an operation for an unmanaged surface id.', {
+          ...details,
+          methodName,
+          surfaceId,
+          operation,
+          bridgeId: surfaceManagerBridgeId
+        }, 'warning');
+        return false;
+      }
+      return true;
+    }
+
     function callSurfaceManager(methodName, args, details = {}) {
       const manager = resolveSurfaceManagerTarget();
       if (!manager || typeof manager[methodName] !== 'function') return null;
+      if (!authorizeSurfaceManagerCall(manager, methodName, args, details)) return null;
       try {
-        return manager[methodName](...args);
+        const result = manager[methodName](...args);
+        if (methodName === 'registerSurface') {
+          const record = objectRecord(args[0]);
+          const surfaceId = clampString(record.id);
+          const succeeded = !result || result.ok !== false;
+          if (surfaceId && succeeded) managedSurfaceManagerIds.add(surfaceId);
+        }
+        return result;
       } catch (error) {
         publish('rmt.surface.manager_proxy.failed', `SurfaceManager proxy ${methodName} failed.`, {
           ...details,
@@ -642,9 +711,40 @@
       return cloneValue(portal, portal);
     }
 
+    function isSafeOverlayTag(tag) {
+      const normalized = clampString(tag).toLowerCase();
+      if (!normalized || !/^[a-z][a-z0-9._-]*$/u.test(normalized)) return false;
+      if (normalized.includes('-')) return true;
+      return ['div', 'span', 'section', 'article', 'header', 'footer', 'main', 'aside', 'nav'].includes(normalized);
+    }
+
+    function isUnsafeAttributeUrl(value) {
+      const normalized = clampString(value).replace(/[\u0000-\u001f\u007f\s]+/gu, '').toLowerCase();
+      return /^(?:javascript|vbscript|data):/u.test(normalized);
+    }
+
+    function isSafeOverlayAttribute(name, value) {
+      const normalized = clampString(name).toLowerCase();
+      if (!normalized || !/^[a-z_:][a-z0-9_:.\-]*$/u.test(normalized)) return false;
+      if (normalized.startsWith('on') || normalized === 'srcdoc' || normalized === 'style') return false;
+      if (['href', 'src', 'xlink:href', 'action', 'formaction', 'poster'].includes(normalized) && isUnsafeAttributeUrl(value)) return false;
+      return true;
+    }
+
     function setDomAttribute(element, name, value) {
       if (!element || typeof element.setAttribute !== 'function' || value === null || typeof value === 'undefined' || value === false) return;
       element.setAttribute(name, value === true ? '' : String(value));
+    }
+
+    function setOverlayAttribute(element, name, value, definition) {
+      if (!isSafeOverlayAttribute(name, value)) {
+        publish('rmt.overlay.attribute.unsafe', `RMT Overlay ${definition.id} enthaelt ein unsicheres Attribut.`, {
+          overlayId: definition.id,
+          attribute: clampString(name)
+        }, 'warning');
+        return;
+      }
+      setDomAttribute(element, name, value);
     }
 
     function resolvePortalTarget(portal, metadata = {}) {
@@ -658,7 +758,15 @@
       if (metadata.materialize === false) return null;
       const target = resolvePortalTarget(portal, metadata);
       if (!target || !documentTarget || typeof documentTarget.createElement !== 'function') return null;
-      const tag = clampString(metadata.tag || definition.component || definition.tag, definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div');
+      const requestedTag = clampString(metadata.tag || definition.component || definition.tag, definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div');
+      const fallbackTag = definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div';
+      const tag = isSafeOverlayTag(requestedTag) ? requestedTag : fallbackTag;
+      if (tag !== requestedTag) {
+        publish('rmt.overlay.tag.unsafe', `RMT Overlay ${definition.id} enthaelt ein unsicheres Element.`, {
+          overlayId: definition.id,
+          tag: requestedTag
+        }, 'warning');
+      }
       const element = documentTarget.createElement(tag);
       setDomAttribute(element, 'data-rmt-overlay', overlay.id);
       setDomAttribute(element, 'data-rmt-overlay-ref', overlay.overlayId);
@@ -667,7 +775,7 @@
       setDomAttribute(element, 'data-overlay-kind', overlay.kind);
       setDomAttribute(element, 'role', definition.kind === 'dialog' || definition.kind === 'lightbox' ? 'dialog' : undefined);
       setDomAttribute(element, 'open', true);
-      Object.entries(objectRecord(definition.attributes)).forEach(([name, value]) => setDomAttribute(element, name, value));
+      Object.entries(objectRecord(definition.attributes)).forEach(([name, value]) => setOverlayAttribute(element, name, value, definition));
       if (element.style && typeof element.style.setProperty === 'function') {
         element.style.setProperty('z-index', String(overlay.zIndex));
       }

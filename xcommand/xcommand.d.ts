@@ -20,12 +20,13 @@ export type XCommandRegistration = {
   lane?: XCommandLane;
   keymap?: { group?: string; visible?: boolean; order?: number };
 };
+export type XCommandReferencePolicy = { allowedActionRefs?: string[] | Set<string>; allowedEventRefs?: string[] | Set<string>; allowedEffectRefs?: string[] | Set<string>; actions?: string[] | Set<string>; events?: string[] | Set<string>; effects?: string[] | Set<string>; authorizeReference?: (kind: 'action' | 'event' | 'effect', ref: string, record: XCommandRegistration) => boolean };
 export type XCommandKeyStroke = { token: string; key?: string; scope?: string; repeat?: boolean; timestamp?: number };
 export type XCommandDispatchResult = { schema: typeof XCOMMAND_KERNEL_CONTRACT; status: 'invoked' | 'pending-chord' | 'ignored'; commandId?: string; sequence: string[]; lane?: XCommandLane; actionRef?: string; eventRef?: string; effectRef?: string };
 export type XKeymapEntry = { schema: typeof XKEYMAP_SURFACE_CONTRACT; id: string; scope: string; group: string; order: number; sequence: string[]; label: { i18nKey: string; fallback: string }; icon?: string; lane: XCommandLane };
 export function parseKeySequence(input: string | string[]): string[];
-export function normalizeRegistration(record: XCommandRegistration): { record: Required<XCommandRegistration> & { schema: typeof XCOMMAND_KERNEL_CONTRACT; sequenceKey: string }; diagnostics: Array<Record<string, unknown>> };
+export function normalizeRegistration(record: XCommandRegistration, options?: XCommandReferencePolicy): { record: Required<XCommandRegistration> & { schema: typeof XCOMMAND_KERNEL_CONTRACT; sequenceKey: string }; diagnostics: Array<Record<string, unknown>> };
 export function normalizeKeyboardEvent(event: KeyboardEvent, options?: Record<string, unknown>): XCommandKeyStroke;
-export function createXCommandKernel(options?: Record<string, unknown>): { schema: typeof XCOMMAND_KERNEL_CONTRACT; register(record: XCommandRegistration): () => void; dispatch(stroke: XCommandKeyStroke | string): XCommandDispatchResult; resetChord(reason?: string): void; getKeymap(scope?: string): XKeymapEntry[]; getDiagnostics(): Array<Record<string, unknown>>; getRegistrations(): XCommandRegistration[] };
+export function createXCommandKernel(options?: Record<string, unknown> & XCommandReferencePolicy): { schema: typeof XCOMMAND_KERNEL_CONTRACT; register(record: XCommandRegistration): () => void; dispatch(stroke: XCommandKeyStroke | string): XCommandDispatchResult; resetChord(reason?: string): void; getKeymap(scope?: string): XKeymapEntry[]; getDiagnostics(): Array<Record<string, unknown>>; getRegistrations(): XCommandRegistration[] };
 export function createXKeymapModel(entries: XKeymapEntry[], options?: { locale?: string; platform?: string }): Record<string, unknown>;
-export function parseRmtXCommands(sourceText: string): { schema: typeof RMT_XCOMMAND_SCHEMA; records: XCommandRegistration[]; diagnostics: Array<Record<string, unknown>> };
+export function parseRmtXCommands(sourceText: string, options?: XCommandReferencePolicy): { schema: typeof RMT_XCOMMAND_SCHEMA; records: XCommandRegistration[]; diagnostics: Array<Record<string, unknown>> };
