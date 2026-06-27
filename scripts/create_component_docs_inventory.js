@@ -184,8 +184,16 @@ function sourceBasenameFromManifestSource(manifestSource) {
   return path.basename(String(manifestSource || '').replace(/^\.\//, ''), path.extname(String(manifestSource || '')));
 }
 
+function assertSafeComponentDocsBasename(basename, source) {
+  if (!/^[a-z][a-z0-9-]*$/i.test(basename)) {
+    throw new Error(`Unsafe component docs basename from ${source}: ${basename}`);
+  }
+  return basename;
+}
+
 function sourceBasenameFromMenuSlug(slug) {
-  return String(slug || '').replace(/^components-/, '');
+  const basename = String(slug || '').replace(/^components-/, '');
+  return assertSafeComponentDocsBasename(basename, 'docs/menu.json slug');
 }
 
 function docsPathsForBasename(basename) {
