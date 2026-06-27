@@ -45,6 +45,17 @@ if ('hydrate' in component) {
 }
 ```
 
+
+Hosts können einen eigenen Highlighter registrieren. Plain-Text-Ergebnisse sollten Text zurückgeben; reiches HTML darf nur für vertrauenswürdige Highlighter-Ausgaben zurückgegeben und explizit markiert werden.
+
+```js
+customElements.get('x-code')?.registerHighlighter({
+  highlight({ code, language }) {
+    return { text: code, highlighted: false, engine: 'plain-text', language };
+  }
+});
+```
+
 Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Diagnoseeinträge `<id>` enthalten. Stabile IDs machen Ereignisprotokolle, RMT Schedules und Browser-Tests zwischen Deployments vergleichbar.
 
 ## API-Referenz

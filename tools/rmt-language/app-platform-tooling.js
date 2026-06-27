@@ -4,6 +4,9 @@ const {
   createRmtParser
 } = require('./parser');
 const {
+  compileRmtVNextSource
+} = require('./vnext-compiler');
+const {
   getRmtCompletions
 } = require('./completions');
 const {
@@ -190,15 +193,28 @@ function parseSource(input = {}, options = {}) {
     && typeof input.filePath === 'string'
     && input.filePath.endsWith('.rmt')
   ) {
+    const compilerResult = compileRmtVNextSource(input, options);
+    if (!compilerResult.ok) {
+      return {
+        ok: false,
+        document: null,
+        sourceModel: null,
+        diagnostics: compilerResult.diagnostics || compilerResult.compilerDiagnostics || []
+      };
+    }
     const sidecarPath = input.filePath.replace(/\.rmt$/u, '.core.json');
-    if (fs.existsSync(sidecarPath)) {
-      parserInput = {
+    parserInput = fs.existsSync(sidecarPath)
+      ? {
         ...input,
         text: fs.readFileSync(sidecarPath, 'utf8'),
         filePath: sidecarPath,
         uri: undefined
+      }
+      : {
+        ...input,
+        text: compilerResult.coreJson,
+        uri: undefined
       };
-    }
   }
 
   const parserResult = createRmtParser(options).parseSource(parserInput, options);
@@ -499,6 +515,27 @@ function lintAppPlatformDocument(document, context) {
   return diagnostics;
 }
 
+function lintRawRmtSource(input = {}, context = {}) {
+  if (
+    typeof input.text !== 'string'
+    || input.text.trimStart().startsWith('{')
+    || typeof input.filePath !== 'string'
+    || !input.filePath.endsWith('.rmt')
+  ) {
+    return [];
+  }
+
+  return /\b(root|element|template)\.innerHTML\b|\bouterHTML\b|\binsertAdjacentHTML\b|\bdocument\.write\b/u.test(input.text)
+    ? [createDiagnostic(context, {
+      code: RMT_APP_PLATFORM_DIAGNOSTIC_CODES.manualHtmlSink,
+      severity: 'error',
+      category: 'security',
+      message: 'RMT App Source darf keine manuellen HTML-Sinks verwenden.',
+      pointer: ''
+    })]
+    : [];
+}
+
 function analyzeRmtAppPlatformSource(input = {}, options = {}) {
   const parsed = parseSource(input, options);
   const context = {
@@ -528,7 +565,9 @@ function analyzeRmtAppPlatformSource(input = {}, options = {}) {
   }
 
   const document = parsed.document || {};
-  const diagnostics = parserDiagnostics.concat(lintAppPlatformDocument(document, context));
+  const diagnostics = parserDiagnostics
+    .concat(lintRawRmtSource(input, context))
+    .concat(lintAppPlatformDocument(document, context));
   const sourceMapEntries = collectSourceMapEntries(document, parsed.sourceModel);
   const errorCount = diagnostics.filter((entry) => entry.severity === 'error').length;
   const warningCount = diagnostics.filter((entry) => entry.severity === 'warning').length;

@@ -156,6 +156,9 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(playgroundClient.includes('runDocsRmtPlaygroundLanguageDiagnostics'), 'Preview client calls live LSP diagnostics');
   context.assert(playgroundClient.includes('replaceChildren'), 'Preview client resets surfaces with replaceChildren');
   context.assert(!playgroundClient.includes('innerHTML'), 'Playground client does not use innerHTML');
+  context.assert(pageLoader.includes('function isUnsafeDocsRmtPlaygroundPathSegment') && pageLoader.includes("part === '__proto__'") && pageLoader.includes("part === 'prototype'") && pageLoader.includes("part === 'constructor'"), 'Playground reducer paths reject prototype-pollution path segments');
+  context.assert(pageLoader.includes('parts.some(isUnsafeDocsRmtPlaygroundPathSegment)) return target'), 'Playground reducer writes skip unsafe path segments before mutating state');
+  context.assert(pageLoader.includes('parts.some(isUnsafeDocsRmtPlaygroundPathSegment)) return undefined'), 'Playground reducer reads skip unsafe path segments before traversing prototypes');
 
   const validResult = runPlaygroundEndpoint(rootDir, 'POST', JSON.stringify({ source: VALID_SOURCE, locale: 'en' }));
   const validPayload = parseEndpointJson(validResult);

@@ -42,7 +42,7 @@ function normalizeLanguage(value) {
 }
 
 function safeHighlightResult(result, fallbackCode, fallbackLanguage) {
-  if (!result || typeof result.html !== 'string') {
+  if (!result || (typeof result.html !== 'string' && typeof result.text !== 'string')) {
     return {
       html: escapeHtml(fallbackCode),
       highlighted: false,
@@ -50,10 +50,19 @@ function safeHighlightResult(result, fallbackCode, fallbackLanguage) {
       language: fallbackLanguage
     };
   }
+  if (typeof result.text === 'string') {
+    return {
+      html: escapeHtml(result.text),
+      highlighted: false,
+      engine: result.engine || 'plain-text',
+      language: result.language || fallbackLanguage
+    };
+  }
+  const isTrustedHtml = result.trustedHtml === true || result.trusted === true;
   return {
-    html: result.html,
-    highlighted: result.highlighted === true,
-    engine: result.engine || (result.highlighted ? 'prism' : 'plain-text'),
+    html: isTrustedHtml ? result.html : escapeHtml(result.html),
+    highlighted: result.highlighted === true && isTrustedHtml,
+    engine: result.engine || (result.highlighted && isTrustedHtml ? 'prism' : 'plain-text'),
     language: result.language || fallbackLanguage
   };
 }
@@ -328,7 +337,7 @@ class XCode extends HTMLElement {
       ? globalTarget.XTendRmtPrism.createHighlighter(prism)
       : null;
     const prismResult = callHighlighter(prismHighlighter, input);
-    if (prismResult) return safeHighlightResult(prismResult, rawCode, language);
+    if (prismResult) return safeHighlightResult({ ...prismResult, trustedHtml: true }, rawCode, language);
 
     const grammar = prism.languages[language] || prism.languages[languageMeta.rawLanguage] || null;
     if (!grammar) return safeHighlightResult(null, rawCode, language);
@@ -338,7 +347,8 @@ class XCode extends HTMLElement {
         html: prism.highlight(rawCode, grammar, language),
         highlighted: true,
         engine: 'prism',
-        language
+        language,
+        trustedHtml: true
       }, rawCode, language);
     } catch (error) {
       return safeHighlightResult(null, rawCode, language);

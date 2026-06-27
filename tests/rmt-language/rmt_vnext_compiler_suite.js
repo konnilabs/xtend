@@ -223,6 +223,16 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(maracaOrchestration.state.states.length >= 2, 'Maraca orchestration artifact includes state records');
   context.assert(maracaOrchestration.state.selectors.length >= 2, 'Maraca orchestration artifact includes selector records');
   context.assert(maracaOrchestration.state.reducers.some((reducer) => reducer.action === 'demo.orchestration.save' && reducer.state === 'demo.orchestration.status' && reducer.path === 'text' && reducer.value === 'Saved'), 'Maraca orchestration artifact lowers reducer patch plan');
+  const unsafeReducerResult = compileRmtVNextSource({
+    text: readText(VALID_MARACA_ORCHESTRATION_FIXTURE, rootDir).replace(
+      'reduce state.demo.orchestration.status.text = "Saved"',
+      'reduce state.demo.orchestration.status.__proto__.xtendPollutedCompiler = "polluted"'
+    ),
+    filePath: resolveRepoPath(VALID_MARACA_ORCHESTRATION_FIXTURE, rootDir)
+  });
+  const unsafeReducers = unsafeReducerResult.orchestrationArtifacts && unsafeReducerResult.orchestrationArtifacts.state.reducers || [];
+  context.assert(unsafeReducerResult.ok === true, 'Unsafe reducer fixture still compiles without preserving polluted path');
+  context.assert(!unsafeReducers.some((reducer) => reducer.path.includes('__proto__') || reducer.path.includes('constructor') || reducer.path.includes('prototype')), 'Compiler drops reducer paths with prototype pollution segments');
   context.assert(maracaOrchestration.actions.dataSources.some((source) => source.id === 'demo.orchestration.save' && source.kind === 'rest'), 'Maraca orchestration artifact lowers REST datasource placeholder');
   context.assert(maracaOrchestration.events.some((event) => event.action === 'demo.orchestration.save' && event.payloadContract && event.payloadContract.required.includes('label')), 'Maraca orchestration artifact includes typed event bindings');
   context.assert(maracaOrchestration.resources.some((resource) => resource.id === 'demo.orchestration.timer' && resource.owner), 'Maraca orchestration artifact includes owned resources');
@@ -297,6 +307,23 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(invalidResult.ok === false, 'invalid source does not compile');
   context.assert(invalidResult.coreDocument === null, 'invalid source has no core document');
   context.assert(invalidResult.diagnostics.some((diagnostic) => diagnostic.severity === 'error'), 'invalid source propagates diagnostics');
+
+  const unsafeOwnerResult = compileRmtVNextSource({
+    text: `template unsafe.owner {
+  state secret.anchor type object initial {}
+  resource leaked.socket kind subscription owner state.secret.anchor {
+    source endpoint socket
+    dispose on surface.destroy
+  }
+}`,
+    filePath: resolveRepoPath('tmp/rmt-vnext-unsafe-owner.rmt', rootDir)
+  });
+  context.assert(unsafeOwnerResult.ok === false, 'state-owned primitive resource does not compile');
+  context.assert(unsafeOwnerResult.coreDocument === null, 'state-owned primitive resource emits no core document');
+  context.assert(
+    unsafeOwnerResult.diagnostics.some((diagnostic) => diagnostic.code === RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.ownerMissing),
+    'state-owned primitive resource is diagnosed as invalid owner scope'
+  );
 
   const invalidPrimitiveResult = parseFixture(INVALID_PRIMITIVE_FIXTURE, rootDir);
   context.assert(invalidPrimitiveResult.ok === false, 'invalid primitive source does not lower');

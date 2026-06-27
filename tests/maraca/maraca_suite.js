@@ -1810,6 +1810,17 @@ async function runMaracaValidationSuite(options = {}) {
   context.assert(validGate.valid === true, 'Node validation smoke allows valid action');
   context.assert(fakeElements.every((element) => !element.hasAttribute('invalid')), 'Node validation smoke clears revealed field errors after valid input');
   context.assert(validationRuntime.snapshot().actionGateCount === 1, 'Validation runtime snapshot exposes action gate count');
+  delete Object.prototype.xtendPollutedValidation;
+  strictPlan.validation.artifact.statePatches.push({
+    group: 'demo.validation.contact',
+    targetState: 'demo.validation.next',
+    path: '__proto__.xtendPollutedValidation',
+    invalidValue: 'polluted',
+    validValue: 'polluted'
+  });
+  validationRuntime.refresh({ reason: 'unsafe-patch-smoke' });
+  context.assert({}.xtendPollutedValidation === undefined && !Object.prototype.hasOwnProperty.call(values['demo.validation.next'], 'xtendPollutedValidation'), 'Validation runtime rejects prototype pollution state patch paths');
+  delete Object.prototype.xtendPollutedValidation;
 
   context.assert(cliStatus === 0, 'xt maraca plan --validation strict exits successfully');
   context.assert(cliPlan.validation && cliPlan.validation.enabled === true, 'CLI returns strict validation plan JSON');
@@ -2295,7 +2306,9 @@ async function runMaracaPwaServiceWorkerSuite(options = {}) {
   context.assert(serviceWorker.includes("self.addEventListener('activate'"), 'Generated Service Worker includes activate cleanup flow');
   context.assert(serviceWorker.includes("self.addEventListener('fetch'"), 'Generated Service Worker includes fetch flow');
   context.assert(serviceWorker.includes("request.method !== 'GET'"), 'Generated Service Worker avoids non-GET caching');
-  context.assert(serviceWorker.includes("request.headers.get('authorization')") && serviceWorker.includes("request.headers.get('cookie')"), 'Generated Service Worker avoids auth/cookie-sensitive caching');
+  context.assert(serviceWorker.includes("request.headers.get('authorization')") && serviceWorker.includes("request.credentials === 'omit'"), 'Generated Service Worker avoids auth and credentialed request caching');
+  context.assert(!serviceWorker.includes("request.headers.get('cookie')"), 'Generated Service Worker does not rely on browser-hidden Cookie headers');
+  context.assert(!serviceWorker.includes('css|json|webmanifest'), 'Generated Service Worker excludes JSON API responses from default static runtime caching');
   context.assert(serviceWorker.includes('sameOrigin(request.url)'), 'Generated Service Worker stays same-origin by default');
   context.assert(serviceWorker.includes('replacesUiCoprocessor: false') && serviceWorker.includes('replacesSsr: false'), 'Generated Service Worker does not replace SSR or UI Coprocessor');
   context.assert(writtenPwaReport && writtenPwaReport.runtimeCaching.blockedByDefault.includes('api-responses-without-explicit-app-policy'), 'PWA report blocks API caching without explicit policy');

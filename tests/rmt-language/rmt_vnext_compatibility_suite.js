@@ -38,6 +38,7 @@ const {
   RMT_VNEXT_PRIMITIVE_MIGRATION_WORKPACKAGE,
   RMT_VNEXT_ROUNDTRIP_REPORT_SCHEMA,
   ROUNDTRIP_COMPATIBLE_WARNINGS,
+  createAppPlatformPrimitiveAuthoringDraft,
   createAppPlatformPrimitiveMigrationApplyPlan,
   createAppPlatformPrimitiveMigrationPreview,
   createCompatibilityMatrix,
@@ -275,6 +276,13 @@ function runPrimitiveMigrationChecks(context, rootDir) {
   context.assert(preview.authoringDraft.includes('surface workspace kind window component workspace'), 'primitive migration emits surface primitive syntax');
   context.assert(preview.authoringDraft.includes('lane visible weight 70'), 'primitive migration keeps Fabric lane authoring in vNext');
   context.assert(preview.authoringDraft.includes('on open-detail target ref.row -> action open-detail'), 'primitive migration emits event-to-action primitive syntax');
+  const actionResourceDraft = createAppPlatformPrimitiveAuthoringDraft({
+    manifest: { id: 'action.resource.owner.fixture' },
+    actions: [{ id: 'action.load', resources: ['resource.socket'] }],
+    resources: [{ id: 'resource.socket', kind: 'subscription' }]
+  });
+  context.assert(!actionResourceDraft.includes('owner action.'), 'primitive migration does not emit action-owned resources');
+  context.assert(actionResourceDraft.includes('resource socket kind subscription owner surface.root'), 'primitive migration falls back to surface lifecycle owner for action-only resources');
   context.assert(preview.authoringDraftCompileStatus === 'compiled' && compiledDraft.ok === true, 'primitive migration vNext draft compiles');
   context.assert(preview.projection && preview.projection.schema === RMT_VNEXT_CORE_SCHEMA, 'primitive migration carries compiled vNext projection');
   context.assert(preview.projection && preview.projection.appPlatform && preview.projection.kernelRecords, 'primitive migration produces App-Platform and Kernel records');

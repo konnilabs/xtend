@@ -4803,28 +4803,40 @@ function cloneMaracaValue(value, fallback = null) {
   }
 }
 
+const MARACA_UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
+
+function maracaPathParts(path) {
+  return String(path || "").split(".").filter(Boolean);
+}
+
+function hasUnsafeMaracaPathSegment(parts) {
+  return parts.some((part) => MARACA_UNSAFE_PATH_SEGMENTS.has(part));
+}
+
 function readMaracaPath(source, path) {
   if (!path) return source;
-  const parts = String(path).split(".").filter(Boolean);
+  const parts = maracaPathParts(path);
+  if (hasUnsafeMaracaPathSegment(parts)) return undefined;
   let cursor = source;
   for (const part of parts) {
-    if (cursor == null) return undefined;
+    if (cursor == null || typeof cursor !== "object" || !Object.prototype.hasOwnProperty.call(cursor, part)) return undefined;
     cursor = cursor[part];
   }
   return cursor;
 }
 
 function writeMaracaPath(target, path, value) {
-  const parts = String(path || "").split(".").filter(Boolean);
-  if (parts.length === 0) return value;
+  const parts = maracaPathParts(path);
+  if (hasUnsafeMaracaPathSegment(parts)) return target;
+  if (parts.length === 0) return target;
   let cursor = target;
   parts.forEach((part, index) => {
     if (index === parts.length - 1) {
       cursor[part] = value;
       return;
     }
-    if (!cursor[part] || typeof cursor[part] !== "object" || Array.isArray(cursor[part])) {
-      cursor[part] = {};
+    if (!Object.prototype.hasOwnProperty.call(cursor, part) || !cursor[part] || typeof cursor[part] !== "object" || Array.isArray(cursor[part])) {
+      cursor[part] = Object.create(null);
     }
     cursor = cursor[part];
   });
@@ -7741,7 +7753,7 @@ const XTEND_PRECACHE = 'xtend-precache-' + XTEND_CACHE_VERSION;
 const XTEND_RUNTIME = 'xtend-runtime-' + XTEND_CACHE_VERSION;
 const XTEND_OFFLINE_FALLBACK = ${JSON.stringify(offlineFallback)};
 const XTEND_PRECACHE_URLS = ${JSON.stringify(precacheUrls, null, 2)};
-const XTEND_STATIC_EXTENSIONS = /\\.(?:mjs|js|css|json|webmanifest|png|jpg|jpeg|gif|svg|webp|avif|ico|woff2?|ttf)$/i;
+const XTEND_STATIC_EXTENSIONS = /\\.(?:mjs|js|css|webmanifest|png|jpg|jpeg|gif|svg|webp|avif|ico|woff2?|ttf)$/i;
 
 /*
  * XTEND SERVICE WORKER BUSINESS LOGIC HOOK
@@ -7760,10 +7772,17 @@ if (XTEND_BUSINESS_LOGIC_IMPORT) {
 }
 
 function hasSensitiveRequestHeaders(request) {
-  return Boolean(
-    request.headers
-    && (request.headers.get('authorization') || request.headers.get('cookie'))
-  );
+  return Boolean(request.headers && request.headers.get('authorization'));
+}
+
+function isCredentiallessRequest(request) {
+  return request && request.credentials === 'omit';
+}
+
+function isCacheableResponse(response) {
+  if (!response || !response.ok) return false;
+  const cacheControl = response.headers && response.headers.get('cache-control');
+  return !cacheControl || !/(?:^|,)\\s*(?:no-store|private)\\b/i.test(cacheControl);
 }
 
 function sameOrigin(requestUrl) {
@@ -7775,7 +7794,7 @@ async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
   const response = await fetch(request);
-  if (response && response.ok) {
+  if (isCredentiallessRequest(request) && isCacheableResponse(response)) {
     const cache = await caches.open(XTEND_RUNTIME);
     await cache.put(request, response.clone());
   }
@@ -7784,12 +7803,7 @@ async function cacheFirst(request) {
 
 async function networkFirstNavigation(request) {
   try {
-    const response = await fetch(request);
-    if (response && response.ok) {
-      const cache = await caches.open(XTEND_RUNTIME);
-      await cache.put(request, response.clone());
-    }
-    return response;
+    return await fetch(request);
   } catch (error) {
     const cached = await caches.match(request);
     if (cached) return cached;

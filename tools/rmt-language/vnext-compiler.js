@@ -25,6 +25,7 @@ const RMT_VNEXT_COMPILER_DIAGNOSTIC_CODE = 'rmt.vnext.compiler.diagnostic';
 const RMT_KERNEL_RECORDS_SCHEMA = 'xtend.rmt.vnext.kernel-records.v1';
 const RMT_APP_PLATFORM_RECORDS_SCHEMA = 'xtend.rmt.vnext.app-platform-records.v1';
 const RMT_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-host-runtime-types';
+const RMT_VNEXT_RESOURCE_OWNER_KINDS = new Set(['overlay', 'surface']);
 const PRIMITIVE_DECLARATION_TYPES = new Set([
   'RmtStateDeclaration',
   'RmtSelectorDeclaration',
@@ -495,10 +496,14 @@ function parseOwnerReference(owner) {
   if (!match) {
     return null;
   }
+  const kind = match[1];
+  if (!RMT_VNEXT_RESOURCE_OWNER_KINDS.has(kind)) {
+    return null;
+  }
   return {
-    kind: match[1],
+    kind,
     id: match[2],
-    ref: primitiveRecordId(match[1], match[2])
+    ref: primitiveRecordId(kind, match[2])
   };
 }
 
@@ -1178,6 +1183,12 @@ function normalizeSelectorForStateRuntime(selector) {
   };
 }
 
+const UNSAFE_STATE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+function hasUnsafeStatePathSegment(path) {
+  return String(path || '').split('.').filter(Boolean).some((part) => UNSAFE_STATE_PATH_SEGMENTS.has(part));
+}
+
 function statePathForReducer(target, states) {
   const expression = String(target || '').trim();
   const statePrefix = expression.startsWith('state.') ? expression.slice(6) : expression;
@@ -1195,9 +1206,18 @@ function statePathForReducer(target, states) {
     };
   }
 
+  const path = statePrefix === state ? '' : statePrefix.slice(state.length + 1);
+  if (hasUnsafeStatePathSegment(path)) {
+    return {
+      state: null,
+      path: '',
+      target: expression
+    };
+  }
+
   return {
     state,
-    path: statePrefix === state ? '' : statePrefix.slice(state.length + 1),
+    path,
     target: expression
   };
 }
