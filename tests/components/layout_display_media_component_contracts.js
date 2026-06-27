@@ -192,6 +192,12 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
     context.assert(source.includes('hydrate()'), 'x-code exposes public hydrate for dynamic route content');
     context.assert(source.includes("return ['lang', 'language'];"), 'x-code observes lang and language attributes');
     context.assert(source.includes('registerHighlighter(provider)'), 'x-code exposes registerHighlighter');
+    context.assert(source.includes('escapeHtml(result.html)'), 'x-code escapes untrusted custom highlighter HTML');
+    context.assert(source.includes('trustedHtml: true'), 'x-code marks built-in Prism output as trusted HTML');
+    context.assert(types.includes('text?: string'), 'x-code types expose plain-text highlighter output');
+    context.assert(types.includes('trustedHtml?: boolean'), 'x-code types expose explicit trusted highlighter marker');
+    context.assert(!docs.includes('{ html: code, highlighted: false'), 'x-code docs avoid returning raw code from custom highlighters');
+    context.assert(docs.includes('text: code'), 'x-code docs return plain text from custom highlighters');
     context.assert(source.includes('XTendRmtPrism'), 'x-code auto-connects the RMT Prism middleware');
     context.assert(source.includes('highlightLanguage'), 'x-code snapshots highlight language');
     context.assert(source.includes('languageAlias'), 'x-code snapshots language alias');

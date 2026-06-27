@@ -45,6 +45,17 @@ if ('hydrate' in component) {
 }
 ```
 
+
+Hosts can register a custom highlighter. Plain-text results should return text; rich HTML must only be returned for trusted highlighter output and marked explicitly.
+
+```js
+customElements.get('x-code')?.registerHighlighter({
+  highlight({ code, language }) {
+    return { text: code, highlighted: false, engine: 'plain-text', language };
+  }
+});
+```
+
 For production screens, keep IDs stable when state keys or diagnostics include `<id>`. Stable IDs make event logs, RMT schedules and browser tests easier to compare across deployments.
 
 ## API reference
