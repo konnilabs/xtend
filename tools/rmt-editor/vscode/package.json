@@ -225,13 +225,11 @@
         },
         "xtendRmt.languageServer.args": {
           "type": "array",
-          "default": [
-            "${workspaceFolder}/tools/rmt-language-server/server.js"
-          ],
+          "default": [],
           "items": {
             "type": "string"
           },
-          "description": "Arguments used by generic LSP clients to start the XTendRMT Language Server."
+          "description": "Optional arguments for external generic LSP clients. The built-in VS Code client always starts the extension-bundled XTendRMT Language Server and does not execute workspace-configured paths on activation."
         },
         "xtendRmt.xtendCli.command": {
           "type": "string",
