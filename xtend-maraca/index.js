@@ -7741,7 +7741,7 @@ const XTEND_PRECACHE = 'xtend-precache-' + XTEND_CACHE_VERSION;
 const XTEND_RUNTIME = 'xtend-runtime-' + XTEND_CACHE_VERSION;
 const XTEND_OFFLINE_FALLBACK = ${JSON.stringify(offlineFallback)};
 const XTEND_PRECACHE_URLS = ${JSON.stringify(precacheUrls, null, 2)};
-const XTEND_STATIC_EXTENSIONS = /\\.(?:mjs|js|css|json|webmanifest|png|jpg|jpeg|gif|svg|webp|avif|ico|woff2?|ttf)$/i;
+const XTEND_STATIC_EXTENSIONS = /\\.(?:mjs|js|css|webmanifest|png|jpg|jpeg|gif|svg|webp|avif|ico|woff2?|ttf)$/i;
 
 /*
  * XTEND SERVICE WORKER BUSINESS LOGIC HOOK
@@ -7760,10 +7760,17 @@ if (XTEND_BUSINESS_LOGIC_IMPORT) {
 }
 
 function hasSensitiveRequestHeaders(request) {
-  return Boolean(
-    request.headers
-    && (request.headers.get('authorization') || request.headers.get('cookie'))
-  );
+  return Boolean(request.headers && request.headers.get('authorization'));
+}
+
+function isCredentiallessRequest(request) {
+  return request && request.credentials === 'omit';
+}
+
+function isCacheableResponse(response) {
+  if (!response || !response.ok) return false;
+  const cacheControl = response.headers && response.headers.get('cache-control');
+  return !cacheControl || !/(?:^|,)\\s*(?:no-store|private)\\b/i.test(cacheControl);
 }
 
 function sameOrigin(requestUrl) {
@@ -7775,7 +7782,7 @@ async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
   const response = await fetch(request);
-  if (response && response.ok) {
+  if (isCredentiallessRequest(request) && isCacheableResponse(response)) {
     const cache = await caches.open(XTEND_RUNTIME);
     await cache.put(request, response.clone());
   }
@@ -7784,12 +7791,7 @@ async function cacheFirst(request) {
 
 async function networkFirstNavigation(request) {
   try {
-    const response = await fetch(request);
-    if (response && response.ok) {
-      const cache = await caches.open(XTEND_RUNTIME);
-      await cache.put(request, response.clone());
-    }
-    return response;
+    return await fetch(request);
   } catch (error) {
     const cached = await caches.match(request);
     if (cached) return cached;

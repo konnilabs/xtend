@@ -2295,7 +2295,9 @@ async function runMaracaPwaServiceWorkerSuite(options = {}) {
   context.assert(serviceWorker.includes("self.addEventListener('activate'"), 'Generated Service Worker includes activate cleanup flow');
   context.assert(serviceWorker.includes("self.addEventListener('fetch'"), 'Generated Service Worker includes fetch flow');
   context.assert(serviceWorker.includes("request.method !== 'GET'"), 'Generated Service Worker avoids non-GET caching');
-  context.assert(serviceWorker.includes("request.headers.get('authorization')") && serviceWorker.includes("request.headers.get('cookie')"), 'Generated Service Worker avoids auth/cookie-sensitive caching');
+  context.assert(serviceWorker.includes("request.headers.get('authorization')") && serviceWorker.includes("request.credentials === 'omit'"), 'Generated Service Worker avoids auth and credentialed request caching');
+  context.assert(!serviceWorker.includes("request.headers.get('cookie')"), 'Generated Service Worker does not rely on browser-hidden Cookie headers');
+  context.assert(!serviceWorker.includes('css|json|webmanifest'), 'Generated Service Worker excludes JSON API responses from default static runtime caching');
   context.assert(serviceWorker.includes('sameOrigin(request.url)'), 'Generated Service Worker stays same-origin by default');
   context.assert(serviceWorker.includes('replacesUiCoprocessor: false') && serviceWorker.includes('replacesSsr: false'), 'Generated Service Worker does not replace SSR or UI Coprocessor');
   context.assert(writtenPwaReport && writtenPwaReport.runtimeCaching.blockedByDefault.includes('api-responses-without-explicit-app-policy'), 'PWA report blocks API caching without explicit policy');
