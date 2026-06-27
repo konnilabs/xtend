@@ -4803,28 +4803,40 @@ function cloneMaracaValue(value, fallback = null) {
   }
 }
 
+const MARACA_UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
+
+function maracaPathParts(path) {
+  return String(path || "").split(".").filter(Boolean);
+}
+
+function hasUnsafeMaracaPathSegment(parts) {
+  return parts.some((part) => MARACA_UNSAFE_PATH_SEGMENTS.has(part));
+}
+
 function readMaracaPath(source, path) {
   if (!path) return source;
-  const parts = String(path).split(".").filter(Boolean);
+  const parts = maracaPathParts(path);
+  if (hasUnsafeMaracaPathSegment(parts)) return undefined;
   let cursor = source;
   for (const part of parts) {
-    if (cursor == null) return undefined;
+    if (cursor == null || typeof cursor !== "object" || !Object.prototype.hasOwnProperty.call(cursor, part)) return undefined;
     cursor = cursor[part];
   }
   return cursor;
 }
 
 function writeMaracaPath(target, path, value) {
-  const parts = String(path || "").split(".").filter(Boolean);
-  if (parts.length === 0) return value;
+  const parts = maracaPathParts(path);
+  if (hasUnsafeMaracaPathSegment(parts)) return target;
+  if (parts.length === 0) return target;
   let cursor = target;
   parts.forEach((part, index) => {
     if (index === parts.length - 1) {
       cursor[part] = value;
       return;
     }
-    if (!cursor[part] || typeof cursor[part] !== "object" || Array.isArray(cursor[part])) {
-      cursor[part] = {};
+    if (!Object.prototype.hasOwnProperty.call(cursor, part) || !cursor[part] || typeof cursor[part] !== "object" || Array.isArray(cursor[part])) {
+      cursor[part] = Object.create(null);
     }
     cursor = cursor[part];
   });

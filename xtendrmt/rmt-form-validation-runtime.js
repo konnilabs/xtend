@@ -57,28 +57,40 @@
     });
   }
 
+  const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+  function pathParts(path) {
+    return String(path || '').split('.').filter(Boolean);
+  }
+
+  function hasUnsafePathSegment(parts) {
+    return parts.some((part) => UNSAFE_PATH_SEGMENTS.has(part));
+  }
+
   function readPath(source, path) {
     if (!path) return source;
-    const parts = String(path || '').split('.').filter(Boolean);
+    const parts = pathParts(path);
+    if (hasUnsafePathSegment(parts)) return undefined;
     let cursor = source;
     for (const part of parts) {
-      if (cursor == null) return undefined;
+      if (cursor == null || typeof cursor !== 'object' || !Object.prototype.hasOwnProperty.call(cursor, part)) return undefined;
       cursor = cursor[part];
     }
     return cursor;
   }
 
   function writePath(target, path, value) {
-    const parts = String(path || '').split('.').filter(Boolean);
-    if (!parts.length) return value;
+    const parts = pathParts(path);
+    if (hasUnsafePathSegment(parts)) return target;
+    if (!parts.length) return target;
     let cursor = target;
     parts.forEach((part, index) => {
       if (index === parts.length - 1) {
         cursor[part] = value;
         return;
       }
-      if (!cursor[part] || typeof cursor[part] !== 'object' || Array.isArray(cursor[part])) {
-        cursor[part] = {};
+      if (!Object.prototype.hasOwnProperty.call(cursor, part) || !cursor[part] || typeof cursor[part] !== 'object' || Array.isArray(cursor[part])) {
+        cursor[part] = Object.create(null);
       }
       cursor = cursor[part];
     });
