@@ -308,6 +308,23 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(invalidResult.coreDocument === null, 'invalid source has no core document');
   context.assert(invalidResult.diagnostics.some((diagnostic) => diagnostic.severity === 'error'), 'invalid source propagates diagnostics');
 
+  const unsafeOwnerResult = compileRmtVNextSource({
+    text: `template unsafe.owner {
+  state secret.anchor type object initial {}
+  resource leaked.socket kind subscription owner state.secret.anchor {
+    source endpoint socket
+    dispose on surface.destroy
+  }
+}`,
+    filePath: resolveRepoPath('tmp/rmt-vnext-unsafe-owner.rmt', rootDir)
+  });
+  context.assert(unsafeOwnerResult.ok === false, 'state-owned primitive resource does not compile');
+  context.assert(unsafeOwnerResult.coreDocument === null, 'state-owned primitive resource emits no core document');
+  context.assert(
+    unsafeOwnerResult.diagnostics.some((diagnostic) => diagnostic.code === RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.ownerMissing),
+    'state-owned primitive resource is diagnosed as invalid owner scope'
+  );
+
   const invalidPrimitiveResult = parseFixture(INVALID_PRIMITIVE_FIXTURE, rootDir);
   context.assert(invalidPrimitiveResult.ok === false, 'invalid primitive source does not lower');
   context.assert(invalidPrimitiveResult.status === 'semantic_error', 'invalid primitive source stops at semantic phase');

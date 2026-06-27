@@ -120,6 +120,10 @@ const RMT_VNEXT_PRIMITIVE_SOURCE_DOMAIN_BY_KIND = {
   state: 'states',
   surface: 'surfaces'
 };
+const RMT_VNEXT_RESOURCE_OWNER_DOMAINS_BY_KIND = Object.freeze({
+  overlay: 'overlays',
+  surface: 'surfaces'
+});
 const RMT_VNEXT_EXTERNAL_SOURCE_KINDS = new Set([
   'endpoint',
   'fixture',
@@ -1101,7 +1105,7 @@ function parseVNextOwnerReference(rawOwner) {
   return {
     kind: match[1],
     id: match[2],
-    domain: RMT_VNEXT_PRIMITIVE_SOURCE_DOMAIN_BY_KIND[match[1]] || null
+    domain: RMT_VNEXT_RESOURCE_OWNER_DOMAINS_BY_KIND[match[1]] || null
   };
 }
 
