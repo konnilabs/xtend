@@ -1482,6 +1482,15 @@ class XRouter extends HTMLElement {
     return notFoundRoute ? { route: notFoundRoute, params: {} } : null;
   }
 
+  _escapeHtml(value = '') {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   _renderError(status = 500, details = '') {
     const messages = {
       404: { title: '404 - Seite nicht gefunden', desc: 'Die angeforderte Seite existiert nicht oder wurde verschoben.' },
@@ -1491,7 +1500,8 @@ class XRouter extends HTMLElement {
       503: { title: '503 - Dienst nicht verfügbar', desc: 'Der Dienst ist vorübergehend nicht erreichbar.' },
     };
     const msg = messages[status] || messages[500];
-    return `<div style="padding:2em;text-align:center"><h2>${msg.title}</h2><p>${msg.desc}</p>${details ? `<pre style='color:#b00'>${details}</pre>` : ''}</div>`;
+    const safeDetails = details ? this._escapeHtml(details) : '';
+    return `<div style="padding:2em;text-align:center"><h2>${msg.title}</h2><p>${msg.desc}</p>${safeDetails ? `<pre style='color:#b00'>${safeDetails}</pre>` : ''}</div>`;
   }
 
   async _handleNavigation(options = {}) {

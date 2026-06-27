@@ -31,6 +31,7 @@ function runManifestImportPolicySuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const currentManifest = readJson('components/manifest.json', rootDir);
   const policySource = readText('security/manifest-import-policy.js', rootDir);
+  const routerSource = readText('components/xrouter.js', rootDir);
   const loaderSource = readText('xtend-loader.js', rootDir);
   const verifySource = readText('scripts/verify_manifest_import_policy.js', rootDir);
   const policy = createManifestImportPolicy();
@@ -81,6 +82,8 @@ function runManifestImportPolicySuite(options = {}) {
   context.assertIncludes(loaderSource, 'xtend.security.loader-policy.v1', 'Loader source carries loader policy contract');
   context.assertIncludes(loaderSource, 'classifyLoaderUrl', 'Loader validates Manifest and module URLs before loading');
   context.assertIncludes(loaderSource, 'emitSecurityDiagnostic', 'Loader emits structured security diagnostics');
+  context.assertIncludes(routerSource, "_escapeHtml(value = '')", 'XRouter defines HTML escaping for route error details');
+  context.assertIncludes(routerSource, "const safeDetails = details ? this._escapeHtml(details) : '';", 'XRouter escapes route-controlled error details before innerHTML rendering');
   context.assertIncludes(loaderSource, 'xtend.security.import.refused', 'Loader exposes import refusal diagnostic');
   context.assertIncludes(loaderSource, 'xtend.security.manifest.invalid', 'Loader exposes manifest invalid diagnostic');
   const manifestImportPolicyExport = packageManifest.exports['./security/manifest-import-policy'];
