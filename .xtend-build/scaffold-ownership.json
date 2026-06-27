@@ -33,12 +33,12 @@
       "generator": "rmt-lifecycle-demo",
       "kind": "xtend-custom-element",
       "path": "components/x-rmt-lifecycle-demo.js",
-      "sha256": "b2d002d12e292acb87169d55b1443eef1621e82a5089e01eaaa36503984ccccb",
-      "bytes": 48504,
+      "sha256": "927af3e3c42ac2b5f8bb91d1960a96d551857c57ca183f86e22e5d01c3a5e59e",
+      "bytes": 48527,
       "templateId": null,
       "templatePath": null,
       "sourceSha256": null,
-      "buildSha256": "f7550caf86b1afb9ce39e737db3094d6f683ef69ec2ed4f00dfc7d94f7185366"
+      "buildSha256": "47fa37c7131da3d41bd3fe833a4cd14d12dd2e670677b2b2b5355ebe770cd96b"
     },
     "tests/browser/fixtures/rmt-lifecycle-demo-rmt-build-smoke.html": {
       "schema": "xtend.scaffold.generated-ownership.v1",
@@ -163,12 +163,12 @@
       "generator": "rmt-lifecycle-demo",
       "kind": "scaffold-build-report",
       "path": "xtendrmt/rmt-lifecycle-demo.scaffold.json",
-      "sha256": "3c63a99e3c78dbee7fabe239d77d580acdc655e816ae242f65ebc27a3cd6cc19",
+      "sha256": "c3817b298a941c1dc770220d10b328bfee8d93eece60acb84784a059c5782028",
       "bytes": 7659,
       "templateId": null,
       "templatePath": null,
       "sourceSha256": null,
-      "buildSha256": "f353b6ee8f223a6d8469a4259896d4023cefc9c88db686a7a1190c3f1b65d588"
+      "buildSha256": "1553512dc58940e39dffaa54db1ea3ba4b32914ba88c4a8f5de83a70f7913f13"
     }
   }
 }
