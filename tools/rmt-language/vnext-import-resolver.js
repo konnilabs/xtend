@@ -58,6 +58,27 @@ function isInsideAnyRoot(filePath, roots) {
   return roots.some((root) => isInsideRoot(filePath, root));
 }
 
+function safeRealPath(filePath) {
+  try {
+    return fs.realpathSync(filePath);
+  } catch (error) {
+    return null;
+  }
+}
+
+function normalizeRealRootList(roots) {
+  return roots.map((root) => safeRealPath(root) || root);
+}
+
+function realPathInsideAnyRoot(filePath, context) {
+  const realPath = safeRealPath(filePath);
+  if (!realPath) return null;
+  return {
+    realPath,
+    inside: isInsideAnyRoot(realPath, context.realRoots)
+  };
+}
+
 function shortestRelativePath(filePath, roots) {
   const sortedRoots = roots.slice().sort((a, b) => b.length - a.length);
   const root = sortedRoots.find((candidate) => isInsideRoot(filePath, candidate)) || sortedRoots[0] || process.cwd();
@@ -262,6 +283,23 @@ function resolveFileImport(moduleRecord, importRecord, context) {
     return createEdge(moduleRecord, importRecord, [], diagnostics);
   }
 
+  const realPathCheck = context.realPathInsideAnyRoot(resolvedPath);
+  if (!realPathCheck || !realPathCheck.inside) {
+    diagnostics.push(createImportDiagnostic(
+      moduleRecord,
+      importRecord,
+      IMPORT_BOUNDARY_VIOLATION_CODE,
+      `Import path "${importPath}" leaves the configured RMT package roots.`,
+      'error',
+      {
+        resolvedPath: toPosixPath(resolvedPath),
+        realPath: realPathCheck && toPosixPath(realPathCheck.realPath),
+        roots: context.roots.map(toPosixPath)
+      }
+    ));
+    return createEdge(moduleRecord, importRecord, [], diagnostics);
+  }
+
   return createEdge(moduleRecord, importRecord, diagnostics.length > 0 ? [] : [resolvedPath], diagnostics);
 }
 
@@ -295,9 +333,32 @@ function resolveGlobImport(moduleRecord, importRecord, context) {
     return createEdge(moduleRecord, importRecord, [], diagnostics);
   }
 
+  if (context.directoryExists(baseDir)) {
+    const baseDirRealPathCheck = context.realPathInsideAnyRoot(baseDir);
+    if (!baseDirRealPathCheck || !baseDirRealPathCheck.inside) {
+      diagnostics.push(createImportDiagnostic(
+        moduleRecord,
+        importRecord,
+        IMPORT_BOUNDARY_VIOLATION_CODE,
+        `Glob import "${importPath}" leaves the configured RMT package roots.`,
+        'error',
+        {
+          resolvedPath: toPosixPath(baseDir),
+          realPath: baseDirRealPathCheck && toPosixPath(baseDirRealPathCheck.realPath),
+          roots: context.roots.map(toPosixPath)
+        }
+      ));
+      return createEdge(moduleRecord, importRecord, [], diagnostics);
+    }
+  }
+
   const matches = context.listFiles(baseDir, { recursive: info.recursive })
     .filter((filePath) => hasAllowedExtension(filePath))
     .filter((filePath) => isInsideAnyRoot(filePath, context.roots))
+    .filter((filePath) => {
+      const realPathCheck = context.realPathInsideAnyRoot(filePath);
+      return realPathCheck && realPathCheck.inside;
+    })
     .sort((left, right) => toPosixPath(left).localeCompare(toPosixPath(right)));
 
   if (matches.length === 0) {
@@ -418,13 +479,17 @@ function createModuleGraph(input = {}, options = {}) {
   const rootDir = ensureAbsolute(process.cwd(), options.rootDir || process.cwd());
   const entryFile = ensureAbsolute(rootDir, input.entryFile || input.filePath);
   const roots = normalizeRootList(rootDir, options.roots, entryFile);
+  const realRoots = normalizeRealRootList(roots);
   const context = {
     rootDir,
     entryFile,
     roots,
+    realRoots,
     fileExists: options.fileExists || defaultFileExists,
+    directoryExists: options.directoryExists || defaultDirectoryExists,
     readText: options.readText || defaultReadText,
     listFiles: options.listFiles || defaultListFiles,
+    realPathInsideAnyRoot: options.realPathInsideAnyRoot || ((filePath) => realPathInsideAnyRoot(filePath, context)),
     modulesByPath: new Map(),
     modules: [],
     edges: [],
@@ -533,7 +598,38 @@ function createModuleGraph(input = {}, options = {}) {
     context.modules.push(moduleRecord);
     context.diagnostics.push(diagnostic);
   } else {
-    visit(entryFile, []);
+    const entryRealPathCheck = context.realPathInsideAnyRoot(entryFile);
+    if (!entryRealPathCheck || !entryRealPathCheck.inside) {
+      const moduleRecord = {
+        schema: RMT_VNEXT_MODULE_RECORD_SCHEMA,
+        id: moduleIdForPath(entryFile, roots),
+        filePath: toPosixPath(entryFile),
+        relativePath: shortestRelativePath(entryFile, roots),
+        status: 'blocked',
+        importCount: 0,
+        imports: [],
+        dependencies: [],
+        coreDocument: null,
+        diagnostics: []
+      };
+      const diagnostic = createImportDiagnostic(
+        moduleRecord,
+        null,
+        IMPORT_BOUNDARY_VIOLATION_CODE,
+        `Entry file "${moduleRecord.relativePath}" is outside configured RMT package roots.`,
+        'error',
+        {
+          entryFile: toPosixPath(entryFile),
+          realPath: entryRealPathCheck && toPosixPath(entryRealPathCheck.realPath),
+          roots: roots.map(toPosixPath)
+        }
+      );
+      moduleRecord.diagnostics.push(diagnostic);
+      context.modules.push(moduleRecord);
+      context.diagnostics.push(diagnostic);
+    } else {
+      visit(entryFile, []);
+    }
   }
 
   const duplicateDiagnostics = detectDuplicateModuleIds(context.modules);

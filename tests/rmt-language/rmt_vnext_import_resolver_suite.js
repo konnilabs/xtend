@@ -75,6 +75,35 @@ function edgeByImportPath(graph, importPath) {
   return graph.edges.find((edge) => edge.importPath === importPath);
 }
 
+function createSymlinkBoundaryFixture(context, rootDir, fixtureName, entryText, outsideFileName, outsideText, linkPath) {
+  if (typeof fs.symlinkSync !== 'function') return null;
+
+  const baseDir = path.join(rootDir, '.tmp', fixtureName);
+  const packageDir = path.join(baseDir, 'pkg');
+  const outsideDir = path.join(baseDir, 'outside');
+  fs.rmSync(baseDir, { recursive: true, force: true });
+  fs.mkdirSync(packageDir, { recursive: true });
+  fs.mkdirSync(outsideDir, { recursive: true });
+  fs.writeFileSync(path.join(packageDir, 'app.rmt'), entryText, 'utf8');
+  fs.writeFileSync(path.join(outsideDir, outsideFileName), outsideText, 'utf8');
+
+  const linkFullPath = path.join(packageDir, linkPath);
+  fs.mkdirSync(path.dirname(linkFullPath), { recursive: true });
+  try {
+    const linkTarget = path.extname(linkPath) ? path.join(outsideDir, outsideFileName) : outsideDir;
+    fs.symlinkSync(linkTarget, linkFullPath);
+  } catch (error) {
+    context.assert(error && (error.code === 'EPERM' || error.code === 'EACCES'), `symlink fixture can be created or skipped for ${fixtureName}`);
+    return null;
+  }
+
+  return {
+    entryFile: path.join(packageDir, 'app.rmt'),
+    root: packageDir,
+    cleanup: () => fs.rmSync(baseDir, { recursive: true, force: true })
+  };
+}
+
 function runRmtVNextImportResolverSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
@@ -172,6 +201,52 @@ function runRmtVNextImportResolverSuite(options = {}) {
   const boundaryGraph = createGraphFor('tests/rmt-language/fixtures/vnext-modules-boundary/app.rmt', BOUNDARY_MODULE_ROOT, rootDir);
   context.assert(boundaryGraph.ok === false, 'package boundary violations block module graph');
   context.assert(boundaryGraph.diagnostics.some((diagnostic) => diagnostic.code === IMPORT_BOUNDARY_VIOLATION_CODE), 'package boundary violations produce diagnostics');
+
+  const symlinkFileFixture = createSymlinkBoundaryFixture(
+    context,
+    rootDir,
+    'rmt-vnext-import-file-symlink-boundary',
+    'import "./link.rmt"\n\ntemplate app.page {\n  surface root {\n    lane critical {\n      hydrate app-shell\n    }\n  }\n}\n',
+    'secret.rmt',
+    'template outside.secret {\n  surface root {\n    lane critical {\n      hydrate outside-secret\n    }\n  }\n}\n',
+    'link.rmt'
+  );
+  if (symlinkFileFixture) {
+    try {
+      const symlinkFileGraph = createModuleGraph({ entryFile: symlinkFileFixture.entryFile }, {
+        rootDir,
+        roots: [symlinkFileFixture.root]
+      });
+      context.assert(symlinkFileGraph.ok === false, 'symlinked file import outside package roots blocks module graph');
+      context.assert(symlinkFileGraph.diagnostics.some((diagnostic) => diagnostic.code === IMPORT_BOUNDARY_VIOLATION_CODE), 'symlinked file import outside package roots produces boundary diagnostic');
+      context.assert(!moduleIds(symlinkFileGraph).includes('module:link.rmt'), 'symlinked outside file is not compiled as an in-root module');
+    } finally {
+      symlinkFileFixture.cleanup();
+    }
+  }
+
+  const symlinkGlobFixture = createSymlinkBoundaryFixture(
+    context,
+    rootDir,
+    'rmt-vnext-import-glob-symlink-boundary',
+    'import "./linked/*.rmt"\n\ntemplate app.page {\n  surface root {\n    lane critical {\n      hydrate app-shell\n    }\n  }\n}\n',
+    'secret.rmt',
+    'template outside.globsecret {\n  surface root {\n    lane critical {\n      hydrate outside-glob-secret\n    }\n  }\n}\n',
+    'linked'
+  );
+  if (symlinkGlobFixture) {
+    try {
+      const symlinkGlobGraph = createModuleGraph({ entryFile: symlinkGlobFixture.entryFile }, {
+        rootDir,
+        roots: [symlinkGlobFixture.root]
+      });
+      context.assert(symlinkGlobGraph.ok === false, 'symlinked glob directory outside package roots blocks module graph');
+      context.assert(symlinkGlobGraph.diagnostics.some((diagnostic) => diagnostic.code === IMPORT_BOUNDARY_VIOLATION_CODE), 'symlinked glob directory outside package roots produces boundary diagnostic');
+      context.assert(!moduleIds(symlinkGlobGraph).some((moduleId) => moduleId.includes('secret.rmt')), 'symlinked outside glob file is not compiled as an in-root module');
+    } finally {
+      symlinkGlobFixture.cleanup();
+    }
+  }
 
   const invalidGlobGraph = createGraphFor('tests/rmt-language/fixtures/vnext-modules-invalid-glob/app.rmt', INVALID_GLOB_MODULE_ROOT, rootDir);
   context.assert(invalidGlobGraph.ok === false, 'unsupported globs block module graph');
