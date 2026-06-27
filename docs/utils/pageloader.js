@@ -4387,6 +4387,7 @@ function cloneDocsRmtPlaygroundValue(value, fallback = null) {
 function readDocsRmtPlaygroundPath(source, path) {
   if (!path) return source;
   const parts = String(path || '').split('.').filter(Boolean);
+  if (parts.some(isUnsafeDocsRmtPlaygroundPathSegment)) return undefined;
   let cursor = source;
   for (const part of parts) {
     if (cursor == null) return undefined;
@@ -4395,8 +4396,13 @@ function readDocsRmtPlaygroundPath(source, path) {
   return cursor;
 }
 
+function isUnsafeDocsRmtPlaygroundPathSegment(part) {
+  return part === '__proto__' || part === 'prototype' || part === 'constructor';
+}
+
 function writeDocsRmtPlaygroundPath(target, path, value) {
   const parts = String(path || '').split('.').filter(Boolean);
+  if (parts.some(isUnsafeDocsRmtPlaygroundPathSegment)) return target;
   if (!parts.length) return value;
   let cursor = target;
   parts.forEach((part, index) => {
