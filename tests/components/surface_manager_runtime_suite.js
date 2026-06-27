@@ -160,6 +160,8 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'openSurface(id, input)',
     'closeSurface(id, reason)',
     'destroySurface(id, options = {})',
+    '_isSurfaceCommandAuthorized(event, surfaceId, command)',
+    'surface-command-origin-mismatch',
     'focusSurface(id)',
     'moveSurface(id, bounds)',
     'resizeSurface(id, bounds)',
