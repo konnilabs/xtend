@@ -14,6 +14,7 @@ const RMT_FORMAT_ADAPTER_MODULE_PATH = 'tools/rmt-language/format-adapter.js';
 const RMT_FORMAT_NORMALIZATION_ERROR_CODE = 'rmt.format.normalization.failed';
 const RMT_FORMAT_ADAPTER_UNAVAILABLE_CODE = 'rmt.format.adapter.unavailable';
 const RMT_CORE_ARTIFACT_PATH = 'xtendrmt/rmt-core.esm.js';
+const TRUSTED_RMT_CORE_ROOT = path.resolve(__dirname, '..', '..');
 
 function createCoreSandbox() {
   function CustomEvent(type, init = {}) {
@@ -64,16 +65,24 @@ function stripEsmExports(source) {
 }
 
 function resolveRootDir(options = {}) {
-  return options.rootDir || path.resolve(__dirname, '..', '..');
+  return options.rootDir || TRUSTED_RMT_CORE_ROOT;
+}
+
+function resolveCoreArtifactPath(options = {}) {
+  const artifactPath = options.coreArtifactPath
+    ? path.resolve(TRUSTED_RMT_CORE_ROOT, options.coreArtifactPath)
+    : path.join(TRUSTED_RMT_CORE_ROOT, RMT_CORE_ARTIFACT_PATH);
+  const relativePath = path.relative(TRUSTED_RMT_CORE_ROOT, artifactPath);
+
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    throw new Error('RMT core artifact path must stay within the trusted package root.');
+  }
+
+  return artifactPath;
 }
 
 function loadRmtCoreFormatFactory(options = {}) {
-  const rootDir = resolveRootDir(options);
-  const artifactPath = options.coreArtifactPath
-    ? (path.isAbsolute(options.coreArtifactPath)
-      ? options.coreArtifactPath
-      : path.join(rootDir, options.coreArtifactPath))
-    : path.join(rootDir, RMT_CORE_ARTIFACT_PATH);
+  const artifactPath = resolveCoreArtifactPath(options);
   const source = fs.readFileSync(artifactPath, 'utf8');
   const sandbox = createCoreSandbox();
 
@@ -265,6 +274,7 @@ module.exports = {
   RMT_PARSER_WORKPACKAGE,
   createRmtFormatAdapter,
   loadRmtCoreFormatFactory,
+  resolveCoreArtifactPath,
   parseAndNormalizeRmtSource,
   stripEsmExports
 };

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const {
   createSuiteContext,
   printSuiteReport
@@ -31,7 +32,8 @@ const {
   RMT_FORMAT_NORMALIZATION_ERROR_CODE,
   createRmtFormatAdapter,
   loadRmtCoreFormatFactory,
-  parseAndNormalizeRmtSource
+  parseAndNormalizeRmtSource,
+  resolveCoreArtifactPath
 } = require('../../tools/rmt-language/format-adapter');
 const {
   RMT_SYNTAX_ERROR_CODE
@@ -233,6 +235,28 @@ function runRmtParserSuite(options = {}) {
   context.assert(unavailableResult.status === 'format_adapter_unavailable', 'unavailable format adapter status is explicit');
   context.assert(unavailableDiagnostic && unavailableDiagnostic.message.includes('format factory unavailable'), 'unavailable diagnostic keeps error message');
   assertDiagnosticRange(context, unavailableDiagnostic, 'unavailable format diagnostic has fallback range');
+
+  const maliciousRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-rmt-malicious-root-'));
+  const markerPath = path.join(maliciousRoot, 'rmt-core-executed');
+  fs.mkdirSync(path.join(maliciousRoot, 'xtendrmt'), { recursive: true });
+  fs.writeFileSync(
+    path.join(maliciousRoot, 'xtendrmt', 'rmt-core.esm.js'),
+    `console.log.constructor('return process')().getBuiltinModule('fs').writeFileSync(${JSON.stringify(markerPath)}, 'executed');
+    globalThis.AppModules = { createRmtFormat: () => ({ parseDocument: (document) => document }) };
+    export default {};`,
+    'utf8'
+  );
+  const maliciousRootResult = parseAndNormalizeRmtSource({
+    text: readText('tests/rmt-language/fixtures/regression-valid.rmt', rootDir),
+    filePath: resolveRepoPath('tests/rmt-language/fixtures/regression-valid.rmt', rootDir),
+    version: 4
+  }, {
+    rootDir: maliciousRoot
+  });
+
+  context.assert(maliciousRootResult.ok === true, 'workspace root still normalizes through trusted package RMT core');
+  context.assert(fs.existsSync(markerPath) === false, 'workspace RMT core artifact is not executed by tooling');
+  context.assert(resolveCoreArtifactPath({ rootDir: maliciousRoot }) === path.join(rootDir, 'xtendrmt/rmt-core.esm.js'), 'core artifact resolves from trusted package root');
 
   const coreFactory = loadRmtCoreFormatFactory({ rootDir });
   const coreFormat = coreFactory();
