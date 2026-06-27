@@ -16288,8 +16288,37 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         });
     }
 
+    function decodeRuntimeTrustedDomAttributeValue(value) {
+        return String(value || '').replace(/&(#x[0-9a-f]+|#\d+|[a-z][a-z0-9]+);?/gi, (match, entity) => {
+            const normalizedEntity = String(entity || '').toLowerCase();
+            if (normalizedEntity[0] === '#') {
+                const radix = normalizedEntity[1] === 'x' ? 16 : 10;
+                const digits = radix === 16 ? normalizedEntity.slice(2) : normalizedEntity.slice(1);
+                const codePoint = parseInt(digits, radix);
+                if (Number.isFinite(codePoint)) {
+                    try {
+                        return String.fromCodePoint(codePoint);
+                    } catch (_) {
+                        return match;
+                    }
+                }
+                return match;
+            }
+            return ({
+                amp: '&',
+                apos: "'",
+                colon: ':',
+                gt: '>',
+                lt: '<',
+                newline: '\n',
+                quot: '"',
+                tab: '\t'
+            })[normalizedEntity] || match;
+        });
+    }
+
     function isAllowedRuntimeTrustedDomUrl(value) {
-        const normalized = String(value || '').trim().replace(/[\u0000-\u001F\u007F\s]+/g, '').toLowerCase();
+        const normalized = decodeRuntimeTrustedDomAttributeValue(value).trim().replace(/[\u0000-\u001F\u007F\s]+/g, '').toLowerCase();
         if (!normalized) return true;
         if (normalized.startsWith('#') || normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) return true;
         if (normalized.startsWith('data:')) return normalized.startsWith('data:image/');
@@ -20022,8 +20051,37 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         });
     }
 
+    function decodeRuntimeTrustedDomAttributeValue(value) {
+        return String(value || '').replace(/&(#x[0-9a-f]+|#\d+|[a-z][a-z0-9]+);?/gi, (match, entity) => {
+            const normalizedEntity = String(entity || '').toLowerCase();
+            if (normalizedEntity[0] === '#') {
+                const radix = normalizedEntity[1] === 'x' ? 16 : 10;
+                const digits = radix === 16 ? normalizedEntity.slice(2) : normalizedEntity.slice(1);
+                const codePoint = parseInt(digits, radix);
+                if (Number.isFinite(codePoint)) {
+                    try {
+                        return String.fromCodePoint(codePoint);
+                    } catch (_) {
+                        return match;
+                    }
+                }
+                return match;
+            }
+            return ({
+                amp: '&',
+                apos: "'",
+                colon: ':',
+                gt: '>',
+                lt: '<',
+                newline: '\n',
+                quot: '"',
+                tab: '\t'
+            })[normalizedEntity] || match;
+        });
+    }
+
     function isAllowedRuntimeTrustedDomUrl(value) {
-        const normalized = String(value || '').trim().replace(/[\u0000-\u001F\u007F\s]+/g, '').toLowerCase();
+        const normalized = decodeRuntimeTrustedDomAttributeValue(value).trim().replace(/[\u0000-\u001F\u007F\s]+/g, '').toLowerCase();
         if (!normalized) return true;
         if (normalized.startsWith('#') || normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) return true;
         if (normalized.startsWith('data:')) return normalized.startsWith('data:image/');
