@@ -1178,6 +1178,12 @@ function normalizeSelectorForStateRuntime(selector) {
   };
 }
 
+const UNSAFE_STATE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+function hasUnsafeStatePathSegment(path) {
+  return String(path || '').split('.').filter(Boolean).some((part) => UNSAFE_STATE_PATH_SEGMENTS.has(part));
+}
+
 function statePathForReducer(target, states) {
   const expression = String(target || '').trim();
   const statePrefix = expression.startsWith('state.') ? expression.slice(6) : expression;
@@ -1195,9 +1201,18 @@ function statePathForReducer(target, states) {
     };
   }
 
+  const path = statePrefix === state ? '' : statePrefix.slice(state.length + 1);
+  if (hasUnsafeStatePathSegment(path)) {
+    return {
+      state: null,
+      path: '',
+      target: expression
+    };
+  }
+
   return {
     state,
-    path: statePrefix === state ? '' : statePrefix.slice(state.length + 1),
+    path,
     target: expression
   };
 }

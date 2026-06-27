@@ -1810,6 +1810,17 @@ async function runMaracaValidationSuite(options = {}) {
   context.assert(validGate.valid === true, 'Node validation smoke allows valid action');
   context.assert(fakeElements.every((element) => !element.hasAttribute('invalid')), 'Node validation smoke clears revealed field errors after valid input');
   context.assert(validationRuntime.snapshot().actionGateCount === 1, 'Validation runtime snapshot exposes action gate count');
+  delete Object.prototype.xtendPollutedValidation;
+  strictPlan.validation.artifact.statePatches.push({
+    group: 'demo.validation.contact',
+    targetState: 'demo.validation.next',
+    path: '__proto__.xtendPollutedValidation',
+    invalidValue: 'polluted',
+    validValue: 'polluted'
+  });
+  validationRuntime.refresh({ reason: 'unsafe-patch-smoke' });
+  context.assert({}.xtendPollutedValidation === undefined && !Object.prototype.hasOwnProperty.call(values['demo.validation.next'], 'xtendPollutedValidation'), 'Validation runtime rejects prototype pollution state patch paths');
+  delete Object.prototype.xtendPollutedValidation;
 
   context.assert(cliStatus === 0, 'xt maraca plan --validation strict exits successfully');
   context.assert(cliPlan.validation && cliPlan.validation.enabled === true, 'CLI returns strict validation plan JSON');
