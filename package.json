@@ -54,7 +54,8 @@
     "security",
     "docs",
     "xtend-maraca",
-    "xsurface-shard"
+    "xsurface-shard",
+    "xcommand"
   ],
   "sideEffects": [
     "*.css",
@@ -68,7 +69,8 @@
     "design-tokens/*.js",
     "xtendrmt/*.js",
     "xtend-maraca/*.js",
-    "xsurface-shard/*.js"
+    "xsurface-shard/*.js",
+    "xcommand/*.js"
   ],
   "scopedPackages": [
     {
@@ -687,7 +689,12 @@
       "types": "./security/xss-pentest-policy.d.ts",
       "default": "./security/xss-pentest-policy.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./xcommand": {
+      "types": "./xcommand/xcommand.d.ts",
+      "default": "./xcommand/xcommand.js"
+    },
+    "./components/xkeymap.js": "./components/xkeymap.js"
   },
   "publishConfig": {
     "access": "public",
@@ -3963,7 +3970,8 @@
       "npm run test:xtend-layout-stability-contract",
       "npm run pack:dry-run",
       "npm run test:xscaler-protocol",
-      "npm run test:maraca"
+      "npm run test:maraca",
+      "npm run test:xcommand-kernel"
     ],
     "supplyChain": {
       "schema": "xtend.security.supply-chain-gate-plan.v1",
@@ -16354,6 +16362,8 @@
     "test:maraca": "node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker",
     "test:maraca:report": "node scripts/run_xtend_tests.js maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker --report .xtend-test-results/xtend-maraca-gate-report.json",
     "test:xscaler-protocol": "node scripts/run_xtend_tests.js xscaler-protocol",
-    "test:xscaler-protocol:report": "node scripts/run_xtend_tests.js xscaler-protocol --report .xtend-test-results/xtend-xscaler-protocol-report.json"
+    "test:xscaler-protocol:report": "node scripts/run_xtend_tests.js xscaler-protocol --report .xtend-test-results/xtend-xscaler-protocol-report.json",
+    "test:xcommand-kernel": "node scripts/run_xtend_tests.js xcommand-kernel",
+    "test:xcommand-kernel:report": "node scripts/run_xtend_tests.js xcommand-kernel --report .xtend-test-results/xtend-xcommand-kernel-report.json"
   }
 }

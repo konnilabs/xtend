@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XTend XCommand Keymap App Shell Fixture</title>
+  <script src="../../../xcommand/xcommand.js"></script>
+  <script src="../../../components/xkeymap.js"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --xkeymap-backdrop: rgba(15, 23, 42, .5);
+      --xkeymap-surface: Canvas;
+      --xkeymap-border: rgba(99, 102, 241, .45);
+      --xkeymap-key-bg: rgba(99, 102, 241, .14);
+      --xkeymap-key-color: CanvasText;
+      --xkeymap-group-title-color: #4f46e5;
+    }
+
+    body {
+      margin: 0;
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: color-mix(in srgb, Canvas 92%, #4f46e5 8%);
+      color: CanvasText;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .app-shell__header,
+    .app-shell__main {
+      width: min(68rem, calc(100vw - 2rem));
+      margin-inline: auto;
+    }
+
+    .app-shell__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+    }
+
+    .app-shell__main {
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+      padding: 2rem 0;
+    }
+
+    .panel {
+      border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+      border-radius: 1rem;
+      padding: 1rem;
+      background: color-mix(in srgb, Canvas 88%, transparent);
+      box-shadow: 0 1rem 3rem rgba(15, 23, 42, .08);
+    }
+
+    .indicator {
+      display: grid;
+      gap: .25rem;
+      padding: 1rem;
+      border-radius: .75rem;
+      background: color-mix(in srgb, #22c55e 12%, Canvas);
+      border: 1px solid color-mix(in srgb, #22c55e 35%, transparent);
+    }
+
+    .indicator strong {
+      font-size: 1.125rem;
+    }
+
+    button,
+    kbd {
+      border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+      border-radius: .5rem;
+    }
+
+    button {
+      padding: .55rem .8rem;
+      background: #4f46e5;
+      color: white;
+      cursor: pointer;
+    }
+
+    .commands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      align-items: center;
+    }
+
+    kbd {
+      padding: .1rem .45rem;
+      background: color-mix(in srgb, currentColor 8%, transparent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell" data-xtend-app-shell="xcommand-keymap-fixture">
+    <header class="app-shell__header">
+      <div>
+        <strong>XTend XCommand Fixture Shell</strong>
+        <div>Classic shortcuts, key chords and generated XKeymap.</div>
+      </div>
+      <button id="open-keymap" type="button">Open keymap</button>
+    </header>
+
+    <main class="app-shell__main">
+      <section class="panel">
+        <h1>Keyboard command indicator</h1>
+        <p>Use <kbd>Mod+S</kbd>, <kbd>?</kbd>, <kbd>g</kbd> <kbd>f</kbd> or <kbd>g</kbd> <kbd>h</kbd>. The indicator below mirrors the invoked command.</p>
+        <div id="indicator" class="indicator" role="status" aria-live="polite" data-command="none">
+          <span>Last command</span>
+          <strong id="indicator-label">No command invoked yet</strong>
+          <span id="indicator-sequence">Waiting for input</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Fixture controls</h2>
+        <div class="commands">
+          <button type="button" data-simulate="Mod+S">Simulate Mod+S</button>
+          <button type="button" data-simulate="?">Simulate ?</button>
+          <button type="button" data-simulate="g f">Simulate g f</button>
+          <button type="button" data-simulate="g h">Simulate g h</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <x-keymap id="keymap" title="XTend command keymap" locale="en"></x-keymap>
+
+  <script type="application/xtend-rmt" id="xcommand-rmt-source">
+    xcommand "global.save" {
+      keys: "Mod+S"
+      label: i18n("commands.save", "Save document")
+      icon: "💾"
+      action: action.saveDocument
+      lane: interaction
+      keymap: group("file") order(10) visible(true)
+    }
+
+    xcommand "global.keymap" {
+      keys: "?"
+      label: i18n("commands.keymap", "Open keymap")
+      icon: "⌨"
+      action: action.openKeymap
+      lane: interaction
+      keymap: group("help") order(10) visible(true)
+    }
+
+    xcommand "navigation.go-to-file" {
+      keys: "g f"
+      label: i18n("commands.goToFile", "Go to file")
+      icon: "📄"
+      event: event.openQuickFile
+      scope: "app-shell"
+      keymap: group("navigation") order(20)
+    }
+
+    xcommand "navigation.go-home" {
+      keys: "g h"
+      label: i18n("commands.goHome", "Go home")
+      icon: "⌂"
+      event: event.goHome
+      scope: "app-shell"
+      keymap: group("navigation") order(30)
+    }
+  </script>
+
+  <script>
+    (function bootXCommandFixture() {
+      const result = {
+        schema: 'xtend.xcommand.app-shell-fixture.v1',
+        ok: false,
+        classicCommands: ['Mod+S', '?'],
+        chordCommands: ['g f', 'g h'],
+        invoked: [],
+        checks: []
+      };
+      window.__xtendXCommandAppShellFixtureResult = result;
+
+      function recordCheck(id, pass, details) {
+        result.checks.push({ id, pass: Boolean(pass), details: details || null });
+      }
+
+      const source = document.getElementById('xcommand-rmt-source').textContent;
+      const parsed = window.XCommand.parseRmtXCommands(source);
+      const indicator = document.getElementById('indicator');
+      const indicatorLabel = document.getElementById('indicator-label');
+      const indicatorSequence = document.getElementById('indicator-sequence');
+      const keymap = document.getElementById('keymap');
+      const kernel = window.XCommand.createXCommandKernel({
+        chordTimeoutMs: 900,
+        xstate: {
+          get(key) {
+            return key === 'xtend.xcommand.scope' ? 'app-shell' : undefined;
+          },
+          set(key, value) {
+            result.lastStateWrite = { key, value };
+          }
+        },
+        fabric: {
+          schedule(record) {
+            result.lastFabricRecord = record;
+          }
+        },
+        actionExecutor(command, dispatchResult) {
+          const label = command.label.fallback;
+          const sequence = dispatchResult.sequence.join(' ');
+          indicator.dataset.command = command.id;
+          indicatorLabel.textContent = label;
+          indicatorSequence.textContent = sequence;
+          result.invoked.push({ id: command.id, sequence, label });
+          if (command.id === 'global.keymap') {
+            keymap.open(kernel.getKeymap('app-shell'));
+          }
+        }
+      });
+
+      parsed.records.forEach((record) => kernel.register(record));
+      keymap.entries = kernel.getKeymap('app-shell');
+      document.getElementById('open-keymap').addEventListener('click', function openKeymap() {
+        keymap.open(kernel.getKeymap('app-shell'));
+      });
+
+      document.querySelectorAll('[data-simulate]').forEach(function attachSimulation(button) {
+        button.addEventListener('click', function simulateCommand() {
+          button.dataset.simulate.split(' ').forEach(function dispatchToken(token) {
+            kernel.dispatch({ token, scope: 'app-shell', timestamp: Date.now() });
+          });
+        });
+      });
+
+      document.addEventListener('keydown', function dispatchKeyboardCommand(event) {
+        const stroke = window.XCommand.normalizeKeyboardEvent(event, { scope: 'app-shell' });
+        const dispatchResult = kernel.dispatch(stroke);
+        if (dispatchResult.status === 'invoked' || dispatchResult.status === 'pending-chord') {
+          event.preventDefault();
+        }
+      });
+
+      kernel.dispatch({ token: 'Mod+S', scope: 'app-shell', timestamp: 10 });
+      kernel.dispatch({ token: 'g', scope: 'app-shell', timestamp: 20 });
+      kernel.dispatch({ token: 'f', scope: 'app-shell', timestamp: 30 });
+      recordCheck('parsed xcommand records', parsed.records.length === 4, parsed.records.length);
+      recordCheck('classic command invoked', result.invoked.some((entry) => entry.id === 'global.save'));
+      recordCheck('chord command invoked', result.invoked.some((entry) => entry.id === 'navigation.go-to-file'));
+      recordCheck('xkeymap entries generated', keymap.entries.length === 4, keymap.entries.length);
+      recordCheck('fabric dispatch recorded', result.lastFabricRecord && result.lastFabricRecord.kind === 'xcommand.dispatch');
+      result.ok = result.checks.every((check) => check.pass);
+    })();
+  </script>
+</body>
+</html>

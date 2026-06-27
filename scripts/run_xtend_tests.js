@@ -448,6 +448,10 @@ const {
   runXScalerProtocolSuite
 } = require('../tests/rmt/xscaler_protocol_suite');
 const {
+  printXCommandKernelReport,
+  runXCommandKernelSuite
+} = require('../tests/rmt/xcommand_kernel_suite');
+const {
   printRmtVNextEnterpriseRegistryReport,
   runRmtVNextEnterpriseRegistrySuite
 } = require('../tests/rmt-language/rmt_vnext_enterprise_registry_suite');
@@ -1974,6 +1978,16 @@ const suites = [
       const result = runRmtVNextReleaseHandoffSuite({ rootDir });
       printRmtVNextReleaseHandoffReport(result);
       return toRunnerResult('rmt-vnext-release', 'Epic 15 RMT vNext Release Handoff', result);
+    }
+  },
+  {
+    id: 'xcommand-kernel',
+    label: 'XCommand Kernel and XKeymap Gate',
+    description: 'Runs XCommand runtime, RMT xcommand parsing, XState/Fabric bridge and XKeymap surface gates.',
+    run: () => {
+      const result = runXCommandKernelSuite({ rootDir });
+      printXCommandKernelReport(result);
+      return toRunnerResult('xcommand-kernel', 'XCommand Kernel and XKeymap Gate', result);
     }
   },
   {
@@ -3853,6 +3867,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-compatibility
   node scripts/run_xtend_tests.js rmt-vnext-regression
   node scripts/run_xtend_tests.js rmt-vnext-release
+  node scripts/run_xtend_tests.js xcommand-kernel
   node scripts/run_xtend_tests.js xscaler-protocol
   node scripts/run_xtend_tests.js rmt-vnext-remote-manifest
   node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry

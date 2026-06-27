@@ -13,6 +13,7 @@
   "x-hero": "./xhero.js",
   "x-icon": "./xicon.js",
   "x-input": "./xinput.js",
+  "x-keymap": "./xkeymap.js",
   "x-lightbox": "./xlightbox.js",
   "x-link": "./xlink.js",
   "x-masonry": "./xmasonry.js",
@@ -42,6 +43,6 @@
   "x-type": "./xtype.js",
   "x-utils": "./xutils.js",
   "x-writer": "./xwriter.js",
-  "xtend-i18n": "./xtend-i18n.js",
-  "xstate": "./xstate.js"
+  "xstate": "./xstate.js",
+  "xtend-i18n": "./xtend-i18n.js"
 }
