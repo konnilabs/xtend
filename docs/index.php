@@ -939,6 +939,105 @@ function docsFallbackSerializeDescriptor($descriptor) {
     return '<' . $tag . $attrs . '>' . $children . '</' . $tag . '>';
 }
 
+function docsRunRmtNodeBridge($bridgePath, $repoRoot, $payload, $schema, $invalidCode, $invalidMessage, $nodeBinary = 'node', $timeoutSeconds = 3) {
+    $descriptorSpec = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w']
+    ];
+    $command = escapeshellcmd((string) $nodeBinary) . ' ' . escapeshellarg((string) $bridgePath);
+    $process = proc_open($command, $descriptorSpec, $pipes, (string) $repoRoot);
+    if (!is_resource($process)) return null;
+
+    fwrite($pipes[0], $payload ?: '{}');
+    fclose($pipes[0]);
+    stream_set_blocking($pipes[1], false);
+    stream_set_blocking($pipes[2], false);
+
+    $stdout = '';
+    $stderr = '';
+    $deadline = microtime(true) + max(1, (int) $timeoutSeconds);
+    $timedOut = false;
+    while (true) {
+        $stdout .= stream_get_contents($pipes[1]);
+        $stderr .= stream_get_contents($pipes[2]);
+        $status = proc_get_status($process);
+        if (!$status['running']) break;
+        if (microtime(true) >= $deadline) {
+            $timedOut = true;
+            proc_terminate($process);
+            usleep(100000);
+            $status = proc_get_status($process);
+            if ($status['running']) proc_terminate($process, 9);
+            break;
+        }
+        usleep(10000);
+    }
+
+    $stdout .= stream_get_contents($pipes[1]);
+    fclose($pipes[1]);
+    $stderr .= stream_get_contents($pipes[2]);
+    fclose($pipes[2]);
+    $exitCode = proc_close($process);
+
+    if ($timedOut) {
+        return [
+            'schema' => (string) $schema,
+            'ok' => false,
+            'status' => 'bridge-timeout',
+            'diagnostics' => [[
+                'code' => 'xtend.docs.rmt_bridge.timeout',
+                'severity' => 'error',
+                'source' => 'docs-rmt-playground',
+                'message' => 'The RMT playground worker exceeded the execution time limit.'
+            ]],
+            'exitCode' => $exitCode
+        ];
+    }
+
+    $decoded = json_decode((string) $stdout, true);
+    if (is_array($decoded)) {
+        $decoded['exitCode'] = $exitCode;
+        if ($stderr !== '') $decoded['stderr'] = trim($stderr);
+        return $decoded;
+    }
+    return [
+        'schema' => (string) $schema,
+        'ok' => false,
+        'status' => 'bridge-output-invalid',
+        'diagnostics' => [[
+            'code' => (string) $invalidCode,
+            'severity' => 'error',
+            'source' => 'docs-rmt-playground',
+            'message' => trim($stderr) ?: (string) $invalidMessage
+        ]]
+    ];
+}
+
+function docsRmtPlaygroundAcquireConcurrencySlot($name, $schema, $maxConcurrent = 2) {
+    $lockDir = sys_get_temp_dir() . '/xtend-rmt-playground-locks';
+    if (!is_dir($lockDir)) @mkdir($lockDir, 0700, true);
+    if (!is_dir($lockDir) || !is_writable($lockDir)) return null;
+    $name = preg_replace('/[^a-z0-9_.-]/i', '-', (string) $name) ?: 'worker';
+    for ($index = 0; $index < max(1, (int) $maxConcurrent); $index++) {
+        $handle = fopen($lockDir . '/' . $name . '-' . $index . '.lock', 'c');
+        if ($handle && flock($handle, LOCK_EX | LOCK_NB)) return $handle;
+        if ($handle) fclose($handle);
+    }
+    docsRmtPlaygroundJson([
+        'schema' => (string) $schema,
+        'ok' => false,
+        'status' => 'busy',
+        'diagnostics' => [[
+            'schema' => 'xtend.docs.rmt-playground.diagnostic.v1',
+            'source' => 'docs-rmt-playground',
+            'code' => 'docs.rmt.playground.busy',
+            'severity' => 'error',
+            'message' => 'The RMT playground is busy. Please retry shortly.'
+        ]]
+    ], 429);
+}
+
 function docsCreateRmtCompilerBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
     return function ($source, array $context = []) use ($bridgePath, $repoRoot, $nodeBinary) {
         if (!is_readable($bridgePath) || !function_exists('proc_open')) {
@@ -959,48 +1058,17 @@ function docsCreateRmtCompilerBridge($bridgePath, $repoRoot, $nodeBinary = 'node
             'filePath' => $context['filePath'] ?? 'docs/xtendrmt-docs-shell-vnext.rmt',
             'options' => $context['options'] ?? []
         ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-        $descriptorSpec = [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w']
-        ];
-        $command = escapeshellcmd((string) $nodeBinary) . ' ' . escapeshellarg((string) $bridgePath);
-        $process = proc_open($command, $descriptorSpec, $pipes, (string) $repoRoot);
-        if (!is_resource($process)) {
-            return [
-                'schema' => 'xtend.docs.rmt-compiler-bridge.v1',
-                'ok' => false,
-                'status' => 'bridge-start-failed',
-                'coreDocument' => null,
-                'diagnostics' => [[
-                    'code' => 'xtend.docs.rmt_compiler_bridge.start_failed',
-                    'severity' => 'error',
-                    'message' => 'The docs PHP host failed to open the Node vNext compiler bridge.'
-                ]]
-            ];
-        }
-        fwrite($pipes[0], $payload ?: '{}');
-        fclose($pipes[0]);
-        $stdout = stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-        $stderr = stream_get_contents($pipes[2]);
-        fclose($pipes[2]);
-        $exitCode = proc_close($process);
-        $decoded = json_decode((string) $stdout, true);
-        if (is_array($decoded)) {
-            $decoded['exitCode'] = $exitCode;
-            if ($stderr !== '') $decoded['stderr'] = trim($stderr);
-            return $decoded;
-        }
+        $result = docsRunRmtNodeBridge($bridgePath, $repoRoot, $payload, 'xtend.docs.rmt-compiler-bridge.v1', 'xtend.docs.rmt_compiler_bridge.output_invalid', 'The Node vNext compiler bridge did not return JSON.', $nodeBinary, $context['timeoutSeconds'] ?? 3);
+        if ($result !== null) return $result;
         return [
             'schema' => 'xtend.docs.rmt-compiler-bridge.v1',
             'ok' => false,
-            'status' => 'bridge-output-invalid',
+            'status' => 'bridge-start-failed',
             'coreDocument' => null,
             'diagnostics' => [[
-                'code' => 'xtend.docs.rmt_compiler_bridge.output_invalid',
+                'code' => 'xtend.docs.rmt_compiler_bridge.start_failed',
                 'severity' => 'error',
-                'message' => trim($stderr) ?: 'The Node vNext compiler bridge did not return JSON.'
+                'message' => 'The docs PHP host failed to open the Node vNext compiler bridge.'
             ]]
         ];
     };
@@ -1108,48 +1176,17 @@ function docsCreateRmtLspBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
             'version' => $context['version'] ?? 1,
             'uri' => $context['uri'] ?? null
         ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-        $descriptorSpec = [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w']
-        ];
-        $command = escapeshellcmd((string) $nodeBinary) . ' ' . escapeshellarg((string) $bridgePath);
-        $process = proc_open($command, $descriptorSpec, $pipes, (string) $repoRoot);
-        if (!is_resource($process)) {
-            return [
-                'schema' => 'xtend.docs.rmt-playground.lsp-bridge.v1',
-                'ok' => false,
-                'status' => 'bridge-start-failed',
-                'diagnostics' => [[
-                    'code' => 'xtend.docs.rmt_lsp_bridge.start_failed',
-                    'severity' => 'error',
-                    'source' => 'xtend-rmt-language-server',
-                    'message' => 'The docs PHP host failed to open the Node RMT Language Server bridge.'
-                ]]
-            ];
-        }
-        fwrite($pipes[0], $payload ?: '{}');
-        fclose($pipes[0]);
-        $stdout = stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-        $stderr = stream_get_contents($pipes[2]);
-        fclose($pipes[2]);
-        $exitCode = proc_close($process);
-        $decoded = json_decode((string) $stdout, true);
-        if (is_array($decoded)) {
-            $decoded['exitCode'] = $exitCode;
-            if ($stderr !== '') $decoded['stderr'] = trim($stderr);
-            return $decoded;
-        }
+        $result = docsRunRmtNodeBridge($bridgePath, $repoRoot, $payload, 'xtend.docs.rmt-playground.lsp-bridge.v1', 'xtend.docs.rmt_lsp_bridge.output_invalid', 'The Node RMT Language Server bridge did not return JSON.', $nodeBinary, $context['timeoutSeconds'] ?? 3);
+        if ($result !== null) return $result;
         return [
             'schema' => 'xtend.docs.rmt-playground.lsp-bridge.v1',
             'ok' => false,
-            'status' => 'bridge-output-invalid',
+            'status' => 'bridge-start-failed',
             'diagnostics' => [[
-                'code' => 'xtend.docs.rmt_lsp_bridge.output_invalid',
+                'code' => 'xtend.docs.rmt_lsp_bridge.start_failed',
                 'severity' => 'error',
                 'source' => 'xtend-rmt-language-server',
-                'message' => trim($stderr) ?: 'The Node RMT Language Server bridge did not return JSON.'
+                'message' => 'The docs PHP host failed to open the Node RMT Language Server bridge.'
             ]]
         ];
     };
@@ -1592,10 +1629,12 @@ function docsRmtPlaygroundHandleDiagnostics($repoRoot, $bridgePath) {
             'diagnostics' => [docsRmtPlaygroundDiagnostic('docs.rmt.playground.source_too_large', 'The playground source is larger than 64 KB.', $source)]
         ], 413);
     }
+    $slot = docsRmtPlaygroundAcquireConcurrencySlot('diagnostics', $schema);
     $bridge = docsCreateRmtLspBridge($bridgePath, $repoRoot);
     $result = $bridge($source, [
         'filePath' => 'docs/rmt-playground-source.rmt',
-        'version' => isset($decoded['version']) ? (int) $decoded['version'] : 1
+        'version' => isset($decoded['version']) ? (int) $decoded['version'] : 1,
+        'timeoutSeconds' => 3
     ]);
     $diagnostics = docsRmtPlaygroundNormalizeDiagnostics($result['diagnostics'] ?? []);
     docsRmtPlaygroundJson([
@@ -1834,13 +1873,15 @@ function docsRmtPlaygroundHandleCompile($repoRoot, $bridgePath, $maracaBridgePat
         }
         docsRmtPlaygroundJson($response, 200);
     }
+    $slot = docsRmtPlaygroundAcquireConcurrencySlot('compile', $schema);
     $compiler = docsCreateRmtCompilerBridge($bridgePath, $repoRoot);
     $compiled = $compiler($source, [
         'filePath' => 'docs/rmt-playground-source.rmt',
         'options' => [
             'documentId' => 'docs.rmt.playground',
             'source' => 'docs-rmt-playground'
-        ]
+        ],
+        'timeoutSeconds' => 3
     ]);
     $diagnostics = docsRmtPlaygroundNormalizeDiagnostics($compiled['diagnostics'] ?? $compiled['compilerDiagnostics'] ?? []);
     $ok = isset($compiled['ok']) ? (bool) $compiled['ok'] : false;
