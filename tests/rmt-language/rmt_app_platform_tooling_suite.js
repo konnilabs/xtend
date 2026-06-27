@@ -189,6 +189,39 @@ function createTempRoot(rootDir) {
   return tempRoot;
 }
 
+function createStaleSidecarTempRoot() {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-rmt-app-platform-stale-sidecar-'));
+  const sourceDir = path.join(tempRoot, 'tests', 'fixtures');
+  fs.mkdirSync(sourceDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(sourceDir, 'app.rmt'),
+    "root.innerHTML = '<img src=x onerror=alert(1)>';\n",
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.join(sourceDir, 'app.core.json'),
+    JSON.stringify({
+      kind: 'rmt_document',
+      schema: RMT_APP_PLATFORM_TOOLING_FIXTURE_SCHEMA,
+      manifest: {
+        id: 'clean.sidecar',
+        metadata: {
+          contractVersion: RMT_APP_PLATFORM_TOOLING_SCHEMA,
+          manualHtmlRendererAllowed: false
+        },
+        sourceSyntax: 'rmt-vnext',
+        authoringSource: 'tests/fixtures/app.rmt'
+      },
+      components: [],
+      templates: [],
+      surfaces: [],
+      overlays: []
+    }, null, 2),
+    'utf8'
+  );
+  return tempRoot;
+}
+
 function runCatalogChecks(context, rootDir) {
   const plan = createRmtAppPlatformToolingPlan();
   const validation = validateRmtAppPlatformToolingPlan(plan);
@@ -337,6 +370,24 @@ function runBuilderChecks(context, rootDir) {
   context.assert(invalidRun.status === 'invalid_input' && !invalidRun.ok, 'Build rejects non-.rmt source input');
 }
 
+function runStaleSidecarSecurityChecks(context) {
+  const tempRoot = createStaleSidecarTempRoot();
+  const sourcePath = path.join(tempRoot, 'tests', 'fixtures', 'app.rmt');
+  const source = 'tests/fixtures/app.rmt';
+  const text = fs.readFileSync(sourcePath, 'utf8');
+  const analysis = analyzeRmtAppPlatformSource({
+    text,
+    filePath: sourcePath
+  }, {
+    rootDir: tempRoot
+  });
+  const build = createRmtAppPlatformBuild({ source }, { rootDir: tempRoot });
+
+  context.assert(analysis.status === 'failed' && !analysis.ok, 'Analyzer rejects unsafe .rmt source instead of trusting a clean stale sidecar');
+  context.assert(diagnosticCodes(analysis).includes('rmt.vnext.syntax.error'), 'Analyzer reports the supplied .rmt source parse error');
+  context.assert(build.status === 'blocked' && !build.ok, 'Builder blocks unsafe .rmt source even when a clean .core.json sidecar exists');
+}
+
 function runPackagingAndDocsChecks(context, rootDir) {
   const packageManifest = readJson('package.json', rootDir);
   const toolsManifest = readJson('tools/package.json', rootDir);
@@ -398,6 +449,7 @@ function runRmtAppPlatformToolingSuite(options = {}) {
   runDiagnosticsChecks(context, rootDir);
   runLspChecks(context, rootDir);
   runBuilderChecks(context, rootDir);
+  runStaleSidecarSecurityChecks(context);
   runPackagingAndDocsChecks(context, rootDir);
 
   return context.result({
