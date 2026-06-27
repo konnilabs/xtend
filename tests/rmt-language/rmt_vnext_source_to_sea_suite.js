@@ -597,7 +597,9 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(workflow.includes('npm run test:rmt-vnext-source-to-sea:chromedriver'), 'CI workflow exposes optional source-to-sea chromedriver execution');
   context.assert(workflow.includes('- name: Capture RMT vNext source-to-sea browser evidence'), 'CI workflow keeps optional source-to-sea capture step');
   context.assert(workflow.includes('xtend-rmt-vnext-source-to-sea-capture.exitcode'), 'CI workflow records source-to-sea capture exit status');
-  context.assert(workflow.includes('exit 0'), 'CI workflow keeps source-to-sea capture step green until artifact validation runs');
+  context.assert(workflow.includes('rm -f .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json'), 'CI workflow removes stale source-to-sea artifacts before capture');
+  context.assert(workflow.includes('exit "$status"'), 'CI workflow fails the source-to-sea capture step when browser evidence capture fails');
+  context.assert(workflow.includes('[ "$capture_status" != "0" ]'), 'CI workflow rewrites failed fallback source-to-sea artifact when capture fails');
   context.assert(workflow.includes('Ensure RMT vNext source-to-sea evidence artifact'), 'CI workflow creates a failed fallback source-to-sea artifact when capture exits early');
   context.assert(workflow.includes('Validate RMT vNext source-to-sea evidence'), 'CI workflow validates source-to-sea evidence after upload');
   context.assert(workflow.includes('RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome'), 'CI workflow pins source-to-sea browser name');
