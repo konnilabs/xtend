@@ -307,6 +307,7 @@ function runProviderChecks(context, rootDir) {
   context.assert(analysis.findPointerAtPosition({ line: sourceRange.start.line, character: sourceRange.start.character + 2 }) === operationPointer, 'vNext source map maps position to operation pointer');
   context.assert(completions.items.some((item) => item.label === 'sse'), 'vNext completion exposes source kinds');
   context.assert(keywordCompletions.items.some((item) => item.label === 'stream'), 'vNext completion exposes stream keyword');
+  context.assert(keywordCompletions.items.some((item) => item.label === 'resumability'), 'vNext completion exposes resumability keyword');
   context.assert(hover.status === 'found' && hover.hover.markdown.includes('stream hero-fragments'), 'vNext hover explains stream operation');
   context.assert(symbols.symbols.some((symbol) => symbol.name === 'operations'), 'vNext document symbols expose operations namespace');
   context.assert(symbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'hero-fragments')), 'vNext document symbols include stream target');
@@ -436,6 +437,7 @@ function runPrimitiveAuthoringChecks(context, rootDir) {
   context.assert(stateCompletions.context === 'vnext-primitive-state-clauses' && stateCompletions.items.some((item) => item.label === 'initial'), 'state pointer infers primitive state completions');
   context.assert(actionCompletions.items.some((item) => item.label === 'effect fetch datasource'), 'action pointer exposes effect completion');
   context.assert(surfaceCompletions.items.some((item) => item.label === 'destroy releases resource'), 'surface pointer exposes lifecycle resource completion');
+  context.assert(surfaceCompletions.items.some((item) => item.label === 'resumability mode server_prerender_resume'), 'surface pointer exposes resumability policy completion');
   context.assert(resourceCompletions.items.some((item) => item.label === 'lazy-import'), 'resource pointer exposes lazy-import resource kind');
   context.assert(overlayCompletions.items.some((item) => item.label === 'toast'), 'overlay pointer exposes toast overlay kind');
   context.assert(cursorStateCompletions.context === 'vnext-primitive-state-clauses' && cursorStateCompletions.items.some((item) => item.label === 'initial'), 'cursor-near state line infers primitive state clauses');
@@ -729,6 +731,7 @@ function runFormatterSnippetAndAgentChecks(context, rootDir) {
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-primitive-shell'), 'vNext tooling exports primitive shell snippet');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-validation'), 'vNext tooling exports validation snippet');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-transition'), 'vNext tooling exports transition snippet');
+  context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-resumability'), 'vNext tooling exports resumability snippet');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app'), 'vNext tooling exports Maraca orchestration app snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-template'), 'snippet catalog includes vNext template snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-primitive-shell'), 'snippet catalog includes vNext primitive shell snippet');
@@ -736,6 +739,7 @@ function runFormatterSnippetAndAgentChecks(context, rootDir) {
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-transition'), 'snippet catalog includes vNext transition snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app'), 'snippet catalog includes Maraca orchestration app snippet');
   context.assert(generatedSnippets['RMT vNext Stream'].prefix === 'rmt-vnext-stream', 'generated VS Code snippets include vNext stream prefix');
+  context.assert(generatedSnippets['RMT vNext Resumability Policy'].prefix === 'rmt-vnext-resumability', 'generated VS Code snippets include vNext resumability prefix');
   context.assert(generatedSnippets['RMT vNext Primitive Shell'].prefix === 'rmt-vnext-primitive-shell', 'generated VS Code snippets include vNext primitive shell prefix');
   context.assert(generatedSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'generated VS Code snippets include vNext validation prefix');
   context.assert(generatedSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'generated VS Code snippets include vNext transition prefix');

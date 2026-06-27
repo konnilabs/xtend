@@ -84,7 +84,7 @@
       "patterns": [
         {
           "name": "keyword.control.rmt",
-          "match": "\\b(import|template|remote|surface|lane|slot|on|when|from|to|as|state|selector|datasource|dataSource|action|effect|resource|event|validation|transition|portal|overlay|stream|mount|hydrate|suspend|resume|invalidate|dispose|prewarm|recycle|detach|reattach|trigger|target|field|include|route|schedule|component|part|theme|emit|open|close|focus|minimize|restore|destroy|exposes|emits|consumes)\\b"
+          "match": "\\b(import|template|remote|surface|lane|slot|on|when|from|to|as|state|selector|datasource|dataSource|action|effect|resource|event|validation|transition|portal|overlay|stream|mount|hydrate|resumability|snapshot|integrity|suspend|resume|invalidate|dispose|prewarm|server_prerender_resume|worker_prerender_resume|recycle|detach|reattach|trigger|target|field|include|route|schedule|component|part|theme|emit|open|close|focus|minimize|restore|destroy|exposes|emits|consumes)\\b"
         },
         {
           "name": "storage.type.rmt",

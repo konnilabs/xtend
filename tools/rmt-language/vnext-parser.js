@@ -43,10 +43,15 @@ const RESERVED_WORDS = new Set([
   'trust',
   'boundary',
   'hydration',
+  'resumability',
   'policy',
   'mode',
   'insular',
   'isolation',
+  'snapshot',
+  'event',
+  'replay',
+  'integrity',
   'sanitize',
   'true',
   'false',
@@ -1944,12 +1949,14 @@ class VNextParser {
         item = this.parseTrustPolicy();
       } else if (this.matches('hydration')) {
         item = this.parseHydrationPolicy();
+      } else if (this.matches('resumability')) {
+        item = this.parseResumabilityPolicy();
       } else if (this.matches('isolation')) {
         item = this.parseIsolationPolicy();
       } else if (this.matches('sanitize')) {
         item = this.parseSanitizePolicy();
       } else {
-        this.addDiagnostic(this.current(), 'Policy blocks may contain slots, event bindings, hydration policies, isolation policies and security policies only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+        this.addDiagnostic(this.current(), 'Policy blocks may contain slots, event bindings, hydration policies, resumability policies, isolation policies and security policies only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
         this.skipStatementOrBlock();
       }
       if (item) body.push(item);
@@ -2119,6 +2126,45 @@ class VNextParser {
     const end = this.previous();
 
     return this.createNode('RmtHydrationPolicy', start, end, record);
+  }
+
+
+  parseResumabilityPolicy() {
+    const start = this.expectValue('resumability', 'Expected resumability policy.');
+    const clause = this.current();
+    const record = {
+      mode: null,
+      snapshot: null,
+      eventReplay: null,
+      integrity: null
+    };
+
+    if (this.matches('mode')) {
+      this.consume();
+      const value = this.parseQualifiedIdentifierAllowReserved('Expected resumability mode identifier.');
+      record.mode = value && value.value;
+    } else if (this.matches('snapshot')) {
+      this.consume();
+      const value = this.parseQualifiedIdentifierAllowReserved('Expected resumability snapshot identifier.');
+      record.snapshot = value && value.value;
+    } else if (this.matches('event')) {
+      this.consume();
+      if (this.matches('replay')) this.consume();
+      const value = this.parseQualifiedIdentifierAllowReserved('Expected resumability event replay mode.');
+      record.eventReplay = value && value.value;
+    } else if (this.matches('integrity')) {
+      this.consume();
+      const value = this.parseQualifiedIdentifierAllowReserved('Expected resumability integrity mode.');
+      record.integrity = value && value.value;
+    } else {
+      this.addDiagnostic(clause, 'Resumability policy must use mode, snapshot, event replay or integrity.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.consume();
+    }
+
+    this.consumeStatementEnd('Expected statement end after resumability policy.');
+    const end = this.previous();
+
+    return this.createNode('RmtResumabilityPolicy', start, end, record);
   }
 
   parseIsolationPolicy() {

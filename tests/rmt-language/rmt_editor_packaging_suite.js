@@ -95,6 +95,7 @@ function runSnippetCatalogChecks(context, rootDir) {
   const schedule = catalog.snippets.find((snippet) => snippet.id === 'rmt-schedule');
   const validation = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-validation');
   const transition = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-transition');
+  const resumability = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-resumability');
   const orchestrationApp = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app');
   const ownedCollectionView = catalog.snippets.find((snippet) => snippet.id === 'rmt-owned-collection-view');
   const ownedCommandSearch = catalog.snippets.find((snippet) => snippet.id === 'rmt-owned-command-search');
@@ -113,6 +114,7 @@ function runSnippetCatalogChecks(context, rootDir) {
   context.assert(validation && joinedSnippetBody(validation).includes('required email message'), 'Validation snippet declares field rules');
   context.assert(transition && joinedSnippetBody(transition).includes('durationMs'), 'Transition snippet declares durationMs');
   context.assert(transition && joinedSnippetBody(transition).includes('effect ${7|fade,crossfade'), 'Transition snippet offers effect choices');
+  context.assert(resumability && joinedSnippetBody(resumability).includes('resumability mode server_prerender_resume'), 'Resumability snippet declares server resume mode');
   context.assert(orchestrationApp && joinedSnippetBody(orchestrationApp).includes('validation ${6:app.contact}'), 'Maraca orchestration snippet includes validation block');
   context.assert(orchestrationApp && joinedSnippetBody(orchestrationApp).includes('transition ${9:app.contactToIssue}'), 'Maraca orchestration snippet includes transition block');
   context.assert(ownedCollectionView && joinedSnippetBody(ownedCollectionView).includes('"collectionViews"'), 'Owned collection snippet includes collectionViews domain');
@@ -123,6 +125,7 @@ function runSnippetCatalogChecks(context, rootDir) {
   context.assert(vscodeSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code snippet document exposes minimal app prefix');
   context.assert(vscodeSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'VS Code snippet document exposes validation prefix');
   context.assert(vscodeSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'VS Code snippet document exposes transition prefix');
+  context.assert(vscodeSnippets['RMT vNext Resumability Policy'].prefix === 'rmt-vnext-resumability', 'VS Code snippet document exposes resumability prefix');
   context.assert(vscodeSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'VS Code snippet document exposes Maraca orchestration prefix');
   context.assert(vscodeSnippets['RMT Owned Collection View'].prefix === 'rmt-owned-collection-view', 'VS Code snippet document exposes owned collection prefix');
   context.assert(vscodeSnippets['RMT Owned Command Search'].prefix === 'rmt-owned-command-search', 'VS Code snippet document exposes owned command/search prefix');
@@ -422,6 +425,7 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('transition'), 'VS Code grammar highlights transition keyword');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('datasource'), 'VS Code grammar highlights datasource keyword');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('reattach'), 'VS Code grammar highlights current lifecycle keywords');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('resumability'), 'VS Code grammar highlights resumability keyword');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('durationMs'), 'VS Code grammar highlights transition duration token');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('required'), 'VS Code grammar highlights validation rule tokens');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[1].match.includes('collectionViews'), 'VS Code grammar highlights owned collection domain token');

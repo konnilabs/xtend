@@ -13,6 +13,20 @@
     ],
     "description": "Native vNext Template mit Surface, Lane und Lifecycle Operation."
   },
+  "RMT vNext Resumability Policy": {
+    "scope": "rmt",
+    "prefix": "rmt-vnext-resumability",
+    "body": [
+      "hydrate ${1:app-shell} from selector ${2:app.view} {",
+      "  hydration mode server_prerender_resume",
+      "  resumability mode server_prerender_resume",
+      "  resumability snapshot ${3:surface_state}",
+      "  resumability event replay ${4:intent_queue}",
+      "  resumability integrity ${5:signed_manifest}",
+      "}"
+    ],
+    "description": "SSR-Resumability mit Resume-Snapshot, Event-Replay und Integrity-Handoff deklarieren."
+  },
   "RMT vNext Stream": {
     "scope": "rmt",
     "prefix": "rmt-vnext-stream",

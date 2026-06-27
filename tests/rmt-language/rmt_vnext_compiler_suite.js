@@ -45,6 +45,7 @@ const CORE_CONTRACT_PATH = 'development/XTendRMT-vNext-Core-Format-Contract.md';
 const WP_E15_05_PATH = 'development/WP-E15-05-Compiler-DSL-zu-Core-mit-Source-Maps-und-Diagnostics-anbinden.md';
 const VALID_MINIMAL_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-minimal.rmt';
 const VALID_COMPLEX_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-complex.rmt';
+const VALID_RESUMABILITY_FIXTURE = 'tests/rmt-language/fixtures/vnext-resumability-valid.rmt';
 const VALID_PRIMITIVE_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
 const VALID_MARACA_ORCHESTRATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-orchestration-app.rmt';
 const VALID_MARACA_VALIDATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-validation-app.rmt';
@@ -164,6 +165,13 @@ function runRmtVNextCompilerSuite(options = {}) {
   const complexRepeat = parseFixture(VALID_COMPLEX_FIXTURE, rootDir);
   context.assert(complexResult.coreJson === complexRepeat.coreJson, 'complex fixture compiles to byte-stable Core JSON');
   context.assert(JSON.parse(complexResult.coreJson).schema === RMT_VNEXT_CORE_SCHEMA, 'complex Core JSON is parseable');
+
+  const resumability = parseFixture(VALID_RESUMABILITY_FIXTURE, rootDir);
+  context.assert(resumability.ok === true, 'resumability fixture compiles successfully');
+  context.assert(resumability.coreDocument.operations.some((operation) => operation.op === 'resume'), 'resumability fixture lowers resume lifecycle operation');
+  context.assert(resumability.coreDocument.hydrationPolicies.some((policy) => policy.kind === 'resumability' && policy.mode === 'server_prerender_resume'), 'resumability policies lower to core hydration policy records');
+  context.assert(resumability.coreDocument.hydrationPolicies.some((policy) => policy.snapshot === 'surface_state'), 'resumability snapshot metadata lowers to core');
+  context.assert(resumability.coreDocument.hydrationPolicies.some((policy) => policy.eventReplay === 'intent_queue'), 'resumability event replay metadata lowers to core');
 
   const primitiveResult = parseFixture(VALID_PRIMITIVE_FIXTURE, rootDir);
   const primitive = primitiveResult.coreDocument;

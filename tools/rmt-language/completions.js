@@ -72,7 +72,7 @@ const DOMAIN_FIELD_COMPLETIONS = Object.freeze({
   surfaces: ['id', 'schema', 'kind', 'type', 'source', 'repeat', 'key', 'owner', 'portal', 'adapter', 'manager', 'component', 'template', 'route', 'schedule', 'resources', 'bounds', 'placement', 'mode', 'initialState', 'persistent', 'closeReleasesResources', 'destroyOnClose', 'focusPolicy', 'escape', 'stackPolicy', 'metadata'],
   templates: ['id', 'mode', 'renderMode', 'nodes', 'root', 'slots', 'hydration', 'metadata', 'security'],
   routeMetadata: ['title', 'documentTitle', 'titleTemplate', 'metaDescription', 'contentKind', 'announcement', 'a11y'],
-  hydrationMetadata: ['endpointHint', 'scheduleRef', 'policy', 'deferUntil']
+  hydrationMetadata: ['endpointHint', 'scheduleRef', 'policy', 'deferUntil', 'resumability', 'resumeSchema']
 });
 
 const BUILT_IN_ADAPTER_IDS = Object.freeze([
@@ -100,6 +100,8 @@ const HYDRATION_POLICIES = Object.freeze([
   ['hydrate_prerendered', 'Hydrate prerendered content.'],
   ['worker_prerender_hydrate', 'Worker prerender with later hydration.'],
   ['server_prerender_hydrate', 'Server prerender with later hydration.'],
+  ['server_prerender_resume', 'Server prerender with full resumability handoff.'],
+  ['worker_prerender_resume', 'Worker prerender with resume payload handoff.'],
   ['prerender_only', 'Prerender without client hydration.'],
   ['managed_subtree', 'Adapter owns a managed subtree.'],
   ['manual', 'Manual hydration policy.'],

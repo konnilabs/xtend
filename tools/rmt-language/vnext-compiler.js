@@ -1875,7 +1875,9 @@ const SUPPORTED_ORCHESTRATION_HYDRATION_MODES = Object.freeze([
   'runtime_render',
   'hydrate_prerendered',
   'server_prerender_hydrate',
+  'server_prerender_resume',
   'worker_prerender_hydrate',
+  'worker_prerender_resume',
   'warm',
   'prewarm',
   'visible',
@@ -1913,16 +1915,20 @@ function derivedHydrationPolicy(core, operation, policies) {
 }
 
 function derivedHydrationMode(operation, policies) {
+  const resumability = policies.find((policy) => policy.kind === 'resumability' && policy.mode);
+  if (resumability && resumability.mode) return resumability.mode;
   const explicit = policies.find((policy) => policy.kind === 'hydration' && policy.mode);
   if (explicit && explicit.mode) return explicit.mode;
   if (operation && operation.op === 'prewarm') return 'prewarm';
+  if (operation && operation.op === 'resume') return 'server_prerender_resume';
   if (operation && operation.op === 'hydrate') return 'hydrate_prerendered';
   if (operation && operation.op === 'mount') return 'runtime_render';
   return 'manual';
 }
 
 function isWorkerPrerenderHydrationMode(modeOrPolicy) {
-  return String(modeOrPolicy || '').trim() === 'worker_prerender_hydrate';
+  const signal = String(modeOrPolicy || '').trim();
+  return signal === 'worker_prerender_hydrate' || signal === 'worker_prerender_resume';
 }
 
 function isUiCoprocessorHydrationSignal(modeOrPolicy, operation) {
@@ -3682,7 +3688,7 @@ class VNextCompiler {
         refs.push(this.compileSlot(item, ownerOperation, context).id);
       } else if (item.type === 'RmtEventBinding') {
         refs.push(this.compileEvent(item, ownerOperation, context.operationPath).id);
-      } else if (item.type === 'RmtHydrationPolicy' || item.type === 'RmtIsolationPolicy') {
+      } else if (item.type === 'RmtHydrationPolicy' || item.type === 'RmtResumabilityPolicy' || item.type === 'RmtIsolationPolicy') {
         refs.push(this.compileHydrationPolicy(item, ownerOperation, context.operationPath, index).id);
       } else if (item.type === 'RmtTrustBoundaryPolicy' || item.type === 'RmtSanitizePolicy') {
         refs.push(this.compileSecurityPolicy(item, ownerOperation, context.operationPath, index).id);
@@ -3765,6 +3771,18 @@ class VNextCompiler {
         mode: node.mode || null,
         ownerOperation
       }, node, 'RmtIsolationPolicy');
+    }
+
+    if (node.type === 'RmtResumabilityPolicy') {
+      return addRecord(this.core, 'hydrationPolicies', {
+        id: `hydration:${ownerPath}/resumability/${policyIndex}`,
+        kind: 'resumability',
+        mode: node.mode || 'server_prerender_resume',
+        snapshot: node.snapshot || null,
+        eventReplay: node.eventReplay || null,
+        integrity: node.integrity || null,
+        ownerOperation
+      }, node, 'RmtResumabilityPolicy');
     }
 
     return addRecord(this.core, 'hydrationPolicies', {
