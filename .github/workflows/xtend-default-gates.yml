@@ -7,9 +7,6 @@ on:
       - main
       - master
       - develop
-  release:
-    types:
-      - published
   workflow_dispatch:
     inputs:
       publish_to_npm:
@@ -311,7 +308,7 @@ jobs:
 
   npm-publish-latest:
     name: Publish npm latest with provenance (Node 26.x)
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true)
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
     needs:
       - full-release-gates
       - rmt-vnext-primitive-gates

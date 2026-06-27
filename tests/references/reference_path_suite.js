@@ -7094,8 +7094,6 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'name: XTend CI Gates', 'CI workflow declares stable name');
   context.assertIncludes(workflow, 'pull_request:', 'CI workflow runs on pull requests');
   context.assertIncludes(workflow, 'push:', 'CI workflow runs full gates on push');
-  context.assertIncludes(workflow, 'release:', 'CI workflow supports GitHub Release events');
-  context.assertIncludes(workflow, '- published', 'CI workflow publishes only after GitHub Release publication');
   context.assertIncludes(workflow, 'workflow_dispatch:', 'CI workflow supports manual dispatch');
   context.assertIncludes(workflow, 'pr-fast-gates:', 'CI workflow declares PR fast gate job');
   context.assertIncludes(workflow, 'full-release-gates:', 'CI workflow declares full release gate job');
@@ -7132,7 +7130,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'npm publish --dry-run --tag latest --access public', 'CI publish job runs npm publish dry run with latest tag');
   context.assertIncludes(workflow, 'xtend-package-structure-node-26', 'CI workflow uploads package structure artifact');
   context.assertIncludes(workflow, 'npm-publish-latest:', 'CI workflow declares manual npm publish job');
-  context.assertIncludes(workflow, "github.event_name == 'release'", 'CI publish job runs for published GitHub Releases');
+  context.assertIncludes(workflow, "github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true", 'CI publish job requires explicit manual dispatch approval');
   context.assertIncludes(workflow, 'publish_to_npm:', 'CI workflow requires explicit publish dispatch input');
   context.assertIncludes(workflow, 'id-token: write', 'CI workflow grants OIDC for npm provenance publish');
   context.assertIncludes(workflow, 'registry-url: https://registry.npmjs.org', 'CI workflow targets npm registry for publish');
@@ -7274,9 +7272,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(npmPublishLatest.workflow === workflowPath, 'Package metadata exposes npm publish workflow path');
   context.assert(npmPublishLatest.job === 'npm-publish-latest', 'Package metadata exposes npm publish job id');
   context.assert(npmPublishLatest.dispatchInput === 'publish_to_npm', 'Package metadata exposes explicit publish input');
-  context.assert(npmPublishLatest.releaseTrigger === 'release.published', 'Package metadata exposes GitHub Release publish trigger');
-  context.assert(Array.isArray(npmPublishLatest.activationModes) && npmPublishLatest.activationModes.includes('release:published'), 'Package metadata exposes release event activation mode');
-  context.assert(npmPublishLatest.tag === 'latest', 'Package metadata publishes GitHub releases with the latest npm dist-tag');
+  context.assert(Array.isArray(npmPublishLatest.activationModes) && npmPublishLatest.activationModes.length === 1 && npmPublishLatest.activationModes.includes('workflow_dispatch:publish_to_npm=true'), 'Package metadata exposes only explicit manual dispatch activation mode');
+  context.assert(npmPublishLatest.tag === 'latest', 'Package metadata publishes manually approved releases with the latest npm dist-tag');
   context.assert(npmPublishLatest.command === 'npm publish --tag latest --provenance --access public', 'Package metadata exposes provenance publish command');
   context.assert(npmPublishLatest.evidenceArtifactName === 'xtend-npm-publish-latest-evidence-node-26', 'Package metadata exposes npm publish evidence artifact');
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run release:report'), 'Package metadata requires release report before npm publish');
