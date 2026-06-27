@@ -32,6 +32,9 @@ const priorityComponentConfigs = {
       { pattern: 'xrouter-navigation-overlays-closed', message: 'x-router emits navigation overlay cleanup event' },
       { pattern: 'xtend.router.documentMeta', message: 'x-router publishes document title/meta state' },
       { pattern: 'xrouter-title-updated', message: 'x-router emits document title update events' },
+      { pattern: 'classifyXRouterImportUrl', message: 'x-router validates route import URLs before dynamic import' },
+      { pattern: 'xtend.security.xrouter.import.refused.external_module', message: 'x-router refuses external route modules' },
+      { pattern: 'xrouter-route-import-refused', message: 'x-router emits route import policy refusals' },
       { pattern: 'route.document.title.rewrite', message: 'x-router exposes title rewrite schedule ref' },
       { pattern: 'renderRouteToString', message: 'x-router keeps SSR route rendering helper' }
     ],

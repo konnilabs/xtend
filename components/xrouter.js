@@ -1,5 +1,90 @@
 import { xstate } from './xstate.js';
 
+const XROUTER_IMPORT_POLICY_CONTRACT = 'xtend.security.xrouter-import-policy.v1';
+const XROUTER_ALLOWED_IMPORT_PROTOCOLS = ['http:', 'https:', 'file:'];
+const XROUTER_REFUSED_IMPORT_PROTOCOLS = ['javascript:', 'data:', 'vbscript:', 'blob:'];
+const XROUTER_ALLOWED_MODULE_EXTENSIONS = ['.js', '.mjs'];
+const XROUTER_LOCAL_IMPORT_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '::1'];
+
+function classifyXRouterImportUrl(value, options = {}) {
+  const baseUrl = options.baseUrl || (typeof document !== 'undefined' ? document.baseURI : undefined);
+  const currentHref = typeof window !== 'undefined' && window.location ? window.location.href : baseUrl;
+  const currentUrl = safeXRouterUrl(currentHref, baseUrl);
+  const targetUrl = safeXRouterUrl(value, baseUrl);
+  const diagnostics = [];
+
+  if (!targetUrl || !currentUrl) {
+    diagnostics.push('xtend.security.xrouter.import.refused.invalid_url');
+  } else if (hasXRouterTraversalLikeInput(value)) {
+    diagnostics.push('xtend.security.xrouter.import.refused.path_traversal');
+  } else if (XROUTER_REFUSED_IMPORT_PROTOCOLS.includes(targetUrl.protocol)) {
+    diagnostics.push('xtend.security.xrouter.import.refused.protocol');
+  } else if (!XROUTER_ALLOWED_IMPORT_PROTOCOLS.includes(targetUrl.protocol)) {
+    diagnostics.push('xtend.security.xrouter.import.refused.protocol');
+  } else if (hasXRouterPathTraversal(targetUrl)) {
+    diagnostics.push('xtend.security.xrouter.import.refused.path_traversal');
+  } else if (!hasAllowedXRouterModuleExtension(targetUrl)) {
+    diagnostics.push('xtend.security.xrouter.import.refused.extension');
+  } else if (!isAllowedXRouterLocalUrl(targetUrl, currentUrl)) {
+    diagnostics.push('xtend.security.xrouter.import.refused.external_module');
+  }
+
+  return {
+    schema: XROUTER_IMPORT_POLICY_CONTRACT,
+    ok: diagnostics.length === 0,
+    source: options.source || 'x-router',
+    url: targetUrl ? targetUrl.href : null,
+    diagnostics
+  };
+}
+
+function safeXRouterUrl(value, baseUrl) {
+  try {
+    return new URL(String(value), baseUrl);
+  } catch (_) {
+    return null;
+  }
+}
+
+function isAllowedXRouterLocalUrl(targetUrl, currentUrl) {
+  if (targetUrl.origin === currentUrl.origin) return true;
+  if (targetUrl.protocol === 'file:' && currentUrl.protocol === 'file:') return true;
+  return isXRouterLocalHost(targetUrl.hostname) && (
+    isXRouterLocalHost(currentUrl.hostname) ||
+    currentUrl.protocol === 'file:'
+  );
+}
+
+function isXRouterLocalHost(hostname = '') {
+  return XROUTER_LOCAL_IMPORT_HOSTS.includes(String(hostname).replace(/^\[|\]$/g, '').toLowerCase());
+}
+
+function hasXRouterPathTraversal(url) {
+  try {
+    return decodeURIComponent(url.pathname).split('/').includes('..');
+  } catch (_) {
+    return true;
+  }
+}
+
+function hasXRouterTraversalLikeInput(value) {
+  try {
+    const pathPart = decodeURIComponent(String(value)).split(/[?#]/)[0];
+    return pathPart === '..' ||
+      pathPart.startsWith('../') ||
+      pathPart.includes('/../') ||
+      pathPart.endsWith('/..');
+  } catch (_) {
+    return true;
+  }
+}
+
+function hasAllowedXRouterModuleExtension(url) {
+  const pathname = url.pathname.toLowerCase();
+  return XROUTER_ALLOWED_MODULE_EXTENSIONS.some((extension) => pathname.endsWith(extension));
+}
+
+
 /**
  * @class XRoute
  * Definiert eine einzelne Route innerhalb des Routers.
@@ -1031,9 +1116,38 @@ class XRouter extends HTMLElement {
   }
 
   _getRouteImportUrl(route) {
-    return typeof route.importUrl === 'string'
+    const importUrl = typeof route.importUrl === 'string'
       ? route.importUrl
       : route.getAttribute && route.getAttribute('import');
+    return this._resolveRouteImportUrl(importUrl, { route });
+  }
+
+  _resolveRouteImportUrl(importUrl, options = {}) {
+    if (!importUrl) return '';
+    const policy = classifyXRouterImportUrl(importUrl, {
+      source: options.source || 'x-router.route-import'
+    });
+    if (!policy.ok) {
+      this._emitRouteImportRefused(importUrl, policy, options.route || null);
+      return '';
+    }
+    return policy.url;
+  }
+
+  _emitRouteImportRefused(importUrl, policy, route = null) {
+    const detail = {
+      schema: XROUTER_IMPORT_POLICY_CONTRACT,
+      input: importUrl,
+      policy,
+      routeId: this._getRouteValue(route, 'id', 'data-rmt-route-id') || null,
+      component: route ? this._getRouteComponent(route) : null
+    };
+    console.error('XRouter: Route import durch Import Policy verweigert:', detail);
+    this.dispatchEvent(new CustomEvent('xrouter-route-import-refused', {
+      detail,
+      bubbles: true,
+      composed: true
+    }));
   }
 
   _getRouteComponent(route) {
