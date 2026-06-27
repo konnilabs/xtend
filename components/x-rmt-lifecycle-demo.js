@@ -1118,7 +1118,7 @@
 
     render() {
       this.beforeRender();
-      const variant = this.getAttribute('variant') || 'default';
+      const variant = this._escapeAttribute(this.getAttribute('variant') || 'default');
       const accessibleName = this.getAttribute('aria-label') || 'XRmtLifecycleDemo component';
       const role = 'region';
       this.shadowRoot.innerHTML = `

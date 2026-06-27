@@ -31,7 +31,7 @@
         "targetPath": "components/x-rmt-lifecycle-demo.js",
         "templateId": "component.source",
         "templatePath": "xtend-builder/templates/component/source.template.js",
-        "sha256": "b2d002d12e292acb87169d55b1443eef1621e82a5089e01eaaa36503984ccccb"
+        "sha256": "927af3e3c42ac2b5f8bb91d1960a96d551857c57ca183f86e22e5d01c3a5e59e"
       },
       {
         "id": "docs",
@@ -87,7 +87,7 @@
         "targetPath": "src/components/x-rmt-lifecycle-demo/x-rmt-lifecycle-demo.ts",
         "templateId": "component.ts-source",
         "templatePath": "xtend-builder/templates/component/source.template.ts",
-        "sha256": "20df5baa6bfcf5a4f6fa0493355dc8d1bf52dd22d7de349adf59dd90471396ed"
+        "sha256": "ba72a3f11e37f7ef3827baf9943a849001c6ed87e86c4532a703737bb90477d2"
       },
       {
         "id": "ts-contract",
