@@ -1041,17 +1041,11 @@ function docsRmtPlaygroundAcquireConcurrencySlot($name, $schema, $maxConcurrent 
 function docsCreateRmtCompilerBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
     return function ($source, array $context = []) use ($bridgePath, $repoRoot, $nodeBinary) {
         if (!is_readable($bridgePath) || !function_exists('proc_open')) {
-            return [
-                'schema' => 'xtend.docs.rmt-compiler-bridge.v1',
-                'ok' => false,
-                'status' => 'bridge-unavailable',
-                'coreDocument' => null,
-                'diagnostics' => [[
-                    'code' => 'xtend.docs.rmt_compiler_bridge.unavailable',
-                    'severity' => 'error',
-                    'message' => 'The docs PHP host could not start the Node vNext compiler bridge.'
-                ]]
-            ];
+            return docsRmtCompilerBridgeError(
+                'bridge-unavailable',
+                'xtend.docs.rmt_compiler_bridge.unavailable',
+                'The docs PHP host could not start the Node vNext compiler bridge.'
+            );
         }
         $payload = json_encode([
             'source' => (string) $source,
