@@ -169,11 +169,13 @@ jobs:
         if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true }}
         run: |
           mkdir -p .xtend-test-results
+          rm -f .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
           set +e
           npm run test:rmt-vnext-source-to-sea:chromedriver
           status=$?
+          set -e
           printf "%s\n" "$status" > .xtend-test-results/xtend-rmt-vnext-source-to-sea-capture.exitcode
-          exit 0
+          exit "$status"
         env:
           RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome
           RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"
@@ -182,8 +184,9 @@ jobs:
         if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true }}
         run: |
           mkdir -p .xtend-test-results
-          if [ ! -f .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json ]; then
-            node -e "const fs=require('fs'); const path='.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json'; const report={schema:'xtend.rmt.vnext.source-to-sea-evidence-report.v1',workpackage:'RMT-VNEXT-PRIM-06',ok:false,status:'failed',source:null,browserFixture:null,resultKey:'__xtendRmtVNextSourceToSeaResult',artifact:{path, browserExecutionRequired:true,browserExecutionStatus:'failed'},evidence:null,objectMatrix:null,browserExecution:{schema:'xtend.rmt.vnext.browser-execution-evidence.v1',workpackage:'RMT-VNEXT-PRIM-06',resultKey:'__xtendRmtVNextSourceToSeaResult',driver:'chromedriver',required:true,ok:false,status:'failed',mode:'missing-artifact-fallback',reason:'Capture RMT vNext source-to-sea browser evidence did not create an artifact before exiting.',checks:[{name:'source-to-sea evidence artifact was created by capture step',ok:false,detail:path}]},checks:[{name:'source-to-sea evidence artifact was created by capture step',ok:false,detail:path}]}; fs.writeFileSync(path, JSON.stringify(report,null,2)+'\n');"
+          capture_status="$(cat .xtend-test-results/xtend-rmt-vnext-source-to-sea-capture.exitcode 2>/dev/null || printf 'missing')"
+          if [ "$capture_status" != "0" ] || [ ! -f .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json ]; then
+            CAPTURE_STATUS="$capture_status" node -e "const fs=require('fs'); const path='.xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json'; const captureStatus=process.env.CAPTURE_STATUS || 'missing'; const report={schema:'xtend.rmt.vnext.source-to-sea-evidence-report.v1',workpackage:'RMT-VNEXT-PRIM-06',ok:false,status:'failed',source:null,browserFixture:null,resultKey:'__xtendRmtVNextSourceToSeaResult',artifact:{path, browserExecutionRequired:true,browserExecutionStatus:'failed'},evidence:null,objectMatrix:null,browserExecution:{schema:'xtend.rmt.vnext.browser-execution-evidence.v1',workpackage:'RMT-VNEXT-PRIM-06',resultKey:'__xtendRmtVNextSourceToSeaResult',driver:'chromedriver',required:true,ok:false,status:'failed',mode:'capture-failed-fallback',reason:'Capture RMT vNext source-to-sea browser evidence failed or did not create a fresh artifact.',captureExitCode:captureStatus,checks:[{name:'source-to-sea capture command exited successfully',ok:false,detail:captureStatus},{name:'source-to-sea evidence artifact was created by successful capture step',ok:false,detail:path}]},checks:[{name:'source-to-sea capture command exited successfully',ok:false,detail:captureStatus},{name:'source-to-sea evidence artifact was created by successful capture step',ok:false,detail:path}]}; fs.writeFileSync(path, JSON.stringify(report,null,2)+'\n');"
           fi
 
       - name: Upload RMT vNext primitive JSON report
