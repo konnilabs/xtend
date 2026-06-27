@@ -14,10 +14,13 @@ export interface XCodeHighlightInput {
 }
 
 export interface XCodeHighlightResult {
-  html: string;
+  html?: string;
+  text?: string;
   highlighted: boolean;
   engine: XCodeHighlightEngine;
   language: string;
+  trustedHtml?: boolean;
+  trusted?: boolean;
 }
 
 export type XCodeHighlighter = ((input: XCodeHighlightInput) => XCodeHighlightResult) | {
