@@ -130,12 +130,6 @@
     );
   }
 
-  function eventMatchesBindingSurface(binding, event) {
-    const expectedSurfaceId = bindingSurfaceId(binding);
-    const actualSurfaceId = eventSurfaceId(event);
-    return Boolean(expectedSurfaceId && actualSurfaceId && expectedSurfaceId === actualSurfaceId);
-  }
-
   function closestTarget(event, selector, fallback) {
     if (!selector) return fallback;
     const start = event && event.target || fallback;
@@ -173,9 +167,6 @@
     if (binding && binding.closest) {
       const closest = closestTarget(event, binding.closest, null);
       if (closest) return closest;
-      if (eventMatchesBindingSurface(binding, event)) {
-        return event && event.target || event && event.currentTarget || null;
-      }
       return null;
     }
     const governance = objectRecord(binding.governance);
@@ -493,10 +484,9 @@
   }
 
   function surfaceDelegationTarget(binding, root) {
-    if (!bindingSurfaceId(binding)) return null;
-    return root && root.ownerDocument && typeof root.ownerDocument.addEventListener === 'function'
-      ? root.ownerDocument
-      : null;
+    if (!bindingSurfaceId(binding) || !root || typeof root.querySelector !== 'function') return null;
+    const selector = clampString(binding && (binding.closest || binding.target || binding.selector), '');
+    return selector ? root.querySelector(selector) : null;
   }
 
   function isSurfaceCommandEvent(binding) {
@@ -573,11 +563,6 @@
         const skipped = createRouteResult(binding, 'skipped', null, { reason: 'disabled' });
         routeHistory.push(skipped);
         return skipped;
-      }
-      if (binding.closest && !eventContext.source) {
-        if (eventMatchesBindingSurface(binding, event)) {
-          eventContext.source = event && event.target || event && event.currentTarget || rootTarget;
-        }
       }
       if (binding.closest && !eventContext.source) {
         const skipped = createRouteResult(binding, 'skipped', null, { reason: 'delegated-target' });

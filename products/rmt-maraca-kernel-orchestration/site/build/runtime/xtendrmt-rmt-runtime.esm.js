@@ -13060,16 +13060,49 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         return value === true || value === false || typeof value === 'string' || typeof value === 'number';
     }
 
+    const SURFACE_COMPONENT_SAFE_TAGS = new Set(['a', 'abbr', 'article', 'aside', 'b', 'blockquote', 'br', 'button', 'caption', 'code', 'col', 'colgroup', 'data', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'figcaption', 'figure', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr', 'i', 'img', 'ins', 'kbd', 'label', 'legend', 'li', 'main', 'mark', 'nav', 'ol', 'p', 'picture', 'pre', 'q', 's', 'samp', 'section', 'small', 'source', 'span', 'strong', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr', 'u', 'ul', 'var']);
+    const SURFACE_COMPONENT_SAFE_PROPERTIES = new Set(['alt', 'ariaLabel', 'checked', 'className', 'disabled', 'height', 'hidden', 'id', 'label', 'lang', 'loading', 'open', 'placeholder', 'rel', 'role', 'target', 'textContent', 'title', 'type', 'value', 'width']);
+    const SURFACE_COMPONENT_URL_ATTRIBUTES = new Set(['action', 'cite', 'formaction', 'href', 'poster', 'src', 'xlink:href']);
+    const SURFACE_COMPONENT_BLOCKED_ATTRIBUTES = new Set(['srcdoc', 'style']);
+    const SURFACE_COMPONENT_BLOCKED_PROPERTIES = new Set(['innerhtml', 'outerhtml', 'srcdoc', 'style']);
+
+    function isSafeSurfaceComponentName(name) {
+        return /^[a-z][a-z0-9._:-]*$/i.test(name);
+    }
+
+    function isSafeSurfaceComponentUrl(value) {
+        const raw = clampString(value, '').trim().replace(/[\u0000-\u001F\u007F\s]+/g, '');
+        if (!raw) return true;
+        const lower = raw.toLowerCase();
+        return !(lower.startsWith('javascript:') || lower.startsWith('data:text/html') || lower.startsWith('vbscript:'));
+    }
+
+    function resolveSurfaceComponentTag(tag) {
+        const tagName = clampString(tag, '').toLowerCase();
+        return SURFACE_COMPONENT_SAFE_TAGS.has(tagName) || tagName.startsWith('x-') ? tagName : 'div';
+    }
+
+    function isSafeSurfaceComponentAttribute(name, value) {
+        const attrName = clampString(name, '').toLowerCase();
+        if (!attrName || !isSafeSurfaceComponentName(attrName) || attrName.startsWith('on')) return false;
+        if (SURFACE_COMPONENT_BLOCKED_ATTRIBUTES.has(attrName)) return false;
+        if (SURFACE_COMPONENT_URL_ATTRIBUTES.has(attrName) && !isSafeSurfaceComponentUrl(value)) return false;
+        return true;
+    }
+
     function setSurfaceElementAttribute(element, name, value) {
         if (!element || typeof element.setAttribute !== 'function') return;
         const attrName = clampString(name, '');
-        if (!attrName || value === undefined || value === null || value === false) return;
+        if (!isSafeSurfaceComponentAttribute(attrName, value) || value === undefined || value === null || value === false) return;
         element.setAttribute(attrName, value === true ? '' : String(value));
     }
 
     function assignSurfaceElementProperty(element, name, value) {
         const propName = clampString(name, '');
-        if (!element || !propName || value === undefined) return;
+        const normalizedName = propName.toLowerCase();
+        if (!element || !propName || value === undefined || normalizedName.startsWith('on') || SURFACE_COMPONENT_BLOCKED_PROPERTIES.has(normalizedName)) return;
+        if (!SURFACE_COMPONENT_SAFE_PROPERTIES.has(propName) && !propName.startsWith('aria') && !propName.startsWith('data')) return;
+        if (SURFACE_COMPONENT_URL_ATTRIBUTES.has(normalizedName) && !isSafeSurfaceComponentUrl(value)) return;
         try {
             element[propName] = value;
         } catch (_error) {
@@ -13203,7 +13236,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
         const componentId = clampString(component.id, '');
         if (!documentTarget || typeof documentTarget.createElement !== 'function') return null;
         if (componentId && visited.has(componentId)) return null;
-        const tag = clampString(component.tag, '');
+        const tag = resolveSurfaceComponentTag(component.tag);
         if (!tag) return null;
         const nextVisited = new Set(visited);
         if (componentId) nextVisited.add(componentId);

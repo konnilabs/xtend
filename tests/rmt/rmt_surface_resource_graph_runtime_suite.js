@@ -407,6 +407,72 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
   context.assert(diagnostics.some((entry) => entry.channel === 'rmt.app_platform.surface_resource_graph'), 'diagnostics hub receives surface graph channel');
 }
 
+
+async function assertSurfaceManagerBridgeRefusesHostCollisions(context, surfaceRuntimeModule) {
+  const calls = [];
+  const registry = new Map([
+    ['host.admin.modal', {
+      id: 'host.admin.modal',
+      status: 'open',
+      metadata: {
+        source: 'host-shell',
+        owner: 'admin'
+      }
+    }]
+  ]);
+  const surfaceManager = {
+    readSnapshot() {
+      return { surfaces: Array.from(registry.values()).map((record) => ({ ...record })) };
+    },
+    registerSurface(record) {
+      calls.push({ operation: 'registerSurface', id: record && record.id, record });
+      registry.set(record.id, { ...record, status: record.open ? 'open' : 'closed' });
+      return { ok: true, record };
+    },
+    openSurface(id, input) {
+      calls.push({ operation: 'openSurface', id, input });
+      const record = registry.get(id);
+      if (record) record.status = 'open';
+      return { ok: Boolean(record), record };
+    },
+    closeSurface(id, reason) {
+      calls.push({ operation: 'closeSurface', id, reason });
+      const record = registry.get(id);
+      if (record) record.status = 'closed';
+      return { ok: Boolean(record), record };
+    },
+    focusSurface(id) {
+      calls.push({ operation: 'focusSurface', id });
+      return { ok: registry.has(id) };
+    },
+    updateSurface(id, patch) {
+      calls.push({ operation: 'updateSurface', id, patch });
+      return { ok: registry.has(id) };
+    }
+  };
+
+  const runtime = surfaceRuntimeModule.createRmtSurfaceResourceGraphRuntime({
+    managerId: 'fixture.surface.manager',
+    surfaceManager,
+    surfaces: [{
+      id: 'host.admin.modal',
+      kind: 'modal',
+      component: 'tenant-controlled-component',
+      initialState: 'closed'
+    }]
+  });
+
+  await runtime.openSurface('host.admin.modal');
+  runtime.setBounds('host.admin.modal', { x: 1, y: 2, width: 300, height: 200 });
+  runtime.closeSurface('host.admin.modal');
+
+  const hostRecord = registry.get('host.admin.modal');
+  context.assert(calls.length === 0, 'SurfaceManager bridge refuses all proxied calls for colliding host-owned ids');
+  context.assert(hostRecord.metadata.source === 'host-shell', 'SurfaceManager bridge preserves host-owned registry metadata on id collision');
+  context.assert(hostRecord.status === 'open', 'SurfaceManager bridge does not close colliding host-owned surfaces');
+  context.assert(runtime.listDiagnostics().some((entry) => entry.code === 'rmt.surface.manager_proxy.denied'), 'SurfaceManager bridge emits denial diagnostics for host collisions');
+}
+
 async function runRmtSurfaceResourceGraphRuntimeSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
@@ -476,6 +542,7 @@ async function runRmtSurfaceResourceGraphRuntimeSuite(options = {}) {
   context.assert(fixture.acceptance.manualHtmlRendererAllowed === false, 'Surface graph acceptance disallows manual HTML renderer');
   assertFixtureGraph(context, fixture);
   await runRuntimeAssertions(context, fixture, actionRuntimeModule, surfaceRuntimeModule);
+  await assertSurfaceManagerBridgeRefusesHostCollisions(context, surfaceRuntimeModule);
 
   assertTextIncludesAll(context, runtimeSource, [
     'createRmtSurfaceResourceGraphRuntime',

@@ -190,7 +190,10 @@
       }
 
       const source = document.getElementById('xcommand-rmt-source').textContent;
-      const parsed = window.XCommand.parseRmtXCommands(source);
+      const parsed = window.XCommand.parseRmtXCommands(source, {
+        allowedActionRefs: ['action.saveDocument'],
+        allowedEventRefs: ['event.openQuickFile', 'event.openKeymap', 'event.goHome']
+      });
       const indicator = document.getElementById('indicator');
       const indicatorLabel = document.getElementById('indicator-label');
       const indicatorSequence = document.getElementById('indicator-sequence');

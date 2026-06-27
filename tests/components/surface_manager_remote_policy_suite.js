@@ -241,6 +241,7 @@ function runSurfaceManagerRemotePolicySuite(options = {}) {
     'evaluateRemoteSurfacePolicy(surfaceInput = {}, options = {})',
     'applyRemoteSurfacePolicy(surfaceInput = {}, options = {})',
     'registerRemoteSurface(remoteSurface = {}, options = {})',
+    "if (isSurfaceRemoteInput(record))",
     'snapshotRemoteSurfacePolicy()',
     'governRemoteSurfaceEvent(eventInput = {}, payload = {}, options = {})',
     'remote-surface-mounted',

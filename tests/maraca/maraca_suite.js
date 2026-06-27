@@ -457,6 +457,12 @@ function runMaracaPlanSuite(options = {}) {
     out: MARACA_OUT_DIR,
     allowDynamicComponents: true
   }, { rootDir });
+  const unsafeDynamicPlan = createMaracaBuildPlan({
+    sourceText: readText(MARACA_FIXTURE, rootDir).replace('component x-status', 'component script'),
+    virtualSourcePath: MARACA_FIXTURE,
+    out: MARACA_OUT_DIR,
+    allowDynamicComponents: true
+  }, { rootDir });
   const nativePlan = createMaracaBuildPlan({
     source: MARACA_NATIVE_FIXTURE,
     out: MARACA_OUT_DIR,
@@ -571,6 +577,8 @@ function runMaracaPlanSuite(options = {}) {
   context.assert(unknownPlan.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.maraca.component_unknown' && diagnostic.severity === 'error'), 'unknown plan emits blocking diagnostics');
   context.assert(allowedUnknownPlan.ok === true, 'unknown component plan can be explicitly allowed');
   context.assert(allowedUnknownPlan.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'allowed dynamic component diagnostics are non-blocking');
+  context.assert(unsafeDynamicPlan.ok === false, 'dynamic component opt-in rejects executable native tags');
+  context.assert(unsafeDynamicPlan.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.maraca.dynamic_component_unsafe_tag' && diagnostic.severity === 'error' && diagnostic.tag === 'script'), 'unsafe dynamic component emits blocking diagnostic for script');
   context.assert(nativePlan.ok === true, `native HTML component plan passes strict orchestration${nativePlan.ok ? '' : ` (${nativePlan.diagnostics.map((d) => d.message).join(', ')})`}`);
   context.assert(nativePlan.components.selected.some((entry) => entry.tag === 'img' && entry.native === true && entry.source === 'browser-native-element'), 'native img is selected as a browser-native component');
   context.assert(nativePlan.components.unknown.includes('img') === false, 'native img is not reported as an unknown dynamic component');
