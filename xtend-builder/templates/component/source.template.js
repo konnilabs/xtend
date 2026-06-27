@@ -80,7 +80,7 @@
 
     render() {
       this.beforeRender();
-      const variant = this.getAttribute('variant') || 'default';
+      const variant = this._escapeAttribute(this.getAttribute('variant') || 'default');
       const accessibleName = this.getAttribute('aria-label') || '{{a11yAccessibleNameDefault}}';
       const role = '{{a11yRole}}';
       this.shadowRoot.innerHTML = `

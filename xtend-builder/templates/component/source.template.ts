@@ -66,14 +66,22 @@ export class {{className}} extends HTMLElement {
   }
 
   render(): void {
-    const label = this.getAttribute('aria-label') || '{{className}} component';
-    const variant = this.getAttribute('variant') || 'default';
+    const label = this.escapeAttribute(this.getAttribute('aria-label') || '{{className}} component');
+    const variant = this.escapeAttribute(this.getAttribute('variant') || 'default');
     this.innerHTML = `
       <section part="root" role="{{a11yRole}}" aria-label="${label}" data-variant="${variant}">
         <slot></slot>
       </section>
     `;
     this.dispatchLifecycle('render');
+  }
+
+  private escapeAttribute(value: string): string {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
   private dispatchLifecycle(operation: string): void {
