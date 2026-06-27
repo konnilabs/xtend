@@ -282,6 +282,18 @@ function runRendererBehaviorAssertions(context, fixture, rendererModule) {
   context.assert(harness.events.length === 1 && harness.events[0].id === 'event.item-selected', 'renderer wires events without inline handlers');
   context.assert(harness.renderer.listDiagnostics().length === 0, 'happy-path renderer has no diagnostics');
 
+  let blockedScript = false;
+  try {
+    harness.renderer.renderNode({
+      type: 'element',
+      tag: 'script',
+      attributes: { src: 'https://attacker.example/payload.js' }
+    }, harness.renderOptions);
+  } catch (error) {
+    blockedScript = error && error.code === 'rmt.dom.tag.unsafe';
+  }
+  context.assert(blockedScript, 'renderer rejects executable script descriptors before DOM insertion');
+
   const sidePanel = harness.renderer.renderNode({
     type: 'element',
     tag: 'x-side-panel',

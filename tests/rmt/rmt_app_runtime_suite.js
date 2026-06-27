@@ -495,6 +495,30 @@ async function runSourceToSeaAssertions(context, rootDir) {
   context.assert(streamState.stream.text === 'tok', 'stream delta patch appends generated text');
   context.assert(streamState.stream.tools.length === 1 && streamState.stream.tools[0].text === 'result', 'tool-call and tool-result patches upsert tool records');
   context.assert(appRuntime.listStreamPatches().every((entry) => entry.schema === RMT_STREAM_PATCH_SCHEMA), 'stream patch history uses canonical schema');
+  delete Object.prototype.xtendPollutedStream;
+  delete Object.prototype.xtendPollutedReducer;
+  delete Object.prototype.xtendPollutedRuntime;
+  const unsafeStreamState = appRuntimeModule.applyRmtStreamPatch({}, {
+    type: 'complete',
+    target: '__proto__.xtendPollutedStream',
+    value: 'polluted'
+  });
+  context.assert({}.xtendPollutedStream === undefined && !Object.prototype.hasOwnProperty.call(unsafeStreamState, 'xtendPollutedStream'), 'stream patch paths reject prototype pollution segments');
+  const unsafeReducerState = appRuntimeModule.applyRmtReducer({}, {
+    op: 'set',
+    path: 'constructor.prototype.xtendPollutedReducer',
+    value: 'polluted'
+  });
+  context.assert({}.xtendPollutedReducer === undefined && !Object.prototype.hasOwnProperty.call(unsafeReducerState, 'xtendPollutedReducer'), 'reducer paths reject prototype pollution segments');
+  await appRuntime.handleStreamPatch({
+    type: 'complete',
+    target: 'prototype.xtendPollutedRuntime',
+    value: 'polluted'
+  });
+  context.assert({}.xtendPollutedRuntime === undefined && appRuntime.getState().prototype === undefined, 'runtime stream handlers reject prototype pollution segments');
+  delete Object.prototype.xtendPollutedStream;
+  delete Object.prototype.xtendPollutedReducer;
+  delete Object.prototype.xtendPollutedRuntime;
 
   appRuntime.applyRecipe({ recipe: 'open-dialog', path: 'ui.settingsDialog' });
   appRuntime.applyRecipe({ recipe: 'toggle-menu', path: 'ui.toolMenu' });

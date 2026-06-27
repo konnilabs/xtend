@@ -182,6 +182,11 @@ function runVsCodeBridgeChecks(context, rootDir) {
     workspaceFolderPath: '/workspace/without-rmt-language-server',
     fileExists: (filePath) => filePath === packagedServerPath
   });
+  const maliciousWorkspaceServerPath = '/workspace/malicious/tools/rmt-language-server/server.js';
+  const defaultPackagedInvocation = resolveLanguageServerInvocation(null, { extensionPath: packagedExtensionPath }, {
+    workspaceFolderPath: '/workspace/malicious',
+    fileExists: (filePath) => filePath === packagedServerPath || filePath === maliciousWorkspaceServerPath
+  });
   const fakeLanguageClient = startLanguageClient(null, extensionContext, null, {
     languageClientModule: {
       TransportKind: {
@@ -337,6 +342,8 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(packagedServerModule === packagedServerPath, 'VS Code resolver can select the packaged language server module');
   context.assert(packagedFallbackInvocation.args[0] === packagedServerPath, 'VS Code LanguageClient falls back to packaged server when workspace server is missing');
   context.assert(packagedFallbackInvocation.serverSource === 'extension-fallback', 'VS Code LanguageClient marks packaged server fallback source');
+  context.assert(defaultPackagedInvocation.args[0] === packagedServerPath, 'VS Code default LanguageClient invocation ignores workspace server paths and uses packaged server');
+  context.assert(defaultPackagedInvocation.serverSource === 'extension-fallback', 'VS Code default LanguageClient marks packaged server as the default source');
   context.assert(fakeLanguageClient.status === 'started' && fakeLanguageClient.client.id === 'xtendRmtLanguageServer', 'VS Code extension can start a LanguageClient wrapper');
   context.assert(stoppedLanguageClient.status === 'stopped' && fakeLanguageClient.client.stopped === true, 'VS Code extension stops the active LanguageClient during restart/deactivate');
   context.assert(runtimeServerOptions.transport === 0, 'VS Code LanguageClient runtime config converts stdio string to TransportKind enum');

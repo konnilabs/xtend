@@ -160,6 +160,8 @@ export interface RmtSurfaceManagerLike {
   restoreSurface?(surfaceId: string): unknown;
   materializeSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
   toggleSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
+  readSnapshot?(options?: Record<string, unknown>): { surfaces?: Array<Record<string, unknown>> } | null | undefined;
+  snapshot?(options?: Record<string, unknown>): { surfaces?: Array<Record<string, unknown>> } | null | undefined;
 }
 
 export interface RmtSurfaceResourceGraphRuntimeOptions {
@@ -175,6 +177,8 @@ export interface RmtSurfaceResourceGraphRuntimeOptions {
   managerElement?: RmtSurfaceManagerLike;
   xSurfaceManager?: RmtSurfaceManagerLike;
   managerId?: string;
+  surfaceManagerBridgeId?: string;
+  runtimeId?: string;
   persistenceAdapter?: {
     save(snapshot: RmtSurfaceResourceGraphSnapshot): unknown;
     load(): RmtSurfaceResourceGraphSnapshot | null | undefined;

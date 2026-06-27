@@ -225,13 +225,11 @@
         },
         "xtendRmt.languageServer.args": {
           "type": "array",
-          "default": [
-            "${workspaceFolder}/tools/rmt-language-server/server.js"
-          ],
+          "default": [],
           "items": {
             "type": "string"
           },
-          "description": "Arguments used by generic LSP clients to start the XTendRMT Language Server."
+          "description": "Advanced override for generic LSP clients. Leave empty to use the extension-bundled XTendRMT Language Server; set only for trusted custom servers."
         },
         "xtendRmt.xtendCli.command": {
           "type": "string",

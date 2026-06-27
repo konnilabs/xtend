@@ -2,6 +2,10 @@
   const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime.v1';
   const RMT_STATE_SELECTOR_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-state-selector-diagnostic.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.state_selector';
+  const URL_ATTRIBUTE_NAMES = new Set(['href', 'src', 'action', 'formaction', 'poster']);
+  const BLOCKED_ATTRIBUTE_NAMES = new Set(['srcdoc']);
+  const BLOCKED_PROPERTY_NAMES = new Set(['innerHTML', 'outerHTML', 'insertAdjacentHTML']);
+
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -14,6 +18,28 @@
 
   function objectRecord(value) {
     return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  }
+
+  function isSafeUrl(value) {
+    const normalized = String(value == null ? '' : value).trim().toLowerCase();
+    if (!normalized) return true;
+    if (normalized.startsWith('#') || normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) return true;
+    return /^(https?:|mailto:|tel:|blob:)/u.test(normalized);
+  }
+
+  function isSafeAttributeName(name) {
+    const normalized = clampString(name).toLowerCase();
+    if (!normalized) return false;
+    if (normalized.startsWith('on')) return false;
+    if (BLOCKED_ATTRIBUTE_NAMES.has(normalized)) return false;
+    return /^[a-z_:][a-z0-9_.:-]*$/u.test(normalized);
+  }
+
+  function isSafePropertyName(name) {
+    const normalized = clampString(name);
+    if (!normalized) return false;
+    if (normalized.startsWith('on')) return false;
+    return !BLOCKED_PROPERTY_NAMES.has(normalized);
   }
 
   function cloneValue(value, fallback = null) {
@@ -801,15 +827,20 @@
         const element = root && typeof root.querySelector === 'function' ? root.querySelector(selector) : null;
         if (!element) return;
         Object.entries(objectRecord(binding.attributes)).forEach(([name, expression]) => {
+          const normalizedName = clampString(name);
           const value = typeof expression === 'object'
             ? evaluateRule(expression, createEvaluationContext(runtime.snapshot().states, runtime.getSelectorValues(), runtime.getDerivedValues(), {}, {}), item)
             : runtime.resolve(expression, item);
-          if (value == null || (value === false && !String(name).startsWith('aria-'))) {
-            if (element.removeAttribute) element.removeAttribute(name);
-          } else if (element.setAttribute) {
-            element.setAttribute(name, value === true ? 'true' : String(value));
+          if (!isSafeAttributeName(normalizedName) || (URL_ATTRIBUTE_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(value))) {
+            operations.push({ binding: binding.id, target: key, kind: 'attribute', name: normalizedName, value, skipped: true, reason: 'unsafe' });
+            return;
           }
-          operations.push({ binding: binding.id, target: key, kind: 'attribute', name, value });
+          if (value == null || (value === false && !String(normalizedName).startsWith('aria-'))) {
+            if (element.removeAttribute) element.removeAttribute(normalizedName);
+          } else if (element.setAttribute) {
+            element.setAttribute(normalizedName, value === true ? 'true' : String(value));
+          }
+          operations.push({ binding: binding.id, target: key, kind: 'attribute', name: normalizedName, value });
         });
         Object.entries(objectRecord(binding.classes)).forEach(([token, expression]) => {
           const enabled = typeof expression === 'object'
@@ -819,8 +850,14 @@
           operations.push({ binding: binding.id, target: key, kind: 'class', name: token, value: enabled });
         });
         Object.entries(objectRecord(binding.properties)).forEach(([name, expression]) => {
-          element[name] = runtime.resolve(expression, item);
-          operations.push({ binding: binding.id, target: key, kind: 'property', name, value: element[name] });
+          const normalizedName = clampString(name);
+          const value = runtime.resolve(expression, item);
+          if (!isSafePropertyName(normalizedName)) {
+            operations.push({ binding: binding.id, target: key, kind: 'property', name: normalizedName, value, skipped: true, reason: 'unsafe' });
+            return;
+          }
+          element[normalizedName] = value;
+          operations.push({ binding: binding.id, target: key, kind: 'property', name: normalizedName, value: element[normalizedName] });
         });
       });
     });
