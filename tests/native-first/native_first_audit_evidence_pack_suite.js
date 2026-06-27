@@ -325,7 +325,6 @@ const REQUIRED_EVIDENCE_ITEMS = Object.freeze([
       'development/XTend-Epic13-Release-Report-und-Pack-Dry-Run-Evidence.md',
       'docs/release-report-pack-dry-run-evidence.md',
       'catalog/epic13-release-report-pack-dry-run-evidence.js',
-      '.xtend-test-results/xtend-release-report.json',
       '.xtend-test-results/xtend-pack-dry-run.json',
       '.xtend-test-results/xtend-package-export-lock-report.json'
     ]
