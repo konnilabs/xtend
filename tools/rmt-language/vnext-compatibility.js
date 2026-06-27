@@ -412,12 +412,6 @@ function resourceOwnerMap(document) {
       if (!owners.has(id)) owners.set(id, { kind: 'overlay', id: recordId(overlay, 'overlay') });
     });
   });
-  domainRecords(document, 'actions').forEach((action) => {
-    resourceRefs(action && action.resources).forEach((resourceId) => {
-      const id = primitiveName(resourceId, 'resource');
-      if (!owners.has(id)) owners.set(id, { kind: 'action', id: recordId(action, 'action') });
-    });
-  });
   return owners;
 }
 

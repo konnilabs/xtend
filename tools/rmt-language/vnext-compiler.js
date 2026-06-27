@@ -25,6 +25,7 @@ const RMT_VNEXT_COMPILER_DIAGNOSTIC_CODE = 'rmt.vnext.compiler.diagnostic';
 const RMT_KERNEL_RECORDS_SCHEMA = 'xtend.rmt.vnext.kernel-records.v1';
 const RMT_APP_PLATFORM_RECORDS_SCHEMA = 'xtend.rmt.vnext.app-platform-records.v1';
 const RMT_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-host-runtime-types';
+const RMT_VNEXT_RESOURCE_OWNER_KINDS = new Set(['overlay', 'surface']);
 const PRIMITIVE_DECLARATION_TYPES = new Set([
   'RmtStateDeclaration',
   'RmtSelectorDeclaration',
@@ -495,10 +496,14 @@ function parseOwnerReference(owner) {
   if (!match) {
     return null;
   }
+  const kind = match[1];
+  if (!RMT_VNEXT_RESOURCE_OWNER_KINDS.has(kind)) {
+    return null;
+  }
   return {
-    kind: match[1],
+    kind,
     id: match[2],
-    ref: primitiveRecordId(match[1], match[2])
+    ref: primitiveRecordId(kind, match[2])
   };
 }
 
