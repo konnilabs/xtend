@@ -422,6 +422,58 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
   const pendingResult = await pendingRun;
   context.assert(pendingResult.status === 'cancelled', 'pending action observes routed cancel signal');
 
+
+  const surfaceActionCalls = [];
+  const victimSurface = createFakeTarget('victim-surface');
+  victimSurface.attributes = { 'data-maraca-surface': 'victim' };
+  const attackerSurface = createFakeTarget('attacker-surface');
+  const ownerDocument = createFakeTarget('owner-document');
+  const surfaceRoot = {
+    ownerDocument,
+    addEventListener: createFakeTarget('surface-root').addEventListener,
+    querySelector(selector) {
+      return selector === '[data-maraca-surface="victim"]' ? victimSurface : null;
+    }
+  };
+  const surfaceRuntime = eventRuntimeModule.createRmtEventRoutingRuntime({
+    events: [{
+      id: 'event.secure-surface-command',
+      event: 'surface-close-command',
+      target: '[data-maraca-surface="victim"]',
+      closest: '[data-maraca-surface="victim"]',
+      action: 'action.secure-surface',
+      component: 'component.secure-surface',
+      owner: 'scope.secure-surface',
+      payload: '$detail'
+    }],
+    root: surfaceRoot,
+    actionRuntime: {
+      async runAction(action, payload) {
+        surfaceActionCalls.push({ action, payload });
+        return { status: 'ok' };
+      }
+    }
+  });
+  surfaceRuntime.attach();
+  context.assert(victimSurface.listeners.has('surface-close-command'), 'surface-scoped string targets attach to matched surface element');
+  context.assert(!ownerDocument.listeners.has('surface-close-command'), 'surface-scoped string targets do not attach to owner document');
+  const forgedSurfaceResult = await surfaceRuntime.routeEvent('event.secure-surface-command', createFakeEvent('surface-close-command', {
+    target: attackerSurface,
+    currentTarget: attackerSurface,
+    detail: { surfaceId: 'victim', privileged: true },
+    composedPath: [attackerSurface, ownerDocument]
+  }));
+  context.assert(forgedSurfaceResult.status === 'skipped' && forgedSurfaceResult.reason === 'delegated-target', 'forged surface detail does not satisfy delegated target matching');
+  context.assert(surfaceActionCalls.length === 0, 'forged surface detail does not invoke surface action');
+  await victimSurface.dispatch('surface-close-command', createFakeEvent('surface-close-command', {
+    target: victimSurface,
+    currentTarget: victimSurface,
+    detail: { surfaceId: 'victim', privileged: true },
+    composedPath: [victimSurface, surfaceRoot]
+  }));
+  context.assert(surfaceActionCalls.length === 1 && surfaceActionCalls[0].action === 'action.secure-surface', 'matched surface event invokes surface action');
+  surfaceRuntime.detachAll();
+
   context.assert(runtime.listRoutes().length >= 10, 'runtime records route history');
   context.assert(runtime.listDiagnostics().some((entry) => entry.code === 'rmt.event.route.success' && entry.details.component === 'component.toolbar' && entry.details.action === 'action.load-items'), 'diagnostics expose component and action');
   context.assert(runtime.listDiagnostics().some((entry) => entry.details && entry.details.payload), 'diagnostics expose payload');
