@@ -205,6 +205,29 @@ function runRmtVNextRemoteSecuritySuite(options = {}) {
   context.assert(disallowedOriginReport.ok === false, 'disallowed origin blocks remote security');
   context.assert(diagnosticCodes(disallowedOriginReport).includes(REMOTE_SECURITY_ORIGIN_NOT_ALLOWED_CODE), 'disallowed origin diagnostic is emitted');
 
+  const omittedAllowlistsReport = createSecurityReportFromFixtures(rootDir, {
+    security: {
+      policies: {
+        'checkout.cart': {
+          trustBoundary: REMOTE_SECURITY_TRUST_BOUNDARY,
+          allowedIntegrityAlgorithms: ['sha256'],
+          capabilityMode: REMOTE_SECURITY_CAPABILITY_MODE,
+          csp: {
+            requireTrustedTypes: true,
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            objectSrc: ["'none'"]
+          },
+          sandbox: {}
+        }
+      }
+    }
+  });
+  context.assert(omittedAllowlistsReport.ok === false, 'omitted origin and capability allowlists block remote security');
+  context.assert(diagnosticCodes(omittedAllowlistsReport).includes(REMOTE_SECURITY_ORIGIN_NOT_ALLOWED_CODE), 'omitted origin allowlist diagnostic is emitted');
+  context.assert(diagnosticCodes(omittedAllowlistsReport).includes(REMOTE_SECURITY_CAPABILITY_ESCALATION_CODE), 'omitted capability allowlist diagnostic is emitted');
+  context.assert(diagnosticCodes(omittedAllowlistsReport).includes(REMOTE_SECURITY_CSP_MISSING_CODE), 'omitted CSP connect-src allowlist diagnostic is emitted');
+
   const missingIntegrityRegistry = cloneJson(enterpriseRegistry);
   missingIntegrityRegistry.surfaces.find((surface) => surface.name === 'checkout.cart').remote.integrity = null;
   const missingIntegrityReport = createSecurityReportFromFixtures(rootDir, { enterpriseRegistry: missingIntegrityRegistry });

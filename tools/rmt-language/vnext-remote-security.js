@@ -107,13 +107,13 @@ function createRemoteSecurityDiagnostic(surface, code, message, severity = 'erro
   };
 }
 
-function normalizeCsp(csp = {}, origin) {
+function normalizeCsp(csp = {}) {
   const source = csp && typeof csp === 'object' ? csp : {};
   return {
     requireTrustedTypes: source.requireTrustedTypes === true,
     defaultSrc: normalizeList(source.defaultSrc || ["'self'"]),
     scriptSrc: normalizeList(source.scriptSrc || ["'self'"]),
-    connectSrc: normalizeList(source.connectSrc || ["'self'", origin]),
+    connectSrc: normalizeList(source.connectSrc || ["'self'"]),
     objectSrc: normalizeList(source.objectSrc || ["'none'"])
   };
 }
@@ -131,15 +131,14 @@ function normalizeSandbox(sandbox = {}) {
 
 function normalizePolicy(policy = {}, surface = {}) {
   const source = policy && typeof policy === 'object' ? policy : {};
-  const origin = surface.remote && surface.remote.origin || null;
   return {
     schema: RMT_VNEXT_REMOTE_SECURITY_POLICY_SCHEMA,
     trustBoundary: normalizeString(source.trustBoundary || REMOTE_SECURITY_TRUST_BOUNDARY),
-    allowedOrigins: normalizeList(source.allowedOrigins || origin),
+    allowedOrigins: normalizeList(source.allowedOrigins),
     allowedIntegrityAlgorithms: normalizeList(source.allowedIntegrityAlgorithms || REMOTE_SECURITY_ALLOWED_INTEGRITY_ALGORITHMS),
     capabilityMode: normalizeString(source.capabilityMode || REMOTE_SECURITY_CAPABILITY_MODE) || REMOTE_SECURITY_CAPABILITY_MODE,
-    allowedCapabilities: normalizeList(source.allowedCapabilities || surface.capabilities),
-    csp: normalizeCsp(source.csp, origin),
+    allowedCapabilities: normalizeList(source.allowedCapabilities),
+    csp: normalizeCsp(source.csp),
     sandbox: normalizeSandbox(source.sandbox),
     remoteEventPayloadsRequired: source.remoteEventPayloadsRequired !== false
   };
