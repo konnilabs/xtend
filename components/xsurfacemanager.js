@@ -95,6 +95,14 @@ function cssAttributeValue(value) {
   return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
+function surfaceElementId(element) {
+  if (!element || typeof element.getAttribute !== 'function') return '';
+  return element.getAttribute('surface-id')
+    || element.getAttribute('data-rmt-surface')
+    || element.id
+    || '';
+}
+
 function surfaceElementSelector(surfaceId) {
   const id = cssAttributeValue(surfaceId);
   const overlayBySurfaceId = SURFACE_OVERLAY_SELECTOR
@@ -4237,6 +4245,15 @@ class XSurfaceManager extends HTMLElement {
     return snapshot;
   }
 
+  _isSurfaceCommandAuthorized(event, surfaceId, command) {
+    if (command !== 'destroy') return true;
+    if (event && event.target === this) return true;
+    const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+    const sourceSurface = path.find((entry) => entry && entry !== this && entry.matches && entry.matches(SURFACE_MANAGED_ELEMENT_SELECTOR))
+      || (event.target && event.target.closest && event.target.closest(SURFACE_MANAGED_ELEMENT_SELECTOR));
+    return Boolean(sourceSurface && sourceSurface !== this && surfaceElementId(sourceSurface) === surfaceId);
+  }
+
   _onSurfaceCommand(event) {
     const detail = event.detail || {};
     const { payload } = detail;
@@ -4249,6 +4266,10 @@ class XSurfaceManager extends HTMLElement {
       hide: 'close',
       dismiss: 'close'
     }[rawCommand] || rawCommand;
+    if (!this._isSurfaceCommandAuthorized(event, String(surfaceId), command)) {
+      this._dispatchManagerEvent('surface-command-denied', { surfaceId, command, reason: 'surface-command-origin-mismatch' });
+      return;
+    }
     const commands = {
       open: () => this.openSurface(surfaceId, payload),
       materialize: () => this.materializeSurface(surfaceId, payload),
