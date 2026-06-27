@@ -23,6 +23,8 @@ const commandArgs = {
   'npm-audit-moderate': ['audit', '--audit-level=moderate', '--json'],
   'npm-sbom-json': ['sbom', '--sbom-format=cyclonedx', '--json']
 };
+const auditSeverityOrder = ['info', 'low', 'moderate', 'high', 'critical'];
+const auditFailureSeverity = 'moderate';
 
 function writeJson(relativePath, value) {
   const targetPath = path.resolve(rootDir, relativePath);
@@ -69,20 +71,65 @@ function createNpmInvocation(args) {
   };
 }
 
-function createCommandFailure(commandArtifact, result) {
-  const parsed = (() => {
-    try {
-      return parseJson(result.stdout);
-    } catch (error) {
-      return null;
-    }
-  })();
+function tryParseJson(stdout) {
+  try {
+    return parseJson(stdout);
+  } catch (error) {
+    return null;
+  }
+}
+
+function severityMeetsAuditFailureThreshold(severity) {
+  return auditSeverityOrder.indexOf(severity) >= auditSeverityOrder.indexOf(auditFailureSeverity);
+}
+
+function getAuditSeverityCount(auditJson, severity) {
+  return auditJson
+    && auditJson.metadata
+    && auditJson.metadata.vulnerabilities
+    && Number.isFinite(auditJson.metadata.vulnerabilities[severity])
+    ? auditJson.metadata.vulnerabilities[severity]
+    : 0;
+}
+
+function createAuditFailureSummary(auditJson) {
+  const metadataVulnerabilities = auditJson && auditJson.metadata && auditJson.metadata.vulnerabilities
+    ? auditJson.metadata.vulnerabilities
+    : null;
+  const vulnerabilityEntries = auditJson && auditJson.vulnerabilities && typeof auditJson.vulnerabilities === 'object'
+    ? Object.values(auditJson.vulnerabilities)
+    : [];
+  const thresholdVulnerabilityNames = vulnerabilityEntries
+    .filter((vulnerability) => vulnerability && severityMeetsAuditFailureThreshold(vulnerability.severity))
+    .map((vulnerability) => vulnerability.name)
+    .filter(Boolean);
+
+  return {
+    auditLevel: auditFailureSeverity,
+    metadataVulnerabilities,
+    thresholdVulnerabilityNames,
+    thresholdVulnerabilityCount: thresholdVulnerabilityNames.length || auditSeverityOrder
+      .filter(severityMeetsAuditFailureThreshold)
+      .reduce((count, severity) => count + getAuditSeverityCount(auditJson, severity), 0)
+  };
+}
+
+function isAuditVulnerabilityFailure(commandArtifact, auditJson) {
+  if (commandArtifact.id !== 'npm-audit-moderate' || !auditJson) return false;
+  return createAuditFailureSummary(auditJson).thresholdVulnerabilityCount > 0;
+}
+
+function createCommandFailure(commandArtifact, result, parsed = tryParseJson(result.stdout)) {
+  const auditSummary = commandArtifact.id === 'npm-audit-moderate' && parsed
+    ? createAuditFailureSummary(parsed)
+    : null;
   return {
     code: 'COMMAND_FAILED',
     message: `${commandArtifact.jsonCommand} failed with exit code ${result.status}`,
     exitCode: result.status,
     stderr: result.stderr || '',
-    npmErrorCode: parsed && parsed.error && parsed.error.code ? parsed.error.code : null
+    npmErrorCode: parsed && parsed.error && parsed.error.code ? parsed.error.code : null,
+    auditSummary
   };
 }
 
@@ -124,7 +171,18 @@ function captureCommand(commandArtifact) {
   }
 
   if (result.status !== 0) {
-    const commandFailure = createCommandFailure(commandArtifact, result);
+    const parsed = tryParseJson(result.stdout);
+    const commandFailure = createCommandFailure(commandArtifact, result, parsed);
+    if (isAuditVulnerabilityFailure(commandArtifact, parsed)) {
+      writeJson(commandArtifact.expectedArtifact, parsed);
+      const error = new Error(`${commandFailure.message}; ${commandFailure.auditSummary.thresholdVulnerabilityCount} ${auditFailureSeverity}-or-higher audit vulnerability finding(s)`);
+      error.code = 'NPM_AUDIT_VULNERABILITIES';
+      error.exitCode = commandFailure.exitCode;
+      error.stderr = commandFailure.stderr;
+      error.npmErrorCode = commandFailure.npmErrorCode;
+      error.auditSummary = commandFailure.auditSummary;
+      throw error;
+    }
     if (!allowDeferral) {
       const error = new Error(commandFailure.message);
       error.code = commandFailure.code;
