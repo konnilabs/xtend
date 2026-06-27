@@ -711,9 +711,40 @@
       return cloneValue(portal, portal);
     }
 
+    function isSafeOverlayTag(tag) {
+      const normalized = clampString(tag).toLowerCase();
+      if (!normalized || !/^[a-z][a-z0-9._-]*$/u.test(normalized)) return false;
+      if (normalized.includes('-')) return true;
+      return ['div', 'span', 'section', 'article', 'header', 'footer', 'main', 'aside', 'nav'].includes(normalized);
+    }
+
+    function isUnsafeAttributeUrl(value) {
+      const normalized = clampString(value).replace(/[\u0000-\u001f\u007f\s]+/gu, '').toLowerCase();
+      return /^(?:javascript|vbscript|data):/u.test(normalized);
+    }
+
+    function isSafeOverlayAttribute(name, value) {
+      const normalized = clampString(name).toLowerCase();
+      if (!normalized || !/^[a-z_:][a-z0-9_:.\-]*$/u.test(normalized)) return false;
+      if (normalized.startsWith('on') || normalized === 'srcdoc' || normalized === 'style') return false;
+      if (['href', 'src', 'xlink:href', 'action', 'formaction', 'poster'].includes(normalized) && isUnsafeAttributeUrl(value)) return false;
+      return true;
+    }
+
     function setDomAttribute(element, name, value) {
       if (!element || typeof element.setAttribute !== 'function' || value === null || typeof value === 'undefined' || value === false) return;
       element.setAttribute(name, value === true ? '' : String(value));
+    }
+
+    function setOverlayAttribute(element, name, value, definition) {
+      if (!isSafeOverlayAttribute(name, value)) {
+        publish('rmt.overlay.attribute.unsafe', `RMT Overlay ${definition.id} enthaelt ein unsicheres Attribut.`, {
+          overlayId: definition.id,
+          attribute: clampString(name)
+        }, 'warning');
+        return;
+      }
+      setDomAttribute(element, name, value);
     }
 
     function resolvePortalTarget(portal, metadata = {}) {
@@ -727,7 +758,15 @@
       if (metadata.materialize === false) return null;
       const target = resolvePortalTarget(portal, metadata);
       if (!target || !documentTarget || typeof documentTarget.createElement !== 'function') return null;
-      const tag = clampString(metadata.tag || definition.component || definition.tag, definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div');
+      const requestedTag = clampString(metadata.tag || definition.component || definition.tag, definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div');
+      const fallbackTag = definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div';
+      const tag = isSafeOverlayTag(requestedTag) ? requestedTag : fallbackTag;
+      if (tag !== requestedTag) {
+        publish('rmt.overlay.tag.unsafe', `RMT Overlay ${definition.id} enthaelt ein unsicheres Element.`, {
+          overlayId: definition.id,
+          tag: requestedTag
+        }, 'warning');
+      }
       const element = documentTarget.createElement(tag);
       setDomAttribute(element, 'data-rmt-overlay', overlay.id);
       setDomAttribute(element, 'data-rmt-overlay-ref', overlay.overlayId);
@@ -736,7 +775,7 @@
       setDomAttribute(element, 'data-overlay-kind', overlay.kind);
       setDomAttribute(element, 'role', definition.kind === 'dialog' || definition.kind === 'lightbox' ? 'dialog' : undefined);
       setDomAttribute(element, 'open', true);
-      Object.entries(objectRecord(definition.attributes)).forEach(([name, value]) => setDomAttribute(element, name, value));
+      Object.entries(objectRecord(definition.attributes)).forEach(([name, value]) => setOverlayAttribute(element, name, value, definition));
       if (element.style && typeof element.style.setProperty === 'function') {
         element.style.setProperty('z-index', String(overlay.zIndex));
       }
