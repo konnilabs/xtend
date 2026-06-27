@@ -250,6 +250,24 @@ function runVsCodeBridgeChecks(context, rootDir) {
     workspaceFolderPath: rootDir,
     file: resolveRepoPath('xtendrmt/rmt-vnext-reference-demo.rmt', rootDir)
   });
+  let capturedTerminalOptions = null;
+  const capturedTerminal = {
+    shown: false,
+    sentText: null,
+    show() { this.shown = true; },
+    sendText(text) { this.sentText = text; }
+  };
+  const terminalInjectionRun = runXtendCliInTerminal({
+    window: {
+      createTerminal(options) {
+        capturedTerminalOptions = options;
+        return capturedTerminal;
+      }
+    }
+  }, extensionContext, 'agent-repair-report', {
+    workspaceFolderPath: rootDir,
+    file: path.join(rootDir, 'evil & calc & ok.rmt')
+  });
   const paletteDryRun = showXtendCliCommandPalette(null, extensionContext, {
     workspaceFolderPath: rootDir
   });
@@ -365,6 +383,10 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(terminalCommandLine.includes('rmt lint') && terminalCommandLine.includes('rmt-vnext-reference-demo.rmt'), 'VS Code terminal command line expands active RMT file');
   context.assert(openTerminalDryRun.status === 'dry-run' && openTerminalDryRun.cli.ok, 'VS Code CLI terminal supports dry-run without VS Code host');
   context.assert(terminalBuildDryRun.status === 'dry-run' && terminalBuildDryRun.commandLine.includes('rmt-build'), 'VS Code terminal runner supports RMT build check dry-run');
+  context.assert(terminalInjectionRun.status === 'started' && capturedTerminal.shown, 'VS Code terminal runner starts hosted terminals');
+  context.assert(capturedTerminal.sentText === null, 'VS Code terminal runner avoids shell text injection for workflow commands');
+  context.assert(capturedTerminalOptions.shellPath === terminalInjectionRun.cli.command, 'VS Code terminal runner launches the CLI as the terminal shell path');
+  context.assert(capturedTerminalOptions.shellArgs.some((arg) => arg.includes('evil & calc & ok.rmt')), 'VS Code terminal runner keeps metacharacter paths in structured shell args');
   context.assert(paletteDryRun && typeof paletteDryRun.then === 'function', 'VS Code CLI command palette is async for host QuickPick support');
   context.assert(launchConfigurations.schema === RMT_VSCODE_LAUNCH_SCHEMA, 'VS Code launch config emits stable schema');
   context.assert(launchConfigurations.configurations.length >= 4, 'VS Code launch config exposes debug console entries');

@@ -985,9 +985,12 @@ function runXtendRmtTask(vscodeApi, context = {}, taskId, options = {}) {
   };
 }
 
+function createTerminalExecutionArgs(cli = {}, commandArgs = [], variables = {}) {
+  return (cli.args || []).concat(substituteVariables(commandArgs, variables));
+}
+
 function createTerminalCommandLine(cli = {}, commandArgs = [], variables = {}) {
-  const args = cli.args.concat(substituteVariables(commandArgs, variables));
-  return [cli.command].concat(args).map(shellQuote).join(' ');
+  return [cli.command].concat(createTerminalExecutionArgs(cli, commandArgs, variables)).map(shellQuote).join(' ');
 }
 
 function openXtendCliTerminal(vscodeApi, context = {}, options = {}) {
@@ -1061,17 +1064,19 @@ function runXtendCliInTerminal(vscodeApi, context = {}, workflowId, options = {}
     };
   }
 
-  const terminal = vscodeApi.window.createTerminal({
-    name: 'XTendRMT CLI',
-    cwd: cli.workspaceFolderPath
-  });
-  const commandLine = createTerminalCommandLine(cli, workflow.args, {
+  const variables = {
     workspaceFolder: cli.workspaceFolderPath,
     file: cli.activeFile
+  };
+  const commandLine = createTerminalCommandLine(cli, workflow.args, variables);
+  const terminal = vscodeApi.window.createTerminal({
+    name: 'XTendRMT CLI',
+    cwd: cli.workspaceFolderPath,
+    shellPath: cli.command,
+    shellArgs: createTerminalExecutionArgs(cli, workflow.args, variables)
   });
 
   if (typeof terminal.show === 'function') terminal.show(true);
-  if (typeof terminal.sendText === 'function') terminal.sendText(commandLine);
 
   return {
     schema: RMT_VSCODE_DX_SCHEMA,
