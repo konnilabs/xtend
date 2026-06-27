@@ -83,10 +83,13 @@ function collectUiEffectTokens(value, tokens = []) {
   return tokens;
 }
 
-function uniqueSupportedUiEffects(tokens) {
-  const disabled = tokens.some((token) => token === 'none');
+function uniqueSupportedUiEffects(tokens, disabled = false) {
   if (disabled) return [];
-  return Array.from(new Set(tokens.filter((token) => XUTILS_SUPPORTED_UI_EFFECTS.includes(token))));
+  return Array.from(new Set(tokens.filter((token) => token !== 'none' && XUTILS_SUPPORTED_UI_EFFECTS.includes(token))));
+}
+
+function hasSupportedUiEffect(tokens) {
+  return tokens.some((token) => token !== 'none' && XUTILS_SUPPORTED_UI_EFFECTS.includes(token));
 }
 
 function normalizeUiTransitionEffect(value) {
@@ -381,12 +384,17 @@ export const XUtils = {
       : (options.body || (typeof document !== 'undefined' ? document.body : null));
     const script = options.script || null;
     const tokens = [];
+    const hostTokens = [];
+    const rmtTokens = [];
     const sources = [];
 
     const addTokens = (source, value) => {
       const before = tokens.length;
+      const targetTokens = source === 'rmt' ? rmtTokens : hostTokens;
+      const targetBefore = targetTokens.length;
       collectUiEffectTokens(value, tokens);
-      if (tokens.length > before) sources.push(source);
+      collectUiEffectTokens(value, targetTokens);
+      if (tokens.length > before || targetTokens.length > targetBefore) sources.push(source);
     };
 
     addTokens('explicit', options.effects || options.effect || options.mode);
@@ -395,12 +403,16 @@ export const XUtils = {
 
     if (options.rmtDocument) {
       const before = tokens.length;
+      const rmtBefore = rmtTokens.length;
       scanRmtUiEffects(options.rmtDocument, tokens);
-      if (tokens.length > before) sources.push('rmt');
+      scanRmtUiEffects(options.rmtDocument, rmtTokens);
+      if (tokens.length > before || rmtTokens.length > rmtBefore) sources.push('rmt');
     }
 
-    const effects = uniqueSupportedUiEffects(tokens);
-    const disabled = tokens.some((token) => token === 'none');
+    const hostDisabled = hostTokens.some((token) => token === 'none');
+    const rmtDisabled = rmtTokens.some((token) => token === 'none');
+    const disabled = hostDisabled || (rmtDisabled && !hasSupportedUiEffect(hostTokens));
+    const effects = uniqueSupportedUiEffects(tokens, disabled);
     const durationMs = normalizeUiEffectDuration(
       options.durationMs ||
       options.duration ||
