@@ -52,6 +52,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './components/manifest.json',
   './maraca',
   './maraca/runtime',
+  './xsurface-shard',
   './components/*',
   './components/xkeymap.js',
   './xcommand',
@@ -209,6 +210,7 @@ const REQUIRED_PACK_ROOTS = Object.freeze([
   'xtendrmt',
   'xtend-builder',
   'xtend-maraca',
+  'xsurface-shard',
   'tools',
   'security',
   'docs'
@@ -234,6 +236,11 @@ const SURFACE_GROUPS = Object.freeze([
     id: 'maraca',
     requiredExports: ['./maraca', './maraca/runtime'],
     requiredPackRoots: ['xtend-maraca']
+  },
+  {
+    id: 'xsurface-shard',
+    requiredExports: ['./xsurface-shard'],
+    requiredPackRoots: ['xsurface-shard']
   },
   {
     id: 'fabric',

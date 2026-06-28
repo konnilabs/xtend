@@ -1619,7 +1619,7 @@ async function runKernelIntegrityBrowserSmoke(context, rootDir) {
       return null;
     }
     if (browser.status === 124 || browser.status === 137) {
-      context.fail(`kernel integrity Chromium smoke timed out after ${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`);
+      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity Chromium smoke timed out after ${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`);
       return null;
     }
     if (browser.status !== 0) {

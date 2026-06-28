@@ -156,6 +156,7 @@ function runTypeExportsSuite(options = {}) {
     ['./xcommand', 'xcommand', 'WP-XCommand-01', './xcommand/xcommand.d.ts'],
     ['./maraca', 'maraca', 'WP-Maraca-01', './xtend-maraca/index.d.ts'],
     ['./maraca/runtime', 'maraca', 'WP-Maraca-01', './xtend-maraca/runtime.d.ts'],
+    ['./xsurface-shard', 'xsurface-shard', 'WP-XSurfaceShard-01', './xsurface-shard/index.d.ts'],
     ['./rmt', 'rmt-runtime', 'WP-TypeExports-04', './xtendrmt/rmt-core.d.ts'],
     ['./rmt/browser', 'rmt-runtime', 'WP-TypeExports-04', './xtendrmt/rmt-core.d.ts'],
     ['./rmt-language/parser', 'rmt-language', 'WP-TypeExports-04', './tools/rmt-language/parser.d.ts'],

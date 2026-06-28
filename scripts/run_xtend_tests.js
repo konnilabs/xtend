@@ -448,6 +448,10 @@ const {
   runXScalerProtocolSuite
 } = require('../tests/rmt/xscaler_protocol_suite');
 const {
+  printXSurfaceShardReport,
+  runXSurfaceShardSuite
+} = require('../tests/xsurface/xsurface_shard_suite');
+const {
   printXCommandKernelReport,
   runXCommandKernelSuite
 } = require('../tests/rmt/xcommand_kernel_suite');
@@ -1998,6 +2002,16 @@ const suites = [
       const result = runXScalerProtocolSuite({ rootDir });
       printXScalerProtocolReport(result);
       return toRunnerResult('xscaler-protocol', 'XScaler Protocol Gate', result);
+    }
+  },
+  {
+    id: 'xsurface-shard',
+    label: 'XSurface Shard server orchestration',
+    description: 'Runs XSurface Shard partitioning, lifecycle, ATC handoff, stream fragment and package export gates.',
+    run: () => {
+      const result = runXSurfaceShardSuite({ rootDir });
+      printXSurfaceShardReport(result);
+      return toRunnerResult('xsurface-shard', 'XSurface Shard server orchestration', result);
     }
   },
   {
@@ -3869,6 +3883,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-release
   node scripts/run_xtend_tests.js xcommand-kernel
   node scripts/run_xtend_tests.js xscaler-protocol
+  node scripts/run_xtend_tests.js xsurface-shard
   node scripts/run_xtend_tests.js rmt-vnext-remote-manifest
   node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry
   node scripts/run_xtend_tests.js rmt-vnext-degradation

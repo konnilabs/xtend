@@ -14,6 +14,8 @@
     "xtend",
     "xsurface",
     "surface",
+    "remote-surfaces",
+    "sharding",
     "web-components"
   ],
   "main": "./index.js",
@@ -31,5 +33,24 @@
     "README.md",
     "package.json"
   ],
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "@ccslabs/xtend": "0.3.1",
+    "@ccslabs/xtend-compiler": "0.3.1",
+    "@ccslabs/xtend-rmt": "0.3.1"
+  },
+  "peerDependenciesMeta": {
+    "@ccslabs/xtend": {
+      "optional": true
+    },
+    "@ccslabs/xtend-compiler": {
+      "optional": true
+    },
+    "@ccslabs/xtend-rmt": {
+      "optional": true
+    }
+  },
   "sideEffects": false
 }
