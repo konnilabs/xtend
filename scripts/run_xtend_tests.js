@@ -3494,8 +3494,8 @@ const suites = [
     id: 'surface-controller',
     label: 'Surface Controller and state snapshot contract',
     description: 'Runs the WP-SM-02 Surface Controller runtime, xstate mirror and diagnostics gates.',
-    run: () => {
-      const result = runSurfaceControllerSuite({ rootDir });
+    run: async () => {
+      const result = await runSurfaceControllerSuite({ rootDir });
       printSurfaceControllerReport(result);
       return toRunnerResult('surface-controller', 'Surface Controller and state snapshot contract', result);
     }
@@ -3634,8 +3634,8 @@ const suites = [
     id: 'epic18-vendor-bugfix-smokes',
     label: 'Epic 18 vendor component bugfix smokes',
     description: 'Runs WP-E18-03 contract and browser-near regression smokes for the five vendor component backports.',
-    run: () => {
-      const result = runEpic18VendorBugfixSmokeSuite({ rootDir });
+    run: async () => {
+      const result = await runEpic18VendorBugfixSmokeSuite({ rootDir });
       printEpic18VendorBugfixSmokeReport(result);
       return toRunnerResult('epic18-vendor-bugfix-smokes', 'Epic 18 vendor component bugfix smokes', result);
     }

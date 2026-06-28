@@ -14099,7 +14099,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 146,
+      "expectedExportCount": 148,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -14124,8 +14124,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 146,
-      "lockedExportFingerprint": "9860fcdb52577fa5178832f788f9a4360941ba9a7b5f77576a4a5425874c6881",
+      "expectedExportCount": 148,
+      "lockedExportFingerprint": "c95a81891ebf7da5be669764abd1357a44658c0942d9746e38da9053d3b79916",
       "p0Exports": [
         ".",
         "./loader",
@@ -14134,13 +14134,17 @@
         "./style.css",
         "./manifest",
         "./components/manifest.json",
-        "./components/*"
+        "./components/*",
+        "./components/xkeymap.js",
+        "./xcommand"
       ],
       "preparedDeclarationTargets": [
         "./xtend-loader.d.ts",
         "./xtend-dev.d.ts",
         "./api.d.ts",
         "./components/*.d.ts",
+        "./components/xkeymap.d.ts",
+        "./xcommand/xcommand.d.ts",
         "./xtend-maraca/index.d.ts",
         "./xtend-maraca/runtime.d.ts",
         "./xtendrmt/rmt-core.d.ts",

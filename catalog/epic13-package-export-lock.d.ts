@@ -25,6 +25,7 @@ export declare const EPIC13_PACKAGE_EXPORT_LOCK_WORKPACKAGE: string;
 export declare const EPIC13_PACKAGE_EXPORT_LOCK_WORKPACKAGE_DOC: XtendCatalogConstant;
 export declare const EPIC13_PACKAGE_EXPORT_SURFACE_SCHEMA: string;
 export declare const EXPECTED_EXPORT_KEYS: readonly XtendCatalogConstant[] | XtendCatalogConstant;
+export declare const EXPECTED_SCOPED_PACKAGES: readonly XtendCatalogConstant[] | XtendCatalogConstant;
 export declare const PACKAGE_DRY_RUN_ARTIFACT: XtendCatalogConstant;
 export declare const PACKAGE_DRY_RUN_COMMAND: XtendCatalogConstant;
 export declare const PACKAGE_DRY_RUN_JSON_COMMAND: XtendCatalogConstant;

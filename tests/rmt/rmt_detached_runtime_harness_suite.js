@@ -187,12 +187,18 @@ async function importEsm(rootDir, relativePath) {
   return import(pathToFileURL(resolveRepoPath(relativePath, rootDir)).href);
 }
 
+async function loadSurfaceControllerModule(rootDir) {
+  const moduleApi = await importEsm(rootDir, SURFACE_CONTROLLER_RUNTIME);
+  if (moduleApi && typeof moduleApi.createSurfaceController === 'function') return moduleApi;
+  return globalThis.XTendSurfaceController || {};
+}
+
 async function createRmtDetachedRuntimeGateHarness(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const rmtKernel = await importEsm(rootDir, RMT_CORE_RUNTIME);
   const surfaceGraphModule = await importEsm(rootDir, SURFACE_GRAPH_RUNTIME);
   const actionModule = await importEsm(rootDir, ACTION_EFFECT_RUNTIME);
-  const surfaceControllerModule = require(resolveRepoPath(SURFACE_CONTROLLER_RUNTIME, rootDir));
+  const surfaceControllerModule = await loadSurfaceControllerModule(rootDir);
   const dom = createDetachedDocumentHarness();
   const mountTarget = dom.register(createDetachedElement('section', 'detached-mount-root'));
   const hydrateTarget = dom.register(createDetachedElement('section', 'detached-hydrate-root'));

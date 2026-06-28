@@ -1496,7 +1496,7 @@ module.exports = {
     packageDryRunArtifact: ".xtend-test-results/xtend-pack-dry-run.json",
     packageExportSurfaceArtifact: ".xtend-test-results/xtend-package-export-surface-lock.json",
     packageExportLockReportArtifact: ".xtend-test-results/xtend-package-export-lock-report.json",
-    expectedExportCount: 130,
+    expectedExportCount: 148,
     localGateRequiresNpmPackExecution: false,
     artifactRequiredForRc1: true,
     nextWorkpackage: "WP-E13-13",

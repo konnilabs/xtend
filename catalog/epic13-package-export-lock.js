@@ -53,6 +53,8 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './maraca',
   './maraca/runtime',
   './components/*',
+  './components/xkeymap.js',
+  './xcommand',
   './design-tokens',
   './design-tokens/xtheme-token-alias-layer',
   './design-tokens/themes/enterprise-light',
@@ -220,8 +222,13 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'components',
-    requiredExports: ['./components/*'],
+    requiredExports: ['./components/*', './components/xkeymap.js'],
     requiredPackRoots: ['components']
+  },
+  {
+    id: 'xcommand',
+    requiredExports: ['./xcommand', './components/xkeymap.js'],
+    requiredPackRoots: ['xcommand', 'components']
   },
   {
     id: 'maraca',

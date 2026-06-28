@@ -123,6 +123,9 @@ const {
   runXUtilsComponentSuite
 } = require('./xutils.component_suite');
 const {
+  runXKeymapComponentSuite
+} = require('./xkeymap.component_suite');
+const {
   runXSurfacePortalComponentSuite
 } = require('./xsurfaceportal.component_suite');
 const {
@@ -173,6 +176,7 @@ const componentSuites = [
   runXStateComponentSuite,
   runXtendI18nComponentSuite,
   runXUtilsComponentSuite,
+  runXKeymapComponentSuite,
   runXSurfacePortalComponentSuite,
   runXSurfaceRegionComponentSuite,
   runComponentPublicTypesSuite

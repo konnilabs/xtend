@@ -6,13 +6,7 @@
   }
 
   if (globalTarget && typeof globalTarget === 'object') {
-    globalTarget.XTendSurfaceController = Object.freeze({
-      schema: api.SURFACE_CONTROLLER_SCHEMA,
-      contracts: api.CONTRACTS,
-      createSurfaceController: api.createSurfaceController,
-      normalizeSurfaceRecord: api.normalizeSurfaceRecord,
-      normalizeSurfaceBounds: api.normalizeSurfaceBounds
-    });
+    globalTarget.XTendSurfaceController = Object.freeze({ ...api });
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function createXtendSurfaceControllerModule(globalTarget) {
   const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v1';

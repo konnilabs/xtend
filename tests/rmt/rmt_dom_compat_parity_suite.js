@@ -39,6 +39,12 @@ async function importEsm(rootDir, relativePath) {
   return import(pathToFileURL(resolveRepoPath(relativePath, rootDir)).href);
 }
 
+async function loadSurfaceControllerModule(rootDir) {
+  const moduleApi = await importEsm(rootDir, SURFACE_CONTROLLER_RUNTIME);
+  if (moduleApi && typeof moduleApi.createSurfaceController === 'function') return moduleApi;
+  return globalThis.XTendSurfaceController || {};
+}
+
 function createElement(dom, tagName, id) {
   const element = dom.documentTarget.createElement(tagName);
   if (id) {
@@ -145,7 +151,7 @@ function assertOwnershipModeParity(context, runtimeScenarios, snapshot) {
 
 async function runDomCompatParityScenario(rootDir) {
   const rmtKernel = await importEsm(rootDir, RMT_CORE_RUNTIME);
-  const surfaceControllerModule = require(resolveRepoPath(SURFACE_CONTROLLER_RUNTIME, rootDir));
+  const surfaceControllerModule = await loadSurfaceControllerModule(rootDir);
   const dom = createDetachedDocumentHarness();
   const domCompat = rmtKernel.createRmtDomCompat({
     windowTarget: dom.windowTarget,

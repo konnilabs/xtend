@@ -28,7 +28,53 @@
         surface: 'app-shell-modal',
         contracts: ['xtend.xkeymap.surface-contract.v1', 'xtend.xcommand.kernel-contract.v1'],
         themeParts: ['backdrop', 'surface', 'group', 'command', 'key'],
-        accessibility: { role: 'dialog', ariaModal: true, escapeCloses: true, focusReturn: true }
+        accessibility: { role: 'dialog', ariaModal: true, escapeCloses: true, focusReturn: true },
+        rmt: {
+          adapter: 'xtend.component',
+          kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+        }
+      };
+    }
+
+    static get xtendRmtMetadata() {
+      return {
+        schema: 'xtend.rmt.component-contract.v1',
+        adapter: 'xtend.component',
+        tag: 'x-keymap',
+        componentRecordKind: 'custom_element',
+        templateMode: 'dom_descriptor',
+        eventBindingMode: 'dom-event-to-rmt-command',
+        schedules: [
+          'component.visible.mount',
+          'ui.user-blocking.input',
+          'overlay.dialog.transition',
+          'diagnostics.snapshot'
+        ],
+        hydration: { policy: 'visible', lane: 'user-blocking' },
+        shellAuthoring: {
+          schema: 'xtend.rmt.shell-authoring.component.v1',
+          host: 'x-keymap',
+          attributes: ['open', 'title', 'entries', 'locale', 'platform'],
+          events: ['xkeymap-close', 'click', 'keydown']
+        },
+        kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+      };
+    }
+
+    static get xtendScaffoldPerformanceProfile() {
+      return {
+        schema: 'xtend.performance.component-profile.v1',
+        componentRef: 'x-keymap',
+        profiles: ['overlay', 'interactive'],
+        primaryProfile: 'overlay',
+        budgetClass: 'overlay-interaction',
+        lane: 'user-blocking',
+        hydrationPolicy: 'visible',
+        criticalMeasurements: [
+          'xtend.x-keymap.open',
+          'xtend.x-keymap.close',
+          'xtend.x-keymap.render'
+        ]
       };
     }
 

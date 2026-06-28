@@ -282,6 +282,7 @@ function readJson(filePath) {
 }
 
 let rmtKernelFeatureAdoptionRegistryModule = null;
+let rmtKernelFeatureAdoptionRegistryModuleError = null;
 let rmtKernelPolicyParityModule = null;
 let rmtKernelPolicyParityModuleError = null;
 let rmtManifestCache = null;
@@ -342,8 +343,30 @@ function loadRmtPerformanceRuntimeFactory(rootDir) {
   return rmtPerformanceRuntimeFactory;
 }
 
+function loadUmdEsmHybridModule(modulePath, globalName) {
+  const source = fs.readFileSync(modulePath, 'utf8');
+  const exportBridgeStart = source.indexOf('\nconst __XTEND_RMT_KERNEL_FEATURE_ADOPTION_REGISTRY_API__ = globalThis.');
+  const executableSource = exportBridgeStart >= 0 ? source.slice(0, exportBridgeStart) : source;
+  const sandbox = {
+    console,
+    module: { exports: {} }
+  };
+  sandbox.exports = sandbox.module.exports;
+  sandbox.globalThis = sandbox;
+  sandbox.window = sandbox;
+  sandbox.self = sandbox;
+  vm.runInNewContext(executableSource, sandbox, {
+    filename: modulePath,
+    timeout: 1000
+  });
+  if (sandbox.module.exports && Object.keys(sandbox.module.exports).length > 0) {
+    return sandbox.module.exports;
+  }
+  return sandbox[globalName] || null;
+}
+
 function loadRmtKernelFeatureAdoptionRegistry(rootDir) {
-  if (rmtKernelFeatureAdoptionRegistryModule) return rmtKernelFeatureAdoptionRegistryModule;
+  if (rmtKernelFeatureAdoptionRegistryModule || rmtKernelFeatureAdoptionRegistryModuleError) return rmtKernelFeatureAdoptionRegistryModule;
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(rootDir || process.cwd(), KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE),
@@ -354,7 +377,16 @@ function loadRmtKernelFeatureAdoptionRegistry(rootDir) {
   try {
     rmtKernelFeatureAdoptionRegistryModule = require(registryPath);
     return rmtKernelFeatureAdoptionRegistryModule;
-  } catch (_) {
+  } catch (_) {}
+  try {
+    rmtKernelFeatureAdoptionRegistryModule = loadUmdEsmHybridModule(
+      registryPath,
+      'XTendRmtKernelFeatureAdoptionRegistry'
+    );
+    return rmtKernelFeatureAdoptionRegistryModule;
+  } catch (error) {
+    rmtKernelFeatureAdoptionRegistryModuleError = error;
+    rmtKernelFeatureAdoptionRegistryModule = null;
     return null;
   }
 }

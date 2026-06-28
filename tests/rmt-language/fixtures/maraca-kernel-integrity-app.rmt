@@ -1,6 +1,6 @@
 // Maraca kernel integrity fixture for repeated media-effect orchestration.
 
-template demo.kernel.integrity {
+template demo.kernel.`integrity` {
   state demo.kernel.shell type object preserve {
     initial {
       id "demo-kernel-shell"

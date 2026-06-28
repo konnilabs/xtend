@@ -81,8 +81,8 @@
     },
     {
       "path": "development/XTendRMT-vNext-Grammar-Contract.md",
-      "sha256": "92648b522d20a7c2ea821137b47059ee84fc470196223b9bec0af739a8908630",
-      "bytes": 10337
+      "sha256": "c3829dc5d6d127645b9a70689943b8dc4ae851a444796252c7d13c0f113fd213",
+      "bytes": 10486
     },
     {
       "path": "docs/de/learn-rmt-actions-events.md",
@@ -166,8 +166,8 @@
     },
     {
       "path": "docs/de/rmt-reference-remote-surfaces.md",
-      "sha256": "3c19946a85a4c323ac83fcc6404fe37919caab9188d2db3fcbbcac6cc7497e3e",
-      "bytes": 4205
+      "sha256": "a06011273b4c216fdad658dd85039bf799769b1337eb34d89dab5cf089d301a6",
+      "bytes": 4496
     },
     {
       "path": "docs/de/rmt-reference-security-policies.md",
@@ -181,8 +181,8 @@
     },
     {
       "path": "docs/de/rmt-reference-surfaces-lanes-lifecycle.md",
-      "sha256": "59e2829529bb4a5ffc70f2b748e7937aef1b660c9d2fc3b91b7173c29e3f5859",
-      "bytes": 6923
+      "sha256": "85d48de9adf1b87d039e329b028e4a56b0fd20ecd5ad80c77f6106983845cc9b",
+      "bytes": 7513
     },
     {
       "path": "docs/de/rmt-reference-validation-transitions.md",
@@ -201,8 +201,8 @@
     },
     {
       "path": "docs/de/xtend-maraca-orchestration.md",
-      "sha256": "d30d639419f5c2f0ceb34b9a1d39abe836e8a2f71a8f4337eaa73c14c5d59f9a",
-      "bytes": 6154
+      "sha256": "1937389faef03a7c32bb20ae58afd6bcaf6270e02f72c6656f96cae107ab4951",
+      "bytes": 7279
     },
     {
       "path": "docs/de/xtendrmt-app-dsl.md",

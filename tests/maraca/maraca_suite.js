@@ -1,6 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const { spawnSync } = require('child_process');
 const {
   createSuiteContext,
@@ -46,16 +47,6 @@ const {
 const {
   listenXtendDevServer
 } = require('../../scripts/serve_xtend_dev');
-const {
-  RMT_KERNEL_FEATURE_ADOPTION_SCHEMA,
-  RMT_KERNEL_FEATURE_ADOPTION_REPORT_SCHEMA,
-  RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS,
-  createRmtKernelFeatureAdoptionRegistry
-} = require('../../xtendrmt/rmt-kernel-feature-adoption-registry');
-const {
-  createRmtKernelOrchestrationController
-} = require('../../xtendrmt/rmt-kernel-orchestration-controller');
-
 const MARACA_MODULE_PATH = 'xtend-maraca/index.js';
 const MARACA_RUNTIME_PATH = 'xtend-maraca/runtime.js';
 const MARACA_PACKAGE_PATH = 'xtend-maraca/package.json';
@@ -77,6 +68,7 @@ const MARACA_VALIDATION_OUT_DIR = '.xtend-build/maraca/validation';
 const MARACA_TRANSITIONS_OUT_DIR = '.xtend-build/maraca/transitions';
 const MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS = 90;
 const MARACA_KERNEL_INTEGRITY_BROWSER_KILL_AFTER_SECONDS = 10;
+const maracaEsmModuleCache = new Map();
 const MARACA_SUITES = [
   'maraca-plan',
   'maraca-bundle',
@@ -93,6 +85,24 @@ const MARACA_SUITES = [
   'maraca-pwa-service-worker'
 ];
 
+async function importRepoEsmModule(relativePath, rootDir) {
+  const absolutePath = resolveRepoPath(relativePath, rootDir);
+  const moduleUrl = pathToFileURL(absolutePath).href;
+  if (!maracaEsmModuleCache.has(moduleUrl)) {
+    maracaEsmModuleCache.set(moduleUrl, import(moduleUrl).then((moduleApi) => moduleApi.default || moduleApi));
+  }
+  return maracaEsmModuleCache.get(moduleUrl);
+}
+
+function loadRmtKernelFeatureAdoptionApi(rootDir) {
+  return importRepoEsmModule('xtendrmt/rmt-kernel-feature-adoption-registry.js', rootDir);
+}
+
+async function loadRmtKernelOrchestrationControllerApi(rootDir) {
+  await loadRmtKernelFeatureAdoptionApi(rootDir);
+  return importRepoEsmModule('xtendrmt/rmt-kernel-orchestration-controller.js', rootDir);
+}
+
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
 }
@@ -101,15 +111,19 @@ function capabilityKeySignature(value) {
   return Array.isArray(value) ? value.join('|') : '';
 }
 
-function assertKernelFeatureAdoptionReport(context, report, label) {
-  context.assert(report && report.schema === RMT_KERNEL_FEATURE_ADOPTION_REPORT_SCHEMA, `${label} uses kernel feature adoption report schema`);
-  context.assert(report && report.contract === RMT_KERNEL_FEATURE_ADOPTION_SCHEMA, `${label} references kernel feature adoption contract`);
+function assertKernelFeatureAdoptionReport(context, report, label, kernelFeatureAdoptionApi) {
+  const featureAdoptionSchema = kernelFeatureAdoptionApi && kernelFeatureAdoptionApi.RMT_KERNEL_FEATURE_ADOPTION_SCHEMA;
+  const featureAdoptionReportSchema = kernelFeatureAdoptionApi && kernelFeatureAdoptionApi.RMT_KERNEL_FEATURE_ADOPTION_REPORT_SCHEMA;
+  const featureAdoptionCapabilityKeys = kernelFeatureAdoptionApi && kernelFeatureAdoptionApi.RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS || [];
+  context.assert(Boolean(kernelFeatureAdoptionApi), `${label} loads kernel feature adoption registry contract`);
+  context.assert(report && report.schema === featureAdoptionReportSchema, `${label} uses kernel feature adoption report schema`);
+  context.assert(report && report.contract === featureAdoptionSchema, `${label} references kernel feature adoption contract`);
   context.assert(
-    capabilityKeySignature(report && report.capabilityKeys) === capabilityKeySignature(RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS),
+    capabilityKeySignature(report && report.capabilityKeys) === capabilityKeySignature(featureAdoptionCapabilityKeys),
     `${label} exposes the shared kernel feature capability keys`
   );
   context.assert(
-    report && Array.isArray(report.capabilities) && report.capabilities.length === RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS.length,
+    report && Array.isArray(report.capabilities) && report.capabilities.length === featureAdoptionCapabilityKeys.length,
     `${label} exposes every kernel feature capability`
   );
   context.assert(
@@ -604,6 +618,7 @@ async function runMaracaBundleSuite(options = {}) {
     id: 'maraca-bundle',
     label: 'XTend Maraca Bundle'
   });
+  const kernelFeatureAdoptionApi = await loadRmtKernelFeatureAdoptionApi(rootDir);
   const result = await buildFixtureAsync(rootDir);
   const entryPath = result.bundleReport && result.bundleReport.entry;
   const reportPath = resolveRepoPath(`${MARACA_OUT_DIR}/xtend.maraca.report.json`, rootDir);
@@ -630,8 +645,8 @@ async function runMaracaBundleSuite(options = {}) {
   context.assert(report && report.orchestration && report.orchestration.artifactSchema === 'xtend.rmt.app-orchestration.v1', 'bundle report mirrors orchestration artifact schema');
   context.assert(report && report.kernel && report.kernel.enabled === true, 'bundle report records enabled auto kernel integration');
   context.assert(report && report.kernel && report.kernel.recordsSchema === 'xtend.rmt.vnext.kernel-records.v1', 'bundle report mirrors kernel records schema');
-  assertKernelFeatureAdoptionReport(context, report && report.kernelFeatureAdoption, 'bundle report kernelFeatureAdoption');
-  assertKernelFeatureAdoptionReport(context, report && report.kernel && report.kernel.featureAdoption, 'bundle report kernel.featureAdoption');
+  assertKernelFeatureAdoptionReport(context, report && report.kernelFeatureAdoption, 'bundle report kernelFeatureAdoption', kernelFeatureAdoptionApi);
+  assertKernelFeatureAdoptionReport(context, report && report.kernel && report.kernel.featureAdoption, 'bundle report kernel.featureAdoption', kernelFeatureAdoptionApi);
   assertProductionClosureReport(context, report && report.productionClosure, 'bundle report productionClosure');
   assertProductionClosureReport(context, report && report.kernelFeatureAdoptionClosure, 'bundle report kernelFeatureAdoptionClosure');
   assertKernelProductSurfaceReport(context, report && report.kernel && report.kernel.productSurface, 'bundle report kernel.productSurface', 'direct');
@@ -944,6 +959,14 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     id: 'maraca-kernel-orchestration',
     label: 'XTend Maraca Kernel Orchestration'
   });
+  const kernelFeatureAdoptionApi = await loadRmtKernelFeatureAdoptionApi(rootDir);
+  const {
+    RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS,
+    createRmtKernelFeatureAdoptionRegistry
+  } = kernelFeatureAdoptionApi;
+  const {
+    createRmtKernelOrchestrationController
+  } = await loadRmtKernelOrchestrationControllerApi(rootDir);
   const strictPlan = planKernelOrchestrationFixture(rootDir);
   const productSurfacePlan = planKernelOrchestrationFixture(rootDir, {
     kernelBootMode: 'productSurface',
@@ -1045,9 +1068,9 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   context.assert(report && report.kernel && report.kernel.security && report.kernel.security.panicRecovery && report.kernel.security.panicRecovery.status === 'available', 'kernel bundle report marks Panic/Recovery available');
   context.assert(report && report.kernel && report.kernel.security && report.kernel.security.policyParity && report.kernel.security.policyParity.driftCount === 0, 'kernel bundle report kernel.security records zero Policy Parity drift');
   context.assert(report && report.kernel && report.kernel.security && report.kernel.security.trustedDom && report.kernel.security.trustedDom.status === 'guarded', 'kernel bundle report marks Trusted DOM guarded');
-  assertKernelFeatureAdoptionReport(context, strictPlan.kernel.featureAdoption, 'strict kernel plan featureAdoption');
-  assertKernelFeatureAdoptionReport(context, report && report.kernelFeatureAdoption, 'kernel bundle report featureAdoption');
-  assertKernelFeatureAdoptionReport(context, report && report.kernel && report.kernel.featureAdoption, 'kernel bundle kernel.featureAdoption');
+  assertKernelFeatureAdoptionReport(context, strictPlan.kernel.featureAdoption, 'strict kernel plan featureAdoption', kernelFeatureAdoptionApi);
+  assertKernelFeatureAdoptionReport(context, report && report.kernelFeatureAdoption, 'kernel bundle report featureAdoption', kernelFeatureAdoptionApi);
+  assertKernelFeatureAdoptionReport(context, report && report.kernel && report.kernel.featureAdoption, 'kernel bundle kernel.featureAdoption', kernelFeatureAdoptionApi);
   assertProductionClosureReport(context, report && report.productionClosure, 'kernel bundle report productionClosure', report && report.profile || 'production');
   assertProductionClosureReport(context, report && report.kernelFeatureAdoptionClosure, 'kernel bundle report kernelFeatureAdoptionClosure', report && report.profile || 'production');
   assertKernelProductSurfaceReport(context, strictPlan.kernel.productSurface, 'strict kernel plan productSurface', 'direct');
@@ -1136,7 +1159,7 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     documentTarget: null
   });
   const sourceControllerSnapshot = sourceController.boot();
-  assertKernelFeatureAdoptionReport(context, sourceControllerSnapshot && sourceControllerSnapshot.featureAdoption, 'kernel orchestration controller snapshot featureAdoption');
+  assertKernelFeatureAdoptionReport(context, sourceControllerSnapshot && sourceControllerSnapshot.featureAdoption, 'kernel orchestration controller snapshot featureAdoption', kernelFeatureAdoptionApi);
   context.assert(sourceControllerSnapshot.prewarmWorker && sourceControllerSnapshot.prewarmWorker.schema === 'xtend.rmt.prewarm-worker-topology.v1', 'kernel orchestration controller exposes Prewarm Worker topology schema');
   context.assert(sourceControllerSnapshot.prewarmWorker && sourceControllerSnapshot.prewarmWorker.enabled === false, 'kernel orchestration controller leaves Prewarm Worker disabled by default');
   context.assert(
@@ -1233,11 +1256,13 @@ function findChromiumExecutable() {
     if (process.env.XTEND_ALLOW_SNAP_CHROMIUM !== '1') {
       try {
         const source = fs.existsSync(resolvedCandidate) ? fs.readFileSync(resolvedCandidate, 'utf8') : '';
+        if (resolvedCandidate.startsWith('/snap/')) return false;
         if (source.includes('/snap/bin/chromium')) return false;
         if (fs.realpathSync(resolvedCandidate).includes('/snap/')) return false;
       } catch (_) {}
     }
     const probe = spawnSync(candidate, ['--version'], { encoding: 'utf8', timeout: 5000 });
+    if (/snap-confine|cap_dac_override/u.test(`${probe.stderr || ''}${probe.error && probe.error.message || ''}`)) return false;
     return probe.status === 0;
   }) || null;
 }

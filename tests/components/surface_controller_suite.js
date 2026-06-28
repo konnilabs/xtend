@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const {
   createSuiteContext,
   printSuiteReport
@@ -82,8 +83,18 @@ function createStateProbe() {
   };
 }
 
-function exerciseRuntime(context, rootDir) {
-  const runtime = require(resolveRepoPath(SURFACE_CONTROLLER_RUNTIME, rootDir));
+async function importEsm(rootDir, relativePath) {
+  return import(pathToFileURL(resolveRepoPath(relativePath, rootDir)).href);
+}
+
+async function loadSurfaceControllerRuntime(rootDir) {
+  const moduleApi = await importEsm(rootDir, SURFACE_CONTROLLER_RUNTIME);
+  if (moduleApi && typeof moduleApi.createSurfaceController === 'function') return moduleApi;
+  return globalThis.XTendSurfaceController || {};
+}
+
+async function exerciseRuntime(context, rootDir) {
+  const runtime = await loadSurfaceControllerRuntime(rootDir);
   const fixture = readJson('tests/fixtures/rmt-surface-manager-workbench.rmt', rootDir);
   const state = createStateProbe();
   const fabricEvents = [];
@@ -231,7 +242,7 @@ function exerciseRuntime(context, rootDir) {
   context.assert(state.get('xtend.surface.snapshot').surfaceCount === 0, 'Dispose mirrors empty snapshot');
 }
 
-function runSurfaceControllerSuite(options = {}) {
+async function runSurfaceControllerSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
     id: 'surface-controller',
@@ -345,7 +356,7 @@ function runSurfaceControllerSuite(options = {}) {
     context.assert(!runtimeText.includes(forbidden), `Runtime source omits DOM dependency: ${forbidden}`);
   });
 
-  exerciseRuntime(context, rootDir);
+  await exerciseRuntime(context, rootDir);
 
   context.assert(metadata && metadata.schema === SURFACE_CONTROLLER_SCHEMA, 'Package metadata exposes Surface Controller schema');
   context.assert(metadata && metadata.workpackage === SURFACE_CONTROLLER_WORKPACKAGE, 'Package metadata exposes WP-SM-02');
@@ -412,7 +423,13 @@ module.exports = {
 };
 
 if (require.main === module) {
-  const result = runSurfaceControllerSuite();
-  printSurfaceControllerReport(result);
-  process.exit(result.ok ? 0 : 1);
+  runSurfaceControllerSuite()
+    .then((result) => {
+      printSurfaceControllerReport(result);
+      process.exit(result.ok ? 0 : 1);
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
 }

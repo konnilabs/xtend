@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const {
   createSuiteContext,
   printSuiteReport
@@ -46,10 +47,20 @@ function surfaceById(snapshot, id) {
   return (snapshot.surfaces || []).find((surface) => surface.id === id);
 }
 
-function exerciseControllerReregisterPreserve(context, rootDir) {
+async function importEsm(rootDir, relativePath) {
+  return import(pathToFileURL(resolveRepoPath(relativePath, rootDir)).href);
+}
+
+async function loadSurfaceControllerRuntime(rootDir) {
+  const moduleApi = await importEsm(rootDir, 'components/xsurfacemanager-controller.js');
+  if (moduleApi && typeof moduleApi.createSurfaceController === 'function') return moduleApi;
+  return globalThis.XTendSurfaceController || {};
+}
+
+async function exerciseControllerReregisterPreserve(context, rootDir) {
   const {
     createSurfaceController
-  } = require(resolveRepoPath('components/xsurfacemanager-controller.js', rootDir));
+  } = await loadSurfaceControllerRuntime(rootDir);
   const state = createStateProbe();
   const controller = createSurfaceController({
     managerId: 'epic18.manager',
@@ -149,7 +160,7 @@ function exerciseControllerReregisterPreserve(context, rootDir) {
   context.assert(afterPanel && afterPanel.bounds.width === beforePanel.bounds.width && afterPanel.bounds.height === beforePanel.bounds.height, 'Controller re-register preserves side-panel bounds');
 }
 
-function runEpic18VendorBugfixSmokeSuite(options = {}) {
+async function runEpic18VendorBugfixSmokeSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
     id: 'epic18-vendor-bugfix-smokes',
@@ -227,7 +238,7 @@ function runEpic18VendorBugfixSmokeSuite(options = {}) {
     'record.placement = previous.placement;',
     'record.mode = previous.mode;'
   ], 'Surface Controller re-register preserve contract');
-  exerciseControllerReregisterPreserve(context, rootDir);
+  await exerciseControllerReregisterPreserve(context, rootDir);
 
   assertTextIncludesAll(context, fixture, [
     EPIC18_VENDOR_BUGFIX_BROWSER_SCHEMA,
@@ -277,9 +288,15 @@ function printEpic18VendorBugfixSmokeReport(result) {
 }
 
 if (require.main === module) {
-  const result = runEpic18VendorBugfixSmokeSuite();
-  printEpic18VendorBugfixSmokeReport(result);
-  if (!result.ok) process.exit(1);
+  runEpic18VendorBugfixSmokeSuite()
+    .then((result) => {
+      printEpic18VendorBugfixSmokeReport(result);
+      if (!result.ok) process.exit(1);
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
 }
 
 module.exports = {

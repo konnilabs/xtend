@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-keymap component fixture</title>
+</head>
+<body>
+  <x-keymap
+    id="component-keymap"
+    title="Keyboard shortcuts"
+    locale="en"
+    platform="mac"
+    open></x-keymap>
+  <script>
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.__xtendKeymapEvents = [];
+    document.addEventListener('xkeymap-close', (event) => {
+      window.__xtendKeymapEvents.push(event.detail);
+    });
+  </script>
+  <script type="module" src="/components/xkeymap.js"></script>
+  <script type="module">
+    const result = window.__xtendComponentResult;
+    const record = (name, passed, detail = {}) => {
+      result.checks.push({ name, passed, detail });
+      if (!passed) result.errors.push(name);
+    };
+
+    await customElements.whenDefined('x-keymap');
+    const keymap = document.getElementById('component-keymap');
+    keymap.entries = [
+      { id: 'global.save', label: 'Save', sequence: ['Mod', 'S'], group: 'file' },
+      { id: 'navigation.go-to-file', label: 'Go to file', sequence: ['G', 'F'], group: 'navigation' }
+    ];
+    keymap.open();
+    const surface = keymap.shadowRoot.querySelector('.x-keymap__surface');
+    keymap.close('fixture');
+
+    record('custom element defined', customElements.get('x-keymap') != null);
+    record('dialog surface rendered', surface && surface.getAttribute('role') === 'dialog');
+    record('entries rendered', keymap.shadowRoot.querySelectorAll('.x-keymap__command').length === 2);
+    record('close event emitted', window.__xtendKeymapEvents.some((entry) => entry.reason === 'fixture'));
+
+    result.status = result.errors.length === 0 ? 'passed' : 'failed';
+  </script>
+</body>
+</html>

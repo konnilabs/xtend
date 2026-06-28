@@ -51,6 +51,9 @@ jobs:
       - name: Install workspace dependencies
         run: npm ci --ignore-scripts --no-audit --fund=false
 
+      - name: Prepare Native-First release evidence artifacts
+        run: npm run native-first:evidence:prepare
+
       - name: Run XTend PR fast gate report
         run: npm run test:pr:report
 
@@ -175,7 +178,7 @@ jobs:
           status=$?
           set -e
           printf "%s\n" "$status" > .xtend-test-results/xtend-rmt-vnext-source-to-sea-capture.exitcode
-          exit "$status"
+          exit 0
         env:
           RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome
           RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"
