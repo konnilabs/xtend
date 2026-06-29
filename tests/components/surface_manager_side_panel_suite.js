@@ -155,6 +155,7 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'expandSurface(id, mode = \'docked\')',
     'dockSurface(id, placement = \'right\', mode = \'docked\')',
     'x-side-panel[surface-id=',
+    'surface-bounds-container',
     'no-rmt-kernel-import-of-xtend-types'
   ], 'x-surface-manager side-panel bridge');
 
@@ -187,6 +188,15 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'mode="pinned"',
     'collapsed',
     'fullscreen-under-720',
+    'initial-x',
+    'initial-y',
+    'bounds-mode',
+    'bounds-scope',
+    '_initialBoundsCss()',
+    'sidePanelCssLength',
+    'initial-min-width',
+    'initial-max-height',
+    'syncSidePanelBoundsContainerScope',
     'prefers-reduced-motion',
     'forced-colors',
     'no-rmt-kernel-import-of-xtend-types'
@@ -199,6 +209,8 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'collapsible',
     'closable',
     'pinnable',
+    "'bounds-mode'",
+    "'bounds-scope'",
     'toSurfaceRecord',
     'applySurfaceSnapshot',
     'minimizePanel',

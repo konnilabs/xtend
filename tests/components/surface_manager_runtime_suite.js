@@ -174,6 +174,8 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'slot name="windows"',
     'slot name="panels"',
     'slot name="overlays"',
+    'surface-bounds-container',
+    'container-type: inline-size',
     'surface-layout-changed',
     'no-rmt-kernel-import-of-xtend-types'
   ], 'x-surface-manager runtime');
@@ -195,6 +197,14 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'initial-y',
     'initial-width',
     'initial-height',
+    'initial-min-width',
+    'initial-max-height',
+    'bounds-mode',
+    'bounds-scope',
+    '_initialBoundsCss()',
+    'surfaceCssLength',
+    'syncSurfaceBoundsContainerScope',
+    'getBoundingClientRect',
     'pointerdown',
     'ArrowLeft',
     'prefers-reduced-motion',

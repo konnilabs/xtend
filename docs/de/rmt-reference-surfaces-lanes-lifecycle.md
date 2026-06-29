@@ -34,6 +34,8 @@ Surfaces beschreiben UI-Flächen. Lanes planen Arbeit. Lifecycle-Operationen bes
 
 `lane` steht direkt in `surface`. Lifecycle-Operationen und `stream` stehen in `lane` oder `slot`. `slot`, `on`, `trust`, `hydration`, `resumability`, `isolation` und `sanitize` stehen in Policy-Blöcken von Lifecycle-Operationen.
 
+`bounds` bleibt standardmäßig pixelgenau; responsive Bounds sind opt-in und akzeptieren gequotete CSS-native Größen, zum Beispiel `bounds mode responsive scope viewport x "1rem" y "1rem" width "clamp(20rem, 70vi, 52rem)" height "min(80dvh, 42rem)" minWidth "18rem" maxHeight "48rem"`.
+
 ## Parameters
 
 Targets sind Identifier. Sources folgen `from <kind> <target>`. Conditions folgen `when`. Policy-Blöcke verwenden geschweifte Klammern.

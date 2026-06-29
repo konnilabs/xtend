@@ -26,6 +26,11 @@ const RMT_KERNEL_RECORDS_SCHEMA = 'xtend.rmt.vnext.kernel-records.v1';
 const RMT_APP_PLATFORM_RECORDS_SCHEMA = 'xtend.rmt.vnext.app-platform-records.v1';
 const RMT_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-host-runtime-types';
 const RMT_VNEXT_RESOURCE_OWNER_KINDS = new Set(['overlay', 'surface']);
+const SURFACE_BOUNDS_GEOMETRY_FIELDS = new Set(['x', 'y', 'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight']);
+const SURFACE_BOUNDS_MODES = new Set(['fixed', 'responsive']);
+const SURFACE_BOUNDS_SCOPES = new Set(['viewport', 'container']);
+const SURFACE_BOUNDS_CSS_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
+const SURFACE_BOUNDS_CSS_UNITS = '(?:px|rem|em|ch|ex|cap|ic|lh|rlh|vw|vh|vi|vb|vmin|vmax|svw|svh|svi|svb|lvw|lvh|lvi|lvb|dvw|dvh|dvi|dvb|cqw|cqh|cqi|cqb|cqmin|cqmax|%)';
 const PRIMITIVE_DECLARATION_TYPES = new Set([
   'RmtStateDeclaration',
   'RmtSelectorDeclaration',
@@ -400,6 +405,118 @@ function compileInlinePrimitiveFields(fields) {
     }
     return result;
   }, {});
+}
+
+function createCompilerDiagnostic(code, message, node, severity = 'error', detail = {}) {
+  return {
+    code,
+    severity,
+    message,
+    range: cloneRange(node && node.range),
+    ...detail
+  };
+}
+
+function isQuotedPrimitiveValue(value) {
+  return Boolean(value && value.kind === 'literal' && typeof value.value === 'string');
+}
+
+function isSurfaceBoundsCssLength(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return true;
+  if (new RegExp(`^-?\\d+(?:\\.\\d+)?${SURFACE_BOUNDS_CSS_UNITS}$`, 'u').test(raw)) return true;
+  const functionMatch = raw.match(/^([a-zA-Z][a-zA-Z0-9_-]*)\((.*)\)$/u);
+  if (!functionMatch) return false;
+  const functionName = functionMatch[1].toLowerCase();
+  const body = functionMatch[2].trim();
+  if (!SURFACE_BOUNDS_CSS_FUNCTIONS.has(functionName) || !body) return false;
+  if (/[;{}]/u.test(body)) return false;
+  if (/url\s*\(|var\s*\(|env\s*\(|attr\s*\(/iu.test(body)) return false;
+  return /^[0-9A-Za-z\s.,+\-*/()%]+$/u.test(body)
+    && new RegExp(`(?:\\d|${SURFACE_BOUNDS_CSS_UNITS})`, 'u').test(body);
+}
+
+function compileSurfaceBoundsClause(boundsNode, compiler = null) {
+  const fields = toArray(boundsNode && boundsNode.fields);
+  const raw = fields.reduce((result, field) => {
+    if (field && field.key) {
+      result[field.key] = {
+        value: primitiveValueToCore(field.value),
+        node: field.value || field.keyNode || boundsNode,
+        quoted: isQuotedPrimitiveValue(field.value)
+      };
+    }
+    return result;
+  }, {});
+
+  const mode = raw.mode ? String(raw.mode.value || '').trim() || 'fixed' : 'fixed';
+  const scope = raw.scope ? String(raw.scope.value || '').trim() || 'viewport' : 'viewport';
+  const responsive = mode === 'responsive';
+  const bounds = {};
+
+  function addDiagnostic(code, message, entry, detail = {}) {
+    if (compiler && typeof compiler.addDiagnostic === 'function') {
+      compiler.addDiagnostic(createCompilerDiagnostic(code, message, entry && entry.node || boundsNode, 'error', detail));
+    }
+  }
+
+  if (!SURFACE_BOUNDS_MODES.has(mode)) {
+    addDiagnostic('rmt.vnext.surface.bounds.mode_invalid', `Surface bounds mode "${mode}" is not supported.`, raw.mode, { mode });
+  } else if (raw.mode) {
+    bounds.mode = mode;
+  }
+
+  if (!SURFACE_BOUNDS_SCOPES.has(scope)) {
+    addDiagnostic('rmt.vnext.surface.bounds.scope_invalid', `Surface bounds scope "${scope}" is not supported.`, raw.scope, { scope });
+  } else if (raw.scope) {
+    bounds.scope = scope;
+  }
+
+  SURFACE_BOUNDS_GEOMETRY_FIELDS.forEach((fieldName) => {
+    const entry = raw[fieldName];
+    if (!entry) return;
+    const value = entry.value;
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      bounds[fieldName] = value;
+      return;
+    }
+    if (!responsive) {
+      addDiagnostic(
+        'rmt.vnext.surface.bounds.fixed_requires_number',
+        `Fixed surface bounds field "${fieldName}" must be numeric.`,
+        entry,
+        { field: fieldName }
+      );
+      return;
+    }
+    if (!entry.quoted) {
+      addDiagnostic(
+        'rmt.vnext.surface.bounds.css_value_unquoted',
+        `Responsive surface bounds field "${fieldName}" must quote CSS length values.`,
+        entry,
+        { field: fieldName }
+      );
+      return;
+    }
+    if (!isSurfaceBoundsCssLength(value)) {
+      addDiagnostic(
+        'rmt.vnext.surface.bounds.css_value_invalid',
+        `Responsive surface bounds field "${fieldName}" has an invalid CSS length value.`,
+        entry,
+        { field: fieldName }
+      );
+      return;
+    }
+    bounds[fieldName] = String(value).trim();
+  });
+
+  Object.keys(raw).forEach((key) => {
+    if (key === 'mode' || key === 'scope' || SURFACE_BOUNDS_GEOMETRY_FIELDS.has(key)) return;
+    bounds[key] = raw[key].value;
+  });
+
+  return bounds;
 }
 
 function compileInitialBlock(node) {
@@ -1676,6 +1793,8 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     initialY: 'initial-y',
     initialWidth: 'initial-width',
     initialHeight: 'initial-height',
+    boundsMode: 'bounds-mode',
+    boundsScope: 'bounds-scope',
     responsiveMode: 'responsive-mode',
     submitCommand: 'submit-command',
     submitOnEnter: 'submit-on-enter'
@@ -1689,11 +1808,19 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   if (component === 'x-surface-window' || component === 'x-side-panel' || component === 'x-surface-region') {
     attributes['data-surface-id'] = literal(surface.id);
   }
+  if ((component === 'x-surface-window' || component === 'x-side-panel' || component === 'x-surface-region') && surface.bounds) {
+    if (!attributes['initial-x'] && surface.bounds.x !== undefined) attributes['initial-x'] = literal(surface.bounds.x);
+    if (!attributes['initial-y'] && surface.bounds.y !== undefined) attributes['initial-y'] = literal(surface.bounds.y);
+    if (!attributes['initial-width'] && surface.bounds.width !== undefined) attributes['initial-width'] = literal(surface.bounds.width);
+    if (!attributes['initial-height'] && surface.bounds.height !== undefined) attributes['initial-height'] = literal(surface.bounds.height);
+    if (!attributes['initial-min-width'] && surface.bounds.minWidth !== undefined) attributes['initial-min-width'] = literal(surface.bounds.minWidth);
+    if (!attributes['initial-min-height'] && surface.bounds.minHeight !== undefined) attributes['initial-min-height'] = literal(surface.bounds.minHeight);
+    if (!attributes['initial-max-width'] && surface.bounds.maxWidth !== undefined) attributes['initial-max-width'] = literal(surface.bounds.maxWidth);
+    if (!attributes['initial-max-height'] && surface.bounds.maxHeight !== undefined) attributes['initial-max-height'] = literal(surface.bounds.maxHeight);
+    if (!attributes['bounds-mode'] && surface.bounds.mode) attributes['bounds-mode'] = literal(surface.bounds.mode);
+    if (!attributes['bounds-scope'] && surface.bounds.scope) attributes['bounds-scope'] = literal(surface.bounds.scope);
+  }
   if (component === 'x-surface-window' && surface.bounds) {
-    if (!attributes['initial-x'] && Number.isFinite(surface.bounds.x)) attributes['initial-x'] = literal(surface.bounds.x);
-    if (!attributes['initial-y'] && Number.isFinite(surface.bounds.y)) attributes['initial-y'] = literal(surface.bounds.y);
-    if (!attributes['initial-width'] && Number.isFinite(surface.bounds.width)) attributes['initial-width'] = literal(surface.bounds.width);
-    if (!attributes['initial-height'] && Number.isFinite(surface.bounds.height)) attributes['initial-height'] = literal(surface.bounds.height);
     if (!attributes.draggable) attributes.draggable = literal(true);
     if (!attributes.resizable) attributes.resizable = literal(true);
   }
@@ -2952,6 +3079,10 @@ class VNextCompiler {
     this.semanticGraph = options.semanticGraph || null;
   }
 
+  addDiagnostic(diagnostic) {
+    if (diagnostic && diagnostic.code) this.diagnostics.push(diagnostic);
+  }
+
   compile() {
     const body = Array.isArray(this.ast && this.ast.body) ? this.ast.body : [];
 
@@ -3063,7 +3194,7 @@ class VNextCompiler {
         target: portalNode.path,
         ref: primitiveRecordId('portal', portalNode.path)
       } : null;
-      record.bounds = boundsNode ? compileInlinePrimitiveFields(boundsNode.fields) : null;
+      record.bounds = boundsNode ? compileSurfaceBoundsClause(boundsNode, this) : null;
       record.preserve = preserveNode ? {
         text: preserveNode.text || '',
         tokens: toArray(preserveNode.tokens)
@@ -3898,12 +4029,14 @@ function compileRmtVNextSource(input = {}, options = {}) {
     };
   }
 
-  const coreDocument = compileRmtVNextAst(parserResult.ast, {
+  const compiler = new VNextCompiler(parserResult.ast, {
     ...options,
     semanticGraph: primitiveSemanticGraph
   });
+  const coreDocument = compiler.compile();
   const coreJson = serializeRmtVNextCore(coreDocument);
-  const diagnostics = parserResult.diagnostics.slice();
+  const compilerDiagnostics = compiler.diagnostics.slice();
+  const diagnostics = parserResult.diagnostics.concat(compilerDiagnostics);
   const primitiveArtifacts = coreDocument.appPlatform ? {
     schema: RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
     workpackage: RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE,
@@ -3945,7 +4078,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
     coreDocument,
     coreJson,
     diagnostics,
-    compilerDiagnostics: []
+    compilerDiagnostics
   };
 }
 

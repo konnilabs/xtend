@@ -174,6 +174,11 @@ function quoteString(value) {
   return JSON.stringify(String(value));
 }
 
+function boundsValueLiteral(value, fallback) {
+  if (value === undefined || value === null || value === '') return String(fallback);
+  return typeof value === 'string' ? quoteString(value) : String(value);
+}
+
 function stripDollarPath(value) {
   return normalizeString(value).replace(/\$/gu, '').replace(/^\.+/u, '');
 }
@@ -540,7 +545,13 @@ function createAppPlatformPrimitiveAuthoringDraft(document = {}) {
     if (surface.portal) lines.push(`    portal ${primitiveName(surface.portal, 'app')}`);
     if (surface.bounds) {
       const bounds = toPlainObject(surface.bounds);
-      lines.push(`    bounds x ${bounds.x || 0} y ${bounds.y || 0} width ${bounds.width || 320} height ${bounds.height || 240}`);
+      const mode = bounds.mode ? ` mode ${safeIdentifier(bounds.mode, 'fixed')}` : '';
+      const scope = bounds.scope ? ` scope ${safeIdentifier(bounds.scope, 'viewport')}` : '';
+      const constraints = ['minWidth', 'minHeight', 'maxWidth', 'maxHeight']
+        .filter((field) => bounds[field] !== undefined && bounds[field] !== null && bounds[field] !== '')
+        .map((field) => `${field} ${boundsValueLiteral(bounds[field], 0)}`)
+        .join(' ');
+      lines.push(`    bounds${mode}${scope} x ${boundsValueLiteral(bounds.x, 0)} y ${boundsValueLiteral(bounds.y, 0)} width ${boundsValueLiteral(bounds.width, 320)} height ${boundsValueLiteral(bounds.height, 240)}${constraints ? ` ${constraints}` : ''}`);
     }
     resourceRefs(surface.resources).forEach((resourceId) => lines.push(`    destroy releases resource ${primitiveName(resourceId, 'resource')}`));
     lines.push('');

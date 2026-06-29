@@ -71,6 +71,7 @@ template ai.minimal {
 - `state`: owned app state; always give `type`.
 - `selector`: view-model from `state`, `datasource` or another supported source.
 - `surface`: UI surface with `kind`, `component`, `portal`, `lane`.
+- `bounds`: fixed numbers stay pixel-exact; `mode responsive` accepts quoted CSS lengths.
 - `lane`: scheduling block; lifecycle operations belong here.
 - `mount`/`hydrate`: render or hydrate targets from static sources.
 - `on ... -> action`: event binding; never call action functions.

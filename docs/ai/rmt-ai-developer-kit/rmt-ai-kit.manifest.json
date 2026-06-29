@@ -42,23 +42,23 @@
     }
   },
   "tokenEstimates": {
-    "compact": 767,
+    "compact": 790,
     "prompts": 220,
     "guardrails": 243
   },
   "recordCounts": {
-    "reference": 30,
+    "reference": 31,
     "recipes": 6,
     "sources": 32
   },
   "artifacts": {
     "rmt-ai-kit.compact.md": {
-      "sha256": "7a0d35e2f0c3b2b4ebf0077ca4f323e2dd541e59851843fac672d4292bb9b55c",
-      "tokenEstimate": 767
+      "sha256": "1aaee75ed68ce5c4c8e23762e837bac65ae25449347a6f69aa39b43df7793a43",
+      "tokenEstimate": 790
     },
     "rmt-ai-kit.reference.jsonl": {
-      "sha256": "29e472dd612406f1df08cc1170621cc362f9f319ed6a19c81a51ba1494535587",
-      "lineCount": 30
+      "sha256": "d757d52a1b2148ae28c4cc450b46bffb5e3835e233a55b734a0341e5f9dd6c73",
+      "lineCount": 31
     },
     "rmt-ai-kit.recipes.jsonl": {
       "sha256": "40def8ea5032e8f975266e928e471f54c9eb7dbb2d7e3ea3d84462540d49c583",
@@ -181,8 +181,8 @@
     },
     {
       "path": "docs/de/rmt-reference-surfaces-lanes-lifecycle.md",
-      "sha256": "85d48de9adf1b87d039e329b028e4a56b0fd20ecd5ad80c77f6106983845cc9b",
-      "bytes": 7513
+      "sha256": "58ed71ebef8b5c829d2d426fb559a6a2b179b749306ba0d29c5021a75f0e21c0",
+      "bytes": 7803
     },
     {
       "path": "docs/de/rmt-reference-validation-transitions.md",

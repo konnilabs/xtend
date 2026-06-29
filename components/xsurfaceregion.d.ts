@@ -12,10 +12,16 @@ export type XSurfaceRegionAttributeName =
   | 'hidden'
   | 'mode'
   | 'placement'
+  | 'bounds-mode'
+  | 'bounds-scope'
   | 'initial-x'
   | 'initial-y'
   | 'initial-width'
   | 'initial-height'
+  | 'initial-min-width'
+  | 'initial-min-height'
+  | 'initial-max-width'
+  | 'initial-max-height'
   | 'role';
 
 export type XSurfaceRegionCommand = 'open' | 'close' | 'focus' | 'restore' | 'update';

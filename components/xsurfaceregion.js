@@ -1,3 +1,84 @@
+const SURFACE_REGION_INITIAL_OPERATIONS = new Set(['register', 'open', 'focus']);
+const SURFACE_REGION_CSS_UNITS = '(?:px|rem|em|ch|ex|cap|ic|lh|rlh|vw|vh|vi|vb|vmin|vmax|svw|svh|svi|svb|lvw|lvh|lvi|lvb|dvw|dvh|dvi|dvb|cqw|cqh|cqi|cqb|cqmin|cqmax|%)';
+const SURFACE_REGION_CSS_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
+
+function isSurfaceRegionCssLength(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return true;
+  if (new RegExp(`^-?\\d+(?:\\.\\d+)?${SURFACE_REGION_CSS_UNITS}$`, 'u').test(raw)) return true;
+  const functionMatch = raw.match(/^([a-zA-Z][a-zA-Z0-9_-]*)\((.*)\)$/u);
+  if (!functionMatch) return false;
+  const functionName = functionMatch[1].toLowerCase();
+  const body = functionMatch[2].trim();
+  if (!SURFACE_REGION_CSS_FUNCTIONS.has(functionName) || !body) return false;
+  if (/[;{}]/u.test(body) || /url\s*\(|var\s*\(|env\s*\(|attr\s*\(/iu.test(body)) return false;
+  return /^[0-9A-Za-z\s.,+\-*/()%]+$/u.test(body);
+}
+
+function surfaceRegionCssLength(value, fallback) {
+  if (value === undefined || value === null || value === '') return `${fallback}px`;
+  if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`;
+  const raw = String(value).trim();
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return `${Number(raw)}px`;
+  return isSurfaceRegionCssLength(raw) ? raw : `${fallback}px`;
+}
+
+function optionalSurfaceRegionCssLength(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`;
+  const raw = String(value).trim();
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return `${Number(raw)}px`;
+  return isSurfaceRegionCssLength(raw) ? raw : null;
+}
+
+function surfaceRegionNumericAttribute(element, name, fallback) {
+  const numeric = Number(element.getAttribute(name));
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function surfaceRegionBoundsContainerHost(element) {
+  const manager = element.closest && element.closest('x-surface-manager');
+  if (manager) return manager;
+  const portal = element.closest && element.closest('x-surface-portal');
+  if (portal) return portal.closest('x-surface-manager') || portal.parentElement || portal;
+  return element.parentElement || null;
+}
+
+function syncSurfaceRegionBoundsContainerScope(element, active) {
+  element.toggleAttribute('data-surface-bounds-scope-container', Boolean(active));
+  const host = active ? surfaceRegionBoundsContainerHost(element) : element._boundsContainerHost || surfaceRegionBoundsContainerHost(element);
+  if (!host || typeof host.setAttribute !== 'function') return;
+  if (active) {
+    element._boundsContainerHost = host;
+    host.setAttribute('surface-bounds-container', '');
+    host.setAttribute('data-surface-bounds-container', 'true');
+    if (host.style && !host.style.getPropertyValue('container-type')) {
+      host.setAttribute('data-surface-bounds-container-type-owner', 'true');
+      host.style.setProperty('container-type', 'inline-size');
+    }
+    if (host.style && !host.style.getPropertyValue('container-name')) {
+      host.setAttribute('data-surface-bounds-container-name-owner', 'true');
+      host.style.setProperty('container-name', 'xtend-surface-bounds');
+    }
+    return;
+  }
+  const hasActiveChild = typeof host.querySelector === 'function' && host.querySelector('[data-surface-bounds-scope-container]');
+  if (host.getAttribute('data-surface-bounds-container') === 'true' && !hasActiveChild) {
+    host.removeAttribute('surface-bounds-container');
+    host.removeAttribute('data-surface-bounds-container');
+    if (host.getAttribute('data-surface-bounds-container-type-owner') === 'true' && host.style) {
+      host.style.removeProperty('container-type');
+      host.removeAttribute('data-surface-bounds-container-type-owner');
+    }
+    if (host.getAttribute('data-surface-bounds-container-name-owner') === 'true' && host.style) {
+      host.style.removeProperty('container-name');
+      host.removeAttribute('data-surface-bounds-container-name-owner');
+    }
+  }
+  if (element._boundsContainerHost === host) element._boundsContainerHost = null;
+}
+
 class XSurfaceRegion extends HTMLElement {
   static get observedAttributes() {
     return [
@@ -9,10 +90,16 @@ class XSurfaceRegion extends HTMLElement {
       'hidden',
       'mode',
       'placement',
+      'bounds-mode',
+      'bounds-scope',
       'initial-x',
       'initial-y',
       'initial-width',
       'initial-height',
+      'initial-min-width',
+      'initial-min-height',
+      'initial-max-width',
+      'initial-max-height',
       'role'
     ];
   }
@@ -81,6 +168,7 @@ class XSurfaceRegion extends HTMLElement {
     super();
     this.surfaceManager = null;
     this._applyingSnapshot = false;
+    this._boundsCommitted = false;
     this._onPointerDown = this.focusRegion.bind(this);
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
@@ -90,11 +178,17 @@ class XSurfaceRegion extends HTMLElement {
           --surface-region-y: 0px;
           --surface-region-width: auto;
           --surface-region-height: auto;
+          --surface-region-min-width: 0;
+          --surface-region-min-height: 0;
+          --surface-region-max-width: none;
+          --surface-region-max-height: none;
           --surface-region-z: 0;
           display: block;
           position: relative;
-          min-width: 0;
-          min-height: 0;
+          min-width: var(--surface-region-min-width);
+          min-height: var(--surface-region-min-height);
+          max-width: var(--surface-region-max-width);
+          max-height: var(--surface-region-max-height);
           z-index: var(--surface-region-z);
           box-sizing: border-box;
         }
@@ -136,6 +230,7 @@ class XSurfaceRegion extends HTMLElement {
     if (!this.hasAttribute('kind')) this.setAttribute('kind', this.getAttribute('data-surface-kind') || 'region');
     if (!this.hasAttribute('open') && !this.hasAttribute('hidden')) this.setAttribute('open', '');
     this._syncA11y();
+    this._syncBoundsContainerScope();
     this._applyInitialBounds();
     this.addEventListener('pointerdown', this._onPointerDown);
     this.surfaceManager = this.closest('x-surface-manager');
@@ -146,12 +241,16 @@ class XSurfaceRegion extends HTMLElement {
 
   disconnectedCallback() {
     this.removeEventListener('pointerdown', this._onPointerDown);
+    this._syncBoundsContainerScope(false);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) return;
     if (name === 'label' || name === 'surface-id' || name === 'role') this._syncA11y();
-    if (name.startsWith('initial-')) this._applyInitialBounds();
+    if (name.startsWith('initial-') || name === 'bounds-mode' || name === 'bounds-scope') {
+      if (name === 'bounds-mode' || name === 'bounds-scope') this._syncBoundsContainerScope();
+      this._applyInitialBounds();
+    }
     if (this._applyingSnapshot || !this.isConnected) return;
     if (name === 'open') {
       this.hasAttribute('open') ? this.openRegion() : this.closeRegion('attribute');
@@ -192,7 +291,10 @@ class XSurfaceRegion extends HTMLElement {
       modal: false,
       metadata: {
         source: 'x-surface-region',
-        surfaceKind: this.kind
+        surfaceKind: this.kind,
+        boundsMode: this._boundsMode(),
+        boundsScope: this._boundsScope(),
+        initialBoundsCss: this._initialBoundsCss()
       }
     };
   }
@@ -200,10 +302,16 @@ class XSurfaceRegion extends HTMLElement {
   applySurfaceSnapshot(record) {
     this._applyingSnapshot = true;
     const bounds = record.bounds || this._readBounds();
-    this.style.setProperty('--surface-region-x', `${Number(bounds.x) || 0}px`);
-    this.style.setProperty('--surface-region-y', `${Number(bounds.y) || 0}px`);
-    this.style.setProperty('--surface-region-width', `${Number(bounds.width) || 640}px`);
-    this.style.setProperty('--surface-region-height', `${Number(bounds.height) || 360}px`);
+    if (!this._preserveResponsiveInitialBounds(record)) {
+      this._boundsCommitted = true;
+      this._clearResponsiveMaxBounds();
+      this.style.setProperty('--surface-region-x', `${Number(bounds.x) || 0}px`);
+      this.style.setProperty('--surface-region-y', `${Number(bounds.y) || 0}px`);
+      this.style.setProperty('--surface-region-width', `${Number(bounds.width) || 640}px`);
+      this.style.setProperty('--surface-region-height', `${Number(bounds.height) || 360}px`);
+      if (bounds.minWidth !== undefined) this.style.setProperty('--surface-region-min-width', `${Number(bounds.minWidth) || 0}px`);
+      if (bounds.minHeight !== undefined) this.style.setProperty('--surface-region-min-height', `${Number(bounds.minHeight) || 0}px`);
+    }
     this.style.setProperty('--surface-region-z', String(record.zIndex || 0));
     this.toggleAttribute('open', record.status !== 'closed');
     this.toggleAttribute('hidden', record.status === 'closed');
@@ -237,21 +345,63 @@ class XSurfaceRegion extends HTMLElement {
 
   _readBounds() {
     return {
-      x: Number(this.getAttribute('initial-x') || 0),
-      y: Number(this.getAttribute('initial-y') || 0),
-      width: Number(this.getAttribute('initial-width') || 640),
-      height: Number(this.getAttribute('initial-height') || 360),
+      x: surfaceRegionNumericAttribute(this, 'initial-x', 0),
+      y: surfaceRegionNumericAttribute(this, 'initial-y', 0),
+      width: surfaceRegionNumericAttribute(this, 'initial-width', 640),
+      height: surfaceRegionNumericAttribute(this, 'initial-height', 360),
       minWidth: 160,
       minHeight: 96
     };
   }
 
+  _boundsMode() {
+    return this.getAttribute('bounds-mode') === 'responsive' ? 'responsive' : 'fixed';
+  }
+
+  _boundsScope() {
+    return this.getAttribute('bounds-scope') === 'container' ? 'container' : 'viewport';
+  }
+
+  _syncBoundsContainerScope(active = this._boundsMode() === 'responsive' && this._boundsScope() === 'container') {
+    syncSurfaceRegionBoundsContainerScope(this, active);
+  }
+
+  _initialBoundsCss() {
+    return {
+      x: surfaceRegionCssLength(this.getAttribute('initial-x'), 0),
+      y: surfaceRegionCssLength(this.getAttribute('initial-y'), 0),
+      width: surfaceRegionCssLength(this.getAttribute('initial-width'), 640),
+      height: surfaceRegionCssLength(this.getAttribute('initial-height'), 360),
+      minWidth: optionalSurfaceRegionCssLength(this.getAttribute('initial-min-width')),
+      minHeight: optionalSurfaceRegionCssLength(this.getAttribute('initial-min-height')),
+      maxWidth: optionalSurfaceRegionCssLength(this.getAttribute('initial-max-width')),
+      maxHeight: optionalSurfaceRegionCssLength(this.getAttribute('initial-max-height'))
+    };
+  }
+
+  _preserveResponsiveInitialBounds(record = {}) {
+    if (this._boundsMode() !== 'responsive' || this._boundsCommitted) return false;
+    const operation = record && record.lifecycle && record.lifecycle.operation || '';
+    return !operation || SURFACE_REGION_INITIAL_OPERATIONS.has(operation);
+  }
+
   _applyInitialBounds() {
     const bounds = this._readBounds();
-    this.style.setProperty('--surface-region-x', `${bounds.x}px`);
-    this.style.setProperty('--surface-region-y', `${bounds.y}px`);
-    this.style.setProperty('--surface-region-width', `${bounds.width}px`);
-    this.style.setProperty('--surface-region-height', `${bounds.height}px`);
+    const cssBounds = this._initialBoundsCss();
+    this.style.setProperty('--surface-region-x', cssBounds.x || `${bounds.x}px`);
+    this.style.setProperty('--surface-region-y', cssBounds.y || `${bounds.y}px`);
+    this.style.setProperty('--surface-region-width', cssBounds.width || `${bounds.width}px`);
+    this.style.setProperty('--surface-region-height', cssBounds.height || `${bounds.height}px`);
+    ['minWidth', 'minHeight', 'maxWidth', 'maxHeight'].forEach((field) => {
+      const property = `--surface-region-${field.replace(/[A-Z]/gu, (match) => `-${match.toLowerCase()}`)}`;
+      if (cssBounds[field]) this.style.setProperty(property, cssBounds[field]);
+      else this.style.removeProperty(property);
+    });
+  }
+
+  _clearResponsiveMaxBounds() {
+    this.style.removeProperty('--surface-region-max-width');
+    this.style.removeProperty('--surface-region-max-height');
   }
 
   _syncA11y(record = null) {

@@ -1,5 +1,4 @@
 import type {
-  XtendSurfaceBounds,
   XtendSurfaceRecord
 } from '../x-surface-manager/surface-record';
 
@@ -31,11 +30,15 @@ export interface XSurfaceWindowLifecycleDetail {
   source: typeof XSURFACE_WINDOW_TAG;
 }
 
-export interface XSurfaceWindowInitialBounds extends Partial<XtendSurfaceBounds> {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+export interface XSurfaceWindowInitialBounds {
+  x: number | string;
+  y: number | string;
+  width: number | string;
+  height: number | string;
+  minWidth?: number | string;
+  minHeight?: number | string;
+  maxWidth?: number | string;
+  maxHeight?: number | string;
 }
 
 export const xSurfaceWindowContract = Object.freeze({
@@ -45,7 +48,7 @@ export const xSurfaceWindowContract = Object.freeze({
   controller: 'xtend.surface.controller.v1',
   runtime: 'components/xsurfacewindow.js',
   declaration: 'components/xsurfacewindow.d.ts',
-  attributes: ['surface-id', 'label', 'open', 'active', 'minimized', 'maximized', 'resizable', 'draggable', 'modal', 'initial-x', 'initial-y', 'initial-width', 'initial-height'],
+  attributes: ['surface-id', 'label', 'open', 'active', 'minimized', 'maximized', 'resizable', 'draggable', 'modal', 'bounds-mode', 'bounds-scope', 'initial-x', 'initial-y', 'initial-width', 'initial-height', 'initial-min-width', 'initial-min-height', 'initial-max-width', 'initial-max-height'],
   commands: ['open', 'close', 'focus', 'move', 'resize', 'minimize', 'maximize', 'restore', 'update'],
   event: 'surface-window-command',
   lifecycleEvent: 'surface-lifecycle-change',

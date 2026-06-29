@@ -1,0 +1,8 @@
+template responsive.bounds.invalidCss {
+  surface css.window kind window component x-surface-window {
+    bounds mode responsive scope viewport x "1rem" y "1rem" width "var(--surface-width)" height "min(80dvh, 42rem)"
+    lane visible {
+      hydrate css-window
+    }
+  }
+}

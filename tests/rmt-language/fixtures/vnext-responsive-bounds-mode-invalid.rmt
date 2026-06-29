@@ -1,0 +1,8 @@
+template responsive.bounds.invalidMode {
+  surface invalidMode.window kind window component x-surface-window {
+    bounds mode elastic scope viewport x 16 y 16 width 320 height 240
+    lane visible {
+      hydrate invalid-mode-window
+    }
+  }
+}

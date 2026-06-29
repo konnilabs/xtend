@@ -47,11 +47,16 @@ const VALID_MINIMAL_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-minimal.r
 const VALID_COMPLEX_FIXTURE = 'tests/rmt-language/fixtures/vnext-valid-complex.rmt';
 const VALID_RESUMABILITY_FIXTURE = 'tests/rmt-language/fixtures/vnext-resumability-valid.rmt';
 const VALID_PRIMITIVE_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
+const VALID_RESPONSIVE_BOUNDS_FIXTURE = 'tests/rmt-language/fixtures/vnext-responsive-bounds-valid.rmt';
 const VALID_MARACA_ORCHESTRATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-orchestration-app.rmt';
 const VALID_MARACA_VALIDATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-validation-app.rmt';
 const VALID_MARACA_TRANSITIONS_FIXTURE = 'tests/rmt-language/fixtures/maraca-transitions-app.rmt';
 const INVALID_PRIMITIVE_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 const INVALID_CONDITION_CALL_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt';
+const INVALID_RESPONSIVE_BOUNDS_FIXED_STRING_FIXTURE = 'tests/rmt-language/fixtures/vnext-responsive-bounds-fixed-string-invalid.rmt';
+const INVALID_RESPONSIVE_BOUNDS_UNQUOTED_FIXTURE = 'tests/rmt-language/fixtures/vnext-responsive-bounds-unquoted-invalid.rmt';
+const INVALID_RESPONSIVE_BOUNDS_CSS_FIXTURE = 'tests/rmt-language/fixtures/vnext-responsive-bounds-css-invalid.rmt';
+const INVALID_RESPONSIVE_BOUNDS_MODE_FIXTURE = 'tests/rmt-language/fixtures/vnext-responsive-bounds-mode-invalid.rmt';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -93,10 +98,15 @@ function runRmtVNextCompilerSuite(options = {}) {
   assertFileExists(context, RMT_VNEXT_COMPILER_SUITE_PATH, rootDir, 'vNext compiler suite exists');
   assertFileExists(context, WP_E15_05_PATH, rootDir, 'WP-E15-05 workpackage document exists');
   assertFileExists(context, VALID_PRIMITIVE_FIXTURE, rootDir, 'vNext primitive compiler fixture exists');
+  assertFileExists(context, VALID_RESPONSIVE_BOUNDS_FIXTURE, rootDir, 'vNext responsive bounds compiler fixture exists');
   assertFileExists(context, VALID_MARACA_ORCHESTRATION_FIXTURE, rootDir, 'Maraca orchestration compiler fixture exists');
   assertFileExists(context, VALID_MARACA_VALIDATION_FIXTURE, rootDir, 'Maraca validation compiler fixture exists');
   assertFileExists(context, VALID_MARACA_TRANSITIONS_FIXTURE, rootDir, 'Maraca transitions compiler fixture exists');
   assertFileExists(context, INVALID_PRIMITIVE_FIXTURE, rootDir, 'vNext primitive invalid compiler fixture exists');
+  assertFileExists(context, INVALID_RESPONSIVE_BOUNDS_FIXED_STRING_FIXTURE, rootDir, 'vNext responsive bounds fixed-string invalid fixture exists');
+  assertFileExists(context, INVALID_RESPONSIVE_BOUNDS_UNQUOTED_FIXTURE, rootDir, 'vNext responsive bounds unquoted invalid fixture exists');
+  assertFileExists(context, INVALID_RESPONSIVE_BOUNDS_CSS_FIXTURE, rootDir, 'vNext responsive bounds css invalid fixture exists');
+  assertFileExists(context, INVALID_RESPONSIVE_BOUNDS_MODE_FIXTURE, rootDir, 'vNext responsive bounds mode invalid fixture exists');
   context.assert(compilerSyntax.ok, `vNext compiler module syntax passes${compilerSyntax.ok ? '' : ` (${compilerSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `vNext compiler suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
 
@@ -206,6 +216,22 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(primitiveResult.orchestrationArtifacts.workpackage === RMT_APP_ORCHESTRATION_WORKPACKAGE, 'primitive orchestration artifact declares workpackage');
   context.assert(primitiveResult.coreJson === parseFixture(VALID_PRIMITIVE_FIXTURE, rootDir).coreJson, 'primitive fixture compiles to byte-stable Core JSON');
 
+  const responsiveBoundsResult = parseFixture(VALID_RESPONSIVE_BOUNDS_FIXTURE, rootDir);
+  const responsiveSurface = responsiveBoundsResult.coreDocument && responsiveBoundsResult.coreDocument.surfaces.find((surface) => surface.name === 'responsive.window');
+  const responsiveDescriptor = responsiveBoundsResult.orchestrationArtifacts && responsiveBoundsResult.orchestrationArtifacts.render.descriptors.find((descriptor) => descriptor.surface === 'responsive.window' || descriptor.component === 'x-surface-window');
+  context.assert(responsiveBoundsResult.ok === true, 'responsive bounds fixture compiles successfully');
+  context.assert(responsiveSurface && responsiveSurface.bounds.mode === 'responsive', 'responsive bounds core preserves mode');
+  context.assert(responsiveSurface && responsiveSurface.bounds.scope === 'viewport', 'responsive bounds core preserves scope');
+  context.assert(responsiveSurface && responsiveSurface.bounds.width === 'clamp(20rem, 70vi, 52rem)', 'responsive bounds core preserves CSS width');
+  context.assert(responsiveSurface && responsiveSurface.bounds.height === 'min(80dvh, 42rem)', 'responsive bounds core preserves CSS height');
+  context.assert(responsiveSurface && responsiveSurface.bounds.minWidth === '18rem', 'responsive bounds core preserves CSS minWidth');
+  context.assert(responsiveSurface && responsiveSurface.bounds.maxHeight === '48rem', 'responsive bounds core preserves CSS maxHeight');
+  context.assert(responsiveDescriptor && responsiveDescriptor.attributes['bounds-mode'].value === 'responsive', 'responsive bounds descriptor emits bounds-mode');
+  context.assert(responsiveDescriptor && responsiveDescriptor.attributes['bounds-scope'].value === 'viewport', 'responsive bounds descriptor emits bounds-scope');
+  context.assert(responsiveDescriptor && responsiveDescriptor.attributes['initial-width'].value === 'clamp(20rem, 70vi, 52rem)', 'responsive bounds descriptor emits CSS initial width');
+  context.assert(responsiveDescriptor && responsiveDescriptor.attributes['initial-min-width'].value === '18rem', 'responsive bounds descriptor emits CSS initial min width');
+  context.assert(responsiveDescriptor && responsiveDescriptor.attributes['initial-max-height'].value === '48rem', 'responsive bounds descriptor emits CSS initial max height');
+
   const maracaOrchestrationResult = parseFixture(VALID_MARACA_ORCHESTRATION_FIXTURE, rootDir);
   const maracaOrchestration = maracaOrchestrationResult.orchestrationArtifacts;
   context.assert(maracaOrchestrationResult.ok === true, 'Maraca orchestration fixture compiles successfully');
@@ -307,6 +333,22 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(invalidResult.ok === false, 'invalid source does not compile');
   context.assert(invalidResult.coreDocument === null, 'invalid source has no core document');
   context.assert(invalidResult.diagnostics.some((diagnostic) => diagnostic.severity === 'error'), 'invalid source propagates diagnostics');
+
+  const invalidFixedBounds = parseFixture(INVALID_RESPONSIVE_BOUNDS_FIXED_STRING_FIXTURE, rootDir);
+  context.assert(invalidFixedBounds.ok === false, 'fixed string bounds fixture does not compile cleanly');
+  context.assert(invalidFixedBounds.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.surface.bounds.fixed_requires_number'), 'fixed string bounds fixture reports fixed_requires_number');
+
+  const invalidUnquotedBounds = parseFixture(INVALID_RESPONSIVE_BOUNDS_UNQUOTED_FIXTURE, rootDir);
+  context.assert(invalidUnquotedBounds.ok === false, 'unquoted responsive bounds fixture does not compile cleanly');
+  context.assert(invalidUnquotedBounds.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.surface.bounds.css_value_unquoted'), 'unquoted responsive bounds fixture reports css_value_unquoted');
+
+  const invalidCssBounds = parseFixture(INVALID_RESPONSIVE_BOUNDS_CSS_FIXTURE, rootDir);
+  context.assert(invalidCssBounds.ok === false, 'invalid CSS responsive bounds fixture does not compile cleanly');
+  context.assert(invalidCssBounds.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.surface.bounds.css_value_invalid'), 'invalid CSS responsive bounds fixture reports css_value_invalid');
+
+  const invalidModeBounds = parseFixture(INVALID_RESPONSIVE_BOUNDS_MODE_FIXTURE, rootDir);
+  context.assert(invalidModeBounds.ok === false, 'invalid bounds mode fixture does not compile cleanly');
+  context.assert(invalidModeBounds.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.surface.bounds.mode_invalid'), 'invalid bounds mode fixture reports mode_invalid');
 
   const unsafeOwnerResult = compileRmtVNextSource({
     text: `template unsafe.owner {

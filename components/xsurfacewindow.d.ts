@@ -12,10 +12,16 @@ export type XSurfaceWindowAttributeName =
   | 'resizable'
   | 'draggable'
   | 'modal'
+  | 'bounds-mode'
+  | 'bounds-scope'
   | 'initial-x'
   | 'initial-y'
   | 'initial-width'
-  | 'initial-height';
+  | 'initial-height'
+  | 'initial-min-width'
+  | 'initial-min-height'
+  | 'initial-max-width'
+  | 'initial-max-height';
 
 export type XSurfaceWindowCommand = 'open' | 'close' | 'focus' | 'move' | 'resize' | 'minimize' | 'maximize' | 'restore' | 'update';
 

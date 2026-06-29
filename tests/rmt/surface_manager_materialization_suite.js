@@ -310,6 +310,7 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     const surfaces = managerElement ? managerElement.children.filter((child) => child.nodeType === 1) : [];
     const tagCounts = countByTag(surfaces);
     const inspector = managerElement && findSurface(managerElement, 'surface.inspector');
+    const editor = managerElement && findSurface(managerElement, 'surface.editor');
     const properties = managerElement && findSurface(managerElement, 'surface.properties');
     const drawer = managerElement && findSurface(managerElement, 'surface.drawer');
     const region = managerElement && findSurface(managerElement, 'surface.summaryCard');
@@ -343,6 +344,9 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     context.assert(inspector && inspector.getAttribute('slot') === 'windows', 'Window surface is assigned to windows slot');
     context.assert(inspector && inspector.getAttribute('open') === '' && inspector.getAttribute('active') === '', 'Inspector carries open and active attributes');
     context.assert(inspector && inspector.getAttribute('initial-x') === '96' && inspector.getAttribute('initial-width') === '520', 'Inspector receives initial bounds');
+    context.assert(editor && editor.getAttribute('bounds-mode') === 'responsive' && editor.getAttribute('bounds-scope') === 'viewport', 'Editor receives responsive bounds mode and scope');
+    context.assert(editor && editor.getAttribute('initial-width') === 'clamp(20rem, 70vi, 52rem)' && editor.getAttribute('initial-height') === 'min(80dvh, 42rem)', 'Editor receives CSS-native responsive bounds');
+    context.assert(editor && editor.getAttribute('initial-min-width') === '18rem' && editor.getAttribute('initial-max-height') === '48rem', 'Editor receives CSS-native responsive bounds constraints');
     context.assert(inspector && inspector.getAttribute('data-rmt-content-ref') === 'inspector.content', 'Inspector keeps content ref');
     context.assert(inspector && inspector.children[0] && inspector.children[0].localName === 'x-code', 'Inspector content component is mounted as child');
     context.assert(inspector && inspector.children[0] && inspector.children[0].getAttribute('data-rmt-component') === 'inspector.content', 'Inspector content child keeps RMT component id');
@@ -363,6 +367,7 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     context.assert(managerElement && managerElement.registered.every((record) => record.manager === 'workbench.manager'), 'Registered records target the materialized manager');
     context.assert(managerElement && managerElement.registered[0].contentRef === 'inspector.content', 'Registered records keep component refs as content refs');
     context.assert(managerElement && managerElement.registered.some((record) => record.type === 'region' && record.kind === 'card'), 'Registered records preserve RMT kind');
+    context.assert(managerElement && managerElement.registered.some((record) => record.id === 'surface.editor' && record.metadata && record.metadata.initialBoundsCss && record.metadata.boundsMode === 'responsive'), 'Registered responsive surface records keep initial bounds css metadata');
 
     const hostileDocument = createFakeDocument();
     const hostileRoot = hostileDocument.createElement('main');

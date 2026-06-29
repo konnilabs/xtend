@@ -797,6 +797,10 @@ class XSurfaceManager extends HTMLElement {
           overflow: hidden;
           isolation: isolate;
         }
+        :host([surface-bounds-container]) {
+          container-type: inline-size;
+          container-name: xtend-surface-bounds;
+        }
         .root {
           position: relative;
           min-height: inherit;

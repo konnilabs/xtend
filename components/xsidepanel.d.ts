@@ -12,6 +12,8 @@ export type XSidePanelAttributeName =
   | 'pinned'
   | 'mode'
   | 'placement'
+  | 'bounds-mode'
+  | 'bounds-scope'
   | 'responsive-mode'
   | 'resizable'
   | 'collapsible'
@@ -20,8 +22,14 @@ export type XSidePanelAttributeName =
   | 'pinnable'
   | 'route-aware'
   | 'modal'
+  | 'initial-x'
+  | 'initial-y'
   | 'initial-width'
-  | 'initial-height';
+  | 'initial-height'
+  | 'initial-min-width'
+  | 'initial-min-height'
+  | 'initial-max-width'
+  | 'initial-max-height';
 
 export type XSidePanelPlacement = 'left' | 'right' | 'bottom' | 'inline';
 export type XSidePanelMode = 'docked' | 'overlay' | 'pinned' | 'collapsed' | 'fullscreen' | 'floating';

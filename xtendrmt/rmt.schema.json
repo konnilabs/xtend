@@ -1917,38 +1917,59 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "fixed",
+            "responsive"
+          ],
+          "default": "fixed"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "viewport",
+            "container"
+          ],
+          "default": "viewport"
+        },
         "x": {
-          "type": "number"
+          "$ref": "#/$defs/surfaceBoundsValue"
         },
         "y": {
-          "type": "number"
+          "$ref": "#/$defs/surfaceBoundsValue"
         },
         "width": {
-          "type": "number",
-          "minimum": 0
+          "$ref": "#/$defs/surfaceBoundsValue"
         },
         "height": {
-          "type": "number",
-          "minimum": 0
+          "$ref": "#/$defs/surfaceBoundsValue"
         },
         "minWidth": {
-          "type": "number",
-          "minimum": 0
+          "$ref": "#/$defs/surfaceBoundsValue"
         },
         "minHeight": {
-          "type": "number",
-          "minimum": 0
+          "$ref": "#/$defs/surfaceBoundsValue"
         },
         "maxWidth": {
-          "type": "number",
-          "minimum": 0
+          "$ref": "#/$defs/surfaceBoundsValue"
         },
         "maxHeight": {
-          "type": "number",
-          "minimum": 0
+          "$ref": "#/$defs/surfaceBoundsValue"
         }
       },
       "default": {}
+    },
+    "surfaceBoundsValue": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
     },
     "surfaceA11y": {
       "type": "object",
