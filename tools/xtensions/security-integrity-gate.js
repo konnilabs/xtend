@@ -67,7 +67,9 @@ const SECURITY_DEPENDENCY_CLASSIFICATIONS = Object.freeze([
   'peer',
   'optional',
   'dev/test',
-  'remote'
+  'remote',
+  'legacy-local-artifact',
+  'product-local-bundled'
 ]);
 
 const SECURITY_BLOCKED_DEPENDENCY_CLASSIFICATIONS = Object.freeze([
@@ -114,7 +116,23 @@ const DEFAULT_ALLOWED_CAPABILITIES = Object.freeze([
   'fabric.lane.background',
   'fabric.lane.animation',
   'imperative.host-bridge',
-  'render.loop.host-fiber'
+  'render.loop.host-fiber',
+  'vanilla.host-controller',
+  'dom.boundary.shadow-root',
+  'dom.boundary.iframe-sandbox',
+  'legacy.sandbox.iframe',
+  'postmessage.bridge.allowlist',
+  'openui5.loader.lazy',
+  'openui5.control.lifecycle',
+  'openui5.model.json',
+  'dom.boundary.host-owned-container',
+  'style.boundary.global-theme-managed',
+  'angular.standalone.bootstrap',
+  'angular.aot.bundle',
+  'angular.signals.model',
+  'angular.zoneless.change-detection',
+  'angular.applicationref.destroy',
+  'style.boundary.host-css-owned'
 ]);
 
 const DEFAULT_SECURITY_GATE_POLICY = Object.freeze({
@@ -325,6 +343,8 @@ function normalizedDependencyClassification(classification) {
   if (normalized === 'optional-peer') return 'optional';
   if (normalized === 'dev' || normalized === 'test') return 'dev/test';
   if (normalized === 'none') return 'core';
+  if (normalized === 'legacy-local-artifact') return 'legacy-local-artifact';
+  if (normalized === 'product-local-bundled') return 'product-local-bundled';
   return normalized;
 }
 
@@ -486,10 +506,32 @@ function evaluateCsp(source, csp, policy, diagnostics) {
 }
 
 function evaluateDependencies(source, dependencies, policy, diagnostics) {
+  const isolation = source && source.isolation && typeof source.isolation === 'object' ? source.isolation : {};
+  const legacySandboxed = normalizeString(isolation.domBoundary || isolation.dom) === 'iframe-sandbox'
+    && normalizeString(isolation.trustBoundary || isolation.trust) === 'sandboxed-adapter';
+  const rawSource = source && source.source && typeof source.source === 'object' ? source.source : source;
+  const policySource = source && source.policy && typeof source.policy === 'object'
+    ? source.policy
+    : rawSource && rawSource.policy && typeof rawSource.policy === 'object'
+      ? rawSource.policy
+      : {};
+  const securitySource = rawSource && rawSource.security && typeof rawSource.security === 'object' ? rawSource.security : {};
+  const productLocalBoundary = policySource.dependencyBoundary === 'product-local-framework-dependencies';
+  const remoteArtifactsBlocked = securitySource.remoteArtifactsAllowed === false;
+
   dependencies.forEach((dependency) => {
     const classificationKnown = policy.allowedDependencyClassifications.includes(dependency.classification);
     const classificationBlocked = policy.blockedDependencyClassifications.includes(dependency.rawClassification)
       || policy.blockedDependencyClassifications.includes(dependency.classification);
+    const legacyLocalAllowed = dependency.classification === 'legacy-local-artifact'
+      && legacySandboxed
+      && dependency.packageIncluded !== true
+      && dependency.frameworkDependency !== true;
+    const productLocalBundledAllowed = dependency.classification === 'product-local-bundled'
+      && dependency.bundled === true
+      && dependency.packageIncluded === true
+      && productLocalBoundary
+      && remoteArtifactsBlocked;
 
     if (!classificationKnown || classificationBlocked) {
       dependency.allowed = false;
@@ -502,7 +544,29 @@ function evaluateDependencies(source, dependencies, policy, diagnostics) {
       ));
     }
 
-    if (dependency.frameworkDependency && (dependency.bundled || dependency.packageIncluded || dependency.classification === 'core')) {
+    if (dependency.classification === 'legacy-local-artifact' && !legacyLocalAllowed) {
+      dependency.allowed = false;
+      diagnostics.push(createSecurityDiagnostic(
+        source,
+        SECURITY_DEPENDENCY_CLASSIFICATION_INVALID_CODE,
+        `Legacy local artifact "${dependency.name}" requires iframe-sandbox isolation, sandboxed-adapter trust and no packaged framework dependency.`,
+        'error',
+        { field: 'dependencies', dependency, isolation: cloneJson(isolation) || {} }
+      ));
+    }
+
+    if (dependency.classification === 'product-local-bundled' && !productLocalBundledAllowed) {
+      dependency.allowed = false;
+      diagnostics.push(createSecurityDiagnostic(
+        source,
+        SECURITY_DEPENDENCY_CLASSIFICATION_INVALID_CODE,
+        `Product-local bundled dependency "${dependency.name}" requires product-local dependency boundary and remoteArtifactsAllowed=false.`,
+        'error',
+        { field: 'dependencies', dependency }
+      ));
+    }
+
+    if (dependency.frameworkDependency && (dependency.bundled || dependency.packageIncluded || dependency.classification === 'core') && !productLocalBundledAllowed) {
       dependency.allowed = false;
       diagnostics.push(createSecurityDiagnostic(
         source,

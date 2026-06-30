@@ -53,6 +53,8 @@ const VALID_XTENSION_DEPENDENCY_CLASSIFICATIONS = Object.freeze([
   'external-peer',
   'optional-peer',
   'host-provided',
+  'legacy-local-artifact',
+  'product-local-bundled',
   'policy-blocked',
   'vendored',
   'root-runtime'
@@ -233,6 +235,24 @@ function normalizeIntegrity(integrity = {}) {
   };
 }
 
+function normalizeManifestIsolation(isolation = {}) {
+  const source = isolation && typeof isolation === 'object' ? isolation : {};
+  const domBoundary = normalizeString(source.domBoundary || source.dom || '');
+  const trustBoundary = normalizeString(source.trustBoundary || source.trust || '');
+  const runtimeClass = normalizeString(source.runtimeClass || source.runtime || '');
+  const styleBoundary = normalizeString(source.styleBoundary || source.style || '');
+  const mutationPolicy = normalizeString(source.mutationPolicy || source.mutations || '');
+  return {
+    runtimeClass,
+    domBoundary,
+    styleBoundary,
+    trustBoundary,
+    mutationPolicy,
+    sandbox: toArray(source.sandbox || source.sandboxTokens).map(normalizeString).filter(Boolean),
+    source: cloneJson(source)
+  };
+}
+
 function normalizeDependencyEntry(dependency) {
   if (typeof dependency === 'string') {
     return {
@@ -254,14 +274,34 @@ function normalizeDependencyEntry(dependency) {
   };
 }
 
+function legacyLocalArtifactAllowed(manifest, dependency) {
+  const isolation = normalizeManifestIsolation(manifest && manifest.isolation);
+  return dependency.classification === 'legacy-local-artifact'
+    && dependency.packageIncluded !== true
+    && isolation.domBoundary === 'iframe-sandbox'
+    && isolation.trustBoundary === 'sandboxed-adapter';
+}
+
+function productLocalBundledAllowed(manifest, dependency) {
+  const security = manifest && manifest.security && typeof manifest.security === 'object' ? manifest.security : {};
+  const policy = manifest && manifest.policy && typeof manifest.policy === 'object' ? manifest.policy : {};
+  return dependency.classification === 'product-local-bundled'
+    && dependency.bundled === true
+    && dependency.packageIncluded === true
+    && security.remoteArtifactsAllowed === false
+    && policy.dependencyBoundary === 'product-local-framework-dependencies';
+}
+
 function classifyXTensionDependencies(manifest = {}) {
   const dependencies = toArray(manifest.dependencies || manifest.peerDependencies).map(normalizeDependencyEntry).filter((entry) => entry.name);
   const diagnostics = [];
   const records = dependencies.map((dependency) => {
     const frameworkDependency = dependencyNameIsForbidden(dependency.name);
     const classificationKnown = VALID_XTENSION_DEPENDENCY_CLASSIFICATIONS.includes(dependency.classification);
-    const blocked = dependency.bundled
-      || dependency.packageIncluded
+    const legacyLocalAllowed = classificationKnown && legacyLocalArtifactAllowed(manifest, dependency);
+    const productLocalAllowed = classificationKnown && productLocalBundledAllowed(manifest, dependency);
+    const blocked = (dependency.bundled && !legacyLocalAllowed && !productLocalAllowed)
+      || (dependency.packageIncluded && !productLocalAllowed)
       || BLOCKING_DEPENDENCY_CLASSIFICATIONS.includes(dependency.classification)
       || !classificationKnown;
     const record = {
@@ -275,13 +315,29 @@ function classifyXTensionDependencies(manifest = {}) {
       allowed: !blocked
     };
 
-    if (frameworkDependency && blocked) {
+    if (frameworkDependency && (blocked || dependency.bundled || dependency.packageIncluded)) {
       diagnostics.push(createMaracaXTensionDiagnostic(
         manifest,
         MARACA_XTENSION_VENDORED_FRAMEWORK_CODE,
         `Framework dependency "${dependency.name}" must remain external and must not be vendored or packaged.`,
         'error',
         { field: 'dependencies', dependency: record }
+      ));
+    } else if (dependency.classification === 'product-local-bundled' && !productLocalAllowed) {
+      diagnostics.push(createMaracaXTensionDiagnostic(
+        manifest,
+        MARACA_XTENSION_POLICY_BLOCKED_CODE,
+        `Product-local bundled dependency "${dependency.name}" requires explicit product-local dependency boundary and no remote artifacts.`,
+        'error',
+        { field: 'dependencies', dependency: record }
+      ));
+    } else if (dependency.classification === 'legacy-local-artifact' && !legacyLocalAllowed) {
+      diagnostics.push(createMaracaXTensionDiagnostic(
+        manifest,
+        MARACA_XTENSION_POLICY_BLOCKED_CODE,
+        `Legacy local artifact "${dependency.name}" requires iframe-sandbox isolation with sandboxed-adapter trust.`,
+        'error',
+        { field: 'dependencies', dependency: record, isolation: normalizeManifestIsolation(manifest && manifest.isolation) }
       ));
     } else if (!classificationKnown) {
       diagnostics.push(createMaracaXTensionDiagnostic(
@@ -303,6 +359,8 @@ function classifyXTensionDependencies(manifest = {}) {
     dependencyCount: records.length,
     packageDependencyCount: records.filter((record) => record.packageIncluded).length,
     vendoredDependencyCount: records.filter((record) => record.bundled).length,
+    legacyLocalArtifactCount: records.filter((record) => record.classification === 'legacy-local-artifact').length,
+    productLocalBundledCount: records.filter((record) => record.classification === 'product-local-bundled').length,
     externalPeerCount: records.filter((record) => record.classification === 'external-peer').length,
     ok: diagnostics.length === 0 && records.every((record) => record.allowed)
   };
@@ -464,6 +522,7 @@ function normalizeXTensionManifest(input = {}, options = {}) {
   const csp = normalizeCsp(source.csp);
   const fallback = normalizeFallback(source.fallback);
   const integrity = normalizeIntegrity(source.integrity);
+  const isolation = normalizeManifestIsolation(source.isolation);
   const dependencies = classifyXTensionDependencies(source);
   const manifest = {
     schema: XTENSIONS_MARACA_MANIFEST_SCHEMA,
@@ -476,6 +535,7 @@ function normalizeXTensionManifest(input = {}, options = {}) {
     contractSnapshot,
     capabilities: toArray(source.capabilities || contractSnapshot.capabilities).map(normalizeString).filter(Boolean),
     integrity,
+    isolation,
     csp,
     fallback,
     dependencies,
@@ -499,6 +559,7 @@ function normalizeXTensionManifest(input = {}, options = {}) {
     capabilities: manifest.capabilities,
     csp: manifest.csp,
     fallback: manifest.fallback,
+    isolation: manifest.isolation,
     dependencies: manifest.dependencies.dependencies.map((dependency) => ({
       name: dependency.name,
       classification: dependency.classification,
@@ -525,6 +586,7 @@ function createXTensionArtifact(manifest, options = {}) {
     entry: source.entry ? cloneJson(source.entry) : null,
     lazy: source.lazy ? cloneJson(source.lazy) : null,
     integrity: source.integrity ? cloneJson(source.integrity) : null,
+    isolation: source.isolation ? cloneJson(source.isolation) : null,
     csp: source.csp ? cloneJson(source.csp) : null,
     fallback: source.fallback ? cloneJson(source.fallback) : null,
     contractSnapshot: source.contractSnapshot ? cloneJson(source.contractSnapshot) : null,
@@ -548,6 +610,7 @@ function createXTensionBuildProvenance(manifest, artifact, options = {}) {
     contractFingerprint: manifest && manifest.contractSnapshot && manifest.contractSnapshot.fingerprint || null,
     artifactFingerprint: artifact && artifact.artifactFingerprint || manifest && manifest.artifactFingerprint || null,
     integrity: manifest && manifest.integrity ? cloneJson(manifest.integrity) : null,
+    isolation: manifest && manifest.isolation ? cloneJson(manifest.isolation) : null,
     dependencyClassification: manifest && manifest.dependencies ? cloneJson(manifest.dependencies) : null,
     packageIncluded: false,
     vendoredFrameworksAllowed: false,
@@ -692,6 +755,7 @@ module.exports = {
   createXTensionArtifact,
   createXTensionBuildProvenance,
   normalizeContractSnapshot,
+  normalizeManifestIsolation,
   normalizeXTensionManifest,
   serializeMaracaXTensionReport,
   sha256Value

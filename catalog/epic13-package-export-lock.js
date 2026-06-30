@@ -185,6 +185,9 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './xtensions/multi-framework-dashboard-fixture',
   './xtensions/registry-package-strategy',
   './xtensions/adoption-handoff',
+  './xtensions/vanilla-host-adapter',
+  './xtensions/openui5-host-adapter',
+  './xtensions/angular-host-adapter',
   './builder',
   './builder/*',
   './security/manifest-import-policy',
@@ -385,7 +388,10 @@ const SURFACE_GROUPS = Object.freeze([
       './xtensions/security-integrity-gate',
       './xtensions/multi-framework-dashboard-fixture',
       './xtensions/registry-package-strategy',
-      './xtensions/adoption-handoff'
+      './xtensions/adoption-handoff',
+      './xtensions/vanilla-host-adapter',
+      './xtensions/openui5-host-adapter',
+      './xtensions/angular-host-adapter'
     ],
     requiredPackRoots: ['tools']
   }

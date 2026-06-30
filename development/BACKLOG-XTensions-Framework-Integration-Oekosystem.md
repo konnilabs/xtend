@@ -8,6 +8,7 @@
 - Manifest Target: `xtend.maraca.xtension-manifest.v1`
 - Runtime Report Target: `xtend.xtensions.runtime-report.v1`
 - Diagnostic Trail Target: `xtend.xtensions.diagnostic-trail.v1`
+- Vanilla Adapter Target: `xtend.xtensions.vanilla-adapter.v1`
 - Leitlinie: `host-neutral-kernel`, `adapter-owned-runtime`, `fabric-mediated-events`, `observable-by-default`, `explicit-capabilities`
 - Boundary: `no-rmt-kernel-import-of-framework-runtime-types`
 - Boundary: `no-framework-test-fixture-dependencies-in-xtend-package`
@@ -18,6 +19,7 @@
 - Boundary: `dynamic-import-requires-manifest-policy-and-integrity`
 - Boundary: `hostcontroller-lifecycle-must-be-fabric-observable`
 - Boundary: `xtensions-do-not-weaken-native-first-owned-runtime-goals`
+- Boundary: `legacy-global-dom-requires-iframe-sandbox`
 - Bezug:
   - `development/XTensions-Architecture-and-Threat-Model-Contract.md`
   - `development/XTensions-HostController-Lifecycle-Contract.md`
@@ -30,6 +32,8 @@
   - `development/XTensions-Chart-Leaflet-Imperative-Host-PoCs-Contract.md`
   - `development/XTensions-Three-Fiber-Render-Loop-PoC-Contract.md`
   - `development/XTensions-Diagnostic-Trail-Contract.md`
+  - `development/XTensions-Vanilla-Host-Adapter-und-Legacy-Sandbox-Contract.md`
+  - `development/XTensions-Angular-Host-Adapter-Contract.md`
   - `development/EPIC-04-XTend-Templating-Rendering-und-Framework-Erweiterung.md`
   - `development/XTendRMT-Migrations-und-Framework-Agnostik-Leitplanken.md`
   - `development/EPIC_E15_RMT_vNext_Syntax.md`
@@ -123,6 +127,9 @@ Ein XTensions-Workpackage darf gestartet werden, wenn:
 | `XTN-12` | P2 | completed | WS11 | Multi-Framework Dashboard Fixture und Browser-Smokes bauen | `XTN-06` bis `XTN-09` |
 | `XTN-13` | P2 | completed | WS12 | XTension Registry und Package-Strategie entscheiden | `XTN-03`, `XTN-11` |
 | `XTN-14` | P2 | completed | WS13 | Docs, Migration Guide und Enterprise Adoption Handoff schreiben | `XTN-12`, `XTN-13` |
+| `XTN-15` | P2 | completed | WS14 | Vanilla Host Adapter und Legacy Sandbox Boundary spezifizieren | `XTN-01`, `XTN-03`, `XTN-11` |
+| `XTN-16` | P2 | completed | WS14 | OpenUI5 Host Adapter und Product-local Runtime Boundary spezifizieren | `XTN-03`, `XTN-11`, `XTN-15` |
+| `XTN-17` | P2 | completed | WS14 | Angular Host Adapter und AOT/Zoneless Boundary spezifizieren | `XTN-03`, `XTN-11`, `XTN-16` |
 
 ## Workstreams
 
@@ -142,6 +149,7 @@ Ein XTensions-Workpackage darf gestartet werden, wenn:
 | WS11 | echte Multi-Framework-App als Regression- und Demo-Flaeche bauen |
 | WS12 | Registry-, Package- und Versionierungsmodell entscheiden |
 | WS13 | Migration, Doku und Release-Handoff abschliessen |
+| WS14 | Vanilla- und Legacy-Adapter mit DOM-Boundary-Policy absichern |
 
 ## Workpackages im Detail
 
@@ -625,6 +633,97 @@ Ein XTensions-Workpackage darf gestartet werden, wenn:
   - Native-First und framework-agnostische Kernel-Boundaries bleiben klar
   - Startpakete fuer Folge-Epics sind priorisiert
 
+### XTN-15 - Vanilla Host Adapter und Legacy Sandbox Boundary spezifizieren
+
+- Prioritaet: `P2`
+- Status: `completed`
+- Umgesetzt: 2026-06-29
+- Ziel:
+  - Einen frameworkneutralen Vanilla Host Adapter definieren und die harte Grenze zwischen kooperativem Same-Realm-Code und Legacy-Code mit globalem DOM/CSS-Verhalten festlegen.
+- Scope:
+  - Vanilla HostController-Vertrag auf Basis der bestehenden Lifecycle-Methoden
+  - DOM-Boundary-Record fuer `shadow-root`, `host-owned-container` und `iframe-sandbox`
+  - Legacy Sandbox Record mit `sandbox="allow-scripts"` ohne `allow-same-origin`
+  - Manifest-Isolation fuer `runtimeClass`, `domBoundary`, `styleBoundary`, `trustBoundary`, `mutationPolicy` und optionale Sandbox-Tokens
+  - Security-/Maraca-Regel fuer `legacy-local-artifact`
+- Zielartefakte:
+  - `development/XTensions-Vanilla-Host-Adapter-und-Legacy-Sandbox-Contract.md`
+  - `tools/xtensions/vanilla-host-adapter.js`
+  - `tools/xtensions/vanilla-host-adapter.d.ts`
+  - `tests/fixtures/xtensions/vanilla-host-adapter-valid.json`
+  - `tests/xtensions/xtensions_vanilla_host_adapter_suite.js`
+- Implementierungsnotiz:
+  - XTN-15 fuehrt keinen iWebKit- oder Legacy-Code in Upstream ein. Upstream bekommt nur Contracts, Diagnosefunktionen und frameworklose Fixtures.
+  - Shadow DOM ist im Same-Realm-Modus eine kooperative Boundary, aber keine harte Sicherheitsgrenze.
+  - Legacy-Code mit globalem DOM/CSS-Verhalten ist nur als sandboxed iframe zulaessig; `allow-same-origin`, Top-Navigation und Popups bleiben blockiert.
+  - Lokale Legacy-Testartefakte muessen als `legacy-local-artifact` klassifiziert und mit `iframe-sandbox` plus `sandboxed-adapter` isoliert werden.
+- Lokaler Gate:
+  - `node scripts/run_xtend_tests.js xtensions-vanilla-host-controller xtensions-dom-boundary xtensions-legacy-sandbox-adapter --json`
+- Definition of Done:
+  - Vanilla-Adapter bleibt frameworkfrei
+  - Legacy-Sandbox-Regeln sind im Manifest- und Security-Gate pruefbar
+  - Boundary-Verletzungen degradieren die XTension statt die Shell zu blockieren
+
+### XTN-16 - OpenUI5 Host Adapter und Product-local Runtime Boundary spezifizieren
+
+- Prioritaet: `P2`
+- Status: `completed`
+- Umgesetzt: 2026-06-30
+- Ziel:
+  - Einen OpenUI5 Host Adapter fuer klassische UI5 Controls in XTension-Surfaces definieren, ohne OpenUI5 als Root-Dependency oder CDN-Runtime in XTend einzufuehren.
+- Scope:
+  - OpenUI5 HostController-Vertrag auf Basis der bestehenden Lifecycle-Methoden
+  - Loader-Boundary fuer produktlokale OpenUI5-Ressourcen unter `dist/xtensions/openui5/resources/`
+  - Manifest-/Security-Regel fuer `product-local-bundled`
+  - Same-Realm-Policy fuer host-owned Container ohne harte Security-Isolation
+  - Control-Destroy- und JSONModel-Update-Regeln fuer Lifecycle-Smokes
+- Zielartefakte:
+  - `development/XTensions-OpenUI5-Host-Adapter-Contract.md`
+  - `tools/xtensions/openui5-host-adapter.js`
+  - `tools/xtensions/openui5-host-adapter.d.ts`
+  - `tests/fixtures/xtensions/openui5-host-adapter-valid.json`
+  - `tests/xtensions/xtensions_openui5_host_adapter_suite.js`
+- Implementierungsnotiz:
+  - XTN-16 fuehrt kein OpenUI5 in das XTend-Root-Paket ein. Upstream bekommt nur Contract, Diagnosefunktionen und frameworklose Fixtures.
+  - SAPUI5/OpenUI5-CDNs bleiben policy-blocked; OpenUI5 darf nur produktlokal und per SHA-256-Manifest in einem opt-in Product gebuendelt werden.
+  - Same-Realm UI5 ist eine kooperative MFE-Integration und muss ihre Control-Instanzen beim Unmount zerstoeren.
+- Lokaler Gate:
+  - `node scripts/run_xtend_tests.js xtensions-openui5-host-controller xtensions-openui5-loader-boundary --json`
+- Definition of Done:
+  - OpenUI5-Adapter bleibt upstream frameworkfrei
+  - Product-local-Bundled-Regeln sind im Manifest- und Security-Gate pruefbar
+  - UI5-Lifecycle-Records enthalten Mount, Update, Suspend, Resume, Error und Destroy-Cleanup
+
+### XTN-17 - Angular Host Adapter und AOT/Zoneless Boundary spezifizieren
+
+- Prioritaet: `P2`
+- Status: `completed`
+- Umgesetzt: 2026-06-30
+- Ziel:
+  - Einen Angular Host Adapter fuer standalone Angular-Komponenten in XTension-Surfaces definieren, ohne Angular als Root-Dependency, Workspace-Dependency oder CDN-Runtime in XTend einzufuehren.
+- Scope:
+  - Angular HostController-Vertrag auf Basis der bestehenden Lifecycle-Methoden
+  - AOT-Boundary fuer produktlokal gebuendelte Angular-XTensions
+  - Zoneless-/Signal-Update-Regel fuer host-gesteuerte Modellaktualisierung
+  - Manifest-/Security-Regel fuer `product-local-bundled`
+  - ApplicationRef-/ComponentRef-Destroy-Regel fuer Lifecycle-Smokes
+- Zielartefakte:
+  - `development/XTensions-Angular-Host-Adapter-Contract.md`
+  - `tools/xtensions/angular-host-adapter.js`
+  - `tools/xtensions/angular-host-adapter.d.ts`
+  - `tests/fixtures/xtensions/angular-host-adapter-valid.json`
+  - `tests/xtensions/xtensions_angular_host_adapter_suite.js`
+- Implementierungsnotiz:
+  - XTN-17 fuehrt kein Angular in das XTend-Root-Paket ein. Upstream bekommt nur Contract, Diagnosefunktionen und frameworklose Fixtures.
+  - Angular-CDNs und Runtime-`@angular/compiler` bleiben policy-blocked; Angular darf nur produktlokal und per SHA-256-Manifest in einem opt-in Product gebuendelt werden.
+  - Same-Realm Angular ist eine kooperative MFE-Integration und muss seine ApplicationRef beim Unmount zerstoeren.
+- Lokaler Gate:
+  - `node scripts/run_xtend_tests.js xtensions-angular-host-controller xtensions-angular-zone-boundary --json`
+- Definition of Done:
+  - Angular-Adapter bleibt upstream frameworkfrei
+  - Product-local-Bundled-Regeln sind im Manifest- und Security-Gate pruefbar
+  - Angular-Lifecycle-Records enthalten Mount, Update, Suspend, Resume, Error und Destroy-Cleanup
+
 ## Startreihenfolge
 
 1. `XTN-00` ist abgeschlossen und friert Architektur-, Threat-Model- und Test-Fixture-Dependency-Boundaries ein.
@@ -642,6 +741,9 @@ Ein XTensions-Workpackage darf gestartet werden, wenn:
 13. `XTN-12` ist abgeschlossen und friert die frameworkfreie Multi-Framework-Dashboard-Fixture samt Browser-Smoke-Evidence ein.
 14. `XTN-13` ist abgeschlossen und friert Registry- und Package-Strategie als projekt-lokalen Manifest-Index ein.
 15. `XTN-14` ist abgeschlossen und friert Docs, Migration Guide, Security Checklist und Enterprise Adoption Handoff ein.
+16. `XTN-15` ist abgeschlossen und friert Vanilla Host Adapter, DOM Boundary und Legacy Sandbox Policy ein.
+17. `XTN-16` ist abgeschlossen und friert OpenUI5 Host Adapter, Loader Boundary und Product-local Runtime Policy ein.
+18. `XTN-17` ist abgeschlossen und friert Angular Host Adapter, AOT Boundary und Zoneless Update Policy ein.
 
 ## Offene Entscheidungen
 
@@ -653,6 +755,7 @@ Ein XTensions-Workpackage darf gestartet werden, wenn:
 | React Prioritaeten | nur Hint/Budget, keine harte Kernel-Steuerung | `XTN-06` |
 | Three.js Loop Ownership | Host-registrierter Scheduled Endpoint, kein freier Loop | `XTN-09` |
 | Package Scope | entschieden: projekt-lokale Manifeste zuerst; `@xtend/xtension-*` reserviert, NPM-Subpackages deferred | `XTN-13` |
+| Legacy Same-Realm | entschieden: globaler DOM/CSS-Legacy-Code ist policy-blocked und braucht `iframe-sandbox` | `XTN-15` |
 
 ## Residual Risks
 
