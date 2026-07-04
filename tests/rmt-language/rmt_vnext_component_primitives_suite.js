@@ -182,11 +182,11 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   const matrix = registry.createMatrixReport();
   context.assert(matrix.ok === true, 'component primitive matrix passes');
   context.assert(matrix.manifestCount === Object.keys(manifest).length, 'matrix covers all public manifest entries');
-  context.assert(matrix.publicComponentCount === 41, 'matrix classifies renderable public UI components');
+  context.assert(matrix.publicComponentCount === 42, 'matrix classifies renderable public UI components');
   context.assert(matrix.nonVisualCount === 5, 'matrix classifies module/demo/utility entries outside normal DOM rendering');
-  context.assert(matrix.withRmtMetadata === 43, 'matrix preserves existing RMT metadata coverage');
-  context.assert(matrix.withComponentContract === 41, 'matrix preserves existing Component Contract coverage');
-  context.assert(matrix.formAssociatedCount === 6, 'matrix detects form-associated components');
+  context.assert(matrix.withRmtMetadata === 44, 'matrix preserves existing RMT metadata coverage');
+  context.assert(matrix.withComponentContract === 42, 'matrix preserves existing Component Contract coverage');
+  context.assert(matrix.formAssociatedCount === 7, 'matrix detects form-associated components');
   context.assert(matrix.diagnostics.length === 0, 'matrix has no compatibility diagnostics');
   ['form', 'navigation', 'overlay-surface', 'media-feedback-layout', 'theme-layout', 'infrastructure-module'].forEach((family) => {
     context.assert(matrix.familyCounts[family] > 0, `matrix covers ${family} family`);

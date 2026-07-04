@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x
         uses: actions/setup-node@v6
@@ -112,13 +112,18 @@ jobs:
         continue-on-error: true
         run: npm run test:maraca:report
 
+      - name: Run XSurface shard gate report
+        id: xsurface_shard
+        continue-on-error: true
+        run: npm run test:xsurface-shard:report
+
       - name: Create XTend nightly manifest
         if: always()
         run: npm run nightly:manifest
 
       - name: Upload XTend nightly artifact bundle
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-nightly-build-node-26
           path: |
@@ -139,6 +144,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
             .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
             .xtend-test-results/xtend-maraca-gate-report.json
+            .xtend-test-results/xtend-xsurface-shard-report.json
             .xtend-build/maraca/source-to-sea/xtend.maraca.report.json
             .xtend-build/maraca/source-to-sea/xtend.maraca.size.json
             .xtend-test-results/xtend-nightly-build-manifest.json
@@ -160,6 +166,7 @@ jobs:
           if [ "${{ steps.pack_root.outcome }}" != "success" ]; then echo "root package dry run failed"; failed=1; fi
           if [ "${{ steps.pack_workspaces.outcome }}" != "success" ]; then echo "workspace package dry runs failed"; failed=1; fi
           if [ "${{ steps.maraca.outcome }}" != "success" ]; then echo "Maraca gate failed"; failed=1; fi
+          if [ "${{ steps.xsurface_shard.outcome }}" != "success" ]; then echo "XSurface shard gate failed"; failed=1; fi
           exit "$failed"
 
   optional-source-to-sea:
@@ -170,7 +177,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x
         uses: actions/setup-node@v6
@@ -204,7 +211,7 @@ jobs:
 
       - name: Upload RMT vNext source-to-sea evidence
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-nightly-source-to-sea-evidence-node-26
           path: |
@@ -224,7 +231,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x
         uses: actions/setup-node@v6
@@ -247,7 +254,7 @@ jobs:
 
       - name: Upload conditional network evidence
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-nightly-conditional-network-evidence-node-26
           path: |

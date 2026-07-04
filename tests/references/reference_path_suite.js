@@ -2501,12 +2501,12 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'XTend CI Gates', message: 'declares workflow name' },
       { pattern: 'pr-fast-gates', message: 'declares PR fast gate job' },
       { pattern: 'full-release-gates', message: 'declares full release gate job' },
-      { pattern: 'actions/checkout@v6', message: 'checks out repository' },
+      { pattern: 'actions/checkout@v7', message: 'checks out repository' },
       { pattern: 'actions/setup-node@v6', message: 'sets up Node' },
       { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
       { pattern: 'npm run test:pr:report', message: 'runs PR fast report gate' },
       { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
-      { pattern: 'actions/upload-artifact@v6', message: 'uploads report artifact' },
+      { pattern: 'actions/upload-artifact@v7', message: 'uploads report artifact' },
       { pattern: '.xtend-test-results/xtend-pr-gate-report.json', message: 'uploads PR JSON report path' },
       { pattern: '.xtend-test-results/xtend-release-gate-report.json', message: 'uploads release JSON report path' },
       { pattern: 'xtend-pr-gate-report-node-26', message: 'uses stable PR artifact name' },
@@ -2520,9 +2520,9 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'XTend Nightly Build', message: 'declares workflow name' },
       { pattern: "cron: '47 2 * * *'", message: 'declares nightly schedule' },
       { pattern: 'nightly-build', message: 'declares nightly artifact job' },
-      { pattern: 'actions/checkout@v6', message: 'checks out repository' },
+      { pattern: 'actions/checkout@v7', message: 'checks out repository' },
       { pattern: 'actions/setup-node@v6', message: 'sets up Node' },
-      { pattern: 'actions/upload-artifact@v6', message: 'uploads nightly artifacts' },
+      { pattern: 'actions/upload-artifact@v7', message: 'uploads nightly artifacts' },
       { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
       { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
       { pattern: 'npm run test:rmt-vnext-primitives:report', message: 'runs RMT primitive gate' },
@@ -7101,7 +7101,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'node-version: 26.x', 'CI workflow pins Node 26.x');
   context.assertIncludes(workflow, 'npm run test:pr:report', 'CI workflow runs PR report gate');
   context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
-  context.assertIncludes(workflow, 'actions/upload-artifact@v6', 'CI workflow uploads report artifact');
+  context.assertIncludes(workflow, 'actions/upload-artifact@v7', 'CI workflow uploads report artifact');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-pr-gate-report.json', 'CI workflow uploads PR JSON report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-release-gate-report.json', 'CI workflow uploads full release JSON report');
   context.assertIncludes(workflow, 'xtend-pr-gate-report-node-26', 'CI workflow uses stable PR report artifact name');
@@ -7145,9 +7145,9 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'run_source_to_sea:', 'Nightly workflow exposes optional Source-to-Sea input');
   context.assertIncludes(nightlyWorkflow, 'run_conditional_network:', 'Nightly workflow exposes optional conditional network input');
   context.assertIncludes(nightlyWorkflow, 'nightly-build:', 'Nightly workflow declares artifact bundle job');
-  context.assertIncludes(nightlyWorkflow, 'actions/checkout@v6', 'Nightly workflow uses checkout action');
+  context.assertIncludes(nightlyWorkflow, 'actions/checkout@v7', 'Nightly workflow uses checkout action');
   context.assertIncludes(nightlyWorkflow, 'actions/setup-node@v6', 'Nightly workflow uses setup-node action');
-  context.assertIncludes(nightlyWorkflow, 'actions/upload-artifact@v6', 'Nightly workflow uploads artifacts');
+  context.assertIncludes(nightlyWorkflow, 'actions/upload-artifact@v7', 'Nightly workflow uploads artifacts');
   context.assertIncludes(nightlyWorkflow, 'node-version: 26.x', 'Nightly workflow pins Node 26.x');
   context.assertIncludes(nightlyWorkflow, 'npm run test:release:full:report', 'Nightly workflow runs full release gate report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-vnext-primitives:report', 'Nightly workflow runs RMT vNext primitive report');
@@ -7488,7 +7488,8 @@ function assertEpic10TypeScriptSourceStrategyReference(context, rootDir) {
   context.assertIncludes(strategy, 'WP-E10-07', 'TypeScript source strategy hands off to WP-E10-07');
   context.assertIncludes(scaffoldConfig, 'typescriptSource', 'Scaffold config exposes TypeScript source strategy section');
   context.assertIncludes(scaffoldConfig, 'xtend.scaffold.typescript-source-strategy.v1', 'Scaffold config declares TypeScript strategy schema');
-  context.assertIncludes(scaffoldConfig, 'productiveCompilerIntroduced: false', 'Scaffold config keeps compiler introduction out of WP-E10-02');
+  context.assertIncludes(scaffoldConfig, 'productiveCompilerIntroduced: true', 'Scaffold config marks the TypeScript component compiler productive');
+  context.assertIncludes(scaffoldConfig, 'tsconfig.components.json', 'Scaffold config references the productive component tsconfig');
   context.assert(metadata && metadata.schema === 'xtend.typescript.component-source-strategy.v1', 'Package metadata exposes TypeScript source strategy schema');
   context.assert(metadata.workpackage === 'WP-E10-02', 'Package metadata exposes WP-E10-02 owner');
   context.assert(metadata.strategy === strategyPath, 'Package metadata points at TypeScript source strategy');
@@ -7498,6 +7499,9 @@ function assertEpic10TypeScriptSourceStrategyReference(context, rootDir) {
   context.assert(metadata.runtimeFormat === 'esm', 'Package metadata keeps ESM runtime format');
   context.assert(metadata.loader === 'xtend-loader.js', 'Package metadata keeps canonical loader');
   context.assert(metadata.manifest === 'components/manifest.json', 'Package metadata keeps manifest contract');
+  context.assert(metadata.productiveCompilerIntroduced === true, 'Package metadata marks the component compiler productive');
+  context.assert(metadata.compilerConfig === 'tsconfig.components.json', 'Package metadata exposes the component tsconfig');
+  context.assert(metadata.localGate === 'node scripts/run_xtend_tests.js typescript-components --json', 'Package metadata exposes the TypeScript components local gate');
   context.assert(metadata.bundlerPolicy === 'no-bundler-required-for-core-components', 'Package metadata exposes bundler policy');
   context.assert(metadata.runtimeDependencyPolicy === 'no-new-runtime-dependencies', 'Package metadata exposes dependency policy');
   context.assert(metadata.networkPolicy === 'no-cdn-no-remote-runtime-imports', 'Package metadata exposes network policy');
@@ -7828,12 +7832,15 @@ function assertEpic10TypeScriptComponentBlueprintReference(context, rootDir) {
   context.assertIncludes(templateRegistrySource, 'component.ts-rmt', 'Template registry declares RMT metadata template');
   context.assertIncludes(scaffoldConfig, 'typescriptComponentBlueprint', 'Scaffold config exposes TypeScript Component Blueprint');
   context.assertIncludes(runner, "id: 'builder-typescript-blueprint'", 'Test runner registers TypeScript Component Blueprint suite');
+  context.assertIncludes(runner, "id: 'typescript-components'", 'Test runner registers TypeScript Components Build suite');
   context.assert(packageManifest.scripts['test:builder-typescript-blueprint'] === 'node scripts/run_xtend_tests.js builder-typescript-blueprint', 'Package exposes TypeScript Blueprint test script');
+  context.assert(packageManifest.scripts['test:typescript-components'] === 'node scripts/run_xtend_tests.js typescript-components', 'Package exposes TypeScript Components Build test script');
   context.assert(metadata && metadata.schema === 'xtend.scaffold.typescript-component-blueprint.v1', 'Package metadata exposes TypeScript Component Blueprint schema');
   context.assert(metadata.contract === contractPath, 'Package metadata points at TypeScript Component Blueprint contract');
   context.assert(metadata.suite === suitePath, 'Package metadata points at TypeScript Component Blueprint suite');
   context.assert(Array.isArray(metadata.requiredArtifacts) && metadata.requiredArtifacts.includes('ts-performance'), 'Package metadata requires TypeScript Performance artifact');
   context.assert(metadata.kernelBoundary === 'no-rmt-kernel-import-of-xtend-types', 'Package metadata keeps TypeScript Blueprint RMT boundary');
+  context.assert(metadata.productiveCompilerIntroduced === true, 'Package metadata marks the TypeScript Blueprint compiler path productive');
 }
 
 function assertEpic10P0ComponentWaveReference(context, rootDir) {

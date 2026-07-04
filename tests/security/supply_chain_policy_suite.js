@@ -12,6 +12,7 @@ const {
   LICENSE_POLICY_CONTRACT,
   RELEASE_SUPPLY_CHAIN_GATE_CONTRACT,
   SCOPED_RELEASE_PACKAGES,
+  ALLOWED_DEV_TOOLING_DEPENDENCIES,
   SUPPLY_CHAIN_GATE_PLAN_CONTRACT,
   VULNERABILITY_POLICY_CONTRACT,
   createSupplyChainGatePlan,
@@ -50,10 +51,13 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(VULNERABILITY_POLICY_CONTRACT === 'xtend.security.vulnerability-policy.v1', 'Exports vulnerability policy contract');
   context.assert(RELEASE_SUPPLY_CHAIN_GATE_CONTRACT === 'xtend.security.release-supply-chain-gate.v1', 'Exports release supply-chain gate contract');
   context.assert(Array.isArray(SCOPED_RELEASE_PACKAGES) && SCOPED_RELEASE_PACKAGES.length === 6, 'Exports scoped release package matrix');
+  context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === 'typescript' && entry.section === 'devDependencies'), 'Exports allowed TypeScript dev tooling dependency');
   context.assert(SCOPED_RELEASE_PACKAGES.some((entry) => entry.name === '@ccslabs/xtend-maraca' && entry.path === 'xtend-maraca'), 'Scoped release package matrix includes Maraca');
   context.assert(plan.localGate === 'node scripts/verify_supply_chain_policy.js --json', 'Plan exposes offline local verify command');
   context.assert(plan.packageScript === 'npm run test:supply-chain', 'Plan exposes package test script');
   context.assert(plan.scopedReleasePackages.length === SCOPED_RELEASE_PACKAGES.length, 'Plan exposes scoped release packages');
+  context.assert(plan.allowedDevToolingDependencies.some((entry) => entry.name === 'typescript' && entry.runtime === false), 'Plan exposes TypeScript as build-only tooling');
+  context.assert(plan.runtimeDependencyPolicy === 'no-new-runtime-dependencies', 'Plan keeps runtime dependency policy explicit');
   context.assert(plan.releaseScripts.includes('npm run test:supply-chain'), 'Plan includes supply-chain suite in release scripts');
   context.assert(plan.ciNetworkGates.includes('npm audit --audit-level=moderate'), 'Plan includes CI vulnerability audit');
   context.assert(plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json'), 'Plan includes CI SBOM export');
@@ -85,7 +89,10 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(packageManifest.scripts['release:sync-versions'] === 'node scripts/sync_xtend_package_versions.js', 'Package exposes release version sync script');
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:supply-chain'), 'Release gates include supply-chain gate');
   context.assert(classification.ok === true, 'Current dependency inventory passes offline classification');
-  context.assert(classification.dependencyCount === 0, 'Current package has no external dependency inventory');
+  context.assert(classification.dependencyCount === 1, 'Current package has one external build-tool dependency');
+  context.assert(classification.runtimeDependencyCount === 0, 'Current package has no external runtime dependency inventory');
+  context.assert(classification.devToolingDependencyCount === 1, 'Current package classifies the TypeScript compiler as dev tooling');
+  context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === 'typescript'), 'Current dependency inventory allows TypeScript compiler tooling');
   context.assert(report.schema === REPORT_SCHEMA, 'Verify script returns supply-chain report schema');
   context.assert(report.ok === true, 'Verify script passes for current package');
   context.assert(report.checks.length >= 10, 'Verify script performs multiple supply-chain checks');

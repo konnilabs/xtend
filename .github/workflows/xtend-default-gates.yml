@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x
         uses: actions/setup-node@v6
@@ -73,7 +73,7 @@ jobs:
 
       - name: Upload XTend PR JSON report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-pr-gate-report-node-26
           path: |
@@ -92,7 +92,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x
         uses: actions/setup-node@v6
@@ -129,7 +129,7 @@ jobs:
 
       - name: Upload XTend full JSON report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-release-gate-report-node-26
           path: |
@@ -147,7 +147,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x
         uses: actions/setup-node@v6
@@ -194,7 +194,7 @@ jobs:
 
       - name: Upload RMT vNext primitive JSON report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-rmt-vnext-primitives-gate-report-node-26
           path: .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
@@ -202,7 +202,7 @@ jobs:
 
       - name: Upload Native-First RMT Owned release JSON report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-native-first-rmt-owned-release-report-node-26
           path: .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
@@ -210,7 +210,7 @@ jobs:
 
       - name: Upload RMT vNext source-to-sea evidence
         if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-rmt-vnext-source-to-sea-evidence-node-26
           path: .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
@@ -229,7 +229,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x
         uses: actions/setup-node@v6
@@ -257,7 +257,7 @@ jobs:
 
       - name: Upload package structure evidence
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-package-structure-node-26
           path: |
@@ -280,7 +280,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x
         uses: actions/setup-node@v6
@@ -303,7 +303,7 @@ jobs:
 
       - name: Upload conditional network evidence
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-conditional-network-evidence-node-26
           path: |
@@ -329,7 +329,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 26.x for npm
         uses: actions/setup-node@v6
@@ -373,7 +373,7 @@ jobs:
 
       - name: Upload npm publish evidence
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xtend-npm-publish-latest-evidence-node-26
           path: |

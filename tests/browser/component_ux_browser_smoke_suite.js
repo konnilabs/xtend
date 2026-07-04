@@ -35,6 +35,7 @@ const REQUIRED_MANIFEST_ENTRIES = {
   'x-tabs': '/components/xtabs.js',
   'x-select': '/components/xselect.js',
   'x-checkbox': '/components/xcheckbox.js',
+  'x-toggle': '/components/xtoggle.js',
   'x-status': '/components/xstatus.js',
   'x-progress': '/components/xprogress.js',
   'x-drawer': '/components/xdrawer.js',
@@ -101,7 +102,7 @@ function runComponentUxBrowserSmokeSuite(options = {}) {
   context.assert(plan.browserHarness.resultKey === COMPONENT_UX_BROWSER_SMOKE_RESULT_KEY, 'Browser smoke plan points to result key');
   context.assert(plan.sourceInspector.schema === 'xtend.epic11.component-lab-ux-inspector.v1', 'Browser smoke plan derives from UX Inspector');
   context.assert(plan.coverage.flowCount === 5, 'Browser smoke plan covers five UX journeys');
-  context.assert(plan.coverage.componentCount === 17, 'Browser smoke plan covers seventeen representative components after WP-E12-03');
+  context.assert(plan.coverage.componentCount === 18, 'Browser smoke plan covers eighteen representative components with x-toggle form coverage');
   context.assert(validation.schema === COMPONENT_UX_BROWSER_SMOKE_REPORT_SCHEMA, 'Browser smoke validator emits report schema');
   context.assert(validation.ok === true, 'Browser smoke validator accepts generated plan');
   context.assert(gate.ok === true, 'Browser smoke gate passes');
@@ -181,7 +182,7 @@ function runComponentUxBrowserSmokeSuite(options = {}) {
   context.assert(metadata && metadata.reportSchema === COMPONENT_UX_BROWSER_SMOKE_REPORT_SCHEMA, 'Package metadata exposes Browser UX smoke report schema');
   context.assert(metadata && metadata.fixture === COMPONENT_UX_BROWSER_SMOKE_FIXTURE_PATH, 'Package metadata exposes Browser UX smoke fixture');
   context.assert(metadata && metadata.localGate === COMPONENT_UX_BROWSER_SMOKE_LOCAL_GATE, 'Package metadata exposes Browser UX smoke local gate');
-  context.assert(metadata && metadata.componentCount === 17, 'Package metadata exposes Browser UX smoke component count after WP-E12-03');
+  context.assert(metadata && metadata.componentCount === 18, 'Package metadata exposes Browser UX smoke component count with x-toggle');
   context.assert(Array.isArray(metadata.flows) && metadata.flows.length === 5, 'Package metadata exposes five Browser UX smoke flows');
 
   return context.result({

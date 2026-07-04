@@ -9,8 +9,13 @@ This page describes checkable rules for robust user experiences. The recommendat
 ## Public building blocks
 
 - Local test commands.
-- Browsernahe Fixtures.
-- Dokumentierte Akzeptanzkriterien.
+- Browser-facing fixtures.
+- Documented acceptance criteria.
+- Automation schema `xtend.epic12.visual-snapshot-automation-contract.v1`.
+- Runner schema `xtend.epic12.visual-snapshot-runner.v1`.
+- Local gate `node scripts/run_xtend_tests.js visual-snapshot-automation --json`.
+- Runner gate `node scripts/run_xtend_tests.js visual-snapshots --json`.
+- Runner handoff `WP-E12-11`.
 
 ## Recommended workflow
 
@@ -43,6 +48,9 @@ Sources:
 - `security/manifest-import-policy.js`
 - `security/trusted-dom-policy.js`
 - `security/supply-chain-gate-policy.js`
+- `tests/browser/visual-snapshot-automation-plan.js`
+- `tests/browser/visual-snapshots-runner.js`
+- `tests/browser/fixtures/visual-snapshots-fixture.html`
 
 Names:
 - `docs/en/visual-snapshot-automation.md`
@@ -54,11 +62,16 @@ Names:
 - `security/supply-chain-gate-policy.js`
 - `docs/dev-router.php`
 - `package.json`
+- `xtend.epic12.visual-snapshot-automation-contract.v1`
+- `xtend.epic12.visual-snapshot-runner.v1`
+- `WP-E12-11`
 - `node scripts/verify_docs_public_quality.js`
 
 Commands:
 - `node scripts/verify_docs_public_quality.js`
 - `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
+- `node scripts/run_xtend_tests.js visual-snapshot-automation --json`
+- `node scripts/run_xtend_tests.js visual-snapshots --json`
 
 ## Minimal verification path
 

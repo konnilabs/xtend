@@ -23,7 +23,7 @@ const COMPONENT_UX_BROWSER_SMOKE_FLOWS = Object.freeze([
   {
     id: 'form-validation-journey',
     family: 'form-controls',
-    components: ['x-form', 'x-input', 'x-select', 'x-checkbox'],
+    components: ['x-form', 'x-input', 'x-select', 'x-checkbox', 'x-toggle'],
     verifies: ['delegated-focus', 'input-state-sync', 'form-data-aggregation', 'validation-feedback'],
     fixtureChecks: [
       'form input synchronized state',

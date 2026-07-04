@@ -4530,7 +4530,8 @@
         "x-textarea",
         "x-calendar",
         "x-form",
-        "x-writer"
+        "x-writer",
+        "x-toggle"
       ],
       "requiredDomains": [
         "shell",
@@ -11156,7 +11157,7 @@
       "schema": "xtend.enterprise.er-wp-34.public-component-types.v1",
       "sharedTypes": "components/xtend-public-types.d.ts",
       "localGate": "node scripts/run_xtend_tests.js components --json",
-      "typedPriorityComponents": 45
+      "typedPriorityComponents": 47
     },
     "componentRegressionPriority": {
       "schema": "xtend.catalog.component-regression-priority-plan.v1",
@@ -11197,6 +11198,7 @@
           "component-shell-contract",
           "component-styling-contract",
           "builder-typescript-blueprint",
+          "typescript-components",
           "component-ux-browser-smokes",
           "component-shell-theme-matrix",
           "browser",
@@ -11320,6 +11322,7 @@
           "component-shell-contract",
           "component-styling-contract",
           "builder-typescript-blueprint",
+          "typescript-components",
           "component-ux-browser-smokes",
           "component-shell-theme-matrix",
           "browser",
@@ -11447,6 +11450,7 @@
         "commandSet": [
           "npm run test:release:full:report",
           "npm run test:rmt-reference-docs:report",
+          "npm run test:rkfa-production-closure:report",
           "npm run test:docs-stub-inventory:report",
           "npm run test:rmt-vnext-primitives:report",
           "npm run test:native-first-rmt-owned-release:report",
@@ -11460,7 +11464,8 @@
           "npm pack --workspace fabric --dry-run --json",
           "npm pack --workspace tools --dry-run --json",
           "npm pack --workspace xtend-builder --dry-run --json",
-          "npm pack --workspace xtend-maraca --dry-run --json"
+          "npm pack --workspace xtend-maraca --dry-run --json",
+          "npm pack --workspace xsurface-shard --dry-run --json"
         ],
         "manifestCommand": "npm run nightly:manifest",
         "manifestPath": ".xtend-test-results/xtend-nightly-build-manifest.json",
@@ -11825,8 +11830,16 @@
       ],
       "followUps": [
         "WP-E10-03",
-        "WP-E10-07"
-      ]
+        "WP-E10-07",
+        "WP-XTOGGLE-01"
+      ],
+      "compiler": "tsc",
+      "compilerConfig": "tsconfig.components.json",
+      "buildCommand": "npm run build:components",
+      "finalizer": "scripts/finalize_component_build.js",
+      "productiveCompilerIntroduced": true,
+      "localGate": "node scripts/run_xtend_tests.js typescript-components --json",
+      "packageScript": "npm run test:typescript-components"
     },
     "componentContractV2": {
       "schema": "xtend.component.contract.v2",
@@ -13388,7 +13401,12 @@
         "WP-E10-12",
         "WP-E10-14",
         "WP-E10-15"
-      ]
+      ],
+      "compiler": "tsc",
+      "compilerConfig": "tsconfig.components.json",
+      "buildCommand": "npm run build:components",
+      "productiveCompilerIntroduced": true,
+      "productiveCompilerGate": "node scripts/run_xtend_tests.js typescript-components --json"
     },
     "epic10P0ComponentWave": {
       "schema": "xtend.epic10.p0-component-wave.v1",
@@ -13710,7 +13728,7 @@
         "overlay-focus-journey",
         "layout-display-media-journey"
       ],
-      "componentCount": 17,
+      "componentCount": 18,
       "localGate": "node scripts/run_xtend_tests.js component-ux-browser-smokes --json",
       "packageScript": "npm run test:component-ux-browser-smokes",
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types",
@@ -13764,7 +13782,7 @@
         "overlay-interaction",
         "layout-display-media"
       ],
-      "componentCount": 17,
+      "componentCount": 18,
       "flowCount": 5,
       "matrixCombinationCount": 360,
       "localGate": "node scripts/run_xtend_tests.js component-shell-theme-matrix --json",
@@ -13819,7 +13837,7 @@
         "tablet-768",
         "mobile-390"
       ],
-      "componentCount": 17,
+      "componentCount": 18,
       "familyCount": 5,
       "matrixCombinationCount": 360,
       "diffStrategy": "dom-first-pixel-ready",
@@ -13856,7 +13874,7 @@
       "externalNetworkAllowed": false,
       "snapshotCount": 5,
       "familyCount": 5,
-      "componentCount": 17,
+      "componentCount": 18,
       "matrixCombinationCount": 360,
       "outputRoot": ".xtend-test-results/visual-snapshots",
       "reportPath": ".xtend-test-results/visual-snapshots/visual-snapshots-report.json",
@@ -16219,6 +16237,23 @@
         "window.XTendMaraca.validation",
         "window.XTendMaraca.transitions"
       ]
+    },
+    "typescriptComponentsBuild": {
+      "schema": "xtend.typescript.components-build.v1",
+      "status": "accepted-productive-component-compiler",
+      "source": "src/components/x-toggle/x-toggle.ts",
+      "tsconfig": "tsconfig.components.json",
+      "buildCommand": "npm run build:components",
+      "finalizer": "scripts/finalize_component_build.js",
+      "runtimeArtifacts": [
+        "components/xtoggle.js"
+      ],
+      "declarationArtifacts": [
+        "components/xtoggle.d.ts"
+      ],
+      "localGate": "node scripts/run_xtend_tests.js typescript-components --json",
+      "packageScript": "npm run test:typescript-components",
+      "runtimeDependencyPolicy": "no-new-runtime-dependencies"
     }
   },
   "supplyChain": {
@@ -16506,17 +16541,17 @@
     "dev:local": "node scripts/serve_xtend_dev.js --port 4173",
     "dev:local:csp": "node scripts/serve_xtend_dev.js --port 4173 --prod-csp --default tests/browser/fixtures/epic13-prod-csp-smoke.html",
     "test:report": "node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.json",
-    "test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker xsurface-shard ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff",
-    "test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker xsurface-shard ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff --report .xtend-test-results/xtend-pr-gate-report.json",
-    "test:release:full": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker xsurface-shard ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff rmt-tooling-docs",
-    "test:release:full:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker xsurface-shard ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff rmt-tooling-docs --report .xtend-test-results/xtend-release-gate-report.json",
+    "test:pr": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint typescript-components component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker xsurface-shard ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff",
+    "test:pr:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint typescript-components component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker xsurface-shard ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff --report .xtend-test-results/xtend-pr-gate-report.json",
+    "test:release:full": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint typescript-components component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker xsurface-shard ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff rmt-tooling-docs",
+    "test:release:full:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint typescript-components component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker xsurface-shard ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff rmt-tooling-docs --report .xtend-test-results/xtend-release-gate-report.json",
     "release:sync-versions": "node scripts/sync_xtend_package_versions.js",
     "supply-chain:verify": "node scripts/verify_supply_chain_policy.js",
     "security:supply-chain": "node scripts/verify_supply_chain_policy.js",
     "security:manifest-policy": "node scripts/verify_manifest_import_policy.js",
     "security:xss-pentest": "node scripts/run_xtend_tests.js xss-pentest --json",
     "release:check": "npm run test:release:full:report",
-    "release:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff rmt-tooling-docs --report .xtend-test-results/xtend-release-report.json",
+    "release:report": "node scripts/run_xtend_tests.js core architecture components component-contract-v2 component-shell-contract component-styling-contract builder-typescript-blueprint typescript-components component-ux-browser-smokes component-shell-theme-matrix browser a11y-hydration screenreader-signals motion-contrast runtime-a11y-contract component-ux-performance component-network-contract rmt-shell-authoring-ux form-controls-ux feedback-status-ux navigation-routing-ux overlay-interaction-ux layout-display-media-ux regression-priority fabric fabric-lane-mapping fabric-lifecycle-boundary fabric-reporters fabric-runtime-bridge fabric-component-fibers fabric-route-fibers fabric-telemetry-snapshot fabric-performance-measurements hydration-policy references supply-chain manifest-import-policy xss-pentest rmt-stack-docs rmt-playground-docs rmt-reference-docs rmt-playground-security rmt-node-ssr-adapter rmt-php-ssr-adapter rmt-app-runtime rmt-surface-resource-graph-runtime rmt-detached-runtime-harness rmt-dom-compat-parity rmt-component-fabric-ingestion rmt-component-lifecycle-telemetry surface-controller surface-manager surface-adapter-runtime surface-native-materialization surface-lazy-hydration surface-route-lifecycle surface-runtime-release-handoff rmt-source-model rmt-parser rmt-semantic-graph rmt-linter-rules rmt-completions rmt-code-actions rmt-agent-report rmt-ai-developer-kit rmt-editor-packaging docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract docs-rmt-pilot maraca-plan maraca-bundle maraca-bundle-report maraca-rmt-source-to-bundle maraca-orchestration maraca-kernel-orchestration maraca-kernel-integrity maraca-validation maraca-transitions maraca-package-exports maraca-size-budget maraca-web-app-manifest maraca-pwa-service-worker ui-coprocessor super-prewarm-worker-experiment epic14-rmt-tooling-release-gates native-first-overlay-focus native-first-form-navigation-media native-first-framework-leverage native-first-market-pattern-parity contract-registry contract-runtime-parity native-first-evidence-pack rmt-ui-primitive-gap rmt-syntax-growth rmt-action-effect-data-resource-primitives rmt-complete-ui-recipes rmt-renderer-dom-descriptor-proofs native-first-budget-gates native-first-docs-authoring native-first-migration-deprecation native-first-mission-handoff rmt-ui-maximality-owned-surface-baseline rmt-ui-maximality-owned-surface-gate-hygiene rmt-owned-data-display-primitives rmt-owned-command-search-primitives rmt-owned-recipe-extension rmt-owned-surface-browser-lab rmt-owned-contract-budget-runtime-parity rmt-owned-migration-deprecation-docs-handoff rmt-owned-release-handoff rmt-tooling-docs --report .xtend-test-results/xtend-release-report.json",
     "nightly:manifest": "node scripts/create_xtend_nightly_manifest.js",
     "pack:dry-run": "node scripts/capture_pack_dry_run.js",
     "pack:dry-run:report": "node scripts/capture_pack_dry_run.js",
@@ -16562,6 +16597,11 @@
     "test:xscaler-protocol": "node scripts/run_xtend_tests.js xscaler-protocol",
     "test:xscaler-protocol:report": "node scripts/run_xtend_tests.js xscaler-protocol --report .xtend-test-results/xtend-xscaler-protocol-report.json",
     "test:xcommand-kernel": "node scripts/run_xtend_tests.js xcommand-kernel",
-    "test:xcommand-kernel:report": "node scripts/run_xtend_tests.js xcommand-kernel --report .xtend-test-results/xtend-xcommand-kernel-report.json"
+    "test:xcommand-kernel:report": "node scripts/run_xtend_tests.js xcommand-kernel --report .xtend-test-results/xtend-xcommand-kernel-report.json",
+    "build:components": "tsc -p tsconfig.components.json && node scripts/finalize_component_build.js",
+    "test:typescript-components": "node scripts/run_xtend_tests.js typescript-components"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }

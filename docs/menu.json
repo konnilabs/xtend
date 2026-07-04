@@ -2054,6 +2054,19 @@
     }
   },
   {
+    "slug": "components-xtoggle",
+    "id": "docs.components.xtoggle",
+    "label": "x-toggle",
+    "group": "components",
+    "parent": "components",
+    "tier": "component-reference",
+    "rank": 69.645,
+    "labels": {
+      "de": "x-toggle",
+      "en": "x-toggle"
+    }
+  },
+  {
     "slug": "components-xtheme",
     "id": "docs.components.xtheme",
     "label": "x-theme",

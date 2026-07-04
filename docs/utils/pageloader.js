@@ -65,6 +65,7 @@ const DOCS_RMT_PLAYGROUND_HYDRATION_TAGS = Object.freeze([
   'x-tabs',
   'x-textarea',
   'x-theme',
+  'x-toggle',
   'x-toast',
   'x-tooltip',
   'x-type',
@@ -1640,6 +1641,9 @@ function createDocsComponentDemos() {
   add('components-xcheckbox', 'x-checkbox', 'x-checkbox', 'Boolean-Settings fuer Shell Preferences.', '<x-checkbox name="remember" checked>Layout wiederherstellen</x-checkbox>', {
     attributes: { name: 'remember', checked: true },
     children: ['Layout wiederherstellen']
+  });
+  add('components-xtoggle', 'x-toggle', 'x-toggle', 'Switch-Control fuer binaere Einstellungen.', '<x-toggle name="notifications" value="enabled" checked label="Benachrichtigungen"></x-toggle>', {
+    attributes: { name: 'notifications', value: 'enabled', checked: true, label: 'Benachrichtigungen' }
   });
   add('components-xradio', 'x-radio', 'x-radio', 'Einzeloptionen fuer kompakte Einstellbereiche.', '<div class="docs-demo-actions"><x-radio name="density" value="compact" checked>Compact</x-radio><x-radio name="density" value="comfortable">Comfortable</x-radio></div>', {
     attributes: { name: 'density', value: 'compact', checked: true },

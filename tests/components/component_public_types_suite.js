@@ -83,6 +83,15 @@ const publicTypeContracts = [
     elementMap: true
   },
   {
+    tag: 'x-toggle',
+    path: 'components/xtoggle.d.ts',
+    typeNames: ['XToggleAttributeName', 'XToggleEventName', 'XToggleChangedEventDetail', 'XToggleInvalidEventDetail', 'XToggleEventMap', 'XTogglePublicEventContract', 'XToggleElement'],
+    events: ['toggle-changed', 'toggle-invalid'],
+    attributes: ['name', 'value', 'checked', 'disabled', 'required', 'label', 'busy', 'invalid', 'density'],
+    methods: ['checkValidity(): boolean', 'reportValidity(): boolean', 'validate(): boolean', 'toggle(): void', 'reset(): void', 'focus(): void'],
+    elementMap: true
+  },
+  {
     tag: 'x-radio',
     path: 'components/xradio.d.ts',
     typeNames: ['XRadioAttributeName', 'XRadioEventName', 'XRadioEventDetail', 'XRadioEventMap', 'XRadioPublicEventContract', 'XRadioElement'],

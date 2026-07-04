@@ -5,7 +5,7 @@
     <title>XTend Epic 12 Visual Snapshots Fixture</title>
     <meta
       name="xtend-preload"
-      content="xstate,x-theme,x-router,x-link,x-tabs,x-input,x-select,x-checkbox,x-form,x-alert,x-toast,x-status,x-progress,x-modal,x-drawer,x-section,x-cards,x-code,x-player"
+      content="xstate,x-theme,x-router,x-link,x-tabs,x-input,x-select,x-checkbox,x-toggle,x-form,x-alert,x-toast,x-status,x-progress,x-modal,x-drawer,x-section,x-cards,x-code,x-player"
     >
     <style>
       :root {
@@ -88,6 +88,7 @@
             <option value="enterprise">Enterprise</option>
           </x-select>
           <x-checkbox id="snapshot-checkbox" name="terms" value="accepted" label="Terms accepted" disabled></x-checkbox>
+          <x-toggle id="snapshot-toggle" name="notifications" value="enabled" label="Notifications" disabled></x-toggle>
         </x-form>
       </section>
 
@@ -222,6 +223,7 @@
             customElements.whenDefined('x-input'),
             customElements.whenDefined('x-select'),
             customElements.whenDefined('x-checkbox'),
+            customElements.whenDefined('x-toggle'),
             customElements.whenDefined('x-form'),
             customElements.whenDefined('x-alert'),
             customElements.whenDefined('x-toast'),

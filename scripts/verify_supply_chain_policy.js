@@ -139,11 +139,26 @@ function runSupplyChainVerification(options = {}) {
   ));
   checks.push(createCheck(
     'dependency inventory is lockfile-safe',
-    classification.ok,
+    classification.ok && (classification.dependencyCount === 0 || classification.hasLockfile),
     {
       dependencyCount: classification.dependencyCount,
+      runtimeDependencyCount: classification.runtimeDependencyCount,
+      devToolingDependencyCount: classification.devToolingDependencyCount,
       lockfiles
     }
+  ));
+  checks.push(createCheck(
+    'root package keeps runtime dependency inventory empty',
+    classification.runtimeDependencyCount === 0,
+    {
+      runtimeDependencies: classification.runtimeDependencies
+    }
+  ));
+  checks.push(createCheck(
+    'TypeScript compiler is classified as allowed dev tooling',
+    classification.allowedDevToolingDependencies.some((dependency) => (
+      dependency.name === 'typescript' && dependency.section === 'devDependencies'
+    ))
   ));
   checks.push(createCheck(
     'dependency sections are known to the policy',

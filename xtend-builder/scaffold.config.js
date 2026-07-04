@@ -229,6 +229,10 @@ module.exports = {
     declarationArtifactPattern: "components/<basename>.d.ts",
     manifestArtifact: "components/manifest.json",
     loader: "xtend-loader.js",
+    compiler: "tsc",
+    compilerConfig: "tsconfig.components.json",
+    buildCommand: "npm run build:components",
+    finalizer: "scripts/finalize_component_build.js",
     buildMode: "ts-source-to-local-esm-artifacts",
     runtimeFormat: "esm",
     bundlerPolicy: "no-bundler-required-for-core-components",
@@ -237,9 +241,9 @@ module.exports = {
     migrationPolicy: "new-components-typescript-first-existing-js-incremental",
     migrationStates: ["js-legacy", "ts-planned", "ts-source", "ts-generated-esm", "contract-only"],
     noRmtKernelCoupling: true,
-    productiveCompilerIntroduced: false,
+    productiveCompilerIntroduced: true,
     requiredFollowUps: ["WP-E10-03", "WP-E10-07"],
-    localGates: ["references", "components", "rmt-compatibility"]
+    localGates: ["references", "components", "typescript-components", "rmt-compatibility"]
   },
   typescriptComponentBlueprint: {
     schema: "xtend.scaffold.typescript-component-blueprint.v1",
@@ -261,10 +265,14 @@ module.exports = {
     sourceRoot: "src/components/",
     runtimeOutputRoot: "components/",
     declarationOutputRoot: "components/",
+    compiler: "tsc",
+    compilerConfig: "tsconfig.components.json",
+    buildCommand: "npm run build:components",
     kernelBoundary: "no-rmt-kernel-import-of-xtend-types",
     noRuntimeImports: true,
     noProductiveWrites: true,
-    productiveCompilerIntroduced: false,
+    productiveCompilerIntroduced: true,
+    productiveCompilerGate: "node scripts/run_xtend_tests.js typescript-components --json",
     localGate: "node scripts/run_xtend_tests.js builder-typescript-blueprint --json",
     requiredFollowUps: ["WP-E10-08", "WP-E10-12", "WP-E10-14", "WP-E10-15"]
   },

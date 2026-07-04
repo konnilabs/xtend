@@ -10,6 +10,7 @@ export type XtendEventSource =
   | 'x-input'
   | 'x-select'
   | 'x-checkbox'
+  | 'x-toggle'
   | 'x-radio'
   | 'x-rmt-lifecycle-demo-build'
   | 'x-textarea'

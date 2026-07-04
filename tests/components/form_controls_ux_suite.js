@@ -48,6 +48,13 @@ const componentPaths = {
     event: 'checkbox-changed',
     stateKey: 'xcheckbox-checked-<id>'
   },
+  'x-toggle': {
+    source: 'components/xtoggle.js',
+    types: 'components/xtoggle.d.ts',
+    docs: 'docs/components/xtoggle.md',
+    event: 'toggle-changed',
+    stateKey: 'xtoggle-checked-<id>'
+  },
   'x-radio': {
     source: 'components/xradio.js',
     types: 'components/xradio.d.ts',
@@ -192,6 +199,7 @@ function runFormControlsUxSuite(options = {}) {
     }
   });
   context.assert(components.get('account.form').validation.controls.includes('account.writer'), 'RMT fixture aggregates x-writer through x-form validation model');
+  context.assert(components.get('account.form').validation.controls.includes('account.notifications'), 'RMT fixture aggregates x-toggle through x-form validation model');
   context.assert(components.get('account.email').events['input-changed'].command === 'account.email.set-value', 'RMT fixture binds x-input event to command');
   context.assert(components.get('account.form.error').a11y.role === 'alert', 'RMT fixture provides form error announcement surface');
   assertFixtureReferencesResolve(context, fixture);
@@ -219,7 +227,9 @@ function runFormControlsUxSuite(options = {}) {
 
   const formSource = readText('components/xform.js', rootDir);
   context.assert(formSource.includes('x-writer'), 'x-form discovers x-writer as rich text control');
+  context.assert(formSource.includes('x-toggle'), 'x-form discovers x-toggle as switch control');
   context.assert(formSource.includes('date-select'), 'x-form listens to date-select events');
+  context.assert(formSource.includes('toggle-changed'), 'x-form listens to toggle-changed events');
   context.assert(formSource.includes('writer:change'), 'x-form listens to writer:change events');
   context.assert(formSource.includes('validate()'), 'x-form exposes validate command');
   context.assert(formSource.includes('submit()'), 'x-form exposes submit command');
@@ -228,7 +238,7 @@ function runFormControlsUxSuite(options = {}) {
   context.assert(packageManifest.scripts['test:form-controls-ux'] === 'node scripts/run_xtend_tests.js form-controls-ux', 'Package exposes Form Controls UX test script');
   context.assert(metadata && metadata.schema === FORM_CONTROLS_UX_SCHEMA, 'Package metadata exposes Form Controls UX schema');
   context.assert(metadata.fixture === FORM_CONTROLS_UX_FIXTURE, 'Package metadata exposes Form Controls UX fixture');
-  context.assert(Array.isArray(metadata.targets) && metadata.targets.includes('x-writer'), 'Package metadata includes x-writer target');
+  context.assert(Array.isArray(metadata.targets) && metadata.targets.includes('x-writer') && metadata.targets.includes('x-toggle'), 'Package metadata includes x-toggle and x-writer targets');
   context.assert(metadata.kernelBoundary === KERNEL_BOUNDARY, 'Package metadata preserves RMT kernel boundary');
   context.assertIncludes(scaffoldConfig, 'formControlsUxMaturity', 'Scaffold config exposes Form Controls UX section');
   context.assertIncludes(scaffoldConfig, FORM_CONTROLS_UX_SCHEMA, 'Scaffold config declares Form Controls UX schema');

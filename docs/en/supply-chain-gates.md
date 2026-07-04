@@ -8,9 +8,10 @@ Security in XTend starts with explicit boundaries: local modules, untrusted cont
 
 ## Public building blocks
 
-- Same-origin Module.
+- Same-origin modules.
 - Sanitizing for untrusted content.
-- Reproduzierbare Paketprüfungen.
+- Reproducible package checks.
+- `typescript` is allowed only as build tooling in `devDependencies`; runtime dependencies stay empty.
 
 ## Recommended workflow
 
@@ -42,6 +43,7 @@ Sources:
 - `security/manifest-import-policy.js`
 - `security/trusted-dom-policy.js`
 - `security/supply-chain-gate-policy.js`
+- `devDependencies.typescript`
 
 Names:
 - `docs/en/supply-chain-gates.md`
@@ -51,6 +53,7 @@ Names:
 - `security/manifest-import-policy.js`
 - `security/trusted-dom-policy.js`
 - `security/supply-chain-gate-policy.js`
+- `devDependencies.typescript`
 - `docs/dev-router.php`
 - `package.json`
 - `node scripts/verify_docs_public_quality.js`

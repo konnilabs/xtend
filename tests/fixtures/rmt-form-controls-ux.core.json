@@ -143,6 +143,7 @@
           "account.email",
           "account.plan",
           "account.terms",
+          "account.notifications",
           "account.plan.radio",
           "account.notes",
           "account.date",
@@ -342,6 +343,71 @@
       "fabric": {
         "lane": "user-blocking",
         "fiber": "form.control.checkbox"
+      }
+    },
+    {
+      "id": "account.notifications",
+      "tag": "x-toggle",
+      "adapter": "xtend.component",
+      "template": "control.toggle.template",
+      "schedule": "ui.user-blocking.input",
+      "shell": {
+        "slots": {
+          "label": {
+            "template": "label.notifications"
+          },
+          "hint": {
+            "template": "hint.notifications"
+          },
+          "error": {
+            "template": "error.notifications"
+          }
+        },
+        "parts": [
+          "root",
+          "control",
+          "track",
+          "thumb",
+          "label",
+          "helper",
+          "error"
+        ]
+      },
+      "style": {
+        "variant": "default",
+        "density": "comfortable"
+      },
+      "a11y": {
+        "role": "switch",
+        "label": "Enable notifications",
+        "live": "assertive"
+      },
+      "events": {
+        "toggle-changed": {
+          "command": "account.notifications.set-value"
+        },
+        "toggle-invalid": {
+          "command": "account.notifications.announce-error"
+        }
+      },
+      "commands": {
+        "focus": {
+          "schedule": "ui.user-blocking.input"
+        },
+        "validate": {
+          "schedule": "ui.user-blocking.input"
+        },
+        "reset": {
+          "schedule": "ui.user-blocking.input"
+        }
+      },
+      "validation": {
+        "required": true,
+        "errorRegion": "role=alert aria-live=assertive"
+      },
+      "fabric": {
+        "lane": "user-blocking",
+        "fiber": "form.control.toggle"
       }
     },
     {
@@ -658,6 +724,10 @@
         },
         {
           "kind": "component",
+          "component": "account.notifications"
+        },
+        {
+          "kind": "component",
           "component": "account.plan.radio"
         },
         {
@@ -713,6 +783,22 @@
           "attributes": {
             "name": "terms",
             "required": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "control.toggle.template",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "kind": "element",
+          "tag": "x-toggle",
+          "attributes": {
+            "name": "notifications",
+            "value": "enabled",
+            "required": true,
+            "label": "Enable notifications"
           }
         }
       ]
@@ -873,6 +959,36 @@
         {
           "kind": "text",
           "value": "Accept the terms to continue."
+        }
+      ]
+    },
+    {
+      "id": "label.notifications",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "kind": "text",
+          "value": "Enable notifications"
+        }
+      ]
+    },
+    {
+      "id": "hint.notifications",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "kind": "text",
+          "value": "Send immediate workflow updates."
+        }
+      ]
+    },
+    {
+      "id": "error.notifications",
+      "mode": "dom_descriptor",
+      "nodes": [
+        {
+          "kind": "text",
+          "value": "Enable notifications to continue."
         }
       ]
     },

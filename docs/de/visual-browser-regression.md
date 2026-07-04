@@ -13,7 +13,9 @@ Diese Seite beschreibt prüfbare Regeln für robuste Nutzererlebnisse. Die Empfe
 - Dokumentierte Akzeptanzkriterien.
 - Docs-Vertrag `xtend.docs.visual-browser-regression.v1`.
 - Regression-Priority-Vertrag `xtend.catalog.component-regression-priority-plan.v1`.
+- Visual-Snapshot-Vertrag `xtend.epic12.visual-snapshot-automation-contract.v1`.
 - Gate `node scripts/run_xtend_tests.js regression-priority --json`.
+- Snapshot-Gate `node scripts/run_xtend_tests.js visual-snapshot-automation --json`.
 - Viewports `desktop-1280`, `tablet-768` und `mobile-390`.
 
 ## Empfohlener Ablauf

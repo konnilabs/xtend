@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "ES2022"],
+    "strict": true,
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "rootDir": "src/components",
+    "outDir": ".xtend-build/components-ts",
+    "skipLibCheck": true,
+    "noEmitOnError": true
+  },
+  "include": [
+    "src/components/x-toggle/x-toggle.ts"
+  ]
+}
+

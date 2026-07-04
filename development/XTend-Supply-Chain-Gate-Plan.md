@@ -33,6 +33,7 @@ XTend bleibt bis zur Release-Reife ein privates Paket. Trotzdem muss der Publish
 - `Apache-2.0` ist als Projektlizenz fuer den kompletten XTend-Stack akzeptiert; ein oeffentlicher Release braucht weiterhin den separaten Owner-Publish-Entscheid.
 - `publishConfig.provenance = true` bleibt Pflicht fuer spaetere npm-Releases.
 - Native-First `NFM-WP-04` trennt ab 3. Juni 2026 Core-Runtime-, Tooling-, Editor-, Vendor- und Legacy-Flaechen. Der Root-/Core-Runtime-Default bleibt dependency-frei; produktnahe Tooling-Dependencies wie Maraca werden separat klassifiziert.
+- Der TypeScript-first Komponentenpfad darf `typescript` ausschliesslich als `devDependencies`-Compilerwerkzeug fuehren. Die Runtime-Policy bleibt `no-new-runtime-dependencies`.
 
 ## Gate Matrix
 
@@ -80,6 +81,8 @@ Ab ER-WP-30 gilt:
 - optionale und peer Dependencies muessen in Docs erklaert werden
 
 Der lokale Root-Gate-Stand hat keine externen Core-Runtime-Dependencies. Damit bleibt das Root-Dependency-Inventar leer und offline gatebar. Workspace-Tooling-Dependencies wie `xtend-maraca` mit `rollup` und `terser` sowie Editor-Dependencies wie `vscode-languageclient` werden seit `NFM-WP-04` separat in `development/XTend-Native-First-Dependency-Diet-Policy-Contract.md` und `development/XTend-Native-First-Dependency-Exit-Plan-Matrix.md` klassifiziert.
+
+Seit dem produktiven TypeScript-first Komponentenpfad ist `typescript` als erlaubtes Build-only Tooling in `devDependencies` klassifiziert. Es darf nicht in `dependencies`, `optionalDependencies` oder `peerDependencies` wandern und erhoeht den Runtime-Dependency-Zaehler nicht.
 
 ## License Policy
 

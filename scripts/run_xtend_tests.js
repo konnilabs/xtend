@@ -612,6 +612,10 @@ const {
   runBuilderTypeScriptBlueprintSuite
 } = require('../tests/builder/typescript_component_blueprint_suite');
 const {
+  printTypeScriptComponentsBuildReport,
+  runTypeScriptComponentsBuildSuite
+} = require('../tests/builder/typescript_components_build_suite');
+const {
   printScaffoldWritePlanReport,
   runScaffoldWritePlanSuite
 } = require('../tests/builder/scaffold_write_plan_suite');
@@ -1261,6 +1265,16 @@ const suites = [
       const result = runBuilderTypeScriptBlueprintSuite({ rootDir });
       printBuilderTypeScriptBlueprintReport(result);
       return toRunnerResult('builder-typescript-blueprint', 'XTend Builder TypeScript Component Blueprint', result);
+    }
+  },
+  {
+    id: 'typescript-components',
+    label: 'XTend TypeScript Components Build',
+    description: 'Runs the productive tsc component build and verifies generated x-toggle runtime/type artifacts.',
+    run: () => {
+      const result = runTypeScriptComponentsBuildSuite({ rootDir });
+      printTypeScriptComponentsBuildReport(result);
+      return toRunnerResult('typescript-components', 'XTend TypeScript Components Build', result);
     }
   },
   {

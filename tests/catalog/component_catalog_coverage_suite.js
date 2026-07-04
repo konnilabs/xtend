@@ -61,6 +61,7 @@ function runComponentCatalogCoverageSuite(options = {}) {
   const xInput = findEntry(report, 'x-input');
   const xSelect = findEntry(report, 'x-select');
   const xCheckbox = findEntry(report, 'x-checkbox');
+  const xToggle = findEntry(report, 'x-toggle');
   const xRadio = findEntry(report, 'x-radio');
   const xRmtLifecycleDemoBuild = findEntry(report, 'x-rmt-lifecycle-demo-build');
   const xTextarea = findEntry(report, 'x-textarea');
@@ -173,6 +174,9 @@ function runComponentCatalogCoverageSuite(options = {}) {
   context.assert(xSelect && xSelect.coverage.performance === true, 'x-select has explicit performance profile');
   context.assert(xCheckbox && xCheckbox.status === 'enterprise-ready', 'x-checkbox is enterprise-ready after WP-E10-09');
   context.assert(xCheckbox && xCheckbox.coverage.performance === true, 'x-checkbox has explicit performance profile');
+  context.assert(xToggle && xToggle.status === 'enterprise-ready', 'x-toggle is enterprise-ready as a TypeScript-first form switch');
+  context.assert(xToggle && xToggle.coverage.performance === true, 'x-toggle has explicit performance profile');
+  context.assert(xToggle && xToggle.profiles.includes('stateful'), 'x-toggle is classified as stateful');
   context.assert(xRadio && xRadio.status === 'enterprise-ready', 'x-radio is enterprise-ready after WP-E10-09');
   context.assert(xRadio && xRadio.coverage.performance === true, 'x-radio has explicit performance profile');
   context.assert(xRmtLifecycleDemoBuild && xRmtLifecycleDemoBuild.status === 'enterprise-ready', 'x-rmt-lifecycle-demo-build is enterprise-ready after RC1 test build coverage closure');
@@ -254,6 +258,7 @@ function runComponentCatalogCoverageSuite(options = {}) {
   context.assert(matrix.includes('| `x-input` | `form` | `enterprise-ready` |'), 'Markdown matrix includes x-input enterprise-ready row');
   context.assert(matrix.includes('| `x-select` | `form, interactive, stateful` | `enterprise-ready` |'), 'Markdown matrix includes x-select enterprise-ready row');
   context.assert(matrix.includes('| `x-checkbox` | `form, interactive` | `enterprise-ready` |'), 'Markdown matrix includes x-checkbox enterprise-ready row');
+  context.assert(matrix.includes('| `x-toggle` | `form, interactive, stateful` | `enterprise-ready` |'), 'Markdown matrix includes x-toggle enterprise-ready row');
   context.assert(matrix.includes('| `x-radio` | `form, interactive` | `enterprise-ready` |'), 'Markdown matrix includes x-radio enterprise-ready row');
   context.assert(matrix.includes('| `x-rmt-lifecycle-demo-build` | `display, stateful` | `enterprise-ready` |'), 'Markdown matrix includes x-rmt-lifecycle-demo-build enterprise-ready row');
   context.assert(matrix.includes('| `x-textarea` | `form, stateful` | `enterprise-ready` |'), 'Markdown matrix includes x-textarea enterprise-ready row');

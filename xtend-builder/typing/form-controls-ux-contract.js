@@ -17,6 +17,7 @@ const FORM_CONTROL_TARGETS = [
   'x-input',
   'x-select',
   'x-checkbox',
+  'x-toggle',
   'x-radio',
   'x-textarea',
   'x-calendar',
@@ -44,6 +45,7 @@ const FORM_CONTROL_REQUIRED_EVENTS = [
   'input-changed',
   'select-changed',
   'checkbox-changed',
+  'toggle-changed',
   'radio-changed',
   'textarea-changed',
   'date-select',
@@ -114,6 +116,17 @@ const FORM_CONTROL_PROFILES = [
     valueMode: 'boolean-or-token',
     events: ['checkbox-changed', 'checkbox-invalid'],
     stateKey: 'xcheckbox-checked-<id>',
+    formAssociated: true,
+    requiredCommands: ['focus', 'validate', 'reset', 'set-value'],
+    schedule: 'ui.user-blocking.input'
+  },
+  {
+    tag: 'x-toggle',
+    role: 'switch',
+    family: 'selection',
+    valueMode: 'boolean-or-token',
+    events: ['toggle-changed', 'toggle-invalid'],
+    stateKey: 'xtoggle-checked-<id>',
     formAssociated: true,
     requiredCommands: ['focus', 'validate', 'reset', 'set-value'],
     schedule: 'ui.user-blocking.input'
@@ -213,7 +226,7 @@ function createFormControlsUxContract(input = {}) {
       formHostSummary: 'role=alert'
     },
     formAssociation: {
-      associatedControls: ['x-input', 'x-select', 'x-checkbox', 'x-radio', 'x-textarea', 'x-calendar'],
+      associatedControls: ['x-input', 'x-select', 'x-checkbox', 'x-toggle', 'x-radio', 'x-textarea', 'x-calendar'],
       hostControls: ['x-form'],
       richTextControls: ['x-writer'],
       elementInternalsPreferred: true,

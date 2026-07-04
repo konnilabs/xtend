@@ -27,6 +27,9 @@ const {
   runXCheckboxComponentSuite
 } = require('./xcheckbox.component_suite');
 const {
+  runXToggleComponentSuite
+} = require('./xtoggle.component_suite');
+const {
   runXRadioComponentSuite
 } = require('./xradio.component_suite');
 const {
@@ -144,6 +147,7 @@ const componentSuites = [
   runXInputComponentSuite,
   runXSelectComponentSuite,
   runXCheckboxComponentSuite,
+  runXToggleComponentSuite,
   runXRadioComponentSuite,
   runXTextareaComponentSuite,
   runXStatusComponentSuite,

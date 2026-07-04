@@ -99,7 +99,7 @@ function runVisualSnapshotAutomationSuite(options = {}) {
   context.assert(plan.sourceRegressionPriority.schema === COMPONENT_REGRESSION_PRIORITY_SCHEMA, 'Snapshot plan links regression priority');
   context.assert(plan.coverage.entryCount === 5, 'Snapshot plan covers five family entries');
   context.assert(plan.coverage.familyCount === 5, 'Snapshot plan covers five UX families');
-  context.assert(plan.coverage.componentCount === 17, 'Snapshot plan covers seventeen representative components');
+  context.assert(plan.coverage.componentCount === 18, 'Snapshot plan covers eighteen representative components');
   context.assert(plan.coverage.snapshotScopeCount === VISUAL_SNAPSHOT_SCOPES.length, 'Snapshot plan covers all snapshot scopes');
   context.assert(plan.coverage.matrixCombinationCount === 360, 'Snapshot plan preserves 360 Theme Matrix combinations');
   context.assert(validation.schema === VISUAL_SNAPSHOT_AUTOMATION_REPORT_SCHEMA, 'Snapshot validator emits report schema');

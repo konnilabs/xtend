@@ -371,6 +371,7 @@ Der Contract `xtend.epic14.lsp-handoff.v1` dokumentiert die LSP Capability Matri
 | `development/XTend-Overlay-Navigation-Controls-TypeScript-RMT-Contract.md` | automated-static | akzeptierter Contract fuer TypeScript-first Overlay Navigation Controls, RMT `xtend.component` Authoring, route-aware Drawer und `no-rmt-kernel-import-of-xtend-types` |
 | `components/xselect.js` | automated-static | lokale ESM-Runtime fuer `x-select` mit Form Association, RMT Metadata, Fabric Boundary, A11y- und Performance-Profil |
 | `components/xcheckbox.js` | automated-static | lokale ESM-Runtime fuer `x-checkbox` mit `checked`, `indeterminate`, RMT Metadata, A11y- und Performance-Profil |
+| `components/xtoggle.js` | automated-static | aus `src/components/x-toggle/x-toggle.ts` erzeugte lokale ESM-Runtime fuer `x-toggle` mit Switch-Semantik, Form Association, RMT Metadata, A11y- und Performance-Profil |
 | `components/xradio.js` | automated-static | lokale ESM-Runtime fuer `x-radio` mit Gruppenkoordination, Keyboard Navigation, RMT Metadata, A11y- und Performance-Profil |
 | `components/xtextarea.js` | automated-static | lokale ESM-Runtime fuer `x-textarea` mit Form Association, RMT Metadata, Fabric Boundary, A11y- und Performance-Profil |
 | `components/xstatus.js` | automated-static | lokale ESM-Runtime fuer `x-status` mit Live Region, Scheduler-Feedback, RMT Metadata, A11y- und Performance-Profil |
@@ -380,6 +381,7 @@ Der Contract `xtend.epic14.lsp-handoff.v1` dokumentiert die LSP Capability Matri
 | `components/xdrawer.js` | automated-static | lokale ESM-Runtime fuer `x-drawer` mit route-aware Navigation, RMT Metadata, A11y- und Performance-Profil |
 | `tests/components/xselect.component_suite.js` | automated-static | Component-Level-Suite fuer `x-select` unter dem Epic-10 Form Selection Controls Contract |
 | `tests/components/xcheckbox.component_suite.js` | automated-static | Component-Level-Suite fuer `x-checkbox` unter dem Epic-10 Form Selection Controls Contract |
+| `tests/components/xtoggle.component_suite.js` | automated-static | Component-Level-Suite fuer `x-toggle` mit TypeScript-first Source, Switch-A11y, Form-Association, XState und RMT/Fabric-Profilen |
 | `tests/components/xradio.component_suite.js` | automated-static | Component-Level-Suite fuer `x-radio` unter dem Epic-10 Form Selection Controls Contract |
 | `tests/components/xtextarea.component_suite.js` | automated-static | Component-Level-Suite fuer `x-textarea` unter dem Epic-10 Form Feedback Controls Contract |
 | `tests/components/xstatus.component_suite.js` | automated-static | Component-Level-Suite fuer `x-status` unter dem Epic-10 Form Feedback Controls Contract |
@@ -900,7 +902,7 @@ Epic 10 liegt in `development/EPIC-10-XTend-Component-Platform-TypeScript-und-RM
 
 `WP-E10-01` ist in `development/WP-E10-01-Epic-10-Backlog-und-Component-Maturity-Modell-anlegen.md` abgeschlossen. Das Backlog liegt in `development/BACKLOG-EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md` und traegt `xtend.epic10.backlog.v1`. Das akzeptierte Reifemodell liegt in `development/XTend-Component-Maturity-Modell-v2.md` und traegt `xtend.component.maturity-model.v2`.
 
-`WP-E10-02` ist in `development/WP-E10-02-TypeScript-Source-und-Build-Strategie-entscheiden.md` abgeschlossen. Die akzeptierte TypeScript Source Strategie liegt in `development/XTend-TypeScript-Component-Source-Strategie.md` und traegt `xtend.typescript.component-source-strategy.v1`.
+`WP-E10-02` ist in `development/WP-E10-02-TypeScript-Source-und-Build-Strategie-entscheiden.md` abgeschlossen. Die akzeptierte TypeScript Source Strategie liegt in `development/XTend-TypeScript-Component-Source-Strategie.md` und traegt `xtend.typescript.component-source-strategy.v1`. Der produktive Komponenten-Compilerpfad ist jetzt ueber `tsconfig.components.json`, `scripts/finalize_component_build.js`, `tests/builder/typescript_components_build_suite.js` und `node scripts/run_xtend_tests.js typescript-components --json` gegatet.
 
 `WP-E10-03` ist in `development/WP-E10-03-Component-Contract-v2-fuer-TypeScript-RMT-und-Fabric-definieren.md` abgeschlossen. Der akzeptierte Component Contract v2 liegt in `development/XTend-Component-Contract-v2.md` und traegt `xtend.component.contract.v2`. Der lokale Gate liegt unter `tests/components/component_contract_v2_suite.js` und ist ueber `node scripts/run_xtend_tests.js component-contract-v2 --json` erreichbar.
 

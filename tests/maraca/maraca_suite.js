@@ -68,6 +68,7 @@ const MARACA_VALIDATION_OUT_DIR = '.xtend-build/maraca/validation';
 const MARACA_TRANSITIONS_OUT_DIR = '.xtend-build/maraca/transitions';
 const MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS = 90;
 const MARACA_KERNEL_INTEGRITY_BROWSER_KILL_AFTER_SECONDS = 10;
+const MARACA_KERNEL_INTEGRITY_BROWSER_VIRTUAL_TIME_BUDGET_MS = 30000;
 const maracaEsmModuleCache = new Map();
 const MARACA_SUITES = [
   'maraca-plan',
@@ -1607,6 +1608,7 @@ async function runKernelIntegrityBrowserSmoke(context, rootDir) {
       '--disable-gpu',
       '--autoplay-policy=no-user-gesture-required',
       '--run-all-compositor-stages-before-draw',
+      `--virtual-time-budget=${MARACA_KERNEL_INTEGRITY_BROWSER_VIRTUAL_TIME_BUDGET_MS}`,
       '--dump-dom',
       targetUrl
     ], {

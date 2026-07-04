@@ -278,8 +278,8 @@ class XForm extends HTMLElement {
     this._statusRegion = this.shadowRoot.querySelector("#status");
     this._errorRegion = this.shadowRoot.querySelector("#error");
     this._elements = [];
-    this._fieldEvents = ["input-changed", "select-changed", "checkbox-changed", "radio-changed", "textarea-changed", "date-select", "writer:change"];
-    this._supportedSelector = "x-input, x-slider, x-calendar, x-select, x-checkbox, x-radio, x-textarea, x-writer";
+    this._fieldEvents = ["input-changed", "select-changed", "checkbox-changed", "toggle-changed", "radio-changed", "textarea-changed", "date-select", "writer:change"];
+    this._supportedSelector = "x-input, x-slider, x-calendar, x-select, x-checkbox, x-toggle, x-radio, x-textarea, x-writer";
     this._unsubscribeState = null;
   }
 
@@ -313,7 +313,7 @@ class XForm extends HTMLElement {
           const name = el.getAttribute("name");
           if (!name || value[name] === undefined) return;
 
-          if (el.tagName === "X-CHECKBOX") {
+          if (el.tagName === "X-CHECKBOX" || el.tagName === "X-TOGGLE") {
             el.checked = Boolean(value[name]);
             return;
           }
@@ -418,7 +418,7 @@ class XForm extends HTMLElement {
         console.warn(`Element ${el.tagName} is missing a "name" attribute and will be ignored.`);
         return;
       }
-      if (el.tagName === "X-CHECKBOX") {
+      if (el.tagName === "X-CHECKBOX" || el.tagName === "X-TOGGLE") {
         data[name] = Boolean(el.checked);
         return;
       }
