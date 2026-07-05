@@ -18,6 +18,7 @@ const RMT_APP_ORCHESTRATION_SCHEMA = 'xtend.rmt.app-orchestration.v1';
 const RMT_APP_ORCHESTRATION_WORKPACKAGE = 'RMT-APP-ORCH-01';
 const RMT_FORM_VALIDATION_SCHEMA = 'xtend.rmt.form-validation.v1';
 const RMT_SURFACE_TRANSITION_SCHEMA = 'xtend.rmt.surface-transitions.v1';
+const RMT_ANIMATION_ENGINE_SCHEMA = 'xtend.rmt.animation-engine.v1';
 const RMT_VNEXT_COMPILER_MODULE_PATH = 'tools/rmt-language/vnext-compiler.js';
 const RMT_VNEXT_COMPILER_SUITE_PATH = 'tests/rmt-language/rmt_vnext_compiler_suite.js';
 const RMT_VNEXT_COMPILER_PACKAGE_SCRIPT = 'npm run test:rmt-vnext-compiler';
@@ -37,6 +38,7 @@ const PRIMITIVE_DECLARATION_TYPES = new Set([
   'RmtDataSourceDeclaration',
   'RmtActionDeclaration',
   'RmtValidationDeclaration',
+  'RmtAnimationDeclaration',
   'RmtTransitionDeclaration',
   'RmtPortalDeclaration',
   'RmtOverlayDeclaration',
@@ -128,6 +130,7 @@ function createCoreDocument(manifest = {}) {
     actions: [],
     effects: [],
     validations: [],
+    animations: [],
     transitions: [],
     portals: [],
     overlays: [],
@@ -651,7 +654,7 @@ function hasPrimitiveDeclarations(ast) {
 }
 
 function hasPrimitiveCoreRecords(core) {
-  return ['states', 'selectors', 'actions', 'effects', 'validations', 'transitions', 'portals', 'overlays', 'resources'].some((domain) => core[domain].length > 0)
+  return ['states', 'selectors', 'actions', 'effects', 'validations', 'animations', 'transitions', 'portals', 'overlays', 'resources'].some((domain) => core[domain].length > 0)
     || core.surfaces.some((surface) => surface.primitive === true);
 }
 
@@ -742,15 +745,35 @@ function createAppPlatformRecords(core) {
       fields: record.fields,
       includes: record.includes
     })),
+    animations: core.animations.map((record) => ({
+      id: record.name,
+      preset: record.preset,
+      effect: record.effect,
+      durationMs: record.durationMs,
+      easing: record.easing,
+      spring: record.spring,
+      keyframes: record.keyframes,
+      timeline: record.timeline,
+      reducedMotion: record.reducedMotion,
+      allowFilter: record.allowFilter
+    })),
     transitions: core.transitions.map((record) => ({
       id: record.name,
       trigger: record.trigger,
       from: record.from,
       to: record.to,
       effect: record.effect,
+      effectExplicit: record.effectExplicit === true,
       durationMs: record.durationMs,
+      durationExplicit: record.durationExplicit === true,
       easing: record.easing,
+      easingExplicit: record.easingExplicit === true,
       lane: record.lane,
+      animation: record.animation,
+      timeline: record.timeline,
+      layoutKey: record.layoutKey,
+      interrupt: record.interrupt,
+      reducedMotion: record.reducedMotion,
       operation: `operation:xtend.rmt/surface-transition/${record.name}`,
       endpointName: `xtend.rmt.kernel.surface-transition.${schedulerToken(record.name)}`
     })),
@@ -826,6 +849,15 @@ function createKernelRecords(core) {
       includeCount: validation.includes.length,
       sourceRef: validation.sourceRef
     })),
+    animationRecords: core.animations.map((animation) => ({
+      id: animation.id,
+      name: animation.name,
+      preset: animation.preset || null,
+      effect: animation.effect || null,
+      durationMs: animation.durationMs,
+      keyframeCount: toArray(animation.keyframes).length,
+      sourceRef: animation.sourceRef
+    })),
     transitionRecords: core.transitions.map((transition) => ({
       id: transition.id,
       name: transition.name,
@@ -879,10 +911,18 @@ function sourceMapForOrchestration(core) {
     'RmtValidationDeclaration',
     'RmtValidationFieldClause',
     'RmtValidationTargetClause',
+    'RmtAnimationDeclaration',
+    'RmtAnimationEffectClause',
+    'RmtAnimationKeyframeClause',
     'RmtTransitionDeclaration',
     'RmtTransitionTriggerClause',
     'RmtTransitionFromClause',
     'RmtTransitionToClause',
+    'RmtTransitionUseAnimationClause',
+    'RmtTransitionTimelineClause',
+    'RmtTransitionLayoutKeyClause',
+    'RmtTransitionInterruptClause',
+    'RmtTransitionReducedMotionClause',
     'RmtEffectStatement',
     'RmtPortalDeclaration',
     'RmtOverlayDeclaration',
@@ -907,6 +947,7 @@ function sourceMapForKernel(core) {
     'RmtValidationDeclaration',
     'RmtValidationFieldClause',
     'RmtValidationTargetClause',
+    'RmtAnimationDeclaration',
     'RmtTransitionDeclaration',
     'RmtTransitionTriggerClause',
     'RmtTransitionFromClause',
@@ -2340,7 +2381,7 @@ function createHydrationPlan(core, appPlatform) {
 }
 
 const VALIDATION_CAPABLE_COMPONENTS = new Set(['x-input', 'x-select', 'x-textarea', 'x-form']);
-const SUPPORTED_SURFACE_TRANSITION_EFFECTS = Object.freeze([
+const SUPPORTED_ANIMATION_EFFECTS = Object.freeze([
   'fade',
   'crossfade',
   'slide-left',
@@ -2348,8 +2389,140 @@ const SUPPORTED_SURFACE_TRANSITION_EFFECTS = Object.freeze([
   'slide-up',
   'slide-down',
   'scale',
+  'pop',
+  'zoom',
+  'flip',
+  'rotate',
+  'expand',
+  'collapse',
+  'fade-blur',
+  'shared-element',
+  'layout-flip',
   'none'
 ]);
+const SUPPORTED_SURFACE_TRANSITION_EFFECTS = SUPPORTED_ANIMATION_EFFECTS;
+const SUPPORTED_REDUCED_MOTION_POLICIES = Object.freeze(['instant', 'fade', 'none']);
+const SUPPORTED_INTERRUPT_POLICIES = Object.freeze(['cancel', 'finish', 'replace']);
+const ANIMATION_SAFE_KEYFRAME_PROPERTIES = Object.freeze(['opacity', 'transform']);
+const ANIMATION_OPT_IN_KEYFRAME_PROPERTIES = Object.freeze(['filter']);
+const ANIMATION_DEFAULT_REDUCED_MOTION = 'fade';
+const ANIMATION_DEFAULT_INTERRUPT = 'replace';
+
+function primitiveFieldsToObject(fields) {
+  return toArray(fields).reduce((result, field) => {
+    if (field && field.key) {
+      result[field.key] = primitiveValueToCore(field.value);
+    }
+    return result;
+  }, {});
+}
+
+function compileMotionTimelineNode(timelineNode) {
+  const steps = toArray(timelineNode && timelineNode.steps).map((step, index) => {
+    const text = String(step && step.text || '').trim();
+    if (!text) return null;
+    const tokens = text.split(/\s+/u).filter(Boolean);
+    const kind = tokens[0] || 'step';
+    const record = {
+      id: `timeline-step:${index}`,
+      kind,
+      text,
+      phase: ['enter', 'exit'].includes(kind) ? kind : null,
+      delayMs: 0,
+      durationMs: null
+    };
+    for (let cursor = 1; cursor < tokens.length; cursor += 1) {
+      const token = tokens[cursor];
+      const next = tokens[cursor + 1];
+      if (token === 'delayMs' && next !== undefined) {
+        record.delayMs = Number(next);
+        cursor += 1;
+      } else if (token === 'durationMs' && next !== undefined) {
+        record.durationMs = Number(next);
+        cursor += 1;
+      } else if (kind === 'stagger' && cursor === 1) {
+        record.eachMs = Number(token);
+      } else if (kind === 'stagger' && !record.phase) {
+        record.phase = token;
+      }
+    }
+    return record;
+  }).filter(Boolean);
+
+  if (steps.length === 0) return null;
+  const hasParallel = steps.some((step) => step.kind === 'parallel');
+  const hasSequence = steps.some((step) => step.kind === 'sequence');
+  return {
+    mode: hasParallel ? 'parallel' : (hasSequence ? 'sequence' : 'implicit'),
+    steps
+  };
+}
+
+function clampDurationMs(value, fallback = 240) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return fallback;
+  return Math.max(0, Math.min(Math.round(numeric), 3000));
+}
+
+function normalizeSpringDefinition(spring = null) {
+  if (!spring || typeof spring !== 'object') return null;
+  const stiffness = Number(spring.stiffness == null ? 170 : spring.stiffness);
+  const damping = Number(spring.damping == null ? 26 : spring.damping);
+  const mass = Number(spring.mass == null ? 1 : spring.mass);
+  const velocity = Number(spring.velocity == null ? 0 : spring.velocity);
+  return {
+    stiffness: Number.isFinite(stiffness) ? Math.max(1, Math.round(stiffness)) : 170,
+    damping: Number.isFinite(damping) ? Math.max(1, Math.round(damping)) : 26,
+    mass: Number.isFinite(mass) ? Math.max(1, Math.round(mass)) : 1,
+    velocity: Number.isFinite(velocity) ? velocity : 0
+  };
+}
+
+function sampleSpringKeyframes(spring = null, frameCount = 12) {
+  const normalized = normalizeSpringDefinition(spring);
+  if (!normalized) return [];
+  const frames = [];
+  const omega = Math.sqrt(normalized.stiffness / normalized.mass);
+  const dampingRatio = normalized.damping / (2 * Math.sqrt(normalized.stiffness * normalized.mass));
+  for (let index = 0; index <= frameCount; index += 1) {
+    const t = index / frameCount;
+    const decay = Math.exp(-dampingRatio * omega * t);
+    const value = 1 - decay * Math.cos(omega * t + normalized.velocity * 0.01);
+    frames.push({
+      offset: Number(t.toFixed(4)),
+      value: Number(Math.max(0, Math.min(1.12, value)).toFixed(4))
+    });
+  }
+  return frames;
+}
+
+function sanitizeAnimationKeyframes(animation, diagnostics) {
+  const allowFilter = animation && animation.allowFilter === true;
+  return toArray(animation && animation.keyframes).map((keyframe) => {
+    const sanitized = {
+      phase: keyframe.phase || 'enter',
+      offset: keyframe.offset == null ? null : keyframe.offset,
+      properties: {}
+    };
+    Object.keys(keyframe.properties || {}).forEach((property) => {
+      if (property === 'offset') return;
+      const safe = ANIMATION_SAFE_KEYFRAME_PROPERTIES.includes(property)
+        || (allowFilter && ANIMATION_OPT_IN_KEYFRAME_PROPERTIES.includes(property));
+      if (!safe) {
+        diagnostics.push({
+          code: 'rmt.animation.keyframe_property_unsafe',
+          severity: 'warning',
+          message: `Animation ${animation.id} uses unsafe keyframe property ${property}.`,
+          animation: animation.id,
+          property
+        });
+        return;
+      }
+      sanitized.properties[property] = keyframe.properties[property];
+    });
+    return sanitized;
+  });
+}
 
 function createValidationSurfaceIndex(appPlatform) {
   const selectorToState = new Map(toArray(appPlatform && appPlatform.selectors).map((selector) => [selector.id, selector.from]));
@@ -2589,9 +2762,17 @@ function createSurfaceTransitionPlan(core, appPlatform) {
       from: toArray(transition.from),
       to: toArray(transition.to),
       effect,
+      effectExplicit: transition.effectExplicit === true,
       durationMs,
+      durationExplicit: transition.durationExplicit === true,
       easing: transition.easing || 'ease',
+      easingExplicit: transition.easingExplicit === true,
       lane: transition.lane || 'transition',
+      animation: transition.animation || null,
+      timeline: transition.timeline || null,
+      layoutKey: transition.layoutKey || null,
+      interrupt: transition.interrupt || ANIMATION_DEFAULT_INTERRUPT,
+      reducedMotion: transition.reducedMotion || ANIMATION_DEFAULT_REDUCED_MOTION,
       operation: transition.operation || `operation:xtend.rmt/surface-transition/${transition.id}`,
       endpointName: transition.endpointName || `xtend.rmt.kernel.surface-transition.${schedulerToken(transition.id)}`,
       sourceRef: sourceRecord && sourceRecord.sourceRef ? sourceRecord.sourceRef : null,
@@ -2649,6 +2830,215 @@ function createSurfaceTransitionPlan(core, appPlatform) {
       'RmtTransitionTriggerClause',
       'RmtTransitionFromClause',
       'RmtTransitionToClause'
+    ].includes(entry.nodeType))
+  };
+}
+
+function createAnimationEnginePlan(core, appPlatform, transitionPlan) {
+  const supportedEffects = new Set(SUPPORTED_ANIMATION_EFFECTS);
+  const reducedMotionPolicies = new Set(SUPPORTED_REDUCED_MOTION_POLICIES);
+  const interruptPolicies = new Set(SUPPORTED_INTERRUPT_POLICIES);
+  const diagnostics = [];
+  const rawAnimations = toArray(appPlatform && appPlatform.animations);
+  const animations = rawAnimations.map((animation) => {
+    const effect = animation.effect || animation.preset || 'fade';
+    const normalized = {
+      id: animation.id,
+      name: animation.id,
+      preset: animation.preset || null,
+      effect,
+      durationMs: clampDurationMs(animation.durationMs, 240),
+      easing: animation.easing || 'ease',
+      spring: normalizeSpringDefinition(animation.spring),
+      keyframes: toArray(animation.keyframes),
+      timeline: animation.timeline || null,
+      reducedMotion: animation.reducedMotion || ANIMATION_DEFAULT_REDUCED_MOTION,
+      allowFilter: animation.allowFilter === true,
+      sourceRef: toArray(core && core.animations).find((entry) => entry.name === animation.id)
+        && toArray(core && core.animations).find((entry) => entry.name === animation.id).sourceRef || null
+    };
+
+    if (!supportedEffects.has(effect)) {
+      diagnostics.push({
+        code: 'rmt.animation.effect_unknown',
+        severity: 'warning',
+        message: `Animation ${animation.id} uses unsupported effect ${effect}.`,
+        animation: animation.id,
+        effect
+      });
+    }
+    if (!reducedMotionPolicies.has(normalized.reducedMotion)) {
+      diagnostics.push({
+        code: 'rmt.animation.reduced_motion_invalid',
+        severity: 'warning',
+        message: `Animation ${animation.id} uses unsupported reducedMotion policy ${normalized.reducedMotion}.`,
+        animation: animation.id,
+        policy: normalized.reducedMotion
+      });
+      normalized.reducedMotion = ANIMATION_DEFAULT_REDUCED_MOTION;
+    }
+    normalized.keyframes = sanitizeAnimationKeyframes(normalized, diagnostics);
+    normalized.springSamples = sampleSpringKeyframes(normalized.spring);
+    return normalized;
+  });
+  const animationsById = new Map(animations.map((animation) => [animation.id, animation]));
+  const appTransitionsById = new Map(toArray(appPlatform && appPlatform.transitions).map((transition) => [transition.id, transition]));
+  const transitions = toArray(transitionPlan && transitionPlan.transitions).map((transition) => {
+    const appTransition = appTransitionsById.get(transition.id) || transition;
+    const animationRef = appTransition.animation && appTransition.animation.id || null;
+    const preset = animationRef ? animationsById.get(animationRef) || null : null;
+    if (animationRef && !preset) {
+      diagnostics.push({
+        code: 'rmt.animation.reference_missing',
+        severity: 'warning',
+        message: `Transition ${transition.id} references unknown animation ${animationRef}.`,
+        transition: transition.id,
+        animation: animationRef
+      });
+    }
+    const effect = appTransition.effectExplicit ? transition.effect : (preset && preset.effect || transition.effect || 'fade');
+    const durationMs = appTransition.durationExplicit ? transition.durationMs : (preset && preset.durationMs || transition.durationMs || 240);
+    const easing = appTransition.easingExplicit ? transition.easing : (preset && preset.easing || transition.easing || 'ease');
+    const reducedMotion = appTransition.reducedMotion || preset && preset.reducedMotion || ANIMATION_DEFAULT_REDUCED_MOTION;
+    const interrupt = appTransition.interrupt || ANIMATION_DEFAULT_INTERRUPT;
+    const timeline = appTransition.timeline || preset && preset.timeline || null;
+    const layoutKey = appTransition.layoutKey || null;
+
+    if (!supportedEffects.has(effect)) {
+      diagnostics.push({
+        code: 'rmt.animation.transition_effect_unknown',
+        severity: 'warning',
+        message: `Transition ${transition.id} lowers to unsupported animation effect ${effect}.`,
+        transition: transition.id,
+        effect
+      });
+    }
+    if (!reducedMotionPolicies.has(reducedMotion)) {
+      diagnostics.push({
+        code: 'rmt.animation.transition_reduced_motion_invalid',
+        severity: 'warning',
+        message: `Transition ${transition.id} uses unsupported reducedMotion policy ${reducedMotion}.`,
+        transition: transition.id,
+        policy: reducedMotion
+      });
+    }
+    if (!interruptPolicies.has(interrupt)) {
+      diagnostics.push({
+        code: 'rmt.animation.interrupt_invalid',
+        severity: 'warning',
+        message: `Transition ${transition.id} uses unsupported interrupt policy ${interrupt}.`,
+        transition: transition.id,
+        interrupt
+      });
+    }
+    if ((effect === 'shared-element' || effect === 'layout-flip') && !layoutKey) {
+      diagnostics.push({
+        code: 'rmt.animation.layout_key_missing',
+        severity: 'warning',
+        message: `Transition ${transition.id} uses ${effect} without layoutKey.`,
+        transition: transition.id,
+        effect
+      });
+    }
+    if (effect === 'fade-blur' && !(preset && preset.allowFilter)) {
+      diagnostics.push({
+        code: 'rmt.animation.filter_opt_in_missing',
+        severity: 'warning',
+        message: `Transition ${transition.id} uses fade-blur without an animation allowFilter opt-in.`,
+        transition: transition.id,
+        effect
+      });
+    }
+
+    return {
+      id: transition.id,
+      name: transition.name || transition.id,
+      trigger: transition.trigger,
+      from: toArray(transition.from),
+      to: toArray(transition.to),
+      animation: preset ? preset.id : animationRef,
+      effect,
+      durationMs: clampDurationMs(durationMs, 240),
+      easing,
+      lane: transition.lane || 'transition',
+      layoutKey,
+      interrupt: interruptPolicies.has(interrupt) ? interrupt : ANIMATION_DEFAULT_INTERRUPT,
+      reducedMotion: reducedMotionPolicies.has(reducedMotion) ? reducedMotion : ANIMATION_DEFAULT_REDUCED_MOTION,
+      timeline,
+      phasing: effect === 'crossfade' ? 'overlap' : 'serial',
+      keyframes: preset ? preset.keyframes : [],
+      spring: preset ? preset.spring : null,
+      springSamples: preset ? preset.springSamples : [],
+      dependencies: {
+        surfaces: Array.from(new Set(toArray(transition.from).concat(toArray(transition.to)))),
+        animation: preset ? preset.id : null
+      },
+      schedulerTarget: `animation-scheduler:${normalizeIdSegment(transition.id)}`,
+      operation: transition.operation,
+      endpointName: transition.endpointName,
+      sourceRef: transition.sourceRef || null
+    };
+  });
+
+  return {
+    schema: RMT_ANIMATION_ENGINE_SCHEMA,
+    supportedEffects: SUPPORTED_ANIMATION_EFFECTS.slice(),
+    safeKeyframeProperties: ANIMATION_SAFE_KEYFRAME_PROPERTIES.slice(),
+    optInKeyframeProperties: ANIMATION_OPT_IN_KEYFRAME_PROPERTIES.slice(),
+    supportedInterruptPolicies: SUPPORTED_INTERRUPT_POLICIES.slice(),
+    supportedReducedMotionPolicies: SUPPORTED_REDUCED_MOTION_POLICIES.slice(),
+    defaultEffect: 'fade',
+    defaultReducedMotion: ANIMATION_DEFAULT_REDUCED_MOTION,
+    animations,
+    transitions,
+    timelines: transitions.map((transition) => ({
+      id: `timeline:${transition.id}`,
+      transition: transition.id,
+      value: transition.timeline,
+      phasing: transition.phasing
+    })).filter((entry) => entry.value),
+    schedulerTargets: transitions.map((transition) => ({
+      id: transition.schedulerTarget,
+      kind: 'animation-transition',
+      operation: transition.operation,
+      endpointName: transition.endpointName,
+      transition: transition.id,
+      lane: transition.lane,
+      target: {
+        kind: 'transition',
+        ref: transition.id
+      }
+    })),
+    reducedMotionPolicies: transitions.map((transition) => ({
+      transition: transition.id,
+      policy: transition.reducedMotion
+    })),
+    telemetry: {
+      trace: 'action -> reducer -> state-patch -> animation-engine -> surface-transition-facade',
+      customEvents: [
+        'xtend-rmt:animation-start',
+        'xtend-rmt:animation-phase',
+        'xtend-rmt:animation-interrupt',
+        'xtend-rmt:animation-fallback',
+        'xtend-rmt:animation-budget',
+        'xtend-rmt:animation-complete'
+      ]
+    },
+    security: {
+      componentIsolation: 'public-contract-only',
+      shadowRootAccess: false,
+      htmlSinks: 'forbidden',
+      keyframeProperties: 'allowlist'
+    },
+    diagnostics,
+    sourceMap: core.sourceMap.filter((entry) => [
+      'RmtAnimationDeclaration',
+      'RmtAnimationEffectClause',
+      'RmtAnimationKeyframeClause',
+      'RmtTransitionDeclaration',
+      'RmtTransitionUseAnimationClause',
+      'RmtTransitionTimelineClause',
+      'RmtTransitionLayoutKeyClause'
     ].includes(entry.nodeType))
   };
 }
@@ -2851,6 +3241,7 @@ function createHostContracts() {
       'component.checkValidity',
       'component.reportValidity',
       'surfaceTransition.run',
+      'animationEngine.run',
       'xstate.write',
       'uiEffects.resolve',
       'telemetry.publish',
@@ -3002,6 +3393,8 @@ function createRmtAppOrchestrationArtifacts(core) {
   const hydration = createHydrationPlan(core, appPlatform);
   const validation = createValidationPlan(core, appPlatform);
   const transitions = createSurfaceTransitionPlan(core, appPlatform);
+  const animationEngine = createAnimationEnginePlan(core, appPlatform, transitions);
+  transitions.animationEngine = animationEngine;
   const runtimeGraph = createRuntimeGraph(core, appPlatform, eventBindings, resources, validation, transitions);
   const patchPlan = createPatchPlan(appPlatform, reducers, renderDescriptors, validation, transitions);
   const telemetry = createTelemetryPlan();
@@ -3010,7 +3403,7 @@ function createRmtAppOrchestrationArtifacts(core) {
     schema: RMT_APP_ORCHESTRATION_SCHEMA,
     workpackage: RMT_APP_ORCHESTRATION_WORKPACKAGE,
     sourceSyntax: 'rmt-vnext',
-    runtimeOrder: ['kernel', 'state', 'resource', 'validation', 'transition', 'action', 'event', 'surface', 'renderer'],
+    runtimeOrder: ['kernel', 'state', 'resource', 'validation', 'animation', 'transition', 'action', 'event', 'surface', 'renderer'],
     kernel: createKernelOrchestrationArtifact(core),
     state: {
       states: toArray(appPlatform.state),
@@ -3049,6 +3442,7 @@ function createRmtAppOrchestrationArtifacts(core) {
     hydration,
     validation,
     transitions,
+    animationEngine,
     runtimeGraph,
     hostContracts: createHostContracts(),
     patchPlan,
@@ -3062,7 +3456,7 @@ function createRmtAppOrchestrationArtifacts(core) {
     },
     observability: telemetry,
     telemetry,
-    diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings).concat(hydration.diagnostics).concat(validation.diagnostics).concat(transitions.diagnostics),
+    diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings).concat(hydration.diagnostics).concat(validation.diagnostics).concat(transitions.diagnostics).concat(animationEngine.diagnostics),
     sourceMap: sourceMapForOrchestration(core)
   };
 }
@@ -3296,6 +3690,7 @@ class VNextCompiler {
     if (node.type === 'RmtDataSourceDeclaration') return this.compilePrimitiveDataSource(node, templateContext);
     if (node.type === 'RmtActionDeclaration') return this.compilePrimitiveAction(node, templateContext);
     if (node.type === 'RmtValidationDeclaration') return this.compilePrimitiveValidation(node, templateContext);
+    if (node.type === 'RmtAnimationDeclaration') return this.compilePrimitiveAnimation(node, templateContext);
     if (node.type === 'RmtTransitionDeclaration') return this.compilePrimitiveTransition(node, templateContext);
     if (node.type === 'RmtPortalDeclaration') return this.compilePrimitivePortal(node, templateContext);
     if (node.type === 'RmtOverlayDeclaration') return this.compilePrimitiveOverlay(node, templateContext);
@@ -3462,6 +3857,52 @@ class VNextCompiler {
     return validationRecord;
   }
 
+  compilePrimitiveAnimation(node, templateContext) {
+    const presetNode = getPrimitiveBodyNode(node, 'RmtAnimationPresetClause');
+    const effectNode = getPrimitiveBodyNode(node, 'RmtAnimationEffectClause');
+    const durationNode = getPrimitiveBodyNode(node, 'RmtAnimationDurationClause');
+    const easingNode = getPrimitiveBodyNode(node, 'RmtAnimationEasingClause');
+    const springNode = getPrimitiveBodyNode(node, 'RmtAnimationSpringClause');
+    const timelineNode = getPrimitiveBodyNode(node, 'RmtAnimationTimelineClause');
+    const reducedMotionNode = getPrimitiveBodyNode(node, 'RmtAnimationReducedMotionClause');
+    const allowFilterNode = getPrimitiveBodyNode(node, 'RmtAnimationAllowFilterClause');
+    const duration = durationNode ? Number(primitiveValueToCore(durationNode.value)) : 240;
+    const keyframes = getPrimitiveBodyNodes(node, 'RmtAnimationKeyframeClause').map((keyframe) => {
+      const properties = primitiveFieldsToObject(keyframe.fields);
+      const offset = Object.prototype.hasOwnProperty.call(properties, 'offset') ? properties.offset : null;
+      delete properties.offset;
+      return {
+        phase: keyframe.phase || 'enter',
+        offset,
+        properties
+      };
+    });
+    const record = {
+      id: primitiveRecordId('animation', node.name),
+      name: node.name,
+      primitive: true,
+      preset: presetNode && presetNode.preset || null,
+      effect: effectNode && effectNode.effect || presetNode && presetNode.preset || 'fade',
+      durationMs: Number.isFinite(duration) ? duration : 240,
+      easing: easingNode ? primitiveValueToString(easingNode.value) || 'ease' : 'ease',
+      spring: springNode ? primitiveFieldsToObject(springNode.fields) : null,
+      keyframes,
+      timeline: compileMotionTimelineNode(timelineNode),
+      reducedMotion: reducedMotionNode && reducedMotionNode.policy || ANIMATION_DEFAULT_REDUCED_MOTION,
+      allowFilter: allowFilterNode ? primitiveValueToCore(allowFilterNode.value) === true : false
+    };
+
+    if (templateContext) record.scope = this.primitiveScope(templateContext);
+    const animationRecord = addRecord(this.core, 'animations', record, node, 'RmtAnimationDeclaration');
+    const animationIndex = this.core.animations.indexOf(animationRecord);
+    toArray(node.body).forEach((child, index) => {
+      if (!child || !child.type) return;
+      const childSourceRef = makeSourceRef(`${animationRecord.id}/${index}`);
+      addSourceMap(this.core, child, child.type, `/animations/${animationIndex}/body/${index}`, childSourceRef);
+    });
+    return animationRecord;
+  }
+
   compilePrimitiveTransition(node, templateContext) {
     const triggerNode = getPrimitiveBodyNode(node, 'RmtTransitionTriggerClause');
     const fromNode = getPrimitiveBodyNode(node, 'RmtTransitionFromClause');
@@ -3470,6 +3911,11 @@ class VNextCompiler {
     const durationNode = getPrimitiveBodyNode(node, 'RmtTransitionDurationClause');
     const easingNode = getPrimitiveBodyNode(node, 'RmtTransitionEasingClause');
     const laneNode = getPrimitiveBodyNode(node, 'RmtTransitionLaneClause');
+    const useAnimationNode = getPrimitiveBodyNode(node, 'RmtTransitionUseAnimationClause');
+    const timelineNode = getPrimitiveBodyNode(node, 'RmtTransitionTimelineClause');
+    const layoutKeyNode = getPrimitiveBodyNode(node, 'RmtTransitionLayoutKeyClause');
+    const interruptNode = getPrimitiveBodyNode(node, 'RmtTransitionInterruptClause');
+    const reducedMotionNode = getPrimitiveBodyNode(node, 'RmtTransitionReducedMotionClause');
     const triggerKind = triggerNode && triggerNode.kind || 'action';
     const triggerId = triggerNode && triggerNode.target || '';
     const duration = durationNode ? Number(primitiveValueToCore(durationNode.value)) : 240;
@@ -3485,9 +3931,20 @@ class VNextCompiler {
       from: fromNode ? primitiveValueToStringList(fromNode.value) : [],
       to: toNode ? primitiveValueToStringList(toNode.value) : [],
       effect: effectNode && effectNode.effect || 'fade',
+      effectExplicit: Boolean(effectNode),
       durationMs: Number.isFinite(duration) ? duration : 240,
+      durationExplicit: Boolean(durationNode),
       easing: easingNode ? primitiveValueToString(easingNode.value) || 'ease' : 'ease',
-      lane: laneNode && laneNode.lane || 'transition'
+      easingExplicit: Boolean(easingNode),
+      lane: laneNode && laneNode.lane || 'transition',
+      animation: useAnimationNode && useAnimationNode.ref ? {
+        id: useAnimationNode.ref,
+        ref: primitiveRecordId('animation', useAnimationNode.ref)
+      } : null,
+      timeline: compileMotionTimelineNode(timelineNode),
+      layoutKey: layoutKeyNode ? primitiveValueToString(layoutKeyNode.value) : null,
+      interrupt: interruptNode && interruptNode.policy || ANIMATION_DEFAULT_INTERRUPT,
+      reducedMotion: reducedMotionNode && reducedMotionNode.policy || ANIMATION_DEFAULT_REDUCED_MOTION
     };
 
     if (templateContext) record.scope = this.primitiveScope(templateContext);
@@ -3961,7 +4418,7 @@ function coreDocumentForSerialization(coreDocument) {
     delete serializable.remoteSurfaces;
   }
 
-  ['states', 'selectors', 'actions', 'effects', 'validations', 'transitions', 'portals', 'overlays', 'resources', 'hydrationPolicies'].forEach((domain) => {
+  ['states', 'selectors', 'actions', 'effects', 'validations', 'animations', 'transitions', 'portals', 'overlays', 'resources', 'hydrationPolicies'].forEach((domain) => {
     if (Array.isArray(serializable[domain]) && serializable[domain].length === 0) {
       delete serializable[domain];
     }
@@ -4050,10 +4507,18 @@ function compileRmtVNextSource(input = {}, options = {}) {
       'RmtValidationDeclaration',
       'RmtValidationFieldClause',
       'RmtValidationTargetClause',
+      'RmtAnimationDeclaration',
+      'RmtAnimationEffectClause',
+      'RmtAnimationKeyframeClause',
       'RmtTransitionDeclaration',
       'RmtTransitionTriggerClause',
       'RmtTransitionFromClause',
       'RmtTransitionToClause',
+      'RmtTransitionUseAnimationClause',
+      'RmtTransitionTimelineClause',
+      'RmtTransitionLayoutKeyClause',
+      'RmtTransitionInterruptClause',
+      'RmtTransitionReducedMotionClause',
       'RmtEffectStatement',
       'RmtPortalDeclaration',
       'RmtOverlayDeclaration',
@@ -4097,6 +4562,7 @@ function createRmtVNextCompiler(defaultOptions = {}) {
     appOrchestrationSchema: RMT_APP_ORCHESTRATION_SCHEMA,
     formValidationSchema: RMT_FORM_VALIDATION_SCHEMA,
     surfaceTransitionSchema: RMT_SURFACE_TRANSITION_SCHEMA,
+    animationEngineSchema: RMT_ANIMATION_ENGINE_SCHEMA,
     parserSchema: RMT_VNEXT_PARSER_SCHEMA,
     workpackage: RMT_VNEXT_COMPILER_WORKPACKAGE,
     compileSource,
@@ -4118,6 +4584,7 @@ module.exports = {
   RMT_APP_ORCHESTRATION_WORKPACKAGE,
   RMT_FORM_VALIDATION_SCHEMA,
   RMT_SURFACE_TRANSITION_SCHEMA,
+  RMT_ANIMATION_ENGINE_SCHEMA,
   RMT_VNEXT_CORE_SCHEMA,
   RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
   RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE,

@@ -39,6 +39,7 @@
   "x-textarea": "./xtextarea.js",
   "x-theme": "./xtheme.js",
   "x-toast": "./xtoast.js",
+  "x-toggle": "./xtoggle.js",
   "x-tooltip": "./xtooltip.js",
   "x-type": "./xtype.js",
   "x-utils": "./xutils.js",

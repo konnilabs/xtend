@@ -18,6 +18,16 @@ const LOCKFILE_CANDIDATES = [
   'yarn.lock'
 ];
 
+const ALLOWED_DEV_TOOLING_DEPENDENCIES = Object.freeze([
+  {
+    name: 'typescript',
+    section: 'devDependencies',
+    versionRange: '^5.9.3',
+    purpose: 'component-typescript-compiler',
+    runtime: false
+  }
+]);
+
 const SCOPED_RELEASE_PACKAGES = Object.freeze([
   {
     name: '@ccslabs/xtend',
@@ -189,8 +199,10 @@ function createSupplyChainGatePlan(options = {}) {
     dependencySections: clone(DEPENDENCY_SECTIONS),
     lockfileCandidates: clone(LOCKFILE_CANDIDATES),
     scopedReleasePackages: clone(SCOPED_RELEASE_PACKAGES),
+    allowedDevToolingDependencies: clone(ALLOWED_DEV_TOOLING_DEPENDENCIES),
     license: clone(LICENSE_POLICY),
     vulnerabilities: clone(VULNERABILITY_POLICY),
+    runtimeDependencyPolicy: 'no-new-runtime-dependencies',
     publishBoundary: {
       privateUntil: ['ER-WP-30', 'ER-WP-36', 'ER-WP-38'],
       currentPublishState: 'owner-approved-public-rc-boundary',
@@ -205,10 +217,36 @@ function classifyPackageSupplyChain(packageManifest = {}, lockfiles = []) {
   const dependencies = listDependencies(packageManifest);
   const hasDependencies = dependencies.length > 0;
   const hasLockfile = Array.isArray(lockfiles) && lockfiles.length > 0;
+  const allowedDevToolingDependencies = dependencies.filter((dependency) => (
+    ALLOWED_DEV_TOOLING_DEPENDENCIES.some((allowed) => (
+      allowed.name === dependency.name
+        && allowed.section === dependency.section
+        && dependency.version === allowed.versionRange
+    ))
+  ));
+  const runtimeDependencies = dependencies.filter((dependency) => (
+    dependency.section === 'dependencies'
+      || dependency.section === 'optionalDependencies'
+      || dependency.section === 'peerDependencies'
+  ));
+  const unapprovedDependencies = dependencies.filter((dependency) => (
+    !allowedDevToolingDependencies.some((allowedDependency) => (
+      allowedDependency.name === dependency.name
+        && allowedDependency.section === dependency.section
+    ))
+  ));
   const diagnostics = [];
 
-  if (hasDependencies && !hasLockfile) {
+  if (unapprovedDependencies.length > 0 && !hasLockfile) {
     diagnostics.push('xtend.security.supply_chain.lockfile.missing');
+  }
+
+  if (runtimeDependencies.length > 0) {
+    diagnostics.push('xtend.security.supply_chain.runtime_dependency.present');
+  }
+
+  if (unapprovedDependencies.length > 0) {
+    diagnostics.push('xtend.security.supply_chain.dependency.unapproved');
   }
 
   if (packageManifest.private !== false) {
@@ -228,6 +266,11 @@ function classifyPackageSupplyChain(packageManifest = {}, lockfiles = []) {
     ok: diagnostics.length === 0,
     dependencyCount: dependencies.length,
     dependencies,
+    runtimeDependencyCount: runtimeDependencies.length,
+    runtimeDependencies,
+    devToolingDependencyCount: allowedDevToolingDependencies.length,
+    allowedDevToolingDependencies,
+    unapprovedDependencies,
     lockfiles,
     hasLockfile,
     privatePackage: packageManifest.private === true,
@@ -238,6 +281,7 @@ function classifyPackageSupplyChain(packageManifest = {}, lockfiles = []) {
 }
 
 module.exports = {
+  ALLOWED_DEV_TOOLING_DEPENDENCIES,
   DEPENDENCY_AUDIT_GATE_CONTRACT,
   DEPENDENCY_SECTIONS,
   LICENSE_POLICY,

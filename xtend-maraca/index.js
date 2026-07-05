@@ -121,6 +121,7 @@ const VALIDATION_RUNTIME_MODULES = Object.freeze([
   'xtendrmt/rmt-form-validation-runtime.js'
 ]);
 const TRANSITION_RUNTIME_MODULES = Object.freeze([
+  'xtendrmt/rmt-animation-engine-runtime.js',
   'xtendrmt/rmt-surface-transition-runtime.js',
   'components/xutils.js',
   'components/xstate.js'
@@ -153,6 +154,7 @@ const XTEND_VENDOR_STACK_MODULES = Object.freeze([
   'xtendrmt/rmt-event-routing-runtime.js',
   'xtendrmt/rmt-app-runtime.js',
   'xtendrmt/rmt-form-validation-runtime.js',
+  'xtendrmt/rmt-animation-engine-runtime.js',
   'xtendrmt/rmt-surface-transition-runtime.js',
   'xtendrmt/rmt-state-selector-runtime.js',
   'xtendrmt/rmt-surface-resource-graph-runtime.js',
@@ -184,6 +186,7 @@ const PUBLIC_NAME_RESERVATIONS = Object.freeze([
   'MARACA_PUBLIC_NAMES',
   'MARACA_STACK_MODULES',
   'XTendRmtKernelOrchestrationController',
+  'XTendRmtAnimationEngineRuntime',
   'XTendRmtSurfaceTransitionRuntime',
   'customElements',
   'HTMLElement',
@@ -3491,6 +3494,10 @@ function createMaracaTransitionPlan(compileResult, orchestrationPlan, kernelPlan
   const artifact = orchestrationPlan.artifact && orchestrationPlan.artifact.transitions
     || compileResult && compileResult.orchestrationArtifacts && compileResult.orchestrationArtifacts.transitions
     || null;
+  const animationEngine = artifact && artifact.animationEngine
+    || orchestrationPlan.artifact && orchestrationPlan.artifact.animationEngine
+    || compileResult && compileResult.orchestrationArtifacts && compileResult.orchestrationArtifacts.animationEngine
+    || null;
   if (!artifact || !Array.isArray(artifact.transitions) || artifact.transitions.length === 0) {
     return createBaseTransitionPlan(
       mode,
@@ -3556,6 +3563,14 @@ function createMaracaTransitionPlan(compileResult, orchestrationPlan, kernelPlan
       diagnostic
     ));
   });
+  (Array.isArray(animationEngine && animationEngine.diagnostics) ? animationEngine.diagnostics : []).forEach((diagnostic) => {
+    diagnostics.push(transitionDiagnostic(
+      diagnostic.code || TRANSITION_STRICT_CODE,
+      strict && diagnostic.severity !== 'info' ? 'error' : diagnostic.severity || 'warning',
+      diagnostic.message || 'RMT animation engine diagnostic.',
+      diagnostic
+    ));
+  });
 
   const strictViolations = diagnostics.filter((diagnostic) => diagnostic.severity === 'error').length;
   const hasErrors = strictViolations > 0;
@@ -3566,11 +3581,18 @@ function createMaracaTransitionPlan(compileResult, orchestrationPlan, kernelPlan
     enabled: !hasErrors,
     status: hasErrors ? (strict ? 'blocked' : 'fallback') : 'planned',
     supported: true,
-    artifact,
+    artifact: {
+      ...artifact,
+      animationEngine
+    },
     runtimeModules: TRANSITION_RUNTIME_MODULES.slice(),
     diagnostics,
     summary: {
       schema: artifact.schema || null,
+      animationEngineSchema: animationEngine && animationEngine.schema || null,
+      animationCount: animationEngine && Array.isArray(animationEngine.animations) ? animationEngine.animations.length : 0,
+      animationTransitionCount: animationEngine && Array.isArray(animationEngine.transitions) ? animationEngine.transitions.length : 0,
+      timelineCount: animationEngine && Array.isArray(animationEngine.timelines) ? animationEngine.timelines.length : 0,
       transitionCount: transitions.length,
       effectCounts: artifact.effectCounts || {},
       durationRange: artifact.durationRange || { min: 0, max: 0 },
@@ -4135,7 +4157,7 @@ function createCssText(plan = null) {
   const rules = [
     ':where([data-maraca-root]){display:grid;gap:12px;align-content:start;font-family:system-ui,sans-serif;}',
     ':where([data-maraca-surface]){box-sizing:border-box;}',
-    ':where([data-maraca-surface][data-xt-surface-transitioning]){will-change:opacity,transform;}'
+    ':where([data-maraca-surface][data-xt-surface-transitioning]){will-change:opacity,transform,filter;}'
   ];
   const cssPlan = plan && plan.orchestration && plan.orchestration.enabled && plan.orchestration.artifact && plan.orchestration.artifact.css;
   const surfaces = cssPlan && Array.isArray(cssPlan.surfaces) ? cssPlan.surfaces : [];
@@ -5769,6 +5791,7 @@ function createOrchestrationController(root, options = {}, kernelController = nu
   let surfaceRuntime = null;
   let renderer = null;
   let validationRuntime = null;
+  let animationEngineRuntime = null;
   let transitionRuntime = null;
   let attachReport = null;
   let renderReport = null;
@@ -5932,6 +5955,7 @@ function createOrchestrationController(root, options = {}, kernelController = nu
       surfaces: surfaceRuntime && typeof surfaceRuntime.getSnapshot === "function" ? surfaceRuntime.getSnapshot() : null,
       kernel: kernelController && typeof kernelController.snapshot === "function" ? kernelController.snapshot() : null,
       validation: validationRuntime && typeof validationRuntime.snapshot === "function" ? validationRuntime.snapshot() : null,
+      animationEngine: animationEngineRuntime && typeof animationEngineRuntime.snapshot === "function" ? animationEngineRuntime.snapshot() : null,
       transitions: transitionRuntime && typeof transitionRuntime.snapshot === "function" ? transitionRuntime.snapshot() : null,
       diagnostics: listDiagnostics()
     };
@@ -6094,12 +6118,25 @@ function createOrchestrationController(root, options = {}, kernelController = nu
       });
     }
     if (MARACA_TRANSITIONS.enabled) {
+      const animationApi = getMaracaRuntimeApi("XTendRmtAnimationEngineRuntime");
       const transitionApi = getMaracaRuntimeApi("XTendRmtSurfaceTransitionRuntime");
+      if (!animationApi || typeof animationApi.createRmtAnimationEngineRuntime !== "function") {
+        throw new Error("XTend RMT animation engine runtime module is not available.");
+      }
       if (!transitionApi || typeof transitionApi.createRmtSurfaceTransitionRuntime !== "function") {
         throw new Error("XTend RMT surface transition runtime module is not available.");
       }
+      animationEngineRuntime = animationApi.createRmtAnimationEngineRuntime({
+        animationPlan: MARACA_TRANSITIONS.artifact && MARACA_TRANSITIONS.artifact.animationEngine || MARACA_TRANSITIONS.artifact,
+        xUtils: typeof globalThis !== "undefined" ? globalThis.XUtils : null,
+        windowTarget: typeof window !== "undefined" ? window : undefined,
+        diagnostics: MARACA_TRANSITIONS.diagnostics || [],
+        strict: MARACA_TRANSITIONS.strict,
+        publishDiagnostic
+      });
       transitionRuntime = transitionApi.createRmtSurfaceTransitionRuntime({
         transitionPlan: MARACA_TRANSITIONS.artifact,
+        animationEngine: animationEngineRuntime,
         root,
         kernelController,
         xUtils: typeof globalThis !== "undefined" ? globalThis.XUtils : null,
@@ -6482,8 +6519,9 @@ function createOrchestrationController(root, options = {}, kernelController = nu
     eventRuntime,
     surfaceRuntime,
     renderer,
-    validationRuntime,
-    transitionRuntime,
+      validationRuntime,
+      animationEngineRuntime,
+      transitionRuntime,
     render,
     attachEvents,
     dispose() {
@@ -6824,6 +6862,7 @@ let currentMaracaKernel = null;
 let currentMaracaOrchestration = null;
 let currentMaracaHydration = null;
 let currentMaracaValidation = null;
+let currentMaracaAnimationEngine = null;
 let currentMaracaTransitions = null;
 let currentMaracaTelemetry = null;
 let currentMaracaTemplateArtifactsRegistration = null;
@@ -6847,6 +6886,7 @@ async function bootXtendMaraca(options = {}) {
   currentMaracaHydration = createHydrationController(root, options, currentMaracaKernel);
   currentMaracaOrchestration = createOrchestrationController(root, options, currentMaracaKernel, currentMaracaHydration);
   currentMaracaValidation = currentMaracaOrchestration && currentMaracaOrchestration.validationRuntime || null;
+  currentMaracaAnimationEngine = currentMaracaOrchestration && currentMaracaOrchestration.animationEngineRuntime || null;
   currentMaracaTransitions = currentMaracaOrchestration && currentMaracaOrchestration.transitionRuntime || null;
   currentMaracaTelemetry = createTelemetryBridge(currentMaracaKernel, currentMaracaOrchestration, currentMaracaHydration, currentMaracaValidation, currentMaracaTransitions);
   currentMaracaTemplateArtifactsRegistration = registerMaracaTemplateArtifacts(options);
@@ -6905,6 +6945,7 @@ async function bootXtendMaraca(options = {}) {
       enabled: Boolean(currentMaracaTransitions),
       mode: MARACA_TRANSITIONS.mode,
       status: currentMaracaTransitions ? "booted" : MARACA_TRANSITIONS.status,
+      animationEngineStatus: currentMaracaAnimationEngine ? "booted" : (MARACA_TRANSITIONS.summary && MARACA_TRANSITIONS.summary.animationEngineSchema ? "planned" : "disabled"),
       activeCount: currentMaracaTransitions && typeof currentMaracaTransitions.listActiveTransitions === "function" ? currentMaracaTransitions.listActiveTransitions().length : 0,
       diagnosticCount: currentMaracaTransitions && typeof currentMaracaTransitions.listDiagnostics === "function" ? currentMaracaTransitions.listDiagnostics().length : 0
     },
@@ -6933,6 +6974,7 @@ async function bootXtendMaraca(options = {}) {
   window.__XTendMaracaOrchestration = currentMaracaOrchestration;
   window.__XTendMaracaHydration = currentMaracaHydration;
   window.__XTendMaracaValidation = currentMaracaValidation;
+  window.__XTendMaracaAnimationEngine = currentMaracaAnimationEngine;
   window.__XTendMaracaTransitions = currentMaracaTransitions;
   window.__XTendMaracaTelemetry = currentMaracaTelemetry;
   window.__XTendMaracaTemplateArtifactsRegistration = currentMaracaTemplateArtifactsRegistration;
@@ -6969,6 +7011,9 @@ const XTendMaraca = Object.freeze({
   },
   get validation() {
     return currentMaracaValidation;
+  },
+  get animationEngine() {
+    return currentMaracaAnimationEngine;
   },
   get transitions() {
     return currentMaracaTransitions;

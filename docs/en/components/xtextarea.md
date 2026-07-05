@@ -135,6 +135,27 @@ CSS custom properties:
 - `--xtend-textarea-line-number-border`
 - `--xtend-textarea-line-number-surface`
 
+## ECH-WP-08 Theme/A11y Hardening
+
+ECH-WP-08 documents the form-control tokens for `x-textarea` as a public theme contract. `signatureDesign` stays a multiline input with a clear label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
+
+Token table:
+- `--xtend-form-text`
+- `--xtend-form-control-surface`
+- `--xtend-form-control-text`
+- `--xtend-form-label-text`
+- `--xtend-form-helper-text`
+- `--xtend-form-error-text`
+- `--xtend-form-error-surface`
+- `--xtend-form-error-border`
+- `--xtend-form-focus-ring`
+- `--xtend-form-radius`
+- `--xtend-form-gap`
+- `--xtend-form-font-family`
+- `--xtend-form-control-font-size`
+- `--xtend-form-helper-font-size`
+- `--xtend-form-icon-color`
+
 ## Integration notes
 
 - UX profile: `xtend.component.form-control-ux-profile.v1`.

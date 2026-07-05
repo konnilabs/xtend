@@ -11,6 +11,11 @@ Diese Seite beschreibt prüfbare Regeln für robuste Nutzererlebnisse. Die Empfe
 - Lokale Testbefehle.
 - Browsernahe Fixtures.
 - Dokumentierte Akzeptanzkriterien.
+- Automation-Schema `xtend.epic12.visual-snapshot-automation-contract.v1`.
+- Runner-Schema `xtend.epic12.visual-snapshot-runner.v1`.
+- Local Gate `node scripts/run_xtend_tests.js visual-snapshot-automation --json`.
+- Runner Gate `node scripts/run_xtend_tests.js visual-snapshots --json`.
+- Runner-Handoff `WP-E12-11`.
 
 ## Empfohlener Ablauf
 
@@ -43,6 +48,9 @@ Quellen:
 - `security/manifest-import-policy.js`
 - `security/trusted-dom-policy.js`
 - `security/supply-chain-gate-policy.js`
+- `tests/browser/visual-snapshot-automation-plan.js`
+- `tests/browser/visual-snapshots-runner.js`
+- `tests/browser/fixtures/visual-snapshots-fixture.html`
 
 Namen:
 - `docs/de/visual-snapshot-automation.md`
@@ -54,11 +62,16 @@ Namen:
 - `security/supply-chain-gate-policy.js`
 - `docs/dev-router.php`
 - `package.json`
+- `xtend.epic12.visual-snapshot-automation-contract.v1`
+- `xtend.epic12.visual-snapshot-runner.v1`
+- `WP-E12-11`
 - `node scripts/verify_docs_public_quality.js`
 
 Befehle:
 - `node scripts/verify_docs_public_quality.js`
 - `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
+- `node scripts/run_xtend_tests.js visual-snapshot-automation --json`
+- `node scripts/run_xtend_tests.js visual-snapshots --json`
 
 ## Minimaler Prüfpfad
 

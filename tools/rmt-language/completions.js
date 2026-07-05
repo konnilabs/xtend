@@ -26,6 +26,7 @@ const TOP_LEVEL_DOMAINS = Object.freeze([
   ['resources', 'array', 'Owned object URL, stream, observer, timer and import resources.'],
   ['events', 'array', 'Declarative event bindings with payload contracts.'],
   ['validations', 'array', 'Form validation groups with field rules and action gates.'],
+  ['animations', 'array', 'Reusable AnimationEngine presets, keyframes and reduced-motion policy.'],
   ['transitions', 'array', 'Surface transition records with trigger, effect and lane metadata.'],
   ['portals', 'array', 'Generic overlay portal layer definitions.'],
   ['overlays', 'array', 'Tooltip, toast, popover, lightbox, menu and dialog overlay definitions.'],
@@ -56,9 +57,10 @@ const DOMAIN_FIELD_COMPLETIONS = Object.freeze({
   resources: ['id', 'kind', 'owner', 'source', 'dataSource', 'lifecycle', 'cachePolicy', 'loadingState', 'errorState', 'release', 'importId', 'delayMs', 'metadata'],
   events: ['id', 'kind', 'event', 'target', 'component', 'owner', 'action', 'payload', 'payloadContract', 'governance', 'metadata'],
   validations: ['id', 'mode', 'targets', 'fields', 'includes', 'schedulerTargets', 'metadata'],
+  animations: ['id', 'preset', 'effect', 'durationMs', 'easing', 'spring', 'keyframes', 'timeline', 'reducedMotion', 'allowFilter', 'metadata'],
   validationFields: ['state', 'rules', 'message', 'component', 'target'],
   validationTargets: ['kind', 'id', 'gate', 'message'],
-  transitions: ['id', 'trigger', 'from', 'to', 'effect', 'durationMs', 'easing', 'lane', 'operation', 'endpointName', 'metadata'],
+  transitions: ['id', 'trigger', 'from', 'to', 'effect', 'durationMs', 'easing', 'lane', 'animation', 'timeline', 'layoutKey', 'interrupt', 'reducedMotion', 'operation', 'endpointName', 'metadata'],
   transitionTriggers: ['kind', 'id'],
   portals: ['id', 'root', 'layer', 'policy', 'focusPolicy', 'pointerPolicy', 'scrollPolicy', 'zIndexStart', 'zStep', 'metadata'],
   overlays: ['id', 'kind', 'portal', 'layer', 'surface', 'resources', 'dismissible', 'singleton', 'focusPolicy', 'escapePolicy', 'pointerPolicy', 'scrollPolicy', 'metadata'],
@@ -128,7 +130,26 @@ const TRANSITION_EFFECTS = Object.freeze([
   ['slide-up', 'Slide the new surface group upward into place.'],
   ['slide-down', 'Slide the new surface group downward into place.'],
   ['scale', 'Scale the surface group during enter and exit.'],
+  ['pop', 'Pop surfaces with a short overshoot.'],
+  ['zoom', 'Zoom surfaces in or out.'],
+  ['flip', 'Flip surfaces with a perspective transform.'],
+  ['rotate', 'Rotate surfaces subtly during enter and exit.'],
+  ['expand', 'Expand a surface along the block axis.'],
+  ['collapse', 'Collapse a surface along the block axis.'],
+  ['fade-blur', 'Fade with an opt-in blur filter.'],
+  ['shared-element', 'Coordinate a shared element transition by layoutKey.'],
+  ['layout-flip', 'Use a FLIP-style layout transition by layoutKey.'],
   ['none', 'Use an instant transition without motion.']
+]);
+const ANIMATION_REDUCED_MOTION_POLICIES = Object.freeze([
+  ['instant', 'Skip animation when reduced motion is requested.'],
+  ['fade', 'Use a short fade when reduced motion is requested.'],
+  ['none', 'Disable reduced-motion substitution for this transition.']
+]);
+const ANIMATION_INTERRUPT_POLICIES = Object.freeze([
+  ['cancel', 'Cancel the active animation before starting the next one.'],
+  ['finish', 'Wait for the active animation to finish first.'],
+  ['replace', 'Replace the active animation immediately.']
 ]);
 
 const TEMPLATE_MODES = Object.freeze([
@@ -413,8 +434,20 @@ function inferCompletionContext(input = {}) {
     return 'validation-rules';
   }
 
-  if ((field === 'effect' || /\/effect$/.test(pointer)) && (pointer.includes('/transitions/') || domain === 'transitions')) {
+  if ((field === 'effect' || /\/effect$/.test(pointer)) && (pointer.includes('/transitions/') || pointer.includes('/animations/') || domain === 'transitions' || domain === 'animations')) {
     return 'transition-effects';
+  }
+
+  if ((field === 'animation' || /\/animation$/.test(pointer)) && (pointer.includes('/transitions/') || domain === 'transitions')) {
+    return 'animation-ids';
+  }
+
+  if ((field === 'interrupt' || /\/interrupt$/.test(pointer)) && (pointer.includes('/transitions/') || domain === 'transitions')) {
+    return 'animation-interrupt-policies';
+  }
+
+  if ((field === 'reducedMotion' || /\/reducedMotion$/.test(pointer)) && (pointer.includes('/transitions/') || pointer.includes('/animations/') || domain === 'transitions' || domain === 'animations')) {
+    return 'animation-reduced-motion-policies';
   }
 
   if (field === 'portal' || /\/portal$/.test(pointer)) {
@@ -495,6 +528,10 @@ function inferCompletionContext(input = {}) {
 
   if (/^\/validations\/\d+$/.test(pointer) || domain === 'validations') {
     return 'validation-fields';
+  }
+
+  if (/^\/animations\/\d+$/.test(pointer) || domain === 'animations') {
+    return 'animation-fields';
   }
 
   if (/^\/validations\/\d+\/fields\/\d+$/.test(pointer) || domain === 'validationFields') {
@@ -600,6 +637,8 @@ function buildContextItems(graph, context, options = {}) {
       return domainFieldItems('events', 'events[*]');
     case 'validation-fields':
       return domainFieldItems('validations', 'validations[*]');
+    case 'animation-fields':
+      return domainFieldItems('animations', 'animations[*]');
     case 'validation-field-fields':
       return domainFieldItems('validationFields', 'validations[*].fields[*]');
     case 'validation-target-fields':
@@ -653,6 +692,8 @@ function buildContextItems(graph, context, options = {}) {
       return referenceItems(graph, 'selectors', options);
     case 'action-ids':
       return referenceItems(graph, 'actions', options);
+    case 'animation-ids':
+      return referenceItems(graph, 'animations', options);
     case 'route-paths':
       return referenceItems(graph, 'routePaths', options);
     case 'schedule-endpoints':
@@ -720,6 +761,18 @@ function buildContextItems(graph, context, options = {}) {
         kind: 'enum',
         detail: 'RMT Surface Transition Effect',
         source: 'rmt-transition-effect-catalog'
+      });
+    case 'animation-reduced-motion-policies':
+      return createStaticItems(ANIMATION_REDUCED_MOTION_POLICIES, {
+        kind: 'enum',
+        detail: 'RMT Reduced Motion Policy',
+        source: 'rmt-animation-policy-catalog'
+      });
+    case 'animation-interrupt-policies':
+      return createStaticItems(ANIMATION_INTERRUPT_POLICIES, {
+        kind: 'enum',
+        detail: 'RMT Animation Interrupt Policy',
+        source: 'rmt-animation-policy-catalog'
       });
     case 'surface-states':
       return createStaticItems(SURFACE_STATES, {

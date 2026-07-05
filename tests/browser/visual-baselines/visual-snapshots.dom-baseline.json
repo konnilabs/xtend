@@ -13,7 +13,7 @@
       "family": "form-controls",
       "sourceAutomationEntry": "form-controls-visual-snapshot",
       "sourceMatrixEntry": "form-validation-journey-theme-matrix",
-      "components": ["x-form", "x-input", "x-select", "x-checkbox"],
+      "components": ["x-form", "x-input", "x-select", "x-checkbox", "x-toggle"],
       "visualStates": ["default", "focus", "invalid", "disabled"],
       "snapshotScopes": ["shell-structure", "visual-state", "theme-token-state", "viewport-layout", "focus-a11y-state"],
       "dimensions": {
@@ -24,7 +24,7 @@
       },
       "domSignature": {
         "root": "section[data-snapshot-family=\"form-controls\"]",
-        "children": ["x-form#snapshot-form", "x-input#snapshot-input", "x-select#snapshot-select", "x-checkbox#snapshot-checkbox"],
+        "children": ["x-form#snapshot-form", "x-input#snapshot-input", "x-select#snapshot-select", "x-checkbox#snapshot-checkbox", "x-toggle#snapshot-toggle"],
         "requiredAttributes": ["data-theme", "data-density", "data-motion", "data-viewport", "data-snapshot-family"],
         "tokenKeys": ["--xtend-surface", "--xtend-text", "--xtend-color-primary", "--xtend-density-spacing", "--xtend-radius"],
         "ariaSignals": ["aria-label", "required", "invalid", "disabled"],

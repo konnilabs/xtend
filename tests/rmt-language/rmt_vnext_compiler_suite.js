@@ -305,18 +305,26 @@ function runRmtVNextCompilerSuite(options = {}) {
 
   const maracaTransitionsResult = parseFixture(VALID_MARACA_TRANSITIONS_FIXTURE, rootDir);
   const maracaTransitions = maracaTransitionsResult.orchestrationArtifacts && maracaTransitionsResult.orchestrationArtifacts.transitions;
+  const maracaAnimationEngine = maracaTransitionsResult.orchestrationArtifacts && maracaTransitionsResult.orchestrationArtifacts.animationEngine;
   context.assert(maracaTransitionsResult.ok === true, 'Maraca transitions fixture compiles successfully');
   context.assert(maracaTransitions && maracaTransitions.schema === RMT_SURFACE_TRANSITION_SCHEMA, 'Maraca transitions fixture emits surface-transition schema');
   context.assert(maracaTransitions.transitions.length === 2, 'Maraca transitions fixture emits transition records');
   context.assert(maracaTransitions.transitions.some((transition) => transition.effect === 'crossfade' && transition.durationMs === 120), 'Maraca transitions fixture lowers effect and duration');
+  context.assert(maracaTransitions.animationEngine && maracaTransitions.animationEngine.schema === 'xtend.rmt.animation-engine.v1', 'Surface transition compatibility view embeds AnimationEngine artifact');
+  context.assert(maracaAnimationEngine && maracaAnimationEngine.schema === 'xtend.rmt.animation-engine.v1', 'Maraca transitions fixture emits AnimationEngine schema');
+  context.assert(maracaAnimationEngine.animations.some((animation) => animation.id === 'demo.transitions.motion' && animation.effect === 'pop'), 'AnimationEngine lowers reusable animation preset');
+  context.assert(maracaAnimationEngine.transitions.some((transition) => transition.animation === 'demo.transitions.motion' && transition.phasing === 'overlap'), 'AnimationEngine lowers transition animation reference and crossfade overlap phasing');
+  context.assert(maracaAnimationEngine.timelines.length >= 1, 'AnimationEngine lowers transition timeline steps');
   context.assert(maracaTransitions.schedulerTargets.every((target) => target.kind === 'surface-transition' && target.operation && target.endpointName), 'Maraca transitions fixture emits scheduler targets');
   context.assert(maracaTransitionsResult.orchestrationArtifacts.kernel.scheduler.fibers.some((fiber) => fiber.kind === 'surface-transition' && fiber.operation === 'operation:xtend.rmt/surface-transition/demo.transitions.contactToIssue'), 'Kernel scheduler includes surface-transition fiber');
   context.assert(maracaTransitionsResult.orchestrationArtifacts.runtimeGraph.edges.some((edge) => edge.kind === 'action-transition-trigger'), 'Runtime graph connects actions to transitions');
   context.assert(maracaTransitionsResult.orchestrationArtifacts.patchPlan.reducers.some((patch) => patch.strategy === 'surface-transition' && patch.transition === 'demo.transitions.contactToIssue'), 'Patch plan marks transition hidden reducers');
   context.assert(maracaTransitionsResult.orchestrationArtifacts.patchPlan.transitions.length === 2, 'Patch plan includes transition patch records');
   context.assert(maracaTransitionsResult.orchestrationArtifacts.hostContracts.requiredCapabilities.includes('surfaceTransition.run'), 'Host contracts include surface transition capability');
+  context.assert(maracaTransitionsResult.orchestrationArtifacts.hostContracts.requiredCapabilities.includes('animationEngine.run'), 'Host contracts include AnimationEngine capability');
   context.assert(maracaTransitionsResult.orchestrationArtifacts.telemetry.customEvents.includes('xtend-maraca:surface-transition-start'), 'Telemetry plan includes transition start event');
   context.assert(maracaTransitions.sourceMap.some((entry) => entry.nodeType === 'RmtTransitionDeclaration'), 'Transition source map points back to declaration records');
+  context.assert(maracaAnimationEngine.sourceMap.some((entry) => entry.nodeType === 'RmtAnimationDeclaration'), 'AnimationEngine source map points back to animation declaration records');
 
   const compiler = createRmtVNextCompiler();
   const fallbackResult = compiler.compileSource({

@@ -10,6 +10,7 @@ export declare const RMT_APP_ORCHESTRATION_WORKPACKAGE: RmtToolingConstant;
 export declare const RMT_APP_PLATFORM_RECORDS_SCHEMA: RmtToolingConstant;
 export declare const RMT_FORM_VALIDATION_SCHEMA: RmtToolingConstant;
 export declare const RMT_SURFACE_TRANSITION_SCHEMA: RmtToolingConstant;
+export declare const RMT_ANIMATION_ENGINE_SCHEMA: RmtToolingConstant;
 export declare const RMT_KERNEL_BOUNDARY: RmtToolingConstant;
 export declare const RMT_KERNEL_RECORDS_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_DIAGNOSTIC_CODE: RmtToolingConstant;

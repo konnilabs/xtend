@@ -136,6 +136,27 @@ const RMT_SNIPPETS = Object.freeze([
     ])
   },
   {
+    id: 'rmt-vnext-animation',
+    name: 'RMT vNext AnimationEngine Preset',
+    prefix: 'rmt-vnext-animation',
+    description: 'Wiederverwendbares AnimationEngine-Preset mit Effekt, Dauer, Reduced Motion und Keyframes.',
+    scope: 'rmt',
+    tags: ['vnext', 'animation', 'motion', 'transition'],
+    body: body([
+      'animation ${1:app.motion.pop} {',
+      '  effect ${2|fade,crossfade,slide-left,slide-right,slide-up,slide-down,scale,pop,zoom,flip,rotate,expand,collapse,fade-blur,shared-element,layout-flip,none|}',
+      '  durationMs ${3:220}',
+      '  easing "${4:cubic-bezier(.2,.8,.2,1)}"',
+      '  reducedMotion ${5|fade,instant,none|}',
+      '  keyframe enter {',
+      '    opacity 0',
+      '    transform "${6:scale(.96)}"',
+      '    offset 0',
+      '  }',
+      '}'
+    ])
+  },
+  {
     id: 'rmt-vnext-transition',
     name: 'RMT vNext Surface Transition',
     prefix: 'rmt-vnext-transition',
@@ -147,9 +168,13 @@ const RMT_SNIPPETS = Object.freeze([
       '  trigger action ${2:app.nextContact}',
       '  from surfaces [${3:app.contact} ${4:app.nextContact}]',
       '  to surfaces [${5:app.issue} ${6:app.backContact}]',
-      '  effect ${7|fade,crossfade,slide-left,slide-right,slide-up,slide-down,scale,none|}',
-      '  durationMs ${8:240}',
-      '  easing "${9:ease-out}"',
+      '  use animation ${7:app.motion.pop}',
+      '  effect ${8|fade,crossfade,slide-left,slide-right,slide-up,slide-down,scale,pop,zoom,flip,rotate,expand,collapse,fade-blur,shared-element,layout-flip,none|}',
+      '  durationMs ${9:240}',
+      '  easing "${10:ease-out}"',
+      '  layoutKey "${11:surface-card}"',
+      '  interrupt ${12|replace,cancel,finish|}',
+      '  reducedMotion ${13|fade,instant,none|}',
       '  lane transition',
       '}'
     ])

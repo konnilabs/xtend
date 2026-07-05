@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>x-toggle component fixture</title>
+  <style>
+    [data-xtend-form-theme="enterprise-foreign"] {
+      --xtend-form-text: #17201b;
+      --xtend-form-control-surface: #fbf8f2;
+      --xtend-form-control-text: #17201b;
+      --xtend-form-label-text: #22312c;
+      --xtend-form-helper-text: #596861;
+      --xtend-form-error-text: #7d231c;
+      --xtend-form-error-surface: #fff1ed;
+      --xtend-form-error-border: #a64036;
+      --xtend-form-focus-ring: 3px solid #8f4f2a;
+      --xtend-form-radius: 999px;
+      --xtend-form-gap: 0.6rem;
+      --xtend-form-font-family: "Aptos", "Segoe UI", sans-serif;
+      --xtend-form-control-font-size: 1rem;
+      --xtend-form-helper-font-size: 0.875rem;
+      --xtend-form-icon-color: #8f4f2a;
+      --xtend-toggle-text: #17201b;
+      --xtend-toggle-track-off-color: #c7d0c6;
+      --xtend-toggle-track-on-color: #16784d;
+      --xtend-toggle-thumb-color: #ffffff;
+      --xtend-toggle-border-color: #68766e;
+      --xtend-toggle-focus-ring: 3px solid #8f4f2a;
+      --xtend-form-helper-text: #596861;
+      --xtend-form-error-text: #7d231c;
+      --xtend-form-label-text: #22312c;
+      --xtend-form-font-family: "Aptos", "Segoe UI", sans-serif;
+    }
+  </style>
+</head>
+<body data-xtend-form-theme="enterprise-foreign" data-xtend-toggle-theme="enterprise-foreign">
+  <x-toggle id="component-toggle" name="notifications" value="enabled" checked required label="Notifications" density="comfortable">
+    <span slot="hint">Immediate notification delivery.</span>
+    <span slot="error">Enable notifications to continue.</span>
+    <span slot="on-label">I</span>
+    <span slot="off-label">O</span>
+  </x-toggle>
+  <x-toggle id="component-toggle-busy" name="sync" value="enabled" busy density="compact">
+    <span slot="label">Busy guarded toggle</span>
+    <span slot="hint">Interaction is guarded while work is pending.</span>
+  </x-toggle>
+  <x-toggle id="component-toggle-invalid" name="required-toggle" value="yes" required invalid density="dense">
+    <span slot="label">Required dense toggle</span>
+    <span slot="error">Switch this on before saving.</span>
+  </x-toggle>
+  <script>
+    window.__xtendComponentState = {};
+    window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
+    window.xstate = {
+      get(key) { return window.__xtendComponentState[key]; },
+      set(key, value) { window.__xtendComponentState[key] = value; },
+      subscribe() { return function unsubscribe() {}; }
+    };
+  </script>
+  <script type="module" src="/components/xtoggle.js"></script>
+</body>
+</html>

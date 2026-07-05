@@ -79,6 +79,13 @@ const FORM_CONTROL_THEME_TARGETS = Object.freeze([
     nonColorMarkers: ['border-inline-start', 'outline: var(--xtend-form-error-outline']
   },
   {
+    tag: 'x-toggle',
+    file: 'components/xtoggle.js',
+    docs: 'docs/components/xtoggle.md',
+    fixture: 'tests/components/fixtures/xtoggle.component.html',
+    nonColorMarkers: ['border-inline-start', 'box-shadow: 0 0 0 2px']
+  },
+  {
     tag: 'x-radio',
     file: 'components/xradio.js',
     docs: 'docs/components/xradio.md',
@@ -106,7 +113,18 @@ function resolveRootDir(rootDir) {
 }
 
 function readFile(rootDir, relativePath) {
-  return fs.readFileSync(path.join(rootDir, relativePath), 'utf8');
+  const absolutePath = path.join(rootDir, relativePath);
+  if (fs.existsSync(absolutePath)) return fs.readFileSync(absolutePath, 'utf8');
+  if (relativePath.startsWith('docs/components/')) {
+    const localizedPath = relativePath.replace('docs/components/', 'docs/de/components/');
+    const englishPath = relativePath.replace('docs/components/', 'docs/en/components/');
+    return [localizedPath, englishPath]
+      .map((candidate) => path.join(rootDir, candidate))
+      .filter((candidate) => fs.existsSync(candidate))
+      .map((candidate) => fs.readFileSync(candidate, 'utf8'))
+      .join('\n');
+  }
+  return fs.readFileSync(absolutePath, 'utf8');
 }
 
 function addFinding(findings, target, category, message, pattern, file) {

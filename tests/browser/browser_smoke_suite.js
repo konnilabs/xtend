@@ -124,6 +124,7 @@ const CORE_FLOW_MANIFEST_CONTRACT = {
   'x-input': '/components/xinput.js',
   'x-select': '/components/xselect.js',
   'x-checkbox': '/components/xcheckbox.js',
+  'x-toggle': '/components/xtoggle.js',
   'x-form': '/components/xform.js',
   'x-tabs': '/components/xtabs.js',
   'x-alert': '/components/xalert.js',

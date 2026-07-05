@@ -13,7 +13,9 @@ This page describes checkable rules for robust user experiences. The recommendat
 - Documented acceptance criteria.
 - Docs contract `xtend.docs.visual-browser-regression.v1`.
 - Regression priority contract `xtend.catalog.component-regression-priority-plan.v1`.
+- Visual snapshot contract `xtend.epic12.visual-snapshot-automation-contract.v1`.
 - Gate `node scripts/run_xtend_tests.js regression-priority --json`.
+- Snapshot gate `node scripts/run_xtend_tests.js visual-snapshot-automation --json`.
 - Viewports `desktop-1280`, `tablet-768` and `mobile-390`.
 
 ## Recommended workflow

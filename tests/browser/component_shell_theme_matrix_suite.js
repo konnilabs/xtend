@@ -47,6 +47,7 @@ const REQUIRED_MANIFEST_ENTRIES = {
   'x-tabs': '/components/xtabs.js',
   'x-select': '/components/xselect.js',
   'x-checkbox': '/components/xcheckbox.js',
+  'x-toggle': '/components/xtoggle.js',
   'x-status': '/components/xstatus.js',
   'x-progress': '/components/xprogress.js',
   'x-drawer': '/components/xdrawer.js',
@@ -119,7 +120,7 @@ function runComponentShellThemeMatrixSuite(options = {}) {
   context.assert(plan.sourceRegressionPriority.schema === COMPONENT_REGRESSION_PRIORITY_SCHEMA, 'Theme Matrix links regression priority plan');
   context.assert(plan.coverage.flowCount === 5, 'Theme Matrix covers five UX journeys');
   context.assert(plan.coverage.familyCount === 5, 'Theme Matrix covers five UX families');
-  context.assert(plan.coverage.componentCount === 17, 'Theme Matrix covers seventeen representative components after WP-E12-03');
+  context.assert(plan.coverage.componentCount === 18, 'Theme Matrix covers eighteen representative components with x-toggle form coverage');
   context.assert(plan.coverage.themeVariantCount === 4, 'Theme Matrix covers four theme variants');
   context.assert(plan.coverage.motionModeCount === 2, 'Theme Matrix covers two motion modes');
   context.assert(plan.coverage.densityCount === 3, 'Theme Matrix covers three densities');
@@ -229,7 +230,7 @@ function runComponentShellThemeMatrixSuite(options = {}) {
   context.assert(metadata && metadata.reportSchema === COMPONENT_SHELL_THEME_MATRIX_REPORT_SCHEMA, 'Package metadata exposes Theme Matrix report schema');
   context.assert(metadata && metadata.fixture === COMPONENT_SHELL_THEME_MATRIX_FIXTURE_PATH, 'Package metadata exposes Theme Matrix fixture');
   context.assert(metadata && metadata.localGate === COMPONENT_SHELL_THEME_MATRIX_LOCAL_GATE, 'Package metadata exposes Theme Matrix local gate');
-  context.assert(metadata && metadata.componentCount === 17, 'Package metadata exposes Theme Matrix component count after WP-E12-03');
+  context.assert(metadata && metadata.componentCount === 18, 'Package metadata exposes Theme Matrix component count with x-toggle');
   context.assert(metadata && metadata.matrixCombinationCount === 360, 'Package metadata exposes Theme Matrix combination count');
   context.assert(Array.isArray(metadata.themeVariants) && metadata.themeVariants.length === 4, 'Package metadata exposes four Theme Matrix theme variants');
   context.assert(Array.isArray(metadata.motionModes) && metadata.motionModes.includes('reduced-motion'), 'Package metadata exposes reduced motion mode');

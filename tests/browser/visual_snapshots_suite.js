@@ -97,7 +97,7 @@ function runVisualSnapshotsSuite(options = {}) {
   context.assert(report.pixelDiff.status === 'not-run-in-node-contract-gate', 'Visual Snapshots keeps pixel diff out of node contract gate');
   context.assert(report.snapshotCount === 5, 'Visual Snapshots runner covers five snapshots');
   context.assert(report.familyCount === 5, 'Visual Snapshots runner covers five UX families');
-  context.assert(report.componentCount === 17, 'Visual Snapshots runner covers seventeen components');
+  context.assert(report.componentCount === 18, 'Visual Snapshots runner covers eighteen components');
   context.assert(report.matrixCombinationCount === 360, 'Visual Snapshots runner preserves Theme Matrix combinations');
   context.assert(report.localOnly === true, 'Visual Snapshots runner is local-only');
   context.assert(report.externalNetworkAllowed === false, 'Visual Snapshots runner rejects external network');

@@ -32,6 +32,7 @@ export declare const RMT_WORKSPACE_EDIT_SCHEMA: RmtToolingConstant;
 export declare const VNEXT_COMPLETION_KEYWORDS: RmtToolingConstant;
 export declare const VNEXT_LANES: RmtToolingConstant;
 export declare const VNEXT_PRIMITIVE_ACTION_CLAUSES: RmtToolingConstant;
+export declare const VNEXT_PRIMITIVE_ANIMATION_CLAUSES: RmtToolingConstant;
 export declare const VNEXT_PRIMITIVE_KEYWORDS: RmtToolingConstant;
 export declare const VNEXT_PRIMITIVE_OVERLAY_KINDS: RmtToolingConstant;
 export declare const VNEXT_PRIMITIVE_RESOURCE_KINDS: RmtToolingConstant;

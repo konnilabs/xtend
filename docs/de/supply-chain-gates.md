@@ -11,6 +11,7 @@ Security in XTend beginnt mit expliziten Grenzen: lokale Module, vertrauensarme 
 - Same-origin Module.
 - Sanitizing für unsichere Inhalte.
 - Reproduzierbare Paketprüfungen.
+- `typescript` ist nur als Build-Tool in `devDependencies` erlaubt; Runtime-Dependencies bleiben leer.
 
 ## Empfohlener Ablauf
 
@@ -42,6 +43,7 @@ Quellen:
 - `security/manifest-import-policy.js`
 - `security/trusted-dom-policy.js`
 - `security/supply-chain-gate-policy.js`
+- `devDependencies.typescript`
 
 Namen:
 - `docs/de/supply-chain-gates.md`
@@ -51,6 +53,7 @@ Namen:
 - `security/manifest-import-policy.js`
 - `security/trusted-dom-policy.js`
 - `security/supply-chain-gate-policy.js`
+- `devDependencies.typescript`
 - `docs/dev-router.php`
 - `package.json`
 - `node scripts/verify_docs_public_quality.js`

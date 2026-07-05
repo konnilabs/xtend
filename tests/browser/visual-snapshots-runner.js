@@ -38,7 +38,7 @@ const VISUAL_SNAPSHOTS_PIXEL_DIFF = Object.freeze({
 const FAMILY_DOM_SIGNATURES = Object.freeze({
   'form-controls': {
     root: 'section[data-snapshot-family="form-controls"]',
-    children: ['x-form#snapshot-form', 'x-input#snapshot-input', 'x-select#snapshot-select', 'x-checkbox#snapshot-checkbox'],
+    children: ['x-form#snapshot-form', 'x-input#snapshot-input', 'x-select#snapshot-select', 'x-checkbox#snapshot-checkbox', 'x-toggle#snapshot-toggle'],
     requiredAttributes: ['data-theme', 'data-density', 'data-motion', 'data-viewport', 'data-snapshot-family'],
     tokenKeys: PRODUCT_TOKEN_KEYS.slice(),
     ariaSignals: ['aria-label', 'required', 'invalid', 'disabled'],
@@ -250,8 +250,8 @@ function validateVisualSnapshotsRun(report) {
   if (!report || report.snapshotCount !== 5 || report.familyCount !== 5) {
     errors.push('visual snapshot runner must cover five family snapshots');
   }
-  if (!report || report.componentCount !== 17) {
-    errors.push('visual snapshot runner must cover seventeen representative components');
+  if (!report || report.componentCount !== 18) {
+    errors.push('visual snapshot runner must cover eighteen representative components');
   }
   if (!report || report.matrixCombinationCount !== 360) {
     errors.push('visual snapshot runner must preserve 360 matrix combinations');

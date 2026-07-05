@@ -55,7 +55,25 @@ export interface XUtilsBoundarySnapshot {
   globalReady: boolean;
 }
 
-export type XUtilsUiEffectName = 'fade-in';
+export type XUtilsUiEffectName =
+  | 'fade-in'
+  | 'fade'
+  | 'crossfade'
+  | 'slide-left'
+  | 'slide-right'
+  | 'slide-up'
+  | 'slide-down'
+  | 'scale'
+  | 'pop'
+  | 'zoom'
+  | 'flip'
+  | 'rotate'
+  | 'expand'
+  | 'collapse'
+  | 'fade-blur'
+  | 'shared-element'
+  | 'layout-flip'
+  | 'none';
 export type XUtilsUiEffectSource = 'none' | 'explicit' | 'body' | 'script' | 'rmt' | string;
 
 export interface XUtilsUiEffectsInput {
@@ -69,6 +87,15 @@ export interface XUtilsUiEffectsInput {
   duration?: number | string;
   durationMs?: number | string;
   rmtDocument?: unknown;
+  phase?: 'enter' | 'exit' | string;
+  easing?: string;
+  transitionId?: string;
+  animationId?: string;
+  layoutKey?: string;
+  timeline?: unknown;
+  keyframes?: unknown[];
+  springSamples?: unknown[];
+  allowFilter?: boolean;
 }
 
 export interface XUtilsUiEffectsState {
@@ -88,6 +115,41 @@ export interface XUtilsUiEffectsState {
   prepared?: boolean;
   released?: boolean;
   phase?: 'prepare' | 'release';
+}
+
+export interface XUtilsUiTransitionState {
+  schema: 'xtend.utility.ui-transition.v1';
+  componentRef: 'x-utils';
+  target: HTMLElement | null;
+  effect: XUtilsUiEffectName | string;
+  phase: 'enter' | 'exit';
+  durationMs: number;
+  easing: string;
+  transitionId?: string;
+  animationId?: string;
+  layoutKey?: string;
+  timeline?: unknown;
+  keyframes?: unknown[];
+  springSamples?: unknown[];
+  allowFilter?: boolean;
+  active: boolean;
+  disabled: boolean;
+  disabledBy: string;
+  policy: XUtilsUiEffectsState;
+  kernelBoundary: 'no-rmt-kernel-import-of-xtend-types';
+}
+
+export interface XUtilsUiTransitionResult {
+  schema: 'xtend.utility.ui-transition-result.v1';
+  status: 'complete' | 'cancelled' | 'fallback' | 'instant' | string;
+  transition?: XUtilsUiTransitionState;
+  effect?: string;
+  phase?: string;
+  durationMs?: number;
+  engine?: string;
+  instant?: boolean;
+  disabledBy?: string;
+  timedOut?: boolean;
 }
 
 export interface XUtilsTemplateAction {
@@ -133,6 +195,8 @@ export interface XUtilsApi {
   fadeIn(el: HTMLElement, duration?: number): void;
   fadeOut(el: HTMLElement, duration?: number): void;
   resolveUiEffects(input?: XUtilsUiEffectsInput | string | string[]): XUtilsUiEffectsState;
+  resolveUiTransition(input?: XUtilsUiEffectsInput | XUtilsUiTransitionState | string | string[]): XUtilsUiTransitionState;
+  runUiTransition(input?: XUtilsUiEffectsInput | XUtilsUiTransitionState | string | string[]): Promise<XUtilsUiTransitionResult>;
   prepareUiEffects(input?: XUtilsUiEffectsInput | XUtilsUiEffectsState | string | string[]): XUtilsUiEffectsState;
   releaseUiEffects(input?: XUtilsUiEffectsInput | XUtilsUiEffectsState | string | string[]): XUtilsUiEffectsState;
   setAria(el: Element, attrs?: Record<string, string | number | boolean>): void;

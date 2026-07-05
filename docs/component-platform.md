@@ -16,6 +16,7 @@ The P0 component wave covers:
 
 - `x-select`
 - `x-checkbox`
+- `x-toggle`
 - `x-radio`
 - `x-textarea`
 - `x-status`

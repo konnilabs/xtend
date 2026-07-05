@@ -5,7 +5,7 @@
     <title>XTend Epic 11 Component Shell Theme Matrix Smoke</title>
     <meta
       name="xtend-preload"
-      content="xstate,x-theme,x-router,x-link,x-tabs,x-input,x-select,x-checkbox,x-form,x-alert,x-toast,x-status,x-progress,x-modal,x-drawer,x-section,x-cards,x-code,x-player"
+      content="xstate,x-theme,x-router,x-link,x-tabs,x-input,x-select,x-checkbox,x-toggle,x-form,x-alert,x-toast,x-status,x-progress,x-modal,x-drawer,x-section,x-cards,x-code,x-player"
     >
     <style>
       :root {
@@ -89,6 +89,7 @@
             <span slot="error">Plan is required.</span>
           </x-select>
           <x-checkbox id="matrix-checkbox" name="terms" value="accepted" required label="Terms accepted"></x-checkbox>
+          <x-toggle id="matrix-toggle" name="notifications" value="enabled" required label="Notifications"></x-toggle>
         </x-form>
       </section>
 
@@ -215,6 +216,7 @@
             customElements.whenDefined('x-input'),
             customElements.whenDefined('x-select'),
             customElements.whenDefined('x-checkbox'),
+            customElements.whenDefined('x-toggle'),
             customElements.whenDefined('x-form'),
             customElements.whenDefined('x-alert'),
             customElements.whenDefined('x-toast'),

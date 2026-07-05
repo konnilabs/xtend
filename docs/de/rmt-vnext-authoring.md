@@ -27,7 +27,7 @@ Beginne bei RMT Authoring Guide mit dem kleinsten Record-Beispiel, prüfe es mit
 
 ## Orchestrierungs-Primitives
 
-RMT vNext kann inzwischen die komplette App-Orchestrierung beschreiben, die Maraca in ein loaderloses Bundle materialisiert. Neben `state`, `selector`, `action`, `resource`, `event`, `surface`, `portal` und `overlay` sind `validation` und `transition` native Authoring-Bausteine. Der Compiler senkt sie in `xtend.rmt.app-orchestration.v1`, `xtend.rmt.form-validation.v1` und `xtend.rmt.surface-transitions.v1` und erzeugt Scheduler-Ziele, Patch-Pläne, Source Maps und redigierte Diagnostics.
+RMT vNext kann inzwischen die komplette App-Orchestrierung beschreiben, die Maraca in ein loaderloses Bundle materialisiert. Neben `state`, `selector`, `action`, `resource`, `event`, `surface`, `portal` und `overlay` sind `validation`, `animation` und `transition` native Authoring-Bausteine. Der Compiler senkt sie in `xtend.rmt.app-orchestration.v1`, `xtend.rmt.form-validation.v1`, `xtend.rmt.surface-transitions.v1` und `xtend.rmt.animation-engine.v1` und erzeugt Scheduler-Ziele, Patch-Pläne, Source Maps und redigierte Diagnostics.
 
 ```rmt
 validation product.service.contact {
@@ -36,18 +36,33 @@ validation product.service.contact {
   field product.service.email required email message "Enter a valid email address."
 }
 
+animation product.service.stepMotion {
+  effect pop
+  durationMs 220
+  easing "cubic-bezier(.2,.8,.2,1)"
+  reducedMotion fade
+  keyframe enter {
+    opacity 0
+    transform "scale(.96)"
+    offset 0
+  }
+}
+
 transition product.service.contactToIssue {
   trigger action product.service.nextContact
   from surfaces [product.service.email product.service.nextContact]
   to surfaces [product.service.subject product.service.nextIssue]
+  use animation product.service.stepMotion
   effect crossfade
   durationMs 240
   easing "ease-out"
+  interrupt replace
+  reducedMotion fade
   lane transition
 }
 ```
 
-Strict Builds erwarten vollständige Payload Contracts, Resource Ownership, Hydration Policies, bekannte Component Capabilities, Messages pro Validation Field und auflösbare Transition Surfaces. Maraca baut daraus Kernel-, Hydration-, Validation- und Transition-Runtimes; Host-Code bleibt Adapterlogik.
+Strict Builds erwarten vollständige Payload Contracts, Resource Ownership, Hydration Policies, bekannte Component Capabilities, Messages pro Validation Field und auflösbare Transition Surfaces. Animationen erlauben standardmäßig nur `opacity` und `transform`; `filter` ist nur per `allowFilter` für Effekte wie `fade-blur` zulässig. Maraca baut daraus Kernel-, Hydration-, Validation-, AnimationEngine- und Transition-Runtimes; Host-Code bleibt Adapterlogik.
 
 ## Referenzdemo und Releasevertrag
 

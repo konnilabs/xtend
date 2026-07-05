@@ -63,6 +63,7 @@ const XTEND_RUNTIME_CUSTOM_ELEMENT_TAGS = Object.freeze([
   'x-tabs',
   'x-textarea',
   'x-toast',
+  'x-toggle',
   'x-tooltip',
   'x-type',
   'x-writer',

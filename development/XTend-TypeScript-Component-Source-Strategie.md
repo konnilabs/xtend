@@ -71,13 +71,16 @@ components/
 
 ## Build-Strategie
 
-Epic 10 fuehrt mit `WP-E10-02` noch keinen produktiven TypeScript Build ein. Das Paket entscheidet den Zielvertrag, den `WP-E10-07` im `xtend-builder` als Blueprint und Build-Plan operationalisiert.
+Epic 10 hat mit `WP-E10-02` den Zielvertrag entschieden. Fuer neue TypeScript-first Komponenten ist der produktive Compilerpfad jetzt aktiviert: `tsc -p tsconfig.components.json` erzeugt lokale ESM- und Declaration-Artefakte, `scripts/finalize_component_build.js` finalisiert die Browser-Importpfade, und `node scripts/run_xtend_tests.js typescript-components --json` gate't den Pfad vor PR- und Release-Smokes.
 
 Der Build-Contract lautet:
 
 | Feld | Entscheidung |
 |------|--------------|
 | Contract | `xtend.typescript.component-source-strategy.v1` |
+| Compiler | `tsc` |
+| Config | `tsconfig.components.json` |
+| Build Script | `npm run build:components` |
 | Build Mode | `ts-source-to-local-esm-artifacts` |
 | Runtime Format | `esm` |
 | Source Root | `src/components/` |
@@ -88,7 +91,7 @@ Der Build-Contract lautet:
 | Network Policy | `no-cdn-no-remote-runtime-imports` |
 | Migration Policy | `new-components-typescript-first-existing-js-incremental` |
 
-Der spaetere lokale Build darf einen TypeScript-Compiler nutzen, aber keine Browser-Runtime-Abhaengigkeit einfuehren. Ein Bundler ist fuer Core-Komponenten nicht Pflicht und darf hoechstens als optionaler App-Host- oder Lab-Pfad eingefuehrt werden.
+Der lokale Build nutzt einen TypeScript-Compiler, fuehrt aber keine Browser-Runtime-Abhaengigkeit ein. Ein Bundler ist fuer Core-Komponenten nicht Pflicht und darf hoechstens als optionaler App-Host- oder Lab-Pfad eingefuehrt werden.
 
 Der erwartete Build-Ablauf:
 
@@ -178,4 +181,3 @@ Die lokale Entwicklung bleibt an die Enterprise-Reife-Entscheidungen gebunden:
 - keine CDN- oder neue Runtime-Dependency-Pflicht entsteht
 - RMT Kernel bleibt frei von XTend-spezifischen TypeScript-Imports
 - `WP-E10-03` und `WP-E10-07` koennen konkrete Contracts und Builder-Blueprints ableiten
-

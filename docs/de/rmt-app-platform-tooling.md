@@ -27,13 +27,14 @@ Beginne bei RMT App Platform Tooling mit dem kleinsten Record-Beispiel, prüfe e
 
 ## Tooling für Orchestrierung
 
-Die App-Platform-Tooling-Schicht kennt `validation` und `transition` als eigene Records. Completion, Hover, Document Symbols und Snippets erklären Field Rules, Transition Effects, `durationMs`, `target action`, `from surfaces`, `to surfaces` und `lane transition`. Dadurch sieht der Editor dieselben Verträge wie Compiler und Maraca.
+Die App-Platform-Tooling-Schicht kennt `validation`, `animation` und `transition` als eigene Records. Completion, Hover, Document Symbols und Snippets erklären Field Rules, Animation-Presets, Transition Effects, `durationMs`, `target action`, `use animation`, `from surfaces`, `to surfaces`, `interrupt`, `reducedMotion` und `lane transition`. Dadurch sieht der Editor dieselben Verträge wie Compiler und Maraca.
 
 Für die präzisen Keyword-Kontexte verweist diese Seite auf die [RMT Reference](./rmt-reference.md).
 
 Neue Snippets:
 
 - `rmt-vnext-validation`
+- `rmt-vnext-animation`
 - `rmt-vnext-transition`
 - `rmt-vnext-maraca-orchestration-app`
 

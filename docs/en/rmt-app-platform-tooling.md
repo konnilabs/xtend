@@ -27,13 +27,14 @@ Start RMT App Platform Tooling with the smallest record example, validate it wit
 
 ## Tooling For Orchestration
 
-The app-platform tooling layer treats `validation` and `transition` as first-class records. Completion, hover, document symbols and snippets explain field rules, transition effects, `durationMs`, `target action`, `from surfaces`, `to surfaces` and `lane transition`. That gives the editor the same contracts that the compiler and Maraca consume.
+The app-platform tooling layer treats `validation`, `animation` and `transition` as first-class records. Completion, hover, document symbols and snippets explain field rules, animation presets, transition effects, `durationMs`, `target action`, `use animation`, `from surfaces`, `to surfaces`, `interrupt`, `reducedMotion` and `lane transition`. That gives the editor the same contracts that the compiler and Maraca consume.
 
 For precise keyword contexts, this page points to the [RMT Reference](./rmt-reference.md).
 
 New snippets:
 
 - `rmt-vnext-validation`
+- `rmt-vnext-animation`
 - `rmt-vnext-transition`
 - `rmt-vnext-maraca-orchestration-app`
 

@@ -101,6 +101,27 @@ CSS Custom Properties:
 - `--xtend-form-label-text`
 - `--xtend-form-helper-text`
 
+## ECH-WP-08 Theme/A11y-Hardening
+
+ECH-WP-08 dokumentiert die Form-Control Tokens fuer `x-form` als oeffentlichen Theme-Vertrag. `signatureDesign` bleibt ein ruhiger Formularrahmen mit klarer Error-, Hint- und Submit-Hierarchie. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: Fehlerzustaende werden ueber Text, Error-Surface, Border, Fokus-Ring und ARIA gespiegelt.
+
+Token-Tabelle:
+- `--xtend-form-text`
+- `--xtend-form-control-surface`
+- `--xtend-form-control-text`
+- `--xtend-form-label-text`
+- `--xtend-form-helper-text`
+- `--xtend-form-error-text`
+- `--xtend-form-error-surface`
+- `--xtend-form-error-border`
+- `--xtend-form-focus-ring`
+- `--xtend-form-radius`
+- `--xtend-form-gap`
+- `--xtend-form-font-family`
+- `--xtend-form-control-font-size`
+- `--xtend-form-helper-font-size`
+- `--xtend-form-icon-color`
+
 ## Integrationshinweise
 
 - UX-Profil: `xtend.component.form-control-ux-profile.v1`.
