@@ -52,6 +52,7 @@ const DEFAULT_ALLOWED_TOP_LEVEL_DOMAINS = Object.freeze([
   'resources',
   'events',
   'validations',
+  'animations',
   'transitions',
   'collectionViews',
   'commandSources',

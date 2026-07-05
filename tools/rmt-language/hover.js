@@ -281,7 +281,7 @@ function inferStaticHover(graph, pointer, options = {}) {
     return entry ? createStaticHover(graph, pointer, 'validation-rule', stringValue, entry, 'rmt-validation-rule-catalog') : null;
   }
 
-  if (field === 'effect' && pointer.startsWith('/transitions/')) {
+  if (field === 'effect' && (pointer.startsWith('/transitions/') || pointer.startsWith('/animations/'))) {
     const entry = lookupEntry(TRANSITION_EFFECTS, stringValue);
     return entry ? createStaticHover(graph, pointer, 'transition-effect', stringValue, entry, 'rmt-transition-effect-catalog') : null;
   }

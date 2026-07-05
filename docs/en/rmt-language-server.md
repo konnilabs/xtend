@@ -23,13 +23,14 @@ VS Code also contributes `XTendRMT: Show vNext Primitive Apply Experience` and `
 
 ## Orchestration DX
 
-The language server adds completion, hover and document symbols for `validation` and `transition`. That works for native `.rmt` files and for JSON/Core-like documents with `validations` and `transitions`. Effects such as `fade`, `crossfade`, `slide-left`, `slide-right`, `slide-up`, `slide-down`, `scale` and `none`, plus validation rules such as `required`, `email`, `minLength`, `maxLength` and `pattern`, are explained in the editor.
+The language server adds completion, hover and document symbols for `validation`, `animation` and `transition`. That works for native `.rmt` files and for JSON/Core-like documents with `validations`, `animations` and `transitions`. Effects such as `fade`, `crossfade`, `slide-left`, `slide-right`, `slide-up`, `slide-down`, `scale`, `pop`, `zoom`, `flip`, `fade-blur`, `shared-element`, `layout-flip` and `none`, plus validation rules such as `required`, `email`, `minLength`, `maxLength` and `pattern`, are explained in the editor.
 
 The complete keyword and operator contexts live in the [RMT Reference](./rmt-reference.md).
 
 New snippets:
 
 - `rmt-vnext-validation`
+- `rmt-vnext-animation`
 - `rmt-vnext-transition`
 - `rmt-vnext-maraca-orchestration-app`
 

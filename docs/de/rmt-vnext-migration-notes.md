@@ -56,7 +56,7 @@ template xtend.vnext.reference {
 }
 ```
 
-Wenn ein Host bereits Maraca nutzt, bleibt diese Preview trotzdem eine Sprachmigration. Das Bundle entsteht weiterhin über `xt maraca build app.rmt --orchestration strict --kernel strict --json`; die Migration entscheidet nur, ob die Quelle als vNext Authoring-Dokument taugt.
+Wenn ein Host bereits Maraca nutzt, bleibt diese Preview trotzdem eine Sprachmigration. Das Bundle entsteht weiterhin über `xt maraca build app.rmt --orchestration strict --kernel strict --transitions strict --json`; die Migration entscheidet nur, ob die Quelle als vNext Authoring-Dokument taugt. Bestehende `transition`-Blöcke bleiben kompatibel. `animation`-Presets, `use animation`, `interrupt`, `reducedMotion`, `timeline` und `layoutKey` können schrittweise ergänzt werden, wenn eine App reichere Motion braucht.
 
 ## Verlustbehaftete Domains
 

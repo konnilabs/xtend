@@ -23,6 +23,8 @@ node scripts/run_xtend_tests.js rmt-language-regression --json
 
 Der Agent Report enthält `repairPlan`, `fixOrder`, `relatedDiagnostics`, erklärte `No-Op` Einträge und Diagnostiken wie `rmt.document.extension.fallback-used`. Das öffentliche Schema ist `xtend.rmt.tooling-docs.v1`; Reports können `xtend.rmt.linter.report.v1` und `xtend.rmt.ai-agent-repair-report.v1`.
 
+AnimationEngine-Diagnosen decken unbekannte Effekte, ungültige `interrupt`- oder `reducedMotion`-Policies, fehlende `layoutKey` bei `shared-element`/`layout-flip`, unsichere Keyframe-Properties und fehlendes Filter-Opt-in bei `fade-blur` ab. Code Actions können unsichere Enum-Werte auf sichere Defaults setzen und fehlende Motion-Policy-Felder ergänzen, wenn die Diagnose auf einen konkreten Record zeigt.
+
 ## Empfohlener Ablauf
 
 Beginne bei RMT Linter mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.

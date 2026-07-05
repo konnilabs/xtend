@@ -341,6 +341,11 @@ function runPrimitiveAuthoringChecks(context, rootDir) {
     analysis: transitionAnalysis,
     pointer: '/transitions/0'
   });
+  const animationCompletions = getRmtVNextToolingCompletions(transitionInput, {
+    rootDir,
+    analysis: transitionAnalysis,
+    pointer: '/animations/0'
+  });
   const transitionEffectCompletions = getRmtVNextToolingCompletions(transitionInput, {
     rootDir,
     analysis: transitionAnalysis,
@@ -421,6 +426,7 @@ function runPrimitiveAuthoringChecks(context, rootDir) {
   context.assert(analysis.ok === true && analysis.coreDocument.states.length === 3, 'primitive vNext fixture is indexed for authoring');
   context.assert(validationAnalysis.ok === true && validationAnalysis.coreDocument.validations.length >= 1, 'validation vNext fixture indexes validation records');
   context.assert(transitionAnalysis.ok === true && transitionAnalysis.coreDocument.transitions.length >= 1, 'transition vNext fixture indexes transition records');
+  context.assert(transitionAnalysis.ok === true && transitionAnalysis.coreDocument.animations.length >= 1, 'transition vNext fixture indexes animation records');
   context.assert(isLikelyRmtVNextSource(validationInput) === true, 'vNext detector recognizes validation primitive source');
   context.assert(isLikelyRmtVNextSource(transitionInput) === true, 'vNext detector recognizes transition primitive source');
   context.assert(analysis.sourceMapSummary.byNodeType.RmtStateDeclaration >= 3, 'primitive authoring source map exposes state declarations');
@@ -429,11 +435,15 @@ function runPrimitiveAuthoringChecks(context, rootDir) {
   context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'selector'), 'primitive completion exposes selector keyword');
   context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'resource'), 'primitive completion exposes resource keyword');
   context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'validation'), 'primitive completion exposes validation keyword');
+  context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'animation'), 'primitive completion exposes animation keyword');
   context.assert(primitiveKeywordCompletions.items.some((item) => item.label === 'transition'), 'primitive completion exposes transition keyword');
   context.assert(validationCompletions.context === 'vnext-primitive-validation-clauses' && validationCompletions.items.some((item) => item.label === 'target action'), 'validation pointer exposes action gate completion');
   context.assert(validationRuleCompletions.items.some((item) => item.label === 'email'), 'validation rules expose email completion');
   context.assert(transitionCompletions.context === 'vnext-primitive-transition-clauses' && transitionCompletions.items.some((item) => item.label === 'durationMs'), 'transition pointer exposes durationMs completion');
+  context.assert(transitionCompletions.items.some((item) => item.label === 'use animation'), 'transition pointer exposes use animation completion');
+  context.assert(animationCompletions.context === 'vnext-primitive-animation-clauses' && animationCompletions.items.some((item) => item.label === 'keyframe'), 'animation pointer exposes keyframe completion');
   context.assert(transitionEffectCompletions.items.some((item) => item.label === 'crossfade'), 'transition effect completion exposes crossfade');
+  context.assert(transitionEffectCompletions.items.some((item) => item.label === 'pop'), 'transition effect completion exposes AnimationEngine pop effect');
   context.assert(stateCompletions.context === 'vnext-primitive-state-clauses' && stateCompletions.items.some((item) => item.label === 'initial'), 'state pointer infers primitive state completions');
   context.assert(actionCompletions.items.some((item) => item.label === 'effect fetch datasource'), 'action pointer exposes effect completion');
   context.assert(surfaceCompletions.items.some((item) => item.label === 'destroy releases resource'), 'surface pointer exposes lifecycle resource completion');
@@ -452,7 +462,9 @@ function runPrimitiveAuthoringChecks(context, rootDir) {
   context.assert(validationNamespaces.includes('validations'), 'validation document symbols expose validations namespace');
   context.assert(validationSymbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'demo.validation.contact')), 'validation document symbols include validation group');
   context.assert(transitionNamespaces.includes('transitions'), 'transition document symbols expose transitions namespace');
+  context.assert(transitionNamespaces.includes('animations'), 'transition document symbols expose animations namespace');
   context.assert(transitionSymbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'demo.transitions.contactToIssue')), 'transition document symbols include transition record');
+  context.assert(transitionSymbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'demo.transitions.motion')), 'transition document symbols include animation record');
   context.assert(symbols.symbols.some((symbol) => symbol.children.some((child) => child.name === 'media.player')), 'primitive document symbols include visible media.player surface');
 }
 
@@ -730,28 +742,33 @@ function runFormatterSnippetAndAgentChecks(context, rootDir) {
   context.assert(VNEXT_SNIPPETS.length >= 3, 'vNext tooling exports snippet patterns');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-primitive-shell'), 'vNext tooling exports primitive shell snippet');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-validation'), 'vNext tooling exports validation snippet');
+  context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-animation'), 'vNext tooling exports animation snippet');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-transition'), 'vNext tooling exports transition snippet');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-resumability'), 'vNext tooling exports resumability snippet');
   context.assert(VNEXT_SNIPPETS.some((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app'), 'vNext tooling exports Maraca orchestration app snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-template'), 'snippet catalog includes vNext template snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-primitive-shell'), 'snippet catalog includes vNext primitive shell snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-validation'), 'snippet catalog includes vNext validation snippet');
+  context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-animation'), 'snippet catalog includes vNext animation snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-transition'), 'snippet catalog includes vNext transition snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app'), 'snippet catalog includes Maraca orchestration app snippet');
   context.assert(generatedSnippets['RMT vNext Stream'].prefix === 'rmt-vnext-stream', 'generated VS Code snippets include vNext stream prefix');
   context.assert(generatedSnippets['RMT vNext Resumability Policy'].prefix === 'rmt-vnext-resumability', 'generated VS Code snippets include vNext resumability prefix');
   context.assert(generatedSnippets['RMT vNext Primitive Shell'].prefix === 'rmt-vnext-primitive-shell', 'generated VS Code snippets include vNext primitive shell prefix');
   context.assert(generatedSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'generated VS Code snippets include vNext validation prefix');
+  context.assert(generatedSnippets['RMT vNext AnimationEngine Preset'].prefix === 'rmt-vnext-animation', 'generated VS Code snippets include vNext animation prefix');
   context.assert(generatedSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'generated VS Code snippets include vNext transition prefix');
   context.assert(generatedSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'generated VS Code snippets include Maraca orchestration app prefix');
   context.assert(staticSnippets['RMT vNext Stream'].prefix === generatedSnippets['RMT vNext Stream'].prefix, 'static source snippets include vNext stream prefix');
   context.assert(staticSnippets['RMT vNext Primitive Shell'].prefix === generatedSnippets['RMT vNext Primitive Shell'].prefix, 'static source snippets include vNext primitive shell prefix');
   context.assert(staticSnippets['RMT vNext Validation'].prefix === generatedSnippets['RMT vNext Validation'].prefix, 'static source snippets include vNext validation prefix');
+  context.assert(staticSnippets['RMT vNext AnimationEngine Preset'].prefix === generatedSnippets['RMT vNext AnimationEngine Preset'].prefix, 'static source snippets include vNext animation prefix');
   context.assert(staticSnippets['RMT vNext Surface Transition'].prefix === generatedSnippets['RMT vNext Surface Transition'].prefix, 'static source snippets include vNext transition prefix');
   context.assert(staticSnippets['RMT vNext Maraca Orchestration App'].prefix === generatedSnippets['RMT vNext Maraca Orchestration App'].prefix, 'static source snippets include Maraca orchestration app prefix');
   context.assert(packagedSnippets['RMT vNext Stream'].prefix === generatedSnippets['RMT vNext Stream'].prefix, 'packaged VS Code snippets include vNext stream prefix');
   context.assert(packagedSnippets['RMT vNext Primitive Shell'].prefix === generatedSnippets['RMT vNext Primitive Shell'].prefix, 'packaged VS Code snippets include vNext primitive shell prefix');
   context.assert(packagedSnippets['RMT vNext Validation'].prefix === generatedSnippets['RMT vNext Validation'].prefix, 'packaged VS Code snippets include vNext validation prefix');
+  context.assert(packagedSnippets['RMT vNext AnimationEngine Preset'].prefix === generatedSnippets['RMT vNext AnimationEngine Preset'].prefix, 'packaged VS Code snippets include vNext animation prefix');
   context.assert(packagedSnippets['RMT vNext Surface Transition'].prefix === generatedSnippets['RMT vNext Surface Transition'].prefix, 'packaged VS Code snippets include vNext transition prefix');
   context.assert(packagedSnippets['RMT vNext Maraca Orchestration App'].prefix === generatedSnippets['RMT vNext Maraca Orchestration App'].prefix, 'packaged VS Code snippets include Maraca orchestration app prefix');
   context.assert(agentReport.fileReports[0].languageMode === 'vnext', 'agent report marks vNext language mode');

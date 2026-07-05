@@ -94,6 +94,7 @@ function runSnippetCatalogChecks(context, rootDir) {
   const route = catalog.snippets.find((snippet) => snippet.id === 'rmt-xrouter-route');
   const schedule = catalog.snippets.find((snippet) => snippet.id === 'rmt-schedule');
   const validation = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-validation');
+  const animation = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-animation');
   const transition = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-transition');
   const resumability = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-resumability');
   const orchestrationApp = catalog.snippets.find((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app');
@@ -112,8 +113,11 @@ function runSnippetCatalogChecks(context, rootDir) {
   context.assert(schedule && joinedSnippetBody(schedule).includes('visible,user-blocking,transition,idle,background,diagnostics'), 'Schedule snippet offers Lane choices');
   context.assert(validation && joinedSnippetBody(validation).includes('target action'), 'Validation snippet declares target action');
   context.assert(validation && joinedSnippetBody(validation).includes('required email message'), 'Validation snippet declares field rules');
+  context.assert(animation && joinedSnippetBody(animation).includes('keyframe enter'), 'Animation snippet declares safe keyframes');
+  context.assert(animation && joinedSnippetBody(animation).includes('reducedMotion'), 'Animation snippet declares reduced motion policy');
   context.assert(transition && joinedSnippetBody(transition).includes('durationMs'), 'Transition snippet declares durationMs');
-  context.assert(transition && joinedSnippetBody(transition).includes('effect ${7|fade,crossfade'), 'Transition snippet offers effect choices');
+  context.assert(transition && joinedSnippetBody(transition).includes('use animation'), 'Transition snippet declares reusable animation binding');
+  context.assert(transition && joinedSnippetBody(transition).includes('effect ${8|fade,crossfade'), 'Transition snippet offers effect choices');
   context.assert(resumability && joinedSnippetBody(resumability).includes('resumability mode server_prerender_resume'), 'Resumability snippet declares server resume mode');
   context.assert(orchestrationApp && joinedSnippetBody(orchestrationApp).includes('validation ${6:app.contact}'), 'Maraca orchestration snippet includes validation block');
   context.assert(orchestrationApp && joinedSnippetBody(orchestrationApp).includes('transition ${9:app.contactToIssue}'), 'Maraca orchestration snippet includes transition block');
@@ -124,6 +128,7 @@ function runSnippetCatalogChecks(context, rootDir) {
   context.assert(catalog.snippets.every((snippet) => !joinedSnippetBody(snippet).includes('.rmt.json')), 'Snippets do not generate .rmt.json documents');
   context.assert(vscodeSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code snippet document exposes minimal app prefix');
   context.assert(vscodeSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'VS Code snippet document exposes validation prefix');
+  context.assert(vscodeSnippets['RMT vNext AnimationEngine Preset'].prefix === 'rmt-vnext-animation', 'VS Code snippet document exposes animation prefix');
   context.assert(vscodeSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'VS Code snippet document exposes transition prefix');
   context.assert(vscodeSnippets['RMT vNext Resumability Policy'].prefix === 'rmt-vnext-resumability', 'VS Code snippet document exposes resumability prefix');
   context.assert(vscodeSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'VS Code snippet document exposes Maraca orchestration prefix');
@@ -131,6 +136,7 @@ function runSnippetCatalogChecks(context, rootDir) {
   context.assert(vscodeSnippets['RMT Owned Command Search'].prefix === 'rmt-owned-command-search', 'VS Code snippet document exposes owned command/search prefix');
   context.assert(staticVscodeSnippets['RMT Minimal App'].prefix === vscodeSnippets['RMT Minimal App'].prefix, 'Static VS Code snippets match generated prefix');
   context.assert(staticVscodeSnippets['RMT vNext Validation'].prefix === vscodeSnippets['RMT vNext Validation'].prefix, 'Static VS Code snippets include generated validation prefix');
+  context.assert(staticVscodeSnippets['RMT vNext AnimationEngine Preset'].prefix === vscodeSnippets['RMT vNext AnimationEngine Preset'].prefix, 'Static VS Code snippets include generated animation prefix');
   context.assert(staticVscodeSnippets['RMT vNext Surface Transition'].prefix === vscodeSnippets['RMT vNext Surface Transition'].prefix, 'Static VS Code snippets include generated transition prefix');
   context.assert(staticVscodeSnippets['RMT Owned Collection View'].prefix === vscodeSnippets['RMT Owned Collection View'].prefix, 'Static VS Code snippets include generated owned collection prefix');
   context.assert(staticVscodeSnippets['RMT Owned Command Search'].prefix === vscodeSnippets['RMT Owned Command Search'].prefix, 'Static VS Code snippets include generated owned command/search prefix');

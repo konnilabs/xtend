@@ -1,6 +1,6 @@
 # XTend Maraca Orchestrierung
 
-Dieser Deep-Dive beschreibt loaderlose Maraca App Bundles, die aus einer RMT Quelle nicht nur Komponenten auswählen, sondern eine lauffähige, kernel-orchestrierte Anwendung materialisieren. Die RMT Datei bleibt die Source of Truth für State, Actions, Events, Resources, Surfaces, Hydration, Validation und Surface Transitions.
+Dieser Deep-Dive beschreibt loaderlose Maraca App Bundles, die aus einer RMT Quelle nicht nur Komponenten auswählen, sondern eine lauffähige, kernel-orchestrierte Anwendung materialisieren. Die RMT Datei bleibt die Source of Truth für State, Actions, Events, Resources, Surfaces, Hydration, Validation, wiederverwendbare Animationen und Surface Transitions.
 
 ## Build-Modi
 
@@ -12,7 +12,7 @@ xt maraca build app.rmt --orchestration strict --kernel strict --hydration stric
 xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json
 ```
 
-`orchestration` aktiviert das Artefakt `xtend.rmt.app-orchestration.v1`. `kernel` bündelt echte RMT Kernel- und Scheduler-Instanzen. `hydration` steuert runtime render, prerender/hydrate, lazy, visible, idle, manual, none und insulare Hydration über denselben Plan. `validation` konsumiert `xtend.rmt.form-validation.v1` und blockt Actions bei ungültigen Gruppen. `transitions` konsumiert `xtend.rmt.surface-transitions.v1` und führt Surface-Wechsel über die bestehende `x-utils`/`xt-ui-effects`-Schiene aus.
+`orchestration` aktiviert das Artefakt `xtend.rmt.app-orchestration.v1`. `kernel` bündelt echte RMT Kernel- und Scheduler-Instanzen. `hydration` steuert runtime render, prerender/hydrate, lazy, visible, idle, manual, none und insulare Hydration über denselben Plan. `validation` konsumiert `xtend.rmt.form-validation.v1` und blockt Actions bei ungültigen Gruppen. `transitions` behält die kompatible View `xtend.rmt.surface-transitions.v1` und konsumiert zusätzlich `xtend.rmt.animation-engine.v1` für Presets, Timelines, Interrupt Policy, Reduced Motion und native-first-Ausführung.
 
 ## RMT Authoring
 
@@ -27,13 +27,23 @@ validation product.service.contact {
   field product.service.channel required message "Choose a support area."
 }
 
+animation product.service.stepMotion {
+  effect pop
+  durationMs 220
+  easing "cubic-bezier(.2,.8,.2,1)"
+  reducedMotion fade
+}
+
 transition product.service.contactToIssue {
   trigger action product.service.nextContact
   from surfaces [product.service.name product.service.email product.service.channel product.service.nextContact]
   to surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
+  use animation product.service.stepMotion
   effect crossfade
   durationMs 240
   easing "ease-out"
+  interrupt replace
+  reducedMotion fade
   lane transition
 }
 ```
@@ -42,7 +52,7 @@ Der Compiler erzeugt daraus Action Gates, Scheduler-Ziele, Patch-Pläne und Sour
 
 ## Runtime Graph
 
-Der Bootpfad erzeugt Browser-/Host-Adapter, Kernel Runtime, Core, Performance Runtime und Scheduler Diagnostics Bridge. Danach werden State, Resource, Validation, Transition, Action, Event, Surface und Renderer in dieser Reihenfolge gestartet. Maraca bleibt Host-Adapter; die Orchestrierungssemantik liegt im wiederverwendbaren XTendRMT Runtime-Layer.
+Der Bootpfad erzeugt Browser-/Host-Adapter, Kernel Runtime, Core, Performance Runtime und Scheduler Diagnostics Bridge. Danach werden State, Resource, Validation, Animation, Transition, Action, Event, Surface und Renderer in dieser Reihenfolge gestartet. Maraca bleibt Host-Adapter; die Orchestrierungssemantik liegt im wiederverwendbaren XTendRMT Runtime-Layer.
 
 DOM wird ausschließlich über DOM Descriptor Renderer oder strukturierte `createElement`-Fallbacks materialisiert. Es gibt kein `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write` und keinen Zugriff auf private ShadowRoot-Interna. Components werden nur über öffentliche Attribute, Properties, Events, Slots, CSS Parts und Design Tokens verbunden.
 
@@ -54,7 +64,7 @@ Maraca trifft nicht die statische Annahme-/Ablehnungsentscheidung, besitzt keine
 
 ## Reports und Bridges
 
-`xtend.maraca.report.json` enthält Abschnitte für `orchestration`, `kernel`, `hydration`, `validation` und `transitions`. Wichtige Felder sind `planStatus`, `runtimeExpectedStatus`, `fallbackCount`, `scheduledEndpointCount`, `strictViolations`, `hydrationPolicyCount`, `insularIslandCount`, `effectCounts`, `durationRange`, `runtimeModules` und redigierte `diagnostics`.
+`xtend.maraca.report.json` enthält Abschnitte für `orchestration`, `kernel`, `hydration`, `validation` und `transitions`. Wichtige Felder sind `planStatus`, `runtimeExpectedStatus`, `fallbackCount`, `scheduledEndpointCount`, `strictViolations`, `hydrationPolicyCount`, `insularIslandCount`, `effectCounts`, `durationRange`, `animationEngineSchema`, `animationCount`, `timelineCount`, `runtimeModules` und redigierte `diagnostics`.
 
 Im Browser stehen redigierte Debug Bridges bereit:
 
@@ -63,16 +73,17 @@ window.XTendMaraca.orchestration.snapshot();
 window.XTendMaraca.kernel.listScheduledEndpoints();
 window.XTendMaraca.hydration.snapshot();
 window.XTendMaraca.validation.evaluateGroup("product.service.contact");
+window.XTendMaraca.animationEngine.snapshot();
 window.XTendMaraca.transitions.listActiveTransitions();
 ```
 
-Die wichtigsten Custom Events sind `xtend-maraca:orchestration-boot`, `xtend-maraca:kernel-boot`, `xtend-maraca:kernel-schedule`, `xtend-maraca:state-change`, `xtend-maraca:validation-boot`, `xtend-maraca:validation-change`, `xtend-maraca:validation-blocked`, `xtend-maraca:surface-transition-start`, `xtend-maraca:surface-transition-complete`, `xtend-maraca:surface-transition-cancel` und `xtend-maraca:surface-transition-error`.
+Die wichtigsten Custom Events sind `xtend-maraca:orchestration-boot`, `xtend-maraca:kernel-boot`, `xtend-maraca:kernel-schedule`, `xtend-maraca:state-change`, `xtend-maraca:validation-boot`, `xtend-maraca:validation-change`, `xtend-maraca:validation-blocked`, `xtend-rmt:animation-start`, `xtend-rmt:animation-phase`, `xtend-rmt:animation-interrupt`, `xtend-rmt:animation-complete`, `xtend-maraca:surface-transition-start`, `xtend-maraca:surface-transition-complete`, `xtend-maraca:surface-transition-cancel` und `xtend-maraca:surface-transition-error`.
 
 ## Effects und Motion Policy
 
-Surface Transitions unterstützen `fade`, `crossfade`, `slide-left`, `slide-right`, `slide-up`, `slide-down`, `scale` und `none`. Die Dauer kommt aus `durationMs`, kann aber durch Host-Policy begrenzt werden. `xt-ui-effects="none"` auf `body` und `prefers-reduced-motion` gewinnen vor der RMT Dauer und führen zu sofortigen, telemetry-gemeldeten Übergängen.
+Surface Transitions unterstützen `fade`, `crossfade`, `slide-left`, `slide-right`, `slide-up`, `slide-down`, `scale`, `pop`, `zoom`, `flip`, `rotate`, `expand`, `collapse`, `fade-blur`, `shared-element`, `layout-flip` und `none`. Die Dauer kommt aus `durationMs`, kann aber durch Host-Policy begrenzt werden. `xt-ui-effects="none"` auf `body` und `prefers-reduced-motion` gewinnen vor der RMT Dauer und nutzen die deklarierte `reducedMotion` Policy.
 
-Die Transition Runtime reserviert die Geometrie der ausgehenden Surface, startet den Effekt und materialisiert die neue Surface erst nach Abschluss an derselben Stelle. Dadurch bleiben Layout Shifts im normalen Flow aus.
+Die AnimationEngine nutzt zuerst WAAPI und danach CSS-/Instant-Fallback. `crossfade` überlappt Exit- und Enter-Phase; serielle Transitions warten weiter auf den Exit-Abschluss, bevor die eingehende Surface materialisiert wird. Custom Keyframes sind auf `opacity` und `transform` begrenzt; `filter` ist nur per explizitem Opt-in zulässig.
 
 ## Demo und lokale Prüfung
 

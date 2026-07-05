@@ -38,7 +38,7 @@ Weiter geht es mit [Templates und Surfaces](./learn-rmt-templates-surfaces.md).
 
 ## Validation und Transitions
 
-Formularlogik muss nicht als Host-JavaScript neben der RMT Datei entstehen. Mit `validation` deklarierst du Field Rules und Action Gates; mit `transition` deklarierst du den visuellen Wechsel zwischen Surface-Gruppen.
+Formularlogik und Motion müssen nicht als Host-JavaScript neben der RMT Datei entstehen. Mit `validation` deklarierst du Field Rules und Action Gates; mit `animation` deklarierst du wiederverwendbare Motion-Presets; mit `transition` deklarierst du den visuellen Wechsel zwischen Surface-Gruppen.
 
 ```rmt
 validation demo.contact {
@@ -47,18 +47,28 @@ validation demo.contact {
   field demo.email required email message "Enter a valid email address."
 }
 
+animation demo.stepMotion {
+  effect pop
+  durationMs 220
+  easing "cubic-bezier(.2,.8,.2,1)"
+  reducedMotion fade
+}
+
 transition demo.contactToIssue {
   trigger action demo.nextContact
   from surfaces [demo.email demo.nextContact]
   to surfaces [demo.subject demo.nextIssue]
+  use animation demo.stepMotion
   effect slide-left
   durationMs 220
   easing "ease-out"
+  interrupt replace
+  reducedMotion fade
   lane transition
 }
 ```
 
-`required`, `email`, `minLength`, `maxLength`, `pattern`, `message`, `target action`, `from surfaces`, `to surfaces`, `effect` und `durationMs` sind Teil der vNext-Syntax. `lane transition` sorgt dafür, dass der Wechsel über den Kernel Scheduler geplant werden kann.
+`required`, `email`, `minLength`, `maxLength`, `pattern`, `message`, `target action`, `use animation`, `from surfaces`, `to surfaces`, `effect`, `durationMs`, `interrupt` und `reducedMotion` sind Teil der vNext-Syntax. `lane transition` sorgt dafür, dass der Wechsel über den Kernel Scheduler geplant werden kann.
 
 ## Maraca-Relevanz
 

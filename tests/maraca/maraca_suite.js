@@ -1905,10 +1905,14 @@ async function runMaracaTransitionSuite(options = {}) {
   context.assert(strictPlan.transitions && strictPlan.transitions.mode === 'strict', 'strict transition plan records strict mode');
   context.assert(strictPlan.transitions && strictPlan.transitions.enabled === true, 'strict transition plan enables transition runtime');
   context.assert(strictPlan.transitions.summary.transitionCount === 2, 'strict transition plan summarizes transition count');
+  context.assert(strictPlan.transitions.summary.animationEngineSchema === 'xtend.rmt.animation-engine.v1', 'strict transition plan summarizes AnimationEngine schema');
+  context.assert(strictPlan.transitions.summary.animationCount === 1, 'strict transition plan summarizes animation preset count');
   context.assert(strictPlan.transitions.summary.scheduledEndpointCount === 2, 'strict transition plan summarizes transition scheduler endpoints');
+  context.assert(strictPlan.runtimeModules.includes('xtendrmt/rmt-animation-engine-runtime.js'), 'strict transition plan requires animation engine runtime module');
   context.assert(strictPlan.runtimeModules.includes('xtendrmt/rmt-surface-transition-runtime.js'), 'strict transition plan requires surface transition runtime module');
   context.assert(strictPlan.runtimeModules.includes('components/xutils.js'), 'strict transition plan requires x-utils effect policy module');
   context.assert(strictPlan.runtimeModules.includes('components/xstate.js'), 'strict transition plan requires xstate mirror module');
+  context.assert(strictPlan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-animation-engine-runtime.js'), 'strict transition plan includes animation engine runtime in the bundle graph');
   context.assert(strictPlan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-surface-transition-runtime.js'), 'strict transition plan includes transition runtime in the bundle graph');
   context.assert(strictPlan.stackModules.some((entry) => entry.source === 'components/xutils.js'), 'strict transition plan includes x-utils in the bundle graph');
   context.assert(strictPlan.stackModules.some((entry) => entry.source === 'components/xstate.js'), 'strict transition plan includes xstate in the bundle graph');
@@ -1920,12 +1924,16 @@ async function runMaracaTransitionSuite(options = {}) {
   context.assert(result.ok === true, `strict transition bundle passes${result.ok ? '' : ` (${result.status})`}`);
   context.assert(report && report.transitions && report.transitions.enabled === true, 'bundle report includes transition telemetry');
   context.assert(report && report.transitions && report.transitions.summary.transitionCount === 2, 'bundle report summarizes transition count');
+  context.assert(report && report.transitions && report.transitions.summary.animationEngineSchema === 'xtend.rmt.animation-engine.v1', 'bundle report summarizes AnimationEngine schema');
   context.assert(report && report.transitions && report.transitions.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'bundle report transition diagnostics are non-blocking');
   context.assert(entrySource.includes('MARACA_TRANSITIONS'), 'bundle embeds transition plan');
+  context.assert(entrySource.includes('XTendRmtAnimationEngineRuntime'), 'bundle wires animation engine runtime');
+  context.assert(entrySource.includes('createRmtAnimationEngineRuntime'), 'bundle creates animation engine runtime');
   context.assert(entrySource.includes('XTendRmtSurfaceTransitionRuntime'), 'bundle wires surface transition runtime');
   context.assert(entrySource.includes('createRmtSurfaceTransitionRuntime'), 'bundle creates surface transition runtime');
   context.assert(entrySource.includes('globalTarget.XTendRmtSurfaceTransitionRuntime = api'), 'bundle materializes surface transition runtime global API');
   context.assert(entrySource.includes('transitionRuntime.applyVisibilityPatch'), 'bundle routes hidden patches through transition runtime');
+  context.assert(entrySource.includes('window.__XTendMaracaAnimationEngine'), 'bundle exposes animation engine bridge handle');
   context.assert(entrySource.includes('window.__XTendMaracaTransitions'), 'bundle exposes transition bridge handle');
   context.assert(entrySource.includes('transitionPlan: MARACA_TRANSITIONS'), 'bundle exposes transition plan on XTendMaraca');
   context.assert(entrySource.includes('xtend-maraca:surface-transition-start'), 'bundle dispatches transition start telemetry');
@@ -1937,6 +1945,9 @@ async function runMaracaTransitionSuite(options = {}) {
   context.assert(!/\.insertAdjacentHTML\s*\(/u.test(entrySource), 'transition bundle entry has no insertAdjacentHTML sink');
   context.assert(!/document\.write\s*\(/u.test(entrySource), 'transition bundle entry has no document.write sink');
 
+  const animationRuntimePath = resolveRepoPath('xtendrmt/rmt-animation-engine-runtime.js', rootDir);
+  const animationRuntimeSource = fs.readFileSync(animationRuntimePath, 'utf8');
+  const animationModule = await import(`data:text/javascript;base64,${Buffer.from(animationRuntimeSource).toString('base64')}`);
   const runtimePath = resolveRepoPath('xtendrmt/rmt-surface-transition-runtime.js', rootDir);
   const runtimeSource = fs.readFileSync(runtimePath, 'utf8');
   const transitionModule = await import(`data:text/javascript;base64,${Buffer.from(runtimeSource).toString('base64')}`);
@@ -2006,6 +2017,8 @@ async function runMaracaTransitionSuite(options = {}) {
   context.assert(fakeElement.style.opacity === '' && fakeElement.style.transform === '' && fakeElement.style.transition === '', 'Node transition smoke clears stale enter animation styles');
   context.assert(Object.keys(xstateValues).some((key) => key.includes('xtend.surface.transition.demo.transitions')), 'Node transition smoke mirrors transition state into xstate');
   context.assert(transitionRuntime.snapshot().transitionCount === 2, 'Transition runtime snapshot exposes transition count');
+  context.assert(transitionRuntime.snapshot().animationEngine && transitionRuntime.snapshot().animationEngine.transitionCount === 2, 'Transition runtime snapshot includes AnimationEngine snapshot');
+  context.assert(animationModule.RMT_ANIMATION_ENGINE_RUNTIME_SCHEMA === 'xtend.rmt.animation-engine-runtime.v1', 'AnimationEngine runtime module exports runtime schema');
 
   const createFakeSurfaceElement = (surfaceId, hidden = false) => {
     const attrs = new Map([['data-maraca-surface', surfaceId]]);
@@ -2067,14 +2080,14 @@ async function runMaracaTransitionSuite(options = {}) {
     action: 'demo.transitions.next'
   });
   await Promise.resolve();
-  context.assert(enterSurface.hasAttribute('hidden'), 'Node transition smoke keeps entering surface hidden while exit runs');
-  context.assert(enterEffectStarted === false, 'Node transition smoke delays enter effect until exit completes');
+  context.assert(!enterSurface.hasAttribute('hidden'), 'Node transition smoke materializes entering crossfade surface while exit runs');
+  context.assert(enterEffectStarted === true, 'Node transition smoke overlaps crossfade enter effect with exit');
   resolveExitEffect();
   await delayedExit;
   await delayedEnter;
   context.assert(exitSurface.hasAttribute('hidden'), 'Node transition smoke hides exiting surface after transition');
-  context.assert(!enterSurface.hasAttribute('hidden'), 'Node transition smoke materializes entering surface after exit completes');
-  context.assert(enterEffectStarted === true, 'Node transition smoke runs enter effect after exit completes');
+  context.assert(!enterSurface.hasAttribute('hidden'), 'Node transition smoke keeps entering surface materialized after crossfade exit completes');
+  context.assert(enterEffectStarted === true, 'Node transition smoke keeps overlap enter effect recorded after exit completes');
 
   context.assert(cliStatus === 0, 'xt maraca plan --transitions strict exits successfully');
   context.assert(cliPlan.transitions && cliPlan.transitions.enabled === true, 'CLI returns strict transition plan JSON');

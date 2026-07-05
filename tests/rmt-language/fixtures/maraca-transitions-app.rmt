@@ -71,13 +71,43 @@ template demo.transitions {
     emit demo.transitions.changed with label input.label
   }
 
+  animation demo.transitions.motion {
+    effect pop
+    durationMs 180
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+    keyframe enter {
+      opacity 0
+      transform "scale(.96)"
+      offset 0
+    }
+    keyframe enter {
+      opacity 1
+      transform "scale(1)"
+      offset 1
+    }
+    spring {
+      stiffness 180
+      damping 20
+      mass 1
+    }
+  }
+
   transition demo.transitions.contactToIssue {
     trigger action demo.transitions.next
     from surfaces [demo.transitions.contact demo.transitions.next]
     to surfaces [demo.transitions.issue demo.transitions.back]
+    use animation demo.transitions.motion
     effect crossfade
     durationMs 120
     easing "ease-out"
+    layoutKey "transition-step-card"
+    interrupt replace
+    reducedMotion fade
+    timeline {
+      parallel enter exit
+      stagger 40 enter
+    }
     lane transition
   }
 
@@ -88,6 +118,8 @@ template demo.transitions {
     effect slide-right
     durationMs 120
     easing "ease-out"
+    interrupt replace
+    reducedMotion fade
     lane transition
   }
 

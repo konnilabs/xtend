@@ -98,6 +98,7 @@ const PRIMITIVE_DECLARATIONS = new Set([
   'datasource',
   'action',
   'validation',
+  'animation',
   'transition',
   'portal',
   'overlay',
@@ -539,6 +540,7 @@ class VNextParser {
     if (this.matches('datasource')) return this.parseDataSourceDeclaration(scope);
     if (this.matches('action')) return this.parseActionDeclaration(scope);
     if (this.matches('validation')) return this.parseValidationDeclaration(scope);
+    if (this.matches('animation')) return this.parseAnimationDeclaration(scope);
     if (this.matches('transition')) return this.parseTransitionDeclaration(scope);
     if (this.matches('portal')) return this.parsePortalDeclaration(scope);
     if (this.matches('overlay')) return this.parseOverlayDeclaration(scope);
@@ -805,7 +807,12 @@ class VNextParser {
       if (this.matches('durationMs')) return this.parseTransitionDurationClause();
       if (this.matches('easing')) return this.parseTransitionEasingClause();
       if (this.matches('lane')) return this.parseTransitionLaneClause();
-      this.addDiagnostic(this.current(), 'Transition blocks may contain trigger, from, to, effect, durationMs, easing and lane clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      if (this.matches('use')) return this.parseTransitionUseAnimationClause();
+      if (this.matches('timeline')) return this.parseMotionTimelineClause('timeline', 'RmtTransitionTimelineClause', 'RmtTransitionTimelineStep');
+      if (this.matches('layoutKey')) return this.parseTransitionLayoutKeyClause();
+      if (this.matches('interrupt')) return this.parseTransitionInterruptClause();
+      if (this.matches('reducedMotion')) return this.parseTransitionReducedMotionClause();
+      this.addDiagnostic(this.current(), 'Transition blocks may contain trigger, from, to, effect, durationMs, easing, lane, use animation, timeline, layoutKey, interrupt and reducedMotion clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
       this.skipStatementOrBlock();
       return null;
     });
@@ -889,6 +896,188 @@ class VNextParser {
     return this.createNode('RmtTransitionLaneClause', start, end, {
       lane: lane && lane.value,
       laneNode: lane
+    });
+  }
+
+  parseTransitionUseAnimationClause() {
+    const start = this.expectValue('use', 'Expected use animation clause.');
+    this.expectValue('animation', 'Expected animation keyword after use.');
+    const ref = this.parseQualifiedIdentifierAllowReserved('Expected animation reference.');
+    this.consumeStatementEnd('Expected statement end after use animation clause.');
+    const end = ref && ref.endToken ? ref.endToken : this.previous();
+    return this.createNode('RmtTransitionUseAnimationClause', start, end, {
+      ref: ref && ref.value,
+      refNode: ref
+    });
+  }
+
+  parseTransitionLayoutKeyClause() {
+    const start = this.expectValue('layoutKey', 'Expected transition layoutKey clause.');
+    const value = this.parsePrimitiveValue();
+    this.consumeStatementEnd('Expected statement end after transition layoutKey.');
+    const end = value ? getNodeEndToken(value) : this.previous();
+    return this.createNode('RmtTransitionLayoutKeyClause', start, end, {
+      value
+    });
+  }
+
+  parseTransitionInterruptClause() {
+    const start = this.expectValue('interrupt', 'Expected transition interrupt clause.');
+    const policy = this.parseQualifiedIdentifierAllowReserved('Expected transition interrupt policy.');
+    this.consumeStatementEnd('Expected statement end after transition interrupt.');
+    const end = policy && policy.endToken ? policy.endToken : this.previous();
+    return this.createNode('RmtTransitionInterruptClause', start, end, {
+      policy: policy && policy.value,
+      policyNode: policy
+    });
+  }
+
+  parseTransitionReducedMotionClause() {
+    const start = this.expectValue('reducedMotion', 'Expected transition reducedMotion clause.');
+    const policy = this.parseQualifiedIdentifierAllowReserved('Expected reducedMotion policy.');
+    this.consumeStatementEnd('Expected statement end after transition reducedMotion.');
+    const end = policy && policy.endToken ? policy.endToken : this.previous();
+    return this.createNode('RmtTransitionReducedMotionClause', start, end, {
+      policy: policy && policy.value,
+      policyNode: policy
+    });
+  }
+
+  parseAnimationDeclaration(scope = {}) {
+    const start = this.expectValue('animation', 'Expected animation declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected animation identifier.');
+    const body = this.parseBlock(() => {
+      if (this.matches('preset')) return this.parseAnimationIdentifierClause('preset', 'RmtAnimationPresetClause', 'preset');
+      if (this.matches('effect')) return this.parseAnimationIdentifierClause('effect', 'RmtAnimationEffectClause', 'effect');
+      if (this.matches('durationMs')) return this.parseAnimationValueClause('durationMs', 'RmtAnimationDurationClause');
+      if (this.matches('easing')) return this.parseAnimationValueClause('easing', 'RmtAnimationEasingClause');
+      if (this.matches('spring')) return this.parseAnimationSpringClause();
+      if (this.matches('keyframe')) return this.parseAnimationKeyframeClause();
+      if (this.matches('timeline')) return this.parseMotionTimelineClause('timeline', 'RmtAnimationTimelineClause', 'RmtAnimationTimelineStep');
+      if (this.matches('reducedMotion')) return this.parseAnimationIdentifierClause('reducedMotion', 'RmtAnimationReducedMotionClause', 'policy');
+      if (this.matches('allowFilter')) return this.parseAnimationValueClause('allowFilter', 'RmtAnimationAllowFilterClause');
+      this.addDiagnostic(this.current(), 'Animation blocks may contain preset, effect, durationMs, easing, spring, keyframe, timeline, reducedMotion and allowFilter clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.skipStatementOrBlock();
+      return null;
+    });
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtAnimationDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseAnimationIdentifierClause(keyword, nodeType, propertyName) {
+    const start = this.expectValue(keyword, `Expected animation ${keyword} clause.`);
+    const value = this.parseQualifiedIdentifierAllowReserved(`Expected animation ${keyword} value.`);
+    this.consumeStatementEnd(`Expected statement end after animation ${keyword}.`);
+    const end = value && value.endToken ? value.endToken : this.previous();
+    return this.createNode(nodeType, start, end, {
+      [propertyName]: value && value.value,
+      valueNode: value
+    });
+  }
+
+  parseAnimationValueClause(keyword, nodeType) {
+    const start = this.expectValue(keyword, `Expected animation ${keyword} clause.`);
+    const value = this.parsePrimitiveValue();
+    this.consumeStatementEnd(`Expected statement end after animation ${keyword}.`);
+    const end = value ? getNodeEndToken(value) : this.previous();
+    return this.createNode(nodeType, start, end, {
+      keyword,
+      value
+    });
+  }
+
+  parseAnimationSpringClause() {
+    const start = this.expectValue('spring', 'Expected animation spring clause.');
+    const fields = [];
+    const parseField = () => {
+      const key = this.parseQualifiedIdentifierAllowReserved('Expected spring property.');
+      const value = this.parsePrimitiveValue();
+      this.consumeStatementEnd('Expected statement end after spring property.');
+      const end = value ? getNodeEndToken(value) : this.previous();
+      return this.createNode('RmtAnimationSpringField', key && key.startToken || start, end, {
+        key: key && key.value,
+        keyNode: key,
+        value
+      });
+    };
+
+    let end = start;
+    if (this.matches('{')) {
+      const body = this.parseBlock(parseField);
+      fields.push(...body.items);
+      this.consumeOptionalStatementEnd();
+      end = body.endToken || this.previous();
+    } else {
+      while (!this.isAtEnd() && !this.isStatementBoundary()) {
+        fields.push(parseField());
+      }
+      end = fields.length > 0 ? getNodeEndToken(fields[fields.length - 1]) : this.previous();
+    }
+
+    return this.createNode('RmtAnimationSpringClause', start, end, {
+      fields
+    });
+  }
+
+  parseAnimationKeyframeClause() {
+    const start = this.expectValue('keyframe', 'Expected animation keyframe clause.');
+    const phase = this.parseQualifiedIdentifierAllowReserved('Expected keyframe phase.');
+    const fields = [];
+    const body = this.matches('{') ? this.parseBlock(() => {
+      const key = this.parseQualifiedIdentifierAllowReserved('Expected keyframe property.');
+      const value = this.parsePrimitiveValue();
+      this.consumeStatementEnd('Expected statement end after keyframe property.');
+      const end = value ? getNodeEndToken(value) : this.previous();
+      return this.createNode('RmtAnimationKeyframeField', key && key.startToken || start, end, {
+        key: key && key.value,
+        keyNode: key,
+        value
+      });
+    }) : { items: [], endToken: null };
+    if (!body.endToken) this.consumeStatementEnd('Expected keyframe block.');
+    else this.consumeOptionalStatementEnd();
+    fields.push(...body.items);
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtAnimationKeyframeClause', start, end, {
+      phase: phase && phase.value,
+      phaseNode: phase,
+      fields
+    });
+  }
+
+  parseMotionTimelineClause(keyword, nodeType, itemType) {
+    const start = this.expectValue(keyword, `Expected ${keyword} clause.`);
+    const steps = [];
+    let text = '';
+    let end = start;
+
+    if (this.matches('{')) {
+      const body = this.parseGenericPrimitiveBlock(itemType);
+      steps.push(...body.items);
+      this.consumeOptionalStatementEnd();
+      end = body.endToken || this.previous();
+      text = steps.map((step) => step.text || '').filter(Boolean).join('\n');
+    } else {
+      const tokens = this.collectTokensUntilStatementEnd();
+      text = this.rawTextFromTokens(tokens);
+      this.consumeStatementEnd(`Expected statement end after ${keyword} clause.`);
+      end = tokens.length > 0 ? tokens[tokens.length - 1] : this.previous();
+      if (tokens.length > 0) {
+        steps.push(this.createNode(itemType, tokens[0], end, {
+          text,
+          tokens: tokens.map((token) => this.tokenText(token))
+        }));
+      }
+    }
+
+    return this.createNode(nodeType, start, end, {
+      text,
+      steps
     });
   }
 

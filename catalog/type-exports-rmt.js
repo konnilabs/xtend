@@ -32,6 +32,7 @@ const RMT_RUNTIME_PACKAGE_EXPORTS = Object.freeze([
   './rmt/action-effect-runtime',
   './rmt/event-routing-runtime',
   './rmt/form-validation-runtime',
+  './rmt/animation-engine-runtime',
   './rmt/surface-transition-runtime',
   './rmt/surface-resource-graph-runtime',
   './rmt/kernel-orchestration-controller',
@@ -131,6 +132,7 @@ const RMT_REPRESENTATIVE_DECLARATION_TOKENS = Object.freeze({
   'xtendrmt/rmt-component-capability-registry.d.ts': ['RmtComponentCapabilityRegistry', 'RmtComponentCapability', 'createRmtComponentCapabilityRegistry'],
   'xtendrmt/rmt-kernel-orchestration-controller.d.ts': ['RmtKernelOrchestrationController', 'RmtKernelOrchestrationControllerOptions', 'createRmtKernelOrchestrationController'],
   'xtendrmt/rmt-form-validation-runtime.d.ts': ['RmtFormValidationRuntime', 'RmtFormValidationRuntimeOptions', 'createRmtFormValidationRuntime'],
+  'xtendrmt/rmt-animation-engine-runtime.d.ts': ['RmtAnimationEngineRuntime', 'RmtAnimationEngineRuntimeOptions', 'createRmtAnimationEngineRuntime'],
   'xtendrmt/rmt-surface-transition-runtime.d.ts': ['RmtSurfaceTransitionRuntime', 'RmtSurfaceTransitionRuntimeOptions', 'createRmtSurfaceTransitionRuntime'],
   'xtendrmt/rmt-node-ssr-adapter.d.ts': ['RmtNodeSsrAdapter', 'RmtNodeSsrRenderResult', 'RmtNodeSsrJsonlFrame', 'createRmtNodeSsrAdapter'],
   'tools/rmt-language-server/protocol.d.ts': ['RmtJsonRpcMessage', 'encodeProtocolMessage', 'parseProtocolMessages'],
@@ -199,6 +201,7 @@ function resolveDeclarationForExport(exportKey) {
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.d.ts';
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.d.ts';
   if (exportKey === './rmt/form-validation-runtime') return './xtendrmt/rmt-form-validation-runtime.d.ts';
+  if (exportKey === './rmt/animation-engine-runtime') return './xtendrmt/rmt-animation-engine-runtime.d.ts';
   if (exportKey === './rmt/surface-transition-runtime') return './xtendrmt/rmt-surface-transition-runtime.d.ts';
   if (exportKey === './rmt/surface-resource-graph-runtime') return './xtendrmt/rmt-surface-resource-graph-runtime.d.ts';
   if (exportKey === './rmt/kernel-orchestration-controller') return './xtendrmt/rmt-kernel-orchestration-controller.d.ts';
@@ -222,6 +225,7 @@ function resolveSourceForExport(exportKey) {
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.js';
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.js';
   if (exportKey === './rmt/form-validation-runtime') return './xtendrmt/rmt-form-validation-runtime.js';
+  if (exportKey === './rmt/animation-engine-runtime') return './xtendrmt/rmt-animation-engine-runtime.js';
   if (exportKey === './rmt/surface-transition-runtime') return './xtendrmt/rmt-surface-transition-runtime.js';
   if (exportKey === './rmt/surface-resource-graph-runtime') return './xtendrmt/rmt-surface-resource-graph-runtime.js';
   if (exportKey === './rmt/kernel-orchestration-controller') return './xtendrmt/rmt-kernel-orchestration-controller.js';
@@ -244,6 +248,7 @@ const RMT_DECLARATION_FILES = Object.freeze([
   'xtendrmt/rmt-action-effect-runtime.d.ts',
   'xtendrmt/rmt-event-routing-runtime.d.ts',
   'xtendrmt/rmt-form-validation-runtime.d.ts',
+  'xtendrmt/rmt-animation-engine-runtime.d.ts',
   'xtendrmt/rmt-surface-transition-runtime.d.ts',
   'xtendrmt/rmt-surface-resource-graph-runtime.d.ts',
   'xtendrmt/rmt-kernel-orchestration-controller.d.ts',

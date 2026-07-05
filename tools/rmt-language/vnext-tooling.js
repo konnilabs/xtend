@@ -58,6 +58,7 @@ const VNEXT_COMPLETION_KEYWORDS = Object.freeze([
   ['on', 'Event Binding deklarieren.'],
   ['action', 'Action Referenz fuer Event Binding.'],
   ['validation', 'Form Validation Gruppe mit Field Rules und Action Gate deklarieren.'],
+  ['animation', 'Wiederverwendbares AnimationEngine-Preset deklarieren.'],
   ['transition', 'Surface Transition zwischen Surface-Gruppen deklarieren.'],
   ['trust boundary', 'Security Trust Boundary setzen.'],
   ['sanitize', 'Sanitize Policy setzen.'],
@@ -74,6 +75,7 @@ const VNEXT_PRIMITIVE_KEYWORDS = Object.freeze([
   ['resource', 'Lifecycle-owned Resource wie Object URL, Stream, Observer, Timer oder Lazy Import deklarieren.'],
   ['surface', 'Sichtbare oder wiederholbare App-Platform Surface deklarieren.'],
   ['validation', 'Blocking Form Validation mit Field Rules und Action Gate deklarieren.'],
+  ['animation', 'AnimationEngine Preset mit Effekt, Keyframes und Reduced Motion deklarieren.'],
   ['transition', 'Surface Transition mit Trigger, Effekt, Dauer und Lane deklarieren.'],
   ['payload', 'Event-Payload Contract aus DOM-, Detail- oder Surface-Kontext mappen.'],
   ['destroy releases', 'Surface-Lifecycle an Resource-Teardown binden.']
@@ -139,10 +141,27 @@ const VNEXT_PRIMITIVE_TRANSITION_CLAUSES = Object.freeze([
   ['trigger action', 'Action als Ausloeser der Surface Transition deklarieren.'],
   ['from surfaces', 'Ausgehende Surface-Gruppe deklarieren.'],
   ['to surfaces', 'Eingehende Surface-Gruppe deklarieren.'],
+  ['use animation', 'Wiederverwendbares AnimationEngine-Preset einbinden.'],
   ['effect', 'Transition-Effekt aus dem XTend Katalog waehlen.'],
   ['durationMs', 'Animationsdauer in Millisekunden deklarieren.'],
   ['easing', 'CSS-Easing fuer die Transition deklarieren.'],
+  ['timeline', 'Enter/Exit/Parallel/Stagger Timeline deklarieren.'],
+  ['layoutKey', 'Layout- oder Shared-Element-Key deklarieren.'],
+  ['interrupt', 'Interrupt-Policy cancel, finish oder replace deklarieren.'],
+  ['reducedMotion', 'Reduced-Motion Policy instant, fade oder none deklarieren.'],
   ['lane transition', 'Transition auf die Scheduler-Lane transition legen.']
+]);
+
+const VNEXT_PRIMITIVE_ANIMATION_CLAUSES = Object.freeze([
+  ['preset', 'Benanntes Preset als Ausgangspunkt deklarieren.'],
+  ['effect', 'Animation-Effekt aus dem XTend Katalog waehlen.'],
+  ['durationMs', 'Animationsdauer in Millisekunden deklarieren.'],
+  ['easing', 'CSS-Easing fuer die Animation deklarieren.'],
+  ['spring', 'Deterministisch sampled Spring-Parameter deklarieren.'],
+  ['keyframe', 'Sicheren Keyframe mit opacity/transform deklarieren.'],
+  ['timeline', 'Animation-Timeline deklarieren.'],
+  ['reducedMotion', 'Reduced-Motion Policy instant, fade oder none deklarieren.'],
+  ['allowFilter', 'Filter-Keyframes explizit erlauben.']
 ]);
 
 const VNEXT_PRIMITIVE_RESOURCE_KINDS = Object.freeze([
@@ -193,6 +212,15 @@ const VNEXT_TRANSITION_EFFECTS = Object.freeze([
   ['slide-up', 'Nach oben gerichteter Surface-Wechsel.'],
   ['slide-down', 'Nach unten gerichteter Surface-Wechsel.'],
   ['scale', 'Skalierter Surface-Wechsel.'],
+  ['pop', 'Kurzer Pop mit Overshoot.'],
+  ['zoom', 'Zoom-Transition.'],
+  ['flip', 'Perspective Flip.'],
+  ['rotate', 'Subtile Rotation.'],
+  ['expand', 'Aufklappen entlang der Blockachse.'],
+  ['collapse', 'Einklappen entlang der Blockachse.'],
+  ['fade-blur', 'Fade mit explizitem Blur-Filter Opt-in.'],
+  ['shared-element', 'Shared-Element Transition mit layoutKey.'],
+  ['layout-flip', 'FLIP Layout-Transition mit layoutKey.'],
   ['none', 'Sofortiger Wechsel ohne Motion.']
 ]);
 
@@ -245,6 +273,25 @@ const VNEXT_SNIPPETS = Object.freeze([
     ]
   },
   {
+    id: 'rmt-vnext-animation',
+    label: 'RMT vNext AnimationEngine Preset',
+    prefix: 'rmt-vnext-animation',
+    description: 'Wiederverwendbares AnimationEngine-Preset mit Effekt, Dauer und Reduced Motion.',
+    body: [
+      'animation ${1:app.motion.pop} {',
+      '  effect ${2|fade,crossfade,slide-left,slide-right,slide-up,slide-down,scale,pop,zoom,flip,rotate,expand,collapse,fade-blur,shared-element,layout-flip,none|}',
+      '  durationMs ${3:220}',
+      '  easing "${4:cubic-bezier(.2,.8,.2,1)}"',
+      '  reducedMotion ${5|fade,instant,none|}',
+      '  keyframe enter {',
+      '    opacity 0',
+      '    transform "${6:scale(.96)}"',
+      '    offset 0',
+      '  }',
+      '}'
+    ]
+  },
+  {
     id: 'rmt-vnext-transition',
     label: 'RMT vNext Surface Transition',
     prefix: 'rmt-vnext-transition',
@@ -254,9 +301,12 @@ const VNEXT_SNIPPETS = Object.freeze([
       '  trigger action ${2:app.nextContact}',
       '  from surfaces [${3:app.contact} ${4:app.nextContact}]',
       '  to surfaces [${5:app.issue} ${6:app.backContact}]',
-      '  effect ${7|fade,crossfade,slide-left,slide-right,slide-up,slide-down,scale,none|}',
-      '  durationMs ${8:240}',
-      '  easing "${9:ease-out}"',
+      '  use animation ${7:app.motion.pop}',
+      '  effect ${8|fade,crossfade,slide-left,slide-right,slide-up,slide-down,scale,pop,zoom,flip,rotate,expand,collapse,fade-blur,shared-element,layout-flip,none|}',
+      '  durationMs ${9:240}',
+      '  easing "${10:ease-out}"',
+      '  interrupt ${11|replace,cancel,finish|}',
+      '  reducedMotion ${12|fade,instant,none|}',
       '  lane transition',
       '}'
     ]
@@ -426,6 +476,7 @@ const DOMAIN_CONFIG = Object.freeze({
   actions: { kind: 'action', label: 'Action', childKind: 'function' },
   effects: { kind: 'effect', label: 'Effect', childKind: 'function' },
   validations: { kind: 'validation', label: 'Validation', childKind: 'validation' },
+  animations: { kind: 'animation', label: 'Animation', childKind: 'transition' },
   transitions: { kind: 'transition', label: 'Transition', childKind: 'transition' },
   portals: { kind: 'portal', label: 'Portal', childKind: 'namespace' },
   overlays: { kind: 'overlay', label: 'Overlay', childKind: 'namespace' },
@@ -466,8 +517,8 @@ function isLikelyRmtVNextSource(input = {}, options = {}) {
     return false;
   }
 
-  return /^(?:import|template|surface|remote\s+surface|validation|transition)\b/u.test(trimmed)
-    || /(?:^|\n)\s*(?:remote\s+surface|template|state|selector|datasource|action|portal|overlay|resource|surface|validation|transition|lane|mount|hydrate|resume|resumability|update|unmount|stream|slot|on\s+\S+\s+->\s+action|trust\s+boundary|sanitize)\b/u.test(text);
+  return /^(?:import|template|surface|remote\s+surface|validation|animation|transition)\b/u.test(trimmed)
+    || /(?:^|\n)\s*(?:remote\s+surface|template|state|selector|datasource|action|portal|overlay|resource|surface|validation|animation|transition|lane|mount|hydrate|resume|resumability|update|unmount|stream|slot|on\s+\S+\s+->\s+action|trust\s+boundary|sanitize)\b/u.test(text);
 }
 
 function sourceRefToRange(sourceMap, sourceRef) {
@@ -566,6 +617,14 @@ function describeRecord(domain, record = {}) {
       `${toArray(record.fields).length} field(s)`,
       `${toArray(record.targets).length} target(s)`
     ].join(' - ');
+  }
+
+  if (domain === 'animations') {
+    return [
+      record.effect || record.preset || 'animation',
+      Number.isFinite(Number(record.durationMs)) ? `${record.durationMs}ms` : '',
+      record.reducedMotion ? `reduced: ${record.reducedMotion}` : ''
+    ].filter(Boolean).join(' - ');
   }
 
   if (domain === 'transitions') {
@@ -799,6 +858,7 @@ function inferCompletionContext(pointer, explicitContext) {
   if (/^\/actions(?:\/|$)/u.test(pointer)) return 'vnext-primitive-action-clauses';
   if (/^\/surfaces(?:\/|$)/u.test(pointer)) return 'vnext-primitive-surface-clauses';
   if (/^\/validations(?:\/|$)/u.test(pointer)) return 'vnext-primitive-validation-clauses';
+  if (/^\/animations(?:\/|$)/u.test(pointer)) return 'vnext-primitive-animation-clauses';
   if (/^\/transitions(?:\/|$)/u.test(pointer)) return 'vnext-primitive-transition-clauses';
   if (/^\/resources(?:\/|$)/u.test(pointer)) return 'vnext-primitive-resource-kinds';
   if (/^\/overlays(?:\/|$)/u.test(pointer)) return 'vnext-primitive-overlay-kinds';
@@ -864,7 +924,13 @@ function inferPrimitiveCompletionContextFromLine(linePrefix) {
     return 'vnext-validation-rules';
   }
 
-  if (/^transition\b/u.test(trimmed) || /^(?:trigger|from|to|effect|durationMs|easing)\b/u.test(trimmed)) {
+  if (/^animation\b/u.test(trimmed) || /^(?:preset|spring|keyframe|allowFilter)\b/u.test(trimmed)) {
+    return /\beffect\s+[A-Za-z0-9_.-]*$/u.test(trimmed)
+      ? 'vnext-transition-effects'
+      : 'vnext-primitive-animation-clauses';
+  }
+
+  if (/^transition\b/u.test(trimmed) || /^(?:trigger|from|to|use|effect|durationMs|easing|timeline|layoutKey|interrupt|reducedMotion)\b/u.test(trimmed)) {
     return /\beffect\s+[A-Za-z0-9_.-]*$/u.test(trimmed)
       ? 'vnext-transition-effects'
       : 'vnext-primitive-transition-clauses';
@@ -898,7 +964,7 @@ function inferPrimitiveCompletionContextFromLine(linePrefix) {
     return 'vnext-primitive-surface-clauses';
   }
 
-  if (/^(?:sta|sel|dat|act|por|ove|res|sur|val|tra|pay|des)[A-Za-z0-9_.-]*$/u.test(trimmed)) {
+  if (/^(?:sta|sel|dat|act|ani|por|ove|res|sur|val|tra|pay|des)[A-Za-z0-9_.-]*$/u.test(trimmed)) {
     return 'vnext-primitive-keywords';
   }
 
@@ -961,6 +1027,8 @@ function getRmtVNextToolingCompletions(input = {}, options = {}) {
     items = staticCompletionItems(VNEXT_PRIMITIVE_SURFACE_CLAUSES, { kind: 'keyword', detail: 'vNext Surface Clause' });
   } else if (context === 'vnext-primitive-validation-clauses') {
     items = staticCompletionItems(VNEXT_PRIMITIVE_VALIDATION_CLAUSES, { kind: 'keyword', detail: 'vNext Validation Clause' });
+  } else if (context === 'vnext-primitive-animation-clauses') {
+    items = staticCompletionItems(VNEXT_PRIMITIVE_ANIMATION_CLAUSES, { kind: 'keyword', detail: 'vNext Animation Clause' });
   } else if (context === 'vnext-primitive-transition-clauses') {
     items = staticCompletionItems(VNEXT_PRIMITIVE_TRANSITION_CLAUSES, { kind: 'keyword', detail: 'vNext Surface Transition Clause' });
   } else if (context === 'vnext-validation-modes') {
@@ -2187,6 +2255,7 @@ module.exports = {
   VNEXT_COMPLETION_KEYWORDS,
   VNEXT_LANES,
   VNEXT_PRIMITIVE_ACTION_CLAUSES,
+  VNEXT_PRIMITIVE_ANIMATION_CLAUSES,
   VNEXT_PRIMITIVE_KEYWORDS,
   VNEXT_PRIMITIVE_OVERLAY_KINDS,
   VNEXT_PRIMITIVE_RESOURCE_KINDS,

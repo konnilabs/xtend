@@ -18,6 +18,7 @@ const DOMAIN_DETAILS = Object.freeze({
   schedules: 'Scheduler endpoint, lane and fiber policies',
   templates: 'Template records and DOM descriptors',
   validations: 'Form validation groups, field rules and action gates',
+  animations: 'Reusable AnimationEngine presets and keyframes',
   transitions: 'Surface transition records and animation metadata'
 });
 
@@ -28,6 +29,7 @@ const DOMAIN_CHILD_KIND = Object.freeze({
   schedules: 'schedule',
   templates: 'template',
   validations: 'validation',
+  animations: 'animation',
   transitions: 'transition'
 });
 
@@ -107,6 +109,14 @@ function describeRecord(domain, entry) {
       record.effect || 'transition',
       Number.isFinite(Number(record.durationMs)) ? `${record.durationMs}ms` : '',
       trigger ? `trigger: ${trigger}` : ''
+    ].filter(Boolean).join(' - ');
+  }
+
+  if (domain === 'animations') {
+    return [
+      record.effect || record.preset || 'animation',
+      Number.isFinite(Number(record.durationMs)) ? `${record.durationMs}ms` : '',
+      record.reducedMotion ? `reduced: ${record.reducedMotion}` : ''
     ].filter(Boolean).join(' - ');
   }
 

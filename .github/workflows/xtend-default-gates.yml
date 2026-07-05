@@ -178,7 +178,7 @@ jobs:
           status=$?
           set -e
           printf "%s\n" "$status" > .xtend-test-results/xtend-rmt-vnext-source-to-sea-capture.exitcode
-          exit 0
+          exit "$status"
         env:
           RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome
           RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"

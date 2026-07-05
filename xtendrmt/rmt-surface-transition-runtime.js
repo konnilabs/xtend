@@ -73,6 +73,13 @@
       durationMs: Math.max(0, Math.min(Math.round(Number(source.durationMs) || 0), 3000)),
       easing: clampString(source.easing, 'ease'),
       lane: clampString(source.lane, 'transition'),
+      animation: source.animation || null,
+      timeline: source.timeline || null,
+      layoutKey: clampString(source.layoutKey, ''),
+      interrupt: clampString(source.interrupt, 'replace'),
+      reducedMotion: clampString(source.reducedMotion, 'fade'),
+      keyframes: toArray(source.keyframes),
+      springSamples: toArray(source.springSamples),
       operation: clampString(source.operation, `operation:xtend.rmt/surface-transition/${source.id || source.name || 'transition'}`),
       endpointName: clampString(source.endpointName)
     };
@@ -153,6 +160,7 @@
       element.style.transition = '';
       element.style.opacity = '';
       element.style.transform = '';
+      element.style.filter = '';
     }
     setTransitioning(element, false);
   }
@@ -164,6 +172,19 @@
     const xstate = options.xstate || (globalTarget && globalTarget.xstate) || null;
     const xUtils = options.xUtils || (globalTarget && globalTarget.XUtils) || null;
     const diagnostics = toArray(options.diagnostics).map(sanitizeDiagnostic);
+    const animationRuntimeFactory = globalTarget
+      && globalTarget.XTendRmtAnimationEngineRuntime
+      && typeof globalTarget.XTendRmtAnimationEngineRuntime.createRmtAnimationEngineRuntime === 'function'
+      ? globalTarget.XTendRmtAnimationEngineRuntime.createRmtAnimationEngineRuntime
+      : null;
+    const animationEngine = options.animationEngine || (animationRuntimeFactory ? animationRuntimeFactory({
+      animationPlan: transitionPlan.animationEngine || transitionPlan,
+      xUtils,
+      windowTarget: options.windowTarget || globalTarget,
+      diagnostics,
+      strict: options.strict,
+      publishDiagnostic: options.publishDiagnostic
+    }) : null);
     const history = [];
     const active = new Map();
     const transitionGroups = new Map();
@@ -264,6 +285,14 @@
         transitionId: transition.id,
         metadata
       };
+      if (animationEngine && typeof animationEngine.runSurfaceTransitionPhase === 'function') {
+        return animationEngine.runSurfaceTransitionPhase({
+          target: element,
+          transition,
+          phase,
+          metadata
+        });
+      }
       if (xUtils && typeof xUtils.runUiTransition === 'function') {
         return xUtils.runUiTransition(input);
       }
@@ -336,7 +365,7 @@
 
       if (!nextHidden) {
         setHidden(element, true);
-        const waitResult = await waitForExitPhase(transition);
+        const waitResult = transition.effect === 'crossfade' ? { status: 'ready' } : await waitForExitPhase(transition);
         if (waitResult && waitResult.status === 'timeout' && options.strict) {
           if (activeRecord.cancelled || active.get(surfaceId) !== activeRecord) {
             active.delete(surfaceId);
@@ -469,6 +498,7 @@
         schema: 'xtend.rmt.surface-transition-snapshot.v1',
         planSchema: transitionPlan.schema || null,
         transitionCount: transitionPlan.transitions.length,
+        animationEngine: animationEngine && typeof animationEngine.snapshot === 'function' ? animationEngine.snapshot() : null,
         activeTransitions: listActiveTransitions(),
         fallbackCount,
         history: history.slice(-50),

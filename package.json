@@ -593,6 +593,10 @@
       "types": "./xtendrmt/rmt-form-validation-runtime.d.ts",
       "default": "./xtendrmt/rmt-form-validation-runtime.js"
     },
+    "./rmt/animation-engine-runtime": {
+      "types": "./xtendrmt/rmt-animation-engine-runtime.d.ts",
+      "default": "./xtendrmt/rmt-animation-engine-runtime.js"
+    },
     "./rmt/surface-transition-runtime": {
       "types": "./xtendrmt/rmt-surface-transition-runtime.d.ts",
       "default": "./xtendrmt/rmt-surface-transition-runtime.js"

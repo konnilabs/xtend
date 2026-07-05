@@ -39,6 +39,8 @@
     "rmt-app-runtime.js",
     "rmt-form-validation-runtime.d.ts",
     "rmt-form-validation-runtime.js",
+    "rmt-animation-engine-runtime.d.ts",
+    "rmt-animation-engine-runtime.js",
     "rmt-surface-transition-runtime.d.ts",
     "rmt-surface-transition-runtime.js",
     "rmt-surface-resource-graph-runtime.d.ts",
@@ -102,6 +104,10 @@
     "./form-validation-runtime": {
       "types": "./rmt-form-validation-runtime.d.ts",
       "default": "./rmt-form-validation-runtime.js"
+    },
+    "./animation-engine-runtime": {
+      "types": "./rmt-animation-engine-runtime.d.ts",
+      "default": "./rmt-animation-engine-runtime.js"
     },
     "./surface-transition-runtime": {
       "types": "./rmt-surface-transition-runtime.d.ts",

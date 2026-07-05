@@ -9,6 +9,15 @@ export type RmtSurfaceTransitionEffect =
   | 'slide-up'
   | 'slide-down'
   | 'scale'
+  | 'pop'
+  | 'zoom'
+  | 'flip'
+  | 'rotate'
+  | 'expand'
+  | 'collapse'
+  | 'fade-blur'
+  | 'shared-element'
+  | 'layout-flip'
   | 'none'
   | string;
 
@@ -26,6 +35,16 @@ export interface RmtSurfaceTransitionRecord {
   durationMs?: number;
   easing?: string;
   lane?: string;
+  animation?: {
+    id?: string;
+    ref?: string;
+  } | string | null;
+  timeline?: unknown;
+  layoutKey?: string | null;
+  interrupt?: 'cancel' | 'finish' | 'replace' | string;
+  reducedMotion?: 'instant' | 'fade' | 'none' | string;
+  keyframes?: unknown[];
+  springSamples?: unknown[];
   operation?: string;
   endpointName?: string;
 }
@@ -41,6 +60,7 @@ export interface RmtSurfaceTransitionRuntimeOptions {
   transitionPlan: RmtSurfaceTransitionPlan;
   root?: ParentNode | null;
   kernelController?: unknown;
+  animationEngine?: unknown;
   xstate?: unknown;
   xUtils?: unknown;
   windowTarget?: Window | typeof globalThis;

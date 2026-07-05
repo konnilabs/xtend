@@ -30,6 +30,7 @@ const DOMAIN_NAMES = [
   'resources',
   'events',
   'validations',
+  'animations',
   'transitions',
   'portals',
   'overlays',
@@ -49,6 +50,7 @@ const RMT_VNEXT_PRIMITIVE_DOMAIN_NAMES = [
   'overlays',
   'resources',
   'validations',
+  'animations',
   'transitions',
   'events'
 ];
@@ -101,6 +103,7 @@ const RMT_VNEXT_PRIMITIVE_TYPE_TO_DOMAIN = {
   RmtDataSourceDeclaration: 'dataSources',
   RmtActionDeclaration: 'actions',
   RmtValidationDeclaration: 'validations',
+  RmtAnimationDeclaration: 'animations',
   RmtTransitionDeclaration: 'transitions',
   RmtSurfaceDeclaration: 'surfaces',
   RmtPortalDeclaration: 'portals',
@@ -115,6 +118,7 @@ const RMT_VNEXT_PRIMITIVE_SOURCE_DOMAIN_BY_KIND = {
   portal: 'portals',
   resource: 'resources',
   validation: 'validations',
+  animation: 'animations',
   transition: 'transitions',
   selector: 'selectors',
   state: 'states',
@@ -1590,6 +1594,20 @@ function collectVNextPrimitiveReferences(graphState, ast) {
       });
     }
 
+    if (node.type === 'RmtTransitionUseAnimationClause') {
+      addVNextPrimitiveReference(graphState, {
+        sourceDomain: 'transitions',
+        sourceId: sourceInfo.sourceId,
+        sourcePointer: (node.refNode && node.refNode.astPointer) || node.astPointer || null,
+        field: 'animation',
+        relationship: 'transition.use.animation',
+        targetDomain: 'animations',
+        targetId: normalizeString(node.ref),
+        severity: 'warning',
+        node: node.refNode || node
+      });
+    }
+
     if (node.type === 'RmtTransitionFromClause' || node.type === 'RmtTransitionToClause') {
       primitiveValueToList(node.value).forEach((surfaceId) => {
         addVNextPrimitiveReference(graphState, {
@@ -1620,6 +1638,7 @@ function createVNextPrimitiveCatalogHints(indexes) {
     portalIds: indexes.portals.ids.slice().sort(),
     overlayIds: indexes.overlays.ids.slice().sort(),
     resourceIds: indexes.resources.ids.slice().sort(),
+    animationIds: indexes.animations.ids.slice().sort(),
     transitionIds: indexes.transitions.ids.slice().sort(),
     eventIds: indexes.events.ids.slice().sort()
   };

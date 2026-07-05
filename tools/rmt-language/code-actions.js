@@ -16,6 +16,9 @@ const RMT_CODE_ACTION_PACKAGE_SCRIPT = 'npm run test:rmt-code-actions';
 
 const SAFE_LANE_FALLBACK = 'visible';
 const SAFE_HYDRATION_POLICY_FALLBACK = 'runtime_render';
+const SAFE_ANIMATION_EFFECT_FALLBACK = 'fade';
+const SAFE_ANIMATION_REDUCED_MOTION_FALLBACK = 'fade';
+const SAFE_ANIMATION_INTERRUPT_FALLBACK = 'replace';
 
 function normalizeString(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -391,6 +394,68 @@ function createActionForDiagnostic(graph, diagnostic) {
       SAFE_HYDRATION_POLICY_FALLBACK,
       `Hydration Policy auf "${SAFE_HYDRATION_POLICY_FALLBACK}" setzen`,
       { repairKind: 'replace-field-value' }
+    );
+  }
+
+  if ([
+    'rmt.animation.effect_unknown',
+    'rmt.animation.transition_effect_unknown',
+    'rmt.surface_transition.effect_unknown',
+    'xtend.maraca.transitions_effect_unknown'
+  ].includes(diagnostic.code)) {
+    return createReplaceValueAction(
+      graph,
+      diagnostic,
+      SAFE_ANIMATION_EFFECT_FALLBACK,
+      `Animation Effect auf "${SAFE_ANIMATION_EFFECT_FALLBACK}" setzen`,
+      { repairKind: 'replace-animation-effect' }
+    );
+  }
+
+  if ([
+    'rmt.animation.reduced_motion_invalid',
+    'rmt.animation.transition_reduced_motion_invalid'
+  ].includes(diagnostic.code)) {
+    return createReplaceValueAction(
+      graph,
+      diagnostic,
+      SAFE_ANIMATION_REDUCED_MOTION_FALLBACK,
+      `Reduced-Motion Policy auf "${SAFE_ANIMATION_REDUCED_MOTION_FALLBACK}" setzen`,
+      { repairKind: 'replace-reduced-motion-policy' }
+    );
+  }
+
+  if (diagnostic.code === 'rmt.animation.interrupt_invalid') {
+    return createReplaceValueAction(
+      graph,
+      diagnostic,
+      SAFE_ANIMATION_INTERRUPT_FALLBACK,
+      `Interrupt Policy auf "${SAFE_ANIMATION_INTERRUPT_FALLBACK}" setzen`,
+      { repairKind: 'replace-interrupt-policy' }
+    );
+  }
+
+  if (diagnostic.code === 'rmt.animation.reduced_motion_missing' && pointer) {
+    return createAppendPropertyAction(
+      graph,
+      diagnostic,
+      pointer,
+      'reducedMotion',
+      SAFE_ANIMATION_REDUCED_MOTION_FALLBACK,
+      'Reduced-Motion Policy ergaenzen',
+      { repairKind: 'add-reduced-motion-policy' }
+    );
+  }
+
+  if (diagnostic.code === 'rmt.animation.layout_key_missing' && pointer) {
+    return createAppendPropertyAction(
+      graph,
+      diagnostic,
+      pointer,
+      'layoutKey',
+      'shared-element',
+      'layoutKey ergaenzen',
+      { repairKind: 'add-layout-key' }
     );
   }
 

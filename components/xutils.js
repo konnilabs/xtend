@@ -15,7 +15,28 @@ const XUTILS_UI_EFFECTS_EVENT = 'xutils:ui-effects-change';
 const XUTILS_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
 const XUTILS_FORBIDDEN_IMPORT_PROTOCOLS = Object.freeze(['http:', 'https:', 'data:', 'javascript:']);
 const XUTILS_FORBIDDEN_IMPORT_HOSTS = Object.freeze(['cdn.ccs-networks.de']);
-const XUTILS_SUPPORTED_UI_EFFECTS = Object.freeze(['fade-in', 'fade', 'crossfade', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'scale', 'none']);
+const XUTILS_SUPPORTED_UI_EFFECTS = Object.freeze([
+  'fade-in',
+  'fade',
+  'crossfade',
+  'slide-left',
+  'slide-right',
+  'slide-up',
+  'slide-down',
+  'scale',
+  'pop',
+  'zoom',
+  'flip',
+  'rotate',
+  'expand',
+  'collapse',
+  'fade-blur',
+  'shared-element',
+  'layout-flip',
+  'none'
+]);
+const XUTILS_SAFE_UI_KEYFRAME_PROPERTIES = Object.freeze(['opacity', 'transform', 'offset', 'transformOrigin']);
+const XUTILS_OPT_IN_UI_KEYFRAME_PROPERTIES = Object.freeze(['filter']);
 const XUTILS_UI_EFFECTS_BODY_ATTR = 'xt-ui-effects';
 const XUTILS_UI_EFFECTS_DATA_ATTR = 'data-xt-ui-effects';
 const XUTILS_UI_EFFECTS_READY_ATTR = 'data-xt-ui-effects-ready';
@@ -192,13 +213,74 @@ function prefersReducedMotion() {
   }
 }
 
-function transitionKeyframes(effect, phase) {
+function sanitizeCustomTransitionKeyframes(keyframes, phase, allowFilter = false) {
+  const frames = toArray(keyframes)
+    .filter((entry) => {
+      const entryPhase = String(entry && entry.phase || '').trim();
+      return !entryPhase || entryPhase === phase;
+    })
+    .map((entry) => {
+      const source = entry && entry.properties && typeof entry.properties === 'object'
+        ? entry.properties
+        : entry;
+      const frame = {};
+      Object.keys(source || {}).forEach((property) => {
+        const safe = XUTILS_SAFE_UI_KEYFRAME_PROPERTIES.includes(property)
+          || (allowFilter && XUTILS_OPT_IN_UI_KEYFRAME_PROPERTIES.includes(property));
+        if (safe) frame[property] = source[property];
+      });
+      if (entry && entry.offset != null) frame.offset = entry.offset;
+      return frame;
+    })
+    .filter((frame) => Object.keys(frame).length > 0);
+  return frames.length >= 2 ? frames : null;
+}
+
+function transitionKeyframes(effect, phase, options = {}) {
   const enter = phase !== 'exit';
+  const customKeyframes = sanitizeCustomTransitionKeyframes(options.keyframes, phase, options.allowFilter === true);
+  if (customKeyframes) return customKeyframes;
   if (effect === 'none') return null;
   if (effect === 'scale') {
     return enter
       ? [{ opacity: 0, transform: 'scale(0.98)' }, { opacity: 1, transform: 'scale(1)' }]
       : [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.98)' }];
+  }
+  if (effect === 'pop') {
+    return enter
+      ? [{ opacity: 0, transform: 'scale(0.88)' }, { opacity: 1, transform: 'scale(1.03)', offset: 0.7 }, { opacity: 1, transform: 'scale(1)' }]
+      : [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.94)' }];
+  }
+  if (effect === 'zoom') {
+    return enter
+      ? [{ opacity: 0, transform: 'scale(0.92)' }, { opacity: 1, transform: 'scale(1)' }]
+      : [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.06)' }];
+  }
+  if (effect === 'flip') {
+    return enter
+      ? [{ opacity: 0, transform: 'perspective(800px) rotateY(-14deg)' }, { opacity: 1, transform: 'perspective(800px) rotateY(0deg)' }]
+      : [{ opacity: 1, transform: 'perspective(800px) rotateY(0deg)' }, { opacity: 0, transform: 'perspective(800px) rotateY(14deg)' }];
+  }
+  if (effect === 'rotate') {
+    return enter
+      ? [{ opacity: 0, transform: 'rotate(-4deg) scale(0.98)' }, { opacity: 1, transform: 'rotate(0deg) scale(1)' }]
+      : [{ opacity: 1, transform: 'rotate(0deg) scale(1)' }, { opacity: 0, transform: 'rotate(4deg) scale(0.98)' }];
+  }
+  if (effect === 'expand' || effect === 'collapse') {
+    const collapsed = { opacity: 0, transform: 'scaleY(0.96)', transformOrigin: 'top center' };
+    const expanded = { opacity: 1, transform: 'scaleY(1)', transformOrigin: 'top center' };
+    const shouldExpand = effect === 'expand' ? enter : !enter;
+    return shouldExpand ? [collapsed, expanded] : [expanded, collapsed];
+  }
+  if (effect === 'fade-blur' && options.allowFilter === true) {
+    return enter
+      ? [{ opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)' }]
+      : [{ opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(6px)' }];
+  }
+  if (effect === 'shared-element' || effect === 'layout-flip') {
+    return enter
+      ? [{ opacity: 0, transform: 'translate(0, 8px) scale(0.98)' }, { opacity: 1, transform: 'translate(0, 0) scale(1)' }]
+      : [{ opacity: 1, transform: 'translate(0, 0) scale(1)' }, { opacity: 0, transform: 'translate(0, -8px) scale(0.98)' }];
   }
   if (effect && effect.startsWith('slide-')) {
     const distance = '16px';
@@ -243,12 +325,18 @@ function runTransitionWithTimeout(target, keyframes, options) {
   const previousTransition = target.style && target.style.transition || '';
   const previousOpacity = target.style && target.style.opacity || '';
   const previousTransform = target.style && target.style.transform || '';
+  const previousFilter = target.style && target.style.filter || '';
+  const previousTransformOrigin = target.style && target.style.transformOrigin || '';
   const first = keyframes[0] || {};
   const last = keyframes[keyframes.length - 1] || {};
   if (target.style) {
-    target.style.transition = `opacity ${options.duration}ms ${options.easing}, transform ${options.duration}ms ${options.easing}`;
+    const transitionProperties = ['opacity', 'transform'];
+    if (first.filter !== undefined || last.filter !== undefined) transitionProperties.push('filter');
+    target.style.transition = transitionProperties.map((property) => `${property} ${options.duration}ms ${options.easing}`).join(', ');
     if (first.opacity !== undefined) target.style.opacity = String(first.opacity);
     if (first.transform !== undefined) target.style.transform = String(first.transform);
+    if (first.filter !== undefined) target.style.filter = String(first.filter);
+    if (first.transformOrigin !== undefined) target.style.transformOrigin = String(first.transformOrigin);
   }
   const frame = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (callback) => setTimeout(callback, 0);
   return new Promise((resolve) => {
@@ -256,12 +344,16 @@ function runTransitionWithTimeout(target, keyframes, options) {
       if (target.style) {
         if (last.opacity !== undefined) target.style.opacity = String(last.opacity);
         if (last.transform !== undefined) target.style.transform = String(last.transform);
+        if (last.filter !== undefined) target.style.filter = String(last.filter);
+        if (last.transformOrigin !== undefined) target.style.transformOrigin = String(last.transformOrigin);
       }
       setTimeout(() => {
         if (target.style) {
           target.style.transition = previousTransition;
           target.style.opacity = previousOpacity;
           target.style.transform = previousTransform;
+          target.style.filter = previousFilter;
+          target.style.transformOrigin = previousTransformOrigin;
         }
         resolve({
           schema: XUTILS_UI_TRANSITION_RESULT_SCHEMA,
@@ -514,6 +606,13 @@ export const XUtils = {
       phase: options.phase === 'exit' ? 'exit' : 'enter',
       durationMs,
       easing: String(options.easing || 'ease'),
+      transitionId: String(options.transitionId || ''),
+      animationId: String(options.animationId || ''),
+      layoutKey: String(options.layoutKey || ''),
+      timeline: options.timeline || null,
+      keyframes: toArray(options.keyframes),
+      springSamples: toArray(options.springSamples),
+      allowFilter: options.allowFilter === true || effect === 'fade-blur',
       active: !disabled && durationMs > 0,
       disabled,
       disabledBy: resolvedEffects.disabled ? 'xt-ui-effects' : (reducedMotion ? 'prefers-reduced-motion' : (effect === 'none' ? 'effect-none' : 'none')),
@@ -537,7 +636,7 @@ export const XUtils = {
       dispatchUiEffectsEvent('transition-fallback', result);
       return result;
     }
-    const keyframes = transitionKeyframes(transition.effect, transition.phase);
+    const keyframes = transitionKeyframes(transition.effect, transition.phase, transition);
     const result = await runTransitionWithTimeout(target, keyframes, {
       duration: transition.durationMs,
       easing: transition.easing,

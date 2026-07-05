@@ -121,8 +121,8 @@
     },
     {
       "path": "docs/de/learn-rmt-syntax-basics.md",
-      "sha256": "e8d245979c0f69111e0725864c87799f8c7ef8bf9c215ee5a40eac117e7e9a85",
-      "bytes": 5234
+      "sha256": "5762bfd4af452419c42d9a57b9322f01b28cabd8e8c582ef70cd442e1d101bd0",
+      "bytes": 5551
     },
     {
       "path": "docs/de/learn-rmt-templates-surfaces.md",
@@ -136,8 +136,8 @@
     },
     {
       "path": "docs/de/rmt-app-platform-tooling.md",
-      "sha256": "30d9cd55c76f657c8873dad6ed2b2a7326d7564c6c03447b627e66611b3ef41b",
-      "bytes": 4739
+      "sha256": "266b1610bd06dab0b7d791c649a3e2a99346d635207eb75d1af96f4773566a85",
+      "bytes": 4842
     },
     {
       "path": "docs/de/rmt-reference-actions-events.md",
@@ -161,8 +161,8 @@
     },
     {
       "path": "docs/de/rmt-reference-primitives.md",
-      "sha256": "e1e1b5e572cdf2d7f8faab00b596dfce6b886629bce042b299318836352f3871",
-      "bytes": 4734
+      "sha256": "fbfd9ddd7908d190e2cb1fe0c292ff87e9e21f6f325edc105f181e1d00472005",
+      "bytes": 5336
     },
     {
       "path": "docs/de/rmt-reference-remote-surfaces.md",
@@ -196,13 +196,13 @@
     },
     {
       "path": "docs/de/rmt-vnext-authoring.md",
-      "sha256": "462a17b2eac91297e4350c503044d0928285690e184cb211273360b10bc240c7",
-      "bytes": 5794
+      "sha256": "872d6b2d51eb4d5ed661cb6de06b007d4284a120ef912363b3b9bd7fcf329c9f",
+      "bytes": 6291
     },
     {
       "path": "docs/de/xtend-maraca-orchestration.md",
-      "sha256": "1937389faef03a7c32bb20ae58afd6bcaf6270e02f72c6656f96cae107ab4951",
-      "bytes": 7279
+      "sha256": "2a3301a0772b3f99f1b3e025bc32127d7f9cfe064983bb37e60fd6d05d2151bb",
+      "bytes": 8050
     },
     {
       "path": "docs/de/xtendrmt-app-dsl.md",
@@ -221,8 +221,8 @@
     },
     {
       "path": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "8c4c39915c66242da906ec59c6a048e0818a5eb1bf7fc4b565200308c87be8c1",
-      "bytes": 1828
+      "sha256": "6d220d4bb72656f8c9209d57e090ac5fad4dce7608006f48ef88b2b770fe07a2",
+      "bytes": 1898
     },
     {
       "path": "tools/rmt-linter/reporter.d.ts",

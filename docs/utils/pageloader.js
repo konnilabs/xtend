@@ -23,6 +23,7 @@ const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
   '/xtendrmt/rmt-action-effect-runtime.js',
   '/xtendrmt/rmt-event-routing-runtime.js',
   '/xtendrmt/rmt-form-validation-runtime.js',
+  '/xtendrmt/rmt-animation-engine-runtime.js',
   '/xtendrmt/rmt-surface-transition-runtime.js',
   '/xtendrmt/rmt-surface-resource-graph-runtime.js',
   '/xtendrmt/rmt-dom-descriptor-renderer.js'
@@ -4536,6 +4537,7 @@ function ensureDocsRmtPlaygroundMaracaModules() {
     actionApi: window.XTendRmtActionEffectRuntime,
     eventApi: window.XTendRmtEventRoutingRuntime,
     validationApi: window.XTendRmtFormValidationRuntime,
+    animationApi: window.XTendRmtAnimationEngineRuntime,
     transitionApi: window.XTendRmtSurfaceTransitionRuntime,
     rendererApi: window.XTendRmtDomDescriptorRenderer,
     kernelApi: window.XTendRmtKernelOrchestrationController
