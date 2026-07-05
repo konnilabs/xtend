@@ -1,5 +1,92 @@
 import './xicon.js';
 
+const SIDE_PANEL_INITIAL_OPERATIONS = new Set(['register', 'open', 'focus']);
+const SIDE_PANEL_CSS_UNITS = '(?:px|rem|em|ch|ex|cap|ic|lh|rlh|vw|vh|vi|vb|vmin|vmax|svw|svh|svi|svb|lvw|lvh|lvi|lvb|dvw|dvh|dvi|dvb|cqw|cqh|cqi|cqb|cqmin|cqmax|%)';
+const SIDE_PANEL_CSS_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
+
+function isSidePanelCssLength(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return true;
+  if (new RegExp(`^-?\\d+(?:\\.\\d+)?${SIDE_PANEL_CSS_UNITS}$`, 'u').test(raw)) return true;
+  const functionMatch = raw.match(/^([a-zA-Z][a-zA-Z0-9_-]*)\((.*)\)$/u);
+  if (!functionMatch) return false;
+  const functionName = functionMatch[1].toLowerCase();
+  const body = functionMatch[2].trim();
+  if (!SIDE_PANEL_CSS_FUNCTIONS.has(functionName) || !body) return false;
+  if (/[;{}]/u.test(body) || /url\s*\(|var\s*\(|env\s*\(|attr\s*\(/iu.test(body)) return false;
+  return /^[0-9A-Za-z\s.,+\-*/()%]+$/u.test(body);
+}
+
+function sidePanelCssLength(value, fallback) {
+  if (value === undefined || value === null || value === '') return `${fallback}px`;
+  if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`;
+  const raw = String(value).trim();
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return `${Number(raw)}px`;
+  return isSidePanelCssLength(raw) ? raw : `${fallback}px`;
+}
+
+function optionalSidePanelCssLength(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`;
+  const raw = String(value).trim();
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return `${Number(raw)}px`;
+  return isSidePanelCssLength(raw) ? raw : null;
+}
+
+function sidePanelNumericAttribute(element, name, fallback) {
+  const numeric = Number(element.getAttribute(name));
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function sidePanelNumericStyle(style, property, fallback = 0) {
+  if (!style || typeof style.getPropertyValue !== 'function') return fallback;
+  const numeric = Number.parseFloat(style.getPropertyValue(property));
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function sidePanelBoundsContainerHost(element) {
+  const manager = element.closest && element.closest('x-surface-manager');
+  if (manager) return manager;
+  const portal = element.closest && element.closest('x-surface-portal');
+  if (portal) return portal.closest('x-surface-manager') || portal.parentElement || portal;
+  return element.parentElement || null;
+}
+
+function syncSidePanelBoundsContainerScope(element, active) {
+  element.toggleAttribute('data-surface-bounds-scope-container', Boolean(active));
+  const host = active ? sidePanelBoundsContainerHost(element) : element._boundsContainerHost || sidePanelBoundsContainerHost(element);
+  if (!host || typeof host.setAttribute !== 'function') return;
+  if (active) {
+    element._boundsContainerHost = host;
+    host.setAttribute('surface-bounds-container', '');
+    host.setAttribute('data-surface-bounds-container', 'true');
+    if (host.style && !host.style.getPropertyValue('container-type')) {
+      host.setAttribute('data-surface-bounds-container-type-owner', 'true');
+      host.style.setProperty('container-type', 'inline-size');
+    }
+    if (host.style && !host.style.getPropertyValue('container-name')) {
+      host.setAttribute('data-surface-bounds-container-name-owner', 'true');
+      host.style.setProperty('container-name', 'xtend-surface-bounds');
+    }
+    return;
+  }
+  const hasActiveChild = typeof host.querySelector === 'function' && host.querySelector('[data-surface-bounds-scope-container]');
+  if (host.getAttribute('data-surface-bounds-container') === 'true' && !hasActiveChild) {
+    host.removeAttribute('surface-bounds-container');
+    host.removeAttribute('data-surface-bounds-container');
+    if (host.getAttribute('data-surface-bounds-container-type-owner') === 'true' && host.style) {
+      host.style.removeProperty('container-type');
+      host.removeAttribute('data-surface-bounds-container-type-owner');
+    }
+    if (host.getAttribute('data-surface-bounds-container-name-owner') === 'true' && host.style) {
+      host.style.removeProperty('container-name');
+      host.removeAttribute('data-surface-bounds-container-name-owner');
+    }
+  }
+  if (element._boundsContainerHost === host) element._boundsContainerHost = null;
+}
+
 class XSidePanel extends HTMLElement {
   static get observedAttributes() {
     return [
@@ -12,6 +99,8 @@ class XSidePanel extends HTMLElement {
       'pinned',
       'mode',
       'placement',
+      'bounds-mode',
+      'bounds-scope',
       'responsive-mode',
       'resizable',
       'collapsible',
@@ -20,8 +109,14 @@ class XSidePanel extends HTMLElement {
       'pinnable',
       'route-aware',
       'modal',
+      'initial-x',
+      'initial-y',
       'initial-width',
-      'initial-height'
+      'initial-height',
+      'initial-min-width',
+      'initial-min-height',
+      'initial-max-width',
+      'initial-max-height'
     ];
   }
 
@@ -154,6 +249,7 @@ class XSidePanel extends HTMLElement {
     super();
     this.surfaceManager = null;
     this._applyingSnapshot = false;
+    this._boundsCommitted = false;
     this._resize = null;
     this._onResizePointerDown = this._startResize.bind(this);
     this._onPointerMove = this._handlePointerMove.bind(this);
@@ -174,6 +270,10 @@ class XSidePanel extends HTMLElement {
           --xtend-overlay-z: var(--surface-overlay-z, var(--side-panel-z, 1));
           --side-panel-width: 320px;
           --side-panel-height: 100%;
+          --side-panel-min-width: 0;
+          --side-panel-min-height: 0;
+          --side-panel-max-width: none;
+          --side-panel-max-height: none;
           --side-panel-z: 1;
           --side-panel-bg: var(--xtend-overlay-surface);
           --side-panel-color: var(--xtend-overlay-text);
@@ -189,8 +289,10 @@ class XSidePanel extends HTMLElement {
           inline-size: var(--side-panel-width);
           block-size: var(--side-panel-height);
           z-index: var(--xtend-overlay-z);
-          min-inline-size: 0;
-          min-block-size: 0;
+          min-inline-size: var(--side-panel-min-width);
+          min-block-size: var(--side-panel-min-height);
+          max-inline-size: var(--side-panel-max-width);
+          max-block-size: var(--side-panel-max-height);
           color: var(--side-panel-color);
         }
         :host([open]) {
@@ -444,6 +546,7 @@ class XSidePanel extends HTMLElement {
     if (!this.hasAttribute('mode')) this.setAttribute('mode', 'docked');
     if (!this.hasAttribute('resizable')) this.setAttribute('resizable', '');
     this._renderLabel();
+    this._syncBoundsContainerScope();
     this._applyInitialSize();
     this._syncA11y();
     this._resizeHandle.addEventListener('pointerdown', this._onResizePointerDown);
@@ -466,12 +569,16 @@ class XSidePanel extends HTMLElement {
     window.removeEventListener('pointerup', this._onPointerUp);
     window.removeEventListener('xtend-route-changed', this._onRouteChanged);
     window.removeEventListener('popstate', this._onRouteChanged);
+    this._syncBoundsContainerScope(false);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) return;
     if (name === 'label' || name === 'surface-id') this._renderLabel();
-    if (name.startsWith('initial-')) this._applyInitialSize();
+    if (name.startsWith('initial-') || name === 'bounds-mode' || name === 'bounds-scope') {
+      if (name === 'bounds-mode' || name === 'bounds-scope') this._syncBoundsContainerScope();
+      this._applyInitialSize();
+    }
     if (['collapsed', 'pinned', 'mode', 'placement', 'modal', 'open', 'minimized', 'collapsible', 'collapsable', 'closable', 'pinnable'].includes(name)) this._syncA11y();
     if (this._applyingSnapshot || !this.isConnected) return;
     if (name === 'open') {
@@ -514,6 +621,9 @@ class XSidePanel extends HTMLElement {
       modal: this.hasAttribute('modal') || mode === 'overlay',
       metadata: {
         source: 'x-side-panel',
+        boundsMode: this._boundsMode(),
+        boundsScope: this._boundsScope(),
+        initialBoundsCss: this._initialBoundsCss(),
         responsiveMode: this.getAttribute('responsive-mode') || 'fullscreen-under-720',
         controls: {
           collapsible: this._collapsible(),
@@ -526,11 +636,20 @@ class XSidePanel extends HTMLElement {
 
   applySurfaceSnapshot(record) {
     this._applyingSnapshot = true;
-    this.style.setProperty('--side-panel-width', `${record.bounds.width}px`);
-    this.style.setProperty('--side-panel-height', `${record.bounds.height}px`);
+    const shouldApplyBounds = !this._preserveResponsiveInitialBounds(record);
+    if (shouldApplyBounds) {
+      this._boundsCommitted = true;
+      this._clearResponsiveMaxBounds();
+      this.style.setProperty('--side-panel-width', `${record.bounds.width}px`);
+      this.style.setProperty('--side-panel-height', `${record.bounds.height}px`);
+      if (record.bounds.minWidth !== undefined) this.style.setProperty('--side-panel-min-width', `${record.bounds.minWidth}px`);
+      if (record.bounds.minHeight !== undefined) this.style.setProperty('--side-panel-min-height', `${record.bounds.minHeight}px`);
+    }
     this.style.setProperty('--side-panel-z', String(record.zIndex || 1));
-    this.style.setProperty('--surface-layout-x', `${record.bounds.x || 0}px`);
-    this.style.setProperty('--surface-layout-y', `${record.bounds.y || 0}px`);
+    if (shouldApplyBounds) {
+      this.style.setProperty('--surface-layout-x', `${record.bounds.x || 0}px`);
+      this.style.setProperty('--surface-layout-y', `${record.bounds.y || 0}px`);
+    }
     const minimized = record.status === 'minimized' || record.minimized === true;
     this.toggleAttribute('open', record.status !== 'closed' && !minimized);
     this.toggleAttribute('active', Boolean(record.active));
@@ -581,6 +700,8 @@ class XSidePanel extends HTMLElement {
   }
 
   resizePanel(bounds) {
+    this._boundsCommitted = true;
+    this._clearResponsiveMaxBounds();
     return this._command('resize', bounds);
   }
 
@@ -637,11 +758,13 @@ class XSidePanel extends HTMLElement {
   }
 
   _readBounds() {
-    const width = Number(this.getAttribute('initial-width') || 320);
-    const height = Number(this.getAttribute('initial-height') || 720);
+    const x = sidePanelNumericAttribute(this, 'initial-x', 0);
+    const y = sidePanelNumericAttribute(this, 'initial-y', 0);
+    const width = sidePanelNumericAttribute(this, 'initial-width', 320);
+    const height = sidePanelNumericAttribute(this, 'initial-height', 720);
     return {
-      x: 0,
-      y: 0,
+      x: Number.isFinite(x) ? x : 0,
+      y: Number.isFinite(y) ? y : 0,
       width: Number.isFinite(width) ? width : 320,
       height: Number.isFinite(height) ? height : 720,
       minWidth: 240,
@@ -649,16 +772,63 @@ class XSidePanel extends HTMLElement {
     };
   }
 
+  _boundsMode() {
+    return this.getAttribute('bounds-mode') === 'responsive' ? 'responsive' : 'fixed';
+  }
+
+  _boundsScope() {
+    return this.getAttribute('bounds-scope') === 'container' ? 'container' : 'viewport';
+  }
+
+  _syncBoundsContainerScope(active = this._boundsMode() === 'responsive' && this._boundsScope() === 'container') {
+    syncSidePanelBoundsContainerScope(this, active);
+  }
+
+  _initialBoundsCss() {
+    return {
+      x: sidePanelCssLength(this.getAttribute('initial-x'), 0),
+      y: sidePanelCssLength(this.getAttribute('initial-y'), 0),
+      width: sidePanelCssLength(this.getAttribute('initial-width'), 320),
+      height: sidePanelCssLength(this.getAttribute('initial-height'), 720),
+      minWidth: optionalSidePanelCssLength(this.getAttribute('initial-min-width')),
+      minHeight: optionalSidePanelCssLength(this.getAttribute('initial-min-height')),
+      maxWidth: optionalSidePanelCssLength(this.getAttribute('initial-max-width')),
+      maxHeight: optionalSidePanelCssLength(this.getAttribute('initial-max-height'))
+    };
+  }
+
+  _preserveResponsiveInitialBounds(record = {}) {
+    if (this._boundsMode() !== 'responsive' || this._boundsCommitted) return false;
+    const operation = record && record.lifecycle && record.lifecycle.operation || '';
+    return !operation || SIDE_PANEL_INITIAL_OPERATIONS.has(operation);
+  }
+
   _currentBounds() {
-    const width = parseFloat(getComputedStyle(this).getPropertyValue('--side-panel-width')) || this._readBounds().width;
-    const height = parseFloat(getComputedStyle(this).getPropertyValue('--side-panel-height')) || this._readBounds().height;
-    return { ...this._readBounds(), width, height };
+    const fallback = this._readBounds();
+    const style = typeof getComputedStyle === 'function' ? getComputedStyle(this) : null;
+    const rect = typeof this.getBoundingClientRect === 'function' ? this.getBoundingClientRect() : null;
+    const width = rect && rect.width ? rect.width : sidePanelNumericStyle(style, 'width', sidePanelNumericStyle(style, '--side-panel-width', fallback.width));
+    const height = rect && rect.height ? rect.height : sidePanelNumericStyle(style, 'height', sidePanelNumericStyle(style, '--side-panel-height', fallback.height));
+    return { ...fallback, width, height };
   }
 
   _applyInitialSize() {
     const bounds = this._readBounds();
-    this.style.setProperty('--side-panel-width', `${bounds.width}px`);
-    this.style.setProperty('--side-panel-height', `${bounds.height}px`);
+    const cssBounds = this._initialBoundsCss();
+    this.style.setProperty('--surface-layout-x', cssBounds.x || `${bounds.x}px`);
+    this.style.setProperty('--surface-layout-y', cssBounds.y || `${bounds.y}px`);
+    this.style.setProperty('--side-panel-width', cssBounds.width || `${bounds.width}px`);
+    this.style.setProperty('--side-panel-height', cssBounds.height || `${bounds.height}px`);
+    ['minWidth', 'minHeight', 'maxWidth', 'maxHeight'].forEach((field) => {
+      const property = `--side-panel-${field.replace(/[A-Z]/gu, (match) => `-${match.toLowerCase()}`)}`;
+      if (cssBounds[field]) this.style.setProperty(property, cssBounds[field]);
+      else this.style.removeProperty(property);
+    });
+  }
+
+  _clearResponsiveMaxBounds() {
+    this.style.removeProperty('--side-panel-max-width');
+    this.style.removeProperty('--side-panel-max-height');
   }
 
   _renderLabel() {
@@ -753,6 +923,7 @@ class XSidePanel extends HTMLElement {
     event.preventDefault();
     this.focusPanel();
     const bounds = this._currentBounds();
+    this._clearResponsiveMaxBounds();
     this._resize = {
       pointerId: event.pointerId,
       startX: event.clientX,

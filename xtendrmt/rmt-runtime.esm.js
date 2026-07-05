@@ -13079,6 +13079,9 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             schedule: surface.scheduleRef,
             metadata: {
                 ...cloneSerializable(surface.metadata, {}),
+                boundsMode: surface.bounds && surface.bounds.mode || undefined,
+                boundsScope: surface.bounds && surface.bounds.scope || undefined,
+                initialBoundsCss: surface.bounds && surface.bounds.mode === 'responsive' ? cloneSerializable(surface.bounds, {}) : undefined,
                 rmtSurfaceAdapter: SURFACE_ADAPTER_SCHEMA,
                 rmtComponent: surface.component,
                 rmtManager: surface.manager,
@@ -13409,10 +13412,16 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
             if (surface.capabilities.includes('move') || surface.capabilities.includes('drag') || surface.capabilities.includes('draggable')) setSurfaceElementAttribute(surfaceElement, 'draggable', true);
         }
         const bounds = toPlainObject(surface.bounds);
+        if (bounds.mode) setSurfaceElementAttribute(surfaceElement, 'bounds-mode', bounds.mode);
+        if (bounds.scope) setSurfaceElementAttribute(surfaceElement, 'bounds-scope', bounds.scope);
         if (bounds.x !== undefined) setSurfaceElementAttribute(surfaceElement, 'initial-x', bounds.x);
         if (bounds.y !== undefined) setSurfaceElementAttribute(surfaceElement, 'initial-y', bounds.y);
         if (bounds.width !== undefined) setSurfaceElementAttribute(surfaceElement, 'initial-width', bounds.width);
         if (bounds.height !== undefined) setSurfaceElementAttribute(surfaceElement, 'initial-height', bounds.height);
+        if (bounds.minWidth !== undefined) setSurfaceElementAttribute(surfaceElement, 'initial-min-width', bounds.minWidth);
+        if (bounds.minHeight !== undefined) setSurfaceElementAttribute(surfaceElement, 'initial-min-height', bounds.minHeight);
+        if (bounds.maxWidth !== undefined) setSurfaceElementAttribute(surfaceElement, 'initial-max-width', bounds.maxWidth);
+        if (bounds.maxHeight !== undefined) setSurfaceElementAttribute(surfaceElement, 'initial-max-height', bounds.maxHeight);
         if (surface.placement) setSurfaceElementAttribute(surfaceElement, 'placement', surface.placement);
         if (surface.mode) setSurfaceElementAttribute(surfaceElement, 'mode', surface.mode);
     }

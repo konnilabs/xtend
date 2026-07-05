@@ -1,0 +1,118 @@
+{
+  "schema": "xtend.xtensions.vanilla-host-adapter.fixture.v1",
+  "expectedXtensionId": "xtension.vanilla.legacy-lab",
+  "expectedFramework": "vanilla",
+  "expectedStatus": "ready",
+  "contract": "xtend.xtensions.vanilla-adapter.v1",
+  "cooperative": {
+    "xtensionId": "xtension.vanilla.cooperative",
+    "surfaceId": "surface.vanilla.cooperative",
+    "isolation": {
+      "runtimeClass": "vanilla",
+      "domBoundary": "shadow-root",
+      "styleBoundary": "shadow-root",
+      "trustBoundary": "same-origin-adapter",
+      "mutationPolicy": "observe-and-degrade"
+    }
+  },
+  "legacy": {
+    "xtensionId": "xtension.vanilla.iwebkit5-proof",
+    "surfaceId": "surface.vanilla.iwebkit5-proof",
+    "isolation": {
+      "runtimeClass": "legacy-global-dom",
+      "domBoundary": "iframe-sandbox",
+      "styleBoundary": "iframe",
+      "trustBoundary": "sandboxed-adapter",
+      "mutationPolicy": "blocked-by-iframe",
+      "sandbox": [
+        "allow-scripts"
+      ]
+    }
+  },
+  "unsafeLegacy": {
+    "xtensionId": "xtension.vanilla.iwebkit5-unsafe",
+    "surfaceId": "surface.vanilla.iwebkit5-unsafe",
+    "isolation": {
+      "runtimeClass": "legacy-global-dom",
+      "domBoundary": "shadow-root",
+      "styleBoundary": "shadow-root",
+      "trustBoundary": "same-origin-adapter",
+      "mutationPolicy": "observe-and-degrade"
+    }
+  },
+  "legacyManifest": {
+    "id": "xtension.vanilla.legacy-lab",
+    "framework": "vanilla",
+    "version": "0.1.0-local",
+    "entry": {
+      "module": "./vanilla-legacy-lab.js",
+      "dynamicImport": true
+    },
+    "lazy": {
+      "mode": "explicit",
+      "optIn": true,
+      "policy": "manifest-policy"
+    },
+    "contract": {
+      "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+      "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+      "capabilities": [
+        "host.lifecycle.mount",
+        "vanilla.host-controller",
+        "dom.boundary.iframe-sandbox",
+        "legacy.sandbox.iframe",
+        "postmessage.bridge.allowlist"
+      ]
+    },
+    "integrity": {
+      "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "csp": {
+      "scriptSrc": [
+        "'self'"
+      ],
+      "connectSrc": [
+        "'self'"
+      ],
+      "workerSrc": [
+        "'self'"
+      ],
+      "imgSrc": [
+        "'self'",
+        "data:"
+      ]
+    },
+    "fallback": {
+      "mode": "native-placeholder",
+      "message": "Legacy sandbox proof unavailable."
+    },
+    "owner": "xtend-platform",
+    "isolation": {
+      "runtimeClass": "legacy-global-dom",
+      "domBoundary": "iframe-sandbox",
+      "styleBoundary": "iframe",
+      "trustBoundary": "sandboxed-adapter",
+      "mutationPolicy": "blocked-by-iframe",
+      "sandbox": [
+        "allow-scripts"
+      ]
+    },
+    "dependencies": [
+      {
+        "name": "iwebkit5-local-demo",
+        "versionRange": "5.x local fixture",
+        "classification": "legacy-local-artifact",
+        "bundled": true,
+        "packageIncluded": false
+      }
+    ],
+    "capabilities": [
+      "host.lifecycle.mount",
+      "vanilla.host-controller",
+      "dom.boundary.iframe-sandbox",
+      "legacy.sandbox.iframe",
+      "postmessage.bridge.allowlist"
+    ]
+  },
+  "legacyHtml": "<!doctype html><html><head><script type=\"text/javascript\">var _gaq=[];_gaq.push(['_trackPageview']);</script></head><body onload=\"window.scrollTo(0,0.9)\"><a href=\"javascript:alert(1)\">legacy</a><embed src=\"movie.swf\"><script>document.body.appendChild(document.createElement('div'));window.location='http://example.test';</script></body></html>"
+}

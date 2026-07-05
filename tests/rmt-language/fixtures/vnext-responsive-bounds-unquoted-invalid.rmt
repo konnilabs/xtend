@@ -1,0 +1,8 @@
+template responsive.bounds.invalidUnquoted {
+  surface unquoted.window kind window component x-surface-window {
+    bounds mode responsive scope viewport x 16 y 16 width desktop height 240
+    lane visible {
+      hydrate unquoted-window
+    }
+  }
+}

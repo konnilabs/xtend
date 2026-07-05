@@ -125,6 +125,7 @@ function runGuardrailChecks(context, kit) {
   context.assert(boundaries.includes('no-rmt-kernel-import-of-xtend-types'), 'Guardrails preserve XTend kernel boundary');
   context.assert(kit.compact.includes('RMT is declarative app structure'), 'Compact file explains declarative mental model');
   context.assert(kit.compact.includes('Compiler Record, Host Adapter and Scheduler Signal'), 'Compact file separates runtime responsibilities');
+  context.assert(kit.compact.includes('mode responsive'), 'Compact file documents responsive bounds authoring');
   context.assert(kit.compact.includes('xt rmt lint app.rmt --agent'), 'Compact file documents repair loop command');
   context.assert(kit.prompts.includes('## Authoring'), 'Prompts include authoring profile');
   context.assert(kit.prompts.includes('## Repair'), 'Prompts include repair profile');
@@ -135,7 +136,7 @@ function runJsonlChecks(context, kit) {
   const referenceRecords = parseJsonl(kit.referenceJsonl);
   const recipeRecords = parseJsonl(kit.recipesJsonl);
   const operatorRecords = referenceRecords.filter((record) => record.kind === 'operator');
-  const requiredOperators = ['template', 'state', 'selector', 'surface', 'lane', 'hydrate', 'action', 'on', 'validation', 'transition'];
+  const requiredOperators = ['template', 'state', 'selector', 'surface', 'bounds', 'lane', 'hydrate', 'action', 'on', 'validation', 'transition'];
 
   context.assert(referenceRecords.length === kit.referenceRecords.length, 'Reference JSONL has one line per reference record');
   context.assert(recipeRecords.length === kit.recipeRecords.length, 'Recipe JSONL has one line per recipe record');

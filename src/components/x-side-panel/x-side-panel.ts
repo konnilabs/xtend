@@ -27,9 +27,15 @@ export interface XSidePanelPublicApi {
   restorePanel(): void;
 }
 
-export interface XSidePanelInitialBounds extends Partial<XtendSurfaceBounds> {
-  width: number;
-  height: number;
+export interface XSidePanelInitialBounds {
+  x?: number | string;
+  y?: number | string;
+  width: number | string;
+  height: number | string;
+  minWidth?: number | string;
+  minHeight?: number | string;
+  maxWidth?: number | string;
+  maxHeight?: number | string;
 }
 
 export const xSidePanelContract = Object.freeze({
@@ -49,6 +55,8 @@ export const xSidePanelContract = Object.freeze({
     'pinned',
     'mode',
     'placement',
+    'bounds-mode',
+    'bounds-scope',
     'responsive-mode',
     'resizable',
     'collapsible',
@@ -57,8 +65,14 @@ export const xSidePanelContract = Object.freeze({
     'pinnable',
     'route-aware',
     'modal',
+    'initial-x',
+    'initial-y',
     'initial-width',
-    'initial-height'
+    'initial-height',
+    'initial-min-width',
+    'initial-min-height',
+    'initial-max-width',
+    'initial-max-height'
   ],
   placements: ['left', 'right', 'bottom', 'inline'],
   modes: ['docked', 'overlay', 'pinned', 'collapsed', 'fullscreen'],

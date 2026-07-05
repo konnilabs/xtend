@@ -1,0 +1,150 @@
+{
+  "schema": "xtend.xtensions.angular-host-adapter.fixture.v1",
+  "contract": "xtend.xtensions.angular-adapter.v1",
+  "expectedFramework": "angular",
+  "expectedXtensionId": "xtension.erp.angular-risk-workbench",
+  "zoneBoundary": {
+    "runtimeClass": "angular",
+    "buildMode": "aot",
+    "changeDetection": "zoneless-signals",
+    "domBoundary": "host-owned-container",
+    "styleBoundary": "host-css-owned",
+    "trustBoundary": "same-origin-adapter",
+    "mutationPolicy": "adapter-owned-inside-host-container",
+    "remoteArtifactsAllowed": false,
+    "runtimeCompiler": false
+  },
+  "manifest": {
+    "schema": "xtend.maraca.xtension-manifest.v1",
+    "id": "xtension.erp.angular-risk-workbench",
+    "name": "ERP Angular Risk Workbench",
+    "framework": "angular",
+    "version": "0.0.0-local",
+    "owner": "local-resumability-maraca-erp-demo",
+    "entry": {
+      "module": "/dist/xtensions/angular-risk-workbench/index.mjs",
+      "exportName": "createAngularRiskWorkbench",
+      "format": "esm",
+      "dynamicImport": true
+    },
+    "integrity": {
+      "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source": "local-product-build"
+    },
+    "buildMode": "aot",
+    "csp": {
+      "scriptSrc": ["'self'"],
+      "connectSrc": ["'self'"],
+      "workerSrc": ["'self'"],
+      "styleSrc": ["'self'"],
+      "imgSrc": ["'self'", "data:"]
+    },
+    "security": {
+      "owner": "local-resumability-maraca-erp-demo",
+      "localFixtureNoNetwork": true,
+      "remoteArtifactsAllowed": false
+    },
+    "lazy": {
+      "mode": "visible",
+      "optIn": true,
+      "policy": "erp-demo-visible-panel",
+      "prefetch": false,
+      "preload": false
+    },
+    "contract": {
+      "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+      "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+      "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+      "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+      "accepts": ["erp.angular.risk.snapshot", "erp.angular.risk.selection.intent", "erp.reseed.intent"],
+      "emits": ["erp.angular.risk.ready", "erp.angular.risk.updated", "erp.angular.risk.selected"],
+      "capabilities": [
+        "host.lifecycle.mount",
+        "host.lifecycle.update",
+        "host.lifecycle.suspend",
+        "host.lifecycle.resume",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import",
+        "fallback.native-placeholder",
+        "scheduler.hints",
+        "angular.standalone.bootstrap",
+        "angular.aot.bundle",
+        "angular.signals.model",
+        "angular.zoneless.change-detection",
+        "angular.applicationref.destroy",
+        "dom.boundary.host-owned-container",
+        "style.boundary.host-css-owned"
+      ]
+    },
+    "capabilities": [
+      "host.lifecycle.mount",
+      "host.lifecycle.update",
+      "host.lifecycle.suspend",
+      "host.lifecycle.resume",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "fallback.native-placeholder",
+      "scheduler.hints",
+      "angular.standalone.bootstrap",
+      "angular.aot.bundle",
+      "angular.signals.model",
+      "angular.zoneless.change-detection",
+      "angular.applicationref.destroy",
+      "dom.boundary.host-owned-container",
+      "style.boundary.host-css-owned"
+    ],
+    "dependencies": [
+      {
+        "name": "@angular/core",
+        "versionRange": "~19.2.0",
+        "classification": "product-local-bundled",
+        "bundled": true,
+        "packageIncluded": true
+      },
+      {
+        "name": "@angular/common",
+        "versionRange": "~19.2.0",
+        "classification": "product-local-bundled",
+        "bundled": true,
+        "packageIncluded": true
+      },
+      {
+        "name": "@angular/platform-browser",
+        "versionRange": "~19.2.0",
+        "classification": "product-local-bundled",
+        "bundled": true,
+        "packageIncluded": true
+      },
+      {
+        "name": "rxjs",
+        "versionRange": "^7.8.0",
+        "classification": "product-local-bundled",
+        "bundled": true,
+        "packageIncluded": true
+      }
+    ],
+    "isolation": {
+      "runtimeClass": "angular",
+      "buildMode": "aot",
+      "domBoundary": "host-owned-container",
+      "styleBoundary": "host-css-owned",
+      "trustBoundary": "same-origin-adapter",
+      "mutationPolicy": "adapter-owned-inside-host-container"
+    },
+    "fallback": {
+      "mode": "native-placeholder",
+      "component": "xtend-native.angular-risk-workbench.fallback",
+      "message": "ERP Angular Risk Workbench unavailable",
+      "degradedStatus": "xtension-angular-risk-workbench-unavailable"
+    },
+    "policy": {
+      "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+      "status": "local-demo-approved",
+      "dependencyBoundary": "product-local-framework-dependencies"
+    }
+  }
+}

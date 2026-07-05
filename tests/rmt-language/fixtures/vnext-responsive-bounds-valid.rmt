@@ -1,0 +1,11 @@
+template responsive.bounds {
+  portal surface.root root "#responsive-bounds-root" layer surface
+
+  surface responsive.window kind window component x-surface-window {
+    portal surface.root
+    bounds mode responsive scope viewport x "1rem" y "1rem" width "clamp(20rem, 70vi, 52rem)" height "min(80dvh, 42rem)" minWidth "18rem" maxHeight "48rem"
+    lane visible {
+      hydrate responsive-window
+    }
+  }
+}

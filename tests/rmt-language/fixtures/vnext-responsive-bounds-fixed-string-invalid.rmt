@@ -1,0 +1,8 @@
+template responsive.bounds.invalidFixed {
+  surface fixed.window kind window component x-surface-window {
+    bounds x "1rem" y 16 width 320 height 240
+    lane visible {
+      hydrate fixed-window
+    }
+  }
+}

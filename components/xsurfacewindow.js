@@ -1,8 +1,95 @@
 import './xicon.js';
 
+const SURFACE_BOUNDS_INITIAL_OPERATIONS = new Set(['register', 'open', 'focus']);
+const SURFACE_BOUNDS_CSS_UNITS = '(?:px|rem|em|ch|ex|cap|ic|lh|rlh|vw|vh|vi|vb|vmin|vmax|svw|svh|svi|svb|lvw|lvh|lvi|lvb|dvw|dvh|dvi|dvb|cqw|cqh|cqi|cqb|cqmin|cqmax|%)';
+const SURFACE_BOUNDS_CSS_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
+
+function isSurfaceCssLength(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return true;
+  if (new RegExp(`^-?\\d+(?:\\.\\d+)?${SURFACE_BOUNDS_CSS_UNITS}$`, 'u').test(raw)) return true;
+  const functionMatch = raw.match(/^([a-zA-Z][a-zA-Z0-9_-]*)\((.*)\)$/u);
+  if (!functionMatch) return false;
+  const functionName = functionMatch[1].toLowerCase();
+  const body = functionMatch[2].trim();
+  if (!SURFACE_BOUNDS_CSS_FUNCTIONS.has(functionName) || !body) return false;
+  if (/[;{}]/u.test(body) || /url\s*\(|var\s*\(|env\s*\(|attr\s*\(/iu.test(body)) return false;
+  return /^[0-9A-Za-z\s.,+\-*/()%]+$/u.test(body);
+}
+
+function surfaceCssLength(value, fallback) {
+  if (value === undefined || value === null || value === '') return `${fallback}px`;
+  if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`;
+  const raw = String(value).trim();
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return `${Number(raw)}px`;
+  return isSurfaceCssLength(raw) ? raw : `${fallback}px`;
+}
+
+function optionalSurfaceCssLength(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`;
+  const raw = String(value).trim();
+  if (/^-?\d+(?:\.\d+)?$/u.test(raw)) return `${Number(raw)}px`;
+  return isSurfaceCssLength(raw) ? raw : null;
+}
+
+function numericAttribute(element, name, fallback) {
+  const numeric = Number(element.getAttribute(name));
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function numericStyleValue(style, property, fallback = 0) {
+  if (!style || typeof style.getPropertyValue !== 'function') return fallback;
+  const numeric = Number.parseFloat(style.getPropertyValue(property));
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function surfaceBoundsContainerHost(element) {
+  const manager = element.closest && element.closest('x-surface-manager');
+  if (manager) return manager;
+  const portal = element.closest && element.closest('x-surface-portal');
+  if (portal) return portal.closest('x-surface-manager') || portal.parentElement || portal;
+  return element.parentElement || null;
+}
+
+function syncSurfaceBoundsContainerScope(element, active) {
+  element.toggleAttribute('data-surface-bounds-scope-container', Boolean(active));
+  const host = active ? surfaceBoundsContainerHost(element) : element._boundsContainerHost || surfaceBoundsContainerHost(element);
+  if (!host || typeof host.setAttribute !== 'function') return;
+  if (active) {
+    element._boundsContainerHost = host;
+    host.setAttribute('surface-bounds-container', '');
+    host.setAttribute('data-surface-bounds-container', 'true');
+    if (host.style && !host.style.getPropertyValue('container-type')) {
+      host.setAttribute('data-surface-bounds-container-type-owner', 'true');
+      host.style.setProperty('container-type', 'inline-size');
+    }
+    if (host.style && !host.style.getPropertyValue('container-name')) {
+      host.setAttribute('data-surface-bounds-container-name-owner', 'true');
+      host.style.setProperty('container-name', 'xtend-surface-bounds');
+    }
+    return;
+  }
+  const hasActiveChild = typeof host.querySelector === 'function' && host.querySelector('[data-surface-bounds-scope-container]');
+  if (host.getAttribute('data-surface-bounds-container') === 'true' && !hasActiveChild) {
+    host.removeAttribute('surface-bounds-container');
+    host.removeAttribute('data-surface-bounds-container');
+    if (host.getAttribute('data-surface-bounds-container-type-owner') === 'true' && host.style) {
+      host.style.removeProperty('container-type');
+      host.removeAttribute('data-surface-bounds-container-type-owner');
+    }
+    if (host.getAttribute('data-surface-bounds-container-name-owner') === 'true' && host.style) {
+      host.style.removeProperty('container-name');
+      host.removeAttribute('data-surface-bounds-container-name-owner');
+    }
+  }
+  if (element._boundsContainerHost === host) element._boundsContainerHost = null;
+}
+
 class XSurfaceWindow extends HTMLElement {
   static get observedAttributes() {
-    return ['surface-id', 'label', 'open', 'active', 'minimized', 'maximized', 'resizable', 'draggable', 'modal', 'initial-x', 'initial-y', 'initial-width', 'initial-height'];
+    return ['surface-id', 'label', 'open', 'active', 'minimized', 'maximized', 'resizable', 'draggable', 'modal', 'bounds-mode', 'bounds-scope', 'initial-x', 'initial-y', 'initial-width', 'initial-height', 'initial-min-width', 'initial-min-height', 'initial-max-width', 'initial-max-height'];
   }
 
   static get xtendComponentContract() {
@@ -133,6 +220,7 @@ class XSurfaceWindow extends HTMLElement {
     super();
     this.surfaceManager = null;
     this._applyingSnapshot = false;
+    this._boundsCommitted = false;
     this._drag = null;
     this._resize = null;
     this._onTitlePointerDown = this._startDrag.bind(this);
@@ -148,6 +236,10 @@ class XSurfaceWindow extends HTMLElement {
           --surface-window-y: 64px;
           --surface-window-width: 640px;
           --surface-window-height: 420px;
+          --surface-window-min-width: 0;
+          --surface-window-min-height: 0;
+          --surface-window-max-width: none;
+          --surface-window-max-height: none;
           --surface-window-z: 1;
           display: none;
           position: absolute;
@@ -156,8 +248,10 @@ class XSurfaceWindow extends HTMLElement {
           width: var(--surface-window-width);
           height: var(--surface-window-height);
           z-index: var(--surface-window-z);
-          min-width: 0;
-          min-height: 0;
+          min-width: var(--surface-window-min-width);
+          min-height: var(--surface-window-min-height);
+          max-width: var(--surface-window-max-width);
+          max-height: var(--surface-window-max-height);
           color: var(--surface-window-color, var(--xtend-text, var(--text-color, #111827)));
         }
         :host([open]) {
@@ -325,6 +419,7 @@ class XSurfaceWindow extends HTMLElement {
     if (!this.hasAttribute('draggable')) this.setAttribute('draggable', '');
     if (!this.hasAttribute('resizable')) this.setAttribute('resizable', '');
     this._renderLabel();
+    this._syncBoundsContainerScope();
     this._applyInitialBounds();
     this._titlebar.addEventListener('pointerdown', this._onTitlePointerDown);
     this._titlebar.addEventListener('keydown', this._onKeyDown);
@@ -343,12 +438,16 @@ class XSurfaceWindow extends HTMLElement {
     this._resizeHandle.removeEventListener('pointerdown', this._onResizePointerDown);
     window.removeEventListener('pointermove', this._onPointerMove);
     window.removeEventListener('pointerup', this._onPointerUp);
+    this._syncBoundsContainerScope(false);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) return;
     if (name === 'label') this._renderLabel();
-    if (name.startsWith('initial-')) this._applyInitialBounds();
+    if (name.startsWith('initial-') || name === 'bounds-mode' || name === 'bounds-scope') {
+      if (name === 'bounds-mode' || name === 'bounds-scope') this._syncBoundsContainerScope();
+      this._applyInitialBounds();
+    }
     if (this._applyingSnapshot || !this.isConnected) return;
     if (name === 'open') {
       this.hasAttribute('open') ? this.openWindow() : this.closeWindow();
@@ -383,17 +482,27 @@ class XSurfaceWindow extends HTMLElement {
       defaultOpen: this.hasAttribute('open'),
       modal: this.hasAttribute('modal'),
       metadata: {
-        source: 'x-surface-window'
+        source: 'x-surface-window',
+        boundsMode: this._boundsMode(),
+        boundsScope: this._boundsScope(),
+        initialBoundsCss: this._initialBoundsCss()
       }
     };
   }
 
   applySurfaceSnapshot(record) {
     this._applyingSnapshot = true;
-    this.style.setProperty('--surface-window-x', `${record.bounds.x}px`);
-    this.style.setProperty('--surface-window-y', `${record.bounds.y}px`);
-    this.style.setProperty('--surface-window-width', `${record.bounds.width}px`);
-    this.style.setProperty('--surface-window-height', `${record.bounds.height}px`);
+    const shouldApplyBounds = !this._preserveResponsiveInitialBounds(record);
+    if (shouldApplyBounds) {
+      this._boundsCommitted = true;
+      this._clearResponsiveMaxBounds();
+      this.style.setProperty('--surface-window-x', `${record.bounds.x}px`);
+      this.style.setProperty('--surface-window-y', `${record.bounds.y}px`);
+      this.style.setProperty('--surface-window-width', `${record.bounds.width}px`);
+      this.style.setProperty('--surface-window-height', `${record.bounds.height}px`);
+      if (record.bounds.minWidth !== undefined) this.style.setProperty('--surface-window-min-width', `${record.bounds.minWidth}px`);
+      if (record.bounds.minHeight !== undefined) this.style.setProperty('--surface-window-min-height', `${record.bounds.minHeight}px`);
+    }
     this.style.setProperty('--surface-window-z', String(record.zIndex || 1));
     const minimized = record.status === 'minimized' || record.minimized === true;
     this.toggleAttribute('open', record.status !== 'closed' && !minimized);
@@ -441,22 +550,63 @@ class XSurfaceWindow extends HTMLElement {
 
   _readBounds() {
     return {
-      x: Number(this.getAttribute('initial-x') || 64),
-      y: Number(this.getAttribute('initial-y') || 64),
-      width: Number(this.getAttribute('initial-width') || 640),
-      height: Number(this.getAttribute('initial-height') || 420),
+      x: numericAttribute(this, 'initial-x', 64),
+      y: numericAttribute(this, 'initial-y', 64),
+      width: numericAttribute(this, 'initial-width', 640),
+      height: numericAttribute(this, 'initial-height', 420),
       minWidth: 280,
       minHeight: 180
     };
   }
 
+  _boundsMode() {
+    return this.getAttribute('bounds-mode') === 'responsive' ? 'responsive' : 'fixed';
+  }
+
+  _boundsScope() {
+    return this.getAttribute('bounds-scope') === 'container' ? 'container' : 'viewport';
+  }
+
+  _syncBoundsContainerScope(active = this._boundsMode() === 'responsive' && this._boundsScope() === 'container') {
+    syncSurfaceBoundsContainerScope(this, active);
+  }
+
+  _initialBoundsCss() {
+    return {
+      x: surfaceCssLength(this.getAttribute('initial-x'), 64),
+      y: surfaceCssLength(this.getAttribute('initial-y'), 64),
+      width: surfaceCssLength(this.getAttribute('initial-width'), 640),
+      height: surfaceCssLength(this.getAttribute('initial-height'), 420),
+      minWidth: optionalSurfaceCssLength(this.getAttribute('initial-min-width')),
+      minHeight: optionalSurfaceCssLength(this.getAttribute('initial-min-height')),
+      maxWidth: optionalSurfaceCssLength(this.getAttribute('initial-max-width')),
+      maxHeight: optionalSurfaceCssLength(this.getAttribute('initial-max-height'))
+    };
+  }
+
+  _preserveResponsiveInitialBounds(record = {}) {
+    if (this._boundsMode() !== 'responsive' || this._boundsCommitted) return false;
+    const operation = record && record.lifecycle && record.lifecycle.operation || '';
+    return !operation || SURFACE_BOUNDS_INITIAL_OPERATIONS.has(operation);
+  }
+
   _applyInitialBounds() {
     if (this.hasAttribute('maximized')) return;
-    const bounds = this._readBounds();
-    this.style.setProperty('--surface-window-x', `${bounds.x}px`);
-    this.style.setProperty('--surface-window-y', `${bounds.y}px`);
-    this.style.setProperty('--surface-window-width', `${bounds.width}px`);
-    this.style.setProperty('--surface-window-height', `${bounds.height}px`);
+    const bounds = this._initialBoundsCss();
+    this.style.setProperty('--surface-window-x', bounds.x);
+    this.style.setProperty('--surface-window-y', bounds.y);
+    this.style.setProperty('--surface-window-width', bounds.width);
+    this.style.setProperty('--surface-window-height', bounds.height);
+    ['minWidth', 'minHeight', 'maxWidth', 'maxHeight'].forEach((field) => {
+      const property = `--surface-window-${field.replace(/[A-Z]/gu, (match) => `-${match.toLowerCase()}`)}`;
+      if (bounds[field]) this.style.setProperty(property, bounds[field]);
+      else this.style.removeProperty(property);
+    });
+  }
+
+  _clearResponsiveMaxBounds() {
+    this.style.removeProperty('--surface-window-max-width');
+    this.style.removeProperty('--surface-window-max-height');
   }
 
   _renderLabel() {
@@ -522,6 +672,8 @@ class XSurfaceWindow extends HTMLElement {
   _keyboardMove(event, bounds) {
     event.preventDefault();
     if (!this.hasAttribute('draggable')) return;
+    this._boundsCommitted = true;
+    this._clearResponsiveMaxBounds();
     this._command('move', bounds);
   }
 
@@ -543,6 +695,7 @@ class XSurfaceWindow extends HTMLElement {
   _startResize(event) {
     if (!this.hasAttribute('resizable') || this.hasAttribute('maximized')) return;
     const bounds = this._currentBounds();
+    this._clearResponsiveMaxBounds();
     this._resize = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -571,6 +724,7 @@ class XSurfaceWindow extends HTMLElement {
   }
 
   _handlePointerUp() {
+    if (this._drag || this._resize) this._boundsCommitted = true;
     if (this._drag) this._command('move', this._currentBounds());
     if (this._resize) this._command('resize', this._currentBounds());
     this._drag = null;
@@ -580,12 +734,16 @@ class XSurfaceWindow extends HTMLElement {
   }
 
   _currentBounds() {
-    const style = getComputedStyle(this);
+    const style = typeof getComputedStyle === 'function' ? getComputedStyle(this) : null;
+    const rect = typeof this.getBoundingClientRect === 'function' ? this.getBoundingClientRect() : null;
+    const fallback = this._readBounds();
     return {
-      x: Number.parseFloat(style.getPropertyValue('--surface-window-x')) || 0,
-      y: Number.parseFloat(style.getPropertyValue('--surface-window-y')) || 0,
-      width: Number.parseFloat(style.getPropertyValue('--surface-window-width')) || this.offsetWidth || 640,
-      height: Number.parseFloat(style.getPropertyValue('--surface-window-height')) || this.offsetHeight || 420
+      x: numericStyleValue(style, 'left', numericStyleValue(style, '--surface-window-x', fallback.x)),
+      y: numericStyleValue(style, 'top', numericStyleValue(style, '--surface-window-y', fallback.y)),
+      width: rect && rect.width ? rect.width : numericStyleValue(style, 'width', this.offsetWidth || fallback.width),
+      height: rect && rect.height ? rect.height : numericStyleValue(style, 'height', this.offsetHeight || fallback.height),
+      minWidth: fallback.minWidth,
+      minHeight: fallback.minHeight
     };
   }
 

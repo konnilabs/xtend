@@ -111,6 +111,7 @@ const VNEXT_PRIMITIVE_SURFACE_CLAUSES = Object.freeze([
   ['key', 'Stabilen Surface-Key deklarieren.'],
   ['portal', 'Surface in Portal Root materialisieren.'],
   ['bounds', 'Initiale Surface-Geometrie deklarieren.'],
+  ['bounds mode responsive scope viewport x "1rem" y "1rem" width "clamp(20rem, 70vi, 52rem)" height "min(80dvh, 42rem)" minWidth "18rem" maxHeight "48rem"', 'Responsive CSS-native Surface-Geometrie deklarieren.'],
   ['preserve on minimize', 'Surface-State beim Minimieren erhalten.'],
   ['destroy releases resource', 'Surface-Destroy an Resource-Release koppeln.'],
   ['lane visible', 'Sichtbare Fabric-Lane fuer Lifecycle-Operation deklarieren.'],

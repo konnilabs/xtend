@@ -88,7 +88,7 @@
         },
         {
           "name": "storage.type.rmt",
-          "match": "\\b(dom_descriptor|html_fragment|json|record|array|string|number|boolean|integer|object|file|body|owner|key|props|attrs|events|bindings|cleanup|mode|type|source|repeat|bounds|preserve|releases|required|email|minLength|maxLength|pattern|message|method|contract|result|fallback|status|input|output|reduce|payload|preventDefault|where|find|sort|by|effect|durationMs|easing|surfaces|blocking|root|layer|z|kind|origin|version|integrity|direction|policy|adapterRef|queryState|resultState|actionRefRequired|registeredCommands|collectionViews|commandSources|searchSources|securityPolicies|sourceMap)\\b"
+          "match": "\\b(dom_descriptor|html_fragment|json|record|array|string|number|boolean|integer|object|file|body|owner|key|props|attrs|events|bindings|cleanup|mode|scope|type|source|repeat|bounds|preserve|releases|required|email|minLength|maxLength|minWidth|minHeight|maxWidth|maxHeight|pattern|message|method|contract|result|fallback|status|input|output|reduce|payload|preventDefault|where|find|sort|by|effect|durationMs|easing|surfaces|blocking|root|layer|z|kind|origin|version|integrity|direction|policy|adapterRef|queryState|resultState|actionRefRequired|registeredCommands|collectionViews|commandSources|searchSources|securityPolicies|sourceMap)\\b"
         },
         {
           "name": "support.constant.transition.rmt",

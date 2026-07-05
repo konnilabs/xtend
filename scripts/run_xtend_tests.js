@@ -352,6 +352,26 @@ const {
   runXTensionsAdoptionHandoffSuite
 } = require('../tests/xtensions/xtensions_adoption_handoff_suite');
 const {
+  printXTensionsDomBoundaryReport,
+  printXTensionsLegacySandboxAdapterReport,
+  printXTensionsVanillaHostControllerReport,
+  runXTensionsDomBoundarySuite,
+  runXTensionsLegacySandboxAdapterSuite,
+  runXTensionsVanillaHostControllerSuite
+} = require('../tests/xtensions/xtensions_vanilla_host_adapter_suite');
+const {
+  printXTensionsOpenUi5HostControllerReport,
+  printXTensionsOpenUi5LoaderBoundaryReport,
+  runXTensionsOpenUi5HostControllerSuite,
+  runXTensionsOpenUi5LoaderBoundarySuite
+} = require('../tests/xtensions/xtensions_openui5_host_adapter_suite');
+const {
+  printXTensionsAngularHostControllerReport,
+  printXTensionsAngularZoneBoundaryReport,
+  runXTensionsAngularHostControllerSuite,
+  runXTensionsAngularZoneBoundarySuite
+} = require('../tests/xtensions/xtensions_angular_host_adapter_suite');
+const {
   printRmtVNextSchedulerReport,
   runRmtVNextSchedulerSuite
 } = require('../tests/rmt-language/rmt_vnext_scheduler_suite');
@@ -447,6 +467,10 @@ const {
   printXScalerProtocolReport,
   runXScalerProtocolSuite
 } = require('../tests/rmt/xscaler_protocol_suite');
+const {
+  printXSurfaceShardReport,
+  runXSurfaceShardSuite
+} = require('../tests/xsurface/xsurface_shard_suite');
 const {
   printXCommandKernelReport,
   runXCommandKernelSuite
@@ -1761,6 +1785,76 @@ const suites = [
     }
   },
   {
+    id: 'xtensions-vanilla-host-controller',
+    label: 'XTensions Vanilla Host Adapter Contract',
+    description: 'Runs the XTN-15 frameworkless vanilla HostController, dependency boundary and lifecycle gate.',
+    run: () => {
+      const result = runXTensionsVanillaHostControllerSuite({ rootDir });
+      printXTensionsVanillaHostControllerReport(result);
+      return toRunnerResult('xtensions-vanilla-host-controller', 'XTensions Vanilla Host Adapter Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-dom-boundary',
+    label: 'XTensions DOM Boundary Contract',
+    description: 'Runs the XTN-15 shadow-root, host-owned container and iframe-sandbox DOM boundary gate.',
+    run: () => {
+      const result = runXTensionsDomBoundarySuite({ rootDir });
+      printXTensionsDomBoundaryReport(result);
+      return toRunnerResult('xtensions-dom-boundary', 'XTensions DOM Boundary Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-legacy-sandbox-adapter',
+    label: 'XTensions Legacy Sandbox Adapter Contract',
+    description: 'Runs the XTN-15 legacy iframe sandbox, postMessage boundary and local artifact policy gate.',
+    run: () => {
+      const result = runXTensionsLegacySandboxAdapterSuite({ rootDir });
+      printXTensionsLegacySandboxAdapterReport(result);
+      return toRunnerResult('xtensions-legacy-sandbox-adapter', 'XTensions Legacy Sandbox Adapter Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-openui5-host-controller',
+    label: 'XTensions OpenUI5 Host Adapter Contract',
+    description: 'Runs the XTN-16 OpenUI5 HostController, JSONModel update and control cleanup gate.',
+    run: () => {
+      const result = runXTensionsOpenUi5HostControllerSuite({ rootDir });
+      printXTensionsOpenUi5HostControllerReport(result);
+      return toRunnerResult('xtensions-openui5-host-controller', 'XTensions OpenUI5 Host Adapter Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-openui5-loader-boundary',
+    label: 'XTensions OpenUI5 Loader Boundary Contract',
+    description: 'Runs the XTN-16 product-local OpenUI5 loader, no-CDN and bundled dependency policy gate.',
+    run: () => {
+      const result = runXTensionsOpenUi5LoaderBoundarySuite({ rootDir });
+      printXTensionsOpenUi5LoaderBoundaryReport(result);
+      return toRunnerResult('xtensions-openui5-loader-boundary', 'XTensions OpenUI5 Loader Boundary Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-angular-host-controller',
+    label: 'XTensions Angular Host Adapter Contract',
+    description: 'Runs the XTN-17 Angular HostController, signal update and ApplicationRef cleanup gate.',
+    run: () => {
+      const result = runXTensionsAngularHostControllerSuite({ rootDir });
+      printXTensionsAngularHostControllerReport(result);
+      return toRunnerResult('xtensions-angular-host-controller', 'XTensions Angular Host Adapter Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-angular-zone-boundary',
+    label: 'XTensions Angular Zone Boundary Contract',
+    description: 'Runs the XTN-17 Angular AOT, zoneless and no-runtime-compiler boundary gate.',
+    run: () => {
+      const result = runXTensionsAngularZoneBoundarySuite({ rootDir });
+      printXTensionsAngularZoneBoundaryReport(result);
+      return toRunnerResult('xtensions-angular-zone-boundary', 'XTensions Angular Zone Boundary Contract', result);
+    }
+  },
+  {
     id: 'rmt-vnext-scheduler',
     label: 'Epic 15 RMT vNext Scheduler Policy Contract',
     description: 'Runs the WP-E15-07 RMT vNext lane normalization, budget, chunking and backpressure gates.',
@@ -1998,6 +2092,16 @@ const suites = [
       const result = runXScalerProtocolSuite({ rootDir });
       printXScalerProtocolReport(result);
       return toRunnerResult('xscaler-protocol', 'XScaler Protocol Gate', result);
+    }
+  },
+  {
+    id: 'xsurface-shard',
+    label: 'XSurface Shard server orchestration',
+    description: 'Runs XSurface Shard partitioning, lifecycle, ATC handoff, stream fragment and package export gates.',
+    run: () => {
+      const result = runXSurfaceShardSuite({ rootDir });
+      printXSurfaceShardReport(result);
+      return toRunnerResult('xsurface-shard', 'XSurface Shard server orchestration', result);
     }
   },
   {
@@ -3855,6 +3959,13 @@ Examples:
   node scripts/run_xtend_tests.js xtensions-multi-framework-dashboard
   node scripts/run_xtend_tests.js xtensions-registry-package-strategy
   node scripts/run_xtend_tests.js xtensions-adoption-handoff
+  node scripts/run_xtend_tests.js xtensions-vanilla-host-controller
+  node scripts/run_xtend_tests.js xtensions-dom-boundary
+  node scripts/run_xtend_tests.js xtensions-legacy-sandbox-adapter
+  node scripts/run_xtend_tests.js xtensions-openui5-host-controller
+  node scripts/run_xtend_tests.js xtensions-openui5-loader-boundary
+  node scripts/run_xtend_tests.js xtensions-angular-host-controller
+  node scripts/run_xtend_tests.js xtensions-angular-zone-boundary
   node scripts/run_xtend_tests.js rmt-vnext-scheduler
   node scripts/run_xtend_tests.js rmt-vnext-surfaces
   node scripts/run_xtend_tests.js rmt-vnext-conditions
@@ -3869,6 +3980,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-release
   node scripts/run_xtend_tests.js xcommand-kernel
   node scripts/run_xtend_tests.js xscaler-protocol
+  node scripts/run_xtend_tests.js xsurface-shard
   node scripts/run_xtend_tests.js rmt-vnext-remote-manifest
   node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry
   node scripts/run_xtend_tests.js rmt-vnext-degradation

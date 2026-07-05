@@ -52,6 +52,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './components/manifest.json',
   './maraca',
   './maraca/runtime',
+  './xsurface-shard',
   './components/*',
   './components/xkeymap.js',
   './xcommand',
@@ -184,6 +185,9 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './xtensions/multi-framework-dashboard-fixture',
   './xtensions/registry-package-strategy',
   './xtensions/adoption-handoff',
+  './xtensions/vanilla-host-adapter',
+  './xtensions/openui5-host-adapter',
+  './xtensions/angular-host-adapter',
   './builder',
   './builder/*',
   './security/manifest-import-policy',
@@ -209,6 +213,7 @@ const REQUIRED_PACK_ROOTS = Object.freeze([
   'xtendrmt',
   'xtend-builder',
   'xtend-maraca',
+  'xsurface-shard',
   'tools',
   'security',
   'docs'
@@ -234,6 +239,11 @@ const SURFACE_GROUPS = Object.freeze([
     id: 'maraca',
     requiredExports: ['./maraca', './maraca/runtime'],
     requiredPackRoots: ['xtend-maraca']
+  },
+  {
+    id: 'xsurface-shard',
+    requiredExports: ['./xsurface-shard'],
+    requiredPackRoots: ['xsurface-shard']
   },
   {
     id: 'fabric',
@@ -378,7 +388,10 @@ const SURFACE_GROUPS = Object.freeze([
       './xtensions/security-integrity-gate',
       './xtensions/multi-framework-dashboard-fixture',
       './xtensions/registry-package-strategy',
-      './xtensions/adoption-handoff'
+      './xtensions/adoption-handoff',
+      './xtensions/vanilla-host-adapter',
+      './xtensions/openui5-host-adapter',
+      './xtensions/angular-host-adapter'
     ],
     requiredPackRoots: ['tools']
   }

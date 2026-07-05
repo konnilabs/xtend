@@ -25,7 +25,12 @@ function runXSurfaceRegionComponentSuite(options = {}) {
   context.assertIncludes(source, 'xtendScaffoldPerformanceProfile', 'runtime exposes performance profile');
   context.assertIncludes(source, 'aria-label', 'runtime syncs accessible label');
   context.assertIncludes(source, 'surface-region-command', 'runtime emits manager command events');
+  context.assertIncludes(source, 'bounds-mode', 'runtime accepts responsive bounds mode');
+  context.assertIncludes(source, 'surfaceRegionCssLength', 'runtime preserves CSS-native initial bounds');
+  context.assertIncludes(source, 'initial-min-width', 'runtime accepts responsive bounds constraints');
+  context.assertIncludes(source, 'syncSurfaceRegionBoundsContainerScope', 'runtime enables container-scoped responsive bounds');
   context.assertIncludes(types, 'XSurfaceRegionCommandDetail', 'types expose command detail');
+  context.assertIncludes(types, "'bounds-mode'", 'types expose bounds-mode attribute');
   context.assertIncludes(types, 'toSurfaceRecord(managerId', 'types expose surface record API');
   context.assertIncludes(docs, '# x-surface-region', 'docs describe x-surface-region');
   context.assertIncludes(docs, 'xtend-loader.js', 'docs describe loader integration');

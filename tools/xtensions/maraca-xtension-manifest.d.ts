@@ -19,7 +19,7 @@ export const XTENSIONS_MARACA_PACKAGE_SCRIPT: 'npm run test:maraca-xtensions';
 
 export type XTensionsMaracaLazyMode = 'none' | 'explicit' | 'route' | 'visible' | 'idle';
 export type XTensionsMaracaFallbackMode = 'native-placeholder' | 'host-error-boundary' | 'skip' | 'static-html';
-export type XTensionsMaracaDependencyClassification = 'none' | 'external-peer' | 'optional-peer' | 'host-provided' | 'policy-blocked' | 'vendored' | 'root-runtime';
+export type XTensionsMaracaDependencyClassification = 'none' | 'external-peer' | 'optional-peer' | 'host-provided' | 'legacy-local-artifact' | 'policy-blocked' | 'vendored' | 'root-runtime';
 export type XTensionsMaracaStatus = 'ready' | 'blocked' | 'policy-blocked' | 'missing';
 
 export interface XTensionsMaracaDiagnostic {
@@ -81,8 +81,19 @@ export interface XTensionsMaracaDependencyClassificationReport {
   dependencyCount: number;
   packageDependencyCount: number;
   vendoredDependencyCount: number;
+  legacyLocalArtifactCount: number;
   externalPeerCount: number;
   ok: boolean;
+}
+
+export interface XTensionsMaracaIsolation {
+  runtimeClass: string;
+  domBoundary: string;
+  styleBoundary: string;
+  trustBoundary: string;
+  mutationPolicy: string;
+  sandbox: string[];
+  source: Record<string, unknown>;
 }
 
 export interface XTensionsMaracaManifest {
@@ -99,6 +110,7 @@ export interface XTensionsMaracaManifest {
     sha256: string;
     source: string;
   };
+  isolation: XTensionsMaracaIsolation;
   csp: Record<string, string[]>;
   fallback: {
     mode: XTensionsMaracaFallbackMode | string;
@@ -126,6 +138,7 @@ export interface XTensionsMaracaArtifact {
   entry: XTensionsMaracaEntry | null;
   lazy: XTensionsMaracaLazyPolicy | null;
   integrity: Record<string, unknown> | null;
+  isolation: Record<string, unknown> | null;
   csp: Record<string, string[]> | null;
   fallback: Record<string, unknown> | null;
   contractSnapshot: XTensionsMaracaContractSnapshot | null;
@@ -146,6 +159,7 @@ export interface XTensionsMaracaBuildProvenance {
   contractFingerprint: string | null;
   artifactFingerprint: string | null;
   integrity: Record<string, unknown> | null;
+  isolation: Record<string, unknown> | null;
   dependencyClassification: XTensionsMaracaDependencyClassificationReport | null;
   packageIncluded: false;
   vendoredFrameworksAllowed: false;
@@ -205,6 +219,7 @@ export function createMissingManifestRecord(reference?: Record<string, unknown>,
 export function createXTensionArtifact(manifest: XTensionsMaracaManifest | Record<string, unknown>, options?: Record<string, unknown>): XTensionsMaracaArtifact;
 export function createXTensionBuildProvenance(manifest: XTensionsMaracaManifest, artifact?: XTensionsMaracaArtifact, options?: Record<string, unknown>): XTensionsMaracaBuildProvenance;
 export function normalizeContractSnapshot(contract?: Record<string, unknown>): XTensionsMaracaContractSnapshot;
+export function normalizeManifestIsolation(isolation?: Record<string, unknown>): XTensionsMaracaIsolation;
 export function normalizeXTensionManifest(input?: Record<string, unknown>, options?: Record<string, unknown>): XTensionsMaracaManifest;
 export function serializeMaracaXTensionReport(report: Record<string, unknown>): string;
 export function sha256Value(value: unknown): string;

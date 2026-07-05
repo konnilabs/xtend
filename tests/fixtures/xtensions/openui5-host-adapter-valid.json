@@ -1,0 +1,125 @@
+{
+  "schema": "xtend.xtensions.openui5-host-adapter.fixture.v1",
+  "contract": "xtend.xtensions.openui5-adapter.v1",
+  "expectedFramework": "openui5",
+  "expectedXtensionId": "xtension.erp.openui5-procurement-worklist",
+  "loader": {
+    "resourceRoot": "/dist/xtensions/openui5/resources/",
+    "bootstrap": "/dist/xtensions/openui5/resources/sap-ui-core.js",
+    "theme": "sap_horizon",
+    "libraries": ["sap.m"]
+  },
+  "manifest": {
+    "schema": "xtend.maraca.xtension-manifest.v1",
+    "id": "xtension.erp.openui5-procurement-worklist",
+    "name": "ERP OpenUI5 Procurement Worklist",
+    "framework": "openui5",
+    "version": "0.0.0-local",
+    "owner": "local-resumability-maraca-erp-demo",
+    "entry": {
+      "module": "/dist/xtensions/openui5-procurement-worklist/index.mjs",
+      "exportName": "createOpenUi5ProcurementWorklist",
+      "format": "esm",
+      "dynamicImport": true
+    },
+    "integrity": {
+      "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source": "local-product-build"
+    },
+    "csp": {
+      "scriptSrc": ["'self'"],
+      "connectSrc": ["'self'"],
+      "workerSrc": ["'self'"],
+      "styleSrc": ["'self'"],
+      "imgSrc": ["'self'", "data:"]
+    },
+    "security": {
+      "owner": "local-resumability-maraca-erp-demo",
+      "localFixtureNoNetwork": true,
+      "remoteArtifactsAllowed": false
+    },
+    "lazy": {
+      "mode": "visible",
+      "optIn": true,
+      "policy": "erp-demo-visible-panel",
+      "prefetch": false,
+      "preload": false
+    },
+    "contract": {
+      "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+      "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+      "kernelSignalSchema": "xtend.xtensions.kernel-signal.v1",
+      "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+      "accepts": ["erp.openui5.procurement.snapshot", "erp.reseed.intent"],
+      "emits": ["erp.openui5.procurement.ready", "erp.openui5.procurement.updated", "erp.openui5.procurement.selected"],
+      "capabilities": [
+        "host.lifecycle.mount",
+        "host.lifecycle.update",
+        "host.lifecycle.suspend",
+        "host.lifecycle.resume",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import",
+        "fallback.native-placeholder",
+        "scheduler.hints",
+        "openui5.loader.lazy",
+        "openui5.control.lifecycle",
+        "openui5.model.json",
+        "dom.boundary.host-owned-container",
+        "style.boundary.global-theme-managed"
+      ]
+    },
+    "capabilities": [
+      "host.lifecycle.mount",
+      "host.lifecycle.update",
+      "host.lifecycle.suspend",
+      "host.lifecycle.resume",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "fallback.native-placeholder",
+      "scheduler.hints",
+      "openui5.loader.lazy",
+      "openui5.control.lifecycle",
+      "openui5.model.json",
+      "dom.boundary.host-owned-container",
+      "style.boundary.global-theme-managed"
+    ],
+    "dependencies": [
+      {
+        "name": "@openui5/sap.ui.core",
+        "versionRange": "1.149.1",
+        "classification": "product-local-bundled",
+        "bundled": true,
+        "packageIncluded": true
+      },
+      {
+        "name": "@openui5/sap.m",
+        "versionRange": "1.149.1",
+        "classification": "product-local-bundled",
+        "bundled": true,
+        "packageIncluded": true
+      }
+    ],
+    "isolation": {
+      "runtimeClass": "openui5",
+      "domBoundary": "host-owned-container",
+      "styleBoundary": "global-theme-managed",
+      "trustBoundary": "same-origin-adapter",
+      "mutationPolicy": "adapter-owned-inside-host-container"
+    },
+    "fallback": {
+      "mode": "native-placeholder",
+      "component": "xtend-native.openui5-procurement-worklist.fallback",
+      "message": "ERP OpenUI5 Procurement Worklist unavailable",
+      "degradedStatus": "xtension-openui5-procurement-worklist-unavailable"
+    },
+    "policy": {
+      "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+      "status": "local-demo-approved",
+      "dependencyBoundary": "product-local-framework-dependencies"
+    }
+  }
+}

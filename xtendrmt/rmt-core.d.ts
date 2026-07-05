@@ -1192,15 +1192,21 @@ export type RmtSurfaceType =
     | 'menu'
     | string;
 
+export type RmtSurfaceBoundsValue = number | string;
+export type RmtSurfaceBoundsMode = 'fixed' | 'responsive';
+export type RmtSurfaceBoundsScope = 'viewport' | 'container';
+
 export interface RmtSurfaceBounds {
-    x?: number;
-    y?: number;
-    width?: number;
-    height?: number;
-    minWidth?: number;
-    minHeight?: number;
-    maxWidth?: number;
-    maxHeight?: number;
+    mode?: RmtSurfaceBoundsMode;
+    scope?: RmtSurfaceBoundsScope;
+    x?: RmtSurfaceBoundsValue;
+    y?: RmtSurfaceBoundsValue;
+    width?: RmtSurfaceBoundsValue;
+    height?: RmtSurfaceBoundsValue;
+    minWidth?: RmtSurfaceBoundsValue;
+    minHeight?: RmtSurfaceBoundsValue;
+    maxWidth?: RmtSurfaceBoundsValue;
+    maxHeight?: RmtSurfaceBoundsValue;
 }
 
 export interface RmtSurfaceA11y {
