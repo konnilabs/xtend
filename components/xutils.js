@@ -756,7 +756,7 @@ export const XUtils = {
   }
 };
 
-// Als globale Variable verfügbar machen
+// Expose as a global variable
 if (typeof window !== 'undefined') {
   window.XUtils = XUtils;
 }

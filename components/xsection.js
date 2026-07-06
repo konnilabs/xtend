@@ -182,10 +182,10 @@ class XSection extends HTMLElement {
   }
 
   connectedCallback() {
-    // Eindeutige ID für State-Management
+    // Unique ID for state management
     if (!this.id) this.id = `xsection-${Math.random().toString(36).slice(2, 10)}`;
 
-    // Initialen State setzen
+    // Set initial state
     xstate.set(`xsection-state-${this.id}`, {
       padding: this.getAttribute("padding"),
       background: this.getAttribute("background"),
@@ -194,7 +194,7 @@ class XSection extends HTMLElement {
       label: this.getAttribute("label")
     });
 
-    // State-Änderungen abonnieren (z.B. externe Steuerung)
+    // Subscribe to state changes, for example external control
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xsection-state-${this.id}` && typeof value === "object") {
         if (value.padding !== undefined) this.setAttribute("padding", value.padding);
@@ -241,7 +241,7 @@ class XSection extends HTMLElement {
       }
     }
 
-    // State aktualisieren
+    // Update state
     if (this.id) {
       xstate.set(`xsection-state-${this.id}`, {
         padding: this.getAttribute("padding"),

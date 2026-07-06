@@ -97,7 +97,7 @@ class XWriter extends HTMLElement {
     this.markdownLibLoaded = false;
     this.saveTimer = null;
     this.storageKey = this.getAttribute('storage-key') || 'xwriter-content';
-    this.currentFontSize = '16px'; // Default für neuen Text
+    this.currentFontSize = '16px'; // Default for new text
     this.render();
   }
 
@@ -117,9 +117,9 @@ class XWriter extends HTMLElement {
     this._observeThemeChange?.();
     this.enableExportButtons();
 
-    // Beispiel: Editor-Inhalt im globalen State speichern
+    // Example: save editor content in the global state
     xstate.set('xwriter-content', this.getHTML());
-    // Optional: Auf globale Änderungen reagieren
+    // Optional: react to global changes
     this._unsubscribeState = xstate.subscribe((key, value, all) => {
       if (key === 'xwriter-content' && value !== this.getHTML()) {
         this.shadowRoot.querySelector('.editor').innerHTML = value || '';
@@ -132,11 +132,11 @@ class XWriter extends HTMLElement {
       clearInterval(this.saveTimer);
       this.saveTimer = null;
     }
-    // State-Listener entfernen
+    // Remove state listener
     if (this._unsubscribeState) this._unsubscribeState();
   }
 
-  // Neue Methode: Aktiviert/deaktiviert Export-Buttons basierend auf Bibliotheksverfügbarkeit
+  // Enable or disable export buttons based on library availability
   enableExportButtons() {
     const exportBtn = this.shadowRoot.querySelector('#exportBtn');
     const exportMd = this.shadowRoot.querySelector('#exportMd');
@@ -336,12 +336,12 @@ class XWriter extends HTMLElement {
     const exportMd = this.shadowRoot.querySelector('#exportMd');
     const exportHtml = this.shadowRoot.querySelector('#exportHtml');
 
-    // Aktivieren/Deaktivieren basierend auf verfügbaren Funktionen
+    // Enable or disable based on available functions
     exportBtn.disabled = false;
     exportMd.disabled = !this.markdownLibLoaded;
     exportHtml.disabled = false;
 
-    // Export-Button zum Öffnen des Menüs
+    // Export button for opening the menu
     exportBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -349,7 +349,7 @@ class XWriter extends HTMLElement {
       this.toggleExportMenu();
     });
 
-    // Menü-Einträge mit direkten Event-Listenern
+    // Menu entries with direct event listeners
     exportMd.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -364,7 +364,7 @@ class XWriter extends HTMLElement {
       this.doHtmlExport();
     });
 
-    // Debug-Listener um zu prüfen, ob Events überhaupt ankommen
+    // Debug listener to check whether events arrive at all
     exportMd.addEventListener('mousedown', () => {
       console.log("exportMd mousedown erkannt");
     });
@@ -373,7 +373,7 @@ class XWriter extends HTMLElement {
       console.log("exportHtml mousedown erkannt");
     });
 
-    // Klick außerhalb schließt das Menü
+    // Clicks outside close the menu
     document.addEventListener('mousedown', (e) => {
       if (exportMenu.classList.contains('open') && 
           !exportMenu.contains(e.target) && 
@@ -390,7 +390,7 @@ class XWriter extends HTMLElement {
     editor.addEventListener('drop', e => this.handleDrop(e));
   }
 
-  // Hilfsfunktion zum Anwenden von Inline-Styles
+  // Helper for applying inline styles
   applyStyleToSelection(styleProp, value) {
     const sel = window.getSelection();
     if (!sel.rangeCount) return;
@@ -402,18 +402,18 @@ class XWriter extends HTMLElement {
     range.surroundContents(span);
   }
 
-  // Schriftgröße für markierten Text anwenden (auch für leere Auswahl: Editor-Style)
+  // Apply font size to selected text, and to the editor style for an empty selection
   applyFontSizeToSelection(sizePx) {
     const sel = window.getSelection();
     if (!sel.rangeCount) return;
     const range = sel.getRangeAt(0);
 
     if (range.collapsed) {
-      // Kein Text markiert: Nur Editor-Style setzen (schon erledigt)
+      // No text selected: only set the editor style, which is already done
       return;
     }
 
-    // execCommand erzeugt <font size="7">, wir ersetzen das durch <span style="font-size">
+    // execCommand creates <font size="7">; replace it with <span style="font-size">
     document.execCommand('fontSize', false, '7');
     const editor = this.shadowRoot.querySelector('.editor');
     const fonts = editor.querySelectorAll('font[size="7"]');
@@ -453,7 +453,7 @@ class XWriter extends HTMLElement {
     const html = this.getHTML();
     const markdown = this.getMarkdown();
     const plain = this.getText();
-    // Editor-Inhalt im globalen State aktualisieren
+    // Update editor content in global state
     xstate.set('xwriter-content', html);
     this._emitWriterEvent('writer:change', { html, markdown, plain });
   }
@@ -527,7 +527,7 @@ class XWriter extends HTMLElement {
       const blob = new Blob([markdown], { type: 'text/markdown' });
       const url = URL.createObjectURL(blob);
       
-      // Sichtbaren Download-Link erstellen, der nach dem Klick entfernt wird
+      // Create a visible download link that is removed after the click
       const a = document.createElement('a');
       a.href = url;
       a.download = 'export.md';
@@ -543,9 +543,9 @@ class XWriter extends HTMLElement {
       a.style.textDecoration = 'none';
       
       document.body.appendChild(a);
-      a.click(); // Automatisch klicken
+      a.click(); // Click automatically
       
-      // Link nach 5 Sekunden entfernen
+      // Remove the link after 5 seconds
       setTimeout(() => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
@@ -573,7 +573,7 @@ class XWriter extends HTMLElement {
       const blob = new Blob([html], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
       
-      // Sichtbaren Download-Link erstellen, der nach dem Klick entfernt wird
+      // Create a visible download link that is removed after the click
       const a = document.createElement('a');
       a.href = url;
       a.download = 'export.html';
@@ -589,9 +589,9 @@ class XWriter extends HTMLElement {
       a.style.textDecoration = 'none';
       
       document.body.appendChild(a);
-      a.click(); // Automatisch klicken
+      a.click(); // Click automatically
       
-      // Link nach 5 Sekunden entfernen
+      // Remove the link after 5 seconds
       setTimeout(() => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
@@ -742,7 +742,7 @@ class XWriter extends HTMLElement {
     }
   }
 
-  // Methode zum Öffnen/Schließen des Export-Menüs
+  // Open or close the export menu
   toggleExportMenu() {
     const exportMenu = this.shadowRoot.querySelector('#exportMenu');
     if (exportMenu.classList.contains('open')) {
@@ -752,11 +752,11 @@ class XWriter extends HTMLElement {
     }
   }
 
-  // Markdown-Export-Methode
+  // Markdown export method
   doMarkdownExport() {
     console.log("Markdown-Export wird ausgeführt...");
   
-    // Sofort prüfen, ob die Markdown-Bibliothek verfügbar ist
+    // Immediately check whether the Markdown library is available
     if (!this.markdownLibLoaded || !window.TurndownService) {
       console.error("Fehler: Markdown-Bibliothek nicht geladen!");
       if (window.XToast) window.XToast.error("Markdown-Bibliothek nicht geladen");
@@ -764,7 +764,7 @@ class XWriter extends HTMLElement {
       return;
     }
   
-    // Inhalt abrufen
+    // Get content
     const markdown = this.getMarkdown();
     if (!markdown || markdown.length === 0) {
       console.error("Fehler: Kein Markdown-Inhalt generiert");
@@ -775,7 +775,7 @@ class XWriter extends HTMLElement {
   
     console.log("Markdown-Inhalt erstellt, Länge:", markdown.length);
   
-    // Direkter Download über Daten-URI (robuster als Blob)
+    // Direct download via data URI, which is more robust than Blob
     try {
       const fileName = 'export-' + new Date().toISOString().slice(0,10) + '.md';
       const dataUri = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(markdown);
@@ -801,15 +801,15 @@ class XWriter extends HTMLElement {
       else alert("Export fehlgeschlagen: " + err.message);
     }
   
-    // Menü schließen
+    // Close the menu
     this.shadowRoot.querySelector('#exportMenu').classList.remove('open');
   }
 
-  // HTML-Export-Methode
+  // HTML export method
   doHtmlExport() {
     console.log("HTML-Export wird ausgeführt...");
   
-    // Inhalt abrufen
+    // Get content
     const html = this.getHTML();
     if (!html || html.length === 0) {
       console.error("Fehler: Kein HTML-Inhalt vorhanden");
@@ -820,7 +820,7 @@ class XWriter extends HTMLElement {
   
     console.log("HTML-Inhalt erstellt, Länge:", html.length);
   
-    // Direkter Download über Daten-URI (robuster als Blob)
+    // Direct download via data URI, which is more robust than Blob
     try {
       const fileName = 'export-' + new Date().toISOString().slice(0,10) + '.html';
       const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
@@ -846,7 +846,7 @@ class XWriter extends HTMLElement {
       else alert("Export fehlgeschlagen: " + err.message);
     }
   
-    // Menü schließen
+    // Close the menu
     this.shadowRoot.querySelector('#exportMenu').classList.remove('open');
   }
 }

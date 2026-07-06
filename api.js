@@ -217,7 +217,7 @@ export async function initXTendAPI(manifest) {
   ensureXTendNamespace();
   ensureUIState();
 
-  // Theme-State initialisieren (falls nicht durch xtheme.js bereits geschehen)
+  // Initialize theme state unless xtheme.js already did it
   const currentTheme = xstate.get('theme') || xstate.get('xtend.theme.current');
   const availableThemes = xstate.get('themes') || xstate.get('xtend.theme.available');
 
@@ -291,14 +291,14 @@ function getToastContainer() {
 }
 
 async function setupXThemeAPI(manifest) {
-  // Früh zurückkehren, wenn XTheme bereits existiert
+  // Return early when XTheme already exists
   ensureXTendNamespace();
   if (window.XTheme && typeof window.XTheme === 'object') {
     window.XTend.theme = window.XTheme;
     return;
   }
   
-  // XTheme-Skript laden, wenn es im Manifest definiert ist
+  // Load the XTheme script when it is defined in the manifest
   try {
     await ensureComponentLoaded("x-theme", manifest);
   } catch (err) {
@@ -306,7 +306,7 @@ async function setupXThemeAPI(manifest) {
     await loadModuleScript(new URL('./components/xtheme.js', import.meta.url).href, "x-theme");
   }
   
-  // Überprüfen, ob die XTheme API durch das geladene Skript bereitgestellt wurde
+  // Check whether the loaded script provided the XTheme API
   if (!window.XTend || !window.XTend.theme) {
     console.error("XTheme konnte nicht geladen werden oder stellt keine API bereit");
     
@@ -391,7 +391,7 @@ async function setupXThemeAPI(manifest) {
 
   // Integration mit XState und Bereitstellen einer erweiterten API
   const themeApi = {
-    // Grundlegende Theme-Funktionen (Proxy zu XTend.theme)
+    // Basic theme functions (proxy to XTend.theme)
     getCurrentTheme() {
       return baseTheme.getCurrentTheme();
     },
@@ -400,7 +400,7 @@ async function setupXThemeAPI(manifest) {
     },
     setTheme(themeName) {
       const result = baseTheme.setTheme(themeName);
-      // XState wird bereits in der XTend.theme-Implementierung aktualisiert
+      // XState is already updated in the XTend.theme implementation
       return result;
     },
     set(name, value) {
@@ -422,12 +422,12 @@ async function setupXThemeAPI(manifest) {
       return baseTheme.toggleDarkMode();
     },
     
-    // Externe Theme-Verwaltung
+    // External theme management
     async loadExternalTheme(themeName, cssUrl) {
       try {
         const result = await baseTheme.loadExternalTheme(themeName, cssUrl);
         
-        // State mit Theme-Informationen erweitern
+        // Extend state with theme information
         const themeState = xstate.get('theme-registry') || {};
         themeState[themeName] = {
           name: themeName,
@@ -438,7 +438,7 @@ async function setupXThemeAPI(manifest) {
         xstate.set('theme-registry', themeState);
         xstate.set('xtend.theme.registry', themeState);
         
-        // Eigenes Event für Theme-Registry-Änderungen
+        // Dedicated event for theme registry changes
         document.dispatchEvent(new CustomEvent('theme-registry-changed', {
           detail: { 
             themes: Object.keys(themeState),
@@ -454,12 +454,12 @@ async function setupXThemeAPI(manifest) {
       }
     },
     
-    // Theme registrieren (mit Metadaten)
+    // Register theme with metadata
     registerTheme(name, properties = {}) {
       const result = baseTheme.registerTheme(name, properties);
       
       if (result) {
-        // State mit Theme-Informationen erweitern
+        // Extend state with theme information
         const themeState = xstate.get('theme-registry') || {};
         themeState[name] = {
           name: name,
@@ -470,7 +470,7 @@ async function setupXThemeAPI(manifest) {
         xstate.set('theme-registry', themeState);
         xstate.set('xtend.theme.registry', themeState);
         
-        // Eigenes Event für Theme-Registry-Änderungen
+        // Dedicated event for theme registry changes
         document.dispatchEvent(new CustomEvent('theme-registry-changed', {
           detail: { 
             themes: Object.keys(themeState),
@@ -483,23 +483,23 @@ async function setupXThemeAPI(manifest) {
       return result;
     },
     
-    // Theme entfernen
+    // Remove theme
     removeTheme(themeName) {
       let result = false;
       
-      // Falls es ein externes Theme ist, versuchen wir es zu entfernen
+      // If it is an external theme, try to remove it
       if (baseTheme.hasExternalCSS && baseTheme.hasExternalCSS(themeName)) {
         result = baseTheme.removeExternalTheme(themeName);
       }
       
-      // State aktualisieren
+      // Update state
       const themeState = xstate.get('theme-registry') || {};
       if (themeState[themeName]) {
         delete themeState[themeName];
         xstate.set('theme-registry', themeState);
         xstate.set('xtend.theme.registry', themeState);
         
-        // Eigenes Event für Theme-Registry-Änderungen
+        // Dedicated event for theme registry changes
         document.dispatchEvent(new CustomEvent('theme-registry-changed', {
           detail: { 
             themes: Object.keys(themeState),
@@ -514,18 +514,18 @@ async function setupXThemeAPI(manifest) {
       return result;
     },
     
-    // Theme-Metadaten abrufen
+    // Get theme metadata
     getThemeInfo(themeName) {
       const themeState = xstate.get('theme-registry') || {};
       return themeState[themeName] || null;
     },
     
-    // Alle registrierten Themes mit Metadaten abrufen
+    // Get all registered themes with metadata
     getAllThemeInfo() {
       return xstate.get('theme-registry') || {};
     },
     
-    // Prüfen, ob ein Theme verfügbar ist
+    // Check whether a theme is available
     hasTheme(themeName) {
       const availableThemes = this.getAvailableThemes();
       return availableThemes.includes(themeName);
@@ -536,7 +536,7 @@ async function setupXThemeAPI(manifest) {
         : {};
     },
     
-    // System-Theme überwachen
+    // Watch the system theme
     listenToSystemTheme(enabled = true) {
       if (!enabled) {
         if (this._systemThemeListener) {
@@ -546,15 +546,15 @@ async function setupXThemeAPI(manifest) {
         return;
       }
       
-      // Wenn bereits ein Listener aktiv ist, nichts tun
+      // If a listener is already active, do nothing
       if (this._systemThemeListener) return;
       
-      // Neuen Listener erstellen
+      // Create a new listener
       this._systemThemeListener = (e) => {
         const newTheme = e.matches ? 'dark' : 'light';
         const currentTheme = this.getCurrentTheme();
         
-        // Nur aktualisieren, wenn das aktuelle Theme "light" oder "dark" ist
+        // Only update when the current theme is "light" or "dark"
         if (currentTheme === 'light' || currentTheme === 'dark') {
           this.setTheme(newTheme);
           
@@ -579,7 +579,7 @@ async function setupXThemeAPI(manifest) {
   window.XTend.themeRuntime = baseTheme;
   window.XTend.theme = themeApi;
   
-  // Anwendung über Themen-Änderungen informieren
+  // Inform the application about theme changes
   document.dispatchEvent(new CustomEvent('theme-api-ready', {
     detail: {
       currentTheme: window.XTheme.getCurrentTheme(),
@@ -611,7 +611,7 @@ async function setupXToastAPI(manifest) {
       toast.textContent = message;
       toast.dataset.managed = 'api';
       
-      // Eindeutige ID für State-Management
+      // Unique ID for state management
       const toastId = `toast-${Math.random().toString(36).slice(2, 10)}`;
       toast.id = toastId;
 
@@ -622,7 +622,7 @@ async function setupXToastAPI(manifest) {
       toast.style.boxSizing = "border-box";
       container.appendChild(toast);
 
-      // State aktualisieren
+      // Update state
       updateUIState((uiState) => {
         uiState.toasts.push({
           id: toastId,
@@ -640,7 +640,7 @@ async function setupXToastAPI(manifest) {
         }
         if (container.childElementCount === 0) container.remove();
         
-        // Aus State entfernen
+        // Remove from state
         updateUIState((currentState) => {
           currentState.toasts = currentState.toasts.filter((item) => item.id !== toastId);
           return currentState;
@@ -654,7 +654,7 @@ async function setupXToastAPI(manifest) {
     warning(msg, dur) { return this.show(msg, "warning", dur); },
     info(msg, dur) { return this.show(msg, "info", dur); },
     
-    // Neue Methode: Alle Toasts entfernen
+    // New method: remove all toasts
     clearAll() {
       const container = document.getElementById(TOAST_CONTAINER_ID);
       if (container) {
@@ -662,7 +662,7 @@ async function setupXToastAPI(manifest) {
         container.remove();
       }
       
-      // State aktualisieren
+      // Update state
       updateUIState((uiState) => {
         uiState.toasts = [];
         return uiState;
@@ -701,7 +701,7 @@ async function setupXAlertAPI(manifest) {
         alert.setAttribute('aria-label', String(opts.ariaLabel));
       }
 
-      // Eindeutige ID für State-Management
+      // Unique ID for state management
       const alertId = `alert-${Math.random().toString(36).slice(2, 10)}`;
       alert.id = alertId;
       alert.dataset.managed = 'api';
@@ -709,7 +709,7 @@ async function setupXAlertAPI(manifest) {
       alert.textContent = message;
       document.body.appendChild(alert);
       
-      // State aktualisieren
+      // Update state
       updateUIState((uiState) => {
         uiState.alerts.push({
           id: alertId,
@@ -724,7 +724,7 @@ async function setupXAlertAPI(manifest) {
         return uiState;
       });
       
-      // Alert aus State entfernen, wenn es geschlossen wird
+      // Remove alert from state when it is closed
       alert.addEventListener("alert-dismissed", () => {
         updateUIState((currentState) => {
           currentState.alerts = currentState.alerts.filter((item) => item.id !== alertId);
@@ -755,9 +755,9 @@ async function setupXDialogAPI(manifest) {
 
   window.XDialog = {
     show(opts = {}) {
-      // Eindeutige ID für State-Management
+      // Unique ID for state management
       const dialogId = `dialog-${Math.random().toString(36).slice(2, 10)}`;
-      // Dialog-Objekt für State
+      // Dialog object for state
       const dialogState = {
         id: dialogId,
         title: opts.title || '',
@@ -767,33 +767,33 @@ async function setupXDialogAPI(manifest) {
         timestamp: Date.now(),
         open: true
       };
-      // Dialog in State aufnehmen
+      // Add dialog to state
       updateUIState((uiState) => {
         uiState.dialogs.push(dialogState);
         return uiState;
       });
-      // Dialog-Open-Flag im State setzen
+      // Set dialog open flag in state
       setComponentOpenState('dialog', dialogId, true);
-      // --- NEU: <x-dialog> ins DOM einfügen, falls nicht vorhanden ---
+      // --- Add <x-dialog> to the DOM when it is missing ---
       if (!document.getElementById(dialogId)) {
         const dialogEl = document.createElement('x-dialog');
         dialogEl.id = dialogId;
         dialogEl.dataset.managed = 'api';
         if (opts.overlay !== false) dialogEl.setAttribute('overlay', '');
-        dialogEl.setAttribute('open', ''); // <--- Dialog sofort öffnen
+        dialogEl.setAttribute('open', ''); // Open the dialog immediately
         document.body.appendChild(dialogEl);
       }
       return dialogId;
     },
     close(dialogId) {
-      // Dialog-Open-Flag im State zurücksetzen
+      // Reset dialog open flag in state
       setComponentOpenState('dialog', dialogId, false);
-      // Dialog aus State entfernen
+      // Remove dialog from state
       updateUIState((uiState) => {
         uiState.dialogs = uiState.dialogs.filter((item) => item.id !== dialogId);
         return uiState;
       });
-      // <x-dialog> aus DOM entfernen
+      // Remove <x-dialog> from the DOM
       const dialogEl = document.getElementById(dialogId);
       if (dialogEl) dialogEl.remove();
     }
@@ -814,9 +814,9 @@ async function setupXModalAPI(manifest) {
 
   window.XModal = {
     show(opts = {}) {
-      // Eindeutige ID für State-Management
+      // Unique ID for state management
       const modalId = `modal-${Math.random().toString(36).slice(2, 10)}`;
-      // Modal-Objekt für State
+      // Modal object for state
       const modalState = {
         id: modalId,
         title: opts.title || '',
@@ -831,9 +831,9 @@ async function setupXModalAPI(manifest) {
         uiState.modals.push(modalState);
         return uiState;
       });
-      // Modal-Open-Flag im State setzen
+      // Set modal open flag in state
       setComponentOpenState('modal', modalId, true);
-      // <x-modal> ins DOM einfügen, falls nicht vorhanden
+      // Add <x-modal> to the DOM when it is missing
       if (!document.getElementById(modalId)) {
         const modalEl = document.createElement('x-modal');
         modalEl.id = modalId;
@@ -848,12 +848,12 @@ async function setupXModalAPI(manifest) {
     },
     close(modalId) {
       setComponentOpenState('modal', modalId, false);
-      // Modal aus State entfernen
+      // Remove modal from state
       updateUIState((uiState) => {
         uiState.modals = uiState.modals.filter((item) => item.id !== modalId);
         return uiState;
       });
-      // <x-modal> aus DOM entfernen
+      // Remove <x-modal> from the DOM
       const modalEl = document.getElementById(modalId);
       if (modalEl) modalEl.remove();
     }

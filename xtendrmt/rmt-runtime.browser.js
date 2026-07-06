@@ -105,25 +105,11 @@
                     diagnosticsHub
                 })
                 : null)
-            || (typeof appModules.createRmtReactivity === 'function'
-                ? appModules.createRmtReactivity({
-                    now: schedulerNow,
-                    diagnosticsHub
-                })
-                : null)
         );
         const commandBus = normalizeCommandBus(
             deps.commandBus
             || deps.rmtCommandBus
             || deps.commands
-            || (typeof appModules.createRmtCommandBus === 'function'
-                ? appModules.createRmtCommandBus({
-                    now: schedulerNow,
-                    createAbortController: hostAdapter.createAbortController,
-                    diagnosticsHub,
-                    panicMonitor: schedulerPanicMonitor
-                })
-                : null)
             || (typeof appModules.createRmtCommandBus === 'function'
                 ? appModules.createRmtCommandBus({
                     now: schedulerNow,
@@ -2023,7 +2009,7 @@
                             handlerDef.onCommandResponse({ ...ctx, response });
                         }
                     } catch (_error) {
-                        // Command-Response-Hooks duerfen die Delegation nicht destabilisieren.
+                        // Command response hooks must not destabilize delegation.
                     }
                 });
                 return dispatchPromise;
@@ -3537,7 +3523,7 @@
                     subscriber(snapshot);
                 } catch (error) {
                     recordDiagnosticsSubscriberFailure(snapshot, error, subscriberEscalationMeta.get(subscriber), 'publish');
-                    // Diagnostics subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Diagnostics subscribers must not interrupt the runtime path.
                 }
             });
 
@@ -3564,7 +3550,7 @@
                         subscriber(snapshot);
                     } catch (error) {
                         recordDiagnosticsSubscriberFailure(snapshot, error, subscriberEscalationMeta.get(subscriber), 'replay');
-                        // Diagnostics subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                        // Diagnostics subscribers must not interrupt the runtime path.
                     }
                 }
             }
@@ -3949,7 +3935,7 @@
                             eventKind: snapshot && snapshot.kind
                         }
                     });
-                    // Command-Subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Command subscribers must not interrupt the runtime path.
                 }
             });
             return snapshot;
@@ -4697,7 +4683,7 @@
                 try {
                     subscriber(envelope);
                 } catch (_error) {
-                    // Reaktive Subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Reactive subscribers must not interrupt the runtime path.
                 }
             });
         }
@@ -4781,7 +4767,7 @@
                 try {
                     subscriber(createSourceEnvelope(state));
                 } catch (_error) {
-                    // Reaktive Subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Reactive subscribers must not interrupt the runtime path.
                 }
             }
 
@@ -4836,7 +4822,7 @@
                         source: normalizeSourceName(sourceName)
                     });
                 } catch (_error) {
-                    // Reaktive Effects duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Reactive effects must not interrupt the runtime path.
                 }
             };
 
@@ -4883,7 +4869,7 @@
                 try {
                     dispose();
                 } catch (_error) {
-                    // Reaktive Root-Disposer duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Reactive root disposers must not interrupt the runtime path.
                 }
             });
             return disposers.length;
@@ -15463,12 +15449,9 @@
         const templateApi = deps.templateApi && typeof deps.templateApi === 'object'
             ? deps.templateApi
             : null;
-        const createRmtFormatFactory = resolveFactory('createRmtFormat', deps.createRmtFormat)
-            || resolveFactory('createRmtFormat', deps.createRmtFormat);
-        const createRmtTemplateRegistryFactory = resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry)
-            || resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry);
-        const createRmtTemplateRuntimeRendererFactory = resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer)
-            || resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer);
+        const createRmtFormatFactory = resolveFactory('createRmtFormat', deps.createRmtFormat);
+        const createRmtTemplateRegistryFactory = resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry);
+        const createRmtTemplateRuntimeRendererFactory = resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer);
 
         const rmtFormat = deps.rmtFormat && typeof deps.rmtFormat === 'object'
             ? deps.rmtFormat
@@ -15845,12 +15828,9 @@
         const templateApi = deps.templateApi && typeof deps.templateApi === 'object'
             ? deps.templateApi
             : null;
-        const createRmtTemplateCompilerFactory = resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler)
-            || resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler);
-        const createRmtTemplateRegistryFactory = resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry)
-            || resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry);
-        const createRmtFormatFactory = resolveFactory('createRmtFormat', deps.createRmtFormat)
-            || resolveFactory('createRmtFormat', deps.createRmtFormat);
+        const createRmtTemplateCompilerFactory = resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler);
+        const createRmtTemplateRegistryFactory = resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry);
+        const createRmtFormatFactory = resolveFactory('createRmtFormat', deps.createRmtFormat);
 
         const compiler = deps.compiler && typeof deps.compiler === 'object'
             ? deps.compiler
@@ -19267,7 +19247,7 @@
                             }, dispatchOptions);
                         }
                     } catch (_error) {
-                        // Template-Commands duerfen den Runtime-Pfad nicht unterbrechen.
+                        // Template commands must not interrupt the runtime path.
                     }
                     return;
                 }
@@ -19291,7 +19271,7 @@
                             }
                         }
                     } catch (_error) {
-                        // Template-Root-Events duerfen den Runtime-Pfad nicht unterbrechen.
+                        // Template root events must not interrupt the runtime path.
                     }
                 }
             };
@@ -19830,7 +19810,7 @@
                     try {
                         dispose();
                     } catch (_error) {
-                        // Template-Binding-Disposer duerfen den Runtime-Pfad nicht unterbrechen.
+                        // Template binding disposers must not interrupt the runtime path.
                     }
                 });
                 return true;
@@ -24125,24 +24105,15 @@
     appModules.createRmtTemplateApi = function createRmtTemplateApi(deps = {}) {
         const windowTarget = deps.windowTarget || global;
         const documentTarget = resolveDocumentTarget(deps, windowTarget);
-        const createRmtFormatFactory = resolveFactory('createRmtFormat', deps.createRmtFormat)
-            || resolveFactory('createRmtFormat', deps.createRmtFormat);
-        const createRmtTemplateRegistryFactory = resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry)
-            || resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry);
-        const createRmtTemplateLoaderFactory = resolveFactory('createRmtTemplateLoader', deps.createRmtTemplateLoader)
-            || resolveFactory('createRmtTemplateLoader', deps.createRmtTemplateLoader);
-        const createRmtTemplateCompilerFactory = resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler)
-            || resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler);
-        const createRmtTemplateArtifactsFactory = resolveFactory('createRmtTemplateArtifacts', deps.createRmtTemplateArtifacts)
-            || resolveFactory('createRmtTemplateArtifacts', deps.createRmtTemplateArtifacts);
-        const createRmtTemplateRuntimeRendererFactory = resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer)
-            || resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer);
-        const createRmtTemplateExecutionPathFactory = resolveFactory('createRmtTemplateExecutionPath', deps.createRmtTemplateExecutionPath)
-            || resolveFactory('createRmtTemplateExecutionPath', deps.createRmtTemplateExecutionPath);
-        const createRmtTemplateWorkerAdapterFactory = resolveFactory('createRmtTemplateWorkerAdapter', deps.createRmtTemplateWorkerAdapter)
-            || resolveFactory('createRmtTemplateWorkerAdapter', deps.createRmtTemplateWorkerAdapter);
-        const createRmtTemplateServerAdapterFactory = resolveFactory('createRmtTemplateServerAdapter', deps.createRmtTemplateServerAdapter)
-            || resolveFactory('createRmtTemplateServerAdapter', deps.createRmtTemplateServerAdapter);
+        const createRmtFormatFactory = resolveFactory('createRmtFormat', deps.createRmtFormat);
+        const createRmtTemplateRegistryFactory = resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry);
+        const createRmtTemplateLoaderFactory = resolveFactory('createRmtTemplateLoader', deps.createRmtTemplateLoader);
+        const createRmtTemplateCompilerFactory = resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler);
+        const createRmtTemplateArtifactsFactory = resolveFactory('createRmtTemplateArtifacts', deps.createRmtTemplateArtifacts);
+        const createRmtTemplateRuntimeRendererFactory = resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer);
+        const createRmtTemplateExecutionPathFactory = resolveFactory('createRmtTemplateExecutionPath', deps.createRmtTemplateExecutionPath);
+        const createRmtTemplateWorkerAdapterFactory = resolveFactory('createRmtTemplateWorkerAdapter', deps.createRmtTemplateWorkerAdapter);
+        const createRmtTemplateServerAdapterFactory = resolveFactory('createRmtTemplateServerAdapter', deps.createRmtTemplateServerAdapter);
 
         const rmtFormat = deps.rmtFormat && typeof deps.rmtFormat === 'object'
             ? deps.rmtFormat
@@ -24533,16 +24504,11 @@
             throw new Error('RMT Core benoetigt createRmtEngine().');
         }
 
-        const createRmtBrowserHostAdapterFactory = resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter)
-            || resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter);
-        const createRmtDiagnosticsFactory = resolveFactory('createRmtDiagnostics', deps.createRmtDiagnostics)
-            || resolveFactory('createRmtDiagnostics', deps.createRmtDiagnostics);
-        const createRmtDiagnosticsHubFactory = resolveFactory('createRmtDiagnosticsHub', deps.createRmtDiagnosticsHub)
-            || resolveFactory('createRmtDiagnosticsHub', deps.createRmtDiagnosticsHub);
-        const createRmtReactivityFactory = resolveFactory('createRmtReactivity', deps.createRmtReactivity)
-            || resolveFactory('createRmtReactivity', deps.createRmtReactivity);
-        const createRmtCommandBusFactory = resolveFactory('createRmtCommandBus', deps.createRmtCommandBus)
-            || resolveFactory('createRmtCommandBus', deps.createRmtCommandBus);
+        const createRmtBrowserHostAdapterFactory = resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter);
+        const createRmtDiagnosticsFactory = resolveFactory('createRmtDiagnostics', deps.createRmtDiagnostics);
+        const createRmtDiagnosticsHubFactory = resolveFactory('createRmtDiagnosticsHub', deps.createRmtDiagnosticsHub);
+        const createRmtReactivityFactory = resolveFactory('createRmtReactivity', deps.createRmtReactivity);
+        const createRmtCommandBusFactory = resolveFactory('createRmtCommandBus', deps.createRmtCommandBus);
         const createRmtQueueFactory = resolveFactory('createRmtQueue', deps.createRmtQueue)
             || resolveFactory('createRmtPriorityQueue', deps.createRmtPriorityQueue);
 
@@ -24649,14 +24615,10 @@
     appModules.createRmtDomCompat = function createRmtDomCompat(deps = {}) {
         const windowTarget = deps.windowTarget || global;
         const documentTarget = resolveDocumentTarget(deps, windowTarget);
-        const templateApiFactory = resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi)
-            || resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi);
-        const templateCompilerFactory = resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler)
-            || resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler);
-        const templateArtifactsFactory = resolveFactory('createRmtTemplateArtifacts', deps.createRmtTemplateArtifacts)
-            || resolveFactory('createRmtTemplateArtifacts', deps.createRmtTemplateArtifacts);
-        const templateRuntimeRendererFactory = resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer)
-            || resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer);
+        const templateApiFactory = resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi);
+        const templateCompilerFactory = resolveFactory('createRmtTemplateCompiler', deps.createRmtTemplateCompiler);
+        const templateArtifactsFactory = resolveFactory('createRmtTemplateArtifacts', deps.createRmtTemplateArtifacts);
+        const templateRuntimeRendererFactory = resolveFactory('createRmtTemplateRuntimeRenderer', deps.createRmtTemplateRuntimeRenderer);
         const rmtCore = deps.rmtCore && typeof deps.rmtCore === 'object'
             ? deps.rmtCore
             : null;
@@ -24807,8 +24769,7 @@
                 supportsInsularHydration: !!templateRuntimeRendererFactory,
                 supportsMinimalDomPatching: !!templateRuntimeRendererFactory,
                 supportsWorkerPrerender: !!templateApiFactory,
-                supportsPrewarmWorker: typeof appModules.createRmtPrewarmWorkerRuntime === 'function'
-                    || typeof appModules.createRmtPrewarmWorkerRuntime === 'function',
+                supportsPrewarmWorker: typeof appModules.createRmtPrewarmWorkerRuntime === 'function',
                 supportsServerPrerender: !!templateApiFactory
             });
         }
@@ -24829,12 +24790,9 @@
     appModules.createRmtPublicApi = function createRmtPublicApi(deps = {}) {
         const windowTarget = deps.windowTarget || global;
         const documentTarget = resolveDocumentTarget(deps, windowTarget);
-        const createRmtCoreFactory = resolveFactory('createRmtCore', deps.createRmtCore)
-            || resolveFactory('createRmtCore', deps.createRmtCore);
-        const createRmtDomCompatFactory = resolveFactory('createRmtDomCompat', deps.createRmtDomCompat)
-            || resolveFactory('createRmtDomCompat', deps.createRmtDomCompat);
-        const createRmtTemplateApiFactory = resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi)
-            || resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi);
+        const createRmtCoreFactory = resolveFactory('createRmtCore', deps.createRmtCore);
+        const createRmtDomCompatFactory = resolveFactory('createRmtDomCompat', deps.createRmtDomCompat);
+        const createRmtTemplateApiFactory = resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi);
         const rmtCore = deps.rmtCore && typeof deps.rmtCore === 'object'
             ? deps.rmtCore
             : (typeof createRmtCoreFactory === 'function'
@@ -25383,18 +25341,12 @@
     appModules.createRmtBrowserRuntime = function createRmtBrowserRuntime(deps = {}) {
         const windowTarget = deps.windowTarget || global;
         const documentTarget = resolveDocumentTarget(deps, windowTarget);
-        const createRmtBrowserHostAdapterFactory = resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter)
-            || resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter);
-        const createRmtCoreFactory = resolveFactory('createRmtCore', deps.createRmtCore)
-            || resolveFactory('createRmtCore', deps.createRmtCore);
-        const createRmtPublicApiFactory = resolveFactory('createRmtPublicApi', deps.createRmtPublicApi)
-            || resolveFactory('createRmtPublicApi', deps.createRmtPublicApi);
-        const createRmtPerformanceRuntimeFactory = resolveFactory('createRmtPerformanceRuntime', deps.createRmtPerformanceRuntime)
-            || resolveFactory('createRmtPerformanceRuntime', deps.createRmtPerformanceRuntime);
-        const createRmtPrewarmWorkerRuntimeFactory = resolveFactory('createRmtPrewarmWorkerRuntime', deps.createRmtPrewarmWorkerRuntime)
-            || resolveFactory('createRmtPrewarmWorkerRuntime', deps.createRmtPrewarmWorkerRuntime);
-        const createRmtTemplateApiFactory = resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi)
-            || resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi);
+        const createRmtBrowserHostAdapterFactory = resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter);
+        const createRmtCoreFactory = resolveFactory('createRmtCore', deps.createRmtCore);
+        const createRmtPublicApiFactory = resolveFactory('createRmtPublicApi', deps.createRmtPublicApi);
+        const createRmtPerformanceRuntimeFactory = resolveFactory('createRmtPerformanceRuntime', deps.createRmtPerformanceRuntime);
+        const createRmtPrewarmWorkerRuntimeFactory = resolveFactory('createRmtPrewarmWorkerRuntime', deps.createRmtPrewarmWorkerRuntime);
+        const createRmtTemplateApiFactory = resolveFactory('createRmtTemplateApi', deps.createRmtTemplateApi);
 
         if (typeof createRmtCoreFactory !== 'function') {
             throw new Error('RMT BrowserRuntime benoetigt createRmtCore().');
@@ -26171,10 +26123,8 @@
     appModules.createRmtDetachedRuntime = function createRmtDetachedRuntime(deps = {}) {
         const windowTarget = deps.windowTarget || global;
         const documentTarget = resolveDetachedDocumentTarget(deps);
-        const createRmtBrowserRuntimeFactory = resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime)
-            || resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime);
-        const createRmtBrowserHostAdapterFactory = resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter)
-            || resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter);
+        const createRmtBrowserRuntimeFactory = resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime);
+        const createRmtBrowserHostAdapterFactory = resolveFactory('createRmtBrowserHostAdapter', deps.createRmtBrowserHostAdapter);
 
         if (typeof createRmtBrowserRuntimeFactory !== 'function') {
             throw new Error('RMT DetachedRuntime benoetigt createRmtBrowserRuntime().');
@@ -26335,8 +26285,7 @@
     appModules.createRmtWorkerPrerenderRuntime = function createRmtWorkerPrerenderRuntime(deps = {}) {
         const windowTarget = deps.windowTarget || global;
         const documentTarget = resolveDocumentTarget(deps, windowTarget);
-        const createRmtBrowserRuntimeFactory = resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime)
-            || resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime);
+        const createRmtBrowserRuntimeFactory = resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime);
 
         if (typeof createRmtBrowserRuntimeFactory !== 'function') {
             throw new Error('RMT WorkerRuntime benoetigt createRmtBrowserRuntime().');
@@ -26623,8 +26572,7 @@
     appModules.createRmtServerPrerenderRuntime = function createRmtServerPrerenderRuntime(deps = {}) {
         const windowTarget = deps.windowTarget || global;
         const documentTarget = resolveDocumentTarget(deps, windowTarget);
-        const createRmtBrowserRuntimeFactory = resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime)
-            || resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime);
+        const createRmtBrowserRuntimeFactory = resolveFactory('createRmtBrowserRuntime', deps.createRmtBrowserRuntime);
 
         if (typeof createRmtBrowserRuntimeFactory !== 'function') {
             throw new Error('RMT ServerRuntime benoetigt createRmtBrowserRuntime().');
@@ -26834,8 +26782,7 @@
 
     function createOptionalCompatSnapshot() {
         return Object.freeze({
-            browserHostAdapter: typeof appModules.createRmtBrowserHostAdapter === 'function'
-                || typeof appModules.createRmtBrowserHostAdapter === 'function',
+            browserHostAdapter: typeof appModules.createRmtBrowserHostAdapter === 'function',
         });
     }
 

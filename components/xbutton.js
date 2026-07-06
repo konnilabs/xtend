@@ -660,4 +660,4 @@ class XButton extends HTMLElement {
 }
 
 customElements.define("x-button", XButton);
-// TypeScript-Hinweis: Typdefinitionen für Attribute und Events empfohlen.
+// TypeScript note: type definitions for attributes and events are recommended.

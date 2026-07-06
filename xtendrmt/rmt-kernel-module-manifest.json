@@ -21,15 +21,1210 @@
       "dashboardCompatBootstrap"
     ]
   },
+  "optimizationReport": {
+    "schema": "xtend.rmt.kernel-lab.optimization-report.v1",
+    "profile": "clean",
+    "redundantFallbacks": [],
+    "redundantFactoryResolution": [],
+    "duplicateFunctionBodies": [
+      {
+        "hash": "54dbe617fd347b34322810d1441e98d5e7115ae90ecde453d959a70c39adcd2b",
+        "count": 13,
+        "byteCount": 257,
+        "estimatedRepeatedBytes": 3084,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-performance-runtime",
+            "functionName": "cloneSerializable",
+            "line": 6427,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-format",
+            "functionName": "cloneSerializable",
+            "line": 10334,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-registry",
+            "functionName": "cloneSerializable",
+            "line": 14517,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-compiler",
+            "functionName": "cloneSerializable",
+            "line": 14916,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-artifacts",
+            "functionName": "cloneSerializable",
+            "line": 15338,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "cloneSerializable",
+            "line": 15704,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "cloneSerializable",
+            "line": 19535,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-transport-adapters",
+            "functionName": "cloneSerializable",
+            "line": 21704,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-prewarm-worker-source",
+            "functionName": "cloneSerializable",
+            "line": 22437,
+            "byteCount": 341
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-public-api",
+            "functionName": "cloneSerializable",
+            "line": 23264,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-browser-runtime",
+            "functionName": "cloneSerializable",
+            "line": 24654,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-worker-prerender-runtime",
+            "functionName": "cloneSerializable",
+            "line": 25762,
+            "byteCount": 257
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-server-prerender-runtime",
+            "functionName": "cloneSerializable",
+            "line": 26049,
+            "byteCount": 257
+          }
+        ]
+      },
+      {
+        "hash": "54f7a9129058d6992af081a40aa244d7ce6f5c5343948b85440933c416a7abf6",
+        "count": 16,
+        "byteCount": 152,
+        "estimatedRepeatedBytes": 2280,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-performance-runtime",
+            "functionName": "clampString",
+            "line": 6381,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-format",
+            "functionName": "clampString",
+            "line": 10287,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-registry",
+            "functionName": "clampString",
+            "line": 14512,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-loader",
+            "functionName": "clampString",
+            "line": 14762,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-compiler",
+            "functionName": "clampString",
+            "line": 14911,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-artifacts",
+            "functionName": "clampString",
+            "line": 15333,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "clampString",
+            "line": 15699,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "clampString",
+            "line": 19530,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-transport-adapters",
+            "functionName": "clampString",
+            "line": 21699,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-prewarm-worker-source",
+            "functionName": "clampString",
+            "line": 22432,
+            "byteCount": 188
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-public-api",
+            "functionName": "clampString",
+            "line": 23254,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-browser-runtime",
+            "functionName": "clampString",
+            "line": 24638,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-detached-dom-runtime",
+            "functionName": "clampString",
+            "line": 25656,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-worker-prerender-runtime",
+            "functionName": "clampString",
+            "line": 25746,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-server-prerender-runtime",
+            "functionName": "clampString",
+            "line": 26033,
+            "byteCount": 152
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-product-surface",
+            "functionName": "clampString",
+            "line": 26306,
+            "byteCount": 152
+          }
+        ]
+      },
+      {
+        "hash": "1cb4fd132ee425bc991d354fec811f3442307d1ddb12515039ade4745e1be8dc",
+        "count": 2,
+        "byteCount": 1826,
+        "estimatedRepeatedBytes": 1826,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "listPanicRecoveryRecords",
+            "line": 16661,
+            "byteCount": 1826
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "listPanicRecoveryRecords",
+            "line": 20757,
+            "byteCount": 1826
+          }
+        ]
+      },
+      {
+        "hash": "d1005a6f943baf43f7e0cc0348f8f96fd9e0ec88aa19bfdc1c3cd370c52e1026",
+        "count": 8,
+        "byteCount": 255,
+        "estimatedRepeatedBytes": 1785,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-compiler",
+            "functionName": "resolveFactory",
+            "line": 14933,
+            "byteCount": 255
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-artifacts",
+            "functionName": "resolveFactory",
+            "line": 15371,
+            "byteCount": 255
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-public-api",
+            "functionName": "resolveFactory",
+            "line": 23336,
+            "byteCount": 255
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-browser-runtime",
+            "functionName": "resolveFactory",
+            "line": 24663,
+            "byteCount": 255
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-detached-dom-runtime",
+            "functionName": "resolveFactory",
+            "line": 25661,
+            "byteCount": 255
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-worker-prerender-runtime",
+            "functionName": "resolveFactory",
+            "line": 25771,
+            "byteCount": 255
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-server-prerender-runtime",
+            "functionName": "resolveFactory",
+            "line": 26058,
+            "byteCount": 255
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-product-surface",
+            "functionName": "resolveFactory",
+            "line": 26311,
+            "byteCount": 255
+          }
+        ]
+      },
+      {
+        "hash": "eaa643a3b8e566c5bb23435d7300e1f2689990702b93b0a56f076f865ec9c475",
+        "count": 2,
+        "byteCount": 1778,
+        "estimatedRepeatedBytes": 1778,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "recordRuntimeTrustVerdict",
+            "line": 16863,
+            "byteCount": 1778
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "recordRuntimeTrustVerdict",
+            "line": 20959,
+            "byteCount": 1778
+          }
+        ]
+      },
+      {
+        "hash": "344c07e5a1d53d591fcef1f0e6906a129e303bbf40383388efa3f6e4e769dfb7",
+        "count": 2,
+        "byteCount": 1564,
+        "estimatedRepeatedBytes": 1564,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "getPanicRecoverySnapshot",
+            "line": 16702,
+            "byteCount": 1564
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "getPanicRecoverySnapshot",
+            "line": 20798,
+            "byteCount": 1564
+          }
+        ]
+      },
+      {
+        "hash": "a06224040e18d0c66f9b0876a8d73836a7fd6c205d56670405af1e237d1ff4d0",
+        "count": 2,
+        "byteCount": 1245,
+        "estimatedRepeatedBytes": 1245,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "normalizeSanitizerResult",
+            "line": 16738,
+            "byteCount": 1245
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "normalizeSanitizerResult",
+            "line": 20834,
+            "byteCount": 1245
+          }
+        ]
+      },
+      {
+        "hash": "eb6d17132339e7afbb1fa0f3b1cda7492caac8bd78ef1b50b7fb109b3544f832",
+        "count": 3,
+        "byteCount": 597,
+        "estimatedRepeatedBytes": 1194,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-browser-runtime",
+            "functionName": "isTemplateRequestLike",
+            "line": 24746,
+            "byteCount": 597
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-worker-prerender-runtime",
+            "functionName": "isTemplateRequestLike",
+            "line": 25810,
+            "byteCount": 597
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-server-prerender-runtime",
+            "functionName": "isTemplateRequestLike",
+            "line": 26097,
+            "byteCount": 597
+          }
+        ]
+      },
+      {
+        "hash": "9a5b0bb41b6276b5c454763c367f26779440679f6e9db6bcb75894b2c5b59888",
+        "count": 2,
+        "byteCount": 1142,
+        "estimatedRepeatedBytes": 1142,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-diagnostics-hub",
+            "functionName": "redactEscalationValue",
+            "line": 3341,
+            "byteCount": 1142
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-command-bus",
+            "functionName": "redactEscalationValue",
+            "line": 3772,
+            "byteCount": 1142
+          }
+        ]
+      },
+      {
+        "hash": "770f84fcbf13dd29681785af72e51a5c8578fb8bf7eea1a24d394662726324ea",
+        "count": 6,
+        "byteCount": 225,
+        "estimatedRepeatedBytes": 1125,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "isElementLike",
+            "line": 16125,
+            "byteCount": 225
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "isElementLike",
+            "line": 19956,
+            "byteCount": 225
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-public-api",
+            "functionName": "isElementLike",
+            "line": 23273,
+            "byteCount": 225
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-browser-runtime",
+            "functionName": "isElementLike",
+            "line": 24643,
+            "byteCount": 225
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-worker-prerender-runtime",
+            "functionName": "isElementLike",
+            "line": 25751,
+            "byteCount": 225
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-server-prerender-runtime",
+            "functionName": "isElementLike",
+            "line": 26038,
+            "byteCount": 225
+          }
+        ]
+      },
+      {
+        "hash": "ad480fd5154ad52e89e0d83dde7c2941e53756be7ae5abf8fa01927bcbd58631",
+        "count": 2,
+        "byteCount": 1110,
+        "estimatedRepeatedBytes": 1110,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "redactRuntimePanicMetadata",
+            "line": 15768,
+            "byteCount": 1110
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "redactRuntimePanicMetadata",
+            "line": 19599,
+            "byteCount": 1110
+          }
+        ]
+      },
+      {
+        "hash": "43cdf2e822fd67eac98af0b36afb2cc4422d00fd8a258f2f720e2aaee27c7d52",
+        "count": 2,
+        "byteCount": 1104,
+        "estimatedRepeatedBytes": 1104,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "decodeRuntimeTrustedDomAttributeValue",
+            "line": 16028,
+            "byteCount": 1104
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "decodeRuntimeTrustedDomAttributeValue",
+            "line": 19859,
+            "byteCount": 1104
+          }
+        ]
+      },
+      {
+        "hash": "528d0953848b95682d176d1f61219fdc5c3b1a2437befa75df10cdd85e097419",
+        "count": 2,
+        "byteCount": 841,
+        "estimatedRepeatedBytes": 841,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "isAllowedRuntimeTrustedDomUrl",
+            "line": 16057,
+            "byteCount": 841
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "isAllowedRuntimeTrustedDomUrl",
+            "line": 19888,
+            "byteCount": 841
+          }
+        ]
+      },
+      {
+        "hash": "a80648c44961d2c79e6b5a48c128b0d47cdbcb7b57da24ce5b074ff262c782bf",
+        "count": 2,
+        "byteCount": 775,
+        "estimatedRepeatedBytes": 775,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "notifyRuntimeRecoveryHost",
+            "line": 16404,
+            "byteCount": 775
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "notifyRuntimeRecoveryHost",
+            "line": 20500,
+            "byteCount": 775
+          }
+        ]
+      },
+      {
+        "hash": "dd9e175e9a2299f30739fea7960dd4b0e9ae9ba92c6f3405d48fc8b3897f475c",
+        "count": 2,
+        "byteCount": 659,
+        "estimatedRepeatedBytes": 659,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "publishRuntimeRecoveryOutcome",
+            "line": 16390,
+            "byteCount": 659
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "publishRuntimeRecoveryOutcome",
+            "line": 20486,
+            "byteCount": 659
+          }
+        ]
+      },
+      {
+        "hash": "19388f8d78f0410558702afa5cb27927eff05a5be87b84c3dde6d9fbb620a9b9",
+        "count": 2,
+        "byteCount": 653,
+        "estimatedRepeatedBytes": 653,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "diagnosticCodeForRuntimeTrust",
+            "line": 16779,
+            "byteCount": 653
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "diagnosticCodeForRuntimeTrust",
+            "line": 20875,
+            "byteCount": 653
+          }
+        ]
+      },
+      {
+        "hash": "951e50967bcf8ca859cf0f97b239450ece21ebae8c36428d2e9bc20bd81ff8e6",
+        "count": 2,
+        "byteCount": 549,
+        "estimatedRepeatedBytes": 549,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "publishPanicEvent",
+            "line": 15790,
+            "byteCount": 549
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "publishPanicEvent",
+            "line": 19621,
+            "byteCount": 549
+          }
+        ]
+      },
+      {
+        "hash": "c2ea2e9f6669c6a4670205c7cf75894aab1196977eabf3ea3b9c9d1be7d43bcf",
+        "count": 2,
+        "byteCount": 546,
+        "estimatedRepeatedBytes": 546,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "createFragmentFromTrustedHtml",
+            "line": 16929,
+            "byteCount": 546
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "createFragmentFromTrustedHtml",
+            "line": 21025,
+            "byteCount": 546
+          }
+        ]
+      },
+      {
+        "hash": "7b3a960ae82e5e5f8334111d4d1a1f6943bc4cb7681374eea9e9f679b4222406",
+        "count": 3,
+        "byteCount": 264,
+        "estimatedRepeatedBytes": 528,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-browser-runtime",
+            "functionName": "resolveDocumentTarget",
+            "line": 24670,
+            "byteCount": 264
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-worker-prerender-runtime",
+            "functionName": "resolveDocumentTarget",
+            "line": 25778,
+            "byteCount": 264
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-server-prerender-runtime",
+            "functionName": "resolveDocumentTarget",
+            "line": 26065,
+            "byteCount": 264
+          }
+        ]
+      },
+      {
+        "hash": "6280c1bd686c9159eade70b4cbfd2206de41bc9fc5231dea6a9c12b19ebf5434",
+        "count": 2,
+        "byteCount": 517,
+        "estimatedRepeatedBytes": 517,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "clearElementHtml",
+            "line": 16948,
+            "byteCount": 517
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "clearElementHtml",
+            "line": 21044,
+            "byteCount": 517
+          }
+        ]
+      },
+      {
+        "hash": "0f576ec82871d711e02db48da1a5a88f7c8d45074f7680787e285b6213cfad5f",
+        "count": 2,
+        "byteCount": 493,
+        "estimatedRepeatedBytes": 493,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "listPanicEvents",
+            "line": 16322,
+            "byteCount": 493
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "listPanicEvents",
+            "line": 20418,
+            "byteCount": 493
+          }
+        ]
+      },
+      {
+        "hash": "62fb26c1d1b80fab76dbffafa252eba50504f63636ca6e6025b991f245545454",
+        "count": 3,
+        "byteCount": 216,
+        "estimatedRepeatedBytes": 432,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-diagnostics-hub",
+            "functionName": "pushHistoryEntry",
+            "line": 3466,
+            "byteCount": 216
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-command-bus",
+            "functionName": "pushHistoryEntry",
+            "line": 3794,
+            "byteCount": 216
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-reactivity",
+            "functionName": "pushHistoryEntry",
+            "line": 4607,
+            "byteCount": 216
+          }
+        ]
+      },
+      {
+        "hash": "b3cbb2d4e04c38f78fdb40ed398fbed5e2d74291758c7c7a85736bb1c9e8adab",
+        "count": 4,
+        "byteCount": 143,
+        "estimatedRepeatedBytes": 429,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-format",
+            "functionName": "toPlainObject",
+            "line": 10343,
+            "byteCount": 143
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-registry",
+            "functionName": "toPlainObject",
+            "line": 14526,
+            "byteCount": 143
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "toPlainObject",
+            "line": 16120,
+            "byteCount": 143
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "toPlainObject",
+            "line": 19951,
+            "byteCount": 143
+          }
+        ]
+      },
+      {
+        "hash": "8a144f32b47a7f0cb0610f9e8ce062223b949c6cdf382ff4d28c0684c9f56c86",
+        "count": 2,
+        "byteCount": 426,
+        "estimatedRepeatedBytes": 426,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-runtime-renderer",
+            "functionName": "recordRuntimePanicTrustVerdict",
+            "line": 16332,
+            "byteCount": 426
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-execution-path",
+            "functionName": "recordRuntimePanicTrustVerdict",
+            "line": 20428,
+            "byteCount": 426
+          }
+        ]
+      },
+      {
+        "hash": "08a9e2dc58123285725110363fddd77df2851f870419e3f1e292135481133f22",
+        "count": 2,
+        "byteCount": 399,
+        "estimatedRepeatedBytes": 399,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-compiler",
+            "functionName": "stableStringify",
+            "line": 14940,
+            "byteCount": 399
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-artifacts",
+            "functionName": "stableStringify",
+            "line": 15351,
+            "byteCount": 399
+          }
+        ]
+      },
+      {
+        "hash": "f9f0b0bd046f880c875909506092c21eb3bb7683865506b36eecff8581d8aefa",
+        "count": 2,
+        "byteCount": 362,
+        "estimatedRepeatedBytes": 362,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-command-bus",
+            "functionName": "normalizeDiagnosticsHub",
+            "line": 3801,
+            "byteCount": 362
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-reactivity",
+            "functionName": "normalizeDiagnosticsHub",
+            "line": 4575,
+            "byteCount": 362
+          }
+        ]
+      },
+      {
+        "hash": "eb680226c41efa3dd210a74cc536f8501c4daf1fc244dd3f52e47909c544d3a0",
+        "count": 5,
+        "byteCount": 89,
+        "estimatedRepeatedBytes": 356,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-performance-runtime",
+            "functionName": "isObjectLike",
+            "line": 6436,
+            "byteCount": 89
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-compiler",
+            "functionName": "isObjectLike",
+            "line": 14925,
+            "byteCount": 89
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-browser-runtime",
+            "functionName": "isObjectLike",
+            "line": 24650,
+            "byteCount": 89
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-worker-prerender-runtime",
+            "functionName": "isObjectLike",
+            "line": 25758,
+            "byteCount": 89
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-server-prerender-runtime",
+            "functionName": "isObjectLike",
+            "line": 26045,
+            "byteCount": 89
+          }
+        ]
+      },
+      {
+        "hash": "f543abbe3337d68d5b19d848a750e423cd5fd264613b2f48906384b3f2675e7b",
+        "count": 2,
+        "byteCount": 346,
+        "estimatedRepeatedBytes": 346,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-compiler",
+            "functionName": "hashString",
+            "line": 14950,
+            "byteCount": 346
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-template-artifacts",
+            "functionName": "hashString",
+            "line": 15361,
+            "byteCount": 346
+          }
+        ]
+      },
+      {
+        "hash": "f6ddc31525b212eca6056a3ea36a6e22edc190ea17eb61a5b0920a6d88b66ca0",
+        "count": 3,
+        "byteCount": 156,
+        "estimatedRepeatedBytes": 312,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-priority-queue",
+            "functionName": "normalizeText",
+            "line": 2815,
+            "byteCount": 156
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-command-bus",
+            "functionName": "normalizeText",
+            "line": 3717,
+            "byteCount": 156
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-diagnostics",
+            "functionName": "normalizeText",
+            "line": 4941,
+            "byteCount": 156
+          }
+        ]
+      },
+      {
+        "hash": "f78e55d5e401a80118bd4354d847c50c8668b234dafe41bdfd3ba73322616d2b",
+        "count": 2,
+        "byteCount": 273,
+        "estimatedRepeatedBytes": 273,
+        "entries": [
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-diagnostics-hub",
+            "functionName": "cloneSerializable",
+            "line": 3271,
+            "byteCount": 273
+          },
+          {
+            "artifactPath": "xtendrmt/rmt-core.esm.js",
+            "moduleId": "rmt-command-bus",
+            "functionName": "cloneSerializable",
+            "line": 3669,
+            "byteCount": 273
+          }
+        ]
+      }
+    ],
+    "factoryAttributionWarnings": [
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtCommandBus",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtDiagnostics",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtPriorityQueue",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtQueue",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtReactivity",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-prewarm-worker-runtime",
+        "registerName": "registerRmtPrewarmWorkerRuntimeModule",
+        "factoryName": "createRmtPrewarmWorkerSourceBuilder",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-product-surface",
+        "registerName": "registerRmtProductSurfaceModule",
+        "factoryName": "createRmtBrowserHostAdapter",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-public-api",
+        "registerName": "registerRmtPublicApiModule",
+        "factoryName": "createRmtPrewarmWorkerRuntime",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-template-execution-path",
+        "registerName": "registerRmtTemplateExecutionPathModule",
+        "factoryName": "createRmtTemplateRuntimeRenderer",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-core.esm.js",
+        "moduleId": "rmt-template-transport-adapters",
+        "registerName": "registerRmtTemplateTransportAdaptersModule",
+        "factoryName": "createRmtTemplateExecutionPath",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtCommandBus",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtDiagnostics",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtPriorityQueue",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtQueue",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtReactivity",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-prewarm-worker-runtime",
+        "registerName": "registerRmtPrewarmWorkerRuntimeModule",
+        "factoryName": "createRmtPrewarmWorkerSourceBuilder",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-product-surface",
+        "registerName": "registerRmtProductSurfaceModule",
+        "factoryName": "createRmtBrowserHostAdapter",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-public-api",
+        "registerName": "registerRmtPublicApiModule",
+        "factoryName": "createRmtPrewarmWorkerRuntime",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-template-execution-path",
+        "registerName": "registerRmtTemplateExecutionPathModule",
+        "factoryName": "createRmtTemplateRuntimeRenderer",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.esm.js",
+        "moduleId": "rmt-template-transport-adapters",
+        "registerName": "registerRmtTemplateTransportAdaptersModule",
+        "factoryName": "createRmtTemplateExecutionPath",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtCommandBus",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtDiagnostics",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtPriorityQueue",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtQueue",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-engine",
+        "registerName": "registerRmtEngineModule",
+        "factoryName": "createRmtReactivity",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-prewarm-worker-runtime",
+        "registerName": "registerRmtPrewarmWorkerRuntimeModule",
+        "factoryName": "createRmtPrewarmWorkerSourceBuilder",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-product-surface",
+        "registerName": "registerRmtProductSurfaceModule",
+        "factoryName": "createRmtBrowserHostAdapter",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-public-api",
+        "registerName": "registerRmtPublicApiModule",
+        "factoryName": "createRmtPrewarmWorkerRuntime",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-template-execution-path",
+        "registerName": "registerRmtTemplateExecutionPathModule",
+        "factoryName": "createRmtTemplateRuntimeRenderer",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      },
+      {
+        "artifactPath": "xtendrmt/rmt-runtime.browser.js",
+        "moduleId": "rmt-template-transport-adapters",
+        "registerName": "registerRmtTemplateTransportAdaptersModule",
+        "factoryName": "createRmtTemplateExecutionPath",
+        "pattern": "comparison-was-not-attributed-as-factory"
+      }
+    ],
+    "summary": {
+      "redundantFallbackCount": 0,
+      "redundantFactoryResolutionCount": 0,
+      "duplicateFunctionBodyGroupCount": 30,
+      "factoryAttributionWarningCount": 30,
+      "estimatedDuplicateFunctionBytes": 28133
+    }
+  },
   "sourceArtifacts": [
     {
       "id": "rmt-core-esm",
       "path": "xtendrmt/rmt-core.esm.js",
       "kind": "esm",
       "exists": true,
-      "byteCount": 1282555,
-      "lineCount": 26746,
-      "sha256": "4b0c0ca2c3941e9c726c6458ac6273816a28ec36e5ebbe46ba5e90a04e3474c8",
+      "byteCount": 1278442,
+      "lineCount": 26693,
+      "sha256": "c6370981c279c68581553dfc2401c19a9f43147a1c6feab68ac1b2b929ee9e51",
       "moduleCount": 25,
       "publicExports": [
         "createRmtBrowserHostAdapter",
@@ -77,9 +1272,9 @@
       "path": "xtendrmt/rmt-runtime.esm.js",
       "kind": "esm",
       "exists": true,
-      "byteCount": 1307726,
-      "lineCount": 27172,
-      "sha256": "4c7d7d15bdf38d86f49d78ead0e6462869449046a197f0cfc3cc16fcab36c0b9",
+      "byteCount": 1303613,
+      "lineCount": 27119,
+      "sha256": "37ba7b544daea56617b5ad10289116b29234c257ef2092a61acfea5dd7e36db8",
       "moduleCount": 25,
       "publicExports": [
         "createRmtBrowserHostAdapter",
@@ -127,9 +1322,9 @@
       "path": "xtendrmt/rmt-runtime.browser.js",
       "kind": "browser",
       "exists": true,
-      "byteCount": 1303878,
-      "lineCount": 27138,
-      "sha256": "e05966e4b965926a2c201d8b955f4411b395b09261b0b08b7872a7da89e8b906",
+      "byteCount": 1299765,
+      "lineCount": 27085,
+      "sha256": "08e643572a9147ef6815ad8d28ad32252eef430c8b50058954cf4ba66f0becca",
       "moduleCount": 25,
       "publicExports": [],
       "legacyAliases": [],
@@ -175,23 +1370,13 @@
       "registerName": "registerRmtEngineModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 133273,
-      "lineCount": 2800,
+      "byteCount": 132651,
+      "lineCount": 2786,
       "factories": [
-        "createRmtCommandBus",
-        "createRmtDiagnostics",
-        "createRmtEngine",
-        "createRmtPriorityQueue",
-        "createRmtQueue",
-        "createRmtReactivity"
+        "createRmtEngine"
       ],
       "publicExports": [
-        "createRmtCommandBus",
-        "createRmtDiagnostics",
-        "createRmtEngine",
-        "createRmtPriorityQueue",
-        "createRmtQueue",
-        "createRmtReactivity"
+        "createRmtEngine"
       ],
       "legacyAliases": [],
       "droppedSymbols": [],
@@ -221,7 +1406,7 @@
       "registerName": "registerRmtDiagnosticsHubModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 18045,
+      "byteCount": 18029,
       "lineCount": 391,
       "factories": [
         "createRmtDiagnosticsHub"
@@ -239,7 +1424,7 @@
       "registerName": "registerRmtCommandBusModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 42958,
+      "byteCount": 42950,
       "lineCount": 897,
       "factories": [
         "createRmtCommandBus"
@@ -257,7 +1442,7 @@
       "registerName": "registerRmtReactivityModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 14721,
+      "byteCount": 14690,
       "lineCount": 380,
       "factories": [
         "createRmtReactivity"
@@ -409,8 +1594,8 @@
       "registerName": "registerRmtTemplateCompilerModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 21082,
-      "lineCount": 426,
+      "byteCount": 20815,
+      "lineCount": 423,
       "factories": [
         "createRmtTemplateCompiler"
       ],
@@ -427,8 +1612,8 @@
       "registerName": "registerRmtTemplateArtifactsModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 12477,
-      "lineCount": 245,
+      "byteCount": 12224,
+      "lineCount": 242,
       "factories": [
         "createRmtTemplateArtifacts"
       ],
@@ -445,7 +1630,7 @@
       "registerName": "registerRmtTemplateRuntimeRendererModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 179754,
+      "byteCount": 179731,
       "lineCount": 3929,
       "factories": [
         "createRmtTemplateRuntimeRenderer"
@@ -466,12 +1651,10 @@
       "byteCount": 103062,
       "lineCount": 2198,
       "factories": [
-        "createRmtTemplateExecutionPath",
-        "createRmtTemplateRuntimeRenderer"
+        "createRmtTemplateExecutionPath"
       ],
       "publicExports": [
-        "createRmtTemplateExecutionPath",
-        "createRmtTemplateRuntimeRenderer"
+        "createRmtTemplateExecutionPath"
       ],
       "legacyAliases": [],
       "droppedSymbols": [],
@@ -486,12 +1669,10 @@
       "byteCount": 33506,
       "lineCount": 725,
       "factories": [
-        "createRmtTemplateExecutionPath",
         "createRmtTemplateServerAdapter",
         "createRmtTemplateWorkerAdapter"
       ],
       "publicExports": [
-        "createRmtTemplateExecutionPath",
         "createRmtTemplateServerAdapter",
         "createRmtTemplateWorkerAdapter"
       ],
@@ -526,12 +1707,10 @@
       "byteCount": 20307,
       "lineCount": 492,
       "factories": [
-        "createRmtPrewarmWorkerRuntime",
-        "createRmtPrewarmWorkerSourceBuilder"
+        "createRmtPrewarmWorkerRuntime"
       ],
       "publicExports": [
-        "createRmtPrewarmWorkerRuntime",
-        "createRmtPrewarmWorkerSourceBuilder"
+        "createRmtPrewarmWorkerRuntime"
       ],
       "legacyAliases": [],
       "droppedSymbols": [],
@@ -543,12 +1722,11 @@
       "registerName": "registerRmtPublicApiModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 71102,
-      "lineCount": 1480,
+      "byteCount": 69159,
+      "lineCount": 1458,
       "factories": [
         "createRmtCore",
         "createRmtDomCompat",
-        "createRmtPrewarmWorkerRuntime",
         "createRmtProductManifest",
         "createRmtPublicApi",
         "createRmtTemplateApi",
@@ -557,7 +1735,6 @@
       "publicExports": [
         "createRmtCore",
         "createRmtDomCompat",
-        "createRmtPrewarmWorkerRuntime",
         "createRmtProductManifest",
         "createRmtPublicApi",
         "createRmtTemplateApi",
@@ -573,8 +1750,8 @@
       "registerName": "registerRmtBrowserRuntimeModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 50987,
-      "lineCount": 1025,
+      "byteCount": 50473,
+      "lineCount": 1019,
       "factories": [
         "createRmtBrowserRuntime",
         "createRmtRuntime"
@@ -593,8 +1770,8 @@
       "registerName": "registerRmtDetachedDomRuntimeModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 3741,
-      "lineCount": 93,
+      "byteCount": 3559,
+      "lineCount": 91,
       "factories": [
         "createRmtDetachedRuntime"
       ],
@@ -611,8 +1788,8 @@
       "registerName": "registerRmtWorkerPrerenderRuntimeModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 12350,
-      "lineCount": 289,
+      "byteCount": 12263,
+      "lineCount": 288,
       "factories": [
         "createRmtWorkerPrerenderRuntime"
       ],
@@ -629,8 +1806,8 @@
       "registerName": "registerRmtServerPrerenderRuntimeModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 11610,
-      "lineCount": 273,
+      "byteCount": 11523,
+      "lineCount": 272,
       "factories": [
         "createRmtServerPrerenderRuntime"
       ],
@@ -647,10 +1824,9 @@
       "registerName": "registerRmtProductSurfaceModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 17039,
-      "lineCount": 352,
+      "byteCount": 16959,
+      "lineCount": 351,
       "factories": [
-        "createRmtBrowserHostAdapter",
         "createRmtProductSurface",
         "createRmtRuntime",
         "createRmtServerRuntime",
@@ -658,7 +1834,6 @@
         "installRmtProductSurface"
       ],
       "publicExports": [
-        "createRmtBrowserHostAdapter",
         "createRmtProductSurface",
         "createRmtRuntime",
         "createRmtServerRuntime",

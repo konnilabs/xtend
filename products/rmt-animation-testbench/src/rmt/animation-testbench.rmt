@@ -1,0 +1,425 @@
+template rmt.animation.testbench {
+  state rmt.animation.testbench.dashboard type object preserve {
+    initial {
+      id "dashboard"
+      title "Operations Dashboard"
+      tone "neutral"
+      hidden false
+    }
+  }
+
+  state rmt.animation.testbench.settings type object preserve {
+    initial {
+      id "settings"
+      title "Settings Workbench"
+      tone "primary"
+      hidden true
+    }
+  }
+
+  state rmt.animation.testbench.grid type object preserve {
+    initial {
+      id "grid"
+      title "Data Grid"
+      tone "warning"
+      hidden true
+    }
+  }
+
+  state rmt.animation.testbench.detail type object preserve {
+    initial {
+      id "detail"
+      title "Detail Timeline"
+      tone "success"
+      hidden true
+    }
+  }
+
+  state rmt.animation.testbench.media type object preserve {
+    initial {
+      id "media"
+      title "Media Cards"
+      tone "neutral"
+      hidden true
+    }
+  }
+
+  state rmt.animation.testbench.footer type object preserve {
+    initial {
+      id "footer"
+      title "Motion Controls"
+      tone "primary"
+      hidden false
+    }
+  }
+
+  selector rmt.animation.testbench.dashboard from state rmt.animation.testbench.dashboard {
+    output TestbenchSurface
+  }
+
+  selector rmt.animation.testbench.settings from state rmt.animation.testbench.settings {
+    output TestbenchSurface
+  }
+
+  selector rmt.animation.testbench.grid from state rmt.animation.testbench.grid {
+    output TestbenchSurface
+  }
+
+  selector rmt.animation.testbench.detail from state rmt.animation.testbench.detail {
+    output TestbenchSurface
+  }
+
+  selector rmt.animation.testbench.media from state rmt.animation.testbench.media {
+    output TestbenchSurface
+  }
+
+  selector rmt.animation.testbench.footer from state rmt.animation.testbench.footer {
+    output TestbenchControls
+  }
+
+  action rmt.animation.testbench.goSettings {
+    input source string
+    reduce state.rmt.animation.testbench.dashboard.hidden = true
+    reduce state.rmt.animation.testbench.settings.hidden = false
+    reduce state.rmt.animation.testbench.grid.hidden = true
+    reduce state.rmt.animation.testbench.detail.hidden = true
+    reduce state.rmt.animation.testbench.media.hidden = true
+    emit rmt.animation.testbench.changed with surface "settings"
+  }
+
+  action rmt.animation.testbench.goGrid {
+    input source string
+    reduce state.rmt.animation.testbench.dashboard.hidden = true
+    reduce state.rmt.animation.testbench.settings.hidden = true
+    reduce state.rmt.animation.testbench.grid.hidden = false
+    reduce state.rmt.animation.testbench.detail.hidden = true
+    reduce state.rmt.animation.testbench.media.hidden = true
+    emit rmt.animation.testbench.changed with surface "grid"
+  }
+
+  action rmt.animation.testbench.goDetail {
+    input source string
+    reduce state.rmt.animation.testbench.dashboard.hidden = true
+    reduce state.rmt.animation.testbench.settings.hidden = true
+    reduce state.rmt.animation.testbench.grid.hidden = true
+    reduce state.rmt.animation.testbench.detail.hidden = false
+    reduce state.rmt.animation.testbench.media.hidden = true
+    emit rmt.animation.testbench.changed with surface "detail"
+  }
+
+  action rmt.animation.testbench.goMedia {
+    input source string
+    reduce state.rmt.animation.testbench.dashboard.hidden = true
+    reduce state.rmt.animation.testbench.settings.hidden = true
+    reduce state.rmt.animation.testbench.grid.hidden = true
+    reduce state.rmt.animation.testbench.detail.hidden = true
+    reduce state.rmt.animation.testbench.media.hidden = false
+    emit rmt.animation.testbench.changed with surface "media"
+  }
+
+  action rmt.animation.testbench.goDashboard {
+    input source string
+    reduce state.rmt.animation.testbench.dashboard.hidden = false
+    reduce state.rmt.animation.testbench.settings.hidden = true
+    reduce state.rmt.animation.testbench.grid.hidden = true
+    reduce state.rmt.animation.testbench.detail.hidden = true
+    reduce state.rmt.animation.testbench.media.hidden = true
+    emit rmt.animation.testbench.changed with surface "dashboard"
+  }
+
+  animation rmt.animation.testbench.fade {
+    effect fade
+    durationMs 220
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.crossfade {
+    effect crossfade
+    durationMs 260
+    easing "cubic-bezier(.2,.8,.2,1)"
+    timeline {
+      parallel enter exit
+      stagger 24 enter
+    }
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.slideLeft {
+    effect slide-left
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.slideRight {
+    effect slide-right
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.slideUp {
+    effect slide-up
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.slideDown {
+    effect slide-down
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.scale {
+    effect scale
+    durationMs 220
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.pop {
+    effect pop
+    durationMs 240
+    easing "cubic-bezier(.18,.9,.22,1)"
+    keyframe enter {
+      opacity 0
+      transform "scale(.88)"
+      offset 0
+    }
+    keyframe enter {
+      opacity 1
+      transform "scale(1)"
+      offset 1
+    }
+    spring {
+      stiffness 210
+      damping 22
+      mass 1
+    }
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.zoom {
+    effect zoom
+    durationMs 240
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.flip {
+    effect flip
+    durationMs 320
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.rotate {
+    effect rotate
+    durationMs 280
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.expand {
+    effect expand
+    durationMs 260
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.collapse {
+    effect collapse
+    durationMs 260
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.fadeBlur {
+    effect fade-blur
+    durationMs 280
+    easing "ease-out"
+    allowFilter true
+    keyframe enter {
+      opacity 0
+      filter "blur(6px)"
+      offset 0
+    }
+    keyframe enter {
+      opacity 1
+      filter "blur(0px)"
+      offset 1
+    }
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.sharedElement {
+    effect shared-element
+    durationMs 300
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.layoutFlip {
+    effect layout-flip
+    durationMs 300
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation rmt.animation.testbench.none {
+    effect none
+    durationMs 0
+    easing "linear"
+    reducedMotion instant
+  }
+
+  transition rmt.animation.testbench.dashboardToSettings {
+    trigger action rmt.animation.testbench.goSettings
+    from surfaces [rmt.animation.testbench.dashboard]
+    to surfaces [rmt.animation.testbench.settings]
+    use animation rmt.animation.testbench.crossfade
+    effect crossfade
+    durationMs 260
+    easing "cubic-bezier(.2,.8,.2,1)"
+    layoutKey "testbench-shared-shell"
+    interrupt replace
+    reducedMotion fade
+    timeline {
+      parallel enter exit
+      stagger 24 enter
+    }
+    lane transition
+  }
+
+  transition rmt.animation.testbench.settingsToGrid {
+    trigger action rmt.animation.testbench.goGrid
+    from surfaces [rmt.animation.testbench.settings]
+    to surfaces [rmt.animation.testbench.grid]
+    use animation rmt.animation.testbench.slideLeft
+    effect slide-left
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition rmt.animation.testbench.gridToDetail {
+    trigger action rmt.animation.testbench.goDetail
+    from surfaces [rmt.animation.testbench.grid]
+    to surfaces [rmt.animation.testbench.detail]
+    use animation rmt.animation.testbench.pop
+    effect pop
+    durationMs 240
+    easing "cubic-bezier(.18,.9,.22,1)"
+    interrupt finish
+    reducedMotion fade
+    lane transition
+  }
+
+  transition rmt.animation.testbench.detailToMedia {
+    trigger action rmt.animation.testbench.goMedia
+    from surfaces [rmt.animation.testbench.detail]
+    to surfaces [rmt.animation.testbench.media]
+    use animation rmt.animation.testbench.fadeBlur
+    effect fade-blur
+    durationMs 280
+    easing "ease-out"
+    interrupt replace
+    reducedMotion fade
+    timeline {
+      sequence exit enter
+    }
+    lane transition
+  }
+
+  transition rmt.animation.testbench.mediaToDashboard {
+    trigger action rmt.animation.testbench.goDashboard
+    from surfaces [rmt.animation.testbench.media]
+    to surfaces [rmt.animation.testbench.dashboard]
+    use animation rmt.animation.testbench.layoutFlip
+    effect layout-flip
+    durationMs 300
+    easing "cubic-bezier(.2,.8,.2,1)"
+    layoutKey "testbench-shared-shell"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  portal surface.root root "#xtend-maraca-root" layer surface
+
+  resource rmt.animation.testbench.motionSession kind data owner surface.rmt.animation.testbench.dashboard {
+    dispose on surface.destroy
+  }
+
+  surface rmt.animation.testbench.dashboard kind view component x-section {
+    source selector rmt.animation.testbench.dashboard
+    key dashboard.id
+    portal surface.root
+    bounds x 0 y 0 width 1280 height 720
+    destroy releases resource rmt.animation.testbench.motionSession
+
+    lane visible weight 90 {
+      hydrate testbench-dashboard from selector rmt.animation.testbench.dashboard
+    }
+  }
+
+  surface rmt.animation.testbench.settings kind view component x-section {
+    source selector rmt.animation.testbench.settings
+    key settings.id
+    portal surface.root
+    bounds x 0 y 0 width 1280 height 720
+
+    lane visible weight 80 {
+      hydrate testbench-settings from selector rmt.animation.testbench.settings
+    }
+  }
+
+  surface rmt.animation.testbench.grid kind view component x-surface-region {
+    source selector rmt.animation.testbench.grid
+    key grid.id
+    portal surface.root
+    bounds x 0 y 0 width 1280 height 720
+
+    lane visible weight 80 {
+      hydrate testbench-grid from selector rmt.animation.testbench.grid
+    }
+  }
+
+  surface rmt.animation.testbench.detail kind view component x-section {
+    source selector rmt.animation.testbench.detail
+    key detail.id
+    portal surface.root
+    bounds x 0 y 0 width 1280 height 720
+
+    lane visible weight 80 {
+      hydrate testbench-detail from selector rmt.animation.testbench.detail
+    }
+  }
+
+  surface rmt.animation.testbench.media kind view component x-surface-region {
+    source selector rmt.animation.testbench.media
+    key media.id
+    portal surface.root
+    bounds x 0 y 0 width 1280 height 720
+
+    lane idle weight 50 {
+      mount testbench-media from selector rmt.animation.testbench.media
+    }
+  }
+
+  surface rmt.animation.testbench.footer kind controls component x-section {
+    source selector rmt.animation.testbench.footer
+    key footer.id
+    portal surface.root
+    bounds x 0 y 720 width 1280 height 112
+
+    lane visible weight 100 {
+      hydrate testbench-footer from selector rmt.animation.testbench.footer
+    }
+  }
+}

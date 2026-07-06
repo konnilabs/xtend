@@ -310,7 +310,7 @@ class XRouter extends HTMLElement {
    * @returns {Array} Array von Routenobjekten
    */
   static exportRoutesToJSON(rootElement) {
-    // rootElement: <x-router> oder Array von Routenobjekten
+    // rootElement: <x-router> or an array of route objects
     const extract = (el) => {
       if (Array.isArray(el)) return el.map(extract);
       if (el.tagName === 'X-ROUTE' || el.tagName === 'x-route') {
@@ -323,7 +323,7 @@ class XRouter extends HTMLElement {
         if (children.length) obj.children = children.map(extract);
         return obj;
       }
-      // Falls schon ein Objekt
+      // Already an object
       if (typeof el === 'object' && el.path) {
         const obj = { ...el };
         if (Array.isArray(obj.children)) obj.children = obj.children.map(extract);
@@ -346,7 +346,7 @@ class XRouter extends HTMLElement {
    * @returns {Object} { html, route, params, meta }
    */
   static renderRouteToString(path, routes) {
-    // Nutzt die gleiche Logik wie _matchRoute, aber serverseitig
+    // Uses the same logic as _matchRoute, but server-side
     const matchRoute = (path, routes) => {
       const pathSegments = path.split('/').filter(Boolean);
       for (const route of routes) {
@@ -384,7 +384,7 @@ class XRouter extends HTMLElement {
       const notFoundRoute = routes.find(r => r.path === '*');
       return notFoundRoute ? { route: notFoundRoute, params: {} } : null;
     };
-    // Routenstruktur extrahieren
+    // Extract route structure
     let routeArr = routes;
     if (routes && routes.tagName === 'X-ROUTER') {
       routeArr = XRouter.exportRoutesToJSON(routes);
@@ -394,7 +394,7 @@ class XRouter extends HTMLElement {
     if (!match) {
       return { html: '<div>404 - Not Found</div>', route: null, params: {}, meta: {} };
     }
-    // SSR: HTML-Stub für die Komponente (echtes Rendern ist clientseitig)
+    // SSR: HTML stub for the component; actual rendering happens client-side
     const buildHtml = (match) => {
       const { route, params, child } = match;
       let html = `<${route.component || 'div'}${Object.keys(params).length ? ' data-params="' + encodeURIComponent(JSON.stringify(params)) + '"' : ''}></${route.component || 'div'}>`;
@@ -415,7 +415,7 @@ class XRouter extends HTMLElement {
    * @returns {Object} { title, description, keywords }
    */
   static getMetaForPath(path, routes) {
-    // Nutzt die gleiche Logik wie renderRouteToString
+    // Uses the same logic as renderRouteToString
     let routeArr = routes;
     if (routes && routes.tagName === 'X-ROUTER') {
       routeArr = XRouter.exportRoutesToJSON(routes);
@@ -698,30 +698,30 @@ class XRouter extends HTMLElement {
         }
       }, 'router-navigate');
     }
-    // Wenn routesrc gesetzt ist, lade die Routen
+    // Load routes when routesrc is set
     const src = this.getAttribute('routesrc');
     const initialRouteLoad = src
       ? this._loadRoutesFromSrc(src)
       : Promise.resolve();
-    // HMR Support (nur im Dev-Modus, wenn vorhanden)
+    // HMR support, only in dev mode when available
     if (window.__xtendHMR && typeof window.__xtendHMR.on === 'function') {
-      // Routen-HMR
+      // Route HMR
       window.__xtendHMR.on('route-change', () => {
         const src = this.getAttribute('routesrc');
         const reloadPromise = src ? this._loadRoutesFromSrc(src) : Promise.resolve();
         reloadPromise.then(() => this._handleNavigation());
       });
-      // Komponenten-HMR
+      // Component HMR
       window.__xtendHMR.on('component-change', tag => {
         if (typeof tag === 'string' && customElements.get(tag)) {
-          // Entferne alle Instanzen aus dem DOM
+          // Remove all instances from the DOM
           document.querySelectorAll(tag).forEach(el => el.remove());
-          // Lösche das Custom Element (geht nur im Dev-Modus, nicht in allen Browsern)
+          // Delete the custom element; this only works in dev mode and not in every browser
           // @ts-ignore
           if (customElements.get(tag) && customElements._definitions) {
             delete customElements._definitions[tag];
           }
-          // Versuche, das Modul neu zu importieren (nur wenn importUrl bekannt)
+          // Try to re-import the module, only when importUrl is known
           const route = Array.from(this.querySelectorAll('x-route')).find(r => r.component === tag);
           const importUrl = route ? this._getRouteImportUrl(route) : null;
           if (importUrl) {
@@ -759,7 +759,7 @@ class XRouter extends HTMLElement {
     } else {
       const hash = window.location.hash.replace(/^#\/?/, '/');
       const search = window.location.search;
-      // Falls Hash-Mode, aber Query-String vorhanden (z.B. index.html#/foo?bar=baz)
+      // Hash mode with query string present, for example index.html#/foo?bar=baz
       if (hash.includes('?')) return hash;
       if (search && hash) return hash + search;
       return hash;
@@ -767,7 +767,7 @@ class XRouter extends HTMLElement {
   }
 
   _parsePathAndQuery(path) {
-    // Gibt { path, query, queryObj } zurück
+    // Returns { path, query, queryObj }
     const [purePath, query = ''] = path.split('?');
     const queryObj = {};
     if (query) {
@@ -792,7 +792,7 @@ class XRouter extends HTMLElement {
       return;
     }
 
-    // path kann Query enthalten
+    // path can contain a query
     if (this._mode === 'history') {
       window.history.pushState(state || {}, '', normalizedPath);
       this._handleNavigation();
@@ -1578,7 +1578,7 @@ class XRouter extends HTMLElement {
             this._navigateTo(redirect);
             return null;
           }
-          // Prüfe auf Nested Routes
+          // Check for nested routes
           const childRoutes = this._getTopLevelChildRoutes(route);
           if (childRoutes.length && pathSegments.length > routeSegments.length) {
             const restPath = '/' + pathSegments.slice(routeSegments.length).join('/');
@@ -1623,16 +1623,16 @@ class XRouter extends HTMLElement {
     const { path, query, queryObj } = this._parsePathAndQuery(raw);
     const match = this._matchRoute(path);
     this._outlet.setAttribute('aria-busy', 'true');
-    // Animations-Hook: beforeRouteLeave (für aktuelle Komponente)
+    // Animation hook: beforeRouteLeave for the current component
     if (this._outlet.firstElementChild && typeof this._outlet.firstElementChild.beforeRouteLeave === 'function') {
       const leaveResult = await this._outlet.firstElementChild.beforeRouteLeave();
       if (leaveResult === false) {
         this._outlet.setAttribute('aria-busy', 'false');
-        return; // Abbruch möglich
+        return; // Cancellation is possible
       }
     }
     this._closeRouteNavigationOverlays({ path: raw, source: 'x-router-route-change' });
-    // Animations-Hook: beforeRouteEnter (für Zielroute)
+    // Animation hook: beforeRouteEnter for the target route
     if (match) {
       // Route Guard: beforeEnter
       const allow = await this._runBeforeEnter(match);
@@ -1641,7 +1641,7 @@ class XRouter extends HTMLElement {
         this._outlet.setAttribute('aria-busy', 'false');
         return;
       }
-      // Animations-Hook: beforeRouteEnter (als static Methode am Ziel-ComponentTag)
+      // Animation hook: beforeRouteEnter as a static method on the target component tag
       const leaf = this._getLeafMatch(match);
       const route = leaf && leaf.route ? leaf.route : match.route;
       const componentTag = this._getRouteComponent(route);
@@ -1655,10 +1655,10 @@ class XRouter extends HTMLElement {
           }
         }
       }
-      // Query-Objekt an Komponente übergeben
+      // Pass the query object to the component
       match.query = query;
       match.queryObj = queryObj;
-      // Seitentitel und Meta-Tags setzen
+      // Set page title and meta tags
       const documentMeta = this._setDocumentMeta(route, {
         path: raw,
         params: this._collectParams(match),
@@ -1927,7 +1927,7 @@ class XRouter extends HTMLElement {
         component.params = params;
         if (queryObj) component.query = queryObj;
         if (query) component.queryString = query;
-        // Übergabe von State-Objekt (History-API)
+        // Pass the state object through the History API
         if (this._mode === 'history' && window.history.state) {
           component.state = window.history.state;
         }
@@ -1935,11 +1935,11 @@ class XRouter extends HTMLElement {
         container.innerHTML = this._renderError(500, `Fehler beim Erzeugen von <strong>${componentTag}</strong>\n${e.message}`);
         return;
       }
-      // Animations-Hook: afterRouteEnter (Instanz-Methode)
+      // Animation hook: afterRouteEnter as an instance method
       if (typeof component.afterRouteEnter === 'function') {
         setTimeout(() => component.afterRouteEnter(), 0);
       }
-      // Wenn es eine Kind-Route gibt, rendere sie in ein Outlet
+      // Render a child route into an outlet when present
       if (child) {
         let outlet = component.querySelector('[slot="child"]');
         if (!outlet) {
@@ -1970,7 +1970,7 @@ class XRouter extends HTMLElement {
   }
 
   _rebuildRoutesFromJson() {
-    // Entferne alle bisherigen x-route
+    // Remove all existing x-route elements
     Array.from(this.querySelectorAll('x-route')).forEach(r => r.remove());
     // Baue neue x-route Elemente aus JSON
     const build = (routes, parent) => {
@@ -1983,7 +1983,7 @@ class XRouter extends HTMLElement {
   }
 
   _getRoutes() {
-    // Wenn Routen aus JSON geladen wurden, nutze die DOM-Struktur
+    // Use the DOM structure when routes were loaded from JSON
     return this._getTopLevelChildRoutes(this);
   }
 }

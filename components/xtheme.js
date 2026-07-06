@@ -1,5 +1,5 @@
 (async function () {
-  // Versuche xstate zu laden - entweder als globale Variable oder per dynamischem Import
+  // Try to load xstate, either as a global variable or through dynamic import
   let xstate;
   if (window.xstate) {
     xstate = window.xstate;
@@ -9,7 +9,7 @@
       xstate = module.xstate;
     } catch (e) {
       console.error('Fehler beim Laden von xstate in xtheme.js:', e);
-      // Dummy-Implementation als Fallback
+      // Dummy implementation as fallback
       xstate = {
         get: () => null,
         set: () => {},

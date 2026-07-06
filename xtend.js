@@ -881,7 +881,7 @@ class XHeader extends HTMLElement {
       img.style.objectFit = "contain";
       logoContainer.appendChild(img);
     } else {
-      // Fallback auf slotted content
+      // Fall back to slotted content
       const slot = document.createElement("slot");
       slot.name = "logo";
       logoContainer.appendChild(slot);
@@ -890,4 +890,3 @@ class XHeader extends HTMLElement {
 }
 
 customElements.define("x-header", XHeader);
-

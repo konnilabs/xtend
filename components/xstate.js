@@ -468,7 +468,7 @@ const xstateObj = {
   }
 };
 
-// Als Modul exportieren (für import-Syntax)
+// Export as a module for import syntax
 export {
   XSTATE_BOUNDARY_SCHEMA,
   XSTATE_DIAGNOSTICS_SCHEMA,
@@ -478,16 +478,16 @@ export {
 };
 export const xstate = xstateObj;
 
-// Als globale Variable definieren (für nicht-Modul-Skripte)
+// Define as a global variable for non-module scripts
 if (typeof window !== 'undefined') {
   window.xstate = xstateObj;
 }
 
-// UMD-Style Export für CommonJS/AMD
+// UMD-style export for CommonJS/AMD
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { xstate: xstateObj };
 }
 
-// Beispiel-Nutzung:
+// Example usage:
 // 1. Als ES Modul: import { xstate } from './xstate.js';
-// 2. Als Script-Tag: <script src="xstate.js"></script> dann window.xstate
+// 2. As a script tag: <script src="xstate.js"></script>, then window.xstate

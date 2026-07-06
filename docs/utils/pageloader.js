@@ -3082,7 +3082,7 @@ async function loadMenuConfig() {
       }
     }
   } catch (e) {
-    // Fallback auf Default-Menue.
+    // Fall back to the default menu.
   }
 }
 

@@ -95,7 +95,7 @@ class XPlayer extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this._autoplayUnmuted = false;
-    this._dialogOpen = false; // <--- NEU: Globales Dialog-Flag für Endlosschutz
+    this._dialogOpen = false; // Global dialog flag for loop protection
     this._resizeObserver = null;
     this._resizeFrame = null;
     this._onRemotePlayEvent = this._handleRemotePlayEvent.bind(this);
@@ -224,7 +224,7 @@ class XPlayer extends HTMLElement {
           flex-shrink: 0;
         }
         .volume-container.expanded {
-          /* Keine Breitenänderung mehr! */
+          /* No more width changes. */
         }
         .volume-slider {
           position: absolute;
@@ -259,7 +259,7 @@ class XPlayer extends HTMLElement {
         }
         .volume-slider {
           left: 50%;
-          /* bleibt, damit der Fader mittig über dem Button ist */
+          /* Keeps the fader centered over the button. */
         }
         @media (hover: none) and (pointer: coarse) {
           .volume-slider { display: none !important; }
@@ -386,7 +386,7 @@ class XPlayer extends HTMLElement {
           align-items: center;
           opacity: 0;
           transition: opacity 0.3s, transform 0.3s;
-          /* pointer-events: none; entfernt, damit Buttons wieder funktionieren */
+          /* pointer-events: none; removed so buttons work again */
         }
         .big-controls-visible .big-controls {
           display: flex;
@@ -484,7 +484,7 @@ class XPlayer extends HTMLElement {
           justify-content: center;
           align-items: center;
           background: rgba(30,34,44,0.32);
-          z-index: 8; /* NEU: Unter der Steuerleiste (controls: z-index 10), über Video */
+          z-index: 8; /* Below the control bar (controls: z-index 10), above video. */
           backdrop-filter: blur(8px);
           border-radius: var(--border-radius);
         }
@@ -596,7 +596,7 @@ class XPlayer extends HTMLElement {
           .controls { left: 0.5em; right: 0.5em; bottom: 0.5em; padding: 0.5em 0.5em; }
           .video-title { left: 0.5em; top: 0.5em; font-size: 0.95em; padding: 0.3em 0.7em; }
         }
-        /* Lautstärkeleiste: Standardmäßig versteckt, fährt bei Hover über das Lautsprecher-Icon aus */
+        /* Volume slider: hidden by default, expands when hovering over the speaker icon. */
         .volume-container {
           display: flex;
           align-items: center;
@@ -610,7 +610,7 @@ class XPlayer extends HTMLElement {
           flex-shrink: 0;
         }
         .volume-container.expanded {
-          /* Keine Breitenänderung mehr! */
+          /* No more width changes. */
         }
         .volume-slider {
           position: absolute;
@@ -791,10 +791,10 @@ class XPlayer extends HTMLElement {
     // Add the loaded class to trigger branding animation
     this.classList.add("loaded");
 
-    // State Management: Eindeutige ID für diesen Player
+    // State management: unique ID for this player
     if (!this.id) this.id = `xplayer-${Math.random().toString(36).slice(2, 10)}`;
 
-    // Initialen State setzen
+    // Set initial state
     xstate.set(`xplayer-state-${this.id}`, {
       src: this.getAttribute("src"),
       playing: false,
@@ -804,11 +804,11 @@ class XPlayer extends HTMLElement {
       fullscreen: false
     });
 
-    this._internalStateUpdate = false; // <--- NEU: Flag für interne Updates
+    this._internalStateUpdate = false; // Flag for internal updates
 
-    // State-Änderungen abonnieren (z.B. externe Steuerung)
+    // Subscribe to state changes, for example external control
     this._unsubscribeState = xstate.subscribe((key, value) => {
-      if (key !== `xplayer-state-${this.id}`) return; // Nur auf eigenen State reagieren!
+      if (key !== `xplayer-state-${this.id}`) return; // React only to this player's own state
       if (this._dialogOpen) return;
       if (typeof value === "object" && this._media) {
         if (this._internalStateUpdate) return;
@@ -840,17 +840,17 @@ class XPlayer extends HTMLElement {
       }
     });
 
-    // Fullscreen-Handling optimieren
+    // Optimize fullscreen handling
     document.addEventListener("fullscreenchange", this._fullscreenChangeHandler);
     document.addEventListener("webkitfullscreenchange", this._fullscreenChangeHandler);
 
-    // Kontextmenü-Logik
+    // Context menu logic
     const player = this.shadowRoot.querySelector(".player");
     const contextMenu = this.shadowRoot.querySelector("#xplayer-context-menu");
     const aboutBtn = this.shadowRoot.querySelector("#xplayer-about-btn");
-    const controls = this.shadowRoot.querySelector(".controls"); // <-- HIER hinzufügen
+    const controls = this.shadowRoot.querySelector(".controls"); // Add here
 
-    // Kontextmenü anzeigen
+    // Show context menu
     player.addEventListener("contextmenu", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -877,7 +877,7 @@ class XPlayer extends HTMLElement {
       contextMenu.style.left = left + "px";
       contextMenu.style.top = top + "px";
 
-      // Schließen bei Klick außerhalb
+      // Close on outside click
       const closeMenu = (ev) => {
         if (!contextMenu.contains(ev.target)) {
           contextMenu.classList.remove("visible");
@@ -888,13 +888,13 @@ class XPlayer extends HTMLElement {
       window.addEventListener("mousedown", closeMenu, true);
     });
 
-    // Klicks im Kontextmenü nicht an Player weiterreichen
+    // Do not forward clicks inside the context menu to the player
     contextMenu.addEventListener("pointerdown", (e) => {
       e.stopPropagation();
       e.preventDefault();
     });
-    // About-Dialog öffnen (XDialog API im globalen Scope)
-    let dialogOpen = false; // Flag für Dialog-Status (nur lokal, für setTimeout-Logik)
+    // Open the About dialog (XDialog API in the global scope)
+    let dialogOpen = false; // Dialog status flag, local only for setTimeout logic
     aboutBtn.addEventListener("pointerdown", function(e) {
       e.stopPropagation();
       e.preventDefault();
@@ -916,7 +916,7 @@ class XPlayer extends HTMLElement {
             content: "XPlayer is part of XTend, a free and open source web framework.",
             actions: [{ label: "OK", primary: true, callback: () => { this._dialogOpen = false; } }]
           });
-          // Optional: State-Subscription für Dialog schließen
+          // Optional: state subscription for closing the dialog
           const unsub = xstate.subscribe((key, value) => {
             if (key === `dialog-open-${dialogId}` && value === false) {
               this._dialogOpen = false;
@@ -927,7 +927,7 @@ class XPlayer extends HTMLElement {
           tries++;
           setTimeout(tryShowDialog.bind(this), 100);
         } else {
-          // Fallback: Shadow DOM Dialog anzeigen
+          // Fallback: show the Shadow DOM dialog
           const dialogBackdrop = this.shadowRoot.querySelector("#xplayer-dialog-backdrop");
           if (dialogBackdrop) {
             dialogBackdrop.classList.add("visible");
@@ -948,15 +948,15 @@ class XPlayer extends HTMLElement {
       tryShowDialog.call(this);
     }.bind(this))
 
-    // --- Fix: Player-Click-Handler blockiert, wenn Kontextmenü offen ---
+    // --- Fix: block the player click handler while the context menu is open ---
     this._playerClickHandler = (e) => {
       if (e.defaultPrevented) return;
-      // 1. Kontextmenü offen? Dann nie toggeln!
+      // 1. Context menu open? Never toggle.
       if (contextMenu && contextMenu.classList.contains("visible")) {
         if (contextMenu.contains(e.target)) return;
         return;
       }
-      // 2. Klick auf Steuerelemente? Dann nie toggeln!
+      // 2. Click on controls? Never toggle.
       if (
         controls &&
         (controls.contains(e.target) ||
@@ -968,7 +968,7 @@ class XPlayer extends HTMLElement {
       ) {
         return;
       }
-      // 3. Klick auf den Player-Hintergrund oder Video/Audio? -> Toggle Play/Pause
+      // 3. Click on the player background or video/audio? Toggle play/pause.
       if (
         this._media.muted &&
         this.hasAttribute("autoplay") &&
@@ -1334,7 +1334,7 @@ class XPlayer extends HTMLElement {
     const isCurrentMedia = () => this._media === media && this._mediaLoadToken === loadToken && media.isConnected;
     media.controls = false;
     media.src = this.getAttribute("src") || "";
-    media.removeAttribute("title"); // Tooltip entfernen (direkt nach Erzeugung)
+    media.removeAttribute("title"); // Remove tooltip immediately after creation
     if (this.hasAttribute("poster") && type === "video") media.poster = this.getAttribute("poster");
     if (this.hasAttribute("loop")) media.loop = true;
 
@@ -1373,7 +1373,7 @@ class XPlayer extends HTMLElement {
       media.removeAttribute("title");
       media.title = "";
     });
-    // --- Workaround: title-Attribut regelmäßig entfernen und leeren ---
+    // --- Workaround: regularly remove and clear the title attribute ---
     if (this._removeTitleInterval) clearInterval(this._removeTitleInterval);
     this._removeTitleInterval = setInterval(() => {
       if (!media.isConnected) {
@@ -1486,23 +1486,23 @@ class XPlayer extends HTMLElement {
     this._setupBigControls();
     this._setupChooser();
     this._setupDownload();
-    // Klick auf den Videobereich toggelt Play/Pause (außer auf Controls)
+    // Clicking the video area toggles play/pause, except on controls
     const player = this.shadowRoot.querySelector(".player");
     const controls = this.shadowRoot.querySelector(".controls");
     const contextMenu = this.shadowRoot.querySelector("#xplayer-context-menu");
-    // Vorherigen Listener entfernen, falls _loadMedia() mehrfach aufgerufen wird
+    // Remove the previous listener if _loadMedia() is called multiple times
     if (this._playerClickHandler) {
       player.removeEventListener("click", this._playerClickHandler);
     }
     this._playerClickHandler = (e) => {
       if (e.defaultPrevented) return;
       if (!this._media) return;
-      // 1. Kontextmenü offen? Dann nie toggeln!
+      // 1. Context menu open? Never toggle.
       if (contextMenu && contextMenu.classList.contains("visible")) {
         if (contextMenu.contains(e.target)) return;
         return;
       }
-      // 2. Klick auf Steuerelemente? Dann nie toggeln!
+      // 2. Click on controls? Never toggle.
       if (
         controls &&
         (controls.contains(e.target) ||
@@ -1514,7 +1514,7 @@ class XPlayer extends HTMLElement {
       ) {
         return;
       }
-      // 3. Klick auf den Player-Hintergrund oder Video/Audio? -> Toggle Play/Pause
+      // 3. Click on the player background or video/audio? Toggle play/pause.
       if (
         this._media.muted &&
         this.hasAttribute("autoplay") &&
@@ -1534,14 +1534,14 @@ class XPlayer extends HTMLElement {
   }
 
   _showOverlay() {
-    // Nur anzeigen, wenn das Video wirklich pausiert ist
+    // Show only when the video is actually paused
     if (this._media && !this._media.paused) return;
     const overlay = this.shadowRoot.querySelector("#overlay");
     const spinner = this.shadowRoot.querySelector("#spinner-overlay");
     const title = this.shadowRoot.querySelector("#video-title");
     const player = this.shadowRoot.querySelector(".player");
     if (spinner && spinner.classList.contains("visible")) {
-      // Spinner hat Vorrang, kein Pause-Overlay anzeigen
+      // Spinner takes precedence; do not show the pause overlay
       overlay.classList.remove("visible");
       title.classList.remove("visible");
       if (player) player.classList.remove("big-controls-visible");
@@ -1570,12 +1570,12 @@ class XPlayer extends HTMLElement {
     const svgReplay = () => `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V2L7 6.5L12 11V8C15.31 8 18 10.69 18 14C18 17.31 15.31 20 12 20C8.69 20 6 17.31 6 14H4C4 18.42 7.58 22 12 22C16.42 22 20 18.42 20 14C20 9.58 16.42 6 12 6V5Z" fill="currentColor"/></svg>`;
 
     if (media.ended) {
-      // Replay für BigButton
+      // Replay for BigButton
       if (bigPlay) {
         bigPlay.innerHTML = svgReplay();
         bigPlay.setAttribute('aria-label', 'Neustart');
       }
-      // Replay für kleinen Button
+      // Replay for the small button
       if (play) {
         play.innerHTML = svgReplay();
         play.setAttribute('aria-label', 'Neustart');
@@ -1906,16 +1906,16 @@ class XPlayer extends HTMLElement {
       // ...existing code for subtitles toggle...
       this.dispatchEvent(new CustomEvent("xplayer-caption", { detail: {} }));
     };
-    // Defensive: Fallback für fehlende Controls
+    // Defensive fallback for missing controls
     if (!play || !mute || !volume || !fullscreen || !pip || !subtitles) {
       console.warn("Einige Steuerelemente fehlen im Player.");
     }
 
-    // Volume-Slider auf Mobilgeräten deaktivieren
+    // Disable the volume slider on mobile devices
     if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
       if (volume) volume.style.display = 'none';
     }
-    // Desktop: Stack-Logik für Icons rechts des Lautsprecher-Icons
+    // Desktop: stack logic for icons to the right of the speaker icon
     if (volumeContainer && controlsStack) {
       const volumeSlider = volumeContainer.querySelector('.volume-slider');
       let hoverCount = 0;
@@ -1930,7 +1930,7 @@ class XPlayer extends HTMLElement {
       }
       const show = () => {
         hoverCount++;
-        clearTimeout(hideTimeout); // Nur im show(), nicht im hide()
+        clearTimeout(hideTimeout); // Only in show(), not in hide()
         volumeContainer.classList.add('expanded');
         if (controls) controls.classList.add('visible');
       };
@@ -1943,7 +1943,7 @@ class XPlayer extends HTMLElement {
         if (hoverCount === 0) {
           hideTimeout = setTimeout(() => {
             volumeContainer.classList.remove('expanded');
-            // Slider immer ausblenden, unabhängig vom Status der Steuerleiste
+            // Always hide the slider, regardless of the control bar state
           }, 800);
         }
       };
@@ -1952,13 +1952,13 @@ class XPlayer extends HTMLElement {
       if (volumeSlider) {
         addControlListener(volumeSlider, 'mouseenter', show);
         addControlListener(volumeSlider, 'mouseleave', hide);
-        // Nach Interaktion auf dem Slider: GUI und Slider nach kurzer Zeit ausblenden
+        // After slider interaction: hide the GUI and slider after a short delay
         const volumeInput = volumeSlider.querySelector('input[type="range"]');
         if (volumeInput) {
           let interactionEnd = () => {
             hideTimeout = setTimeout(() => {
               volumeContainer.classList.remove('expanded');
-              // Slider immer ausblenden, unabhängig vom Status der Steuerleiste
+              // Always hide the slider, regardless of the control bar state
             }, 800);
           };
           addControlListener(volumeInput, 'mouseup', interactionEnd);
@@ -1971,7 +1971,7 @@ class XPlayer extends HTMLElement {
     }
     if (controls) controls.classList.add('visible');
 
-    // ARIA- und Event-Verbesserungen für Controls
+    // ARIA and event improvements for controls
     if (play) play.onclick = null;
     if (mute) mute.onclick = null;
     if (fullscreen) fullscreen.onclick = null;
@@ -1986,7 +1986,7 @@ class XPlayer extends HTMLElement {
     addControlListener(pip, 'click', togglePip);
     addControlListener(subtitles, 'click', requestCaption);
     if (volume) {
-      // Lautstärke-Slider steuert die Media-Lautstärke
+      // The volume slider controls media volume
       addControlListener(volume, 'input', (e) => {
         if (this._media) {
           this._media.volume = parseFloat(volume.value);
@@ -1999,13 +1999,13 @@ class XPlayer extends HTMLElement {
           }
         }
       });
-      // Synchronisiere Slider, wenn Lautstärke extern geändert wird
+      // Synchronize the slider when volume changes externally
       addControlListener(this._media, 'volumechange', () => {
         volume.value = this._media.volume;
         mute.innerHTML = this._media.muted ? svgIcon('mute') : svgIcon('volume');
       });
     }
-    // NEU: Immer synchronisieren, auch bei Tastatursteuerung etc.
+    // Always synchronize, including keyboard control and similar input
     addControlListener(this._media, 'play', () => this.updatePlayPauseIcon());
     addControlListener(this._media, 'pause', () => this.updatePlayPauseIcon());
     addControlListener(this._media, 'ended', () => this.updatePlayPauseIcon());
@@ -2022,12 +2022,12 @@ class XPlayer extends HTMLElement {
     const showControls = () => {
       controls.classList.add("visible");
       clearTimeout(timeout);
-      // GUI ist sichtbar, Slider kann unabhängig gesteuert werden
+      // The GUI is visible, and the slider can be controlled independently
     };
 
     const hideControls = () => {
       controls.classList.remove("visible");
-      // NEU: Immer auch den Lautstärke-Slider schließen
+      // Always close the volume slider as well
       if (volumeContainer) volumeContainer.classList.remove('expanded');
     };
 
@@ -2038,7 +2038,7 @@ class XPlayer extends HTMLElement {
       clearTimeout(timeout); // Cancel any timeout to hide controls
     });
 
-    // Automatisches Ausblenden nach 3s nur wenn Video spielt
+    // Auto-hide after 3s only when video is playing
     showControls();
     this._media.addEventListener("mousemove", () => {
       if (!this._media.paused) {
@@ -2193,12 +2193,12 @@ class XPlayer extends HTMLElement {
     const player = this.shadowRoot.querySelector(".player");
     const media = this._media;
 
-    // Hole Attribute oder CSS-Variablen
+    // Read attributes or CSS variables
     const width = this.getAttribute("width") || this.style.width || "";
     const height = this.getAttribute("height") || this.style.height || "";
 
     if (this.classList.contains("fullscreen")) {
-      // Im Fullscreen: immer 100%
+      // In fullscreen: always 100%
       container.style.width = "100%";
       container.style.height = "100%";
       player.style.width = "100%";
@@ -2208,7 +2208,7 @@ class XPlayer extends HTMLElement {
         media.style.height = "100%";
       }
     } else {
-      // Außerhalb Fullscreen: feste Größe aus Attributen oder CSS übernehmen
+      // Outside fullscreen: apply fixed size from attributes or CSS
       if (width) {
         player.style.width = width.endsWith("px") || width.endsWith("%") ? width : width + "px";
         container.style.width = player.style.width;
@@ -2235,7 +2235,7 @@ if (!customElements.get("x-player")) {
   customElements.define("x-player", XPlayer);
 }
 
-// SVG-Icon Helper (direkt im File, keine Abhängigkeit)
+// SVG icon helper, kept in this file with no dependency
 function svgIcon(name) {
   switch (name) {
     case 'play': return `<svg width="1.6em" height="1.6em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>`;

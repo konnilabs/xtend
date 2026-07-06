@@ -1,0 +1,17 @@
+{
+  "name": "@ccslabs/rmt-animation-testbench-product",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive XTend RMT AnimationEngine product testbench.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node server/index.mjs",
+    "start": "node server/index.mjs",
+    "verify": "node scripts/verify.mjs",
+    "test:browser": "node scripts/browser-smoke.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

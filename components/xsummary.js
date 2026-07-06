@@ -187,7 +187,7 @@ class XSummary extends HTMLElement {
     this._applyOpenState(this.hasAttribute("open"), { syncState: false });
     this._setXStateOpen(this._isOpen());
 
-    // State-Änderungen abonnieren (z.B. öffnen/schließen von außen)
+    // Subscribe to state changes, for example open or close from outside
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === this._stateKey && typeof value === "boolean") {
         if (value === this._isOpen()) return;

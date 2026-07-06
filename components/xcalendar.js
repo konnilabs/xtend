@@ -194,15 +194,15 @@ class XCalendar extends HTMLElement {
   }
 
   connectedCallback() {
-    // Eindeutige ID für State-Management
+    // Unique ID for state management
     if (!this.id) this.id = `xcalendar-${Math.random().toString(36).slice(2, 10)}`;
 
     this._render();
 
-    // Initialen State setzen
+    // Set initial state
     this._updateState();
 
-    // State-Änderungen abonnieren (z.B. externes Setzen von Datum oder Ansicht)
+    // Subscribe to state changes, for example external date or view updates
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xcalendar-state-${this.id}` && typeof value === "object" && value !== null) {
         if (value.selected && value.selected !== this.value) {

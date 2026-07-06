@@ -2024,7 +2024,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                             handlerDef.onCommandResponse({ ...ctx, response });
                         }
                     } catch (_error) {
-                        // Command-Response-Hooks duerfen die Delegation nicht destabilisieren.
+                        // Command response hooks must not destabilize delegation.
                     }
                 });
                 return dispatchPromise;
@@ -3538,7 +3538,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     subscriber(snapshot);
                 } catch (error) {
                     recordDiagnosticsSubscriberFailure(snapshot, error, subscriberEscalationMeta.get(subscriber), 'publish');
-                    // Diagnostics subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Diagnostics subscribers must not interrupt the runtime path.
                 }
             });
 
@@ -3565,7 +3565,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         subscriber(snapshot);
                     } catch (error) {
                         recordDiagnosticsSubscriberFailure(snapshot, error, subscriberEscalationMeta.get(subscriber), 'replay');
-                        // Diagnostics subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                        // Diagnostics subscribers must not interrupt the runtime path.
                     }
                 }
             }
@@ -3950,7 +3950,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                             eventKind: snapshot && snapshot.kind
                         }
                     });
-                    // Command-Subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Command subscribers must not interrupt the runtime path.
                 }
             });
             return snapshot;
@@ -4698,7 +4698,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 try {
                     subscriber(envelope);
                 } catch (_error) {
-                    // Reaktive Subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Reactive subscribers must not interrupt the runtime path.
                 }
             });
         }
@@ -4782,7 +4782,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 try {
                     subscriber(createSourceEnvelope(state));
                 } catch (_error) {
-                    // Reaktive Subscribers duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Reactive subscribers must not interrupt the runtime path.
                 }
             }
 
@@ -4837,7 +4837,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                         source: normalizeSourceName(sourceName)
                     });
                 } catch (_error) {
-                    // Reaktive Effects duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Reactive effects must not interrupt the runtime path.
                 }
             };
 
@@ -4884,7 +4884,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                 try {
                     dispose();
                 } catch (_error) {
-                    // Reaktive Root-Disposer duerfen den Runtime-Pfad nicht unterbrechen.
+                    // Reactive root disposers must not interrupt the runtime path.
                 }
             });
             return disposers.length;
@@ -19271,7 +19271,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                             }, dispatchOptions);
                         }
                     } catch (_error) {
-                        // Template-Commands duerfen den Runtime-Pfad nicht unterbrechen.
+                        // Template commands must not interrupt the runtime path.
                     }
                     return;
                 }
@@ -19295,7 +19295,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                             }
                         }
                     } catch (_error) {
-                        // Template-Root-Events duerfen den Runtime-Pfad nicht unterbrechen.
+                        // Template root events must not interrupt the runtime path.
                     }
                 }
             };
@@ -19834,7 +19834,7 @@ __XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};
                     try {
                         dispose();
                     } catch (_error) {
-                        // Template-Binding-Disposer duerfen den Runtime-Pfad nicht unterbrechen.
+                        // Template binding disposers must not interrupt the runtime path.
                     }
                 });
                 return true;

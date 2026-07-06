@@ -94,7 +94,7 @@ class XCards extends HTMLElement {
           --card-gap: var(--xtend-layout-gap, 2.2rem);
           --card-max-width: var(--xtend-layout-content-max, 1200px);
           --xtend-layout-grid-min: minmax(min(100%, 16rem), 1fr);
-          /* margin und width entfernt, damit kein Overflow entsteht */
+          /* margin and width removed to avoid overflow */
           min-block-size: var(--cards-reserved-block-size, var(--xtend-layout-reserved-block-size, auto));
           contain-intrinsic-size: auto var(--cards-reserved-block-size, var(--xtend-layout-reserved-block-size, 18rem));
         }
@@ -134,16 +134,16 @@ class XCards extends HTMLElement {
   }
 
   connectedCallback() {
-    // Eindeutige ID für State-Management
+    // Unique ID for state management
     if (!this.id) this.id = `xcards-${Math.random().toString(36).slice(2, 10)}`;
 
-    // Initialen State setzen
+    // Set initial state
     xstate.set(`xcards-state-${this.id}`, {
       columns: this.getAttribute("columns") || "3",
       gap: this.getAttribute("gap") || "1.5rem"
     });
 
-    // State-Änderungen abonnieren (z.B. externes Setzen von columns/gap)
+    // Subscribe to state changes, for example external columns or gap updates
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xcards-state-${this.id}` && typeof value === "object") {
         if (typeof value.columns === "string" && value.columns !== this.getAttribute("columns")) {
@@ -173,7 +173,7 @@ class XCards extends HTMLElement {
     if (name === "gap") {
       this.style.setProperty("--card-gap", newValue);
     }
-    // State aktualisieren
+    // Update state
     if (this.id) {
       xstate.set(`xcards-state-${this.id}`, {
         columns: this.getAttribute("columns") || "3",

@@ -7,6 +7,7 @@ const path = require('path');
 const RMT_KERNEL_LAB_ANALYSIS_SCHEMA = 'xtend.scaffold.rmt-kernel-lab.analysis.v1';
 const RMT_KERNEL_LAB_BUILD_SCHEMA = 'xtend.scaffold.rmt-kernel-lab.build.v1';
 const RMT_KERNEL_MODULE_MANIFEST_SCHEMA = 'xtend.rmt.kernel-module-manifest.v1';
+const RMT_KERNEL_OPTIMIZATION_REPORT_SCHEMA = 'xtend.rmt.kernel-lab.optimization-report.v1';
 const EXPECTED_HISTORICAL_MODULE_COUNT = 26;
 const DEFAULT_PROFILE = 'clean';
 const MODULE_MANIFEST_PATH = 'xtendrmt/rmt-kernel-module-manifest.json';
@@ -91,6 +92,45 @@ const TYPE_DASHBOARD_LINE_FRAGMENTS = Object.freeze([
   'createDashboardCommandCatalog:'
 ]);
 
+const JS_COMMENT_REPLACEMENTS = Object.freeze([
+  {
+    from: 'Command-Response-Hooks duerfen die Delegation nicht destabilisieren.',
+    to: 'Command response hooks must not destabilize delegation.'
+  },
+  {
+    from: 'Diagnostics subscribers duerfen den Runtime-Pfad nicht unterbrechen.',
+    to: 'Diagnostics subscribers must not interrupt the runtime path.'
+  },
+  {
+    from: 'Command-Subscribers duerfen den Runtime-Pfad nicht unterbrechen.',
+    to: 'Command subscribers must not interrupt the runtime path.'
+  },
+  {
+    from: 'Reaktive Subscribers duerfen den Runtime-Pfad nicht unterbrechen.',
+    to: 'Reactive subscribers must not interrupt the runtime path.'
+  },
+  {
+    from: 'Reaktive Effects duerfen den Runtime-Pfad nicht unterbrechen.',
+    to: 'Reactive effects must not interrupt the runtime path.'
+  },
+  {
+    from: 'Reaktive Root-Disposer duerfen den Runtime-Pfad nicht unterbrechen.',
+    to: 'Reactive root disposers must not interrupt the runtime path.'
+  },
+  {
+    from: 'Template-Commands duerfen den Runtime-Pfad nicht unterbrechen.',
+    to: 'Template commands must not interrupt the runtime path.'
+  },
+  {
+    from: 'Template-Root-Events duerfen den Runtime-Pfad nicht unterbrechen.',
+    to: 'Template root events must not interrupt the runtime path.'
+  },
+  {
+    from: 'Template-Binding-Disposer duerfen den Runtime-Pfad nicht unterbrechen.',
+    to: 'Template binding disposers must not interrupt the runtime path.'
+  }
+]);
+
 function toBoolean(value) {
   return value === true || value === 'true' || value === '1' || value === 'yes';
 }
@@ -149,6 +189,17 @@ function moduleIdFromRegisterName(registerName) {
 
 function extractFactories(source) {
   const factories = new Set();
+  const regex = /appModules\.([A-Za-z0-9_]+)\s*=(?!=)/gu;
+  let match = regex.exec(source);
+  while (match) {
+    factories.add(match[1]);
+    match = regex.exec(source);
+  }
+  return Array.from(factories).sort();
+}
+
+function extractLooseFactoryCandidates(source) {
+  const factories = new Set();
   const regex = /appModules\.([A-Za-z0-9_]+)\s*=/gu;
   let match = regex.exec(source);
   while (match) {
@@ -198,6 +249,220 @@ function extractRegisterModules(source, artifactPath) {
   });
 }
 
+function lineNumberAt(source, index) {
+  return String(source || '').slice(0, Math.max(Number(index) || 0, 0)).split('\n').length;
+}
+
+function findRedundantFactoryResolution(source, artifactPath) {
+  const entries = [];
+  const regex = /resolveFactory\('([A-Za-z0-9_]+)',\s*([^)\n]+?)\)\s*\n\s*\|\|\s*resolveFactory\('\1',\s*\2\)/gu;
+  let match = regex.exec(String(source || ''));
+  while (match) {
+    entries.push({
+      artifactPath,
+      line: lineNumberAt(source, match.index),
+      factoryName: match[1],
+      dependencyExpression: match[2].trim(),
+      pattern: 'duplicate-resolveFactory'
+    });
+    match = regex.exec(String(source || ''));
+  }
+  return entries;
+}
+
+function findRedundantFallbacks(source, artifactPath) {
+  const text = String(source || '');
+  const entries = [];
+  const factoryFallbackRegex = /(\|\|\s*\(typeof appModules\.([A-Za-z0-9_]+) === 'function'\s*\?\s*appModules\.\2\(\{[\s\S]*?\}\)\s*:\s*null\))\s*\n\s*\1/gu;
+  let factoryMatch = factoryFallbackRegex.exec(text);
+  while (factoryMatch) {
+    entries.push({
+      artifactPath,
+      line: lineNumberAt(text, factoryMatch.index),
+      factoryName: factoryMatch[2],
+      pattern: 'duplicate-factory-fallback'
+    });
+    factoryMatch = factoryFallbackRegex.exec(text);
+  }
+
+  const typeofFallbackRegex = /(typeof appModules\.([A-Za-z0-9_]+) === 'function')\s*\n\s*\|\|\s*\1/gu;
+  let typeofMatch = typeofFallbackRegex.exec(text);
+  while (typeofMatch) {
+    entries.push({
+      artifactPath,
+      line: lineNumberAt(text, typeofMatch.index),
+      factoryName: typeofMatch[2],
+      pattern: 'duplicate-typeof-fallback'
+    });
+    typeofMatch = typeofFallbackRegex.exec(text);
+  }
+
+  return entries.sort((left, right) => (
+    left.artifactPath.localeCompare(right.artifactPath)
+    || left.line - right.line
+    || left.factoryName.localeCompare(right.factoryName)
+  ));
+}
+
+function findFactoryAttributionWarnings(source, artifactPath) {
+  return extractRegisterModules(source, artifactPath)
+    .flatMap((moduleEntry) => {
+      const moduleStart = String(source || '').indexOf(`(function ${moduleEntry.registerName}(global)`);
+      const nextModuleStart = moduleStart >= 0
+        ? String(source || '').indexOf('\n(function register', moduleStart + 1)
+        : -1;
+      const exportStart = moduleStart >= 0 ? String(source || '').indexOf('\nconst AppModules =', moduleStart) : -1;
+      const moduleEnd = nextModuleStart >= 0
+        ? nextModuleStart
+        : (exportStart >= 0 ? exportStart : String(source || '').length);
+      const moduleSource = moduleStart >= 0 ? String(source || '').slice(moduleStart, moduleEnd) : '';
+      const strictFactories = extractFactories(moduleSource);
+      const looseOnly = extractLooseFactoryCandidates(moduleSource)
+        .filter((factoryName) => !strictFactories.includes(factoryName));
+      return looseOnly.map((factoryName) => ({
+        artifactPath,
+        moduleId: moduleEntry.id,
+        registerName: moduleEntry.registerName,
+        factoryName,
+        pattern: 'comparison-was-not-attributed-as-factory'
+      }));
+    })
+    .sort((left, right) => (
+      left.artifactPath.localeCompare(right.artifactPath)
+      || left.moduleId.localeCompare(right.moduleId)
+      || left.factoryName.localeCompare(right.factoryName)
+    ));
+}
+
+function findFunctionEnd(source, openIndex) {
+  let depth = 0;
+  let quote = null;
+  let escaped = false;
+  const text = String(source || '');
+  for (let index = openIndex; index < text.length; index += 1) {
+    const char = text[index];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === quote) quote = null;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      quote = char;
+      continue;
+    }
+    if (char === '{') depth += 1;
+    else if (char === '}') {
+      depth -= 1;
+      if (depth === 0) return index + 1;
+    }
+  }
+  return -1;
+}
+
+function extractModuleSections(source, artifactPath) {
+  const text = String(source || '');
+  const matches = Array.from(text.matchAll(/\/\* modules\/([^*]+?) \*\/\n/g));
+  const exportStart = text.indexOf('\nconst AppModules =');
+  return matches.map((match, index) => {
+    const nextStart = matches[index + 1] ? matches[index + 1].index : -1;
+    const end = nextStart >= 0 ? nextStart : (exportStart >= 0 ? exportStart : text.length);
+    return {
+      artifactPath,
+      moduleId: moduleIdFromRegisterName(match[1].replace(/\.js$/u, 'Module')),
+      modulePath: match[1],
+      start: match.index,
+      source: text.slice(match.index, end)
+    };
+  });
+}
+
+function normalizeFunctionBodyForHash(source) {
+  return String(source || '')
+    .replace(/\/\/[^\n]*/gu, '')
+    .replace(/\s+/gu, ' ')
+    .trim();
+}
+
+function findDuplicateFunctionBodies(source, artifactPath, options = {}) {
+  const minBytes = Number.isFinite(options.minBytes) ? options.minBytes : 32;
+  const maxGroups = Number.isFinite(options.maxGroups) ? options.maxGroups : 30;
+  const groups = new Map();
+
+  extractModuleSections(source, artifactPath).forEach((section) => {
+    const regex = /\bfunction\s+([A-Za-z0-9_$]+)\s*\([^)]*\)\s*\{/gu;
+    let match = regex.exec(section.source);
+    while (match) {
+      const openIndex = section.source.indexOf('{', match.index);
+      const endIndex = findFunctionEnd(section.source, openIndex);
+      if (endIndex >= 0) {
+        const functionSource = section.source.slice(match.index, endIndex);
+        const bytes = byteCount(functionSource);
+        if (bytes >= minBytes) {
+          const hash = sha256(normalizeFunctionBodyForHash(functionSource));
+          if (!groups.has(hash)) groups.set(hash, []);
+          groups.get(hash).push({
+            artifactPath,
+            moduleId: section.modulePath.replace(/\.js$/u, ''),
+            functionName: match[1],
+            line: lineNumberAt(source, section.start + match.index),
+            byteCount: bytes
+          });
+        }
+        regex.lastIndex = match.index + 1;
+      }
+      match = regex.exec(section.source);
+    }
+  });
+
+  return Array.from(groups.entries())
+    .filter(([, entries]) => entries.length > 1)
+    .map(([hash, entries]) => ({
+      hash,
+      count: entries.length,
+      byteCount: entries[0].byteCount,
+      estimatedRepeatedBytes: entries[0].byteCount * (entries.length - 1),
+      entries
+    }))
+    .sort((left, right) => (
+      right.estimatedRepeatedBytes - left.estimatedRepeatedBytes
+      || left.entries[0].functionName.localeCompare(right.entries[0].functionName)
+    ))
+    .slice(0, maxGroups);
+}
+
+function createKernelOptimizationReport(rootDir, contentsByPath = {}) {
+  const canonicalDuplicateTarget = KERNEL_ANALYSIS_TARGETS.find((target) => target.path === 'xtendrmt/rmt-core.esm.js');
+  const jsTargets = KERNEL_ANALYSIS_TARGETS.filter((target) => target.kind === 'esm' || target.kind === 'browser');
+  const readTargetSource = (target) => (
+    Object.prototype.hasOwnProperty.call(contentsByPath, target.path)
+      ? contentsByPath[target.path]
+      : maybeReadText(rootDir, target.path)
+  ) || '';
+  const redundantFallbacks = jsTargets.flatMap((target) => findRedundantFallbacks(readTargetSource(target), target.path));
+  const redundantFactoryResolution = jsTargets.flatMap((target) => findRedundantFactoryResolution(readTargetSource(target), target.path));
+  const factoryAttributionWarnings = jsTargets.flatMap((target) => findFactoryAttributionWarnings(readTargetSource(target), target.path));
+  const duplicateFunctionBodies = canonicalDuplicateTarget
+    ? findDuplicateFunctionBodies(readTargetSource(canonicalDuplicateTarget), canonicalDuplicateTarget.path)
+    : [];
+
+  return {
+    schema: RMT_KERNEL_OPTIMIZATION_REPORT_SCHEMA,
+    profile: DEFAULT_PROFILE,
+    redundantFallbacks,
+    redundantFactoryResolution,
+    duplicateFunctionBodies,
+    factoryAttributionWarnings,
+    summary: {
+      redundantFallbackCount: redundantFallbacks.length,
+      redundantFactoryResolutionCount: redundantFactoryResolution.length,
+      duplicateFunctionBodyGroupCount: duplicateFunctionBodies.length,
+      factoryAttributionWarningCount: factoryAttributionWarnings.length,
+      estimatedDuplicateFunctionBytes: duplicateFunctionBodies.reduce((total, group) => total + group.estimatedRepeatedBytes, 0)
+    }
+  };
+}
+
 function findDashboardSymbols(source) {
   return DASHBOARD_SYMBOLS.filter((symbol) => String(source || '').includes(symbol));
 }
@@ -217,6 +482,12 @@ function findDeprecatedKernelBranding(source) {
     DEPRECATED_BRAND_KEBAB,
     DEPRECATED_BRAND_LOWER
   ].filter((token) => text.includes(token));
+}
+
+function normalizeJsComments(source) {
+  return JS_COMMENT_REPLACEMENTS.reduce((next, replacement) => (
+    next.split(`// ${replacement.from}`).join(`// ${replacement.to}`)
+  ), String(source || ''));
 }
 
 function uniqueValues(values) {
@@ -410,6 +681,31 @@ function normalizeJsRuntimeVersion(source, version) {
     );
 }
 
+function collapseDuplicateFactoryFallbacks(source) {
+  const regex = /(\|\|\s*\(typeof appModules\.([A-Za-z0-9_]+) === 'function'\s*\?\s*appModules\.\2\(\{[\s\S]*?\}\)\s*:\s*null\))\s*\n\s*\1/gu;
+  let next = String(source || '');
+  let previous = null;
+  while (previous !== next) {
+    previous = next;
+    next = next.replace(regex, '$1');
+  }
+  return next;
+}
+
+function collapseDuplicateTypeofFallbacks(source) {
+  return String(source || '').replace(
+    /(typeof appModules\.([A-Za-z0-9_]+) === 'function')\s*\n\s*\|\|\s*\1/gu,
+    '$1'
+  );
+}
+
+function collapseDuplicateResolveFactoryCalls(source) {
+  return String(source || '').replace(
+    /(const\s+[A-Za-z0-9_$]+\s*=\s*resolveFactory\('([A-Za-z0-9_]+)',\s*([^)\n]+?)\))\s*\n\s*\|\|\s*resolveFactory\('\2',\s*\3\);/gu,
+    '$1;'
+  );
+}
+
 function analyzeArtifact(rootDir, target, contentsByPath = {}) {
   const source = Object.prototype.hasOwnProperty.call(contentsByPath, target.path)
     ? contentsByPath[target.path]
@@ -444,6 +740,7 @@ function createKernelModuleManifest(options = {}) {
   const rootDir = resolveRootDir(options.rootDir);
   const contentsByPath = options.contentsByPath || {};
   const artifactReports = KERNEL_ANALYSIS_TARGETS.map((target) => analyzeArtifact(rootDir, target, contentsByPath));
+  const optimizationReport = createKernelOptimizationReport(rootDir, contentsByPath);
   const primaryArtifact = artifactReports.find((artifact) => artifact.path === 'xtendrmt/rmt-core.esm.js') || artifactReports[0];
   const modules = primaryArtifact ? primaryArtifact.modules : [];
   const visibleModuleCount = modules.length;
@@ -467,6 +764,7 @@ function createKernelModuleManifest(options = {}) {
       compatibilityStubs: false,
       removedSymbols: toPublicReportSymbols(DASHBOARD_SYMBOLS)
     },
+    optimizationReport,
     sourceArtifacts: artifactReports.map((artifact) => ({
       id: artifact.id,
       path: artifact.path,
@@ -497,7 +795,9 @@ function cleanJsSource(source, options = {}) {
     ''
   );
 
+  next = normalizeJsComments(next);
   next = removeDeprecatedProductSurfaceCompatibility(removeDeprecatedAliasAssignments(next));
+  next = collapseDuplicateResolveFactoryCalls(collapseDuplicateTypeofFallbacks(collapseDuplicateFactoryFallbacks(next)));
 
   next = next
     .split('\n')
@@ -563,6 +863,7 @@ function createRmtKernelLabAnalysis(input = {}) {
     version: versionInfo.version,
     versionSource: versionInfo.source
   });
+  const optimizationReport = moduleManifest.optimizationReport;
   const artifacts = KERNEL_ANALYSIS_TARGETS.map((target) => analyzeArtifact(rootDir, target));
   const diagnostics = versionInfo.diagnostics.slice();
 
@@ -624,6 +925,7 @@ function createRmtKernelLabAnalysis(input = {}) {
     moduleCountMatchesHistory: moduleManifest.moduleCountMatchesHistory,
     moduleCountReconciliation: moduleManifest.moduleCountReconciliation,
     dashboardCleanupPolicy: moduleManifest.dashboardCleanup,
+    optimizationReport,
     artifacts: publicArtifacts,
     moduleManifest,
     diagnostics
@@ -817,6 +1119,7 @@ function createRmtKernelLabBuild(input = {}) {
     outputCount: outputs.length,
     outputs,
     moduleManifest: desired.moduleManifest,
+    optimizationReport: desired.moduleManifest.optimizationReport,
     diagnostics
   };
 }
@@ -845,8 +1148,10 @@ module.exports = {
   RMT_KERNEL_LAB_ANALYSIS_SCHEMA,
   RMT_KERNEL_LAB_BUILD_SCHEMA,
   RMT_KERNEL_MODULE_MANIFEST_SCHEMA,
+  RMT_KERNEL_OPTIMIZATION_REPORT_SCHEMA,
   cleanRmtKernelArtifactContent,
   createKernelModuleManifest,
+  createKernelOptimizationReport,
   createRmtKernelLabAnalysis,
   createRmtKernelLabBuild,
   createRmtKernelLabReport,

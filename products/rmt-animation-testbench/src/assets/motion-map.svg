@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Motion lane map</title>
+  <desc id="desc">A local XTend testbench visual showing transition, hydrate and telemetry lanes.</desc>
+  <rect width="960" height="540" fill="#f7f4ef"/>
+  <rect x="48" y="52" width="864" height="436" rx="8" fill="#ffffff" stroke="#2d3748" stroke-width="2"/>
+  <g font-family="Inter, Arial, sans-serif" fill="#1f2937">
+    <text x="80" y="102" font-size="34" font-weight="700">RMT Motion Plan</text>
+    <text x="80" y="136" font-size="18">AnimationEngine lanes and lazy surface checkpoints</text>
+  </g>
+  <g stroke-width="12" stroke-linecap="round" fill="none">
+    <path d="M116 210 C 248 148, 356 268, 486 206 S 726 178, 838 240" stroke="#0f766e"/>
+    <path d="M116 300 C 278 236, 364 358, 506 304 S 722 282, 838 340" stroke="#b45309"/>
+    <path d="M116 390 C 270 350, 412 422, 544 372 S 732 338, 838 410" stroke="#be123c"/>
+  </g>
+  <g>
+    <circle cx="116" cy="210" r="18" fill="#0f766e"/>
+    <circle cx="486" cy="206" r="18" fill="#0f766e"/>
+    <circle cx="838" cy="240" r="18" fill="#0f766e"/>
+    <circle cx="116" cy="300" r="18" fill="#b45309"/>
+    <circle cx="506" cy="304" r="18" fill="#b45309"/>
+    <circle cx="838" cy="340" r="18" fill="#b45309"/>
+    <circle cx="116" cy="390" r="18" fill="#be123c"/>
+    <circle cx="544" cy="372" r="18" fill="#be123c"/>
+    <circle cx="838" cy="410" r="18" fill="#be123c"/>
+  </g>
+  <g font-family="Inter, Arial, sans-serif" font-size="18" fill="#111827">
+    <text x="154" y="216">transition</text>
+    <text x="154" y="306">hydrate</text>
+    <text x="154" y="396">telemetry</text>
+    <text x="612" y="216">WAAPI first</text>
+    <text x="612" y="306">XScaler preflight</text>
+    <text x="612" y="396">budget complete</text>
+  </g>
+</svg>

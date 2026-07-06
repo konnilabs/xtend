@@ -299,16 +299,16 @@ class XForm extends HTMLElement {
     this._observer.observe(this, { childList: true, subtree: true });
     this._updateElements();
 
-    // Eindeutige ID für State-Management
+    // Unique ID for state management
     if (!this.id) this.id = `xform-${Math.random().toString(36).slice(2, 10)}`;
 
-    // Initialen State setzen
+    // Set initial state
     xstate.set(`xform-data-${this.id}`, this.getFormData());
 
-    // State-Änderungen abonnieren (z.B. externes Setzen von Formulardaten)
+    // Subscribe to state changes, for example external form data updates
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xform-data-${this.id}` && typeof value === "object" && value !== null) {
-        // Setze Werte in die Felder, falls sie unterschiedlich sind
+        // Set field values when they differ
         this._elements.forEach(el => {
           const name = el.getAttribute("name");
           if (!name || value[name] === undefined) return;
@@ -330,7 +330,7 @@ class XForm extends HTMLElement {
       }
     });
 
-    // Änderungen an Feldern überwachen und State aktualisieren
+    // Watch field changes and update state
     this._attachFieldListeners();
   }
 
@@ -379,7 +379,7 @@ class XForm extends HTMLElement {
         bubbles: true,
         composed: true
       }));
-      // State aktualisieren
+      // Update state
       xstate.set(`xform-data-${this.id}`, this.getFormData());
     } else {
       this.setAttribute("invalid", "");
@@ -406,7 +406,7 @@ class XForm extends HTMLElement {
     if (this._statusRegion) this._statusRegion.textContent = "Form reset.";
     if (this._errorRegion) this._errorRegion.textContent = "";
 
-    // State nach Reset aktualisieren
+    // Update state after reset
     xstate.set(`xform-data-${this.id}`, this.getFormData());
   }
 

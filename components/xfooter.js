@@ -96,17 +96,17 @@ class XFooter extends HTMLElement {
     this.observeThemeChanges();
     this.applySticky();
 
-    // Eindeutige ID für State-Management
+    // Unique ID for state management
     if (!this.id) this.id = `xfooter-${Math.random().toString(36).slice(2, 10)}`;
 
-    // Initialen State setzen
+    // Set initial state
     xstate.set(`xfooter-state-${this.id}`, {
       src: this.getAttribute("src"),
       logoSize: this.getAttribute("logo-size"),
       sticky: this.hasAttribute("sticky")
     });
 
-    // State-Änderungen abonnieren (z.B. externes Setzen von src, logoSize, sticky)
+    // Subscribe to state changes, for example external src, logoSize, or sticky updates
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xfooter-state-${this.id}` && typeof value === "object") {
         if (typeof value.src === "string" && value.src !== this.getAttribute("src")) {
@@ -143,7 +143,7 @@ class XFooter extends HTMLElement {
       } else if (name === "sticky") {
         this.applySticky();
       }
-      // State aktualisieren
+      // Update state
       if (this.id) {
         xstate.set(`xfooter-state-${this.id}`, {
           src: this.getAttribute("src"),

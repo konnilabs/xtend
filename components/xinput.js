@@ -347,12 +347,12 @@ class XInput extends HTMLElement {
   }
 
   connectedCallback() {
-    // Eindeutige ID für State-Management
+    // Unique ID for state management
     if (!this.id) this.id = `xinput-${Math.random().toString(36).slice(2, 10)}`;
 
     this._upgradeAttributes();
 
-    // Initialen State setzen
+    // Set initial state
     xstate.set(`xinput-value-${this.id}`, this.value);
 
     const emitInputChanged = () => {
@@ -369,7 +369,7 @@ class XInput extends HTMLElement {
         composed: true,
         cancelable: true
       }));
-      // State aktualisieren
+      // Update state
       xstate.set(`xinput-value-${this.id}`, this.value);
     };
 
@@ -397,7 +397,7 @@ class XInput extends HTMLElement {
       }));
     });
 
-    // State-Änderungen abonnieren (z.B. externes Setzen des Werts)
+    // Subscribe to state changes, for example external value updates
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xinput-value-${this.id}` && typeof value === "string" && value !== this.value) {
         this.value = value;
@@ -420,7 +420,7 @@ class XInput extends HTMLElement {
   attributeChangedCallback(name, _, newValue) {
     if (name === "value") {
       this._input.value = newValue;
-      // State aktualisieren
+      // Update state
       if (this.id) xstate.set(`xinput-value-${this.id}`, newValue);
     } else if (name === "required" || name === "disabled") {
       this._input[name] = this.hasAttribute(name);
@@ -449,7 +449,7 @@ class XInput extends HTMLElement {
     this._input.value = val;
     this.setAttribute("value", val);
     this._internals?.setFormValue(val);
-    // State aktualisieren
+    // Update state
     if (this.id) xstate.set(`xinput-value-${this.id}`, val);
   }
 

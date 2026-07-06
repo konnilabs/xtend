@@ -109,10 +109,10 @@ class XHero extends HTMLElement {
       scrollButton.addEventListener("click", () => this.scrollPast());
     }
 
-    // Eindeutige ID für State-Management
+    // Unique ID for state management
     if (!this.id) this.id = `xhero-${Math.random().toString(36).slice(2, 10)}`;
 
-    // Initialen State setzen
+    // Set initial state
     xstate.set(`xhero-state-${this.id}`, {
       background: this.getAttribute("background"),
       backgroundLight: this.getAttribute("background-light"),
@@ -131,7 +131,7 @@ class XHero extends HTMLElement {
       fontColorDark: this.getAttribute("font-color-dark")
     });
 
-    // State-Änderungen abonnieren (z.B. externe Steuerung)
+    // Subscribe to state changes, for example external control
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xhero-state-${this.id}` && typeof value === "object") {
         if (value.background !== undefined) this.setAttribute("background", value.background);
@@ -181,7 +181,7 @@ class XHero extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue !== newValue) {
       this.render();
-      // State aktualisieren
+      // Update state
       if (this.id) {
         xstate.set(`xhero-state-${this.id}`, {
           background: this.getAttribute("background"),
@@ -444,7 +444,7 @@ class XHero extends HTMLElement {
       </section>
     `;
 
-    // Nach dem Rendern: Wenn textBox aktiv und <h1 slot="hero-title"> existiert, umhüllen
+    // After rendering: wrap an existing <h1 slot="hero-title"> when textBox is active
     if (textBox) {
       const slot = this.shadowRoot.querySelector('slot[name="hero-title"]');
       if (slot) {
@@ -456,7 +456,7 @@ class XHero extends HTMLElement {
         });
       }
     } else {
-      // Falls deaktiviert, entferne ggf. die Klasse
+      // If disabled, remove the class when present
       const slot = this.shadowRoot.querySelector('slot[name="hero-title"]');
       if (slot) {
         const nodes = slot.assignedNodes({flatten:true});

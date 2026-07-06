@@ -1,6 +1,6 @@
 <?php
 // XTend Docs SPA – index.php
-// Lädt alle .md-Dateien, parsed sie mit Parsedown und bietet SPA-Routing mit Slugs
+// Loads all .md files, parses them with Parsedown, and provides SPA routing with slugs.
 // This project uses parsedown for markdown parsing. See license at https://github.com/erusev/parsedown/blob/master/LICENSE.txt
 
 if (function_exists('header_remove')) {
@@ -2253,7 +2253,7 @@ function navLinks($fileToSlug) {
     return $nav;
 }
 
-// --- Nach dem Parsen aller Seiten: JS-Objekt für alle Seiteninhalte ---
+// --- After parsing all pages: JS object for all page content ---
 $allPages = [];
 $allPagesMeta = [];
 $localizedAllPages = [];
@@ -3452,7 +3452,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
 </script>
 <script nonce="<?= $nonce ?>">
 document.addEventListener('DOMContentLoaded', function() {
-  // Theme-Button-Logik
+  // Theme button logic
   const btn = document.getElementById('theme-toggle');
   const label = document.getElementById('theme-toggle-label');
   const icon = document.getElementById('theme-toggle-icon');
@@ -3483,12 +3483,12 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  // Theme-Status beim Seitenaufruf und bei Theme-Wechseln immer korrekt setzen
+  // Always set the theme state correctly on page load and theme changes
   updateThemeButton();
   document.addEventListener('theme-changed', updateThemeButton);
   document.addEventListener('theme-initialized', updateThemeButton);
   window.addEventListener('xtend-docs-locale-changed', updateThemeButton);
-  // Standardfarben für beide Themes setzen
+  // Set default colors for both themes
   if (window.XTend && window.XTend.theme) {
     window.XTend.theme.setTheme('light');
     window.XTend.theme.set('--body-bg', '#f9f9f9');
@@ -3608,7 +3608,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('resize', function() {
     requestAnimationFrame(checkDocsViewportOverflow);
   }, { passive: true });
-  // Prism wird scoped und idle ausgefuehrt, damit Routen-Klicks nicht die ganze Seite blockieren.
+  // Prism runs scoped and idle so route clicks do not block the whole page.
   let prismFrame = 0;
   let prismIdle = 0;
   function schedulePrismHighlight(root) {

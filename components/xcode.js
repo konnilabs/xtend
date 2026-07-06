@@ -178,12 +178,12 @@ class XCode extends HTMLElement {
   }
 
   connectedCallback() {
-    // Eindeutige ID für State-Management
+    // Unique ID for state management
     if (!this.id) this.id = `xcode-${Math.random().toString(36).slice(2, 10)}`;
     this.hydrate();
     this._observeLightDom();
 
-    // State-Änderungen abonnieren (z.B. externes Setzen von Code oder Sprache)
+    // Subscribe to state changes, for example external code or language updates
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xcode-state-${this.id}` && typeof value === "object") {
         if (typeof value.lang === "string" && value.lang !== this._getLanguageMeta().language) {
@@ -212,7 +212,7 @@ class XCode extends HTMLElement {
     if ((name === 'lang' || name === 'language') && oldValue !== newValue) {
       if (!this.isConnected) return;
       this._render();
-      // State aktualisieren
+      // Update state
       if (this.id) {
         const languageMeta = this._getLanguageMeta();
         xstate.set(`xcode-state-${this.id}`, {
@@ -360,7 +360,7 @@ class XCode extends HTMLElement {
     // Always wrap content in a <template> (virtual, not rendered)
     let tpl = this._getTemplate();
     if (!tpl) {
-      // Create a template and move all child nodes (außer <template>) hinein
+      // Create a template and move all child nodes except <template> into it
       tpl = document.createElement('template');
       const nodes = Array.from(this.childNodes).filter(n => n.nodeName !== 'TEMPLATE');
       while (nodes.length) {
@@ -526,7 +526,7 @@ class XCode extends HTMLElement {
           copyBtn.classList.remove('success');
           copyBtn.setAttribute('aria-label', 'Code kopieren');
         }, 1500);
-        // State aktualisieren (optional: z.B. für Kopier-Status)
+        // Update state, optionally for copy status
         if (this.id) {
           const nextLanguageMeta = this._getLanguageMeta();
           xstate.set(`xcode-state-${this.id}`, {

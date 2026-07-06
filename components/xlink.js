@@ -446,7 +446,7 @@ class XLink extends HTMLElement {
   }
 
   _getCurrentPath() {
-    // Unterstützt Hash- und History-Mode
+    // Supports hash and history modes
     if (window.location.hash && window.location.hash.startsWith('#/')) {
       return window.location.hash.replace(/^#/, '');
     }
@@ -536,14 +536,14 @@ class XLink extends HTMLElement {
     if (!href) return;
     if (this._isExternal(href)) {
       this._syncExternalAttributes();
-      return; // Standardverhalten für externe Links
+      return; // Default behavior for external links
     }
     event.preventDefault();
-    // Hash- oder History-Mode erkennen
+    // Detect hash or history mode
     let mode = 'hash';
     const router = document.querySelector('x-router');
     if (router && router.getAttribute('mode') === 'history') mode = 'history';
-    // Query-String und State-Objekt unterstützen (optional)
+    // Support query string and state object when present
     let state = undefined;
     if (this.hasAttribute('state')) {
       try { state = JSON.parse(this.getAttribute('state')); } catch {}

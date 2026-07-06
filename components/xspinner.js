@@ -263,7 +263,7 @@ class XSpinner extends HTMLElement {
     xstate.set(`xspinner-paused-${this.id}`, this.hasAttribute("paused"));
     this._renderSpinner();
     this._emitSpinnerEvent("spinner-started");
-    // State-Änderungen abonnieren
+    // Subscribe to state changes
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === `xspinner-paused-${this.id}` && typeof value === "boolean") {
         const paused = this.hasAttribute("paused");
@@ -388,4 +388,4 @@ class XSpinner extends HTMLElement {
 }
 
 customElements.define("x-spinner", XSpinner);
-// TypeScript-Hinweis: Typdefinitionen für Attribute und Events empfohlen.
+// TypeScript note: type definitions for attributes and events are recommended.

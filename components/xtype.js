@@ -100,7 +100,7 @@ class XType extends HTMLElement {
     // State initialisieren
     xstate.set('xtype-current', this._texts[this._index] || '');
 
-    // Auf State-Änderungen reagieren (optional: z.B. Pause/Resume von außen)
+    // React to state changes, optionally pause or resume from outside
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === 'xtype-pause' && value === true) this.pause();
       if (key === 'xtype-pause' && value === false) this.resume();
@@ -183,7 +183,7 @@ class XType extends HTMLElement {
 
     while ((this._loop || this._index < this._texts.length) && !this._paused) {
       const text = this._texts[this._index % this._texts.length];
-      xstate.set('xtype-current', text); // Aktuellen Text im State speichern
+      xstate.set('xtype-current', text); // Save current text in state
       this.dispatchEvent(new CustomEvent("typing-started", { detail: { text } }));
       await this._type(text);
       this.dispatchEvent(new CustomEvent("typing-completed", { detail: { text } }));

@@ -417,9 +417,9 @@ class XTabs extends HTMLElement {
     this._syncOrientation();
     this._renderTabs();
     this._updateVisibility();
-    // Textfarbe aus Attribut oder CSS-Variable setzen
+    // Set text color from the attribute or CSS variable
     this._applyTextColor();
-    // Fallback: Wenn kein Attribut gesetzt, aber eine CSS-Variable existiert, diese übernehmen
+    // Fallback: when no attribute is set but a CSS variable exists, use it
     if (!this.hasAttribute('text-color')) {
       const cssColor = getComputedStyle(this).getPropertyValue('--text-color');
       if (cssColor) {
@@ -430,7 +430,7 @@ class XTabs extends HTMLElement {
     // State initialisieren
     xstate.set('xtabs-selected', this._selected);
 
-    // State-Änderungen abonnieren (z.B. Tab-Wechsel von außen)
+    // Subscribe to state changes, for example external tab changes
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (key === 'xtabs-selected' && typeof value === 'number' && value !== this._selected) {
         this.selectTab(value);
@@ -499,7 +499,7 @@ class XTabs extends HTMLElement {
       this._selected = parseInt(newValue);
       if (this._canUpdateSelection()) {
         this._updateSelection();
-        xstate.set('xtabs-selected', this._selected); // State aktualisieren
+        xstate.set('xtabs-selected', this._selected); // Update state
       }
     } else if (name === "text-color" && newValue !== oldValue) {
       this._applyTextColor();
@@ -623,7 +623,7 @@ class XTabs extends HTMLElement {
       composed: true,
       cancelable: true
     }));
-    xstate.set('xtabs-selected', i); // State aktualisieren
+    xstate.set('xtabs-selected', i); // Update state
     this._recordPerformanceSnapshot("tab-switch", start, "tabSwitch");
   }
 
