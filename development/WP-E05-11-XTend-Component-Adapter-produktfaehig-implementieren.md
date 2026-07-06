@@ -55,7 +55,6 @@ Der Adapter stellt folgende Operationen bereit:
 Die Build-Artefaktversionen exportieren:
 
 - `createRmtXtendComponentAdapter`
-- `createRenderManXtendComponentAdapter`
 - `RmtXtendComponentAdapter`
 - `RmtXtendMappedComponent`
 - `RmtXtendComponentMapping`

@@ -22,6 +22,9 @@ const {
 const {
   createRmtAppPlatformBuild
 } = require('./rmt-app-platform');
+const {
+  createRmtKernelLabReport
+} = require('./rmt-kernel-lab');
 
 const GENERATOR_REGISTRY_SCHEMA = 'xtend.scaffold.generator-registry.v1';
 
@@ -89,6 +92,14 @@ const GENERATORS = [
     owner: 'WP-E18-11',
     description: 'Builds diagnostics, source maps and scaffold reports for generic Epic 18 RMT App Platform sources.',
     run: createRmtAppPlatformBuild
+  },
+  {
+    id: 'rmt-kernel-lab',
+    command: 'kernel-lab',
+    status: 'rmt-kernel-analysis-clean-build-and-module-manifest',
+    owner: 'RMT-KernelLab',
+    description: 'Analyzes the bundled RMT kernel and builds the clean Dashboard-free standard kernel artifacts.',
+    run: createRmtKernelLabReport
   }
 ];
 

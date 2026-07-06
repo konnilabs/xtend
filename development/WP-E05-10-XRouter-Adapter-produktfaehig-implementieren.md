@@ -54,7 +54,6 @@ Der Adapter stellt folgende Operationen bereit:
 Die Build-Artefaktversionen exportieren:
 
 - `createRmtXRouterAdapter`
-- `createRenderManXRouterAdapter`
 - `RmtXRouterAdapter`
 - `RmtXRouterMappedRoute`
 - `RmtXRouterRouteMapping`

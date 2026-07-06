@@ -18,7 +18,6 @@
 - `KernelPolicyParityController` fuer host-neutrale Matrix und Runtime Reports.
 - Paritaetsmatrix fuer vNext-Security, Remote-Security, Degradation, Streaming und Event Governance.
 - Runtime-Factory `createRmtKernelPolicyParity()` in Core, Runtime und Browser Runtime.
-- Legacy-Alias `createRenderManKernelPolicyParity()`.
 - Runtime Reports mit `appliedPolicies[]`, `runtimeCapabilities` und `drift[]`.
 - Drift-Erkennung fuer fehlende Runtime-Mappings und fehlende Runtime-Hooks.
 - Diagnostics auf `rmt.kernel.policy_parity`.

@@ -976,7 +976,7 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   assertIncludesAll(
     context,
     xrouterAdapter && xrouterAdapter.artifactSurfaces,
-    ['createRmtXRouterAdapter', 'createRenderManXRouterAdapter', 'XRouter.registerRoutes', 'XRouter.navigate', 'RmtXRouterMappedRoute', 'RmtXRouterAdapter'],
+    ['createRmtXRouterAdapter', 'XRouter.registerRoutes', 'XRouter.navigate', 'RmtXRouterMappedRoute', 'RmtXRouterAdapter'],
     'RMT schema XRouter adapter artifact surfaces'
   );
   context.assert(
@@ -1027,7 +1027,7 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   assertIncludesAll(
     context,
     xtendComponentAdapter && xtendComponentAdapter.artifactSurfaces,
-    ['createRmtXtendComponentAdapter', 'createRenderManXtendComponentAdapter', 'RmtXtendMappedComponent', 'RmtXtendComponentMapping', 'RmtXtendComponentAdapter'],
+    ['createRmtXtendComponentAdapter', 'RmtXtendMappedComponent', 'RmtXtendComponentMapping', 'RmtXtendComponentAdapter'],
     'RMT schema XTend component adapter artifact surfaces'
   );
   context.assert(
@@ -1089,7 +1089,7 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   assertIncludesAll(
     context,
     stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.artifactSurfaces,
-    ['createRmtStateSchedulerDiagnosticsBridge', 'createRenderManStateSchedulerDiagnosticsBridge', 'RmtStateSchedulerDiagnosticsBridge', 'RmtStateBridgeHandle', 'RmtBridgeSchedulePolicy'],
+    ['createRmtStateSchedulerDiagnosticsBridge', 'RmtStateSchedulerDiagnosticsBridge', 'RmtStateBridgeHandle', 'RmtBridgeSchedulePolicy'],
     'RMT schema State/Scheduler/Diagnostics bridge artifact surfaces'
   );
   context.assert(
@@ -1630,7 +1630,7 @@ function assertRmtRuntimeEsmBundleSurface(context, rootDir) {
     registry: appModules.createRmtTemplateRegistry()
   });
   const hydrationResult = serverAdapter.hydrateResponse({
-    kind: 'renderman_template_prerender_response',
+    kind: 'rmt_template_prerender_response',
     version: '1.0',
     ok: true,
     transport: 'server',
@@ -1640,7 +1640,7 @@ function assertRmtRuntimeEsmBundleSurface(context, rootDir) {
       adapterKind: 'node-ssr'
     },
     chunks: [{
-      kind: 'renderman_template_chunk',
+      kind: 'rmt_template_chunk',
       version: '1.0',
       executionMode: 'server_prerender_hydrate',
       transport: 'server',

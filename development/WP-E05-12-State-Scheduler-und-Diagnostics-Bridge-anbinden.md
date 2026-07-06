@@ -58,7 +58,6 @@ Die Bridge stellt folgende Operationen bereit:
 Die Build-Artefaktversionen exportieren:
 
 - `createRmtStateSchedulerDiagnosticsBridge`
-- `createRenderManStateSchedulerDiagnosticsBridge`
 - `RmtStateSchedulerDiagnosticsBridge`
 - `RmtStateBridgeHandle`
 - `RmtBridgeSchedulePolicy`

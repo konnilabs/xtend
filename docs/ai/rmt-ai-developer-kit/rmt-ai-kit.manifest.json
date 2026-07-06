@@ -156,8 +156,8 @@
     },
     {
       "path": "docs/de/rmt-reference-enums-catalogs.md",
-      "sha256": "528da90a122fb7ea8988a55f3186737f001f6278d5b69a867f9d877414a15eae",
-      "bytes": 3503
+      "sha256": "a8f5298980a8f936b639b344154dbf6b83f25a15cfe238aa3f3c8cc88c3c58ba",
+      "bytes": 3604
     },
     {
       "path": "docs/de/rmt-reference-primitives.md",
@@ -186,8 +186,8 @@
     },
     {
       "path": "docs/de/rmt-reference-validation-transitions.md",
-      "sha256": "3f4e4d156e4948b45ebd0c09fbf3a2709e83683071d3009bfba85b10f5b95d6d",
-      "bytes": 4701
+      "sha256": "9e3ebac5148cc5212ba3cb06f3c9b19343eb6f33f695226fd55fceff6b84cfa0",
+      "bytes": 6124
     },
     {
       "path": "docs/de/rmt-reference.md",

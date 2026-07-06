@@ -7,8 +7,8 @@ if (!defined('RMT_PHP_SSR_ADAPTER_SCHEMA')) {
     define('RMT_PHP_SSR_JSONL_FRAME_SCHEMA', 'xtend.rmt.node-ssr-jsonl-frame.v1');
     define('RMT_PHP_SSR_HYDRATION_SCHEMA', 'xtend.rmt.node-ssr-hydration-payload.v1');
     define('RMT_PHP_SSR_DIAGNOSTIC_SCHEMA', 'xtend.rmt.php-ssr-diagnostic.v1');
-    define('RMT_PHP_SSR_CHUNK_KIND', 'renderman_template_chunk');
-    define('RMT_PHP_SSR_RESPONSE_KIND', 'renderman_template_prerender_response');
+    define('RMT_PHP_SSR_CHUNK_KIND', 'rmt_template_chunk');
+    define('RMT_PHP_SSR_RESPONSE_KIND', 'rmt_template_prerender_response');
     define('RMT_PHP_SSR_EXECUTION_MODE', 'server_prerender_hydrate');
     define('RMT_PHP_SSR_STREAMING_CONTRACT_SCHEMA', 'xtend.rmt.vnext-streaming-contract.v1');
     define('RMT_PHP_SSR_KERNEL_BOUNDARY', 'no-rmt-kernel-import-of-xtend-types');
@@ -330,7 +330,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
         {
             $value = is_array($input) ? $input : ['descriptor' => $input];
             $hasSource = isset($value['source']) || isset($value['text']);
-            $hasPreparedTemplate = isset($value['template']) || isset($value['preparedTemplate']) || (($value['kind'] ?? null) === 'renderman_prepared_template');
+            $hasPreparedTemplate = isset($value['template']) || isset($value['preparedTemplate']) || (($value['kind'] ?? null) === 'rmt_prepared_template');
             $hasExplicitDescriptor = isset($value['descriptor']) || isset($value['domDescriptor']) || $hasPreparedTemplate;
             if ($hasSource && $hasExplicitDescriptor) {
                 $source = (string) ($value['source'] ?? $value['text']);
@@ -368,7 +368,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                     'sourceRef' => $value['filePath'] ?? ($core['sourceRef'] ?? null),
                 ];
             }
-            if (isset($value['template']) || isset($value['preparedTemplate']) || (($value['kind'] ?? null) === 'renderman_prepared_template')) {
+            if (isset($value['template']) || isset($value['preparedTemplate']) || (($value['kind'] ?? null) === 'rmt_prepared_template')) {
                 $template = $value['template'] ?? ($value['preparedTemplate'] ?? $value);
                 return [
                     'kind' => 'prepared-template',
@@ -748,7 +748,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'cspPolicy' => $cspPolicy,
             ];
             $request = [
-                'kind' => 'renderman_template_prerender_request',
+                'kind' => 'rmt_template_prerender_request',
                 'version' => '1.0',
                 'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
                 'transport' => 'server',

@@ -4,6 +4,8 @@ Stand: 2026-06-19
 
 Diese Karte beschreibt den gebündelten RMT Kernel im XTend-Stack. Der Kernel stammt aus ehemals einzelnen Modulen und liegt heute vor allem in `xtendrmt/rmt-runtime.esm.js`, `xtendrmt/rmt-core.esm.js` und `xtendrmt/rmt-runtime.browser.js`. `xtendrmt/rmt-app-runtime.js` bleibt eine kernelnahe App-Runtime-Schicht für Commands, Host Services, Streams, Reducer und Fabric-Integration.
 
+KernelLab in XTend Scaffold ist der kontrollierte Analyse- und Clean-Build-Pfad fuer dieses Bundle. `xt kernel-lab analyze --json` schreibt `xtendrmt/rmt-kernel-module-manifest.json`; `xt kernel-lab build --profile clean --check --json` prueft, dass der Standardkernel frei von alten Dashboard-Compat-Factories bleibt. Release-Builds koennen `--version <semver>` setzen, damit Header, Runtime-API-Version, Typen und Manifest synchron bleiben.
+
 ## Zweck
 
 Die Map beantwortet drei Fragen:
@@ -14,34 +16,36 @@ Die Map beantwortet drei Fragen:
 
 Die Modulbewertung blendet generierte Produkt-Bundles und Build-Kopien aus. Diese belegen Artefakt-Parität, aber keine eigenständige Framework-Integration.
 
+KernelLab gleicht aktuell die historische Erwartung von 26 Modulen mit den 25 sichtbaren Bundle-Wrappern ab und haelt diese Abweichung als Report-Metadatum fest, statt sie als stille Build-Wahrheit zu behandeln.
+
 ## Bundle-Topologie
 
 | Bundle-Modul | Primäre Factory | Funktionsfläche |
 | --- | --- | --- |
-| `render-man.js` | `createRmtEngine` | Root Lifecycle, Scheduler-Integration, Resources, Commands, Reaktivität und Runtime State |
-| `renderman-priority-queue.js` | `createRmtQueue` | Priorisierte Runtime-Arbeit |
-| `renderman-diagnostics-hub.js` | `createRmtDiagnosticsHub` | Diagnostics-Publikation, Subscription und begrenzte Event-Flüsse |
-| `renderman-command-bus.js` | `createRmtCommandBus` | Command Dispatch |
-| `renderman-reactivity.js` | `createRmtReactivity` | State- und Resource-Reaktivität |
-| `renderman-policy-parity.js` | `createRmtKernelPolicyParity` | Compile-/Runtime-Policy-Parität und Security-Regressionen |
-| `renderman-browser-host-adapter.js` | `createRmtBrowserHostAdapter` | Host Timer, Idle Callbacks, Animation Frames, DOM Events und AbortController |
-| `renderman-performance-runtime.js` | `createRmtPerformanceRuntime` | Budgets, Backpressure-Profile, Browser-Signale, CI-Artefakte und Trend-Reports |
-| `renderman-rmt-format.js` | `createRmtFormat` | RMT-Normalisierung plus XRouter-, Component-, Surface- und Scheduler-Adapter |
-| `renderman-template-registry.js` | `createRmtTemplateRegistry` | Template- und Document-Registry |
-| `renderman-template-loader.js` | `createRmtTemplateLoader` | RMT-Source-Laden |
-| `renderman-template-compiler.js` | `createRmtTemplateCompiler` | Prepared Documents, Templates, Fingerprints und Dependency Refs |
-| `renderman-template-artifacts.js` | `createRmtTemplateArtifacts` | Artifact Bundles, Runtime Profile Hints und registerbare Prepared Documents |
-| `renderman-template-runtime-renderer.js` | `createRmtTemplateRuntimeRenderer` | Runtime Bindings, Trusted DOM, Panic und Recovery |
-| `renderman-template-execution-path.js` | `createRmtTemplateExecutionPath` | Execution Plans, Prerender Chunks, Hydration, Trust Verdicts und Recovery |
-| `renderman-template-transport-adapters.js` | `createRmtTemplateWorkerAdapter`, `createRmtTemplateServerAdapter` | Worker-/Server-Prerender-Envelopes, Supersession und Hydrate Response Handling |
-| `renderman-prewarm-worker-source.js` | `createRmtPrewarmWorkerSourceBuilder` | Browser Worker Source für Template Prewarm |
-| `renderman-prewarm-worker-runtime.js` | `createRmtPrewarmWorkerRuntime` | Template Sync, Worker Health, Prerender Dispatch und Topologie-Snapshots |
-| `renderman-public-api.js` | `createRmtCore`, `createRmtDomCompat`, `createRmtTemplateApi` | Public API, DOM Compatibility und Template API Composition |
-| `renderman-browser-runtime.js` | `createRmtBrowserRuntime`, `createRmtRuntime` | Browser Runtime, Mount, Hydrate, Render, Prerender, Performance Delegation und Prewarm-Integration |
-| `renderman-detached-dom-runtime.js` | `createRmtDetachedRuntime` | Detached DOM Runtime für hostneutrale Ausführung |
-| `renderman-worker-prerender-runtime.js` | `createRmtWorkerPrerenderRuntime`, `createRmtWorkerRuntime` | Worker-Prerender- und Hydration-Runtime |
-| `renderman-server-prerender-runtime.js` | `createRmtServerPrerenderRuntime`, `createRmtServerRuntime` | Server-Prerender- und Hydration-Runtime |
-| `renderman-product-surface.js` | `createRmtProductSurface`, `installRmtProductSurface` | Produktfassade, Entry-Point-Inventar und Browser Global Installer |
+| `rmt-engine.js` | `createRmtEngine` | Root Lifecycle, Scheduler-Integration, Resources, Commands, Reaktivität und Runtime State |
+| `rmt-priority-queue.js` | `createRmtQueue` | Priorisierte Runtime-Arbeit |
+| `rmt-diagnostics-hub.js` | `createRmtDiagnosticsHub` | Diagnostics-Publikation, Subscription und begrenzte Event-Flüsse |
+| `rmt-command-bus.js` | `createRmtCommandBus` | Command Dispatch |
+| `rmt-reactivity.js` | `createRmtReactivity` | State- und Resource-Reaktivität |
+| `rmt-policy-parity.js` | `createRmtKernelPolicyParity` | Compile-/Runtime-Policy-Parität und Security-Regressionen |
+| `rmt-browser-host-adapter.js` | `createRmtBrowserHostAdapter` | Host Timer, Idle Callbacks, Animation Frames, DOM Events und AbortController |
+| `rmt-performance-runtime.js` | `createRmtPerformanceRuntime` | Budgets, Backpressure-Profile, Browser-Signale, CI-Artefakte und Trend-Reports |
+| `rmt-format.js` | `createRmtFormat` | RMT-Normalisierung plus XRouter-, Component-, Surface- und Scheduler-Adapter |
+| `rmt-template-registry.js` | `createRmtTemplateRegistry` | Template- und Document-Registry |
+| `rmt-template-loader.js` | `createRmtTemplateLoader` | RMT-Source-Laden |
+| `rmt-template-compiler.js` | `createRmtTemplateCompiler` | Prepared Documents, Templates, Fingerprints und Dependency Refs |
+| `rmt-template-artifacts.js` | `createRmtTemplateArtifacts` | Artifact Bundles, Runtime Profile Hints und registerbare Prepared Documents |
+| `rmt-template-runtime-renderer.js` | `createRmtTemplateRuntimeRenderer` | Runtime Bindings, Trusted DOM, Panic und Recovery |
+| `rmt-template-execution-path.js` | `createRmtTemplateExecutionPath` | Execution Plans, Prerender Chunks, Hydration, Trust Verdicts und Recovery |
+| `rmt-template-transport-adapters.js` | `createRmtTemplateWorkerAdapter`, `createRmtTemplateServerAdapter` | Worker-/Server-Prerender-Envelopes, Supersession und Hydrate Response Handling |
+| `rmt-prewarm-worker-source.js` | `createRmtPrewarmWorkerSourceBuilder` | Browser Worker Source für Template Prewarm |
+| `rmt-prewarm-worker-runtime.js` | `createRmtPrewarmWorkerRuntime` | Template Sync, Worker Health, Prerender Dispatch und Topologie-Snapshots |
+| `rmt-public-api.js` | `createRmtCore`, `createRmtDomCompat`, `createRmtTemplateApi` | Public API, DOM Compatibility und Template API Composition |
+| `rmt-browser-runtime.js` | `createRmtBrowserRuntime`, `createRmtRuntime` | Browser Runtime, Mount, Hydrate, Render, Prerender, Performance Delegation und Prewarm-Integration |
+| `rmt-detached-dom-runtime.js` | `createRmtDetachedRuntime` | Detached DOM Runtime für hostneutrale Ausführung |
+| `rmt-worker-prerender-runtime.js` | `createRmtWorkerPrerenderRuntime`, `createRmtWorkerRuntime` | Worker-Prerender- und Hydration-Runtime |
+| `rmt-server-prerender-runtime.js` | `createRmtServerPrerenderRuntime`, `createRmtServerRuntime` | Server-Prerender- und Hydration-Runtime |
+| `rmt-product-surface.js` | `createRmtProductSurface`, `installRmtProductSurface` | Produktfassade, Entry-Point-Inventar und Browser Global Installer |
 
 ## Aktuelle Nutzung
 

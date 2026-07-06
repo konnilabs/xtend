@@ -19,9 +19,14 @@ Validation declaratively blocks actions. Transitions describe the change between
 | <a id="trigger-action"></a>`trigger action` | `trigger action submit` | `transition` | action reference | Starts the surface change after an action. | Trigger kind must be present. | `action` |
 | <a id="from-surfaces"></a>`from surfaces` | `from surfaces [form]` | `transition` | array or value | Declares outgoing surface group. | Value must parse. | `to surfaces` |
 | <a id="to-surfaces"></a>`to surfaces` | `to surfaces [done]` | `transition` | array or value | Declares incoming surface group. | Value must parse. | `from surfaces` |
+| <a id="use-animation"></a>`use animation` | `use animation app.motion` | `transition` | animation reference | Reuses a named AnimationEngine preset. | Reference must name an animation record. | `animation` |
 | <a id="transition-effect"></a>`effect` | `effect slide-left` | `transition` | effect name | Selects the visual change. | Unknown effects can be catalog diagnostics. | `durationMs` |
 | <a id="durationMs"></a>`durationMs` | `durationMs 220` | `transition` | number | Sets duration in milliseconds. | Value must follow. | `easing` |
 | <a id="easing"></a>`easing` | `easing "ease-out"` | `transition` | string | Sets CSS easing. | Value must follow. | `effect` |
+| <a id="timeline"></a>`timeline` | `timeline enter then exit` | `transition` | timeline mode | Declares enter/exit sequencing. | Unknown timeline modes are reported. | `effect` |
+| <a id="layoutKey"></a>`layoutKey` | `layoutKey "card"` | `transition` | stable key | Binds `shared-element` and `layout-flip` motion to a layout key. | Required for layout-aware effects. | `shared-element`, `layout-flip` |
+| <a id="interrupt"></a>`interrupt` | `interrupt replace` | `transition` | `cancel`, `finish` or `replace` | Selects how a running transition is interrupted. | Unknown policies are reported. | `trigger action` |
+| <a id="reducedMotion"></a>`reducedMotion` | `reducedMotion fade` | `transition` | `instant`, `fade` or `none` | Declares the fallback for reduced-motion hosts. | Unknown policies are reported. | `durationMs` |
 | <a id="lane-transition"></a>`lane transition` | `lane transition` | `transition` | lane name | Schedules the change on the transition lane. | Lane must exist or be cataloged. | `lane` |
 
 ## Allowed contexts
@@ -60,13 +65,24 @@ template reference.validation {
     include shared.email
   }
 
+  animation contact.motion {
+    effect fade
+    durationMs 180
+    reducedMotion fade
+  }
+
   transition contact.toSummary {
     trigger action contact.next
     from surfaces [contact.form]
     to surfaces [contact.summary]
+    use animation contact.motion
     effect slide-left
     durationMs 220
     easing "ease-out"
+    timeline enter then exit
+    layoutKey "contact-summary"
+    interrupt replace
+    reducedMotion fade
     lane transition
   }
 
@@ -82,8 +98,8 @@ template reference.validation {
 
 ## Diagnostics
 
-Unknown field rules, missing action targets and incomplete transition targets are reported.
+Unknown field rules, missing action targets, incomplete transition targets and missing `layoutKey` values for layout-aware effects are reported.
 
 ## Related operators
 
-`action`, `field`, `surface`, `lane`, `effect`, `payload`.
+`action`, `field`, `surface`, `lane`, `effect`, `payload`, `animation`, `use animation`.

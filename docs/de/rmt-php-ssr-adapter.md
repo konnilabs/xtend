@@ -16,7 +16,7 @@ RMT PHP/Laravel SSR Adapter beschreibt die öffentliche RMT-Oberfläche dieser S
 
 ## Hydration Response Envelope
 
-`render().response` verwendet `renderman_template_prerender_response` mit
+`render().response` verwendet `rmt_template_prerender_response` mit
 `executionMode: "server_prerender_hydrate"`. Die Antwort enthält `chunk`,
 `chunks`, `request`, `metadata.adapterKind: "php-ssr"` und
 `hydrate_existing` Ziel-Metadaten, sodass die Client Runtime sie direkt über

@@ -26,7 +26,7 @@ Die Runtime bleibt bewusst eine unterstuetzende XTend-UI-Schicht:
 
 ## Scope
 
-- `createRmtSurfaceAdapter` und Legacy Alias `createRenderManSurfaceAdapter`
+- `createRmtSurfaceAdapter`
 - Mapping von `surfaces[*]` inklusive Component-, Manager-, Route- und Schedule-Referenzen
 - Operationen:
   - `registerSurface`
@@ -59,4 +59,3 @@ Die Runtime bleibt bewusst eine unterstuetzende XTend-UI-Schicht:
 - Der Adapter registriert native Surface Records gegen ein `x-surface-manager` Ziel.
 - `surface-adapter-runtime` prueft Mapping, Operations, Diagnostics, Runtime-Artefakte und Boundary-Regeln.
 - `surface-native-rmt` darf weiterhin den WP-SM-08-Handoff-Contract pruefen, ohne dessen `runtimeImplemented: false` nachtraeglich umzudeuten.
-

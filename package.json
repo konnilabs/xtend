@@ -16282,6 +16282,7 @@
     "test:scaffold-component-write": "node scripts/run_xtend_tests.js scaffold-component-write",
     "test:scaffold-manifest-patch": "node scripts/run_xtend_tests.js scaffold-manifest-patch",
     "test:scaffold-rmt-build": "node scripts/run_xtend_tests.js scaffold-rmt-build",
+    "test:scaffold-kernel-lab": "node scripts/run_xtend_tests.js scaffold-kernel-lab",
     "test": "node scripts/run_xtend_tests.js",
     "test:core": "node scripts/run_xtend_tests.js core",
     "test:architecture": "node scripts/run_xtend_tests.js architecture",

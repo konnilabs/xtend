@@ -81,7 +81,7 @@ function runDocsPhpSsrPerformanceBudgetSuite(options = {}) {
   context.assert(!Object.prototype.hasOwnProperty.call(prehydration.payload || {}, 'html'), 'Prehydration payload omits full html');
   context.assert(!(prehydration.payload && prehydration.payload.renderResult && Object.prototype.hasOwnProperty.call(prehydration.payload.renderResult, 'html')), 'Render result summary omits full html');
   context.assert(!/"markup"\s*:\s*\{[^}]*"html"\s*:/su.test(prehydrationText), 'Chunk summaries omit markup.html while retaining chunk metadata');
-  context.assert(prehydrationText.includes('renderman_template_chunk'), 'Chunk summaries retain Renderman template chunk schema');
+  context.assert(prehydrationText.includes('rmt_template_chunk'), 'Chunk summaries retain Rmt template chunk schema');
   context.assert(ssrXLinkCount < DOCS_SSR_XLINK_BUDGET, `SSR shell x-link count stays below ${DOCS_SSR_XLINK_BUDGET} (${ssrXLinkCount})`);
   context.assert(ssrBody.includes('data-rmt-menu-placeholder="true"'), 'SSR header renders a lightweight menu placeholder');
   context.assert(!ssrBody.includes('x-link class="docs-nav-link"'), 'SSR header no longer emits disposable docs nav x-link records');

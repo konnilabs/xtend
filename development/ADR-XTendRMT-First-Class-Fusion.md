@@ -279,10 +279,10 @@ Kanonische neue Oberflaechen:
 Kompatibilitaetsoberflaechen:
 
 - `window.xtend.rmt`
-- `window.RenderMan`
-- `createRenderMan*` Factory-Aliasse
+- deprecated global compatibility hooks
+- deprecated factory aliases
 
-Neue Dokumentation und neue Beispiele duerfen nur die XTendRMT/RMT-Namen verwenden. RenderMan-Namen bleiben ausschliesslich Legacy-Kompatibilitaet.
+Neue Dokumentation und neue Beispiele duerfen nur die XTendRMT/RMT-Namen verwenden. Deprecated Namen bleiben ausschliesslich historische Kompatibilitaet.
 
 ## Konsequenzen fuer das bestehende Schema
 
@@ -343,7 +343,7 @@ Die operative Leitplanke fuer Reviews ist `development/XTendRMT-Migrations-und-F
 - Schema validieren
 - Contract-Tests fuer Adapter, Routes und Schedules ergaenzen
 - Beispiele und Doku aktualisieren
-- Legacy-RenderMan-Namen aus neuen Beispielen entfernen
+- Deprecated RMT-Namen aus neuen Beispielen entfernen
 
 ### Phase 5 - Multi-Framework Faehigkeit
 
@@ -361,7 +361,7 @@ Jede Umsetzung der Fusion muss diese Regeln einhalten:
 - bestehende XTend-Nutzung bleibt ohne `.rmt` Opt-in stabil.
 - React, Vue, Vanilla JS und Custom Hosts bleiben gleichberechtigte Adapter-Ziele.
 - Demo-Sonderlogik darf nicht zum dauerhaften DSL-Contract werden.
-- neue Beispiele verwenden namespaced XTendRMT/RMT APIs und keine RenderMan- oder unnamespaced Helper-Namen.
+- neue Beispiele verwenden namespaced XTendRMT/RMT APIs und keine deprecated oder unnamespaced Helper-Namen.
 - `rmt-compatibility` und `references` bleiben Mindestgates fuer Epic-04-Kompatibilitaetsarbeit.
 
 ## Upstream-Handoff ab WP-E04-11
@@ -383,14 +383,14 @@ Die Source-of-Truth-Regel lautet:
 - XRouter soll nicht zur einzigen Routing-Implementierung von RMT werden.
 - XTend-Komponenten sollen nicht in ein proprietaeres RMT-only Komponentenmodell umgeschrieben werden.
 - Bestehende `.rmt` Template-Dokumente sollen nicht gebrochen werden.
-- RenderMan-Legacy-Namen sollen nicht als neue Produkt-API fortgefuehrt werden.
+- Deprecated RMT-Namen sollen nicht als neue Produkt-API fortgefuehrt werden.
 
 ## Risiken
 
 - Wenn XTend-Sonderlogik in den Kernel wandert, verliert RMT seine framework-agnostische Rolle.
 - Wenn Routing nur als XRouter-Spezialfall modelliert wird, wird spaeterer React-, Vue- oder Custom-Router-Support teuer.
 - Wenn Scheduling weiter nur als Optionsblock an einzelnen Templates haengt, wird die DSL bei groesseren Apps unuebersichtlich.
-- Wenn Legacy-RenderMan-Namen sichtbar bleiben, entsteht erneute Namens- und Contract-Drift.
+- Wenn deprecated RMT-Namen sichtbar bleiben, entsteht erneute Namens- und Contract-Drift.
 - Wenn Adapter-Capabilities nicht formalisiert werden, kann die DSL nicht verlaesslich pruefen, ob ein Host ein Dokument wirklich ausfuehren kann.
 
 ## Akzeptanzkriterien
@@ -401,7 +401,7 @@ Die Source-of-Truth-Regel lautet:
 - Der RMT Kernel bleibt ohne XTend-Abhaengigkeit lauffaehig.
 - Neue DSL-Domains sind additiv und brechen bestehende Template-Dokumente nicht.
 - Adapter-Capabilities sind dokumentiert und testbar.
-- Neue Beispiele verwenden `XTendRMT`/`RMT` Namen statt `RenderMan`.
+- Neue Beispiele verwenden `XTendRMT`/`RMT` Namen statt deprecated RMT-Namen.
 
 ## Entscheidungssatz
 

@@ -141,6 +141,10 @@ function buildHelpText() {
     '  xt rmt lint app.rmt --json',
     '  xt rmt ai-kit export --profile compact --format md --json',
     '  xt rmt ai-kit export --profile full --format jsonl --out docs/ai/rmt-ai-developer-kit --json',
+    '  xt kernel-lab analyze --json',
+    '  xt kernel-lab build --profile clean --check --json',
+    '  xt kernel-lab build --profile clean --version 0.4.0 --write --json',
+    '  xt rmt kernel-lab build --profile clean --version 0.4.0 --write --json',
     '  xt rmt lint tests/fixtures',
     '  xt component-files --tag x-example --profile display --json',
     '  xt workflow --json',
@@ -195,6 +199,7 @@ function buildHelpText() {
     '  rmt build     Build an RMT document; pass --bundle maraca for the one-step Maraca path.',
     '  rmt lint  Lint native .rmt files and fallback .rmt.json files.',
     '  rmt ai-kit export  Export the RMT AI Developer Kit for agent ingest.',
+    '  kernel-lab analyze|build  Analyze and rebuild clean RMT kernel artifacts.',
     '',
     'Boundary:',
     '  WP-E03-11 standardizes extension-point contracts without productive runtime code.',
@@ -213,6 +218,68 @@ function printMaracaDiagnostics(stderr, result) {
     const severity = diagnostic.severity ? diagnostic.severity.toUpperCase() : 'INFO';
     writeLine(stderr, `${severity} ${diagnostic.code}: ${diagnostic.message}`);
   });
+}
+
+function printDiagnostics(stderr, result) {
+  const diagnostics = result && Array.isArray(result.diagnostics) ? result.diagnostics : [];
+  diagnostics.forEach((diagnostic) => {
+    const severity = diagnostic.severity ? String(diagnostic.severity).toUpperCase() : 'INFO';
+    const code = diagnostic.code || 'xtend.scaffold.diagnostic';
+    const message = diagnostic.message || '';
+    writeLine(stderr, `${severity} ${code}: ${message}`);
+  });
+}
+
+function buildKernelLabHelpText() {
+  return [
+    'XTend RMT KernelLab Commands',
+    '',
+    'Usage:',
+    '  xt kernel-lab analyze --json',
+    '  xt kernel-lab build --profile clean --check --json',
+    '  xt kernel-lab build --profile clean --version 0.4.0 --write --json',
+    '  xt rmt kernel-lab analyze --json',
+    '  xt rmt kernel-lab build --profile clean --version 0.4.0 --write --json',
+    '',
+    'Commands:',
+    '  analyze  Inventory the bundled RMT kernel and emit the module manifest report.',
+    '  build    Build the Dashboard-free standard kernel artifacts from the bundled kernel.',
+    '',
+    'Options:',
+    '  --version <semver>  Set the XTendRMT kernel release version for headers, runtime API and manifest.'
+  ].join('\n');
+}
+
+function runKernelLabCli(subcommand, rest, options, stdout, stderr) {
+  if (subcommand === 'help' || options.help) {
+    writeLine(stdout, buildKernelLabHelpText());
+    return 0;
+  }
+
+  if (subcommand !== 'analyze' && subcommand !== 'build') {
+    writeLine(stderr, `Unknown XTend RMT KernelLab command: ${subcommand}`);
+    writeLine(stderr, 'Run `xt kernel-lab --help` to see available KernelLab commands.');
+    return 1;
+  }
+
+  const flags = parseFlagArgs(rest);
+  flags.command = subcommand;
+  flags.json = options.json || flags.json;
+  flags.rootDir = process.cwd();
+  const result = runGenerator('rmt-kernel-lab', flags);
+
+  if (flags.json || options.json) {
+    writeLine(stdout, JSON.stringify(result, null, 2));
+  } else if (result.ok) {
+    writeLine(stdout, `XTend RMT KernelLab ${subcommand}: ${result.status}`);
+    if (result.moduleManifestPath) writeLine(stdout, `Module manifest: ${result.moduleManifestPath}`);
+    if (typeof result.visibleModuleCount === 'number') writeLine(stdout, `Visible modules: ${result.visibleModuleCount}`);
+    if (typeof result.changedCount === 'number') writeLine(stdout, `Changed outputs: ${result.changedCount}`);
+  } else {
+    printDiagnostics(stderr, result);
+  }
+
+  return result.ok ? 0 : 1;
 }
 
 function normalizeRmtBuildFlags(rest) {
@@ -526,6 +593,11 @@ function runCli(args = process.argv.slice(2), io = {}) {
     return 0;
   }
 
+  if (command === 'kernel-lab') {
+    const subcommand = options.rest[0] || 'help';
+    return runKernelLabCli(subcommand, options.rest.slice(1), options, stdout, stderr);
+  }
+
   if (command === 'maraca') {
     const subcommand = options.rest[0] || 'help';
     const flags = normalizeRmtBuildFlags(options.rest.slice(1));
@@ -641,6 +713,11 @@ function runCli(args = process.argv.slice(2), io = {}) {
   if (command === 'rmt') {
     const subcommand = options.rest[0] || 'help';
 
+    if (subcommand === 'kernel-lab') {
+      const kernelLabSubcommand = options.rest[1] || 'help';
+      return runKernelLabCli(kernelLabSubcommand, options.rest.slice(2), options, stdout, stderr);
+    }
+
     if (subcommand === 'build') {
       const flags = normalizeRmtBuildFlags(options.rest.slice(1));
       flags.json = options.json || flags.json;
@@ -737,13 +814,17 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt rmt lint app.rmt --json',
         '  xt rmt ai-kit export --profile compact --format md --json',
         '  xt rmt ai-kit export --profile full --format jsonl --out docs/ai/rmt-ai-developer-kit --json',
+        '  xt rmt kernel-lab analyze --json',
+        '  xt rmt kernel-lab build --profile clean --check --json',
+        '  xt rmt kernel-lab build --profile clean --version 0.4.0 --write --json',
         '  xt rmt lint tests/fixtures --fail-on warning',
         '  xt rmt lint app.rmt --format problem-matcher',
         '',
         'Commands:',
         '  build Build an RMT document; pass --bundle maraca for a loaderless ESM app bundle.',
         '  lint  Run the native RMT linter.',
-        '  ai-kit export  Export the RMT AI Developer Kit for agent ingest.'
+        '  ai-kit export  Export the RMT AI Developer Kit for agent ingest.',
+        '  kernel-lab analyze|build  Analyze and rebuild clean RMT kernel artifacts.'
       ].join('\n'));
       return 0;
     }

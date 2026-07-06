@@ -1,19 +1,22 @@
 {
   "schema": "xtend.maraca.size-budget-report.v1",
   "ok": true,
-  "status": "debug_not_enforced",
-  "profile": "debug",
+  "status": "within_budget",
+  "profile": "production",
+  "mode": "strict",
   "baseline": {
     "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
-    "loaderBytes": 53954,
-    "selectedComponentBytes": 100492,
-    "stackModuleBytes": 1531227,
-    "bytes": 1685673
+    "loaderBytes": 53968,
+    "selectedComponentBytes": 111997,
+    "stackModuleBytes": 1725677,
+    "contractPayloadBytes": 607620,
+    "bytes": 2499262
   },
-  "baselineBytes": 1685673,
-  "bundleBytes": 3365322,
-  "ratio": 1.9964263531539035,
+  "baselineBytes": 2499262,
+  "bundleBytes": 2364866,
+  "ratio": 0.9462257258342662,
   "budgets": {
-    "modernEsmEntryMustBeSmallerThanBaseline": false
+    "modernEsmEntryMustBeSmallerThanBaseline": true,
+    "enforcement": "strict"
   }
 }

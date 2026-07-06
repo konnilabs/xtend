@@ -34,7 +34,7 @@ The recommendation is not to switch everything on globally. The safer line is: b
 | `createRmtTemplateExecutionPath()` trust/panic/recovery | Yes | Security and recovery data should not remain limited to kernel security tests | Fabric diagnostics, Maraca lifecycle/kernel report, browser telemetry bridge |
 | `createRmtKernelPolicyParity()` | Yes | Good release and strict-mode gate surface, not just a dedicated kernel test helper | Maraca strict gates, package release reports, policy/runtime parity report |
 | Template registry/loader/compiler direct APIs | Partly | Important substrate, but usually better consumed through Template API or runtime | Use directly for Maraca artifact generation and focused compiler gates |
-| RenderMan legacy aliases | No for new work | Keep compatibility, but do not use them as new integration surfaces | Parity and deprecation gates only |
+| Deprecated RMT aliases | No for new work | Do not use retired compatibility names as new integration surfaces | Parity and deprecation gates only |
 
 ## Warm Reentry And Prewarm Worker
 

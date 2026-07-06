@@ -1,4 +1,4 @@
-// XTendRMT 0.3.0 type definitions
+// XTendRMT 0.3.1 type definitions
 export type RmtOwnershipMode =
     | 'observe_only'
     | 'hydrate_existing'
@@ -112,9 +112,6 @@ export interface RmtClassicSurfaceEntryPoint {
 
 export interface RmtOptionalCompatFactories {
     browserHostAdapter: string;
-    dashboardAdapter: string;
-    dashboardCompatBootstrap: string;
-    dashboardCommandCatalog: string;
 }
 
 export interface RmtMigrationPolicy {
@@ -130,16 +127,6 @@ export interface RmtEntryPointManifest {
     optionalCompat: RmtOptionalCompatFactories;
 }
 
-export interface RmtLegacyCompatibility {
-    productName: 'RenderMan' | string;
-    status: 'deprecated_alias' | string;
-    globalName: string;
-    appModulesFactories: Record<string, string>;
-    schemaArtifacts: {
-        rmtDocument: string;
-        [key: string]: string;
-    };
-}
 
 export interface RmtProductManifest {
     productName: 'XTendRMT' | string;
@@ -163,7 +150,6 @@ export interface RmtProductManifest {
         jsonFallbackPolicy?: string;
     };
     entryPoints: RmtEntryPointManifest;
-    legacyCompatibility: RmtLegacyCompatibility;
     migrationPolicy: RmtMigrationPolicy;
     hostAdapterLifecycleContracts?: RmtHostAdapterLifecycleContract[];
     adapterRegistryContracts?: RmtAdapterRegistryContract[];
@@ -673,8 +659,8 @@ export interface RmtXRouterAdapter {
     capabilities: RmtHostAdapterCapabilities;
     definition: RmtHostAdapterDefinition;
     mapRoute(routeEntry: RmtRouteRegistryEntry | RmtRouteDomainRecord | Record<string, unknown>, options?: Record<string, unknown>): RmtXRouterMappedRoute;
-    mapRoutes(routesInput?: RmtRuntimeRegistrySnapshot | RmtRmtDocument | RmtRouteRegistryEntry[] | Record<string, unknown>, options?: Record<string, unknown>): RmtXRouterRouteMapping;
-    registerRoutes(routesInput?: RmtRuntimeRegistrySnapshot | RmtRmtDocument | RmtRouteRegistryEntry[] | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    mapRoutes(routesInput?: RmtRuntimeRegistrySnapshot | RmtDocument | RmtRouteRegistryEntry[] | Record<string, unknown>, options?: Record<string, unknown>): RmtXRouterRouteMapping;
+    registerRoutes(routesInput?: RmtRuntimeRegistrySnapshot | RmtDocument | RmtRouteRegistryEntry[] | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     navigate(to: string | RmtXRouterNavigationTarget | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult | Promise<RmtHostAdapterOperationResult>;
     emitDiagnostic(event: RmtHostAdapterDiagnosticEvent | Record<string, unknown>, payload?: Record<string, unknown>): RmtHostAdapterOperationResult;
     listDiagnosticCodes(): RmtXRouterAdapterDiagnosticCode[];
@@ -830,8 +816,8 @@ export interface RmtXtendComponentAdapter {
     capabilities: RmtHostAdapterCapabilities;
     definition: RmtHostAdapterDefinition;
     mapComponent(componentEntry: RmtComponentRegistryEntry | RmtComponentDomainRecord | Record<string, unknown>, options?: Record<string, unknown>): RmtXtendMappedComponent;
-    mapComponents(componentsInput?: RmtRuntimeRegistrySnapshot | RmtRmtDocument | RmtComponentRegistryEntry[] | Record<string, unknown>, options?: Record<string, unknown>): RmtXtendComponentMapping;
-    registerComponent(componentInput?: RmtRuntimeRegistrySnapshot | RmtRmtDocument | RmtComponentRegistryEntry[] | RmtXtendComponentMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    mapComponents(componentsInput?: RmtRuntimeRegistrySnapshot | RmtDocument | RmtComponentRegistryEntry[] | Record<string, unknown>, options?: Record<string, unknown>): RmtXtendComponentMapping;
+    registerComponent(componentInput?: RmtRuntimeRegistrySnapshot | RmtDocument | RmtComponentRegistryEntry[] | RmtXtendComponentMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     resolveFabricContext(componentRef: string | RmtXtendMappedComponent | RmtXtendComponentMapping | Record<string, unknown>, operation?: 'mountComponent' | 'hydrateComponent' | string, model?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtXtendComponentFabricContext;
     recordComponentTelemetry(record: RmtXtendComponentLifecycleTelemetry | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     mountComponent(target: unknown, componentRef: string | RmtXtendMappedComponent | RmtXtendComponentMapping | Record<string, unknown>, model?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
@@ -956,8 +942,8 @@ export interface RmtSurfaceAdapter {
     capabilities: RmtHostAdapterCapabilities;
     definition: RmtHostAdapterDefinition;
     mapSurface(surfaceEntry: RmtSurfaceDomainRecord | Record<string, unknown>, options?: Record<string, unknown>): RmtSurfaceMappedSurface;
-    mapSurfaces(surfacesInput?: RmtRmtDocument | RmtSurfaceDomainRecord[] | RmtRuntimeRegistrySnapshot | Record<string, unknown>, options?: Record<string, unknown>): RmtSurfaceAdapterMapping;
-    registerSurface(surfaceInput?: RmtRmtDocument | RmtSurfaceDomainRecord[] | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    mapSurfaces(surfacesInput?: RmtDocument | RmtSurfaceDomainRecord[] | RmtRuntimeRegistrySnapshot | Record<string, unknown>, options?: Record<string, unknown>): RmtSurfaceAdapterMapping;
+    registerSurface(surfaceInput?: RmtDocument | RmtSurfaceDomainRecord[] | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     registerRemoteSurface(remoteSurfaceInput?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     applyRemoteSurfacePolicy(remoteSurfaceInput?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     openSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, input?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
@@ -968,8 +954,8 @@ export interface RmtSurfaceAdapter {
     resizeSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, bounds?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     dockSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, placement?: string, mode?: string, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     undockSurface(surfaceRef: string | RmtSurfaceMappedSurface | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
-    snapshotSurfaces(surfaceInput?: RmtRmtDocument | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
-    materializeSurfaces(surfaceInput?: RmtRmtDocument | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult & { handle?: RmtSurfaceMaterializationHandle };
+    snapshotSurfaces(surfaceInput?: RmtDocument | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
+    materializeSurfaces(surfaceInput?: RmtDocument | RmtSurfaceAdapterMapping | Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult & { handle?: RmtSurfaceMaterializationHandle };
     governRemoteSurfaceEvent(eventRecord?: Record<string, unknown>, payload?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     emitDiagnostic(event: RmtHostAdapterDiagnosticEvent | Record<string, unknown>, payload?: Record<string, unknown>, options?: RmtHostAdapterOperationOptions & Record<string, unknown>): RmtHostAdapterOperationResult;
     listDiagnosticCodes(): RmtSurfaceAdapterDiagnosticCode[];
@@ -1601,7 +1587,7 @@ export interface RmtCore {
     hostAdapter: RmtHostAdapter;
     priorityQueue: unknown;
     reactivity: unknown;
-    renderMan: RmtInstance;
+    rmt: RmtInstance;
     getCapabilities(): RmtCoreCapabilities;
     getManifest(): RmtProductManifest;
     getCommandBus(): unknown;
@@ -1610,7 +1596,7 @@ export interface RmtCore {
     getHostAdapter(): RmtHostAdapter;
     getPriorityQueue(): unknown;
     getReactivity(): unknown;
-    getRenderMan(): RmtInstance;
+    getRmt(): RmtInstance;
 }
 
 export interface RmtHostContract {
@@ -1722,7 +1708,7 @@ export interface RmtPublicApi {
     getIslandContract(islandRef: string | RmtIslandHandle): RmtIslandContract | null;
     getIslandHandle(islandRef: string | RmtIslandHandle): RmtIslandHandle | null;
     getManifest(): RmtProductManifest;
-    getRenderMan(): RmtInstance;
+    getRmt(): RmtInstance;
     getTemplateApi(): RmtTemplateApi | null;
     hydrateIsland(target: RmtIslandTarget, options?: RmtIslandInput): RmtIslandHandle;
     invalidateIsland(islandRef: string | RmtIslandHandle): number;
@@ -1916,7 +1902,7 @@ export interface RmtBrowserNativeMetricSample {
 }
 
 export interface RmtBrowserSignalSnapshot {
-    kind: 'renderman_browser_native_metrics' | string;
+    kind: 'rmt_browser_native_metrics' | string;
     runtimeKind: string;
     updatedAt: number;
     reason: string;
@@ -1934,7 +1920,7 @@ export interface RmtBrowserSignalSnapshot {
 }
 
 export interface RmtBackpressureProfile {
-    kind: 'renderman_backpressure_profile' | string;
+    kind: 'rmt_backpressure_profile' | string;
     runtimeKind: string;
     updatedAt: number;
     reason: string;
@@ -1953,7 +1939,7 @@ export interface RmtBackpressureProfile {
 }
 
 export interface RmtPerformanceMetricComparison {
-    kind: 'renderman_metric_comparison' | string;
+    kind: 'rmt_metric_comparison' | string;
     runtimeKind: string;
     updatedAt: number;
     reason: string;
@@ -2000,7 +1986,7 @@ export interface RmtPerformanceSnapshot {
 }
 
 export interface RmtPerformanceRunReport {
-    kind: 'renderman_performance_run_report' | string;
+    kind: 'rmt_performance_run_report' | string;
     runtimeKind: string;
     exportedAt: number;
     reason: string;
@@ -2060,7 +2046,7 @@ export interface RmtPerformanceRunReport {
 }
 
 export interface RmtPerformanceRunComparison {
-    kind: 'renderman_performance_run_comparison' | string;
+    kind: 'rmt_performance_run_comparison' | string;
     runtimeKind: string;
     comparedAt: number;
     label: string;
@@ -2156,7 +2142,7 @@ export interface RmtPerformanceRunComparison {
 }
 
 export interface RmtPerformanceBaseline {
-    kind: 'renderman_performance_baseline' | string;
+    kind: 'rmt_performance_baseline' | string;
     runtimeKind: string;
     createdAt: number;
     baselineId: string;
@@ -2242,7 +2228,7 @@ export interface RmtPerformanceBaseline {
 }
 
 export interface RmtPerformanceTrendSeries {
-    kind: 'renderman_performance_trend_series' | string;
+    kind: 'rmt_performance_trend_series' | string;
     runtimeKind: string;
     createdAt: number;
     seriesId: string;
@@ -2327,7 +2313,7 @@ export interface RmtPerformanceTrendSeries {
 }
 
 export interface RmtPerformanceBaselineComparison {
-    kind: 'renderman_performance_baseline_comparison' | string;
+    kind: 'rmt_performance_baseline_comparison' | string;
     runtimeKind: string;
     comparedAt: number;
     label: string;
@@ -2431,7 +2417,7 @@ export interface RmtPerformanceBaselineComparison {
 }
 
 export interface RmtPerformanceHarnessOutput {
-    kind: 'renderman_performance_harness_output' | string;
+    kind: 'rmt_performance_harness_output' | string;
     runtimeKind: string;
     exportedAt: number;
     reason: string;
@@ -2456,7 +2442,7 @@ export interface RmtPerformanceHarnessOutput {
 }
 
 export interface RmtPerformanceHarnessHistory {
-    kind: 'renderman_performance_harness_history' | string;
+    kind: 'rmt_performance_harness_history' | string;
     runtimeKind: string;
     exportedAt: number;
     historyId: string;
@@ -2478,7 +2464,7 @@ export interface RmtPerformanceHarnessHistory {
 }
 
 export interface RmtPerformanceBatchSeries {
-    kind: 'renderman_performance_batch_series' | string;
+    kind: 'rmt_performance_batch_series' | string;
     runtimeKind: string;
     createdAt: number;
     seriesId: string;
@@ -2513,7 +2499,7 @@ export interface RmtPerformanceBatchSeries {
 }
 
 export interface RmtPerformanceFileArtifact {
-    kind: 'renderman_performance_file_artifact' | string;
+    kind: 'rmt_performance_file_artifact' | string;
     runtimeKind: string;
     createdAt: number;
     artifactId: string;
@@ -2528,7 +2514,7 @@ export interface RmtPerformanceFileArtifact {
 }
 
 export interface RmtPerformanceCiSummary {
-    kind: 'renderman_performance_ci_summary' | string;
+    kind: 'rmt_performance_ci_summary' | string;
     runtimeKind: string;
     createdAt: number;
     summaryId: string;
@@ -2538,7 +2524,7 @@ export interface RmtPerformanceCiSummary {
 }
 
 export interface RmtPerformanceArtifactWriteResult {
-    kind: 'renderman_performance_artifact_write_result' | 'renderman_performance_ci_summary_write_result' | string;
+    kind: 'rmt_performance_artifact_write_result' | 'rmt_performance_ci_summary_write_result' | string;
     runtimeKind: string;
     wroteAt: number;
     ok: boolean;
@@ -2554,7 +2540,7 @@ export interface RmtPerformanceArtifactWriteResult {
 }
 
 export interface RmtPerformanceBatchHarnessRun {
-    kind: 'renderman_performance_batch_harness_run' | string;
+    kind: 'rmt_performance_batch_harness_run' | string;
     runtimeKind: string;
     createdAt: number;
     label: string;
@@ -2568,7 +2554,7 @@ export interface RmtPerformanceBatchHarnessRun {
 }
 
 export interface RmtPerformanceAutomationHarnessRun extends RmtPerformanceBatchHarnessRun {
-    kind: 'renderman_performance_automation_harness_run' | string;
+    kind: 'rmt_performance_automation_harness_run' | string;
     automation: boolean;
     adapterKind: string;
 }
@@ -2589,7 +2575,7 @@ export interface RmtPerformanceNightlyTrendlineNight {
 }
 
 export interface RmtPerformanceNightlyTrendlines {
-    kind: 'renderman_performance_nightly_trendlines' | string;
+    kind: 'rmt_performance_nightly_trendlines' | string;
     runtimeKind: string;
     createdAt: number;
     trendlineId: string;
@@ -2604,7 +2590,7 @@ export interface RmtPerformanceNightlyTrendlines {
 }
 
 export interface RmtPerformanceExternalExportResult {
-    kind: 'renderman_performance_external_export_result' | 'renderman_performance_external_batch_export' | string;
+    kind: 'rmt_performance_external_export_result' | 'rmt_performance_external_batch_export' | string;
     runtimeKind: string;
     exportedAt: number;
     ok?: boolean;
@@ -2663,7 +2649,7 @@ export interface RmtPerformanceRuntime {
     getEndpointProfile(endpointName: string): RmtPerformanceEndpointProfile;
     getBackpressureProfile(reason?: string): RmtBackpressureProfile;
     getBrowserSignalSnapshot(reason?: string): RmtBrowserSignalSnapshot;
-    getRenderMan(): RmtInstance | null;
+    getRmt(): RmtInstance | null;
     getSnapshot(reason?: string): RmtPerformanceSnapshot;
     listBudgetProfiles(): RmtPerformanceBudgetProfile[];
     listEndpointProfiles(): RmtPerformanceEndpointProfile[];
@@ -2682,7 +2668,7 @@ export interface RmtPerformanceRuntime {
     stopBrowserSignalCollection(reason?: string): RmtBrowserSignalSnapshot;
 }
 
-export interface RmtRmtDocumentManifest {
+export interface RmtDocumentManifest {
     documentId: string;
     namespace: string;
     contentType: string;
@@ -2710,10 +2696,10 @@ export interface RmtRegisteredTemplate {
     loaderHint: string;
 }
 
-export interface RmtRmtDocument {
+export interface RmtDocument {
     kind: 'rmt_document' | string;
     version: string;
-    manifest: RmtRmtDocumentManifest;
+    manifest: RmtDocumentManifest;
     adapters?: RmtAdapterDomainRecord[];
     components?: RmtComponentDomainRecord[];
     routes?: RmtRouteDomainRecord[];
@@ -2840,7 +2826,7 @@ export interface RmtPreparedTemplateDependencyRef {
 }
 
 export interface RmtPreparedTemplate {
-    kind: 'renderman_prepared_template' | string;
+    kind: 'rmt_prepared_template' | string;
     version: string;
     preparedAt: number;
     id: string;
@@ -2865,7 +2851,7 @@ export interface RmtPreparedTemplate {
 }
 
 export interface RmtPreparedDocument {
-    kind: 'renderman_prepared_document' | string;
+    kind: 'rmt_prepared_document' | string;
     version: string;
     preparedAt: number;
     documentId: string;
@@ -2896,11 +2882,11 @@ export interface RmtTemplateRegistry {
     resolveTemplate(templateRef: string | Record<string, unknown>, options?: Record<string, unknown>): RmtRegisteredTemplate | null;
 }
 
-export interface RmtRmtFormat {
+export interface RmtFormat {
     contentType: string;
     documentKind: string;
     documentVersion: string;
-    createEmptyDocument(options?: Record<string, unknown>): RmtRmtDocument;
+    createEmptyDocument(options?: Record<string, unknown>): RmtDocument;
     describeSourceFile(sourceUrl: string): {
         fileExtension: string;
         isPreferredRmtExtension: boolean;
@@ -2924,7 +2910,7 @@ export interface RmtRmtFormat {
     listSupportedTemplateModes(): RmtTemplateMode[];
     normalizeBindingEntry(bindingInput?: Record<string, unknown>): RmtTemplateRuntimeBinding;
     normalizeBindingKind(value: string, fallbackValue?: RmtTemplateBindingKind): RmtTemplateBindingKind;
-    normalizeDslDomains(documentInput?: Record<string, unknown>, documentManifest?: RmtRmtDocumentManifest, templates?: RmtRegisteredTemplate[]): {
+    normalizeDslDomains(documentInput?: Record<string, unknown>, documentManifest?: RmtDocumentManifest, templates?: RmtRegisteredTemplate[]): {
         adapters: RmtAdapterDomainRecord[];
         components: RmtComponentDomainRecord[];
         routes: RmtRouteDomainRecord[];
@@ -2933,8 +2919,8 @@ export interface RmtRmtFormat {
         diagnostics: RmtDslDiagnostic[];
         normalization: RmtDslNormalizationSummary;
     };
-    normalizeDocument(documentInput: string | Record<string, unknown>, options?: Record<string, unknown>): RmtRmtDocument;
-    normalizeDocumentManifest(manifestInput?: Record<string, unknown>, options?: Record<string, unknown>): RmtRmtDocumentManifest;
+    normalizeDocument(documentInput: string | Record<string, unknown>, options?: Record<string, unknown>): RmtDocument;
+    normalizeDocumentManifest(manifestInput?: Record<string, unknown>, options?: Record<string, unknown>): RmtDocumentManifest;
     normalizeErrorBoundary(errorBoundaryInput?: string | Record<string, unknown>): RmtTemplateErrorBoundary;
     normalizeHydrationContract(hydrationInput?: Record<string, unknown>): RmtTemplateHydrationContract;
     normalizeHydrationMode(value: string, fallbackValue?: RmtTemplateHydrationMode): RmtTemplateHydrationMode;
@@ -2945,7 +2931,7 @@ export interface RmtRmtFormat {
     normalizeSlotKind(value: string, fallbackValue?: RmtTemplateSlotKind): RmtTemplateSlotKind;
     normalizeTemplateEntry(templateInput?: Record<string, unknown>, options?: Record<string, unknown>): RmtRegisteredTemplate;
     normalizeTemplateMode(value: string, fallbackValue?: RmtTemplateMode): RmtTemplateMode;
-    parseDocument(documentSource: string, options?: Record<string, unknown>): RmtRmtDocument;
+    parseDocument(documentSource: string, options?: Record<string, unknown>): RmtDocument;
     qualifyTemplateId(namespace: string, templateId: string): string;
     serializeDocument(documentInput: string | Record<string, unknown>, options?: Record<string, unknown>): string;
 }
@@ -2957,7 +2943,7 @@ export interface RmtTemplateLoader {
 }
 
 export interface RmtTemplateCompiler {
-    kind: 'renderman_template_compiler' | string;
+    kind: 'rmt_template_compiler' | string;
     version: string;
     clearPreparedCache(): boolean;
     getPreparedDocument(documentId: string, fallbackValue?: null): RmtPreparedDocument | null;
@@ -2970,7 +2956,7 @@ export interface RmtTemplateCompiler {
 }
 
 export interface RmtTemplateArtifactDocument {
-    kind: 'renderman_template_artifact_document' | string;
+    kind: 'rmt_template_artifact_document' | string;
     version: string;
     artifactId: string;
     documentId: string;
@@ -3001,7 +2987,7 @@ export interface RmtTemplateArtifactBundleManifest {
 }
 
 export interface RmtTemplateArtifactBundle {
-    kind: 'renderman_template_artifact_bundle' | string;
+    kind: 'rmt_template_artifact_bundle' | string;
     version: string;
     manifest: RmtTemplateArtifactBundleManifest;
     documents: RmtTemplateArtifactDocument[];
@@ -3017,7 +3003,7 @@ export interface RmtTemplateArtifactRegistrationResult {
 }
 
 export interface RmtTemplateArtifacts {
-    kind: 'renderman_template_artifacts' | string;
+    kind: 'rmt_template_artifacts' | string;
     version: string;
     createArtifactBundle(documentInputs?: Array<string | Record<string, unknown>> | string | Record<string, unknown>, options?: Record<string, unknown>): RmtTemplateArtifactBundle;
     createArtifactManifest(options?: Record<string, unknown>): RmtTemplateArtifactBundleManifest;
@@ -3071,7 +3057,7 @@ export interface RmtTemplateExecutionPlan {
 }
 
 export interface RmtTemplatePrerenderEnvelope {
-    kind: 'renderman_template_prerender_request' | string;
+    kind: 'rmt_template_prerender_request' | string;
     version: string;
     executionMode: RmtTemplateExecutionMode;
     prerenderTransport: string;
@@ -3097,7 +3083,7 @@ export interface RmtTemplatePrerenderEnvelope {
 }
 
 export interface RmtTemplatePrerenderRequestSnapshot {
-    kind: 'renderman_template_prerender_request' | string;
+    kind: 'rmt_template_prerender_request' | string;
     version: string;
     executionMode: RmtTemplateExecutionMode;
     prerenderTransport: string;
@@ -3117,7 +3103,7 @@ export interface RmtTemplatePrerenderRequestSnapshot {
 }
 
 export interface RmtTemplateChunk {
-    kind: 'renderman_template_chunk' | string;
+    kind: 'rmt_template_chunk' | string;
     version: string;
     executionMode: RmtTemplateExecutionMode;
     transport: string;
@@ -3158,7 +3144,7 @@ export interface RmtTemplateChunk {
 }
 
 export interface RmtTemplatePrerenderResponseEnvelope {
-    kind: 'renderman_template_prerender_response' | string;
+    kind: 'rmt_template_prerender_response' | string;
     version: string;
     ok: boolean;
     superseded: boolean;
@@ -3602,7 +3588,7 @@ export interface RmtTemplateApi {
     executeTemplate(requestInput: RmtTemplateExecutionRequest, options?: Record<string, unknown>): RmtTemplateExecutionResult;
     getArtifactApi(): RmtTemplateArtifacts | null;
     getCompiler(): RmtTemplateCompiler | null;
-    getFormat(): RmtRmtFormat;
+    getFormat(): RmtFormat;
     getExecutionPath(): RmtTemplateExecutionPath | null;
     getLoader(): RmtTemplateLoader;
     getManifest(): RmtProductManifest;
@@ -3724,7 +3710,7 @@ export interface RmtBrowserRuntime {
     runPerformanceBatchHarness(runInputs: Array<Record<string, unknown>>, runner: (input: Record<string, unknown>, index: number, context: Record<string, unknown>) => unknown | Promise<unknown>, options?: Record<string, unknown>): Promise<RmtPerformanceBatchHarnessRun | null>;
     runPerformanceAutomationHarness(runInputs: Array<Record<string, unknown>>, automationAdapter: Record<string, unknown> | ((input: Record<string, unknown>, index: number, context: Record<string, unknown>) => unknown | Promise<unknown>), options?: Record<string, unknown>): Promise<RmtPerformanceAutomationHarnessRun | null>;
     getPublicApi(): RmtPublicApi;
-    getRenderMan(): RmtInstance;
+    getRmt(): RmtInstance;
     getRuntimeRenderer(): RmtTemplateRuntimeRenderer | null;
     getTemplateArtifacts(): RmtTemplateArtifacts | null;
     getServerAdapter(): RmtTemplateTransportAdapter;
@@ -3896,7 +3882,7 @@ export interface RmtWorkerPrerenderRuntime extends Omit<
 
 export interface RmtPrewarmWorkerTopology {
     schema: 'xtend.rmt.prewarm-worker-topology.v1';
-    kind: 'renderman-prewarm' | string;
+    kind: 'rmt-prewarm' | string;
     enabled: boolean;
     status: 'disabled' | 'available' | 'ready' | 'degraded' | string;
     health: 'disabled' | 'available' | 'ready' | 'degraded' | string;
@@ -4036,9 +4022,6 @@ export interface RmtServerPrerenderRuntime extends Omit<
 
 export interface RmtOptionalCompatAvailability {
     browserHostAdapter: boolean;
-    dashboardAdapter: boolean;
-    dashboardCompatBootstrap: boolean;
-    dashboardCommandCatalog: boolean;
 }
 
 export interface RmtResolvedEntryPoint {
@@ -4048,9 +4031,6 @@ export interface RmtResolvedEntryPoint {
 
 export interface RmtProductSurfaceCompat {
     createBrowserHostAdapter: ((options?: Record<string, unknown>) => RmtHostAdapter) | null;
-    createDashboardAdapter: ((options?: Record<string, unknown>) => unknown) | null;
-    createDashboardCompatBootstrap: ((options?: Record<string, unknown>) => unknown) | null;
-    createDashboardCommandCatalog: ((options?: Record<string, unknown>) => unknown) | null;
 }
 
 export interface RmtProductSurface {
@@ -4095,7 +4075,7 @@ export interface RmtCoreOptions extends Record<string, unknown> {
     priorityQueue?: unknown;
     compatibilityAdapters?: unknown[];
     compatibilityAdapter?: unknown;
-    renderMan?: RmtInstance;
+    rmt?: RmtInstance;
     globalName?: string;
     releaseStage?: string;
 }
@@ -4103,8 +4083,8 @@ export interface RmtCoreOptions extends Record<string, unknown> {
 export interface RmtDomCompatOptions extends Record<string, unknown> {
     windowTarget?: unknown;
     documentTarget?: Document | null | unknown;
-    renderManCore?: RmtCore;
-    renderMan?: RmtInstance;
+    rmtCore?: RmtCore;
+    rmt?: RmtInstance;
     hostAdapter?: RmtHostAdapter;
     globalName?: string;
     allowDetachedElements?: boolean;
@@ -4125,10 +4105,10 @@ export interface RmtTemplateApiOptions extends RmtManifestOptions {
     documentTarget?: Document | null | unknown;
     publicApi?: RmtPublicApi;
     getPublicApi?: () => RmtPublicApi | null;
-    renderManCore?: RmtCore;
-    renderMan?: RmtInstance;
+    rmtCore?: RmtCore;
+    rmt?: RmtInstance;
     domCompat?: RmtDomCompat;
-    rmtFormat?: RmtRmtFormat;
+    rmtFormat?: RmtFormat;
     registry?: RmtTemplateRegistry;
     loader?: RmtTemplateLoader;
     compiler?: RmtTemplateCompiler;
@@ -4142,11 +4122,11 @@ export interface RmtTemplateApiOptions extends RmtManifestOptions {
 
 export interface RmtBrowserRuntimeOptions extends RmtTemplateApiOptions {
     core?: RmtCore;
-    renderManCore?: RmtCore;
+    rmtCore?: RmtCore;
     publicApi?: RmtPublicApi;
     templateApi?: RmtTemplateApi;
     prewarmWorkerRuntime?: RmtPrewarmWorkerRuntime;
-    renderManPrewarmWorkerRuntime?: RmtPrewarmWorkerRuntime;
+    rmtPrewarmWorkerRuntime?: RmtPrewarmWorkerRuntime;
     hostAdapter?: RmtHostAdapter;
     browserHostAdapter?: RmtHostAdapter;
     defaults?: Partial<RmtBrowserRuntimeDefaults> & Record<string, unknown>;
@@ -4175,9 +4155,9 @@ export interface RmtPrewarmWorkerRuntimeOptions extends RmtTemplateApiOptions {
 }
 
 export interface RmtPerformanceRuntimeOptions extends RmtTemplateApiOptions {
-    renderManCore?: RmtCore;
+    rmtCore?: RmtCore;
     publicApi?: RmtPublicApi;
-    renderMan?: RmtInstance;
+    rmt?: RmtInstance;
     hostAdapter?: RmtHostAdapter;
     diagnosticsHub?: unknown;
     schedulerDiagnostics?: Record<string, unknown>;
@@ -4232,8 +4212,8 @@ export declare function createRmtDomCompat(options?: RmtDomCompatOptions): RmtDo
 export declare function createRmtPublicApi(options?: RmtPublicApiOptions): RmtPublicApi;
 export declare function createRmtTemplateApi(options?: RmtTemplateApiOptions): RmtTemplateApi;
 export declare function createRmtPerformanceRuntime(options?: RmtPerformanceRuntimeOptions): RmtPerformanceRuntime;
-export declare function createRmtFormat(options?: Record<string, unknown>): RmtRmtFormat;
-export declare function createRmtTemplateRegistry(options?: { rmtFormat?: RmtRmtFormat } & Record<string, unknown>): RmtTemplateRegistry;
+export declare function createRmtFormat(options?: Record<string, unknown>): RmtFormat;
+export declare function createRmtTemplateRegistry(options?: { rmtFormat?: RmtFormat } & Record<string, unknown>): RmtTemplateRegistry;
 export declare function createRmtTemplateLoader(options?: RmtTemplateApiOptions & { registry?: RmtTemplateRegistry }): RmtTemplateLoader;
 export declare function createRmtTemplateCompiler(options?: RmtTemplateApiOptions): RmtTemplateCompiler;
 export declare function createRmtTemplateArtifacts(options?: RmtTemplateApiOptions): RmtTemplateArtifacts;
@@ -4256,73 +4236,39 @@ export declare function createRmtServerPrerenderRuntime(options?: RmtServerPrere
 export declare function createRmtServerRuntime(options?: RmtServerPrerenderRuntimeOptions): RmtServerPrerenderRuntime;
 export declare function createRmtProductSurface(options?: RmtManifestOptions): RmtProductSurface;
 export declare function installRmtProductSurface(
-    options?: RmtManifestOptions & { windowTarget?: unknown; productSurface?: RmtProductSurface; replace?: boolean; installLegacyAlias?: boolean }
+    options?: RmtManifestOptions & { windowTarget?: unknown; productSurface?: RmtProductSurface; replace?: boolean }
 ): RmtProductSurface;
 export declare function createRmtKernelPolicyParity(options?: Record<string, unknown>): RmtKernelRuntimePolicyParityController;
 export declare function createRmtBrowserHostAdapter(options?: Record<string, unknown>): RmtHostAdapter;
 
-/** @deprecated Use getRmtApiVersion(). */
-export declare function getRenderManPublicApiVersion(): string;
 /** @deprecated Use createRmtProductManifest(). */
-export declare function createRenderManProductManifest(options?: RmtManifestOptions): RmtProductManifest;
-/** @deprecated Use createRmtCore(). */
-export declare function createRenderManCore(options?: RmtCoreOptions): RmtCore;
+export declare function createRmtProductManifest(options?: RmtManifestOptions): RmtProductManifest;
 /** @deprecated Use createRmtDomCompat(). */
-export declare function createRenderManDomCompat(options?: RmtDomCompatOptions): RmtDomCompat;
-/** @deprecated Use createRmtPublicApi(). */
-export declare function createRenderManPublicApi(options?: RmtPublicApiOptions): RmtPublicApi;
+export declare function createRmtDomCompat(options?: RmtDomCompatOptions): RmtDomCompat;
 /** @deprecated Use createRmtTemplateApi(). */
-export declare function createRenderManTemplateApi(options?: RmtTemplateApiOptions): RmtTemplateApi;
-/** @deprecated Use createRmtPerformanceRuntime(). */
-export declare function createRenderManPerformanceRuntime(options?: RmtPerformanceRuntimeOptions): RmtPerformanceRuntime;
+export declare function createRmtTemplateApi(options?: RmtTemplateApiOptions): RmtTemplateApi;
 /** @deprecated Use createRmtFormat(). */
-export declare function createRenderManRmtFormat(options?: Record<string, unknown>): RmtRmtFormat;
-/** @deprecated Use createRmtTemplateRegistry(). */
-export declare function createRenderManTemplateRegistry(options?: { rmtFormat?: RmtRmtFormat } & Record<string, unknown>): RmtTemplateRegistry;
+export declare function createRmtFormat(options?: Record<string, unknown>): RmtFormat;
 /** @deprecated Use createRmtTemplateLoader(). */
-export declare function createRenderManTemplateLoader(options?: RmtTemplateApiOptions & { registry?: RmtTemplateRegistry }): RmtTemplateLoader;
-/** @deprecated Use createRmtTemplateCompiler(). */
-export declare function createRenderManTemplateCompiler(options?: RmtTemplateApiOptions): RmtTemplateCompiler;
+export declare function createRmtTemplateLoader(options?: RmtTemplateApiOptions & { registry?: RmtTemplateRegistry }): RmtTemplateLoader;
 /** @deprecated Use createRmtTemplateArtifacts(). */
-export declare function createRenderManTemplateArtifacts(options?: RmtTemplateApiOptions): RmtTemplateArtifacts;
-/** @deprecated Use createRmtTemplateRuntimeRenderer(). */
-export declare function createRenderManTemplateRuntimeRenderer(options?: RmtTemplateApiOptions): RmtTemplateRuntimeRenderer;
+export declare function createRmtTemplateArtifacts(options?: RmtTemplateApiOptions): RmtTemplateArtifacts;
 /** @deprecated Use createRmtTemplateExecutionPath(). */
-export declare function createRenderManTemplateExecutionPath(options?: RmtTemplateApiOptions): RmtTemplateExecutionPath;
-/** @deprecated Use createRmtTemplateWorkerAdapter(). */
-export declare function createRenderManTemplateWorkerAdapter(options?: RmtTemplateApiOptions): RmtTemplateTransportAdapter;
+export declare function createRmtTemplateExecutionPath(options?: RmtTemplateApiOptions): RmtTemplateExecutionPath;
 /** @deprecated Use createRmtTemplateServerAdapter(). */
-export declare function createRenderManTemplateServerAdapter(options?: RmtTemplateApiOptions): RmtTemplateTransportAdapter;
-/** @deprecated Use createRmtXRouterAdapter(). */
-export declare function createRenderManXRouterAdapter(options?: Record<string, unknown>): RmtXRouterAdapter;
+export declare function createRmtTemplateServerAdapter(options?: RmtTemplateApiOptions): RmtTemplateTransportAdapter;
 /** @deprecated Use createRmtXtendComponentAdapter(). */
-export declare function createRenderManXtendComponentAdapter(options?: Record<string, unknown>): RmtXtendComponentAdapter;
-/** @deprecated Use createRmtSurfaceAdapter(). */
-export declare function createRenderManSurfaceAdapter(options?: Record<string, unknown>): RmtSurfaceAdapter;
+export declare function createRmtXtendComponentAdapter(options?: Record<string, unknown>): RmtXtendComponentAdapter;
 /** @deprecated Use createRmtStateSchedulerDiagnosticsBridge(). */
-export declare function createRenderManStateSchedulerDiagnosticsBridge(options?: Record<string, unknown>): RmtStateSchedulerDiagnosticsBridge;
-/** @deprecated Use createRmtPrewarmWorkerSourceBuilder(). */
-export declare function createRenderManPrewarmWorkerSourceBuilder(options?: { workerName?: string } & Record<string, unknown>): RmtPrewarmWorkerSourceBuilder;
+export declare function createRmtStateSchedulerDiagnosticsBridge(options?: Record<string, unknown>): RmtStateSchedulerDiagnosticsBridge;
 /** @deprecated Use createRmtPrewarmWorkerRuntime(). */
-export declare function createRenderManPrewarmWorkerRuntime(options?: RmtPrewarmWorkerRuntimeOptions): RmtPrewarmWorkerRuntime;
-/** @deprecated Use createRmtBrowserRuntime() or createRmtRuntime(). */
-export declare function createRenderManBrowserRuntime(options?: RmtBrowserRuntimeOptions): RmtBrowserRuntime;
+export declare function createRmtPrewarmWorkerRuntime(options?: RmtPrewarmWorkerRuntimeOptions): RmtPrewarmWorkerRuntime;
 /** @deprecated Use createRmtDetachedRuntime(). */
-export declare function createRenderManDetachedDomRuntime(options?: RmtDetachedDomRuntimeOptions): RmtDetachedDomRuntime;
-/** @deprecated Use createRmtWorkerPrerenderRuntime() or createRmtWorkerRuntime(). */
-export declare function createRenderManWorkerPrerenderRuntime(options?: RmtWorkerPrerenderRuntimeOptions): RmtWorkerPrerenderRuntime;
+export declare function createRmtDetachedDomRuntime(options?: RmtDetachedDomRuntimeOptions): RmtDetachedDomRuntime;
 /** @deprecated Use createRmtServerPrerenderRuntime() or createRmtServerRuntime(). */
-export declare function createRenderManServerPrerenderRuntime(options?: RmtServerPrerenderRuntimeOptions): RmtServerPrerenderRuntime;
-/** @deprecated Use createRmtProductSurface(). */
-export declare function createRenderManProductSurface(options?: RmtManifestOptions): RmtProductSurface;
-/** @deprecated Use installRmtProductSurface(). */
-export declare function installRenderManProductSurface(
-    options?: RmtManifestOptions & { windowTarget?: unknown; productSurface?: RmtProductSurface; replace?: boolean }
-): RmtProductSurface;
-/** @deprecated Use createRmtKernelPolicyParity(). */
-export declare function createRenderManKernelPolicyParity(options?: Record<string, unknown>): RmtKernelRuntimePolicyParityController;
+export declare function createRmtServerPrerenderRuntime(options?: RmtServerPrerenderRuntimeOptions): RmtServerPrerenderRuntime;
 /** @deprecated Use createRmtBrowserHostAdapter(). */
-export declare function createRenderManBrowserHostAdapter(options?: Record<string, unknown>): RmtHostAdapter;
+export declare function createRmtBrowserHostAdapter(options?: Record<string, unknown>): RmtHostAdapter;
 
 
 export type XtendRmtProductSurface = RmtProductSurface;
@@ -4330,273 +4276,271 @@ export type XtendRmtProductManifest = RmtProductManifest;
 export type XtendRmtRuntime = RmtBrowserRuntime;
 export type XtendRmtCore = RmtCore;
 
-/** @deprecated Use RmtLegacyCompatibility. */
-export type RenderManLegacyCompatibility = RmtLegacyCompatibility;
 
 /** @deprecated Use RmtAppModulesFactories. */
-export type RenderManAppModulesFactories = RmtAppModulesFactories;
+export type RmtAppModulesFactories = RmtAppModulesFactories;
 /** @deprecated Use RmtBackpressureProfile. */
-export type RenderManBackpressureProfile = RmtBackpressureProfile;
+export type RmtBackpressureProfile = RmtBackpressureProfile;
 /** @deprecated Use RmtBrowserNativeMetricSample. */
-export type RenderManBrowserNativeMetricSample = RmtBrowserNativeMetricSample;
+export type RmtBrowserNativeMetricSample = RmtBrowserNativeMetricSample;
 /** @deprecated Use RmtBrowserRuntime. */
-export type RenderManBrowserRuntime = RmtBrowserRuntime;
+export type RmtBrowserRuntime = RmtBrowserRuntime;
 /** @deprecated Use RmtBrowserRuntimeDefaults. */
-export type RenderManBrowserRuntimeDefaults = RmtBrowserRuntimeDefaults;
+export type RmtBrowserRuntimeDefaults = RmtBrowserRuntimeDefaults;
 /** @deprecated Use RmtBrowserRuntimeOptions. */
-export type RenderManBrowserRuntimeOptions = RmtBrowserRuntimeOptions;
+export type RmtBrowserRuntimeOptions = RmtBrowserRuntimeOptions;
 /** @deprecated Use RmtBrowserSignalSnapshot. */
-export type RenderManBrowserSignalSnapshot = RmtBrowserSignalSnapshot;
+export type RmtBrowserSignalSnapshot = RmtBrowserSignalSnapshot;
 /** @deprecated Use RmtBuildFormat. */
-export type RenderManBuildFormat = RmtBuildFormat;
+export type RmtBuildFormat = RmtBuildFormat;
 /** @deprecated Use RmtBuildTarget. */
-export type RenderManBuildTarget = RmtBuildTarget;
+export type RmtBuildTarget = RmtBuildTarget;
 /** @deprecated Use RmtBuiltTargetSummary. */
-export type RenderManBuiltTargetSummary = RmtBuiltTargetSummary;
+export type RmtBuiltTargetSummary = RmtBuiltTargetSummary;
 /** @deprecated Use RmtClassicSurfaceEntryPoint. */
-export type RenderManClassicSurfaceEntryPoint = RmtClassicSurfaceEntryPoint;
+export type RmtClassicSurfaceEntryPoint = RmtClassicSurfaceEntryPoint;
 /** @deprecated Use RmtCommandEnvelope. */
-export type RenderManCommandEnvelope = RmtCommandEnvelope;
+export type RmtCommandEnvelope = RmtCommandEnvelope;
 /** @deprecated Use RmtCore. */
-export type RenderManCore = RmtCore;
+export type RmtCore = RmtCore;
 /** @deprecated Use RmtCoreCapabilities. */
-export type RenderManCoreCapabilities = RmtCoreCapabilities;
+export type RmtCoreCapabilities = RmtCoreCapabilities;
 /** @deprecated Use RmtCoreOptions. */
-export type RenderManCoreOptions = RmtCoreOptions;
+export type RmtCoreOptions = RmtCoreOptions;
 /** @deprecated Use RmtDetachedDomRuntime. */
-export type RenderManDetachedDomRuntime = RmtDetachedDomRuntime;
+export type RmtDetachedDomRuntime = RmtDetachedDomRuntime;
 /** @deprecated Use RmtDetachedDomRuntimeOptions. */
-export type RenderManDetachedDomRuntimeOptions = RmtDetachedDomRuntimeOptions;
+export type RmtDetachedDomRuntimeOptions = RmtDetachedDomRuntimeOptions;
 /** @deprecated Use RmtDistributionFormat. */
-export type RenderManDistributionFormat = RmtDistributionFormat;
+export type RmtDistributionFormat = RmtDistributionFormat;
 /** @deprecated Use RmtDomCompat. */
-export type RenderManDomCompat = RmtDomCompat;
+export type RmtDomCompat = RmtDomCompat;
 /** @deprecated Use RmtDomCompatOptions. */
-export type RenderManDomCompatOptions = RmtDomCompatOptions;
+export type RmtDomCompatOptions = RmtDomCompatOptions;
 /** @deprecated Use RmtEntryPointManifest. */
-export type RenderManEntryPointManifest = RmtEntryPointManifest;
+export type RmtEntryPointManifest = RmtEntryPointManifest;
 /** @deprecated Use RmtHostAdapter. */
-export type RenderManHostAdapter = RmtHostAdapter;
+export type RmtHostAdapter = RmtHostAdapter;
 /** @deprecated Use RmtHostContract. */
-export type RenderManHostContract = RmtHostContract;
+export type RmtHostContract = RmtHostContract;
 /** @deprecated Use RmtInstance. */
-export type RenderManInstance = RmtInstance;
+export type RmtInstance = RmtInstance;
 /** @deprecated Use RmtIslandContract. */
-export type RenderManIslandContract = RmtIslandContract;
+export type RmtIslandContract = RmtIslandContract;
 /** @deprecated Use RmtIslandDescriptor. */
-export type RenderManIslandDescriptor = RmtIslandDescriptor;
+export type RmtIslandDescriptor = RmtIslandDescriptor;
 /** @deprecated Use RmtIslandHandle. */
-export type RenderManIslandHandle = RmtIslandHandle;
+export type RmtIslandHandle = RmtIslandHandle;
 /** @deprecated Use RmtIslandInput. */
-export type RenderManIslandInput = RmtIslandInput;
+export type RmtIslandInput = RmtIslandInput;
 /** @deprecated Use RmtIslandTarget. */
-export type RenderManIslandTarget = RmtIslandTarget;
+export type RmtIslandTarget = RmtIslandTarget;
 /** @deprecated Use RmtManifestOptions. */
-export type RenderManManifestOptions = RmtManifestOptions;
+export type RmtManifestOptions = RmtManifestOptions;
 /** @deprecated Use RmtMigrationPolicy. */
-export type RenderManMigrationPolicy = RmtMigrationPolicy;
+export type RmtMigrationPolicy = RmtMigrationPolicy;
 /** @deprecated Use RmtMountElement. */
-export type RenderManMountElement = RmtMountElement;
+export type RmtMountElement = RmtMountElement;
 /** @deprecated Use RmtOptionalCompatAvailability. */
-export type RenderManOptionalCompatAvailability = RmtOptionalCompatAvailability;
+export type RmtOptionalCompatAvailability = RmtOptionalCompatAvailability;
 /** @deprecated Use RmtOptionalCompatFactories. */
-export type RenderManOptionalCompatFactories = RmtOptionalCompatFactories;
+export type RmtOptionalCompatFactories = RmtOptionalCompatFactories;
 /** @deprecated Use RmtOwnershipMode. */
-export type RenderManOwnershipMode = RmtOwnershipMode;
+export type RmtOwnershipMode = RmtOwnershipMode;
 /** @deprecated Use RmtPerformanceArtifactWriteResult. */
-export type RenderManPerformanceArtifactWriteResult = RmtPerformanceArtifactWriteResult;
+export type RmtPerformanceArtifactWriteResult = RmtPerformanceArtifactWriteResult;
 /** @deprecated Use RmtPerformanceAutomationHarnessRun. */
-export type RenderManPerformanceAutomationHarnessRun = RmtPerformanceAutomationHarnessRun;
+export type RmtPerformanceAutomationHarnessRun = RmtPerformanceAutomationHarnessRun;
 /** @deprecated Use RmtPerformanceBaseline. */
-export type RenderManPerformanceBaseline = RmtPerformanceBaseline;
+export type RmtPerformanceBaseline = RmtPerformanceBaseline;
 /** @deprecated Use RmtPerformanceBaselineComparison. */
-export type RenderManPerformanceBaselineComparison = RmtPerformanceBaselineComparison;
+export type RmtPerformanceBaselineComparison = RmtPerformanceBaselineComparison;
 /** @deprecated Use RmtPerformanceBatchHarnessRun. */
-export type RenderManPerformanceBatchHarnessRun = RmtPerformanceBatchHarnessRun;
+export type RmtPerformanceBatchHarnessRun = RmtPerformanceBatchHarnessRun;
 /** @deprecated Use RmtPerformanceBatchSeries. */
-export type RenderManPerformanceBatchSeries = RmtPerformanceBatchSeries;
+export type RmtPerformanceBatchSeries = RmtPerformanceBatchSeries;
 /** @deprecated Use RmtPerformanceBudgetEvaluation. */
-export type RenderManPerformanceBudgetEvaluation = RmtPerformanceBudgetEvaluation;
+export type RmtPerformanceBudgetEvaluation = RmtPerformanceBudgetEvaluation;
 /** @deprecated Use RmtPerformanceBudgetProfile. */
-export type RenderManPerformanceBudgetProfile = RmtPerformanceBudgetProfile;
+export type RmtPerformanceBudgetProfile = RmtPerformanceBudgetProfile;
 /** @deprecated Use RmtPerformanceBudgetSnapshot. */
-export type RenderManPerformanceBudgetSnapshot = RmtPerformanceBudgetSnapshot;
+export type RmtPerformanceBudgetSnapshot = RmtPerformanceBudgetSnapshot;
 /** @deprecated Use RmtPerformanceBudgetSummary. */
-export type RenderManPerformanceBudgetSummary = RmtPerformanceBudgetSummary;
+export type RmtPerformanceBudgetSummary = RmtPerformanceBudgetSummary;
 /** @deprecated Use RmtPerformanceCiSummary. */
-export type RenderManPerformanceCiSummary = RmtPerformanceCiSummary;
+export type RmtPerformanceCiSummary = RmtPerformanceCiSummary;
 /** @deprecated Use RmtPerformanceEndpointEvent. */
-export type RenderManPerformanceEndpointEvent = RmtPerformanceEndpointEvent;
+export type RmtPerformanceEndpointEvent = RmtPerformanceEndpointEvent;
 /** @deprecated Use RmtPerformanceEndpointProfile. */
-export type RenderManPerformanceEndpointProfile = RmtPerformanceEndpointProfile;
+export type RmtPerformanceEndpointProfile = RmtPerformanceEndpointProfile;
 /** @deprecated Use RmtPerformanceEndpointStats. */
-export type RenderManPerformanceEndpointStats = RmtPerformanceEndpointStats;
+export type RmtPerformanceEndpointStats = RmtPerformanceEndpointStats;
 /** @deprecated Use RmtPerformanceExternalExportResult. */
-export type RenderManPerformanceExternalExportResult = RmtPerformanceExternalExportResult;
+export type RmtPerformanceExternalExportResult = RmtPerformanceExternalExportResult;
 /** @deprecated Use RmtPerformanceFileArtifact. */
-export type RenderManPerformanceFileArtifact = RmtPerformanceFileArtifact;
+export type RmtPerformanceFileArtifact = RmtPerformanceFileArtifact;
 /** @deprecated Use RmtPerformanceHarnessHistory. */
-export type RenderManPerformanceHarnessHistory = RmtPerformanceHarnessHistory;
+export type RmtPerformanceHarnessHistory = RmtPerformanceHarnessHistory;
 /** @deprecated Use RmtPerformanceHarnessOutput. */
-export type RenderManPerformanceHarnessOutput = RmtPerformanceHarnessOutput;
+export type RmtPerformanceHarnessOutput = RmtPerformanceHarnessOutput;
 /** @deprecated Use RmtPerformanceHistoryStorageStatus. */
-export type RenderManPerformanceHistoryStorageStatus = RmtPerformanceHistoryStorageStatus;
+export type RmtPerformanceHistoryStorageStatus = RmtPerformanceHistoryStorageStatus;
 /** @deprecated Use RmtPerformanceMetricComparison. */
-export type RenderManPerformanceMetricComparison = RmtPerformanceMetricComparison;
+export type RmtPerformanceMetricComparison = RmtPerformanceMetricComparison;
 /** @deprecated Use RmtPerformanceNightlyTrendlineNight. */
-export type RenderManPerformanceNightlyTrendlineNight = RmtPerformanceNightlyTrendlineNight;
+export type RmtPerformanceNightlyTrendlineNight = RmtPerformanceNightlyTrendlineNight;
 /** @deprecated Use RmtPerformanceNightlyTrendlines. */
-export type RenderManPerformanceNightlyTrendlines = RmtPerformanceNightlyTrendlines;
+export type RmtPerformanceNightlyTrendlines = RmtPerformanceNightlyTrendlines;
 /** @deprecated Use RmtPerformancePhaseSummary. */
-export type RenderManPerformancePhaseSummary = RmtPerformancePhaseSummary;
+export type RmtPerformancePhaseSummary = RmtPerformancePhaseSummary;
 /** @deprecated Use RmtPerformanceRunComparison. */
-export type RenderManPerformanceRunComparison = RmtPerformanceRunComparison;
+export type RmtPerformanceRunComparison = RmtPerformanceRunComparison;
 /** @deprecated Use RmtPerformanceRunReport. */
-export type RenderManPerformanceRunReport = RmtPerformanceRunReport;
+export type RmtPerformanceRunReport = RmtPerformanceRunReport;
 /** @deprecated Use RmtPerformanceRuntime. */
-export type RenderManPerformanceRuntime = RmtPerformanceRuntime;
+export type RmtPerformanceRuntime = RmtPerformanceRuntime;
 /** @deprecated Use RmtPerformanceRuntimeOptions. */
-export type RenderManPerformanceRuntimeOptions = RmtPerformanceRuntimeOptions;
+export type RmtPerformanceRuntimeOptions = RmtPerformanceRuntimeOptions;
 /** @deprecated Use RmtPerformanceSnapshot. */
-export type RenderManPerformanceSnapshot = RmtPerformanceSnapshot;
+export type RmtPerformanceSnapshot = RmtPerformanceSnapshot;
 /** @deprecated Use RmtPerformanceTrendSeries. */
-export type RenderManPerformanceTrendSeries = RmtPerformanceTrendSeries;
+export type RmtPerformanceTrendSeries = RmtPerformanceTrendSeries;
 /** @deprecated Use RmtPreparedDocument. */
-export type RenderManPreparedDocument = RmtPreparedDocument;
+export type RmtPreparedDocument = RmtPreparedDocument;
 /** @deprecated Use RmtPreparedTemplate. */
-export type RenderManPreparedTemplate = RmtPreparedTemplate;
+export type RmtPreparedTemplate = RmtPreparedTemplate;
 /** @deprecated Use RmtPreparedTemplateDependencyRef. */
-export type RenderManPreparedTemplateDependencyRef = RmtPreparedTemplateDependencyRef;
+export type RmtPreparedTemplateDependencyRef = RmtPreparedTemplateDependencyRef;
 /** @deprecated Use RmtPrewarmWorkerRuntime. */
-export type RenderManPrewarmWorkerRuntime = RmtPrewarmWorkerRuntime;
+export type RmtPrewarmWorkerRuntime = RmtPrewarmWorkerRuntime;
 /** @deprecated Use RmtPrewarmWorkerRuntimeOptions. */
-export type RenderManPrewarmWorkerRuntimeOptions = RmtPrewarmWorkerRuntimeOptions;
+export type RmtPrewarmWorkerRuntimeOptions = RmtPrewarmWorkerRuntimeOptions;
 /** @deprecated Use RmtPrewarmWorkerSourceBuilder. */
-export type RenderManPrewarmWorkerSourceBuilder = RmtPrewarmWorkerSourceBuilder;
+export type RmtPrewarmWorkerSourceBuilder = RmtPrewarmWorkerSourceBuilder;
 /** @deprecated Use RmtPrewarmWorkerTopology. */
-export type RenderManPrewarmWorkerTopology = RmtPrewarmWorkerTopology;
+export type RmtPrewarmWorkerTopology = RmtPrewarmWorkerTopology;
 /** @deprecated Use RmtProductManifest. */
-export type RenderManProductManifest = RmtProductManifest;
+export type RmtProductManifest = RmtProductManifest;
 /** @deprecated Use RmtProductSurface. */
-export type RenderManProductSurface = RmtProductSurface;
+export type RmtProductSurface = RmtProductSurface;
 /** @deprecated Use RmtProductSurfaceCompat. */
-export type RenderManProductSurfaceCompat = RmtProductSurfaceCompat;
+export type RmtProductSurfaceCompat = RmtProductSurfaceCompat;
 /** @deprecated Use RmtPublicApi. */
-export type RenderManPublicApi = RmtPublicApi;
+export type RmtPublicApi = RmtPublicApi;
 /** @deprecated Use RmtPublicApiOptions. */
-export type RenderManPublicApiOptions = RmtPublicApiOptions;
+export type RmtPublicApiOptions = RmtPublicApiOptions;
 /** @deprecated Use RmtRegisteredTemplate. */
-export type RenderManRegisteredTemplate = RmtRegisteredTemplate;
+export type RmtRegisteredTemplate = RmtRegisteredTemplate;
 /** @deprecated Use RmtResolvedEntryPoint. */
-export type RenderManResolvedEntryPoint = RmtResolvedEntryPoint;
+export type RmtResolvedEntryPoint = RmtResolvedEntryPoint;
 /** @deprecated Use RmtResourceDescriptor. */
-export type RenderManResourceDescriptor = RmtResourceDescriptor;
-/** @deprecated Use RmtRmtDocument. */
-export type RenderManRmtDocument = RmtRmtDocument;
-/** @deprecated Use RmtRmtDocumentManifest. */
-export type RenderManRmtDocumentManifest = RmtRmtDocumentManifest;
-/** @deprecated Use RmtRmtFormat. */
-export type RenderManRmtFormat = RmtRmtFormat;
+export type RmtResourceDescriptor = RmtResourceDescriptor;
+/** @deprecated Use RmtDocument. */
+export type RmtDocument = RmtDocument;
+/** @deprecated Use RmtDocumentManifest. */
+export type RmtDocumentManifest = RmtDocumentManifest;
+/** @deprecated Use RmtFormat. */
+export type RmtFormat = RmtFormat;
 /** @deprecated Use RmtRootDescriptor. */
-export type RenderManRootDescriptor = RmtRootDescriptor;
+export type RmtRootDescriptor = RmtRootDescriptor;
 /** @deprecated Use RmtRootHandle. */
-export type RenderManRootHandle = RmtRootHandle;
+export type RmtRootHandle = RmtRootHandle;
 /** @deprecated Use RmtRuntimeContract. */
-export type RenderManRuntimeContract = RmtRuntimeContract;
+export type RmtRuntimeContract = RmtRuntimeContract;
 /** @deprecated Use RmtServerPrerenderRuntime. */
-export type RenderManServerPrerenderRuntime = RmtServerPrerenderRuntime;
+export type RmtServerPrerenderRuntime = RmtServerPrerenderRuntime;
 /** @deprecated Use RmtServerPrerenderRuntimeOptions. */
-export type RenderManServerPrerenderRuntimeOptions = RmtServerPrerenderRuntimeOptions;
+export type RmtServerPrerenderRuntimeOptions = RmtServerPrerenderRuntimeOptions;
 /** @deprecated Use RmtTemplateApi. */
-export type RenderManTemplateApi = RmtTemplateApi;
+export type RmtTemplateApi = RmtTemplateApi;
 /** @deprecated Use RmtTemplateApiOptions. */
-export type RenderManTemplateApiOptions = RmtTemplateApiOptions;
+export type RmtTemplateApiOptions = RmtTemplateApiOptions;
 /** @deprecated Use RmtTemplateArtifactBundle. */
-export type RenderManTemplateArtifactBundle = RmtTemplateArtifactBundle;
+export type RmtTemplateArtifactBundle = RmtTemplateArtifactBundle;
 /** @deprecated Use RmtTemplateArtifactBundleManifest. */
-export type RenderManTemplateArtifactBundleManifest = RmtTemplateArtifactBundleManifest;
+export type RmtTemplateArtifactBundleManifest = RmtTemplateArtifactBundleManifest;
 /** @deprecated Use RmtTemplateArtifactDocument. */
-export type RenderManTemplateArtifactDocument = RmtTemplateArtifactDocument;
+export type RmtTemplateArtifactDocument = RmtTemplateArtifactDocument;
 /** @deprecated Use RmtTemplateArtifactRegistrationResult. */
-export type RenderManTemplateArtifactRegistrationResult = RmtTemplateArtifactRegistrationResult;
+export type RmtTemplateArtifactRegistrationResult = RmtTemplateArtifactRegistrationResult;
 /** @deprecated Use RmtTemplateArtifacts. */
-export type RenderManTemplateArtifacts = RmtTemplateArtifacts;
+export type RmtTemplateArtifacts = RmtTemplateArtifacts;
 /** @deprecated Use RmtTemplateBindingKind. */
-export type RenderManTemplateBindingKind = RmtTemplateBindingKind;
+export type RmtTemplateBindingKind = RmtTemplateBindingKind;
 /** @deprecated Use RmtTemplateBindingSession. */
-export type RenderManTemplateBindingSession = RmtTemplateBindingSession;
+export type RmtTemplateBindingSession = RmtTemplateBindingSession;
 /** @deprecated Use RmtTemplateChunk. */
-export type RenderManTemplateChunk = RmtTemplateChunk;
+export type RmtTemplateChunk = RmtTemplateChunk;
 /** @deprecated Use RmtTemplateCompiler. */
-export type RenderManTemplateCompiler = RmtTemplateCompiler;
+export type RmtTemplateCompiler = RmtTemplateCompiler;
 /** @deprecated Use RmtTemplateDocumentRegistration. */
-export type RenderManTemplateDocumentRegistration = RmtTemplateDocumentRegistration;
+export type RmtTemplateDocumentRegistration = RmtTemplateDocumentRegistration;
 /** @deprecated Use RmtTemplateErrorBoundary. */
-export type RenderManTemplateErrorBoundary = RmtTemplateErrorBoundary;
+export type RmtTemplateErrorBoundary = RmtTemplateErrorBoundary;
 /** @deprecated Use RmtTemplateExecutionMode. */
-export type RenderManTemplateExecutionMode = RmtTemplateExecutionMode;
+export type RmtTemplateExecutionMode = RmtTemplateExecutionMode;
 /** @deprecated Use RmtTemplateExecutionPath. */
-export type RenderManTemplateExecutionPath = RmtTemplateExecutionPath;
+export type RmtTemplateExecutionPath = RmtTemplateExecutionPath;
 /** @deprecated Use RmtTemplateExecutionPhase. */
-export type RenderManTemplateExecutionPhase = RmtTemplateExecutionPhase;
+export type RmtTemplateExecutionPhase = RmtTemplateExecutionPhase;
 /** @deprecated Use RmtTemplateExecutionPlan. */
-export type RenderManTemplateExecutionPlan = RmtTemplateExecutionPlan;
+export type RmtTemplateExecutionPlan = RmtTemplateExecutionPlan;
 /** @deprecated Use RmtTemplateExecutionRequest. */
-export type RenderManTemplateExecutionRequest = RmtTemplateExecutionRequest;
+export type RmtTemplateExecutionRequest = RmtTemplateExecutionRequest;
 /** @deprecated Use RmtTemplateExecutionResult. */
-export type RenderManTemplateExecutionResult = RmtTemplateExecutionResult;
+export type RmtTemplateExecutionResult = RmtTemplateExecutionResult;
 /** @deprecated Use RmtTemplateExecutionTarget. */
-export type RenderManTemplateExecutionTarget = RmtTemplateExecutionTarget;
+export type RmtTemplateExecutionTarget = RmtTemplateExecutionTarget;
 /** @deprecated Use RmtTemplateHydrationContract. */
-export type RenderManTemplateHydrationContract = RmtTemplateHydrationContract;
+export type RmtTemplateHydrationContract = RmtTemplateHydrationContract;
 /** @deprecated Use RmtTemplateHydrationMode. */
-export type RenderManTemplateHydrationMode = RmtTemplateHydrationMode;
+export type RmtTemplateHydrationMode = RmtTemplateHydrationMode;
 /** @deprecated Use RmtTemplateLoader. */
-export type RenderManTemplateLoader = RmtTemplateLoader;
+export type RmtTemplateLoader = RmtTemplateLoader;
 /** @deprecated Use RmtTemplateMode. */
-export type RenderManTemplateMode = RmtTemplateMode;
+export type RmtTemplateMode = RmtTemplateMode;
 /** @deprecated Use RmtTemplatePrerenderEnvelope. */
-export type RenderManTemplatePrerenderEnvelope = RmtTemplatePrerenderEnvelope;
+export type RmtTemplatePrerenderEnvelope = RmtTemplatePrerenderEnvelope;
 /** @deprecated Use RmtTemplatePrerenderRequestSnapshot. */
-export type RenderManTemplatePrerenderRequestSnapshot = RmtTemplatePrerenderRequestSnapshot;
+export type RmtTemplatePrerenderRequestSnapshot = RmtTemplatePrerenderRequestSnapshot;
 /** @deprecated Use RmtTemplatePrerenderResponseEnvelope. */
-export type RenderManTemplatePrerenderResponseEnvelope = RmtTemplatePrerenderResponseEnvelope;
+export type RmtTemplatePrerenderResponseEnvelope = RmtTemplatePrerenderResponseEnvelope;
 /** @deprecated Use RmtTemplateProp. */
-export type RenderManTemplateProp = RmtTemplateProp;
+export type RmtTemplateProp = RmtTemplateProp;
 /** @deprecated Use RmtTemplateRegistry. */
-export type RenderManTemplateRegistry = RmtTemplateRegistry;
+export type RmtTemplateRegistry = RmtTemplateRegistry;
 /** @deprecated Use RmtTemplateRuntimeBinding. */
-export type RenderManTemplateRuntimeBinding = RmtTemplateRuntimeBinding;
+export type RmtTemplateRuntimeBinding = RmtTemplateRuntimeBinding;
 /** @deprecated Use RmtTemplateRuntimeBindingSessionInput. */
-export type RenderManTemplateRuntimeBindingSessionInput = RmtTemplateRuntimeBindingSessionInput;
+export type RmtTemplateRuntimeBindingSessionInput = RmtTemplateRuntimeBindingSessionInput;
 /** @deprecated Use RmtTemplateRuntimeRenderer. */
-export type RenderManTemplateRuntimeRenderer = RmtTemplateRuntimeRenderer;
+export type RmtTemplateRuntimeRenderer = RmtTemplateRuntimeRenderer;
 /** @deprecated Use RmtTemplateSlot. */
-export type RenderManTemplateSlot = RmtTemplateSlot;
+export type RmtTemplateSlot = RmtTemplateSlot;
 /** @deprecated Use RmtTemplateSlotKind. */
-export type RenderManTemplateSlotKind = RmtTemplateSlotKind;
+export type RmtTemplateSlotKind = RmtTemplateSlotKind;
 /** @deprecated Use RmtTemplateTransportAdapter. */
-export type RenderManTemplateTransportAdapter = RmtTemplateTransportAdapter;
+export type RmtTemplateTransportAdapter = RmtTemplateTransportAdapter;
 /** @deprecated Use RmtTemplateTransportExecutionResult. */
-export type RenderManTemplateTransportExecutionResult = RmtTemplateTransportExecutionResult;
+export type RmtTemplateTransportExecutionResult = RmtTemplateTransportExecutionResult;
 /** @deprecated Use RmtUnmountIslandOptions. */
-export type RenderManUnmountIslandOptions = RmtUnmountIslandOptions;
+export type RmtUnmountIslandOptions = RmtUnmountIslandOptions;
 /** @deprecated Use RmtWorkerPrerenderRuntime. */
-export type RenderManWorkerPrerenderRuntime = RmtWorkerPrerenderRuntime;
+export type RmtWorkerPrerenderRuntime = RmtWorkerPrerenderRuntime;
 /** @deprecated Use RmtWorkerPrerenderRuntimeOptions. */
-export type RenderManWorkerPrerenderRuntimeOptions = RmtWorkerPrerenderRuntimeOptions;
+export type RmtWorkerPrerenderRuntimeOptions = RmtWorkerPrerenderRuntimeOptions;
 
 declare const XtendRmtProduct: RmtProductSurface;
 export default XtendRmtProduct;
 
 declare global {
-    const RenderMan: RmtProductSurface;
+    const Rmt: RmtProductSurface;
     const xtend: {
         rmt: RmtProductSurface;
     };
 
     interface Window {
-        RenderMan: RmtProductSurface;
+        Rmt: RmtProductSurface;
         xtend: {
             rmt: RmtProductSurface;
         };

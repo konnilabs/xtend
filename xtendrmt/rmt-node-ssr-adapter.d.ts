@@ -5,8 +5,8 @@ export const RMT_NODE_SSR_RENDER_RESULT_SCHEMA: 'xtend.rmt.node-ssr-render-resul
 export const RMT_NODE_SSR_JSONL_FRAME_SCHEMA: 'xtend.rmt.node-ssr-jsonl-frame.v1';
 export const RMT_NODE_SSR_DIAGNOSTIC_SCHEMA: 'xtend.rmt.node-ssr-diagnostic.v1';
 export const RMT_NODE_SSR_HYDRATION_SCHEMA: 'xtend.rmt.node-ssr-hydration-payload.v1';
-export const RMT_NODE_SSR_CHUNK_KIND: 'renderman_template_chunk';
-export const RMT_NODE_SSR_RESPONSE_KIND: 'renderman_template_prerender_response';
+export const RMT_NODE_SSR_CHUNK_KIND: 'rmt_template_chunk';
+export const RMT_NODE_SSR_RESPONSE_KIND: 'rmt_template_prerender_response';
 export const RMT_NODE_SSR_EXECUTION_MODE: 'server_prerender_hydrate';
 export const RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA: 'xtend.rmt.vnext-streaming-contract.v1';
 export const RMT_NODE_SSR_KERNEL_BOUNDARY: 'no-rmt-kernel-import-of-xtend-types';

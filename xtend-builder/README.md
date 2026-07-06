@@ -29,6 +29,9 @@ node xtend-builder/scaffold.js typing --tag x-example --profile display --json
 node xtend-builder/scaffold.js preview --tag x-example --profile display --json
 node xtend-builder/scaffold.js extensions --tag x-example --profile display --json
 node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json
+node xtend-builder/scaffold.js kernel-lab analyze --json
+node xtend-builder/scaffold.js kernel-lab build --profile clean --check --json
+node xtend-builder/scaffold.js kernel-lab build --profile clean --version 0.4.0 --write --json
 node xtend-builder/scaffold.js workflow --json
 node xtend-builder/scaffold.js verify --json
 node scripts/run_xtend_tests.js rmt-compatibility --json
@@ -83,6 +86,7 @@ npm run scaffold:extensions
 - `component-files --write` nutzt ab `WP-E17-02` das Sidecar `.xtend-build/scaffold-ownership.json` nach `xtend.scaffold.generated-ownership.v1`, damit generierte Dateien idempotent aktualisiert und unowned Dateien ohne `--force` blockiert werden.
 - `manifest-patcher.js` patcht ab `WP-E17-03` `components/manifest.json` als echtes JSON nach `xtend.scaffold.manifest-patcher.v1` und schreibt stabile Build Reports nach `.xtend-build/component-files/`.
 - `rmt-build` uebersetzt ab `WP-E17-04` RMT vNext Templates in Core JSON, XTend Custom Element, App-Modul, HTTP-Host, Browser-Smoke-Fixture und Scaffold Report.
+- `kernel-lab` analysiert den gebuendelten RMT Kernel nach `xtend.scaffold.rmt-kernel-lab.analysis.v1`, schreibt `xtendrmt/rmt-kernel-module-manifest.json` nach `xtend.rmt.kernel-module-manifest.v1` und baut im Profil `clean` die Dashboard-freien Standard-Kernelartefakte.
 
 ## Aktueller Stand
 

@@ -177,7 +177,7 @@ function assertRuntimeArtifact(context, rootDir, artifactPath) {
     correlationId: 'route.dashboard',
     prewarmWorkerTopology: {
       schema: 'xtend.rmt.prewarm-worker-topology.v1',
-      kind: 'renderman-prewarm',
+      kind: 'rmt-prewarm',
       enabled: true,
       health: 'degraded',
       status: 'degraded',
@@ -229,7 +229,7 @@ function assertRuntimeArtifact(context, rootDir, artifactPath) {
       getPrewarmWorkerTopology() {
         return {
           schema: 'xtend.rmt.prewarm-worker-topology.v1',
-          kind: 'renderman-prewarm',
+          kind: 'rmt-prewarm',
           enabled: true,
           health: 'degraded',
           status: 'degraded',

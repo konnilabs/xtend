@@ -240,7 +240,7 @@ function createRmtAppModulesFromArtifact(context, rootDir, artifactPath) {
 
 function createChunk(html) {
   return {
-    kind: 'renderman_template_chunk',
+    kind: 'rmt_template_chunk',
     version: '1.0',
     executionMode: 'runtime_render',
     transport: 'main',

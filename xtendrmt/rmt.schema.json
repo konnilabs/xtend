@@ -859,7 +859,6 @@
         ],
         "artifactSurfaces": [
           "createRmtXRouterAdapter",
-          "createRenderManXRouterAdapter",
           "XRouter.registerRoutes",
           "XRouter.navigate",
           "RmtXRouterMappedRoute",
@@ -993,7 +992,6 @@
         ],
         "artifactSurfaces": [
           "createRmtXtendComponentAdapter",
-          "createRenderManXtendComponentAdapter",
           "RmtXtendMappedComponent",
           "RmtXtendComponentMapping",
           "RmtXtendComponentLifecycleTelemetry",
@@ -1097,7 +1095,6 @@
         ],
         "artifactSurfaces": [
           "createRmtStateSchedulerDiagnosticsBridge",
-          "createRenderManStateSchedulerDiagnosticsBridge",
           "RmtStateSchedulerDiagnosticsBridge",
           "RmtStateBridgeHandle",
           "RmtBridgeSchedulePolicy"
@@ -1299,25 +1296,6 @@
       "bridgeRuntime": "reserved-for-Epic-05",
       "kernelBoundary": "RMT kernel remains host-neutral and must not import XTend, XRouter or xstate runtime modules."
     }
-  },
-  "x-renderman": {
-    "deprecatedAliasFor": "x-xtendrmt",
-    "preferredFileExtension": ".rmt",
-    "supportedFileExtensions": [
-      ".rmt",
-      ".rmt.json",
-      ".json"
-    ],
-    "jsonFallbackExtensions": [
-      ".rmt.json",
-      ".json"
-    ],
-    "recommendedFileMatch": [
-      "*.rmt"
-    ],
-    "contentType": "application/vnd.renderman.template+json",
-    "jsonFallbackContentType": "application/json",
-    "jsonFallbackPolicy": ".rmt.json and .json remain supported only as compatibility fallbacks; .rmt is the authoring path."
   },
   "type": "object",
   "additionalProperties": false,

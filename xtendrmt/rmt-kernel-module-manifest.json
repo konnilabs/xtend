@@ -1,0 +1,673 @@
+{
+  "schema": "xtend.rmt.kernel-module-manifest.v1",
+  "profile": "clean",
+  "kernelVersion": "0.3.1",
+  "sourceOfTruth": "xtend-builder/generators/rmt-kernel-lab.js",
+  "generatedFrom": "bundled-rmt-kernel-artifacts",
+  "expectedHistoricalModuleCount": 26,
+  "visibleModuleCount": 25,
+  "moduleCountMatchesHistory": false,
+  "moduleCountReconciliation": "visible module topology has 25 modules, expected historical count is 26",
+  "dashboardCleanup": {
+    "policy": "removed-from-standard-kernel",
+    "compatibilityStubs": false,
+    "removedSymbols": [
+      "createRmtDashboardAdapter",
+      "createRmtDashboardCommandCatalog",
+      "createRmtDashboardCompatBootstrap",
+      "createRmtDashboardProductRuntime",
+      "dashboardAdapter",
+      "dashboardCommandCatalog",
+      "dashboardCompatBootstrap"
+    ]
+  },
+  "sourceArtifacts": [
+    {
+      "id": "rmt-core-esm",
+      "path": "xtendrmt/rmt-core.esm.js",
+      "kind": "esm",
+      "exists": true,
+      "byteCount": 1282555,
+      "lineCount": 26746,
+      "sha256": "4b0c0ca2c3941e9c726c6458ac6273816a28ec36e5ebbe46ba5e90a04e3474c8",
+      "moduleCount": 25,
+      "publicExports": [
+        "createRmtBrowserHostAdapter",
+        "createRmtBrowserRuntime",
+        "createRmtCore",
+        "createRmtDetachedRuntime",
+        "createRmtDomCompat",
+        "createRmtFormat",
+        "createRmtKernelPolicyParity",
+        "createRmtPerformanceRuntime",
+        "createRmtPrewarmWorkerRuntime",
+        "createRmtPrewarmWorkerSourceBuilder",
+        "createRmtProductManifest",
+        "createRmtProductSurface",
+        "createRmtPublicApi",
+        "createRmtRuntime",
+        "createRmtServerPrerenderRuntime",
+        "createRmtServerRuntime",
+        "createRmtStateSchedulerDiagnosticsBridge",
+        "createRmtSurfaceAdapter",
+        "createRmtTemplateApi",
+        "createRmtTemplateArtifacts",
+        "createRmtTemplateCompiler",
+        "createRmtTemplateExecutionPath",
+        "createRmtTemplateLoader",
+        "createRmtTemplateRegistry",
+        "createRmtTemplateRuntimeRenderer",
+        "createRmtTemplateServerAdapter",
+        "createRmtTemplateWorkerAdapter",
+        "createRmtWorkerPrerenderRuntime",
+        "createRmtWorkerRuntime",
+        "createRmtXRouterAdapter",
+        "createRmtXtendComponentAdapter",
+        "getRmtApiVersion",
+        "installRmtProductSurface",
+        "version"
+      ],
+      "legacyAliases": [],
+      "deprecatedAliasCount": 0,
+      "deprecatedBrandingCount": 0,
+      "dashboardSymbols": []
+    },
+    {
+      "id": "rmt-runtime-esm",
+      "path": "xtendrmt/rmt-runtime.esm.js",
+      "kind": "esm",
+      "exists": true,
+      "byteCount": 1307726,
+      "lineCount": 27172,
+      "sha256": "4c7d7d15bdf38d86f49d78ead0e6462869449046a197f0cfc3cc16fcab36c0b9",
+      "moduleCount": 25,
+      "publicExports": [
+        "createRmtBrowserHostAdapter",
+        "createRmtBrowserRuntime",
+        "createRmtCore",
+        "createRmtDetachedRuntime",
+        "createRmtDomCompat",
+        "createRmtFormat",
+        "createRmtKernelPolicyParity",
+        "createRmtPerformanceRuntime",
+        "createRmtPrewarmWorkerRuntime",
+        "createRmtPrewarmWorkerSourceBuilder",
+        "createRmtProductManifest",
+        "createRmtProductSurface",
+        "createRmtPublicApi",
+        "createRmtRuntime",
+        "createRmtServerPrerenderRuntime",
+        "createRmtServerRuntime",
+        "createRmtStateSchedulerDiagnosticsBridge",
+        "createRmtSurfaceAdapter",
+        "createRmtTemplateApi",
+        "createRmtTemplateArtifacts",
+        "createRmtTemplateCompiler",
+        "createRmtTemplateExecutionPath",
+        "createRmtTemplateLoader",
+        "createRmtTemplateRegistry",
+        "createRmtTemplateRuntimeRenderer",
+        "createRmtTemplateServerAdapter",
+        "createRmtTemplateWorkerAdapter",
+        "createRmtWorkerPrerenderRuntime",
+        "createRmtWorkerRuntime",
+        "createRmtXRouterAdapter",
+        "createRmtXtendComponentAdapter",
+        "getRmtApiVersion",
+        "installRmtProductSurface",
+        "version"
+      ],
+      "legacyAliases": [],
+      "deprecatedAliasCount": 0,
+      "deprecatedBrandingCount": 0,
+      "dashboardSymbols": []
+    },
+    {
+      "id": "rmt-runtime-browser",
+      "path": "xtendrmt/rmt-runtime.browser.js",
+      "kind": "browser",
+      "exists": true,
+      "byteCount": 1303878,
+      "lineCount": 27138,
+      "sha256": "e05966e4b965926a2c201d8b955f4411b395b09261b0b08b7872a7da89e8b906",
+      "moduleCount": 25,
+      "publicExports": [],
+      "legacyAliases": [],
+      "deprecatedAliasCount": 0,
+      "deprecatedBrandingCount": 0,
+      "dashboardSymbols": []
+    },
+    {
+      "id": "rmt-core-types",
+      "path": "xtendrmt/rmt-core.d.ts",
+      "kind": "types",
+      "exists": true,
+      "byteCount": 188999,
+      "lineCount": 4549,
+      "sha256": "fc89f68ce2dd297710c812002050a261134d2e3fcdf166a86b7df7a8a7dda77a",
+      "moduleCount": 0,
+      "publicExports": [],
+      "legacyAliases": [],
+      "deprecatedAliasCount": 0,
+      "deprecatedBrandingCount": 0,
+      "dashboardSymbols": []
+    },
+    {
+      "id": "rmt-manifest",
+      "path": "xtendrmt/rmt-manifest.json",
+      "kind": "manifest",
+      "exists": true,
+      "byteCount": 19933,
+      "lineCount": 517,
+      "sha256": "f00da9e07593324c382ba28e10021c5914e1a5aed3aff297d8c009d17a435335",
+      "moduleCount": 0,
+      "publicExports": [],
+      "legacyAliases": [],
+      "deprecatedAliasCount": 0,
+      "deprecatedBrandingCount": 0,
+      "dashboardSymbols": []
+    }
+  ],
+  "modules": [
+    {
+      "order": 1,
+      "id": "rmt-engine",
+      "registerName": "registerRmtEngineModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 133273,
+      "lineCount": 2800,
+      "factories": [
+        "createRmtCommandBus",
+        "createRmtDiagnostics",
+        "createRmtEngine",
+        "createRmtPriorityQueue",
+        "createRmtQueue",
+        "createRmtReactivity"
+      ],
+      "publicExports": [
+        "createRmtCommandBus",
+        "createRmtDiagnostics",
+        "createRmtEngine",
+        "createRmtPriorityQueue",
+        "createRmtQueue",
+        "createRmtReactivity"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 2,
+      "id": "rmt-priority-queue",
+      "registerName": "registerRmtPriorityQueueModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 18517,
+      "lineCount": 454,
+      "factories": [
+        "createRmtQueue"
+      ],
+      "publicExports": [
+        "createRmtQueue"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 3,
+      "id": "rmt-diagnostics-hub",
+      "registerName": "registerRmtDiagnosticsHubModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 18045,
+      "lineCount": 391,
+      "factories": [
+        "createRmtDiagnosticsHub"
+      ],
+      "publicExports": [
+        "createRmtDiagnosticsHub"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 4,
+      "id": "rmt-command-bus",
+      "registerName": "registerRmtCommandBusModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 42958,
+      "lineCount": 897,
+      "factories": [
+        "createRmtCommandBus"
+      ],
+      "publicExports": [
+        "createRmtCommandBus"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 5,
+      "id": "rmt-reactivity",
+      "registerName": "registerRmtReactivityModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 14721,
+      "lineCount": 380,
+      "factories": [
+        "createRmtReactivity"
+      ],
+      "publicExports": [
+        "createRmtReactivity"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 6,
+      "id": "rmt-diagnostics",
+      "registerName": "registerRmtDiagnosticsModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 25184,
+      "lineCount": 589,
+      "factories": [
+        "createRmtDiagnostics"
+      ],
+      "publicExports": [
+        "createRmtDiagnostics"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 7,
+      "id": "rmt-kernel-policy-parity",
+      "registerName": "registerRmtKernelPolicyParityModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 20570,
+      "lineCount": 267,
+      "factories": [
+        "createRmtKernelPolicyParity"
+      ],
+      "publicExports": [
+        "createRmtKernelPolicyParity"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 8,
+      "id": "rmt-browser-host-adapter",
+      "registerName": "registerRmtBrowserHostAdapterModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 4690,
+      "lineCount": 115,
+      "factories": [
+        "createRmtBrowserHostAdapter"
+      ],
+      "publicExports": [
+        "createRmtBrowserHostAdapter"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 9,
+      "id": "rmt-performance-runtime",
+      "registerName": "registerRmtPerformanceRuntimeModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 212136,
+      "lineCount": 4258,
+      "factories": [
+        "createRmtPerformanceRuntime"
+      ],
+      "publicExports": [
+        "createRmtPerformanceRuntime"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 10,
+      "id": "rmt-format",
+      "registerName": "registerRmtFormatModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 219279,
+      "lineCount": 4369,
+      "factories": [
+        "createRmtFormat",
+        "createRmtStateSchedulerDiagnosticsBridge",
+        "createRmtSurfaceAdapter",
+        "createRmtXRouterAdapter",
+        "createRmtXtendComponentAdapter"
+      ],
+      "publicExports": [
+        "createRmtFormat",
+        "createRmtStateSchedulerDiagnosticsBridge",
+        "createRmtSurfaceAdapter",
+        "createRmtXRouterAdapter",
+        "createRmtXtendComponentAdapter"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 11,
+      "id": "rmt-template-registry",
+      "registerName": "registerRmtTemplateRegistryModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 11444,
+      "lineCount": 251,
+      "factories": [
+        "createRmtTemplateRegistry"
+      ],
+      "publicExports": [
+        "createRmtTemplateRegistry"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 12,
+      "id": "rmt-template-loader",
+      "registerName": "registerRmtTemplateLoaderModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 5600,
+      "lineCount": 146,
+      "factories": [
+        "createRmtTemplateLoader"
+      ],
+      "publicExports": [
+        "createRmtTemplateLoader"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 13,
+      "id": "rmt-template-compiler",
+      "registerName": "registerRmtTemplateCompilerModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 21082,
+      "lineCount": 426,
+      "factories": [
+        "createRmtTemplateCompiler"
+      ],
+      "publicExports": [
+        "createRmtTemplateCompiler"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 14,
+      "id": "rmt-template-artifacts",
+      "registerName": "registerRmtTemplateArtifactsModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 12477,
+      "lineCount": 245,
+      "factories": [
+        "createRmtTemplateArtifacts"
+      ],
+      "publicExports": [
+        "createRmtTemplateArtifacts"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 15,
+      "id": "rmt-template-runtime-renderer",
+      "registerName": "registerRmtTemplateRuntimeRendererModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 179754,
+      "lineCount": 3929,
+      "factories": [
+        "createRmtTemplateRuntimeRenderer"
+      ],
+      "publicExports": [
+        "createRmtTemplateRuntimeRenderer"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 16,
+      "id": "rmt-template-execution-path",
+      "registerName": "registerRmtTemplateExecutionPathModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 103062,
+      "lineCount": 2198,
+      "factories": [
+        "createRmtTemplateExecutionPath",
+        "createRmtTemplateRuntimeRenderer"
+      ],
+      "publicExports": [
+        "createRmtTemplateExecutionPath",
+        "createRmtTemplateRuntimeRenderer"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 17,
+      "id": "rmt-template-transport-adapters",
+      "registerName": "registerRmtTemplateTransportAdaptersModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 33506,
+      "lineCount": 725,
+      "factories": [
+        "createRmtTemplateExecutionPath",
+        "createRmtTemplateServerAdapter",
+        "createRmtTemplateWorkerAdapter"
+      ],
+      "publicExports": [
+        "createRmtTemplateExecutionPath",
+        "createRmtTemplateServerAdapter",
+        "createRmtTemplateWorkerAdapter"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 18,
+      "id": "rmt-prewarm-worker-source",
+      "registerName": "registerRmtPrewarmWorkerSourceModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 14489,
+      "lineCount": 272,
+      "factories": [
+        "createRmtPrewarmWorkerSourceBuilder"
+      ],
+      "publicExports": [
+        "createRmtPrewarmWorkerSourceBuilder"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 19,
+      "id": "rmt-prewarm-worker-runtime",
+      "registerName": "registerRmtPrewarmWorkerRuntimeModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 20307,
+      "lineCount": 492,
+      "factories": [
+        "createRmtPrewarmWorkerRuntime",
+        "createRmtPrewarmWorkerSourceBuilder"
+      ],
+      "publicExports": [
+        "createRmtPrewarmWorkerRuntime",
+        "createRmtPrewarmWorkerSourceBuilder"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 20,
+      "id": "rmt-public-api",
+      "registerName": "registerRmtPublicApiModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 71102,
+      "lineCount": 1480,
+      "factories": [
+        "createRmtCore",
+        "createRmtDomCompat",
+        "createRmtPrewarmWorkerRuntime",
+        "createRmtProductManifest",
+        "createRmtPublicApi",
+        "createRmtTemplateApi",
+        "getRmtApiVersion"
+      ],
+      "publicExports": [
+        "createRmtCore",
+        "createRmtDomCompat",
+        "createRmtPrewarmWorkerRuntime",
+        "createRmtProductManifest",
+        "createRmtPublicApi",
+        "createRmtTemplateApi",
+        "getRmtApiVersion"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 21,
+      "id": "rmt-browser-runtime",
+      "registerName": "registerRmtBrowserRuntimeModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 50987,
+      "lineCount": 1025,
+      "factories": [
+        "createRmtBrowserRuntime",
+        "createRmtRuntime"
+      ],
+      "publicExports": [
+        "createRmtBrowserRuntime",
+        "createRmtRuntime"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 22,
+      "id": "rmt-detached-dom-runtime",
+      "registerName": "registerRmtDetachedDomRuntimeModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 3741,
+      "lineCount": 93,
+      "factories": [
+        "createRmtDetachedRuntime"
+      ],
+      "publicExports": [
+        "createRmtDetachedRuntime"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 23,
+      "id": "rmt-worker-prerender-runtime",
+      "registerName": "registerRmtWorkerPrerenderRuntimeModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 12350,
+      "lineCount": 289,
+      "factories": [
+        "createRmtWorkerPrerenderRuntime"
+      ],
+      "publicExports": [
+        "createRmtWorkerPrerenderRuntime"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 24,
+      "id": "rmt-server-prerender-runtime",
+      "registerName": "registerRmtServerPrerenderRuntimeModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 11610,
+      "lineCount": 273,
+      "factories": [
+        "createRmtServerPrerenderRuntime"
+      ],
+      "publicExports": [
+        "createRmtServerPrerenderRuntime"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    },
+    {
+      "order": 25,
+      "id": "rmt-product-surface",
+      "registerName": "registerRmtProductSurfaceModule",
+      "artifactPath": "xtendrmt/rmt-core.esm.js",
+      "classification": "keep",
+      "byteCount": 17039,
+      "lineCount": 352,
+      "factories": [
+        "createRmtBrowserHostAdapter",
+        "createRmtProductSurface",
+        "createRmtRuntime",
+        "createRmtServerRuntime",
+        "createRmtWorkerRuntime",
+        "installRmtProductSurface"
+      ],
+      "publicExports": [
+        "createRmtBrowserHostAdapter",
+        "createRmtProductSurface",
+        "createRmtRuntime",
+        "createRmtServerRuntime",
+        "createRmtWorkerRuntime",
+        "installRmtProductSurface"
+      ],
+      "legacyAliases": [],
+      "droppedSymbols": [],
+      "deprecatedAliasCount": 0
+    }
+  ]
+}

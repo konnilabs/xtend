@@ -183,7 +183,7 @@
           const template = templates.get(envelope.template && envelope.template.id) || { id: 'fallback', markup: '<div>fallback</div>' };
           const generation = Number(envelope.generation || 1);
           return {
-            kind: 'renderman_template_chunk',
+            kind: 'rmt_template_chunk',
             version: '1.0',
             executionMode: 'worker_prerender_hydrate',
             transport: 'worker',
@@ -214,7 +214,7 @@
             const envelope = message.envelope || {};
             const chunk = chunkFor(envelope);
             reply(message.id, {
-              kind: message.action === 'ui_compute' ? 'renderman_ui_compute_response' : 'renderman_template_prerender_response',
+              kind: message.action === 'ui_compute' ? 'rmt_ui_compute_response' : 'rmt_template_prerender_response',
               version: '1.0',
               ok: true,
               transport: 'worker',
@@ -223,7 +223,7 @@
               request: envelope,
               chunk,
               uiCompute: {
-                kind: 'renderman_ui_compute_result',
+                kind: 'rmt_ui_compute_result',
                 action: message.action,
                 mainThreadCommitRequired: true,
                 trustedDomCommit: 'main-thread',

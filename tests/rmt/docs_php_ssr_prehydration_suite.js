@@ -175,7 +175,7 @@ function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(!html.includes('window.xtendDocsLocalizedPagesMeta = ;'), 'Docs bootstrap never emits an empty localized metadata assignment');
   context.assert(html.includes('window.xtendDocsSsrPrehydration'), 'Initial HTML exposes SSR prehydration payload');
   context.assert(html.includes(DOCS_PHP_SSR_SCHEMA), 'Initial HTML includes docs SSR prehydration schema');
-  context.assert(html.includes('renderman_template_chunk'), 'Initial HTML exposes Renderman template chunk shape');
+  context.assert(html.includes('rmt_template_chunk'), 'Initial HTML exposes Rmt template chunk shape');
   context.assert(html.includes('server_prerender_hydrate'), 'Initial HTML exposes server prerender hydrate mode');
   context.assert(html.includes('data-rmt-ssr-root="docs.app.root-shell"'), 'Initial HTML marks SSR root shell');
   context.assert(html.includes('data-rmt-shell-prehydrated="true"'), 'Initial HTML marks prehydrated shell');

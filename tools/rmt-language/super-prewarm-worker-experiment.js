@@ -310,7 +310,7 @@ function createUiComputeEnvelope(input = {}) {
   const generation = normalizeInteger(source.generation, 1);
   const hydrationKey = normalizeString(source.hydrationKey, normalizeString(source.rootId, 'super-prewarm-root'));
   return {
-    kind: 'renderman_ui_compute_request',
+    kind: 'rmt_ui_compute_request',
     version: '1.0',
     action: normalizeString(source.action, 'ui_compute'),
     executionMode: normalizeString(source.executionMode, 'worker_prerender_hydrate'),

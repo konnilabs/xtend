@@ -15,6 +15,7 @@ Aktuell registriert:
 | `component-typing` | `typing` | `type-contract-and-rmt-attachment` | erzeugt den `.d.ts` Contract plus vorbereitete XTendRMT-Anschluss-Metadaten |
 | `component-preview` | `preview` | `preview-reference-contract` | erzeugt den Preview-Referenzplan plus Reference-Gate-Metadaten |
 | `component-extensions` | `extensions` | `extension-point-contract` | erzeugt Templating-, Rendering- und Root-Lifecycle-Extension-Punkte |
+| `rmt-kernel-lab` | `kernel-lab` | `rmt-kernel-analysis-clean-build-and-module-manifest` | analysiert den gebuendelten RMT Kernel und baut das Dashboard-freie `clean` Profil |
 
 ## Component-Plan
 
@@ -143,6 +144,18 @@ node xtend-builder/scaffold.js extensions --tag x-example --profile display --js
 ```
 
 Der Contract bleibt `dry-run-extension-contract` und implementiert keine Templating-, Rendering- oder Bridge-Runtime.
+
+## RMT KernelLab
+
+`xtend-builder/generators/rmt-kernel-lab.js` erstellt Analyse- und Build-Reports fuer den gebuendelten RMT Kernel.
+
+```bash
+node xtend-builder/scaffold.js kernel-lab analyze --json
+node xtend-builder/scaffold.js kernel-lab build --profile clean --check --json
+node xtend-builder/scaffold.js rmt kernel-lab build --profile clean --version 0.4.0 --write --json
+```
+
+`analyze` erzeugt das Modul-Inventar nach `xtend.rmt.kernel-module-manifest.v1`, meldet die sichtbaren 25 Bundle-Module gegen die historische Erwartung von 26 Modulen und klassifiziert erhaltene bzw. entfernte Symbolflaechen. `build --profile clean` schreibt die Dashboard-freien Standardartefakte fuer Runtime, Browser, Typen, Produktmanifest und Kernel-Modulmanifest; `--version <semver>` setzt dabei die XTendRMT Release-Version fuer Header, Runtime-API, Typen und Manifest.
 
 ## Grenze
 

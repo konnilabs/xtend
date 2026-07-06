@@ -479,7 +479,7 @@ async function runSuperPrewarmWorkerExperimentSuite(options = {}) {
   context.assert(missingApisReport.ok === true, 'Super Prewarm missing API report remains non-blocking');
   context.assert(missingApisReport.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.maraca.super_prewarm.worker_unavailable'), 'Super Prewarm missing API report records degraded Worker APIs');
 
-  context.assert(envelope.kind === 'renderman_ui_compute_request', 'Super Prewarm ui_compute envelope uses stable request kind');
+  context.assert(envelope.kind === 'rmt_ui_compute_request', 'Super Prewarm ui_compute envelope uses stable request kind');
   context.assert(envelope.metadata.stateOwnership === 'main-thread', 'Super Prewarm ui_compute envelope keeps state ownership on main thread');
   context.assert(envelope.metadata.trustedDomCommit === 'main-thread', 'Super Prewarm ui_compute envelope requires trusted main-thread commit');
   context.assert(envelope.plan.phases.some((phase) => phase.id === 'ui_compute' && phase.transport === 'worker'), 'Super Prewarm ui_compute envelope routes compute phase to worker');
@@ -488,7 +488,7 @@ async function runSuperPrewarmWorkerExperimentSuite(options = {}) {
   RMT_RUNTIME_PATHS.forEach((runtimePath) => {
     const source = readText(runtimePath, rootDir);
     context.assert(source.includes('dispatchUiComputeEnvelope'), `${runtimePath} exposes dispatchUiComputeEnvelope`);
-    context.assert(source.includes('renderman_ui_compute_response'), `${runtimePath} exposes ui_compute response kind`);
+    context.assert(source.includes('rmt_ui_compute_response'), `${runtimePath} exposes ui_compute response kind`);
     context.assert(source.includes("action === 'prerender' || action === 'ui_compute'"), `${runtimePath} accepts ui_compute worker action`);
     context.assert(source.includes('mainThreadCommitRequired: true'), `${runtimePath} records main-thread commit requirement`);
     context.assert(source.includes("stateOwnership: 'main-thread'"), `${runtimePath} records main-thread state ownership`);

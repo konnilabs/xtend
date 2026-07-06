@@ -155,7 +155,7 @@ node scripts/run_xtend_tests.js type-exports-rmt --json
 **Implementierungsnotiz:**
 
 - Build Plan und Bundle Report enthalten `templateArtifacts` mit `documentIds`, `templateIds`, `sourceFingerprint`, `artifactBundleFingerprint`, `bundleFingerprint`, `runtimeProfileHints` und Source-to-Sea-ID-Parität.
-- Die Artefact-Bundles nutzen Kernel-kompatible Shapes (`renderman_template_artifact_bundle`, `renderman_template_artifact_document`) und stabile Fingerprints.
+- Die Artefact-Bundles nutzen Kernel-kompatible Shapes (`rmt_template_artifact_bundle`, `rmt_template_artifact_document`) und stabile Fingerprints.
 - `kernelFeatureAdoption` markiert `templateArtifacts` aktiv, sobald ein unterstütztes, trusted Artefact-Bundle vorbereitet wurde.
 - Der gebaute Maraca-Entry exportiert `MARACA_TEMPLATE_ARTIFACTS` und registriert trusted Bundles zur Laufzeit nur guarded über `createRmtTemplateArtifacts().registerArtifactBundle()`.
 - Package-Metadaten deklarieren `templateArtifactsReportSchema`, damit Release-/Debug-Gates die Evidence finden.

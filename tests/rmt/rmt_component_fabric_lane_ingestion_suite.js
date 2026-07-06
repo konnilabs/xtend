@@ -165,7 +165,7 @@ function assertRuntimeArtifact(context, rootDir, artifactPath) {
 
 function createWorkerPrerenderChunk(generation) {
   return {
-    kind: 'renderman_template_chunk',
+    kind: 'rmt_template_chunk',
     version: '1.0',
     executionMode: 'worker_prerender_hydrate',
     transport: 'worker',
@@ -218,7 +218,7 @@ function createWorkerExecutionPath(hydrationStats) {
     },
     createPrerenderEnvelope(requestInput = {}) {
       return {
-        kind: 'renderman_template_prerender_request',
+        kind: 'rmt_template_prerender_request',
         version: '1.0',
         executionMode: requestInput.executionMode || 'worker_prerender_hydrate',
         prerenderTransport: 'worker',
@@ -237,7 +237,7 @@ function createWorkerExecutionPath(hydrationStats) {
       };
     },
     normalizeChunk(chunkInput) {
-      return chunkInput && chunkInput.kind === 'renderman_template_chunk'
+      return chunkInput && chunkInput.kind === 'rmt_template_chunk'
         ? chunkInput
         : createWorkerPrerenderChunk('fallback');
     },
@@ -270,7 +270,7 @@ function assertWorkerPrerenderInterop(context, rootDir, artifactPath) {
   context.assert(typeof workerAdapter.rememberHydrationGeneration === 'function', `${artifactPath}: worker adapter exposes generation dev API`);
 
   const staleResponse = {
-    kind: 'renderman_template_prerender_response',
+    kind: 'rmt_template_prerender_response',
     version: '1.0',
     ok: true,
     transport: 'worker',

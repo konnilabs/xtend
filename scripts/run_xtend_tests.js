@@ -632,6 +632,10 @@ const {
   runScaffoldRmtBuildSuite
 } = require('../tests/builder/scaffold_rmt_build_suite');
 const {
+  printScaffoldKernelLabReport,
+  runScaffoldKernelLabSuite
+} = require('../tests/builder/scaffold_kernel_lab_suite');
+const {
   printEpic10P0ComponentWaveReport,
   runEpic10P0ComponentWaveSuite
 } = require('../tests/components/epic10_p0_component_wave_suite');
@@ -1315,6 +1319,16 @@ const suites = [
       const result = runScaffoldRmtBuildSuite({ rootDir });
       printScaffoldRmtBuildReport(result);
       return toRunnerResult('scaffold-rmt-build', 'XTend Scaffold RMT Build', result);
+    }
+  },
+  {
+    id: 'scaffold-kernel-lab',
+    label: 'XTend Scaffold RMT KernelLab',
+    description: 'Runs the RMT KernelLab module inventory, clean build, Dashboard cleanup and idempotence gates.',
+    run: () => {
+      const result = runScaffoldKernelLabSuite({ rootDir });
+      printScaffoldKernelLabReport(result);
+      return toRunnerResult('scaffold-kernel-lab', 'XTend Scaffold RMT KernelLab', result);
     }
   },
   {
@@ -3935,6 +3949,7 @@ Examples:
   node scripts/run_xtend_tests.js scaffold-component-write
   node scripts/run_xtend_tests.js scaffold-manifest-patch
   node scripts/run_xtend_tests.js scaffold-rmt-build
+  node scripts/run_xtend_tests.js scaffold-kernel-lab
   node scripts/run_xtend_tests.js epic10-p0-component-wave
   node scripts/run_xtend_tests.js component-lab-rmt-inspector
   node scripts/run_xtend_tests.js component-lab-ux-inspector

@@ -34,7 +34,7 @@ Nicht empfohlen ist eine sofortige globale Aktivierung aller Module. Die sinnvol
 | `createRmtTemplateExecutionPath()` Trust/Panic/Recovery | Ja | Security- und Recovery-Daten sollten nicht nur in Kernel-Security-Tests sichtbar sein | Fabric Diagnostics, Maraca Lifecycle-/Kernel-Report, Browser Telemetry Bridge |
 | `createRmtKernelPolicyParity()` | Ja | Gut für Release- und Strict-Mode-Gates, nicht nur dedizierte Kernel-Tests | Maraca Strict Gates, Package Release Reports, Policy-/Runtime-Parity-Report |
 | Template Registry/Loader/Compiler Direct APIs | Teilweise | Als Unterbau wichtig, aber meist besser über Template API oder Runtime genutzt | Direkt nur für Maraca Artifact Generation und fokussierte Compiler Gates nutzen |
-| RenderMan Legacy Aliases | Nein für neue Arbeit | Kompatibilität behalten, aber nicht als neue Integrationsfläche verwenden | Nur Parity- und Deprecation-Gates |
+| Deprecated RMT Aliases | Nein für neue Arbeit | Ausgemusterte Kompatibilitätsnamen nicht als neue Integrationsfläche verwenden | Nur Parity- und Deprecation-Gates |
 
 ## Warm Reentry und Prewarm Worker
 

@@ -14,7 +14,8 @@ Primitives are the stable App Platform records in RMT vNext.
 | <a id="overlay"></a>`overlay` | `overlay notice kind toast portal app.root` | Top-level, `template` | `kind`, `portal` | Declares feedback or interaction overlays. | Overlay policy lines remain declarative. | `toast`, `dialog`, `on error -> overlay` |
 | <a id="resource"></a>`resource` | `resource file kind object-url owner surface.preview` | Top-level, `template` | `kind`, `owner`, `source` | Declares owner-scoped resources with cleanup. | Resource blocks allow only `import`, `source`, `dispose`. | `destroy releases resource` |
 | <a id="validation"></a>`validation` | `validation form.contact { ... }` | Top-level, `template` | identifier | Declares field rules and action gates. | Only `mode`, `target`, `field`, `include` are allowed. | `field`, `target action` |
-| <a id="transition"></a>`transition` | `transition route.next { ... }` | Top-level, `template` | identifier | Declares surface changes with effect, duration and lane. | Only transition clauses are allowed in the block. | `trigger action`, `from surfaces` |
+| <a id="animation"></a>`animation` | `animation app.motion { ... }` | Top-level, `template` | identifier | Declares reusable AnimationEngine presets with effect, keyframes and reduced-motion policy. | Keyframes are limited to `opacity` and `transform`; `filter` requires `allowFilter`. | `effect`, `durationMs`, `keyframe`, `reducedMotion` |
+| <a id="transition"></a>`transition` | `transition route.next { ... }` | Top-level, `template` | identifier | Declares surface changes with effect, duration, timeline and lane. | Only transition clauses are allowed in the block; `shared-element` and `layout-flip` require `layoutKey`. | `trigger action`, `from surfaces`, `use animation` |
 
 ## Allowed contexts
 
@@ -67,13 +68,22 @@ template reference.primitives {
     field app.email required email message "Valid email"
   }
 
+  animation app.motion {
+    effect pop
+    durationMs 180
+    reducedMotion fade
+  }
+
   transition app.next {
     trigger action app.refresh
     from surfaces [home]
     to surfaces [done]
+    use animation app.motion
     effect fade
     durationMs 120
     easing "ease-out"
+    interrupt replace
+    reducedMotion fade
     lane transition
   }
 

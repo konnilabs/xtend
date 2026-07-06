@@ -39,8 +39,8 @@ const VALID_HYDRATION_MODES = new Set(['auto', 'strict', 'off', 'warm', 'prewarm
 const VALID_VALIDATION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_TRANSITION_MODES = new Set(['auto', 'strict', 'off']);
 const VALID_SIZE_BUDGET_MODES = new Set(['strict', 'warn', 'off']);
-const TEMPLATE_ARTIFACT_DOCUMENT_KIND = 'renderman_template_artifact_document';
-const TEMPLATE_ARTIFACT_BUNDLE_KIND = 'renderman_template_artifact_bundle';
+const TEMPLATE_ARTIFACT_DOCUMENT_KIND = 'rmt_template_artifact_document';
+const TEMPLATE_ARTIFACT_BUNDLE_KIND = 'rmt_template_artifact_bundle';
 const TEMPLATE_ARTIFACT_VERSION = '1.0';
 const DEFAULT_TEMPLATE_RUNTIME_PROFILE_HINTS = Object.freeze([
   'browser',
@@ -135,8 +135,8 @@ const KERNEL_POLICY_PARITY_MODULE = 'tools/rmt-language/kernel-policy-parity.js'
 const KERNEL_POLICY_PARITY_SCHEMA = 'xtend.rmt.kernel-policy-parity.v1';
 const KERNEL_POLICY_PARITY_REPORT_SCHEMA = 'xtend.rmt.kernel-policy-parity-report.v1';
 const KERNEL_POLICY_PARITY_DRIFT_SCHEMA = 'xtend.rmt.kernel-policy-parity-drift.v1';
-const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-rmt-runtime.esm.js';
-const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-rmt-kernel-orchestration-controller.js';
+const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-runtime.esm.js';
+const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-kernel-orchestration-controller.js';
 const ORCHESTRATION_RUNTIME_MODULES = Object.freeze([
   'xtendrmt/rmt-state-selector-runtime.js',
   'xtendrmt/rmt-action-effect-runtime.js',
@@ -479,10 +479,7 @@ function createMaracaKernelFeatureAdoptionReport(options = {}) {
 
 function createFallbackOptionalCompat() {
   return {
-    browserHostAdapter: null,
-    dashboardAdapter: null,
-    dashboardCompatBootstrap: null,
-    dashboardCommandCatalog: null
+    browserHostAdapter: null
   };
 }
 
@@ -1204,7 +1201,7 @@ function createMaracaPreparedTemplate(templateRecord) {
     slots: templateRecord.slots || []
   });
   return {
-    kind: 'renderman_prepared_template',
+    kind: 'rmt_prepared_template',
     version: TEMPLATE_ARTIFACT_VERSION,
     preparedAt: 0,
     id: templateRecord.id,
@@ -1490,7 +1487,7 @@ function createMaracaPerformanceHistoryEntry(runtime, budgetId, index, options =
 function summarizePerformanceFileArtifact(fileArtifact) {
   if (!fileArtifact || typeof fileArtifact !== 'object') return null;
   return {
-    kind: fileArtifact.kind || 'renderman_performance_file_artifact',
+    kind: fileArtifact.kind || 'rmt_performance_file_artifact',
     artifactId: fileArtifact.artifactId || '',
     artifactType: fileArtifact.artifactType || '',
     fileName: fileArtifact.fileName || '',
@@ -2846,8 +2843,8 @@ function createMaracaServerPrerenderReport(artifact, supportedModes, records) {
     evidence: {
       artifactSchema: artifact && artifact.schema || null,
       sourceToSeaFlow: 'server_prerender_hydrate',
-      responseEnvelopeKind: 'renderman_template_prerender_response',
-      chunkKind: 'renderman_template_chunk'
+      responseEnvelopeKind: 'rmt_template_prerender_response',
+      chunkKind: 'rmt_template_chunk'
     },
     diagnostics: hasServerMode ? [] : [hydrationDiagnostic(
       'xtend.maraca.server_prerender_mode_missing',
@@ -5379,7 +5376,7 @@ function createKernelController(root, options = {}) {
           documentTarget: typeof document !== "undefined" ? document : undefined,
           hostAdapter,
           core,
-          renderManCore: core,
+          rmtCore: core,
           performanceRuntime,
           kernelRecords: artifact.records,
           scheduler,
@@ -5394,7 +5391,7 @@ function createKernelController(root, options = {}) {
           documentTarget: typeof document !== "undefined" ? document : undefined,
           hostAdapter,
           core,
-          renderManCore: core,
+          rmtCore: core,
           performanceRuntime,
           kernelRecords: artifact.records,
           scheduler,

@@ -242,7 +242,7 @@ function runSurfaceManagerAdapterRuntimeSuite(options = {}) {
   evaluatedArtifacts.forEach(({ artifact, modules }) => {
     if (!modules) return;
     context.assert(typeof modules.createRmtSurfaceAdapter === 'function', `${artifact} exposes createRmtSurfaceAdapter`);
-    context.assert(typeof modules.createRenderManSurfaceAdapter === 'function', `${artifact} exposes legacy createRenderManSurfaceAdapter`);
+    context.assert(typeof modules.createRmtSurfaceAdapter === 'function', `${artifact} exposes legacy createRmtSurfaceAdapter`);
   });
 
   const coreModules = evaluatedArtifacts.find((entry) => entry.artifact === 'xtendrmt/rmt-core.esm.js').modules;
@@ -308,7 +308,7 @@ function runSurfaceManagerAdapterRuntimeSuite(options = {}) {
     'RmtSurfaceMappedSurface',
     'RmtSurfaceAdapterRuntimeContract',
     'createRmtSurfaceAdapter',
-    'createRenderManSurfaceAdapter'
+    'createRmtSurfaceAdapter'
   ], 'RMT type artifact surface adapter runtime');
   assertIncludesAll(context, manifest.artifactParityContracts[0].requiredFactories, ['createRmtSurfaceAdapter'], 'RMT manifest artifact parity factories');
   assertIncludesAll(context, manifest.artifactParityContracts[0].requiredContractIds, [SURFACE_ADAPTER_SCHEMA], 'RMT manifest artifact parity contracts');

@@ -336,7 +336,7 @@ async function createRmtDetachedRuntimeGateHarness(options = {}) {
       });
       record('unmount', unmounted === true ? 'ok' : 'failed', {
         rootId: 'root.detached.mount',
-        rootCountAfterUnmount: detachedRuntime.getRenderMan().listRoots().length
+        rootCountAfterUnmount: detachedRuntime.getRmt().listRoots().length
       });
       const disposedRoot = hydrateHandle.unmount({
         clearHandlers: true,
@@ -344,7 +344,7 @@ async function createRmtDetachedRuntimeGateHarness(options = {}) {
       });
       record('disposeRoot', disposedRoot === true ? 'ok' : 'failed', {
         rootId: 'root.detached.hydrate',
-        rootCountAfterDispose: detachedRuntime.getRenderMan().listRoots().length
+        rootCountAfterDispose: detachedRuntime.getRmt().listRoots().length
       });
       const opened = await surfaceGraph.openSurface('surface.detached.workspace');
       record('openSurface', opened && opened.state === 'open' ? 'ok' : 'failed', {
@@ -390,7 +390,7 @@ async function createRmtDetachedRuntimeGateHarness(options = {}) {
       snapshots: {
         detachedRuntime: {
           islandCount: detachedRuntime.listIslands().length,
-          rootCount: detachedRuntime.getRenderMan().listRoots().length,
+          rootCount: detachedRuntime.getRmt().listRoots().length,
           capabilities: detachedRuntime.getCapabilities()
         },
         surfaceController: activeSurfaceSnapshot,

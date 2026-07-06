@@ -19,9 +19,14 @@ Validation blockiert deklarativ Actions. Transitions beschreiben den Wechsel zwi
 | <a id="trigger-action"></a>`trigger action` | `trigger action submit` | `transition` | Action-Referenz | Startet den Surface-Wechsel nach einer Action. | Trigger-Kind muss vorhanden sein. | `action` |
 | <a id="from-surfaces"></a>`from surfaces` | `from surfaces [form]` | `transition` | Array oder Wert | Deklariert ausgehende Surface-Gruppe. | Wert muss parsebar sein. | `to surfaces` |
 | <a id="to-surfaces"></a>`to surfaces` | `to surfaces [done]` | `transition` | Array oder Wert | Deklariert eingehende Surface-Gruppe. | Wert muss parsebar sein. | `from surfaces` |
+| <a id="use-animation"></a>`use animation` | `use animation app.motion` | `transition` | Animation-Referenz | Verwendet ein benanntes AnimationEngine-Preset wieder. | Referenz muss einen Animation-Record benennen. | `animation` |
 | <a id="transition-effect"></a>`effect` | `effect slide-left` | `transition` | Effektname | Wählt den visuellen Wechsel. | Unbekannte Effekte können katalogseitig gemeldet werden. | `durationMs` |
 | <a id="durationMs"></a>`durationMs` | `durationMs 220` | `transition` | Zahl | Setzt Dauer in Millisekunden. | Wert muss folgen. | `easing` |
 | <a id="easing"></a>`easing` | `easing "ease-out"` | `transition` | String | Setzt CSS-Easing. | Wert muss folgen. | `effect` |
+| <a id="timeline"></a>`timeline` | `timeline enter then exit` | `transition` | Timeline-Modus | Deklariert Enter-/Exit-Sequenzierung. | Unbekannte Timeline-Modi werden gemeldet. | `effect` |
+| <a id="layoutKey"></a>`layoutKey` | `layoutKey "card"` | `transition` | stabiler Key | Bindet `shared-element` und `layout-flip` an einen Layout-Key. | Für layoutbewusste Effekte erforderlich. | `shared-element`, `layout-flip` |
+| <a id="interrupt"></a>`interrupt` | `interrupt replace` | `transition` | `cancel`, `finish` oder `replace` | Wählt, wie eine laufende Transition unterbrochen wird. | Unbekannte Policies werden gemeldet. | `trigger action` |
+| <a id="reducedMotion"></a>`reducedMotion` | `reducedMotion fade` | `transition` | `instant`, `fade` oder `none` | Deklariert den Fallback für Reduced-Motion-Hosts. | Unbekannte Policies werden gemeldet. | `durationMs` |
 | <a id="lane-transition"></a>`lane transition` | `lane transition` | `transition` | Lane-Name | Plant den Wechsel auf der Transition-Lane. | Lane muss vorhanden oder katalogisiert sein. | `lane` |
 
 ## Allowed contexts
@@ -60,13 +65,24 @@ template reference.validation {
     include shared.email
   }
 
+  animation contact.motion {
+    effect fade
+    durationMs 180
+    reducedMotion fade
+  }
+
   transition contact.toSummary {
     trigger action contact.next
     from surfaces [contact.form]
     to surfaces [contact.summary]
+    use animation contact.motion
     effect slide-left
     durationMs 220
     easing "ease-out"
+    timeline enter then exit
+    layoutKey "contact-summary"
+    interrupt replace
+    reducedMotion fade
     lane transition
   }
 
@@ -82,8 +98,8 @@ template reference.validation {
 
 ## Diagnostics
 
-Unbekannte Field-Regeln, fehlende Action-Targets und unvollständige Transition-Targets werden gemeldet.
+Unbekannte Field-Regeln, fehlende Action-Targets, unvollständige Transition-Targets und fehlende `layoutKey`-Werte bei layoutbewussten Effekten werden gemeldet.
 
 ## Related operators
 
-`action`, `field`, `surface`, `lane`, `effect`, `payload`.
+`action`, `field`, `surface`, `lane`, `effect`, `payload`, `animation`, `use animation`.

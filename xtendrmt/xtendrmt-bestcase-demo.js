@@ -1496,17 +1496,17 @@ function createJobRecord(schedule, label) {
 
 function readSchedulerSnapshot() {
   const runtime = state.runtime;
-  const renderMan = runtime && typeof runtime.getRenderMan === 'function'
-    ? runtime.getRenderMan()
+  const rmt = runtime && typeof runtime.getRmt === 'function'
+    ? runtime.getRmt()
     : null;
-  const diagnostics = renderMan && typeof renderMan.getSchedulerDiagnostics === 'function'
-    ? renderMan.getSchedulerDiagnostics()
+  const diagnostics = rmt && typeof rmt.getSchedulerDiagnostics === 'function'
+    ? rmt.getSchedulerDiagnostics()
     : null;
-  const stats = renderMan && typeof renderMan.getSchedulerStats === 'function'
-    ? renderMan.getSchedulerStats()
+  const stats = rmt && typeof rmt.getSchedulerStats === 'function'
+    ? rmt.getSchedulerStats()
     : null;
-  const scheduledJobs = renderMan && typeof renderMan.listScheduledJobs === 'function'
-    ? renderMan.listScheduledJobs()
+  const scheduledJobs = rmt && typeof rmt.listScheduledJobs === 'function'
+    ? rmt.listScheduledJobs()
     : [];
 
   const pressure = diagnostics && diagnostics.pressureLevel

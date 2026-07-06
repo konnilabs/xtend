@@ -62,7 +62,7 @@ Die Matrix erwartet unter anderem:
 - `recordEscalation`
 - `listEscalations`
 
-Die Runtime-Artefakte expose `createRmtKernelPolicyParity()` und den Legacy-Alias `createRenderManKernelPolicyParity()`.
+Die Runtime-Artefakte expose `createRmtKernelPolicyParity()`.
 
 ## Sicherheitsinvarianten
 

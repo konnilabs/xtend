@@ -1973,7 +1973,7 @@
     function summarizeKernelPerformanceFileArtifact(fileArtifact) {
       if (!fileArtifact || typeof fileArtifact !== 'object') return null;
       return {
-        kind: fileArtifact.kind || 'renderman_performance_file_artifact',
+        kind: fileArtifact.kind || 'rmt_performance_file_artifact',
         artifactId: fileArtifact.artifactId || '',
         artifactType: fileArtifact.artifactType || '',
         fileName: fileArtifact.fileName || '',
@@ -2087,7 +2087,7 @@
         } catch (error) {
           return {
             schema: CONTRACTS.prewarmWorkerTopology,
-            kind: 'renderman-prewarm',
+            kind: 'rmt-prewarm',
             enabled: options.enablePrewarmWorker === true,
             status: 'degraded',
             health: 'degraded',
@@ -2118,7 +2118,7 @@
 
       return {
         schema: CONTRACTS.prewarmWorkerTopology,
-        kind: 'renderman-prewarm',
+        kind: 'rmt-prewarm',
         enabled: options.enablePrewarmWorker === true,
         status: options.enablePrewarmWorker === true ? 'degraded' : 'disabled',
         health: options.enablePrewarmWorker === true ? 'degraded' : 'disabled',

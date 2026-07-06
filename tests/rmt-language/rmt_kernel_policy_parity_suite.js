@@ -326,7 +326,7 @@ async function runArtifactProbe(context, rootDir, artifactPath) {
   const AppModules = createRmtAppModulesFromArtifact(context, rootDir, artifactPath);
   if (!AppModules) return;
   context.assert(typeof AppModules.createRmtKernelPolicyParity === 'function', `${artifactPath} exposes runtime policy parity factory`);
-  context.assert(typeof AppModules.createRenderManKernelPolicyParity === 'function', `${artifactPath} exposes legacy policy parity alias`);
+  context.assert(typeof AppModules.createRmtKernelPolicyParity === 'function', `${artifactPath} exposes legacy policy parity alias`);
 
   const diagnosticsHub = createDiagnosticsHub();
   const controller = AppModules.createRmtKernelPolicyParity({ diagnosticsHub });

@@ -118,11 +118,11 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(descriptorRender.html.includes('data-rmt-event-select-changed="plan.changed"'), 'descriptor render includes safe event binding marker');
   context.assert(descriptorRender.html.includes('slot="label"'), 'descriptor render serializes slots');
   context.assert(descriptorRender.html.includes('value="pro"'), 'descriptor render serializes primitive properties as attributes');
-  context.assert(descriptorRender.chunks[0].kind === 'renderman_template_chunk', 'descriptor render emits renderman template chunk');
-  context.assert(descriptorRender.response.kind === 'renderman_template_prerender_response', 'descriptor render emits prerender response shape');
+  context.assert(descriptorRender.chunks[0].kind === 'rmt_template_chunk', 'descriptor render emits rmt template chunk');
+  context.assert(descriptorRender.response.kind === 'rmt_template_prerender_response', 'descriptor render emits prerender response shape');
   context.assert(descriptorRender.response.ok === true, 'descriptor prerender response reports successful envelope status');
   context.assert(descriptorRender.response.transport === 'server', 'descriptor prerender response records server transport');
-  context.assert(descriptorRender.response.chunk && descriptorRender.response.chunk.kind === 'renderman_template_chunk', 'descriptor prerender response exposes hydrateResponse-compatible chunk');
+  context.assert(descriptorRender.response.chunk && descriptorRender.response.chunk.kind === 'rmt_template_chunk', 'descriptor prerender response exposes hydrateResponse-compatible chunk');
   context.assert(descriptorRender.response.metadata && descriptorRender.response.metadata.adapterKind === 'node-ssr', 'descriptor prerender response records Node SSR adapter kind');
   context.assert(descriptorRender.response.request && descriptorRender.response.request.executionMode === 'server_prerender_hydrate', 'descriptor prerender response carries server prerender request snapshot');
   context.assert(descriptorRender.cspPolicy && descriptorRender.cspPolicy.schema === RMT_SSR_CSP_POLICY_SCHEMA, 'descriptor render creates automatic SSR CSP policy');

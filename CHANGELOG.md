@@ -14,7 +14,7 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 - Apache License 2.0 als Projektlizenz fuer den kompletten XTend-Stack gesetzt: Root-Manifest, XTendRMT VS-Code-Bridge, `LICENSE`, Supply-Chain-Policy und Owner-Publish-Decision sind auf `Apache-2.0` aktualisiert.
 - Scoped Release-Matrix ergaenzt: Root-Package `@ccslabs/xtend` sowie Teilpakete `@ccslabs/xtend-rmt`, `@ccslabs/xtend-fabric`, `@ccslabs/xtend-cli` und `@ccslabs/xtend-compiler` sind ueber Root-Workspaces und untergeordnete Manifests abgebildet.
 - RMT Node SSR Adapter unter `xtend.rmt.node-ssr-adapter.v1` ergaenzt: `./rmt/node-ssr-adapter` und `@ccslabs/xtend-rmt/node-ssr-adapter` liefern Light-DOM-SSR, Hydration-Payloads, JSONL-Streaming und explizite DataSource-/Trust-Boundary-Diagnostics.
-- RMT PHP/Laravel SSR Adapter unter `xtend.rmt.php-ssr-adapter.v1` ergaenzt: `xtendrmt/rmt-php-ssr-adapter.php` liefert denselben Client-Wire-Shape wie der Node Adapter, inklusive RenderMan-Chunks, Hydration-Payloads, JSONL-Streaming, Laravel Response Helpers und `rmt.php_ssr.*` Diagnostics.
+- RMT PHP/Laravel SSR Adapter unter `xtend.rmt.php-ssr-adapter.v1` ergaenzt: `xtendrmt/rmt-php-ssr-adapter.php` liefert denselben Client-Wire-Shape wie der Node Adapter, inklusive RMT-Chunks, Hydration-Payloads, JSONL-Streaming, Laravel Response Helpers und `rmt.php_ssr.*` Diagnostics.
 
 ## Enterprise-Readiness Baseline - 2026-05-06
 

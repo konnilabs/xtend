@@ -90,7 +90,6 @@ function createSurfaceManagerAdapterRuntimePlan(options = {}) {
     localGate: SURFACE_MANAGER_ADAPTER_RUNTIME_LOCAL_GATE,
     packageScript: SURFACE_MANAGER_ADAPTER_RUNTIME_PACKAGE_SCRIPT,
     runtimeFactory: 'createRmtSurfaceAdapter',
-    legacyRuntimeFactory: 'createRenderManSurfaceAdapter',
     runtimeArtifacts: RUNTIME_ARTIFACTS.slice(),
     requiredArtifacts: REQUIRED_ARTIFACTS.slice(),
     operations: SURFACE_ADAPTER_OPERATIONS.slice(),
