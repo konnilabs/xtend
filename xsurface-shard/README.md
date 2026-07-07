@@ -17,6 +17,7 @@ remote runtime execution into the RMT kernel.
 - `xtend.xsurface.shard-snapshot.v1`
 - `xtend.xsurface.shard-atc-handoff.v1`
 - `xtend.xsurface.shard-stream-fragment.v1`
+- `xtend.xscaler.atc-handoff.v1` as the ATC compatibility shape carried inside handoff records
 
 ## API
 

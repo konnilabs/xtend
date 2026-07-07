@@ -1,6 +1,6 @@
 export const TESTBENCH_SCHEMA = 'xtend.product.rmt-animation-testbench.v1';
-export const XSCALER_PROTOCOL_SCHEMA = 'xtend.xscaler.protocol-lazy-preflight.v1';
-export const XSCALER_ATC_SCHEMA = 'xtend.xscaler.atc-lazy-surface.v1';
+export const XSCALER_PROTOCOL_SCHEMA = 'xtend.xscaler.preflight-response.v1';
+export const XSCALER_ATC_SCHEMA = 'xtend.xscaler.atc-handoff.v1';
 
 export const EFFECTS = Object.freeze([
   'fade',
@@ -245,6 +245,7 @@ export function createXScalerPreflight(surfaceId, reason = 'navigation') {
   const surface = findSurface(surfaceId);
   return {
     schema: XSCALER_PROTOCOL_SCHEMA,
+    accepted: true,
     ok: true,
     surface: surface.id,
     rmtSurface: surface.rmtId,
@@ -254,12 +255,17 @@ export function createXScalerPreflight(surfaceId, reason = 'navigation') {
     cacheKey: `xscaler:surface:${surface.id}:v1`,
     atc: {
       schema: XSCALER_ATC_SCHEMA,
+      protocol: 'xscaler-atc-compatible',
+      sessionId: `xscaler:testbench:${surface.id}`,
+      handoffSignal: 'attach',
+      lifecycleState: 'client-hydrated-navigation',
       route: `/api/lazy-surface/${surface.id}`,
       mode: 'protocol-lazy',
       activation: 'client-hydrated-navigation',
       schedulerLane: 'transition',
       componentMix: surface.componentMix.slice()
     },
+    rejection: null,
     diagnostics: []
   };
 }

@@ -5,6 +5,7 @@ const XSURFACE_SHARD_HANDOFF_SCHEMA = 'xtend.xsurface.shard-atc-handoff.v1';
 const XSURFACE_SHARD_FRAGMENT_SCHEMA = 'xtend.xsurface.shard-stream-fragment.v1';
 const XSURFACE_SHARD_SURFACE_SCHEMA = 'xtend.xsurface.shard-surface.v1';
 const XSURFACE_SHARD_RECORD_SCHEMA = 'xtend.xsurface.shard.v1';
+const XSCALER_ATC_HANDOFF_SCHEMA = 'xtend.xscaler.atc-handoff.v1';
 
 const XSURFACE_SHARD_SECURITY_BLOCKED_CODE = 'xsurface.shard.security_blocked';
 const XSURFACE_SHARD_DEGRADATION_BLOCKED_CODE = 'xsurface.shard.degradation_blocked';
@@ -492,6 +493,7 @@ function createXSurfaceAtcHandoff(input = {}, options = {}) {
     enterpriseSurfaceId: normalizeString(input.enterpriseSurfaceId || surface.enterpriseSurfaceId, null),
     shardId,
     atc: {
+      schema: XSCALER_ATC_HANDOFF_SCHEMA,
       protocol: 'xscaler-atc-compatible',
       sessionId: normalizeString(input.sessionId || options.sessionId, `${shardId}:${surfaceId}`),
       handoffSignal: normalizeString(input.handoffSignal, status === 'degraded' ? 'activate-fallback' : action),
@@ -692,6 +694,7 @@ module.exports = {
   XSURFACE_SHARD_SNAPSHOT_SCHEMA,
   XSURFACE_SHARD_SURFACE_NOT_FOUND_CODE,
   XSURFACE_SHARD_SURFACE_SCHEMA,
+  XSCALER_ATC_HANDOFF_SCHEMA,
   createXSurfaceAtcHandoff,
   createXSurfaceShardPlan,
   createXSurfaceShardServer,

@@ -1,0 +1,24 @@
+{
+  "schema": "xtend.xscaler.preflight-response.v1",
+  "protocol": "xscaler",
+  "requestId": "xscaler-preflight-xtension-denied",
+  "accepted": false,
+  "ok": false,
+  "surface": "checkout.cart",
+  "compatibility": {
+    "ssr": "blocked",
+    "remoteSurfacePlan": "blocked",
+    "xtensionDeployment": "blocked"
+  },
+  "rejection": {
+    "code": "xscaler.preflight.xtension_denied",
+    "message": "Host capabilities deny XTension deployment for this surface."
+  },
+  "diagnostics": [
+    {
+      "code": "xscaler.preflight.xtension_denied",
+      "severity": "error",
+      "message": "Host capabilities deny XTension deployment for this surface."
+    }
+  ]
+}

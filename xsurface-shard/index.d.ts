@@ -5,6 +5,7 @@ export declare const XSURFACE_SHARD_HANDOFF_SCHEMA = "xtend.xsurface.shard-atc-h
 export declare const XSURFACE_SHARD_FRAGMENT_SCHEMA = "xtend.xsurface.shard-stream-fragment.v1";
 export declare const XSURFACE_SHARD_SURFACE_SCHEMA = "xtend.xsurface.shard-surface.v1";
 export declare const XSURFACE_SHARD_RECORD_SCHEMA = "xtend.xsurface.shard.v1";
+export declare const XSCALER_ATC_HANDOFF_SCHEMA = "xtend.xscaler.atc-handoff.v1";
 
 export declare const XSURFACE_SHARD_SECURITY_BLOCKED_CODE = "xsurface.shard.security_blocked";
 export declare const XSURFACE_SHARD_DEGRADATION_BLOCKED_CODE = "xsurface.shard.degradation_blocked";
@@ -129,6 +130,7 @@ export interface XSurfaceShardHandoff {
   enterpriseSurfaceId?: string | null;
   shardId: string;
   atc: {
+    schema: typeof XSCALER_ATC_HANDOFF_SCHEMA;
     protocol: "xscaler-atc-compatible";
     sessionId: string;
     handoffSignal: string;

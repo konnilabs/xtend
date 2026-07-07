@@ -13,18 +13,20 @@ Downstream layers keep the same boundary. Maraca Runtime processes accepted stre
 
 ## Schemas
 
-XScaler fixtures use four stable schema names:
+XScaler fixtures and handoff records use five stable schema names:
 
 - `xtend.xscaler.preflight-request.v1` for host capability requests.
 - `xtend.xscaler.preflight-response.v1` for acceptance, rejection and required follow-up anchors.
 - `xtend.xscaler.remote-surface-plan.v1` for owner, origin, integrity, fallback and lane placement.
 - `xtend.xscaler.xtension-deployment.v1` for gated XTension rollout metadata.
+- `xtend.xscaler.atc-handoff.v1` for ATC-compatible session, lifecycle, fallback and runtime-boundary handoff facts.
 
 ## Preflight flow
 
 1. The host creates an `xscaler-preflight-request` with SSR and XTension capabilities.
 2. Tooling returns an `xscaler-preflight-response` that states whether the surface is accepted.
 3. Accepted surfaces attach an `xscaler-remote-surface-plan` and, when needed, an `xscaler-xtension-deployment`.
+4. ATC-compatible servers emit an `xscaler-atc-handoff` shape with session, signal, lifecycle and runtime-boundary facts.
 
 ## Remote surface plan
 
@@ -38,6 +40,10 @@ SSR adapters must treat XScaler as a preflight-only contract. A compatible plan 
 
 XTensions may use XScaler to roll out framework islands behind a gated deployment record. Deployment records must name the XTension, surface, rollout strategy and SSR hydration behavior.
 
+## ATC handoff
+
+An ATC handoff carries the accepted surface, session identifier, handoff signal, lifecycle state and runtime boundary. Compatible handoffs keep `remoteRuntimeExecution` and `kernelRemoteExecution` false.
+
 ## Fixtures
 
-The minimal fixture family lives under `tests/rmt/fixtures/xscaler/` and covers preflight request, preflight response, remote-surface plan and XTension deployment records.
+The minimal fixture family lives under `tests/rmt/fixtures/xscaler/` and covers preflight request, preflight response, remote-surface plan, XTension deployment and ATC handoff compatibility records.

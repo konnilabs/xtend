@@ -1,0 +1,24 @@
+{
+  "schema": "xtend.xscaler.preflight-response.v1",
+  "protocol": "xscaler",
+  "requestId": "xscaler-preflight-capability-mismatch",
+  "accepted": false,
+  "ok": false,
+  "surface": "checkout.cart",
+  "compatibility": {
+    "ssr": "blocked",
+    "remoteSurfacePlan": "blocked",
+    "xtensionDeployment": "blocked"
+  },
+  "rejection": {
+    "code": "xscaler.preflight.capability_mismatch",
+    "message": "Preflight request did not ask for the remote-surface-plan capability."
+  },
+  "diagnostics": [
+    {
+      "code": "xscaler.preflight.capability_mismatch",
+      "severity": "error",
+      "message": "Preflight request did not ask for the remote-surface-plan capability."
+    }
+  ]
+}

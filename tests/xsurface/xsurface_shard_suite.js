@@ -36,6 +36,7 @@ const {
   XSURFACE_SHARD_PLAN_SCHEMA,
   XSURFACE_SHARD_SECURITY_BLOCKED_CODE,
   XSURFACE_SHARD_SNAPSHOT_SCHEMA,
+  XSCALER_ATC_HANDOFF_SCHEMA,
   createXSurfaceAtcHandoff,
   createXSurfaceShardPlan,
   createXSurfaceShardServer,
@@ -185,7 +186,9 @@ function validateRefusalAndDegradation(context, rootDir) {
 
   context.assert(degradedSurface.decision === 'degraded', 'Degraded surface with fallback remains orchestratable');
   context.assert(handoff.schema === XSURFACE_SHARD_HANDOFF_SCHEMA && handoff.status === 'degraded', 'ATC handoff carries degraded status');
+  context.assert(handoff.atc.schema === XSCALER_ATC_HANDOFF_SCHEMA, 'ATC handoff carries canonical XScaler handoff schema');
   context.assert(handoff.atc.protocol === 'xscaler-atc-compatible', 'ATC handoff declares XScaler compatibility');
+  context.assert(handoff.runtimeBoundary.remoteRuntimeExecution === false && handoff.runtimeBoundary.kernelRemoteExecution === false, 'ATC handoff preserves no remote execution boundary');
 
   const missingFallbackRegistry = cloneJson(readyInput.enterpriseRegistry);
   missingFallbackRegistry.surfaces.find((surface) => surface.kind === 'remote').fallback = null;
@@ -266,6 +269,7 @@ function validateDocsMetadataAndRegistration(context, rootDir) {
     XSURFACE_SHARD_SNAPSHOT_SCHEMA,
     XSURFACE_SHARD_HANDOFF_SCHEMA,
     XSURFACE_SHARD_FRAGMENT_SCHEMA,
+    XSCALER_ATC_HANDOFF_SCHEMA,
     'createXSurfaceShardPlan',
     'createXSurfaceShardServer',
     'publishFragment()'

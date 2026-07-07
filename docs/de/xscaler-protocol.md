@@ -13,18 +13,20 @@ Nachgelagerte Schichten halten dieselbe Grenze ein. Die Maraca Runtime verarbeit
 
 ## Schemas
 
-XScaler-Fixtures verwenden vier stabile Schema-Namen:
+XScaler-Fixtures und Handoff-Records verwenden fuenf stabile Schema-Namen:
 
 - `xtend.xscaler.preflight-request.v1` für Capability-Anfragen des Hosts.
 - `xtend.xscaler.preflight-response.v1` für Annahme, Ablehnung und erforderliche Folge-Anker.
 - `xtend.xscaler.remote-surface-plan.v1` für Owner, Origin, Integrity, Fallback und Lane-Platzierung.
 - `xtend.xscaler.xtension-deployment.v1` für gatebare XTension-Rollout-Metadaten.
+- `xtend.xscaler.atc-handoff.v1` für ATC-kompatible Session-, Lifecycle-, Fallback- und Runtime-Boundary-Fakten.
 
 ## Preflight-Flow
 
 1. Der Host erzeugt einen `xscaler-preflight-request` mit SSR- und XTension-Capabilities.
 2. Tooling liefert eine `xscaler-preflight-response`, die festhält, ob die Surface akzeptiert wird.
 3. Akzeptierte Surfaces hängen einen `xscaler-remote-surface-plan` und bei Bedarf ein `xscaler-xtension-deployment` an.
+4. ATC-kompatible Server emittieren eine `xscaler-atc-handoff`-Shape mit Session, Signal, Lifecycle und Runtime-Boundary-Fakten.
 
 ## Remote-Surface-Plan
 
@@ -38,6 +40,10 @@ SSR-Adapter müssen XScaler als reinen Preflight-Vertrag behandeln. Ein kompatib
 
 XTensions können XScaler verwenden, um Framework-Inseln hinter einem gegateten Deployment-Record auszurollen. Deployment-Records müssen XTension, Surface, Rollout-Strategie und SSR-Hydration benennen.
 
+## ATC-Handoff
+
+Ein ATC-Handoff transportiert akzeptierte Surface, Session-ID, Handoff-Signal, Lifecycle-State und Runtime Boundary. Kompatible Handoffs halten `remoteRuntimeExecution` und `kernelRemoteExecution` auf `false`.
+
 ## Fixtures
 
-Die minimale Fixture-Familie liegt unter `tests/rmt/fixtures/xscaler/` und deckt Preflight-Request, Preflight-Response, Remote-Surface-Plan und XTension-Deployment-Records ab.
+Die minimale Fixture-Familie liegt unter `tests/rmt/fixtures/xscaler/` und deckt Preflight-Request, Preflight-Response, Remote-Surface-Plan, XTension-Deployment und ATC-Handoff-Kompatibilitaets-Records ab.

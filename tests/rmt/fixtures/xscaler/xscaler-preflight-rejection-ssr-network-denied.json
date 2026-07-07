@@ -1,0 +1,24 @@
+{
+  "schema": "xtend.xscaler.preflight-response.v1",
+  "protocol": "xscaler",
+  "requestId": "xscaler-preflight-ssr-network-denied",
+  "accepted": false,
+  "ok": false,
+  "surface": "checkout.cart",
+  "compatibility": {
+    "ssr": "blocked",
+    "remoteSurfacePlan": "blocked",
+    "xtensionDeployment": "blocked"
+  },
+  "rejection": {
+    "code": "xscaler.preflight.ssr_network_denied",
+    "message": "Remote surface plan requested network access during SSR render."
+  },
+  "diagnostics": [
+    {
+      "code": "xscaler.preflight.ssr_network_denied",
+      "severity": "error",
+      "message": "Remote surface plan requested network access during SSR render."
+    }
+  ]
+}

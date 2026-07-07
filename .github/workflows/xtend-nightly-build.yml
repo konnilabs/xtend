@@ -117,6 +117,16 @@ jobs:
         continue-on-error: true
         run: npm run test:xsurface-shard:report
 
+      - name: Run XScaler protocol gate report
+        id: xscaler_protocol
+        continue-on-error: true
+        run: npm run test:xscaler-protocol:report
+
+      - name: Run XScaler source-to-sea gate report
+        id: xscaler_source_to_sea
+        continue-on-error: true
+        run: npm run test:xscaler-source-to-sea:report
+
       - name: Create XTend nightly manifest
         if: always()
         run: npm run nightly:manifest
@@ -145,6 +155,8 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
             .xtend-test-results/xtend-maraca-gate-report.json
             .xtend-test-results/xtend-xsurface-shard-report.json
+            .xtend-test-results/xtend-xscaler-protocol-report.json
+            .xtend-test-results/xtend-xscaler-source-to-sea-report.json
             .xtend-build/maraca/source-to-sea/xtend.maraca.report.json
             .xtend-build/maraca/source-to-sea/xtend.maraca.size.json
             .xtend-test-results/xtend-nightly-build-manifest.json
@@ -167,6 +179,8 @@ jobs:
           if [ "${{ steps.pack_workspaces.outcome }}" != "success" ]; then echo "workspace package dry runs failed"; failed=1; fi
           if [ "${{ steps.maraca.outcome }}" != "success" ]; then echo "Maraca gate failed"; failed=1; fi
           if [ "${{ steps.xsurface_shard.outcome }}" != "success" ]; then echo "XSurface shard gate failed"; failed=1; fi
+          if [ "${{ steps.xscaler_protocol.outcome }}" != "success" ]; then echo "XScaler protocol gate failed"; failed=1; fi
+          if [ "${{ steps.xscaler_source_to_sea.outcome }}" != "success" ]; then echo "XScaler source-to-sea gate failed"; failed=1; fi
           exit "$failed"
 
   optional-source-to-sea:

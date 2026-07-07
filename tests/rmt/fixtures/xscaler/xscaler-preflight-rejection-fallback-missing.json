@@ -1,0 +1,24 @@
+{
+  "schema": "xtend.xscaler.preflight-response.v1",
+  "protocol": "xscaler",
+  "requestId": "xscaler-preflight-fallback-missing",
+  "accepted": false,
+  "ok": false,
+  "surface": "checkout.cart",
+  "compatibility": {
+    "ssr": "blocked",
+    "remoteSurfacePlan": "blocked",
+    "xtensionDeployment": "blocked"
+  },
+  "rejection": {
+    "code": "xscaler.preflight.fallback_missing",
+    "message": "Remote surface plan is missing a fallback surface."
+  },
+  "diagnostics": [
+    {
+      "code": "xscaler.preflight.fallback_missing",
+      "severity": "error",
+      "message": "Remote surface plan is missing a fallback surface."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "xtend.xscaler.preflight-response.v1",
+  "protocol": "xscaler",
+  "requestId": "xscaler-preflight-origin-blocked",
+  "accepted": false,
+  "ok": false,
+  "surface": "checkout.cart",
+  "compatibility": {
+    "ssr": "blocked",
+    "remoteSurfacePlan": "blocked",
+    "xtensionDeployment": "blocked"
+  },
+  "rejection": {
+    "code": "xscaler.preflight.origin_blocked",
+    "message": "Remote origin is not allowed by host capabilities."
+  },
+  "diagnostics": [
+    {
+      "code": "xscaler.preflight.origin_blocked",
+      "severity": "error",
+      "message": "Remote origin is not allowed by host capabilities."
+    }
+  ]
+}

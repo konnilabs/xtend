@@ -3,11 +3,14 @@
   "protocol": "xscaler",
   "requestId": "xscaler-preflight-001",
   "accepted": true,
+  "ok": true,
   "surface": "checkout.cart",
   "compatibility": {
     "ssr": "compatible",
     "remoteSurfacePlan": "required",
     "xtensionDeployment": "allowed"
   },
-  "requiredAnchors": ["#schemas", "#ssr-kompatibilitaet", "#xtensions-deployment"]
+  "requiredAnchors": ["#schemas", "#ssr-kompatibilitaet", "#xtensions-deployment"],
+  "rejection": null,
+  "diagnostics": []
 }
