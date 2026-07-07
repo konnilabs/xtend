@@ -19,7 +19,7 @@ export const XTENSIONS_MARACA_PACKAGE_SCRIPT: 'npm run test:maraca-xtensions';
 
 export type XTensionsMaracaLazyMode = 'none' | 'explicit' | 'route' | 'visible' | 'idle';
 export type XTensionsMaracaFallbackMode = 'native-placeholder' | 'host-error-boundary' | 'skip' | 'static-html';
-export type XTensionsMaracaDependencyClassification = 'none' | 'external-peer' | 'optional-peer' | 'host-provided' | 'legacy-local-artifact' | 'policy-blocked' | 'vendored' | 'root-runtime';
+export type XTensionsMaracaDependencyClassification = 'none' | 'external-peer' | 'optional-peer' | 'host-provided' | 'legacy-local-artifact' | 'product-local-bundled' | 'policy-blocked' | 'vendored' | 'root-runtime';
 export type XTensionsMaracaStatus = 'ready' | 'blocked' | 'policy-blocked' | 'missing';
 
 export interface XTensionsMaracaDiagnostic {

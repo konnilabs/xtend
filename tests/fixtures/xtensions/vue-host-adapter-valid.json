@@ -1,0 +1,151 @@
+{
+  "schema": "xtend.xtensions.vue-host-adapter.fixture.v1",
+  "contract": "xtend.xtensions.vue-adapter.v1",
+  "expectedFramework": "vue",
+  "expectedXtensionId": "xtension.vue.host-adapter.valid",
+  "runtimeBoundary": {
+    "dependencies": [
+      {
+        "name": "vue",
+        "versionRange": "3.5.0",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ],
+    "runtimeProvider": {
+      "mode": "host-provided-local",
+      "framework": "vue",
+      "modules": [
+        "/dist/xtensions/frameworks/vue/index.mjs"
+      ],
+      "bundledInXtension": false,
+      "remoteAllowed": false,
+      "evidence": "local-runtime-provider"
+    }
+  },
+  "payload": {
+    "props": {
+      "seed": "suite-vue",
+      "items": [
+        {
+          "id": "PROC-1000",
+          "status": "green"
+        }
+      ]
+    }
+  },
+  "manifest": {
+    "schema": "xtend.maraca.xtension-manifest.v1",
+    "id": "xtension.vue.host-adapter.valid",
+    "name": "Vue Host Adapter Fixture",
+    "framework": "vue",
+    "version": "0.0.0-test",
+    "owner": "xtend-framework-adapter-suite",
+    "entry": {
+      "module": "/dist/xtensions/vue-process-sidebar/index.mjs",
+      "exportName": "createVueProcessSidebar",
+      "format": "esm",
+      "dynamicImport": true
+    },
+    "integrity": {
+      "sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "source": "fixture"
+    },
+    "csp": {
+      "scriptSrc": [
+        "'self'"
+      ],
+      "connectSrc": [
+        "'self'"
+      ],
+      "workerSrc": [
+        "'self'"
+      ],
+      "styleSrc": [
+        "'self'"
+      ],
+      "imgSrc": [
+        "'self'",
+        "data:"
+      ]
+    },
+    "security": {
+      "owner": "xtend-framework-adapter-suite",
+      "localFixtureNoNetwork": true,
+      "remoteArtifactsAllowed": false
+    },
+    "runtimeProvider": {
+      "mode": "host-provided-local",
+      "framework": "vue",
+      "modules": [
+        "/dist/xtensions/frameworks/vue/index.mjs"
+      ],
+      "bundledInXtension": false,
+      "remoteAllowed": false
+    },
+    "contract": {
+      "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+      "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+      "accepts": [
+        "vue.fixture.props"
+      ],
+      "emits": [
+        "vue.fixture.ready"
+      ],
+      "capabilities": [
+        "vue.app.lifecycle",
+        "vue.explicit-update-adapter",
+        "vue.event-normalization",
+        "host.lifecycle.mount",
+        "host.lifecycle.update",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import",
+        "fallback.native-placeholder",
+        "scheduler.hints"
+      ]
+    },
+    "capabilities": [
+      "vue.app.lifecycle",
+      "vue.explicit-update-adapter",
+      "vue.event-normalization",
+      "host.lifecycle.mount",
+      "host.lifecycle.update",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "fallback.native-placeholder",
+      "scheduler.hints"
+    ],
+    "dependencies": [
+      {
+        "name": "vue",
+        "versionRange": "3.5.0",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ],
+    "isolation": {
+      "runtimeClass": "vue",
+      "domBoundary": "host-owned-container",
+      "styleBoundary": "scoped-css",
+      "trustBoundary": "same-origin-adapter",
+      "mutationPolicy": "observe-and-degrade"
+    },
+    "fallback": {
+      "mode": "native-placeholder",
+      "component": "xtend-native.vue.fixture.fallback",
+      "message": "Vue fixture unavailable",
+      "degradedStatus": "vue-fixture-unavailable"
+    },
+    "policy": {
+      "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+      "status": "local-demo-approved",
+      "dependencyBoundary": "host-provided-framework-dependencies"
+    }
+  }
+}

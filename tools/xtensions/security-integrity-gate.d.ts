@@ -60,6 +60,21 @@ export interface SecuritySupplyChainDependency {
   allowed: boolean;
 }
 
+export interface SecurityArtifactRuntimeSignature {
+  framework: string;
+  signature: string;
+}
+
+export interface SecurityArtifactRuntimeReport {
+  schema: string;
+  framework: string;
+  detectedFrameworks: string[];
+  runtimeBundled: boolean;
+  signatures: SecurityArtifactRuntimeSignature[];
+  artifactBytes: number;
+  artifactInspected: boolean;
+}
+
 export interface SecurityManifestReport {
   schema: string;
   gateSchema: string;
@@ -79,6 +94,7 @@ export interface SecurityManifestReport {
   csp: SecurityCspRequirements;
   capabilities: string[];
   dependencies: SecuritySupplyChainDependency[];
+  artifactRuntime: SecurityArtifactRuntimeReport;
   fallback: Record<string, unknown>;
   manifestFingerprint: string;
   artifactFingerprint: string;
@@ -162,6 +178,8 @@ export const SECURITY_PACKAGED_FRAMEWORK_DEPENDENCY_CODE: string;
 export const SECURITY_FALLBACK_MISSING_CODE: string;
 export const SECURITY_POLICY_DRIFT_CODE: string;
 export const SECURITY_FRAMEWORK_DEPENDENCY_CODE: string;
+export const SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE: string;
+export const SECURITY_ARTIFACT_RUNTIME_SIGNATURE_SCHEMA: string;
 
 export function assertXTensionsSecurityDependencyBoundary(input?: Record<string, unknown>): {
   ok: boolean;
@@ -170,6 +188,7 @@ export function assertXTensionsSecurityDependencyBoundary(input?: Record<string,
 };
 export function createSecurityDiagnostic(subject?: Record<string, unknown>, code?: string, message?: string, severity?: string, metadata?: Record<string, unknown>): SecurityDiagnostic;
 export function createXTensionsSecurityIntegrityGate(input?: Record<string, unknown>, options?: Record<string, unknown>): SecurityIntegrityGateReport;
+export function detectFrameworkRuntimeSignatures(input?: Record<string, unknown>, options?: Record<string, unknown>): SecurityArtifactRuntimeReport;
 export function evaluateXTensionSecurity(input?: Record<string, unknown>, options?: Record<string, unknown>): SecurityManifestReport;
 export function normalizeCspRequirements(input?: Record<string, unknown>, options?: Record<string, unknown>): SecurityCspRequirements;
 export function normalizeSecurityGatePolicy(policy?: Record<string, unknown>): SecurityGatePolicy;

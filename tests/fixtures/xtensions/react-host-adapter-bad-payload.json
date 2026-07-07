@@ -1,0 +1,18 @@
+{
+  "schema": "xtend.xtensions.react-host-adapter.bad-payload.fixture.v1",
+  "payload": {
+    "props": {
+      "title": "Bad React Payload",
+      "reactContext": {
+        "secret": "host-context"
+      },
+      "reduxStore": {
+        "state": "host-store"
+      }
+    }
+  },
+  "expectedDiagnostics": [
+    "xtensions.react_poc.context_leak",
+    "xtensions.react_poc.store_leak"
+  ]
+}

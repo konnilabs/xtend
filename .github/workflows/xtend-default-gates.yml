@@ -57,6 +57,9 @@ jobs:
       - name: Run XTend PR fast gate report
         run: npm run test:pr:report
 
+      - name: Run XTensions framework adapter report
+        run: npm run test:xtensions-framework-adapters:report
+
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
@@ -81,6 +84,7 @@ jobs:
           name: xtend-pr-gate-report-node-26
           path: |
             .xtend-test-results/xtend-pr-gate-report.json
+            .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
@@ -117,6 +121,9 @@ jobs:
       - name: Run XTend full release gate report
         run: npm run test:release:full:report
 
+      - name: Run XTensions framework adapter report
+        run: npm run test:xtensions-framework-adapters:report
+
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
@@ -141,6 +148,7 @@ jobs:
           name: xtend-release-gate-report-node-26
           path: |
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
@@ -362,6 +370,7 @@ jobs:
         run: |
           npm run native-first:evidence:prepare
           npm run test:release:full:report
+          npm run test:xtensions-framework-adapters:report
           npm run test:rmt-vnext-primitives:report
           npm run test:native-first-rmt-owned-release:report
           npm run test:rkfa-production-closure:report
@@ -386,6 +395,7 @@ jobs:
           name: xtend-npm-publish-latest-evidence-node-26
           path: |
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
             .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
             .xtend-test-results/xtend-rkfa-production-closure-report.json

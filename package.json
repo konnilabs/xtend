@@ -641,9 +641,17 @@
       "types": "./tools/xtensions/react-host-controller-poc.d.ts",
       "default": "./tools/xtensions/react-host-controller-poc.js"
     },
+    "./xtensions/react-host-adapter": {
+      "types": "./tools/xtensions/react-host-adapter.d.ts",
+      "default": "./tools/xtensions/react-host-adapter.js"
+    },
     "./xtensions/vue-host-controller-poc": {
       "types": "./tools/xtensions/vue-host-controller-poc.d.ts",
       "default": "./tools/xtensions/vue-host-controller-poc.js"
+    },
+    "./xtensions/vue-host-adapter": {
+      "types": "./tools/xtensions/vue-host-adapter.d.ts",
+      "default": "./tools/xtensions/vue-host-adapter.js"
     },
     "./xtensions/imperative-host-pocs": {
       "types": "./tools/xtensions/imperative-host-pocs.d.ts",
@@ -1464,6 +1472,38 @@
       "runtimeExecutionRequired": false,
       "startTransitionAuthority": "scheduling-hint-only"
     },
+    "xtensionsReactHostAdapter": {
+      "schema": "xtend.xtensions.react-adapter.v1",
+      "runtimeBoundarySchema": "xtend.xtensions.react-runtime-boundary.v1",
+      "reportSchema": "xtend.xtensions.react-adapter-report.v1",
+      "diagnosticSchema": "xtend.xtensions.react-adapter-diagnostic.v1",
+      "pocCompatibilitySchema": "xtend.xtensions.react-host-controller-poc.v1",
+      "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+      "runtimeRegistrySchema": "xtend.xtensions.runtime-capability-registry.v1",
+      "staticContractSchema": "xtend.xtensions.static-contract.v1",
+      "workpackage": "XTN-18",
+      "status": "accepted-by-XTN-18",
+      "contract": "development/XTensions-React-Host-Adapter-Contract.md",
+      "hostControllerContract": "development/XTensions-HostController-Lifecycle-Contract.md",
+      "signalBridgeContract": "development/XTensions-Signal-Bridge-and-Event-Governance-Contract.md",
+      "runtimeRegistryContract": "development/XTensions-Runtime-Capability-Registry-and-Loading-Policy-Contract.md",
+      "architectureContract": "development/XTensions-Architecture-and-Threat-Model-Contract.md",
+      "module": "tools/xtensions/react-host-adapter.js",
+      "types": "tools/xtensions/react-host-adapter.d.ts",
+      "fixture": "tests/fixtures/xtensions/react-host-adapter-valid.json",
+      "suite": "tests/xtensions/xtensions_react_host_adapter_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js xtensions-react-host-adapter xtensions-react-host-controller-poc --json",
+      "packageScript": "npm run test:xtensions-react-host-adapter",
+      "framework": "react",
+      "runtimeStrategy": "external-peer-host-provided",
+      "hostProvidedRuntime": true,
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "runtimeExecutionRequired": false,
+      "startTransitionAuthority": "scheduling-hint-only",
+      "contextStoreFiberLeaksAllowed": false,
+      "artifactTruthRequired": true
+    },
     "xtensionsVueHostControllerPoc": {
       "schema": "xtend.xtensions.vue-host-controller-poc.v1",
       "contractSchema": "xtend.xtensions.vue-host-controller-contract.v1",
@@ -1498,6 +1538,40 @@
       "runtimeExecutionRequired": false,
       "updateAdapter": "explicit-only",
       "globalPropertiesPatchAllowed": false
+    },
+    "xtensionsVueHostAdapter": {
+      "schema": "xtend.xtensions.vue-adapter.v1",
+      "runtimeBoundarySchema": "xtend.xtensions.vue-runtime-boundary.v1",
+      "reportSchema": "xtend.xtensions.vue-adapter-report.v1",
+      "diagnosticSchema": "xtend.xtensions.vue-adapter-diagnostic.v1",
+      "pocCompatibilitySchema": "xtend.xtensions.vue-host-controller-poc.v1",
+      "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+      "surfaceEventSchema": "xtend.xtensions.surface-event.v1",
+      "runtimeRegistrySchema": "xtend.xtensions.runtime-capability-registry.v1",
+      "staticContractSchema": "xtend.xtensions.static-contract.v1",
+      "workpackage": "XTN-19",
+      "status": "accepted-by-XTN-19",
+      "contract": "development/XTensions-Vue-Host-Adapter-Contract.md",
+      "hostControllerContract": "development/XTensions-HostController-Lifecycle-Contract.md",
+      "signalBridgeContract": "development/XTensions-Signal-Bridge-and-Event-Governance-Contract.md",
+      "runtimeRegistryContract": "development/XTensions-Runtime-Capability-Registry-and-Loading-Policy-Contract.md",
+      "architectureContract": "development/XTensions-Architecture-and-Threat-Model-Contract.md",
+      "module": "tools/xtensions/vue-host-adapter.js",
+      "types": "tools/xtensions/vue-host-adapter.d.ts",
+      "fixture": "tests/fixtures/xtensions/vue-host-adapter-valid.json",
+      "suite": "tests/xtensions/xtensions_vue_host_adapter_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js xtensions-vue-host-adapter xtensions-vue-host-controller-poc --json",
+      "packageScript": "npm run test:xtensions-vue-host-adapter",
+      "framework": "vue",
+      "runtimeStrategy": "external-peer-host-provided",
+      "hostProvidedRuntime": true,
+      "frameworkDependenciesAllowed": false,
+      "vendoredFrameworksAllowed": false,
+      "runtimeExecutionRequired": false,
+      "updateAdapter": "explicit-only",
+      "globalPropertiesPatchAllowed": false,
+      "proxyRefStoreLeaksAllowed": false,
+      "artifactTruthRequired": true
     },
     "xtensionsImperativeHostPocs": {
       "schema": "xtend.xtensions.imperative-host-pocs.v1",
@@ -11192,6 +11266,7 @@
         "reportPath": ".xtend-test-results/xtend-pr-gate-report.json",
         "artifactName": "xtend-pr-gate-report-node-26",
         "additionalReportPaths": [
+          ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
           ".xtend-test-results/xtend-rmt-reference-docs-report.json",
           ".xtend-test-results/xtend-rkfa-production-closure-report.json"
         ],
@@ -11316,6 +11391,7 @@
         "reportPath": ".xtend-test-results/xtend-release-gate-report.json",
         "artifactName": "xtend-release-gate-report-node-26",
         "additionalReportPaths": [
+          ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
           ".xtend-test-results/xtend-rmt-reference-docs-report.json",
           ".xtend-test-results/xtend-rkfa-production-closure-report.json"
         ],
@@ -11462,6 +11538,7 @@
           "npm run release:report",
           "npm run pack:dry-run",
           "npm run test:maraca:report",
+          "npm run test:xtensions-framework-adapters:report",
           "npm run test:xsurface-shard:report",
           "npm run test:xscaler-protocol:report",
           "npm run test:xscaler-source-to-sea:report"
@@ -11540,6 +11617,23 @@
         "command": "npm run pack:dry-run",
         "publishDryRunDelegatedTo": "npm-publish-latest",
         "artifactName": "xtend-package-structure-node-26"
+      },
+      "xtensionsFrameworkAdapterGate": {
+        "schema": "xtend.ci.xtensions-framework-adapter-gate.v1",
+        "command": "npm run test:xtensions-framework-adapters:report",
+        "reportPath": ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
+        "artifactName": "xtend-xtensions-framework-adapters-report-node-26",
+        "suites": [
+          "xtensions-react-host-adapter",
+          "xtensions-vue-host-adapter",
+          "xtensions-react-host-controller-poc",
+          "xtensions-vue-host-controller-poc",
+          "maraca-xtensions"
+        ],
+        "deferredSuites": [
+          "xtensions-security-integrity-gate"
+        ],
+        "deferredReason": "root-package-dependency-section-cleanup-tracked-separately"
       }
     },
     "npmPublishLatest": {
@@ -11558,6 +11652,7 @@
       "evidenceArtifactName": "xtend-npm-publish-latest-evidence-node-26",
       "requiredCommands": [
         "npm run test:release:full:report",
+        "npm run test:xtensions-framework-adapters:report",
         "npm run test:rmt-vnext-primitives:report",
         "npm run test:native-first-rmt-owned-release:report",
         "npm run release:report",
@@ -11626,6 +11721,7 @@
         "npm run test:epic13-conditional-network-evidence-ci",
         "npm run pack:dry-run:report",
         "npm run test:maraca",
+        "npm run test:xtensions-framework-adapters:report",
         "npm run test:xsurface-shard",
         "npm run test:docs-public-quality",
         "npm run test:docs-stub-inventory",
@@ -11737,6 +11833,7 @@
         "docs/public-component-types.md",
         "docs/typescript-components.md",
         ".xtend-test-results/xtend-maraca-gate-report.json",
+        ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
         ".xtend-build/maraca/source-to-sea/xtend.maraca.report.json"
       ],
       "publishBoundary": "private-until-release-owner-approval",
@@ -16327,7 +16424,11 @@
     "test:xtensions-static-introspection": "node scripts/run_xtend_tests.js xtensions-static-introspection",
     "test:xtensions-runtime-capability-registry": "node scripts/run_xtend_tests.js xtensions-runtime-capability-registry",
     "test:xtensions-react-host-controller-poc": "node scripts/run_xtend_tests.js xtensions-react-host-controller-poc",
+    "test:xtensions-react-host-adapter": "node scripts/run_xtend_tests.js xtensions-react-host-adapter",
     "test:xtensions-vue-host-controller-poc": "node scripts/run_xtend_tests.js xtensions-vue-host-controller-poc",
+    "test:xtensions-vue-host-adapter": "node scripts/run_xtend_tests.js xtensions-vue-host-adapter",
+    "test:xtensions-framework-adapters": "node scripts/run_xtend_tests.js xtensions-react-host-adapter xtensions-vue-host-adapter xtensions-react-host-controller-poc xtensions-vue-host-controller-poc maraca-xtensions",
+    "test:xtensions-framework-adapters:report": "node scripts/run_xtend_tests.js xtensions-react-host-adapter xtensions-vue-host-adapter xtensions-react-host-controller-poc xtensions-vue-host-controller-poc maraca-xtensions --report .xtend-test-results/xtend-xtensions-framework-adapters-report.json",
     "test:xtensions-imperative-host-pocs": "node scripts/run_xtend_tests.js xtensions-imperative-host-pocs",
     "test:xtensions-three-render-loop-poc": "node scripts/run_xtend_tests.js xtensions-three-render-loop-poc",
     "test:xtensions-diagnostic-trail": "node scripts/run_xtend_tests.js xtensions-diagnostic-trail",

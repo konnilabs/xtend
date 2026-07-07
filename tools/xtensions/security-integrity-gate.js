@@ -55,6 +55,8 @@ const SECURITY_PACKAGED_FRAMEWORK_DEPENDENCY_CODE = 'xtensions.security.packaged
 const SECURITY_FALLBACK_MISSING_CODE = 'xtensions.security.fallback_missing';
 const SECURITY_POLICY_DRIFT_CODE = 'xtensions.security.policy_drift';
 const SECURITY_FRAMEWORK_DEPENDENCY_CODE = 'xtensions.security.framework_dependency';
+const SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE = 'xtensions.security.artifact_runtime_bundled_drift';
+const SECURITY_ARTIFACT_RUNTIME_SIGNATURE_SCHEMA = 'xtend.xtensions.security-artifact-runtime-signature.v1';
 
 const SECURITY_GATE_STATUSES = Object.freeze([
   'ready',
@@ -93,6 +95,7 @@ const SECURITY_GATE_BOUNDARIES = Object.freeze([
   'local-fixtures-require-no-cdn',
   'framework-runtime-dependencies-remain-peer-or-optional',
   'packaged-or-vendored-frameworks-block-strict-gate',
+  'manifest-bundled-flag-must-match-artifact-runtime-signatures',
   'runtime-fallback-required-and-visible',
   'security-owner-version-contract-required',
   'no-framework-code-execution-during-gate'
@@ -132,8 +135,33 @@ const DEFAULT_ALLOWED_CAPABILITIES = Object.freeze([
   'angular.signals.model',
   'angular.zoneless.change-detection',
   'angular.applicationref.destroy',
-  'style.boundary.host-css-owned'
+  'style.boundary.host-css-owned',
+  'react.root.lifecycle',
+  'react.scheduling.hints',
+  'react.boundary.diagnostics',
+  'vue.app.lifecycle',
+  'vue.explicit-update-adapter',
+  'vue.event-normalization'
 ]);
+
+const SECURITY_FRAMEWORK_RUNTIME_SIGNATURES = Object.freeze({
+  react: Object.freeze([
+    Object.freeze({ id: 'react.production.min.js', pattern: /react\.production\.min\.js/u }),
+    Object.freeze({ id: 'react-dom.production.min.js', pattern: /react-dom\.production\.min\.js/u }),
+    Object.freeze({ id: 'ReactCurrentDispatcher', pattern: /ReactCurrentDispatcher/u }),
+    Object.freeze({ id: 'react-dom-renderer-package-name', pattern: /rendererPackageName:\s*["']react-dom["']/u })
+  ]),
+  vue: Object.freeze([
+    Object.freeze({ id: '@vue/runtime-*', pattern: /@vue\/runtime-/u }),
+    Object.freeze({ id: '__VUE__', pattern: /__VUE__/u }),
+    Object.freeze({ id: '__VUE_PROD_DEVTOOLS__', pattern: /__VUE_PROD_DEVTOOLS__/u })
+  ])
+});
+
+const SECURITY_FRAMEWORK_DEPENDENCY_NAMES = Object.freeze({
+  react: Object.freeze(['react', 'react-dom', 'react-dom/client']),
+  vue: Object.freeze(['vue', '@vue/runtime-core', '@vue/runtime-dom'])
+});
 
 const DEFAULT_SECURITY_GATE_POLICY = Object.freeze({
   schema: XTENSIONS_SECURITY_POLICY_SCHEMA,
@@ -595,6 +623,93 @@ function evaluateCapabilities(source, capabilities, policy, diagnostics) {
   });
 }
 
+function frameworkRuntimeNames(framework) {
+  return SECURITY_FRAMEWORK_DEPENDENCY_NAMES[framework] || Object.freeze([]);
+}
+
+function frameworkRuntimePatterns(framework) {
+  return SECURITY_FRAMEWORK_RUNTIME_SIGNATURES[framework] || Object.freeze([]);
+}
+
+function inferArtifactFramework(source = {}, dependencies = []) {
+  const explicit = normalizeString(source.framework || source.runtimeClass).toLowerCase();
+  if (explicit === 'react' || explicit === 'vue') return explicit;
+  if (dependencies.some((dependency) => frameworkRuntimeNames('react').includes(dependency.name))) return 'react';
+  if (dependencies.some((dependency) => frameworkRuntimeNames('vue').includes(dependency.name))) return 'vue';
+  return '';
+}
+
+function artifactTextFromInput(input = {}, source = {}, options = {}) {
+  if (typeof options.artifactText === 'string') return options.artifactText;
+  if (typeof input.artifactText === 'string') return input.artifactText;
+  if (typeof input.bundleText === 'string') return input.bundleText;
+  if (typeof source.artifactText === 'string') return source.artifactText;
+  if (typeof source.bundleText === 'string') return source.bundleText;
+  return '';
+}
+
+function detectFrameworkRuntimeSignatures(input = {}, options = {}) {
+  const source = input && input.manifest && typeof input.manifest === 'object' ? input.manifest : input;
+  const dependencies = Array.isArray(options.dependencies) ? options.dependencies : collectDependencies(source);
+  const artifactText = artifactTextFromInput(input, source, options);
+  const framework = normalizeString(options.framework || inferArtifactFramework(source, dependencies)).toLowerCase();
+  const frameworks = framework ? [framework] : Object.keys(SECURITY_FRAMEWORK_RUNTIME_SIGNATURES);
+  const matches = frameworks.flatMap((candidate) => (
+    frameworkRuntimePatterns(candidate)
+      .filter((signature) => signature.pattern.test(artifactText))
+      .map((signature) => ({
+        framework: candidate,
+        signature: signature.id
+      }))
+  ));
+  const detectedFrameworks = Array.from(new Set(matches.map((match) => match.framework))).sort();
+
+  return {
+    schema: SECURITY_ARTIFACT_RUNTIME_SIGNATURE_SCHEMA,
+    framework: framework || detectedFrameworks[0] || '',
+    detectedFrameworks,
+    runtimeBundled: matches.length > 0,
+    signatures: matches,
+    artifactBytes: Buffer.byteLength(artifactText || '', 'utf8'),
+    artifactInspected: artifactText.length > 0
+  };
+}
+
+function dependencyMatchesFrameworkRuntime(framework, dependency) {
+  return frameworkRuntimeNames(framework).includes(dependency.name);
+}
+
+function hasProductLocalBundledRuntimeDeclaration(framework, dependencies) {
+  const frameworkDependencies = dependencies.filter((dependency) => dependencyMatchesFrameworkRuntime(framework, dependency));
+  return frameworkDependencies.length > 0 && frameworkDependencies.every((dependency) => (
+    dependency.classification === 'product-local-bundled'
+    && dependency.rawClassification === 'product-local-bundled'
+    && dependency.bundled === true
+    && dependency.packageIncluded === true
+  ));
+}
+
+function evaluateArtifactRuntimeTruth(source, artifactRuntime, dependencies, diagnostics) {
+  if (!artifactRuntime.runtimeBundled) return;
+  artifactRuntime.detectedFrameworks.forEach((framework) => {
+    if (!hasProductLocalBundledRuntimeDeclaration(framework, dependencies)) {
+      diagnostics.push(createSecurityDiagnostic(
+        source,
+        SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE,
+        `XTension bundle contains ${framework} runtime signatures but the manifest does not declare product-local-bundled runtime dependencies.`,
+        'error',
+        {
+          field: 'dependencies',
+          framework,
+          signatures: artifactRuntime.signatures
+            .filter((signature) => signature.framework === framework)
+            .map((signature) => signature.signature)
+        }
+      ));
+    }
+  });
+}
+
 function evaluatePolicyDrift(source, diagnostics) {
   const policy = source.policy && typeof source.policy === 'object' ? source.policy : {};
   if (policy.securityGateRequired === false || policy.allowRemoteWithoutReview === true || policy.status === 'blocked') {
@@ -618,6 +733,12 @@ function evaluateXTensionSecurity(input = {}, options = {}) {
   const fallback = normalizeFallback(source.fallback);
   const csp = normalizeCspRequirements(source, options);
   const dependencies = collectDependencies(source);
+  const artifactRuntime = detectFrameworkRuntimeSignatures(source, {
+    ...options,
+    dependencies,
+    framework: normalizedManifest.framework,
+    artifactText: artifactTextFromInput(input, source, options)
+  });
   const remoteCapable = isRemoteCapable(source, csp, dependencies);
   const capabilities = toArray(source.capabilities || source.contract && source.contract.capabilities || source.contractSnapshot && source.contractSnapshot.capabilities || normalizedManifest.capabilities)
     .map(normalizeString)
@@ -696,6 +817,7 @@ function evaluateXTensionSecurity(input = {}, options = {}) {
 
   evaluateDependencies(normalizedManifest, dependencies, policy, diagnostics);
   evaluateCapabilities(normalizedManifest, capabilities, policy, diagnostics);
+  evaluateArtifactRuntimeTruth(normalizedManifest, artifactRuntime, dependencies, diagnostics);
 
   if (policy.requireFallback && (!fallback.mode || !fallback.message)) {
     diagnostics.push(createSecurityDiagnostic(
@@ -731,6 +853,7 @@ function evaluateXTensionSecurity(input = {}, options = {}) {
     csp,
     capabilities,
     dependencies,
+    artifactRuntime,
     fallback: {
       ...fallback,
       visible: Boolean(fallback.mode && fallback.message)
@@ -751,6 +874,7 @@ function evaluateXTensionSecurity(input = {}, options = {}) {
         bundled: dependency.bundled,
         packageIncluded: dependency.packageIncluded
       })),
+      artifactRuntime,
       fallback
     }),
     diagnostics
@@ -780,7 +904,23 @@ function assertXTensionsSecurityDependencyBoundary(input = {}) {
 function createXTensionsSecurityIntegrityGate(input = {}, options = {}) {
   const policy = normalizeSecurityGatePolicy(input.policy || input.securityPolicy || options.policy);
   const xtensions = toArray(input.xtensions || input.manifests || input.manifest);
-  const manifestReports = xtensions.map((manifest) => evaluateXTensionSecurity(manifest, { ...options, policy }));
+  const artifactTexts = input.artifactTexts || options.artifactTexts || {};
+  const artifactTextForManifest = (manifest) => {
+    if (typeof manifest.artifactText === 'string' || typeof manifest.bundleText === 'string') {
+      return artifactTextFromInput(manifest, manifest, options);
+    }
+    const manifestId = normalizeString(manifest.id || manifest.xtensionId);
+    const entry = normalizeEntry(manifest.entry);
+    return artifactTexts[manifestId]
+      || artifactTexts[entry.module]
+      || artifactTexts[entry.module.replace(/^\//u, '')]
+      || '';
+  };
+  const manifestReports = xtensions.map((manifest) => evaluateXTensionSecurity(manifest, {
+    ...options,
+    policy,
+    artifactText: artifactTextForManifest(manifest)
+  }));
   const dependencyBoundary = assertXTensionsSecurityDependencyBoundary({
     packageManifest: input.packageManifest || options.packageManifest || {},
     imports: input.imports || options.imports || [],
@@ -867,6 +1007,8 @@ module.exports = {
   SECURITY_CAPABILITY_NOT_ALLOWED_CODE,
   SECURITY_CDN_SOURCE_FORBIDDEN_CODE,
   SECURITY_CONTRACT_MISSING_CODE,
+  SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE,
+  SECURITY_ARTIFACT_RUNTIME_SIGNATURE_SCHEMA,
   SECURITY_CSP_DIRECTIVE_MISSING_CODE,
   SECURITY_CSP_UNSAFE_SOURCE_CODE,
   SECURITY_CSP_WASM_POLICY_MISSING_CODE,
@@ -901,6 +1043,7 @@ module.exports = {
   assertXTensionsSecurityDependencyBoundary,
   createSecurityDiagnostic,
   createXTensionsSecurityIntegrityGate,
+  detectFrameworkRuntimeSignatures,
   evaluateXTensionSecurity,
   normalizeCspRequirements,
   normalizeSecurityGatePolicy,

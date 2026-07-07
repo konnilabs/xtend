@@ -2506,9 +2506,11 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
       { pattern: 'npm run test:pr:report', message: 'runs PR fast report gate' },
       { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
+      { pattern: 'npm run test:xtensions-framework-adapters:report', message: 'runs XTensions framework adapter report gate' },
       { pattern: 'actions/upload-artifact@v7', message: 'uploads report artifact' },
       { pattern: '.xtend-test-results/xtend-pr-gate-report.json', message: 'uploads PR JSON report path' },
       { pattern: '.xtend-test-results/xtend-release-gate-report.json', message: 'uploads release JSON report path' },
+      { pattern: '.xtend-test-results/xtend-xtensions-framework-adapters-report.json', message: 'uploads XTensions framework adapter JSON report path' },
       { pattern: 'xtend-pr-gate-report-node-26', message: 'uses stable PR artifact name' },
       { pattern: 'xtend-release-gate-report-node-26', message: 'uses stable release artifact name' }
     ]
@@ -2526,7 +2528,9 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'node-version: 26.x', message: 'pins Node 26.x' },
       { pattern: 'npm run test:release:full:report', message: 'runs full release report gate' },
       { pattern: 'npm run test:rmt-vnext-primitives:report', message: 'runs RMT primitive gate' },
+      { pattern: 'npm run test:xtensions-framework-adapters:report', message: 'runs XTensions framework adapter gate' },
       { pattern: 'npm run nightly:manifest', message: 'writes nightly manifest' },
+      { pattern: '.xtend-test-results/xtend-xtensions-framework-adapters-report.json', message: 'uploads XTensions framework adapter evidence' },
       { pattern: 'xtend-nightly-build-node-26', message: 'uses stable nightly artifact name' },
       { pattern: 'run_source_to_sea', message: 'keeps Source-to-Sea optional' },
       { pattern: 'run_conditional_network', message: 'keeps conditional network optional' }
@@ -7086,6 +7090,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   const nightlyGate = (gateMatrix && gateMatrix.nightlyGate) || {};
   const nightlyBuild = (gateMatrix && gateMatrix.nightlyBuild) || {};
   const packageStructureGate = (gateMatrix && gateMatrix.packageStructureGate) || {};
+  const xtensionsFrameworkAdapterGate = (gateMatrix && gateMatrix.xtensionsFrameworkAdapterGate) || {};
   const rmtVNextPrimitiveGate = (gateMatrix && gateMatrix.rmtVNextPrimitiveGate) || {};
   const npmPublishLatest = packageManifest.xtend && packageManifest.xtend.npmPublishLatest;
 
@@ -7101,9 +7106,11 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'node-version: 26.x', 'CI workflow pins Node 26.x');
   context.assertIncludes(workflow, 'npm run test:pr:report', 'CI workflow runs PR report gate');
   context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
+  context.assertIncludes(workflow, 'npm run test:xtensions-framework-adapters:report', 'CI workflow runs XTensions framework adapter report gate');
   context.assertIncludes(workflow, 'actions/upload-artifact@v7', 'CI workflow uploads report artifact');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-pr-gate-report.json', 'CI workflow uploads PR JSON report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-release-gate-report.json', 'CI workflow uploads full release JSON report');
+  context.assertIncludes(workflow, '.xtend-test-results/xtend-xtensions-framework-adapters-report.json', 'CI workflow uploads XTensions framework adapter JSON report');
   context.assertIncludes(workflow, 'xtend-pr-gate-report-node-26', 'CI workflow uses stable PR report artifact name');
   context.assertIncludes(workflow, 'xtend-release-gate-report-node-26', 'CI workflow uses stable release report artifact name');
   context.assertIncludes(workflow, 'rmt-vnext-primitive-gates:', 'CI workflow declares RMT vNext primitive gate job');
@@ -7152,9 +7159,12 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'npm run test:release:full:report', 'Nightly workflow runs full release gate report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-vnext-primitives:report', 'Nightly workflow runs RMT vNext primitive report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:native-first-rmt-owned-release:report', 'Nightly workflow runs Native-First RMT Owned release report');
+  context.assertIncludes(nightlyWorkflow, 'npm run test:xtensions-framework-adapters:report', 'Nightly workflow runs XTensions framework adapter report');
   context.assertIncludes(nightlyWorkflow, 'npm run release:report', 'Nightly workflow captures release report evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run pack:dry-run', 'Nightly workflow captures package dry-run evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run nightly:manifest', 'Nightly workflow writes nightly manifest');
+  context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-xtensions-framework-adapters-report.json', 'Nightly workflow uploads XTensions framework adapter evidence');
+  context.assertIncludes(nightlyWorkflow, 'XTensions framework adapter gate failed', 'Nightly workflow fails on missing XTensions framework adapter evidence');
   context.assertIncludes(nightlyWorkflow, 'xtend-nightly-build-node-26', 'Nightly workflow uploads stable artifact bundle');
   context.assertIncludes(nightlyWorkflow, 'optional-source-to-sea:', 'Nightly workflow isolates optional Source-to-Sea browser evidence');
   context.assertIncludes(nightlyWorkflow, "github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true", 'Nightly Source-to-Sea job is manual only');
@@ -7177,6 +7187,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(prFastGate.command === 'npm run test:pr:report', 'Package metadata exposes PR fast report command');
   context.assert(prFastGate.reportPath === '.xtend-test-results/xtend-pr-gate-report.json', 'Package metadata exposes PR fast report path');
   context.assert(prFastGate.artifactName === 'xtend-pr-gate-report-node-26', 'Package metadata exposes PR fast artifact name');
+  context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-xtensions-framework-adapters-report.json'), 'PR fast gate exposes XTensions framework adapter report path');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('core'), 'PR fast gate includes core suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-contract-v2'), 'PR fast gate includes Component Contract v2 suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('browser'), 'PR fast gate includes browser suite');
@@ -7214,6 +7225,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(fullReleaseGate.command === 'npm run test:release:full:report', 'Package metadata exposes full release report command');
   context.assert(fullReleaseGate.reportPath === '.xtend-test-results/xtend-release-gate-report.json', 'Package metadata exposes full release report path');
   context.assert(fullReleaseGate.artifactName === 'xtend-release-gate-report-node-26', 'Package metadata exposes full release artifact name');
+  context.assert(Array.isArray(fullReleaseGate.additionalReportPaths) && fullReleaseGate.additionalReportPaths.includes('.xtend-test-results/xtend-xtensions-framework-adapters-report.json'), 'Full release gate exposes XTensions framework adapter report path');
   context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('rmt-tooling-docs'), 'Full release gate includes RMT tooling docs');
   context.assert(Array.isArray(fullReleaseGate.suites) && !fullReleaseGate.suites.includes('all'), 'Full release gate uses curated public release suites');
   context.assert(Array.isArray(fullReleaseGate.optionalSuites) && fullReleaseGate.optionalSuites.includes('rmt-vnext-source-to-sea'), 'Full release gate declares source-to-sea as optional');
@@ -7229,6 +7241,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(nightlyBuild.nodeVersion === '26.x', 'Package metadata exposes nightly Node version');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:rmt-vnext-primitives:report'), 'Package metadata includes RMT vNext primitive command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:native-first-rmt-owned-release:report'), 'Package metadata includes Native-First RMT Owned release command in nightly build');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:xtensions-framework-adapters:report'), 'Package metadata includes XTensions framework adapter command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run release:report'), 'Package metadata includes release report command in nightly build');
   context.assert(Array.isArray(nightlyBuild.workspaceDryRunCommands) && nightlyBuild.workspaceDryRunCommands.includes('npm pack --workspace xtendrmt --dry-run --json'), 'Package metadata includes workspace dry-run commands in nightly build');
   context.assert(nightlyBuild.manifestCommand === 'npm run nightly:manifest', 'Package metadata exposes nightly build manifest command');
@@ -7272,6 +7285,14 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-ai-developer-kit'), 'RMT vNext primitive gate includes AI Developer Kit suite');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('rmt-editor-packaging'), 'RMT vNext primitive gate includes editor packaging suite');
   context.assert(Array.isArray(rmtVNextPrimitiveGate.suites) && rmtVNextPrimitiveGate.suites.includes('type-exports-rmt'), 'RMT vNext primitive gate includes RMT TypeExports suite');
+  context.assert(xtensionsFrameworkAdapterGate.schema === 'xtend.ci.xtensions-framework-adapter-gate.v1', 'Package metadata exposes XTensions framework adapter gate schema');
+  context.assert(xtensionsFrameworkAdapterGate.command === 'npm run test:xtensions-framework-adapters:report', 'Package metadata exposes XTensions framework adapter report command');
+  context.assert(xtensionsFrameworkAdapterGate.reportPath === '.xtend-test-results/xtend-xtensions-framework-adapters-report.json', 'Package metadata exposes XTensions framework adapter report path');
+  context.assert(xtensionsFrameworkAdapterGate.artifactName === 'xtend-xtensions-framework-adapters-report-node-26', 'Package metadata exposes XTensions framework adapter artifact name');
+  context.assert(Array.isArray(xtensionsFrameworkAdapterGate.suites) && xtensionsFrameworkAdapterGate.suites.includes('xtensions-react-host-adapter'), 'XTensions framework adapter gate includes React host adapter suite');
+  context.assert(Array.isArray(xtensionsFrameworkAdapterGate.suites) && xtensionsFrameworkAdapterGate.suites.includes('xtensions-vue-host-adapter'), 'XTensions framework adapter gate includes Vue host adapter suite');
+  context.assert(Array.isArray(xtensionsFrameworkAdapterGate.suites) && xtensionsFrameworkAdapterGate.suites.includes('maraca-xtensions'), 'XTensions framework adapter gate includes Maraca XTensions suite');
+  context.assert(Array.isArray(xtensionsFrameworkAdapterGate.deferredSuites) && xtensionsFrameworkAdapterGate.deferredSuites.includes('xtensions-security-integrity-gate'), 'XTensions framework adapter gate documents deferred security integrity suite');
   context.assert(packageStructureGate.schema === 'xtend.ci.package-structure-gate.v1', 'Package metadata exposes package structure gate schema');
   context.assert(packageStructureGate.command === 'npm run pack:dry-run', 'Package metadata exposes package structure pack command');
   context.assert(packageStructureGate.publishDryRunDelegatedTo === 'npm-publish-latest', 'Package metadata delegates publish dry-run to npm publish job');
@@ -7285,6 +7306,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(npmPublishLatest.command === 'npm publish --tag latest --provenance --access public', 'Package metadata exposes provenance publish command');
   context.assert(npmPublishLatest.evidenceArtifactName === 'xtend-npm-publish-latest-evidence-node-26', 'Package metadata exposes npm publish evidence artifact');
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run release:report'), 'Package metadata requires release report before npm publish');
+  context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run test:xtensions-framework-adapters:report'), 'Package metadata requires XTensions framework adapter report before npm publish');
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run test:native-first-rmt-owned-release:report'), 'Package metadata requires Native-First RMT Owned release report before npm publish');
   context.assert(npmPublishLatest.provenance === true, 'Package metadata requires npm provenance');
   context.assert(packageManifest.repository && packageManifest.repository.url === 'git+https://github.com/konnilabs/xtend.git', 'Package metadata exposes GitHub repository for provenance');
@@ -7295,6 +7317,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromedriver'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver', 'Package exposes RMT vNext source-to-sea chromedriver script');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-component-primitives rmt-bestcase-flagship rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility surface-manager surface-side-panel surface-native-materialization surface-manager-browser surface-manager-a11y browser rmt-ai-developer-kit rmt-editor-packaging type-exports-rmt', 'Package exposes RMT vNext primitive aggregate gate script without optional source-to-sea');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser rmt-vnext-compiler rmt-semantic-graph rmt-vnext-fabric-bridge rmt-vnext-component-primitives rmt-bestcase-flagship rmt-node-ssr-adapter rmt-php-ssr-adapter docs-php-ssr-prehydration docs-php-ssr-performance-budget docs-php-ssr-cls-budget xtend-layout-stability-contract rmt-vnext-tooling rmt-vnext-compatibility surface-manager surface-side-panel surface-native-materialization surface-manager-browser surface-manager-a11y browser rmt-ai-developer-kit rmt-editor-packaging type-exports-rmt --report .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'Package exposes RMT vNext primitive report gate script without optional source-to-sea');
+  context.assert(packageManifest.scripts['test:xtensions-framework-adapters'] === 'node scripts/run_xtend_tests.js xtensions-react-host-adapter xtensions-vue-host-adapter xtensions-react-host-controller-poc xtensions-vue-host-controller-poc maraca-xtensions', 'Package exposes XTensions framework adapter aggregate gate script');
+  context.assert(packageManifest.scripts['test:xtensions-framework-adapters:report'] === 'node scripts/run_xtend_tests.js xtensions-react-host-adapter xtensions-vue-host-adapter xtensions-react-host-controller-poc xtensions-vue-host-controller-poc maraca-xtensions --report .xtend-test-results/xtend-xtensions-framework-adapters-report.json', 'Package exposes XTensions framework adapter report gate script');
   context.assert(packageManifest.scripts['test:pr:report'].startsWith('node scripts/run_xtend_tests.js '), 'Package exposes PR fast report gate script');
   context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-stack-docs'), 'PR fast report gate includes RMT stack docs');
   context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-playground-security'), 'PR fast report gate includes RMT playground security');
@@ -7331,12 +7355,14 @@ function assertReleaseChecklistReference(context, rootDir) {
   context.assert(metadata.semver && metadata.semver.pre1MinorMayBreak === true, 'Package metadata exposes pre-1.0 breaking-minor rule');
   context.assert(Array.isArray(metadata.semver && metadata.semver.breakingChangeRequires) && metadata.semver.breakingChangeRequires.includes('release-owner-signoff'), 'Package metadata requires release owner signoff for breaking changes');
   context.assert(Array.isArray(metadata.candidateGates) && metadata.candidateGates.includes('npm run test:release:full:report'), 'Release checklist requires full release report gate');
+  context.assert(Array.isArray(metadata.candidateGates) && metadata.candidateGates.includes('npm run test:xtensions-framework-adapters:report'), 'Release checklist requires XTensions framework adapter report gate');
   context.assert(Array.isArray(metadata.candidateGates) && metadata.candidateGates.includes('npm run test:docs-rmt-pilot'), 'Release checklist requires Docs RMT pilot gate');
   context.assert(Array.isArray(metadata.candidateGates) && metadata.candidateGates.includes('npm run pack:dry-run'), 'Release checklist requires pack dry run');
   context.assert(Array.isArray(metadata.conditionalNetworkGates) && metadata.conditionalNetworkGates.includes('npm audit --audit-level=moderate'), 'Release checklist exposes audit as conditional network gate');
   context.assert(Array.isArray(metadata.conditionalNetworkGates) && metadata.conditionalNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json'), 'Release checklist exposes SBOM as conditional network gate');
   context.assert(Array.isArray(metadata.artifactChecklist) && metadata.artifactChecklist.includes('CHANGELOG.md'), 'Release checklist requires changelog artifact');
   context.assert(Array.isArray(metadata.artifactChecklist) && metadata.artifactChecklist.includes(policyPath), 'Release checklist requires policy artifact');
+  context.assert(Array.isArray(metadata.artifactChecklist) && metadata.artifactChecklist.includes('.xtend-test-results/xtend-xtensions-framework-adapters-report.json'), 'Release checklist requires XTensions framework adapter report artifact');
   context.assert(metadata.publishBoundary === 'private-until-release-owner-approval', 'Release checklist keeps release-owner publish boundary');
   context.assert(metadata.completedRun === 'ER-WP-40', 'Release checklist records completed ER-WP-40 run');
   context.assert(metadata.nextWorkpackage === null, 'Release checklist has no next ER workpackage');

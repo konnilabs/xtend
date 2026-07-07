@@ -1,0 +1,20 @@
+{
+  "schema": "xtend.xtensions.vue-host-adapter.bad-payload.fixture.v1",
+  "payload": {
+    "props": {
+      "title": "Bad Vue Payload",
+      "__v_isReactive": true,
+      "piniaStore": {
+        "state": "host-store"
+      },
+      "globalProperties": {
+        "$patch": "not-allowed"
+      }
+    }
+  },
+  "expectedDiagnostics": [
+    "xtensions.vue_poc.proxy_leak",
+    "xtensions.vue_poc.store_leak",
+    "xtensions.vue_poc.implicit_global_patch"
+  ]
+}

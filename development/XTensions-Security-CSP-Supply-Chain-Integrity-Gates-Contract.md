@@ -55,8 +55,12 @@ XTN-11 normalisiert Dependencies auf diese Klassifikation:
 - `optional`
 - `dev/test`
 - `remote`
+- `legacy-local-artifact`
+- `product-local-bundled`
 
 Framework-Runtimes muessen `peer` oder `optional` bleiben. `vendored`, `root-runtime`, `bundled`, `policy-blocked`, `packageIncluded` oder paketierte Framework-Artefakte blockieren das Gate. Damit koennen Testkomponenten fuer React/Vue/Three/Leaflet/Chart.js spaeter extern opt-in laufen, ohne dass XTend selbst Framework-Dependencies bekommt.
+
+Artifact Truth ist verpflichtend: Wenn ein Manifest fuer React/Vue `bundled: false` oder `host-provided` deklariert, darf der Bundletext keine React-/Vue-Runtime-Signaturen enthalten. Werden Signaturen wie `react.production.min.js`, `react-dom.production.min.js`, `@vue/runtime-*` oder `__VUE__` gefunden, muss das Manifest explizit `product-local-bundled` mit `packageIncluded: true` und geblockten Remote-Artefakten deklarieren; sonst blockiert das Gate mit `xtensions.security.artifact_runtime_bundled_drift`.
 
 ## Capabilities
 
@@ -79,6 +83,12 @@ Capabilities sind deny-by-default. Erlaubt sind nur Host-orchestrierte, XTend-na
 - `fabric.lane.animation`
 - `imperative.host-bridge`
 - `render.loop.host-fiber`
+- `react.root.lifecycle`
+- `react.scheduling.hints`
+- `react.boundary.diagnostics`
+- `vue.app.lifecycle`
+- `vue.explicit-update-adapter`
+- `vue.event-normalization`
 
 Breite Faehigkeiten wie globale DOM-Kontrolle, unbeschraenkter Netzwerkzugriff, Eval, Filesystem oder ungepruefte Worker sind keine XTensions-Default-Capabilities.
 

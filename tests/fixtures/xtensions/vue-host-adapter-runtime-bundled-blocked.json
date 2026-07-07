@@ -1,0 +1,6 @@
+{
+  "schema": "xtend.xtensions.vue-host-adapter.blocked-runtime-bundled.fixture.v1",
+  "extends": "tests/fixtures/xtensions/vue-host-adapter-valid.json",
+  "artifactText": "/* @vue/runtime-dom */ const marker = '__VUE__'; const devtools = '__VUE_PROD_DEVTOOLS__';",
+  "expectedDiagnostic": "xtensions.security.artifact_runtime_bundled_drift"
+}

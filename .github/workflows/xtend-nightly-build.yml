@@ -112,6 +112,11 @@ jobs:
         continue-on-error: true
         run: npm run test:maraca:report
 
+      - name: Run XTensions framework adapter report
+        id: xtensions_framework_adapters
+        continue-on-error: true
+        run: npm run test:xtensions-framework-adapters:report
+
       - name: Run XSurface shard gate report
         id: xsurface_shard
         continue-on-error: true
@@ -154,6 +159,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
             .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
             .xtend-test-results/xtend-maraca-gate-report.json
+            .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-xsurface-shard-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
@@ -178,6 +184,7 @@ jobs:
           if [ "${{ steps.pack_root.outcome }}" != "success" ]; then echo "root package dry run failed"; failed=1; fi
           if [ "${{ steps.pack_workspaces.outcome }}" != "success" ]; then echo "workspace package dry runs failed"; failed=1; fi
           if [ "${{ steps.maraca.outcome }}" != "success" ]; then echo "Maraca gate failed"; failed=1; fi
+          if [ "${{ steps.xtensions_framework_adapters.outcome }}" != "success" ]; then echo "XTensions framework adapter gate failed"; failed=1; fi
           if [ "${{ steps.xsurface_shard.outcome }}" != "success" ]; then echo "XSurface shard gate failed"; failed=1; fi
           if [ "${{ steps.xscaler_protocol.outcome }}" != "success" ]; then echo "XScaler protocol gate failed"; failed=1; fi
           if [ "${{ steps.xscaler_source_to_sea.outcome }}" != "success" ]; then echo "XScaler source-to-sea gate failed"; failed=1; fi

@@ -1,0 +1,29 @@
+{
+  "schema": "xtend.xtensions.react-host-adapter.missing-peer-runtime.fixture.v1",
+  "runtimeBoundary": {
+    "dependencies": [
+      {
+        "name": "react",
+        "versionRange": "18.3.1",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      },
+      {
+        "name": "react-dom",
+        "versionRange": "18.3.1",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ],
+    "runtimeProvider": {
+      "mode": "host-provided-local",
+      "framework": "react",
+      "modules": [],
+      "bundledInXtension": false,
+      "remoteAllowed": false
+    }
+  },
+  "expectedDiagnostic": "xtensions.react.host_runtime_missing"
+}

@@ -1,0 +1,167 @@
+{
+  "schema": "xtend.xtensions.react-host-adapter.fixture.v1",
+  "contract": "xtend.xtensions.react-adapter.v1",
+  "expectedFramework": "react",
+  "expectedXtensionId": "xtension.react.host-adapter.valid",
+  "runtimeBoundary": {
+    "dependencies": [
+      {
+        "name": "react",
+        "versionRange": "18.3.1",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      },
+      {
+        "name": "react-dom",
+        "versionRange": "18.3.1",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ],
+    "runtimeProvider": {
+      "mode": "host-provided-local",
+      "framework": "react",
+      "modules": [
+        "/dist/xtensions/frameworks/react/index.mjs",
+        "/dist/xtensions/frameworks/react-dom/client.mjs"
+      ],
+      "bundledInXtension": false,
+      "remoteAllowed": false,
+      "evidence": "local-runtime-provider"
+    }
+  },
+  "payload": {
+    "props": {
+      "seed": "suite-react",
+      "items": [
+        {
+          "id": "LEDGER-1000",
+          "amount": 42
+        }
+      ]
+    }
+  },
+  "manifest": {
+    "schema": "xtend.maraca.xtension-manifest.v1",
+    "id": "xtension.react.host-adapter.valid",
+    "name": "React Host Adapter Fixture",
+    "framework": "react",
+    "version": "0.0.0-test",
+    "owner": "xtend-framework-adapter-suite",
+    "entry": {
+      "module": "/dist/xtensions/react-ledger-panel/index.mjs",
+      "exportName": "createReactLedgerPanel",
+      "format": "esm",
+      "dynamicImport": true
+    },
+    "integrity": {
+      "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source": "fixture"
+    },
+    "csp": {
+      "scriptSrc": [
+        "'self'"
+      ],
+      "connectSrc": [
+        "'self'"
+      ],
+      "workerSrc": [
+        "'self'"
+      ],
+      "styleSrc": [
+        "'self'"
+      ],
+      "imgSrc": [
+        "'self'",
+        "data:"
+      ]
+    },
+    "security": {
+      "owner": "xtend-framework-adapter-suite",
+      "localFixtureNoNetwork": true,
+      "remoteArtifactsAllowed": false
+    },
+    "runtimeProvider": {
+      "mode": "host-provided-local",
+      "framework": "react",
+      "modules": [
+        "/dist/xtensions/frameworks/react/index.mjs",
+        "/dist/xtensions/frameworks/react-dom/client.mjs"
+      ],
+      "bundledInXtension": false,
+      "remoteAllowed": false
+    },
+    "contract": {
+      "hostControllerSchema": "xtend.xtensions.host-controller.v1",
+      "signalBridgeSchema": "xtend.xtensions.signal-bridge.v1",
+      "accepts": [
+        "react.fixture.props"
+      ],
+      "emits": [
+        "react.fixture.ready"
+      ],
+      "capabilities": [
+        "react.root.lifecycle",
+        "react.scheduling.hints",
+        "react.boundary.diagnostics",
+        "host.lifecycle.mount",
+        "host.lifecycle.update",
+        "host.lifecycle.unmount",
+        "signal.downstream",
+        "event.upstream",
+        "loading.dynamic-import",
+        "fallback.native-placeholder",
+        "scheduler.hints"
+      ]
+    },
+    "capabilities": [
+      "react.root.lifecycle",
+      "react.scheduling.hints",
+      "react.boundary.diagnostics",
+      "host.lifecycle.mount",
+      "host.lifecycle.update",
+      "host.lifecycle.unmount",
+      "signal.downstream",
+      "event.upstream",
+      "loading.dynamic-import",
+      "fallback.native-placeholder",
+      "scheduler.hints"
+    ],
+    "dependencies": [
+      {
+        "name": "react",
+        "versionRange": "18.3.1",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      },
+      {
+        "name": "react-dom",
+        "versionRange": "18.3.1",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ],
+    "isolation": {
+      "runtimeClass": "react",
+      "domBoundary": "host-owned-container",
+      "styleBoundary": "scoped-css",
+      "trustBoundary": "same-origin-adapter",
+      "mutationPolicy": "observe-and-degrade"
+    },
+    "fallback": {
+      "mode": "native-placeholder",
+      "component": "xtend-native.react.fixture.fallback",
+      "message": "React fixture unavailable",
+      "degradedStatus": "react-fixture-unavailable"
+    },
+    "policy": {
+      "securityGate": "xtend.xtensions.security-integrity-gate.v1",
+      "status": "local-demo-approved",
+      "dependencyBoundary": "host-provided-framework-dependencies"
+    }
+  }
+}

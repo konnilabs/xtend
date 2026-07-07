@@ -24,6 +24,7 @@ const COMMANDS = [
   'npm pack --workspace xtend-maraca --dry-run --json',
   'npm pack --workspace xsurface-shard --dry-run --json',
   'npm run test:maraca:report',
+  'npm run test:xtensions-framework-adapters:report',
   'npm run test:xsurface-shard:report',
   'npm run test:xscaler-protocol:report',
   'npm run test:xscaler-source-to-sea:report'
@@ -47,6 +48,7 @@ const ARTIFACT_PATHS = [
   '.xtend-test-results/xtend-pack-dry-run-xtend-maraca.json',
   '.xtend-test-results/xtend-pack-dry-run-xsurface-shard.json',
   '.xtend-test-results/xtend-maraca-gate-report.json',
+  '.xtend-test-results/xtend-xtensions-framework-adapters-report.json',
   '.xtend-test-results/xtend-xsurface-shard-report.json',
   '.xtend-test-results/xtend-xscaler-protocol-report.json',
   '.xtend-test-results/xtend-xscaler-source-to-sea-report.json',
@@ -64,6 +66,7 @@ const REQUIRED_ARTIFACTS = new Set([
   '.xtend-test-results/xtend-pack-dry-run.json',
   '.xtend-test-results/xtend-pack-dry-run-xsurface-shard.json',
   '.xtend-test-results/xtend-maraca-gate-report.json',
+  '.xtend-test-results/xtend-xtensions-framework-adapters-report.json',
   '.xtend-test-results/xtend-xsurface-shard-report.json',
   '.xtend-test-results/xtend-xscaler-protocol-report.json',
   '.xtend-test-results/xtend-xscaler-source-to-sea-report.json'

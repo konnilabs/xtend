@@ -320,9 +320,17 @@ const {
   runXTensionsReactHostControllerPocSuite
 } = require('../tests/xtensions/xtensions_react_host_controller_poc_suite');
 const {
+  printXTensionsReactHostAdapterReport,
+  runXTensionsReactHostAdapterSuite
+} = require('../tests/xtensions/xtensions_react_host_adapter_suite');
+const {
   printXTensionsVueHostControllerPocReport,
   runXTensionsVueHostControllerPocSuite
 } = require('../tests/xtensions/xtensions_vue_host_controller_poc_suite');
+const {
+  printXTensionsVueHostAdapterReport,
+  runXTensionsVueHostAdapterSuite
+} = require('../tests/xtensions/xtensions_vue_host_adapter_suite');
 const {
   printXTensionsImperativeHostPocsReport,
   runXTensionsImperativeHostPocsSuite
@@ -1737,6 +1745,16 @@ const suites = [
     }
   },
   {
+    id: 'xtensions-react-host-adapter',
+    label: 'XTensions React Host Adapter Contract',
+    description: 'Runs the XTN-18 React host-provided runtime adapter, artifact-truth and lifecycle gate.',
+    run: () => {
+      const result = runXTensionsReactHostAdapterSuite({ rootDir });
+      printXTensionsReactHostAdapterReport(result);
+      return toRunnerResult('xtensions-react-host-adapter', 'XTensions React Host Adapter Contract', result);
+    }
+  },
+  {
     id: 'xtensions-vue-host-controller-poc',
     label: 'XTensions Vue HostController PoC and Explicit Update Adapter Contract',
     description: 'Runs the XTN-07 frameworkless Vue HostController PoC, explicit update adapter and event normalization gate.',
@@ -1744,6 +1762,16 @@ const suites = [
       const result = runXTensionsVueHostControllerPocSuite({ rootDir });
       printXTensionsVueHostControllerPocReport(result);
       return toRunnerResult('xtensions-vue-host-controller-poc', 'XTensions Vue HostController PoC and Explicit Update Adapter Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-vue-host-adapter',
+    label: 'XTensions Vue Host Adapter Contract',
+    description: 'Runs the XTN-19 Vue host-provided runtime adapter, explicit update and artifact-truth gate.',
+    run: () => {
+      const result = runXTensionsVueHostAdapterSuite({ rootDir });
+      printXTensionsVueHostAdapterReport(result);
+      return toRunnerResult('xtensions-vue-host-adapter', 'XTensions Vue Host Adapter Contract', result);
     }
   },
   {
@@ -3994,7 +4022,9 @@ Examples:
   node scripts/run_xtend_tests.js xtensions-static-introspection
   node scripts/run_xtend_tests.js xtensions-runtime-capability-registry
   node scripts/run_xtend_tests.js xtensions-react-host-controller-poc
+  node scripts/run_xtend_tests.js xtensions-react-host-adapter
   node scripts/run_xtend_tests.js xtensions-vue-host-controller-poc
+  node scripts/run_xtend_tests.js xtensions-vue-host-adapter
   node scripts/run_xtend_tests.js xtensions-imperative-host-pocs
   node scripts/run_xtend_tests.js xtensions-three-render-loop-poc
   node scripts/run_xtend_tests.js xtensions-diagnostic-trail

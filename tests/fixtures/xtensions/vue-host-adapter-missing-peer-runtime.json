@@ -1,0 +1,22 @@
+{
+  "schema": "xtend.xtensions.vue-host-adapter.missing-peer-runtime.fixture.v1",
+  "runtimeBoundary": {
+    "dependencies": [
+      {
+        "name": "vue",
+        "versionRange": "3.5.0",
+        "classification": "host-provided",
+        "bundled": false,
+        "packageIncluded": false
+      }
+    ],
+    "runtimeProvider": {
+      "mode": "host-provided-local",
+      "framework": "vue",
+      "modules": [],
+      "bundledInXtension": false,
+      "remoteAllowed": false
+    }
+  },
+  "expectedDiagnostic": "xtensions.vue.host_runtime_missing"
+}

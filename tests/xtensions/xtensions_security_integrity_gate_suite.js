@@ -27,6 +27,7 @@ const {
 } = require('../../tools/xtensions/runtime-capability-registry');
 const {
   DEFAULT_SECURITY_GATE_POLICY,
+  SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE,
   SECURITY_CAPABILITY_NOT_ALLOWED_CODE,
   SECURITY_CDN_SOURCE_FORBIDDEN_CODE,
   SECURITY_CONTRACT_MISSING_CODE,
@@ -207,6 +208,14 @@ function runXTensionsSecurityIntegrityGateSuite(options = {}) {
   context.assert(policy.allowCdnForLocalFixtures === false, 'security policy blocks CDN for local fixtures');
   assertIncludesAll(context, policy.requiredCspDirectives, SECURITY_REQUIRED_CSP_DIRECTIVES, 'security policy keeps required CSP directives');
   assertIncludesAll(context, policy.allowedCapabilities, ['host.lifecycle.mount', 'loading.dynamic-import', 'render.loop.host-fiber'], 'security policy includes XTend orchestration capabilities');
+  assertIncludesAll(context, policy.allowedCapabilities, [
+    'react.root.lifecycle',
+    'react.scheduling.hints',
+    'react.boundary.diagnostics',
+    'vue.app.lifecycle',
+    'vue.explicit-update-adapter',
+    'vue.event-normalization'
+  ], 'security policy includes React/Vue production adapter capabilities');
   assertIncludesAll(context, SECURITY_GATE_BOUNDARIES, ['deny-by-default-capabilities', 'local-fixtures-require-no-cdn'], 'security gate boundaries include strict policy edges');
   assertIncludesAll(context, SECURITY_GATE_STATUSES, ['ready', 'blocked', 'degraded'], 'security gate statuses include gate states');
 
@@ -232,6 +241,35 @@ function runXTensionsSecurityIntegrityGateSuite(options = {}) {
   context.assert(reactSecurity.remoteCapable === false, 'React local peer manifest is not remote-capable');
   context.assert(reactSecurity.fallback.visible === true, 'React manifest exposes visible fallback');
   context.assert(reactSecurity.dependencies.every((dependency) => dependency.packageIncluded === false), 'React manifest keeps dependencies out of package');
+  context.assert(reactSecurity.artifactRuntime.artifactInspected === false && reactSecurity.artifactRuntime.runtimeBundled === false, 'React manifest has no artifact runtime evidence when no bundle text is provided');
+
+  const reactDriftReport = evaluateXTensionSecurity(fixture.xtensions[0], {
+    policy,
+    artifactText: '/* react.production.min.js */ const marker = "ReactCurrentDispatcher";',
+    clock: createClock()
+  });
+  context.assert(reactDriftReport.status === 'blocked', 'React host-provided manifest is blocked when bundle contains runtime signatures');
+  context.assert(diagnosticCodes(reactDriftReport).includes(SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE), 'React artifact runtime drift diagnostic is emitted');
+
+  const vueDriftManifest = cloneJson(fixture.xtensions[0]);
+  vueDriftManifest.id = 'xtension.security.vue-runtime-drift';
+  vueDriftManifest.framework = 'vue';
+  vueDriftManifest.dependencies = [
+    {
+      name: 'vue',
+      versionRange: '3.5.0',
+      classification: 'host-provided',
+      bundled: false,
+      packageIncluded: false
+    }
+  ];
+  const vueDriftReport = evaluateXTensionSecurity(vueDriftManifest, {
+    policy,
+    artifactText: '/* @vue/runtime-dom */ const marker = "__VUE__";',
+    clock: createClock()
+  });
+  context.assert(vueDriftReport.status === 'blocked', 'Vue host-provided manifest is blocked when bundle contains runtime signatures');
+  context.assert(diagnosticCodes(vueDriftReport).includes(SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE), 'Vue artifact runtime drift diagnostic is emitted');
 
   const report = createXTensionsSecurityIntegrityGate({
     policy,
@@ -253,6 +291,16 @@ function runXTensionsSecurityIntegrityGateSuite(options = {}) {
   context.assert(report.summary.errorCount === 0, 'valid security gate report has no errors');
   context.assert(report.dependencyBoundary.ok === true, 'valid security gate dependency boundary is clean');
   context.assert(typeof report.gateFingerprint === 'string' && report.gateFingerprint.startsWith('sha256:'), 'security gate emits stable fingerprint');
+
+  const artifactTruthBatch = createXTensionsSecurityIntegrityGate({
+    policy,
+    xtensions: [fixture.xtensions[0]],
+    artifactTexts: {
+      [fixture.xtensions[0].id]: '/* react-dom.production.min.js */ const marker = "ReactCurrentDispatcher";'
+    }
+  }, { clock: createClock() });
+  context.assert(artifactTruthBatch.status === 'blocked', 'security gate batches manifest/artifact drift by XTension id');
+  context.assert(diagnosticCodes(artifactTruthBatch).includes(SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE), 'batched artifact truth diagnostic is emitted');
 
   const blockedReport = createXTensionsSecurityIntegrityGate({
     policy,

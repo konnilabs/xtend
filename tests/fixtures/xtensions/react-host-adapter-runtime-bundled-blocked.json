@@ -1,0 +1,6 @@
+{
+  "schema": "xtend.xtensions.react-host-adapter.blocked-runtime-bundled.fixture.v1",
+  "extends": "tests/fixtures/xtensions/react-host-adapter-valid.json",
+  "artifactText": "/* react.production.min.js */ const marker = 'ReactCurrentDispatcher'; const rendererPackageName = 'react-dom';",
+  "expectedDiagnostic": "xtensions.security.artifact_runtime_bundled_drift"
+}
