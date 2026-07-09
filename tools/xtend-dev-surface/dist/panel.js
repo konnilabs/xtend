@@ -1,6 +1,10 @@
 'use strict';
 
 (function createXTendDevSurfacePanel() {
+  const DATA_VIEWS = Object.freeze(['performance', 'hydration', 'kernel', 'fabric']);
+  const MISSING_DEV_API_CODE = 'xtend.devsurface.dev_api.missing';
+  const RUNTIME_BRIDGE_UNAVAILABLE_CODE = 'xtend.devsurface.runtime_bridge.unavailable';
+
   const state = {
     view: 'performance',
     snapshot: null,
@@ -64,9 +68,10 @@
         affectedScopes: []
       },
       gates: [],
+      devApiPresent: false,
       diagnostics: [{
         severity: 'warning',
-        code: 'xtend.devsurface.dev_api.missing',
+        code: MISSING_DEV_API_CODE,
         message: reason || 'XTend DEV API unavailable.'
       }],
       ok: false
@@ -117,6 +122,48 @@
     return `<span class="xds-badge ${escapeHtml(normalized)}">${escapeHtml(normalized)}</span>`;
   }
 
+  function diagnosticsFor(snapshot) {
+    return Array.isArray(snapshot && snapshot.diagnostics) ? snapshot.diagnostics : [];
+  }
+
+  function hasDiagnosticCode(snapshot, code) {
+    return diagnosticsFor(snapshot).some((diagnostic) => diagnostic && diagnostic.code === code);
+  }
+
+  function isRuntimeBridgeUnavailable(snapshot) {
+    return diagnosticsFor(snapshot).some((diagnostic) => (
+      diagnostic && diagnostic.code === RUNTIME_BRIDGE_UNAVAILABLE_CODE
+        && diagnostic.metadata
+        && ['devtools-unavailable', 'inspected-window-exception'].includes(diagnostic.metadata.reason)
+    ));
+  }
+
+  function isMissingXTendApp(snapshot) {
+    if (!snapshot) return false;
+    return hasDiagnosticCode(snapshot, MISSING_DEV_API_CODE) && !isRuntimeBridgeUnavailable(snapshot);
+  }
+
+  function setActiveView(view) {
+    state.view = view || 'performance';
+    tabButtons.forEach((entry) => {
+      entry.classList.toggle('is-active', entry.getAttribute('data-view') === state.view);
+    });
+    syncTabState();
+  }
+
+  function syncTabState() {
+    const missingApp = isMissingXTendApp(state.snapshot);
+    tabButtons.forEach((button) => {
+      const view = button.getAttribute('data-view');
+      const blocked = missingApp && DATA_VIEWS.includes(view);
+      button.disabled = blocked;
+      button.classList.toggle('is-blocked', blocked);
+      button.setAttribute('aria-disabled', blocked ? 'true' : 'false');
+      if (blocked) button.setAttribute('title', 'No XTend app detected for this inspected page');
+      else button.removeAttribute('title');
+    });
+  }
+
   function formatNumber(value, fallback = '0') {
     const numberValue = Number(value);
     if (!Number.isFinite(numberValue)) return fallback;
@@ -138,7 +185,7 @@
   }
 
   function renderDiagnostics(snapshot) {
-    const diagnostics = Array.isArray(snapshot && snapshot.diagnostics) ? snapshot.diagnostics : [];
+    const diagnostics = diagnosticsFor(snapshot);
     if (diagnostics.length === 0) return '';
     return `
       <section class="xds-card xds-diagnostics">
@@ -159,13 +206,98 @@
   }
 
   function statusTextForSnapshot(snapshot) {
-    const diagnostics = Array.isArray(snapshot && snapshot.diagnostics) ? snapshot.diagnostics : [];
+    if (isMissingXTendApp(snapshot)) return 'No XTend app detected';
+    const diagnostics = diagnosticsFor(snapshot);
     const firstError = diagnostics.find((diagnostic) => diagnostic.severity === 'error');
     const firstWarning = diagnostics.find((diagnostic) => diagnostic.severity === 'warning');
     if (firstError) return firstError.code || 'Snapshot blocked';
     if (snapshot && snapshot.ok === false && firstWarning) return firstWarning.code || 'Degraded snapshot';
     if (snapshot && snapshot.ok === false) return 'Degraded snapshot';
     return 'Snapshot ready';
+  }
+
+  function missingXTendAppDiagnostic(snapshot) {
+    return diagnosticsFor(snapshot).find((diagnostic) => diagnostic && diagnostic.code === MISSING_DEV_API_CODE) || {
+      code: MISSING_DEV_API_CODE,
+      message: 'The inspected page does not expose window.__XTEND_DEV_API__.'
+    };
+  }
+
+  function missingXTendAppCopyText(snapshot) {
+    const diagnostic = missingXTendAppDiagnostic(snapshot);
+    return JSON.stringify({
+      code: diagnostic.code || MISSING_DEV_API_CODE,
+      message: diagnostic.message || 'The inspected page does not expose window.__XTEND_DEV_API__.',
+      devApiGlobal: snapshot && snapshot.devApiGlobal || '__XTEND_DEV_API__',
+      devApiVersion: snapshot && snapshot.devApiVersion || null,
+      generatedAt: snapshot && snapshot.generatedAt || null
+    }, null, 2);
+  }
+
+  function copyMissingXTendAppDiagnostic(snapshot) {
+    const text = missingXTendAppCopyText(snapshot);
+    if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+      setStatus('Clipboard unavailable');
+      return;
+    }
+    navigator.clipboard.writeText(text)
+      .then(() => setStatus('Diagnostic copied'))
+      .catch(() => setStatus('Diagnostic copy failed'));
+  }
+
+  function bindMissingXTendAppActions(snapshot) {
+    const inlineRefresh = viewNode.querySelector('[data-missing-app-refresh]');
+    const gatesButton = viewNode.querySelector('[data-missing-app-gates]');
+    const copyButton = viewNode.querySelector('[data-missing-app-copy]');
+    if (inlineRefresh) inlineRefresh.addEventListener('click', refreshSnapshot);
+    if (gatesButton) {
+      gatesButton.addEventListener('click', () => {
+        setActiveView('gates');
+        renderDashboard();
+      });
+    }
+    if (copyButton) copyButton.addEventListener('click', () => copyMissingXTendAppDiagnostic(snapshot));
+  }
+
+  function renderMissingXTendAppBanner(snapshot) {
+    if (!isMissingXTendApp(snapshot)) return '';
+    return `
+      <section class="xds-card xds-notice xds-notice-warning">
+        <div class="xds-row">
+          <h2>No XTend app detected</h2>
+          ${renderBadge('blocked')}
+        </div>
+        <p class="xds-muted">The inspected page does not expose <code>window.__XTEND_DEV_API__</code>. Local Gates remain available because they run through the companion, not through page telemetry.</p>
+      </section>
+    `;
+  }
+
+  function renderMissingXTendAppOverlay(snapshot) {
+    const diagnostic = missingXTendAppDiagnostic(snapshot);
+    viewNode.innerHTML = `
+      <section class="xds-blocking-state" role="alertdialog" aria-labelledby="xds-no-app-title" aria-describedby="xds-no-app-message">
+        <div class="xds-blocking-card">
+          <div class="xds-blocking-eyebrow">Inspected Page</div>
+          <h2 id="xds-no-app-title">No XTend app detected</h2>
+          <p id="xds-no-app-message">The inspected page does not expose <code>window.__XTEND_DEV_API__</code>. XTend Dev Surface is blocking telemetry views so placeholder data cannot be mistaken for real app diagnostics.</p>
+          <div class="xds-blocking-actions">
+            <button type="button" data-missing-app-refresh>Refresh</button>
+            <button type="button" data-missing-app-gates>Open Gates</button>
+            <button type="button" data-missing-app-copy>Copy Diagnostic</button>
+          </div>
+          <ul class="xds-blocking-list">
+            <li>Open DevTools on an XTend app tab, then refresh this panel.</li>
+            <li>Expose <code>window.__XTEND_DEV_API__</code> with the required snapshot methods.</li>
+            <li>Use the Gates tab only for local companion gates that do not depend on the inspected page.</li>
+          </ul>
+          <div class="xds-diagnostic-callout">
+            <strong>${escapeHtml(diagnostic.code || MISSING_DEV_API_CODE)}</strong>
+            <span>${escapeHtml(diagnostic.message || 'The inspected page does not expose window.__XTEND_DEV_API__.')}</span>
+          </div>
+        </div>
+      </section>
+    `;
+    bindMissingXTendAppActions(snapshot);
   }
 
   function renderBudget(performance) {
@@ -771,6 +903,7 @@
     const token = getCompanionToken();
     const disabled = gateButtonsDisabled() ? ' disabled' : '';
     viewNode.innerHTML = `
+      ${renderMissingXTendAppBanner(snapshot)}
       ${renderDiagnostics(snapshot)}
       <section class="xds-card">
         <h2>Companion</h2>
@@ -847,6 +980,11 @@
 
   function renderDashboard() {
     const snapshot = state.snapshot || createFallbackSnapshot('No snapshot loaded.');
+    syncTabState();
+    if (isMissingXTendApp(snapshot) && state.view !== 'gates') {
+      renderMissingXTendAppOverlay(snapshot);
+      return;
+    }
     if (state.view === 'hydration') renderHydration(snapshot);
     else if (state.view === 'kernel') renderKernel(snapshot);
     else if (state.view === 'fabric') renderFabric(snapshot);
@@ -859,6 +997,7 @@
     const rawSnapshot = await readInspectedPageSnapshot();
     state.snapshot = await normalizeWithWorker(rawSnapshot);
     setStatus(statusTextForSnapshot(state.snapshot));
+    syncTabState();
     renderDashboard();
   }
 
@@ -900,8 +1039,7 @@
 
   tabButtons.forEach((button) => {
     button.addEventListener('click', () => {
-      state.view = button.getAttribute('data-view');
-      tabButtons.forEach((entry) => entry.classList.toggle('is-active', entry === button));
+      setActiveView(button.getAttribute('data-view'));
       renderDashboard();
     });
   });

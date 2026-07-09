@@ -130,14 +130,14 @@
       "source": {
         "path": "tools/xtend-dev-surface/src/panel.js",
         "exists": true,
-        "bytes": 36418,
-        "sha256": "f9f4244efd1846c02bb1fd024b2ac3239b85ea856d753d95bd13a5d081331fe8"
+        "bytes": 42385,
+        "sha256": "77f22a94a829fa3554c6cfd14d00b9139ed64e2d0d56e4b2930799713e802f07"
       },
       "dist": {
         "path": "tools/xtend-dev-surface/dist/panel.js",
         "exists": true,
-        "bytes": 36418,
-        "sha256": "f9f4244efd1846c02bb1fd024b2ac3239b85ea856d753d95bd13a5d081331fe8"
+        "bytes": 42385,
+        "sha256": "77f22a94a829fa3554c6cfd14d00b9139ed64e2d0d56e4b2930799713e802f07"
       },
       "ok": true
     },
@@ -146,14 +146,14 @@
       "source": {
         "path": "tools/xtend-dev-surface/src/panel.css",
         "exists": true,
-        "bytes": 5231,
-        "sha256": "8c7f8b15898f021c005a29f22e4e29714bece84a88da42269348208ec4b054da"
+        "bytes": 6578,
+        "sha256": "1bd0676a98cf4eccf824d7e04a805f81dfc0502ad62facd7a962ffcbf3808362"
       },
       "dist": {
         "path": "tools/xtend-dev-surface/dist/panel.css",
         "exists": true,
-        "bytes": 5231,
-        "sha256": "8c7f8b15898f021c005a29f22e4e29714bece84a88da42269348208ec4b054da"
+        "bytes": 6578,
+        "sha256": "1bd0676a98cf4eccf824d7e04a805f81dfc0502ad62facd7a962ffcbf3808362"
       },
       "ok": true
     },
@@ -194,14 +194,14 @@
       "source": {
         "path": "tools/xtend-dev-surface/src/prewarm-worker.js",
         "exists": true,
-        "bytes": 42528,
-        "sha256": "a3473c0f0c0d4205417636edc1d98bcb64a1e1daf0198a30a02091b51693870d"
+        "bytes": 42547,
+        "sha256": "8fb1d08fb18cd948e470ee42d7ba8cc0ad08d6687d02fc9ce9e6178f767f9305"
       },
       "dist": {
         "path": "tools/xtend-dev-surface/dist/prewarm-worker.js",
         "exists": true,
-        "bytes": 42528,
-        "sha256": "a3473c0f0c0d4205417636edc1d98bcb64a1e1daf0198a30a02091b51693870d"
+        "bytes": 42547,
+        "sha256": "8fb1d08fb18cd948e470ee42d7ba8cc0ad08d6687d02fc9ce9e6178f767f9305"
       },
       "ok": true
     },

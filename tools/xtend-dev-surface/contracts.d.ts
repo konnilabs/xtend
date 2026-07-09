@@ -112,6 +112,7 @@ export interface DevSurfaceSnapshot {
   runtimeBridge: Record<string, unknown> | null;
   generatedAt: string;
   devApiGlobal: typeof DEV_API_GLOBAL;
+  devApiPresent: boolean;
   devApiVersion: string | null;
   companionOrigin: string;
   performance: Record<string, unknown>;

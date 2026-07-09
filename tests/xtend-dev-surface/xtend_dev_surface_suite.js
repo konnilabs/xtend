@@ -545,6 +545,7 @@ function assertWorkerPath(context, rootDir) {
     }
   });
   const degradedResponse = postedMessages[0] || {};
+  context.assert(degradedResponse.snapshot && degradedResponse.snapshot.devApiPresent === false, 'prewarm worker preserves missing DEV API flag');
   context.assert(degradedResponse.snapshot && degradedResponse.snapshot.ok === false, 'prewarm worker keeps missing DEV API degraded');
   context.assert(degradedResponse.snapshot.diagnostics.some((diagnostic) => diagnostic.code === DIAGNOSTIC_CATALOG.devApiMissing.code), 'prewarm worker emits missing DEV API diagnostic');
 }
@@ -600,6 +601,7 @@ function assertContracts(context) {
   });
   context.assert(snapshot.schema === XTEND_DEV_SURFACE_SNAPSHOT_SCHEMA, 'snapshot factory emits Dev Surface snapshot schema');
   context.assert(snapshot.extensionSchema === XTEND_DEV_SURFACE_EXTENSION_SCHEMA, 'snapshot factory links extension schema');
+  context.assert(snapshot.devApiPresent === true, 'snapshot factory preserves DEV API presence flag');
   context.assert(snapshot.runtimeBridgeSchema === XTEND_DEV_SURFACE_RUNTIME_BRIDGE_SCHEMA, 'snapshot factory links runtime bridge schema');
   context.assert(snapshot.workerPath.schema === XTEND_DEV_SURFACE_WORKER_PATH_SCHEMA, 'snapshot factory links worker path schema');
   context.assert(snapshot.workerPath.ownsDom === false && snapshot.workerPath.ownsHostServices === false, 'snapshot worker path does not own DOM or host services');
@@ -665,6 +667,7 @@ function assertContracts(context) {
   context.assert(missingHydration.ok === true && missingHydration.hydration.supported === false, 'missing optional hydration snapshot does not degrade global snapshot');
 
   const degraded = createDevSurfaceSnapshot({ devApiPresent: false });
+  context.assert(degraded.devApiPresent === false, 'missing DEV API snapshot preserves absence flag');
   context.assert(degraded.ok === false, 'missing DEV API snapshot is degraded');
   context.assert(degraded.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.devsurface.dev_api.missing'), 'missing DEV API emits degraded diagnostic');
 
@@ -840,6 +843,7 @@ function assertDocs(context, rootDir) {
   context.assertIncludes(readme, 'Extension Laden', 'README documents extension loading');
   context.assertIncludes(readme, 'node tools/xtend-dev-surface/build.js', 'README documents build command');
   context.assertIncludes(readme, 'getHydrationSnapshot()', 'README documents optional hydration DEV API');
+  context.assertIncludes(readme, 'No XTend app detected', 'README documents missing XTend app blocking state');
   context.assertIncludes(readme, 'npm run test:xtend-dev-surface', 'README documents package test command');
   context.assertIncludes(readme, 'tools/xtend-dev-surface/dist/', 'README documents dist load path');
   context.assertIncludes(readme, 'Troubleshooting', 'README documents troubleshooting');
@@ -870,6 +874,8 @@ async function runXTendDevSurfaceSuite(options = {}) {
   context.assert(panelHtml.includes('id="xds-view"') && panelHtml.includes('runtime-bridge.js') && panelHtml.includes('panel.js'), 'panel HTML exposes render root and runtime bridge scripts');
   context.assert(panelHtml.includes('data-view="hydration"') && panelHtml.indexOf('data-view="performance"') < panelHtml.indexOf('data-view="hydration"'), 'panel HTML exposes Hydration tab after Performance');
   context.assert(panelJs.includes('renderPerformance') && panelJs.includes('renderHydration') && panelJs.includes('renderKernel') && panelJs.includes('renderFabric'), 'panel JS contains performance, hydration, kernel and fabric views');
+  context.assert(panelJs.includes('renderMissingXTendAppOverlay') && panelJs.includes('No XTend app detected') && panelJs.includes('Copy Diagnostic'), 'panel JS renders missing XTend app blocking overlay');
+  context.assert(panelJs.includes('xtend.devsurface.dev_api.missing') && panelJs.includes('window.__XTEND_DEV_API__'), 'panel JS keys missing app overlay to explicit DEV API absence');
   context.assert(panelJs.includes('renderBudget') && panelJs.includes('renderTrend') && panelJs.includes('renderPhaseSummary'), 'panel JS renders performance budget, trend and phase summary');
   context.assert(panelJs.includes('renderHydrationTimeline') && panelJs.includes('renderHydrationXScaler') && panelJs.includes('Resume Token'), 'panel JS renders hydration timeline and XScaler view');
   context.assert(panelJs.includes('renderKernelRecovery') && panelJs.includes('renderKernelMitigations') && panelJs.includes('renderKernelScopes'), 'panel JS renders kernel recovery, mitigation and affected scopes');
@@ -880,6 +886,8 @@ async function runXTendDevSurfaceSuite(options = {}) {
   context.assert(panelJs.includes('verifyCompanion') && panelJs.includes('Companion connected'), 'panel JS exposes Companion connectivity check');
   context.assert(panelJs.includes('artifactUrl'), 'panel JS renders companion artifact links');
   context.assert(panelCss.includes('.xds-timeline') && panelCss.includes('.xds-token'), 'panel CSS styles Hydration timeline and resume token');
+  context.assert(panelCss.includes('.xds-blocking-state') && panelCss.includes('.xds-diagnostic-callout'), 'panel CSS styles missing app blocking overlay');
+  context.assert(panelCss.includes('code {') && panelCss.includes('white-space: nowrap'), 'panel CSS keeps inline DEV API code readable');
   context.assert(panelCss.includes('.xds-companion-form') && panelCss.includes('.xds-companion-status'), 'panel CSS styles Companion setup controls');
   context.assert(serviceWorkerJs.includes('xds:companion-handshake') && serviceWorkerJs.includes('isAllowedCompanionOrigin'), 'service worker exposes local-only companion handshake');
   context.assert(panelJs.includes('new Worker') && panelJs.includes('prewarm-worker.js'), 'panel starts optional prewarm worker');

@@ -1720,6 +1720,7 @@ function createDevSurfaceSnapshot(input = {}, options = {}) {
     runtimeBridge: cloneJson(source.bridge || source.runtimeBridge || null, null),
     generatedAt: timestampFromOptions(options),
     devApiGlobal: DEV_API_GLOBAL,
+    devApiPresent,
     devApiVersion: normalizeString(source.devApiVersion || source.version, null),
     companionOrigin: normalizeString(source.companionOrigin, COMPANION_DEFAULT_ORIGIN),
     performance,

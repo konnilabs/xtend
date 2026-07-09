@@ -29,7 +29,7 @@ Der Build schreibt die ladbare Extension nach `tools/xtend-dev-surface/dist/` un
 5. DevTools in einer XTend-App oeffnen.
 6. Das Panel `XTend` auswaehlen.
 
-Wenn keine XTend DEV API vorhanden ist, zeigt die Extension einen degraded Snapshot statt Heuristiken zu verwenden.
+Wenn keine XTend DEV API vorhanden ist, zeigt die Extension einen sichtbaren englischen Blocking State `No XTend app detected` statt Heuristiken oder Platzhalter-Telemetrie zu verwenden.
 
 ## DEV API
 
@@ -88,7 +88,8 @@ Der Companion bietet `POST /handshake`, `POST /gate-runs`, `GET /gate-runs`, `GE
 
 ## Troubleshooting
 
-- Panel zeigt degraded: Die inspizierte Seite stellt `window.__XTEND_DEV_API__` nicht bereit oder eine Pflichtmethode fehlt.
+- Panel zeigt `No XTend app detected`: Die inspizierte Seite stellt `window.__XTEND_DEV_API__` nicht bereit; die Telemetrie-Tabs werden blockiert, lokale Gates bleiben ueber den Gates-Tab erreichbar.
+- Panel zeigt degraded: `window.__XTEND_DEV_API__` ist vorhanden, aber eine Pflichtmethode fehlt oder ein Snapshot ist nicht synchron serialisierbar.
 - Gates bleiben blocked: Companion nicht gestartet, Token fehlt oder Gate-ID ist nicht allowlisted.
 - Extension laedt nicht: `node tools/xtend-dev-surface/build.js` erneut ausfuehren und `tools/xtend-dev-surface/dist/` neu laden.
 - Source/Dist drift: `npm run test:xtend-dev-surface` ausfuehren; die Suite prueft Paritaet und Manifest V3.

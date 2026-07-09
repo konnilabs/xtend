@@ -980,6 +980,7 @@ function normalizeSnapshot(snapshot) {
     runtimeBridge: snapshot && snapshot.bridge || null,
     generatedAt: new Date().toISOString(),
     devApiGlobal: '__XTEND_DEV_API__',
+    devApiPresent,
     devApiVersion: snapshot && (snapshot.devApiVersion || snapshot.version) || null,
     companionOrigin: snapshot && snapshot.companionOrigin || 'http://127.0.0.1:27864',
     performance,
