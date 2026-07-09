@@ -1,0 +1,227 @@
+{
+  "schema": "xtend.devsurface.build-report.v1",
+  "skeletonSchema": "xtend.devsurface.extension-skeleton.v1",
+  "extensionSchema": "xtend.devsurface.extension.v1",
+  "handoffSchema": "xtend.devsurface.handoff.v1",
+  "workpackage": "XDS-WP-02",
+  "source": "tools/xtend-dev-surface/src",
+  "dist": "tools/xtend-dev-surface/dist",
+  "copiedFiles": [
+    "tools/xtend-dev-surface/dist/manifest.json",
+    "tools/xtend-dev-surface/dist/devtools.html",
+    "tools/xtend-dev-surface/dist/devtools.js",
+    "tools/xtend-dev-surface/dist/panel.html",
+    "tools/xtend-dev-surface/dist/runtime-bridge.js",
+    "tools/xtend-dev-surface/dist/panel.js",
+    "tools/xtend-dev-surface/dist/panel.css",
+    "tools/xtend-dev-surface/dist/service-worker.js",
+    "tools/xtend-dev-surface/dist/content-bridge.js",
+    "tools/xtend-dev-surface/dist/prewarm-worker.js",
+    "tools/xtend-dev-surface/dist/assets/icon.svg"
+  ],
+  "generatedFiles": [
+    "tools/xtend-dev-surface/dist/build-report.json",
+    "tools/xtend-dev-surface/dist/handoff.json"
+  ],
+  "manifest": {
+    "manifest_version": 3,
+    "name": "XTend Dev Surface",
+    "version": "0.1.0",
+    "description": "DevTools diagnostics for XTend apps, Fabric telemetry, RMT kernel health and local gates.",
+    "devtools_page": "devtools.html",
+    "permissions": [
+      "scripting",
+      "storage"
+    ],
+    "host_permissions": [
+      "http://127.0.0.1/*",
+      "http://localhost/*"
+    ],
+    "background": {
+      "service_worker": "service-worker.js"
+    },
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://127.0.0.1:* http://localhost:*"
+    }
+  },
+  "parity": [
+    {
+      "relativePath": "manifest.json",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/manifest.json",
+        "exists": true,
+        "bytes": 576,
+        "sha256": "bd08c59903b91bdfed1daef2517efe605a9c89dcf773308903d41afb48edd51d"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/manifest.json",
+        "exists": true,
+        "bytes": 576,
+        "sha256": "bd08c59903b91bdfed1daef2517efe605a9c89dcf773308903d41afb48edd51d"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "devtools.html",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/devtools.html",
+        "exists": true,
+        "bytes": 169,
+        "sha256": "e444d1f182f4585525973a3b87c68afc8bdbbd4e7f9c94632743bb7c8b352a9a"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/devtools.html",
+        "exists": true,
+        "bytes": 169,
+        "sha256": "e444d1f182f4585525973a3b87c68afc8bdbbd4e7f9c94632743bb7c8b352a9a"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "devtools.js",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/devtools.js",
+        "exists": true,
+        "bytes": 601,
+        "sha256": "21203828d96a457f6bbfe41a3bc162b3da98c920a0f65c69520a0ce0aed0cea8"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/devtools.js",
+        "exists": true,
+        "bytes": 601,
+        "sha256": "21203828d96a457f6bbfe41a3bc162b3da98c920a0f65c69520a0ce0aed0cea8"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "panel.html",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/panel.html",
+        "exists": true,
+        "bytes": 1096,
+        "sha256": "4e6453473b61462d732befb5800e86307a41c9380fe841a4daead7c9e519e660"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/panel.html",
+        "exists": true,
+        "bytes": 1096,
+        "sha256": "4e6453473b61462d732befb5800e86307a41c9380fe841a4daead7c9e519e660"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "runtime-bridge.js",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/runtime-bridge.js",
+        "exists": true,
+        "bytes": 16116,
+        "sha256": "2fcf04a13874f26e14470fde5cb17a66910bd0d796475b647770b4d73dce4cc2"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/runtime-bridge.js",
+        "exists": true,
+        "bytes": 16116,
+        "sha256": "2fcf04a13874f26e14470fde5cb17a66910bd0d796475b647770b4d73dce4cc2"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "panel.js",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/panel.js",
+        "exists": true,
+        "bytes": 36418,
+        "sha256": "f9f4244efd1846c02bb1fd024b2ac3239b85ea856d753d95bd13a5d081331fe8"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/panel.js",
+        "exists": true,
+        "bytes": 36418,
+        "sha256": "f9f4244efd1846c02bb1fd024b2ac3239b85ea856d753d95bd13a5d081331fe8"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "panel.css",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/panel.css",
+        "exists": true,
+        "bytes": 5231,
+        "sha256": "8c7f8b15898f021c005a29f22e4e29714bece84a88da42269348208ec4b054da"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/panel.css",
+        "exists": true,
+        "bytes": 5231,
+        "sha256": "8c7f8b15898f021c005a29f22e4e29714bece84a88da42269348208ec4b054da"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "service-worker.js",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/service-worker.js",
+        "exists": true,
+        "bytes": 3223,
+        "sha256": "f2cd06e768c42187745ea23806067c003e3f7fc137690af7d9346fa680bc3506"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/service-worker.js",
+        "exists": true,
+        "bytes": 3223,
+        "sha256": "f2cd06e768c42187745ea23806067c003e3f7fc137690af7d9346fa680bc3506"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "content-bridge.js",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/content-bridge.js",
+        "exists": true,
+        "bytes": 421,
+        "sha256": "11b51201b1f0307cbccbdd793e76af51435dea69515f24ed7b498933172a1f35"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/content-bridge.js",
+        "exists": true,
+        "bytes": 421,
+        "sha256": "11b51201b1f0307cbccbdd793e76af51435dea69515f24ed7b498933172a1f35"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "prewarm-worker.js",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/prewarm-worker.js",
+        "exists": true,
+        "bytes": 42528,
+        "sha256": "a3473c0f0c0d4205417636edc1d98bcb64a1e1daf0198a30a02091b51693870d"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/prewarm-worker.js",
+        "exists": true,
+        "bytes": 42528,
+        "sha256": "a3473c0f0c0d4205417636edc1d98bcb64a1e1daf0198a30a02091b51693870d"
+      },
+      "ok": true
+    },
+    {
+      "relativePath": "assets/icon.svg",
+      "source": {
+        "path": "tools/xtend-dev-surface/src/assets/icon.svg",
+        "exists": true,
+        "bytes": 335,
+        "sha256": "3b949a08f394822b498975ccbfedb895c21cb72f36e6fd95a7f91578774f76e7"
+      },
+      "dist": {
+        "path": "tools/xtend-dev-surface/dist/assets/icon.svg",
+        "exists": true,
+        "bytes": 335,
+        "sha256": "3b949a08f394822b498975ccbfedb895c21cb72f36e6fd95a7f91578774f76e7"
+      },
+      "ok": true
+    }
+  ],
+  "diagnostics": [],
+  "ok": true
+}

@@ -60,6 +60,9 @@ jobs:
       - name: Run XTensions framework adapter report
         run: npm run test:xtensions-framework-adapters:report
 
+      - name: Run XTend Dev Surface report
+        run: npm run test:xtend-dev-surface:report
+
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
@@ -85,6 +88,7 @@ jobs:
           path: |
             .xtend-test-results/xtend-pr-gate-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
+            .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
@@ -124,6 +128,9 @@ jobs:
       - name: Run XTensions framework adapter report
         run: npm run test:xtensions-framework-adapters:report
 
+      - name: Run XTend Dev Surface report
+        run: npm run test:xtend-dev-surface:report
+
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
@@ -149,6 +156,7 @@ jobs:
           path: |
             .xtend-test-results/xtend-release-gate-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
+            .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json

@@ -742,6 +742,63 @@
       "esm": "xtendrmt/rmt-runtime.esm.js",
       "browser": "xtendrmt/rmt-runtime.browser.js"
     },
+    "devSurface": {
+      "schema": "xtend.devsurface.extension.v1",
+      "contractSchema": "xtend.devsurface.contract.v1",
+      "devApiSchema": "xtend.devsurface.dev-api.v1",
+      "snapshotSchema": "xtend.devsurface.snapshot.v1",
+      "performanceViewSchema": "xtend.devsurface.performance-view.v1",
+      "hydrationSnapshotSchema": "xtend.devsurface.hydration-snapshot.v1",
+      "hydrationViewSchema": "xtend.devsurface.hydration-view.v1",
+      "fabricViewSchema": "xtend.devsurface.fabric-view.v1",
+      "kernelMonitorSchema": "xtend.devsurface.kernel-monitor.v1",
+      "workerPathSchema": "xtend.devsurface.worker-path.v1",
+      "handoffSchema": "xtend.devsurface.handoff.v1",
+      "gateRunSchema": "xtend.devsurface.gate-run.v1",
+      "diagnosticSchema": "xtend.devsurface.diagnostic.v1",
+      "securityBoundarySchema": "xtend.devsurface.security-boundary.v1",
+      "skeletonSchema": "xtend.devsurface.extension-skeleton.v1",
+      "buildReportSchema": "xtend.devsurface.build-report.v1",
+      "runtimeBridgeSchema": "xtend.devsurface.runtime-bridge.v1",
+      "runtimeBridgeReadSchema": "xtend.devsurface.runtime-bridge-read.v1",
+      "companionSchema": "xtend.devsurface.companion.v1",
+      "gateStreamSchema": "xtend.devsurface.gate-stream.v1",
+      "gateArtifactSchema": "xtend.devsurface.gate-artifact.v1",
+      "workpackage": "XDS-WP-09",
+      "skeletonWorkpackage": "XDS-WP-02",
+      "runtimeBridgeWorkpackage": "XDS-WP-03",
+      "companionWorkpackage": "XDS-WP-04",
+      "performanceViewWorkpackage": "XDS-WP-05",
+      "kernelMonitorWorkpackage": "XDS-WP-06",
+      "fabricViewWorkpackage": "XDS-WP-07",
+      "workerPathWorkpackage": "XDS-WP-08",
+      "handoffWorkpackage": "XDS-WP-09",
+      "hydrationViewWorkpackage": "XDS-WP-10",
+      "contract": "development/XTend-Dev-Surface-Implementierungsplan.md",
+      "root": "tools/xtend-dev-surface",
+      "dist": "tools/xtend-dev-surface/dist",
+      "module": "tools/xtend-dev-surface/contracts.js",
+      "types": "tools/xtend-dev-surface/contracts.d.ts",
+      "companion": "tools/xtend-dev-surface/companion.js",
+      "skeleton": "tools/xtend-dev-surface/extension-skeleton.js",
+      "runtimeBridgeModule": "tools/xtend-dev-surface/src/runtime-bridge.js",
+      "runtimeBridgeTypes": "tools/xtend-dev-surface/runtime-bridge.d.ts",
+      "runtimeBridgeDist": "tools/xtend-dev-surface/dist/runtime-bridge.js",
+      "buildReport": "tools/xtend-dev-surface/dist/build-report.json",
+      "handoff": "tools/xtend-dev-surface/dist/handoff.json",
+      "suite": "tests/xtend-dev-surface/xtend_dev_surface_suite.js",
+      "localGate": "node scripts/run_xtend_tests.js xtend-dev-surface --json",
+      "packageScript": "npm run test:xtend-dev-surface",
+      "browserTarget": "chromium-devtools-extension",
+      "manifestVersion": 3,
+      "runtimeBridge": "window.__XTEND_DEV_API__",
+      "companionOrigin": "http://127.0.0.1:27864",
+      "reportScript": "npm run test:xtend-dev-surface:report",
+      "reportPath": ".xtend-test-results/xtend-dev-surface-report.json",
+      "ciArtifactName": "xtend-dev-surface-report-node-26",
+      "dependencyPolicy": "no-new-framework-dependency",
+      "monkeypatchingAllowed": false
+    },
     "rmtNodeSsrAdapter": {
       "schema": "xtend.rmt.node-ssr-adapter.v1",
       "renderResultSchema": "xtend.rmt.node-ssr-render-result.v1",
@@ -4182,6 +4239,7 @@
       "npm run test:docs-php-ssr-performance-budget",
       "npm run test:docs-php-ssr-cls-budget",
       "npm run test:xtend-layout-stability-contract",
+      "npm run test:xtend-dev-surface",
       "npm run pack:dry-run",
       "npm run test:xscaler-protocol",
       "npm run test:xscaler-source-to-sea",
@@ -11267,6 +11325,7 @@
         "artifactName": "xtend-pr-gate-report-node-26",
         "additionalReportPaths": [
           ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
+          ".xtend-test-results/xtend-dev-surface-report.json",
           ".xtend-test-results/xtend-rmt-reference-docs-report.json",
           ".xtend-test-results/xtend-rkfa-production-closure-report.json"
         ],
@@ -11392,6 +11451,7 @@
         "artifactName": "xtend-release-gate-report-node-26",
         "additionalReportPaths": [
           ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
+          ".xtend-test-results/xtend-dev-surface-report.json",
           ".xtend-test-results/xtend-rmt-reference-docs-report.json",
           ".xtend-test-results/xtend-rkfa-production-closure-report.json"
         ],
@@ -11539,6 +11599,7 @@
           "npm run pack:dry-run",
           "npm run test:maraca:report",
           "npm run test:xtensions-framework-adapters:report",
+          "npm run test:xtend-dev-surface:report",
           "npm run test:xsurface-shard:report",
           "npm run test:xscaler-protocol:report",
           "npm run test:xscaler-source-to-sea:report"
@@ -11634,6 +11695,17 @@
           "xtensions-security-integrity-gate"
         ],
         "deferredReason": "root-package-dependency-section-cleanup-tracked-separately"
+      },
+      "devSurfaceGate": {
+        "schema": "xtend.ci.dev-surface-gate.v1",
+        "command": "npm run test:xtend-dev-surface:report",
+        "reportPath": ".xtend-test-results/xtend-dev-surface-report.json",
+        "artifactName": "xtend-dev-surface-report-node-26",
+        "suites": [
+          "xtend-dev-surface"
+        ],
+        "workflow": ".github/workflows/xtend-default-gates.yml",
+        "nightlyWorkflow": ".github/workflows/xtend-nightly-build.yml"
       }
     },
     "npmPublishLatest": {
@@ -11653,6 +11725,7 @@
       "requiredCommands": [
         "npm run test:release:full:report",
         "npm run test:xtensions-framework-adapters:report",
+        "npm run test:xtend-dev-surface:report",
         "npm run test:rmt-vnext-primitives:report",
         "npm run test:native-first-rmt-owned-release:report",
         "npm run release:report",
@@ -11722,6 +11795,7 @@
         "npm run pack:dry-run:report",
         "npm run test:maraca",
         "npm run test:xtensions-framework-adapters:report",
+        "npm run test:xtend-dev-surface:report",
         "npm run test:xsurface-shard",
         "npm run test:docs-public-quality",
         "npm run test:docs-stub-inventory",
@@ -11834,6 +11908,7 @@
         "docs/typescript-components.md",
         ".xtend-test-results/xtend-maraca-gate-report.json",
         ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
+        ".xtend-test-results/xtend-dev-surface-report.json",
         ".xtend-build/maraca/source-to-sea/xtend.maraca.report.json"
       ],
       "publishBoundary": "private-until-release-owner-approval",
@@ -16622,6 +16697,8 @@
     "test:hydration-policy": "node scripts/run_xtend_tests.js hydration-policy",
     "test:super-prewarm-worker-experiment": "node scripts/run_xtend_tests.js super-prewarm-worker-experiment",
     "test:ui-coprocessor": "node scripts/run_xtend_tests.js ui-coprocessor",
+    "test:xtend-dev-surface": "node scripts/run_xtend_tests.js xtend-dev-surface",
+    "test:xtend-dev-surface:report": "node scripts/run_xtend_tests.js xtend-dev-surface --report .xtend-test-results/xtend-dev-surface-report.json",
     "test:maraca-web-app-manifest": "node scripts/run_xtend_tests.js maraca-web-app-manifest",
     "test:maraca-pwa-service-worker": "node scripts/run_xtend_tests.js maraca-pwa-service-worker",
     "test:references": "node scripts/run_xtend_tests.js references",

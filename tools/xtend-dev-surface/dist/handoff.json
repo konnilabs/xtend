@@ -1,0 +1,85 @@
+{
+  "schema": "xtend.devsurface.handoff.v1",
+  "extensionSchema": "xtend.devsurface.extension.v1",
+  "contractSchema": "xtend.devsurface.contract.v1",
+  "snapshotSchema": "xtend.devsurface.snapshot.v1",
+  "workpackage": "XDS-WP-09",
+  "status": "completed-handoff",
+  "generatedAt": "2026-07-09T20:54:55.394Z",
+  "browserTarget": "chromium-devtools-extension",
+  "manifestVersion": 3,
+  "sourceRoot": "tools/xtend-dev-surface",
+  "distRoot": "tools/xtend-dev-surface/dist",
+  "loadPath": "tools/xtend-dev-surface/dist",
+  "buildCommands": [
+    "node tools/xtend-dev-surface/build.js"
+  ],
+  "testCommands": [
+    "node --check tools/xtend-dev-surface/contracts.js",
+    "node --check tools/xtend-dev-surface/companion.js",
+    "node --check tools/xtend-dev-surface/extension-skeleton.js",
+    "node --check tools/xtend-dev-surface/src/runtime-bridge.js",
+    "node --check tools/xtend-dev-surface/src/prewarm-worker.js",
+    "node --check tools/xtend-dev-surface/src/panel.js",
+    "node --check tools/xtend-dev-surface/build.js",
+    "node tools/xtend-dev-surface/build.js",
+    "node scripts/run_xtend_tests.js xtend-dev-surface --json",
+    "npm run test:xtend-dev-surface"
+  ],
+  "loadInstructions": [
+    "Open chrome://extensions in a Chromium-compatible browser.",
+    "Enable Developer Mode.",
+    "Load tools/xtend-dev-surface/dist as an unpacked extension.",
+    "Open DevTools on an XTend app and select the XTend panel."
+  ],
+  "companion": {
+    "optional": true,
+    "origin": "http://127.0.0.1:27864",
+    "startCommand": "XTEND_DEV_SURFACE_TOKEN=dev node tools/xtend-dev-surface/companion.js",
+    "tokenHeader": "x-xtend-dev-surface-token",
+    "commandPolicy": "allowlist-only"
+  },
+  "devApi": {
+    "globalName": "__XTEND_DEV_API__",
+    "requiredMethods": [
+      "getPerformanceSnapshot",
+      "getFabricTelemetrySnapshot",
+      "getKernelSnapshot"
+    ],
+    "optionalMethods": [
+      "getHydrationSnapshot",
+      "subscribe"
+    ]
+  },
+  "artifacts": {
+    "sourceContract": "development/XTend-Dev-Surface-Implementierungsplan.md",
+    "readme": "tools/xtend-dev-surface/README.md",
+    "contracts": "tools/xtend-dev-surface/contracts.js",
+    "types": "tools/xtend-dev-surface/contracts.d.ts",
+    "distManifest": "tools/xtend-dev-surface/dist/manifest.json",
+    "buildReport": "tools/xtend-dev-surface/dist/build-report.json",
+    "handoff": "tools/xtend-dev-surface/dist/handoff.json",
+    "suite": "tests/xtend-dev-surface/xtend_dev_surface_suite.js"
+  },
+  "workpackages": [
+    "XDS-WP-00",
+    "XDS-WP-01",
+    "XDS-WP-02",
+    "XDS-WP-03",
+    "XDS-WP-04",
+    "XDS-WP-05",
+    "XDS-WP-06",
+    "XDS-WP-07",
+    "XDS-WP-08",
+    "XDS-WP-09",
+    "XDS-WP-10"
+  ],
+  "boundaries": [
+    "explicit-dev-api",
+    "local-companion-allowlist",
+    "no-remote-code",
+    "no-monkeypatching",
+    "no-new-framework-dependency",
+    "worker-normalization-only"
+  ]
+}

@@ -380,6 +380,10 @@ const {
   runXTensionsAngularZoneBoundarySuite
 } = require('../tests/xtensions/xtensions_angular_host_adapter_suite');
 const {
+  printXTendDevSurfaceReport,
+  runXTendDevSurfaceSuite
+} = require('../tests/xtend-dev-surface/xtend_dev_surface_suite');
+const {
   printRmtVNextSchedulerReport,
   runRmtVNextSchedulerSuite
 } = require('../tests/rmt-language/rmt_vnext_scheduler_suite');
@@ -1912,6 +1916,16 @@ const suites = [
       const result = runXTensionsAngularZoneBoundarySuite({ rootDir });
       printXTensionsAngularZoneBoundaryReport(result);
       return toRunnerResult('xtensions-angular-zone-boundary', 'XTensions Angular Zone Boundary Contract', result);
+    }
+  },
+  {
+    id: 'xtend-dev-surface',
+    label: 'XTend Dev Surface Chromium DevTools Extension',
+    description: 'Runs the Dev Surface extension, companion, runtime bridge and dist artifact gate.',
+    run: async () => {
+      const result = await runXTendDevSurfaceSuite({ rootDir });
+      printXTendDevSurfaceReport(result);
+      return toRunnerResult('xtend-dev-surface', 'XTend Dev Surface Chromium DevTools Extension', result);
     }
   },
   {
@@ -4039,6 +4053,7 @@ Examples:
   node scripts/run_xtend_tests.js xtensions-openui5-loader-boundary
   node scripts/run_xtend_tests.js xtensions-angular-host-controller
   node scripts/run_xtend_tests.js xtensions-angular-zone-boundary
+  node scripts/run_xtend_tests.js xtend-dev-surface
   node scripts/run_xtend_tests.js rmt-vnext-scheduler
   node scripts/run_xtend_tests.js rmt-vnext-surfaces
   node scripts/run_xtend_tests.js rmt-vnext-conditions

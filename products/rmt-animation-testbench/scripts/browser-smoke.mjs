@@ -82,6 +82,11 @@ function assertSmokeDom(dom, reduced = false) {
   assert(dom.includes('id="rmt-testbench-smoke-result"'), 'Smoke marker is missing.');
   assert(dom.includes('data-smoke-complete="true"'), 'Smoke did not complete.');
   assert(dom.includes('data-animation-engine-ready="true"'), 'AnimationEngine did not boot.');
+  assert(dom.includes('data-xtend-dev-api-ready="true"'), 'XTend Dev Surface API was not exposed.');
+  assert(dom.includes('data-xtend-dev-api-version="0.1.0-rmt-animation-testbench"'), 'XTend Dev Surface API version marker is missing.');
+  assert(dom.includes('data-xtend-hydration-strategy="server_prerender_resume"'), 'XTend Dev Surface hydration snapshot was not exposed.');
+  const hydrationInteractive = dom.match(/data-xtend-hydration-first-interactive-ms="([0-9]+)"/u);
+  assert(hydrationInteractive && Number(hydrationInteractive[1]) < 500, 'XTend Dev Surface hydration timing drifted with page age.');
   assert(dom.includes('data-footer-visible="true"'), 'Footer was not observed as visible.');
   assert(dom.includes('data-pixel-change="true"'), 'Pixel-change evidence marker is missing.');
   assert(dom.includes('data-cls-budget-ok="true"'), 'CLS budget marker is not ok.');

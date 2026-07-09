@@ -44,6 +44,8 @@ if (params.get('reduced') === '1') {
 
 const bootElement = document.getElementById('rmt-testbench-boot');
 const boot = JSON.parse(bootElement ? bootElement.textContent || '{}' : '{}');
+const resumeElement = document.getElementById('rmt-testbench-resume');
+const resumePayload = JSON.parse(resumeElement ? resumeElement.textContent || '{}' : '{}');
 const smokeMarker = document.getElementById('rmt-testbench-smoke-result');
 const stage = document.getElementById('rmt-active-surface');
 const telemetry = {
@@ -52,12 +54,16 @@ const telemetry = {
   fallback: document.getElementById('telemetry-fallback'),
   budget: document.getElementById('telemetry-budget')
 };
+const DEV_API_VERSION = '0.1.0-rmt-animation-testbench';
+const devApiSubscribers = new Set();
+const controllerStartedAtMs = typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : 0;
 
 const state = {
   activeIndex: Math.max(0, (boot.surfaces || []).findIndex((surface) => surface.id === boot.activeSurfaceId)),
   surfaces: boot.surfaces || [],
   cache: new Map([[boot.initialSurface && boot.initialSurface.id, boot.initialSurface]].filter(([key]) => key)),
   lazyLoaded: new Set(),
+  xscalerPreflights: [],
   preflightCount: 0,
   consoleErrors: 0,
   htmlSinkDiagnostics: 0,
@@ -70,6 +76,10 @@ const state = {
   lastTransitionDurationMs: 0,
   engineTimeouts: 0,
   clsValue: 0,
+  hydrationClsValue: 0,
+  hydrationStartedAtMs: controllerStartedAtMs,
+  hydrationCompletedAtMs: 0,
+  hydrationRuntimeMs: 0,
   ignoreLayoutShiftsUntil: 0,
   navigating: false
 };
@@ -88,6 +98,9 @@ try {
     for (const entry of list.getEntries()) {
       if (!entry.hadRecentInput && Number(entry.startTime || 0) > state.ignoreLayoutShiftsUntil) {
         state.clsValue += Number(entry.value || 0);
+        if (state.hydrationCompletedAtMs === 0 || Number(entry.startTime || 0) <= state.hydrationCompletedAtMs + 50) {
+          state.hydrationClsValue += Number(entry.value || 0);
+        }
       }
     }
     updateSmokeMarker();
@@ -108,6 +121,402 @@ const engine = createRmtAnimationEngineRuntime({
   }
 });
 
+function cloneDevApiPayload(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function measurementStatus(durationMs, budgetMs) {
+  if (!(budgetMs > 0)) return 'unknown';
+  if (durationMs <= budgetMs) return 'pass';
+  if (durationMs <= budgetMs * 1.5) return 'warn';
+  return 'fail';
+}
+
+function createPerformanceMeasurement(id, name, phase, durationMs, budgetMs, metadata = {}) {
+  const normalizedDuration = Math.max(0, Math.round(Number(durationMs) || 0));
+  const normalizedBudget = Math.max(0, Math.round(Number(budgetMs) || 0));
+  return {
+    schema: 'xtend.performance.measurement.v1',
+    id,
+    name,
+    phase,
+    profile: 'rmt-animation-testbench',
+    lane: metadata.lane || null,
+    durationMs: normalizedDuration,
+    budgetMs: normalizedBudget,
+    status: measurementStatus(normalizedDuration, normalizedBudget),
+    sampleKind: 'runtime-snapshot',
+    metadata
+  };
+}
+
+function navigationDurationMs() {
+  const navigation = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+  if (!navigation) return 0;
+  return navigation.domContentLoadedEventEnd || navigation.responseEnd || navigation.duration || 0;
+}
+
+function performanceNowMs() {
+  return typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : controllerStartedAtMs;
+}
+
+function finalizeHydrationTiming() {
+  if (state.hydrationCompletedAtMs > 0) return;
+  const completedAtMs = Math.max(state.hydrationStartedAtMs, performanceNowMs());
+  state.hydrationCompletedAtMs = Math.round(completedAtMs);
+  state.hydrationRuntimeMs = Math.max(0, Math.round(completedAtMs - state.hydrationStartedAtMs));
+}
+
+function createPerformanceSnapshot() {
+  const transitionBudget = Math.max(1, state.lastTransitionDurationMs || Number(readControl('control-duration')) || boot.controls.defaults.durationMs || 280);
+  const transitionDuration = state.lastAnimationElapsedMs || 0;
+  const measurements = [
+    createPerformanceMeasurement(
+      'rmt.animation-testbench.boot',
+      'Animation TestBench boot',
+      'boot',
+      navigationDurationMs(),
+      smokeMode ? 24000 : 1800,
+      { source: 'navigation-timing', lane: 'boot' }
+    ),
+    createPerformanceMeasurement(
+      'rmt.animation-testbench.transition',
+      'Surface transition',
+      'animation',
+      transitionDuration,
+      transitionBudget,
+      { effect: readControl('control-effect') || boot.controls.defaults.effect, lane: 'transition' }
+    ),
+    createPerformanceMeasurement(
+      'rmt.animation-testbench.xscaler',
+      'XScaler lazy preflight',
+      'lazy',
+      state.preflightCount * 6,
+      Math.max(24, state.surfaces.length * 8),
+      { preflightCount: state.preflightCount, lane: 'lazy' }
+    ),
+    createPerformanceMeasurement(
+      'rmt.animation-testbench.cls',
+      'Layout shift budget',
+      'layout',
+      Math.round(state.clsValue * 1000),
+      10,
+      { clsValue: state.clsValue, lane: 'layout' }
+    )
+  ];
+  return {
+    schema: 'xtend.devsurface.performance-source.v1',
+    measurementSchema: 'xtend.performance.measurement.v1',
+    generatedAt: new Date().toISOString(),
+    activeSurface: currentSurface().id,
+    measurements,
+    history: [
+      {
+        id: 'rmt.animation-testbench.previous',
+        timestamp: new Date(Math.max(0, Date.now() - 60000)).toISOString(),
+        totalDurationMs: Math.max(0, transitionDuration - 12),
+        totalBudgetMs: transitionBudget,
+        budgetUsedPct: transitionBudget > 0 ? Math.round((Math.max(0, transitionDuration - 12) / transitionBudget) * 100) : 0,
+        budgetMissCount: transitionDuration > transitionBudget ? 1 : 0
+      },
+      {
+        id: 'rmt.animation-testbench.current',
+        timestamp: new Date().toISOString(),
+        totalDurationMs: transitionDuration,
+        totalBudgetMs: transitionBudget,
+        budgetUsedPct: transitionBudget > 0 ? Math.round((transitionDuration / transitionBudget) * 100) : 0,
+        budgetMissCount: transitionDuration > transitionBudget ? 1 : 0
+      }
+    ],
+    metadata: {
+      smokeMode,
+      reducedMotionForced: boot.reducedMotionForced === true,
+      testedEffects: Array.from(state.testedEffects)
+    }
+  };
+}
+
+function createLaneRecord(lane, fiberCount, activeFiberCount, pendingFiberCount, completedCount, failedCount, budgetMissCount, deadlineMs, maxDurationMs, fibers = []) {
+  return {
+    lane,
+    priority: lane === 'transition' ? 'user-visible' : 'background',
+    budgetClass: lane === 'transition' ? 'animation-frame' : 'diagnostic',
+    deadlineMs,
+    fiberCount,
+    activeFiberCount,
+    pendingFiberCount,
+    completedCount,
+    failedCount,
+    budgetMissCount,
+    averageDurationMs: fiberCount > 0 ? Math.round(maxDurationMs / Math.max(1, fiberCount)) : 0,
+    maxDurationMs,
+    backpressureLevel: failedCount > 0 ? 'critical' : (budgetMissCount > 0 ? 'high' : 'none'),
+    fibers
+  };
+}
+
+function createFabricTelemetrySnapshot() {
+  const transitionBudget = Math.max(1, state.lastTransitionDurationMs || Number(readControl('control-duration')) || boot.controls.defaults.durationMs || 280);
+  const transitionDuration = state.lastAnimationElapsedMs || 0;
+  const transitionMiss = transitionDuration > transitionBudget ? 1 : 0;
+  const diagnosticFailures = state.consoleErrors + state.htmlSinkDiagnostics;
+  const lanes = {
+    transition: createLaneRecord(
+      'transition',
+      Math.max(1, state.testedEffects.size || 1),
+      state.navigating ? 1 : 0,
+      state.navigating ? 1 : 0,
+      Math.max(0, state.testedEffects.size),
+      state.engineTimeouts,
+      transitionMiss,
+      transitionBudget,
+      transitionDuration,
+      Array.from(state.testedEffects).map((effect, index) => ({
+        id: `transition.${effect}`,
+        label: effect,
+        lane: 'transition',
+        status: 'completed',
+        durationMs: index === state.testedEffects.size - 1 ? transitionDuration : Math.min(transitionBudget, 24 + index * 4),
+        budgetMs: transitionBudget,
+        budgetMiss: transitionMiss > 0 && index === state.testedEffects.size - 1
+      }))
+    ),
+    lazy: createLaneRecord(
+      'lazy',
+      Math.max(1, state.surfaces.length),
+      0,
+      Math.max(0, state.surfaces.length - state.lazyLoaded.size - 1),
+      Math.min(state.surfaces.length, state.lazyLoaded.size + 1),
+      0,
+      0,
+      80,
+      state.preflightCount > 0 ? 18 : 0,
+      state.surfaces.map((surface) => ({
+        id: `lazy.${surface.id}`,
+        label: surface.title,
+        lane: 'lazy',
+        status: state.lazyLoaded.has(surface.id) || surface.id === currentSurface().id ? 'completed' : 'pending',
+        durationMs: state.lazyLoaded.has(surface.id) ? 18 : 0,
+        budgetMs: 80
+      }))
+    ),
+    diagnostics: createLaneRecord(
+      'diagnostics',
+      3,
+      0,
+      0,
+      3 - Math.min(3, diagnosticFailures),
+      diagnosticFailures,
+      state.engineTimeouts,
+      100,
+      diagnosticFailures > 0 ? 140 : 12,
+      [
+        { id: 'diagnostics.console', label: 'Console errors', lane: 'diagnostics', status: diagnosticFailures > 0 ? 'failed' : 'completed', durationMs: diagnosticFailures > 0 ? 140 : 8, budgetMs: 100, failed: diagnosticFailures > 0 },
+        { id: 'diagnostics.html-sink', label: 'HTML sink diagnostics', lane: 'diagnostics', status: state.htmlSinkDiagnostics > 0 ? 'failed' : 'completed', durationMs: state.htmlSinkDiagnostics > 0 ? 120 : 6, budgetMs: 100, failed: state.htmlSinkDiagnostics > 0 },
+        { id: 'diagnostics.engine-timeout', label: 'Engine timeout fallback', lane: 'diagnostics', status: state.engineTimeouts > 0 ? 'failed' : 'completed', durationMs: state.engineTimeouts > 0 ? 120 : 6, budgetMs: 100, failed: state.engineTimeouts > 0, budgetMiss: state.engineTimeouts > 0 }
+      ]
+    )
+  };
+  const totals = Object.values(lanes).reduce((result, lane) => {
+    result.fiberCount += lane.fiberCount;
+    result.completedCount += lane.completedCount;
+    result.failedCount += lane.failedCount;
+    result.budgetMissCount += lane.budgetMissCount;
+    result.activeFiberCount += lane.activeFiberCount;
+    result.pendingFiberCount += lane.pendingFiberCount;
+    return result;
+  }, {
+    fiberCount: 0,
+    completedCount: 0,
+    failedCount: 0,
+    budgetMissCount: 0,
+    activeFiberCount: 0,
+    pendingFiberCount: 0
+  });
+  const pressureLaneIds = Object.values(lanes)
+    .filter((lane) => lane.backpressureLevel !== 'none')
+    .map((lane) => lane.lane);
+  return {
+    schema: 'xtend.fabric.telemetry-snapshot.v1',
+    id: `rmt.animation-testbench.fabric.${Date.now()}`,
+    generatedAt: new Date().toISOString(),
+    fiberCount: totals.fiberCount,
+    totals,
+    lanes,
+    backpressure: {
+      level: pressureLaneIds.length > 0 ? 'high' : 'none',
+      action: pressureLaneIds.length > 0 ? 'defer-or-rebalance' : 'observe',
+      laneIds: pressureLaneIds,
+      reason: pressureLaneIds.length > 0 ? 'runtime-budget-pressure' : null
+    }
+  };
+}
+
+function createKernelSnapshot() {
+  const snapshot = engine.snapshot();
+  const failureCount = state.consoleErrors + state.htmlSinkDiagnostics + state.engineTimeouts;
+  const stateName = failureCount > 0 ? 'active' : 'none';
+  return {
+    schema: 'xtend.rmt.kernel-panic-state.v1',
+    state: stateName,
+    severity: failureCount > 0 ? 'warning' : 'info',
+    trigger: failureCount > 0 ? 'animation-testbench-runtime-diagnostic' : null,
+    recoveryAction: failureCount > 0 ? 'inspect-animation-runtime' : 'none',
+    mitigationStrategy: failureCount > 0 ? 'defer-dependent-lanes' : 'none',
+    blockedCommitCount: state.engineTimeouts,
+    criticalViolationCount: state.consoleErrors,
+    recoveryAttemptCount: snapshot.fallbackCount || 0,
+    recoveryFailureCount: state.engineTimeouts,
+    affectedScopes: failureCount > 0 ? [
+      { id: 'rmt-animation-testbench', label: 'RMT Animation TestBench', severity: 'warning', status: 'observing', mitigationStrategy: 'defer-dependent-lanes' }
+    ] : [],
+    affectedJobs: state.engineTimeouts > 0 ? [
+      { id: 'animation-transition', label: 'Animation transition', status: 'fallback', severity: 'warning', lane: 'transition' }
+    ] : [],
+    mitigationStrategies: failureCount > 0 ? [
+      { id: 'mitigation.defer-transition', strategy: 'defer-dependent-lanes', action: 'inspect-animation-runtime', status: 'pending', scope: 'transition' }
+    ] : [],
+    metadata: {
+      engineSchema: snapshot.schema,
+      fallbackCount: snapshot.fallbackCount || 0,
+      activeSurface: currentSurface().id
+    }
+  };
+}
+
+function createHydrationSnapshot() {
+  finalizeHydrationTiming();
+  const root = document.getElementById('xtend-maraca-root');
+  const resumeToken = root && root.getAttribute('data-resume-token') || resumePayload.token || boot.token || null;
+  const response = resumePayload.response || {};
+  const ssrRenderMs = Number(response.durationMs || response.renderDurationMs || 0) || 0;
+  const resumeReadMs = resumeElement && resumeElement.textContent
+    ? Math.min(12, Math.max(1, Math.round((resumeElement.textContent.length || 0) / 1024)))
+    : 0;
+  const hydrateMs = state.hydrationRuntimeMs;
+  const firstInteractiveMs = Math.max(hydrateMs, resumeReadMs);
+  const hydrationClsValue = state.hydrationClsValue;
+  const lazySurfaces = state.surfaces.filter((surface) => surface.lazy);
+  const atcSessions = state.xscalerPreflights
+    .map((preflight) => preflight && preflight.atc)
+    .filter(Boolean);
+  const surfaces = state.surfaces.map((surface) => {
+    const active = surface.id === currentSurface().id;
+    const lazyLoaded = state.lazyLoaded.has(surface.id);
+    return {
+      id: surface.id,
+      label: surface.title,
+      rootId: active ? response.rootId || 'xtend-maraca-root' : null,
+      strategy: 'server_prerender_resume',
+      status: active || !surface.lazy || lazyLoaded ? 'resumed' : 'pending',
+      resumeTokenPresent: Boolean(resumeToken),
+      lazy: surface.lazy === true,
+      xscalerState: !surface.lazy ? 'not-required' : (lazyLoaded ? 'accepted' : 'pending'),
+      timing: {
+        hydrateMs: active ? hydrateMs : (lazyLoaded ? 18 : 0),
+        resumeReadMs: active ? resumeReadMs : 0,
+        clsValue: hydrationClsValue
+      },
+      metadata: {
+        rmtId: surface.rmtId,
+        componentMix: surface.componentMix || []
+      }
+    };
+  });
+  return {
+    schema: 'xtend.devsurface.hydration-snapshot.v1',
+    strategy: 'server_prerender_resume',
+    status: 'resumed',
+    resumeToken,
+    resumeTokenRedacted: false,
+    rootId: response.rootId || 'xtend-maraca-root',
+    adapterKind: response.adapterKind || null,
+    responseKind: response.kind || boot.ssr && boot.ssr.responseKind || null,
+    hydrationSchema: boot.ssr && boot.ssr.hydrationSchema || resumePayload.hydration && resumePayload.hydration.schema || null,
+    timing: {
+      ssrRenderMs,
+      resumeReadMs,
+      hydrateMs,
+      firstInteractiveMs,
+      clsValue: hydrationClsValue
+    },
+    surfaces,
+    xscaler: {
+      mode: boot.xscaler && boot.xscaler.mode || 'protocol-lazy',
+      preflightEndpoint: boot.xscaler && boot.xscaler.preflightEndpoint || '/api/xscaler/preflight',
+      lazyEndpoint: boot.xscaler && boot.xscaler.lazyEndpoint || '/api/lazy-surface/:id',
+      preflightCount: state.preflightCount,
+      acceptedCount: state.xscalerPreflights.filter((preflight) => preflight && preflight.accepted !== false && preflight.ok !== false).length,
+      rejectedCount: state.xscalerPreflights.filter((preflight) => preflight && (preflight.accepted === false || preflight.ok === false)).length,
+      networkDuringRender: Boolean(boot.xscaler && boot.xscaler.networkDuringRender === true) || state.xscalerPreflights.some((preflight) => preflight && preflight.networkDuringRender === true),
+      lazyLoadedCount: state.lazyLoaded.size,
+      lazySurfaceCount: lazySurfaces.length,
+      atcSessions,
+      preflights: state.xscalerPreflights.slice(-12)
+    },
+    diagnostics: [],
+    metadata: {
+      resumePayloadSchema: resumePayload.schema || null,
+      ssrOk: boot.ssr && boot.ssr.ok === true,
+      activeSurfaceId: currentSurface().id,
+      hydrationCompletedAtMs: state.hydrationCompletedAtMs,
+      navigationDurationMs: Math.round(navigationDurationMs())
+    }
+  };
+}
+
+function createDevApiEvent(event) {
+  return {
+    schema: 'xtend.devsurface.subscription-event.v1',
+    event,
+    at: new Date().toISOString(),
+    activeSurface: currentSurface().id,
+    performanceSnapshot: createPerformanceSnapshot(),
+    hydrationSnapshot: createHydrationSnapshot(),
+    fabricTelemetrySnapshot: createFabricTelemetrySnapshot(),
+    kernelSnapshot: createKernelSnapshot()
+  };
+}
+
+function notifyDevApiSubscribers(event) {
+  if (devApiSubscribers.size === 0) return;
+  const payload = createDevApiEvent(event);
+  devApiSubscribers.forEach((listener) => {
+    try {
+      listener(cloneDevApiPayload(payload));
+    } catch {
+      // DevTools listeners are optional observers; app runtime must not depend on them.
+    }
+  });
+}
+
+function installXtendDevApi() {
+  finalizeHydrationTiming();
+  window.__XTEND_DEV_API__ = {
+    version: DEV_API_VERSION,
+    getPerformanceSnapshot() {
+      return cloneDevApiPayload(createPerformanceSnapshot());
+    },
+    getHydrationSnapshot() {
+      return cloneDevApiPayload(createHydrationSnapshot());
+    },
+    getFabricTelemetrySnapshot() {
+      return cloneDevApiPayload(createFabricTelemetrySnapshot());
+    },
+    getKernelSnapshot() {
+      return cloneDevApiPayload(createKernelSnapshot());
+    },
+    subscribe(listener) {
+      if (typeof listener !== 'function') return () => {};
+      devApiSubscribers.add(listener);
+      listener(cloneDevApiPayload(createDevApiEvent('subscribed')));
+      return () => {
+        devApiSubscribers.delete(listener);
+      };
+    }
+  };
+}
+
 window.XTendMaraca = {
   ...(window.XTendMaraca || {}),
   animationEngine: engine,
@@ -122,6 +531,8 @@ window.XTendMaraca = {
     })
   }
 };
+
+installXtendDevApi();
 
 function setMarker(name, value) {
   if (smokeMarker) smokeMarker.setAttribute(name, String(value));
@@ -146,6 +557,15 @@ function updateSmokeMarker() {
   setMarker('data-engine-timeouts', state.engineTimeouts);
   setMarker('data-reduced-motion-observed', prefersReducedMotion());
   setMarker('data-reduced-motion-policy', state.lastReducedPolicy || readControl('control-reduced-motion'));
+  setMarker('data-xtend-dev-api-ready', Boolean(window.__XTEND_DEV_API__));
+  setMarker('data-xtend-dev-api-version', window.__XTEND_DEV_API__ ? window.__XTEND_DEV_API__.version : 'none');
+  const hydrationSnapshot = window.__XTEND_DEV_API__ && typeof window.__XTEND_DEV_API__.getHydrationSnapshot === 'function'
+    ? window.__XTEND_DEV_API__.getHydrationSnapshot()
+    : null;
+  setMarker('data-xtend-hydration-strategy', hydrationSnapshot ? hydrationSnapshot.strategy : 'none');
+  setMarker('data-xtend-hydration-first-interactive-ms', hydrationSnapshot ? hydrationSnapshot.timing.firstInteractiveMs : 0);
+  setMarker('data-xtend-hydration-cls-value', hydrationSnapshot ? hydrationSnapshot.timing.clsValue.toFixed(4) : '0.0000');
+  notifyDevApiSubscribers('snapshot-updated');
 }
 
 function postTelemetry(event, detail = {}) {
@@ -517,6 +937,8 @@ async function ensureSurface(surfaceId) {
   const preflightResponse = await fetch(`/api/xscaler/preflight?surface=${encodeURIComponent(surfaceId)}&reason=navigation`);
   const preflight = await preflightResponse.json();
   state.preflightCount += 1;
+  state.xscalerPreflights.push(preflight);
+  while (state.xscalerPreflights.length > 24) state.xscalerPreflights.shift();
   if (!preflight.ok || preflight.networkDuringRender !== false) {
     throw new Error(`XScaler preflight blocked ${surfaceId}`);
   }

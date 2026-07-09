@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XTend Dev Surface</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <main class="xds-shell">
+    <header class="xds-header">
+      <div>
+        <h1>XTend</h1>
+        <p id="xds-status">Waiting for inspected page</p>
+      </div>
+      <button id="xds-refresh" type="button" title="Refresh snapshot">Refresh</button>
+    </header>
+    <nav class="xds-tabs" aria-label="XTend Dev Surface views">
+      <button type="button" data-view="performance" class="is-active">Performance</button>
+      <button type="button" data-view="hydration">Hydration</button>
+      <button type="button" data-view="kernel">Kernel</button>
+      <button type="button" data-view="fabric">Fabric</button>
+      <button type="button" data-view="gates">Gates</button>
+    </nav>
+    <section id="xds-view" class="xds-view" aria-live="polite"></section>
+  </main>
+  <script src="runtime-bridge.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>

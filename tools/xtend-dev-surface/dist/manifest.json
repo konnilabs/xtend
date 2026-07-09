@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "XTend Dev Surface",
+  "version": "0.1.0",
+  "description": "DevTools diagnostics for XTend apps, Fabric telemetry, RMT kernel health and local gates.",
+  "devtools_page": "devtools.html",
+  "permissions": [
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://127.0.0.1:* http://localhost:*"
+  }
+}
