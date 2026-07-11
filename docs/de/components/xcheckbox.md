@@ -109,9 +109,9 @@ CSS Custom Properties:
 - `--xtend-form-control-surface`
 - `--xtend-control-bg`
 
-## ECH-WP-08 Theme/A11y-Hardening
+## Theme und Accessibility
 
-ECH-WP-08 dokumentiert die Form-Control Tokens fuer `x-checkbox` als oeffentlichen Theme-Vertrag. `signatureDesign` bleibt ein klares Auswahlfeld mit sichtbarer Check-Mark, Label-, Hint- und Error-Hierarchie. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: Fehlerzustaende werden ueber Text, Error-Surface, Border, Fokus-Ring und ARIA gespiegelt.
+`signatureDesign` bleibt ein klares Auswahlfeld mit sichtbarer Check-Mark, Label-, Hint- und Error-Hierarchie. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: Fehlerzustände werden über Text, Error-Surface, Border, Fokus-Ring und ARIA gespiegelt.
 
 Token-Tabelle:
 - `--xtend-form-text`

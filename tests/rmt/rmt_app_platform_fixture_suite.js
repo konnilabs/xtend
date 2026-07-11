@@ -57,7 +57,7 @@ const {
 } = require('../../xtend-builder/generators/rmt-app-platform');
 
 const BACKLOG_PATH = 'development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md';
-const EPIC_PATH = 'docs/epic18-media-manager-vendor-upstream.md';
+const EPIC_PATH = 'development/docs-evidence/root/epic18-media-manager-vendor-upstream.md';
 const FORBIDDEN_PRODUCT_PATTERNS = /Media\s*Manager|media-manager|mediaManager|MediaRecord|mediaRecord|explorer\.|player\./u;
 let runtimeModulesPromise = null;
 

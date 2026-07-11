@@ -22,7 +22,7 @@ Dieses Paket schliesst die offene RC1-Luecke fuer Migration Notes, SemVer-Entsch
 - `catalog/epic13-rc1-migration-notes.js` erzeugt Plan, Validator und Report.
 - `tests/platform/epic13_rc1_migration_notes_suite.js` prueft Contract, Package Export, Runner, Docs, Release Checklist, CI Matrix, Changelog und Handoff.
 - `docs/rc1-migration-notes.md` macht die Migration Notes fuer App- und Komponentenautoren sichtbar.
-- `CHANGELOG.md`, `README.md`, `docs/README.md`, `docs/menu.json`, `package.json` und `xtend-builder/scaffold.config.js` wurden an den neuen Contract angebunden.
+- `CHANGELOG.md`, `README.md`, `docs/en/README.md`, `docs/menu.json`, `package.json` und `xtend-builder/scaffold.config.js` wurden an den neuen Contract angebunden.
 
 ## Akzeptanzkriterien
 

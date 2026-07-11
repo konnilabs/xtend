@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-catalog-report.json
 ## Maintenance Notes
 
 New catalogs should have a clear schema, a local verification path and a report with stable fields. If several modules need the same structure, add the shared type first and use it from the modules afterwards. This keeps the public tooling layer readable and prevents every report from creating its own small universe.
+
+## Related reading
+
+The component catalog overview explains which public records these catalog types describe. [Related article](./components.md)

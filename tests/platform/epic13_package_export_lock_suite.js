@@ -107,15 +107,15 @@ function runEpic13PackageExportLockSuite(options = {}) {
   const contractDoc = readText(EPIC13_PACKAGE_EXPORT_LOCK_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_PACKAGE_EXPORT_LOCK_WORKPACKAGE_DOC, rootDir);
   const docs = readText(EPIC13_PACKAGE_EXPORT_LOCK_DOCS, rootDir);
-  const rc1Docs = readText('docs/rc1-readiness.md', rootDir);
-  const ownerDocs = readText('docs/release-owner-acceptance.md', rootDir);
+  const rc1Docs = readText('development/docs-evidence/legacy-routes/en/rc1-readiness.md', rootDir);
+  const ownerDocs = readText('development/docs-evidence/legacy-routes/en/release-owner-acceptance.md', rootDir);
   const networkDocs = readText('docs/conditional-network-evidence.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const releaseChecklist = readText('development/XTend-Release-Checklist-und-SemVer-Policy.md', rootDir);
   const ciMatrix = readText('development/XTend-CI-Gate-Matrix.md', rootDir);
   const packageStrategy = readText('development/XTend-Package-Export-und-Release-Strategie.md', rootDir);
-  const enterpriseAdoption = readText('docs/enterprise-adoption.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const enterpriseAdoption = readText('docs/en/enterprise-adoption.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const readme = readText('README.md', rootDir);
@@ -293,9 +293,8 @@ function runEpic13PackageExportLockSuite(options = {}) {
     PACKAGE_EXPORT_SURFACE_ARTIFACT
   ], 'Package strategy');
   assertTextIncludesAll(context, enterpriseAdoption, [
-    EPIC13_PACKAGE_EXPORT_LOCK_SCHEMA,
     './package-export-lock.md',
-    'pack:dry-run:report'
+    'npm run pack:dry-run:report'
   ], 'Enterprise adoption docs');
   context.assertIncludes(docsReadme, './package-export-lock.md', 'Docs README links package export lock');
   context.assertIncludes(docsMenu, 'package-export-lock', 'Docs menu exposes package export lock');

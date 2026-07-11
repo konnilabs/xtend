@@ -1,5 +1,7 @@
 # RMT Reference: Conditions and Expressions
 
+`tools/rmt-language/vnext-parser.js` is the source of truth for operators and operand forms.
+
 Conditions appear after `when` and use a small declarative expression language.
 
 ## Syntax
@@ -61,3 +63,7 @@ Function calls such as `isReady()` are not allowed and produce parser diagnostic
 ## Related operators
 
 `when`, `mount`, `stream`, `on`, `payload`, `reduce`.
+
+## Related reading
+
+The RMT reference index shows which records accept conditions and expressions. [Related article](./rmt-reference.md)

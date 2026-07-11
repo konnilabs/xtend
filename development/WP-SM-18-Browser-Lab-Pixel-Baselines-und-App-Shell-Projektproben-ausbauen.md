@@ -14,7 +14,7 @@ Die Surface Runtime wird gegen echte App-Shell-Nutzung und visuelle Stabilitaet 
 | Browser-Lab Fixture | `tests/browser/fixtures/surface-manager-browser-lab.html` |
 | Visual Baseline | `tests/browser/visual-baselines/surface-manager-browser-lab.dom-baseline.json` |
 | Test-Suite | `tests/browser/surface_manager_browser_lab_suite.js` |
-| Doku | `docs/surface-manager-browser-lab.md` |
+| Doku | `development/docs-evidence/root/surface-manager-browser-lab.md` |
 
 ## Contract
 

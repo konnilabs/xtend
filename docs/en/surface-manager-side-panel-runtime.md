@@ -29,3 +29,7 @@ For `overlay` and `fullscreen`, the panel must cooperate with the Stack Policy. 
 The `surface-side-panel` gate checks the modes as a runtime contract. Reviewers look at state transitions, event names, focus paths and snapshot compatibility. A failure is critical when a visible panel reacts differently than its record, when a mode exists only as CSS, or when an action is not written back to manager state. An accepted fix makes that chain more explicit.
 
 New panel capabilities need their own evidence. A new mode label without a fixture is not a release signal. A layout or animation change must still respect reduced motion, keyboard navigation and clear host boundaries. That keeps `x-side-panel` an owned surface component rather than a hidden framework drawer.
+
+## Related reading
+
+The controller contract defines how a side panel registers, focuses, collapses, and closes. [Related article](./surface-manager-controller.md)

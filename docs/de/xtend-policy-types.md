@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-policy-report.json
 ## Pflegehinweise
 
 Halte Policy-Typen datenzentriert. Ein neuer Report sollte klar sagen, welche Quelle ihn erzeugt, welche Felder stabil sind und wie ein Host fehlende optionale Daten behandeln kann. Wenn ein Name in `./fabric/xtend-fabric.d.ts` öffentlich wird, muss er auch in der gemeinsamen Deklaration und im TypeExports-Plan sichtbar sein. So bleiben Diagnose, Accessibility und Security als öffentliche Verträge nutzbar, ohne interne Scheduling-Details freizulegen.
+
+## Weiterführend
+
+Die Manifest Import Policy zeigt, wo typisierte Policy-Entscheidungen als Diagnostics sichtbar werden. [Verwandter Artikel](./manifest-import-policy.md)

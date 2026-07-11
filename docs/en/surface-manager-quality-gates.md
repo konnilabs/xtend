@@ -42,3 +42,7 @@ The fixture `tests/browser/fixtures/surface-manager-quality-smoke.html` is the s
 A green quality gate means the mixed surface app is still operable, measurable and reproducible. It does not mean every possible product composition is covered. Residuals such as real browser-lab artifacts or broad visual baselines are tracked separately in the release handoff. Changes that claim visible surface capabilities without touching one of the four domains are blocked.
 
 Reviewers should watch for silent scope expansion. If a patch makes a new dragging, resizing, modality or stacking claim, it needs more than a code change. It needs a contract point, a fixture or a gate proof. This page describes where that proof is expected.
+
+## Related reading
+
+The release workflow shows how SurfaceManager reports are combined with the repository gates. [Related article](./release-verification.md)

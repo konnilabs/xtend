@@ -88,7 +88,7 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
   const sourceText = SOURCE_ARTIFACTS.map((filePath) => readText(filePath, rootDir)).join('\n');
   const panelFixture = readText('tests/components/fixtures/xsidepanel.component.html', rootDir);
   const panelDocs = readText('docs/components/xsidepanel.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const referenceRegistry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const planningDoc = readText(SURFACE_MANAGER_SIDE_PANEL_PLAN, rootDir);

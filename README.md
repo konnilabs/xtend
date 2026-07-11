@@ -83,6 +83,9 @@ The Developer Center lives in `docs/de` and `docs/en`.
 - RMT actions, events, data and resources: `docs/en/learn-rmt-actions-events-data-resources.md`
 - Native-First RMT recipes: `docs/en/native-first-rmt-recipes.md`
 - Component reference: `docs/en/components.md`
+- Trusted DOM and sanitizing: `docs/en/trusted-dom-sanitizing.md`
+- Visual snapshot automation: `docs/en/visual-snapshot-automation.md`
+- Parsedown and RMT ownership: `docs/en/xtendrmt-parsedown-scheduling.md`
 
 ## Local Gates
 

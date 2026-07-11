@@ -69,7 +69,7 @@
   - `development/ER-WP-33-Component-Level-Suites-fuer-priorisierte-Komponenten-nachziehen.md`
   - `catalog/component-catalog-coverage.js`
   - `tests/catalog/component_catalog_coverage_suite.js`
-  - `docs/component-catalog-coverage.md`
+  - `development/docs-evidence/root/component-catalog-coverage.md`
   - `tests/components/priority_component_contracts.js`
   - `tests/components/component_suite.js`
   - `catalog/component-regression-priority.js`
@@ -675,7 +675,7 @@ Empfohlene Sequenz: `ER-WP-31` hat die Component Catalog Coverage Matrix erzeugt
   - `development/XTend-Performance-Regression-Gate.md`
   - `development/ER-WP-19-Performance-Regression-Suite-anlegen.md`
   - `tests/performance/baselines/local-performance-baseline.json`
-  - `docs/performance-regression.md`
+  - `development/docs-evidence/root/performance-regression.md`
 - Definition of Done:
   - Budgetverletzungen erscheinen im Testreport
 - Ergebnis:
@@ -972,7 +972,7 @@ Empfohlene Sequenz: `ER-WP-31` hat die Component Catalog Coverage Matrix erzeugt
   - `development/ER-WP-31-Component-Catalog-Coverage-Matrix-erzeugen.md`
   - `catalog/component-catalog-coverage.js`
   - `tests/catalog/component_catalog_coverage_suite.js`
-  - `docs/component-catalog-coverage.md`
+  - `development/docs-evidence/root/component-catalog-coverage.md`
 - Definition of Done:
   - jede Manifest-Komponente besitzt einen dokumentierten Reifestatus
 - Ergebnis:
@@ -997,7 +997,7 @@ Empfohlene Sequenz: `ER-WP-31` hat die Component Catalog Coverage Matrix erzeugt
   - `docs/components/xsummary.md`
   - `docs/components/xutils.md`
   - `docs/menu.json`
-  - `docs/README.md`
+  - `docs/en/README.md`
   - `docs/components.md`
   - aktualisierte Catalog Coverage Matrix und Reference-Gates
 - Definition of Done:

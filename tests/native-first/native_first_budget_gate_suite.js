@@ -159,7 +159,7 @@ const REQUIRED_BUDGETS = Object.freeze([
       freeHtmlSinkMax: 0
     },
     requiredGates: ['contract-runtime-parity', 'rmt-dom-descriptor-renderer', 'rmt-renderer-dom-descriptor-proofs', 'references'],
-    evidenceArtifacts: ['development/XTend-Native-First-Contract-Runtime-Parity-Matrix.md', 'docs/rmt-dom-descriptor-renderer.md', 'tests/fixtures/native-first/rmt-renderer-dom-descriptor-proof-fixtures.json'],
+    evidenceArtifacts: ['development/XTend-Native-First-Contract-Runtime-Parity-Matrix.md', 'docs/en/rmt-dom-descriptor-renderer.md', 'tests/fixtures/native-first/rmt-renderer-dom-descriptor-proof-fixtures.json'],
     enforcementMode: 'hard-local-gate',
     residual: 'surface maximality bleibt surface-browser-lab residual',
     owner: 'framework-leverage-owner',

@@ -832,7 +832,7 @@ Erledigt:
 - `docs/rmt-language-server.md` dokumentiert LSP, Snippets, VS Code, JetBrains, Neovim und Helix Setup.
 - `docs/quick-start-guide.md` zeigt `.rmt`, `xt rmt lint`, `--json`, `--agent` und den LSP-Start als Ausbaupfad.
 - `docs/xtendrmt-native-authoring.md` beschreibt Authoring Tooling, Snippet-Prefixes und Regression Gate.
-- `docs/README.md` und `docs/menu.json` verlinken Linter und Language Server.
+- `docs/en/README.md` und `docs/menu.json` verlinken Linter und Language Server.
 - `tests/docs/rmt_tooling_docs_suite.js` prueft Doku, Menue, Package-Metadaten, Runner und Epic-Handoff.
 - `package.json` und `scripts/run_xtend_tests.js` kennen den Gate `rmt-tooling-docs`.
 
@@ -873,7 +873,7 @@ Erledigt:
 - `package.json` bietet `test:rmt-linter`, `test:rmt-tooling`, `test:rmt-tooling:report`, `test:pr:rmt`, `test:pr:rmt:report` und `test:epic14-rmt-tooling`.
 - `xtend.epic14RmtTooling` und `xtend.releaseGates` machen RMT Tooling als releasefaehige Oberflaeche sichtbar.
 - `xtend-builder/scaffold.config.js` kennt `epic14RmtTooling` als Scaffold-/CI-Handoff-Metadatum.
-- `docs/rmt-tooling-release-gates.md` dokumentiert PR-, Release- und Self-Gates.
+- `docs/en/rmt-tooling-release-gates.md` dokumentiert PR-, Release- und Self-Gates.
 - `WP-E14-16` ist abgeschlossen.
 
 Naechstes primaeres Paket:

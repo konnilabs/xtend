@@ -83,7 +83,8 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
   const rmtDocument = readJson(DOCS_RMT_DOCUMENT, rootDir);
   const indexPhp = readText(DOCS_RMT_HOST, rootDir);
   const pageLoader = readText(DOCS_RMT_PAGE_LOADER, rootDir);
-  const parsedownSchedulingDocs = readText('docs/xtendrmt-parsedown-scheduling.md', rootDir);
+  const shellRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
+  const parsedownSchedulingDocs = readText('docs/en/xtendrmt-parsedown-scheduling.md', rootDir);
   const steering = readText(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_STEERING, rootDir);
   const contract = readText(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_WORKPACKAGE_DOC, rootDir);
@@ -91,7 +92,7 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const releaseChecklist = readText('development/XTend-Release-Checklist-und-SemVer-Policy.md', rootDir);
   const ciMatrix = readText('development/XTend-CI-Gate-Matrix.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const rootReadme = readText('README.md', rootDir);
@@ -192,10 +193,13 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
     "extensionSlots: ['docs.slot.content', 'docs.slot.sidebar', 'docs.slot.related', 'docs.slot.component-demo', 'docs.slot.rich-content', 'docs.slot.media', 'docs.slot.diagnostics']",
     '$Parsedown->setSafeMode(true);',
     "diagnostics' => 'docs.diagnostics.snapshot'",
-    '/components/prism-rmt.js',
-    'XTendRmtPrism.register',
-    'xtendDocsHighlightPrism'
+    '/components/prism-rmt.js'
   ], 'Docs PHP host');
+  assertTextIncludesAll(context, shellRuntime, [
+    'schedulePrismHighlight',
+    'XTendRmtPrism.register',
+    'Prism.highlightAllUnder'
+  ], 'Docs AppRuntime shell');
   assertTextIncludesAll(context, pageLoader, [
     EPIC13_DOCS_RMT_PRODUCTION_HARDENING_SCHEMA,
     'getDocsRmtProductionHardening',
@@ -211,17 +215,17 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
     "createDemoCodeBlock('RMT', 'rmt'"
   ], 'Docs page loader');
   assertTextIncludesAll(context, parsedownSchedulingDocs, [
-    DOCS_RMT_PILOT_SCHEMA,
-    'docs.app.shell',
-    'docs.rich-content.prepare',
-    'docs.media.lazy'
+    'docs/xtendrmt-docs-shell-vnext.rmt',
+    'docs/utils/docs-shell-runtime.mjs',
+    'docs/utils/trusted-dom-host.mjs',
+    'window.__XTEND_DEV_API__'
   ], 'Parsedown scheduling docs');
 
   context.assert(packageManifest.private === false, 'Package is public-ready for Docs RMT hardening');
   context.assert((packageManifest.exports['./catalog/epic13-docs-rmt-production-hardening'] === './catalog/epic13-docs-rmt-production-hardening.js' || (packageManifest.exports['./catalog/epic13-docs-rmt-production-hardening'] && packageManifest.exports['./catalog/epic13-docs-rmt-production-hardening'].default === './catalog/epic13-docs-rmt-production-hardening.js')), 'Package exports Docs RMT hardening module');
   context.assert(packageManifest.scripts['test:epic13-docs-rmt-production-hardening'] === 'node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening', 'Package exposes Docs RMT hardening script');
-  context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_PACKAGE_SCRIPT), 'Package release gates include Docs RMT hardening script');
-  context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_PACKAGE_SCRIPT), 'Release checklist metadata includes Docs RMT hardening script');
+  context.assert(!packageManifest.xtend.releaseGates.includes(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_PACKAGE_SCRIPT), 'Legacy Docs RMT hardening gate stays outside default release gates');
+  context.assert(!packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_PACKAGE_SCRIPT), 'Legacy Docs RMT hardening gate stays outside candidate gates');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_CONTRACT), 'Artifact checklist includes Docs RMT hardening contract');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes(EPIC13_DOCS_RMT_PRODUCTION_HARDENING_REPORT_ARTIFACT), 'Artifact checklist includes Docs RMT hardening report');
   context.assert(metadata && metadata.schema === EPIC13_DOCS_RMT_PRODUCTION_HARDENING_SCHEMA, 'Package metadata exposes Docs RMT hardening schema');
@@ -261,12 +265,10 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
     'WP-E13-13'
   ], 'WP-E13-10 workpackage');
   assertTextIncludesAll(context, docs, [
-    EPIC13_DOCS_RMT_PRODUCTION_HARDENING_SCHEMA,
-    EPIC13_DOCS_RMT_PRODUCTION_HARDENING_LOCAL_GATE,
-    'docs.slot.content',
-    'docs.slot.rich-content',
-    'docs.slot.media',
-    'docs.slot.diagnostics'
+    'Coordinate Parsedown with RMT',
+    'createRmtTemplateRuntimeRenderer()',
+    'XTendSkeletonLoader.registerProfile()',
+    'node scripts/run_xtend_tests.js docs-rmt-pilot docs-shell-catfooding'
   ], 'Docs RMT hardening docs');
   assertTextIncludesAll(context, registry, [
     EPIC13_DOCS_RMT_PRODUCTION_HARDENING_MODULE,
@@ -284,10 +286,10 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
     EPIC13_DOCS_RMT_PRODUCTION_HARDENING_LOCAL_GATE,
     'Docs RMT Production Hardening'
   ], 'CI gate matrix');
-  context.assertIncludes(docsReadme, './docs-rmt-production-hardening.md', 'Docs README links Docs RMT hardening');
-  context.assertIncludes(docsMenu, 'docs-rmt-production-hardening', 'Docs menu exposes Docs RMT hardening');
+  context.assertIncludes(docsReadme, './xtendrmt-parsedown-scheduling.md', 'Docs README links the Parsedown and RMT ownership guide');
+  context.assertIncludes(docsMenu, 'xtendrmt-parsedown-scheduling', 'Docs menu exposes the Parsedown and RMT ownership guide');
   context.assertIncludes(testsReadme, EPIC13_DOCS_RMT_PRODUCTION_HARDENING_LOCAL_GATE, 'Tests README documents Docs RMT hardening gate');
-  context.assertIncludes(rootReadme, 'xtend.epic13DocsRmtProductionHardening', 'Root README documents Docs RMT hardening metadata');
+  context.assertIncludes(rootReadme, 'docs/en/xtendrmt-parsedown-scheduling.md', 'Root README links the user-facing Parsedown and RMT guide');
   context.assertIncludes(changelog, EPIC13_DOCS_RMT_PRODUCTION_HARDENING_SCHEMA, 'Changelog records Docs RMT hardening schema');
 
   return context.result({

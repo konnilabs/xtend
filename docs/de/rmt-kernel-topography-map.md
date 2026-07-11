@@ -4,7 +4,7 @@ Stand: 2026-06-19
 
 Diese Karte beschreibt den gebündelten RMT Kernel im XTend-Stack. Der Kernel stammt aus ehemals einzelnen Modulen und liegt heute vor allem in `xtendrmt/rmt-runtime.esm.js`, `xtendrmt/rmt-core.esm.js` und `xtendrmt/rmt-runtime.browser.js`. `xtendrmt/rmt-app-runtime.js` bleibt eine kernelnahe App-Runtime-Schicht für Commands, Host Services, Streams, Reducer und Fabric-Integration.
 
-KernelLab in XTend Scaffold ist der kontrollierte Analyse- und Clean-Build-Pfad fuer dieses Bundle. `xt kernel-lab analyze --json` schreibt `xtendrmt/rmt-kernel-module-manifest.json`; `xt kernel-lab build --profile clean --check --json` prueft, dass der Standardkernel frei von alten Dashboard-Compat-Factories bleibt. Release-Builds koennen `--version <semver>` setzen, damit Header, Runtime-API-Version, Typen und Manifest synchron bleiben.
+KernelLab in XTend Scaffold ist der kontrollierte Analyse- und Clean-Build-Pfad für dieses Bundle. `xt kernel-lab analyze --json` schreibt `xtendrmt/rmt-kernel-module-manifest.json`; `xt kernel-lab build --profile clean --check --json` prüft, dass der Standardkernel frei von alten Dashboard-Compat-Factories bleibt. Release-Builds können `--version <semver>` setzen, damit Header, Runtime-API-Version, Typen und Manifest synchron bleiben.
 
 ## Zweck
 
@@ -16,7 +16,7 @@ Die Map beantwortet drei Fragen:
 
 Die Modulbewertung blendet generierte Produkt-Bundles und Build-Kopien aus. Diese belegen Artefakt-Parität, aber keine eigenständige Framework-Integration.
 
-KernelLab gleicht aktuell die historische Erwartung von 26 Modulen mit den 25 sichtbaren Bundle-Wrappern ab und haelt diese Abweichung als Report-Metadatum fest, statt sie als stille Build-Wahrheit zu behandeln.
+KernelLab gleicht aktuell die historische Erwartung von 26 Modulen mit den 25 sichtbaren Bundle-Wrappern ab und hält diese Abweichung als Report-Metadatum fest, statt sie als stille Build-Wahrheit zu behandeln.
 
 ## Bundle-Topologie
 

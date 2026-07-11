@@ -1,0 +1,5426 @@
+{
+  "schema": "xtend.maraca.bundle-report.v1",
+  "ok": true,
+  "status": "built",
+  "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+  "outputDir": "docs/generated/shell",
+  "profile": "max",
+  "lazy": "route",
+  "css": "inline",
+  "vendor": false,
+  "componentMode": "document",
+  "stackMode": "plan",
+  "target": "modern-esm",
+  "entry": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.maraca.mjs",
+  "entryRelative": "docs/generated/shell/xtend.maraca.mjs",
+  "entryBytes": 492716,
+  "bytes": 2031801,
+  "bundleFiles": [
+    {
+      "type": "chunk",
+      "fileName": "xtend.maraca.mjs",
+      "path": "docs/generated/shell/xtend.maraca.mjs",
+      "bytes": 492716,
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "./runtime/xtendrmt-kernel-orchestration-controller.js",
+        "./runtime/xtendrmt-runtime.esm.js"
+      ],
+      "dynamicImports": [
+        "chunks/x-footer-Dz7Acphs.mjs",
+        "chunks/x-header-C29nxuke.mjs",
+        "chunks/x-hero-Bo_rJWly.mjs",
+        "chunks/x-router-BBn3p6T9.mjs",
+        "chunks/x-section-D08r14i9.mjs",
+        "chunks/x-status-BLiCI1gb.mjs",
+        "chunks/x-theme-D5nhPucB.mjs"
+      ]
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-footer-Dz7Acphs.mjs",
+      "path": "docs/generated/shell/chunks/x-footer-Dz7Acphs.mjs",
+      "bytes": 16918,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-header-C29nxuke.mjs",
+      "path": "docs/generated/shell/chunks/x-header-C29nxuke.mjs",
+      "bytes": 45454,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-footer-Dz7Acphs.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-hero-Bo_rJWly.mjs",
+      "path": "docs/generated/shell/chunks/x-hero-Bo_rJWly.mjs",
+      "bytes": 37383,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-footer-Dz7Acphs.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-router-BBn3p6T9.mjs",
+      "path": "docs/generated/shell/chunks/x-router-BBn3p6T9.mjs",
+      "bytes": 44041,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-footer-Dz7Acphs.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-section-D08r14i9.mjs",
+      "path": "docs/generated/shell/chunks/x-section-D08r14i9.mjs",
+      "bytes": 7960,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-footer-Dz7Acphs.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-status-BLiCI1gb.mjs",
+      "path": "docs/generated/shell/chunks/x-status-BLiCI1gb.mjs",
+      "bytes": 10861,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "chunks/x-footer-Dz7Acphs.mjs",
+        "chunks/x-hero-Bo_rJWly.mjs"
+      ],
+      "dynamicImports": []
+    },
+    {
+      "type": "chunk",
+      "fileName": "chunks/x-theme-D5nhPucB.mjs",
+      "path": "docs/generated/shell/chunks/x-theme-D5nhPucB.mjs",
+      "bytes": 33953,
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [],
+      "dynamicImports": [
+        "chunks/x-footer-Dz7Acphs.mjs"
+      ]
+    },
+    {
+      "type": "asset",
+      "fileName": "runtime/xtendrmt-kernel-orchestration-controller.js",
+      "path": "docs/generated/shell/runtime/xtendrmt-kernel-orchestration-controller.js",
+      "bytes": 38902,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    },
+    {
+      "type": "asset",
+      "fileName": "runtime/xtendrmt-runtime.esm.js",
+      "path": "docs/generated/shell/runtime/xtendrmt-runtime.esm.js",
+      "bytes": 1303613,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": []
+    }
+  ],
+  "loader": {
+    "mode": "inline-registry",
+    "usesExternalManifest": false,
+    "usesXtendLoader": false,
+    "manifestParseAtRuntime": false
+  },
+  "components": {
+    "selected": [
+      {
+        "tag": "x-footer",
+        "source": "components/xfooter.js",
+        "importPath": "../../../components/xfooter.js",
+        "native": false
+      },
+      {
+        "tag": "x-header",
+        "source": "components/xheader.js",
+        "importPath": "../../../components/xheader.js",
+        "native": false
+      },
+      {
+        "tag": "x-hero",
+        "source": "components/xhero.js",
+        "importPath": "../../../components/xhero.js",
+        "native": false
+      },
+      {
+        "tag": "x-router",
+        "source": "components/xrouter.js",
+        "importPath": "../../../components/xrouter.js",
+        "native": false
+      },
+      {
+        "tag": "x-section",
+        "source": "components/xsection.js",
+        "importPath": "../../../components/xsection.js",
+        "native": false
+      },
+      {
+        "tag": "x-status",
+        "source": "components/xstatus.js",
+        "importPath": "../../../components/xstatus.js",
+        "native": false
+      },
+      {
+        "tag": "x-theme",
+        "source": "components/xtheme.js",
+        "importPath": "../../../components/xtheme.js",
+        "native": false
+      }
+    ],
+    "unknown": []
+  },
+  "rmtApp": {
+    "schema": "xtend.maraca.rmt-app-runtime-report.v1",
+    "evidence": {
+      "commandFacade": true,
+      "streamServicesPresent": true,
+      "reducerRecipesPresent": true,
+      "noRawUiEventTriggers": true,
+      "noRawRuntimeBypass": true,
+      "noProductOwnedDomWiring": true
+    },
+    "declarationCounts": {
+      "streamServices": 0,
+      "reducerRecipes": 0,
+      "rawPublicUiTriggers": 0
+    },
+    "diagnostics": [],
+    "descriptors": [
+      {
+        "surface": "docs.root",
+        "component": "x-theme",
+        "ids": [
+          "$model.docs.shell.model.id"
+        ],
+        "classes": [],
+        "tags": [
+          "x-theme"
+        ],
+        "primitives": [],
+        "commands": []
+      },
+      {
+        "surface": "docs.header",
+        "component": "x-header",
+        "ids": [
+          "$model.docs.shell.model.id"
+        ],
+        "classes": [],
+        "tags": [
+          "x-header"
+        ],
+        "primitives": [],
+        "commands": []
+      },
+      {
+        "surface": "docs.hero",
+        "component": "x-hero",
+        "ids": [
+          "$model.docs.shell.model.id"
+        ],
+        "classes": [],
+        "tags": [
+          "x-hero"
+        ],
+        "primitives": [],
+        "commands": []
+      },
+      {
+        "surface": "docs.router",
+        "component": "x-router",
+        "ids": [
+          "$model.docs.shell.model.id"
+        ],
+        "classes": [],
+        "tags": [
+          "x-router"
+        ],
+        "primitives": [],
+        "commands": []
+      },
+      {
+        "surface": "docs.page",
+        "component": "x-section",
+        "ids": [
+          "$model.docs.shell.model.id"
+        ],
+        "classes": [],
+        "tags": [
+          "x-section"
+        ],
+        "primitives": [],
+        "commands": []
+      },
+      {
+        "surface": "docs.sidebar",
+        "component": "x-section",
+        "ids": [
+          "$model.docs.shell.capabilityModel.id"
+        ],
+        "classes": [],
+        "tags": [
+          "x-section"
+        ],
+        "primitives": [],
+        "commands": []
+      },
+      {
+        "surface": "docs.footer",
+        "component": "x-footer",
+        "ids": [
+          "$model.docs.shell.model.id"
+        ],
+        "classes": [],
+        "tags": [
+          "x-footer"
+        ],
+        "primitives": [],
+        "commands": []
+      },
+      {
+        "surface": "docs.diagnostics",
+        "component": "x-status",
+        "ids": [
+          "$model.docs.shell.capabilityModel.id"
+        ],
+        "classes": [],
+        "tags": [
+          "x-status"
+        ],
+        "primitives": [],
+        "commands": []
+      }
+    ],
+    "dataSources": [
+      {
+        "id": "docs.page.payload",
+        "kind": "rest",
+        "endpoint": "index.php?xtend-docs-page={slug}&locale={locale}",
+        "adapter": "",
+        "method": "GET"
+      },
+      {
+        "id": "docs.shell.ssr",
+        "kind": "rest",
+        "endpoint": "index.php?xtend-docs-rmt-ssr=shell&format=jsonl",
+        "adapter": "",
+        "method": "GET"
+      }
+    ]
+  },
+  "kernelFeatureAdoption": {
+    "schema": "xtend.rmt-kernel-feature-adoption-report.v1",
+    "contract": "xtend.rmt-kernel-feature-adoption.v1",
+    "status": "ready",
+    "ok": true,
+    "capabilityKeys": [
+      "productSurface",
+      "templateArtifacts",
+      "performanceAdvancedReports",
+      "detachedRuntime",
+      "domCompat",
+      "warmReentry",
+      "prewarmWorker",
+      "uiCoprocessor",
+      "workerPrerender",
+      "serverPrerender",
+      "panicRecovery",
+      "policyParity"
+    ],
+    "capabilityCount": 12,
+    "supportedCount": 12,
+    "activeCount": 4,
+    "degradedCount": 0,
+    "blockedCount": 0,
+    "capabilities": [
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "productSurface",
+        "label": "Product Surface Bootstrap",
+        "category": "bootstrap",
+        "supported": true,
+        "active": false,
+        "status": "available",
+        "runtimeRequired": false,
+        "prodDefault": "off",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtProductSurface"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "templateArtifacts",
+        "label": "Template Artifacts",
+        "category": "source-to-sea",
+        "supported": true,
+        "active": true,
+        "status": "active",
+        "runtimeRequired": false,
+        "prodDefault": "off",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtTemplateArtifacts"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "performanceAdvancedReports",
+        "label": "Performance Runtime Advanced Reports",
+        "category": "telemetry",
+        "supported": true,
+        "active": true,
+        "status": "active",
+        "runtimeRequired": true,
+        "prodDefault": "auto",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtPerformanceRuntime"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "detachedRuntime",
+        "label": "Detached Runtime",
+        "category": "testability",
+        "supported": true,
+        "active": false,
+        "status": "available",
+        "runtimeRequired": true,
+        "prodDefault": "off",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtDetachedRuntime"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "domCompat",
+        "label": "DOM Compat",
+        "category": "surface-contract",
+        "supported": true,
+        "active": false,
+        "status": "available",
+        "runtimeRequired": true,
+        "prodDefault": "auto",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtDomCompat"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "warmReentry",
+        "label": "Warm Reentry",
+        "category": "prewarm",
+        "supported": true,
+        "active": false,
+        "status": "available",
+        "runtimeRequired": true,
+        "prodDefault": "off",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtPrewarmWorkerRuntime",
+          "createRmtPerformanceRuntime"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "prewarmWorker",
+        "label": "Prewarm Worker",
+        "category": "prewarm",
+        "supported": true,
+        "active": false,
+        "status": "available",
+        "runtimeRequired": true,
+        "prodDefault": "off",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtPrewarmWorkerRuntime"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "uiCoprocessor",
+        "label": "UI Coprocessor",
+        "category": "prewarm",
+        "supported": true,
+        "active": false,
+        "status": "available",
+        "runtimeRequired": true,
+        "prodDefault": "off",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtPrewarmWorkerRuntime"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "workerPrerender",
+        "label": "Worker Prerender",
+        "category": "prerender",
+        "supported": true,
+        "active": false,
+        "status": "available",
+        "runtimeRequired": true,
+        "prodDefault": "off",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtTemplateWorkerAdapter",
+          "createRmtWorkerPrerenderRuntime"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "serverPrerender",
+        "label": "Server Prerender",
+        "category": "prerender",
+        "supported": true,
+        "active": false,
+        "status": "available",
+        "runtimeRequired": true,
+        "prodDefault": "host",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": true,
+        "requiredFactories": [
+          "createRmtTemplateServerAdapter",
+          "createRmtServerPrerenderRuntime"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "panicRecovery",
+        "label": "Panic and Recovery",
+        "category": "security",
+        "supported": true,
+        "active": true,
+        "status": "active",
+        "runtimeRequired": true,
+        "prodDefault": "auto",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": false,
+        "requiredFactories": [
+          "createRmtTemplateExecutionPath"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      },
+      {
+        "schema": "xtend.rmt-kernel-feature-adoption.v1",
+        "key": "policyParity",
+        "label": "Policy Parity",
+        "category": "security",
+        "supported": true,
+        "active": true,
+        "status": "active",
+        "runtimeRequired": false,
+        "prodDefault": "auto",
+        "diagnosticsRequired": true,
+        "strictFallbackAllowed": false,
+        "requiredFactories": [
+          "createRmtKernelPolicyParity"
+        ],
+        "missingFactories": [],
+        "diagnostics": []
+      }
+    ],
+    "diagnostics": []
+  },
+  "kernelFeatureAdoptionClosure": {
+    "schema": "xtend.maraca.production-bundle-closure.v1",
+    "ok": true,
+    "status": "ready",
+    "profile": "max",
+    "enforced": true,
+    "runtimeExpectedStatus": "booted",
+    "capabilityCount": 11,
+    "activeCount": 7,
+    "degradedCount": 0,
+    "blockedCount": 0,
+    "strictFallbackCount": 0,
+    "capabilities": [
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "orchestration",
+        "label": "App Orchestration",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "planned",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [
+          {
+            "code": "rmt.app_orchestration.hydration_policy_missing",
+            "severity": "warning",
+            "message": "Surface docs.diagnostics has no explicit lifecycle hydration record; runtime will use component lazy loading policy.",
+            "surface": "docs.diagnostics"
+          }
+        ],
+        "sourceToSea": {
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "artifactSchema": "xtend.rmt.app-orchestration.v1",
+          "runtimeModules": [
+            "xtendrmt/rmt-state-selector-runtime.js",
+            "xtendrmt/rmt-action-effect-runtime.js",
+            "xtendrmt/rmt-event-routing-runtime.js",
+            "xtendrmt/rmt-app-runtime.js",
+            "xtendrmt/rmt-surface-resource-graph-runtime.js",
+            "xtendrmt/rmt-dom-descriptor-renderer.js"
+          ]
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "kernel",
+        "label": "RMT Kernel",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "planned",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "artifactSchema": "xtend.rmt.kernel-orchestration.v1",
+          "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
+          "runtimeModules": [
+            "xtendrmt/rmt-kernel-orchestration-controller.js",
+            "xtendrmt/rmt-runtime.esm.js"
+          ]
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "lifecycle",
+        "label": "Lifecycle Engine",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "enforced",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "surfaceCount": 8,
+          "resourceCount": 5,
+          "kernelScheduled": true,
+          "hasKernelRuntime": true,
+          "hasSurfaceRuntime": true,
+          "hasSurfaceAdapterDestroy": true
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "telemetry",
+        "label": "Telemetry",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "available",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {},
+        "evidence": {
+          "devApis": [
+            "createTelemetrySnapshot",
+            "getPerformanceTelemetrySnapshot",
+            "listStreamPressureRecords",
+            "listYieldActions"
+          ],
+          "runtimeModules": [
+            "xtendrmt/rmt-app-runtime.js"
+          ]
+        }
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "performance",
+        "label": "Performance",
+        "supported": true,
+        "active": false,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "budget_misses",
+        "runtimeExpectedStatus": "report-only",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [
+          {
+            "code": "xtend.maraca.performance_budget_miss",
+            "severity": "warning",
+            "message": "Maraca performance budget command_turnaround exceeded for command_turnaround.",
+            "budgetId": "command_turnaround",
+            "endpointName": "command_turnaround",
+            "measurementPhase": "cold",
+            "durationMs": 64,
+            "waitMs": 1,
+            "totalMs": 65,
+            "violations": [
+              "duration_ms",
+              "total_ms",
+              "long_task_ms"
+            ]
+          }
+        ],
+        "sourceToSea": {},
+        "evidence": {
+          "budgetClasses": [
+            "visible_commit",
+            "command_turnaround",
+            "hydration_followup",
+            "retained_warm_reuse"
+          ],
+          "bundleFingerprint": null
+        }
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "policyParity",
+        "label": "Kernel Policy Parity",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "ready",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {},
+        "evidence": {
+          "driftCount": 0,
+          "missingFactories": []
+        }
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "prewarmWorker",
+        "label": "Prewarm Worker",
+        "supported": true,
+        "active": false,
+        "optional": true,
+        "requiredInProd": false,
+        "status": "disabled",
+        "runtimeExpectedStatus": "disabled",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "topologySchema": "xtend.rmt.prewarm-worker-topology.v1",
+          "ownership": {
+            "dom": false,
+            "events": false,
+            "state": false
+          }
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "uiCoprocessor",
+        "label": "UI Coprocessor",
+        "supported": true,
+        "active": false,
+        "optional": true,
+        "requiredInProd": false,
+        "status": "disabled",
+        "runtimeExpectedStatus": "disabled",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "eligibleRecordCount": 3,
+          "lanes": {
+            "workerHydrate": "component.worker_prerender_hydrate",
+            "prewarm": "component.prewarm.prepare",
+            "warmReentry": "component.warm.reentry",
+            "diagnostics": "diagnostics.snapshot"
+          },
+          "ownership": {
+            "dom": false,
+            "events": false,
+            "state": false,
+            "stateOwnership": "main-thread",
+            "trustedDomCommit": "main-thread",
+            "hostServices": "blocked-in-worker-path",
+            "ssrRoundtripCount": 0
+          }
+        },
+        "evidence": {
+          "releaseBlocking": false,
+          "pwaAttachment": {
+            "engineImplemented": false,
+            "manifestRef": "./xtend.webmanifest",
+            "cacheMode": "generated-app-shell",
+            "serviceWorkerControlled": false,
+            "offlineEligible": false,
+            "cacheVersion": "xtend-maraca-pwa-27355b0b2064",
+            "hooks": [
+              "cache-management",
+              "xstate-state-management",
+              "ssr-metadata",
+              "prewarm-warm-reentry-policy"
+            ]
+          }
+        }
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "warmReentry",
+        "label": "Warm Reentry",
+        "supported": true,
+        "active": true,
+        "optional": true,
+        "requiredInProd": true,
+        "status": "planned",
+        "runtimeExpectedStatus": "opportunistic",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "supportedFiberKinds": [
+            "template.prewarm",
+            "template.prerender",
+            "surface.prewarm",
+            "route.prewarm"
+          ],
+          "observedFiberKinds": [
+            "surface.prewarm"
+          ],
+          "sourceToSea": [
+            {
+              "operation": "operation:xtend.docs.php_ssr_shell/docs.router/idle/0",
+              "op": "prewarm",
+              "target": "docs-page-payload",
+              "sourceRef": "src:operation:xtend.docs.php_ssr_shell/docs.router/idle/0",
+              "schedulerEndpoint": "xtend.rmt.kernel.surface.prewarm.docs-page-payload.prewarm"
+            },
+            {
+              "operation": "operation:xtend.docs.php_ssr_shell/docs.page/idle/0",
+              "op": "prewarm",
+              "target": "docs-related-links",
+              "sourceRef": "src:operation:xtend.docs.php_ssr_shell/docs.page/idle/0",
+              "schedulerEndpoint": "xtend.rmt.kernel.surface.prewarm.docs-related-links.prewarm"
+            }
+          ]
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "prerender",
+        "label": "Prerender Interop",
+        "supported": true,
+        "active": false,
+        "optional": true,
+        "requiredInProd": false,
+        "status": "available",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {},
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "templateArtifacts",
+        "label": "Template Artifacts",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "prepared",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {},
+        "evidence": {
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "artifactBundleFingerprint": "fnv1a:9012904e",
+          "bundleFingerprint": null
+        }
+      }
+    ],
+    "capabilityKeys": [
+      "orchestration",
+      "kernel",
+      "lifecycle",
+      "telemetry",
+      "performance",
+      "policyParity",
+      "prewarmWorker",
+      "uiCoprocessor",
+      "warmReentry",
+      "prerender",
+      "templateArtifacts"
+    ],
+    "bundleBudget": {
+      "schema": "xtend.maraca.size-budget-report.v1",
+      "ok": true,
+      "status": "within_budget",
+      "mode": "strict",
+      "profile": "max",
+      "baselineBytes": 2171606,
+      "bundleBytes": 2031801,
+      "runtimeExpectedStatus": "booted"
+    },
+    "releaseConstraint": {
+      "schema": "xtend.maraca.production-bundle-release-constraint.v1",
+      "enforced": true,
+      "blocked": false,
+      "reason": "production-bundle-ready",
+      "sizeBudgetPass": true,
+      "strictFallbackCount": 0,
+      "blockedCapabilityKeys": []
+    },
+    "sourceToSea": {
+      "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+      "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+      "artifactFingerprints": {
+        "templateSource": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+        "templateBundle": "fnv1a:9012904e",
+        "bundle": null
+      },
+      "bundle": {
+        "fileCount": 10,
+        "entry": "xtend.maraca.mjs",
+        "bytes": 2031801
+      },
+      "runtimeFeatureStatus": [
+        {
+          "key": "orchestration",
+          "supported": true,
+          "active": true,
+          "status": "planned",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "kernel",
+          "supported": true,
+          "active": true,
+          "status": "planned",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "lifecycle",
+          "supported": true,
+          "active": true,
+          "status": "enforced",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "telemetry",
+          "supported": true,
+          "active": true,
+          "status": "available",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "performance",
+          "supported": true,
+          "active": false,
+          "status": "budget_misses",
+          "runtimeExpectedStatus": "report-only"
+        },
+        {
+          "key": "policyParity",
+          "supported": true,
+          "active": true,
+          "status": "ready",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "prewarmWorker",
+          "supported": true,
+          "active": false,
+          "status": "disabled",
+          "runtimeExpectedStatus": "disabled"
+        },
+        {
+          "key": "uiCoprocessor",
+          "supported": true,
+          "active": false,
+          "status": "disabled",
+          "runtimeExpectedStatus": "disabled"
+        },
+        {
+          "key": "warmReentry",
+          "supported": true,
+          "active": true,
+          "status": "planned",
+          "runtimeExpectedStatus": "opportunistic"
+        },
+        {
+          "key": "prerender",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "templateArtifacts",
+          "supported": true,
+          "active": true,
+          "status": "prepared",
+          "runtimeExpectedStatus": "booted"
+        }
+      ],
+      "tests": [
+        "node scripts/run_xtend_tests.js maraca-bundle-report rmt-stack-docs epic14-rmt-tooling-release-gates --json",
+        "node scripts/run_xtend_tests.js maraca-bundle maraca-kernel-orchestration --json"
+      ],
+      "links": [
+        {
+          "capability": "orchestration",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "planned",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "kernel",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "planned",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "lifecycle",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "enforced",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "telemetry",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "available",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "performance",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "budget_misses",
+          "runtimeExpectedStatus": "report-only",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "policyParity",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "ready",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "prewarmWorker",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "disabled",
+          "runtimeExpectedStatus": "disabled",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "uiCoprocessor",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "disabled",
+          "runtimeExpectedStatus": "disabled",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "warmReentry",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "planned",
+          "runtimeExpectedStatus": "opportunistic",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "prerender",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "available",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "templateArtifacts",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "prepared",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        }
+      ]
+    },
+    "diagnostics": []
+  },
+  "productionClosure": {
+    "schema": "xtend.maraca.production-bundle-closure.v1",
+    "ok": true,
+    "status": "ready",
+    "profile": "max",
+    "enforced": true,
+    "runtimeExpectedStatus": "booted",
+    "capabilityCount": 11,
+    "activeCount": 7,
+    "degradedCount": 0,
+    "blockedCount": 0,
+    "strictFallbackCount": 0,
+    "capabilities": [
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "orchestration",
+        "label": "App Orchestration",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "planned",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [
+          {
+            "code": "rmt.app_orchestration.hydration_policy_missing",
+            "severity": "warning",
+            "message": "Surface docs.diagnostics has no explicit lifecycle hydration record; runtime will use component lazy loading policy.",
+            "surface": "docs.diagnostics"
+          }
+        ],
+        "sourceToSea": {
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "artifactSchema": "xtend.rmt.app-orchestration.v1",
+          "runtimeModules": [
+            "xtendrmt/rmt-state-selector-runtime.js",
+            "xtendrmt/rmt-action-effect-runtime.js",
+            "xtendrmt/rmt-event-routing-runtime.js",
+            "xtendrmt/rmt-app-runtime.js",
+            "xtendrmt/rmt-surface-resource-graph-runtime.js",
+            "xtendrmt/rmt-dom-descriptor-renderer.js"
+          ]
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "kernel",
+        "label": "RMT Kernel",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "planned",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "artifactSchema": "xtend.rmt.kernel-orchestration.v1",
+          "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
+          "runtimeModules": [
+            "xtendrmt/rmt-kernel-orchestration-controller.js",
+            "xtendrmt/rmt-runtime.esm.js"
+          ]
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "lifecycle",
+        "label": "Lifecycle Engine",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "enforced",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "surfaceCount": 8,
+          "resourceCount": 5,
+          "kernelScheduled": true,
+          "hasKernelRuntime": true,
+          "hasSurfaceRuntime": true,
+          "hasSurfaceAdapterDestroy": true
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "telemetry",
+        "label": "Telemetry",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "available",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {},
+        "evidence": {
+          "devApis": [
+            "createTelemetrySnapshot",
+            "getPerformanceTelemetrySnapshot",
+            "listStreamPressureRecords",
+            "listYieldActions"
+          ],
+          "runtimeModules": [
+            "xtendrmt/rmt-app-runtime.js"
+          ]
+        }
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "performance",
+        "label": "Performance",
+        "supported": true,
+        "active": false,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "budget_misses",
+        "runtimeExpectedStatus": "report-only",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [
+          {
+            "code": "xtend.maraca.performance_budget_miss",
+            "severity": "warning",
+            "message": "Maraca performance budget command_turnaround exceeded for command_turnaround.",
+            "budgetId": "command_turnaround",
+            "endpointName": "command_turnaround",
+            "measurementPhase": "cold",
+            "durationMs": 64,
+            "waitMs": 1,
+            "totalMs": 65,
+            "violations": [
+              "duration_ms",
+              "total_ms",
+              "long_task_ms"
+            ]
+          }
+        ],
+        "sourceToSea": {},
+        "evidence": {
+          "budgetClasses": [
+            "visible_commit",
+            "command_turnaround",
+            "hydration_followup",
+            "retained_warm_reuse"
+          ],
+          "bundleFingerprint": null
+        }
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "policyParity",
+        "label": "Kernel Policy Parity",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "ready",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {},
+        "evidence": {
+          "driftCount": 0,
+          "missingFactories": []
+        }
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "prewarmWorker",
+        "label": "Prewarm Worker",
+        "supported": true,
+        "active": false,
+        "optional": true,
+        "requiredInProd": false,
+        "status": "disabled",
+        "runtimeExpectedStatus": "disabled",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "topologySchema": "xtend.rmt.prewarm-worker-topology.v1",
+          "ownership": {
+            "dom": false,
+            "events": false,
+            "state": false
+          }
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "uiCoprocessor",
+        "label": "UI Coprocessor",
+        "supported": true,
+        "active": false,
+        "optional": true,
+        "requiredInProd": false,
+        "status": "disabled",
+        "runtimeExpectedStatus": "disabled",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "eligibleRecordCount": 3,
+          "lanes": {
+            "workerHydrate": "component.worker_prerender_hydrate",
+            "prewarm": "component.prewarm.prepare",
+            "warmReentry": "component.warm.reentry",
+            "diagnostics": "diagnostics.snapshot"
+          },
+          "ownership": {
+            "dom": false,
+            "events": false,
+            "state": false,
+            "stateOwnership": "main-thread",
+            "trustedDomCommit": "main-thread",
+            "hostServices": "blocked-in-worker-path",
+            "ssrRoundtripCount": 0
+          }
+        },
+        "evidence": {
+          "releaseBlocking": false,
+          "pwaAttachment": {
+            "engineImplemented": false,
+            "manifestRef": "./xtend.webmanifest",
+            "cacheMode": "generated-app-shell",
+            "serviceWorkerControlled": false,
+            "offlineEligible": false,
+            "cacheVersion": "xtend-maraca-pwa-27355b0b2064",
+            "hooks": [
+              "cache-management",
+              "xstate-state-management",
+              "ssr-metadata",
+              "prewarm-warm-reentry-policy"
+            ]
+          }
+        }
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "warmReentry",
+        "label": "Warm Reentry",
+        "supported": true,
+        "active": true,
+        "optional": true,
+        "requiredInProd": true,
+        "status": "planned",
+        "runtimeExpectedStatus": "opportunistic",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {
+          "supportedFiberKinds": [
+            "template.prewarm",
+            "template.prerender",
+            "surface.prewarm",
+            "route.prewarm"
+          ],
+          "observedFiberKinds": [
+            "surface.prewarm"
+          ],
+          "sourceToSea": [
+            {
+              "operation": "operation:xtend.docs.php_ssr_shell/docs.router/idle/0",
+              "op": "prewarm",
+              "target": "docs-page-payload",
+              "sourceRef": "src:operation:xtend.docs.php_ssr_shell/docs.router/idle/0",
+              "schedulerEndpoint": "xtend.rmt.kernel.surface.prewarm.docs-page-payload.prewarm"
+            },
+            {
+              "operation": "operation:xtend.docs.php_ssr_shell/docs.page/idle/0",
+              "op": "prewarm",
+              "target": "docs-related-links",
+              "sourceRef": "src:operation:xtend.docs.php_ssr_shell/docs.page/idle/0",
+              "schedulerEndpoint": "xtend.rmt.kernel.surface.prewarm.docs-related-links.prewarm"
+            }
+          ]
+        },
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "prerender",
+        "label": "Prerender Interop",
+        "supported": true,
+        "active": false,
+        "optional": true,
+        "requiredInProd": false,
+        "status": "available",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {},
+        "evidence": {}
+      },
+      {
+        "schema": "xtend.maraca.production-bundle-capability.v1",
+        "key": "templateArtifacts",
+        "label": "Template Artifacts",
+        "supported": true,
+        "active": true,
+        "optional": false,
+        "requiredInProd": true,
+        "status": "prepared",
+        "runtimeExpectedStatus": "booted",
+        "degraded": false,
+        "blocked": false,
+        "diagnostics": [],
+        "sourceToSea": {},
+        "evidence": {
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "artifactBundleFingerprint": "fnv1a:9012904e",
+          "bundleFingerprint": null
+        }
+      }
+    ],
+    "capabilityKeys": [
+      "orchestration",
+      "kernel",
+      "lifecycle",
+      "telemetry",
+      "performance",
+      "policyParity",
+      "prewarmWorker",
+      "uiCoprocessor",
+      "warmReentry",
+      "prerender",
+      "templateArtifacts"
+    ],
+    "bundleBudget": {
+      "schema": "xtend.maraca.size-budget-report.v1",
+      "ok": true,
+      "status": "within_budget",
+      "mode": "strict",
+      "profile": "max",
+      "baselineBytes": 2171606,
+      "bundleBytes": 2031801,
+      "runtimeExpectedStatus": "booted"
+    },
+    "releaseConstraint": {
+      "schema": "xtend.maraca.production-bundle-release-constraint.v1",
+      "enforced": true,
+      "blocked": false,
+      "reason": "production-bundle-ready",
+      "sizeBudgetPass": true,
+      "strictFallbackCount": 0,
+      "blockedCapabilityKeys": []
+    },
+    "sourceToSea": {
+      "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+      "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+      "artifactFingerprints": {
+        "templateSource": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+        "templateBundle": "fnv1a:9012904e",
+        "bundle": null
+      },
+      "bundle": {
+        "fileCount": 10,
+        "entry": "xtend.maraca.mjs",
+        "bytes": 2031801
+      },
+      "runtimeFeatureStatus": [
+        {
+          "key": "orchestration",
+          "supported": true,
+          "active": true,
+          "status": "planned",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "kernel",
+          "supported": true,
+          "active": true,
+          "status": "planned",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "lifecycle",
+          "supported": true,
+          "active": true,
+          "status": "enforced",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "telemetry",
+          "supported": true,
+          "active": true,
+          "status": "available",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "performance",
+          "supported": true,
+          "active": false,
+          "status": "budget_misses",
+          "runtimeExpectedStatus": "report-only"
+        },
+        {
+          "key": "policyParity",
+          "supported": true,
+          "active": true,
+          "status": "ready",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "prewarmWorker",
+          "supported": true,
+          "active": false,
+          "status": "disabled",
+          "runtimeExpectedStatus": "disabled"
+        },
+        {
+          "key": "uiCoprocessor",
+          "supported": true,
+          "active": false,
+          "status": "disabled",
+          "runtimeExpectedStatus": "disabled"
+        },
+        {
+          "key": "warmReentry",
+          "supported": true,
+          "active": true,
+          "status": "planned",
+          "runtimeExpectedStatus": "opportunistic"
+        },
+        {
+          "key": "prerender",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeExpectedStatus": "booted"
+        },
+        {
+          "key": "templateArtifacts",
+          "supported": true,
+          "active": true,
+          "status": "prepared",
+          "runtimeExpectedStatus": "booted"
+        }
+      ],
+      "tests": [
+        "node scripts/run_xtend_tests.js maraca-bundle-report rmt-stack-docs epic14-rmt-tooling-release-gates --json",
+        "node scripts/run_xtend_tests.js maraca-bundle maraca-kernel-orchestration --json"
+      ],
+      "links": [
+        {
+          "capability": "orchestration",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "planned",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "kernel",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "planned",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "lifecycle",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "enforced",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "telemetry",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "available",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "performance",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "budget_misses",
+          "runtimeExpectedStatus": "report-only",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "policyParity",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "ready",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "prewarmWorker",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "disabled",
+          "runtimeExpectedStatus": "disabled",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "uiCoprocessor",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "disabled",
+          "runtimeExpectedStatus": "disabled",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "warmReentry",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "planned",
+          "runtimeExpectedStatus": "opportunistic",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "prerender",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "available",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        },
+        {
+          "capability": "templateArtifacts",
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "runtimeStatus": "prepared",
+          "runtimeExpectedStatus": "booted",
+          "bundleFingerprint": null,
+          "tests": [
+            "maraca-bundle-report",
+            "rmt-stack-docs",
+            "epic14-rmt-tooling-release-gates"
+          ]
+        }
+      ]
+    },
+    "diagnostics": []
+  },
+  "templateArtifacts": {
+    "schema": "xtend.maraca.template-artifacts-report.v1",
+    "ok": true,
+    "status": "prepared",
+    "supported": true,
+    "trusted": true,
+    "factory": {
+      "name": "createRmtTemplateArtifacts",
+      "supported": true,
+      "source": "rmt-manifest"
+    },
+    "documentIds": [
+      "xtend.docs.php_ssr_shell"
+    ],
+    "templateIds": [
+      "template:xtend.docs.php_ssr_shell"
+    ],
+    "documentCount": 1,
+    "templateCount": 1,
+    "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+    "artifactBundleFingerprint": "fnv1a:9012904e",
+    "bundleFingerprint": "sha256:a30c2435e985e2906d89130b94c33e12c0afb4005ccc2e4ca01be85b4a436534",
+    "runtimeProfileHints": [
+      "browser",
+      "detached_dom",
+      "worker_prerender",
+      "server_prerender"
+    ],
+    "documents": [
+      {
+        "kind": "rmt_template_artifact_document",
+        "version": "1.0",
+        "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:9369d067",
+        "documentId": "xtend.docs.php_ssr_shell",
+        "namespace": "xtend",
+        "sourceUrl": "docs/xtendrmt-docs-shell-vnext.rmt",
+        "contentType": "text/x-rmt",
+        "templateCount": 1,
+        "templateIds": [
+          "template:xtend.docs.php_ssr_shell"
+        ],
+        "metadata": {
+          "maraca": true,
+          "sourceHash": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "compilerSchema": "xtend.rmt.vnext-compiler.v1"
+        },
+        "reactivityHints": {},
+        "fingerprint": "fnv1a:9369d067",
+        "sourceFingerprint": "fnv1a:05119da0",
+        "templates": [
+          {
+            "kind": "rmt_prepared_template",
+            "version": "1.0",
+            "preparedAt": 0,
+            "id": "template:xtend.docs.php_ssr_shell",
+            "qualifiedId": "template:xtend.docs.php_ssr_shell",
+            "namespace": "xtend",
+            "documentId": "xtend.docs.php_ssr_shell",
+            "sourceUrl": "docs/xtendrmt-docs-shell-vnext.rmt",
+            "loaderHint": "xtend-maraca",
+            "mode": "orchestration",
+            "markup": "",
+            "props": [],
+            "bindings": [],
+            "slots": [],
+            "hydration": {},
+            "errorBoundary": {},
+            "metadata": {
+              "name": "xtend.docs.php_ssr_shell",
+              "surfaceRefs": [
+                "surface:xtend.docs.php_ssr_shell/docs.root",
+                "surface:xtend.docs.php_ssr_shell/docs.header",
+                "surface:xtend.docs.php_ssr_shell/docs.hero",
+                "surface:xtend.docs.php_ssr_shell/docs.router",
+                "surface:xtend.docs.php_ssr_shell/docs.page",
+                "surface:xtend.docs.php_ssr_shell/docs.sidebar",
+                "surface:xtend.docs.php_ssr_shell/docs.footer",
+                "surface:xtend.docs.php_ssr_shell/docs.diagnostics"
+              ],
+              "sourceRef": "src:template:xtend.docs.php_ssr_shell"
+            },
+            "reactivityHints": {},
+            "dependencyRefs": [],
+            "structureSignature": "fnv1a:1c9973fc",
+            "fingerprint": "fnv1a:fdaadc47",
+            "sourceFingerprint": "fnv1a:d4de4c73"
+          }
+        ],
+        "runtimeProfileHints": [
+          "browser",
+          "detached_dom",
+          "worker_prerender",
+          "server_prerender"
+        ],
+        "createdAt": 0
+      }
+    ],
+    "artifactBundle": {
+      "kind": "rmt_template_artifact_bundle",
+      "version": "1.0",
+      "manifest": {
+        "artifactVersion": "1.0",
+        "bundleId": "xtend.maraca.templates.xtend.docs.php_ssr_shell",
+        "createdAt": 0,
+        "releaseStage": "build-plan",
+        "runtimeProfileHints": [
+          "browser",
+          "detached_dom",
+          "worker_prerender",
+          "server_prerender"
+        ],
+        "metadata": {
+          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceHash": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "compilerSchema": "xtend.rmt.vnext-compiler.v1"
+        },
+        "documentCount": 1,
+        "templateCount": 1,
+        "fingerprint": "fnv1a:9012904e"
+      },
+      "documents": [
+        {
+          "kind": "rmt_template_artifact_document",
+          "version": "1.0",
+          "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:9369d067",
+          "documentId": "xtend.docs.php_ssr_shell",
+          "namespace": "xtend",
+          "sourceUrl": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "contentType": "text/x-rmt",
+          "templateCount": 1,
+          "templateIds": [
+            "template:xtend.docs.php_ssr_shell"
+          ],
+          "metadata": {
+            "maraca": true,
+            "sourceHash": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+            "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+            "compilerSchema": "xtend.rmt.vnext-compiler.v1"
+          },
+          "reactivityHints": {},
+          "fingerprint": "fnv1a:9369d067",
+          "sourceFingerprint": "fnv1a:05119da0",
+          "templates": [
+            {
+              "kind": "rmt_prepared_template",
+              "version": "1.0",
+              "preparedAt": 0,
+              "id": "template:xtend.docs.php_ssr_shell",
+              "qualifiedId": "template:xtend.docs.php_ssr_shell",
+              "namespace": "xtend",
+              "documentId": "xtend.docs.php_ssr_shell",
+              "sourceUrl": "docs/xtendrmt-docs-shell-vnext.rmt",
+              "loaderHint": "xtend-maraca",
+              "mode": "orchestration",
+              "markup": "",
+              "props": [],
+              "bindings": [],
+              "slots": [],
+              "hydration": {},
+              "errorBoundary": {},
+              "metadata": {
+                "name": "xtend.docs.php_ssr_shell",
+                "surfaceRefs": [
+                  "surface:xtend.docs.php_ssr_shell/docs.root",
+                  "surface:xtend.docs.php_ssr_shell/docs.header",
+                  "surface:xtend.docs.php_ssr_shell/docs.hero",
+                  "surface:xtend.docs.php_ssr_shell/docs.router",
+                  "surface:xtend.docs.php_ssr_shell/docs.page",
+                  "surface:xtend.docs.php_ssr_shell/docs.sidebar",
+                  "surface:xtend.docs.php_ssr_shell/docs.footer",
+                  "surface:xtend.docs.php_ssr_shell/docs.diagnostics"
+                ],
+                "sourceRef": "src:template:xtend.docs.php_ssr_shell"
+              },
+              "reactivityHints": {},
+              "dependencyRefs": [],
+              "structureSignature": "fnv1a:1c9973fc",
+              "fingerprint": "fnv1a:fdaadc47",
+              "sourceFingerprint": "fnv1a:d4de4c73"
+            }
+          ],
+          "runtimeProfileHints": [
+            "browser",
+            "detached_dom",
+            "worker_prerender",
+            "server_prerender"
+          ],
+          "createdAt": 0
+        }
+      ],
+      "templateIds": [
+        "template:xtend.docs.php_ssr_shell"
+      ]
+    },
+    "registration": {
+      "eligible": true,
+      "enabled": true,
+      "status": "bundle_embedded",
+      "reason": "trusted_bundle"
+    },
+    "sourceToSea": {
+      "compilerDocumentId": "xtend.docs.php_ssr_shell",
+      "artifactDocumentIds": [
+        "xtend.docs.php_ssr_shell"
+      ],
+      "documentIdsMatchCompiler": true,
+      "compilerTemplateIds": [
+        "template:xtend.docs.php_ssr_shell"
+      ],
+      "artifactTemplateIds": [
+        "template:xtend.docs.php_ssr_shell"
+      ],
+      "bundleFileCount": 10,
+      "bundleFingerprint": "sha256:a30c2435e985e2906d89130b94c33e12c0afb4005ccc2e4ca01be85b4a436534"
+    },
+    "diagnostics": []
+  },
+  "performance": {
+    "schema": "xtend.maraca.performance-report.v1",
+    "ok": true,
+    "status": "budget_misses",
+    "supported": true,
+    "runtimeExpectedStatus": "booted",
+    "factory": {
+      "name": "createRmtPerformanceRuntime",
+      "supported": true,
+      "source": "rmt-runtime"
+    },
+    "budgetClasses": [
+      "visible_commit",
+      "command_turnaround",
+      "hydration_followup",
+      "retained_warm_reuse"
+    ],
+    "budgetProfiles": [
+      {
+        "budgetId": "command_turnaround",
+        "label": "Command Turnaround",
+        "maxDurationMs": 18,
+        "maxWaitMs": 28,
+        "maxTotalMs": 36,
+        "maxLongTaskMs": 32
+      },
+      {
+        "budgetId": "hydration_followup",
+        "label": "Hydration Follow-up",
+        "maxDurationMs": 40,
+        "maxWaitMs": 160,
+        "maxTotalMs": 180,
+        "maxLongTaskMs": 80
+      },
+      {
+        "budgetId": "retained_warm_reuse",
+        "label": "Retained Warm Reuse",
+        "maxDurationMs": 12,
+        "maxWaitMs": 24,
+        "maxTotalMs": 28,
+        "maxLongTaskMs": 24
+      },
+      {
+        "budgetId": "visible_commit",
+        "label": "Visible Commit",
+        "maxDurationMs": 24,
+        "maxWaitMs": 48,
+        "maxTotalMs": 56,
+        "maxLongTaskMs": 50
+      }
+    ],
+    "budgetSnapshot": {
+      "runtimeKind": "maraca-build-performance",
+      "updatedAt": 0,
+      "reason": "maraca-build-plan",
+      "pressureLevel": "normal",
+      "totals": {
+        "totalCount": 4,
+        "withinBudgetCount": 3,
+        "violationCount": 1
+      },
+      "budgets": [
+        {
+          "budgetId": "command_turnaround",
+          "label": "Command Turnaround",
+          "totalCount": 1,
+          "withinBudgetCount": 0,
+          "violationCount": 1,
+          "maxDurationMs": 64,
+          "maxWaitMs": 1,
+          "maxTotalMs": 65,
+          "lastStatus": "budget_exceeded",
+          "lastMeasurementPhase": "cold",
+          "measurementPhaseCounts": {
+            "cold": 1
+          },
+          "lastRenderPackageId": "xtend-maraca",
+          "lastRootId": "xtend.docs.php_ssr_shell",
+          "endpointNames": [
+            "command_turnaround"
+          ],
+          "renderPackageIds": [
+            "xtend-maraca"
+          ]
+        },
+        {
+          "budgetId": "hydration_followup",
+          "label": "Hydration Follow-up",
+          "totalCount": 1,
+          "withinBudgetCount": 1,
+          "violationCount": 0,
+          "maxDurationMs": 10,
+          "maxWaitMs": 2,
+          "maxTotalMs": 12,
+          "lastStatus": "within_budget",
+          "lastMeasurementPhase": "warm",
+          "measurementPhaseCounts": {
+            "warm": 1
+          },
+          "lastRenderPackageId": "xtend-maraca",
+          "lastRootId": "xtend.docs.php_ssr_shell",
+          "endpointNames": [
+            "hydration_followup"
+          ],
+          "renderPackageIds": [
+            "xtend-maraca"
+          ]
+        },
+        {
+          "budgetId": "retained_warm_reuse",
+          "label": "Retained Warm Reuse",
+          "totalCount": 1,
+          "withinBudgetCount": 1,
+          "violationCount": 0,
+          "maxDurationMs": 4,
+          "maxWaitMs": 1,
+          "maxTotalMs": 5,
+          "lastStatus": "within_budget",
+          "lastMeasurementPhase": "retained",
+          "measurementPhaseCounts": {
+            "retained": 1
+          },
+          "lastRenderPackageId": "xtend-maraca",
+          "lastRootId": "xtend.docs.php_ssr_shell",
+          "endpointNames": [
+            "visible_commit"
+          ],
+          "renderPackageIds": [
+            "xtend-maraca"
+          ]
+        },
+        {
+          "budgetId": "visible_commit",
+          "label": "Visible Commit",
+          "totalCount": 1,
+          "withinBudgetCount": 1,
+          "violationCount": 0,
+          "maxDurationMs": 8,
+          "maxWaitMs": 1,
+          "maxTotalMs": 9,
+          "lastStatus": "within_budget",
+          "lastMeasurementPhase": "cold",
+          "measurementPhaseCounts": {
+            "cold": 1
+          },
+          "lastRenderPackageId": "xtend-maraca",
+          "lastRootId": "xtend.docs.php_ssr_shell",
+          "endpointNames": [
+            "visible_commit"
+          ],
+          "renderPackageIds": [
+            "xtend-maraca"
+          ]
+        }
+      ],
+      "phaseTotals": {
+        "totalCount": 4,
+        "withinBudgetCount": 3,
+        "violationCount": 1
+      },
+      "phases": [
+        {
+          "measurementPhase": "cold",
+          "totalCount": 2,
+          "withinBudgetCount": 1,
+          "violationCount": 1,
+          "maxDurationMs": 64,
+          "maxWaitMs": 1,
+          "maxTotalMs": 65,
+          "lastStatus": "budget_exceeded",
+          "budgetIds": [
+            "command_turnaround",
+            "visible_commit"
+          ],
+          "renderPackageIds": [
+            "xtend-maraca"
+          ]
+        },
+        {
+          "measurementPhase": "warm",
+          "totalCount": 1,
+          "withinBudgetCount": 1,
+          "violationCount": 0,
+          "maxDurationMs": 10,
+          "maxWaitMs": 2,
+          "maxTotalMs": 12,
+          "lastStatus": "within_budget",
+          "budgetIds": [
+            "hydration_followup"
+          ],
+          "renderPackageIds": [
+            "xtend-maraca"
+          ]
+        },
+        {
+          "measurementPhase": "retained",
+          "totalCount": 1,
+          "withinBudgetCount": 1,
+          "violationCount": 0,
+          "maxDurationMs": 4,
+          "maxWaitMs": 1,
+          "maxTotalMs": 5,
+          "lastStatus": "within_budget",
+          "budgetIds": [
+            "retained_warm_reuse"
+          ],
+          "renderPackageIds": [
+            "xtend-maraca"
+          ]
+        }
+      ],
+      "violations": [
+        {
+          "at": 2,
+          "budgetId": "command_turnaround",
+          "endpointName": "command_turnaround",
+          "measurementPhase": "cold",
+          "renderPackageId": "xtend-maraca",
+          "rootId": "xtend.docs.php_ssr_shell",
+          "durationMs": 64,
+          "waitMs": 1,
+          "totalMs": 65,
+          "violations": [
+            "duration_ms",
+            "total_ms",
+            "long_task_ms"
+          ]
+        }
+      ]
+    },
+    "budgetMissDiagnostics": [
+      {
+        "code": "xtend.maraca.performance_budget_miss",
+        "severity": "warning",
+        "message": "Maraca performance budget command_turnaround exceeded for command_turnaround.",
+        "budgetId": "command_turnaround",
+        "endpointName": "command_turnaround",
+        "measurementPhase": "cold",
+        "durationMs": 64,
+        "waitMs": 1,
+        "totalMs": 65,
+        "violations": [
+          "duration_ms",
+          "total_ms",
+          "long_task_ms"
+        ]
+      }
+    ],
+    "backpressureProfile": {
+      "kind": "rmt_backpressure_profile",
+      "runtimeKind": "maraca-build-performance",
+      "updatedAt": 0,
+      "reason": "maraca-build-plan",
+      "pressureLevel": "normal",
+      "internalPressureLevel": "normal",
+      "browserPressureLevel": "normal",
+      "fallbackActive": true,
+      "chunkScale": 1,
+      "followupChunkScale": 1,
+      "prewarmFootprintRatio": 1,
+      "prewarmMaxItems": 100000,
+      "prewarmMaxDomNodes": 250000,
+      "preferIdle": false,
+      "delayMultiplier": 1,
+      "signals": {
+        "browserSampleCount": 0,
+        "longTaskCount": 0,
+        "longFrameCount": 0,
+        "inputPendingCount": 0,
+        "maxHangMs": 0,
+        "maxFrameRequestMs": 0,
+        "maxInputDelayMs": 0,
+        "maxMemoryUsageRatio": 0
+      }
+    },
+    "runReport": {
+      "kind": "rmt_performance_run_report",
+      "runtimeKind": "maraca-build-performance",
+      "exportedAt": 0,
+      "reason": "maraca-build-plan",
+      "runId": "maraca:xtend.docs.php_ssr_shell",
+      "label": "XTend Maraca Build Plan",
+      "metadata": {
+        "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+        "documentId": "xtend.docs.php_ssr_shell",
+        "workpackage": "RKFA-03"
+      },
+      "filters": {
+        "endpointNames": [],
+        "measurementPhases": [],
+        "renderPackageIds": [],
+        "rootIds": []
+      },
+      "summary": {
+        "endpointCount": 3,
+        "sampleCount": 4,
+        "budgetCount": 4,
+        "phaseCount": 3,
+        "renderPackageCount": 1,
+        "rootCount": 1,
+        "violationCount": 1,
+        "firstSampleAt": 1,
+        "lastSampleAt": 4,
+        "windowMs": 3,
+        "pressureLevel": "normal"
+      },
+      "snapshot": {
+        "runtimeKind": "maraca-build-performance",
+        "updatedAt": 0,
+        "reason": "maraca-build-plan",
+        "pressureLevel": "normal",
+        "endpoints": [
+          {
+            "endpointName": "command_turnaround",
+            "endpointGroup": "command_turnaround",
+            "totalCount": 1,
+            "scheduledCount": 1,
+            "syncCount": 1,
+            "asyncCount": 0,
+            "errorCount": 0,
+            "avgDurationMs": 64,
+            "avgWaitMs": 1,
+            "maxDurationMs": 64,
+            "maxWaitMs": 1,
+            "lastAt": 2,
+            "lastDurationMs": 64,
+            "lastWaitMs": 1,
+            "lastStatus": "ok",
+            "budgetViolationCount": 1,
+            "lastBudgetStatus": "budget_exceeded",
+            "lastMeasurementPhase": "cold",
+            "measurementPhaseCounts": {
+              "cold": 1
+            },
+            "lastRenderPackageId": "xtend-maraca",
+            "lastRootId": "xtend.docs.php_ssr_shell"
+          },
+          {
+            "endpointName": "hydration_followup",
+            "endpointGroup": "hydration_followup",
+            "totalCount": 1,
+            "scheduledCount": 1,
+            "syncCount": 1,
+            "asyncCount": 0,
+            "errorCount": 0,
+            "avgDurationMs": 10,
+            "avgWaitMs": 2,
+            "maxDurationMs": 10,
+            "maxWaitMs": 2,
+            "lastAt": 3,
+            "lastDurationMs": 10,
+            "lastWaitMs": 2,
+            "lastStatus": "ok",
+            "budgetViolationCount": 0,
+            "lastBudgetStatus": "within_budget",
+            "lastMeasurementPhase": "warm",
+            "measurementPhaseCounts": {
+              "warm": 1
+            },
+            "lastRenderPackageId": "xtend-maraca",
+            "lastRootId": "xtend.docs.php_ssr_shell"
+          },
+          {
+            "endpointName": "visible_commit",
+            "endpointGroup": "visible_commit",
+            "totalCount": 2,
+            "scheduledCount": 2,
+            "syncCount": 2,
+            "asyncCount": 0,
+            "errorCount": 0,
+            "avgDurationMs": 6,
+            "avgWaitMs": 1,
+            "maxDurationMs": 8,
+            "maxWaitMs": 1,
+            "lastAt": 4,
+            "lastDurationMs": 4,
+            "lastWaitMs": 1,
+            "lastStatus": "ok",
+            "budgetViolationCount": 0,
+            "lastBudgetStatus": "within_budget",
+            "lastMeasurementPhase": "retained",
+            "measurementPhaseCounts": {
+              "cold": 1,
+              "retained": 1
+            },
+            "lastRenderPackageId": "xtend-maraca",
+            "lastRootId": "xtend.docs.php_ssr_shell"
+          }
+        ],
+        "history": [
+          {
+            "at": 1,
+            "endpointName": "visible_commit",
+            "endpointGroup": "visible_commit",
+            "budgetId": "visible_commit",
+            "budgetClass": "visible_commit",
+            "budgetStatus": "within_budget",
+            "budgetViolations": [],
+            "budgetThresholds": {
+              "maxDurationMs": 24,
+              "maxWaitMs": 48,
+              "maxTotalMs": 56,
+              "maxLongTaskMs": 50
+            },
+            "durationMs": 8,
+            "waitMs": 1,
+            "totalMs": 9,
+            "measurementPhase": "cold",
+            "renderPackageId": "xtend-maraca",
+            "rootId": "xtend.docs.php_ssr_shell",
+            "status": "ok",
+            "scheduled": true,
+            "async": false,
+            "metadata": {
+              "source": "xtend-maraca",
+              "workpackage": "RKFA-03"
+            }
+          },
+          {
+            "at": 2,
+            "endpointName": "command_turnaround",
+            "endpointGroup": "command_turnaround",
+            "budgetId": "command_turnaround",
+            "budgetClass": "command_turnaround",
+            "budgetStatus": "budget_exceeded",
+            "budgetViolations": [
+              "duration_ms",
+              "total_ms",
+              "long_task_ms"
+            ],
+            "budgetThresholds": {
+              "maxDurationMs": 18,
+              "maxWaitMs": 28,
+              "maxTotalMs": 36,
+              "maxLongTaskMs": 32
+            },
+            "durationMs": 64,
+            "waitMs": 1,
+            "totalMs": 65,
+            "measurementPhase": "cold",
+            "renderPackageId": "xtend-maraca",
+            "rootId": "xtend.docs.php_ssr_shell",
+            "status": "ok",
+            "scheduled": true,
+            "async": false,
+            "metadata": {
+              "source": "xtend-maraca",
+              "workpackage": "RKFA-03"
+            }
+          },
+          {
+            "at": 3,
+            "endpointName": "hydration_followup",
+            "endpointGroup": "hydration_followup",
+            "budgetId": "hydration_followup",
+            "budgetClass": "hydration_followup",
+            "budgetStatus": "within_budget",
+            "budgetViolations": [],
+            "budgetThresholds": {
+              "maxDurationMs": 40,
+              "maxWaitMs": 160,
+              "maxTotalMs": 180,
+              "maxLongTaskMs": 80
+            },
+            "durationMs": 10,
+            "waitMs": 2,
+            "totalMs": 12,
+            "measurementPhase": "warm",
+            "renderPackageId": "xtend-maraca",
+            "rootId": "xtend.docs.php_ssr_shell",
+            "status": "ok",
+            "scheduled": true,
+            "async": false,
+            "metadata": {
+              "source": "xtend-maraca",
+              "workpackage": "RKFA-03"
+            }
+          },
+          {
+            "at": 4,
+            "endpointName": "retained_warm_reuse",
+            "endpointGroup": "retained_warm_reuse",
+            "budgetId": "retained_warm_reuse",
+            "budgetClass": "retained_warm_reuse",
+            "budgetStatus": "within_budget",
+            "budgetViolations": [],
+            "budgetThresholds": {
+              "maxDurationMs": 12,
+              "maxWaitMs": 24,
+              "maxTotalMs": 28,
+              "maxLongTaskMs": 24
+            },
+            "durationMs": 4,
+            "waitMs": 1,
+            "totalMs": 5,
+            "measurementPhase": "retained",
+            "renderPackageId": "xtend-maraca",
+            "rootId": "xtend.docs.php_ssr_shell",
+            "status": "ok",
+            "scheduled": true,
+            "async": false,
+            "metadata": {
+              "source": "xtend-maraca",
+              "workpackage": "RKFA-03"
+            }
+          }
+        ],
+        "budgets": [
+          {
+            "budgetId": "command_turnaround",
+            "label": "Command Turnaround",
+            "totalCount": 1,
+            "withinBudgetCount": 0,
+            "violationCount": 1,
+            "maxDurationMs": 64,
+            "maxWaitMs": 1,
+            "maxTotalMs": 65,
+            "lastStatus": "budget_exceeded",
+            "lastMeasurementPhase": "cold",
+            "measurementPhaseCounts": {
+              "cold": 1
+            },
+            "lastRenderPackageId": "xtend-maraca",
+            "lastRootId": "xtend.docs.php_ssr_shell",
+            "endpointNames": [
+              "command_turnaround"
+            ],
+            "renderPackageIds": [
+              "xtend-maraca"
+            ]
+          },
+          {
+            "budgetId": "hydration_followup",
+            "label": "Hydration Follow-up",
+            "totalCount": 1,
+            "withinBudgetCount": 1,
+            "violationCount": 0,
+            "maxDurationMs": 10,
+            "maxWaitMs": 2,
+            "maxTotalMs": 12,
+            "lastStatus": "within_budget",
+            "lastMeasurementPhase": "warm",
+            "measurementPhaseCounts": {
+              "warm": 1
+            },
+            "lastRenderPackageId": "xtend-maraca",
+            "lastRootId": "xtend.docs.php_ssr_shell",
+            "endpointNames": [
+              "hydration_followup"
+            ],
+            "renderPackageIds": [
+              "xtend-maraca"
+            ]
+          },
+          {
+            "budgetId": "retained_warm_reuse",
+            "label": "Retained Warm Reuse",
+            "totalCount": 1,
+            "withinBudgetCount": 1,
+            "violationCount": 0,
+            "maxDurationMs": 4,
+            "maxWaitMs": 1,
+            "maxTotalMs": 5,
+            "lastStatus": "within_budget",
+            "lastMeasurementPhase": "retained",
+            "measurementPhaseCounts": {
+              "retained": 1
+            },
+            "lastRenderPackageId": "xtend-maraca",
+            "lastRootId": "xtend.docs.php_ssr_shell",
+            "endpointNames": [
+              "visible_commit"
+            ],
+            "renderPackageIds": [
+              "xtend-maraca"
+            ]
+          },
+          {
+            "budgetId": "visible_commit",
+            "label": "Visible Commit",
+            "totalCount": 1,
+            "withinBudgetCount": 1,
+            "violationCount": 0,
+            "maxDurationMs": 8,
+            "maxWaitMs": 1,
+            "maxTotalMs": 9,
+            "lastStatus": "within_budget",
+            "lastMeasurementPhase": "cold",
+            "measurementPhaseCounts": {
+              "cold": 1
+            },
+            "lastRenderPackageId": "xtend-maraca",
+            "lastRootId": "xtend.docs.php_ssr_shell",
+            "endpointNames": [
+              "visible_commit"
+            ],
+            "renderPackageIds": [
+              "xtend-maraca"
+            ]
+          }
+        ],
+        "budgetTotals": {
+          "totalCount": 4,
+          "withinBudgetCount": 3,
+          "violationCount": 1
+        },
+        "phaseTotals": {
+          "totalCount": 4,
+          "withinBudgetCount": 3,
+          "violationCount": 1
+        },
+        "phases": [
+          {
+            "measurementPhase": "cold",
+            "totalCount": 2,
+            "withinBudgetCount": 1,
+            "violationCount": 1,
+            "maxDurationMs": 64,
+            "maxWaitMs": 1,
+            "maxTotalMs": 65,
+            "lastStatus": "budget_exceeded",
+            "budgetIds": [
+              "command_turnaround",
+              "visible_commit"
+            ],
+            "renderPackageIds": [
+              "xtend-maraca"
+            ]
+          },
+          {
+            "measurementPhase": "warm",
+            "totalCount": 1,
+            "withinBudgetCount": 1,
+            "violationCount": 0,
+            "maxDurationMs": 10,
+            "maxWaitMs": 2,
+            "maxTotalMs": 12,
+            "lastStatus": "within_budget",
+            "budgetIds": [
+              "hydration_followup"
+            ],
+            "renderPackageIds": [
+              "xtend-maraca"
+            ]
+          },
+          {
+            "measurementPhase": "retained",
+            "totalCount": 1,
+            "withinBudgetCount": 1,
+            "violationCount": 0,
+            "maxDurationMs": 4,
+            "maxWaitMs": 1,
+            "maxTotalMs": 5,
+            "lastStatus": "within_budget",
+            "budgetIds": [
+              "retained_warm_reuse"
+            ],
+            "renderPackageIds": [
+              "xtend-maraca"
+            ]
+          }
+        ],
+        "budgetViolations": [
+          {
+            "at": 2,
+            "budgetId": "command_turnaround",
+            "endpointName": "command_turnaround",
+            "measurementPhase": "cold",
+            "renderPackageId": "xtend-maraca",
+            "rootId": "xtend.docs.php_ssr_shell",
+            "durationMs": 64,
+            "waitMs": 1,
+            "totalMs": 65,
+            "violations": [
+              "duration_ms",
+              "total_ms",
+              "long_task_ms"
+            ]
+          }
+        ],
+        "browserSignals": {
+          "kind": "rmt_browser_native_metrics",
+          "runtimeKind": "maraca-build-performance",
+          "updatedAt": 0,
+          "reason": "maraca-build-plan",
+          "available": true,
+          "started": false,
+          "fallbackActive": true,
+          "capabilities": {
+            "performanceObserver": false,
+            "supportedEntryTypes": [],
+            "longTask": false,
+            "eventTiming": false,
+            "firstInput": false,
+            "longAnimationFrame": false,
+            "animationFrame": true,
+            "schedulerIsInputPending": false,
+            "performanceMemory": false,
+            "measureUserAgentSpecificMemory": false,
+            "anyNativeSignal": true,
+            "observerSignal": false
+          },
+          "observers": [],
+          "observerErrors": [],
+          "lastMemory": null,
+          "lastInputPending": null,
+          "pressureLevel": "normal",
+          "summary": {
+            "sampleCount": 0,
+            "longTaskCount": 0,
+            "longFrameCount": 0,
+            "eventTimingCount": 0,
+            "firstInputCount": 0,
+            "inputPendingCount": 0,
+            "memorySampleCount": 0,
+            "avgDurationMs": 0,
+            "maxDurationMs": 0,
+            "avgWaitMs": 0,
+            "maxWaitMs": 0,
+            "avgFrameRequestMs": 0,
+            "maxFrameRequestMs": 0,
+            "avgInputDelayMs": 0,
+            "maxInputDelayMs": 0,
+            "maxMemoryUsageRatio": 0,
+            "lastAt": 0,
+            "pressureLevel": "normal"
+          },
+          "history": []
+        },
+        "metricComparison": {
+          "kind": "rmt_metric_comparison",
+          "runtimeKind": "maraca-build-performance",
+          "updatedAt": 0,
+          "reason": "maraca-build-plan",
+          "internal": {
+            "sampleCount": 4,
+            "avgDurationMs": 21.5,
+            "maxDurationMs": 64,
+            "avgWaitMs": 1.25,
+            "maxWaitMs": 2,
+            "longTaskCount": 1,
+            "pressureLevel": "normal"
+          },
+          "browserNative": {
+            "sampleCount": 0,
+            "avgDurationMs": 0,
+            "maxHangMs": 0,
+            "avgWaitMs": 0,
+            "maxWaitMs": 0,
+            "maxFrameRequestMs": 0,
+            "maxInputDelayMs": 0,
+            "longTaskCount": 0,
+            "longFrameCount": 0,
+            "inputPendingCount": 0,
+            "memorySampleCount": 0,
+            "pressureLevel": "normal"
+          },
+          "pressureDelta": 0,
+          "combinedPressureLevel": "normal"
+        },
+        "backpressureProfile": {
+          "kind": "rmt_backpressure_profile",
+          "runtimeKind": "maraca-build-performance",
+          "updatedAt": 0,
+          "reason": "maraca-build-plan",
+          "pressureLevel": "normal",
+          "internalPressureLevel": "normal",
+          "browserPressureLevel": "normal",
+          "fallbackActive": true,
+          "chunkScale": 1,
+          "followupChunkScale": 1,
+          "prewarmFootprintRatio": 1,
+          "prewarmMaxItems": 100000,
+          "prewarmMaxDomNodes": 250000,
+          "preferIdle": false,
+          "delayMultiplier": 1,
+          "signals": {
+            "browserSampleCount": 0,
+            "longTaskCount": 0,
+            "longFrameCount": 0,
+            "inputPendingCount": 0,
+            "maxHangMs": 0,
+            "maxFrameRequestMs": 0,
+            "maxInputDelayMs": 0,
+            "maxMemoryUsageRatio": 0
+          }
+        }
+      },
+      "renderPackages": [
+        {
+          "renderPackageId": "xtend-maraca",
+          "totalCount": 4,
+          "withinBudgetCount": 3,
+          "violationCount": 1,
+          "maxDurationMs": 64,
+          "maxWaitMs": 2,
+          "maxTotalMs": 65,
+          "lastAt": 4,
+          "lastMeasurementPhase": "retained",
+          "lastStatus": "within_budget",
+          "budgetIds": [
+            "command_turnaround",
+            "hydration_followup",
+            "retained_warm_reuse",
+            "visible_commit"
+          ],
+          "endpointNames": [
+            "command_turnaround",
+            "hydration_followup",
+            "visible_commit"
+          ],
+          "rootIds": [
+            "xtend.docs.php_ssr_shell"
+          ]
+        }
+      ],
+      "roots": [
+        {
+          "rootId": "xtend.docs.php_ssr_shell",
+          "totalCount": 4,
+          "withinBudgetCount": 3,
+          "violationCount": 1,
+          "maxDurationMs": 64,
+          "maxWaitMs": 2,
+          "maxTotalMs": 65,
+          "lastAt": 4,
+          "lastMeasurementPhase": "retained",
+          "lastStatus": "within_budget",
+          "budgetIds": [
+            "command_turnaround",
+            "hydration_followup",
+            "retained_warm_reuse",
+            "visible_commit"
+          ],
+          "endpointNames": [
+            "command_turnaround",
+            "hydration_followup",
+            "visible_commit"
+          ],
+          "renderPackageIds": [
+            "xtend-maraca"
+          ]
+        }
+      ]
+    },
+    "ciSummary": {
+      "kind": "rmt_performance_ci_summary",
+      "runtimeKind": "maraca-build-performance",
+      "createdAt": 0,
+      "summaryId": "summary:xtend.docs.php_ssr_shell",
+      "title": "XTend Maraca Performance Summary",
+      "metadata": {
+        "workpackage": "RKFA-03"
+      },
+      "text": "# XTend Maraca Performance Summary\n\n- Run: `maraca:xtend.docs.php_ssr_shell`\n- Samples: 4\n- Violations: 1\n- Pressure: normal"
+    },
+    "fileArtifact": {
+      "kind": "rmt_performance_file_artifact",
+      "artifactId": "artifact:xtend.docs.php_ssr_shell:performance",
+      "artifactType": "run_report",
+      "fileName": "xtend.maraca.performance.json",
+      "contentType": "application/json",
+      "bytes": 15385,
+      "payloadKind": "rmt_performance_run_report"
+    },
+    "baselineComparison": {
+      "kind": "rmt_performance_baseline_comparison",
+      "runtimeKind": "maraca-build-performance",
+      "comparedAt": 0,
+      "label": "XTend Maraca deterministic baseline comparison",
+      "runId": "maraca:xtend.docs.php_ssr_shell",
+      "baselineId": "baseline:xtend.docs.php_ssr_shell",
+      "runLabel": "XTend Maraca Build Plan",
+      "baselineLabel": "XTend Maraca deterministic baseline",
+      "summary": {
+        "sampleCountDelta": 0,
+        "violationCountDelta": 0,
+        "windowMsDelta": 0,
+        "budgetCountDelta": 0,
+        "phaseCountDelta": 0,
+        "renderPackageCountDelta": 0,
+        "rootCountDelta": 0
+      },
+      "budgets": [
+        {
+          "budgetId": "command_turnaround",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 1,
+          "baselineAvgTotalCount": 1,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 0,
+          "baselineAvgWithinBudgetCount": 0,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 1,
+          "baselineAvgViolationCount": 1,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 65,
+          "baselineAvgMaxTotalMs": 65,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "budget_exceeded",
+          "baselineLatestStatus": "budget_exceeded",
+          "reportLastMeasurementPhase": "cold",
+          "baselineLatestMeasurementPhase": "cold"
+        },
+        {
+          "budgetId": "hydration_followup",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 1,
+          "baselineAvgTotalCount": 1,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 1,
+          "baselineAvgWithinBudgetCount": 1,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 0,
+          "baselineAvgViolationCount": 0,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 12,
+          "baselineAvgMaxTotalMs": 12,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "within_budget",
+          "baselineLatestStatus": "within_budget",
+          "reportLastMeasurementPhase": "warm",
+          "baselineLatestMeasurementPhase": "warm"
+        },
+        {
+          "budgetId": "retained_warm_reuse",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 1,
+          "baselineAvgTotalCount": 1,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 1,
+          "baselineAvgWithinBudgetCount": 1,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 0,
+          "baselineAvgViolationCount": 0,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 5,
+          "baselineAvgMaxTotalMs": 5,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "within_budget",
+          "baselineLatestStatus": "within_budget",
+          "reportLastMeasurementPhase": "retained",
+          "baselineLatestMeasurementPhase": "retained"
+        },
+        {
+          "budgetId": "visible_commit",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 1,
+          "baselineAvgTotalCount": 1,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 1,
+          "baselineAvgWithinBudgetCount": 1,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 0,
+          "baselineAvgViolationCount": 0,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 9,
+          "baselineAvgMaxTotalMs": 9,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "within_budget",
+          "baselineLatestStatus": "within_budget",
+          "reportLastMeasurementPhase": "cold",
+          "baselineLatestMeasurementPhase": "cold"
+        }
+      ],
+      "phases": [
+        {
+          "measurementPhase": "cold",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 2,
+          "baselineAvgTotalCount": 2,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 1,
+          "baselineAvgWithinBudgetCount": 1,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 1,
+          "baselineAvgViolationCount": 1,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 65,
+          "baselineAvgMaxTotalMs": 65,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "budget_exceeded",
+          "baselineLatestStatus": "budget_exceeded",
+          "reportLastMeasurementPhase": "",
+          "baselineLatestMeasurementPhase": ""
+        },
+        {
+          "measurementPhase": "retained",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 1,
+          "baselineAvgTotalCount": 1,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 1,
+          "baselineAvgWithinBudgetCount": 1,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 0,
+          "baselineAvgViolationCount": 0,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 5,
+          "baselineAvgMaxTotalMs": 5,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "within_budget",
+          "baselineLatestStatus": "within_budget",
+          "reportLastMeasurementPhase": "",
+          "baselineLatestMeasurementPhase": ""
+        },
+        {
+          "measurementPhase": "warm",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 1,
+          "baselineAvgTotalCount": 1,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 1,
+          "baselineAvgWithinBudgetCount": 1,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 0,
+          "baselineAvgViolationCount": 0,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 12,
+          "baselineAvgMaxTotalMs": 12,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "within_budget",
+          "baselineLatestStatus": "within_budget",
+          "reportLastMeasurementPhase": "",
+          "baselineLatestMeasurementPhase": ""
+        }
+      ],
+      "renderPackages": [
+        {
+          "renderPackageId": "xtend-maraca",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 4,
+          "baselineAvgTotalCount": 4,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 3,
+          "baselineAvgWithinBudgetCount": 3,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 1,
+          "baselineAvgViolationCount": 1,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 65,
+          "baselineAvgMaxTotalMs": 65,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "within_budget",
+          "baselineLatestStatus": "within_budget",
+          "reportLastMeasurementPhase": "retained",
+          "baselineLatestMeasurementPhase": "retained"
+        }
+      ],
+      "roots": [
+        {
+          "rootId": "xtend.docs.php_ssr_shell",
+          "baselineRunCount": 1,
+          "baselineCoverage": 1,
+          "reportTotalCount": 4,
+          "baselineAvgTotalCount": 4,
+          "totalCountDelta": 0,
+          "reportWithinBudgetCount": 3,
+          "baselineAvgWithinBudgetCount": 3,
+          "withinBudgetDelta": 0,
+          "reportViolationCount": 1,
+          "baselineAvgViolationCount": 1,
+          "violationDelta": 0,
+          "reportMaxTotalMs": 65,
+          "baselineAvgMaxTotalMs": 65,
+          "maxTotalMsDelta": 0,
+          "reportLastStatus": "within_budget",
+          "baselineLatestStatus": "within_budget",
+          "reportLastMeasurementPhase": "retained",
+          "baselineLatestMeasurementPhase": "retained"
+        }
+      ]
+    },
+    "summary": {
+      "pressureLevel": "normal",
+      "sampleCount": 4,
+      "budgetCount": 4,
+      "violationCount": 1,
+      "ciSummaryAvailable": true,
+      "fileArtifactAvailable": true,
+      "baselineComparisonAvailable": true,
+      "runtimeExpectedStatus": "booted",
+      "bundleFingerprint": "sha256:a30c2435e985e2906d89130b94c33e12c0afb4005ccc2e4ca01be85b4a436534"
+    },
+    "diagnostics": [
+      {
+        "code": "xtend.maraca.performance_budget_miss",
+        "severity": "warning",
+        "message": "Maraca performance budget command_turnaround exceeded for command_turnaround.",
+        "budgetId": "command_turnaround",
+        "endpointName": "command_turnaround",
+        "measurementPhase": "cold",
+        "durationMs": 64,
+        "waitMs": 1,
+        "totalMs": 65,
+        "violations": [
+          "duration_ms",
+          "total_ms",
+          "long_task_ms"
+        ]
+      }
+    ],
+    "bundleFingerprint": "sha256:a30c2435e985e2906d89130b94c33e12c0afb4005ccc2e4ca01be85b4a436534"
+  },
+  "panicRecovery": {
+    "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
+    "supported": true,
+    "enabled": true,
+    "status": "available",
+    "lane": "diagnostics",
+    "runtimeExpectedStatus": "booted",
+    "devApis": [
+      "listTrustVerdicts",
+      "getPanicSnapshot",
+      "listPanicEvents",
+      "listSafeSnapshots",
+      "listRecoveryOutcomes",
+      "listPanicRecoveryRecords",
+      "getPanicRecoverySnapshot"
+    ],
+    "strictDiagnostics": {
+      "trustVerdict": true,
+      "panicEvent": true,
+      "recoveryOutcome": true,
+      "quarantineScope": true,
+      "safeSnapshot": true
+    },
+    "counters": {
+      "trustVerdictCount": 0,
+      "blockedTrustVerdictCount": 0,
+      "panicEventCount": 0,
+      "recoveryOutcomeCount": 0,
+      "safeSnapshotCount": 0,
+      "quarantineScopeCount": 0
+    },
+    "diagnostics": []
+  },
+  "trustedDom": {
+    "schema": "xtend.maraca.kernel-trusted-dom-report.v1",
+    "supported": true,
+    "status": "guarded",
+    "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+    "sanitizerSchema": "xtend.security.trusted-dom-sanitizer.v1",
+    "sinkAdapterSchema": "xtend.rmt.runtime-trust-sink-adapter.v1",
+    "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+    "panicCandidateSupported": true,
+    "strictDiagnostics": {
+      "trustVerdict": true,
+      "unsafeHtmlBlocked": true,
+      "panicCandidate": true
+    },
+    "diagnostics": []
+  },
+  "policyParity": {
+    "schema": "xtend.rmt.kernel-policy-parity-report.v1",
+    "paritySchema": "xtend.rmt.kernel-policy-parity.v1",
+    "matrixSchema": "xtend.rmt.kernel-policy-parity-matrix.v1",
+    "workpackage": "RKSH-WP-08",
+    "status": "ready",
+    "ok": true,
+    "compileTimeBlockCount": 0,
+    "appliedPolicyCount": 0,
+    "driftCount": 0,
+    "sourcePolicySchemas": [
+      "xtend.rmt.vnext-degradation-policy.v1",
+      "xtend.rmt.vnext-event-governance-policy.v1",
+      "xtend.rmt.vnext-remote-security-policy.v1",
+      "xtend.rmt.vnext-security-policy-contract.v1",
+      "xtend.rmt.vnext-streaming-contract.v1"
+    ],
+    "runtimeScopes": [
+      "binding-output",
+      "degraded-or-blocked-surface",
+      "event-delivery",
+      "remote-output",
+      "streaming-output",
+      "trusted-runtime-output"
+    ],
+    "runtimeCapabilities": {
+      "hooks": [
+        "abortScope",
+        "applyRemoteSurfacePolicy",
+        "commitTrustedAttribute",
+        "commitTrustedHtml",
+        "commitTrustedProperty",
+        "dispatchCommand",
+        "listEscalations",
+        "listRecoveryOutcomes",
+        "panicBlockScope",
+        "recordEscalation",
+        "recordTrustVerdict",
+        "recoverFromPanic",
+        "rememberSafeSnapshot",
+        "reportPerformanceSample"
+      ],
+      "missingDefaultHooks": []
+    },
+    "compileTimeBlocks": [],
+    "appliedPolicies": [],
+    "drift": [],
+    "requiredFactories": [
+      "recordTrustVerdict",
+      "commitTrustedHtml",
+      "commitTrustedAttribute",
+      "commitTrustedProperty",
+      "applyRemoteSurfacePolicy",
+      "recoverFromPanic",
+      "rememberSafeSnapshot",
+      "listRecoveryOutcomes",
+      "panicBlockScope",
+      "abortScope",
+      "reportPerformanceSample",
+      "dispatchCommand",
+      "recordEscalation",
+      "listEscalations"
+    ],
+    "missingFactories": [],
+    "unsafeTrustSinkCount": 0,
+    "bundleCapabilities": {
+      "runtimeModules": [
+        "xtendrmt/rmt-kernel-orchestration-controller.js",
+        "xtendrmt/rmt-runtime.esm.js"
+      ],
+      "runtimeTrustSinks": {
+        "required": [
+          "recordTrustVerdict",
+          "commitTrustedHtml",
+          "commitTrustedAttribute",
+          "commitTrustedProperty"
+        ],
+        "available": [
+          "recordTrustVerdict",
+          "commitTrustedHtml",
+          "commitTrustedAttribute",
+          "commitTrustedProperty"
+        ],
+        "missing": []
+      },
+      "surfaceLifecycle": {
+        "destroySurface": true,
+        "safeSnapshot": true,
+        "quarantineScope": true
+      },
+      "panicRecovery": {
+        "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
+        "supported": true,
+        "enabled": true,
+        "status": "available",
+        "lane": "diagnostics",
+        "runtimeExpectedStatus": "booted",
+        "devApis": [
+          "listTrustVerdicts",
+          "getPanicSnapshot",
+          "listPanicEvents",
+          "listSafeSnapshots",
+          "listRecoveryOutcomes",
+          "listPanicRecoveryRecords",
+          "getPanicRecoverySnapshot"
+        ],
+        "strictDiagnostics": {
+          "trustVerdict": true,
+          "panicEvent": true,
+          "recoveryOutcome": true,
+          "quarantineScope": true,
+          "safeSnapshot": true
+        },
+        "counters": {
+          "trustVerdictCount": 0,
+          "blockedTrustVerdictCount": 0,
+          "panicEventCount": 0,
+          "recoveryOutcomeCount": 0,
+          "safeSnapshotCount": 0,
+          "quarantineScopeCount": 0
+        },
+        "diagnostics": []
+      },
+      "trustedDom": {
+        "schema": "xtend.maraca.kernel-trusted-dom-report.v1",
+        "supported": true,
+        "status": "guarded",
+        "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+        "sanitizerSchema": "xtend.security.trusted-dom-sanitizer.v1",
+        "sinkAdapterSchema": "xtend.rmt.runtime-trust-sink-adapter.v1",
+        "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+        "panicCandidateSupported": true,
+        "strictDiagnostics": {
+          "trustVerdict": true,
+          "unsafeHtmlBlocked": true,
+          "panicCandidate": true
+        },
+        "diagnostics": []
+      }
+    },
+    "releaseConstraint": {
+      "schema": "xtend.maraca.policy-parity-release-constraint.v1",
+      "strict": false,
+      "enforced": true,
+      "blocked": false,
+      "reason": "policy-parity-ready"
+    },
+    "diagnostics": []
+  },
+  "runtimeModules": [
+    "xtendrmt/rmt-action-effect-runtime.js",
+    "xtendrmt/rmt-app-runtime.js",
+    "xtendrmt/rmt-dom-descriptor-renderer.js",
+    "xtendrmt/rmt-event-routing-runtime.js",
+    "xtendrmt/rmt-kernel-orchestration-controller.js",
+    "xtendrmt/rmt-runtime.esm.js",
+    "xtendrmt/rmt-state-selector-runtime.js",
+    "xtendrmt/rmt-surface-resource-graph-runtime.js"
+  ],
+  "stackModules": [
+    {
+      "id": "xtendrmt/rmt-action-effect-runtime.js",
+      "source": "xtendrmt/rmt-action-effect-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-app-runtime.js",
+      "source": "xtendrmt/rmt-app-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-dom-descriptor-renderer.js",
+      "source": "xtendrmt/rmt-dom-descriptor-renderer.js"
+    },
+    {
+      "id": "xtendrmt/rmt-event-routing-runtime.js",
+      "source": "xtendrmt/rmt-event-routing-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-kernel-orchestration-controller.js",
+      "source": "xtendrmt/rmt-kernel-orchestration-controller.js"
+    },
+    {
+      "id": "xtendrmt/rmt-runtime.esm.js",
+      "source": "xtendrmt/rmt-runtime.esm.js"
+    },
+    {
+      "id": "xtendrmt/rmt-state-selector-runtime.js",
+      "source": "xtendrmt/rmt-state-selector-runtime.js"
+    },
+    {
+      "id": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "source": "xtendrmt/rmt-surface-resource-graph-runtime.js"
+    }
+  ],
+  "orchestration": {
+    "schema": "xtend.maraca.orchestration-plan.v1",
+    "mode": "auto",
+    "enabled": true,
+    "status": "planned",
+    "planStatus": "planned",
+    "runtimeExpectedStatus": "booted",
+    "supported": true,
+    "artifactSchema": "xtend.rmt.app-orchestration.v1",
+    "runtimeModules": [
+      "xtendrmt/rmt-state-selector-runtime.js",
+      "xtendrmt/rmt-action-effect-runtime.js",
+      "xtendrmt/rmt-event-routing-runtime.js",
+      "xtendrmt/rmt-app-runtime.js",
+      "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "xtendrmt/rmt-dom-descriptor-renderer.js"
+    ],
+    "summary": {
+      "schema": "xtend.rmt.app-orchestration.v1",
+      "runtimeOrder": [
+        "kernel",
+        "state",
+        "resource",
+        "validation",
+        "animation",
+        "transition",
+        "action",
+        "event",
+        "surface",
+        "renderer"
+      ],
+      "stateCount": 5,
+      "selectorCount": 2,
+      "reducerCount": 2,
+      "actionCount": 2,
+      "eventCount": 1,
+      "surfaceCount": 8,
+      "portalCount": 2,
+      "overlayCount": 0,
+      "resourceCount": 5
+    },
+    "diagnostics": [
+      {
+        "code": "rmt.app_orchestration.hydration_policy_missing",
+        "severity": "warning",
+        "message": "Surface docs.diagnostics has no explicit lifecycle hydration record; runtime will use component lazy loading policy.",
+        "surface": "docs.diagnostics"
+      }
+    ]
+  },
+  "kernel": {
+    "schema": "xtend.maraca.kernel-plan.v1",
+    "mode": "auto",
+    "bootMode": "direct",
+    "enabled": true,
+    "status": "planned",
+    "planStatus": "planned",
+    "runtimeExpectedStatus": "booted",
+    "supported": true,
+    "artifactSchema": "xtend.rmt.kernel-orchestration.v1",
+    "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
+    "runtimeModules": [
+      "xtendrmt/rmt-kernel-orchestration-controller.js",
+      "xtendrmt/rmt-runtime.esm.js"
+    ],
+    "featureAdoption": {
+      "schema": "xtend.rmt-kernel-feature-adoption-report.v1",
+      "contract": "xtend.rmt-kernel-feature-adoption.v1",
+      "status": "ready",
+      "ok": true,
+      "capabilityKeys": [
+        "productSurface",
+        "templateArtifacts",
+        "performanceAdvancedReports",
+        "detachedRuntime",
+        "domCompat",
+        "warmReentry",
+        "prewarmWorker",
+        "uiCoprocessor",
+        "workerPrerender",
+        "serverPrerender",
+        "panicRecovery",
+        "policyParity"
+      ],
+      "capabilityCount": 12,
+      "supportedCount": 12,
+      "activeCount": 4,
+      "degradedCount": 0,
+      "blockedCount": 0,
+      "capabilities": [
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "productSurface",
+          "label": "Product Surface Bootstrap",
+          "category": "bootstrap",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeRequired": false,
+          "prodDefault": "off",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtProductSurface"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "templateArtifacts",
+          "label": "Template Artifacts",
+          "category": "source-to-sea",
+          "supported": true,
+          "active": true,
+          "status": "active",
+          "runtimeRequired": false,
+          "prodDefault": "off",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtTemplateArtifacts"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "performanceAdvancedReports",
+          "label": "Performance Runtime Advanced Reports",
+          "category": "telemetry",
+          "supported": true,
+          "active": true,
+          "status": "active",
+          "runtimeRequired": true,
+          "prodDefault": "auto",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtPerformanceRuntime"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "detachedRuntime",
+          "label": "Detached Runtime",
+          "category": "testability",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeRequired": true,
+          "prodDefault": "off",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtDetachedRuntime"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "domCompat",
+          "label": "DOM Compat",
+          "category": "surface-contract",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeRequired": true,
+          "prodDefault": "auto",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtDomCompat"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "warmReentry",
+          "label": "Warm Reentry",
+          "category": "prewarm",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeRequired": true,
+          "prodDefault": "off",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtPrewarmWorkerRuntime",
+            "createRmtPerformanceRuntime"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "prewarmWorker",
+          "label": "Prewarm Worker",
+          "category": "prewarm",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeRequired": true,
+          "prodDefault": "off",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtPrewarmWorkerRuntime"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "uiCoprocessor",
+          "label": "UI Coprocessor",
+          "category": "prewarm",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeRequired": true,
+          "prodDefault": "off",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtPrewarmWorkerRuntime"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "workerPrerender",
+          "label": "Worker Prerender",
+          "category": "prerender",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeRequired": true,
+          "prodDefault": "off",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtTemplateWorkerAdapter",
+            "createRmtWorkerPrerenderRuntime"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "serverPrerender",
+          "label": "Server Prerender",
+          "category": "prerender",
+          "supported": true,
+          "active": false,
+          "status": "available",
+          "runtimeRequired": true,
+          "prodDefault": "host",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": true,
+          "requiredFactories": [
+            "createRmtTemplateServerAdapter",
+            "createRmtServerPrerenderRuntime"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "panicRecovery",
+          "label": "Panic and Recovery",
+          "category": "security",
+          "supported": true,
+          "active": true,
+          "status": "active",
+          "runtimeRequired": true,
+          "prodDefault": "auto",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": false,
+          "requiredFactories": [
+            "createRmtTemplateExecutionPath"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        },
+        {
+          "schema": "xtend.rmt-kernel-feature-adoption.v1",
+          "key": "policyParity",
+          "label": "Policy Parity",
+          "category": "security",
+          "supported": true,
+          "active": true,
+          "status": "active",
+          "runtimeRequired": false,
+          "prodDefault": "auto",
+          "diagnosticsRequired": true,
+          "strictFallbackAllowed": false,
+          "requiredFactories": [
+            "createRmtKernelPolicyParity"
+          ],
+          "missingFactories": [],
+          "diagnostics": []
+        }
+      ],
+      "diagnostics": []
+    },
+    "productSurface": {
+      "schema": "xtend.maraca.kernel-product-surface-bootstrap.v1",
+      "bootMode": "direct",
+      "supported": true,
+      "status": "available",
+      "entryPoints": [
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtCore"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtDomCompat"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtRuntime"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtDetachedRuntime"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtWorkerRuntime"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtServerRuntime"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtPerformanceRuntime"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtProductManifest"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtPublicApi"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtTemplateApi"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtFormat"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtTemplateCompiler"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtTemplateArtifacts"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtTemplateRuntimeRenderer"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtTemplateExecutionPath"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtTemplateWorkerAdapter"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtTemplateServerAdapter"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtXRouterAdapter"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtXtendComponentAdapter"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtSurfaceAdapter"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtStateSchedulerDiagnosticsBridge"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtKernelPolicyParity"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtPrewarmWorkerSourceBuilder"
+        },
+        {
+          "kind": "appmodules_factory",
+          "name": "createRmtPrewarmWorkerRuntime"
+        },
+        {
+          "kind": "classic_global",
+          "name": "xtend.rmt"
+        }
+      ],
+      "entryPointCount": 25,
+      "entryPointNames": [
+        "createRmtCore",
+        "createRmtDomCompat",
+        "createRmtRuntime",
+        "createRmtDetachedRuntime",
+        "createRmtWorkerRuntime",
+        "createRmtServerRuntime",
+        "createRmtPerformanceRuntime",
+        "createRmtProductManifest",
+        "createRmtPublicApi",
+        "createRmtTemplateApi",
+        "createRmtFormat",
+        "createRmtTemplateCompiler",
+        "createRmtTemplateArtifacts",
+        "createRmtTemplateRuntimeRenderer",
+        "createRmtTemplateExecutionPath",
+        "createRmtTemplateWorkerAdapter",
+        "createRmtTemplateServerAdapter",
+        "createRmtXRouterAdapter",
+        "createRmtXtendComponentAdapter",
+        "createRmtSurfaceAdapter",
+        "createRmtStateSchedulerDiagnosticsBridge",
+        "createRmtKernelPolicyParity",
+        "createRmtPrewarmWorkerSourceBuilder",
+        "createRmtPrewarmWorkerRuntime",
+        "xtend.rmt"
+      ],
+      "optionalCompat": {
+        "browserHostAdapter": null
+      },
+      "runtimeFactories": {
+        "createRuntime": true,
+        "createCore": true,
+        "createPerformanceRuntime": true,
+        "createTemplateArtifacts": true,
+        "createWorkerRuntime": true,
+        "createServerRuntime": true,
+        "createDetachedDomRuntime": true
+      },
+      "diagnostics": []
+    },
+    "prewarmWorker": {
+      "schema": "xtend.maraca.prewarm-worker-runtime.v1",
+      "enabled": false,
+      "enabledBy": "none",
+      "supported": true,
+      "optional": true,
+      "status": "disabled",
+      "runtimeExpectedStatus": "disabled",
+      "workerName": "XTendRMTPrewarmWorker",
+      "workerType": "classic",
+      "topologySchema": "xtend.rmt.prewarm-worker-topology.v1",
+      "requiredHostApis": [
+        "Worker",
+        "Blob",
+        "URL.createObjectURL"
+      ],
+      "topologyFields": [
+        "health",
+        "pendingJobs",
+        "submittedJobs",
+        "templatesSynced",
+        "missingApis",
+        "lastError",
+        "coprocessor"
+      ],
+      "responsibilities": [
+        "template_prerender_compute",
+        "chunk_serialization",
+        "ui_compute",
+        "layout_precompute",
+        "analytics_precompute"
+      ],
+      "supportedSignals": [
+        "start",
+        "continue",
+        "rebatch",
+        "compute",
+        "ui_compute",
+        "prerender",
+        "invalidate"
+      ],
+      "ownership": {
+        "dom": false,
+        "events": false,
+        "state": false
+      },
+      "fallbackPolicy": {
+        "missingApis": "degrade-to-main-thread-prewarm",
+        "bootFailure": "report-diagnostic-and-disable-worker",
+        "visibleWorkPriority": "preserve-visible-and-user-blocking-work"
+      },
+      "coprocessor": {
+        "enabled": false,
+        "mode": "opportunistic",
+        "maxQueueDepth": 8,
+        "stalePolicy": "discard",
+        "lifecycle": "runtime",
+        "queueDepthMax": 0,
+        "status": "disabled",
+        "pendingJobs": 0,
+        "submittedJobs": 0,
+        "transferBytes": 0,
+        "staleResponses": 0,
+        "supersededResponses": 0,
+        "stateOwnership": "main-thread",
+        "trustedDomCommit": "main-thread",
+        "clientDetermined": true,
+        "ssrRoundtripCount": 0
+      },
+      "diagnostics": [],
+      "summary": {
+        "enabled": false,
+        "enabledBy": "none",
+        "supported": true,
+        "kernelEnabled": true,
+        "hasKernelRuntime": true,
+        "requiresHostApis": false,
+        "uiCoprocessorEnabled": false
+      }
+    },
+    "panicRecovery": {
+      "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
+      "supported": true,
+      "enabled": true,
+      "status": "available",
+      "lane": "diagnostics",
+      "runtimeExpectedStatus": "booted",
+      "devApis": [
+        "listTrustVerdicts",
+        "getPanicSnapshot",
+        "listPanicEvents",
+        "listSafeSnapshots",
+        "listRecoveryOutcomes",
+        "listPanicRecoveryRecords",
+        "getPanicRecoverySnapshot"
+      ],
+      "strictDiagnostics": {
+        "trustVerdict": true,
+        "panicEvent": true,
+        "recoveryOutcome": true,
+        "quarantineScope": true,
+        "safeSnapshot": true
+      },
+      "counters": {
+        "trustVerdictCount": 0,
+        "blockedTrustVerdictCount": 0,
+        "panicEventCount": 0,
+        "recoveryOutcomeCount": 0,
+        "safeSnapshotCount": 0,
+        "quarantineScopeCount": 0
+      },
+      "diagnostics": []
+    },
+    "trustedDom": {
+      "schema": "xtend.maraca.kernel-trusted-dom-report.v1",
+      "supported": true,
+      "status": "guarded",
+      "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+      "sanitizerSchema": "xtend.security.trusted-dom-sanitizer.v1",
+      "sinkAdapterSchema": "xtend.rmt.runtime-trust-sink-adapter.v1",
+      "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+      "panicCandidateSupported": true,
+      "strictDiagnostics": {
+        "trustVerdict": true,
+        "unsafeHtmlBlocked": true,
+        "panicCandidate": true
+      },
+      "diagnostics": []
+    },
+    "policyParity": {
+      "schema": "xtend.rmt.kernel-policy-parity-report.v1",
+      "paritySchema": "xtend.rmt.kernel-policy-parity.v1",
+      "matrixSchema": "xtend.rmt.kernel-policy-parity-matrix.v1",
+      "workpackage": "RKSH-WP-08",
+      "status": "ready",
+      "ok": true,
+      "compileTimeBlockCount": 0,
+      "appliedPolicyCount": 0,
+      "driftCount": 0,
+      "sourcePolicySchemas": [
+        "xtend.rmt.vnext-degradation-policy.v1",
+        "xtend.rmt.vnext-event-governance-policy.v1",
+        "xtend.rmt.vnext-remote-security-policy.v1",
+        "xtend.rmt.vnext-security-policy-contract.v1",
+        "xtend.rmt.vnext-streaming-contract.v1"
+      ],
+      "runtimeScopes": [
+        "binding-output",
+        "degraded-or-blocked-surface",
+        "event-delivery",
+        "remote-output",
+        "streaming-output",
+        "trusted-runtime-output"
+      ],
+      "runtimeCapabilities": {
+        "hooks": [
+          "abortScope",
+          "applyRemoteSurfacePolicy",
+          "commitTrustedAttribute",
+          "commitTrustedHtml",
+          "commitTrustedProperty",
+          "dispatchCommand",
+          "listEscalations",
+          "listRecoveryOutcomes",
+          "panicBlockScope",
+          "recordEscalation",
+          "recordTrustVerdict",
+          "recoverFromPanic",
+          "rememberSafeSnapshot",
+          "reportPerformanceSample"
+        ],
+        "missingDefaultHooks": []
+      },
+      "compileTimeBlocks": [],
+      "appliedPolicies": [],
+      "drift": [],
+      "requiredFactories": [
+        "recordTrustVerdict",
+        "commitTrustedHtml",
+        "commitTrustedAttribute",
+        "commitTrustedProperty",
+        "applyRemoteSurfacePolicy",
+        "recoverFromPanic",
+        "rememberSafeSnapshot",
+        "listRecoveryOutcomes",
+        "panicBlockScope",
+        "abortScope",
+        "reportPerformanceSample",
+        "dispatchCommand",
+        "recordEscalation",
+        "listEscalations"
+      ],
+      "missingFactories": [],
+      "unsafeTrustSinkCount": 0,
+      "bundleCapabilities": {
+        "runtimeModules": [
+          "xtendrmt/rmt-kernel-orchestration-controller.js",
+          "xtendrmt/rmt-runtime.esm.js"
+        ],
+        "runtimeTrustSinks": {
+          "required": [
+            "recordTrustVerdict",
+            "commitTrustedHtml",
+            "commitTrustedAttribute",
+            "commitTrustedProperty"
+          ],
+          "available": [
+            "recordTrustVerdict",
+            "commitTrustedHtml",
+            "commitTrustedAttribute",
+            "commitTrustedProperty"
+          ],
+          "missing": []
+        },
+        "surfaceLifecycle": {
+          "destroySurface": true,
+          "safeSnapshot": true,
+          "quarantineScope": true
+        },
+        "panicRecovery": {
+          "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
+          "supported": true,
+          "enabled": true,
+          "status": "available",
+          "lane": "diagnostics",
+          "runtimeExpectedStatus": "booted",
+          "devApis": [
+            "listTrustVerdicts",
+            "getPanicSnapshot",
+            "listPanicEvents",
+            "listSafeSnapshots",
+            "listRecoveryOutcomes",
+            "listPanicRecoveryRecords",
+            "getPanicRecoverySnapshot"
+          ],
+          "strictDiagnostics": {
+            "trustVerdict": true,
+            "panicEvent": true,
+            "recoveryOutcome": true,
+            "quarantineScope": true,
+            "safeSnapshot": true
+          },
+          "counters": {
+            "trustVerdictCount": 0,
+            "blockedTrustVerdictCount": 0,
+            "panicEventCount": 0,
+            "recoveryOutcomeCount": 0,
+            "safeSnapshotCount": 0,
+            "quarantineScopeCount": 0
+          },
+          "diagnostics": []
+        },
+        "trustedDom": {
+          "schema": "xtend.maraca.kernel-trusted-dom-report.v1",
+          "supported": true,
+          "status": "guarded",
+          "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+          "sanitizerSchema": "xtend.security.trusted-dom-sanitizer.v1",
+          "sinkAdapterSchema": "xtend.rmt.runtime-trust-sink-adapter.v1",
+          "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+          "panicCandidateSupported": true,
+          "strictDiagnostics": {
+            "trustVerdict": true,
+            "unsafeHtmlBlocked": true,
+            "panicCandidate": true
+          },
+          "diagnostics": []
+        }
+      },
+      "releaseConstraint": {
+        "schema": "xtend.maraca.policy-parity-release-constraint.v1",
+        "strict": false,
+        "enforced": true,
+        "blocked": false,
+        "reason": "policy-parity-ready"
+      },
+      "diagnostics": []
+    },
+    "security": {
+      "schema": "xtend.maraca.kernel-security-report.v1",
+      "supported": true,
+      "status": "available",
+      "panicRecovery": {
+        "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
+        "supported": true,
+        "enabled": true,
+        "status": "available",
+        "lane": "diagnostics",
+        "runtimeExpectedStatus": "booted",
+        "devApis": [
+          "listTrustVerdicts",
+          "getPanicSnapshot",
+          "listPanicEvents",
+          "listSafeSnapshots",
+          "listRecoveryOutcomes",
+          "listPanicRecoveryRecords",
+          "getPanicRecoverySnapshot"
+        ],
+        "strictDiagnostics": {
+          "trustVerdict": true,
+          "panicEvent": true,
+          "recoveryOutcome": true,
+          "quarantineScope": true,
+          "safeSnapshot": true
+        },
+        "counters": {
+          "trustVerdictCount": 0,
+          "blockedTrustVerdictCount": 0,
+          "panicEventCount": 0,
+          "recoveryOutcomeCount": 0,
+          "safeSnapshotCount": 0,
+          "quarantineScopeCount": 0
+        },
+        "diagnostics": []
+      },
+      "trustedDom": {
+        "schema": "xtend.maraca.kernel-trusted-dom-report.v1",
+        "supported": true,
+        "status": "guarded",
+        "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+        "sanitizerSchema": "xtend.security.trusted-dom-sanitizer.v1",
+        "sinkAdapterSchema": "xtend.rmt.runtime-trust-sink-adapter.v1",
+        "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+        "panicCandidateSupported": true,
+        "strictDiagnostics": {
+          "trustVerdict": true,
+          "unsafeHtmlBlocked": true,
+          "panicCandidate": true
+        },
+        "diagnostics": []
+      },
+      "policyParity": {
+        "schema": "xtend.rmt.kernel-policy-parity-report.v1",
+        "paritySchema": "xtend.rmt.kernel-policy-parity.v1",
+        "matrixSchema": "xtend.rmt.kernel-policy-parity-matrix.v1",
+        "workpackage": "RKSH-WP-08",
+        "status": "ready",
+        "ok": true,
+        "compileTimeBlockCount": 0,
+        "appliedPolicyCount": 0,
+        "driftCount": 0,
+        "sourcePolicySchemas": [
+          "xtend.rmt.vnext-degradation-policy.v1",
+          "xtend.rmt.vnext-event-governance-policy.v1",
+          "xtend.rmt.vnext-remote-security-policy.v1",
+          "xtend.rmt.vnext-security-policy-contract.v1",
+          "xtend.rmt.vnext-streaming-contract.v1"
+        ],
+        "runtimeScopes": [
+          "binding-output",
+          "degraded-or-blocked-surface",
+          "event-delivery",
+          "remote-output",
+          "streaming-output",
+          "trusted-runtime-output"
+        ],
+        "runtimeCapabilities": {
+          "hooks": [
+            "abortScope",
+            "applyRemoteSurfacePolicy",
+            "commitTrustedAttribute",
+            "commitTrustedHtml",
+            "commitTrustedProperty",
+            "dispatchCommand",
+            "listEscalations",
+            "listRecoveryOutcomes",
+            "panicBlockScope",
+            "recordEscalation",
+            "recordTrustVerdict",
+            "recoverFromPanic",
+            "rememberSafeSnapshot",
+            "reportPerformanceSample"
+          ],
+          "missingDefaultHooks": []
+        },
+        "compileTimeBlocks": [],
+        "appliedPolicies": [],
+        "drift": [],
+        "requiredFactories": [
+          "recordTrustVerdict",
+          "commitTrustedHtml",
+          "commitTrustedAttribute",
+          "commitTrustedProperty",
+          "applyRemoteSurfacePolicy",
+          "recoverFromPanic",
+          "rememberSafeSnapshot",
+          "listRecoveryOutcomes",
+          "panicBlockScope",
+          "abortScope",
+          "reportPerformanceSample",
+          "dispatchCommand",
+          "recordEscalation",
+          "listEscalations"
+        ],
+        "missingFactories": [],
+        "unsafeTrustSinkCount": 0,
+        "bundleCapabilities": {
+          "runtimeModules": [
+            "xtendrmt/rmt-kernel-orchestration-controller.js",
+            "xtendrmt/rmt-runtime.esm.js"
+          ],
+          "runtimeTrustSinks": {
+            "required": [
+              "recordTrustVerdict",
+              "commitTrustedHtml",
+              "commitTrustedAttribute",
+              "commitTrustedProperty"
+            ],
+            "available": [
+              "recordTrustVerdict",
+              "commitTrustedHtml",
+              "commitTrustedAttribute",
+              "commitTrustedProperty"
+            ],
+            "missing": []
+          },
+          "surfaceLifecycle": {
+            "destroySurface": true,
+            "safeSnapshot": true,
+            "quarantineScope": true
+          },
+          "panicRecovery": {
+            "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
+            "supported": true,
+            "enabled": true,
+            "status": "available",
+            "lane": "diagnostics",
+            "runtimeExpectedStatus": "booted",
+            "devApis": [
+              "listTrustVerdicts",
+              "getPanicSnapshot",
+              "listPanicEvents",
+              "listSafeSnapshots",
+              "listRecoveryOutcomes",
+              "listPanicRecoveryRecords",
+              "getPanicRecoverySnapshot"
+            ],
+            "strictDiagnostics": {
+              "trustVerdict": true,
+              "panicEvent": true,
+              "recoveryOutcome": true,
+              "quarantineScope": true,
+              "safeSnapshot": true
+            },
+            "counters": {
+              "trustVerdictCount": 0,
+              "blockedTrustVerdictCount": 0,
+              "panicEventCount": 0,
+              "recoveryOutcomeCount": 0,
+              "safeSnapshotCount": 0,
+              "quarantineScopeCount": 0
+            },
+            "diagnostics": []
+          },
+          "trustedDom": {
+            "schema": "xtend.maraca.kernel-trusted-dom-report.v1",
+            "supported": true,
+            "status": "guarded",
+            "trustBoundary": "xtend.security.sanitizing-boundary.v1",
+            "sanitizerSchema": "xtend.security.trusted-dom-sanitizer.v1",
+            "sinkAdapterSchema": "xtend.rmt.runtime-trust-sink-adapter.v1",
+            "verdictSchema": "xtend.rmt.kernel-trust-verdict.v1",
+            "panicCandidateSupported": true,
+            "strictDiagnostics": {
+              "trustVerdict": true,
+              "unsafeHtmlBlocked": true,
+              "panicCandidate": true
+            },
+            "diagnostics": []
+          }
+        },
+        "releaseConstraint": {
+          "schema": "xtend.maraca.policy-parity-release-constraint.v1",
+          "strict": false,
+          "enforced": true,
+          "blocked": false,
+          "reason": "policy-parity-ready"
+        },
+        "diagnostics": []
+      },
+      "diagnostics": []
+    },
+    "performanceSummary": {
+      "pressureLevel": "normal",
+      "sampleCount": 4,
+      "budgetCount": 4,
+      "violationCount": 1,
+      "ciSummaryAvailable": true,
+      "fileArtifactAvailable": true,
+      "baselineComparisonAvailable": true,
+      "runtimeExpectedStatus": "booted",
+      "bundleFingerprint": "sha256:a30c2435e985e2906d89130b94c33e12c0afb4005ccc2e4ca01be85b4a436534"
+    },
+    "summary": {
+      "schema": "xtend.rmt.kernel-orchestration.v1",
+      "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
+      "boundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "scheduleCount": 37,
+      "fiberCount": 37,
+      "laneCount": 6,
+      "endpointCount": 37,
+      "runtimeModules": [
+        "xtendrmt/rmt-kernel-orchestration-controller.js",
+        "xtendrmt/rmt-runtime.esm.js"
+      ],
+      "featureAdoptionStatus": "ready",
+      "productSurfaceStatus": "available",
+      "prewarmWorkerStatus": "disabled",
+      "panicRecoveryStatus": "available",
+      "trustedDomStatus": "guarded",
+      "policyParityStatus": "ready",
+      "policyParityOk": true,
+      "policyParityDriftCount": 0,
+      "policyParityMissingFactoryCount": 0
+    },
+    "diagnostics": []
+  },
+  "hydration": {
+    "schema": "xtend.maraca.hydration-plan.v1",
+    "mode": "auto",
+    "enabled": true,
+    "status": "planned",
+    "planStatus": "planned",
+    "runtimeExpectedStatus": "booted",
+    "supported": true,
+    "artifactSchema": "xtend.rmt.app-hydration-plan.v1",
+    "runtimeModules": [],
+    "workerPrerender": {
+      "schema": "xtend.rmt.app-hydration-capability.v1",
+      "id": "workerPrerender",
+      "mode": "worker_prerender_hydrate",
+      "supported": true,
+      "degraded": false,
+      "status": "available",
+      "requested": false,
+      "recordCount": 0,
+      "runtimeHooks": [
+        "createRmtWorkerPrerenderRuntime",
+        "hydrateResponse",
+        "commitTrustedHtml"
+      ],
+      "fabric": {
+        "lane": "background",
+        "fiberKind": "component.worker_prerender_hydrate",
+        "scheduleRef": "component.worker_prerender_hydrate",
+        "endpointName": "xtendrmt.component.worker_prerender_hydrate"
+      },
+      "validation": {
+        "generationRequired": true,
+        "staleResponses": "discard",
+        "hostServices": "blocked-in-worker-path",
+        "trustedDomCommit": "main-thread"
+      }
+    },
+    "uiCoprocessor": {
+      "schema": "xtend.rmt.app-hydration-capability.v1",
+      "id": "uiCoprocessor",
+      "mode": "ui_compute",
+      "supported": true,
+      "degraded": false,
+      "status": "available",
+      "requested": true,
+      "recordCount": 3,
+      "runtimeHooks": [
+        "requestUiCompute",
+        "dispatchUiComputeEnvelope",
+        "hydrateResponse"
+      ],
+      "fabric": {
+        "lanes": [
+          "background",
+          "idle"
+        ],
+        "scheduleRefs": [
+          "component.worker_prerender_hydrate",
+          "component.prewarm.prepare",
+          "component.warm.reentry",
+          "diagnostics.snapshot"
+        ]
+      },
+      "validation": {
+        "generationRequired": true,
+        "staleResponses": "discard",
+        "hostServices": "blocked-in-worker-path",
+        "trustedDomCommit": "main-thread",
+        "stateOwnership": "main-thread",
+        "ssrRoundtripCount": 0
+      }
+    },
+    "serverPrerender": {
+      "schema": "xtend.maraca.server-prerender-interop.v1",
+      "id": "serverPrerender",
+      "mode": "server_prerender_hydrate",
+      "supported": true,
+      "degraded": false,
+      "status": "available",
+      "requested": false,
+      "recordCount": 0,
+      "hydrateResponseCompatible": true,
+      "adapterKinds": [
+        {
+          "kind": "kernel-server-runtime",
+          "adapterSchema": "xtend.rmt.template-server-adapter.v1",
+          "supportStatus": "available",
+          "hydrateResponseCompatible": true
+        },
+        {
+          "kind": "node-ssr",
+          "adapterSchema": "xtend.rmt.node-ssr-adapter.v1",
+          "supportStatus": "supported",
+          "hydrateResponseCompatible": true
+        },
+        {
+          "kind": "php-ssr",
+          "adapterSchema": "xtend.rmt.php-ssr-adapter.v1",
+          "supportStatus": "supported",
+          "hydrateResponseCompatible": true
+        }
+      ],
+      "evidence": {
+        "artifactSchema": "xtend.rmt.app-hydration-plan.v1",
+        "sourceToSeaFlow": "server_prerender_hydrate",
+        "responseEnvelopeKind": "rmt_template_prerender_response",
+        "chunkKind": "rmt_template_chunk"
+      },
+      "diagnostics": []
+    },
+    "summary": {
+      "schema": "xtend.rmt.app-hydration-plan.v1",
+      "recordCount": 10,
+      "supportedModeCount": 19,
+      "supportedModes": [
+        "runtime_render",
+        "hydrate_prerendered",
+        "server_prerender_hydrate",
+        "server_prerender_resume",
+        "worker_prerender_hydrate",
+        "worker_prerender_resume",
+        "warm",
+        "prewarm",
+        "visible",
+        "idle",
+        "lazy",
+        "eager",
+        "open",
+        "route",
+        "managed_subtree",
+        "observe_only",
+        "manual",
+        "none",
+        "insular"
+      ],
+      "hydrationPolicyCount": 3,
+      "insularIslandCount": 0,
+      "workerPrerender": {
+        "schema": "xtend.rmt.app-hydration-capability.v1",
+        "id": "workerPrerender",
+        "mode": "worker_prerender_hydrate",
+        "supported": true,
+        "degraded": false,
+        "status": "available",
+        "requested": false,
+        "recordCount": 0,
+        "runtimeHooks": [
+          "createRmtWorkerPrerenderRuntime",
+          "hydrateResponse",
+          "commitTrustedHtml"
+        ],
+        "fabric": {
+          "lane": "background",
+          "fiberKind": "component.worker_prerender_hydrate",
+          "scheduleRef": "component.worker_prerender_hydrate",
+          "endpointName": "xtendrmt.component.worker_prerender_hydrate"
+        },
+        "validation": {
+          "generationRequired": true,
+          "staleResponses": "discard",
+          "hostServices": "blocked-in-worker-path",
+          "trustedDomCommit": "main-thread"
+        }
+      },
+      "uiCoprocessor": {
+        "schema": "xtend.rmt.app-hydration-capability.v1",
+        "id": "uiCoprocessor",
+        "mode": "ui_compute",
+        "supported": true,
+        "degraded": false,
+        "status": "available",
+        "requested": true,
+        "recordCount": 3,
+        "runtimeHooks": [
+          "requestUiCompute",
+          "dispatchUiComputeEnvelope",
+          "hydrateResponse"
+        ],
+        "fabric": {
+          "lanes": [
+            "background",
+            "idle"
+          ],
+          "scheduleRefs": [
+            "component.worker_prerender_hydrate",
+            "component.prewarm.prepare",
+            "component.warm.reentry",
+            "diagnostics.snapshot"
+          ]
+        },
+        "validation": {
+          "generationRequired": true,
+          "staleResponses": "discard",
+          "hostServices": "blocked-in-worker-path",
+          "trustedDomCommit": "main-thread",
+          "stateOwnership": "main-thread",
+          "ssrRoundtripCount": 0
+        }
+      },
+      "serverPrerender": {
+        "schema": "xtend.maraca.server-prerender-interop.v1",
+        "id": "serverPrerender",
+        "mode": "server_prerender_hydrate",
+        "supported": true,
+        "degraded": false,
+        "status": "available",
+        "requested": false,
+        "recordCount": 0,
+        "hydrateResponseCompatible": true,
+        "adapterKinds": [
+          {
+            "kind": "kernel-server-runtime",
+            "adapterSchema": "xtend.rmt.template-server-adapter.v1",
+            "supportStatus": "available",
+            "hydrateResponseCompatible": true
+          },
+          {
+            "kind": "node-ssr",
+            "adapterSchema": "xtend.rmt.node-ssr-adapter.v1",
+            "supportStatus": "supported",
+            "hydrateResponseCompatible": true
+          },
+          {
+            "kind": "php-ssr",
+            "adapterSchema": "xtend.rmt.php-ssr-adapter.v1",
+            "supportStatus": "supported",
+            "hydrateResponseCompatible": true
+          }
+        ],
+        "evidence": {
+          "artifactSchema": "xtend.rmt.app-hydration-plan.v1",
+          "sourceToSeaFlow": "server_prerender_hydrate",
+          "responseEnvelopeKind": "rmt_template_prerender_response",
+          "chunkKind": "rmt_template_chunk"
+        },
+        "diagnostics": []
+      },
+      "hydrateResponseCompatible": true,
+      "strictViolations": 0,
+      "kernelRequired": false,
+      "runtimeExpectedStatus": "booted"
+    },
+    "diagnostics": [
+      {
+        "code": "rmt.app_orchestration.hydration_policy_missing",
+        "severity": "warning",
+        "message": "Surface docs.diagnostics has no explicit lifecycle hydration record; runtime will use component lazy loading policy.",
+        "surface": "docs.diagnostics"
+      }
+    ]
+  },
+  "warmReentry": {
+    "schema": "xtend.maraca.warm-reentry-report.v1",
+    "ok": true,
+    "enabled": true,
+    "status": "planned",
+    "runtimeExpectedStatus": "opportunistic",
+    "optional": true,
+    "supportedFiberKinds": [
+      "template.prewarm",
+      "template.prerender",
+      "surface.prewarm",
+      "route.prewarm"
+    ],
+    "observedFiberKinds": [
+      "surface.prewarm"
+    ],
+    "backpressurePolicy": {
+      "high": "reduce-prewarm",
+      "critical": "pause-prewarm",
+      "visibleWorkPriority": "preserve-visible-and-user-blocking-work"
+    },
+    "destroyInvalidation": {
+      "destroySurfaceInvalidatesPrewarm": true,
+      "destroySurfaceInvalidatesChunks": true,
+      "surfaceManagerMethods": [
+        "registerSurfacePrewarmHandle",
+        "registerSurfaceChunkHandle"
+      ],
+      "cleanupSchema": "xtend.surface.warm-reentry-invalidation.v1"
+    },
+    "summary": {
+      "active": true,
+      "operationCount": 2,
+      "hydrationRecordCount": 2,
+      "scheduleCount": 2,
+      "observedFiberKindCount": 1,
+      "backpressureCriticalAction": "pause-prewarm",
+      "destroyInvalidation": true
+    },
+    "diagnostics": []
+  },
+  "uiCoprocessor": {
+    "schema": "xtend.maraca.ui-coprocessor-plan.v1",
+    "enabled": false,
+    "supported": true,
+    "optional": true,
+    "status": "disabled",
+    "runtimeExpectedStatus": "disabled",
+    "mode": "opportunistic",
+    "lifecycle": "runtime",
+    "maxQueueDepth": 8,
+    "stalePolicy": "discard",
+    "evidenceMode": "non-blocking",
+    "eligibility": {
+      "recordCount": 10,
+      "eligibleRecordCount": 3,
+      "activeRecordCount": 0,
+      "activeRecordIds": []
+    },
+    "ownership": {
+      "dom": false,
+      "events": false,
+      "state": false,
+      "stateOwnership": "main-thread",
+      "trustedDomCommit": "main-thread",
+      "hostServices": "blocked-in-worker-path",
+      "ssrRoundtripCount": 0
+    },
+    "lanes": {
+      "workerHydrate": "component.worker_prerender_hydrate",
+      "prewarm": "component.prewarm.prepare",
+      "warmReentry": "component.warm.reentry",
+      "diagnostics": "diagnostics.snapshot"
+    },
+    "pwaAttachment": {
+      "engineImplemented": false,
+      "manifestRef": "./xtend.webmanifest",
+      "cacheMode": "generated-app-shell",
+      "serviceWorkerControlled": false,
+      "offlineEligible": false,
+      "cacheVersion": "xtend-maraca-pwa-27355b0b2064",
+      "hooks": [
+        "cache-management",
+        "xstate-state-management",
+        "ssr-metadata",
+        "prewarm-warm-reentry-policy"
+      ]
+    },
+    "state": {
+      "stateSnapshotHash": "",
+      "xstateBridgeMode": "main-thread-snapshot",
+      "stateOwnership": "main-thread"
+    },
+    "ssr": {
+      "ssrRoundtripCount": 0,
+      "serverPrerenderUsed": false,
+      "clientDetermined": true
+    },
+    "warmReentry": {
+      "enabled": true,
+      "runtimeExpectedStatus": "opportunistic"
+    },
+    "diagnostics": [],
+    "summary": {
+      "enabled": false,
+      "status": "disabled",
+      "eligibleRecordCount": 3,
+      "activeRecordCount": 0,
+      "releaseBlocking": false
+    }
+  },
+  "webAppManifest": {
+    "schema": "xtend.maraca.web-app-manifest-report.v1",
+    "ok": true,
+    "status": "disabled",
+    "enabled": false,
+    "generated": false,
+    "manifestRef": "./xtend.webmanifest",
+    "iconDirectory": "icons",
+    "brandingMode": "default-xtend-assets",
+    "manifest": {
+      "name": "XTend Maraca App",
+      "short_name": "XTend",
+      "start_url": "./",
+      "scope": "./",
+      "display": "standalone",
+      "background_color": "#ffffff",
+      "theme_color": "#1f6f78",
+      "description": "Generated XTend Maraca PWA manifest.",
+      "icons": [
+        {
+          "src": "icons/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        {
+          "src": "icons/android-chrome-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    },
+    "manifestIcons": [
+      {
+        "src": "icons/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "icons/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      }
+    ],
+    "htmlLinkHints": [
+      {
+        "rel": "apple-touch-icon",
+        "sizes": "180x180",
+        "href": "icons/apple-touch-icon.png"
+      },
+      {
+        "rel": "icon",
+        "sizes": "32x32",
+        "type": "image/png",
+        "href": "icons/favicon-32x32.png"
+      },
+      {
+        "rel": "icon",
+        "sizes": "16x16",
+        "type": "image/png",
+        "href": "icons/favicon-16x16.png"
+      },
+      {
+        "rel": "icon",
+        "type": "image/x-icon",
+        "href": "icons/favicon.ico"
+      }
+    ],
+    "assets": [
+      {
+        "role": "manifest-icon",
+        "source": "icons/android-chrome-192x192.png",
+        "fileName": "icons/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "manifestIcon": true,
+        "sourceExists": true,
+        "copied": false,
+        "replacementPath": "icons/android-chrome-192x192.png"
+      },
+      {
+        "role": "manifest-icon",
+        "source": "icons/android-chrome-512x512.png",
+        "fileName": "icons/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "manifestIcon": true,
+        "sourceExists": true,
+        "copied": false,
+        "replacementPath": "icons/android-chrome-512x512.png"
+      },
+      {
+        "role": "apple-touch-icon",
+        "source": "icons/apple-touch-icon.png",
+        "fileName": "icons/apple-touch-icon.png",
+        "sizes": "180x180",
+        "type": "image/png",
+        "manifestIcon": false,
+        "sourceExists": true,
+        "copied": false,
+        "replacementPath": "icons/apple-touch-icon.png"
+      },
+      {
+        "role": "favicon",
+        "source": "icons/favicon-32x32.png",
+        "fileName": "icons/favicon-32x32.png",
+        "sizes": "32x32",
+        "type": "image/png",
+        "manifestIcon": false,
+        "sourceExists": true,
+        "copied": false,
+        "replacementPath": "icons/favicon-32x32.png"
+      },
+      {
+        "role": "favicon",
+        "source": "icons/favicon-16x16.png",
+        "fileName": "icons/favicon-16x16.png",
+        "sizes": "16x16",
+        "type": "image/png",
+        "manifestIcon": false,
+        "sourceExists": true,
+        "copied": false,
+        "replacementPath": "icons/favicon-16x16.png"
+      },
+      {
+        "role": "favicon",
+        "source": "icons/favicon.ico",
+        "fileName": "icons/favicon.ico",
+        "sizes": "16x16 32x32",
+        "type": "image/x-icon",
+        "manifestIcon": false,
+        "sourceExists": true,
+        "copied": false,
+        "replacementPath": "icons/favicon.ico"
+      },
+      {
+        "role": "branding-source",
+        "source": "logo.svg",
+        "fileName": "icons/logo.svg",
+        "sizes": null,
+        "type": "image/svg+xml",
+        "manifestIcon": false,
+        "sourceExists": true,
+        "copied": false,
+        "replacementPath": "icons/logo.svg"
+      },
+      {
+        "role": "branding-source",
+        "source": "XTend-Logo.png",
+        "fileName": "icons/XTend-Logo.png",
+        "sizes": "1024x1024",
+        "type": "image/png",
+        "manifestIcon": false,
+        "sourceExists": true,
+        "copied": false,
+        "replacementPath": "icons/XTend-Logo.png"
+      }
+    ],
+    "copiedAssets": [],
+    "replacementPaths": [
+      "icons/android-chrome-192x192.png",
+      "icons/android-chrome-512x512.png",
+      "icons/apple-touch-icon.png",
+      "icons/favicon-32x32.png",
+      "icons/favicon-16x16.png",
+      "icons/favicon.ico",
+      "icons/logo.svg",
+      "icons/XTend-Logo.png"
+    ],
+    "files": {
+      "manifest": "docs/generated/shell/xtend.webmanifest",
+      "iconDirectory": "docs/generated/shell/icons",
+      "report": "docs/generated/shell/xtend.webmanifest.report.json"
+    },
+    "diagnostics": [],
+    "summary": {
+      "releaseBlocking": false,
+      "generatedManifest": false,
+      "copiedAssetCount": 0,
+      "manifestIconCount": 2,
+      "htmlLinkHintCount": 4,
+      "brandingMode": "default-xtend-assets"
+    }
+  },
+  "pwa": {
+    "schema": "xtend.maraca.pwa-service-worker-report.v1",
+    "ok": true,
+    "status": "disabled",
+    "enabled": false,
+    "generated": false,
+    "strategy": "app-shell",
+    "cacheMode": "generated-app-shell",
+    "updateMode": "prompt",
+    "cacheVersion": "xtend-maraca-pwa-27355b0b2064",
+    "manifestRef": "./xtend.webmanifest",
+    "serviceWorkerRef": "./xtend.service-worker.js",
+    "serviceWorkerControlled": false,
+    "offlineEligible": false,
+    "businessLogicHook": "import-script",
+    "businessLogicImport": "",
+    "files": {
+      "manifest": "docs/generated/shell/xtend.webmanifest",
+      "serviceWorker": "docs/generated/shell/xtend.service-worker.js",
+      "offlineFallback": "docs/generated/shell/xtend.offline.html",
+      "report": "docs/generated/shell/xtend.pwa.report.json"
+    },
+    "webAppManifest": {
+      "schema": "xtend.maraca.web-app-manifest-plan.v1",
+      "supported": true,
+      "optional": true,
+      "status": "disabled",
+      "runtimeExpectedStatus": "disabled",
+      "manifestRef": "./xtend.webmanifest",
+      "iconDirectory": "icons",
+      "brandingMode": "default-xtend-assets",
+      "manifest": {
+        "fileName": "xtend.webmanifest",
+        "ref": "./xtend.webmanifest",
+        "name": "XTend Maraca App",
+        "short_name": "XTend",
+        "start_url": "./",
+        "scope": "./",
+        "display": "standalone",
+        "background_color": "#ffffff",
+        "theme_color": "#1f6f78",
+        "description": "Generated XTend Maraca PWA manifest.",
+        "icons": [
+          {
+            "src": "icons/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+          },
+          {
+            "src": "icons/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+          }
+        ]
+      },
+      "assets": [
+        {
+          "role": "manifest-icon",
+          "source": "icons/android-chrome-192x192.png",
+          "output": "icons/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any",
+          "manifestIcon": true,
+          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/android-chrome-192x192.png",
+          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/android-chrome-192x192.png",
+          "sourceExists": true,
+          "fileName": "icons/android-chrome-192x192.png",
+          "replacementPath": "icons/android-chrome-192x192.png"
+        },
+        {
+          "role": "manifest-icon",
+          "source": "icons/android-chrome-512x512.png",
+          "output": "icons/android-chrome-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "any",
+          "manifestIcon": true,
+          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/android-chrome-512x512.png",
+          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/android-chrome-512x512.png",
+          "sourceExists": true,
+          "fileName": "icons/android-chrome-512x512.png",
+          "replacementPath": "icons/android-chrome-512x512.png"
+        },
+        {
+          "role": "apple-touch-icon",
+          "source": "icons/apple-touch-icon.png",
+          "output": "icons/apple-touch-icon.png",
+          "sizes": "180x180",
+          "type": "image/png",
+          "htmlLink": {
+            "rel": "apple-touch-icon",
+            "sizes": "180x180"
+          },
+          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/apple-touch-icon.png",
+          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/apple-touch-icon.png",
+          "sourceExists": true,
+          "fileName": "icons/apple-touch-icon.png",
+          "replacementPath": "icons/apple-touch-icon.png"
+        },
+        {
+          "role": "favicon",
+          "source": "icons/favicon-32x32.png",
+          "output": "icons/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png",
+          "htmlLink": {
+            "rel": "icon",
+            "sizes": "32x32",
+            "type": "image/png"
+          },
+          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/favicon-32x32.png",
+          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/favicon-32x32.png",
+          "sourceExists": true,
+          "fileName": "icons/favicon-32x32.png",
+          "replacementPath": "icons/favicon-32x32.png"
+        },
+        {
+          "role": "favicon",
+          "source": "icons/favicon-16x16.png",
+          "output": "icons/favicon-16x16.png",
+          "sizes": "16x16",
+          "type": "image/png",
+          "htmlLink": {
+            "rel": "icon",
+            "sizes": "16x16",
+            "type": "image/png"
+          },
+          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/favicon-16x16.png",
+          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/favicon-16x16.png",
+          "sourceExists": true,
+          "fileName": "icons/favicon-16x16.png",
+          "replacementPath": "icons/favicon-16x16.png"
+        },
+        {
+          "role": "favicon",
+          "source": "icons/favicon.ico",
+          "output": "icons/favicon.ico",
+          "sizes": "16x16 32x32",
+          "type": "image/x-icon",
+          "htmlLink": {
+            "rel": "icon",
+            "type": "image/x-icon"
+          },
+          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/favicon.ico",
+          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/favicon.ico",
+          "sourceExists": true,
+          "fileName": "icons/favicon.ico",
+          "replacementPath": "icons/favicon.ico"
+        },
+        {
+          "role": "branding-source",
+          "source": "logo.svg",
+          "output": "icons/logo.svg",
+          "type": "image/svg+xml",
+          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/logo.svg",
+          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/logo.svg",
+          "sourceExists": true,
+          "fileName": "icons/logo.svg",
+          "replacementPath": "icons/logo.svg"
+        },
+        {
+          "role": "branding-source",
+          "source": "XTend-Logo.png",
+          "output": "icons/XTend-Logo.png",
+          "sizes": "1024x1024",
+          "type": "image/png",
+          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/XTend-Logo.png",
+          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/XTend-Logo.png",
+          "sourceExists": true,
+          "fileName": "icons/XTend-Logo.png",
+          "replacementPath": "icons/XTend-Logo.png"
+        }
+      ],
+      "manifestIcons": [
+        {
+          "src": "icons/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        {
+          "src": "icons/android-chrome-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ],
+      "htmlLinkHints": [
+        {
+          "rel": "apple-touch-icon",
+          "sizes": "180x180",
+          "href": "icons/apple-touch-icon.png"
+        },
+        {
+          "rel": "icon",
+          "sizes": "32x32",
+          "type": "image/png",
+          "href": "icons/favicon-32x32.png"
+        },
+        {
+          "rel": "icon",
+          "sizes": "16x16",
+          "type": "image/png",
+          "href": "icons/favicon-16x16.png"
+        },
+        {
+          "rel": "icon",
+          "type": "image/x-icon",
+          "href": "icons/favicon.ico"
+        }
+      ],
+      "replacementPaths": [
+        "icons/android-chrome-192x192.png",
+        "icons/android-chrome-512x512.png",
+        "icons/apple-touch-icon.png",
+        "icons/favicon-32x32.png",
+        "icons/favicon-16x16.png",
+        "icons/favicon.ico",
+        "icons/logo.svg",
+        "icons/XTend-Logo.png"
+      ],
+      "files": {
+        "manifest": "docs/generated/shell/xtend.webmanifest",
+        "iconDirectory": "docs/generated/shell/icons",
+        "report": "docs/generated/shell/xtend.webmanifest.report.json"
+      },
+      "outputs": {
+        "manifest": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.webmanifest",
+        "iconDirectory": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons",
+        "report": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.webmanifest.report.json"
+      },
+      "diagnostics": [],
+      "summary": {
+        "assetCount": 8,
+        "manifestIconCount": 2,
+        "htmlLinkHintCount": 4,
+        "brandingMode": "default-xtend-assets"
+      }
+    },
+    "precacheUrls": [],
+    "precacheCount": 0,
+    "bundleFileCount": 10,
+    "runtimeCaching": {
+      "allowed": [
+        {
+          "kind": "static-assets",
+          "strategy": "cache-first",
+          "sameOriginOnly": true,
+          "methods": [
+            "GET"
+          ]
+        },
+        {
+          "kind": "navigation",
+          "strategy": "network-first",
+          "fallback": "xtend.offline.html",
+          "methods": [
+            "GET"
+          ]
+        },
+        {
+          "kind": "images-fonts",
+          "strategy": "stale-while-revalidate",
+          "sameOriginOnly": true,
+          "explicitOptIn": true,
+          "methods": [
+            "GET"
+          ]
+        }
+      ],
+      "blockedByDefault": [
+        "non-get-requests",
+        "auth-or-cookie-sensitive-requests",
+        "ssr-personalized-html-fragments",
+        "api-responses-without-explicit-app-policy",
+        "background-sync",
+        "push-notifications",
+        "offline-mutations"
+      ]
+    },
+    "boundaries": {
+      "replacesSsr": false,
+      "replacesUiCoprocessor": false,
+      "uiCompute": false,
+      "networkAndCacheOnly": true
+    },
+    "diagnostics": [],
+    "summary": {
+      "releaseBlocking": false,
+      "generatedServiceWorker": false,
+      "generatedManifest": false,
+      "generatedOfflineFallback": false,
+      "businessLogicHook": "import-script"
+    }
+  },
+  "validation": {
+    "schema": "xtend.maraca.validation-plan.v1",
+    "mode": "auto",
+    "enabled": false,
+    "status": "disabled",
+    "planStatus": "disabled",
+    "runtimeExpectedStatus": "disabled",
+    "supported": false,
+    "artifactSchema": null,
+    "runtimeModules": [
+      "xtendrmt/rmt-form-validation-runtime.js"
+    ],
+    "summary": {
+      "schema": null,
+      "groupCount": 0,
+      "fieldCount": 0,
+      "actionGateCount": 0,
+      "statePatchCount": 0,
+      "strictViolations": 0,
+      "fallbackCount": 0,
+      "runtimeExpectedStatus": "disabled"
+    },
+    "diagnostics": [
+      {
+        "code": "xtend.maraca.validation_disabled",
+        "severity": "info",
+        "message": "RMT source did not emit a form validation plan for Maraca orchestration."
+      }
+    ]
+  },
+  "transitions": {
+    "schema": "xtend.maraca.transition-plan.v1",
+    "mode": "auto",
+    "enabled": false,
+    "status": "disabled",
+    "planStatus": "disabled",
+    "runtimeExpectedStatus": "disabled",
+    "supported": false,
+    "artifactSchema": null,
+    "runtimeModules": [
+      "xtendrmt/rmt-animation-engine-runtime.js",
+      "xtendrmt/rmt-surface-transition-runtime.js",
+      "components/xutils.js",
+      "components/xstate.js"
+    ],
+    "summary": {
+      "schema": null,
+      "transitionCount": 0,
+      "effectCounts": {},
+      "durationRange": {
+        "min": 0,
+        "max": 0
+      },
+      "scheduledEndpointCount": 0,
+      "fallbackCount": 0,
+      "strictViolations": 0,
+      "runtimeExpectedStatus": "disabled"
+    },
+    "diagnostics": [
+      {
+        "code": "xtend.maraca.transitions_disabled",
+        "severity": "info",
+        "message": "RMT source did not emit a surface transition plan for Maraca orchestration."
+      }
+    ]
+  },
+  "lifecycle": {
+    "schema": "xtend.maraca.lifecycle-report.v1",
+    "ok": true,
+    "status": "enforced",
+    "strict": false,
+    "runtimeExpectedStatus": "booted",
+    "supportedOperations": [
+      "closeSurface",
+      "destroySurface",
+      "snapshotSurfaces(includeDestroyed)",
+      "surface.destroy",
+      "resource.release",
+      "disposeRoot"
+    ],
+    "requiresDestroyChain": true,
+    "surfaceDestroyReleaseCount": 1,
+    "disposeOnSurfaceDestroyResourceCount": 1,
+    "destroyOnCloseSurfaceCount": 0,
+    "sourceToSea": {
+      "surfaceCount": 8,
+      "resourceCount": 5,
+      "kernelScheduled": true,
+      "hasKernelRuntime": true,
+      "hasSurfaceRuntime": true,
+      "hasSurfaceAdapterDestroy": true
+    },
+    "diagnostics": []
+  },
+  "publicNameReservations": [
+    "XTendMaraca",
+    "XTendLoader",
+    "XTendRMT",
+    "XTendFabric",
+    "ensureMaracaComponent",
+    "bootXtendMaraca",
+    "MARACA_COMPONENTS",
+    "MARACA_SURFACES",
+    "MARACA_EVENTS",
+    "MARACA_ORCHESTRATION",
+    "MARACA_KERNEL",
+    "MARACA_HYDRATION",
+    "MARACA_WARM_REENTRY",
+    "MARACA_UI_COPROCESSOR",
+    "MARACA_WEB_APP_MANIFEST",
+    "MARACA_PWA",
+    "MARACA_VALIDATION",
+    "MARACA_TRANSITIONS",
+    "MARACA_PUBLIC_NAMES",
+    "MARACA_STACK_MODULES",
+    "XTendRmtKernelOrchestrationController",
+    "XTendRmtAnimationEngineRuntime",
+    "XTendRmtSurfaceTransitionRuntime",
+    "customElements",
+    "HTMLElement",
+    "ShadowRoot",
+    "CSSStyleSheet",
+    "IntersectionObserver",
+    "connectedCallback",
+    "disconnectedCallback",
+    "attributeChangedCallback",
+    "adoptedCallback",
+    "observedAttributes",
+    "data-maraca-root",
+    "data-maraca-surface",
+    "data-rmt-component",
+    "part",
+    "slot",
+    "tone",
+    "variant",
+    "disabled",
+    "open",
+    "value",
+    "change",
+    "input",
+    "click",
+    "submit",
+    "xtend.rmt.core-format.vnext.v1",
+    "xtend.maraca.build-plan.v1",
+    "xtend.maraca.bundle-report.v1",
+    "xtend.maraca.size-budget-report.v1",
+    "xtend.maraca.performance-report.v1",
+    "xtend.maraca.kernel-plan.v1",
+    "xtend.maraca.hydration-plan.v1",
+    "xtend.maraca.warm-reentry-report.v1",
+    "xtend.maraca.prewarm-worker-runtime.v1",
+    "xtend.maraca.super-prewarm-worker-experiment.v1",
+    "xtend.maraca.ui-coprocessor-plan.v1",
+    "xtend.maraca.web-app-manifest-plan.v1",
+    "xtend.maraca.web-app-manifest-report.v1",
+    "xtend.maraca.pwa-service-worker-plan.v1",
+    "xtend.maraca.pwa-service-worker-report.v1",
+    "xtend.maraca.template-artifacts-report.v1",
+    "xtend.maraca.validation-plan.v1",
+    "xtend.maraca.transition-plan.v1",
+    "xtend.maraca.production-bundle-closure.v1",
+    "xtend.maraca.transition-plan.v1"
+  ],
+  "toolchain": {
+    "rollup": {
+      "requested": true,
+      "available": true,
+      "version": "4.60.4",
+      "mode": "rollup-js-api"
+    },
+    "terser": {
+      "requested": true,
+      "available": true,
+      "version": "5.48.0",
+      "mode": "terser-js-api"
+    },
+    "active": "rollup-terser",
+    "warnings": [
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-state-selector-runtime.js (898:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-event-routing-runtime.js (793:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-action-effect-runtime.js (583:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-dom-descriptor-renderer.js (1592:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1059:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-app-runtime.js (1756:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      }
+    ],
+    "nameCache": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.maraca.name-cache.json"
+  },
+  "sizeBudget": {
+    "schema": "xtend.maraca.size-budget-report.v1",
+    "ok": true,
+    "status": "within_budget",
+    "profile": "max",
+    "mode": "strict",
+    "baseline": {
+      "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
+      "loaderBytes": 60843,
+      "selectedComponentBytes": 241479,
+      "stackModuleBytes": 1643279,
+      "contractPayloadBytes": 226005,
+      "bytes": 2171606
+    },
+    "baselineBytes": 2171606,
+    "bundleBytes": 2031801,
+    "ratio": 0.9356213788320717,
+    "budgets": {
+      "modernEsmEntryMustBeSmallerThanBaseline": true,
+      "enforcement": "strict"
+    }
+  },
+  "forbiddenRuntimeDependencies": {
+    "componentManifestJson": false,
+    "dataManifestAttribute": false,
+    "xtendLoader": false
+  }
+}

@@ -32,6 +32,6 @@ Der Contract macht die Sicherheits-Haertung des RMT-Kernels fuer Migration, Auth
 
 - `node scripts/run_xtend_tests.js rmt-kernel-handoff-docs --json` ist gruen.
 - `package.json` enthaelt `xtend.rmtKernelHandoffDocs` mit Schema, Docs, Gate und Handoff-Quellen.
-- `docs/README.md` und `docs/menu.json` verlinken die drei Guides.
+- `docs/en/README.md` und `docs/menu.json` verlinken die drei Guides.
 - Das Backlog markiert `RKSH-WP-11` als completed und nennt das Package-Script.
 

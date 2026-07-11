@@ -36,3 +36,7 @@ Escape acts on the topmost layer. A key press must not close a deep window while
 Reviewers check stack changes against three risks. First, did a global decision move into an individual component? Second, can two surfaces both become topmost? Third, are orphaned locks, inert markers or focus targets left behind after close? The `surface-stack-policy` gate covers these risks locally and makes the main policy decisions visible in the report.
 
 New layer tokens, modality modes or Escape rules need evidence. They are not accepted through CSS or a new attribute alone. A good change describes the record, the policy decision and the visible effect. That keeps the Surface Stack predictable when Workbench, Side Panel and Overlay Bridge run in the same app.
+
+## Related reading
+
+The controller contract identifies which surface transitions invoke stack policy. [Related article](./surface-manager-controller.md)

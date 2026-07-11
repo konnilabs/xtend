@@ -18,7 +18,7 @@ report: xtend.epic13.package-export-lock-report.v1
 surface: xtend.epic13.package-export-surface.v1
 local gate: node scripts/run_xtend_tests.js epic13-package-export-lock --json
 capture: npm run pack:dry-run:report
-expectedExportCount: 148
+expectedExportCount: 155
 ```
 
 ```txt
@@ -51,3 +51,7 @@ npm run pack:dry-run
 ```
 
 Die Prüfung ist kein Ersatz für Produkttests, aber sie schützt die Paketgrenze. Wenn ein neues Modul nur im Source Tree existiert, aber nicht im Export Lock, wird es nicht als veröffentlichte Oberfläche behandelt. Wenn ein Export im Lock steht, muss er mit Deklaration, Dokumentation und Pack Root zusammen gepflegt werden.
+
+## Weiterführend
+
+Die Type-Export-Referenz listet die öffentlichen Deklarationen auf, die der Export-Lock schützt. [Verwandter Artikel](./type-exports.md)

@@ -13,7 +13,7 @@ Nachgelagerte Schichten halten dieselbe Grenze ein. Die Maraca Runtime verarbeit
 
 ## Schemas
 
-XScaler-Fixtures und Handoff-Records verwenden fuenf stabile Schema-Namen:
+XScaler-Fixtures und Übergabe-Records verwenden fünf stabile Schema-Namen:
 
 - `xtend.xscaler.preflight-request.v1` für Capability-Anfragen des Hosts.
 - `xtend.xscaler.preflight-response.v1` für Annahme, Ablehnung und erforderliche Folge-Anker.
@@ -32,7 +32,7 @@ XScaler-Fixtures und Handoff-Records verwenden fuenf stabile Schema-Namen:
 
 Der Plan spiegelt den RMT-Remote-Surface-Vertrag: Owner, Origin, Integrity, Fallback-Surface und Lane-Ziel sind statische Fakten. XScaler lädt oder führt während der Validierung kein Remote-Bundle aus.
 
-## SSR-Kompatibilitaet
+## SSR-Kompatibilität
 
 SSR-Adapter müssen XScaler als reinen Preflight-Vertrag behandeln. Ein kompatibler Plan setzt `networkDuringRender` auf `false`, hält Remote-Ausführung aus dem Server-Render-Pfad heraus und hydriert erst nach akzeptierter Preflight-Response.
 
@@ -40,10 +40,14 @@ SSR-Adapter müssen XScaler als reinen Preflight-Vertrag behandeln. Ein kompatib
 
 XTensions können XScaler verwenden, um Framework-Inseln hinter einem gegateten Deployment-Record auszurollen. Deployment-Records müssen XTension, Surface, Rollout-Strategie und SSR-Hydration benennen.
 
-## ATC-Handoff
+## ATC-Übergabe
 
-Ein ATC-Handoff transportiert akzeptierte Surface, Session-ID, Handoff-Signal, Lifecycle-State und Runtime Boundary. Kompatible Handoffs halten `remoteRuntimeExecution` und `kernelRemoteExecution` auf `false`.
+Eine ATC-Übergabe transportiert akzeptierte Surface, Session-ID, Übergabesignal, Lifecycle-State und Runtime Boundary. Kompatible Übergaben halten `remoteRuntimeExecution` und `kernelRemoteExecution` auf `false`.
 
 ## Fixtures
 
-Die minimale Fixture-Familie liegt unter `tests/rmt/fixtures/xscaler/` und deckt Preflight-Request, Preflight-Response, Remote-Surface-Plan, XTension-Deployment und ATC-Handoff-Kompatibilitaets-Records ab.
+Die minimale Fixture-Familie liegt unter `tests/rmt/fixtures/xscaler/` und deckt Preflight-Request, Preflight-Response, Remote-Surface-Plan, XTension-Deployment und ATC-Kompatibilitäts-Records ab.
+
+## Weiterführend
+
+Die Hydration Policies erklären, wann XScaler-Preflight-Daten Resume- oder Hydrate-Verhalten beeinflussen. [Verwandter Artikel](./hydration-policies.md)

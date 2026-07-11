@@ -136,9 +136,9 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_QUALITY_GATES_WORKPACKAGE_DOC,
   SURFACE_MANAGER_QUALITY_GATES_DOCS,
   'docs/surface-manager-overlay-bridge.md',
-  'docs/surface-manager-workbench-fixture.md',
+  'docs/en/surface-manager-workbench-fixture.md',
   'docs/surface-manager-side-panel-runtime.md',
-  'docs/surface-manager-window-runtime.md'
+  'docs/en/surface-manager-window-runtime.md'
 ]);
 
 function includesAll(values, required) {

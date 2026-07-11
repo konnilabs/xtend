@@ -36,7 +36,7 @@ function runComponentRegressionPrioritySuite(options = {}) {
   const moduleSource = readText('catalog/component-regression-priority.js', rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Enterprise-Reife.md', rootDir);
   const contractDoc = readText('development/XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md', rootDir);
-  const developerDocs = readText('docs/visual-browser-regression.md', rootDir);
+  const developerDocs = readText('docs/en/visual-browser-regression.md', rootDir);
   const suiteSyntax = syntaxCheckFile('tests/catalog/component_regression_priority_suite.js', { rootDir, extension: '.js' });
   const moduleSyntax = syntaxCheckFile('catalog/component-regression-priority.js', { rootDir, extension: '.js' });
   const plan = createComponentRegressionPriorityPlan({ rootDir });
@@ -162,8 +162,8 @@ function runComponentRegressionPrioritySuite(options = {}) {
   context.assert(contractDoc.includes('P0 browser-critical regression baseline'), 'Contract document describes P0 browser-critical wave');
   context.assert(contractDoc.includes('x-router'), 'Contract document includes x-router priority');
   context.assert(contractDoc.includes('x-utils'), 'Contract document includes x-utils long-tail priority');
-  context.assert(developerDocs.includes('xtend.docs.visual-browser-regression.v1'), 'Developer docs declare visual/browser regression docs contract');
-  context.assert(developerDocs.includes('node scripts/run_xtend_tests.js regression-priority --json'), 'Developer docs document regression priority gate');
+  context.assert(developerDocs.includes('node scripts/run_xtend_tests.js regression-priority visual-snapshots --json'), 'Developer docs document the runnable regression gate');
+  context.assert(developerDocs.includes('tests/browser/visual_snapshots_suite.js'), 'Developer docs identify the visual snapshot runner');
   context.assert(developerDocs.includes('desktop-1280'), 'Developer docs document desktop viewport');
   context.assert(developerDocs.includes('mobile-390'), 'Developer docs document mobile viewport');
 

@@ -4,77 +4,25 @@ Sichtbare, idle und progressive Hydration bewusst wählen.
 
 ## Worum es geht
 
-Diese Seite beschreibt prüfbare Regeln für robuste Nutzererlebnisse. Die Empfehlungen passen zu lokalen Hosts, RMT App Shells und klassischen Web-Component-Seiten.
+Eine Hydration Policy bestimmt Trigger, Lane, Deadline und Backpressure-Verhalten für bereits vorhandenes Markup. `visible` ist für sichtbare oder fokuskritische Arbeit, `idle` und `lazy` für nicht dringende Flächen, `prewarm` für abbrechbare Vorbereitung und `worker_prerender_hydrate` für validierte Worker-Ausgabe.
 
 ## Öffentliche Bausteine
 
-- Lokale Testbefehle.
-- Browsernahe Fixtures.
-- Dokumentierte Akzeptanzkriterien.
+- `fabric/hydration-policy.js` enthält die kanonischen Policies.
+- `fabric/hydration-policy.d.ts` beschreibt Decision, Controller und Schedule Records.
+- `fabric/rmt-lane-mapping.js` verbindet Policy-Lane und RMT Schedule.
 
 ## Empfohlener Ablauf
 
-Lege Budgets fest, prüfe Tastatur- und Screenreader-Signale und halte Screenshots reproduzierbar.
+Prüfe jede Policy gegen ihre Trigger- und Backpressure-Fälle:
+
+```bash
+node scripts/run_xtend_tests.js hydration-policy --json
+```
+
+Der Report muss Policy-ID, gewählte Lane, Schedule und Diagnostic enthalten. Unter hoher Backpressure darf best-effort Prewarm verschoben werden; sichtbare Hydration darf jedoch nicht still in einen permanenten Idle-Zustand fallen. DOM-Commit bleibt auf dem kontrollierten Hauptthread.
 
 ## Nächste Schritte
 
 - [Performance](./performance.md)
 - [A11y Keyboard Smokes](./a11y-keyboard-smokes.md)
-
-## Öffentlicher Vertrag
-
-Hydration Policies ist der öffentliche Qualität und Security-Vertrag für `docs/de/hydration-policies.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: lokale Gates, Policy-Dateien, Report-Schemas, Accessibility- und Security-Signale.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/hydration-policies.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-
-Namen:
-- `docs/de/hydration-policies.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/verify_docs_public_quality.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `npm run test:hydration-policy`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/verify_docs_public_quality.js
-npm run test:hydration-policy
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn ein Gate scheitert, ändere zuerst Beispiel, Policy-Quelle oder Report-Erwartung und nicht die Schwelle.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

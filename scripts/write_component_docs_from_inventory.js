@@ -448,25 +448,22 @@ function resolveContainedDocsPath(rootDir, locale, relativePath) {
 function writeDocs(options = {}) {
   const rootDir = options.rootDir || path.resolve(__dirname, '..');
   const inventory = createComponentDocsInventory({ rootDir });
-  const written = [];
-  inventory.entries.forEach((entry) => {
-    const localized = {
-      en: renderEnglish(entry),
-      de: renderGerman(entry)
-    };
-    Object.entries(localized).forEach(([locale, content]) => {
-      const relativePath = entry.docs[locale];
-      const absolutePath = resolveContainedDocsPath(rootDir, locale, relativePath);
-      fs.writeFileSync(absolutePath, content, 'utf8');
-      written.push(relativePath);
-    });
-  });
-  return { inventory, written };
+  return {
+    inventory,
+    written: [],
+    proposals: inventory.entries.map((entry) => ({
+      tag: entry.tag,
+      docs: entry.docs,
+      englishPreview: renderEnglish(entry),
+      germanPreview: renderGerman(entry)
+    })),
+    warning: 'Public component prose is audit-only. Review source facts and author docs deliberately.'
+  };
 }
 
 function main() {
   const result = writeDocs();
-  console.log(`Wrote ${result.written.length} localized component docs from ${result.inventory.entryCount} inventory entries.`);
+  console.log(`Audited ${result.inventory.entryCount} component references; wrote no public documentation files.`);
 }
 
 if (require.main === module) {

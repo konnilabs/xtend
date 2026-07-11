@@ -18,7 +18,7 @@ const SURFACE_CONTROLLER_SUITE = 'tests/components/surface_controller_suite.js';
 const SURFACE_CONTROLLER_PLAN = 'development/XTend-SurfaceManager-und-Multi-Window-Plan.md';
 const SURFACE_CONTROLLER_CONTRACT = 'development/XTend-SurfaceManager-Controller-und-State-Snapshot-Contract.md';
 const SURFACE_CONTROLLER_WORKPACKAGE_DOC = 'development/WP-SM-02-Surface-Controller-und-State-Snapshot-bauen.md';
-const SURFACE_CONTROLLER_DOCS = 'docs/surface-manager-controller.md';
+const SURFACE_CONTROLLER_DOCS = 'docs/en/surface-manager-controller.md';
 const SURFACE_CONTROLLER_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-controller --json';
 const SURFACE_CONTROLLER_PACKAGE_SCRIPT = 'npm run test:surface-controller';
 const NEXT_WORKPACKAGE = 'WP-SM-03';
@@ -47,7 +47,7 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_CONTROLLER_WORKPACKAGE_DOC,
   SURFACE_CONTROLLER_DOCS,
   'development/XTend-SurfaceManager-Contract-und-RMT-Authoring-Model.md',
-  'docs/surface-manager-rmt-authoring.md',
+  'development/docs-evidence/root/surface-manager-rmt-authoring.md',
   'docs/xtend-fabric.md'
 ]);
 

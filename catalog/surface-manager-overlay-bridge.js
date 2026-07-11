@@ -53,9 +53,9 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_OVERLAY_BRIDGE_CONTRACT,
   SURFACE_MANAGER_OVERLAY_BRIDGE_WORKPACKAGE_DOC,
   SURFACE_MANAGER_OVERLAY_BRIDGE_DOCS,
-  'docs/surface-manager-workbench-fixture.md',
+  'docs/en/surface-manager-workbench-fixture.md',
   'docs/surface-manager-side-panel-runtime.md',
-  'docs/surface-manager-window-runtime.md'
+  'docs/en/surface-manager-window-runtime.md'
 ]);
 
 const COMPONENT_TAGS = Object.freeze([

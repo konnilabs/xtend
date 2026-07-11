@@ -10,13 +10,17 @@ const {
   KNOWN_GUIDE_BOILERPLATE_PHRASES,
   createDocsStubInventory
 } = require('./create_docs_stub_inventory');
+const {
+  DOCS_CONTENT_PROFILES,
+  profileForContentType
+} = require('./docs_content_profiles');
 
 const DOCS_CONTENT_DEPTH_SCHEMA = 'xtend.docs.content-depth.v1';
 const DOCS_CONTENT_DEPTH_REPORT_SCHEMA = 'xtend.docs.content-depth-report.v1';
 const MIN_COMPONENT_WORDS = 350;
 const MIN_COMPONENT_CODE_BLOCKS = 2;
 const MIN_GUIDE_NON_CODE_CHARS = DEFAULT_MIN_GUIDE_CHARS;
-const MIN_GUIDE_H2_COUNT = 4;
+const MIN_GUIDE_H2_COUNT = 3;
 const MIN_GUIDE_CONCRETE_ANCHORS = 1;
 const MAX_REPEATED_GUIDE_PARAGRAPHS = 0;
 
@@ -40,6 +44,10 @@ function resolveRootDir(rootDir) {
 
 function stripCodeBlocks(markdown) {
   return String(markdown || '').replace(/```[\s\S]*?```/g, '');
+}
+
+function stripCode(markdown) {
+  return stripCodeBlocks(markdown).replace(/`[^`\n]+`/g, '');
 }
 
 function wordCount(markdown) {
@@ -102,7 +110,7 @@ function assertArticle(failures, rootDir, entry, locale) {
   const text = readText(rootDir, relativePath);
   const words = wordCount(text);
   const blocks = codeBlocks(text);
-  const contentWithoutCode = stripCodeBlocks(text);
+  const contentWithoutCode = stripCode(text);
 
   if (words < MIN_COMPONENT_WORDS) {
     failures.push(`${relativePath} has ${words} non-code words; expected at least ${MIN_COMPONENT_WORDS}.`);
@@ -177,11 +185,18 @@ function assertGuideArticle(failures, rootDir, entry, locale) {
     return null;
   }
 
-  if (article.nonCodeChars < MIN_GUIDE_NON_CODE_CHARS) {
-    failures.push(`${article.path} has ${article.nonCodeChars} non-code chars; expected at least ${MIN_GUIDE_NON_CODE_CHARS}.`);
+  const profile = profileForContentType(entry.contentType);
+  if (article.nonCodeChars < article.minRequiredNonCodeChars) {
+    failures.push(`${article.path} has ${article.nonCodeChars} non-code chars; ${entry.contentType} requires at least ${article.minRequiredNonCodeChars}.`);
   }
-  if (article.h2Count < MIN_GUIDE_H2_COUNT) {
-    failures.push(`${article.path} has ${article.h2Count} H2 sections; expected at least ${MIN_GUIDE_H2_COUNT}.`);
+  if (article.h2Count < profile.minH2Count) {
+    failures.push(`${article.path} has ${article.h2Count} H2 sections; ${entry.contentType} requires at least ${profile.minH2Count}.`);
+  }
+  if (article.codeBlockCount < profile.minCodeBlocks) {
+    failures.push(`${article.path} has ${article.codeBlockCount} code blocks; ${entry.contentType} requires at least ${profile.minCodeBlocks}.`);
+  }
+  if (article.commandCount < profile.minCommands) {
+    failures.push(`${article.path} has ${article.commandCount} runnable commands; ${entry.contentType} requires at least ${profile.minCommands}.`);
   }
   if (article.linkErrors.length) {
     failures.push(`${article.path} links to missing Markdown targets: ${article.linkErrors.join(', ')}.`);
@@ -189,11 +204,14 @@ function assertGuideArticle(failures, rootDir, entry, locale) {
   if (article.boilerplatePhraseCount > 0) {
     failures.push(`${article.path} contains generated guide boilerplate: ${article.boilerplatePhrases.join('; ')}.`);
   }
-  if (article.concreteAnchorCount < MIN_GUIDE_CONCRETE_ANCHORS) {
-    failures.push(`${article.path} has ${article.concreteAnchorCount} concrete anchors; expected at least ${MIN_GUIDE_CONCRETE_ANCHORS}.`);
+  if (article.concreteAnchorCount < profile.minConcreteAnchors) {
+    failures.push(`${article.path} has ${article.concreteAnchorCount} concrete anchors; ${entry.contentType} requires at least ${profile.minConcreteAnchors}.`);
+  }
+  if (article.linkCount < profile.minLinks) {
+    failures.push(`${article.path} has ${article.linkCount} local links; ${entry.contentType} requires at least ${profile.minLinks}.`);
   }
 
-  const contentWithoutCode = stripCodeBlocks(readText(rootDir, article.path));
+  const contentWithoutCode = stripCode(readText(rootDir, article.path));
   if (forbiddenInternalPattern.test(contentWithoutCode)) {
     failures.push(`${article.path} contains internal planning vocabulary.`);
   }
@@ -202,6 +220,7 @@ function assertGuideArticle(failures, rootDir, entry, locale) {
     path: article.path,
     slug: entry.slug,
     locale,
+    contentType: entry.contentType,
     nonCodeChars: article.nonCodeChars,
     words: article.words,
     h2Count: article.h2Count,
@@ -210,6 +229,21 @@ function assertGuideArticle(failures, rootDir, entry, locale) {
     concreteAnchorCount: article.concreteAnchorCount,
     boilerplatePhraseCount: article.boilerplatePhraseCount
   };
+}
+
+function createTechnicalFactDiff(entry, factName) {
+  const deFacts = entry.articles.de && entry.articles.de.technicalFacts && entry.articles.de.technicalFacts[factName] || [];
+  const enFacts = entry.articles.en && entry.articles.en.technicalFacts && entry.articles.en.technicalFacts[factName] || [];
+  const missingInEnglish = deFacts.filter((fact) => !enFacts.includes(fact));
+  const missingInGerman = enFacts.filter((fact) => !deFacts.includes(fact));
+  return { factName, missingInEnglish, missingInGerman };
+}
+
+function compareFactSets(failures, entry, factName) {
+  const { missingInEnglish, missingInGerman } = createTechnicalFactDiff(entry, factName);
+  if (missingInEnglish.length || missingInGerman.length) {
+    failures.push(`${entry.slug} has mismatched ${factName} between locales (missing in en: ${missingInEnglish.join(', ') || 'none'}; missing in de: ${missingInGerman.join(', ') || 'none'}).`);
+  }
 }
 
 function runDocsContentDepthCheck(options = {}) {
@@ -232,6 +266,9 @@ function runDocsContentDepthCheck(options = {}) {
     const en = assertGuideArticle(failures, rootDir, entry, 'en');
     if (de) guideArticleReports.push(de);
     if (en) guideArticleReports.push(en);
+    compareFactSets(failures, entry, 'schemas');
+    compareFactSets(failures, entry, 'commands');
+    compareFactSets(failures, entry, 'devApiMethods');
   });
 
   if (guideInventory.repeatedParagraphWarnings.length > MAX_REPEATED_GUIDE_PARAGRAPHS) {
@@ -269,6 +306,7 @@ function runDocsContentDepthCheck(options = {}) {
       minGuideNonCodeChars: MIN_GUIDE_NON_CODE_CHARS,
       minGuideH2Count: MIN_GUIDE_H2_COUNT,
       minGuideConcreteAnchors: MIN_GUIDE_CONCRETE_ANCHORS,
+      contentProfiles: DOCS_CONTENT_PROFILES,
       forbiddenGuideBoilerplatePhrases: KNOWN_GUIDE_BOILERPLATE_PHRASES,
       stubSlugs: guideInventory.stubSlugs,
       stubArticles,
@@ -310,6 +348,7 @@ module.exports = {
   MIN_GUIDE_CONCRETE_ANCHORS,
   MIN_GUIDE_H2_COUNT,
   MIN_GUIDE_NON_CODE_CHARS,
+  createTechnicalFactDiff,
   printDocsContentDepthReport,
   runDocsContentDepthCheck
 };

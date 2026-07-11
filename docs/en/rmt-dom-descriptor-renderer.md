@@ -1,80 +1,60 @@
 # RMT DOM Descriptor Renderer
 
-Safe DOM descriptors instead of manual HTML as runtime output.
+The RMT DOM Descriptor Renderer turns structured RMT records into browser nodes without treating application data as HTML. Use it when an RMT template, component binding or surface must materialize owned DOM while keeping the trust boundary inspectable.
 
-## What it covers
+The runtime contract is `xtend.epic18.rmt-dom-descriptor-renderer.v1`. Its implementation and declarations live in `xtendrmt/rmt-dom-descriptor-renderer.js` and `xtendrmt/rmt-dom-descriptor-renderer.d.ts`; the package subpath is `@ccslabs/xtend/rmt/dom-descriptor-renderer`.
 
-RMT DOM Descriptor Renderer describes the public RMT surface for this page: which records are involved, which adapters exercise them and which scheduler signals a host should verify.
+## Mental model
 
-## Public building blocks
+A descriptor says what kind of node to create. It can describe an element, text, a registered XTend component, a conditional branch, a repeated record or a slot. The renderer resolves that structure against explicit model, selector, template and component registries. It then uses `createElement`, `createTextNode`, `createDocumentFragment` and `replaceChildren` to materialize the result.
 
-- `.rmt` sources.
-- Core records and source maps.
-- Host adapters for DOM, router and components.
+The root remains host-owned. Calling `render()` replaces only the children of the root supplied by the host and marks that root with the renderer schema. `renderKeyed()` reuses keyed children where possible, while `patchElement()` updates an existing owned element. None of these operations gives RMT ownership of the whole document.
 
-## Recommended workflow
+## Minimal example
 
-Start RMT DOM Descriptor Renderer with the smallest record example, validate it with the linter and only then attach adapters for host data, routing or components.
+```js
+import { createRmtDomDescriptorRenderer } from '@ccslabs/xtend/rmt/dom-descriptor-renderer';
 
-## Next steps
+const root = document.querySelector('[data-rmt-host]');
+const renderer = createRmtDomDescriptorRenderer({ documentTarget: document });
 
-- [XTendRMT overview](./xtendrmt-overview.md)
-- [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT Linter](./rmt-linter.md)
-- [RMT Language Server](./rmt-language-server.md)
+const result = renderer.render(root, {
+  type: 'element',
+  tag: 'section',
+  attributes: { 'aria-label': 'Build status' },
+  children: [
+    { type: 'text', text: 'Ready' }
+  ]
+});
 
-## Public contract
-
-RMT DOM Descriptor Renderer is the public RMT runtime contract for `docs/en/rmt-dom-descriptor-renderer.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: RMT records, compiler output, runtime adapters, events, actions and scheduler lanes.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/rmt-dom-descriptor-renderer.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Names:
-- `docs/en/rmt-dom-descriptor-renderer.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-
-Commands:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+console.log(result.nodeCount, result.diagnostics);
 ```
 
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
+The result uses `xtend.epic18.rmt-dom-render-result.v1`. Pass source locations through the render options when diagnostics must map back to a document, template, node, line or column.
 
-## Specific failure modes
+## Trust boundary
 
-- If runtime behavior differs, separate compiler record, host adapter and scheduler signal before changing the docs.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+Normal UI follows the No-Manual-HTML rule. The renderer blocks `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `createContextualFragment`, inline event handlers, unsafe URL schemes and blocked tags such as `script` or `iframe`. Attributes and properties pass through explicit allowlists instead of arbitrary assignment.
+
+Trusted rich content is a separate path. A descriptor of that kind is accepted only when the host provides an explicit `trustedDomRenderer` for `xtend.rmt.trusted-dom-boundary.explicit`. Do not turn a rejection into a fallback string sink; render text or a declared fallback surface instead.
+
+## Failure behavior
+
+An invalid root, blocked tag, unsafe URL, unknown component or forbidden property throws with an `xtend.epic18.rmt-dom-renderer-diagnostic.v1` diagnostic. `listDiagnostics()` returns diagnostics observed by the renderer. A host can additionally provide `diagnosticsHub.publish()` to forward them without giving the renderer canonical application state.
+
+Use `createNoManualHtmlGate()` to scan source files for forbidden sinks before browser execution. The gate reports the file and sink; it does not rewrite source automatically.
+
+## Verify the contract
+
+```bash
+node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer rmt-renderer-dom-descriptor-proofs --json
+```
+
+The accepted result proves node materialization, event cleanup, keyed updates, source diagnostics and refusal of manual HTML sinks. A failure should be fixed in the descriptor or host policy, not hidden by bypassing the renderer.
+
+## Related pages
+
+- [RMT vNext Component Primitives](./rmt-vnext-component-primitives.md)
+- [Trusted DOM and Sanitizing](./trusted-dom-sanitizing.md)
+- [RMT App Platform Fixture](./rmt-app-platform-fixture.md)
+- [RMT Security Policies](./rmt-reference-security-policies.md)

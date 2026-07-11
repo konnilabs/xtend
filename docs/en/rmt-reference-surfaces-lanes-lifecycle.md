@@ -1,5 +1,7 @@
 # RMT Reference: Surfaces, Lanes and Lifecycle
 
+`tools/rmt-language/vnext-surfaces.js` and the scheduler emit the normalized runtime records.
+
 Surfaces describe UI areas. Lanes schedule work. Lifecycle operations describe what happens in a lane.
 
 ## Syntax
@@ -113,3 +115,7 @@ Lifecycle and stream statements outside lanes or slots produce context diagnosti
 ## Related operators
 
 `surface`, `portal`, `source`, `when`, `slot`, `on`, `resource`, `trust boundary`.
+
+## Related reading
+
+The RMT reference index connects surfaces and lanes with scheduling and lifecycle syntax. [Related article](./rmt-reference.md)

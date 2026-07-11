@@ -4,17 +4,17 @@ Eine kleine Beispiel-App als Orientierung für eigene Hosts.
 
 ## Worum es geht
 
-RMT-first Demo App beschreibt die öffentliche RMT-Oberfläche dieser Seite: welche Records betroffen sind, welche Adapter sie ausüben und welche Scheduler-Signale ein Host prüfen sollte.
+Die Demo zeigt den kleinsten vollständigen Weg von einer `.rmt` Source über Core-Records bis zu einer browserfähigen App. Sie ist ein Lern- und Regressionsexemplar, keine fertige Produktschablone.
 
 ## Öffentliche Bausteine
 
-- `.rmt` Quellen.
-- Core Records und Source Maps.
-- Host Adapter für DOM, Router und Komponenten.
+- `xtendrmt/rmt-first-demo-app.rmt` ist die bearbeitbare Source.
+- `xtendrmt/rmt-first-demo-app.vnext.core.json` zeigt das vNext Compile-Ergebnis.
+- `tests/browser/fixtures/rmt-first-demo-app-smoke.html` beweist die Host-Materialisierung.
 
 ## Empfohlener Ablauf
 
-Beginne bei RMT-first Demo App mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.
+Ändere zuerst die RMT Source, kompiliere neu und vergleiche den Core-Diff. Öffne danach das Browser-Fixture und prüfe Inhalt, Eventfluss und Cleanup; bearbeite generierte JSON-Dateien nie als primäre Quelle.
 
 ## Nächste Schritte
 
@@ -23,58 +23,10 @@ Beginne bei RMT-first Demo App mit dem kleinsten Record-Beispiel, prüfe es mit 
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
-## Öffentlicher Vertrag
-
-RMT-first Demo App ist der öffentliche RMT Runtime-Vertrag für `docs/de/rmt-first-demo-app.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: RMT Records, Compiler-Ausgaben, Runtime-Adapter, Events, Actions und Scheduler-Lanes.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/rmt-first-demo-app.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Namen:
-- `docs/de/rmt-first-demo-app.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-
-Befehle:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
+## Demo ausführen
 
 ```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+node scripts/run_xtend_tests.js rmt-first-demo-app --json
 ```
 
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn Runtime-Verhalten anders wirkt, trenne Compiler-Record, Host-Adapter und Scheduler-Signal, bevor du die Doku änderst.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+Ein grüner Lauf belegt Source, Core-Modell, loaderlose Host-Shell und Browser-Smoke derselben Demo. Bei einem Diff wird zuerst `xtendrmt/rmt-first-demo-app.rmt` geprüft.

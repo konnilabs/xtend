@@ -19,7 +19,7 @@ Das Paket ueberfuehrt den offenen Component Long Tail in einen belastbaren Migra
 | `catalog/component-long-tail-migration.js` | maschinenlesbarer Plan aus Catalog Coverage und Regression Priority |
 | `tests/catalog/component_long_tail_migration_suite.js` | lokaler Gate fuer Plan, Status, Handoff und Referenzen |
 | `development/XTend-Epic11-Legacy-Long-Tail-Migrationsplan.md` | akzeptierter Migrationscontract |
-| `docs/component-long-tail-migration.md` | Entwicklerdokumentation fuer Long-Tail-Migration |
+| `docs/en/component-long-tail-migration.md` | Entwicklerdokumentation fuer Long-Tail-Migration |
 | `package.json` | Export, Script, PR-Gate und XTend-Metadaten |
 | `xtend-builder/scaffold.config.js` | Scaffold-/Governance-Metadaten |
 

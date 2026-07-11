@@ -3,7 +3,7 @@
 - Status: Planned
 - Datum: 2026-05-19
 - Contract: `xtend.epic18.rmt-app-platform-backlog.v1`
-- Epic Docs: `docs/epic18-media-manager-vendor-upstream.md`
+- Epic Docs: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Initial Workpackage: `development/WP-E18-01-Epic-18-Scope-Vendor-Baseline-und-App-Platform-Leitplanken-finalisieren.md`
 - Vendor Source: `/home/konni/Dokumente/net.ccs.cloud/media-manager/vendor/xtend`
 - Lessons Source: `/home/konni/Dokumente/net.ccs.cloud/media-manager/docs/xtend-component-bugfixes.md`
@@ -126,7 +126,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - Definition of Ready fuer RMT-App-Platform-Pakete
 - Zielartefakte:
   - dieses Backlog
-  - aktualisierte `docs/epic18-media-manager-vendor-upstream.md`
+  - aktualisierte `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
   - `development/WP-E18-01-Epic-18-Scope-Vendor-Baseline-und-App-Platform-Leitplanken-finalisieren.md`
 - Definition of Done:
   - erfuellt: `WP-E18-02` und `WP-E18-04` sind startbar
@@ -203,7 +203,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `catalog/epic18-rmt-app-platform-authoring.js`
   - `tests/fixtures/rmt-app-platform-authoring.rmt`
   - `tests/rmt/rmt_app_platform_authoring_suite.js`
-  - `docs/rmt-app-platform-authoring.md`
+  - `development/docs-evidence/root/rmt-app-platform-authoring.md`
   - aktualisierte `scripts/run_xtend_tests.js`
   - aktualisierte `package.json`
 - Definition of Done:
@@ -238,7 +238,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `xtendrmt/rmt-dom-descriptor-renderer.d.ts`
   - `tests/fixtures/rmt-dom-descriptor-renderer.rmt`
   - `tests/rmt/rmt_dom_descriptor_renderer_suite.js`
-  - `docs/rmt-dom-descriptor-renderer.md`
+  - `docs/en/rmt-dom-descriptor-renderer.md`
 
 ### WP-E18-06 - Component-native Template Primitives fuer RMT implementieren
 
@@ -265,7 +265,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `catalog/epic18-rmt-component-template-primitives.js`
   - `tests/fixtures/rmt-component-template-primitives.rmt`
   - `tests/rmt/rmt_component_template_primitives_suite.js`
-  - `docs/rmt-component-template-primitives.md`
+  - `docs/en/rmt-component-template-primitives.md`
   - aktualisierte `xtendrmt/rmt-dom-descriptor-renderer.js`
   - aktualisierte `xtendrmt/rmt-dom-descriptor-renderer.d.ts`
 
@@ -417,7 +417,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `xtend-builder/generators/rmt-app-platform.js`
   - `tests/fixtures/rmt-app-platform-tooling.rmt`
   - `tests/rmt-language/rmt_app_platform_tooling_suite.js`
-  - `docs/rmt-app-platform-tooling.md`
+  - `docs/en/rmt-app-platform-tooling.md`
 
 ### WP-E18-12 - Generische RMT App Platform Fixture bauen
 
@@ -446,7 +446,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `catalog/epic18-rmt-app-platform-fixture.js`
   - `tests/fixtures/rmt-app-platform-fixture.rmt`
   - `tests/rmt/rmt_app_platform_fixture_suite.js`
-  - `docs/rmt-app-platform-fixture.md`
+  - `docs/en/rmt-app-platform-fixture.md`
 
 ### WP-E18-13 - Docs, Migration Guide, Vendor Rebuild und Release Handoff
 
@@ -465,10 +465,10 @@ Ein Workpackage darf gestartet werden, wenn:
   - Entwickler koennen die neue App Platform nachvollziehen und neue Apps ohne
     externe Shell-Renderer starten
 - Ergebnis:
-  - erfuellt: Vendor-Bugfix-Doku ist unter `docs/epic18-vendor-bugfixes.md`
+  - erfuellt: Vendor-Bugfix-Doku ist unter `docs/en/rmt-app-platform-migration-guide.md`
     verfuegbar
   - erfuellt: Migration weg von externen HTML-Hosts ist unter
-    `docs/rmt-app-platform-migration-guide.md` dokumentiert
+    `docs/en/rmt-app-platform-migration-guide.md` dokumentiert
   - erfuellt: Epic-18-Umbrella-Gate `epic18-rmt-app-platform` ist registriert
   - erfuellt: PR-Gate `npm run test:pr:report` enthaelt den Epic-18-Handoff
   - erfuellt: GitHub Actions nutzen weiterhin PR- und Full-Release-Reports
@@ -476,9 +476,9 @@ Ein Workpackage darf gestartet werden, wenn:
   - `development/WP-E18-13-Docs-Migration-Guide-Vendor-Rebuild-und-Release-Handoff.md`
   - `catalog/epic18-rmt-app-platform-release-handoff.js`
   - `tests/platform/epic18_rmt_app_platform_release_handoff_suite.js`
-  - `docs/epic18-vendor-bugfixes.md`
-  - `docs/rmt-app-platform-migration-guide.md`
-  - `docs/epic18-rmt-app-platform-release-handoff.md`
+  - `docs/en/rmt-app-platform-migration-guide.md`
+  - `docs/en/rmt-app-platform-migration-guide.md`
+  - `docs/en/rmt-app-platform-migration-guide.md`
 
 ## Geplante Gate-Kette
 

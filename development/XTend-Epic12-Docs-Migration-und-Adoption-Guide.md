@@ -20,7 +20,7 @@ Der Guide ist kein Publish-Freigabeprozess. `package.json` bleibt `private: true
 |---------|------|-------|
 | RC0 Adoption Guide | `docs/rc0-adoption-guide.md` | operative Migration Notes und Adoption Checklist |
 | Enterprise Adoption | `docs/enterprise-adoption.md` | Epic-12-RC0-Erweiterung des bestehenden Enterprise Guides |
-| Long-Tail Migration | `docs/component-long-tail-migration.md` | aktualisierter Status fuer `xstate`, `x-utils` und geschlossene Komponenten |
+| Long-Tail Migration | `docs/en/component-long-tail-migration.md` | aktualisierter Status fuer `xstate`, `x-utils` und geschlossene Komponenten |
 | Snapshot Automation | `docs/visual-snapshot-automation.md` | DOM-first Snapshot Gate als RC0-Baseline |
 | Design Tokens | `docs/design-tokens.md` | Token Productization als Adoption-Pflicht |
 | RMT DSL Authoring | `docs/rmt-dsl-authoring-polish.md` | Upstream-freundliche RMT-Schreibweise fuer Shells |

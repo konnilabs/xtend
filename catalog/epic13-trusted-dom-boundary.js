@@ -25,7 +25,7 @@ const EPIC13_TRUSTED_DOM_BOUNDARY_SUITE = 'tests/platform/epic13_trusted_dom_bou
 const EPIC13_TRUSTED_DOM_BOUNDARY_STEERING = 'development/RC0-RC1-transfer-EPIC13.md';
 const EPIC13_TRUSTED_DOM_BOUNDARY_CONTRACT = 'development/XTend-Epic13-Trusted-DOM-Boundary-Contract.md';
 const EPIC13_TRUSTED_DOM_BOUNDARY_WORKPACKAGE_DOC = 'development/WP-E13-11-Trusted-DOM-Parsedown-und-RMT-HTML-Boundary-browsernah-pruefen.md';
-const EPIC13_TRUSTED_DOM_BOUNDARY_DOCS = 'docs/trusted-dom-boundary-browser-proof.md';
+const EPIC13_TRUSTED_DOM_BOUNDARY_DOCS = 'docs/en/trusted-dom-boundary-browser-proof.md';
 const EPIC13_TRUSTED_DOM_BOUNDARY_LOCAL_GATE = 'node scripts/run_xtend_tests.js epic13-trusted-dom-boundary --json';
 const EPIC13_TRUSTED_DOM_BOUNDARY_PACKAGE_SCRIPT = 'npm run test:epic13-trusted-dom-boundary';
 const EPIC13_TRUSTED_DOM_BOUNDARY_REPORT_ARTIFACT = '.xtend-test-results/xtend-epic13-trusted-dom-boundary-report.json';
@@ -68,9 +68,9 @@ const REQUIRED_ARTIFACTS = Object.freeze([
   'docs/utils/pageloader.js',
   'docs/index.php',
   'docs/xtendrmt-parsedown-docs.rmt',
-  'docs/trusted-dom-sanitizing.md',
-  'docs/docs-rmt-production-hardening.md',
-  'docs/prod-browser-csp-smokes.md'
+  'docs/en/trusted-dom-sanitizing.md',
+  'development/XTend-Epic13-Docs-RMT-Production-Hardening-Contract.md',
+  'development/XTend-Epic13-PROD-Browser-CSP-Smoke-Contract.md'
 ]);
 
 function createEpic13TrustedDomBoundaryPlan(options = {}) {

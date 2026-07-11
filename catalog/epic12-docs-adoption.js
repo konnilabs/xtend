@@ -15,12 +15,12 @@ const KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
 const REQUIRED_DOCS = Object.freeze([
   'docs/rc0-adoption-guide.md',
   'docs/enterprise-adoption.md',
-  'docs/component-long-tail-migration.md',
+  'docs/en/component-long-tail-migration.md',
   'docs/visual-snapshot-automation.md',
   'docs/design-tokens.md',
   'docs/rmt-dsl-authoring-polish.md',
   'docs/rc0-gate-matrix.md',
-  'docs/README.md',
+  'docs/en/README.md',
   'docs/menu.json'
 ]);
 

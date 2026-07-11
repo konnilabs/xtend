@@ -24,7 +24,7 @@ const EPIC13_RC1_READINESS_SUITE = 'tests/platform/epic13_rc1_readiness_suite.js
 const EPIC13_RC1_READINESS_STEERING = 'development/RC0-RC1-transfer-EPIC13.md';
 const EPIC13_RC1_READINESS_CONTRACT = 'development/XTend-Epic13-RC1-Readiness-Modell.md';
 const EPIC13_RC1_READINESS_WORKPACKAGE_DOC = 'development/WP-E13-01-RC1-Readiness-Model-und-Gate-Abgleich-einfrieren.md';
-const EPIC13_RC1_READINESS_DOCS = 'docs/rc1-readiness.md';
+const EPIC13_RC1_READINESS_DOCS = 'development/docs-evidence/legacy-routes/en/rc1-readiness.md';
 const EPIC13_RC1_READINESS_LOCAL_GATE = 'node scripts/run_xtend_tests.js epic13-rc1-readiness --json';
 const EPIC13_RC1_READINESS_PACKAGE_SCRIPT = 'npm run test:epic13-rc1-readiness';
 const PUBLISH_BOUNDARY = 'private-until-release-owner-acceptance';
@@ -51,7 +51,7 @@ const REQUIRED_DOCS = Object.freeze([
   'development/XTend-RC0-Gate-Matrix.md',
   'development/XTend-Release-Checklist-und-SemVer-Policy.md',
   'development/XTend-CI-Gate-Matrix.md',
-  'docs/epic12-rc0-handoff.md',
+  'development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md',
   'docs/enterprise-adoption.md'
 ]);
 

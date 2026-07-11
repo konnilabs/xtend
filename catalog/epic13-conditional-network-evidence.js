@@ -66,7 +66,7 @@ const REQUIRED_DOCS = Object.freeze([
   'development/XTend-Release-Checklist-und-SemVer-Policy.md',
   'development/XTend-CI-Gate-Matrix.md',
   'development/XTend-RC0-Gate-Matrix.md',
-  'docs/release-owner-acceptance.md',
+  'development/docs-evidence/legacy-routes/en/release-owner-acceptance.md',
   'docs/supply-chain-gates.md',
   'docs/enterprise-adoption.md'
 ]);

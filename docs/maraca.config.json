@@ -1,0 +1,56 @@
+{
+  "schema": "xtend.maraca.build-config.v1",
+  "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+  "sourceFingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+  "output": "docs/generated/shell",
+  "selected": {
+    "profile": "max",
+    "lazy": "route",
+    "css": "inline"
+  },
+  "locked": {
+    "orchestration": "auto",
+    "kernel": "auto",
+    "kernelBootMode": "direct",
+    "hydration": "auto",
+    "validation": "auto",
+    "transitions": "auto",
+    "componentMode": "document",
+    "stackMode": "plan",
+    "enablePrewarmWorker": false,
+    "enableUiCoprocessor": false,
+    "enablePwa": false,
+    "enableServiceWorker": false,
+    "enableWebAppManifest": false,
+    "allowDynamicComponents": false
+  },
+  "options": {
+    "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+    "out": "docs/generated/shell",
+    "profile": "max",
+    "lazy": "route",
+    "css": "inline",
+    "sizeBudget": "strict",
+    "orchestration": "auto",
+    "kernel": "auto",
+    "kernelBootMode": "direct",
+    "hydration": "auto",
+    "validation": "auto",
+    "transitions": "auto",
+    "componentMode": "document",
+    "stackMode": "plan",
+    "enablePrewarmWorker": false,
+    "enableUiCoprocessor": false,
+    "enablePwa": false,
+    "enableServiceWorker": false,
+    "enableWebAppManifest": false,
+    "allowDynamicComponents": false
+  },
+  "toolchain": {
+    "rollup": "4.60.4",
+    "terser": "5.48.0",
+    "mode": "rollup-terser"
+  },
+  "candidateMatrixFingerprint": "c998f8adef1e229066a5a524f5ff4fbb60828608e7293a3066f9dc2a1329824e",
+  "configFingerprint": "28872382a13e85d1d338fca63e60e144bbe94c6dc72f5c9316ada31ab4105352"
+}

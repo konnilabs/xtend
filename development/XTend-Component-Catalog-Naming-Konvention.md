@@ -44,7 +44,7 @@ Fortschreibung nach `WP-E13-12A`: `x-icon` folgt der Bestandregel mit Manifest-K
 - `docs/components/xsummary.md` dokumentiert `x-summary`.
 - `docs/components/xutils.md` dokumentiert `x-utils`.
 - `docs/menu.json` fuehrt `components-xsummary` und `components-xutils`.
-- `docs/README.md` und `docs/components.md` beschreiben die Konvention.
+- `docs/en/README.md` und `docs/components.md` beschreiben die Konvention.
 - Die Catalog Coverage Matrix steigt bei `docs` von `26/28` auf `28/28`.
 
 ## Folgepakete

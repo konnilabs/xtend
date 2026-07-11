@@ -19,7 +19,7 @@
 - `docs/rmt-language-server.md` auf den aktuellen Tooling-Stand erweitert
 - `docs/quick-start-guide.md` um `.rmt`, `xt rmt lint`, `--json`, `--agent` und LSP Start erweitert
 - `docs/xtendrmt-native-authoring.md` um Authoring Tooling, Snippets und Regression Gate erweitert
-- `docs/README.md` um Linter und Language Server verlinkt
+- `docs/en/README.md` um Linter und Language Server verlinkt
 - `docs/menu.json` um `rmt-linter` und `rmt-language-server` erweitert
 - `tests/docs/rmt_tooling_docs_suite.js` als Gate-Suite angelegt
 - `scripts/run_xtend_tests.js` und `package.json` um `rmt-tooling-docs` erweitert

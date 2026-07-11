@@ -1,7 +1,7 @@
 # WP-E18-09 - Deklaratives Event Routing und Component Interaction Contracts bauen
 
 - Status: `completed`
-- Epic: `docs/epic18-media-manager-vendor-upstream.md`
+- Epic: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
 - Contract: `xtend.epic18.rmt-event-routing-runtime.v1`
 - Runtime: `xtendrmt/rmt-event-routing-runtime.js`

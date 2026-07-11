@@ -1,0 +1,393 @@
+template docs.animation.engine.demo {
+  state docs.animation.engine.before type object preserve {
+    initial {
+      id "before"
+      hidden false
+    }
+  }
+
+  state docs.animation.engine.after type object preserve {
+    initial {
+      id "after"
+      hidden true
+    }
+  }
+
+  selector docs.animation.engine.before from state docs.animation.engine.before {
+    output DocsAnimationArticle
+  }
+
+  selector docs.animation.engine.after from state docs.animation.engine.after {
+    output DocsAnimationArticle
+  }
+
+  action docs.animation.engine.replay {
+    input source string
+    reduce state.docs.animation.engine.before.hidden = true
+    reduce state.docs.animation.engine.after.hidden = false
+    emit docs.animation.engine.replayed with source input.source
+  }
+
+  animation docs.animation.engine.fade {
+    effect fade
+    durationMs 280
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.crossfade {
+    effect crossfade
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    timeline {
+      parallel enter exit
+    }
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.slideLeft {
+    effect slide-left
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.slideRight {
+    effect slide-right
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.slideUp {
+    effect slide-up
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.slideDown {
+    effect slide-down
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.scale {
+    effect scale
+    durationMs 280
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.pop {
+    effect pop
+    durationMs 280
+    easing "cubic-bezier(.18,.9,.22,1)"
+    keyframe enter {
+      opacity 0
+      transform "scale(.92)"
+      offset 0
+    }
+    keyframe enter {
+      opacity 1
+      transform "scale(1)"
+      offset 1
+    }
+    spring {
+      stiffness 210
+      damping 22
+      mass 1
+    }
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.zoom {
+    effect zoom
+    durationMs 280
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.flip {
+    effect flip
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.rotate {
+    effect rotate
+    durationMs 280
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.expand {
+    effect expand
+    durationMs 280
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.collapse {
+    effect collapse
+    durationMs 280
+    easing "ease-out"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.fadeBlur {
+    effect fade-blur
+    durationMs 280
+    easing "ease-out"
+    allowFilter true
+    keyframe enter {
+      opacity 0
+      filter "blur(6px)"
+      offset 0
+    }
+    keyframe enter {
+      opacity 1
+      filter "blur(0px)"
+      offset 1
+    }
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.sharedElement {
+    effect shared-element
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.layoutFlip {
+    effect layout-flip
+    durationMs 280
+    easing "cubic-bezier(.2,.8,.2,1)"
+    reducedMotion fade
+  }
+
+  animation docs.animation.engine.none {
+    effect none
+    durationMs 0
+    easing "linear"
+    reducedMotion instant
+  }
+
+  transition docs.animation.engine.fadeTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.fade
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.crossfadeTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.crossfade
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.slideLeftTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.slideLeft
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.slideRightTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.slideRight
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.slideUpTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.slideUp
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.slideDownTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.slideDown
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.scaleTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.scale
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.popTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.pop
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.zoomTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.zoom
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.flipTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.flip
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.rotateTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.rotate
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.expandTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.expand
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.collapseTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.collapse
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.fadeBlurTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.fadeBlur
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.sharedElementTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.sharedElement
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.layoutFlipTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.layoutFlip
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  transition docs.animation.engine.noneTransition {
+    trigger action docs.animation.engine.replay
+    from surfaces [docs.animation.engine.before]
+    to surfaces [docs.animation.engine.after]
+    use animation docs.animation.engine.none
+    layoutKey "docs-animation-article"
+    interrupt replace
+    reducedMotion instant
+    lane transition
+  }
+
+  portal docs.animation.engine.root root "#docs-animation-engine-demo" layer surface
+
+  surface docs.animation.engine.before kind view component x-section {
+    source selector docs.animation.engine.before
+    key before.id
+    portal docs.animation.engine.root
+
+    lane idle weight 20 {
+      hydrate docs-animation-engine-before from selector docs.animation.engine.before {
+        hydration policy lazy
+        hydration insular true
+      }
+    }
+  }
+
+  surface docs.animation.engine.after kind view component x-section {
+    source selector docs.animation.engine.after
+    key after.id
+    portal docs.animation.engine.root
+
+    lane idle weight 20 {
+      hydrate docs-animation-engine-after from selector docs.animation.engine.after {
+        hydration policy lazy
+        hydration insular true
+      }
+    }
+  }
+}

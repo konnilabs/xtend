@@ -60,8 +60,8 @@ Diese Evidence ist fuer die Owner-Entscheidung vorhanden und reviewbar:
 - `.xtend-test-results/xtend-npm-sbom.json` mit CycloneDX `1.5`, scoped `bom-ref`/`purl`, `npm` CLI `10.9.8` und `Apache-2.0`
 - `CHANGELOG.md` mit dem Abschnitt `0.1.0-rc.1 Test-Build - 2026-05-16`
 - `docs/rc1-migration-notes.md`
-- `docs/rc1-gate-matrix-ci-handoff.md`
-- `docs/release-owner-acceptance.md`
+- `development/docs-evidence/legacy-routes/en/rc1-gate-matrix-ci-handoff.md`
+- `development/docs-evidence/legacy-routes/en/release-owner-acceptance.md`
 
 ## Entscheidungsoptionen
 

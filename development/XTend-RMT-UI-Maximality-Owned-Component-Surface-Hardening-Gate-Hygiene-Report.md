@@ -21,8 +21,8 @@ Dieser Report schliesst die direkt reparierbaren Gate-Residuals aus `WP-RMO-02` 
 
 | Residual | Status | Evidence |
 |----------|--------|----------|
-| `component-long-tail-migration-docs-file` | `closed` | `docs/component-long-tail-migration.md`, `docs/component-ux-gates.md`, `docs/component-catalog-coverage.md`, `docs/menu.json` |
-| `type-exports-docs-links` | `closed` | `docs/README.md` verlinkt `./xtend-loader-types.md` und `./xtend-vendor-types.md` |
+| `component-long-tail-migration-docs-file` | `closed` | `docs/en/component-long-tail-migration.md`, `development/docs-evidence/root/component-ux-gates.md`, `development/docs-evidence/root/component-catalog-coverage.md`, `docs/menu.json` |
+| `type-exports-docs-links` | `closed` | `docs/en/README.md` verlinkt `./xtend-loader-types.md` und `./xtend-vendor-types.md` |
 
 ## Gate Status
 

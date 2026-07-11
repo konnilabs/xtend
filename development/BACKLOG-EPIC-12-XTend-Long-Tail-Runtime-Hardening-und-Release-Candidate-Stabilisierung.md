@@ -38,12 +38,12 @@
   - `docs/rmt-dsl-authoring-polish.md`
   - `docs/rc0-gate-matrix.md`
   - `docs/rc0-adoption-guide.md`
-  - `docs/epic12-rc0-handoff.md`
+  - `development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md`
   - `docs/epic11-enterprise-ux-handoff.md`
-  - `docs/component-long-tail-migration.md`
+  - `docs/en/component-long-tail-migration.md`
   - `docs/visual-browser-regression.md`
   - `docs/visual-snapshot-automation.md`
-  - `docs/component-ux-gates.md`
+  - `development/docs-evidence/root/component-ux-gates.md`
   - `docs/enterprise-adoption.md`
   - `catalog/epic11-enterprise-ux-handoff.js`
   - `catalog/component-long-tail-migration.js`
@@ -728,7 +728,7 @@ Umgesetzt:
 
 - `docs/rc0-adoption-guide.md` fuehrt Long-Tail Runtime Closure, DOM-first Visual Snapshots, Design Token Productization, RMT DSL Authoring Polish, RC0 Gate Matrix, Known Residual Policy und Publish Boundary zusammen
 - `docs/enterprise-adoption.md` enthaelt den Epic-12-RC0-Adoption-Abschnitt
-- `docs/menu.json` und `docs/README.md` verlinken den neuen Guide
+- `docs/menu.json` und `docs/en/README.md` verlinken den neuen Guide
 - `package.json` und `xtend-builder/scaffold.config.js` spiegeln die Adoption-Flaeche unter `epic12DocsAdoption`
 - `tests/docs/epic12_docs_adoption_suite.js` prueft Docs, Package, Scaffold, Backlog, RC-Modell und Referenzregister
 
@@ -754,7 +754,7 @@ Startbar danach:
   - `development/WP-E12-16-Epic-12-Abschlussreview-und-RC0-Handoff.md`
   - maschinenlesbarer Handoff-Plan `catalog/epic12-rc0-handoff.js`
   - Handoff-Suite `tests/platform/epic12_rc0_handoff_suite.js`
-  - oeffentliche Doku `docs/epic12-rc0-handoff.md`
+  - oeffentliche Doku `development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md`
 - Definition of Done:
   - Epic 12 ist fachlich abgeschlossen
   - RC0-Freigabe ist entscheidungsreif, aber Publish bleibt bis Owner Acceptance blockiert
@@ -768,7 +768,7 @@ Umgesetzt:
 - `development/XTend-Epic12-Abschluss-und-RC0-Handoff.md` dokumentiert KPI-Abnahme, Long-Tail-Status, Snapshot-Status, RC0 Gate Matrix, Restrisiken und Publish Boundary
 - `catalog/epic12-rc0-handoff.js` stellt Factory, Validator und Report Factory bereit
 - `tests/platform/epic12_rc0_handoff_suite.js` prueft Handoff, Package, Scaffold, Runner, Docs, Backlog, RC-Modell und Referenzregister
-- `docs/epic12-rc0-handoff.md` macht den Owner-Handoff in der Docs-App sichtbar
+- `development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md` macht den Owner-Handoff in der Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` spiegeln den Handoff unter `epic12Rc0Handoff`
 
 Abschluss:

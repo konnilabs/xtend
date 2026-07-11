@@ -1,81 +1,25 @@
 # SurfaceManager Remote Surfaces
 
-Remote Surfaces sicher registrieren, laden und bei Fehlern degradieren.
+Eine Remote Surface ist ein registrierter Kandidat, kein automatisch ausführbares Modul. Der Host prüft statische Manifest-Fakten und SurfaceManager-Policy, bevor die Runtime Code lädt oder einen Container öffnet.
 
-## Worum es geht
+## Erforderliche Fakten
 
-SurfaceManager bündelt Fenster, Panels, Overlays und Remote-Bereiche in einer kontrollierten Runtime. Dadurch bleiben Fokus, Layering, Persistenz und Cleanup nachvollziehbar.
+Ein Record benennt `surfaceId`, Owner, Version, Origin, Entry, Integrity, benötigte Capabilities und einen lokalen Fallback. `remote-origin-allowlist` und `remote-capabilities` am Manager begrenzen den Host. Die Source of Truth für die Browserentscheidung liegt in `components/xsurfacemanager.js`; RMT-Manifeste werden zuvor durch `tools/rmt-language/vnext-remote-security.js` bewertet.
 
-## Öffentliche Bausteine
+## Policy-Ablauf
 
-- Surface IDs und Controller Records.
-- Fenster, Panels, Portals und Overlays.
-- Fokus-, Layer- und Cleanup-Regeln.
+`evaluateRemoteSurfacePolicy()` liefert zunächst einen Report ohne Ausführung. `registerRemoteSurface()` registriert nur einen akzeptierten Record. Materialisierung lädt das bekannte Entry, bindet es an einen hosteigenen Container und publiziert `remote-surface-mounted`. Die Remote Surface erhält keine impliziten Router-, Storage- oder Netzwerkfähigkeiten.
 
-## Empfohlener Ablauf
+Cross-Surface Events passieren `governRemoteSurfaceEvent()`. Owner, Version und Payload müssen zum Vertrag passen. Ein globaler Eventbus oder geteilte Framework-Contexts umgehen diese Grenze und sind nicht unterstützt.
 
-Vergib stabile Surface IDs, öffne und schließe Surfaces über den Controller und prüfe Fokus, Escape-Verhalten sowie Persistenz in Browser-Fixtures.
+## Degradation und Security
 
-## Nächste Schritte
+Origin-, Integrity- oder Capability-Fehler führen zu `remote-surface-refused`; ein Fehler nach akzeptierter Registrierung führt zu `remote-surface-degraded`. In beiden Fällen bleibt der lokale Fallback sichtbar und die Diagnose nennt den Grund. Die Runtime rekonstruiert keine Tokens und lädt keine alternative URL aus Remote-Eingaben.
 
-- [SurfaceManager](./surface-manager-authoring-guide.md)
-- [SurfaceManager Controller](./surface-manager-controller.md)
+Same-Realm-Ausführung ist keine harte Sicherheitsisolation. Sensible oder nicht vertrauenswürdige Inhalte brauchen eine stärkere Host-Grenze außerhalb dieser Surface Runtime.
+
+## Verwandte Seiten
+
+- [RMT Remote Surfaces](./rmt-vnext-remote-surfaces.md)
+- [Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
 - [SurfaceManager Runtime](./surface-manager-runtime.md)
-
-## Öffentlicher Vertrag
-
-SurfaceManager Remote Surfaces ist der öffentliche Surface-Integration-Vertrag für `docs/de/surface-manager-remote-surfaces.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Surface Records, Controller, Portale, Fenster, Ownership und Routing-Grenzen.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/surface-manager-remote-surfaces.md`
-- `docs/menu.json`
-- `package.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-
-Namen:
-- `docs/de/surface-manager-remote-surfaces.md`
-- `docs/menu.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-- `docs/dev-router.php`
-- `package.json`
-- `x-surface-manager`
-
-Befehle:
-- `node scripts/run_xtend_tests.js components catalog-coverage --json`
-- `node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js components catalog-coverage --json
-node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn eine Surface fehlt, prüfe Ownership, Portal, Window-Record und Router-Bindung in dieser Reihenfolge.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

@@ -20,7 +20,7 @@ Es startet noch keinen Publish-Prozess und oeffnet keine Publish Boundary.
 - `development/XTend-Epic13-RC1-Readiness-Modell.md` als akzeptierter Readiness Contract angelegt
 - `catalog/epic13-rc1-readiness.js` als maschinenlesbares RC1 Readiness Model angelegt
 - `tests/platform/epic13_rc1_readiness_suite.js` als lokaler Gate angelegt
-- `docs/rc1-readiness.md` in die offizielle Docs-App aufgenommen
+- `development/docs-evidence/legacy-routes/en/rc1-readiness.md` in die offizielle Docs-App aufgenommen
 - `package.json`, `xtend-builder/scaffold.config.js`, Runner, Docs und Referenzregister verankert
 
 ## Gate-Abgleich

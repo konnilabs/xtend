@@ -262,6 +262,9 @@ function createMockSnapshot() {
 function assertCommonFiles(context, rootDir) {
   [
     XTEND_DEV_SURFACE_CONTRACT_PATH,
+    'development/XTend-Docs-Quality-Implementierungsplan.md',
+    'docs/de/xtend-dev-surface.md',
+    'docs/en/xtend-dev-surface.md',
     'tools/xtend-dev-surface/README.md',
     XTEND_DEV_SURFACE_TYPES_PATH,
     'tools/xtend-dev-surface/runtime-bridge.d.ts',
@@ -804,6 +807,9 @@ function assertPackageAndRunner(context, rootDir) {
   context.assert(metadata && metadata.companionWorkpackage === 'XDS-WP-04', 'package metadata declares XDS-WP-04 companion marker');
   context.assert(metadata && metadata.performanceViewWorkpackage === 'XDS-WP-05', 'package metadata declares XDS-WP-05 performance view marker');
   context.assert(metadata && metadata.hydrationViewWorkpackage === 'XDS-WP-10', 'package metadata declares XDS-WP-10 hydration view marker');
+  context.assert(metadata && metadata.publicDocsWorkpackage === 'XDS-WP-11', 'package metadata declares XDS-WP-11 public docs marker');
+  context.assert(metadata && metadata.docs && metadata.docs.de === 'docs/de/xtend-dev-surface.md', 'package metadata points to German Dev Surface docs');
+  context.assert(metadata && metadata.docs && metadata.docs.en === 'docs/en/xtend-dev-surface.md', 'package metadata points to English Dev Surface docs');
   context.assert(metadata && metadata.kernelMonitorWorkpackage === 'XDS-WP-06', 'package metadata declares XDS-WP-06 kernel monitor marker');
   context.assert(metadata && metadata.fabricViewWorkpackage === 'XDS-WP-07', 'package metadata declares XDS-WP-07 fabric view marker');
   context.assert(metadata && metadata.workerPathWorkpackage === 'XDS-WP-08', 'package metadata declares XDS-WP-08 worker path marker');
@@ -826,6 +832,12 @@ function assertPackageAndRunner(context, rootDir) {
 
 function assertDocs(context, rootDir) {
   const doc = readText(XTEND_DEV_SURFACE_CONTRACT_PATH, rootDir);
+  const docsQualityPlan = readText('development/XTend-Docs-Quality-Implementierungsplan.md', rootDir);
+  const docsMenu = readJson('docs/menu.json', rootDir);
+  const docsDe = readText('docs/de/xtend-dev-surface.md', rootDir);
+  const docsEn = readText('docs/en/xtend-dev-surface.md', rootDir);
+  const docsReadmeDe = readText('docs/de/README.md', rootDir);
+  const docsReadmeEn = readText('docs/en/README.md', rootDir);
   const readme = readText('tools/xtend-dev-surface/README.md', rootDir);
   context.assertIncludes(doc, 'XDS-WP-00', 'implementation plan documents XDS-WP-00');
   context.assertIncludes(doc, 'XDS-WP-03 Runtime Bridge', 'implementation plan documents XDS-WP-03');
@@ -836,6 +848,7 @@ function assertDocs(context, rootDir) {
   context.assertIncludes(doc, 'XDS-WP-08 Worker Path', 'implementation plan documents XDS-WP-08');
   context.assertIncludes(doc, 'XDS-WP-09 Handoff', 'implementation plan documents XDS-WP-09');
   context.assertIncludes(doc, 'XDS-WP-10 Hydration/XScaler', 'implementation plan documents XDS-WP-10');
+  context.assertIncludes(doc, 'XDS-WP-11 Public Documentation', 'implementation plan documents XDS-WP-11');
   context.assertIncludes(doc, 'xtend.devsurface.hydration-snapshot.v1', 'implementation plan documents hydration snapshot schema');
   context.assertIncludes(doc, 'XDS-WP-09', 'implementation plan documents XDS-WP-09');
   context.assertIncludes(doc, 'window.__XTEND_DEV_API__', 'implementation plan documents DEV API');
@@ -847,6 +860,29 @@ function assertDocs(context, rootDir) {
   context.assertIncludes(readme, 'npm run test:xtend-dev-surface', 'README documents package test command');
   context.assertIncludes(readme, 'tools/xtend-dev-surface/dist/', 'README documents dist load path');
   context.assertIncludes(readme, 'Troubleshooting', 'README documents troubleshooting');
+  context.assertIncludes(docsQualityPlan, 'XDQ-WP-00', 'docs quality plan records its baseline workpackage');
+  const menuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-surface');
+  context.assert(menuEntry && menuEntry.group === 'quality' && menuEntry.contentType === 'tutorial', 'docs menu exposes Dev Surface as a quality tutorial');
+  [docsDe, docsEn].forEach((publicDoc) => {
+    [
+      'window.__XTEND_DEV_API__',
+      'getPerformanceSnapshot()',
+      'getHydrationSnapshot()',
+      'getFabricTelemetrySnapshot()',
+      'getKernelSnapshot()',
+      'Performance',
+      'Hydration',
+      'Kernel',
+      'Fabric',
+      'Gates',
+      'No XTend app detected',
+      '9196',
+      'XTEND_DEV_SURFACE_TOKEN=dev',
+      'tools/xtend-dev-surface/dist/'
+    ].forEach((marker) => context.assertIncludes(publicDoc, marker, `public Dev Surface docs include ${marker}`));
+  });
+  context.assertIncludes(docsReadmeDe, './xtend-dev-surface.md', 'German Developer Center links Dev Surface');
+  context.assertIncludes(docsReadmeEn, './xtend-dev-surface.md', 'English Developer Center links Dev Surface');
 }
 
 async function runXTendDevSurfaceSuite(options = {}) {

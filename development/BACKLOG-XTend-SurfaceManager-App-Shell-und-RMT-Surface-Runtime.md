@@ -17,8 +17,8 @@
   - `development/XTendRMT-vNext-Surface-Registry-Contract.md`
   - `development/XTendRMT-vNext-Remote-Surface-Manifest-Contract.md`
   - `development/XTendRMT-vNext-Remote-Surfaces-Threat-Model-Contract.md`
-  - `docs/surface-manager-release-handoff.md`
-  - `docs/surface-manager-authoring-guide.md`
+  - `development/docs-evidence/root/surface-manager-release-handoff.md`
+  - `docs/en/surface-manager-authoring-guide.md`
   - `docs/surface-manager-native-rmt-surfaces.md`
   - `components/xsurfacemanager.js`
   - `components/xsurfacemanager-controller.js`
@@ -216,7 +216,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `catalog/surface-manager-lazy-loading.js`
   - `tests/components/surface_manager_lazy_hydration_suite.js`
   - `tests/components/fixtures/xsurfacemanager-lazy-hydration.component.html`
-  - `docs/surface-manager-lazy-hydration.md`
+  - `development/docs-evidence/root/surface-manager-lazy-hydration.md`
   - `development/WP-SM-13-Shell-first-Lazy-Surface-Loading-mit-Skeleton-Hydration-bauen.md`
 - Definition of Done:
   - Shell-first bleibt auch bei schweren Surface-Inhalten stabil
@@ -244,7 +244,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `catalog/surface-manager-route-lifecycle.js`
   - `tests/components/surface_manager_route_lifecycle_suite.js`
   - `tests/components/fixtures/xsurfacemanager-route-lifecycle.component.html`
-  - `docs/surface-manager-route-lifecycle.md`
+  - `development/docs-evidence/root/surface-manager-route-lifecycle.md`
   - `development/WP-SM-14-XRouter-gebundene-Surface-Lifecycles-definieren-und-umsetzen.md`
 - Definition of Done:
   - route-bound Surfaces werden reproduzierbar geladen, geschlossen und wiederhergestellt
@@ -325,7 +325,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `catalog/surface-manager-remote-policy.js`
   - `tests/components/surface_manager_remote_policy_suite.js`
   - `tests/components/fixtures/xsurfacemanager-remote-policy.component.html`
-  - `docs/surface-manager-remote-policy.md`
+  - `development/docs-evidence/root/surface-manager-remote-policy.md`
   - `development/WP-SM-17-Remote-Surface-Trust-Ownership-und-Capability-Policies-anbinden.md`
 - Definition of Done:
   - Remote Surface Records koennen sicher abgelehnt, degradiert oder gemountet werden
@@ -354,7 +354,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - `tests/browser/surface_manager_browser_lab_suite.js`
   - `tests/browser/fixtures/surface-manager-browser-lab.html`
   - `tests/browser/visual-baselines/surface-manager-browser-lab.dom-baseline.json`
-  - `docs/surface-manager-browser-lab.md`
+  - `development/docs-evidence/root/surface-manager-browser-lab.md`
   - `development/WP-SM-18-Browser-Lab-Pixel-Baselines-und-App-Shell-Projektproben-ausbauen.md`
 - Definition of Done:
   - Surface-Shell-Kaltstart ist visuell gatebar
@@ -384,8 +384,8 @@ Ein Workpackage darf gestartet werden, wenn:
   - `tests/rmt/surface_manager_runtime_release_handoff_suite.js`
   - `development/XTend-SurfaceManager-Runtime-Release-Handoff-Contract.md`
   - `development/WP-SM-19-Migration-Doku-und-Release-Handoff-fuer-Surface-Runtime-finalisieren.md`
-  - `docs/surface-manager-runtime-release-handoff.md`
-  - Updates in `docs/surface-manager-authoring-guide.md`, `docs/surface-manager-migration-guide.md` und `docs/surface-manager-release-handoff.md`
+  - `development/docs-evidence/root/surface-manager-runtime-release-handoff.md`
+  - Updates in `docs/en/surface-manager-authoring-guide.md`, `docs/en/surface-manager-migration-guide.md` und `development/docs-evidence/root/surface-manager-release-handoff.md`
 - Definition of Done:
   - produktiver Runtime-Claim ist dokumentiert und gatebar
   - Handoff benennt offene Scopes explizit

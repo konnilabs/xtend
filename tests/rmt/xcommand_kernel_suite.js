@@ -131,7 +131,7 @@ function validateAppShellFixture(context, rootDir) {
 }
 
 function validateSurfaceAndDocs(context, rootDir) {
-  ['xcommand/xcommand.js', 'xcommand/xcommand.d.ts', 'components/xkeymap.js', 'development/XTend-XCommand-XKeymap-Plan.md', 'docs/en/xcommand-xkeymap-plan.md', APP_SHELL_FIXTURE_PATH].forEach((relativePath) => {
+  ['xcommand/xcommand.js', 'xcommand/xcommand.d.ts', 'components/xkeymap.js', 'development/XTend-XCommand-XKeymap-Plan.md', 'development/docs-evidence/legacy-routes/en/xcommand-xkeymap-plan.md', APP_SHELL_FIXTURE_PATH].forEach((relativePath) => {
     context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), `${relativePath} exists`);
   });
   const component = readText('components/xkeymap.js', rootDir);

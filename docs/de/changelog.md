@@ -1,79 +1,28 @@
 # Changelog
 
-Produktrelevante Änderungen ohne interne Arbeitsplanung.
+Diese Seite erklärt, wie öffentliche Änderungen an XTend eingeordnet werden. Die installierte Version steht in `package.json`; Exports, Deklarationen und Migrationshinweise sind die maßgeblichen Quellen für Integratoren.
 
-## Worum es geht
+## Versionsstand ermitteln
 
-Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwissen produktiv einsetzen wollen.
-
-## Öffentliche Bausteine
-
-- Lokale Entwicklung ohne CDN.
-- Bilinguale Dokumentation.
-- Stabile öffentliche Einstiegspunkte.
-
-## Empfohlener Ablauf
-
-Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.
-
-## Nächste Schritte
-
-- [Quick Start](./quick-start-guide.md)
-- [Über XTend](./about.md)
-- [Enterprise Adoption](./enterprise-adoption.md)
-
-## Öffentlicher Vertrag
-
-Changelog ist der öffentliche Orientierung-Vertrag für `docs/de/changelog.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Einstiegsrouten, lokale Docs-Navigation und die kleinsten lauffähigen Befehle.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/changelog.md`
-- `docs/menu.json`
-- `package.json`
-- `README.md`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `xtend-loader.js`
-
-Namen:
-- `docs/de/changelog.md`
-- `docs/menu.json`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `docs/dev-router.php`
-- `package.json`
-- `README.md`
-- `xtend-loader.js`
-- `node scripts/verify_docs_public_quality.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
+Lies die Version nicht aus einem generierten Banner oder Screenshot. Ermittle sie direkt aus dem Package:
 
 ```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
+node -p "require('./package.json').version"
 ```
 
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
+Vergleiche anschließend `package.json` mit den tatsächlich installierten Dateien. `api.d.ts`, `components/manifest.json` und die Deklarationen unter `components/*.d.ts` zeigen, welche öffentliche Oberfläche zu diesem Stand gehört.
 
-## Spezifische Fehlerbilder
+## Änderungen bewerten
 
-- Wenn Einstiegspfade auseinanderlaufen, prüfe zuerst `docs/menu.json`, die lokalen Links und den Befehl im Prüfblock.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+- **Additiv:** Ein neuer Export, ein optionales Attribut oder ein neues versioniertes Schema erweitert die Oberfläche, ohne bestehende Aufrufe zu brechen.
+- **Verhaltensänderung:** Defaults, Scheduling, Hydration oder Fehlerstatus ändern sich. Solche Änderungen brauchen ein ausführbares Beispiel und einen aktualisierten Gate-Report.
+- **Migration:** Ein Name, ein Vertrag oder ein unterstützter Pfad wird ersetzt. Der alte Pfad bleibt mindestens für den dokumentierten Übergang erhalten oder liefert eine eindeutige Diagnose.
+- **Security Fix:** Import-, Integrity-, CSP- oder Trust-Regeln werden verschärft. Ein solcher Fix darf nicht durch einen stillen Kompatibilitätsfallback umgangen werden.
+
+## Was ein Release belegen muss
+
+Ein Release ist mehr als eine Versionsnummer. Die Export-Lock-Prüfung muss zu den TypeScript-Deklarationen passen, der Pack-Dry-Run darf keine internen Artefakte veröffentlichen und die relevanten Browser- sowie Runtime-Gates müssen grün sein. [Release Verification](./release-verification.md) beschreibt die Reihenfolge und die Bedeutung der Reports.
+
+## Upgrade-Pfad
+
+Prüfe vor dem Upgrade zuerst die betroffenen öffentlichen Symbole. Bei RMT vNext helfen die [Migration Notes](./rmt-vnext-migration-notes.md), für Komponenten die [Long-Tail Migration](./component-long-tail-migration.md) und für XTensions der [Coexistence Guide](./xtensions-migration-coexistence-guide.md). Passe Source, Fixture und Tests gemeinsam an, statt nur einen kompilierten Output zu ersetzen.

@@ -2,7 +2,7 @@
 
 - Status: `completed`
 - Datum: 2026-05-19
-- Epic Docs: `docs/epic18-media-manager-vendor-upstream.md`
+- Epic Docs: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
 - Depends on: `WP-E18-01`
 - WP Contract: `xtend.epic18.wp04.rmt-app-platform-authoring-model.v1`
@@ -33,7 +33,7 @@ beschreibt App-Platform-Primitives, nicht Media-Manager-Surfaces als Produkt.
 | `catalog/epic18-rmt-app-platform-authoring.js` | maschinenlesbarer Contract mit Primitives, Boundaries, Schedules und Handoff |
 | `tests/fixtures/rmt-app-platform-authoring.rmt` | generische RMT-App-Platform-Fixture fuer mehrere frei definierte Domains |
 | `tests/rmt/rmt_app_platform_authoring_suite.js` | lokaler Gate `rmt-app-platform-authoring` |
-| `docs/rmt-app-platform-authoring.md` | Entwicklerdokumentation des Authoring-Modells |
+| `development/docs-evidence/root/rmt-app-platform-authoring.md` | Entwicklerdokumentation des Authoring-Modells |
 | `scripts/run_xtend_tests.js` | Registrierung der neuen Suite |
 | `package.json` | Script `test:rmt-app-platform-authoring` |
 

@@ -71,6 +71,14 @@ Attributes:
 - `modal`
 - `initial-width`
 - `initial-height`
+- `initial-x`
+- `initial-y`
+- `initial-min-width`
+- `initial-min-height`
+- `initial-max-width`
+- `initial-max-height`
+- `bounds-mode`
+- `bounds-scope`
 
 Events:
 - `surface-panel-command`

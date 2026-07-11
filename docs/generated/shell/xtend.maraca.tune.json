@@ -1,0 +1,319 @@
+{
+  "schema": "xtend.maraca.tune-report.v1",
+  "ok": true,
+  "status": "written",
+  "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+  "sourceFingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+  "configPath": "docs/maraca.config.json",
+  "reportPath": "docs/generated/shell/xtend.maraca.tune.json",
+  "output": "docs/generated/shell",
+  "candidateMatrixFingerprint": "c998f8adef1e229066a5a524f5ff4fbb60828608e7293a3066f9dc2a1329824e",
+  "candidateCount": 12,
+  "acceptedCandidateCount": 12,
+  "candidates": [
+    {
+      "id": "production-route-inline",
+      "profile": "production",
+      "lazy": "route",
+      "css": "inline",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 1836436,
+        "totalBytes": 2043873,
+        "eagerRequests": 3,
+        "chunkCount": 8
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "production-route-external",
+      "profile": "production",
+      "lazy": "route",
+      "css": "external",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 1836578,
+        "totalBytes": 2044020,
+        "eagerRequests": 4,
+        "chunkCount": 8
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "production-component-inline",
+      "profile": "production",
+      "lazy": "component",
+      "css": "inline",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 1836580,
+        "totalBytes": 2044017,
+        "eagerRequests": 3,
+        "chunkCount": 8
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "production-component-external",
+      "profile": "production",
+      "lazy": "component",
+      "css": "external",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 1836722,
+        "totalBytes": 2044164,
+        "eagerRequests": 4,
+        "chunkCount": 8
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "production-none-inline",
+      "profile": "production",
+      "lazy": "none",
+      "css": "inline",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 2041721,
+        "totalBytes": 2041721,
+        "eagerRequests": 3,
+        "chunkCount": 1
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "production-none-external",
+      "profile": "production",
+      "lazy": "none",
+      "css": "external",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 2041865,
+        "totalBytes": 2041865,
+        "eagerRequests": 4,
+        "chunkCount": 1
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "max-route-inline",
+      "profile": "max",
+      "lazy": "route",
+      "css": "inline",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 1835863,
+        "totalBytes": 2032433,
+        "eagerRequests": 3,
+        "chunkCount": 8
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "max-route-external",
+      "profile": "max",
+      "lazy": "route",
+      "css": "external",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 1836005,
+        "totalBytes": 2032580,
+        "eagerRequests": 4,
+        "chunkCount": 8
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "max-component-inline",
+      "profile": "max",
+      "lazy": "component",
+      "css": "inline",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 1836007,
+        "totalBytes": 2032577,
+        "eagerRequests": 3,
+        "chunkCount": 8
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "max-component-external",
+      "profile": "max",
+      "lazy": "component",
+      "css": "external",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 1836149,
+        "totalBytes": 2032724,
+        "eagerRequests": 4,
+        "chunkCount": 8
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "max-none-inline",
+      "profile": "max",
+      "lazy": "none",
+      "css": "inline",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 2030331,
+        "totalBytes": 2030331,
+        "eagerRequests": 3,
+        "chunkCount": 1
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    },
+    {
+      "id": "max-none-external",
+      "profile": "max",
+      "lazy": "none",
+      "css": "external",
+      "accepted": true,
+      "status": "built",
+      "reason": "accepted",
+      "metrics": {
+        "eagerBytes": 2030475,
+        "totalBytes": 2030475,
+        "eagerRequests": 4,
+        "chunkCount": 1
+      },
+      "toolchain": "rollup-terser",
+      "warningCount": 6,
+      "diagnosticCount": 0,
+      "errorCount": 0
+    }
+  ],
+  "selected": {
+    "id": "max-route-inline",
+    "profile": "max",
+    "lazy": "route",
+    "css": "inline",
+    "metrics": {
+      "eagerBytes": 1835863,
+      "totalBytes": 2032433,
+      "eagerRequests": 3,
+      "chunkCount": 8
+    }
+  },
+  "config": {
+    "schema": "xtend.maraca.build-config.v1",
+    "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+    "sourceFingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+    "output": "docs/generated/shell",
+    "selected": {
+      "profile": "max",
+      "lazy": "route",
+      "css": "inline"
+    },
+    "locked": {
+      "orchestration": "auto",
+      "kernel": "auto",
+      "kernelBootMode": "direct",
+      "hydration": "auto",
+      "validation": "auto",
+      "transitions": "auto",
+      "componentMode": "document",
+      "stackMode": "plan",
+      "enablePrewarmWorker": false,
+      "enableUiCoprocessor": false,
+      "enablePwa": false,
+      "enableServiceWorker": false,
+      "enableWebAppManifest": false,
+      "allowDynamicComponents": false
+    },
+    "options": {
+      "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+      "out": "docs/generated/shell",
+      "profile": "max",
+      "lazy": "route",
+      "css": "inline",
+      "sizeBudget": "strict",
+      "orchestration": "auto",
+      "kernel": "auto",
+      "kernelBootMode": "direct",
+      "hydration": "auto",
+      "validation": "auto",
+      "transitions": "auto",
+      "componentMode": "document",
+      "stackMode": "plan",
+      "enablePrewarmWorker": false,
+      "enableUiCoprocessor": false,
+      "enablePwa": false,
+      "enableServiceWorker": false,
+      "enableWebAppManifest": false,
+      "allowDynamicComponents": false
+    },
+    "toolchain": {
+      "rollup": "4.60.4",
+      "terser": "5.48.0",
+      "mode": "rollup-terser"
+    },
+    "candidateMatrixFingerprint": "c998f8adef1e229066a5a524f5ff4fbb60828608e7293a3066f9dc2a1329824e",
+    "configFingerprint": "28872382a13e85d1d338fca63e60e144bbe94c6dc72f5c9316ada31ab4105352"
+  },
+  "configMatches": true,
+  "finalBuild": {
+    "status": "built",
+    "bytes": 2031801,
+    "entry": "docs/generated/shell/xtend.maraca.mjs",
+    "toolchain": "rollup-terser"
+  },
+  "diagnostics": []
+}

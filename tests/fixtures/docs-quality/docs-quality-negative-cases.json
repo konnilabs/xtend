@@ -1,0 +1,19 @@
+{
+  "schema": "xtend.docs.quality-negative-fixtures.v1",
+  "boilerplate": "The stable signal is not article length; it is whether a generic paragraph can inflate the page.",
+  "repeatedParagraph": "This deliberately repeated narrative paragraph is longer than one hundred and twenty characters so the documentation quality inventory must report it when it appears in four separate public articles.",
+  "aliasCollision": {
+    "canonicalSlug": "legacy-page",
+    "ownerSlug": "current-page"
+  },
+  "aliasLoop": {
+    "alpha": "beta",
+    "beta": "alpha"
+  },
+  "internalTerm": "This Workpackage remains an internal planning record and must not appear in public prose.",
+  "mixedLanguage": "Diese Seite contains German prose in an English article.",
+  "staleFacts": {
+    "de": "Schema xtend.fixture.contract.v1\nnode scripts/run_xtend_tests.js fixture-old --json\ngetKernelSnapshot()",
+    "en": "Schema xtend.fixture.contract.v2\nnode scripts/run_xtend_tests.js fixture-new --json\ngetPerformanceSnapshot()"
+  }
+}

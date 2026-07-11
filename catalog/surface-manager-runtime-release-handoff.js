@@ -15,7 +15,7 @@ const SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_SUITE = 'tests/rmt/surface_manager
 const SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_BACKLOG = 'development/BACKLOG-XTend-SurfaceManager-App-Shell-und-RMT-Surface-Runtime.md';
 const SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_CONTRACT = 'development/XTend-SurfaceManager-Runtime-Release-Handoff-Contract.md';
 const SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_WORKPACKAGE_DOC = 'development/WP-SM-19-Migration-Doku-und-Release-Handoff-fuer-Surface-Runtime-finalisieren.md';
-const SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_DOCS = 'docs/surface-manager-runtime-release-handoff.md';
+const SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_DOCS = 'development/docs-evidence/root/surface-manager-runtime-release-handoff.md';
 const SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-runtime-release-handoff --json';
 const SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_PACKAGE_SCRIPT = 'npm run test:surface-runtime-release-handoff';
 
@@ -54,9 +54,9 @@ const RELEASE_GATES = Object.freeze([
 ]);
 
 const UPDATED_GUIDES = Object.freeze([
-  'docs/surface-manager-authoring-guide.md',
-  'docs/surface-manager-migration-guide.md',
-  'docs/surface-manager-release-handoff.md',
+  'docs/en/surface-manager-authoring-guide.md',
+  'docs/en/surface-manager-migration-guide.md',
+  'development/docs-evidence/root/surface-manager-release-handoff.md',
   SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_DOCS
 ]);
 

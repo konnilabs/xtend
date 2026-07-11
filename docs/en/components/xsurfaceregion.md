@@ -64,6 +64,12 @@ Attributes:
 - `initial-y`
 - `initial-width`
 - `initial-height`
+- `initial-min-width`
+- `initial-min-height`
+- `initial-max-width`
+- `initial-max-height`
+- `bounds-mode`
+- `bounds-scope`
 - `role`
 
 Events:

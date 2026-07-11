@@ -19,10 +19,10 @@ const SURFACE_MANAGER_RELEASE_HANDOFF_SUITE = 'tests/rmt/surface_manager_release
 const SURFACE_MANAGER_RELEASE_HANDOFF_PLAN = 'development/XTend-SurfaceManager-und-Multi-Window-Plan.md';
 const SURFACE_MANAGER_RELEASE_HANDOFF_CONTRACT = 'development/XTend-SurfaceManager-Release-Handoff-Contract.md';
 const SURFACE_MANAGER_RELEASE_HANDOFF_WORKPACKAGE_DOC = 'development/WP-SM-09-Docs-Component-Lab-und-Migration-Guide-finalisieren.md';
-const SURFACE_MANAGER_RELEASE_HANDOFF_DOCS = 'docs/surface-manager-release-handoff.md';
-const SURFACE_MANAGER_AUTHORING_GUIDE = 'docs/surface-manager-authoring-guide.md';
+const SURFACE_MANAGER_RELEASE_HANDOFF_DOCS = 'development/docs-evidence/root/surface-manager-release-handoff.md';
+const SURFACE_MANAGER_AUTHORING_GUIDE = 'docs/en/surface-manager-authoring-guide.md';
 const SURFACE_MANAGER_COMPONENT_LAB_DOCS = 'docs/surface-manager-component-lab.md';
-const SURFACE_MANAGER_MIGRATION_GUIDE = 'docs/surface-manager-migration-guide.md';
+const SURFACE_MANAGER_MIGRATION_GUIDE = 'docs/en/surface-manager-migration-guide.md';
 const SURFACE_MANAGER_COMPONENT_LAB_FIXTURE = 'tests/fixtures/rmt-surface-manager-component-lab.rmt';
 const SURFACE_MANAGER_RELEASE_HANDOFF_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-release-handoff --json';
 const SURFACE_MANAGER_RELEASE_HANDOFF_PACKAGE_SCRIPT = 'npm run test:surface-release-handoff';
@@ -73,7 +73,7 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_COMPONENT_LAB_DOCS,
   SURFACE_MANAGER_MIGRATION_GUIDE,
   'docs/component-lab.md',
-  'docs/surface-manager-rmt-authoring.md',
+  'development/docs-evidence/root/surface-manager-rmt-authoring.md',
   'docs/surface-manager-native-rmt-surfaces.md',
   'docs/xtendrmt-native-authoring.md',
   'docs/xtendrmt-migration-guide.md'

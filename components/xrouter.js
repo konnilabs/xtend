@@ -93,7 +93,7 @@ function hasAllowedXRouterModuleExtension(url) {
  */
 class XRoute extends HTMLElement {
   static get observedAttributes() {
-    return ['path', 'component', 'import', 'title', 'document-title', 'title-template', 'meta-description', 'meta-keywords', 'skeleton', 'skeleton-lines', 'skeleton-min-height', 'hydrate-schedule'];
+    return ['path', 'component', 'import', 'title', 'document-title', 'title-template', 'meta-description', 'meta-keywords', 'skeleton', 'skeleton-profile', 'skeleton-lines', 'skeleton-min-height', 'hydrate-schedule'];
   }
   get path() { return this.getAttribute('path'); }
   get component() { return this.getAttribute('component'); }
@@ -101,6 +101,7 @@ class XRoute extends HTMLElement {
   get title() { return this.getAttribute('title'); }
   get documentTitle() { return this.getAttribute('document-title'); }
   get skeleton() { return this.getAttribute('skeleton'); }
+  get skeletonProfile() { return this.getAttribute('skeleton-profile'); }
   get skeletonLines() { return this.getAttribute('skeleton-lines'); }
   get skeletonMinHeight() { return this.getAttribute('skeleton-min-height'); }
   get hydrateSchedule() { return this.getAttribute('hydrate-schedule') || this.getAttribute('data-rmt-hydrate-schedule'); }
@@ -112,7 +113,7 @@ customElements.define('x-route', XRoute);
  * Haupt-Router-Komponente, die die Navigation verwaltet.
  */
 class XRouter extends HTMLElement {
-  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component', 'skeleton', 'skeleton-lines', 'skeleton-min-height']; }
+  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component', 'skeleton', 'skeleton-profile', 'skeleton-lines', 'skeleton-min-height']; }
 
   static get xtendComponentContract() {
     return {
@@ -501,6 +502,7 @@ class XRouter extends HTMLElement {
       router: routeRecord.router || routeRecord.routerId || source.router || 'xtend.xrouter',
       import: routeRecord.import || source.import || source.importUrl || source.moduleRef || metadata.import || metadata.importUrl || '',
       skeleton: routeRecord.skeleton || source.skeleton || metadata.skeleton || '',
+      skeletonProfile: routeRecord.skeletonProfile || routeRecord.skeleton_profile || source.skeletonProfile || source.skeleton_profile || metadata.skeletonProfile || metadata.skeleton_profile || '',
       skeletonLines: routeRecord.skeletonLines || routeRecord.skeleton_lines || source.skeletonLines || source.skeleton_lines || metadata.skeletonLines || metadata.skeleton_lines || '',
       skeletonMinHeight: routeRecord.skeletonMinHeight || routeRecord.skeleton_min_height || source.skeletonMinHeight || source.skeleton_min_height || metadata.skeletonMinHeight || metadata.skeleton_min_height || '',
       hydration: routeRecord.hydration || source.hydration || metadata.hydration || {},
@@ -532,6 +534,7 @@ class XRouter extends HTMLElement {
     setAttribute('redirect', route.redirect);
     setAttribute('import', route.import);
     setAttribute('skeleton', route.skeleton);
+    setAttribute('skeleton-profile', route.skeletonProfile);
     setAttribute('skeleton-lines', route.skeletonLines);
     setAttribute('skeleton-min-height', route.skeletonMinHeight);
     setAttribute('data-rmt-route-id', route.id);
@@ -1208,6 +1211,11 @@ class XRouter extends HTMLElement {
     const routerLines = Number(this.getAttribute('skeleton-lines') || 0);
     const lines = routeLines || (Number.isFinite(routerLines) && routerLines > 0 ? routerLines : 6);
     return {
+      profile: this._getRouteValue(route, 'skeletonProfile', 'skeleton-profile') ||
+        this.getAttribute('skeleton-profile') ||
+        this._getRouteValue(route, 'skeleton', 'skeleton') ||
+        this.getAttribute('skeleton') ||
+        'route',
       variant: this._getRouteValue(route, 'skeleton', 'skeleton') || this.getAttribute('skeleton') || 'route',
       lines,
       minHeight: this._getRouteValue(route, 'skeletonMinHeight', 'skeleton-min-height') ||
@@ -1233,10 +1241,10 @@ class XRouter extends HTMLElement {
       this._outlet.style.setProperty('--xtend-router-skeleton-min-height', options.minHeight);
       this._outlet.style.setProperty('--xtend-router-reserved-block-size', this.style.getPropertyValue('--xtend-router-reserved-block-size') || options.minHeight);
     }
-    const loader = typeof window !== 'undefined' && window.XTendLoader;
-    const skeleton = loader && typeof loader.showSkeleton === 'function'
-      ? loader.showSkeleton(this._outlet, options)
-      : this._createFallbackRouteSkeleton(options);
+    const loader = typeof window !== 'undefined' && (window.XTendSkeletonLoader || window.XTendLoader && window.XTendLoader.skeletonLoader);
+    const skeleton = loader && typeof loader.show === 'function'
+      ? loader.show(this._outlet, options)
+      : null;
     this._routeSkeleton = skeleton;
     const detail = {
       schema: 'xtend.router.skeleton-loader.v1',
@@ -1245,7 +1253,9 @@ class XRouter extends HTMLElement {
       scheduleRef: options.schedule,
       routeId: options.routeId,
       path: options.path,
-      active: true
+      profile: options.profile,
+      active: Boolean(skeleton),
+      status: skeleton ? 'shown' : 'loader-unavailable'
     };
     xstate.set('xtend.router.skeleton', detail);
     this.dispatchEvent(new CustomEvent('xrouter-skeleton-shown', {
@@ -1256,37 +1266,10 @@ class XRouter extends HTMLElement {
     return skeleton;
   }
 
-  _createFallbackRouteSkeleton(options = {}) {
-    const skeleton = document.createElement('div');
-    skeleton.setAttribute('data-xtend-skeleton-loader', '');
-    skeleton.setAttribute('data-xtend-skeleton-source', 'x-router');
-    skeleton.setAttribute('role', 'status');
-    skeleton.setAttribute('aria-label', options.label || 'Route wird geladen');
-    if (options.minHeight) skeleton.style.minHeight = options.minHeight;
-    const lines = Math.max(1, Math.min(24, Number(options.lines || 6)));
-    const widths = ['72%', '94%', '84%', '58%', '88%', '66%'];
-    for (let index = 0; index < lines; index += 1) {
-      const line = document.createElement('span');
-      line.setAttribute('data-xtend-skeleton-line', '');
-      line.style.width = widths[index % widths.length];
-      skeleton.appendChild(line);
-    }
-    this._outlet.setAttribute('data-xtend-skeleton-active', 'true');
-    this._outlet.appendChild(skeleton);
-    return skeleton;
-  }
-
   _clearRouteSkeleton(route, context = {}) {
     if (!this._outlet) return;
-    const loader = typeof window !== 'undefined' && window.XTendLoader;
-    if (loader && typeof loader.hideSkeleton === 'function') {
-      loader.hideSkeleton(this._outlet, { preserveBusy: true });
-    } else {
-      Array.from(this._outlet.children || [])
-        .filter((child) => child && child.hasAttribute && child.hasAttribute('data-xtend-skeleton-loader'))
-        .forEach((skeleton) => skeleton.remove());
-      this._outlet.removeAttribute('data-xtend-skeleton-active');
-    }
+    const loader = typeof window !== 'undefined' && (window.XTendSkeletonLoader || window.XTendLoader && window.XTendLoader.skeletonLoader);
+    if (loader && typeof loader.hide === 'function') loader.hide(this._outlet, { preserveBusy: true });
     this._routeSkeleton = null;
     const detail = {
       schema: 'xtend.router.skeleton-loader.v1',
@@ -1444,7 +1427,8 @@ class XRouter extends HTMLElement {
       this._getRouteValue(route, 'document-title', 'document-title') ||
       this._readMetadataValue(metadata, ['documentTitle', 'document_title'])
     );
-    const rawTitle = explicitDocumentTitle || routeTitle || this._normalizeMetaContent(context.fallbackTitle);
+    const fallbackTitle = this._normalizeMetaContent(context.fallbackTitle);
+    const rawTitle = routeTitle || explicitDocumentTitle || fallbackTitle;
     const titleTemplate =
       this._getRouteValue(route, 'documentTitleTemplate', 'document-title-template') ||
       this._getRouteValue(route, 'titleTemplate', 'title-template') ||
@@ -1454,7 +1438,7 @@ class XRouter extends HTMLElement {
       this.getAttribute('title-template') ||
       '';
     const templateContext = {
-      title: rawTitle,
+      title: routeTitle || fallbackTitle || explicitDocumentTitle,
       routeTitle,
       documentTitle: explicitDocumentTitle || rawTitle,
       path: context.path || this._getCurrentPath(),
@@ -1464,13 +1448,13 @@ class XRouter extends HTMLElement {
       query,
       metadata
     };
-    const templatedTitle = titleTemplate
+    const templatedTitle = !explicitDocumentTitle && titleTemplate
       ? this._interpolateTitleTemplate(titleTemplate, templateContext)
       : '';
     const prefix = this.getAttribute('title-prefix') || '';
     const suffix = this.getAttribute('title-suffix') || '';
     const defaultTitle = this.getAttribute('default-title') || this._initialDocumentTitle || '';
-    const documentTitle = templatedTitle || (rawTitle ? `${prefix}${rawTitle}${suffix}` : defaultTitle);
+    const documentTitle = explicitDocumentTitle || templatedTitle || (rawTitle ? `${prefix}${rawTitle}${suffix}` : defaultTitle);
     const description = this._normalizeMetaContent(
       this._getRouteValue(route, 'metaDescription', 'meta-description') ||
       this._readMetadataValue(metadata, ['metaDescription', 'description'])

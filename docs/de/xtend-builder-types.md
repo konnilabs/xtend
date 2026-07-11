@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-builder-report.json
 ## Pflegehinweise
 
 Halte Builder-Typen nah an den Artefakten, die ein Host wirklich sehen muss. Ergänze klare optionale Felder, wenn ein neuer Modus entsteht, und vermeide vage `any`-Flächen. Ein gutes Builder-Update ändert Runtime, Deklarationen, Tests und Dokumentation gemeinsam. So kann ein Drittanbieter den Builder als zuverlässigen Automationsbaustein verwenden, ohne interne XTend-Verzeichnisregeln lernen zu müssen.
+
+## Weiterführend
+
+Der App-Platform-Tooling-Leitfaden nutzt die Builder-Deklarationen in einem vollständigen Authoring-Ablauf. [Verwandter Artikel](./rmt-app-platform-tooling.md)

@@ -17,7 +17,7 @@ XTend braucht vor RC1 eine wiederholbare visuelle Evidence-Linie, die Release Ow
 - `catalog/epic13-visual-owner-artifact.js` definiert Contract, Validator und Report.
 - `tests/browser/visual-baselines/rc1-visual-owner-artifact.manifest.json` normalisiert Artifact Root, Report-Pfad, Screenshot-Pfadtemplate, Viewports und Capture-Familien.
 - `tests/platform/epic13_visual_owner_artifact_suite.js` prueft Contract, Manifest, Visual-Snapshot-Quelle, Package, Scaffold, Runner, Docs, Registry, CI-Matrix und Release-Checklist.
-- `docs/visual-owner-artifacts.md` beschreibt den Entwickler- und Release-Owner-Pfad.
+- `docs/en/visual-snapshot-automation.md` beschreibt den nutzerorientierten Workflow; interne Owner-Evidence bleibt in diesem Workpackage und dem Contract.
 - `package.json` exportiert `./catalog/epic13-visual-owner-artifact` und fuehrt `npm run test:epic13-visual-owner-artifact` als Release-Gate.
 
 ## Ergebnis

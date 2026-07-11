@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-api-report.json
 ## Pflegehinweise
 
 Neue öffentliche Funktionen gehören zuerst in die Runtime, dann in `api.d.ts`, dann in die lokale Prüfung. Private Helfer bleiben privat und werden nicht im Namespace dokumentiert. Wenn ein Host eine neue globale Abkürzung benötigt, sollte sie denselben Status wie die bestehenden Globals bekommen: Runtime-Zuweisung, TypeScript-Deklaration, Event- oder Methodenprüfung und ein kurzer Hinweis in dieser Seite. So bleibt die globale API bequem, aber nicht unkontrolliert.
+
+## Weiterführend
+
+Die API-Referenz beschreibt die Runtime-Werte zu diesen öffentlichen Typen. [Verwandter Artikel](./api.md)

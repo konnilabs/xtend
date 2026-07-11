@@ -53,7 +53,7 @@ function runEpic10P0ComponentWaveSuite(options = {}) {
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const contractDoc = readText(EPIC10_P0_COMPONENT_WAVE_DOC, rootDir);
   const workpackageDoc = readText('development/WP-E10-08-P0-Komponentenwelle-priorisieren-und-Contracts-anlegen.md', rootDir);
-  const docs = readText('docs/component-platform.md', rootDir);
+  const docs = readText('development/docs-evidence/root/component-platform.md', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.epic10P0ComponentWave;
@@ -66,7 +66,7 @@ function runEpic10P0ComponentWaveSuite(options = {}) {
   assertFileExists(context, EPIC10_P0_COMPONENT_WAVE_DOC, rootDir, 'P0 component wave contract document exists');
   assertFileExists(context, 'development/WP-E10-08-P0-Komponentenwelle-priorisieren-und-Contracts-anlegen.md', rootDir, 'WP-E10-08 workpackage document exists');
   assertFileExists(context, EPIC10_P0_COMPONENT_WAVE_SUITE, rootDir, 'P0 component wave suite exists');
-  assertFileExists(context, 'docs/component-platform.md', rootDir, 'Component Platform docs exist');
+  assertFileExists(context, 'development/docs-evidence/root/component-platform.md', rootDir, 'Component Platform docs exist');
 
   context.assert(plan.schema === EPIC10_P0_COMPONENT_WAVE_SCHEMA, 'P0 wave plan declares schema');
   context.assert(plan.status === 'accepted-contract', 'P0 wave plan is accepted as contract');
@@ -148,7 +148,7 @@ function runEpic10P0ComponentWaveSuite(options = {}) {
   context.assertIncludes(registry, 'catalog/epic10-p0-component-wave.js', 'Reference registry links P0 wave module');
   context.assertIncludes(registry, EPIC10_P0_COMPONENT_WAVE_DOC, 'Reference registry links P0 wave contract');
   context.assertIncludes(registry, EPIC10_P0_COMPONENT_WAVE_SUITE, 'Reference registry links P0 wave suite');
-  context.assertIncludes(registry, 'docs/component-platform.md', 'Reference registry links Component Platform docs');
+  context.assertIncludes(registry, 'development/docs-evidence/root/component-platform.md', 'Reference registry links Component Platform docs');
   context.assertIncludes(scaffoldConfig, 'componentPlatformP0Wave', 'Scaffold config exposes P0 component wave metadata');
   context.assertIncludes(runner, "id: 'epic10-p0-component-wave'", 'Runner registers P0 component wave suite');
   context.assert((packageManifest.exports['./catalog/epic10-p0-component-wave'] === './catalog/epic10-p0-component-wave.js' || (packageManifest.exports['./catalog/epic10-p0-component-wave'] && packageManifest.exports['./catalog/epic10-p0-component-wave'].default === './catalog/epic10-p0-component-wave.js')), 'Package exports P0 component wave module');

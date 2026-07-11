@@ -22,7 +22,7 @@ Dieses Paket finalisiert die offizielle Entwicklerdokumentation, entscheidet die
 - `development/WP-E10-16-Dokumentation-Guides-und-Release-Handoff-finalisieren.md`
 - `docs/epic10-release-handoff.md`
 - `docs/rmt-first-xtend-apps.md`
-- Updates in `docs/component-platform.md`
+- Updates in `development/docs-evidence/root/component-platform.md`
 - Updates in `docs/typescript-components.md`
 - Updates in `docs/enterprise-adoption.md`
 - Package Export `./catalog/epic10-release-handoff`

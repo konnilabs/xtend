@@ -37,7 +37,7 @@
   - `development/XTend-Performance-Budget-Matrix.md`
   - `development/EPIC-05-XTendRMT-Bridge-und-Natives-Routing.md`
   - `docs/xtendrmt-app-dsl.md`
-  - `docs/component-catalog-coverage.md`
+  - `development/docs-evidence/root/component-catalog-coverage.md`
   - `xtend-builder/scaffold.config.js`
   - `xtend-builder/generators/component-files.js`
   - `xtend-builder/typing/component-types.js`
@@ -306,7 +306,7 @@ Die P0-Komponentenwelle ist damit nicht mehr offen, sondern als Handoff fuer die
   - `development/WP-E10-08-P0-Komponentenwelle-priorisieren-und-Contracts-anlegen.md`
   - `catalog/epic10-p0-component-wave.js`
   - `tests/components/epic10_p0_component_wave_suite.js`
-  - `docs/component-platform.md`
+  - `development/docs-evidence/root/component-platform.md`
   - P0-Komponentenliste mit `x-select`, `x-checkbox`, `x-radio`, `x-textarea`, `x-status`, `x-progress`, `x-tooltip`, `x-popover`, `x-drawer`
   - Contract-Stubs fuer neue Komponenten
   - Implementierungsreihenfolge
@@ -425,7 +425,7 @@ Die P0-Komponentenwelle ist damit nicht mehr offen, sondern als Handoff fuer die
   - `tests/rmt/rmt_first_demo_app_suite.js`
   - `development/XTend-RMT-First-Demo-App.md`
   - `development/WP-E10-13-RMT-first-Demo-App-ohne-manuelle-Shell-bauen.md`
-  - `docs/rmt-first-demo-app.md`
+  - `docs/en/rmt-first-demo-app.md`
 - Definition of Done:
   - die Demo-App benoetigt keine manuelle App-Shell-Sonderlogik
 
@@ -491,7 +491,7 @@ Die P0-Komponentenwelle ist damit nicht mehr offen, sondern als Handoff fuer die
   - `development/WP-E10-16-Dokumentation-Guides-und-Release-Handoff-finalisieren.md`
   - `docs/epic10-release-handoff.md`
   - `docs/rmt-first-xtend-apps.md`
-  - Updates in `docs/component-platform.md`, `docs/typescript-components.md` und `docs/enterprise-adoption.md`
+  - Updates in `development/docs-evidence/root/component-platform.md`, `docs/typescript-components.md` und `docs/enterprise-adoption.md`
   - Package Export `./catalog/epic10-release-handoff`
   - Package Script `test:epic10-release-handoff`
   - Handoff fuer naechste Produktwelle

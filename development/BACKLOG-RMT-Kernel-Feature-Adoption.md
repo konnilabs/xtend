@@ -525,7 +525,7 @@ node scripts/run_xtend_tests.js epic14-rmt-tooling-release-gates rmt-compatibili
 
 - `xtend-maraca/index.js` erzeugt `policyParity` als Kernel-/Bundle-Report und blockt Strict Kernel Builds bei Drift, fehlenden Factories oder unsicherer Trust-Sink-Abdeckung.
 - `policyParity.ok`, `policyParity.driftCount`, `policyParity.requiredFactories`, `policyParity.missingFactories` und `kernel.security.policyParity` sind in Maraca Reports maschinenlesbar.
-- `catalog/epic14-rmt-tooling.js`, `package.json`, `xtend-builder/scaffold.config.js` und `docs/rmt-tooling-release-gates.md` verankern Kernel Policy Parity als Release-Constraint.
+- `catalog/epic14-rmt-tooling.js`, `package.json`, `xtend-builder/scaffold.config.js` und `docs/en/rmt-tooling-release-gates.md` verankern Kernel Policy Parity als Release-Constraint.
 - Gate: `node scripts/run_xtend_tests.js epic14-rmt-tooling rmt-compatibility maraca-bundle-report --json` passed am 2026-06-19.
 - Extra: `node scripts/run_xtend_tests.js rmt-kernel-policy-parity maraca-kernel-orchestration --json` passed am 2026-06-19.
 

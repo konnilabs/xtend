@@ -1,6 +1,6 @@
 # x-surface-manager
 
-x-surface-manager ist eine öffentliche XTend Komponentenreferenz für Drittanbieter, die die Komponente ohne internes Projektwissen einbinden müssen.
+x-surface-manager ist eine öffentliche XTend Komponentenreferenz für Drittanbieter, die die Komponente ohne internes Projektwissen einbinden müssen. Das Element implementiert `xtend.surface.manager.v1` und delegiert kanonische Zustandsübergänge an `xtend.surface.controller.v1`.
 
 ## Was es löst
 
@@ -50,6 +50,8 @@ if ('registerSurface' in component) {
 Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Diagnoseeinträge `<id>` enthalten. Stabile IDs machen Ereignisprotokolle, RMT Schedules und Browser-Tests zwischen Deployments vergleichbar.
 
 ## API-Referenz
+
+Diagnose-Snapshots können zerstörte Surface-Generationen als `xtend.surface.tombstone.v1` Records einschließen. Normale Snapshots lassen sie aus, damit eine veraltete Generation nicht versehentlich erneut geöffnet wird.
 
 Attribute:
 - `layout`
@@ -105,9 +107,14 @@ Events:
 - `remote-surface-refused`
 - `remote-surface-event-governed`
 - `remote-surface-event-refused`
+- `surface-destroyed`
+- `surface-destroy-error`
 
 Methoden:
 - `registerSurface(surface: HTMLElement | Record<string, unknown>)`
+- `destroySurface(id: string, reason?: string)`
+- `registerSurfacePrewarmHandle(surfaceId: string, handle: Record<string, unknown>)`
+- `registerSurfaceChunkHandle(surfaceId: string, handle: Record<string, unknown>)`
 - `openSurface(id: string, input?: Record<string, unknown>)`
 - `closeSurface(id: string, reason?: string)`
 - `focusSurface(id: string)`

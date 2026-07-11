@@ -21,8 +21,8 @@
   - `development/XTend-Epic12-Abschluss-und-RC0-Handoff.md`
   - `development/XTendRMT-vNext-Release-Handoff-Contract.md`
   - `development/WP-E17-04-RMT-vNext-App-Build-Pipeline-und-1-0-Gate.md`
-  - `docs/rc1-readiness.md`
-  - `docs/rc1-gate-matrix-ci-handoff.md`
+  - `development/docs-evidence/legacy-routes/en/rc1-readiness.md`
+  - `development/docs-evidence/legacy-routes/en/rc1-gate-matrix-ci-handoff.md`
   - `xtendrmt/rmt-vnext-reference-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.rmt`
   - `xtendrmt/xtendrmt-bestcase-demo.js`
@@ -432,7 +432,7 @@ Naechstes primaeres Paket:
   - Entscheidung dokumentiert: `accepted-for-internal-test-build-not-publish`
   - interne Testnutzung fuer RMT vNext Reference Demo, XTendRMT Bestcase Demo, Gate-Reports, TypeExports und Pack Dry Run Evidence freigegeben
   - `npm-audit-moderate` und `npm-sbom-json` wurden im nachgelagerten RC1PUB-Schritt ausgefuehrt und fuer die Owner-Publish-Evidence akzeptiert
-  - `docs/release-owner-acceptance.md`, `development/XTend-RC1-Test-Build-Handoff.md`, `development/XTend-Dokumentations-und-Demo-Referenzpfade.md` und `CHANGELOG.md` referenzieren den Acceptance-Schnitt
+  - `development/docs-evidence/legacy-routes/en/release-owner-acceptance.md`, `development/XTend-RC1-Test-Build-Handoff.md`, `development/XTend-Dokumentations-und-Demo-Referenzpfade.md` und `CHANGELOG.md` referenzieren den Acceptance-Schnitt
   - Publish Boundary ist im RC1PUB-Folgepaket fuer Prep geoeffnet: `private: false`, `publishAllowed: true`, `automaticPublishApproval: false`
 - Validierung:
   - `npm run test:epic13-release-owner-acceptance`

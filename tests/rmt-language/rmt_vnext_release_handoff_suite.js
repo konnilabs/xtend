@@ -149,7 +149,7 @@ function runReferenceDemoChecks(context, rootDir) {
 }
 
 function runDocumentationChecks(context, rootDir) {
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readJson('docs/menu.json', rootDir);
   const authoring = readText(RMT_VNEXT_AUTHORING_GUIDE_PATH, rootDir);
   const migration = readText(RMT_VNEXT_MIGRATION_NOTES_PATH, rootDir);

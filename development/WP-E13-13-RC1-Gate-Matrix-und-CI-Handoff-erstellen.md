@@ -18,7 +18,7 @@ Report Schema: `xtend.epic13.rc1-gate-matrix-ci-handoff-report.v1`
 - `catalog/epic13-rc1-gate-matrix-ci-handoff.d.ts`
 - `tests/platform/epic13_rc1_gate_matrix_ci_handoff_suite.js`
 - `development/XTend-Epic13-RC1-Gate-Matrix-und-CI-Handoff.md`
-- `docs/rc1-gate-matrix-ci-handoff.md`
+- `development/docs-evidence/legacy-routes/en/rc1-gate-matrix-ci-handoff.md`
 - `.xtend-test-results/xtend-epic13-rc1-gate-matrix-ci-handoff-report.json`
 
 ## Lokaler Gate

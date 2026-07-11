@@ -16,7 +16,7 @@ const SURFACE_MANAGER_WINDOW_RUNTIME_SUITE = 'tests/components/surface_manager_r
 const SURFACE_MANAGER_WINDOW_RUNTIME_PLAN = 'development/XTend-SurfaceManager-und-Multi-Window-Plan.md';
 const SURFACE_MANAGER_WINDOW_RUNTIME_CONTRACT = 'development/XTend-SurfaceManager-Window-Runtime-Contract.md';
 const SURFACE_MANAGER_WINDOW_RUNTIME_WORKPACKAGE_DOC = 'development/WP-SM-03-x-surface-manager-und-x-surface-window-implementieren.md';
-const SURFACE_MANAGER_WINDOW_RUNTIME_DOCS = 'docs/surface-manager-window-runtime.md';
+const SURFACE_MANAGER_WINDOW_RUNTIME_DOCS = 'docs/en/surface-manager-window-runtime.md';
 const SURFACE_MANAGER_WINDOW_RUNTIME_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-manager --json';
 const SURFACE_MANAGER_WINDOW_RUNTIME_PACKAGE_SCRIPT = 'npm run test:surface-manager';
 const NEXT_WORKPACKAGE = 'WP-SM-04';
@@ -36,8 +36,8 @@ const SOURCE_ARTIFACTS = Object.freeze([
 ]);
 
 const COMPONENT_DOCS = Object.freeze([
-  'docs/components/xsurfacemanager.md',
-  'docs/components/xsurfacewindow.md'
+  'docs/en/components/xsurfacemanager.md',
+  'docs/en/components/xsurfacewindow.md'
 ]);
 
 const COMPONENT_FIXTURES = Object.freeze([
@@ -69,7 +69,7 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_WINDOW_RUNTIME_WORKPACKAGE_DOC,
   SURFACE_MANAGER_WINDOW_RUNTIME_DOCS,
   'development/XTend-SurfaceManager-Controller-und-State-Snapshot-Contract.md',
-  'docs/surface-manager-controller.md',
+  'docs/en/surface-manager-controller.md',
   ...COMPONENT_DOCS
 ]);
 

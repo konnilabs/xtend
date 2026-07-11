@@ -14,7 +14,7 @@
   - `development/XTend-Fabric-RMT-Lane-Mapping.md`
   - `development/XTend-A11y-Component-Contract.md`
   - `development/XTend-Performance-Budget-Matrix.md`
-  - `docs/component-catalog-coverage.md`
+  - `development/docs-evidence/root/component-catalog-coverage.md`
   - `tests/references/reference_path_suite.js`
 
 ## Ziel

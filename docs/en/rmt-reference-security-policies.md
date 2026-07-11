@@ -1,5 +1,7 @@
 # RMT Reference: Security and Policies
 
+Executable language rules live in `tools/rmt-language/vnext-security.js`.
+
 Security and hydration policies live in lifecycle operation policy blocks.
 
 ## Syntax
@@ -56,3 +58,7 @@ Policy blocks allow only slots, event bindings, hydration, isolation and securit
 ## Related operators
 
 `mount`, `hydrate`, `stream`, `remote surface`, `origin`, `integrity sha256`.
+
+## Related reading
+
+The RMT reference index distinguishes language-level policy records from host security policy. [Related article](./rmt-reference.md)

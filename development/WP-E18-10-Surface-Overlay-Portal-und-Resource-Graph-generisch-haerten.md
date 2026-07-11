@@ -1,7 +1,7 @@
 # WP-E18-10 - Surface-, Overlay-, Portal- und Resource-Graph generisch haerten
 
 - Status: `completed`
-- Epic: `docs/epic18-media-manager-vendor-upstream.md`
+- Epic: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
 - Contract: `xtend.epic18.rmt-surface-resource-graph-runtime.v1`
 - Gate: `node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime --json`

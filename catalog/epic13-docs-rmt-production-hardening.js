@@ -19,7 +19,7 @@ const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_SUITE = 'tests/platform/epic13_docs_r
 const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_STEERING = 'development/RC0-RC1-transfer-EPIC13.md';
 const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_CONTRACT = 'development/XTend-Epic13-Docs-RMT-Production-Hardening-Contract.md';
 const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_WORKPACKAGE_DOC = 'development/WP-E13-10-Docs-App-RMT-Parsedown-Shell-fuer-PROD-nahe-Erweiterungen-haerten.md';
-const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_DOCS = 'docs/docs-rmt-production-hardening.md';
+const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_DOCS = 'docs/en/xtendrmt-parsedown-scheduling.md';
 const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_LOCAL_GATE = 'node scripts/run_xtend_tests.js epic13-docs-rmt-production-hardening --json';
 const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_PACKAGE_SCRIPT = 'npm run test:epic13-docs-rmt-production-hardening';
 const EPIC13_DOCS_RMT_PRODUCTION_HARDENING_REPORT_ARTIFACT = '.xtend-test-results/xtend-epic13-docs-rmt-production-hardening-report.json';
@@ -116,9 +116,11 @@ const REQUIRED_DOCS_RMT_ARTIFACTS = Object.freeze([
   DOCS_RMT_DOCUMENT,
   DOCS_RMT_HOST,
   DOCS_RMT_PAGE_LOADER,
-  'docs/xtendrmt-parsedown-scheduling.md',
-  'docs/trusted-dom-sanitizing.md',
-  'docs/rmt-production-readiness.md'
+  'docs/utils/docs-shell-runtime.mjs',
+  'docs/utils/trusted-dom-host.mjs',
+  'docs/en/xtendrmt-parsedown-scheduling.md',
+  'docs/en/trusted-dom-sanitizing.md',
+  'development/XTend-Epic13-RMT-Production-Readiness-Contract.md'
 ]);
 
 function createEpic13DocsRmtProductionHardeningPlan(options = {}) {

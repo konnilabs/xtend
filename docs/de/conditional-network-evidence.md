@@ -35,3 +35,7 @@ Diese Trennung ist besonders wichtig, wenn eine Organisation private Registries,
 ## Pflegehinweise
 
 Dokumentiere neue Netzwerkkommandos nur, wenn klar ist, welcher Job sie ausführt und wo das Artefakt landet. Ergänze keine Registry- oder Audit-Abhängigkeit in einer Standard-Suite, wenn dieselbe Aussage durch lokale Dateien geprüft werden kann. So bleiben schnelle CI-Gates zuverlässig und Nightly behält die größere Supply-Chain-Sicht.
+
+## Weiterführend
+
+Der CI-Leitfaden macht aus einem lokalen Conditional-Network-Record ein reproduzierbares Gate-Ergebnis. [Verwandter Artikel](./conditional-network-evidence-ci.md)

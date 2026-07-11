@@ -86,10 +86,10 @@ function runSurfaceManagerRuntimeReleaseHandoffSuite(options = {}) {
   const contractDoc = readText(SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_CONTRACT, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_WORKPACKAGE_DOC, rootDir);
   const releaseDocs = readText(SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_DOCS, rootDir);
-  const authoringGuide = readText('docs/surface-manager-authoring-guide.md', rootDir);
-  const migrationGuide = readText('docs/surface-manager-migration-guide.md', rootDir);
-  const previousReleaseDocs = readText('docs/surface-manager-release-handoff.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const authoringGuide = readText('docs/en/surface-manager-authoring-guide.md', rootDir);
+  const migrationGuide = readText('docs/en/surface-manager-migration-guide.md', rootDir);
+  const previousReleaseDocs = readText('development/docs-evidence/root/surface-manager-release-handoff.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const rmtReadme = readText('tests/rmt/README.md', rootDir);
 
@@ -188,27 +188,24 @@ function runSurfaceManagerRuntimeReleaseHandoffSuite(options = {}) {
     'release-owner-signoff-before-public-npm-publish'
   ], 'Runtime release handoff docs');
   assertTextIncludesAll(context, authoringGuide, [
-    'WP-SM-19',
-    SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_SCHEMA,
-    'native-surfaces-preferred',
-    'produktive `xtend.surface` Adapter Runtime',
-    SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_LOCAL_GATE
-  ], 'Surface authoring guide WP-SM-19 update');
+    'xtend.surface.record.v1',
+    'destroySurface()',
+    'surface-destroyed',
+    'node scripts/run_xtend_tests.js surface-controller surface-manager --json'
+  ], 'Public Surface authoring guide');
   assertTextIncludesAll(context, migrationGuide, [
-    'WP-SM-19',
-    SURFACE_MANAGER_RUNTIME_MIGRATION_NOTES_SCHEMA,
-    'surface-adapter-runtime',
-    'surface-native-materialization',
-    'surface-runtime-release-handoff',
-    'components[*].metadata.surface'
-  ], 'Surface migration guide WP-SM-19 update');
+    "openSurface('legacy-report')",
+    'destroySurface()',
+    'surface-controller surface-manager surface-manager-a11y',
+    'Remote failure removes the local fallback.'
+  ], 'Public Surface migration guide');
   assertTextIncludesAll(context, previousReleaseDocs, [
     'WP-SM-19',
     SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_SCHEMA,
     'node scripts/run_xtend_tests.js surface-runtime-release-handoff --json',
     'produktive Runtime-Linie'
   ], 'Previous release handoff doc links WP-SM-19');
-  context.assertIncludes(docsReadme, 'SurfaceManager Runtime Release Handoff', 'Docs README links runtime release handoff');
+  context.assertIncludes(docsReadme, 'SurfaceManager Migration Guide', 'Docs README links public SurfaceManager migration guidance');
   context.assertIncludes(testsReadme, SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_LOCAL_GATE, 'Tests README documents runtime release handoff');
   context.assertIncludes(rmtReadme, SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_LOCAL_GATE, 'RMT README documents runtime release handoff');
   assertTextIncludesAll(context, backlog, [

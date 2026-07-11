@@ -4,17 +4,28 @@ Wie XTend Komponenten typisiert, dokumentiert und getestet werden.
 
 ## Worum es geht
 
-TypeScript Components beschreibt den Core-Pfad über lokale Module, öffentliche TypeScript-Oberflächen und überprüfbare Host-Verdrahtung.
+XTend entwickelt stabile Komponenten TypeScript-first. Die bearbeitbare Source liegt unter `src/components/<tag>/`; `tsc` erzeugt die Browser-Runtime und die sibling `.d.ts` Datei unter `components/`.
 
 ## Öffentliche Bausteine
 
-- Source in `src/components`.
-- Build-Ausgabe in `components`.
-- Fixture-, A11y- und Performance-Profile.
+- Die Hauptdatei implementiert Element, Properties und Lifecycle.
+- `*.contract.ts`, `*.rmt.ts`, `*.a11y.ts` und `*.performance.ts` halten getrennte Verträge.
+- `components/manifest.json` registriert nur den erzeugten lokalen Runtime-Pfad.
 
 ## Empfohlener Ablauf
 
-Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.
+Ein Host konsumiert die erzeugte Deklaration, nicht interne Build-Typen:
+
+```ts
+import type { XToggleElement } from "@ccslabs/xtend/components/xtoggle";
+
+const toggle = document.querySelector<XToggleElement>("x-toggle");
+toggle?.addEventListener("toggle-changed", (event) => {
+  console.log(event.detail.checked);
+});
+```
+
+Ändere Source, Deklaration, Fixture und Komponentenartikel gemeinsam. Ein manueller Patch nur in `components/*.js` wird beim nächsten Build überschrieben.
 
 ## Nächste Schritte
 
@@ -22,57 +33,3 @@ Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst d
 - [API](./api.md)
 - [XTend Loader](./xtend-loader.md)
 - [Design Tokens](./design-tokens.md)
-
-## Öffentlicher Vertrag
-
-TypeScript Components ist der öffentliche Referenz-Vertrag für `docs/de/typescript-components.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: öffentliche Dateien, Package Exports, Manifest-Keys, Attribute und Host-Verdrahtung.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/typescript-components.md`
-- `docs/menu.json`
-- `package.json`
-- `components/manifest.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-- `design-tokens/xtend-design-tokens.js`
-
-Namen:
-- `src/components`
-- `docs/de/typescript-components.md`
-- `docs/menu.json`
-- `components/manifest.json`
-- `design-tokens/xtend-design-tokens.js`
-- `docs/dev-router.php`
-- `package.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-
-Befehle:
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn ein Host nichts lädt, prüfe Manifest-Pfad, Export-Name, Attribut-Schreibweise und ob die Datei lokal erreichbar ist.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

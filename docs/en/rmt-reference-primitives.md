@@ -103,3 +103,7 @@ Missing owners, unknown references, unkeyed repeaters and actions without reduce
 ## Related operators
 
 `template`, `surface`, `lane`, `from`, `when`, `payload`, `trust boundary`.
+
+## Related reading
+
+The RMT reference index shows where primitive records can legally appear in a document. [Related article](./rmt-reference.md)

@@ -1,5 +1,7 @@
 # RMT Reference: Document, Template und Import
 
+Die Parser-Implementierung für diese Formen liegt in `tools/rmt-language/vnext-parser.js`.
+
 Diese Seite beschreibt die äußere Dokumentform von RMT vNext.
 
 ## Syntax
@@ -49,3 +51,7 @@ Unerwartete Top-Level-Tokens erzeugen Syntax-Diagnosen. Imperative Wörter wie `
 ## Related operators
 
 `portal`, `lane`, `mount`, `remote surface`, `owner team`, `trust boundary`.
+
+## Weiterführend
+
+Der RMT-Referenzindex verbindet Dokument-, Template- und Import-Syntax mit den übrigen Grammatikfamilien. [Verwandter Artikel](./rmt-reference.md)

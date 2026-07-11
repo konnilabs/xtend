@@ -10,6 +10,23 @@
     "labels": {
       "de": "XTend Developer Center",
       "en": "XTend Developer Center"
+    },
+    "contentType": "orientation",
+    "trunk": "start",
+    "section": "orientation",
+    "keywords": {
+      "de": [
+        "XTend Developer Center",
+        "readme",
+        "orientation",
+        "start"
+      ],
+      "en": [
+        "XTend Developer Center",
+        "readme",
+        "orientation",
+        "start"
+      ]
     }
   },
   {
@@ -23,6 +40,27 @@
     "labels": {
       "de": "Quick Start Guide",
       "en": "Quick Start Guide"
+    },
+    "contentType": "tutorial",
+    "trunk": "start",
+    "section": "first-app",
+    "keywords": {
+      "de": [
+        "Quick Start Guide",
+        "quick",
+        "start",
+        "guide",
+        "tutorial",
+        "first-app"
+      ],
+      "en": [
+        "Quick Start Guide",
+        "quick",
+        "start",
+        "guide",
+        "tutorial",
+        "first-app"
+      ]
     }
   },
   {
@@ -36,6 +74,31 @@
     "labels": {
       "de": "Native-First Authoring Guide",
       "en": "Native-First Authoring Guide"
+    },
+    "contentType": "tutorial",
+    "trunk": "start",
+    "section": "first-app",
+    "keywords": {
+      "de": [
+        "Native-First Authoring Guide",
+        "native",
+        "first",
+        "authoring",
+        "guide",
+        "tutorial",
+        "start",
+        "first-app"
+      ],
+      "en": [
+        "Native-First Authoring Guide",
+        "native",
+        "first",
+        "authoring",
+        "guide",
+        "tutorial",
+        "start",
+        "first-app"
+      ]
     }
   },
   {
@@ -49,6 +112,31 @@
     "labels": {
       "de": "Native-First RMT Recipes",
       "en": "Native-First RMT Recipes"
+    },
+    "contentType": "tutorial",
+    "trunk": "start",
+    "section": "first-app",
+    "keywords": {
+      "de": [
+        "Native-First RMT Recipes",
+        "native",
+        "first",
+        "rmt",
+        "recipes",
+        "tutorial",
+        "start",
+        "first-app"
+      ],
+      "en": [
+        "Native-First RMT Recipes",
+        "native",
+        "first",
+        "rmt",
+        "recipes",
+        "tutorial",
+        "start",
+        "first-app"
+      ]
     }
   },
   {
@@ -62,6 +150,31 @@
     "labels": {
       "de": "Native-First Release Review",
       "en": "Native-First Release Review"
+    },
+    "contentType": "operations",
+    "trunk": "start",
+    "section": "first-app",
+    "keywords": {
+      "de": [
+        "Native-First Release Review",
+        "native",
+        "first",
+        "release",
+        "review",
+        "operations",
+        "start",
+        "first-app"
+      ],
+      "en": [
+        "Native-First Release Review",
+        "native",
+        "first",
+        "release",
+        "review",
+        "operations",
+        "start",
+        "first-app"
+      ]
     }
   },
   {
@@ -75,6 +188,31 @@
     "labels": {
       "de": "Native-First Migration Guide",
       "en": "Native-First Migration Guide"
+    },
+    "contentType": "tutorial",
+    "trunk": "start",
+    "section": "first-app",
+    "keywords": {
+      "de": [
+        "Native-First Migration Guide",
+        "native",
+        "first",
+        "migration",
+        "guide",
+        "tutorial",
+        "start",
+        "first-app"
+      ],
+      "en": [
+        "Native-First Migration Guide",
+        "native",
+        "first",
+        "migration",
+        "guide",
+        "tutorial",
+        "start",
+        "first-app"
+      ]
     }
   },
   {
@@ -88,6 +226,23 @@
     "labels": {
       "de": "Über XTend",
       "en": "About XTend"
+    },
+    "contentType": "orientation",
+    "trunk": "start",
+    "section": "orientation",
+    "keywords": {
+      "de": [
+        "Über XTend",
+        "about",
+        "orientation",
+        "start"
+      ],
+      "en": [
+        "About XTend",
+        "about",
+        "orientation",
+        "start"
+      ]
     }
   },
   {
@@ -101,6 +256,27 @@
     "labels": {
       "de": "Best Practices",
       "en": "Best Practices"
+    },
+    "contentType": "concept",
+    "trunk": "start",
+    "section": "adoption",
+    "keywords": {
+      "de": [
+        "Best Practices",
+        "best",
+        "practices",
+        "concept",
+        "start",
+        "adoption"
+      ],
+      "en": [
+        "Best Practices",
+        "best",
+        "practices",
+        "concept",
+        "start",
+        "adoption"
+      ]
     }
   },
   {
@@ -114,6 +290,25 @@
     "labels": {
       "de": "Enterprise Adoption",
       "en": "Enterprise Adoption"
+    },
+    "contentType": "concept",
+    "trunk": "start",
+    "section": "adoption",
+    "keywords": {
+      "de": [
+        "Enterprise Adoption",
+        "enterprise",
+        "adoption",
+        "concept",
+        "start"
+      ],
+      "en": [
+        "Enterprise Adoption",
+        "enterprise",
+        "adoption",
+        "concept",
+        "start"
+      ]
     }
   },
   {
@@ -127,6 +322,23 @@
     "labels": {
       "de": "Changelog",
       "en": "Changelog"
+    },
+    "contentType": "reference",
+    "trunk": "start",
+    "section": "changes",
+    "keywords": {
+      "de": [
+        "Changelog",
+        "reference",
+        "start",
+        "changes"
+      ],
+      "en": [
+        "Changelog",
+        "reference",
+        "start",
+        "changes"
+      ]
     }
   },
   {
@@ -140,6 +352,25 @@
     "labels": {
       "de": "Learn RMT",
       "en": "Learn RMT"
+    },
+    "contentType": "orientation",
+    "trunk": "learn-rmt",
+    "section": "orientation",
+    "keywords": {
+      "de": [
+        "Learn RMT",
+        "learn",
+        "rmt",
+        "orientation",
+        "learn-rmt"
+      ],
+      "en": [
+        "Learn RMT",
+        "learn",
+        "rmt",
+        "orientation",
+        "learn-rmt"
+      ]
     }
   },
   {
@@ -153,6 +384,31 @@
     "labels": {
       "de": "RMT Tooling Release Gates",
       "en": "RMT Tooling Release Gates"
+    },
+    "contentType": "operations",
+    "trunk": "learn-rmt",
+    "section": "runtime",
+    "keywords": {
+      "de": [
+        "RMT Tooling Release Gates",
+        "rmt",
+        "tooling",
+        "release",
+        "gates",
+        "operations",
+        "learn-rmt",
+        "runtime"
+      ],
+      "en": [
+        "RMT Tooling Release Gates",
+        "rmt",
+        "tooling",
+        "release",
+        "gates",
+        "operations",
+        "learn-rmt",
+        "runtime"
+      ]
     }
   },
   {
@@ -166,6 +422,29 @@
     "labels": {
       "de": "Syntax-Grundlagen",
       "en": "Syntax Basics"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "syntax",
+    "keywords": {
+      "de": [
+        "Syntax-Grundlagen",
+        "learn",
+        "rmt",
+        "syntax",
+        "basics",
+        "tutorial",
+        "learn-rmt"
+      ],
+      "en": [
+        "Syntax Basics",
+        "learn",
+        "rmt",
+        "syntax",
+        "basics",
+        "tutorial",
+        "learn-rmt"
+      ]
     }
   },
   {
@@ -179,6 +458,31 @@
     "labels": {
       "de": "Templates und Surfaces",
       "en": "Templates and Surfaces"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "syntax",
+    "keywords": {
+      "de": [
+        "Templates und Surfaces",
+        "learn",
+        "rmt",
+        "templates",
+        "surfaces",
+        "tutorial",
+        "learn-rmt",
+        "syntax"
+      ],
+      "en": [
+        "Templates and Surfaces",
+        "learn",
+        "rmt",
+        "templates",
+        "surfaces",
+        "tutorial",
+        "learn-rmt",
+        "syntax"
+      ]
     }
   },
   {
@@ -192,6 +496,31 @@
     "labels": {
       "de": "State und Selectors",
       "en": "State and Selectors"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "state-data",
+    "keywords": {
+      "de": [
+        "State und Selectors",
+        "learn",
+        "rmt",
+        "state",
+        "selectors",
+        "tutorial",
+        "learn-rmt",
+        "state-data"
+      ],
+      "en": [
+        "State and Selectors",
+        "learn",
+        "rmt",
+        "state",
+        "selectors",
+        "tutorial",
+        "learn-rmt",
+        "state-data"
+      ]
     }
   },
   {
@@ -205,6 +534,31 @@
     "labels": {
       "de": "Actions und Events",
       "en": "Actions and Events"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "state-data",
+    "keywords": {
+      "de": [
+        "Actions und Events",
+        "learn",
+        "rmt",
+        "actions",
+        "events",
+        "tutorial",
+        "learn-rmt",
+        "state-data"
+      ],
+      "en": [
+        "Actions and Events",
+        "learn",
+        "rmt",
+        "actions",
+        "events",
+        "tutorial",
+        "learn-rmt",
+        "state-data"
+      ]
     }
   },
   {
@@ -218,6 +572,31 @@
     "labels": {
       "de": "Daten und Ressourcen",
       "en": "Data and Resources"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "state-data",
+    "keywords": {
+      "de": [
+        "Daten und Ressourcen",
+        "learn",
+        "rmt",
+        "data",
+        "resources",
+        "tutorial",
+        "learn-rmt",
+        "state-data"
+      ],
+      "en": [
+        "Data and Resources",
+        "learn",
+        "rmt",
+        "data",
+        "resources",
+        "tutorial",
+        "learn-rmt",
+        "state-data"
+      ]
     }
   },
   {
@@ -231,6 +610,31 @@
     "labels": {
       "de": "Scheduling und Lanes",
       "en": "Scheduling and Lanes"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "runtime",
+    "keywords": {
+      "de": [
+        "Scheduling und Lanes",
+        "learn",
+        "rmt",
+        "scheduling",
+        "lanes",
+        "tutorial",
+        "learn-rmt",
+        "runtime"
+      ],
+      "en": [
+        "Scheduling and Lanes",
+        "learn",
+        "rmt",
+        "scheduling",
+        "lanes",
+        "tutorial",
+        "learn-rmt",
+        "runtime"
+      ]
     }
   },
   {
@@ -244,6 +648,31 @@
     "labels": {
       "de": "Sicherheit und Preview",
       "en": "Security and Preview"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "runtime",
+    "keywords": {
+      "de": [
+        "Sicherheit und Preview",
+        "learn",
+        "rmt",
+        "security",
+        "preview",
+        "tutorial",
+        "learn-rmt",
+        "runtime"
+      ],
+      "en": [
+        "Security and Preview",
+        "learn",
+        "rmt",
+        "security",
+        "preview",
+        "tutorial",
+        "learn-rmt",
+        "runtime"
+      ]
     }
   },
   {
@@ -257,6 +686,29 @@
     "labels": {
       "de": "RMT Playground",
       "en": "RMT Playground"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "practice",
+    "keywords": {
+      "de": [
+        "RMT Playground",
+        "learn",
+        "rmt",
+        "playground",
+        "tutorial",
+        "learn-rmt",
+        "practice"
+      ],
+      "en": [
+        "RMT Playground",
+        "learn",
+        "rmt",
+        "playground",
+        "tutorial",
+        "learn-rmt",
+        "practice"
+      ]
     }
   },
   {
@@ -270,6 +722,31 @@
     "labels": {
       "de": "Nächste Schritte",
       "en": "Next Steps"
+    },
+    "contentType": "tutorial",
+    "trunk": "learn-rmt",
+    "section": "practice",
+    "keywords": {
+      "de": [
+        "Nächste Schritte",
+        "learn",
+        "rmt",
+        "next",
+        "steps",
+        "tutorial",
+        "learn-rmt",
+        "practice"
+      ],
+      "en": [
+        "Next Steps",
+        "learn",
+        "rmt",
+        "next",
+        "steps",
+        "tutorial",
+        "learn-rmt",
+        "practice"
+      ]
     }
   },
   {
@@ -283,6 +760,25 @@
     "labels": {
       "de": "RMT Reference",
       "en": "RMT Reference"
+    },
+    "contentType": "orientation",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "RMT Reference",
+        "rmt",
+        "reference",
+        "orientation",
+        "rmt-language"
+      ],
+      "en": [
+        "RMT Reference",
+        "rmt",
+        "reference",
+        "orientation",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -296,6 +792,29 @@
     "labels": {
       "de": "Document, Template und Import",
       "en": "Document, Template and Import"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Document, Template und Import",
+        "rmt",
+        "reference",
+        "document",
+        "template",
+        "import",
+        "rmt-language"
+      ],
+      "en": [
+        "Document, Template and Import",
+        "rmt",
+        "reference",
+        "document",
+        "template",
+        "import",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -309,6 +828,23 @@
     "labels": {
       "de": "Primitives",
       "en": "Primitives"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Primitives",
+        "rmt",
+        "reference",
+        "rmt-language"
+      ],
+      "en": [
+        "Primitives",
+        "rmt",
+        "reference",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -322,6 +858,29 @@
     "labels": {
       "de": "State, Selectors und Data",
       "en": "State, Selectors and Data"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "State, Selectors und Data",
+        "rmt",
+        "reference",
+        "state",
+        "selectors",
+        "data",
+        "rmt-language"
+      ],
+      "en": [
+        "State, Selectors and Data",
+        "rmt",
+        "reference",
+        "state",
+        "selectors",
+        "data",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -335,6 +894,27 @@
     "labels": {
       "de": "Actions und Events",
       "en": "Actions and Events"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Actions und Events",
+        "rmt",
+        "reference",
+        "actions",
+        "events",
+        "rmt-language"
+      ],
+      "en": [
+        "Actions and Events",
+        "rmt",
+        "reference",
+        "actions",
+        "events",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -348,6 +928,29 @@
     "labels": {
       "de": "Surfaces, Lanes und Lifecycle",
       "en": "Surfaces, Lanes and Lifecycle"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Surfaces, Lanes und Lifecycle",
+        "rmt",
+        "reference",
+        "surfaces",
+        "lanes",
+        "lifecycle",
+        "rmt-language"
+      ],
+      "en": [
+        "Surfaces, Lanes and Lifecycle",
+        "rmt",
+        "reference",
+        "surfaces",
+        "lanes",
+        "lifecycle",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -361,6 +964,27 @@
     "labels": {
       "de": "Validation und Transitions",
       "en": "Validation and Transitions"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Validation und Transitions",
+        "rmt",
+        "reference",
+        "validation",
+        "transitions",
+        "rmt-language"
+      ],
+      "en": [
+        "Validation and Transitions",
+        "rmt",
+        "reference",
+        "validation",
+        "transitions",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -374,6 +998,27 @@
     "labels": {
       "de": "Security und Policies",
       "en": "Security and Policies"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Security und Policies",
+        "rmt",
+        "reference",
+        "security",
+        "policies",
+        "rmt-language"
+      ],
+      "en": [
+        "Security and Policies",
+        "rmt",
+        "reference",
+        "security",
+        "policies",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -387,19 +1032,27 @@
     "labels": {
       "de": "Remote Surfaces",
       "en": "Remote Surfaces"
-    }
-  },
-  {
-    "slug": "xscaler-protocol",
-    "id": "docs.xscaler.protocol",
-    "label": "XScaler Protocol",
-    "group": "rmt",
-    "parent": "rmt-reference-remote-surfaces",
-    "tier": "deep-dive",
-    "rank": 87,
-    "labels": {
-      "de": "XScaler-Protokoll",
-      "en": "XScaler Protocol"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Remote Surfaces",
+        "rmt",
+        "reference",
+        "remote",
+        "surfaces",
+        "rmt-language"
+      ],
+      "en": [
+        "Remote Surfaces",
+        "rmt",
+        "reference",
+        "remote",
+        "surfaces",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -413,6 +1066,27 @@
     "labels": {
       "de": "Conditions und Expressions",
       "en": "Conditions and Expressions"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Conditions und Expressions",
+        "rmt",
+        "reference",
+        "conditions",
+        "expressions",
+        "rmt-language"
+      ],
+      "en": [
+        "Conditions and Expressions",
+        "rmt",
+        "reference",
+        "conditions",
+        "expressions",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -426,370 +1100,27 @@
     "labels": {
       "de": "Enums und Catalogs",
       "en": "Enums and Catalogs"
-    }
-  },
-  {
-    "slug": "xtend-maraca",
-    "id": "docs.xtend.maraca",
-    "label": "XTend Maraca",
-    "group": "maraca",
-    "parent": null,
-    "tier": "basic",
-    "rank": 100,
-    "labels": {
-      "de": "XTend Maraca",
-      "en": "XTend Maraca"
-    }
-  },
-  {
-    "slug": "xtend-maraca-orchestration",
-    "id": "docs.xtend.maraca.orchestration",
-    "label": "Maraca Orchestration",
-    "group": "maraca",
-    "parent": "xtend-maraca",
-    "tier": "deep-dive",
-    "rank": 98,
-    "labels": {
-      "de": "Maraca Orchestrierung",
-      "en": "Maraca Orchestration"
-    }
-  },
-  {
-    "slug": "manifest",
-    "id": "docs.manifest",
-    "label": "Manifest",
-    "group": "core",
-    "parent": null,
-    "tier": "basic",
-    "rank": 96,
-    "labels": {
-      "de": "Manifest",
-      "en": "Manifest"
-    }
-  },
-  {
-    "slug": "api",
-    "id": "docs.api",
-    "label": "API",
-    "group": "core",
-    "parent": "manifest",
-    "tier": "basic",
-    "rank": 94,
-    "labels": {
-      "de": "API",
-      "en": "API"
-    }
-  },
-  {
-    "slug": "xtend-loader",
-    "id": "docs.xtend.loader",
-    "label": "XTend Loader",
-    "group": "core",
-    "parent": "manifest",
-    "tier": "basic",
-    "rank": 92,
-    "labels": {
-      "de": "XTend Loader",
-      "en": "XTend Loader"
-    }
-  },
-  {
-    "slug": "xtend-fabric",
-    "id": "docs.xtend.fabric",
-    "label": "XTend Fabric",
-    "group": "core",
-    "parent": null,
-    "tier": "basic",
-    "rank": 88,
-    "labels": {
-      "de": "XTend Fabric",
-      "en": "XTend Fabric"
-    }
-  },
-  {
-    "slug": "xtend-fabric-rmt-lane-mapping",
-    "id": "docs.xtend.fabric.rmt.lane.mapping",
-    "label": "Fabric RMT Lane Mapping",
-    "group": "core",
-    "parent": "xtend-fabric",
-    "tier": "deep-dive",
-    "rank": 78,
-    "labels": {
-      "de": "Fabric RMT Lane Mapping",
-      "en": "Fabric RMT Lane Mapping"
-    }
-  },
-  {
-    "slug": "design-tokens",
-    "id": "docs.design.tokens",
-    "label": "Design Tokens",
-    "group": "core",
-    "parent": null,
-    "tier": "basic",
-    "rank": 84,
-    "labels": {
-      "de": "Design Tokens",
-      "en": "Design Tokens"
-    }
-  },
-  {
-    "slug": "public-component-types",
-    "id": "docs.public.component.types",
-    "label": "Public Component Types",
-    "group": "core",
-    "parent": "typescript-components",
-    "tier": "deep-dive",
-    "rank": 76,
-    "labels": {
-      "de": "Public Component Types",
-      "en": "Public Component Types"
-    }
-  },
-  {
-    "slug": "typescript-components",
-    "id": "docs.typescript.components",
-    "label": "TypeScript Components",
-    "group": "core",
-    "parent": "components",
-    "tier": "deep-dive",
-    "rank": 80,
-    "labels": {
-      "de": "TypeScript Components",
-      "en": "TypeScript Components"
-    }
-  },
-  {
-    "slug": "type-exports",
-    "id": "docs.type.exports",
-    "label": "Type Exports",
-    "group": "core",
-    "parent": "typescript-components",
-    "tier": "deep-dive",
-    "rank": 74,
-    "labels": {
-      "de": "Type Exports",
-      "en": "Type Exports"
-    }
-  },
-  {
-    "slug": "package-export-lock",
-    "id": "docs.package.export.lock",
-    "label": "Package Export Lock",
-    "group": "core",
-    "parent": "type-exports",
-    "tier": "deep-dive",
-    "rank": 73,
-    "labels": {
-      "de": "Package Export Lock",
-      "en": "Package Export Lock"
-    }
-  },
-  {
-    "slug": "xtend-loader-types",
-    "id": "docs.xtend.loader.types",
-    "label": "XTend Loader Types",
-    "group": "core",
-    "parent": "type-exports",
-    "tier": "deep-dive",
-    "rank": 72,
-    "labels": {
-      "de": "XTend Loader Types",
-      "en": "XTend Loader Types"
-    }
-  },
-  {
-    "slug": "xtend-api-types",
-    "id": "docs.xtend.api.types",
-    "label": "XTend API Types",
-    "group": "core",
-    "parent": "type-exports",
-    "tier": "deep-dive",
-    "rank": 71,
-    "labels": {
-      "de": "XTend API Types",
-      "en": "XTend API Types"
-    }
-  },
-  {
-    "slug": "xtend-policy-types",
-    "id": "docs.xtend.policy.types",
-    "label": "XTend Policy Types",
-    "group": "core",
-    "parent": "type-exports",
-    "tier": "deep-dive",
-    "rank": 70,
-    "labels": {
-      "de": "XTend Policy Types",
-      "en": "XTend Policy Types"
-    }
-  },
-  {
-    "slug": "xtend-builder-types",
-    "id": "docs.xtend.builder.types",
-    "label": "XTend Builder Types",
-    "group": "core",
-    "parent": "type-exports",
-    "tier": "deep-dive",
-    "rank": 69,
-    "labels": {
-      "de": "XTend Builder Types",
-      "en": "XTend Builder Types"
-    }
-  },
-  {
-    "slug": "xtend-catalog-types",
-    "id": "docs.xtend.catalog.types",
-    "label": "XTend Catalog Types",
-    "group": "core",
-    "parent": "type-exports",
-    "tier": "deep-dive",
-    "rank": 68,
-    "labels": {
-      "de": "XTend Catalog Types",
-      "en": "XTend Catalog Types"
-    }
-  },
-  {
-    "slug": "xtend-vendor-types",
-    "id": "docs.xtend.vendor.types",
-    "label": "XTend Vendor Types",
-    "group": "core",
-    "parent": "type-exports",
-    "tier": "deep-dive",
-    "rank": 67,
-    "labels": {
-      "de": "XTend Vendor Types",
-      "en": "XTend Vendor Types"
-    }
-  },
-  {
-    "slug": "rc1-readiness",
-    "id": "docs.release.readiness",
-    "label": "Release Readiness",
-    "group": "core",
-    "parent": "package-export-lock",
-    "tier": "deep-dive",
-    "rank": 66,
-    "labels": {
-      "de": "Release Readiness",
-      "en": "Release Readiness"
-    }
-  },
-  {
-    "slug": "epic12-rc0-handoff",
-    "id": "docs.epic12.rc0.handoff",
-    "label": "Epic 12 RC0 Handoff",
-    "group": "core",
-    "parent": "rc1-readiness",
-    "tier": "deep-dive",
-    "rank": 65,
-    "labels": {
-      "de": "Epic 12 RC0 Handoff",
-      "en": "Epic 12 RC0 Handoff"
-    }
-  },
-  {
-    "slug": "release-owner-acceptance",
-    "id": "docs.release.acceptance",
-    "label": "Release Acceptance",
-    "group": "core",
-    "parent": "package-export-lock",
-    "tier": "deep-dive",
-    "rank": 64,
-    "labels": {
-      "de": "Release Acceptance",
-      "en": "Release Acceptance"
-    }
-  },
-  {
-    "slug": "conditional-network-evidence",
-    "id": "docs.conditional.network.evidence",
-    "label": "Conditional Network Evidence",
-    "group": "core",
-    "parent": "package-export-lock",
-    "tier": "deep-dive",
-    "rank": 63,
-    "labels": {
-      "de": "Conditional Network Evidence",
-      "en": "Conditional Network Evidence"
-    }
-  },
-  {
-    "slug": "conditional-network-evidence-ci",
-    "id": "docs.conditional.network.evidence.ci",
-    "label": "Conditional Network Evidence CI",
-    "group": "core",
-    "parent": "conditional-network-evidence",
-    "tier": "deep-dive",
-    "rank": 62,
-    "labels": {
-      "de": "Conditional Network Evidence CI",
-      "en": "Conditional Network Evidence CI"
-    }
-  },
-  {
-    "slug": "release-report-pack-dry-run-evidence",
-    "id": "docs.release.report.pack.dry.run.evidence",
-    "label": "Release Report und Pack Dry Run Evidence",
-    "group": "core",
-    "parent": "package-export-lock",
-    "tier": "deep-dive",
-    "rank": 61,
-    "labels": {
-      "de": "Release Report und Pack Dry Run Evidence",
-      "en": "Release Report und Pack Dry Run Evidence"
-    }
-  },
-  {
-    "slug": "rc1-gate-matrix-ci-handoff",
-    "id": "docs.readiness.ci.bundle",
-    "label": "RC1 Gate Matrix und CI-Handoff",
-    "group": "core",
-    "parent": "package-export-lock",
-    "tier": "deep-dive",
-    "rank": 60,
-    "labels": {
-      "de": "RC1 Gate Matrix und CI-Handoff",
-      "en": "RC1 Gate Matrix and CI Handoff"
-    }
-  },
-  {
-    "slug": "components",
-    "id": "docs.components",
-    "label": "Komponenten-Entwicklung",
-    "group": "components",
-    "parent": null,
-    "tier": "basic",
-    "rank": 96,
-    "labels": {
-      "de": "Komponenten-Entwicklung",
-      "en": "Component Development"
-    }
-  },
-  {
-    "slug": "component-long-tail-migration",
-    "id": "docs.component.long.tail.migration",
-    "label": "Component Long-Tail Migration",
-    "group": "components",
-    "parent": "components",
-    "tier": "deep-dive",
-    "rank": 95,
-    "labels": {
-      "de": "Component Long-Tail Migration",
-      "en": "Component Long-Tail Migration"
-    }
-  },
-  {
-    "slug": "components-xtend-i18n",
-    "id": "docs.components.xtend.i18n",
-    "label": "xtend-i18n",
-    "group": "components",
-    "parent": "components",
-    "tier": "component-reference",
-    "rank": 95,
-    "labels": {
-      "de": "xtend-i18n",
-      "en": "xtend-i18n"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "rmt-language",
+    "keywords": {
+      "de": [
+        "Enums und Catalogs",
+        "rmt",
+        "reference",
+        "enums",
+        "catalogs",
+        "rmt-language"
+      ],
+      "en": [
+        "Enums and Catalogs",
+        "rmt",
+        "reference",
+        "enums",
+        "catalogs",
+        "rmt-language"
+      ]
     }
   },
   {
@@ -803,6 +1134,29 @@
     "labels": {
       "de": "XTendRMT Überblick",
       "en": "XTendRMT Overview"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "XTendRMT Überblick",
+        "xtendrmt",
+        "overview",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ],
+      "en": [
+        "XTendRMT Overview",
+        "xtendrmt",
+        "overview",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ]
     }
   },
   {
@@ -816,71 +1170,29 @@
     "labels": {
       "de": "RMT Stack-Topographie",
       "en": "RMT Stack Topography"
-    }
-  },
-  {
-    "slug": "rmt-kernel-runtime",
-    "id": "docs.rmt.kernel.runtime",
-    "label": "RMT Kernel Runtime",
-    "group": "rmt",
-    "parent": "rmt-stack-topography",
-    "tier": "deep-dive",
-    "rank": 95,
-    "labels": {
-      "de": "RMT Kernel Runtime",
-      "en": "RMT Kernel Runtime"
-    }
-  },
-  {
-    "slug": "xtend-fabric-runtime",
-    "id": "docs.xtend.fabric.runtime",
-    "label": "XTend Fabric Runtime",
-    "group": "rmt",
-    "parent": "rmt-stack-topography",
-    "tier": "deep-dive",
-    "rank": 94,
-    "labels": {
-      "de": "XTend Fabric Runtime",
-      "en": "XTend Fabric Runtime"
-    }
-  },
-  {
-    "slug": "xtend-ui-runtime-layer",
-    "id": "docs.xtend.ui.runtime.layer",
-    "label": "XTend UI Runtime-Schicht",
-    "group": "rmt",
-    "parent": "rmt-stack-topography",
-    "tier": "deep-dive",
-    "rank": 93,
-    "labels": {
-      "de": "XTend UI Runtime-Schicht",
-      "en": "XTend UI Runtime Layer"
-    }
-  },
-  {
-    "slug": "rmt-kernel-topography-map",
-    "id": "docs.rmt.kernel.topography.map",
-    "label": "RMT Kernel Topography Map",
-    "group": "rmt",
-    "parent": "rmt-kernel-runtime",
-    "tier": "deep-dive",
-    "rank": 92,
-    "labels": {
-      "de": "RMT Kernel Topography Map",
-      "en": "RMT Kernel Topography Map"
-    }
-  },
-  {
-    "slug": "rmt-kernel-feature-adoption-evaluation",
-    "id": "docs.rmt.kernel.feature.adoption.evaluation",
-    "label": "RMT Kernel Feature Adoption Evaluation",
-    "group": "rmt",
-    "parent": "rmt-kernel-runtime",
-    "tier": "deep-dive",
-    "rank": 91,
-    "labels": {
-      "de": "RMT Kernel Feature Adoption Evaluation",
-      "en": "RMT Kernel Feature Adoption Evaluation"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Stack-Topographie",
+        "rmt",
+        "stack",
+        "topography",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Stack Topography",
+        "rmt",
+        "stack",
+        "topography",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
@@ -894,97 +1206,65 @@
     "labels": {
       "de": "RMT Authoring Guide",
       "en": "RMT Authoring Guide"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT Authoring Guide",
+        "rmt",
+        "vnext",
+        "authoring",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ],
+      "en": [
+        "RMT Authoring Guide",
+        "rmt",
+        "vnext",
+        "authoring",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ]
     }
   },
   {
-    "slug": "xtendrmt-native-authoring",
-    "id": "docs.xtendrmt.native.authoring",
-    "label": "Native RMT Authoring",
+    "slug": "rmt-kernel-runtime",
+    "id": "docs.rmt.kernel.runtime",
+    "label": "RMT Kernel Runtime",
     "group": "rmt",
-    "parent": "rmt-vnext-authoring",
+    "parent": "rmt-stack-topography",
     "tier": "deep-dive",
-    "rank": 94,
+    "rank": 95,
     "labels": {
-      "de": "Native RMT Authoring",
-      "en": "Native RMT Authoring"
-    }
-  },
-  {
-    "slug": "rmt-vnext-migration-notes",
-    "id": "docs.rmt.vnext.migration.notes",
-    "label": "RMT vNext Migration Notes",
-    "group": "rmt",
-    "parent": "rmt-vnext-authoring",
-    "tier": "deep-dive",
-    "rank": 93,
-    "labels": {
-      "de": "RMT vNext Migration Notes",
-      "en": "RMT vNext Migration Notes"
-    }
-  },
-  {
-    "slug": "xtendrmt-app-dsl",
-    "id": "docs.xtendrmt.app.dsl",
-    "label": "XTendRMT App DSL",
-    "group": "rmt",
-    "parent": "rmt-vnext-authoring",
-    "tier": "deep-dive",
-    "rank": 92,
-    "labels": {
-      "de": "XTendRMT App DSL",
-      "en": "XTendRMT App DSL"
-    }
-  },
-  {
-    "slug": "rmt-vnext-release-handoff",
-    "id": "docs.rmt.vnext.release.handoff",
-    "label": "RMT vNext Release Contract",
-    "group": "rmt",
-    "parent": "rmt-vnext-authoring",
-    "tier": "deep-dive",
-    "rank": 91,
-    "labels": {
-      "de": "RMT vNext Releasevertrag",
-      "en": "RMT vNext Release Contract"
-    }
-  },
-  {
-    "slug": "rmt-vnext-source-to-sea-gate",
-    "id": "docs.rmt.vnext.source.to.sea.gate",
-    "label": "RMT vNext Source-to-Sea",
-    "group": "rmt",
-    "parent": "rmt-vnext-release-handoff",
-    "tier": "deep-dive",
-    "rank": 89,
-    "labels": {
-      "de": "RMT vNext Source-to-Sea",
-      "en": "RMT vNext Source-to-Sea"
-    }
-  },
-  {
-    "slug": "xtendrmt-runtime-bridge",
-    "id": "docs.xtendrmt.runtime.bridge",
-    "label": "XTendRMT Runtime Bridge",
-    "group": "rmt",
-    "parent": "xtendrmt-overview",
-    "tier": "deep-dive",
-    "rank": 90,
-    "labels": {
-      "de": "XTendRMT Runtime Bridge",
-      "en": "XTendRMT Runtime Bridge"
-    }
-  },
-  {
-    "slug": "xtendrmt-migration-guide",
-    "id": "docs.xtendrmt.migration.guide",
-    "label": "XTendRMT Migration Guide",
-    "group": "rmt",
-    "parent": "xtendrmt-overview",
-    "tier": "deep-dive",
-    "rank": 82,
-    "labels": {
-      "de": "XTendRMT Migration Guide",
-      "en": "XTendRMT Migration Guide"
+      "de": "RMT Kernel Runtime",
+      "en": "RMT Kernel Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Kernel Runtime",
+        "rmt",
+        "kernel",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Kernel Runtime",
+        "rmt",
+        "kernel",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
@@ -998,136 +1278,154 @@
     "labels": {
       "de": "RMT Component Primitives und XTend UI",
       "en": "RMT Component Primitives and XTend UI"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Component Primitives und XTend UI",
+        "rmt",
+        "vnext",
+        "component",
+        "primitives",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Component Primitives and XTend UI",
+        "rmt",
+        "vnext",
+        "component",
+        "primitives",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
-    "slug": "rmt-dom-descriptor-renderer",
-    "id": "docs.rmt.dom.descriptor.renderer",
-    "label": "RMT DOM Descriptor Renderer",
+    "slug": "xtend-fabric-runtime",
+    "id": "docs.xtend.fabric.runtime",
+    "label": "XTend Fabric Runtime",
     "group": "rmt",
-    "parent": "rmt-vnext-component-primitives",
+    "parent": "rmt-stack-topography",
     "tier": "deep-dive",
-    "rank": 88,
+    "rank": 94,
     "labels": {
-      "de": "RMT DOM Descriptor Renderer",
-      "en": "RMT DOM Descriptor Renderer"
+      "de": "XTend Fabric Runtime",
+      "en": "XTend Fabric Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "XTend Fabric Runtime",
+        "xtend",
+        "fabric",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ],
+      "en": [
+        "XTend Fabric Runtime",
+        "xtend",
+        "fabric",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ]
     }
   },
   {
-    "slug": "rmt-component-template-primitives",
-    "id": "docs.rmt.component.template.primitives",
-    "label": "RMT Component Template Primitives",
+    "slug": "xtendrmt-native-authoring",
+    "id": "docs.xtendrmt.native.authoring",
+    "label": "Native RMT Authoring",
     "group": "rmt",
-    "parent": "rmt-vnext-component-primitives",
+    "parent": "rmt-vnext-authoring",
     "tier": "deep-dive",
-    "rank": 86,
+    "rank": 94,
     "labels": {
-      "de": "RMT Component Template Primitives",
-      "en": "RMT Component Template Primitives"
+      "de": "Native RMT Authoring",
+      "en": "Native RMT Authoring"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "Native RMT Authoring",
+        "xtendrmt",
+        "native",
+        "authoring",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "RMT"
+      ],
+      "en": [
+        "Native RMT Authoring",
+        "xtendrmt",
+        "native",
+        "authoring",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "RMT"
+      ]
     }
   },
   {
-    "slug": "rmt-state-selector-runtime",
-    "id": "docs.rmt.state.selector.runtime",
-    "label": "RMT State Selector Runtime",
+    "slug": "rmt-animation-engine",
+    "id": "docs.rmt.animation.engine",
+    "label": "RMT AnimationEngine",
     "group": "rmt",
-    "parent": "xtendrmt-app-dsl",
-    "tier": "deep-dive",
-    "rank": 84,
+    "parent": "rmt-vnext-authoring",
+    "tier": "basic",
+    "rank": 94,
+    "icon": "sparkles",
     "labels": {
-      "de": "RMT State Selector Runtime",
-      "en": "RMT State Selector Runtime"
-    }
-  },
-  {
-    "slug": "rmt-action-effect-runtime",
-    "id": "docs.rmt.action.effect.runtime",
-    "label": "RMT Action Effect Runtime",
-    "group": "rmt",
-    "parent": "xtendrmt-app-dsl",
-    "tier": "deep-dive",
-    "rank": 82,
-    "labels": {
-      "de": "RMT Action Effect Runtime",
-      "en": "RMT Action Effect Runtime"
-    }
-  },
-  {
-    "slug": "rmt-event-routing-runtime",
-    "id": "docs.rmt.event.routing.runtime",
-    "label": "RMT Event Routing Runtime",
-    "group": "rmt",
-    "parent": "xtendrmt-app-dsl",
-    "tier": "deep-dive",
-    "rank": 80,
-    "labels": {
-      "de": "RMT Event Routing Runtime",
-      "en": "RMT Event Routing Runtime"
-    }
-  },
-  {
-    "slug": "rmt-surface-resource-graph-runtime",
-    "id": "docs.rmt.surface.resource.graph.runtime",
-    "label": "RMT Surface Resource Graph Runtime",
-    "group": "rmt",
-    "parent": "xtendrmt-app-dsl",
-    "tier": "deep-dive",
-    "rank": 78,
-    "labels": {
-      "de": "RMT Surface Resource Graph Runtime",
-      "en": "RMT Surface Resource Graph Runtime"
-    }
-  },
-  {
-    "slug": "rmt-vnext-remote-surfaces",
-    "id": "docs.rmt.vnext.remote.surfaces",
-    "label": "RMT Remote Surfaces",
-    "group": "rmt",
-    "parent": "xtendrmt-overview",
-    "tier": "deep-dive",
-    "rank": 76,
-    "labels": {
-      "de": "RMT Remote Surfaces",
-      "en": "RMT Remote Surfaces"
-    }
-  },
-  {
-    "slug": "rmt-vnext-cross-surface-events",
-    "id": "docs.rmt.vnext.cross.surface.events",
-    "label": "RMT Cross Surface Events",
-    "group": "rmt",
-    "parent": "rmt-vnext-remote-surfaces",
-    "tier": "deep-dive",
-    "rank": 74,
-    "labels": {
-      "de": "RMT Cross Surface Events",
-      "en": "RMT Cross Surface Events"
-    }
-  },
-  {
-    "slug": "rmt-vnext-surface-registry-enterprise",
-    "id": "docs.rmt.vnext.surface.registry.enterprise",
-    "label": "RMT vNext Enterprise Surface Registry",
-    "group": "rmt",
-    "parent": "rmt-vnext-remote-surfaces",
-    "tier": "deep-dive",
-    "rank": 73,
-    "labels": {
-      "de": "RMT vNext Enterprise Surface Registry",
-      "en": "RMT vNext Enterprise Surface Registry"
-    }
-  },
-  {
-    "slug": "rmt-vnext-enterprise-mfe-handoff",
-    "id": "docs.rmt.vnext.enterprise.mfe.handoff",
-    "label": "RMT vNext Enterprise MFE Contract",
-    "group": "rmt",
-    "parent": "rmt-vnext-remote-surfaces",
-    "tier": "deep-dive",
-    "rank": 72,
-    "labels": {
-      "de": "RMT vNext Enterprise MFE Vertrag",
-      "en": "RMT vNext Enterprise MFE Contract"
+      "de": "RMT AnimationEngine",
+      "en": "RMT AnimationEngine"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT AnimationEngine",
+        "rmt",
+        "animation",
+        "engine",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "Transition",
+        "Effekte",
+        "Keyframes",
+        "Spring",
+        "Reduced Motion"
+      ],
+      "en": [
+        "RMT AnimationEngine",
+        "rmt",
+        "animation",
+        "engine",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "transition",
+        "effects",
+        "keyframes",
+        "spring",
+        "reduced motion"
+      ]
     }
   },
   {
@@ -1141,6 +1439,146 @@
     "labels": {
       "de": "RMT Linter",
       "en": "RMT Linter"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-tooling",
+    "keywords": {
+      "de": [
+        "RMT Linter",
+        "rmt",
+        "linter",
+        "tutorial",
+        "build",
+        "rmt-tooling"
+      ],
+      "en": [
+        "RMT Linter",
+        "rmt",
+        "linter",
+        "tutorial",
+        "build",
+        "rmt-tooling"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-vnext-migration-notes",
+    "id": "docs.rmt.vnext.migration.notes",
+    "label": "RMT vNext Migration Notes",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "deep-dive",
+    "rank": 93,
+    "labels": {
+      "de": "RMT vNext Migration Notes",
+      "en": "RMT vNext Migration Notes"
+    },
+    "contentType": "tutorial",
+    "aliases": [
+      "rmt-vnext-release-handoff"
+    ],
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT vNext Migration Notes",
+        "rmt",
+        "vnext",
+        "migration",
+        "notes",
+        "rmt-vnext-release-handoff",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ],
+      "en": [
+        "RMT vNext Migration Notes",
+        "rmt",
+        "vnext",
+        "migration",
+        "notes",
+        "rmt-vnext-release-handoff",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-ui-runtime-layer",
+    "id": "docs.xtend.ui.runtime.layer",
+    "label": "XTend UI Runtime-Schicht",
+    "group": "rmt",
+    "parent": "rmt-stack-topography",
+    "tier": "deep-dive",
+    "rank": 93,
+    "labels": {
+      "de": "XTend UI Runtime-Schicht",
+      "en": "XTend UI Runtime Layer"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "XTend UI Runtime-Schicht",
+        "xtend",
+        "runtime",
+        "layer",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ],
+      "en": [
+        "XTend UI Runtime Layer",
+        "xtend",
+        "runtime",
+        "layer",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-kernel-topography-map",
+    "id": "docs.rmt.kernel.topography.map",
+    "label": "RMT Kernel Topography Map",
+    "group": "rmt",
+    "parent": "rmt-kernel-runtime",
+    "tier": "deep-dive",
+    "rank": 92,
+    "labels": {
+      "de": "RMT Kernel Topography Map",
+      "en": "RMT Kernel Topography Map"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Kernel Topography Map",
+        "rmt",
+        "kernel",
+        "topography",
+        "map",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Kernel Topography Map",
+        "rmt",
+        "kernel",
+        "topography",
+        "map",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
@@ -1154,6 +1592,107 @@
     "labels": {
       "de": "RMT Language Server",
       "en": "RMT Language Server"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-tooling",
+    "keywords": {
+      "de": [
+        "RMT Language Server",
+        "rmt",
+        "language",
+        "server",
+        "tutorial",
+        "build",
+        "rmt-tooling"
+      ],
+      "en": [
+        "RMT Language Server",
+        "rmt",
+        "language",
+        "server",
+        "tutorial",
+        "build",
+        "rmt-tooling"
+      ]
+    }
+  },
+  {
+    "slug": "xtendrmt-app-dsl",
+    "id": "docs.xtendrmt.app.dsl",
+    "label": "XTendRMT App DSL",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "deep-dive",
+    "rank": 92,
+    "labels": {
+      "de": "XTendRMT App DSL",
+      "en": "XTendRMT App DSL"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "XTendRMT App DSL",
+        "xtendrmt",
+        "app",
+        "dsl",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ],
+      "en": [
+        "XTendRMT App DSL",
+        "xtendrmt",
+        "app",
+        "dsl",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-kernel-feature-adoption-evaluation",
+    "id": "docs.rmt.kernel.feature.adoption.evaluation",
+    "label": "RMT Kernel Feature Adoption Evaluation",
+    "group": "rmt",
+    "parent": "rmt-kernel-runtime",
+    "tier": "deep-dive",
+    "rank": 91,
+    "labels": {
+      "de": "RMT Kernel Feature Adoption Evaluation",
+      "en": "RMT Kernel Feature Adoption Evaluation"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Kernel Feature Adoption Evaluation",
+        "rmt",
+        "kernel",
+        "feature",
+        "adoption",
+        "evaluation",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Kernel Feature Adoption Evaluation",
+        "rmt",
+        "kernel",
+        "feature",
+        "adoption",
+        "evaluation",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
@@ -1167,6 +1706,147 @@
     "labels": {
       "de": "RMT Node SSR Adapter",
       "en": "RMT Node SSR Adapter"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Node SSR Adapter",
+        "rmt",
+        "node",
+        "ssr",
+        "adapter",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Node SSR Adapter",
+        "rmt",
+        "node",
+        "ssr",
+        "adapter",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "xtendrmt-runtime-bridge",
+    "id": "docs.xtendrmt.runtime.bridge",
+    "label": "XTendRMT Runtime Bridge",
+    "group": "rmt",
+    "parent": "xtendrmt-overview",
+    "tier": "deep-dive",
+    "rank": 90,
+    "labels": {
+      "de": "XTendRMT Runtime Bridge",
+      "en": "XTendRMT Runtime Bridge"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "XTendRMT Runtime Bridge",
+        "xtendrmt",
+        "runtime",
+        "bridge",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ],
+      "en": [
+        "XTendRMT Runtime Bridge",
+        "xtendrmt",
+        "runtime",
+        "bridge",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-vnext-source-to-sea-gate",
+    "id": "docs.rmt.vnext.source.to.sea.gate",
+    "label": "RMT vNext Source-to-Sea",
+    "group": "rmt",
+    "parent": "rmt-vnext-release-handoff",
+    "tier": "deep-dive",
+    "rank": 89,
+    "labels": {
+      "de": "RMT vNext Source-to-Sea",
+      "en": "RMT vNext Source-to-Sea"
+    },
+    "contentType": "operations",
+    "trunk": "build",
+    "section": "rmt-tooling",
+    "keywords": {
+      "de": [
+        "RMT vNext Source-to-Sea",
+        "rmt",
+        "vnext",
+        "source",
+        "sea",
+        "gate",
+        "operations",
+        "build",
+        "rmt-tooling"
+      ],
+      "en": [
+        "RMT vNext Source-to-Sea",
+        "rmt",
+        "vnext",
+        "source",
+        "sea",
+        "gate",
+        "operations",
+        "build",
+        "rmt-tooling"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-dom-descriptor-renderer",
+    "id": "docs.rmt.dom.descriptor.renderer",
+    "label": "RMT DOM Descriptor Renderer",
+    "group": "rmt",
+    "parent": "rmt-vnext-component-primitives",
+    "tier": "deep-dive",
+    "rank": 88,
+    "labels": {
+      "de": "RMT DOM Descriptor Renderer",
+      "en": "RMT DOM Descriptor Renderer"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT DOM Descriptor Renderer",
+        "rmt",
+        "dom",
+        "descriptor",
+        "renderer",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT DOM Descriptor Renderer",
+        "rmt",
+        "dom",
+        "descriptor",
+        "renderer",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
@@ -1180,6 +1860,426 @@
     "labels": {
       "de": "RMT PHP/Laravel SSR Adapter",
       "en": "RMT PHP/Laravel SSR Adapter"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT PHP/Laravel SSR Adapter",
+        "rmt",
+        "php",
+        "ssr",
+        "adapter",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT PHP/Laravel SSR Adapter",
+        "rmt",
+        "php",
+        "ssr",
+        "adapter",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "xscaler-protocol",
+    "id": "docs.xscaler.protocol",
+    "label": "XScaler Protocol",
+    "group": "rmt",
+    "parent": "rmt-reference-remote-surfaces",
+    "tier": "deep-dive",
+    "rank": 87,
+    "labels": {
+      "de": "XScaler-Protokoll",
+      "en": "XScaler Protocol"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "XScaler-Protokoll",
+        "xscaler",
+        "protocol",
+        "concept",
+        "build",
+        "surfaces",
+        "RMT"
+      ],
+      "en": [
+        "XScaler Protocol",
+        "xscaler",
+        "protocol",
+        "concept",
+        "build",
+        "surfaces",
+        "RMT"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-component-template-primitives",
+    "id": "docs.rmt.component.template.primitives",
+    "label": "RMT Component Template Primitives",
+    "group": "rmt",
+    "parent": "rmt-vnext-component-primitives",
+    "tier": "deep-dive",
+    "rank": 86,
+    "labels": {
+      "de": "RMT Component Template Primitives",
+      "en": "RMT Component Template Primitives"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Component Template Primitives",
+        "rmt",
+        "component",
+        "template",
+        "primitives",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Component Template Primitives",
+        "rmt",
+        "component",
+        "template",
+        "primitives",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-state-selector-runtime",
+    "id": "docs.rmt.state.selector.runtime",
+    "label": "RMT State Selector Runtime",
+    "group": "rmt",
+    "parent": "xtendrmt-app-dsl",
+    "tier": "deep-dive",
+    "rank": 84,
+    "labels": {
+      "de": "RMT State Selector Runtime",
+      "en": "RMT State Selector Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT State Selector Runtime",
+        "rmt",
+        "state",
+        "selector",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT State Selector Runtime",
+        "rmt",
+        "state",
+        "selector",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-action-effect-runtime",
+    "id": "docs.rmt.action.effect.runtime",
+    "label": "RMT Action Effect Runtime",
+    "group": "rmt",
+    "parent": "xtendrmt-app-dsl",
+    "tier": "deep-dive",
+    "rank": 82,
+    "labels": {
+      "de": "RMT Action Effect Runtime",
+      "en": "RMT Action Effect Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Action Effect Runtime",
+        "rmt",
+        "action",
+        "effect",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Action Effect Runtime",
+        "rmt",
+        "action",
+        "effect",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "xtendrmt-migration-guide",
+    "id": "docs.xtendrmt.migration.guide",
+    "label": "XTendRMT Migration Guide",
+    "group": "rmt",
+    "parent": "xtendrmt-overview",
+    "tier": "deep-dive",
+    "rank": 82,
+    "labels": {
+      "de": "XTendRMT Migration Guide",
+      "en": "XTendRMT Migration Guide"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "XTendRMT Migration Guide",
+        "xtendrmt",
+        "migration",
+        "guide",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "RMT"
+      ],
+      "en": [
+        "XTendRMT Migration Guide",
+        "xtendrmt",
+        "migration",
+        "guide",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "RMT"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-event-routing-runtime",
+    "id": "docs.rmt.event.routing.runtime",
+    "label": "RMT Event Routing Runtime",
+    "group": "rmt",
+    "parent": "xtendrmt-app-dsl",
+    "tier": "deep-dive",
+    "rank": 80,
+    "labels": {
+      "de": "RMT Event Routing Runtime",
+      "en": "RMT Event Routing Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Event Routing Runtime",
+        "rmt",
+        "event",
+        "routing",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Event Routing Runtime",
+        "rmt",
+        "event",
+        "routing",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-surface-resource-graph-runtime",
+    "id": "docs.rmt.surface.resource.graph.runtime",
+    "label": "RMT Surface Resource Graph Runtime",
+    "group": "rmt",
+    "parent": "xtendrmt-app-dsl",
+    "tier": "deep-dive",
+    "rank": 78,
+    "labels": {
+      "de": "RMT Surface Resource Graph Runtime",
+      "en": "RMT Surface Resource Graph Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Surface Resource Graph Runtime",
+        "rmt",
+        "surface",
+        "resource",
+        "graph",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Surface Resource Graph Runtime",
+        "rmt",
+        "surface",
+        "resource",
+        "graph",
+        "runtime",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-vnext-remote-surfaces",
+    "id": "docs.rmt.vnext.remote.surfaces",
+    "label": "RMT Remote Surfaces",
+    "group": "rmt",
+    "parent": "xtendrmt-overview",
+    "tier": "deep-dive",
+    "rank": 76,
+    "labels": {
+      "de": "RMT Remote Surfaces",
+      "en": "RMT Remote Surfaces"
+    },
+    "contentType": "concept",
+    "aliases": [
+      "rmt-vnext-enterprise-mfe-handoff"
+    ],
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "RMT Remote Surfaces",
+        "rmt",
+        "vnext",
+        "remote",
+        "surfaces",
+        "rmt-vnext-enterprise-mfe-handoff",
+        "concept",
+        "build",
+        "Microfrontend",
+        "MFE",
+        "Remote Surface",
+        "XScaler"
+      ],
+      "en": [
+        "RMT Remote Surfaces",
+        "rmt",
+        "vnext",
+        "remote",
+        "surfaces",
+        "rmt-vnext-enterprise-mfe-handoff",
+        "concept",
+        "build",
+        "microfrontend",
+        "MFE",
+        "remote surface",
+        "XScaler"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-vnext-cross-surface-events",
+    "id": "docs.rmt.vnext.cross.surface.events",
+    "label": "RMT Cross Surface Events",
+    "group": "rmt",
+    "parent": "rmt-vnext-remote-surfaces",
+    "tier": "deep-dive",
+    "rank": 74,
+    "labels": {
+      "de": "RMT Cross Surface Events",
+      "en": "RMT Cross Surface Events"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "RMT Cross Surface Events",
+        "rmt",
+        "vnext",
+        "cross",
+        "surface",
+        "events",
+        "concept",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "RMT Cross Surface Events",
+        "rmt",
+        "vnext",
+        "cross",
+        "surface",
+        "events",
+        "concept",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-vnext-surface-registry-enterprise",
+    "id": "docs.rmt.vnext.surface.registry.enterprise",
+    "label": "RMT vNext Enterprise Surface Registry",
+    "group": "rmt",
+    "parent": "rmt-vnext-remote-surfaces",
+    "tier": "deep-dive",
+    "rank": 73,
+    "labels": {
+      "de": "RMT vNext Enterprise Surface Registry",
+      "en": "RMT vNext Enterprise Surface Registry"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "RMT vNext Enterprise Surface Registry",
+        "rmt",
+        "vnext",
+        "surface",
+        "registry",
+        "enterprise",
+        "concept",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "RMT vNext Enterprise Surface Registry",
+        "rmt",
+        "vnext",
+        "surface",
+        "registry",
+        "enterprise",
+        "concept",
+        "build",
+        "surfaces"
+      ]
     }
   },
   {
@@ -1193,6 +2293,31 @@
     "labels": {
       "de": "RMT-first XTend Apps",
       "en": "RMT-first XTend Apps"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT-first XTend Apps",
+        "rmt",
+        "first",
+        "xtend",
+        "apps",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ],
+      "en": [
+        "RMT-first XTend Apps",
+        "rmt",
+        "first",
+        "xtend",
+        "apps",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ]
     }
   },
   {
@@ -1206,6 +2331,31 @@
     "labels": {
       "de": "RMT-first Demo App",
       "en": "RMT-first Demo App"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT-first Demo App",
+        "rmt",
+        "first",
+        "demo",
+        "app",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ],
+      "en": [
+        "RMT-first Demo App",
+        "rmt",
+        "first",
+        "demo",
+        "app",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ]
     }
   },
   {
@@ -1219,6 +2369,29 @@
     "labels": {
       "de": "RMT Lifecycle Demo",
       "en": "RMT Lifecycle Demo"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Lifecycle Demo",
+        "rmt",
+        "lifecycle",
+        "demo",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Lifecycle Demo",
+        "rmt",
+        "lifecycle",
+        "demo",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
@@ -1232,32 +2405,41 @@
     "labels": {
       "de": "RMT App Platform Migration Guide",
       "en": "RMT App Platform Migration Guide"
-    }
-  },
-  {
-    "slug": "epic18-vendor-bugfixes",
-    "id": "docs.epic18.vendor.bugfixes",
-    "label": "Epic18 Vendor Bugfixes",
-    "group": "rmt",
-    "parent": "xtendrmt-migration-guide",
-    "tier": "deep-dive",
-    "rank": 65,
-    "labels": {
-      "de": "Epic18 Vendor Bugfixes",
-      "en": "Epic18 Vendor Bugfixes"
-    }
-  },
-  {
-    "slug": "epic18-rmt-app-platform-release-handoff",
-    "id": "docs.epic18.rmt.app.platform.release.handoff",
-    "label": "Epic18 RMT App Platform Release Handoff",
-    "group": "rmt",
-    "parent": "rmt-app-platform-migration-guide",
-    "tier": "deep-dive",
-    "rank": 64,
-    "labels": {
-      "de": "Epic18 RMT App Platform Release Handoff",
-      "en": "Epic18 RMT App Platform Release Handoff"
+    },
+    "contentType": "tutorial",
+    "aliases": [
+      "epic18-vendor-bugfixes",
+      "epic18-rmt-app-platform-release-handoff"
+    ],
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT App Platform Migration Guide",
+        "rmt",
+        "app",
+        "platform",
+        "migration",
+        "guide",
+        "epic18-vendor-bugfixes",
+        "epic18-rmt-app-platform-release-handoff",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ],
+      "en": [
+        "RMT App Platform Migration Guide",
+        "rmt",
+        "app",
+        "platform",
+        "migration",
+        "guide",
+        "epic18-vendor-bugfixes",
+        "epic18-rmt-app-platform-release-handoff",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ]
     }
   },
   {
@@ -1271,6 +2453,31 @@
     "labels": {
       "de": "RMT App Platform Tooling",
       "en": "RMT App Platform Tooling"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-tooling",
+    "keywords": {
+      "de": [
+        "RMT App Platform Tooling",
+        "rmt",
+        "app",
+        "platform",
+        "tooling",
+        "tutorial",
+        "build",
+        "rmt-tooling"
+      ],
+      "en": [
+        "RMT App Platform Tooling",
+        "rmt",
+        "app",
+        "platform",
+        "tooling",
+        "tutorial",
+        "build",
+        "rmt-tooling"
+      ]
     }
   },
   {
@@ -1284,6 +2491,31 @@
     "labels": {
       "de": "RMT App Platform Fixture",
       "en": "RMT App Platform Fixture"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT App Platform Fixture",
+        "rmt",
+        "app",
+        "platform",
+        "fixture",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ],
+      "en": [
+        "RMT App Platform Fixture",
+        "rmt",
+        "app",
+        "platform",
+        "fixture",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ]
     }
   },
   {
@@ -1297,292 +2529,971 @@
     "labels": {
       "de": "Parsedown RMT Scheduling",
       "en": "Parsedown RMT Scheduling"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "Parsedown RMT Scheduling",
+        "xtendrmt",
+        "parsedown",
+        "scheduling",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ],
+      "en": [
+        "Parsedown RMT Scheduling",
+        "xtendrmt",
+        "parsedown",
+        "scheduling",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ]
     }
   },
   {
-    "slug": "surface-manager-authoring-guide",
-    "id": "docs.surface.manager.authoring.guide",
-    "label": "SurfaceManager Authoring Guide",
-    "group": "surface",
+    "slug": "xtend-maraca",
+    "id": "docs.xtend.maraca",
+    "label": "XTend Maraca",
+    "group": "maraca",
     "parent": null,
     "tier": "basic",
-    "rank": 88,
+    "rank": 100,
     "labels": {
-      "de": "SurfaceManager Authoring Guide",
-      "en": "SurfaceManager Authoring Guide"
+      "de": "XTend Maraca",
+      "en": "XTend Maraca"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "maraca",
+    "keywords": {
+      "de": [
+        "XTend Maraca",
+        "xtend",
+        "maraca",
+        "tutorial",
+        "build",
+        "Bundling",
+        "Rollup",
+        "Terser",
+        "AOT",
+        "Tune"
+      ],
+      "en": [
+        "XTend Maraca",
+        "xtend",
+        "maraca",
+        "tutorial",
+        "build",
+        "bundling",
+        "Rollup",
+        "Terser",
+        "AOT",
+        "tune"
+      ]
     }
   },
   {
-    "slug": "surface-manager-controller",
-    "id": "docs.surface.manager.controller",
-    "label": "SurfaceManager Controller",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
+    "slug": "xtend-maraca-orchestration",
+    "id": "docs.xtend.maraca.orchestration",
+    "label": "Maraca Orchestration",
+    "group": "maraca",
+    "parent": "xtend-maraca",
     "tier": "deep-dive",
-    "rank": 86,
+    "rank": 98,
     "labels": {
-      "de": "SurfaceManager Controller",
-      "en": "SurfaceManager Controller"
+      "de": "Maraca Orchestrierung",
+      "en": "Maraca Orchestration"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "maraca",
+    "keywords": {
+      "de": [
+        "Maraca Orchestrierung",
+        "xtend",
+        "maraca",
+        "orchestration",
+        "concept",
+        "build"
+      ],
+      "en": [
+        "Maraca Orchestration",
+        "xtend",
+        "maraca",
+        "orchestration",
+        "concept",
+        "build"
+      ]
     }
   },
   {
-    "slug": "surface-manager-runtime",
-    "id": "docs.surface.manager.runtime",
-    "label": "SurfaceManager Runtime",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 84,
-    "labels": {
-      "de": "SurfaceManager Runtime",
-      "en": "SurfaceManager Runtime"
-    }
-  },
-  {
-    "slug": "surface-manager-window-runtime",
-    "id": "docs.surface.manager.window.runtime",
-    "label": "SurfaceManager Window Runtime",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 83,
-    "labels": {
-      "de": "SurfaceManager Window Runtime",
-      "en": "SurfaceManager Window Runtime"
-    }
-  },
-  {
-    "slug": "surface-manager-side-panel-runtime",
-    "id": "docs.surface.manager.side.panel.runtime",
-    "label": "SurfaceManager Side Panel Runtime",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 81,
-    "labels": {
-      "de": "SurfaceManager Side Panel Runtime",
-      "en": "SurfaceManager Side Panel Runtime"
-    }
-  },
-  {
-    "slug": "surface-manager-remote-surfaces",
-    "id": "docs.surface.manager.remote.surfaces",
-    "label": "SurfaceManager Remote Surfaces",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 82,
-    "labels": {
-      "de": "SurfaceManager Remote Surfaces",
-      "en": "SurfaceManager Remote Surfaces"
-    }
-  },
-  {
-    "slug": "surface-manager-migration-guide",
-    "id": "docs.surface.manager.migration.guide",
-    "label": "SurfaceManager Migration Guide",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 80,
-    "labels": {
-      "de": "SurfaceManager Migration Guide",
-      "en": "SurfaceManager Migration Guide"
-    }
-  },
-  {
-    "slug": "surface-manager-workbench-fixture",
-    "id": "docs.surface.manager.workbench.fixture",
-    "label": "SurfaceManager Workbench Fixture",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 79,
-    "labels": {
-      "de": "SurfaceManager Workbench Fixture",
-      "en": "SurfaceManager Workbench Fixture"
-    }
-  },
-  {
-    "slug": "surface-manager-overlay-bridge",
-    "id": "docs.surface.manager.overlay.bridge",
-    "label": "SurfaceManager Overlay Bridge",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 78,
-    "labels": {
-      "de": "SurfaceManager Overlay Bridge",
-      "en": "SurfaceManager Overlay Bridge"
-    }
-  },
-  {
-    "slug": "surface-manager-stack-policy",
-    "id": "docs.surface.manager.stack.policy",
-    "label": "SurfaceManager Stack Policy",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 76,
-    "labels": {
-      "de": "SurfaceManager Stack Policy",
-      "en": "SurfaceManager Stack Policy"
-    }
-  },
-  {
-    "slug": "surface-manager-quality-gates",
-    "id": "docs.surface.manager.quality.gates",
-    "label": "SurfaceManager Quality Gates",
-    "group": "surface",
-    "parent": "surface-manager-authoring-guide",
-    "tier": "deep-dive",
-    "rank": 74,
-    "labels": {
-      "de": "SurfaceManager Quality Gates",
-      "en": "SurfaceManager Quality Gates"
-    }
-  },
-  {
-    "slug": "performance",
-    "id": "docs.performance",
-    "label": "Performance",
-    "group": "quality",
+    "slug": "manifest",
+    "id": "docs.manifest",
+    "label": "Manifest",
+    "group": "core",
     "parent": null,
+    "tier": "basic",
+    "rank": 96,
+    "labels": {
+      "de": "Manifest",
+      "en": "Manifest"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "core-api",
+    "keywords": {
+      "de": [
+        "Manifest",
+        "reference",
+        "core-api"
+      ],
+      "en": [
+        "Manifest",
+        "reference",
+        "core-api"
+      ]
+    }
+  },
+  {
+    "slug": "api",
+    "id": "docs.api",
+    "label": "API",
+    "group": "core",
+    "parent": "manifest",
+    "tier": "basic",
+    "rank": 94,
+    "labels": {
+      "de": "API",
+      "en": "API"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "core-api",
+    "keywords": {
+      "de": [
+        "API",
+        "reference",
+        "core-api"
+      ],
+      "en": [
+        "API",
+        "reference",
+        "core-api"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-loader",
+    "id": "docs.xtend.loader",
+    "label": "XTend Loader",
+    "group": "core",
+    "parent": "manifest",
     "tier": "basic",
     "rank": 92,
     "labels": {
-      "de": "Performance",
-      "en": "Performance"
+      "de": "XTend Loader",
+      "en": "XTend Loader"
+    },
+    "contentType": "tutorial",
+    "trunk": "reference",
+    "section": "core-api",
+    "keywords": {
+      "de": [
+        "XTend Loader",
+        "xtend",
+        "loader",
+        "tutorial",
+        "reference",
+        "core-api"
+      ],
+      "en": [
+        "XTend Loader",
+        "xtend",
+        "loader",
+        "tutorial",
+        "reference",
+        "core-api"
+      ]
     }
   },
   {
-    "slug": "hydration-policies",
-    "id": "docs.hydration.policies",
-    "label": "Hydration Policies",
-    "group": "quality",
-    "parent": "performance",
+    "slug": "xtensions-authoring-guide",
+    "id": "docs.xtensions.authoring.guide",
+    "label": "XTensions Authoring Guide",
+    "group": "core",
+    "parent": null,
     "tier": "basic",
     "rank": 90,
     "labels": {
-      "de": "Hydration Policies",
-      "en": "Hydration Policies"
+      "de": "XTensions Authoring Guide",
+      "en": "XTensions Authoring Guide"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "xtensions",
+    "keywords": {
+      "de": [
+        "XTensions Authoring Guide",
+        "xtensions",
+        "authoring",
+        "guide",
+        "tutorial",
+        "build"
+      ],
+      "en": [
+        "XTensions Authoring Guide",
+        "xtensions",
+        "authoring",
+        "guide",
+        "tutorial",
+        "build"
+      ]
     }
   },
   {
-    "slug": "a11y-keyboard-smokes",
-    "id": "docs.a11y.keyboard.smokes",
-    "label": "A11y Keyboard Smokes",
-    "group": "quality",
+    "slug": "xtend-fabric",
+    "id": "docs.xtend.fabric",
+    "label": "XTend Fabric",
+    "group": "core",
     "parent": null,
     "tier": "basic",
     "rank": 88,
     "labels": {
-      "de": "A11y Keyboard Smokes",
-      "en": "A11y Keyboard Smokes"
+      "de": "XTend Fabric",
+      "en": "XTend Fabric"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "XTend Fabric",
+        "xtend",
+        "fabric",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "XTend Fabric",
+        "xtend",
+        "fabric",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
-    "slug": "screenreader-signals",
-    "id": "docs.screenreader.signals",
-    "label": "Screenreader Signals",
-    "group": "quality",
-    "parent": "a11y-keyboard-smokes",
+    "slug": "xtensions-migration-coexistence-guide",
+    "id": "docs.xtensions.migration.coexistence",
+    "label": "XTensions Migration and Coexistence",
+    "group": "core",
+    "parent": "xtensions-authoring-guide",
     "tier": "deep-dive",
-    "rank": 86,
+    "rank": 88,
     "labels": {
-      "de": "Screenreader Signals",
-      "en": "Screenreader Signals"
+      "de": "XTensions Migration und Coexistence",
+      "en": "XTensions Migration and Coexistence"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "xtensions",
+    "keywords": {
+      "de": [
+        "XTensions Migration und Coexistence",
+        "xtensions",
+        "migration",
+        "coexistence",
+        "guide",
+        "concept",
+        "build"
+      ],
+      "en": [
+        "XTensions Migration and Coexistence",
+        "xtensions",
+        "migration",
+        "coexistence",
+        "guide",
+        "concept",
+        "build"
+      ]
     }
   },
   {
-    "slug": "motion-contrast",
-    "id": "docs.motion.contrast",
-    "label": "Motion und Contrast",
-    "group": "quality",
-    "parent": "a11y-keyboard-smokes",
-    "tier": "deep-dive",
+    "slug": "design-tokens",
+    "id": "docs.design.tokens",
+    "label": "Design Tokens",
+    "group": "core",
+    "parent": null,
+    "tier": "basic",
     "rank": 84,
     "labels": {
-      "de": "Motion und Contrast",
-      "en": "Motion and Contrast"
+      "de": "Design Tokens",
+      "en": "Design Tokens"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "design-system",
+    "keywords": {
+      "de": [
+        "Design Tokens",
+        "design",
+        "tokens",
+        "reference",
+        "design-system"
+      ],
+      "en": [
+        "Design Tokens",
+        "design",
+        "tokens",
+        "reference",
+        "design-system"
+      ]
     }
   },
   {
-    "slug": "visual-browser-regression",
-    "id": "docs.visual.browser.regression",
-    "label": "Visual Browser Regression",
-    "group": "quality",
-    "parent": "performance",
-    "tier": "deep-dive",
-    "rank": 82,
-    "labels": {
-      "de": "Visual Browser Regression",
-      "en": "Visual Browser Regression"
-    }
-  },
-  {
-    "slug": "visual-snapshot-automation",
-    "id": "docs.visual.snapshot.automation",
-    "label": "Visual Snapshot Automation",
-    "group": "quality",
-    "parent": "visual-browser-regression",
+    "slug": "typescript-components",
+    "id": "docs.typescript.components",
+    "label": "TypeScript Components",
+    "group": "core",
+    "parent": "components",
     "tier": "deep-dive",
     "rank": 80,
     "labels": {
-      "de": "Visual Snapshot Automation",
-      "en": "Visual Snapshot Automation"
+      "de": "TypeScript Components",
+      "en": "TypeScript Components"
+    },
+    "contentType": "tutorial",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "TypeScript Components",
+        "typescript",
+        "components",
+        "tutorial",
+        "reference",
+        "types"
+      ],
+      "en": [
+        "TypeScript Components",
+        "typescript",
+        "components",
+        "tutorial",
+        "reference",
+        "types"
+      ]
     }
   },
   {
-    "slug": "trusted-dom-sanitizing",
-    "id": "docs.trusted.dom.sanitizing",
-    "label": "Trusted DOM und Sanitizing",
-    "group": "security",
-    "parent": null,
-    "tier": "basic",
-    "rank": 90,
-    "labels": {
-      "de": "Trusted DOM und Sanitizing",
-      "en": "Trusted DOM and Sanitizing"
-    }
-  },
-  {
-    "slug": "manifest-import-policy",
-    "id": "docs.manifest.import.policy",
-    "label": "Manifest Import Policy",
-    "group": "security",
-    "parent": "manifest",
-    "tier": "basic",
-    "rank": 88,
-    "labels": {
-      "de": "Manifest Import Policy",
-      "en": "Manifest Import Policy"
-    }
-  },
-  {
-    "slug": "trusted-dom-boundary-browser-proof",
-    "id": "docs.trusted.dom.boundary.browser.proof",
-    "label": "Trusted DOM Boundary Browser Proof",
-    "group": "security",
-    "parent": "trusted-dom-sanitizing",
+    "slug": "xtend-fabric-rmt-lane-mapping",
+    "id": "docs.xtend.fabric.rmt.lane.mapping",
+    "label": "Fabric RMT Lane Mapping",
+    "group": "core",
+    "parent": "xtend-fabric",
     "tier": "deep-dive",
-    "rank": 89,
+    "rank": 78,
     "labels": {
-      "de": "Trusted DOM Boundary Browser Proof",
-      "en": "Trusted DOM Boundary Browser Proof"
+      "de": "Fabric RMT Lane Mapping",
+      "en": "Fabric RMT Lane Mapping"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "Fabric RMT Lane Mapping",
+        "xtend",
+        "fabric",
+        "rmt",
+        "lane",
+        "mapping",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "Fabric RMT Lane Mapping",
+        "xtend",
+        "fabric",
+        "rmt",
+        "lane",
+        "mapping",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
     }
   },
   {
-    "slug": "supply-chain-gates",
-    "id": "docs.supply.chain.gates",
-    "label": "Supply Chain Checks",
-    "group": "security",
+    "slug": "public-component-types",
+    "id": "docs.public.component.types",
+    "label": "Public Component Types",
+    "group": "core",
+    "parent": "typescript-components",
+    "tier": "deep-dive",
+    "rank": 76,
+    "labels": {
+      "de": "Public Component Types",
+      "en": "Public Component Types"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "Public Component Types",
+        "public",
+        "component",
+        "types",
+        "reference"
+      ],
+      "en": [
+        "Public Component Types",
+        "public",
+        "component",
+        "types",
+        "reference"
+      ]
+    }
+  },
+  {
+    "slug": "type-exports",
+    "id": "docs.type.exports",
+    "label": "Type Exports",
+    "group": "core",
+    "parent": "typescript-components",
+    "tier": "deep-dive",
+    "rank": 74,
+    "labels": {
+      "de": "Type Exports",
+      "en": "Type Exports"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "Type Exports",
+        "type",
+        "exports",
+        "reference",
+        "types"
+      ],
+      "en": [
+        "Type Exports",
+        "type",
+        "exports",
+        "reference",
+        "types"
+      ]
+    }
+  },
+  {
+    "slug": "package-export-lock",
+    "id": "docs.package.export.lock",
+    "label": "Package Export Lock",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 73,
+    "labels": {
+      "de": "Package Export Lock",
+      "en": "Package Export Lock"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "release",
+    "keywords": {
+      "de": [
+        "Package Export Lock",
+        "package",
+        "export",
+        "lock",
+        "operations",
+        "operate",
+        "release"
+      ],
+      "en": [
+        "Package Export Lock",
+        "package",
+        "export",
+        "lock",
+        "operations",
+        "operate",
+        "release"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-loader-types",
+    "id": "docs.xtend.loader.types",
+    "label": "XTend Loader Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 72,
+    "labels": {
+      "de": "XTend Loader Types",
+      "en": "XTend Loader Types"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "XTend Loader Types",
+        "xtend",
+        "loader",
+        "types",
+        "reference"
+      ],
+      "en": [
+        "XTend Loader Types",
+        "xtend",
+        "loader",
+        "types",
+        "reference"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-api-types",
+    "id": "docs.xtend.api.types",
+    "label": "XTend API Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 71,
+    "labels": {
+      "de": "XTend API Types",
+      "en": "XTend API Types"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "XTend API Types",
+        "xtend",
+        "api",
+        "types",
+        "reference"
+      ],
+      "en": [
+        "XTend API Types",
+        "xtend",
+        "api",
+        "types",
+        "reference"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-policy-types",
+    "id": "docs.xtend.policy.types",
+    "label": "XTend Policy Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 70,
+    "labels": {
+      "de": "XTend Policy Types",
+      "en": "XTend Policy Types"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "XTend Policy Types",
+        "xtend",
+        "policy",
+        "types",
+        "reference"
+      ],
+      "en": [
+        "XTend Policy Types",
+        "xtend",
+        "policy",
+        "types",
+        "reference"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-builder-types",
+    "id": "docs.xtend.builder.types",
+    "label": "XTend Builder Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 69,
+    "labels": {
+      "de": "XTend Builder Types",
+      "en": "XTend Builder Types"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "XTend Builder Types",
+        "xtend",
+        "builder",
+        "types",
+        "reference"
+      ],
+      "en": [
+        "XTend Builder Types",
+        "xtend",
+        "builder",
+        "types",
+        "reference"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-catalog-types",
+    "id": "docs.xtend.catalog.types",
+    "label": "XTend Catalog Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 68,
+    "labels": {
+      "de": "XTend Catalog Types",
+      "en": "XTend Catalog Types"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "XTend Catalog Types",
+        "xtend",
+        "catalog",
+        "types",
+        "reference"
+      ],
+      "en": [
+        "XTend Catalog Types",
+        "xtend",
+        "catalog",
+        "types",
+        "reference"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-vendor-types",
+    "id": "docs.xtend.vendor.types",
+    "label": "XTend Vendor Types",
+    "group": "core",
+    "parent": "type-exports",
+    "tier": "deep-dive",
+    "rank": 67,
+    "labels": {
+      "de": "XTend Vendor Types",
+      "en": "XTend Vendor Types"
+    },
+    "contentType": "reference",
+    "trunk": "reference",
+    "section": "types",
+    "keywords": {
+      "de": [
+        "XTend Vendor Types",
+        "xtend",
+        "vendor",
+        "types",
+        "reference"
+      ],
+      "en": [
+        "XTend Vendor Types",
+        "xtend",
+        "vendor",
+        "types",
+        "reference"
+      ]
+    }
+  },
+  {
+    "slug": "release-verification",
+    "id": "docs.release.verification",
+    "label": "Release Verification",
+    "group": "core",
+    "parent": "package-export-lock",
+    "tier": "deep-dive",
+    "rank": 66,
+    "labels": {
+      "de": "Release-Verifikation",
+      "en": "Release Verification"
+    },
+    "aliases": [
+      "rc1-readiness",
+      "release-owner-acceptance",
+      "rc1-gate-matrix-ci-handoff",
+      "epic12-rc0-handoff"
+    ],
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "release",
+    "keywords": {
+      "de": [
+        "Release-Verifikation",
+        "release",
+        "verification",
+        "rc1-readiness",
+        "release-owner-acceptance",
+        "rc1-gate-matrix-ci-handoff",
+        "epic12-rc0-handoff",
+        "operations",
+        "operate"
+      ],
+      "en": [
+        "Release Verification",
+        "release",
+        "verification",
+        "rc1-readiness",
+        "release-owner-acceptance",
+        "rc1-gate-matrix-ci-handoff",
+        "epic12-rc0-handoff",
+        "operations",
+        "operate"
+      ]
+    }
+  },
+  {
+    "slug": "conditional-network-evidence",
+    "id": "docs.conditional.network.evidence",
+    "label": "Conditional Network Evidence",
+    "group": "core",
+    "parent": "package-export-lock",
+    "tier": "deep-dive",
+    "rank": 63,
+    "labels": {
+      "de": "Conditional Network Evidence",
+      "en": "Conditional Network Evidence"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "release",
+    "keywords": {
+      "de": [
+        "Conditional Network Evidence",
+        "conditional",
+        "network",
+        "evidence",
+        "operations",
+        "operate",
+        "release"
+      ],
+      "en": [
+        "Conditional Network Evidence",
+        "conditional",
+        "network",
+        "evidence",
+        "operations",
+        "operate",
+        "release"
+      ]
+    }
+  },
+  {
+    "slug": "conditional-network-evidence-ci",
+    "id": "docs.conditional.network.evidence.ci",
+    "label": "Conditional Network Evidence CI",
+    "group": "core",
+    "parent": "conditional-network-evidence",
+    "tier": "deep-dive",
+    "rank": 62,
+    "labels": {
+      "de": "Conditional Network Evidence CI",
+      "en": "Conditional Network Evidence CI"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "release",
+    "keywords": {
+      "de": [
+        "Conditional Network Evidence CI",
+        "conditional",
+        "network",
+        "evidence",
+        "operations",
+        "operate",
+        "release"
+      ],
+      "en": [
+        "Conditional Network Evidence CI",
+        "conditional",
+        "network",
+        "evidence",
+        "operations",
+        "operate",
+        "release"
+      ]
+    }
+  },
+  {
+    "slug": "release-report-pack-dry-run-evidence",
+    "id": "docs.release.report.pack.dry.run.evidence",
+    "label": "Release Report und Pack Dry Run Evidence",
+    "group": "core",
+    "parent": "package-export-lock",
+    "tier": "deep-dive",
+    "rank": 61,
+    "labels": {
+      "de": "Release Report und Pack Dry Run Evidence",
+      "en": "Release Report und Pack Dry Run Evidence"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "release",
+    "keywords": {
+      "de": [
+        "Release Report und Pack Dry Run Evidence",
+        "release",
+        "report",
+        "pack",
+        "dry",
+        "run",
+        "evidence",
+        "operations",
+        "operate"
+      ],
+      "en": [
+        "Release Report und Pack Dry Run Evidence",
+        "release",
+        "report",
+        "pack",
+        "dry",
+        "run",
+        "evidence",
+        "operations",
+        "operate"
+      ]
+    }
+  },
+  {
+    "slug": "components",
+    "id": "docs.components",
+    "label": "Komponenten-Entwicklung",
+    "group": "components",
     "parent": null,
     "tier": "basic",
-    "rank": 86,
+    "rank": 96,
     "labels": {
-      "de": "Supply Chain Checks",
-      "en": "Supply Chain Checks"
+      "de": "Komponenten-Entwicklung",
+      "en": "Component Development"
+    },
+    "contentType": "orientation",
+    "trunk": "components",
+    "section": "runtime-utilities",
+    "keywords": {
+      "de": [
+        "Komponenten-Entwicklung",
+        "components",
+        "orientation",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "Component Development",
+        "components",
+        "orientation",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ]
+    }
+  },
+  {
+    "slug": "component-long-tail-migration",
+    "id": "docs.component.long.tail.migration",
+    "label": "Component Long-Tail Migration",
+    "group": "components",
+    "parent": "components",
+    "tier": "deep-dive",
+    "rank": 95,
+    "labels": {
+      "de": "Component Long-Tail Migration",
+      "en": "Component Long-Tail Migration"
+    },
+    "contentType": "operations",
+    "trunk": "components",
+    "section": "runtime-utilities",
+    "keywords": {
+      "de": [
+        "Component Long-Tail Migration",
+        "component",
+        "long",
+        "tail",
+        "migration",
+        "operations",
+        "components",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "Component Long-Tail Migration",
+        "component",
+        "long",
+        "tail",
+        "migration",
+        "operations",
+        "components",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ]
+    }
+  },
+  {
+    "slug": "components-xtend-i18n",
+    "id": "docs.components.xtend.i18n",
+    "label": "xtend-i18n",
+    "group": "components",
+    "parent": "components",
+    "tier": "component-reference",
+    "rank": 95,
+    "labels": {
+      "de": "xtend-i18n",
+      "en": "xtend-i18n"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "runtime-utilities",
+    "keywords": {
+      "de": [
+        "xtend-i18n",
+        "components",
+        "xtend",
+        "i18n",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "xtend-i18n",
+        "components",
+        "xtend",
+        "i18n",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1596,6 +3507,29 @@
     "labels": {
       "de": "x-alert",
       "en": "x-alert"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-alert",
+        "components",
+        "xalert",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-alert",
+        "components",
+        "xalert",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1609,6 +3543,29 @@
     "labels": {
       "de": "x-button",
       "en": "x-button"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-button",
+        "components",
+        "xbutton",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-button",
+        "components",
+        "xbutton",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1622,6 +3579,29 @@
     "labels": {
       "de": "x-calendar",
       "en": "x-calendar"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-calendar",
+        "components",
+        "xcalendar",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-calendar",
+        "components",
+        "xcalendar",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1635,6 +3615,29 @@
     "labels": {
       "de": "x-cards",
       "en": "x-cards"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-cards",
+        "components",
+        "xcards",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-cards",
+        "components",
+        "xcards",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1648,6 +3651,29 @@
     "labels": {
       "de": "x-checkbox",
       "en": "x-checkbox"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-checkbox",
+        "components",
+        "xcheckbox",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-checkbox",
+        "components",
+        "xcheckbox",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1661,6 +3687,29 @@
     "labels": {
       "de": "x-code",
       "en": "x-code"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "data-media",
+    "keywords": {
+      "de": [
+        "x-code",
+        "components",
+        "xcode",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-code",
+        "components",
+        "xcode",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1674,6 +3723,29 @@
     "labels": {
       "de": "x-dialog",
       "en": "x-dialog"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-dialog",
+        "components",
+        "xdialog",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-dialog",
+        "components",
+        "xdialog",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1687,6 +3759,29 @@
     "labels": {
       "de": "x-drawer",
       "en": "x-drawer"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-drawer",
+        "components",
+        "xdrawer",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-drawer",
+        "components",
+        "xdrawer",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1700,6 +3795,29 @@
     "labels": {
       "de": "x-footer",
       "en": "x-footer"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "navigation",
+    "keywords": {
+      "de": [
+        "x-footer",
+        "components",
+        "xfooter",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-footer",
+        "components",
+        "xfooter",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1713,6 +3831,29 @@
     "labels": {
       "de": "x-form",
       "en": "x-form"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-form",
+        "components",
+        "xform",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-form",
+        "components",
+        "xform",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1726,6 +3867,29 @@
     "labels": {
       "de": "x-header",
       "en": "x-header"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "navigation",
+    "keywords": {
+      "de": [
+        "x-header",
+        "components",
+        "xheader",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-header",
+        "components",
+        "xheader",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1739,6 +3903,29 @@
     "labels": {
       "de": "x-hero",
       "en": "x-hero"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-hero",
+        "components",
+        "xhero",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-hero",
+        "components",
+        "xhero",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1752,6 +3939,29 @@
     "labels": {
       "de": "x-icon",
       "en": "x-icon"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "data-media",
+    "keywords": {
+      "de": [
+        "x-icon",
+        "components",
+        "xicon",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-icon",
+        "components",
+        "xicon",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1765,6 +3975,65 @@
     "labels": {
       "de": "x-input",
       "en": "x-input"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-input",
+        "components",
+        "xinput",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-input",
+        "components",
+        "xinput",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
+    }
+  },
+  {
+    "slug": "components-xkeymap",
+    "id": "docs.components.xkeymap",
+    "label": "x-keymap",
+    "group": "components",
+    "parent": "components",
+    "tier": "component-reference",
+    "rank": 69.865,
+    "labels": {
+      "de": "x-keymap",
+      "en": "x-keymap"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "runtime-utilities",
+    "keywords": {
+      "de": [
+        "x-keymap",
+        "components",
+        "xkeymap",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-keymap",
+        "components",
+        "xkeymap",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1778,6 +4047,29 @@
     "labels": {
       "de": "x-lightbox",
       "en": "x-lightbox"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-lightbox",
+        "components",
+        "xlightbox",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-lightbox",
+        "components",
+        "xlightbox",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1791,6 +4083,29 @@
     "labels": {
       "de": "x-link",
       "en": "x-link"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "navigation",
+    "keywords": {
+      "de": [
+        "x-link",
+        "components",
+        "xlink",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-link",
+        "components",
+        "xlink",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1804,6 +4119,29 @@
     "labels": {
       "de": "x-masonry",
       "en": "x-masonry"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-masonry",
+        "components",
+        "xmasonry",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-masonry",
+        "components",
+        "xmasonry",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1817,6 +4155,29 @@
     "labels": {
       "de": "x-menu",
       "en": "x-menu"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "navigation",
+    "keywords": {
+      "de": [
+        "x-menu",
+        "components",
+        "xmenu",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-menu",
+        "components",
+        "xmenu",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1830,6 +4191,29 @@
     "labels": {
       "de": "x-modal",
       "en": "x-modal"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-modal",
+        "components",
+        "xmodal",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-modal",
+        "components",
+        "xmodal",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1843,6 +4227,29 @@
     "labels": {
       "de": "x-player",
       "en": "x-player"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "data-media",
+    "keywords": {
+      "de": [
+        "x-player",
+        "components",
+        "xplayer",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-player",
+        "components",
+        "xplayer",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1856,6 +4263,29 @@
     "labels": {
       "de": "x-popover",
       "en": "x-popover"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-popover",
+        "components",
+        "xpopover",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-popover",
+        "components",
+        "xpopover",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1869,6 +4299,29 @@
     "labels": {
       "de": "x-progress",
       "en": "x-progress"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-progress",
+        "components",
+        "xprogress",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-progress",
+        "components",
+        "xprogress",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1882,6 +4335,29 @@
     "labels": {
       "de": "x-radio",
       "en": "x-radio"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-radio",
+        "components",
+        "xradio",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-radio",
+        "components",
+        "xradio",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1895,6 +4371,29 @@
     "labels": {
       "de": "x-router",
       "en": "x-router"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "navigation",
+    "keywords": {
+      "de": [
+        "x-router",
+        "components",
+        "xrouter",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-router",
+        "components",
+        "xrouter",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1908,6 +4407,29 @@
     "labels": {
       "de": "x-section",
       "en": "x-section"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-section",
+        "components",
+        "xsection",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-section",
+        "components",
+        "xsection",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1921,6 +4443,29 @@
     "labels": {
       "de": "x-select",
       "en": "x-select"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-select",
+        "components",
+        "xselect",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-select",
+        "components",
+        "xselect",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1934,6 +4479,29 @@
     "labels": {
       "de": "x-side-panel",
       "en": "x-side-panel"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-side-panel",
+        "components",
+        "xsidepanel",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-side-panel",
+        "components",
+        "xsidepanel",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1947,6 +4515,29 @@
     "labels": {
       "de": "x-spinner",
       "en": "x-spinner"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-spinner",
+        "components",
+        "xspinner",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-spinner",
+        "components",
+        "xspinner",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1960,6 +4551,29 @@
     "labels": {
       "de": "x-status",
       "en": "x-status"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-status",
+        "components",
+        "xstatus",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-status",
+        "components",
+        "xstatus",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1973,6 +4587,29 @@
     "labels": {
       "de": "x-summary",
       "en": "x-summary"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "data-media",
+    "keywords": {
+      "de": [
+        "x-summary",
+        "components",
+        "xsummary",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-summary",
+        "components",
+        "xsummary",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1986,6 +4623,29 @@
     "labels": {
       "de": "x-surface-manager",
       "en": "x-surface-manager"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-surface-manager",
+        "components",
+        "xsurfacemanager",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-surface-manager",
+        "components",
+        "xsurfacemanager",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -1999,6 +4659,29 @@
     "labels": {
       "de": "x-surface-portal",
       "en": "x-surface-portal"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-surface-portal",
+        "components",
+        "xsurfaceportal",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-surface-portal",
+        "components",
+        "xsurfaceportal",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2012,6 +4695,29 @@
     "labels": {
       "de": "x-surface-region",
       "en": "x-surface-region"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-surface-region",
+        "components",
+        "xsurfaceregion",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-surface-region",
+        "components",
+        "xsurfaceregion",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2025,6 +4731,29 @@
     "labels": {
       "de": "x-surface-window",
       "en": "x-surface-window"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "layout-surfaces",
+    "keywords": {
+      "de": [
+        "x-surface-window",
+        "components",
+        "xsurfacewindow",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-surface-window",
+        "components",
+        "xsurfacewindow",
+        "component",
+        "layout-surfaces",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2038,6 +4767,29 @@
     "labels": {
       "de": "x-tabs",
       "en": "x-tabs"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "navigation",
+    "keywords": {
+      "de": [
+        "x-tabs",
+        "components",
+        "xtabs",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-tabs",
+        "components",
+        "xtabs",
+        "component",
+        "navigation",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2051,6 +4803,29 @@
     "labels": {
       "de": "x-textarea",
       "en": "x-textarea"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-textarea",
+        "components",
+        "xtextarea",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-textarea",
+        "components",
+        "xtextarea",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2064,6 +4839,29 @@
     "labels": {
       "de": "x-toggle",
       "en": "x-toggle"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "forms",
+    "keywords": {
+      "de": [
+        "x-toggle",
+        "components",
+        "xtoggle",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-toggle",
+        "components",
+        "xtoggle",
+        "component",
+        "forms",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2077,6 +4875,29 @@
     "labels": {
       "de": "x-theme",
       "en": "x-theme"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "runtime-utilities",
+    "keywords": {
+      "de": [
+        "x-theme",
+        "components",
+        "xtheme",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-theme",
+        "components",
+        "xtheme",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2090,6 +4911,29 @@
     "labels": {
       "de": "x-toast",
       "en": "x-toast"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-toast",
+        "components",
+        "xtoast",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-toast",
+        "components",
+        "xtoast",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2103,6 +4947,29 @@
     "labels": {
       "de": "x-tooltip",
       "en": "x-tooltip"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "feedback-overlays",
+    "keywords": {
+      "de": [
+        "x-tooltip",
+        "components",
+        "xtooltip",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-tooltip",
+        "components",
+        "xtooltip",
+        "component",
+        "feedback-overlays",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2116,6 +4983,29 @@
     "labels": {
       "de": "x-type",
       "en": "x-type"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "data-media",
+    "keywords": {
+      "de": [
+        "x-type",
+        "components",
+        "xtype",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-type",
+        "components",
+        "xtype",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2129,6 +5019,29 @@
     "labels": {
       "de": "x-utils",
       "en": "x-utils"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "runtime-utilities",
+    "keywords": {
+      "de": [
+        "x-utils",
+        "components",
+        "xutils",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-utils",
+        "components",
+        "xutils",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2142,6 +5055,29 @@
     "labels": {
       "de": "x-writer",
       "en": "x-writer"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "data-media",
+    "keywords": {
+      "de": [
+        "x-writer",
+        "components",
+        "xwriter",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "x-writer",
+        "components",
+        "xwriter",
+        "component",
+        "data-media",
+        "Web Component",
+        "Custom Element"
+      ]
     }
   },
   {
@@ -2155,6 +5091,952 @@
     "labels": {
       "de": "xstate",
       "en": "xstate"
+    },
+    "contentType": "component",
+    "trunk": "components",
+    "section": "runtime-utilities",
+    "keywords": {
+      "de": [
+        "xstate",
+        "components",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ],
+      "en": [
+        "xstate",
+        "components",
+        "component",
+        "runtime-utilities",
+        "Web Component",
+        "Custom Element"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-authoring-guide",
+    "id": "docs.surface.manager.authoring.guide",
+    "label": "SurfaceManager Authoring Guide",
+    "group": "surface",
+    "parent": null,
+    "tier": "basic",
+    "rank": 88,
+    "labels": {
+      "de": "SurfaceManager Authoring Guide",
+      "en": "SurfaceManager Authoring Guide"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Authoring Guide",
+        "surface",
+        "manager",
+        "authoring",
+        "guide",
+        "tutorial",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Authoring Guide",
+        "surface",
+        "manager",
+        "authoring",
+        "guide",
+        "tutorial",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-controller",
+    "id": "docs.surface.manager.controller",
+    "label": "SurfaceManager Controller",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 86,
+    "labels": {
+      "de": "SurfaceManager Controller",
+      "en": "SurfaceManager Controller"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Controller",
+        "surface",
+        "manager",
+        "controller",
+        "concept",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Controller",
+        "surface",
+        "manager",
+        "controller",
+        "concept",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-runtime",
+    "id": "docs.surface.manager.runtime",
+    "label": "SurfaceManager Runtime",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 84,
+    "labels": {
+      "de": "SurfaceManager Runtime",
+      "en": "SurfaceManager Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Runtime",
+        "surface",
+        "manager",
+        "runtime",
+        "concept",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Runtime",
+        "surface",
+        "manager",
+        "runtime",
+        "concept",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-window-runtime",
+    "id": "docs.surface.manager.window.runtime",
+    "label": "SurfaceManager Window Runtime",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 83,
+    "labels": {
+      "de": "SurfaceManager Window Runtime",
+      "en": "SurfaceManager Window Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Window Runtime",
+        "surface",
+        "manager",
+        "window",
+        "runtime",
+        "concept",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Window Runtime",
+        "surface",
+        "manager",
+        "window",
+        "runtime",
+        "concept",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-remote-surfaces",
+    "id": "docs.surface.manager.remote.surfaces",
+    "label": "SurfaceManager Remote Surfaces",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 82,
+    "labels": {
+      "de": "SurfaceManager Remote Surfaces",
+      "en": "SurfaceManager Remote Surfaces"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Remote Surfaces",
+        "surface",
+        "manager",
+        "remote",
+        "surfaces",
+        "concept",
+        "build"
+      ],
+      "en": [
+        "SurfaceManager Remote Surfaces",
+        "surface",
+        "manager",
+        "remote",
+        "surfaces",
+        "concept",
+        "build"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-side-panel-runtime",
+    "id": "docs.surface.manager.side.panel.runtime",
+    "label": "SurfaceManager Side Panel Runtime",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 81,
+    "labels": {
+      "de": "SurfaceManager Side Panel Runtime",
+      "en": "SurfaceManager Side Panel Runtime"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Side Panel Runtime",
+        "surface",
+        "manager",
+        "side",
+        "panel",
+        "runtime",
+        "concept",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Side Panel Runtime",
+        "surface",
+        "manager",
+        "side",
+        "panel",
+        "runtime",
+        "concept",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-migration-guide",
+    "id": "docs.surface.manager.migration.guide",
+    "label": "SurfaceManager Migration Guide",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 80,
+    "labels": {
+      "de": "SurfaceManager Migration Guide",
+      "en": "SurfaceManager Migration Guide"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Migration Guide",
+        "surface",
+        "manager",
+        "migration",
+        "guide",
+        "tutorial",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Migration Guide",
+        "surface",
+        "manager",
+        "migration",
+        "guide",
+        "tutorial",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-workbench-fixture",
+    "id": "docs.surface.manager.workbench.fixture",
+    "label": "SurfaceManager Workbench Fixture",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 79,
+    "labels": {
+      "de": "SurfaceManager Workbench Fixture",
+      "en": "SurfaceManager Workbench Fixture"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Workbench Fixture",
+        "surface",
+        "manager",
+        "workbench",
+        "fixture",
+        "tutorial",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Workbench Fixture",
+        "surface",
+        "manager",
+        "workbench",
+        "fixture",
+        "tutorial",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-overlay-bridge",
+    "id": "docs.surface.manager.overlay.bridge",
+    "label": "SurfaceManager Overlay Bridge",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 78,
+    "labels": {
+      "de": "SurfaceManager Overlay Bridge",
+      "en": "SurfaceManager Overlay Bridge"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Overlay Bridge",
+        "surface",
+        "manager",
+        "overlay",
+        "bridge",
+        "concept",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Overlay Bridge",
+        "surface",
+        "manager",
+        "overlay",
+        "bridge",
+        "concept",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-stack-policy",
+    "id": "docs.surface.manager.stack.policy",
+    "label": "SurfaceManager Stack Policy",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 76,
+    "labels": {
+      "de": "SurfaceManager Stack Policy",
+      "en": "SurfaceManager Stack Policy"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Stack Policy",
+        "surface",
+        "manager",
+        "stack",
+        "policy",
+        "concept",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Stack Policy",
+        "surface",
+        "manager",
+        "stack",
+        "policy",
+        "concept",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "surface-manager-quality-gates",
+    "id": "docs.surface.manager.quality.gates",
+    "label": "SurfaceManager Quality Gates",
+    "group": "surface",
+    "parent": "surface-manager-authoring-guide",
+    "tier": "deep-dive",
+    "rank": 74,
+    "labels": {
+      "de": "SurfaceManager Quality Gates",
+      "en": "SurfaceManager Quality Gates"
+    },
+    "contentType": "operations",
+    "trunk": "build",
+    "section": "surfaces",
+    "keywords": {
+      "de": [
+        "SurfaceManager Quality Gates",
+        "surface",
+        "manager",
+        "quality",
+        "gates",
+        "operations",
+        "build",
+        "surfaces"
+      ],
+      "en": [
+        "SurfaceManager Quality Gates",
+        "surface",
+        "manager",
+        "quality",
+        "gates",
+        "operations",
+        "build",
+        "surfaces"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-dev-surface",
+    "id": "docs.xtend.dev.surface",
+    "label": "XTend Dev Surface",
+    "group": "quality",
+    "parent": null,
+    "tier": "basic",
+    "rank": 94,
+    "icon": "terminal",
+    "labels": {
+      "de": "XTend Dev Surface",
+      "en": "XTend Dev Surface"
+    },
+    "contentType": "tutorial",
+    "trunk": "operate",
+    "section": "devtools",
+    "keywords": {
+      "de": [
+        "XTend Dev Surface",
+        "xtend",
+        "dev",
+        "surface",
+        "tutorial",
+        "operate",
+        "devtools",
+        "Qualität",
+        "Debugging",
+        "Diagnose",
+        "Gates",
+        "Kernel Monitor",
+        "Fabric",
+        "Chromium"
+      ],
+      "en": [
+        "XTend Dev Surface",
+        "xtend",
+        "dev",
+        "surface",
+        "tutorial",
+        "operate",
+        "devtools",
+        "quality",
+        "debugging",
+        "diagnostics",
+        "gates",
+        "kernel monitor",
+        "Fabric",
+        "Chromium"
+      ]
+    }
+  },
+  {
+    "slug": "performance",
+    "id": "docs.performance",
+    "label": "Performance",
+    "group": "quality",
+    "parent": null,
+    "tier": "basic",
+    "rank": 92,
+    "labels": {
+      "de": "Performance",
+      "en": "Performance"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "performance",
+    "keywords": {
+      "de": [
+        "Performance",
+        "operations",
+        "operate",
+        "Qualität",
+        "FCP",
+        "CLS",
+        "Budget",
+        "Messung",
+        "Telemetry"
+      ],
+      "en": [
+        "Performance",
+        "operations",
+        "operate",
+        "quality",
+        "FCP",
+        "CLS",
+        "budget",
+        "measurement",
+        "telemetry"
+      ]
+    }
+  },
+  {
+    "slug": "hydration-policies",
+    "id": "docs.hydration.policies",
+    "label": "Hydration Policies",
+    "group": "quality",
+    "parent": "performance",
+    "tier": "basic",
+    "rank": 90,
+    "labels": {
+      "de": "Hydration Policies",
+      "en": "Hydration Policies"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "performance",
+    "keywords": {
+      "de": [
+        "Hydration Policies",
+        "hydration",
+        "policies",
+        "operations",
+        "operate",
+        "performance",
+        "Qualität",
+        "Hydrierung",
+        "Resume",
+        "SSR",
+        "Insel",
+        "XScaler",
+        "Prewarm"
+      ],
+      "en": [
+        "Hydration Policies",
+        "hydration",
+        "policies",
+        "operations",
+        "operate",
+        "performance",
+        "quality",
+        "resume",
+        "SSR",
+        "island",
+        "XScaler",
+        "prewarm"
+      ]
+    }
+  },
+  {
+    "slug": "a11y-keyboard-smokes",
+    "id": "docs.a11y.keyboard.smokes",
+    "label": "A11y Keyboard Smokes",
+    "group": "quality",
+    "parent": null,
+    "tier": "basic",
+    "rank": 88,
+    "labels": {
+      "de": "A11y Keyboard Smokes",
+      "en": "A11y Keyboard Smokes"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "accessibility",
+    "keywords": {
+      "de": [
+        "A11y Keyboard Smokes",
+        "a11y",
+        "keyboard",
+        "smokes",
+        "operations",
+        "operate",
+        "accessibility",
+        "Qualität"
+      ],
+      "en": [
+        "A11y Keyboard Smokes",
+        "a11y",
+        "keyboard",
+        "smokes",
+        "operations",
+        "operate",
+        "accessibility",
+        "quality"
+      ]
+    }
+  },
+  {
+    "slug": "screenreader-signals",
+    "id": "docs.screenreader.signals",
+    "label": "Screenreader Signals",
+    "group": "quality",
+    "parent": "a11y-keyboard-smokes",
+    "tier": "deep-dive",
+    "rank": 86,
+    "labels": {
+      "de": "Screenreader Signals",
+      "en": "Screenreader Signals"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "accessibility",
+    "keywords": {
+      "de": [
+        "Screenreader Signals",
+        "screenreader",
+        "signals",
+        "operations",
+        "operate",
+        "accessibility",
+        "Qualität"
+      ],
+      "en": [
+        "Screenreader Signals",
+        "screenreader",
+        "signals",
+        "operations",
+        "operate",
+        "accessibility",
+        "quality"
+      ]
+    }
+  },
+  {
+    "slug": "motion-contrast",
+    "id": "docs.motion.contrast",
+    "label": "Motion und Contrast",
+    "group": "quality",
+    "parent": "a11y-keyboard-smokes",
+    "tier": "deep-dive",
+    "rank": 84,
+    "labels": {
+      "de": "Motion und Contrast",
+      "en": "Motion and Contrast"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "accessibility",
+    "keywords": {
+      "de": [
+        "Motion und Contrast",
+        "motion",
+        "contrast",
+        "operations",
+        "operate",
+        "accessibility",
+        "Qualität"
+      ],
+      "en": [
+        "Motion and Contrast",
+        "motion",
+        "contrast",
+        "operations",
+        "operate",
+        "accessibility",
+        "quality"
+      ]
+    }
+  },
+  {
+    "slug": "visual-browser-regression",
+    "id": "docs.visual.browser.regression",
+    "label": "Visual Browser Regression",
+    "group": "quality",
+    "parent": "performance",
+    "tier": "deep-dive",
+    "rank": 82,
+    "labels": {
+      "de": "Visual Browser Regression",
+      "en": "Visual Browser Regression"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "performance",
+    "keywords": {
+      "de": [
+        "Visual Browser Regression",
+        "visual",
+        "browser",
+        "regression",
+        "operations",
+        "operate",
+        "performance",
+        "Qualität"
+      ],
+      "en": [
+        "Visual Browser Regression",
+        "visual",
+        "browser",
+        "regression",
+        "operations",
+        "operate",
+        "performance",
+        "quality"
+      ]
+    }
+  },
+  {
+    "slug": "visual-snapshot-automation",
+    "id": "docs.visual.snapshot.automation",
+    "label": "Visual Snapshot Automation",
+    "group": "quality",
+    "parent": "visual-browser-regression",
+    "tier": "deep-dive",
+    "rank": 80,
+    "labels": {
+      "de": "Visual Snapshot Automation",
+      "en": "Visual Snapshot Automation"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "performance",
+    "keywords": {
+      "de": [
+        "Visual Snapshot Automation",
+        "visual",
+        "snapshot",
+        "automation",
+        "operations",
+        "operate",
+        "performance",
+        "Qualität"
+      ],
+      "en": [
+        "Visual Snapshot Automation",
+        "visual",
+        "snapshot",
+        "automation",
+        "operations",
+        "operate",
+        "performance",
+        "quality"
+      ]
+    }
+  },
+  {
+    "slug": "trusted-dom-sanitizing",
+    "id": "docs.trusted.dom.sanitizing",
+    "label": "Trusted DOM und Sanitizing",
+    "group": "security",
+    "parent": null,
+    "tier": "basic",
+    "rank": 90,
+    "labels": {
+      "de": "Trusted DOM und Sanitizing",
+      "en": "Trusted DOM and Sanitizing"
+    },
+    "contentType": "concept",
+    "trunk": "operate",
+    "section": "security",
+    "keywords": {
+      "de": [
+        "Trusted DOM und Sanitizing",
+        "trusted",
+        "dom",
+        "sanitizing",
+        "concept",
+        "operate",
+        "security",
+        "Trusted DOM",
+        "XSS",
+        "Sicherheit"
+      ],
+      "en": [
+        "Trusted DOM and Sanitizing",
+        "trusted",
+        "dom",
+        "sanitizing",
+        "concept",
+        "operate",
+        "security",
+        "trusted DOM",
+        "XSS"
+      ]
+    }
+  },
+  {
+    "slug": "trusted-dom-boundary-browser-proof",
+    "id": "docs.trusted.dom.boundary.browser.proof",
+    "label": "Trusted DOM Boundary Browser Proof",
+    "group": "security",
+    "parent": "trusted-dom-sanitizing",
+    "tier": "deep-dive",
+    "rank": 89,
+    "labels": {
+      "de": "Trusted DOM Boundary Browser Proof",
+      "en": "Trusted DOM Boundary Browser Proof"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "security",
+    "keywords": {
+      "de": [
+        "Trusted DOM Boundary Browser Proof",
+        "trusted",
+        "dom",
+        "boundary",
+        "browser",
+        "proof",
+        "operations",
+        "operate",
+        "security"
+      ],
+      "en": [
+        "Trusted DOM Boundary Browser Proof",
+        "trusted",
+        "dom",
+        "boundary",
+        "browser",
+        "proof",
+        "operations",
+        "operate",
+        "security"
+      ]
+    }
+  },
+  {
+    "slug": "manifest-import-policy",
+    "id": "docs.manifest.import.policy",
+    "label": "Manifest Import Policy",
+    "group": "security",
+    "parent": "manifest",
+    "tier": "basic",
+    "rank": 88,
+    "labels": {
+      "de": "Manifest Import Policy",
+      "en": "Manifest Import Policy"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "security",
+    "keywords": {
+      "de": [
+        "Manifest Import Policy",
+        "manifest",
+        "import",
+        "policy",
+        "operations",
+        "operate",
+        "security"
+      ],
+      "en": [
+        "Manifest Import Policy",
+        "manifest",
+        "import",
+        "policy",
+        "operations",
+        "operate",
+        "security"
+      ]
+    }
+  },
+  {
+    "slug": "xtensions-security-checklist",
+    "id": "docs.xtensions.security.checklist",
+    "label": "XTensions Security Checklist",
+    "group": "security",
+    "parent": null,
+    "tier": "basic",
+    "rank": 88,
+    "labels": {
+      "de": "XTensions Security Checklist",
+      "en": "XTensions Security Checklist"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "security",
+    "keywords": {
+      "de": [
+        "XTensions Security Checklist",
+        "xtensions",
+        "security",
+        "checklist",
+        "operations",
+        "operate"
+      ],
+      "en": [
+        "XTensions Security Checklist",
+        "xtensions",
+        "security",
+        "checklist",
+        "operations",
+        "operate"
+      ]
+    }
+  },
+  {
+    "slug": "supply-chain-gates",
+    "id": "docs.supply.chain.gates",
+    "label": "Supply Chain Checks",
+    "group": "security",
+    "parent": null,
+    "tier": "basic",
+    "rank": 86,
+    "labels": {
+      "de": "Supply Chain Checks",
+      "en": "Supply Chain Checks"
+    },
+    "contentType": "operations",
+    "trunk": "operate",
+    "section": "security",
+    "keywords": {
+      "de": [
+        "Supply Chain Checks",
+        "supply",
+        "chain",
+        "gates",
+        "operations",
+        "operate",
+        "security"
+      ],
+      "en": [
+        "Supply Chain Checks",
+        "supply",
+        "chain",
+        "gates",
+        "operations",
+        "operate",
+        "security"
+      ]
     }
   }
 ]

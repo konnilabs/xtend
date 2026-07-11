@@ -1,0 +1,89 @@
+{
+  "schema": "xtend.docs.shell-performance-baseline.v1",
+  "source": "git-archive-head-before-xdc",
+  "revision": "8b5fcaa7141971b3f9ccca22536e8da327c3cebf",
+  "capturedAt": "2026-07-11T15:37:40.491Z",
+  "regressionLimit": 0.05,
+  "scenarios": {
+    "de-desktop": {
+      "schema": "xtend.docs.shell-performance-baseline-scenario.v1",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "locale": "de",
+      "sampleCount": 3,
+      "fcpMs": 1440,
+      "initialEncodedBodyBytes": 4383191,
+      "samples": [
+        {
+          "domContentLoadedMs": 526.2000000001863,
+          "fcpMs": 1440,
+          "initialEncodedBodyBytes": 4383191,
+          "initialTransferBytes": 4393991,
+          "loadEventMs": 529.8000000007451,
+          "responseEndMs": 257.40000000037253,
+          "sameOriginResourceCount": 35
+        },
+        {
+          "domContentLoadedMs": 465.70000000018626,
+          "fcpMs": 1420,
+          "initialEncodedBodyBytes": 4383191,
+          "initialTransferBytes": 4393991,
+          "loadEventMs": 468.5,
+          "responseEndMs": 238,
+          "sameOriginResourceCount": 35
+        },
+        {
+          "domContentLoadedMs": 466.79999999981374,
+          "fcpMs": 1428,
+          "initialEncodedBodyBytes": 4383191,
+          "initialTransferBytes": 4393991,
+          "loadEventMs": 469.29999999981374,
+          "responseEndMs": 233.09999999962747,
+          "sameOriginResourceCount": 35
+        }
+      ]
+    },
+    "en-mobile": {
+      "schema": "xtend.docs.shell-performance-baseline-scenario.v1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "locale": "en",
+      "sampleCount": 3,
+      "fcpMs": 1288,
+      "initialEncodedBodyBytes": 4364436,
+      "samples": [
+        {
+          "domContentLoadedMs": 493.20000000018626,
+          "fcpMs": 1288,
+          "initialEncodedBodyBytes": 4364436,
+          "initialTransferBytes": 4375236,
+          "loadEventMs": 496,
+          "responseEndMs": 254.5,
+          "sameOriginResourceCount": 35
+        },
+        {
+          "domContentLoadedMs": 560.2999999998137,
+          "fcpMs": 1280,
+          "initialEncodedBodyBytes": 4364436,
+          "initialTransferBytes": 4375236,
+          "loadEventMs": 564.9000000003725,
+          "responseEndMs": 274.70000000018626,
+          "sameOriginResourceCount": 35
+        },
+        {
+          "domContentLoadedMs": 500.40000000037253,
+          "fcpMs": 1244,
+          "initialEncodedBodyBytes": 4364436,
+          "initialTransferBytes": 4375236,
+          "loadEventMs": 503.20000000018626,
+          "responseEndMs": 250.20000000018626,
+          "sameOriginResourceCount": 35
+        }
+      ]
+    }
+  }
+}

@@ -8,22 +8,24 @@ Welcome to the XTend Developer Center. These docs explain XTend for developers w
 | --- | --- |
 | First local page | [Quick Start Guide](./quick-start-guide.md) |
 | Understand RMT | [XTendRMT Overview](./xtendrmt-overview.md) |
-| Author RMT vNext | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT Reference](./rmt-reference.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Release contract](./rmt-vnext-release-handoff.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
+| Author RMT vNext | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT AnimationEngine](./rmt-animation-engine.md), [RMT Reference](./rmt-reference.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Release contract](./rmt-vnext-migration-notes.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
 | Author Native-First XTend | [Native-First Authoring Guide](./native-first-authoring-guide.md), [Native-First RMT Recipes](./native-first-rmt-recipes.md), [Native-First Migration Guide](./native-first-migration-guide.md), [Native-First Release Review](./native-first-release-review.md) |
 | Build Maraca app orchestration and PWA output | [XTend Maraca](./xtend-maraca.md), [Maraca Orchestration](./xtend-maraca-orchestration.md) |
-| Verify enterprise remote surfaces | [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md), [RMT vNext Enterprise MFE contract](./rmt-vnext-enterprise-mfe-handoff.md) |
-| Use components | [Component Development](./components.md) |
+| Verify enterprise remote surfaces | [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md), [RMT vNext Enterprise MFE contract](./rmt-vnext-remote-surfaces.md) |
+| Use or migrate components | [Component Development](./components.md), [Component Long-Tail Migration](./component-long-tail-migration.md) |
+| Build managed workspaces | [SurfaceManager Authoring Guide](./surface-manager-authoring-guide.md), [SurfaceManager Controller](./surface-manager-controller.md), [SurfaceManager Runtime](./surface-manager-runtime.md), [SurfaceManager Migration Guide](./surface-manager-migration-guide.md) |
 | Verify Design Tokens | [Design Tokens](./design-tokens.md) |
 | Add SSR | [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md), [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) |
-| Editor, linting and VS Code | [RMT Linter](./rmt-linter.md), [RMT Language Server](./rmt-language-server.md), [RMT App Platform Tooling](./rmt-app-platform-tooling.md) |
+| Editor, linting and VS Code | [RMT Linter](./rmt-linter.md), [RMT Language Server](./rmt-language-server.md), [RMT App Platform Tooling](./rmt-app-platform-tooling.md), [RMT Tooling Release Gates](./rmt-tooling-release-gates.md) |
+| Inspect XTend apps in the browser | [XTend Dev Surface](./xtend-dev-surface.md) |
 | Verify release surface | [Package Export Lock](./package-export-lock.md), [Type Exports](./type-exports.md), [XTend Loader Types](./xtend-loader-types.md), [XTend API Types](./xtend-api-types.md), [XTend Policy Types](./xtend-policy-types.md), [XTend Builder Types](./xtend-builder-types.md), [XTend Catalog Types](./xtend-catalog-types.md), [XTend Vendor Types](./xtend-vendor-types.md) |
-| Verify release evidence | [Release Readiness](./rc1-readiness.md), Previous Release Bridge, [Release Acceptance](./release-owner-acceptance.md), [Conditional Network Evidence](./conditional-network-evidence.md), [Conditional Network Evidence CI](./conditional-network-evidence-ci.md), [Release Report Pack Dry Run Evidence](./release-report-pack-dry-run-evidence.md), [Readiness CI Bundle](./rc1-gate-matrix-ci-handoff.md) |
+| Verify release evidence | [Release Readiness](./release-verification.md), Previous Release Bridge, [Release Acceptance](./release-verification.md), [Conditional Network Evidence](./conditional-network-evidence.md), [Conditional Network Evidence CI](./conditional-network-evidence-ci.md), [Release Report Pack Dry Run Evidence](./release-report-pack-dry-run-evidence.md), [Readiness CI Bundle](./release-verification.md) |
 
 ```txt
 conditional network ci: xtend.epic13.conditional-network-evidence-ci.v1
 release pack evidence: xtend.epic13.release-report-pack-dry-run-evidence.v1
 previous release bridge: prior local release bridge
-previous release bridge path: ./epic12-rc0-handoff.md
+previous release bridge path: ./release-verification.md
 ```
 
 ## Product model
@@ -62,12 +64,14 @@ The tooling path uses the public schema `xtend.rmt.tooling-docs.v1`. For orchest
 ## Next steps
 
 - [Quick Start Guide](./quick-start-guide.md)
+- [XTend Dev Surface](./xtend-dev-surface.md)
 - [XTend Maraca](./xtend-maraca.md)
 - [Maraca Orchestration](./xtend-maraca-orchestration.md)
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT AnimationEngine](./rmt-animation-engine.md)
 - [RMT Reference](./rmt-reference.md)
 - [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
-- [RMT vNext Release contract](./rmt-vnext-release-handoff.md)
+- [RMT vNext Release contract](./rmt-vnext-migration-notes.md)
 - [Native-First Authoring Guide](./native-first-authoring-guide.md)
 - [Native-First RMT Recipes](./native-first-rmt-recipes.md)
 - [Native-First Migration Guide](./native-first-migration-guide.md)
@@ -75,67 +79,10 @@ The tooling path uses the public schema `xtend.rmt.tooling-docs.v1`. For orchest
 - [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md)
 - [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
 - [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md)
-- [RMT vNext Enterprise MFE contract](./rmt-vnext-enterprise-mfe-handoff.md)
+- [RMT vNext Enterprise MFE contract](./rmt-vnext-remote-surfaces.md)
 - [Best Practices](./best-practices.md)
 - [Trusted DOM and Sanitizing](./trusted-dom-sanitizing.md)
+- [Trusted DOM Boundary Browser Proof](./trusted-dom-boundary-browser-proof.md)
+- [Visual Snapshot Automation](./visual-snapshot-automation.md)
+- [Coordinate Parsedown with RMT](./xtendrmt-parsedown-scheduling.md)
 - [Changelog](./changelog.md)
-
-## Public contract
-
-XTend Developer Center is the public orientation contract for `docs/en/README.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: entry routes, local docs navigation and the smallest runnable commands.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/README.md`
-- `docs/menu.json`
-- `package.json`
-- `README.md`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `xtend-loader.js`
-
-Names:
-- `docs/en/README.md`
-- `docs/menu.json`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `docs/de/xtend-maraca-orchestration.md`
-- `docs/en/xtend-maraca-orchestration.md`
-- `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`
-- `components/manifest.json`
-- `tools/rmt-language/vnext-compiler.js`
-- `xtend-maraca/index.js`
-
-Commands:
-- `npm run dev:local`
-- `xt rmt lint app.rmt`
-- `xt rmt lint app.rmt --json`
-- `xt rmt lint app.rmt --agent`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-npm run dev:local
-xt rmt lint app.rmt
-xt rmt lint app.rmt --json
-xt rmt lint app.rmt --agent
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If entry paths drift, check `docs/menu.json`, local links and the command in the verification block first.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

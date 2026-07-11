@@ -1,80 +1,65 @@
 # SurfaceManager Authoring Guide
 
-Work with windows, panels, overlays and workbench surfaces in XTend apps.
+This tutorial builds a small workbench with one managed window. SurfaceManager owns registry, focus order, layout snapshots, and cleanup; the surface's domain content remains owned by its feature.
 
-## What it covers
+## Prerequisites
 
-SurfaceManager groups windows, panels, overlays and remote areas into a controlled runtime. Focus, layering, persistence and cleanup stay traceable.
+Load `x-surface-manager` and `x-surface-window` through `components/manifest.json`. Every surface needs a stable `surface-id` so controller records, persistence, and diagnostics continue to identify the same area across renders.
 
-## Public building blocks
+## Declare a surface
 
-- Surface IDs and controller records.
-- Windows, panels, portals and overlays.
-- Focus, layer and cleanup rules.
+```html
+<x-surface-manager id="workspace" manager-id="docs-workspace">
+  <x-surface-window
+    surface-id="activity"
+    label="Activity"
+    initial-x="24"
+    initial-y="24"
+    initial-width="520"
+    initial-height="340">
+    <x-status state="ready" message="No pending work"></x-status>
+  </x-surface-window>
+</x-surface-manager>
+```
 
-## Recommended workflow
+After upgrade, the manager registers its child as an `xtend.surface.record.v1`. `open`, `focus`, `move`, `resize`, `minimize`, `restore`, `close`, and `destroy` go through the controller. Direct changes to private window nodes bypass snapshots and diagnostics and are not supported integration points.
 
-Assign stable surface IDs, open and close surfaces through the controller and check focus, Escape behavior and persistence in browser fixtures.
+## Open and observe it
+
+```js
+await customElements.whenDefined('x-surface-manager');
+
+const manager = document.querySelector('#workspace');
+manager.addEventListener('surface-opened', ({ detail }) => {
+  console.log(detail.surfaceId);
+});
+
+manager.openSurface('activity');
+console.log(manager.snapshot());
+```
+
+`snapshot()` returns registry, active surface, bounds, and lifecycle data. When persistence is enabled, use a host-owned `restore-key`; treat storage failure as a diagnostic rather than registering the surface twice.
+
+## Focus and cleanup
+
+Overlays and modal surfaces take focus and return it to the previous owner after closing. Escape is evaluated by stack policy. `closeSurface()` retains a record for reuse; `destroySurface()` removes it and releases registered prewarm, chunk, and resource handles.
+
+Verify the public path locally:
+
+```bash
+node scripts/run_xtend_tests.js surface-controller surface-manager --json
+```
+
+## Troubleshooting
+
+- `surface.duplicate` means two elements use the same `surface-id`; resolve ownership instead of creating a random replacement.
+- If focus remains behind an overlay, inspect stack policy, the modal flag, and previous focus owner.
+- If restored bounds jump, compare `bounds-mode`, `bounds-scope`, and minimum or maximum constraints.
+- If network work or timers survive destroy, register their handles with the manager and inspect `surface-destroyed`.
 
 ## Next steps
 
 - [SurfaceManager Controller](./surface-manager-controller.md)
 - [SurfaceManager Runtime](./surface-manager-runtime.md)
-
-## Public contract
-
-SurfaceManager Authoring Guide is the public surface integration contract for `docs/en/surface-manager-authoring-guide.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: surface records, controllers, portals, windows, ownership and routing boundaries.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/surface-manager-authoring-guide.md`
-- `docs/menu.json`
-- `package.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-
-Names:
-- `docs/en/surface-manager-authoring-guide.md`
-- `docs/menu.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-- `docs/dev-router.php`
-- `package.json`
-- `x-surface-manager`
-
-Commands:
-- `node scripts/run_xtend_tests.js components catalog-coverage --json`
-- `node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js components catalog-coverage --json
-node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a surface is missing, check ownership, portal, window record and router binding in that order.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+- [Remote Surfaces](./surface-manager-remote-surfaces.md)
+- [Migration Guide](./surface-manager-migration-guide.md)

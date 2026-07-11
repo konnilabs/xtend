@@ -1,0 +1,78 @@
+{
+  "schema": "xtend.docs.navigation.v1",
+  "trunks": [
+    {
+      "id": "start",
+      "rank": 600,
+      "labels": { "de": "Start", "en": "Start" },
+      "sections": [
+        { "id": "orientation", "rank": 100, "labels": { "de": "Orientierung", "en": "Orientation" } },
+        { "id": "first-app", "rank": 90, "labels": { "de": "Erste App", "en": "First app" } },
+        { "id": "adoption", "rank": 80, "labels": { "de": "Einführung", "en": "Adoption" } },
+        { "id": "changes", "rank": 70, "labels": { "de": "Änderungen", "en": "Changes" } }
+      ]
+    },
+    {
+      "id": "learn-rmt",
+      "rank": 500,
+      "labels": { "de": "RMT lernen", "en": "Learn RMT" },
+      "sections": [
+        { "id": "orientation", "rank": 100, "labels": { "de": "Einstieg", "en": "Introduction" } },
+        { "id": "syntax", "rank": 90, "labels": { "de": "Syntax und Templates", "en": "Syntax and templates" } },
+        { "id": "state-data", "rank": 80, "labels": { "de": "State und Daten", "en": "State and data" } },
+        { "id": "runtime", "rank": 70, "labels": { "de": "Ablauf und Sicherheit", "en": "Runtime and security" } },
+        { "id": "practice", "rank": 60, "labels": { "de": "Übung und nächste Schritte", "en": "Practice and next steps" } }
+      ]
+    },
+    {
+      "id": "build",
+      "rank": 400,
+      "labels": { "de": "Entwickeln", "en": "Build" },
+      "sections": [
+        { "id": "rmt-authoring", "rank": 100, "labels": { "de": "RMT Authoring", "en": "RMT authoring" } },
+        { "id": "rmt-runtime", "rank": 90, "labels": { "de": "RMT Runtime", "en": "RMT runtime" } },
+        { "id": "rmt-tooling", "rank": 80, "labels": { "de": "RMT Tooling", "en": "RMT tooling" } },
+        { "id": "maraca", "rank": 70, "labels": { "de": "Maraca Builds", "en": "Maraca builds" } },
+        { "id": "xtensions", "rank": 60, "labels": { "de": "XTensions", "en": "XTensions" } },
+        { "id": "surfaces", "rank": 50, "labels": { "de": "Surfaces", "en": "Surfaces" } }
+      ]
+    },
+    {
+      "id": "components",
+      "rank": 300,
+      "labels": { "de": "Komponenten", "en": "Components" },
+      "sections": [
+        { "id": "forms", "rank": 100, "labels": { "de": "Formulare", "en": "Forms" } },
+        { "id": "navigation", "rank": 90, "labels": { "de": "Navigation", "en": "Navigation" } },
+        { "id": "feedback-overlays", "rank": 80, "labels": { "de": "Feedback und Overlays", "en": "Feedback and overlays" } },
+        { "id": "layout-surfaces", "rank": 70, "labels": { "de": "Layout und Surfaces", "en": "Layout and surfaces" } },
+        { "id": "data-media", "rank": 60, "labels": { "de": "Daten und Medien", "en": "Data and media" } },
+        { "id": "runtime-utilities", "rank": 50, "labels": { "de": "Runtime und Utilities", "en": "Runtime and utilities" } }
+      ]
+    },
+    {
+      "id": "operate",
+      "rank": 200,
+      "labels": { "de": "Betreiben", "en": "Operate" },
+      "sections": [
+        { "id": "devtools", "rank": 100, "labels": { "de": "Dev Tools", "en": "Dev tools" } },
+        { "id": "performance", "rank": 90, "labels": { "de": "Performance", "en": "Performance" } },
+        { "id": "accessibility", "rank": 80, "labels": { "de": "Barrierefreiheit", "en": "Accessibility" } },
+        { "id": "security", "rank": 70, "labels": { "de": "Sicherheit", "en": "Security" } },
+        { "id": "release", "rank": 60, "labels": { "de": "Release", "en": "Release" } }
+      ]
+    },
+    {
+      "id": "reference",
+      "rank": 100,
+      "labels": { "de": "Referenz", "en": "Reference" },
+      "sections": [
+        { "id": "rmt-language", "rank": 100, "labels": { "de": "RMT Sprache", "en": "RMT language" } },
+        { "id": "core-api", "rank": 90, "labels": { "de": "Core API", "en": "Core API" } },
+        { "id": "types", "rank": 80, "labels": { "de": "TypeScript", "en": "TypeScript" } },
+        { "id": "design-system", "rank": 70, "labels": { "de": "Design System", "en": "Design system" } },
+        { "id": "runtime-topology", "rank": 60, "labels": { "de": "Runtime-Topologie", "en": "Runtime topology" } }
+      ]
+    }
+  ]
+}

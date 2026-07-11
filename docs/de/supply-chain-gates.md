@@ -4,78 +4,25 @@ Lizenz-, Dependency- und Paketprüfungen für veröffentlichbare Builds.
 
 ## Worum es geht
 
-Security in XTend beginnt mit expliziten Grenzen: lokale Module, vertrauensarme Inhalte, klare Sanitizing-Pfade und reproduzierbare Paketprüfungen.
+Supply-Chain-Gates prüfen Dependency-Inventar, Lockfile, Lizenzen, Vulnerability-Policy und veröffentlichte Package Roots. Der lokale Standard bleibt offline; registryabhängige Audits laufen als ausdrücklich aktivierter CI-Schritt.
 
 ## Öffentliche Bausteine
 
-- Same-origin Module.
-- Sanitizing für unsichere Inhalte.
-- Reproduzierbare Paketprüfungen.
-- `typescript` ist nur als Build-Tool in `devDependencies` erlaubt; Runtime-Dependencies bleiben leer.
+- `security/supply-chain-gate-policy.js` definiert Gates und erlaubte Lizenzen.
+- `package.json` und Workspace-Manifeste liefern Paket- und Dependency-Fakten.
+- `typescript` ist Build-Tool in `devDependencies`; Runtime-Dependencies bleiben leer.
 
 ## Empfohlener Ablauf
 
-Erlaube nur lokale Module, behandle Markdown und HTML-Fragmente als unsicher und dokumentiere jede Host-Ausnahme ausdrücklich.
+Prüfe zuerst die reproduzierbare lokale Policy:
+
+```bash
+node scripts/run_xtend_tests.js supply-chain --json
+```
+
+Ein Fehler nennt Gate, Paket und Policy-Grund. Korrigiere Manifest, Lockfile, Lizenzentscheidung oder Package Root. Entferne keine Finding durch Umklassifizierung zur Dev-Dependency, wenn Code sie zur Laufzeit importiert. Netzwerk-Audit und SBOM ergänzen diesen Report, ersetzen ihn aber nicht.
 
 ## Nächste Schritte
 
 - [Trusted DOM und Sanitizing](./trusted-dom-sanitizing.md)
 - [Manifest Import Policy](./manifest-import-policy.md)
-
-## Öffentlicher Vertrag
-
-Supply Chain Checks ist der öffentliche Qualität und Security-Vertrag für `docs/de/supply-chain-gates.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: lokale Gates, Policy-Dateien, Report-Schemas, Accessibility- und Security-Signale.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/supply-chain-gates.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `devDependencies.typescript`
-
-Namen:
-- `docs/de/supply-chain-gates.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `devDependencies.typescript`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/verify_docs_public_quality.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn ein Gate scheitert, ändere zuerst Beispiel, Policy-Quelle oder Report-Erwartung und nicht die Schwelle.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

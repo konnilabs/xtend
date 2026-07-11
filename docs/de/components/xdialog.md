@@ -61,6 +61,7 @@ Attribute:
 Events:
 - `dialog-opened`
 - `dialog-closed`
+- `xtend-command`
 
 Methoden:
 - `open()`

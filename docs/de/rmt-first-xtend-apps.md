@@ -4,17 +4,17 @@ Ein Architekturpfad für Apps, deren Shell aus RMT entsteht.
 
 ## Worum es geht
 
-RMT-first XTend Apps beschreibt die öffentliche RMT-Oberfläche dieser Seite: welche Records betroffen sind, welche Adapter sie ausüben und welche Scheduler-Signale ein Host prüfen sollte.
+Eine RMT-first App besitzt ihre Shell, ihren State und ihre Actions in der RMT Source. HTML stellt nur Mount-Ziele und lokale Module bereit; imperatives Host-JavaScript bleibt auf Adapter und echte Plattformdienste begrenzt.
 
 ## Öffentliche Bausteine
 
-- `.rmt` Quellen.
-- Core Records und Source Maps.
-- Host Adapter für DOM, Router und Komponenten.
+- `xtendrmt/rmt-first-demo-app.rmt` dient als minimale Shell.
+- `xtendrmt/rmt-app-runtime.js` übernimmt Core-Records in die Runtime.
+- `components/manifest.json` liefert die lokal erlaubten UI-Tags.
 
 ## Empfohlener Ablauf
 
-Beginne bei RMT-first XTend Apps mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.
+Beginne mit einer Surface und einem State-Record. Ergänze Actions und Resources erst, wenn der erste Core-Snapshot stabil ist, und halte Netzwerk, Storage oder Browser-APIs hinter einem expliziten Host-Adapter.
 
 ## Nächste Schritte
 
@@ -23,58 +23,10 @@ Beginne bei RMT-first XTend Apps mit dem kleinsten Record-Beispiel, prüfe es mi
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
-## Öffentlicher Vertrag
-
-RMT-first XTend Apps ist der öffentliche RMT Runtime-Vertrag für `docs/de/rmt-first-xtend-apps.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: RMT Records, Compiler-Ausgaben, Runtime-Adapter, Events, Actions und Scheduler-Lanes.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/rmt-first-xtend-apps.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Namen:
-- `docs/de/rmt-first-xtend-apps.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-
-Befehle:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
+## Shell-Vertrag prüfen
 
 ```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+node scripts/run_xtend_tests.js rmt-first-class-app --json
 ```
 
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn Runtime-Verhalten anders wirkt, trenne Compiler-Record, Host-Adapter und Scheduler-Signal, bevor du die Doku änderst.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+Der Gate prüft Source, Registry und Host-Grenze gemeinsam. Ein reiner Parser-Erfolg reicht nicht aus, wenn die Shell manuelle UI-Erzeugung oder einen zweiten State-Owner benötigt.

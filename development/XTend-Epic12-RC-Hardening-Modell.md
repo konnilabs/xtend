@@ -11,7 +11,7 @@
   - `development/XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md`
   - `development/XTend-Release-Checklist-und-SemVer-Policy.md`
   - `docs/epic11-enterprise-ux-handoff.md`
-  - `docs/component-long-tail-migration.md`
+  - `docs/en/component-long-tail-migration.md`
   - `catalog/epic11-enterprise-ux-handoff.js`
   - `catalog/component-long-tail-migration.js`
 

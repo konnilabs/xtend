@@ -32,3 +32,7 @@ Structured DOM descriptors remain the preferred path because they do not require
 Reviewers check four questions. First, is the Sanitizing Boundary executed in the host rather than hidden inside the RMT kernel? Second, do blocked vectors such as `script`, `inline-event-handler`, `javascript-url` and `srcdoc` remain visibly blocked? Third, do allowed fragments flow only into the Trusted DOM sink instead of direct `innerHTML` shortcuts? Fourth, do descriptors still work when HTML fragments are absent?
 
 A fix is accepted when it makes those questions easier to answer. Changes are blocked when they push parser dependencies into the kernel, hide sanitizer decisions or introduce new host sinks without a gate. The browser proof must stay concrete: a visible DOM path, a local report and clear block lists for risky vectors.
+
+## Related reading
+
+The sanitizing concept explains the trust boundary exercised by this browser proof. [Related article](./trusted-dom-sanitizing.md)

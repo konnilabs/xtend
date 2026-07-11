@@ -1,6 +1,6 @@
 # x-surface-window
 
-x-surface-window is a public XTend component reference for third-party developers who need to embed the component without private project context.
+x-surface-window is a public XTend component reference for third-party developers who need to embed the component without private project context. `toSurfaceRecord()` exposes the window as an `xtend.surface.record.v1` record for its manager.
 
 ## What it solves
 
@@ -65,6 +65,12 @@ Attributes:
 - `initial-y`
 - `initial-width`
 - `initial-height`
+- `initial-min-width`
+- `initial-min-height`
+- `initial-max-width`
+- `initial-max-height`
+- `bounds-mode`
+- `bounds-scope`
 
 Events:
 - `surface-window-command`

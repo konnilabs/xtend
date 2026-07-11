@@ -615,7 +615,7 @@ Ein XTensions-Workpackage darf gestartet werden, wenn:
   - `docs/de/xtensions-authoring-guide.md`
   - `docs/de/xtensions-migration-coexistence-guide.md`
   - `docs/de/xtensions-security-checklist.md`
-  - `docs/de/xtensions-enterprise-adoption-handoff.md`
+  - `development/docs-evidence/legacy-routes/de/xtensions-enterprise-adoption-handoff.md`
   - `tools/xtensions/adoption-handoff.js`
   - `tools/xtensions/adoption-handoff.d.ts`
   - `tests/fixtures/xtensions/adoption-handoff-valid.json`

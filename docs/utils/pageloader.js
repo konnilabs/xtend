@@ -7,6 +7,11 @@ const DOCS_RMT_PARSEDOWN_ENDPOINT = 'xtendrmt.docs.parsedown.parse';
 const DOCS_RMT_DEFAULT_SHELL_TEMPLATE = 'docs.app.shell';
 const DOCS_RMT_DEFAULT_SEARCH_TEMPLATE = 'docs.header.search';
 const DOCS_RMT_DEFAULT_DIAGNOSTICS_SCHEDULE = 'docs.diagnostics.snapshot';
+const DOCS_ANIMATION_ENGINE_DEMO_SCHEMA = 'xtend.docs.animation-engine-demo.v1';
+const DOCS_ANIMATION_ENGINE_DEMO_SLUG = 'rmt-animation-engine';
+const DOCS_ANIMATION_ENGINE_DEMO_MODULE = '/docs/utils/animation-engine-demo.mjs';
+const DOCS_ANIMATION_ENGINE_DEMO_ARTIFACT = '/docs/generated/rmt-animation-engine-demo.plan.json';
+const DOCS_ANIMATION_ENGINE_DEMO_SCHEDULE = 'docs.animation-engine-demo.hydrate';
 const DOCS_RMT_PLAYGROUND_SCHEMA = 'xtend.docs.rmt-playground.v1';
 const DOCS_RMT_PLAYGROUND_DEBOUNCE_MS = 300;
 const DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS = 160;
@@ -104,6 +109,8 @@ const DOCS_RMT_PLAYGROUND_ISLANDS = Object.freeze({
 });
 let docsRmtPlaygroundRendererPromise = null;
 let docsRmtPlaygroundMaracaModulesPromise = null;
+let docsAnimationEngineDemoModulePromise = null;
+let docsAnimationEngineDemoArtifactPromise = null;
 const DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE = `template learn.rmt.playground {
   state preview.message type object preserve {
     initial {
@@ -409,6 +416,90 @@ const DOCS_SHELL_SCOPED_CSS = `
     border-radius: 8px;
     padding: clamp(1rem, 2vw, 2rem);
     box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  }
+  .docs-animation-engine-demo {
+    display: grid;
+    gap: 0.8rem;
+    min-block-size: 14.5rem;
+    margin: 0 0 1.25rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface-muted) 84%, var(--section-bg));
+    color: var(--text-color);
+    box-sizing: border-box;
+    contain: layout style;
+  }
+  .docs-animation-engine-demo-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+  .docs-animation-engine-demo-skeleton-controls {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(8.5rem, 1fr)) auto;
+    gap: 0.7rem;
+    align-items: end;
+    min-width: 0;
+  }
+  .docs-animation-engine-demo-skeleton-field,
+  .docs-animation-engine-demo-skeleton-action,
+  .docs-animation-engine-demo-skeleton-status {
+    display: block;
+    min-width: 0;
+    min-height: 4rem;
+    border: 1px solid color-mix(in srgb, var(--border-color) 76%, transparent);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--docs-code-bg) 76%, var(--surface-muted));
+  }
+  .docs-animation-engine-demo-skeleton-action {
+    inline-size: 2.75rem;
+    min-height: 2.75rem;
+  }
+  .docs-animation-engine-demo-skeleton-status {
+    grid-column: 1 / -1;
+    min-height: 3.25rem;
+  }
+  .docs-animation-engine-demo-assistive {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  @media (max-width: 880px) {
+    .docs-animation-engine-demo {
+      min-block-size: 22rem;
+    }
+    .docs-animation-engine-demo-skeleton-controls {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .docs-animation-engine-demo-skeleton-action,
+    .docs-animation-engine-demo-skeleton-status {
+      grid-column: 1 / -1;
+      inline-size: auto;
+    }
+  }
+  @media (max-width: 520px) {
+    .docs-animation-engine-demo {
+      min-block-size: 35rem;
+    }
+    .docs-animation-engine-demo-skeleton-controls {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .docs-animation-engine-demo-skeleton-action,
+    .docs-animation-engine-demo-skeleton-status {
+      grid-column: auto;
+    }
   }
   .docs-page-sidebar {
     position: static;
@@ -1297,6 +1388,27 @@ function normalizeDocsPathForCompare(path) {
   return normalized || '/';
 }
 
+function getDocsSlugAliases() {
+  return window.xtendDocsSlugAliases && typeof window.xtendDocsSlugAliases === 'object'
+    ? window.xtendDocsSlugAliases
+    : {};
+}
+
+function resolveCanonicalDocsSlug(value) {
+  const slug = String(value || 'readme').replace(/^\/+|\/+$/g, '') || 'readme';
+  const aliases = getDocsSlugAliases();
+  const visited = new Set();
+  let current = slug;
+  while (Object.prototype.hasOwnProperty.call(aliases, current)) {
+    if (visited.has(current)) return slug;
+    visited.add(current);
+    const next = String(aliases[current] || '').replace(/^\/+|\/+$/g, '');
+    if (!next) return slug;
+    current = next;
+  }
+  return current;
+}
+
 function parseDocsRoutePath(rawValue) {
   const config = getDocsI18nConfig();
   const raw = stripDocsBasePath(getDocsRouteSource(rawValue))
@@ -1310,15 +1422,20 @@ function parseDocsRoutePath(rawValue) {
   if (config.available.includes(first)) {
     return {
       locale: normalizeDocsLocale(first),
-      slug: parts.slice(1).join('/') || 'readme',
+      slug: resolveCanonicalDocsSlug(parts.slice(1).join('/') || 'readme'),
       localized: true
     };
   }
   return {
     locale: getCurrentDocsLocale(),
-    slug: raw || 'readme',
+    slug: resolveCanonicalDocsSlug(raw || 'readme'),
     localized: false
   };
+}
+
+function getCurrentDocsSlug() {
+  const route = parseDocsRoutePath();
+  return resolveCanonicalDocsSlug(route.slug || window.xtendInitialDocsSlug || 'readme');
 }
 
 function publishDocsLocale(locale, source = 'default') {
@@ -1381,6 +1498,12 @@ function getLocalizedDocsMap(recordName, locale = getCurrentDocsLocale()) {
   return root[normalizeDocsLocale(locale)] || root[getDocsI18nConfig().fallbackLocale] || {};
 }
 
+function getExactLocalizedDocsMap(recordName, locale = getCurrentDocsLocale()) {
+  const root = window[recordName];
+  if (!root || typeof root !== 'object') return {};
+  return root[normalizeDocsLocale(locale)] || {};
+}
+
 function createDocsActiveRecordPatch(record, slug) {
   if (!slug || !record || typeof record !== 'object' || !Object.prototype.hasOwnProperty.call(record, slug)) {
     return record || {};
@@ -1390,7 +1513,7 @@ function createDocsActiveRecordPatch(record, slug) {
 
 function syncLegacyDocsGlobals(locale = getCurrentDocsLocale(), options = {}) {
   const normalized = normalizeDocsLocale(locale);
-  const pages = getLocalizedDocsMap('xtendDocsLocalizedPages', normalized);
+  const pages = getExactLocalizedDocsMap('xtendDocsLocalizedPages', normalized);
   const meta = getLocalizedDocsMap('xtendDocsLocalizedPagesMeta', normalized);
   const titles = getLocalizedDocsMap('xtendDocsLocalizedTitles', normalized);
   const slug = options && options.slug ? String(options.slug) : '';
@@ -1525,6 +1648,7 @@ function showDocsSkeleton(target, options = {}) {
   if (!target) return null;
   const loader = getXtendSkeletonLoader();
   const skeletonOptions = {
+    profile: options.profile || options.profileId || 'docs-article',
     variant: options.variant || 'article',
     lines: options.lines || 10,
     minHeight: options.minHeight || '24rem',
@@ -1533,34 +1657,38 @@ function showDocsSkeleton(target, options = {}) {
     schedule: options.schedule || 'docs.markdown.parse'
   };
   if (loader && typeof loader.show === 'function') {
-    return loader.show(target, skeletonOptions);
+    const skeleton = loader.show(target, skeletonOptions);
+    const hasVisualRecords = Boolean(skeleton && typeof skeleton.querySelector === 'function' && skeleton.querySelector(
+      '[data-xtend-skeleton-item], [data-xtend-skeleton-line]'
+    ));
+    if (hasVisualRecords) {
+      target.removeAttribute('data-xtend-skeleton-degraded');
+      return skeleton;
+    }
+    if (typeof loader.hide === 'function') loader.hide(target);
+    target.removeAttribute('data-xtend-skeleton-active');
+    target.removeAttribute('aria-busy');
+    target.setAttribute('data-xtend-skeleton-degraded', 'invalid-geometry');
+    return null;
   }
-  target.setAttribute('data-xtend-skeleton-active', 'true');
-  target.setAttribute('aria-busy', 'true');
-  const skeleton = document.createElement('div');
-  skeleton.setAttribute('data-xtend-skeleton-loader', '');
-  skeleton.setAttribute('role', 'status');
-  skeleton.setAttribute('aria-label', skeletonOptions.label);
-  const widths = ['72%', '94%', '84%', '58%', '88%', '66%'];
-  for (let index = 0; index < skeletonOptions.lines; index += 1) {
-    const line = document.createElement('span');
-    line.setAttribute('data-xtend-skeleton-line', '');
-    line.style.width = widths[index % widths.length];
-    skeleton.appendChild(line);
-  }
-  target.appendChild(skeleton);
-  return skeleton;
+  target.removeAttribute('data-xtend-skeleton-active');
+  target.removeAttribute('aria-busy');
+  target.setAttribute('data-xtend-skeleton-degraded', 'loader-unavailable');
+  return null;
 }
 
 function hideDocsSkeleton(target, options = {}) {
   if (!target) return 0;
   const loader = getXtendSkeletonLoader();
   if (loader && typeof loader.hide === 'function') {
-    return loader.hide(target, options);
+    const hidden = loader.hide(target, options);
+    target.removeAttribute('data-xtend-skeleton-degraded');
+    return hidden;
   }
   const skeletons = Array.from(target.querySelectorAll ? target.querySelectorAll('[data-xtend-skeleton-loader]') : []);
   skeletons.forEach((skeleton) => skeleton.remove());
   target.removeAttribute('data-xtend-skeleton-active');
+  target.removeAttribute('data-xtend-skeleton-degraded');
   if (!options.preserveBusy) target.removeAttribute('aria-busy');
   return skeletons.length;
 }
@@ -2411,187 +2539,6 @@ function wireDownloadButton(download, slug) {
   });
 }
 
-function createFallbackSearchShell() {
-  const locale = getCurrentDocsLocale();
-  const form = document.createElement('x-form');
-  form.id = 'xtend-search-form';
-  form.setAttribute('slot', 'search');
-  form.setAttribute('data-rmt-template', DOCS_RMT_DEFAULT_SEARCH_TEMPLATE);
-  form.setAttribute('data-rmt-component', 'docs.search');
-  form.setAttribute('data-rmt-schedule', 'docs.search.index');
-
-  const label = document.createElement('label');
-  label.setAttribute('for', 'search-input');
-  label.textContent = locale === 'en' ? 'Search:' : 'Suche:';
-
-  const input = document.createElement('x-input');
-  input.id = 'search-input';
-  input.setAttribute('name', 'search');
-  input.setAttribute('placeholder', locale === 'en' ? 'Search...' : 'Suche...');
-
-  const searchResults = document.createElement('div');
-  searchResults.id = 'search-results';
-  searchResults.setAttribute('data-rmt-slot', 'results');
-
-  form.appendChild(label);
-  form.appendChild(input);
-  form.appendChild(searchResults);
-  return form;
-}
-
-function styleSearchShell(form, input, searchResults) {
-  form.setAttribute('slot', 'search');
-  form.classList.add('docs-search-form');
-  form.style.width = '100%';
-  form.style.maxWidth = '30rem';
-  form.style.minWidth = '0';
-  form.style.boxSizing = 'border-box';
-  form.style.setProperty('--form-padding', '0');
-  form.style.setProperty('--form-gap', '0');
-  form.style.setProperty('--form-background', 'transparent');
-  form.style.setProperty('--form-border', '0');
-  form.style.setProperty('--form-shadow', 'none');
-  searchResults.classList.add('docs-search-results');
-  input.setAttribute('aria-controls', searchResults.id || 'search-results');
-
-  const label = form.querySelector('label');
-  if (label) {
-    label.style.position = 'absolute';
-    label.style.width = '1px';
-    label.style.height = '1px';
-    label.style.padding = '0';
-    label.style.margin = '-1px';
-    label.style.overflow = 'hidden';
-    label.style.clip = 'rect(0,0,0,0)';
-    label.style.border = '0';
-  }
-
-  input.style.width = '100%';
-  input.style.minWidth = '12rem';
-  input.style.maxWidth = '100%';
-  input.style.boxSizing = 'border-box';
-
-  searchResults.style.position = 'fixed';
-  searchResults.style.zIndex = '99999';
-  searchResults.style.width = '16rem';
-  searchResults.style.maxWidth = '90vw';
-  searchResults.style.boxShadow = '0 12px 32px rgba(15, 23, 42, 0.18)';
-  searchResults.style.borderRadius = '0.65rem';
-  searchResults.style.margin = '0';
-  searchResults.style.padding = '0.55rem';
-  searchResults.style.display = 'none';
-  searchResults.style.left = '0';
-  searchResults.style.top = '0';
-}
-
-function wireSearchForm(form, input, searchResults) {
-  if (!form || !input || !searchResults || form.__xtendDocsSearchBound) return;
-  form.__xtendDocsSearchBound = true;
-
-  function updateSearchResultsPosition() {
-    const rect = input.getBoundingClientRect();
-    searchResults.style.left = rect.left + 'px';
-    searchResults.style.top = (rect.bottom + 6) + 'px';
-    searchResults.style.width = rect.width + 'px';
-  }
-
-  function clearResults() {
-    while (searchResults.firstChild) {
-      searchResults.removeChild(searchResults.firstChild);
-    }
-  }
-
-  input.addEventListener('focus', updateSearchResultsPosition);
-  input.addEventListener('input', updateSearchResultsPosition);
-  window.addEventListener('resize', updateSearchResultsPosition);
-  window.addEventListener('scroll', updateSearchResultsPosition, true);
-
-  input.addEventListener('input', function() {
-    const q = String(input.value || '').toLowerCase();
-    const results = [];
-    const localizedTitles = getLocalizedDocsMap('xtendDocsLocalizedTitles', getCurrentDocsLocale());
-    Object.entries(Object.keys(localizedTitles).length ? localizedTitles : (window.xtendDocsTitles || {})).forEach(([slug, title]) => {
-      if (String(title).toLowerCase().includes(q)) {
-        results.push({ slug, title });
-      }
-    });
-
-    clearResults();
-    if (q && results.length) {
-      results.forEach((result, index) => {
-        const link = document.createElement('x-link');
-        link.setAttribute('href', getLocalizedDocsPath(result.slug));
-        link.textContent = result.title;
-        searchResults.appendChild(link);
-      });
-      searchResults.style.display = 'block';
-    } else if (q) {
-      const empty = document.createElement('em');
-      empty.textContent = getCurrentDocsLocale() === 'en' ? 'No results' : 'Keine Treffer';
-      searchResults.appendChild(empty);
-      searchResults.style.display = 'block';
-    } else {
-      searchResults.style.display = 'none';
-    }
-  });
-
-  document.addEventListener('click', function(e) {
-    if (!form.contains(e.target)) {
-      searchResults.style.display = 'none';
-    }
-  });
-
-  searchResults.addEventListener('click', function(e) {
-    const t = e.target;
-    if (t.tagName === 'X-LINK') {
-      const header = document.querySelector('x-header');
-      if (header && header.id && window.xstate) {
-        window.xstate.set(`xheader-state-${header.id}`, { menuOpen: false });
-      }
-      searchResults.style.display = 'none';
-    }
-  });
-
-  function applySearchTheme() {
-    searchResults.style.background = getComputedStyle(document.documentElement).getPropertyValue('--section-bg').trim() || '#fff';
-    searchResults.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#222';
-    searchResults.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || 'rgba(0,0,0,0.14)';
-  }
-
-  document.addEventListener('theme-changed', applySearchTheme);
-  applySearchTheme();
-}
-
-function ensureRmtSearchShell() {
-  const header = document.querySelector('x-header');
-  if (!header) return;
-  let form = document.getElementById('xtend-search-form');
-
-  if (!form) {
-    const templateId = (window.xtendDocsRmtPilot && window.xtendDocsRmtPilot.searchTemplate) || DOCS_RMT_DEFAULT_SEARCH_TEMPLATE;
-    const rendered = renderRmtDomTemplate(templateId, {
-      searchSchedule: 'docs.search.index'
-    });
-    if (rendered.rendered) {
-      form = rendered.fragment.querySelector('#xtend-search-form, [data-rmt-component="docs.search"]');
-      if (form) form.setAttribute('slot', 'search');
-      header.appendChild(form || rendered.fragment);
-      form = document.getElementById('xtend-search-form');
-    }
-    if (!form) {
-      form = createFallbackSearchShell();
-      header.appendChild(form);
-    }
-  }
-
-  const input = form.querySelector('#search-input, x-input[name="search"]');
-  const searchResults = form.querySelector('#search-results, [data-rmt-slot="results"]');
-  if (input && searchResults) {
-    styleSearchShell(form, input, searchResults);
-    wireSearchForm(form, input, searchResults);
-  }
-}
-
 function applyMainBackground() {
   const main = document.querySelector('main');
   if (main) {
@@ -2607,10 +2554,14 @@ function ensureMainBackgroundBinding() {
 }
 
 function getDocsPageSlugs() {
+  const menuSlugs = Array.isArray(window.xtendMenuConfig)
+    ? window.xtendMenuConfig.map((entry) => entry && entry.slug).filter(Boolean)
+    : [];
+  if (menuSlugs.length) return menuSlugs;
   const localizedMeta = getLocalizedDocsMap('xtendDocsLocalizedPagesMeta', getCurrentDocsLocale());
   const metaSlugs = Object.keys(localizedMeta || {});
   if (metaSlugs.length) return metaSlugs;
-  const localizedPages = getLocalizedDocsMap('xtendDocsLocalizedPages', getCurrentDocsLocale());
+  const localizedPages = getExactLocalizedDocsMap('xtendDocsLocalizedPages', getCurrentDocsLocale());
   const pageSlugs = Object.keys(localizedPages || {});
   if (pageSlugs.length) return pageSlugs;
   const legacyMetaSlugs = Object.keys(window.xtendDocsPagesMeta || {});
@@ -2672,13 +2623,23 @@ function rememberDocsPagePayload(slug, payload = {}, locale = getCurrentDocsLoca
   return payload;
 }
 
+function getDocsPageFallbackMarkup(locale, reason = 'not-found') {
+  const english = normalizeDocsLocale(locale) === 'en';
+  if (reason === 'load-error') {
+    return english
+      ? '<em>The page could not be loaded.</em>'
+      : '<em>Seite konnte nicht geladen werden.</em>';
+  }
+  return english
+    ? '<em>Page not found</em>'
+    : '<em>Seite nicht gefunden</em>';
+}
+
 function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLocale()) {
   const normalizedLocale = normalizeDocsLocale(locale);
-  const localizedPages = getLocalizedDocsMap('xtendDocsLocalizedPages', normalizedLocale);
+  const localizedPages = getExactLocalizedDocsMap('xtendDocsLocalizedPages', normalizedLocale);
   const inlineHtml = localizedPages && typeof localizedPages[slug] === 'string'
     ? localizedPages[slug]
-    : normalizedLocale === getDocsI18nConfig().fallbackLocale && window.xtendDocsPages && typeof window.xtendDocsPages[slug] === 'string'
-      ? window.xtendDocsPages[slug]
     : null;
   if (inlineHtml !== null) {
     return Promise.resolve({
@@ -2714,7 +2675,7 @@ function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLoc
       resolvedLocale: getDocsI18nConfig().fallbackLocale,
       fallbackLocale: getDocsI18nConfig().fallbackLocale,
       translationAvailable: false,
-      html: '<em>Seite nicht gefunden</em>',
+      html: getDocsPageFallbackMarkup(normalizedLocale),
       meta: rmtMeta,
       source: 'missing-endpoint',
       cacheHit: false,
@@ -2745,7 +2706,7 @@ function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLoc
       resolvedLocale: getDocsI18nConfig().fallbackLocale,
       fallbackLocale: getDocsI18nConfig().fallbackLocale,
       translationAvailable: false,
-      html: '<em>Seite nicht gefunden</em>',
+      html: getDocsPageFallbackMarkup(normalizedLocale),
       meta: rmtMeta,
       source: 'fetch-error',
       cacheHit: false,
@@ -2762,7 +2723,7 @@ function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLoc
 function prefetchDocsLocalePage(slug = getCurrentDocsSlug(), locale = getCurrentDocsLocale()) {
   const normalizedSlug = slug || 'readme';
   const normalizedLocale = normalizeDocsLocale(locale);
-  const localizedPages = getLocalizedDocsMap('xtendDocsLocalizedPages', normalizedLocale);
+  const localizedPages = getExactLocalizedDocsMap('xtendDocsLocalizedPages', normalizedLocale);
   if (localizedPages && typeof localizedPages[normalizedSlug] === 'string') {
     return Promise.resolve({
       schema: 'xtend.docs.locale-prefetch.v1',
@@ -2919,46 +2880,19 @@ function upgradeDocsParsedownCodeFences(root, options = {}) {
 }
 
 function sanitizeDocsTrustedDomHtml(html, options = {}) {
-  const template = document.createElement('template');
-  const removed = [];
-  template.innerHTML = String(html || '');
-
-  DOCS_TRUSTED_DOM_FORBIDDEN_TAGS.forEach((tagName) => {
-    Array.from(template.content.querySelectorAll(tagName)).forEach((node) => {
-      removed.push({ type: 'element', name: tagName });
-      node.remove();
-    });
-  });
-
-  Array.from(template.content.querySelectorAll('*')).forEach((node) => {
-    Array.from(node.attributes).forEach((attribute) => {
-      const name = attribute.name;
-      const lowerName = name.toLowerCase();
-      if (lowerName.startsWith('on') || lowerName === 'srcdoc') {
-        removed.push({ type: 'attribute', name });
-        node.removeAttribute(name);
-        return;
-      }
-
-      if (DOCS_TRUSTED_DOM_URL_ATTRIBUTES.includes(lowerName) && !isDocsTrustedDomUrlAllowed(attribute.value)) {
-        removed.push({ type: 'url', name, value: attribute.value });
-        node.removeAttribute(name);
-      }
-    });
-  });
-
-  const normalizedCodeEntityCount = normalizeDocsParsedownCodeEntities(template.content);
-
+  const runtime = window.xtendDocsTrustedDomRuntime;
+  if (!runtime || typeof runtime.sanitize !== 'function') {
+    throw new Error('RMT Trusted DOM host is unavailable.');
+  }
+  const result = runtime.sanitize(String(html || ''), options);
   return {
+    ...result,
     schema: DOCS_RMT_TRUSTED_DOM_PROOF_SCHEMA,
     sanitizer: DOCS_RMT_TRUSTED_DOM_SANITIZER,
     sanitized: true,
-    boundary: options.trustBoundary || DOCS_RMT_TRUST_BOUNDARY,
+    boundary: options.trustBoundary || result.boundary || DOCS_RMT_TRUST_BOUNDARY,
     markupClass: options.markupClass || 'parsedownHtml',
-    html: template.innerHTML,
-    removed,
-    removedCount: removed.length,
-    normalizedCodeEntityCount,
+    normalizedCodeEntityCount: 0,
     source: options.source || 'docs.parsedown'
   };
 }
@@ -2981,7 +2915,21 @@ function prepareDocsTrustedDomHtml(slug, html, options = {}) {
 
 function applyDocsTrustedDomHtml(target, html, options = {}) {
   const result = prepareDocsTrustedDomHtml(options.slug || '', html, options);
-  target.innerHTML = result.html;
+  const runtime = window.xtendDocsTrustedDomRuntime;
+  if (!runtime || typeof runtime.commit !== 'function') {
+    throw new Error('RMT Trusted DOM host is unavailable.');
+  }
+  const commitResult = runtime.commit(target, result.html, {
+    rootId: options.slug ? `docs-content-${options.slug}` : 'docs-parsedown-content',
+    templateQualifiedId: 'docs.parsedown.content',
+    source: options.source || 'docs.parsedown'
+  });
+  result.kernelCommit = {
+    schema: commitResult.schema,
+    boundary: commitResult.boundary,
+    verdict: commitResult.verdict
+  };
+  result.normalizedCodeEntityCount = normalizeDocsParsedownCodeEntities(target);
   const codeFenceUpgrade = upgradeDocsParsedownCodeFences(target, {
     schedule: options.syntaxSchedule || 'docs.syntax.highlight'
   });
@@ -3022,426 +2970,12 @@ function syncActiveHeaderLink(slug) {
   if (!header) return;
   const locale = getCurrentDocsLocale();
   const localizedHref = getLocalizedDocsPath(slug, locale);
-  header.querySelectorAll('x-link').forEach((a) => a.removeAttribute('active'));
-  header.querySelectorAll('details[data-docs-menu-children]').forEach((details) => {
-    details.open = false;
-    syncDocsMenuDisclosureState(details);
-  });
-  const active = header.querySelector('x-link[href="#' + localizedHref + '"], x-link[href="' + localizedHref + '"], x-link[href="#/' + slug + '"], x-link[href="/' + slug + '"]');
-  if (active) {
-    active.setAttribute('active', '');
-    let parent = active.parentElement;
-    while (parent) {
-      if (parent.tagName && parent.tagName.toLowerCase() === 'details') {
-        parent.open = true;
-        syncDocsMenuDisclosureState(parent);
-      }
-      parent = parent.parentElement;
-    }
-  }
-}
-
-function syncDocsMenuDisclosureState(details) {
-  if (!details || !details.querySelector) return;
-  const summary = details.querySelector(':scope > summary');
-  if (summary) {
-    summary.setAttribute('aria-expanded', details.open ? 'true' : 'false');
-  }
-}
-
-function closeDocsMenuDetailsTree(details) {
-  if (!details || !details.querySelectorAll) return;
-  details.open = false;
-  syncDocsMenuDisclosureState(details);
-  details.querySelectorAll('details[data-docs-menu-children]').forEach((child) => {
-    child.open = false;
-    syncDocsMenuDisclosureState(child);
-  });
-}
-
-function closeSiblingDocsSubmenus(details) {
-  const node = details && details.parentElement;
-  const container = node && node.parentElement;
-  if (!container) return;
-  Array.from(container.children).forEach((siblingNode) => {
-    if (siblingNode === node || !siblingNode.querySelector) return;
-    const siblingDetails = siblingNode.querySelector(':scope > details[data-docs-menu-children]');
-    if (siblingDetails) {
-      closeDocsMenuDetailsTree(siblingDetails);
-    }
-  });
-}
-
-async function loadMenuConfig() {
-  try {
-    const resp = await fetch('/docs/menu.json', { cache: 'no-store' });
-    if (resp.ok) {
-      const json = await resp.json();
-      if (Array.isArray(json)) {
-        window.xtendMenuConfig = json;
-      }
-    }
-  } catch (e) {
-    // Fall back to the default menu.
-  }
-}
-
-function getCurrentDocsSlug() {
-  const parsed = parseDocsRoutePath();
-  return parsed.slug === '' || parsed.slug === '/' ? 'readme' : parsed.slug;
-}
-
-function resolveDocsMenuGroup(entry) {
-  const slug = entry && entry.slug ? String(entry.slug) : '';
-  if (entry && entry.group) return String(entry.group);
-  if (slug === 'readme' || slug === 'about' || slug === 'best-practices' || slug === 'enterprise-adoption') return 'start';
-  if (slug === 'learn-rmt' || slug.startsWith('learn-rmt-')) return 'learn-rmt';
-  if (slug === 'xtend-maraca' || slug.startsWith('xtend-maraca-')) return 'maraca';
-  if (slug.startsWith('components')) return 'components';
-  if (slug.startsWith('xtendrmt') || slug.startsWith('rmt-') || slug.includes('rmt-production') || slug.includes('parsedown')) return 'rmt';
-  if (slug.includes('performance') || slug.includes('hydration') || slug.includes('a11y') || slug.includes('screenreader') || slug.includes('motion-contrast')) return 'quality';
-  if (slug.includes('trusted-dom') || slug.includes('supply-chain') || slug.includes('manifest-import') || slug.includes('csp') || slug.includes('network')) return 'security';
-  if (slug.startsWith('rc') || slug.startsWith('epic') || slug.includes('release') || slug.includes('package-export') || slug.includes('known-residual') || slug.includes('visual-owner')) return 'release';
-  if (slug.includes('component-') || slug.includes('typescript') || slug.includes('catalog') || slug.includes('design-token') || slug.includes('visual')) return 'platform';
-  return 'core';
-}
-
-function getDocsMenuGroupLabel(groupId) {
-  const locale = getCurrentDocsLocale();
-  const labels = {
-    de: {
-      start: 'Start',
-      'learn-rmt': 'Learn RMT',
-      maraca: 'Maraca Apps',
-      core: 'Core',
-      platform: 'Platform',
-      components: 'Komponenten',
-      rmt: 'XTendRMT',
-      quality: 'Quality',
-      security: 'Security',
-      release: 'Release'
-    },
-    en: {
-      start: 'Start',
-      'learn-rmt': 'Learn RMT',
-      maraca: 'Maraca Apps',
-      core: 'Core',
-      platform: 'Platform',
-      components: 'Components',
-      rmt: 'XTendRMT',
-      quality: 'Quality',
-      security: 'Security',
-      release: 'Release'
-    }
-  };
-  return (labels[locale] && labels[locale][groupId]) || labels.de[groupId] || groupId;
-}
-
-function getDocsMenuGroupIcon(groupId) {
-  const icons = {
-    start: 'home',
-    'learn-rmt': 'book-open',
-    maraca: 'rocket',
-    core: 'package',
-    platform: 'layers',
-    components: 'boxes',
-    rmt: 'route',
-    quality: 'gauge',
-    security: 'shield-check',
-    release: 'rocket'
-  };
-  return icons[groupId] || 'docs';
-}
-
-function getDocsMenuEntryIcon(entry) {
-  const slug = entry && entry.slug ? String(entry.slug) : '';
-  const explicitIcon = entry && (entry.icon || entry.iconName);
-  if (explicitIcon) return String(explicitIcon);
-
-  const exact = {
-    readme: 'home',
-    'quick-start-guide': 'book-open',
-    about: 'info',
-    'best-practices': 'success',
-    'learn-rmt': 'book-open',
-    'learn-rmt-playground': 'terminal',
-    'xtend-maraca': 'rocket',
-    'xtend-maraca-orchestration': 'route',
-    manifest: 'file',
-    api: 'terminal',
-    'xtend-loader': 'download',
-    'xtend-fabric': 'zap',
-    components: 'component',
-    'component-platform': 'layers',
-    'component-catalog-coverage': 'boxes',
-    'design-tokens': 'palette',
-    'xtendrmt-overview': 'route',
-    'rmt-linter': 'terminal',
-    'rmt-language-server': 'server',
-    performance: 'gauge',
-    'hydration-policies': 'zap',
-    'a11y-keyboard-smokes': 'accessibility',
-    'trusted-dom-sanitizing': 'shield-check',
-    'supply-chain-gates': 'shield-check',
-    'rc0-gate-matrix': 'package',
-    'rc1-readiness': 'rocket',
-    'enterprise-adoption': 'layers'
-  };
-  if (exact[slug]) return exact[slug];
-  if (slug.startsWith('components-xcode')) return 'code';
-  if (slug.startsWith('components-xicon') || slug.startsWith('components-xtheme')) return 'palette';
-  if (slug.startsWith('components-xstate')) return 'database';
-  if (slug.startsWith('learn-rmt-')) return slug.includes('playground') ? 'terminal' : 'book-open';
-  if (slug.startsWith('xtend-maraca')) return 'rocket';
-  if (slug.startsWith('components-xrouter') || slug.startsWith('xtendrmt') || slug.startsWith('rmt-')) return 'route';
-  if (slug.startsWith('components-')) return 'component';
-  if (slug.includes('security') || slug.includes('trusted-dom') || slug.includes('supply-chain') || slug.includes('csp') || slug.includes('network')) return 'shield-check';
-  if (slug.includes('performance') || slug.includes('hydration')) return 'gauge';
-  if (slug.includes('a11y') || slug.includes('screenreader') || slug.includes('motion-contrast')) return 'accessibility';
-  if (slug.includes('release') || slug.startsWith('rc') || slug.startsWith('epic')) return 'rocket';
-  if (slug.includes('component') || slug.includes('surface') || slug.includes('visual')) return 'layers';
-  return 'docs';
-}
-
-function getDocsMenuEntryId(entry) {
-  const slug = entry && entry.slug ? String(entry.slug) : '';
-  if (entry && entry.id) return String(entry.id);
-  if (slug.startsWith('components-')) {
-    return `docs.components.${slug.slice('components-'.length).replace(/-/g, '.')}`;
-  }
-  return `docs.${slug.replace(/-/g, '.')}`;
-}
-
-function computeDocsMenuRank(entry) {
-  const explicit = Number(entry && (entry.rank || entry.score || entry.pageRank));
-  if (Number.isFinite(explicit)) return explicit;
-  const slug = entry && entry.slug ? String(entry.slug) : '';
-  const group = resolveDocsMenuGroup(entry);
-  if (slug === 'readme') return 100;
-  if (['manifest', 'api', 'xtend-loader', 'components', 'xtendrmt-overview'].includes(slug)) return 94;
-  if (['enterprise-adoption', 'best-practices', 'component-platform', 'performance', 'trusted-dom-sanitizing'].includes(slug)) return 88;
-  if (slug.startsWith('components-')) return 58;
-  if (entry && entry.parent) return 66;
-  return { start: 82, 'learn-rmt': 80, maraca: 79, core: 78, platform: 74, components: 72, rmt: 76, quality: 72, security: 72, release: 64 }[group] || 60;
-}
-
-function getDocsMenuTier(entry) {
-  if (entry && entry.tier) return String(entry.tier);
-  if (entry && entry.parent) return 'deep-dive';
-  return 'basic';
-}
-
-function normalizeDocsMenuEntry(entry) {
-  const locale = getCurrentDocsLocale();
-  const slug = entry && entry.slug ? String(entry.slug) : '';
-  const localizedLabel = entry && entry.labels && (entry.labels[locale] || entry.labels[getDocsI18nConfig().fallbackLocale]);
-  const label = localizedLabel
-    ? String(localizedLabel)
-    : entry && entry.label
-    ? String(entry.label)
-    : slug.replace(/^components-/, '').replace(/-/g, ' ');
-  const parent = entry && entry.parent ? String(entry.parent) : '';
-  return {
-    ...entry,
-    slug,
-    id: getDocsMenuEntryId(entry),
-    label: label.charAt(0).toUpperCase() + label.slice(1),
-    group: resolveDocsMenuGroup(entry),
-    parent,
-    rank: computeDocsMenuRank(entry),
-    tier: getDocsMenuTier(entry),
-    children: []
-  };
-}
-
-function sortDocsMenuEntries(entries = []) {
-  return entries.sort((a, b) => {
-    if (b.rank !== a.rank) return b.rank - a.rank;
-    return String(a.label).localeCompare(String(b.label), getCurrentDocsLocale());
-  });
-}
-
-function groupDocsMenuEntries(entries = []) {
-  const order = ['start', 'learn-rmt', 'maraca', 'core', 'platform', 'components', 'rmt', 'quality', 'security', 'release'];
-  const groups = new Map(order.map((id) => [id, { id, label: getDocsMenuGroupLabel(id), entries: [] }]));
-  const normalizedEntries = entries
-    .filter((entry) => entry && entry.slug)
-    .map(normalizeDocsMenuEntry);
-  const bySlug = new Map(normalizedEntries.map((entry) => [entry.slug, entry]));
-  const byId = new Map(normalizedEntries.map((entry) => [entry.id, entry]));
-  const roots = [];
-
-  normalizedEntries.forEach((entry) => {
-    const parent = entry.parent ? (bySlug.get(entry.parent) || byId.get(entry.parent)) : null;
-    if (parent) {
-      parent.children.push(entry);
-    } else {
-      roots.push(entry);
-    }
-  });
-
-  const sortTree = (entry) => {
-    entry.children = sortDocsMenuEntries(entry.children);
-    entry.children.forEach(sortTree);
-  };
-  roots.forEach(sortTree);
-
-  sortDocsMenuEntries(roots).forEach((entry) => {
-    const groupId = entry.group;
-    if (!groups.has(groupId)) {
-      groups.set(groupId, { id: groupId, label: getDocsMenuGroupLabel(groupId), entries: [] });
-    }
-    groups.get(groupId).entries.push(entry);
-  });
-
-  return Array.from(groups.values()).filter((group) => group.entries.length > 0);
-}
-
-function renderMenu() {
-  const header = document.querySelector('x-header');
-  if (!header) return;
-  const locale = getCurrentDocsLocale();
-  Array.from(header.querySelectorAll('x-link[slot="nav"]')).forEach((el) => el.remove());
-  Array.from(header.querySelectorAll('[data-docs-menu-shell]')).forEach((el) => el.remove());
-  const menu = window.xtendMenuConfig && window.xtendMenuConfig.length
-    ? window.xtendMenuConfig
-    : Object.keys(window.xtendDocsTitles || {}).map((slug) => ({ slug, label: window.xtendDocsTitles[slug] }));
-
-  const shell = document.createElement('div');
-  shell.setAttribute('slot', 'nav');
-  shell.setAttribute('data-menu-shell', '');
-  shell.setAttribute('data-docs-menu-shell', '');
-  shell.className = 'docs-menu-shell';
-  shell.setAttribute('role', 'list');
-  shell.setAttribute('aria-label', locale === 'en' ? 'Documentation sections' : 'Dokumentationsbereiche');
-
-  const renderMenuNode = (entry, depth = 0) => {
-    const node = document.createElement('div');
-    node.className = 'docs-menu-node';
-    node.setAttribute('data-doc-id', entry.id);
-    node.setAttribute('data-doc-rank', String(entry.rank));
-    node.setAttribute('data-doc-tier', entry.tier);
-    node.setAttribute('data-doc-depth', String(depth));
-
-    const link = document.createElement('x-link');
-    link.className = 'docs-menu-link';
-    link.setAttribute('href', getLocalizedDocsPath(entry.slug, locale));
-    link.setAttribute('data-docs-menu-link', '');
-    link.setAttribute('data-doc-id', entry.id);
-    link.setAttribute('data-doc-rank', String(entry.rank));
-    link.setAttribute('data-doc-tier', entry.tier);
-    const icon = document.createElement('x-icon');
-    icon.className = 'docs-menu-link-icon';
-    icon.setAttribute('name', getDocsMenuEntryIcon(entry));
-    icon.setAttribute('decorative', '');
-    icon.setAttribute('size', depth === 0 ? '1rem' : '0.92rem');
-    const label = document.createElement('span');
-    label.className = 'docs-menu-link-label';
-    label.textContent = entry.label;
-    link.appendChild(icon);
-    link.appendChild(label);
-    node.appendChild(link);
-
-    if (entry.children && entry.children.length) {
-      const details = document.createElement('details');
-      details.className = 'docs-menu-children';
-      details.setAttribute('data-docs-menu-children', '');
-      details.setAttribute('data-doc-parent', entry.id);
-      details.setAttribute('data-doc-depth', String(depth + 1));
-
-      const summary = document.createElement('summary');
-      summary.className = 'docs-menu-disclosure';
-      summary.setAttribute('aria-expanded', 'false');
-      const summaryIcon = document.createElement('x-icon');
-      summaryIcon.className = 'docs-menu-disclosure-icon';
-      summaryIcon.setAttribute('name', 'chevron-right');
-      summaryIcon.setAttribute('decorative', '');
-      summaryIcon.setAttribute('size', '0.9rem');
-      const summaryLabel = document.createElement('span');
-      summaryLabel.className = 'docs-menu-disclosure-label';
-      // Contract anchor: summaryLabel.textContent = depth === 0 ? 'Deep Dives' : 'Weitere Themen'
-      summaryLabel.textContent = locale === 'en'
-        ? (depth === 0 ? 'Deep Dives' : 'More Topics')
-        : (depth === 0 ? 'Deep Dives' : 'Weitere Themen');
-      const summaryCount = document.createElement('span');
-      summaryCount.className = 'docs-menu-disclosure-count';
-      summaryCount.textContent = String(entry.children.length);
-      summary.appendChild(summaryIcon);
-      summary.appendChild(summaryLabel);
-      summary.appendChild(summaryCount);
-
-      const childList = document.createElement('div');
-      childList.className = 'docs-menu-child-list';
-      entry.children.forEach((child) => {
-        childList.appendChild(renderMenuNode(child, depth + 1));
-      });
-
-      details.appendChild(summary);
-      details.appendChild(childList);
-      details.addEventListener('toggle', () => {
-        syncDocsMenuDisclosureState(details);
-        if (details.open) {
-          closeSiblingDocsSubmenus(details);
-        }
-      });
-      node.appendChild(details);
-    }
-
-    return node;
-  };
-
-  groupDocsMenuEntries(menu).forEach((group) => {
-    const section = document.createElement('section');
-    section.className = 'docs-menu-section';
-    section.setAttribute('role', 'listitem');
-    section.setAttribute('aria-labelledby', `docs-menu-${group.id}`);
-
-    const title = document.createElement('h3');
-    title.id = `docs-menu-${group.id}`;
-    title.className = 'docs-menu-section-title';
-    const icon = document.createElement('x-icon');
-    icon.setAttribute('name', getDocsMenuGroupIcon(group.id));
-    icon.setAttribute('decorative', '');
-    icon.setAttribute('size', '1rem');
-    const titleText = document.createElement('span');
-    titleText.textContent = group.label;
-    title.appendChild(icon);
-    title.appendChild(titleText);
-
-    const links = document.createElement('div');
-    links.className = 'docs-menu-section-links';
-
-    group.entries.forEach((entry) => {
-      links.appendChild(renderMenuNode(entry));
-    });
-
-    section.appendChild(title);
-    section.appendChild(links);
-    shell.appendChild(section);
-  });
-
-  header.appendChild(shell);
-  syncActiveHeaderLink(getCurrentDocsSlug());
-}
-
-function ensureMenuBinding() {
-  if (window.__xtendDocsMenuBound) {
-    syncActiveHeaderLink(getCurrentDocsSlug());
-    return;
-  }
-  window.__xtendDocsMenuBound = true;
-  loadMenuConfig().then(renderMenu);
-  window.addEventListener('popstate', () => syncActiveHeaderLink(getCurrentDocsSlug()));
-  window.addEventListener('xrouter-after-navigate', () => syncActiveHeaderLink(getCurrentDocsSlug()));
-  window.addEventListener('xtend-docs-locale-changed', (event) => {
-    const locale = event && event.detail && event.detail.locale ? event.detail.locale : getCurrentDocsLocale();
-    const slug = getCurrentDocsSlug();
-    syncLegacyDocsGlobals(locale, { slug });
-    if (window.__xtendDocsMenuLocaleDisposer) window.__xtendDocsMenuLocaleDisposer();
-    window.__xtendDocsMenuLocaleDisposer = scheduleDocsIdle(() => {
-      window.__xtendDocsMenuLocaleDisposer = null;
-      renderMenu();
-    }, 140);
+  header.querySelectorAll('[data-docs-menu-link]').forEach((link) => {
+    const href = link.getAttribute('href');
+    const active = href === localizedHref || href === `#${localizedHref}` || href === `#/${slug}` || href === `/${slug}`;
+    link.toggleAttribute('active', active);
+    if (active) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
   });
 }
 
@@ -3465,6 +2999,7 @@ function updateDocsLocaleBusyUi(transition = window.__xtendDocsLocaleTransition 
 
 function updateDocsLocaleUi(locale = getCurrentDocsLocale(), options = {}) {
   const targetLocale = normalizeDocsLocale(locale);
+  const isEnglish = targetLocale === 'en';
   const shouldPublish = options.publish !== false;
   const normalized = !shouldPublish
     ? targetLocale
@@ -3474,11 +3009,33 @@ function updateDocsLocaleUi(locale = getCurrentDocsLocale(), options = {}) {
   syncLegacyDocsGlobals(normalized, { slug: options.slug || getCurrentDocsSlug() });
   const headerTitle = document.querySelector('x-header [slot="title"]');
   if (headerTitle) {
-    headerTitle.textContent = normalized === 'en' ? 'XTend Documentation' : 'XTend Dokumentation';
+    headerTitle.textContent = isEnglish ? 'XTend Documentation' : 'XTend Dokumentation';
+  }
+  const homeLink = document.querySelector('[data-docs-home-logo]');
+  if (homeLink) {
+    homeLink.setAttribute('href', getLocalizedDocsPath('readme', normalized));
+    homeLink.setAttribute('aria-label', isEnglish ? 'Open the Docs home page' : 'Docs-Startseite öffnen');
+    homeLink.setAttribute('title', isEnglish ? 'Docs home' : 'Docs-Startseite');
+  }
+  const searchLabel = document.querySelector('label[for="search-input"]');
+  if (searchLabel) {
+    searchLabel.textContent = isEnglish ? 'Search documentation' : 'Dokumentation durchsuchen';
+  }
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.setAttribute('placeholder', isEnglish ? 'Search documentation' : 'Dokumentation durchsuchen');
+  }
+  const searchPopover = document.getElementById('docs-search-popover');
+  if (searchPopover) {
+    searchPopover.setAttribute('label', isEnglish ? 'Search results' : 'Suchergebnisse');
+  }
+  const searchResults = document.getElementById('search-results');
+  if (searchResults) {
+    searchResults.setAttribute('aria-label', isEnglish ? 'Documentation search results' : 'Suchergebnisse der Dokumentation');
   }
   const control = document.querySelector('[data-docs-language-control]');
   if (control) {
-    control.setAttribute('aria-label', normalized === 'en' ? 'Change language' : 'Sprache wechseln');
+    control.setAttribute('aria-label', isEnglish ? 'Change language' : 'Sprache wechseln');
   }
   const select = document.getElementById('docs-language-select');
   if (select && select.getAttribute('value') !== normalized) {
@@ -3488,7 +3045,7 @@ function updateDocsLocaleUi(locale = getCurrentDocsLocale(), options = {}) {
     }
   }
   if (select) {
-    select.setAttribute('label', normalized === 'en' ? 'Language' : 'Sprache');
+    select.setAttribute('label', isEnglish ? 'Language' : 'Sprache');
   }
   updateDocsLocaleBusyUi(options.busy === false ? { busy: false, targetLocale: normalized } : window.__xtendDocsLocaleTransition);
   document.querySelectorAll('[data-docs-locale-label]').forEach((node) => {
@@ -3512,6 +3069,10 @@ function navigateDocsLocale(locale, source = 'user') {
     return;
   }
   beginDocsLocaleTransition(normalized, { source, slug });
+  const shellRuntime = window.xtendDocsShellRuntime;
+  if (shellRuntime && typeof shellRuntime.prepareLocaleRoutes === 'function') {
+    shellRuntime.prepareLocaleRoutes(normalized);
+  }
   syncLegacyDocsGlobals(normalized, { slug });
   prefetchDocsLocalePage(slug, normalized).catch(() => {});
   window.__xtendDocsPendingLocaleRoute = window.__xtendDocsLocaleTransition;
@@ -3573,6 +3134,7 @@ function ensureDocsLanguageSelectBinding() {
 }
 
 function docsPageExists(slug) {
+  if (Array.isArray(window.xtendMenuConfig) && window.xtendMenuConfig.some((entry) => entry && entry.slug === slug)) return true;
   const localized = getLocalizedDocsMap('xtendDocsLocalizedPagesMeta', getCurrentDocsLocale());
   if (localized && localized[slug]) return true;
   return Boolean(slug && (
@@ -3582,6 +3144,13 @@ function docsPageExists(slug) {
 }
 
 function docsTitleForSlug(slug) {
+  const menuEntry = Array.isArray(window.xtendMenuConfig)
+    ? window.xtendMenuConfig.find((entry) => entry && entry.slug === slug)
+    : null;
+  if (menuEntry) {
+    const labels = menuEntry.labels && typeof menuEntry.labels === 'object' ? menuEntry.labels : {};
+    return labels[getCurrentDocsLocale()] || labels.de || labels.en || menuEntry.label || slug;
+  }
   const localizedTitles = getLocalizedDocsMap('xtendDocsLocalizedTitles', getCurrentDocsLocale());
   return (localizedTitles && localizedTitles[slug]) ||
     (window.xtendDocsTitles && window.xtendDocsTitles[slug]) ||
@@ -5636,12 +5205,261 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
   return root;
 }
 
+function docsAnimationEngineDemoCopy(locale = getCurrentDocsLocale()) {
+  return normalizeDocsLocale(locale) === 'de'
+    ? {
+        title: 'AnimationEngine ausprobieren',
+        label: 'Interaktive AnimationEngine-Demo',
+        loading: 'Steuerung wird nach dem Artikelinhalt geladen',
+        unavailable: 'Die interaktive Demo ist nicht verfügbar. Der Artikel und seine Beispiele bleiben vollständig nutzbar.'
+      }
+    : {
+        title: 'Try AnimationEngine',
+        label: 'Interactive AnimationEngine demo',
+        loading: 'Controls load after the article content',
+        unavailable: 'The interactive demo is unavailable. The article and its examples remain fully usable.'
+      };
+}
+
+function createDocsAnimationEngineDemoSkeleton(locale = getCurrentDocsLocale()) {
+  const copy = docsAnimationEngineDemoCopy(locale);
+  const root = document.createElement('section');
+  root.id = 'docs-animation-engine-demo';
+  root.className = 'docs-animation-engine-demo';
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', copy.label);
+  root.setAttribute('aria-busy', 'true');
+  root.setAttribute('tabindex', '0');
+  root.setAttribute('data-docs-animation-engine-demo', '');
+  root.setAttribute('data-schema', DOCS_ANIMATION_ENGINE_DEMO_SCHEMA);
+  root.setAttribute('data-rmt-hydration-island', 'docs.rmt.animation-engine.demo');
+  root.setAttribute('data-rmt-hydration-state', 'skeleton');
+  root.setAttribute('data-rmt-surface-role', 'controls');
+  root.setAttribute('data-fabric-lane', 'idle');
+  root.setAttribute('data-rmt-hydrate-schedule', DOCS_ANIMATION_ENGINE_DEMO_SCHEDULE);
+  root.setAttribute('data-xtend-layout-reserve', 'demo');
+  root.setAttribute('data-xtend-cls-anchor', 'docs.animation-engine.demo');
+
+  const heading = document.createElement('h2');
+  heading.className = 'docs-animation-engine-demo-heading';
+  heading.textContent = copy.title;
+  const controls = document.createElement('div');
+  controls.className = 'docs-animation-engine-demo-skeleton-controls';
+  controls.setAttribute('aria-hidden', 'true');
+  for (let index = 0; index < 4; index += 1) {
+    const field = document.createElement('span');
+    field.className = 'docs-animation-engine-demo-skeleton-field';
+    controls.appendChild(field);
+  }
+  const action = document.createElement('span');
+  action.className = 'docs-animation-engine-demo-skeleton-action';
+  const status = document.createElement('span');
+  status.className = 'docs-animation-engine-demo-skeleton-status';
+  controls.append(action, status);
+  const loading = document.createElement('span');
+  loading.className = 'docs-animation-engine-demo-assistive';
+  loading.textContent = copy.loading;
+  root.append(heading, controls, loading);
+  return root;
+}
+
+function reconcileDocsAnimationEngineDemoSlot(article, mdContent, slug, locale) {
+  if (!article || !mdContent) return null;
+  const existing = article.querySelector('[data-docs-animation-engine-demo]');
+  if (existing && existing.__xtendDocsAnimationEngineDemo && typeof existing.__xtendDocsAnimationEngineDemo.dispose === 'function') {
+    existing.__xtendDocsAnimationEngineDemo.dispose();
+  }
+  if (existing) existing.remove();
+  if (slug !== DOCS_ANIMATION_ENGINE_DEMO_SLUG) return null;
+  const root = createDocsAnimationEngineDemoSkeleton(locale);
+  article.insertBefore(root, mdContent);
+  return root;
+}
+
+function docsAnimationEngineSameOriginUrl(relativePath) {
+  const url = new URL(relativePath, window.location.origin);
+  if (url.origin !== window.location.origin) throw new Error('AnimationEngine demo assets must use the inspected docs origin.');
+  return url;
+}
+
+function loadDocsAnimationEngineDemoModule() {
+  if (!docsAnimationEngineDemoModulePromise) {
+    const moduleUrl = docsAnimationEngineSameOriginUrl(DOCS_ANIMATION_ENGINE_DEMO_MODULE);
+    docsAnimationEngineDemoModulePromise = import(moduleUrl.href).catch((error) => {
+      docsAnimationEngineDemoModulePromise = null;
+      throw error;
+    });
+  }
+  return docsAnimationEngineDemoModulePromise;
+}
+
+function loadDocsAnimationEngineDemoArtifact() {
+  if (!docsAnimationEngineDemoArtifactPromise) {
+    const artifactUrl = docsAnimationEngineSameOriginUrl(DOCS_ANIMATION_ENGINE_DEMO_ARTIFACT);
+    docsAnimationEngineDemoArtifactPromise = fetch(artifactUrl.href, {
+      method: 'GET',
+      cache: 'force-cache',
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' }
+    }).then(async (response) => {
+      if (!response.ok) throw new Error(`AnimationEngine demo plan returned ${response.status}.`);
+      const artifact = await response.json();
+      if (!artifact || artifact.schema !== DOCS_ANIMATION_ENGINE_DEMO_SCHEMA) {
+        throw new Error(`AnimationEngine demo plan must use ${DOCS_ANIMATION_ENGINE_DEMO_SCHEMA}.`);
+      }
+      return artifact;
+    }).catch((error) => {
+      docsAnimationEngineDemoArtifactPromise = null;
+      throw error;
+    });
+  }
+  return docsAnimationEngineDemoArtifactPromise;
+}
+
+function renderDocsAnimationEngineDemoFailure(root, locale, error) {
+  if (!root) return;
+  const copy = docsAnimationEngineDemoCopy(locale);
+  const heading = document.createElement('h2');
+  heading.className = 'docs-animation-engine-demo-heading';
+  heading.textContent = copy.title;
+  const message = document.createElement('p');
+  message.textContent = copy.unavailable;
+  const diagnostic = document.createElement('code');
+  diagnostic.textContent = error && error.message ? error.message : String(error || 'AnimationEngine demo unavailable');
+  root.replaceChildren(heading, message, diagnostic);
+  root.removeAttribute('tabindex');
+  root.setAttribute('aria-busy', 'false');
+  root.setAttribute('data-rmt-hydration-state', 'degraded');
+  root.setAttribute('data-animation-engine-ready', 'false');
+}
+
+function scheduleDocsAnimationEngineDemoHydration(options = {}) {
+  const root = options.root;
+  const target = options.target;
+  const locale = options.locale || getCurrentDocsLocale();
+  if (!root || !target) return () => {};
+  let disposed = false;
+  let controller = null;
+  let observer = null;
+  let layoutShiftObserver = null;
+  let idleDisposer = null;
+  let loadPromise = null;
+  let cumulativeLayoutShift = 0;
+  let consoleErrorCount = 0;
+  const updateConsoleErrors = () => {
+    consoleErrorCount += 1;
+    root.setAttribute('data-console-errors', String(consoleErrorCount));
+  };
+  root.setAttribute('data-console-errors', '0');
+  root.setAttribute('data-demo-cls', '0');
+  window.addEventListener('error', updateConsoleErrors);
+  window.addEventListener('unhandledrejection', updateConsoleErrors);
+  if (typeof PerformanceObserver === 'function') {
+    try {
+      layoutShiftObserver = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+          if (!entry.hadRecentInput) cumulativeLayoutShift += Number(entry.value) || 0;
+        });
+        root.setAttribute('data-demo-cls', String(Math.round(cumulativeLayoutShift * 100000) / 100000));
+      });
+      layoutShiftObserver.observe({ type: 'layout-shift', buffered: false });
+    } catch (error) {
+      layoutShiftObserver = null;
+    }
+  }
+
+  const hydrate = (reason = 'visible-idle') => {
+    if (disposed || loadPromise) return loadPromise;
+    if (observer) observer.disconnect();
+    if (idleDisposer) {
+      idleDisposer();
+      idleDisposer = null;
+    }
+    root.setAttribute('data-rmt-hydration-state', 'loading');
+    root.setAttribute('data-demo-load-reason', reason);
+    root.setAttribute('data-demo-requested-at', String(docsPerfNow()));
+    const skeletonHeight = root.getBoundingClientRect().height;
+    root.setAttribute('data-demo-skeleton-height', String(Math.round(skeletonHeight * 100) / 100));
+    loadPromise = Promise.all([
+      loadDocsAnimationEngineDemoModule(),
+      loadDocsAnimationEngineDemoArtifact()
+    ]).then(([moduleApi, artifact]) => {
+      if (disposed || !root.isConnected) return null;
+      return moduleApi.hydrateDocsAnimationEngineDemo({ root, target, artifact, locale });
+    }).then((value) => {
+      if (disposed || !value) return null;
+      controller = value;
+      const hydratedHeight = root.getBoundingClientRect().height;
+      const targetRect = target.getBoundingClientRect();
+      const rootRect = root.getBoundingClientRect();
+      root.setAttribute('data-demo-hydrated-height', String(Math.round(hydratedHeight * 100) / 100));
+      root.setAttribute('data-demo-geometry-stable', String(Math.abs(hydratedHeight - skeletonHeight) <= 8));
+      root.setAttribute('data-demo-content-overlap', String(rootRect.bottom > targetRect.top + 1));
+      root.setAttribute('data-demo-hydrated-at', String(docsPerfNow()));
+      dispatchDocsLaneComplete({
+        lane: 'idle',
+        schedule: DOCS_ANIMATION_ENGINE_DEMO_SCHEDULE,
+        operation: 'animation-engine-demo.hydrated',
+        hydrationIsland: 'docs.rmt.animation-engine.demo',
+        surfaceId: 'docs.animation.engine.demo',
+        reason
+      });
+      return value;
+    }).catch((error) => {
+      if (!disposed) {
+        renderDocsAnimationEngineDemoFailure(root, locale, error);
+        dispatchDocsLaneComplete({
+          lane: 'idle',
+          schedule: DOCS_ANIMATION_ENGINE_DEMO_SCHEDULE,
+          operation: 'animation-engine-demo.degraded',
+          hydrationIsland: 'docs.rmt.animation-engine.demo',
+          surfaceId: 'docs.animation.engine.demo',
+          reason: error && error.message ? error.message : String(error)
+        });
+      }
+      return null;
+    });
+    return loadPromise;
+  };
+
+  const queueIdleHydration = () => {
+    if (disposed || loadPromise || idleDisposer) return;
+    root.setAttribute('data-rmt-hydration-state', 'queued');
+    idleDisposer = scheduleDocsIdle(() => hydrate('visible-idle'));
+  };
+  const requestImmediateHydration = () => hydrate('user-intent');
+  root.addEventListener('pointerdown', requestImmediateHydration, { once: true });
+  root.addEventListener('focusin', requestImmediateHydration, { once: true });
+
+  if (typeof IntersectionObserver === 'function') {
+    observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting || entry.intersectionRatio > 0)) queueIdleHydration();
+    }, { root: null, rootMargin: '160px', threshold: 0 });
+    observer.observe(root);
+  } else {
+    queueIdleHydration();
+  }
+
+  return () => {
+    disposed = true;
+    if (observer) observer.disconnect();
+    if (layoutShiftObserver) layoutShiftObserver.disconnect();
+    if (idleDisposer) idleDisposer();
+    window.removeEventListener('error', updateConsoleErrors);
+    window.removeEventListener('unhandledrejection', updateConsoleErrors);
+    root.removeEventListener('pointerdown', requestImmediateHydration);
+    root.removeEventListener('focusin', requestImmediateHydration);
+    if (controller && typeof controller.dispose === 'function') controller.dispose();
+  };
+}
+
 function resolveDocsSlugFromRouteContext(context = {}) {
   const explicit = context.slug || context.path || context.to || '';
   const parsed = parseDocsRoutePath(explicit ? String(explicit) : undefined);
   publishDocsLocale(parsed.locale, parsed.localized ? 'route' : 'compat-route');
   let slug = parsed.slug || 'readme';
   if (slug === '' || slug === '/') slug = 'readme';
+  slug = resolveCanonicalDocsSlug(slug);
   if (!parsed.localized) {
     const localizedPath = getLocalizedDocsPath(slug, parsed.locale);
     if (normalizeDocsPathForCompare(location.pathname) !== normalizeDocsPathForCompare(localizedPath)) {
@@ -5742,6 +5560,7 @@ class XtendDocPage extends HTMLElement {
     const shell = this.ensureRouteShell(slug, rmtMeta);
     applyRmtPageMetadata(shell.section, shell.mdContent, shell.richSlot, shell.diagnosticsSlot, rmtMeta, shell.sidebar, shell.relatedSlot, shell.demoSlot);
     wireDownloadButton(shell.download, slug);
+    const animationEngineDemoRoot = reconcileDocsAnimationEngineDemoSlot(shell.article, shell.mdContent, slug, locale);
 
     const parseSchedule = rmtMeta.schedules && rmtMeta.schedules.parse ? rmtMeta.schedules.parse : 'docs.markdown.parse';
     const routeSchedule = rmtMeta.schedules && rmtMeta.schedules.route ? rmtMeta.schedules.route : 'docs.route.render';
@@ -5811,15 +5630,12 @@ class XtendDocPage extends HTMLElement {
     };
     window.xtendDocsRmtProductionLastRender = createDocsRmtProductionRenderSnapshot(slug, rmtMeta, shell);
 
-    ensureRmtSearchShell();
     ensureMainBackgroundBinding();
 
     syncActiveHeaderLink(slug);
-    ensureMenuBinding();
-    while (shell.mdContent.firstChild) {
-      shell.mdContent.removeChild(shell.mdContent.firstChild);
-    }
-    showDocsSkeleton(shell.mdContent, {
+    shell.mdContent.setAttribute('data-docs-content-state', 'loading');
+    const routeSkeleton = showDocsSkeleton(shell.mdContent, {
+      profile: 'docs-article',
       variant: 'article',
       lines: 11,
       minHeight: '24rem',
@@ -5827,6 +5643,7 @@ class XtendDocPage extends HTMLElement {
       source: 'docs.parsedown',
       schedule: parseSchedule
     });
+    shell.mdContent.toggleAttribute('data-docs-stale-content-preserved', !routeSkeleton);
 
     const contentPayloadPromise = loadDocsParsedownContent(slug, rmtMeta, locale);
     let relatedLinks = [];
@@ -5839,10 +5656,11 @@ class XtendDocPage extends HTMLElement {
       contentCommitted = true;
       const html = payload && typeof payload.html === 'string'
         ? payload.html
-        : '<em>Seite nicht gefunden</em>';
+        : getDocsPageFallbackMarkup(locale);
       const payloadMeta = payload && payload.meta && typeof payload.meta === 'object'
         ? payload.meta
         : rmtMeta;
+      applyRmtPageMetadata(shell.section, shell.mdContent, shell.richSlot, shell.diagnosticsSlot, payloadMeta, shell.sidebar, shell.relatedSlot, shell.demoSlot);
       const trustedDomResult = measuredLane('visible', parseSchedule, 'article.trusted-dom-commit', () => applyDocsTrustedDomHtml(shell.mdContent, html, {
         slug,
         locale,
@@ -5852,6 +5670,8 @@ class XtendDocPage extends HTMLElement {
         syntaxSchedule: 'docs.syntax.highlight'
       }));
       hideDocsSkeleton(shell.mdContent);
+      shell.mdContent.setAttribute('data-docs-content-state', 'ready');
+      shell.mdContent.removeAttribute('data-docs-stale-content-preserved');
       window.xtendDocsRmtLastRender.lazyPayload = payload && payload.source !== 'inline';
       window.xtendDocsRmtLastRender.payloadSource = payload ? payload.source : 'unknown';
       window.xtendDocsRmtLastRender.requestedLocale = payload ? payload.requestedLocale : locale;
@@ -5942,7 +5762,9 @@ class XtendDocPage extends HTMLElement {
             syntaxSchedule: 'docs.syntax.highlight',
             reused,
             insularHydration: true,
-            skeletonLoader: 'xtend.loader.skeleton-loader.v1'
+            skeletonLoader: 'xtend.loader.skeleton-loader.v1',
+            skeletonProfile: 'docs-article',
+            contentCommitDurationMs: Number((laneDurations.find((entry) => entry.operation === 'article.trusted-dom-commit') || {}).durationMs || 0)
           }
         }));
         hydrateDocsCodeBlocks(shell.mdContent, {
@@ -5950,14 +5772,32 @@ class XtendDocPage extends HTMLElement {
           reason: 'parsedown-code-fence-syntax-highlight',
           schedule: 'docs.syntax.highlight'
         });
+        if (animationEngineDemoRoot) {
+          animationEngineDemoRoot.setAttribute('data-content-committed-at', String(docsPerfNow()));
+          const animationDemoDisposer = scheduleDocsAnimationEngineDemoHydration({
+            root: animationEngineDemoRoot,
+            target: shell.mdContent,
+            locale
+          });
+          this.scheduleRouteWork(animationDemoDisposer);
+        }
         if (slug === 'learn-rmt-playground') {
           measuredLane('idle', richSchedule, 'rmt-playground.render', () => renderDocsRmtPlayground(shell.mdContent, locale, relatedLinks));
         }
         finishTransition();
       }).catch((error) => {
         if (!this.isActiveRouteToken(token)) return;
+        if (animationEngineDemoRoot) renderDocsAnimationEngineDemoFailure(animationEngineDemoRoot, locale, error);
         hideDocsSkeleton(shell.mdContent);
-        shell.mdContent.innerHTML = '<em>Seite konnte nicht geladen werden.</em>';
+        applyDocsTrustedDomHtml(shell.mdContent, getDocsPageFallbackMarkup(locale, 'load-error'), {
+          slug,
+          locale,
+          source: 'docs.error-fallback',
+          markupClass: 'htmlFragment',
+          trustBoundary: DOCS_RMT_TRUST_BOUNDARY
+        });
+        shell.mdContent.setAttribute('data-docs-content-state', 'error');
+        shell.mdContent.removeAttribute('data-docs-stale-content-preserved');
         window.dispatchEvent(new CustomEvent('xtend-docs-content-error', {
           detail: {
             schema: 'xtend.docs.content-error.v1',

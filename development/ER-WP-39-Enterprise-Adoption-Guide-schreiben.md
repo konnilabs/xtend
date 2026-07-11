@@ -17,7 +17,7 @@ ER-WP-39 macht die Enterprise-Reife-Strecke fuer reale Teams konsumierbar. Der G
 |----------|-------|
 | `docs/enterprise-adoption.md` | offizieller Enterprise Adoption Guide unter `xtend.docs.enterprise-adoption.v1` |
 | `docs/menu.json` | Docs-App Navigation fuer den neuen Guide |
-| `docs/README.md` | Docs-Uebersicht mit Enterprise Adoption als Einstieg |
+| `docs/en/README.md` | Docs-Uebersicht mit Enterprise Adoption als Einstieg |
 | `package.json` | `xtend.enterpriseAdoption` Metadata und abgeschlossener Handoff bis `ER-WP-40` |
 | `README.md` | Root-README verweist auf den Enterprise Guide |
 | `CHANGELOG.md` | Produkt-Changelog dokumentiert den neuen Guide |

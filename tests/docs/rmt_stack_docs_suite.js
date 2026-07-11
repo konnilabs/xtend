@@ -70,9 +70,12 @@ function runRmtStackDocsSuite(options = {}) {
   context.assert(overviewIndex >= 0, 'Docs menu exposes XTendRMT overview');
   context.assert(stackIndex === overviewIndex + 1, 'RMT stack topography is ordered directly after XTendRMT overview');
   context.assert(stackIndex >= 0 && stackIndex < authoringIndex, 'RMT stack docs are ordered before the RMT authoring references');
+  const stackChildren = menu
+    .filter((entry) => entry.parent === STACK_ROOT_SLUG)
+    .map((entry) => entry.slug);
   context.assert(
-    JSON.stringify(menuSlugs.slice(stackIndex + 1, stackIndex + 1 + STACK_LAYER_SLUGS.length)) === JSON.stringify(STACK_LAYER_SLUGS),
-    'RMT stack layer docs are grouped directly below the topography article'
+    JSON.stringify(stackChildren) === JSON.stringify(STACK_LAYER_SLUGS),
+    'RMT stack layer docs preserve their ordered parent-child group'
   );
 
   STACK_SLUGS.forEach((slug) => {

@@ -49,3 +49,7 @@ Browser drift is covered by `rmt-vnext-source-to-sea-cross-route-invalid.html`. 
 | `RMT-VNEXT-PRIM-06` | P0 | completed | Source-to-Sea browser evidence |
 
 In GitHub Actions the browser path is enabled manually through `run_source_to_sea`. The default pull-request gate stays fast and runs `npm run test:rmt-vnext-primitives:report`; Source-to-Sea adds browser evidence when needed. The capture helper records `ChromeDriver-Auto-Cleanup` so WebDriver processes do not remain after the run.
+
+## Related reading
+
+The release workflow explains how the source-to-sea report participates in the wider gate set. [Related article](./release-verification.md)

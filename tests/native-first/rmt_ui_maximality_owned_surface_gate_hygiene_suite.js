@@ -80,10 +80,10 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
   const backlog = readText(BACKLOG_PATH, rootDir);
   const report = readText(REPORT_PATH, rootDir);
   const workpackage = readText(WORKPACKAGE_PATH, rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
-  const longTailDocs = readText('docs/component-long-tail-migration.md', rootDir);
-  const componentUxGates = readText('docs/component-ux-gates.md', rootDir);
-  const catalogDocs = readText('docs/component-catalog-coverage.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
+  const longTailDocs = readText('docs/en/component-long-tail-migration.md', rootDir);
+  const componentUxGates = readText('development/docs-evidence/root/component-ux-gates.md', rootDir);
+  const catalogDocs = readText('development/docs-evidence/root/component-catalog-coverage.md', rootDir);
   const menu = readJson('docs/menu.json', rootDir);
   const fixtures = readJson(FIXTURE_PATH, rootDir);
   const packageManifest = readJson('package.json', rootDir);
@@ -97,9 +97,9 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
     WORKPACKAGE_PATH,
     FIXTURE_PATH,
     SUITE_PATH,
-    'docs/component-long-tail-migration.md',
-    'docs/component-ux-gates.md',
-    'docs/component-catalog-coverage.md',
+    'docs/en/component-long-tail-migration.md',
+    'development/docs-evidence/root/component-ux-gates.md',
+    'development/docs-evidence/root/component-catalog-coverage.md',
     'docs/de/component-long-tail-migration.md',
     'docs/en/component-long-tail-migration.md'
   ].forEach((relativePath) => assertPathExists(context, rootDir, relativePath, `WP-RMO-02 artifact ${relativePath}`));
@@ -130,9 +130,9 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
     REPORT_PATH,
     FIXTURE_PATH,
     SUITE_PATH,
-    'docs/component-long-tail-migration.md',
-    'docs/component-ux-gates.md',
-    'docs/component-catalog-coverage.md',
+    'docs/en/component-long-tail-migration.md',
+    'development/docs-evidence/root/component-ux-gates.md',
+    'development/docs-evidence/root/component-catalog-coverage.md',
     'WP-RMO-03',
     'WP-RMO-04'
   ], 'WP-RMO-02 document');
@@ -169,9 +169,10 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
     './xtend-vendor-types.md'
   ], 'Docs README');
   assertIncludesAll(context, longTailDocs, [
-    'xtend.docs.component-long-tail-migration.v1',
     'node scripts/run_xtend_tests.js component-long-tail-migration --json',
-    '`xtend-i18n`'
+    '`xstate`',
+    '`x-utils`',
+    '`xtend-i18n` stays an integration service'
   ], 'Component Long-Tail docs');
   assertIncludesAll(context, componentUxGates, [
     'component-long-tail-migration',

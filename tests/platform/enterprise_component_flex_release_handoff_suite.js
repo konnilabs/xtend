@@ -45,7 +45,7 @@ const {
 } = require('../../catalog/enterprise-component-flex-release-handoff');
 
 const BACKLOG_PATH = 'development/XTend-Enterprise-Component-Flexibilitaets-und-Theme-Hardening-Backlog.md';
-const DOCS_README = 'docs/README.md';
+const DOCS_README = 'docs/en/README.md';
 const DOCS_MENU = 'docs/menu.json';
 const ENTERPRISE_ADOPTION_DOC = 'docs/enterprise-adoption.md';
 const THIRD_PARTY_AUTHORING_DOC = 'docs/third-party-design-authoring.md';

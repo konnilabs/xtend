@@ -186,6 +186,8 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './xtensions/multi-framework-dashboard-fixture',
   './xtensions/registry-package-strategy',
   './xtensions/adoption-handoff',
+  './xtensions/react-host-adapter',
+  './xtensions/vue-host-adapter',
   './xtensions/vanilla-host-adapter',
   './xtensions/openui5-host-adapter',
   './xtensions/angular-host-adapter',
@@ -408,8 +410,8 @@ const REQUIRED_DOCS = Object.freeze([
   'development/XTend-CI-Gate-Matrix.md',
   'development/XTend-Package-Export-und-Release-Strategie.md',
   'docs/conditional-network-evidence.md',
-  'docs/rc1-readiness.md',
-  'docs/release-owner-acceptance.md',
+  'development/docs-evidence/legacy-routes/en/rc1-readiness.md',
+  'development/docs-evidence/legacy-routes/en/release-owner-acceptance.md',
   'docs/enterprise-adoption.md'
 ]);
 

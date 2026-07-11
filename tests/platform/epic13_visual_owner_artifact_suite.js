@@ -81,16 +81,16 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
   const contractDoc = readText(EPIC13_VISUAL_OWNER_ARTIFACT_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_VISUAL_OWNER_ARTIFACT_WORKPACKAGE_DOC, rootDir);
   const docs = readText(EPIC13_VISUAL_OWNER_ARTIFACT_DOCS, rootDir);
-  const visualAutomationDocs = readText('docs/visual-snapshot-automation.md', rootDir);
-  const prodCspDocs = readText('docs/prod-browser-csp-smokes.md', rootDir);
-  const rc1Docs = readText('docs/rc1-readiness.md', rootDir);
-  const ownerDocs = readText('docs/release-owner-acceptance.md', rootDir);
+  const visualAutomationDocs = readText('docs/en/visual-snapshot-automation.md', rootDir);
+  const prodCspDocs = readText('development/XTend-Epic13-PROD-Browser-CSP-Smoke-Contract.md', rootDir);
+  const rc1Docs = readText('development/docs-evidence/legacy-routes/en/rc1-readiness.md', rootDir);
+  const ownerDocs = readText('development/docs-evidence/legacy-routes/en/release-owner-acceptance.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const releaseChecklist = readText('development/XTend-Release-Checklist-und-SemVer-Policy.md', rootDir);
   const ciMatrix = readText('development/XTend-CI-Gate-Matrix.md', rootDir);
   const packageExportContract = readText('development/XTend-Epic13-Package-Export-Lock-Contract.md', rootDir);
-  const enterpriseAdoption = readText('docs/enterprise-adoption.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const enterpriseAdoption = readText('docs/en/enterprise-adoption.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const readme = readText('README.md', rootDir);
@@ -129,7 +129,7 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
   context.assert(plan.reportPath === VISUAL_OWNER_ARTIFACT_REPORT, 'Visual owner artifact exposes report path');
   context.assert(plan.screenshotPathTemplate === VISUAL_OWNER_ARTIFACT_PATH_TEMPLATE, 'Visual owner artifact exposes screenshot path template');
   context.assert(plan.snapshotCount === 5 && plan.familyCount === 5, 'Visual owner artifact preserves five family snapshots');
-  context.assert(plan.componentCount === 17, 'Visual owner artifact preserves component coverage');
+  context.assert(plan.componentCount === 18, 'Visual owner artifact preserves component coverage including x-toggle');
   context.assert(plan.matrixCombinationCount === 360, 'Visual owner artifact preserves matrix coverage');
   context.assert(plan.domDiffCount === 0, 'Visual owner artifact is backed by clean DOM diff');
   context.assert(plan.captureEntries.length === 5, 'Visual owner artifact defines five capture entries');
@@ -174,8 +174,8 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
   context.assert(packageManifest.private === false, 'Package is public-ready for visual owner artifact');
   context.assert((packageManifest.exports['./catalog/epic13-visual-owner-artifact'] === './catalog/epic13-visual-owner-artifact.js' || (packageManifest.exports['./catalog/epic13-visual-owner-artifact'] && packageManifest.exports['./catalog/epic13-visual-owner-artifact'].default === './catalog/epic13-visual-owner-artifact.js')), 'Package exports visual owner artifact module');
   context.assert(packageManifest.scripts['test:epic13-visual-owner-artifact'] === 'node scripts/run_xtend_tests.js epic13-visual-owner-artifact', 'Package exposes visual owner artifact script');
-  context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_VISUAL_OWNER_ARTIFACT_PACKAGE_SCRIPT), 'Package release gates include visual owner artifact script');
-  context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_VISUAL_OWNER_ARTIFACT_PACKAGE_SCRIPT), 'Release checklist metadata includes visual owner artifact script');
+  context.assert(!packageManifest.xtend.releaseGates.includes(EPIC13_VISUAL_OWNER_ARTIFACT_PACKAGE_SCRIPT), 'Optional visual owner artifact capture stays outside default release gates');
+  context.assert(!packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_VISUAL_OWNER_ARTIFACT_PACKAGE_SCRIPT), 'Optional visual owner artifact capture stays outside candidate gates');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes(EPIC13_VISUAL_OWNER_ARTIFACT_CONTRACT), 'Artifact checklist includes visual owner artifact contract');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes(VISUAL_OWNER_ARTIFACT_MANIFEST), 'Artifact checklist includes visual owner artifact manifest');
   context.assert(metadata && metadata.schema === EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA, 'Package metadata exposes visual owner artifact schema');
@@ -195,11 +195,11 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
     context.assert(entry && entry.nextWorkpackage === 'WP-E13-13', `${entry && entry.schema ? entry.schema : 'Epic 13 metadata'} hands off to WP-E13-09`);
     context.assert(entry && entry.nextDecision === 'rc1-gate-matrix-ci-handoff', `${entry && entry.schema ? entry.schema : 'Epic 13 metadata'} hands off to RMT-first production readiness`);
   });
-  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 124, 'Package export lock metadata includes RC1 gate matrix and kernel exports');
+  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 155, 'Package export lock metadata matches the current public export surface');
   context.assertIncludes(scaffoldConfig, 'epic13VisualOwnerArtifact', 'Scaffold config exposes visual owner artifact metadata');
   context.assertIncludes(scaffoldConfig, EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA, 'Scaffold config declares visual owner artifact schema');
   context.assertIncludes(scaffoldConfig, EPIC13_VISUAL_OWNER_ARTIFACT_LOCAL_GATE, 'Scaffold config references visual owner artifact local gate');
-  context.assertIncludes(scaffoldConfig, 'expectedExportCount: 124', 'Scaffold config updates package export count');
+  context.assertIncludes(scaffoldConfig, 'expectedExportCount: 155', 'Scaffold config mirrors the current package export count');
   context.assertIncludes(runner, "id: 'epic13-visual-owner-artifact'", 'Runner registers visual owner artifact suite');
 
   assertTextIncludesAll(context, steering, [
@@ -227,34 +227,31 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
     'WP-E13-09'
   ], 'WP-E13-08 workpackage');
   assertTextIncludesAll(context, docs, [
-    EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA,
-    EPIC13_VISUAL_OWNER_ARTIFACT_LOCAL_GATE,
-    VISUAL_OWNER_ARTIFACT_MANIFEST,
-    VISUAL_OWNER_ARTIFACT_PATH_TEMPLATE,
-    'optional-browser-driver-or-ci-artifact',
-    './visual-snapshot-automation.md',
-    './prod-browser-csp-smokes.md',
-    PUBLISH_BOUNDARY
+    'Visual Snapshot Automation',
+    'node scripts/run_xtend_tests.js visual-snapshot-automation visual-snapshots --json',
+    '.xtend-test-results/'
   ], 'Visual owner artifact docs');
   assertTextIncludesAll(context, visualAutomationDocs, [
-    EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA,
-    './visual-owner-artifacts.md',
-    VISUAL_OWNER_ARTIFACT_MANIFEST
+    'Theme, viewport, motion, and state',
+    'tests/browser/visual_snapshot_automation_suite.js',
+    'tests/browser/visual_snapshots_suite.js'
   ], 'Visual snapshot automation docs');
   assertTextIncludesAll(context, prodCspDocs, [
-    './visual-owner-artifacts.md',
+    'xtend.epic13.prod-browser-csp-smoke.v1',
     'WP-E13-09'
   ], 'PROD browser CSP docs handoff');
   assertTextIncludesAll(context, rc1Docs, [
-    EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA,
-    './visual-owner-artifacts.md',
-    'WP-E13-09'
+    'Package Export Lock',
+    'WP-E13-09',
+    './hydration-performance-closure.md'
   ], 'RC1 readiness docs');
+  context.assert(!rc1Docs.includes('./visual-owner-artifacts.md'), 'RC1 readiness docs no longer expose the internal visual owner page');
   assertTextIncludesAll(context, ownerDocs, [
-    EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA,
-    './visual-owner-artifacts.md',
-    'visual-owner-artifact'
+    'Release Owner Acceptance',
+    'xtend.epic13.prod-browser-csp-smoke.v1',
+    './package-export-lock.md'
   ], 'Owner acceptance docs');
+  context.assert(!ownerDocs.includes('./visual-owner-artifacts.md'), 'Owner acceptance docs no longer expose the internal visual owner page');
   assertTextIncludesAll(context, registry, [
     EPIC13_VISUAL_OWNER_ARTIFACT_MODULE,
     EPIC13_VISUAL_OWNER_ARTIFACT_CONTRACT,
@@ -275,17 +272,17 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
   ], 'CI gate matrix');
   assertTextIncludesAll(context, packageExportContract, [
     './catalog/epic13-visual-owner-artifact',
-    'expectedExportCount: `124`'
+    'expectedExportCount: `155`'
   ], 'Package export lock contract');
   assertTextIncludesAll(context, enterpriseAdoption, [
-    EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA,
-    './visual-owner-artifacts.md',
-    'optional-browser-driver-or-ci-artifact'
+    './package-export-lock.md',
+    './xtend-dev-surface.md',
+    './release-verification.md'
   ], 'Enterprise adoption docs');
-  context.assertIncludes(docsReadme, './visual-owner-artifacts.md', 'Docs README links visual owner artifacts');
-  context.assertIncludes(docsMenu, 'visual-owner-artifacts', 'Docs menu exposes visual owner artifacts');
+  context.assertIncludes(docsReadme, './visual-snapshot-automation.md', 'Docs README links visual snapshot automation');
+  context.assertIncludes(docsMenu, 'visual-snapshot-automation', 'Docs menu exposes visual snapshot automation');
   context.assertIncludes(testsReadme, EPIC13_VISUAL_OWNER_ARTIFACT_LOCAL_GATE, 'Tests README documents visual owner artifact gate');
-  context.assertIncludes(readme, 'xtend.epic13VisualOwnerArtifact', 'Root README documents visual owner artifact metadata');
+  context.assertIncludes(readme, 'docs/en/visual-snapshot-automation.md', 'Root README links visual snapshot automation');
   context.assertIncludes(changelog, EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA, 'Changelog records visual owner artifact contract');
 
   return context.result({

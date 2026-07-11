@@ -62,6 +62,7 @@ Attribute:
 Events:
 - `progress-changed`
 - `progress-complete`
+- `xtend-command`
 
 Methoden:
 - `setProgress(value: number)`

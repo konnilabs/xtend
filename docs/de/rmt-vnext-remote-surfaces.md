@@ -4,30 +4,30 @@ Remote UI-Bereiche sicher beschreiben, laden und degradieren.
 
 ## Worum es geht
 
-RMT Remote Surfaces beschreibt die öffentliche RMT-Oberfläche dieser Seite: welche Records betroffen sind, welche Adapter sie ausüben und welche Scheduler-Signale ein Host prüfen sollte.
+Remote Surfaces sind registrierte UI-Kandidaten mit Owner, Version, Origin, Integrity, Capabilities und Fallback. Die Registry beschreibt sie; erst der Host entscheidet nach Policy, ob ein Modul geladen wird.
 
 ## Öffentliche Bausteine
 
-- `.rmt` Quellen.
-- Core Records und Source Maps.
-- Host Adapter für DOM, Router und Komponenten.
+- `tools/rmt-language/vnext-remote-manifest.js` liest statische Manifest-Fakten.
+- `tools/rmt-language/vnext-remote-security.js` bewertet Trust und Capabilities.
+- `tools/rmt-language/vnext-remote-compiler.js` erzeugt hostneutrale Core-Records.
 
 ## Empfohlener Ablauf
 
-Beginne bei RMT Remote Surfaces mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.
+Registriere zuerst einen lokalen Fallback. Validiere dann Origin, Version und Integrity, erteile nur benötigte Capabilities und lade das Remote-Modul erst nach einem positiven Policy-Report.
 
 ## Nächste Schritte
 
 - [XTendRMT Überblick](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
-- [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-enterprise-mfe-handoff.md)
+- [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
 ## Remote Surface Vertrag
 
-Eine Remote Surface ist ein deklarierter Bereich, nicht die Ausfuehrung fremder Runtime im Kernel. Das Schema `xtend.rmt.vnext-remote-surface.v1` beschreibt die Surface selbst; `xtend.rmt.vnext-remote-surface-manifest.v1` beschreibt Version, Integrity, Fallback und Owner. Sicherheitsentscheidungen laufen über `xtend.rmt.vnext-remote-security-policy.v1`; Compiler-Normalisierung und Tooling verwenden `xtend.rmt.vnext-remote-compiler.v1`.
+Eine Remote Surface ist ein deklarierter Bereich, nicht die Ausführung fremder Runtime im Kernel. Das Schema `xtend.rmt.vnext-remote-surface.v1` beschreibt die Surface selbst; `xtend.rmt.vnext-remote-surface-manifest.v1` beschreibt Version, Integrity, Fallback und Owner. Sicherheitsentscheidungen laufen über `xtend.rmt.vnext-remote-security-policy.v1`; Compiler-Normalisierung und Tooling verwenden `xtend.rmt.vnext-remote-compiler.v1`.
 
 ```rmt
 remote surface checkout.cart from remote {
@@ -38,7 +38,7 @@ remote surface checkout.cart from remote {
 }
 ```
 
-Der wichtigste Boundary-Satz lautet `no-remote-runtime-execution-in-rmt-kernel`. Der Kernel sieht Records, Policies, Schedules und Diagnostics; das Laden, Cachen oder Ausfuehren produktiver Remote-Bundles bleibt Host-Adapter-Logik.
+Der wichtigste Boundary-Satz lautet `no-remote-runtime-execution-in-rmt-kernel`. Der Kernel sieht Records, Policies, Schedules und Diagnostics; das Laden, Cachen oder Ausführen produktiver Remote-Bundles bleibt Host-Adapter-Logik.
 
 ## Architekturschichten
 
@@ -53,69 +53,13 @@ Remote-Surface-Architektur verwendet explizite Schichten, damit Hosts den passen
 
 ## Enterprise Fixture
 
-Die pruefbare Enterprise-Strecke liegt in `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`. Dieses Fixture kombiniert lokale Surfaces, eine Remote Surface, Degradation, Remote Security und Cross-Surface Events. Der Core-Output `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json` ist das Golden-Artefakt für Reviews; der Browser-Smoke `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html` bleibt offline und darf weder `fetch(` noch dynamische Imports brauchen.
+Die prüfbare Enterprise-Strecke liegt in `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`. Dieses Fixture kombiniert lokale Surfaces, eine Remote Surface, Degradation, Remote Security und Cross-Surface Events. Der Core-Output `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json` ist das Golden-Artefakt für Reviews; der Browser-Smoke `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html` bleibt offline und darf weder `fetch(` noch dynamische Imports brauchen.
 
-Fuehre diese Gates aus, wenn Remote-Surface-Records oder Manifest-Regeln geaendert werden:
+Führe diese Gates aus, wenn Remote-Surface-Records oder Manifest-Regeln geändert werden:
 
 ```bash
 node scripts/run_xtend_tests.js rmt-vnext-remote-manifest rmt-vnext-remote-security rmt-vnext-enterprise-fixtures --json
 node scripts/run_xtend_tests.js rmt-vnext-enterprise-release --json
 ```
 
-Ein gruenes Ergebnis bestaetigt, dass Remote-Surface-Records, Manifest-Schema, Sicherheitsregeln und Enterprise-Smoke-Artefakte zusammenpassen.
-
-## Öffentlicher Vertrag
-
-RMT Remote Surfaces ist der öffentliche RMT Runtime-Vertrag für `docs/de/rmt-vnext-remote-surfaces.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: RMT Records, Compiler-Ausgaben, Runtime-Adapter, Events, Actions und Scheduler-Lanes.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/rmt-vnext-remote-surfaces.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Namen:
-- `docs/de/rmt-vnext-remote-surfaces.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-
-Befehle:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn Runtime-Verhalten anders wirkt, trenne Compiler-Record, Host-Adapter und Scheduler-Signal, bevor du die Doku änderst.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+Ein grünes Ergebnis bestätigt, dass Remote-Surface-Records, Manifest-Schema, Sicherheitsregeln und Enterprise-Smoke-Artefakte zusammenpassen.

@@ -342,7 +342,7 @@ const REQUIRED_EVIDENCE_ITEMS = Object.freeze([
     nextHandoff: 'NFM-WP-22',
     artifacts: [
       'development/XTend-Epic13-RC1-Gate-Matrix-und-CI-Handoff.md',
-      'docs/rc1-gate-matrix-ci-handoff.md',
+      'docs/en/release-verification.md',
       'catalog/epic13-rc1-gate-matrix-ci-handoff.js'
     ]
   },

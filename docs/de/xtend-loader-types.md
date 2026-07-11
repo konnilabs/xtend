@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-loader-report.json
 ## Pflegehinweise
 
 Ändere zuerst die Runtime oder die Deklaration, dann die Paket-Metadaten und zuletzt die Dokumentation. Der Check bleibt grün, wenn alle drei Ebenen dieselben Namen kennen. Wird eine Methode entfernt, muss der Host-Vertrag neu bewertet werden; wird eine Methode ergänzt, braucht sie einen Typ, eine Test-Erwartung und eine kurze Dokumentation. Auf diese Weise bleiben Loader, Style Registry und Skeleton Loader für Drittanbieter stabil, ohne dass intern auf TypeScript umgestellt werden muss.
+
+## Weiterführend
+
+Das Loader-Tutorial demonstriert die Runtime-Aufrufe, die diese Deklarationen abbilden. [Verwandter Artikel](./xtend-loader.md)

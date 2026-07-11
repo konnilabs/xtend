@@ -4,75 +4,25 @@ Budgets, Messpunkte und Hydration-Regeln für schnelle XTend Apps.
 
 ## Worum es geht
 
-Diese Seite beschreibt prüfbare Regeln für robuste Nutzererlebnisse. Die Empfehlungen passen zu lokalen Hosts, RMT App Shells und klassischen Web-Component-Seiten.
+XTend misst Loader-, Mount-, Hydration-, Render-, Route- und Interaktionsarbeit als versionierte Measurements. Ein Budget gehört zu einer benannten Phase und Zeitbasis; eine große absolute Zeit darf nicht mit einem relativen Navigation-Timestamp verwechselt werden.
 
 ## Öffentliche Bausteine
 
-- Lokale Testbefehle.
-- Browsernahe Fixtures.
-- Dokumentierte Akzeptanzkriterien.
+- `fabric/xtend-fabric.js` sammelt Fiber- und Komponentenmesswerte.
+- `tests/performance/performance_regression_suite.js` prüft deterministische Budgetfälle.
+- `xtend.performance.measurement.v1` verwendet die Statuswerte `pass`, `warn` und `fail`.
 
 ## Empfohlener Ablauf
 
-Lege Budgets fest, prüfe Tastatur- und Screenreader-Signale und halte Screenshots reproduzierbar.
+Führe Regression und Fabric-Messung gemeinsam aus:
+
+```bash
+node scripts/run_xtend_tests.js performance-regression fabric-performance-measurements --json
+```
+
+Lies im Report zuerst Phase, Istwert, Budget und Status. Ein `fail` wird an der betroffenen Arbeit behoben; das Budget wird nur geändert, wenn sich die dokumentierte Nutzeranforderung geändert hat. Prüfe Trends mit mehreren vergleichbaren Samples, nicht mit Zeitstempeln unterschiedlicher Herkunft.
 
 ## Nächste Schritte
 
 - [Hydration Policies](./hydration-policies.md)
 - [A11y Keyboard Smokes](./a11y-keyboard-smokes.md)
-
-## Öffentlicher Vertrag
-
-Performance ist der öffentliche Qualität und Security-Vertrag für `docs/de/performance.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: lokale Gates, Policy-Dateien, Report-Schemas, Accessibility- und Security-Signale.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/performance.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-
-Namen:
-- `docs/de/performance.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/verify_docs_public_quality.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn ein Gate scheitert, ändere zuerst Beispiel, Policy-Quelle oder Report-Erwartung und nicht die Schwelle.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

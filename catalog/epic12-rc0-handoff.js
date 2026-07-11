@@ -28,7 +28,7 @@ const EPIC12_RC0_HANDOFF_MODULE = 'catalog/epic12-rc0-handoff.js';
 const EPIC12_RC0_HANDOFF_SUITE = 'tests/platform/epic12_rc0_handoff_suite.js';
 const EPIC12_RC0_HANDOFF_CONTRACT = 'development/XTend-Epic12-Abschluss-und-RC0-Handoff.md';
 const EPIC12_RC0_HANDOFF_WORKPACKAGE_DOC = 'development/WP-E12-16-Epic-12-Abschlussreview-und-RC0-Handoff.md';
-const EPIC12_RC0_HANDOFF_DOCS = 'docs/epic12-rc0-handoff.md';
+const EPIC12_RC0_HANDOFF_DOCS = 'development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md';
 const EPIC12_RC0_HANDOFF_LOCAL_GATE = 'node scripts/run_xtend_tests.js epic12-rc0-handoff --json';
 const EPIC12_RC0_HANDOFF_PACKAGE_SCRIPT = 'npm run test:epic12-rc0-handoff';
 const KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
@@ -46,7 +46,7 @@ const REQUIRED_DOCS = Object.freeze([
   EPIC12_RC0_HANDOFF_DOCS,
   'docs/enterprise-adoption.md',
   'docs/package-export-lock.md',
-  'docs/rc1-readiness.md',
+  'development/docs-evidence/legacy-routes/en/rc1-readiness.md',
   'docs/conditional-network-evidence.md',
   'docs/release-report-pack-dry-run-evidence.md'
 ]);

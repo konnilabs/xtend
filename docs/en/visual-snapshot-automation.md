@@ -4,89 +4,26 @@ Create deterministic screenshots for themes, viewports and components.
 
 ## What it covers
 
-This page describes checkable rules for robust user experiences. The recommendations fit local hosts, RMT app shells and classic Web Component pages.
+Snapshot automation materializes defined fixture states, waits for stable custom elements, and writes comparable local artifacts. Theme, viewport, motion, and state are part of snapshot identity; network and real-time data remain excluded.
 
 ## Public building blocks
 
-- Local test commands.
-- Browser-facing fixtures.
-- Documented acceptance criteria.
-- Automation schema `xtend.epic12.visual-snapshot-automation-contract.v1`.
-- Runner schema `xtend.epic12.visual-snapshot-runner.v1`.
-- Local gate `node scripts/run_xtend_tests.js visual-snapshot-automation --json`.
-- Runner gate `node scripts/run_xtend_tests.js visual-snapshots --json`.
-- Runner handoff `WP-E12-11`.
+- `tests/browser/visual_snapshot_automation_suite.js` verifies the automation contract.
+- `tests/browser/visual_snapshots_suite.js` runs comparisons.
+- `.xtend-test-results/` contains reports and generated evidence, not UI source of truth.
 
 ## Recommended workflow
 
-Define budgets, check keyboard and screenreader signals and keep screenshots reproducible.
+Verify contract and runner together:
+
+```bash
+node scripts/run_xtend_tests.js visual-snapshot-automation visual-snapshots --json
+```
+
+A timeout usually indicates an undefined element, active animation, or missing fixture readiness. Stabilize that state explicitly. Do not mask dynamic regions that remain visible and meaningful to users.
 
 ## Next steps
 
 - [Performance](./performance.md)
 - [Hydration Policies](./hydration-policies.md)
 - [A11y Keyboard Smokes](./a11y-keyboard-smokes.md)
-
-## Public contract
-
-Visual Snapshot Automation is the public quality and security contract for `docs/en/visual-snapshot-automation.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: local gates, policy files, report schemas, accessibility and security signals.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/visual-snapshot-automation.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `tests/browser/visual-snapshot-automation-plan.js`
-- `tests/browser/visual-snapshots-runner.js`
-- `tests/browser/fixtures/visual-snapshots-fixture.html`
-
-Names:
-- `docs/en/visual-snapshot-automation.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `docs/dev-router.php`
-- `package.json`
-- `xtend.epic12.visual-snapshot-automation-contract.v1`
-- `xtend.epic12.visual-snapshot-runner.v1`
-- `WP-E12-11`
-- `node scripts/verify_docs_public_quality.js`
-
-Commands:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-- `node scripts/run_xtend_tests.js visual-snapshot-automation --json`
-- `node scripts/run_xtend_tests.js visual-snapshots --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a gate fails, fix the example, policy source or report expectation before changing the threshold.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

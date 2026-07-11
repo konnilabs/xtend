@@ -58,7 +58,7 @@ const NEGATIVE_FIXTURES = [
 ];
 const DOCS = ['docs/en/xscaler-protocol.md', 'docs/de/xscaler-protocol.md'];
 const REQUIRED_ANCHORS = ['## Schemas', '## Remote surface plan', '## SSR compatibility', '## XTensions deployment', '## ATC handoff'];
-const REQUIRED_DE_ANCHORS = ['## Schemas', '## Remote-Surface-Plan', '## SSR-Kompatibilitaet', '## XTensions-Deployment', '## ATC-Handoff'];
+const REQUIRED_DE_ANCHORS = ['## Schemas', '## Remote-Surface-Plan', '## SSR-Kompatibilität', '## XTensions-Deployment', '## ATC-Übergabe'];
 const OLD_TESTBENCH_SCHEMAS = [
   'xtend.xscaler.protocol-' + 'lazy-preflight.v1',
   'xtend.xscaler.atc-' + 'lazy-surface.v1'

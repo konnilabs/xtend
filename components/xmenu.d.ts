@@ -103,6 +103,7 @@ export type XMenuEventMap = XtendCustomEventMap<XMenuEventDetailMap>;
 export type XMenuPublicEventContract = XtendPublicEventContract<XMenuEventName, XMenuItemClickedEventDetail | XMenuNavigateEventDetail | XMenuKeyboardNavigationEventDetail | XMenuPerformanceMeasurement>;
 
 export interface XMenuElement extends HTMLElement {
+  orientation?: 'horizontal' | 'vertical';
   addEventListener<K extends keyof XMenuEventMap>(type: K, listener: (event: XMenuEventMap[K]) => void, options?: boolean | AddEventListenerOptions): void;
   getPerformanceBudget(): Record<string, number>;
   getInteractionBudget(): XMenuInteractionBudget;

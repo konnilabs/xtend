@@ -20,7 +20,7 @@ const EPIC13_RELEASE_OWNER_ACCEPTANCE_SUITE = 'tests/platform/epic13_release_own
 const EPIC13_RELEASE_OWNER_ACCEPTANCE_STEERING = 'development/RC0-RC1-transfer-EPIC13.md';
 const EPIC13_RELEASE_OWNER_ACCEPTANCE_CONTRACT = 'development/XTend-Epic13-Release-Owner-Acceptance-Contract.md';
 const EPIC13_RELEASE_OWNER_ACCEPTANCE_WORKPACKAGE_DOC = 'development/WP-E13-02-Release-Owner-Acceptance-Contract-definieren.md';
-const EPIC13_RELEASE_OWNER_ACCEPTANCE_DOCS = 'docs/release-owner-acceptance.md';
+const EPIC13_RELEASE_OWNER_ACCEPTANCE_DOCS = 'development/docs-evidence/legacy-routes/en/release-owner-acceptance.md';
 const EPIC13_RELEASE_OWNER_ACCEPTANCE_LOCAL_GATE = 'node scripts/run_xtend_tests.js epic13-release-owner-acceptance --json';
 const EPIC13_RELEASE_OWNER_ACCEPTANCE_PACKAGE_SCRIPT = 'npm run test:epic13-release-owner-acceptance';
 const PUBLISH_BOUNDARY = 'private-until-release-owner-acceptance';
@@ -68,7 +68,7 @@ const REQUIRED_DOCS = Object.freeze([
   'development/XTend-Epic12-Abschluss-und-RC0-Handoff.md',
   'development/XTend-Release-Checklist-und-SemVer-Policy.md',
   'development/XTend-CI-Gate-Matrix.md',
-  'docs/rc1-readiness.md',
+  'development/docs-evidence/legacy-routes/en/rc1-readiness.md',
   'docs/enterprise-adoption.md'
 ]);
 

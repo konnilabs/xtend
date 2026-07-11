@@ -24,7 +24,7 @@ const BROWSER_SMOKE_PATH = 'tests/browser/fixtures/rmt-first-demo-app-smoke.html
 const HOST_PATH = BROWSER_SMOKE_PATH;
 const CONTRACT_PATH = 'development/XTend-RMT-First-Demo-App.md';
 const WORKPACKAGE_PATH = 'development/WP-E10-13-RMT-first-Demo-App-ohne-manuelle-Shell-bauen.md';
-const DOCS_PATH = 'docs/rmt-first-demo-app.md';
+const DOCS_PATH = 'docs/en/rmt-first-demo-app.md';
 const LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-first-demo-app --json';
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -143,9 +143,9 @@ function runRmtFirstDemoAppSuite(options = {}) {
   const contract = readText(CONTRACT_PATH, rootDir);
   const workpackage = readText(WORKPACKAGE_PATH, rootDir);
   const docs = readText(DOCS_PATH, rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
-  const platformDocs = readText('docs/component-platform.md', rootDir);
+  const platformDocs = readText('development/docs-evidence/root/component-platform.md', rootDir);
   const epic = readText('development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);

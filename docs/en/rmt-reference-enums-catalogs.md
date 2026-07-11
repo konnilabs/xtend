@@ -69,3 +69,7 @@ Parser diagnostics check syntax and context. Catalog and semantic checks report 
 ## Related operators
 
 `lane`, `from`, `overlay`, `resource`, `transition`, `trust boundary`.
+
+## Related reading
+
+The RMT reference index explains how enum and catalog names are resolved by other records. [Related article](./rmt-reference.md)

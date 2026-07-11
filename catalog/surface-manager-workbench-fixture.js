@@ -17,7 +17,7 @@ const SURFACE_MANAGER_WORKBENCH_SUITE = 'tests/rmt/surface_manager_workbench_fix
 const SURFACE_MANAGER_WORKBENCH_PLAN = 'development/XTend-SurfaceManager-und-Multi-Window-Plan.md';
 const SURFACE_MANAGER_WORKBENCH_CONTRACT = 'development/XTend-SurfaceManager-RMT-Workbench-Fixture-Contract.md';
 const SURFACE_MANAGER_WORKBENCH_WORKPACKAGE_DOC = 'development/WP-SM-05-RMT-first-Workbench-Fixture-bauen.md';
-const SURFACE_MANAGER_WORKBENCH_DOCS = 'docs/surface-manager-workbench-fixture.md';
+const SURFACE_MANAGER_WORKBENCH_DOCS = 'docs/en/surface-manager-workbench-fixture.md';
 const SURFACE_MANAGER_WORKBENCH_FIXTURE = 'xtendrmt/surface-workbench.rmt';
 const SURFACE_MANAGER_WORKBENCH_RUNTIME = 'xtendrmt/surface-workbench.js';
 const SURFACE_MANAGER_WORKBENCH_BROWSER_SMOKE = 'tests/browser/fixtures/rmt-surface-workbench-smoke.html';
@@ -56,8 +56,8 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_WORKBENCH_CONTRACT,
   SURFACE_MANAGER_WORKBENCH_WORKPACKAGE_DOC,
   SURFACE_MANAGER_WORKBENCH_DOCS,
-  'docs/surface-manager-rmt-authoring.md',
-  'docs/surface-manager-window-runtime.md',
+  'development/docs-evidence/root/surface-manager-rmt-authoring.md',
+  'docs/en/surface-manager-window-runtime.md',
   'docs/surface-manager-side-panel-runtime.md'
 ]);
 

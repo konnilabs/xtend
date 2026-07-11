@@ -10,7 +10,7 @@
   - `development/WP-E03-12-Epic-Abschlussreview-und-KPI-Abnahme.md`
   - `development/WP-E04-12-Epic-Abschlussreview-und-KPI-Abnahme.md`
   - `development/WP-E05-18-Epic-Abschlussreview-und-KPI-Abnahme.md`
-  - `docs/README.md`
+  - `docs/en/README.md`
   - `docs/xtendrmt-overview.md`
   - `docs/xtendrmt-app-dsl.md`
   - `docs/xtendrmt-runtime-bridge.md`

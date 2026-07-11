@@ -28,10 +28,13 @@ Lade den XTend Loader einmal pro Seite. Der Loader liest das lokale Manifest und
   mode="hash"
   routesrc="demo"
   reuse-component="demo"
-  skeleton="demo">
+  skeleton
+  skeleton-profile="route">
   <x-route path="/" component="x-section">Home</x-route>
 </x-router>
 ```
+
+`skeleton-profile` verweist auf ein mit `XTendSkeletonLoader.registerProfile()` registriertes, strukturiertes Profil. Der Router übernimmt daraus stabile Zeilen, Tracks und Mindesthöhen; `skeleton-lines` und `skeleton-min-height` bleiben gezielte Overrides. Ein unbekanntes Profil degradiert auf das eingebaute `route`-Profil und führt kein HTML aus.
 
 ## Beispiele
 
@@ -56,6 +59,7 @@ Attribute:
 - `routesrc`
 - `reuse-component`
 - `skeleton`
+- `skeleton-profile`
 - `skeleton-lines`
 - `skeleton-min-height`
 - `title-template`
@@ -86,6 +90,7 @@ Events:
 - `xrouter-scroll-boundary-normalized`
 - `xrouter-navigation-overlays-closed`
 - `xrouter-title-updated`
+- `xrouter-route-import-refused`
 
 Methoden:
 - `focusRoute(detail?: XRouterRouteChangeDetail | null)`

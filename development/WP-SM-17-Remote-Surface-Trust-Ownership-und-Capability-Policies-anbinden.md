@@ -36,7 +36,7 @@
 - `catalog/surface-manager-remote-policy.js`
 - `tests/components/surface_manager_remote_policy_suite.js`
 - `tests/components/fixtures/xsurfacemanager-remote-policy.component.html`
-- `docs/surface-manager-remote-policy.md`
+- `development/docs-evidence/root/surface-manager-remote-policy.md`
 
 ## Definition of Done
 

@@ -4,36 +4,24 @@ TypeScript surfaces for attributes, events and component contracts.
 
 ## What it covers
 
-Public Component Types documents the core path through local modules, public TypeScript surfaces and verifiable host wiring.
-The page is the public handrail for teams that consume XTend from TypeScript, Lit, React wrappers or plain Web Component hosts.
-
-```txt
-docs contract: xtend.docs.public-component-types.v1
-type contract: xtend.enterprise.er-wp-34.public-component-types.v1
-shared helper: components/xtend-public-types.d.ts
-local gate: npm run test:component-public-types
-runner id: component-public-types
-```
+Every public component has a declaration next to its browser runtime. These types mirror attributes, properties, methods, and event-detail maps so wrappers can preserve the Web Component contract without shadow-DOM knowledge.
 
 ## Public building blocks
 
-- Component `.d.ts` files next to each runtime module.
-- Shared helper types from `components/xtend-public-types.d.ts`.
-- Typed event detail maps for emitted DOM events.
-- Attribute and property contracts that wrappers should pass through.
-
-Use the component-local declarations first, then fall back to the shared helper types when a host needs generic event or metadata handling. Utility modules such as `x-utils` expose an exported API instead of an element instance, while visual components expose HTMLElement-compatible types.
+- `components/xtend-public-types.d.ts` contains shared event and contract helpers.
+- `components/<name>.d.ts` describes each concrete element.
+- `components/manifest.json` connects the same tag to its runtime file.
 
 ## Recommended workflow
 
-Read the declaration beside the component source, import the event detail type you need and keep wrappers aligned with the documented attributes, events and methods. Run `npm run test:component-public-types` before publishing a host integration so missing declarations are caught before docs and examples drift apart.
+Read the component-local declaration first and import only the required element or event type. Verify wrappers with `npm run test:component-public-types`; a type must not promise a method absent from emitted runtime.
 
 ```ts
-import type { XButtonElement, XButtonClickDetail } from '../components/xbutton';
+import type { XToggleElement, XToggleEventMap } from '../components/xtoggle';
 
-const button = document.querySelector<XButtonElement>('x-button');
-button?.addEventListener('x-button-click', (event: CustomEvent<XButtonClickDetail>) => {
-  console.log(event.detail.variant);
+const toggle = document.querySelector<XToggleElement>('x-toggle');
+toggle?.addEventListener('toggle-changed', (event: XToggleEventMap['toggle-changed']) => {
+  console.log(event.detail.checked);
 });
 ```
 
@@ -49,57 +37,3 @@ button?.addEventListener('x-button-click', (event: CustomEvent<XButtonClickDetai
 - [API](./api.md)
 - [XTend Loader](./xtend-loader.md)
 - [Design Tokens](./design-tokens.md)
-
-## Public contract
-
-Public Component Types is the public reference contract for `docs/en/public-component-types.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: public files, package exports, manifest keys, attributes and host wiring.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/public-component-types.md`
-- `docs/menu.json`
-- `package.json`
-- `components/manifest.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-- `design-tokens/xtend-design-tokens.js`
-
-Names:
-- `components/xtend-public-types.d.ts`
-- `docs/en/public-component-types.md`
-- `docs/menu.json`
-- `components/manifest.json`
-- `design-tokens/xtend-design-tokens.js`
-- `docs/dev-router.php`
-- `.d.ts`
-- `package.json`
-- `xtend-loader.js`
-- `api.js`
-
-Commands:
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a host loads nothing, check the manifest path, export name, attribute spelling and local file reachability.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

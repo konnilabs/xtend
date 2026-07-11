@@ -7,6 +7,9 @@
   const RMT_STREAM_PRESSURE_SCHEMA = 'xtend.rmt.app-runtime-stream-pressure.v1';
   const RMT_YIELD_ACTION_SCHEMA = 'xtend.rmt.app-runtime-yield-action.v1';
   const RMT_VIEW_TEMPLATE_SCHEMA = 'xtend.rmt.view-template.v1';
+  const RMT_SEARCH_RUNTIME_SCHEMA = 'xtend.rmt.search-runtime.v1';
+  const RMT_SEARCH_RESPONSE_SCHEMA = 'xtend.rmt.search-response.v1';
+  const RMT_SEARCH_WORKER_SCHEMA = 'xtend.rmt.prewarm-search-worker.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_runtime';
   const STREAM_PATCH_TYPES = new Set(['start', 'delta', 'tool-call', 'tool-result', 'complete', 'error', 'cancel']);
   const TERMINAL_STREAM_PATCH_TYPES = new Set(['complete', 'error', 'cancel']);
@@ -25,6 +28,14 @@
     { id: 'appendChild', pattern: /\.\s*appendChild\s*\(/u },
     { id: 'replaceChildren', pattern: /\.\s*replaceChildren\s*\(/u }
   ]);
+  const DEFAULT_SEARCH_FIELD_WEIGHTS = Object.freeze({
+    title: 1,
+    aliases: 0.92,
+    keywords: 0.82,
+    headings: 0.7,
+    summary: 0.55,
+    body: 0.35
+  });
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -749,6 +760,382 @@
     });
   }
 
+  function normalizeSearchText(value) {
+    return String(value == null ? '' : value)
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/ß/g, 'ss')
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .replace(/\s+/g, ' ');
+  }
+
+  function searchTokens(value) {
+    const normalized = normalizeSearchText(value);
+    return normalized ? normalized.split(' ').filter(Boolean) : [];
+  }
+
+  function boundedDamerauLevenshtein(leftValue, rightValue, maxDistance = 2) {
+    const left = String(leftValue || '');
+    const right = String(rightValue || '');
+    if (left === right) return 0;
+    if (!left || !right) return Math.max(left.length, right.length);
+    if (Math.abs(left.length - right.length) > maxDistance) return maxDistance + 1;
+
+    const previousPrevious = new Array(right.length + 1).fill(0);
+    let previous = Array.from({ length: right.length + 1 }, (_, index) => index);
+    for (let row = 1; row <= left.length; row += 1) {
+      const current = [row];
+      let rowMinimum = row;
+      for (let column = 1; column <= right.length; column += 1) {
+        const substitutionCost = left[row - 1] === right[column - 1] ? 0 : 1;
+        let distance = Math.min(
+          current[column - 1] + 1,
+          previous[column] + 1,
+          previous[column - 1] + substitutionCost
+        );
+        if (
+          row > 1
+          && column > 1
+          && left[row - 1] === right[column - 2]
+          && left[row - 2] === right[column - 1]
+        ) {
+          distance = Math.min(distance, previousPrevious[column - 2] + 1);
+        }
+        current[column] = distance;
+        rowMinimum = Math.min(rowMinimum, distance);
+      }
+      if (rowMinimum > maxDistance) return maxDistance + 1;
+      for (let index = 0; index < previous.length; index += 1) previousPrevious[index] = previous[index];
+      previous = current;
+    }
+    return previous[right.length];
+  }
+
+  function fuzzyTokenScore(queryToken, candidateToken) {
+    if (!queryToken || !candidateToken) return 0;
+    if (queryToken === candidateToken) return 1;
+    if (candidateToken.startsWith(queryToken)) return 0.9;
+    if (candidateToken.includes(queryToken)) return 0.76;
+    const maxDistance = queryToken.length >= 8 ? 2 : (queryToken.length >= 4 ? 1 : 0);
+    if (maxDistance === 0) return 0;
+    const distance = boundedDamerauLevenshtein(queryToken, candidateToken, maxDistance);
+    if (distance > maxDistance) return 0;
+    return Math.max(0.54, 0.76 - distance * 0.1);
+  }
+
+  function scoreSearchField(query, queryTokens, value) {
+    const values = toArray(value).map(normalizeSearchText).filter(Boolean);
+    let best = 0;
+    values.forEach((normalized) => {
+      if (normalized === query) best = Math.max(best, 1);
+      else if (normalized.startsWith(query)) best = Math.max(best, 0.94);
+      else if (normalized.includes(query)) best = Math.max(best, 0.82);
+
+      const candidateTokens = searchTokens(normalized);
+      if (queryTokens.length > 0 && candidateTokens.length > 0) {
+        const tokenScores = queryTokens.map((queryToken) => candidateTokens.reduce((score, candidateToken) => (
+          Math.max(score, fuzzyTokenScore(queryToken, candidateToken))
+        ), 0));
+        const covered = tokenScores.filter((score) => score > 0).length;
+        if (covered > 0) {
+          const average = tokenScores.reduce((sum, score) => sum + score, 0) / queryTokens.length;
+          best = Math.max(best, average * (covered / queryTokens.length));
+        }
+      }
+    });
+    return Math.min(1, best);
+  }
+
+  function normalizeSearchEntry(entry = {}) {
+    const source = objectRecord(entry);
+    return {
+      id: clampString(source.id || source.slug, ''),
+      slug: clampString(source.slug || source.id, ''),
+      title: clampString(source.title || source.label, ''),
+      aliases: toArray(source.aliases || source.searchAliases).map((value) => clampString(value, '')).filter(Boolean),
+      keywords: toArray(source.keywords || source.tags).map((value) => clampString(value, '')).filter(Boolean),
+      headings: toArray(source.headings).map((value) => clampString(value, '')).filter(Boolean),
+      summary: clampString(source.summary || source.description, ''),
+      body: clampString(source.body || source.text, ''),
+      locale: clampString(source.locale, ''),
+      metadata: cloneValue(source.metadata, {})
+    };
+  }
+
+  function searchEntries(entries = [], queryValue = '', options = {}) {
+    const query = normalizeSearchText(queryValue);
+    const minimumLength = Math.max(1, Number(options.minQueryLength || 2));
+    const resultLimit = Math.max(1, Math.min(100, Number(options.resultLimit || 8)));
+    const weights = {
+      ...DEFAULT_SEARCH_FIELD_WEIGHTS,
+      ...objectRecord(options.fieldWeights)
+    };
+    if (query.length < minimumLength) return [];
+    const queryTokenList = searchTokens(query);
+
+    return toArray(entries).map(normalizeSearchEntry).map((entry) => {
+      const fieldScores = {
+        title: scoreSearchField(query, queryTokenList, entry.title),
+        aliases: scoreSearchField(query, queryTokenList, entry.aliases),
+        keywords: scoreSearchField(query, queryTokenList, entry.keywords),
+        headings: scoreSearchField(query, queryTokenList, entry.headings),
+        summary: scoreSearchField(query, queryTokenList, entry.summary),
+        body: scoreSearchField(query, queryTokenList, entry.body)
+      };
+      const weighted = Object.entries(fieldScores).map(([field, score]) => score * Number(weights[field] || 0));
+      const strongest = weighted.reduce((best, score) => Math.max(best, score), 0);
+      const supporting = weighted.filter((score) => score > 0).sort((left, right) => right - left).slice(1, 3);
+      const score = Math.min(1, strongest + supporting.reduce((sum, value) => sum + value * 0.08, 0));
+      return {
+        id: entry.id || entry.slug,
+        slug: entry.slug,
+        title: entry.title,
+        locale: entry.locale,
+        score: Number(score.toFixed(4)),
+        fieldScores,
+        metadata: cloneValue(entry.metadata, {})
+      };
+    }).filter((entry) => entry.score > 0)
+      .sort((left, right) => right.score - left.score || left.title.localeCompare(right.title) || left.slug.localeCompare(right.slug))
+      .slice(0, resultLimit);
+  }
+
+  function mergeSearchResults(primary = [], fallback = [], resultLimit = 8) {
+    const byId = new Map();
+    primary.concat(fallback).forEach((entry) => {
+      const key = entry && (entry.id || entry.slug);
+      if (!key) return;
+      const previous = byId.get(key);
+      if (!previous || Number(entry.score || 0) > Number(previous.score || 0)) byId.set(key, entry);
+    });
+    return Array.from(byId.values())
+      .sort((left, right) => Number(right.score || 0) - Number(left.score || 0) || String(left.title || '').localeCompare(String(right.title || '')))
+      .slice(0, resultLimit);
+  }
+
+  function createRmtSearchWorkerSource() {
+    const functions = [
+      normalizeSearchText,
+      searchTokens,
+      boundedDamerauLevenshtein,
+      fuzzyTokenScore,
+      scoreSearchField,
+      normalizeSearchEntry,
+      searchEntries
+    ].map((fn) => fn.toString()).join('\n');
+    return `'use strict';\nconst RMT_SEARCH_RESPONSE_SCHEMA=${JSON.stringify(RMT_SEARCH_RESPONSE_SCHEMA)};\nconst DEFAULT_SEARCH_FIELD_WEIGHTS=${JSON.stringify(DEFAULT_SEARCH_FIELD_WEIGHTS)};\nconst toArray=(value)=>Array.isArray(value)?value:(value==null?[]:[value]);\nconst objectRecord=(value)=>value&&typeof value==='object'&&!Array.isArray(value)?value:{};\nconst clampString=(value,fallback='')=>String(value==null?fallback:value).trim()||String(fallback||'').trim();\nconst cloneValue=(value,fallback=null)=>{try{return JSON.parse(JSON.stringify(value));}catch(_error){return fallback;}};\n${functions}\nconst searchIndexes=new Map();\nself.onmessage=(event)=>{const message=event&&event.data&&typeof event.data==='object'?event.data:{};if(message.action!=='search_index'){self.postMessage({id:message.id,ok:false,error:{message:'Unsupported prewarm search action.'}});return;}try{const envelope=message.envelope&&typeof message.envelope==='object'?message.envelope:{};const resourceId=clampString(envelope.resourceId,'');const providedEntries=Array.isArray(envelope.entries)?envelope.entries:null;if(resourceId&&providedEntries)searchIndexes.set(resourceId,providedEntries);const entries=providedEntries||(resourceId?searchIndexes.get(resourceId):null);if(!entries)throw new Error('Search index cache miss.');const results=searchEntries(entries,envelope.query,envelope.options);self.postMessage({id:message.id,ok:true,result:{schema:RMT_SEARCH_RESPONSE_SCHEMA,action:'search_index',generation:envelope.generation||'',resourceId,cacheHit:!providedEntries,results}});}catch(error){self.postMessage({id:message.id,ok:false,error:{message:error&&error.message?error.message:String(error)}});}};\n`;
+  }
+
+  function createRmtSearchPrewarmWorker(options = {}) {
+    const windowTarget = options.windowTarget || globalTarget || {};
+    const WorkerCtor = options.Worker || windowTarget.Worker;
+    const BlobCtor = options.Blob || windowTarget.Blob;
+    const urlApi = options.URL || windowTarget.URL;
+    let worker = null;
+    let workerUrl = '';
+    let sequence = 0;
+    const pending = new Map();
+    const cachedResourceIds = new Set();
+
+    function available() {
+      return typeof WorkerCtor === 'function' && typeof BlobCtor === 'function' && urlApi && typeof urlApi.createObjectURL === 'function';
+    }
+
+    function getWorker() {
+      if (worker) return worker;
+      if (!available()) return null;
+      workerUrl = urlApi.createObjectURL(new BlobCtor([createRmtSearchWorkerSource()], { type: 'application/javascript' }));
+      worker = new WorkerCtor(workerUrl, { name: options.workerName || 'XTendRMTPrewarmSearchWorker', type: 'classic' });
+      worker.onmessage = (event) => {
+        const message = event && event.data || {};
+        const resolver = pending.get(message.id);
+        if (!resolver) return;
+        pending.delete(message.id);
+        if (message.ok === false) resolver.reject(new Error(message.error && message.error.message || 'Prewarm search failed.'));
+        else resolver.resolve(message.result);
+      };
+      return worker;
+    }
+
+    function dispatchSearchEnvelope(envelope = {}) {
+      const activeWorker = getWorker();
+      if (!activeWorker) return Promise.reject(new Error('Prewarm search worker is unavailable.'));
+      const id = ++sequence;
+      return new Promise((resolve, reject) => {
+        pending.set(id, { resolve, reject });
+        try {
+          activeWorker.postMessage({ id, action: 'search_index', envelope });
+          if (envelope.resourceId && Array.isArray(envelope.entries)) cachedResourceIds.add(envelope.resourceId);
+        } catch (error) {
+          pending.delete(id);
+          reject(error);
+        }
+      });
+    }
+
+    function terminate(reason = 'disposed') {
+      const error = new Error(`Prewarm search worker terminated: ${reason}`);
+      pending.forEach((resolver) => resolver.reject(error));
+      pending.clear();
+      if (worker && typeof worker.terminate === 'function') worker.terminate();
+      if (workerUrl && urlApi && typeof urlApi.revokeObjectURL === 'function') urlApi.revokeObjectURL(workerUrl);
+      worker = null;
+      workerUrl = '';
+      cachedResourceIds.clear();
+    }
+
+    return Object.freeze({
+      schema: RMT_SEARCH_WORKER_SCHEMA,
+      available: available(),
+      dispatchSearchEnvelope,
+      terminate,
+      snapshot() {
+        return {
+          schema: RMT_SEARCH_WORKER_SCHEMA,
+          available: available(),
+          instantiated: Boolean(worker),
+          pendingJobs: pending.size,
+          submittedJobs: sequence,
+          resourceCache: true,
+          cachedResourceCount: cachedResourceIds.size,
+          ownership: { dom: false, events: false, state: false, trustedDomCommit: false },
+          allowedActions: ['search_index']
+        };
+      }
+    });
+  }
+
+  function createRmtSearchRuntime(options = {}) {
+    const sources = new Map(toArray(options.searchSources || options.sources).map((source) => [clampString(source && source.id, ''), objectRecord(source)]).filter(([id]) => id));
+    const resources = new Map(Object.entries(objectRecord(options.resources)).map(([id, entries]) => [id, cloneValue(entries, [])]));
+    const diagnostics = [];
+    const history = [];
+    const resourceResolver = typeof options.resourceResolver === 'function' ? options.resourceResolver : null;
+    const prewarmWorker = options.prewarmWorker && typeof options.prewarmWorker.dispatchSearchEnvelope === 'function'
+      ? options.prewarmWorker
+      : createRmtSearchPrewarmWorker(options);
+    const workerResourceIds = new Set();
+    let generation = 0;
+
+    async function resolveResource(resourceId, context = {}) {
+      if (resources.has(resourceId)) return resources.get(resourceId);
+      if (!resourceResolver) return [];
+      const resolved = await resourceResolver(resourceId, context);
+      resources.set(resourceId, cloneValue(resolved, []));
+      return resources.get(resourceId);
+    }
+
+    async function runSearch(entries, query, searchOptions, currentGeneration, resourceId) {
+      if (prewarmWorker && prewarmWorker.available !== false && typeof prewarmWorker.dispatchSearchEnvelope === 'function') {
+        try {
+          const workerSnapshot = typeof prewarmWorker.snapshot === 'function' ? prewarmWorker.snapshot() : null;
+          const supportsResourceCache = Boolean(workerSnapshot && workerSnapshot.resourceCache === true && resourceId);
+          const includeEntries = !supportsResourceCache || !workerResourceIds.has(resourceId);
+          const response = await prewarmWorker.dispatchSearchEnvelope({
+            generation: currentGeneration,
+            resourceId,
+            entries: includeEntries ? entries : undefined,
+            query,
+            options: searchOptions
+          });
+          if (supportsResourceCache) workerResourceIds.add(resourceId);
+          return toArray(response && response.results);
+        } catch (error) {
+          if (resourceId) workerResourceIds.delete(resourceId);
+          diagnostics.push({
+            schema: RMT_APP_RUNTIME_DIAGNOSTIC_SCHEMA,
+            code: 'rmt.search.worker.degraded',
+            severity: 'warning',
+            message: error && error.message ? error.message : String(error)
+          });
+        }
+      }
+      return searchEntries(entries, query, searchOptions);
+    }
+
+    async function query(sourceId, queryValue, queryOptions = {}) {
+      const source = sources.get(sourceId) || sources.values().next().value || {};
+      const currentGeneration = String(++generation);
+      const resultLimit = Number(queryOptions.resultLimit || source.resultLimit || 8);
+      const searchOptions = {
+        minQueryLength: queryOptions.minQueryLength || source.minQueryLength || 2,
+        resultLimit,
+        fieldWeights: queryOptions.fieldWeights || source.fieldWeights || DEFAULT_SEARCH_FIELD_WEIGHTS
+      };
+      const compactResource = clampString(queryOptions.resource || source.resource, '');
+      const fallbackResource = clampString(queryOptions.fallbackResource || source.fallbackResource, '');
+      const compactEntries = await resolveResource(compactResource, { source, fulltext: false });
+      const compactResults = await runSearch(compactEntries, queryValue, searchOptions, currentGeneration, compactResource);
+      const threshold = Number(queryOptions.fallbackThreshold || source.fallbackThreshold || 0.6);
+      const normalizedQuery = normalizeSearchText(queryValue);
+      const belowMinimumLength = normalizedQuery.length < Number(searchOptions.minQueryLength || 2);
+      const usefulCount = compactResults.filter((entry) => Number(entry.score || 0) >= threshold * 0.75).length;
+      const shouldUseFallback = !belowMinimumLength
+        && Boolean(fallbackResource)
+        && (usefulCount < 3 || Number(compactResults[0] && compactResults[0].score || 0) < threshold);
+      let fallbackResults = [];
+      if (shouldUseFallback) {
+        const fallbackEntries = await resolveResource(fallbackResource, { source, fulltext: true });
+        fallbackResults = await runSearch(fallbackEntries, queryValue, searchOptions, currentGeneration, fallbackResource);
+      }
+      const superseded = currentGeneration !== String(generation);
+      const results = superseded ? [] : mergeSearchResults(compactResults, fallbackResults, resultLimit);
+      const response = {
+        schema: RMT_SEARCH_RESPONSE_SCHEMA,
+        sourceId: clampString(source.id, sourceId || ''),
+        query: String(queryValue || ''),
+        normalizedQuery,
+        generation: currentGeneration,
+        superseded,
+        usedFulltext: shouldUseFallback,
+        compactResultCount: compactResults.length,
+        fallbackResultCount: fallbackResults.length,
+        results
+      };
+      history.push(cloneValue(response, response));
+      if (history.length > 50) history.shift();
+      return response;
+    }
+
+    return Object.freeze({
+      schema: RMT_SEARCH_RUNTIME_SCHEMA,
+      query,
+      searchEntries,
+      registerSource(source = {}) {
+        const id = clampString(source.id, '');
+        if (id) sources.set(id, objectRecord(source));
+        return id;
+      },
+      registerResource(id, entries = []) {
+        resources.set(clampString(id, ''), cloneValue(entries, []));
+        return toArray(entries).length;
+      },
+      listDiagnostics() {
+        return diagnostics.map((entry) => cloneValue(entry, entry));
+      },
+      listHistory() {
+        return history.map((entry) => cloneValue(entry, entry));
+      },
+      snapshot() {
+        return {
+          schema: RMT_SEARCH_RUNTIME_SCHEMA,
+          sourceCount: sources.size,
+          resourceCount: resources.size,
+          queryCount: history.length,
+          worker: prewarmWorker && typeof prewarmWorker.snapshot === 'function' ? prewarmWorker.snapshot() : null,
+          diagnosticCount: diagnostics.length
+        };
+      },
+      dispose() {
+        workerResourceIds.clear();
+        if (prewarmWorker && typeof prewarmWorker.terminate === 'function') prewarmWorker.terminate('search-runtime-dispose');
+      }
+    });
+  }
+
   function runWithFabric(fabric, fiberInput, task) {
     if (fabric && typeof fabric.runFiber === 'function') return fabric.runFiber(fiberInput, task);
     return task(fiberInput);
@@ -1357,6 +1744,9 @@
     RMT_STREAM_PRESSURE_SCHEMA,
     RMT_YIELD_ACTION_SCHEMA,
     RMT_VIEW_TEMPLATE_SCHEMA,
+    RMT_SEARCH_RUNTIME_SCHEMA,
+    RMT_SEARCH_RESPONSE_SCHEMA,
+    RMT_SEARCH_WORKER_SCHEMA,
     createRmtCommandEnvelope,
     isRmtCommandEnvelope,
     commandFromComponentEvent,
@@ -1367,6 +1757,12 @@
     applyRmtReducerRecipe,
     createRmtViewTemplateDescriptor,
     createNoManualUiWiringGate,
+    normalizeSearchText,
+    boundedDamerauLevenshtein,
+    searchEntries,
+    createRmtSearchWorkerSource,
+    createRmtSearchPrewarmWorker,
+    createRmtSearchRuntime,
     createRmtAppRuntime
   };
 
@@ -1388,6 +1784,9 @@ export const RMT_STREAM_PATCH_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_STREAM_
 export const RMT_STREAM_PRESSURE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_STREAM_PRESSURE_SCHEMA;
 export const RMT_YIELD_ACTION_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_YIELD_ACTION_SCHEMA;
 export const RMT_VIEW_TEMPLATE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_VIEW_TEMPLATE_SCHEMA;
+export const RMT_SEARCH_RUNTIME_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_RUNTIME_SCHEMA;
+export const RMT_SEARCH_RESPONSE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_RESPONSE_SCHEMA;
+export const RMT_SEARCH_WORKER_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_WORKER_SCHEMA;
 export const createRmtCommandEnvelope = __XTEND_RMT_APP_RUNTIME_API__.createRmtCommandEnvelope;
 export const isRmtCommandEnvelope = __XTEND_RMT_APP_RUNTIME_API__.isRmtCommandEnvelope;
 export const commandFromComponentEvent = __XTEND_RMT_APP_RUNTIME_API__.commandFromComponentEvent;
@@ -1398,6 +1797,12 @@ export const applyRmtReducer = __XTEND_RMT_APP_RUNTIME_API__.applyRmtReducer;
 export const applyRmtReducerRecipe = __XTEND_RMT_APP_RUNTIME_API__.applyRmtReducerRecipe;
 export const createRmtViewTemplateDescriptor = __XTEND_RMT_APP_RUNTIME_API__.createRmtViewTemplateDescriptor;
 export const createNoManualUiWiringGate = __XTEND_RMT_APP_RUNTIME_API__.createNoManualUiWiringGate;
+export const normalizeSearchText = __XTEND_RMT_APP_RUNTIME_API__.normalizeSearchText;
+export const boundedDamerauLevenshtein = __XTEND_RMT_APP_RUNTIME_API__.boundedDamerauLevenshtein;
+export const searchEntries = __XTEND_RMT_APP_RUNTIME_API__.searchEntries;
+export const createRmtSearchWorkerSource = __XTEND_RMT_APP_RUNTIME_API__.createRmtSearchWorkerSource;
+export const createRmtSearchPrewarmWorker = __XTEND_RMT_APP_RUNTIME_API__.createRmtSearchPrewarmWorker;
+export const createRmtSearchRuntime = __XTEND_RMT_APP_RUNTIME_API__.createRmtSearchRuntime;
 export const createRmtAppRuntime = __XTEND_RMT_APP_RUNTIME_API__.createRmtAppRuntime;
 
 export default __XTEND_RMT_APP_RUNTIME_API__;

@@ -15,12 +15,17 @@ Die folgenden Tokens bleiben im Dokument, damit die CI-Suite die Verbindung zwis
 ```txt
 schema: xtend.epic13.release-report-pack-dry-run-evidence.v1
 network ci schema: xtend.epic13.conditional-network-evidence-ci.v1
-related work item: DPF-WP-03
 release report: .xtend-test-results/xtend-release-report.json
 pack command: npm run pack:dry-run:report
 raw pack command: npm run pack:dry-run:raw
 package report: .xtend-test-results/xtend-pack-dry-run.json
 surface report: .xtend-test-results/xtend-package-export-surface-lock.json
+```
+
+Erzeuge den normalisierten Pack-Report ohne Veröffentlichung:
+
+```bash
+npm run pack:dry-run:report
 ```
 
 ## CI-Bezug
@@ -32,3 +37,7 @@ Der Dry Run bleibt ein reproduzierbarer lokaler Befehl. Er veröffentlicht nicht
 ## Pflegehinweise
 
 Ergänze neue Package Roots gemeinsam mit TypeExports, Package Export Lock und Docs. Wenn ein Workspace-Paket einen eigenen Dry Run braucht, muss der Workflow das JSON-Artefakt hochladen. Wenn ein Report nur lokal existiert und nicht in CI auftaucht, ist die Evidenz unvollständig.
+
+## Weiterführend
+
+Der Release-Ablauf ordnet die Pack-Dry-Run-Evidence in die abschließende Abnahmereihenfolge ein. [Verwandter Artikel](./release-verification.md)

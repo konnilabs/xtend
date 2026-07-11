@@ -72,6 +72,7 @@ Wenn diese API fehlt, degradiert die Dev Surface sichtbar und zeigt keine heuris
 | `XDS-WP-08` | Worker Path | Prewarm Worker normalisiert Snapshots, erzeugt Chart-Daten und deklariert Ownership-Grenzen | Worker bleibt DOM-los, host-service-frei und besitzt keinen Canonical State |
 | `XDS-WP-09` | Handoff | README, Build-Script, Runner-Suite, `dist/handoff.json` und Extension-Load-Anleitung | lokales Gate dokumentiert, Build reproduzierbar, Extension als unpacked `dist/` ladbar |
 | `XDS-WP-10` | Hydration/XScaler | optionaler `getHydrationSnapshot()`, Hydration-Tab, Timeline, Surface Rows und XScaler-Status | Hydration bleibt read-only, fehlende Methode degradiert nur den Tab, XScaler wird ohne DOM-Scraping sichtbar |
+| `XDS-WP-11` | Public Documentation | `docs/de/xtend-dev-surface.md`, `docs/en/xtend-dev-surface.md` und Developer-Center-Navigation | Drittentwickler koennen Extension, TestBench, DEV API, Tabs und Companion ohne internes Wissen verwenden |
 
 ## Security und Boundary Rules
 
@@ -446,6 +447,20 @@ Animation TestBench:
 - `window.__XTEND_DEV_API__.getHydrationSnapshot()` wird aus Boot-/Resume-Payload und Runtime-State abgeleitet.
 - Strategie: `server_prerender_resume`.
 - Genutzte Fakten: `data-resume-token`, SSR-Hydration-Record, Resume-Payload, `boot.xscaler`, Preflight-Count, Lazy-Loaded-Surfaces und ATC-Handoffs.
+
+## XDS-WP-11 Public Documentation
+
+Status: `completed-public-documentation`
+
+`XDS-WP-11` macht die Dev Surface als oeffentliche deutsch- und englischsprachige Entwicklerdokumentation auffindbar. Die redaktionelle und strukturelle Source of Truth ist `development/XTend-Docs-Quality-Implementierungsplan.md`.
+
+Oeffentliche Pfade:
+
+- `docs/de/xtend-dev-surface.md`
+- `docs/en/xtend-dev-surface.md`
+- Slug `xtend-dev-surface` in der Gruppe `quality`
+
+Die Artikel fuehren von Build und Unpacked-Installation ueber die RMT Animation TestBench auf Port `9196` zur expliziten `window.__XTEND_DEV_API__`. Sie erklaeren alle fuenf Panel-Tabs, die Statusbewertung, den lokalen Companion, die Allowlist-Grenze sowie `No XTend app detected` und `degraded` als getrennte Fehlerzustaende. Die Extension-Shell bleibt englisch; die deutsche Dokumentation uebersetzt Erklaerungen, aber keine sichtbaren UI-Labels.
 
 ## Test- und Gateplan
 

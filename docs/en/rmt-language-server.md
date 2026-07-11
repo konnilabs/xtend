@@ -4,9 +4,13 @@ Editor integration for completion, hover, definition and code actions.
 
 ## What it covers
 
-RMT Language Server describes the public RMT surface for this page: which records are involved, which adapters exercise them and which scheduler signals a host should verify.
+The RMT language server provides diagnostics, navigation, completion, and code actions from the same source model as the CLI and compiler. Editor feedback is therefore an early view of the same errors, not a separate grammar.
 
 ## Public building blocks
+
+- `tools/rmt-language-server/server.js` processes documents and requests.
+- `tools/rmt-language-server/protocol.js` defines public message shapes.
+- `tools/rmt-language/diagnostics.js` supplies normalized RMT diagnostics.
 
 - `node tools/rmt-language-server/server.js`.
 - Completion, hover, definition and Code Actions.
@@ -40,7 +44,7 @@ node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling
 
 ## Recommended workflow
 
-Start RMT Language Server with the smallest record example, validate it with the linter and only then attach adapters for host data, routing or components.
+Open an `.rmt` file through the editor integration, resolve parser errors before semantic diagnostics, and confirm critical changes with the CLI gate. Restarting the editor must not produce a different diagnostic set.
 
 ## Next steps
 
@@ -48,63 +52,3 @@ Start RMT Language Server with the smallest record example, validate it with the
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT Reference](./rmt-reference.md)
 - [RMT Linter](./rmt-linter.md)
-
-## Public contract
-
-RMT Language Server is the public RMT runtime contract for `docs/en/rmt-language-server.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: RMT records, compiler output, runtime adapters, events, actions and scheduler lanes.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/rmt-language-server.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Names:
-- `tools/rmt-editor/vscode/templates/launch.json`
-- `docs/en/rmt-language-server.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-
-Commands:
-- `node tools/rmt-language-server/server.js`
-- `node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node tools/rmt-language-server/server.js
-node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If runtime behavior differs, separate compiler record, host adapter and scheduler signal before changing the docs.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

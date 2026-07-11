@@ -1,81 +1,45 @@
 # SurfaceManager Migration Guide
 
-Migration von ad-hoc Panels und Modals zu verwalteten Surfaces.
+Dieser Leitfaden migriert ein ad-hoc Fenster, Panel oder Modal in eine verwaltete Surface. Die Umstellung bleibt schrittweise: Fachinhalt und sichtbares Design können bestehen bleiben, während Lifecycle, Fokus und Cleanup zum Controller wechseln.
 
-## Worum es geht
+## Bestehendes Verhalten erfassen
 
-SurfaceManager bündelt Fenster, Panels, Overlays und Remote-Bereiche in einer kontrollierten Runtime. Dadurch bleiben Fokus, Layering, Persistenz und Cleanup nachvollziehbar.
+Notiere vor der Änderung Öffnen, Schließen, Fokus, Escape, Bounds, Persistenz, Router-Bezug und alle Listener oder Timer. Bestimme, ob Close nur versteckt oder endgültig zerstört. Vergib anschließend eine stabile `surface-id`; sie ersetzt keine fachliche ID, sondern identifiziert den Lifecycle-Owner.
 
-## Öffentliche Bausteine
+## Host-Grenze einführen
 
-- Surface IDs und Controller Records.
-- Fenster, Panels, Portals und Overlays.
-- Fokus-, Layer- und Cleanup-Regeln.
+```html
+<x-surface-manager id="workspace" manager-id="product-shell">
+  <x-surface-window surface-id="legacy-report" label="Report">
+    <div id="legacy-report-host"></div>
+  </x-surface-window>
+</x-surface-manager>
+```
 
-## Empfohlener Ablauf
+Mounte den bestehenden Inhalt zunächst unverändert in den Host. Öffne und schließe ihn ab jetzt über `openSurface('legacy-report')` und `closeSurface('legacy-report')`. Entferne parallele globale Klick- oder Escape-Handler, sobald Stack Policy und Browser-Smoke dasselbe Verhalten belegen.
 
-Vergib stabile Surface IDs, öffne und schließe Surfaces über den Controller und prüfe Fokus, Escape-Verhalten sowie Persistenz in Browser-Fixtures.
+## Zustand verschieben
+
+UI-lokaler Zustand darf im Inhalt bleiben. Sichtbarkeit, aktive Surface, Geometrie und Persistence gehören dem Manager. Kanonische Route bleibt beim Router; ein Route Adapter übersetzt Navigation in Controller-Operationen. Registriere Resource-, Chunk- und Prewarm-Handles, damit `destroySurface()` sie freigeben kann.
+
+## Migration prüfen
+
+```bash
+node scripts/run_xtend_tests.js surface-controller surface-manager surface-manager-a11y --json
+```
+
+Teste zusätzlich wiederholtes Öffnen, Close versus Destroy, Fokuswiederherstellung, Reduced Motion, Storage-Fehler und fehlende optionale Inhalte. Entferne den alten Owner erst, wenn kein doppelter Listener, kein zweiter Z-Index-Stack und kein separater Persistence-Key übrig ist.
+
+## Typische Fehler
+
+- Zwei Owner schreiben gleichzeitig Sichtbarkeit oder Bounds.
+- Ein Modal wird optisch geschlossen, bleibt aber im Fokus-Stack aktiv.
+- Ein zufälliger ID-Suffix kaschiert eine Duplicate-Diagnose.
+- Remote-Fehler entfernen den lokalen Fallback.
+- Destroy lässt Netzwerk, Observer oder Timer weiterlaufen.
 
 ## Nächste Schritte
 
-- [SurfaceManager](./surface-manager-authoring-guide.md)
-- [SurfaceManager Controller](./surface-manager-controller.md)
-- [SurfaceManager Runtime](./surface-manager-runtime.md)
-
-## Öffentlicher Vertrag
-
-SurfaceManager Migration Guide ist der öffentliche Surface-Integration-Vertrag für `docs/de/surface-manager-migration-guide.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Surface Records, Controller, Portale, Fenster, Ownership und Routing-Grenzen.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/surface-manager-migration-guide.md`
-- `docs/menu.json`
-- `package.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-
-Namen:
-- `docs/de/surface-manager-migration-guide.md`
-- `docs/menu.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-- `docs/dev-router.php`
-- `package.json`
-- `x-surface-manager`
-
-Befehle:
-- `node scripts/run_xtend_tests.js components catalog-coverage --json`
-- `node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js components catalog-coverage --json
-node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn eine Surface fehlt, prüfe Ownership, Portal, Window-Record und Router-Bindung in dieser Reihenfolge.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+- [Authoring Guide](./surface-manager-authoring-guide.md)
+- [Controller](./surface-manager-controller.md)
+- [Quality Gates](./surface-manager-quality-gates.md)

@@ -4,17 +4,17 @@ Native RMT documents without legacy JSON as the preferred authoring path.
 
 ## What it covers
 
-Native RMT Authoring describes the public RMT surface for this page: which records are involved, which adapters exercise them and which scheduler signals a host should verify.
+Native authoring keeps an `.rmt` file as the editable source of truth. Legacy JSON and generated core files are comparison or runtime artifacts, not places for handwritten product logic.
 
 ## Public building blocks
 
-- `.rmt` sources.
-- Core records and source maps.
-- Host adapters for DOM, router and components.
+- `tools/rmt-language/vnext-parser.js` reads native syntax.
+- `tools/rmt-linter/cli.js` returns local diagnostics.
+- `tools/rmt-language/vnext-compiler.js` emits the core model.
 
 ## Recommended workflow
 
-Start Native RMT Authoring with the smallest record example, validate it with the linter and only then attach adapters for host data, routing or components.
+Create RMT source, lint it, and compile only after a clean parser run. Inspect the core diff and commit source with its expected artifact when semantics intentionally change.
 
 ## Editor helpers
 
@@ -31,58 +31,10 @@ regressions with `node scripts/run_xtend_tests.js rmt-language-regression --json
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
-## Public contract
-
-Native RMT Authoring is the public RMT runtime contract for `docs/en/xtendrmt-native-authoring.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: RMT records, compiler output, runtime adapters, events, actions and scheduler lanes.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/xtendrmt-native-authoring.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Names:
-- `docs/en/xtendrmt-native-authoring.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-language-regression --json`
-
-Commands:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
+## Local verification
 
 ```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+node scripts/run_xtend_tests.js rmt-tooling-docs rmt-language-regression --json
 ```
 
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If runtime behavior differs, separate compiler record, host adapter and scheduler signal before changing the docs.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+The first gate checks the documented authoring path; the second checks parser, diagnostic, and editor parity. On failure, change the `.rmt` source or responsible tool first, not generated core JSON.

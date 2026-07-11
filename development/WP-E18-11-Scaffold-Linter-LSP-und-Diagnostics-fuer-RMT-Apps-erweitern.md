@@ -1,7 +1,7 @@
 # WP-E18-11 - Scaffold, Linter, LSP und Diagnostics fuer RMT Apps erweitern
 
 - Status: `completed`
-- Epic: `docs/epic18-media-manager-vendor-upstream.md`
+- Epic: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
 - Contract: `xtend.epic18.rmt-app-platform-tooling.v1`
 - Gate: `node scripts/run_xtend_tests.js rmt-app-platform-tooling --json`
@@ -27,7 +27,7 @@ Surface-Graphen modellieren koennen.
 - `xtend-builder/generators/rmt-app-platform.js`
 - `tests/fixtures/rmt-app-platform-tooling.rmt`
 - `tests/rmt-language/rmt_app_platform_tooling_suite.js`
-- `docs/rmt-app-platform-tooling.md`
+- `docs/en/rmt-app-platform-tooling.md`
 - Package Export `./rmt-language/app-platform-tooling`
 - Runner-Gate `rmt-app-platform-tooling`
 

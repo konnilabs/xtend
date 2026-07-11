@@ -4,89 +4,26 @@ Deterministische Screenshots für Themes, Viewports und Komponenten erstellen.
 
 ## Worum es geht
 
-Diese Seite beschreibt prüfbare Regeln für robuste Nutzererlebnisse. Die Empfehlungen passen zu lokalen Hosts, RMT App Shells und klassischen Web-Component-Seiten.
+Snapshot Automation materialisiert definierte Fixture-Zustände, wartet auf stabile Custom Elements und schreibt vergleichbare lokale Artefakte. Theme, Viewport, Motion und State sind Teil der Snapshot-Identität; Netzwerk und Echtzeitdaten bleiben ausgeschlossen.
 
 ## Öffentliche Bausteine
 
-- Lokale Testbefehle.
-- Browsernahe Fixtures.
-- Dokumentierte Akzeptanzkriterien.
-- Automation-Schema `xtend.epic12.visual-snapshot-automation-contract.v1`.
-- Runner-Schema `xtend.epic12.visual-snapshot-runner.v1`.
-- Local Gate `node scripts/run_xtend_tests.js visual-snapshot-automation --json`.
-- Runner Gate `node scripts/run_xtend_tests.js visual-snapshots --json`.
-- Runner-Handoff `WP-E12-11`.
+- `tests/browser/visual_snapshot_automation_suite.js` prüft den Automation-Vertrag.
+- `tests/browser/visual_snapshots_suite.js` führt die eigentlichen Vergleiche aus.
+- `.xtend-test-results/` enthält Reports und erzeugte Evidence, nicht die Source of Truth der UI.
 
 ## Empfohlener Ablauf
 
-Lege Budgets fest, prüfe Tastatur- und Screenreader-Signale und halte Screenshots reproduzierbar.
+Prüfe Vertrag und Runner zusammen:
+
+```bash
+node scripts/run_xtend_tests.js visual-snapshot-automation visual-snapshots --json
+```
+
+Ein Timeout weist meist auf ein nicht definiertes Element, laufende Animation oder fehlende Fixture-Bereitschaft hin. Stabilisiere den Zustand explizit. Maskiere keine dynamischen Bereiche, die für Nutzer sichtbar und produktrelevant sind.
 
 ## Nächste Schritte
 
 - [Performance](./performance.md)
 - [Hydration Policies](./hydration-policies.md)
 - [A11y Keyboard Smokes](./a11y-keyboard-smokes.md)
-
-## Öffentlicher Vertrag
-
-Visual Snapshot Automation ist der öffentliche Qualität und Security-Vertrag für `docs/de/visual-snapshot-automation.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: lokale Gates, Policy-Dateien, Report-Schemas, Accessibility- und Security-Signale.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/visual-snapshot-automation.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `tests/browser/visual-snapshot-automation-plan.js`
-- `tests/browser/visual-snapshots-runner.js`
-- `tests/browser/fixtures/visual-snapshots-fixture.html`
-
-Namen:
-- `docs/de/visual-snapshot-automation.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `docs/dev-router.php`
-- `package.json`
-- `xtend.epic12.visual-snapshot-automation-contract.v1`
-- `xtend.epic12.visual-snapshot-runner.v1`
-- `WP-E12-11`
-- `node scripts/verify_docs_public_quality.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-- `node scripts/run_xtend_tests.js visual-snapshot-automation --json`
-- `node scripts/run_xtend_tests.js visual-snapshots --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn ein Gate scheitert, ändere zuerst Beispiel, Policy-Quelle oder Report-Erwartung und nicht die Schwelle.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

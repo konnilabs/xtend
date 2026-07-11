@@ -56,3 +56,7 @@ If the first command fails, the registry itself is incomplete. If the second com
 - Missing `byShellTarget` index: add the shell target to the surface record.
 - Duplicate surface ID: registry and Core document must use the same ID resolution.
 - Core output drift: update `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json` only together with the source and release handoff.
+
+## Related reading
+
+Remote surface guidance applies registry ownership, integrity, fallback, and capability fields at runtime. [Related article](./rmt-vnext-remote-surfaces.md)

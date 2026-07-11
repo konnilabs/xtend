@@ -16,9 +16,9 @@
 - `catalog/epic12-rc0-handoff.js` beschreibt den maschinenlesbaren RC0-Handoff
 - `tests/platform/epic12_rc0_handoff_suite.js` prueft Handoff, Package, Scaffold, Runner, Docs, Backlog, RC-Modell und Referenzregister
 - `development/XTend-Epic12-Abschluss-und-RC0-Handoff.md` dokumentiert Abschlussentscheidung, KPI-Abnahme, Restrisiken und Owner Review Inputs
-- `docs/epic12-rc0-handoff.md` macht den Handoff in der offiziellen Docs-App sichtbar
+- `development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md` macht den Handoff in der offiziellen Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` tragen `epic12Rc0Handoff`
-- `docs/enterprise-adoption.md`, `docs/README.md` und `docs/menu.json` verlinken den Handoff
+- `docs/enterprise-adoption.md`, `docs/en/README.md` und `docs/menu.json` verlinken den Handoff
 
 ## Abschlussreview
 

@@ -27,7 +27,7 @@ function runDocsIndex(rootDir, getParams = {}) {
 }
 
 function extractBodyShell(html) {
-  const match = String(html || '').match(/<body[^>]*>\s*([\s\S]*?)<script src="\/docs\/utils\/pageloader\.js/su);
+  const match = String(html || '').match(/<body[^>]*>\s*([\s\S]*?)<script\b(?=[^>]*\bsrc="\/docs\/utils\/pageloader\.js(?:\?[^" ]*)?")[^>]*>/su);
   return match ? match[1] : '';
 }
 

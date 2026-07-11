@@ -9,7 +9,7 @@
 - Fixture Pack: `xtend.native-first.rmt-renderer-dom-descriptor-proof-fixtures.v1`
 - Report Schema: `xtend.native-first.rmt-renderer-dom-descriptor-proofs-report.v1`
 - Source Recipe Matrix: `development/XTend-Native-First-RMT-Complete-UI-Recipe-Matrix.md`
-- Source DOM Renderer Docs: `docs/rmt-dom-descriptor-renderer.md`
+- Source DOM Renderer Docs: `docs/en/rmt-dom-descriptor-renderer.md`
 - Source Trusted DOM Policy: `development/XTend-Trusted-DOM-und-Sanitizing-Policy.md`
 - Fixture Pack: `tests/fixtures/native-first/rmt-renderer-dom-descriptor-proof-fixtures.json`
 - Local Gate: `node scripts/run_xtend_tests.js rmt-renderer-dom-descriptor-proofs --json`

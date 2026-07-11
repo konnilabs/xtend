@@ -16,6 +16,8 @@ The Window Runtime is the owned layer for free-positioned surfaces inside an XTe
 
 The `xtend.surface.window-runtime.v1` contract separates authoring from runtime. RMT describes that a surface exists, which resource it shows and which actions are allowed. The runtime decides how windows are registered, activated, minimized, restored or closed. This separation matters because RMT should not import DOM classes or XTend types. The host remains the owner of the concrete custom elements.
 
+Window chrome sends user intent through `surface-window-command`; it does not mutate the registry directly. `destroySurface()` is terminal for the current generation: the manager cancels owned loading and hydration work, removes materialized DOM, emits `surface-destroyed` and retains an `xtend.surface.tombstone.v1` record only for diagnostics. Use close when a surface should be reusable and destroy when its resources must be released.
+
 ## Authoring Rules
 
 A window record needs a stable id, a readable title, a surface type and state that fits into the manager snapshot. Actions such as `activate`, `close`, `focus` and `restore` are treated as events, not as direct DOM manipulation. When a host creates a window from RMT, it should validate the record first and then pass it to `x-surface-manager`. The manager can derive stack values, the active surface and the focus target from that record.
@@ -27,3 +29,7 @@ Windows should not be used as a general overlay solution. Modality, background i
 The `surface-manager` gate checks that window records are registered, activation is observable and snapshot data remains stable. Common failures are duplicate ids, a window without a title, a lost focus-restore target or an action that only affects the DOM and never reaches manager state. Those failures are release-relevant because multi-window apps become hard to reproduce without a reliable manager snapshot.
 
 A change to `x-surface-window` is accepted when it strengthens the manager record and does not introduce a second registry. Manual HTML renderers, unnamespaced global helpers and framework-specific shortcuts are blocked. The Window Runtime remains a Native-First surface that RMT can describe but the XTend host executes.
+
+## Related reading
+
+The controller contract defines the commands and snapshots consumed by window surfaces. [Related article](./surface-manager-controller.md)

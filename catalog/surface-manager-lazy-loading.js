@@ -16,7 +16,7 @@ const SURFACE_MANAGER_LAZY_LOADING_SUITE = 'tests/components/surface_manager_laz
 const SURFACE_MANAGER_LAZY_LOADING_FIXTURE = 'tests/components/fixtures/xsurfacemanager-lazy-hydration.component.html';
 const SURFACE_MANAGER_LAZY_LOADING_BACKLOG = 'development/BACKLOG-XTend-SurfaceManager-App-Shell-und-RMT-Surface-Runtime.md';
 const SURFACE_MANAGER_LAZY_LOADING_WORKPACKAGE_DOC = 'development/WP-SM-13-Shell-first-Lazy-Surface-Loading-mit-Skeleton-Hydration-bauen.md';
-const SURFACE_MANAGER_LAZY_LOADING_DOCS = 'docs/surface-manager-lazy-hydration.md';
+const SURFACE_MANAGER_LAZY_LOADING_DOCS = 'development/docs-evidence/root/surface-manager-lazy-hydration.md';
 const SURFACE_MANAGER_LAZY_LOADING_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-lazy-hydration --json';
 const SURFACE_MANAGER_LAZY_LOADING_PACKAGE_SCRIPT = 'npm run test:surface-lazy-hydration';
 

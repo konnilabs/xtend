@@ -4,75 +4,25 @@ Check keyboard paths and focus states for real usability.
 
 ## What it covers
 
-This page describes checkable rules for robust user experiences. The recommendations fit local hosts, RMT app shells and classic Web Component pages.
+Keyboard smokes verify a complete interaction path rather than the presence of `tabindex` alone. Focus order, visible focus, Enter or Space activation, arrow keys, Escape, focus traps, and restoration after overlays all matter.
 
 ## Public building blocks
 
-- Local test commands.
-- Browsernahe Fixtures.
-- Dokumentierte Akzeptanzkriterien.
+- `tests/browser/fixtures/a11y-focus-keyboard-smoke.html` is the browser-facing fixture.
+- Component profiles name role, focus strategy, and supported keys.
+- Surface and overlay checks track focus ownership across open and close.
 
 ## Recommended workflow
 
-Define budgets, check keyboard and screenreader signals and keep screenshots reproducible.
+Run the accessibility and hydration gate locally:
+
+```bash
+node scripts/run_xtend_tests.js a11y-hydration --json
+```
+
+Fix the earliest failed focus transition first. A mouse click does not prove keyboard access. For an overlay, Tab and Shift+Tab stay inside the active boundary, Escape performs the documented action, and close restores prior focus.
 
 ## Next steps
 
 - [Performance](./performance.md)
 - [Hydration Policies](./hydration-policies.md)
-
-## Public contract
-
-A11y Keyboard Smokes is the public quality and security contract for `docs/en/a11y-keyboard-smokes.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: local gates, policy files, report schemas, accessibility and security signals.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/a11y-keyboard-smokes.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-
-Names:
-- `docs/en/a11y-keyboard-smokes.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/verify_docs_public_quality.js`
-
-Commands:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a gate fails, fix the example, policy source or report expectation before changing the threshold.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

@@ -1,80 +1,65 @@
 # SurfaceManager Authoring Guide
 
-Arbeite mit Fenstern, Panels, Overlays und Workbench-Flächen in XTend Apps.
+Dieser Einstieg baut eine kleine Workbench mit einem verwalteten Fenster. Der SurfaceManager besitzt Registry, Fokusreihenfolge, Layout-Snapshot und Cleanup; der Inhalt der Surface bleibt Eigentum der jeweiligen Fachfunktion.
 
-## Worum es geht
+## Voraussetzungen
 
-SurfaceManager bündelt Fenster, Panels, Overlays und Remote-Bereiche in einer kontrollierten Runtime. Dadurch bleiben Fokus, Layering, Persistenz und Cleanup nachvollziehbar.
+Lade `x-surface-manager` und `x-surface-window` über `components/manifest.json`. Jede Surface benötigt eine stabile `surface-id`, damit Controller-Records, Persistenz und Diagnostics über mehrere Renderzyklen derselben Fläche zugeordnet werden können.
 
-## Öffentliche Bausteine
+## Eine Surface anlegen
 
-- Surface IDs und Controller Records.
-- Fenster, Panels, Portals und Overlays.
-- Fokus-, Layer- und Cleanup-Regeln.
+```html
+<x-surface-manager id="workspace" manager-id="docs-workspace">
+  <x-surface-window
+    surface-id="activity"
+    label="Activity"
+    initial-x="24"
+    initial-y="24"
+    initial-width="520"
+    initial-height="340">
+    <x-status state="ready" message="No pending work"></x-status>
+  </x-surface-window>
+</x-surface-manager>
+```
 
-## Empfohlener Ablauf
+Beim Upgrade registriert der Manager das Kind als `xtend.surface.record.v1`. `open`, `focus`, `move`, `resize`, `minimize`, `restore`, `close` und `destroy` werden über den Controller ausgeführt. Direkte Änderungen an privaten Fensterknoten umgehen Snapshot und Diagnostics und sind deshalb keine unterstützte Integration.
 
-Vergib stabile Surface IDs, öffne und schließe Surfaces über den Controller und prüfe Fokus, Escape-Verhalten sowie Persistenz in Browser-Fixtures.
+## Öffnen und beobachten
+
+```js
+await customElements.whenDefined('x-surface-manager');
+
+const manager = document.querySelector('#workspace');
+manager.addEventListener('surface-opened', ({ detail }) => {
+  console.log(detail.surfaceId);
+});
+
+manager.openSurface('activity');
+console.log(manager.snapshot());
+```
+
+`snapshot()` liefert Registry, aktive Surface, Bounds und Lifecycle-Daten. Wenn Persistenz aktiviert ist, verwende einen hosteigenen `restore-key`; behandle Storage-Fehler als Diagnose und nicht als Grund, die Surface doppelt zu registrieren.
+
+## Fokus und Cleanup
+
+Overlays und modale Surfaces müssen Fokus übernehmen und nach dem Schließen an den vorherigen Owner zurückgeben. Escape wird durch die Stack Policy ausgewertet. `closeSurface()` hält einen Record für spätere Wiederverwendung; `destroySurface()` entfernt ihn und gibt registrierte Prewarm-, Chunk- und Resource Handles frei.
+
+Prüfe den öffentlichen Pfad lokal:
+
+```bash
+node scripts/run_xtend_tests.js surface-controller surface-manager --json
+```
+
+## Fehlerbehebung
+
+- Bei `surface.duplicate` verwenden zwei Elemente dieselbe `surface-id`; vergib keinen zufälligen Ersatz, sondern kläre den Owner.
+- Wenn Fokus hinter einem Overlay bleibt, prüfe Stack Policy, Modal-Flag und den vorherigen Focus Owner.
+- Wenn Bounds nach Restore springen, vergleiche `bounds-mode`, `bounds-scope` und Min-/Max-Grenzen.
+- Wenn nach Destroy Netzwerk oder Timer weiterlaufen, registriere die Handles beim Manager und prüfe das `surface-destroyed`-Event.
 
 ## Nächste Schritte
 
 - [SurfaceManager Controller](./surface-manager-controller.md)
 - [SurfaceManager Runtime](./surface-manager-runtime.md)
-
-## Öffentlicher Vertrag
-
-SurfaceManager Authoring Guide ist der öffentliche Surface-Integration-Vertrag für `docs/de/surface-manager-authoring-guide.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Surface Records, Controller, Portale, Fenster, Ownership und Routing-Grenzen.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/surface-manager-authoring-guide.md`
-- `docs/menu.json`
-- `package.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-
-Namen:
-- `docs/de/surface-manager-authoring-guide.md`
-- `docs/menu.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-- `docs/dev-router.php`
-- `package.json`
-- `x-surface-manager`
-
-Befehle:
-- `node scripts/run_xtend_tests.js components catalog-coverage --json`
-- `node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js components catalog-coverage --json
-node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn eine Surface fehlt, prüfe Ownership, Portal, Window-Record und Router-Bindung in dieser Reihenfolge.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+- [Remote Surfaces](./surface-manager-remote-surfaces.md)
+- [Migration Guide](./surface-manager-migration-guide.md)

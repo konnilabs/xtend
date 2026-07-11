@@ -16,7 +16,7 @@ XTN-14 macht XTensions fuer Enterprise-Adoption startbar, ohne eine Migration be
 - `docs/de/xtensions-authoring-guide.md`
 - `docs/de/xtensions-migration-coexistence-guide.md`
 - `docs/de/xtensions-security-checklist.md`
-- `docs/de/xtensions-enterprise-adoption-handoff.md`
+- `development/docs-evidence/legacy-routes/de/xtensions-enterprise-adoption-handoff.md`
 
 ## Boundaries
 

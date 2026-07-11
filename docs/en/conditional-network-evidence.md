@@ -35,3 +35,7 @@ This separation is especially important when an organization uses private regist
 ## Maintenance Notes
 
 Document new network commands only when it is clear which job runs them and where the artifact lands. Do not add a registry or audit dependency to a standard suite when the same claim can be checked through local files. This keeps fast CI gates reliable while nightly retains the larger supply-chain view.
+
+## Related reading
+
+The CI guide turns a local conditional-network record into a reproducible gate result. [Related article](./conditional-network-evidence-ci.md)

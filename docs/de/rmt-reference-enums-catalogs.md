@@ -69,3 +69,7 @@ Parser-Diagnosen prüfen Syntax und Kontext. Katalog- und Semantikprüfungen mel
 ## Related operators
 
 `lane`, `from`, `overlay`, `resource`, `transition`, `trust boundary`.
+
+## Weiterführend
+
+Der RMT-Referenzindex erklärt, wie andere Records Enum- und Catalog-Namen auflösen. [Verwandter Artikel](./rmt-reference.md)

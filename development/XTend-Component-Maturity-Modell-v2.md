@@ -13,7 +13,7 @@
   - `development/XTend-Component-Fiber-Instrumentierung.md`
   - `development/XTend-Fiber-und-Lane-Contract.md`
   - `development/XTend-Fabric-RMT-Lane-Mapping.md`
-  - `docs/component-catalog-coverage.md`
+  - `development/docs-evidence/root/component-catalog-coverage.md`
   - `components/manifest.json`
 
 ## Zweck

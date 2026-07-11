@@ -10,7 +10,7 @@ Oeffentliche Anker:
 
 - `docs/de/rmt-vnext-authoring.md`
 - `docs/de/rmt-vnext-migration-notes.md`
-- `docs/de/rmt-vnext-release-handoff.md`
+- `docs/de/rmt-vnext-migration-notes.md`
 - `xtendrmt/rmt-vnext-reference-demo.rmt`
 - `xtendrmt/rmt-vnext-reference-demo.core.json`
 

@@ -165,7 +165,7 @@ function runDocumentationChecks(context, rootDir) {
   const registry = readText(REFERENCE_REGISTRY_PATH, rootDir);
   const contract = readText(EPIC14_RMT_TOOLING_CONTRACT, rootDir);
   const docs = readText(EPIC14_RMT_TOOLING_DOCS, rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const workpackage = readText(EPIC14_RMT_TOOLING_WORKPACKAGE_DOC, rootDir);
 

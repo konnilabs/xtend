@@ -21,7 +21,7 @@
 - `xtend.releaseGates` um `npm run test:rmt-tooling` erweitert
 - `xtend-builder/scaffold.config.js` um `epic14RmtTooling` erweitert
 - `scripts/run_xtend_tests.js` um die Suite `epic14-rmt-tooling` erweitert
-- `docs/rmt-tooling-release-gates.md`, `docs/README.md` und `docs/menu.json` aktualisiert
+- `docs/en/rmt-tooling-release-gates.md`, `docs/en/README.md` und `docs/menu.json` aktualisiert
 - `development/XTendRMT-DSL-Tooling-Architektur.md` und dieses Epic auf den neuen Gate-Stand aktualisiert
 
 ## Gate-Schnitt

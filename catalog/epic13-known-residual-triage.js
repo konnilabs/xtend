@@ -60,9 +60,9 @@ const REQUIRED_DOCS = Object.freeze([
   'development/XTend-Performance-Regression-Gate.md',
   'development/XTend-Hydration-Policy-Contract.md',
   'docs/rc0-gate-matrix.md',
-  'docs/component-long-tail-migration.md',
+  'docs/en/component-long-tail-migration.md',
   'docs/package-export-lock.md',
-  'docs/performance-regression.md',
+  'development/docs-evidence/root/performance-regression.md',
   'docs/hydration-policies.md',
   'docs/enterprise-adoption.md'
 ]);
@@ -129,7 +129,7 @@ const RESIDUAL_DECISION_MATRIX = Object.freeze([
       'tests/performance/performance_regression_suite.js',
       'tests/performance/baselines/local-performance-baseline.json',
       'fabric/hydration-policy.js',
-      'docs/performance-regression.md',
+      'development/docs-evidence/root/performance-regression.md',
       'docs/hydration-policies.md'
     ]
   }

@@ -19,6 +19,7 @@ const RMT_APP_ORCHESTRATION_WORKPACKAGE = 'RMT-APP-ORCH-01';
 const RMT_FORM_VALIDATION_SCHEMA = 'xtend.rmt.form-validation.v1';
 const RMT_SURFACE_TRANSITION_SCHEMA = 'xtend.rmt.surface-transitions.v1';
 const RMT_ANIMATION_ENGINE_SCHEMA = 'xtend.rmt.animation-engine.v1';
+const RMT_SEARCH_RUNTIME_SCHEMA = 'xtend.rmt.search-runtime.v1';
 const RMT_VNEXT_COMPILER_MODULE_PATH = 'tools/rmt-language/vnext-compiler.js';
 const RMT_VNEXT_COMPILER_SUITE_PATH = 'tests/rmt-language/rmt_vnext_compiler_suite.js';
 const RMT_VNEXT_COMPILER_PACKAGE_SCRIPT = 'npm run test:rmt-vnext-compiler';
@@ -42,7 +43,8 @@ const PRIMITIVE_DECLARATION_TYPES = new Set([
   'RmtTransitionDeclaration',
   'RmtPortalDeclaration',
   'RmtOverlayDeclaration',
-  'RmtResourceDeclaration'
+  'RmtResourceDeclaration',
+  'RmtSearchSourceDeclaration'
 ]);
 const PRIMITIVE_SURFACE_CLAUSE_TYPES = new Set([
   'RmtSurfaceSourceClause',
@@ -135,6 +137,7 @@ function createCoreDocument(manifest = {}) {
     portals: [],
     overlays: [],
     resources: [],
+    searchSources: [],
     securityPolicies: [],
     hydrationPolicies: [],
     sourceMap: [],
@@ -654,7 +657,7 @@ function hasPrimitiveDeclarations(ast) {
 }
 
 function hasPrimitiveCoreRecords(core) {
-  return ['states', 'selectors', 'actions', 'effects', 'validations', 'animations', 'transitions', 'portals', 'overlays', 'resources'].some((domain) => core[domain].length > 0)
+  return ['states', 'selectors', 'actions', 'effects', 'validations', 'animations', 'transitions', 'portals', 'overlays', 'resources', 'searchSources'].some((domain) => core[domain].length > 0)
     || core.surfaces.some((surface) => surface.primitive === true);
 }
 
@@ -737,6 +740,25 @@ function createAppPlatformRecords(core) {
       source: record.source,
       dispose: record.dispose,
       adapter: record.adapter
+    })),
+    searchSources: core.searchSources.map((record) => ({
+      id: record.name,
+      schema: record.schema,
+      queryState: record.queryState,
+      resource: record.resource,
+      fallbackResource: record.fallbackResource,
+      minQueryLength: record.minQueryLength,
+      debounceMs: record.debounceMs,
+      resultLimit: record.resultLimit,
+      fallbackThreshold: record.fallbackThreshold,
+      fieldWeights: record.fieldWeights,
+      resultTemplate: record.resultTemplate,
+      emptyTemplate: record.emptyTemplate,
+      loadingTemplate: record.loadingTemplate,
+      activeIndexState: record.activeIndexState,
+      selectionState: record.selectionState,
+      localePolicy: record.localePolicy,
+      a11y: record.a11y
     })),
     validations: core.validations.map((record) => ({
       id: record.name,
@@ -887,6 +909,14 @@ function createKernelRecords(core) {
       kernelVisible: resource.kernelVisible !== false,
       sourceRef: resource.sourceRef
     })),
+    searchSourceRecords: core.searchSources.map((source) => ({
+      id: source.id,
+      name: source.name,
+      queryState: source.queryState,
+      resource: source.resource,
+      fallbackResource: source.fallbackResource,
+      sourceRef: source.sourceRef
+    })),
     hydrationPolicyRecords: core.hydrationPolicies.map((policy) => ({
       id: policy.id,
       kind: policy.kind,
@@ -927,6 +957,7 @@ function sourceMapForOrchestration(core) {
     'RmtPortalDeclaration',
     'RmtOverlayDeclaration',
     'RmtResourceDeclaration',
+    'RmtSearchSourceDeclaration',
     'RmtEventBinding',
     'RmtHydrationPolicy',
     'RmtIsolationPolicy'
@@ -953,6 +984,7 @@ function sourceMapForKernel(core) {
     'RmtTransitionFromClause',
     'RmtTransitionToClause',
     'RmtResourceDeclaration',
+    'RmtSearchSourceDeclaration',
     'RmtEventBinding',
     'RmtHydrationPolicy',
     'RmtIsolationPolicy'
@@ -3430,6 +3462,10 @@ function createRmtAppOrchestrationArtifacts(core) {
       resources
     },
     resources,
+    search: {
+      schema: RMT_SEARCH_RUNTIME_SCHEMA,
+      sources: toArray(appPlatform.searchSources)
+    },
     events: eventBindings,
     surfaces: toArray(appPlatform.surfaces),
     portals: toArray(appPlatform.portals),
@@ -3695,6 +3731,7 @@ class VNextCompiler {
     if (node.type === 'RmtPortalDeclaration') return this.compilePrimitivePortal(node, templateContext);
     if (node.type === 'RmtOverlayDeclaration') return this.compilePrimitiveOverlay(node, templateContext);
     if (node.type === 'RmtResourceDeclaration') return this.compilePrimitiveResource(node, templateContext);
+    if (node.type === 'RmtSearchSourceDeclaration') return this.compilePrimitiveSearchSource(node, templateContext);
     return null;
   }
 
@@ -4036,6 +4073,49 @@ class VNextCompiler {
 
     if (templateContext) record.scope = this.primitiveScope(templateContext);
     return addRecord(this.core, 'resources', record, node, 'RmtResourceDeclaration');
+  }
+
+  compilePrimitiveSearchSource(node, templateContext) {
+    const queryNode = getPrimitiveBodyNode(node, 'RmtSearchQueryClause');
+    const resourceNode = getPrimitiveBodyNode(node, 'RmtSearchResourceClause');
+    const fallbackNode = getPrimitiveBodyNode(node, 'RmtSearchFallbackResourceClause');
+    const values = getPrimitiveBodyNodes(node, 'RmtSearchValueClause').reduce((result, clause) => {
+      result[clause.keyword] = primitiveValueToCore(clause.value);
+      return result;
+    }, {});
+    const fieldWeights = getPrimitiveBodyNodes(node, 'RmtSearchWeightClause').reduce((result, clause) => {
+      const weight = Number(primitiveValueToCore(clause.value));
+      if (clause.field && Number.isFinite(weight)) result[clause.field] = weight;
+      return result;
+    }, {});
+    const numberValue = (name, fallback) => {
+      const value = Number(values[name]);
+      return Number.isFinite(value) ? value : fallback;
+    };
+    const record = {
+      id: primitiveRecordId('searchSource', node.name),
+      name: node.name,
+      primitive: true,
+      schema: RMT_SEARCH_RUNTIME_SCHEMA,
+      queryState: queryNode && queryNode.ref || null,
+      resource: resourceNode && resourceNode.ref || null,
+      fallbackResource: fallbackNode && fallbackNode.ref || null,
+      minQueryLength: numberValue('minQueryLength', 2),
+      debounceMs: numberValue('debounceMs', 80),
+      resultLimit: numberValue('resultLimit', 8),
+      fallbackThreshold: numberValue('fallbackThreshold', 0.6),
+      fieldWeights,
+      resultTemplate: values.resultTemplate || null,
+      emptyTemplate: values.emptyTemplate || null,
+      loadingTemplate: values.loadingTemplate || null,
+      activeIndexState: values.activeIndexState || null,
+      selectionState: values.selectionState || null,
+      localePolicy: values.localePolicy || 'active-with-technical-aliases',
+      a11y: values.a11y && typeof values.a11y === 'object' ? values.a11y : {}
+    };
+
+    if (templateContext) record.scope = this.primitiveScope(templateContext);
+    return addRecord(this.core, 'searchSources', record, node, 'RmtSearchSourceDeclaration');
   }
 
   resolvePrimitiveOwnerRef(owner, templateContext) {

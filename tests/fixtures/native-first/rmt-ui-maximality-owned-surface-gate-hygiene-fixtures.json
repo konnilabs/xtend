@@ -63,10 +63,10 @@
     }
   ],
   "fixedArtifacts": [
-    "docs/README.md",
-    "docs/component-long-tail-migration.md",
-    "docs/component-ux-gates.md",
-    "docs/component-catalog-coverage.md",
+    "docs/en/README.md",
+    "docs/en/component-long-tail-migration.md",
+    "development/docs-evidence/root/component-ux-gates.md",
+    "development/docs-evidence/root/component-catalog-coverage.md",
     "docs/de/component-long-tail-migration.md",
     "docs/en/component-long-tail-migration.md",
     "docs/menu.json",

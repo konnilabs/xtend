@@ -1,91 +1,36 @@
 # Enterprise Adoption
 
-Ein externer Einführungspfad für Teams, die XTend in bestehenden Web-Produkten einsetzen.
+Dieser Leitfaden hilft einem externen Team, XTend kontrolliert in ein bestehendes Web-Produkt einzuführen. Das Ziel ist ein kleiner, rückbaubarer Pilot mit klaren Besitzgrenzen, nicht die sofortige Ablösung des vorhandenen Frontends.
 
-## Worum es geht
+## Vor der technischen Integration
 
-Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwissen produktiv einsetzen wollen.
+Bestimme zuerst, welches Problem XTend lösen soll: lokale Web Components, RMT Authoring, planbare Hydration, eine Surface Runtime oder Diagnose im Browser. Wähle nur die dafür nötigen Pakete und öffentlichen Subpaths aus `package.json#exports`.
 
-## Öffentliche Bausteine
+Dokumentiere für den Pilot:
 
-- Lokale Entwicklung ohne CDN.
-- Bilinguale Dokumentation.
-- Stabile öffentliche Einstiegspunkte.
-- Release-Nachweise über den Package Export Lock, die Akzeptanzseite, die Netzwerk-Evidenz und den Pack Dry Run.
+- fachlichen und technischen Owner;
+- Browser- und CSP-Anforderungen;
+- erlaubte lokale und optionale Remote-Quellen;
+- State-, Routing- und Fokusverantwortung;
+- Performance- und Accessibility-Budgets;
+- Fallback und Rückbaupfad.
 
-```txt
-package evidence: xtend.epic13.package-export-lock.v1
-owner evidence: xtend.epic13.release-owner-acceptance.v1
-network evidence: xtend.epic13.conditional-network-evidence.v1
-network docs: ./conditional-network-evidence.md
-network mode: network-restricted-local-default
-owner docs: ./release-owner-acceptance.md
-package docs: ./package-export-lock.md
-previous release bridge: Epic 12 RC0 Handoff
-automatic-publish-approval
-pack:dry-run:report
-```
+## Einen Pilot wählen
 
-## Empfohlener Ablauf
+Eine geeignete Surface hat wenige globale Abhängigkeiten, sichtbares Fehlerverhalten und eine realistische Nutzerinteraktion. Globale Navigation, Authentifizierung oder ein still geteilter Eventbus sind schlechte erste Kandidaten. Beginne mit dem [Quick Start](./quick-start-guide.md), wenn nur Komponenten gebraucht werden, oder mit [Learn RMT](./learn-rmt.md) für eine deklarative App-Grenze.
 
-Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.
+Nutze `components/manifest.json` und `xtend-loader.js` lokal. Eine Framework-Insel wird über einen HostController angebunden; sie darf ihre Peer-Runtime nicht im XTension-Bundle verstecken. Cross-Surface-Kommunikation läuft über typisierte Events oder Fabric, nicht über fremde Framework-Contexts.
 
-## Nächste Schritte
+## Abnahmekriterien
 
-- [Quick Start](./quick-start-guide.md)
-- [Über XTend](./about.md)
+Der Pilot ist erst erfolgreich, wenn er in Development und Production gleich bootet, ohne CDN funktioniert und bei fehlenden optionalen Fähigkeiten sichtbar degradiert. Mount und Unmount dürfen keine Listener, Timer oder Resource Handles zurücklassen. Tastatur, Screenreader-Signale, Reduced Motion und Performance-Budgets gehören zur Abnahme, nicht zu einer späteren Politurphase.
 
-## Öffentlicher Vertrag
+Die [XTend Dev Surface](./xtend-dev-surface.md) hilft beim lokalen Beobachten. Reproduzierbare Entscheidungen stammen jedoch aus den JSON-Reports der passenden Gates und dem Ablauf unter [Release Verification](./release-verification.md).
 
-Enterprise Adoption ist der öffentliche Orientierung-Vertrag für `docs/de/enterprise-adoption.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
+## Betrieb und Upgrades
 
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Einstiegsrouten, lokale Docs-Navigation und die kleinsten lauffähigen Befehle.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
+Pinne eine getestete Package-Version und importiere nur dokumentierte Exports. Prüfe vor einem Upgrade Changelog, Migration Notes, Type Exports und die betroffenen Component Contracts. Ändert sich ein Schema oder ein Default, aktualisiere Source, Fixtures und Runbook gemeinsam.
 
-## Schnittstellen und Anker
+Prüfe vor der Übergabe des Piloten seine veröffentlichten Einstiegspunkte mit dem [Package Export Lock](./package-export-lock.md) und erfasse den Paketnachweis mit `npm run pack:dry-run:report`.
 
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/enterprise-adoption.md`
-- `docs/menu.json`
-- `package.json`
-- `README.md`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `xtend-loader.js`
-
-Namen:
-- `docs/de/enterprise-adoption.md`
-- `docs/menu.json`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `docs/dev-router.php`
-- `package.json`
-- `README.md`
-- `xtend-loader.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn Einstiegspfade auseinanderlaufen, prüfe zuerst `docs/menu.json`, die lokalen Links und den Befehl im Prüfblock.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+Bewahre einen funktionierenden Fallback mindestens so lange auf, bis die neue Surface ihre Fehler- und Recovery-Pfade im Produkt gezeigt hat. Ein erfolgreicher Happy Path allein ist kein belastbarer Adoption-Nachweis.

@@ -25,14 +25,14 @@ Die Core-Dokumentation auf den tatsaechlichen Runtime-Contract ziehen und einen 
 - `docs/components/xrouter.md`
 - `docs/manifest.md`
 - `docs/xtend-loader.md`
-- `docs/README.md`
+- `docs/en/README.md`
 - `docs/menu.json`
 - `docs/XTend-ADR.md`
 
 ## Verifikation
 
 - alle verlinkten Doku-Dateien werden durch den Verify-Script gegen zentrale Marker geprueft
-- `docs/menu.json` und `docs/README.md` sind auf denselben oeffentlichen Stand gebracht
+- `docs/menu.json` und `docs/en/README.md` sind auf denselben oeffentlichen Stand gebracht
 
 ## Ergebnis
 

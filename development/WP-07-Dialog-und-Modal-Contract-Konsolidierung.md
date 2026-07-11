@@ -24,7 +24,7 @@ Dialoge und Modals auf einen gemeinsamen, state-getriebenen Overlay-Contract bri
 - `api.js`
 - `docs/components/xdialog.md`
 - `docs/components/xmodal.md`
-- `docs/README.md`
+- `docs/en/README.md`
 - `docs/menu.json`
 
 ## Verifikation

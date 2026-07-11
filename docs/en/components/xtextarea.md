@@ -84,6 +84,7 @@ Events:
 - `textarea-changed`
 - `textarea-invalid`
 - `textarea-submit`
+- `xtend-command`
 
 Methods:
 - `checkValidity()`
@@ -135,9 +136,9 @@ CSS custom properties:
 - `--xtend-textarea-line-number-border`
 - `--xtend-textarea-line-number-surface`
 
-## ECH-WP-08 Theme/A11y Hardening
+## Theme and accessibility
 
-ECH-WP-08 documents the form-control tokens for `x-textarea` as a public theme contract. `signatureDesign` stays a multiline input with a clear label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
+`signatureDesign` stays a multiline input with a clear label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
 
 Token table:
 - `--xtend-form-text`

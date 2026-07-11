@@ -42,3 +42,7 @@ Short-lived overlays such as tooltip and toast need special care. They must not 
 ## Release Notes
 
 Changes are accepted when they make the translation clearer, more observable or more stable. Changes are blocked when they silently rename events, introduce a second overlay registry, use `innerHTML` as a renderer or create global helpers outside the XTend namespace. When in doubt, the existing component wins: the bridge must not break its lifecycle semantics just to make the Surface Stack look more complete.
+
+## Related reading
+
+The stack policy explains focus, Escape handling, and restoration after an overlay closes. [Related article](./surface-manager-stack-policy.md)

@@ -14,7 +14,7 @@ WP-E15-18 schliesst Epic 15 ab. Entwickler koennen die vNext-Syntax anhand der D
 - Contract: `development/XTendRMT-vNext-Release-Handoff-Contract.md`
 - Authoring Guide: `docs/rmt-vnext-authoring.md`
 - Migration Notes: `docs/rmt-vnext-migration-notes.md`
-- Release Handoff Docs: `docs/rmt-vnext-release-handoff.md`
+- Release Handoff Docs: `development/docs-evidence/legacy-routes/en/rmt-vnext-release-handoff.md`
 - Modul: `tools/rmt-language/vnext-release.js`
 - Suite: `tests/rmt-language/rmt_vnext_release_handoff_suite.js`
 - Reference Demo: `xtendrmt/rmt-vnext-reference-demo.rmt`

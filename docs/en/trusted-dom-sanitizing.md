@@ -4,75 +4,19 @@ Safe DOM boundaries for Markdown, descriptors and host content.
 
 ## What it covers
 
-Security in XTend starts with explicit boundaries: local modules, untrusted content, clear sanitizing paths and reproducible package checks.
+Trusted DOM distinguishes plain text, validated attributes, structured node descriptors, and HTML fragments. `textContent` and node-based `replaceChildren` are preferred; `innerHTML` and `insertAdjacentHTML` require an explicit sanitizing boundary.
 
 ## Public building blocks
 
-- Same-origin Module.
-- Sanitizing for untrusted content.
-- Reproduzierbare Paketprüfungen.
+- `security/trusted-dom-policy.js` classifies markup and DOM sinks.
+- `security/trusted-dom-policy.d.ts` describes verdicts and sanitizer API.
+- `security/xss-pentest-policy.js` contains negative URL, event, and markup cases.
 
 ## Recommended workflow
 
-Allow local modules only, treat Markdown and HTML fragments as untrusted and document every host exception explicitly.
+Treat Markdown or Parsedown HTML as untrusted even when it lives in the repository, until `sanitizeTrustedDomHtml()` and the boundary return a positive verdict. Inline handlers, `javascript:` URLs, `eval`, and `new Function` remain forbidden. A sanitizer removes dangerous content; it does not turn arbitrary script sources into allowed modules. The [browser proof](./trusted-dom-boundary-browser-proof.md) exercises this boundary in a real DOM.
 
 ## Next steps
 
 - [Manifest Import Policy](./manifest-import-policy.md)
 - [Supply Chain checks](./supply-chain-gates.md)
-
-## Public contract
-
-Trusted DOM and Sanitizing is the public quality and security contract for `docs/en/trusted-dom-sanitizing.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: local gates, policy files, report schemas, accessibility and security signals.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/trusted-dom-sanitizing.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-
-Names:
-- `docs/en/trusted-dom-sanitizing.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/verify_docs_public_quality.js`
-
-Commands:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a gate fails, fix the example, policy source or report expectation before changing the threshold.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

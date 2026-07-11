@@ -65,7 +65,8 @@ class XMenu extends HTMLElement {
         accepts: ['a', 'button', 'x-link', '[role=menuitem]'],
         stateKey: 'xmenu-active',
         events: ['xtend-command', 'menu-item-clicked', 'menu-navigate', 'menu-keyboard-navigation'],
-        routeBinding: 'href-to-xrouter-navigation'
+        routeBinding: 'href-to-xrouter-navigation',
+        orientation: ['horizontal', 'vertical']
       },
       kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
     };
@@ -324,6 +325,17 @@ class XMenu extends HTMLElement {
           min-height: 3.2em;
           transition: box-shadow var(--xtend-menu-motion-duration) var(--xtend-menu-motion-easing), background var(--xtend-menu-motion-duration) var(--xtend-menu-motion-easing);
         }
+        :host([orientation="vertical"]) nav {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        :host([orientation="vertical"]) ::slotted(a),
+        :host([orientation="vertical"]) ::slotted(button),
+        :host([orientation="vertical"]) ::slotted(x-link),
+        :host([orientation="vertical"]) ::slotted([role="menuitem"]) {
+          width: 100%;
+          justify-content: flex-start;
+        }
         ::slotted(a),
         ::slotted(button),
         ::slotted(x-link),
@@ -565,7 +577,7 @@ class XMenu extends HTMLElement {
     if (this._unsubscribeState || typeof xstate.subscribe !== 'function') return;
     this._unsubscribeState = xstate.subscribe((key, value) => {
       if (this._synchronizingState) return;
-      if (key === 'xmenu-active' && value && typeof value.index === 'number') {
+      if (key === 'xmenu-active' && value && typeof value.index === 'number' && this._stateTargetsThisMenu(value)) {
         this._setActiveItem(value.index, 'xstate', { focus: Boolean(value.focus) });
       }
       if (key === 'router-current' || key === 'xtend.router.current' || key === 'router-navigated') {
@@ -767,7 +779,9 @@ class XMenu extends HTMLElement {
 
   _resolveActiveIndex(items = this._items) {
     const firstEnabledIndex = items.findIndex((item) => !this._isItemDisabled(item));
-    const state = xstate.get('xmenu-active');
+    const scopedState = this.id ? xstate.get(`xmenu-state-${this.id}`) : null;
+    const globalState = xstate.get('xmenu-active');
+    const state = scopedState || (this._stateTargetsThisMenu(globalState) ? globalState : null);
     if (state && typeof state.index === 'number' && state.index >= 0 && state.index < items.length && !this._isItemDisabled(items[state.index])) {
       return state.index;
     }
@@ -781,6 +795,10 @@ class XMenu extends HTMLElement {
       return href && this._normalizePath(href.replace(/^#/, '')) === currentPath;
     });
     return routeIndex >= 0 ? routeIndex : (firstEnabledIndex >= 0 ? firstEnabledIndex : 0);
+  }
+
+  _stateTargetsThisMenu(state) {
+    return Boolean(state && (!state.id || state.id === this.id));
   }
 
   _resolveFirstEnabledIndex() {

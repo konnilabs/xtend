@@ -1,74 +1,138 @@
-# x-toggle - XTend Komponente
+# x-toggle
 
-`x-toggle` ist ein TypeScript-first Form-Control fuer binaere Einstellungen. Die Laufzeit wird aus `src/components/x-toggle/x-toggle.ts` ueber `tsc` nach `components/xtoggle.js` und `components/xtoggle.d.ts` gebaut und in `components/manifest.json` als `"x-toggle": "./xtoggle.js"` registriert.
+`x-toggle` ist ein formulargebundener Schalter für binäre Einstellungen. Die Komponente kombiniert eine native Checkbox im Shadow DOM mit `ElementInternals`, einem öffentlichen `role="switch"` und XTends State-, RMT- und Fabric-Verträgen. Die Source of Truth ist `src/components/x-toggle/x-toggle.ts`; der Build erzeugt `components/xtoggle.js` und `components/xtoggle.d.ts`.
 
-## Laden und Registrieren
+## Was es löst
+
+Ein Schalter muss sichtbaren Zustand, Formularwert, Tastaturbedienung und Validierung gleichzeitig konsistent halten. `x-toggle` spiegelt den Zustand über die Property `checked`, das gleichnamige Attribut, `aria-checked`, den Formwert und die Events `toggle-changed` beziehungsweise `toggle-invalid`. Dadurch muss ein Host keine private Shadow-DOM-Struktur kennen.
+
+Die Zustandszeichen `I` und `O` im Track ergänzen den Farbwechsel. Eigene kurze Zeichen können über `on-label` und `off-label` eingesetzt werden; der zugängliche Name kommt weiterhin aus `label`, dem `label`-Slot oder dem Standard-Slot.
+
+## Einsatz
+
+Nutze `x-toggle` für unmittelbar wirksame Ja/Nein-Einstellungen wie Benachrichtigungen oder automatische Aktualisierung. Für die Auswahl mehrerer unabhängiger Werte ist [x-checkbox](./xcheckbox.md) geeigneter. Wenn eine Änderung erst zusammen mit weiteren Feldern gespeichert werden soll, sollte die Oberfläche klar machen, dass der Schalter nur einen Formularwert ändert.
+
+`disabled` und `busy` sperren Interaktionen. `required` bedeutet bei diesem Control, dass der eingeschaltete Zustand erforderlich ist. Die Dichte kann mit `comfortable`, `compact` oder `dense` gewählt werden, ohne das 44-Pixel-Interaktionsziel des Performance-Profils stillschweigend zu umgehen.
+
+## Nicht einsetzen, wenn
+
+Verwende `x-toggle` nicht als Aktionsbutton, als Auswahl zwischen mehr als zwei Optionen oder als rein dekorative Statusanzeige. Nutze keine Shadow-DOM-Selektoren, um Zustand zu lesen oder den Thumb zu verschieben. Properties, Attribute, Events, Slots, Parts und Custom Properties sind die öffentliche Integrationsfläche.
+
+## Laden und registrieren
+
+Der lokale Loader löst `x-toggle` über `components/manifest.json` auf. Ein eigener Manifest-Pfad wird mit `data-manifest` angegeben.
 
 ```html
-<script type="module" src="/xtend-loader.js"></script>
-<x-toggle name="notifications" value="enabled" checked label="Benachrichtigungen"></x-toggle>
+<script type="module"
+  src="/xtend-loader.js"
+  data-manifest="/components/manifest.json"></script>
+
+<form id="preferences">
+  <x-toggle
+    id="notifications"
+    name="notifications"
+    value="enabled"
+    required
+    label="Benachrichtigungen">
+    <span slot="hint">Informiert dich über neue Aufgaben.</span>
+    <span slot="error">Aktiviere Benachrichtigungen, um fortzufahren.</span>
+  </x-toggle>
+</form>
 ```
 
-Der Schalter nutzt eine native Checkbox im Shadow DOM, `static formAssociated = true`, ElementInternals/FormData und `role="switch"`. Der sichtbare Status wird ueber `aria-checked` gespiegelt. `on-label` und `off-label` sind nur sichtbare Kurzzeichen; der Default nutzt `I` fuer ein und `O` fuer aus. Der Accessible Name kommt aus `label`, dem `label`-Slot oder dem Default-Slot.
+Warte bei einem dynamisch nachgeladenen Host vor dem Methodenaufruf auf `customElements.whenDefined('x-toggle')`. Der Loader und das Manifest bleiben lokal; die Komponente benötigt keine CDN-Runtime.
 
-## API
+## Beispiele
 
-Attribute: `name`, `value`, `checked`, `disabled`, `required`, `label`, `busy`, `invalid`, `density`.
+Das Änderungsereignis liefert den booleschen Zustand und den Formwert. `reportValidity()` zeigt den Fehlerbereich an, falls ein erforderlicher Schalter ausgeschaltet bleibt.
 
-Slots: `default`, `label`, `hint`, `error`, `on-label`, `off-label`.
+```js
+await customElements.whenDefined('x-toggle');
 
-Default-Statuszeichen: `I` im eingeschalteten Zustand, `O` im ausgeschalteten Zustand. Laengere sichtbare Texte koennen ueber `on-label` und `off-label` gesetzt werden, sollten aber nicht den Accessible Name ersetzen.
+const toggle = document.querySelector('#notifications');
+toggle.addEventListener('toggle-changed', (event) => {
+  console.log(event.detail.checked, event.detail.value);
+});
+
+document.querySelector('#preferences').addEventListener('submit', (event) => {
+  if (!toggle.reportValidity()) event.preventDefault();
+});
+```
+
+Ein Host darf `toggle.checked = true` setzen oder `toggle.toggle()` aufrufen. Der Wert wird anschließend über `ElementInternals.setFormValue()` mit dem Formular synchronisiert.
+
+## API-Referenz
+
+Attribute:
+- `name`
+- `value`
+- `checked`
+- `disabled`
+- `required`
+- `label`
+- `busy`
+- `invalid`
+- `density`
 
 Events:
-
 - `toggle-changed` mit `{ checked, value, source: "x-toggle" }`
 - `toggle-invalid` mit `{ checked, value, message, source: "x-toggle" }`
 
-Properties und Methoden: `checked`, `value`, `stateKey`, `toggle()`, `reset()`, `validate()`, `checkValidity()`, `reportValidity()`, `focus()`.
+Properties und Methoden:
+- `checked: boolean`
+- `value: string`
+- `stateKey: string` (read-only)
+- `checkValidity(): boolean`
+- `reportValidity(): boolean`
+- `validate(): boolean`
+- `toggle(): void`
+- `reset(): void`
+- `focus(): void`
 
-## A11y und Form
+Slots:
+- `default` und `label` für den zugänglichen Namen
+- `hint` für ergänzende Hilfe
+- `error` für die Validierungsmeldung
+- `on-label` und `off-label` für kurze sichtbare Zustandszeichen
 
-`x-toggle` reagiert auf Klick, Touch und Space. `disabled` und `busy` blockieren Interaktion. `required` setzt bei ausgeschaltetem Zustand einen nativen Validity-Fehler, `invalid`, `aria-invalid` und ein assertives Error-Region-Slot.
+CSS Parts:
+- `root`, `control`, `track`, `state`, `thumb`
+- `label`, `helper`, `error`, `status`
 
-Wichtige ARIA-Marker: `role="switch"`, `aria-checked`, `aria-invalid`, `aria-required`, `aria-disabled`, `aria-busy`, `aria-describedby`.
+Wichtige CSS Custom Properties:
+- `--xtend-toggle-width`, `--xtend-toggle-height`, `--xtend-toggle-thumb-size`
+- `--xtend-toggle-track-off`, `--xtend-toggle-track-on`, `--xtend-toggle-track-border`
+- `--xtend-toggle-thumb`, `--xtend-toggle-focus`, `--xtend-toggle-radius`
+- `--xtend-form-label-text`, `--xtend-form-helper-text`, `--xtend-form-error-text`
+- `--xtend-form-error-surface`, `--xtend-form-error-border`, `--xtend-form-disabled-opacity`
 
-## XState, RMT und Fabric
+## Theme und Accessibility
 
-Die Komponente veroeffentlicht `xtoggle-checked-<id>` und `xtoggle-state-<id>` in `xstate`. Das RMT-Profil nutzt `xtend.rmt.component-contract.v1`, Shell-Authoring, DOM-Event-to-RMT-Command und den Kernel-Boundary `no-rmt-kernel-import-of-xtend-types`.
+Tab setzt den Fokus auf das native Control; Leertaste wechselt den Zustand. `aria-checked`, `aria-required`, `aria-disabled`, `aria-busy`, `aria-invalid` und `aria-describedby` werden aus dem öffentlichen Zustand abgeleitet. Der Error-Bereich verwendet `role="alert"` und `aria-live="assertive"`, Statusänderungen eine höfliche Live Region.
 
-Das Form-Control-Profil ist `xtend.component.form-control-ux-profile.v1`. Das Performance-Profil ist `xtend.performance.component-profile.v1`, Budget-Klasse `interactive-small`, Lane `user-blocking` mit A11y- und Diagnostics-Lanes. `signatureDesign` orientiert sich am klassischen Switch-Muster der Apple Human Interface Guidelines Toggles.
+Bei `prefers-reduced-motion: reduce` darf der Zustand nicht allein durch eine Thumb-Animation erkennbar sein. Unter `forced-colors: active` bleiben Fokus und Ein/Aus-Zeichen sichtbar. Theme-Anpassungen sollten bei den dokumentierten Tokens beginnen und erst dann einzelne Parts adressieren.
 
-## Theme, Density und ECH-WP-08
+## Integrationshinweise
 
-Density-Profile: `comfortable`, `compact`, `dense`.
+- Komponentenvertrag: `xtend.component.contract.v2`
+- Form-Control-Profil: `xtend.component.form-control-ux-profile.v1`
+- RMT-Vertrag: `xtend.rmt.component-contract.v1`
+- Performance-Profil: `xtend.performance.component-profile.v1`
+- Schedules: `component.visible.mount`, `component.idle.hydrate`, `ui.user-blocking.input`, `a11y.announce`, `diagnostics.snapshot`
 
-Invalid und Busy sind nicht nur farblich sichtbar: der Error-Slot nutzt einen Inline-Start-Marker, die Track-Validierung einen zusaetzlichen Ring und `busy` zeigt einen reduzierbaren Statusindikator.
+Die Komponente veröffentlicht `xtoggle-checked-<id>` und `xtoggle-state-<id>` in `xstate`. In einer RMT Surface werden `toggle-changed` und `toggle-invalid` als DOM-Events an deklarative Commands gebunden. Weder die Komponente noch ein Wrapper sollte dazu den RMT Kernel importieren.
 
-Token-Tabelle:
+## Fehlerbehebung
 
-| Token | Zweck |
-| --- | --- |
-| `--xtend-form-text` | Textfarbe |
-| `--xtend-form-control-surface` | Track-Off Surface |
-| `--xtend-form-control-text` | Status-/Icon-Kontrast |
-| `--xtend-form-label-text` | Label |
-| `--xtend-form-helper-text` | Hint |
-| `--xtend-form-error-text` | Fehlertext |
-| `--xtend-form-error-surface` | Fehlerflaeche |
-| `--xtend-form-error-border` | Fehlerkontur |
-| `--xtend-form-focus-ring` | Fokus |
-| `--xtend-form-radius` | Track-Radius |
-| `--xtend-form-gap` | Abstand |
-| `--xtend-form-font-family` | Schrift |
-| `--xtend-form-control-font-size` | Control-Schriftgroesse |
-| `--xtend-form-helper-font-size` | Hilfetext |
-| `--xtend-form-icon-color` | Status-/Icon-Farbe |
+- Bleibt das Element ungestylt, prüfe in `components/manifest.json` den Eintrag `"x-toggle": "./xtoggle.js"` und den Manifest-Pfad des Loaders.
+- Fehlt der Formwert, kontrolliere `name`, `value` und ob der Schalter tatsächlich `checked` ist. Ein ausgeschalteter Schalter trägt keinen Wert bei.
+- Reagiert die Leertaste nicht, prüfe `disabled`, `busy` und ob ein äußerer Handler das Keyboard-Event vor dem Control stoppt.
+- Erscheint `toggle-invalid`, obwohl der Wert optional sein soll, entferne `required` statt den Fehlerbereich mit CSS zu verstecken.
+- Fehlt der zugängliche Name, setze `label` oder liefere Text im `label`- beziehungsweise Standard-Slot.
 
-Beispiel:
+## Nächste Schritte
 
-```html
-<x-toggle name="alerts" value="enabled" required label="Alerts" density="comfortable">
-  <span slot="hint">Sendet Updates sofort.</span>
-  <span slot="error">Aktiviere Alerts zum Fortfahren.</span>
-</x-toggle>
-```
+- [Formulare und Validierung](./xform.md)
+- [Komponenten entwickeln](../components.md)
+- [Public Component Types](../public-component-types.md)
+- [RMT Component Primitives](../rmt-vnext-component-primitives.md)

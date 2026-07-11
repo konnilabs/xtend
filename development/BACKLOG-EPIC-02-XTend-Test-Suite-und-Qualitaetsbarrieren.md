@@ -411,7 +411,7 @@ Epic 02 ist abgeschlossen. `WP-01` bis `WP-14` haben Strategie, Struktur, Core-H
 - Betroffene Dateien:
   - `scripts/`
   - ggf. `package.json`
-  - `docs/README.md`
+  - `docs/en/README.md`
   - Test-Harness-Dateien
 - Definition of Done:
   - lokale Entwickler koennen die Suite mit einem dokumentierten Befehl starten

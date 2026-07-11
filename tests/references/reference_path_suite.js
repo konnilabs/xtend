@@ -252,7 +252,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'ER-WP-19-Performance-Regression-Suite-anlegen.md', message: 'links the ER-WP-19 workpackage document' },
       { pattern: 'tests/performance/performance_regression_suite.js', message: 'links the performance regression suite' },
       { pattern: 'tests/performance/baselines/local-performance-baseline.json', message: 'links the performance regression baseline' },
-      { pattern: 'docs/performance-regression.md', message: 'links the performance regression docs' },
+      { pattern: 'development/docs-evidence/root/performance-regression.md', message: 'links the performance regression docs' },
       { pattern: 'XTend-Hydration-Policy-Contract.md', message: 'links the Hydration Policy contract' },
       { pattern: 'ER-WP-20-Lazy-Idle-Visible-Hydration-Policies-haerten.md', message: 'links the ER-WP-20 workpackage document' },
       { pattern: 'ER-WP-21-Performance-Doku-fuer-Komponentenautoren-schreiben.md', message: 'links the ER-WP-21 workpackage document' },
@@ -293,7 +293,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'ER-WP-32-Naming-und-Doku-Luecken-im-Component-Catalog-schliessen.md', message: 'links the ER-WP-32 workpackage document' },
       { pattern: 'catalog/component-catalog-coverage.js', message: 'links the component catalog coverage module' },
       { pattern: 'tests/catalog/component_catalog_coverage_suite.js', message: 'links the component catalog coverage suite' },
-      { pattern: 'docs/component-catalog-coverage.md', message: 'links component catalog coverage docs' },
+      { pattern: 'development/docs-evidence/root/component-catalog-coverage.md', message: 'links component catalog coverage docs' },
       { pattern: 'catalog/component-regression-priority.js', message: 'links the regression priority module' },
       { pattern: 'tests/catalog/component_regression_priority_suite.js', message: 'links the regression priority suite' },
       { pattern: 'XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md', message: 'links the visual/browser regression plan' },
@@ -349,7 +349,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'docs/rc0-adoption-guide.md', message: 'links RC0 Adoption Guide docs' },
       { pattern: 'XTend-Epic12-Abschluss-und-RC0-Handoff.md', message: 'links WP-E12-16 RC0 handoff contract document' },
       { pattern: 'WP-E12-16-Epic-12-Abschlussreview-und-RC0-Handoff.md', message: 'links WP-E12-16 acceptance document' },
-      { pattern: 'docs/epic12-rc0-handoff.md', message: 'links Epic 12 RC0 Handoff docs' },
+      { pattern: 'development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md', message: 'links Epic 12 RC0 Handoff docs' },
       { pattern: '| `WP-E12-01` | P0 | completed | WS0 | Epic-12-Backlog und RC-Hardening-Modell anlegen | `WP-E11-18` |', message: 'marks WP-E12-01 completed in overview' },
       { pattern: '| `WP-E12-02` | P0 | completed | WS1 | `x-tabs` Performance Profile und Runtime-Budget finalisieren | `WP-E12-01` |', message: 'marks WP-E12-02 completed in overview' },
       { pattern: '| `WP-E12-03` | P0 | completed | WS1 | `x-tabs` Browser-, Keyboard-, A11y- und Theme-Matrix-Smokes haerten | `WP-E12-02` |', message: 'marks WP-E12-03 completed in overview' },
@@ -765,7 +765,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'xtendrmt/rmt-runtime.esm.js', message: 'documents RMT ESM runtime' },
       { pattern: 'fabric/xtend-fabric.js', message: 'documents Fabric runtime' },
       { pattern: 'docs/performance.md', message: 'documents Performance authoring docs' },
-      { pattern: 'docs/performance-regression.md', message: 'documents Performance Regression docs' },
+      { pattern: 'development/docs-evidence/root/performance-regression.md', message: 'documents Performance Regression docs' },
       { pattern: 'docs/hydration-policies.md', message: 'documents Hydration Policy docs' },
       { pattern: 'docs/motion-contrast.md', message: 'documents Motion and Contrast docs' },
       { pattern: 'XTend-Performance-Regression-Gate.md', message: 'documents Performance Regression gate plan' },
@@ -1704,7 +1704,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
     ]
   },
   {
-    path: 'docs/performance-regression.md',
+    path: 'development/docs-evidence/root/performance-regression.md',
     label: 'Performance Regression docs',
     contracts: [
       { pattern: 'xtend.docs.performance-regression.v1', message: 'declares docs contract' },
@@ -2242,7 +2242,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'Status: `completed`', message: 'marks ER-WP-31 completed' },
       { pattern: 'catalog/component-catalog-coverage.js', message: 'links coverage module' },
       { pattern: 'tests/catalog/component_catalog_coverage_suite.js', message: 'links coverage suite' },
-      { pattern: 'docs/component-catalog-coverage.md', message: 'links developer docs' },
+      { pattern: 'development/docs-evidence/root/component-catalog-coverage.md', message: 'links developer docs' },
       { pattern: 'npm run test:catalog-coverage', message: 'documents package gate' },
       { pattern: '| `ER-WP-32` | `next` |', message: 'hands off ER-WP-32 as next' },
       { pattern: 'Fortschreibung nach `ER-WP-32`', message: 'records post-ER-WP-32 docs closure' },
@@ -4883,7 +4883,7 @@ function assertRmtReference(context, rootDir) {
   context.assertIncludes(registry, 'xtend.enterprise.er-wp-19.performance-regression-suite.v1', 'Reference registry documents ER-WP-19 contract');
   context.assertIncludes(registry, 'tests/performance/performance_regression_suite.js', 'Reference registry documents performance regression suite path');
   context.assertIncludes(registry, 'tests/performance/baselines/local-performance-baseline.json', 'Reference registry documents performance regression baseline path');
-  context.assertIncludes(registry, 'docs/performance-regression.md', 'Reference registry documents performance regression docs path');
+  context.assertIncludes(registry, 'development/docs-evidence/root/performance-regression.md', 'Reference registry documents performance regression docs path');
   context.assertIncludes(registry, 'XTend-Hydration-Policy-Contract.md', 'Reference registry documents Hydration Policy contract path');
   context.assertIncludes(registry, 'xtend.fabric.hydration-policy.v1', 'Reference registry documents Hydration Policy contract');
   context.assertIncludes(registry, 'ER-WP-20-Lazy-Idle-Visible-Hydration-Policies-haerten.md', 'Reference registry documents ER-WP-20 path');
@@ -4977,7 +4977,7 @@ function assertRmtReference(context, rootDir) {
   context.assertIncludes(registry, 'xtend.enterprise.er-wp-32.catalog-naming-docs.v1', 'Reference registry documents ER-WP-32 contract');
   context.assertIncludes(registry, 'catalog/component-catalog-coverage.js', 'Reference registry documents Component Catalog module');
   context.assertIncludes(registry, 'tests/catalog/component_catalog_coverage_suite.js', 'Reference registry documents Component Catalog suite');
-  context.assertIncludes(registry, 'docs/component-catalog-coverage.md', 'Reference registry documents Component Catalog docs path');
+  context.assertIncludes(registry, 'development/docs-evidence/root/component-catalog-coverage.md', 'Reference registry documents Component Catalog docs path');
   context.assertIncludes(registry, 'xtend.docs.component-catalog-coverage.v1', 'Reference registry documents Component Catalog docs contract');
   context.assertIncludes(registry, 'docs/components/xsummary.md', 'Reference registry documents x-summary docs path');
   context.assertIncludes(registry, 'docs/components/xutils.md', 'Reference registry documents x-utils docs path');
@@ -7106,6 +7106,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'actions/setup-node@v6', 'CI workflow uses setup-node action');
   context.assertIncludes(workflow, 'node-version: 26.x', 'CI workflow pins Node 26.x');
   context.assertIncludes(workflow, 'npm run test:pr:report', 'CI workflow runs PR report gate');
+  context.assertIncludes(workflow, 'npm run test:docs-quality:report', 'CI workflow runs blocking public docs quality report');
+  context.assertIncludes(workflow, '.xtend-test-results/xtend-docs-quality-report.json', 'CI workflow uploads public docs quality report');
   context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
   context.assertIncludes(workflow, 'npm run test:xtensions-framework-adapters:report', 'CI workflow runs XTensions framework adapter report gate');
   context.assertIncludes(workflow, 'npm run test:xtend-dev-surface:report', 'CI workflow runs XTend Dev Surface report gate');
@@ -7196,6 +7198,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(prFastGate.artifactName === 'xtend-pr-gate-report-node-26', 'Package metadata exposes PR fast artifact name');
   context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-xtensions-framework-adapters-report.json'), 'PR fast gate exposes XTensions framework adapter report path');
   context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-dev-surface-report.json'), 'PR fast gate exposes XTend Dev Surface report path');
+  context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-docs-quality-report.json'), 'PR fast gate exposes public docs quality report path');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('core'), 'PR fast gate includes core suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-contract-v2'), 'PR fast gate includes Component Contract v2 suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('browser'), 'PR fast gate includes browser suite');
@@ -7210,7 +7213,12 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-ux-browser-smokes'), 'PR fast gate includes Component UX browser smoke suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('component-shell-theme-matrix'), 'PR fast gate includes Component Shell Theme Matrix suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('manifest-import-policy'), 'PR fast gate includes manifest import policy suite');
-  context.assert(Array.isArray(prFastGate.suites) && !prFastGate.suites.includes('docs-public-quality'), 'PR fast gate excludes legacy public docs quality suite until the owner handoff is closed');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-public-quality'), 'PR fast gate includes public docs quality suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-content-depth'), 'PR fast gate includes docs content-depth suite');
+  context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('docs-quality-gates'), 'PR fast gate includes docs negative-fixture suite');
+  context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('docs-public-quality'), 'Full release gate includes public docs quality suite');
+  context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('docs-content-depth'), 'Full release gate includes docs content-depth suite');
+  context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('docs-quality-gates'), 'Full release gate includes docs negative-fixture suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-stack-docs'), 'PR fast gate includes RMT stack docs suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-playground-docs'), 'PR fast gate includes RMT playground docs suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-playground-security'), 'PR fast gate includes RMT playground security suite');
@@ -7346,7 +7354,9 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-completions'), 'PR fast report gate includes RMT completions');
   context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-editor-packaging'), 'PR fast report gate includes RMT editor packaging');
   context.assert(packageManifest.scripts['test:pr:report'].includes('rmt-owned-release-handoff'), 'PR fast report gate includes RMT Owned release handoff');
-  context.assert(!packageManifest.scripts['test:pr:report'].includes('docs-public-quality'), 'PR fast report gate excludes legacy docs-public-quality');
+  context.assert(packageManifest.scripts['test:pr:report'].includes('docs-public-quality'), 'PR fast report gate includes docs-public-quality');
+  context.assert(packageManifest.scripts['test:pr:report'].includes('docs-content-depth'), 'PR fast report gate includes docs-content-depth');
+  context.assert(packageManifest.scripts['test:pr:report'].includes('docs-quality-gates'), 'PR fast report gate includes docs-quality negative fixtures');
   context.assert(packageManifest.scripts['test:native-first-rmt-owned-release:report'].endsWith('--report .xtend-test-results/xtend-native-first-rmt-owned-release-report.json'), 'Package exposes Native-First RMT Owned release report gate script');
   context.assert(packageManifest.scripts['test:pr:report'].endsWith('--report .xtend-test-results/xtend-pr-gate-report.json'), 'PR fast report gate writes the expected report');
   context.assert(packageManifest.scripts['test:release:full:report'].startsWith('node scripts/run_xtend_tests.js core architecture components'), 'Package exposes curated full release report gate script');
@@ -7896,7 +7906,7 @@ function assertEpic10P0ComponentWaveReference(context, rootDir) {
   const contractPath = 'development/XTend-P0-Komponentenwelle-und-Contract-Stubs.md';
   const modulePath = 'catalog/epic10-p0-component-wave.js';
   const suitePath = 'tests/components/epic10_p0_component_wave_suite.js';
-  const docsPath = 'docs/component-platform.md';
+  const docsPath = 'development/docs-evidence/root/component-platform.md';
   const expectedTags = ['x-select', 'x-checkbox', 'x-radio', 'x-textarea', 'x-status', 'x-progress', 'x-tooltip', 'x-popover', 'x-drawer'];
   const registry = readText(REFERENCE_REGISTRY_PATH, rootDir);
   const epic = readText('development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
@@ -8242,7 +8252,7 @@ function assertEpic10ComponentLabRmtInspectorReference(context, rootDir) {
   const wp = readText(wpPath, rootDir);
   const contract = readText(contractPath, rootDir);
   const docs = readText(docsPath, rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const packageManifest = readJson('package.json', rootDir);
@@ -8312,7 +8322,7 @@ function assertEpic10PlatformGatesReference(context, rootDir) {
   const wp = readText(wpPath, rootDir);
   const contract = readText(contractPath, rootDir);
   const docs = readText(docsPath, rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
@@ -8380,9 +8390,9 @@ function assertEpic10ReleaseHandoffReference(context, rootDir) {
   const contract = readText(contractPath, rootDir);
   const docs = readText(docsPath, rootDir);
   const rmtFirstDocs = readText(rmtFirstDocsPath, rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
-  const componentPlatform = readText('docs/component-platform.md', rootDir);
+  const componentPlatform = readText('development/docs-evidence/root/component-platform.md', rootDir);
   const typescriptDocs = readText('docs/typescript-components.md', rootDir);
   const enterpriseDocs = readText('docs/enterprise-adoption.md', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
@@ -9258,11 +9268,16 @@ function assertReleasePreparationReference(context, rootDir) {
   const xtend = packageManifest.xtend || {};
   const docsGates = [
     'npm run test:docs-public-quality',
+    'npm run test:docs-content-depth',
+    'npm run test:docs-quality-gates',
     'npm run test:rmt-stack-docs',
     'npm run test:rmt-playground-docs',
     'npm run test:rmt-playground-security'
   ];
   const docsSuites = [
+    'docs-public-quality',
+    'docs-content-depth',
+    'docs-quality-gates',
     'rmt-ui-maximality-owned-surface-gate-hygiene',
     'rmt-stack-docs',
     'rmt-playground-docs',
@@ -9279,8 +9294,7 @@ function assertReleasePreparationReference(context, rootDir) {
     context.assert(packageManifest.scripts['test:pr'].includes(suite), `test:pr includes ${suite}`);
     context.assert(packageManifest.scripts['test:pr:report'].includes(suite), `test:pr:report includes ${suite}`);
   });
-  context.assert(!packageManifest.scripts['test:pr'].includes('docs-public-quality'), 'test:pr excludes legacy docs-public-quality until owner handoff closes');
-  context.assert(!packageManifest.scripts['test:pr:report'].includes('docs-public-quality'), 'test:pr:report excludes legacy docs-public-quality until owner handoff closes');
+  context.assert(packageManifest.scripts['test:docs-quality:report'] === 'node scripts/run_xtend_tests.js docs-public-quality docs-content-depth docs-quality-gates --report .xtend-test-results/xtend-docs-quality-report.json', 'Package exposes combined docs quality report');
   context.assert(packageManifest.scripts['release:sync-versions'] === 'node scripts/sync_xtend_package_versions.js', 'Package exposes unified release version sync command');
   context.assert(packageManifest.scripts['release:sync-versions:check'] === 'node scripts/sync_xtend_package_versions.js --check', 'Package exposes unified release version sync check command');
   context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes('npm run release:sync-versions:check'), 'Release gates include version sync check');

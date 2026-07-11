@@ -4,74 +4,32 @@ The public XTend APIs for loaders, components and host integration.
 
 ## What it covers
 
-API documents the core path through local modules, public TypeScript surfaces and verifiable host wiring.
+`api.js` initializes XTend browser feedback and theme APIs. The public entry point is `initXTendAPI(manifest)`; after successful setup, `xtend-api-ready` reports which sub-APIs are available.
 
 ## Public building blocks
 
-- `api.js` for the browser API.
-- `window.XTend` as the host namespace.
-- TypeScript declarations for consumers.
+- `api.js` contains runtime code and writes to `window.XTend`.
+- `api.d.ts` types theme, toast, alert, dialog, and modal APIs.
+- `components/xstate.js` stores shared UI state.
 
 ## Recommended workflow
 
-Read the overview, copy the smallest suitable example and add host-specific details only afterwards.
+Import the API explicitly and wait for its ready event:
+
+```js
+import { initXTendAPI } from "/api.js";
+
+window.addEventListener("xtend-api-ready", ({ detail }) => {
+  if (detail.toast) window.XTend.toast.success("Ready");
+}, { once: true });
+
+await initXTendAPI({ "x-toast": "./components/xtoast.js" });
+```
+
+A missing module rejects initialization. Inspect the manifest and browser console instead of treating an uninitialized namespace as a successful API.
 
 ## Next steps
 
 - [Manifest](./manifest.md)
 - [XTend Loader](./xtend-loader.md)
 - [Design Tokens](./design-tokens.md)
-
-## Public contract
-
-API is the public reference contract for `docs/en/api.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: public files, package exports, manifest keys, attributes and host wiring.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/api.md`
-- `docs/menu.json`
-- `package.json`
-- `components/manifest.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-- `design-tokens/xtend-design-tokens.js`
-
-Names:
-- `docs/en/api.md`
-- `docs/menu.json`
-- `components/manifest.json`
-- `design-tokens/xtend-design-tokens.js`
-- `docs/dev-router.php`
-- `api.js`
-- `package.json`
-- `xtend-loader.js`
-- `api.d.ts`
-- `x-theme`
-
-Commands:
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a host loads nothing, check the manifest path, export name, attribute spelling and local file reachability.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

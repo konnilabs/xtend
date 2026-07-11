@@ -1,78 +1,28 @@
 # About XTend
 
-A short product overview of XTend goals, building blocks and boundaries.
+XTend is a local, framework-neutral application framework for Web Components, declarative RMT applications, and controlled extensions. It is intended for teams that do not want UI building blocks, scheduling, hydration, and diagnostics to become unrelated systems.
 
-## What it covers
+## The layers at a glance
 
-This article is written for developers who want to use XTend productively without internal project knowledge.
+The lowest public layer consists of custom elements registered in `components/manifest.json`. They work directly in HTML and expose attributes, events, slots, CSS parts, and TypeScript declarations. `xtend-loader.js` registers those components from a local manifest.
 
-## Public building blocks
+XTend Fabric schedules mount, hydration, interaction, and diagnostics work in lanes and fibers. RMT describes applications as compileable documents; its parser and compiler produce a core document consumed by browser and SSR adapters. Maraca builds on that contract to orchestrate a deployable application.
 
-- Local development without a CDN.
-- Bilingual documentation.
-- Stable public entry points.
+## What is stable
 
-## Recommended workflow
+Public exports in `package.json`, declarations such as `api.d.ts`, component contracts, and documented schemas are integration surfaces. Private shadow DOM nodes, internal scheduler data structures, and generated intermediate artifacts are not.
 
-Read the overview, copy the smallest suitable example and add host-specific details only afterwards.
+XTensions extend hosts through explicit contracts. The [XTend Dev Surface](./xtend-dev-surface.md) reads diagnostics only from `window.__XTEND_DEV_API__`; it does not identify unrelated pages through heuristics or patch a framework runtime.
 
-## Next steps
+## Common entry points
 
-- [Quick Start](./quick-start-guide.md)
-- [Enterprise Adoption](./enterprise-adoption.md)
+- An existing HTML page starts with the [Quick Start](./quick-start-guide.md) and one component.
+- A declarative application starts with [Learn RMT](./learn-rmt.md) and the playground.
+- A reusable host plug-in starts with the [XTensions Authoring Guide](./xtensions-authoring-guide.md).
+- A team responsible for releases uses [Release Verification](./release-verification.md) to interpret reports and gates.
 
-## Public contract
+## Boundaries and failure behavior
 
-About XTend is the public orientation contract for `docs/en/about.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
+XTend does not fetch its runtime from a CDN or execute arbitrary remote modules. Import, capability, and integrity decisions belong to the host. If an optional surface or XTension cannot load, the host should expose a documented fallback; a kernel panic or failed integrity check must never be presented as success.
 
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: entry routes, local docs navigation and the smallest runnable commands.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/about.md`
-- `docs/menu.json`
-- `package.json`
-- `README.md`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `xtend-loader.js`
-
-Names:
-- `docs/en/about.md`
-- `docs/menu.json`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `docs/dev-router.php`
-- `package.json`
-- `README.md`
-- `xtend-loader.js`
-- `node scripts/verify_docs_public_quality.js`
-
-Commands:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If entry paths drift, check `docs/menu.json`, local links and the command in the verification block first.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+The most useful next step is a small local example. Confirm the loader, manifest, and one component before introducing RMT, Fabric lanes, or remote-surface policy.

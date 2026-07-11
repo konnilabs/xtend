@@ -16,11 +16,11 @@ Dieses Paket macht die Epic-11-UX-Reife fuer Menschen benutzbar. Die Contracts a
 | --- | --- |
 | `docs/component-ux-authoring.md` | kanonischer Guide fuer Komponentenautorinnen und Komponentenautoren |
 | `docs/component-ux-app-authoring.md` | RMT-first UX Guide fuer App-Autorinnen und App-Autoren |
-| `docs/component-ux-gates.md` | lokale Gate-Matrix fuer Epic 11 |
+| `development/docs-evidence/root/component-ux-gates.md` | lokale Gate-Matrix fuer Epic 11 |
 | `development/XTend-Component-UX-Authoring-Guides.md` | akzeptierter Docs Contract |
 | `tests/docs/component_ux_authoring_docs_suite.js` | lokaler Gate fuer Docs, Package, Scaffold, Runner und Handoff |
-| `docs/menu.json` und `docs/README.md` | Docs-App Navigation und Inhaltsverzeichnis aktualisiert |
-| `docs/component-platform.md` und `docs/rmt-first-xtend-apps.md` | Querverweise auf Component UX Authoring ergaenzt |
+| `docs/menu.json` und `docs/en/README.md` | Docs-App Navigation und Inhaltsverzeichnis aktualisiert |
+| `development/docs-evidence/root/component-platform.md` und `docs/rmt-first-xtend-apps.md` | Querverweise auf Component UX Authoring ergaenzt |
 
 ## Akzeptanzkriterien
 

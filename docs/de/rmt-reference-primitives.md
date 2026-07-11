@@ -103,3 +103,7 @@ Fehlende Owner, unbekannte Referenzen, unkeyed Repeater und Actions ohne Reducer
 ## Related operators
 
 `template`, `surface`, `lane`, `from`, `when`, `payload`, `trust boundary`.
+
+## Weiterführend
+
+Der RMT-Referenzindex zeigt, an welchen Stellen Primitive Records in einem Dokument zulässig sind. [Verwandter Artikel](./rmt-reference.md)

@@ -602,7 +602,7 @@ Der browsernahe Flow normalisiert ein natives RMT Dokument, erzeugt Runtime Regi
 
 Der Migration Guide traegt `xtend.rmt.native-migration-guide.v1` und beschreibt die Migration von `manifest.metadata.routes -> routes`, `manifest.metadata.components -> components` und `manifest.metadata.schedules -> schedules`. Er haelt Template-only-Kompatibilitaet, opt-in Migration und Parallelbetrieb mit React, Vue, Vanilla JS und Custom Hosts sichtbar.
 
-Die Guides sind in `docs/README.md`, `docs/menu.json`, `docs/core-migration-guide.md`, `development/XTend-Dokumentations-und-Demo-Referenzpfade.md` und `tests/references/reference_path_suite.js` verankert. `WP-18` kann nun das Epic-Abschlussreview und die KPI-Abnahme starten.
+Die Guides sind in `docs/en/README.md`, `docs/menu.json`, `docs/core-migration-guide.md`, `development/XTend-Dokumentations-und-Demo-Referenzpfade.md` und `tests/references/reference_path_suite.js` verankert. `WP-18` kann nun das Epic-Abschlussreview und die KPI-Abnahme starten.
 
 ### WP-18 Ergebnis
 

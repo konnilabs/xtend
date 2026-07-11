@@ -1,76 +1,37 @@
 # Component Development
 
-XTend Web Components as stable UI building blocks for HTML and RMT hosts.
+XTend components are local custom elements for classic HTML pages and RMT hosts. Every stable component has a runtime file under `components/`, a TypeScript declaration, and an entry in `components/manifest.json`.
 
-## What it covers
+## Choose a component
 
-XTend components are Custom Elements with stable attributes, events, slots and CSS parts. They can be used directly in HTML or through RMT descriptors.
+Start with the user problem, not the tag name. Form controls such as `x-input` and `x-toggle` expose validation and form-association contracts. Navigation elements such as `x-menu` and `x-tabs` define keyboard and current-state behavior. Surface components coordinate windows, panels, or overlays through a controller.
 
-## Public building blocks
+Individual references document attributes, events, methods, slots, CSS parts, and custom properties from source. Shadow DOM structures not listed there are private.
 
-- Custom Elements.
-- Attributes, events, slots and CSS parts.
-- RMT Component Descriptoren.
+## Use a component in HTML
 
-## Recommended workflow
+The loader registers only components present in the local manifest:
 
-Use components directly in HTML for simple hosts. As an app grows, let RMT descriptors materialize components and keep events typed.
+```html
+<script type="module" src="/xtend-loader.js"
+  data-manifest="/components/manifest.json"></script>
 
-## Next steps
-
-- [Public Component Types](./public-component-types.md)
-- [TypeScript Components](./typescript-components.md)
-
-## Public contract
-
-Component Development is the public reference contract for `docs/en/components.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: public files, package exports, manifest keys, attributes and host wiring.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/components.md`
-- `docs/menu.json`
-- `package.json`
-- `components/manifest.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-- `design-tokens/xtend-design-tokens.js`
-
-Names:
-- `docs/en/components.md`
-- `docs/menu.json`
-- `components/manifest.json`
-- `design-tokens/xtend-design-tokens.js`
-- `docs/dev-router.php`
-- `package.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-- `x-theme`
-
-Commands:
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
+<x-button variant="primary" label="Save"></x-button>
 ```
 
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
+For dynamic loading, wait for `customElements.whenDefined('x-button')` before calling methods. Subscribe to events on the custom element, not on generated internal controls.
 
-## Specific failure modes
+## Use a component from RMT
 
-- If a host loads nothing, check the manifest path, export name, attribute spelling and local file reachability.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+RMT materializes components through DOM descriptors. Attributes become properties or attributes, and public DOM events become declarative commands. The `xtend.rmt.component-contract.v1` contract keeps this boundary framework-neutral; the RMT kernel does not import component classes.
+
+## Styling and accessibility
+
+Change design tokens first, then documented CSS custom properties and parts. Preserve accessible names, focus management, live regions, and error messages. Each component reference identifies keyboard and validation behavior; a wrapper must pass those signals through.
+
+## Continue learning
+
+- [Public Component Types](./public-component-types.md) explains shared event and element types.
+- [TypeScript Components](./typescript-components.md) covers the TypeScript-first build path.
+- [Design Tokens](./design-tokens.md) describes the stable theme boundary.
+- [RMT Component Primitives](./rmt-vnext-component-primitives.md) connects components to declarative surfaces.

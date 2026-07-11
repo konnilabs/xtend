@@ -1,7 +1,7 @@
 import type { XtendCustomEventMap, XtendNavigationRoutingUxProfile, XtendPublicEventContract, XtendRouteMode } from './xtend-public-types';
 
-export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'skeleton' | 'skeleton-lines' | 'skeleton-min-height' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
-export type XRouteAttributeName = 'path' | 'component' | 'import' | 'title' | 'document-title' | 'title-template' | 'meta-description' | 'meta-keywords' | 'skeleton' | 'skeleton-lines' | 'skeleton-min-height' | 'hydrate-schedule';
+export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'skeleton' | 'skeleton-profile' | 'skeleton-lines' | 'skeleton-min-height' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
+export type XRouteAttributeName = 'path' | 'component' | 'import' | 'title' | 'document-title' | 'title-template' | 'meta-description' | 'meta-keywords' | 'skeleton' | 'skeleton-profile' | 'skeleton-lines' | 'skeleton-min-height' | 'hydrate-schedule';
 export type XRouterEventName = 'xrouter-before-navigate' | 'route-changed' | 'routechange' | 'xrouter-after-navigate' | 'route-announced' | 'xrouter-routes-registered' | 'xrouter-route-reused' | 'xrouter-skeleton-shown' | 'xrouter-skeleton-hidden' | 'xrouter-route-hydrated' | 'xrouter-scroll-boundary-normalized' | 'xrouter-navigation-overlays-closed' | 'xrouter-title-updated';
 export type XRouterNavigationRoutingUxProfile = XtendNavigationRoutingUxProfile<'x-router'>;
 
@@ -21,6 +21,7 @@ export interface RouteConfig {
   template?: string;
   schedule?: string;
   skeleton?: string;
+  skeletonProfile?: string;
   skeletonLines?: string | number;
   skeletonMinHeight?: string;
   hydration?: { schedule?: string; scheduleRef?: string; [key: string]: unknown };
@@ -38,6 +39,7 @@ export interface XRouterRmtRouteRecord {
   scheduleRef?: string;
   schedule?: string;
   skeleton?: string;
+  skeletonProfile?: string;
   skeletonLines?: string | number;
   skeletonMinHeight?: string;
   hydration?: { schedule?: string; scheduleRef?: string; [key: string]: unknown };
@@ -152,6 +154,8 @@ export interface XRouterSkeletonDetail {
   scheduleRef: string;
   routeId: string | null;
   path: string;
+  profile?: string;
+  status?: 'shown' | 'loader-unavailable' | string;
   active: boolean;
 }
 
@@ -215,6 +219,7 @@ export interface XRouteElement extends HTMLElement {
   readonly title: string | null;
   readonly documentTitle: string | null;
   readonly skeleton: string | null;
+  readonly skeletonProfile: string | null;
   readonly skeletonLines: string | null;
   readonly skeletonMinHeight: string | null;
   readonly hydrateSchedule: string | null;

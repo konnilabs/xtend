@@ -4,75 +4,25 @@ Same-origin Imports, erlaubte Modulpfade und blockierte URL-Schemata.
 
 ## Worum es geht
 
-Security in XTend beginnt mit expliziten Grenzen: lokale Module, vertrauensarme Inhalte, klare Sanitizing-Pfade und reproduzierbare Paketprüfungen.
+Die Manifest Import Policy entscheidet vor dem dynamischen Import, ob Manifest und Modul lokal, syntaktisch gültig und vom Host erlaubt sind. Sie blockiert Path Traversal, externe Origins, falsche Extensions und aktive URL-Schemata.
 
 ## Öffentliche Bausteine
 
-- Same-origin Module.
-- Sanitizing für unsichere Inhalte.
-- Reproduzierbare Paketprüfungen.
+- `security/manifest-import-policy.js` implementiert URL- und Record-Prüfung.
+- `xtend-loader.js` wendet dieselben Contracts beim Laden an.
+- Erlaubte Module enden auf `.js` oder `.mjs`; Manifeste auf `.json`.
 
 ## Empfohlener Ablauf
 
-Erlaube nur lokale Module, behandle Markdown und HTML-Fragmente als unsicher und dokumentiere jede Host-Ausnahme ausdrücklich.
+Führe positive und negative Policy-Fixtures aus:
+
+```bash
+node scripts/run_xtend_tests.js manifest-import-policy --json
+```
+
+Lies bei einer Refusal-Diagnose zuerst Input, normalisierte URL und Code. Ändere Manifest-Key oder Pfad an der Quelle. `javascript:`, `data:`, `vbscript:`, `blob:` und ein externer Origin werden nicht durch einen Retry oder Cache-Bust erlaubt.
 
 ## Nächste Schritte
 
 - [Trusted DOM und Sanitizing](./trusted-dom-sanitizing.md)
 - [Supply Chain Checks](./supply-chain-gates.md)
-
-## Öffentlicher Vertrag
-
-Manifest Import Policy ist der öffentliche Qualität und Security-Vertrag für `docs/de/manifest-import-policy.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: lokale Gates, Policy-Dateien, Report-Schemas, Accessibility- und Security-Signale.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/manifest-import-policy.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-
-Namen:
-- `docs/de/manifest-import-policy.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/verify_docs_public_quality.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn ein Gate scheitert, ändere zuerst Beispiel, Policy-Quelle oder Report-Erwartung und nicht die Schwelle.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

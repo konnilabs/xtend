@@ -4,13 +4,13 @@ The package export surface for loader, API, RMT, Fabric and components.
 
 ## What it covers
 
-Type Exports documents the core path through local modules, public TypeScript surfaces and verifiable host wiring.
+`package.json` maps every public subpath to runtime and, where available, a `types` condition. Consumers import those subpaths; direct access to internal source or test paths is not stable.
 
 ## Public building blocks
 
-- Root-Paket `@ccslabs/xtend`.
-- Runtime packages for RMT and Fabric.
-- Declaration files for public imports.
+- `./loader` and `./api` cover browser bootstrap and UI API.
+- `./rmt`, `./rmt/browser`, and RMT language subpaths cover runtime and tooling.
+- Fabric, Maraca, builder, and component subpaths point to co-located `.d.ts` files.
 
 ## RMT TypeScript Surface
 
@@ -38,18 +38,9 @@ decision: types-not-required
 
 Maraca is classified through the package exports `./maraca` and `./maraca/runtime`, backed by `./xtend-maraca/index.d.ts` and `./xtend-maraca/runtime.d.ts`.
 
-```txt
-WP-TypeExports-02: ./xtend-loader.d.ts, ./xtend-dev.d.ts, ./xtend-loader-types.md
-WP-TypeExports-03: ./api.d.ts, ./xtend-api-types.md
-WP-TypeExports-05: ./fabric/xtend-policy-public-types.d.ts, ./xtend-policy-types.md
-WP-TypeExports-06: ./xtend-builder/builder-public-types.d.ts, ./xtend-builder-types.md
-WP-TypeExports-07: ./catalog/catalog-public-types.d.ts, ./xtend-catalog-types.md
-WP-TypeExports-08: ./design-tokens/xtend-design-tokens.d.ts, ./design-tokens/xtheme-token-alias-layer.d.ts, ./components/prism.d.ts, ./xtend-vendor-types.md
-```
-
 ## Recommended workflow
 
-Read the overview, copy the smallest suitable example and add host-specific details only afterwards.
+Import entries from `package.json#exports` only and let TypeScript resolve the same package version. Verify changes with `node scripts/run_xtend_tests.js type-exports --json`; add missing types or classify a path explicitly as runtime-only.
 
 ## Next steps
 
@@ -63,57 +54,3 @@ Read the overview, copy the smallest suitable example and add host-specific deta
 - [XTend Builder Types](./xtend-builder-types.md)
 - [XTend Catalog Types](./xtend-catalog-types.md)
 - [XTend Vendor Types](./xtend-vendor-types.md)
-
-## Public contract
-
-Type Exports is the public reference contract for `docs/en/type-exports.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: public files, package exports, manifest keys, attributes and host wiring.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/type-exports.md`
-- `docs/menu.json`
-- `package.json`
-- `components/manifest.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-- `design-tokens/xtend-design-tokens.js`
-
-Names:
-- `./xtendrmt/rmt-core.d.ts`
-- `./tools/rmt-language/rmt-tooling-public-types.d.ts`
-- `./maraca`
-- `./maraca/runtime`
-- `./xtend-maraca/index.d.ts`
-- `./xtend-maraca/runtime.d.ts`
-- `docs/en/type-exports.md`
-- `docs/menu.json`
-- `components/manifest.json`
-- `design-tokens/xtend-design-tokens.js`
-
-Commands:
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a host loads nothing, check the manifest path, export name, attribute spelling and local file reachability.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

@@ -32,7 +32,7 @@ Geblockt werden:
 - `tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html`
 - `security/trusted-dom-policy.js`
 - `docs/utils/pageloader.js`
-- `docs/trusted-dom-boundary-browser-proof.md`
+- `docs/en/trusted-dom-boundary-browser-proof.md`
 
 ## Gates
 

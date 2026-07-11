@@ -16,7 +16,7 @@ Workpackage: `WP-E11-16`
 | --- | --- | --- |
 | `docs/component-ux-authoring.md` | `xtend.docs.component-ux-authoring.v1` | Komponentenautorinnen und Komponentenautoren |
 | `docs/component-ux-app-authoring.md` | `xtend.docs.component-ux-app-authoring.v1` | App-Autorinnen und App-Autoren |
-| `docs/component-ux-gates.md` | `xtend.docs.component-ux-gates.v1` | Teams, Reviewer und CI-Verantwortliche |
+| `development/docs-evidence/root/component-ux-gates.md` | `xtend.docs.component-ux-gates.v1` | Teams, Reviewer und CI-Verantwortliche |
 
 ## Verbindliche Quellen
 

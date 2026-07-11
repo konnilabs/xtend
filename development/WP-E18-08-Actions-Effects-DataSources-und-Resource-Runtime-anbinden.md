@@ -1,7 +1,7 @@
 # WP-E18-08 - Actions, Effects, DataSources und Resource Runtime anbinden
 
 - Status: `completed`
-- Epic: `docs/epic18-media-manager-vendor-upstream.md`
+- Epic: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
 - Contract: `xtend.epic18.rmt-action-effect-runtime.v1`
 - Runtime: `xtendrmt/rmt-action-effect-runtime.js`

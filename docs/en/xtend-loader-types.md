@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-loader-report.json
 ## Maintenance Notes
 
 Change the runtime or declaration first, then package metadata, then documentation. The check remains green when all three layers know the same names. If a method is removed, the host contract needs a deliberate review. If a method is added, it needs a type, a test expectation and a short documentation note. This keeps the loader, style registry and skeleton loader stable for third-party developers without requiring the internals to move to TypeScript.
+
+## Related reading
+
+The loader tutorial demonstrates the runtime calls represented by these declarations. [Related article](./xtend-loader.md)

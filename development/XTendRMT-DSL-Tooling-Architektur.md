@@ -521,7 +521,7 @@ Implementierungsstand nach `WP-E14-15`:
 - Report Contract: `xtend.epic14.rmt-tooling-report.v1`
 - Gate Source: `catalog/epic14-rmt-tooling.js`
 - Suite: `tests/platform/epic14_rmt_tooling_release_gates_suite.js`
-- Docs: `docs/rmt-tooling-release-gates.md`
+- Docs: `docs/en/rmt-tooling-release-gates.md`
 - Optionaler PR-Gate: `npm run test:pr:rmt`
 - Optionaler PR-Report: `npm run test:pr:rmt:report`
 - Release-Bundle-Gate: `npm run test:rmt-tooling`

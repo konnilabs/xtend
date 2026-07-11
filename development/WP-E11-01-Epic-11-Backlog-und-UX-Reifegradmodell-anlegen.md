@@ -14,7 +14,7 @@
   - `development/XTend-RMT-First-Class-App-Authoring.md`
   - `development/XTend-Fabric-Component-Compatibility-v2.md`
   - `development/XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md`
-  - `docs/component-platform.md`
+  - `development/docs-evidence/root/component-platform.md`
   - `tests/references/reference_path_suite.js`
 
 ## Ziel

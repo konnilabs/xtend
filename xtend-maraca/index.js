@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const os = require('os');
 const vm = require('vm');
 
 const MARACA_PACKAGE_SCHEMA = 'xtend.maraca.package-metadata.v1';
@@ -24,6 +25,8 @@ const MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA = 'xtend.maraca.template-artifacts
 const MARACA_VALIDATION_PLAN_SCHEMA = 'xtend.maraca.validation-plan.v1';
 const MARACA_TRANSITION_PLAN_SCHEMA = 'xtend.maraca.transition-plan.v1';
 const MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA = 'xtend.maraca.production-bundle-closure.v1';
+const MARACA_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v1';
+const MARACA_TUNE_REPORT_SCHEMA = 'xtend.maraca.tune-report.v1';
 
 const DEFAULT_SOURCE = 'tests/rmt-language/fixtures/maraca-known-components.rmt';
 const DEFAULT_OUT_DIR = '.xtend-build/maraca/app';
@@ -1718,9 +1721,56 @@ function normalizeInput(input) {
   return input && typeof input === 'object' ? { ...input } : {};
 }
 
+function loadMaracaBuildConfig(values, rootDir) {
+  const requestedPath = values.config || values.configPath || values['build-config'];
+  if (!requestedPath) return { path: null, config: null, diagnostics: [] };
+  const configPath = path.resolve(rootDir, String(requestedPath));
+  if (!fs.existsSync(configPath)) {
+    return {
+      path: configPath,
+      config: null,
+      diagnostics: [{
+        code: 'xtend.maraca.build_config_missing',
+        severity: 'error',
+        message: `Maraca build config not found: ${configPath}`
+      }]
+    };
+  }
+  try {
+    const config = readJson(configPath);
+    if (!config || config.schema !== MARACA_BUILD_CONFIG_SCHEMA) {
+      return {
+        path: configPath,
+        config,
+        diagnostics: [{
+          code: 'xtend.maraca.build_config_schema_invalid',
+          severity: 'error',
+          message: `Maraca build config must use ${MARACA_BUILD_CONFIG_SCHEMA}.`
+        }]
+      };
+    }
+    return { path: configPath, config, diagnostics: [] };
+  } catch (error) {
+    return {
+      path: configPath,
+      config: null,
+      diagnostics: [{
+        code: 'xtend.maraca.build_config_invalid',
+        severity: 'error',
+        message: error && error.message ? error.message : String(error)
+      }]
+    };
+  }
+}
+
 function normalizeOptions(input = {}, options = {}) {
-  const values = normalizeInput(input);
-  const rootDir = resolveRootDir(options.rootDir || values.rootDir);
+  const explicitValues = normalizeInput(input);
+  const rootDir = resolveRootDir(options.rootDir || explicitValues.rootDir);
+  const buildConfigRecord = loadMaracaBuildConfig(explicitValues, rootDir);
+  const configuredValues = buildConfigRecord.config && buildConfigRecord.config.options && typeof buildConfigRecord.config.options === 'object'
+    ? buildConfigRecord.config.options
+    : {};
+  const values = { ...configuredValues, ...explicitValues };
   const positionalSource = Array.isArray(values._) && values._[0] ? values._[0] : null;
   const hasSourceText = typeof values.sourceText === 'string' || typeof values.sourceContent === 'string';
   const sourceText = hasSourceText
@@ -1730,6 +1780,19 @@ function normalizeOptions(input = {}, options = {}) {
     ? (values.virtualSourcePath || values.filePath || values.sourcePath || positionalSource || 'docs/rmt-playground-source.rmt')
     : (values.source || values.src || values.app || positionalSource || DEFAULT_SOURCE);
   const sourcePath = path.resolve(rootDir, source);
+  const buildConfigDiagnostics = buildConfigRecord.diagnostics.slice();
+  if (
+    buildConfigRecord.config
+    && buildConfigRecord.config.sourceFingerprint
+    && fs.existsSync(sourcePath)
+    && hashText(fs.readFileSync(sourcePath, 'utf8')) !== buildConfigRecord.config.sourceFingerprint
+  ) {
+    buildConfigDiagnostics.push({
+      code: 'xtend.maraca.build_config_source_drift',
+      severity: 'error',
+      message: 'Maraca build config source fingerprint does not match the current RMT source.'
+    });
+  }
   const outDirValue = values.out || values.outDir || values.output || DEFAULT_OUT_DIR;
   const outputDir = path.resolve(rootDir, outDirValue);
   const profile = VALID_PROFILES.has(values.profile) ? values.profile : 'production';
@@ -1827,6 +1890,9 @@ function normalizeOptions(input = {}, options = {}) {
     source,
     sourcePath,
     sourceText,
+    buildConfig: buildConfigRecord.config,
+    buildConfigPath: buildConfigRecord.path,
+    buildConfigDiagnostics,
     outputDir,
     profile,
     lazy,
@@ -3816,7 +3882,7 @@ function createMaracaOrchestrationPlan(compileResult, coreDocument, componentRec
 
 function createMaracaBuildPlan(input = {}, options = {}) {
   const normalized = normalizeOptions(input, options);
-  const diagnostics = [];
+  const diagnostics = normalized.buildConfigDiagnostics.slice();
 
   if (typeof normalized.sourceText !== 'string' && !fs.existsSync(normalized.sourcePath)) {
     const templateArtifacts = createMaracaTemplateArtifactsReport({
@@ -8546,6 +8612,320 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   };
 }
 
+const MARACA_TUNE_SEMANTIC_KEYS = Object.freeze([
+  'orchestration',
+  'kernel',
+  'kernelBootMode',
+  'hydration',
+  'validation',
+  'transitions',
+  'componentMode',
+  'stackMode',
+  'enablePrewarmWorker',
+  'enableUiCoprocessor',
+  'enablePwa',
+  'enableServiceWorker',
+  'enableWebAppManifest',
+  'allowDynamicComponents'
+]);
+
+function maracaTuneCandidateId(profile, lazy, css) {
+  return `${profile}-${lazy}-${css}`;
+}
+
+function maracaTunePreference(candidate) {
+  const profile = { production: 0, max: 1 }[candidate.profile] ?? 9;
+  const lazy = { route: 0, component: 1, none: 2 }[candidate.lazy] ?? 9;
+  const css = { external: 0, inline: 1 }[candidate.css] ?? 9;
+  return [profile, lazy, css];
+}
+
+function compareMaracaTuneCandidates(left, right) {
+  const metrics = ['eagerBytes', 'totalBytes', 'eagerRequests', 'chunkCount'];
+  for (const metric of metrics) {
+    const delta = Number(left.metrics[metric] || 0) - Number(right.metrics[metric] || 0);
+    if (delta !== 0) return delta;
+  }
+  const leftPreference = maracaTunePreference(left);
+  const rightPreference = maracaTunePreference(right);
+  for (let index = 0; index < leftPreference.length; index += 1) {
+    if (leftPreference[index] !== rightPreference[index]) return leftPreference[index] - rightPreference[index];
+  }
+  return left.id.localeCompare(right.id);
+}
+
+function maracaTuneCandidateRecord(result, requested) {
+  const report = result && result.bundleReport;
+  const files = report && Array.isArray(report.bundleFiles) ? report.bundleFiles : [];
+  const diagnostics = result && result.plan && Array.isArray(result.plan.diagnostics) ? result.plan.diagnostics : [];
+  const activeToolchain = report && report.toolchain && report.toolchain.active || 'unavailable';
+  const closureOk = Boolean(report && report.productionClosure && report.productionClosure.ok);
+  const sizeBudgetOk = Boolean(result && result.sizeBudgetReport && result.sizeBudgetReport.ok);
+  const errorCount = diagnostics.filter((diagnostic) => diagnostic && diagnostic.severity === 'error').length;
+  const warningCount = (report && report.toolchain && Array.isArray(report.toolchain.warnings) ? report.toolchain.warnings.length : 0)
+    + diagnostics.filter((diagnostic) => diagnostic && diagnostic.severity === 'warning').length;
+  const accepted = Boolean(result && result.ok)
+    && activeToolchain === 'rollup-terser'
+    && closureOk
+    && sizeBudgetOk
+    && diagnostics.length === 0;
+  return {
+    id: maracaTuneCandidateId(requested.profile, requested.lazy, requested.css),
+    profile: requested.profile,
+    lazy: requested.lazy,
+    css: requested.css,
+    accepted,
+    status: result && result.status || 'failed',
+    reason: activeToolchain !== 'rollup-terser'
+      ? 'rollup-terser-required'
+      : (!closureOk
+        ? 'production-closure-failed'
+        : (!sizeBudgetOk
+          ? 'size-budget-failed'
+          : (diagnostics.length > 0 ? 'diagnostics-failed' : 'accepted'))),
+    metrics: {
+      eagerBytes: files.filter((file) => file && file.isDynamicEntry !== true).reduce((sum, file) => sum + Number(file.bytes || 0), 0),
+      totalBytes: Number(report && report.bytes || 0),
+      eagerRequests: files.filter((file) => file && file.isDynamicEntry !== true).length,
+      chunkCount: files.filter((file) => file && file.type === 'chunk').length
+    },
+    toolchain: activeToolchain,
+    warningCount,
+    diagnosticCount: diagnostics.length,
+    errorCount
+  };
+}
+
+function createMaracaTuneConfig(input = {}) {
+  const base = {
+    schema: MARACA_BUILD_CONFIG_SCHEMA,
+    source: input.source,
+    sourceFingerprint: input.sourceFingerprint,
+    output: input.output,
+    selected: input.selected,
+    locked: input.locked,
+    options: input.options,
+    toolchain: input.toolchain,
+    candidateMatrixFingerprint: input.candidateMatrixFingerprint
+  };
+  return {
+    ...base,
+    configFingerprint: hashText(stableJson(base))
+  };
+}
+
+async function tuneMaracaBuild(input = {}, options = {}) {
+  const explicit = normalizeInput(input);
+  const rootDir = resolveRootDir(options.rootDir || explicit.rootDir);
+  const write = toBoolean(explicit.write);
+  const check = toBoolean(explicit.check);
+  const requestedConfigPath = explicit.config || explicit.configPath || explicit['build-config'];
+  const configPath = path.resolve(rootDir, String(requestedConfigPath || 'maraca.config.json'));
+  const existingConfig = fs.existsSync(configPath) ? readJson(configPath) : null;
+  const configuredOptions = existingConfig && existingConfig.schema === MARACA_BUILD_CONFIG_SCHEMA && existingConfig.options && typeof existingConfig.options === 'object'
+    ? existingConfig.options
+    : {};
+  const mergedInput = { ...configuredOptions, ...explicit };
+  delete mergedInput.config;
+  delete mergedInput.configPath;
+  delete mergedInput['build-config'];
+  delete mergedInput.write;
+  delete mergedInput.check;
+  const normalized = normalizeOptions(mergedInput, { rootDir });
+  const diagnostics = [];
+
+  if (write && check) {
+    diagnostics.push({
+      code: 'xtend.maraca.tune_mode_conflict',
+      severity: 'error',
+      message: 'Maraca tune accepts either --write or --check, not both.'
+    });
+  }
+  if (check && !existingConfig) {
+    diagnostics.push({
+      code: 'xtend.maraca.tune_config_missing',
+      severity: 'error',
+      message: `Tune config not found: ${configPath}`
+    });
+  }
+  if (typeof normalized.sourceText !== 'string' && !fs.existsSync(normalized.sourcePath)) {
+    diagnostics.push({
+      code: 'xtend.maraca.tune_source_missing',
+      severity: 'error',
+      message: `RMT source not found: ${normalized.sourcePath}`
+    });
+  }
+  const toolchain = getMaracaToolchainAvailability(rootDir);
+  if (!toolchain.rollup.available || !toolchain.terser.available) {
+    diagnostics.push({
+      code: 'xtend.maraca.tune_toolchain_unavailable',
+      severity: 'error',
+      message: 'Maraca tune requires local Rollup and Terser APIs.'
+    });
+  }
+  if (diagnostics.some((diagnostic) => diagnostic.severity === 'error')) {
+    return {
+      schema: MARACA_TUNE_REPORT_SCHEMA,
+      ok: false,
+      status: 'blocked',
+      configPath: repoRelative(configPath, rootDir),
+      candidates: [],
+      diagnostics
+    };
+  }
+
+  const sourceText = typeof normalized.sourceText === 'string' ? normalized.sourceText : fs.readFileSync(normalized.sourcePath, 'utf8');
+  const sourceFingerprint = hashText(sourceText);
+  const outputDir = normalized.outputDir;
+  const semanticOptions = {
+    orchestration: normalized.orchestration,
+    kernel: normalized.kernel,
+    kernelBootMode: normalized.kernelBootMode,
+    hydration: normalized.hydration,
+    validation: normalized.validation,
+    transitions: normalized.transitions,
+    componentMode: normalized.componentMode,
+    stackMode: normalized.stackMode,
+    enablePrewarmWorker: normalized.enablePrewarmWorker,
+    enableUiCoprocessor: normalized.enableUiCoprocessor,
+    enablePwa: normalized.enablePwa,
+    enableServiceWorker: normalized.enableServiceWorker,
+    enableWebAppManifest: normalized.enableWebAppManifest,
+    allowDynamicComponents: normalized.allowDynamicComponents
+  };
+  const candidateDefinitions = [];
+  ['production', 'max'].forEach((profile) => {
+    ['route', 'component', 'none'].forEach((lazy) => {
+      ['inline', 'external'].forEach((css) => candidateDefinitions.push({ profile, lazy, css }));
+    });
+  });
+  const candidateMatrixFingerprint = hashText(stableJson({
+    sourceFingerprint,
+    semanticOptions,
+    candidates: candidateDefinitions,
+    toolchain: { rollup: toolchain.rollup.version || null, terser: toolchain.terser.version || null }
+  }));
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-maraca-tune-'));
+  const candidates = [];
+
+  try {
+    for (const definition of candidateDefinitions) {
+      const candidateOutput = path.join(tempRoot, maracaTuneCandidateId(definition.profile, definition.lazy, definition.css));
+      const result = await buildMaracaBundleAsync({
+        ...mergedInput,
+        ...semanticOptions,
+        ...definition,
+        source: normalized.source,
+        sourceText: normalized.sourceText,
+        virtualSourcePath: normalized.source,
+        out: candidateOutput,
+        sizeBudget: 'strict'
+      }, { rootDir });
+      candidates.push(maracaTuneCandidateRecord(result, definition));
+    }
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
+
+  const accepted = candidates.filter((candidate) => candidate.accepted).sort(compareMaracaTuneCandidates);
+  const selected = accepted[0] || null;
+  if (!selected) {
+    diagnostics.push({
+      code: 'xtend.maraca.tune_no_candidate',
+      severity: 'error',
+      message: 'No Maraca tune candidate passed toolchain, closure and size-budget checks.'
+    });
+  }
+  const sourceRef = repoRelative(normalized.sourcePath, rootDir);
+  const outputRef = repoRelative(outputDir, rootDir);
+  const selectedOptions = selected ? {
+    source: sourceRef,
+    out: outputRef,
+    profile: selected.profile,
+    lazy: selected.lazy,
+    css: selected.css,
+    sizeBudget: 'strict',
+    ...semanticOptions
+  } : null;
+  const config = selected ? createMaracaTuneConfig({
+    source: sourceRef,
+    sourceFingerprint,
+    output: outputRef,
+    selected: { profile: selected.profile, lazy: selected.lazy, css: selected.css },
+    locked: MARACA_TUNE_SEMANTIC_KEYS.reduce((record, key) => {
+      record[key] = semanticOptions[key];
+      return record;
+    }, {}),
+    options: selectedOptions,
+    toolchain: {
+      rollup: toolchain.rollup.version || null,
+      terser: toolchain.terser.version || null,
+      mode: 'rollup-terser'
+    },
+    candidateMatrixFingerprint
+  }) : null;
+  const reportPath = path.join(outputDir, 'xtend.maraca.tune.json');
+  let configMatches = existingConfig ? stableJson(existingConfig) === stableJson(config) : false;
+  let finalBuild = null;
+
+  if (selected && write) {
+    finalBuild = await buildMaracaBundleAsync({ ...selectedOptions, source: normalized.source }, { rootDir });
+    if (!finalBuild.ok || !finalBuild.bundleReport || finalBuild.bundleReport.toolchain.active !== 'rollup-terser') {
+      diagnostics.push({
+        code: 'xtend.maraca.tune_final_build_failed',
+        severity: 'error',
+        message: 'Selected tune candidate could not be reproduced in the requested output directory.'
+      });
+    } else {
+      fs.mkdirSync(path.dirname(configPath), { recursive: true });
+      writeJson(configPath, config);
+      configMatches = true;
+    }
+  }
+
+  if (selected && check && !configMatches) {
+    diagnostics.push({
+      code: 'xtend.maraca.tune_config_drift',
+      severity: 'error',
+      message: 'Committed Maraca tune config does not match the deterministic candidate selection.'
+    });
+  }
+
+  const ok = Boolean(selected) && diagnostics.every((diagnostic) => diagnostic.severity !== 'error');
+  const report = {
+    schema: MARACA_TUNE_REPORT_SCHEMA,
+    ok,
+    status: ok ? (check ? 'checked' : (write ? 'written' : 'planned')) : 'blocked',
+    source: sourceRef,
+    sourceFingerprint,
+    configPath: repoRelative(configPath, rootDir),
+    reportPath: repoRelative(reportPath, rootDir),
+    output: outputRef,
+    candidateMatrixFingerprint,
+    candidateCount: candidates.length,
+    acceptedCandidateCount: accepted.length,
+    candidates,
+    selected: selected ? {
+      id: selected.id,
+      profile: selected.profile,
+      lazy: selected.lazy,
+      css: selected.css,
+      metrics: selected.metrics
+    } : null,
+    config,
+    configMatches,
+    finalBuild: finalBuild && finalBuild.bundleReport ? {
+      status: finalBuild.status,
+      bytes: finalBuild.bundleReport.bytes,
+      entry: finalBuild.bundleReport.entryRelative,
+      toolchain: finalBuild.bundleReport.toolchain.active
+    } : null,
+    diagnostics
+  };
+  if (ok && write) writeJson(reportPath, report);
+  return report;
+}
+
 module.exports = {
   MARACA_PACKAGE_SCHEMA,
   MARACA_BUILD_PLAN_SCHEMA,
@@ -8567,12 +8947,16 @@ module.exports = {
   MARACA_VALIDATION_PLAN_SCHEMA,
   MARACA_TRANSITION_PLAN_SCHEMA,
   MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA,
+  MARACA_BUILD_CONFIG_SCHEMA,
+  MARACA_TUNE_REPORT_SCHEMA,
   COMPONENT_UNKNOWN_CODE,
   COMPONENT_DYNAMIC_CODE,
   DEFAULT_SOURCE,
   createMaracaBuildPlan,
   buildMaracaBundle,
   buildMaracaBundleAsync,
+  tuneMaracaBuild,
+  createMaracaTuneConfig,
   createMaracaKernelFeatureAdoptionReport,
   createMaracaPanicRecoveryReport,
   createMaracaTrustedDomReport,

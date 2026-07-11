@@ -291,7 +291,7 @@
       "shell": "docs.app.shell",
       "schedule": "docs.route.render",
       "metadata": {
-        "source": "docs/README.md",
+        "source": "docs/en/README.md",
         "shellTemplate": "docs.app.shell",
         "searchTemplate": "docs.header.search",
         "contentKind": "parsedownHtml"
@@ -821,7 +821,7 @@
     {
       "id": "docs.readme.markdown",
       "mode": "html_fragment",
-      "source": "docs/README.md",
+      "source": "docs/en/README.md",
       "adapter": "docs.parsedown",
       "schedule": "docs.markdown.parse",
       "security": {

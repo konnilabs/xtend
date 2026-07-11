@@ -20,7 +20,12 @@ execute env: XTEND_CONDITIONAL_NETWORK_EXECUTE=1
 audit artifact: .xtend-test-results/xtend-npm-audit-report.json
 sbom artifact: .xtend-test-results/xtend-npm-sbom.json
 report artifact: .xtend-test-results/xtend-conditional-network-evidence-report.json
-next work item: DPF-WP-04
+```
+
+To capture all three reports locally without publishing:
+
+```bash
+npm run conditional-network:evidence
 ```
 
 ## Artifacts
@@ -32,3 +37,7 @@ The artifacts should be read next to Package Export Lock, TypeExports, pack dry 
 ## Maintenance Notes
 
 Change the job only when the local path remains offline-capable. New network commands need a stable artifact path, a release-checklist entry and an update to this page. If a CI runner has no network access, the deferral should be visible and machine-readable instead of redefining the local default path.
+
+## Related reading
+
+The release workflow explains how to read and retain the CI artifact with the other release reports. [Related article](./release-verification.md)

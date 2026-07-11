@@ -103,3 +103,7 @@ Unbekannte Field-Regeln, fehlende Action-Targets, unvollständige Transition-Tar
 ## Related operators
 
 `action`, `field`, `surface`, `lane`, `effect`, `payload`, `animation`, `use animation`.
+
+## Weiterführend
+
+Der RMT-Referenzindex führt von Validation- und Transition-Records zu den zugehörigen Ausdrucksformen. Der [AnimationEngine-Guide](./rmt-animation-engine.md) verbindet diese Operatoren mit einem vollständigen AOT- und Runtime-Beispiel. [Verwandter Artikel](./rmt-reference.md)

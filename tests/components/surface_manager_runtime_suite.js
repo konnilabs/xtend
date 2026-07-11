@@ -88,9 +88,9 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
   const sourceText = SOURCE_ARTIFACTS.map((filePath) => readText(filePath, rootDir)).join('\n');
   const managerFixture = readText('tests/components/fixtures/xsurfacemanager.component.html', rootDir);
   const windowFixture = readText('tests/components/fixtures/xsurfacewindow.component.html', rootDir);
-  const managerDocs = readText('docs/components/xsurfacemanager.md', rootDir);
-  const windowDocs = readText('docs/components/xsurfacewindow.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const managerDocs = readText('docs/en/components/xsurfacemanager.md', rootDir);
+  const windowDocs = readText('docs/en/components/xsurfacewindow.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const referenceRegistry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const planningDoc = readText(SURFACE_MANAGER_WINDOW_RUNTIME_PLAN, rootDir);
@@ -281,8 +281,7 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'surface-window-command',
     'destroySurface',
     'surface-destroyed',
-    'xtend.surface.tombstone.v1',
-    'WP-SM-04'
+    'xtend.surface.tombstone.v1'
   ], 'SurfaceManager runtime docs');
   assertTextIncludesAll(context, contractDoc, [
     SURFACE_MANAGER_WINDOW_RUNTIME_SCHEMA,
@@ -309,7 +308,7 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'components/xsurfacemanager.js', 'Scaffold config references x-surface-manager runtime');
   context.assertIncludes(runner, "require('../tests/components/surface_manager_runtime_suite')", 'Runner imports SurfaceManager runtime suite');
   context.assertIncludes(runner, "id: 'surface-manager'", 'Runner registers surface-manager suite');
-  context.assertIncludes(docsReadme, 'SurfaceManager Window Runtime', 'Docs README links SurfaceManager runtime');
+  context.assertIncludes(docsReadme, '[SurfaceManager Runtime](./surface-manager-runtime.md)', 'Docs README links the SurfaceManager runtime learning path');
   context.assertIncludes(docsMenu, 'surface-manager-window-runtime', 'Docs menu contains SurfaceManager runtime page');
   context.assertIncludes(referenceRegistry, 'WP-SM-03', 'Reference registry contains WP-SM-03');
   context.assertIncludes(referenceRegistry, 'components/xsurfacemanager.js', 'Reference registry contains x-surface-manager runtime');

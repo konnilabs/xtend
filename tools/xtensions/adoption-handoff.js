@@ -33,7 +33,7 @@ const XTENSIONS_ADOPTION_HANDOFF_PACKAGE_SCRIPT = 'npm run test:xtensions-adopti
 const XTENSIONS_AUTHORING_GUIDE_DOC_PATH = 'docs/de/xtensions-authoring-guide.md';
 const XTENSIONS_MIGRATION_COEXISTENCE_DOC_PATH = 'docs/de/xtensions-migration-coexistence-guide.md';
 const XTENSIONS_SECURITY_CHECKLIST_DOC_PATH = 'docs/de/xtensions-security-checklist.md';
-const XTENSIONS_ENTERPRISE_HANDOFF_DOC_PATH = 'docs/de/xtensions-enterprise-adoption-handoff.md';
+const XTENSIONS_ENTERPRISE_HANDOFF_DOC_PATH = 'development/docs-evidence/legacy-routes/de/xtensions-enterprise-adoption-handoff.md';
 
 const ADOPTION_DOC_MISSING_CODE = 'xtensions.adoption.doc_missing';
 const ADOPTION_TOPIC_MISSING_CODE = 'xtensions.adoption.topic_missing';

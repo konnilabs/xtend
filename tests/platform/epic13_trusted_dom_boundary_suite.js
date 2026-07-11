@@ -165,13 +165,13 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   const contract = readText(EPIC13_TRUSTED_DOM_BOUNDARY_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_TRUSTED_DOM_BOUNDARY_WORKPACKAGE_DOC, rootDir);
   const docs = readText(EPIC13_TRUSTED_DOM_BOUNDARY_DOCS, rootDir);
-  const trustedDomDocs = readText('docs/trusted-dom-sanitizing.md', rootDir);
-  const docsHardening = readText('docs/docs-rmt-production-hardening.md', rootDir);
-  const prodCspDocs = readText('docs/prod-browser-csp-smokes.md', rootDir);
+  const trustedDomDocs = readText('docs/en/trusted-dom-sanitizing.md', rootDir);
+  const docsHardening = readText('development/XTend-Epic13-Docs-RMT-Production-Hardening-Contract.md', rootDir);
+  const prodCspDocs = readText('development/XTend-Epic13-PROD-Browser-CSP-Smoke-Contract.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const releaseChecklist = readText('development/XTend-Release-Checklist-und-SemVer-Policy.md', rootDir);
   const ciMatrix = readText('development/XTend-CI-Gate-Matrix.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const rootReadme = readText('README.md', rootDir);
@@ -353,19 +353,18 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
     TRUSTED_DOM_SANITIZER_CONTRACT
   ], 'Trusted DOM boundary docs');
   assertTextIncludesAll(context, trustedDomDocs, [
-    TRUSTED_DOM_SANITIZER_CONTRACT,
-    EPIC13_TRUSTED_DOM_BOUNDARY_LOCAL_GATE,
+    'security/trusted-dom-policy.js',
+    'sanitizeTrustedDomHtml()',
     './trusted-dom-boundary-browser-proof.md'
   ], 'Trusted DOM sanitizing docs');
   assertTextIncludesAll(context, docsHardening, [
-    './trusted-dom-boundary-browser-proof.md',
     EPIC13_TRUSTED_DOM_BOUNDARY_SCHEMA,
     'WP-E13-13'
-  ], 'Docs RMT hardening docs handoff');
+  ], 'Docs RMT hardening contract handoff');
   assertTextIncludesAll(context, prodCspDocs, [
-    './trusted-dom-boundary-browser-proof.md',
-    EPIC13_TRUSTED_DOM_BOUNDARY_SCHEMA
-  ], 'PROD CSP docs handoff');
+    'xtend.epic13.prod-browser-csp-smoke.v1',
+    'WP-E13-11'
+  ], 'PROD CSP contract handoff');
   assertTextIncludesAll(context, registry, [
     EPIC13_TRUSTED_DOM_BOUNDARY_MODULE,
     EPIC13_TRUSTED_DOM_BOUNDARY_CONTRACT,
@@ -386,7 +385,7 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   context.assertIncludes(docsReadme, './trusted-dom-boundary-browser-proof.md', 'Docs README links Trusted DOM boundary proof');
   context.assertIncludes(docsMenu, 'trusted-dom-boundary-browser-proof', 'Docs menu exposes Trusted DOM boundary proof');
   context.assertIncludes(testsReadme, EPIC13_TRUSTED_DOM_BOUNDARY_LOCAL_GATE, 'Tests README documents Trusted DOM boundary gate');
-  context.assertIncludes(rootReadme, 'xtend.epic13TrustedDomBoundary', 'Root README documents Trusted DOM boundary metadata');
+  context.assertIncludes(rootReadme, 'docs/en/trusted-dom-sanitizing.md', 'Root README links the user-facing Trusted DOM guide');
   context.assertIncludes(changelog, EPIC13_TRUSTED_DOM_BOUNDARY_SCHEMA, 'Changelog records Trusted DOM boundary contract');
 
   return context.result({

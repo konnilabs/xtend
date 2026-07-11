@@ -82,3 +82,7 @@ Wrong action clauses, missing reducers, unknown overlay references and missing p
 ## Related operators
 
 `action`, `state`, `datasource`, `overlay`, `surface`, `on`, `emit`.
+
+## Related reading
+
+The RMT reference index places action and event records in the complete language model. [Related article](./rmt-reference.md)

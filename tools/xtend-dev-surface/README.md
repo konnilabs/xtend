@@ -2,6 +2,8 @@
 
 Chromium DevTools Extension fuer XTend Runtime-, Fabric-, Kernel- und Gate-Diagnostics.
 
+Oeffentliche Anleitungen: `docs/de/xtend-dev-surface.md` und `docs/en/xtend-dev-surface.md`.
+
 ## Handoff
 
 ```bash

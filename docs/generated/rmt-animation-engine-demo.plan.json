@@ -1,0 +1,1051 @@
+{
+  "animationPlan": {
+    "animations": [
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "fade",
+        "id": "docs.animation.engine.fade",
+        "keyframes": [],
+        "name": "docs.animation.engine.fade",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "crossfade",
+        "id": "docs.animation.engine.crossfade",
+        "keyframes": [],
+        "name": "docs.animation.engine.crossfade",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": {
+          "mode": "parallel",
+          "steps": [
+            {
+              "delayMs": 0,
+              "durationMs": null,
+              "id": "timeline-step:0",
+              "kind": "parallel",
+              "phase": null,
+              "text": "parallel enter exit"
+            }
+          ]
+        }
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "slide-left",
+        "id": "docs.animation.engine.slideLeft",
+        "keyframes": [],
+        "name": "docs.animation.engine.slideLeft",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "slide-right",
+        "id": "docs.animation.engine.slideRight",
+        "keyframes": [],
+        "name": "docs.animation.engine.slideRight",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "slide-up",
+        "id": "docs.animation.engine.slideUp",
+        "keyframes": [],
+        "name": "docs.animation.engine.slideUp",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "slide-down",
+        "id": "docs.animation.engine.slideDown",
+        "keyframes": [],
+        "name": "docs.animation.engine.slideDown",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "scale",
+        "id": "docs.animation.engine.scale",
+        "keyframes": [],
+        "name": "docs.animation.engine.scale",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.18,.9,.22,1)",
+        "effect": "pop",
+        "id": "docs.animation.engine.pop",
+        "keyframes": [
+          {
+            "offset": 0,
+            "phase": "enter",
+            "properties": {
+              "opacity": 0,
+              "transform": "scale(.92)"
+            }
+          },
+          {
+            "offset": 1,
+            "phase": "enter",
+            "properties": {
+              "opacity": 1,
+              "transform": "scale(1)"
+            }
+          }
+        ],
+        "name": "docs.animation.engine.pop",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": {
+          "damping": 22,
+          "mass": 1,
+          "stiffness": 210,
+          "velocity": 0
+        },
+        "springSamples": [
+          {
+            "offset": 0,
+            "value": 0
+          },
+          {
+            "offset": 0.0833,
+            "value": 0.858
+          },
+          {
+            "offset": 0.1667,
+            "value": 1.1195
+          },
+          {
+            "offset": 0.25,
+            "value": 1.0567
+          },
+          {
+            "offset": 0.3333,
+            "value": 0.997
+          },
+          {
+            "offset": 0.4167,
+            "value": 0.9901
+          },
+          {
+            "offset": 0.5,
+            "value": 0.9977
+          },
+          {
+            "offset": 0.5833,
+            "value": 1.0009
+          },
+          {
+            "offset": 0.6667,
+            "value": 1.0006
+          },
+          {
+            "offset": 0.75,
+            "value": 1
+          },
+          {
+            "offset": 0.8333,
+            "value": 0.9999
+          },
+          {
+            "offset": 0.9167,
+            "value": 1
+          },
+          {
+            "offset": 1,
+            "value": 1
+          }
+        ],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "zoom",
+        "id": "docs.animation.engine.zoom",
+        "keyframes": [],
+        "name": "docs.animation.engine.zoom",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "flip",
+        "id": "docs.animation.engine.flip",
+        "keyframes": [],
+        "name": "docs.animation.engine.flip",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "rotate",
+        "id": "docs.animation.engine.rotate",
+        "keyframes": [],
+        "name": "docs.animation.engine.rotate",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "expand",
+        "id": "docs.animation.engine.expand",
+        "keyframes": [],
+        "name": "docs.animation.engine.expand",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "collapse",
+        "id": "docs.animation.engine.collapse",
+        "keyframes": [],
+        "name": "docs.animation.engine.collapse",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": true,
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "fade-blur",
+        "id": "docs.animation.engine.fadeBlur",
+        "keyframes": [
+          {
+            "offset": 0,
+            "phase": "enter",
+            "properties": {
+              "filter": "blur(6px)",
+              "opacity": 0
+            }
+          },
+          {
+            "offset": 1,
+            "phase": "enter",
+            "properties": {
+              "filter": "blur(0px)",
+              "opacity": 1
+            }
+          }
+        ],
+        "name": "docs.animation.engine.fadeBlur",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "shared-element",
+        "id": "docs.animation.engine.sharedElement",
+        "keyframes": [],
+        "name": "docs.animation.engine.sharedElement",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "layout-flip",
+        "id": "docs.animation.engine.layoutFlip",
+        "keyframes": [],
+        "name": "docs.animation.engine.layoutFlip",
+        "preset": null,
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      },
+      {
+        "allowFilter": false,
+        "durationMs": 0,
+        "easing": "linear",
+        "effect": "none",
+        "id": "docs.animation.engine.none",
+        "keyframes": [],
+        "name": "docs.animation.engine.none",
+        "preset": null,
+        "reducedMotion": "instant",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null
+      }
+    ],
+    "defaultEffect": "fade",
+    "defaultReducedMotion": "fade",
+    "optInKeyframeProperties": [
+      "filter"
+    ],
+    "safeKeyframeProperties": [
+      "opacity",
+      "transform"
+    ],
+    "schema": "xtend.rmt.animation-engine.v1",
+    "supportedEffects": [
+      "fade",
+      "crossfade",
+      "slide-left",
+      "slide-right",
+      "slide-up",
+      "slide-down",
+      "scale",
+      "pop",
+      "zoom",
+      "flip",
+      "rotate",
+      "expand",
+      "collapse",
+      "fade-blur",
+      "shared-element",
+      "layout-flip",
+      "none"
+    ],
+    "supportedInterruptPolicies": [
+      "cancel",
+      "finish",
+      "replace"
+    ],
+    "supportedReducedMotionPolicies": [
+      "instant",
+      "fade",
+      "none"
+    ],
+    "transitions": [
+      {
+        "animation": "docs.animation.engine.fade",
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "fade",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.fadeTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.fadeTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.crossfade",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "crossfade",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.crossfadeTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.crossfadeTransition",
+        "phasing": "overlap",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": {
+          "mode": "parallel",
+          "steps": [
+            {
+              "delayMs": 0,
+              "durationMs": null,
+              "id": "timeline-step:0",
+              "kind": "parallel",
+              "phase": null,
+              "text": "parallel enter exit"
+            }
+          ]
+        },
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.slideLeft",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "slide-left",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.slideLeftTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.slideLeftTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.slideRight",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "slide-right",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.slideRightTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.slideRightTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.slideUp",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "slide-up",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.slideUpTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.slideUpTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.slideDown",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "slide-down",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.slideDownTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.slideDownTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.scale",
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "scale",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.scaleTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.scaleTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.pop",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.18,.9,.22,1)",
+        "effect": "pop",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.popTransition",
+        "interrupt": "replace",
+        "keyframes": [
+          {
+            "offset": 0,
+            "phase": "enter",
+            "properties": {
+              "opacity": 0,
+              "transform": "scale(.92)"
+            }
+          },
+          {
+            "offset": 1,
+            "phase": "enter",
+            "properties": {
+              "opacity": 1,
+              "transform": "scale(1)"
+            }
+          }
+        ],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.popTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": {
+          "damping": 22,
+          "mass": 1,
+          "stiffness": 210,
+          "velocity": 0
+        },
+        "springSamples": [
+          {
+            "offset": 0,
+            "value": 0
+          },
+          {
+            "offset": 0.0833,
+            "value": 0.858
+          },
+          {
+            "offset": 0.1667,
+            "value": 1.1195
+          },
+          {
+            "offset": 0.25,
+            "value": 1.0567
+          },
+          {
+            "offset": 0.3333,
+            "value": 0.997
+          },
+          {
+            "offset": 0.4167,
+            "value": 0.9901
+          },
+          {
+            "offset": 0.5,
+            "value": 0.9977
+          },
+          {
+            "offset": 0.5833,
+            "value": 1.0009
+          },
+          {
+            "offset": 0.6667,
+            "value": 1.0006
+          },
+          {
+            "offset": 0.75,
+            "value": 1
+          },
+          {
+            "offset": 0.8333,
+            "value": 0.9999
+          },
+          {
+            "offset": 0.9167,
+            "value": 1
+          },
+          {
+            "offset": 1,
+            "value": 1
+          }
+        ],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.zoom",
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "zoom",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.zoomTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.zoomTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.flip",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "flip",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.flipTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.flipTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.rotate",
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "rotate",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.rotateTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.rotateTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.expand",
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "expand",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.expandTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.expandTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.collapse",
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "collapse",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.collapseTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.collapseTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.fadeBlur",
+        "durationMs": 280,
+        "easing": "ease-out",
+        "effect": "fade-blur",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.fadeBlurTransition",
+        "interrupt": "replace",
+        "keyframes": [
+          {
+            "offset": 0,
+            "phase": "enter",
+            "properties": {
+              "filter": "blur(6px)",
+              "opacity": 0
+            }
+          },
+          {
+            "offset": 1,
+            "phase": "enter",
+            "properties": {
+              "filter": "blur(0px)",
+              "opacity": 1
+            }
+          }
+        ],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.fadeBlurTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.sharedElement",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "shared-element",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.sharedElementTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.sharedElementTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.layoutFlip",
+        "durationMs": 280,
+        "easing": "cubic-bezier(.2,.8,.2,1)",
+        "effect": "layout-flip",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.layoutFlipTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.layoutFlipTransition",
+        "phasing": "serial",
+        "reducedMotion": "fade",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      },
+      {
+        "animation": "docs.animation.engine.none",
+        "durationMs": 240,
+        "easing": "linear",
+        "effect": "none",
+        "from": [
+          "docs.animation.engine.before"
+        ],
+        "id": "docs.animation.engine.noneTransition",
+        "interrupt": "replace",
+        "keyframes": [],
+        "lane": "transition",
+        "layoutKey": "docs-animation-article",
+        "name": "docs.animation.engine.noneTransition",
+        "phasing": "serial",
+        "reducedMotion": "instant",
+        "spring": null,
+        "springSamples": [],
+        "timeline": null,
+        "to": [
+          "docs.animation.engine.after"
+        ],
+        "trigger": {
+          "id": "docs.animation.engine.replay",
+          "kind": "action",
+          "ref": "action:docs.animation.engine.replay"
+        }
+      }
+    ]
+  },
+  "controls": {
+    "defaults": {
+      "durationMs": 280,
+      "easing": "cubic-bezier(.2,.8,.2,1)",
+      "effect": "crossfade",
+      "interrupt": "replace",
+      "lane": "transition",
+      "layoutKey": "docs-animation-article",
+      "reducedMotionPreview": "system"
+    },
+    "durations": [
+      120,
+      180,
+      240,
+      280,
+      300,
+      420,
+      650
+    ],
+    "easings": [
+      "linear",
+      "ease",
+      "ease-in",
+      "ease-out",
+      "ease-in-out",
+      "cubic-bezier(.2,.8,.2,1)",
+      "cubic-bezier(.18,.9,.22,1)"
+    ],
+    "effects": [
+      "fade",
+      "crossfade",
+      "slide-left",
+      "slide-right",
+      "slide-up",
+      "slide-down",
+      "scale",
+      "pop",
+      "zoom",
+      "flip",
+      "rotate",
+      "expand",
+      "collapse",
+      "fade-blur",
+      "shared-element",
+      "layout-flip",
+      "none"
+    ],
+    "reducedMotionPreviews": [
+      "system",
+      "fade",
+      "instant",
+      "none"
+    ]
+  },
+  "hydration": {
+    "records": [
+      {
+        "component": "x-section",
+        "id": "hydration:docs.animation.engine.before/hydrate",
+        "insularHydration": true,
+        "lane": "idle",
+        "mode": "hydrate_prerendered",
+        "policy": "lazy",
+        "surface": "docs.animation.engine.before"
+      },
+      {
+        "component": "x-section",
+        "id": "hydration:docs.animation.engine.after/hydrate",
+        "insularHydration": true,
+        "lane": "idle",
+        "mode": "hydrate_prerendered",
+        "policy": "lazy",
+        "surface": "docs.animation.engine.after"
+      }
+    ],
+    "schema": "xtend.rmt.app-hydration-plan.v1"
+  },
+  "planFingerprint": "304d1b8d86eacad63a791fa5a0570f2cf7c373e4a095040e649de29055a0b4d2",
+  "planSchema": "xtend.rmt.animation-engine.v1",
+  "schema": "xtend.docs.animation-engine-demo.v1",
+  "source": "docs/rmt-animation-engine-demo.rmt",
+  "sourceFingerprint": "66663edca020f4e72bd422c6b0af72a537b7f446ce235016f19b6608db5f1918"
+}

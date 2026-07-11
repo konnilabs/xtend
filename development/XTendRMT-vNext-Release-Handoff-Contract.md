@@ -32,7 +32,7 @@ Akzeptiert sind:
 | --- | --- |
 | Authoring Guide | `docs/rmt-vnext-authoring.md` |
 | Migration Notes | `docs/rmt-vnext-migration-notes.md` |
-| Release Handoff | `docs/rmt-vnext-release-handoff.md` |
+| Release Handoff | `development/docs-evidence/legacy-routes/en/rmt-vnext-release-handoff.md` |
 | Reference Demo | `xtendrmt/rmt-vnext-reference-demo.rmt` |
 | Reference Core Output | `xtendrmt/rmt-vnext-reference-demo.core.json` |
 | Browser Probe | `tests/browser/fixtures/rmt-vnext-reference-smoke.html` |

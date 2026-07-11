@@ -6,6 +6,84 @@ export declare const RMT_STREAM_PATCH_SCHEMA: 'xtend.rmt.stream-patch.v1';
 export declare const RMT_STREAM_PRESSURE_SCHEMA: 'xtend.rmt.app-runtime-stream-pressure.v1';
 export declare const RMT_YIELD_ACTION_SCHEMA: 'xtend.rmt.app-runtime-yield-action.v1';
 export declare const RMT_VIEW_TEMPLATE_SCHEMA: 'xtend.rmt.view-template.v1';
+export declare const RMT_SEARCH_RUNTIME_SCHEMA: 'xtend.rmt.search-runtime.v1';
+export declare const RMT_SEARCH_RESPONSE_SCHEMA: 'xtend.rmt.search-response.v1';
+export declare const RMT_SEARCH_WORKER_SCHEMA: 'xtend.rmt.prewarm-search-worker.v1';
+
+export interface RmtSearchEntry {
+  id?: string;
+  slug: string;
+  title: string;
+  aliases?: string[];
+  keywords?: string[];
+  headings?: string[];
+  summary?: string;
+  body?: string;
+  locale?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface RmtSearchResult {
+  id: string;
+  slug: string;
+  title: string;
+  locale: string;
+  score: number;
+  fieldScores: Record<string, number>;
+  metadata: Record<string, unknown>;
+}
+
+export interface RmtSearchSource {
+  id: string;
+  queryState?: string;
+  resource: string;
+  fallbackResource?: string;
+  minQueryLength?: number;
+  debounceMs?: number;
+  resultLimit?: number;
+  fallbackThreshold?: number;
+  fieldWeights?: Record<string, number>;
+  resultTemplate?: string;
+  emptyTemplate?: string;
+  loadingTemplate?: string;
+  activeIndexState?: string;
+  selectionState?: string;
+  localePolicy?: string;
+  a11y?: Record<string, unknown>;
+}
+
+export interface RmtSearchResponse {
+  schema: typeof RMT_SEARCH_RESPONSE_SCHEMA;
+  sourceId: string;
+  query: string;
+  normalizedQuery: string;
+  generation: string;
+  superseded: boolean;
+  usedFulltext: boolean;
+  compactResultCount: number;
+  fallbackResultCount: number;
+  results: RmtSearchResult[];
+}
+
+export interface RmtSearchPrewarmWorker {
+  schema: typeof RMT_SEARCH_WORKER_SCHEMA;
+  available: boolean;
+  dispatchSearchEnvelope(envelope?: Record<string, unknown>): Promise<Record<string, unknown>>;
+  terminate(reason?: string): void;
+  snapshot(): Record<string, unknown>;
+}
+
+export interface RmtSearchRuntime {
+  schema: typeof RMT_SEARCH_RUNTIME_SCHEMA;
+  query(sourceId: string, query: string, options?: Record<string, unknown>): Promise<RmtSearchResponse>;
+  searchEntries(entries: RmtSearchEntry[], query: string, options?: Record<string, unknown>): RmtSearchResult[];
+  registerSource(source: RmtSearchSource): string;
+  registerResource(id: string, entries?: RmtSearchEntry[]): number;
+  listDiagnostics(): unknown[];
+  listHistory(): RmtSearchResponse[];
+  snapshot(): Record<string, unknown>;
+  dispose(): void;
+}
 
 export interface RmtCommandSource {
   kind: string;
@@ -160,6 +238,12 @@ export declare function applyRmtReducer(state?: Record<string, unknown>, reducer
 export declare function applyRmtReducerRecipe(state?: Record<string, unknown>, reducer?: Record<string, unknown>, context?: Record<string, unknown>): unknown;
 export declare function createRmtViewTemplateDescriptor(template?: Record<string, unknown>, model?: Record<string, unknown>): unknown;
 export declare function createNoManualUiWiringGate(options?: Record<string, unknown>): unknown;
+export declare function normalizeSearchText(value: unknown): string;
+export declare function boundedDamerauLevenshtein(left: string, right: string, maxDistance?: number): number;
+export declare function searchEntries(entries?: RmtSearchEntry[], query?: string, options?: Record<string, unknown>): RmtSearchResult[];
+export declare function createRmtSearchWorkerSource(): string;
+export declare function createRmtSearchPrewarmWorker(options?: Record<string, unknown>): RmtSearchPrewarmWorker;
+export declare function createRmtSearchRuntime(options?: Record<string, unknown>): RmtSearchRuntime;
 export declare function createRmtAppRuntime(options?: Record<string, unknown>): RmtAppRuntime;
 
 declare const api: {
@@ -171,6 +255,9 @@ declare const api: {
   RMT_STREAM_PRESSURE_SCHEMA: typeof RMT_STREAM_PRESSURE_SCHEMA;
   RMT_YIELD_ACTION_SCHEMA: typeof RMT_YIELD_ACTION_SCHEMA;
   RMT_VIEW_TEMPLATE_SCHEMA: typeof RMT_VIEW_TEMPLATE_SCHEMA;
+  RMT_SEARCH_RUNTIME_SCHEMA: typeof RMT_SEARCH_RUNTIME_SCHEMA;
+  RMT_SEARCH_RESPONSE_SCHEMA: typeof RMT_SEARCH_RESPONSE_SCHEMA;
+  RMT_SEARCH_WORKER_SCHEMA: typeof RMT_SEARCH_WORKER_SCHEMA;
   createRmtCommandEnvelope: typeof createRmtCommandEnvelope;
   isRmtCommandEnvelope: typeof isRmtCommandEnvelope;
   commandFromComponentEvent: typeof commandFromComponentEvent;
@@ -181,6 +268,12 @@ declare const api: {
   applyRmtReducerRecipe: typeof applyRmtReducerRecipe;
   createRmtViewTemplateDescriptor: typeof createRmtViewTemplateDescriptor;
   createNoManualUiWiringGate: typeof createNoManualUiWiringGate;
+  normalizeSearchText: typeof normalizeSearchText;
+  boundedDamerauLevenshtein: typeof boundedDamerauLevenshtein;
+  searchEntries: typeof searchEntries;
+  createRmtSearchWorkerSource: typeof createRmtSearchWorkerSource;
+  createRmtSearchPrewarmWorker: typeof createRmtSearchPrewarmWorker;
+  createRmtSearchRuntime: typeof createRmtSearchRuntime;
   createRmtAppRuntime: typeof createRmtAppRuntime;
 };
 

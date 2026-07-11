@@ -4,13 +4,13 @@ Die Paket-Exportfläche für Loader, API, RMT, Fabric und Komponenten.
 
 ## Worum es geht
 
-Type Exports beschreibt den Core-Pfad über lokale Module, öffentliche TypeScript-Oberflächen und überprüfbare Host-Verdrahtung.
+`package.json` ordnet jedem öffentlichen Subpath eine Runtime-Datei und, wo vorhanden, eine `types` Condition zu. Consumer importieren diese Subpaths; direkte Zugriffe auf interne Source- oder Testpfade sind nicht stabil.
 
 ## Öffentliche Bausteine
 
-- Root-Paket `@ccslabs/xtend`.
-- Runtime-Pakete für RMT und Fabric.
-- Deklarationsdateien für öffentliche Imports.
+- `./loader` und `./api` decken Browser-Bootstrap und UI-API ab.
+- `./rmt`, `./rmt/browser` und RMT-Language-Subpaths decken Runtime und Tooling ab.
+- Fabric-, Maraca-, Builder- und Komponenten-Subpaths verweisen auf co-located `.d.ts` Dateien.
 
 ## RMT TypeScript-Oberfläche
 
@@ -38,18 +38,9 @@ decision: types-not-required
 
 Maraca ist als Package-Export `./maraca` und `./maraca/runtime` klassifiziert und nutzt `./xtend-maraca/index.d.ts` sowie `./xtend-maraca/runtime.d.ts`.
 
-```txt
-WP-TypeExports-02: ./xtend-loader.d.ts, ./xtend-dev.d.ts, ./xtend-loader-types.md
-WP-TypeExports-03: ./api.d.ts, ./xtend-api-types.md
-WP-TypeExports-05: ./fabric/xtend-policy-public-types.d.ts, ./xtend-policy-types.md
-WP-TypeExports-06: ./xtend-builder/builder-public-types.d.ts, ./xtend-builder-types.md
-WP-TypeExports-07: ./catalog/catalog-public-types.d.ts, ./xtend-catalog-types.md
-WP-TypeExports-08: ./design-tokens/xtend-design-tokens.d.ts, ./design-tokens/xtheme-token-alias-layer.d.ts, ./components/prism.d.ts, ./xtend-vendor-types.md
-```
-
 ## Empfohlener Ablauf
 
-Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.
+Importiere ausschließlich einen Eintrag aus `package.json#exports` und lasse TypeScript mit derselben Package-Version auflösen. Prüfe Änderungen mit `node scripts/run_xtend_tests.js type-exports --json`; fehlende Types werden entweder ergänzt oder ausdrücklich als Runtime-only klassifiziert.
 
 ## Nächste Schritte
 
@@ -63,57 +54,3 @@ Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst d
 - [XTend Builder Types](./xtend-builder-types.md)
 - [XTend Catalog Types](./xtend-catalog-types.md)
 - [XTend Vendor Types](./xtend-vendor-types.md)
-
-## Öffentlicher Vertrag
-
-Type Exports ist der öffentliche Referenz-Vertrag für `docs/de/type-exports.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: öffentliche Dateien, Package Exports, Manifest-Keys, Attribute und Host-Verdrahtung.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/type-exports.md`
-- `docs/menu.json`
-- `package.json`
-- `components/manifest.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-- `design-tokens/xtend-design-tokens.js`
-
-Namen:
-- `./xtendrmt/rmt-core.d.ts`
-- `./tools/rmt-language/rmt-tooling-public-types.d.ts`
-- `./maraca`
-- `./maraca/runtime`
-- `./xtend-maraca/index.d.ts`
-- `./xtend-maraca/runtime.d.ts`
-- `docs/de/type-exports.md`
-- `docs/menu.json`
-- `components/manifest.json`
-- `design-tokens/xtend-design-tokens.js`
-
-Befehle:
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn ein Host nichts lädt, prüfe Manifest-Pfad, Export-Name, Attribut-Schreibweise und ob die Datei lokal erreichbar ist.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

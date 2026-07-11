@@ -1,8 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const {
+  DOCS_CONTENT_TYPES,
+  isDocsContentType
+} = require('./docs_content_profiles');
 
-const rootDir = path.resolve(__dirname, '..');
-const docsDir = path.join(rootDir, 'docs');
+const DEFAULT_ROOT_DIR = path.resolve(__dirname, '..');
 const locales = ['de', 'en'];
 const requiredLearnRmtSlugs = [
   'learn-rmt',
@@ -22,15 +25,18 @@ const requiredRmtStackSlugs = [
   'xtend-fabric-runtime',
   'xtend-ui-runtime-layer'
 ];
+const EXPECTED_CANONICAL_SLUG_COUNT = 165;
+const EXPECTED_ALIAS_COUNT = 8;
 
 const forbiddenInternalPattern = /\b(?:WP-[A-Z0-9-]+|DPF-WP|ER-WP|Epic\s*[0-9]+|epic[0-9]+|Handoff|Gate Matrix|Release Owner|Workpackage|RC0|RC1)\b/u;
 const germanAsciiUmlautPattern = /\b(?:fuer|ueber|koennen|muessen|waehrend|enthaelt|prueft|pruefen|haerten|moeglich|laedt|fuehrt|gehoert|vollstaendig|zugehoerig|flaeche|aenderung|aenderungen|kompatibilitaet|qualitaet)\b/iu;
+const englishGermanProsePattern = /\b(?:Diese|Dieser|Dokumentierte|Browsernahe|Fehlerbehebung|Nächste\s+Schritte|Öffentliche|prüfe|prüfen|ausführen|verwendet|enthält)\b/u;
 
-function readJson(relativePath) {
+function readJson(relativePath, rootDir = DEFAULT_ROOT_DIR) {
   return JSON.parse(fs.readFileSync(path.join(rootDir, relativePath), 'utf8'));
 }
 
-function readText(relativePath) {
+function readText(relativePath, rootDir = DEFAULT_ROOT_DIR) {
   return fs.readFileSync(path.join(rootDir, relativePath), 'utf8');
 }
 
@@ -42,7 +48,7 @@ function walk(dir) {
   });
 }
 
-function toRelative(absolutePath) {
+function toRelative(absolutePath, rootDir = DEFAULT_ROOT_DIR) {
   return path.relative(rootDir, absolutePath).replace(/\\/g, '/');
 }
 
@@ -69,6 +75,10 @@ function stripCodeBlocks(markdown) {
   return String(markdown || '').replace(/```[\s\S]*?```/gu, '');
 }
 
+function stripInlineCode(markdown) {
+  return String(markdown || '').replace(/`[^`]*`/gu, '');
+}
+
 function collectMarkdownLinks(markdown) {
   const source = stripCodeBlocks(markdown);
   const links = [];
@@ -87,27 +97,94 @@ function fail(failures, message) {
   failures.push(message);
 }
 
-function runDocsPublicQualityCheck() {
+function resolveDocsAlias(slug, aliasMap = {}) {
+  const requestedSlug = String(slug || '');
+  const chain = [requestedSlug];
+  const visited = new Set();
+  let current = requestedSlug;
+
+  while (Object.prototype.hasOwnProperty.call(aliasMap, current)) {
+    if (visited.has(current)) {
+      return {
+        ok: false,
+        requestedSlug,
+        canonicalSlug: null,
+        chain,
+        error: `Alias loop detected: ${chain.join(' -> ')}`
+      };
+    }
+    visited.add(current);
+    current = String(aliasMap[current] || '');
+    chain.push(current);
+  }
+
+  return {
+    ok: true,
+    requestedSlug,
+    canonicalSlug: current,
+    chain,
+    aliased: chain.length > 1
+  };
+}
+
+function runDocsPublicQualityCheck(options = {}) {
+  const rootDir = options.rootDir || DEFAULT_ROOT_DIR;
+  const docsDir = path.join(rootDir, 'docs');
+  const expectedCanonicalSlugCount = options.expectedCanonicalSlugCount ?? EXPECTED_CANONICAL_SLUG_COUNT;
+  const expectedAliasCount = options.expectedAliasCount ?? EXPECTED_ALIAS_COUNT;
+  const learnRmtSlugs = options.requiredLearnRmtSlugs || requiredLearnRmtSlugs;
+  const rmtStackSlugs = options.requiredRmtStackSlugs || requiredRmtStackSlugs;
   const failures = [];
-  const menu = readJson('docs/menu.json');
+  const menu = readJson('docs/menu.json', rootDir);
   const menuSlugs = menu.map((entry) => entry.slug);
   const menuSlugSet = new Set(menuSlugs);
+  const aliasOwners = new Map();
 
   if (menuSlugs.length !== menuSlugSet.size) {
     fail(failures, 'docs/menu.json contains duplicate slugs.');
+  }
+  if (menuSlugs.length !== expectedCanonicalSlugCount) {
+    fail(failures, `docs/menu.json exposes ${menuSlugs.length} canonical slugs; expected ${expectedCanonicalSlugCount}.`);
   }
 
   for (const entry of menu) {
     if (!entry.slug || !entry.labels || !entry.labels.de || !entry.labels.en) {
       fail(failures, `Menu entry is missing slug or localized labels: ${JSON.stringify(entry)}`);
     }
+    if (!isDocsContentType(entry.contentType)) {
+      fail(failures, `Menu entry ${entry.slug || '<missing>'} has invalid contentType ${entry.contentType || '<missing>'}; expected one of ${DOCS_CONTENT_TYPES.join(', ')}.`);
+    }
+    const aliases = Array.isArray(entry.aliases) ? entry.aliases : [];
+    aliases.forEach((alias) => {
+      if (!alias || alias === entry.slug || menuSlugSet.has(alias)) {
+        fail(failures, `Menu alias ${alias || '<missing>'} for ${entry.slug} collides with a canonical slug.`);
+        return;
+      }
+      if (aliasOwners.has(alias)) {
+        fail(failures, `Menu alias ${alias} is owned by both ${aliasOwners.get(alias)} and ${entry.slug}.`);
+        return;
+      }
+      aliasOwners.set(alias, entry.slug);
+    });
   }
-  for (const slug of requiredLearnRmtSlugs) {
+  if (aliasOwners.size !== expectedAliasCount) {
+    fail(failures, `docs/menu.json exposes ${aliasOwners.size} route aliases; expected ${expectedAliasCount}.`);
+  }
+  const aliasMap = Object.fromEntries(aliasOwners.entries());
+  for (const alias of aliasOwners.keys()) {
+    const resolution = resolveDocsAlias(alias, aliasMap);
+    if (!resolution.ok) {
+      fail(failures, resolution.error);
+    } else if (!menuSlugSet.has(resolution.canonicalSlug)) {
+      fail(failures, `Menu alias ${alias} resolves to missing canonical slug ${resolution.canonicalSlug}.`);
+    }
+  }
+  for (const slug of learnRmtSlugs) {
     if (!menuSlugSet.has(slug)) {
       fail(failures, `Learn RMT slug is missing from docs/menu.json: ${slug}`);
     }
   }
-  for (const slug of requiredRmtStackSlugs) {
+  for (const slug of rmtStackSlugs) {
     if (!menuSlugSet.has(slug)) {
       fail(failures, `RMT stack slug is missing from docs/menu.json: ${slug}`);
     }
@@ -115,7 +192,7 @@ function runDocsPublicQualityCheck() {
 
   const allDocsMarkdown = walk(docsDir).filter((file) => file.endsWith('.md'));
   const nonLocalized = allDocsMarkdown
-    .map(toRelative)
+    .map((file) => toRelative(file, rootDir))
     .filter((relativePath) => !/^docs\/(?:de|en)\//u.test(relativePath));
   if (nonLocalized.length) {
     fail(failures, `Only docs/de and docs/en may contain public Markdown files: ${nonLocalized.join(', ')}`);
@@ -124,7 +201,7 @@ function runDocsPublicQualityCheck() {
   for (const locale of locales) {
     const localeFiles = walk(path.join(docsDir, locale))
       .filter((file) => file.endsWith('.md'))
-      .map(toRelative);
+      .map((file) => toRelative(file, rootDir));
     const localeSlugs = new Set(localeFiles.map(slugFromLocalizedRelative));
 
     for (const slug of menuSlugs) {
@@ -146,27 +223,32 @@ function runDocsPublicQualityCheck() {
 
   const publicTextFiles = [
     'README.md',
-    ...locales.flatMap((locale) => walk(path.join(docsDir, locale)).filter((file) => file.endsWith('.md')).map(toRelative))
+    ...locales.flatMap((locale) => walk(path.join(docsDir, locale))
+      .filter((file) => file.endsWith('.md'))
+      .map((file) => toRelative(file, rootDir)))
   ];
 
   for (const relativePath of publicTextFiles) {
-    const text = readText(relativePath);
-    const contentWithoutCode = stripCodeBlocks(text);
+    const text = readText(relativePath, rootDir);
+    const contentWithoutCode = stripInlineCode(stripCodeBlocks(text));
     if (forbiddenInternalPattern.test(contentWithoutCode)) {
       fail(failures, `${relativePath} contains internal planning vocabulary.`);
     }
     if ((relativePath.startsWith('docs/de/') || relativePath === 'README.md') && germanAsciiUmlautPattern.test(contentWithoutCode)) {
       fail(failures, `${relativePath} contains ASCII transliterations for German umlauts.`);
     }
+    if (relativePath.startsWith('docs/en/') && englishGermanProsePattern.test(contentWithoutCode)) {
+      fail(failures, `${relativePath} contains German prose in the English locale.`);
+    }
   }
 
-  const rootReadme = readText('README.md');
+  const rootReadme = readText('README.md', rootDir);
   if (!/^# XTend\n\nXTend is /u.test(rootReadme)) {
     fail(failures, 'README.md must be English-first and npm-facing.');
   }
 
   for (const relativePath of publicTextFiles.filter((file) => file.startsWith('docs/'))) {
-    const text = readText(relativePath);
+    const text = readText(relativePath, rootDir);
     for (const target of collectMarkdownLinks(text)) {
       const resolved = path.normalize(path.join(rootDir, path.dirname(relativePath), target));
       if (!resolved.startsWith(rootDir) || !fs.existsSync(resolved)) {
@@ -184,6 +266,8 @@ function runDocsPublicQualityCheck() {
     report: {
       schema: 'xtend.docs.public-quality.report.v1',
       slugCount: menuSlugs.length,
+      aliasCount: aliasOwners.size,
+      contentTypes: DOCS_CONTENT_TYPES.slice(),
       publicMarkdownCount: publicTextFiles.length,
       canonicalDocs: locales.map((locale) => `docs/${locale}`)
     }
@@ -213,6 +297,10 @@ if (require.main === module) {
 }
 
 module.exports = {
+  DEFAULT_ROOT_DIR,
+  EXPECTED_ALIAS_COUNT,
+  EXPECTED_CANONICAL_SLUG_COUNT,
   printDocsPublicQualityReport,
+  resolveDocsAlias,
   runDocsPublicQualityCheck
 };

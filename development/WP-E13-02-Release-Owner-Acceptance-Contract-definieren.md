@@ -19,7 +19,7 @@ Erzeugt:
 - `catalog/epic13-release-owner-acceptance.js`
 - `tests/platform/epic13_release_owner_acceptance_suite.js`
 - `development/XTend-Epic13-Release-Owner-Acceptance-Contract.md`
-- `docs/release-owner-acceptance.md`
+- `development/docs-evidence/legacy-routes/en/release-owner-acceptance.md`
 
 Aktualisiert:
 
@@ -27,7 +27,7 @@ Aktualisiert:
 - `package.json`
 - `xtend-builder/scaffold.config.js`
 - `scripts/run_xtend_tests.js`
-- `docs/README.md`
+- `docs/en/README.md`
 - `docs/menu.json`
 - `tests/README.md`
 - `README.md`
@@ -36,7 +36,7 @@ Aktualisiert:
 - `development/XTend-Release-Checklist-und-SemVer-Policy.md`
 - `development/XTend-CI-Gate-Matrix.md`
 - `docs/enterprise-adoption.md`
-- `docs/rc1-readiness.md`
+- `development/docs-evidence/legacy-routes/en/rc1-readiness.md`
 
 ## Decisions
 

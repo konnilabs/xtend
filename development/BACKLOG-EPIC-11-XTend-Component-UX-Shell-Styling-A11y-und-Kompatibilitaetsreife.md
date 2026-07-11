@@ -31,8 +31,8 @@
   - `development/XTend-Epic11-Abschluss-und-Enterprise-UX-Handoff.md`
   - `docs/component-ux-authoring.md`
   - `docs/component-ux-app-authoring.md`
-  - `docs/component-ux-gates.md`
-  - `docs/component-long-tail-migration.md`
+  - `development/docs-evidence/root/component-ux-gates.md`
+  - `docs/en/component-long-tail-migration.md`
   - `docs/epic11-enterprise-ux-handoff.md`
   - `development/XTend-Component-UX-Performance-Profile.md`
   - `development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md`
@@ -44,7 +44,7 @@
   - `development/XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md`
   - `development/XTend-RMT-First-Class-App-Authoring.md`
   - `development/XTend-Fabric-Component-Compatibility-v2.md`
-  - `docs/component-platform.md`
+  - `development/docs-evidence/root/component-platform.md`
   - `docs/rmt-first-xtend-apps.md`
   - `catalog/component-catalog-coverage.js`
   - `components/manifest.json`
@@ -638,7 +638,7 @@ Erledigt:
 
 - Component UX Authoring Guides liegen in `development/XTend-Component-UX-Authoring-Guides.md`
 - Workpackage-Abnahme liegt in `development/WP-E11-16-Docs-und-Authoring-Guides-fuer-Component-UX-aktualisieren.md`
-- Docs liegen in `docs/component-ux-authoring.md`, `docs/component-ux-app-authoring.md` und `docs/component-ux-gates.md`
+- Docs liegen in `docs/component-ux-authoring.md`, `docs/component-ux-app-authoring.md` und `development/docs-evidence/root/component-ux-gates.md`
 - lokaler Gate liegt in `tests/docs/component_ux_authoring_docs_suite.js`
 - Runner-Suite: `component-ux-authoring-docs`
 - lokaler Befehl: `node scripts/run_xtend_tests.js component-ux-authoring-docs --json`
@@ -653,7 +653,7 @@ Erledigt:
 
 - Legacy Long-Tail Migrationsplan liegt in `development/XTend-Epic11-Legacy-Long-Tail-Migrationsplan.md`
 - Workpackage-Abnahme liegt in `development/WP-E11-17-Legacy-Long-Tail-Migration-planen.md`
-- Entwicklerdokumentation liegt in `docs/component-long-tail-migration.md`
+- Entwicklerdokumentation liegt in `docs/en/component-long-tail-migration.md`
 - maschinenlesbarer Plan liegt in `catalog/component-long-tail-migration.js`
 - lokaler Gate liegt in `tests/catalog/component_long_tail_migration_suite.js`
 - Runner-Suite: `component-long-tail-migration`

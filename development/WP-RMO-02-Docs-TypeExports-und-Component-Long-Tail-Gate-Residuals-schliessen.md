@@ -18,11 +18,11 @@ Bekannte Gate-Residuals werden so geschlossen, dass die naechsten Owned-Primitiv
 | `development/XTend-RMT-UI-Maximality-Owned-Component-Surface-Hardening-Gate-Hygiene-Report.md` | Gate-Hygiene-Report und Owner-Handoff |
 | `tests/fixtures/native-first/rmt-ui-maximality-owned-surface-gate-hygiene-fixtures.json` | maschinenlesbare Gate- und Handoff-Evidence |
 | `tests/native-first/rmt_ui_maximality_owned_surface_gate_hygiene_suite.js` | lokaler Gate fuer WP-RMO-02 |
-| `docs/component-long-tail-migration.md` | stabiler Long-Tail-Docs-Pfad fuer Legacy-Gate |
-| `docs/component-ux-gates.md` | stabiler Component-UX-Gate-Brueckenpfad |
-| `docs/component-catalog-coverage.md` | stabiler Catalog-Coverage-Brueckenpfad |
+| `docs/en/component-long-tail-migration.md` | stabiler Long-Tail-Docs-Pfad fuer Legacy-Gate |
+| `development/docs-evidence/root/component-ux-gates.md` | stabiler Component-UX-Gate-Brueckenpfad |
+| `development/docs-evidence/root/component-catalog-coverage.md` | stabiler Catalog-Coverage-Brueckenpfad |
 | `docs/de/component-long-tail-migration.md`, `docs/en/component-long-tail-migration.md` | lokalisierte Menueziele |
-| `docs/README.md` | TypeExports- und Long-Tail-Links |
+| `docs/en/README.md` | TypeExports- und Long-Tail-Links |
 | `catalog/component-long-tail-migration.js` | `xtend-i18n` als aktuelle Boundary-Probe sichtbar |
 
 ## Entscheidungen

@@ -81,7 +81,7 @@ function runEpic13Rc1GateMatrixCiHandoffSuite(options = {}) {
   const releaseChecklist = readText('development/XTend-Release-Checklist-und-SemVer-Policy.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const packageExportContract = readText('development/XTend-Epic13-Package-Export-Lock-Contract.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const rootReadme = readText('README.md', rootDir);
@@ -114,6 +114,8 @@ function runEpic13Rc1GateMatrixCiHandoffSuite(options = {}) {
   context.assert(plan.status === EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_STATUS, 'RC1 gate matrix is accepted');
   context.assert(plan.targetReadiness === EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_TARGET, 'RC1 gate matrix target is CI handoff ready');
   context.assert(plan.packageExport === EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_PACKAGE_EXPORT, 'RC1 gate matrix declares package export');
+  context.assert(plan.docsMenuSlug === 'release-verification', 'RC1 gate matrix points to the canonical public release page');
+  context.assert(plan.docsAliasSlug === 'rc1-gate-matrix-ci-handoff', 'RC1 gate matrix preserves its former public slug as an alias');
   context.assert(plan.handoffContract.releaseOwnerVisible === true, 'handoff is release-owner visible');
   context.assert(plan.handoffContract.ciMaintainerVisible === true, 'handoff is CI-maintainer visible');
   context.assert(plan.handoffContract.localGateRequiresNetwork === false, 'handoff local gate remains network-free');
@@ -203,8 +205,8 @@ function runEpic13Rc1GateMatrixCiHandoffSuite(options = {}) {
   ], 'release checklist');
   assertTextIncludesAll(context, registry, [EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA, EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_DOCS], 'documentation registry');
   assertTextIncludesAll(context, packageExportContract, [`expectedExportCount: \`${packageLockMetadata.expectedExportCount}\``, EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_PACKAGE_EXPORT], 'package export contract');
-  assertTextIncludesAll(context, docsReadme, ['./rc1-gate-matrix-ci-handoff.md', EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA], 'docs README');
-  assertTextIncludesAll(context, docsMenu, ['"slug": "rc1-gate-matrix-ci-handoff"', 'RC1 Gate Matrix und CI-Handoff'], 'docs menu');
+  context.assertIncludes(docsReadme, './release-verification.md', 'docs README links canonical release verification');
+  assertTextIncludesAll(context, docsMenu, ['"slug": "release-verification"', '"rc1-gate-matrix-ci-handoff"'], 'docs menu keeps canonical release page and legacy alias');
   assertTextIncludesAll(context, testsReadme, [EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_LOCAL_GATE, EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA], 'tests README');
   assertTextIncludesAll(context, rootReadme, ['xtend.epic13Rc1GateMatrixCiHandoff', EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_PACKAGE_SCRIPT, EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA], 'root README');
   assertTextIncludesAll(context, changelog, [EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA, 'RC1 Gate Matrix'], 'changelog');

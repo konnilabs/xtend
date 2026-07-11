@@ -64,13 +64,21 @@ Attribute:
 - `responsive-mode`
 - `resizable`
 - `collapsible`
-- `collapsable` (Legacy-Alias fuer `collapsible`)
+- `collapsable` (Legacy-Alias für `collapsible`)
 - `closable`
 - `pinnable`
 - `route-aware`
 - `modal`
 - `initial-width`
 - `initial-height`
+- `initial-x`
+- `initial-y`
+- `initial-min-width`
+- `initial-min-height`
+- `initial-max-width`
+- `initial-max-height`
+- `bounds-mode`
+- `bounds-scope`
 
 Events:
 - `surface-panel-command`
@@ -136,7 +144,7 @@ CSS Custom Properties:
 
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
 
-Verwende `collapsible`, `closable="false"` und `pinnable="false"`, um die Panel-Chrome fuer fokussierte Produktshells zu begrenzen. Diese Flags wirken auf die sichtbaren Header-Controls und auf die erzeugten Surface-Record-Capabilities; ein nicht schliessbares Panel bewirbt also keine `close`-Aktion.
+Verwende `collapsible`, `closable="false"` und `pinnable="false"`, um die Panel-Chrome für fokussierte Produktshells zu begrenzen. Diese Flags wirken auf die sichtbaren Header-Controls und auf die erzeugten Surface-Record-Capabilities; ein nicht schliessbares Panel bewirbt also keine `close`-Aktion.
 
 Surface-Modi bleiben Teil des Runtime-Vertrags: `docked`, `overlay`, `pinned`, `collapsed`, `fullscreen` und die responsive Vorgabe `fullscreen-under-720`.
 

@@ -63,6 +63,7 @@ Attribute:
 Events:
 - `status-changed`
 - `status-dismissed`
+- `xtend-command`
 
 Methoden:
 - `setStatus(nextState?: Partial<XStatusState>)`

@@ -10,7 +10,7 @@
   - `development/XTend-Epic11-Abschluss-und-Enterprise-UX-Handoff.md`
   - `development/XTend-Epic11-Legacy-Long-Tail-Migrationsplan.md`
   - `docs/epic11-enterprise-ux-handoff.md`
-  - `docs/component-long-tail-migration.md`
+  - `docs/en/component-long-tail-migration.md`
   - `catalog/epic11-enterprise-ux-handoff.js`
   - `catalog/component-long-tail-migration.js`
 

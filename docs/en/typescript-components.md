@@ -4,17 +4,28 @@ How XTend components are typed, documented and tested.
 
 ## What it covers
 
-TypeScript Components documents the core path through local modules, public TypeScript surfaces and verifiable host wiring.
+XTend develops stable components TypeScript-first. Editable source lives under `src/components/<tag>/`; `tsc` emits browser runtime and a sibling `.d.ts` file under `components/`.
 
 ## Public building blocks
 
-- Source in `src/components`.
-- Build-Ausgabe in `components`.
-- Fixture, accessibility and performance profiles.
+- The main source implements the element, properties, and lifecycle.
+- `*.contract.ts`, `*.rmt.ts`, `*.a11y.ts`, and `*.performance.ts` keep separate contracts.
+- `components/manifest.json` registers the generated local runtime path only.
 
 ## Recommended workflow
 
-Read the overview, copy the smallest suitable example and add host-specific details only afterwards.
+A host consumes the emitted declaration rather than internal build types:
+
+```ts
+import type { XToggleElement } from "@ccslabs/xtend/components/xtoggle";
+
+const toggle = document.querySelector<XToggleElement>("x-toggle");
+toggle?.addEventListener("toggle-changed", (event) => {
+  console.log(event.detail.checked);
+});
+```
+
+Change source, declaration, fixture, and component article together. A manual patch to `components/*.js` alone is overwritten by the next build.
 
 ## Next steps
 
@@ -22,57 +33,3 @@ Read the overview, copy the smallest suitable example and add host-specific deta
 - [API](./api.md)
 - [XTend Loader](./xtend-loader.md)
 - [Design Tokens](./design-tokens.md)
-
-## Public contract
-
-TypeScript Components is the public reference contract for `docs/en/typescript-components.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: public files, package exports, manifest keys, attributes and host wiring.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/typescript-components.md`
-- `docs/menu.json`
-- `package.json`
-- `components/manifest.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-- `design-tokens/xtend-design-tokens.js`
-
-Names:
-- `src/components`
-- `docs/en/typescript-components.md`
-- `docs/menu.json`
-- `components/manifest.json`
-- `design-tokens/xtend-design-tokens.js`
-- `docs/dev-router.php`
-- `package.json`
-- `xtend-loader.js`
-- `api.js`
-- `api.d.ts`
-
-Commands:
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a host loads nothing, check the manifest path, export name, attribute spelling and local file reachability.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

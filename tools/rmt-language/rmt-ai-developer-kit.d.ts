@@ -120,7 +120,7 @@ export const RMT_AI_DEVELOPER_KIT_GUARDRAILS_SCHEMA: 'xtend.rmt.ai-developer-kit
 export const RMT_AI_DEVELOPER_KIT_LOCAL_GATE: 'node scripts/run_xtend_tests.js rmt-ai-developer-kit --json';
 export const RMT_AI_DEVELOPER_KIT_MANIFEST_SCHEMA: 'xtend.rmt.ai-developer-kit.manifest.v1';
 export const RMT_AI_DEVELOPER_KIT_MODULE_PATH: 'tools/rmt-language/rmt-ai-developer-kit.js';
-export const RMT_AI_DEVELOPER_KIT_OUTPUT_DIR: 'docs/ai/rmt-ai-developer-kit';
+export const RMT_AI_DEVELOPER_KIT_OUTPUT_DIR: 'tools/rmt-language/generated/rmt-ai-developer-kit';
 export const RMT_AI_DEVELOPER_KIT_PACKAGE_SCRIPT: 'npm run test:rmt-ai-developer-kit';
 export const RMT_AI_DEVELOPER_KIT_RECIPE_RECORD_SCHEMA: 'xtend.rmt.ai-developer-kit.recipe-record.v1';
 export const RMT_AI_DEVELOPER_KIT_REFERENCE_RECORD_SCHEMA: 'xtend.rmt.ai-developer-kit.reference-record.v1';

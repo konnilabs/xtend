@@ -16,7 +16,7 @@ Die Demo-App beweist den produktiven Epic-10-Pfad: XTend liefert lokale Web Comp
 - Demo Host / Browser Smoke: `tests/browser/fixtures/rmt-first-demo-app-smoke.html`
 - Demo Runtime: `xtendrmt/rmt-first-demo-app.js`
 - Gate: `tests/rmt/rmt_first_demo_app_suite.js`
-- Developer Docs: `docs/rmt-first-demo-app.md`
+- Developer Docs: `docs/en/rmt-first-demo-app.md`
 
 ## Architekturentscheidung
 

@@ -22,7 +22,7 @@ externe HTML-String-Hilfskruecken als DOM Descriptor ausgefuehrt werden.
 | `catalog/epic18-rmt-dom-descriptor-renderer.js` | maschinenlesbarer Contract, Gate- und Handoff-Metadaten |
 | `tests/fixtures/rmt-dom-descriptor-renderer.rmt` | produktneutrale RMT-Fixture fuer Shell, Slots, Repeat und Trusted Boundary |
 | `tests/rmt/rmt_dom_descriptor_renderer_suite.js` | lokaler Gate `rmt-dom-descriptor-renderer` |
-| `docs/rmt-dom-descriptor-renderer.md` | Entwicklerdokumentation |
+| `docs/en/rmt-dom-descriptor-renderer.md` | Entwicklerdokumentation |
 
 ## Implementierte Garantien
 

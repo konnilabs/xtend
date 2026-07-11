@@ -30,7 +30,8 @@ const {
 const {
   buildMaracaBundle,
   buildMaracaBundleAsync,
-  createMaracaBuildPlan
+  createMaracaBuildPlan,
+  tuneMaracaBuild
 } = requireLocalOrScoped(
   __filename,
   '../../xtend-maraca',
@@ -137,10 +138,11 @@ function buildHelpText() {
     '  xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --profile production --lazy route --css external --pwa --json',
     '  xt maraca build app.rmt --out dist --web-app-manifest --json',
     '  xt maraca build app.rmt --vendor xtend --out products/xtend-vendor-maraca --lazy none --json',
+    '  xt maraca tune app.rmt --config maraca.config.json --out dist --write --json',
     '  xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --json',
     '  xt rmt lint app.rmt --json',
     '  xt rmt ai-kit export --profile compact --format md --json',
-    '  xt rmt ai-kit export --profile full --format jsonl --out docs/ai/rmt-ai-developer-kit --json',
+    '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
     '  xt kernel-lab analyze --json',
     '  xt kernel-lab build --profile clean --check --json',
     '  xt kernel-lab build --profile clean --version 0.4.0 --write --json',
@@ -196,6 +198,7 @@ function buildHelpText() {
     '  validate  Alias for verify.',
     '  maraca plan   Compile an RMT document into a loaderless modern-ESM bundle plan.',
     '  maraca build  Build a loaderless modern-ESM app entry and Maraca reports.',
+    '  maraca tune   Evaluate and lock a deterministic Rollup/Terser build configuration.',
     '  rmt build     Build an RMT document; pass --bundle maraca for the one-step Maraca path.',
     '  rmt lint  Lint native .rmt files and fallback .rmt.json files.',
     '  rmt ai-kit export  Export the RMT AI Developer Kit for agent ingest.',
@@ -641,10 +644,12 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --profile production --lazy route --css inline --pwa --json',
         '  xt maraca build app.rmt --out dist --manifest --json',
         '  xt maraca build app.rmt --vendor xtend --out products/xtend-vendor-maraca --lazy none --json',
+        '  xt maraca tune app.rmt --config maraca.config.json --out dist --write --json',
         '',
         'Commands:',
         '  plan   Compile an RMT document into a loaderless modern-ESM bundle plan.',
-        '  build  Build a loaderless modern-ESM app entry and Maraca reports.'
+        '  build  Build a loaderless modern-ESM app entry and Maraca reports.',
+        '  tune   Evaluate twelve production candidates and write or check a build config.'
       ].join('\n'));
       return 0;
     }
@@ -791,7 +796,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
           '',
           'Usage:',
           '  xt rmt ai-kit export --profile compact --format md --json',
-          '  xt rmt ai-kit export --profile full --format jsonl --out docs/ai/rmt-ai-developer-kit --json',
+          '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
           '',
           'Commands:',
           '  export  Export the multi-format RMT AI Developer Kit.'
@@ -813,7 +818,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt rmt lint app.rmt',
         '  xt rmt lint app.rmt --json',
         '  xt rmt ai-kit export --profile compact --format md --json',
-        '  xt rmt ai-kit export --profile full --format jsonl --out docs/ai/rmt-ai-developer-kit --json',
+        '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
         '  xt rmt kernel-lab analyze --json',
         '  xt rmt kernel-lab build --profile clean --check --json',
         '  xt rmt kernel-lab build --profile clean --version 0.4.0 --write --json',
@@ -858,6 +863,20 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
         writeLine(stdout, `XTend Maraca Build: ${result.status}`);
         writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
         writeLine(stdout, `Bundle bytes: ${result.bundleReport.bytes}`);
+      } else {
+        printMaracaDiagnostics(stderr, result);
+      }
+      return result.ok ? 0 : 1;
+    }
+
+    if (subcommand === 'tune') {
+      const result = await tuneMaracaBuild(flags, { rootDir: process.cwd() });
+      if (flags.json || options.json) {
+        writeLine(stdout, JSON.stringify(result, null, 2));
+      } else if (result.ok) {
+        writeLine(stdout, `XTend Maraca Tune: ${result.status}`);
+        writeLine(stdout, `Selected: ${result.selected.id}`);
+        writeLine(stdout, `Config: ${result.configPath}`);
       } else {
         printMaracaDiagnostics(stderr, result);
       }

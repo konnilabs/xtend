@@ -4,17 +4,17 @@ An architecture path for apps whose shell comes from RMT.
 
 ## What it covers
 
-RMT-first XTend Apps describes the public RMT surface for this page: which records are involved, which adapters exercise them and which scheduler signals a host should verify.
+An RMT-first application owns its shell, state, and actions in RMT source. HTML provides mount targets and local modules only; imperative host JavaScript remains limited to adapters and real platform services.
 
 ## Public building blocks
 
-- `.rmt` sources.
-- Core records and source maps.
-- Host adapters for DOM, router and components.
+- `xtendrmt/rmt-first-demo-app.rmt` is the minimal shell.
+- `xtendrmt/rmt-app-runtime.js` accepts core records into the runtime.
+- `components/manifest.json` supplies locally allowed UI tags.
 
 ## Recommended workflow
 
-Start RMT-first XTend Apps with the smallest record example, validate it with the linter and only then attach adapters for host data, routing or components.
+Start with one surface and one state record. Add actions and resources only after the first core snapshot is stable, and keep network, storage, or browser APIs behind an explicit host adapter.
 
 ## Next steps
 
@@ -23,58 +23,10 @@ Start RMT-first XTend Apps with the smallest record example, validate it with th
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
-## Public contract
-
-RMT-first XTend Apps is the public RMT runtime contract for `docs/en/rmt-first-xtend-apps.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: RMT records, compiler output, runtime adapters, events, actions and scheduler lanes.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/rmt-first-xtend-apps.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Names:
-- `docs/en/rmt-first-xtend-apps.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-
-Commands:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
+## Verify the shell contract
 
 ```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+node scripts/run_xtend_tests.js rmt-first-class-app --json
 ```
 
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If runtime behavior differs, separate compiler record, host adapter and scheduler signal before changing the docs.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+The gate checks source, registry, and host boundary together. Parser success is insufficient if the shell still needs manual UI creation or a second state owner.

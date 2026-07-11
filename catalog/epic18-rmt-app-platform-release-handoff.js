@@ -14,27 +14,27 @@ const EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_STATUS = 'accepted-docs-migration-
 const EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_TARGET = 'epic18-rmt-app-platform-release-ready';
 const EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_MODULE = 'catalog/epic18-rmt-app-platform-release-handoff.js';
 const EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_SUITE = 'tests/platform/epic18_rmt_app_platform_release_handoff_suite.js';
-const EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_DOCS = 'docs/epic18-rmt-app-platform-release-handoff.md';
-const EPIC18_RMT_APP_PLATFORM_MIGRATION_GUIDE = 'docs/rmt-app-platform-migration-guide.md';
-const EPIC18_VENDOR_BUGFIX_DOCS = 'docs/epic18-vendor-bugfixes.md';
+const EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_DOCS = 'docs/en/rmt-app-platform-migration-guide.md';
+const EPIC18_RMT_APP_PLATFORM_MIGRATION_GUIDE = 'docs/en/rmt-app-platform-migration-guide.md';
+const EPIC18_VENDOR_BUGFIX_DOCS = 'docs/en/rmt-app-platform-migration-guide.md';
 const EPIC18_RMT_APP_PLATFORM_WORKPACKAGE_DOC = 'development/WP-E18-13-Docs-Migration-Guide-Vendor-Rebuild-und-Release-Handoff.md';
 const EPIC18_BACKLOG = 'development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md';
-const EPIC18_DOCUMENT = 'docs/epic18-media-manager-vendor-upstream.md';
+const EPIC18_DOCUMENT = 'development/docs-evidence/root/epic18-media-manager-vendor-upstream.md';
 const EPIC18_LOCAL_GATE = 'node scripts/run_xtend_tests.js epic18-rmt-app-platform --json';
 const EPIC18_PACKAGE_SCRIPT = 'npm run test:epic18-rmt-app-platform';
 
 const REQUIRED_DOCS = Object.freeze([
   EPIC18_DOCUMENT,
   EPIC18_VENDOR_BUGFIX_DOCS,
-  'docs/rmt-app-platform-authoring.md',
-  'docs/rmt-dom-descriptor-renderer.md',
-  'docs/rmt-component-template-primitives.md',
+  'development/docs-evidence/root/rmt-app-platform-authoring.md',
+  'docs/en/rmt-dom-descriptor-renderer.md',
+  'docs/en/rmt-component-template-primitives.md',
   'docs/rmt-state-selector-runtime.md',
   'docs/rmt-action-effect-runtime.md',
   'docs/rmt-event-routing-runtime.md',
   'docs/rmt-surface-resource-graph-runtime.md',
-  'docs/rmt-app-platform-tooling.md',
-  'docs/rmt-app-platform-fixture.md',
+  'docs/en/rmt-app-platform-tooling.md',
+  'docs/en/rmt-app-platform-fixture.md',
   EPIC18_RMT_APP_PLATFORM_MIGRATION_GUIDE,
   EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_DOCS,
   EPIC18_RMT_APP_PLATFORM_WORKPACKAGE_DOC

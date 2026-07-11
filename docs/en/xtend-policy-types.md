@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-policy-report.json
 ## Maintenance Notes
 
 Keep policy types data-centered. A new report should make clear which source emits it, which fields are stable and how a host should handle optional missing data. If a name becomes public in `./fabric/xtend-fabric.d.ts`, it should also be visible in the shared declaration and the TypeExports plan. This keeps diagnostics, accessibility and security usable as public contracts without exposing internal scheduling details.
+
+## Related reading
+
+The manifest import policy shows where typed policy decisions become observable diagnostics. [Related article](./manifest-import-policy.md)

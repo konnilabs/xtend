@@ -1,5 +1,7 @@
 # RMT Reference: Security und Policies
 
+Die ausführbaren Sprachregeln befinden sich in `tools/rmt-language/vnext-security.js`.
+
 Security- und Hydration-Policies stehen in Policy-Blöcken von Lifecycle-Operationen.
 
 ## Syntax
@@ -56,3 +58,7 @@ Policy-Blöcke erlauben nur Slots, Event Bindings, Hydration-, Isolation- und Se
 ## Related operators
 
 `mount`, `hydrate`, `stream`, `remote surface`, `origin`, `integrity sha256`.
+
+## Weiterführend
+
+Der RMT-Referenzindex trennt sprachseitige Policy-Records von der Sicherheitsrichtlinie des Hosts. [Verwandter Artikel](./rmt-reference.md)

@@ -27,10 +27,10 @@ ER-WP-32 schliesst die aus `ER-WP-31` sichtbaren Docs-/Naming-Luecken im Compone
 | `docs/components/xsummary.md` | Component-Doku fuer `<x-summary>`, State-Key, Events und A11y |
 | `docs/components/xutils.md` | Utility-Doku fuer `x-utils`, `window.XUtils` und Nicht-Custom-Element-Contract |
 | `docs/menu.json` | neue Slugs `components-xsummary` und `components-xutils` |
-| `docs/README.md` | Component-Uebersicht mit `x-summary` und `x-utils` |
+| `docs/en/README.md` | Component-Uebersicht mit `x-summary` und `x-utils` |
 | `docs/components.md` | allgemeine Component-Doku mit ER-WP-32 Naming-Regel |
 | `development/XTend-Component-Catalog-Coverage-Matrix.md` | aktualisierter Snapshot mit `28/28` Docs-Coverage |
-| `docs/component-catalog-coverage.md` | Entwicklerdoku fuer die geschlossene Docs-Dimension |
+| `development/docs-evidence/root/component-catalog-coverage.md` | Entwicklerdoku fuer die geschlossene Docs-Dimension |
 | `tests/catalog/component_catalog_coverage_suite.js` | Gate-Erwartungen fuer dokumentierte `x-summary`/`x-utils` |
 | `tests/references/reference_path_suite.js` | Referenz-Gate fuer Naming-Doc, neue Docs und aktualisierten Handoff |
 

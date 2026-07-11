@@ -56,6 +56,7 @@ Events:
 - `menu-keyboard-navigation`
 - `menu-performance-measured`
 - `x-navigate`
+- `xtend-command`
 
 Methods:
 - `getPerformanceBudget()`

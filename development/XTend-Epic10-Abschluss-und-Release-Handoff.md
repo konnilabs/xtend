@@ -26,11 +26,11 @@ private-until-release-owner-acceptance
 
 | Zweck | Dokument |
 |-------|----------|
-| Component Platform Gesamtbild | `docs/component-platform.md` |
+| Component Platform Gesamtbild | `development/docs-evidence/root/component-platform.md` |
 | TypeScript-first Komponenten | `docs/typescript-components.md` |
 | RMT-first XTend Apps | `docs/rmt-first-xtend-apps.md` |
 | Component Lab und RMT Inspector | `docs/component-lab.md` |
-| RMT-first Demo-App | `docs/rmt-first-demo-app.md` |
+| RMT-first Demo-App | `docs/en/rmt-first-demo-app.md` |
 | Existing Component Metadata | `docs/existing-component-metadata.md` |
 | Browser/A11y/Performance/Visual Gates | `docs/epic10-platform-gates.md` |
 | Release Handoff und Migration Notes | `docs/epic10-release-handoff.md` |

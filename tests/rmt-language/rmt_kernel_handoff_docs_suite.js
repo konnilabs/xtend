@@ -57,7 +57,7 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
     RMT_KERNEL_HANDOFF_DOCS_CONTRACT,
     RMT_KERNEL_HANDOFF_DOCS_WORKPACKAGE_DOC,
     RMT_KERNEL_HANDOFF_DOCS_BACKLOG,
-    'docs/README.md',
+    'docs/en/README.md',
     'docs/menu.json',
     'tests/rmt/README.md',
     'scripts/run_xtend_tests.js',
@@ -73,7 +73,7 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelHandoffDocs;
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readJson('docs/menu.json', rootDir);
   const testsReadme = readText('tests/rmt/README.md', rootDir);
   const backlog = readText(RMT_KERNEL_HANDOFF_DOCS_BACKLOG, rootDir);

@@ -80,11 +80,11 @@ const REQUIRED_ARTIFACTS = Object.freeze([
   'development/XTend-Epic13-RC1-Readiness-Modell.md',
   'development/XTend-Epic13-Release-Owner-Acceptance-Contract.md',
   'development/XTend-Epic13-Package-Export-Lock-Contract.md',
-  'docs/README.md',
+  'docs/en/README.md',
   'docs/menu.json',
-  'docs/rc1-readiness.md',
-  'docs/release-owner-acceptance.md',
-  'docs/trusted-dom-boundary-browser-proof.md'
+  'development/docs-evidence/legacy-routes/en/rc1-readiness.md',
+  'development/docs-evidence/legacy-routes/en/release-owner-acceptance.md',
+  'docs/en/trusted-dom-boundary-browser-proof.md'
 ]);
 
 function createMigrationSection(id, owner, evidence, risk, action) {
@@ -150,7 +150,7 @@ function createEpic13Rc1MigrationNotesPlan(options = {}) {
       createMigrationSection('package-export-surface', 'package', 'catalog/epic13-package-export-lock.js', 'Consumers should rely on documented exports only.', 'Use the locked export map and treat catalog gates as explicit public tooling exports.'),
       createMigrationSection('rmt-first-app-authoring', 'xtendrmt', 'docs/rmt-first-xtend-apps.md', 'Manual shells should not become the default app integration path.', 'Template app shells in RMT and keep XTend adapters outside the kernel.'),
       createMigrationSection('docs-rmt-parsedown-shell', 'docs', 'docs/docs-rmt-production-hardening.md', 'Parsedown HTML remains DOM-untrusted even with RMT orchestration.', 'Schedule Parsedown as a component and sanitize before DOM sinks.'),
-      createMigrationSection('trusted-dom-boundary', 'security', 'docs/trusted-dom-boundary-browser-proof.md', 'HTML fragments and Markdown output can cross unsafe DOM boundaries.', 'Prefer dom_descriptor and route html_fragment through the Trusted-DOM sanitizer.'),
+      createMigrationSection('trusted-dom-boundary', 'security', 'docs/en/trusted-dom-boundary-browser-proof.md', 'HTML fragments and Markdown output can cross unsafe DOM boundaries.', 'Prefer dom_descriptor and route html_fragment through the Trusted-DOM sanitizer.'),
       createMigrationSection('fabric-lanes-telemetry', 'fabric', 'fabric/xtend-fabric.js', 'Telemetry integrations need stable lane semantics.', 'Use Fabric adapters and RMT lane mappings instead of component-local scheduler assumptions.'),
       createMigrationSection('component-typescript-and-dts', 'components', 'components/*.d.ts', 'Component APIs now carry stronger type and metadata contracts.', 'Consume generated d.ts files and keep component metadata aligned with manifests.'),
       createMigrationSection('known-residuals-and-watchpoints', 'release-owner', 'docs/known-residual-triage.md', 'Closed residuals can reappear when old loaders or utility boundaries are bypassed.', 'Keep xstate and x-utils as boundary contracts and monitor hydration watchpoints.'),

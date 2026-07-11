@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-builder-report.json
 ## Maintenance Notes
 
 Keep builder types close to the artifacts a host actually needs to see. Add clear optional fields when a new mode appears, and avoid vague `any` surfaces. A good builder update changes runtime, declarations, tests and documentation together. This lets third-party developers use the builder as a reliable automation building block without learning private XTend directory rules.
+
+## Related reading
+
+The app-platform tooling guide exercises the builder declarations in a complete authoring flow. [Related article](./rmt-app-platform-tooling.md)

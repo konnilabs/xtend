@@ -53,7 +53,7 @@
   - `docs/xtendrmt-overview.md`
   - `docs/xtend-fabric.md`
   - `docs/performance.md`
-  - `docs/component-catalog-coverage.md`
+  - `development/docs-evidence/root/component-catalog-coverage.md`
   - `xtend-builder/typing/component-types.js`
   - `xtend-builder/generators/component-files.js`
   - `xtend-builder/scaffold.config.js`
@@ -679,7 +679,7 @@ Epic 10 gilt als abgeschlossen, wenn:
 - Das maschinenlesbare Modul liegt in `catalog/epic10-release-handoff.js`.
 - Die kanonische Component-Fabric-Boundary ist `adapter-injection-via-xtend-component-resolveFabricContext`.
 - `window.XTendFabric` bleibt Host-Komfort- und Enterprise-Integrationsflaeche, aber nicht der Component-Contract.
-- Die kanonische Docs-Struktur ist `docs/component-platform.md`, `docs/typescript-components.md`, `docs/rmt-first-xtend-apps.md`, `docs/epic10-platform-gates.md` und `docs/epic10-release-handoff.md`.
+- Die kanonische Docs-Struktur ist `development/docs-evidence/root/component-platform.md`, `docs/typescript-components.md`, `docs/rmt-first-xtend-apps.md`, `docs/epic10-platform-gates.md` und `docs/epic10-release-handoff.md`.
 - Migration Notes und Release-Handoff liegen in `docs/epic10-release-handoff.md`.
 - Publishing bleibt durch `private-until-release-owner-acceptance` blockiert.
 - Die RMT Boundary bleibt `no-rmt-kernel-import-of-xtend-types`.
@@ -746,10 +746,10 @@ Epic 10 gilt als abgeschlossen, wenn:
 - `tests/components/xdrawer.component_suite.js`
 - `docs/typescript-components.md`
 - `docs/rmt-first-xtend-apps.md`
-- `docs/component-platform.md`
+- `development/docs-evidence/root/component-platform.md`
 - `docs/epic10-release-handoff.md`
 - `docs/component-lab.md`
-- `docs/rmt-first-demo-app.md`
+- `docs/en/rmt-first-demo-app.md`
 - `docs/existing-component-metadata.md`
 - lokale Tests fuer Component Contract v2, RMT App Authoring, Fabric Ingestion, TypeScript Blueprint, P0 Component Wave, Component Suites und Catalog Coverage
 

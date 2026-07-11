@@ -44,6 +44,12 @@ const XUTILS_UI_EFFECTS_STATE_ATTR = 'data-xt-ui-effects-state';
 const XUTILS_UI_EFFECTS_SOURCE_ATTR = 'data-xt-ui-effects-source';
 const XUTILS_UI_EFFECTS_DEFAULT_DURATION_MS = 500;
 
+function toArray(value) {
+  if (Array.isArray(value)) return value;
+  if (value === null || value === undefined) return [];
+  return [value];
+}
+
 function normalizeImportSpecifier(specifier) {
   return String(specifier || '').trim();
 }

@@ -44,4 +44,4 @@ After the component hardening wave, the open long tail contains only infrastruct
 - Migration remains incremental; there is no `big-bang` rewrite path.
 - RMT keeps the `no-rmt-kernel-import-of-xtend-types` boundary.
 - Helper surfaces use adapter and integration probes instead of forced visual shell rewrites.
-- The docs path remains stable because package metadata, the reference registry and the local gate all refer to `docs/component-long-tail-migration.md`.
+- The docs path remains stable because package metadata, the reference registry and the local gate all refer to `docs/en/component-long-tail-migration.md`.

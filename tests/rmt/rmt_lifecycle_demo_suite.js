@@ -69,7 +69,7 @@ function runRmtLifecycleDemoSuite(options = {}) {
   const cli = readText('xtend-builder/lib/cli.js', rootDir);
   const registry = readText('xtend-builder/generators/registry.js', rootDir);
   const docs = readText('docs/rmt-lifecycle-demo.md', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
 
   [

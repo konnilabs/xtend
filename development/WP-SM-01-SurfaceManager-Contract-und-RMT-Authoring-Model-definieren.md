@@ -27,7 +27,7 @@ Umgesetzt:
 - RMT-Fixture `tests/fixtures/rmt-surface-manager-workbench.rmt`
 - Catalog Factory und Validator `catalog/surface-manager-rmt-authoring.js`
 - Gate `tests/rmt/rmt_surface_manager_authoring_suite.js`
-- Docs-Seite `docs/surface-manager-rmt-authoring.md`
+- Docs-Seite `development/docs-evidence/root/surface-manager-rmt-authoring.md`
 - Package-, Scaffold- und Runner-Hooks
 
 Nicht umgesetzt:
@@ -49,7 +49,7 @@ Diese Punkte gehoeren zu `WP-SM-02` bis `WP-SM-08`.
 | Fixture | `tests/fixtures/rmt-surface-manager-workbench.rmt` |
 | Catalog | `catalog/surface-manager-rmt-authoring.js` |
 | Suite | `tests/rmt/rmt_surface_manager_authoring_suite.js` |
-| Docs | `docs/surface-manager-rmt-authoring.md` |
+| Docs | `development/docs-evidence/root/surface-manager-rmt-authoring.md` |
 
 ## Gate
 

@@ -77,3 +77,7 @@ Der Parser meldet falsche Clauses im jeweiligen Block. Der Semantic Graph meldet
 ## Related operators
 
 `state`, `selector`, `datasource`, `action`, `hydrate`, `stream`, `when`.
+
+## Weiterführend
+
+Der RMT-Referenzindex verknüpft State-, Selector- und Data-Records mit ihren Lifecycle-Regeln. [Verwandter Artikel](./rmt-reference.md)

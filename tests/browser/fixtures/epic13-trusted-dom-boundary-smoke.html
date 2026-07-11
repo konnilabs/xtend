@@ -28,7 +28,7 @@
     window.xtendDocsPagesMeta = {
       readme: {
         schema: 'xtend.docs.parsedown-rmt-page.v1',
-        source: 'docs/README.md',
+        source: 'docs/en/README.md',
         template: 'docs.readme.markdown',
         shellFirst: true,
         shellTemplate: 'docs.app.shell',
@@ -65,7 +65,8 @@
       errors: []
     };
   </script>
-  <script src="/docs/utils/pageloader.js" nonce="xtend-e13-trusted-dom-boundary"></script>
+  <script type="module" src="/docs/utils/trusted-dom-host.mjs" nonce="xtend-e13-trusted-dom-boundary"></script>
+  <script type="module" src="/docs/utils/pageloader.js" nonce="xtend-e13-trusted-dom-boundary"></script>
   <script nonce="xtend-e13-trusted-dom-boundary">
     function recordCheck(name, ok, detail) {
       window.__xtendEpic13TrustedDomBoundaryResult.checks.push({ name, ok, detail: detail || null });

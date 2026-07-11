@@ -24,9 +24,9 @@ Dieses Paket implementiert die erste sichtbare SurfaceManager Runtime fuer XTend
 - `tests/components/surface_manager_runtime_suite.js`
 - `tests/components/fixtures/xsurfacemanager.component.html`
 - `tests/components/fixtures/xsurfacewindow.component.html`
-- `docs/components/xsurfacemanager.md`
-- `docs/components/xsurfacewindow.md`
-- `docs/surface-manager-window-runtime.md`
+- `docs/en/components/xsurfacemanager.md`
+- `docs/en/components/xsurfacewindow.md`
+- `docs/en/surface-manager-window-runtime.md`
 
 ## Implementierte Faehigkeiten
 

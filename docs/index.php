@@ -126,6 +126,13 @@ function docsBasePathFromServer() {
         return '/docs';
     }
     $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/docs/index.php'));
+    if (!str_ends_with(strtolower($scriptName), '.php')) {
+        $documentRoot = realpath((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''));
+        $scriptFile = realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? ''));
+        if ($documentRoot && $scriptFile && str_starts_with($scriptFile, $documentRoot . DIRECTORY_SEPARATOR)) {
+            $scriptName = '/' . str_replace('\\', '/', substr($scriptFile, strlen($documentRoot) + 1));
+        }
+    }
     $scriptDir = dirname($scriptName);
     return docsNormalizeBasePath($scriptDir === '.' ? '' : $scriptDir);
 }
@@ -149,7 +156,7 @@ if (isset($_GET['xtend-docs-asset'])) {
 
 // --- CSP Nonce generieren ---
 $nonce = base64_encode(random_bytes(16));
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-$nonce'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none';");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-$nonce'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none';");
 
 if (isset($_GET['xtend-rmt-playground']) && $_GET['xtend-rmt-playground'] === 'diagnostics') {
     docsRmtPlaygroundHandleDiagnostics($repoRoot, $docsRmtLspBridgePath);
@@ -221,7 +228,9 @@ $xtendAssetVersion = xtendAssetVersion([
     __DIR__ . '/../icons/xtend-scaffold.webp',
     __DIR__ . '/../XTend-Logo.png',
     __DIR__ . '/../docs/utils/pageloader.js',
-    __DIR__ . '/../docs/utils/fabric-runtime.js',
+    __DIR__ . '/../docs/utils/dev-api.js',
+    __DIR__ . '/../docs/utils/trusted-dom-host.mjs',
+    __DIR__ . '/../docs/utils/docs-shell-runtime.mjs',
     __DIR__ . '/../docs/xtendrmt-parsedown-docs.rmt',
     __DIR__ . '/../docs/xtendrmt-parsedown-docs.core.json',
     __DIR__ . '/../docs/xtendrmt-docs-shell-vnext.rmt',
@@ -326,6 +335,52 @@ function docsBuildLocalizedMarkdownFiles($docsRoot, $availableLocales, $fallback
     return $localized;
 }
 
+function docsBuildSlugAliases($docsRoot) {
+    $menuPath = $docsRoot . '/menu.json';
+    if (!is_readable($menuPath)) return [];
+    $decoded = json_decode(file_get_contents($menuPath), true);
+    if (!is_array($decoded)) return [];
+    $aliases = [];
+    foreach ($decoded as $entry) {
+        if (!is_array($entry) || empty($entry['slug']) || empty($entry['aliases']) || !is_array($entry['aliases'])) continue;
+        $canonical = slugify((string) $entry['slug']);
+        foreach ($entry['aliases'] as $alias) {
+            $normalizedAlias = slugify((string) $alias);
+            if ($normalizedAlias !== '' && $normalizedAlias !== $canonical) {
+                $aliases[$normalizedAlias] = $canonical;
+            }
+        }
+    }
+    return $aliases;
+}
+
+function docsLoadJsonContract($filePath, $schema = null) {
+    if (!is_readable($filePath)) return null;
+    $decoded = json_decode(file_get_contents($filePath), true);
+    if (!is_array($decoded)) return null;
+    if ($schema !== null && (($decoded['schema'] ?? null) !== $schema)) return null;
+    return $decoded;
+}
+
+function docsLoadMenuConfig($docsRoot) {
+    $decoded = docsLoadJsonContract($docsRoot . '/menu.json');
+    return is_array($decoded) && array_is_list($decoded) ? $decoded : [];
+}
+
+function docsResolveSlugAlias($slug, $aliases) {
+    $requested = (string) $slug;
+    $current = $requested;
+    $visited = [];
+    while (isset($aliases[$current])) {
+        if (isset($visited[$current])) return $requested;
+        $visited[$current] = true;
+        $next = slugify((string) $aliases[$current]);
+        if ($next === '') return $requested;
+        $current = $next;
+    }
+    return $current;
+}
+
 $localizedMdFiles = docsBuildLocalizedMarkdownFiles($docsRoot, $docsAvailableLocales, $docsFallbackLocale);
 $mdFiles = $localizedMdFiles[$docsDefaultLocale] ?? [];
 
@@ -333,6 +388,13 @@ $mdFiles = $localizedMdFiles[$docsDefaultLocale] ?? [];
 function slugify($path) {
     return strtolower(preg_replace('/[^a-z0-9]+/i', '-', preg_replace('/\\.md$/i', '', $path)));
 }
+
+$docsSlugAliases = docsBuildSlugAliases($docsRoot);
+$docsMenuConfig = docsLoadMenuConfig($docsRoot);
+$docsNavigationConfig = docsLoadJsonContract($docsRoot . '/navigation.json', 'xtend.docs.navigation.v1') ?? [
+    'schema' => 'xtend.docs.navigation.v1',
+    'trunks' => []
+];
 
 function docsRouteIdFromSlug($slug) {
     return 'docs.' . str_replace('-', '.', $slug);
@@ -358,6 +420,7 @@ function docsMenuIconForSlug($slug) {
         'component-catalog-coverage' => 'boxes',
         'design-tokens' => 'palette',
         'xtendrmt-overview' => 'route',
+        'rmt-animation-engine' => 'sparkles',
         'rmt-linter' => 'terminal',
         'rmt-language-server' => 'server',
         'performance' => 'gauge',
@@ -438,6 +501,7 @@ function docsBuildRouteRecord($slug, $rel, $pageMeta) {
         'shell' => $pageMeta['shellTemplate'],
         'schedule' => $pageMeta['schedules']['route'],
         'skeleton' => 'article',
+        'skeletonProfile' => 'docs-article',
         'skeletonLines' => 10,
         'skeletonMinHeight' => '26rem',
         'hydration' => [
@@ -596,6 +660,7 @@ function docsRouteAttributes($route, $pathOverride = null) {
         'meta-description' => $route['metaDescription'] ?? ($metadata['seo']['description'] ?? ''),
         'meta-keywords' => $metaKeywords,
         'skeleton' => $route['skeleton'] ?? 'article',
+        'skeleton-profile' => $route['skeletonProfile'] ?? 'docs-article',
         'skeleton-lines' => $route['skeletonLines'] ?? 10,
         'skeleton-min-height' => $route['skeletonMinHeight'] ?? '26rem',
         'hydrate-schedule' => $route['hydration']['schedule'] ?? 'docs.page.hydrate',
@@ -712,6 +777,27 @@ function docsCompactLocalizedMetaForBootstrap($localizedMeta) {
     return $compact;
 }
 
+function docsCompactMenuForBootstrap($menuConfig) {
+    if (!is_array($menuConfig)) return [];
+    return array_values(array_map(function ($entry) {
+        $compact = [];
+        foreach (['id', 'slug', 'label', 'labels', 'parent', 'rank', 'tier', 'icon', 'trunk', 'section'] as $key) {
+            if (array_key_exists($key, $entry)) $compact[$key] = $entry[$key];
+        }
+        return $compact;
+    }, $menuConfig));
+}
+
+function docsCompactRmtDocumentForBootstrap($document) {
+    if (!is_array($document)) return [];
+    $compact = [];
+    foreach (['kind', 'version', 'manifest', 'adapters', 'components', 'schedules', 'templates', 'extensionSlots'] as $key) {
+        if (array_key_exists($key, $document)) $compact[$key] = $document[$key];
+    }
+    $compact['routes'] = [];
+    return $compact;
+}
+
 function docsLoadComponentManifest($repoRoot) {
     $manifestPath = rtrim((string) $repoRoot, '/') . '/components/manifest.json';
     if (!is_readable($manifestPath)) return [];
@@ -728,8 +814,187 @@ function docsFindRmtTemplate($document, $templateId) {
     return null;
 }
 
-function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta, $fileToSlug, $docsAvailableLocales, $pageLocale, $docsDefaultLocale, $docsLogoUrl, $xtendAssetVersionAttr, $docsBasePath = '') {
-    global $page;
+function docsMenuEntryLabel($entry, $locale, $fallbackLocale = 'de') {
+    $labels = is_array($entry['labels'] ?? null) ? $entry['labels'] : [];
+    return (string) ($labels[$locale] ?? $labels[$fallbackLocale] ?? $entry['label'] ?? $entry['slug'] ?? '');
+}
+
+function docsSortMenuEntries($entries, $locale) {
+    usort($entries, function ($left, $right) use ($locale) {
+        $leftRoot = empty($left['parent']) ? 1 : 0;
+        $rightRoot = empty($right['parent']) ? 1 : 0;
+        if ($leftRoot !== $rightRoot) return $rightRoot <=> $leftRoot;
+        $rank = ((int) ($right['rank'] ?? 0)) <=> ((int) ($left['rank'] ?? 0));
+        if ($rank !== 0) return $rank;
+        return strcasecmp(docsMenuEntryLabel($left, $locale), docsMenuEntryLabel($right, $locale));
+    });
+    return $entries;
+}
+
+function docsBuildSearchShellDescriptor($locale) {
+    $isEnglish = $locale === 'en';
+    return docsDescriptorComponent('x-form', [
+        'id' => 'xtend-search-form',
+        'slot' => 'search',
+        'class' => 'docs-search-form',
+        'data-rmt-template' => 'docs.header.search',
+        'data-rmt-component' => 'docs.search',
+        'data-rmt-schedule' => 'docs.search.index',
+        'role' => 'search'
+    ], [
+        docsDescriptorElement('label', ['for' => 'search-input', 'class' => 'docs-visually-hidden'], [
+            docsDescriptorText($isEnglish ? 'Search documentation' : 'Dokumentation durchsuchen')
+        ]),
+        docsDescriptorComponent('x-popover', [
+            'id' => 'docs-search-popover',
+            'class' => 'docs-search-popover',
+            'placement' => 'bottom-start',
+            'label' => $isEnglish ? 'Search results' : 'Suchergebnisse',
+            'data-rmt-component' => 'docs.search.results'
+        ], [
+            docsDescriptorComponent('x-input', [
+                'id' => 'search-input',
+                'slot' => 'trigger',
+                'name' => 'search',
+                'type' => 'search',
+                'autocomplete' => 'off',
+                'placeholder' => $isEnglish ? 'Search documentation' : 'Dokumentation durchsuchen',
+                'aria-controls' => 'search-results',
+                'data-rmt-action' => 'docs.search.submit'
+            ], []),
+            docsDescriptorElement('div', [
+                'id' => 'search-results',
+                'class' => 'docs-search-results',
+                'data-rmt-slot' => 'results',
+                'role' => 'listbox',
+                'aria-label' => $isEnglish ? 'Documentation search results' : 'Suchergebnisse der Dokumentation'
+            ], []),
+            docsDescriptorComponent('x-status', [
+                'id' => 'docs-search-status',
+                'class' => 'docs-search-status',
+                'tone' => 'neutral',
+                'role' => 'status',
+                'aria-live' => 'polite',
+                'hidden' => true
+            ], [])
+        ])
+    ]);
+}
+
+function docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlug, $locale, $fallbackLocale, $docsBasePath) {
+    $trunks = is_array($navigationConfig['trunks'] ?? null) ? $navigationConfig['trunks'] : [];
+    usort($trunks, fn($left, $right) => ((int) ($right['rank'] ?? 0)) <=> ((int) ($left['rank'] ?? 0)));
+    $activeEntry = null;
+    foreach ($menuConfig as $entry) {
+        if (($entry['slug'] ?? null) === $activeSlug) {
+            $activeEntry = $entry;
+            break;
+        }
+    }
+    $activeTrunk = (string) ($activeEntry['trunk'] ?? 'start');
+    $activeSection = (string) ($activeEntry['section'] ?? 'orientation');
+    $trunkLinks = [];
+
+    foreach ($trunks as $trunk) {
+        $trunkId = (string) ($trunk['id'] ?? '');
+        $entries = array_values(array_filter($menuConfig, fn($entry) => ($entry['trunk'] ?? null) === $trunkId));
+        if ($trunkId === '' || empty($entries)) continue;
+        $entries = docsSortMenuEntries($entries, $locale);
+        $target = $entries[0]['slug'] ?? 'readme';
+        $label = (string) (($trunk['labels'][$locale] ?? null) ?: ($trunk['labels'][$fallbackLocale] ?? $trunkId));
+        $trunkLinks[] = docsDescriptorComponent('x-link', [
+            'class' => 'docs-trunk-link',
+            'href' => docsBuildHistoryRoutePath($target, $locale, $docsBasePath),
+            'data-docs-trunk-link' => $trunkId,
+            'data-rmt-action' => 'docs.route.navigate',
+            'aria-current' => $trunkId === $activeTrunk ? 'page' : null,
+            'active' => $trunkId === $activeTrunk ? true : null
+        ], [docsDescriptorText($label)]);
+    }
+
+    $sectionNodes = [];
+    foreach ($trunks as $trunk) {
+        if (($trunk['id'] ?? null) !== $activeTrunk) continue;
+        foreach (($trunk['sections'] ?? []) as $section) {
+            $sectionId = (string) ($section['id'] ?? '');
+            $entries = array_values(array_filter($menuConfig, fn($entry) => (
+                ($entry['trunk'] ?? null) === $activeTrunk && ($entry['section'] ?? null) === $sectionId
+            )));
+            if ($sectionId === '' || empty($entries)) continue;
+            $entries = docsSortMenuEntries($entries, $locale);
+            $links = [];
+            foreach ($entries as $entry) {
+                $slug = (string) ($entry['slug'] ?? '');
+                $isActive = $slug === $activeSlug;
+                $links[] = docsDescriptorComponent('x-link', [
+                    'class' => 'docs-menu-link',
+                    'href' => docsBuildHistoryRoutePath($slug, $locale, $docsBasePath),
+                    'data-docs-menu-link' => true,
+                    'data-doc-id' => (string) ($entry['id'] ?? ('docs.' . str_replace('-', '.', $slug))),
+                    'data-doc-rank' => (string) ($entry['rank'] ?? 0),
+                    'data-doc-tier' => (string) ($entry['tier'] ?? 'basic'),
+                    'data-rmt-action' => 'docs.route.navigate',
+                    'aria-current' => $isActive ? 'page' : null,
+                    'active' => $isActive ? true : null
+                ], [
+                    docsDescriptorComponent('x-icon', [
+                        'class' => 'docs-menu-link-icon',
+                        'name' => docsMenuIconForSlug($slug),
+                        'pack' => 'lucide',
+                        'decorative' => true,
+                        'size' => '0.95rem'
+                    ], []),
+                    docsDescriptorElement('span', ['class' => 'docs-menu-link-label'], [
+                        docsDescriptorText(docsMenuEntryLabel($entry, $locale, $fallbackLocale))
+                    ])
+                ]);
+            }
+            $sectionLabel = (string) (($section['labels'][$locale] ?? null) ?: ($section['labels'][$fallbackLocale] ?? $sectionId));
+            $sectionNodes[] = docsDescriptorComponent('x-summary', [
+                'class' => 'docs-menu-section',
+                'data-docs-menu-section' => $sectionId,
+                'open' => $sectionId === $activeSection ? true : null
+            ], [
+                docsDescriptorElement('span', ['slot' => 'title', 'class' => 'docs-menu-section-title'], [
+                    docsDescriptorText($sectionLabel)
+                ]),
+                docsDescriptorComponent('x-menu', [
+                    'class' => 'docs-menu-section-links',
+                    'orientation' => 'vertical',
+                    'aria-label' => $sectionLabel
+                ], $links)
+            ]);
+        }
+    }
+
+    return docsDescriptorElement('div', [
+        'slot' => 'nav',
+        'class' => 'docs-menu-shell docs-menu-shell--ssr',
+        'data-docs-menu-shell' => true,
+        'data-docs-active-trunk' => $activeTrunk,
+        'data-rmt-shell-surface' => 'docs.header.nav',
+        'role' => 'navigation',
+        'aria-label' => $locale === 'en' ? 'Documentation sections' : 'Dokumentationsbereiche'
+    ], [
+        docsDescriptorComponent('x-menu', [
+            'class' => 'docs-trunk-menu',
+            'aria-label' => $locale === 'en' ? 'Documentation tasks' : 'Dokumentationsaufgaben'
+        ], $trunkLinks),
+        docsDescriptorElement('div', [
+            'class' => 'docs-active-trunk',
+            'data-docs-active-trunk-content' => $activeTrunk
+        ], $sectionNodes)
+    ]);
+}
+
+function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta, $fileToSlug, $docsAvailableLocales, $pageLocale, $docsDefaultLocale, $docsLogoUrl, $xtendAssetVersionAttr, $docsBasePath = '', $menuConfig = [], $navigationConfig = [], $activeSlug = null) {
+    $activeSlug = (string) ($activeSlug ?: ($GLOBALS['page'] ?? 'readme'));
+    $isEnglish = $pageLocale === 'en';
+    $docsTitle = $isEnglish ? 'XTend Documentation' : 'XTend Dokumentation';
+    $notFoundTitle = $isEnglish ? 'Page not found' : 'Seite nicht gefunden';
+    $notFoundDescription = $isEnglish
+        ? 'The requested documentation page was not found.'
+        : 'Die angeforderte Dokumentationsseite wurde nicht gefunden.';
     $ssrRoot = [
         'data-rmt-ssr-root' => 'docs.app.root-shell',
         'data-rmt-ssr-chunk' => 'rmt:docs.app.root-shell',
@@ -738,26 +1003,17 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
         'data-rmt-contract' => 'xtend.docs.rmt-shell-primitives.v1'
     ];
     $routeChildren = [];
-    if (isset($allPagesMeta['readme']['route'])) {
-        $routeChildren[] = docsRouteDescriptor($allPagesMeta['readme']['route'], docsBuildHistoryRootPath($docsBasePath));
-    }
-    foreach ($localizedAllPagesMeta as $locale => $localePagesMeta) {
-        foreach ($localePagesMeta as $slug => $meta) {
-            $routeChildren[] = docsRouteDescriptor($meta['route'], docsBuildHistoryRoutePath($slug, $locale, $docsBasePath));
-        }
-    }
-    foreach ($fileToSlug as $rel => $slug) {
-        if (isset($allPagesMeta[$slug]['route'])) {
-            $routeChildren[] = docsRouteDescriptor($allPagesMeta[$slug]['route'], docsBuildHistoryRoutePath($slug, $docsDefaultLocale, $docsBasePath));
-        }
+    $activeMeta = $localizedAllPagesMeta[$pageLocale][$activeSlug] ?? $allPagesMeta[$activeSlug] ?? $allPagesMeta['readme'] ?? null;
+    if (is_array($activeMeta) && isset($activeMeta['route'])) {
+        $routeChildren[] = docsRouteDescriptor($activeMeta['route'], docsBuildHistoryRoutePath($activeSlug, $pageLocale, $docsBasePath));
     }
     $routeChildren[] = docsDescriptorElement('x-route', [
         'path' => '*',
         'component' => 'xtend-doc-page',
         'import' => '/docs/utils/pageloader.js?v=' . $xtendAssetVersionAttr,
-        'title' => 'Seite nicht gefunden',
-        'document-title' => 'Seite nicht gefunden | XTend Dokumentation',
-        'meta-description' => 'Die angeforderte Dokumentationsseite wurde nicht gefunden.',
+        'title' => $notFoundTitle,
+        'document-title' => $notFoundTitle . ' | ' . $docsTitle,
+        'meta-description' => $notFoundDescription,
         'skeleton' => 'article',
         'skeleton-lines' => '8',
         'skeleton-min-height' => '20rem',
@@ -776,29 +1032,9 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
             'selected' => $locale === $pageLocale ? true : null
         ], [docsDescriptorText($localeConfig['nativeLabel'] ?? strtoupper($locale))]);
     }
-    $menuShell = docsDescriptorElement('div', [
-        'slot' => 'nav',
-        'class' => 'docs-menu-shell docs-menu-shell--ssr',
-        'data-docs-menu-shell' => true,
-        'data-rmt-menu-placeholder' => 'true',
-        'data-rmt-shell-surface' => 'docs.header.nav',
-        'role' => 'list',
-        'aria-label' => $pageLocale === 'en' ? 'Documentation sections' : 'Dokumentationsbereiche'
-    ], [
-        docsDescriptorComponent('x-icon', [
-            'class' => 'docs-nav-link-icon',
-            'name' => docsMenuIconForSlug($page),
-            'pack' => 'lucide',
-            'decorative' => true,
-            'size' => '1rem'
-        ], []),
-        docsDescriptorElement('span', [
-            'class' => 'docs-menu-section-title docs-menu-section-title--ssr',
-            'role' => 'listitem'
-        ], [
-            docsDescriptorText($pageLocale === 'en' ? 'Documentation menu' : 'Dokumentationsmenue')
-        ])
-    ]);
+    $menuShell = docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlug, $pageLocale, $docsDefaultLocale, $docsBasePath);
+    $searchShell = docsBuildSearchShellDescriptor($pageLocale);
+    $homePath = docsBuildHistoryRoutePath('readme', $pageLocale, $docsBasePath);
 
     return [
         'type' => 'fragment',
@@ -808,7 +1044,6 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                 'data-rmt-shell-surface' => 'docs.root'
             ]), []),
             docsDescriptorComponent('x-header', array_replace($ssrRoot, [
-                'src' => $docsLogoUrl,
                 'logo-size' => '48',
                 'sticky' => true,
                 'data-xtend-skeleton' => true,
@@ -818,7 +1053,25 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                 'data-rmt-surface-id' => 'docs.header',
                 'data-rmt-shell-surface' => 'docs.header'
             ]), array_merge([
-                docsDescriptorElement('span', ['slot' => 'title'], [docsDescriptorText('XTend Dokumentation')]),
+                docsDescriptorComponent('x-link', [
+                    'id' => 'docs-home-link',
+                    'class' => 'docs-home-logo-link',
+                    'slot' => 'logo',
+                    'href' => $homePath,
+                    'data-docs-home-logo' => true,
+                    'aria-label' => $pageLocale === 'en' ? 'Open the Docs home page' : 'Docs-Startseite öffnen',
+                    'title' => $pageLocale === 'en' ? 'Docs home' : 'Docs-Startseite'
+                ], [
+                    docsDescriptorElement('img', [
+                        'src' => $docsLogoUrl,
+                        'alt' => '',
+                        'width' => '48',
+                        'height' => '48',
+                        'draggable' => 'false'
+                    ], [])
+                ]),
+                docsDescriptorElement('span', ['slot' => 'title'], [docsDescriptorText($docsTitle)]),
+                $searchShell,
                 docsDescriptorElement('span', [
                     'class' => 'docs-language-control',
                     'slot' => 'actions',
@@ -829,7 +1082,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                     docsDescriptorComponent('x-select', [
                         'id' => 'docs-language-select',
                         'class' => 'docs-language-select',
-                        'label' => 'Sprache',
+                        'label' => $isEnglish ? 'Language' : 'Sprache',
                         'value' => $pageLocale,
                         'data-docs-language-select' => true
                     ], $languageOptions),
@@ -846,12 +1099,14 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                     'slot' => 'actions',
                     'type' => 'button',
                     'variant' => 'secondary',
-                    'aria-label' => 'Dunkelmodus aktivieren',
-                    'title' => 'Dunkelmodus aktivieren',
+                    'aria-label' => $isEnglish ? 'Enable dark mode' : 'Dunkelmodus aktivieren',
+                    'title' => $isEnglish ? 'Enable dark mode' : 'Dunkelmodus aktivieren',
                     'aria-pressed' => 'false'
                 ], [
                     docsDescriptorComponent('x-icon', ['id' => 'theme-toggle-icon', 'name' => 'moon', 'pack' => 'core', 'decorative' => true, 'size' => '1.1rem'], []),
-                    docsDescriptorElement('span', ['id' => 'theme-toggle-label', 'class' => 'docs-visually-hidden'], [docsDescriptorText('Dunkelmodus aktivieren')])
+                    docsDescriptorElement('span', ['id' => 'theme-toggle-label', 'class' => 'docs-visually-hidden'], [
+                        docsDescriptorText($isEnglish ? 'Enable dark mode' : 'Dunkelmodus aktivieren')
+                    ])
                 ])
             ], [$menuShell])),
             docsDescriptorComponent('x-hero', array_replace($ssrRoot, [
@@ -869,7 +1124,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                 'vertical-align' => 'top',
                 'data-xtend-layout-reserve' => 'hero',
                 'data-xtend-cls-anchor' => 'docs.hero',
-                'style' => '--xtend-skeleton-min-height: clamp(12rem, 30vw, 22rem); --xtend-layout-reserved-block-size: clamp(12rem, 30vw, 22rem); --hero-reserved-block-size: clamp(12rem, 30vw, 22rem);',
+                'style' => '--xtend-skeleton-min-height: clamp(8rem, 14vw, 11rem); --xtend-layout-reserved-block-size: clamp(8rem, 14vw, 11rem); --hero-reserved-block-size: clamp(8rem, 14vw, 11rem);',
                 'data-rmt-surface-id' => 'docs.hero',
                 'data-rmt-shell-surface' => 'docs.hero'
             ]), [
@@ -887,15 +1142,16 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                     'mode' => 'history',
                     'reuse-component' => true,
                     'skeleton' => 'article',
+                    'skeleton-profile' => 'docs-article',
                     'skeleton-lines' => '10',
                     'skeleton-min-height' => 'var(--docs-route-reserved-block-size)',
-                    'skeleton-label' => 'Dokumentation wird geladen',
+                    'skeleton-label' => $isEnglish ? 'Documentation is loading' : 'Dokumentation wird geladen',
                     'data-xtend-skeleton' => true,
                     'data-xtend-layout-reserve' => 'router route',
                     'data-xtend-cls-anchor' => 'docs.router',
                     'style' => '--xtend-skeleton-min-height: var(--docs-route-reserved-block-size); --xtend-layout-reserved-block-size: var(--docs-route-reserved-block-size); --xtend-router-reserved-block-size: var(--docs-route-reserved-block-size); --xtend-skeleton-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter)); --xtend-skeleton-max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter)); --xtend-skeleton-margin-inline: var(--docs-viewport-gutter);',
-                    'document-title-template' => '{{title}} | XTend Dokumentation',
-                    'default-title' => 'XTend Dokumentation',
+                    'document-title-template' => '{{title}} | ' . $docsTitle,
+                    'default-title' => $docsTitle,
                     'data-rmt-ssr-root' => 'docs.router',
                     'data-rmt-ssr-chunk' => 'rmt:docs.router',
                     'data-rmt-shell-prehydrated' => 'true',
@@ -2137,10 +2393,12 @@ foreach ($localizedMdFiles as $locale => $localeFiles) {
 }
 
 function docsResolveLocalizedPage($rawSlug, $rawLocale, $localizedSlugToFile, $availableLocales, $fallbackLocale) {
+    global $docsSlugAliases;
     $parts = docsSplitLocalizedPath($rawSlug, $availableLocales);
     $requestedLocale = docsNormalizeLocale($parts['locale'] ?? $rawLocale, $availableLocales, $fallbackLocale);
-    $slug = slugify($parts['slug'] ?? 'readme');
-    if ($slug === '') $slug = 'readme';
+    $requestedSlug = slugify($parts['slug'] ?? 'readme');
+    if ($requestedSlug === '') $requestedSlug = 'readme';
+    $slug = docsResolveSlugAlias($requestedSlug, $docsSlugAliases);
     $hasRequested = isset($localizedSlugToFile[$requestedLocale][$slug]);
     $resolvedLocale = $hasRequested ? $requestedLocale : $fallbackLocale;
     $translationAvailable = $hasRequested;
@@ -2149,6 +2407,9 @@ function docsResolveLocalizedPage($rawSlug, $rawLocale, $localizedSlugToFile, $a
     }
     return [
         'slug' => $slug,
+        'requestedSlug' => $requestedSlug,
+        'canonicalSlug' => $slug,
+        'aliased' => $requestedSlug !== $slug,
         'requestedLocale' => $requestedLocale,
         'resolvedLocale' => $resolvedLocale,
         'translationAvailable' => $translationAvailable,
@@ -2159,6 +2420,10 @@ function docsResolveLocalizedPage($rawSlug, $rawLocale, $localizedSlugToFile, $a
 // Routing: Slug aus URL
 $docsRequestRoutePath = docsRoutePathFromRequest($docsBasePath);
 $pageRequest = docsResolveLocalizedPage($_GET['page'] ?? $docsRequestRoutePath, $_GET['locale'] ?? $docsDefaultLocale, $localizedSlugToFile, $docsAvailableLocales, $docsFallbackLocale);
+if ($pageRequest && $pageRequest['aliased'] && !isset($_GET['page']) && !isset($_GET['download']) && !isset($_GET['xtend-docs-page']) && !isset($_GET['xtend-docs-rmt-ssr'])) {
+    header('Location: ' . docsBuildHistoryRoutePath($pageRequest['canonicalSlug'], $pageRequest['requestedLocale'], $docsBasePath), true, 302);
+    exit;
+}
 if ($pageRequest) {
     $page = $pageRequest['slug'];
     $pageLocale = $pageRequest['resolvedLocale'];
@@ -2227,6 +2492,9 @@ if (isset($_GET['xtend-docs-page'])) {
         'schema' => 'xtend.docs.parsedown-rmt-page-payload.v1',
         'ok' => true,
         'slug' => $requestedSlug,
+        'requestedSlug' => $pagePayloadRequest['requestedSlug'],
+        'canonicalSlug' => $pagePayloadRequest['canonicalSlug'],
+        'aliased' => $pagePayloadRequest['aliased'],
         'locale' => $resolvedLocale,
         'requestedLocale' => $requestedLocale,
         'resolvedLocale' => $resolvedLocale,
@@ -2240,17 +2508,6 @@ if (isset($_GET['xtend-docs-page'])) {
         'skeletonLoader' => 'xtend.loader.skeleton-loader.v1'
     ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
     exit;
-}
-
-// Navigation generieren
-function navLinks($fileToSlug) {
-    $nav = "<nav><ul>";
-    foreach ($fileToSlug as $rel => $slug) {
-        $title = htmlspecialchars(ucfirst(preg_replace('/[-_]/', ' ', preg_replace('/\\.md$/i', '', basename($rel)))));
-        $nav .= "<li><a href='?page=$slug' data-link>$title</a></li>";
-    }
-    $nav .= "</ul></nav>";
-    return $nav;
 }
 
 // --- After parsing all pages: JS object for all page content ---
@@ -2303,8 +2560,25 @@ $docsRmtRoutes[] = array_replace_recursive($allPagesMeta['readme']['route'] ?? [
     ]
 ]);
 $rmtPilotDocumentData = docsMergeRmtRoutes($rmtPilotDocumentData, $docsRmtRoutes);
-$rmtPilotDocumentJson = docsJsonEncodeForHtml($rmtPilotDocumentData);
 $initialDocsSlug = isset($localizedAllPagesMeta[$pageLocale][$page]) ? $page : 'readme';
+$rmtPilotDocumentJson = docsJsonEncodeForHtml(docsCompactRmtDocumentForBootstrap($rmtPilotDocumentData));
+$docsBootstrapMenuConfig = docsCompactMenuForBootstrap($docsMenuConfig);
+$docsBootstrapLocalizedMeta = [];
+$docsBootstrapLocalizedTitles = [];
+foreach (array_keys($docsAvailableLocales) as $locale) {
+    $docsBootstrapLocalizedMeta[$locale] = isset($localizedAllPagesMeta[$locale][$initialDocsSlug])
+        ? [$initialDocsSlug => docsCompactPageMetaForBootstrap($localizedAllPagesMeta[$locale][$initialDocsSlug])]
+        : [];
+    $docsBootstrapLocalizedTitles[$locale] = isset($localizedTitles[$locale][$initialDocsSlug])
+        ? [$initialDocsSlug => $localizedTitles[$locale][$initialDocsSlug]]
+        : [];
+}
+$docsBootstrapPageMeta = isset($localizedAllPagesMeta[$pageLocale][$initialDocsSlug])
+    ? [$initialDocsSlug => docsCompactPageMetaForBootstrap($localizedAllPagesMeta[$pageLocale][$initialDocsSlug])]
+    : [];
+$docsBootstrapTitles = isset($localizedTitles[$pageLocale][$initialDocsSlug])
+    ? [$initialDocsSlug => $localizedTitles[$pageLocale][$initialDocsSlug]]
+    : [];
 $initialTitle = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['documentTitle'] ?? 'XTend Dokumentation';
 $initialDescription = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaDescription'] ?? 'XTend Dokumentation';
 $initialKeywords = implode(', ', $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaKeywords'] ?? ['xtend', 'dokumentation']);
@@ -2317,7 +2591,10 @@ $docsRootShellDescriptor = docsBuildDocsRootShellDescriptor(
     $docsDefaultLocale,
     htmlspecialchars_decode($docsLogoUrl, ENT_QUOTES),
     $xtendAssetVersionAttr,
-    $docsBasePath
+    $docsBasePath,
+    $docsMenuConfig,
+    $docsNavigationConfig,
+    $initialDocsSlug
 );
 $docsSsrEndpoint = docsSsrEndpointUrl($initialDocsSlug, $pageLocale);
 $docsSsrPrehydration = docsRenderDocsSsrPrehydration(
@@ -2341,7 +2618,10 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         $docsDefaultLocale,
         htmlspecialchars_decode($docsLogoUrl, ENT_QUOTES),
         $xtendAssetVersionAttr,
-        $docsBasePath
+        $docsBasePath,
+        $docsMenuConfig,
+        $docsNavigationConfig,
+        $streamPage
     );
     $streamSource = is_readable($docsRmtVNextDocumentPath) ? file_get_contents($docsRmtVNextDocumentPath) : '';
     $streamAdapter = docsCreateDocsSsrAdapter($repoRoot, $docsRmtCompilerBridgePath);
@@ -2432,6 +2712,22 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --docs-menu-highlight-bg: rgba(14, 78, 129, 0.11);
           --docs-menu-highlight-border: rgba(14, 78, 129, 0.28);
           --docs-menu-active-rail: rgba(14, 78, 129, 0.72);
+          --docs-navigation-surface: #ffffff;
+          --docs-navigation-item-surface: #f7fafc;
+          --docs-navigation-item-hover: #edf3f8;
+          --docs-navigation-item-active: #e1edf6;
+          --docs-navigation-item-text: #172033;
+          --docs-navigation-item-active-text: #0e4e81;
+          --docs-navigation-item-border: rgba(15, 23, 42, 0.15);
+          --docs-navigation-item-rail: #0e4e81;
+          --docs-search-surface: #ffffff;
+          --docs-search-border: rgba(15, 23, 42, 0.18);
+          --docs-search-result-surface: transparent;
+          --docs-search-result-hover: #edf3f8;
+          --docs-search-result-active: #e1edf6;
+          --docs-search-result-text: #172033;
+          --docs-search-score-text: #52657a;
+          --docs-search-result-rail: #0e4e81;
           --docs-code-bg: #10131a;
           --x-code-bg: #10131a;
           --x-code-text: #f8fafc;
@@ -2484,6 +2780,22 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --docs-menu-highlight-bg: rgba(143, 211, 255, 0.12);
           --docs-menu-highlight-border: rgba(143, 211, 255, 0.32);
           --docs-menu-active-rail: rgba(143, 211, 255, 0.74);
+          --docs-navigation-surface: #0b0b0d;
+          --docs-navigation-item-surface: #111114;
+          --docs-navigation-item-hover: #1a1a20;
+          --docs-navigation-item-active: #202b33;
+          --docs-navigation-item-text: #f4f4f5;
+          --docs-navigation-item-active-text: #bfe8ff;
+          --docs-navigation-item-border: rgba(255, 255, 255, 0.16);
+          --docs-navigation-item-rail: #8fd3ff;
+          --docs-search-surface: #111114;
+          --docs-search-border: rgba(255, 255, 255, 0.18);
+          --docs-search-result-surface: transparent;
+          --docs-search-result-hover: #1a1a20;
+          --docs-search-result-active: #202b33;
+          --docs-search-result-text: #f4f4f5;
+          --docs-search-score-text: #c4c8d0;
+          --docs-search-result-rail: #8fd3ff;
           --docs-code-bg: #050506;
           --x-code-bg: #050506;
           --x-code-text: #f4f4f5;
@@ -2546,12 +2858,33 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --header-radius: 0.75rem;
           --header-drawer-inline-offset: clamp(0.5rem, 1.6vw, 1rem);
           --header-drawer-content-max: none;
+          --header-slot-template-columns: minmax(18.75rem, 1fr) minmax(20rem, 48rem) minmax(15rem, 1fr) 44px;
+          --header-slot-template-areas: "brand search actions trigger";
           position: relative;
           z-index: 20;
         }
         x-header::part(root) {
           margin-left: var(--docs-viewport-gutter);
           margin-right: var(--docs-viewport-gutter);
+        }
+        x-header::part(logo) {
+          overflow: visible;
+        }
+        .docs-home-logo-link {
+          --xtend-link-display: flex;
+          --xtend-link-padding-block: 0;
+          --xtend-link-padding-inline: 0;
+          --xtend-link-radius: 50%;
+          width: 48px;
+          height: 48px;
+          flex: none;
+        }
+        .docs-home-logo-link img {
+          display: block;
+          width: 48px;
+          height: 48px;
+          object-fit: contain;
+          border-radius: 50%;
         }
         .docs-icon-button {
           --xtend-button-min-touch-target: 44px;
@@ -2598,24 +2931,115 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         }
         .docs-menu-shell {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+          grid-template-columns: minmax(0, 1fr);
           gap: 0.85rem;
           width: 100%;
           max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
         }
+        .docs-trunk-menu {
+          width: 100%;
+          min-width: 0;
+          --xtend-menu-padding-y: 0.35rem;
+          --xtend-menu-padding-x: 0.35rem;
+          --xtend-menu-gap: 0.25rem;
+          --xtend-menu-radius: 6px;
+          --xtend-menu-elevation: none;
+          --xtend-menu-surface: var(--docs-navigation-surface);
+          --xtend-menu-border-color: var(--docs-navigation-item-border);
+          --xtend-menu-item-surface: var(--docs-navigation-item-surface);
+          --xtend-menu-item-hover-surface: var(--docs-navigation-item-hover);
+          --xtend-menu-item-active-surface: var(--docs-navigation-item-active);
+          --xtend-menu-item-text: var(--docs-navigation-item-text);
+          --xtend-menu-item-active-text: var(--docs-navigation-item-active-text);
+          --xtend-menu-current-indicator: var(--docs-navigation-item-rail);
+          --xtend-menu-focus-elevation: none;
+          --xtend-menu-item-padding-y: 0.45rem;
+          --xtend-menu-item-padding-x: 0.65rem;
+          --xtend-menu-item-radius: 5px;
+        }
+        .docs-trunk-link {
+          white-space: nowrap;
+        }
+        .docs-menu-shell x-link[role="menuitem"] {
+          display: block;
+          max-width: 100%;
+          min-width: 0;
+          min-height: 2.5rem;
+          box-sizing: border-box;
+          border: 1px solid transparent;
+          border-radius: 5px;
+          background: var(--docs-navigation-item-surface);
+          color: var(--docs-navigation-item-text);
+          text-align: left;
+          --xtend-link-surface: transparent;
+          --xtend-link-text: var(--docs-navigation-item-text);
+          --xtend-link-hover-surface: transparent;
+          --xtend-link-active-surface: transparent;
+          --xtend-link-active-text: var(--docs-navigation-item-active-text);
+        }
+        .docs-menu-shell x-link[role="menuitem"]::part(link) {
+          color: inherit;
+          text-decoration: none;
+        }
+        .docs-menu-shell .docs-trunk-link[role="menuitem"] {
+          padding: 0.52rem 0.72rem;
+          text-align: center;
+        }
+        .docs-menu-shell .docs-menu-link[role="menuitem"] {
+          padding: 0.42rem 0.55rem;
+        }
+        .docs-menu-shell x-link[role="menuitem"]:hover {
+          border-color: var(--docs-navigation-item-border);
+          background: var(--docs-navigation-item-hover);
+          color: var(--docs-navigation-item-text);
+        }
+        .docs-menu-shell x-link[role="menuitem"][active],
+        .docs-menu-shell x-link[role="menuitem"][aria-current="page"] {
+          border-color: color-mix(in srgb, var(--docs-navigation-item-rail) 42%, transparent);
+          background: var(--docs-navigation-item-active);
+          color: var(--docs-navigation-item-active-text);
+          font-weight: 700;
+        }
+        .docs-menu-shell .docs-trunk-link[role="menuitem"][active],
+        .docs-menu-shell .docs-trunk-link[role="menuitem"][aria-current="page"] {
+          box-shadow: inset 0 -3px 0 var(--docs-navigation-item-rail);
+        }
+        .docs-menu-shell .docs-menu-link[role="menuitem"][active],
+        .docs-menu-shell .docs-menu-link[role="menuitem"][aria-current="page"] {
+          box-shadow: inset 3px 0 0 var(--docs-navigation-item-rail);
+        }
+        .docs-menu-shell x-link[role="menuitem"]:focus-visible {
+          outline: 2px solid var(--focus-color);
+          outline-offset: 2px;
+        }
+        .docs-active-trunk {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.5rem;
+          min-width: 0;
+        }
         .docs-menu-section {
           max-width: 100%;
           min-width: 0;
-          padding: 0.65rem;
-          border: 1px solid var(--border-color);
-          border-radius: 0.7rem;
-          background: var(--surface-muted);
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
+          padding: 0;
           box-sizing: border-box;
+        }
+        .docs-menu-section::part(container) {
+          margin: 0;
+          padding: 0.45rem 0.55rem;
+          border: 1px solid var(--border-color);
+          border-radius: 6px;
+          background: var(--surface-muted);
+          color: var(--text-color);
+          box-shadow: none;
+          backdrop-filter: none;
+        }
+        .docs-menu-section::part(summary) {
+          min-height: 2rem;
+          color: var(--text-color);
+          font-size: 0.86rem;
         }
         .docs-menu-section-title {
           margin: 0 0 0.45rem;
@@ -2632,10 +3056,26 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           flex: none;
         }
         .docs-menu-section-links {
-          display: grid;
-          gap: 0.42rem;
+          display: block;
           min-width: 0;
           max-width: 100%;
+          --xtend-menu-padding-y: 0.2rem;
+          --xtend-menu-padding-x: 0;
+          --xtend-menu-gap: 0.2rem;
+          --xtend-menu-radius: 0;
+          --xtend-menu-border-width: 0;
+          --xtend-menu-elevation: none;
+          --xtend-menu-surface: transparent;
+          --xtend-menu-item-surface: var(--docs-navigation-item-surface);
+          --xtend-menu-item-hover-surface: var(--docs-navigation-item-hover);
+          --xtend-menu-item-active-surface: var(--docs-navigation-item-active);
+          --xtend-menu-item-text: var(--docs-navigation-item-text);
+          --xtend-menu-item-active-text: var(--docs-navigation-item-active-text);
+          --xtend-menu-current-indicator: var(--docs-navigation-item-rail);
+          --xtend-menu-focus-elevation: none;
+          --xtend-menu-item-padding-y: 0.35rem;
+          --xtend-menu-item-padding-x: 0.45rem;
+          --xtend-menu-item-radius: 5px;
         }
         .docs-menu-node {
           display: grid;
@@ -2694,13 +3134,16 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         }
         .docs-menu-section x-link:hover,
         .docs-menu-section x-link[active] {
-          background: var(--docs-menu-highlight-bg);
-          border-color: var(--docs-menu-highlight-border);
-          color: var(--primary-color);
+          background: var(--docs-navigation-item-hover);
+          border-color: var(--docs-navigation-item-border);
+          color: var(--docs-navigation-item-text);
         }
         .docs-menu-section x-link[active] {
+          background: var(--docs-navigation-item-active);
+          border-color: color-mix(in srgb, var(--docs-navigation-item-rail) 42%, transparent);
+          color: var(--docs-navigation-item-active-text);
           font-weight: 700;
-          box-shadow: inset 3px 0 0 var(--docs-menu-active-rail);
+          box-shadow: inset 3px 0 0 var(--docs-navigation-item-rail);
         }
         .docs-menu-section x-link[active]::part(link) {
           box-shadow: none;
@@ -2788,7 +3231,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           display: block;
           position: relative;
           width: 100%;
-          max-width: 30rem;
+          max-width: 48rem;
           min-width: 0;
           box-sizing: border-box;
           --form-padding: 0;
@@ -2796,10 +3239,36 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --form-background: transparent;
           --form-border: 0;
           --form-shadow: none;
-          margin: 0;
+          margin: 0 auto;
           padding: 0;
           border: 0;
           background: transparent;
+        }
+        .docs-search-popover {
+          display: block;
+          width: 100%;
+          --popover-radius: 6px;
+          --popover-close-display: none;
+          --xpopover-bg: var(--docs-search-surface);
+          --xpopover-color: var(--docs-search-result-text);
+          --xpopover-border: var(--docs-search-border);
+          --xpopover-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+        }
+        .docs-search-popover::part(trigger) {
+          display: flex;
+          width: 100%;
+          min-width: 0;
+        }
+        .docs-search-popover::part(root) {
+          width: 100%;
+          min-width: 0;
+          max-width: 100%;
+          box-sizing: border-box;
+          padding: 0.5rem;
+          border-color: var(--docs-search-border);
+          background: var(--docs-search-surface);
+          color: var(--docs-search-result-text);
+          overflow: hidden;
         }
         #xtend-search-form::part(form) {
           width: 100%;
@@ -2846,17 +3315,114 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           }
         }
         #search-results {
-          border: 1px solid var(--border-color);
-          background: var(--section-bg);
-          color: var(--text-color);
+          border: 0;
+          max-height: min(25rem, calc(100vh - 12rem));
+          overflow-y: auto;
+          overflow-x: hidden;
+          overscroll-behavior: contain;
+          scrollbar-gutter: stable;
+          scrollbar-color: var(--docs-search-border) transparent;
+          scrollbar-width: thin;
+          background: transparent;
+          color: var(--docs-search-result-text);
         }
-        #search-results x-link {
+        .docs-search-result-menu {
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+          --xtend-menu-padding-y: 0;
+          --xtend-menu-padding-x: 0;
+          --xtend-menu-gap: 0.2rem;
+          --xtend-menu-border-width: 0;
+          --xtend-menu-radius: 0;
+          --xtend-menu-elevation: none;
+          --xtend-menu-surface: transparent;
+          --xtend-menu-item-surface: var(--docs-search-result-surface);
+          --xtend-menu-item-hover-surface: var(--docs-search-result-hover);
+          --xtend-menu-item-active-surface: var(--docs-search-result-active);
+          --xtend-menu-item-active-text: var(--docs-search-result-text);
+          --xtend-menu-current-indicator: var(--docs-search-result-rail);
+          --xtend-menu-item-text: var(--docs-search-result-text);
+          --xtend-menu-item-padding-y: 0;
+          --xtend-menu-item-padding-x: 0;
+          --xtend-menu-motion-duration: 100ms;
+        }
+        .docs-search-result::part(link) {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 0.75rem;
+          align-items: center;
+          width: 100%;
+          min-height: 2.75rem;
+          color: inherit;
+          text-align: left;
+        }
+        .docs-search-result-score {
+          color: var(--docs-search-score-text);
+          font-size: 0.75rem;
+          font-variant-numeric: tabular-nums;
+          font-weight: 600;
+          padding-inline-end: 0.2rem;
+          white-space: nowrap;
+        }
+        .docs-search-result-title {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        #search-results x-link[role="menuitem"] {
           display: block;
-          padding: 0.42rem 0.5rem;
-          border-radius: 0.45rem;
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          min-height: 2.75rem;
+          box-sizing: border-box;
+          padding: 0.55rem 0.7rem;
+          border: 1px solid transparent;
+          border-radius: 5px;
+          background: var(--docs-search-result-surface);
+          color: var(--docs-search-result-text);
+          text-align: left;
+          --xtend-nav-surface: transparent;
+          --xtend-nav-text: var(--docs-search-result-text);
+          --xtend-link-surface: transparent;
+          --xtend-link-text: var(--docs-search-result-text);
+          --xtend-link-hover-surface: transparent;
+          --xtend-link-active-surface: transparent;
+          --xtend-link-active-text: var(--docs-search-result-text);
         }
-        #search-results x-link:hover {
-          background: rgba(14, 78, 129, 0.12);
+        #search-results x-link[role="menuitem"]:hover {
+          background: var(--docs-search-result-hover);
+          color: var(--docs-search-result-text);
+        }
+        #search-results x-link[role="menuitem"][aria-current="page"],
+        #search-results x-link[role="menuitem"].active {
+          border-color: color-mix(in srgb, var(--docs-search-result-rail) 42%, transparent);
+          background: var(--docs-search-result-active);
+          color: var(--docs-search-result-text);
+          box-shadow: inset 3px 0 0 var(--docs-search-result-rail);
+        }
+        #search-results x-link[role="menuitem"]:focus-visible {
+          outline: 2px solid var(--focus-color);
+          outline-offset: -2px;
+        }
+        .docs-search-status[hidden],
+        .docs-search-status:not([message]),
+        .docs-search-status[message=""] {
+          display: none !important;
+        }
+        .docs-search-status {
+          margin-top: 0.35rem;
+          --xtend-feedback-bg: transparent;
+          --xtend-feedback-color: var(--docs-search-score-text);
+          --xtend-feedback-border: var(--docs-search-border);
+        }
+        .docs-search-status::part(root) {
+          padding: 0.5rem 0.65rem;
+          border-width: 1px 0 0;
+          border-radius: 0;
         }
         x-hero.docs-hero {
           display: block;
@@ -2864,16 +3430,16 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
           min-width: 0;
           box-sizing: border-box;
-          --hero-padding: clamp(2.5rem, 6vw, 4.5rem) 1.25rem;
+          --hero-padding: clamp(1.25rem, 3vw, 2rem) 1.25rem;
           --hero-radius: 0.75rem;
           --hero-font-size: clamp(1rem, 2vw, 1.25rem);
           --hero-content-max-width: none;
           --hero-content-margin: 0;
-          --hero-content-padding: clamp(1.8rem, 4vw, 3.4rem) clamp(1.5rem, 3.5vw, 3rem);
+          --hero-content-padding: clamp(1.15rem, 2.2vw, 1.8rem) clamp(1.25rem, 3vw, 2.25rem);
         }
         x-hero.docs-hero h1 {
-          font-size: clamp(2rem, 5vw, 4.2rem);
-          line-height: 1.02;
+          font-size: clamp(1.8rem, 3.2vw, 3rem);
+          line-height: 1.08;
           margin: 0;
         }
         x-hero.docs-hero p {
@@ -2930,16 +3496,16 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           box-sizing: border-box;
         }
         .docs-article-surface {
-          background: var(--section-bg);
+          background: transparent;
           color: var(--text-color);
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
+          border: 0;
+          border-radius: 0;
           padding: clamp(1rem, 2vw, 2rem);
           min-block-size: var(--docs-route-reserved-block-size);
-          box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+          box-shadow: none;
         }
         [data-theme="dark"] .docs-article-surface {
-          box-shadow: 0 20px 52px rgba(0, 0, 0, 0.45);
+          box-shadow: none;
         }
         .docs-page-sidebar {
           position: static;
@@ -2948,15 +3514,16 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           align-self: start;
         }
         .docs-sidebar-section {
-          background: var(--docs-sidebar-bg);
+          background: transparent;
           color: var(--text-color);
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          padding: 0.9rem;
-          box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+          border: 0;
+          border-left: 1px solid var(--border-color);
+          border-radius: 0;
+          padding: 0.35rem 0 0.35rem 1rem;
+          box-shadow: none;
         }
         [data-theme="dark"] .docs-sidebar-section {
-          box-shadow: 0 18px 36px rgba(0, 0, 0, 0.36);
+          box-shadow: none;
         }
         .docs-sidebar-heading {
           display: flex;
@@ -3186,6 +3753,12 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         .docs-language-select::part(error) {
           display: none;
         }
+        @media (max-width: 1100px) {
+          x-header {
+            --header-slot-template-columns: minmax(0, 1fr) auto 44px;
+            --header-slot-template-areas: "brand actions trigger" "search search search";
+          }
+        }
         xtend-doc-page {
           display: block;
           width: 100%;
@@ -3221,7 +3794,22 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           .docs-page-sidebar {
             position: static;
           }
+          .docs-sidebar-section {
+            border-left: 0;
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 0 0;
+          }
+          .docs-language-icon {
+            display: none;
+          }
+          .docs-language-control {
+            grid-template-columns: minmax(7.35rem, 8.8rem) auto;
+            padding-left: 0.28rem;
+          }
           .docs-menu-shell {
+            grid-template-columns: 1fr;
+          }
+          .docs-active-trunk {
             grid-template-columns: 1fr;
           }
           #xtend-search-form {
@@ -3253,6 +3841,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
     window.xtendInitialDocsSlug = <?= docsJsonEncodeForHtml($initialDocsSlug); ?>;
     window.xtendInitialDocsLocale = <?= docsJsonEncodeForHtml($pageLocale); ?>;
     window.xtendDocsLocales = <?php echo docsJsonEncodeForHtml($docsAvailableLocales); ?>;
+    window.xtendMenuConfig = <?php echo docsJsonEncodeForHtml($docsBootstrapMenuConfig); ?>;
+    window.xtendDocsNavigation = <?php echo docsJsonEncodeForHtml($docsNavigationConfig); ?>;
     window.xtendDocsI18n = {
       schema: 'xtend.docs.i18n.v1',
       defaultLocale: <?= docsJsonEncodeForHtml($docsDefaultLocale); ?>,
@@ -3271,9 +3861,10 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       },
       available: Object.keys(window.xtendDocsLocales || {})
     };
-    window.xtendDocsLocalizedPages = <?php echo docsJsonEncodeForHtml($localizedAllPages); ?>;
-    window.xtendDocsLocalizedPagesMeta = <?php echo docsJsonEncodeForHtml(docsCompactLocalizedMetaForBootstrap($localizedAllPagesMeta)); ?>;
-    window.xtendDocsLocalizedTitles = <?php echo docsJsonEncodeForHtml($localizedTitles); ?>;
+    window.xtendDocsLocalizedPages = Object.create(null);
+    window.xtendDocsLocalizedPagesMeta = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedMeta); ?>;
+    window.xtendDocsLocalizedTitles = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedTitles); ?>;
+    window.xtendDocsSlugAliases = <?php echo docsJsonEncodeForHtml($docsSlugAliases); ?>;
     window.xtendDocsBasePath = <?= docsJsonEncodeForHtml($docsBasePath); ?>;
     window.xtendDocsRoutingMode = 'history';
     (function() {
@@ -3316,19 +3907,20 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       const pathRoute = parseRoute(location.pathname);
       const route = hashRoute || pathRoute;
       window.xtendDocsCurrentLocale = route.locale || locale;
-      const slug = route.slug || window.xtendInitialDocsSlug || 'readme';
+      const requestedSlug = route.slug || window.xtendInitialDocsSlug || 'readme';
+      const slug = (window.xtendDocsSlugAliases || {})[requestedSlug] || requestedSlug;
       const canonicalPath = (basePath || '') + '/' + window.xtendDocsCurrentLocale + '/' + slug;
       const currentPath = location.pathname.replace(/\/+$/, '') || '/';
       if (location.hash || currentPath !== canonicalPath.replace(/\/+$/, '')) {
         history.replaceState(history.state || null, '', canonicalPath);
       }
     })();
-    window.xtendDocsPages = <?php echo docsJsonEncodeForHtml($allPages); ?>;
+    window.xtendDocsPages = Object.create(null);
     window.xtendDocsPageEndpoint = <?= docsJsonEncodeForHtml(docsEndpointPath('xtend-docs-page={slug}&locale={locale}')); ?>;
     window.xtendDocsRmtSsrEndpoint = <?= docsJsonEncodeForHtml($docsSsrEndpoint); ?>;
     window.xtendDocsSsrPrehydration = <?php echo docsJsonEncodeForHtml(docsCompactDocsSsrPrehydrationForBootstrap($docsSsrPrehydration)); ?>;
-    window.xtendDocsPagesMeta = <?php echo docsJsonEncodeForHtml(docsCompactMetaMapForBootstrap($allPagesMeta)); ?>;
-    window.xtendDocsTitles = <?php echo docsJsonEncodeForHtml($titles); ?>;
+    window.xtendDocsPagesMeta = <?php echo docsJsonEncodeForHtml($docsBootstrapPageMeta); ?>;
+    window.xtendDocsTitles = <?php echo docsJsonEncodeForHtml($docsBootstrapTitles); ?>;
     window.xtendDocsAssetUrls = {
       favicon: '<?= $docsFaviconIcoUrl ?>',
       favicon32: '<?= $docsFavicon32Url ?>',
@@ -3379,13 +3971,11 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       richContentEndpoint: 'xtendrmt.docs.rich-content.prepare',
       mediaEndpoint: 'xtendrmt.docs.media.lazy',
       fabricRuntime: {
-        schema: 'xtend.docs.fabric-runtime.v1',
-        runtime: 'docs/utils/fabric-runtime.js',
-        rmtBridgeModule: '/xtendrmt/rmt-runtime.esm.js?v=<?= $xtendAssetVersionAttr ?>',
+        schema: 'xtend.docs.app-runtime-fabric.v1',
+        runtime: 'docs/utils/docs-shell-runtime.mjs',
+        ownership: 'rmt-app-runtime',
         api: 'xtend.fabric.api.v1',
-        bridge: 'xtend.fabric.runtime-diagnostics-bridge.v1',
         telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
-        rmtTelemetryBridge: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1',
         diagnosticsSchedule: 'docs.diagnostics.snapshot',
         snapshotStateKey: 'xtend.docs.fabric.snapshot'
       },
@@ -3414,12 +4004,11 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       diagnosticsSchedule: 'docs.diagnostics.snapshot',
       diagnosticsEndpoint: 'xtendrmt.diagnostics.snapshot',
       fabricRuntime: {
-        schema: 'xtend.docs.fabric-runtime.v1',
-        runtime: 'docs/utils/fabric-runtime.js',
-        rmtBridgeModule: '/xtendrmt/rmt-runtime.esm.js?v=<?= $xtendAssetVersionAttr ?>',
+        schema: 'xtend.docs.app-runtime-fabric.v1',
+        runtime: 'docs/utils/docs-shell-runtime.mjs',
+        ownership: 'rmt-app-runtime',
         telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
-        rmtTelemetryBridge: 'xtend.rmt.state-scheduler-diagnostics-bridge.v1',
-        bridge: 'xtend.fabric.runtime-diagnostics-bridge.v1'
+        bridge: 'xtend.rmt.app-runtime.v1'
       },
       trustBoundary: 'xtend.security.sanitizing-boundary.v1',
       trustedDomProofSchema: 'xtend.epic13.trusted-dom-boundary.v1',
@@ -3444,213 +4033,13 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       nextDecision: 'rc1-gate-matrix-ci-handoff'
     };
     </script>
-    <script src="/docs/utils/fabric-runtime.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>"></script>
+    <script src="/docs/utils/dev-api.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>"></script>
+    <script type="module" src="/docs/utils/trusted-dom-host.mjs?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>"></script>
 </head>
 <body xt-ui-effects="none">
 <?= $docsSsrPrehydration['html'] ?? docsFallbackSerializeDescriptor($docsRootShellDescriptor) ?>
-<script src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
+<script type="module" src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
 </script>
-<script nonce="<?= $nonce ?>">
-document.addEventListener('DOMContentLoaded', function() {
-  // Theme button logic
-  const btn = document.getElementById('theme-toggle');
-  const label = document.getElementById('theme-toggle-label');
-  const icon = document.getElementById('theme-toggle-icon');
-  function updateThemeButton() {
-    if (!btn || !label) return;
-    const theme = document.documentElement.getAttribute('data-theme');
-    const locale = window.xtendDocsCurrentLocale === 'en' ? 'en' : 'de';
-    const darkLabel = locale === 'en' ? 'Enable dark mode' : 'Dunkelmodus aktivieren';
-    const lightLabel = locale === 'en' ? 'Enable light mode' : 'Hellmodus aktivieren';
-    if (theme === 'dark') {
-      label.textContent = lightLabel;
-      btn.setAttribute('aria-label', lightLabel);
-      btn.setAttribute('title', lightLabel);
-      btn.setAttribute('aria-pressed', 'true');
-      if (icon) icon.setAttribute('name', 'sun');
-    } else {
-      label.textContent = darkLabel;
-      btn.setAttribute('aria-label', darkLabel);
-      btn.setAttribute('title', darkLabel);
-      btn.setAttribute('aria-pressed', 'false');
-      if (icon) icon.setAttribute('name', 'moon');
-    }
-  }
-  if (btn) {
-    btn.addEventListener('button-interaction', function() {
-      if (window.XTend && window.XTend.theme) {
-        window.XTend.theme.toggleDarkMode();
-      }
-    });
-  }
-  // Always set the theme state correctly on page load and theme changes
-  updateThemeButton();
-  document.addEventListener('theme-changed', updateThemeButton);
-  document.addEventListener('theme-initialized', updateThemeButton);
-  window.addEventListener('xtend-docs-locale-changed', updateThemeButton);
-  // Set default colors for both themes
-  if (window.XTend && window.XTend.theme) {
-    window.XTend.theme.setTheme('light');
-    window.XTend.theme.set('--body-bg', '#f9f9f9');
-    window.XTend.theme.set('--background-color', '#f9f9f9');
-    window.XTend.theme.set('--primary-color', '#0e4e81');
-    window.XTend.theme.set('--text-color', '#222');
-    window.XTend.theme.set('--muted-text-color', '#5f6f82');
-    window.XTend.theme.set('--surface-muted', '#edf2f7');
-    window.XTend.theme.set('--border-color', 'rgba(15, 23, 42, 0.14)');
-    window.XTend.theme.set('--xtend-surface', '#ffffff');
-    window.XTend.theme.set('--xtend-surface-muted', '#f7fafc');
-    window.XTend.theme.set('--xtend-surface-control', '#f7fafc');
-    window.XTend.theme.set('--xtend-text', '#1f2937');
-    window.XTend.theme.set('--xtend-text-primary', '#1f2937');
-    window.XTend.theme.set('--xtend-text-muted', '#5f6f82');
-    window.XTend.theme.set('--xtend-border-color', 'rgba(15, 23, 42, 0.14)');
-    window.XTend.theme.set('--xtend-border-subtle', 'rgba(15, 23, 42, 0.14)');
-    window.XTend.theme.set('--xtend-overlay-bg', 'rgba(15, 23, 42, 0.52)');
-    window.XTend.theme.set('--docs-control-surface', '#f7fafc');
-    window.XTend.theme.set('--docs-control-text', '#1f2937');
-    window.XTend.theme.set('--docs-control-placeholder', '#5f6f82');
-    window.XTend.theme.set('--docs-control-border', 'rgba(15, 23, 42, 0.14)');
-    window.XTend.theme.set('--docs-header-bg', '#ffffff');
-    window.XTend.theme.set('--docs-header-menu-bg', '#ffffff');
-    window.XTend.theme.set('--docs-header-fg', '#1f2937');
-    window.XTend.theme.set('--docs-sidebar-bg', '#ffffff');
-    window.XTend.theme.set('--docs-sidebar-link-bg', '#f7fafc');
-    window.XTend.theme.set('--docs-sidebar-link-hover-bg', '#e7f0f7');
-    window.XTend.theme.set('--docs-code-bg', '#10131a');
-    window.XTend.theme.set('--x-code-bg', '#10131a');
-    window.XTend.theme.set('--x-code-text', '#f8fafc');
-    window.XTend.theme.set('--x-code-border', 'rgba(15, 23, 42, 0.18)');
-    window.XTend.theme.set('--footer-bg', '#f9f9f9');
-    window.XTend.theme.set('--section-bg', '#fff');
-    window.XTend.theme.set('--active-tab-color', '#0e4e81');
-    window.XTend.theme.set('--tab-bg', '#f5f5f5');
-    window.XTend.theme.set('--tab-text', '#222');
-    window.XTend.theme.set('--input-bg', '#fff');
-    window.XTend.theme.set('--input-bg-dark', '#17171b');
-    window.XTend.theme.set('--input-color-dark', '#f4f4f5');
-    window.XTend.theme.set('--input-placeholder-color-dark', '#b8c4d4');
-    window.XTend.theme.set('--form-background', 'transparent');
-    window.XTend.theme.set('--docs-hero-bg-light', 'linear-gradient(135deg, #f8fbff 0%, #e7f0f7 100%)');
-    window.XTend.theme.set('--docs-hero-text-light', '#162033');
-    // Dark Mode
-    window.XTend.theme.registerTheme('dark', {
-      '--body-bg': '#050506',
-      '--background-color': '#050506',
-      '--primary-color': '#8fd3ff',
-      '--text-color': '#f4f4f5',
-      '--muted-text-color': '#a1a1aa',
-      '--surface-muted': '#111113',
-      '--border-color': 'rgba(255, 255, 255, 0.13)',
-      '--xtend-surface': '#0b0b0d',
-      '--xtend-surface-muted': '#111113',
-      '--xtend-surface-control': '#17171b',
-      '--xtend-text': '#f4f4f5',
-      '--xtend-text-primary': '#f4f4f5',
-      '--xtend-text-muted': '#a1a1aa',
-      '--xtend-border-color': 'rgba(255, 255, 255, 0.13)',
-      '--xtend-border-subtle': 'rgba(255, 255, 255, 0.13)',
-      '--xtend-overlay-bg': 'rgba(0, 0, 0, 0.72)',
-      '--docs-control-surface': '#17171b',
-      '--docs-control-text': '#f4f4f5',
-      '--docs-control-placeholder': '#a1a1aa',
-      '--docs-control-border': 'rgba(255, 255, 255, 0.13)',
-      '--docs-header-bg': '#050506',
-      '--docs-header-menu-bg': '#09090b',
-      '--docs-header-fg': '#f4f4f5',
-      '--docs-sidebar-bg': '#0d0d10',
-      '--docs-sidebar-link-bg': '#111114',
-      '--docs-sidebar-link-hover-bg': '#17171b',
-      '--docs-code-bg': '#050506',
-      '--x-code-bg': '#050506',
-      '--x-code-text': '#f4f4f5',
-      '--x-code-border': 'rgba(255, 255, 255, 0.16)',
-      '--footer-bg': '#050506',
-      '--section-bg': '#0b0b0d',
-      '--active-tab-color': '#8fd3ff',
-      '--tab-bg': '#111114',
-      '--tab-text': '#f4f4f5',
-      '--input-bg': '#17171b',
-      '--input-bg-dark': '#0f0f12',
-      '--input-color-dark': '#f4f4f5',
-      '--input-placeholder-color-dark': '#a1a1aa',
-      '--form-background': 'transparent',
-      '--docs-hero-bg-dark': '#050506',
-      '--docs-hero-text-dark': '#f8fafc'
-    });
-  }
-  updateThemeButton();
-  function checkDocsViewportOverflow() {
-    const root = document.documentElement;
-    const body = document.body;
-    const clientWidth = root ? root.clientWidth : window.innerWidth;
-    const scrollWidth = Math.max(
-      root ? root.scrollWidth : 0,
-      body ? body.scrollWidth : 0
-    );
-    const overflowX = Math.max(0, scrollWidth - clientWidth);
-    const snapshot = {
-      schema: 'xtend.docs.viewport-overflow.v1',
-      viewport: window.matchMedia('(max-width: 700px)').matches ? 'mobile' : 'wide',
-      clientWidth,
-      scrollWidth,
-      overflowX,
-      viewportSafe: overflowX <= 1
-    };
-    window.xtendDocsViewportOverflow = snapshot;
-    if (root) {
-      root.toggleAttribute('data-xtend-viewport-overflow', !snapshot.viewportSafe);
-    }
-    window.dispatchEvent(new CustomEvent('xtend-docs-viewport-overflow-check', { detail: snapshot }));
-    return snapshot;
-  }
-  window.xtendDocsCheckViewportOverflow = checkDocsViewportOverflow;
-  window.addEventListener('resize', function() {
-    requestAnimationFrame(checkDocsViewportOverflow);
-  }, { passive: true });
-  // Prism runs scoped and idle so route clicks do not block the whole page.
-  let prismFrame = 0;
-  let prismIdle = 0;
-  function schedulePrismHighlight(root) {
-    const scope = root && root.querySelectorAll ? root : document;
-    const run = () => {
-      scope.querySelectorAll('x-code').forEach((node) => {
-        if (typeof node.hydrate === 'function') node.hydrate();
-      });
-      if (!window.Prism) return;
-      if (window.XTendRmtPrism && typeof window.XTendRmtPrism.register === 'function') {
-        window.XTendRmtPrism.register(window.Prism);
-      }
-      if (typeof Prism.highlightAllUnder === 'function') {
-        Prism.highlightAllUnder(scope);
-        return;
-      }
-      if (typeof Prism.highlightElement === 'function') {
-        scope.querySelectorAll('pre code, code[class*="language-"]').forEach((node) => Prism.highlightElement(node));
-      }
-    };
-    if (prismFrame) cancelAnimationFrame(prismFrame);
-    if (prismIdle && typeof cancelIdleCallback === 'function') cancelIdleCallback(prismIdle);
-    prismFrame = requestAnimationFrame(() => {
-      prismFrame = 0;
-      if (typeof requestIdleCallback === 'function') {
-        prismIdle = requestIdleCallback(() => {
-          prismIdle = 0;
-          run();
-        }, { timeout: 700 });
-      } else {
-        setTimeout(run, 0);
-      }
-    });
-  }
-  window.xtendDocsHighlightPrism = schedulePrismHighlight;
-  window.addEventListener('xtend-docs-content-ready', function(event) {
-    schedulePrismHighlight(event.detail && event.detail.root);
-    requestAnimationFrame(checkDocsViewportOverflow);
-  });
-  requestAnimationFrame(checkDocsViewportOverflow);
-  schedulePrismHighlight(document);
-});
-</script>
+<script type="module" src="/docs/utils/docs-shell-runtime.mjs?v=<?= $xtendAssetVersionAttr ?>"></script>
 </body>
 </html>

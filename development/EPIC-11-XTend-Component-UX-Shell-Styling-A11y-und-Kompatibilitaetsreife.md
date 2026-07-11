@@ -32,7 +32,7 @@
   - `development/XTend-A11y-Component-Contract.md`
   - `development/XTend-Performance-Budget-Matrix.md`
   - `development/XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md`
-  - `docs/component-platform.md`
+  - `development/docs-evidence/root/component-platform.md`
   - `docs/typescript-components.md`
   - `docs/rmt-first-xtend-apps.md`
   - `docs/epic10-release-handoff.md`
@@ -69,13 +69,13 @@
   - `development/XTend-Component-UX-Authoring-Guides.md`
   - `docs/component-ux-authoring.md`
   - `docs/component-ux-app-authoring.md`
-  - `docs/component-ux-gates.md`
+  - `development/docs-evidence/root/component-ux-gates.md`
   - `tests/docs/component_ux_authoring_docs_suite.js`
   - `development/WP-E11-17-Legacy-Long-Tail-Migration-planen.md`
   - `development/WP-E11-18-Epic-11-Abschlussreview-und-Enterprise-UX-Handoff.md`
   - `development/XTend-Epic11-Legacy-Long-Tail-Migrationsplan.md`
   - `development/XTend-Epic11-Abschluss-und-Enterprise-UX-Handoff.md`
-  - `docs/component-long-tail-migration.md`
+  - `docs/en/component-long-tail-migration.md`
   - `catalog/component-long-tail-migration.js`
   - `tests/catalog/component_long_tail_migration_suite.js`
   - `docs/epic11-enterprise-ux-handoff.md`
@@ -935,7 +935,7 @@ Akzeptierte Artefakte:
 - `development/WP-E11-16-Docs-und-Authoring-Guides-fuer-Component-UX-aktualisieren.md`
 - `docs/component-ux-authoring.md`
 - `docs/component-ux-app-authoring.md`
-- `docs/component-ux-gates.md`
+- `development/docs-evidence/root/component-ux-gates.md`
 - `tests/docs/component_ux_authoring_docs_suite.js`
 
 Der Contract `xtend.epic11.component-ux-authoring-docs.v1` macht die Epic-11-UX-Reife fuer Komponentenautorinnen, App-Autoren, Reviewer und CI-Verantwortliche dokumentiert gatebar.
@@ -956,7 +956,7 @@ Akzeptierte Artefakte:
 
 - `development/XTend-Epic11-Legacy-Long-Tail-Migrationsplan.md`
 - `development/WP-E11-17-Legacy-Long-Tail-Migration-planen.md`
-- `docs/component-long-tail-migration.md`
+- `docs/en/component-long-tail-migration.md`
 - `catalog/component-long-tail-migration.js`
 - `tests/catalog/component_long_tail_migration_suite.js`
 

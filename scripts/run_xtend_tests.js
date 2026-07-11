@@ -10,6 +10,10 @@ const {
   runDocsContentDepthCheck
 } = require('./verify_docs_content_depth');
 const {
+  printDocsQualityGateReport,
+  runDocsQualityGateSuite
+} = require('../tests/docs/docs_quality_gate_suite');
+const {
   DEFAULT_MIN_GUIDE_CHARS,
   createDocsStubInventory
 } = require('./create_docs_stub_inventory');
@@ -904,6 +908,18 @@ const {
   runRmtPlaygroundDocsSuite
 } = require('../tests/docs/rmt_playground_docs_suite');
 const {
+  printRmtAnimationEngineDocsReport,
+  runRmtAnimationEngineDocsSuite
+} = require('../tests/docs/rmt_animation_engine_docs_suite');
+const {
+  printDocsShellCatfoodingReport,
+  runDocsShellCatfoodingSuite,
+  runMaracaTuneSuite,
+  runRmtPrewarmWorkerSearchSuite,
+  runRmtSearchRuntimeSuite,
+  runXtendLoaderSkeletonProfilesSuite
+} = require('../tests/docs/docs_shell_catfooding_suite');
+const {
   printRmtReferenceDocsReport,
   runRmtReferenceDocsSuite
 } = require('../tests/docs/rmt_reference_docs_suite');
@@ -1599,6 +1615,16 @@ const suites = [
     }
   },
   {
+    id: 'docs-quality-gates',
+    label: 'Docs Quality Negative Fixtures',
+    description: 'Runs isolated negative fixtures for aliases, locale pairs, boilerplate, language mixing and bilingual technical drift.',
+    run: () => {
+      const result = runDocsQualityGateSuite({ rootDir });
+      printDocsQualityGateReport(result);
+      return toRunnerResult('docs-quality-gates', 'Docs Quality Negative Fixtures', result);
+    }
+  },
+  {
     id: 'rmt-stack-docs',
     label: 'RMT Stack Layer Docs',
     description: 'Runs the RMT stack layer, topography and public interface documentation checks.',
@@ -1616,6 +1642,66 @@ const suites = [
       const result = runRmtPlaygroundDocsSuite({ rootDir });
       printRmtPlaygroundDocsReport(result);
       return toRunnerResult('rmt-playground-docs', 'Learn RMT Playground Docs', result);
+    }
+  },
+  {
+    id: 'rmt-animation-engine-docs',
+    label: 'RMT AnimationEngine Docs and Live Demo',
+    description: 'Runs the bilingual AnimationEngine tutorial, AOT demo artifact and lazy island contract checks.',
+    run: () => {
+      const result = runRmtAnimationEngineDocsSuite({ rootDir });
+      printRmtAnimationEngineDocsReport(result);
+      return toRunnerResult('rmt-animation-engine-docs', 'RMT AnimationEngine Docs and Live Demo', result);
+    }
+  },
+  {
+    id: 'docs-shell-catfooding',
+    label: 'Docs Shell Catfooding',
+    description: 'Runs the task-trunk IA, search indexes, RMT shell, DEV API and no-parallel-runtime source gates.',
+    run: () => {
+      const result = runDocsShellCatfoodingSuite({ rootDir });
+      printDocsShellCatfoodingReport(result);
+      return toRunnerResult('docs-shell-catfooding', 'Docs Shell Catfooding', result);
+    }
+  },
+  {
+    id: 'rmt-search-runtime',
+    label: 'RMT Search Runtime',
+    description: 'Runs normalization, typo ranking, locale keyword, fulltext fallback and supersession gates.',
+    run: async () => {
+      const result = await runRmtSearchRuntimeSuite({ rootDir });
+      printDocsShellCatfoodingReport(result);
+      return toRunnerResult('rmt-search-runtime', 'RMT Search Runtime', result);
+    }
+  },
+  {
+    id: 'rmt-prewarm-worker-search',
+    label: 'RMT Prewarm Worker Search',
+    description: 'Runs the allowlisted search_index worker and ownership-boundary gates.',
+    run: async () => {
+      const result = await runRmtPrewarmWorkerSearchSuite({ rootDir });
+      printDocsShellCatfoodingReport(result);
+      return toRunnerResult('rmt-prewarm-worker-search', 'RMT Prewarm Worker Search', result);
+    }
+  },
+  {
+    id: 'xtend-loader-skeleton-profiles',
+    label: 'XTend Loader Skeleton Profiles',
+    description: 'Runs profile registry, responsive geometry, reduced-motion and x-router ownership gates.',
+    run: () => {
+      const result = runXtendLoaderSkeletonProfilesSuite({ rootDir });
+      printDocsShellCatfoodingReport(result);
+      return toRunnerResult('xtend-loader-skeleton-profiles', 'XTend Loader Skeleton Profiles', result);
+    }
+  },
+  {
+    id: 'maraca-tune',
+    label: 'Maraca Deterministic Tune',
+    description: 'Runs all twelve Rollup/Terser candidates, write/check parity, config precedence and drift gates.',
+    run: async () => {
+      const result = await runMaracaTuneSuite({ rootDir });
+      printDocsShellCatfoodingReport(result);
+      return toRunnerResult('maraca-tune', 'Maraca Deterministic Tune', result);
     }
   },
   {
@@ -4095,6 +4181,12 @@ Examples:
   node scripts/run_xtend_tests.js docs-public-quality
   node scripts/run_xtend_tests.js rmt-stack-docs
   node scripts/run_xtend_tests.js rmt-playground-docs
+  node scripts/run_xtend_tests.js rmt-animation-engine-docs
+  node scripts/run_xtend_tests.js docs-shell-catfooding
+  node scripts/run_xtend_tests.js rmt-search-runtime
+  node scripts/run_xtend_tests.js rmt-prewarm-worker-search
+  node scripts/run_xtend_tests.js xtend-loader-skeleton-profiles
+  node scripts/run_xtend_tests.js maraca-tune
   node scripts/run_xtend_tests.js rmt-reference-docs
   node scripts/run_xtend_tests.js rmt-playground-security
   node scripts/run_xtend_tests.js epic14-rmt-tooling

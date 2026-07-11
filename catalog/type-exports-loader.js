@@ -68,6 +68,9 @@ const STYLE_REGISTRY_METHODS = Object.freeze([
 ]);
 
 const SKELETON_LOADER_METHODS = Object.freeze([
+  'registerProfile',
+  'getProfile',
+  'listProfiles',
   'create',
   'show',
   'hide'

@@ -258,7 +258,7 @@ async function runSurfaceControllerSuite(options = {}) {
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerController;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const referenceRegistry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const planningDoc = readText(SURFACE_CONTROLLER_PLAN, rootDir);
@@ -397,7 +397,7 @@ async function runSurfaceControllerSuite(options = {}) {
     'destroySurface',
     'xtend.surface.tombstone.v1',
     'xtend.surface.snapshot',
-    'WP-SM-03'
+    'user-blocking'
   ], 'Surface Controller public docs');
 
   return context.result({

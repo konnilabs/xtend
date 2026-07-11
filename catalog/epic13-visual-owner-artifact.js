@@ -27,7 +27,7 @@ const EPIC13_VISUAL_OWNER_ARTIFACT_SUITE = 'tests/platform/epic13_visual_owner_a
 const EPIC13_VISUAL_OWNER_ARTIFACT_STEERING = 'development/RC0-RC1-transfer-EPIC13.md';
 const EPIC13_VISUAL_OWNER_ARTIFACT_CONTRACT = 'development/XTend-Epic13-Visual-Owner-Artifact-Contract.md';
 const EPIC13_VISUAL_OWNER_ARTIFACT_WORKPACKAGE_DOC = 'development/WP-E13-08-Visual-Screenshot-Pixels-als-RC1-Artefakt-normalisieren.md';
-const EPIC13_VISUAL_OWNER_ARTIFACT_DOCS = 'docs/visual-owner-artifacts.md';
+const EPIC13_VISUAL_OWNER_ARTIFACT_DOCS = 'docs/en/visual-snapshot-automation.md';
 const EPIC13_VISUAL_OWNER_ARTIFACT_LOCAL_GATE = 'node scripts/run_xtend_tests.js epic13-visual-owner-artifact --json';
 const EPIC13_VISUAL_OWNER_ARTIFACT_PACKAGE_SCRIPT = 'npm run test:epic13-visual-owner-artifact';
 const VISUAL_OWNER_ARTIFACT_ROOT = '.xtend-test-results/visual-snapshots/rc1';
@@ -56,9 +56,9 @@ const REQUIRED_DOCS = Object.freeze([
   EPIC13_VISUAL_OWNER_ARTIFACT_DOCS,
   'development/XTend-Visual-Snapshot-Automation-Contract.md',
   'development/XTend-Epic13-PROD-Browser-CSP-Smoke-Contract.md',
-  'docs/visual-snapshot-automation.md',
-  'docs/prod-browser-csp-smokes.md',
-  'docs/enterprise-adoption.md'
+  'docs/en/visual-snapshot-automation.md',
+  'development/XTend-Epic13-PROD-Browser-CSP-Smoke-Contract.md',
+  'docs/en/enterprise-adoption.md'
 ]);
 
 function createCaptureEntries(snapshotRun) {
@@ -157,7 +157,7 @@ function validateEpic13VisualOwnerArtifactPlan(plan = createEpic13VisualOwnerArt
   if (!plan || plan.reportPath !== VISUAL_OWNER_ARTIFACT_REPORT) errors.push(`reportPath must be ${VISUAL_OWNER_ARTIFACT_REPORT}`);
   if (!plan || plan.screenshotPathTemplate !== VISUAL_OWNER_ARTIFACT_PATH_TEMPLATE) errors.push(`screenshotPathTemplate must be ${VISUAL_OWNER_ARTIFACT_PATH_TEMPLATE}`);
   if (!plan || plan.snapshotCount !== 5 || plan.familyCount !== 5) errors.push('visual owner artifact must preserve five snapshot families');
-  if (!plan || plan.componentCount !== 17) errors.push('visual owner artifact must preserve seventeen representative components');
+  if (!plan || plan.componentCount !== 18) errors.push('visual owner artifact must preserve eighteen representative components');
   if (!plan || plan.matrixCombinationCount !== 360) errors.push('visual owner artifact must preserve 360 matrix combinations');
   if (!plan || plan.domDiffCount !== 0) errors.push('visual owner artifact must be backed by a clean DOM diff');
   if (!plan || !Array.isArray(plan.captureEntries) || plan.captureEntries.length !== 5) errors.push('visual owner artifact must define five capture entries');

@@ -71,7 +71,7 @@ const REQUIRED_DOCS = Object.freeze([
   'development/XTend-Fabric-Component-Compatibility-v2.md',
   'development/XTend-Component-Lifecycle-Telemetry-Contract.md',
   'docs/rmt-first-xtend-apps.md',
-  'docs/rmt-first-demo-app.md',
+  'docs/en/rmt-first-demo-app.md',
   'docs/xtendrmt-app-dsl.md',
   'docs/xtendrmt-native-authoring.md',
   'docs/xtend-fabric-rmt-lane-mapping.md',

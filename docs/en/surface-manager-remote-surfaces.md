@@ -1,81 +1,25 @@
 # SurfaceManager Remote Surfaces
 
-Register, load and degrade remote surfaces safely.
+A remote surface is a registered candidate, not an automatically executable module. The host checks static manifest facts and SurfaceManager policy before runtime code loads or a container opens.
 
-## What it covers
+## Required facts
 
-SurfaceManager groups windows, panels, overlays and remote areas into a controlled runtime. Focus, layering, persistence and cleanup stay traceable.
+A record identifies `surfaceId`, owner, version, origin, entry, integrity, required capabilities, and a local fallback. `remote-origin-allowlist` and `remote-capabilities` on the manager constrain the host. The browser decision is implemented in `components/xsurfacemanager.js`; RMT manifests are evaluated earlier by `tools/rmt-language/vnext-remote-security.js`.
 
-## Public building blocks
+## Policy flow
 
-- Surface IDs and controller records.
-- Windows, panels, portals and overlays.
-- Focus, layer and cleanup rules.
+`evaluateRemoteSurfacePolicy()` returns a report without execution. `registerRemoteSurface()` registers an accepted record only. Materialization loads the known entry, binds it to a host-owned container, and publishes `remote-surface-mounted`. A remote surface receives no implicit router, storage, or network capability.
 
-## Recommended workflow
+Cross-surface events pass through `governRemoteSurfaceEvent()`. Owner, version, and payload must match the contract. A global event bus or shared framework context bypasses this boundary and is unsupported.
 
-Assign stable surface IDs, open and close surfaces through the controller and check focus, Escape behavior and persistence in browser fixtures.
+## Degradation and security
 
-## Next steps
+Origin, integrity, or capability failures produce `remote-surface-refused`; a failure after accepted registration produces `remote-surface-degraded`. In either case, the local fallback remains visible and the diagnostic names the reason. Runtime reconstructs no tokens and loads no alternate URL from remote input.
 
-- [SurfaceManager](./surface-manager-authoring-guide.md)
-- [SurfaceManager Controller](./surface-manager-controller.md)
+Same-realm execution is not a hard security boundary. Sensitive or untrusted content requires stronger host isolation outside this surface runtime.
+
+## Related pages
+
+- [RMT Remote Surfaces](./rmt-vnext-remote-surfaces.md)
+- [Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
 - [SurfaceManager Runtime](./surface-manager-runtime.md)
-
-## Public contract
-
-SurfaceManager Remote Surfaces is the public surface integration contract for `docs/en/surface-manager-remote-surfaces.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: surface records, controllers, portals, windows, ownership and routing boundaries.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/surface-manager-remote-surfaces.md`
-- `docs/menu.json`
-- `package.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-
-Names:
-- `docs/en/surface-manager-remote-surfaces.md`
-- `docs/menu.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-- `docs/dev-router.php`
-- `package.json`
-- `x-surface-manager`
-
-Commands:
-- `node scripts/run_xtend_tests.js components catalog-coverage --json`
-- `node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js components catalog-coverage --json
-node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a surface is missing, check ownership, portal, window record and router binding in that order.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

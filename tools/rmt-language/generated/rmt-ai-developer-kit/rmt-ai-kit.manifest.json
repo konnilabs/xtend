@@ -6,7 +6,7 @@
   "workpackage": "RMT-AI-DK-01",
   "generatedAt": "static-local",
   "language": "en-technical",
-  "outputDir": "docs/ai/rmt-ai-developer-kit",
+  "outputDir": "tools/rmt-language/generated/rmt-ai-developer-kit",
   "module": "tools/rmt-language/rmt-ai-developer-kit.js",
   "types": "tools/rmt-language/rmt-ai-developer-kit.d.ts",
   "suite": "tests/rmt-language/rmt_ai_developer_kit_suite.js",
@@ -86,83 +86,83 @@
     },
     {
       "path": "docs/de/learn-rmt-actions-events.md",
-      "sha256": "2f89347831da1f8acf1237b8c7038395e1b3990bcc840e64eb3e9b80356bc073",
-      "bytes": 4913
+      "sha256": "a0a866ebeb036d92756ac74b74fdc8605ab2356b3fbb1e84688bb9975ec85e31",
+      "bytes": 2313
     },
     {
       "path": "docs/de/learn-rmt-data-resources.md",
-      "sha256": "a2900dc7310679a75318363848d99fdaba8f182083ed6e67256596db20a9deeb",
-      "bytes": 5024
+      "sha256": "964450bed206d58a83cf277d0789c8664b0c83bd485fecc71ac1b3e6e70d52e0",
+      "bytes": 2404
     },
     {
       "path": "docs/de/learn-rmt-next-steps.md",
-      "sha256": "f2d19728768d3438a01998b4fe1341f84ca8c87b57fdc76551766abba604ee1c",
-      "bytes": 4220
+      "sha256": "ada67a45499b8f2d462c45d3049b524dede4658c421b5c3967eeedee67e9cc6e",
+      "bytes": 2028
     },
     {
       "path": "docs/de/learn-rmt-playground.md",
-      "sha256": "9a1c0e63e2785a60748df97db5c41b33810e2c462162cb7b58b4a9e2a2e8b126",
-      "bytes": 5467
+      "sha256": "b368313f44de82e2e19c281e19afc75dc124a6f6d6980313bef59bbc9b4bed6e",
+      "bytes": 2969
     },
     {
       "path": "docs/de/learn-rmt-scheduling-lanes.md",
-      "sha256": "f508eb8decaba9f39e935a4b29657e313b57b4d88e88885f4934e22826821bdb",
-      "bytes": 3909
+      "sha256": "de124a41959e07093670f3272232e0d1ac836b608cf9809e569d04dbb9c8aef2",
+      "bytes": 1512
     },
     {
       "path": "docs/de/learn-rmt-security-preview.md",
-      "sha256": "ab2eb0b3bbcbef0ab49371ab5fe691e103e61755ab97938d13b2726ebccaab42",
-      "bytes": 4338
+      "sha256": "c3c2f086220f272df7c13d6ac7e8554b19b7bc70f3da811b5cff77fd011e8e31",
+      "bytes": 1970
     },
     {
       "path": "docs/de/learn-rmt-state-selectors.md",
-      "sha256": "ebfeb9bf149ad1c21c76154586433a3955d6915ab34141abf88aca3fbb4f30c8",
-      "bytes": 4125
+      "sha256": "128889c9c1746a4d0c304ef101dddf5f6815bec974a14d70e9c9b76b4127ea30",
+      "bytes": 1747
     },
     {
       "path": "docs/de/learn-rmt-syntax-basics.md",
-      "sha256": "5762bfd4af452419c42d9a57b9322f01b28cabd8e8c582ef70cd442e1d101bd0",
-      "bytes": 5551
+      "sha256": "f77a19a480a28e46f8abd3b4a7850c524bc42f81604026b2fae44bdb8bf1b2a0",
+      "bytes": 3123
     },
     {
       "path": "docs/de/learn-rmt-templates-surfaces.md",
-      "sha256": "a6449c1c190c120947ddc3932547e69a737a987660d33df5bbca4d7d793debba",
-      "bytes": 3987
+      "sha256": "292e859bbb8ecbc76f16c28f0de37767fd26c3e6a18965867c6e85cb517bc223",
+      "bytes": 1570
     },
     {
       "path": "docs/de/learn-rmt.md",
-      "sha256": "bf5de94a03770f035c39aa41e04f6ebc3cd86d6e656389f635c597e2bf328423",
-      "bytes": 4206
+      "sha256": "7add347a13f5b5d9b862ef7e087a291253534028693eac0ac17fc908a772af5d",
+      "bytes": 1819
     },
     {
       "path": "docs/de/rmt-app-platform-tooling.md",
-      "sha256": "266b1610bd06dab0b7d791c649a3e2a99346d635207eb75d1af96f4773566a85",
-      "bytes": 4842
+      "sha256": "31188a9c83c3811f42ba88f73db7bea8f1fbdd25880f8980241e78845d7413fa",
+      "bytes": 2074
     },
     {
       "path": "docs/de/rmt-reference-actions-events.md",
-      "sha256": "ed787d5c958eb908f3578694801244d0bc41f9d1379ae89075c698af2ec048f5",
-      "bytes": 5104
+      "sha256": "3d5baaa81bb226667a146e59b756b119d65c128a24e81bef11e00fd436d84303",
+      "bytes": 5259
     },
     {
       "path": "docs/de/rmt-reference-conditions-expressions.md",
-      "sha256": "39868bc75b7b3fa73b443eedfc96ccb313b49d453c9d8bd3a7ae968812102321",
-      "bytes": 4170
+      "sha256": "1ad81179d618e903f5894c5d150dc93611f5a5a534679322a8ea0136715dda4a",
+      "bytes": 4414
     },
     {
       "path": "docs/de/rmt-reference-document-template-import.md",
-      "sha256": "8b8e909dc1ef29697502279ba8ca732279b3ced1b61b78f7061a6bda9948e01c",
-      "bytes": 2619
+      "sha256": "96ed13da92f97e78aad1b33ba434e4d3caf9e443097145ce977f0f5c0126480e",
+      "bytes": 2880
     },
     {
       "path": "docs/de/rmt-reference-enums-catalogs.md",
-      "sha256": "a8f5298980a8f936b639b344154dbf6b83f25a15cfe238aa3f3c8cc88c3c58ba",
-      "bytes": 3604
+      "sha256": "414433235ebfd3a000ce0ffea9e3c1e4a5f7d3bec337762175a087c0f4f5bb46",
+      "bytes": 3751
     },
     {
       "path": "docs/de/rmt-reference-primitives.md",
-      "sha256": "fbfd9ddd7908d190e2cb1fe0c292ff87e9e21f6f325edc105f181e1d00472005",
-      "bytes": 5336
+      "sha256": "f60d8c9e41c96d1804d49e965edb4c38ca90fc854aa70bd47b539c18e262aa22",
+      "bytes": 5497
     },
     {
       "path": "docs/de/rmt-reference-remote-surfaces.md",
@@ -171,23 +171,23 @@
     },
     {
       "path": "docs/de/rmt-reference-security-policies.md",
-      "sha256": "af7d395d77d58095e29ae9ed676d7eda741fa7a66ec125110387d335f7bfa725",
-      "bytes": 3079
+      "sha256": "29bcea16b0fccbc385065c9886116315f96ee68d1bf95ba0ad8b90cf5582186a",
+      "bytes": 3328
     },
     {
       "path": "docs/de/rmt-reference-state-selectors-data.md",
-      "sha256": "783566185534fc9756ebff1b241b614a63b5927033c60b9b2c9c9cfccbe2ff85",
-      "bytes": 5130
+      "sha256": "6e3d64c5f34c80f88b1eba397100284d9729aece2371722ea0d759fa02ee7626",
+      "bytes": 5287
     },
     {
       "path": "docs/de/rmt-reference-surfaces-lanes-lifecycle.md",
-      "sha256": "58ed71ebef8b5c829d2d426fb559a6a2b179b749306ba0d29c5021a75f0e21c0",
-      "bytes": 7803
+      "sha256": "93017438da6b51872d1c14fec25b8d042c234c5edf63e5df26dec2d468537cc3",
+      "bytes": 8068
     },
     {
       "path": "docs/de/rmt-reference-validation-transitions.md",
-      "sha256": "9e3ebac5148cc5212ba3cb06f3c9b19343eb6f33f695226fd55fceff6b84cfa0",
-      "bytes": 6124
+      "sha256": "f4a6bf66bc39875581f5fbec69ed2d1a6491382ceab07be3a161326d784214e1",
+      "bytes": 6290
     },
     {
       "path": "docs/de/rmt-reference.md",
@@ -196,8 +196,8 @@
     },
     {
       "path": "docs/de/rmt-vnext-authoring.md",
-      "sha256": "872d6b2d51eb4d5ed661cb6de06b007d4284a120ef912363b3b9bd7fcf329c9f",
-      "bytes": 6291
+      "sha256": "d4a70246074c5ef920c6463a5d9acd692210acff5ebbaf4e9bd39bce437044ac",
+      "bytes": 3905
     },
     {
       "path": "docs/de/xtend-maraca-orchestration.md",
@@ -206,8 +206,8 @@
     },
     {
       "path": "docs/de/xtendrmt-app-dsl.md",
-      "sha256": "93680fda65db72794f0f18f4f716c1b3955666ed2bf6ee0ede843d049f5fd064",
-      "bytes": 3396
+      "sha256": "d50a2aab0a182cafddcd5293b121a78b8b014c31a6dcf5dbbdf73b1454305f41",
+      "bytes": 1021
     },
     {
       "path": "tools/rmt-language/diagnostics.d.ts",

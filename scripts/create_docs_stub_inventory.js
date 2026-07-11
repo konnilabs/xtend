@@ -2,11 +2,16 @@
 
 const fs = require('fs');
 const path = require('path');
+const {
+  DOCS_CONTENT_PROFILES,
+  DOCS_CONTENT_TYPES,
+  profileForContentType
+} = require('./docs_content_profiles');
 
 const GUIDE_DOCS_INVENTORY_SCHEMA = 'xtend.docs.guide-inventory.v1';
 const GUIDE_DOCS_INVENTORY_ENTRY_SCHEMA = 'xtend.docs.guide-inventory-entry.v1';
 const GUIDE_DOCS_ARTICLE_SCHEMA = 'xtend.docs.guide-article-metrics.v1';
-const DEFAULT_MIN_GUIDE_CHARS = 2000;
+const DEFAULT_MIN_GUIDE_CHARS = 500;
 const LOCALES = Object.freeze(['de', 'en']);
 const KNOWN_GUIDE_BOILERPLATE_PHRASES = Object.freeze([
   'Wenn die Seite weiterhin zu abstrakt wirkt',
@@ -16,10 +21,38 @@ const KNOWN_GUIDE_BOILERPLATE_PHRASES = Object.freeze([
   'This expanded section turns',
   'Dieser erweiterte Abschnitt macht aus',
   'The structure follows the same pattern used by mature developer documentation systems',
-  'Die Struktur folgt etablierten Entwicklerdokumentationen'
+  'Die Struktur folgt etablierten Entwicklerdokumentationen',
+  'The stable signal is not article length',
+  'Stabil ist nicht die Textlänge',
+  'These anchors are concrete enough for a third-party developer',
+  'Diese Anker sind konkret genug, damit ein Drittentwickler',
+  'Run this check when the article, an example or the named public surface changes',
+  'Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird',
+  'The command must finish without link errors, without known boilerplate',
+  'Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate',
+  'If source and article disagree, source wins',
+  'Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich',
+  'If a link from this article breaks, repair the local Markdown target path',
+  'Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad',
+  'If an example is copied, file paths, record names and commands from this section',
+  'Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt',
+  'beschreibt die öffentliche RMT-Oberfläche dieser Seite',
+  'describes the public RMT surface for this page',
+  'mit dem kleinsten Record-Beispiel',
+  'with the smallest record example',
+  'beschreibt den Core-Pfad über lokale Module',
+  'documents the core path through local modules',
+  'Lies den Überblick, kopiere das kleinste passende Beispiel',
+  'Read the overview, copy the smallest suitable example',
+  'Lege Budgets fest, prüfe Tastatur- und Screenreader-Signale',
+  'Define budgets, check keyboard and screenreader signals',
+  'Security in XTend beginnt mit expliziten Grenzen',
+  'Security in XTend starts with explicit boundaries',
+  'Erlaube nur lokale Module, behandle Markdown und HTML-Fragmente',
+  'Allow local modules only, treat Markdown and HTML fragments'
 ]);
-const REPEATED_PARAGRAPH_MIN_CHARS = 140;
-const REPEATED_PARAGRAPH_MIN_ARTICLES = 8;
+const REPEATED_PARAGRAPH_MIN_CHARS = 120;
+const REPEATED_PARAGRAPH_MIN_ARTICLES = 4;
 
 function resolveRootDir(rootDir) {
   return rootDir || path.resolve(__dirname, '..');
@@ -98,6 +131,14 @@ function commandLines(markdown) {
   return Array.from(new Set(commands));
 }
 
+function collectTechnicalFacts(markdown) {
+  const source = String(markdown || '');
+  const schemas = Array.from(new Set(source.match(/\bxtend\.[a-z0-9.-]+\.v\d+\b/gi) || [])).sort();
+  const commands = commandLines(source).sort();
+  const devApiMethods = Array.from(new Set(source.match(/\bget(?:PerformanceSnapshot|HydrationSnapshot|FabricTelemetrySnapshot|KernelSnapshot)\(\)/g) || [])).sort();
+  return { schemas, commands, devApiMethods };
+}
+
 function collectConcreteAnchors(markdown) {
   const source = String(markdown || '');
   const anchors = [];
@@ -163,11 +204,16 @@ function toArticleMetrics(rootDir, menuEntry, locale, threshold) {
   const commandCodeBlockCount = blocks.filter((block) => commandLines(block).length > 0).length;
   const boilerplateHits = knownBoilerplateHits(text);
   const concreteAnchors = collectConcreteAnchors(text);
+  const contentType = DOCS_CONTENT_TYPES.includes(menuEntry.contentType) ? menuEntry.contentType : 'concept';
+  const profile = profileForContentType(contentType);
+  const minRequiredNonCodeChars = Math.max(Number(threshold || 0), profile.minNonCodeChars);
 
   return {
     schema: GUIDE_DOCS_ARTICLE_SCHEMA,
     locale,
     path: relativePath,
+    contentType,
+    profile,
     exists,
     nonCodeChars,
     nonCodeCharsWithoutKnownBoilerplate,
@@ -183,7 +229,9 @@ function toArticleMetrics(rootDir, menuEntry, locale, threshold) {
     concreteAnchors: concreteAnchors.slice(0, 20),
     boilerplatePhraseCount: boilerplateHits.length,
     boilerplatePhrases: boilerplateHits,
-    stub: !exists || nonCodeChars < threshold
+    technicalFacts: collectTechnicalFacts(text),
+    minRequiredNonCodeChars,
+    stub: !exists || nonCodeChars < minRequiredNonCodeChars
   };
 }
 
@@ -248,9 +296,11 @@ function createDocsStubInventory(options = {}) {
         tier: entry.tier || 'basic',
         rank: entry.rank || 0,
         labels: entry.labels || {},
+        contentType: entry.contentType || 'concept',
         localizedComplete,
         stub,
         minNonCodeChars: Math.min(...articleList.map((article) => article.nonCodeChars)),
+        minRequiredNonCodeChars: Math.max(...articleList.map((article) => article.minRequiredNonCodeChars)),
         minWords: Math.min(...articleList.map((article) => article.words)),
         minH2Count: Math.min(...articleList.map((article) => article.h2Count)),
         minCodeBlockCount: Math.min(...articleList.map((article) => article.codeBlockCount)),
@@ -277,6 +327,7 @@ function createDocsStubInventory(options = {}) {
     schema: GUIDE_DOCS_INVENTORY_SCHEMA,
     ok: stubEntries.length === 0 && stubArticles.length === 0,
     threshold,
+    contentProfiles: DOCS_CONTENT_PROFILES,
     locales: LOCALES.slice(),
     menuSlugCount: menu.length,
     guideSlugCount: entries.length,
@@ -343,6 +394,8 @@ module.exports = {
   LOCALES,
   collectMarkdownLinks,
   collectConcreteAnchors,
+  collectTechnicalFacts,
+  commandLines,
   createDocsStubInventory,
   KNOWN_GUIDE_BOILERPLATE_PHRASES,
   localizedPathForSlug,

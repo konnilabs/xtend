@@ -581,7 +581,7 @@ Erledigt:
 - `development/XTend-SurfaceManager-Contract-und-RMT-Authoring-Model.md` definiert `xtend.surface.manager.v1`, `xtend.surface.record.v1` und das RMT-MVP ueber Component Records
 - `tests/fixtures/rmt-surface-manager-workbench.rmt` beschreibt eine Shell-first Workbench mit zwei Windows und einem SidePanel
 - `catalog/surface-manager-rmt-authoring.js` und `tests/rmt/rmt_surface_manager_authoring_suite.js` liefern Factory, Validator und lokalen Gate
-- `docs/surface-manager-rmt-authoring.md`, `package.json`, `xtend-builder/scaffold.config.js` und der Runner spiegeln den neuen Contract
+- `development/docs-evidence/root/surface-manager-rmt-authoring.md`, `package.json`, `xtend-builder/scaffold.config.js` und der Runner spiegeln den neuen Contract
 
 Naechstes Paket:
 
@@ -597,7 +597,7 @@ Erledigt:
 - `src/components/x-surface-manager/surface-record.ts`, `surface-layout.ts` und `surface-controller.ts` definieren den TypeScript-Unterbau fuer Records, Bounds, Controller, Snapshots und Operation Results.
 - Der Controller normalisiert `metadata.surface` Records aus `WP-SM-01`, fuehrt Registry, aktive Surface, z-Order und Lifecycle-Status und spiegelt nach `xtend.surface.*` xstate Keys.
 - Fabric bleibt optionaler Unterbau: Diagnostics werden ueber `emitDiagnostic` publiziert, aber der Controller hat keine harte Fabric-Abhaengigkeit.
-- `catalog/surface-manager-controller.js`, `tests/components/surface_controller_suite.js`, `docs/surface-manager-controller.md`, Package- und Scaffold-Metadaten liefern den lokalen Gate `node scripts/run_xtend_tests.js surface-controller --json`.
+- `catalog/surface-manager-controller.js`, `tests/components/surface_controller_suite.js`, `docs/en/surface-manager-controller.md`, Package- und Scaffold-Metadaten liefern den lokalen Gate `node scripts/run_xtend_tests.js surface-controller --json`.
 
 Naechstes Paket:
 
@@ -707,7 +707,7 @@ Naechstes Paket:
 Erledigt:
 
 - `development/XTend-SurfaceManager-Release-Handoff-Contract.md` definiert Release Boundary, Authoring-Modi, Component-Lab-Panels und den Abschluss-Gate.
-- `docs/surface-manager-authoring-guide.md`, `docs/surface-manager-component-lab.md`, `docs/surface-manager-migration-guide.md` und `docs/surface-manager-release-handoff.md` finalisieren die oeffentliche SurfaceManager-Doku.
+- `docs/en/surface-manager-authoring-guide.md`, `docs/surface-manager-component-lab.md`, `docs/en/surface-manager-migration-guide.md` und `development/docs-evidence/root/surface-manager-release-handoff.md` finalisieren die oeffentliche SurfaceManager-Doku.
 - `tests/fixtures/rmt-surface-manager-component-lab.rmt` zeigt eine SurfaceManager Component-Lab-Shell mit nativen `surfaces[*]` und kompatiblen `components[*].metadata.surface` Records.
 - `catalog/surface-manager-release-handoff.js`, `tests/rmt/surface_manager_release_handoff_suite.js`, Package- und Scaffold-Metadaten liefern den lokalen Gate `node scripts/run_xtend_tests.js surface-release-handoff --json`.
 

@@ -4,77 +4,25 @@ Choose visible, idle and progressive hydration deliberately.
 
 ## What it covers
 
-This page describes checkable rules for robust user experiences. The recommendations fit local hosts, RMT app shells and classic Web Component pages.
+A hydration policy defines trigger, lane, deadline, and backpressure behavior for existing markup. `visible` covers visible or focus-critical work, `idle` and `lazy` cover non-urgent areas, `prewarm` is interruptible preparation, and `worker_prerender_hydrate` handles validated worker output.
 
 ## Public building blocks
 
-- Local test commands.
-- Browsernahe Fixtures.
-- Dokumentierte Akzeptanzkriterien.
+- `fabric/hydration-policy.js` contains canonical policies.
+- `fabric/hydration-policy.d.ts` describes decisions, controllers, and schedule records.
+- `fabric/rmt-lane-mapping.js` connects policy lanes to RMT schedules.
 
 ## Recommended workflow
 
-Define budgets, check keyboard and screenreader signals and keep screenshots reproducible.
+Verify every policy against its trigger and backpressure cases:
+
+```bash
+node scripts/run_xtend_tests.js hydration-policy --json
+```
+
+The report must include policy ID, selected lane, schedule, and diagnostics. High backpressure may defer best-effort prewarm, but visible hydration must not silently remain idle forever. DOM commit stays on the controlled main thread.
 
 ## Next steps
 
 - [Performance](./performance.md)
 - [A11y Keyboard Smokes](./a11y-keyboard-smokes.md)
-
-## Public contract
-
-Hydration Policies is the public quality and security contract for `docs/en/hydration-policies.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: local gates, policy files, report schemas, accessibility and security signals.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/hydration-policies.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-
-Names:
-- `docs/en/hydration-policies.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/verify_docs_public_quality.js`
-
-Commands:
-- `node scripts/verify_docs_public_quality.js`
-- `npm run test:hydration-policy`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/verify_docs_public_quality.js
-npm run test:hydration-policy
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a gate fails, fix the example, policy source or report expectation before changing the threshold.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

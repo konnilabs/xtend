@@ -86,3 +86,7 @@ The release gate also checks that the migration notes, authoring guide and hando
 - If `rmt.vnext.migration.opt_in_required` appears, the explicit decision to create a preview or migration is missing.
 - If `rmt.vnext.migration.lossy_domain` appears, an automatic apply is not reviewable.
 - If the Core output in `xtendrmt/rmt-vnext-reference-demo.core.json` drifts, explain the compiler change first; then update docs and golden output together.
+
+## Related reading
+
+The authoring guide provides the target syntax used by every migration step on this page. [Related article](./rmt-vnext-authoring.md)

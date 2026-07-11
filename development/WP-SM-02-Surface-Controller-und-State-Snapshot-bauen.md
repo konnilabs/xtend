@@ -23,7 +23,7 @@ Der Schnitt bleibt `controller-only-no-custom-element`: Er ist Runtime-Unterbau 
 - `catalog/surface-manager-controller.js`
 - `tests/components/surface_controller_suite.js`
 - `development/XTend-SurfaceManager-Controller-und-State-Snapshot-Contract.md`
-- `docs/surface-manager-controller.md`
+- `docs/en/surface-manager-controller.md`
 
 ## Implementierte Faehigkeiten
 

@@ -13,7 +13,7 @@
   - `development/XTend-Performance-Regression-Gate.md`
   - `tests/performance/performance_regression_suite.js`
   - `tests/performance/baselines/local-performance-baseline.json`
-  - `docs/performance-regression.md`
+  - `development/docs-evidence/root/performance-regression.md`
 
 ## Ziel
 
@@ -27,7 +27,7 @@
 | `tests/performance/baselines/local-performance-baseline.json` | completed | deterministische lokale Baseline fuer Kernphasen |
 | `tests/performance/README.md` | completed | lokaler Teststandard fuer Performance Regression |
 | `development/XTend-Performance-Regression-Gate.md` | completed | Contract und Reportstruktur dokumentiert |
-| `docs/performance-regression.md` | completed | Entwicklerdokumentation ergaenzt |
+| `development/docs-evidence/root/performance-regression.md` | completed | Entwicklerdokumentation ergaenzt |
 | `scripts/run_xtend_tests.js` | completed | Suite `performance-regression` angebunden |
 | `package.json` | completed | Script `npm run test:performance` und Package-Metadaten ergaenzt |
 

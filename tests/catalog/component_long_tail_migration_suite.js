@@ -24,14 +24,13 @@ const {
   validateComponentLongTailMigrationPlan
 } = require('../../catalog/component-long-tail-migration');
 
-const COMPONENT_LONG_TAIL_MIGRATION_DOC_SCHEMA = 'xtend.docs.component-long-tail-migration.v1';
 const COMPONENT_LONG_TAIL_MIGRATION_WORKPACKAGE = 'WP-E11-17';
 const COMPONENT_LONG_TAIL_MIGRATION_NEXT_WORKPACKAGE = 'WP-E11-18';
 const COMPONENT_LONG_TAIL_MIGRATION_LOCAL_GATE = 'node scripts/run_xtend_tests.js component-long-tail-migration --json';
 const COMPONENT_LONG_TAIL_MIGRATION_PACKAGE_SCRIPT = 'npm run test:component-long-tail-migration';
 const COMPONENT_LONG_TAIL_MIGRATION_CONTRACT_PATH = 'development/XTend-Epic11-Legacy-Long-Tail-Migrationsplan.md';
 const COMPONENT_LONG_TAIL_MIGRATION_WP_PATH = 'development/WP-E11-17-Legacy-Long-Tail-Migration-planen.md';
-const COMPONENT_LONG_TAIL_MIGRATION_DOC_PATH = 'docs/component-long-tail-migration.md';
+const COMPONENT_LONG_TAIL_MIGRATION_DOC_PATH = 'docs/en/component-long-tail-migration.md';
 const COMPONENT_LONG_TAIL_MIGRATION_MODULE_PATH = 'catalog/component-long-tail-migration.js';
 const COMPONENT_LONG_TAIL_MIGRATION_SUITE_PATH = 'tests/catalog/component_long_tail_migration_suite.js';
 const EXPECTED_TAGS = Object.freeze(['xstate', 'x-utils', 'xtend-i18n']);
@@ -75,9 +74,9 @@ function runComponentLongTailMigrationSuite(options = {}) {
   const contractDoc = readText(COMPONENT_LONG_TAIL_MIGRATION_CONTRACT_PATH, rootDir);
   const workpackage = readText(COMPONENT_LONG_TAIL_MIGRATION_WP_PATH, rootDir);
   const developerDocs = readText(COMPONENT_LONG_TAIL_MIGRATION_DOC_PATH, rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
-  const componentUxGates = readText('docs/component-ux-gates.md', rootDir);
-  const catalogDocs = readText('docs/component-catalog-coverage.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
+  const componentUxGates = readText('development/docs-evidence/root/component-ux-gates.md', rootDir);
+  const catalogDocs = readText('development/docs-evidence/root/component-catalog-coverage.md', rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
@@ -161,8 +160,8 @@ function runComponentLongTailMigrationSuite(options = {}) {
   context.assertIncludes(workpackage, 'Status: `completed`', 'Workpackage is completed');
   context.assertIncludes(workpackage, COMPONENT_LONG_TAIL_MIGRATION_LOCAL_GATE, 'Workpackage documents local gate');
   context.assertIncludes(workpackage, COMPONENT_LONG_TAIL_MIGRATION_NEXT_WORKPACKAGE, 'Workpackage hands off to WP-E11-18');
-  context.assertIncludes(developerDocs, COMPONENT_LONG_TAIL_MIGRATION_DOC_SCHEMA, 'Developer docs declare docs schema');
   context.assertIncludes(developerDocs, COMPONENT_LONG_TAIL_MIGRATION_LOCAL_GATE, 'Developer docs document local gate');
+  context.assertIncludes(developerDocs, '`xtend-i18n` stays an integration service', 'Developer docs explain the i18n integration boundary');
   context.assertIncludes(componentUxGates, 'component-long-tail-migration', 'Component UX Gates document long-tail migration gate');
   context.assertIncludes(catalogDocs, 'WP-E11-17', 'Component Catalog Coverage docs mention WP-E11-17');
   context.assertIncludes(docsReadme, 'component-long-tail-migration.md', 'Docs README links Component Long-Tail Migration');

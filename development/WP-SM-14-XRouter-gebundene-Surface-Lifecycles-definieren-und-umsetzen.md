@@ -38,7 +38,7 @@ Surfaces koennen an Routen, Subrouten und Route-Scopes gebunden werden, ohne She
 - `catalog/surface-manager-route-lifecycle.js`
 - `tests/components/surface_manager_route_lifecycle_suite.js`
 - `tests/components/fixtures/xsurfacemanager-route-lifecycle.component.html`
-- `docs/surface-manager-route-lifecycle.md`
+- `development/docs-evidence/root/surface-manager-route-lifecycle.md`
 - `components/xsurfacemanager.js`
 - `components/xsurfacemanager.d.ts`
 - `components/xsidepanel.js`

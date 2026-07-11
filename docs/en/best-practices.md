@@ -1,79 +1,27 @@
 # Best Practices
 
-Recommendations for robust XTend apps without internal project knowledge.
+Robust XTend applications come from clear ownership, small public contracts, and observable failure behavior. The following rules apply to classic HTML hosts and RMT app shells alike.
 
-## What it covers
+## Start with public contracts
 
-This article is written for developers who want to use XTend productively without internal project knowledge.
+Integrate components through tags registered in `components/manifest.json` and their `.d.ts` declarations. Use attributes, properties, events, slots, CSS parts, and tokens; do not reach into private shadow DOM or internal state objects. A wrapper may translate a contract, but should not extend it silently.
 
-## Public building blocks
+Keep IDs, state keys, and event names stable. A change to a schema such as `xtend.rmt.component-contract.v1` needs a migration or a new version, not merely an updated example.
 
-- Local development without a CDN.
-- Bilingual documentation.
-- Stable public entry points.
+## Give work to the right owner
 
-## Recommended workflow
+Canonical state belongs to the application or its responsible controller. Fabric lanes schedule work but do not own business state. A worker may normalize snapshots or prepare data, but must not take ownership of DOM or host services. For XTensions, runtime, container, and CSS remain host-owned.
 
-Read the overview, copy the smallest suitable example and add host-specific details only afterwards.
+## Load locally and explicitly
 
-## Next steps
+Use `xtend-loader.js` with a local manifest. Remote surfaces require an origin allowlist, integrity, capability policy, and a local fallback. Dynamic imports may resolve known modules only; a URL supplied by a user is not a module reference.
 
-- [Quick Start](./quick-start-guide.md)
-- [About XTend](./about.md)
-- [Enterprise Adoption](./enterprise-adoption.md)
+## Measure rather than guess
 
-## Public contract
+Set budgets for mount, hydration, and interaction, then run the corresponding gates. The [XTend Dev Surface](./xtend-dev-surface.md) makes performance, kernel, and Fabric state visible, but it does not replace a reproducible CI report. Diagnostic snapshots should identify their time base, schema, and status explicitly.
 
-Best Practices is the public orientation contract for `docs/en/best-practices.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
+## Degrade visibly
 
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: entry routes, local docs navigation and the smallest runnable commands.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
+An optional adapter may fail without taking down its host. Its fallback must name the missing capability. Security, integrity, and kernel failures remain blocking; they must not be relabeled as a generic warning.
 
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/best-practices.md`
-- `docs/menu.json`
-- `package.json`
-- `README.md`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `xtend-loader.js`
-
-Names:
-- `docs/en/best-practices.md`
-- `docs/menu.json`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `docs/dev-router.php`
-- `package.json`
-- `README.md`
-- `xtend-loader.js`
-- `node scripts/verify_docs_public_quality.js`
-
-Commands:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If entry paths drift, check `docs/menu.json`, local links and the command in the verification block first.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+Start a new integration with the [Quick Start](./quick-start-guide.md). Before publishing, inspect the commands and reports in [Release Verification](./release-verification.md).

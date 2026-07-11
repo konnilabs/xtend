@@ -2,7 +2,7 @@
 
 - Status: `completed`
 - Datum: 2026-05-19
-- Epic Docs: `docs/epic18-media-manager-vendor-upstream.md`
+- Epic Docs: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
 - Depends on: `WP-E18-01`
 - WP Contract: `xtend.epic18.wp02.vendor-component-bugfix-backport.v1`

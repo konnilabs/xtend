@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-vendor-report.json
 ## Maintenance Notes
 
 Add vendor types only when a host should actually import that shape. Purely internal adapters can keep a local module type. Public design-token changes should update an example theme, the alias layer and documentation together. This keeps Prism, Turndown and Theme JSON convenient without turning XTend into a passthrough export for every dependency.
+
+## Related reading
+
+Supply-chain gates verify the local vendor artifacts represented by these declarations. [Related article](./supply-chain-gates.md)

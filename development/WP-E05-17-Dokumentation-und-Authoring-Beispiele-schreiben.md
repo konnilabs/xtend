@@ -63,7 +63,7 @@ Der Guide beschreibt:
 
 Aktualisiert wurden:
 
-- `docs/README.md`
+- `docs/en/README.md`
 - `docs/menu.json`
 - `docs/core-migration-guide.md`
 - `development/XTend-Dokumentations-und-Demo-Referenzpfade.md`

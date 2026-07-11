@@ -40,6 +40,8 @@ function runXUtilsComponentSuite(options = {}) {
   context.assertIncludes(source, 'resolveUiEffects(input = {})', 'x-utils exposes UI effects resolver');
   context.assertIncludes(source, 'prepareUiEffects(input = {})', 'x-utils exposes UI effects preparation');
   context.assertIncludes(source, 'releaseUiEffects(input = {})', 'x-utils exposes UI effects release');
+  context.assertIncludes(source, 'function toArray(value)', 'x-utils normalizes optional transition arrays before runtime use');
+  context.assertIncludes(source, 'runUiTransition(input = {})', 'x-utils exposes the AnimationEngine transition runner');
   context.assertIncludes(source, "rmtTag: 'ui-effects'", 'x-utils maps RMT ui-effects tag');
   context.assertIncludes(source, "bodyAttribute: XUTILS_UI_EFFECTS_BODY_ATTR", 'x-utils maps body xt-ui-effects attribute');
   context.assertIncludes(source, 'snapshotUtilityContract()', 'x-utils exposes boundary snapshot API');

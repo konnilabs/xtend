@@ -35,7 +35,7 @@ Surface Chrome und App Shell laden shell-first. Teure Surface-Inhalte werden ers
 - `catalog/surface-manager-lazy-loading.js`
 - `tests/components/surface_manager_lazy_hydration_suite.js`
 - `tests/components/fixtures/xsurfacemanager-lazy-hydration.component.html`
-- `docs/surface-manager-lazy-hydration.md`
+- `development/docs-evidence/root/surface-manager-lazy-hydration.md`
 - `components/xsurfacemanager.js`
 - `components/xsurfacemanager.d.ts`
 - `xtendrmt/rmt-core.esm.js`

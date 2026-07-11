@@ -63,6 +63,12 @@ jobs:
       - name: Run XTend Dev Surface report
         run: npm run test:xtend-dev-surface:report
 
+      - name: Run public docs quality report
+        run: npm run test:docs-quality:report
+
+      - name: Run Docs Shell catfooding report
+        run: npm run test:docs-shell-catfooding:report
+
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
@@ -89,6 +95,8 @@ jobs:
             .xtend-test-results/xtend-pr-gate-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-dev-surface-report.json
+            .xtend-test-results/xtend-docs-quality-report.json
+            .xtend-test-results/xtend-docs-shell-catfooding-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
@@ -131,6 +139,12 @@ jobs:
       - name: Run XTend Dev Surface report
         run: npm run test:xtend-dev-surface:report
 
+      - name: Run public docs quality report
+        run: npm run test:docs-quality:report
+
+      - name: Run Docs Shell catfooding report
+        run: npm run test:docs-shell-catfooding:report
+
       - name: Run RMT Reference docs report
         run: npm run test:rmt-reference-docs:report
 
@@ -157,6 +171,8 @@ jobs:
             .xtend-test-results/xtend-release-gate-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-dev-surface-report.json
+            .xtend-test-results/xtend-docs-quality-report.json
+            .xtend-test-results/xtend-docs-shell-catfooding-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json

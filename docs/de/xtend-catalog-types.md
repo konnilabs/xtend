@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-catalog-report.json
 ## Pflegehinweise
 
 Neue Catalogs sollten ein klares Schema, einen lokalen Prüfpfad und einen Report mit stabilen Feldern besitzen. Wenn mehrere Module dieselbe Struktur benötigen, ergänze zuerst den gemeinsamen Typ und nutze ihn danach in den Modulen. Das hält die öffentliche Tooling-Schicht lesbar und verhindert, dass jeder Report seine eigene kleine Welt erfindet.
+
+## Weiterführend
+
+Die Komponentenübersicht erklärt, welche öffentlichen Records diese Catalog Types beschreiben. [Verwandter Artikel](./components.md)

@@ -69,6 +69,7 @@ Attributes:
 Events:
 - `input-changed`
 - `validation-failed`
+- `xtend-command`
 
 Methods:
 - `checkValidity()`
@@ -107,9 +108,9 @@ CSS custom properties:
 - `--xtend-form-status-marker`
 - `--xtend-form-dense-font-size`
 
-## ECH-WP-08 Theme/A11y Hardening
+## Theme and accessibility
 
-ECH-WP-08 documents the form-control tokens for `x-input` as a public theme contract. `signatureDesign` stays a quiet input field with a clear label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
+`signatureDesign` stays a quiet input field with a clear label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
 
 Token table:
 - `--xtend-form-text`

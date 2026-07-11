@@ -22,7 +22,7 @@ const COMPONENT_UX_AUTHORING_DOCS_SUITE_PATH = 'tests/docs/component_ux_authorin
 const COMPONENT_UX_AUTHORING_DOC_PATHS = Object.freeze([
   'docs/component-ux-authoring.md',
   'docs/component-ux-app-authoring.md',
-  'docs/component-ux-gates.md'
+  'development/docs-evidence/root/component-ux-gates.md'
 ]);
 const COMPONENT_UX_AUTHORING_DOC_SLUGS = Object.freeze([
   'component-ux-authoring',
@@ -76,8 +76,8 @@ function runComponentUxAuthoringDocsSuite(options = {}) {
   }));
   const combinedDocs = docs.map((doc) => doc.text).join('\n\n');
   const menu = readJson('docs/menu.json', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
-  const componentPlatform = readText('docs/component-platform.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
+  const componentPlatform = readText('development/docs-evidence/root/component-platform.md', rootDir);
   const rmtFirstApps = readText('docs/rmt-first-xtend-apps.md', rootDir);
   const contractDoc = readText(COMPONENT_UX_AUTHORING_DOCS_CONTRACT_PATH, rootDir);
   const workpackage = readText(COMPONENT_UX_AUTHORING_DOCS_WP_PATH, rootDir);

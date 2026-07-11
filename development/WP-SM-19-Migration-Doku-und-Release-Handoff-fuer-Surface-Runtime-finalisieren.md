@@ -13,10 +13,10 @@ Die produktive Surface Runtime ist dokumentiert, migrierbar und releasefaehig. D
 | Catalog | `catalog/surface-manager-runtime-release-handoff.js` |
 | Contract | `development/XTend-SurfaceManager-Runtime-Release-Handoff-Contract.md` |
 | Suite | `tests/rmt/surface_manager_runtime_release_handoff_suite.js` |
-| Doku | `docs/surface-manager-runtime-release-handoff.md` |
-| Authoring Guide Update | `docs/surface-manager-authoring-guide.md` |
-| Migration Guide Update | `docs/surface-manager-migration-guide.md` |
-| Release Handoff Update | `docs/surface-manager-release-handoff.md` |
+| Doku | `development/docs-evidence/root/surface-manager-runtime-release-handoff.md` |
+| Authoring Guide Update | `docs/en/surface-manager-authoring-guide.md` |
+| Migration Guide Update | `docs/en/surface-manager-migration-guide.md` |
+| Release Handoff Update | `development/docs-evidence/root/surface-manager-release-handoff.md` |
 
 ## Contract
 

@@ -14,7 +14,7 @@
   - `development/XTend-Visuelle-und-Browsernahe-Regression-Prioritaetsplan.md`
   - `development/XTend-RMT-First-Class-App-Authoring.md`
   - `development/XTend-Fabric-Component-Compatibility-v2.md`
-  - `docs/component-platform.md`
+  - `development/docs-evidence/root/component-platform.md`
   - `components/manifest.json`
 
 ## Zweck

@@ -16,10 +16,10 @@ Dieser Contract behauptet keine produktive `xtend.surface` Runtime. `xtend.surfa
 
 ## Abschlusskriterien
 
-- `docs/surface-manager-authoring-guide.md` beschreibt die drei Authoring-Modi `component-metadata-mvp`, `dual-record-handoff` und `native-surfaces-preferred`.
+- `docs/en/surface-manager-authoring-guide.md` beschreibt die drei Authoring-Modi `component-metadata-mvp`, `dual-record-handoff` und `native-surfaces-preferred`.
 - `docs/surface-manager-component-lab.md` beschreibt das SurfaceManager Component Lab mit den Panels `surface-preview`, `native-rmt-inspector`, `migration-diff`, `quality-gates` und `source-links`.
-- `docs/surface-manager-migration-guide.md` beschreibt die Migrationsschritte `inventory-component-metadata-surfaces`, `stabilize-surface-ids-and-state-keys`, `add-native-surfaces-records`, `keep-dual-records-during-handoff`, `switch-authoring-default-to-surfaces-domain` und `defer-xtend-surface-runtime-until-adapter-implementation`.
-- `docs/surface-manager-release-handoff.md` beschreibt den Release-Status, die lokalen Gates und die verbleibende Adapter-Grenze `no-public-runtime-claim-for-xtend.surface-adapter-yet`.
+- `docs/en/surface-manager-migration-guide.md` beschreibt die Migrationsschritte `inventory-component-metadata-surfaces`, `stabilize-surface-ids-and-state-keys`, `add-native-surfaces-records`, `keep-dual-records-during-handoff`, `switch-authoring-default-to-surfaces-domain` und `defer-xtend-surface-runtime-until-adapter-implementation`.
+- `development/docs-evidence/root/surface-manager-release-handoff.md` beschreibt den Release-Status, die lokalen Gates und die verbleibende Adapter-Grenze `no-public-runtime-claim-for-xtend.surface-adapter-yet`.
 - `tests/fixtures/rmt-surface-manager-component-lab.rmt` beweist eine Lab-Fixture mit nativen `surfaces[*]` und kompatiblen `components[*].metadata.surface` Records.
 - `catalog/surface-manager-release-handoff.js` und `tests/rmt/surface_manager_release_handoff_suite.js` liefern den statischen Gate.
 

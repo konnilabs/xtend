@@ -1,37 +1,122 @@
 # XTensions Authoring Guide
 
-## Ziel
+Eine XTension bindet eine bestehende Framework- oder Library-Insel kontrolliert an eine XTend- oder RMT-App an. Sie ist sinnvoll, wenn ein Team eine vorhandene React-, Vue-, Three.js-, OpenUI5-, Angular- oder imperative Oberfläche weiterverwenden muss. Für neue XTend-Komponenten bleibt die native Web-Component-Oberfläche der einfachere Standard.
 
-XTensions sind opt-in Surface-Adapter fuer Teams, die bestehende Framework- oder Bibliotheksinseln kontrolliert in eine XTend/RMT-Anwendung einbinden wollen. Native XTend bleibt der Default fuer neue Komponenten; eine XTension ist die Ausnahme fuer klare Integrationsfaelle.
+Der Kernel sieht dabei keine Framework-Objekte. Er arbeitet mit serialisierbaren Lifecycle-, Capability-, Signal-, Event- und Diagnostic-Records. Der HostController übersetzt zwischen diesen Records und der konkreten Runtime.
 
-## Authoring Boundary
+## Voraussetzungen
 
-Ein HostController besitzt genau ein Host-Element, einen Lifecycle und eine Cleanup-Verantwortung. Der RMT-Kernel sieht keine React-, Vue-, Three-, Leaflet- oder Chart.js-Runtime, sondern nur serialisierbare Capability-, Lifecycle-, Signal- und Diagnostic-Records.
+Bevor du einen Adapter implementierst, kläre:
 
-Jede XTension liefert einen Contract und ein Maraca Manifest. Das Maraca Manifest beschreibt Identitaet, Framework-Metadaten, Version, Entry, CSP-Anforderungen, Peer-/Optional-Status, Fingerprints und Fallback. Es ist ein Build- und Provenance-Artefakt, kein Loader fuer versteckte Framework-Dependencies.
+- welches Host-Element und welche Surface der Adapter besitzt;
+- wer die externe Runtime bereitstellt;
+- welche Props oder Signale die Insel akzeptiert;
+- welche Events sie nach oben meldet;
+- wie Listener, Timer, Observer, Worker und Render-Loops beendet werden;
+- welcher Fallback ohne Framework-Runtime sichtbar bleibt.
 
-Fabric ist die einzige Bruecke fuer Cross-Surface-Kommunikation. Downstream-Signale laufen als KernelSignal ueber Fabric-Lanes; Upstream-Events laufen als SurfaceEvent mit Owner, Richtung, Payload-Schema, Trust Boundary und Backpressure-Regel.
+Framework-Pakete werden als externe oder host-provided Peers klassifiziert. Sie gehören nicht als versteckte Root-Dependency oder vendorte Kopie in XTend.
 
-## Projektlokales Manifest
+## HostController implementieren
 
-Das project-local manifest bleibt die primaere Distribution. Es referenziert lokale oder projektkontrollierte Artefakte und die host-local Runtime Capability Registry. Ein Projekt darf einen external opt-in peer harness nutzen, um React, Vue, Three, Leaflet oder aehnliche Runtimes ausserhalb des XTend-Pakets zu testen.
+Ein HostController stellt einen kleinen Lifecycle bereit. Das folgende Beispiel zeigt die Form, nicht eine Framework-Implementierung:
 
-## Dependency-Regel
+```js
+const controller = {
+  mount(target, initialProps) {
+    return { status: 'mounted', target, initialProps };
+  },
+  update(signal) {
+    return { status: 'updated', signal };
+  },
+  suspend(reason) {
+    return { status: 'suspended', reason };
+  },
+  resume(reason) {
+    return { status: 'resumed', reason };
+  },
+  reportError(error) {
+    return { status: 'error', message: error.message };
+  },
+  unmount(reason) {
+    return { status: 'unmounted', reason };
+  },
+  snapshot() {
+    return { status: 'ready' };
+  }
+};
+```
 
-Fuer XTend selbst gilt no framework dependency. Framework-Runtimes werden nicht in Root-Dependencies, Workspace-Dependencies, NPM-Files oder Fixtures vendored. Testkomponenten duerfen Contract-Stubs verwenden; echte Framework-Smokes gehoeren in externe opt-in Peer-Harnesses mit eigener Installation.
+`mount()` besitzt das Host-Element ab dem erfolgreichen Mount. `unmount()` muss jeden im Lifecycle angelegten Seiteneffekt entfernen. Ein Adapter darf nicht voraussetzen, dass die Shell nach einem Fehler neu geladen wird.
 
-## Minimaler Ablauf
+## Manifest und Capabilities beschreiben
 
-1. Contract schreiben: HostController, Capabilities, accepted signals, emitted events, Fallback und Cleanup definieren.
-2. Maraca Manifest schreiben: Entry, Integrity, CSP, Peer-/Optional-Metadaten und Artifact-Fingerprint festhalten.
-3. Runtime Capability pruefen: Host entscheidet, ob die Peer-Runtime vorhanden ist oder die XTension degraded startet.
-4. Fabric-Bindings pruefen: Keine direkte Framework-zu-Framework-Kommunikation, kein globaler Eventbus.
-5. Security Gate ausfuehren: Owner, Version, Contract, Integrity, CSP, Fallback und Dependency-Klassifikation muessen bereit sein.
+Das projektlokale Maraca-Manifest benennt Identität, Version, Entry, Integrity, Runtime-Abhängigkeiten, benötigte Host-Capabilities und Fallback. Die Runtime Capability Registry entscheidet, ob die XTension `ready`, `degraded` oder `policy-blocked` startet.
 
-## Fallback
+```js
+const adapterRecord = {
+  id: 'customer.react.dashboard',
+  framework: 'react',
+  version: '1.2.0',
+  entry: {
+    module: './customer/react-dashboard-adapter.js',
+    exportName: 'createDashboardAdapter',
+    dynamicImport: true
+  },
+  dependencies: [
+    {
+      name: 'react',
+      versionRange: '18.x || 19.x',
+      classification: 'host-provided',
+      bundled: false
+    }
+  ],
+  fallback: {
+    mode: 'native-placeholder',
+    message: 'Dashboard runtime unavailable'
+  }
+};
+```
 
-Jede XTension muss einen Fallback definieren. Ein fehlender Peer, eine blockierte Policy oder ein Runtime-Fehler darf die Shell nicht blockieren. Die Surface wird degraded, diagnostiziert und bleibt ueber Fabric beobachtbar.
+Ein Manifest ist Provenance und Policy-Eingabe. Es lädt nicht eigenmächtig eine unbekannte Runtime aus dem Netz.
 
-## XScaler-Deployment
+## Signale und Events anbinden
 
-XTensions, die Remote-Surfaces oder Framework-Inseln skalieren, können das [XScaler-Protokoll](./xscaler-protocol.md) als Deployment-Gate verwenden. Der Deployment-Record benennt XTension, Surface, Rollout-Strategie und SSR-Hydration, bevor der Host die Insel aktiviert.
+Downstream-Kommunikation läuft als KernelSignal über Fabric-Lanes. Upstream-Kommunikation wird als SurfaceEvent mit Owner, Richtung, Payload-Schema und Trust Boundary veröffentlicht. Reiche keine Framework-Contexts, DOM-Events oder Klasseninstanzen über diese Grenze.
+
+Wähle die Lane nach Nutzerwirkung. Eine sichtbare Eingabe kann `user-blocking` benötigen; Diagnoseexport oder Preload gehört in eine Hintergrund-Lane. Framework-Scheduler dürfen Hints liefern, besitzen aber nicht die Kernel-Priorität.
+
+## Fehler und Fallback behandeln
+
+Wenn Peer-Runtime, Capability, Integrity oder Policy fehlt, mountet der Host die Insel nicht halb. Er erzeugt einen Diagnostic Record und zeigt den deklarativen Fallback. Andere Surfaces, Navigation und Kernel-Arbeit müssen bedienbar bleiben.
+
+Fehler innerhalb der Insel laufen über `reportError()`. Bewahre Framework-Stacks nur dort auf, wo die Redaction-Policy sie erlaubt. Der serialisierte XTend-Diagnostic enthält eine stabile Fehlerklasse, Surface, Lifecycle-Phase und Korrelation, aber keine Secrets.
+
+## Adapter prüfen
+
+Führe zuerst die gemeinsamen Contracts aus und danach die Suite deines Adapters:
+
+```bash
+node scripts/run_xtend_tests.js xtensions-host-controller xtensions-signal-bridge xtensions-runtime-capability-registry --json
+node scripts/run_xtend_tests.js xtensions-security-integrity-gate --json
+```
+
+Für React und Vue stehen zusätzliche Host-Adapter-Suiten bereit. Imperative Canvas- oder WebGL-Hosts brauchen außerdem einen Browser-Smoke, der Render-Loop, Resize-Observer und GPU-Ressourcen nach `unmount()` als beendet nachweist.
+
+Das erwartete Ergebnis ist ein `ready`-Adapter mit vollständigem Cleanup. Ein fehlender Peer muss reproduzierbar `degraded` oder `policy-blocked` ergeben, ohne die Shell zu blockieren.
+
+## Fehlerbehebung
+
+Bleibt ein Adapter `blocked`, prüfe zuerst Dependency-Klassifikation, Host-Capabilities, Integrity und Fallback. Eine Framework-Abhängigkeit mit `bundled: true` verletzt bei host-provided Runtimes die Boundary.
+
+Bleiben Listener nach `unmount()` aktiv, führe alle Registrierungen durch einen adaptereigenen Cleanup-Stack. Verlasse dich nicht auf das Framework, wenn der Host zusätzliche Observer oder Fabric-Subscriptions angelegt hat.
+
+Werden Events nicht empfangen, vergleiche Richtung, Owner, Payload-Schema und Lane. Ein direkter globaler Eventbus zwischen zwei Framework-Inseln gehört nicht zum XTensions-Vertrag.
+
+## Nächste Schritte
+
+- [XTensions Migration und Coexistence](./xtensions-migration-coexistence-guide.md)
+- [XTensions Security Checklist](./xtensions-security-checklist.md)
+- [XTend Fabric](./xtend-fabric.md)
+- [Supply Chain Checks](./supply-chain-gates.md)
+- [XScaler-Protokoll](./xscaler-protocol.md)

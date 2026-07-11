@@ -70,6 +70,8 @@ export interface XTendStyleRegistryApi {
 }
 
 export interface XTendSkeletonLoaderOptions {
+  profile?: string | XTendSkeletonProfile;
+  profileId?: string;
   variant?: string;
   kind?: string;
   lines?: number;
@@ -82,8 +84,43 @@ export interface XTendSkeletonLoaderOptions {
   schedule?: string;
 }
 
+export interface XTendSkeletonProfileItem {
+  id?: string;
+  kind?: 'line' | 'block' | 'circle';
+  width?: string;
+  height?: string;
+  gridColumn?: string;
+  column?: string;
+  radius?: string;
+  repeat?: number;
+}
+
+export interface XTendSkeletonProfile {
+  schema?: 'xtend.loader.skeleton-profile.v1';
+  id: string;
+  name?: string;
+  variant?: string;
+  lines?: number;
+  lineCount?: number;
+  minHeight?: string;
+  height?: string;
+  columns?: string;
+  gap?: string;
+  responsive?: {
+    breakpoint?: string;
+    compact?: { minHeight?: string; height?: string; columns?: string; gap?: string };
+    wide?: { minHeight?: string; height?: string; columns?: string; gap?: string };
+  };
+  items?: XTendSkeletonProfileItem[];
+  rows?: XTendSkeletonProfileItem[];
+}
+
 export interface XTendSkeletonLoaderApi {
   readonly schema: 'xtend.loader.skeleton-loader.v1';
+  readonly profileSchema: 'xtend.loader.skeleton-profile.v1';
+  registerProfile(id: string, descriptor?: Partial<XTendSkeletonProfile>): XTendSkeletonProfile;
+  getProfile(id: string): XTendSkeletonProfile | null;
+  listProfiles(): XTendSkeletonProfile[];
   create(options?: XTendSkeletonLoaderOptions): HTMLElement;
   show(target: Element | DocumentFragment, options?: XTendSkeletonLoaderOptions): HTMLElement | null;
   hide(target: Element | DocumentFragment, options?: { preserveBusy?: boolean }): number;
@@ -166,6 +203,7 @@ export interface XTendLoaderApi {
   readonly runtimeStylesContract: 'xtend.loader.runtime-styles.v1';
   readonly skeletonLoader: XTendSkeletonLoaderApi;
   readonly skeletonLoaderContract: 'xtend.loader.skeleton-loader.v1';
+  readonly skeletonProfileContract: 'xtend.loader.skeleton-profile.v1';
   verbose(enabled?: boolean | string): XTendLoaderVerboseState;
   setVerbose(enabled?: boolean | string): XTendLoaderVerboseState;
   enableVerbose(): XTendLoaderVerboseState;

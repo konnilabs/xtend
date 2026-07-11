@@ -13,7 +13,7 @@ const SURFACE_MANAGER_ROUTE_LIFECYCLE_SUITE = 'tests/components/surface_manager_
 const SURFACE_MANAGER_ROUTE_LIFECYCLE_FIXTURE = 'tests/components/fixtures/xsurfacemanager-route-lifecycle.component.html';
 const SURFACE_MANAGER_ROUTE_LIFECYCLE_BACKLOG = 'development/BACKLOG-XTend-SurfaceManager-App-Shell-und-RMT-Surface-Runtime.md';
 const SURFACE_MANAGER_ROUTE_LIFECYCLE_WORKPACKAGE_DOC = 'development/WP-SM-14-XRouter-gebundene-Surface-Lifecycles-definieren-und-umsetzen.md';
-const SURFACE_MANAGER_ROUTE_LIFECYCLE_DOCS = 'docs/surface-manager-route-lifecycle.md';
+const SURFACE_MANAGER_ROUTE_LIFECYCLE_DOCS = 'development/docs-evidence/root/surface-manager-route-lifecycle.md';
 const SURFACE_MANAGER_ROUTE_LIFECYCLE_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-route-lifecycle --json';
 const SURFACE_MANAGER_ROUTE_LIFECYCLE_PACKAGE_SCRIPT = 'npm run test:surface-route-lifecycle';
 

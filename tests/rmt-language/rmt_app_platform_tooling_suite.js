@@ -64,7 +64,7 @@ const {
 } = require('../../xtend-builder/generators/rmt-app-platform');
 
 const BACKLOG_PATH = 'development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md';
-const EPIC_PATH = 'docs/epic18-media-manager-vendor-upstream.md';
+const EPIC_PATH = 'development/docs-evidence/root/epic18-media-manager-vendor-upstream.md';
 const SYNTAX_CHECK_PATHS = [
   RMT_APP_PLATFORM_TOOLING_MODULE,
   RMT_APP_PLATFORM_TOOLING_RUNTIME,

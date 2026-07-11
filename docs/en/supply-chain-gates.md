@@ -4,78 +4,25 @@ License, dependency and package checks for publishable builds.
 
 ## What it covers
 
-Security in XTend starts with explicit boundaries: local modules, untrusted content, clear sanitizing paths and reproducible package checks.
+Supply-chain gates check dependency inventory, lockfile, licenses, vulnerability policy, and published package roots. The local default remains offline; registry-dependent audits run as an explicitly enabled CI step.
 
 ## Public building blocks
 
-- Same-origin modules.
-- Sanitizing for untrusted content.
-- Reproducible package checks.
-- `typescript` is allowed only as build tooling in `devDependencies`; runtime dependencies stay empty.
+- `security/supply-chain-gate-policy.js` defines gates and accepted licenses.
+- `package.json` and workspace manifests provide package and dependency facts.
+- `typescript` is build tooling in `devDependencies`; runtime dependencies remain empty.
 
 ## Recommended workflow
 
-Allow local modules only, treat Markdown and HTML fragments as untrusted and document every host exception explicitly.
+Run reproducible local policy first:
+
+```bash
+node scripts/run_xtend_tests.js supply-chain --json
+```
+
+A failure names its gate, package, and policy reason. Correct the manifest, lockfile, license decision, or package root. Do not hide a finding by moving a dependency to development when runtime code imports it. Network audit and SBOM complement this report but do not replace it.
 
 ## Next steps
 
 - [Trusted DOM and Sanitizing](./trusted-dom-sanitizing.md)
 - [Manifest Import Policy](./manifest-import-policy.md)
-
-## Public contract
-
-Supply Chain Checks is the public quality and security contract for `docs/en/supply-chain-gates.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: local gates, policy files, report schemas, accessibility and security signals.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/supply-chain-gates.md`
-- `docs/menu.json`
-- `package.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `devDependencies.typescript`
-
-Names:
-- `docs/en/supply-chain-gates.md`
-- `docs/menu.json`
-- `scripts/verify_docs_public_quality.js`
-- `scripts/verify_docs_content_depth.js`
-- `security/manifest-import-policy.js`
-- `security/trusted-dom-policy.js`
-- `security/supply-chain-gate-policy.js`
-- `devDependencies.typescript`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/verify_docs_public_quality.js`
-
-Commands:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a gate fails, fix the example, policy source or report expectation before changing the threshold.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

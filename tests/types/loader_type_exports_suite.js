@@ -81,7 +81,7 @@ function runTypeExportsLoaderSuite(options = {}) {
   const metadata = packageManifest.xtend && packageManifest.xtend.typeExportsLoader;
   const typeExportsMetadata = packageManifest.xtend && packageManifest.xtend.typeExports;
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_LOADER_BACKLOG, rootDir);
   const workpackage = readText(TYPE_EXPORTS_LOADER_WORKPACKAGE_DOC, rootDir);
@@ -204,13 +204,12 @@ function runTypeExportsLoaderSuite(options = {}) {
     'XTendLoaderApi',
     'XTendStyleRegistryApi',
     'XTendSkeletonLoaderApi',
+    './xtend-dev.d.ts',
     'xtend-loader-diagnostic',
     'xtend.css bleibt optional'
   ], 'Loader Type docs');
   assertTextIncludesAll(context, typeExportsDocs, [
-    'WP-TypeExports-02',
     './xtend-loader.d.ts',
-    './xtend-dev.d.ts',
     './xtend-loader-types.md'
   ], 'TypeExports docs');
   assertTextIncludesAll(context, packageExportLockDocs, [

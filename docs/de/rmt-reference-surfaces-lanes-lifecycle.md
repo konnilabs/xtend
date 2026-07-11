@@ -1,5 +1,7 @@
 # RMT Reference: Surfaces, Lanes und Lifecycle
 
+Die normalisierten Runtime-Records werden von `tools/rmt-language/vnext-surfaces.js` und dem Scheduler erzeugt.
+
 Surfaces beschreiben UI-Flächen. Lanes planen Arbeit. Lifecycle-Operationen beschreiben, welche Arbeit in einer Lane passiert.
 
 ## Syntax
@@ -28,7 +30,7 @@ Surfaces beschreiben UI-Flächen. Lanes planen Arbeit. Lifecycle-Operationen bes
 | <a id="reattach"></a>`reattach` | `reattach panel` | Lane, Slot | Target | Bindet eine getrennte Einheit wieder ein. | Nur in Lane oder Slot erlaubt. | `detach` |
 | <a id="stream"></a>`stream` | `stream feed from sse app.feed` | Lane, Slot | Target, Source | Beschreibt inkrementelle Rendering-Daten. | `stream` verlangt eine Datenquelle. | `sse`, `sanitize` |
 | <a id="slot"></a>`slot` | `slot header { hydrate title from selector app.title }` | Policy-Block | Slotname | Gruppiert Operationen in einem Composition-Slot. | Slots erlauben nur Lifecycle oder `stream`. | `mount`, `hydrate` |
-| <a id="resumability"></a>`resumability` | `resumability mode server_prerender_resume` | Policy-Block | `mode`, `snapshot`, `event replay` oder `integrity` | Deklariert vollständige SSR-Resumability als Resume-Handoff. | Clauses müssen statisch sein und eine bekannte Resumability-Achse nutzen. | `hydration mode`, `resume` |
+| <a id="resumability"></a>`resumability` | `resumability mode server_prerender_resume` | Policy-Block | `mode`, `snapshot`, `event replay` oder `integrity` | Deklariert vollständige SSR-Resumability als Resume-Übergabe. | Clauses müssen statisch sein und eine bekannte Resumability-Achse nutzen. | `hydration mode`, `resume` |
 
 ## Allowed contexts
 
@@ -113,3 +115,7 @@ Lifecycle- und Stream-Statements außerhalb von Lane oder Slot erzeugen Kontextd
 ## Related operators
 
 `surface`, `portal`, `source`, `when`, `slot`, `on`, `resource`, `trust boundary`.
+
+## Weiterführend
+
+Der RMT-Referenzindex verbindet Surfaces und Lanes mit Scheduling- und Lifecycle-Syntax. [Verwandter Artikel](./rmt-reference.md)

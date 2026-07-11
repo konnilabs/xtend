@@ -18,8 +18,8 @@
 - `development/XTend-Epic12-Docs-Migration-und-Adoption-Guide.md` dokumentiert den Development-Contract
 - `docs/rc0-adoption-guide.md` ist der neue oeffentliche Einstieg fuer Migration Notes und Adoption
 - `docs/enterprise-adoption.md` enthaelt den Epic-12-RC0-Adoption-Abschnitt
-- `docs/menu.json` und `docs/README.md` verlinken den neuen Guide
-- `docs/component-long-tail-migration.md`, `docs/visual-snapshot-automation.md`, `docs/design-tokens.md`, `docs/rmt-dsl-authoring-polish.md` und `docs/rc0-gate-matrix.md` verweisen auf den RC0 Adoption Guide
+- `docs/menu.json` und `docs/en/README.md` verlinken den neuen Guide
+- `docs/en/component-long-tail-migration.md`, `docs/visual-snapshot-automation.md`, `docs/design-tokens.md`, `docs/rmt-dsl-authoring-polish.md` und `docs/rc0-gate-matrix.md` verweisen auf den RC0 Adoption Guide
 
 ## Migration Notes
 

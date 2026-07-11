@@ -65,7 +65,7 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_SIDE_PANEL_WORKPACKAGE_DOC,
   SURFACE_MANAGER_SIDE_PANEL_DOCS,
   'development/XTend-SurfaceManager-Window-Runtime-Contract.md',
-  'docs/surface-manager-window-runtime.md',
+  'docs/en/surface-manager-window-runtime.md',
   ...COMPONENT_DOCS
 ]);
 

@@ -12,7 +12,7 @@
   - `development/XTend-RC0-Gate-Matrix.md`
   - `development/XTend-Release-Checklist-und-SemVer-Policy.md`
   - `development/XTend-CI-Gate-Matrix.md`
-  - `docs/epic12-rc0-handoff.md`
+  - `development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md`
 - Zielzustand: `rc1-production-candidate-ready`
 - Publish Boundary: `private-until-release-owner-acceptance`
 - Aktuelles Paket: `WP-E13-13` completed
@@ -170,7 +170,7 @@ Ein Workpackage ist abgeschlossen, wenn:
   - `development/WP-E13-01-RC1-Readiness-Model-und-Gate-Abgleich-einfrieren.md`
   - `catalog/epic13-rc1-readiness.js`
   - `tests/platform/epic13_rc1_readiness_suite.js`
-  - `docs/rc1-readiness.md`
+  - `development/docs-evidence/legacy-routes/en/rc1-readiness.md`
 - Gate:
   - `node scripts/run_xtend_tests.js epic12-rc0-handoff --json`
   - `node scripts/run_xtend_tests.js rc0-gate-matrix --json`
@@ -190,7 +190,7 @@ Erledigt:
 - `development/XTend-Epic13-RC1-Readiness-Modell.md` friert den RC1 Readiness Contract ein
 - `catalog/epic13-rc1-readiness.js` stellt Factory, Validator und Report Factory bereit
 - `tests/platform/epic13_rc1_readiness_suite.js` prueft Contract, Package, Scaffold, Runner, Docs, Steering, Registry und Gate-Abgleich
-- `docs/rc1-readiness.md` macht den RC1-Schnitt in der Docs-App sichtbar
+- `development/docs-evidence/legacy-routes/en/rc1-readiness.md` macht den RC1-Schnitt in der Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` fuehren `epic13Rc1Readiness`
 - `WP-E13-02` ist abgeschlossen und `WP-E13-03` ist `ready`
 
@@ -216,7 +216,7 @@ Naechstes Paket:
   - `development/WP-E13-02-Release-Owner-Acceptance-Contract-definieren.md`
   - `catalog/epic13-release-owner-acceptance.js`
   - `tests/platform/epic13_release_owner_acceptance_suite.js`
-  - `docs/release-owner-acceptance.md`
+  - `development/docs-evidence/legacy-routes/en/release-owner-acceptance.md`
 - Gate:
   - `node scripts/run_xtend_tests.js epic13-release-owner-acceptance --json`
 - Definition of Done:
@@ -234,7 +234,7 @@ Erledigt:
 - `development/XTend-Epic13-Release-Owner-Acceptance-Contract.md` beschreibt Publish Boundary, Owner Inputs, Checklist-Statuswerte und Deferral-Regeln
 - `catalog/epic13-release-owner-acceptance.js` stellt Factory, Validator und Report Factory bereit
 - `tests/platform/epic13_release_owner_acceptance_suite.js` prueft Contract, Package, Scaffold, Runner, Docs, Steering, Registry und Publish Boundary
-- `docs/release-owner-acceptance.md` macht den Owner-Acceptance-Schnitt in der Docs-App sichtbar
+- `development/docs-evidence/legacy-routes/en/release-owner-acceptance.md` macht den Owner-Acceptance-Schnitt in der Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` fuehren `epic13ReleaseOwnerAcceptance`
 - `WP-E13-03`, `WP-E13-04`, `WP-E13-05`, `WP-E13-06`, `WP-E13-07` und `WP-E13-08` sind abgeschlossen; `WP-E13-09` ist `ready`
 
@@ -616,7 +616,7 @@ Naechstes Paket:
   - `catalog/epic13-trusted-dom-boundary.js`
   - `tests/platform/epic13_trusted_dom_boundary_suite.js`
   - `tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html`
-  - `docs/trusted-dom-boundary-browser-proof.md`
+  - `docs/en/trusted-dom-boundary-browser-proof.md`
 - Lokaler Gate:
   - `node scripts/run_xtend_tests.js epic13-trusted-dom-boundary --json`
 - Contract:
@@ -738,7 +738,7 @@ Erledigt:
 - `catalog/epic13-trusted-dom-boundary.js` stellt Factory, Validator und Report Factory bereit
 - `tests/platform/epic13_trusted_dom_boundary_suite.js` prueft Contract, Package, Scaffold, Runner, Docs Host, PageLoader, Browser-Fixture, Docs und Steering
 - `tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html` prueft Script-, Handler-, URL- und `srcdoc`-Payloads gegen den Docs-Content-Sink
-- `docs/trusted-dom-boundary-browser-proof.md` macht den Trusted-DOM-Beweis in der Docs-App sichtbar
+- `docs/en/trusted-dom-boundary-browser-proof.md` macht den Trusted-DOM-Beweis in der Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` fuehren `epic13TrustedDomBoundary`
 - `WP-E13-12` ist `completed`
 - `WP-E13-13` ist `completed`
@@ -781,7 +781,7 @@ Erledigt:
 - `catalog/epic13-rc1-gate-matrix-ci-handoff.js` stellt Factory, Validator und Report Factory bereit
 - `tests/platform/epic13_rc1_gate_matrix_ci_handoff_suite.js` prueft Contract, Package, Scaffold, Runner, Docs, Changelog, CI Matrix, TypeExports und Handoff
 - `node scripts/run_xtend_tests.js epic13-rc1-gate-matrix-ci-handoff --json` ist der lokale Gate
-- `docs/rc1-gate-matrix-ci-handoff.md` macht die RC1 Gate Matrix in der Docs-App sichtbar
+- `development/docs-evidence/legacy-routes/en/rc1-gate-matrix-ci-handoff.md` macht die RC1 Gate Matrix in der Docs-App sichtbar
 - `package.json` und `xtend-builder/scaffold.config.js` fuehren `epic13Rc1GateMatrixCiHandoff`
 - `WP-E13-14` ist `ready`
 

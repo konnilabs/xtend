@@ -103,3 +103,7 @@ Unknown field rules, missing action targets, incomplete transition targets and m
 ## Related operators
 
 `action`, `field`, `surface`, `lane`, `effect`, `payload`, `animation`, `use animation`.
+
+## Related reading
+
+The RMT reference index points from validation and transition records to their related expression forms. The [AnimationEngine guide](./rmt-animation-engine.md) connects these operators to a complete AOT and runtime example. [Related article](./rmt-reference.md)

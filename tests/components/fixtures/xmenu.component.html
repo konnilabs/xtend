@@ -42,6 +42,10 @@
       </svg>
     </button>
   </x-menu>
+  <x-menu id="secondary-menu" aria-label="Secondary navigation">
+    <a href="/secondary">Secondary overview</a>
+    <a href="/secondary/settings">Secondary settings</a>
+  </x-menu>
   <script>
     window.__xtendComponentState = {};
     window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
@@ -74,6 +78,19 @@
     await customElements.whenDefined('x-menu');
     const menu = document.getElementById('component-menu');
     const items = Array.from(menu.querySelectorAll('a, button, x-link, [role="menuitem"]'));
+    const secondaryMenu = document.getElementById('secondary-menu');
+    const secondaryItems = Array.from(secondaryMenu.querySelectorAll('a, button, x-link, [role="menuitem"]'));
+
+    const stateWritesBeforeIsolationCheck = window.xstate.snapshotDiagnostics().operationCounts.set;
+    window.xstate.set('xmenu-active', {
+      schema: 'xtend.component.x-menu.state.v1',
+      id: 'component-menu',
+      index: 1,
+      activeIndex: 1,
+      focus: false
+    });
+    const stateWritesAfterIsolationCheck = window.xstate.snapshotDiagnostics().operationCounts.set;
+    const secondaryActiveIndex = secondaryItems.findIndex((item) => item.getAttribute('aria-current') === 'page');
 
     items[0].dispatchEvent(new KeyboardEvent('keydown', {
       key: 'ArrowRight',
@@ -89,6 +106,10 @@
     const interactionBudget = menu.getInteractionBudget();
 
     record('menu state synchronized', state && state.schema === 'xtend.component.x-menu.state.v1');
+    record('parallel menu state remains scoped', secondaryActiveIndex === 0);
+    record('parallel menu state avoids feedback writes', stateWritesAfterIsolationCheck - stateWritesBeforeIsolationCheck <= 3, {
+      stateWrites: stateWritesAfterIsolationCheck - stateWritesBeforeIsolationCheck
+    });
     record('performance snapshot available', snapshot && snapshot.schema === 'xtend.component.performance-snapshot.v1');
     record('interaction budget exposes touch target', interactionBudget && interactionBudget.touchTargetMinPx === 44);
     record('keyboard navigation measured', window.__xtendMenuMeasurements.some((entry) => entry.name === 'xtend.interaction.keyboard'));

@@ -25,7 +25,7 @@ Migration, Demo, Core Output and Browser Smoke into one gateable release matrix.
 - `docs/rmt-vnext-remote-surfaces.md`
 - `docs/rmt-vnext-surface-registry-enterprise.md`
 - `docs/rmt-vnext-cross-surface-events.md`
-- `docs/rmt-vnext-enterprise-mfe-handoff.md`
+- `development/docs-evidence/legacy-routes/en/rmt-vnext-enterprise-mfe-handoff.md`
 - `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`
 - `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json`
 - `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html`

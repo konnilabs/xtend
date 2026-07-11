@@ -4,24 +4,25 @@ Schreibe App Shells, Routen, Surfaces und Interaktionen in einer RMT Quelle.
 
 ## Worum es geht
 
-RMT Authoring Guide beschreibt die öffentliche RMT-Oberfläche dieser Seite: welche Records betroffen sind, welche Adapter sie ausüben und welche Scheduler-Signale ein Host prüfen sollte.
+RMT vNext Authoring führt von einer lesbaren `.rmt` Source zu validierten Core-Records. Die Sprache trennt deklarative App-Struktur von Host-Diensten und macht Referenzen, Ownership und Scheduling bereits vor der Runtime prüfbar.
 
 ## Öffentliche Bausteine
 
-- `.rmt` Quellen.
-- Core Records und Source Maps.
-- Host Adapter für DOM, Router und Komponenten.
+- `tools/rmt-language/vnext-parser.js` liest vNext Records.
+- `tools/rmt-language/vnext-compiler.js` erzeugt das Core-Dokument.
+- `docs/xtendrmt-docs-shell-vnext.rmt` ist eine größere, reale Source-Probe.
 
 ## Empfohlener Ablauf
 
-Beginne bei RMT Authoring Guide mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.
+Schreibe zuerst Template, State und eine Surface. Lasse Parser und Linter laufen, ergänze danach Actions, Resources und Policies und prüfe jeden Schritt über den Core-Diff statt über zufälliges Browserverhalten.
 
 ## Nächste Schritte
 
 - [XTendRMT Überblick](./xtendrmt-overview.md)
+- [RMT AnimationEngine](./rmt-animation-engine.md)
 - [RMT Reference](./rmt-reference.md)
 - [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
-- [RMT vNext Releasevertrag](./rmt-vnext-release-handoff.md)
+- [RMT vNext Releasevertrag](./rmt-vnext-migration-notes.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
@@ -79,60 +80,6 @@ template xtend.vnext.reference {
 }
 ```
 
-Wenn ein Beispiel in diesem Guide erweitert wird, muss es entweder mit der Referenzdemo kompatibel bleiben oder als neue Fixture in `tests/rmt-language` abgesichert werden. Die Abschlussseite [RMT vNext Releasevertrag](./rmt-vnext-release-handoff.md) beschreibt, welche Gates für diesen Vertrag massgeblich sind.
+Wenn ein Beispiel in diesem Guide erweitert wird, muss es entweder mit der Referenzdemo kompatibel bleiben oder als neue Fixture in `tests/rmt-language` abgesichert werden. Die Abschlussseite [RMT vNext Releasevertrag](./rmt-vnext-migration-notes.md) beschreibt, welche Gates für diesen Vertrag massgeblich sind.
 
-## Öffentlicher Vertrag
-
-RMT Authoring Guide ist der öffentliche RMT Runtime-Vertrag für `docs/de/rmt-vnext-authoring.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: RMT Records, Compiler-Ausgaben, Runtime-Adapter, Events, Actions und Scheduler-Lanes.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/rmt-vnext-authoring.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Namen:
-- `docs/de/rmt-vnext-authoring.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `xtend.rmt.app-orchestration.v1`
-
-Befehle:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs rmt-reference-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn Runtime-Verhalten anders wirkt, trenne Compiler-Record, Host-Adapter und Scheduler-Signal, bevor du die Doku änderst.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+Der [AnimationEngine-Guide](./rmt-animation-engine.md) führt die AOT-Definition von Presets, Transitions, Keyframes und Reduced-Motion-Policies als eigenständigen Praxispfad fort.

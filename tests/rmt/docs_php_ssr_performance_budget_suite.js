@@ -11,7 +11,7 @@ const {
 } = require('../utils/files');
 
 const DOCS_PHP_SSR_PERFORMANCE_SCHEMA = 'xtend.docs.php-ssr-performance-budget.v1';
-const DOCS_HTML_BUDGET_BYTES = 2 * 1024 * 1024;
+const DOCS_HTML_BUDGET_BYTES = 256 * 1024;
 const DOCS_PREHYDRATION_BUDGET_BYTES = 250 * 1024;
 const DOCS_SSR_XLINK_BUDGET = 40;
 const DOCS_RMT_METADATA_ATTR_BUDGET = 20;
@@ -48,7 +48,7 @@ function extractInitialPrehydration(html) {
 }
 
 function extractSsrBody(html) {
-  const match = String(html || '').match(/<body[^>]*>\s*([\s\S]*?)<script src="\/docs\/utils\/pageloader\.js/su);
+  const match = String(html || '').match(/<body[^>]*>\s*([\s\S]*?)<script\b(?=[^>]*\bsrc="\/docs\/utils\/pageloader\.js(?:\?[^" ]*)?")[^>]*>/su);
   return match ? match[1] : '';
 }
 
@@ -69,6 +69,8 @@ function runDocsPhpSsrPerformanceBudgetSuite(options = {}) {
   const htmlBytes = byteLength(html);
   const prehydrationBytes = byteLength(prehydration.json);
   const ssrXLinkCount = countMatches(ssrBody, /<x-link\b/gu);
+  const ssrTrunkLinkCount = countMatches(ssrBody, /data-docs-trunk-link=/gu);
+  const ssrActiveTrunkContentCount = countMatches(ssrBody, /data-docs-active-trunk-content=/gu);
   const rmtMetadataAttrCount = countMatches(html, /data-rmt-metadata=/gu);
   const prehydrationText = prehydration.json || '';
 
@@ -83,7 +85,10 @@ function runDocsPhpSsrPerformanceBudgetSuite(options = {}) {
   context.assert(!/"markup"\s*:\s*\{[^}]*"html"\s*:/su.test(prehydrationText), 'Chunk summaries omit markup.html while retaining chunk metadata');
   context.assert(prehydrationText.includes('rmt_template_chunk'), 'Chunk summaries retain Rmt template chunk schema');
   context.assert(ssrXLinkCount < DOCS_SSR_XLINK_BUDGET, `SSR shell x-link count stays below ${DOCS_SSR_XLINK_BUDGET} (${ssrXLinkCount})`);
-  context.assert(ssrBody.includes('data-rmt-menu-placeholder="true"'), 'SSR header renders a lightweight menu placeholder');
+  context.assert(ssrBody.includes('data-docs-menu-shell="true"') && ssrBody.includes('<x-menu'), 'SSR header renders the task-trunk navigation with XTend menu components');
+  context.assert(ssrTrunkLinkCount === 6, `SSR header renders exactly six task trunks (${ssrTrunkLinkCount})`);
+  context.assert(ssrActiveTrunkContentCount === 1, `SSR shell renders only the active trunk content (${ssrActiveTrunkContentCount})`);
+  context.assert(!ssrBody.includes('data-rmt-menu-placeholder="true"'), 'SSR header no longer emits the retired menu placeholder');
   context.assert(!ssrBody.includes('x-link class="docs-nav-link"'), 'SSR header no longer emits disposable docs nav x-link records');
   context.assert(rmtMetadataAttrCount <= DOCS_RMT_METADATA_ATTR_BUDGET, `data-rmt-metadata attributes stay below ${DOCS_RMT_METADATA_ATTR_BUDGET} (${rmtMetadataAttrCount})`);
   context.assert(indexPhp.includes('docsCompactDocsSsrPrehydrationForBootstrap'), 'Docs host compacts SSR prehydration before exposing it to the browser');
@@ -117,6 +122,8 @@ function runDocsPhpSsrPerformanceBudgetSuite(options = {}) {
       htmlBytes,
       prehydrationBytes,
       ssrXLinkCount,
+      ssrTrunkLinkCount,
+      ssrActiveTrunkContentCount,
       rmtMetadataAttrCount
     }
   });

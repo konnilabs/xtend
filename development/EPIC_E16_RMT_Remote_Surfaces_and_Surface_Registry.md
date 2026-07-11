@@ -75,11 +75,11 @@
   - `development/WP-E16-11-Enterprise-Fixture-Remote-Reference-Demo-und-Browser-Smoke-Probe-bauen.md`
   - `development/WP-E16-12-Docs-Release-Gates-und-Enterprise-MFE-Handoff-finalisieren.md`
   - `docs/rmt-vnext-authoring.md`
-  - `docs/rmt-vnext-release-handoff.md`
+  - `development/docs-evidence/legacy-routes/en/rmt-vnext-release-handoff.md`
   - `docs/rmt-vnext-remote-surfaces.md`
   - `docs/rmt-vnext-surface-registry-enterprise.md`
   - `docs/rmt-vnext-cross-surface-events.md`
-  - `docs/rmt-vnext-enterprise-mfe-handoff.md`
+  - `development/docs-evidence/legacy-routes/en/rmt-vnext-enterprise-mfe-handoff.md`
   - `xtendrmt/rmt-vnext-reference-demo.rmt`
   - `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`
   - `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json`
@@ -709,13 +709,13 @@ Damit bleibt die Architektur kompatibel mit:
   - `docs/rmt-vnext-remote-surfaces.md`
   - `docs/rmt-vnext-surface-registry-enterprise.md`
   - `docs/rmt-vnext-cross-surface-events.md`
-  - `docs/rmt-vnext-enterprise-mfe-handoff.md`
+  - `development/docs-evidence/legacy-routes/en/rmt-vnext-enterprise-mfe-handoff.md`
   - Release-Handoff Contract
 - Ergebnis:
   - Enterprise Release Handoff Contract `xtend.rmt.vnext-enterprise-release-handoff.v1` ist akzeptiert
   - Modul `tools/rmt-language/vnext-enterprise-release.js` erzeugt Handoff Plan, Release Gate Matrix, Docs Report und Demo Release Report
   - Suite `tests/rmt-language/rmt_vnext_enterprise_release_suite.js` prueft Package Metadata, Exports, Runner, Docs, Demo, Browser-Smoke und Referenzpfade
-  - Docs `docs/rmt-vnext-remote-surfaces.md`, `docs/rmt-vnext-surface-registry-enterprise.md`, `docs/rmt-vnext-cross-surface-events.md` und `docs/rmt-vnext-enterprise-mfe-handoff.md` sind im Docs-Menue und README referenziert
+  - Docs `docs/rmt-vnext-remote-surfaces.md`, `docs/rmt-vnext-surface-registry-enterprise.md`, `docs/rmt-vnext-cross-surface-events.md` und `development/docs-evidence/legacy-routes/en/rmt-vnext-enterprise-mfe-handoff.md` sind im Docs-Menue und README referenziert
   - Release Gate Matrix umfasst alle E16-Gates sowie `references` und `browser`
   - Zielreife `rmt-vnext-enterprise-mfe-ready` ist akzeptiert
 - Gate:

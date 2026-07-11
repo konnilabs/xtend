@@ -17,7 +17,7 @@ Eine produktive Demo-App zeigt, dass XTend Apps vollstaendig aus einer `.rmt` Ap
 - `xtendrmt/rmt-first-demo-app.js` rendert generisch `dom_descriptor` Templates aus RMT Records und vermeidet `innerHTML`.
 - `tests/browser/fixtures/rmt-first-demo-app-smoke.html` validiert den Shell-first Pfad browsernah.
 - `tests/rmt/rmt_first_demo_app_suite.js` prueft den kompletten Contract statisch und ueber RMT Runtime-Normalisierung.
-- `docs/rmt-first-demo-app.md` dokumentiert den Entwicklerpfad.
+- `docs/en/rmt-first-demo-app.md` dokumentiert den Entwicklerpfad.
 
 ## Akzeptanzkriterien
 

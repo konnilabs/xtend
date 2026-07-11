@@ -82,3 +82,7 @@ Falsche Action-Clauses, fehlende Reducer, unbekannte Overlay-Referenzen und fehl
 ## Related operators
 
 `action`, `state`, `datasource`, `overlay`, `surface`, `on`, `emit`.
+
+## Weiterführend
+
+Der RMT-Referenzindex ordnet Action- und Event-Records in das vollständige Sprachmodell ein. [Verwandter Artikel](./rmt-reference.md)

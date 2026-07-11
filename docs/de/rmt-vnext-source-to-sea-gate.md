@@ -49,3 +49,7 @@ Für Browser-Drift gibt es `rmt-vnext-source-to-sea-cross-route-invalid.html`. D
 | `RMT-VNEXT-PRIM-06` | P0 | completed | Source-to-Sea Browser Evidence |
 
 In GitHub Actions ist der Browserpfad über `run_source_to_sea` manuell aktivierbar. Der Default-PR-Gate bleibt schnell und nutzt `npm run test:rmt-vnext-primitives:report`; Source-to-Sea ergänzt ihn bei Bedarf um Browser-Evidenz. Der Capture-Helper protokolliert `ChromeDriver-Auto-Cleanup`, damit nach einem Lauf keine WebDriver-Prozesse hängen bleiben.
+
+## Weiterführend
+
+Der Release-Ablauf erklärt, wie der Source-to-Sea-Report in das gesamte Gate-Set eingebunden ist. [Verwandter Artikel](./release-verification.md)

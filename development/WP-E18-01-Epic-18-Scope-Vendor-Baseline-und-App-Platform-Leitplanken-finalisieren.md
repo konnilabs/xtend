@@ -2,7 +2,7 @@
 
 - Status: `completed`
 - Datum: 2026-05-19
-- Epic Docs: `docs/epic18-media-manager-vendor-upstream.md`
+- Epic Docs: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
 - WP Contract: `xtend.epic18.wp01.scope-vendor-baseline-app-platform-guardrails.v1`
 - Zielzustand: `epic18-startable-with-rmt-app-platform-guardrails`
@@ -39,7 +39,7 @@ Die wichtigste Entscheidung:
 | `/home/konni/Dokumente/net.ccs.cloud/media-manager/docs/vendor-build.md` | Vendor Snapshot, Package-Metadaten und Build-Befehle |
 | `/home/konni/Dokumente/net.ccs.cloud/media-manager/docs/architecture.md` | Produktnahe RMT-/Shell-/Surface-Probe |
 | `/home/konni/Dokumente/net.ccs.cloud/media-manager/vendor/xtend` | Vendor-Dateibaum fuer Paritaetsvergleich |
-| `docs/epic18-media-manager-vendor-upstream.md` | oeffentliche Epic-18-Dokumentation |
+| `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md` | oeffentliche Epic-18-Dokumentation |
 | `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md` | operative Workpackage-Reihenfolge |
 
 ## Vendor-Baseline

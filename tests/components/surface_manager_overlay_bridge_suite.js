@@ -88,7 +88,7 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
   const contractDoc = readText(SURFACE_MANAGER_OVERLAY_BRIDGE_CONTRACT, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_OVERLAY_BRIDGE_WORKPACKAGE_DOC, rootDir);
   const docs = readText(SURFACE_MANAGER_OVERLAY_BRIDGE_DOCS, rootDir);
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const referenceRegistry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
 

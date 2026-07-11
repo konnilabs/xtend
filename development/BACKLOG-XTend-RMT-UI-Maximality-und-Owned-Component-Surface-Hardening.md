@@ -196,7 +196,7 @@ Ein Workpackage darf gestartet werden, wenn:
   - Bekannte Legacy-Gate-Residuals schliessen, damit neue RMT-/Component-Claims nicht durch alte Docs- oder TypeExports-Luecken verdeckt werden.
 - Scope:
   - `docs-public-quality` Altfehler inventarisieren und priorisiert korrigieren
-  - fehlenden oder driftenden `docs/component-long-tail-migration.md` Pfad klaeren
+  - fehlenden oder driftenden `docs/en/component-long-tail-migration.md` Pfad klaeren
   - TypeExports Vendor- und Loader-Dokumentlinks korrigieren
   - Public-Docs-Regeln aus `NFM-WP-20` und Migration-Regeln aus `NFM-WP-21` beibehalten
 - Zielartefakte:

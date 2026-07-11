@@ -60,6 +60,7 @@ Attributes:
 
 Events:
 - `tab-selected`
+- `xtend-command`
 
 Methods:
 - `selectTab(index: number)`

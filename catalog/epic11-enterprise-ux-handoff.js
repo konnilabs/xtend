@@ -29,10 +29,10 @@ const COMPLETED_WORKPACKAGES = Object.freeze(Array.from(
 const REQUIRED_DOCS = Object.freeze([
   'docs/component-ux-authoring.md',
   'docs/component-ux-app-authoring.md',
-  'docs/component-ux-gates.md',
-  'docs/component-long-tail-migration.md',
+  'development/docs-evidence/root/component-ux-gates.md',
+  'docs/en/component-long-tail-migration.md',
   EPIC11_ENTERPRISE_UX_HANDOFF_DOCS,
-  'docs/component-platform.md',
+  'development/docs-evidence/root/component-platform.md',
   'docs/rmt-first-xtend-apps.md',
   'docs/enterprise-adoption.md',
   'docs/visual-browser-regression.md'
@@ -241,8 +241,8 @@ function createEpic11EnterpriseUxHandoffPlan(options = {}) {
     ],
     docsSurface: {
       requiredDocs: REQUIRED_DOCS.slice(),
-      authoringDocs: ['docs/component-ux-authoring.md', 'docs/component-ux-app-authoring.md', 'docs/component-ux-gates.md'],
-      migrationDocs: 'docs/component-long-tail-migration.md',
+      authoringDocs: ['docs/component-ux-authoring.md', 'docs/component-ux-app-authoring.md', 'development/docs-evidence/root/component-ux-gates.md'],
+      migrationDocs: 'docs/en/component-long-tail-migration.md',
       releaseHandoff: EPIC11_ENTERPRISE_UX_HANDOFF_DOCS
     },
     releaseReadiness: {

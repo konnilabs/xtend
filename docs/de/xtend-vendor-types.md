@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-vendor-report.json
 ## Pflegehinweise
 
 Ergänze Vendor-Typen nur, wenn ein Host die Form wirklich importieren soll. Für rein interne Adapter reicht ein lokaler Typ im Modul. Öffentliche Design-Token-Änderungen sollten mit Beispiel-Theme, Alias-Schicht und Dokumentation aktualisiert werden. So bleiben Prism, Turndown und Theme JSON einfach nutzbar, ohne dass XTend zum Durchreichexport jeder abhängigen Library wird.
+
+## Weiterführend
+
+Die Supply-Chain-Gates prüfen die lokalen Vendor-Artefakte, die diese Deklarationen abbilden. [Verwandter Artikel](./supply-chain-gates.md)

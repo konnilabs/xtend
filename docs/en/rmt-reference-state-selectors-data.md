@@ -77,3 +77,7 @@ The parser reports wrong clauses in each block. The semantic graph reports unkno
 ## Related operators
 
 `state`, `selector`, `datasource`, `action`, `hydrate`, `stream`, `when`.
+
+## Related reading
+
+The RMT reference index links state, selector, and data records to their lifecycle rules. [Related article](./rmt-reference.md)

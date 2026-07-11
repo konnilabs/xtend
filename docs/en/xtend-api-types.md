@@ -31,3 +31,7 @@ report: .xtend-test-results/xtend-type-exports-api-report.json
 ## Maintenance Notes
 
 New public functions belong in the runtime first, then in `api.d.ts`, then in the local check. Private helpers stay private and should not be documented in the namespace. If a host needs a new shortcut global, give it the same treatment as the existing globals: runtime assignment, TypeScript declaration, event or method verification and a short note in this page. That keeps the global API convenient without letting it drift.
+
+## Related reading
+
+The API reference describes the runtime values paired with these public types. [Related article](./api.md)

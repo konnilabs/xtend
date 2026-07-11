@@ -25,7 +25,7 @@ const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SUITE = 'tests/platform/epic13_rc1_gate_
 const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_STEERING = 'development/RC0-RC1-transfer-EPIC13.md';
 const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_CONTRACT = 'development/XTend-Epic13-RC1-Gate-Matrix-und-CI-Handoff.md';
 const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_WORKPACKAGE_DOC = 'development/WP-E13-13-RC1-Gate-Matrix-und-CI-Handoff-erstellen.md';
-const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_DOCS = 'docs/rc1-gate-matrix-ci-handoff.md';
+const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_DOCS = 'development/docs-evidence/legacy-routes/en/rc1-gate-matrix-ci-handoff.md';
 const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_LOCAL_GATE = 'node scripts/run_xtend_tests.js epic13-rc1-gate-matrix-ci-handoff --json';
 const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_PACKAGE_SCRIPT = 'npm run test:epic13-rc1-gate-matrix-ci-handoff';
 const EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_REPORT_ARTIFACT = '.xtend-test-results/xtend-epic13-rc1-gate-matrix-ci-handoff-report.json';
@@ -202,7 +202,7 @@ const REQUIRED_REFERENCE_PATHS = Object.freeze([
   'development/XTend-Dokumentations-und-Demo-Referenzpfade.md',
   'development/XTend-CI-Gate-Matrix.md',
   'development/XTend-Release-Checklist-und-SemVer-Policy.md',
-  'docs/README.md',
+  'docs/en/README.md',
   'docs/menu.json',
   'README.md',
   'CHANGELOG.md',
@@ -303,7 +303,8 @@ function createEpic13Rc1GateMatrixCiHandoffPlan(options = {}) {
       packagePrivateRequired: true,
       publishAllowed: false
     },
-    docsMenuSlug: 'rc1-gate-matrix-ci-handoff',
+    docsMenuSlug: 'release-verification',
+    docsAliasSlug: 'rc1-gate-matrix-ci-handoff',
     frameworkAgnostic: true,
     rmtKernelImportsXtendTypes: false,
     kernelBoundary: KERNEL_BOUNDARY,
@@ -354,7 +355,8 @@ function validateEpic13Rc1GateMatrixCiHandoffPlan(plan = createEpic13Rc1GateMatr
   ['pr-fast', 'rc1-full-release', 'conditional-network-evidence', 'owner-handoff'].forEach((lane) => {
     if (!ciLaneIds.includes(lane)) errors.push(`CI lane missing: ${lane}`);
   });
-  if (!plan || plan.docsMenuSlug !== 'rc1-gate-matrix-ci-handoff') errors.push('docs menu slug must be rc1-gate-matrix-ci-handoff');
+  if (!plan || plan.docsMenuSlug !== 'release-verification') errors.push('docs menu slug must be release-verification');
+  if (!plan || plan.docsAliasSlug !== 'rc1-gate-matrix-ci-handoff') errors.push('docs alias slug must be rc1-gate-matrix-ci-handoff');
   if (!plan || plan.frameworkAgnostic !== true || plan.rmtKernelImportsXtendTypes !== false) errors.push('gate matrix must preserve RMT framework agnosticism');
   if (!plan || plan.kernelBoundary !== KERNEL_BOUNDARY) errors.push(`kernelBoundary must be ${KERNEL_BOUNDARY}`);
   if (!plan || plan.nextDecision !== NEXT_DECISION) errors.push(`next decision must be ${NEXT_DECISION}`);

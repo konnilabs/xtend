@@ -54,9 +54,12 @@ For production screens, keep IDs stable when state keys or diagnostics include `
 Attributes:
 - `disabled`
 - `label`
+- `data-label`
 - `variant`
 - `size`
 - `icon`
+- `icon-name`
+- `icon-pack`
 - `loading`
 - `overlay`
 - `aria-label`
@@ -70,6 +73,7 @@ Events:
 - `blur`
 - `button-interaction`
 - `button-performance-measured`
+- `xtend-command`
 
 Methods:
 - `getPerformanceBudget()`

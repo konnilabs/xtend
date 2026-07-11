@@ -23,7 +23,7 @@ eine konkrete Produktoberflaeche zu kopieren.
   - Event Routing zu Actions
   - Surface Materialization, Overlay Stack und Resource Cleanup
 - Package-Metadaten und Test-Script `npm run test:rmt-app-platform-fixture`
-- Dokumentation in `docs/rmt-app-platform-fixture.md`
+- Dokumentation in `docs/en/rmt-app-platform-fixture.md`
 
 ## Lokaler Gate
 

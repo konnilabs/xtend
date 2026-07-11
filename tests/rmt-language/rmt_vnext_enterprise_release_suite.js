@@ -163,7 +163,7 @@ function runDemoChecks(context, rootDir) {
 }
 
 function runDocumentationChecks(context, rootDir) {
-  const docsReadme = readText('docs/README.md', rootDir);
+  const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readJson('docs/menu.json', rootDir);
   const remoteDocs = readText(RMT_VNEXT_REMOTE_SURFACES_DOC_PATH, rootDir);
   const registryDocs = readText(RMT_VNEXT_ENTERPRISE_REGISTRY_DOC_PATH, rootDir);

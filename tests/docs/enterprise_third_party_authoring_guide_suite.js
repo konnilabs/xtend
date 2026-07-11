@@ -36,7 +36,7 @@ const {
 } = require('../../catalog/enterprise-third-party-authoring-guide');
 
 const BACKLOG_PATH = 'development/XTend-Enterprise-Component-Flexibilitaets-und-Theme-Hardening-Backlog.md';
-const DOCS_README = 'docs/README.md';
+const DOCS_README = 'docs/en/README.md';
 const DOCS_MENU = 'docs/menu.json';
 const ENTERPRISE_ADOPTION_DOC = 'docs/enterprise-adoption.md';
 const DESIGN_TOKENS_DOC = 'docs/design-tokens.md';

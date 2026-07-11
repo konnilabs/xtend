@@ -48,7 +48,7 @@ Die P0-Welle lautet:
 - alle Stubs sind `ts-planned` und zielen auf `stable`
 - alle Stubs nutzen `xtend.component` und halten `no-rmt-kernel-import-of-xtend-types`
 - alle Stubs verlangen `ts-source`, `ts-contract`, `ts-rmt`, `ts-a11y`, `ts-performance` und `ts-fixture`
-- `docs/component-platform.md` dokumentiert die Welle fuer Komponentenautoren
+- `development/docs-evidence/root/component-platform.md` dokumentiert die Welle fuer Komponentenautoren
 - `WP-E10-09` ist nach Abschluss dieses Pakets `ready`
 
 ## Verifikation

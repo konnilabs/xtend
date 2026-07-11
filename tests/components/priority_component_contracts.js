@@ -1043,6 +1043,7 @@ const priorityComponentConfigs = {
       { pattern: 'role="menubar"', message: 'x-menu exposes menubar role' },
       { pattern: 'setAttribute("role", "menuitem")', message: 'x-menu exposes menuitem role' },
       { pattern: 'xmenu-active', message: 'x-menu syncs active item to xstate' },
+      { pattern: '_stateTargetsThisMenu', message: 'x-menu scopes shared active state by menu id' },
       { pattern: 'menu-item-clicked', message: 'x-menu emits menu-item-clicked' },
       { pattern: 'menu-navigate', message: 'x-menu emits menu-navigate' },
       { pattern: 'menu-keyboard-navigation', message: 'x-menu emits keyboard navigation telemetry' },
@@ -1068,6 +1069,7 @@ const priorityComponentConfigs = {
       { pattern: 'role="menuitem"', message: 'x-menu fixture covers explicit menuitem' },
       { pattern: 'window.xstate', message: 'x-menu fixture stubs xstate locally' },
       { pattern: 'menu-performance-measured', message: 'x-menu fixture observes performance telemetry' },
+      { pattern: 'parallel menu state avoids feedback writes', message: 'x-menu fixture blocks cross-menu state feedback cascades' },
       { pattern: 'snapshotPerformance()', message: 'x-menu fixture validates performance snapshot' },
       { pattern: '__xtendComponentResult', message: 'x-menu fixture exposes a component result object' }
     ],

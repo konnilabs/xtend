@@ -1,91 +1,36 @@
 # Enterprise Adoption
 
-An external adoption path for teams bringing XTend into existing web products.
+This guide helps an external team introduce XTend into an existing web product under controlled conditions. The goal is a small, reversible pilot with explicit ownership boundaries, not an immediate rewrite of the current frontend.
 
-## What it covers
+## Before technical integration
 
-This article is written for developers who want to use XTend productively without internal project knowledge.
+Identify the problem XTend should solve: local Web Components, RMT authoring, schedulable hydration, a surface runtime, or browser diagnostics. Select only the packages and public subpaths required for that problem from `package.json#exports`.
 
-## Public building blocks
+Record the following for the pilot:
 
-- Local development without a CDN.
-- Bilingual documentation.
-- Stable public entry points.
-- Release evidence through Package Export Lock, the acceptance page, network evidence and pack dry run.
+- domain and technical owner;
+- browser and CSP requirements;
+- allowed local and optional remote sources;
+- state, routing, and focus ownership;
+- performance and accessibility budgets;
+- fallback and rollback path.
 
-```txt
-package evidence: xtend.epic13.package-export-lock.v1
-owner evidence: xtend.epic13.release-owner-acceptance.v1
-network evidence: xtend.epic13.conditional-network-evidence.v1
-network docs: ./conditional-network-evidence.md
-network mode: network-restricted-local-default
-owner docs: ./release-owner-acceptance.md
-package docs: ./package-export-lock.md
-previous release bridge: Epic 12 RC0 Handoff
-automatic-publish-approval
-pack:dry-run:report
-```
+## Choose a pilot
 
-## Recommended workflow
+A suitable surface has few global dependencies, visible failure behavior, and a realistic user interaction. Global navigation, authentication, and a silently shared event bus are poor first candidates. Start with the [Quick Start](./quick-start-guide.md) when you need components only, or [Learn RMT](./learn-rmt.md) for a declarative application boundary.
 
-Read the overview, copy the smallest suitable example and add host-specific details only afterwards.
+Keep `components/manifest.json` and `xtend-loader.js` local. Attach a framework island through a HostController; do not hide its peer runtime inside an XTension bundle. Route cross-surface communication through typed events or Fabric rather than framework contexts.
 
-## Next steps
+## Acceptance criteria
 
-- [Quick Start](./quick-start-guide.md)
-- [About XTend](./about.md)
+The pilot succeeds only when development and production boot the same way, no CDN is required, and missing optional capabilities degrade visibly. Mount and unmount must not retain listeners, timers, or resource handles. Keyboard behavior, screen-reader signals, reduced motion, and performance budgets are acceptance work, not later polish.
 
-## Public contract
+The [XTend Dev Surface](./xtend-dev-surface.md) helps with local observation. Reproducible decisions come from JSON reports produced by the relevant gates and the sequence in [Release Verification](./release-verification.md).
 
-Enterprise Adoption is the public orientation contract for `docs/en/enterprise-adoption.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
+## Operations and upgrades
 
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: entry routes, local docs navigation and the smallest runnable commands.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
+Pin a tested package version and import documented exports only. Before upgrading, inspect the changelog, migration notes, type exports, and affected component contracts. When a schema or default changes, update source, fixtures, and runbook together.
 
-## Interfaces and anchors
+Before handing the pilot to another team, verify its published entry points with the [Package Export Lock](./package-export-lock.md) and capture the package evidence with `npm run pack:dry-run:report`.
 
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/enterprise-adoption.md`
-- `docs/menu.json`
-- `package.json`
-- `README.md`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `xtend-loader.js`
-
-Names:
-- `docs/en/enterprise-adoption.md`
-- `docs/menu.json`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `docs/dev-router.php`
-- `package.json`
-- `README.md`
-- `xtend-loader.js`
-
-Commands:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If entry paths drift, check `docs/menu.json`, local links and the command in the verification block first.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+Keep a working fallback until the new surface has demonstrated its failure and recovery paths in the product. A successful happy path alone is not sufficient adoption evidence.

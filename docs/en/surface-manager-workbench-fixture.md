@@ -27,3 +27,7 @@ No stage should take a manual DOM shortcut. RMT provides descriptors, not HTML i
 Reviewers read the fixture as integration evidence. They check whether route, windows and side panel refer to the same app instance, whether ids are stable, whether the snapshot captures every visible surface and whether commands avoid unregistered side effects. A failure in this gate often points to architecture drift: RMT describes too much DOM, the host registers too little state, or a surface type exists only as a visual container.
 
 New workbench cases should be added only when they prove a different interaction. Examples include an inspector, a multi-stage queue or a resizable workspace. Pure text changes, new example names or cosmetic columns do not need a new fixture. That keeps the gate small but meaningful.
+
+## Related reading
+
+The authoring guide explains the surface records used by the workbench fixture. [Related article](./surface-manager-authoring-guide.md)

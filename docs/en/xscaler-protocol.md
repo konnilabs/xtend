@@ -47,3 +47,7 @@ An ATC handoff carries the accepted surface, session identifier, handoff signal,
 ## Fixtures
 
 The minimal fixture family lives under `tests/rmt/fixtures/xscaler/` and covers preflight request, preflight response, remote-surface plan, XTension deployment and ATC handoff compatibility records.
+
+## Related reading
+
+Hydration policies explain when XScaler preflight data affects resume or hydrate behavior. [Related article](./hydration-policies.md)

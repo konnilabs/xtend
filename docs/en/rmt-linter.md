@@ -4,9 +4,13 @@ Diagnostics, JSON output and agent repair reports for RMT sources.
 
 ## What it covers
 
-RMT Linter describes the public RMT surface for this page: which records are involved, which adapters exercise them and which scheduler signals a host should verify.
+The RMT linter reads source, parser diagnostics, and semantic rules, then returns stable machine-readable findings. It does not modify source files or compile an apparently valid app after a severe error.
 
 ## Public building blocks
+
+- `tools/rmt-linter/cli.js` is the command-line entry point.
+- `tools/rmt-language/diagnostics.js` normalizes codes, fields, and severity.
+- `tools/rmt-language/rules/` contains rule-based checks.
 
 - `xt rmt lint app.rmt`.
 - `--json` for tools.
@@ -27,7 +31,7 @@ AnimationEngine diagnostics cover unknown effects, invalid `interrupt` or `reduc
 
 ## Recommended workflow
 
-Start RMT Linter with the smallest record example, validate it with the linter and only then attach adapters for host data, routing or components.
+Lint source before compiling. Resolve syntax errors first, then unknown references and policies; apply an automatic fix only when the report identifies the exact text edit.
 
 ## Next steps
 
@@ -35,63 +39,3 @@ Start RMT Linter with the smallest record example, validate it with the linter a
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT Reference](./rmt-reference.md)
 - [RMT Language Server](./rmt-language-server.md)
-
-## Public contract
-
-RMT Linter is the public RMT runtime contract for `docs/en/rmt-linter.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: RMT records, compiler output, runtime adapters, events, actions and scheduler lanes.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/rmt-linter.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Names:
-- `docs/en/rmt-linter.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `xt rmt lint app.rmt`
-
-Commands:
-- `xt rmt lint app.rmt`
-- `xt rmt lint app.rmt --json`
-- `xt rmt lint app.rmt --agent`
-- `xt rmt lint app.rmt --fail-on warning`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-xt rmt lint app.rmt
-xt rmt lint app.rmt --json
-xt rmt lint app.rmt --agent
-xt rmt lint app.rmt --fail-on warning
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If runtime behavior differs, separate compiler record, host adapter and scheduler signal before changing the docs.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.

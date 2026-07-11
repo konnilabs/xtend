@@ -16,7 +16,7 @@
   - `development/XTend-Component-UX-Authoring-Guides.md`
   - `development/XTend-Epic11-Browsernahe-UX-Smoke-Matrix.md`
   - `development/XTend-Epic11-Component-Shell-Visual-Theme-Matrix.md`
-  - `docs/component-long-tail-migration.md`
+  - `docs/en/component-long-tail-migration.md`
 
 ## Zweck
 

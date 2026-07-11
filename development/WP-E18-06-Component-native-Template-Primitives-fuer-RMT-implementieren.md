@@ -20,7 +20,7 @@ externen HTML-String-Hilfsrenderer.
 | `catalog/epic18-rmt-component-template-primitives.js` | maschinenlesbarer Contract fuer Primitives, Component-Familien und Handoff |
 | `tests/fixtures/rmt-component-template-primitives.rmt` | produktneutrale Fixture fuer Component-Familien, Slots, Repeat, Empty, Error und Fallback |
 | `tests/rmt/rmt_component_template_primitives_suite.js` | lokaler Gate `rmt-component-template-primitives` |
-| `docs/rmt-component-template-primitives.md` | Entwicklerdokumentation |
+| `docs/en/rmt-component-template-primitives.md` | Entwicklerdokumentation |
 | `xtendrmt/rmt-dom-descriptor-renderer.js` | erweiterte Runtime fuer `class`, `parts`, `style-token`, `ref`, Slot-Objekte und `fallback` |
 | `xtendrmt/rmt-dom-descriptor-renderer.d.ts` | Typoberflaeche fuer Ref-Capture |
 

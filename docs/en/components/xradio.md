@@ -108,9 +108,9 @@ CSS custom properties:
 - `--xtend-form-control-surface`
 - `--xtend-control-bg`
 
-## ECH-WP-08 Theme/A11y Hardening
+## Theme and accessibility
 
-ECH-WP-08 documents the form-control tokens for `x-radio` as a public theme contract. `signatureDesign` stays a clear radio choice with a label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
+`signatureDesign` stays a clear radio choice with a label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
 
 Token table:
 - `--xtend-form-text`

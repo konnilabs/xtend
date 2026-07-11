@@ -54,9 +54,12 @@ Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Di
 Attribute:
 - `disabled`
 - `label`
+- `data-label`
 - `variant`
 - `size`
 - `icon`
+- `icon-name`
+- `icon-pack`
 - `loading`
 - `overlay`
 - `aria-label`
@@ -70,6 +73,7 @@ Events:
 - `blur`
 - `button-interaction`
 - `button-performance-measured`
+- `xtend-command`
 
 Methoden:
 - `getPerformanceBudget()`

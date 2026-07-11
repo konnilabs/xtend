@@ -1,78 +1,28 @@
 # Über XTend
 
-Ein kurzer Produktüberblick über Ziele, Bausteine und Grenzen von XTend.
+XTend ist ein lokales, frameworkneutrales Application-Framework für Web Components, deklarative RMT-Anwendungen und kontrollierte Erweiterungen. Es richtet sich an Teams, die UI-Bausteine, Scheduling, Hydration und Diagnose nicht als voneinander getrennte Einzellösungen betreiben möchten.
 
-## Worum es geht
+## Die Schichten im Überblick
 
-Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwissen produktiv einsetzen wollen.
+Die unterste öffentliche Schicht sind Custom Elements aus `components/manifest.json`. Sie lassen sich direkt in HTML verwenden und bleiben über Attribute, Events, Slots, CSS Parts und TypeScript-Deklarationen integrierbar. `xtend-loader.js` registriert diese Komponenten aus einem lokalen Manifest.
 
-## Öffentliche Bausteine
+XTend Fabric plant Mount-, Hydration-, Interaktions- und Diagnosearbeit in Lanes und Fibers. RMT beschreibt Anwendungen als kompilierbare Dokumente; Parser und Compiler erzeugen daraus ein Core-Dokument, das Browser- und SSR-Adapter lesen können. Maraca baut auf diesem Vertrag auf und orchestriert eine auslieferbare Anwendung.
 
-- Lokale Entwicklung ohne CDN.
-- Bilinguale Dokumentation.
-- Stabile öffentliche Einstiegspunkte.
+## Was stabil ist
 
-## Empfohlener Ablauf
+Öffentlich sind die Exports in `package.json`, die Deklarationen wie `api.d.ts`, die Komponentenverträge und dokumentierte Schemas. Private Shadow-DOM-Knoten, interne Scheduler-Datenstrukturen und generierte Zwischenartefakte sind keine Integrationsschnittstelle.
 
-Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.
+XTensions erweitern Hosts über explizite Contracts. Die [XTend Dev Surface](./xtend-dev-surface.md) liest Diagnosewerte ausschließlich aus `window.__XTEND_DEV_API__`; sie erkennt keine fremde Seite durch Heuristiken und patcht keine Framework-Runtime.
 
-## Nächste Schritte
+## Typische Einstiege
 
-- [Quick Start](./quick-start-guide.md)
-- [Enterprise Adoption](./enterprise-adoption.md)
+- Eine bestehende HTML-Seite beginnt mit [Quick Start](./quick-start-guide.md) und einer einzelnen Komponente.
+- Eine deklarative Anwendung beginnt mit [Learn RMT](./learn-rmt.md) und dem Playground.
+- Ein wiederverwendbares Host-Plug-in beginnt mit dem [XTensions Authoring Guide](./xtensions-authoring-guide.md).
+- Ein Team mit Release-Verantwortung nutzt [Release Verification](./release-verification.md) für Reports und Gates.
 
-## Öffentlicher Vertrag
+## Grenzen und Fehlerverhalten
 
-Über XTend ist der öffentliche Orientierung-Vertrag für `docs/de/about.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
+XTend lädt keine Runtime von einem CDN und führt keine beliebigen Remote-Module aus. Import-, Capability- und Integrity-Entscheidungen gehören dem Host. Kann eine optionale Surface oder XTension nicht geladen werden, soll ein dokumentierter Fallback entstehen; ein Kernel-Panic oder ein fehlgeschlagener Integritätscheck darf nicht als erfolgreicher Zustand erscheinen.
 
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Einstiegsrouten, lokale Docs-Navigation und die kleinsten lauffähigen Befehle.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/about.md`
-- `docs/menu.json`
-- `package.json`
-- `README.md`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `xtend-loader.js`
-
-Namen:
-- `docs/de/about.md`
-- `docs/menu.json`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `docs/dev-router.php`
-- `package.json`
-- `README.md`
-- `xtend-loader.js`
-- `node scripts/verify_docs_public_quality.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn Einstiegspfade auseinanderlaufen, prüfe zuerst `docs/menu.json`, die lokalen Links und den Befehl im Prüfblock.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+Der sinnvollste nächste Schritt ist ein kleines lokales Beispiel. Erst wenn Loader, Manifest und eine Komponente funktionieren, lohnt sich der Wechsel zu RMT, Fabric-Lanes oder Remote-Surface-Policies.

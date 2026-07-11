@@ -1,81 +1,45 @@
 # SurfaceManager Migration Guide
 
-Move ad-hoc panels and modals to managed surfaces.
+This guide migrates an ad-hoc window, panel, or modal into a managed surface. The change remains incremental: domain content and visual design may stay in place while lifecycle, focus, and cleanup move to the controller.
 
-## What it covers
+## Inventory current behavior
 
-SurfaceManager groups windows, panels, overlays and remote areas into a controlled runtime. Focus, layering, persistence and cleanup stay traceable.
+Before changing code, record open, close, focus, Escape, bounds, persistence, routing, and every listener or timer. Decide whether close hides or permanently destroys the area. Then assign a stable `surface-id`; it does not replace a domain ID, but identifies the lifecycle owner.
 
-## Public building blocks
+## Introduce the host boundary
 
-- Surface IDs and controller records.
-- Windows, panels, portals and overlays.
-- Focus, layer and cleanup rules.
+```html
+<x-surface-manager id="workspace" manager-id="product-shell">
+  <x-surface-window surface-id="legacy-report" label="Report">
+    <div id="legacy-report-host"></div>
+  </x-surface-window>
+</x-surface-manager>
+```
 
-## Recommended workflow
+Mount existing content unchanged at first. From this point, open and close it through `openSurface('legacy-report')` and `closeSurface('legacy-report')`. Remove parallel global click or Escape handlers once stack policy and browser smoke prove equivalent behavior.
 
-Assign stable surface IDs, open and close surfaces through the controller and check focus, Escape behavior and persistence in browser fixtures.
+## Move state ownership
+
+Content-local UI state may remain inside the feature. Visibility, active surface, geometry, and persistence belong to the manager. The router retains canonical URL ownership; a route adapter translates navigation into controller operations. Register resource, chunk, and prewarm handles so `destroySurface()` can release them.
+
+## Verify the migration
+
+```bash
+node scripts/run_xtend_tests.js surface-controller surface-manager surface-manager-a11y --json
+```
+
+Also test repeated opening, close versus destroy, focus restoration, reduced motion, storage failure, and missing optional content. Remove the old owner only when no duplicate listener, second z-index stack, or separate persistence key remains.
+
+## Common failures
+
+- Two owners write visibility or bounds at the same time.
+- A modal closes visually but remains active in the focus stack.
+- A random ID suffix hides a duplicate diagnostic.
+- Remote failure removes the local fallback.
+- Destroy leaves network work, observers, or timers running.
 
 ## Next steps
 
-- [SurfaceManager](./surface-manager-authoring-guide.md)
-- [SurfaceManager Controller](./surface-manager-controller.md)
-- [SurfaceManager Runtime](./surface-manager-runtime.md)
-
-## Public contract
-
-SurfaceManager Migration Guide is the public surface integration contract for `docs/en/surface-manager-migration-guide.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
-
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: surface records, controllers, portals, windows, ownership and routing boundaries.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/surface-manager-migration-guide.md`
-- `docs/menu.json`
-- `package.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-
-Names:
-- `docs/en/surface-manager-migration-guide.md`
-- `docs/menu.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-- `docs/dev-router.php`
-- `package.json`
-- `x-surface-manager`
-
-Commands:
-- `node scripts/run_xtend_tests.js components catalog-coverage --json`
-- `node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js components catalog-coverage --json
-node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a surface is missing, check ownership, portal, window record and router binding in that order.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+- [Authoring Guide](./surface-manager-authoring-guide.md)
+- [Controller](./surface-manager-controller.md)
+- [Quality Gates](./surface-manager-quality-gates.md)

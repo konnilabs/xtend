@@ -47,7 +47,7 @@ const REQUIRED_DOCS = Object.freeze([
   'development/XTend-Hydration-Policy-Contract.md',
   'development/XTend-Performance-Budget-Matrix.md',
   'docs/known-residual-triage.md',
-  'docs/performance-regression.md',
+  'development/docs-evidence/root/performance-regression.md',
   'docs/hydration-policies.md',
   'docs/xtend-fabric.md',
   'docs/enterprise-adoption.md'
@@ -92,7 +92,7 @@ function createHydrationDecision(options = {}) {
       'fabric/xtend-fabric.js',
       'fabric/hydration-policy.js',
       'tests/fabric/fabric_performance_measurement_suite.js',
-      'docs/performance-regression.md',
+      'development/docs-evidence/root/performance-regression.md',
       'docs/hydration-policies.md'
     ],
     rationale: 'The RC1 local deterministic hydration sample now passes the unchanged 32ms budget; no release-owner residual is needed for this scope.'

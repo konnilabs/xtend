@@ -4,17 +4,17 @@ Wie RMT Scheduling-Absichten auf Fabric Lanes abgebildet werden.
 
 ## Worum es geht
 
-Fabric RMT Lane Mapping beschreibt den Core-Pfad über lokale Module, öffentliche TypeScript-Oberflächen und überprüfbare Host-Verdrahtung.
+Das Lane Mapping übersetzt RMT Scheduling-Absicht in die kanonischen Fabric-Lanes. Der RMT Record beschreibt Priorität und Grund; Fabric entscheidet über Ausführung, Telemetrie und Backpressure auf der aktuellen Plattform.
 
 ## Öffentliche Bausteine
 
-- RMT Schedule Records.
-- Fabric Lanes und Fibers.
-- Adapter-Metadaten für Diagnostik.
+- `fabric/rmt-lane-mapping.js` normalisiert Lane und Schedule.
+- `fabric/rmt-lane-mapping.d.ts` typisiert Resolution, Diagnostics und Mapping.
+- `fabric/xtend-fabric.js` führt den resultierenden Fiber aus.
 
 ## Empfohlener Ablauf
 
-Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.
+`critical`, `visible`, `transition`, `idle` und `diagnostics` werden über definierte Profile aufgelöst. Eine unbekannte Lane erzeugt eine Diagnose und einen dokumentierten Default, keine neue globale Prioritätsklasse. Prüfe das Mapping mit [Scheduling und Lanes](./learn-rmt-scheduling-lanes.md), bevor ein Host eigene Namen einführt.
 
 ## Nächste Schritte
 
@@ -22,59 +22,3 @@ Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst d
 - [API](./api.md)
 - [XTend Loader](./xtend-loader.md)
 - [Design Tokens](./design-tokens.md)
-
-## Öffentlicher Vertrag
-
-Fabric RMT Lane Mapping ist der öffentliche Fabric Scheduling-Vertrag für `docs/de/xtend-fabric-rmt-lane-mapping.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Fabric Lanes, Fiber Inputs, RMT Lane Mapping, Hydration-Policy und Diagnostics.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/xtend-fabric-rmt-lane-mapping.md`
-- `docs/menu.json`
-- `package.json`
-- `fabric/xtend-fabric.js`
-- `fabric/rmt-lane-mapping.js`
-- `fabric/rmt-lane-mapping.d.ts`
-- `docs/utils/fabric-runtime.js`
-- `docs/dev-router.php`
-
-Namen:
-- `docs/de/xtend-fabric-rmt-lane-mapping.md`
-- `docs/menu.json`
-- `fabric/xtend-fabric.js`
-- `fabric/rmt-lane-mapping.js`
-- `fabric/rmt-lane-mapping.d.ts`
-- `docs/utils/fabric-runtime.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js fabric fabric-lane-mapping fabric-runtime-bridge --json`
-- `/xtend.css`
-
-Befehle:
-- `node scripts/run_xtend_tests.js fabric fabric-lane-mapping fabric-runtime-bridge --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js fabric fabric-lane-mapping fabric-runtime-bridge --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn Arbeit in der falschen Lane landet, prüfe Fiber Input, Mapping-Tabelle und Diagnostics-Snapshot.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.

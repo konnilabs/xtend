@@ -1,79 +1,27 @@
 # Best Practices
 
-Empfehlungen für robuste XTend Apps ohne internes Projektwissen.
+Robuste XTend Apps entstehen durch klare Ownership, kleine öffentliche Verträge und überprüfbares Fehlerverhalten. Die folgenden Regeln gelten für klassische HTML-Hosts ebenso wie für RMT App Shells.
 
-## Worum es geht
+## Öffentliche Verträge zuerst
 
-Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwissen produktiv einsetzen wollen.
+Integriere Komponenten über die in `components/manifest.json` registrierten Tags und ihre `.d.ts`-Deklarationen. Verwende Attribute, Properties, Events, Slots, CSS Parts und Tokens; greife weder auf private Shadow-DOM-Knoten noch auf interne State-Objekte zu. Ein Wrapper darf einen Vertrag übersetzen, sollte ihn aber nicht heimlich erweitern.
 
-## Öffentliche Bausteine
+Halte IDs, State-Keys und Event-Namen stabil. Änderungen an einem Schema wie `xtend.rmt.component-contract.v1` benötigen eine Migration oder eine neue Version, nicht nur einen geänderten Beispieltext.
 
-- Lokale Entwicklung ohne CDN.
-- Bilinguale Dokumentation.
-- Stabile öffentliche Einstiegspunkte.
+## Arbeit dem richtigen Owner geben
 
-## Empfohlener Ablauf
+Canonical State gehört der Anwendung oder dem zuständigen Controller. Fabric-Lanes planen Arbeit, besitzen aber keinen Geschäftszustand. Ein Worker darf Snapshots normalisieren oder Daten vorbereiten, jedoch weder DOM noch Host-Services übernehmen. Bei XTensions bleiben Runtime, Container und CSS im Besitz des Hosts.
 
-Lies den Überblick, kopiere das kleinste passende Beispiel und erweitere erst danach um Host-spezifische Details.
+## Lokal und explizit laden
 
-## Nächste Schritte
+Nutze `xtend-loader.js` mit einem lokalen Manifest. Remote Surfaces brauchen Origin-Allowlist, Integrity, Capability-Policy und einen lokalen Fallback. Dynamische Imports dürfen nur bekannte Module auflösen; eine URL aus Nutzereingaben ist keine Modulreferenz.
 
-- [Quick Start](./quick-start-guide.md)
-- [Über XTend](./about.md)
-- [Enterprise Adoption](./enterprise-adoption.md)
+## Messen statt vermuten
 
-## Öffentlicher Vertrag
+Lege Budgets für Mount, Hydration und Interaktion fest und führe die passenden Gates aus. Die [XTend Dev Surface](./xtend-dev-surface.md) macht Performance, Kernel und Fabric sichtbar, ersetzt aber keinen reproduzierbaren CI-Report. Diagnose-Snapshots sollten Zeitbasis, Schema und Status ausdrücklich nennen.
 
-Best Practices ist der öffentliche Orientierung-Vertrag für `docs/de/best-practices.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
+## Fehler sichtbar degradieren
 
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Einstiegsrouten, lokale Docs-Navigation und die kleinsten lauffähigen Befehle.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
+Ein optionaler Adapter darf ausfallen, ohne den Host zu zerstören. Der Fallback muss den fehlenden Funktionsumfang benennen. Security-, Integrity- und Kernel-Fehler bleiben blockierend; sie dürfen nicht in eine allgemeine Warnung umetikettiert werden.
 
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/best-practices.md`
-- `docs/menu.json`
-- `package.json`
-- `README.md`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `xtend-loader.js`
-
-Namen:
-- `docs/de/best-practices.md`
-- `docs/menu.json`
-- `docs/de/quick-start-guide.md`
-- `docs/en/quick-start-guide.md`
-- `components/manifest.json`
-- `docs/dev-router.php`
-- `package.json`
-- `README.md`
-- `xtend-loader.js`
-- `node scripts/verify_docs_public_quality.js`
-
-Befehle:
-- `node scripts/verify_docs_public_quality.js`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/verify_docs_public_quality.js
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality references --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn Einstiegspfade auseinanderlaufen, prüfe zuerst `docs/menu.json`, die lokalen Links und den Befehl im Prüfblock.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+Beginne für eine neue Integration mit dem [Quick Start](./quick-start-guide.md). Prüfe vor einer Veröffentlichung die Befehle und Reports aus [Release Verification](./release-verification.md).

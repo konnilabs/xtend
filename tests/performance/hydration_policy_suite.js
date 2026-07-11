@@ -42,7 +42,7 @@ async function runHydrationPolicySuite(options = {}) {
   const mappingSource = readText('fabric/rmt-lane-mapping.js', rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Enterprise-Reife.md', rootDir);
   const contractDoc = readText('development/XTend-Hydration-Policy-Contract.md', rootDir);
-  const developerDocs = readText('docs/hydration-policies.md', rootDir);
+  const developerDocs = readText('docs/en/hydration-policies.md', rootDir);
   const packageManifest = readJson('package.json', rootDir);
   const policySyntax = syntaxCheckFile('fabric/hydration-policy.js', { rootDir, extension: '.js' });
   const mappingSyntax = syntaxCheckFile('fabric/rmt-lane-mapping.js', { rootDir, extension: '.js' });
@@ -234,7 +234,7 @@ async function runHydrationPolicySuite(options = {}) {
   assert(packageManifest.xtend.hydrationPolicy.localGate === 'node scripts/run_xtend_tests.js hydration-policy --json', 'Package metadata exposes local hydration policy gate');
   assert(roadmap.includes('| `ER-WP-20` | P1 | completed | Phase 3 | EPIC 08 | Lazy/Idle/Visible Hydration Policies haerten |'), 'Roadmap marks ER-WP-20 completed');
   assert(contractDoc.includes('xtend.fabric.hydration-policy.v1'), 'Contract document declares hydration policy contract');
-  assert(developerDocs.includes('npm run test:hydration-policy'), 'Developer docs document package gate');
+  assert(developerDocs.includes('node scripts/run_xtend_tests.js hydration-policy --json'), 'Developer docs document the runnable hydration policy gate');
 
   return context.result();
 }

@@ -10,7 +10,7 @@ Public anchors:
 
 - `docs/en/rmt-vnext-authoring.md`
 - `docs/en/rmt-vnext-migration-notes.md`
-- `docs/en/rmt-vnext-release-handoff.md`
+- `docs/en/rmt-vnext-migration-notes.md`
 - `xtendrmt/rmt-vnext-reference-demo.rmt`
 - `xtendrmt/rmt-vnext-reference-demo.core.json`
 

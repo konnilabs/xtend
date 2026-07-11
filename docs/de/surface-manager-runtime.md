@@ -1,80 +1,28 @@
 # SurfaceManager Runtime
 
-Die zusammengeführte Runtime-Referenz für Windows, Side Panels und Overlay-Brücken.
+Die Runtime verbindet den hostneutralen Controller mit den Custom Elements `x-surface-manager`, `x-surface-window`, `x-side-panel`, `x-surface-region`, `x-surface-portal` und der Overlay Bridge. Jede Schicht hat eine eigene Verantwortung.
 
-## Worum es geht
+## Komponentenrollen
 
-SurfaceManager bündelt Fenster, Panels, Overlays und Remote-Bereiche in einer kontrollierten Runtime. Dadurch bleiben Fokus, Layering, Persistenz und Cleanup nachvollziehbar.
+`x-surface-manager` entdeckt deklarierte Kinder, führt Controller-Operationen aus und publiziert Lifecycle-Events. Fenster und Side Panels übersetzen ihren sichtbaren Zustand in Surface Records. Regionen markieren Layoutbereiche; Portals benennen DOM-Ziele. Die Overlay Bridge integriert Dialoge, Drawer und Popovers in dieselbe Fokus- und Stack Policy.
 
-## Öffentliche Bausteine
+Die Runtime-Datei `components/xsurfacemanager.js` enthält Materialisierung, Persistenz, Layout Engine, Route Lifecycle und Remote Policy. Die öffentliche Methoden- und Eventliste steht in der [Komponentenreferenz](./components/xsurfacemanager.md).
 
-- Surface IDs und Controller Records.
-- Fenster, Panels, Portals und Overlays.
-- Fokus-, Layer- und Cleanup-Regeln.
+## Lifecycle
 
-## Empfohlener Ablauf
+Registrierung legt einen Record an, Mount materialisiert Inhalt und Open macht eine Surface sichtbar. Focus aktualisiert den aktiven Owner und den Stack. Close versteckt eine wiederverwendbare Surface; Destroy entfernt sie dauerhaft und führt Cleanup aus. Persistierte Snapshots werden erst nach Schema- und Policy-Prüfung angewendet.
 
-Vergib stabile Surface IDs, öffne und schließe Surfaces über den Controller und prüfe Fokus, Escape-Verhalten sowie Persistenz in Browser-Fixtures.
+Lazy Content darf einen Skeleton-Zustand zeigen. `hydrateSurfaceContent()` beendet ihn mit `surface-content-hydrated` oder einer sichtbaren Error-/Skipped-Diagnose. Die Runtime startet keine undokumentierten Netzwerkzugriffe während des Renderns.
 
-## Nächste Schritte
+## Grenzen
 
-- [SurfaceManager](./surface-manager-authoring-guide.md)
-- [SurfaceManager Controller](./surface-manager-controller.md)
+Der Manager besitzt Layout- und Lifecycle-State, nicht den Fachzustand innerhalb eines Fensters. Fabric erhält Diagnostics und Telemetrie, übernimmt aber nicht die Registry. Router-Adapter dürfen Surfaces öffnen oder schließen, bleiben jedoch Owner der kanonischen URL.
 
-## Öffentlicher Vertrag
+Bei fehlender Capability wird nur die betroffene Operation abgelehnt. Ein Fehler in einer Remote Surface darf lokale Fenster nicht schließen; der registrierte Fallback bleibt innerhalb derselben Surface-ID aktiv.
 
-SurfaceManager Runtime ist der öffentliche Surface-Integration-Vertrag für `docs/de/surface-manager-runtime.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
+## Weiterführend
 
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: Surface Records, Controller, Portale, Fenster, Ownership und Routing-Grenzen.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/surface-manager-runtime.md`
-- `docs/menu.json`
-- `package.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-
-Namen:
-- `docs/de/surface-manager-runtime.md`
-- `docs/menu.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-- `docs/dev-router.php`
-- `package.json`
-- `x-surface-manager`
-
-Befehle:
-- `node scripts/run_xtend_tests.js components catalog-coverage --json`
-- `node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js components catalog-coverage --json
-node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
-
-## Spezifische Fehlerbilder
-
-- Wenn eine Surface fehlt, prüfe Ownership, Portal, Window-Record und Router-Bindung in dieser Reihenfolge.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+- [Controller](./surface-manager-controller.md)
+- [Window Runtime](./surface-manager-window-runtime.md)
+- [Side Panel Runtime](./surface-manager-side-panel-runtime.md)
+- [Overlay Bridge](./surface-manager-overlay-bridge.md)

@@ -18,11 +18,11 @@ const KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
 const CANONICAL_FABRIC_BOUNDARY = 'adapter-injection-via-xtend-component-resolveFabricContext';
 
 const REQUIRED_DOCS = Object.freeze([
-  'docs/component-platform.md',
+  'development/docs-evidence/root/component-platform.md',
   'docs/typescript-components.md',
   RMT_FIRST_XTEND_APPS_DOCS,
   'docs/component-lab.md',
-  'docs/rmt-first-demo-app.md',
+  'docs/en/rmt-first-demo-app.md',
   'docs/existing-component-metadata.md',
   'docs/epic10-platform-gates.md',
   EPIC10_RELEASE_HANDOFF_DOCS,
@@ -76,7 +76,7 @@ function createEpic10ReleaseHandoffPlan(options = {}) {
     canonicalFabricBoundary: CANONICAL_FABRIC_BOUNDARY,
     docsSurface: {
       requiredDocs: REQUIRED_DOCS.slice(),
-      componentAuthoring: ['docs/component-platform.md', 'docs/typescript-components.md'],
+      componentAuthoring: ['development/docs-evidence/root/component-platform.md', 'docs/typescript-components.md'],
       rmtAuthoring: [RMT_FIRST_XTEND_APPS_DOCS, 'docs/xtendrmt-app-dsl.md'],
       migrationNotes: EPIC10_RELEASE_HANDOFF_DOCS,
       releaseHandoff: EPIC10_RELEASE_HANDOFF_DOCS

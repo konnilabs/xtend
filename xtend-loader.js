@@ -5,6 +5,7 @@ const MANIFEST_POLICY_CONTRACT = 'xtend.security.manifest-policy.v1';
 const IMPORT_POLICY_CONTRACT = 'xtend.security.import-policy.v1';
 const PERFORMANCE_MEASUREMENT_CONTRACT = 'xtend.performance.measurement.v1';
 const SKELETON_LOADER_CONTRACT = 'xtend.loader.skeleton-loader.v1';
+const SKELETON_PROFILE_CONTRACT = 'xtend.loader.skeleton-profile.v1';
 const STYLE_REGISTRY_CONTRACT = 'xtend.loader.style-registry.v1';
 const RUNTIME_STYLES_CONTRACT = 'xtend.loader.runtime-styles.v1';
 const RUNTIME_STYLE_KEY = 'xtend.runtime-critical';
@@ -414,6 +415,15 @@ ${hiddenSelectors} {
   height: 0.82rem;
   max-width: 100%;
   border-radius: 999px;
+  background: var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24));
+}
+
+[data-xtend-skeleton-item] {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--xtend-skeleton-item-radius, 999px);
   background: var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24));
 }
 
@@ -1197,17 +1207,129 @@ function collectTreeElements(root = document) {
   return elements;
 }
 
+function normalizeSkeletonCount(value, fallback = 1, maximum = 24) {
+  const fallbackNumber = Number(fallback);
+  const safeFallback = Number.isFinite(fallbackNumber) && fallbackNumber > 0
+    ? Math.floor(fallbackNumber)
+    : 1;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return Math.min(maximum, safeFallback);
+  return Math.max(1, Math.min(maximum, Math.floor(parsed)));
+}
+
 function normalizeSkeletonLoaderOptions(options = {}) {
+  const requestedProfile = options.profile || options.profileId || options.variant || options.kind || 'block';
+  const profile = typeof requestedProfile === 'string'
+    ? getSkeletonProfile(requestedProfile)
+    : normalizeSkeletonProfile(requestedProfile);
   return {
     schema: SKELETON_LOADER_CONTRACT,
-    variant: String(options.variant || options.kind || 'block').trim() || 'block',
-    lines: Math.max(1, Math.min(24, Number(options.lines || options.lineCount || 4))),
-    minHeight: String(options.minHeight || options.height || '').trim(),
+    profile: profile && profile.id || 'block',
+    profileDescriptor: profile,
+    variant: String(options.variant || options.kind || profile && profile.variant || 'block').trim() || 'block',
+    lines: normalizeSkeletonCount(options.lines || options.lineCount || profile && profile.lines, 4),
+    minHeight: String(options.minHeight || options.height || profile && profile.minHeight || '').trim(),
     label: String(options.label || options.ariaLabel || 'Inhalt wird geladen').trim(),
     source: String(options.source || 'xtend-loader').trim(),
     schedule: String(options.schedule || 'component.dynamic.hydrate').trim()
   };
 }
+
+const skeletonProfiles = new Map();
+
+function normalizeSkeletonLength(value, fallback = '') {
+  const normalized = String(value == null ? '' : value).trim();
+  if (!normalized) return fallback;
+  if (/^(?:auto|0|(?:\d+(?:\.\d+)?)(?:px|rem|em|ch|%|vh|vw|svh|svw)|var\(--[a-z0-9_-]+(?:,\s*[^)]+)?\)|(?:min|max|clamp|calc)\([^;{}]+\))$/iu.test(normalized)) return normalized;
+  return fallback;
+}
+
+function normalizeSkeletonVisualLength(value, fallback) {
+  const normalized = normalizeSkeletonLength(value, fallback);
+  return normalized === '0' ? fallback : normalized;
+}
+
+function normalizeSkeletonProfile(input = {}, fallbackId = 'block') {
+  const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
+  const id = String(source.id || source.name || fallbackId).trim().replace(/[^a-z0-9._-]+/giu, '-').replace(/^-+|-+$/gu, '') || fallbackId;
+  const rawItems = Array.isArray(source.items || source.rows) ? (source.items || source.rows) : [];
+  const items = [];
+  rawItems.forEach((item, itemIndex) => {
+    const record = item && typeof item === 'object' ? item : {};
+    const repeat = normalizeSkeletonCount(record.repeat, 1);
+    for (let repeatIndex = 0; repeatIndex < repeat; repeatIndex += 1) {
+      items.push({
+        id: String(record.id || `item-${itemIndex + 1}-${repeatIndex + 1}`),
+        kind: ['line', 'block', 'circle'].includes(record.kind) ? record.kind : 'line',
+        width: normalizeSkeletonVisualLength(record.width, '100%'),
+        height: normalizeSkeletonVisualLength(record.height, record.kind === 'block' ? '3rem' : '0.82rem'),
+        gridColumn: String(record.gridColumn || record.column || '').replace(/[^a-z0-9 /._-]+/giu, '').trim(),
+        radius: normalizeSkeletonLength(record.radius, record.kind === 'circle' ? '50%' : '999px')
+      });
+    }
+  });
+  const responsiveSource = source.responsive && typeof source.responsive === 'object' ? source.responsive : {};
+  const normalizeViewport = (value = {}) => {
+    const viewport = value && typeof value === 'object' ? value : {};
+    return Object.freeze({
+      minHeight: normalizeSkeletonLength(viewport.minHeight || viewport.height, ''),
+      columns: String(viewport.columns || '').replace(/[;{}]/gu, '').trim(),
+      gap: normalizeSkeletonLength(viewport.gap, '')
+    });
+  };
+  return Object.freeze({
+    schema: SKELETON_PROFILE_CONTRACT,
+    id,
+    variant: String(source.variant || id).trim() || id,
+    lines: normalizeSkeletonCount(source.lines || source.lineCount || items.length, 4),
+    minHeight: normalizeSkeletonLength(source.minHeight || source.height, ''),
+    columns: String(source.columns || '').replace(/[;{}]/gu, '').trim(),
+    gap: normalizeSkeletonLength(source.gap, '0.68rem'),
+    responsive: Object.freeze({
+      breakpoint: normalizeSkeletonLength(responsiveSource.breakpoint, '700px'),
+      compact: normalizeViewport(responsiveSource.compact),
+      wide: normalizeViewport(responsiveSource.wide)
+    }),
+    items
+  });
+}
+
+function registerSkeletonProfile(id, descriptor = {}) {
+  const profile = normalizeSkeletonProfile({ ...descriptor, id: id || descriptor.id }, id || 'block');
+  skeletonProfiles.set(profile.id, profile);
+  return profile;
+}
+
+function getSkeletonProfile(id) {
+  const profile = skeletonProfiles.get(String(id || '').trim());
+  return profile ? normalizeSkeletonProfile(profile, profile.id) : null;
+}
+
+function listSkeletonProfiles() {
+  return Array.from(skeletonProfiles.values()).map((profile) => normalizeSkeletonProfile(profile, profile.id));
+}
+
+[
+  { id: 'block', lines: 4 },
+  { id: 'route', minHeight: '12rem', items: [
+    { kind: 'line', width: '42%', height: '1.35rem' },
+    { kind: 'line', width: '94%' },
+    { kind: 'line', width: '84%' },
+    { kind: 'line', width: '68%' },
+    { kind: 'block', width: '100%', height: '5rem', radius: '8px' }
+  ] },
+  { id: 'article', minHeight: '24rem', items: [
+    { kind: 'line', width: '48%', height: '1.5rem' },
+    { kind: 'line', width: '96%', repeat: 3 },
+    { kind: 'line', width: '72%' },
+    { kind: 'block', width: '100%', height: '8rem', radius: '8px' },
+    { kind: 'line', width: '92%', repeat: 2 }
+  ] },
+  { id: 'list', items: [{ kind: 'line', width: '88%', repeat: 6 }] },
+  { id: 'form', columns: 'minmax(0, 1fr) minmax(0, 1fr)', items: [
+    { kind: 'block', width: '100%', height: '2.75rem', radius: '6px', repeat: 4 }
+  ] }
+].forEach((profile) => registerSkeletonProfile(profile.id, profile));
 
 function applySkeletonLineStyle(line, index, total) {
   const widths = ['72%', '94%', '84%', '58%', '88%', '66%'];
@@ -1225,6 +1347,7 @@ function createSkeletonLoader(options = {}) {
   const skeleton = document.createElement('div');
   skeleton.setAttribute('data-xtend-skeleton-loader', '');
   skeleton.setAttribute('data-xtend-skeleton-variant', normalized.variant);
+  skeleton.setAttribute('data-xtend-skeleton-profile', normalized.profile);
   skeleton.setAttribute('data-xtend-skeleton-source', normalized.source);
   skeleton.setAttribute('data-xtend-skeleton-schedule', normalized.schedule);
   skeleton.setAttribute('role', 'status');
@@ -1246,14 +1369,54 @@ function createSkeletonLoader(options = {}) {
     skeleton.style.minHeight = normalized.minHeight;
   }
 
-  for (let index = 0; index < normalized.lines; index += 1) {
-    const line = document.createElement('span');
-    line.setAttribute('data-xtend-skeleton-line', '');
-    applySkeletonLineStyle(line, index, normalized.lines);
-    skeleton.appendChild(line);
+  const profile = normalized.profileDescriptor;
+  const breakpoint = profile && profile.responsive && profile.responsive.breakpoint || '700px';
+  const compactViewport = typeof window.matchMedia === 'function' && window.matchMedia(`(max-width: ${breakpoint})`).matches;
+  const viewportProfile = profile && profile.responsive
+    ? (compactViewport ? profile.responsive.compact : profile.responsive.wide)
+    : null;
+  if (profile && profile.gap) skeleton.style.gap = profile.gap;
+  if (profile && profile.columns) skeleton.style.gridTemplateColumns = profile.columns;
+  if (viewportProfile && viewportProfile.gap) skeleton.style.gap = viewportProfile.gap;
+  if (viewportProfile && viewportProfile.columns) skeleton.style.gridTemplateColumns = viewportProfile.columns;
+  if (viewportProfile && viewportProfile.minHeight) skeleton.style.minHeight = viewportProfile.minHeight;
+  skeleton.setAttribute('data-xtend-skeleton-viewport', compactViewport ? 'compact' : 'wide');
+
+  if (profile && profile.items.length > 0) {
+    profile.items.forEach((item) => {
+      const skeletonItem = document.createElement('span');
+      skeletonItem.setAttribute('data-xtend-skeleton-item', item.kind);
+      skeletonItem.setAttribute('data-xtend-skeleton-item-id', item.id);
+      skeletonItem.style.display = 'block';
+      skeletonItem.style.width = item.width;
+      skeletonItem.style.maxWidth = '100%';
+      skeletonItem.style.height = item.height;
+      skeletonItem.style.borderRadius = item.radius;
+      skeletonItem.style.background = 'var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24))';
+      skeletonItem.style.boxSizing = 'border-box';
+      if (item.gridColumn) skeletonItem.style.gridColumn = item.gridColumn;
+      skeleton.appendChild(skeletonItem);
+    });
   }
 
+  if (!skeleton.querySelector('[data-xtend-skeleton-item], [data-xtend-skeleton-line]')) {
+    for (let index = 0; index < normalized.lines; index += 1) {
+      const line = document.createElement('span');
+      line.setAttribute('data-xtend-skeleton-line', '');
+      applySkeletonLineStyle(line, index, normalized.lines);
+      skeleton.appendChild(line);
+    }
+  }
+
+  skeleton.setAttribute('data-xtend-skeleton-visual-count', String(skeleton.children.length));
+
   return skeleton;
+}
+
+function skeletonHasVisualRecords(skeleton) {
+  return Boolean(skeleton && typeof skeleton.querySelector === 'function' && skeleton.querySelector(
+    '[data-xtend-skeleton-item], [data-xtend-skeleton-line]'
+  ));
 }
 
 function findDirectSkeleton(target) {
@@ -1271,12 +1434,17 @@ function showSkeleton(target, options = {}) {
   if (!target || typeof target.appendChild !== 'function') return null;
   const normalized = normalizeSkeletonLoaderOptions(options);
   const existing = findDirectSkeleton(target);
-  if (existing) {
+  const reusable = existing &&
+    skeletonHasVisualRecords(existing) &&
+    existing.getAttribute('data-xtend-skeleton-profile') === normalized.profile &&
+    existing.getAttribute('data-xtend-skeleton-variant') === normalized.variant;
+  if (reusable) {
     existing.setAttribute('data-xtend-skeleton-source', normalized.source);
     existing.setAttribute('data-xtend-skeleton-schedule', normalized.schedule);
     existing.setAttribute('aria-label', normalized.label);
     return existing;
   }
+  if (existing) existing.remove();
 
   if (target.nodeType === 1 && typeof target.setAttribute === 'function') {
     target.setAttribute('data-xtend-skeleton-active', 'true');
@@ -1305,6 +1473,10 @@ function hideSkeleton(target, options = {}) {
 
 const SkeletonLoader = Object.freeze({
   schema: SKELETON_LOADER_CONTRACT,
+  profileSchema: SKELETON_PROFILE_CONTRACT,
+  registerProfile: registerSkeletonProfile,
+  getProfile: getSkeletonProfile,
+  listProfiles: listSkeletonProfiles,
   create: createSkeletonLoader,
   show: showSkeleton,
   hide: hideSkeleton
@@ -1686,6 +1858,7 @@ window.XTendLoader = Object.freeze({
   runtimeStylesContract: RUNTIME_STYLES_CONTRACT,
   skeletonLoader: SkeletonLoader,
   skeletonLoaderContract: SKELETON_LOADER_CONTRACT,
+  skeletonProfileContract: SKELETON_PROFILE_CONTRACT,
   verbose: configureLoaderVerbose,
   setVerbose: setLoaderVerbose,
   enableVerbose: () => setLoaderVerbose(true),

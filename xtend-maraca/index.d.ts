@@ -18,6 +18,8 @@ export const MARACA_VALIDATION_PLAN_SCHEMA: 'xtend.maraca.validation-plan.v1';
 export const MARACA_TRANSITION_PLAN_SCHEMA: 'xtend.maraca.transition-plan.v1';
 export const MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA: 'xtend.maraca.template-artifacts-report.v1';
 export const MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA: 'xtend.maraca.production-bundle-closure.v1';
+export const MARACA_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v1';
+export const MARACA_TUNE_REPORT_SCHEMA: 'xtend.maraca.tune-report.v1';
 
 export type MaracaProfile = 'debug' | 'production' | 'max';
 export type MaracaLazyMode = 'route' | 'component' | 'none';
@@ -36,6 +38,9 @@ export interface MaracaBuildInput {
   virtualSourcePath?: string;
   filePath?: string;
   sourcePath?: string;
+  config?: string;
+  configPath?: string;
+  'build-config'?: string;
   out?: string;
   outDir?: string;
   profile?: MaracaProfile;
@@ -92,6 +97,8 @@ export interface MaracaBuildInput {
   policyParityContracts?: Array<Record<string, unknown>>;
   policyParityRuntimeHooks?: string[];
   policyParityRequiredFactories?: string[];
+  write?: boolean | string;
+  check?: boolean | string;
   _?: string[];
 }
 
@@ -891,6 +898,78 @@ export interface MaracaSizeBudgetReport {
   bundleBytes: number;
 }
 
+export interface MaracaBuildConfig {
+  schema: typeof MARACA_BUILD_CONFIG_SCHEMA;
+  source: string;
+  sourceFingerprint: string;
+  output: string;
+  selected: {
+    profile: 'production' | 'max';
+    lazy: MaracaLazyMode;
+    css: MaracaCssMode;
+  };
+  locked: Record<string, unknown>;
+  options: MaracaBuildInput;
+  toolchain: {
+    rollup: string | null;
+    terser: string | null;
+    mode: 'rollup-terser';
+  };
+  candidateMatrixFingerprint: string;
+  configFingerprint: string;
+}
+
+export interface MaracaTuneCandidate {
+  id: string;
+  profile: 'production' | 'max';
+  lazy: MaracaLazyMode;
+  css: MaracaCssMode;
+  accepted: boolean;
+  status: string;
+  reason: string;
+  metrics: {
+    eagerBytes: number;
+    totalBytes: number;
+    eagerRequests: number;
+    chunkCount: number;
+  };
+  toolchain: string;
+  warningCount: number;
+  diagnosticCount: number;
+  errorCount: number;
+}
+
+export interface MaracaTuneReport {
+  schema: typeof MARACA_TUNE_REPORT_SCHEMA;
+  ok: boolean;
+  status: 'planned' | 'written' | 'checked' | 'blocked';
+  source?: string;
+  sourceFingerprint?: string;
+  configPath: string;
+  reportPath?: string;
+  output?: string;
+  candidateMatrixFingerprint?: string;
+  candidateCount?: number;
+  acceptedCandidateCount?: number;
+  candidates: MaracaTuneCandidate[];
+  selected?: {
+    id: string;
+    profile: 'production' | 'max';
+    lazy: MaracaLazyMode;
+    css: MaracaCssMode;
+    metrics: MaracaTuneCandidate['metrics'];
+  } | null;
+  config?: MaracaBuildConfig | null;
+  configMatches?: boolean;
+  finalBuild?: {
+    status: string;
+    bytes: number;
+    entry: string;
+    toolchain: string;
+  } | null;
+  diagnostics: MaracaDiagnostic[];
+}
+
 export function createMaracaBuildPlan(input?: string | MaracaBuildInput, options?: MaracaRunOptions): MaracaBuildPlan;
 export function buildMaracaBundle(input?: string | MaracaBuildInput, options?: MaracaRunOptions): {
   schema: typeof MARACA_BUNDLE_REPORT_SCHEMA;
@@ -908,6 +987,11 @@ export function buildMaracaBundleAsync(input?: string | MaracaBuildInput, option
   bundleReport: MaracaBundleReport | null;
   sizeBudgetReport: MaracaSizeBudgetReport | null;
 }>;
+export function createMaracaTuneConfig(input?: Record<string, unknown>): MaracaBuildConfig;
+export function tuneMaracaBuild(
+  input?: string | MaracaBuildInput,
+  options?: MaracaRunOptions
+): Promise<MaracaTuneReport>;
 export function createMaracaKernelFeatureAdoptionReport(input?: {
   rootDir?: string;
   enabled?: boolean;

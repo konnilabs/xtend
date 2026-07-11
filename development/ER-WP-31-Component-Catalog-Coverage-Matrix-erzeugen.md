@@ -29,7 +29,7 @@ Damit ist der bisher diffuse Blind Spot "Component Catalog Breitenhaertung" in e
 | `catalog/component-catalog-coverage.js` | maschinenlesbarer Report, Validator, Gate und Markdown-Matrix |
 | `tests/catalog/component_catalog_coverage_suite.js` | lokaler Gate fuer Matrix, Statusmodell, Package-Metadaten und Docs |
 | `development/XTend-Component-Catalog-Coverage-Matrix.md` | akzeptierte Coverage Matrix und Handoff |
-| `docs/component-catalog-coverage.md` | Entwicklerdokumentation fuer Matrix und Gate |
+| `development/docs-evidence/root/component-catalog-coverage.md` | Entwicklerdokumentation fuer Matrix und Gate |
 | `package.json` | Export `./catalog/component-catalog-coverage`, Script `npm run test:catalog-coverage`, Package-Metadaten |
 | `scripts/run_xtend_tests.js` | Suite-ID `catalog-coverage` |
 

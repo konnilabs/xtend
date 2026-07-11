@@ -78,7 +78,7 @@
       "targetStatus": "gate-residual-ready",
       "claimBoundary": "no-public-completeness-claim-before-docs-quality",
       "requiredGates": ["docs-public-quality", "native-first-docs-authoring", "references"],
-      "sourceArtifacts": ["development/XTend-Native-First-Docs-Authoring-Guides-Contract.md", "docs/README.md", "docs/de/README.md", "docs/en/README.md"],
+      "sourceArtifacts": ["development/XTend-Native-First-Docs-Authoring-Guides-Contract.md", "docs/en/README.md", "docs/de/README.md", "docs/en/README.md"],
       "blockedClaims": ["public-docs-complete", "localized-docs-clean"],
       "nextHandoff": ["WP-RMO-02"]
     },

@@ -90,7 +90,7 @@ node scripts/run_xtend_tests.js references --json
 
 - Jeder Guide besitzt `docs/de/*` und `docs/en/*`.
 - Jeder Guide ist in `docs/menu.json` eingetragen.
-- `docs/de/README.md`, `docs/en/README.md` und `docs/README.md` referenzieren die Guide-Familie.
+- `docs/de/README.md`, `docs/en/README.md` und `docs/en/README.md` referenzieren die Guide-Familie.
 - Oeffentliche Guides nennen keine internen Workpackage-, Handoff-, Gate-Matrix- oder Release-Owner-Planungsbegriffe.
 - Oeffentliche Guides verwenden keine Framework-Parity-Claims wie "genau wie React/Vue/Angular".
 - Oeffentliche Guides empfehlen keine neue Runtime-Dependency als Komfortpfad.

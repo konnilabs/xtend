@@ -117,9 +117,9 @@ Wenn diese Netzwerk-Gates nicht laufen, muss der Release-Kandidat den Grund doku
 | `.xtend-test-results/xtend-release-report.json` | ja | lokaler Release Report |
 | `.xtend-test-results/xtend-rc0-gate-matrix-report.json` | ja | RC0 Gate Matrix Self Check |
 | `docs/rc0-adoption-guide.md` | ja | RC0 Migration Notes und Enterprise Adoption |
-| `docs/epic12-rc0-handoff.md` | ja | RC0 Owner Review Handoff |
-| `docs/rc1-readiness.md` | ja | RC1 Readiness und offene Gate-Luecken |
-| `docs/release-owner-acceptance.md` | ja | Epic 13 Release Owner Acceptance und Publish Boundary |
+| `development/docs-evidence/legacy-routes/en/epic12-rc0-handoff.md` | ja | RC0 Owner Review Handoff |
+| `development/docs-evidence/legacy-routes/en/rc1-readiness.md` | ja | RC1 Readiness und offene Gate-Luecken |
+| `development/docs-evidence/legacy-routes/en/release-owner-acceptance.md` | ja | Epic 13 Release Owner Acceptance und Publish Boundary |
 | `development/XTend-Epic13-Release-Owner-Acceptance-Contract.md` | ja | Owner Checklist, Deferrals und blockierte automatische Publish-Freigabe |
 | `development/XTend-RC1-Release-Owner-Publish-Decision.md` | ja | separater Owner-Publish-Entscheid fuer RC1 mit akzeptierten Audit/SBOM-, License-, Version- und `private: false`-Entscheiden |
 | `docs/conditional-network-evidence.md` | ja | Conditional Network Evidence und Deferral-Regeln |
@@ -129,17 +129,17 @@ Wenn diese Netzwerk-Gates nicht laufen, muss der Release-Kandidat den Grund doku
 | `docs/rmt-production-readiness.md` | ja | RMT-first App Shell, Routing, Components, Fabric/Lanes, Diagnostics und Artifact Parity als RC1-Buendel |
 | `development/XTend-Epic13-RMT-Production-Readiness-Contract.md` | ja | RMT Production Readiness Contract und Kernel Boundary |
 | `.xtend-test-results/xtend-epic13-rmt-production-readiness-report.json` | ja | RMT Production Readiness Report |
-| `docs/docs-rmt-production-hardening.md` | ja | Docs-App RMT Extension-Slots, Parsedown-Host-Boundary und Diagnostics |
+| `docs/en/xtendrmt-parsedown-scheduling.md` | ja | Nutzerorientierte RMT-/Parsedown-Ownership, Trusted-DOM-Grenze und Diagnostik |
 | `development/XTend-Epic13-Docs-RMT-Production-Hardening-Contract.md` | ja | Docs RMT Production Hardening Contract |
 | `.xtend-test-results/xtend-epic13-docs-rmt-production-hardening-report.json` | ja | Docs RMT Production Hardening Report |
-| `docs/trusted-dom-boundary-browser-proof.md` | ja | Trusted DOM Boundary Browser Proof fuer Parsedown/RMT HTML |
+| `docs/en/trusted-dom-boundary-browser-proof.md` | ja | Trusted DOM Boundary Browser Proof fuer Parsedown/RMT HTML |
 | `development/XTend-Epic13-Trusted-DOM-Boundary-Contract.md` | ja | Trusted DOM Boundary Contract |
 | `.xtend-test-results/xtend-epic13-trusted-dom-boundary-report.json` | ja | Trusted DOM Boundary Report |
 | `tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html` | ja | Browsernahe Trusted-DOM-Fixture |
 | `docs/rc1-migration-notes.md` | ja | RC1 Migration Notes, SemVer-Entscheid und Consumer-Kommunikation |
 | `development/XTend-Epic13-RC1-Migration-Notes-und-SemVer-Entscheid.md` | ja | maschinenlesbarer Migration-/SemVer-Contract |
 | `.xtend-test-results/xtend-epic13-rc1-migration-notes-report.json` | ja | RC1 Migration Notes Report |
-| `docs/rc1-gate-matrix-ci-handoff.md` | ja | RC1 Gate Matrix und CI-Handoff |
+| `development/docs-evidence/legacy-routes/en/rc1-gate-matrix-ci-handoff.md` | ja | RC1 Gate Matrix und CI-Handoff |
 | `development/XTend-Epic13-RC1-Gate-Matrix-und-CI-Handoff.md` | ja | Source Gates, CI Lanes, Reports und Handoff Contract |
 | `.xtend-test-results/xtend-epic13-rc1-gate-matrix-ci-handoff-report.json` | ja | RC1 Gate Matrix und CI-Handoff Report |
 | `docs/release-report-pack-dry-run-evidence.md` | ja | Release Report und Pack Dry Run Owner-Evidence |
@@ -161,7 +161,7 @@ Wenn diese Netzwerk-Gates nicht laufen, muss der Release-Kandidat den Grund doku
 | `docs/prod-browser-csp-smokes.md` | ja | PROD-nahe Browser-/CSP-Smokes |
 | `development/XTend-Epic13-PROD-Browser-CSP-Smoke-Contract.md` | ja | Nonce, same-origin Manifest, lokaler CSP Header und Browser-Fixture |
 | `tests/browser/fixtures/epic13-prod-csp-smoke.html` | ja | PROD-nahe Browser-Fixture |
-| `docs/visual-owner-artifacts.md` | ja | Visual Owner Artifact und Screenshot-Pfadkonvention |
+| `docs/en/visual-snapshot-automation.md` | ja | Nutzerorientierter Visual-Snapshot-Workflow; Owner-Evidence liegt unter `development/` |
 | `development/XTend-Epic13-Visual-Owner-Artifact-Contract.md` | ja | Manifest, Viewports und optionale Screenshot-/Pixel-Artefakte |
 | `tests/browser/visual-baselines/rc1-visual-owner-artifact.manifest.json` | ja | RC1 Visual Owner Artifact Manifest |
 | `.xtend-test-results/visual-snapshots/rc1/visual-owner-artifact-report.json` | nein | optionaler Owner-/CI-Report fuer Screenshot-Artefakte |

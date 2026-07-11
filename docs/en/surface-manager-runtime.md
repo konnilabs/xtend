@@ -1,80 +1,28 @@
 # SurfaceManager Runtime
 
-The merged runtime reference for windows, side panels and overlay bridges.
+The runtime connects the host-neutral controller to `x-surface-manager`, `x-surface-window`, `x-side-panel`, `x-surface-region`, `x-surface-portal`, and the overlay bridge. Each layer has a distinct responsibility.
 
-## What it covers
+## Component roles
 
-SurfaceManager groups windows, panels, overlays and remote areas into a controlled runtime. Focus, layering, persistence and cleanup stay traceable.
+`x-surface-manager` discovers declared children, executes controller operations, and publishes lifecycle events. Windows and side panels translate visible state into surface records. Regions mark layout areas; portals identify DOM targets. The overlay bridge brings dialogs, drawers, and popovers into the same focus and stack policy.
 
-## Public building blocks
+`components/xsurfacemanager.js` contains materialization, persistence, layout engine, route lifecycle, and remote policy. The public method and event list is in the [component reference](./components/xsurfacemanager.md).
 
-- Surface IDs and controller records.
-- Windows, panels, portals and overlays.
-- Focus, layer and cleanup rules.
+## Lifecycle
 
-## Recommended workflow
+Registration creates a record, mount materializes content, and open makes a surface visible. Focus updates active ownership and stack order. Close hides a reusable surface; destroy removes it permanently and performs cleanup. Persisted snapshots apply only after schema and policy validation.
 
-Assign stable surface IDs, open and close surfaces through the controller and check focus, Escape behavior and persistence in browser fixtures.
+Lazy content may expose a skeleton state. `hydrateSurfaceContent()` ends it with `surface-content-hydrated` or a visible error or skipped diagnostic. The runtime starts no undocumented network request during render.
 
-## Next steps
+## Boundaries
 
-- [SurfaceManager](./surface-manager-authoring-guide.md)
-- [SurfaceManager Controller](./surface-manager-controller.md)
+The manager owns layout and lifecycle state, not domain state inside a window. Fabric receives diagnostics and telemetry but does not own the registry. Router adapters may open or close surfaces while remaining responsible for the canonical URL.
 
-## Public contract
+A missing capability refuses only the affected operation. Failure in a remote surface must not close local windows; its registered fallback remains active under the same surface ID.
 
-SurfaceManager Runtime is the public surface integration contract for `docs/en/surface-manager-runtime.md`. The stable signal is not article length; it is whether an external host can verify the named files, names and checks without private project knowledge.
+## Continue reading
 
-- Role: explains which decision an integrator can make from this page.
-- Stable surface: surface records, controllers, portals, windows, ownership and routing boundaries.
-- Not promised: Private runtime internals, generated DOM structures and internal planning terms stay outside the public contract.
-
-## Interfaces and anchors
-
-These anchors are concrete enough for a third-party developer to verify behavior locally:
-
-Sources:
-- `docs/en/surface-manager-runtime.md`
-- `docs/menu.json`
-- `package.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-
-Names:
-- `docs/en/surface-manager-runtime.md`
-- `docs/menu.json`
-- `components/xsurfacemanager.js`
-- `components/xsurfacewindow.js`
-- `components/xsurfaceportal.js`
-- `src/components/x-surface-manager/x-surface-manager.ts`
-- `src/components/x-surface-manager/surface-controller.ts`
-- `docs/dev-router.php`
-- `package.json`
-- `x-surface-manager`
-
-Commands:
-- `node scripts/run_xtend_tests.js components catalog-coverage --json`
-- `node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json`
-- `node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json`
-
-## Minimal verification path
-
-Run this check when the article, an example or the named public surface changes:
-
-```bash
-node scripts/run_xtend_tests.js components catalog-coverage --json
-node scripts/run_xtend_tests.js surface-manager-performance surface-manager-visual --json
-node scripts/run_xtend_tests.js docs-content-depth docs-public-quality --json
-```
-
-- Expected signal: The command must finish without link errors, without known boilerplate and with concrete anchors in the article.
-- Sources: If source and article disagree, source wins; then update both locales with identical code blocks.
-
-## Specific failure modes
-
-- If a surface is missing, check ownership, portal, window record and router binding in that order.
-- If a link from this article breaks, repair the local Markdown target path and then run `node scripts/verify_docs_public_quality.js`.
-- If an example is copied, file paths, record names and commands from this section must stay runnable as written.
+- [Controller](./surface-manager-controller.md)
+- [Window Runtime](./surface-manager-window-runtime.md)
+- [Side Panel Runtime](./surface-manager-side-panel-runtime.md)
+- [Overlay Bridge](./surface-manager-overlay-bridge.md)

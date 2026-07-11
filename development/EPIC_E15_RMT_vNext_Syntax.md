@@ -66,7 +66,7 @@
   - `development/WP-E15-18-Docs-Reference-Demo-Release-Gates-und-Handoff-finalisieren.md`
   - `docs/rmt-vnext-authoring.md`
   - `docs/rmt-vnext-migration-notes.md`
-  - `docs/rmt-vnext-release-handoff.md`
+  - `development/docs-evidence/legacy-routes/en/rmt-vnext-release-handoff.md`
   - `xtendrmt/rmt-vnext-reference-demo.rmt`
   - `xtendrmt/rmt-vnext-reference-demo.core.json`
   - `development/XTendRMT-Upstream-Handoff-Spezifikation.md`
@@ -1252,7 +1252,7 @@ Naechstes primaeres Paket:
   - Workpackage-Dokument: `development/WP-E15-18-Docs-Reference-Demo-Release-Gates-und-Handoff-finalisieren.md`
   - Authoring Guide: `docs/rmt-vnext-authoring.md`
   - Migration Notes: `docs/rmt-vnext-migration-notes.md`
-  - Release Handoff: `docs/rmt-vnext-release-handoff.md`
+  - Release Handoff: `development/docs-evidence/legacy-routes/en/rmt-vnext-release-handoff.md`
   - Modul: `tools/rmt-language/vnext-release.js`
   - Gate: `node scripts/run_xtend_tests.js rmt-vnext-release --json`
   - Package Export: `./rmt-language/vnext-release`

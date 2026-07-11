@@ -14,10 +14,10 @@
 - `development/XTend-SurfaceManager-Release-Handoff-Contract.md` definiert den Abschlusscontract `xtend.surface.release-handoff.v1`.
 - `catalog/surface-manager-release-handoff.js` beschreibt Authoring-Modi, Component-Lab-Panels, Migrationsschritte, Gates und Release Boundary.
 - `tests/fixtures/rmt-surface-manager-component-lab.rmt` zeigt eine SurfaceManager-Lab-Shell mit `x-surface-manager`, zwei Windows, zwei SidePanels, einem Dialog und nativen `surfaces[*]` Dual Records.
-- `docs/surface-manager-authoring-guide.md` erklaert, wann `components[*].metadata.surface` reicht und wann `surfaces[*]` bevorzugt wird.
+- `docs/en/surface-manager-authoring-guide.md` erklaert, wann `components[*].metadata.surface` reicht und wann `surfaces[*]` bevorzugt wird.
 - `docs/surface-manager-component-lab.md` dokumentiert die Lab-Panels `surface-preview`, `native-rmt-inspector`, `migration-diff`, `quality-gates` und `source-links`.
-- `docs/surface-manager-migration-guide.md` beschreibt die additive Migration von `components[*].metadata.surface` nach `surfaces[*]`.
-- `docs/surface-manager-release-handoff.md` buendelt den finalen Gate- und Release-Handoff.
+- `docs/en/surface-manager-migration-guide.md` beschreibt die additive Migration von `components[*].metadata.surface` nach `surfaces[*]`.
+- `development/docs-evidence/root/surface-manager-release-handoff.md` buendelt den finalen Gate- und Release-Handoff.
 - `tests/rmt/surface_manager_release_handoff_suite.js` registriert den lokalen Gate `surface-release-handoff`.
 
 ## Release-Entscheidung

@@ -20,3 +20,15 @@ All three variants use the same evidence style: read the source, compile RMT, ev
 ## Extension Rules
 
 When adding a new variant, name the behavior before the domain. Good names describe structure, such as queue, board, catalog or review, and stay free of customer vocabulary. Then define which resource, surface, action and event prove the case. The local `rmt-app-platform-fixture` gate must run the case without network access, without an external renderer and without hidden build prerequisites. Only then does the variant count as release evidence.
+
+## Related reading
+
+The tooling guide shows how to lint and compile the fixture before running browser checks. [Related article](./rmt-app-platform-tooling.md)
+
+## Run the fixture
+
+```bash
+node scripts/run_xtend_tests.js rmt-app-platform-fixture --json
+```
+
+On failure, inspect the suite, diagnostic code, and affected variant in the JSON report. Change `tests/fixtures/rmt-app-platform-fixture.rmt` next; regenerate core JSON only from an intentional source change.

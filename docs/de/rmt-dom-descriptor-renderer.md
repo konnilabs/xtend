@@ -1,80 +1,60 @@
 # RMT DOM Descriptor Renderer
 
-Sichere DOM Descriptoren statt manuellem HTML als Runtime-Ausgabe.
+Der RMT DOM Descriptor Renderer wandelt strukturierte RMT Records in Browser-Nodes um, ohne Anwendungsdaten als HTML zu behandeln. Verwende ihn, wenn ein RMT Template, Component Binding oder eine Surface owned DOM materialisieren soll und die Trust Boundary überprüfbar bleiben muss.
 
-## Worum es geht
+Der Runtime-Vertrag ist `xtend.epic18.rmt-dom-descriptor-renderer.v1`. Implementierung und Deklarationen liegen in `xtendrmt/rmt-dom-descriptor-renderer.js` und `xtendrmt/rmt-dom-descriptor-renderer.d.ts`; der Package-Subpath lautet `@ccslabs/xtend/rmt/dom-descriptor-renderer`.
 
-RMT DOM Descriptor Renderer beschreibt die öffentliche RMT-Oberfläche dieser Seite: welche Records betroffen sind, welche Adapter sie ausüben und welche Scheduler-Signale ein Host prüfen sollte.
+## Mental Model
 
-## Öffentliche Bausteine
+Ein Descriptor sagt, welche Art von Node erzeugt werden soll. Er kann ein Element, Text, eine registrierte XTend-Komponente, eine Bedingung, wiederholte Records oder einen Slot beschreiben. Der Renderer löst diese Struktur gegen explizite Model-, Selector-, Template- und Component-Registries auf. Danach materialisiert er das Ergebnis mit `createElement`, `createTextNode`, `createDocumentFragment` und `replaceChildren`.
 
-- `.rmt` Quellen.
-- Core Records und Source Maps.
-- Host Adapter für DOM, Router und Komponenten.
+Der Root bleibt im Besitz des Hosts. `render()` ersetzt nur die Kinder des übergebenen Roots und markiert ihn mit dem Renderer-Schema. `renderKeyed()` verwendet passende keyed Children erneut; `patchElement()` aktualisiert ein bestehendes owned Element. Keine dieser Operationen überträgt RMT die Ownership über das gesamte Dokument.
 
-## Empfohlener Ablauf
+## Minimales Beispiel
 
-Beginne bei RMT DOM Descriptor Renderer mit dem kleinsten Record-Beispiel, prüfe es mit dem Linter und binde erst danach Adapter für Host-Daten, Routing oder Komponenten an.
+```js
+import { createRmtDomDescriptorRenderer } from '@ccslabs/xtend/rmt/dom-descriptor-renderer';
 
-## Nächste Schritte
+const root = document.querySelector('[data-rmt-host]');
+const renderer = createRmtDomDescriptorRenderer({ documentTarget: document });
 
-- [XTendRMT Überblick](./xtendrmt-overview.md)
-- [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT Linter](./rmt-linter.md)
-- [RMT Language Server](./rmt-language-server.md)
+const result = renderer.render(root, {
+  type: 'element',
+  tag: 'section',
+  attributes: { 'aria-label': 'Build-Status' },
+  children: [
+    { type: 'text', text: 'Bereit' }
+  ]
+});
 
-## Öffentlicher Vertrag
-
-RMT DOM Descriptor Renderer ist der öffentliche RMT Runtime-Vertrag für `docs/de/rmt-dom-descriptor-renderer.md`. Stabil ist nicht die Textlänge, sondern ob ein externer Host die genannten Dateien, Namen und Prüfungen ohne internes Projektwissen nachvollziehen kann.
-
-- Rolle: erklärt, welche Entscheidung ein Integrator auf dieser Seite treffen kann.
-- Stabile Oberfläche: RMT Records, Compiler-Ausgaben, Runtime-Adapter, Events, Actions und Scheduler-Lanes.
-- Nicht versprochen: Private Runtime-Interna, generierte DOM-Strukturen und interne Planungsbegriffe bleiben außerhalb des öffentlichen Vertrags.
-
-## Schnittstellen und Anker
-
-Diese Anker sind konkret genug, damit ein Drittentwickler Verhalten lokal nachprüfen kann:
-
-Quellen:
-- `docs/de/rmt-dom-descriptor-renderer.md`
-- `docs/menu.json`
-- `package.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-
-Namen:
-- `docs/de/rmt-dom-descriptor-renderer.md`
-- `docs/menu.json`
-- `docs/xtendrmt-docs-shell-vnext.rmt`
-- `tools/rmt-language/parser.js`
-- `tools/rmt-language/vnext-compiler.js`
-- `tools/rmt-language/vnext-scheduler.js`
-- `tools/rmt-language/vnext-surfaces.js`
-- `docs/dev-router.php`
-- `package.json`
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-
-Befehle:
-- `node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json`
-- `node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json`
-
-## Minimaler Prüfpfad
-
-Führe diese Prüfung aus, wenn der Artikel, ein Beispiel oder die genannte öffentliche Oberfläche geändert wird:
-
-```bash
-node scripts/run_xtend_tests.js rmt-stack-docs rmt-playground-docs --json
-node scripts/run_xtend_tests.js rmt-linter-cli rmt-language-server --json
+console.log(result.nodeCount, result.diagnostics);
 ```
 
-- Erwartetes Signal: Der Befehl muss ohne Linkfehler, ohne bekannte Boilerplate und mit konkreten Ankern im Artikel abschließen.
-- Quellen: Wenn Source und Artikel voneinander abweichen, ist die Source maßgeblich; aktualisiere danach beide Locales mit identischen Codeblöcken.
+Das Result verwendet `xtend.epic18.rmt-dom-render-result.v1`. Übergib Source Locations in den Render-Optionen, wenn Diagnostics auf Dokument, Template, Node, Zeile oder Spalte zurückführen sollen.
 
-## Spezifische Fehlerbilder
+## Trust Boundary
 
-- Wenn Runtime-Verhalten anders wirkt, trenne Compiler-Record, Host-Adapter und Scheduler-Signal, bevor du die Doku änderst.
-- Wenn ein Link aus diesem Artikel bricht, repariere den lokalen Markdown-Zielpfad und prüfe danach `node scripts/verify_docs_public_quality.js`.
-- Wenn ein Beispiel kopiert wird, müssen Dateipfade, Record-Namen und Commands aus diesem Abschnitt unverändert startfähig bleiben.
+Normale UI folgt der No-Manual-HTML-Regel. Der Renderer blockiert `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `createContextualFragment`, Inline-Event-Handler, unsichere URL-Schemas und gesperrte Tags wie `script` oder `iframe`. Attribute und Properties durchlaufen explizite Allowlists statt beliebiger Zuweisungen.
+
+Trusted Rich Content besitzt einen getrennten Pfad. Ein entsprechender Descriptor wird nur akzeptiert, wenn der Host einen expliziten `trustedDomRenderer` für `xtend.rmt.trusted-dom-boundary.explicit` bereitstellt. Verwandle eine Ablehnung nicht in einen Fallback-String-Sink; rendere stattdessen Text oder eine deklarierte Fallback-Surface.
+
+## Fehlerverhalten
+
+Ein ungültiger Root, gesperrter Tag, unsichere URL, unbekannte Komponente oder verbotene Property wirft einen Fehler mit einem `xtend.epic18.rmt-dom-renderer-diagnostic.v1` Diagnostic. `listDiagnostics()` liefert die vom Renderer beobachteten Diagnostics. Ein Host kann zusätzlich `diagnosticsHub.publish()` bereitstellen, um sie weiterzuleiten, ohne dem Renderer kanonischen App-State zu übertragen.
+
+Mit `createNoManualHtmlGate()` kannst du Quelldateien bereits vor der Browser-Ausführung auf verbotene Sinks prüfen. Das Gate meldet Datei und Sink, schreibt den Source aber nicht automatisch um.
+
+## Vertrag prüfen
+
+```bash
+node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer rmt-renderer-dom-descriptor-proofs --json
+```
+
+Ein akzeptiertes Ergebnis beweist Node-Materialisierung, Event-Cleanup, keyed Updates, Source Diagnostics und die Ablehnung manueller HTML-Sinks. Behebe einen Fehler im Descriptor oder in der Host-Policy, statt den Renderer zu umgehen.
+
+## Verwandte Seiten
+
+- [RMT vNext Component Primitives](./rmt-vnext-component-primitives.md)
+- [Trusted DOM und Sanitizing](./trusted-dom-sanitizing.md)
+- [RMT App Platform Fixture](./rmt-app-platform-fixture.md)
+- [RMT Security Policies](./rmt-reference-security-policies.md)

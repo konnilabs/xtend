@@ -40,6 +40,7 @@ const RESERVED_WORDS = new Set([
   'import',
   'on',
   'action',
+  'searchsource',
   'trust',
   'boundary',
   'hydration',
@@ -102,7 +103,8 @@ const PRIMITIVE_DECLARATIONS = new Set([
   'transition',
   'portal',
   'overlay',
-  'resource'
+  'resource',
+  'searchsource'
 ]);
 
 function normalizeSourceInput(input = {}, options = {}) {
@@ -285,7 +287,13 @@ function tokenizeVNextSource(sourceModel) {
       while (index < text.length && /[0-9]/.test(text[index])) {
         index += 1;
       }
-      tokens.push(createToken('integer', Number(text.slice(start, index)), start, index, { raw: text.slice(start, index) }));
+      let tokenType = 'integer';
+      if (text[index] === '.' && /[0-9]/.test(text[index + 1] || '')) {
+        tokenType = 'number';
+        index += 1;
+        while (index < text.length && /[0-9]/.test(text[index])) index += 1;
+      }
+      tokens.push(createToken(tokenType, Number(text.slice(start, index)), start, index, { raw: text.slice(start, index) }));
       continue;
     }
 
@@ -545,6 +553,7 @@ class VNextParser {
     if (this.matches('portal')) return this.parsePortalDeclaration(scope);
     if (this.matches('overlay')) return this.parseOverlayDeclaration(scope);
     if (this.matches('resource')) return this.parseResourceDeclaration(scope);
+    if (this.matches('searchsource')) return this.parseSearchSourceDeclaration(scope);
     this.addDiagnostic(this.current(), 'Expected App Platform primitive declaration.', RMT_VNEXT_CONTEXT_ERROR_CODE);
     this.skipStatementOrBlock();
     return null;
@@ -1132,6 +1141,70 @@ class VNextParser {
     });
   }
 
+  parseSearchSourceDeclaration(scope = {}) {
+    const start = this.expectValue('searchsource', 'Expected searchsource declaration.');
+    const name = this.parseQualifiedIdentifierAllowReserved('Expected searchsource identifier.');
+    const body = this.parseBlock(() => {
+      if (this.matches('query')) return this.parseSearchReferenceClause('query', 'RmtSearchQueryClause', 'state');
+      if (this.matches('resource')) return this.parseSearchReferenceClause('resource', 'RmtSearchResourceClause', 'resource');
+      if (this.matches('fallback')) return this.parseSearchReferenceClause('fallback', 'RmtSearchFallbackResourceClause', 'resource');
+      if (this.matches('weight')) return this.parseSearchWeightClause();
+      if (this.matches('minQueryLength')) return this.parseKeywordValueClause('minQueryLength', 'RmtSearchValueClause');
+      if (this.matches('debounceMs')) return this.parseKeywordValueClause('debounceMs', 'RmtSearchValueClause');
+      if (this.matches('resultLimit')) return this.parseKeywordValueClause('resultLimit', 'RmtSearchValueClause');
+      if (this.matches('fallbackThreshold')) return this.parseKeywordValueClause('fallbackThreshold', 'RmtSearchValueClause');
+      if (this.matches('resultTemplate')) return this.parseKeywordValueClause('resultTemplate', 'RmtSearchValueClause');
+      if (this.matches('emptyTemplate')) return this.parseKeywordValueClause('emptyTemplate', 'RmtSearchValueClause');
+      if (this.matches('loadingTemplate')) return this.parseKeywordValueClause('loadingTemplate', 'RmtSearchValueClause');
+      if (this.matches('activeIndexState')) return this.parseKeywordValueClause('activeIndexState', 'RmtSearchValueClause');
+      if (this.matches('selectionState')) return this.parseKeywordValueClause('selectionState', 'RmtSearchValueClause');
+      if (this.matches('localePolicy')) return this.parseKeywordValueClause('localePolicy', 'RmtSearchValueClause');
+      if (this.matches('a11y')) return this.parseKeywordValueClause('a11y', 'RmtSearchValueClause');
+      this.addDiagnostic(this.current(), 'SearchSource blocks contain query/resource refs, fallback, weights, limits, templates, state refs, localePolicy and a11y only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.skipStatementOrBlock();
+      return null;
+    });
+    const end = body.endToken || this.previous();
+    return this.createNode('RmtSearchSourceDeclaration', start, end, {
+      name: name && name.value,
+      nameNode: name,
+      body: body.items,
+      scope
+    });
+  }
+
+  parseSearchWeightClause() {
+    const start = this.expectValue('weight', 'Expected search field weight.');
+    const field = this.parseQualifiedIdentifierAllowReserved('Expected weighted search field.');
+    const value = this.parsePrimitiveValue();
+    this.consumeStatementEnd('Expected statement end after search weight.');
+    const end = value ? getNodeEndToken(value) : this.previous();
+    return this.createNode('RmtSearchWeightClause', start, end, {
+      field: field && field.value,
+      fieldNode: field,
+      value
+    });
+  }
+
+  parseSearchReferenceClause(keyword, nodeType, defaultKind) {
+    const start = this.expectValue(keyword, `Expected ${keyword} clause.`);
+    const first = this.parseQualifiedIdentifierAllowReserved(`Expected ${keyword} reference.`);
+    let kind = defaultKind;
+    let ref = first;
+    if (!this.isStatementBoundary()) {
+      kind = first && first.value || defaultKind;
+      ref = this.parseQualifiedIdentifierAllowReserved(`Expected ${keyword} reference after source kind.`);
+    }
+    this.consumeStatementEnd(`Expected statement end after ${keyword} clause.`);
+    const end = ref && ref.endToken ? ref.endToken : this.previous();
+    return this.createNode(nodeType, start, end, {
+      keyword,
+      kind,
+      ref: ref && ref.value,
+      refNode: ref
+    });
+  }
+
   parseSurfaceHeaderMetadata() {
     const attributes = [];
     while (!this.isAtEnd() && !this.matches('{') && !this.isStatementBoundary()) {
@@ -1212,7 +1285,7 @@ class VNextParser {
 
   parsePrimitiveValue() {
     const token = this.current();
-    if (token.type === 'string' || token.type === 'integer' || token.value === 'true' || token.value === 'false' || token.value === 'null') {
+    if (token.type === 'string' || token.type === 'integer' || token.type === 'number' || token.value === 'true' || token.value === 'false' || token.value === 'null') {
       this.consume();
       let value = token.value;
       if (token.value === 'true') value = true;
@@ -2089,7 +2162,7 @@ class VNextParser {
       });
     }
 
-    if (token.type === 'string' || token.type === 'integer' || token.value === 'true' || token.value === 'false' || token.value === 'null') {
+    if (token.type === 'string' || token.type === 'integer' || token.type === 'number' || token.value === 'true' || token.value === 'false' || token.value === 'null') {
       this.consume();
       let value = token.value;
       if (token.value === 'true') value = true;

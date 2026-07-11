@@ -11,7 +11,7 @@
   - `components/manifest.json`
   - `catalog/component-catalog-coverage.js`
   - `tests/catalog/component_catalog_coverage_suite.js`
-  - `docs/component-catalog-coverage.md`
+  - `development/docs-evidence/root/component-catalog-coverage.md`
   - `catalog/component-regression-priority.js`
   - `docs/visual-browser-regression.md`
   - `development/XTend-Component-Catalog-Naming-Konvention.md`

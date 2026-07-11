@@ -107,9 +107,9 @@ CSS custom properties:
 - `--xtend-form-label-text`
 - `--xtend-form-label-font-size`
 
-## ECH-WP-08 Theme/A11y Hardening
+## Theme and accessibility
 
-ECH-WP-08 documents the form-control tokens for `x-select` as a public theme contract. `signatureDesign` stays a quiet select field with a clear label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
+`signatureDesign` stays a quiet select field with a clear label, hint and error hierarchy. Density-Profile: `comfortable`, `compact`, `dense`. Invalid: error states are mirrored through text, error surface, border, focus ring and ARIA.
 
 Token table:
 - `--xtend-form-text`
