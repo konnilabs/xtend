@@ -50,6 +50,8 @@ transition product.service.contactToIssue {
 
 Strict builds expect complete payload contracts, resource ownership, hydration policies, known component capabilities, messages for every validation field and resolvable transition surfaces. Maraca turns this into kernel, hydration, validation and transition runtimes; host code stays adapter logic.
 
+The [Hydration Policies](./hydration-policies.md) deep dive separates execution mode, scheduling policy, and DOM ownership, with compilable examples for client rendering, SSR hydration, resume, and worker prerender.
+
 ## Reference demo and release contract
 
 The RMT vNext Authoring Guide is bound to the release handoff `xtend.rmt.vnext-release-handoff.v1`. The reference source `xtendrmt/rmt-vnext-reference-demo.rmt` shows the smallest complete combination of `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` and event-action binding. The expected Core output lives in `xtendrmt/rmt-vnext-reference-demo.core.json`.

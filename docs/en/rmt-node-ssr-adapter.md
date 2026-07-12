@@ -26,6 +26,8 @@ The Node SSR adapter renders RMT core records on the server and returns a hydrat
 target metadata so the client runtime can process it through `hydrateResponse`
 or degrade in a controlled way when diagnostics block the render.
 
+[Hydration Policies](./hydration-policies.md) explains the choice between regular SSR hydration, deferred hydration, and a full resume handoff with RMT examples.
+
 ## Automatic CSP
 
 The adapter creates a framework-managed `xtend.rmt.ssr-csp-policy.v1` policy for

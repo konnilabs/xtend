@@ -87,7 +87,7 @@ Kandidaten mit Fehlerdiagnostik, fehlender Production Closure, fehlendem Rollup/
 
 - Das initiale SSR-HTML umfasst `151782` Bytes und materialisiert nur die aktive Route plus Wildcard. Die vollständige Route-Tabelle wird nach dem Content-Commit oder beim ersten Navigations-Intent über `x-router.registerRoutes()` registriert.
 - Alle 166 Slugs sind genau einem der sechs Trunks zugeordnet. `docs/navigation.json` und beide Suchindexstufen sind deterministisch prüfbar.
-- Gzip-Größen: DE kompakt `19733`, DE Volltext `112512`, EN kompakt `18411`, EN Volltext `92076` Bytes.
+- Gzip-Größen: DE kompakt `20008`, DE Volltext `114385`, EN kompakt `18649`, EN Volltext `93689` Bytes.
 - `xt maraca tune --check` akzeptiert alle zwölf Rollup-/Terser-Kandidaten und wählt deterministisch `max-route-inline` mit `1835863` initialen und `2032433` gesamten Bytes.
 - Der lokale Akzeptanzlauf ist mit 11/11 Suites grün, einschließlich Public Quality, Content Depth, SSR-/FCP-/CLS-Budgets und 2479 Referenzprüfungen.
 - `docs/utils/fabric-runtime.js` ist entfernt. AppRuntime, Fabric, Search, Commands und DEV API werden aus `docs/utils/docs-shell-runtime.mjs` koordiniert; Trusted-DOM-Commits bleiben in `docs/utils/trusted-dom-host.mjs`.

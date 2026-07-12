@@ -1,6 +1,6 @@
 # XTend Docs Quality und Dev Surface Public Documentation
 
-Status: `implementation-in-progress-xdq-wp-09-xdq-wp-10-xdq-wp-11-complete`
+Status: `implementation-in-progress-xdq-wp-09-xdq-wp-10-xdq-wp-11-xdq-wp-12-complete`
 
 Dieses Dokument ist die Source of Truth für die öffentliche Dokumentationsabdeckung der XTend Dev Surface und für die redaktionelle Sanierung des deutsch- und englischsprachigen Developer Centers. Zielgruppe sind Drittentwickler, die XTend ohne internes Projektwissen installieren, integrieren, diagnostizieren und betreiben müssen.
 
@@ -105,6 +105,7 @@ Jeder kanonische Eintrag in `docs/menu.json` deklariert einen `contentType` aus 
 | `XDQ-WP-09` | `implementation-in-progress` | zweisprachiges AnimationEngine-Tutorial mit AOT-Live-Demo | 165 kanonische Slugs, kompilierbare Beispiele, lazy Island und Browser-Smoke grün |
 | `XDQ-WP-10` | `completed` | Catfooding-Refactor der Docs Shell | `development/XTend-Docs-Shell-Catfooding-Implementierungsplan.md`, sechs Navigationstrunks, framework-native Search/Skeleton/Maraca-Pfade, DEV API und grüner Chromium-Smoke |
 | `XDQ-WP-11` | `completed` | zweisprachige XTend-DEV-API-Referenz | 166 kanonische Slugs, source-geprüfte Methoden-/Schema-Parität, Dev-Tools-Navigation und Route-Smoke grün |
+| `XDQ-WP-12` | `completed` | zweisprachiger Hydration-Policies-Deep-Dive | Execution Modes, Fabric Policies, Ownership, Resumability, kompilierbare Beispiele und source-geprüfte Parität |
 
 ## Gate-Matrix
 

@@ -65,6 +65,8 @@ transition product.service.contactToIssue {
 
 Strict Builds erwarten vollständige Payload Contracts, Resource Ownership, Hydration Policies, bekannte Component Capabilities, Messages pro Validation Field und auflösbare Transition Surfaces. Animationen erlauben standardmäßig nur `opacity` und `transform`; `filter` ist nur per `allowFilter` für Effekte wie `fade-blur` zulässig. Maraca baut daraus Kernel-, Hydration-, Validation-, AnimationEngine- und Transition-Runtimes; Host-Code bleibt Adapterlogik.
 
+Der Deep-Dive [Hydration Policies](./hydration-policies.md) trennt Execution Mode, Scheduling Policy und DOM-Ownership und zeigt kompilierbare Beispiele für Client Rendering, SSR Hydration, Resume und Worker-Prerender.
+
 ## Referenzdemo und Releasevertrag
 
 Der RMT vNext Authoring Guide ist an den Releasevertrag `xtend.rmt.vnext-release-handoff.v1` gebunden. Die Referenzquelle `xtendrmt/rmt-vnext-reference-demo.rmt` zeigt die kleinste vollständige Kombination aus `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` und Event-Action-Binding. Der erwartete Core-Output liegt in `xtendrmt/rmt-vnext-reference-demo.core.json`.

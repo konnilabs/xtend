@@ -61,8 +61,8 @@ const CURATED_KEYWORDS = Object.freeze({
     en: ['__XTEND_DEV_API__', 'instrumentation', 'telemetry', 'diagnostics', 'snapshots', 'performance', 'hydration', 'kernel', 'Fabric', 'DevTools']
   },
   'hydration-policies': {
-    de: ['Hydrierung', 'Hydration', 'Resume', 'SSR', 'Insel', 'XScaler', 'Prewarm'],
-    en: ['hydration', 'resume', 'SSR', 'island', 'XScaler', 'prewarm']
+    de: ['Hydrierung', 'Hydration', 'Resume', 'SSR', 'Insel', 'XScaler', 'Prewarm', 'runtime_render', 'hydrate_prerendered', 'server_prerender_hydrate', 'server_prerender_resume', 'worker_prerender_hydrate', 'visible', 'idle', 'lazy', 'Backpressure'],
+    en: ['hydration', 'resume', 'SSR', 'island', 'XScaler', 'prewarm', 'runtime_render', 'hydrate_prerendered', 'server_prerender_hydrate', 'server_prerender_resume', 'worker_prerender_hydrate', 'visible', 'idle', 'lazy', 'backpressure']
   },
   'rmt-animation-engine': {
     de: ['Animation', 'Transition', 'Effekte', 'Keyframes', 'Spring', 'Reduced Motion'],

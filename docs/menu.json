@@ -5705,7 +5705,16 @@
         "SSR",
         "Insel",
         "XScaler",
-        "Prewarm"
+        "Prewarm",
+        "runtime_render",
+        "hydrate_prerendered",
+        "server_prerender_hydrate",
+        "server_prerender_resume",
+        "worker_prerender_hydrate",
+        "visible",
+        "idle",
+        "lazy",
+        "Backpressure"
       ],
       "en": [
         "Hydration Policies",
@@ -5719,7 +5728,16 @@
         "SSR",
         "island",
         "XScaler",
-        "prewarm"
+        "prewarm",
+        "runtime_render",
+        "hydrate_prerendered",
+        "server_prerender_hydrate",
+        "server_prerender_resume",
+        "worker_prerender_hydrate",
+        "visible",
+        "idle",
+        "lazy",
+        "backpressure"
       ]
     }
   },

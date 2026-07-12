@@ -24,6 +24,8 @@ Der Node SSR Adapter rendert RMT Core-Records serverseitig und liefert ein Hydra
 `hydrateResponse` verarbeiten oder bei Diagnosefehlern kontrolliert degradieren
 kann.
 
+Die Auswahl zwischen normaler SSR-Hydration, verzögerter Hydration und einer vollständigen Resume-Übergabe ist in [Hydration Policies](./hydration-policies.md) mit RMT-Beispielen beschrieben.
+
 ## Automatische CSP
 
 Der Adapter erzeugt für jeden Render automatisch eine Framework-Policy

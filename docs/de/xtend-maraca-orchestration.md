@@ -14,6 +14,8 @@ xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hy
 
 `orchestration` aktiviert das Artefakt `xtend.rmt.app-orchestration.v1`. `kernel` bündelt echte RMT Kernel- und Scheduler-Instanzen. `hydration` steuert runtime render, prerender/hydrate, lazy, visible, idle, manual, none und insulare Hydration über denselben Plan. `validation` konsumiert `xtend.rmt.form-validation.v1` und blockt Actions bei ungültigen Gruppen. `transitions` behält die kompatible View `xtend.rmt.surface-transitions.v1` und konsumiert zusätzlich `xtend.rmt.animation-engine.v1` für Presets, Timelines, Interrupt Policy, Reduced Motion und native-first-Ausführung.
 
+[Hydration Policies](./hydration-policies.md) erklärt, welche dieser Werte Template-Ausführung, Fabric-Scheduling, Resumability oder Ownership steuern und wie sie im Build-Report geprüft werden.
+
 ## RMT Authoring
 
 Validation und Transitions sind native RMT Primitives. Ein typischer Formularschritt deklariert Felder, Regeln, eine Ziel-Action und den Surface-Wechsel nach erfolgreicher Action.

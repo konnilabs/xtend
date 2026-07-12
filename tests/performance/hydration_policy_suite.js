@@ -15,6 +15,9 @@ const {
   createXtendFabric
 } = require('../../fabric/xtend-fabric');
 const {
+  compileRmtVNextSource
+} = require('../../tools/rmt-language/vnext-compiler');
+const {
   resolveRmtScheduleForFiber
 } = require('../../fabric/rmt-lane-mapping');
 const {
@@ -25,6 +28,19 @@ const {
   createHydrationScheduleRecords,
   resolveHydrationPolicy
 } = require('../../fabric/hydration-policy');
+
+function extractFencedCodeBlocks(markdown, language = '') {
+  const segments = String(markdown || '').split('```');
+  const blocks = [];
+  for (let index = 1; index < segments.length; index += 2) {
+    const segment = segments[index];
+    const lineBreak = segment.indexOf('\n');
+    if (lineBreak < 0) continue;
+    const info = segment.slice(0, lineBreak).trim();
+    if (!language || info === language) blocks.push(segment.slice(lineBreak + 1).trim());
+  }
+  return blocks;
+}
 
 function createIncrementingClock() {
   let tick = 0;
@@ -42,7 +58,10 @@ async function runHydrationPolicySuite(options = {}) {
   const mappingSource = readText('fabric/rmt-lane-mapping.js', rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Enterprise-Reife.md', rootDir);
   const contractDoc = readText('development/XTend-Hydration-Policy-Contract.md', rootDir);
-  const developerDocs = readText('docs/en/hydration-policies.md', rootDir);
+  const developerDocsDe = readText('docs/de/hydration-policies.md', rootDir);
+  const developerDocsEn = readText('docs/en/hydration-policies.md', rootDir);
+  const docsMenu = readJson('docs/menu.json', rootDir);
+  const runtimeSchema = readJson('xtendrmt/rmt.schema.json', rootDir);
   const packageManifest = readJson('package.json', rootDir);
   const policySyntax = syntaxCheckFile('fabric/hydration-policy.js', { rootDir, extension: '.js' });
   const mappingSyntax = syntaxCheckFile('fabric/rmt-lane-mapping.js', { rootDir, extension: '.js' });
@@ -234,7 +253,75 @@ async function runHydrationPolicySuite(options = {}) {
   assert(packageManifest.xtend.hydrationPolicy.localGate === 'node scripts/run_xtend_tests.js hydration-policy --json', 'Package metadata exposes local hydration policy gate');
   assert(roadmap.includes('| `ER-WP-20` | P1 | completed | Phase 3 | EPIC 08 | Lazy/Idle/Visible Hydration Policies haerten |'), 'Roadmap marks ER-WP-20 completed');
   assert(contractDoc.includes('xtend.fabric.hydration-policy.v1'), 'Contract document declares hydration policy contract');
-  assert(developerDocs.includes('node scripts/run_xtend_tests.js hydration-policy --json'), 'Developer docs document the runnable hydration policy gate');
+  const docsMenuEntry = docsMenu.find((entry) => entry.slug === 'hydration-policies');
+  const executionModes = runtimeSchema.$defs.hydrationMode.enum;
+  const policyIds = Object.keys(HYDRATION_POLICIES);
+  const requiredDiagnostics = [
+    'xtend.fabric.hydration_policy.user_blocking_refused',
+    'xtend.fabric.hydration_policy.backpressure_deferred',
+    'xtend.fabric.hydration_policy.stream_pressure_deferred',
+    'xtend.fabric.hydration_policy.lazy_stream_pressure_throttled',
+    'xtend.fabric.hydration_policy.prewarm_paused',
+    'xtend.fabric.hydration_policy.worker_prerender_paused',
+    'xtend.maraca.hydration_error'
+  ];
+  [developerDocsDe, developerDocsEn].forEach((developerDocs, localeIndex) => {
+    const locale = localeIndex === 0 ? 'de' : 'en';
+    context.assertIncludes(developerDocs, 'node scripts/run_xtend_tests.js hydration-policy --json', `${locale} developer docs document the runnable hydration policy gate`);
+    context.assertIncludes(developerDocs, 'xtend.rmt.app-hydration-plan.v1', `${locale} developer docs identify the compiled hydration plan`);
+    context.assertIncludes(developerDocs, 'RmtTemplateExecutionMode', `${locale} developer docs distinguish template execution modes`);
+    context.assertIncludes(developerDocs, 'server_prerender_resume', `${locale} developer docs explain server resumability`);
+    context.assertIncludes(developerDocs, 'worker_prerender_resume', `${locale} developer docs state worker resume maturity`);
+    context.assertIncludes(developerDocs, 'hydrate_existing', `${locale} developer docs explain DOM ownership`);
+    context.assertIncludes(developerDocs, 'replace_children', `${locale} developer docs explain runtime render ownership`);
+    context.assertIncludes(developerDocs, 'window.XTendMaraca?.hydration?.snapshot()', `${locale} developer docs expose Maraca hydration inspection`);
+    context.assertIncludes(developerDocs, 'window.__XTEND_DEV_API__?.getHydrationSnapshot?.()', `${locale} developer docs expose DEV API hydration inspection`);
+    executionModes.forEach((mode) => context.assertIncludes(developerDocs, mode, `${locale} developer docs include runtime execution mode ${mode}`));
+    policyIds.forEach((policyId) => {
+      const policy = HYDRATION_POLICIES[policyId];
+      context.assertIncludes(developerDocs, `\`${policyId}\``, `${locale} developer docs include policy ${policyId}`);
+      context.assertIncludes(developerDocs, `\`${policy.trigger}\``, `${locale} developer docs include trigger ${policy.trigger}`);
+      context.assertIncludes(developerDocs, `${policy.deadlineMs} ms`, `${locale} developer docs include ${policyId} deadline`);
+      context.assertIncludes(developerDocs, `\`${policy.budgetClass}\``, `${locale} developer docs include ${policyId} budget class`);
+    });
+    requiredDiagnostics.forEach((code) => context.assertIncludes(developerDocs, code, `${locale} developer docs include diagnostic ${code}`));
+    [
+      './rmt-vnext-authoring.md',
+      './xtend-maraca-orchestration.md',
+      './rmt-node-ssr-adapter.md',
+      './rmt-php-ssr-adapter.md',
+      './xscaler-protocol.md',
+      './xtend-dev-api.md',
+      './xtend-dev-surface.md'
+    ].forEach((target) => context.assertIncludes(developerDocs, target, `${locale} developer docs link ${target}`));
+  });
+  const codeBlocksDe = extractFencedCodeBlocks(developerDocsDe);
+  const codeBlocksEn = extractFencedCodeBlocks(developerDocsEn);
+  const rmtBlocks = extractFencedCodeBlocks(developerDocsEn, 'rmt');
+  context.assert(codeBlocksDe.length === 6 && JSON.stringify(codeBlocksDe) === JSON.stringify(codeBlocksEn), 'DE and EN hydration docs contain six technically identical code examples');
+  context.assert(rmtBlocks.length === 3, 'Hydration docs contain three complete RMT examples');
+  rmtBlocks.forEach((source, index) => {
+    const compiled = compileRmtVNextSource({
+      text: source,
+      filePath: path.join(rootDir, 'tests', 'fixtures', 'docs', `hydration-policies-example-${index + 1}.rmt`)
+    });
+    context.assert(compiled.ok === true, `Hydration docs RMT example ${index + 1} compiles${compiled.ok ? '' : ` (${JSON.stringify(compiled.diagnostics || [])})`}`);
+  });
+  context.assert(docsMenuEntry && docsMenuEntry.trunk === 'operate' && docsMenuEntry.section === 'performance' && docsMenuEntry.contentType === 'operations', 'Hydration docs keep the Operate Performance operations placement');
+  ['runtime_render', 'hydrate_prerendered', 'server_prerender_hydrate', 'server_prerender_resume', 'worker_prerender_hydrate', 'visible', 'idle', 'lazy', 'backpressure'].forEach((keyword) => {
+    const localizedKeywords = (docsMenuEntry && docsMenuEntry.keywords && docsMenuEntry.keywords.en || []).map((entry) => String(entry).toLowerCase());
+    context.assert(localizedKeywords.includes(keyword.toLowerCase()), `Hydration docs search keywords include ${keyword}`);
+  });
+  [
+    'docs/de/rmt-vnext-authoring.md',
+    'docs/en/rmt-vnext-authoring.md',
+    'docs/de/xtend-maraca-orchestration.md',
+    'docs/en/xtend-maraca-orchestration.md',
+    'docs/de/rmt-node-ssr-adapter.md',
+    'docs/en/rmt-node-ssr-adapter.md',
+    'docs/de/rmt-php-ssr-adapter.md',
+    'docs/en/rmt-php-ssr-adapter.md'
+  ].forEach((docPath) => context.assertIncludes(readText(docPath, rootDir), './hydration-policies.md', `${docPath} links the hydration policy deep dive`));
 
   return context.result();
 }
