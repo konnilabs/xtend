@@ -186,8 +186,8 @@
     },
     {
       "path": "docs/de/rmt-reference-validation-transitions.md",
-      "sha256": "f4a6bf66bc39875581f5fbec69ed2d1a6491382ceab07be3a161326d784214e1",
-      "bytes": 6290
+      "sha256": "c8f5344a2bc43a857ae0acd234d1a3a11539f5235c6ea6bc090aa7d7ca6cf1b6",
+      "bytes": 6424
     },
     {
       "path": "docs/de/rmt-reference.md",
@@ -196,8 +196,8 @@
     },
     {
       "path": "docs/de/rmt-vnext-authoring.md",
-      "sha256": "d4a70246074c5ef920c6463a5d9acd692210acff5ebbaf4e9bd39bce437044ac",
-      "bytes": 3905
+      "sha256": "6ff4959a1578810b2c264e1d5af9382acb439bc543c31318ed983096bbf3b755",
+      "bytes": 4139
     },
     {
       "path": "docs/de/xtend-maraca-orchestration.md",
@@ -231,8 +231,8 @@
     },
     {
       "path": "xtend-maraca/index.d.ts",
-      "sha256": "51c2daffdeb0c3ea92e9d1646bcec9cd6bd18768d3792c98faa0b3b125c6b68a",
-      "bytes": 32096
+      "sha256": "eece8529bb7230fad3a4ae10ab2a142a044fc6650cecc118eb8a899ef3dfa0c4",
+      "bytes": 34263
     }
   ],
   "rootDir": ""

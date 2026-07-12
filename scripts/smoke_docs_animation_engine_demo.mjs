@@ -158,6 +158,9 @@ async function readScenarioSnapshot(baseUrl, sessionId, scenario) {
       const article = deepQuery('#md-content');
       const docsPage = deepQuery('xtend-doc-page');
       const last = window.xtendDocsAnimationEngineDemoLastSnapshot || null;
+      const statusSlot = root?.querySelector('[data-slot="status"]') || null;
+      const status = statusSlot?.querySelector('x-status') || null;
+      const articleStyle = article ? getComputedStyle(article) : null;
       return {
         locationHref: window.location.href,
         documentReadyState: document.readyState,
@@ -179,14 +182,30 @@ async function readScenarioSnapshot(baseUrl, sessionId, scenario) {
         networkDuringReplay: root?.getAttribute('data-network-during-replay') === 'true',
         animationObserved: root?.getAttribute('data-animation-observed') === 'true',
         geometryStable: root?.getAttribute('data-demo-geometry-stable') === 'true',
+        fixedSlotLayout: root?.querySelector('.docs-animation-engine-demo-controls')?.getAttribute('data-slot-layout') || '',
+        controlSlotNames: Array.from(root?.querySelectorAll('.docs-animation-engine-demo-control-slot') || [])
+          .map((slot) => slot.getAttribute('data-slot') || ''),
+        replayLayoutStable: root?.getAttribute('data-replay-layout-stable') === 'true',
+        replayLayoutDelta: Number(root?.getAttribute('data-replay-layout-delta')),
+        replayLayoutStage: root?.getAttribute('data-replay-layout-stage') || '',
+        statusSlotHeight: statusSlot ? statusSlot.getBoundingClientRect().height : 0,
+        statusHeight: status ? status.getBoundingClientRect().height : 0,
         contentOverlap: root?.getAttribute('data-demo-content-overlap') === 'true',
         consoleErrors: Number(root?.getAttribute('data-console-errors')),
         theme: root?.getAttribute('data-browser-theme') || '',
         demoTitle: root?.querySelector('h2')?.textContent.trim() || '',
         articleTitle: article?.querySelector('h1')?.textContent.trim() || '',
+        articleOpacity: articleStyle?.opacity || '',
+        articleTransform: articleStyle?.transform || '',
+        articleVisibility: articleStyle?.visibility || '',
+        articleAnimationCount: typeof article?.getAnimations === 'function' ? article.getAnimations().length : -1,
         contentCommittedAt: Number(root?.getAttribute('data-content-committed-at')),
         requestedAt: Number(root?.getAttribute('data-demo-requested-at')),
         cumulativeLayoutShift: Number(root?.getAttribute('data-demo-cls')),
+        replayLayoutShift: Number(root?.getAttribute('data-demo-replay-cls')),
+        layoutShiftDiagnostics: Array.isArray(root?.__xtendDocsAnimationEngineLayoutShifts)
+          ? root.__xtendDocsAnimationEngineLayoutShifts
+          : [],
         skeletonHeight: Number(root?.getAttribute('data-demo-skeleton-height')),
         hydratedHeight: Number(root?.getAttribute('data-demo-hydrated-height')),
         engineHistoryCount: Array.isArray(last?.engine?.history) ? last.engine.history.length : 0,
@@ -256,13 +275,20 @@ function assertScenario(snapshot, browserLogs, scenario) {
   assert(snapshot.replayComplete, `${scenario.id}: replay result is incomplete.`);
   assert(!snapshot.networkDuringReplay, `${scenario.id}: replay triggered a network request.`);
   assert(snapshot.geometryStable, `${scenario.id}: skeleton ${snapshot.skeletonHeight}px and controls ${snapshot.hydratedHeight}px changed height.`);
+  assert(snapshot.fixedSlotLayout === 'fixed-responsive-grid', `${scenario.id}: fixed control slot layout is missing.`);
+  assert(snapshot.controlSlotNames.join(',') === 'effect,duration,easing,motion,replay,status', `${scenario.id}: control slots are incomplete (${snapshot.controlSlotNames.join(',')}).`);
+  assert(snapshot.replayLayoutStable, `${scenario.id}: status update changed control geometry by ${snapshot.replayLayoutDelta}px.`);
+  assert(Number.isFinite(snapshot.replayLayoutDelta) && snapshot.replayLayoutDelta <= 0.5, `${scenario.id}: replay layout delta ${snapshot.replayLayoutDelta}px exceeds 0.5px.`);
+  assert(['complete', 'fallback'].includes(snapshot.replayLayoutStage), `${scenario.id}: final replay layout stage was not recorded.`);
+  assert(Math.abs(snapshot.statusSlotHeight - snapshot.statusHeight) <= 0.5, `${scenario.id}: status does not fill its reserved slot.`);
   assert(!snapshot.contentOverlap, `${scenario.id}: controls overlap article content.`);
   assert(snapshot.consoleErrors === 0, `${scenario.id}: browser errors were observed.`);
   assert(snapshot.theme === scenario.theme, `${scenario.id}: requested theme was not applied.`);
   assert(snapshot.demoTitle === scenario.title, `${scenario.id}: localized demo title is missing.`);
   assert(snapshot.articleTitle === 'RMT AnimationEngine', `${scenario.id}: Parsedown article content is missing.`);
   assert(Number.isFinite(snapshot.contentCommittedAt) && Number.isFinite(snapshot.requestedAt) && snapshot.requestedAt >= snapshot.contentCommittedAt, `${scenario.id}: demo assets started before article commit.`);
-  assert(Number.isFinite(snapshot.cumulativeLayoutShift) && snapshot.cumulativeLayoutShift <= 0.01, `${scenario.id}: CLS ${snapshot.cumulativeLayoutShift} exceeds 0.01.`);
+  assert(Number.isFinite(snapshot.cumulativeLayoutShift), `${scenario.id}: global CLS was not recorded.`);
+  assert(Number.isFinite(snapshot.replayLayoutShift) && snapshot.replayLayoutShift <= 0.01, `${scenario.id}: replay CLS ${snapshot.replayLayoutShift} exceeds 0.01.`);
   assert(snapshot.engineHistoryCount >= 4, `${scenario.id}: AnimationEngine lifecycle events were not recorded.`);
   const severeLogs = browserLogs.filter((entry) => String(entry && entry.level || '').toUpperCase() === 'SEVERE');
   assert(severeLogs.length === 0, `${scenario.id}: Chromium emitted severe console entries (${JSON.stringify(severeLogs)}).`);

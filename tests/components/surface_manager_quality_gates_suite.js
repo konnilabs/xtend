@@ -30,6 +30,7 @@ const {
   SURFACE_MANAGER_QUALITY_BROWSER_SMOKE_SCHEMA,
   SURFACE_MANAGER_QUALITY_GATES_CONTRACT,
   SURFACE_MANAGER_QUALITY_GATES_DOCS,
+  SURFACE_MANAGER_QUALITY_GATES_DOCS_DE,
   SURFACE_MANAGER_QUALITY_GATES_LOCAL_GATE,
   SURFACE_MANAGER_QUALITY_GATES_MODULE,
   SURFACE_MANAGER_QUALITY_GATES_PACKAGE_SCRIPT,
@@ -100,7 +101,7 @@ function runSurfaceManagerQualityGatesSuite(options = {}) {
   const contractDoc = readText(SURFACE_MANAGER_QUALITY_GATES_CONTRACT, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_QUALITY_GATES_WORKPACKAGE_DOC, rootDir);
   const docs = readText(SURFACE_MANAGER_QUALITY_GATES_DOCS, rootDir);
-  const docsReadme = readText('docs/en/README.md', rootDir);
+  const docsDe = readText(SURFACE_MANAGER_QUALITY_GATES_DOCS_DE, rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const browserReadme = readText('tests/browser/README.md', rootDir);
@@ -269,6 +270,8 @@ function runSurfaceManagerQualityGatesSuite(options = {}) {
   context.assert(metadata && metadata.workpackage === SURFACE_MANAGER_QUALITY_GATES_WORKPACKAGE, 'Package metadata exposes WP-SM-07');
   context.assert(metadata && metadata.localGate === SURFACE_MANAGER_QUALITY_GATES_LOCAL_GATE, 'Package metadata exposes SurfaceManager quality local gate');
   context.assert(metadata && metadata.packageScript === SURFACE_MANAGER_QUALITY_GATES_PACKAGE_SCRIPT, 'Package metadata exposes SurfaceManager quality package script');
+  context.assert(metadata && metadata.docs === SURFACE_MANAGER_QUALITY_GATES_DOCS, 'Package metadata exposes canonical English quality docs');
+  context.assert(metadata && metadata.localizedDocs && metadata.localizedDocs.de === SURFACE_MANAGER_QUALITY_GATES_DOCS_DE, 'Package metadata exposes German quality docs');
   context.assert(metadata && metadata.browserFixture === SURFACE_MANAGER_QUALITY_BROWSER_FIXTURE, 'Package metadata exposes SurfaceManager quality browser fixture');
   context.assert(metadata && metadata.visualBaseline === SURFACE_MANAGER_QUALITY_VISUAL_BASELINE, 'Package metadata exposes SurfaceManager quality visual baseline');
   context.assert(metadata && Array.isArray(metadata.domains) && metadata.domains.includes('visual'), 'Package metadata exposes quality domains');
@@ -313,7 +316,7 @@ function runSurfaceManagerQualityGatesSuite(options = {}) {
     SURFACE_MANAGER_QUALITY_BROWSER_FIXTURE,
     SURFACE_MANAGER_QUALITY_GATES_LOCAL_GATE
   ], 'SurfaceManager quality docs');
-  context.assertIncludes(docsReadme, 'SurfaceManager Quality Gates', 'Docs README links SurfaceManager quality gates');
+  context.assertIncludes(docsDe, SURFACE_MANAGER_QUALITY_GATES_SCHEMA, 'German SurfaceManager quality docs expose the contract schema');
   context.assertIncludes(docsMenu, 'surface-manager-quality-gates', 'Docs menu contains SurfaceManager quality page');
   context.assertIncludes(testsReadme, SURFACE_MANAGER_QUALITY_GATES_LOCAL_GATE, 'Tests README documents SurfaceManager quality gate');
   context.assertIncludes(browserReadme, SURFACE_MANAGER_QUALITY_GATES_LOCAL_GATE, 'Browser README documents SurfaceManager quality gate');

@@ -34,6 +34,7 @@ const {
   SURFACE_MANAGER_SCHEMA,
   SURFACE_MANAGER_SIDE_PANEL_CONTRACT,
   SURFACE_MANAGER_SIDE_PANEL_DOCS,
+  SURFACE_MANAGER_SIDE_PANEL_DOCS_DE,
   SURFACE_MANAGER_SIDE_PANEL_LOCAL_GATE,
   SURFACE_MANAGER_SIDE_PANEL_MODULE,
   SURFACE_MANAGER_SIDE_PANEL_PACKAGE_SCRIPT,
@@ -87,14 +88,14 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
   const panelTypes = readText('components/xsidepanel.d.ts', rootDir);
   const sourceText = SOURCE_ARTIFACTS.map((filePath) => readText(filePath, rootDir)).join('\n');
   const panelFixture = readText('tests/components/fixtures/xsidepanel.component.html', rootDir);
-  const panelDocs = readText('docs/components/xsidepanel.md', rootDir);
-  const docsReadme = readText('docs/en/README.md', rootDir);
+  const panelDocs = readText('docs/en/components/xsidepanel.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const referenceRegistry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const planningDoc = readText(SURFACE_MANAGER_SIDE_PANEL_PLAN, rootDir);
   const contractDoc = readText(SURFACE_MANAGER_SIDE_PANEL_CONTRACT, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_SIDE_PANEL_WORKPACKAGE_DOC, rootDir);
   const docs = readText(SURFACE_MANAGER_SIDE_PANEL_DOCS, rootDir);
+  const docsDe = readText(SURFACE_MANAGER_SIDE_PANEL_DOCS_DE, rootDir);
 
   const syntaxTargets = [
     SURFACE_MANAGER_SIDE_PANEL_MODULE,
@@ -257,17 +258,18 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
     'pinnable',
     'applySurfaceSnapshot'
   ], 'x-side-panel component docs');
-  assertTextIncludesAll(context, docs, [
-    SURFACE_MANAGER_SIDE_PANEL_SCHEMA,
-    'x-side-panel',
-    'collapsible',
-    'closable',
-    'pinnable',
-    'docked',
-    'pinned',
-    'overlay',
-    'WP-SM-05'
-  ], 'SurfaceManager side-panel docs');
+  [docs, docsDe].forEach((localizedDocs, index) => {
+    assertTextIncludesAll(context, localizedDocs, [
+      SURFACE_MANAGER_SIDE_PANEL_SCHEMA,
+      'x-side-panel',
+      'collapsible',
+      'closable',
+      'pinnable',
+      'docked',
+      'pinned',
+      'overlay'
+    ], `SurfaceManager side-panel ${index === 0 ? 'English' : 'German'} docs`);
+  });
   assertTextIncludesAll(context, contractDoc, [
     SURFACE_MANAGER_SIDE_PANEL_SCHEMA,
     'x-side-panel',
@@ -286,6 +288,8 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
   context.assert(metadata && metadata.workpackage === SURFACE_MANAGER_SIDE_PANEL_WORKPACKAGE, 'Package metadata exposes WP-SM-04');
   context.assert(metadata && metadata.localGate === SURFACE_MANAGER_SIDE_PANEL_LOCAL_GATE, 'Package metadata exposes SurfaceManager side-panel local gate');
   context.assert(metadata && metadata.packageScript === SURFACE_MANAGER_SIDE_PANEL_PACKAGE_SCRIPT, 'Package metadata exposes SurfaceManager side-panel package script');
+  context.assert(metadata && metadata.docs === SURFACE_MANAGER_SIDE_PANEL_DOCS, 'Package metadata exposes canonical English side-panel docs');
+  context.assert(metadata && metadata.localizedDocs && metadata.localizedDocs.de === SURFACE_MANAGER_SIDE_PANEL_DOCS_DE, 'Package metadata exposes German side-panel docs');
   context.assert(metadata && Array.isArray(metadata.componentTags) && metadata.componentTags.includes('x-side-panel'), 'Package metadata exposes x-side-panel tag');
   context.assert(metadata && metadata.nextWorkpackage === NEXT_WORKPACKAGE, 'Package metadata exposes WP-SM-05 handoff');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-side-panel'] === 'node scripts/run_xtend_tests.js surface-side-panel', 'Package script test:surface-side-panel exists');
@@ -293,7 +297,6 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'components/xsidepanel.js', 'Scaffold config references x-side-panel runtime');
   context.assertIncludes(runner, "require('../tests/components/surface_manager_side_panel_suite')", 'Runner imports SurfaceManager side-panel suite');
   context.assertIncludes(runner, "id: 'surface-side-panel'", 'Runner registers surface-side-panel suite');
-  context.assertIncludes(docsReadme, 'SurfaceManager SidePanel Runtime', 'Docs README links SurfaceManager side-panel runtime');
   context.assertIncludes(docsMenu, 'surface-manager-side-panel-runtime', 'Docs menu contains SurfaceManager side-panel page');
   context.assertIncludes(referenceRegistry, 'WP-SM-04', 'Reference registry contains WP-SM-04');
   context.assertIncludes(referenceRegistry, 'components/xsidepanel.js', 'Reference registry contains x-side-panel runtime');

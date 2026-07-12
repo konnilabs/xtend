@@ -54,7 +54,7 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_OVERLAY_BRIDGE_WORKPACKAGE_DOC,
   SURFACE_MANAGER_OVERLAY_BRIDGE_DOCS,
   'docs/en/surface-manager-workbench-fixture.md',
-  'docs/surface-manager-side-panel-runtime.md',
+  'docs/en/surface-manager-side-panel-runtime.md',
   'docs/en/surface-manager-window-runtime.md'
 ]);
 

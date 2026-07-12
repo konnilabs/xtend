@@ -122,6 +122,11 @@ jobs:
         continue-on-error: true
         run: npm run test:xtend-dev-surface:report
 
+      - name: Run public docs quality report
+        id: docs_quality
+        continue-on-error: true
+        run: npm run test:docs-quality:report
+
       - name: Run Docs Shell catfooding report
         id: docs_shell_catfooding
         continue-on-error: true
@@ -171,6 +176,7 @@ jobs:
             .xtend-test-results/xtend-maraca-gate-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-dev-surface-report.json
+            .xtend-test-results/xtend-docs-quality-report.json
             .xtend-test-results/xtend-docs-shell-catfooding-report.json
             .xtend-test-results/xtend-xsurface-shard-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
@@ -198,6 +204,7 @@ jobs:
           if [ "${{ steps.maraca.outcome }}" != "success" ]; then echo "Maraca gate failed"; failed=1; fi
           if [ "${{ steps.xtensions_framework_adapters.outcome }}" != "success" ]; then echo "XTensions framework adapter gate failed"; failed=1; fi
           if [ "${{ steps.xtend_dev_surface.outcome }}" != "success" ]; then echo "XTend Dev Surface gate failed"; failed=1; fi
+          if [ "${{ steps.docs_quality.outcome }}" != "success" ]; then echo "public docs quality gate failed"; failed=1; fi
           if [ "${{ steps.docs_shell_catfooding.outcome }}" != "success" ]; then echo "Docs Shell catfooding gate failed"; failed=1; fi
           if [ "${{ steps.xsurface_shard.outcome }}" != "success" ]; then echo "XSurface shard gate failed"; failed=1; fi
           if [ "${{ steps.xscaler_protocol.outcome }}" != "success" ]; then echo "XScaler protocol gate failed"; failed=1; fi

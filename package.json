@@ -12551,7 +12551,11 @@
       "module": "catalog/surface-manager-side-panel-runtime.js",
       "contract": "development/XTend-SurfaceManager-SidePanel-Runtime-Contract.md",
       "workpackageDocument": "development/WP-SM-04-x-side-panel-und-responsive-surface-modes-umsetzen.md",
-      "docs": "docs/surface-manager-side-panel-runtime.md",
+      "docs": "docs/en/surface-manager-side-panel-runtime.md",
+      "localizedDocs": {
+        "de": "docs/de/surface-manager-side-panel-runtime.md",
+        "en": "docs/en/surface-manager-side-panel-runtime.md"
+      },
       "suite": "tests/components/surface_manager_side_panel_suite.js",
       "localGate": "node scripts/run_xtend_tests.js surface-side-panel --json",
       "packageScript": "npm run test:surface-side-panel",
@@ -12817,7 +12821,11 @@
       "module": "catalog/surface-manager-quality-gates.js",
       "contract": "development/XTend-SurfaceManager-Quality-Gates-Contract.md",
       "workpackageDocument": "development/WP-SM-07-Browser-A11y-Performance-und-Visual-Gates-ergaenzen.md",
-      "docs": "docs/surface-manager-quality-gates.md",
+      "docs": "docs/en/surface-manager-quality-gates.md",
+      "localizedDocs": {
+        "de": "docs/de/surface-manager-quality-gates.md",
+        "en": "docs/en/surface-manager-quality-gates.md"
+      },
       "browserFixture": "tests/browser/fixtures/surface-manager-quality-smoke.html",
       "visualBaseline": "tests/browser/visual-baselines/surface-manager-quality.dom-baseline.json",
       "suite": "tests/components/surface_manager_quality_gates_suite.js",

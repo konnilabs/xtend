@@ -16,7 +16,8 @@ const SURFACE_MANAGER_SIDE_PANEL_SUITE = 'tests/components/surface_manager_side_
 const SURFACE_MANAGER_SIDE_PANEL_PLAN = 'development/XTend-SurfaceManager-und-Multi-Window-Plan.md';
 const SURFACE_MANAGER_SIDE_PANEL_CONTRACT = 'development/XTend-SurfaceManager-SidePanel-Runtime-Contract.md';
 const SURFACE_MANAGER_SIDE_PANEL_WORKPACKAGE_DOC = 'development/WP-SM-04-x-side-panel-und-responsive-surface-modes-umsetzen.md';
-const SURFACE_MANAGER_SIDE_PANEL_DOCS = 'docs/surface-manager-side-panel-runtime.md';
+const SURFACE_MANAGER_SIDE_PANEL_DOCS = 'docs/en/surface-manager-side-panel-runtime.md';
+const SURFACE_MANAGER_SIDE_PANEL_DOCS_DE = 'docs/de/surface-manager-side-panel-runtime.md';
 const SURFACE_MANAGER_SIDE_PANEL_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-side-panel --json';
 const SURFACE_MANAGER_SIDE_PANEL_PACKAGE_SCRIPT = 'npm run test:surface-side-panel';
 const NEXT_WORKPACKAGE = 'WP-SM-05';
@@ -52,6 +53,7 @@ const REQUIRED_ARTIFACTS = Object.freeze([
   SURFACE_MANAGER_SIDE_PANEL_CONTRACT,
   SURFACE_MANAGER_SIDE_PANEL_WORKPACKAGE_DOC,
   SURFACE_MANAGER_SIDE_PANEL_DOCS,
+  SURFACE_MANAGER_SIDE_PANEL_DOCS_DE,
   ...RUNTIME_ARTIFACTS,
   ...SOURCE_ARTIFACTS,
   ...COMPONENT_DOCS,
@@ -154,6 +156,10 @@ function createSurfaceManagerSidePanelPlan(options = {}) {
     contract: SURFACE_MANAGER_SIDE_PANEL_CONTRACT,
     workpackageDocument: SURFACE_MANAGER_SIDE_PANEL_WORKPACKAGE_DOC,
     docs: SURFACE_MANAGER_SIDE_PANEL_DOCS,
+    localizedDocs: {
+      de: SURFACE_MANAGER_SIDE_PANEL_DOCS_DE,
+      en: SURFACE_MANAGER_SIDE_PANEL_DOCS
+    },
     localGate: SURFACE_MANAGER_SIDE_PANEL_LOCAL_GATE,
     packageScript: SURFACE_MANAGER_SIDE_PANEL_PACKAGE_SCRIPT,
     runtimeArtifacts: RUNTIME_ARTIFACTS.slice(),
@@ -291,6 +297,7 @@ module.exports = {
   SURFACE_MANAGER_SCHEMA,
   SURFACE_MANAGER_SIDE_PANEL_CONTRACT,
   SURFACE_MANAGER_SIDE_PANEL_DOCS,
+  SURFACE_MANAGER_SIDE_PANEL_DOCS_DE,
   SURFACE_MANAGER_SIDE_PANEL_LOCAL_GATE,
   SURFACE_MANAGER_SIDE_PANEL_MODULE,
   SURFACE_MANAGER_SIDE_PANEL_PACKAGE_SCRIPT,

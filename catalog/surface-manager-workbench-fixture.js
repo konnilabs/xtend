@@ -58,7 +58,7 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_WORKBENCH_DOCS,
   'development/docs-evidence/root/surface-manager-rmt-authoring.md',
   'docs/en/surface-manager-window-runtime.md',
-  'docs/surface-manager-side-panel-runtime.md'
+  'docs/en/surface-manager-side-panel-runtime.md'
 ]);
 
 const REQUIRED_ADAPTERS = Object.freeze([

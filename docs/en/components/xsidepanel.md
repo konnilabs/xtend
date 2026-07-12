@@ -146,6 +146,8 @@ RMT Hosts should treat the component as a Custom Element boundary: pass attribut
 
 Use `collapsible`, `closable="false"` and `pinnable="false"` to tailor the panel chrome for focused product shells. These flags affect both the visible header controls and the generated Surface record capabilities, so a non-closable panel does not advertise `close` as a supported action.
 
+Surface modes remain part of the runtime contract: `docked`, `overlay`, `pinned`, `collapsed`, `fullscreen` and `floating`. The responsive policy `fullscreen-under-720` lets the host switch a constrained panel to a full-screen surface without inventing a separate component state.
+
 Theming should flow through XTend design tokens first. CSS parts are intended for targeted skinning of exposed controls, while CSS custom properties are better for broader color, spacing, radius and motion changes. Accessibility hooks such as labels, live regions and focus handling should be preserved when composing the component.
 
 ## Troubleshooting

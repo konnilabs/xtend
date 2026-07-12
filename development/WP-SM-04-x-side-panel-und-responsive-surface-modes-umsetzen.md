@@ -23,7 +23,7 @@
 | Component Suite | `tests/components/xsidepanel.component_suite.js` |
 | Contract Module | `catalog/surface-manager-side-panel-runtime.js` |
 | Gate Suite | `tests/components/surface_manager_side_panel_suite.js` |
-| Public Docs | `docs/surface-manager-side-panel-runtime.md` |
+| Public Docs | `docs/de/surface-manager-side-panel-runtime.md`, `docs/en/surface-manager-side-panel-runtime.md` |
 
 ## Done Criteria
 

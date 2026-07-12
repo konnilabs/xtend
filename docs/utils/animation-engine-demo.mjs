@@ -49,9 +49,13 @@ const COPY = Object.freeze({
 
 const DEMO_CSS = `
   .docs-animation-engine-demo {
+    --docs-animation-field-slot-size: 4.55rem;
+    --docs-animation-action-slot-size: 4rem;
+    --docs-animation-replay-slot-inline-size: 13rem;
+    --docs-animation-status-slot-size: 5.5rem;
     display: grid;
     gap: 0.8rem;
-    min-block-size: 14.5rem;
+    min-block-size: 15.1rem;
     margin: 0 0 1.25rem;
     padding: 1rem;
     border: 1px solid var(--border-color);
@@ -73,10 +77,44 @@ const DEMO_CSS = `
   }
   .docs-animation-engine-demo-controls {
     display: grid;
-    grid-template-columns: repeat(4, minmax(8.5rem, 1fr)) auto;
+    grid-template-columns: repeat(4, minmax(8.5rem, 1fr)) var(--docs-animation-replay-slot-inline-size);
+    grid-template-areas:
+      "effect duration easing motion replay"
+      "status status status status status";
+    grid-template-rows: minmax(var(--docs-animation-field-slot-size), auto) var(--docs-animation-status-slot-size);
     gap: 0.7rem;
-    align-items: end;
+    align-items: stretch;
     min-width: 0;
+  }
+  .docs-animation-engine-demo-control-slot {
+    display: flex;
+    align-items: flex-end;
+    min-width: 0;
+    min-block-size: var(--docs-animation-field-slot-size);
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="effect"] {
+    grid-area: effect;
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="duration"] {
+    grid-area: duration;
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="easing"] {
+    grid-area: easing;
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="motion"] {
+    grid-area: motion;
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="replay"] {
+    grid-area: replay;
+    inline-size: var(--docs-animation-replay-slot-inline-size);
+    max-inline-size: 100%;
+    min-block-size: var(--docs-animation-action-slot-size);
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="status"] {
+    grid-area: status;
+    align-items: stretch;
+    block-size: var(--docs-animation-status-slot-size);
+    min-block-size: var(--docs-animation-status-slot-size);
   }
   .docs-animation-engine-demo-controls x-select {
     display: block;
@@ -87,12 +125,25 @@ const DEMO_CSS = `
     --xtend-form-label-text: var(--text-color);
   }
   .docs-animation-engine-demo-controls x-button {
+    width: 100%;
     min-width: 2.75rem;
     min-height: 2.75rem;
   }
   .docs-animation-engine-demo-status {
-    grid-column: 1 / -1;
+    display: block;
+    width: 100%;
+    block-size: 100%;
     min-width: 0;
+  }
+  .docs-animation-engine-demo-status::part(root) {
+    align-items: center;
+    box-sizing: border-box;
+    block-size: 100%;
+    min-block-size: 100%;
+  }
+  .docs-animation-engine-demo-status::part(label),
+  .docs-animation-engine-demo-status::part(message) {
+    overflow-wrap: anywhere;
   }
   .docs-animation-engine-demo-ghost {
     position: absolute;
@@ -111,26 +162,41 @@ const DEMO_CSS = `
   }
   @media (max-width: 880px) {
     .docs-animation-engine-demo {
-      min-block-size: 22rem;
+      min-block-size: 25rem;
     }
     .docs-animation-engine-demo-controls {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .docs-animation-engine-demo-controls x-button,
-    .docs-animation-engine-demo-status {
-      grid-column: 1 / -1;
+      grid-template-areas:
+        "effect duration"
+        "easing motion"
+        "replay replay"
+        "status status";
+      grid-template-rows:
+        repeat(2, minmax(var(--docs-animation-field-slot-size), auto))
+        minmax(var(--docs-animation-action-slot-size), auto)
+        var(--docs-animation-status-slot-size);
     }
   }
   @media (max-width: 520px) {
     .docs-animation-engine-demo {
-      min-block-size: 35rem;
+      min-block-size: 35.5rem;
     }
     .docs-animation-engine-demo-controls {
       grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        "effect"
+        "duration"
+        "easing"
+        "motion"
+        "replay"
+        "status";
+      grid-template-rows:
+        repeat(4, minmax(var(--docs-animation-field-slot-size), auto))
+        minmax(var(--docs-animation-action-slot-size), auto)
+        var(--docs-animation-status-slot-size);
     }
-    .docs-animation-engine-demo-controls x-button,
-    .docs-animation-engine-demo-status {
-      grid-column: auto;
+    .docs-animation-engine-demo-control-slot[data-slot="replay"] {
+      inline-size: 100%;
     }
   }
 `;
@@ -147,6 +213,16 @@ function createElement(tag, attributes = {}, text = '') {
   });
   if (text !== '') element.textContent = String(text);
   return element;
+}
+
+function createControlSlot(name, control) {
+  const slot = createElement('div', {
+    class: 'docs-animation-engine-demo-control-slot',
+    'data-slot': name,
+    'data-rmt-slot': `docs.animation-engine.demo.controls.${name}`
+  });
+  slot.appendChild(control);
+  return slot;
 }
 
 function ensureStyles(root) {
@@ -323,7 +399,12 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
   if (disposed) return { dispose() {} };
 
   const heading = createElement('h2', { class: 'docs-animation-engine-demo-heading' }, copy.title);
-  const controlStrip = createElement('div', { class: 'docs-animation-engine-demo-controls' });
+  const controlStrip = createElement('div', {
+    class: 'docs-animation-engine-demo-controls',
+    role: 'group',
+    'aria-label': copy.title,
+    'data-slot-layout': 'fixed-responsive-grid'
+  });
   const effectSelect = createSelect('docs-animation-effect', copy.effect, controls.effects || [], state.effect);
   const durationSelect = createSelect(
     'docs-animation-duration',
@@ -360,7 +441,14 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
     message: `${state.effect} · ${state.durationMs} ms`
   });
 
-  controlStrip.append(effectSelect, durationSelect, easingSelect, reducedSelect, replayButton, status);
+  controlStrip.append(
+    createControlSlot('effect', effectSelect),
+    createControlSlot('duration', durationSelect),
+    createControlSlot('easing', easingSelect),
+    createControlSlot('motion', reducedSelect),
+    createControlSlot('replay', replayButton),
+    createControlSlot('status', status)
+  );
   root.replaceChildren(heading, controlStrip);
   root.classList.add('docs-animation-engine-demo');
   root.removeAttribute('tabindex');
@@ -369,6 +457,54 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
   root.setAttribute('data-animation-engine-ready', 'true');
   root.setAttribute('data-plan-fingerprint', artifact.planFingerprint || '');
   target.setAttribute('data-docs-animation-engine-target', 'true');
+  const replayGeometry = {
+    rootHeight: root.getBoundingClientRect().height,
+    controlsHeight: controlStrip.getBoundingClientRect().height,
+    slots: new Map(),
+    maxDelta: 0
+  };
+
+  function captureSlotGeometry() {
+    return new Map(Array.from(controlStrip.querySelectorAll('.docs-animation-engine-demo-control-slot')).map((slot) => {
+      const rect = slot.getBoundingClientRect();
+      return [slot.getAttribute('data-slot') || '', {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height
+      }];
+    }));
+  }
+
+  function resetReplayGeometry() {
+    replayGeometry.rootHeight = root.getBoundingClientRect().height;
+    replayGeometry.controlsHeight = controlStrip.getBoundingClientRect().height;
+    replayGeometry.slots = captureSlotGeometry();
+    replayGeometry.maxDelta = 0;
+    root.setAttribute('data-replay-layout-baseline', String(Math.round(replayGeometry.rootHeight * 100) / 100));
+    root.setAttribute('data-replay-layout-delta', '0');
+    root.setAttribute('data-replay-layout-stable', 'true');
+  }
+
+  function recordReplayGeometry(stage) {
+    const rootDelta = Math.abs(root.getBoundingClientRect().height - replayGeometry.rootHeight);
+    const controlsDelta = Math.abs(controlStrip.getBoundingClientRect().height - replayGeometry.controlsHeight);
+    const slotDelta = Math.max(0, ...Array.from(captureSlotGeometry()).map(([name, current]) => {
+      const baseline = replayGeometry.slots.get(name) || current;
+      return Math.max(
+        Math.abs(current.x - baseline.x),
+        Math.abs(current.y - baseline.y),
+        Math.abs(current.width - baseline.width),
+        Math.abs(current.height - baseline.height)
+      );
+    }));
+    replayGeometry.maxDelta = Math.max(replayGeometry.maxDelta, rootDelta, controlsDelta, slotDelta);
+    root.setAttribute('data-replay-layout-stage', stage);
+    root.setAttribute('data-replay-layout-delta', String(Math.round(replayGeometry.maxDelta * 100) / 100));
+    root.setAttribute('data-replay-layout-stable', String(replayGeometry.maxDelta <= 0.5));
+  }
+
+  resetReplayGeometry();
 
   function restorePresentation(localClone = activeClone) {
     if (localClone) {
@@ -423,11 +559,13 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
     };
     const resourcesBefore = resourceCount();
     const startedAt = performance.now();
+    resetReplayGeometry();
     replayButton.setAttribute('loading', '');
     replayButton.setAttribute('aria-busy', 'true');
     root.setAttribute('aria-busy', 'true');
     root.setAttribute('data-replay-complete', 'false');
     setStatus(status, copy, 'running', `${state.effect} · ${state.durationMs} ms`);
+    recordReplayGeometry('running');
 
     try {
       const [exitResult, enterResult] = await Promise.all([
@@ -471,6 +609,7 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
       root.setAttribute('data-network-during-replay', String(result.networkDuringReplay));
       root.setAttribute('data-animation-observed', String(result.effect !== 'none' && result.durationMs > 0));
       setStatus(status, copy, result.status, `${result.effect} · ${result.elapsedMs} ms`);
+      recordReplayGeometry(result.status);
       window.xtendDocsAnimationEngineDemoLastSnapshot = result;
       window.dispatchEvent(new CustomEvent('xtend-docs-animation-engine-demo-replay', { detail: result }));
       return result;
@@ -479,6 +618,7 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
         root.setAttribute('data-replay-complete', 'true');
         root.setAttribute('data-replay-status', 'failed');
         setStatus(status, copy, 'failed', error && error.message ? error.message : String(error));
+        recordReplayGeometry('failed');
       }
       throw error;
     } finally {

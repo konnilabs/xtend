@@ -19,7 +19,8 @@ const SURFACE_MANAGER_QUALITY_GATES_SUITE = 'tests/components/surface_manager_qu
 const SURFACE_MANAGER_QUALITY_GATES_PLAN = 'development/XTend-SurfaceManager-und-Multi-Window-Plan.md';
 const SURFACE_MANAGER_QUALITY_GATES_CONTRACT = 'development/XTend-SurfaceManager-Quality-Gates-Contract.md';
 const SURFACE_MANAGER_QUALITY_GATES_WORKPACKAGE_DOC = 'development/WP-SM-07-Browser-A11y-Performance-und-Visual-Gates-ergaenzen.md';
-const SURFACE_MANAGER_QUALITY_GATES_DOCS = 'docs/surface-manager-quality-gates.md';
+const SURFACE_MANAGER_QUALITY_GATES_DOCS = 'docs/en/surface-manager-quality-gates.md';
+const SURFACE_MANAGER_QUALITY_GATES_DOCS_DE = 'docs/de/surface-manager-quality-gates.md';
 const SURFACE_MANAGER_QUALITY_BROWSER_FIXTURE = 'tests/browser/fixtures/surface-manager-quality-smoke.html';
 const SURFACE_MANAGER_QUALITY_VISUAL_BASELINE = 'tests/browser/visual-baselines/surface-manager-quality.dom-baseline.json';
 const SURFACE_MANAGER_QUALITY_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-manager-quality --json';
@@ -124,6 +125,7 @@ const REQUIRED_ARTIFACTS = Object.freeze([
   SURFACE_MANAGER_QUALITY_GATES_CONTRACT,
   SURFACE_MANAGER_QUALITY_GATES_WORKPACKAGE_DOC,
   SURFACE_MANAGER_QUALITY_GATES_DOCS,
+  SURFACE_MANAGER_QUALITY_GATES_DOCS_DE,
   SURFACE_MANAGER_QUALITY_BROWSER_FIXTURE,
   SURFACE_MANAGER_QUALITY_VISUAL_BASELINE,
   'tests/browser/browser_smoke_suite.js',
@@ -137,7 +139,7 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_QUALITY_GATES_DOCS,
   'docs/surface-manager-overlay-bridge.md',
   'docs/en/surface-manager-workbench-fixture.md',
-  'docs/surface-manager-side-panel-runtime.md',
+  'docs/en/surface-manager-side-panel-runtime.md',
   'docs/en/surface-manager-window-runtime.md'
 ]);
 
@@ -166,6 +168,10 @@ function createSurfaceManagerQualityGatesPlan(options = {}) {
     contract: SURFACE_MANAGER_QUALITY_GATES_CONTRACT,
     workpackageDocument: SURFACE_MANAGER_QUALITY_GATES_WORKPACKAGE_DOC,
     docs: SURFACE_MANAGER_QUALITY_GATES_DOCS,
+    localizedDocs: {
+      de: SURFACE_MANAGER_QUALITY_GATES_DOCS_DE,
+      en: SURFACE_MANAGER_QUALITY_GATES_DOCS
+    },
     browserFixture: SURFACE_MANAGER_QUALITY_BROWSER_FIXTURE,
     visualBaseline: SURFACE_MANAGER_QUALITY_VISUAL_BASELINE,
     localGate: SURFACE_MANAGER_QUALITY_LOCAL_GATE,
@@ -297,6 +303,7 @@ module.exports = {
   SURFACE_MANAGER_QUALITY_BROWSER_SMOKE_SCHEMA,
   SURFACE_MANAGER_QUALITY_GATES_CONTRACT,
   SURFACE_MANAGER_QUALITY_GATES_DOCS,
+  SURFACE_MANAGER_QUALITY_GATES_DOCS_DE,
   SURFACE_MANAGER_QUALITY_GATES_LOCAL_GATE: SURFACE_MANAGER_QUALITY_LOCAL_GATE,
   SURFACE_MANAGER_QUALITY_GATES_MODULE,
   SURFACE_MANAGER_QUALITY_GATES_PACKAGE_SCRIPT: SURFACE_MANAGER_QUALITY_PACKAGE_SCRIPT,

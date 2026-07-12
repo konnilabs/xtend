@@ -7080,9 +7080,11 @@ function assertComponentRegressionPriorityReference(context, rootDir) {
 function assertCiDefaultGatesReference(context, rootDir) {
   const workflowPath = '.github/workflows/xtend-default-gates.yml';
   const nightlyWorkflowPath = '.github/workflows/xtend-nightly-build.yml';
+  const nightlyManifestScriptPath = 'scripts/create_xtend_nightly_manifest.js';
   const packageManifest = readJson('package.json', rootDir);
   const workflow = readText(workflowPath, rootDir);
   const nightlyWorkflow = readText(nightlyWorkflowPath, rootDir);
+  const nightlyManifestScript = readText(nightlyManifestScriptPath, rootDir);
   const ciMetadata = packageManifest.xtend && packageManifest.xtend.ciDefaultGates;
   const gateMatrix = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
   const prFastGate = (gateMatrix && gateMatrix.prFastGate) || {};
@@ -7097,6 +7099,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
 
   assertFileExists(context, workflowPath, rootDir, 'CI default gates workflow exists');
   assertFileExists(context, nightlyWorkflowPath, rootDir, 'CI nightly build workflow exists');
+  assertFileExists(context, nightlyManifestScriptPath, rootDir, 'CI nightly manifest script exists');
   context.assertIncludes(workflow, 'name: XTend CI Gates', 'CI workflow declares stable name');
   context.assertIncludes(workflow, 'pull_request:', 'CI workflow runs on pull requests');
   context.assertIncludes(workflow, 'push:', 'CI workflow runs full gates on push');
@@ -7111,6 +7114,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
   context.assertIncludes(workflow, 'npm run test:xtensions-framework-adapters:report', 'CI workflow runs XTensions framework adapter report gate');
   context.assertIncludes(workflow, 'npm run test:xtend-dev-surface:report', 'CI workflow runs XTend Dev Surface report gate');
+  context.assert((workflow.match(/- name: Run public docs quality report\s+if: always\(\)/gu) || []).length === 2, 'CI workflow preserves both public docs quality reports after aggregate gate failures');
+  context.assertIncludes(workflow, '- name: Run Native-First and RMT Owned release report\n        if: always()', 'CI workflow preserves Native-First release evidence after primitive gate failures');
   context.assertIncludes(workflow, 'actions/upload-artifact@v7', 'CI workflow uploads report artifact');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-pr-gate-report.json', 'CI workflow uploads PR JSON report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-release-gate-report.json', 'CI workflow uploads full release JSON report');
@@ -7166,13 +7171,25 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'npm run test:native-first-rmt-owned-release:report', 'Nightly workflow runs Native-First RMT Owned release report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:xtensions-framework-adapters:report', 'Nightly workflow runs XTensions framework adapter report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:xtend-dev-surface:report', 'Nightly workflow runs XTend Dev Surface report');
+  context.assertIncludes(nightlyWorkflow, 'npm run test:docs-quality:report', 'Nightly workflow runs public docs quality report');
+  context.assertIncludes(nightlyWorkflow, 'npm run test:docs-shell-catfooding:report', 'Nightly workflow runs Docs Shell catfooding report');
   context.assertIncludes(nightlyWorkflow, 'npm run release:report', 'Nightly workflow captures release report evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run pack:dry-run', 'Nightly workflow captures package dry-run evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run nightly:manifest', 'Nightly workflow writes nightly manifest');
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-xtensions-framework-adapters-report.json', 'Nightly workflow uploads XTensions framework adapter evidence');
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-dev-surface-report.json', 'Nightly workflow uploads XTend Dev Surface evidence');
+  context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-docs-quality-report.json', 'Nightly workflow uploads public docs quality evidence');
+  context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-docs-shell-catfooding-report.json', 'Nightly workflow uploads Docs Shell catfooding evidence');
   context.assertIncludes(nightlyWorkflow, 'XTensions framework adapter gate failed', 'Nightly workflow fails on missing XTensions framework adapter evidence');
   context.assertIncludes(nightlyWorkflow, 'XTend Dev Surface gate failed', 'Nightly workflow fails on missing XTend Dev Surface evidence');
+  context.assertIncludes(nightlyWorkflow, 'public docs quality gate failed', 'Nightly workflow fails on missing public docs quality evidence');
+  context.assertIncludes(nightlyWorkflow, 'Docs Shell catfooding gate failed', 'Nightly workflow fails on missing Docs Shell catfooding evidence');
+  context.assertIncludes(nightlyManifestScript, "'npm run test:xtend-dev-surface:report'", 'Nightly manifest tracks XTend Dev Surface command');
+  context.assertIncludes(nightlyManifestScript, "'npm run test:docs-quality:report'", 'Nightly manifest tracks public docs quality command');
+  context.assertIncludes(nightlyManifestScript, "'npm run test:docs-shell-catfooding:report'", 'Nightly manifest tracks Docs Shell catfooding command');
+  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-dev-surface-report.json'", 'Nightly manifest requires XTend Dev Surface evidence');
+  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-docs-quality-report.json'", 'Nightly manifest requires public docs quality evidence');
+  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-docs-shell-catfooding-report.json'", 'Nightly manifest requires Docs Shell catfooding evidence');
   context.assertIncludes(nightlyWorkflow, 'xtend-nightly-build-node-26', 'Nightly workflow uploads stable artifact bundle');
   context.assertIncludes(nightlyWorkflow, 'optional-source-to-sea:', 'Nightly workflow isolates optional Source-to-Sea browser evidence');
   context.assertIncludes(nightlyWorkflow, "github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true", 'Nightly Source-to-Sea job is manual only');
@@ -7260,6 +7277,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:native-first-rmt-owned-release:report'), 'Package metadata includes Native-First RMT Owned release command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:xtensions-framework-adapters:report'), 'Package metadata includes XTensions framework adapter command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:xtend-dev-surface:report'), 'Package metadata includes XTend Dev Surface command in nightly build');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:docs-quality:report'), 'Package metadata includes public docs quality command in nightly build');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:docs-shell-catfooding:report'), 'Package metadata includes Docs Shell catfooding command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run release:report'), 'Package metadata includes release report command in nightly build');
   context.assert(Array.isArray(nightlyBuild.workspaceDryRunCommands) && nightlyBuild.workspaceDryRunCommands.includes('npm pack --workspace xtendrmt --dry-run --json'), 'Package metadata includes workspace dry-run commands in nightly build');
   context.assert(nightlyBuild.manifestCommand === 'npm run nightly:manifest', 'Package metadata exposes nightly build manifest command');

@@ -123,7 +123,7 @@ const REQUIRED_DOCS = Object.freeze([
   SURFACE_MANAGER_NATIVE_RMT_WORKPACKAGE_DOC,
   SURFACE_MANAGER_NATIVE_RMT_DOCS,
   'development/XTend-SurfaceManager-Quality-Gates-Contract.md',
-  'docs/surface-manager-quality-gates.md',
+  'docs/en/surface-manager-quality-gates.md',
   'development/docs-evidence/root/surface-manager-rmt-authoring.md',
   'docs/xtendrmt-native-authoring.md'
 ]);

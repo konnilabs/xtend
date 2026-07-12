@@ -58,27 +58,35 @@ jobs:
         run: npm run test:pr:report
 
       - name: Run XTensions framework adapter report
+        if: always()
         run: npm run test:xtensions-framework-adapters:report
 
       - name: Run XTend Dev Surface report
+        if: always()
         run: npm run test:xtend-dev-surface:report
 
       - name: Run public docs quality report
+        if: always()
         run: npm run test:docs-quality:report
 
       - name: Run Docs Shell catfooding report
+        if: always()
         run: npm run test:docs-shell-catfooding:report
 
       - name: Run RMT Reference docs report
+        if: always()
         run: npm run test:rmt-reference-docs:report
 
       - name: Run XScaler protocol gate report
+        if: always()
         run: npm run test:xscaler-protocol:report
 
       - name: Run XScaler source-to-sea gate report
+        if: always()
         run: npm run test:xscaler-source-to-sea:report
 
       - name: Run RKFA production closure report
+        if: always()
         run: npm run test:rkfa-production-closure:report
 
       - name: Run docs stub inventory report
@@ -134,27 +142,35 @@ jobs:
         run: npm run test:release:full:report
 
       - name: Run XTensions framework adapter report
+        if: always()
         run: npm run test:xtensions-framework-adapters:report
 
       - name: Run XTend Dev Surface report
+        if: always()
         run: npm run test:xtend-dev-surface:report
 
       - name: Run public docs quality report
+        if: always()
         run: npm run test:docs-quality:report
 
       - name: Run Docs Shell catfooding report
+        if: always()
         run: npm run test:docs-shell-catfooding:report
 
       - name: Run RMT Reference docs report
+        if: always()
         run: npm run test:rmt-reference-docs:report
 
       - name: Run XScaler protocol gate report
+        if: always()
         run: npm run test:xscaler-protocol:report
 
       - name: Run XScaler source-to-sea gate report
+        if: always()
         run: npm run test:xscaler-source-to-sea:report
 
       - name: Run RKFA production closure report
+        if: always()
         run: npm run test:rkfa-production-closure:report
 
       - name: Run docs stub inventory report
@@ -203,9 +219,11 @@ jobs:
         run: npm run test:rmt-vnext-primitives:report
 
       - name: Prepare Native-First release evidence artifacts
+        if: always()
         run: npm run native-first:evidence:prepare
 
       - name: Run Native-First and RMT Owned release report
+        if: always()
         run: npm run test:native-first-rmt-owned-release:report
 
       - name: Capture RMT vNext source-to-sea browser evidence

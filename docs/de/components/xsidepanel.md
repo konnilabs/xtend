@@ -146,7 +146,7 @@ RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute 
 
 Verwende `collapsible`, `closable="false"` und `pinnable="false"`, um die Panel-Chrome für fokussierte Produktshells zu begrenzen. Diese Flags wirken auf die sichtbaren Header-Controls und auf die erzeugten Surface-Record-Capabilities; ein nicht schliessbares Panel bewirbt also keine `close`-Aktion.
 
-Surface-Modi bleiben Teil des Runtime-Vertrags: `docked`, `overlay`, `pinned`, `collapsed`, `fullscreen` und die responsive Vorgabe `fullscreen-under-720`.
+Surface-Modi bleiben Teil des Runtime-Vertrags: `docked`, `overlay`, `pinned`, `collapsed`, `fullscreen` und `floating`. Die responsive Vorgabe `fullscreen-under-720` lässt den Host ein beengtes Panel in eine Vollbild-Surface umschalten, ohne einen separaten Komponentenzustand zu erfinden.
 
 Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezieltes Skinning freigegebener Controls gedacht, während CSS Custom Properties breitere Anpassungen an Farbe, Abstand, Radius und Bewegung abdecken. Accessibility-Hooks wie Labels, Live-Regionen und Fokusverhalten sollten beim Komponieren erhalten bleiben.
 

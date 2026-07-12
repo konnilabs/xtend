@@ -140,6 +140,9 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   context.assert(pageLoader.includes('createDocsAnimationEngineDemoSkeleton'), 'Page loader creates a route-specific AnimationEngine skeleton');
   context.assert(pageLoader.includes("article.insertBefore(root, mdContent)"), 'AnimationEngine skeleton is inserted above Parsedown content');
   context.assert(pageLoader.includes('data-xtend-cls-anchor') && pageLoader.includes('docs.animation-engine.demo'), 'AnimationEngine skeleton declares a CLS anchor');
+  context.assert(pageLoader.includes("controls.setAttribute('data-slot-layout', 'fixed-responsive-grid')"), 'AnimationEngine skeleton declares its fixed responsive slot layout');
+  context.assert(pageLoader.includes("['effect', 'duration', 'easing', 'motion']") && pageLoader.includes("createSlot('status', status)"), 'AnimationEngine skeleton reserves all six named control slots');
+  context.assert(pageLoader.includes('--docs-animation-field-slot-size: 4.55rem') && pageLoader.includes('--docs-animation-status-slot-size: 5.5rem'), 'AnimationEngine skeleton reserves fixed field and status rows before hydration');
   context.assert(pageLoader.includes('IntersectionObserver') && pageLoader.includes("scheduleDocsIdle(() => hydrate('visible-idle'))"), 'AnimationEngine hydration combines visibility and idle scheduling');
   context.assert(pageLoader.indexOf("window.dispatchEvent(new CustomEvent('xtend-docs-content-ready'") < pageLoader.indexOf('scheduleDocsAnimationEngineDemoHydration({'), 'Demo hydration is scheduled only after content-ready dispatch');
   context.assert(pageLoader.includes('requestImmediateHydration') && pageLoader.includes("hydrate('user-intent')"), 'Focus and pointer intent can advance lazy hydration');
@@ -157,6 +160,10 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   context.assert(!/window\.(?:fetch|matchMedia|history|performance)\s*=/u.test(demoModule), 'Demo module does not monkeypatch browser globals');
   context.assert(!demoModule.includes("replay('auto')"), 'Demo never auto-plays article motion');
   context.assert(demoModule.includes('networkDuringReplay') && demoModule.includes('data-network-during-replay'), 'Replay records its no-network boundary');
+  context.assert(demoModule.includes('createControlSlot') && demoModule.includes("'data-slot': name"), 'Hydrated controls use named RMT-compatible layout slots');
+  context.assert(demoModule.includes("createControlSlot('status', status)") && demoModule.includes('--docs-animation-status-slot-size: 5.5rem'), 'Hydrated status uses the same fixed slot geometry as the skeleton');
+  context.assert(demoModule.includes("root.setAttribute('data-replay-layout-stable'") && demoModule.includes('recordReplayGeometry'), 'Replay records control geometry across status changes');
+  context.assert(pageLoader.includes("root.setAttribute('data-demo-replay-cls', '0')") && browserSmoke.includes('replayLayoutShift <= 0.01'), 'Browser smoke scopes its CLS budget to the AnimationEngine replay lifecycle');
   context.assert(xUtilsSource.includes('function toArray(value)') && xUtilsSource.includes('keyframes: toArray(options.keyframes)'), 'XUtils normalizes optional AnimationEngine keyframe arrays');
   context.assert(browserSmoke.includes("findCommand(['chromedriver'"), 'Browser smoke uses the repository ChromeDriver path');
   context.assert(browserSmoke.includes("node.shadowRoot") && browserSmoke.includes("deepQuery('[data-docs-animation-engine-demo]')"), 'Browser smoke inspects the active XRouter shadow route');

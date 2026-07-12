@@ -418,9 +418,13 @@ const DOCS_SHELL_SCOPED_CSS = `
     box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
   }
   .docs-animation-engine-demo {
+    --docs-animation-field-slot-size: 4.55rem;
+    --docs-animation-action-slot-size: 4rem;
+    --docs-animation-replay-slot-inline-size: 13rem;
+    --docs-animation-status-slot-size: 5.5rem;
     display: grid;
     gap: 0.8rem;
-    min-block-size: 14.5rem;
+    min-block-size: 15.1rem;
     margin: 0 0 1.25rem;
     padding: 1rem;
     border: 1px solid var(--border-color);
@@ -442,10 +446,44 @@ const DOCS_SHELL_SCOPED_CSS = `
   }
   .docs-animation-engine-demo-skeleton-controls {
     display: grid;
-    grid-template-columns: repeat(4, minmax(8.5rem, 1fr)) auto;
+    grid-template-columns: repeat(4, minmax(8.5rem, 1fr)) var(--docs-animation-replay-slot-inline-size);
+    grid-template-areas:
+      "effect duration easing motion replay"
+      "status status status status status";
+    grid-template-rows: minmax(var(--docs-animation-field-slot-size), auto) var(--docs-animation-status-slot-size);
     gap: 0.7rem;
-    align-items: end;
+    align-items: stretch;
     min-width: 0;
+  }
+  .docs-animation-engine-demo-control-slot {
+    display: flex;
+    align-items: flex-end;
+    min-width: 0;
+    min-block-size: var(--docs-animation-field-slot-size);
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="effect"] {
+    grid-area: effect;
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="duration"] {
+    grid-area: duration;
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="easing"] {
+    grid-area: easing;
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="motion"] {
+    grid-area: motion;
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="replay"] {
+    grid-area: replay;
+    inline-size: var(--docs-animation-replay-slot-inline-size);
+    max-inline-size: 100%;
+    min-block-size: var(--docs-animation-action-slot-size);
+  }
+  .docs-animation-engine-demo-control-slot[data-slot="status"] {
+    grid-area: status;
+    align-items: stretch;
+    block-size: var(--docs-animation-status-slot-size);
+    min-block-size: var(--docs-animation-status-slot-size);
   }
   .docs-animation-engine-demo-skeleton-field,
   .docs-animation-engine-demo-skeleton-action,
@@ -456,14 +494,21 @@ const DOCS_SHELL_SCOPED_CSS = `
     border: 1px solid color-mix(in srgb, var(--border-color) 76%, transparent);
     border-radius: 7px;
     background: color-mix(in srgb, var(--docs-code-bg) 76%, var(--surface-muted));
+    box-sizing: border-box;
+  }
+  .docs-animation-engine-demo-skeleton-field {
+    inline-size: 100%;
+    block-size: var(--docs-animation-field-slot-size);
   }
   .docs-animation-engine-demo-skeleton-action {
-    inline-size: 2.75rem;
+    inline-size: 100%;
+    block-size: 2.75rem;
     min-height: 2.75rem;
   }
   .docs-animation-engine-demo-skeleton-status {
-    grid-column: 1 / -1;
-    min-height: 3.25rem;
+    inline-size: 100%;
+    block-size: 100%;
+    min-height: 100%;
   }
   .docs-animation-engine-demo-assistive {
     position: absolute;
@@ -478,27 +523,41 @@ const DOCS_SHELL_SCOPED_CSS = `
   }
   @media (max-width: 880px) {
     .docs-animation-engine-demo {
-      min-block-size: 22rem;
+      min-block-size: 25rem;
     }
     .docs-animation-engine-demo-skeleton-controls {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .docs-animation-engine-demo-skeleton-action,
-    .docs-animation-engine-demo-skeleton-status {
-      grid-column: 1 / -1;
-      inline-size: auto;
+      grid-template-areas:
+        "effect duration"
+        "easing motion"
+        "replay replay"
+        "status status";
+      grid-template-rows:
+        repeat(2, minmax(var(--docs-animation-field-slot-size), auto))
+        minmax(var(--docs-animation-action-slot-size), auto)
+        var(--docs-animation-status-slot-size);
     }
   }
   @media (max-width: 520px) {
     .docs-animation-engine-demo {
-      min-block-size: 35rem;
+      min-block-size: 35.5rem;
     }
     .docs-animation-engine-demo-skeleton-controls {
       grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        "effect"
+        "duration"
+        "easing"
+        "motion"
+        "replay"
+        "status";
+      grid-template-rows:
+        repeat(4, minmax(var(--docs-animation-field-slot-size), auto))
+        minmax(var(--docs-animation-action-slot-size), auto)
+        var(--docs-animation-status-slot-size);
     }
-    .docs-animation-engine-demo-skeleton-action,
-    .docs-animation-engine-demo-skeleton-status {
-      grid-column: auto;
+    .docs-animation-engine-demo-control-slot[data-slot="replay"] {
+      inline-size: 100%;
     }
   }
   .docs-page-sidebar {
@@ -5246,16 +5305,25 @@ function createDocsAnimationEngineDemoSkeleton(locale = getCurrentDocsLocale()) 
   const controls = document.createElement('div');
   controls.className = 'docs-animation-engine-demo-skeleton-controls';
   controls.setAttribute('aria-hidden', 'true');
-  for (let index = 0; index < 4; index += 1) {
+  controls.setAttribute('data-slot-layout', 'fixed-responsive-grid');
+  const createSlot = (name, content) => {
+    const slot = document.createElement('div');
+    slot.className = 'docs-animation-engine-demo-control-slot';
+    slot.setAttribute('data-slot', name);
+    slot.setAttribute('data-rmt-slot', `docs.animation-engine.demo.controls.${name}`);
+    slot.appendChild(content);
+    return slot;
+  };
+  ['effect', 'duration', 'easing', 'motion'].forEach((name) => {
     const field = document.createElement('span');
     field.className = 'docs-animation-engine-demo-skeleton-field';
-    controls.appendChild(field);
-  }
+    controls.appendChild(createSlot(name, field));
+  });
   const action = document.createElement('span');
   action.className = 'docs-animation-engine-demo-skeleton-action';
   const status = document.createElement('span');
   status.className = 'docs-animation-engine-demo-skeleton-status';
-  controls.append(action, status);
+  controls.append(createSlot('replay', action), createSlot('status', status));
   const loading = document.createElement('span');
   loading.className = 'docs-animation-engine-demo-assistive';
   loading.textContent = copy.loading;
@@ -5345,20 +5413,52 @@ function scheduleDocsAnimationEngineDemoHydration(options = {}) {
   let idleDisposer = null;
   let loadPromise = null;
   let cumulativeLayoutShift = 0;
+  let replayLayoutShift = 0;
   let consoleErrorCount = 0;
+  const captureLayoutShiftDiagnostics = new URL(window.location.href).searchParams.get('animation-engine-smoke') === '1';
+  if (captureLayoutShiftDiagnostics) root.__xtendDocsAnimationEngineLayoutShifts = [];
   const updateConsoleErrors = () => {
     consoleErrorCount += 1;
     root.setAttribute('data-console-errors', String(consoleErrorCount));
   };
   root.setAttribute('data-console-errors', '0');
   root.setAttribute('data-demo-cls', '0');
+  root.setAttribute('data-demo-replay-cls', '0');
   window.addEventListener('error', updateConsoleErrors);
   window.addEventListener('unhandledrejection', updateConsoleErrors);
   if (typeof PerformanceObserver === 'function') {
     try {
       layoutShiftObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
-          if (!entry.hadRecentInput) cumulativeLayoutShift += Number(entry.value) || 0;
+          if (entry.hadRecentInput) return;
+          const value = Number(entry.value) || 0;
+          cumulativeLayoutShift += value;
+          if (root.hasAttribute('data-replay-layout-stage')) {
+            replayLayoutShift += value;
+            root.setAttribute('data-demo-replay-cls', String(Math.round(replayLayoutShift * 100000) / 100000));
+          }
+          if (captureLayoutShiftDiagnostics) {
+            root.__xtendDocsAnimationEngineLayoutShifts.push({
+              value,
+              replayStage: root.getAttribute('data-replay-layout-stage') || '',
+              sources: Array.from(entry.sources || []).map((source) => {
+                const node = source && source.node;
+                const nodeRoot = node && typeof node.getRootNode === 'function' ? node.getRootNode() : null;
+                return {
+                  tag: node && node.localName || '',
+                  id: node && node.id || '',
+                  className: node && typeof node.className === 'string' ? node.className : '',
+                  rootHost: nodeRoot && nodeRoot.host && nodeRoot.host.localName || '',
+                  previous: source && source.previousRect
+                    ? { x: source.previousRect.x, y: source.previousRect.y, width: source.previousRect.width, height: source.previousRect.height }
+                    : null,
+                  current: source && source.currentRect
+                    ? { x: source.currentRect.x, y: source.currentRect.y, width: source.currentRect.width, height: source.currentRect.height }
+                    : null
+                };
+              })
+            });
+          }
         });
         root.setAttribute('data-demo-cls', String(Math.round(cumulativeLayoutShift * 100000) / 100000));
       });
