@@ -597,8 +597,27 @@ class XRouter extends HTMLElement {
         #outlet[data-xtend-skeleton-active="true"] {
           display: block;
         }
+        #outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] {
+          position: relative;
+        }
+        #outlet[data-xtend-skeleton-cache="overlay"] {
+          position: relative;
+        }
+        #outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > [data-xtend-skeleton-loader] {
+          position: absolute;
+          inset: 0 0 auto 0;
+          z-index: var(--xtend-skeleton-z-index, 1);
+        }
+        #outlet[data-xtend-skeleton-cache="overlay"] > [data-xtend-skeleton-loader][data-xtend-skeleton-hidden="true"] {
+          position: absolute;
+          inset: 0 0 auto 0;
+          z-index: var(--xtend-skeleton-z-index, 1);
+          opacity: 0;
+          pointer-events: none;
+        }
         [data-xtend-skeleton-loader] {
           display: grid;
+          align-content: start;
           gap: 0.68rem;
           width: var(--xtend-skeleton-width, 100%);
           max-width: var(--xtend-skeleton-max-width, 100%);
@@ -1225,6 +1244,7 @@ class XRouter extends HTMLElement {
       label: this.getAttribute('skeleton-label') || 'Route wird geladen',
       source: 'x-router',
       schedule: this._getRouteValue(route, 'schedule', 'data-rmt-schedule') || 'route.visible.render',
+      layoutMode: 'overlay',
       routeId: this._getRouteValue(route, 'id', 'data-rmt-route-id') || null,
       path: context.path || this._getCurrentPath()
     };
@@ -1254,6 +1274,7 @@ class XRouter extends HTMLElement {
       routeId: options.routeId,
       path: options.path,
       profile: options.profile,
+      layoutMode: options.layoutMode,
       active: Boolean(skeleton),
       status: skeleton ? 'shown' : 'loader-unavailable'
     };

@@ -1127,14 +1127,33 @@ const DOCS_SHELL_SCOPED_CSS = `
     box-sizing: border-box;
     line-height: 1.65;
   }
-  #md-content[data-xtend-skeleton-active="true"] {
+  #md-content[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="flow"] {
     min-height: var(--docs-content-skeleton-min-height, 24rem);
   }
   #md-content[data-xtend-skeleton-active="true"] > :not([data-xtend-skeleton-loader]) {
     visibility: hidden;
   }
+  #md-content[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] {
+    position: relative;
+  }
+  #md-content[data-xtend-skeleton-cache="overlay"] {
+    position: relative;
+  }
+  #md-content[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > [data-xtend-skeleton-loader] {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: var(--xtend-skeleton-z-index, 1);
+  }
+  #md-content[data-xtend-skeleton-cache="overlay"] > [data-xtend-skeleton-loader][data-xtend-skeleton-hidden="true"] {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: var(--xtend-skeleton-z-index, 1);
+    opacity: 0;
+    pointer-events: none;
+  }
   [data-xtend-skeleton-loader] {
     display: grid;
+    align-content: start;
     gap: 0.68rem;
     width: 100%;
     min-width: 0;
@@ -1747,6 +1766,8 @@ function hideDocsSkeleton(target, options = {}) {
   const skeletons = Array.from(target.querySelectorAll ? target.querySelectorAll('[data-xtend-skeleton-loader]') : []);
   skeletons.forEach((skeleton) => skeleton.remove());
   target.removeAttribute('data-xtend-skeleton-active');
+  target.removeAttribute('data-xtend-skeleton-mode');
+  target.removeAttribute('data-xtend-skeleton-cache');
   target.removeAttribute('data-xtend-skeleton-degraded');
   if (!options.preserveBusy) target.removeAttribute('aria-busy');
   return skeletons.length;

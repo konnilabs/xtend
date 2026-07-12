@@ -88,8 +88,8 @@ class XHeader extends HTMLElement {
     return {
       schema: "xtend.layout-stability.v1",
       componentRef: "x-header",
-      minBlockSize: "var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, 4.75rem))",
-      intrinsicSize: "auto var(--header-reserved-block-size, 4.75rem)",
+      minBlockSize: "var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, 7.5rem))",
+      intrinsicSize: "auto var(--header-reserved-block-size, 7.5rem)",
       slotReserve: ["title", "nav", "actions"],
       hydrationShiftPolicy: "no-geometry-shift",
       shellFirstCompatible: true,
@@ -336,6 +336,7 @@ class XHeader extends HTMLElement {
           --xtend-header-menu-z-index: 1100;
           --xtend-header-motion-duration: var(--xtend-motion-duration-fast, 0.18s);
           --xtend-header-motion-easing: var(--xtend-motion-easing-standard, ease);
+          --xtend-header-outer-spacing: 0.5em 0.5em 1.5em;
           --header-bg: var(--xtend-header-surface);
           --header-fg: var(--xtend-header-text);
           --header-title-color: var(--header-fg);
@@ -375,11 +376,13 @@ class XHeader extends HTMLElement {
           --header-mobile-actions-wrap: nowrap;
           --header-mobile-title-white-space: nowrap;
           --xtend-layout-grid-min: minmax(0, 1fr);
-          display: block;
+          display: flow-root;
+          box-sizing: border-box;
+          padding: var(--xtend-header-outer-spacing);
           font-family: var(--xtend-header-font-family);
           color: var(--header-fg);
           min-block-size: var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, auto));
-          contain-intrinsic-size: auto var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, 4.75rem));
+          contain-intrinsic-size: auto var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, 7.5rem));
         }
         header {
           display: grid;
@@ -397,7 +400,7 @@ class XHeader extends HTMLElement {
           position: relative;
           top: 0;
           z-index: var(--xtend-header-z-index);
-          margin: 0.5em 0.5em 1.5em 0.5em;
+          margin: 0;
           box-sizing: border-box;
           transition: box-shadow var(--xtend-header-motion-duration) var(--xtend-header-motion-easing), background var(--xtend-header-motion-duration) var(--xtend-header-motion-easing), border-color var(--xtend-header-motion-duration) var(--xtend-header-motion-easing);
         }

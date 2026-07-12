@@ -82,6 +82,7 @@ export interface XTendSkeletonLoaderOptions {
   ariaLabel?: string;
   source?: string;
   schedule?: string;
+  layoutMode?: 'auto' | 'flow' | 'overlay';
 }
 
 export interface XTendSkeletonProfileItem {

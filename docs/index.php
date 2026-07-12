@@ -1049,7 +1049,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                 'data-xtend-skeleton' => true,
                 'data-xtend-layout-reserve' => 'header',
                 'data-xtend-cls-anchor' => 'docs.header',
-                'style' => '--xtend-skeleton-min-height: 4.75rem; --xtend-layout-reserved-block-size: 4.75rem; --header-reserved-block-size: 4.75rem;',
+                'style' => '--xtend-skeleton-min-height: var(--docs-header-reserved-block-size); --xtend-layout-reserved-block-size: var(--docs-header-reserved-block-size); --header-reserved-block-size: var(--docs-header-reserved-block-size);',
                 'data-rmt-surface-id' => 'docs.header',
                 'data-rmt-shell-surface' => 'docs.header'
             ]), array_merge([
@@ -1124,7 +1124,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                 'vertical-align' => 'top',
                 'data-xtend-layout-reserve' => 'hero',
                 'data-xtend-cls-anchor' => 'docs.hero',
-                'style' => '--xtend-skeleton-min-height: clamp(8rem, 14vw, 11rem); --xtend-layout-reserved-block-size: clamp(8rem, 14vw, 11rem); --hero-reserved-block-size: clamp(8rem, 14vw, 11rem);',
+                'style' => '--xtend-skeleton-min-height: var(--docs-hero-reserved-block-size); --xtend-layout-reserved-block-size: var(--docs-hero-reserved-block-size); --hero-reserved-block-size: var(--docs-hero-reserved-block-size);',
                 'data-rmt-surface-id' => 'docs.hero',
                 'data-rmt-shell-surface' => 'docs.hero'
             ]), [
@@ -2736,6 +2736,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --docs-viewport-gutter: 0.5rem;
           --docs-layout-gap: clamp(1rem, 2.2vw, 2.5rem);
           --docs-sidebar-width: clamp(20rem, 24vw, 27rem);
+          --docs-header-reserved-block-size: 7.55rem;
+          --docs-hero-reserved-block-size: 11rem;
           --docs-route-reserved-block-size: max(42rem, calc(100svh - 12rem));
           --docs-footer-reserved-block-size: clamp(4.75rem, 7vw, 6.5rem);
           --docs-hero-bg-light: linear-gradient(135deg, #f8fbff 0%, #e7f0f7 100%);
@@ -2858,14 +2860,14 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --header-radius: 0.75rem;
           --header-drawer-inline-offset: clamp(0.5rem, 1.6vw, 1rem);
           --header-drawer-content-max: none;
+          --xtend-header-outer-spacing: 0.5rem var(--docs-viewport-gutter) 1.5rem;
           --header-slot-template-columns: minmax(18.75rem, 1fr) minmax(20rem, 48rem) minmax(15rem, 1fr) 44px;
           --header-slot-template-areas: "brand search actions trigger";
           position: relative;
           z-index: 20;
         }
         x-header::part(root) {
-          margin-left: var(--docs-viewport-gutter);
-          margin-right: var(--docs-viewport-gutter);
+          margin: 0;
         }
         x-header::part(logo) {
           overflow: visible;
@@ -2953,7 +2955,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --xtend-menu-item-active-surface: var(--docs-navigation-item-active);
           --xtend-menu-item-text: var(--docs-navigation-item-text);
           --xtend-menu-item-active-text: var(--docs-navigation-item-active-text);
-          --xtend-menu-current-indicator: var(--docs-navigation-item-rail);
+          --xtend-menu-current-indicator: transparent;
           --xtend-menu-focus-elevation: none;
           --xtend-menu-item-padding-y: 0.45rem;
           --xtend-menu-item-padding-x: 0.65rem;
@@ -2978,10 +2980,14 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --xtend-link-hover-surface: transparent;
           --xtend-link-active-surface: transparent;
           --xtend-link-active-text: var(--docs-navigation-item-active-text);
+          --xtend-link-current-indicator: transparent;
+          --link-hover-decoration: none;
+          --link-active-decoration: none;
         }
         .docs-menu-shell x-link[role="menuitem"]::part(link) {
           color: inherit;
           text-decoration: none;
+          box-shadow: none;
         }
         .docs-menu-shell .docs-trunk-link[role="menuitem"] {
           padding: 0.52rem 0.72rem;
@@ -3004,7 +3010,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         }
         .docs-menu-shell .docs-trunk-link[role="menuitem"][active],
         .docs-menu-shell .docs-trunk-link[role="menuitem"][aria-current="page"] {
-          box-shadow: inset 0 -3px 0 var(--docs-navigation-item-rail);
+          box-shadow: inset 0 -2px 0 var(--docs-navigation-item-rail);
         }
         .docs-menu-shell .docs-menu-link[role="menuitem"][active],
         .docs-menu-shell .docs-menu-link[role="menuitem"][aria-current="page"] {
@@ -3071,7 +3077,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --xtend-menu-item-active-surface: var(--docs-navigation-item-active);
           --xtend-menu-item-text: var(--docs-navigation-item-text);
           --xtend-menu-item-active-text: var(--docs-navigation-item-active-text);
-          --xtend-menu-current-indicator: var(--docs-navigation-item-rail);
+          --xtend-menu-current-indicator: transparent;
           --xtend-menu-focus-elevation: none;
           --xtend-menu-item-padding-y: 0.35rem;
           --xtend-menu-item-padding-x: 0.45rem;
@@ -3430,7 +3436,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
           min-width: 0;
           box-sizing: border-box;
-          --hero-padding: clamp(1.25rem, 3vw, 2rem) 1.25rem;
+          --hero-padding: 0;
           --hero-radius: 0.75rem;
           --hero-font-size: clamp(1rem, 2vw, 1.25rem);
           --hero-content-max-width: none;
@@ -3754,6 +3760,9 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           display: none;
         }
         @media (max-width: 1100px) {
+          :root {
+            --docs-header-reserved-block-size: 11.75rem;
+          }
           x-header {
             --header-slot-template-columns: minmax(0, 1fr) auto 44px;
             --header-slot-template-areas: "brand actions trigger" "search search search";
@@ -3781,6 +3790,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         @media (max-width: 700px) {
           :root {
             --docs-shell-vertical-gap: 1rem;
+            --docs-hero-reserved-block-size: 12rem;
             --docs-route-reserved-block-size: max(48rem, calc(100svh - 10rem));
             --docs-footer-reserved-block-size: 7.5rem;
           }

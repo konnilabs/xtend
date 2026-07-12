@@ -168,6 +168,10 @@ body[data-xt-ui-effects-state="ready"] {
   max-width: 100%;
 }
 
+x-header {
+  display: flow-root;
+}
+
 [data-xtend-layout-reserve] {
   display: block;
   box-sizing: border-box;
@@ -216,7 +220,29 @@ body[data-xt-ui-effects-state="ready"] {
 }
 
 [data-xtend-skeleton]:not(:defined) > * {
-  visibility: hidden !important;
+  display: none !important;
+}
+
+[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] {
+  position: relative;
+}
+
+[data-xtend-skeleton-cache="overlay"] {
+  position: relative;
+}
+
+[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > [data-xtend-skeleton-loader] {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: var(--xtend-skeleton-z-index, 1);
+}
+
+[data-xtend-skeleton-cache="overlay"] > [data-xtend-skeleton-loader][data-xtend-skeleton-hidden="true"] {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: var(--xtend-skeleton-z-index, 1);
+  opacity: 0;
+  pointer-events: none;
 }
 
 [data-xtend-skeleton="inline"]:not(:defined) {

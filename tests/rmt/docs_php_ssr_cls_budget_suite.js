@@ -47,6 +47,8 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
 
   context.assert(result.status === 0, `Docs HTML renders through PHP${result.status === 0 ? '' : ` (${result.stderr})`}`);
   context.assert(indexPhp.includes('--docs-route-reserved-block-size: max(42rem, calc(100svh - 12rem));'), 'Docs app defines a desktop route reserve that keeps the footer below the initial viewport');
+  context.assert(indexPhp.includes('--docs-header-reserved-block-size: 7.55rem;') && indexPhp.includes('--docs-header-reserved-block-size: 11.75rem;'), 'Docs app reserves measured desktop and compact header geometry');
+  context.assert(indexPhp.includes('--docs-hero-reserved-block-size: 11rem;') && indexPhp.includes('--docs-hero-reserved-block-size: 12rem;'), 'Docs app reserves desktop and wrapped mobile hero geometry');
   context.assert(indexPhp.includes('--docs-footer-reserved-block-size: clamp(4.75rem, 7vw, 6.5rem);'), 'Docs app defines a footer reserve matching hydrated footer geometry');
   context.assert(indexPhp.includes('--docs-route-reserved-block-size: max(48rem, calc(100svh - 10rem));'), 'Docs app defines a stronger mobile route reserve');
   context.assert(indexPhp.includes('--docs-footer-reserved-block-size: 7.5rem;'), 'Docs app reserves mobile footer wrapping height');
@@ -61,6 +63,9 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
   context.assert(!shell.includes('<x-footer') || !shell.includes('data-xtend-skeleton="inline"'), 'SSR footer no longer uses inline skeleton geometry');
   context.assert(shell.includes('--footer-reserved-block-size: var(--docs-footer-reserved-block-size);'), 'SSR footer maps docs reserve into x-footer token');
   context.assert(shell.includes('--xtend-router-reserved-block-size: var(--docs-route-reserved-block-size);'), 'SSR router maps docs reserve into x-router token');
+  context.assert(shell.includes('--header-reserved-block-size: var(--docs-header-reserved-block-size);'), 'SSR header maps the measured reserve into x-header');
+  context.assert(shell.includes('--hero-reserved-block-size: var(--docs-hero-reserved-block-size);'), 'SSR hero maps the responsive reserve into x-hero');
+  context.assert(indexPhp.includes('--hero-padding: 0;'), 'Docs hero avoids duplicate root and content padding after upgrade');
 
   context.assert(pageLoader.includes("section.setAttribute('data-xtend-layout-reserve', 'shell route')"), 'Client fallback shell reserves page geometry');
   context.assert(pageLoader.includes("article.setAttribute('data-xtend-layout-reserve', 'route content')"), 'Client fallback article reserves content geometry');

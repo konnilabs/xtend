@@ -377,7 +377,7 @@ body[data-xt-ui-effects-state="ready"] {
 }
 
 [data-xtend-skeleton]:not(:defined) > * {
-  visibility: hidden !important;
+  display: none !important;
 }
 
 [data-xtend-skeleton="inline"]:not(:defined) {
@@ -395,8 +395,31 @@ ${hiddenSelectors} {
   visibility: hidden;
 }
 
+[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] {
+  position: relative;
+}
+
+[data-xtend-skeleton-cache="overlay"] {
+  position: relative;
+}
+
+[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > [data-xtend-skeleton-loader] {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: var(--xtend-skeleton-z-index, 1);
+}
+
+[data-xtend-skeleton-cache="overlay"] > [data-xtend-skeleton-loader][data-xtend-skeleton-hidden="true"] {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: var(--xtend-skeleton-z-index, 1);
+  opacity: 0;
+  pointer-events: none;
+}
+
 [data-xtend-skeleton-loader] {
   display: grid;
+  align-content: start;
   gap: var(--xtend-skeleton-gap, 0.68rem);
   width: var(--xtend-skeleton-width, 100%);
   max-width: var(--xtend-skeleton-max-width, 100%);
@@ -1217,6 +1240,11 @@ function normalizeSkeletonCount(value, fallback = 1, maximum = 24) {
   return Math.max(1, Math.min(maximum, Math.floor(parsed)));
 }
 
+function normalizeSkeletonLayoutMode(value) {
+  const mode = String(value || 'auto').trim().toLowerCase();
+  return mode === 'flow' || mode === 'overlay' ? mode : 'auto';
+}
+
 function normalizeSkeletonLoaderOptions(options = {}) {
   const requestedProfile = options.profile || options.profileId || options.variant || options.kind || 'block';
   const profile = typeof requestedProfile === 'string'
@@ -1231,7 +1259,8 @@ function normalizeSkeletonLoaderOptions(options = {}) {
     minHeight: String(options.minHeight || options.height || profile && profile.minHeight || '').trim(),
     label: String(options.label || options.ariaLabel || 'Inhalt wird geladen').trim(),
     source: String(options.source || 'xtend-loader').trim(),
-    schedule: String(options.schedule || 'component.dynamic.hydrate').trim()
+    schedule: String(options.schedule || 'component.dynamic.hydrate').trim(),
+    layoutMode: normalizeSkeletonLayoutMode(options.layoutMode)
   };
 }
 
@@ -1354,6 +1383,7 @@ function createSkeletonLoader(options = {}) {
   skeleton.setAttribute('aria-live', 'polite');
   skeleton.setAttribute('aria-label', normalized.label);
   skeleton.style.display = 'grid';
+  skeleton.style.alignContent = 'start';
   skeleton.style.gap = '0.68rem';
   skeleton.style.width = 'var(--xtend-skeleton-width, 100%)';
   skeleton.style.maxWidth = 'var(--xtend-skeleton-max-width, 100%)';
@@ -1430,6 +1460,43 @@ function findDirectSkeleton(target) {
   }
 }
 
+function skeletonTargetHasContent(target) {
+  if (!target) return false;
+  const nodes = target.childNodes
+    ? Array.from(target.childNodes)
+    : Array.from(target.children || []);
+  return nodes.some((node) => {
+    if (!node) return false;
+    if (node.nodeType === 3) return Boolean(String(node.textContent || '').trim());
+    const isElement = node.nodeType === 1 || typeof node.hasAttribute === 'function';
+    if (!isElement) return false;
+    return !(typeof node.hasAttribute === 'function' && node.hasAttribute('data-xtend-skeleton-loader'));
+  });
+}
+
+function applySkeletonLayoutMode(target, skeleton, requestedMode = 'auto') {
+  const normalizedMode = normalizeSkeletonLayoutMode(requestedMode);
+  const mode = normalizedMode === 'auto'
+    ? (skeletonTargetHasContent(target) ? 'overlay' : 'flow')
+    : normalizedMode;
+  if (target && target.nodeType === 1 && typeof target.setAttribute === 'function') {
+    target.setAttribute('data-xtend-skeleton-mode', mode);
+  }
+  if (skeleton && typeof skeleton.setAttribute === 'function') {
+    skeleton.setAttribute('data-xtend-skeleton-mode', mode);
+  }
+  return mode;
+}
+
+function restoreSkeletonForDisplay(skeleton) {
+  if (!skeleton || typeof skeleton.removeAttribute !== 'function') return;
+  skeleton.removeAttribute('data-xtend-skeleton-hidden');
+  skeleton.removeAttribute('aria-hidden');
+  skeleton.removeAttribute('inert');
+  skeleton.setAttribute('role', 'status');
+  skeleton.setAttribute('aria-live', 'polite');
+}
+
 function showSkeleton(target, options = {}) {
   if (!target || typeof target.appendChild !== 'function') return null;
   const normalized = normalizeSkeletonLoaderOptions(options);
@@ -1442,6 +1509,15 @@ function showSkeleton(target, options = {}) {
     existing.setAttribute('data-xtend-skeleton-source', normalized.source);
     existing.setAttribute('data-xtend-skeleton-schedule', normalized.schedule);
     existing.setAttribute('aria-label', normalized.label);
+    if (target.nodeType === 1 && typeof target.setAttribute === 'function') {
+      target.setAttribute('data-xtend-skeleton-active', 'true');
+      target.setAttribute('aria-busy', 'true');
+    }
+    applySkeletonLayoutMode(target, existing, normalized.layoutMode);
+    restoreSkeletonForDisplay(existing);
+    if (target.nodeType === 1 && typeof target.removeAttribute === 'function') {
+      target.removeAttribute('data-xtend-skeleton-cache');
+    }
     return existing;
   }
   if (existing) existing.remove();
@@ -1452,7 +1528,11 @@ function showSkeleton(target, options = {}) {
   }
 
   const skeleton = createSkeletonLoader(normalized);
+  applySkeletonLayoutMode(target, skeleton, normalized.layoutMode);
   target.appendChild(skeleton);
+  if (target.nodeType === 1 && typeof target.removeAttribute === 'function') {
+    target.removeAttribute('data-xtend-skeleton-cache');
+  }
   return skeleton;
 }
 
@@ -1461,9 +1541,30 @@ function hideSkeleton(target, options = {}) {
   const skeletons = Array.from(target.children || []).filter((child) => (
     child && child.getAttribute && child.hasAttribute('data-xtend-skeleton-loader')
   ));
-  skeletons.forEach((skeleton) => skeleton.remove());
+  const layoutMode = target && typeof target.getAttribute === 'function'
+    ? target.getAttribute('data-xtend-skeleton-mode')
+    : null;
+  const retainOverlay = skeletons.length > 0 && layoutMode === 'overlay' && skeletonTargetHasContent(target);
+  skeletons.forEach((skeleton) => {
+    if (!retainOverlay) {
+      skeleton.remove();
+      return;
+    }
+    skeleton.setAttribute('data-xtend-skeleton-hidden', 'true');
+    skeleton.setAttribute('aria-hidden', 'true');
+    skeleton.setAttribute('inert', '');
+    skeleton.removeAttribute('role');
+    skeleton.removeAttribute('aria-live');
+    if (target.lastElementChild !== skeleton) target.appendChild(skeleton);
+  });
   if (target.nodeType === 1 && typeof target.removeAttribute === 'function') {
+    if (retainOverlay) {
+      target.setAttribute('data-xtend-skeleton-cache', 'overlay');
+    } else {
+      target.removeAttribute('data-xtend-skeleton-cache');
+    }
     target.removeAttribute('data-xtend-skeleton-active');
+    target.removeAttribute('data-xtend-skeleton-mode');
     if (!options.preserveBusy) {
       target.removeAttribute('aria-busy');
     }

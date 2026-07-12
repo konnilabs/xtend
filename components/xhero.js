@@ -297,7 +297,7 @@ class XHero extends HTMLElement {
           width: 100%;
           max-width: 100%;
           min-width: 0;
-          margin: 0.5em 0 2.5em 0;
+          margin: 0;
           border-radius: var(--hero-media-radius);
           box-shadow: var(--hero-shadow);
           backdrop-filter: blur(var(--hero-blur));
@@ -412,8 +412,8 @@ class XHero extends HTMLElement {
           .content { max-width: 100%; }
         }
         @media (max-width: 600px) {
-          .hero { padding: 2.2rem 0.5rem; }
-          .content { padding: 1.2rem 0.5rem; }
+          .hero { padding: var(--hero-padding-compact, var(--hero-padding, 2.2rem 0.5rem)); }
+          .content { padding: var(--hero-content-padding-compact, var(--hero-content-padding, 1.2rem 0.5rem)); }
         }
         @media (prefers-reduced-motion: reduce) {
           .content, .scroll-button {

@@ -128,6 +128,150 @@ const deepQuerySource = `
   };
 `;
 
+const layoutShiftProbeSource = `
+  (() => {
+    if (window.__xtendDocsLayoutShiftProbe) return window.__xtendDocsLayoutShiftProbe.supported;
+    const state = {
+      schema: 'xtend.docs.layout-shift-probe.v1',
+      supported: false,
+      entries: [],
+      geometry: [],
+      totalValue: 0,
+      maxSessionValue: 0,
+      observer: null
+    };
+    const describeNode = (node) => {
+      const element = node instanceof Element ? node : node?.parentElement;
+      if (!(element instanceof Element)) return null;
+      const root = element.getRootNode();
+      const host = root && root.host instanceof Element ? root.host : null;
+      const anchor = element.closest('[data-xtend-cls-anchor]') || host?.closest('[data-xtend-cls-anchor]') || null;
+      return {
+        tag: element.localName || '',
+        id: element.id || '',
+        className: typeof element.className === 'string' ? element.className : '',
+        rootHost: host?.localName || '',
+        rootHostId: host?.id || '',
+        anchor: anchor?.getAttribute('data-xtend-cls-anchor') || '',
+        textNode: node?.nodeType === Node.TEXT_NODE
+      };
+    };
+    const rectRecord = (rect) => rect ? {
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height
+    } : null;
+    const captureGeometry = (reason) => {
+      const header = document.querySelector('x-header');
+      const hero = document.querySelector('x-hero.docs-hero');
+      const main = document.querySelector('main');
+      const router = document.querySelector('main > x-router');
+      const record = {
+        at: performance.now(),
+        reason,
+        body: rectRecord(document.body?.getBoundingClientRect()),
+        header: rectRecord(header?.getBoundingClientRect()),
+        headerRoot: rectRecord(header?.shadowRoot?.querySelector('header')?.getBoundingClientRect()),
+        hero: rectRecord(hero?.getBoundingClientRect()),
+        heroRoot: rectRecord(hero?.shadowRoot?.querySelector('.hero')?.getBoundingClientRect()),
+        main: rectRecord(main?.getBoundingClientRect()),
+        router: rectRecord(router?.getBoundingClientRect()),
+        defined: {
+          header: Boolean(customElements.get('x-header')),
+          hero: Boolean(customElements.get('x-hero')),
+          router: Boolean(customElements.get('x-router'))
+        }
+      };
+      const signature = JSON.stringify({
+        body: record.body,
+        header: record.header,
+        headerRoot: record.headerRoot,
+        hero: record.hero,
+        heroRoot: record.heroRoot,
+        main: record.main,
+        router: record.router,
+        defined: record.defined
+      });
+      if (state.lastGeometrySignature !== signature) {
+        state.geometry.push(record);
+        state.lastGeometrySignature = signature;
+      }
+    };
+    const beginGeometrySampling = () => {
+      const startedAt = performance.now();
+      const sample = () => {
+        captureGeometry('frame');
+        if (performance.now() - startedAt < 2500) requestAnimationFrame(sample);
+      };
+      requestAnimationFrame(sample);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', beginGeometrySampling, { once: true });
+    else beginGeometrySampling();
+    ['x-header', 'x-hero', 'x-router'].forEach((tag) => {
+      customElements.whenDefined(tag).then(() => requestAnimationFrame(() => captureGeometry(tag + ':defined')));
+    });
+    const recalculate = () => {
+      const entries = state.entries.slice().sort((left, right) => left.startTime - right.startTime);
+      let windowStartedAt = -Infinity;
+      let previousAt = -Infinity;
+      let windowValue = 0;
+      state.totalValue = 0;
+      state.maxSessionValue = 0;
+      entries.forEach((entry) => {
+        state.totalValue += entry.value;
+        if (entry.startTime - previousAt > 1000 || entry.startTime - windowStartedAt > 5000) {
+          windowStartedAt = entry.startTime;
+          windowValue = 0;
+        }
+        windowValue += entry.value;
+        previousAt = entry.startTime;
+        state.maxSessionValue = Math.max(state.maxSessionValue, windowValue);
+      });
+    };
+    try {
+      if (typeof PerformanceObserver !== 'function' || !PerformanceObserver.supportedEntryTypes?.includes('layout-shift')) {
+        window.__xtendDocsLayoutShiftProbe = state;
+        return false;
+      }
+      state.observer = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+          if (entry.hadRecentInput) return;
+          state.entries.push({
+            value: Number(entry.value) || 0,
+            startTime: Number(entry.startTime) || 0,
+            sources: Array.from(entry.sources || []).map((source) => ({
+              node: describeNode(source.node),
+              previousRect: rectRecord(source.previousRect),
+              currentRect: rectRecord(source.currentRect)
+            }))
+          });
+        });
+        recalculate();
+      });
+      state.observer.observe({ type: 'layout-shift', buffered: true });
+      state.supported = true;
+    } catch (_) {}
+    window.__xtendDocsLayoutShiftProbe = state;
+    return state.supported;
+  })();
+`;
+
+async function installLayoutShiftProbe(baseUrl, sessionId) {
+  await request(baseUrl, `/session/${sessionId}/goog/cdp/execute`, 'POST', {
+    cmd: 'Page.addScriptToEvaluateOnNewDocument',
+    params: { source: layoutShiftProbeSource }
+  });
+}
+
+async function verifyLayoutShiftProbe(baseUrl, sessionId) {
+  const installed = await execute(baseUrl, sessionId, `
+    return Boolean(window.__xtendDocsLayoutShiftProbe?.supported);
+  `);
+  assert(installed, 'Chromium does not expose buffered layout-shift observations.');
+  await delay(100);
+}
+
 async function readSnapshot(baseUrl, sessionId) {
   return execute(baseUrl, sessionId, `${deepQuerySource}
     const api = window.__XTEND_DEV_API__;
@@ -149,9 +293,7 @@ async function readSnapshot(baseUrl, sessionId) {
     const navigation = performance.getEntriesByType('navigation')[0] || null;
     const fcp = performance.getEntriesByName('first-contentful-paint')[0] || null;
     const sameOriginResources = resourceEntries.filter((entry) => entry.name.startsWith(location.origin));
-    const layoutShift = performance.getEntriesByType('layout-shift')
-      .filter((entry) => !entry.hadRecentInput)
-      .reduce((sum, entry) => sum + entry.value, 0);
+    const layoutShiftProbe = window.__xtendDocsLayoutShiftProbe || null;
     return {
       readyState: document.readyState,
       documentTitle: document.title,
@@ -201,7 +343,10 @@ async function readSnapshot(baseUrl, sessionId) {
         initialTransferBytes: (navigation ? navigation.transferSize : 0) + sameOriginResources.reduce((sum, entry) => sum + Number(entry.transferSize || 0), 0),
         sameOriginResourceCount: sameOriginResources.length
       },
-      layoutShift,
+      layoutShift: Number(layoutShiftProbe?.maxSessionValue || 0),
+      layoutShiftTotal: Number(layoutShiftProbe?.totalValue || 0),
+      layoutShiftEntries: Array.isArray(layoutShiftProbe?.entries) ? layoutShiftProbe.entries : [],
+      layoutShiftGeometry: Array.isArray(layoutShiftProbe?.geometry) ? layoutShiftProbe.geometry : [],
       overflowX: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth)
     };
   `);
@@ -334,6 +479,7 @@ async function exerciseNavigationSurface(baseUrl, sessionId, scenarioId) {
     return true;
   `);
   assert(opened, 'Mobile header drawer trigger is missing.');
+  await delay(420);
   const result = await waitUntil(async () => execute(baseUrl, sessionId, `
     const header = document.querySelector('x-header');
     const drawer = header && header.shadowRoot && header.shadowRoot.querySelector('#drawer-menu');
@@ -364,11 +510,15 @@ async function exerciseNavigationSurface(baseUrl, sessionId, scenarioId) {
     const appearance = (node) => {
       if (!node) return null;
       const style = getComputedStyle(node);
+      const internalLink = node.shadowRoot && node.shadowRoot.querySelector('a');
+      const internalStyle = internalLink ? getComputedStyle(internalLink) : null;
       return {
         background: style.backgroundColor,
         color: style.color,
         borderColor: style.borderColor,
         boxShadow: style.boxShadow,
+        internalBoxShadow: internalStyle ? internalStyle.boxShadow : '',
+        internalTextDecoration: internalStyle ? internalStyle.textDecorationLine : '',
         contrast: contrast(style.color, style.backgroundColor)
       };
     };
@@ -410,9 +560,11 @@ async function navigateTrunk(baseUrl, sessionId, trunk) {
     return true;
   `, [trunk]);
   assert(clicked, `Trunk link ${trunk} is missing.`);
-  return waitUntil(async () => execute(baseUrl, sessionId, `${deepQuerySource}
+  let latest = null;
+  try {
+    return await waitUntil(async () => {
+      latest = await execute(baseUrl, sessionId, `${deepQuerySource}
     const shell = document.querySelector('[data-docs-menu-shell]');
-    const content = deepQuery('#md-content');
     const router = deepQuery('x-router');
     const route = router ? Array.from(router.children).find((entry) => entry.localName === 'x-route' && entry.getAttribute('path') === location.pathname) : null;
     const pages = [];
@@ -423,18 +575,35 @@ async function navigateTrunk(baseUrl, sessionId, trunk) {
       });
     };
     collect(document);
-    return shell && shell.getAttribute('data-docs-active-trunk') === arguments[0] && content && content.querySelector('h1')
-      ? {
+    const activeTrunkContents = document.querySelectorAll('[data-docs-active-trunk-content]');
+    const page = pages.length === 1 ? pages[0] : null;
+    const content = deepQuery('#md-content');
+    const ready = shell && shell.getAttribute('data-docs-active-trunk') === arguments[0] &&
+      activeTrunkContents.length === 1 && page && page.getAttribute('data-docs-route-state') === 'ready' &&
+      content && content.querySelector('h1') && route;
+    return {
+          ready: Boolean(ready),
           trunk: shell.getAttribute('data-docs-active-trunk'),
           path: location.pathname,
-          articleTitle: content.querySelector('h1').textContent.trim(),
+          articleTitle: content && content.querySelector('h1') ? content.querySelector('h1').textContent.trim() : '',
           documentTitle: document.title,
           routeId: route && route.getAttribute('data-rmt-route-id') || '',
           pageCount: pages.length,
-          activeTrunkContentCount: document.querySelectorAll('[data-docs-active-trunk-content]').length
-        }
-      : null;
-  `, [trunk]), `Trunk ${trunk} did not become active`);
+          pageState: page && page.getAttribute('data-docs-route-state') || '',
+          activeTrunkContentCount: activeTrunkContents.length,
+          outletChildren: router && router.shadowRoot
+            ? Array.from(router.shadowRoot.querySelector('#outlet')?.children || []).map((entry) => ({
+                tag: entry.localName,
+                skeletonHidden: entry.getAttribute('data-xtend-skeleton-hidden') || ''
+              }))
+            : []
+        };
+  `, [trunk]);
+      return latest && latest.ready ? latest : null;
+    }, `Trunk ${trunk} did not become active`);
+  } catch (error) {
+    throw new Error(`${error.message}; latest=${JSON.stringify(latest)}`);
+  }
 }
 
 async function exerciseSkeletonHardening(baseUrl, sessionId) {
@@ -452,8 +621,10 @@ async function exerciseSkeletonHardening(baseUrl, sessionId) {
     empty.setAttribute('data-xtend-skeleton-loader', '');
     empty.setAttribute('data-xtend-skeleton-profile', 'missing-edge-profile');
     empty.setAttribute('data-xtend-skeleton-variant', 'article');
-    target.append(content, empty);
+    target.append(content);
     document.body.appendChild(target);
+    const heightBefore = target.getBoundingClientRect().height;
+    target.appendChild(empty);
     const skeleton = loader.show(target, {
       profile: 'missing-edge-profile',
       variant: 'article',
@@ -461,6 +632,7 @@ async function exerciseSkeletonHardening(baseUrl, sessionId) {
       minHeight: '8rem',
       source: 'docs-shell-browser-smoke'
     });
+    const heightDuring = target.getBoundingClientRect().height;
     const records = skeleton ? Array.from(skeleton.querySelectorAll('[data-xtend-skeleton-item], [data-xtend-skeleton-line]')) : [];
     const result = {
       visualRecordCount: records.length,
@@ -474,9 +646,20 @@ async function exerciseSkeletonHardening(baseUrl, sessionId) {
         const style = getComputedStyle(content);
         return style.display === 'none' || style.visibility === 'hidden';
       })(),
-      active: target.getAttribute('data-xtend-skeleton-active') === 'true'
+      active: target.getAttribute('data-xtend-skeleton-active') === 'true',
+      layoutMode: target.getAttribute('data-xtend-skeleton-mode') || '',
+      heightBefore,
+      heightDuring,
+      heightDelta: Math.abs(heightDuring - heightBefore)
     };
     loader.hide(target);
+    result.layoutModeCleared = !target.hasAttribute('data-xtend-skeleton-mode');
+    result.retainedOverlayHidden = Boolean(
+      skeleton && skeleton.isConnected &&
+      skeleton.getAttribute('data-xtend-skeleton-hidden') === 'true' &&
+      skeleton.getAttribute('aria-hidden') === 'true' &&
+      skeleton.hasAttribute('inert')
+    );
     target.remove();
     return result;
   `);
@@ -569,9 +752,11 @@ async function switchDocsLocale(baseUrl, sessionId, targetLocale) {
 async function capturePerformanceSample(baseUrl, driverUrl, scenario) {
   const sessionId = await createSession(driverUrl, scenario);
   try {
+    await installLayoutShiftProbe(driverUrl, sessionId);
     await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
       url: `${baseUrl}/docs/${scenario.locale}/readme`
     });
+    await verifyLayoutShiftProbe(driverUrl, sessionId);
     const snapshot = await waitUntil(async () => {
       const value = await readSnapshot(driverUrl, sessionId);
       return value.readyState === 'complete' && value.articleTitle && Number.isFinite(value.performance && value.performance.fcpMs)
@@ -621,6 +806,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
   const scenario = { id: 'de-maraca-regression', locale: 'de', theme: 'light', width: 1440, height: 900 };
   const sessionId = await createSession(driverUrl, scenario);
   try {
+    await installLayoutShiftProbe(driverUrl, sessionId);
     await request(driverUrl, `/session/${sessionId}/goog/cdp/execute`, 'POST', {
       cmd: 'Page.addScriptToEvaluateOnNewDocument',
       params: {
@@ -646,6 +832,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
     await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
       url: `${baseUrl}/docs/de/xtend-maraca`
     });
+    await verifyLayoutShiftProbe(driverUrl, sessionId);
     await waitUntil(async () => {
       const snapshot = await readSnapshot(driverUrl, sessionId);
       return snapshot.docsPageReady && snapshot.articleTitle === 'XTend Maraca' ? snapshot : null;
@@ -670,15 +857,24 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
         maxLongTaskMs: Math.max(0, ...state.longTasks.map((entry) => Number(entry.duration || 0))),
         longTasks: state.longTasks,
         skeletonEvents: state.skeletonEvents,
-        activeSkeletonCount: skeletons.filter((entry) => entry.isConnected && getComputedStyle(entry).display !== 'none').length,
+        activeSkeletonCount: skeletons.filter((entry) => {
+          const style = getComputedStyle(entry);
+          return entry.isConnected && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
+        }).length,
         menuCount: menuSnapshots.length,
         menuSnapshots,
-        stateWrites: window.xstate?.snapshotDiagnostics?.().operationCounts?.set || 0
+        stateWrites: window.xstate?.snapshotDiagnostics?.().operationCounts?.set || 0,
+        layoutShift: Number(window.__xtendDocsLayoutShiftProbe?.maxSessionValue || 0),
+        layoutShiftTotal: Number(window.__xtendDocsLayoutShiftProbe?.totalValue || 0),
+        layoutShiftEntries: Array.isArray(window.__xtendDocsLayoutShiftProbe?.entries)
+          ? window.__xtendDocsLayoutShiftProbe.entries
+          : []
       };
     `), 'Maraca regression route did not clear its router skeleton');
     assert(result.menuCount >= 2, 'Maraca regression route did not materialize its task navigation menus.');
     assert(result.activeSkeletonCount === 0, `Maraca regression route left ${result.activeSkeletonCount} active skeleton layers.`);
     assert(result.maxLongTaskMs <= 1000, `Maraca regression route produced a ${result.maxLongTaskMs}ms long task.`);
+    assert(result.layoutShift <= 0.01, `Maraca regression route produced CLS ${result.layoutShift}: ${JSON.stringify(result.layoutShiftEntries)}`);
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
     const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
     assert(severe.length === 0, `Maraca regression route emitted severe console errors: ${JSON.stringify(severe)}`);
@@ -689,12 +885,59 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
   }
 }
 
+async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await installLayoutShiftProbe(driverUrl, sessionId);
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
+      url: `${baseUrl}/docs/${scenario.locale}/${scenario.slug}`
+    });
+    await verifyLayoutShiftProbe(driverUrl, sessionId);
+    await waitUntil(async () => {
+      const snapshot = await readSnapshot(driverUrl, sessionId);
+      return snapshot.docsPageReady && snapshot.articleTitle ? snapshot : null;
+    }, `${scenario.id}: direct route did not become ready`);
+    await delay(scenario.settleMs || 600);
+    const snapshot = await readSnapshot(driverUrl, sessionId);
+    const visibleSkeletonCount = await execute(driverUrl, sessionId, `
+      const skeletons = [];
+      const collect = (root) => {
+        root.querySelectorAll('*').forEach((node) => {
+          if (node.hasAttribute && node.hasAttribute('data-xtend-skeleton-loader')) skeletons.push(node);
+          if (node.shadowRoot) collect(node.shadowRoot);
+        });
+      };
+      collect(document);
+      return skeletons.filter((entry) => {
+        const style = getComputedStyle(entry);
+        return entry.isConnected && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
+      }).length;
+    `);
+    const largestShifts = snapshot.layoutShiftEntries
+      .slice()
+      .sort((left, right) => right.value - left.value)
+      .slice(0, 8);
+    assert(snapshot.layoutShift <= 0.01, `${scenario.id}: CLS ${snapshot.layoutShift} exceeds 0.01 (${JSON.stringify(largestShifts)}).`);
+    assert(visibleSkeletonCount === 0, `${scenario.id}: ${visibleSkeletonCount} visible skeleton layers remained after settle.`);
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
+    const evidence = { scenario, snapshot, visibleSkeletonCount, logs };
+    await writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify(evidence, null, 2)}\n`);
+    return evidence;
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
+}
+
 async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
   const sessionId = await createSession(driverUrl, scenario);
   try {
+    await installLayoutShiftProbe(driverUrl, sessionId);
     await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
       url: `${baseUrl}/docs/${scenario.locale}/readme`
     });
+    await verifyLayoutShiftProbe(driverUrl, sessionId);
     const initial = await waitUntil(async () => {
       const snapshot = await readSnapshot(driverUrl, sessionId);
       return snapshot.shellSchema && snapshot.docsPageReady && snapshot.articleTitle && snapshot.routeId && snapshot.routeDocumentTitle &&
@@ -725,7 +968,11 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
     assert(initial.compactLoaded && !initial.fulltextLoaded, `${scenario.id}: fulltext index entered the initial path.`);
     assert(initial.remoteResourceCount === 0, `${scenario.id}: remote resources were requested.`);
-    assert(initial.layoutShift <= 0.01, `${scenario.id}: CLS ${initial.layoutShift} exceeds 0.01.`);
+    const largestInitialShifts = initial.layoutShiftEntries
+      .slice()
+      .sort((left, right) => right.value - left.value)
+      .slice(0, 8);
+    assert(initial.layoutShift <= 0.01, `${scenario.id}: CLS ${initial.layoutShift} exceeds 0.01 (${JSON.stringify({ total: initial.layoutShiftTotal, entries: largestInitialShifts, geometry: initial.layoutShiftGeometry })}).`);
     assert(initial.overflowX <= 1, `${scenario.id}: viewport overflows by ${initial.overflowX}px.`);
     const baseline = performanceBaseline && performanceBaseline.scenarios && performanceBaseline.scenarios[scenario.id];
     assert(baseline, `${scenario.id}: performance baseline is missing.`);
@@ -740,10 +987,12 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(navigationSurface.trunkCount === 6 && navigationAppearances.every((entry) => entry && entry.contrast >= 4.5), `${scenario.id}: task navigation contrast is insufficient (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.horizontalOverflow <= 1 && !navigationSurface.inactiveUsesPrimarySurface, `${scenario.id}: task navigation overflows or inherited the global primary menuitem surface (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.activeTrunk.background !== navigationSurface.inactiveTrunk.background && navigationSurface.activePage.background !== navigationSurface.inactivePage.background, `${scenario.id}: active navigation states are not visually distinguishable (${JSON.stringify(navigationSurface)}).`);
+    assert([navigationSurface.activeTrunk, navigationSurface.activePage].every((entry) => entry.internalBoxShadow === 'none' && entry.internalTextDecoration === 'none'), `${scenario.id}: x-link rendered a second active indicator inside the navigation label (${JSON.stringify(navigationSurface)}).`);
     const skeletonHardening = await exerciseSkeletonHardening(driverUrl, sessionId);
     assert(skeletonHardening && skeletonHardening.visualRecordCount >= 1, `${scenario.id}: invalid SkeletonLoader input produced no visual records.`);
     assert(skeletonHardening.visibleRecordCount === skeletonHardening.visualRecordCount, `${scenario.id}: SkeletonLoader records have no visible geometry.`);
     assert(skeletonHardening.staleSkeletonReplaced && skeletonHardening.existingContentHidden && skeletonHardening.active, `${scenario.id}: stale SkeletonLoader recovery is incomplete.`);
+    assert(skeletonHardening.layoutMode === 'overlay' && skeletonHardening.layoutModeCleared && skeletonHardening.retainedOverlayHidden && skeletonHardening.heightDelta <= 0.5, `${scenario.id}: SkeletonLoader changed committed target geometry (${JSON.stringify(skeletonHardening)}).`);
 
     const search = await runSearch(driverUrl, sessionId, scenario.locale === 'de' ? 'hydratoin' : 'hydration');
     assert(search.count <= 8, `${scenario.id}: search returned more than eight results.`);
@@ -761,7 +1010,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     if (scenario.width <= 700) assert(navigationSurface.menuMode === 'drawer', `${scenario.id}: mobile drawer task navigation is incomplete.`);
     const navigation = await navigateTrunk(driverUrl, sessionId, 'operate');
     assert(navigation.path.includes(`/docs/${scenario.locale}/`), `${scenario.id}: trunk navigation lost locale.`);
-    assert(navigation.articleTitle !== initial.articleTitle && navigation.pageCount === 1 && navigation.activeTrunkContentCount === 1, `${scenario.id}: route cleanup left duplicate page or navigation owners.`);
+    assert(navigation.articleTitle !== initial.articleTitle && navigation.pageCount === 1 && navigation.activeTrunkContentCount === 1, `${scenario.id}: route cleanup left duplicate page or navigation owners (${JSON.stringify(navigation)}).`);
     assert(navigation.routeId !== 'docs.notFound' && navigation.documentTitle === `${navigation.articleTitle} | ${documentationTitle}`, `${scenario.id}: trunk navigation produced a stale or duplicated title.`);
     const homeNavigation = await navigateHomeViaLogo(driverUrl, sessionId, scenario);
     assert(homeNavigation.articleTitle === initial.articleTitle, `${scenario.id}: header logo did not restore the Docs start article.`);
@@ -771,6 +1020,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     const localeRestore = await switchDocsLocale(driverUrl, sessionId, scenario.locale);
 
     const finalSnapshot = await readSnapshot(driverUrl, sessionId);
+    assert(finalSnapshot.layoutShift <= 0.01, `${scenario.id}: cumulative interaction CLS ${finalSnapshot.layoutShift} exceeds 0.01.`);
     assert(finalSnapshot.theme === scenario.theme, `${scenario.id}: theme state changed during navigation.`);
     assert(finalSnapshot.documentTitle === expectedHomeTitle && finalSnapshot.routeId !== 'docs.notFound', `${scenario.id}: locale round-trip left a stale document title.`);
     assert(finalSnapshot.fabricSnapshot && finalSnapshot.fabricSnapshot.schema === 'xtend.fabric.telemetry-snapshot.v1' && finalSnapshot.fabricSnapshot.fiberCount > 0, `${scenario.id}: AppRuntime Fabric did not record command fibers.`);
@@ -827,6 +1077,14 @@ try {
   } else {
     const performanceBaseline = JSON.parse(await readFile(baselinePath, 'utf8'));
     await runMaracaRouteRegression(baseUrl, driverUrl);
+    const directRouteScenarios = [
+      { id: 'de-animation-engine-desktop', locale: 'de', slug: 'rmt-animation-engine', width: 1440, height: 900, settleMs: 1200 },
+      { id: 'de-authoring-desktop', locale: 'de', slug: 'native-first-authoring-guide', width: 1440, height: 900, settleMs: 700 },
+      { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700 }
+    ];
+    for (const scenario of directRouteScenarios) {
+      await runInitialRouteLayoutStability(baseUrl, driverUrl, scenario);
+    }
     for (const scenario of scenarios) {
       await runScenario(baseUrl, driverUrl, scenario, performanceBaseline);
     }

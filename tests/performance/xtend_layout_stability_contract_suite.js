@@ -31,6 +31,7 @@ function runXtendLayoutStabilityContractSuite(options = {}) {
   const packageManifest = JSON.parse(readText('package.json', rootDir));
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const xtendCss = readText('xtend.css', rootDir);
+  const loaderSource = readText('xtend-loader.js', rootDir);
 
   context.assert(xtendCss.includes('[data-xtend-layout-reserve]'), 'Base CSS exposes data-xtend-layout-reserve');
   context.assert(xtendCss.includes('--xtend-layout-reserved-block-size'), 'Base CSS uses the shared reserved block-size token');
@@ -38,7 +39,17 @@ function runXtendLayoutStabilityContractSuite(options = {}) {
   context.assert(xtendCss.includes('content-visibility: auto'), 'Base CSS supports lazy/offscreen layout reserves');
   context.assert(xtendCss.includes('transition-property: opacity, transform, color, background-color, border-color, box-shadow !important;'), 'Base CSS blocks geometry transitions during hydration reserves');
   context.assert(xtendCss.includes(':where(') && xtendCss.includes('x-router') && xtendCss.includes('x-footer'), 'Base CSS gives shell custom elements stable block hosts');
+  context.assert(xtendCss.includes('x-header {\n  display: flow-root;\n}'), 'Base CSS contains x-header margins inside its reserved host geometry');
+  context.assert(xtendCss.includes('[data-xtend-skeleton]:not(:defined) > * {\n  display: none !important;\n}'), 'Pre-upgrade skeleton descendants cannot contribute hidden layout geometry');
+  context.assert(xtendCss.includes('[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"]') && xtendCss.includes('position: absolute;\n  inset: 0 0 auto 0;'), 'Base CSS pins overlay skeletons without stretching them with committed content');
+  context.assert(xtendCss.includes('[data-xtend-skeleton-cache="overlay"] > [data-xtend-skeleton-loader][data-xtend-skeleton-hidden="true"]') && xtendCss.includes('opacity: 0;\n  pointer-events: none;'), 'Base CSS retains completed overlay geometry as a paint-only inert cache');
   context.assert(xtendCss.includes('min-height: var(--xtend-layout-reserved-block-size, var(--xtend-skeleton-min-height'), 'Skeleton geometry reuses layout reserve tokens');
+  context.assert(loaderSource.includes('function skeletonTargetHasContent') && loaderSource.includes("? (skeletonTargetHasContent(target) ? 'overlay' : 'flow')"), 'SkeletonLoader derives flow ownership from existing target content');
+  context.assert(loaderSource.includes("target.removeAttribute('data-xtend-skeleton-mode')"), 'SkeletonLoader clears transient layout mode after loading');
+  context.assert(loaderSource.includes("skeleton.setAttribute('data-xtend-skeleton-hidden', 'true')") && loaderSource.includes("target.setAttribute('data-xtend-skeleton-cache', 'overlay')"), 'SkeletonLoader retains inert overlay records across the content reveal');
+  context.assert(loaderSource.includes("layoutMode === 'overlay' && skeletonTargetHasContent(target)"), 'SkeletonLoader does not reinterpret explicit flow ownership during cleanup');
+  context.assert(loaderSource.includes('target.lastElementChild !== skeleton') && loaderSource.includes('target.appendChild(skeleton)'), 'SkeletonLoader keeps cached overlays behind the canonical content owner');
+  context.assert(loaderSource.includes("skeleton.style.alignContent = 'start'") && loaderSource.includes('inset: 0 0 auto 0;'), 'SkeletonLoader freezes overlay grid tracks at the target start edge');
 
   LAYOUT_CRITICAL_COMPONENTS.forEach((component) => {
     const source = readText(component.path, rootDir);
@@ -50,6 +61,16 @@ function runXtendLayoutStabilityContractSuite(options = {}) {
     context.assert(source.includes(component.reserveToken), `${component.tag} binds reserved block-size token`);
     context.assert(source.includes('contain-intrinsic-size'), `${component.tag} exposes intrinsic size reservation`);
   });
+
+  const headerSource = readText('components/xheader.js', rootDir);
+  context.assert(headerSource.includes('--xtend-header-outer-spacing: 0.5em 0.5em 1.5em;'), 'x-header owns outer spacing inside its reserved host geometry');
+  context.assert(headerSource.includes('padding: var(--xtend-header-outer-spacing);') && headerSource.includes('margin: 0;'), 'x-header prevents root margins from escaping the layout reserve');
+  context.assert(headerSource.includes('var(--header-reserved-block-size, var(--xtend-layout-reserved-block-size, 7.5rem))'), 'x-header default reserve includes controls and outer spacing');
+  const heroSource = readText('components/xhero.js', rootDir);
+  context.assert(heroSource.includes('margin: 0;'), 'x-hero keeps outer spacing on the host side of its layout reserve');
+  context.assert(heroSource.includes('var(--hero-padding-compact, var(--hero-padding, 2.2rem 0.5rem))') && heroSource.includes('var(--hero-content-padding-compact, var(--hero-content-padding, 1.2rem 0.5rem))'), 'x-hero preserves host-owned spacing tokens at compact breakpoints');
+  const routerSource = readText('components/xrouter.js', rootDir);
+  context.assert(routerSource.includes('#outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"]') && routerSource.includes("layoutMode: 'overlay'") && routerSource.includes('z-index: var(--xtend-skeleton-z-index, 1);'), 'x-router consumes the shared overlay skeleton contract inside its shadow root');
 
   context.assert(packageManifest.scripts['test:xtend-layout-stability-contract'] === 'node scripts/run_xtend_tests.js xtend-layout-stability-contract', 'package exposes layout stability contract script');
   context.assert(packageManifest.xtend.layoutStabilityContract.schema === XTEND_LAYOUT_STABILITY_SCHEMA, 'package metadata records layout stability schema');
