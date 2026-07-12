@@ -24,5 +24,6 @@ Read phase, actual value, budget, and status first. Fix a `fail` in the affected
 
 ## Next steps
 
+- [XTend DEV API](./xtend-dev-api.md)
 - [Hydration Policies](./hydration-policies.md)
 - [A11y Keyboard Smokes](./a11y-keyboard-smokes.md)

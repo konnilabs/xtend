@@ -51,6 +51,8 @@ The TestBench uses `server_prerender_resume`, a server-side resume payload, XSca
 
 The DEV API is an explicit read-only boundary. Its four core methods return synchronous, JSON-serializable snapshots. `getHydrationSnapshot()` and `subscribe()` are optional.
 
+See [XTend DEV API](./xtend-dev-api.md) for the complete method, snapshot and failure reference. The following block remains a compact extension quick start.
+
 ```js
 window.__XTEND_DEV_API__ = {
   version: '1.0.0',
@@ -181,6 +183,7 @@ If `Gates` cannot connect, check the companion process, port and token. An unkno
 
 ## Next steps
 
+- [XTend DEV API](./xtend-dev-api.md)
 - [Performance](./performance.md)
 - [Hydration Policies](./hydration-policies.md)
 - [XTend Fabric Runtime](./xtend-fabric-runtime.md)

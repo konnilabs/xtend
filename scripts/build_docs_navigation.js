@@ -56,6 +56,10 @@ const CURATED_KEYWORDS = Object.freeze({
     de: ['DevTools', 'Debugging', 'Diagnose', 'Gates', 'Kernel Monitor', 'Fabric', 'Chromium'],
     en: ['DevTools', 'debugging', 'diagnostics', 'gates', 'kernel monitor', 'Fabric', 'Chromium']
   },
+  'xtend-dev-api': {
+    de: ['__XTEND_DEV_API__', 'Instrumentierung', 'Telemetrie', 'Diagnostics', 'Snapshots', 'Performance', 'Hydration', 'Kernel', 'Fabric', 'DevTools'],
+    en: ['__XTEND_DEV_API__', 'instrumentation', 'telemetry', 'diagnostics', 'snapshots', 'performance', 'hydration', 'kernel', 'Fabric', 'DevTools']
+  },
   'hydration-policies': {
     de: ['Hydrierung', 'Hydration', 'Resume', 'SSR', 'Insel', 'XScaler', 'Prewarm'],
     en: ['hydration', 'resume', 'SSR', 'island', 'XScaler', 'prewarm']
@@ -143,7 +147,7 @@ function classify(entry) {
   if (entry.group === 'components') return classifyComponent(entry.slug);
   if (entry.group === 'surface') return ['build', 'surfaces'];
   if (entry.group === 'security') return ['operate', 'security'];
-  if (entry.slug === 'xtend-dev-surface') return ['operate', 'devtools'];
+  if (entry.slug === 'xtend-dev-surface' || entry.slug === 'xtend-dev-api') return ['operate', 'devtools'];
   if (/a11y|screenreader|motion-contrast/.test(entry.slug)) return ['operate', 'accessibility'];
   return ['operate', 'performance'];
 }
@@ -194,7 +198,7 @@ function buildMenu() {
       }
     };
   });
-  if (result.length !== 165) throw new Error(`Expected 165 canonical docs entries, received ${result.length}.`);
+  if (result.length !== 166) throw new Error(`Expected 166 canonical docs entries, received ${result.length}.`);
   return result;
 }
 

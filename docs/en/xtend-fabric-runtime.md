@@ -42,6 +42,7 @@ XTend UI and other framework adapters can use Fabric context to prioritize visib
 
 ## Next Steps
 
+- [XTend DEV API](./xtend-dev-api.md)
 - [RMT Stack Topography](./rmt-stack-topography.md)
 - [RMT Kernel Runtime](./rmt-kernel-runtime.md)
 - [XTend Fabric](./xtend-fabric.md)

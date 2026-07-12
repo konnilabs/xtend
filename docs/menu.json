@@ -5580,6 +5580,63 @@
     }
   },
   {
+    "slug": "xtend-dev-api",
+    "id": "docs.xtend.dev.api",
+    "label": "XTend DEV API",
+    "group": "quality",
+    "parent": "xtend-dev-surface",
+    "tier": "basic",
+    "rank": 93,
+    "icon": "braces",
+    "labels": {
+      "de": "XTend DEV API",
+      "en": "XTend DEV API"
+    },
+    "contentType": "reference",
+    "trunk": "operate",
+    "section": "devtools",
+    "keywords": {
+      "de": [
+        "XTend DEV API",
+        "xtend",
+        "dev",
+        "api",
+        "reference",
+        "operate",
+        "devtools",
+        "Qualität",
+        "__XTEND_DEV_API__",
+        "Instrumentierung",
+        "Telemetrie",
+        "Diagnostics",
+        "Snapshots",
+        "Performance",
+        "Hydration",
+        "Kernel",
+        "Fabric"
+      ],
+      "en": [
+        "XTend DEV API",
+        "xtend",
+        "dev",
+        "api",
+        "reference",
+        "operate",
+        "devtools",
+        "quality",
+        "__XTEND_DEV_API__",
+        "instrumentation",
+        "telemetry",
+        "diagnostics",
+        "snapshots",
+        "performance",
+        "hydration",
+        "kernel",
+        "Fabric"
+      ]
+    }
+  },
+  {
     "slug": "performance",
     "id": "docs.performance",
     "label": "Performance",

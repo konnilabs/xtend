@@ -1,6 +1,6 @@
 # XTend Docs Quality und Dev Surface Public Documentation
 
-Status: `implementation-in-progress-xdq-wp-09-xdq-wp-10-complete`
+Status: `implementation-in-progress-xdq-wp-09-xdq-wp-10-xdq-wp-11-complete`
 
 Dieses Dokument ist die Source of Truth für die öffentliche Dokumentationsabdeckung der XTend Dev Surface und für die redaktionelle Sanierung des deutsch- und englischsprachigen Developer Centers. Zielgruppe sind Drittentwickler, die XTend ohne internes Projektwissen installieren, integrieren, diagnostizieren und betreiben müssen.
 
@@ -65,6 +65,7 @@ Jeder kanonische Eintrag in `docs/menu.json` deklariert einen `contentType` aus 
 | `xtensions-security-checklist` | `security` | `operations` | XTension vor dem Mount prüfen |
 | `components-xkeymap` | `components` | `component` | `x-keymap` vollständig referenzieren |
 | `rmt-animation-engine` | `rmt` | `tutorial` | AnimationEngine AOT authoren und direkt im Artikel ausprobieren |
+| `xtend-dev-api` | `quality` | `reference` | DEV-API-Methoden, Snapshots, Boot-Zustand, Diagnostics und Sicherheitsgrenzen nachschlagen |
 
 ### Öffentliche Alias-Migration
 
@@ -103,6 +104,7 @@ Jeder kanonische Eintrag in `docs/menu.json` deklariert einen `contentType` aus 
 | `XDQ-WP-08` | `completed-ci-editorial-pass` | bilingualer Review und CI-Abschluss | 164 kanonische Slugs, je 164 DE/EN-Artikel, alle Docs-Gates grün |
 | `XDQ-WP-09` | `implementation-in-progress` | zweisprachiges AnimationEngine-Tutorial mit AOT-Live-Demo | 165 kanonische Slugs, kompilierbare Beispiele, lazy Island und Browser-Smoke grün |
 | `XDQ-WP-10` | `completed` | Catfooding-Refactor der Docs Shell | `development/XTend-Docs-Shell-Catfooding-Implementierungsplan.md`, sechs Navigationstrunks, framework-native Search/Skeleton/Maraca-Pfade, DEV API und grüner Chromium-Smoke |
+| `XDQ-WP-11` | `completed` | zweisprachige XTend-DEV-API-Referenz | 166 kanonische Slugs, source-geprüfte Methoden-/Schema-Parität, Dev-Tools-Navigation und Route-Smoke grün |
 
 ## Gate-Matrix
 
@@ -111,20 +113,20 @@ node scripts/run_xtend_tests.js xtend-dev-surface docs-public-quality docs-conte
 git diff --check
 ```
 
-Zusätzlich prüfen Route-Smokes `/docs/de/xtend-dev-surface`, `/docs/en/xtend-dev-surface` sowie jeden Legacy-Alias. `docs-public-quality`, `docs-content-depth` und `docs-quality-gates` sind wieder Bestandteil des regulären PR-Gates.
+Zusätzlich prüfen Route-Smokes `/docs/de/xtend-dev-surface`, `/docs/en/xtend-dev-surface`, `/docs/de/xtend-dev-api`, `/docs/en/xtend-dev-api` sowie jeden Legacy-Alias. `docs-public-quality`, `docs-content-depth` und `docs-quality-gates` sind wieder Bestandteil des regulären PR-Gates.
 
 ## Abschlussnachweis
 
-- `docs/menu.json` enthält 165 kanonische Slugs, sechs gültige `contentType`-Klassen und acht konfliktfreie Aliase.
-- `docs/de` und `docs/en` enthalten jeweils 165 registrierte Artikel; außerhalb dieser beiden Locale-Bäume enthält `docs/` keine Markdown-Datei.
+- `docs/menu.json` enthält 166 kanonische Slugs, sechs gültige `contentType`-Klassen und acht konfliktfreie Aliase.
+- `docs/de` und `docs/en` enthalten jeweils 166 registrierte Artikel; außerhalb dieser beiden Locale-Bäume enthält `docs/` keine Markdown-Datei.
 - Die kanonischen Dev-Surface-Routen antworten in DE und EN mit `200`; alle 16 Locale-/Legacy-Kombinationen antworten mit `302` auf das sprachgleiche Ziel.
 - Der fokussierte Fünfer-Gate-Lauf und der reguläre PR-Report mit 118 Suiten sind grün.
 - Interne Handoff- und Evidence-Dateien liegen unter `development/docs-evidence/`; das generierte RMT AI Kit liegt unter `tools/rmt-language/generated/`.
 
 ## Abschlusskriterien
 
-- `docs/menu.json` enthält 165 kanonische, eindeutig typisierte Slugs.
-- `docs/de` und `docs/en` enthalten jeweils genau 165 öffentliche Markdown-Artikel.
+- `docs/menu.json` enthält 166 kanonische, eindeutig typisierte Slugs.
+- `docs/de` und `docs/en` enthalten jeweils genau 166 öffentliche Markdown-Artikel.
 - Alle acht Legacy-Routen kanonisieren bei erhaltener Locale.
 - Dev-Surface-Dokumentation erklärt die reale englische Shell und den instrumentierten TestBench-Pfad auf Port `9196`.
 - Public-Quality-, Content-Depth-, References- und Dev-Surface-Suite laufen gemeinsam grün.

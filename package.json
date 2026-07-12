@@ -775,10 +775,15 @@
       "handoffWorkpackage": "XDS-WP-09",
       "hydrationViewWorkpackage": "XDS-WP-10",
       "publicDocsWorkpackage": "XDS-WP-11",
+      "devApiDocsWorkpackage": "XDS-WP-12",
       "contract": "development/XTend-Dev-Surface-Implementierungsplan.md",
       "docs": {
         "de": "docs/de/xtend-dev-surface.md",
         "en": "docs/en/xtend-dev-surface.md"
+      },
+      "devApiDocs": {
+        "de": "docs/de/xtend-dev-api.md",
+        "en": "docs/en/xtend-dev-api.md"
       },
       "root": "tools/xtend-dev-surface",
       "dist": "tools/xtend-dev-surface/dist",
@@ -16232,7 +16237,7 @@
       "schema": "xtend.docs.public-quality.v1",
       "localGate": "node scripts/verify_docs_public_quality.js",
       "packageScript": "npm run test:docs-public-quality",
-      "canonicalSlugCount": 165,
+      "canonicalSlugCount": 166,
       "aliasCount": 8,
       "locales": [
         "de",

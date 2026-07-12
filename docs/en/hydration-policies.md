@@ -24,5 +24,6 @@ The report must include policy ID, selected lane, schedule, and diagnostics. Hig
 
 ## Next steps
 
+- [XTend DEV API](./xtend-dev-api.md)
 - [Performance](./performance.md)
 - [A11y Keyboard Smokes](./a11y-keyboard-smokes.md)

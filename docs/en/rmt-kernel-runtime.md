@@ -49,6 +49,7 @@ Fabric reads schedule records and lane intent. UI adapters translate surface and
 
 ## Next Steps
 
+- [XTend DEV API](./xtend-dev-api.md)
 - [RMT Kernel Topography Map](./rmt-kernel-topography-map.md)
 - [RMT Kernel Feature Adoption Evaluation](./rmt-kernel-feature-adoption-evaluation.md)
 - [RMT Stack Topography](./rmt-stack-topography.md)

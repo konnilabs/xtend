@@ -15,6 +15,8 @@ const {
   syntaxCheckFile
 } = require('../utils/process');
 const {
+  DEV_API_OPTIONAL_METHODS,
+  DEV_API_REQUIRED_METHODS,
   DEV_API_GLOBAL,
   DIAGNOSTIC_CATALOG,
   SECURITY_BOUNDARY_RULES,
@@ -121,6 +123,11 @@ const DIST_FILES = [
   'build-report.json',
   'handoff.json'
 ];
+
+function extractFencedCodeBlocks(markdown) {
+  return Array.from(String(markdown || '').matchAll(/```(?:js|json)\s*([\s\S]*?)```/gu))
+    .map((match) => match[1].trim());
+}
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -808,8 +815,12 @@ function assertPackageAndRunner(context, rootDir) {
   context.assert(metadata && metadata.performanceViewWorkpackage === 'XDS-WP-05', 'package metadata declares XDS-WP-05 performance view marker');
   context.assert(metadata && metadata.hydrationViewWorkpackage === 'XDS-WP-10', 'package metadata declares XDS-WP-10 hydration view marker');
   context.assert(metadata && metadata.publicDocsWorkpackage === 'XDS-WP-11', 'package metadata declares XDS-WP-11 public docs marker');
+  context.assert(metadata && metadata.devApiDocsWorkpackage === 'XDS-WP-12', 'package metadata declares XDS-WP-12 DEV API docs marker');
   context.assert(metadata && metadata.docs && metadata.docs.de === 'docs/de/xtend-dev-surface.md', 'package metadata points to German Dev Surface docs');
   context.assert(metadata && metadata.docs && metadata.docs.en === 'docs/en/xtend-dev-surface.md', 'package metadata points to English Dev Surface docs');
+  context.assert(metadata && metadata.devApiDocs && metadata.devApiDocs.de === 'docs/de/xtend-dev-api.md', 'package metadata points to German DEV API docs');
+  context.assert(metadata && metadata.devApiDocs && metadata.devApiDocs.en === 'docs/en/xtend-dev-api.md', 'package metadata points to English DEV API docs');
+  context.assert(!Object.keys(packageManifest.exports || {}).some((entry) => entry.includes('dev-api')), 'DEV API docs add no public package export');
   context.assert(metadata && metadata.kernelMonitorWorkpackage === 'XDS-WP-06', 'package metadata declares XDS-WP-06 kernel monitor marker');
   context.assert(metadata && metadata.fabricViewWorkpackage === 'XDS-WP-07', 'package metadata declares XDS-WP-07 fabric view marker');
   context.assert(metadata && metadata.workerPathWorkpackage === 'XDS-WP-08', 'package metadata declares XDS-WP-08 worker path marker');
@@ -836,6 +847,8 @@ function assertDocs(context, rootDir) {
   const docsMenu = readJson('docs/menu.json', rootDir);
   const docsDe = readText('docs/de/xtend-dev-surface.md', rootDir);
   const docsEn = readText('docs/en/xtend-dev-surface.md', rootDir);
+  const devApiDocsDe = readText('docs/de/xtend-dev-api.md', rootDir);
+  const devApiDocsEn = readText('docs/en/xtend-dev-api.md', rootDir);
   const docsReadmeDe = readText('docs/de/README.md', rootDir);
   const docsReadmeEn = readText('docs/en/README.md', rootDir);
   const readme = readText('tools/xtend-dev-surface/README.md', rootDir);
@@ -849,6 +862,7 @@ function assertDocs(context, rootDir) {
   context.assertIncludes(doc, 'XDS-WP-09 Handoff', 'implementation plan documents XDS-WP-09');
   context.assertIncludes(doc, 'XDS-WP-10 Hydration/XScaler', 'implementation plan documents XDS-WP-10');
   context.assertIncludes(doc, 'XDS-WP-11 Public Documentation', 'implementation plan documents XDS-WP-11');
+  context.assertIncludes(doc, 'XDS-WP-12 Public DEV API Reference', 'implementation plan documents XDS-WP-12');
   context.assertIncludes(doc, 'xtend.devsurface.hydration-snapshot.v1', 'implementation plan documents hydration snapshot schema');
   context.assertIncludes(doc, 'XDS-WP-09', 'implementation plan documents XDS-WP-09');
   context.assertIncludes(doc, 'window.__XTEND_DEV_API__', 'implementation plan documents DEV API');
@@ -861,8 +875,14 @@ function assertDocs(context, rootDir) {
   context.assertIncludes(readme, 'tools/xtend-dev-surface/dist/', 'README documents dist load path');
   context.assertIncludes(readme, 'Troubleshooting', 'README documents troubleshooting');
   context.assertIncludes(docsQualityPlan, 'XDQ-WP-00', 'docs quality plan records its baseline workpackage');
+  context.assertIncludes(docsQualityPlan, 'XDQ-WP-11', 'docs quality plan records the public DEV API reference workpackage');
   const menuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-surface');
+  const devApiMenuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-api');
   context.assert(menuEntry && menuEntry.group === 'quality' && menuEntry.contentType === 'tutorial', 'docs menu exposes Dev Surface as a quality tutorial');
+  context.assert(docsMenu.length === 166, 'docs menu exposes 166 canonical articles after DEV API registration');
+  context.assert(devApiMenuEntry && devApiMenuEntry.id === 'docs.xtend.dev.api' && devApiMenuEntry.group === 'quality', 'docs menu exposes the canonical XTend DEV API entry');
+  context.assert(devApiMenuEntry && devApiMenuEntry.parent === 'xtend-dev-surface' && devApiMenuEntry.trunk === 'operate' && devApiMenuEntry.section === 'devtools', 'DEV API reference is nested in Operate Dev Tools');
+  context.assert(devApiMenuEntry && devApiMenuEntry.contentType === 'reference' && devApiMenuEntry.tier === 'basic' && devApiMenuEntry.rank === 93 && devApiMenuEntry.icon === 'braces', 'DEV API menu metadata declares the planned reference profile');
   [docsDe, docsEn].forEach((publicDoc) => {
     [
       'window.__XTEND_DEV_API__',
@@ -883,6 +903,49 @@ function assertDocs(context, rootDir) {
   });
   context.assertIncludes(docsReadmeDe, './xtend-dev-surface.md', 'German Developer Center links Dev Surface');
   context.assertIncludes(docsReadmeEn, './xtend-dev-surface.md', 'English Developer Center links Dev Surface');
+  context.assertIncludes(docsReadmeDe, './xtend-dev-api.md', 'German Developer Center links DEV API reference');
+  context.assertIncludes(docsReadmeEn, './xtend-dev-api.md', 'English Developer Center links DEV API reference');
+  [devApiDocsDe, devApiDocsEn].forEach((publicDoc) => {
+    context.assert(publicDoc.startsWith('# XTend DEV API'), 'public DEV API reference starts with the canonical title');
+    context.assertIncludes(publicDoc, 'window.__XTEND_DEV_API__', 'public DEV API reference names the global boundary');
+    context.assertIncludes(publicDoc, 'window.XTend', 'public DEV API reference distinguishes the product API');
+    DEV_API_REQUIRED_METHODS.forEach((method) => context.assertIncludes(publicDoc, `${method}()`, `public DEV API reference includes required method ${method}`));
+    DEV_API_OPTIONAL_METHODS.forEach((method) => context.assertIncludes(publicDoc, method === 'subscribe' ? 'subscribe(listener)' : `${method}()`, `public DEV API reference includes optional method ${method}`));
+    [
+      'xtend.devsurface.performance-snapshot.v1',
+      'xtend.performance.measurement.v1',
+      'xtend.fabric.telemetry-snapshot.v1',
+      'xtend.rmt.kernel-panic-state.v1',
+      'xtend.devsurface.hydration-snapshot.v1'
+    ].forEach((schema) => context.assertIncludes(publicDoc, schema, `public DEV API reference includes schema ${schema}`));
+    [
+      'xtend.devsurface.dev_api.missing',
+      'xtend.devsurface.dev_api.method_missing',
+      'xtend.devsurface.runtime_bridge.async_snapshot_unsupported',
+      'xtend.devsurface.runtime_bridge.serialization_failed',
+      'xtend.devsurface.runtime_bridge.read_failed'
+    ].forEach((code) => context.assertIncludes(publicDoc, code, `public DEV API reference includes diagnostic ${code}`));
+    context.assertIncludes(publicDoc, './xtend-dev-surface.md', 'public DEV API reference links Dev Surface');
+    context.assertIncludes(publicDoc, './performance.md', 'public DEV API reference links Performance');
+    context.assertIncludes(publicDoc, './hydration-policies.md', 'public DEV API reference links Hydration Policies');
+    context.assertIncludes(publicDoc, './rmt-kernel-runtime.md', 'public DEV API reference links Kernel Runtime');
+    context.assertIncludes(publicDoc, './xtend-fabric-runtime.md', 'public DEV API reference links Fabric Runtime');
+  });
+  const codeBlocksDe = extractFencedCodeBlocks(devApiDocsDe);
+  const codeBlocksEn = extractFencedCodeBlocks(devApiDocsEn);
+  context.assert(codeBlocksDe.length === 7 && JSON.stringify(codeBlocksDe) === JSON.stringify(codeBlocksEn), 'DE and EN DEV API references contain seven technically identical examples');
+  [
+    'docs/de/xtend-dev-surface.md',
+    'docs/en/xtend-dev-surface.md',
+    'docs/de/performance.md',
+    'docs/en/performance.md',
+    'docs/de/hydration-policies.md',
+    'docs/en/hydration-policies.md',
+    'docs/de/rmt-kernel-runtime.md',
+    'docs/en/rmt-kernel-runtime.md',
+    'docs/de/xtend-fabric-runtime.md',
+    'docs/en/xtend-fabric-runtime.md'
+  ].forEach((articlePath) => context.assertIncludes(readText(articlePath, rootDir), './xtend-dev-api.md', `${articlePath} links DEV API reference`));
 }
 
 async function runXTendDevSurfaceSuite(options = {}) {

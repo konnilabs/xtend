@@ -42,6 +42,7 @@ XTend UI und andere Framework-Adapter können Fabric-Kontext nutzen, um sichtbar
 
 ## Nächste Schritte
 
+- [XTend DEV API](./xtend-dev-api.md)
 - [RMT Stack-Topographie](./rmt-stack-topography.md)
 - [RMT Kernel Runtime](./rmt-kernel-runtime.md)
 - [XTend Fabric](./xtend-fabric.md)

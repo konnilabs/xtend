@@ -1,6 +1,6 @@
 # XTend Dev Surface Implementierungsplan
 
-- Status: `xds-wp-09-handoff`
+- Status: `xds-wp-12-public-dev-api-reference`
 - Datum: 9. Juli 2026
 - Product: `XTend Dev Surface`
 - Extension Contract: `xtend.devsurface.extension.v1`
@@ -73,6 +73,7 @@ Wenn diese API fehlt, degradiert die Dev Surface sichtbar und zeigt keine heuris
 | `XDS-WP-09` | Handoff | README, Build-Script, Runner-Suite, `dist/handoff.json` und Extension-Load-Anleitung | lokales Gate dokumentiert, Build reproduzierbar, Extension als unpacked `dist/` ladbar |
 | `XDS-WP-10` | Hydration/XScaler | optionaler `getHydrationSnapshot()`, Hydration-Tab, Timeline, Surface Rows und XScaler-Status | Hydration bleibt read-only, fehlende Methode degradiert nur den Tab, XScaler wird ohne DOM-Scraping sichtbar |
 | `XDS-WP-11` | Public Documentation | `docs/de/xtend-dev-surface.md`, `docs/en/xtend-dev-surface.md` und Developer-Center-Navigation | Drittentwickler koennen Extension, TestBench, DEV API, Tabs und Companion ohne internes Wissen verwenden |
+| `XDS-WP-12` | Public DEV API Reference | `docs/de/xtend-dev-api.md`, `docs/en/xtend-dev-api.md`, Source-Matrix und Dev-Tools-Navigation | Drittentwickler koennen den v1-Contract ohne neue Factory oder interne Runtime-Annahmen implementieren |
 
 ## Security und Boundary Rules
 
@@ -461,6 +462,31 @@ Oeffentliche Pfade:
 - Slug `xtend-dev-surface` in der Gruppe `quality`
 
 Die Artikel fuehren von Build und Unpacked-Installation ueber die RMT Animation TestBench auf Port `9196` zur expliziten `window.__XTEND_DEV_API__`. Sie erklaeren alle fuenf Panel-Tabs, die Statusbewertung, den lokalen Companion, die Allowlist-Grenze sowie `No XTend app detected` und `degraded` als getrennte Fehlerzustaende. Die Extension-Shell bleibt englisch; die deutsche Dokumentation uebersetzt Erklaerungen, aber keine sichtbaren UI-Labels.
+
+## XDS-WP-12 Public DEV API Reference
+
+Status: `completed-public-dev-api-reference`
+
+`XDS-WP-12` trennt den schnellen Extension-Einstieg von der vollstaendigen Referenz fuer App-Autoren. Die DEV API bleibt ein globaler, read-only Diagnosecontract; es entstehen weder eine Installations-Factory noch ein neuer NPM-Export.
+
+Source-Matrix:
+
+| Ebene | Source of Truth | Dokumentierter Fakt |
+| --- | --- | --- |
+| Contract und Normalisierung | `tools/xtend-dev-surface/contracts.js` | Pflicht-/optionale Methoden, Snapshot-Schemas und Statusnormalisierung |
+| Inspected-Window Bridge | `tools/xtend-dev-surface/src/runtime-bridge.js` | synchrone JSON-Reads, Promise-Verbot und Bridge-Diagnostics |
+| Docs Host | `docs/utils/dev-api.js` | fruehe `degraded`-Snapshots und Umschaltung auf AppRuntime-Daten |
+| Animation TestBench | `products/rmt-animation-testbench/src/client/testbench-controller.mjs` | vollstaendige Performance-, Hydration-, Fabric-, Kernel- und Subscription-Integration |
+| Panel und Prewarm Worker | `tools/xtend-dev-surface/src/` | read-only Konsum, Normalisierung und fehlende State-/DOM-Ownership |
+
+Oeffentliche Pfade und IA:
+
+- `docs/de/xtend-dev-api.md`
+- `docs/en/xtend-dev-api.md`
+- Slug `xtend-dev-api`, `contentType: reference`
+- `Operate -> Dev Tools`, Parent `xtend-dev-surface`
+
+Die Referenz dokumentiert `version`, alle drei Pflichtmethoden, die optionalen Methoden `getHydrationSnapshot()` und `subscribe(listener)`, gueltige degradierte Boot-Zustaende, Snapshot-Beispiele, Console-Verifikation, Datenschutz und die Diagnostics fuer fehlende, asynchrone, nicht serialisierbare oder fehlschlagende Reads. Der kanonische Docs-Corpus umfasst danach 166 Slugs pro Sprache.
 
 ## Test- und Gateplan
 

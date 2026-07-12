@@ -50,7 +50,7 @@ Die grüne Baseline umfasst `docs-php-ssr-prehydration`, `docs-php-ssr-performan
 
 Die sechs Primär-Trunks sind `start`, `learn-rmt`, `build`, `components`, `operate` und `reference`. In der deutschen UI werden sie als `Start`, `RMT lernen`, `Entwickeln`, `Komponenten`, `Betrieb` und `Referenz` angezeigt; die englische UI verwendet `Start`, `Learn RMT`, `Build`, `Components`, `Operate` und `Reference`.
 
-Nur der zum aktiven Slug gehörende Trunk wird in der Sidebar ausgegeben. Sein aktiver Zweig ist geöffnet. Alle 165 Slugs bleiben über Navigation und Suche erreichbar. Komponenten werden in `forms`, `navigation`, `feedback-overlays`, `layout-surfaces`, `data-media` und `runtime-utilities` gruppiert.
+Nur der zum aktiven Slug gehörende Trunk wird in der Sidebar ausgegeben. Sein aktiver Zweig ist geöffnet. Alle 166 Slugs bleiben über Navigation und Suche erreichbar. Komponenten werden in `forms`, `navigation`, `feedback-overlays`, `layout-surfaces`, `data-media` und `runtime-utilities` gruppiert.
 
 ## Suchpolitik
 
@@ -86,8 +86,8 @@ Kandidaten mit Fehlerdiagnostik, fehlender Production Closure, fehlendem Rollup/
 ## Implementierungsnachweis
 
 - Das initiale SSR-HTML umfasst `151782` Bytes und materialisiert nur die aktive Route plus Wildcard. Die vollständige Route-Tabelle wird nach dem Content-Commit oder beim ersten Navigations-Intent über `x-router.registerRoutes()` registriert.
-- Alle 165 Slugs sind genau einem der sechs Trunks zugeordnet. `docs/navigation.json` und beide Suchindexstufen sind deterministisch prüfbar.
-- Gzip-Größen: DE kompakt `19430`, DE Volltext `110293`, EN kompakt `18135`, EN Volltext `90270` Bytes.
+- Alle 166 Slugs sind genau einem der sechs Trunks zugeordnet. `docs/navigation.json` und beide Suchindexstufen sind deterministisch prüfbar.
+- Gzip-Größen: DE kompakt `19733`, DE Volltext `112512`, EN kompakt `18411`, EN Volltext `92076` Bytes.
 - `xt maraca tune --check` akzeptiert alle zwölf Rollup-/Terser-Kandidaten und wählt deterministisch `max-route-inline` mit `1835863` initialen und `2032433` gesamten Bytes.
 - Der lokale Akzeptanzlauf ist mit 11/11 Suites grün, einschließlich Public Quality, Content Depth, SSR-/FCP-/CLS-Budgets und 2479 Referenzprüfungen.
 - `docs/utils/fabric-runtime.js` ist entfernt. AppRuntime, Fabric, Search, Commands und DEV API werden aus `docs/utils/docs-shell-runtime.mjs` koordiniert; Trusted-DOM-Commits bleiben in `docs/utils/trusted-dom-host.mjs`.

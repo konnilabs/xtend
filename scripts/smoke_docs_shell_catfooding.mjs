@@ -1048,6 +1048,9 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
     }, `${scenario.id}: direct route did not become ready`);
     await delay(scenario.settleMs || 600);
     const snapshot = await readSnapshot(driverUrl, sessionId);
+    if (scenario.expectedArticleTitle) {
+      assert(snapshot.articleTitle === scenario.expectedArticleTitle, `${scenario.id}: expected article title ${scenario.expectedArticleTitle}, received ${snapshot.articleTitle}.`);
+    }
     const visibleSkeletonCount = await execute(driverUrl, sessionId, `
       const skeletons = [];
       const collect = (root) => {
@@ -1089,6 +1092,9 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
       : null;
     if (navigationSurface) {
       assert(navigationSurface.currentPageCount === 1 && navigationSurface.currentPageSection && navigationSurface.currentPageSectionOpen, `${scenario.id}: current page is not uniquely marked inside its expanded section (${JSON.stringify(navigationSurface)}).`);
+      if (scenario.expectedSection) {
+        assert(navigationSurface.currentPageSection === scenario.expectedSection, `${scenario.id}: expected active section ${scenario.expectedSection}, received ${navigationSurface.currentPageSection}.`);
+      }
       assert(navigationSurface.columnCount === 2 && navigationSurface.columnsSideBySide && navigationSurface.sectionOrderPreserved && navigationSurface.minInternalColumnGap >= 7 && navigationSurface.maxInternalColumnGap <= 9, `${scenario.id}: navigation sections do not flow independently within two stable columns (${JSON.stringify(navigationSurface.columnGeometry)}).`);
     }
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
@@ -1141,7 +1147,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.devApiDetected && initial.devApiMethods.length === 5, `${scenario.id}: DEV API contract is incomplete.`);
     assert(initial.hydrationSnapshot.status === 'ready', `${scenario.id}: hydration snapshot is not ready.`);
     assert(initial.kernelSnapshot.state === 'none', `${scenario.id}: unexpected kernel panic state ${JSON.stringify(initial.kernelSnapshot)}.`);
-    assert(initial.trunkCount === 6 && initial.canonicalEntryCount === 165, `${scenario.id}: navigation inventory is incomplete.`);
+    assert(initial.trunkCount === 6 && initial.canonicalEntryCount === 166, `${scenario.id}: navigation inventory is incomplete.`);
     assert(initial.activeTrunk === 'start' && initial.activeTrunkContent === 'start', `${scenario.id}: start trunk is not active.`);
     assertSingleCurrentArticle(initial, scenario.id);
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
@@ -1275,6 +1281,8 @@ try {
       { id: 'de-authoring-desktop', locale: 'de', slug: 'native-first-authoring-guide', width: 1440, height: 900, settleMs: 700 },
       { id: 'de-a11y-current-page-desktop', locale: 'de', slug: 'a11y-keyboard-smokes', width: 1440, height: 900, settleMs: 700, inspectNavigation: true },
       { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' },
+      { id: 'de-dev-api-desktop', locale: 'de', slug: 'xtend-dev-api', width: 1440, height: 900, settleMs: 700, inspectNavigation: true, expectedArticleTitle: 'XTend DEV API', expectedSection: 'devtools' },
+      { id: 'en-dev-api-mobile', locale: 'en', slug: 'xtend-dev-api', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only', expectedArticleTitle: 'XTend DEV API' },
       { id: 'de-maraca-brand-wide', locale: 'de', slug: 'xtend-maraca', width: 593, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-title' },
       { id: 'de-maraca-brand-compact', locale: 'de', slug: 'xtend-maraca', width: 500, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' }
     ];

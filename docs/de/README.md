@@ -17,7 +17,7 @@ Willkommen im XTend Developer Center. Diese Dokumentation erklärt XTend für En
 | Design Tokens prüfen | [Design Tokens](./design-tokens.md) |
 | SSR anbinden | [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md), [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) |
 | Editor, Linting und VS Code | [RMT Linter](./rmt-linter.md), [RMT Language Server](./rmt-language-server.md), [RMT App Platform Tooling](./rmt-app-platform-tooling.md), [RMT Tooling Release Gates](./rmt-tooling-release-gates.md) |
-| XTend-Apps im Browser untersuchen | [XTend Dev Surface](./xtend-dev-surface.md) |
+| XTend-Apps instrumentieren und im Browser untersuchen | [XTend DEV API](./xtend-dev-api.md), [XTend Dev Surface](./xtend-dev-surface.md) |
 | Release Surface prüfen | [Package Export Lock](./package-export-lock.md), [Type Exports](./type-exports.md), [XTend Loader Types](./xtend-loader-types.md), [XTend API Types](./xtend-api-types.md), [XTend Policy Types](./xtend-policy-types.md), [XTend Builder Types](./xtend-builder-types.md), [XTend Catalog Types](./xtend-catalog-types.md), [XTend Vendor Types](./xtend-vendor-types.md) |
 | Release-Nachweise prüfen | [Release Readiness](./release-verification.md), Previous Release Bridge, [Release Acceptance](./release-verification.md), [Conditional Network Evidence](./conditional-network-evidence.md), [Conditional Network Evidence CI](./conditional-network-evidence-ci.md), [Release Report Pack Dry Run Evidence](./release-report-pack-dry-run-evidence.md), [Readiness CI Bundle](./release-verification.md) |
 
@@ -67,6 +67,7 @@ Der Tooling-Pfad verwendet das öffentliche Schema `xtend.rmt.tooling-docs.v1`. 
 
 - [Quick Start Guide](./quick-start-guide.md)
 - [XTend Dev Surface](./xtend-dev-surface.md)
+- [XTend DEV API](./xtend-dev-api.md)
 - [XTend Maraca](./xtend-maraca.md)
 - [Maraca Orchestrierung](./xtend-maraca-orchestration.md)
 - [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)

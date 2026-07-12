@@ -51,6 +51,8 @@ Die TestBench verwendet `server_prerender_resume`, einen serverseitigen Resume-P
 
 Die DEV API ist eine explizite, nur lesende Grenze. Die vier Kernmethoden liefern synchrone, JSON-serialisierbare Snapshots. `getHydrationSnapshot()` und `subscribe()` sind optional.
 
+Die vollständige Methoden-, Snapshot- und Fehlerreferenz findest du unter [XTend DEV API](./xtend-dev-api.md). Der folgende Block bleibt als kompakter Schnellstart für die Extension erhalten.
+
 ```js
 window.__XTEND_DEV_API__ = {
   version: '1.0.0',
@@ -181,6 +183,7 @@ Kann sich `Gates` nicht verbinden, prüfe Companion-Prozess, Port und Token. Ein
 
 ## Nächste Schritte
 
+- [XTend DEV API](./xtend-dev-api.md)
 - [Performance](./performance.md)
 - [Hydration Policies](./hydration-policies.md)
 - [XTend Fabric Runtime](./xtend-fabric-runtime.md)

@@ -233,7 +233,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   const performanceBaseline = readJson('tests/docs/fixtures/docs-shell-catfooding-performance-baseline.json', rootDir);
   const trunkSections = new Set(navigation.trunks.flatMap((trunk) => trunk.sections.map((section) => `${trunk.id}:${section.id}`)));
   context.assert(navigation.schema === 'xtend.docs.navigation.v1' && navigation.trunks.length === 6, 'navigation contract exposes six task trunks');
-  context.assert(menu.length === 165, 'menu keeps 165 canonical bilingual articles');
+  context.assert(menu.length === 166, 'menu keeps 166 canonical bilingual articles');
   context.assert(menu.every((entry) => entry.trunk && entry.section && trunkSections.has(`${entry.trunk}:${entry.section}`)), 'every article has exactly one valid primary trunk and section');
   context.assert(menu.every((entry) => entry.keywords && entry.keywords.de.length && entry.keywords.en.length), 'every article exposes DE and EN keywords');
   context.assert(performanceBaseline.schema === 'xtend.docs.shell-performance-baseline.v1' && performanceBaseline.regressionLimit === 0.05, 'browser baseline locks the five-percent FCP and transfer regression limit');
@@ -246,8 +246,8 @@ function runDocsShellCatfoodingSuite(options = {}) {
     const fulltextText = readText(fulltextPath, rootDir);
     const compact = JSON.parse(compactText);
     const fulltext = JSON.parse(fulltextText);
-    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 165, `${locale} compact index has contract and full inventory`);
-    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 165, `${locale} fulltext index has contract and full inventory`);
+    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 166, `${locale} compact index has contract and full inventory`);
+    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 166, `${locale} fulltext index has contract and full inventory`);
     context.assert(zlib.gzipSync(compactText, { level: 9 }).length <= 25 * 1024, `${locale} compact index stays within 25 KiB gzip`);
     context.assert(zlib.gzipSync(fulltextText, { level: 9 }).length <= 150 * 1024, `${locale} fulltext index stays within 150 KiB gzip`);
   });
@@ -303,7 +303,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(browserSmoke.includes('exerciseNavigationSurface') && browserSmoke.includes('navigationAppearances.every((entry) => entry && entry.contrast >= 4.5)') && browserSmoke.includes('inactiveUsesPrimarySurface'), 'ChromeDriver shell smoke enforces navigation contrast, active-state distinction and primary-surface isolation');
   context.assert(browserSmoke.includes("entry.internalBoxShadow === 'none'") && browserSmoke.includes("entry.internalTextDecoration === 'none'"), 'ChromeDriver shell smoke rejects duplicate active indicators inside navigation labels');
   context.assert(browserSmoke.includes('runMaracaRouteRegression') && browserSmoke.includes('result.maxLongTaskMs <= 1000') && browserSmoke.includes('activeSkeletonCount === 0'), 'ChromeDriver shell smoke blocks Maraca menu feedback stalls and stale skeleton layers');
-  context.assert(browserSmoke.includes('runInitialRouteLayoutStability') && browserSmoke.includes("slug: 'rmt-animation-engine'") && browserSmoke.includes("slug: 'native-first-authoring-guide'") && browserSmoke.includes("slug: 'xtend-dev-surface'"), 'ChromeDriver shell smoke measures representative direct-entry routes on desktop and mobile');
+  context.assert(browserSmoke.includes('runInitialRouteLayoutStability') && browserSmoke.includes("slug: 'rmt-animation-engine'") && browserSmoke.includes("slug: 'native-first-authoring-guide'") && browserSmoke.includes("slug: 'xtend-dev-surface'") && browserSmoke.includes("slug: 'xtend-dev-api'"), 'ChromeDriver shell smoke measures representative direct-entry routes including the DEV API reference');
   context.assert(browserSmoke.includes('finalSnapshot.layoutShift <= 0.01') && browserSmoke.includes('result.layoutShift <= 0.01'), 'ChromeDriver shell smoke enforces measured CLS across initial, interaction and Maraca regression paths');
   context.assert(browserSmoke.includes('regionGeometry.heroMainGap >= minimumRegionGap') && browserSmoke.includes('regionGeometry.articleSidebarTopDelta <= 1'), 'ChromeDriver shell smoke enforces visible region spacing and desktop column alignment');
   context.assert(browserSmoke.includes("id: 'de-maraca-brand-wide'") && browserSmoke.includes("id: 'de-maraca-brand-compact'") && browserSmoke.includes("expectedBrandPresentation: 'logo-only'"), 'ChromeDriver shell smoke covers full and logo-only header branding at the reported compact widths');
