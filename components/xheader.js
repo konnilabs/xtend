@@ -3,6 +3,7 @@ import { xstate } from './xstate.js';
 const XHEADER_MENU_MODES = Object.freeze(['drawer', 'side-panel', 'popover', 'fullscreen', 'inline-main']);
 const XHEADER_MENU_PLACEMENTS = Object.freeze(['start', 'end', 'top', 'bottom']);
 const XHEADER_MENU_ALIGNS = Object.freeze(['start', 'center', 'end', 'stretch']);
+const XHEADER_BRAND_COLLAPSE_POLICIES = Object.freeze(['auto', 'never', 'always']);
 const XHEADER_MENU_BREAKPOINTS = Object.freeze({
   sm: '480px',
   md: '620px',
@@ -39,6 +40,7 @@ class XHeader extends HTMLElement {
       "title",
       "sticky",
       "shadow",
+      "brand-collapse",
       "menu-mode",
       "menu-placement",
       "menu-modal",
@@ -103,7 +105,7 @@ class XHeader extends HTMLElement {
       family: "layout-header",
       role: "banner",
       contentKind: "app-shell-navigation",
-      responsiveStrategy: "fixed-slot-grid-search-below-actions-menu-presentation-modes",
+      responsiveStrategy: "fixed-slot-grid-intrinsic-brand-fit-search-below-actions-menu-presentation-modes",
       lazyPolicy: "visible-hydrate",
       overflowPolicy: "mode-aware-overlay-or-inline-flow",
       menuModes: XHEADER_MENU_MODES.slice(),
@@ -134,7 +136,7 @@ class XHeader extends HTMLElement {
         ]
       },
       aspectRatio: "content-driven",
-      events: ["header-ready", "header-layout-changed", "menu-opened", "menu-closed", "menu-mode-changed", "menu-placement-changed", "menu-before-open", "menu-before-close"],
+      events: ["header-ready", "header-layout-changed", "header-brand-visibility-changed", "menu-opened", "menu-closed", "menu-mode-changed", "menu-placement-changed", "menu-before-open", "menu-before-close"],
       commands: ["render", "measure", "layout", "snapshot", "toggle-menu", "close-menu", "set-menu-mode"],
       stateKey: "xheader-state-<id>",
       schedule: "component.visible.mount",
@@ -199,13 +201,19 @@ class XHeader extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this._unsubscribeState = null;
+    this._brandResizeObserver = null;
+    this._brandObservedSlots = [];
+    this._brandFitScheduled = false;
+    this._lastBrandFit = null;
     this._drawerTracking = false;
     this._suppressMenuOpenAttribute = false;
     this._lastFocusedElement = null;
     this._onResize = () => {
       this._syncResponsiveState();
+      this._scheduleBrandPresentation("window-resize");
       this._positionMenu();
     };
+    this._onBrandSlotChange = () => this._scheduleBrandPresentation("slot-change");
     this._onWindowScroll = () => this._positionMenu();
     this._onDocumentClick = null;
     this._onDocumentKeydown = null;
@@ -215,6 +223,7 @@ class XHeader extends HTMLElement {
     if (!this.id) this.id = `xheader-${Math.random().toString(36).slice(2, 10)}`;
     this._render();
     this._syncResponsiveState();
+    this._syncBrandPresentation({ source: "connected", emit: false });
     window.addEventListener("resize", this._onResize);
     this._syncState(true);
     this._unsubscribeState = xstate.subscribe((key, value) => {
@@ -228,6 +237,7 @@ class XHeader extends HTMLElement {
         }
         if (typeof value.src === "string" && value.src !== this.getAttribute("src")) this.setAttribute("src", value.src);
         if (typeof value.logoSize === "string" && value.logoSize !== this.getAttribute("logo-size")) this.setAttribute("logo-size", value.logoSize);
+        if (typeof value.brandCollapse === "string" && value.brandCollapse !== this.getAttribute("brand-collapse")) this.setAttribute("brand-collapse", value.brandCollapse);
       }
     });
     this.dispatchEvent(new CustomEvent("header-ready", {
@@ -240,6 +250,7 @@ class XHeader extends HTMLElement {
     if (this._unsubscribeState) this._unsubscribeState();
     this._unsubscribeState = null;
     window.removeEventListener("resize", this._onResize);
+    this._stopBrandTracking();
     this._teardownBurgerMenu();
     this._applyMenuModality(false);
   }
@@ -260,11 +271,13 @@ class XHeader extends HTMLElement {
       }
       this._render();
       this._syncResponsiveState();
+      this._syncBrandPresentation({ source: "attribute" });
       if (this.id) this._syncState(true);
     }
   }
   _render() {
     this._teardownBurgerMenu();
+    this._stopBrandTracking();
     const menuOpen = this.isMenuOpen();
     const menuMode = this._getMenuMode();
     const menuPlacement = this._getMenuPlacement();
@@ -294,6 +307,7 @@ class XHeader extends HTMLElement {
           --xtend-header-logo-radius: var(--xtend-layout-media-radius, 50%);
           --xtend-header-logo-surface: var(--xtend-signature-surface-inset, rgba(15, 23, 42, 0.06));
           --xtend-header-logo-elevation: var(--xtend-signature-shadow-control, 0 2px 8px rgba(15, 23, 42, 0.10));
+          --xtend-header-brand-fit-slack: 6px;
           --xtend-header-trigger-size: var(--xtend-control-height, 44px);
           --xtend-header-trigger-radius: var(--xtend-header-control-radius, 999px);
           --xtend-header-trigger-surface: var(--xtend-signature-surface-inset, rgba(15, 23, 42, 0.06));
@@ -417,11 +431,31 @@ class XHeader extends HTMLElement {
           font-weight: var(--xtend-header-font-weight);
           color: var(--header-title-color);
           letter-spacing: 0;
+          position: relative;
         }
         .title-text {
           min-width: 0;
           overflow: hidden;
           text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .title-measure {
+          position: absolute;
+          inline-size: max-content;
+          max-inline-size: none;
+          visibility: hidden;
+          pointer-events: none;
+          white-space: nowrap;
+        }
+        :host([logo-only]) .title-text {
+          position: absolute;
+          inline-size: 1px;
+          block-size: 1px;
+          margin: -1px;
+          padding: 0;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          clip-path: inset(50%);
           white-space: nowrap;
         }
         .logo-container {
@@ -801,10 +835,11 @@ class XHeader extends HTMLElement {
           }
         }
       </style>
-      <header part="root" role="banner" aria-label="Seitenkopf" data-menu-mode="${menuMode}" data-menu-placement="${menuPlacement}" data-menu-align="${menuAlign}">
+      <header part="root" role="banner" aria-label="Seitenkopf" data-menu-mode="${menuMode}" data-menu-placement="${menuPlacement}" data-menu-align="${menuAlign}" data-brand-presentation="${this.hasAttribute("logo-only") ? "logo-only" : "logo-title"}">
         <div class="title" part="brand title">
           <div class="logo-container" part="logo"></div>
           <span class="title-text"><slot name="title">Seitentitel</slot></span>
+          <span class="title-measure" aria-hidden="true"></span>
         </div>
         <div class="search" part="search">
           <slot name="search"></slot>
@@ -829,6 +864,7 @@ class XHeader extends HTMLElement {
     this.renderLogo();
     this._syncMenuPresentation({ source: "render" });
     this.setupBurgerMenu();
+    this._startBrandTracking();
   }
   _getMenuMode() {
     return normalizeAttribute(this.getAttribute("menu-mode"), XHEADER_MENU_MODES, "drawer");
@@ -857,6 +893,111 @@ class XHeader extends HTMLElement {
   }
   _getMenuMaxHeight() {
     return this.getAttribute("menu-max-height") || null;
+  }
+  _getBrandCollapsePolicy() {
+    return normalizeAttribute(this.getAttribute("brand-collapse"), XHEADER_BRAND_COLLAPSE_POLICIES, "auto");
+  }
+  _readBrandTitle() {
+    const slot = this.shadowRoot && this.shadowRoot.querySelector('.title-text slot[name="title"]');
+    if (!slot) return "";
+    const assigned = typeof slot.assignedNodes === "function" ? slot.assignedNodes({ flatten: true }) : [];
+    const nodes = assigned.length ? assigned : Array.from(slot.childNodes || []);
+    return nodes.map((node) => String(node && node.textContent || "")).join(" ").replace(/\s+/g, " ").trim();
+  }
+  _startBrandTracking() {
+    if (!this.isConnected || !this.shadowRoot) return;
+    this._stopBrandTracking();
+    const header = this.shadowRoot.querySelector("header");
+    const brand = this.shadowRoot.querySelector(".title");
+    if (typeof ResizeObserver === "function" && header && brand) {
+      this._brandResizeObserver = new ResizeObserver(() => this._scheduleBrandPresentation("resize-observer"));
+      this._brandResizeObserver.observe(header);
+      this._brandResizeObserver.observe(brand);
+    }
+    this._brandObservedSlots = Array.from(this.shadowRoot.querySelectorAll('slot[name="title"], slot[name="logo"], slot[name="actions"], slot[name="utility"]'));
+    this._brandObservedSlots.forEach((slot) => slot.addEventListener("slotchange", this._onBrandSlotChange));
+    if (typeof document !== "undefined" && document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        if (this.isConnected) this._scheduleBrandPresentation("fonts-ready");
+      }).catch(() => {});
+    }
+    this._scheduleBrandPresentation("tracking-start");
+  }
+  _stopBrandTracking() {
+    if (this._brandResizeObserver) this._brandResizeObserver.disconnect();
+    this._brandResizeObserver = null;
+    this._brandObservedSlots.forEach((slot) => slot.removeEventListener("slotchange", this._onBrandSlotChange));
+    this._brandObservedSlots = [];
+  }
+  _scheduleBrandPresentation(source = "layout") {
+    if (this._brandFitScheduled) return;
+    this._brandFitScheduled = true;
+    const run = () => {
+      this._brandFitScheduled = false;
+      if (this.isConnected) this._syncBrandPresentation({ source });
+    };
+    if (typeof queueMicrotask === "function") queueMicrotask(run);
+    else Promise.resolve().then(run);
+  }
+  _syncBrandPresentation(options = {}) {
+    if (!this.shadowRoot) return null;
+    const header = this.shadowRoot.querySelector("header");
+    const brand = this.shadowRoot.querySelector(".title");
+    const logo = this.shadowRoot.querySelector(".logo-container");
+    const measure = this.shadowRoot.querySelector(".title-measure");
+    if (!header || !brand || !logo || !measure) return null;
+
+    const title = this._readBrandTitle();
+    measure.textContent = title;
+    const brandRect = brand.getBoundingClientRect();
+    const logoRect = logo.getBoundingClientRect();
+    const titleWidth = title ? measure.getBoundingClientRect().width : 0;
+    const brandStyle = getComputedStyle(brand);
+    const hostStyle = getComputedStyle(this);
+    const gap = Number.parseFloat(brandStyle.columnGap || brandStyle.gap) || 0;
+    const configuredSlack = Number.parseFloat(hostStyle.getPropertyValue("--xtend-header-brand-fit-slack"));
+    const slack = Number.isFinite(configuredSlack) ? Math.max(0, configuredSlack) : 6;
+    const availableWidth = brandRect.width;
+    const requiredWidth = logoRect.width + (titleWidth > 0 ? gap + titleWidth : 0);
+    const policy = this._getBrandCollapsePolicy();
+    const previousPresentation = this.hasAttribute("logo-only") ? "logo-only" : "logo-title";
+    let logoOnly = previousPresentation === "logo-only";
+
+    if (policy === "always") logoOnly = true;
+    else if (policy === "never") logoOnly = false;
+    else if (!title) logoOnly = true;
+    else if (availableWidth > 0) {
+      logoOnly = previousPresentation === "logo-only"
+        ? requiredWidth > availableWidth - slack
+        : requiredWidth > availableWidth + slack;
+    }
+
+    this.toggleAttribute("logo-only", logoOnly);
+    const presentation = logoOnly ? "logo-only" : "logo-title";
+    header.dataset.brandPresentation = presentation;
+    this._lastBrandFit = {
+      policy,
+      presentation,
+      title,
+      availableWidth: Math.round(availableWidth * 10) / 10,
+      requiredWidth: Math.round(requiredWidth * 10) / 10,
+      titleWidth: Math.round(titleWidth * 10) / 10,
+      fits: requiredWidth <= availableWidth
+    };
+
+    if (presentation !== previousPresentation && options.emit !== false) {
+      this.dispatchEvent(new CustomEvent("header-brand-visibility-changed", {
+        detail: {
+          ...this.snapshot(),
+          source: options.source || "x-header.brand-fit",
+          previousPresentation
+        },
+        bubbles: true,
+        composed: true
+      }));
+      if (this.id) this._syncState(true);
+    }
+    return this._lastBrandFit;
   }
   _isOverlayMenuMode() {
     return this._getMenuMode() !== "inline-main";
@@ -896,6 +1037,11 @@ class XHeader extends HTMLElement {
       src: this.getAttribute("src"),
       logoSize: this.getAttribute("logo-size"),
       compact: this.hasAttribute("compact"),
+      brandCollapse: this._getBrandCollapsePolicy(),
+      brandPresentation: this.hasAttribute("logo-only") ? "logo-only" : "logo-title",
+      brandTitleFits: this._lastBrandFit ? this._lastBrandFit.fits : true,
+      brandAvailableWidth: this._lastBrandFit ? this._lastBrandFit.availableWidth : null,
+      brandRequiredWidth: this._lastBrandFit ? this._lastBrandFit.requiredWidth : null,
       slotModel: "title-search-actions-nav",
       slotAlignment: "fixed-responsive-slot-grid",
       menuMode: this._getMenuMode(),
@@ -1253,6 +1399,11 @@ class XHeader extends HTMLElement {
       src: this.getAttribute("src"),
       logoSize: this.getAttribute("logo-size"),
       compact: this.hasAttribute("compact"),
+      brandCollapse: this._getBrandCollapsePolicy(),
+      brandPresentation: this.hasAttribute("logo-only") ? "logo-only" : "logo-title",
+      brandTitleFits: this._lastBrandFit ? this._lastBrandFit.fits : true,
+      brandAvailableWidth: this._lastBrandFit ? this._lastBrandFit.availableWidth : null,
+      brandRequiredWidth: this._lastBrandFit ? this._lastBrandFit.requiredWidth : null,
       slotModel: "title-search-actions-nav",
       slotAlignment: "fixed-responsive-slot-grid",
       menuMode: this._getMenuMode(),

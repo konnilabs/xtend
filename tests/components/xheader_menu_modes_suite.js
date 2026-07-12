@@ -56,6 +56,13 @@ const REQUIRED_TOKENS = Object.freeze([
   '--xtend-header-menu-backdrop',
   '--xtend-header-menu-z-index'
 ]);
+const REQUIRED_BRAND_SNAPSHOT_FIELDS = Object.freeze([
+  'brandCollapse',
+  'brandPresentation',
+  'brandTitleFits',
+  'brandAvailableWidth',
+  'brandRequiredWidth'
+]);
 
 function assertIncludesAll(context, content, patterns, label) {
   patterns.forEach((pattern) => {
@@ -98,19 +105,26 @@ function runXHeaderMenuModesSuite(options = {}) {
   context.assert(source.includes(':host([menu-mode="inline-main"])'), 'x-header styles inline-main mode');
   context.assert(source.includes('@media (forced-colors: active)'), 'x-header keeps forced-colors coverage');
   context.assert(source.includes('@media (prefers-reduced-motion: reduce)'), 'x-header keeps reduced-motion coverage');
+  context.assert(source.includes('XHEADER_BRAND_COLLAPSE_POLICIES') && source.includes('"brand-collapse"'), 'x-header exposes auto, never and always brand collapse policies');
+  context.assert(source.includes('new ResizeObserver') && source.includes('_syncBrandPresentation') && source.includes('header-brand-visibility-changed'), 'x-header measures intrinsic brand fit and emits presentation changes');
+  context.assert(source.includes(':host([logo-only]) .title-text') && source.includes('clip-path: inset(50%)'), 'x-header hides an unfitting title visually while retaining accessible text');
+  assertIncludesAll(context, source, REQUIRED_BRAND_SNAPSHOT_FIELDS.map((field) => `${field}:`), 'x-header snapshot includes brand fit fields');
 
-  assertIncludesAll(context, types, ['XHeaderMenuMode', 'XHeaderMenuPlacement', 'XHeaderMenuAlign', 'XHeaderToggleMenuOptions'], 'x-header public types expose menu API');
+  assertIncludesAll(context, types, ['XHeaderMenuMode', 'XHeaderMenuPlacement', 'XHeaderMenuAlign', 'XHeaderBrandCollapsePolicy', 'XHeaderBrandPresentation', 'XHeaderToggleMenuOptions'], 'x-header public types expose menu and brand-fit APIs');
   assertIncludesAll(context, types, REQUIRED_MENU_MODES.map((mode) => `'${mode}'`), 'x-header public types include required menu modes');
   assertIncludesAll(context, types, REQUIRED_SNAPSHOT_FIELDS.map((field) => `${field}:`), 'x-header public types include menu snapshot fields');
   context.assert(types.includes('@deprecated Use menuMode'), 'x-header types mark drawerMode as legacy alias');
+  assertIncludesAll(context, types, REQUIRED_BRAND_SNAPSHOT_FIELDS.map((field) => `${field}:`), 'x-header public types include brand fit snapshot fields');
 
   assertIncludesAll(context, docs, ['Menu Presentation Modes', '`drawer`', '`side-panel`', '`popover`', '`fullscreen`', '`inline-main`'], 'x-header docs describe menu modes');
   assertIncludesAll(context, docs, REQUIRED_MENU_ATTRIBUTES.map((attribute) => `\`${attribute}\``), 'x-header docs document menu attributes');
   assertIncludesAll(context, docs, ['menu-before-open', 'menu-before-close', 'menu-mode-changed', 'menu-placement-changed'], 'x-header docs document new events');
   assertIncludesAll(context, docs, ['--xtend-header-menu-width', '--xtend-header-menu-max-height', '--xtend-header-menu-backdrop'], 'x-header docs document host styling tokens');
   context.assert(docs.includes('Legacy CSS Parts'), 'x-header docs describe legacy drawer part aliases');
+  assertIncludesAll(context, docs, ['`brand-collapse`', '`header-brand-visibility-changed`', '`--xtend-header-brand-fit-slack`'], 'x-header docs describe intrinsic brand fitting');
 
   assertIncludesAll(context, fixture, REQUIRED_MENU_ATTRIBUTES.map((attribute) => attribute), 'x-header component fixture covers menu attributes');
+  context.assert(fixture.includes('brand-collapse="auto"'), 'x-header component fixture covers automatic brand collapse');
   assertIncludesAll(context, browserFixture, REQUIRED_MENU_MODES.map((mode) => `menu-mode="${mode}"`), 'x-header browser fixture renders all menu modes');
   context.assert(browserFixture.includes('customElements.whenDefined(\'x-header\')'), 'x-header browser fixture waits for custom element');
   context.assert(browserFixture.includes('snapshot()'), 'x-header browser fixture checks snapshots');

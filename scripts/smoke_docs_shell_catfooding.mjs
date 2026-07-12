@@ -283,6 +283,8 @@ async function readSnapshot(baseUrl, sessionId) {
       ? Array.from(router.children).find((entry) => entry.localName === 'x-route' && entry.getAttribute('path') === location.pathname)
       : null;
     const header = document.querySelector('x-header');
+    const headerSnapshot = header && typeof header.snapshot === 'function' ? header.snapshot() : null;
+    const headerTitleText = header?.shadowRoot?.querySelector('.title-text') || null;
     const hero = document.querySelector('x-hero.docs-hero');
     const main = document.querySelector('main');
     const article = deepQuery('.docs-article-surface');
@@ -329,6 +331,16 @@ async function readSnapshot(baseUrl, sessionId) {
         width: Math.round(searchRect.width * 10) / 10,
         headerWidth: Math.round(headerRect.width * 10) / 10,
         centerDelta: Math.round(Math.abs((searchRect.left + searchRect.width / 2) - (headerRect.left + headerRect.width / 2)) * 10) / 10
+      } : null,
+      headerBrand: headerSnapshot ? {
+        collapse: headerSnapshot.brandCollapse,
+        presentation: headerSnapshot.brandPresentation,
+        titleFits: headerSnapshot.brandTitleFits,
+        availableWidth: headerSnapshot.brandAvailableWidth,
+        requiredWidth: headerSnapshot.brandRequiredWidth,
+        logoOnlyAttribute: header.hasAttribute('logo-only'),
+        titleAriaHidden: headerTitleText?.getAttribute('aria-hidden') || null,
+        titlePosition: headerTitleText ? getComputedStyle(headerTitleText).position : ''
       } : null,
       regionGeometry: heroRect && mainRect ? {
         heroMainGap: Math.round((mainRect.top - heroRect.bottom) * 10) / 10,
@@ -935,6 +947,12 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
       .sort((left, right) => right.value - left.value)
       .slice(0, 8);
     assert(snapshot.layoutShift <= 0.01, `${scenario.id}: CLS ${snapshot.layoutShift} exceeds 0.01 (${JSON.stringify(largestShifts)}).`);
+    if (scenario.expectedBrandPresentation) {
+      assert(snapshot.headerBrand && snapshot.headerBrand.presentation === scenario.expectedBrandPresentation, `${scenario.id}: unexpected header brand presentation (${JSON.stringify(snapshot.headerBrand)}).`);
+      if (scenario.expectedBrandPresentation === 'logo-only') {
+        assert(snapshot.headerBrand.logoOnlyAttribute && snapshot.headerBrand.titleAriaHidden === null && snapshot.headerBrand.titlePosition === 'absolute', `${scenario.id}: compact brand did not preserve an accessible visually hidden title (${JSON.stringify(snapshot.headerBrand)}).`);
+      }
+    }
     const minimumRegionGap = scenario.width <= 700 ? 15 : 23;
     assert(snapshot.regionGeometry && snapshot.regionGeometry.heroMainGap >= minimumRegionGap, `${scenario.id}: hero and route regions are visually collapsed (${JSON.stringify(snapshot.regionGeometry)}).`);
     if (scenario.width > 700) {
@@ -983,6 +1001,8 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.htmlLang === scenario.locale && initial.currentLocale === scenario.locale && initial.docsPageLocale === scenario.locale, `${scenario.id}: locale ownership diverged between URL, document and route.`);
     assert(initial.routeId !== 'docs.notFound' && initial.articleText.includes(expectedLead), `${scenario.id}: valid start route fell through to not-found or the wrong locale.`);
     assert(initial.searchPlaceholder === expectedSearchPlaceholder && initial.homeHref.endsWith(`/docs/${scenario.locale}/readme`), `${scenario.id}: localized shell controls are stale.`);
+    const expectedBrandPresentation = scenario.width <= 500 ? 'logo-only' : 'logo-title';
+    assert(initial.headerBrand && initial.headerBrand.presentation === expectedBrandPresentation, `${scenario.id}: responsive header brand is stale (${JSON.stringify(initial.headerBrand)}).`);
     const minimumSearchWidth = scenario.width > 1100 ? 640 : Math.min(320, scenario.width - 60);
     assert(initial.searchGeometry && initial.searchGeometry.width >= minimumSearchWidth, `${scenario.id}: search bar is too narrow (${JSON.stringify(initial.searchGeometry)}).`);
     assert(initial.searchGeometry.centerDelta <= 4, `${scenario.id}: search bar is not centered (${JSON.stringify(initial.searchGeometry)}).`);
@@ -1111,7 +1131,9 @@ try {
     const directRouteScenarios = [
       { id: 'de-animation-engine-desktop', locale: 'de', slug: 'rmt-animation-engine', width: 1440, height: 900, settleMs: 1200 },
       { id: 'de-authoring-desktop', locale: 'de', slug: 'native-first-authoring-guide', width: 1440, height: 900, settleMs: 700 },
-      { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700 }
+      { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' },
+      { id: 'de-maraca-brand-wide', locale: 'de', slug: 'xtend-maraca', width: 593, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-title' },
+      { id: 'de-maraca-brand-compact', locale: 'de', slug: 'xtend-maraca', width: 500, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' }
     ];
     for (const scenario of directRouteScenarios) {
       await runInitialRouteLayoutStability(baseUrl, driverUrl, scenario);

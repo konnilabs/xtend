@@ -319,7 +319,7 @@ const publicTypeContracts = [
   {
     tag: 'x-header',
     path: 'components/xheader.d.ts',
-    typeNames: ['XHeaderEventName', 'XHeaderSnapshot', 'XHeaderEventMap', 'XHeaderPublicEventContract', 'XHeaderElement', 'XHeaderLayoutDisplayMediaUxProfile', 'XHeaderSlotAlignment', 'XHeaderMenuMode', 'XHeaderMenuPlacement', 'XHeaderMenuAlign', 'XHeaderToggleMenuOptions'],
+    typeNames: ['XHeaderEventName', 'XHeaderSnapshot', 'XHeaderEventMap', 'XHeaderPublicEventContract', 'XHeaderElement', 'XHeaderLayoutDisplayMediaUxProfile', 'XHeaderSlotAlignment', 'XHeaderMenuMode', 'XHeaderMenuPlacement', 'XHeaderMenuAlign', 'XHeaderBrandCollapsePolicy', 'XHeaderBrandPresentation', 'XHeaderToggleMenuOptions'],
     events: ['header-ready', 'menu-before-open', 'menu-before-close', 'menu-opened', 'menu-closed', 'menu-mode-changed', 'menu-placement-changed', 'logo-loaded'],
     attributes: ['src', 'logo-size', 'title', 'sticky', 'shadow', 'menu-mode', 'menu-placement', 'menu-modal', 'menu-open', 'menu-breakpoint', 'menu-width', 'menu-max-height', 'menu-align'],
     methods: ['toggleMenu(open: boolean)', 'isMenuOpen(): boolean', 'snapshot(): XHeaderSnapshot'],

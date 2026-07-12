@@ -57,6 +57,7 @@ Attribute:
 - `title`
 - `sticky`
 - `shadow`
+- `brand-collapse` (`auto`, `never` oder `always`; Standard ist `auto`)
 - `menu-mode`
 - `menu-placement`
 - `menu-modal`
@@ -69,6 +70,7 @@ Attribute:
 Events:
 - `header-ready`
 - `header-layout-changed`
+- `header-brand-visibility-changed`
 - `menu-before-open`
 - `menu-before-close`
 - `menu-opened`
@@ -119,6 +121,7 @@ CSS Custom Properties:
 - `--header-search-grid-area`
 - `--header-actions-grid-area`
 - `--header-trigger-grid-area`
+- `--xtend-header-brand-fit-slack`
 - `--xtend-nav-`
 - `--xtend-nav-surface`
 - `--xtend-nav-text`
@@ -138,6 +141,7 @@ CSS Custom Properties:
 - Menu attributes: `menu-mode`, `menu-placement`, `menu-modal`, `menu-open`, `menu-breakpoint`, `menu-width`, `menu-max-height`, `menu-align`.
 - Menu events: `menu-before-open`, `menu-before-close`, `menu-mode-changed`, `menu-placement-changed`.
 - Menu tokens: `--xtend-header-menu-width`, `--xtend-header-menu-max-height`, `--xtend-header-menu-backdrop`.
+- Brand-Fitting: `brand-collapse="auto"` vergleicht den vollständigen Titel mit der verfügbaren Brand-Spalte. Passt er nicht hinein, bleibt nur das Logo sichtbar; für assistive Technologien bleibt der Titel erhalten. Mit `never` bleibt der Titel sichtbar, mit `always` wird die Logo-Ansicht erzwungen.
 
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
 
@@ -148,6 +152,7 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - Wenn `x-header` nicht upgradet, prüfe, ob `xtend-loader.js` geladen wurde und `components/manifest.json` `x-header` enthält.
 - Wenn Events fehlen, lausche erst nach `customElements.whenDefined('x-header')` und prüfe, ob die Interaktion deaktiviert oder durch Validierung blockiert ist.
 - Wenn Styling nicht greift, nutze dokumentierte CSS Variablen und Parts; Shadow-DOM-Interna sind absichtlich nicht stabil.
+- Wenn der Titel zu früh einklappt oder nahe der Grenze wechselt, behalte `brand-collapse="auto"` bei und passe `--xtend-header-brand-fit-slack` an, statt private Shadow-Styles für Clipping einzusetzen.
 - Wenn ein RMT Host veralteten Zustand rendert, prüfe zuerst State-Key und Schedule Records aus dieser Seite.
 
 ## Nächste Schritte
