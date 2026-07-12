@@ -283,10 +283,18 @@ async function readSnapshot(baseUrl, sessionId) {
       ? Array.from(router.children).find((entry) => entry.localName === 'x-route' && entry.getAttribute('path') === location.pathname)
       : null;
     const header = document.querySelector('x-header');
+    const hero = document.querySelector('x-hero.docs-hero');
+    const main = document.querySelector('main');
+    const article = deepQuery('.docs-article-surface');
+    const sidebar = deepQuery('.docs-page-sidebar');
     const headerRoot = header?.shadowRoot?.querySelector('header') || null;
     const searchHost = deepQuery('#search-input');
     const searchControl = searchHost?.shadowRoot?.querySelector('input') || searchHost;
     const headerRect = headerRoot?.getBoundingClientRect() || null;
+    const heroRect = hero?.getBoundingClientRect() || null;
+    const mainRect = main?.getBoundingClientRect() || null;
+    const articleRect = article?.getBoundingClientRect() || null;
+    const sidebarRect = sidebar?.getBoundingClientRect() || null;
     const searchRect = searchControl?.getBoundingClientRect() || null;
     const resources = performance.getEntriesByType('resource').map((entry) => entry.name);
     const resourceEntries = performance.getEntriesByType('resource');
@@ -321,6 +329,15 @@ async function readSnapshot(baseUrl, sessionId) {
         width: Math.round(searchRect.width * 10) / 10,
         headerWidth: Math.round(headerRect.width * 10) / 10,
         centerDelta: Math.round(Math.abs((searchRect.left + searchRect.width / 2) - (headerRect.left + headerRect.width / 2)) * 10) / 10
+      } : null,
+      regionGeometry: heroRect && mainRect ? {
+        heroMainGap: Math.round((mainRect.top - heroRect.bottom) * 10) / 10,
+        articleSidebarGap: articleRect && sidebarRect
+          ? Math.round((sidebarRect.left - articleRect.right) * 10) / 10
+          : null,
+        articleSidebarTopDelta: articleRect && sidebarRect
+          ? Math.round(Math.abs(articleRect.top - sidebarRect.top) * 10) / 10
+          : null
       } : null,
       sanitized: content && content.getAttribute('data-rmt-sanitized') || '',
       trustedDomProof: content && content.getAttribute('data-rmt-trusted-dom-proof') || '',
@@ -918,12 +935,21 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
       .sort((left, right) => right.value - left.value)
       .slice(0, 8);
     assert(snapshot.layoutShift <= 0.01, `${scenario.id}: CLS ${snapshot.layoutShift} exceeds 0.01 (${JSON.stringify(largestShifts)}).`);
+    const minimumRegionGap = scenario.width <= 700 ? 15 : 23;
+    assert(snapshot.regionGeometry && snapshot.regionGeometry.heroMainGap >= minimumRegionGap, `${scenario.id}: hero and route regions are visually collapsed (${JSON.stringify(snapshot.regionGeometry)}).`);
+    if (scenario.width > 700) {
+      assert(snapshot.regionGeometry.articleSidebarGap >= 15 && snapshot.regionGeometry.articleSidebarTopDelta <= 1, `${scenario.id}: article and sidebar geometry is not aligned (${JSON.stringify(snapshot.regionGeometry)}).`);
+    }
     assert(visibleSkeletonCount === 0, `${scenario.id}: ${visibleSkeletonCount} visible skeleton layers remained after settle.`);
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
     const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
     assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
     const evidence = { scenario, snapshot, visibleSkeletonCount, logs };
-    await writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify(evidence, null, 2)}\n`);
+    const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
+    await Promise.all([
+      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify(evidence, null, 2)}\n`),
+      writeFile(path.join(evidenceDir, `${scenario.id}.png`), Buffer.from(String(screenshot || ''), 'base64'))
+    ]);
     return evidence;
   } finally {
     await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
@@ -973,6 +999,11 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
       .sort((left, right) => right.value - left.value)
       .slice(0, 8);
     assert(initial.layoutShift <= 0.01, `${scenario.id}: CLS ${initial.layoutShift} exceeds 0.01 (${JSON.stringify({ total: initial.layoutShiftTotal, entries: largestInitialShifts, geometry: initial.layoutShiftGeometry })}).`);
+    const minimumRegionGap = scenario.width <= 700 ? 15 : 23;
+    assert(initial.regionGeometry && initial.regionGeometry.heroMainGap >= minimumRegionGap, `${scenario.id}: hero and route regions are visually collapsed (${JSON.stringify(initial.regionGeometry)}).`);
+    if (scenario.width > 700) {
+      assert(initial.regionGeometry.articleSidebarGap >= 15 && initial.regionGeometry.articleSidebarTopDelta <= 1, `${scenario.id}: article and sidebar geometry is not aligned (${JSON.stringify(initial.regionGeometry)}).`);
+    }
     assert(initial.overflowX <= 1, `${scenario.id}: viewport overflows by ${initial.overflowX}px.`);
     const baseline = performanceBaseline && performanceBaseline.scenarios && performanceBaseline.scenarios[scenario.id];
     assert(baseline, `${scenario.id}: performance baseline is missing.`);

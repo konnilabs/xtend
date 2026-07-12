@@ -2733,6 +2733,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --x-code-text: #f8fafc;
           --x-code-border: rgba(15, 23, 42, 0.18);
           --docs-shell-vertical-gap: 1.2rem;
+          --docs-region-gap: clamp(1.5rem, 2.2vw, 2.5rem);
           --docs-viewport-gutter: 0.5rem;
           --docs-layout-gap: clamp(1rem, 2.2vw, 2.5rem);
           --docs-sidebar-width: clamp(20rem, 24vw, 27rem);
@@ -2823,6 +2824,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           width: 100%;
           min-width: 0;
           min-block-size: var(--docs-route-reserved-block-size);
+          margin-block-start: var(--docs-region-gap);
           box-sizing: border-box;
           background: transparent;
           border: 0;
@@ -3790,6 +3792,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         @media (max-width: 700px) {
           :root {
             --docs-shell-vertical-gap: 1rem;
+            --docs-region-gap: 1rem;
             --docs-hero-reserved-block-size: 12rem;
             --docs-route-reserved-block-size: max(48rem, calc(100svh - 10rem));
             --docs-footer-reserved-block-size: 7.5rem;

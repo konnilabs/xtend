@@ -47,10 +47,12 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
 
   context.assert(result.status === 0, `Docs HTML renders through PHP${result.status === 0 ? '' : ` (${result.stderr})`}`);
   context.assert(indexPhp.includes('--docs-route-reserved-block-size: max(42rem, calc(100svh - 12rem));'), 'Docs app defines a desktop route reserve that keeps the footer below the initial viewport');
+  context.assert(indexPhp.includes('--docs-region-gap: clamp(1.5rem, 2.2vw, 2.5rem);') && indexPhp.includes('margin-block-start: var(--docs-region-gap);'), 'Docs SSR shell owns a stable visual gap between hero and route regions');
   context.assert(indexPhp.includes('--docs-header-reserved-block-size: 7.55rem;') && indexPhp.includes('--docs-header-reserved-block-size: 11.75rem;'), 'Docs app reserves measured desktop and compact header geometry');
   context.assert(indexPhp.includes('--docs-hero-reserved-block-size: 11rem;') && indexPhp.includes('--docs-hero-reserved-block-size: 12rem;'), 'Docs app reserves desktop and wrapped mobile hero geometry');
   context.assert(indexPhp.includes('--docs-footer-reserved-block-size: clamp(4.75rem, 7vw, 6.5rem);'), 'Docs app defines a footer reserve matching hydrated footer geometry');
   context.assert(indexPhp.includes('--docs-route-reserved-block-size: max(48rem, calc(100svh - 10rem));'), 'Docs app defines a stronger mobile route reserve');
+  context.assert(indexPhp.includes('--docs-region-gap: 1rem;'), 'Docs app keeps a compact mobile region gap');
   context.assert(indexPhp.includes('--docs-footer-reserved-block-size: 7.5rem;'), 'Docs app reserves mobile footer wrapping height');
   context.assert(indexPhp.includes('main > x-router::part(outlet)') && indexPhp.includes('min-block-size: var(--docs-route-reserved-block-size);'), 'Docs router outlet reserves route geometry');
   context.assert(indexPhp.includes('x-footer') && indexPhp.includes('contain-intrinsic-size: auto var(--docs-footer-reserved-block-size);'), 'Docs footer reserves intrinsic geometry before hydration');
