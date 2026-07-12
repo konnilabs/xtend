@@ -950,9 +950,11 @@ function docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlu
                 ]);
             }
             $sectionLabel = (string) (($section['labels'][$locale] ?? null) ?: ($section['labels'][$fallbackLocale] ?? $sectionId));
+            $sectionPosition = count($sectionNodes);
             $sectionNodes[] = docsDescriptorComponent('x-summary', [
                 'class' => 'docs-menu-section',
                 'data-docs-menu-section' => $sectionId,
+                'data-docs-menu-order' => (string) $sectionPosition,
                 'open' => $sectionId === $activeSection ? true : null
             ], [
                 docsDescriptorElement('span', ['slot' => 'title', 'class' => 'docs-menu-section-title'], [
@@ -965,6 +967,20 @@ function docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlu
                 ], $links)
             ]);
         }
+    }
+
+    $sectionSplitIndex = (int) ceil(count($sectionNodes) / 2);
+    $sectionColumns = [
+        array_slice($sectionNodes, 0, $sectionSplitIndex),
+        array_slice($sectionNodes, $sectionSplitIndex)
+    ];
+    $sectionColumnNodes = [];
+    foreach ($sectionColumns as $columnIndex => $columnNodes) {
+        if (empty($columnNodes)) continue;
+        $sectionColumnNodes[] = docsDescriptorElement('div', [
+            'class' => 'docs-active-trunk-column',
+            'data-docs-menu-column' => (string) $columnIndex
+        ], $columnNodes);
     }
 
     return docsDescriptorElement('div', [
@@ -983,7 +999,7 @@ function docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlu
         docsDescriptorElement('div', [
             'class' => 'docs-active-trunk',
             'data-docs-active-trunk-content' => $activeTrunk
-        ], $sectionNodes)
+        ], $sectionColumnNodes)
     ]);
 }
 
@@ -3025,6 +3041,14 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
         .docs-active-trunk {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.5rem;
+          align-items: start;
+          min-width: 0;
+        }
+        .docs-active-trunk-column {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          align-content: start;
           gap: 0.5rem;
           min-width: 0;
         }

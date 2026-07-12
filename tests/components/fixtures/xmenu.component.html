@@ -91,6 +91,7 @@
     });
     const stateWritesAfterIsolationCheck = window.xstate.snapshotDiagnostics().operationCounts.set;
     const secondaryActiveIndex = secondaryItems.findIndex((item) => item.getAttribute('aria-current') === 'page');
+    const secondaryFocusIndex = secondaryItems.findIndex((item) => item.tabIndex === 0);
 
     items[0].dispatchEvent(new KeyboardEvent('keydown', {
       key: 'ArrowRight',
@@ -106,7 +107,8 @@
     const interactionBudget = menu.getInteractionBudget();
 
     record('menu state synchronized', state && state.schema === 'xtend.component.x-menu.state.v1');
-    record('parallel menu state remains scoped', secondaryActiveIndex === 0);
+    record('parallel menu does not synthesize current page', secondaryActiveIndex === -1);
+    record('parallel menu retains roving focus', secondaryFocusIndex === 0);
     record('parallel menu state avoids feedback writes', stateWritesAfterIsolationCheck - stateWritesBeforeIsolationCheck <= 3, {
       stateWrites: stateWritesAfterIsolationCheck - stateWritesBeforeIsolationCheck
     });

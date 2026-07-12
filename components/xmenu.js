@@ -159,7 +159,7 @@ class XMenu extends HTMLElement {
       family: 'menubar-navigation',
       role: 'menubar',
       navigationMode: 'hash-or-history',
-      activeState: 'xmenu-active-and-aria-current-page',
+      activeState: 'route-current-separated-from-roving-focus',
       focusRestore: 'roving-tabindex-preserves-focused-item',
       routeAnnouncement: 'delegated-to-x-router',
       keyboardNavigation: 'arrow-home-end-enter-space',
@@ -183,6 +183,7 @@ class XMenu extends HTMLElement {
       stateSemantics: {
         states: ['active', 'current', 'selected', 'hover', 'focus', 'disabled'],
         current: 'aria-current=page',
+        focus: 'focusIndex-and-roving-tabindex-without-current-page-semantics',
         selected: 'aria-selected=true-supported-for-composite-hosts',
         disabled: 'disabled-or-aria-disabled'
       },
@@ -564,8 +565,9 @@ class XMenu extends HTMLElement {
   }
 
   _handleNavFocus() {
-    const firstItem = this._items.find((item) => !this._isItemDisabled(item));
-    if (firstItem) firstItem.focus();
+    const focusItem = this._items.find((item) => !this._isItemDisabled(item) && item.tabIndex === 0) ||
+      this._items.find((item) => !this._isItemDisabled(item));
+    if (focusItem) focusItem.focus();
   }
 
   _handleRouteChanged(event) {
@@ -593,12 +595,13 @@ class XMenu extends HTMLElement {
     const items = this._collectItems();
     this._items = items;
     const activeIndex = this._resolveActiveIndex(items);
+    const focusIndex = this._resolveFocusIndex(items, activeIndex);
 
     items.forEach((item, index) => {
       item.setAttribute("role", "menuitem");
       item.setAttribute('data-xtend-menu-index', String(index));
       this._syncDisclosureIconControl(item);
-      item.tabIndex = !this._isItemDisabled(item) && index === activeIndex ? 0 : -1;
+      item.tabIndex = !this._isItemDisabled(item) && index === focusIndex ? 0 : -1;
       this._applyItemActiveState(item, index === activeIndex);
 
       const keydown = (event) => this._handleItemKeydown(event, item, index);
@@ -609,7 +612,7 @@ class XMenu extends HTMLElement {
     });
 
     this._performanceCounters.renders += 1;
-    this._syncState(reason, { activeIndex });
+    this._syncState(reason, { activeIndex, focusIndex });
     this._recordPerformanceMeasurement('xtend.component.render', 'renderUpdate', start, { reason, itemCount: items.length });
   }
 
@@ -712,6 +715,10 @@ class XMenu extends HTMLElement {
       candidate.tabIndex = !this._isItemDisabled(candidate) && candidateIndex === index ? 0 : -1;
     });
     item.focus();
+    this._syncState('keyboard-focus', {
+      activeIndex: this._resolveActiveIndex(this._items),
+      focusIndex: index
+    });
   }
 
   _setActiveItem(index, reason = 'update', options = {}) {
@@ -724,7 +731,7 @@ class XMenu extends HTMLElement {
     if (options.focus) {
       this._items[index].focus();
     }
-    this._syncState(reason, { activeIndex: index });
+    this._syncState(reason, { activeIndex: index, focusIndex: index });
   }
 
   _syncActiveRoute(path, reason = 'route-sync', options = {}) {
@@ -753,14 +760,18 @@ class XMenu extends HTMLElement {
   _syncState(reason = 'update', detail = {}) {
     if (!this.id) return;
     const activeIndex = typeof detail.activeIndex === 'number' ? detail.activeIndex : this._resolveActiveIndex(this._items);
+    const focusIndex = typeof detail.focusIndex === 'number' ? detail.focusIndex : this._resolveFocusIndex(this._items, activeIndex);
     const activeItem = this._items[activeIndex] || null;
+    const focusItem = this._items[focusIndex] || null;
     const state = {
       schema: X_MENU_STATE_SCHEMA,
       id: this.id,
       reason,
       index: activeIndex,
       activeIndex,
+      focusIndex,
       href: activeItem ? this._resolveItemHref(activeItem) : null,
+      focusHref: focusItem ? this._resolveItemHref(focusItem) : null,
       itemCount: this._items.length,
       lane: XMenu.xtendScaffoldPerformanceProfile.lane,
       scheduleRef: 'ui.user-blocking.navigation',
@@ -778,7 +789,23 @@ class XMenu extends HTMLElement {
   }
 
   _resolveActiveIndex(items = this._items) {
-    const firstEnabledIndex = items.findIndex((item) => !this._isItemDisabled(item));
+    const currentPath = this._getCurrentPath();
+    const routeIndex = items.findIndex((item) => {
+      if (this._isItemDisabled(item)) return false;
+      const href = this._resolveItemHref(item);
+      return href && this._normalizePath(href.replace(/^#/, '')) === currentPath;
+    });
+    if (routeIndex >= 0) return routeIndex;
+
+    const explicitIndex = items.findIndex((item) => (
+      !this._isItemDisabled(item) && (
+        item.getAttribute('aria-current') === 'page' ||
+        item.hasAttribute('active') ||
+        item.classList.contains('active')
+      )
+    ));
+    if (explicitIndex >= 0) return explicitIndex;
+
     const scopedState = this.id ? xstate.get(`xmenu-state-${this.id}`) : null;
     const globalState = xstate.get('xmenu-active');
     const state = scopedState || (this._stateTargetsThisMenu(globalState) ? globalState : null);
@@ -788,13 +815,20 @@ class XMenu extends HTMLElement {
     if (state && typeof state.activeIndex === 'number' && state.activeIndex >= 0 && state.activeIndex < items.length && !this._isItemDisabled(items[state.activeIndex])) {
       return state.activeIndex;
     }
-    const currentPath = this._getCurrentPath();
-    const routeIndex = items.findIndex((item) => {
-      if (this._isItemDisabled(item)) return false;
-      const href = this._resolveItemHref(item);
-      return href && this._normalizePath(href.replace(/^#/, '')) === currentPath;
-    });
-    return routeIndex >= 0 ? routeIndex : (firstEnabledIndex >= 0 ? firstEnabledIndex : 0);
+    return -1;
+  }
+
+  _resolveFocusIndex(items = this._items, activeIndex = this._resolveActiveIndex(items)) {
+    const scopedState = this.id ? xstate.get(`xmenu-state-${this.id}`) : null;
+    const globalState = xstate.get('xmenu-active');
+    const state = scopedState || (this._stateTargetsThisMenu(globalState) ? globalState : null);
+    if (state && typeof state.focusIndex === 'number' && state.focusIndex >= 0 && state.focusIndex < items.length && !this._isItemDisabled(items[state.focusIndex])) {
+      return state.focusIndex;
+    }
+    if (activeIndex >= 0 && activeIndex < items.length && !this._isItemDisabled(items[activeIndex])) {
+      return activeIndex;
+    }
+    return items.findIndex((item) => !this._isItemDisabled(item));
   }
 
   _stateTargetsThisMenu(state) {

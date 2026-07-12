@@ -151,7 +151,19 @@ function renderNavigation(activeSlug = currentSlug()) {
     ]);
   }).filter(Boolean);
 
-  renderer.render(root, { type: 'fragment', children: sections }, {
+  const splitIndex = Math.ceil(sections.length / 2);
+  const sectionColumns = [sections.slice(0, splitIndex), sections.slice(splitIndex)];
+  sections.forEach((section, index) => {
+    section.attributes['data-docs-menu-order'] = String(index);
+  });
+  const columns = sectionColumns
+    .filter((column) => column.length > 0)
+    .map((column, index) => element('div', {
+      class: 'docs-active-trunk-column',
+      'data-docs-menu-column': String(index)
+    }, column));
+
+  renderer.render(root, { type: 'fragment', children: columns }, {
     source: { kind: 'docs-navigation', id: activeTrunk }
   });
   root.setAttribute('data-docs-active-trunk-content', activeTrunk);

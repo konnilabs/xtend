@@ -93,6 +93,7 @@ CSS Custom Properties:
 - RMT contract: `xtend.rmt.component-contract.v1`.
 - Performance profile: `xtend.performance.component-profile.v1`.
 - RMT schedules: `component.visible.mount`, `component.visible.hydrate`, `ui.user-blocking.navigation`, `route.transition.navigate`, `route.visible.render`, `diagnostics.snapshot`.
+- Aktuelle Seite und Tastaturfokus sind getrennt: Nur ein zur Route passender oder explizit markierter Eintrag erhält `aria-current="page"`; `focusIndex` hält unabhängig davon genau einen Eintrag über den roving Tabindex erreichbar.
 
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
 

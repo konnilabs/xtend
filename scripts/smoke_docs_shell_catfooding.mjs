@@ -16,6 +16,14 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function assertSingleCurrentArticle(snapshot, scenarioId) {
+  const markedLinks = (snapshot.articleNavigation || []).filter((link) => link.marked);
+  assert(markedLinks.length === 1, `${scenarioId}: expected exactly one current article link (${JSON.stringify(snapshot.articleNavigation)}).`);
+  const currentLink = markedLinks[0];
+  assert(currentLink.path === snapshot.currentPath, `${scenarioId}: current article marker does not match the route (${JSON.stringify({ currentPath: snapshot.currentPath, currentLink })}).`);
+  assert(currentLink.section, `${scenarioId}: current article marker is not owned by a navigation section (${JSON.stringify(currentLink)}).`);
+}
+
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -318,8 +326,24 @@ async function readSnapshot(baseUrl, sessionId) {
         rotationDegrees
       };
     });
+    const articleNavigation = Array.from(document.querySelectorAll('[data-docs-menu-link]')).map((link) => {
+      const summary = link.closest('x-summary.docs-menu-section');
+      const href = link.getAttribute('href') || '';
+      return {
+        id: link.getAttribute('data-doc-id') || '',
+        path: href ? new URL(href, location.href).pathname : '',
+        marked: link.hasAttribute('active') || link.classList.contains('active') || link.getAttribute('aria-current') === 'page',
+        ariaCurrent: link.getAttribute('aria-current') || '',
+        activeAttribute: link.hasAttribute('active'),
+        activeClass: link.classList.contains('active'),
+        section: summary?.getAttribute('data-docs-menu-section') || '',
+        sectionHostOpen: Boolean(summary?.hasAttribute('open')),
+        sectionDetailsOpen: Boolean(summary?.shadowRoot?.querySelector('details')?.open)
+      };
+    });
     return {
       readyState: document.readyState,
+      currentPath: location.pathname,
       documentTitle: document.title,
       htmlLang: document.documentElement.lang,
       currentLocale: window.xtendDocsCurrentLocale || '',
@@ -370,6 +394,7 @@ async function readSnapshot(baseUrl, sessionId) {
       activeTrunk: document.querySelector('[data-docs-menu-shell]')?.getAttribute('data-docs-active-trunk') || '',
       activeTrunkContent: document.querySelector('[data-docs-active-trunk-content]')?.getAttribute('data-docs-active-trunk-content') || '',
       summaryIndicators,
+      articleNavigation,
       trunkCount: document.querySelectorAll('[data-docs-trunk-link]').length,
       canonicalEntryCount: Array.isArray(window.xtendMenuConfig) ? window.xtendMenuConfig.length : 0,
       skeletonProfiles: window.XTendSkeletonLoader && typeof window.XTendSkeletonLoader.listProfiles === 'function'
@@ -568,13 +593,48 @@ async function exerciseNavigationSurface(baseUrl, sessionId, scenarioId) {
     };
     const activeTrunk = nav.querySelector('[data-docs-trunk-link][active]');
     const inactiveTrunk = nav.querySelector('[data-docs-trunk-link]:not([active])');
-    const activePage = nav.querySelector('[data-docs-menu-link][active]');
+    const markedPages = Array.from(nav.querySelectorAll('[data-docs-menu-link]')).filter((link) => (
+      link.hasAttribute('active') || link.classList.contains('active') || link.getAttribute('aria-current') === 'page'
+    ));
+    const activePage = markedPages[0] || null;
     const inactivePage = nav.querySelector('[data-docs-menu-link]:not([active])');
+    const activePageSection = activePage?.closest('x-summary.docs-menu-section') || null;
+    const navigationColumns = Array.from(nav.querySelectorAll('[data-docs-menu-column]'));
+    const columnGeometry = navigationColumns.map((column) => {
+      const rect = column.getBoundingClientRect();
+      const sections = Array.from(column.children).filter((node) => node.matches('x-summary.docs-menu-section'));
+      const sectionRects = sections.map((section) => section.getBoundingClientRect());
+      const internalGaps = sectionRects.slice(1).map((sectionRect, index) => (
+        Math.round((sectionRect.top - sectionRects[index].bottom) * 10) / 10
+      ));
+      return {
+        column: column.getAttribute('data-docs-menu-column') || '',
+        left: Math.round(rect.left * 10) / 10,
+        right: Math.round(rect.right * 10) / 10,
+        top: Math.round(rect.top * 10) / 10,
+        bottom: Math.round(rect.bottom * 10) / 10,
+        sectionCount: sections.length,
+        sectionOrders: sections.map((section) => Number(section.getAttribute('data-docs-menu-order'))),
+        internalGaps
+      };
+    });
+    const allColumnGaps = columnGeometry.flatMap((column) => column.internalGaps);
+    const flattenedSectionOrder = columnGeometry.flatMap((column) => column.sectionOrders);
     const primary = channels(getComputedStyle(document.documentElement).getPropertyValue('--primary-color'));
     const inactiveBackground = channels(getComputedStyle(inactivePage).backgroundColor);
     return {
       menuMode: drawer.getAttribute('data-menu-mode'),
       trunkCount: nav.querySelectorAll('[data-docs-trunk-link]').length,
+      currentPageCount: markedPages.length,
+      currentPageSection: activePageSection?.getAttribute('data-docs-menu-section') || '',
+      currentPageSectionOpen: Boolean(activePageSection?.shadowRoot?.querySelector('details')?.open),
+      columnGeometry,
+      columnCount: columnGeometry.length,
+      maxInternalColumnGap: allColumnGaps.length ? Math.max(...allColumnGaps) : 0,
+      minInternalColumnGap: allColumnGaps.length ? Math.min(...allColumnGaps) : 0,
+      sectionOrderPreserved: flattenedSectionOrder.every((order, index) => order === index),
+      columnsSideBySide: columnGeometry.length === 2 && Math.abs(columnGeometry[0].top - columnGeometry[1].top) <= 1 && columnGeometry[1].left >= columnGeometry[0].right,
+      columnsStacked: columnGeometry.length === 2 && columnGeometry[1].top >= columnGeometry[0].bottom,
       horizontalOverflow: Math.max(0, nav.scrollWidth - nav.clientWidth),
       activeTrunk: appearance(activeTrunk),
       inactiveTrunk: appearance(inactiveTrunk),
@@ -972,16 +1032,24 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
     const collapsedIndicators = snapshot.summaryIndicators.filter((indicator) => !indicator.open);
     assert(expandedIndicators.length > 0 && expandedIndicators.every((indicator) => indicator.ariaExpanded === 'true' && indicator.rotationDegrees === 180), `${scenario.id}: expanded navigation indicators do not point upward (${JSON.stringify(snapshot.summaryIndicators)}).`);
     assert(collapsedIndicators.length > 0 && collapsedIndicators.every((indicator) => indicator.ariaExpanded === 'false' && indicator.rotationDegrees === 0), `${scenario.id}: collapsed navigation indicators do not point downward (${JSON.stringify(snapshot.summaryIndicators)}).`);
+    assertSingleCurrentArticle(snapshot, scenario.id);
     const minimumRegionGap = scenario.width <= 700 ? 15 : 23;
     assert(snapshot.regionGeometry && snapshot.regionGeometry.heroMainGap >= minimumRegionGap, `${scenario.id}: hero and route regions are visually collapsed (${JSON.stringify(snapshot.regionGeometry)}).`);
     if (scenario.width > 700) {
       assert(snapshot.regionGeometry.articleSidebarGap >= 15 && snapshot.regionGeometry.articleSidebarTopDelta <= 1, `${scenario.id}: article and sidebar geometry is not aligned (${JSON.stringify(snapshot.regionGeometry)}).`);
     }
     assert(visibleSkeletonCount === 0, `${scenario.id}: ${visibleSkeletonCount} visible skeleton layers remained after settle.`);
+    const navigationSurface = scenario.inspectNavigation
+      ? await exerciseNavigationSurface(driverUrl, sessionId, scenario.id)
+      : null;
+    if (navigationSurface) {
+      assert(navigationSurface.currentPageCount === 1 && navigationSurface.currentPageSection && navigationSurface.currentPageSectionOpen, `${scenario.id}: current page is not uniquely marked inside its expanded section (${JSON.stringify(navigationSurface)}).`);
+      assert(navigationSurface.columnCount === 2 && navigationSurface.columnsSideBySide && navigationSurface.sectionOrderPreserved && navigationSurface.minInternalColumnGap >= 7 && navigationSurface.maxInternalColumnGap <= 9, `${scenario.id}: navigation sections do not flow independently within two stable columns (${JSON.stringify(navigationSurface.columnGeometry)}).`);
+    }
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
     const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
     assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
-    const evidence = { scenario, snapshot, visibleSkeletonCount, logs };
+    const evidence = { scenario, snapshot, visibleSkeletonCount, navigationSurface, logs };
     const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
     await Promise.all([
       writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify(evidence, null, 2)}\n`),
@@ -1030,6 +1098,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.kernelSnapshot.state === 'none', `${scenario.id}: unexpected kernel panic state ${JSON.stringify(initial.kernelSnapshot)}.`);
     assert(initial.trunkCount === 6 && initial.canonicalEntryCount === 165, `${scenario.id}: navigation inventory is incomplete.`);
     assert(initial.activeTrunk === 'start' && initial.activeTrunkContent === 'start', `${scenario.id}: start trunk is not active.`);
+    assertSingleCurrentArticle(initial, scenario.id);
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
     assert(initial.compactLoaded && !initial.fulltextLoaded, `${scenario.id}: fulltext index entered the initial path.`);
     assert(initial.remoteResourceCount === 0, `${scenario.id}: remote resources were requested.`);
@@ -1057,6 +1126,9 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(navigationSurface.trunkCount === 6 && navigationAppearances.every((entry) => entry && entry.contrast >= 4.5), `${scenario.id}: task navigation contrast is insufficient (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.horizontalOverflow <= 1 && !navigationSurface.inactiveUsesPrimarySurface, `${scenario.id}: task navigation overflows or inherited the global primary menuitem surface (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.activeTrunk.background !== navigationSurface.inactiveTrunk.background && navigationSurface.activePage.background !== navigationSurface.inactivePage.background, `${scenario.id}: active navigation states are not visually distinguishable (${JSON.stringify(navigationSurface)}).`);
+    assert(navigationSurface.currentPageCount === 1 && navigationSurface.currentPageSection && navigationSurface.currentPageSectionOpen, `${scenario.id}: current page is not uniquely marked inside its expanded section (${JSON.stringify(navigationSurface)}).`);
+    assert(navigationSurface.columnCount === 2 && navigationSurface.sectionOrderPreserved && navigationSurface.minInternalColumnGap >= 7 && navigationSurface.maxInternalColumnGap <= 9, `${scenario.id}: navigation sections do not keep a stable order-preserving per-column rhythm (${JSON.stringify(navigationSurface.columnGeometry)}).`);
+    assert(scenario.width <= 700 ? navigationSurface.columnsStacked : navigationSurface.columnsSideBySide, `${scenario.id}: navigation columns do not match the responsive layout (${JSON.stringify(navigationSurface.columnGeometry)}).`);
     assert([navigationSurface.activeTrunk, navigationSurface.activePage].every((entry) => entry.internalBoxShadow === 'none' && entry.internalTextDecoration === 'none'), `${scenario.id}: x-link rendered a second active indicator inside the navigation label (${JSON.stringify(navigationSurface)}).`);
     const skeletonHardening = await exerciseSkeletonHardening(driverUrl, sessionId);
     assert(skeletonHardening && skeletonHardening.visualRecordCount >= 1, `${scenario.id}: invalid SkeletonLoader input produced no visual records.`);
@@ -1090,6 +1162,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     const localeRestore = await switchDocsLocale(driverUrl, sessionId, scenario.locale);
 
     const finalSnapshot = await readSnapshot(driverUrl, sessionId);
+    assertSingleCurrentArticle(finalSnapshot, `${scenario.id}: final`);
     assert(finalSnapshot.layoutShift <= 0.01, `${scenario.id}: cumulative interaction CLS ${finalSnapshot.layoutShift} exceeds 0.01.`);
     assert(finalSnapshot.theme === scenario.theme, `${scenario.id}: theme state changed during navigation.`);
     assert(finalSnapshot.documentTitle === expectedHomeTitle && finalSnapshot.routeId !== 'docs.notFound', `${scenario.id}: locale round-trip left a stale document title.`);
@@ -1150,6 +1223,7 @@ try {
     const directRouteScenarios = [
       { id: 'de-animation-engine-desktop', locale: 'de', slug: 'rmt-animation-engine', width: 1440, height: 900, settleMs: 1200 },
       { id: 'de-authoring-desktop', locale: 'de', slug: 'native-first-authoring-guide', width: 1440, height: 900, settleMs: 700 },
+      { id: 'de-a11y-current-page-desktop', locale: 'de', slug: 'a11y-keyboard-smokes', width: 1440, height: 900, settleMs: 700, inspectNavigation: true },
       { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' },
       { id: 'de-maraca-brand-wide', locale: 'de', slug: 'xtend-maraca', width: 593, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-title' },
       { id: 'de-maraca-brand-compact', locale: 'de', slug: 'xtend-maraca', width: 500, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' }
