@@ -92,6 +92,7 @@ CSS Custom Properties:
 - RMT contract: `xtend.rmt.component-contract.v1`.
 - Performance profile: `xtend.performance.component-profile.v1`.
 - Accessibility state: `aria-expanded` spiegelt den öffentlichen Open-Zustand und bleibt mit `xsummary-open-<id>` synchron.
+- Der Disclosure-Indikator zeigt im eingeklappten Zustand nach unten und im ausgeklappten Zustand nach oben.
 
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
 

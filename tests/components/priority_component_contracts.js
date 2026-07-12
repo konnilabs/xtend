@@ -1098,6 +1098,7 @@ const priorityComponentConfigs = {
       { pattern: 'new CustomEvent(isOpen ? "open" : "close"', message: 'x-summary emits open/close events' },
       { pattern: 'role="button"', message: 'x-summary exposes button role' },
       { pattern: 'aria-expanded', message: 'x-summary mirrors expanded state' },
+      { pattern: 'details[open] .icon {\n          transform: rotate(180deg);', message: 'x-summary points its disclosure indicator upward while expanded' },
       { pattern: 'e.key === "Enter" || e.key === " "', message: 'x-summary supports keyboard toggle' },
       { pattern: '_applyOpenState', message: 'x-summary centralizes open-state synchronization' },
       { pattern: '_syncingAttribute', message: 'x-summary guards attribute reflection against recursive updates' },

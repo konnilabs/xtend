@@ -129,6 +129,8 @@ class XSummary extends HTMLElement {
           transition: transform 0.2s cubic-bezier(.4,1.4,.6,1);
           display: flex;
           align-items: center;
+          transform: rotate(0deg);
+          transform-origin: center;
         }
         .icon svg {
           width: 1.2em;
@@ -136,7 +138,7 @@ class XSummary extends HTMLElement {
           display: block;
         }
         details[open] .icon {
-          transform: rotate(90deg);
+          transform: rotate(180deg);
         }
         .content ::slotted(*) {
           margin: 0.5em 0 0;

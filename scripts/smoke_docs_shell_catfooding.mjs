@@ -304,6 +304,20 @@ async function readSnapshot(baseUrl, sessionId) {
     const fcp = performance.getEntriesByName('first-contentful-paint')[0] || null;
     const sameOriginResources = resourceEntries.filter((entry) => entry.name.startsWith(location.origin));
     const layoutShiftProbe = window.__xtendDocsLayoutShiftProbe || null;
+    const summaryIndicators = Array.from(document.querySelectorAll('x-summary.docs-menu-section')).map((summary) => {
+      const details = summary.shadowRoot?.querySelector('details') || null;
+      const indicator = summary.shadowRoot?.querySelector('.icon') || null;
+      const transform = indicator ? getComputedStyle(indicator).transform : 'none';
+      const matrix = transform && transform !== 'none' ? new DOMMatrixReadOnly(transform) : null;
+      const rotationDegrees = matrix
+        ? Math.round((Math.atan2(matrix.b, matrix.a) * 180 / Math.PI + 360) % 360)
+        : 0;
+      return {
+        open: Boolean(details?.open),
+        ariaExpanded: summary.shadowRoot?.querySelector('summary')?.getAttribute('aria-expanded') || '',
+        rotationDegrees
+      };
+    });
     return {
       readyState: document.readyState,
       documentTitle: document.title,
@@ -355,6 +369,7 @@ async function readSnapshot(baseUrl, sessionId) {
       trustedDomProof: content && content.getAttribute('data-rmt-trusted-dom-proof') || '',
       activeTrunk: document.querySelector('[data-docs-menu-shell]')?.getAttribute('data-docs-active-trunk') || '',
       activeTrunkContent: document.querySelector('[data-docs-active-trunk-content]')?.getAttribute('data-docs-active-trunk-content') || '',
+      summaryIndicators,
       trunkCount: document.querySelectorAll('[data-docs-trunk-link]').length,
       canonicalEntryCount: Array.isArray(window.xtendMenuConfig) ? window.xtendMenuConfig.length : 0,
       skeletonProfiles: window.XTendSkeletonLoader && typeof window.XTendSkeletonLoader.listProfiles === 'function'
@@ -953,6 +968,10 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
         assert(snapshot.headerBrand.logoOnlyAttribute && snapshot.headerBrand.titleAriaHidden === null && snapshot.headerBrand.titlePosition === 'absolute', `${scenario.id}: compact brand did not preserve an accessible visually hidden title (${JSON.stringify(snapshot.headerBrand)}).`);
       }
     }
+    const expandedIndicators = snapshot.summaryIndicators.filter((indicator) => indicator.open);
+    const collapsedIndicators = snapshot.summaryIndicators.filter((indicator) => !indicator.open);
+    assert(expandedIndicators.length > 0 && expandedIndicators.every((indicator) => indicator.ariaExpanded === 'true' && indicator.rotationDegrees === 180), `${scenario.id}: expanded navigation indicators do not point upward (${JSON.stringify(snapshot.summaryIndicators)}).`);
+    assert(collapsedIndicators.length > 0 && collapsedIndicators.every((indicator) => indicator.ariaExpanded === 'false' && indicator.rotationDegrees === 0), `${scenario.id}: collapsed navigation indicators do not point downward (${JSON.stringify(snapshot.summaryIndicators)}).`);
     const minimumRegionGap = scenario.width <= 700 ? 15 : 23;
     assert(snapshot.regionGeometry && snapshot.regionGeometry.heroMainGap >= minimumRegionGap, `${scenario.id}: hero and route regions are visually collapsed (${JSON.stringify(snapshot.regionGeometry)}).`);
     if (scenario.width > 700) {
