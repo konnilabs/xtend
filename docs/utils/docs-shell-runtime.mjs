@@ -31,6 +31,7 @@ const fabric = window.XTendFabric && typeof window.XTendFabric.createXtendFabric
 let searchTimer = 0;
 let currentQuery = '';
 let renderedSearchSignature = '';
+let pendingSearchActivationSource = '';
 let registeredRouteLocale = '';
 let themeConfigured = false;
 let themeReadyListenersBound = false;
@@ -429,6 +430,28 @@ function readInputValue(event, input) {
   return input && typeof input.value !== 'undefined' ? input.value : '';
 }
 
+function highlightedSearchResult(results) {
+  const entries = XUtils.findAll('[data-docs-search-result]', results);
+  return entries.find((entry) => entry.matches(':focus-within'))
+    || entries.find((entry) => entry.getAttribute('aria-current') === 'page' || entry.classList.contains('active'))
+    || entries.find((entry) => entry.tabIndex === 0)
+    || entries[0]
+    || null;
+}
+
+function activateHighlightedSearchResult(results) {
+  const link = highlightedSearchResult(results);
+  if (!link || typeof link.click !== 'function') return false;
+  ensureRouterRoutes();
+  pendingSearchActivationSource = 'keyboard';
+  try {
+    link.click();
+  } finally {
+    pendingSearchActivationSource = '';
+  }
+  return true;
+}
+
 function bindSearch() {
   const input = XUtils.find('#search-input');
   const results = XUtils.find('#search-results');
@@ -438,19 +461,30 @@ function bindSearch() {
     searchRuntime.query(`${SEARCH_SOURCE_PREFIX}${locale()}`, '', { minQueryLength: 2 }).catch(() => {});
   }));
   disposers.push(XUtils.on(input, 'keydown', (event) => {
-    if (event.key === 'Escape') hideSearchResults();
+    if (event.key === 'Escape') {
+      hideSearchResults();
+      return;
+    }
     if (event.key === 'ArrowDown') {
+      event.preventDefault();
       const firstResult = XUtils.find('[data-docs-search-result]', results);
       if (firstResult && typeof firstResult.focus === 'function') firstResult.focus();
+      return;
+    }
+    if (event.key === 'Enter' && activateHighlightedSearchResult(results)) {
+      event.preventDefault();
     }
   }));
-  disposers.push(XUtils.delegate(results, '[data-docs-search-result]', 'click', (event) => {
+  disposers.push(XUtils.on(results, 'menu-item-clicked', (event) => {
     ensureRouterRoutes();
-    const link = event.target.closest('[data-docs-search-result]');
+    const detail = event.detail || {};
+    const links = XUtils.findAll('[data-docs-search-result]', results);
+    const link = Number.isInteger(detail.index) ? links[detail.index] : null;
     appRuntime.command('docs.route.navigate', {
       slug: link && link.getAttribute('data-docs-search-result'),
-      path: link && link.getAttribute('href')
-    }, { lane: 'transition', sourceId: 'docs.search.results', event: 'click' });
+      path: detail.href || link && link.getAttribute('href'),
+      inputSource: pendingSearchActivationSource || detail.source || 'menu'
+    }, { lane: 'transition', sourceId: 'docs.search.results', event: 'menu-item-clicked' });
     hideSearchResults();
   }));
 }

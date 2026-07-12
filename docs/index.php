@@ -3389,6 +3389,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           min-height: 2.75rem;
           color: inherit;
           text-align: left;
+          text-decoration: none;
+          box-shadow: none;
         }
         .docs-search-result-score {
           color: var(--docs-search-score-text);
@@ -3424,6 +3426,9 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           --xtend-link-hover-surface: transparent;
           --xtend-link-active-surface: transparent;
           --xtend-link-active-text: var(--docs-search-result-text);
+          --xtend-link-current-indicator: transparent;
+          --link-hover-decoration: none;
+          --link-active-decoration: none;
         }
         #search-results x-link[role="menuitem"]:hover {
           background: var(--docs-search-result-hover);

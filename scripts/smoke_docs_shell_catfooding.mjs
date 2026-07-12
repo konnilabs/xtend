@@ -483,7 +483,9 @@ async function runSearch(baseUrl, sessionId, query) {
     const panel = popover?.shadowRoot?.querySelector('.panel');
     const first = results?.querySelector('[data-docs-search-result]');
     const score = first?.querySelector('.docs-search-result-score');
+    const internalLink = first?.shadowRoot?.querySelector('a');
     const firstStyle = first && getComputedStyle(first);
+    const internalStyle = internalLink && getComputedStyle(internalLink);
     const panelStyle = panel && getComputedStyle(panel);
     const scoreStyle = score && getComputedStyle(score);
     const background = firstStyle?.backgroundColor === 'rgba(0, 0, 0, 0)'
@@ -501,7 +503,9 @@ async function runSearch(baseUrl, sessionId, query) {
       panelBackground: panelStyle?.backgroundColor || '',
       resultBackground: background || '',
       resultColor: firstStyle?.color || '',
-      scoreColor: scoreStyle?.color || ''
+      scoreColor: scoreStyle?.color || '',
+      internalBoxShadow: internalStyle?.boxShadow || '',
+      internalTextDecoration: internalStyle?.textDecorationLine || ''
     };
   `);
   return { ...searchResult, presentation };
@@ -522,6 +526,47 @@ async function focusFirstSearchResult(baseUrl, sessionId) {
     const host = root && root.host || active;
     return host && host.getAttribute && host.getAttribute('data-docs-search-result') || null;
   `), 'Search keyboard navigation did not focus the first result');
+}
+
+async function activateHighlightedSearchResult(baseUrl, sessionId) {
+  const activation = await execute(baseUrl, sessionId, `${deepQuerySource}
+    const input = deepQuery('#search-input');
+    const results = deepQuery('#search-results');
+    const entries = results ? Array.from(results.querySelectorAll('[data-docs-search-result]')) : [];
+    const highlighted = entries.find((entry) => entry.matches(':focus-within'))
+      || entries.find((entry) => entry.getAttribute('aria-current') === 'page' || entry.classList.contains('active'))
+      || entries.find((entry) => entry.tabIndex === 0)
+      || entries[0];
+    if (!(input && highlighted)) return null;
+    const result = {
+      slug: highlighted.getAttribute('data-docs-search-result'),
+      path: highlighted.getAttribute('href')
+    };
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true, cancelable: true }));
+    return result;
+  `);
+  assert(activation && activation.slug, 'Search has no highlighted result for Enter activation.');
+  return waitUntil(async () => execute(baseUrl, sessionId, `
+    const commands = window.xtendDocsShellRuntime?.appRuntime?.listCommands?.() || [];
+    const activation = [...commands].reverse().find((entry) => entry?.command?.command === 'docs.route.navigate');
+    const payload = activation?.command?.payload || {};
+    const pathMatches = window.location.pathname === arguments[0] || window.location.pathname.endsWith('/' + arguments[1]);
+    const selected = document.querySelector('[data-docs-search-result="' + arguments[1] + '"]');
+    const internal = selected?.shadowRoot?.querySelector('a');
+    const internalStyle = internal && getComputedStyle(internal);
+    const selectedActive = Boolean(selected && (selected.hasAttribute('active') || selected.getAttribute('aria-current') === 'page'));
+    return pathMatches && payload.slug === arguments[1] && payload.inputSource && selectedActive
+      ? {
+          path: window.location.pathname,
+          slug: payload.slug,
+          inputSource: payload.inputSource,
+          selectedActive,
+          internalBoxShadow: internalStyle?.boxShadow || '',
+          internalTextDecoration: internalStyle?.textDecorationLine || ''
+        }
+      : null;
+  `, [activation.path, activation.slug]), 'Enter did not activate the highlighted search result');
 }
 
 async function applyTheme(baseUrl, sessionId, expectedTheme) {
@@ -1142,9 +1187,14 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(search.worker && search.worker.resourceCache === true && search.worker.cachedResourceCount >= 1, `${scenario.id}: search worker did not retain its compact index.`);
     assert(search.presentation.textContrast >= 4.5 && search.presentation.scoreContrast >= 4.5, `${scenario.id}: search result contrast is insufficient (${JSON.stringify(search.presentation)}).`);
     assert(search.presentation.horizontalOverflow <= 1 && search.presentation.statusHidden, `${scenario.id}: search surface overflows or exposes an empty status row (${JSON.stringify(search.presentation)}).`);
+    assert(search.presentation.internalBoxShadow === 'none' && search.presentation.internalTextDecoration === 'none', `${scenario.id}: x-link rendered a second indicator inside the highlighted search result (${JSON.stringify(search.presentation)}).`);
     assert(search.presentation.maxLongTaskMs <= 120, `${scenario.id}: compact search blocked the main thread (${JSON.stringify(search.presentation.longTasks)}).`);
     const focusedResult = await focusFirstSearchResult(driverUrl, sessionId);
     assert(search.slugs.includes(focusedResult), `${scenario.id}: ArrowDown focus left the result set.`);
+    const enterNavigation = await activateHighlightedSearchResult(driverUrl, sessionId);
+    assert(search.slugs.includes(enterNavigation.slug), `${scenario.id}: Enter navigated outside the highlighted result set (${JSON.stringify(enterNavigation)}).`);
+    assert(enterNavigation.inputSource === 'keyboard', `${scenario.id}: Enter activation was not recorded as keyboard input (${JSON.stringify(enterNavigation)}).`);
+    assert(enterNavigation.selectedActive && enterNavigation.internalBoxShadow === 'none' && enterNavigation.internalTextDecoration === 'none', `${scenario.id}: active search result rendered more than one selection indicator (${JSON.stringify(enterNavigation)}).`);
     const fallbackSearch = await runSearch(driverUrl, sessionId, 'backpressure');
     assert(fallbackSearch.usedFulltext && fallbackSearch.fulltextLoaded, `${scenario.id}: sparse results did not activate fulltext fallback.`);
     assert(fallbackSearch.worker && fallbackSearch.worker.cachedResourceCount >= 2, `${scenario.id}: fulltext index was not retained by the search worker.`);
@@ -1172,7 +1222,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
     const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
     await Promise.all([
-      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, activeTheme, navigationSurface, skeletonHardening, search, focusedResult, fallbackSearch, navigation, homeNavigation, localeSwitch, localeRestore, finalSnapshot, logs }, null, 2)}\n`),
+      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, activeTheme, navigationSurface, skeletonHardening, search, focusedResult, enterNavigation, fallbackSearch, navigation, homeNavigation, localeSwitch, localeRestore, finalSnapshot, logs }, null, 2)}\n`),
       writeFile(path.join(evidenceDir, `${scenario.id}.png`), Buffer.from(String(screenshot || ''), 'base64'))
     ]);
   } finally {
