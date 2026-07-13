@@ -274,16 +274,10 @@ async function runSingle(driverOrigin, pageOrigin, scenario, runNumber) {
     assert(afterScroll.githubIconCount === 3 && afterScroll.githubIconsReady, `${scenario.id}: GitHub Invertocat icons are incomplete (${JSON.stringify({ count: afterScroll.githubIconCount, ready: afterScroll.githubIconsReady })})`);
     const logs = await request(driverOrigin, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
     const severeLogs = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
-    const knownLoaderDiagnostics = severeLogs.filter((entry) => {
-      const message = String(entry.message || '');
-      return message.includes('XTend API Initialisierung fehlgeschlagen:')
-        && message.includes('x-dialog wurde geladen, hat aber keinen gueltigen Runtime-Contract');
-    });
-    const unexpectedSevereLogs = severeLogs.filter((entry) => !knownLoaderDiagnostics.includes(entry));
-    assert(unexpectedSevereLogs.length === 0, `${scenario.id}: severe browser logs ${JSON.stringify(unexpectedSevereLogs)}`);
+    assert(severeLogs.length === 0, `${scenario.id}: severe browser logs ${JSON.stringify(severeLogs)}`);
     const screenshot = await request(driverOrigin, `/session/${sessionId}/screenshot`);
     await writeFile(path.join(evidenceDir, `${scenario.id}-run-${runNumber}.png`), Buffer.from(String(screenshot || ''), 'base64'));
-    return { initial, settled, afterScroll, severeLogs, knownLoaderDiagnostics, unexpectedSevereLogs };
+    return { initial, settled, afterScroll, severeLogs };
   } finally {
     await request(driverOrigin, `/session/${sessionId}`, 'DELETE').catch(() => {});
   }

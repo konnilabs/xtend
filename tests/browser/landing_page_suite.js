@@ -37,6 +37,7 @@ function runLandingPageSuite(options = {}) {
   const css = readText(rootDir, LANDING_STYLE_PATH);
   const manifest = JSON.parse(readText(rootDir, 'components/manifest.json'));
   const browserSmoke = readText(rootDir, LANDING_BROWSER_SMOKE_PATH);
+  const apiSource = readText(rootDir, 'api.js');
   const packageManifest = JSON.parse(readText(rootDir, 'package.json'));
   const preloadTags = extractPreloadTags(html);
 
@@ -48,10 +49,11 @@ function runLandingPageSuite(options = {}) {
   context.assert(JSON.stringify(preloadTags) === JSON.stringify(PRELOADED_TAGS), 'Landing page preloads the complete first-viewport component set in deterministic order');
   context.assert(PRELOADED_TAGS.every((tag) => Object.prototype.hasOwnProperty.call(manifest, tag)), 'Every preloaded tag resolves through the local component manifest');
   context.assert(LAZY_TAGS.every((tag) => !preloadTags.includes(tag) && html.includes(`<${tag}`)), 'Below-the-fold component families remain loader-lazy');
-  context.assert(html.includes('background-image="background.webp"') && html.includes('src="icons/xtend-scaffold.webp"'), 'XHero background and XTend logo preserve the corporate design');
-  context.assert(html.includes('rel="preload" href="background.webp" as="image"') && html.includes('rel="preload" href="icons/xtend-scaffold.webp" as="image"'), 'First-viewport image assets are preloaded');
-  context.assert(fs.existsSync(path.join(rootDir, 'background.webp')) && fs.existsSync(path.join(rootDir, 'icons/xtend-scaffold.webp')), 'First-viewport image assets exist locally');
-  context.assert(html.includes('rel="preload" href="icons/github-invertocat-white.svg" as="image"') && fs.existsSync(path.join(rootDir, 'icons/github-invertocat-white.svg')), 'Official local GitHub Invertocat asset is preloaded and present');
+  context.assert(html.includes('background-image="background.webp"') && html.includes('src="landing-assets/xtend-scaffold.webp"'), 'XHero background and XTend logo preserve the corporate design');
+  context.assert(html.includes('rel="preload" href="background.webp" as="image"') && html.includes('rel="preload" href="landing-assets/xtend-scaffold.webp" as="image"'), 'First-viewport image assets are preloaded');
+  context.assert(fs.existsSync(path.join(rootDir, 'background.webp')) && fs.existsSync(path.join(rootDir, 'landing-assets/xtend-scaffold.webp')), 'First-viewport image assets exist locally');
+  context.assert(html.includes('rel="preload" href="landing-assets/github-invertocat-white.svg" as="image"') && fs.existsSync(path.join(rootDir, 'landing-assets/github-invertocat-white.svg')), 'Official local GitHub Invertocat asset is preloaded and present');
+  context.assert(!html.includes('src="icons/') && !html.includes('href="icons/'), 'Landing assets avoid the Apache-reserved /icons alias');
   context.assert(html.includes('href="landing.css"') && fs.existsSync(path.join(rootDir, LANDING_STYLE_PATH)), 'Landing design is isolated in a local stylesheet');
   context.assert(!html.includes('icons/speed.png') && !html.includes('icons/simplicity.png') && !html.includes('icons/security.png'), 'Landing page no longer references missing feature icons');
   context.assert(!html.includes('https://cdn.ccs-networks.de/xtend') && !html.includes('type="importmap"'), 'Landing page has no XTend CDN or import-map bridge');
@@ -64,7 +66,7 @@ function runLandingPageSuite(options = {}) {
   });
   context.assert(html.includes('docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en'), 'Primary CTA targets the English Quick Start');
   context.assert(html.includes('https://github.com/konnilabs/xtend') && html.includes('https://www.npmjs.com/package/@ccslabs/xtend'), 'Landing page exposes GitHub and npm destinations');
-  context.assert(countMatches(html, /<x-icon class="github-icon" src="icons\/github-invertocat-white\.svg"/gu) === 3 && countMatches(html, /class="[^"]*github-link[^"]*" href="https:\/\/github\.com\/konnilabs\/xtend"/gu) === 3, 'Every GitHub destination uses the local Invertocat through XIcon');
+  context.assert(countMatches(html, /<x-icon class="github-icon" src="landing-assets\/github-invertocat-white\.svg"/gu) === 3 && countMatches(html, /class="[^"]*github-link[^"]*" href="https:\/\/github\.com\/konnilabs\/xtend"/gu) === 3, 'Every GitHub destination uses the local Invertocat through XIcon');
   context.assert(html.includes('<x-type') && html.includes('hero-static-text') && html.includes('hero-animated-text'), 'Hero retains XType with a static motion-safe fallback');
   context.assert(html.includes('<template data-x-code-mode="text">') && html.includes('&lt;meta name="xtend-preload"'), 'Classic example uses XCode text mode without double escaping');
   context.assert(css.includes('@media (prefers-reduced-motion: reduce)') && css.includes('.hero-animated-text') && css.includes('.hero-static-text'), 'Landing stylesheet switches XType off for reduced motion');
@@ -78,6 +80,8 @@ function runLandingPageSuite(options = {}) {
   context.assert(browserSmoke.includes('LCP_BUDGET_MS = 2500') && browserSmoke.includes('CLS_BUDGET = 0.05'), 'Browser smoke enforces LCP and CLS budgets');
   context.assert(browserSmoke.includes('classicCodeSectionOverflowX') && browserSmoke.includes('double-escaped markup'), 'Browser smoke guards the classic code rendering and overflow regression');
   context.assert(browserSmoke.includes('footerFullBleed') && browserSmoke.includes('githubIconsReady'), 'Browser smoke guards footer width and GitHub icon loading');
+  context.assert(apiSource.includes('customElements.whenDefined(tag)') && apiSource.includes('await waitForRuntimeReady(tag)'), 'Browser API waits for asynchronous Custom Element registration before validating runtime readiness');
+  context.assert(!browserSmoke.includes('knownLoaderDiagnostics') && browserSmoke.includes('severeLogs.length === 0'), 'Browser smoke rejects every severe loader or asset diagnostic');
   context.assert(browserSmoke.includes("['xstate', 'x-theme', 'x-icon', 'x-header', 'x-hero', 'x-type']") && browserSmoke.includes("['x-section', 'x-cards', 'x-code', 'x-footer']"), 'Browser smoke covers the complete preload and lazy component boundaries');
   context.assert(packageManifest.scripts['test:landing-page'] === 'node scripts/run_xtend_tests.js landing-page', 'Package exposes the isolated landing-page gate');
   context.assert(packageManifest.scripts['test:landing-page:browser'] === 'node scripts/smoke_landing_page.mjs', 'Package exposes the real landing browser smoke');

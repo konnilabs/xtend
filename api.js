@@ -167,6 +167,26 @@ function isRuntimeReady(tag) {
   return !!customElements.get(tag);
 }
 
+async function waitForRuntimeReady(tag, timeoutMs = 3000) {
+  if (isRuntimeReady(tag)) return true;
+
+  if (tag.includes('-') && typeof customElements !== 'undefined' && typeof customElements.whenDefined === 'function') {
+    let timeoutId;
+    try {
+      await Promise.race([
+        customElements.whenDefined(tag),
+        new Promise((resolve) => {
+          timeoutId = setTimeout(resolve, timeoutMs);
+        })
+      ]);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  }
+
+  return isRuntimeReady(tag);
+}
+
 function loadModuleScript(url, cacheKey) {
   const key = cacheKey || url;
   if (componentLoaders.has(key)) {
@@ -253,7 +273,7 @@ async function ensureComponentLoaded(tag, manifest) {
 
   await loadModuleScript(url, tag);
 
-  if (!isRuntimeReady(tag)) {
+  if (!await waitForRuntimeReady(tag)) {
     throw new Error(`${tag} wurde geladen, hat aber keinen gueltigen Runtime-Contract bereitgestellt`);
   }
 }

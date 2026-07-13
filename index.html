@@ -8,10 +8,10 @@
   <meta name="color-scheme" content="dark light">
   <meta name="xtend-preload" content="xstate,x-theme,x-icon,x-header,x-hero,x-type">
   <title>XTend — Build for the web. Scale beyond the page.</title>
-  <link rel="icon" href="icons/favicon.ico">
+  <link rel="icon" href="landing-assets/favicon.ico">
   <link rel="preload" href="background.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="preload" href="icons/xtend-scaffold.webp" as="image" type="image/webp">
-  <link rel="preload" href="icons/github-invertocat-white.svg" as="image" type="image/svg+xml">
+  <link rel="preload" href="landing-assets/xtend-scaffold.webp" as="image" type="image/webp">
+  <link rel="preload" href="landing-assets/github-invertocat-white.svg" as="image" type="image/svg+xml">
   <link rel="stylesheet" href="xtend.css">
   <link rel="stylesheet" href="landing.css">
   <script type="module" src="xtend-loader.js" data-manifest="components/manifest.json"></script>
@@ -22,7 +22,7 @@
   <x-header
     id="site-header"
     class="landing-header"
-    src="icons/xtend-scaffold.webp"
+    src="landing-assets/xtend-scaffold.webp"
     logo-size="48"
     menu-mode="popover"
     menu-placement="end"
@@ -71,7 +71,7 @@
       <p class="hero-lead">XTend keeps small HTML projects simple, then adds declarative orchestration, diagnostics, and controlled remote surfaces when your product grows.</p>
       <div class="hero-actions" aria-label="Get started with XTend">
         <a class="landing-button landing-button-primary" href="docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en">Read the quick start</a>
-        <a class="landing-button landing-button-secondary github-link" href="https://github.com/konnilabs/xtend"><x-icon class="github-icon" src="icons/github-invertocat-white.svg" size="1.1em" decorative></x-icon>View on GitHub</a>
+        <a class="landing-button landing-button-secondary github-link" href="https://github.com/konnilabs/xtend"><x-icon class="github-icon" src="landing-assets/github-invertocat-white.svg" size="1.1em" decorative></x-icon>View on GitHub</a>
       </div>
     </x-hero>
 
@@ -199,16 +199,16 @@
       <div class="final-cta-actions">
         <a class="landing-button landing-button-primary" href="docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en">Explore the documentation</a>
         <a class="landing-button landing-button-secondary" href="https://www.npmjs.com/package/@ccslabs/xtend">View the npm package</a>
-        <a class="landing-text-link github-link" href="https://github.com/konnilabs/xtend"><x-icon class="github-icon" src="icons/github-invertocat-white.svg" size="1.1em" decorative></x-icon>Browse the source <span aria-hidden="true">→</span></a>
+        <a class="landing-text-link github-link" href="https://github.com/konnilabs/xtend"><x-icon class="github-icon" src="landing-assets/github-invertocat-white.svg" size="1.1em" decorative></x-icon>Browse the source <span aria-hidden="true">→</span></a>
       </div>
     </section>
   </main>
 
-  <x-footer class="landing-footer" src="icons/xtend-scaffold.webp" logo-size="32">
+  <x-footer class="landing-footer" src="landing-assets/xtend-scaffold.webp" logo-size="32">
     <span slot="title">XTend · Native-first by design</span>
     <a href="#main-content" slot="nav">Back to top</a>
     <a href="docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en" slot="nav">Documentation</a>
-    <a class="github-link" href="https://github.com/konnilabs/xtend" slot="nav"><x-icon class="github-icon" src="icons/github-invertocat-white.svg" size="1.1em" decorative></x-icon>GitHub</a>
+    <a class="github-link" href="https://github.com/konnilabs/xtend" slot="nav"><x-icon class="github-icon" src="landing-assets/github-invertocat-white.svg" size="1.1em" decorative></x-icon>GitHub</a>
     <div slot="extra">Apache-2.0 · Built with the classic XTend loader</div>
   </x-footer>
 </body>
