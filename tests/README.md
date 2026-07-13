@@ -11,6 +11,15 @@ npm run test:scoped-package-readmes
 npm run test:scoped-package-readmes:report
 ```
 
+The root project landing page has its own classic-loader contract and an optional real-browser performance smoke:
+
+```bash
+npm run test:landing-page
+npm run test:landing-page:browser
+```
+
+The static gate validates the authored HTML, local manifest, `xtend-preload` boundary, lazy component set, product content and aggregate wiring. The browser smoke runs three cold-cache desktop and mobile samples, checks FOUC, responsive geometry, reduced motion, lazy hydration, FCP/LCP and CLS, and writes evidence below `.xtend-test-results/landing-page/`.
+
 Run all currently implemented suites:
 
 ```bash

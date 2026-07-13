@@ -1,137 +1,215 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <title>XTend Framework</title>
-  <script type="module" src="xtend-loader.js"></script>
-  <link rel="stylesheet" href="xtend.css">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="XTend is a native-first toolkit for local Web Components, declarative RMT applications, observable runtime orchestration, and governed remote surfaces.">
+  <meta name="theme-color" content="#080b12">
+  <meta name="color-scheme" content="dark light">
+  <meta name="xtend-preload" content="xstate,x-theme,x-icon,x-header,x-hero,x-type">
+  <title>XTend — Build for the web. Scale beyond the page.</title>
   <link rel="icon" href="icons/favicon.ico">
+  <link rel="preload" href="background.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="icons/xtend-scaffold.webp" as="image" type="image/webp">
+  <link rel="preload" href="icons/github-invertocat-white.svg" as="image" type="image/svg+xml">
+  <link rel="stylesheet" href="xtend.css">
+  <link rel="stylesheet" href="landing.css">
+  <script type="module" src="xtend-loader.js" data-manifest="components/manifest.json"></script>
 </head>
 <body>
-  <!-- Header -->
-  <x-header src="icons/xtend-scaffold.webp" logo-size="48">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <x-header
+    id="site-header"
+    class="landing-header"
+    src="icons/xtend-scaffold.webp"
+    logo-size="48"
+    menu-mode="popover"
+    menu-placement="end"
+    menu-align="end"
+    menu-width="min(22rem, calc(100vw - 2rem))"
+    aria-label="XTend site navigation"
+  >
     <span slot="title">XTend</span>
-    <a slot="nav" href="index.html">Home</a>
-    <a slot="nav" href="#about">Demos</a>
+    <a slot="nav" href="#why-xtend">Why XTend</a>
+    <a slot="nav" href="#runtime-paths">Runtime paths</a>
+    <a slot="nav" href="#platform-stack">Platform stack</a>
+    <a slot="nav" href="docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en">Documentation</a>
   </x-header>
 
-  <!-- Hero Section -->
-  <x-hero 
-    fullheight 
-    background="#123456" 
-    background-image="background.webp" 
-    align="center" 
-    vertical-align="center"
-    overlay 
-    animate
-    scroll-button
-  >
-    <h1>XTend makes Front-end <x-type blinking-cursor loop texts='["fun.", "fast.", "future-proof."]' speed="70" pause="7000"></x-type></h1>
-    <p>Build awesome and fast web interfaces in minutes without heavy backends.</p>
-    <button class="primary-button">Get Started</button>
-  </x-hero>
-
-  <!-- Features Section -->
-  <x-section id="features" label="Features Section" class="section" layout="grid">
-    <div slot="header">
-      <h2 class="section-title">Why Choose XTend?</h2>
-    </div>
-    <x-cards columns="3" gap="1.5rem">
-      <x-card>
-        <img src="icons/speed.png" alt="Speed Icon" class="feature-icon">
-        <h3>Speed</h3>
-        <p>XTend is lightweight and optimized for performance, ensuring fast load times for your websites.</p>
-      </x-card>
-      <x-card>
-        <img src="icons/simplicity.png" alt="Simplicity Icon" class="feature-icon">
-        <h3>Simplicity</h3>
-        <p>With prebuilt components and intuitive tags, XTend makes web development accessible to everyone.</p>
-      </x-card>
-      <x-card>
-        <img src="icons/security.png" alt="Security Icon" class="feature-icon">
-        <h3>Security</h3>
-        <p>By eliminating unnecessary backends, XTend reduces attack surfaces and enhances security.</p>
-      </x-card>
-    </x-cards>
-  </x-section>
-  <x-hero  
-    background="#123456" 
-    align="block" 
-    overlay 
-    animate
-    vertical-align="top" style="--hero-font-size: 1.3rem;"
-  >
-    <x-tabs>
-      <x-tab name="What is XTend?">
-        <p>XTend is a fast and super easy-to-use web design framework. It helps you build elegant, barrier-free, and user-friendly websites in minutes.</p>
-      </x-tab>
-      <x-tab name="How does it work?">
-        <p>XTend provides additional HTML tags for designing your website. These tags create prebuilt elements that you can visually adjust to your liking.</p>
-      </x-tab>
-      <x-tab name="Why use XTend?">
-        <p>XTend is lightweight, secure, and fast, making it ideal for static sites where simplicity and performance are key.</p>
-      </x-tab>
-    </x-tabs>
-  </x-hero>
-  <!-- How It Works Section -->
-  <x-section layout="grid" id="how-it-works" label="How It Works Section" class="section gradient-background">
-    <div slot="header">
-      <h2 class="section-title">How It Works</h2>
-    </div>
-    <p class="section-description">
-      XTend provides custom HTML tags that simplify web development. Here's an example:
-    </p>
-    <x-code lang="html" class="code-block">
-<x-hero fullheight background="#123456" align="center" vertical-align="center">
-  <h1>Welcome to XTend</h1>
-  <p>Build fast, secure, and elegant websites with ease.</p>
-</x-hero>
-    </x-code>
-  </x-section>
-
-  <!-- Comparison Section -->
-  <x-section layout="grid" id="comparison" label="Comparison Section" class="section light-background">
-    <div slot="header">
-      <h2 class="section-title">XTend vs Traditional CMS</h2>
-    </div>
-    <x-masonry column-width="300px" gap="1.5rem">
-      <div class="item" data-key="xtend" data-title="XTend">
-        <ul>
-          <li>✅ Lightweight</li>
-          <li>✅ Secure</li>
-          <li>✅ Fast</li>
-          <li>✅ Flexible</li>
-        </ul>
+  <main id="main-content">
+    <x-hero
+      id="landing-hero"
+      class="landing-hero"
+      background="#080b12"
+      background-image="background.webp"
+      align="left"
+      vertical-align="center"
+      overlay
+      overlay-dark="rgba(3, 5, 10, 0.68)"
+      overlay-light="rgba(3, 5, 10, 0.60)"
+      font-color="#ffffff"
+      animate
+    >
+      <p class="hero-eyebrow">Native-first application orchestration</p>
+      <h1>
+        Build for the web.<br>
+        Scale with
+        <span class="hero-rotator">
+          <span class="hero-static-text">Web Components.</span>
+          <x-type
+            class="hero-animated-text"
+            aria-hidden="true"
+            blinking-cursor
+            loop
+            texts='["Web Components.", "RMT applications.", "governed surfaces."]'
+            speed="58"
+            pause="2600"
+          ></x-type>
+        </span>
+      </h1>
+      <p class="hero-lead">XTend keeps small HTML projects simple, then adds declarative orchestration, diagnostics, and controlled remote surfaces when your product grows.</p>
+      <div class="hero-actions" aria-label="Get started with XTend">
+        <a class="landing-button landing-button-primary" href="docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en">Read the quick start</a>
+        <a class="landing-button landing-button-secondary github-link" href="https://github.com/konnilabs/xtend"><x-icon class="github-icon" src="icons/github-invertocat-white.svg" size="1.1em" decorative></x-icon>View on GitHub</a>
       </div>
-      <div class="item" data-key="cms" data-title="Traditional CMS">
-        <ul>
-          <li>❌ Heavy</li>
-          <li>❌ Vulnerable</li>
-          <li>❌ Slower</li>
-          <li>❌ Complex</li>
-        </ul>
+    </x-hero>
+
+    <ul class="proof-strip" aria-label="XTend platform qualities">
+      <li><strong>Browser-native</strong><span>Standards before framework lock-in</span></li>
+      <li><strong>Local-first</strong><span>Same-origin modules and manifests</span></li>
+      <li><strong>Accessible by contract</strong><span>Keyboard, motion, and screen-reader policies</span></li>
+      <li><strong>Auditable releases</strong><span>Deterministic gates and production evidence</span></li>
+    </ul>
+
+    <x-section id="why-xtend" class="landing-section" layout="column" label="Why XTend">
+      <div slot="header" class="section-heading">
+        <p class="section-kicker">One native-first toolkit</p>
+        <h2>A small entry point, not a small ceiling.</h2>
+        <p>Adopt the layer you need today without closing the path to a larger application tomorrow.</p>
       </div>
-      <div class="item" data-key="custom" data-title="Custom Solution">
-        <ul>
-          <li>✅ Tailored</li>
-          <li>✅ Secure</li>
-          <li>❌ Expensive</li>
-          <li>❌ Time-Consuming</li>
-        </ul>
+      <x-cards columns="3" gap="1.25rem" aria-label="XTend capabilities">
+        <x-card>
+          <p class="card-index" aria-hidden="true">01</p>
+          <h3>Native UI</h3>
+          <p>Load owned Web Components from a local manifest and compose them directly in semantic HTML.</p>
+          <ul class="card-points">
+            <li>No required UI framework</li>
+            <li>Themeable component contracts</li>
+            <li>Viewport-aware loading</li>
+          </ul>
+        </x-card>
+        <x-card>
+          <p class="card-index" aria-hidden="true">02</p>
+          <h3>Declarative applications</h3>
+          <p>Move state, actions, resources, routes, and surfaces into reviewable RMT source when complexity grows.</p>
+          <ul class="card-points">
+            <li>Compiler and language tooling</li>
+            <li>Browser and server adapters</li>
+            <li>Maraca production builds</li>
+          </ul>
+        </x-card>
+        <x-card>
+          <p class="card-index" aria-hidden="true">03</p>
+          <h3>Production evidence</h3>
+          <p>Keep scheduling, diagnostics, security decisions, and release readiness visible instead of implicit.</p>
+          <ul class="card-points">
+            <li>Fabric lanes and reporters</li>
+            <li>Accessibility and security gates</li>
+            <li>Deterministic verification</li>
+          </ul>
+        </x-card>
+      </x-cards>
+    </x-section>
+
+    <x-section id="runtime-paths" class="landing-section landing-section-contrast" layout="column" label="XTend runtime paths">
+      <div slot="header" class="section-heading">
+        <p class="section-kicker">Progressive architecture</p>
+        <h2>Choose the runtime path you need.</h2>
+        <p>The classic loader and the compiled app platform share the same local, inspectable component foundation.</p>
       </div>
-    </x-masonry>
-  </x-section>
+      <div class="path-grid">
+        <article class="path-card path-card-classic">
+          <p class="path-label">Classic HTML</p>
+          <h3>Manifest-driven Web Components</h3>
+          <p>Author regular HTML, preload the first viewport, and let <code>xtend-loader.js</code> register deeper components as they approach the viewport.</p>
+          <p class="path-best-for"><strong>Best for:</strong> landing pages, documentation, progressive enhancement, and small application shells.</p>
+        </article>
+        <article class="path-card">
+          <p class="path-label">Application platform</p>
+          <h3>RMT source and Maraca builds</h3>
+          <p>Compile declarative application records into optimized ESM bundles with explicit hydration, transitions, PWA policy, and production evidence.</p>
+          <p class="path-best-for"><strong>Best for:</strong> stateful products, governed teams, reusable shells, and server-capable delivery.</p>
+        </article>
+      </div>
+    </x-section>
 
-  <!-- Documentation Section -->
+    <x-section id="platform-stack" class="landing-section" layout="column" label="XTend platform stack">
+      <div slot="header" class="section-heading">
+        <p class="section-kicker">Source to governed surface</p>
+        <h2>Every layer has a visible responsibility.</h2>
+        <p>XTend scales through explicit boundaries rather than hiding application behavior inside a monolithic runtime.</p>
+      </div>
+      <ol class="stack-flow">
+        <li>
+          <span class="stack-number">01</span>
+          <div><h3>Author</h3><p>Start in HTML or describe state, actions, events, resources, and surfaces in RMT.</p></div>
+        </li>
+        <li>
+          <span class="stack-number">02</span>
+          <div><h3>Compose</h3><p>Connect XTend UI, routing, browser capabilities, and host adapters without surrendering platform primitives.</p></div>
+        </li>
+        <li>
+          <span class="stack-number">03</span>
+          <div><h3>Observe</h3><p>Use Fabric lanes, fibers, reporters, and hydration policy to make runtime work measurable.</p></div>
+        </li>
+        <li>
+          <span class="stack-number">04</span>
+          <div><h3>Scale safely</h3><p>Let XScaler preflight remote code and XSurface Shard create lifecycle-owned, ATC-compatible handoffs.</p></div>
+        </li>
+      </ol>
+    </x-section>
 
+    <x-section id="classic-example" class="landing-section landing-code-section" layout="column" label="Classic XTend HTML example">
+      <div slot="header" class="section-heading">
+        <p class="section-kicker">No build step required</p>
+        <h2>The page you are viewing uses the classic path.</h2>
+        <p>Preload only the first viewport and leave the remaining component modules to the loader.</p>
+      </div>
+      <x-code lang="html" class="landing-code" aria-label="Classic XTend loader example">
+        <template data-x-code-mode="text">
+&lt;meta name="xtend-preload"
+  content="xstate,x-theme,x-icon,x-header,x-hero,x-type"&gt;
+&lt;script type="module"
+  src="/xtend-loader.js"
+  data-manifest="/components/manifest.json"&gt;&lt;/script&gt;
 
-  <!-- Footer -->
-  <x-footer src="icons/xtend-scaffold.webp" logo-size="32">
-    <span slot="title">© 2025 – CCS Networks</span>
-    <a href="index.html" slot="nav">Home</a>
-    <a href="/datenschutz" slot="nav">Privacy Policy</a>
-    <div slot="extra">Powered by XTend</div>
+&lt;x-hero background-image="/background.webp" overlay&gt;
+  &lt;h1&gt;Build for the web.&lt;/h1&gt;
+  &lt;p&gt;Scale only when your product needs it.&lt;/p&gt;
+&lt;/x-hero&gt;
+        </template>
+      </x-code>
+    </x-section>
+
+    <section class="final-cta" aria-labelledby="final-cta-title">
+      <p class="section-kicker">Keep the entry point simple</p>
+      <h2 id="final-cta-title">Build one page. Keep the path to a platform.</h2>
+      <p>Explore the component catalog, learn RMT, or inspect every runtime and gate directly in the repository.</p>
+      <div class="final-cta-actions">
+        <a class="landing-button landing-button-primary" href="docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en">Explore the documentation</a>
+        <a class="landing-button landing-button-secondary" href="https://www.npmjs.com/package/@ccslabs/xtend">View the npm package</a>
+        <a class="landing-text-link github-link" href="https://github.com/konnilabs/xtend"><x-icon class="github-icon" src="icons/github-invertocat-white.svg" size="1.1em" decorative></x-icon>Browse the source <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <x-footer class="landing-footer" src="icons/xtend-scaffold.webp" logo-size="32">
+    <span slot="title">XTend · Native-first by design</span>
+    <a href="#main-content" slot="nav">Back to top</a>
+    <a href="docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en" slot="nav">Documentation</a>
+    <a class="github-link" href="https://github.com/konnilabs/xtend" slot="nav"><x-icon class="github-icon" src="icons/github-invertocat-white.svg" size="1.1em" decorative></x-icon>GitHub</a>
+    <div slot="extra">Apache-2.0 · Built with the classic XTend loader</div>
   </x-footer>
 </body>
 </html>

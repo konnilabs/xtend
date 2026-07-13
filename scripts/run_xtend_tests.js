@@ -60,6 +60,10 @@ const {
   runBrowserSmokeSuite
 } = require('../tests/browser/browser_smoke_suite');
 const {
+  printLandingPageReport,
+  runLandingPageSuite
+} = require('../tests/browser/landing_page_suite');
+const {
   printSuperPrewarmWorkerExperimentReport,
   runSuperPrewarmWorkerExperimentSuite
 } = require('../tests/rmt/super_prewarm_worker_experiment_suite');
@@ -4074,6 +4078,16 @@ const suites = [
     }
   },
   {
+    id: 'landing-page',
+    label: 'XTend project landing page',
+    description: 'Validates the authored landing page, classic loader/preload boundary, product content and browser-smoke contract.',
+    run: () => {
+      const result = runLandingPageSuite({ rootDir });
+      printLandingPageReport(result);
+      return toRunnerResult('landing-page', 'XTend project landing page', result);
+    }
+  },
+  {
     id: 'browser',
     label: 'Browser smoke harness',
     description: 'Validates Custom Element and core-flow browser smoke fixtures and optionally runs Safari WebDriver.',
@@ -4208,6 +4222,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-language-regression
   node scripts/run_xtend_tests.js rmt-tooling-docs
   node scripts/run_xtend_tests.js scoped-package-readmes
+  node scripts/run_xtend_tests.js landing-page
   node scripts/run_xtend_tests.js docs-public-quality
   node scripts/run_xtend_tests.js rmt-stack-docs
   node scripts/run_xtend_tests.js rmt-playground-docs

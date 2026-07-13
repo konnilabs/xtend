@@ -4281,11 +4281,17 @@ const DEMO_REFERENCE_CONTRACTS = [
     status: 'automated-static',
     contracts: [
       { pattern: 'type="module" src="xtend-loader.js"', message: 'uses repo-local XTend loader' },
+      { pattern: 'data-manifest="components/manifest.json"', message: 'uses the explicit local component manifest' },
+      { pattern: 'name="xtend-preload"', message: 'preloads first-viewport XTend components' },
       { pattern: 'href="xtend.css"', message: 'uses repo-local XTend CSS' },
+      { pattern: 'href="landing.css"', message: 'uses isolated landing-page CSS' },
       { pattern: '<x-header', message: 'contains x-header reference' },
       { pattern: '<x-hero', message: 'contains x-hero reference' },
+      { pattern: '<x-type', message: 'keeps the animated XTend hero copy' },
       { pattern: '<x-section', message: 'contains x-section reference' },
-      { pattern: '<x-footer', message: 'contains x-footer reference' }
+      { pattern: '<x-footer', message: 'contains x-footer reference' },
+      { pattern: 'XScaler', message: 'represents the XScaler product surface' },
+      { pattern: 'XSurface Shard', message: 'represents the XSurface Shard product surface' }
     ]
   },
   {
