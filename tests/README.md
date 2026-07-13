@@ -4,6 +4,13 @@ This directory contains the staged test-suite structure introduced in Epic 02.
 
 ## Local Entry Points
 
+The `scoped-package-readmes` gate derives all public packages from `package.json#scopedPackages` and validates the English-first bilingual README contract, synchronized executable examples, public API anchors, package inclusion and relative links.
+
+```bash
+npm run test:scoped-package-readmes
+npm run test:scoped-package-readmes:report
+```
+
 Run all currently implemented suites:
 
 ```bash

@@ -19,6 +19,7 @@
   "main": "./xtend-fabric.js",
   "types": "./xtend-fabric.d.ts",
   "files": [
+    "README.md",
     "xtend-fabric.js",
     "xtend-fabric.d.ts",
     "rmt-lane-mapping.js",

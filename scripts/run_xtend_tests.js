@@ -14,6 +14,10 @@ const {
   runDocsQualityGateSuite
 } = require('../tests/docs/docs_quality_gate_suite');
 const {
+  printScopedPackageReadmesReport,
+  runScopedPackageReadmesSuite
+} = require('../tests/docs/scoped_package_readmes_suite');
+const {
   DEFAULT_MIN_GUIDE_CHARS,
   createDocsStubInventory
 } = require('./create_docs_stub_inventory');
@@ -1587,6 +1591,16 @@ const suites = [
       const result = await runRmtPhpSsrAdapterSuite({ rootDir });
       printRmtPhpSsrAdapterReport(result);
       return toRunnerResult('rmt-php-ssr-adapter', 'RMT PHP/Laravel SSR Adapter', result);
+    }
+  },
+  {
+    id: 'scoped-package-readmes',
+    label: 'Scoped Package bilingual READMEs',
+    description: 'Validates the public scoped package inventory, English-first bilingual structure, API anchors, examples and links.',
+    run: () => {
+      const result = runScopedPackageReadmesSuite({ rootDir });
+      printScopedPackageReadmesReport(result);
+      return toRunnerResult('scoped-package-readmes', 'Scoped Package bilingual READMEs', result);
     }
   },
   {
@@ -4193,6 +4207,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-editor-packaging
   node scripts/run_xtend_tests.js rmt-language-regression
   node scripts/run_xtend_tests.js rmt-tooling-docs
+  node scripts/run_xtend_tests.js scoped-package-readmes
   node scripts/run_xtend_tests.js docs-public-quality
   node scripts/run_xtend_tests.js rmt-stack-docs
   node scripts/run_xtend_tests.js rmt-playground-docs

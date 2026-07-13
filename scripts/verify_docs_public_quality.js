@@ -135,6 +135,14 @@ function runDocsPublicQualityCheck(options = {}) {
   const learnRmtSlugs = options.requiredLearnRmtSlugs || requiredLearnRmtSlugs;
   const rmtStackSlugs = options.requiredRmtStackSlugs || requiredRmtStackSlugs;
   const failures = [];
+  const rootPackagePath = path.join(rootDir, 'package.json');
+  let hasScopedPackageInventory = false;
+  if (fs.existsSync(rootPackagePath)) {
+    const rootPackage = JSON.parse(fs.readFileSync(rootPackagePath, 'utf8'));
+    if (Array.isArray(rootPackage.scopedPackages)) {
+      hasScopedPackageInventory = true;
+    }
+  }
   const menu = readJson('docs/menu.json', rootDir);
   const menuSlugs = menu.map((entry) => entry.slug);
   const menuSlugSet = new Set(menuSlugs);
@@ -243,7 +251,10 @@ function runDocsPublicQualityCheck(options = {}) {
   }
 
   const rootReadme = readText('README.md', rootDir);
-  if (!/^# XTend\n\nXTend is /u.test(rootReadme)) {
+  const englishFirstPattern = hasScopedPackageInventory
+    ? /^# XTend\n\n\*\*English \(primary\)\*\* \| \[Deutsch\]\(#deutsch\)[\s\S]*?<a id="english"><\/a>\n\n## English\n\nXTend is /u
+    : /^# XTend\n\nXTend is /u;
+  if (!englishFirstPattern.test(rootReadme)) {
     fail(failures, 'README.md must be English-first and npm-facing.');
   }
 

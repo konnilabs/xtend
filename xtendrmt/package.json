@@ -21,6 +21,7 @@
   "types": "./rmt-core.d.ts",
   "browser": "./rmt-runtime.browser.js",
   "files": [
+    "README.md",
     "rmt-core.d.ts",
     "rmt-core.esm.js",
     "rmt-runtime.esm.js",

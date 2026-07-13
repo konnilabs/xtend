@@ -24,6 +24,7 @@
     "xtend-scaffold": "./bin/xt"
   },
   "files": [
+    "README.md",
     "a11y",
     "bin",
     "blueprints",

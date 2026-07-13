@@ -22,6 +22,7 @@
     "xtend-rmt-lint": "./rmt-linter/cli.js"
   },
   "files": [
+    "README.md",
     "rmt-language",
     "rmt-linter",
     "rmt-language-server",

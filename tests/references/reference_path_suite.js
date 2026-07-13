@@ -9294,6 +9294,7 @@ function assertReleasePreparationReference(context, rootDir) {
     'npm run test:rmt-playground-security'
   ];
   const docsSuites = [
+    'scoped-package-readmes',
     'docs-public-quality',
     'docs-content-depth',
     'docs-quality-gates',
@@ -9310,10 +9311,13 @@ function assertReleasePreparationReference(context, rootDir) {
   });
   docsSuites.forEach((suite) => {
     context.assert(xtend.ciGateMatrix && xtend.ciGateMatrix.prFastGate && Array.isArray(xtend.ciGateMatrix.prFastGate.suites) && xtend.ciGateMatrix.prFastGate.suites.includes(suite), `PR fast gate includes ${suite}`);
+    context.assert(xtend.ciGateMatrix && xtend.ciGateMatrix.fullReleaseGate && Array.isArray(xtend.ciGateMatrix.fullReleaseGate.suites) && xtend.ciGateMatrix.fullReleaseGate.suites.includes(suite), `Full release gate includes ${suite}`);
     context.assert(packageManifest.scripts['test:pr'].includes(suite), `test:pr includes ${suite}`);
     context.assert(packageManifest.scripts['test:pr:report'].includes(suite), `test:pr:report includes ${suite}`);
+    context.assert(packageManifest.scripts['test:release:full'].includes(suite), `test:release:full includes ${suite}`);
+    context.assert(packageManifest.scripts['test:release:full:report'].includes(suite), `test:release:full:report includes ${suite}`);
   });
-  context.assert(packageManifest.scripts['test:docs-quality:report'] === 'node scripts/run_xtend_tests.js docs-public-quality docs-content-depth docs-quality-gates --report .xtend-test-results/xtend-docs-quality-report.json', 'Package exposes combined docs quality report');
+  context.assert(packageManifest.scripts['test:docs-quality:report'] === 'node scripts/run_xtend_tests.js scoped-package-readmes docs-public-quality docs-content-depth docs-quality-gates --report .xtend-test-results/xtend-docs-quality-report.json', 'Package exposes combined docs quality report');
   context.assert(packageManifest.scripts['release:sync-versions'] === 'node scripts/sync_xtend_package_versions.js', 'Package exposes unified release version sync command');
   context.assert(packageManifest.scripts['release:sync-versions:check'] === 'node scripts/sync_xtend_package_versions.js --check', 'Package exposes unified release version sync check command');
   context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes('npm run release:sync-versions:check'), 'Release gates include version sync check');

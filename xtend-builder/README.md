@@ -1,93 +1,453 @@
-# XTend-Scaffold
+# XTend Builder CLI
 
-`XTend-Scaffold` ist das repo-lokale Build-Environment fuer kuenftige XTend-Generatoren. Epic 03 hat es als generator-only, dry-run-first Scaffold abgeschlossen; Epic 17 baut daraus einen dry-run-first, aber produktiv schreibfaehigen Buildpfad.
+**English (primary)** | [Deutsch](#deutsch)
 
-## Local Entry Points
+<a id="english"></a>
+
+## English
+
+`@ccslabs/xtend-cli` is the shared command-line interface for component scaffolding, RMT tooling, and Maraca builds in the XTend workspace. The executable names `xt`, `xtend`, and `xtend-scaffold` all point to the same implementation. `xtend-builder/scaffold.js` remains available as a compatible CommonJS entry point.
+
+The builder is **dry-run-first**: plan and render commands do not write files by default. Productive writes must be enabled explicitly with `--write` and run through the central WritePlan with root, ownership, and conflict checks.
+
+### Product surfaces and responsibilities
+
+| Product surface | Builder responsibility |
+|---|---|
+| XTend Components | Plans and generates components, documentation, tests, fixtures, types, and manifest patches. |
+| XTendRMT | Lints `.rmt` sources and builds core, app, host, diagnostics, and source-map artifacts. |
+| Maraca | Plans, builds, and tunes loaderless modern ESM bundles from RMT sources. |
+| XScaler | Connects the RMT/Maraca output path to the XScaler Preflight and ATC contract; the protocol API itself lives in `tools/rmt-language/xscaler-protocol.js`. |
+| XSurface Shard | Accepts approved remote-surface plans on the server and emits XScaler ATC-compatible handoffs; the runtime lives in the separate `@ccslabs/xtend-xsurface-shard` package. |
+
+XScaler and XSurface Shard are therefore not additional scaffold subcommands. They form an integration boundary of the generated RMT/Maraca product:
+
+```text
+RMT Remote Surface -> XScaler Preflight -> XSurface Shard / ATC-Handoff -> Maraca Runtime
+```
+
+Preflight remains side-effect-free and does not execute remote code. XSurface Shard does not load remote bundles either; the client runtime materializes only previously accepted surfaces. See the [XScaler protocol](../docs/en/xscaler-protocol.md) and [XSurface Shard documentation](../xsurface-shard/README.md) for details.
+
+### Requirements and getting started
+
+- Node.js 18 or newer
+- From the repository: installed workspace dependencies
+- As a package: the optional peer dependencies `@ccslabs/xtend` and `@ccslabs/xtend-compiler` for workflows that need them
+
+```bash
+npm install @ccslabs/xtend-cli
+```
+
+From the repository:
+
+```bash
+node xtend-builder/bin/xt --help
+node xtend-builder/bin/xt validate --json
+```
+
+After installing the package, running `npm link` or `npm exec`, or adding `xtend-builder/bin` to `PATH`:
 
 ```bash
 xt --help
 xt validate --json
-xt component-files --tag x-example --profile display --json
-xt workflow --json
-xt typing --tag x-example --profile display --json
-xt preview --tag x-example --profile display --json
-xt extensions --tag x-example --profile display --json
-xtend validate --json
-xtend-scaffold verify --json
 npx --no-install xt validate --json
-node xtend-builder/scaffold.js --help
-node xtend-builder/scaffold.js layout
-node xtend-builder/scaffold.js layout --json
-node xtend-builder/scaffold.js blueprint --json
-node xtend-builder/scaffold.js generators --json
-node xtend-builder/scaffold.js templates --json
-node xtend-builder/scaffold.js component-plan --tag x-example --profile display --json
-node xtend-builder/scaffold.js component-files --tag x-example --profile display --json
-node xtend-builder/scaffold.js component-files --tag x-example --profile display --write --json
-node xtend-builder/scaffold.js component-files --tag x-example --profile display --check --json
-node xtend-builder/scaffold.js typing --tag x-example --profile display --json
-node xtend-builder/scaffold.js preview --tag x-example --profile display --json
-node xtend-builder/scaffold.js extensions --tag x-example --profile display --json
-node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json
-node xtend-builder/scaffold.js kernel-lab analyze --json
-node xtend-builder/scaffold.js kernel-lab build --profile clean --check --json
-node xtend-builder/scaffold.js kernel-lab build --profile clean --version 0.4.0 --write --json
-node xtend-builder/scaffold.js workflow --json
-node xtend-builder/scaffold.js verify --json
-node scripts/run_xtend_tests.js rmt-compatibility --json
-npm run scaffold -- layout
-npm run scaffold:workflow
-npm run scaffold:verify
-npm run scaffold:dry-run
-npm run scaffold:typing
-npm run scaffold:preview
-npm run scaffold:extensions
 ```
 
-`xt` ist der kurze CLI-Alias fuer dieselbe Scaffold-Implementierung wie `xtend` und `xtend-scaffold`. Nach Package-Installation, `npm link`, `npm exec` oder mit `xtend-builder/bin` im lokalen `PATH` kann der Aufruf direkt als `xt validate --json` erfolgen. `validate` ist ein stabiler Alias fuer `verify`.
+`validate` is a stable alias for `verify`. The complete executable command overview is always available through:
 
-## Projektlayout
+```bash
+node xtend-builder/scaffold.js --help
+```
 
-| Bereich | Pfad | Grenze |
-|---------|------|--------|
-| CLI | `xtend-builder/bin/xt` | paketierter Einstieg fuer `xt`, `xtend` und `xtend-scaffold` |
-| Legacy-CLI | `xtend-builder/scaffold.js` | kompatibler Node-Einstieg fuer bestehende Skripte |
-| CLI-Modul | `xtend-builder/lib/cli.js` | Argumentauswertung und Dispatch ohne Schreiblogik |
-| Layout-Contract | `xtend-builder/lib/layout.js` | maschinenlesbare Struktur fuer Docs, Tests und CLI |
-| Blueprints | `xtend-builder/blueprints/` | Komponenten-Blueprint und Artefaktcontract |
-| Generators | `xtend-builder/generators/` | Generator-Registry, Component-Plan und dry-run Component-Files |
-| Templates | `xtend-builder/templates/` | Template-Registry, Ladepfad und konkrete Pflichtartefakt-Templates |
-| Wiring | `xtend-builder/wiring/` | Manifest-, Hydrations- und Feature-Contracts fuer dry-run Component-Files |
-| Typing | `xtend-builder/typing/` | Type-Contracts fuer `.d.ts` Artefakte und vorbereiteten XTendRMT-Anschluss |
-| Preview | `xtend-builder/preview/` | Preview- und Referenzpfad-Contracts fuer scaffolded Demo-Plaene |
-| Extensions | `xtend-builder/extensions/` | Extension-Point-Contracts fuer Templating, Rendering und Root-Lifecycle |
-| A11y | `xtend-builder/a11y/` | A11y- und Screenreader-Signal-Profilplan fuer neue Komponenten, Fixtures, Docs, Tests, Types und Manifest |
-| Performance | `xtend-builder/performance/` | Performance-Profilplan fuer neue Komponenten, Budgets, Lanes, Hydration und Gates |
-| Workflows | `xtend-builder/workflows/` | lokale Dry-Run-, Verify- und Reporting-Schrittfolgen |
-| Utils | `xtend-builder/utils/` | pure Helfer fuer Naming, Tokenersetzung und Validierung |
-| Writing | `xtend-builder/writing/` | zentraler WritePlan, strukturierte Patcher und kontrollierte Dateischreibpfade fuer produktive Scaffold-Builds |
-| Config | `xtend-builder/scaffold.config.js` | zentrale Profile, Pfade, Testpflicht und Tooling-Entscheidung |
+### Common workflows
 
-## Modulgrenzen
+#### Plan and generate a component
 
-- `lib/` darf CLI-, Layout- und spaeter reine Orchestrierungslogik enthalten.
-- `blueprints/` beschreibt Zielartefakte und Contracts, erzeugt aber nichts selbst.
-- `generators/` enthaelt ab `WP-E03-11` Plan-, Render-, Typing-, Preview- und Extension-Contract-Generatorlogik.
-- `templates/` enthaelt ab `WP-E03-05` konkrete Ausgabetemplates fuer Komponente, Doku, Tests, Fixture, Types und Manifest-Patch-Plan.
-- `wiring/` enthaelt ab `WP-E03-07` reine Builder-Contracts fuer Manifest-Patchplaene, Hydration-Mindestpfade und profilbasierte Feature-Wiring-Patterns.
-- `typing/` enthaelt ab `WP-E03-09` reine Type-Contracts fuer oeffentliche APIs, Events, Attribute und vorbereitete XTendRMT-Adapter-Anbindung.
-- `preview/` enthaelt ab `WP-E03-10` reine Preview- und Reference-Gate-Contracts fuer scaffolded Komponenten.
-- `extensions/` enthaelt ab `WP-E03-11` reine Extension-Point-Contracts fuer Templating, Rendering und Root-Lifecycle.
-- `a11y/` enthaelt ab `ER-WP-23` reine A11y-Profilplaene nach `xtend.a11y.profile.v1`; ab `ER-WP-25` haengt es `xtend.a11y.screenreader-signals.v1` fuer Live-Region-, Status- und Error-Signale an; ab `ER-WP-26` haengt es `xtend.a11y.motion-contrast-policy.v1` fuer Reduced Motion und High Contrast an. Die Schicht erzeugt keine Runtime, sondern verpflichtet neue Artefakte auf Rolle, Namen, Fokus, Keyboard, ARIA, Screenreader, Reduced Motion und Kontrast.
-- `performance/` enthaelt ab `ER-WP-21` reine Performance-Profilplaene nach `xtend.performance.component-profile.v1`; sie erzeugen keine Runtime, sondern verpflichten neue Artefakte auf Budgetklasse, Lane, Hydration Policy, Messpunkte und lokale Gates.
-- `workflows/` enthaelt ab `WP-E03-08` lokale Dry-Run- und Verify-Contracts ohne Schreibzugriff.
-- `utils/` enthaelt nur seiteneffektarme Helfer; Schreibstrategien muessen dry-run-first bleiben.
-- `writing/` enthaelt ab `WP-E17-01` den zentralen WritePlan und Writer fuer kontrollierte Dateioperationen. Produktive Buildbefehle duerfen darueber schreiben, muessen aber weiterhin dry-run-first, reportbar und root-begrenzt bleiben.
-- `component-files --write` nutzt ab `WP-E17-02` das Sidecar `.xtend-build/scaffold-ownership.json` nach `xtend.scaffold.generated-ownership.v1`, damit generierte Dateien idempotent aktualisiert und unowned Dateien ohne `--force` blockiert werden.
-- `manifest-patcher.js` patcht ab `WP-E17-03` `components/manifest.json` als echtes JSON nach `xtend.scaffold.manifest-patcher.v1` und schreibt stabile Build Reports nach `.xtend-build/component-files/`.
-- `rmt-build` uebersetzt ab `WP-E17-04` RMT vNext Templates in Core JSON, XTend Custom Element, App-Modul, HTTP-Host, Browser-Smoke-Fixture und Scaffold Report.
-- `kernel-lab` analysiert den gebuendelten RMT Kernel nach `xtend.scaffold.rmt-kernel-lab.analysis.v1`, schreibt `xtendrmt/rmt-kernel-module-manifest.json` nach `xtend.rmt.kernel-module-manifest.v1` und baut im Profil `clean` die Dashboard-freien Standard-Kernelartefakte.
+```bash
+# Plan and render only
+xt component-plan --tag x-example --profile display --feature state --json
+xt component-files --tag x-example --profile display --feature state --json
 
-## Aktueller Stand
+# Write under safeguards or check for drift
+xt component-files --tag x-example --profile display --feature state --write --json
+xt component-files --tag x-example --profile display --feature state --check --json
 
-Epic 03 ist abgeschlossen. `WP-E03-02` definiert Struktur und Entry Points. `WP-E03-03` definiert den Komponenten-Blueprint und Artefaktcontract. `WP-E03-04` definiert Generator-Registry, Template-Ladepfad, Eingabevalidierung und Plan-Ausgabe. `WP-E03-05` rendert daraus echte Pflichtartefakt-Inhalte im Dry-Run-Modus. `WP-E03-06` ergaenzt deterministisches Manifest-Wiring und den Hydration-Mindestcontract ohne externe Importquellen. `WP-E03-07` ergaenzt State-, API- und Feature-Wiring-Patterns nach Core-Contract. `WP-E03-08` standardisiert lokale Dry-Run-, Verify- und Reporting-Workflows. `WP-E03-09` standardisiert Typ-Artefakte und den vorbereiteten Template-/XTendRMT-Anschluss. `WP-E03-10` bindet Preview- und Referenzpfade an die lokale Reference-Suite an. `WP-E03-11` bereitet Templating-, Rendering- und Root-Lifecycle-Extension-Punkte als Dry-Run-Contract vor. `WP-E03-12` nimmt den Epic gegen KPI, Testpflicht und Erweiterbarkeit final ab. Epic 04 / `WP-E04-08` fuehrt den dedizierten `rmt-compatibility` Gate fuer RMT-kompatible Scaffold-Artefakte ein. `ER-WP-21` erweitert die Scaffold-Ausgaben um Performance-Profilpflichten nach `xtend.performance.component-profile.v1`; `ER-WP-23` erweitert sie um A11y-Profilpflichten nach `xtend.a11y.profile.v1`; `ER-WP-25` fuegt Screenreader-Signal-Contracts nach `xtend.a11y.screenreader-signals.v1` hinzu; `ER-WP-26` fuegt Motion-/Contrast-Policies nach `xtend.a11y.motion-contrast-policy.v1` hinzu.
+# Inspect partial contracts separately
+xt typing --tag x-example --profile display --feature state --json
+xt preview --tag x-example --profile display --feature state --json
+xt extensions --tag x-example --profile display --feature state --json
+```
+
+`component-files --write` tracks generated files through `.xtend-build/scaffold-ownership.json`. Existing files that are not owned by the builder are not overwritten without `--force`. Manifest changes are applied structurally to `components/manifest.json`; build reports are written below `.xtend-build/component-files/`.
+
+#### Validate and build RMT
+
+```bash
+xt rmt lint app.rmt --json
+xt rmt build app.rmt --json
+node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json
+node xtend-builder/scaffold.js rmt-app-platform \
+  --source tests/fixtures/rmt-surface-resource-graph-runtime.rmt \
+  --write --json
+```
+
+The generic `rmt-build` command emits core JSON, an XTend custom element, an app module, an HTTP host, a browser-smoke fixture, and a scaffold report. `rmt-app-platform` adds App Platform diagnostics and source maps.
+
+#### Build a Maraca bundle
+
+```bash
+xt maraca plan app.rmt --json
+xt maraca build app.rmt --out dist --profile production --lazy route --css external --pwa --json
+xt maraca tune app.rmt --config maraca.config.json --out dist --write --json
+
+# The same bundle path under the RMT namespace
+xt rmt build app.rmt --bundle maraca --out dist --json
+```
+
+Maraca compiles the RMT source, discovers the required XTend modules, and emits a loaderless ESM entry point. Profiles and bundling options are documented in the [Maraca documentation](../xtend-maraca/README.md).
+
+#### Analyze and reproducibly build the kernel
+
+```bash
+xt kernel-lab analyze --json
+xt kernel-lab build --profile clean --check --json
+xt kernel-lab build --profile clean --version 0.4.0 --write --json
+```
+
+The `xt rmt kernel-lab ...` alias runs the same path. The `clean` profile builds the dashboard-free standard kernel artifacts and updates the RMT kernel module manifest.
+
+#### Agent and automation output
+
+All central inspect, plan, build, and verify paths support machine-readable JSON output:
+
+```bash
+xt layout --json
+xt config --json
+xt generators --json
+xt templates --json
+xt workflow --json
+xt verify --json
+xt rmt ai-kit export --profile compact --format md --json
+```
+
+### Command groups
+
+| Group | Commands | Behavior |
+|---|---|---|
+| Inspection | `layout`, `config`, `blueprint`, `generators`, `templates` | Prints builder and contract metadata. |
+| Components | `component-plan`, `component-files`, `typing`, `preview`, `extensions` | Plans, renders, and optionally writes component artifacts. |
+| RMT | `rmt build`, `rmt lint`, `rmt ai-kit export`, `rmt-app-platform`, `rmt-lifecycle-demo` | Validates sources and emits app/tooling artifacts. |
+| Maraca | `maraca plan`, `maraca build`, `maraca tune` | Creates and optimizes modern ESM app bundles. |
+| Kernel | `kernel-lab analyze`, `kernel-lab build` | Analyzes and builds the RMT kernel. |
+| Workflow | `workflow`, `verify`, `validate` | Prints local workflow and verification plans; `verify` does not run tests itself. |
+
+### Verifying XScaler and XSurface Shard
+
+The builder currently does not expose an `xt xscaler` command. Dedicated gates validate integrity across product boundaries:
+
+```bash
+npm run test:xscaler-protocol
+npm run test:xscaler-source-to-sea
+npm run test:xsurface-shard
+```
+
+`xscaler-protocol` validates the Preflight, remote-surface, XTension deployment, and ATC schemas. `xscaler-source-to-sea` follows the path from a remote manifest through security/degradation and Preflight to the XSurface Shard handoff. `xsurface-shard` validates planning, lifecycle behavior, and serializable stream fragments.
+
+### Write and security model
+
+- Without `--write`, a build remains a reviewable plan.
+- `--check` reports drift without changing files.
+- Productive commands write exclusively through `xtend-builder/writing/`.
+- WritePlan restricts targets to allowed repository roots.
+- Ownership metadata protects manually created files from accidental overwrites.
+- Structured patchers update JSON artifacts deterministically instead of using text search.
+- XScaler Preflight and XSurface Shard do not execute remote code and do not allow network access during SSR rendering.
+
+### Package and module surface
+
+The package exports the CommonJS CLI entry point, public builder types, and generator and template modules:
+
+```js
+const { runCli, runCliAsync } = require('@ccslabs/xtend-cli');
+```
+
+The package binaries are:
+
+- `xt`
+- `xtend`
+- `xtend-scaffold`
+
+XScaler and XSurface Shard are intentionally not part of this package's JavaScript exports. Use `@ccslabs/xtend-xsurface-shard` for XSurface Shard; the XScaler contract is currently an internal repository RMT-tooling API.
+
+### Project layout
+
+| Area | Path | Responsibility |
+|---|---|---|
+| CLI | `xtend-builder/bin/xt`, `xtend-builder/lib/cli.js` | Packaged entry point, argument parsing, and dispatch |
+| Legacy entry point | `xtend-builder/scaffold.js` | Compatibility for existing Node.js scripts |
+| Configuration | `xtend-builder/scaffold.config.js` | Profiles, paths, test obligations, and tooling decisions |
+| Blueprints | `xtend-builder/blueprints/` | Component and artifact contracts |
+| Generators | `xtend-builder/generators/` | Component, RMT, App Platform, and kernel plans |
+| Templates | `xtend-builder/templates/` | Component and app output templates |
+| Wiring | `xtend-builder/wiring/` | Manifest, hydration, and feature contracts |
+| Typing | `xtend-builder/typing/` | Public types and RMT attachments |
+| Preview / Extensions | `xtend-builder/preview/`, `xtend-builder/extensions/` | Reference paths and extension points |
+| Quality profiles | `xtend-builder/a11y/`, `xtend-builder/performance/` | Accessibility and performance obligations for generated artifacts |
+| Workflows | `xtend-builder/workflows/` | Dry-run and verification plans |
+| Writing | `xtend-builder/writing/` | WritePlan, ownership, reports, and structured patchers |
+| Utilities | `xtend-builder/utils/` | Low-side-effect validation and naming helpers |
+
+The machine-readable version of the layout is available through:
+
+```bash
+node xtend-builder/scaffold.js layout --json
+```
+
+### Local verification
+
+For changes to this README or to CLI/builder contracts:
+
+```bash
+node xtend-builder/scaffold.js verify --json
+npm run test:scoped-package-readmes
+node scripts/run_xtend_tests.js references scaffold-write-plan scaffold-component-write scaffold-manifest-patch scaffold-rmt-build scaffold-kernel-lab --json
+```
+
+`npm test` remains the complete gate before a release handoff. `verify` only prints the appropriate verification plan; it does not execute the listed suites.
+
+### License
+
+Licensed under the Apache License 2.0. See [LICENSE](../LICENSE).
+
+### Historical contract
+
+Epic 03 established XTend-Scaffold as a **generator-only**, dry-run-first build environment: `WP-E03-03` defined the blueprint, `WP-E03-06` manifest and hydration, `WP-E03-07` feature wiring, `WP-E03-08` workflows, `WP-E03-09` typing, `WP-E03-10` preview, `WP-E03-11` extension points, and `WP-E03-12` the closure. Epic 17 added productive, controlled write paths through WritePlan, ownership, and structured patchers. The term `generator-only` therefore describes the historical Epic 03 contract, not the current overall scope of the CLI.
+
+[Back to top](#xtend-builder-cli) · [Deutsch](#deutsch)
+
+---
+
+<a id="deutsch"></a>
+
+## Deutsch
+
+[English](#english) | **Deutsch**
+
+`@ccslabs/xtend-cli` ist die gemeinsame Kommandozeile für Komponenten-Scaffolding, RMT-Tooling und Maraca-Builds im XTend-Workspace. Die ausführbaren Namen `xt`, `xtend` und `xtend-scaffold` zeigen auf dieselbe Implementierung. `xtend-builder/scaffold.js` bleibt als kompatibler CommonJS-Einstieg erhalten.
+
+Der Builder ist **dry-run-first**: Plan- und Renderbefehle schreiben standardmäßig keine Dateien. Produktive Schreibvorgänge müssen explizit mit `--write` aktiviert werden und laufen über den zentralen WritePlan mit Root-, Ownership- und Konfliktprüfung.
+
+### Produktflächen und Verantwortung
+
+| Produktfläche | Rolle des Builders |
+|---|---|
+| XTend Components | Plant und erzeugt Komponenten, Dokumentation, Tests, Fixtures, Typen und Manifest-Patches. |
+| XTendRMT | Lintet `.rmt`-Quellen und baut Core-, App-, Host-, Diagnose- und Source-Map-Artefakte. |
+| Maraca | Plant, baut und tuned loaderlose Modern-ESM-Bundles aus RMT-Quellen. |
+| XScaler | Bindet den RMT-/Maraca-Ausgabepfad an den XScaler-Preflight- und ATC-Vertrag; die Protokoll-API selbst liegt in `tools/rmt-language/xscaler-protocol.js`. |
+| XSurface Shard | Übernimmt akzeptierte Remote-Surface-Pläne serverseitig und erzeugt XScaler-ATC-kompatible Handoffs; die Runtime liegt im separaten Paket `@ccslabs/xtend-xsurface-shard`. |
+
+XScaler und XSurface Shard sind damit keine zusätzlichen Scaffold-Unterbefehle. Sie bilden eine Integrationsgrenze des erzeugten RMT-/Maraca-Produkts:
+
+```text
+RMT Remote Surface -> XScaler Preflight -> XSurface Shard / ATC-Handoff -> Maraca Runtime
+```
+
+Der Preflight bleibt seiteneffektfrei und führt keinen Remote-Code aus. XSurface Shard lädt ebenfalls keine Remote-Bundles; die Client-Runtime materialisiert nur zuvor akzeptierte Surfaces. Details stehen im [XScaler-Protokoll](../docs/de/xscaler-protocol.md) und in der [XSurface-Shard-Dokumentation](../xsurface-shard/README.md).
+
+### Voraussetzungen und Einstieg
+
+- Node.js 18 oder neuer
+- Aus dem Repository: installierte Workspace-Abhängigkeiten
+- Als Paket: optionale Peer-Abhängigkeiten `@ccslabs/xtend` und `@ccslabs/xtend-compiler` für die jeweils benötigten Workflows
+
+```bash
+npm install @ccslabs/xtend-cli
+```
+
+Repo-lokal:
+
+```bash
+node xtend-builder/bin/xt --help
+node xtend-builder/bin/xt validate --json
+```
+
+Nach Package-Installation, `npm link`, `npm exec` oder mit `xtend-builder/bin` im `PATH`:
+
+```bash
+xt --help
+xt validate --json
+npx --no-install xt validate --json
+```
+
+`validate` ist ein stabiler Alias für `verify`. Die vollständige, ausführbare Befehlsübersicht liefert immer:
+
+```bash
+node xtend-builder/scaffold.js --help
+```
+
+### Häufige Workflows
+
+#### Komponente planen und erzeugen
+
+```bash
+# Nur planen und rendern
+xt component-plan --tag x-example --profile display --feature state --json
+xt component-files --tag x-example --profile display --feature state --json
+
+# Kontrolliert schreiben oder auf Drift prüfen
+xt component-files --tag x-example --profile display --feature state --write --json
+xt component-files --tag x-example --profile display --feature state --check --json
+
+# Teilverträge separat inspizieren
+xt typing --tag x-example --profile display --feature state --json
+xt preview --tag x-example --profile display --feature state --json
+xt extensions --tag x-example --profile display --feature state --json
+```
+
+`component-files --write` verwaltet generierte Dateien über `.xtend-build/scaffold-ownership.json`. Bereits vorhandene, nicht vom Builder verwaltete Dateien werden ohne `--force` nicht überschrieben. Manifest-Änderungen werden strukturiert auf `components/manifest.json` angewendet; Build Reports landen unter `.xtend-build/component-files/`.
+
+#### RMT prüfen und bauen
+
+```bash
+xt rmt lint app.rmt --json
+xt rmt build app.rmt --json
+node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json
+node xtend-builder/scaffold.js rmt-app-platform \
+  --source tests/fixtures/rmt-surface-resource-graph-runtime.rmt \
+  --write --json
+```
+
+Der generische `rmt-build` erzeugt Core JSON, XTend Custom Element, App-Modul, HTTP-Host, Browser-Smoke-Fixture und Scaffold Report. `rmt-app-platform` ergänzt App-Platform-Diagnosen und Source Maps.
+
+#### Maraca-Bundle bauen
+
+```bash
+xt maraca plan app.rmt --json
+xt maraca build app.rmt --out dist --profile production --lazy route --css external --pwa --json
+xt maraca tune app.rmt --config maraca.config.json --out dist --write --json
+
+# Derselbe Bundle-Pfad unter dem RMT-Namespace
+xt rmt build app.rmt --bundle maraca --out dist --json
+```
+
+Maraca kompiliert die RMT-Quelle, ermittelt benötigte XTend-Module und erzeugt einen loaderlosen ESM-Einstieg. Profile und Bundling-Optionen sind in der [Maraca-Dokumentation](../xtend-maraca/README.md) beschrieben.
+
+#### Kernel analysieren und reproduzierbar bauen
+
+```bash
+xt kernel-lab analyze --json
+xt kernel-lab build --profile clean --check --json
+xt kernel-lab build --profile clean --version 0.4.0 --write --json
+```
+
+Der Alias `xt rmt kernel-lab ...` führt denselben Pfad aus. Das Profil `clean` baut die Dashboard-freien Standard-Kernelartefakte und aktualisiert das RMT-Kernel-Modulmanifest.
+
+#### Agenten- und Automationsausgabe
+
+Alle zentralen Inspect-, Plan-, Build- und Verify-Pfade unterstützen maschinenlesbare JSON-Ausgabe:
+
+```bash
+xt layout --json
+xt config --json
+xt generators --json
+xt templates --json
+xt workflow --json
+xt verify --json
+xt rmt ai-kit export --profile compact --format md --json
+```
+
+### Befehlsgruppen
+
+| Gruppe | Befehle | Verhalten |
+|---|---|---|
+| Inspektion | `layout`, `config`, `blueprint`, `generators`, `templates` | Gibt Builder- und Contract-Metadaten aus. |
+| Komponenten | `component-plan`, `component-files`, `typing`, `preview`, `extensions` | Plant, rendert und optional schreibt Komponentenartefakte. |
+| RMT | `rmt build`, `rmt lint`, `rmt ai-kit export`, `rmt-app-platform`, `rmt-lifecycle-demo` | Prüft Quellen und erzeugt App-/Tooling-Artefakte. |
+| Maraca | `maraca plan`, `maraca build`, `maraca tune` | Erzeugt und optimiert Modern-ESM-App-Bundles. |
+| Kernel | `kernel-lab analyze`, `kernel-lab build` | Analysiert und baut den RMT-Kernel. |
+| Workflow | `workflow`, `verify`, `validate` | Liefert lokale Arbeits- und Prüfpläne; führt bei `verify` noch keine Tests aus. |
+
+### XScaler und XSurface Shard verifizieren
+
+Der Builder stellt aktuell keinen `xt xscaler`-Befehl bereit. Die produktübergreifende Integrität wird über dedizierte Gates geprüft:
+
+```bash
+npm run test:xscaler-protocol
+npm run test:xscaler-source-to-sea
+npm run test:xsurface-shard
+```
+
+Dabei prüft `xscaler-protocol` die Preflight-, Remote-Surface-, XTension-Deployment- und ATC-Schemas. `xscaler-source-to-sea` verfolgt den Weg vom Remote Manifest über Security/Degradation und Preflight bis zum XSurface-Shard-Handoff. `xsurface-shard` prüft Planung, Lifecycle und serialisierbare Stream-Fragmente.
+
+### Schreib- und Sicherheitsmodell
+
+- Ohne `--write` bleibt ein Build ein reviewbarer Plan.
+- `--check` meldet Drift, ohne Dateien zu verändern.
+- Produktive Befehle schreiben ausschließlich über `xtend-builder/writing/`.
+- Der WritePlan begrenzt Ziele auf erlaubte Repository-Roots.
+- Ownership-Metadaten schützen manuell angelegte Dateien vor unbeabsichtigtem Überschreiben.
+- Strukturierte Patcher ändern JSON-Artefakte deterministisch statt per Textsuche.
+- XScaler-Preflight und XSurface Shard führen keinen Remote-Code aus und erlauben kein Netzwerk während des SSR-Renderings.
+
+### Paket- und Moduloberfläche
+
+Das Paket exportiert den CommonJS-CLI-Einstieg, öffentliche Builder-Typen sowie Generator- und Template-Module:
+
+```js
+const { runCli, runCliAsync } = require('@ccslabs/xtend-cli');
+```
+
+Die Paket-Binaries sind:
+
+- `xt`
+- `xtend`
+- `xtend-scaffold`
+
+XScaler und XSurface Shard gehören bewusst nicht zur JavaScript-Exportfläche dieses Pakets. Verwende für XSurface Shard `@ccslabs/xtend-xsurface-shard`; der XScaler-Vertrag ist derzeit eine repo-interne RMT-Tooling-API.
+
+### Projektlayout
+
+| Bereich | Pfad | Verantwortung |
+|---|---|---|
+| CLI | `xtend-builder/bin/xt`, `xtend-builder/lib/cli.js` | Paketierter Einstieg, Argumentauswertung und Dispatch |
+| Legacy-Einstieg | `xtend-builder/scaffold.js` | Kompatibilität für bestehende Node-Skripte |
+| Konfiguration | `xtend-builder/scaffold.config.js` | Profile, Pfade, Testpflichten und Tooling-Entscheidungen |
+| Blueprints | `xtend-builder/blueprints/` | Komponenten- und Artefaktverträge |
+| Generatoren | `xtend-builder/generators/` | Komponenten-, RMT-, App-Platform- und Kernel-Pläne |
+| Templates | `xtend-builder/templates/` | Komponenten- und App-Ausgabetemplates |
+| Wiring | `xtend-builder/wiring/` | Manifest-, Hydrations- und Feature-Verträge |
+| Typing | `xtend-builder/typing/` | Öffentliche Typen und RMT-Anbindungen |
+| Preview / Extensions | `xtend-builder/preview/`, `xtend-builder/extensions/` | Referenzpfade und Erweiterungspunkte |
+| Qualitätsprofile | `xtend-builder/a11y/`, `xtend-builder/performance/` | A11y- und Performance-Pflichten für erzeugte Artefakte |
+| Workflows | `xtend-builder/workflows/` | Dry-Run- und Verify-Pläne |
+| Schreiben | `xtend-builder/writing/` | WritePlan, Ownership, Reports und strukturierte Patcher |
+| Hilfen | `xtend-builder/utils/` | Seiteneffektarme Validierungs- und Naming-Helfer |
+
+Die maschinenlesbare Fassung des Layouts ist verfügbar über:
+
+```bash
+node xtend-builder/scaffold.js layout --json
+```
+
+### Lokale Verifikation
+
+Für eine Änderung an dieser README oder an CLI-/Builder-Verträgen:
+
+```bash
+node xtend-builder/scaffold.js verify --json
+npm run test:scoped-package-readmes
+node scripts/run_xtend_tests.js references scaffold-write-plan scaffold-component-write scaffold-manifest-patch scaffold-rmt-build scaffold-kernel-lab --json
+```
+
+Vor einem Release-Handoff bleibt `npm test` das vollständige Gate. `verify` gibt lediglich den passenden Prüfplan aus; es führt die gelisteten Suites nicht selbst aus.
+
+### Lizenz
+
+Lizenziert unter der Apache License 2.0. Siehe [LICENSE](../LICENSE).
+
+### Historischer Contract
+
+Epic 03 etablierte XTend-Scaffold als **generator-only**, dry-run-first Build-Environment: `WP-E03-03` definierte den Blueprint, `WP-E03-06` Manifest und Hydration, `WP-E03-07` Feature-Wiring, `WP-E03-08` Workflows, `WP-E03-09` Typing, `WP-E03-10` Preview, `WP-E03-11` Extension Points und `WP-E03-12` den Abschluss. Epic 17 ergänzte über WritePlan, Ownership und strukturierte Patcher produktive, kontrollierte Schreibpfade. Der Begriff `generator-only` beschreibt deshalb den historischen Epic-03-Contract, nicht den heutigen Gesamtumfang der CLI.
+
+[Nach oben](#xtend-builder-cli) · [English](#english)
