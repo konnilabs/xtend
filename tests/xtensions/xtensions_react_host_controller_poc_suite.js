@@ -42,6 +42,7 @@ const {
   XTENSIONS_REACT_HOST_CONTROLLER_REPORT_SCHEMA,
   XTENSIONS_REACT_RENDER_RECORD_SCHEMA,
   XTENSIONS_REACT_SCHEDULING_DECISION_SCHEMA,
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   assertReactPocDependencyBoundary,
   createFrameworklessReactHostControllerPoc,
   createReactHostControllerPocContract,
@@ -49,6 +50,7 @@ const {
   createReactRuntimeAdapterRecord,
   decideReactSchedulingHint,
   inspectReactPayloadBoundary,
+  resolveHostResourceCleanupSchema,
   serializeReactHostControllerPocReport
 } = require('../../tools/xtensions/react-host-controller-poc');
 
@@ -57,6 +59,9 @@ const ARCHITECTURE_CONTRACT_PATH = 'development/XTensions-Architecture-and-Threa
 const HOST_CONTROLLER_CONTRACT_PATH = 'development/XTensions-HostController-Lifecycle-Contract.md';
 const SIGNAL_BRIDGE_CONTRACT_PATH = 'development/XTensions-Signal-Bridge-and-Event-Governance-Contract.md';
 const RUNTIME_REGISTRY_CONTRACT_PATH = 'development/XTensions-Runtime-Capability-Registry-and-Loading-Policy-Contract.md';
+const HOST_RESOURCE_CLEANUP_FIELDS = Object.freeze([
+  'hostId', 'resource', 'schema', 'sequence', 'status', 'surfaceId', 'timestamp', 'xtensionId'
+]);
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -120,6 +125,13 @@ function runXTensionsReactHostControllerPocSuite(options = {}) {
   context.assert(!moduleText.includes('rendered.schema'), 'React render callers do not infer blocked results from schema presence');
   context.assert(moduleText.includes('Deterministic key order for report serialization'), 'React report serialization documents deterministic key order');
   context.assert(moduleText.includes('legacy HostController diagnostic alias'), 'React diagnostics document legacy details alias');
+  context.assert(typesText.includes('HostResourceCleanupRecord[]'), 'React declarations expose the precise shared cleanup record type');
+  const reactCleanupAlias = resolveHostResourceCleanupSchema('xtend.xtensions.react-host-controller-cleanup-record.v1');
+  context.assert(
+    reactCleanupAlias && reactCleanupAlias.canonicalSchemaId === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA
+      && reactCleanupAlias.isLegacy === true && reactCleanupAlias.deprecated === true,
+    'React module exports the shared legacy cleanup resolver'
+  );
 
   context.assert(metadata && metadata.schema === XTENSIONS_REACT_HOST_CONTROLLER_POC_SCHEMA, 'package metadata declares React HostController PoC schema');
   context.assert(metadata && metadata.contractSchema === XTENSIONS_REACT_HOST_CONTROLLER_CONTRACT_SCHEMA, 'package metadata declares React HostController contract schema');
@@ -258,6 +270,8 @@ function runXTensionsReactHostControllerPocSuite(options = {}) {
   const unmount = hostController.unmount('suite-complete');
   context.assert(unmount.status === 'ok', 'React frameworkless HostController PoC unmounts');
   context.assert(unmount.cleanupRecords.length >= 4, 'React frameworkless HostController PoC releases cleanup resources');
+  context.assert(unmount.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'React cleanup producer emits only the canonical cleanup schema');
+  context.assert(unmount.cleanupRecords.every((record) => JSON.stringify(Object.keys(record).sort()) === JSON.stringify(HOST_RESOURCE_CLEANUP_FIELDS)), 'React cleanup producer emits the shared eight-field shape');
   const unmountAgain = hostController.unmount('suite-complete-repeat');
   context.assert(unmountAgain.status === 'skipped', 'React frameworkless HostController PoC unmount is idempotent');
   const snapshot = hostController.snapshot();
@@ -278,6 +292,7 @@ function runXTensionsReactHostControllerPocSuite(options = {}) {
   context.assert(report.schedulingDecisions.some((decision) => decision.hint === 'suspense-placeholder-hint'), 'React PoC report includes suspense placeholder hint');
   context.assert(report.boundaryRecords.some((record) => record.kind === 'suspense'), 'React PoC report includes Suspense boundary record');
   context.assert(report.cleanupRecords.length > 0, 'React PoC report includes cleanup records');
+  context.assert(report.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'React PoC report contains only canonical cleanup records');
 
   const serialized = serializeReactHostControllerPocReport(report);
   const repeat = serializeReactHostControllerPocReport(createReactHostControllerPocReport(fixture, { clock: createClock() }));

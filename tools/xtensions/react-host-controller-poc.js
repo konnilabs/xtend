@@ -8,6 +8,11 @@ const {
   normalizeHostControllerResult
 } = require('./host-controller-contract');
 const {
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
+  createHostResourceCleanupRecord,
+  resolveHostResourceCleanupSchema
+} = require('./host-resource-cleanup-record');
+const {
   XTENSIONS_RUNTIME_CAPABILITY_REGISTRY_SCHEMA,
   createXTensionsRuntimeCapabilityRegistry,
   createXTensionsRuntimeReport,
@@ -661,16 +666,14 @@ function createFrameworklessReactHostControllerPoc(options = {}) {
       state.destroyed = true;
       root.mounted = false;
       cleanupResources.forEach((resource, index) => {
-        cleanupRecords.push({
-          schema: 'xtend.xtensions.react-host-controller-cleanup-record.v1',
+        cleanupRecords.push(createHostResourceCleanupRecord({
           hostId,
           surfaceId,
           xtensionId,
           resource,
-          status: 'released',
           sequence: index + 1,
           timestamp: timestampFromOptions(options)
-        });
+        }));
       });
       const lifecycleRecord = pushLifecycle('unmount', 'ok', { reason, cleanupResources: cleanupResources.slice() });
       return createResult('unmount', 'ok', hostId, surfaceId, lifecycleRecord, {
@@ -856,6 +859,7 @@ module.exports = {
   XTENSIONS_REACT_HOST_CONTROLLER_REPORT_SCHEMA,
   XTENSIONS_REACT_RENDER_RECORD_SCHEMA,
   XTENSIONS_REACT_SCHEDULING_DECISION_SCHEMA,
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   assertReactPocDependencyBoundary,
   createFrameworklessReactHostControllerPoc,
   createReactHostControllerPocContract,
@@ -864,5 +868,6 @@ module.exports = {
   createReactRuntimeAdapterRecord,
   decideReactSchedulingHint,
   inspectReactPayloadBoundary,
+  resolveHostResourceCleanupSchema,
   serializeReactHostControllerPocReport
 };

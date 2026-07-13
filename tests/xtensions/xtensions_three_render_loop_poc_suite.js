@@ -56,6 +56,7 @@ const {
   XTENSIONS_THREE_RENDER_LOOP_POC_TYPES_PATH,
   XTENSIONS_THREE_RENDER_LOOP_POC_WORKPACKAGE,
   XTENSIONS_THREE_RENDER_LOOP_REPORT_SCHEMA,
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   assertThreeRenderLoopDependencyBoundary,
   createFrameworklessThreeRenderLoopPoc,
   createThreeBrowserSmokeRecord,
@@ -66,8 +67,13 @@ const {
   createThreeRenderLoopPocReport,
   createThreeRuntimeAdapterRecord,
   inspectThreePayloadBoundary,
+  resolveHostResourceCleanupSchema,
   serializeThreeRenderLoopPocReport
 } = require('../../tools/xtensions/three-render-loop-poc');
+
+const HOST_RESOURCE_CLEANUP_FIELDS = Object.freeze([
+  'hostId', 'resource', 'schema', 'sequence', 'status', 'surfaceId', 'timestamp', 'xtensionId'
+]);
 
 const BACKLOG_PATH = 'development/BACKLOG-XTensions-Framework-Integration-Oekosystem.md';
 const ARCHITECTURE_CONTRACT_PATH = 'development/XTensions-Architecture-and-Threat-Model-Contract.md';
@@ -136,6 +142,13 @@ function runXTensionsThreeRenderLoopPocSuite(options = {}) {
   assertFileExists(context, XTENSIONS_THREE_RENDER_LOOP_POC_FIXTURE_PATH, rootDir, 'XTensions Three render loop PoC fixture exists');
   context.assert(moduleSyntax.ok, `XTensions Three render loop PoC module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `XTensions Three render loop PoC suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
+  context.assert(typesText.includes('HostResourceCleanupRecord[]'), 'Three declarations expose the precise shared cleanup record type');
+  const threeCleanupAlias = resolveHostResourceCleanupSchema('xtend.xtensions.three-cleanup-record.v1');
+  context.assert(
+    threeCleanupAlias && threeCleanupAlias.canonicalSchemaId === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA
+      && threeCleanupAlias.isLegacy === true && threeCleanupAlias.deprecated === true,
+    'Three module exports the shared legacy cleanup resolver'
+  );
 
   context.assert(metadata && metadata.schema === XTENSIONS_THREE_RENDER_LOOP_POC_SCHEMA, 'package metadata declares Three render loop PoC schema');
   context.assert(metadata && metadata.contractSchema === XTENSIONS_THREE_RENDER_LOOP_CONTRACT_SCHEMA, 'package metadata declares Three render loop contract schema');
@@ -395,6 +408,8 @@ function runXTensionsThreeRenderLoopPocSuite(options = {}) {
   context.assert(interactionLeak.status === 'failed' && diagnosticCodes(interactionLeak).includes(THREE_POC_API_LEAK_CODE), 'Three HostController blocks native mesh leak');
   const unmount = hostController.unmount('suite-complete');
   context.assert(unmount.status === 'ok' && unmount.cleanupRecords.length >= DEFAULT_THREE_CLEANUP_RESOURCES.length, 'Three HostController releases WebGL cleanup resources');
+  context.assert(unmount.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'Three cleanup producer emits only the canonical cleanup schema');
+  context.assert(unmount.cleanupRecords.every((record) => JSON.stringify(Object.keys(record).sort()) === JSON.stringify(HOST_RESOURCE_CLEANUP_FIELDS)), 'Three cleanup producer emits the shared eight-field shape');
   const smokeAfterUnmount = hostController.browserSmoke({ nonBlankPixels: 192, interactionCount: 1, cleanupVerified: true });
   context.assert(smokeAfterUnmount.ok === true, 'Three HostController records browser smoke after cleanup');
   const unmountAgain = hostController.unmount('suite-complete-repeat');
@@ -424,6 +439,7 @@ function runXTensionsThreeRenderLoopPocSuite(options = {}) {
   context.assert(report.diagnostics.some((diagnostic) => diagnostic.code === THREE_POC_BACKPRESSURE_CODE && diagnostic.severity === 'warning'), 'Three render loop report includes backpressure warning');
   context.assert(report.diagnostics.some((diagnostic) => diagnostic.code === THREE_POC_CONTEXT_LOST_CODE && diagnostic.severity === 'warning'), 'Three render loop report includes context loss warning');
   context.assert(report.cleanupRecords.length >= DEFAULT_THREE_CLEANUP_RESOURCES.length, 'Three render loop report includes cleanup records');
+  context.assert(report.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'Three render loop report contains only canonical cleanup records');
   context.assert(report.snapshot.freeRunningLoopExternalized === false, 'report keeps free-running loop internal');
   context.assert(report.snapshot.threeRuntimeImported === false, 'report keeps Three runtime external');
 

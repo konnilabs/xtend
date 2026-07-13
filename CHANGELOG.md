@@ -2,6 +2,12 @@
 
 Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend ist fuer RC1-Publish-Prep auf `private: false` geoeffnet; der eigentliche Publish-Befehl bleibt ein separater manueller Owner-Schritt.
 
+## Unreleased
+
+- SchemaDB v2 ergaenzt authoritative Fingerprints, Versionsfamilien, Lifecycle-, Alias- und Konsolidierungsentscheidungen sowie einen maschinenlesbaren Dubletten-Audit.
+- Die identischen Chart-, Leaflet-, React-, Three- und Vue-Cleanup-Records werden unter `xtend.xtensions.host-resource-cleanup-record.v1` gebuendelt. Die bisherigen IDs bleiben fuer zwei Minor-Warnfenster als exakte Aliase lesbar; ihre Entfernung ist fruehestens in einem folgenden Major erlaubt.
+- `xtend.xtensions.host-controller-cleanup-record.v1` bleibt als separater sechs-feldriger Vertrag ohne `xtensionId` bestehen.
+
 ## 0.1.0-rc.1 Test-Build - 2026-05-16
 
 - Ersten lokalen RC1-Test-Build-Schnitt unter `xtend.rc1.test-build-handoff.v1` dokumentiert.

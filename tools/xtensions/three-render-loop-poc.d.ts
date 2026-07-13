@@ -1,3 +1,17 @@
+import type { HostResourceCleanupRecord } from './host-resource-cleanup-record';
+
+export type {
+  HostResourceCleanupLegacySchemaId,
+  HostResourceCleanupRecord,
+  HostResourceCleanupRecordInput,
+  HostResourceCleanupSchemaId,
+  HostResourceCleanupSchemaResolution
+} from './host-resource-cleanup-record';
+export {
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
+  resolveHostResourceCleanupSchema
+} from './host-resource-cleanup-record';
+
 export interface ThreePocDiagnostic {
   code: string;
   message: string;
@@ -139,7 +153,7 @@ export interface FrameworklessThreeRenderLoopPoc {
   getFrameRecords(): ThreeFrameRecord[];
   getContextLossRecords(): ThreeContextLossRecord[];
   getBrowserSmokeRecords(): ThreeBrowserSmokeRecord[];
-  getCleanupRecords(): Record<string, unknown>[];
+  getCleanupRecords(): HostResourceCleanupRecord[];
 }
 
 export interface ThreeRenderLoopPocReport {
@@ -169,7 +183,7 @@ export interface ThreeRenderLoopPocReport {
   frameRecords: ThreeFrameRecord[];
   contextLossRecords: ThreeContextLossRecord[];
   browserSmokeRecords: ThreeBrowserSmokeRecord[];
-  cleanupRecords: Record<string, unknown>[];
+  cleanupRecords: HostResourceCleanupRecord[];
   dependencyBoundary: Record<string, unknown>;
   diagnostics: ThreePocDiagnostic[];
   timestamp: string;

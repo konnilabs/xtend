@@ -1,3 +1,17 @@
+import type { HostResourceCleanupRecord } from './host-resource-cleanup-record';
+
+export type {
+  HostResourceCleanupLegacySchemaId,
+  HostResourceCleanupRecord,
+  HostResourceCleanupRecordInput,
+  HostResourceCleanupSchemaId,
+  HostResourceCleanupSchemaResolution
+} from './host-resource-cleanup-record';
+export {
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
+  resolveHostResourceCleanupSchema
+} from './host-resource-cleanup-record';
+
 export interface ImperativePocDiagnostic {
   code: string;
   message: string;
@@ -120,7 +134,7 @@ export interface FrameworklessChartHostControllerPoc {
   getUpdateRecords(): ChartUpdateRecord[];
   getResizeRecords(): ImperativeResizeRecord[];
   getVisibilityRecords(): ImperativeVisibilityRecord[];
-  getCleanupRecords(): Record<string, unknown>[];
+  getCleanupRecords(): HostResourceCleanupRecord[];
 }
 
 export interface FrameworklessLeafletHostControllerPoc {
@@ -139,7 +153,7 @@ export interface FrameworklessLeafletHostControllerPoc {
   getEventRecords(): LeafletEventRecord[];
   getResizeRecords(): ImperativeResizeRecord[];
   getVisibilityRecords(): ImperativeVisibilityRecord[];
-  getCleanupRecords(): Record<string, unknown>[];
+  getCleanupRecords(): HostResourceCleanupRecord[];
 }
 
 export interface ImperativeHostPocReport {
@@ -168,7 +182,7 @@ export interface ImperativeHostPocReport {
   leafletEventRecords: LeafletEventRecord[];
   resizeRecords: ImperativeResizeRecord[];
   visibilityRecords: ImperativeVisibilityRecord[];
-  cleanupRecords: Record<string, unknown>[];
+  cleanupRecords: HostResourceCleanupRecord[];
   dependencyBoundary: Record<string, unknown>;
   diagnostics: ImperativePocDiagnostic[];
   timestamp: string;

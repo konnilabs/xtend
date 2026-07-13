@@ -52,6 +52,7 @@ const {
   XTENSIONS_IMPERATIVE_RESIZE_RECORD_SCHEMA,
   XTENSIONS_IMPERATIVE_VISIBILITY_RECORD_SCHEMA,
   XTENSIONS_LEAFLET_EVENT_RECORD_SCHEMA,
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   assertImperativePocDependencyBoundary,
   createChartRuntimeAdapterRecord,
   createChartUpdateRecord,
@@ -64,14 +65,38 @@ const {
   inspectImperativePayloadBoundary,
   normalizeResizeRecord,
   normalizeVisibilityRecord,
+  resolveHostResourceCleanupSchema,
   serializeImperativeHostPocReport
 } = require('../../tools/xtensions/imperative-host-pocs');
+const {
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_LEGACY_SCHEMA_IDS,
+  createHostResourceCleanupRecord
+} = require('../../tools/xtensions/host-resource-cleanup-record');
 
 const BACKLOG_PATH = 'development/BACKLOG-XTensions-Framework-Integration-Oekosystem.md';
 const ARCHITECTURE_CONTRACT_PATH = 'development/XTensions-Architecture-and-Threat-Model-Contract.md';
 const HOST_CONTROLLER_CONTRACT_PATH = 'development/XTensions-HostController-Lifecycle-Contract.md';
 const SIGNAL_BRIDGE_CONTRACT_PATH = 'development/XTensions-Signal-Bridge-and-Event-Governance-Contract.md';
 const RUNTIME_REGISTRY_CONTRACT_PATH = 'development/XTensions-Runtime-Capability-Registry-and-Loading-Policy-Contract.md';
+const HOST_RESOURCE_CLEANUP_MODULE_PATH = 'tools/xtensions/host-resource-cleanup-record.js';
+const HOST_RESOURCE_CLEANUP_TYPES_PATH = 'tools/xtensions/host-resource-cleanup-record.d.ts';
+const HOST_RESOURCE_CLEANUP_FIELDS = Object.freeze([
+  'hostId',
+  'resource',
+  'schema',
+  'sequence',
+  'status',
+  'surfaceId',
+  'timestamp',
+  'xtensionId'
+]);
+const EXPECTED_LEGACY_CLEANUP_SCHEMAS = Object.freeze([
+  'xtend.xtensions.chart-cleanup-record.v1',
+  'xtend.xtensions.leaflet-cleanup-record.v1',
+  'xtend.xtensions.react-host-controller-cleanup-record.v1',
+  'xtend.xtensions.three-cleanup-record.v1',
+  'xtend.xtensions.vue-host-controller-cleanup-record.v1'
+]);
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -120,6 +145,7 @@ function runXTensionsImperativeHostPocsSuite(options = {}) {
   const typesText = readText(XTENSIONS_IMPERATIVE_HOST_POCS_TYPES_PATH, rootDir);
   const fixtureText = readText(XTENSIONS_IMPERATIVE_HOST_POCS_FIXTURE_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(XTENSIONS_IMPERATIVE_HOST_POCS_MODULE_PATH, { rootDir, extension: '.js' });
+  const cleanupModuleSyntax = syntaxCheckFile(HOST_RESOURCE_CLEANUP_MODULE_PATH, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(XTENSIONS_IMPERATIVE_HOST_POCS_SUITE_PATH, { rootDir, extension: '.js' });
 
   assertFileExists(context, BACKLOG_PATH, rootDir, 'XTensions backlog exists');
@@ -132,8 +158,45 @@ function runXTensionsImperativeHostPocsSuite(options = {}) {
   assertFileExists(context, XTENSIONS_IMPERATIVE_HOST_POCS_TYPES_PATH, rootDir, 'XTensions imperative host PoCs types exist');
   assertFileExists(context, XTENSIONS_IMPERATIVE_HOST_POCS_SUITE_PATH, rootDir, 'XTensions imperative host PoCs suite exists');
   assertFileExists(context, XTENSIONS_IMPERATIVE_HOST_POCS_FIXTURE_PATH, rootDir, 'XTensions imperative host PoCs fixture exists');
+  assertFileExists(context, HOST_RESOURCE_CLEANUP_MODULE_PATH, rootDir, 'shared host resource cleanup module exists');
+  assertFileExists(context, HOST_RESOURCE_CLEANUP_TYPES_PATH, rootDir, 'shared host resource cleanup types exist');
   context.assert(moduleSyntax.ok, `XTensions imperative host PoCs module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
+  context.assert(cleanupModuleSyntax.ok, `shared host resource cleanup module syntax passes${cleanupModuleSyntax.ok ? '' : ` (${cleanupModuleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `XTensions imperative host PoCs suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
+  context.assert(typesText.includes('HostResourceCleanupRecord[]'), 'imperative host declarations expose precise shared cleanup record types');
+
+  context.assert(
+    JSON.stringify(XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_LEGACY_SCHEMA_IDS) === JSON.stringify(EXPECTED_LEGACY_CLEANUP_SCHEMAS),
+    'shared cleanup contract declares exactly the five migrated legacy schema IDs'
+  );
+  const canonicalResolution = resolveHostResourceCleanupSchema(XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA);
+  context.assert(
+    canonicalResolution && canonicalResolution.canonicalSchemaId === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA
+      && canonicalResolution.inputSchemaId === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA
+      && canonicalResolution.isLegacy === false && canonicalResolution.deprecated === false,
+    'cleanup resolver recognizes the canonical schema without deprecation'
+  );
+  EXPECTED_LEGACY_CLEANUP_SCHEMAS.forEach((legacySchemaId) => {
+    const resolution = resolveHostResourceCleanupSchema(legacySchemaId);
+    context.assert(
+      resolution && resolution.canonicalSchemaId === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA
+        && resolution.inputSchemaId === legacySchemaId
+        && resolution.isLegacy === true && resolution.deprecated === true,
+      `cleanup resolver maps deprecated legacy schema ${legacySchemaId}`
+    );
+  });
+  context.assert(resolveHostResourceCleanupSchema('xtend.xtensions.host-controller-cleanup-record.v1') === null, 'cleanup resolver keeps the six-field HostController record separate');
+  context.assert(resolveHostResourceCleanupSchema('xtend.xtensions.unknown-cleanup-record.v1') === null, 'cleanup resolver rejects unknown schema IDs');
+  const factoryRecord = createHostResourceCleanupRecord({
+    hostId: 'factory-host',
+    surfaceId: 'factory-surface',
+    xtensionId: 'factory-xtension',
+    resource: 'factory-resource',
+    sequence: 1,
+    timestamp: '2026-06-20T00:00:00Z'
+  });
+  context.assert(factoryRecord.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA, 'shared cleanup factory always emits the canonical schema ID');
+  context.assert(JSON.stringify(Object.keys(factoryRecord).sort()) === JSON.stringify(HOST_RESOURCE_CLEANUP_FIELDS), 'shared cleanup factory emits exactly the eight contract fields');
 
   context.assert(metadata && metadata.schema === XTENSIONS_IMPERATIVE_HOST_POCS_SCHEMA, 'package metadata declares imperative host PoCs schema');
   context.assert(metadata && metadata.contractSchema === XTENSIONS_IMPERATIVE_HOST_CONTRACT_SCHEMA, 'package metadata declares imperative host contract schema');
@@ -354,6 +417,8 @@ function runXTensionsImperativeHostPocsSuite(options = {}) {
   context.assert(chartVisibility.status === 'ok', 'Chart HostController applies visibility through host-owned record');
   const chartUnmount = chartHost.unmount('suite-complete');
   context.assert(chartUnmount.status === 'ok' && chartUnmount.cleanupRecords.length >= 5, 'Chart HostController unmount releases cleanup resources');
+  context.assert(chartUnmount.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'Chart cleanup producer emits only the canonical cleanup schema');
+  context.assert(chartUnmount.cleanupRecords.every((record) => JSON.stringify(Object.keys(record).sort()) === JSON.stringify(HOST_RESOURCE_CLEANUP_FIELDS)), 'Chart cleanup producer emits the shared eight-field shape');
   const chartUnmountAgain = chartHost.unmount('suite-complete-repeat');
   context.assert(chartUnmountAgain.status === 'skipped', 'Chart HostController unmount is idempotent');
   const chartSnapshot = chartHost.snapshot();
@@ -393,6 +458,8 @@ function runXTensionsImperativeHostPocsSuite(options = {}) {
   context.assert(leafletVisibility.status === 'ok', 'Leaflet HostController applies visibility through host-owned record');
   const leafletUnmount = leafletHost.unmount('suite-complete');
   context.assert(leafletUnmount.status === 'ok' && leafletUnmount.cleanupRecords.length >= 7, 'Leaflet HostController unmount releases cleanup resources');
+  context.assert(leafletUnmount.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'Leaflet cleanup producer emits only the canonical cleanup schema');
+  context.assert(leafletUnmount.cleanupRecords.every((record) => JSON.stringify(Object.keys(record).sort()) === JSON.stringify(HOST_RESOURCE_CLEANUP_FIELDS)), 'Leaflet cleanup producer emits the shared eight-field shape');
   const leafletUnmountAgain = leafletHost.unmount('suite-complete-repeat');
   context.assert(leafletUnmountAgain.status === 'skipped', 'Leaflet HostController unmount is idempotent');
   const leafletSnapshot = leafletHost.snapshot();
@@ -412,6 +479,7 @@ function runXTensionsImperativeHostPocsSuite(options = {}) {
   assertIncludesAll(context, report.leafletEventRecords.map((record) => record.type), LEAFLET_EVENT_TYPES, 'imperative host PoCs report includes all Leaflet event types');
   context.assert(report.diagnostics.some((diagnostic) => diagnostic.code === LEAFLET_EVENT_RATE_LIMIT_CODE && diagnostic.severity === 'warning'), 'imperative host PoCs report includes rate limit warning');
   context.assert(report.cleanupRecords.length >= 12, 'imperative host PoCs report includes cleanup records for Chart and Leaflet');
+  context.assert(report.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'imperative host report contains only canonical cleanup records');
   context.assert(report.chartSnapshot.imperativeApiExternalized === false, 'report keeps Chart native API internal');
   context.assert(report.leafletSnapshot.imperativeApiExternalized === false, 'report keeps Leaflet native API internal');
 

@@ -7,6 +7,11 @@ const {
   normalizeHostControllerResult
 } = require('./host-controller-contract');
 const {
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
+  createHostResourceCleanupRecord,
+  resolveHostResourceCleanupSchema
+} = require('./host-resource-cleanup-record');
+const {
   XTENSIONS_RUNTIME_CAPABILITY_REGISTRY_SCHEMA,
   createXTensionsRuntimeCapabilityRegistry,
   createXTensionsRuntimeReport,
@@ -691,16 +696,14 @@ function createFrameworklessChartHostControllerPoc(options = {}) {
       state.destroyed = true;
       chart.mounted = false;
       DEFAULT_CHART_CLEANUP_RESOURCES.forEach((resource, index) => {
-        cleanupRecords.push({
-          schema: 'xtend.xtensions.chart-cleanup-record.v1',
+        cleanupRecords.push(createHostResourceCleanupRecord({
           hostId,
           surfaceId,
           xtensionId,
           resource,
-          status: 'released',
           sequence: index + 1,
           timestamp: timestampFromOptions(options)
-        });
+        }));
       });
       const lifecycleRecord = pushLifecycle('unmount', 'ok', { reason, cleanupResources: DEFAULT_CHART_CLEANUP_RESOURCES.slice() });
       return createResult('unmount', 'ok', hostId, surfaceId, lifecycleRecord, { reason, chart: cloneJson(chart) }, [], cleanupRecords, options);
@@ -851,16 +854,14 @@ function createFrameworklessLeafletHostControllerPoc(options = {}) {
       state.destroyed = true;
       map.mounted = false;
       DEFAULT_LEAFLET_CLEANUP_RESOURCES.forEach((resource, index) => {
-        cleanupRecords.push({
-          schema: 'xtend.xtensions.leaflet-cleanup-record.v1',
+        cleanupRecords.push(createHostResourceCleanupRecord({
           hostId,
           surfaceId,
           xtensionId,
           resource,
-          status: 'released',
           sequence: index + 1,
           timestamp: timestampFromOptions(options)
-        });
+        }));
       });
       const lifecycleRecord = pushLifecycle('unmount', 'ok', { reason, cleanupResources: DEFAULT_LEAFLET_CLEANUP_RESOURCES.slice() });
       return createResult('unmount', 'ok', hostId, surfaceId, lifecycleRecord, { reason, map: cloneJson(map) }, [], cleanupRecords, options);
@@ -1037,6 +1038,7 @@ module.exports = {
   XTENSIONS_IMPERATIVE_RESIZE_RECORD_SCHEMA,
   XTENSIONS_IMPERATIVE_VISIBILITY_RECORD_SCHEMA,
   XTENSIONS_LEAFLET_EVENT_RECORD_SCHEMA,
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   assertImperativePocDependencyBoundary,
   createChartRuntimeAdapterRecord,
   createChartUpdateRecord,
@@ -1050,5 +1052,6 @@ module.exports = {
   inspectImperativePayloadBoundary,
   normalizeResizeRecord,
   normalizeVisibilityRecord,
+  resolveHostResourceCleanupSchema,
   serializeImperativeHostPocReport
 };

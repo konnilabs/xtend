@@ -91,6 +91,39 @@ node scripts/run_xtend_tests.js component-long-tail-migration --json
 node scripts/run_xtend_tests.js references --json
 ```
 
+## Schema-IDs und exakte Aliase
+
+Schema-IDs sind Discriminators des Wire-Formats. Eine ID darf nicht allein
+deshalb ersetzt werden, weil ein beobachtetes Runtime-Beispiel dieselben Felder
+besitzt. SchemaDB verlangt einen vollständigen deklarierten oder formalen
+Vertrag, identische authoritative Fingerprint-Mengen und eine ausdrückliche
+fachliche Owner-Entscheidung.
+
+Die erste Konsolidierung betrifft den XTensions Host-Resource-Cleanup-Record:
+
+- Canonical: `xtend.xtensions.host-resource-cleanup-record.v1`
+- Legacy-Aliase: die Cleanup-Record-IDs für Chart, Leaflet, React
+  Host-Controller, Three und Vue Host-Controller
+- Separater Vertrag: `xtend.xtensions.host-controller-cleanup-record.v1`
+  bleibt unverändert, weil ihm `xtensionId` fehlt
+
+Neue Cleanup-Producer schreiben die Canonical-ID. Reader können den
+domainlokalen Resolver der bestehenden XTensions-Module verwenden. Er akzeptiert
+die Canonical-ID und die fünf veralteten Aliase und kennzeichnet Legacy-Eingaben.
+Unbekannte IDs bleiben ungültig. Die Aliase bleiben zwei Minor-Releases lesbar
+und dürfen erst in einem späteren Major-Release entfernt werden.
+
+Schema-Versionen verwenden ausschließlich `vN`-Hauptversionen. Jede strukturelle
+oder validierungsrelevante Änderung erzeugt eine neue Hauptversion;
+Beschreibungen, Beispiele und Governance-Hinweise nicht.
+
+Lokale Prüfungen:
+
+```bash
+node scripts/scan_schema_inventory.js --audit-duplicates --json
+node scripts/run_xtend_tests.js schema-inventory --json
+```
+
 ## Guardrails
 
 Kontrollierte Vendor-Backports und owned Adapter sind keine offenen Deprecations. Sie bleiben als Guardrail sichtbar:

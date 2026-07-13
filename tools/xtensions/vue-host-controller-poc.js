@@ -7,6 +7,11 @@ const {
   normalizeHostControllerResult
 } = require('./host-controller-contract');
 const {
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
+  createHostResourceCleanupRecord,
+  resolveHostResourceCleanupSchema
+} = require('./host-resource-cleanup-record');
+const {
   XTENSIONS_RUNTIME_CAPABILITY_REGISTRY_SCHEMA,
   createXTensionsRuntimeCapabilityRegistry,
   createXTensionsRuntimeReport,
@@ -657,16 +662,14 @@ function createFrameworklessVueHostControllerPoc(options = {}) {
       app.mounted = false;
       app.unmounted = true;
       cleanupResources.forEach((resource, index) => {
-        cleanupRecords.push({
-          schema: 'xtend.xtensions.vue-host-controller-cleanup-record.v1',
+        cleanupRecords.push(createHostResourceCleanupRecord({
           hostId,
           surfaceId,
           xtensionId,
           resource,
-          status: 'released',
           sequence: index + 1,
           timestamp: timestampFromOptions(options)
-        });
+        }));
       });
       const lifecycleRecord = pushLifecycle('unmount', 'ok', { reason, cleanupResources: cleanupResources.slice() });
       return createResult('unmount', 'ok', hostId, surfaceId, lifecycleRecord, {
@@ -855,6 +858,7 @@ module.exports = {
   XTENSIONS_VUE_HOST_CONTROLLER_POC_WORKPACKAGE,
   XTENSIONS_VUE_HOST_CONTROLLER_REPORT_SCHEMA,
   XTENSIONS_VUE_UPDATE_ADAPTER_RECORD_SCHEMA,
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   applyVueExplicitUpdateAdapter,
   assertVuePocDependencyBoundary,
   createFrameworklessVueHostControllerPoc,
@@ -865,5 +869,6 @@ module.exports = {
   createVueUpdateAdapterRecord,
   inspectVuePayloadBoundary,
   normalizeVueSurfaceEvent,
+  resolveHostResourceCleanupSchema,
   serializeVueHostControllerPocReport
 };

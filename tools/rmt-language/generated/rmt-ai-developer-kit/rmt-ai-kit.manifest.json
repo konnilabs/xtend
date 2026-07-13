@@ -196,13 +196,13 @@
     },
     {
       "path": "docs/de/rmt-vnext-authoring.md",
-      "sha256": "6ff4959a1578810b2c264e1d5af9382acb439bc543c31318ed983096bbf3b755",
-      "bytes": 4139
+      "sha256": "ebe0d8003e6de82cb73cbd335fd6c6352e33722d6cbab5703f9e854963cb69db",
+      "bytes": 4360
     },
     {
       "path": "docs/de/xtend-maraca-orchestration.md",
-      "sha256": "2a3301a0772b3f99f1b3e025bc32127d7f9cfe064983bb37e60fd6d05d2151bb",
-      "bytes": 8050
+      "sha256": "ec7eab44f9a52ea74703f04de062c4a5107d5a4b89b8dee4b9334ed123f289d9",
+      "bytes": 8249
     },
     {
       "path": "docs/de/xtendrmt-app-dsl.md",

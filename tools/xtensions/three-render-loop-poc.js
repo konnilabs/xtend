@@ -7,6 +7,11 @@ const {
   normalizeHostControllerResult
 } = require('./host-controller-contract');
 const {
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
+  createHostResourceCleanupRecord,
+  resolveHostResourceCleanupSchema
+} = require('./host-resource-cleanup-record');
+const {
   XTENSIONS_RUNTIME_CAPABILITY_REGISTRY_SCHEMA,
   createXTensionsRuntimeCapabilityRegistry,
   createXTensionsRuntimeReport,
@@ -784,16 +789,14 @@ function createFrameworklessThreeRenderLoopPoc(options = {}) {
       state.suspended = true;
       state.loopRegistered = false;
       DEFAULT_THREE_CLEANUP_RESOURCES.forEach((resource, index) => {
-        cleanupRecords.push({
-          schema: 'xtend.xtensions.three-cleanup-record.v1',
+        cleanupRecords.push(createHostResourceCleanupRecord({
           hostId,
           surfaceId,
           xtensionId,
           resource,
-          status: 'released',
           sequence: index + 1,
           timestamp: timestampFromOptions(options)
-        });
+        }));
       });
       const lifecycleRecord = pushLifecycle('unmount', 'ok', { reason, cleanupResources: DEFAULT_THREE_CLEANUP_RESOURCES.slice() });
       return createResult('unmount', 'ok', hostId, surfaceId, lifecycleRecord, { reason }, [], cleanupRecords, options);
@@ -988,6 +991,7 @@ module.exports = {
   XTENSIONS_THREE_RENDER_LOOP_POC_TYPES_PATH,
   XTENSIONS_THREE_RENDER_LOOP_POC_WORKPACKAGE,
   XTENSIONS_THREE_RENDER_LOOP_REPORT_SCHEMA,
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   assertThreeRenderLoopDependencyBoundary,
   createFrameworklessThreeRenderLoopPoc,
   createThreeBrowserSmokeRecord,
@@ -999,5 +1003,6 @@ module.exports = {
   createThreeRuntimeAdapterRecord,
   createThreePocDiagnostic,
   inspectThreePayloadBoundary,
+  resolveHostResourceCleanupSchema,
   serializeThreeRenderLoopPocReport
 };

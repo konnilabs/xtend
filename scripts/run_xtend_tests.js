@@ -776,6 +776,10 @@ const {
   runNativeFirstContractRegistrySuite
 } = require('../tests/native-first/native_first_contract_registry_suite');
 const {
+  printSchemaInventoryReport,
+  runSchemaInventorySuite
+} = require('../tests/schemas/schema_inventory_suite');
+const {
   printNativeFirstContractRuntimeParityReport,
   runNativeFirstContractRuntimeParitySuite
 } = require('../tests/native-first/native_first_contract_runtime_parity_suite');
@@ -1098,6 +1102,7 @@ const {
 } = require('../tests/utils/reporting');
 
 const rootDir = path.resolve(__dirname, '..');
+const SCHEMA_INVENTORY_REPORT_PATH = '.xtend-test-results/xtend-schema-inventory-report.json';
 
 function toRunnerResult(id, label, result) {
   const failures = Array.isArray(result.failures) ? result.failures : [];
@@ -3185,6 +3190,16 @@ const suites = [
     }
   },
   {
+    id: 'schema-inventory',
+    label: 'XTend Schema Inventory',
+    description: 'Runs the static, offline schema inventory coverage, drift and duplicate-shape gates.',
+    run: () => {
+      const result = runSchemaInventorySuite({ rootDir });
+      printSchemaInventoryReport(result);
+      return toRunnerResult('schema-inventory', 'XTend Schema Inventory', result);
+    }
+  },
+  {
     id: 'contract-runtime-parity',
     label: 'Native-First Contract-to-Runtime Parity',
     description: 'Runs the NFM-WP-12 contract-to-runtime parity, residual and drift gates.',
@@ -4242,6 +4257,7 @@ Examples:
   node scripts/run_xtend_tests.js runtime-a11y-contract
   node scripts/run_xtend_tests.js component-ux-performance
   node scripts/run_xtend_tests.js component-network-contract
+  node scripts/run_xtend_tests.js schema-inventory
   node scripts/run_xtend_tests.js rmt-shell-authoring-ux
   node scripts/run_xtend_tests.js form-controls-ux
   node scripts/run_xtend_tests.js catalog-coverage
@@ -4426,6 +4442,19 @@ async function main() {
     completedAt: new Date(completed).toISOString(),
     durationMs: completed - started
   });
+
+  const schemaInventoryResult = results.find((result) => result.id === 'schema-inventory');
+  const requestedReportPath = options.reportPath ? path.resolve(rootDir, options.reportPath) : null;
+  const schemaInventoryReportPath = path.resolve(rootDir, SCHEMA_INVENTORY_REPORT_PATH);
+  if (schemaInventoryResult && requestedReportPath !== schemaInventoryReportPath) {
+    const schemaInventorySummary = createRunSummary([schemaInventoryResult], {
+      startedAt,
+      completedAt: new Date(completed).toISOString(),
+      durationMs: completed - started
+    });
+    const reportPath = writeJsonReport(schemaInventorySummary, SCHEMA_INVENTORY_REPORT_PATH, rootDir);
+    if (!options.json) console.log(`\nXTend Schema Inventory report written: ${reportPath}`);
+  }
 
   if (options.reportPath) {
     const reportPath = writeJsonReport(summary, options.reportPath, rootDir);

@@ -91,6 +91,38 @@ node scripts/run_xtend_tests.js component-long-tail-migration --json
 node scripts/run_xtend_tests.js references --json
 ```
 
+## Schema IDs and exact aliases
+
+Schema IDs are wire-level discriminators. Do not replace an ID only because a
+runtime sample has the same fields. SchemaDB requires a complete declared or
+formal contract, an identical authoritative fingerprint set and an explicit
+semantic owner decision before two IDs become exact aliases.
+
+The first consolidation is the XTensions host-resource cleanup record:
+
+- Canonical: `xtend.xtensions.host-resource-cleanup-record.v1`
+- Legacy aliases: Chart, Leaflet, React host-controller, Three and Vue
+  host-controller cleanup record IDs
+- Separate contract: `xtend.xtensions.host-controller-cleanup-record.v1`
+  remains unchanged because it has no `xtensionId`
+
+New cleanup producers write the canonical ID. Readers can use the domain-local
+resolver exposed by the existing XTensions modules; it accepts the canonical ID
+and the five deprecated aliases and reports whether the input was legacy.
+Unknown IDs remain invalid. The aliases stay readable for two minor releases and
+may be removed only in a later major release.
+
+Schema versions use major-only `vN` suffixes. Any structural or validation
+change creates a new major schema ID; descriptions, examples and governance
+notes do not.
+
+Local checks:
+
+```bash
+node scripts/scan_schema_inventory.js --audit-duplicates --json
+node scripts/run_xtend_tests.js schema-inventory --json
+```
+
 ## Guardrails
 
 Controlled vendor backports and owned adapters are not open deprecations. They remain visible guardrails:

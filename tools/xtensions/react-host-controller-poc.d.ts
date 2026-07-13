@@ -1,3 +1,17 @@
+import type { HostResourceCleanupRecord } from './host-resource-cleanup-record';
+
+export type {
+  HostResourceCleanupLegacySchemaId,
+  HostResourceCleanupRecord,
+  HostResourceCleanupRecordInput,
+  HostResourceCleanupSchemaId,
+  HostResourceCleanupSchemaResolution
+} from './host-resource-cleanup-record';
+export {
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
+  resolveHostResourceCleanupSchema
+} from './host-resource-cleanup-record';
+
 export interface ReactPocDiagnostic {
   code: string;
   message: string;
@@ -101,7 +115,7 @@ export interface FrameworklessReactHostControllerPoc {
   getSchedulingDecisions(): ReactSchedulingDecision[];
   getRenderRecords(): ReactRenderRecord[];
   getBoundaryRecords(): ReactBoundaryRecord[];
-  getCleanupRecords(): Record<string, unknown>[];
+  getCleanupRecords(): HostResourceCleanupRecord[];
 }
 
 export interface ReactHostControllerPocReport {
@@ -128,7 +142,7 @@ export interface ReactHostControllerPocReport {
   schedulingDecisions: ReactSchedulingDecision[];
   renderRecords: ReactRenderRecord[];
   boundaryRecords: ReactBoundaryRecord[];
-  cleanupRecords: Record<string, unknown>[];
+  cleanupRecords: HostResourceCleanupRecord[];
   dependencyBoundary: Record<string, unknown>;
   diagnostics: ReactPocDiagnostic[];
   timestamp: string;

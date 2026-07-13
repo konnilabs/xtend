@@ -101,6 +101,7 @@ jobs:
           name: xtend-pr-gate-report-node-26
           path: |
             .xtend-test-results/xtend-pr-gate-report.json
+            .xtend-test-results/xtend-schema-inventory-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-docs-quality-report.json
@@ -185,6 +186,7 @@ jobs:
           name: xtend-release-gate-report-node-26
           path: |
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-schema-inventory-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-docs-quality-report.json

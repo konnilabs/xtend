@@ -45,6 +45,7 @@ const {
   XTENSIONS_VUE_HOST_CONTROLLER_POC_WORKPACKAGE,
   XTENSIONS_VUE_HOST_CONTROLLER_REPORT_SCHEMA,
   XTENSIONS_VUE_UPDATE_ADAPTER_RECORD_SCHEMA,
+  XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   applyVueExplicitUpdateAdapter,
   assertVuePocDependencyBoundary,
   createFrameworklessVueHostControllerPoc,
@@ -54,6 +55,7 @@ const {
   createVueUpdateAdapterRecord,
   inspectVuePayloadBoundary,
   normalizeVueSurfaceEvent,
+  resolveHostResourceCleanupSchema,
   serializeVueHostControllerPocReport
 } = require('../../tools/xtensions/vue-host-controller-poc');
 
@@ -62,6 +64,9 @@ const ARCHITECTURE_CONTRACT_PATH = 'development/XTensions-Architecture-and-Threa
 const HOST_CONTROLLER_CONTRACT_PATH = 'development/XTensions-HostController-Lifecycle-Contract.md';
 const SIGNAL_BRIDGE_CONTRACT_PATH = 'development/XTensions-Signal-Bridge-and-Event-Governance-Contract.md';
 const RUNTIME_REGISTRY_CONTRACT_PATH = 'development/XTensions-Runtime-Capability-Registry-and-Loading-Policy-Contract.md';
+const HOST_RESOURCE_CLEANUP_FIELDS = Object.freeze([
+  'hostId', 'resource', 'schema', 'sequence', 'status', 'surfaceId', 'timestamp', 'xtensionId'
+]);
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -120,6 +125,13 @@ function runXTensionsVueHostControllerPocSuite(options = {}) {
   assertFileExists(context, XTENSIONS_VUE_HOST_CONTROLLER_POC_FIXTURE_PATH, rootDir, 'XTensions Vue HostController PoC fixture exists');
   context.assert(moduleSyntax.ok, `XTensions Vue HostController PoC module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `XTensions Vue HostController PoC suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
+  context.assert(typesText.includes('HostResourceCleanupRecord[]'), 'Vue declarations expose the precise shared cleanup record type');
+  const vueCleanupAlias = resolveHostResourceCleanupSchema('xtend.xtensions.vue-host-controller-cleanup-record.v1');
+  context.assert(
+    vueCleanupAlias && vueCleanupAlias.canonicalSchemaId === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA
+      && vueCleanupAlias.isLegacy === true && vueCleanupAlias.deprecated === true,
+    'Vue module exports the shared legacy cleanup resolver'
+  );
 
   context.assert(metadata && metadata.schema === XTENSIONS_VUE_HOST_CONTROLLER_POC_SCHEMA, 'package metadata declares Vue HostController PoC schema');
   context.assert(metadata && metadata.contractSchema === XTENSIONS_VUE_HOST_CONTROLLER_CONTRACT_SCHEMA, 'package metadata declares Vue HostController contract schema');
@@ -288,6 +300,8 @@ function runXTensionsVueHostControllerPocSuite(options = {}) {
   const unmount = hostController.unmount('suite-complete');
   context.assert(unmount.status === 'ok', 'Vue frameworkless HostController PoC unmounts');
   context.assert(unmount.cleanupRecords.length >= 5, 'Vue frameworkless HostController PoC releases cleanup resources');
+  context.assert(unmount.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'Vue cleanup producer emits only the canonical cleanup schema');
+  context.assert(unmount.cleanupRecords.every((record) => JSON.stringify(Object.keys(record).sort()) === JSON.stringify(HOST_RESOURCE_CLEANUP_FIELDS)), 'Vue cleanup producer emits the shared eight-field shape');
   const unmountAgain = hostController.unmount('suite-complete-repeat');
   context.assert(unmountAgain.status === 'skipped', 'Vue frameworkless HostController PoC unmount is idempotent');
   const snapshot = hostController.snapshot();
@@ -309,6 +323,7 @@ function runXTensionsVueHostControllerPocSuite(options = {}) {
   context.assert(report.updateRecords.some((record) => record.kind === 'dispatchCommand'), 'Vue PoC report includes command dispatch record');
   context.assert(report.eventRecords.some((record) => record.name === 'xtension.vue.panel.changed.v1'), 'Vue PoC report includes normalized event record');
   context.assert(report.cleanupRecords.length > 0, 'Vue PoC report includes cleanup records');
+  context.assert(report.cleanupRecords.every((record) => record.schema === XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA), 'Vue PoC report contains only canonical cleanup records');
 
   const serialized = serializeVueHostControllerPocReport(report);
   const repeat = serializeVueHostControllerPocReport(createVueHostControllerPocReport(fixture, { clock: createClock() }));
