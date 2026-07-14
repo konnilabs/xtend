@@ -9,6 +9,7 @@
   const RMT_VIEW_TEMPLATE_SCHEMA = 'xtend.rmt.view-template.v1';
   const RMT_SEARCH_RUNTIME_SCHEMA = 'xtend.rmt.search-runtime.v1';
   const RMT_SEARCH_RESPONSE_SCHEMA = 'xtend.rmt.search-response.v1';
+  const RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA = 'xtend.rmt.search-recommendation-response.v1';
   const RMT_SEARCH_WORKER_SCHEMA = 'xtend.rmt.prewarm-search-worker.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_runtime';
   const STREAM_PATCH_TYPES = new Set(['start', 'delta', 'tool-call', 'tool-result', 'complete', 'error', 'cancel']);
@@ -36,6 +37,18 @@
     summary: 0.55,
     body: 0.35
   });
+  const SEARCH_RECOMMENDATION_PROBE_WEIGHTS = Object.freeze({
+    keyword: 1,
+    title: 0.9,
+    alias: 0.85,
+    titleToken: 0.75,
+    heading: 0.55
+  });
+  const STRUCTURAL_RECOMMENDATION_TERMS = new Set([
+    'article', 'component', 'components', 'concept', 'content', 'documentation',
+    'guide', 'learn', 'operate', 'operations', 'orientation', 'reference', 'section',
+    'start', 'trunk', 'tutorial'
+  ]);
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -826,19 +839,37 @@
     return Math.max(0.54, 0.76 - distance * 0.1);
   }
 
-  function scoreSearchField(query, queryTokens, value) {
-    const values = toArray(value).map(normalizeSearchText).filter(Boolean);
+  function prepareSearchField(value) {
+    return toArray(value).map(normalizeSearchText).filter(Boolean).map((normalized) => ({
+      normalized,
+      tokens: searchTokens(normalized)
+    }));
+  }
+
+  function scorePreparedSearchField(query, queryTokens, values, fuzzyCache = null, allowFuzzy = true) {
     let best = 0;
-    values.forEach((normalized) => {
+    values.forEach((prepared) => {
+      const normalized = prepared.normalized;
       if (normalized === query) best = Math.max(best, 1);
       else if (normalized.startsWith(query)) best = Math.max(best, 0.94);
       else if (normalized.includes(query)) best = Math.max(best, 0.82);
 
-      const candidateTokens = searchTokens(normalized);
+      const candidateTokens = prepared.tokens;
       if (queryTokens.length > 0 && candidateTokens.length > 0) {
-        const tokenScores = queryTokens.map((queryToken) => candidateTokens.reduce((score, candidateToken) => (
-          Math.max(score, fuzzyTokenScore(queryToken, candidateToken))
-        ), 0));
+        if (queryTokens.every((queryToken) => candidateTokens.includes(queryToken))) {
+          best = Math.max(best, 1);
+          return;
+        }
+        if (best >= 0.94 || !allowFuzzy) return;
+        const tokenScores = queryTokens.map((queryToken) => candidateTokens.reduce((score, candidateToken) => {
+          const cacheKey = fuzzyCache ? `${queryToken}\0${candidateToken}` : '';
+          let tokenScore = fuzzyCache && fuzzyCache.has(cacheKey) ? fuzzyCache.get(cacheKey) : undefined;
+          if (typeof tokenScore === 'undefined') {
+            tokenScore = fuzzyTokenScore(queryToken, candidateToken);
+            if (fuzzyCache) fuzzyCache.set(cacheKey, tokenScore);
+          }
+          return Math.max(score, tokenScore);
+        }, 0));
         const covered = tokenScores.filter((score) => score > 0).length;
         if (covered > 0) {
           const average = tokenScores.reduce((sum, score) => sum + score, 0) / queryTokens.length;
@@ -847,6 +878,39 @@
       }
     });
     return Math.min(1, best);
+  }
+
+  function scoreSearchField(query, queryTokens, value) {
+    return scorePreparedSearchField(query, queryTokens, prepareSearchField(value));
+  }
+
+  function prepareSearchEntry(entry) {
+    return {
+      title: prepareSearchField(entry.title),
+      aliases: prepareSearchField(entry.aliases),
+      keywords: prepareSearchField(entry.keywords),
+      headings: prepareSearchField(entry.headings),
+      summary: prepareSearchField(entry.summary),
+      body: prepareSearchField(entry.body)
+    };
+  }
+
+  function scorePreparedSearchEntry(prepared, query, queryTokens, weights, fuzzyCache = null, allowFuzzy = true) {
+    const fieldScores = {
+      title: scorePreparedSearchField(query, queryTokens, prepared.title, fuzzyCache, allowFuzzy),
+      aliases: scorePreparedSearchField(query, queryTokens, prepared.aliases, fuzzyCache, allowFuzzy),
+      keywords: scorePreparedSearchField(query, queryTokens, prepared.keywords, fuzzyCache, allowFuzzy),
+      headings: scorePreparedSearchField(query, queryTokens, prepared.headings, fuzzyCache, allowFuzzy),
+      summary: scorePreparedSearchField(query, queryTokens, prepared.summary, fuzzyCache, allowFuzzy),
+      body: scorePreparedSearchField(query, queryTokens, prepared.body, fuzzyCache, allowFuzzy)
+    };
+    const weighted = Object.entries(fieldScores).map(([field, score]) => score * Number(weights[field] || 0));
+    const strongest = weighted.reduce((best, score) => Math.max(best, score), 0);
+    const supporting = weighted.filter((score) => score > 0).sort((left, right) => right - left).slice(1, 3);
+    return {
+      fieldScores,
+      score: Math.min(1, strongest + supporting.reduce((sum, value) => sum + value * 0.08, 0))
+    };
   }
 
   function normalizeSearchEntry(entry = {}) {
@@ -861,6 +925,11 @@
       summary: clampString(source.summary || source.description, ''),
       body: clampString(source.body || source.text, ''),
       locale: clampString(source.locale, ''),
+      parent: clampString(source.parent, ''),
+      trunk: clampString(source.trunk, ''),
+      section: clampString(source.section, ''),
+      rank: Number.isFinite(Number(source.rank)) ? Number(source.rank) : 0,
+      relatedSlugs: toArray(source.relatedSlugs || source.related).map((value) => clampString(value, '')).filter(Boolean),
       metadata: cloneValue(source.metadata, {})
     };
   }
@@ -877,25 +946,14 @@
     const queryTokenList = searchTokens(query);
 
     return toArray(entries).map(normalizeSearchEntry).map((entry) => {
-      const fieldScores = {
-        title: scoreSearchField(query, queryTokenList, entry.title),
-        aliases: scoreSearchField(query, queryTokenList, entry.aliases),
-        keywords: scoreSearchField(query, queryTokenList, entry.keywords),
-        headings: scoreSearchField(query, queryTokenList, entry.headings),
-        summary: scoreSearchField(query, queryTokenList, entry.summary),
-        body: scoreSearchField(query, queryTokenList, entry.body)
-      };
-      const weighted = Object.entries(fieldScores).map(([field, score]) => score * Number(weights[field] || 0));
-      const strongest = weighted.reduce((best, score) => Math.max(best, score), 0);
-      const supporting = weighted.filter((score) => score > 0).sort((left, right) => right - left).slice(1, 3);
-      const score = Math.min(1, strongest + supporting.reduce((sum, value) => sum + value * 0.08, 0));
+      const scored = scorePreparedSearchEntry(prepareSearchEntry(entry), query, queryTokenList, weights);
       return {
         id: entry.id || entry.slug,
         slug: entry.slug,
         title: entry.title,
         locale: entry.locale,
-        score: Number(score.toFixed(4)),
-        fieldScores,
+        score: Number(scored.score.toFixed(4)),
+        fieldScores: scored.fieldScores,
         metadata: cloneValue(entry.metadata, {})
       };
     }).filter((entry) => entry.score > 0)
@@ -916,13 +974,174 @@
       .slice(0, resultLimit);
   }
 
+  function recommendEntries(entries = [], seedValue = {}, options = {}) {
+    const normalizedEntries = toArray(entries).map(normalizeSearchEntry).filter((entry) => entry.slug);
+    const requestedSeed = typeof seedValue === 'string'
+      ? { slug: seedValue, id: seedValue }
+      : normalizeSearchEntry(seedValue);
+    let seed = normalizedEntries.find((entry) => (
+      entry.slug === requestedSeed.slug
+      || entry.id === requestedSeed.id
+      || entry.aliases.includes(requestedSeed.slug)
+    )) || requestedSeed;
+    if (typeof seedValue === 'string' && !normalizedEntries.includes(seed)) {
+      const fuzzySeed = searchEntries(normalizedEntries, seedValue, { resultLimit: 1, minQueryLength: 2 })[0];
+      if (fuzzySeed && Number(fuzzySeed.score || 0) >= 0.54) {
+        seed = normalizedEntries.find((entry) => entry.slug === fuzzySeed.slug) || seed;
+      }
+    }
+    const excluded = new Set([
+      seed.id,
+      seed.slug,
+      ...seed.aliases,
+      ...toArray(options.excludeIds),
+      ...toArray(options.excludeSlugs)
+    ].map((value) => clampString(value, '')).filter(Boolean));
+    const structuralTerms = new Set([
+      ...STRUCTURAL_RECOMMENDATION_TERMS,
+      normalizeSearchText(seed.trunk),
+      normalizeSearchText(seed.section),
+      ...toArray(options.structuralTerms).map(normalizeSearchText)
+    ].filter(Boolean));
+    const probesByValue = new Map();
+    const addProbe = (value, kind, weight) => {
+      const normalized = normalizeSearchText(value);
+      if (normalized.length < 2 || structuralTerms.has(normalized)) return;
+      const previous = probesByValue.get(normalized);
+      if (!previous || weight > previous.weight) probesByValue.set(normalized, { value: String(value), normalized, kind, weight });
+    };
+    seed.keywords.forEach((value) => addProbe(value, 'keyword', SEARCH_RECOMMENDATION_PROBE_WEIGHTS.keyword));
+    addProbe(seed.title, 'title', SEARCH_RECOMMENDATION_PROBE_WEIGHTS.title);
+    seed.aliases.forEach((value) => addProbe(value, 'alias', SEARCH_RECOMMENDATION_PROBE_WEIGHTS.alias));
+    searchTokens(seed.title).forEach((value) => addProbe(value, 'titleToken', SEARCH_RECOMMENDATION_PROBE_WEIGHTS.titleToken));
+    seed.headings.slice(0, 6).forEach((value) => addProbe(value, 'heading', SEARCH_RECOMMENDATION_PROBE_WEIGHTS.heading));
+
+    const preparedEntries = normalizedEntries.map((entry) => ({ entry, fields: prepareSearchEntry(entry) }));
+    const probeValues = Array.from(probesByValue.values());
+    const requestedResultLimit = Number(options.resultLimit || 7);
+    const candidateLimit = Math.min(normalizedEntries.length, Math.max(15, requestedResultLimit + 5));
+    const candidateEntries = preparedEntries.map((prepared) => {
+      const searchable = ['title', 'aliases', 'keywords', 'headings'].flatMap((field) => prepared.fields[field]);
+      let shortlistScore = 0;
+      probeValues.forEach((probe) => {
+        const probeTokens = searchTokens(probe.normalized);
+        let matched = 0;
+        searchable.forEach((value) => {
+          if (value.normalized === probe.normalized || value.normalized.includes(probe.normalized) || probe.normalized.includes(value.normalized)) {
+            matched = Math.max(matched, 1);
+          } else if (probeTokens.some((token) => value.tokens.includes(token))) {
+            matched = Math.max(matched, 0.55);
+          }
+        });
+        shortlistScore += matched * probe.weight;
+      });
+      if (seed.relatedSlugs.includes(prepared.entry.slug) || prepared.entry.relatedSlugs.includes(seed.slug)) shortlistScore += 2;
+      if ((prepared.entry.parent && prepared.entry.parent === seed.slug) || (seed.parent && seed.parent === prepared.entry.slug)) shortlistScore += 1.5;
+      if (seed.parent && prepared.entry.parent === seed.parent) shortlistScore += 1.2;
+      return { ...prepared, shortlistScore };
+    }).filter(({ entry }) => !excluded.has(entry.slug) && !excluded.has(entry.id))
+      .sort((left, right) => right.shortlistScore - left.shortlistScore || right.entry.rank - left.entry.rank || left.entry.slug.localeCompare(right.entry.slug))
+      .slice(0, candidateLimit);
+    const weights = { ...DEFAULT_SEARCH_FIELD_WEIGHTS, ...objectRecord(options.fieldWeights) };
+    const fuzzyCache = new Map();
+    const signalsBySlug = new Map();
+    probeValues.forEach((probe) => {
+      const queryTokens = searchTokens(probe.normalized);
+      const allowFuzzy = probe.kind === 'keyword' || probe.kind === 'title' || probe.kind === 'alias';
+      candidateEntries.forEach(({ entry, fields }) => {
+        if (excluded.has(entry.slug) || excluded.has(entry.id)) return;
+        const scored = scorePreparedSearchEntry(fields, probe.normalized, queryTokens, weights, fuzzyCache, allowFuzzy);
+        if (scored.score <= 0) return;
+        const signals = signalsBySlug.get(entry.slug) || [];
+        signals.push({
+          kind: probe.kind,
+          probe: probe.value,
+          score: Number((Number(scored.score || 0) * probe.weight).toFixed(4))
+        });
+        signalsBySlug.set(entry.slug, signals);
+      });
+    });
+
+    const minimumScore = Number.isFinite(Number(options.minScore)) ? Number(options.minScore) : 0.3;
+    const resultLimit = Math.max(1, Math.min(100, Number(options.resultLimit || 7)));
+    const parentLimit = Math.max(1, Number(options.parentLimit || 3));
+    const results = normalizedEntries.map((candidate) => {
+      if (excluded.has(candidate.slug) || excluded.has(candidate.id)) return null;
+      const signals = (signalsBySlug.get(candidate.slug) || []).sort((left, right) => right.score - left.score || left.probe.localeCompare(right.probe));
+      const semanticScore = Math.min(1, Number(signals[0] && signals[0].score || 0)
+        + Number(signals[1] && signals[1].score || 0) * 0.35
+        + Number(signals[2] && signals[2].score || 0) * 0.2);
+      let navigationBoost = 0;
+      const navigationSignals = [];
+      const directlyRelated = seed.relatedSlugs.includes(candidate.slug) || candidate.relatedSlugs.includes(seed.slug);
+      if (directlyRelated) {
+        navigationBoost += 0.18;
+        navigationSignals.push('direct-link');
+      }
+      const parentChild = (candidate.parent && candidate.parent === seed.slug) || (seed.parent && seed.parent === candidate.slug);
+      if (parentChild) {
+        navigationBoost += 0.15;
+        navigationSignals.push('parent-child');
+      } else if (seed.parent && candidate.parent === seed.parent) {
+        navigationBoost += 0.12;
+        navigationSignals.push('same-parent');
+      }
+      if (seed.section && candidate.section === seed.section) {
+        navigationBoost += 0.08;
+        navigationSignals.push('same-section');
+      }
+      if (seed.trunk && candidate.trunk === seed.trunk) {
+        navigationBoost += 0.03;
+        navigationSignals.push('same-trunk');
+      }
+      const score = Number((semanticScore + navigationBoost).toFixed(4));
+      if (score < minimumScore) return null;
+      return {
+        id: candidate.id || candidate.slug,
+        slug: candidate.slug,
+        title: candidate.title,
+        locale: candidate.locale,
+        parent: candidate.parent || null,
+        trunk: candidate.trunk || null,
+        section: candidate.section || null,
+        rank: candidate.rank,
+        score,
+        semanticScore: Number(semanticScore.toFixed(4)),
+        navigationBoost: Number(navigationBoost.toFixed(4)),
+        signals: signals.slice(0, 3).map((signal) => cloneValue(signal, signal)),
+        navigationSignals,
+        metadata: cloneValue(candidate.metadata, {})
+      };
+    }).filter(Boolean).sort((left, right) => (
+      right.score - left.score
+      || right.rank - left.rank
+      || left.title.localeCompare(right.title)
+      || left.slug.localeCompare(right.slug)
+    ));
+
+    const parentCounts = new Map();
+    const selected = [];
+    for (const result of results) {
+      const parentKey = result.parent || '';
+      if (parentKey && Number(parentCounts.get(parentKey) || 0) >= parentLimit) continue;
+      selected.push(result);
+      if (parentKey) parentCounts.set(parentKey, Number(parentCounts.get(parentKey) || 0) + 1);
+      if (selected.length >= resultLimit) break;
+    }
+    return selected.map((entry) => cloneValue(entry, entry));
+  }
+
   function createRmtSearchWorkerSource() {
     const functions = [
       normalizeSearchText,
       searchTokens,
       boundedDamerauLevenshtein,
       fuzzyTokenScore,
+      prepareSearchField,
+      scorePreparedSearchField,
       scoreSearchField,
+      prepareSearchEntry,
+      scorePreparedSearchEntry,
       normalizeSearchEntry,
       searchEntries
     ].map((fn) => fn.toString()).join('\n');
@@ -1009,16 +1228,22 @@
   }
 
   function createRmtSearchRuntime(options = {}) {
+    const windowTarget = options.windowTarget || globalTarget || {};
     const sources = new Map(toArray(options.searchSources || options.sources).map((source) => [clampString(source && source.id, ''), objectRecord(source)]).filter(([id]) => id));
     const resources = new Map(Object.entries(objectRecord(options.resources)).map(([id, entries]) => [id, cloneValue(entries, [])]));
     const diagnostics = [];
     const history = [];
+    const recommendationHistory = [];
     const resourceResolver = typeof options.resourceResolver === 'function' ? options.resourceResolver : null;
     const prewarmWorker = options.prewarmWorker && typeof options.prewarmWorker.dispatchSearchEnvelope === 'function'
       ? options.prewarmWorker
       : createRmtSearchPrewarmWorker(options);
     const workerResourceIds = new Set();
+    const runtimeNow = () => windowTarget && windowTarget.performance && typeof windowTarget.performance.now === 'function'
+      ? windowTarget.performance.now()
+      : Date.now();
     let generation = 0;
+    let recommendationGeneration = 0;
 
     async function resolveResource(resourceId, context = {}) {
       if (resources.has(resourceId)) return resources.get(resourceId);
@@ -1100,10 +1325,79 @@
       return response;
     }
 
+    async function recommend(sourceId, seed, recommendationOptions = {}) {
+      const source = sources.get(sourceId) || sources.values().next().value || {};
+      const currentGeneration = String(++recommendationGeneration);
+      const resourceId = clampString(recommendationOptions.resource || source.resource, '');
+      const startedAt = runtimeNow();
+      let rankingStartedAt = 0;
+      let rankingCompletedAt = 0;
+      let results = [];
+      let status = 'ready';
+      try {
+        const entries = await resolveResource(resourceId, { source, fulltext: false, recommendation: true });
+        await new Promise((resolve) => {
+          const schedule = typeof recommendationOptions.schedule === 'function'
+            ? recommendationOptions.schedule
+            : (typeof options.scheduleRecommendation === 'function' ? options.scheduleRecommendation : null);
+          if (schedule) {
+            schedule(resolve, { lane: 'idle', sourceId, resourceId });
+            return;
+          }
+          const timer = windowTarget && typeof windowTarget.setTimeout === 'function'
+            ? windowTarget.setTimeout.bind(windowTarget)
+            : (typeof setTimeout === 'function' ? setTimeout : null);
+          if (timer) timer(resolve, 0);
+          else resolve();
+        });
+        rankingStartedAt = runtimeNow();
+        results = recommendEntries(entries, seed, recommendationOptions);
+        rankingCompletedAt = runtimeNow();
+        await new Promise((resolve) => {
+          const timer = windowTarget && typeof windowTarget.setTimeout === 'function'
+            ? windowTarget.setTimeout.bind(windowTarget)
+            : (typeof setTimeout === 'function' ? setTimeout : null);
+          if (timer) timer(resolve, 0);
+          else resolve();
+        });
+      } catch (error) {
+        status = 'degraded';
+        diagnostics.push({
+          schema: RMT_APP_RUNTIME_DIAGNOSTIC_SCHEMA,
+          code: 'rmt.search.recommendation.degraded',
+          severity: 'warning',
+          message: error && error.message ? error.message : String(error)
+        });
+      }
+      const superseded = currentGeneration !== String(recommendationGeneration);
+      const seedRecord = typeof seed === 'string' ? { id: seed, slug: seed } : normalizeSearchEntry(seed);
+      const response = {
+        schema: RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA,
+        sourceId: clampString(source.id, sourceId || ''),
+        seedId: clampString(seedRecord.id || seedRecord.slug, ''),
+        seedSlug: clampString(seedRecord.slug || seedRecord.id, ''),
+        generation: currentGeneration,
+        superseded,
+        status,
+        resourceId,
+        durationMs: Math.max(0, runtimeNow() - startedAt),
+        rankingStartedAt,
+        rankingCompletedAt,
+        rankingDurationMs: Math.max(0, rankingCompletedAt - rankingStartedAt),
+        resultCount: superseded ? 0 : results.length,
+        results: superseded ? [] : results
+      };
+      recommendationHistory.push(cloneValue(response, response));
+      if (recommendationHistory.length > 50) recommendationHistory.shift();
+      return response;
+    }
+
     return Object.freeze({
       schema: RMT_SEARCH_RUNTIME_SCHEMA,
       query,
+      recommend,
       searchEntries,
+      recommendEntries,
       registerSource(source = {}) {
         const id = clampString(source.id, '');
         if (id) sources.set(id, objectRecord(source));
@@ -1119,12 +1413,16 @@
       listHistory() {
         return history.map((entry) => cloneValue(entry, entry));
       },
+      listRecommendationHistory() {
+        return recommendationHistory.map((entry) => cloneValue(entry, entry));
+      },
       snapshot() {
         return {
           schema: RMT_SEARCH_RUNTIME_SCHEMA,
           sourceCount: sources.size,
           resourceCount: resources.size,
           queryCount: history.length,
+          recommendationCount: recommendationHistory.length,
           worker: prewarmWorker && typeof prewarmWorker.snapshot === 'function' ? prewarmWorker.snapshot() : null,
           diagnosticCount: diagnostics.length
         };
@@ -1746,6 +2044,7 @@
     RMT_VIEW_TEMPLATE_SCHEMA,
     RMT_SEARCH_RUNTIME_SCHEMA,
     RMT_SEARCH_RESPONSE_SCHEMA,
+    RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA,
     RMT_SEARCH_WORKER_SCHEMA,
     createRmtCommandEnvelope,
     isRmtCommandEnvelope,
@@ -1760,6 +2059,7 @@
     normalizeSearchText,
     boundedDamerauLevenshtein,
     searchEntries,
+    recommendEntries,
     createRmtSearchWorkerSource,
     createRmtSearchPrewarmWorker,
     createRmtSearchRuntime,
@@ -1786,6 +2086,7 @@ export const RMT_YIELD_ACTION_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_YIELD_A
 export const RMT_VIEW_TEMPLATE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_VIEW_TEMPLATE_SCHEMA;
 export const RMT_SEARCH_RUNTIME_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_RUNTIME_SCHEMA;
 export const RMT_SEARCH_RESPONSE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_RESPONSE_SCHEMA;
+export const RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA;
 export const RMT_SEARCH_WORKER_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_WORKER_SCHEMA;
 export const createRmtCommandEnvelope = __XTEND_RMT_APP_RUNTIME_API__.createRmtCommandEnvelope;
 export const isRmtCommandEnvelope = __XTEND_RMT_APP_RUNTIME_API__.isRmtCommandEnvelope;
@@ -1800,6 +2101,7 @@ export const createNoManualUiWiringGate = __XTEND_RMT_APP_RUNTIME_API__.createNo
 export const normalizeSearchText = __XTEND_RMT_APP_RUNTIME_API__.normalizeSearchText;
 export const boundedDamerauLevenshtein = __XTEND_RMT_APP_RUNTIME_API__.boundedDamerauLevenshtein;
 export const searchEntries = __XTEND_RMT_APP_RUNTIME_API__.searchEntries;
+export const recommendEntries = __XTEND_RMT_APP_RUNTIME_API__.recommendEntries;
 export const createRmtSearchWorkerSource = __XTEND_RMT_APP_RUNTIME_API__.createRmtSearchWorkerSource;
 export const createRmtSearchPrewarmWorker = __XTEND_RMT_APP_RUNTIME_API__.createRmtSearchPrewarmWorker;
 export const createRmtSearchRuntime = __XTEND_RMT_APP_RUNTIME_API__.createRmtSearchRuntime;

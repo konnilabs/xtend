@@ -9304,6 +9304,7 @@ function assertReleasePreparationReference(context, rootDir) {
     'docs-public-quality',
     'docs-content-depth',
     'docs-quality-gates',
+    'docs-related-recommendations',
     'rmt-ui-maximality-owned-surface-gate-hygiene',
     'rmt-stack-docs',
     'rmt-playground-docs',
@@ -9323,7 +9324,7 @@ function assertReleasePreparationReference(context, rootDir) {
     context.assert(packageManifest.scripts['test:release:full'].includes(suite), `test:release:full includes ${suite}`);
     context.assert(packageManifest.scripts['test:release:full:report'].includes(suite), `test:release:full:report includes ${suite}`);
   });
-  context.assert(packageManifest.scripts['test:docs-quality:report'] === 'node scripts/run_xtend_tests.js xtend-classic-branding scoped-package-readmes docs-public-quality docs-content-depth docs-quality-gates --report .xtend-test-results/xtend-docs-quality-report.json', 'Package exposes combined docs quality report');
+  context.assert(packageManifest.scripts['test:docs-quality:report'] === 'node scripts/run_xtend_tests.js xtend-classic-branding scoped-package-readmes docs-public-quality docs-content-depth docs-quality-gates docs-related-recommendations --report .xtend-test-results/xtend-docs-quality-report.json', 'Package exposes combined docs quality report');
   context.assert(packageManifest.scripts['release:sync-versions'] === 'node scripts/sync_xtend_package_versions.js', 'Package exposes unified release version sync command');
   context.assert(packageManifest.scripts['release:sync-versions:check'] === 'node scripts/sync_xtend_package_versions.js --check', 'Package exposes unified release version sync check command');
   context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes('npm run release:sync-versions:check'), 'Release gates include version sync check');

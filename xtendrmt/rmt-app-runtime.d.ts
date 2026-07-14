@@ -8,6 +8,7 @@ export declare const RMT_YIELD_ACTION_SCHEMA: 'xtend.rmt.app-runtime-yield-actio
 export declare const RMT_VIEW_TEMPLATE_SCHEMA: 'xtend.rmt.view-template.v1';
 export declare const RMT_SEARCH_RUNTIME_SCHEMA: 'xtend.rmt.search-runtime.v1';
 export declare const RMT_SEARCH_RESPONSE_SCHEMA: 'xtend.rmt.search-response.v1';
+export declare const RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA: 'xtend.rmt.search-recommendation-response.v1';
 export declare const RMT_SEARCH_WORKER_SCHEMA: 'xtend.rmt.prewarm-search-worker.v1';
 
 export interface RmtSearchEntry {
@@ -20,6 +21,11 @@ export interface RmtSearchEntry {
   summary?: string;
   body?: string;
   locale?: string;
+  parent?: string;
+  trunk?: string;
+  section?: string;
+  rank?: number;
+  relatedSlugs?: string[];
   metadata?: Record<string, unknown>;
 }
 
@@ -65,6 +71,40 @@ export interface RmtSearchResponse {
   results: RmtSearchResult[];
 }
 
+export interface RmtSearchRecommendationResult {
+  id: string;
+  slug: string;
+  title: string;
+  locale: string;
+  parent: string | null;
+  trunk: string | null;
+  section: string | null;
+  rank: number;
+  score: number;
+  semanticScore: number;
+  navigationBoost: number;
+  signals: Array<{ kind: string; probe: string; score: number }>;
+  navigationSignals: string[];
+  metadata: Record<string, unknown>;
+}
+
+export interface RmtSearchRecommendationResponse {
+  schema: typeof RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA;
+  sourceId: string;
+  seedId: string;
+  seedSlug: string;
+  generation: string;
+  superseded: boolean;
+  status: 'ready' | 'degraded';
+  resourceId: string;
+  durationMs: number;
+  rankingStartedAt: number;
+  rankingCompletedAt: number;
+  rankingDurationMs: number;
+  resultCount: number;
+  results: RmtSearchRecommendationResult[];
+}
+
 export interface RmtSearchPrewarmWorker {
   schema: typeof RMT_SEARCH_WORKER_SCHEMA;
   available: boolean;
@@ -76,11 +116,14 @@ export interface RmtSearchPrewarmWorker {
 export interface RmtSearchRuntime {
   schema: typeof RMT_SEARCH_RUNTIME_SCHEMA;
   query(sourceId: string, query: string, options?: Record<string, unknown>): Promise<RmtSearchResponse>;
+  recommend(sourceId: string, seed: string | RmtSearchEntry, options?: Record<string, unknown>): Promise<RmtSearchRecommendationResponse>;
   searchEntries(entries: RmtSearchEntry[], query: string, options?: Record<string, unknown>): RmtSearchResult[];
+  recommendEntries(entries: RmtSearchEntry[], seed: string | RmtSearchEntry, options?: Record<string, unknown>): RmtSearchRecommendationResult[];
   registerSource(source: RmtSearchSource): string;
   registerResource(id: string, entries?: RmtSearchEntry[]): number;
   listDiagnostics(): unknown[];
   listHistory(): RmtSearchResponse[];
+  listRecommendationHistory(): RmtSearchRecommendationResponse[];
   snapshot(): Record<string, unknown>;
   dispose(): void;
 }
@@ -241,6 +284,7 @@ export declare function createNoManualUiWiringGate(options?: Record<string, unkn
 export declare function normalizeSearchText(value: unknown): string;
 export declare function boundedDamerauLevenshtein(left: string, right: string, maxDistance?: number): number;
 export declare function searchEntries(entries?: RmtSearchEntry[], query?: string, options?: Record<string, unknown>): RmtSearchResult[];
+export declare function recommendEntries(entries?: RmtSearchEntry[], seed?: string | RmtSearchEntry, options?: Record<string, unknown>): RmtSearchRecommendationResult[];
 export declare function createRmtSearchWorkerSource(): string;
 export declare function createRmtSearchPrewarmWorker(options?: Record<string, unknown>): RmtSearchPrewarmWorker;
 export declare function createRmtSearchRuntime(options?: Record<string, unknown>): RmtSearchRuntime;
@@ -257,6 +301,7 @@ declare const api: {
   RMT_VIEW_TEMPLATE_SCHEMA: typeof RMT_VIEW_TEMPLATE_SCHEMA;
   RMT_SEARCH_RUNTIME_SCHEMA: typeof RMT_SEARCH_RUNTIME_SCHEMA;
   RMT_SEARCH_RESPONSE_SCHEMA: typeof RMT_SEARCH_RESPONSE_SCHEMA;
+  RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA: typeof RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA;
   RMT_SEARCH_WORKER_SCHEMA: typeof RMT_SEARCH_WORKER_SCHEMA;
   createRmtCommandEnvelope: typeof createRmtCommandEnvelope;
   isRmtCommandEnvelope: typeof isRmtCommandEnvelope;
@@ -271,6 +316,7 @@ declare const api: {
   normalizeSearchText: typeof normalizeSearchText;
   boundedDamerauLevenshtein: typeof boundedDamerauLevenshtein;
   searchEntries: typeof searchEntries;
+  recommendEntries: typeof recommendEntries;
   createRmtSearchWorkerSource: typeof createRmtSearchWorkerSource;
   createRmtSearchPrewarmWorker: typeof createRmtSearchPrewarmWorker;
   createRmtSearchRuntime: typeof createRmtSearchRuntime;

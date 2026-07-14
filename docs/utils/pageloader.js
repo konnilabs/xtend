@@ -3237,6 +3237,10 @@ function docsTitleForSlug(slug) {
     (slug ? slug.replace(/^components-/, '').replace(/-/g, ' ') : '');
 }
 
+function isGenericRelatedLinkLabel(value) {
+  return /^(?:verwandter artikel|related article)$/i.test(String(value || '').trim());
+}
+
 function normalizeDocsSlugFromHref(href) {
   if (!href) return '';
   let value = String(href).trim();
@@ -3260,7 +3264,10 @@ function collectRelatedLinksFromNode(node) {
   Array.from(node.querySelectorAll('x-link, a')).forEach((link) => {
     const href = link.getAttribute('href') || '';
     const slug = normalizeDocsSlugFromHref(href);
-    const label = (link.textContent || (slug ? docsTitleForSlug(slug) : href)).trim();
+    const authoredLabel = (link.textContent || '').trim();
+    const label = slug && isGenericRelatedLinkLabel(authoredLabel)
+      ? docsTitleForSlug(slug)
+      : (authoredLabel || (slug ? docsTitleForSlug(slug) : href));
     if (slug && docsPageExists(slug)) {
       links.push({
         slug,
@@ -3282,7 +3289,9 @@ function collectRelatedLinksFromNode(node) {
 }
 
 function isRelatedText(value) {
-  return /(siehe auch|weiterfuehr|weiterführ|verwandte|read further|related|see also)/i.test(String(value || ''));
+  const text = String(value || '');
+  return /(siehe auch|weiterfuehr|weiterführ|verwandte)/i.test(text)
+    || /\b(?:read further|related|see also)\b/i.test(text);
 }
 
 function headingLevel(node) {
@@ -3331,36 +3340,31 @@ function extractDocsRelatedLinks(contentRoot) {
   });
 }
 
-function fallbackRelatedLinksForSlug(slug) {
+function fallbackRelatedLinksForSlug(slug, excludedSlugs = [], limit = 7) {
   const menu = Array.isArray(window.xtendMenuConfig) && window.xtendMenuConfig.length
     ? window.xtendMenuConfig
     : [];
-  const current = menu.find((entry) => entry && entry.slug === slug);
+  const canonicalSlug = resolveCanonicalDocsSlug(slug);
+  const current = menu.find((entry) => entry && entry.slug === canonicalSlug);
   const candidates = [];
-
+  const sorted = (entries) => entries.slice().sort((left, right) => (
+    Number(right.rank || 0) - Number(left.rank || 0)
+    || docsTitleForSlug(left.slug).localeCompare(docsTitleForSlug(right.slug), getCurrentDocsLocale())
+    || left.slug.localeCompare(right.slug)
+  ));
+  const append = (entries, source) => sorted(entries).forEach((entry) => {
+    if (!entry || entry.slug === canonicalSlug) return;
+    candidates.push({ slug: entry.slug, label: docsTitleForSlug(entry.slug), source });
+  });
   if (current) {
-    const parent = current.parent || '';
-    menu.forEach((entry) => {
-      if (!entry || entry.slug === slug) return;
-      if ((parent && entry.parent === parent) || entry.parent === slug || current.parent === entry.slug || entry.group === current.group) {
-        candidates.push({ slug: entry.slug, label: entry.label || docsTitleForSlug(entry.slug), source: 'menu' });
-      }
-    });
+    if (current.parent) append(menu.filter((entry) => entry.slug === current.parent), 'navigation-parent');
+    append(menu.filter((entry) => entry.parent === canonicalSlug), 'navigation-child');
+    if (current.parent) append(menu.filter((entry) => entry.parent === current.parent), 'navigation-sibling');
+    append(menu.filter((entry) => entry.section === current.section), 'navigation-section');
+    append(menu.filter((entry) => entry.trunk === current.trunk), 'navigation-trunk');
   }
 
-  if (slug.startsWith('components-')) {
-    ['components', 'component-catalog-coverage', 'component-lab', 'component-ux-authoring'].forEach((candidate) => {
-      candidates.push({ slug: candidate, label: docsTitleForSlug(candidate), source: 'component-index' });
-    });
-  }
-
-  if (!candidates.length) {
-    ['quick-start-guide', 'components', 'xtendrmt-overview', 'xtend-loader'].forEach((candidate) => {
-      candidates.push({ slug: candidate, label: docsTitleForSlug(candidate), source: 'default' });
-    });
-  }
-
-  const seen = new Set([slug]);
+  const seen = new Set([canonicalSlug, ...excludedSlugs.map(resolveCanonicalDocsSlug)]);
   return candidates
     .filter((entry) => docsPageExists(entry.slug))
     .filter((entry) => {
@@ -3368,7 +3372,33 @@ function fallbackRelatedLinksForSlug(slug) {
       seen.add(entry.slug);
       return true;
     })
-    .slice(0, 7);
+    .slice(0, Math.max(0, limit));
+}
+
+function mergeDocsRelatedLinks(slug, explicitLinks = [], recommendationResults = [], options = {}) {
+  const minimum = Math.max(0, Number(options.minimum || 3));
+  const maximum = Math.max(minimum, Math.min(7, Number(options.maximum || 7)));
+  const canonicalSlug = resolveCanonicalDocsSlug(slug);
+  const merged = [];
+  const seen = new Set([canonicalSlug]);
+  const append = (entry) => {
+    if (!entry || merged.length >= maximum) return;
+    const canonical = entry.slug ? resolveCanonicalDocsSlug(entry.slug) : '';
+    const key = canonical || String(entry.href || '');
+    if (!key || seen.has(key) || (canonical && !docsPageExists(canonical))) return;
+    seen.add(key);
+    merged.push({
+      ...entry,
+      slug: canonical || undefined,
+      label: entry.label || (canonical ? docsTitleForSlug(canonical) : entry.href)
+    });
+  };
+  explicitLinks.forEach(append);
+  recommendationResults.forEach(append);
+  if (merged.length < minimum) {
+    fallbackRelatedLinksForSlug(canonicalSlug, Array.from(seen), maximum - merged.length).forEach(append);
+  }
+  return merged.slice(0, maximum);
 }
 
 function createRelatedLink(entry) {
@@ -3377,6 +3407,8 @@ function createRelatedLink(entry) {
   const href = entry.href || (entry.slug ? getLocalizedDocsPath(entry.slug) : '#');
   link.setAttribute('href', href);
   link.setAttribute('data-rmt-component', 'docs.relatedLinks');
+  link.setAttribute('data-related-source', entry.source || 'unknown');
+  if (Number.isFinite(Number(entry.score))) link.setAttribute('data-related-score', String(entry.score));
   if (entry.slug) {
     link.setAttribute('data-rmt-route-ref', 'docs.' + entry.slug.replace(/-/g, '.'));
   }
@@ -3402,11 +3434,11 @@ function createRelatedLink(entry) {
   return link;
 }
 
-function renderDocsRelatedSidebar(relatedSlot, slug, explicitLinks) {
+function renderDocsRelatedSidebar(relatedSlot, slug, linksInput) {
   if (!relatedSlot) return;
   const list = relatedSlot.querySelector('[data-rmt-slot="related-links"], .docs-related-list') || relatedSlot;
   while (list.firstChild) list.removeChild(list.firstChild);
-  const links = explicitLinks && explicitLinks.length ? explicitLinks : fallbackRelatedLinksForSlug(slug);
+  const links = Array.isArray(linksInput) ? linksInput : mergeDocsRelatedLinks(slug);
   links.forEach((entry) => list.appendChild(createRelatedLink(entry)));
   relatedSlot.hidden = links.length === 0;
   relatedSlot.setAttribute('data-related-count', String(links.length));
@@ -5154,7 +5186,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     'data-rmt-playground-related': ''
   });
   const relatedList = createDocsRmtPlaygroundElement('div', { class: 'docs-related-list' });
-  const links = Array.isArray(relatedLinks) && relatedLinks.length ? relatedLinks : fallbackRelatedLinksForSlug('learn-rmt-playground');
+  const links = Array.isArray(relatedLinks) && relatedLinks.length ? relatedLinks : mergeDocsRelatedLinks('learn-rmt-playground');
   links.forEach((entry) => relatedList.appendChild(createRelatedLink(entry)));
   if (links.length) {
     relatedBody.appendChild(relatedList);
@@ -5767,6 +5799,11 @@ class XtendDocPage extends HTMLElement {
     shell.mdContent.toggleAttribute('data-docs-stale-content-preserved', !routeSkeleton);
 
     const contentPayloadPromise = loadDocsParsedownContent(slug, rmtMeta, locale);
+    const recommendationPromise = window.xtendDocsShellRuntime && typeof window.xtendDocsShellRuntime.recommendRelated === 'function'
+      ? window.xtendDocsShellRuntime.recommendRelated({ slug, locale, resultLimit: 10 }).catch(() => ({
+          status: 'degraded', source: 'navigation-fallback', fallback: true, results: []
+        }))
+      : Promise.resolve({ status: 'unavailable', source: 'navigation-fallback', fallback: true, results: [] });
     let relatedLinks = [];
     let contentCommitted = false;
 
@@ -5859,8 +5896,26 @@ class XtendDocPage extends HTMLElement {
 
     const completeParsedownCommit = () => {
       if (!this.isActiveRouteToken(token)) return;
-      commitParsedownContent().then((committed) => {
+      commitParsedownContent().then(async (committed) => {
         if (!committed || !this.isActiveRouteToken(token)) return;
+        const recommendation = await recommendationPromise;
+        if (!this.isActiveRouteToken(token) || recommendation && recommendation.superseded) return;
+        const explicitCount = relatedLinks.length;
+        const automaticLinks = recommendation && Array.isArray(recommendation.results) ? recommendation.results : [];
+        relatedLinks = mergeDocsRelatedLinks(slug, relatedLinks, automaticLinks);
+        const fallbackUsed = relatedLinks.some((entry) => String(entry.source || '').startsWith('navigation-'));
+        window.xtendDocsDevApi && window.xtendDocsDevApi.update({
+          recommendations: {
+            slug,
+            locale,
+            durationMs: Number(recommendation && recommendation.durationMs || 0),
+            resultCount: relatedLinks.length,
+            explicitCount,
+            source: fallbackUsed ? 'compact-index-with-navigation-fallback' : (recommendation && recommendation.source || 'explicit'),
+            scores: automaticLinks.map((entry) => Number(entry.score || 0)),
+            fallback: fallbackUsed || Boolean(recommendation && recommendation.fallback)
+          }
+        });
         if (slug === 'learn-rmt-playground') {
           if (shell.relatedSlot) {
             shell.relatedSlot.hidden = true;

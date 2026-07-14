@@ -714,6 +714,60 @@ function scheduleCompactIndex() {
   else window.setTimeout(run, 0);
 }
 
+async function recommendRelated(input = {}) {
+  const activeLocale = input.locale === 'en' ? 'en' : 'de';
+  const slug = String(input.slug || currentSlug());
+  const startedAt = performance.now();
+  const response = await searchRuntime.recommend(`${SEARCH_SOURCE_PREFIX}${activeLocale}`, slug, {
+    resultLimit: Math.max(3, Math.min(21, Number(input.resultLimit || 14))),
+    excludeSlugs: Array.isArray(input.excludeSlugs) ? input.excludeSlugs : [],
+    minScore: Number.isFinite(Number(input.minScore)) ? Number(input.minScore) : 0.3,
+    fieldWeights: SEARCH_WEIGHTS,
+    schedule(resolve) {
+      if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(resolve, { timeout: 120 });
+      else window.setTimeout(resolve, 0);
+    }
+  });
+  const completedAt = performance.now();
+  const snapshot = Object.freeze({
+    schema: response.schema,
+    slug,
+    locale: activeLocale,
+    startedAt,
+    completedAt,
+    durationMs: completedAt - startedAt,
+    rankingStartedAt: response.rankingStartedAt,
+    rankingCompletedAt: response.rankingCompletedAt,
+    rankingDurationMs: response.rankingDurationMs,
+    resultCount: response.results.length,
+    source: response.status === 'ready' ? 'compact-search-index' : 'navigation-fallback',
+    fallback: response.status !== 'ready',
+    generation: response.generation,
+    superseded: response.superseded,
+    results: Object.freeze(response.results.map((entry) => Object.freeze({
+      slug: entry.slug,
+      label: entry.title,
+      score: entry.score,
+      source: 'search-recommendation',
+      signals: Object.freeze((entry.signals || []).map((signal) => Object.freeze({ ...signal }))),
+      navigationSignals: Object.freeze([...(entry.navigationSignals || [])])
+    })))
+  });
+  window.xtendDocsLastRecommendations = snapshot;
+  window.xtendDocsDevApi && window.xtendDocsDevApi.update({
+    recommendations: {
+      slug,
+      locale: activeLocale,
+      durationMs: snapshot.durationMs,
+      resultCount: snapshot.resultCount,
+      source: snapshot.source,
+      scores: snapshot.results.map((entry) => entry.score),
+      fallback: snapshot.fallback
+    }
+  });
+  return snapshot;
+}
+
 function dispose() {
   if (searchTimer) window.clearTimeout(searchTimer);
   searchRuntime.dispose();
@@ -745,6 +799,7 @@ window.xtendDocsShellRuntime = Object.freeze({
   appRuntime,
   fabric,
   searchRuntime,
+  recommendRelated,
   createFabricSnapshot,
   renderer,
   renderNavigation,

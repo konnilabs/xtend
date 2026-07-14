@@ -936,6 +936,10 @@ const {
   runXtendLoaderSkeletonProfilesSuite
 } = require('../tests/docs/docs_shell_catfooding_suite');
 const {
+  printDocsRelatedRecommendationsReport,
+  runDocsRelatedRecommendationsSuite
+} = require('../tests/docs/docs_related_recommendations_suite');
+const {
   printRmtReferenceDocsReport,
   runRmtReferenceDocsSuite
 } = require('../tests/docs/rmt_reference_docs_suite');
@@ -1709,6 +1713,16 @@ const suites = [
       const result = await runRmtSearchRuntimeSuite({ rootDir });
       printDocsShellCatfoodingReport(result);
       return toRunnerResult('rmt-search-runtime', 'RMT Search Runtime', result);
+    }
+  },
+  {
+    id: 'docs-related-recommendations',
+    label: 'Docs Related Recommendations',
+    description: 'Runs keyword ranking, linkgraph, locale, corpus, fallback and route-safety recommendation gates.',
+    run: async () => {
+      const result = await runDocsRelatedRecommendationsSuite({ rootDir });
+      printDocsRelatedRecommendationsReport(result);
+      return toRunnerResult('docs-related-recommendations', 'Docs Related Recommendations', result);
     }
   },
   {
@@ -4243,6 +4257,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-animation-engine-docs
   node scripts/run_xtend_tests.js docs-shell-catfooding
   node scripts/run_xtend_tests.js rmt-search-runtime
+  node scripts/run_xtend_tests.js docs-related-recommendations
   node scripts/run_xtend_tests.js rmt-prewarm-worker-search
   node scripts/run_xtend_tests.js xtend-loader-skeleton-profiles
   node scripts/run_xtend_tests.js maraca-tune

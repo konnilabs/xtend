@@ -138,6 +138,17 @@ const deepQuerySource = `
 
 const layoutShiftProbeSource = `
   (() => {
+    if (!window.__xtendDocsRecommendationLongTasks) {
+      window.__xtendDocsRecommendationLongTasks = [];
+      try {
+        const longTaskObserver = new PerformanceObserver((list) => {
+          list.getEntries().forEach((entry) => window.__xtendDocsRecommendationLongTasks.push({
+            startTime: Number(entry.startTime || 0), duration: Number(entry.duration || 0)
+          }));
+        });
+        longTaskObserver.observe({ type: 'longtask', buffered: true });
+      } catch (_) {}
+    }
     if (window.__xtendDocsLayoutShiftProbe) return window.__xtendDocsLayoutShiftProbe.supported;
     const state = {
       schema: 'xtend.docs.layout-shift-probe.v1',
@@ -312,6 +323,20 @@ async function readSnapshot(baseUrl, sessionId) {
     const fcp = performance.getEntriesByName('first-contentful-paint')[0] || null;
     const sameOriginResources = resourceEntries.filter((entry) => entry.name.startsWith(location.origin));
     const layoutShiftProbe = window.__xtendDocsLayoutShiftProbe || null;
+    const recommendationSnapshot = window.xtendDocsLastRecommendations || null;
+    const recommendationLongTasks = (window.__xtendDocsRecommendationLongTasks || []).filter((entry) => (
+      recommendationSnapshot
+      && entry.startTime < recommendationSnapshot.rankingCompletedAt
+      && entry.startTime + entry.duration > recommendationSnapshot.rankingStartedAt
+    ));
+    const relatedHost = deepQuery('#docs-related-links');
+    const relatedLinks = relatedHost ? Array.from(relatedHost.querySelectorAll('.docs-related-link')).map((link) => ({
+      slug: (link.getAttribute('data-rmt-route-ref') || '').replace(/^docs\\./, '').replace(/\\./g, '-'),
+      href: link.getAttribute('href') || '',
+      label: (link.textContent || '').trim(),
+      source: link.getAttribute('data-related-source') || '',
+      score: Number(link.getAttribute('data-related-score') || 0)
+    })) : [];
     const summaryIndicators = Array.from(document.querySelectorAll('x-summary.docs-menu-section')).map((summary) => {
       const details = summary.shadowRoot?.querySelector('details') || null;
       const indicator = summary.shadowRoot?.querySelector('.icon') || null;
@@ -402,6 +427,9 @@ async function readSnapshot(baseUrl, sessionId) {
         : [],
       compactLoaded: resources.some((url) => url.includes('/docs/generated/search/') && url.includes('.compact.json')),
       fulltextLoaded: resources.some((url) => url.includes('/docs/generated/search/') && url.includes('.fulltext.json')),
+      relatedLinks,
+      recommendationSnapshot,
+      recommendationLongTasks,
       remoteResourceCount: resources.filter((url) => !url.startsWith(location.origin)).length,
       performance: {
         fcpMs: fcp ? fcp.startTime : null,
@@ -753,6 +781,26 @@ async function navigateTrunk(baseUrl, sessionId, trunk) {
   } catch (error) {
     throw new Error(`${error.message}; latest=${JSON.stringify(latest)}`);
   }
+}
+
+async function navigateArticle(baseUrl, sessionId, slug) {
+  const clicked = await execute(baseUrl, sessionId, `
+    const link = Array.from(document.querySelectorAll('[data-docs-menu-link]')).find((entry) => {
+      const href = entry.getAttribute('href') || '';
+      return href.endsWith('/' + arguments[0]);
+    });
+    if (!link) return false;
+    const target = link.shadowRoot && link.shadowRoot.querySelector('a') || link;
+    target.click();
+    return true;
+  `, [slug]);
+  assert(clicked, `Article link ${slug} is missing.`);
+  return waitUntil(async () => {
+    const snapshot = await readSnapshot(baseUrl, sessionId);
+    return snapshot.docsPageReady && snapshot.currentPath.endsWith('/' + slug) && snapshot.relatedLinks.length >= 3
+      ? snapshot
+      : null;
+  }, `Article ${slug} did not become ready`);
 }
 
 async function exerciseSkeletonHardening(baseUrl, sessionId) {
@@ -1152,6 +1200,10 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assertSingleCurrentArticle(initial, scenario.id);
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
     assert(initial.compactLoaded && !initial.fulltextLoaded, `${scenario.id}: fulltext index entered the initial path.`);
+    assert(initial.relatedLinks.length >= 3 && initial.relatedLinks.length <= 7, `${scenario.id}: Read Further did not resolve to three through seven links (${JSON.stringify(initial.relatedLinks)}).`);
+    assert(new Set(initial.relatedLinks.map((entry) => entry.href)).size === initial.relatedLinks.length, `${scenario.id}: Read Further contains duplicate targets.`);
+    const maximumRecommendationLongTask = Math.max(0, ...initial.recommendationLongTasks.map((entry) => Number(entry.duration || 0)));
+    assert(initial.recommendationSnapshot && initial.recommendationSnapshot.source === 'compact-search-index' && maximumRecommendationLongTask <= 50, `${scenario.id}: compact recommendations produced a long task over 50ms or fell back (${JSON.stringify({ recommendation: initial.recommendationSnapshot, longTasks: initial.recommendationLongTasks })}).`);
     assert(initial.remoteResourceCount === 0, `${scenario.id}: remote resources were requested.`);
     const largestInitialShifts = initial.layoutShiftEntries
       .slice()
@@ -1210,6 +1262,15 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(navigation.path.includes(`/docs/${scenario.locale}/`), `${scenario.id}: trunk navigation lost locale.`);
     assert(navigation.articleTitle !== initial.articleTitle && navigation.pageCount === 1 && navigation.activeTrunkContentCount === 1, `${scenario.id}: route cleanup left duplicate page or navigation owners (${JSON.stringify(navigation)}).`);
     assert(navigation.routeId !== 'docs.notFound' && navigation.documentTitle === `${navigation.articleTitle} | ${documentationTitle}`, `${scenario.id}: trunk navigation produced a stale or duplicated title.`);
+    const explicitRecommendations = await navigateArticle(driverUrl, sessionId, 'conditional-network-evidence');
+    assert(explicitRecommendations.relatedLinks[0] && explicitRecommendations.relatedLinks[0].source === 'parsedown', `${scenario.id}: explicit related link lost editorial priority (${JSON.stringify(explicitRecommendations.relatedLinks)}).`);
+    const genericRelatedLabels = new Set(['Verwandter Artikel', 'Related article']);
+    assert(explicitRecommendations.relatedLinks.every((entry) => !genericRelatedLabels.has(entry.label)), `${scenario.id}: generic editorial label leaked into Read Further (${JSON.stringify(explicitRecommendations.relatedLinks)}).`);
+    const aboutRecommendations = await navigateArticle(driverUrl, sessionId, 'about');
+    assert(aboutRecommendations.relatedLinks.length >= 3, `${scenario.id}: localized About page did not receive the minimum recommendation set (${JSON.stringify(aboutRecommendations.relatedLinks)}).`);
+    if (scenario.locale === 'en') {
+      assert(aboutRecommendations.relatedLinks.some((entry) => entry.slug !== 'xtend-dev-surface'), `${scenario.id}: English About prose containing "unrelated" was misclassified as a single editorial recommendation (${JSON.stringify(aboutRecommendations.relatedLinks)}).`);
+    }
     const homeNavigation = await navigateHomeViaLogo(driverUrl, sessionId, scenario);
     assert(homeNavigation.articleTitle === initial.articleTitle, `${scenario.id}: header logo did not restore the Docs start article.`);
     assert(homeNavigation.routeId !== 'docs.notFound' && homeNavigation.documentTitle === expectedHomeTitle, `${scenario.id}: home navigation did not restore the canonical title.`);
@@ -1228,7 +1289,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
     const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
     await Promise.all([
-      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, activeTheme, navigationSurface, skeletonHardening, search, focusedResult, enterNavigation, fallbackSearch, navigation, homeNavigation, localeSwitch, localeRestore, finalSnapshot, logs }, null, 2)}\n`),
+      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, activeTheme, navigationSurface, skeletonHardening, search, focusedResult, enterNavigation, fallbackSearch, navigation, explicitRecommendations, aboutRecommendations, homeNavigation, localeSwitch, localeRestore, finalSnapshot, logs }, null, 2)}\n`),
       writeFile(path.join(evidenceDir, `${scenario.id}.png`), Buffer.from(String(screenshot || ''), 'base64'))
     ]);
   } finally {

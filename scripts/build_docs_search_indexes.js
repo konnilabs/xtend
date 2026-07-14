@@ -80,10 +80,45 @@ function compactBody(markdown) {
   return result.join(' ');
 }
 
+function normalizeArticleReference(reference, locale, canonicalSlugs) {
+  let target = String(reference || '').trim();
+  if (!target || target.startsWith('#') || /^(?:[a-z]+:|\/\/)/i.test(target)) return '';
+  target = target.split(/[?#]/, 1)[0].replace(/\\/g, '/');
+  try {
+    target = decodeURIComponent(target);
+  } catch (_) {
+    return '';
+  }
+  target = target.replace(/^\.\//, '').replace(/^\.\.\//, '').replace(/^\/+/, '');
+  target = target.replace(new RegExp(`^(?:docs/)?${locale}/`), '').replace(/^docs\/(?:de|en)\//, '');
+  target = target.replace(/\.md$/i, '').replace(/\/$/, '');
+  if (target === 'README') target = 'readme';
+  if (target.startsWith('components/')) target = `components-${target.slice('components/'.length)}`;
+  if (target.includes('/')) target = target.slice(target.lastIndexOf('/') + 1);
+  return canonicalSlugs.get(target) || '';
+}
+
+function extractRelatedSlugs(markdown, locale, canonicalSlugs, currentSlug) {
+  const related = [];
+  const seen = new Set([currentSlug]);
+  for (const match of String(markdown || '').matchAll(/\[[^\]]*\]\(([^)\s]+)(?:\s+['"][^'"]*['"])?\)/g)) {
+    const slug = normalizeArticleReference(match[1], locale, canonicalSlugs);
+    if (!slug || seen.has(slug)) continue;
+    seen.add(slug);
+    related.push(slug);
+  }
+  return related;
+}
+
 function buildLocale(locale, menu) {
   const compactEntries = [];
   const fulltextEntries = [];
   const sourceParts = [];
+  const canonicalSlugs = new Map();
+  menu.forEach((entry) => {
+    canonicalSlugs.set(entry.slug, entry.slug);
+    (Array.isArray(entry.aliases) ? entry.aliases : []).forEach((alias) => canonicalSlugs.set(alias, entry.slug));
+  });
 
   menu.forEach((entry) => {
     const filePath = articlePath(locale, entry.slug);
@@ -101,8 +136,12 @@ function buildLocale(locale, menu) {
       keywords,
       headings: parsed.headings,
       summary: parsed.summary,
+      locale,
+      parent: entry.parent || null,
       trunk: entry.trunk,
-      section: entry.section
+      section: entry.section,
+      rank: Number(entry.rank || 0),
+      relatedSlugs: extractRelatedSlugs(markdown, locale, canonicalSlugs, entry.slug)
     };
     compactEntries.push(common);
     fulltextEntries.push({ ...common, body: compactBody(markdown) });
@@ -116,7 +155,7 @@ function buildLocale(locale, menu) {
       locale,
       sourceFingerprint,
       entryCount: compactEntries.length,
-      fields: ['title', 'aliases', 'keywords', 'headings', 'summary'],
+      fields: ['title', 'aliases', 'keywords', 'headings', 'summary', 'parent', 'trunk', 'section', 'rank', 'relatedSlugs'],
       entries: compactEntries
     },
     fulltext: {

@@ -1,0 +1,14 @@
+{
+  "schema": "xtend.docs.related-recommendation-golden.v1",
+  "cases": [
+    { "slug": "xtend-classic", "expectedAny": ["xtend-maraca", "manifest", "xtend-loader-types"], "forbidden": ["components-xalert"] },
+    { "slug": "components-xcode", "expectedAny": ["components", "components-xicon"], "forbidden": ["release-verification"] },
+    { "slug": "rmt-animation-engine", "expectedAny": ["rmt-vnext-authoring", "rmt-reference-validation-transitions"], "forbidden": ["components-xalert"] },
+    { "slug": "xtend-maraca", "expectedAny": ["xtend-maraca-orchestration", "rmt-first-xtend-apps"], "forbidden": ["components-xcode"] },
+    { "slug": "xtend-fabric", "expectedAny": ["xtend-fabric-runtime", "xtend-fabric-rmt-lane-mapping"], "forbidden": ["components-xcode"] },
+    { "slug": "xscaler-protocol", "expectedAny": ["rmt-reference-remote-surfaces", "rmt-vnext-remote-surfaces"], "forbidden": ["components-xcode"] },
+    { "slug": "trusted-dom-sanitizing", "expectedAny": ["trusted-dom-boundary-browser-proof", "manifest-import-policy"], "forbidden": ["components-xcode"] },
+    { "slug": "type-exports", "expectedAny": ["xtend-loader-types", "xtend-api-types", "xtend-policy-types"], "forbidden": ["rmt-animation-engine"] },
+    { "slug": "release-verification", "expectedAny": ["package-export-lock", "release-report-pack-dry-run-evidence"], "forbidden": ["components-xcode"] }
+  ]
+}
