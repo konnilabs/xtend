@@ -169,6 +169,20 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             ];
         }
 
+        /**
+         * Serialize a validated DOM descriptor through the same policy boundary as
+         * full SSR renders. Hosts must not maintain a parallel descriptor serializer.
+         */
+        public function renderDescriptor(array $descriptor, array $options = []): array
+        {
+            return $this->render([
+                'kind' => 'dom-descriptor',
+                'descriptor' => $descriptor,
+            ], array_replace($options, [
+                'inputKind' => 'dom-descriptor',
+            ]));
+        }
+
         public function streamJsonl($input, array $options = []): Generator
         {
             $renderResult = $this->render($input, array_replace($options, ['streamMode' => true]));

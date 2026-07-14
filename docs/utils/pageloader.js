@@ -1,4 +1,28 @@
+import { createRmtDomDescriptorRenderer } from '/xtendrmt/rmt-dom-descriptor-renderer.js';
+import { createMaracaPlanRuntime } from '/xtend-maraca/plan-runtime.mjs';
+import { createRmtBrowserScheduler } from '/xtendrmt/rmt-browser-scheduler.js';
+
 const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
+const docsBrowserScheduler = createRmtBrowserScheduler({ windowTarget: window });
+const docsProductDisposers = new Set();
+
+async function requireDocsLifecycleBinding() {
+  if (window.XUtils && typeof window.XUtils.on === 'function') return window.XUtils;
+  if (window.__XTendLoaderBootPromise) {
+    await Promise.resolve(window.__XTendLoaderBootPromise).catch(() => null);
+  }
+  if (window.XUtils && typeof window.XUtils.on === 'function') return window.XUtils;
+  throw new Error('XTend XUtils lifecycle binding is required after loader boot.');
+}
+
+await requireDocsLifecycleBinding();
+
+function bindDocsLifecycle(target, eventName, listener, options) {
+  if (!window.XUtils || typeof window.XUtils.on !== 'function') throw new Error('XTend XUtils lifecycle binding is required.');
+  const dispose = window.XUtils.on(target, eventName, listener, options);
+  docsProductDisposers.add(dispose);
+  return () => { docsProductDisposers.delete(dispose); dispose(); };
+}
 const DOCS_RMT_PRODUCTION_HARDENING_SCHEMA = 'xtend.epic13.docs-rmt-production-hardening.v1';
 const DOCS_RMT_TRUST_BOUNDARY = 'xtend.security.sanitizing-boundary.v1';
 const DOCS_RMT_TRUSTED_DOM_PROOF_SCHEMA = 'xtend.epic13.trusted-dom-boundary.v1';
@@ -107,8 +131,7 @@ const DOCS_RMT_PLAYGROUND_ISLANDS = Object.freeze({
     schedule: 'docs.rmt-playground.diagnostics.hydrate'
   })
 });
-let docsRmtPlaygroundRendererPromise = null;
-let docsRmtPlaygroundMaracaModulesPromise = null;
+const docsRmtDescriptorRenderer = createRmtDomDescriptorRenderer({ documentTarget: document });
 let docsAnimationEngineDemoModulePromise = null;
 let docsAnimationEngineDemoArtifactPromise = null;
 const DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE = `template learn.rmt.playground {
@@ -1663,46 +1686,11 @@ function runDocsMeasuredLane(detail, callback) {
 }
 
 function scheduleDocsAfterPaint(callback) {
-  let cancelled = false;
-  let firstFrame = 0;
-  let secondFrame = 0;
-  const run = () => {
-    if (!cancelled) callback();
-  };
-  if (typeof window.requestAnimationFrame === 'function') {
-    firstFrame = window.requestAnimationFrame(() => {
-      secondFrame = window.requestAnimationFrame(run);
-    });
-    return () => {
-      cancelled = true;
-      if (firstFrame) window.cancelAnimationFrame(firstFrame);
-      if (secondFrame) window.cancelAnimationFrame(secondFrame);
-    };
-  }
-  const timer = window.setTimeout(run, 0);
-  return () => {
-    cancelled = true;
-    window.clearTimeout(timer);
-  };
+  return docsBrowserScheduler.afterPaint(callback);
 }
 
 function scheduleDocsIdle(callback, timeout = DOCS_ROUTE_IDLE_TIMEOUT_MS) {
-  let cancelled = false;
-  const run = (deadline) => {
-    if (!cancelled) callback(deadline || null);
-  };
-  if (typeof window.requestIdleCallback === 'function') {
-    const id = window.requestIdleCallback(run, { timeout });
-    return () => {
-      cancelled = true;
-      window.cancelIdleCallback(id);
-    };
-  }
-  const timer = window.setTimeout(run, Math.min(80, timeout));
-  return () => {
-    cancelled = true;
-    window.clearTimeout(timer);
-  };
+  return docsBrowserScheduler.scheduleEndpoint('docs.route.idle', window.location.pathname, callback, { kind: 'idle', timeout });
 }
 
 function getXtendSkeletonLoader() {
@@ -1809,7 +1797,7 @@ function createDocsComponentDemos() {
       title,
       description,
       html,
-      previewHtml: options.previewHtml || html,
+      descriptor: { type: 'element', tag, attributes: options.attributes || {}, children: options.children || [] },
       rmt: options.rmt || createRmtSnippet(tag, options.attributes || {}, options.children || []),
       actions: options.actions || []
     };
@@ -1984,24 +1972,27 @@ function resolveDocsToastApi() {
   return null;
 }
 
-function waitForDocsToastApi(callback, attempt = 0) {
-  const toastApi = resolveDocsToastApi();
-  if (toastApi) return callback(toastApi);
-  if (attempt >= 20) {
-    window.dispatchEvent(new CustomEvent('xtend-docs-toast-dropped', {
-      detail: {
-        schema: 'xtend.docs.toast-bridge.v1',
-        reason: 'xtend-toast-api-unavailable'
-      }
-    }));
-    return null;
-  }
-  window.setTimeout(() => waitForDocsToastApi(callback, attempt + 1), attempt < 4 ? 50 : 100);
-  return null;
+async function waitForDocsToastApi() {
+  let toastApi = resolveDocsToastApi();
+  if (toastApi) return toastApi;
+  if (window.__XTendLoaderBootPromise) await Promise.resolve(window.__XTendLoaderBootPromise).catch(() => null);
+  toastApi = resolveDocsToastApi();
+  if (toastApi) return toastApi;
+  return new Promise((resolve) => {
+    const dispose = bindDocsLifecycle(window, 'xtend-api-ready', () => {
+      dispose();
+      resolve(resolveDocsToastApi());
+    }, { once: true });
+  });
 }
 
-window.xtendShowToast = function(message, type = 'info', duration = 3000) {
-  return waitForDocsToastApi((toastApi) => toastApi.show(message, type, duration));
+window.xtendShowToast = async function(message, type = 'info', duration = 3000) {
+  const toastApi = await waitForDocsToastApi();
+  if (toastApi) return toastApi.show(message, type, duration);
+  window.dispatchEvent(new CustomEvent('xtend-docs-toast-dropped', {
+    detail: { schema: 'xtend.docs.toast-bridge.v1', reason: 'xtend-toast-api-unavailable' }
+  }));
+  return null;
 };
 
 function getDocsRmtDocument() {
@@ -2114,68 +2105,12 @@ function getTemplateDescriptorNodes(template) {
   return [];
 }
 
-function resolveRmtValue(value, model = {}) {
-  if (typeof value !== 'string') return value;
-  return value
-    .replace(/\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g, (match, key) => {
-      return Object.prototype.hasOwnProperty.call(model, key) ? String(model[key]) : match;
-    })
-    .replace(/\$\{\s*([a-zA-Z0-9_.-]+)\s*\}/g, (match, key) => {
-      return Object.prototype.hasOwnProperty.call(model, key) ? String(model[key]) : match;
-    });
-}
-
-function applyRmtAttributes(element, attributes = {}, model = {}) {
-  Object.entries(attributes || {}).forEach(([name, rawValue]) => {
-    if (rawValue === false || rawValue === null || rawValue === undefined) return;
-    if (name === 'style' && rawValue && typeof rawValue === 'object') {
-      Object.entries(rawValue).forEach(([prop, value]) => {
-        element.style[prop] = String(resolveRmtValue(value, model));
-      });
-      return;
-    }
-    const value = rawValue === true ? '' : String(resolveRmtValue(rawValue, model));
-    element.setAttribute(name, value);
-  });
-}
-
-function renderRmtDescriptorNode(node, model = {}) {
-  if (typeof node === 'string') {
-    return document.createTextNode(resolveRmtValue(node, model));
-  }
-  if (!node || typeof node !== 'object') {
-    return document.createTextNode('');
-  }
-  if (!node.tag && node.text !== undefined) {
-    return document.createTextNode(resolveRmtValue(String(node.text), model));
-  }
-
-  const element = document.createElement(String(node.tag || 'div'));
-  applyRmtAttributes(element, node.attributes || {}, model);
-
-  if (node.text !== undefined) {
-    element.appendChild(document.createTextNode(resolveRmtValue(String(node.text), model)));
-  }
-
-  (Array.isArray(node.children) ? node.children : []).forEach((child) => {
-    element.appendChild(renderRmtDescriptorNode(child, model));
-  });
-
-  return element;
-}
-
 function renderRmtDomTemplate(templateId, model = {}) {
   const template = getRmtTemplate(templateId);
   const fragment = document.createDocumentFragment();
   const nodes = getTemplateDescriptorNodes(template);
-  nodes.forEach((node) => {
-    fragment.appendChild(renderRmtDescriptorNode(node, model));
-  });
-  return {
-    template,
-    fragment,
-    rendered: nodes.length > 0
-  };
+  nodes.forEach((node) => fragment.appendChild(docsRmtDescriptorRenderer.renderNode(node, { model })));
+  return { template, fragment, rendered: nodes.length > 0 };
 }
 
 function getDocsPageMeta(slug, locale = getCurrentDocsLocale()) {
@@ -2460,7 +2395,7 @@ function setDocsButtonBusy(button, busy) {
 function bindDocsButtonAction(button, handler) {
   if (!button || typeof handler !== 'function') return;
   const activationEvent = button.tagName === 'X-BUTTON' ? 'button-interaction' : 'click';
-  button.addEventListener(activationEvent, handler);
+  return bindDocsLifecycle(button, activationEvent, handler);
 }
 
 function applyRmtPageMetadata(section, mdContent, richSlot, diagnosticsSlot, rmtMeta = {}, sidebar = null, relatedSlot = null, demoSlot = null) {
@@ -2600,37 +2535,21 @@ function wireDownloadButton(download, slug) {
       a.download = `${activeSlug}.md`;
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
+      scheduleDocsAfterPaint(() => {
+        a.remove();
         URL.revokeObjectURL(url);
-      }, 100);
-      setTimeout(() => {
-        window.xtendShowToast(locale === 'en' ? 'Download complete.' : 'Download erfolgreich!', 'success', 3000);
-      }, 200);
+      });
+      await window.xtendShowToast(locale === 'en' ? 'Download complete.' : 'Download erfolgreich!', 'success', 3000);
     } catch (err) {
-      setTimeout(() => {
-        window.xtendShowToast(getCurrentDocsLocale() === 'en' ? 'Download failed.' : 'Download fehlgeschlagen!', 'error', 3000);
-      }, 200);
+      await window.xtendShowToast(getCurrentDocsLocale() === 'en' ? 'Download failed.' : 'Download fehlgeschlagen!', 'error', 3000);
     } finally {
-      setTimeout(() => {
-        setDocsButtonBusy(download, false);
-      }, 300);
+      setDocsButtonBusy(download, false);
     }
   });
 }
 
-function applyMainBackground() {
-  const main = document.querySelector('main');
-  if (main) {
-    main.style.background = 'transparent';
-  }
-}
-
 function ensureMainBackgroundBinding() {
-  if (window.__xtendDocsMainBackgroundBound) return;
-  window.__xtendDocsMainBackgroundBound = true;
-  document.addEventListener('theme-changed', applyMainBackground);
-  applyMainBackground();
+  document.documentElement.setAttribute('data-docs-theme-owned', 'x-theme');
 }
 
 function getDocsPageSlugs() {
@@ -2890,9 +2809,8 @@ function isDocsTrustedDomUrlAllowed(value) {
 function decodeDocsParsedownCodeEntities(value) {
   const text = String(value || '');
   if (!/&(?:amp|lt|gt|quot|#0?39|#x0?27);/i.test(text)) return text;
-  const decoder = document.createElement('textarea');
-  decoder.innerHTML = text;
-  return decoder.value;
+  const entities = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", '#039': "'", '#x27': "'", '#x027': "'" };
+  return text.replace(/&(amp|lt|gt|quot|#0?39|#x0?27);/gi, (match, entity) => entities[String(entity).toLowerCase()] ?? match);
 }
 
 function normalizeDocsParsedownCodeEntities(root) {
@@ -3185,9 +3103,9 @@ function ensureDocsLanguageSelectBinding() {
     if (!control) return;
     prefetchAlternateDocsLocales(getCurrentDocsSlug());
   };
-  document.addEventListener('pointerdown', maybePrefetchLanguageTarget, { passive: true });
-  document.addEventListener('focusin', maybePrefetchLanguageTarget);
-  document.addEventListener('select-changed', (event) => {
+  bindDocsLifecycle(document, 'pointerdown', maybePrefetchLanguageTarget, { passive: true });
+  bindDocsLifecycle(document, 'focusin', maybePrefetchLanguageTarget);
+  bindDocsLifecycle(document, 'select-changed', (event) => {
     const select = event.target && event.target.closest
       ? event.target.closest('#docs-language-select')
       : null;
@@ -3195,7 +3113,7 @@ function ensureDocsLanguageSelectBinding() {
     const value = event.detail && event.detail.value ? event.detail.value : select.getAttribute('value');
     navigateDocsLocale(value, 'user');
   });
-  window.addEventListener('popstate', () => {
+  bindDocsLifecycle(window, 'popstate', () => {
     const parsed = parseDocsRoutePath();
     updateDocsLocaleUi(parsed.locale, {
       publish: false,
@@ -3453,12 +3371,8 @@ function createDemoCodeBlock(title, lang, code, mode = 'html') {
   codeElement.setAttribute('lang', lang);
   const template = document.createElement('template');
   const snippetCode = code == null ? '' : String(code);
-  template.setAttribute('data-x-code-mode', mode === 'html' ? 'html' : 'text');
-  if (mode === 'html') {
-    template.innerHTML = snippetCode;
-  } else {
-    template.content.appendChild(document.createTextNode(snippetCode));
-  }
+  template.setAttribute('data-x-code-mode', 'text');
+  template.content.appendChild(document.createTextNode(snippetCode));
   codeElement.appendChild(template);
   block.appendChild(heading);
   block.appendChild(codeElement);
@@ -3555,8 +3469,7 @@ function hydrateDocsCodeBlocks(root, metadata = {}) {
       });
       resolve(publishHydration());
     };
-    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(commit);
-    else window.setTimeout(commit, 0);
+    scheduleDocsAfterPaint(commit);
   });
 }
 
@@ -3602,7 +3515,7 @@ function renderDocsComponentDemo(demoSlot, slug) {
   if (title) title.textContent = `${demo.title} Hands-on`;
   if (description) description.textContent = demo.description;
   if (preview) {
-    preview.innerHTML = demo.previewHtml;
+    docsRmtDescriptorRenderer.render(preview, demo.descriptor, { source: { inputKind: 'docs-component-demo', slug } });
     bindDocsDemoInteractions(preview, demo);
   }
   if (code) {
@@ -3977,17 +3890,7 @@ function collectDocsRmtPlaygroundDescriptorTags(descriptor, tags = new Set()) {
 }
 
 function ensureDocsRmtPlaygroundRenderer() {
-  if (docsRmtPlaygroundRendererPromise) return docsRmtPlaygroundRendererPromise;
-  const moduleUrl = new URL(DOCS_RMT_PLAYGROUND_RENDERER_MODULE, window.location.origin).href;
-  docsRmtPlaygroundRendererPromise = import(moduleUrl).then((moduleApi) => {
-    const factory = moduleApi.createRmtDomDescriptorRenderer
-      || (moduleApi.default && moduleApi.default.createRmtDomDescriptorRenderer);
-    if (typeof factory !== 'function') {
-      throw new Error('RMT DOM Descriptor Renderer is not available.');
-    }
-    return factory({ documentTarget: document });
-  });
-  return docsRmtPlaygroundRendererPromise;
+  return Promise.resolve(docsRmtDescriptorRenderer);
 }
 
 function normalizeDocsRmtPlaygroundPreviewBounds(bounds = {}) {
@@ -4060,172 +3963,6 @@ function renderDocsRmtPlaygroundDescriptorPreviews(target) {
   });
 }
 
-function cloneDocsRmtPlaygroundValue(value, fallback = null) {
-  if (typeof value === 'undefined') return fallback;
-  if (value === null || typeof value !== 'object') return value;
-  try {
-    return JSON.parse(JSON.stringify(value));
-  } catch (error) {
-    return fallback;
-  }
-}
-
-function readDocsRmtPlaygroundPath(source, path) {
-  if (!path) return source;
-  const parts = String(path || '').split('.').filter(Boolean);
-  if (parts.some(isUnsafeDocsRmtPlaygroundPathSegment)) return undefined;
-  let cursor = source;
-  for (const part of parts) {
-    if (cursor == null) return undefined;
-    cursor = cursor[part];
-  }
-  return cursor;
-}
-
-function isUnsafeDocsRmtPlaygroundPathSegment(part) {
-  return part === '__proto__' || part === 'prototype' || part === 'constructor';
-}
-
-function writeDocsRmtPlaygroundPath(target, path, value) {
-  const parts = String(path || '').split('.').filter(Boolean);
-  if (parts.some(isUnsafeDocsRmtPlaygroundPathSegment)) return target;
-  if (!parts.length) return value;
-  let cursor = target;
-  parts.forEach((part, index) => {
-    if (index === parts.length - 1) {
-      cursor[part] = value;
-      return;
-    }
-    if (!cursor[part] || typeof cursor[part] !== 'object' || Array.isArray(cursor[part])) {
-      cursor[part] = {};
-    }
-    cursor = cursor[part];
-  });
-  return target;
-}
-
-function resolveDocsRmtPlaygroundReducerValue(value, context = {}) {
-  if (typeof value !== 'string') return cloneDocsRmtPlaygroundValue(value, value);
-  if (value === 'input' || value === 'payload') return cloneDocsRmtPlaygroundValue(context.payload, {});
-  if (value.startsWith('input.')) return readDocsRmtPlaygroundPath(context.payload, value.slice(6));
-  if (value.startsWith('payload.')) return readDocsRmtPlaygroundPath(context.payload, value.slice(8));
-  if (value === 'result') return cloneDocsRmtPlaygroundValue(context.result, {});
-  if (value.startsWith('result.')) return readDocsRmtPlaygroundPath(context.result, value.slice(7));
-  return value;
-}
-
-function setDocsRmtPlaygroundMaracaAttribute(element, name, value, context = {}) {
-  if (!element || !name) return;
-  if (name === 'hidden' && context.transitionRuntime && typeof context.transitionRuntime.applyVisibilityPatch === 'function') {
-    const nextHidden = value === true;
-    const previousHidden = typeof element.hasAttribute === 'function' ? element.hasAttribute('hidden') : false;
-    const transitionResult = context.transitionRuntime.applyVisibilityPatch({
-      surface: context.surface && context.surface.id || element.getAttribute('data-maraca-surface') || '',
-      element,
-      nextHidden,
-      previousHidden,
-      action: context.action || '',
-      metadata: {
-        operation: context.operation || '',
-        correlationId: context.correlationId || ''
-      }
-    });
-    if (transitionResult && typeof transitionResult.catch === 'function') transitionResult.catch(() => {});
-    return;
-  }
-  if (value === false || value === null || typeof value === 'undefined' || value === '') {
-    if (typeof element.removeAttribute === 'function') element.removeAttribute(name);
-    if (name in element && name !== 'id') {
-      try {
-        element[name] = name === 'value' ? '' : false;
-      } catch (error) {}
-    }
-    return;
-  }
-  if (name === 'id') {
-    element.id = String(value);
-    return;
-  }
-  if (typeof element.setAttribute === 'function') {
-    element.setAttribute(name, value === true ? '' : String(value));
-  }
-  if (name in element && name !== 'style') {
-    try {
-      element[name] = value === true ? true : String(value);
-    } catch (error) {}
-  }
-}
-
-function syncDocsRmtPlaygroundMaracaStateAttributes(element, state = {}, surface = {}, context = {}) {
-  if (!element || !state || typeof state !== 'object') return;
-  const component = surface.component || element.getAttribute('data-rmt-component') || element.localName || '';
-  const setIfPresent = (attribute, stateKey = attribute) => {
-    if (!Object.prototype.hasOwnProperty.call(state, stateKey)) return;
-    setDocsRmtPlaygroundMaracaAttribute(element, attribute, state[stateKey], {
-      ...context,
-      surface,
-      transitionRuntime: context.transitionRuntime
-    });
-  };
-  setIfPresent('id');
-  setIfPresent('tone');
-  setIfPresent('hidden');
-  setIfPresent('name');
-  setIfPresent('value');
-  setIfPresent('placeholder');
-  setIfPresent('label');
-  setIfPresent('required');
-  setIfPresent('disabled');
-  setIfPresent('invalid');
-  setIfPresent('rows');
-  setIfPresent('density');
-  setIfPresent('minlength', 'minLength');
-  setIfPresent('maxlength', 'maxLength');
-  setIfPresent('data-field', 'field');
-  if (Object.prototype.hasOwnProperty.call(state, 'inputType')) {
-    setDocsRmtPlaygroundMaracaAttribute(element, 'type', state.inputType, context);
-  }
-  if (component === 'x-status') {
-    setDocsRmtPlaygroundMaracaAttribute(element, 'type', state.tone || 'info', context);
-    setDocsRmtPlaygroundMaracaAttribute(element, 'state', state.tone || 'info', context);
-    setDocsRmtPlaygroundMaracaAttribute(element, 'message', state.text || '', context);
-  }
-  if (component === 'x-button') {
-    setDocsRmtPlaygroundMaracaAttribute(element, 'variant', state.tone || 'secondary', context);
-    setDocsRmtPlaygroundMaracaAttribute(element, 'label', state.text || '', context);
-    setDocsRmtPlaygroundMaracaAttribute(element, 'data-label', state.text || '', context);
-  }
-  if (Object.prototype.hasOwnProperty.call(state, 'text') && !['x-input', 'x-select', 'x-textarea'].includes(component)) {
-    element.textContent = String(state.text == null ? '' : state.text);
-  }
-}
-
-function collectDocsRmtPlaygroundMaracaTags(plan = {}) {
-  const selected = plan.components && Array.isArray(plan.components.selected) ? plan.components.selected : [];
-  const fromComponents = selected.map((entry) => String(entry.tag || '').toLowerCase()).filter(Boolean);
-  const fromSurfaces = Array.isArray(plan.surfaces)
-    ? plan.surfaces.map((surface) => String(surface.component || '').toLowerCase()).filter(Boolean)
-    : [];
-  return Array.from(new Set([...fromComponents, ...fromSurfaces]));
-}
-
-function ensureDocsRmtPlaygroundMaracaModules() {
-  if (docsRmtPlaygroundMaracaModulesPromise) return docsRmtPlaygroundMaracaModulesPromise;
-  docsRmtPlaygroundMaracaModulesPromise = Promise.all(
-    DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES.map((modulePath) => import(new URL(modulePath, window.location.origin).href))
-  ).then(() => ({
-    stateApi: window.XTendRmtStateSelectorRuntime,
-    actionApi: window.XTendRmtActionEffectRuntime,
-    eventApi: window.XTendRmtEventRoutingRuntime,
-    validationApi: window.XTendRmtFormValidationRuntime,
-    animationApi: window.XTendRmtAnimationEngineRuntime,
-    transitionApi: window.XTendRmtSurfaceTransitionRuntime,
-    rendererApi: window.XTendRmtDomDescriptorRenderer,
-    kernelApi: window.XTendRmtKernelOrchestrationController
-  }));
-  return docsRmtPlaygroundMaracaModulesPromise;
-}
-
 function createDocsRmtPlaygroundMaracaBadge(label, enabled, status = '') {
   return createDocsRmtPlaygroundElement('span', {
     class: 'docs-rmt-playground-maraca-badge',
@@ -4282,301 +4019,42 @@ function renderDocsRmtPlaygroundMaracaToolbar(maraca = {}, copy = getDocsRmtPlay
   return toolbar;
 }
 
-function applyDocsRmtPlaygroundMaracaBounds(appRoot, surfaces = []) {
-  if (!appRoot || !Array.isArray(surfaces)) return;
-  const bounded = surfaces
-    .map((surface) => ({ surface, bounds: normalizeDocsRmtPlaygroundPreviewBounds(surface.bounds) }))
-    .filter((entry) => entry.bounds);
-  if (!bounded.length) {
-    appRoot.removeAttribute('data-bounded');
-    return;
-  }
-  const maxX = Math.max(...bounded.map((entry) => entry.bounds.x + entry.bounds.width));
-  const maxY = Math.max(...bounded.map((entry) => entry.bounds.y + entry.bounds.height));
-  appRoot.setAttribute('data-bounded', 'true');
-  appRoot.style.minWidth = `${Math.ceil(maxX + 24)}px`;
-  appRoot.style.minHeight = `${Math.ceil(maxY + 24)}px`;
-  bounded.forEach(({ surface, bounds }) => {
-    const element = Array.from(appRoot.querySelectorAll('[data-maraca-surface]')).find((entry) => (
-      entry.getAttribute('data-maraca-surface') === surface.id
-    ));
-    if (!element) return;
-    element.style.left = `${bounds.x}px`;
-    element.style.top = `${bounds.y}px`;
-    element.style.width = `${bounds.width}px`;
-    element.style.minHeight = `${bounds.height}px`;
-  });
-}
-
-function createDocsRmtPlaygroundMaracaKernel(plan = {}) {
-  const kernel = plan.kernel || {};
-  const history = [];
-  const enabled = kernel.enabled === true;
-  return Object.freeze({
-    enabled,
-    mode: kernel.mode || 'auto',
-    status: enabled ? 'booted' : (kernel.status || 'disabled'),
-    scheduleWork(kind, callback, metadata = {}) {
-      history.push({
-        schema: 'xtend.docs.rmt-playground.maraca-kernel-work.v1',
-        kind,
-        status: enabled ? 'scheduled' : 'fallback',
-        metadata: cloneDocsRmtPlaygroundValue(metadata, {}),
-        at: Date.now()
-      });
-      return typeof callback === 'function' ? callback({ scheduled: enabled, kind, metadata }) : undefined;
-    },
-    listScheduledEndpoints() {
-      const count = Number(kernel.summary && kernel.summary.endpointCount || 0);
-      return Array.from({ length: Math.min(count, 12) }, (_, index) => `preview.endpoint.${index + 1}`);
-    },
-    snapshot() {
-      return {
-        schema: 'xtend.docs.rmt-playground.maraca-kernel-snapshot.v1',
-        enabled,
-        mode: kernel.mode || 'auto',
-        status: enabled ? 'booted' : (kernel.status || 'disabled'),
-        summary: kernel.summary || {},
-        history: history.slice(-50)
-      };
-    }
-  });
-}
-
 async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy()) {
-  if (!target || !payload || payload.ok !== true || !payload.maraca || payload.maraca.ok !== true || !payload.maraca.plan) {
-    return null;
-  }
+  if (!target || payload?.ok !== true || payload?.maraca?.ok !== true || !payload.maraca.plan) return null;
   const maraca = payload.maraca;
-  const plan = maraca.plan;
-  const modules = await ensureDocsRmtPlaygroundMaracaModules();
-  const orchestration = plan.orchestration || {};
-  const artifact = orchestration.artifact || null;
-  if (!artifact || !modules.stateApi || !modules.rendererApi) {
-    throw new Error(copy.maracaBlocked || 'Maraca preview blocked.');
-  }
-
   const appRoot = createDocsRmtPlaygroundElement('div', {
     class: 'docs-rmt-playground-maraca-root',
     'data-rmt-playground-maraca-root': '',
     'data-maraca-root': ''
   });
   target.replaceChildren(renderDocsRmtPlaygroundMaracaToolbar(maraca, copy), appRoot);
-
-  const components = collectDocsRmtPlaygroundMaracaTags(plan).map((tag) => ({ id: tag, tag }));
-  const stateRuntime = modules.stateApi.createRmtStateSelectorRuntime({
-    states: artifact.state && artifact.state.states || [],
-    selectors: artifact.state && artifact.state.selectors || [],
-    reducers: artifact.state && artifact.state.reducers || [],
-    initialState: plan.state || {}
-  });
-  const renderer = modules.rendererApi.createRmtDomDescriptorRenderer({ documentTarget: document });
-  const kernelController = createDocsRmtPlaygroundMaracaKernel(plan);
-  const baseActionRuntime = modules.actionApi && modules.actionApi.createRmtActionEffectRuntime
-    ? modules.actionApi.createRmtActionEffectRuntime({
-        actions: artifact.actions && artifact.actions.actions || [],
-        dataSources: artifact.actions && artifact.actions.dataSources || [],
-        effects: artifact.actions && artifact.actions.effects || [],
-        resources: artifact.resources || [],
-        stateRuntime
-      })
-    : null;
-  const transitionRuntime = plan.transitions && plan.transitions.enabled && modules.transitionApi && modules.transitionApi.createRmtSurfaceTransitionRuntime
-    ? modules.transitionApi.createRmtSurfaceTransitionRuntime({
-        transitionPlan: plan.transitions.artifact,
-        root: appRoot,
-        kernelController,
-        xUtils: window.XUtils,
-        xstate: window.xstate,
-        windowTarget: window,
-        diagnostics: plan.transitions.diagnostics || [],
-        strict: plan.transitions.strict === true
-      })
-    : null;
-  const validationRuntime = plan.validation && plan.validation.enabled && modules.validationApi && modules.validationApi.createRmtFormValidationRuntime
-    ? modules.validationApi.createRmtFormValidationRuntime({
-        validationPlan: plan.validation.artifact,
-        stateRuntime,
-        root: appRoot,
-        windowTarget: window,
-        diagnostics: plan.validation.diagnostics || []
-      })
-    : null;
-  let eventRuntime = null;
-  let renderCount = 0;
-  let runtime = null;
-
-  function renderRuntime() {
-    renderCount += 1;
-    const context = stateRuntime.createRenderContext({ components });
-    const report = renderer.render(appRoot, artifact.render && artifact.render.root || { type: 'fragment', children: [] }, context);
-    applyDocsRmtPlaygroundMaracaBounds(appRoot, plan.surfaces || []);
-    hydrateDocsRmtPlaygroundElements(appRoot, components.map((entry) => entry.tag));
-    if (eventRuntime && typeof eventRuntime.detachAll === 'function') eventRuntime.detachAll();
-    if (eventRuntime && typeof eventRuntime.attach === 'function') eventRuntime.attach(appRoot);
-    return report;
-  }
-
-  function syncRuntime(metadata = {}) {
-    let missing = 0;
-    (plan.surfaces || []).forEach((surface) => {
-      const element = Array.from(appRoot.querySelectorAll('[data-maraca-surface]')).find((entry) => (
-        entry.getAttribute('data-maraca-surface') === surface.id
-      ));
-      if (!element) {
-        missing += 1;
-        return;
-      }
-      const state = stateRuntime.getState(surface.source) || {};
-      syncDocsRmtPlaygroundMaracaStateAttributes(element, state, surface, {
-        transitionRuntime,
-        action: metadata.action || '',
-        operation: metadata.operation || '',
-        correlationId: metadata.correlationId || ''
-      });
-    });
-    if (missing > 0) renderRuntime();
-  }
-
-  async function runAction(actionId, actionPayload = {}, metadata = {}) {
-    if (validationRuntime && typeof validationRuntime.validateAction === 'function') {
-      const validationResult = await Promise.resolve(kernelController.scheduleWork('validation', () => validationRuntime.validateAction(actionId, {
-        ...metadata,
-        report: true,
-        reveal: true
-      }), {
-        operation: typeof validationRuntime.operationForAction === 'function' ? validationRuntime.operationForAction(actionId) : `operation:xtend.rmt/validation/${actionId}`,
-        action: actionId
-      }));
-      if (validationResult && validationResult.valid === false) {
-        syncRuntime({ operation: 'validation.blocked', action: actionId });
-        window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-action', {
-          detail: { action: actionId, status: 'blocked', validation: validationResult }
-        }));
-        return { schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA, action: actionId, status: 'blocked', validation: validationResult };
-      }
-    }
-    const actionResult = await Promise.resolve(kernelController.scheduleWork('action', () => (
-      baseActionRuntime && typeof baseActionRuntime.runAction === 'function'
-        ? baseActionRuntime.runAction(actionId, actionPayload, metadata)
-        : { schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA, id: actionId, status: 'success', data: cloneDocsRmtPlaygroundValue(actionPayload, {}) }
-    ), {
-      operation: `operation:xtend.rmt/action/${actionId}`,
-      action: actionId,
-      eventId: metadata.eventId || ''
-    }));
-    const reducers = artifact.state && Array.isArray(artifact.state.reducers)
-      ? artifact.state.reducers.filter((reducer) => reducer.action === actionId && reducer.state)
-      : [];
-    reducers.forEach((reducer) => {
-      const value = resolveDocsRmtPlaygroundReducerValue(reducer.value, {
-        payload: actionPayload,
-        result: actionResult && actionResult.data || actionResult
-      });
-      if (!reducer.path) {
-        stateRuntime.setState(reducer.state, value, { operation: 'orchestration.reducer', action: actionId, reducer: reducer.id });
-        return;
-      }
-      const current = stateRuntime.getState(reducer.state) || {};
-      const next = cloneDocsRmtPlaygroundValue(current, {});
-      writeDocsRmtPlaygroundPath(next, reducer.path, value);
-      stateRuntime.setState(reducer.state, next, { operation: 'orchestration.reducer', action: actionId, reducer: reducer.id });
-    });
-    const action = (artifact.actions && artifact.actions.actions || []).find((entry) => entry.id === actionId);
-    (action && Array.isArray(action.emits) ? action.emits : []).forEach((emitted) => {
-      window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-event', {
-        detail: { schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA, action: actionId, event: emitted, payload: actionPayload }
-      }));
-    });
-    window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-action', {
-      detail: { action: actionId, status: actionResult && actionResult.status || 'success' }
-    }));
-    if (runtime && typeof runtime.snapshot === 'function') {
-      window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
-    }
-    return actionResult;
-  }
-
-  const actionRuntime = Object.freeze({
-    runAction,
-    cancelAction(actionId) {
-      return baseActionRuntime && typeof baseActionRuntime.cancelAction === 'function'
-        ? baseActionRuntime.cancelAction(actionId)
-        : { schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA, action: actionId, status: 'cancelled' };
+  const previous = target.__xtendDocsMaracaPlanRuntime;
+  if (previous && typeof previous.dispose === 'function') previous.dispose();
+  const runtime = createMaracaPlanRuntime({
+    plan: maraca.plan,
+    root: appRoot,
+    moduleUrls: DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES.map((modulePath) => new URL(modulePath, window.location.origin).href),
+    componentRegistry: {
+      ensureTags(tags) { return hydrateDocsRmtPlaygroundElements(appRoot, tags); },
+      hydrate(root, tags) { return hydrateDocsRmtPlaygroundElements(root, tags); }
     },
-    listHistory() {
-      return baseActionRuntime && typeof baseActionRuntime.listHistory === 'function' ? baseActionRuntime.listHistory() : [];
-    },
-    listDiagnostics() {
-      return baseActionRuntime && typeof baseActionRuntime.listDiagnostics === 'function' ? baseActionRuntime.listDiagnostics() : [];
-    }
+    hostServices: Object.freeze({
+      emit(name, detail) { window.dispatchEvent(new CustomEvent(name, { detail })); }
+    }),
+    documentTarget: document,
+    windowTarget: window,
+    globalTarget: window,
+    xUtils: window.XUtils,
+    xstate: window.xstate
   });
-
-  eventRuntime = modules.eventApi && modules.eventApi.createRmtEventRoutingRuntime
-    ? modules.eventApi.createRmtEventRoutingRuntime({
-        events: artifact.events || [],
-        actionRuntime,
-        root: appRoot
-      })
-    : null;
-
-  stateRuntime.subscribe((event) => {
-    const operation = event && event.metadata && event.metadata.operation || 'state-change';
-    syncRuntime({
-      operation,
-      action: event && event.metadata && event.metadata.action || '',
-      correlationId: event && event.metadata && event.metadata.correlationId || ''
-    });
-    if (validationRuntime && typeof validationRuntime.refresh === 'function' && operation !== 'validation.patch') {
-      validationRuntime.refresh({ reason: 'state-change', operation });
-    }
-    if (runtime && typeof runtime.snapshot === 'function') {
-      window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
-    }
-  });
-
-  renderRuntime();
-  if (validationRuntime && typeof validationRuntime.refresh === 'function') {
-    validationRuntime.refresh({ reason: 'boot' });
-  }
-  syncRuntime({ operation: 'boot' });
-
-  runtime = {
-    schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA,
-    ok: true,
-    status: 'booted',
-    plan,
-    stateRuntime,
-    actionRuntime,
-    eventRuntime,
-    validationRuntime,
-    transitionRuntime,
-    kernelController,
-    snapshot() {
-      return {
-        schema: 'xtend.docs.rmt-playground.maraca-runtime-snapshot.v1',
-        status: 'booted',
-        renderCount,
-        summary: maraca.summary || {},
-        state: stateRuntime.snapshot(),
-        actions: actionRuntime.listHistory(),
-        events: eventRuntime && typeof eventRuntime.listRoutes === 'function' ? eventRuntime.listRoutes() : [],
-        validation: validationRuntime && typeof validationRuntime.snapshot === 'function' ? validationRuntime.snapshot() : null,
-        transitions: transitionRuntime && typeof transitionRuntime.snapshot === 'function' ? transitionRuntime.snapshot() : null,
-        kernel: kernelController.snapshot()
-      };
-    }
-  };
+  await runtime.boot();
   window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
-  window.__XTendDocsRmtPlaygroundMaracaRuntime = runtime;
+  target.__xtendDocsMaracaPlanRuntime = runtime;
+  const playgroundRoot = target.closest('[data-rmt-playground-root]');
+  if (playgroundRoot) playgroundRoot.__xtendDocsMaracaPlanRuntime = runtime;
   const toolbar = target.querySelector('[data-rmt-playground-maraca-toolbar]');
-  if (toolbar) {
-    toolbar.replaceWith(renderDocsRmtPlaygroundMaracaToolbar(maraca, copy, {
-      phase: 'runtime',
-      runtime
-    }));
-  }
-  window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-boot', { detail: window.xtendDocsRmtPlaygroundLastMaraca }));
+  if (toolbar) toolbar.replaceWith(renderDocsRmtPlaygroundMaracaToolbar(maraca, copy, { phase: 'runtime', runtime }));
+  window.dispatchEvent(new CustomEvent('xtend-docs-rmt-playground-maraca-boot', { detail: runtime.snapshot() }));
   return runtime;
 }
 
@@ -5021,7 +4499,10 @@ async function loadDocsRmtPlaygroundPreset(id) {
 function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), relatedLinks = []) {
   if (!container) return null;
   const existing = container.querySelector('[data-rmt-playground-root]');
-  if (existing) existing.remove();
+  if (existing) {
+    if (typeof existing.__xtendDocsDispose === 'function') existing.__xtendDocsDispose();
+    existing.remove();
+  }
   const articleFragment = document.createDocumentFragment();
   Array.from(container.childNodes).forEach((node) => {
     if (node.nodeType === 1 && node.matches && node.matches('[data-rmt-playground-root]')) return;
@@ -5042,6 +4523,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     'data-rmt-hydration-islands': Object.values(DOCS_RMT_PLAYGROUND_ISLANDS).map((island) => island.id).join(' '),
     'data-fabric-lanes': Object.values(DOCS_RMT_PLAYGROUND_ISLANDS).map((island) => island.lane).join(' '),
     'data-rmt-cross-surface-events': 'source-changed island-state-changed',
+    'surface-skeleton': 'false',
     'surface-layout-gap': '16',
     'surface-layout-snap': '8'
   });
@@ -5206,11 +4688,19 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
   root.appendChild(manager);
   container.replaceChildren(root);
 
-  let timer = 0;
-  let diagnosticsTimer = 0;
+  let compileDisposer = null;
+  let diagnosticsDisposer = null;
+  const lifecycleDisposers = [];
+  const cancelScheduledWork = () => {
+    if (compileDisposer) compileDisposer();
+    if (diagnosticsDisposer) diagnosticsDisposer();
+    compileDisposer = null;
+    diagnosticsDisposer = null;
+  };
   const scheduleDiagnostics = () => {
-    window.clearTimeout(diagnosticsTimer);
-    diagnosticsTimer = window.setTimeout(() => {
+    if (diagnosticsDisposer) diagnosticsDisposer();
+    diagnosticsDisposer = docsBrowserScheduler.scheduleEndpoint('docs.playground.diagnostics', window.location.pathname, () => {
+      diagnosticsDisposer = null;
       runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch((error) => {
         updateDocsRmtPlaygroundDiagnostics(root, [{
           severity: 'error',
@@ -5219,13 +4709,14 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
           message: error && error.message ? error.message : copy.failed
         }], copy);
       });
-    }, DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS);
+    }, { kind: 'delay', delayMs: DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS });
   };
   const scheduleCompile = () => {
     setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
     setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => {
+    if (compileDisposer) compileDisposer();
+    compileDisposer = docsBrowserScheduler.scheduleEndpoint('docs.playground.compile', window.location.pathname, () => {
+      compileDisposer = null;
       compileDocsRmtPlayground(root, locale).catch((error) => {
         const payload = {
           schema: DOCS_RMT_PLAYGROUND_SCHEMA,
@@ -5240,17 +4731,17 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
         updateDocsRmtPlaygroundFromPayload(root, payload, copy);
         setDocsRmtPlaygroundStatus(status, copy.failed, 'error');
       });
-    }, DOCS_RMT_PLAYGROUND_DEBOUNCE_MS);
+    }, { kind: 'delay', delayMs: DOCS_RMT_PLAYGROUND_DEBOUNCE_MS });
   };
-  editor.addEventListener('textarea-changed', (event) => {
+  lifecycleDisposers.push(bindDocsLifecycle(editor, 'textarea-changed', (event) => {
     if (event && event.detail && typeof event.detail.value === 'string') {
       setDocsRmtPlaygroundEditorValue(editor, event.detail.value);
     }
     dispatchDocsRmtPlaygroundSourceChanged(root, getDocsRmtPlaygroundEditorValue(editor), 'textarea-changed');
     scheduleDiagnostics();
     scheduleCompile();
-  });
-  editor.addEventListener('input', (event) => {
+  }));
+  lifecycleDisposers.push(bindDocsLifecycle(editor, 'input', (event) => {
     const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
     const control = path.find((node) => node && node.localName === 'textarea') || getDocsRmtPlaygroundNativeTextarea(editor);
     if (control && editor.shadowRoot && editor.shadowRoot.contains(control)) return;
@@ -5260,17 +4751,15 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     dispatchDocsRmtPlaygroundSourceChanged(root, getDocsRmtPlaygroundEditorValue(editor), 'native-input');
     scheduleDiagnostics();
     scheduleCompile();
-  });
-  runButton.addEventListener('click', () => {
-    window.clearTimeout(timer);
-    window.clearTimeout(diagnosticsTimer);
+  }));
+  lifecycleDisposers.push(bindDocsLifecycle(runButton, 'click', () => {
+    cancelScheduledWork();
     setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
     runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => {});
     compileDocsRmtPlayground(root, locale).catch(() => setDocsRmtPlaygroundStatus(status, copy.failed, 'error'));
-  });
+  }));
   const applyPresetSelection = (presetId) => {
-    window.clearTimeout(timer);
-    window.clearTimeout(diagnosticsTimer);
+    cancelScheduledWork();
     setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
     loadDocsRmtPlaygroundPreset(presetId || presetSelect.value)
       .then((preset) => {
@@ -5298,20 +4787,24 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
         setDocsRmtPlaygroundStatus(status, copy.failed, 'error');
       });
   };
-  presetSelect.addEventListener('select-changed', (event) => {
+  lifecycleDisposers.push(bindDocsLifecycle(presetSelect, 'select-changed', (event) => {
     applyPresetSelection(event && event.detail && event.detail.value ? event.detail.value : presetSelect.value);
-  });
-  presetSelect.addEventListener('change', () => {
+  }));
+  lifecycleDisposers.push(bindDocsLifecycle(presetSelect, 'change', () => {
     applyPresetSelection(presetSelect.value);
-  });
-  resetButton.addEventListener('click', () => {
+  }));
+  lifecycleDisposers.push(bindDocsLifecycle(resetButton, 'click', () => {
     resetDocsRmtPlaygroundLayout(root);
-  });
+  }));
+  root.__xtendDocsDispose = () => {
+    cancelScheduledWork();
+    lifecycleDisposers.splice(0).forEach((dispose) => dispose());
+    const runtime = root.__xtendDocsMaracaPlanRuntime;
+    if (runtime && typeof runtime.dispose === 'function') runtime.dispose();
+  };
   hydrateDocsRmtPlaygroundElements(root);
   resetDocsRmtPlaygroundLayout(root);
-  if (typeof window.requestAnimationFrame === 'function') {
-    window.requestAnimationFrame(() => resetDocsRmtPlaygroundLayout(root));
-  }
+  scheduleDocsAfterPaint(() => resetDocsRmtPlaygroundLayout(root));
   runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => {});
   compileDocsRmtPlayground(root, locale).catch(() => setDocsRmtPlaygroundStatus(status, copy.failed, 'error'));
   return root;
@@ -5477,8 +4970,8 @@ function scheduleDocsAnimationEngineDemoHydration(options = {}) {
   root.setAttribute('data-console-errors', '0');
   root.setAttribute('data-demo-cls', '0');
   root.setAttribute('data-demo-replay-cls', '0');
-  window.addEventListener('error', updateConsoleErrors);
-  window.addEventListener('unhandledrejection', updateConsoleErrors);
+  const disposeConsoleError = bindDocsLifecycle(window, 'error', updateConsoleErrors);
+  const disposeConsoleRejection = bindDocsLifecycle(window, 'unhandledrejection', updateConsoleErrors);
   if (typeof PerformanceObserver === 'function') {
     try {
       layoutShiftObserver = new PerformanceObserver((list) => {
@@ -5581,8 +5074,8 @@ function scheduleDocsAnimationEngineDemoHydration(options = {}) {
     idleDisposer = scheduleDocsIdle(() => hydrate('visible-idle'));
   };
   const requestImmediateHydration = () => hydrate('user-intent');
-  root.addEventListener('pointerdown', requestImmediateHydration, { once: true });
-  root.addEventListener('focusin', requestImmediateHydration, { once: true });
+  const disposePointerHydration = bindDocsLifecycle(root, 'pointerdown', requestImmediateHydration, { once: true });
+  const disposeFocusHydration = bindDocsLifecycle(root, 'focusin', requestImmediateHydration, { once: true });
 
   if (typeof IntersectionObserver === 'function') {
     observer = new IntersectionObserver((entries) => {
@@ -5598,10 +5091,10 @@ function scheduleDocsAnimationEngineDemoHydration(options = {}) {
     if (observer) observer.disconnect();
     if (layoutShiftObserver) layoutShiftObserver.disconnect();
     if (idleDisposer) idleDisposer();
-    window.removeEventListener('error', updateConsoleErrors);
-    window.removeEventListener('unhandledrejection', updateConsoleErrors);
-    root.removeEventListener('pointerdown', requestImmediateHydration);
-    root.removeEventListener('focusin', requestImmediateHydration);
+    disposeConsoleError();
+    disposeConsoleRejection();
+    disposePointerHydration();
+    disposeFocusHydration();
     if (controller && typeof controller.dispose === 'function') controller.dispose();
   };
 }
@@ -5669,8 +5162,7 @@ class XtendDocPage extends HTMLElement {
         return this.__xtendDocsShell;
       }
       this.__xtendDocsShell = createRmtDocsShell(slug, rmtMeta);
-      this.innerHTML = '';
-      this.appendChild(this.__xtendDocsShell.section);
+      this.replaceChildren(this.__xtendDocsShell.section);
       this.setAttribute('data-docs-shell-reused', 'false');
       return this.__xtendDocsShell;
     }
@@ -5958,7 +5450,10 @@ class XtendDocPage extends HTMLElement {
           this.scheduleRouteWork(animationDemoDisposer);
         }
         if (slug === 'learn-rmt-playground') {
-          measuredLane('idle', richSchedule, 'rmt-playground.render', () => renderDocsRmtPlayground(shell.mdContent, locale, relatedLinks));
+          const playgroundRoot = measuredLane('idle', richSchedule, 'rmt-playground.render', () => renderDocsRmtPlayground(shell.mdContent, locale, relatedLinks));
+          if (playgroundRoot && typeof playgroundRoot.__xtendDocsDispose === 'function') {
+            this.scheduleRouteWork(() => playgroundRoot.__xtendDocsDispose());
+          }
         }
         finishTransition();
       }).catch((error) => {

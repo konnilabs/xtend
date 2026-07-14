@@ -26,8 +26,12 @@
     "rmt-core.esm.js",
     "rmt-runtime.esm.js",
     "rmt-runtime.browser.js",
+    "rmt-browser-scheduler.d.ts",
+    "rmt-browser-scheduler.js",
     "rmt-dom-descriptor-renderer.d.ts",
     "rmt-dom-descriptor-renderer.js",
+    "rmt-safe-preview.d.ts",
+    "rmt-safe-preview.js",
     "rmt-component-capability-registry.d.ts",
     "rmt-component-capability-registry.js",
     "rmt-state-selector-runtime.d.ts",
@@ -78,9 +82,17 @@
       "browser": "./rmt-runtime.browser.js",
       "default": "./rmt-runtime.browser.js"
     },
+    "./browser-scheduler": {
+      "types": "./rmt-browser-scheduler.d.ts",
+      "default": "./rmt-browser-scheduler.js"
+    },
     "./dom-descriptor-renderer": {
       "types": "./rmt-dom-descriptor-renderer.d.ts",
       "default": "./rmt-dom-descriptor-renderer.js"
+    },
+    "./safe-preview": {
+      "types": "./rmt-safe-preview.d.ts",
+      "default": "./rmt-safe-preview.js"
     },
     "./component-capability-registry": {
       "types": "./rmt-component-capability-registry.d.ts",

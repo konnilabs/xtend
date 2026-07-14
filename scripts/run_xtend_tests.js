@@ -940,6 +940,10 @@ const {
   runDocsRelatedRecommendationsSuite
 } = require('../tests/docs/docs_related_recommendations_suite');
 const {
+  printDocsFrameworkOwnershipReport,
+  runDocsFrameworkOwnershipSuite
+} = require('../tests/docs/docs_framework_ownership_suite');
+const {
   printRmtReferenceDocsReport,
   runRmtReferenceDocsSuite
 } = require('../tests/docs/rmt_reference_docs_suite');
@@ -1706,6 +1710,16 @@ const suites = [
     }
   },
   {
+    id: 'docs-framework-ownership',
+    label: 'Docs Framework Ownership',
+    description: 'Rejects Docs-owned runtime, renderer, scheduler, HTML sink and tooling bridge parallel structures.',
+    run: async () => {
+      const result = await runDocsFrameworkOwnershipSuite({ rootDir });
+      printDocsFrameworkOwnershipReport(result);
+      return toRunnerResult('docs-framework-ownership', 'Docs Framework Ownership', result);
+    }
+  },
+  {
     id: 'rmt-search-runtime',
     label: 'RMT Search Runtime',
     description: 'Runs normalization, typo ranking, locale keyword, fulltext fallback and supersession gates.',
@@ -1779,8 +1793,8 @@ const suites = [
     id: 'docs-php-ssr-prehydration',
     label: 'Docs-App PHP SSR Prehydration',
     description: 'Runs the Docs-App PHP SSR prehydration, compiler bridge, JSONL endpoint and browser reuse gate.',
-    run: () => {
-      const result = runDocsPhpSsrPrehydrationSuite({ rootDir });
+    run: async () => {
+      const result = await runDocsPhpSsrPrehydrationSuite({ rootDir });
       printDocsPhpSsrPrehydrationReport(result);
       return toRunnerResult('docs-php-ssr-prehydration', 'Docs-App PHP SSR Prehydration', result);
     }

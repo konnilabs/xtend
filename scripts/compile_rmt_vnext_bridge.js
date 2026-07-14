@@ -1,122 +1,61 @@
 #!/usr/bin/env node
+'use strict';
 
-const {
-  compileRmtVNextSource
-} = require('../tools/rmt-language/vnext-compiler');
 const fs = require('fs');
+const { executeToolingBridgeOperation } = require('../tools/tooling-bridge');
 
 const BRIDGE_SCHEMA = 'xtend.docs.rmt-compiler-bridge.v1';
 
-function readStdin() {
-  return new Promise((resolve, reject) => {
-    let body = '';
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', (chunk) => {
-      body += chunk;
-    });
-    process.stdin.on('end', () => resolve(body));
-    process.stdin.on('error', reject);
-    process.stdin.resume();
-  });
-}
-
-function writeJson(payload) {
-  process.stdout.write(`${JSON.stringify(payload)}\n`);
-}
-
-function parseArgs(args) {
-  const options = {
-    inputFile: null
-  };
-  for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
-    if (arg === '--input-file') {
-      options.inputFile = args[index + 1] || null;
-      index += 1;
-    } else if (arg.startsWith('--input-file=')) {
-      options.inputFile = arg.slice('--input-file='.length);
+async function compileRmtVNextBridgePayload(payload = {}, options = {}) {
+  const response = await executeToolingBridgeOperation({
+    schema: 'xtend.compiler.tooling-bridge.v1',
+    requestId: payload.requestId || 'docs-compiler-compat',
+    operation: 'compile',
+    payload: {
+      source: String(payload.source || payload.text || ''),
+      filePath: payload.filePath || payload.sourceRef || 'docs/xtendrmt-docs-shell-vnext.rmt',
+      options: payload.options || {}
     }
-  }
-  return options;
-}
-
-async function readInput(options) {
-  if (options.inputFile) {
-    return fs.promises.readFile(options.inputFile, 'utf8');
-  }
-  return readStdin();
-}
-
-function compileRmtVNextBridgePayload(payload = {}) {
-  const source = String(payload.source || payload.text || '');
-  const filePath = payload.filePath || payload.sourceRef || 'docs/xtendrmt-docs-shell-vnext.rmt';
-  const result = compileRmtVNextSource({
-    text: source,
-    filePath
-  }, {
-    ...(payload.options || {}),
-    filePath
-  });
-
+  }, { rootDir: options.rootDir || process.cwd() });
+  const result = response.result || {};
   return {
     schema: BRIDGE_SCHEMA,
-    ok: result.ok === true,
-    status: result.status || (result.ok ? 'compiled' : 'failed'),
-    filePath,
+    toolingBridgeSchema: response.bridgeSchema,
+    ok: response.ok === true,
+    status: result.status || response.status,
+    filePath: payload.filePath || payload.sourceRef || 'docs/xtendrmt-docs-shell-vnext.rmt',
     compilerSchema: result.schema,
-    coreDocument: result.coreDocument,
-    coreJson: result.coreJson,
-    diagnostics: result.diagnostics || [],
+    coreDocument: result.coreDocument || null,
+    coreJson: result.coreJson || null,
+    diagnostics: response.diagnostics || [],
     compilerDiagnostics: result.compilerDiagnostics || []
   };
 }
 
+function parseArgs(args = []) {
+  const match = args.find((value) => value === '--input-file' || String(value).startsWith('--input-file='));
+  if (!match) return { inputFile: null };
+  const index = args.indexOf(match);
+  return { inputFile: match === '--input-file' ? args[index + 1] || null : match.slice('--input-file='.length) };
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const raw = await readInput(options);
-  let payload = {};
-  try {
-    payload = raw.trim() ? JSON.parse(raw) : {};
-  } catch (error) {
-    writeJson({
-      schema: BRIDGE_SCHEMA,
-      ok: false,
-      status: 'invalid-json',
-      coreDocument: null,
-      diagnostics: [{
-        code: 'xtend.docs.rmt_compiler_bridge.invalid_json',
-        severity: 'error',
-        message: error.message
-      }]
-    });
-    process.exitCode = 1;
-    return;
-  }
-
-  const result = compileRmtVNextBridgePayload(payload);
-  writeJson(result);
-  if (result.ok !== true) process.exitCode = 2;
-}
-
-if (require.main === module) {
-  main().catch((error) => {
-    writeJson({
-      schema: BRIDGE_SCHEMA,
-      ok: false,
-      status: 'bridge-error',
-      coreDocument: null,
-      diagnostics: [{
-        code: 'xtend.docs.rmt_compiler_bridge.failed',
-        severity: 'error',
-        message: error && error.message ? error.message : String(error)
-      }]
-    });
-    process.exitCode = 1;
+  const raw = options.inputFile ? await fs.promises.readFile(options.inputFile, 'utf8') : await new Promise((resolve, reject) => {
+    let body = '';
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', (chunk) => { body += chunk; });
+    process.stdin.on('end', () => resolve(body));
+    process.stdin.on('error', reject);
   });
+  const result = await compileRmtVNextBridgePayload(raw.trim() ? JSON.parse(raw) : {});
+  process.stdout.write(`${JSON.stringify(result)}\n`);
+  if (!result.ok) process.exitCode = 2;
 }
 
-module.exports = {
-  BRIDGE_SCHEMA,
-  compileRmtVNextBridgePayload,
-  parseArgs
-};
+if (require.main === module) main().catch((error) => {
+  process.stdout.write(`${JSON.stringify({ schema: BRIDGE_SCHEMA, ok: false, status: 'bridge-error', diagnostics: [{ code: 'xtend.docs.rmt_compiler_bridge.failed', severity: 'error', message: error.message }] })}\n`);
+  process.exitCode = 1;
+});
+
+module.exports = { BRIDGE_SCHEMA, compileRmtVNextBridgePayload, parseArgs };

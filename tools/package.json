@@ -26,6 +26,10 @@
     "rmt-language",
     "rmt-linter",
     "rmt-language-server",
+    "tooling-bridge.js",
+    "tooling-bridge.d.ts",
+    "tooling-bridge-cli.js",
+    "tooling-bridge-client.php",
     "package.json"
   ],
   "exports": {
@@ -37,6 +41,11 @@
       "types": "./rmt-language/vnext-compiler.d.ts",
       "default": "./rmt-language/vnext-compiler.js"
     },
+    "./tooling-bridge": {
+      "types": "./tooling-bridge.d.ts",
+      "default": "./tooling-bridge.js"
+    },
+    "./tooling-bridge-client.php": "./tooling-bridge-client.php",
     "./rmt-language/vnext-parser": {
       "types": "./rmt-language/vnext-parser.d.ts",
       "default": "./rmt-language/vnext-parser.js"
@@ -82,5 +91,17 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "peerDependencies": {
+    "@ccslabs/xtend-maraca": "0.3.1",
+    "@ccslabs/xtend-rmt": "0.3.1"
+  },
+  "peerDependenciesMeta": {
+    "@ccslabs/xtend-maraca": {
+      "optional": true
+    },
+    "@ccslabs/xtend-rmt": {
+      "optional": true
+    }
   }
 }

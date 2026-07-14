@@ -26,7 +26,9 @@ const RMT_SHARED_DECLARATION_FILE = 'tools/rmt-language/rmt-tooling-public-types
 const RMT_RUNTIME_PACKAGE_EXPORTS = Object.freeze([
   './rmt',
   './rmt/browser',
+  './rmt/browser-scheduler',
   './rmt/dom-descriptor-renderer',
+  './rmt/safe-preview',
   './rmt/component-capability-registry',
   './rmt/state-selector-runtime',
   './rmt/action-effect-runtime',
@@ -41,6 +43,7 @@ const RMT_RUNTIME_PACKAGE_EXPORTS = Object.freeze([
 ]);
 
 const RMT_TOOLING_PACKAGE_EXPORTS = Object.freeze([
+  './compiler/tooling-bridge',
   './rmt-language/source-model',
   './rmt-language/parser',
   './rmt-language/vnext-parser',
@@ -115,6 +118,9 @@ const RMT_RUNTIME_CORE_TOKENS = Object.freeze([
 ]);
 
 const RMT_REPRESENTATIVE_DECLARATION_TOKENS = Object.freeze({
+  'tools/tooling-bridge.d.ts': ['XtendToolingBridgeEnvelope', 'XtendToolingBridgeResponse', 'executeToolingBridgeOperation'],
+  'xtendrmt/rmt-browser-scheduler.d.ts': ['RmtBrowserScheduler', 'createRmtBrowserScheduler'],
+  'xtendrmt/rmt-safe-preview.d.ts': ['RmtSafePreviewProjector', 'createRmtSafePreviewProjector'],
   'tools/rmt-language/source-model.d.ts': ['RmtRange', 'createRmtSourceModel', 'classifyRmtFile'],
   'tools/rmt-language/parser.d.ts': ['RmtParseResult', 'createRmtParser', 'parseRmtSource'],
   'tools/rmt-language/vnext-compiler.d.ts': ['RmtCompileResult', 'createRmtVNextCompiler', 'compileRmtVNextSource'],
@@ -194,8 +200,11 @@ function getRuntimeTarget(packageManifest, exportKey) {
 }
 
 function resolveDeclarationForExport(exportKey) {
+  if (exportKey === './compiler/tooling-bridge') return './tools/tooling-bridge.d.ts';
   if (exportKey === './rmt' || exportKey === './rmt/browser') return './xtendrmt/rmt-core.d.ts';
+  if (exportKey === './rmt/browser-scheduler') return './xtendrmt/rmt-browser-scheduler.d.ts';
   if (exportKey === './rmt/dom-descriptor-renderer') return './xtendrmt/rmt-dom-descriptor-renderer.d.ts';
+  if (exportKey === './rmt/safe-preview') return './xtendrmt/rmt-safe-preview.d.ts';
   if (exportKey === './rmt/component-capability-registry') return './xtendrmt/rmt-component-capability-registry.d.ts';
   if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.d.ts';
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.d.ts';
@@ -217,9 +226,12 @@ function resolveDeclarationForExport(exportKey) {
 }
 
 function resolveSourceForExport(exportKey) {
+  if (exportKey === './compiler/tooling-bridge') return './tools/tooling-bridge.js';
   if (exportKey === './rmt') return './xtendrmt/rmt-runtime.esm.js';
   if (exportKey === './rmt/browser') return './xtendrmt/rmt-runtime.browser.js';
+  if (exportKey === './rmt/browser-scheduler') return './xtendrmt/rmt-browser-scheduler.js';
   if (exportKey === './rmt/dom-descriptor-renderer') return './xtendrmt/rmt-dom-descriptor-renderer.js';
+  if (exportKey === './rmt/safe-preview') return './xtendrmt/rmt-safe-preview.js';
   if (exportKey === './rmt/component-capability-registry') return './xtendrmt/rmt-component-capability-registry.js';
   if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.js';
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.js';
@@ -243,6 +255,8 @@ function resolveSourceForExport(exportKey) {
 const RMT_DECLARATION_FILES = Object.freeze([
   'xtendrmt/rmt-core.d.ts',
   'xtendrmt/rmt-dom-descriptor-renderer.d.ts',
+  'xtendrmt/rmt-browser-scheduler.d.ts',
+  'xtendrmt/rmt-safe-preview.d.ts',
   'xtendrmt/rmt-component-capability-registry.d.ts',
   'xtendrmt/rmt-state-selector-runtime.d.ts',
   'xtendrmt/rmt-action-effect-runtime.d.ts',

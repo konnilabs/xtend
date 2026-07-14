@@ -4,12 +4,6 @@ import { createRmtAnimationEngineRuntime } from '/xtendrmt/rmt-animation-engine-
 const DEMO_SCHEMA = 'xtend.docs.animation-engine-demo.v1';
 const DEMO_RUNTIME_SCHEMA = 'xtend.docs.animation-engine-demo-runtime.v1';
 const STYLE_ID = 'xtend-docs-animation-engine-demo-styles';
-const COMPONENT_MODULES = Object.freeze([
-  '/components/xselect.js',
-  '/components/xbutton.js',
-  '/components/xstatus.js'
-]);
-
 const COPY = Object.freeze({
   de: Object.freeze({
     title: 'AnimationEngine ausprobieren',
@@ -244,7 +238,7 @@ async function ensureComponents(root) {
     });
     return;
   }
-  await Promise.all(COMPONENT_MODULES.map((modulePath) => import(new URL(modulePath, window.location.origin).href)));
+  throw new Error('XTend Loader component hydration is required by the AnimationEngine demo.');
 }
 
 function appendOptions(select, values, labelForValue = (value) => value) {
@@ -568,20 +562,14 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
     recordReplayGeometry('running');
 
     try {
-      const [exitResult, enterResult] = await Promise.all([
-        engine.runSurfaceTransitionPhase({
-          target: clone,
-          transition,
-          phase: 'exit',
-          metadata: { source: 'docs-animation-engine-demo', reason }
-        }),
-        engine.runSurfaceTransitionPhase({
-          target,
-          transition,
-          phase: 'enter',
-          metadata: { source: 'docs-animation-engine-demo', reason }
-        })
-      ]);
+      const replayResult = await engine.replaySurfaceTransition({
+        target,
+        exitTarget: clone,
+        transition,
+        metadata: { source: 'docs-animation-engine-demo', reason }
+      });
+      const exitResult = replayResult.exit;
+      const enterResult = replayResult.enter;
       if (disposed || replayGeneration !== generation) {
         return { schema: DEMO_RUNTIME_SCHEMA, status: 'cancelled' };
       }
@@ -646,8 +634,8 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
     replay('control').catch(() => {});
   }
 
-  root.addEventListener('select-changed', onSelectChanged);
-  replayButton.addEventListener('button-interaction', onReplay);
+  const disposeSelect = XUtils.on(root, 'select-changed', onSelectChanged);
+  const disposeReplay = XUtils.on(replayButton, 'button-interaction', onReplay);
 
   const controller = {
     schema: DEMO_RUNTIME_SCHEMA,
@@ -664,8 +652,9 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
       if (disposed) return;
       disposed = true;
       generation += 1;
-      root.removeEventListener('select-changed', onSelectChanged);
-      replayButton.removeEventListener('button-interaction', onReplay);
+      engine.cancelReplay();
+      disposeSelect();
+      disposeReplay();
       restorePresentation();
       target.removeAttribute('data-docs-animation-engine-target');
       root.setAttribute('data-rmt-hydration-state', 'disposed');
@@ -692,8 +681,7 @@ export async function hydrateDocsAnimationEngineDemo(options = {}) {
         }
       });
     };
-    if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(runSmoke);
-    else Promise.resolve().then(runSmoke);
+    Promise.resolve().then(runSmoke);
   }
   return controller;
 }

@@ -3,6 +3,7 @@ import {
   createRmtSearchRuntime
 } from '../../xtendrmt/rmt-app-runtime.js';
 import { createRmtDomDescriptorRenderer } from '../../xtendrmt/rmt-dom-descriptor-renderer.js';
+import { createRmtBrowserScheduler } from '../../xtendrmt/rmt-browser-scheduler.js';
 import '../../components/xutils.js';
 
 const DOCS_SHELL_RUNTIME_SCHEMA = 'xtend.docs.shell-runtime.v1';
@@ -17,6 +18,7 @@ const SEARCH_WEIGHTS = Object.freeze({
 });
 const disposers = [];
 const renderer = createRmtDomDescriptorRenderer({ documentTarget: document });
+const browserScheduler = createRmtBrowserScheduler({ windowTarget: window });
 const XUtils = window.XUtils;
 const bootStartedAt = performance.now();
 const fabric = window.XTendFabric && typeof window.XTendFabric.createXtendFabric === 'function'
@@ -28,7 +30,7 @@ const fabric = window.XTendFabric && typeof window.XTendFabric.createXtendFabric
       api: window.XTend
     })
   : null;
-let searchTimer = 0;
+let searchScheduleDisposer = null;
 let currentQuery = '';
 let renderedSearchSignature = '';
 let pendingSearchActivationSource = '';
@@ -418,11 +420,11 @@ async function runSearch(queryValue) {
 
 function scheduleSearch(query) {
   currentQuery = String(query || '').trim();
-  if (searchTimer) window.clearTimeout(searchTimer);
-  searchTimer = window.setTimeout(() => {
-    searchTimer = 0;
+  if (searchScheduleDisposer) searchScheduleDisposer();
+  searchScheduleDisposer = browserScheduler.scheduleEndpoint('docs.search.query', window.location.pathname, () => {
+    searchScheduleDisposer = null;
     runSearch(query);
-  }, 80);
+  }, { kind: 'delay', delayMs: 80 });
 }
 
 function readInputValue(event, input) {
@@ -643,8 +645,7 @@ function schedulePrismHighlight(root = document) {
     if (window.XTendRmtPrism && typeof window.XTendRmtPrism.register === 'function') window.XTendRmtPrism.register(window.Prism);
     if (typeof window.Prism.highlightAllUnder === 'function') window.Prism.highlightAllUnder(root);
   };
-  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 700 });
-  else window.setTimeout(run, 0);
+  disposers.push(browserScheduler.scheduleEndpoint('docs.syntax.highlight', currentSlug(), run, { kind: 'idle', timeout: 700 }));
 }
 
 function bindShellEvents() {
@@ -664,7 +665,7 @@ function bindShellEvents() {
   disposers.push(XUtils.on(window, 'xtend-docs-content-ready', (event) => {
     const detail = event.detail || {};
     schedulePrismHighlight(detail.root || document);
-    window.requestAnimationFrame(checkViewportOverflow);
+    disposers.push(browserScheduler.afterPaint(checkViewportOverflow));
     ensureRouterRoutes();
     appRuntime.command('docs.content.ready', detail, {
       lane: 'visible', sourceId: 'docs.page', event: 'xtend-docs-content-ready'
@@ -693,7 +694,7 @@ function bindShellEvents() {
     currentQuery = '';
     hideSearchResults();
   }));
-  disposers.push(XUtils.on(window, 'resize', () => window.requestAnimationFrame(checkViewportOverflow), { passive: true }));
+  disposers.push(XUtils.on(window, 'resize', () => disposers.push(browserScheduler.afterPaint(checkViewportOverflow)), { passive: true }));
   disposers.push(XUtils.on(window, 'pagehide', dispose));
 }
 
@@ -704,14 +705,12 @@ function scheduleRouteRegistration() {
     disposers.push(XUtils.on(nav, 'focusin', ensureRouterRoutes));
   }
   const run = () => ensureRouterRoutes();
-  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 1200 });
-  else window.setTimeout(run, 0);
+  disposers.push(browserScheduler.scheduleEndpoint('docs.routes.register', 'docs.shell', run, { kind: 'idle', timeout: 1200 }));
 }
 
 function scheduleCompactIndex() {
   const run = () => searchRuntime.query(`${SEARCH_SOURCE_PREFIX}${locale()}`, '', { minQueryLength: 2 }).catch(() => {});
-  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 1600 });
-  else window.setTimeout(run, 0);
+  disposers.push(browserScheduler.scheduleEndpoint('docs.search.prewarm', 'docs.shell', run, { kind: 'idle', timeout: 1600 }));
 }
 
 async function recommendRelated(input = {}) {
@@ -724,8 +723,7 @@ async function recommendRelated(input = {}) {
     minScore: Number.isFinite(Number(input.minScore)) ? Number(input.minScore) : 0.3,
     fieldWeights: SEARCH_WEIGHTS,
     schedule(resolve) {
-      if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(resolve, { timeout: 120 });
-      else window.setTimeout(resolve, 0);
+      browserScheduler.scheduleEndpoint('docs.related.rank', slug, resolve, { kind: 'idle', timeout: 120 });
     }
   });
   const completedAt = performance.now();
@@ -769,12 +767,13 @@ async function recommendRelated(input = {}) {
 }
 
 function dispose() {
-  if (searchTimer) window.clearTimeout(searchTimer);
+  if (searchScheduleDisposer) searchScheduleDisposer();
   searchRuntime.dispose();
   disposers.splice(0).forEach((disposer) => {
     try { disposer(); } catch (_) {}
   });
   if (fabric && typeof fabric.dispose === 'function') fabric.dispose();
+  browserScheduler.dispose();
 }
 
 registerSkeletonProfiles();
@@ -785,7 +784,7 @@ bindShellEvents();
 scheduleRouteRegistration();
 scheduleCompactIndex();
 schedulePrismHighlight(document);
-window.requestAnimationFrame(checkViewportOverflow);
+disposers.push(browserScheduler.afterPaint(checkViewportOverflow));
 
 const hydrationMs = performance.now() - bootStartedAt;
 window.xtendDocsDevApi && window.xtendDocsDevApi.update({

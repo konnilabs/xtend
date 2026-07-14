@@ -77,7 +77,7 @@ function runXtendI18nComponentSuite(options = {}) {
   context.assertIncludes(labelsEn, "'x-router.routeLoading': 'Route is loading'", 'English label template exposes router loading label');
 
   context.assertIncludes(loader, "await tryLoad('xtend-i18n'", 'Loader bootstraps xtend-i18n after xstate');
-  context.assertIncludes(loader, "BOOTSTRAP_MODULE_KEYS = ['xstate', 'xtend-i18n']", 'Loader treats xtend-i18n as bootstrap module');
+  context.assertIncludes(loader, "BOOTSTRAP_MODULE_KEYS = ['xstate', 'xtend-i18n', 'x-utils']", 'Loader treats xtend-i18n and x-utils as bootstrap modules');
   context.assertIncludes(policy, "RESERVED_BOOTSTRAP_KEYS = ['xstate', 'xtend-i18n']", 'Manifest policy reserves xtend-i18n as bootstrap key');
 
   context.assertIncludes(docsDe, '# xtend-i18n', 'German xtend-i18n docs are present');

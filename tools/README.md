@@ -54,6 +54,10 @@ xt rmt ai-kit export --profile compact --format md --json
 
 The Language Server remains the source of truth for diagnostics, completion, hover, symbols, definitions, navigation, and code actions. App Platform tooling adds source analysis, diagnostics, source maps, scaffold plans, and a no-manual-HTML gate. The AI Developer Kit exports bounded Markdown, JSON, and JSONL artifacts for agent ingest.
 
+### Tooling bridge
+
+`@ccslabs/xtend-compiler/tooling-bridge` provides versioned JSON envelopes for `compile`, `language-diagnostics`, `maraca-plan`, and `safe-preview`. PHP hosts use the packaged `tooling-bridge-client.php`, which owns timeout, process termination, concurrency and output limits.
+
 ### Public entry points
 
 - compiler and parsers under `rmt-language/*`
@@ -143,6 +147,10 @@ xt rmt ai-kit export --profile compact --format md --json
 ```
 
 Der Language Server bleibt die Source of Truth für Diagnosen, Completion, Hover, Symbole, Definitionen, Navigation und Code Actions. Das App-Platform-Tooling ergänzt Source-Analyse, Diagnosen, Source Maps, Scaffold-Pläne und einen No-Manual-HTML-Gate. Das AI Developer Kit exportiert begrenzte Markdown-, JSON- und JSONL-Artefakte für Agenten.
+
+### Tooling Bridge
+
+`@ccslabs/xtend-compiler/tooling-bridge` stellt versionierte JSON-Envelopes für `compile`, `language-diagnostics`, `maraca-plan` und `safe-preview` bereit. PHP-Hosts verwenden den paketierten `tooling-bridge-client.php`, der Timeout, Prozessabbruch, Concurrency und Output-Limits besitzt.
 
 ### Öffentliche Einstiegspunkte
 

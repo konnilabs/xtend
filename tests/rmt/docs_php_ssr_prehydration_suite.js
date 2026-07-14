@@ -95,8 +95,8 @@ function parseJsonl(value) {
     .map((line) => JSON.parse(line));
 }
 
-function runCompilerBridge(rootDir, source) {
-  const payload = compileRmtVNextBridgePayload({
+async function runCompilerBridge(rootDir, source) {
+  const payload = await compileRmtVNextBridgePayload({
       source,
       filePath: DOCS_SHELL_SOURCE
   });
@@ -107,7 +107,7 @@ function runCompilerBridge(rootDir, source) {
   };
 }
 
-function runDocsPhpSsrPrehydrationSuite(options = {}) {
+async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
     id: 'docs-php-ssr-prehydration',
@@ -124,7 +124,7 @@ function runDocsPhpSsrPrehydrationSuite(options = {}) {
   }, {
     filePath: DOCS_SHELL_SOURCE
   });
-  const bridgeResult = runCompilerBridge(rootDir, source);
+  const bridgeResult = await runCompilerBridge(rootDir, source);
   const htmlResult = runDocsIndex(rootDir, {});
   const jsonlResult = runDocsIndex(rootDir, {
     'xtend-docs-rmt-ssr': 'shell',
@@ -160,7 +160,7 @@ function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(bridgeResult.payload && bridgeResult.payload.coreDocument && bridgeResult.payload.coreDocument.schema === 'xtend.rmt.core-format.vnext.v1', 'Compiler bridge returns Core Document data');
 
   context.assert(indexPhp.includes('rmt-php-ssr-adapter.php'), 'Docs host includes the PHP SSR adapter');
-  context.assert(indexPhp.includes('compile_rmt_vnext_bridge.js'), 'Docs host references the compiler bridge runner');
+  context.assert(indexPhp.includes('tools/tooling-bridge-cli.js'), 'Docs host references the official compiler tooling bridge runner');
   context.assert(indexPhp.includes('createRmtPhpSsrAdapter'), 'Docs host creates the PHP SSR adapter');
   context.assert(indexPhp.includes('compileRmtVNextSource'), 'Docs host injects compileRmtVNextSource through a Node bridge');
   context.assert(indexPhp.includes('xtend-docs-rmt-ssr'), 'Docs host exposes the RMT SSR endpoint');

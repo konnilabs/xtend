@@ -132,6 +132,11 @@ jobs:
         continue-on-error: true
         run: npm run test:docs-shell-catfooding:report
 
+      - name: Run Docs framework ownership report
+        id: docs_framework_ownership
+        continue-on-error: true
+        run: npm run test:docs-framework-ownership:report
+
       - name: Run XSurface shard gate report
         id: xsurface_shard
         continue-on-error: true
@@ -178,6 +183,7 @@ jobs:
             .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-docs-quality-report.json
             .xtend-test-results/xtend-docs-shell-catfooding-report.json
+            .xtend-test-results/xtend-docs-framework-ownership-report.json
             .xtend-test-results/xtend-xsurface-shard-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
@@ -206,6 +212,7 @@ jobs:
           if [ "${{ steps.xtend_dev_surface.outcome }}" != "success" ]; then echo "XTend Dev Surface gate failed"; failed=1; fi
           if [ "${{ steps.docs_quality.outcome }}" != "success" ]; then echo "public docs quality gate failed"; failed=1; fi
           if [ "${{ steps.docs_shell_catfooding.outcome }}" != "success" ]; then echo "Docs Shell catfooding gate failed"; failed=1; fi
+          if [ "${{ steps.docs_framework_ownership.outcome }}" != "success" ]; then echo "Docs framework ownership gate failed"; failed=1; fi
           if [ "${{ steps.xsurface_shard.outcome }}" != "success" ]; then echo "XSurface shard gate failed"; failed=1; fi
           if [ "${{ steps.xscaler_protocol.outcome }}" != "success" ]; then echo "XScaler protocol gate failed"; failed=1; fi
           if [ "${{ steps.xscaler_source_to_sea.outcome }}" != "success" ]; then echo "XScaler source-to-sea gate failed"; failed=1; fi

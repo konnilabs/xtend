@@ -2414,6 +2414,9 @@ function runMaracaPackageExportsSuite(options = {}) {
   context.assert(packageManifest.files.includes('xtend-maraca'), 'root package includes xtend-maraca package files');
   context.assert(packageManifest.exports['./maraca'] && packageManifest.exports['./maraca'].default === './xtend-maraca/index.js', 'root package exports @ccslabs/xtend/maraca');
   context.assert(packageManifest.exports['./maraca/runtime'] && packageManifest.exports['./maraca/runtime'].default === './xtend-maraca/runtime.js', 'root package exports @ccslabs/xtend/maraca/runtime');
+  context.assert(packageManifest.exports['./maraca/plan-runtime'] && packageManifest.exports['./maraca/plan-runtime'].default === './xtend-maraca/plan-runtime.mjs', 'root package exports @ccslabs/xtend/maraca/plan-runtime');
+  context.assert(maracaPackage.exports['./plan-runtime'] && maracaPackage.exports['./plan-runtime'].types === './plan-runtime.d.ts', 'Maraca workspace exports the typed plan runtime');
+  context.assert(maracaPackage.files.includes('plan-runtime.mjs') && maracaPackage.files.includes('plan-runtime.d.ts'), 'Maraca tarball includes the plan runtime implementation and declarations');
   context.assert(packageManifest.scopedPackages.some((entry) => entry.name === '@ccslabs/xtend-maraca' && entry.path === 'xtend-maraca'), 'scoped package metadata includes @ccslabs/xtend-maraca');
   context.assert(maracaPackage.dependencies.rollup && maracaPackage.dependencies.rollup.startsWith('^4.'), 'Maraca package declares Rollup as a real dependency');
   context.assert(maracaPackage.dependencies.terser && maracaPackage.dependencies.terser.startsWith('^5.'), 'Maraca package declares Terser as a real dependency');

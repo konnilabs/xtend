@@ -73,6 +73,10 @@ jobs:
         if: always()
         run: npm run test:docs-shell-catfooding:report
 
+      - name: Run Docs framework ownership report
+        if: always()
+        run: npm run test:docs-framework-ownership:report
+
       - name: Run RMT Reference docs report
         if: always()
         run: npm run test:rmt-reference-docs:report
@@ -106,6 +110,7 @@ jobs:
             .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-docs-quality-report.json
             .xtend-test-results/xtend-docs-shell-catfooding-report.json
+            .xtend-test-results/xtend-docs-framework-ownership-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
@@ -158,6 +163,10 @@ jobs:
         if: always()
         run: npm run test:docs-shell-catfooding:report
 
+      - name: Run Docs framework ownership report
+        if: always()
+        run: npm run test:docs-framework-ownership:report
+
       - name: Run RMT Reference docs report
         if: always()
         run: npm run test:rmt-reference-docs:report
@@ -191,6 +200,7 @@ jobs:
             .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-docs-quality-report.json
             .xtend-test-results/xtend-docs-shell-catfooding-report.json
+            .xtend-test-results/xtend-docs-framework-ownership-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json

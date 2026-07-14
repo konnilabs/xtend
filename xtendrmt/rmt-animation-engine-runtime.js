@@ -156,6 +156,7 @@
     const active = new Map();
     const history = [];
     let fallbackCount = 0;
+    let replayGeneration = 0;
 
     function dispatchEvent(name, detail) {
       const target = windowTarget || globalTarget;
@@ -317,6 +318,44 @@
       return result;
     }
 
+    async function replaySurfaceTransition(input = {}) {
+      const target = input.target || input.element || null;
+      const exitTarget = input.exitTarget || target;
+      const generation = ++replayGeneration;
+      if (!target) return { schema: RMT_ANIMATION_ENGINE_RUNTIME_SCHEMA, status: 'unmatched-target', generation };
+      const snapshot = {
+        style: typeof target.getAttribute === 'function' ? target.getAttribute('style') : null,
+        hidden: typeof target.hasAttribute === 'function' && target.hasAttribute('hidden'),
+        ariaHidden: typeof target.getAttribute === 'function' ? target.getAttribute('aria-hidden') : null
+      };
+      const cleanup = () => {
+        if (generation !== replayGeneration) return;
+        if (typeof target.setAttribute === 'function' && snapshot.style !== null) target.setAttribute('style', snapshot.style);
+        else if (typeof target.removeAttribute === 'function') target.removeAttribute('style');
+        if (typeof target.toggleAttribute === 'function') target.toggleAttribute('hidden', snapshot.hidden);
+        if (typeof target.setAttribute === 'function' && snapshot.ariaHidden !== null) target.setAttribute('aria-hidden', snapshot.ariaHidden);
+        else if (typeof target.removeAttribute === 'function') target.removeAttribute('aria-hidden');
+      };
+      const startedAt = Date.now();
+      try {
+        const [exit, enter] = await Promise.all([
+          runSurfaceTransitionPhase({ ...input, target: exitTarget, phase: 'exit', metadata: { ...(input.metadata || {}), replayGeneration: generation } }),
+          runSurfaceTransitionPhase({ ...input, target, phase: 'enter', metadata: { ...(input.metadata || {}), replayGeneration: generation } })
+        ]);
+        const result = { schema: RMT_ANIMATION_ENGINE_RUNTIME_SCHEMA, status: enter.status === 'cancelled' ? 'cancelled' : 'complete', generation, exit, enter, durationMs: Date.now() - startedAt };
+        history.push({ type: 'replay', ...cloneSafe(result, {}), at: Date.now() });
+        dispatchEvent('xtend-rmt:animation-replay-complete', result);
+        return result;
+      } finally {
+        cleanup();
+      }
+    }
+
+    function cancelReplay() {
+      replayGeneration += 1;
+      return replayGeneration;
+    }
+
     function listActiveAnimations() {
       return Array.from(active.values()).map((entry) => cloneSafe(entry, {}));
     }
@@ -343,6 +382,8 @@
       animationPlan,
       runSurfaceTransitionPhase,
       runTransition: runSurfaceTransitionPhase,
+      replaySurfaceTransition,
+      cancelReplay,
       findTransition: (metadata = {}) => findTransition(animationPlan, metadata),
       listActiveAnimations,
       listDiagnostics,

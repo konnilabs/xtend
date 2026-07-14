@@ -1127,7 +1127,7 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
     if (scenario.expectedArticleTitle) {
       assert(snapshot.articleTitle === scenario.expectedArticleTitle, `${scenario.id}: expected article title ${scenario.expectedArticleTitle}, received ${snapshot.articleTitle}.`);
     }
-    const visibleSkeletonCount = await execute(driverUrl, sessionId, `
+    const visibleSkeletonDetails = await execute(driverUrl, sessionId, `
       const skeletons = [];
       const collect = (root) => {
         root.querySelectorAll('*').forEach((node) => {
@@ -1139,8 +1139,26 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
       return skeletons.filter((entry) => {
         const style = getComputedStyle(entry);
         return entry.isConnected && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
-      }).length;
+      }).map((entry) => ({
+        source: entry.getAttribute('data-xtend-skeleton-source'),
+        parentTag: entry.parentElement && entry.parentElement.localName,
+        surfaceId: entry.parentElement && entry.parentElement.getAttribute('surface-id'),
+        loadingError: entry.parentElement && entry.parentElement.getAttribute('data-xtend-surface-loading-error')
+      }));
     `);
+    const visibleSkeletonCount = visibleSkeletonDetails.length;
+    const playgroundSkeletonCount = scenario.inspectPlaygroundSkeleton
+      ? await execute(driverUrl, sessionId, `${deepQuerySource}
+        const playground = deepQuery('[data-rmt-playground-root]');
+        return playground ? playground.querySelectorAll('[data-xtend-skeleton-loader]').length : -1;
+      `)
+      : null;
+    const playgroundLoadingSnapshot = scenario.inspectPlaygroundSkeleton
+      ? await execute(driverUrl, sessionId, `${deepQuerySource}
+        const manager = deepQuery('[data-rmt-playground-manager]');
+        return manager && manager.loadingSnapshot || null;
+      `)
+      : null;
     const largestShifts = snapshot.layoutShiftEntries
       .slice()
       .sort((left, right) => right.value - left.value)
@@ -1159,10 +1177,13 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
     assertSingleCurrentArticle(snapshot, scenario.id);
     const minimumRegionGap = scenario.width <= 700 ? 15 : 23;
     assert(snapshot.regionGeometry && snapshot.regionGeometry.heroMainGap >= minimumRegionGap, `${scenario.id}: hero and route regions are visually collapsed (${JSON.stringify(snapshot.regionGeometry)}).`);
-    if (scenario.width > 700) {
+    if (scenario.width > 700 && !scenario.ownsRouteWorkspace) {
       assert(snapshot.regionGeometry.articleSidebarGap >= 15 && snapshot.regionGeometry.articleSidebarTopDelta <= 1, `${scenario.id}: article and sidebar geometry is not aligned (${JSON.stringify(snapshot.regionGeometry)}).`);
     }
-    assert(visibleSkeletonCount === 0, `${scenario.id}: ${visibleSkeletonCount} visible skeleton layers remained after settle.`);
+    assert(visibleSkeletonCount === 0, `${scenario.id}: ${visibleSkeletonCount} visible skeleton layers remained after settle (${JSON.stringify({ visibleSkeletonDetails, playgroundLoadingSnapshot })}).`);
+    if (scenario.inspectPlaygroundSkeleton) {
+      assert(playgroundSkeletonCount === 0, `${scenario.id}: the RMT Playground retained ${playgroundSkeletonCount} route skeleton artifacts inside its managed surfaces.`);
+    }
     const navigationSurface = scenario.inspectNavigation
       ? await exerciseNavigationSurface(driverUrl, sessionId, scenario.id)
       : null;
@@ -1176,7 +1197,7 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
     const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
     assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
-    const evidence = { scenario, snapshot, visibleSkeletonCount, navigationSurface, logs };
+    const evidence = { scenario, snapshot, visibleSkeletonCount, visibleSkeletonDetails, playgroundSkeletonCount, playgroundLoadingSnapshot, navigationSurface, logs };
     const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
     await Promise.all([
       writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify(evidence, null, 2)}\n`),
@@ -1369,6 +1390,7 @@ try {
     await runMaracaRouteRegression(baseUrl, driverUrl);
     const directRouteScenarios = [
       { id: 'de-animation-engine-desktop', locale: 'de', slug: 'rmt-animation-engine', width: 1440, height: 900, settleMs: 1200 },
+      { id: 'de-rmt-playground-desktop', locale: 'de', slug: 'learn-rmt-playground', width: 1440, height: 900, settleMs: 1200, expectedArticleTitle: 'RMT Playground', inspectPlaygroundSkeleton: true, ownsRouteWorkspace: true },
       { id: 'de-authoring-desktop', locale: 'de', slug: 'native-first-authoring-guide', width: 1440, height: 900, settleMs: 700 },
       { id: 'de-a11y-current-page-desktop', locale: 'de', slug: 'a11y-keyboard-smokes', width: 1440, height: 900, settleMs: 700, inspectNavigation: true },
       { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' },

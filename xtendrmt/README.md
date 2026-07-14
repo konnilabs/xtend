@@ -49,6 +49,8 @@ const renderer = createRmtDomDescriptorRenderer({ componentRegistry: registry })
 
 The DOM descriptor renderer materializes validated descriptors without making manual HTML strings the application source of truth. The capability registry keeps components and their supported behavior explicit.
 
+Safe embedded previews use `@ccslabs/xtend-rmt/safe-preview`; unknown components and forbidden attributes or URLs degrade to diagnostics and descriptors instead of HTML strings. `@ccslabs/xtend-rmt/browser-scheduler` exposes lifecycle-bound `afterPaint` and endpoint scheduling for browser hosts.
+
 ### Node SSR
 
 ```js
@@ -139,6 +141,8 @@ const renderer = createRmtDomDescriptorRenderer({ componentRegistry: registry })
 ```
 
 Der DOM Descriptor Renderer materialisiert validierte Deskriptoren, ohne manuelle HTML-Strings zur Source of Truth der Anwendung zu machen. Die Capability Registry hält Komponenten und ihr unterstütztes Verhalten explizit.
+
+Sichere eingebettete Previews verwenden `@ccslabs/xtend-rmt/safe-preview`; unbekannte Komponenten und verbotene Attribute oder URLs degradieren zu Diagnosen und Deskriptoren statt zu HTML-Strings. `@ccslabs/xtend-rmt/browser-scheduler` stellt lifecycle-gebundenes `afterPaint`- und Endpoint-Scheduling für Browser-Hosts bereit.
 
 ### Node SSR
 

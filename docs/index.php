@@ -19,9 +19,11 @@ $rmtPilotDocumentPath = $docsRoot . '/' . $rmtPilotRuntimeDocument;
 $docsRmtVNextDocument = 'xtendrmt-docs-shell-vnext.rmt';
 $docsRmtVNextDocumentPath = $docsRoot . '/' . $docsRmtVNextDocument;
 $rmtPhpSsrAdapterFile = $repoRoot . '/xtendrmt/rmt-php-ssr-adapter.php';
-$docsRmtCompilerBridgePath = $repoRoot . '/scripts/compile_rmt_vnext_bridge.js';
-$docsRmtLspBridgePath = $repoRoot . '/scripts/rmt_playground_lsp_bridge.js';
-$docsRmtMaracaPreviewBridgePath = $repoRoot . '/scripts/rmt_playground_maraca_preview_bridge.js';
+$docsRmtCompilerBridgePath = $repoRoot . '/tools/tooling-bridge-cli.js';
+$docsRmtLspBridgePath = $repoRoot . '/tools/tooling-bridge-cli.js';
+$docsRmtMaracaPreviewBridgePath = $repoRoot . '/tools/tooling-bridge-cli.js';
+$docsToolingBridgeClientFile = $repoRoot . '/tools/tooling-bridge-client.php';
+if (is_readable($docsToolingBridgeClientFile)) require_once $docsToolingBridgeClientFile;
 $rmtPilotDocumentData = null;
 $rmtPilotDocumentJson = '{}';
 $docsSsrPrehydration = null;
@@ -234,8 +236,10 @@ $xtendAssetVersion = xtendAssetVersion([
     __DIR__ . '/../docs/xtendrmt-parsedown-docs.rmt',
     __DIR__ . '/../docs/xtendrmt-parsedown-docs.core.json',
     __DIR__ . '/../docs/xtendrmt-docs-shell-vnext.rmt',
-    __DIR__ . '/../scripts/compile_rmt_vnext_bridge.js',
-    __DIR__ . '/../scripts/rmt_playground_maraca_preview_bridge.js',
+    __DIR__ . '/../tools/tooling-bridge.js',
+    __DIR__ . '/../tools/tooling-bridge-cli.js',
+    __DIR__ . '/../tools/tooling-bridge-client.php',
+    __DIR__ . '/../xtendrmt/rmt-safe-preview.js',
     __DIR__ . '/../xtendrmt/rmt-php-ssr-adapter.php',
     __DIR__ . '/../api.js',
 ]);
@@ -1215,98 +1219,28 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
     ];
 }
 
-function docsFallbackSerializeDescriptor($descriptor) {
-    if (!is_array($descriptor)) return htmlspecialchars((string) $descriptor, ENT_QUOTES, 'UTF-8');
-    $type = $descriptor['type'] ?? (isset($descriptor['tag']) ? 'element' : 'fragment');
-    if ($type === 'text') return htmlspecialchars((string) ($descriptor['text'] ?? ''), ENT_QUOTES, 'UTF-8');
-    if ($type === 'fragment') {
-        return implode('', array_map('docsFallbackSerializeDescriptor', $descriptor['children'] ?? []));
+function docsRenderDescriptor($descriptor) {
+    if (!is_array($descriptor) || !function_exists('createRmtPhpSsrAdapter')) {
+        throw new RuntimeException('The official RMT PHP descriptor renderer is required by the Docs product.');
     }
-    $tag = preg_replace('/[^a-zA-Z0-9:-]/', '', (string) ($descriptor['tag'] ?? 'div')) ?: 'div';
-    $attrs = '';
-    foreach (($descriptor['attributes'] ?? []) as $name => $value) {
-        if ($value === null || $value === false || $value === []) continue;
-        if ($value === true) $value = 'true';
-        if (is_array($value)) $value = json_encode($value, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-        $attrs .= ' ' . htmlspecialchars((string) $name, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') . '"';
-    }
-    $children = implode('', array_map('docsFallbackSerializeDescriptor', $descriptor['children'] ?? []));
-    return '<' . $tag . $attrs . '>' . $children . '</' . $tag . '>';
+    $result = createRmtPhpSsrAdapter()->renderDescriptor($descriptor, ['requestId' => uniqid('docs-descriptor-', true)]);
+    return (string) ($result['html'] ?? '');
 }
 
 function docsRunRmtNodeBridge($bridgePath, $repoRoot, $payload, $schema, $invalidCode, $invalidMessage, $nodeBinary = 'node', $timeoutSeconds = 3) {
-    $descriptorSpec = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-    $command = escapeshellcmd((string) $nodeBinary) . ' ' . escapeshellarg((string) $bridgePath);
-    $process = proc_open($command, $descriptorSpec, $pipes, (string) $repoRoot);
-    if (!is_resource($process)) return null;
-
-    fwrite($pipes[0], $payload ?: '{}');
-    fclose($pipes[0]);
-    stream_set_blocking($pipes[1], false);
-    stream_set_blocking($pipes[2], false);
-
-    $stdout = '';
-    $stderr = '';
-    $deadline = microtime(true) + max(1, (int) $timeoutSeconds);
-    $timedOut = false;
-    while (true) {
-        $stdout .= stream_get_contents($pipes[1]);
-        $stderr .= stream_get_contents($pipes[2]);
-        $status = proc_get_status($process);
-        if (!$status['running']) break;
-        if (microtime(true) >= $deadline) {
-            $timedOut = true;
-            proc_terminate($process);
-            usleep(100000);
-            $status = proc_get_status($process);
-            if ($status['running']) proc_terminate($process, 9);
-            break;
-        }
-        usleep(10000);
-    }
-
-    $stdout .= stream_get_contents($pipes[1]);
-    fclose($pipes[1]);
-    $stderr .= stream_get_contents($pipes[2]);
-    fclose($pipes[2]);
-    $exitCode = proc_close($process);
-
-    if ($timedOut) {
-        return [
-            'schema' => (string) $schema,
-            'ok' => false,
-            'status' => 'bridge-timeout',
-            'diagnostics' => [[
-                'code' => 'xtend.docs.rmt_bridge.timeout',
-                'severity' => 'error',
-                'source' => 'docs-rmt-playground',
-                'message' => 'The RMT playground worker exceeded the execution time limit.'
-            ]],
-            'exitCode' => $exitCode
-        ];
-    }
-
-    $decoded = json_decode((string) $stdout, true);
-    if (is_array($decoded)) {
-        $decoded['exitCode'] = $exitCode;
-        if ($stderr !== '') $decoded['stderr'] = trim($stderr);
-        return $decoded;
-    }
-    return [
-        'schema' => (string) $schema,
-        'ok' => false,
-        'status' => 'bridge-output-invalid',
-        'diagnostics' => [[
-            'code' => (string) $invalidCode,
-            'severity' => 'error',
-            'source' => 'docs-rmt-playground',
-            'message' => trim($stderr) ?: (string) $invalidMessage
-        ]]
-    ];
+    $decodedPayload = json_decode((string) $payload, true);
+    $operation = strpos((string) $schema, 'lsp') !== false ? 'language-diagnostics' : 'compile';
+    $response = xtendToolingBridgeRequest((string) $bridgePath, (string) $repoRoot, [
+        'schema' => 'xtend.compiler.tooling-bridge.v1',
+        'requestId' => uniqid('docs-tooling-', true),
+        'operation' => $operation,
+        'payload' => is_array($decodedPayload) ? $decodedPayload : []
+    ], ['nodeBinary' => $nodeBinary, 'timeoutSeconds' => $timeoutSeconds]);
+    if (!is_array($response)) return null;
+    $result = isset($response['result']) && is_array($response['result']) ? $response['result'] : $response;
+    $result['toolingBridgeSchema'] = $response['bridgeSchema'] ?? 'xtend.compiler.tooling-bridge.v1';
+    $result['diagnostics'] = $response['diagnostics'] ?? ($result['diagnostics'] ?? []);
+    return $result;
 }
 
 function docsRmtPlaygroundAcquireConcurrencySlot($name, $schema, $maxConcurrent = 2) {
@@ -1335,7 +1269,7 @@ function docsRmtPlaygroundAcquireConcurrencySlot($name, $schema, $maxConcurrent 
 
 function docsCreateRmtCompilerBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
     return function ($source, array $context = []) use ($bridgePath, $repoRoot, $nodeBinary) {
-        if (!is_readable($bridgePath) || !function_exists('proc_open')) {
+        if (!is_readable($bridgePath) || !function_exists('xtendToolingBridgeRequest')) {
             return docsRmtCompilerBridgeError(
                 'bridge-unavailable',
                 'xtend.docs.rmt_compiler_bridge.unavailable',
@@ -1365,88 +1299,55 @@ function docsCreateRmtCompilerBridge($bridgePath, $repoRoot, $nodeBinary = 'node
 
 function docsCreateRmtMaracaPreviewBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
     return function ($source, array $context = []) use ($bridgePath, $repoRoot, $nodeBinary) {
-        if (!is_readable($bridgePath) || !function_exists('proc_open')) {
-            return [
-                'schema' => 'xtend.docs.rmt-playground.maraca-preview.v1',
-                'ok' => false,
-                'status' => 'bridge-unavailable',
-                'diagnostics' => [[
-                    'code' => 'xtend.docs.rmt_playground.maraca_preview.unavailable',
-                    'severity' => 'error',
-                    'message' => 'The docs PHP host could not start the Node Maraca preview bridge.'
-                ]],
-                'summary' => new stdClass(),
-                'features' => new stdClass(),
-                'runtimeModules' => [],
-                'plan' => null
-            ];
-        }
-        $payload = json_encode([
-            'source' => (string) $source,
-            'filePath' => $context['filePath'] ?? 'docs/rmt-playground-source.rmt',
-            'maraca' => $context['maraca'] ?? [],
-            'profile' => $context['profile'] ?? 'debug',
-            'lazy' => $context['lazy'] ?? 'component',
-            'css' => $context['css'] ?? 'external',
-            'stack' => $context['stack'] ?? 'runtime',
-            'components' => $context['components'] ?? 'document'
-        ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-        $descriptorSpec = [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w']
-        ];
-        $command = escapeshellcmd((string) $nodeBinary) . ' ' . escapeshellarg((string) $bridgePath);
-        $process = proc_open($command, $descriptorSpec, $pipes, (string) $repoRoot);
-        if (!is_resource($process)) {
-            return [
-                'schema' => 'xtend.docs.rmt-playground.maraca-preview.v1',
-                'ok' => false,
-                'status' => 'bridge-start-failed',
-                'diagnostics' => [[
-                    'code' => 'xtend.docs.rmt_playground.maraca_preview.start_failed',
-                    'severity' => 'error',
-                    'message' => 'The docs PHP host failed to open the Node Maraca preview bridge.'
-                ]],
-                'summary' => new stdClass(),
-                'features' => new stdClass(),
-                'runtimeModules' => [],
-                'plan' => null
-            ];
-        }
-        fwrite($pipes[0], $payload ?: '{}');
-        fclose($pipes[0]);
-        $stdout = stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-        $stderr = stream_get_contents($pipes[2]);
-        fclose($pipes[2]);
-        $exitCode = proc_close($process);
-        $decoded = json_decode((string) $stdout, true);
-        if (is_array($decoded)) {
-            $decoded['exitCode'] = $exitCode;
-            if ($stderr !== '') $decoded['stderr'] = trim($stderr);
-            return $decoded;
+        $featureOptions = is_array($context['maraca'] ?? null) ? $context['maraca'] : [];
+        $response = xtendToolingBridgeRequest((string) $bridgePath, (string) $repoRoot, [
+            'schema' => 'xtend.compiler.tooling-bridge.v1',
+            'requestId' => uniqid('docs-maraca-', true),
+            'operation' => 'maraca-plan',
+            'payload' => [
+                'source' => (string) $source,
+                'filePath' => $context['filePath'] ?? 'docs/rmt-playground-source.rmt',
+                'options' => array_replace([
+                    'profile' => $context['profile'] ?? 'debug',
+                    'lazy' => $context['lazy'] ?? 'component',
+                    'css' => $context['css'] ?? 'external',
+                    'stack' => $context['stack'] ?? 'runtime',
+                    'components' => $context['components'] ?? 'document'
+                ], $featureOptions)
+            ]
+        ], ['nodeBinary' => $nodeBinary, 'timeoutSeconds' => $context['timeoutSeconds'] ?? 3]);
+        $plan = isset($response['result']) && is_array($response['result']) ? $response['result'] : null;
+        $orchestrationSummary = is_array($plan['orchestration']['summary'] ?? null) ? $plan['orchestration']['summary'] : [];
+        $validationSummary = is_array($plan['validation']['summary'] ?? null) ? $plan['validation']['summary'] : [];
+        $transitionSummary = is_array($plan['transitions']['summary'] ?? null) ? $plan['transitions']['summary'] : [];
+        $features = [];
+        foreach (['orchestration', 'kernel', 'hydration', 'validation', 'transitions'] as $key) {
+            $entry = is_array($plan[$key] ?? null) ? $plan[$key] : [];
+            $features[$key] = ['enabled' => ($entry['enabled'] ?? false) === true, 'mode' => $entry['mode'] ?? ($featureOptions[$key] ?? 'auto'), 'status' => $entry['status'] ?? 'unknown', 'supported' => ($entry['supported'] ?? false) === true, 'summary' => $entry['summary'] ?? new stdClass()];
         }
         return [
             'schema' => 'xtend.docs.rmt-playground.maraca-preview.v1',
-            'ok' => false,
-            'status' => 'bridge-output-invalid',
-            'diagnostics' => [[
-                'code' => 'xtend.docs.rmt_playground.maraca_preview.output_invalid',
-                'severity' => 'error',
-                'message' => trim($stderr) ?: 'The Node Maraca preview bridge did not return JSON.'
-            ]],
-            'summary' => new stdClass(),
-            'features' => new stdClass(),
-            'runtimeModules' => [],
-            'plan' => null
+            'bridgeSchema' => $response['bridgeSchema'] ?? 'xtend.compiler.tooling-bridge.v1',
+            'ok' => is_array($plan) && ($plan['ok'] ?? false) === true,
+            'status' => $plan['status'] ?? ($response['status'] ?? 'bridge-error'),
+            'diagnostics' => $response['diagnostics'] ?? ($plan['diagnostics'] ?? []),
+            'summary' => [
+                'surfaceCount' => (int) ($orchestrationSummary['surfaceCount'] ?? count($plan['surfaces'] ?? [])),
+                'actionCount' => (int) ($orchestrationSummary['actionCount'] ?? 0),
+                'eventCount' => (int) ($orchestrationSummary['eventCount'] ?? count($plan['events'] ?? [])),
+                'validationGroupCount' => (int) ($validationSummary['groupCount'] ?? 0),
+                'transitionCount' => (int) ($transitionSummary['transitionCount'] ?? 0)
+            ],
+            'features' => $features,
+            'runtimeModules' => $plan['runtimeModules'] ?? [],
+            'plan' => $plan
         ];
     };
 }
 
 function docsCreateRmtLspBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
     return function ($source, array $context = []) use ($bridgePath, $repoRoot, $nodeBinary) {
-        if (!is_readable($bridgePath) || !function_exists('proc_open')) {
+        if (!is_readable($bridgePath) || !function_exists('xtendToolingBridgeRequest')) {
             return [
                 'schema' => 'xtend.docs.rmt-playground.lsp-bridge.v1',
                 'ok' => false,
@@ -1553,190 +1454,39 @@ function docsRmtPlaygroundPolicyDiagnostics($source) {
     return $diagnostics;
 }
 
-function docsRmtPlaygroundPreviewValue($value, $maxLength = 240) {
-    if (is_bool($value)) return $value;
-    if (is_int($value) || is_float($value)) return (string) $value;
-    $text = preg_replace('/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/', '', (string) $value);
-    return substr($text, 0, max(1, (int) $maxLength));
-}
-
-function docsRmtPlaygroundFindCoreRecord($records, $name, $prefix = '') {
-    if (!is_array($records)) return null;
-    $needle = (string) $name;
-    if ($needle === '') return null;
-    $prefixed = $prefix !== '' && !str_starts_with($needle, $prefix . ':') ? $prefix . ':' . $needle : $needle;
-    foreach ($records as $record) {
-        if (!is_array($record)) continue;
-        $recordName = (string) ($record['name'] ?? '');
-        $recordId = (string) ($record['id'] ?? '');
-        if ($recordName === $needle || $recordId === $needle || $recordId === $prefixed) return $record;
-    }
-    return null;
-}
-
-function docsRmtPlaygroundInitialDataForSurface($surface, $coreDocument) {
-    if (!is_array($surface) || !is_array($coreDocument)) return null;
-    $source = isset($surface['source']) && is_array($surface['source']) ? $surface['source'] : [];
-    $sourceKind = (string) ($source['kind'] ?? '');
-    $sourceTarget = (string) ($source['target'] ?? '');
-    if ($sourceTarget === '') return null;
-
-    $stateTarget = $sourceTarget;
-    if ($sourceKind === 'selector') {
-        $selector = docsRmtPlaygroundFindCoreRecord($coreDocument['selectors'] ?? [], $sourceTarget, 'selector');
-        if (!$selector || !isset($selector['source']) || !is_array($selector['source'])) return null;
-        $stateTarget = (string) ($selector['source']['target'] ?? '');
-    }
-
-    $state = docsRmtPlaygroundFindCoreRecord($coreDocument['states'] ?? [], $stateTarget, 'state');
-    $initial = $state && isset($state['initial']) && is_array($state['initial']) ? $state['initial'] : null;
-    return $initial;
-}
-
-function docsRmtPlaygroundSafePreviewTag($component) {
-    $tag = strtolower(trim((string) $component));
-    if ($tag === '') return '';
-    if (preg_match('/^[a-z][a-z0-9]*-[a-z0-9][a-z0-9-]*$/', $tag) !== 1) return '';
-    return $tag;
-}
-
-function docsRmtPlaygroundPreviewTextFromData($data, $fallback = '') {
-    if (!is_array($data)) return docsRmtPlaygroundPreviewValue($fallback);
-    foreach (['message', 'text', 'title', 'label', 'name', 'status', 'value', 'id'] as $key) {
-        if (!array_key_exists($key, $data)) continue;
-        $value = $data[$key];
-        if (is_array($value) || is_object($value)) continue;
-        $text = docsRmtPlaygroundPreviewValue($value);
-        if ($text !== '') return $text;
-    }
-    return docsRmtPlaygroundPreviewValue($fallback);
-}
-
-function docsRmtPlaygroundPreviewDataAttribute($data, $keys, $fallback = null, $maxLength = 240) {
-    if (is_array($data)) {
-        foreach ((array) $keys as $key) {
-            if (!array_key_exists($key, $data)) continue;
-            $value = $data[$key];
-            if (is_array($value) || is_object($value)) continue;
-            return docsRmtPlaygroundPreviewValue($value, $maxLength);
-        }
-    }
-    if ($fallback === null) return null;
-    return docsRmtPlaygroundPreviewValue($fallback, $maxLength);
-}
-
-function docsRmtPlaygroundPreviewBoolAttribute($data, $key) {
-    if (!is_array($data) || !array_key_exists($key, $data)) return null;
-    return filter_var($data[$key], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-}
-
-function docsRmtPlaygroundSafePreviewUrl($value) {
-    $url = trim((string) $value);
-    if ($url === '') return null;
-    if (preg_match('/^(#|\\/|\\.\\/|\\.\\.\\/|https?:|mailto:|tel:)/i', $url) !== 1) return null;
-    return docsRmtPlaygroundPreviewValue($url, 512);
-}
-
-function docsRmtPlaygroundPreviewAttributesForComponent($component, $data, $surface) {
-    $surfaceId = (string) ($surface['id'] ?? $surface['name'] ?? 'surface');
-    $surfaceName = (string) ($surface['name'] ?? $surfaceId);
-    $attributes = [
-        'data-rmt-playground-surface' => docsRmtPlaygroundPreviewValue($surfaceId, 160),
-        'data-rmt-surface-name' => docsRmtPlaygroundPreviewValue($surfaceName, 160),
-        'data-rmt-surface-kind' => docsRmtPlaygroundPreviewValue($surface['kind'] ?? 'surface', 80)
-    ];
-
-    $candidateMap = [
-        'label' => ['label', 'title', 'name', 'id'],
-        'title' => ['title', 'label', 'name'],
-        'name' => ['name', 'id'],
-        'value' => ['value'],
-        'state' => ['state', 'status', 'tone'],
-        'type' => ['type', 'tone'],
-        'variant' => ['variant', 'tone'],
-        'placeholder' => ['placeholder']
-    ];
-    foreach ($candidateMap as $attribute => $keys) {
-        $value = docsRmtPlaygroundPreviewDataAttribute($data, $keys);
-        if ($value !== null && $value !== '') $attributes[$attribute] = $value;
-    }
-
-    foreach (['busy', 'checked', 'disabled', 'dismissible', 'loading', 'open', 'polite', 'required', 'selected'] as $booleanKey) {
-        $value = docsRmtPlaygroundPreviewBoolAttribute($data, $booleanKey);
-        if ($value !== null) $attributes[$booleanKey] = $value;
-    }
-
-    if ($component === 'x-status') {
-        $tone = strtolower((string) docsRmtPlaygroundPreviewDataAttribute($data, ['tone', 'type', 'state'], 'info', 64));
-        if (!in_array($tone, ['info', 'success', 'warning', 'error'], true)) $tone = 'info';
-        $attributes['type'] = $tone;
-        $attributes['state'] = docsRmtPlaygroundPreviewDataAttribute($data, ['state', 'status', 'tone'], $tone, 64);
-        $message = docsRmtPlaygroundPreviewTextFromData($data, 'Status ready');
-        if ($message !== '') $attributes['message'] = $message;
-    }
-
-    if ($component === 'x-progress') {
-        $attributes['value'] = docsRmtPlaygroundPreviewDataAttribute($data, ['value', 'progress', 'percent'], '0', 32);
-        $attributes['max'] = docsRmtPlaygroundPreviewDataAttribute($data, ['max', 'total'], '100', 32);
-    }
-
-    if (in_array($component, ['x-link', 'x-button'], true)) {
-        $href = docsRmtPlaygroundSafePreviewUrl($data['href'] ?? $data['url'] ?? '');
-        if ($href !== null) $attributes['href'] = $href;
-    }
-
-    return array_filter($attributes, function ($value) {
-        return $value !== null && $value !== '';
-    });
-}
-
-function docsRmtPlaygroundComponentDescriptor($surface, $coreDocument) {
-    $component = docsRmtPlaygroundSafePreviewTag($surface['component'] ?? '');
-    if ($component === '') return null;
-    $data = docsRmtPlaygroundInitialDataForSurface($surface, $coreDocument);
-    if (!is_array($data)) $data = [];
-    $surfaceId = (string) ($surface['id'] ?? $surface['name'] ?? $component);
-    $text = docsRmtPlaygroundPreviewTextFromData($data, $surface['name'] ?? $surfaceId);
-    $descriptor = [
-        'type' => 'component',
-        'component' => $component,
-        'tag' => $component,
-        'id' => docsRmtPlaygroundPreviewValue($surfaceId, 160),
-        'key' => docsRmtPlaygroundPreviewValue($surface['key'] ?? $surfaceId, 160),
-        'attributes' => docsRmtPlaygroundPreviewAttributesForComponent($component, $data, $surface)
-    ];
-    if ($text !== '') {
-        $descriptor['children'] = [[
-            'type' => 'text',
-            'text' => $text
-        ]];
-    }
-    return $descriptor;
-}
-
-function docsRmtPlaygroundComponentPreview($surface, $coreDocument) {
-    $descriptor = docsRmtPlaygroundComponentDescriptor($surface, $coreDocument);
-    if (!$descriptor) return null;
-    return [
-        'schema' => 'xtend.docs.rmt-playground.component-preview.v1',
-        'renderMode' => 'dom_descriptor',
-        'renderer' => 'xtendrmt/rmt-dom-descriptor-renderer',
-        'tag' => $descriptor['tag'],
-        'descriptor' => $descriptor,
-        'model' => [
-            'surface' => [
-                'id' => $surface['id'] ?? '',
-                'name' => $surface['name'] ?? '',
-                'kind' => $surface['kind'] ?? '',
-                'component' => $surface['component'] ?? ''
+function docsRmtPlaygroundProjectSafePreview($repoRoot, $bridgePath, $coreDocument) {
+    if (!is_array($coreDocument) || !function_exists('xtendToolingBridgeRequest')) return null;
+    $response = xtendToolingBridgeRequest((string) $bridgePath, (string) $repoRoot, [
+        'schema' => 'xtend.compiler.tooling-bridge.v1',
+        'requestId' => uniqid('docs-safe-preview-', true),
+        'operation' => 'safe-preview',
+        'payload' => [
+            'coreDocument' => $coreDocument,
+            'options' => [
+                'componentRegistry' => docsLoadComponentManifest($repoRoot),
+                'limits' => ['maxDepth' => 32, 'maxNodes' => 1000, 'maxTextBytes' => 65536, 'maxAttributes' => 32]
             ],
-            'state' => docsRmtPlaygroundInitialDataForSurface($surface, $coreDocument) ?: new stdClass()
-        ],
-        'source' => $surface['source']['ref'] ?? ''
-    ];
+            'project' => ['baseUrl' => 'https://xtend.invalid/']
+        ]
+    ], ['timeoutSeconds' => 3, 'concurrencyLimit' => 2, 'outputLimit' => 16777216]);
+    $projection = isset($response['result']) && is_array($response['result']) ? $response['result'] : null;
+    return $projection && isset($projection['descriptor']) && is_array($projection['descriptor']) ? $projection : null;
 }
 
-function docsRmtPlaygroundPreviewFromCore($coreDocument) {
+function docsRmtPlaygroundProjectedSurfaces($projection) {
+    $descriptor = is_array($projection) && is_array($projection['descriptor'] ?? null) ? $projection['descriptor'] : [];
+    $children = isset($descriptor['children']) && is_array($descriptor['children']) ? $descriptor['children'] : [];
+    $projected = [];
+    foreach ($children as $child) {
+        if (!is_array($child)) continue;
+        $attributes = isset($child['attributes']) && is_array($child['attributes']) ? $child['attributes'] : [];
+        $surfaceId = (string) ($attributes['data-rmt-playground-surface'] ?? '');
+        if ($surfaceId !== '') $projected[$surfaceId] = $child;
+    }
+    return $projected;
+}
+
+function docsRmtPlaygroundPreviewFromCore($coreDocument, $safePreview = null) {
     if (!is_array($coreDocument)) {
         return [
             'schema' => 'xtend.docs.rmt-playground.preview.v1',
@@ -1764,6 +1514,7 @@ function docsRmtPlaygroundPreviewFromCore($coreDocument) {
         });
     }
     $surfaces = [];
+    $projectedSurfaces = docsRmtPlaygroundProjectedSurfaces($safePreview);
     foreach (($coreDocument['surfaces'] ?? []) as $surface) {
         if (!is_array($surface)) continue;
         $laneRefs = array_values(array_filter($surface['laneRefs'] ?? [], 'is_string'));
@@ -1771,6 +1522,25 @@ function docsRmtPlaygroundPreviewFromCore($coreDocument) {
         foreach ($laneRefs as $laneRef) {
             if (isset($lanesById[$laneRef])) $surfaceLanes[] = $lanesById[$laneRef];
         }
+        $surfaceId = (string) ($surface['id'] ?? $surface['name'] ?? '');
+        $descriptor = $projectedSurfaces[$surfaceId] ?? null;
+        $componentPreview = is_array($descriptor) ? [
+            'schema' => 'xtend.docs.rmt-playground.component-preview.v1',
+            'renderMode' => 'dom_descriptor',
+            'renderer' => 'xtendrmt/rmt-dom-descriptor-renderer',
+            'tag' => (string) ($descriptor['tag'] ?? ''),
+            'descriptor' => $descriptor,
+            'model' => [
+                'surface' => [
+                    'id' => $surface['id'] ?? '',
+                    'name' => $surface['name'] ?? '',
+                    'kind' => $surface['kind'] ?? '',
+                    'component' => $surface['component'] ?? ''
+                ],
+                'state' => new stdClass()
+            ],
+            'source' => $surface['source']['ref'] ?? ''
+        ] : null;
         $surfaces[] = array_filter([
             'id' => $surface['name'] ?? $surface['id'] ?? '',
             'surfaceId' => $surface['id'] ?? '',
@@ -1787,7 +1557,7 @@ function docsRmtPlaygroundPreviewFromCore($coreDocument) {
                 return $value !== null && $value !== '';
             }) : null,
             'lanes' => $surfaceLanes,
-            'componentPreview' => docsRmtPlaygroundComponentPreview($surface, $coreDocument)
+            'componentPreview' => $componentPreview
         ], function ($value) {
             return $value !== null && $value !== '' && $value !== [];
         });
@@ -2174,13 +1944,15 @@ function docsRmtPlaygroundHandleCompile($repoRoot, $bridgePath, $maracaBridgePat
     ]);
     $diagnostics = docsRmtPlaygroundNormalizeDiagnostics($compiled['diagnostics'] ?? $compiled['compilerDiagnostics'] ?? []);
     $ok = isset($compiled['ok']) ? (bool) $compiled['ok'] : false;
+    $coreDocument = $ok && is_array($compiled['coreDocument'] ?? null) ? $compiled['coreDocument'] : null;
+    $safePreview = $coreDocument ? docsRmtPlaygroundProjectSafePreview($repoRoot, $bridgePath, $coreDocument) : null;
     $response = [
         'schema' => $schema,
         'ok' => $ok,
         'status' => (string) ($compiled['status'] ?? ($ok ? 'compiled' : 'failed')),
         'diagnostics' => $diagnostics,
         'coreJson' => $ok ? (string) ($compiled['coreJson'] ?? '') : null,
-        'preview' => $ok ? docsRmtPlaygroundPreviewFromCore($compiled['coreDocument'] ?? null) : docsRmtPlaygroundPreviewFromCore(null)
+        'preview' => $ok ? docsRmtPlaygroundPreviewFromCore($coreDocument, $safePreview) : docsRmtPlaygroundPreviewFromCore(null)
     ];
     if ($maracaOptions !== null) {
         $response['maraca'] = ($ok && $maracaBridgePath)
@@ -2343,7 +2115,7 @@ function docsCompactDocsSsrPrehydrationForBootstrap($payload) {
 function docsRenderDocsSsrPrehydration($repoRoot, $bridgePath, $sourcePath, $descriptor, $page, $locale) {
     $endpoint = docsSsrEndpointUrl($page, $locale);
     $source = is_readable($sourcePath) ? file_get_contents($sourcePath) : '';
-    $fallbackHtml = docsFallbackSerializeDescriptor($descriptor);
+    $fallbackHtml = docsRenderDescriptor($descriptor);
     $result = [
         'schema' => 'xtend.docs.php-ssr-prehydration.v1',
         'ok' => false,
@@ -2352,7 +2124,7 @@ function docsRenderDocsSsrPrehydration($repoRoot, $bridgePath, $sourcePath, $des
         'source' => 'docs/xtendrmt-docs-shell-vnext.rmt',
         'compilerBridge' => [
             'schema' => 'xtend.docs.rmt-compiler-bridge.v1',
-            'runner' => 'scripts/compile_rmt_vnext_bridge.js',
+            'runner' => 'tools/tooling-bridge-cli.js',
             'injected' => false
         ],
         'ssrEndpoint' => [
@@ -2495,6 +2267,9 @@ if (isset($_GET['download'])) {
 require_once $parsedownFile;
 if (is_readable($rmtPhpSsrAdapterFile)) {
     require_once $rmtPhpSsrAdapterFile;
+}
+if (is_readable($docsToolingBridgeClientFile)) {
+    require_once $docsToolingBridgeClientFile;
 }
 $Parsedown = new Parsedown();
 $Parsedown->setSafeMode(true);
@@ -2707,7 +2482,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
     <meta name="description" content="<?= htmlspecialchars($initialDescription, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="keywords" content="<?= htmlspecialchars($initialKeywords, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="xtend-preload" content="x-theme,x-button,x-icon,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer,x-select,x-section,x-code,x-modal,x-dialog">
+    <meta name="xtend-preload" content="x-utils,x-theme,x-button,x-icon,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer,x-select,x-section,x-code,x-modal,x-dialog">
     <link rel="icon" href="<?= $docsFaviconIcoUrl ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= $docsFavicon32Url ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">
@@ -4062,7 +3837,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
       ssrEndpoint: window.xtendDocsRmtSsrEndpoint,
       compilerBridge: {
         schema: 'xtend.docs.rmt-compiler-bridge.v1',
-        runner: 'scripts/compile_rmt_vnext_bridge.js',
+        runner: 'tools/tooling-bridge-cli.js',
         function: 'compileRmtVNextSource',
         injected: Boolean(window.xtendDocsSsrPrehydration && window.xtendDocsSsrPrehydration.compilerBridge && window.xtendDocsSsrPrehydration.compilerBridge.injected)
       },
@@ -4156,7 +3931,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
     <script type="module" src="/docs/utils/trusted-dom-host.mjs?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>"></script>
 </head>
 <body xt-ui-effects="none">
-<?= $docsSsrPrehydration['html'] ?? docsFallbackSerializeDescriptor($docsRootShellDescriptor) ?>
+<?= $docsSsrPrehydration['html'] ?? docsRenderDescriptor($docsRootShellDescriptor) ?>
 <script type="module" src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
 </script>
 <script type="module" src="/docs/utils/docs-shell-runtime.mjs?v=<?= $xtendAssetVersionAttr ?>"></script>

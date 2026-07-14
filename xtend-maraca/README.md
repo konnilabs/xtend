@@ -62,6 +62,18 @@ const reserved = isPublicNameReserved('x-button');
 
 Lazy component bundles use viewport-driven loading when `IntersectionObserver` is available. Custom hosts can select eager loading through `bootXtendMaraca({ lazyStrategy: 'eager' })` in a generated application entry.
 
+### Embedded plan runtime
+
+Dynamic, isolated previews use the stable `./plan-runtime` export. The host supplies the build plan, DOM root, component registry, Fabric instance and host services; the runtime owns boot, commands, snapshots and disposal without global singleton state.
+
+```js
+import { bootMaracaPlan } from '@ccslabs/xtend-maraca/plan-runtime';
+
+const runtime = await bootMaracaPlan({ plan, root, componentRegistry, fabric, hostServices });
+await runtime.dispatchCommand('preview.submit', { value: 'XTend' });
+runtime.dispose();
+```
+
 ### Build capabilities
 
 - orchestration, kernel, validation, hydration, and transition plans
@@ -159,6 +171,18 @@ const reserved = isPublicNameReserved('x-button');
 ```
 
 Lazy-Komponentenbundles verwenden viewport-gesteuertes Laden, wenn `IntersectionObserver` verfügbar ist. Eigene Hosts können in einem generierten App-Einstieg mit `bootXtendMaraca({ lazyStrategy: 'eager' })` sofortiges Laden auswählen.
+
+### Eingebettete Plan-Runtime
+
+Dynamische, isolierte Previews verwenden den stabilen Export `./plan-runtime`. Der Host übergibt Buildplan, DOM-Root, Komponentenregistry, Fabric-Instanz und Host Services; die Runtime besitzt Boot, Commands, Snapshots und Dispose ohne globalen Singleton-Zustand.
+
+```js
+import { bootMaracaPlan } from '@ccslabs/xtend-maraca/plan-runtime';
+
+const runtime = await bootMaracaPlan({ plan, root, componentRegistry, fabric, hostServices });
+await runtime.dispatchCommand('preview.submit', { value: 'XTend' });
+runtime.dispose();
+```
 
 ### Build-Fähigkeiten
 

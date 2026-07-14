@@ -28,6 +28,7 @@ const COMMANDS = [
   'npm run test:xtend-dev-surface:report',
   'npm run test:docs-quality:report',
   'npm run test:docs-shell-catfooding:report',
+  'npm run test:docs-framework-ownership:report',
   'npm run test:xsurface-shard:report',
   'npm run test:xscaler-protocol:report',
   'npm run test:xscaler-source-to-sea:report'
@@ -55,6 +56,7 @@ const ARTIFACT_PATHS = [
   '.xtend-test-results/xtend-dev-surface-report.json',
   '.xtend-test-results/xtend-docs-quality-report.json',
   '.xtend-test-results/xtend-docs-shell-catfooding-report.json',
+  '.xtend-test-results/xtend-docs-framework-ownership-report.json',
   '.xtend-test-results/xtend-xsurface-shard-report.json',
   '.xtend-test-results/xtend-xscaler-protocol-report.json',
   '.xtend-test-results/xtend-xscaler-source-to-sea-report.json',
@@ -76,6 +78,7 @@ const REQUIRED_ARTIFACTS = new Set([
   '.xtend-test-results/xtend-dev-surface-report.json',
   '.xtend-test-results/xtend-docs-quality-report.json',
   '.xtend-test-results/xtend-docs-shell-catfooding-report.json',
+  '.xtend-test-results/xtend-docs-framework-ownership-report.json',
   '.xtend-test-results/xtend-xsurface-shard-report.json',
   '.xtend-test-results/xtend-xscaler-protocol-report.json',
   '.xtend-test-results/xtend-xscaler-source-to-sea-report.json'

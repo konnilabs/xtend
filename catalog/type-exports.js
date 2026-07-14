@@ -116,7 +116,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'maraca',
     priority: 'P1',
     workpackage: 'WP-Maraca-01',
-    exports: ['./maraca', './maraca/runtime'],
+    exports: ['./maraca', './maraca/runtime', './maraca/plan-runtime'],
     strategy: 'maraca-package-declaration-pack'
   },
   {
@@ -137,13 +137,14 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'rmt-runtime',
     priority: 'P1',
     workpackage: 'WP-TypeExports-04',
-    exports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter'],
+    exports: ['./rmt', './rmt/browser', './rmt/browser-scheduler', './rmt/dom-descriptor-renderer', './rmt/safe-preview', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter'],
     strategy: 'runtime-types-condition-to-rmt-core'
   },
   {
     id: 'rmt-tooling',
     priority: 'P1',
     workpackage: 'WP-TypeExports-04',
+    exports: ['./compiler/tooling-bridge'],
     prefixes: ['./rmt-language-server', './rmt-linter', './rmt-editor'],
     strategy: 'rmt-tooling-declaration-pack'
   },

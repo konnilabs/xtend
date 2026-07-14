@@ -81,6 +81,7 @@ export interface RmtAnimationEngineRuntimeOptions {
 export interface RmtAnimationEngineRunInput {
   target?: Element | null;
   element?: Element | null;
+  exitTarget?: Element | null;
   transition?: RmtAnimationTransitionRecord | null;
   phase?: 'enter' | 'exit' | string;
   surface?: string;
@@ -95,6 +96,8 @@ export interface RmtAnimationEngineRuntime {
   animationPlan: RmtAnimationEnginePlan;
   runSurfaceTransitionPhase(input: RmtAnimationEngineRunInput): Promise<unknown>;
   runTransition(input: RmtAnimationEngineRunInput): Promise<unknown>;
+  replaySurfaceTransition(input: RmtAnimationEngineRunInput): Promise<unknown>;
+  cancelReplay(): number;
   findTransition(metadata?: Record<string, unknown>): RmtAnimationTransitionRecord | null;
   listActiveAnimations(): unknown[];
   listDiagnostics(): unknown[];

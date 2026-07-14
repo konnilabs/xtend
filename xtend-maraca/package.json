@@ -27,6 +27,10 @@
       "types": "./runtime.d.ts",
       "default": "./runtime.js"
     },
+    "./plan-runtime": {
+      "types": "./plan-runtime.d.ts",
+      "default": "./plan-runtime.mjs"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -34,6 +38,8 @@
     "index.d.ts",
     "runtime.js",
     "runtime.d.ts",
+    "plan-runtime.mjs",
+    "plan-runtime.d.ts",
     "README.md",
     "package.json"
   ],
