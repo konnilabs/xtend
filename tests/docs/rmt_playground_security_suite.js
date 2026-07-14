@@ -118,6 +118,7 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   const lspBridge = readText('scripts/rmt_playground_lsp_bridge.js', rootDir);
   const maracaBridge = readText('scripts/rmt_playground_maraca_preview_bridge.js', rootDir);
   const toolingBridge = readText('tools/tooling-bridge.js', rootDir);
+  const maracaRuntime = readText('xtend-maraca/index.js', rootDir);
   const vnextCompiler = readText('tools/rmt-language/vnext-compiler.js', rootDir);
   const vnextTooling = readText('tools/rmt-language/vnext-tooling.js', rootDir);
   const customerServiceKernelSource = readText('products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt', rootDir);
@@ -164,7 +165,7 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(indexPhp.includes('docsRmtPlaygroundProjectSafePreview') && indexPhp.includes("'operation' => 'safe-preview'"), 'Compile endpoint projects structured component previews through the official safe-preview bridge');
   context.assert(indexPhp.includes("'renderMode' => 'dom_descriptor'"), 'Compile endpoint marks component previews as DOM descriptors');
   context.assert(lspBridge.includes('executeToolingBridgeOperation') && lspBridge.includes("operation: 'language-diagnostics'"), 'LSP compatibility bridge delegates to the official tooling bridge');
-  context.assert(!legacyNodeSyntaxPattern.test(vnextCompiler) && !legacyNodeSyntaxPattern.test(vnextTooling), 'RMT Playground LSP server path avoids optional chaining and nullish coalescing for older Node runtimes');
+  context.assert(!legacyNodeSyntaxPattern.test(vnextCompiler) && !legacyNodeSyntaxPattern.test(vnextTooling) && !legacyNodeSyntaxPattern.test(toolingBridge) && !legacyNodeSyntaxPattern.test(maracaRuntime), 'RMT Playground compiler and Maraca plan paths avoid optional chaining and nullish coalescing for the Docs server runtime');
   context.assert(maracaBridge.includes('executeToolingBridgeOperation') && maracaBridge.includes("operation: 'maraca-plan'"), 'Maraca compatibility bridge delegates planning and sanitization to the official tooling bridge');
   context.assert(!toolingBridge.includes('.replaceAll(') && toolingBridge.includes('.split(normalizedRoot).join(\'[repo]\')'), 'Tooling bridge path redaction remains compatible with the older Node runtime supported by the Docs server');
   context.assert(pageLoader.includes("import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js'))") && pageLoader.includes('docsRmtDescriptorRenderer.render('), 'Preview client uses the cache-versioned stable DOM descriptor renderer export');

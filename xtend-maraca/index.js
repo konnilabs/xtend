@@ -8634,9 +8634,12 @@ function maracaTuneCandidateId(profile, lazy, css) {
 }
 
 function maracaTunePreference(candidate) {
-  const profile = { production: 0, max: 1 }[candidate.profile] ?? 9;
-  const lazy = { route: 0, component: 1, none: 2 }[candidate.lazy] ?? 9;
-  const css = { external: 0, inline: 1 }[candidate.css] ?? 9;
+  const profilePreference = { production: 0, max: 1 }[candidate.profile];
+  const lazyPreference = { route: 0, component: 1, none: 2 }[candidate.lazy];
+  const cssPreference = { external: 0, inline: 1 }[candidate.css];
+  const profile = profilePreference === undefined ? 9 : profilePreference;
+  const lazy = lazyPreference === undefined ? 9 : lazyPreference;
+  const css = cssPreference === undefined ? 9 : cssPreference;
   return [profile, lazy, css];
 }
 
