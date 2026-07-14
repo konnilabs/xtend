@@ -45,8 +45,8 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     'scripts/rmt_playground_lsp_bridge.js',
     'scripts/rmt_playground_maraca_preview_bridge.js'
   ].map(read);
-  context.assert(pageLoader.includes("from '/xtend-maraca/plan-runtime.mjs'") && pageLoader.includes('createMaracaPlanRuntime({'), 'RMT Playground boots through the public Maraca plan runtime');
-  context.assert(pageLoader.includes("from '/xtendrmt/rmt-dom-descriptor-renderer.js'") && !pageLoader.includes('renderRmtDescriptorNode'), 'Docs descriptors use the official RMT DOM renderer');
+  context.assert(pageLoader.includes("import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs'))") && pageLoader.includes('createMaracaPlanRuntime({'), 'RMT Playground boots through the cache-versioned public Maraca plan runtime');
+  context.assert(pageLoader.includes("import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js'))") && !pageLoader.includes('renderRmtDescriptorNode'), 'Docs descriptors use the cache-versioned official RMT DOM renderer');
   context.assert(phpHost.includes('xtendToolingBridgeRequest') && !phpHost.includes('proc_open'), 'PHP host delegates all compiler processes to the official tooling bridge client');
   context.assert(phpHost.includes('->renderDescriptor(') && !phpHost.includes('docsFallbackSerializeDescriptor'), 'PHP host serializes descriptors through the RMT SSR adapter');
   context.assert(animationDemo.includes('engine.replaySurfaceTransition({') && !animationDemo.includes('engine.runSurfaceTransitionPhase({'), 'Animation demo uses the framework replay contract');

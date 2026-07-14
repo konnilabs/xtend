@@ -150,7 +150,9 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(lspBridge.includes('executeToolingBridgeOperation') && lspBridge.includes("operation: 'language-diagnostics'"), 'LSP compatibility bridge delegates to the official tooling bridge');
   context.assert(!legacyNodeSyntaxPattern.test(vnextCompiler) && !legacyNodeSyntaxPattern.test(vnextTooling), 'RMT Playground LSP server path avoids optional chaining and nullish coalescing for older Node runtimes');
   context.assert(maracaBridge.includes('executeToolingBridgeOperation') && maracaBridge.includes("operation: 'maraca-plan'"), 'Maraca compatibility bridge delegates planning and sanitization to the official tooling bridge');
-  context.assert(pageLoader.includes("from '/xtendrmt/rmt-dom-descriptor-renderer.js'") && pageLoader.includes('docsRmtDescriptorRenderer.render('), 'Preview client uses the stable DOM descriptor renderer export');
+  context.assert(pageLoader.includes("import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js'))") && pageLoader.includes('docsRmtDescriptorRenderer.render('), 'Preview client uses the cache-versioned stable DOM descriptor renderer export');
+  context.assert(pageLoader.includes("import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs'))"), 'Preview client cache-busts the Maraca plan runtime with the Docs asset version');
+  context.assert(indexPhp.includes("__DIR__ . '/../xtend-maraca/plan-runtime.mjs'") && indexPhp.includes("__DIR__ . '/../xtendrmt/rmt-dom-descriptor-renderer.js'"), 'Docs asset version tracks imported framework runtime modules');
   context.assert(playgroundClient.includes('DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES') && playgroundClient.includes('bootDocsRmtPlaygroundMaracaPreview'), 'Preview client boots the Maraca runtime preview from whitelisted modules');
   context.assert(playgroundClient.includes('playgroundMode: DOCS_RMT_PLAYGROUND_MARACA_MODE'), 'Compile requests opt into Maraca preview mode');
   context.assert(playgroundClient.includes('runDocsRmtPlaygroundLanguageDiagnostics'), 'Preview client calls live LSP diagnostics');

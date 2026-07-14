@@ -1,6 +1,17 @@
-import { createRmtDomDescriptorRenderer } from '/xtendrmt/rmt-dom-descriptor-renderer.js';
-import { createMaracaPlanRuntime } from '/xtend-maraca/plan-runtime.mjs';
-import { createRmtBrowserScheduler } from '/xtendrmt/rmt-browser-scheduler.js';
+export {};
+
+const docsPageLoaderScript = Array.from(document.scripts).find((script) => /\/docs\/utils\/pageloader\.js(?:\?|$)/u.test(script.src || ''));
+const docsAssetVersion = docsPageLoaderScript ? new URL(docsPageLoaderScript.src, window.location.href).searchParams.get('v') || '' : '';
+const docsVersionedModuleUrl = (path) => `${path}${docsAssetVersion ? `?v=${encodeURIComponent(docsAssetVersion)}` : ''}`;
+const [
+  { createRmtDomDescriptorRenderer },
+  { createMaracaPlanRuntime },
+  { createRmtBrowserScheduler }
+] = await Promise.all([
+  import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js')),
+  import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs')),
+  import(docsVersionedModuleUrl('/xtendrmt/rmt-browser-scheduler.js'))
+]);
 
 const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
 const docsBrowserScheduler = createRmtBrowserScheduler({ windowTarget: window });
