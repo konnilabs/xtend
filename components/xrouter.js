@@ -608,6 +608,10 @@ class XRouter extends HTMLElement {
           inset: 0 0 auto 0;
           z-index: var(--xtend-skeleton-z-index, 1);
         }
+        #outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > :not([data-xtend-skeleton-loader]) {
+          visibility: hidden;
+          pointer-events: none;
+        }
         #outlet[data-xtend-skeleton-cache="overlay"] > [data-xtend-skeleton-loader][data-xtend-skeleton-hidden="true"] {
           position: absolute;
           inset: 0 0 auto 0;

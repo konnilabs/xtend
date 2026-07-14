@@ -6,15 +6,15 @@
   "mode": "strict",
   "baseline": {
     "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
-    "loaderBytes": 60843,
-    "selectedComponentBytes": 241479,
-    "stackModuleBytes": 1643279,
+    "loaderBytes": 69933,
+    "selectedComponentBytes": 250217,
+    "stackModuleBytes": 1659679,
     "contractPayloadBytes": 226005,
-    "bytes": 2171606
+    "bytes": 2205834
   },
-  "baselineBytes": 2171606,
-  "bundleBytes": 2031801,
-  "ratio": 0.9356213788320717,
+  "baselineBytes": 2205834,
+  "bundleBytes": 2044792,
+  "ratio": 0.9269926930131642,
   "budgets": {
     "modernEsmEntryMustBeSmallerThanBaseline": true,
     "enforcement": "strict"

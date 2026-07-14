@@ -155,10 +155,34 @@ const layoutShiftProbeSource = `
       supported: false,
       entries: [],
       geometry: [],
+      bootSkeleton: {
+        found: false,
+        visibleBeforeDefinition: false,
+        hiddenAfterDefinition: false,
+        samples: []
+      },
       totalValue: 0,
       maxSessionValue: 0,
       observer: null
     };
+    const sampleBootSkeleton = (reason) => {
+      const fallback = document.querySelector('[data-docs-route-boot-skeleton][data-xtend-skeleton-fallback]');
+      if (!fallback) return;
+      const defined = Boolean(customElements.get('x-router'));
+      const style = getComputedStyle(fallback);
+      const rect = fallback.getBoundingClientRect();
+      const visible = style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+      state.bootSkeleton.found = true;
+      if (!defined && visible) state.bootSkeleton.visibleBeforeDefinition = true;
+      if (defined && !visible) state.bootSkeleton.hiddenAfterDefinition = true;
+      state.bootSkeleton.samples.push({ reason, at: performance.now(), defined, visible, display: style.display, width: rect.width, height: rect.height });
+    };
+    const bootSkeletonObserver = new MutationObserver(() => sampleBootSkeleton('mutation'));
+    bootSkeletonObserver.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'data-xtend-skeleton-active'] });
+    customElements.whenDefined('x-router').then(() => requestAnimationFrame(() => {
+      sampleBootSkeleton('x-router:defined');
+      bootSkeletonObserver.disconnect();
+    }));
     const describeNode = (node) => {
       const element = node instanceof Element ? node : node?.parentElement;
       if (!(element instanceof Element)) return null;
@@ -444,6 +468,7 @@ async function readSnapshot(baseUrl, sessionId) {
       layoutShiftTotal: Number(layoutShiftProbe?.totalValue || 0),
       layoutShiftEntries: Array.isArray(layoutShiftProbe?.entries) ? layoutShiftProbe.entries : [],
       layoutShiftGeometry: Array.isArray(layoutShiftProbe?.geometry) ? layoutShiftProbe.geometry : [],
+      bootSkeleton: layoutShiftProbe?.bootSkeleton || null,
       overflowX: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth)
     };
   `);
@@ -874,11 +899,14 @@ async function navigateHomeViaLogo(baseUrl, sessionId, scenario) {
   assert(clicked && clicked.includes(`/docs/${scenario.locale}/readme`), `${scenario.id}: header logo has no localized home target.`);
   return waitUntil(async () => execute(baseUrl, sessionId, `${deepQuerySource}
     const content = deepQuery('#md-content');
+    const page = deepQuery('xtend-doc-page');
     const shell = document.querySelector('[data-docs-menu-shell]');
     const router = deepQuery('x-router');
     const route = router ? Array.from(router.children).find((entry) => entry.localName === 'x-route' && entry.getAttribute('path') === location.pathname) : null;
     return location.pathname.endsWith('/docs/' + arguments[0] + '/readme') &&
       shell && shell.getAttribute('data-docs-active-trunk') === 'start' &&
+      page && page.getAttribute('data-docs-route-state') === 'ready' && page.getAttribute('data-docs-route-slug') === 'readme' &&
+      content && content.getAttribute('data-docs-content-state') === 'ready' &&
       content && content.querySelector('h1')
       ? {
           path: location.pathname,
@@ -1199,6 +1227,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.activeTrunk === 'start' && initial.activeTrunkContent === 'start', `${scenario.id}: start trunk is not active.`);
     assertSingleCurrentArticle(initial, scenario.id);
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
+    assert(initial.bootSkeleton?.found && initial.bootSkeleton.visibleBeforeDefinition && initial.bootSkeleton.hiddenAfterDefinition, `${scenario.id}: server boot skeleton did not bridge the XRouter definition boundary (${JSON.stringify(initial.bootSkeleton)}).`);
     assert(initial.compactLoaded && !initial.fulltextLoaded, `${scenario.id}: fulltext index entered the initial path.`);
     assert(initial.relatedLinks.length >= 3 && initial.relatedLinks.length <= 7, `${scenario.id}: Read Further did not resolve to three through seven links (${JSON.stringify(initial.relatedLinks)}).`);
     assert(new Set(initial.relatedLinks.map((entry) => entry.href)).size === initial.relatedLinks.length, `${scenario.id}: Read Further contains duplicate targets.`);
@@ -1266,6 +1295,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(explicitRecommendations.relatedLinks[0] && explicitRecommendations.relatedLinks[0].source === 'parsedown', `${scenario.id}: explicit related link lost editorial priority (${JSON.stringify(explicitRecommendations.relatedLinks)}).`);
     const genericRelatedLabels = new Set(['Verwandter Artikel', 'Related article']);
     assert(explicitRecommendations.relatedLinks.every((entry) => !genericRelatedLabels.has(entry.label)), `${scenario.id}: generic editorial label leaked into Read Further (${JSON.stringify(explicitRecommendations.relatedLinks)}).`);
+    await navigateTrunk(driverUrl, sessionId, 'start');
     const aboutRecommendations = await navigateArticle(driverUrl, sessionId, 'about');
     assert(aboutRecommendations.relatedLinks.length >= 3, `${scenario.id}: localized About page did not receive the minimum recommendation set (${JSON.stringify(aboutRecommendations.relatedLinks)}).`);
     if (scenario.locale === 'en') {

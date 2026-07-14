@@ -219,8 +219,12 @@ x-header {
   animation: xtend-skeleton-shimmer var(--xtend-skeleton-speed, 1.1s) ease-in-out infinite;
 }
 
-[data-xtend-skeleton]:not(:defined) > * {
+[data-xtend-skeleton]:not(:defined) > :not([data-xtend-skeleton-fallback]) {
   display: none !important;
+}
+
+[data-xtend-skeleton]:not(:defined) > [data-xtend-skeleton-fallback] {
+  display: var(--xtend-skeleton-fallback-display, block) !important;
 }
 
 [data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] {

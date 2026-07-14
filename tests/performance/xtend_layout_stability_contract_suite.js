@@ -40,7 +40,7 @@ function runXtendLayoutStabilityContractSuite(options = {}) {
   context.assert(xtendCss.includes('transition-property: opacity, transform, color, background-color, border-color, box-shadow !important;'), 'Base CSS blocks geometry transitions during hydration reserves');
   context.assert(xtendCss.includes(':where(') && xtendCss.includes('x-router') && xtendCss.includes('x-footer'), 'Base CSS gives shell custom elements stable block hosts');
   context.assert(xtendCss.includes('x-header {\n  display: flow-root;\n}'), 'Base CSS contains x-header margins inside its reserved host geometry');
-  context.assert(xtendCss.includes('[data-xtend-skeleton]:not(:defined) > * {\n  display: none !important;\n}'), 'Pre-upgrade skeleton descendants cannot contribute hidden layout geometry');
+  context.assert(xtendCss.includes('[data-xtend-skeleton]:not(:defined) > :not([data-xtend-skeleton-fallback])') && xtendCss.includes('[data-xtend-skeleton]:not(:defined) > [data-xtend-skeleton-fallback]'), 'Pre-upgrade skeletons hide component content while permitting one explicit server-rendered fallback surface');
   context.assert(xtendCss.includes('[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"]') && xtendCss.includes('position: absolute;\n  inset: 0 0 auto 0;'), 'Base CSS pins overlay skeletons without stretching them with committed content');
   context.assert(xtendCss.includes('[data-xtend-skeleton-cache="overlay"] > [data-xtend-skeleton-loader][data-xtend-skeleton-hidden="true"]') && xtendCss.includes('opacity: 0;\n  pointer-events: none;'), 'Base CSS retains completed overlay geometry as a paint-only inert cache');
   context.assert(xtendCss.includes('min-height: var(--xtend-layout-reserved-block-size, var(--xtend-skeleton-min-height'), 'Skeleton geometry reuses layout reserve tokens');
@@ -71,6 +71,7 @@ function runXtendLayoutStabilityContractSuite(options = {}) {
   context.assert(heroSource.includes('var(--hero-padding-compact, var(--hero-padding, 2.2rem 0.5rem))') && heroSource.includes('var(--hero-content-padding-compact, var(--hero-content-padding, 1.2rem 0.5rem))'), 'x-hero preserves host-owned spacing tokens at compact breakpoints');
   const routerSource = readText('components/xrouter.js', rootDir);
   context.assert(routerSource.includes('#outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"]') && routerSource.includes("layoutMode: 'overlay'") && routerSource.includes('z-index: var(--xtend-skeleton-z-index, 1);'), 'x-router consumes the shared overlay skeleton contract inside its shadow root');
+  context.assert(routerSource.includes('#outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > :not([data-xtend-skeleton-loader])') && routerSource.includes('visibility: hidden;') && routerSource.includes('pointer-events: none;'), 'x-router keeps materialized route content non-visible and inert until its overlay skeleton is cleared');
 
   context.assert(packageManifest.scripts['test:xtend-layout-stability-contract'] === 'node scripts/run_xtend_tests.js xtend-layout-stability-contract', 'package exposes layout stability contract script');
   context.assert(packageManifest.xtend.layoutStabilityContract.schema === XTEND_LAYOUT_STABILITY_SCHEMA, 'package metadata records layout stability schema');

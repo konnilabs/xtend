@@ -116,7 +116,8 @@
       "$readDataset": "ct",
       "$resolvePayload": "dt",
       "$createXtendRmtCommandDetail": "ut",
-      "$XStatus": "lt"
+      "$XStatus": "lt",
+      "$XHEADER_BRAND_COLLAPSE_POLICIES": "We"
     }
   },
   "props": {
@@ -286,7 +287,18 @@
       "$_buildThemeContext": "Cn",
       "$_clearAppliedThemeVariables": "wn",
       "$_applyThemeVariables": "kn",
-      "$_applyExternalTheme": "Tn"
+      "$_applyExternalTheme": "Tn",
+      "$_brandResizeObserver": "zn",
+      "$_brandObservedSlots": "Mn",
+      "$_brandFitScheduled": "$n",
+      "$_lastBrandFit": "Sn",
+      "$_scheduleBrandPresentation": "_n",
+      "$_onBrandSlotChange": "Pn",
+      "$_syncBrandPresentation": "An",
+      "$_stopBrandTracking": "Bn",
+      "$_startBrandTracking": "jn",
+      "$_getBrandCollapsePolicy": "En",
+      "$_readBrandTitle": "Rn"
     }
   }
 }

@@ -189,6 +189,7 @@ function runNavigationRoutingUxSuite(options = {}) {
       context.assert(source.includes("this._handleNavigation({ focus: false, source: 'initial-load' })"), 'x-router preserves document focus on cold-start initial render');
       context.assert(source.includes('if (options.focus === false)'), 'x-router can skip route outlet focus restore for non-interactive renders');
       context.assert(source.includes('this.focusRoute(enrichedDetail)'), 'x-router keeps focus restore for interactive route changes');
+      context.assert(source.includes('#outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > :not([data-xtend-skeleton-loader])'), 'x-router prevents route content from becoming interactive beneath its loading skeleton');
     }
     context.assert(source.includes('prefers-reduced-motion'), `${profile.tag} source is reduced-motion safe`);
     context.assert(source.includes('forced-colors'), `${profile.tag} source is forced-colors safe`);

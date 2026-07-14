@@ -719,6 +719,29 @@ function docsRouteDescriptor($route, $pathOverride = null) {
     return docsDescriptorElement('x-route', docsRouteAttributes($route, $pathOverride), []);
 }
 
+function docsRouteBootSkeletonDescriptor($locale) {
+    $articleLines = array_map(function ($width, $index) {
+        return docsDescriptorElement('span', [
+            'class' => $index === 0 ? 'docs-route-boot-skeleton__line docs-route-boot-skeleton__line--title' : 'docs-route-boot-skeleton__line',
+            'style' => 'width: ' . $width . ';'
+        ], []);
+    }, ['62%', '100%', '91%', '76%'], [0, 1, 2, 3]);
+    return docsDescriptorElement('div', [
+        'class' => 'docs-route-boot-skeleton',
+        'data-docs-route-boot-skeleton' => true,
+        'data-xtend-skeleton-fallback' => true,
+        'role' => 'status',
+        'aria-live' => 'polite',
+        'aria-label' => $locale === 'en' ? 'Documentation is loading' : 'Dokumentation wird geladen'
+    ], [
+        docsDescriptorElement('div', ['class' => 'docs-route-boot-skeleton__article', 'aria-hidden' => 'true'], $articleLines),
+        docsDescriptorElement('div', ['class' => 'docs-route-boot-skeleton__sidebar', 'aria-hidden' => 'true'], [
+            docsDescriptorElement('span', ['class' => 'docs-route-boot-skeleton__link'], []),
+            docsDescriptorElement('span', ['class' => 'docs-route-boot-skeleton__link'], [])
+        ])
+    ]);
+}
+
 function docsCompactPageMetaForBootstrap($meta) {
     if (!is_array($meta)) return $meta;
     $compact = [];
@@ -1174,7 +1197,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                     'data-rmt-hydration-mode' => 'server_prerender_hydrate',
                     'data-rmt-surface-id' => 'docs.router',
                     'data-rmt-shell-surface' => 'docs.router'
-                ], $routeChildren)
+                ], array_merge($routeChildren, [docsRouteBootSkeletonDescriptor($pageLocale)]))
             ]),
             docsDescriptorComponent('x-footer', array_replace($ssrRoot, [
                 'src' => $docsLogoUrl,
@@ -3526,6 +3549,57 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
           min-block-size: var(--docs-route-reserved-block-size);
           box-sizing: border-box;
         }
+        .docs-route-boot-skeleton {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) var(--docs-sidebar-width);
+          gap: var(--docs-layout-gap);
+          width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
+          max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
+          min-block-size: var(--docs-route-reserved-block-size);
+          margin-inline: var(--docs-viewport-gutter);
+          box-sizing: border-box;
+        }
+        x-router:defined > .docs-route-boot-skeleton {
+          display: none;
+        }
+        .docs-route-boot-skeleton__article,
+        .docs-route-boot-skeleton__sidebar {
+          display: grid;
+          align-content: start;
+          gap: 0.75rem;
+          min-width: 0;
+          box-sizing: border-box;
+        }
+        .docs-route-boot-skeleton__article {
+          padding: clamp(1rem, 2vw, 2rem);
+        }
+        .docs-route-boot-skeleton__sidebar {
+          margin-top: clamp(1rem, 2vw, 2rem);
+          padding: 1rem;
+          border: 1px solid var(--border-color);
+          border-radius: 0.75rem;
+          background: var(--docs-sidebar-bg);
+        }
+        .docs-route-boot-skeleton__line,
+        .docs-route-boot-skeleton__link {
+          display: block;
+          max-width: 100%;
+          height: 0.82rem;
+          border-radius: 999px;
+          background: var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24));
+        }
+        .docs-route-boot-skeleton__line--title {
+          height: 1.35rem;
+          margin-bottom: 0.45rem;
+        }
+        .docs-route-boot-skeleton__link {
+          width: 100%;
+          height: 2.6rem;
+          border-radius: 0.45rem;
+        }
+        [data-docs-content-state="loading"][data-xtend-skeleton-active="true"] > :not([data-xtend-skeleton-loader]) {
+          visibility: hidden;
+        }
         .docs-article-surface,
         .docs-page-sidebar {
           min-width: 0;
@@ -3831,6 +3905,9 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && $_GET['xtend-docs-rmt-ssr'] === 'shell
             max-width: calc(100% - var(--docs-viewport-gutter) - var(--docs-viewport-gutter));
           }
           .docs-shell-layout {
+            grid-template-columns: 1fr;
+          }
+          .docs-route-boot-skeleton {
             grid-template-columns: 1fr;
           }
           .docs-page-sidebar {

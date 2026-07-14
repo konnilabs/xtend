@@ -169,6 +169,10 @@ function runXtendLoaderSkeletonProfilesSuite(options = {}) {
   const router = readText('components/xrouter.js', rootDir);
   const docsRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const docsHost = readText('docs/index.php', rootDir);
+  const docsBundleReport = readJson('docs/generated/shell/xtend.maraca.report.json', rootDir);
+  const generatedRouterRecord = (docsBundleReport.bundleFiles || []).find((entry) => /(?:^|\/)x-router-[^/]+\.mjs$/u.test(entry.path || entry.fileName || ''));
+  const generatedRouter = generatedRouterRecord ? readText(generatedRouterRecord.path, rootDir) : '';
   context.assert(loader.includes("SKELETON_PROFILE_CONTRACT = 'xtend.loader.skeleton-profile.v1'"), 'loader declares skeleton profile schema');
   context.assert(loader.includes('registerSkeletonProfile') && loader.includes('getSkeletonProfile') && loader.includes('listSkeletonProfiles'), 'loader exposes profile registry');
   context.assert(loader.includes('data-xtend-skeleton-viewport') && loader.includes('responsiveSource'), 'loader resolves responsive profile geometry');
@@ -184,6 +188,10 @@ function runXtendLoaderSkeletonProfilesSuite(options = {}) {
   context.assert(!skeletonBlock.includes('document.createElement'), 'Docs skeleton path contains no local DOM builder');
   context.assert(skeletonBlock.includes("data-xtend-skeleton-degraded', 'invalid-geometry'") && skeletonBlock.includes("target.removeAttribute('data-xtend-skeleton-active')"), 'Docs rejects empty loader geometry without obscuring content');
   context.assert(pageLoader.includes("data-docs-stale-content-preserved") && !pageLoader.includes('while (shell.mdContent.firstChild)'), 'Docs preserves committed text when skeleton materialization degrades');
+  context.assert(docsHost.includes('docsRouteBootSkeletonDescriptor') && docsHost.includes('data-docs-route-boot-skeleton') && docsHost.includes('data-xtend-skeleton-fallback'), 'Docs emits an explicit server-visible route skeleton before XRouter upgrades');
+  context.assert(docsHost.includes('x-router:defined > .docs-route-boot-skeleton') && docsHost.includes('[data-docs-content-state="loading"][data-xtend-skeleton-active="true"]'), 'Docs swaps the boot skeleton on definition and hides stale article content during skeleton loading');
+  context.assert(router.includes('#outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > :not([data-xtend-skeleton-loader])'), 'XRouter prevents hydrated route content from painting beneath an active overlay skeleton');
+  context.assert(Boolean(generatedRouterRecord) && /visibility:\s*hidden/u.test(generatedRouter) && /pointer-events:\s*none/u.test(generatedRouter), 'Docs Maraca artifact carries the current XRouter skeleton/content isolation contract');
   return context.result({ schema: 'xtend.loader.skeleton-profile.v1' });
 }
 
@@ -296,6 +304,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(indexPhp.includes("worker-src 'self' blob:"), 'CSP permits only local/blob prewarm worker source');
   context.assert(fs.existsSync(resolveRepoPath('scripts/smoke_docs_shell_catfooding.mjs', rootDir)), 'ChromeDriver shell smoke exists');
   context.assert(browserSmoke.includes("process.argv.includes('--capture-baseline')"), 'ChromeDriver shell smoke can reproduce the pre-refactor performance baseline');
+  context.assert(browserSmoke.includes('visibleBeforeDefinition') && browserSmoke.includes('hiddenAfterDefinition'), 'ChromeDriver shell smoke verifies the server skeleton across the XRouter definition boundary');
   context.assert(browserSmoke.includes('navigateHomeViaLogo') && browserSmoke.includes('exerciseSkeletonHardening') && browserSmoke.includes('skeletonHardening.retainedOverlayHidden') && browserSmoke.includes('skeletonHardening.heightDelta <= 0.5') && browserSmoke.includes('switchDocsLocale') && browserSmoke.includes('searchGeometry.centerDelta'), 'ChromeDriver shell smoke covers logo navigation, locale title ownership, centered search geometry and layout-stable skeleton recovery');
   context.assert(browserSmoke.includes('search.presentation.textContrast >= 4.5') && browserSmoke.includes('fallbackSearch.presentation.maxLongTaskMs <= 120'), 'ChromeDriver shell smoke enforces search contrast and compact/fulltext main-thread budgets');
   context.assert(shellRuntime.includes('function activateHighlightedSearchResult(results)') && shellRuntime.includes("XUtils.on(results, 'menu-item-clicked'") && shellRuntime.includes("event.key === 'Enter'") && !shellRuntime.includes("components/xcommand"), 'Docs search activates highlighted results through the resident AppRuntime/menu route path without loading XCommand separately');

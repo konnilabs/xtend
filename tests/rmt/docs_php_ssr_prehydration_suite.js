@@ -180,6 +180,8 @@ function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(html.includes('data-rmt-ssr-root="docs.app.root-shell"'), 'Initial HTML marks SSR root shell');
   context.assert(html.includes('data-rmt-shell-prehydrated="true"'), 'Initial HTML marks prehydrated shell');
   context.assert(html.includes('data-rmt-hydration-mode="server_prerender_hydrate"'), 'Initial HTML marks hydration mode');
+  context.assert(html.includes('data-docs-route-boot-skeleton'), 'Initial HTML contains a route skeleton before the client runtime upgrades XRouter');
+  context.assert(html.includes('data-xtend-skeleton-fallback'), 'Initial route skeleton opts into the shared pre-upgrade fallback contract');
   context.assert(html.includes('data-rmt-component-capability="x-router"'), 'Initial HTML includes XRouter capability marker');
   context.assert(html.includes('<x-route path="/docs/de/readme"'), 'Initial HTML renders history route records inside the router shell');
   context.assert(!html.includes('rmt.php_ssr.compiler_required'), 'Initial HTML does not report missing compiler bridge');
