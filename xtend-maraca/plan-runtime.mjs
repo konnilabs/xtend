@@ -64,6 +64,7 @@ export function createMaracaPlanRuntime(options = {}) {
   let modules = null;
   let runtimes = null;
   let renderCount = 0;
+  let renderSuspended = 0;
 
   if (!root || typeof root.replaceChildren !== 'function') {
     throw new TypeError('createMaracaPlanRuntime() requires a DOM root with replaceChildren().');
@@ -118,12 +119,81 @@ export function createMaracaPlanRuntime(options = {}) {
     return tags;
   }
 
+  function syncSurfaceVisibility() {
+    if (!runtimes || !runtimes.state || typeof runtimes.state.snapshot !== 'function' || typeof root.querySelectorAll !== 'function') return;
+    const snapshot = asRecord(runtimes.state.snapshot());
+    const states = asRecord(snapshot.states);
+    const selectors = asRecord(snapshot.selectors);
+    const surfaces = Array.isArray(artifact.surfaces)
+      ? artifact.surfaces
+      : (Array.isArray(plan.surfaces) ? plan.surfaces : []);
+    const surfaceById = new Map(surfaces.filter(Boolean).map((surface) => [String(surface.id || ''), surface]));
+    root.querySelectorAll('[data-maraca-surface]').forEach((element) => {
+      const surface = surfaceById.get(String(element.getAttribute && element.getAttribute('data-maraca-surface') || ''));
+      if (!surface || !surface.source) return;
+      const record = asRecord(Object.prototype.hasOwnProperty.call(selectors, surface.source) ? selectors[surface.source] : states[surface.source]);
+      if (!Object.prototype.hasOwnProperty.call(record, 'hidden')) return;
+      const hidden = record.hidden === true;
+      if (typeof element.toggleAttribute === 'function') element.toggleAttribute('hidden', hidden);
+      else if (hidden && typeof element.setAttribute === 'function') element.setAttribute('hidden', '');
+      else if (!hidden && typeof element.removeAttribute === 'function') element.removeAttribute('hidden');
+      if (!element.style) return;
+      if (hidden) {
+        element.style.display = 'none';
+        if (typeof element.setAttribute === 'function') element.setAttribute('data-maraca-hidden-display', 'true');
+      } else if (element.getAttribute && element.getAttribute('data-maraca-hidden-display') === 'true') {
+        element.style.display = '';
+        if (typeof element.removeAttribute === 'function') element.removeAttribute('data-maraca-hidden-display');
+      }
+    });
+  }
+
+  function surfaceRecord(snapshot, surface) {
+    const current = asRecord(snapshot);
+    const selectors = asRecord(current.selectors);
+    const states = asRecord(current.states);
+    return asRecord(Object.prototype.hasOwnProperty.call(selectors, surface.source) ? selectors[surface.source] : states[surface.source]);
+  }
+
+  function surfaceElement(surfaceId) {
+    if (typeof root.querySelectorAll !== 'function') return null;
+    return Array.from(root.querySelectorAll('[data-maraca-surface]')).find((element) => (
+      element && typeof element.getAttribute === 'function' && element.getAttribute('data-maraca-surface') === surfaceId
+    )) || null;
+  }
+
+  async function runTransitionSurfaces(transition, surfaceIds, nextHidden, stateSnapshot, metadata) {
+    if (!transition || !runtimes.transitions || typeof runtimes.transitions.applyVisibilityPatch !== 'function') return [];
+    const surfaces = Array.isArray(artifact.surfaces) ? artifact.surfaces : [];
+    const surfaceById = new Map(surfaces.filter(Boolean).map((surface) => [surface.id, surface]));
+    const work = surfaceIds.map((surfaceId) => {
+      const surface = surfaceById.get(surfaceId);
+      const element = surfaceElement(surfaceId);
+      if (!surface || !element) return null;
+      const record = surfaceRecord(stateSnapshot, surface);
+      const stateHidden = Object.prototype.hasOwnProperty.call(record, 'hidden') ? record.hidden === true : null;
+      if (nextHidden && stateHidden === true) return null;
+      if (!nextHidden && stateHidden !== false) return null;
+      return runtimes.transitions.applyVisibilityPatch({
+        transition,
+        surface: surfaceId,
+        element,
+        previousHidden: !nextHidden,
+        nextHidden,
+        action: metadata.action,
+        metadata
+      });
+    }).filter(Boolean);
+    return Promise.all(work);
+  }
+
   function render() {
     const descriptor = asRecord(artifact.render).root || { type: 'fragment', children: [] };
     const context = runtimes.state && typeof runtimes.state.createRenderContext === 'function'
       ? runtimes.state.createRenderContext({ components: componentTags().map((tag) => ({ id: tag, tag })) })
       : { model: clone(plan.state, {}) };
     const report = runtimes.renderer.render(root, descriptor, context);
+    syncSurfaceVisibility();
     renderCount += 1;
     if (runtimes.events && typeof runtimes.events.detachAll === 'function') runtimes.events.detachAll();
     if (runtimes.events && typeof runtimes.events.attach === 'function') runtimes.events.attach(root);
@@ -144,14 +214,27 @@ export function createMaracaPlanRuntime(options = {}) {
         ? await runtimes.action.runAction(commandId, clone(payload, {}), metadata)
         : await Promise.resolve(hostServices.dispatchCommand ? hostServices.dispatchCommand(commandId, payload, metadata) : { status: 'success', data: payload });
       const reducers = (Array.isArray(asRecord(artifact.state).reducers) ? asRecord(artifact.state).reducers : []).filter((entry) => entry && entry.action === commandId && entry.state);
-      reducers.forEach((reducer) => {
-        const value = reducerValue(reducer.value, payload, result && result.data || result);
-        if (!reducer.path) runtimes.state.setState(reducer.state, value, { operation: 'maraca.reducer', action: commandId, reducer: reducer.id });
-        else {
-          const next = clone(runtimes.state.getState(reducer.state), {});
-          runtimes.state.setState(reducer.state, writePath(next, reducer.path, value), { operation: 'maraca.reducer', action: commandId, reducer: reducer.id });
-        }
-      });
+      const transition = runtimes.transitions && typeof runtimes.transitions.findTransition === 'function'
+        ? runtimes.transitions.findTransition({ action: commandId })
+        : null;
+      const transitionMetadata = { ...metadata, action: commandId };
+      const previousSnapshot = runtimes.state.snapshot();
+      if (transition) await runTransitionSurfaces(transition, transition.from || [], true, previousSnapshot, transitionMetadata);
+      renderSuspended += 1;
+      try {
+        reducers.forEach((reducer) => {
+          const value = reducerValue(reducer.value, payload, result && result.data || result);
+          if (!reducer.path) runtimes.state.setState(reducer.state, value, { operation: 'maraca.reducer', action: commandId, reducer: reducer.id });
+          else {
+            const next = clone(runtimes.state.getState(reducer.state), {});
+            runtimes.state.setState(reducer.state, writePath(next, reducer.path, value), { operation: 'maraca.reducer', action: commandId, reducer: reducer.id });
+          }
+        });
+      } finally {
+        renderSuspended -= 1;
+      }
+      if (reducers.length > 0) render();
+      if (transition) await runTransitionSurfaces(transition, transition.to || [], false, runtimes.state.snapshot(), transitionMetadata);
       publish('command', { command: commandId, status: result && result.status || 'success' });
       return result;
     };
@@ -201,7 +284,7 @@ export function createMaracaPlanRuntime(options = {}) {
       if (state && typeof state.subscribe === 'function') {
         const unsubscribe = state.subscribe((event) => {
           publish('state', { event });
-          if (phase === 'ready') render();
+          if (phase === 'ready' && renderSuspended === 0) render();
           if (runtimes.validation && typeof runtimes.validation.refresh === 'function') runtimes.validation.refresh({ reason: 'state-change' });
         });
         if (typeof unsubscribe === 'function') disposers.add(unsubscribe);
@@ -210,6 +293,7 @@ export function createMaracaPlanRuntime(options = {}) {
       phase = 'ready';
       if (options.componentRegistry && typeof options.componentRegistry.hydrate === 'function') {
         await options.componentRegistry.hydrate(root, componentTags());
+        syncSurfaceVisibility();
       }
       publish('ready');
       return runtime;

@@ -198,6 +198,11 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(maracaPayload.maraca && maracaPayload.maraca.features && maracaPayload.maraca.features.kernel && maracaPayload.maraca.features.kernel.enabled === true, 'Maraca preview enables kernel orchestration');
   context.assert(maracaPayload.maraca && maracaPayload.maraca.features && maracaPayload.maraca.features.validation && maracaPayload.maraca.features.validation.enabled === true, 'Maraca preview enables validation');
   context.assert(maracaPayload.maraca && maracaPayload.maraca.features && maracaPayload.maraca.features.transitions && maracaPayload.maraca.features.transitions.enabled === true, 'Maraca preview enables transitions');
+  const customerServiceTransitions = maracaPayload.maraca && maracaPayload.maraca.plan && maracaPayload.maraca.plan.transitions
+    && maracaPayload.maraca.plan.transitions.artifact && maracaPayload.maraca.plan.transitions.artifact.transitions || [];
+  context.assert(customerServiceTransitions.length === 6 && customerServiceTransitions.every((transition) => transition.effect === 'zoom'), 'Customer Service Kernel uses zoom for every wizard transition');
+  context.assert(customerServiceTransitions.every((transition) => transition.durationMs === 420 && transition.easing === 'linear'), 'Customer Service Kernel keeps the 420 ms linear motion profile');
+  context.assert(customerServiceTransitions.every((transition) => transition.reducedMotion === 'fade'), 'Customer Service Kernel delegates reduced motion to the browser preference with the fade policy');
   context.assert(!/\/home\/|workpackage|WP-/iu.test(JSON.stringify(maracaPayload.maraca || {})), 'Maraca preview response strips local paths and internal workpackage identifiers');
 
   const brokenSource = 'template learn.rmt.playground { surface preview.card kind card component x-status { lane visible weight 80 { hydrate preview-card from selector preview.message } }';

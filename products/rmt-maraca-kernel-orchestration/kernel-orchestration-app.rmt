@@ -372,9 +372,10 @@ template product.kernel.maraca {
     trigger action product.service.nextContact
     from surfaces [product.service.name product.service.email product.service.channel product.service.nextContact]
     to surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
-    effect crossfade
-    durationMs 240
-    easing "ease-out"
+    effect zoom
+    durationMs 420
+    easing "linear"
+    reducedMotion fade
     lane transition
   }
 
@@ -382,9 +383,10 @@ template product.kernel.maraca {
     trigger action product.service.backContact
     from surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
     to surfaces [product.service.name product.service.email product.service.channel product.service.nextContact]
-    effect slide-right
-    durationMs 220
-    easing "ease-out"
+    effect zoom
+    durationMs 420
+    easing "linear"
+    reducedMotion fade
     lane transition
   }
 
@@ -392,9 +394,10 @@ template product.kernel.maraca {
     trigger action product.service.nextIssue
     from surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
     to surfaces [product.service.backIssue product.service.submit]
-    effect slide-left
-    durationMs 240
-    easing "ease-out"
+    effect zoom
+    durationMs 420
+    easing "linear"
+    reducedMotion fade
     lane transition
   }
 
@@ -402,9 +405,10 @@ template product.kernel.maraca {
     trigger action product.service.backIssue
     from surfaces [product.service.backIssue product.service.submit]
     to surfaces [product.service.subject product.service.priority product.service.details product.service.backContact product.service.nextIssue]
-    effect slide-right
-    durationMs 220
-    easing "ease-out"
+    effect zoom
+    durationMs 420
+    easing "linear"
+    reducedMotion fade
     lane transition
   }
 
@@ -412,9 +416,10 @@ template product.kernel.maraca {
     trigger action product.service.submit
     from surfaces [product.service.backIssue product.service.submit]
     to surfaces [product.service.done product.service.restart]
-    effect scale
-    durationMs 220
-    easing "ease-out"
+    effect zoom
+    durationMs 420
+    easing "linear"
+    reducedMotion fade
     lane transition
   }
 
@@ -422,9 +427,10 @@ template product.kernel.maraca {
     trigger action product.service.restart
     from surfaces [product.service.done product.service.restart]
     to surfaces [product.service.name product.service.email product.service.channel product.service.nextContact]
-    effect fade
-    durationMs 180
-    easing "ease-out"
+    effect zoom
+    durationMs 420
+    easing "linear"
+    reducedMotion fade
     lane transition
   }
 

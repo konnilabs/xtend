@@ -96,6 +96,66 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   context.assert(runtimeA.snapshot().phase === 'disposed' && runtimeB.snapshot().phase === 'ready', 'disposing one plan runtime does not affect another instance');
   runtimeB.dispose();
 
+  const createSurfaceNode = (surface) => {
+    const attributes = new Map([['data-maraca-surface', surface]]);
+    return {
+      style: {},
+      getAttribute(name) { return attributes.has(name) ? attributes.get(name) : null; },
+      setAttribute(name, value) { attributes.set(name, String(value)); },
+      removeAttribute(name) { attributes.delete(name); },
+      toggleAttribute(name, enabled) { if (enabled) attributes.set(name, ''); else attributes.delete(name); },
+      hasAttribute(name) { return attributes.has(name); }
+    };
+  };
+  const visibleNode = createSurfaceNode('wizard.contact');
+  const hiddenNode = createSurfaceNode('wizard.issue');
+  const transitionCalls = [];
+  const visibilityState = { contact: { hidden: false }, issue: { hidden: true } };
+  const visibilityListeners = new Set();
+  const visibilityRoot = {
+    ownerDocument: {},
+    children: [],
+    replaceChildren(...nodes) { this.children = nodes; },
+    querySelectorAll(selector) { return selector === '[data-maraca-surface]' ? this.children : []; }
+  };
+  const visibilityModules = {
+    state: { createRmtStateSelectorRuntime: () => ({
+      createRenderContext: () => ({}),
+      getState: (id) => ({ ...visibilityState[id] }),
+      setState(id, value) { visibilityState[id] = value; visibilityListeners.forEach((listener) => listener({ state: id })); },
+      snapshot: () => ({ states: {}, selectors: { contact: { ...visibilityState.contact }, issue: { ...visibilityState.issue } } }),
+      subscribe(listener) { visibilityListeners.add(listener); return () => visibilityListeners.delete(listener); }
+    }) },
+    action: { createRmtActionEffectRuntime: () => ({ runAction: async (id, payload) => ({ id, status: 'success', data: payload }) }) },
+    transitions: { createRmtSurfaceTransitionRuntime: () => ({
+      findTransition: ({ action }) => action === 'wizard.next' ? { id: 'wizard.next-step', from: ['wizard.contact'], to: ['wizard.issue'] } : null,
+      applyVisibilityPatch(input) { transitionCalls.push({ surface: input.surface, nextHidden: input.nextHidden }); return Promise.resolve({ status: 'complete' }); }
+    }) },
+    renderer: { createRmtDomDescriptorRenderer: () => ({ render(root) { root.replaceChildren(visibleNode, hiddenNode); return { nodeCount: 2 }; } }) }
+  };
+  const visibilityPlan = { orchestration: { artifact: {
+    state: { reducers: [
+      { id: 'hide-contact', action: 'wizard.next', state: 'contact', path: 'hidden', value: true },
+      { id: 'show-issue', action: 'wizard.next', state: 'issue', path: 'hidden', value: false }
+    ] },
+    actions: { actions: [{ id: 'wizard.next' }] },
+    surfaces: [{ id: 'wizard.contact', source: 'contact' }, { id: 'wizard.issue', source: 'issue' }],
+    render: { root: { type: 'fragment', children: [] } }
+  } }, transitions: { enabled: true, artifact: {} } };
+  const visibilityRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+    plan: visibilityPlan,
+    root: visibilityRoot,
+    loadModules: async () => visibilityModules,
+    componentRegistry: { async hydrate() { hiddenNode.removeAttribute('hidden'); hiddenNode.style.display = ''; } }
+  });
+  await visibilityRuntime.boot();
+  context.assert(!visibleNode.hasAttribute('hidden') && visibleNode.style.display !== 'none', 'plan runtime keeps the active wizard surface visible');
+  context.assert(hiddenNode.hasAttribute('hidden') && hiddenNode.style.display === 'none', 'plan runtime restores hidden wizard surfaces after component hydration');
+  await visibilityRuntime.dispatchCommand('wizard.next');
+  context.assert(transitionCalls.some((entry) => entry.surface === 'wizard.contact' && entry.nextHidden === true)
+    && transitionCalls.some((entry) => entry.surface === 'wizard.issue' && entry.nextHidden === false), 'plan runtime routes wizard reducer visibility changes through the transition runtime');
+  visibilityRuntime.dispose();
+
   const toolingBridge = require('../../tools/tooling-bridge');
   const bridgeResponse = await toolingBridge.executeToolingBridgeOperation({ operation: 'safe-preview', requestId: 'ownership-contract', payload: { coreDocument: {}, project: { descriptor: { tag: 'div', children: ['Safe'] } } } }, { rootDir });
   context.assert(bridgeResponse.schema === 'xtend.compiler.tooling-bridge-response.v1' && bridgeResponse.operation === 'safe-preview' && bridgeResponse.result.descriptor.tag === 'div', 'tooling bridge returns a versioned safe-preview envelope');
