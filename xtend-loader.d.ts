@@ -148,6 +148,31 @@ export interface XTendLoaderPerformanceDetail {
   metadata: Record<string, unknown>;
 }
 
+export interface XTendDevApiSnapshot {
+  schema: string;
+  supported?: boolean;
+  status?: string;
+  [key: string]: unknown;
+}
+
+export interface XTendDevApiSubscriptionEvent {
+  schema: 'xtend.devsurface.subscription-event.v1';
+  sequence: number;
+  kind: string;
+  status: string;
+  detail: unknown;
+}
+
+export interface XTendDevApi {
+  readonly schema: 'xtend.devsurface.dev-api.v1';
+  readonly version: '1.0.0' | string;
+  getPerformanceSnapshot(): XTendDevApiSnapshot;
+  getFabricTelemetrySnapshot(): XTendDevApiSnapshot;
+  getKernelSnapshot(): XTendDevApiSnapshot;
+  getHydrationSnapshot(): XTendDevApiSnapshot;
+  subscribe(listener: (event: XTendDevApiSubscriptionEvent) => void): () => void;
+}
+
 export interface XTendHydrateTreeDetail {
   schema: 'xtend.loader.dynamic-tree-hydration.v1';
   source: string;
@@ -174,6 +199,7 @@ export interface XTendHydrateTreeOptions extends XTendEnsureComponentOptions {
 export interface XTendInitiateOptions {
   manifestUrl?: string;
   moduleCacheBust?: string | boolean;
+  devApi?: boolean;
   uiEffects?: string;
   uiEffect?: string;
   effects?: string;
@@ -229,6 +255,7 @@ declare global {
     XTendLoader: XTendLoaderApi;
     XTendStyleRegistry: XTendStyleRegistryApi;
     XTendSkeletonLoader: XTendSkeletonLoaderApi;
+    __XTEND_DEV_API__?: XTendDevApi;
     __XTendLoaderBootPromise?: Promise<XTendLoaderBootResult>;
   }
 

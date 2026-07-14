@@ -35,7 +35,9 @@ npm run dev:local
 
 Node.js 18 or newer is required by the public scoped packages.
 
-### Minimal browser host
+### XTend Classic
+
+XTend Classic is the supported HTML- and JavaScript-first delivery path. It uses the runtime manifest and `xtend-loader.js` without requiring an XTend application build. A host bundler, TypeScript, a local server, or optional XTend CLI usage can still be part of a Classic project.
 
 ```html
 <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
@@ -46,7 +48,14 @@ Node.js 18 or newer is required by the public scoped packages.
 </x-section>
 ```
 
-The loader reads `components/manifest.json`, loads requested custom elements, and keeps the default runtime path local. Public package entry points include the loader, `api.js`, component modules, design tokens, Fabric, RMT, Maraca, XSurface Shard, accessibility policies, security policies, and catalog reports.
+The loader reads `components/manifest.json`, loads requested custom elements, and keeps the runtime path local. Public package entry points include the loader, `api.js`, component modules, design tokens, Fabric, RMT, Maraca, XSurface Shard, accessibility policies, security policies, and catalog reports.
+
+| XTend Classic | XTend Maraca |
+|---|---|
+| HTML-/JavaScript-first | RMT-/build-first |
+| Runtime manifest and `xtend-loader.js` | Static inline registry and generated ESM bundle |
+| No XTend-required application build | Plan, build, tune, and evidence pipeline |
+| Dynamic catalogs and progressive enhancement | Optimized app graphs, SSR/hydration, PWA, and production reports |
 
 ### XTendRMT and Maraca
 
@@ -77,6 +86,7 @@ The bilingual Developer Center lives in `docs/en` and `docs/de`.
 - [English start page](./docs/en/README.md)
 - [German start page](./docs/de/README.md)
 - [Quick Start](./docs/en/quick-start-guide.md)
+- [XTend Classic](./docs/en/xtend-classic.md)
 - [XTendRMT overview](./docs/en/xtendrmt-overview.md)
 - [Native-first RMT recipes](./docs/en/native-first-rmt-recipes.md)
 - [Component reference](./docs/en/components.md)
@@ -138,7 +148,9 @@ npm run dev:local
 
 Die öffentlichen Scoped Packages benötigen Node.js 18 oder neuer.
 
-### Minimaler Browser-Host
+### XTend Classic
+
+XTend Classic ist der unterstützte HTML- und JavaScript-first-Delivery-Pfad. Er verwendet das Runtime-Manifest und `xtend-loader.js`, ohne einen XTend-Application-Build zu verlangen. Ein Host-Bundler, TypeScript, ein lokaler Server oder die optionale XTend CLI können trotzdem Teil eines Classic-Projekts sein.
 
 ```html
 <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
@@ -149,7 +161,14 @@ Die öffentlichen Scoped Packages benötigen Node.js 18 oder neuer.
 </x-section>
 ```
 
-Der Loader liest `components/manifest.json`, lädt angeforderte Custom Elements und hält den Standard-Runtime-Pfad lokal. Öffentliche Paket-Einstiege umfassen den Loader, `api.js`, Komponentenmodule, Design Tokens, Fabric, RMT, Maraca, XSurface Shard, Accessibility Policies, Security Policies und Katalogberichte.
+Der Loader liest `components/manifest.json`, lädt angeforderte Custom Elements und hält den Runtime-Pfad lokal. Öffentliche Paket-Einstiege umfassen den Loader, `api.js`, Komponentenmodule, Design Tokens, Fabric, RMT, Maraca, XSurface Shard, Accessibility Policies, Security Policies und Katalogberichte.
+
+| XTend Classic | XTend Maraca |
+|---|---|
+| HTML-/JavaScript-first | RMT-/Build-first |
+| Runtime-Manifest und `xtend-loader.js` | Statische Inline Registry und generiertes ESM-Bundle |
+| Kein durch XTend erforderlicher Application-Build | Plan-, Build-, Tune- und Evidence-Pipeline |
+| Dynamische Kataloge und Progressive Enhancement | Optimierte App-Graphen, SSR/Hydration, PWA und Produktionsreports |
 
 ### XTendRMT und Maraca
 
@@ -180,6 +199,7 @@ Das zweisprachige Developer Center liegt unter `docs/en` und `docs/de`.
 - [Englische Startseite](./docs/en/README.md)
 - [Deutsche Startseite](./docs/de/README.md)
 - [Schnellstart](./docs/de/quick-start-guide.md)
+- [XTend Classic](./docs/de/xtend-classic.md)
 - [XTendRMT-Übersicht](./docs/de/xtendrmt-overview.md)
 - [Native-First-RMT-Rezepte](./docs/de/native-first-rmt-recipes.md)
 - [Komponentenreferenz](./docs/de/components.md)

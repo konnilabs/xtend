@@ -5,8 +5,8 @@
 - Typ: Epic / Planungsdokument
 - Bezugsdokumente:
   - `docs/XTend-ADR.md`
-  - `compliance/update-instructions.md`
-  - `compliance/xtend-design-guidelines.md`
+  - `development/compliance/update-instructions.md`
+  - `development/compliance/xtend-design-guidelines.md`
   - `development/EPIC-01-XTend-Core-Standardisierung-und-Konsolidierung.md`
   - `development/EPIC-02-XTend-Test-Suite-und-Qualitaetsbarrieren.md`
   - `development/BACKLOG-EPIC-03-XTend-Scaffold-Build-Environment-und-Developer-Workflow.md`

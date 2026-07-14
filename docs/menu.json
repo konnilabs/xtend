@@ -64,6 +64,51 @@
     }
   },
   {
+    "slug": "xtend-classic",
+    "id": "docs.xtend.classic",
+    "label": "XTend Classic",
+    "group": "start",
+    "parent": null,
+    "tier": "basic",
+    "rank": 92,
+    "labels": {
+      "de": "XTend Classic",
+      "en": "XTend Classic"
+    },
+    "contentType": "tutorial",
+    "aliases": [
+      "xtend-loader"
+    ],
+    "trunk": "start",
+    "section": "first-app",
+    "keywords": {
+      "de": [
+        "XTend Classic",
+        "xtend",
+        "classic",
+        "xtend-loader",
+        "tutorial",
+        "start",
+        "first-app",
+        "buildless",
+        "HTML-first",
+        "Manifest"
+      ],
+      "en": [
+        "XTend Classic",
+        "xtend",
+        "classic",
+        "xtend-loader",
+        "tutorial",
+        "start",
+        "first-app",
+        "buildless",
+        "HTML-first",
+        "manifest"
+      ]
+    }
+  },
+  {
     "slug": "native-first-authoring-guide",
     "id": "docs.native.first.authoring.guide",
     "label": "Native-First Authoring Guide",
@@ -2683,40 +2728,6 @@
       ],
       "en": [
         "API",
-        "reference",
-        "core-api"
-      ]
-    }
-  },
-  {
-    "slug": "xtend-loader",
-    "id": "docs.xtend.loader",
-    "label": "XTend Loader",
-    "group": "core",
-    "parent": "manifest",
-    "tier": "basic",
-    "rank": 92,
-    "labels": {
-      "de": "XTend Loader",
-      "en": "XTend Loader"
-    },
-    "contentType": "tutorial",
-    "trunk": "reference",
-    "section": "core-api",
-    "keywords": {
-      "de": [
-        "XTend Loader",
-        "xtend",
-        "loader",
-        "tutorial",
-        "reference",
-        "core-api"
-      ],
-      "en": [
-        "XTend Loader",
-        "xtend",
-        "loader",
-        "tutorial",
         "reference",
         "core-api"
       ]

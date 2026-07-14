@@ -29,5 +29,5 @@ A blocked fiber remains visible as a diagnostic. Do not retry work blindly when 
 
 - [Manifest](./manifest.md)
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)

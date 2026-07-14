@@ -35,6 +35,21 @@ Every snapshot method must:
 
 Install the object before the complete runtime boot when possible. Early calls may return valid `degraded` snapshots. Replace their data through the host-owned stores when the application becomes ready; do not replace browser globals or patch framework internals to collect it.
 
+## XTend Classic opt-in
+
+An HTML-first host that uses the canonical loader can opt into the read-only Classic adapter without adding another script tag:
+
+```html
+<script type="module"
+  src="/xtend-loader.js"
+  data-manifest="/components/manifest.json"
+  data-dev-api="true"></script>
+```
+
+The equivalent programmatic option is `window.XTendLoader.initiateXTend({ devApi: true })`. The loader imports its internal ESM service alongside the manifest. It publishes real loader and browser performance measurements. Fabric, RMT Kernel and SSR hydration report `supported: false` when those runtimes are not active; enabling diagnostics never boots them implicitly.
+
+The default remains off. An existing host-owned `window.__XTEND_DEV_API__`, such as the Docs or Animation TestBench adapter, is preserved. The Classic service is intentionally not a direct package export: `xtend-loader.js` remains its lifecycle owner.
+
 ## Minimal implementation
 
 The following app-local module establishes a complete v1 boundary. It is an integration example, not an exported XTend factory.

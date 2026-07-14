@@ -61,7 +61,7 @@ const REQUIRED_DOCS = Object.freeze([
   'development/XTend-Epic13-Package-Export-Lock-Contract.md',
   'development/ADR-XTend-Loader-und-Lokale-Entwicklung.md',
   'development/ADR-XTend-Security-Trust-Boundaries.md',
-  'docs/xtend-loader.md',
+  'docs/xtend-classic.md',
   'docs/manifest-import-policy.md',
   'docs/hydration-performance-closure.md',
   'docs/enterprise-adoption.md'

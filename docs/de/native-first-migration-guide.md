@@ -22,11 +22,11 @@ Relevante Contracts:
 
 | Klasse | Entscheidung | Alternative |
 | --- | --- | --- |
-| Manuelle HTML-Pfade | neue normale App-UI blockieren | DOM Descriptor Renderer, Trusted DOM, strukturierte DOM APIs |
+| Nicht vertrauenswürdige HTML-String-Sinks | neue normale App-UI blockieren | gepflegtes XTend-Classic-Markup, DOM Descriptor Renderer, Trusted DOM, strukturierte DOM APIs |
 | Vendored Utilities | Fassade einfrieren, keine breite öffentliche Oberfläche | owned Docs-Highlighter, structured writer, Sanitizing Boundary |
 | Build Tooling | enthalten, aber nicht in Runtime ziehen | lokale Fallbacks, Budget- und Supply-Chain-Nachweise |
 | Editor Tooling | im Editor-Scope halten | eigener RMT Language Server über stdio |
-| Legacy Loader | Kompatibilität halten, Warnfenster planen | `xtend-loader.js`, RMT Native Shell, App Platform Authoring |
+| Legacy-Loader-Oberflächen | Kompatibilität halten, Warnfenster planen | XTend Classic über `xtend-loader.js`, RMT Native Shell, App Platform Authoring |
 | Kontrollierte Backports | als Guardrail geschlossen halten | Regression-Smokes und owned Component Contracts |
 | Owned Adapter | als positives Muster behalten | lokale Packs, keine CDN- oder Vendor-Runtime |
 
@@ -78,9 +78,9 @@ Migration:
 - Editor-Integration bleibt an den RMT Language Server über stdio gebunden.
 - Bundle-, Size- und Supply-Chain-Nachweise bleiben Pflicht.
 
-## Legacy Loader
+## Legacy-Loader-Oberflächen
 
-`xtend-dev.js` und `./legacy-loader` bleiben Kompatibilitätsoberflächen. Neue Integrationen sollen `xtend-loader.js`, RMT Native Shell oder App Platform Authoring nutzen. Eine spätere Entfernung braucht ein Major-Fenster und mindestens zwei vorherige Minor-Warnungen.
+Nur `xtend-dev.js` und `./legacy-loader` bleiben Legacy-Kompatibilitätsoberflächen. [XTend Classic](./xtend-classic.md) über das kanonische `xtend-loader.js` ist ein unterstützter Produktpfad, ebenso RMT Native Shell und App Platform Authoring. Eine spätere Entfernung einer Kompatibilitätsoberfläche braucht ein Major-Fenster und mindestens zwei vorherige Minor-Warnungen.
 
 Lokale Prüfungen:
 

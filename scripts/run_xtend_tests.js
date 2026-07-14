@@ -18,6 +18,10 @@ const {
   runScopedPackageReadmesSuite
 } = require('../tests/docs/scoped_package_readmes_suite');
 const {
+  printXtendClassicBrandingReport,
+  runXtendClassicBrandingSuite
+} = require('../tests/docs/xtend_classic_branding_suite');
+const {
   DEFAULT_MIN_GUIDE_CHARS,
   createDocsStubInventory
 } = require('./create_docs_stub_inventory');
@@ -1605,6 +1609,16 @@ const suites = [
       const result = runScopedPackageReadmesSuite({ rootDir });
       printScopedPackageReadmesReport(result);
       return toRunnerResult('scoped-package-readmes', 'Scoped Package bilingual READMEs', result);
+    }
+  },
+  {
+    id: 'xtend-classic-branding',
+    label: 'XTend Classic product branding',
+    description: 'Validates the canonical Classic guide, redirect alias, product terminology, metadata, generated indexes and aggregate wiring.',
+    run: () => {
+      const result = runXtendClassicBrandingSuite({ rootDir });
+      printXtendClassicBrandingReport(result);
+      return toRunnerResult('xtend-classic-branding', 'XTend Classic product branding', result);
     }
   },
   {
@@ -4080,7 +4094,7 @@ const suites = [
   {
     id: 'landing-page',
     label: 'XTend project landing page',
-    description: 'Validates the authored landing page, classic loader/preload boundary, product content and browser-smoke contract.',
+    description: 'Validates the authored landing page, XTend Classic loader/preload boundary, product content and browser-smoke contract.',
     run: () => {
       const result = runLandingPageSuite({ rootDir });
       printLandingPageReport(result);

@@ -30,4 +30,4 @@ Prüfe danach Fokus, Forced Colors und Reduced Motion. Ein fehlendes Token sollt
 
 - [Manifest](./manifest.md)
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)

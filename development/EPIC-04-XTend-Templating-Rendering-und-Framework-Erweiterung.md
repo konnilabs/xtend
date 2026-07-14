@@ -5,8 +5,8 @@
 - Typ: Epic / Architektur- und Vorbereitungsdokument
 - Bezugsdokumente:
   - `docs/XTend-ADR.md`
-  - `compliance/digital-twin-principle.md`
-  - `compliance/update-instructions.md`
+  - `development/compliance/digital-twin-principle.md`
+  - `development/compliance/update-instructions.md`
   - `development/EPIC-01-XTend-Core-Standardisierung-und-Konsolidierung.md`
   - `development/EPIC-02-XTend-Test-Suite-und-Qualitaetsbarrieren.md`
   - `development/EPIC-03-XTend-Scaffold-Build-Environment-und-Developer-Workflow.md`

@@ -32,5 +32,5 @@ Ein fehlendes Modul lehnt den Init-Pfad ab. Prüfe Manifest und Browser-Konsole,
 
 - [XTend DEV API](./xtend-dev-api.md)
 - [Manifest](./manifest.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)

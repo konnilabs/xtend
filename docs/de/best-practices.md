@@ -1,6 +1,6 @@
 # Best Practices
 
-Robuste XTend Apps entstehen durch klare Ownership, kleine öffentliche Verträge und überprüfbares Fehlerverhalten. Die folgenden Regeln gelten für klassische HTML-Hosts ebenso wie für RMT App Shells.
+Robuste XTend Apps entstehen durch klare Ownership, kleine öffentliche Verträge und überprüfbares Fehlerverhalten. Die folgenden Regeln gelten für XTend-Classic-Hosts ebenso wie für Maraca-/RMT-App-Shells.
 
 ## Öffentliche Verträge zuerst
 
@@ -14,7 +14,7 @@ Canonical State gehört der Anwendung oder dem zuständigen Controller. Fabric-L
 
 ## Lokal und explizit laden
 
-Nutze `xtend-loader.js` mit einem lokalen Manifest. Remote Surfaces brauchen Origin-Allowlist, Integrity, Capability-Policy und einen lokalen Fallback. Dynamische Imports dürfen nur bekannte Module auflösen; eine URL aus Nutzereingaben ist keine Modulreferenz.
+Nutze [XTend Classic](./xtend-classic.md) mit `xtend-loader.js` und einem lokalen Manifest für direkt gepflegtes HTML und JavaScript. Remote Surfaces brauchen Origin-Allowlist, Integrity, Capability-Policy und einen lokalen Fallback. Dynamische Imports dürfen nur bekannte Module auflösen; eine URL aus Nutzereingaben ist keine Modulreferenz.
 
 ## Messen statt vermuten
 

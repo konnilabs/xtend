@@ -1,6 +1,6 @@
 # XTend Loader Types
 
-XTend Loader Types beschreiben die öffentliche TypeScript-Oberfläche des lokalen Loaders, der Style Registry und des Skeleton Loaders. Der Artikel ist für Teams gedacht, die `xtend-loader.js` in einem Host verwenden und dabei klare Editor-Hinweise, stabile globale APIs und überprüfbare Event-Namen benötigen. Die Deklarationen liegen bewusst neben der JavaScript-Runtime: Der Browser lädt keine Typdateien, während Paketnutzer trotzdem vollständige IntelliSense und Compiler-Signale erhalten.
+XTend Loader Types beschreiben die öffentliche TypeScript-Oberfläche des lokalen Loaders, der Style Registry und des Skeleton Loaders. Der Artikel ist für Teams gedacht, die `xtend-loader.js` als Einstieg für [XTend Classic](./xtend-classic.md) in einem Host verwenden und dabei klare Editor-Hinweise, stabile globale APIs und überprüfbare Event-Namen benötigen. Die Deklarationen liegen bewusst neben der JavaScript-Runtime: Der Browser lädt keine Typdateien, während Paketnutzer trotzdem vollständige IntelliSense und Compiler-Signale erhalten.
 
 ## Öffentliche Deklarationen
 
@@ -34,4 +34,4 @@ report: .xtend-test-results/xtend-type-exports-loader-report.json
 
 ## Weiterführend
 
-Das Loader-Tutorial demonstriert die Runtime-Aufrufe, die diese Deklarationen abbilden. [Verwandter Artikel](./xtend-loader.md)
+Der XTend-Classic-Guide demonstriert die Runtime-Aufrufe, die diese Deklarationen abbilden. [Verwandter Artikel](./xtend-classic.md)

@@ -3,9 +3,9 @@
 - Version: `2026-03-24`
 - Status: Active
 - Bezug:
-  - `compliance/digital-twin-principle.md`
-  - `compliance/xtend-design-guidelines.md`
-  - `compliance/update-instructions.md`
+  - `development/compliance/digital-twin-principle.md`
+  - `development/compliance/xtend-design-guidelines.md`
+  - `development/compliance/update-instructions.md`
   - `development/XTend-Architecture-Gate-Regeln.md`
   - `development/XTendRMT-Migrations-und-Framework-Agnostik-Leitplanken.md`
 

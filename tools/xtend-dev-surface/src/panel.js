@@ -828,6 +828,17 @@
   function renderKernel(snapshot) {
     const kernel = snapshot.kernel || {};
     const summary = kernel.summary || {};
+    if (kernel.supported === false) {
+      viewNode.innerHTML = `
+        ${renderDiagnostics(snapshot)}
+        <section class="xds-card">
+          <h2>Kernel</h2>
+          <div>${renderBadge('not active')}</div>
+          <p class="xds-muted">The RMT Kernel is not active in this XTend Classic host.</p>
+        </section>
+      `;
+      return;
+    }
     viewNode.innerHTML = `
       ${renderDiagnostics(snapshot)}
       <section class="xds-grid">
@@ -858,6 +869,17 @@
     const fabric = snapshot.fabric || {};
     const summary = fabric.summary || {};
     const lanes = fabric.lanes || [];
+    if (fabric.supported === false) {
+      viewNode.innerHTML = `
+        ${renderDiagnostics(snapshot)}
+        <section class="xds-card">
+          <h2>Fabric</h2>
+          <div>${renderBadge('not active')}</div>
+          <p class="xds-muted">Fabric is not active in this XTend Classic host.</p>
+        </section>
+      `;
+      return;
+    }
     viewNode.innerHTML = `
       ${renderDiagnostics(snapshot)}
       <section class="xds-grid">

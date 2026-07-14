@@ -37,6 +37,8 @@ Wenn keine XTend DEV API vorhanden ist, zeigt die Extension einen sichtbaren eng
 
 Die inspizierte App muss explizit `window.__XTEND_DEV_API__` bereitstellen. Die Extension liest nur diese API und patcht keine Browser- oder App-Runtime.
 
+Klassische HTML-Hosts können den kanonischen Loader mit `data-dev-api="true"` aktivieren. Der Loader lädt dabei intern `xtend-classic-dev-api.js`; ein zusätzlicher Script-Tag oder direkter Package-Export ist nicht vorgesehen. Nicht aktive Fabric-, Kernel- und SSR-Hydration-Fähigkeiten werden ausdrücklich als `supported: false` gemeldet.
+
 Der Runtime Bridge Reader liegt in `src/runtime-bridge.js` und wird nach `dist/runtime-bridge.js` kopiert. Er liest im inspizierten Page-Kontext nur `version`, `getPerformanceSnapshot()`, `getFabricTelemetrySnapshot()`, `getKernelSnapshot()` und optional `getHydrationSnapshot()` sowie die `subscribe`-Faehigkeit.
 
 Minimaler Mock fuer lokale Browser-Smokes:

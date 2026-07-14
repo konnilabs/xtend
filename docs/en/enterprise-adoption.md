@@ -17,7 +17,7 @@ Record the following for the pilot:
 
 ## Choose a pilot
 
-A suitable surface has few global dependencies, visible failure behavior, and a realistic user interaction. Global navigation, authentication, and a silently shared event bus are poor first candidates. Start with the [Quick Start](./quick-start-guide.md) when you need components only, or [Learn RMT](./learn-rmt.md) for a declarative application boundary.
+A suitable surface has few global dependencies, visible failure behavior, and a realistic user interaction. Global navigation, authentication, and a silently shared event bus are poor first candidates. Start with [XTend Classic](./xtend-classic.md) and the [Quick Start](./quick-start-guide.md) for an HTML-/JavaScript-first host, or [Learn RMT](./learn-rmt.md) and Maraca for a compiled declarative application boundary.
 
 Keep `components/manifest.json` and `xtend-loader.js` local. Attach a framework island through a HostController; do not hide its peer runtime inside an XTension bundle. Route cross-surface communication through typed events or Fabric rather than framework contexts.
 

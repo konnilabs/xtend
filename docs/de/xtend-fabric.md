@@ -29,5 +29,5 @@ Ein blockierter Fiber bleibt als Diagnostic sichtbar. Wiederhole Arbeit nicht bl
 
 - [Manifest](./manifest.md)
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)

@@ -973,6 +973,7 @@ function normalizeLaneSummary(laneId, lane = {}) {
 
 function normalizeFabricTelemetrySnapshot(snapshot = {}) {
   const source = snapshot && typeof snapshot === 'object' ? snapshot : {};
+  const supported = normalizeBoolean(source.supported, Object.keys(source).length > 0);
   const laneSource = source.lanes && typeof source.lanes === 'object' ? source.lanes : {};
   const lanes = Array.isArray(laneSource)
     ? laneSource.map((lane, index) => normalizeLaneSummary(lane && (lane.lane || lane.id) || `lane.${index + 1}`, lane))
@@ -1006,7 +1007,9 @@ function normalizeFabricTelemetrySnapshot(snapshot = {}) {
   const fiberCount = normalizeNumber(source.fiberCount, totals.fiberCount || computedTotals.fiberCount, 0);
   const failedCount = normalizeNumber(totals.failedCount, computedTotals.failedCount, 0);
   const budgetMissCount = normalizeNumber(totals.budgetMissCount, computedTotals.budgetMissCount, 0);
-  const health = criticalLanes.length > 0 || ['critical', 'high'].includes(backpressure.level) ? 'degraded' : 'healthy';
+  const health = supported
+    ? (criticalLanes.length > 0 || ['critical', 'high'].includes(backpressure.level) ? 'degraded' : 'healthy')
+    : 'unknown';
   const fiberSummary = {
     schema: XTEND_DEV_SURFACE_FABRIC_VIEW_SCHEMA,
     fiberCount,
@@ -1019,6 +1022,7 @@ function normalizeFabricTelemetrySnapshot(snapshot = {}) {
   };
   const summary = {
     schema: XTEND_DEV_SURFACE_FABRIC_VIEW_SCHEMA,
+    supported,
     health,
     laneCount: lanes.length,
     fiberCount,
@@ -1031,13 +1035,15 @@ function normalizeFabricTelemetrySnapshot(snapshot = {}) {
     pressureLaneCount: backpressure.pressureLaneCount,
     averageUtilizationPct: lanes.length > 0 ? Math.round(computedTotals.totalUtilizationPct / lanes.length) : 0,
     maxUtilizationPct: computedTotals.maxUtilizationPct,
-    needsAttention: health !== 'healthy' || failedCount > 0 || budgetMissCount > 0
+    needsAttention: supported && (health !== 'healthy' || failedCount > 0 || budgetMissCount > 0)
   };
 
   return {
     schema: XTEND_DEV_SURFACE_FABRIC_SNAPSHOT_SCHEMA,
     viewSchema: XTEND_DEV_SURFACE_FABRIC_VIEW_SCHEMA,
     telemetrySchema: normalizeString(source.schema, 'xtend.fabric.telemetry-snapshot.v1'),
+    supported,
+    status: normalizeString(source.status, supported ? 'ready' : 'degraded'),
     id: normalizeString(source.id, null),
     fiberCount,
     diagnosticCount: normalizeNumber(source.diagnosticCount, 0, 0),
@@ -1149,8 +1155,9 @@ function normalizeKernelMitigationRecord(mitigation = {}, index = 0) {
 
 function normalizeKernelSnapshot(snapshot = {}) {
   const source = snapshot && typeof snapshot === 'object' ? snapshot : {};
-  const state = normalizeKernelState(source.state || source.panicState || 'none');
-  const health = KERNEL_STATE_TO_HEALTH[state] || 'unknown';
+  const supported = normalizeBoolean(source.supported, Object.keys(source).length > 0);
+  const state = supported ? normalizeKernelState(source.state || source.panicState || 'none') : 'unknown';
+  const health = supported ? (KERNEL_STATE_TO_HEALTH[state] || 'unknown') : 'unknown';
   const severity = normalizeString(source.severity, state === 'none' ? 'info' : 'warning');
   const recoveryAction = normalizeString(source.recoveryAction || source.defaultRecoveryAction, 'none');
   const mitigationStrategy = normalizeString(source.mitigationStrategy || recoveryAction, recoveryAction);
@@ -1198,6 +1205,7 @@ function normalizeKernelSnapshot(snapshot = {}) {
   };
   const summary = {
     schema: XTEND_DEV_SURFACE_KERNEL_MONITOR_SCHEMA,
+    supported,
     health,
     state,
     severity,
@@ -1209,13 +1217,15 @@ function normalizeKernelSnapshot(snapshot = {}) {
     recoveryAttemptCount,
     recoveryFailureCount,
     recoveryStatus,
-    needsAttention: health !== 'healthy' || criticalViolationCount > 0 || recoveryFailureCount > 0
+    needsAttention: supported && (health !== 'healthy' || criticalViolationCount > 0 || recoveryFailureCount > 0)
   };
 
   return {
     schema: XTEND_DEV_SURFACE_KERNEL_SNAPSHOT_SCHEMA,
     viewSchema: XTEND_DEV_SURFACE_KERNEL_MONITOR_SCHEMA,
     panicSchema: normalizeString(source.schema, 'xtend.rmt.kernel-panic-state.v1'),
+    supported,
+    status: normalizeString(source.status, supported ? 'ready' : 'degraded'),
     state,
     health,
     severity,

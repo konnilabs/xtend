@@ -284,7 +284,7 @@ function runRmtOwnedMigrationDeprecationDocsHandoffSuite(options = {}) {
     'structured writer',
     'Both paths remain free of new runtime dependencies',
     'Legacy Loader',
-    'remain compatibility surfaces',
+    'are legacy compatibility surfaces',
     'major window',
     'two earlier minor warnings',
     'type-exports-loader',

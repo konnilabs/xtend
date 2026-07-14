@@ -6,7 +6,7 @@ Welcome to the XTend Developer Center. These docs explain XTend for developers w
 
 | Goal | Start |
 | --- | --- |
-| First local page | [Quick Start Guide](./quick-start-guide.md) |
+| Build directly with HTML and JavaScript | [XTend Classic](./xtend-classic.md), [Quick Start Guide](./quick-start-guide.md) |
 | Understand RMT | [XTendRMT Overview](./xtendrmt-overview.md) |
 | Author RMT vNext | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT AnimationEngine](./rmt-animation-engine.md), [RMT Reference](./rmt-reference.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Release contract](./rmt-vnext-migration-notes.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
 | Author Native-First XTend | [Native-First Authoring Guide](./native-first-authoring-guide.md), [Native-First RMT Recipes](./native-first-rmt-recipes.md), [Native-First Migration Guide](./native-first-migration-guide.md), [Native-First Release Review](./native-first-release-review.md) |
@@ -30,11 +30,11 @@ previous release bridge path: ./release-verification.md
 
 ## Product model
 
-XTend UI provides the visible Web Components. XTendRMT describes app shells, state, actions, events, resources, surfaces, hydration, validation and surface transitions. Fabric coordinates runtime work; the RMT kernel adds scheduler lanes, fibers and telemetry. The loader connects manifest-based hosts locally and without a CDN; Maraca builds loaderless, kernel-orchestrated ESM apps from `.rmt` sources with bundle reports, browser bridges, mobile Web App Manifest output, optional PWA Service Worker scaffolding and strict contract gates.
+XTend UI provides the visible Web Components. XTendRMT describes app shells, state, actions, events, resources, surfaces, hydration, validation and surface transitions. Fabric coordinates runtime work; the RMT kernel adds scheduler lanes, fibers and telemetry. [XTend Classic](./xtend-classic.md) delivers directly authored HTML and JavaScript through a local runtime manifest and `xtend-loader.js`. Maraca builds loaderless, kernel-orchestrated ESM apps from `.rmt` sources with bundle reports, browser bridges, mobile Web App Manifest output, optional PWA Service Worker scaffolding and strict contract gates. Both are supported delivery paths over the same public component contracts.
 
-## Maraca In The Main Path
+## Choose A Delivery Path
 
-Maraca is the production app orchestrator in the XTend stack. Use the learning path to understand RMT documents, then move to [XTend Maraca](./xtend-maraca.md) when that document needs to become a shipped app bundle with an inline registry, kernel scheduling, hydration, validation, surface transitions, a mobile manifest or a generated app-shell Service Worker. The real orchestration fixture lives at `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`; the deep dive explains which contracts the build exposes in the browser and the report.
+Choose XTend Classic for HTML-/JavaScript-first pages, dynamic catalogs and progressive enhancement without an XTend-required application build. Choose [XTend Maraca](./xtend-maraca.md) when RMT source should become a shipped app bundle with an inline registry, kernel scheduling, SSR/hydration, validation, surface transitions, a mobile manifest, a generated app-shell Service Worker or build evidence. Project size alone does not decide between the paths.
 
 ## RMT vNext Release Surface
 
@@ -64,6 +64,7 @@ The tooling path uses the public schema `xtend.rmt.tooling-docs.v1`. For orchest
 ## Next steps
 
 - [Quick Start Guide](./quick-start-guide.md)
+- [XTend Classic](./xtend-classic.md)
 - [XTend Dev Surface](./xtend-dev-surface.md)
 - [XTend DEV API](./xtend-dev-api.md)
 - [XTend Maraca](./xtend-maraca.md)

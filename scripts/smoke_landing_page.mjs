@@ -188,6 +188,12 @@ async function readSnapshot(driverOrigin, sessionId) {
     const footerRect = footer && footer.getBoundingClientRect();
     const githubIcons = Array.from(document.querySelectorAll('a[href="https://github.com/konnilabs/xtend"] x-icon.github-icon'));
     const measurements = window.__xtendLandingPerformance && window.__xtendLandingPerformance.loaderMeasurements || [];
+    const devApi = window.__XTEND_DEV_API__;
+    const devPerformance = devApi && devApi.getPerformanceSnapshot();
+    const devFabric = devApi && devApi.getFabricTelemetrySnapshot();
+    const devKernel = devApi && devApi.getKernelSnapshot();
+    const devHydration = devApi && devApi.getHydrationSnapshot();
+    const classicGuideLink = document.querySelector('a[href="docs/index.php?xtend-docs-page=xtend-classic&locale=en"]');
     const visibleUndefined = Array.from(document.querySelectorAll('x-header,x-hero,x-type,x-section,x-cards,x-code,x-footer'))
       .filter((element) => !customElements.get(element.localName))
       .filter((element) => {
@@ -197,7 +203,15 @@ async function readSnapshot(driverOrigin, sessionId) {
       })
       .map((element) => element.localName);
     return {
-      ready: Boolean(window.__XTendLoaderBootPromise && customElements.get('x-header') && customElements.get('x-hero') && customElements.get('x-type')),
+      ready: Boolean(window.__XTendLoaderBootPromise && devApi && customElements.get('x-header') && customElements.get('x-hero') && customElements.get('x-type')),
+      devApiPresent: Boolean(devApi),
+      devApiVersion: devApi && devApi.version,
+      devPerformanceMeasurementCount: devPerformance && Array.isArray(devPerformance.measurements) ? devPerformance.measurements.length : 0,
+      fabricSupported: devFabric && devFabric.supported,
+      kernelSupported: devKernel && devKernel.supported,
+      hydrationSupported: devHydration && devHydration.supported,
+      classicBrandVisible: document.body.innerText.includes('XTend Classic'),
+      classicGuideLinked: Boolean(classicGuideLink && classicGuideLink.getClientRects().length),
       fcpMs: fcp ? fcp.startTime : null,
       lcpMs: window.__xtendLandingPerformance && window.__xtendLandingPerformance.lcpMs || 0,
       cls: window.__xtendLandingPerformance && window.__xtendLandingPerformance.cls || 0,
@@ -246,6 +260,10 @@ async function runSingle(driverOrigin, pageOrigin, scenario, runNumber) {
     assert(settled.overflowX <= 1, `${scenario.id}: horizontal overflow is ${settled.overflowX}px`);
     assert(settled.firstViewportDelta <= 2, `${scenario.id}: header and hero miss the first viewport (${JSON.stringify({ delta: settled.firstViewportDelta, headerHeight: settled.headerHeight, heroHeight: settled.heroHeight, heroInternalHeight: settled.heroInternalHeight, heroContentHeight: settled.heroContentHeight, heroHeadingHeight: settled.heroHeadingHeight })})`);
     assert(ABOVE_FOLD_CUSTOM_ELEMENTS.every((tag) => settled.defined[tag]), `${scenario.id}: above-fold custom elements are not all defined`);
+    assert(settled.devApiPresent && settled.devApiVersion === '1.0.0', `${scenario.id}: Classic DEV API is not available`);
+    assert(settled.devPerformanceMeasurementCount > 0, `${scenario.id}: Classic DEV API exposes no real performance measurements`);
+    assert(settled.fabricSupported === false && settled.kernelSupported === false && settled.hydrationSupported === false, `${scenario.id}: inactive runtimes are not reported as unsupported`);
+    assert(settled.classicBrandVisible && settled.classicGuideLinked, `${scenario.id}: XTend Classic brand or canonical guide link is not visible`);
     const measuredTags = new Set(settled.loaderMeasurements.map((entry) => entry.tag).filter(Boolean));
     assert(PRELOAD_COMPONENTS.every((tag) => measuredTags.has(tag)), `${scenario.id}: loader measurements miss a preload component (${JSON.stringify(settled.loaderMeasurements)})`);
     if (scenario.reducedMotion) {

@@ -28,5 +28,5 @@ Lade es mit `data-manifest="/components/manifest.json"`. Ein unbekannter Tag ble
 ## Nächste Schritte
 
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)

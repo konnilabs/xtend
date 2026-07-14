@@ -26,6 +26,7 @@ const RESERVED_MANIFEST_KEYS = ['xstate', 'xtend-i18n'];
 const BOOTSTRAP_MODULE_KEYS = ['xstate', 'xtend-i18n'];
 const CUSTOM_ELEMENT_NAME_PATTERN = /^[a-z][a-z0-9]*-[a-z0-9-]*[a-z0-9]$/;
 const MODULE_CACHE_BUST_PARAM = 'xtend-cache';
+const LOADER_DIAGNOSTIC_HISTORY_LIMIT = 100;
 const LOADER_VERBOSE_CONTRACT = 'xtend.loader.verbose.v1';
 const LOADER_VERBOSE_STORAGE_KEY = 'xtend.loader.verbose';
 const XTEND_RUNTIME_CUSTOM_ELEMENT_TAGS = Object.freeze([
@@ -76,12 +77,19 @@ const verbose_mode = 'auto';
 
 const loadedTags = new Set();
 const loaderMeasurements = [];
+const loaderDiagnostics = [];
 const styleRegistryRecords = new Map();
 const adoptedStyleSheetsByKey = new Map();
 let loaderMeasurementCounter = 0;
 let loaderVerboseRuntimeEnabled = readLoaderVerbosePreference();
 let activeManifest = {};
 let runtimeStylesInitialized = false;
+let classicDevApiController = null;
+let classicDevApiBootState = {
+  schema: 'xtend.loader.dev-api-boot-state.v1',
+  status: 'idle',
+  manifestUrl: null
+};
 const loaderStyleNonce = readCurrentScriptNonce();
 
 function normalizeLoaderVerboseMode(mode) {
@@ -718,12 +726,23 @@ async function initiateXTend(options = {}) {
   let uiEffectsController = null;
   let manifestUrl = null;
   let manifest = {};
+  let bootStatus = 'ready';
 
   try {
     manifestUrl = resolveManifestUrl(options.manifestUrl, loaderScript);
     const moduleCacheBust = resolveModuleCacheBust(options.moduleCacheBust, loaderScript, manifestUrl);
+    classicDevApiBootState = {
+      schema: 'xtend.loader.dev-api-boot-state.v1',
+      status: 'booting',
+      manifestUrl
+    };
 
-    manifest = await fetchManifest(manifestUrl, { moduleCacheBust });
+    const [devApiController, loadedManifest] = await Promise.all([
+      prepareClassicDevApi(options, loaderScript),
+      fetchManifest(manifestUrl, { moduleCacheBust })
+    ]);
+    if (devApiController) classicDevApiController = devApiController;
+    manifest = loadedManifest;
     activeManifest = manifest;
     uiEffectsController = await prepareConfiguredUiEffects(manifest, uiEffectsInput);
 
@@ -733,6 +752,12 @@ async function initiateXTend(options = {}) {
 
     loaderVerboseLog('XTend Loader: Komponenten geladen.');
   } catch (error) {
+    bootStatus = 'degraded';
+    classicDevApiBootState = {
+      ...classicDevApiBootState,
+      status: 'degraded',
+      message: error && error.message ? error.message : String(error)
+    };
     emitLoaderDiagnostic('xtend.loader.error', 'error', 'XTend Loader Fehler', {
       message: error && error.message ? error.message : String(error)
     });
@@ -742,7 +767,7 @@ async function initiateXTend(options = {}) {
     await initializeApi(manifest);
   }
 
-  return {
+  const result = {
     schema: LOADER_CONTRACT,
     manifest,
     loadedTags: Array.from(loadedTags),
@@ -750,6 +775,15 @@ async function initiateXTend(options = {}) {
     uiEffects: uiEffectsController && uiEffectsController.state ? uiEffectsController.state : null,
     verbose: getLoaderVerboseState()
   };
+  classicDevApiBootState = {
+    ...classicDevApiBootState,
+    status: bootStatus,
+    loadedTags: result.loadedTags.slice()
+  };
+  if (classicDevApiController && typeof classicDevApiController.complete === 'function') {
+    classicDevApiController.complete(result, bootStatus);
+  }
+  return result;
 }
 
 function resolveLoaderScript() {
@@ -785,6 +819,59 @@ function resolveManifestUrl(explicitManifestUrl, loaderScript) {
   }
 
   return policy.url;
+}
+
+function resolveClassicDevApiEnabled(options = {}, loaderScript = null) {
+  if (Object.prototype.hasOwnProperty.call(options, 'devApi')) {
+    return options.devApi === true;
+  }
+  if (!loaderScript || typeof loaderScript.getAttribute !== 'function') return false;
+  return String(loaderScript.getAttribute('data-dev-api') || '').trim().toLowerCase() === 'true';
+}
+
+async function prepareClassicDevApi(options = {}, loaderScript = null) {
+  if (!resolveClassicDevApiEnabled(options, loaderScript)) return null;
+  if (classicDevApiController) return classicDevApiController;
+
+  try {
+    const devApiUrl = new URL('./xtend-classic-dev-api.js', import.meta.url).href;
+    const importPolicy = classifyLoaderUrl(devApiUrl, {
+      kind: 'module',
+      baseUrl: import.meta.url,
+      source: 'classic-dev-api'
+    });
+    if (!importPolicy.ok) {
+      emitSecurityDiagnostic('xtend.security.import.refused', 'XTend Classic DEV API Import wurde durch die Loader Policy verweigert', {
+        policy: IMPORT_POLICY_CONTRACT,
+        url: devApiUrl,
+        diagnostics: importPolicy.diagnostics
+      });
+      return null;
+    }
+
+    const devApiModule = await import(importPolicy.url);
+    if (!devApiModule || typeof devApiModule.installClassicDevApi !== 'function') {
+      throw new Error('XTend Classic DEV API Modul stellt keinen Installations-Contract bereit');
+    }
+    const controller = devApiModule.installClassicDevApi({
+      globalTarget: window,
+      getMeasurements: () => loaderMeasurements.slice(),
+      getDiagnostics: () => loaderDiagnostics.slice(),
+      getBootState: () => ({ ...classicDevApiBootState })
+    });
+    classicDevApiController = controller;
+    if (controller && controller.preserved) {
+      emitLoaderDiagnostic('xtend.loader.dev_api.preserved', 'info', 'Vorhandene XTend DEV API wurde beibehalten', {
+        globalName: '__XTEND_DEV_API__'
+      });
+    }
+    return controller;
+  } catch (error) {
+    emitLoaderDiagnostic('xtend.loader.dev_api.init_failed', 'warn', 'XTend Classic DEV API konnte nicht initialisiert werden', {
+      message: error && error.message ? error.message : String(error)
+    });
+    return null;
+  }
 }
 
 function resolveLoaderUiEffectsInput(options = {}, loaderScript = null) {
@@ -1941,10 +2028,19 @@ function emitLoaderDiagnostic(code, level, message, metadata = {}) {
     metadata
   };
 
+  loaderDiagnostics.push(detail);
+  if (loaderDiagnostics.length > LOADER_DIAGNOSTIC_HISTORY_LIMIT) loaderDiagnostics.shift();
+  if (classicDevApiController && typeof classicDevApiController.publish === 'function') {
+    classicDevApiController.publish('loader-diagnostic', detail);
+  }
+
   window.dispatchEvent(new CustomEvent('xtend-loader-diagnostic', { detail }));
 }
 
 function emitLoaderPerformance(detail) {
+  if (classicDevApiController && typeof classicDevApiController.publish === 'function') {
+    classicDevApiController.publish('loader-performance', detail);
+  }
   window.dispatchEvent(new CustomEvent('xtend-loader-performance', { detail }));
 }
 

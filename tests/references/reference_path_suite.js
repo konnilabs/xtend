@@ -4441,7 +4441,7 @@ function assertDocsMenuReferences(context, rootDir) {
   [
     'api',
     'manifest',
-    'xtend-loader',
+    'xtend-classic',
     'xtend-fabric',
     'rmt-stack-topography',
     'rmt-kernel-runtime',
@@ -4803,7 +4803,7 @@ function assertRmtReference(context, rootDir) {
   context.assertIncludes(registry, 'docs/xtend-fabric-rmt-lane-mapping.md', 'Reference registry documents XTend-Fabric RMT lane mapping docs path');
   context.assertIncludes(registry, 'xtend.docs.xtend-fabric-rmt-lane-mapping.v1', 'Reference registry documents XTend-Fabric RMT lane mapping docs contract');
   context.assertIncludes(registry, 'docs/manifest.md', 'Reference registry documents manifest docs path');
-  context.assertIncludes(registry, 'docs/xtend-loader.md', 'Reference registry documents XTend Loader docs path');
+  context.assertIncludes(registry, 'docs/xtend-classic.md', 'Reference registry documents XTend Classic docs path');
   context.assertIncludes(registry, 'ADR-XTend-Loader-und-Lokale-Entwicklung.md', 'Reference registry documents loader ADR path');
   context.assertIncludes(registry, 'xtend.loader.local-development.adr.v1', 'Reference registry documents loader ADR contract');
   context.assertIncludes(registry, 'ER-WP-01-Loader-Contract-und-Rename-ADR-fuer-xtend-loader-js.md', 'Reference registry documents ER-WP-01 path');
@@ -9323,7 +9323,7 @@ function assertReleasePreparationReference(context, rootDir) {
     context.assert(packageManifest.scripts['test:release:full'].includes(suite), `test:release:full includes ${suite}`);
     context.assert(packageManifest.scripts['test:release:full:report'].includes(suite), `test:release:full:report includes ${suite}`);
   });
-  context.assert(packageManifest.scripts['test:docs-quality:report'] === 'node scripts/run_xtend_tests.js scoped-package-readmes docs-public-quality docs-content-depth docs-quality-gates --report .xtend-test-results/xtend-docs-quality-report.json', 'Package exposes combined docs quality report');
+  context.assert(packageManifest.scripts['test:docs-quality:report'] === 'node scripts/run_xtend_tests.js xtend-classic-branding scoped-package-readmes docs-public-quality docs-content-depth docs-quality-gates --report .xtend-test-results/xtend-docs-quality-report.json', 'Package exposes combined docs quality report');
   context.assert(packageManifest.scripts['release:sync-versions'] === 'node scripts/sync_xtend_package_versions.js', 'Package exposes unified release version sync command');
   context.assert(packageManifest.scripts['release:sync-versions:check'] === 'node scripts/sync_xtend_package_versions.js --check', 'Package exposes unified release version sync check command');
   context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes('npm run release:sync-versions:check'), 'Release gates include version sync check');

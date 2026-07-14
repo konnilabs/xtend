@@ -1,6 +1,6 @@
 # XTend Loader Types
 
-XTend Loader Types document the public TypeScript surface for the local loader, the style registry and the skeleton loader. This page is for teams that embed `xtend-loader.js` in a host and need editor support, stable global APIs and verifiable event names. The declarations intentionally sit next to the JavaScript runtime: browsers do not load type files, while package consumers still receive complete IntelliSense and compiler feedback.
+XTend Loader Types document the public TypeScript surface for the local loader, the style registry and the skeleton loader. This page is for teams that embed `xtend-loader.js` as the [XTend Classic](./xtend-classic.md) entry point and need editor support, stable global APIs and verifiable event names. The declarations intentionally sit next to the JavaScript runtime: browsers do not load type files, while package consumers still receive complete IntelliSense and compiler feedback.
 
 ## Public Declarations
 
@@ -34,4 +34,4 @@ Change the runtime or declaration first, then package metadata, then documentati
 
 ## Related reading
 
-The loader tutorial demonstrates the runtime calls represented by these declarations. [Related article](./xtend-loader.md)
+The XTend Classic guide demonstrates the runtime calls represented by these declarations. [Related article](./xtend-classic.md)

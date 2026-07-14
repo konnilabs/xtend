@@ -31,5 +31,5 @@ Change source, declaration, fixture, and component article together. A manual pa
 
 - [Manifest](./manifest.md)
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)

@@ -46,7 +46,7 @@ Importiere ausschließlich einen Eintrag aus `package.json#exports` und lasse Ty
 
 - [Manifest](./manifest.md)
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)
 - [XTend Loader Types](./xtend-loader-types.md)
 - [XTend API Types](./xtend-api-types.md)

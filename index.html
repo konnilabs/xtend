@@ -14,7 +14,7 @@
   <link rel="preload" href="landing-assets/github-invertocat-white.svg" as="image" type="image/svg+xml">
   <link rel="stylesheet" href="xtend.css">
   <link rel="stylesheet" href="landing.css">
-  <script type="module" src="xtend-loader.js" data-manifest="components/manifest.json"></script>
+  <script type="module" src="xtend-loader.js" data-manifest="components/manifest.json" data-dev-api="true"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -126,14 +126,15 @@
       <div slot="header" class="section-heading">
         <p class="section-kicker">Progressive architecture</p>
         <h2>Choose the runtime path you need.</h2>
-        <p>The classic loader and the compiled app platform share the same local, inspectable component foundation.</p>
+        <p>XTend Classic and XTend Maraca share the same local, inspectable component foundation.</p>
       </div>
       <div class="path-grid">
         <article class="path-card path-card-classic">
-          <p class="path-label">Classic HTML</p>
-          <h3>Manifest-driven Web Components</h3>
+          <p class="path-label">XTend Classic</p>
+          <h3>HTML, JavaScript, and manifest-driven Web Components</h3>
           <p>Author regular HTML, preload the first viewport, and let <code>xtend-loader.js</code> register deeper components as they approach the viewport.</p>
           <p class="path-best-for"><strong>Best for:</strong> landing pages, documentation, progressive enhancement, and small application shells.</p>
+          <a class="landing-text-link" href="docs/index.php?xtend-docs-page=xtend-classic&amp;locale=en">Learn XTend Classic <span aria-hidden="true">→</span></a>
         </article>
         <article class="path-card">
           <p class="path-label">Application platform</p>
@@ -170,19 +171,20 @@
       </ol>
     </x-section>
 
-    <x-section id="classic-example" class="landing-section landing-code-section" layout="column" label="Classic XTend HTML example">
+    <x-section id="classic-example" class="landing-section landing-code-section" layout="column" label="XTend Classic HTML example">
       <div slot="header" class="section-heading">
-        <p class="section-kicker">No build step required</p>
-        <h2>The page you are viewing uses the classic path.</h2>
+        <p class="section-kicker">XTend Classic · No application build required</p>
+        <h2>The page you are viewing uses XTend Classic.</h2>
         <p>Preload only the first viewport and leave the remaining component modules to the loader.</p>
       </div>
-      <x-code lang="html" class="landing-code" aria-label="Classic XTend loader example">
+      <x-code lang="html" class="landing-code" aria-label="XTend Classic loader example">
         <template data-x-code-mode="text">
 &lt;meta name="xtend-preload"
   content="xstate,x-theme,x-icon,x-header,x-hero,x-type"&gt;
 &lt;script type="module"
   src="/xtend-loader.js"
-  data-manifest="/components/manifest.json"&gt;&lt;/script&gt;
+  data-manifest="/components/manifest.json"
+  data-dev-api="true"&gt;&lt;/script&gt;
 
 &lt;x-hero background-image="/background.webp" overlay&gt;
   &lt;h1&gt;Build for the web.&lt;/h1&gt;
@@ -209,7 +211,7 @@
     <a href="#main-content" slot="nav">Back to top</a>
     <a href="docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en" slot="nav">Documentation</a>
     <a class="github-link" href="https://github.com/konnilabs/xtend" slot="nav"><x-icon class="github-icon" src="landing-assets/github-invertocat-white.svg" size="1.1em" decorative></x-icon>GitHub</a>
-    <div slot="extra">Apache-2.0 · Built with the classic XTend loader</div>
+    <div slot="extra">Apache-2.0 · Built with XTend Classic</div>
   </x-footer>
 </body>
 </html>

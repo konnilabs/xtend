@@ -681,6 +681,17 @@ function assertContracts(context) {
   context.assert(degraded.ok === false, 'missing DEV API snapshot is degraded');
   context.assert(degraded.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.devsurface.dev_api.missing'), 'missing DEV API emits degraded diagnostic');
 
+  const classicCapabilities = createDevSurfaceSnapshot({
+    devApiPresent: true,
+    performanceSnapshot: { supported: true, measurements: [] },
+    hydrationSnapshot: { supported: false, strategy: 'classic_loader_no_ssr', status: 'degraded' },
+    fabricTelemetrySnapshot: { supported: false, status: 'degraded', lanes: {} },
+    kernelSnapshot: { supported: false, status: 'degraded', state: 'unknown' }
+  });
+  context.assert(classicCapabilities.fabric.supported === false && classicCapabilities.fabric.health === 'unknown', 'Classic Fabric capability remains explicitly unsupported');
+  context.assert(classicCapabilities.kernel.supported === false && classicCapabilities.kernel.health === 'unknown', 'Classic Kernel capability remains explicitly unsupported');
+  context.assert(classicCapabilities.fabric.summary.needsAttention === false && classicCapabilities.kernel.summary.needsAttention === false, 'inactive Classic runtimes are not reported as unhealthy');
+
   const manifest = {
     content_security_policy: {
       extension_pages: "script-src 'self'; object-src 'self'; connect-src http://127.0.0.1:*"
@@ -713,6 +724,60 @@ function assertContracts(context) {
   ].forEach((code) => {
     context.assert(blockedSecurity.diagnostics.some((diagnostic) => diagnostic.code === code), `security boundary emits ${code}`);
   });
+}
+
+async function assertClassicDevApi(context, rootDir) {
+  const source = readText('xtend-classic-dev-api.js', rootDir);
+  const classicModule = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+  const measurements = [{
+    schema: 'xtend.performance.measurement.v1',
+    id: 'loader.test',
+    name: 'xtend.loader.module',
+    phase: 'load',
+    durationMs: 3,
+    sampleKind: 'local',
+    status: 'completed',
+    metadata: { tag: 'x-hero' }
+  }];
+  const globalTarget = {
+    performance: {
+      getEntriesByType(type) {
+        if (type === 'navigation') return [{ responseEnd: 12 }];
+        if (type === 'paint') return [{ name: 'first-contentful-paint', startTime: 18 }];
+        return [];
+      }
+    }
+  };
+  const controller = classicModule.installClassicDevApi({
+    globalTarget,
+    getMeasurements: () => measurements,
+    getDiagnostics: () => [],
+    getBootState: () => ({ status: 'booting' })
+  });
+  const api = globalTarget.__XTEND_DEV_API__;
+  context.assert(controller.installed === true && controller.preserved === false, 'Classic DEV API installs through its explicit controller');
+  context.assert(api && api.version === '1.0.0' && api.schema === XTEND_DEV_SURFACE_DEV_API_SCHEMA, 'Classic DEV API exposes the v1 global contract');
+  DEV_API_REQUIRED_METHODS.concat(DEV_API_OPTIONAL_METHODS).forEach((method) => {
+    context.assert(typeof api[method] === 'function', `Classic DEV API exposes ${method}`);
+  });
+  const performanceSnapshot = api.getPerformanceSnapshot();
+  context.assert(performanceSnapshot.measurements.length === 3 && performanceSnapshot.supported === true, 'Classic DEV API combines loader, navigation and paint measurements');
+  performanceSnapshot.measurements[0].metadata.tag = 'mutated';
+  context.assert(api.getPerformanceSnapshot().measurements[0].metadata.tag === 'x-hero', 'Classic DEV API returns defensive snapshot copies');
+  context.assert(JSON.parse(JSON.stringify(api.getFabricTelemetrySnapshot())).supported === false, 'Classic Fabric snapshot is synchronously serializable and unsupported');
+  context.assert(api.getKernelSnapshot().supported === false && api.getKernelSnapshot().state === 'unknown', 'Classic Kernel snapshot avoids synthetic healthy state');
+  context.assert(api.getHydrationSnapshot().supported === false && api.getHydrationSnapshot().strategy === 'classic_loader_no_ssr', 'Classic hydration snapshot reports the no-SSR strategy');
+  const events = [];
+  const unsubscribe = api.subscribe((event) => events.push(event));
+  controller.publish('loader-performance', measurements[0]);
+  unsubscribe();
+  controller.publish('loader-diagnostic', { code: 'ignored.after.unsubscribe' });
+  context.assert(events.length === 1 && events[0].kind === 'loader-performance', 'Classic DEV API subscriptions publish updates and unsubscribe cleanly');
+  controller.complete({ schema: 'xtend.loader.contract.v1', loadedTags: ['x-hero'] }, 'ready');
+  context.assert(api.getPerformanceSnapshot().status === 'ready', 'Classic DEV API transitions to ready after loader completion');
+  const preserved = classicModule.installClassicDevApi({ globalTarget });
+  context.assert(preserved.preserved === true && globalTarget.__XTEND_DEV_API__ === api, 'Classic DEV API preserves an existing host contract');
+  context.assert(!/((window|globalThis)\.fetch\s*=|history\.(pushState|replaceState)\s*=|performance\.(mark|measure)\s*=|customElements\.define\s*=)/u.test(source), 'Classic DEV API contains no forbidden monkeypatch');
 }
 
 async function assertCompanion(context, rootDir) {
@@ -820,6 +885,8 @@ function assertPackageAndRunner(context, rootDir) {
   context.assert(metadata && metadata.docs && metadata.docs.en === 'docs/en/xtend-dev-surface.md', 'package metadata points to English Dev Surface docs');
   context.assert(metadata && metadata.devApiDocs && metadata.devApiDocs.de === 'docs/de/xtend-dev-api.md', 'package metadata points to German DEV API docs');
   context.assert(metadata && metadata.devApiDocs && metadata.devApiDocs.en === 'docs/en/xtend-dev-api.md', 'package metadata points to English DEV API docs');
+  context.assert(metadata && metadata.classicModule === 'xtend-classic-dev-api.js' && metadata.classicActivation === 'data-dev-api=true', 'package metadata declares the Classic loader DEV API integration');
+  context.assert(packageManifest.files.includes('xtend-classic-dev-api.js') && packageManifest.files.includes('xtend-classic-dev-api.d.ts'), 'root package publishes the internal Classic DEV API service');
   context.assert(!Object.keys(packageManifest.exports || {}).some((entry) => entry.includes('dev-api')), 'DEV API docs add no public package export');
   context.assert(metadata && metadata.kernelMonitorWorkpackage === 'XDS-WP-06', 'package metadata declares XDS-WP-06 kernel monitor marker');
   context.assert(metadata && metadata.fabricViewWorkpackage === 'XDS-WP-07', 'package metadata declares XDS-WP-07 fabric view marker');
@@ -909,6 +976,7 @@ function assertDocs(context, rootDir) {
     context.assert(publicDoc.startsWith('# XTend DEV API'), 'public DEV API reference starts with the canonical title');
     context.assertIncludes(publicDoc, 'window.__XTEND_DEV_API__', 'public DEV API reference names the global boundary');
     context.assertIncludes(publicDoc, 'window.XTend', 'public DEV API reference distinguishes the product API');
+    context.assertIncludes(publicDoc, 'data-dev-api="true"', 'public DEV API reference documents the Classic loader opt-in');
     DEV_API_REQUIRED_METHODS.forEach((method) => context.assertIncludes(publicDoc, `${method}()`, `public DEV API reference includes required method ${method}`));
     DEV_API_OPTIONAL_METHODS.forEach((method) => context.assertIncludes(publicDoc, method === 'subscribe' ? 'subscribe(listener)' : `${method}()`, `public DEV API reference includes optional method ${method}`));
     [
@@ -962,6 +1030,7 @@ async function runXTendDevSurfaceSuite(options = {}) {
   assertRuntimeBridge(context, rootDir);
   assertWorkerPath(context, rootDir);
   assertContracts(context);
+  await assertClassicDevApi(context, rootDir);
   await assertCompanion(context, rootDir);
   assertPackageAndRunner(context, rootDir);
   assertDocs(context, rootDir);
@@ -979,6 +1048,7 @@ async function runXTendDevSurfaceSuite(options = {}) {
   context.assert(panelJs.includes('renderHydrationTimeline') && panelJs.includes('renderHydrationXScaler') && panelJs.includes('Resume Token'), 'panel JS renders hydration timeline and XScaler view');
   context.assert(panelJs.includes('renderKernelRecovery') && panelJs.includes('renderKernelMitigations') && panelJs.includes('renderKernelScopes'), 'panel JS renders kernel recovery, mitigation and affected scopes');
   context.assert(panelJs.includes('renderFabricFiberSummary') && panelJs.includes('renderFabricBackpressure') && panelJs.includes('renderFabricCriticalLanes'), 'panel JS renders fabric fiber summary, backpressure and critical lanes');
+  context.assert(panelJs.includes('The RMT Kernel is not active in this XTend Classic host.') && panelJs.includes('Fabric is not active in this XTend Classic host.'), 'panel renders inactive Classic Kernel and Fabric capabilities honestly');
   context.assert(panelJs.includes('readRuntimeSnapshotFromInspectedWindow'), 'panel JS delegates DEV API reads to runtime bridge');
   context.assert(panelJs.includes('/handshake') && panelJs.includes('EventSource') && panelJs.includes('/gate-runs/events'), 'panel JS connects companion handshake and gate stream');
   context.assert(panelJs.includes('data-companion-token') && panelJs.includes('setCompanionToken') && panelJs.includes('xtend.devSurface.token'), 'panel JS exposes Companion token setup');

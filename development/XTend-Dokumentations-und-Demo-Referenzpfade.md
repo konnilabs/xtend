@@ -209,7 +209,7 @@ Der Contract `xtend.epic14.lsp-handoff.v1` dokumentiert die LSP Capability Matri
 | `docs/en/README.md` | automated-static | Docs-Uebersicht und Kernlinks |
 | `docs/menu.json` | automated-static | Menue-Slugs zeigen auf existierende Markdown-Dateien |
 | `docs/manifest.md` | automated-static | Manifest-Format, repo-lokale Default-Pfade und CDN-Entkopplung fuer `components/manifest.json` |
-| `docs/xtend-loader.md` | automated-static | kanonischer lokaler ESM-Loader, `data-manifest`, Boot-Promise, Legacy-Stub, ER-WP-03-CDN-Entkopplung und ER-WP-05-Demo-/Fixture-Migration |
+| `docs/xtend-classic.md` | automated-static | kanonischer XTend-Classic-Pfad mit lokalem ESM-Loader, `data-manifest`, Boot-Promise, Alias `xtend-loader` und ER-WP-03-CDN-Entkopplung |
 | `docs/api.md` | automated-static | API-, UI-State- und Overlay-State-Vertraege |
 | `docs/core-migration-guide.md` | automated-static | Legacy-zu-kanonisch-Mapping und RMT-Templating-Opt-in-Migration |
 | `docs/xtend-fabric.md` | automated-static | offizieller XTend-Fabric Runtime Guide fuer `createXtendFabric`, Diagnostics, Reporter, Runtime Diagnostics Bridge, Fibers, Redaction und RMT Boundary unter `xtend.docs.xtend-fabric.v1` |

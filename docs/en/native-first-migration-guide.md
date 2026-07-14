@@ -22,11 +22,11 @@ Relevant contracts:
 
 | Class | Decision | Alternative |
 | --- | --- | --- |
-| Manual HTML paths | block new normal app UI | DOM Descriptor Renderer, Trusted DOM, structured DOM APIs |
+| Untrusted HTML string sinks | block new normal app UI | authored XTend Classic markup, DOM Descriptor Renderer, Trusted DOM, structured DOM APIs |
 | Vendored utilities | freeze the facade, no broad public surface | owned docs highlighter, structured writer, sanitizing boundary |
 | Build tooling | contain it outside runtime | local fallbacks, budget and supply-chain evidence |
 | Editor tooling | keep it in editor scope | owned RMT Language Server over stdio |
-| Legacy loader | keep compatibility, plan warning window | `xtend-loader.js`, RMT Native Shell, App Platform Authoring |
+| Legacy loader surfaces | keep compatibility, plan warning window | XTend Classic through `xtend-loader.js`, RMT Native Shell, App Platform Authoring |
 | Controlled backports | keep as closed guardrail | regression smokes and owned component contracts |
 | Owned adapters | keep as positive pattern | local packs, no CDN or vendor runtime |
 
@@ -78,9 +78,9 @@ Migration:
 - Editor integration stays bound to the RMT Language Server over stdio.
 - Bundle, size and supply-chain evidence remain required.
 
-## Legacy Loader
+## Legacy Loader Surfaces
 
-`xtend-dev.js` and `./legacy-loader` remain compatibility surfaces. New integrations should use `xtend-loader.js`, RMT Native Shell or App Platform Authoring. Any later removal needs a major window and at least two earlier minor warnings.
+Only `xtend-dev.js` and `./legacy-loader` are legacy compatibility surfaces. [XTend Classic](./xtend-classic.md) through the canonical `xtend-loader.js` is supported product delivery, as are RMT Native Shell and App Platform Authoring. Any later removal of a compatibility surface needs a major window and at least two earlier minor warnings.
 
 Local checks:
 

@@ -17,7 +17,7 @@ Dokumentiere für den Pilot:
 
 ## Einen Pilot wählen
 
-Eine geeignete Surface hat wenige globale Abhängigkeiten, sichtbares Fehlerverhalten und eine realistische Nutzerinteraktion. Globale Navigation, Authentifizierung oder ein still geteilter Eventbus sind schlechte erste Kandidaten. Beginne mit dem [Quick Start](./quick-start-guide.md), wenn nur Komponenten gebraucht werden, oder mit [Learn RMT](./learn-rmt.md) für eine deklarative App-Grenze.
+Eine geeignete Surface hat wenige globale Abhängigkeiten, sichtbares Fehlerverhalten und eine realistische Nutzerinteraktion. Globale Navigation, Authentifizierung oder ein still geteilter Eventbus sind schlechte erste Kandidaten. Beginne mit [XTend Classic](./xtend-classic.md) und dem [Quick Start](./quick-start-guide.md) für einen HTML-/JavaScript-first-Host oder mit [Learn RMT](./learn-rmt.md) und Maraca für eine kompilierte deklarative App-Grenze.
 
 Nutze `components/manifest.json` und `xtend-loader.js` lokal. Eine Framework-Insel wird über einen HostController angebunden; sie darf ihre Peer-Runtime nicht im XTension-Bundle verstecken. Cross-Surface-Kommunikation läuft über typisierte Events oder Fabric, nicht über fremde Framework-Contexts.
 

@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Start locally, load components and grow the page into an RMT app shell.
+Start locally with XTend Classic, load components, and choose Maraca only when the delivery requirements call for a compiled RMT app.
 
 ## What it covers
 
@@ -11,7 +11,8 @@ This article is written for developers who want to use XTend productively withou
 - Local development without a CDN.
 - Bilingual documentation.
 - Stable public entry points.
-- Maraca as the later bundle and orchestration path for real RMT apps.
+- XTend Classic as the supported HTML-/JavaScript-first delivery path.
+- Maraca as the parallel compiled path for RMT, SSR/hydration, PWA output, and build evidence.
 ## Minimal HTML
 
 ```html
@@ -24,7 +25,7 @@ This article is written for developers who want to use XTend productively withou
 
 ## Recommended workflow
 
-Run the local server with `npm run dev:local`, open a small HTML page and move recurring app structure into RMT later. Once state, actions or surface changes become part of the product, [XTend Maraca](./xtend-maraca.md) is the next production path: `app.rmt` becomes an ESM bundle instead of a page assembled only by the runtime loader.
+Run the local server with `npm run dev:local` and open a small XTend Classic HTML page. Classic does not require an XTend application build, but it can coexist with a host bundler, TypeScript, a local server, or optional CLI tooling. Choose [XTend Maraca](./xtend-maraca.md) when `.rmt` source should become an optimized ESM bundle with SSR/hydration, PWA policy, or auditable build evidence—not merely because the page grows.
 
 ## Check RMT
 
@@ -46,6 +47,7 @@ or the [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md).
 ## Next steps
 
 - [About XTend](./about.md)
+- [XTend Classic](./xtend-classic.md)
 - [XTend Maraca](./xtend-maraca.md)
 - [Maraca Orchestration](./xtend-maraca-orchestration.md)
 - [Enterprise Adoption](./enterprise-adoption.md)

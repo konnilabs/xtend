@@ -26,7 +26,7 @@ const requiredRmtStackSlugs = [
   'xtend-ui-runtime-layer'
 ];
 const EXPECTED_CANONICAL_SLUG_COUNT = 166;
-const EXPECTED_ALIAS_COUNT = 8;
+const EXPECTED_ALIAS_COUNT = 9;
 
 const forbiddenInternalPattern = /\b(?:WP-[A-Z0-9-]+|DPF-WP|ER-WP|Epic\s*[0-9]+|epic[0-9]+|Handoff|Gate Matrix|Release Owner|Workpackage|RC0|RC1)\b/u;
 const germanAsciiUmlautPattern = /\b(?:fuer|ueber|koennen|muessen|waehrend|enthaelt|prueft|pruefen|haerten|moeglich|laedt|fuehrt|gehoert|vollstaendig|zugehoerig|flaeche|aenderung|aenderungen|kompatibilitaet|qualitaet)\b/iu;

@@ -127,7 +127,7 @@ function stableStringify(value) {
 }
 
 function trackedFiles(rootDir) {
-  const output = execFileSync('git', ['ls-files', '-z'], {
+  const output = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], {
     cwd: rootDir,
     encoding: 'buffer',
     maxBuffer: 64 * 1024 * 1024
@@ -1699,6 +1699,9 @@ function createInventoryDocument(scan, existingInventory = null) {
 function acceptCurrentBaseline(inventory) {
   const entries = Array.isArray(inventory && inventory.entries) ? inventory.entries : [];
   entries.forEach((entry) => {
+    // Compatibility aliases inherit the canonical released fingerprint set.
+    // Recomputing it from alias-only references would erase that binding.
+    if (entry.aliasOf) return;
     const hashes = uniqueSorted((entry.shapeFingerprints || []).map((fingerprint) => fingerprint.hash));
     const authoritativeFingerprints = authoritativeFingerprintHashes(entry.shapeFingerprints);
     const releasedFingerprintSetHash = authoritativeFingerprintSetHash(entry.shapeFingerprints);

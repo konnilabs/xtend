@@ -1,6 +1,6 @@
 # Component Development
 
-XTend components are local custom elements for classic HTML pages and RMT hosts. Every stable component has a runtime file under `components/`, a TypeScript declaration, and an entry in `components/manifest.json`.
+XTend components are local custom elements shared by [XTend Classic](./xtend-classic.md) HTML/JavaScript hosts and Maraca/RMT hosts. Every stable component has a runtime file under `components/`, a TypeScript declaration, and an entry in `components/manifest.json`.
 
 ## Choose a component
 

@@ -130,14 +130,14 @@
       "source": {
         "path": "tools/xtend-dev-surface/src/panel.js",
         "exists": true,
-        "bytes": 42385,
-        "sha256": "77f22a94a829fa3554c6cfd14d00b9139ed64e2d0d56e4b2930799713e802f07"
+        "bytes": 43091,
+        "sha256": "2ccd69df80e5ed3b643089896c1a7c09ab599e34f680402cd46d43ce8b8ce29e"
       },
       "dist": {
         "path": "tools/xtend-dev-surface/dist/panel.js",
         "exists": true,
-        "bytes": 42385,
-        "sha256": "77f22a94a829fa3554c6cfd14d00b9139ed64e2d0d56e4b2930799713e802f07"
+        "bytes": 43091,
+        "sha256": "2ccd69df80e5ed3b643089896c1a7c09ab599e34f680402cd46d43ce8b8ce29e"
       },
       "ok": true
     },

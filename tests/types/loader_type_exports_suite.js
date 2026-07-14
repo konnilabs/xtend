@@ -136,6 +136,7 @@ function runTypeExportsLoaderSuite(options = {}) {
   context.assert(getTypesCondition(packageManifest, './legacy-loader') === './xtend-dev.d.ts', './legacy-loader package export exposes legacy types condition');
   context.assert(packageManifest.files.includes('xtend-loader.d.ts'), 'Package files include xtend-loader.d.ts');
   context.assert(packageManifest.files.includes('xtend-dev.d.ts'), 'Package files include xtend-dev.d.ts');
+  context.assert(packageManifest.files.includes('xtend-classic-dev-api.d.ts'), 'Package files include Classic DEV API declarations');
   context.assert(packageManifest.exports['./style.css'] === './xtend.css', 'xtend.css package export remains optional stylesheet asset');
   context.assert(typeExportsPlan.classifications.find((entry) => entry.exportKey === '.').declarationExists === true, 'TypeExports sees root loader declaration');
   context.assert(typeExportsPlan.classifications.find((entry) => entry.exportKey === './legacy-loader').declarationExists === true, 'TypeExports sees legacy loader declaration');
@@ -148,6 +149,9 @@ function runTypeExportsLoaderSuite(options = {}) {
     'XTendStyleRegistry: XTendStyleRegistryApi',
     'XTendSkeletonLoader: XTendSkeletonLoaderApi',
     '__XTendLoaderBootPromise?: Promise<XTendLoaderBootResult>',
+    '__XTEND_DEV_API__?: XTendDevApi',
+    'devApi?: boolean',
+    'export interface XTendDevApi',
     'ensureComponent(tag: string',
     'hydrateTree(root?: Document | ShadowRoot | Element',
     'showSkeleton(target: Element | DocumentFragment',

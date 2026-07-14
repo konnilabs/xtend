@@ -16,7 +16,7 @@ const DOCUMENTATION_GATES = [
       { pattern: 'XTend UI liefert die sichtbaren Web Components', message: 'documents the XTend UI layer' },
       { pattern: 'XTendRMT beschreibt App Shells', message: 'documents the XTendRMT layer' },
       { pattern: 'Fabric koordiniert Runtime-Arbeit', message: 'documents the Fabric layer' },
-      { pattern: 'Der Loader verbindet alles lokal und ohne CDN', message: 'documents the local loader boundary' }
+      { pattern: 'XTend Classic', message: 'documents the supported manifest-based Classic delivery path' }
     ]
   },
   {
@@ -31,7 +31,7 @@ const DOCUMENTATION_GATES = [
   },
   {
     label: 'Digital Twin compliance',
-    path: 'compliance/digital-twin-principle.md',
+    path: 'development/compliance/digital-twin-principle.md',
     contracts: [
       { pattern: 'State als Single Source of Truth', message: 'defines state as the single source of truth' },
       { pattern: 'Keine lokalen Flags oder Workarounds', message: 'forbids local UI flags as truth source' },

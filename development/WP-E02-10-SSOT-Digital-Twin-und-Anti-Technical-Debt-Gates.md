@@ -9,7 +9,7 @@
   - `development/XTend-Core-Compliance-Checklist.md`
   - `development/XTend-Component-Level-Teststandard.md`
   - `docs/XTend-ADR.md`
-  - `compliance/digital-twin-principle.md`
+  - `development/compliance/digital-twin-principle.md`
   - `tests/core/architecture_gate_suite.js`
   - `scripts/run_xtend_tests.js`
 

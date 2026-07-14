@@ -4,15 +4,15 @@ XTend Maraca is the modern ESM bundle path for RMT-first XTend applications. It 
 
 ## What it solves
 
-Use Maraca when a third-party team wants to ship a focused XTend application rather than the full development stack. The classic loader remains the compatibility path for manifest-based hosts: it fetches a component registry, resolves entries at runtime and keeps late loading flexible. Maraca moves that decision into the build step. The build plan knows which surfaces reference `x-button`, `x-status`, `x-form` or other tags, keeps only those modules in the Rollup graph and writes a report that explains what entered the bundle.
+Use Maraca when RMT source should become a compiler-selected XTend application bundle with reviewable build evidence. [XTend Classic](./xtend-classic.md) is the equally supported path for manifest-based HTML and JavaScript hosts: it fetches a component registry, resolves entries at runtime, and keeps late loading flexible. Maraca moves that selection into the build step. The build plan knows which surfaces reference `x-button`, `x-status`, `x-form`, or other tags, keeps only those modules in the Rollup graph, and writes a report that explains what entered the bundle.
 
 The result is useful for product-specific checkouts, embedded dashboards, customer portals and RMT-authored shells where the deployed code should match the document instead of a broad component catalog. Maraca does not change component APIs. Attributes, events, slots, CSS parts, design tokens and RMT schema names stay public names and are reserved during minification.
 
 ## When to use it
 
-Choose Maraca for production-oriented RMT apps that are authored from `.rmt` files and should run as modern ESM. It fits best when the host controls the build command, can write artifacts into a `dist` or `products` directory and wants predictable size reports. It is also the right path when a team wants lazy component chunks without an external JSON manifest fetch.
+Choose Maraca for RMT-first apps that should run as generated modern ESM and need optimized app graphs, SSR/hydration, PWA output, or production reports. It fits when the host controls the build command, can write artifacts into a `dist` or `products` directory, and wants predictable evidence.
 
-Stay with `xtend-loader.js` when the host needs runtime manifest replacement, dynamic component catalogs, older browser targets or a debugging setup where every component should be available without rebuilding. The two paths can coexist: use the loader for broad compatibility and Maraca for optimized application bundles.
+Choose XTend Classic when the host owns directly authored HTML and JavaScript, runtime manifest replacement, dynamic component catalogs, or progressive enhancement without an XTend-required application build. The two paths can coexist and are production-supported; project size alone does not decide between them.
 
 ## Build flow
 
@@ -179,4 +179,4 @@ npm run test:maraca
 npm run pack:dry-run
 ```
 
-For adjacent topics, continue with [RMT App Platform Tooling](./rmt-app-platform-tooling.md), [XTend Loader](./xtend-loader.md) and [RMT-first XTend Apps](./rmt-first-xtend-apps.md).
+For adjacent topics, continue with [RMT App Platform Tooling](./rmt-app-platform-tooling.md), [XTend Classic](./xtend-classic.md), and [RMT-first XTend Apps](./rmt-first-xtend-apps.md).

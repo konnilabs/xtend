@@ -1,6 +1,6 @@
 # Komponenten-Entwicklung
 
-XTend Komponenten sind lokale Custom Elements für klassische HTML-Seiten und RMT Hosts. Jede stabile Komponente besitzt eine Runtime-Datei unter `components/`, eine TypeScript-Deklaration und einen Eintrag in `components/manifest.json`.
+XTend Komponenten sind lokale Custom Elements, die [XTend Classic](./xtend-classic.md) HTML-/JavaScript-Hosts und Maraca-/RMT-Hosts gemeinsam verwenden. Jede stabile Komponente besitzt eine Runtime-Datei unter `components/`, eine TypeScript-Deklaration und einen Eintrag in `components/manifest.json`.
 
 ## Eine Komponente auswählen
 

@@ -3,7 +3,7 @@
 - Status: Verbindlich fuer Epic 02 ab `WP-E02-09`
 - Bezug:
   - `development/XTend-Component-Level-Teststandard.md`
-  - `compliance/xtend-design-guidelines.md`
+  - `development/compliance/xtend-design-guidelines.md`
   - `tests/components/accessibility_hydration_suite.js`
   - `tests/browser/browser_smoke_suite.js`
 

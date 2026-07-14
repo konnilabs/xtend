@@ -46,7 +46,7 @@ Import entries from `package.json#exports` only and let TypeScript resolve the s
 
 - [Manifest](./manifest.md)
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)
 - [XTend Loader Types](./xtend-loader-types.md)
 - [XTend API Types](./xtend-api-types.md)

@@ -237,7 +237,7 @@ Keine offenen Workpackages innerhalb Epic 04.
 - Betroffene Dateien:
   - `xtend-builder/extensions/component-extension-points.js`
   - `development/XTend-Scaffold-Extension-Points.md`
-  - `compliance/digital-twin-principle.md`
+  - `development/compliance/digital-twin-principle.md`
 - Definition of Done:
   - RMT kann XTend-Root-Arbeit fachlich planen
   - Planung und Ausfuehrung sind sauber zwischen RMT Scheduler und XTend Host Adapter getrennt

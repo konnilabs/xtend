@@ -4,7 +4,7 @@ XTend is a local, framework-neutral application framework for Web Components, de
 
 ## The layers at a glance
 
-The lowest public layer consists of custom elements registered in `components/manifest.json`. They work directly in HTML and expose attributes, events, slots, CSS parts, and TypeScript declarations. `xtend-loader.js` registers those components from a local manifest.
+The lowest public layer consists of custom elements registered in `components/manifest.json`. They work directly in HTML and expose attributes, events, slots, CSS parts, and TypeScript declarations. [XTend Classic](./xtend-classic.md) uses `xtend-loader.js` to register those components from a local manifest without requiring an XTend application build.
 
 XTend Fabric schedules mount, hydration, interaction, and diagnostics work in lanes and fibers. RMT describes applications as compileable documents; its parser and compiler produce a core document consumed by browser and SSR adapters. Maraca builds on that contract to orchestrate a deployable application.
 
@@ -16,7 +16,7 @@ XTensions extend hosts through explicit contracts. The [XTend Dev Surface](./xte
 
 ## Common entry points
 
-- An existing HTML page starts with the [Quick Start](./quick-start-guide.md) and one component.
+- An existing HTML page starts with [XTend Classic](./xtend-classic.md), the [Quick Start](./quick-start-guide.md), and one component.
 - A declarative application starts with [Learn RMT](./learn-rmt.md) and the playground.
 - A reusable host plug-in starts with the [XTensions Authoring Guide](./xtensions-authoring-guide.md).
 - A team responsible for releases uses [Release Verification](./release-verification.md) to interpret reports and gates.

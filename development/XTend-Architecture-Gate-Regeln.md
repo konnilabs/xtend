@@ -3,7 +3,7 @@
 - Status: Verbindlich fuer Epic 02 ab `WP-E02-10`
 - Bezug:
   - `docs/XTend-ADR.md`
-  - `compliance/digital-twin-principle.md`
+  - `development/compliance/digital-twin-principle.md`
   - `development/XTend-Core-Compliance-Checklist.md`
   - `development/XTend-Component-Level-Teststandard.md`
   - `tests/core/architecture_gate_suite.js`

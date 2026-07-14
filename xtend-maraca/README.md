@@ -71,7 +71,7 @@ Lazy component bundles use viewport-driven loading when `IntersectionObserver` i
 - performance, size-budget, and production-bundle-closure reports
 - deterministic tune candidates and checked build configuration
 
-The legacy `xtend-loader.js` and external component-manifest path remain available alongside Maraca.
+XTend Classic remains an equally supported delivery path for HTML- and JavaScript-first hosts using `xtend-loader.js` and an external component manifest. Choose Maraca for compiled RMT application graphs, SSR/hydration, PWA output, and production evidence—not merely because a project grows.
 
 ### Runtime boundary
 
@@ -169,7 +169,7 @@ Lazy-Komponentenbundles verwenden viewport-gesteuertes Laden, wenn `Intersection
 - Performance-, Size-Budget- und Production-Bundle-Closure-Berichte
 - deterministische Tune-Kandidaten und geprüfte Build-Konfiguration
 
-Der Legacy-Pfad über `xtend-loader.js` und ein externes Komponentenmanifest bleibt neben Maraca verfügbar.
+XTend Classic bleibt ein gleichwertig unterstützter Auslieferungspfad für HTML- und JavaScript-first-Hosts mit `xtend-loader.js` und externem Komponentenmanifest. Maraca ist die Wahl für kompilierte RMT-Anwendungsgraphen, SSR/Hydration, PWA-Ausgabe und Produktionsnachweise – nicht allein, weil ein Projekt wächst.
 
 ### Runtime-Grenze
 

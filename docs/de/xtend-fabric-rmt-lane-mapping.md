@@ -20,5 +20,5 @@ Das Lane Mapping übersetzt RMT Scheduling-Absicht in die kanonischen Fabric-Lan
 
 - [Manifest](./manifest.md)
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)

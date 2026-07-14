@@ -38,6 +38,8 @@ function runLandingPageSuite(options = {}) {
   const manifest = JSON.parse(readText(rootDir, 'components/manifest.json'));
   const browserSmoke = readText(rootDir, LANDING_BROWSER_SMOKE_PATH);
   const apiSource = readText(rootDir, 'api.js');
+  const loaderSource = readText(rootDir, 'xtend-loader.js');
+  const classicDevApiSource = readText(rootDir, 'xtend-classic-dev-api.js');
   const packageManifest = JSON.parse(readText(rootDir, 'package.json'));
   const preloadTags = extractPreloadTags(html);
 
@@ -45,7 +47,7 @@ function runLandingPageSuite(options = {}) {
   context.assert(html.includes('<html lang="en" data-theme="dark">'), 'Landing page is English and starts with the branded dark theme');
   context.assert(countMatches(html, /<h1(?:\s|>)/gu) === 1, 'Landing page exposes exactly one H1');
   context.assert(html.includes('<main id="main-content">') && html.includes('class="skip-link" href="#main-content"'), 'Landing page exposes a main landmark and skip link');
-  context.assert(html.includes('type="module" src="xtend-loader.js" data-manifest="components/manifest.json"'), 'Landing page uses the canonical local loader and explicit manifest');
+  context.assert(html.includes('type="module" src="xtend-loader.js" data-manifest="components/manifest.json" data-dev-api="true"'), 'Landing page uses the canonical local loader, explicit manifest and Classic DEV API opt-in');
   context.assert(JSON.stringify(preloadTags) === JSON.stringify(PRELOADED_TAGS), 'Landing page preloads the complete first-viewport component set in deterministic order');
   context.assert(PRELOADED_TAGS.every((tag) => Object.prototype.hasOwnProperty.call(manifest, tag)), 'Every preloaded tag resolves through the local component manifest');
   context.assert(LAZY_TAGS.every((tag) => !preloadTags.includes(tag) && html.includes(`<${tag}`)), 'Below-the-fold component families remain loader-lazy');
@@ -58,9 +60,16 @@ function runLandingPageSuite(options = {}) {
   context.assert(!html.includes('icons/speed.png') && !html.includes('icons/simplicity.png') && !html.includes('icons/security.png'), 'Landing page no longer references missing feature icons');
   context.assert(!html.includes('https://cdn.ccs-networks.de/xtend') && !html.includes('type="importmap"'), 'Landing page has no XTend CDN or import-map bridge');
   context.assert(!/<script[^>]+(?:maraca|xtendrmt|rmt-runtime)/iu.test(html), 'Landing runtime does not load Maraca, RMT App Runtime, or SSR code');
+  context.assert(countMatches(html, /<script[^>]+src="xtend-loader\.js"/gu) === 1 && !/<script[^>]+src="xtend-classic-dev-api\.js"/u.test(html), 'Classic DEV API remains owned by the single loader script');
+  context.assert(loaderSource.includes('Promise.all([') && loaderSource.includes('prepareClassicDevApi(options, loaderScript)') && loaderSource.includes('fetchManifest(manifestUrl, { moduleCacheBust })'), 'Loader starts the opt-in DEV service and manifest in parallel');
+  context.assert(loaderSource.includes("Object.prototype.hasOwnProperty.call(options, 'devApi')") && loaderSource.includes('return options.devApi === true') && loaderSource.includes("getAttribute('data-dev-api')"), 'Programmatic boolean DEV API option takes precedence over the declarative opt-in');
+  context.assert(loaderSource.includes('xtend.loader.dev_api.init_failed') && loaderSource.includes('return null;'), 'DEV API initialization failure degrades without blocking loader boot');
+  context.assert(classicDevApiSource.includes('existingApi') && classicDevApiSource.includes('createNoopController(existingApi)'), 'Classic DEV service preserves an existing host-owned API');
   ['Web Components', 'RMT', 'Maraca', 'Fabric', 'XScaler', 'XSurface Shard'].forEach((term) => {
     context.assert(html.includes(term), `Landing content represents ${term}`);
   });
+  context.assert(html.includes('XTend Classic') && !html.includes('>Classic HTML<') && !html.includes('uses the classic path'), 'Landing page uses the visible XTend Classic product brand');
+  context.assert(html.includes('docs/index.php?xtend-docs-page=xtend-classic&amp;locale=en'), 'Landing Classic path links to the canonical English guide');
   ['#why-xtend', '#runtime-paths', '#platform-stack'].forEach((target) => {
     context.assert(html.includes(`href="${target}"`) && html.includes(`id="${target.slice(1)}"`), `Landing navigation target ${target} is stable`);
   });
@@ -80,6 +89,8 @@ function runLandingPageSuite(options = {}) {
   context.assert(browserSmoke.includes('LCP_BUDGET_MS = 2500') && browserSmoke.includes('CLS_BUDGET = 0.05'), 'Browser smoke enforces LCP and CLS budgets');
   context.assert(browserSmoke.includes('classicCodeSectionOverflowX') && browserSmoke.includes('double-escaped markup'), 'Browser smoke guards the classic code rendering and overflow regression');
   context.assert(browserSmoke.includes('footerFullBleed') && browserSmoke.includes('githubIconsReady'), 'Browser smoke guards footer width and GitHub icon loading');
+  context.assert(browserSmoke.includes('devApiPresent') && browserSmoke.includes('fabricSupported') && browserSmoke.includes('kernelSupported'), 'Browser smoke validates the Classic DEV API and honest unsupported runtime capabilities');
+  context.assert(browserSmoke.includes('classicBrandVisible') && browserSmoke.includes('classicGuideLinked'), 'Browser smoke validates visible Classic branding and canonical guide navigation');
   context.assert(apiSource.includes('customElements.whenDefined(tag)') && apiSource.includes('await waitForRuntimeReady(tag)'), 'Browser API waits for asynchronous Custom Element registration before validating runtime readiness');
   context.assert(!browserSmoke.includes('knownLoaderDiagnostics') && browserSmoke.includes('severeLogs.length === 0'), 'Browser smoke rejects every severe loader or asset diagnostic');
   context.assert(browserSmoke.includes("['xstate', 'x-theme', 'x-icon', 'x-header', 'x-hero', 'x-type']") && browserSmoke.includes("['x-section', 'x-cards', 'x-code', 'x-footer']"), 'Browser smoke covers the complete preload and lazy component boundaries');
@@ -88,6 +99,8 @@ function runLandingPageSuite(options = {}) {
   context.assert(packageManifest.scripts['test:pr'].includes('landing-page') && packageManifest.scripts['test:pr:report'].includes('landing-page'), 'PR aggregates include the landing-page gate');
   context.assert(packageManifest.scripts['test:release:full'].includes('landing-page') && packageManifest.scripts['test:release:full:report'].includes('landing-page'), 'Full-release aggregates include the landing-page gate');
   context.assert(packageManifest.xtend.ciGateMatrix.prFastGate.suites.includes('landing-page') && packageManifest.xtend.ciGateMatrix.fullReleaseGate.suites.includes('landing-page'), 'CI gate metadata includes the landing-page suite');
+  context.assert(packageManifest.files.includes('xtend-classic-dev-api.js') && packageManifest.files.includes('xtend-classic-dev-api.d.ts'), 'Root package publishes the internal Classic DEV API service and declarations');
+  context.assert(!Object.keys(packageManifest.exports || {}).some((entry) => entry.includes('dev-api')), 'Classic DEV API adds no direct package export');
 
   return context.result({
     report: {

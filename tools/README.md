@@ -8,6 +8,8 @@
 
 `@ccslabs/xtend-compiler` provides the XTendRMT compiler, parsers, diagnostics, linter CLI, language server protocol, App Platform analysis, and AI Developer Kit export surface. It analyzes and compiles RMT sources; it does not own the XTend UI runtime.
 
+XTend Classic does not require the compiler: directly authored HTML and JavaScript can boot through `xtend-loader.js` and a local manifest. Install this package when a Classic project optionally needs RMT diagnostics or when Maraca should compile RMT into a generated application bundle. See the [XTend Classic guide](../docs/en/xtend-classic.md).
+
 ### Installation
 
 ```bash
@@ -95,6 +97,8 @@ Licensed under the Apache License 2.0. See [LICENSE](../LICENSE).
 [English](#english) | **Deutsch**
 
 `@ccslabs/xtend-compiler` stellt den XTendRMT-Compiler, Parser, Diagnosen, die Linter-CLI, das Language-Server-Protokoll, App-Platform-Analyse und den Export des AI Developer Kit bereit. Das Paket analysiert und kompiliert RMT-Quellen; es besitzt nicht die XTend-UI-Runtime.
+
+XTend Classic verlangt den Compiler nicht: Direkt gepflegtes HTML und JavaScript kann über `xtend-loader.js` und ein lokales Manifest booten. Installiere dieses Paket, wenn ein Classic-Projekt optional RMT-Diagnosen benötigt oder Maraca RMT in ein generiertes App-Bundle kompilieren soll. Siehe [XTend-Classic-Guide](../docs/de/xtend-classic.md).
 
 ### Installation
 

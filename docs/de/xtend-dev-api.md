@@ -35,6 +35,21 @@ Jede Snapshot-Methode muss:
 
 Installiere das Objekt nach Möglichkeit vor dem vollständigen Runtime-Boot. Frühe Aufrufe dürfen gültige `degraded`-Snapshots liefern. Aktualisiere deren Daten über die Stores des Hosts, sobald die Anwendung bereit ist; ersetze keine Browser-Globals und patche keine Framework-Interna, um Messwerte zu sammeln.
 
+## XTend-Classic-Opt-in
+
+Ein HTML-first-Host mit dem kanonischen Loader kann den nur lesenden Classic-Adapter ohne weiteren Script-Tag aktivieren:
+
+```html
+<script type="module"
+  src="/xtend-loader.js"
+  data-manifest="/components/manifest.json"
+  data-dev-api="true"></script>
+```
+
+Die entsprechende programmatische Option lautet `window.XTendLoader.initiateXTend({ devApi: true })`. Der Loader importiert seinen internen ESM-Service parallel zum Manifest. Er veröffentlicht reale Loader- und Browser-Performance-Messungen. Fabric, RMT Kernel und SSR-Hydration melden `supported: false`, wenn diese Runtimes nicht aktiv sind; die Diagnoseaktivierung bootet sie niemals implizit.
+
+Standardmäßig bleibt die Funktion deaktiviert. Eine vorhandene host-eigene `window.__XTEND_DEV_API__`, etwa der Adapter der Docs oder Animation TestBench, bleibt erhalten. Der Classic-Service ist bewusst kein direkter Package-Export: `xtend-loader.js` bleibt sein Lifecycle-Owner.
+
 ## Minimale Implementierung
 
 Das folgende anwendungseigene Modul richtet eine vollständige v1-Grenze ein. Es ist ein Integrationsbeispiel und keine exportierte XTend-Factory.

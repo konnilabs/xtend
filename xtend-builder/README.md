@@ -10,6 +10,8 @@
 
 The builder is **dry-run-first**: plan and render commands do not write files by default. Productive writes must be enabled explicitly with `--write` and run through the central WritePlan with root, ownership, and conflict checks.
 
+XTend Classic does not require this CLI: HTML- and JavaScript-first hosts can use `xtend-loader.js` and a local manifest directly. The Builder remains optional for Classic scaffolding and verification, while it owns the supported command path for compiler- and Maraca-based workflows. See the [XTend Classic guide](../docs/en/xtend-classic.md).
+
 ### Product surfaces and responsibilities
 
 | Product surface | Builder responsibility |
@@ -236,6 +238,8 @@ Epic 03 established XTend-Scaffold as a **generator-only**, dry-run-first build 
 `@ccslabs/xtend-cli` ist die gemeinsame Kommandozeile für Komponenten-Scaffolding, RMT-Tooling und Maraca-Builds im XTend-Workspace. Die ausführbaren Namen `xt`, `xtend` und `xtend-scaffold` zeigen auf dieselbe Implementierung. `xtend-builder/scaffold.js` bleibt als kompatibler CommonJS-Einstieg erhalten.
 
 Der Builder ist **dry-run-first**: Plan- und Renderbefehle schreiben standardmäßig keine Dateien. Produktive Schreibvorgänge müssen explizit mit `--write` aktiviert werden und laufen über den zentralen WritePlan mit Root-, Ownership- und Konfliktprüfung.
+
+XTend Classic verlangt diese CLI nicht: HTML- und JavaScript-first-Hosts können `xtend-loader.js` und ein lokales Manifest direkt verwenden. Der Builder bleibt für Classic-Scaffolding und -Verifikation optional, während er den unterstützten Befehlspfad für Compiler- und Maraca-Workflows bereitstellt. Siehe [XTend-Classic-Guide](../docs/de/xtend-classic.md).
 
 ### Produktflächen und Verantwortung
 

@@ -31,5 +31,5 @@ toggle?.addEventListener("toggle-changed", (event) => {
 
 - [Manifest](./manifest.md)
 - [API](./api.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)

@@ -141,14 +141,12 @@ function runMenuChecks(context, rootDir) {
   const menu = readJson('docs/menu.json', rootDir);
   const maraca = menu.find((entry) => entry.slug === 'xtend-maraca');
   const orchestration = menu.find((entry) => entry.slug === 'xtend-maraca-orchestration');
-  const maracaIndex = menu.findIndex((entry) => entry.slug === 'xtend-maraca');
-  const learnEndIndex = menu.findIndex((entry) => entry.slug === 'learn-rmt-next-steps');
-  const rmtIndex = menu.findIndex((entry) => entry.slug === 'xtendrmt-overview');
+  const classic = menu.find((entry) => entry.slug === 'xtend-classic');
 
   context.assert(maraca && maraca.group === 'maraca', 'XTend Maraca menu entry has its own Maraca group');
   context.assert(maraca && !maraca.parent, 'XTend Maraca is a top-level menu entry');
   context.assert(maraca && maraca.rank >= 100, 'XTend Maraca has prominent menu rank');
-  context.assert(maracaIndex > learnEndIndex && maracaIndex < rmtIndex, 'XTend Maraca is ordered between Learn RMT and RMT reference docs');
+  context.assert(classic && classic.group === 'start' && !classic.parent && classic.aliases.includes('xtend-loader'), 'XTend Classic is a parallel top-level delivery path with loader alias compatibility');
   context.assert(orchestration && orchestration.id === 'docs.xtend.maraca.orchestration', 'Docs menu exposes stable orchestration id');
   context.assert(orchestration && orchestration.group === 'maraca', 'Orchestration menu entry is in maraca group');
   context.assert(orchestration && orchestration.parent === 'xtend-maraca', 'Orchestration menu entry hangs below XTend Maraca');

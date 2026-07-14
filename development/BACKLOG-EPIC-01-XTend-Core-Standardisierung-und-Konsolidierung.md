@@ -5,8 +5,8 @@
 - Bezug:
   - `development/EPIC-01-XTend-Core-Standardisierung-und-Konsolidierung.md`
   - `docs/XTend-ADR.md`
-  - `compliance/digital-twin-principle.md`
-  - `compliance/update-instructions.md`
+  - `development/compliance/digital-twin-principle.md`
+  - `development/compliance/update-instructions.md`
 
 ## Zweck
 
@@ -323,7 +323,7 @@ Epic 01 ist abgeschlossen. Compliance, Test-Harness, Migrationspfad und Abschlus
   - technische Leitplanken fuer neue Core-Aenderungen
   - siehe `development/WP-11-Compliance-Haertung-im-Core-verankern.md`
 - Betroffene Dateien:
-  - `compliance/*.md`
+  - `development/compliance/*.md`
   - `development/*.md`
   - Core-Doku
 - Definition of Done:

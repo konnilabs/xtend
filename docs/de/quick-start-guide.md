@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Starte lokal, lade Komponenten und erweitere die Seite schrittweise zu einer RMT App Shell.
+Starte lokal mit XTend Classic, lade Komponenten und wähle Maraca erst dann, wenn die Delivery-Anforderungen eine kompilierte RMT-App verlangen.
 
 ## Worum es geht
 
@@ -11,7 +11,8 @@ Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwisse
 - Lokale Entwicklung ohne CDN.
 - Bilinguale Dokumentation.
 - Stabile öffentliche Einstiegspunkte.
-- Maraca als späterer Bundle- und Orchestrierungspfad für echte RMT Apps.
+- XTend Classic als unterstützter HTML-/JavaScript-first-Delivery-Pfad.
+- Maraca als paralleler kompilierter Pfad für RMT, SSR/Hydration, PWA-Ausgabe und Build-Nachweise.
 ## Minimales HTML
 
 ```html
@@ -24,7 +25,7 @@ Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwisse
 
 ## Empfohlener Ablauf
 
-Starte den lokalen Server mit `npm run dev:local`, öffne eine kleine HTML-Seite und verschiebe wiederkehrende App-Struktur später in RMT. Sobald State, Actions oder Surface-Wechsel Teil des Produkts werden, ist [XTend Maraca](./xtend-maraca.md) der nächste produktive Pfad: Aus `app.rmt` entsteht ein ESM-Bundle statt eine Seite, die zur Laufzeit nur über den Loader zusammengesetzt wird.
+Starte den lokalen Server mit `npm run dev:local` und öffne eine kleine XTend-Classic-HTML-Seite. Classic verlangt keinen XTend-Application-Build, kann aber mit einem Host-Bundler, TypeScript, einem lokalen Server oder optionalem CLI-Tooling kombiniert werden. Wähle [XTend Maraca](./xtend-maraca.md), wenn aus `.rmt`-Quelltext ein optimiertes ESM-Bundle mit SSR/Hydration, PWA-Policy oder prüfbaren Build-Nachweisen werden soll – nicht allein, weil die Seite wächst.
 
 ## RMT prüfen
 
@@ -46,6 +47,7 @@ und der [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) bereit.
 ## Nächste Schritte
 
 - [Über XTend](./about.md)
+- [XTend Classic](./xtend-classic.md)
 - [XTend Maraca](./xtend-maraca.md)
 - [Maraca Orchestrierung](./xtend-maraca-orchestration.md)
 - [Enterprise Adoption](./enterprise-adoption.md)

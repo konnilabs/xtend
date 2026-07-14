@@ -52,6 +52,10 @@ const COMPONENT_SECTIONS = Object.freeze({
 });
 
 const CURATED_KEYWORDS = Object.freeze({
+  'xtend-classic': {
+    de: ['XTend Classic', 'buildless', 'HTML-first', 'Manifest', 'xtend-loader'],
+    en: ['XTend Classic', 'buildless', 'HTML-first', 'manifest', 'xtend-loader']
+  },
   'xtend-dev-surface': {
     de: ['DevTools', 'Debugging', 'Diagnose', 'Gates', 'Kernel Monitor', 'Fabric', 'Chromium'],
     en: ['DevTools', 'debugging', 'diagnostics', 'gates', 'kernel monitor', 'Fabric', 'Chromium']

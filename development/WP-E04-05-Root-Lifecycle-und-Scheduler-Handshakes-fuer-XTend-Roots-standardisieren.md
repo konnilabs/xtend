@@ -10,7 +10,7 @@
   - `development/WP-E04-03-XTend-Component-Contract-fuer-RMT-Kompatibilitaet-definieren.md`
   - `development/WP-E04-04-RMT-Template-Authoring-Model-fuer-XTend-UI-vorbereiten.md`
   - `development/XTend-Scaffold-Extension-Points.md`
-  - `compliance/digital-twin-principle.md`
+  - `development/compliance/digital-twin-principle.md`
   - `xtend-builder/typing/component-types.js`
   - `xtend-builder/extensions/component-extension-points.js`
   - `xtend-builder/templates/component/types.template.d.ts`
@@ -106,7 +106,7 @@ Der XTend Host Adapter darf daraus Manifest Lookup, Custom Element Definition, S
 - UI-Aenderungen muessen ueber kanonische XTend-State-Keys oder dokumentierte Host-Adapter-Signale nachvollziehbar sein.
 - Diagnostics duerfen Snapshots melden, aber niemals die UI-Wahrheit ersetzen.
 
-Diese Regeln sind in `compliance/digital-twin-principle.md` fuer RMT Scheduler-Handshakes ergaenzt.
+Diese Regeln sind in `development/compliance/digital-twin-principle.md` fuer RMT Scheduler-Handshakes ergaenzt.
 
 ## Scaffold-Anschluss
 

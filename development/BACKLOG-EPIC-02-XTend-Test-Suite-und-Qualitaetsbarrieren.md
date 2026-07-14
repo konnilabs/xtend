@@ -22,9 +22,9 @@
   - `development/WP-E02-13-Testpflicht-und-Scaffold-Anschluss-dokumentieren.md`
   - `development/WP-E02-14-Epic-Abschlussreview-und-KPI-Abnahme.md`
   - `docs/XTend-ADR.md`
-  - `compliance/digital-twin-principle.md`
-  - `compliance/update-instructions.md`
-  - `compliance/xtend-design-guidelines.md`
+  - `development/compliance/digital-twin-principle.md`
+  - `development/compliance/update-instructions.md`
+  - `development/compliance/xtend-design-guidelines.md`
   - `scripts/verify_xtend_core_contracts.js`
 
 ## Zweck
@@ -327,7 +327,7 @@ Epic 02 ist abgeschlossen. `WP-01` bis `WP-14` haben Strategie, Struktur, Core-H
   - `components/*.js`
   - `xtend.css`
   - Demo-/Fixture-Dateien
-  - `compliance/xtend-design-guidelines.md`
+  - `development/compliance/xtend-design-guidelines.md`
 - Definition of Done:
   - Accessibility-Mindestkriterien sind als Tests oder Review-Gates operationalisiert
   - Hydration kann reproduzierbar gegen Fixture-Seiten geprueft werden
@@ -353,7 +353,7 @@ Epic 02 ist abgeschlossen. `WP-01` bis `WP-14` haben Strategie, Struktur, Core-H
   - siehe `development/WP-E02-10-SSOT-Digital-Twin-und-Anti-Technical-Debt-Gates.md`
 - Betroffene Dateien:
   - `docs/XTend-ADR.md`
-  - `compliance/digital-twin-principle.md`
+  - `development/compliance/digital-twin-principle.md`
   - `development/XTend-Core-Compliance-Checklist.md`
   - `components/*.js`
   - Test-Harness-Dateien

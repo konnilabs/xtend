@@ -4,7 +4,7 @@ XTend ist ein lokales, frameworkneutrales Application-Framework für Web Compone
 
 ## Die Schichten im Überblick
 
-Die unterste öffentliche Schicht sind Custom Elements aus `components/manifest.json`. Sie lassen sich direkt in HTML verwenden und bleiben über Attribute, Events, Slots, CSS Parts und TypeScript-Deklarationen integrierbar. `xtend-loader.js` registriert diese Komponenten aus einem lokalen Manifest.
+Die unterste öffentliche Schicht sind Custom Elements aus `components/manifest.json`. Sie lassen sich direkt in HTML verwenden und bleiben über Attribute, Events, Slots, CSS Parts und TypeScript-Deklarationen integrierbar. [XTend Classic](./xtend-classic.md) registriert diese Komponenten über `xtend-loader.js` aus einem lokalen Manifest, ohne einen XTend-Application-Build zu verlangen.
 
 XTend Fabric plant Mount-, Hydration-, Interaktions- und Diagnosearbeit in Lanes und Fibers. RMT beschreibt Anwendungen als kompilierbare Dokumente; Parser und Compiler erzeugen daraus ein Core-Dokument, das Browser- und SSR-Adapter lesen können. Maraca baut auf diesem Vertrag auf und orchestriert eine auslieferbare Anwendung.
 
@@ -16,7 +16,7 @@ XTensions erweitern Hosts über explizite Contracts. Die [XTend Dev Surface](./x
 
 ## Typische Einstiege
 
-- Eine bestehende HTML-Seite beginnt mit [Quick Start](./quick-start-guide.md) und einer einzelnen Komponente.
+- Eine bestehende HTML-Seite beginnt mit [XTend Classic](./xtend-classic.md), dem [Quick Start](./quick-start-guide.md) und einer einzelnen Komponente.
 - Eine deklarative Anwendung beginnt mit [Learn RMT](./learn-rmt.md) und dem Playground.
 - Ein wiederverwendbares Host-Plug-in beginnt mit dem [XTensions Authoring Guide](./xtensions-authoring-guide.md).
 - Ein Team mit Release-Verantwortung nutzt [Release Verification](./release-verification.md) für Reports und Gates.

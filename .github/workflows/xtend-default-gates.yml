@@ -217,6 +217,9 @@ jobs:
           node --version
           npm --version
 
+      - name: Install workspace dependencies
+        run: npm install --ignore-scripts --package-lock=false
+
       - name: Run RMT vNext primitive gate report
         run: npm run test:rmt-vnext-primitives:report
 

@@ -32,5 +32,5 @@ A missing module rejects initialization. Inspect the manifest and browser consol
 
 - [XTend DEV API](./xtend-dev-api.md)
 - [Manifest](./manifest.md)
-- [XTend Loader](./xtend-loader.md)
+- [XTend Classic](./xtend-classic.md)
 - [Design Tokens](./design-tokens.md)
