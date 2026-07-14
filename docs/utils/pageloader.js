@@ -4091,6 +4091,25 @@ function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtP
       });
     return;
   }
+  if (payload.maraca) {
+    const status = String(payload.maraca.status || 'bridge-error');
+    const diagnostics = Array.isArray(payload.maraca.diagnostics) ? payload.maraca.diagnostics : [];
+    const message = diagnostics.find((entry) => entry && entry.message)?.message || copy.maracaBlocked;
+    target.replaceChildren(
+      renderDocsRmtPlaygroundMaracaToolbar(payload.maraca, copy),
+      createDocsRmtPlaygroundElement('p', {
+        'data-rmt-playground-maraca-blocked': '',
+        'data-maraca-status': status
+      }, message)
+    );
+    window.xtendDocsRmtPlaygroundLastMaraca = Object.freeze({
+      schema: DOCS_RMT_PLAYGROUND_MARACA_SCHEMA,
+      phase: 'blocked',
+      status,
+      diagnosticCount: diagnostics.length
+    });
+    return;
+  }
   const preview = payload.preview && typeof payload.preview === 'object' ? payload.preview : {};
   const surfaces = Array.isArray(preview.surfaces) ? preview.surfaces : [];
   if (!surfaces.length) {
@@ -4443,7 +4462,8 @@ async function compileDocsRmtPlayground(root, locale = getCurrentDocsLocale()) {
     maraca: payload.maraca ? {
       ok: payload.maraca.ok === true,
       status: payload.maraca.status || '',
-      summary: payload.maraca.summary || {}
+      summary: payload.maraca.summary || {},
+      diagnosticCount: Array.isArray(payload.maraca.diagnostics) ? payload.maraca.diagnostics.length : 0
     } : null
   };
   return payload;

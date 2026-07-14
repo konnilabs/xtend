@@ -117,6 +117,7 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
   const lspBridge = readText('scripts/rmt_playground_lsp_bridge.js', rootDir);
   const maracaBridge = readText('scripts/rmt_playground_maraca_preview_bridge.js', rootDir);
+  const toolingBridge = readText('tools/tooling-bridge.js', rootDir);
   const vnextCompiler = readText('tools/rmt-language/vnext-compiler.js', rootDir);
   const vnextTooling = readText('tools/rmt-language/vnext-tooling.js', rootDir);
   const customerServiceKernelSource = readText('products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt', rootDir);
@@ -130,12 +131,27 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   const lspBridgeSyntax = syntaxCheckFile('scripts/rmt_playground_lsp_bridge.js', { rootDir, extension: '.js' });
   const maracaBridgeSyntax = syntaxCheckFile('scripts/rmt_playground_maraca_preview_bridge.js', { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile('tests/docs/rmt_playground_security_suite.js', { rootDir, extension: '.js' });
+  const legacyNodeMaracaSmoke = spawnSync(process.execPath, ['-e', [
+    'String.prototype.replaceAll = undefined;',
+    "const fs = require('fs');",
+    "const bridge = require('./tools/tooling-bridge');",
+    "const source = fs.readFileSync('products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt', 'utf8');",
+    "bridge.executeToolingBridgeOperation({ operation: 'maraca-plan', requestId: 'legacy-node-smoke', payload: { source, filePath: 'docs/rmt-playground-source.rmt', options: { profile: 'debug', lazy: 'component', css: 'external', stack: 'runtime', components: 'document', orchestration: 'auto', kernel: 'auto', hydration: 'auto', validation: 'auto', transitions: 'auto' } } }, { rootDir: process.cwd() }).then((result) => {",
+    "  const surfaceCount = result && result.result && result.result.orchestration && result.result.orchestration.summary && result.result.orchestration.summary.surfaceCount;",
+    "  if (!result || result.ok !== true || surfaceCount !== 15 || !result.result.kernel || result.result.kernel.enabled !== true) process.exitCode = 1;",
+    "}).catch(() => { process.exitCode = 1; });"
+  ].join('\n')], {
+    cwd: rootDir,
+    encoding: 'utf8',
+    timeout: 10000
+  });
 
   context.assert(indexSyntax.status === 0, `docs/index.php PHP syntax passes${indexSyntax.status === 0 ? '' : ` (${indexSyntax.stderr || indexSyntax.stdout})`}`);
   context.assert(loaderSyntax.ok, `Docs page loader syntax passes${loaderSyntax.ok ? '' : ` (${loaderSyntax.message})`}`);
   context.assert(lspBridgeSyntax.ok, `RMT playground LSP bridge syntax passes${lspBridgeSyntax.ok ? '' : ` (${lspBridgeSyntax.message})`}`);
   context.assert(maracaBridgeSyntax.ok, `RMT playground Maraca preview bridge syntax passes${maracaBridgeSyntax.ok ? '' : ` (${maracaBridgeSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `RMT playground security suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
+  context.assert(legacyNodeMaracaSmoke.status === 0, `Maraca plan bridge runs without String.prototype.replaceAll on the supported server runtime${legacyNodeMaracaSmoke.status === 0 ? '' : ` (${legacyNodeMaracaSmoke.stderr || 'bridge smoke failed'})`}`);
   context.assert(indexPhp.includes('REQUEST_METHOD') && indexPhp.includes('POST'), 'Compile endpoint enforces POST');
   context.assert(indexPhp.includes('CONTENT_LENGTH'), 'Compile endpoint checks request body size');
   context.assert(indexPhp.includes('64 * 1024'), 'Compile endpoint limits source size to 64 KB');
@@ -150,11 +166,13 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(lspBridge.includes('executeToolingBridgeOperation') && lspBridge.includes("operation: 'language-diagnostics'"), 'LSP compatibility bridge delegates to the official tooling bridge');
   context.assert(!legacyNodeSyntaxPattern.test(vnextCompiler) && !legacyNodeSyntaxPattern.test(vnextTooling), 'RMT Playground LSP server path avoids optional chaining and nullish coalescing for older Node runtimes');
   context.assert(maracaBridge.includes('executeToolingBridgeOperation') && maracaBridge.includes("operation: 'maraca-plan'"), 'Maraca compatibility bridge delegates planning and sanitization to the official tooling bridge');
+  context.assert(!toolingBridge.includes('.replaceAll(') && toolingBridge.includes('.split(normalizedRoot).join(\'[repo]\')'), 'Tooling bridge path redaction remains compatible with the older Node runtime supported by the Docs server');
   context.assert(pageLoader.includes("import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js'))") && pageLoader.includes('docsRmtDescriptorRenderer.render('), 'Preview client uses the cache-versioned stable DOM descriptor renderer export');
   context.assert(pageLoader.includes("import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs'))"), 'Preview client cache-busts the Maraca plan runtime with the Docs asset version');
   context.assert(indexPhp.includes("__DIR__ . '/../xtend-maraca/plan-runtime.mjs'") && indexPhp.includes("__DIR__ . '/../xtendrmt/rmt-dom-descriptor-renderer.js'"), 'Docs asset version tracks imported framework runtime modules');
   context.assert(playgroundClient.includes('DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES') && playgroundClient.includes('bootDocsRmtPlaygroundMaracaPreview'), 'Preview client boots the Maraca runtime preview from whitelisted modules');
   context.assert(playgroundClient.includes('playgroundMode: DOCS_RMT_PLAYGROUND_MARACA_MODE'), 'Compile requests opt into Maraca preview mode');
+  context.assert(playgroundClient.includes('data-rmt-playground-maraca-blocked') && playgroundClient.includes("phase: 'blocked'"), 'Maraca bridge failures fail closed instead of rendering unrelated fallback surfaces');
   context.assert(playgroundClient.includes('runDocsRmtPlaygroundLanguageDiagnostics'), 'Preview client calls live LSP diagnostics');
   context.assert(playgroundClient.includes('replaceChildren'), 'Preview client resets surfaces with replaceChildren');
   context.assert(!playgroundClient.includes('innerHTML'), 'Playground client does not use innerHTML');

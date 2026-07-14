@@ -29,7 +29,9 @@ function scrubBridgeValue(value, rootDir, depth = 0) {
   if (Array.isArray(value)) return value.map((entry) => scrubBridgeValue(entry, rootDir, depth + 1));
   if (!value || typeof value !== 'object') {
     if (typeof value !== 'string') return value;
-    return value.replaceAll(rootDir, '[repo]').replace(/\bWP-[A-Z0-9-]+\b/giu, 'compiler source');
+    const normalizedRoot = String(rootDir || '');
+    const redactedPath = normalizedRoot ? value.split(normalizedRoot).join('[repo]') : value;
+    return redactedPath.replace(/\bWP-[A-Z0-9-]+\b/giu, 'compiler source');
   }
   const output = {};
   for (const [key, entry] of Object.entries(value)) {
