@@ -187,12 +187,43 @@ export function createMaracaPlanRuntime(options = {}) {
     return Promise.all(work);
   }
 
-  function render() {
-    const descriptor = asRecord(artifact.render).root || { type: 'fragment', children: [] };
-    const context = runtimes.state && typeof runtimes.state.createRenderContext === 'function'
+  function createRenderContext() {
+    return runtimes.state && typeof runtimes.state.createRenderContext === 'function'
       ? runtimes.state.createRenderContext({ components: componentTags().map((tag) => ({ id: tag, tag })) })
       : { model: clone(plan.state, {}) };
-    const report = runtimes.renderer.render(root, descriptor, context);
+  }
+
+  function patchCommandSurfaces(commandId, reducers) {
+    if (!runtimes.renderer || typeof runtimes.renderer.patchElement !== 'function') return false;
+    const patchPlan = asRecord(artifact.patchPlan);
+    const reducerIds = new Set(reducers.map((reducer) => reducer && reducer.id).filter(Boolean));
+    const patches = (Array.isArray(patchPlan.reducers) ? patchPlan.reducers : []).filter((patch) => (
+      patch && patch.action === commandId && (!patch.reducer || reducerIds.has(patch.reducer))
+    ));
+    if (patches.length === 0 || patches.some((patch) => patch.strategy !== 'attribute-sync' || !patch.surface)) return false;
+    const descriptors = Array.isArray(asRecord(artifact.render).descriptors) ? asRecord(artifact.render).descriptors : [];
+    const descriptorBySurface = new Map(descriptors.filter(Boolean).map((descriptor) => [descriptor.surface, descriptor]));
+    const surfaceBySource = new Map((Array.isArray(artifact.surfaces) ? artifact.surfaces : []).filter(Boolean).map((surface) => [surface.source, surface.id]));
+    const validationSurfaces = (Array.isArray(patchPlan.validation) ? patchPlan.validation : [])
+      .filter((patch) => patch && patch.strategy === 'attribute-sync' && patch.targetState)
+      .map((patch) => surfaceBySource.get(patch.targetState))
+      .filter(Boolean);
+    const targets = [...new Set([...patches.map((patch) => patch.surface), ...validationSurfaces])].map((surfaceId) => ({
+      surfaceId,
+      element: surfaceElement(surfaceId),
+      descriptor: descriptorBySurface.get(surfaceId)
+    }));
+    if (targets.some((target) => !target.element || !target.descriptor)) return false;
+    const context = createRenderContext();
+    targets.forEach((target) => runtimes.renderer.patchElement(target.element, target.descriptor, context));
+    syncSurfaceVisibility();
+    publish('patch', { command: commandId, strategy: 'attribute-sync', surfaces: targets.map((target) => target.surfaceId) });
+    return true;
+  }
+
+  function render() {
+    const descriptor = asRecord(artifact.render).root || { type: 'fragment', children: [] };
+    const report = runtimes.renderer.render(root, descriptor, createRenderContext());
     syncSurfaceVisibility();
     renderCount += 1;
     if (runtimes.events && typeof runtimes.events.detachAll === 'function') runtimes.events.detachAll();
@@ -233,7 +264,7 @@ export function createMaracaPlanRuntime(options = {}) {
       } finally {
         renderSuspended -= 1;
       }
-      if (reducers.length > 0) render();
+      if (reducers.length > 0 && !patchCommandSurfaces(commandId, reducers)) render();
       if (transition) await runTransitionSurfaces(transition, transition.to || [], false, runtimes.state.snapshot(), transitionMetadata);
       publish('command', { command: commandId, status: result && result.status || 'success' });
       return result;

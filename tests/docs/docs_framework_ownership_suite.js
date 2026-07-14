@@ -109,7 +109,10 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   };
   const visibleNode = createSurfaceNode('wizard.contact');
   const hiddenNode = createSurfaceNode('wizard.issue');
+  const nextNode = createSurfaceNode('wizard.next');
+  hiddenNode.focusPreserved = true;
   const transitionCalls = [];
+  const patchCalls = [];
   const visibilityState = { contact: { hidden: false }, issue: { hidden: true } };
   const visibilityListeners = new Set();
   const visibilityRoot = {
@@ -131,16 +134,32 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
       findTransition: ({ action }) => action === 'wizard.next' ? { id: 'wizard.next-step', from: ['wizard.contact'], to: ['wizard.issue'] } : null,
       applyVisibilityPatch(input) { transitionCalls.push({ surface: input.surface, nextHidden: input.nextHidden }); return Promise.resolve({ status: 'complete' }); }
     }) },
-    renderer: { createRmtDomDescriptorRenderer: () => ({ render(root) { root.replaceChildren(visibleNode, hiddenNode); return { nodeCount: 2 }; } }) }
+    renderer: { createRmtDomDescriptorRenderer: () => ({
+      render(root) { root.replaceChildren(visibleNode, hiddenNode, nextNode); return { nodeCount: 3 }; },
+      patchElement(element, descriptor) { patchCalls.push({ element, surface: descriptor.surface }); return element; }
+    }) }
   };
   const visibilityPlan = { orchestration: { artifact: {
     state: { reducers: [
       { id: 'hide-contact', action: 'wizard.next', state: 'contact', path: 'hidden', value: true },
-      { id: 'show-issue', action: 'wizard.next', state: 'issue', path: 'hidden', value: false }
+      { id: 'show-issue', action: 'wizard.next', state: 'issue', path: 'hidden', value: false },
+      { id: 'update-issue', action: 'wizard.type', state: 'issue', path: 'value', value: 'input.value' }
     ] },
-    actions: { actions: [{ id: 'wizard.next' }] },
-    surfaces: [{ id: 'wizard.contact', source: 'contact' }, { id: 'wizard.issue', source: 'issue' }],
-    render: { root: { type: 'fragment', children: [] } }
+    actions: { actions: [{ id: 'wizard.next' }, { id: 'wizard.type' }] },
+    surfaces: [{ id: 'wizard.contact', source: 'contact' }, { id: 'wizard.issue', source: 'issue' }, { id: 'wizard.next', source: 'next' }],
+    render: {
+      descriptors: [
+        { id: 'surface:contact', surface: 'wizard.contact', type: 'component', tag: 'x-input' },
+        { id: 'surface:issue', surface: 'wizard.issue', type: 'component', tag: 'x-textarea' },
+        { id: 'surface:next', surface: 'wizard.next', type: 'component', tag: 'x-button' }
+      ],
+      root: { type: 'fragment', children: [] }
+    },
+    patchPlan: { reducers: [
+      { reducer: 'hide-contact', action: 'wizard.next', surface: 'wizard.contact', strategy: 'surface-transition' },
+      { reducer: 'show-issue', action: 'wizard.next', surface: 'wizard.issue', strategy: 'surface-transition' },
+      { reducer: 'update-issue', action: 'wizard.type', surface: 'wizard.issue', strategy: 'attribute-sync' }
+    ], validation: [{ id: 'validation:next', targetState: 'next', strategy: 'attribute-sync' }] }
   } }, transitions: { enabled: true, artifact: {} } };
   const visibilityRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
     plan: visibilityPlan,
@@ -154,6 +173,11 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   await visibilityRuntime.dispatchCommand('wizard.next');
   context.assert(transitionCalls.some((entry) => entry.surface === 'wizard.contact' && entry.nextHidden === true)
     && transitionCalls.some((entry) => entry.surface === 'wizard.issue' && entry.nextHidden === false), 'plan runtime routes wizard reducer visibility changes through the transition runtime');
+  const issueHost = visibilityRoot.children.find((element) => element === hiddenNode);
+  await visibilityRuntime.dispatchCommand('wizard.type', { value: 'a' });
+  context.assert(visibilityState.issue.value === 'a' && visibilityRoot.children.includes(issueHost)
+    && issueHost.focusPreserved === true && patchCalls.some((entry) => entry.element === issueHost && entry.surface === 'wizard.issue')
+    && patchCalls.some((entry) => entry.element === nextNode && entry.surface === 'wizard.next'), 'plan runtime applies input and validation patches without replacing the focused surface host');
   visibilityRuntime.dispose();
 
   const toolingBridge = require('../../tools/tooling-bridge');
